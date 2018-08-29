@@ -1,0 +1,479 @@
+import * as Q from 'QueryDescription'
+
+export const matchTests = [
+  {
+    name: 'matches everything',
+    query: [],
+    matching: [{ id: 'm1' }, { id: 'm2', num1: 10 }],
+    nonMatching: [],
+  },
+  {
+    name: 'matches strings',
+    query: [Q.where('text1', 'value1')],
+    matching: [{ id: 'm1', text1: 'value1' }],
+    nonMatching: [{ id: 'n1' }, { id: 'n2', text1: null }, { id: 'n3', text1: 'other_value' }],
+  },
+  {
+    name: 'matches `true`',
+    query: [Q.where('bool1', true)],
+    matching: [{ id: 'm1', bool1: true }, { id: 'm2', bool1: 1 }],
+    nonMatching: [
+      { id: 'n1' },
+      { id: 'n2', bool1: null },
+      { id: 'n3', bool1: false },
+      { id: 'n4', bool1: 0 },
+    ],
+  },
+  {
+    name: 'matches `false`',
+    query: [Q.where('bool2', false)],
+    matching: [{ id: 'm1', bool2: false }, { id: 'm2', bool2: 0 }],
+    nonMatching: [
+      { id: 'n1' },
+      { id: 'n2', bool2: null },
+      { id: 'n3', bool2: true },
+      { id: 'n4', bool2: 1 },
+    ],
+  },
+  {
+    name: 'matches `null`',
+    query: [Q.where('num1', null)],
+    matching: [{ id: 'm1' }, { id: 'm2', num1: null }, { id: 'm3', num1: undefined }],
+    nonMatching: [{ id: 'n1', num1: 0 }, { id: 'n2', num1: false }, { id: 'n3', num1: '' }],
+  },
+  {
+    name: 'matches integers (0)',
+    query: [Q.where('num1', 0)],
+    matching: [{ id: 'm1', num1: 0 }, { id: 'm2', num1: false }],
+    nonMatching: [
+      { id: 'n1' },
+      { id: 'n2', num1: null },
+      { id: 'n3', num1: 1 },
+      { id: 'n4', num1: true },
+    ],
+  },
+  {
+    name: 'matches integers (1)',
+    query: [Q.where('num1', 1)],
+    matching: [{ id: 'm1', num1: 1 }, { id: 'm2', num1: true }],
+    nonMatching: [
+      { id: 'n1' },
+      { id: 'n2', num1: null },
+      { id: 'n3', num1: 0 },
+      { id: 'n4', num1: false },
+    ],
+  },
+  {
+    name: 'matches floats',
+    query: [Q.where('float1', 3.14)],
+    matching: [{ id: 'm1', float1: 3.14 }],
+    nonMatching: [{ id: 'n1', float1: null }, { id: 'n2', float1: 1.0 }],
+  },
+  {
+    name: 'matches multiple conditions',
+    query: [
+      Q.where('text1', `value1`),
+      Q.where('num1', 2),
+      Q.where('bool1', true),
+      Q.where('bool2', false),
+      Q.where('float1', null),
+    ],
+    matching: [
+      { id: 'm1', text1: 'value1', num1: 2, bool1: true, bool2: false, float1: null },
+      { id: 'm2', text1: 'value1', num1: 2, bool1: 1, bool2: 0 },
+    ],
+    nonMatching: [
+      { id: 'n1' },
+      { id: 'n2', text1: 'value2', num1: 2, bool1: true, bool2: false, float1: null },
+      { id: 'n3', text1: 'value1', num1: 2, bool1: true, bool2: true, float1: null },
+    ],
+  },
+  {
+    name: 'matches by greater-than',
+    query: [Q.where('num1', Q.gt(2))],
+    matching: [{ id: 'm1', num1: 3 }],
+    nonMatching: [
+      { id: 'n1' },
+      { id: 'n2', num1: null },
+      { id: 'n3', num1: undefined },
+      { id: 'n4', num1: 0 },
+      { id: 'n5', num1: 2 },
+    ],
+  },
+  {
+    name: 'matches by greater-than-or-equal',
+    query: [Q.where('float1', Q.gte(2.1))],
+    matching: [{ id: 'm1', float1: 2.1 }, { id: 'm2', float1: 5 }],
+    nonMatching: [
+      { id: 'n1' },
+      { id: 'n2', float1: null },
+      { id: 'n3', float1: undefined },
+      { id: 'n4', float1: 0 },
+      { id: 'n5', float1: 2 },
+      { id: 'n6', float1: 2.09 },
+    ],
+  },
+  {
+    name: 'matches by greater-than with JS-like semantics',
+    query: [Q.where('num1', Q.weakGt(2))],
+    matching: [{ id: 'm1', num1: 3 }],
+    nonMatching: [
+      { id: 'n1' },
+      { id: 'n2', num1: null },
+      { id: 'n3', num1: undefined },
+      { id: 'n4', num1: 0 },
+      { id: 'n5', num1: 2 },
+    ],
+  },
+  {
+    name: 'matches by less-than',
+    query: [Q.where('float1', Q.lt(2))],
+    matching: [{ id: 'm1', float1: 1 }, { id: 'm2', float1: 0 }],
+    nonMatching: [{ id: 'n1', float1: 2 }, { id: 'n2', float1: null }, { id: 'n3' }],
+  },
+  {
+    name: 'matches by less-than-or-equal',
+    query: [Q.where('float1', Q.lte(2))],
+    matching: [{ id: 'm1', float1: 2 }, { id: 'm2', float1: 0 }],
+    nonMatching: [{ id: 'n1', float1: 2.1 }, { id: 'n2', float1: null }, { id: 'n3' }],
+  },
+  {
+    name: 'matches by not-equal',
+    query: [Q.where('text1', Q.notEq('foo'))],
+    matching: [
+      { id: 'm1' },
+      { id: 'm2', text1: undefined },
+      { id: 'm3', text1: null },
+      { id: 'm4', text1: 'blah' },
+      { id: 'm5', text1: 'Foo' },
+      { id: 'm6', text1: 'FOO' },
+    ],
+    nonMatching: [{ id: 'n1', text1: 'foo' }],
+  },
+  {
+    name: 'matches not-equal(null)',
+    query: [Q.where('num1', Q.notEq(null))],
+    matching: [
+      { id: 'm1', num1: 1 },
+      { id: 'm2', num1: 0 },
+      { id: 'm3', num1: false },
+      { id: 'm4', num1: '' },
+    ],
+    nonMatching: [{ id: 'n1', num1: null }, { id: 'n2', num1: undefined }, { id: 'n3' }],
+  },
+  {
+    name: 'matches by IN',
+    query: [Q.where('num1', Q.oneOf([0, 1, 2]))],
+    matching: [{ id: 'm1', num1: 0 }, { id: 'm2', num1: 2 }],
+    nonMatching: [{ id: 'n1' }, { id: 'n2', num1: null }, { id: 'n3', num1: 10 }],
+  },
+  {
+    name: 'matches by NOT IN',
+    query: [Q.where('num1', Q.notIn([0, 1, 2]))],
+    matching: [{ id: 'm1', num1: 5 }, { id: 'm2', num1: 10 }],
+    nonMatching: [
+      { id: 'n1', num1: 0 },
+      { id: 'n2', num1: 2 },
+      { id: 'n3', num1: null },
+      { id: 'n4', num1: undefined },
+      { id: 'n5' },
+    ],
+  },
+  {
+    name: 'matches by BETWEEN',
+    query: [Q.where('float1', Q.between(5, 10))],
+    matching: [{ id: 'm1', float1: 5 }, { id: 'm2', float1: 10 }],
+    nonMatching: [
+      { id: 'n1' },
+      { id: 'n2', float1: null },
+      { id: 'n3', float1: 4 },
+      { id: 'n4', float1: 11 },
+    ],
+  },
+  {
+    name: 'can compare columns (greater-than/float)',
+    query: [Q.where('float1', Q.gt(Q.column('float2')))],
+    matching: [{ id: 'm1', float1: 10, float2: 5 }, { id: 'm2', float1: 5.1, float2: 5.09 }],
+    nonMatching: [
+      { id: 'n1' },
+      { id: 'n2', float1: null },
+      { id: 'n3', float2: null },
+      { id: 'n4', float1: null, float2: null },
+      { id: 'n5', float1: 5, float2: 10 },
+      { id: 'n6', float1: 5 },
+      { id: 'n7', float1: 5, float2: null },
+      { id: 'n8', float2: 10 },
+      { id: 'n9', float1: null, float2: 10 },
+      { id: 'n10', float1: 4.5, float2: 4.6 },
+    ],
+  },
+  {
+    name: 'can compare columns (greater-than-or-equal/integer)',
+    query: [Q.where('num1', Q.gte(Q.column('num2')))],
+    matching: [{ id: 'm1', num1: 10, num2: 5 }, { id: 'm2', num1: 5, num2: 5 }],
+    nonMatching: [
+      { id: 'n1' },
+      { id: 'n2', num1: null },
+      { id: 'n3', num2: null },
+      { id: 'n4', num1: null, num2: null },
+      { id: 'n5', num1: 5, num2: 10 },
+      { id: 'n6', num1: 5 },
+      { id: 'n7', num1: 5, num2: null },
+      { id: 'n8', num2: 10 },
+      { id: 'n9', num1: null, num2: 10 },
+    ],
+  },
+  {
+    name: 'can compare columns (string/null)',
+    query: [Q.where('text1', Q.eq(Q.column('text2')))],
+    matching: [
+      { id: 'm1', text1: null },
+      { id: 'm2', text2: null },
+      { id: 'm3', text1: null, text2: null },
+      { id: 'm4', text1: undefined, text2: null },
+      { id: 'm5', text1: 'hey', text2: 'hey' },
+    ],
+    nonMatching: [
+      { id: 'n1', text1: '', text2: null },
+      { id: 'n2', text2: '' },
+      { id: 'n3', text1: 'hey' },
+      { id: 'n4', text1: 'hey', text2: 'HEY' },
+    ],
+  },
+  {
+    name: 'can compare columns (greater-than with JS semantics)',
+    query: [Q.where('num1', Q.weakGt(Q.column('num2')))],
+    matching: [
+      { id: 'm1', num1: 10, num2: 5 },
+      { id: 'm2', num1: 5 },
+      { id: 'm3', num1: 5, num2: null },
+      { id: 'm4', num1: 5, num2: undefined },
+      { id: 'm5', num1: 0 },
+      { id: 'm6', num1: 0, num2: null },
+    ],
+    nonMatching: [
+      { id: 'n1' },
+      { id: 'n2', num1: null },
+      { id: 'n3', num2: null },
+      { id: 'n4', num1: null, num2: null },
+      { id: 'n5', num1: 5, num2: 10 },
+      { id: 'n8', num2: 10 },
+      { id: 'n9', num1: null, num2: 10 },
+    ],
+  },
+  {
+    name: 'matches complex queries with AND/OR nesting',
+    query: [
+      Q.where('text1', 'value'),
+      Q.or(
+        Q.where('bool1', true),
+        Q.where('text2', null),
+        Q.and(Q.where('float1', Q.gt(5)), Q.where('float2', Q.notIn([6, 7]))),
+      ),
+    ],
+    matching: [
+      { id: 'm1', text1: 'value', bool1: true, text2: 'abc' },
+      { id: 'm2', text1: 'value', bool1: false, text2: null },
+      { id: 'm3', text1: 'value', bool1: false },
+      { id: 'm4', text1: 'value', bool1: false, text2: 'abc', float1: 8, float2: 0 },
+    ],
+    nonMatching: [
+      { id: 'n1', text1: 'bad', bool1: true },
+      { id: 'n2', text1: 'value', text2: 'abc' },
+      { id: 'n3', text1: 'value', bool1: false, text2: 'abc' },
+      { id: 'n4', text1: 'value', text2: 'abc', float1: 4 },
+      { id: 'n5', text1: 'value', text2: 'abc', float1: 5, float2: 0 },
+      { id: 'n6', text1: 'value', text2: 'abc', float1: 6, float2: 6 },
+      { id: 'n7', text1: 'value', text2: 'abc', float1: 19, float2: 7 },
+      { id: 'n8', text1: 'value', bool1: false, text2: 'abc', float1: 8 },
+      { id: 'n9', text1: 'value', bool1: false, text2: 'abc', float1: 8, float2: null },
+    ],
+  },
+  {
+    name: 'can match by less-than with JS semantics',
+    query: [Q.or(Q.where('num1', Q.lt(2)), Q.where('num1', null))],
+    matching: [{ id: 'm1', num1: 1 }, { id: 'm2', num1: null }, { id: 'm3' }],
+    nonMatching: [{ id: 'n1', num1: 2 }],
+  },
+  {
+    name: 'can match by NOT IN with JS semantics',
+    query: [Q.or(Q.where('num1', Q.notIn([0, 1, 2])), Q.where('num1', null))],
+    matching: [{ id: 'm1' }, { id: 'm2', num1: null }, { id: 'm3', num1: 10 }],
+    nonMatching: [{ id: 'n1', num1: 0 }, { id: 'n2', num1: 2 }],
+  },
+]
+
+export const joinTests = [
+  {
+    name: 'can perform simple JOIN queries',
+    query: [Q.on('projects', 'text1', 't1')],
+    extraRecords: {
+      projects: [{ id: 'p1', text1: 't1' }, { id: 'p2', text1: 't1' }, { id: 'p3', text1: 't2' }],
+    },
+    matching: [
+      { id: 'm1', project_id: 'p1' },
+      { id: 'm2', project_id: 'p1' },
+      { id: 'm3', project_id: 'p2' },
+    ],
+    nonMatching: [{ id: 'm4', project_id: 'p3' }],
+  },
+  {
+    name: 'can perform complex JOIN queries',
+    query: [
+      Q.on('projects', 'text1', 'abcdef'),
+      Q.where('text1', 'val1'),
+      Q.on('tag_assignments', 'text1', Q.oneOf(['a', 'b', 'c'])),
+      Q.on('projects', 'bool1', true),
+    ],
+    extraRecords: {
+      projects: [
+        { id: 'p2', text1: 'abcdef', bool1: true },
+        { id: 'p3', text1: 'abcdef', bool1: true },
+        // bad:
+        { id: 'p1', text1: 'abcdef', bool1: false },
+        { id: 'p4', text1: 'other', bool1: true },
+      ],
+      tag_assignments: [
+        { id: 'tt1', text1: 'a', task_id: 'm1' },
+        { id: 'tt2', text1: 'a', task_id: 'm2' },
+        { id: 'tt3', text1: 'b', task_id: 'm1' },
+        { id: 'tt4', text1: 'c', task_id: 'm3' },
+        { id: 'tt5', text1: 'c', task_id: 'm4' },
+        { id: 'tt6', text1: 'c', task_id: 'n1' },
+        { id: 'tt7', text1: 'c', task_id: 'n2' },
+        // bad:
+        { id: 'tt8', text1: 'd', task_id: 'm4' },
+        { id: 'tt9', text1: 'd', task_id: 'n4' },
+      ],
+    },
+    matching: [
+      { id: 'm1', text1: 'val1', project_id: 'p2' },
+      { id: 'm2', text1: 'val1', project_id: 'p2' },
+      { id: 'm3', text1: 'val1', project_id: 'p3' },
+      { id: 'm4', text1: 'val1', project_id: 'p3' },
+    ],
+    nonMatching: [
+      { id: 'n1', text1: 'other', project_id: 'p2' },
+      { id: 'n2', text1: 'val1', project_id: 'p1' }, // bad project
+      { id: 'n3', text1: 'val1', project_id: 'p4' }, // bad project
+      { id: 'n4', text1: 'val1', project_id: 'p2' }, // bad task_assignment
+      { id: 'n5', text1: 'val1', project_id: 'p3' }, // no task_assignment
+    ],
+  },
+  {
+    name: 'can perform both JOIN queries and column comparisons',
+    query: [Q.on('projects', 'text1', 't1'), Q.where('text1', Q.eq(Q.column('text2')))],
+    extraRecords: {
+      projects: [{ id: 'p1', text1: 't1' }, { id: 'p2', text1: 't1' }, { id: 'p3', text1: 't2' }],
+    },
+    matching: [
+      { id: 'm1', project_id: 'p1', text1: 'a', text2: 'a' },
+      { id: 'm2', project_id: 'p1', text1: null },
+      { id: 'm3', project_id: 'p2', text1: 'Foo', text2: 'Foo' },
+    ],
+    nonMatching: [
+      { id: 'n1', project_id: 'p3' },
+      { id: 'n2', project_id: 'p3', text1: 'a', text2: 'a' },
+      { id: 'n3', project_id: 'p1', text1: 'a', text2: 'b' },
+      { id: 'n4', project_id: 'p2', text1: 'foo', text2: 'Foo' },
+      { id: 'n5', project_id: 'p1', text1: null, text2: false },
+    ],
+  },
+  {
+    name: 'can perform a JOIN query containing column comparison',
+    query: [
+      Q.where('text1', 'val1'),
+      Q.on('projects', 'text1', 'val2'),
+      Q.on('projects', 'text2', Q.eq(Q.column('text3'))),
+    ],
+    extraRecords: {
+      projects: [
+        { id: 'p1', text1: 'val2', text2: 'a', text3: 'a' },
+        { id: 'p2', text1: 'val2', text2: null },
+        { id: 'p3', text1: 'val2' },
+        { id: 'badp1' },
+        { id: 'badp2', text2: 'a', text3: 'b' },
+        { id: 'badp3', text1: 'val2', text2: 'a', text3: 'b' },
+      ],
+    },
+    matching: [
+      { id: 'm1', project_id: 'p1', text1: 'val1' },
+      { id: 'm2', project_id: 'p2', text1: 'val1' },
+      { id: 'm3', project_id: 'p3', text1: 'val1' },
+    ],
+    nonMatching: [
+      { id: 'n1', project_id: 'p3' },
+      { id: 'n2', project_id: 'p2', text1: 'bad' },
+      { id: 'n3', project_id: 'badp1', text1: 'val1' },
+      { id: 'n4', project_id: 'badp2', text1: 'val1' },
+      { id: 'n5', project_id: 'badp3', text1: 'val1' },
+      { id: 'n6', project_id: 'badp3' },
+    ],
+  },
+  {
+    name: 'can perform a JOIN query containing JGT column comparison',
+    query: [Q.on('projects', 'num1', Q.weakGt(Q.column('num2')))],
+    extraRecords: {
+      projects: [
+        { id: 'p1', num1: 10, num2: 5 },
+        { id: 'p2', num1: 5 },
+        { id: 'p3', num1: 5, num2: null },
+        { id: 'p4', num1: 5, num2: undefined },
+        { id: 'p5', num1: 0 },
+        { id: 'p6', num1: 0, num2: null },
+
+        { id: 'badp1' },
+        { id: 'badp2', num1: null },
+        { id: 'badp3', num2: null },
+        { id: 'badp4', num1: null, num2: null },
+        { id: 'badp5', num1: 5, num2: 10 },
+        { id: 'badp6', num2: 10 },
+        { id: 'badp7', num1: null, num2: 10 },
+      ],
+    },
+    matching: [
+      { id: 'm1', project_id: 'p1' },
+      { id: 'm2', project_id: 'p2' },
+      { id: 'm3', project_id: 'p3' },
+      { id: 'm4', project_id: 'p4' },
+      { id: 'm5', project_id: 'p5' },
+      { id: 'm6', project_id: 'p6' },
+    ],
+    nonMatching: [
+      { id: 'n1', project_id: 'badp1' },
+      { id: 'n2', project_id: 'badp2' },
+      { id: 'n3', project_id: 'badp3' },
+      { id: 'n4', project_id: 'badp4' },
+      { id: 'n5', project_id: 'badp5' },
+      { id: 'n6', project_id: 'badp6' },
+      { id: 'n7', project_id: 'badp7' },
+    ],
+  },
+  {
+    name: 'can perform a JOIN query on has_many collection with column comparisons',
+    query: [Q.where('text1', 'val1'), Q.on('tag_assignments', 'num1', Q.gt(Q.column('num2')))],
+    extraRecords: {
+      tag_assignments: [
+        { id: 'tt1', task_id: 'm1', num1: 5, num2: 0 },
+        { id: 'tt2', task_id: 'm2', num1: 10, num2: 5 },
+        { id: 'tt3', task_id: 'n1', num1: 5, num2: 0 },
+        { id: 'tt4', task_id: 'n2', num1: 10, num2: 5 },
+        { id: 'badtt1', task_id: 'n3', num1: 0, num2: 0 },
+        { id: 'badtt2', task_id: 'n4' },
+        { id: 'badtt3', task_id: 'n5', num1: 10, num2: 10 },
+        { id: 'badtt4', task_id: 'n6', num1: 0, num2: 15 },
+      ],
+    },
+    matching: [{ id: 'm1', text1: 'val1' }, { id: 'm2', text1: 'val1' }],
+    nonMatching: [
+      { id: 'n1' },
+      { id: 'n2' },
+      { id: 'n3', text1: 'val1' },
+      { id: 'n4', text1: 'val1' },
+      { id: 'n5', text1: 'val1' },
+      { id: 'n6', text1: 'val1' },
+      { id: 'n7', text1: 'val1' }, // no TT
+      { id: 'n8' }, // no TT
+    ],
+  },
+]
