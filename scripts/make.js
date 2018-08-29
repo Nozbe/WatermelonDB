@@ -101,7 +101,7 @@ const buildPathMapping = format =>
 
       return {
         key: createModuleName(name),
-        value: `${pkg.name}/dist/${format}${name}`,
+        value: `${pkg.name}/${format}${name}`,
       }
     }),
     pathMappingTemplate,
@@ -175,7 +175,7 @@ const buildEsmModules = buildModules(ESM_MODULES)
 
 createDistFolder()
 createPackageJson(pkg)
-copyFilesToDistFolder(['LICENSE', 'README.md', 'yarn.lock', 'docs', 'src'])
+copyFilesToDistFolder(['LICENSE', 'README.md', 'yarn.lock', 'docs', 'src', 'native'])
 buildCjsPathMapping(modules)
 buildEsmPathMapping(modules)
 buildEsmModules(modules)
