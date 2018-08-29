@@ -1,3 +1,5 @@
+![WatermelonDB](assets/logo.png)
+
 # WatermelonDB
 
 ![MIT License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)
@@ -6,7 +8,7 @@
 
 #### Next-generation React database
 
-###### Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain _fast_
+> Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain _fast_
 
 |   | WatermelonDB |
 | - | ------------ |
