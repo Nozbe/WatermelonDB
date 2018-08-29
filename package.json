@@ -5,7 +5,7 @@
   "scripts": {
     "clean": "shx rm -rf ./dist",
     "make": "NODE_ENV=production node ./scripts/make.js",
-    "up": "node ./scripts/publish.js",
+    "release": "node ./scripts/publish.js",
     "build": "npm-run-all clean make",
     "flow": "flow check",
     "eslint": "eslint ./src -c ./.eslintrc.yml --cache --cache-location ./.cache/.eslintcache",
