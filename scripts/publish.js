@@ -90,7 +90,8 @@ const buildTasks = options => {
     },
     {
       title: 'publish package',
-      task: () => execa('cd', ['./dist']).then(() => execa('yarn', ['publish'])),
+      task: () =>
+        execa('cd', ['./dist']).then(() => execa('yarn', ['publish', '--new-version', version])),
     },
     {
       title: 'push tags',
