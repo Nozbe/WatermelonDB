@@ -11,7 +11,7 @@
     "flow": "flow check",
     "eslint": "eslint ./src -c ./.eslintrc.yml --cache --cache-location ./.cache/.eslintcache",
     "test": "jest --config=./jest.config.js --forceExit --detectOpenHandles --no-cache",
-    "prepublish": "npm-run-all clean build"
+    "prepare": "npm-run-all clean build"
   },
   "author": "@Nozbe",
   "homepage": "https://github.com/Nozbe/WatermelonDB#readme",
