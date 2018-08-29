@@ -2,16 +2,14 @@
   "name": "@nozbe/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
   "version": "0.1.4",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "sideEffects": false,
   "scripts": {
     "clean": "shx rm -rf ./dist",
     "build": "NODE_ENV=production node ./scripts/make.js",
     "flow": "flow check",
     "eslint": "eslint ./src -c ./.eslintrc.yml --cache --cache-location ./.cache/.eslintcache",
     "test": "jest --config=./jest.config.js --forceExit --detectOpenHandles --no-cache",
-    "prepare": "npm-run-all clean build"
+    "prepublish": "npm-run-all clean build",
+    "release": "np --content=./dist"
   },
   "author": "@Nozbe",
   "homepage": "https://github.com/Nozbe/WatermelonDB#readme",
