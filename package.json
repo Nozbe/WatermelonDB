@@ -4,11 +4,12 @@
   "version": "0.1.4",
   "scripts": {
     "clean": "shx rm -rf ./dist",
-    "build": "NODE_ENV=production node ./scripts/make.js",
+    "make": "NODE_ENV=production node ./scripts/make.js",
+    "up": "node ./scripts/publish.js",
+    "build": "npm-run-all clean make",
     "flow": "flow check",
     "eslint": "eslint ./src -c ./.eslintrc.yml --cache --cache-location ./.cache/.eslintcache",
-    "test": "jest --config=./jest.config.js --forceExit --detectOpenHandles --no-cache",
-    "prepublish": "npm-run-all clean build"
+    "test": "jest --config=./jest.config.js --forceExit --detectOpenHandles --no-cache"
   },
   "author": "@Nozbe",
   "homepage": "https://github.com/Nozbe/WatermelonDB#readme",
