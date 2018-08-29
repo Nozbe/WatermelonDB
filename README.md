@@ -1,10 +1,10 @@
-# WatermelonDB
+![WatermelonDB](assets/logo.png)
+
+-----
 
 ![MIT License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)
 [![CI Status](https://api.travis-ci.org/Nozbe/WatermelonDB.svg?branch=master)](https://travis-ci.org/Nozbe/WatermelonDB)
 [![npm](https://img.shields.io/npm/v/@nozbe/watermelondb.svg)](https://www.npmjs.com/package/@nozbe/watermelondb)
-
-![WatermelonDB](assets/logo.png)
 
 #### Next-generation React database
 
