@@ -1,0 +1,359 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4D78F0D92135854E001A63A8 /* DatabaseBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D78F0C82135854E001A63A8 /* DatabaseBridge.swift */; };
+		4D78F0DA2135854E001A63A8 /* DatabaseBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D78F0C92135854E001A63A8 /* DatabaseBridge.m */; };
+		4D78F0DB2135854E001A63A8 /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D78F0CA2135854E001A63A8 /* Database.swift */; };
+		4D78F0DC2135854E001A63A8 /* DatabaseDriver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D78F0CB2135854E001A63A8 /* DatabaseDriver.swift */; };
+		4D78F0DD2135854E001A63A8 /* Bridging.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D78F0CD2135854E001A63A8 /* Bridging.h */; };
+		4D78F0DE2135854E001A63A8 /* BridgeTestReporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D78F0D02135854E001A63A8 /* BridgeTestReporter.m */; };
+		4D78F0DF2135854E001A63A8 /* std_ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D78F0D12135854E001A63A8 /* std_ext.swift */; };
+		4D78F0E02135854E001A63A8 /* BridgeTestReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D78F0D22135854E001A63A8 /* BridgeTestReporter.swift */; };
+		4D78F0E12135854E001A63A8 /* DatabaseDriverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D78F0D42135854E001A63A8 /* DatabaseDriverTests.swift */; };
+		4D78F0E22135854E001A63A8 /* BridgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D78F0D52135854E001A63A8 /* BridgeTests.swift */; };
+		4D78F0E32135854E001A63A8 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D78F0D72135854E001A63A8 /* Tests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		4D78F0BB213584A8001A63A8 /* libWatermelonDB.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libWatermelonDB.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4D78F0C82135854E001A63A8 /* DatabaseBridge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseBridge.swift; sourceTree = "<group>"; };
+		4D78F0C92135854E001A63A8 /* DatabaseBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DatabaseBridge.m; sourceTree = "<group>"; };
+		4D78F0CA2135854E001A63A8 /* Database.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Database.swift; sourceTree = "<group>"; };
+		4D78F0CB2135854E001A63A8 /* DatabaseDriver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseDriver.swift; sourceTree = "<group>"; };
+		4D78F0CD2135854E001A63A8 /* Bridging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Bridging.h; sourceTree = "<group>"; };
+		4D78F0CE2135854E001A63A8 /* WatermelonDB.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = WatermelonDB.modulemap; sourceTree = "<group>"; };
+		4D78F0D02135854E001A63A8 /* BridgeTestReporter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BridgeTestReporter.m; sourceTree = "<group>"; };
+		4D78F0D12135854E001A63A8 /* std_ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = std_ext.swift; sourceTree = "<group>"; };
+		4D78F0D22135854E001A63A8 /* BridgeTestReporter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BridgeTestReporter.swift; sourceTree = "<group>"; };
+		4D78F0D42135854E001A63A8 /* DatabaseDriverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseDriverTests.swift; sourceTree = "<group>"; };
+		4D78F0D52135854E001A63A8 /* BridgeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BridgeTests.swift; sourceTree = "<group>"; };
+		4D78F0D72135854E001A63A8 /* Tests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
+		4D78F0D82135854E001A63A8 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4D78F0B8213584A8001A63A8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4D78F0B2213584A7001A63A8 = {
+			isa = PBXGroup;
+			children = (
+				4D78F0C72135854E001A63A8 /* WatermelonDB */,
+				4D78F0D32135854E001A63A8 /* WatermelonDBTests */,
+				4D78F0BC213584A8001A63A8 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4D78F0BC213584A8001A63A8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4D78F0BB213584A8001A63A8 /* libWatermelonDB.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4D78F0C72135854E001A63A8 /* WatermelonDB */ = {
+			isa = PBXGroup;
+			children = (
+				4D78F0C82135854E001A63A8 /* DatabaseBridge.swift */,
+				4D78F0C92135854E001A63A8 /* DatabaseBridge.m */,
+				4D78F0CA2135854E001A63A8 /* Database.swift */,
+				4D78F0CB2135854E001A63A8 /* DatabaseDriver.swift */,
+				4D78F0CC2135854E001A63A8 /* SupportingFiles */,
+				4D78F0CF2135854E001A63A8 /* Helpers */,
+			);
+			path = WatermelonDB;
+			sourceTree = "<group>";
+		};
+		4D78F0CC2135854E001A63A8 /* SupportingFiles */ = {
+			isa = PBXGroup;
+			children = (
+				4D78F0CD2135854E001A63A8 /* Bridging.h */,
+				4D78F0CE2135854E001A63A8 /* WatermelonDB.modulemap */,
+			);
+			path = SupportingFiles;
+			sourceTree = "<group>";
+		};
+		4D78F0CF2135854E001A63A8 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				4D78F0D02135854E001A63A8 /* BridgeTestReporter.m */,
+				4D78F0D12135854E001A63A8 /* std_ext.swift */,
+				4D78F0D22135854E001A63A8 /* BridgeTestReporter.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		4D78F0D32135854E001A63A8 /* WatermelonDBTests */ = {
+			isa = PBXGroup;
+			children = (
+				4D78F0D42135854E001A63A8 /* DatabaseDriverTests.swift */,
+				4D78F0D52135854E001A63A8 /* BridgeTests.swift */,
+				4D78F0D62135854E001A63A8 /* SupportingFiles */,
+			);
+			path = WatermelonDBTests;
+			sourceTree = "<group>";
+		};
+		4D78F0D62135854E001A63A8 /* SupportingFiles */ = {
+			isa = PBXGroup;
+			children = (
+				4D78F0D72135854E001A63A8 /* Tests.swift */,
+				4D78F0D82135854E001A63A8 /* Info.plist */,
+			);
+			path = SupportingFiles;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		4D78F0B9213584A8001A63A8 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4D78F0DD2135854E001A63A8 /* Bridging.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		4D78F0BA213584A8001A63A8 /* WatermelonDB */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4D78F0C4213584A8001A63A8 /* Build configuration list for PBXNativeTarget "WatermelonDB" */;
+			buildPhases = (
+				4D78F0B7213584A8001A63A8 /* Sources */,
+				4D78F0B8213584A8001A63A8 /* Frameworks */,
+				4D78F0B9213584A8001A63A8 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WatermelonDB;
+			productName = WatermelonDB;
+			productReference = 4D78F0BB213584A8001A63A8 /* libWatermelonDB.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4D78F0B3213584A7001A63A8 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0940;
+				ORGANIZATIONNAME = Nozbe;
+				TargetAttributes = {
+					4D78F0BA213584A8001A63A8 = {
+						CreatedOnToolsVersion = 9.4.1;
+					};
+				};
+			};
+			buildConfigurationList = 4D78F0B6213584A7001A63A8 /* Build configuration list for PBXProject "WatermelonDB" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 4D78F0B2213584A7001A63A8;
+			productRefGroup = 4D78F0BC213584A8001A63A8 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4D78F0BA213584A8001A63A8 /* WatermelonDB */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4D78F0B7213584A8001A63A8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4D78F0E12135854E001A63A8 /* DatabaseDriverTests.swift in Sources */,
+				4D78F0E32135854E001A63A8 /* Tests.swift in Sources */,
+				4D78F0DE2135854E001A63A8 /* BridgeTestReporter.m in Sources */,
+				4D78F0DC2135854E001A63A8 /* DatabaseDriver.swift in Sources */,
+				4D78F0DB2135854E001A63A8 /* Database.swift in Sources */,
+				4D78F0E22135854E001A63A8 /* BridgeTests.swift in Sources */,
+				4D78F0D92135854E001A63A8 /* DatabaseBridge.swift in Sources */,
+				4D78F0DA2135854E001A63A8 /* DatabaseBridge.m in Sources */,
+				4D78F0DF2135854E001A63A8 /* std_ext.swift in Sources */,
+				4D78F0E02135854E001A63A8 /* BridgeTestReporter.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4D78F0C2213584A8001A63A8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		4D78F0C3213584A8001A63A8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		4D78F0C5213584A8001A63A8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		4D78F0C6213584A8001A63A8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4D78F0B6213584A7001A63A8 /* Build configuration list for PBXProject "WatermelonDB" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4D78F0C2213584A8001A63A8 /* Debug */,
+				4D78F0C3213584A8001A63A8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4D78F0C4213584A8001A63A8 /* Build configuration list for PBXNativeTarget "WatermelonDB" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4D78F0C5213584A8001A63A8 /* Debug */,
+				4D78F0C6213584A8001A63A8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4D78F0B3213584A7001A63A8 /* Project object */;
+}
