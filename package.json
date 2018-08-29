@@ -39,6 +39,9 @@
     "lokijs": "^1.5.5",
     "react-native": "^0.56.0"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "@babel/cli": "^7.0.0-beta.56",
     "@babel/core": "^7.0.0-beta.56",
