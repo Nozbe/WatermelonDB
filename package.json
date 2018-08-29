@@ -9,7 +9,8 @@
     "build": "NODE_ENV=production node ./scripts/make.js",
     "flow": "flow check",
     "eslint": "eslint ./src -c ./.eslintrc.yml --cache --cache-location ./.cache/.eslintcache",
-    "test": "jest --config=./jest.config.js --forceExit --detectOpenHandles --no-cache"
+    "test": "jest --config=./jest.config.js --forceExit --detectOpenHandles --no-cache",
+    "postinstall": "yarn build"
   },
   "author": "@Nozbe",
   "homepage": "https://github.com/Nozbe/WatermelonDB#readme",
