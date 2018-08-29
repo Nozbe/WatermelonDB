@@ -13,13 +13,16 @@ const {
   replace,
   join,
   reduce,
+  omit,
+  merge,
+  forEach,
 } = require('rambdax')
 
 const rollup = require('rollup')
 const klaw = require('klaw-sync')
 const mkdirp = require('mkdirp')
 const path = require('path')
-const fs = require('fs')
+const fs = require('fs-extra')
 
 const pkg = require('../package.json')
 const rollupConfig = require('./rollup.config')
@@ -144,11 +147,34 @@ const buildModule = format => async file => {
   await bundle.write(outputOptions)
 }
 
-const buildModules = format => mapAsync(buildModule(format))
+const prepareJson = pipe(
+  omit(['scripts']),
+  merge({
+    main: './cjs/index.js',
+    module: './esm/index.js',
+    sideEffects: false,
+  }),
+  obj => JSON.stringify(obj),
+)
 
+const createDistFolder = () => mkdirp.sync(resolvePath(DIST_PATH))
+
+const createPackageJson = obj => {
+  const json = prepareJson(obj)
+  fs.writeFileSync(resolvePath(DIST_PATH, 'package.json'), json)
+}
+
+const copyFilesToDistFolder = forEach(file =>
+  fs.copySync(resolvePath(file), resolvePath(DIST_PATH, file)),
+)
+
+const buildModules = format => mapAsync(buildModule(format))
 const buildCjsModules = buildModules(CJS_MODULES)
 const buildEsmModules = buildModules(ESM_MODULES)
 
+createDistFolder()
+createPackageJson(pkg)
+copyFilesToDistFolder(['LICENSE', 'README.md', 'yarn.lock', 'docs', 'src'])
 buildCjsPathMapping(modules)
 buildEsmPathMapping(modules)
 buildEsmModules(modules)
