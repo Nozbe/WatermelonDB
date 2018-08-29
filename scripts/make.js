@@ -23,6 +23,7 @@ const klaw = require('klaw-sync')
 const mkdirp = require('mkdirp')
 const path = require('path')
 const fs = require('fs-extra')
+const prettyJson = require('json-stringify-pretty-compact')
 
 const pkg = require('../package.json')
 const rollupConfig = require('./rollup.config')
@@ -154,7 +155,7 @@ const prepareJson = pipe(
     module: './esm/index.js',
     sideEffects: false,
   }),
-  obj => JSON.stringify(obj),
+  obj => prettyJson(obj),
 )
 
 const createDistFolder = () => mkdirp.sync(resolvePath(DIST_PATH))
