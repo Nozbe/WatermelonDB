@@ -1,6 +1,7 @@
 [ignore]
 <PROJECT_ROOT>/.cache
 <PROJECT_ROOT>/__tests__
+<PROJECT_ROOT>/dist
 
 [include]
 
