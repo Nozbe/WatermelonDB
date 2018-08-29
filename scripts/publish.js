@@ -76,18 +76,18 @@ const buildTasks = options => {
       title: 'bump version',
       task: () => execa('yarn', ['version', '--new-version', version]),
     },
-    // {
-    //   title: 'remove `node_modules`',
-    //   task: () => execa('rm', ['-rf', 'node_modules']),
-    // },
-    // {
-    //   title: 'install dependencies',
-    //   task: () => execa('yarn', ['install', '--frozen-lockfile', '--production=false']),
-    // },
-    // {
-    //   title: 'build package',
-    //   task: () => execa('yarn', ['build']),
-    // },
+    {
+      title: 'remove `node_modules`',
+      task: () => execa('rm', ['-rf', 'node_modules']),
+    },
+    {
+      title: 'install dependencies',
+      task: () => execa('yarn', ['install', '--frozen-lockfile', '--production=false']),
+    },
+    {
+      title: 'build package',
+      task: () => execa('yarn', ['build']),
+    },
     {
       title: 'publish package',
       task: () =>
