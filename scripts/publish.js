@@ -7,10 +7,22 @@ const execa = require('execa')
 const timeout = require('p-timeout')
 const inquirer = require('inquirer')
 const semver = require('semver')
+const path = require('path')
+const fs = require('fs-extra')
 
-const { when } = require('rambdax')
+const { when, includes, flip, both, add } = require('rambdax')
 
 const pkg = require('../package.json')
+
+const flippedIncludes = flip(includes)
+const increments = ['patch', 'minor', 'major', 'prepatch', 'preminor', 'premajor', 'prerelease']
+const prerelease = ['prepatch', 'preminor', 'premajor', 'prerelease']
+
+const belongsToIncrements = flippedIncludes(increments)
+const isValidVersion = input => Boolean(semver.valid(input))
+const isVersionGreater = input => semver.gt(input, pkg.version)
+const getNewVersion = input => semver.inc(pkg.version, input)
+const isValidAndGreaterVersion = both(isValidVersion, isVersionGreater)
 
 const throwError = () => str => {
   throw new Error(str)
@@ -18,15 +30,30 @@ const throwError = () => str => {
 
 const questions = [
   {
-    type: 'input',
+    type: 'list',
     name: 'version',
     message: `Specify new version (current version: ${pkg.version}):`,
-    validate: input => {
-      const isValidVersion = semver.valid(input)
-      const isGreaterThanCurrentVersion = semver.gt(input, pkg.version)
-
-      return isValidVersion && isGreaterThanCurrentVersion
-    },
+    pageSize: add(increments.length, 4),
+    choices: increments
+      .map(inc => ({
+        name: `${inc} 	${semver.inc(pkg.version, inc)}`,
+        value: inc,
+      }))
+      .concat([
+        new inquirer.Separator(),
+        {
+          name: 'Other (specify)',
+          value: null,
+        },
+      ]),
+    filter: input => (belongsToIncrements(input) ? getNewVersion(input) : input),
+  },
+  {
+    type: 'input',
+    name: 'version',
+    message: 'Version:',
+    when: answers => !answers.version,
+    validate: input => isValidAndGreaterVersion(input),
   },
 ]
 
@@ -65,6 +92,10 @@ const buildTasks = options => {
           .then(when(result => result !== '0', throwError('please pull changes first'))),
     },
     {
+      title: 'check eslint',
+      task: () => execa('yarn', ['test']),
+    },
+    {
       title: 'check flow',
       task: () => execa('yarn', ['flow']),
     },
@@ -77,25 +108,38 @@ const buildTasks = options => {
       task: () => execa('yarn', ['version', '--new-version', version]),
     },
     {
-      title: 'remove `node_modules`',
-      task: () => execa('rm', ['-rf', 'node_modules']),
-    },
-    {
-      title: 'install dependencies',
-      task: () => execa('yarn', ['install', '--frozen-lockfile', '--production=false']),
-    },
-    {
       title: 'build package',
       task: () => execa('yarn', ['build']),
     },
     {
+      title: 'pack tgz',
+      task: () =>
+        execa('yarn', ['pack'], { cwd: './dist' })
+          .then(() => fs.remove(`./nozbe-watermelondb-v${version}.tgz`))
+          .then(() => {
+            fs.move(
+              `./dist/nozbe-watermelondb-v${version}.tgz`,
+              `./nozbe-watermelondb-v${version}.tgz`,
+            )
+          }),
+    },
+    {
       title: 'publish package',
       task: () =>
-        execa('cd', ['./dist']).then(() => execa('yarn', ['publish', '--new-version', version])),
+        execa('yarn', [
+          'publish',
+          `./nozbe-watermelondb-v${version}.tgz`,
+          '--new-version',
+          version,
+        ]),
     },
     {
       title: 'push tags',
-      task: () => exec('git', ['push', '--follow-tags']),
+      task: () => execa('git', ['push', '--follow-tags']),
+    },
+    {
+      title: 'cleanup',
+      task: () => fs.remove(`./nozbe-watermelondb-v${version}.tgz`),
     },
   ]
 }
