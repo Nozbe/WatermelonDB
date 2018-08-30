@@ -18,6 +18,8 @@ export type Options = $Exact<{
   isImmutable: boolean,
 }>
 
+// Defines a one-to-one relation between two Models (two tables in db)
+// Do not create this object directly! Use `relation` or `immutableRelation` decorators instead
 export default class Relation<T: ?Model> {
   _model: Model
 
@@ -52,14 +54,16 @@ export default class Relation<T: ?Model> {
     if (this._isImmutable) {
       invariant(
         !this._model._isCommitted,
-        `Cannot change property marked as @immutableRelation ${this._columnName}`,
+        `Cannot change property marked as @immutableRelation ${
+          Object.getPrototypeOf(this._model).constructor.name
+        } - ${this._columnName}`,
       )
     }
 
     this._model._setRaw(this._columnName, newId || null)
   }
 
-  get current(): Promise<T> {
+  fetch(): Promise<T> {
     const { id } = this
     if (id) {
       return this._model.collections.get(this._relationTableName).find(id)

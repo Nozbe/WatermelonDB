@@ -105,7 +105,7 @@ describe('watermelondb/Relation', () => {
     subscription.unsubscribe()
   })
 
-  it('returns current record', async () => {
+  it('fetches current record', async () => {
     const { tasksCollection, projectsCollection } = mockDatabase()
 
     const secondary = await projectsCollection.create(mock => {
@@ -118,7 +118,7 @@ describe('watermelondb/Relation', () => {
 
     const relation = new Relation(primary, 'mock_projects', 'project_id', { isImmutable: false })
 
-    let currentRecord = await relation.current
+    let currentRecord = await relation.fetch()
     expect(currentRecord).toBe(secondary)
 
     const newSecondary = await projectsCollection.create(mock => {
@@ -129,8 +129,19 @@ describe('watermelondb/Relation', () => {
       mock.projectId = newSecondary.id
     })
 
-    currentRecord = await relation.current
+    currentRecord = await relation.fetch()
     expect(currentRecord).toBe(newSecondary)
+  })
+
+  it('caches observable', () => {
+    const { tasksCollection } = mockDatabase()
+    const model = new MockTask(tasksCollection, {})
+    const relation = new Relation(model, 't1', 'c1', { isImmutable: false })
+
+    const observable1 = relation.observe()
+    const observable2 = relation.observe()
+
+    expect(observable1).toBe(observable2)
   })
 
   it('caches observable', () => {
