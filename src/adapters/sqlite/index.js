@@ -1,7 +1,7 @@
 // @flow
 
 import { NativeModules } from 'react-native'
-import { devMeasureTimeAsync, connectionTag, type ConnectionTag, logger } from 'utils/common'
+import { connectionTag, type ConnectionTag, logger } from 'utils/common'
 
 import type Model, { RecordId } from 'Model'
 import type Query from 'Query'
@@ -17,6 +17,11 @@ import {
   type DirtyQueryResult,
   sanitizeFindResult,
   sanitizeQueryResult,
+  devLogFind,
+  devLogQuery,
+  devLogCount,
+  devLogBatch,
+  devLogSetUp,
 } from 'adapters/common'
 
 import encodeQuery from './encodeQuery'
@@ -68,47 +73,36 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
   async _setUp({ dbName, schema }: SQLiteAdapterOptions): Promise<void> {
     this.schema = schema
-    try {
-      const schemaSQL = encodeSchema(schema)
-      const [, time] = await devMeasureTimeAsync(() =>
-        Native.setUp(this._tag, dbName, schemaSQL, schema.version),
-      )
-      logger.log(`[DB] All set up in ${time}ms`)
-    } catch (error) {
-      logger.error(`[DB] Uh-oh. Database failed to load, we're in big trouble`, error)
-    }
+    const schemaSQL = encodeSchema(schema)
+    await devLogSetUp(() => Native.setUp(this._tag, dbName, schemaSQL, schema.version))
   }
 
   async find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {
-    const [dirtyRecord, time] = await devMeasureTimeAsync(() => Native.find(this._tag, table, id))
-
-    logger.log(`[DB] Found ${table}#${id} in ${time}ms`)
-    return sanitizeFindResult(dirtyRecord, this.schema.tables[table])
+    return devLogFind(
+      async () =>
+        sanitizeFindResult(await Native.find(this._tag, table, id), this.schema.tables[table]),
+      table,
+      id,
+    )
   }
 
   async query<T: Model>(query: Query<T>): Promise<CachedQueryResult> {
-    const [dirtyRecords, time] = await devMeasureTimeAsync(() =>
-      Native.query(this._tag, encodeQuery(query)),
+    return devLogQuery(
+      async () =>
+        sanitizeQueryResult(
+          await Native.query(this._tag, encodeQuery(query)),
+          this.schema.tables[query.table],
+        ),
+      query,
     )
-
-    logger.log(`[DB] Loaded ${dirtyRecords.length} ${query.table} in ${time}ms`)
-    return sanitizeQueryResult(dirtyRecords, this.schema.tables[query.table])
   }
 
   async count<T: Model>(query: Query<T>): Promise<number> {
-    const [count, time] = await devMeasureTimeAsync(() =>
-      Native.count(this._tag, encodeQuery(query, true)),
-    )
-    logger.log(`[DB] Counted ${count} ${query.table} in ${time}ms`)
-    return count
+    return devLogCount(() => Native.count(this._tag, encodeQuery(query, true)), query)
   }
 
   async batch(operations: BatchOperation[]): Promise<void> {
-    if (!operations.length) {
-      return
-    }
-
-    const [, time] = await devMeasureTimeAsync(async () => {
+    await devLogBatch(async () => {
       await Native.batch(
         this._tag,
         operations.map(([type, record]) => {
@@ -125,14 +119,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
           }
         }),
       )
-    })
-
-    const [type, { table }] = operations[0]
-    logger.log(
-      `[DB] Executed batch of ${
-        operations.length
-      } operations (first: ${type} on ${table}) in ${time}ms`,
-    )
+    }, operations)
   }
 
   getDeletedRecords(table: TableName<any>): Promise<RecordId[]> {

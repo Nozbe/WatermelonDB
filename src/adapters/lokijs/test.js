@@ -19,7 +19,7 @@ describe('watermelondb/adapters/lokijs', () => {
     const adapter = newAdapter()
     const record = makeMockTask({ id: 'abc', foo: 'bar' })
 
-    await adapter.create(record)
+    await adapter.batch([['CREATE', record]])
     expect(record._raw.$loki).toBeUndefined()
   })
 })
