@@ -6,12 +6,11 @@ import relation from 'decorators/relation'
 
 // Defines a model property that fetches a record with a specific ID
 // The property defined must be *immutable*, i.e. the relation ID must never change
-// Returns an immutable Relation object
+// Returns an immutable Relation object. See watermelondb/Relation for more information
 //
-// If the property *can* change, use `relation`
+// If the property *can* change, use `relation` instead
 //
-// In `collection.create() or collection.prepareCreate()` block only, you can use the property's
-// setter to assign a value
+// You can only assign a value inside a `collection.create()` or `collection.prepareCreate()` block
 //
 // relationIdColumn - name of the column with record ID
 // relationTable - name of the table containing desired recods
