@@ -50,6 +50,7 @@ const DO_NOT_BUILD_PATHS = [
   /integrationTest\.js/,
   /__mocks__/,
   /Collection\/RecordCache\.js/,
+  /\.DS_Store/,
 ]
 
 const isNotIncludedInBuildPaths = value => !anymatch(DO_NOT_BUILD_PATHS, value)
@@ -194,7 +195,7 @@ if (isDevelopment) {
   buildEsmPathMapping(modules)
 
   chokidar
-    .watch(resolvePath('src'), { ignored: [...DO_NOT_BUILD_PATHS, /\.DS_Store/] })
+    .watch(resolvePath('src'), { ignored: DO_NOT_BUILD_PATHS })
     .on('all', (event, fileOrDir) => {
       // eslint-disable-next-line
       switch (event) {
