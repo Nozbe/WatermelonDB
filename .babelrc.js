@@ -44,30 +44,35 @@ const plugins = [
   ],
 ]
 
+const importRedirect = [
+  'import-redirect',
+  {
+    redirect: {
+      '(adapters|decorators|utils|observation)(.+(?=\\/index\\.js)|.+(?=\\.js)|.+)': redirect(
+        '$1$2',
+      ),
+      Collection$: redirect('Collection'),
+      CollectionMap$: redirect('CollectionMap'),
+      Database$: redirect('Database'),
+      Model$: redirect('Model'),
+      Query$: redirect('Query'),
+      QueryDescription$: redirect('QueryDescription'),
+      RawRecord$: redirect('RawRecord'),
+      Relation$: redirect('Relation'),
+      Schema$: redirect('Schema'),
+    },
+    suppressResolveWarning: true,
+  },
+]
+
 module.exports = {
   env: {
+    development: {
+      plugins: [importRedirect, ...plugins],
+    },
     production: {
       plugins: [
-        [
-          'import-redirect',
-          {
-            redirect: {
-              '(adapters|decorators|utils|observation)(.+(?=\\/index\\.js)|.+(?=\\.js)|.+)': redirect(
-                '$1$2',
-              ),
-              Collection$: redirect('Collection'),
-              CollectionMap$: redirect('CollectionMap'),
-              Database$: redirect('Database'),
-              Model$: redirect('Model'),
-              Query$: redirect('Query'),
-              QueryDescription$: redirect('QueryDescription'),
-              RawRecord$: redirect('RawRecord'),
-              Relation$: redirect('Relation'),
-              Schema$: redirect('Schema'),
-            },
-            suppressResolveWarning: true,
-          },
-        ],
+        importRedirect,
         ...plugins,
         // console.log is expensive for performance on native
         // we don't want it on web either, but it's useful for development

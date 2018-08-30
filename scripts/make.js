@@ -7,15 +7,14 @@ const {
   mapAsync,
   endsWith,
   both,
-  includes,
   prop,
-  all,
   replace,
   join,
   reduce,
   omit,
   merge,
   forEach,
+  tail,
 } = require('rambdax')
 
 const rollup = require('rollup')
@@ -24,33 +23,38 @@ const mkdirp = require('mkdirp')
 const path = require('path')
 const fs = require('fs-extra')
 const prettyJson = require('json-stringify-pretty-compact')
+const chokidar = require('chokidar')
+const anymatch = require('anymatch')
+const rimraf = require('rimraf')
 
 const pkg = require('../package.json')
-const rollupConfig = require('./rollup.config')
+const createRollupConfig = require('./rollup.config')
 
 const resolvePath = (...paths) => path.resolve(__dirname, '..', ...paths)
+const isDevelopment = process.env.NODE_ENV === 'development'
+const rollupConfig = createRollupConfig({ env: process.env.NODE_ENV })
 
 const ESM_MODULES = 'esm'
 const CJS_MODULES = 'cjs'
 
 const SOURCE_PATH = resolvePath('src')
 const DIST_PATH = resolvePath('dist')
+const DEV_PATH = resolvePath('dev')
+
+const DIR_PATH = isDevelopment ? DEV_PATH : DIST_PATH
+
 const DO_NOT_BUILD_PATHS = [
-  'adapters/__tests__',
-  'test.js',
-  'type.js',
-  'integrationTest.js',
-  '__mocks__',
-  'Collection/RecordCache.js',
+  /adapters\/__tests__/,
+  /test\.js/,
+  /type\.js/,
+  /integrationTest\.js/,
+  /__mocks__/,
+  /Collection\/RecordCache\.js/,
 ]
 
-const createModulePath = format => {
-  const modulePath = resolvePath(DIST_PATH, format)
-  return replace(SOURCE_PATH, modulePath)
-}
+const isNotIncludedInBuildPaths = value => !anymatch(DO_NOT_BUILD_PATHS, value)
 
-const isNotIncludedInBuildPaths = value =>
-  all(buildPath => !includes(buildPath, value), DO_NOT_BUILD_PATHS)
+const cleanFolder = dir => rimraf.sync(dir)
 
 const takeFiles = pipe(
   prop('path'),
@@ -63,7 +67,6 @@ const takeModules = pipe(
 )
 
 const removeSourcePath = replace(SOURCE_PATH, '')
-
 const toStringKeyValue = module => `'${module.key}': '${module.value}'`
 const indentLine = line => `    ${line},`
 const toStringObject = pipe(
@@ -87,12 +90,20 @@ ${toStringObject(obj)}
 }
   `
 
+const createModulePath = format => {
+  const modulePath = resolvePath(DIR_PATH, format)
+  return replace(SOURCE_PATH, modulePath)
+}
+
 const createPathName = file => {
   const value = removeSourcePath(file)
   return endsWith('index.js', value) ? path.dirname(value) : replace('.js', '', value)
 }
 
-const createModuleName = name => `${pkg.name}${name}`
+const createModuleName = name => {
+  const module = tail(name)
+  return `${pkg.name}${module === '' ? module : `/${module}`}`
+}
 
 const buildPathMapping = format =>
   pipe(
@@ -101,14 +112,14 @@ const buildPathMapping = format =>
 
       return {
         key: createModuleName(name),
-        value: `${pkg.name}/${format}${name}`,
+        value: `${isDevelopment ? DEV_PATH : pkg.name}/${format}${name}`,
       }
     }),
     pathMappingTemplate,
     content => {
       try {
-        mkdirp.sync(resolvePath(DIST_PATH, format))
-        fs.writeFileSync(resolvePath(DIST_PATH, format, 'path-mapping.js'), content)
+        mkdirp.sync(resolvePath(DIR_PATH, format))
+        fs.writeFileSync(resolvePath(DIR_PATH, format, 'path-mapping.js'), content)
       } catch (err) {
         // eslint-disable-next-line
         console.error(err)
@@ -158,25 +169,56 @@ const prepareJson = pipe(
   obj => prettyJson(obj),
 )
 
-const createDistFolder = () => mkdirp.sync(resolvePath(DIST_PATH))
+const createFolder = dir => mkdirp.sync(resolvePath(dir))
 
-const createPackageJson = obj => {
+const createPackageJson = (dir, obj) => {
   const json = prepareJson(obj)
-  fs.writeFileSync(resolvePath(DIST_PATH, 'package.json'), json)
+  fs.writeFileSync(resolvePath(dir, 'package.json'), json)
 }
 
-const copyFilesToDistFolder = forEach(file =>
-  fs.copySync(resolvePath(file), resolvePath(DIST_PATH, file)),
-)
+const copyFiles = (dir, files) =>
+  forEach(file => fs.copySync(resolvePath(file), resolvePath(dir, file)), files)
 
-const buildModules = format => mapAsync(buildModule(format))
-const buildCjsModules = buildModules(CJS_MODULES)
-const buildEsmModules = buildModules(ESM_MODULES)
+if (isDevelopment) {
+  const buildCjsModule = buildModule(CJS_MODULES)
+  const buildEsmModule = buildModule(ESM_MODULES)
 
-createDistFolder()
-createPackageJson(pkg)
-copyFilesToDistFolder(['LICENSE', 'README.md', 'yarn.lock', 'docs', 'src', 'native'])
-buildCjsPathMapping(modules)
-buildEsmPathMapping(modules)
-buildEsmModules(modules)
-buildCjsModules(modules)
+  const buildModules = file => {
+    buildCjsModule(file)
+    buildEsmModule(file)
+  }
+
+  cleanFolder(DEV_PATH)
+  createFolder(DEV_PATH)
+  buildCjsPathMapping(modules)
+  buildEsmPathMapping(modules)
+
+  chokidar
+    .watch(resolvePath('src'), { ignored: [...DO_NOT_BUILD_PATHS, /\.DS_Store/] })
+    .on('all', (event, fileOrDir) => {
+      // eslint-disable-next-line
+      switch (event) {
+        case 'add':
+        case 'change':
+          // eslint-disable-next-line
+          console.log(`✓ ${removeSourcePath(fileOrDir)}`)
+          buildModules(fileOrDir)
+          break
+        default:
+          break
+      }
+    })
+} else {
+  const buildModules = format => mapAsync(buildModule(format))
+  const buildCjsModules = buildModules(CJS_MODULES)
+  const buildEsmModules = buildModules(ESM_MODULES)
+
+  cleanFolder(DIST_PATH)
+  createFolder(DIST_PATH)
+  createPackageJson(DIST_PATH, pkg)
+  copyFiles(DIST_PATH, ['LICENSE', 'README.md', 'yarn.lock', 'docs', 'src', 'native'])
+  buildCjsPathMapping(modules)
+  buildEsmPathMapping(modules)
+  buildEsmModules(modules)
+  buildCjsModules(modules)
+}

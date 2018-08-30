@@ -28,5 +28,5 @@ module.exports = {
   restoreMocks: true,
   testMatch: ['**/__tests__/**/?(spec|test).js', '**/?(*.)(spec|test).js'],
   moduleFileExtensions: ['js'],
-  modulePathIgnorePatterns: ['<rootDir>/dist'],
+  modulePathIgnorePatterns: ['<rootDir>/dist', '<rootDir>/dev'],
 }
