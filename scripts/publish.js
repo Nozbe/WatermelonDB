@@ -7,7 +7,6 @@ const execa = require('execa')
 const timeout = require('p-timeout')
 const inquirer = require('inquirer')
 const semver = require('semver')
-const path = require('path')
 const fs = require('fs-extra')
 
 const { when, includes, flip, both, add } = require('rambdax')
@@ -16,7 +15,7 @@ const pkg = require('../package.json')
 
 const flippedIncludes = flip(includes)
 const increments = ['patch', 'minor', 'major', 'prepatch', 'preminor', 'premajor', 'prerelease']
-const prerelease = ['prepatch', 'preminor', 'premajor', 'prerelease']
+// const prerelease = ['prepatch', 'preminor', 'premajor', 'prerelease']
 
 const belongsToIncrements = flippedIncludes(increments)
 const isValidVersion = input => Boolean(semver.valid(input))
