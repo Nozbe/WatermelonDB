@@ -8,6 +8,11 @@ export { default as CollectionMap } from 'CollectionMap'
 export { default as Relation } from 'Relation'
 export { default as Model, associations } from 'Model'
 export { default as Query } from 'Query'
+export { tableName, columnName, appSchema, tableSchema } from 'Schema'
+
+export type { DatabaseAdapter } from 'adapters/type'
+export type { RawRecord, DirtyRaw } from 'RawRecord'
+export type { RecordId } from 'Model'
 export type {
   TableName,
   ColumnName,
@@ -15,11 +20,6 @@ export type {
   ColumnSchema,
   TableSchema,
   AppSchema,
-} from './Schema'
-export { tableName, columnName, appSchema, tableSchema } from 'Schema'
-
-export type { DatabaseAdapter } from 'adapters/type'
-export type { RawRecord, DirtyRaw } from 'RawRecord'
-export type { RecordId } from 'Model'
+} from 'Schema'
 
 export { Q }
