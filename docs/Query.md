@@ -147,17 +147,7 @@ The first argument for `Q.on` is the table name you're making a condition on. Th
 
 ### Advanced observing
 
-If you call `.observe()` on this query:
-
-```js
-commentCollection.query(Q.where('is_awesome', true))
-```
-
-The Observable will emit the list of all awesome comments. Then, whenever a new awesome comment is created, or one is deleted, the Observable will emit the updated list of awesome comments. If an existing comment is updated and becomes (or ceases to be) awesome, the list will also update. **However**, if a different column is updated (say, an awesome comment changes its contents), the Observable **will not** emit a new value.
-
-Most of the time, this is good. To start observing extra columns with a query, use `query.observeWithFields(['body', 'is_pinned'])`.
-
-TODO: Tie this to sorting!
+Call `query.observeWithFields(['foo', 'bar'])` to create an Observable that emits a value not only when the list of matching records changes (new records/deleted records), but also when any of the matched records changes its `foo` or `bar` column. [Use this for observing sorted lists](./Component.md)
 
 #### Count throttling
 
