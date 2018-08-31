@@ -74,10 +74,6 @@ If you use Watermelon [with a Sync service](./Implementation/Sync.md), call `mar
 
 **Note:** Don't access, update, or observe records after they're destroyed.
 
-TODO: Update deleting API to make more sense for non-Sync users
-
-TODO: There's no mention of delete hierarchies
-
 ## Advanced
 
 - `Model.observe()` - usually you only use this [when connecting records to components](./Components.md), but you can manually observe a record outside of React components. The returned [RxJS](https://github.com/reactivex/rxjs) `Observable` will emit the record immediately upon subscription, and then every time the record is updated. If the record is deleted, the Observable will complete.
