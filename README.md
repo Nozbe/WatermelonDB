@@ -1,12 +1,28 @@
-<img src="./assets/logo-horizontal.png" alt="WatermelonDB" height="117" />
+<p align="center">
+  <img src="./assets/logo-horizontal.png" alt="WatermelonDB" height="117" />
+</p>
 
-![MIT License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)
-[![CI Status](https://api.travis-ci.org/Nozbe/WatermelonDB.svg?branch=master)](https://travis-ci.org/Nozbe/WatermelonDB)
-[![npm](https://img.shields.io/npm/v/@nozbe/watermelondb.svg)](https://www.npmjs.com/package/@nozbe/watermelondb)
+<h4 align="center">
+  Next-generation React database
+</h4>
 
-#### Next-generation React database
+<p align="center">
+  Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain _fast_
+</p>
 
-> Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain _fast_
+<p align="center">
+  <a href="https://opensource.org/licenses/MIT">
+    <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License">
+  </a>
+  
+  <a href="https://travis-ci.org/Nozbe/WatermelonDB">
+    <img src="https://api.travis-ci.org/Nozbe/WatermelonDB.svg?branch=master" alt="CI Status">
+  </a>
+  
+  <a href="https://www.npmjs.com/package/@nozbe/watermelondb">
+    <img src="https://img.shields.io/npm/v/@nozbe/watermelondb.svg" alt="npm">
+  </a>
+</p>
 
 |   | WatermelonDB |
 | - | ------------ |
