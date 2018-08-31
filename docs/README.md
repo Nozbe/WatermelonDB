@@ -36,9 +36,9 @@ Details about how Watermelon works, how to hack and contribute:
 
 1. [Architecture](./Implementation/Architecture.md)
 1. [Adapters](./Implementation/Adapters.md)
-1. [Observation](./Implementation/Observation.md)
-1. [Sync](./Implementation/Sync.md) — adding your own Sync engine
-1. [Caching](./Implementation/Caching.md)
+1. [Sync](./Implementation/Sync.md)
+1. Observation — TODO
+1. Caching — TODO
 
 ## Other
 
