@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/logo-horizontal.png" alt="WatermelonDB" height="117" />
+  <img src="./assets/logo-horizontal.png" alt="WatermelonDB" height="160" />
 </p>
 
 <h4 align="center">
