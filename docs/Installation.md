@@ -42,15 +42,15 @@ protected List<ReactPackage> getPackages() {
 
 ### Web
 
-WatermelonDB uses Web Workers.
+WatermelonDB requires Web Workers support.
 
-If you use Webpack, add [worker-loader](https://github.com/webpack-contrib/worker-loader) to your project:
+If you use Webpack, just add [worker-loader](https://github.com/webpack-contrib/worker-loader) to your project:
 
 ```sh
 yarn add --dev worker-loader
 ```
 
-And in your Webpack config:
+And in your Webpack config, add this:
 
 ```js
 // webpack.config.js
