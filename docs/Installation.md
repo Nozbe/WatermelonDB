@@ -42,11 +42,34 @@ protected List<ReactPackage> getPackages() {
 
 ### Web
 
-TODO
+WatermelonDB uses Web Workers.
 
-TODO: Figure out how to do web workers when watermelondb is a separate library
+If you use Webpack, add [worker-loader](https://github.com/webpack-contrib/worker-loader) to your project:
 
-TODO: Babel settings?
+```sh
+yarn add --dev worker-loader
+```
+
+And in your Webpack config:
+
+```js
+// webpack.config.js
+{
+  module: {
+    rules: [
+      {
+        test: /\.worker\.js$/,
+        use: { loader: 'worker-loader' }
+      }
+    ]
+  }
+}
+```
+
+You also need Babel support for [decorators](https://github.com/loganfsmyth/babel-plugin-transform-decorators-legacy) and `async/await` to take full advantage of WatermelonDB
+
+TODO: What about other bundlers?
+TODO: Do we need more specific instructions for babel?
 
 ## Set up `Database`
 
