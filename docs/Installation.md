@@ -69,6 +69,7 @@ And in your Webpack config, add this:
 You also need Babel support for [decorators](https://github.com/loganfsmyth/babel-plugin-transform-decorators-legacy) and `async/await` to take full advantage of WatermelonDB
 
 TODO: What about other bundlers?
+
 TODO: Do we need more specific instructions for babel?
 
 ## Set up `Database`
