@@ -22,14 +22,12 @@ Start here for a detailed demo of WatermelonDB:
 ### Advanced guides
 
 1. [Migrations](./Advanced/Migrations.md)
-1. [Transactions](./Advanced/Transactions.md)
 1. [Automatic create/update tracking](./Advanced/CreateUpdateTracking.md)
 1. [Advanced fields](./Advanced/AdvancedFields.md) — JSON, sanitizers
-1. [Performance tips](./Advanced/Performance.md)
-1. [Safety tips](./Advanced/Safety.md)
 1. [Sorting tips](./Advanced/Sorting.md)
 1. [Flow](./Advanced/Flow.md) — using Watermelon with Flow
 1. [LocalStorage](./Advanced/LocalStorage.md)
+1. Performance tips — TODO
 
 ## Dig deeper into WatermelonDB
 
