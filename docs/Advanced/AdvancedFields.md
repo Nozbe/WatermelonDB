@@ -1,6 +1,6 @@
 # Advanced Fields
 
-### `@text`
+## `@text`
 
 You can use `@text` instead of `@field` to enable user text sanitization. When setting a new value on a `@text` field, excess whitespace will be trimmed from both ends from the string.
 
@@ -13,7 +13,7 @@ class Post extends Model {
 }
 ```
 
-### `@json`
+## `@json`
 
 If you have a lot of metadata about a record (say, an object with many keys, or an array of values), you can use a `@json` field to contain that information in a single string column (serialized to JSON) instead of adding multiple columns or a relation to another table.
 
@@ -49,9 +49,9 @@ comment.update(() => {
 })
 ```
 
-As the second argument, pass a **sanitizer function**. This is a function that receives whatever `JSON.parse()` returns for the raw value, and ought to return whatever type you expect in your app. In other words, it turns raw, dirty, untrusted data (that might be missing, invalid format, or broken by a bug in previous version of the app) into trusted format.
+As the second argument, pass a **sanitizer function**. This is a function that receives whatever `JSON.parse()` returns for the serialized JSON, and returns whatever type you expect in your app. In other words, it turns raw, dirty, untrusted data (that might be missing, or malformed by a bug in previous version of the app) into trusted format.
 
-The sanitizer might also receive `null` if the column is nullable and has no value, or `undefined` if the field doesn't contain valid JSON.
+The sanitizer might also receive `null` if the column is nullable, or `undefined` if the field doesn't contain valid JSON.
 
 For example, if you need the field to be an array of strings, you can ensure it like so:
 
@@ -69,12 +69,12 @@ const sanitizeReactions = json => json
 
 **Warning about JSON fields**:
 
-JSON fields go against relational, lazy nature of Watermelon, because **you can't query by the contents of JSON fields**. If you need or might in the future need to query or count records by some piece of data, just use standard fields. 
+JSON fields go against relational, lazy nature of Watermelon, because **you can't query or count by the contents of JSON fields**. If you need or might need in the future to query records by some piece of data, don't use JSON.
 
 Only use JSON fields when you need the flexibility of complex freeform data, or the speed of having metadata without querying another table, and you are sure that you won't need to query by those metadata.
 
-### `@nochange`
+## `@nochange`
 
 
 
-### Custom observable fields
+## Custom observable fields
