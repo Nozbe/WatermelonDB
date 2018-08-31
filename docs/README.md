@@ -43,5 +43,5 @@ Details about how Watermelon works, how to hack and contribute:
 ## Other
 
 1. [Roadmap](./Roadmap.md)
-1. [Changelog](../Changelog.md)
+1. [Changelog](../CHANGELOG.md)
 1. [License](../LICENSE)
