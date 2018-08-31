@@ -124,8 +124,6 @@ const adapter = new LokiJSAdapter({
 // The rest is the same!
 ```
 
-TODO: Web workers setup
-
 * * *
 
 ### Next steps
