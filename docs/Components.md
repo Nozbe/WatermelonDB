@@ -64,7 +64,7 @@ const EnhancedPost = enhance(Post)
 Notice a couple of things:
 
 1. We're starting with a simple non-reactive `Post` component
-2. Like before, we enhance it by observing the `Post`. If the post's name or body changes, it will re-render.
+2. Like before, we enhance it by observing the `Post`. If the post name or body changes, it will re-render.
 3. To access comments, we fetch them from the database and observe using `post.comments.observe()` and inject a new prop `comments`. (`post.comments` is a Query created using `@children`).
 4. By **observing the Query**, the `<Post>` component will re-render if a new comment appears or one is deleted.
 5. However, observing the comments Query will not re-render `<Post>` if a comment _changes_ — we render the `<EnhancedComment>` so that _it_ observes the comment.
