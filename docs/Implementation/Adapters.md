@@ -32,3 +32,9 @@ The adapter merely performs simple CRUD (create/read/update/delete) operations.
 - `LokiExecutor` actually implements the Adapter operations
 - `encodeQuery` translates `QueryDescription` objects to Loki query objects
 - `executeQuery` implements join queries (`Q.on`), which Loki does not support
+
+## Writing your own adapter
+
+If you want to write a new adapter, please contact [@radex](https://github.com/radex) for more information.
+
+⚠️ TODO: This section needs more concrete tips
