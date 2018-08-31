@@ -94,7 +94,7 @@ Similar to `@nochange`, you can use the `@readonly` decorator to ensure a field 
 
 ## Custom observable fields
 
-You're in advanced [RxJS](https://github.com/ReactiveX/rxjs) territory now!
+You're in advanced [RxJS](https://github.com/ReactiveX/rxjs) territory now! You have been warned.
 
 Say, you have a Post model that has many Comments. And a Post is considered to be "popular" if it has more than 10 comments.
 
