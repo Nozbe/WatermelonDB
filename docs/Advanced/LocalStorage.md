@@ -13,7 +13,7 @@ const userId = await database.adapter.getLocal("user_id") // string or null if n
 await database.adapter.removeLocal("user_id")
 ```
 
-**When to use it** For things like the ID of the logged-in user, or the route to the last-viewed screen in the app. You should generally avoid it and stick to standard Watermelon records.
+**When to use it**. For things like the ID of the logged-in user, or the route to the last-viewed screen in the app. You should generally avoid it and stick to standard Watermelon records.
 
 **This is a low-level API**. You can't do things like observe changes of a value over time. If you need that, just use standard WatermelonDB records. Also, you can only store strings. You can build your own abstraction that (de)serializes those values to/from JSON.
 
