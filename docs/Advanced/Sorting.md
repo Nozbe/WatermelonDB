@@ -1,3 +1,0 @@
-## Making lists sortable
-
-TODO

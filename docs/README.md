@@ -24,7 +24,6 @@ Start here for a detailed demo of WatermelonDB:
 1. [Migrations](./Advanced/Migrations.md)
 1. [Automatic create/update tracking](./Advanced/CreateUpdateTracking.md)
 1. [Advanced fields](./Advanced/AdvancedFields.md) — JSON, sanitizers
-1. [Sorting tips](./Advanced/Sorting.md)
 1. [Flow](./Advanced/Flow.md) — using Watermelon with Flow
 1. [LocalStorage](./Advanced/LocalStorage.md)
 1. Performance tips — TODO

@@ -147,9 +147,15 @@ withObservables(['post'], ({ post }) => ({
      post: database.collections.get('posts').findAndObserve(postId)
    }))
    ```
-1. **Sorted lists**. If you have a list that's sorted by the user or some parameter that can change (e.g. sort alphebatically by name), use `Query.observeWithFields` to re-render when the sorting changes: [Sorting Tips](./Advanced/Sorting.md).
 1. **RxJS transformations**. The values returned by `Model.observe()`, `Query.observe()`, `Relation.observe()` are [RxJS Observables](https://github.com/ReactiveX/rxjs). You can use standard transforms like mapping, filtering, throttling, startWith to change when and how the component is re-rendered.
 1. **Custom Observables**. `withObservables` is a general-purpose HOC for Observables, not just Watermelon. You can create new props from any `Observable`.
+
+### Observing sorted lists
+
+TODO:
+
+**Sorted lists**. If you have a list that's sorted by the user or some parameter that can change (e.g. sort alphebatically by name), use `Query.observeWithFields` to re-render when the sorting changes
+
 
 * * *
 
