@@ -109,11 +109,9 @@ class Comment extends Model {
 }
 ```
 
-The first argument is the _column name_ with an ID of the related column, and the second is the _table name_ of the related record.
+The first argument is the _table name_ of the related record, and the second is the _column name_ with an ID for the related record.
 
 **➡️ Learn more:** [Relation API](./Relation.md)
-
-TODO: Swap arg order
 
 ### Children
 
