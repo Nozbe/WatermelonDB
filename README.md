@@ -1,6 +1,4 @@
-![WatermelonDB](assets/logo-horizontal.png)
-
------
+<img src="./assets/logo-horizontal.png" alt="WatermelonDB" height="117" />
 
 ![MIT License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)
 [![CI Status](https://api.travis-ci.org/Nozbe/WatermelonDB.svg?branch=master)](https://travis-ci.org/Nozbe/WatermelonDB)
