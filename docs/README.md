@@ -29,6 +29,7 @@ Start here for a detailed demo of WatermelonDB:
 1. [Safety tips](./Advanced/Safety.md)
 1. [Sorting tips](./Advanced/Sorting.md)
 1. [Flow](./Advanced/Flow.md) — using Watermelon with Flow
+1. [LocalStorage](./Advanced/LocalStorage.md)
 
 ## Dig deeper into WatermelonDB
 
