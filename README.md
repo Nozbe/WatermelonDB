@@ -1,4 +1,4 @@
-![WatermelonDB](assets/logo.png)
+![WatermelonDB](assets/logo-horizontal.png)
 
 -----
 
