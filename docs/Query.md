@@ -6,7 +6,7 @@
 - Find all _verified_ comments made by John
 - Count all verified comments made by John or Lucy published under posts made in the last two weeks
 
-Because queries are executed on the database, and not in JavaScript, they're really fast. It's also how Watermelon can be fast even at large scales, because even with tens of thousands of records _total_, you rarely need to load more than a few dozen or a hundred records at app launch.
+Because queries are executed on the database, and not in JavaScript, they're really fast. It's also how Watermelon can be fast even at large scales, because even with tens of thousands of records _total_, you rarely need to load more than a few dozen records at app launch.
 
 ## Defining Queries
 
