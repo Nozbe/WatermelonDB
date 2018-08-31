@@ -120,6 +120,6 @@ const adapter = new LokiJSAdapter({
 
 * * *
 
-### Next steps
+## Next steps
 
 ➡️ After Watermelon is installed, [**define your app's schema**](./Schema.md)

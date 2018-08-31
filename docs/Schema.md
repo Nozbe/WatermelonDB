@@ -90,6 +90,6 @@ In general, most `_id` fields are indexed. Sometimes, `bool` fields are worth in
 
 * * *
 
-### Next steps
+## Next steps
 
 ➡️ After you define your schema, go ahead and [**define your Models**](./Model.md)

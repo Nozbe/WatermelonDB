@@ -178,6 +178,6 @@ If you inject `post.comments.observe()` into the component, the list will not re
 
 * * *
 
-### Next steps
+## Next steps
 
 ➡️ Next, learn more about [**custom Queries**](./Query.md)

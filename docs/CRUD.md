@@ -84,7 +84,7 @@ If you use Watermelon [with a Sync service](./Implementation/Sync.md), call `mar
 
 * * *
 
-### Next steps
+## Next steps
 
 ➡️ Now that you can create and update records, [**connect them to React components**](./Components.md)
 
