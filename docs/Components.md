@@ -89,7 +89,7 @@ const enhance = withObservables(['comment'], ({ comment }) => ({
 const EnhancedComment = enhance(Comment)
 ```
 
-`comment.author` is a `Relation` object, so we can call `.observe()` on it to fetch the `User` and then observe changes to it. If author's name changes, the component will re-render.
+`comment.author` is a [Relation object](./Relation.md), and we can call `.observe()` on it to fetch the `User` and then observe changes to it. If author's name changes, the component will re-render.
 
 ### Reactive counters
 
