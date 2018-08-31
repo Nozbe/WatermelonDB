@@ -7,7 +7,7 @@
 </h4>
 
 <p align="center">
-  Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain _fast_
+  Build powerful React and React Native apps that scale from hundreds to tens of thousands of records and remain <em>fast</em>
 </p>
 
 <p align="center">
