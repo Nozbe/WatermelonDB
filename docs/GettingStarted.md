@@ -26,6 +26,6 @@ In the examples below, we'll make an example React web app. You can also make a 
 
 * * *
 
-### Next steps
+## Next steps
 
 ➡️ Got you interested? [**See full documentation**](./README.md)
