@@ -15,9 +15,11 @@ class Post extends Model {
 
 ### `@json`
 
-If you have a lot of metadata about a record, you can use a single `@json` field to contain that information instead of adding multiple columns.
+If you have a lot of metadata about a record (say, an object with many keys, or an array of values), you can use a `@json` field to contain that information in a single string column (serialized to JSON) instead of adding multiple columns or a relation to another table.
 
-First, add a string column to [the schema](../Schema.md).:
+⚠️ This is an advanced feature that comes with downsides — make sure you really need it
+
+First, add a string column to [the schema](../Schema.md):
 
 ```js
 tableSchema({
@@ -35,15 +37,23 @@ import { json } from 'watermelondb/decorators'
 
 class Comment extends Model {
   // ...
-  @json('reactions', sanitizeReactions) reaction
+  @json('reactions', sanitizeReactions) reactions
 }
+```
+
+Now you can set complex JSON values to a field:
+
+```js
+comment.update(() => {
+  comment.reactions = ['up', 'down', 'down']
+})
 ```
 
 As the second argument, pass a **sanitizer function**. This is a function that receives whatever `JSON.parse()` returns for the raw value, and ought to return whatever type you expect in your app. In other words, it turns raw, dirty, untrusted data (that might be missing, invalid format, or broken by a bug in previous version of the app) into trusted format.
 
 The sanitizer might also receive `null` if the column is nullable and has no value, or `undefined` if the field doesn't contain valid JSON.
 
-For example, to ensure the JSON is an array of strings, you could write:
+For example, if you need the field to be an array of strings, you can ensure it like so:
 
 ```js
 const sanitizeReactions = rawReactions => {
