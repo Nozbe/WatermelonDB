@@ -80,10 +80,6 @@ Fields are defined using ES6 decorators. Pass **column name** you defined in Sch
 
 **Note:** Why do I have to type the field/column name twice? The database convention is to use `snake_case` for names, and the JavaScript convention is to use camelCase. So for any multi-word name, the two differ. Also, for resiliency, we believe it's better to be explicit, because over time, you might want to refactor how you name your JavaScript field names, but column names must stay the same for backward compatibility.
 
-TODO: Add to GettingStarted/install guide a howto for adding decorator support to babel
-
-TODO: Add an easy fallback if someone can't/doesn't want to use decorators
-
 ### Date fields
 
 For date fields, use `@date` instead of `@field`. This will return a JavaScript `Date` object (instead of Unix timestamp integer).
