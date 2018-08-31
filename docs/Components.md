@@ -73,7 +73,7 @@ Notice a couple of things:
 
 The `<Comment>` component we made previously only renders the body of the comment but doesn't say who posted it.
 
-Assume the `Comment` model has a `@relation('users', 'user_id') author` field. Let's render it:
+Assume the `Comment` model has a `@relation('users', 'author_id') author` field. Let's render it:
 
 ```jsx
 const Comment = ({ comment, author }) => (
