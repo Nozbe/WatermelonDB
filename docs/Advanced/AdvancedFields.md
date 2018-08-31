@@ -94,4 +94,74 @@ Similar to `@nochange`, you can use the `@readonly` decorator to ensure a field 
 
 ## Custom observable fields
 
+You're in advanced [RxJS](https://github.com/ReactiveX/rxjs) territory now!
 
+Say, you have a Post model that has many Comments. And a Post is considered to be "popular" if it has more than 10 comments.
+
+You can add a "popular" badge to a Post component in two ways.
+
+One is to simply observe how many comments there are [in the component](../Components.md):
+
+```js
+const enhance = withObservables(['post'], ({ post }) => ({
+  post: post.observe(),
+  commentCount: post.comments.observeCount()
+}))
+```
+
+And in the `render` method, if `props.commentCount > 10`, show the badge.
+
+Another way is to define an observable property on the Model layer, like so:
+
+```js
+import { distinctUntilChanged, map as map$ } from 'rxjs/operators'
+import { lazy } from 'watermelondb/decorators'
+
+class Post extends Model {
+  @lazy isPopular = this.comments.observeCount().pipe(
+    map$(comments => comments > 10),
+    distinctUntilChanged()
+  )
+}
+```
+
+And then you can directly connect this to the component:
+
+```js
+const enhance = withObservables(['post'], ({ post }) => ({
+  isPopular: post.isPopular,
+}))
+```
+
+`props.isPopular` will reflect whether or not the Post is popular. Note that this is fully observable, i.e. if the number of comments rises above/falls below the popularity threshold, the component will re-render. Let's break it down:
+
+- `this.comments.observeCount()` - take the Observable number of comments
+- `map$(comments => comments > 10)` - transform this into an Observable of boolean (popular or not)
+- `distinctUntilChanged()` - this is so that if the comment count changes, but the popularity doesn't (it's still below/above 10), components won't be unnecessarily re-rendered
+- `@lazy` - also for performance (we only define this Observable once, so we can re-use it for free)
+
+Let's make this example more complicated. Say the post is **always** popular if it's marked as starred. So if `post.isStarred`, then we don't have to do unnecessary work of fetching comment count:
+
+```js
+import { of as of$ } from 'rxjs/observable/of'
+import { distinctUntilChanged, map as map$ } from 'rxjs/operators'
+import { lazy } from 'watermelondb/decorators'
+
+class Post extends Model {
+  @lazy isPopular = this.observe().pipe(
+    distinctUntilKeyChanged('isStarred'),
+    switchMap(post =>
+      post.isStarred ?
+        of$(true) :
+        this.comments.observeCount().pipe(map$(comments => comments > 10))
+    ),
+    distinctUntilChanged(),
+  )
+}
+```
+
+- `this.observe()` - if the Post changes, it might change its popularity status, so we observe it
+- `this.comments.observeCount().pipe(map$(comments => comments > 10))` - this part is the same, but we only observe it if the post is starred
+- `switchMap(post => post.isStarred ? of$(true) : ...)` - if the post is starred, we just return an Observable that emits `true` and never changes.
+- `distinctUntilKeyChanged('isStarred')` - for performance, so that we don't re-subscribe to comment count Observable if the post changes (only if the `isStarred` field changes)
+- `distinctUntilChanged()` - again, don't emit new values, if popularity doesn't change
