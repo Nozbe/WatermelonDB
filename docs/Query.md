@@ -93,7 +93,7 @@ The second argument is the value we want to query for. Note that the passed argu
 #### Empty query
 
 ```js
-const allComments = commentCollection.query().fetch()
+const allComments = await commentCollection.query().fetch()
 ```
 
 A Query with no conditions will find **all** records in the collection.
