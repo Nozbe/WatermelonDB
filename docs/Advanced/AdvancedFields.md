@@ -75,6 +75,23 @@ Only use JSON fields when you need the flexibility of complex freeform data, or 
 
 ## `@nochange`
 
+For extra protection, you can mark fields as `@nochange` to ensure they can't be modified. Always put `@nochange` before `@field` / `@date` / `@text`
 
+```js
+import { field, nochange } from 'watermelondb/decorators'
+
+class User extends Model {
+  // ...
+  @nochange @field('is_owner') isOwner
+}
+```
+
+`user.isOwner` can only be set in the `collection.create()` block, but will throw an error if you try to set a new value in `user.update()` block.
+
+### `@readonly`
+
+Similar to `@nochange`, you can use the `@readonly` decorator to ensure a field cannot be set at all. Use this for [create/update tracking](./CreateUpdateTracking.md), but it might also be useful if you use Watermelon with a [Sync engine](../Implementation/Sync.md) and a field can only be set by the server.
 
 ## Custom observable fields
+
+
