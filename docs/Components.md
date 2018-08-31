@@ -174,7 +174,7 @@ const enhance = withObservables(['post'], ({ post }) => ({
 const EnhancedCommentList = enhance(CommentList)
 ```
 
-If you inject `post.comments.observe()` into the component, the list will not re-render to change its order, only if comments are added or removed. Instead, use `query.observeWithFields()` with an array of [**column names**](./Schema.md) you intend to use for sorting to re-render whenever a record on the list has any of those fields changed.
+If you inject `post.comments.observe()` into the component, the list will not re-render to change its order, only if comments are added or removed. Instead, use `query.observeWithFields()` with an array of [**column names**](./Schema.md) you use for sorting to re-render whenever a record on the list has any of those fields changed.
 
 * * *
 
