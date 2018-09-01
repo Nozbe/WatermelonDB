@@ -1,10 +1,10 @@
 # Relations
 
-`Relation` objects represent one record point to another — such as the author (`User`) of a `Comment`, or the `Post` the comment belongs to.
+A `Relation` object represents one record pointing to another — such as the author (`User`) of a `Comment`, or the `Post` the comment belongs to.
 
 ### Defining Relations
 
-There's two parts to defining a relation:
+There's two steps to defining a relation:
 
 1. A [**table column**](./Schema.md) for the related record's ID
    
@@ -34,7 +34,7 @@ There's two parts to defining a relation:
 
 In the example above, `comment.author` returns a `Relation` object.
 
-> Remember, WatermelonDB is a lazily-loaded database, so you don't get the related record (here, a `User`) unless you specifically request to fetch it
+> Remember, WatermelonDB is a lazily-loaded database, so you don't get the related `User` record immediately, only when you explicitly fetch it
 
 ### Observing
 
@@ -57,6 +57,8 @@ To simply get the related record, use `fetch`. You might need it [in Actions](./
 const author = await comment.author.fetch()
 ```
 
+**Note**: If the relation column (in this example, `author_id`) is marked as `isOptional: true`, `fetch()` might return `null`.
+
 ### ID
 
 If you only need the ID of a related record (e.g. to use in an URL or for the `key=` React prop), use `id`.
@@ -65,19 +67,20 @@ If you only need the ID of a related record (e.g. to use in an URL or for the `k
 const authorId = comment.author.id
 ```
 
-### Updating the relation
+### Assigning
 
-If you want to set a different record for a relation, use `set()`
+Use `set()` to assign a new record to the relation
 
 ```js
-await someComment.update(comment => {
-  comment.author.set(newUser)
+await commentsCollection.create(comment => {
+  comment.author.set(someUser)
+  // ...
 })
 ```
 
-Note that you can only do this in the `.update()` or `.create()` blocks.
+**Note**: you can only do this in the `.create()` or `.update()` block.
 
-If you only have the ID of a related record you want to assign, you can use `set id`
+You can also use `set id` if you only have the ID for the record to assign
 
 ```js
 await comment.update(() => {
@@ -89,7 +92,7 @@ await comment.update(() => {
 
 ### immutableRelation
 
-If you have a relation that cannot change (for example, you don't allow assigning a new comment author), you can use `@immutableRelation` for extra protection and performance:
+If you have a relation that cannot change (for example, a comment can't change its author), you can use `@immutableRelation` for extra protection and performance:
 
 ```js
 import { immutableRelation } from 'watermelondb/decorators'
