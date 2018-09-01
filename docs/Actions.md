@@ -124,18 +124,6 @@ class Post extends Model {
 - Use `Query.destroyAllPermanently()` on all dependent `@children` you want to delete
 - Remember to call `super.destroyPermanently` — at the end of the method!
 
-## Pro-tips
-
-- Use [`invariant`s](https://github.com/zertosh/invariant) inside Actions to pro
-
-
-
-Validation with invariant
-
-Fast skip
-
-kwargs
-
 * * *
 
 ## Next steps
