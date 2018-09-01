@@ -99,9 +99,36 @@ class Post extends Model {
 
 ## Delete action
 
-query.deleteAll
+When you delete, say, a `Post`, you generally want all comments that belong to it to be deleted as well.
+
+To do this, override `destroyPermanently()` to explicitly destroy all children as well.
+
+```js
+class Post extends Model {
+  static table = 'posts'
+  static associations = {
+    comments: { type: 'has_many', foreignKey: 'post_id' },
+  }
+  
+  @children('comments') comments
+  
+  async destroyPermanently() {
+    await this.comments.destroyAllPermanently()
+    await super.destroyPermanently()
+  }
+}
+```
+
+**Note:**
+
+- Use `Query.destroyAllPermanently()` on all dependent `@children` you want to delete
+- Remember to call `super.destroyPermanently` — at the end of the method!
 
 ## Pro-tips
+
+- Use [`invariant`s](https://github.com/zertosh/invariant) inside Actions to pro
+
+
 
 Validation with invariant
 
