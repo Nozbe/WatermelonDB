@@ -1,6 +1,6 @@
 # Actions
 
-Although you can [`.create()` and `.update()` records](./CRUD.md) anywhere in your app, it's recommended to **define model Actions** to encapsulate all ways to modify records.
+Although you can [`.create()` and `.update()` records](./CRUD.md) anywhere in your app, it's recommended to **define model Actions** to encapsulate all ways to make changes.
 
 ## Defining actions
 
@@ -27,7 +27,7 @@ class Post extends Model {
 
 **Another example**: updater action on `Comment`:
 
-``js
+```js
 class Comment extends Model {
   // ...
   @field('is_spam') isSpam
