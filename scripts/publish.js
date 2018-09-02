@@ -124,8 +124,7 @@ const buildTasks = options => {
     },
     {
       title: 'publish package',
-      task: () =>
-        execa('npm', ['publish', `./nozbe-watermelondb-v${version}.tgz`, '--tag', version]),
+      task: () => execa('npm', ['publish', `./nozbe-watermelondb-v${version}.tgz`]),
     },
     {
       title: 'push tags',
