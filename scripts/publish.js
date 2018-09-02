@@ -128,7 +128,7 @@ const buildTasks = options => {
     },
     {
       title: 'push tags',
-      task: () => execa('git', ['push', '--follow-tags']),
+      task: () => execa('git', ['push', '--tags', '--follow-tags']),
     },
     {
       title: 'cleanup',
