@@ -125,7 +125,7 @@ const buildTasks = options => {
     },
     {
       title: 'publish package',
-      task: () => () =>
+      task: () =>
         listrInput('2-Factor Authentication code', {
           validate: otp => otp.length > 0,
           done: otp =>
