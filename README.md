@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/logo-horizontal2.png" alt="WatermelonDB" height="160" />
+  <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/logo-horizontal2.png" alt="WatermelonDB" height="160" />
 </p>
 
 <h4 align="center">
