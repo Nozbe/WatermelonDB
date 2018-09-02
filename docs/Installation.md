@@ -14,7 +14,7 @@ Link with the Xcode project automatically:
 react-native link
 ```
 
-If Xcode shows strange "swift" linker errors when building, right-click on **Your App Name** in the Project Navigator on the left, and click **New File…**. Create a single empty Swift file to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header**.
+If you get linker errors when building, open `ios/YourAppName.xcodeproj` in Xcode, right-click on **Your App Name** in the Project Navigator on the left, and click **New File…**. Create a single empty Swift file to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header**.
 
 #### Manual linking
 
