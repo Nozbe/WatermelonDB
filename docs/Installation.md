@@ -14,11 +14,11 @@ Link with the Xcode project automatically:
 react-native link
 ```
 
-Or you can do it manually:
+If Xcode shows strange "swift" linker errors when building, right-click on **Your App Name** in the Project Navigator on the left, and click **New File…**. Create a single empty Swift file to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header**.
 
-#### Manually
+#### Manual linking
 
-1. Open your project in Xcode, right click on **Libraries** in the Project navigator on the left and click **Add Files to "Your Project Name"**. Look under `node_modules/@nozbe/watermelondb/native/ios` and select `WatermelonDB.xcodeproj`
+1. Open your project in Xcode, right click on **Libraries** in the Project Navigator on the left and click **Add Files to "Your Project Name"**. Look under `node_modules/@nozbe/watermelondb/native/ios` and select `WatermelonDB.xcodeproj`
 2. Go to Project settings (top item in the Project navigator on the left), select your app name under **Targets** → **Build Phases** → **Link Binary With Libraries**, and add `libWatermelonDB.a`
 
 For more information about linking libraries manually, [see React Native documentation](https://facebook.github.io/react-native/docs/linking-libraries-ios).
