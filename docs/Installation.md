@@ -8,9 +8,18 @@ yarn add @nozbe/watermelondb
 
 ### iOS (React Native)
 
-TODO
+Link with the Xcode project automatically:
 
-TODO: Try to extract an Xcode project producing a static library
+```bash
+react-native link
+```
+
+#### Manually
+
+1. Open your project in Xcode, right click on **Libraries** in the Project navigator on the left and click **Add Files to "Your Project Name"**. Look under `node_modules/@nozbe/watermelondb/native/ios` and select `WatermelonDB.xcodeproj`
+2. Go to Project settings (top item in the Project navigator on the left), select your app name under **Targets** → **Build Phases** → **Link Binary With Libraries**, and add `libWatermelonDB.a`
+
+For more information about linking libraries manually, [see React Native documentation](https://facebook.github.io/react-native/docs/linking-libraries-ios)
 
 ### Android (React Native)
 
