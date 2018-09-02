@@ -133,6 +133,10 @@ const buildTasks = options => {
         }),
     },
     {
+      title: 'git push',
+      task: () => execa('git', ['push']),
+    },
+    {
       title: 'push tags',
       task: () => execa('git', ['push', '--tags', '--follow-tags']),
     },
