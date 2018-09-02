@@ -3,6 +3,7 @@
 // inspired by `np` – https://github.com/sindresorhus/np
 
 const Listr = require('listr')
+const listrInput = require('listr-input')
 const execa = require('execa')
 const timeout = require('p-timeout')
 const inquirer = require('inquirer')
@@ -124,18 +125,12 @@ const buildTasks = options => {
     },
     {
       title: 'publish package',
-      task: () =>
-        inquirer
-          .prompt([
-            {
-              type: 'input',
-              name: 'otp',
-              message: '2 Factor authentication code:',
-            },
-          ])
-          .then(answers =>
-            execa('npm', ['publish', `./nozbe-watermelondb-v${version}.tgz`, '--otp', answers.otp]),
-          ),
+      task: () => () =>
+        listrInput('2-Factor Authentication code', {
+          validate: otp => otp.length > 0,
+          done: otp =>
+            execa('npm', ['publish', `./nozbe-watermelondb-v${version}.tgz`, `--otp=${otp}`]),
+        }),
     },
     {
       title: 'push tags',
