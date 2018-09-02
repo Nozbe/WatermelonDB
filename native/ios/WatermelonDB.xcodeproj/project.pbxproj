@@ -7,38 +7,62 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4D78F0D92135854E001A63A8 /* DatabaseBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D78F0C82135854E001A63A8 /* DatabaseBridge.swift */; };
-		4D78F0DA2135854E001A63A8 /* DatabaseBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D78F0C92135854E001A63A8 /* DatabaseBridge.m */; };
-		4D78F0DB2135854E001A63A8 /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D78F0CA2135854E001A63A8 /* Database.swift */; };
-		4D78F0DC2135854E001A63A8 /* DatabaseDriver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D78F0CB2135854E001A63A8 /* DatabaseDriver.swift */; };
-		4D78F0DD2135854E001A63A8 /* Bridging.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D78F0CD2135854E001A63A8 /* Bridging.h */; };
-		4D78F0DE2135854E001A63A8 /* BridgeTestReporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D78F0D02135854E001A63A8 /* BridgeTestReporter.m */; };
-		4D78F0DF2135854E001A63A8 /* std_ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D78F0D12135854E001A63A8 /* std_ext.swift */; };
-		4D78F0E02135854E001A63A8 /* BridgeTestReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D78F0D22135854E001A63A8 /* BridgeTestReporter.swift */; };
-		4D78F0E12135854E001A63A8 /* DatabaseDriverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D78F0D42135854E001A63A8 /* DatabaseDriverTests.swift */; };
-		4D78F0E22135854E001A63A8 /* BridgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D78F0D52135854E001A63A8 /* BridgeTests.swift */; };
-		4D78F0E32135854E001A63A8 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D78F0D72135854E001A63A8 /* Tests.swift */; };
+		6E660D95213BD75D00189354 /* WatermelonDB.modulemap in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6E660D94213BD74F00189354 /* WatermelonDB.modulemap */; };
+		6E9477D4213BDE2E0077EDFB /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477CA213BDE220077EDFB /* FMDatabaseQueue.m */; };
+		6E9477D5213BDE2E0077EDFB /* FMDatabaseAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477CD213BDE220077EDFB /* FMDatabaseAdditions.m */; };
+		6E9477D6213BDE2E0077EDFB /* FMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477CE213BDE220077EDFB /* FMDatabase.m */; };
+		6E9477D7213BDE2E0077EDFB /* FMDatabasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477D2213BDE220077EDFB /* FMDatabasePool.m */; };
+		6E9477D8213BDE2E0077EDFB /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477D3213BDE220077EDFB /* FMResultSet.m */; };
+		6E9477F0213BDF8A0077EDFB /* DatabaseDriver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477E8213BDF8A0077EDFB /* DatabaseDriver.swift */; };
+		6E9477F1213BDF8A0077EDFB /* DatabaseBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477E9213BDF8A0077EDFB /* DatabaseBridge.swift */; };
+		6E9477F2213BDF8A0077EDFB /* DatabaseBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477EA213BDF8A0077EDFB /* DatabaseBridge.m */; };
+		6E9477F3213BDF8A0077EDFB /* BridgeTestReporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477EC213BDF8A0077EDFB /* BridgeTestReporter.m */; };
+		6E9477F4213BDF8A0077EDFB /* std_ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477ED213BDF8A0077EDFB /* std_ext.swift */; };
+		6E9477F5213BDF8A0077EDFB /* BridgeTestReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477EE213BDF8A0077EDFB /* BridgeTestReporter.swift */; };
+		6E9477F6213BDF8A0077EDFB /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477EF213BDF8A0077EDFB /* Database.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		6E660D5C213BCCD300189354 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+				6E660D95213BD75D00189354 /* WatermelonDB.modulemap in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		4D78F0BB213584A8001A63A8 /* libWatermelonDB.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libWatermelonDB.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		4D78F0C82135854E001A63A8 /* DatabaseBridge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseBridge.swift; sourceTree = "<group>"; };
-		4D78F0C92135854E001A63A8 /* DatabaseBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DatabaseBridge.m; sourceTree = "<group>"; };
-		4D78F0CA2135854E001A63A8 /* Database.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Database.swift; sourceTree = "<group>"; };
-		4D78F0CB2135854E001A63A8 /* DatabaseDriver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseDriver.swift; sourceTree = "<group>"; };
-		4D78F0CD2135854E001A63A8 /* Bridging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Bridging.h; sourceTree = "<group>"; };
-		4D78F0CE2135854E001A63A8 /* WatermelonDB.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = WatermelonDB.modulemap; sourceTree = "<group>"; };
-		4D78F0D02135854E001A63A8 /* BridgeTestReporter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BridgeTestReporter.m; sourceTree = "<group>"; };
-		4D78F0D12135854E001A63A8 /* std_ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = std_ext.swift; sourceTree = "<group>"; };
-		4D78F0D22135854E001A63A8 /* BridgeTestReporter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BridgeTestReporter.swift; sourceTree = "<group>"; };
-		4D78F0D42135854E001A63A8 /* DatabaseDriverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseDriverTests.swift; sourceTree = "<group>"; };
-		4D78F0D52135854E001A63A8 /* BridgeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BridgeTests.swift; sourceTree = "<group>"; };
-		4D78F0D72135854E001A63A8 /* Tests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
-		4D78F0D82135854E001A63A8 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6E660D5E213BCCD300189354 /* libWatermelonDB.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWatermelonDB.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		6E660D93213BD74F00189354 /* Bridging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Bridging.h; sourceTree = "<group>"; };
+		6E660D94213BD74F00189354 /* WatermelonDB.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = WatermelonDB.modulemap; sourceTree = "<group>"; };
+		6E9477C5213BDE220077EDFB /* README.markdown */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.markdown; sourceTree = "<group>"; };
+		6E9477C6213BDE220077EDFB /* LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
+		6E9477C9213BDE220077EDFB /* FMDatabase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMDatabase.h; sourceTree = "<group>"; };
+		6E9477CA213BDE220077EDFB /* FMDatabaseQueue.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMDatabaseQueue.m; sourceTree = "<group>"; };
+		6E9477CB213BDE220077EDFB /* FMResultSet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMResultSet.h; sourceTree = "<group>"; };
+		6E9477CC213BDE220077EDFB /* FMDatabasePool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMDatabasePool.h; sourceTree = "<group>"; };
+		6E9477CD213BDE220077EDFB /* FMDatabaseAdditions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMDatabaseAdditions.m; sourceTree = "<group>"; };
+		6E9477CE213BDE220077EDFB /* FMDatabase.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMDatabase.m; sourceTree = "<group>"; };
+		6E9477CF213BDE220077EDFB /* FMDatabaseQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMDatabaseQueue.h; sourceTree = "<group>"; };
+		6E9477D0213BDE220077EDFB /* FMDB.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMDB.h; sourceTree = "<group>"; };
+		6E9477D1213BDE220077EDFB /* FMDatabaseAdditions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMDatabaseAdditions.h; sourceTree = "<group>"; };
+		6E9477D2213BDE220077EDFB /* FMDatabasePool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMDatabasePool.m; sourceTree = "<group>"; };
+		6E9477D3213BDE220077EDFB /* FMResultSet.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMResultSet.m; sourceTree = "<group>"; };
+		6E9477E8213BDF8A0077EDFB /* DatabaseDriver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DatabaseDriver.swift; path = WatermelonDB/DatabaseDriver.swift; sourceTree = SOURCE_ROOT; };
+		6E9477E9213BDF8A0077EDFB /* DatabaseBridge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DatabaseBridge.swift; path = WatermelonDB/DatabaseBridge.swift; sourceTree = SOURCE_ROOT; };
+		6E9477EA213BDF8A0077EDFB /* DatabaseBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DatabaseBridge.m; path = WatermelonDB/DatabaseBridge.m; sourceTree = SOURCE_ROOT; };
+		6E9477EC213BDF8A0077EDFB /* BridgeTestReporter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BridgeTestReporter.m; sourceTree = "<group>"; };
+		6E9477ED213BDF8A0077EDFB /* std_ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = std_ext.swift; sourceTree = "<group>"; };
+		6E9477EE213BDF8A0077EDFB /* BridgeTestReporter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BridgeTestReporter.swift; sourceTree = "<group>"; };
+		6E9477EF213BDF8A0077EDFB /* Database.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Database.swift; path = WatermelonDB/Database.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		4D78F0B8213584A8001A63A8 /* Frameworks */ = {
+		6E660D5B213BCCD300189354 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -48,195 +72,213 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		4D78F0B2213584A7001A63A8 = {
+		39DF4FDE1E00394E00F5B4B2 = {
 			isa = PBXGroup;
 			children = (
-				4D78F0C72135854E001A63A8 /* WatermelonDB */,
-				4D78F0D32135854E001A63A8 /* WatermelonDBTests */,
-				4D78F0BC213584A8001A63A8 /* Products */,
+				6E660D5F213BCCD300189354 /* WatermelonDB */,
+				39DF4FE81E00394E00F5B4B2 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		4D78F0BC213584A8001A63A8 /* Products */ = {
+		39DF4FE81E00394E00F5B4B2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				4D78F0BB213584A8001A63A8 /* libWatermelonDB.dylib */,
+				6E660D5E213BCCD300189354 /* libWatermelonDB.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		4D78F0C72135854E001A63A8 /* WatermelonDB */ = {
+		6E660D5F213BCCD300189354 /* WatermelonDB */ = {
 			isa = PBXGroup;
 			children = (
-				4D78F0C82135854E001A63A8 /* DatabaseBridge.swift */,
-				4D78F0C92135854E001A63A8 /* DatabaseBridge.m */,
-				4D78F0CA2135854E001A63A8 /* Database.swift */,
-				4D78F0CB2135854E001A63A8 /* DatabaseDriver.swift */,
-				4D78F0CC2135854E001A63A8 /* SupportingFiles */,
-				4D78F0CF2135854E001A63A8 /* Helpers */,
+				6E9477EB213BDF8A0077EDFB /* Helpers */,
+				6E9477EF213BDF8A0077EDFB /* Database.swift */,
+				6E9477EA213BDF8A0077EDFB /* DatabaseBridge.m */,
+				6E9477E9213BDF8A0077EDFB /* DatabaseBridge.swift */,
+				6E9477E8213BDF8A0077EDFB /* DatabaseDriver.swift */,
+				6E9477C4213BDE220077EDFB /* FMDB */,
+				6E660D92213BD74F00189354 /* SupportingFiles */,
 			);
 			path = WatermelonDB;
 			sourceTree = "<group>";
 		};
-		4D78F0CC2135854E001A63A8 /* SupportingFiles */ = {
+		6E660D92213BD74F00189354 /* SupportingFiles */ = {
 			isa = PBXGroup;
 			children = (
-				4D78F0CD2135854E001A63A8 /* Bridging.h */,
-				4D78F0CE2135854E001A63A8 /* WatermelonDB.modulemap */,
+				6E660D93213BD74F00189354 /* Bridging.h */,
+				6E660D94213BD74F00189354 /* WatermelonDB.modulemap */,
 			);
 			path = SupportingFiles;
 			sourceTree = "<group>";
 		};
-		4D78F0CF2135854E001A63A8 /* Helpers */ = {
+		6E9477C4213BDE220077EDFB /* FMDB */ = {
 			isa = PBXGroup;
 			children = (
-				4D78F0D02135854E001A63A8 /* BridgeTestReporter.m */,
-				4D78F0D12135854E001A63A8 /* std_ext.swift */,
-				4D78F0D22135854E001A63A8 /* BridgeTestReporter.swift */,
+				6E9477C5213BDE220077EDFB /* README.markdown */,
+				6E9477C6213BDE220077EDFB /* LICENSE.txt */,
+				6E9477C7213BDE220077EDFB /* src */,
 			);
-			path = Helpers;
+			path = FMDB;
 			sourceTree = "<group>";
 		};
-		4D78F0D32135854E001A63A8 /* WatermelonDBTests */ = {
+		6E9477C7213BDE220077EDFB /* src */ = {
 			isa = PBXGroup;
 			children = (
-				4D78F0D42135854E001A63A8 /* DatabaseDriverTests.swift */,
-				4D78F0D52135854E001A63A8 /* BridgeTests.swift */,
-				4D78F0D62135854E001A63A8 /* SupportingFiles */,
+				6E9477C8213BDE220077EDFB /* fmdb */,
 			);
-			path = WatermelonDBTests;
+			path = src;
 			sourceTree = "<group>";
 		};
-		4D78F0D62135854E001A63A8 /* SupportingFiles */ = {
+		6E9477C8213BDE220077EDFB /* fmdb */ = {
 			isa = PBXGroup;
 			children = (
-				4D78F0D72135854E001A63A8 /* Tests.swift */,
-				4D78F0D82135854E001A63A8 /* Info.plist */,
+				6E9477C9213BDE220077EDFB /* FMDatabase.h */,
+				6E9477CA213BDE220077EDFB /* FMDatabaseQueue.m */,
+				6E9477CB213BDE220077EDFB /* FMResultSet.h */,
+				6E9477CC213BDE220077EDFB /* FMDatabasePool.h */,
+				6E9477CD213BDE220077EDFB /* FMDatabaseAdditions.m */,
+				6E9477CE213BDE220077EDFB /* FMDatabase.m */,
+				6E9477CF213BDE220077EDFB /* FMDatabaseQueue.h */,
+				6E9477D0213BDE220077EDFB /* FMDB.h */,
+				6E9477D1213BDE220077EDFB /* FMDatabaseAdditions.h */,
+				6E9477D2213BDE220077EDFB /* FMDatabasePool.m */,
+				6E9477D3213BDE220077EDFB /* FMResultSet.m */,
 			);
-			path = SupportingFiles;
+			path = fmdb;
 			sourceTree = "<group>";
+		};
+		6E9477EB213BDF8A0077EDFB /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				6E9477EC213BDF8A0077EDFB /* BridgeTestReporter.m */,
+				6E9477ED213BDF8A0077EDFB /* std_ext.swift */,
+				6E9477EE213BDF8A0077EDFB /* BridgeTestReporter.swift */,
+			);
+			name = Helpers;
+			path = WatermelonDB/Helpers;
+			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
 
-/* Begin PBXHeadersBuildPhase section */
-		4D78F0B9213584A8001A63A8 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4D78F0DD2135854E001A63A8 /* Bridging.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
-
 /* Begin PBXNativeTarget section */
-		4D78F0BA213584A8001A63A8 /* WatermelonDB */ = {
+		6E660D5D213BCCD300189354 /* WatermelonDB */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4D78F0C4213584A8001A63A8 /* Build configuration list for PBXNativeTarget "WatermelonDB" */;
+			buildConfigurationList = 6E660D62213BCCD300189354 /* Build configuration list for PBXNativeTarget "WatermelonDB" */;
 			buildPhases = (
-				4D78F0B7213584A8001A63A8 /* Sources */,
-				4D78F0B8213584A8001A63A8 /* Frameworks */,
-				4D78F0B9213584A8001A63A8 /* Headers */,
+				6E660D5A213BCCD300189354 /* Sources */,
+				6E660D5B213BCCD300189354 /* Frameworks */,
+				6E660D5C213BCCD300189354 /* CopyFiles */,
+				6E660D6B213BCD9700189354 /* Copy module map */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = WatermelonDB;
-			productName = WatermelonDB;
-			productReference = 4D78F0BB213584A8001A63A8 /* libWatermelonDB.dylib */;
-			productType = "com.apple.product-type.library.dynamic";
+			productName = TestBundle;
+			productReference = 6E660D5E213BCCD300189354 /* libWatermelonDB.a */;
+			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		4D78F0B3213584A7001A63A8 /* Project object */ = {
+		39DF4FDF1E00394E00F5B4B2 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0940;
+				LastSwiftUpdateCheck = 0940;
+				LastUpgradeCheck = 9999;
 				ORGANIZATIONNAME = Nozbe;
 				TargetAttributes = {
-					4D78F0BA213584A8001A63A8 = {
-						CreatedOnToolsVersion = 9.4.1;
+					6E660D5D213BCCD300189354 = {
+						CreatedOnToolsVersion = 9.4;
+						LastSwiftMigration = 0940;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
-			buildConfigurationList = 4D78F0B6213584A7001A63A8 /* Build configuration list for PBXProject "WatermelonDB" */;
+			buildConfigurationList = 39DF4FE21E00394E00F5B4B2 /* Build configuration list for PBXProject "WatermelonDB" */;
 			compatibilityVersion = "Xcode 9.3";
-			developmentRegion = en;
+			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 			);
-			mainGroup = 4D78F0B2213584A7001A63A8;
-			productRefGroup = 4D78F0BC213584A8001A63A8 /* Products */;
+			mainGroup = 39DF4FDE1E00394E00F5B4B2;
+			productRefGroup = 39DF4FE81E00394E00F5B4B2 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				4D78F0BA213584A8001A63A8 /* WatermelonDB */,
+				6E660D5D213BCCD300189354 /* WatermelonDB */,
 			);
 		};
 /* End PBXProject section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		6E660D6B213BCD9700189354 /* Copy module map */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy module map";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "target_dir=${BUILT_PRODUCTS_DIR}/include/${PRODUCT_MODULE_NAME}/\n\n# Ensure the target include path exists\nmkdir -p ${target_dir}\n\n# Copy any file that looks like a Swift generated header to the include path\ncp ${DERIVED_SOURCES_DIR}/*-Swift.h ${target_dir}";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
-		4D78F0B7213584A8001A63A8 /* Sources */ = {
+		6E660D5A213BCCD300189354 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4D78F0E12135854E001A63A8 /* DatabaseDriverTests.swift in Sources */,
-				4D78F0E32135854E001A63A8 /* Tests.swift in Sources */,
-				4D78F0DE2135854E001A63A8 /* BridgeTestReporter.m in Sources */,
-				4D78F0DC2135854E001A63A8 /* DatabaseDriver.swift in Sources */,
-				4D78F0DB2135854E001A63A8 /* Database.swift in Sources */,
-				4D78F0E22135854E001A63A8 /* BridgeTests.swift in Sources */,
-				4D78F0D92135854E001A63A8 /* DatabaseBridge.swift in Sources */,
-				4D78F0DA2135854E001A63A8 /* DatabaseBridge.m in Sources */,
-				4D78F0DF2135854E001A63A8 /* std_ext.swift in Sources */,
-				4D78F0E02135854E001A63A8 /* BridgeTestReporter.swift in Sources */,
+				6E9477F0213BDF8A0077EDFB /* DatabaseDriver.swift in Sources */,
+				6E9477F5213BDF8A0077EDFB /* BridgeTestReporter.swift in Sources */,
+				6E9477F3213BDF8A0077EDFB /* BridgeTestReporter.m in Sources */,
+				6E9477F1213BDF8A0077EDFB /* DatabaseBridge.swift in Sources */,
+				6E9477D8213BDE2E0077EDFB /* FMResultSet.m in Sources */,
+				6E9477D7213BDE2E0077EDFB /* FMDatabasePool.m in Sources */,
+				6E9477F2213BDF8A0077EDFB /* DatabaseBridge.m in Sources */,
+				6E9477F4213BDF8A0077EDFB /* std_ext.swift in Sources */,
+				6E9477F6213BDF8A0077EDFB /* Database.swift in Sources */,
+				6E9477D5213BDE2E0077EDFB /* FMDatabaseAdditions.m in Sources */,
+				6E9477D4213BDE2E0077EDFB /* FMDatabaseQueue.m in Sources */,
+				6E9477D6213BDE2E0077EDFB /* FMDatabase.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		4D78F0C2213584A8001A63A8 /* Debug */ = {
+		39DF4FEE1E00394E00F5B4B2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -246,114 +288,183 @@
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx;
+				RUN_CLANG_STATIC_ANALYZER = NO;
+				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
-		4D78F0C3213584A8001A63A8 /* Release */ = {
+		39DF4FEF1E00394E00F5B4B2 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				SDKROOT = macosx;
+				RUN_CLANG_STATIC_ANALYZER = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
-		4D78F0C5213584A8001A63A8 /* Debug */ = {
+		6E660D63213BCCD300189354 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				EXECUTABLE_PREFIX = lib;
+				DEFINES_MODULE = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../../../React/**",
+					"$(SRCROOT)/../../react-native/React/**",
+					"$(SRCROOT)/../../node_modules/react-native/React/**",
+					"$(SRCROOT)/../../../react-native/React/**",
+					"$(SRCROOT)/../../node_modules/react-native/Libraries/**",
+					"$(SRCROOT)/../../../../node_modules/react-native/Libraries/**",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = WatermelonDB/SupportingFiles/WatermelonDB.modulemap;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lsqlite3",
+				);
+				PRODUCT_MODULE_NAME = "$(PRODUCT_NAME:c99extidentifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = WatermelonDB/SupportingFiles/Bridging.h;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		4D78F0C6213584A8001A63A8 /* Release */ = {
+		6E660D64213BCCD300189354 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				EXECUTABLE_PREFIX = lib;
+				DEFINES_MODULE = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../../../React/**",
+					"$(SRCROOT)/../../react-native/React/**",
+					"$(SRCROOT)/../../node_modules/react-native/React/**",
+					"$(SRCROOT)/../../../react-native/React/**",
+					"$(SRCROOT)/../../node_modules/react-native/Libraries/**",
+					"$(SRCROOT)/../../../../node_modules/react-native/Libraries/**",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = WatermelonDB/SupportingFiles/WatermelonDB.modulemap;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lsqlite3",
+				);
+				PRODUCT_MODULE_NAME = "$(PRODUCT_NAME:c99extidentifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OBJC_BRIDGING_HEADER = WatermelonDB/SupportingFiles/Bridging.h;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		4D78F0B6213584A7001A63A8 /* Build configuration list for PBXProject "WatermelonDB" */ = {
+		39DF4FE21E00394E00F5B4B2 /* Build configuration list for PBXProject "WatermelonDB" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				4D78F0C2213584A8001A63A8 /* Debug */,
-				4D78F0C3213584A8001A63A8 /* Release */,
+				39DF4FEE1E00394E00F5B4B2 /* Debug */,
+				39DF4FEF1E00394E00F5B4B2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4D78F0C4213584A8001A63A8 /* Build configuration list for PBXNativeTarget "WatermelonDB" */ = {
+		6E660D62213BCCD300189354 /* Build configuration list for PBXNativeTarget "WatermelonDB" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				4D78F0C5213584A8001A63A8 /* Debug */,
-				4D78F0C6213584A8001A63A8 /* Release */,
+				6E660D63213BCCD300189354 /* Debug */,
+				6E660D64213BCCD300189354 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 4D78F0B3213584A7001A63A8 /* Project object */;
+	rootObject = 39DF4FDF1E00394E00F5B4B2 /* Project object */;
 }

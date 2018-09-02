@@ -204,7 +204,7 @@ final public class DatabaseBridge: NSObject {
     @objc(unsafeClearCachedRecords:resolve:reject:)
     func unsafeClearCachedRecords(tag: ConnectionTag, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
-            try $0.unsafeClearCachedRecords()
+            $0.unsafeClearCachedRecords()
         }
     }
 
