@@ -21,7 +21,9 @@ Or you can do it manually:
 1. Open your project in Xcode, right click on **Libraries** in the Project navigator on the left and click **Add Files to "Your Project Name"**. Look under `node_modules/@nozbe/watermelondb/native/ios` and select `WatermelonDB.xcodeproj`
 2. Go to Project settings (top item in the Project navigator on the left), select your app name under **Targets** → **Build Phases** → **Link Binary With Libraries**, and add `libWatermelonDB.a`
 
-For more information about linking libraries manually, [see React Native documentation](https://facebook.github.io/react-native/docs/linking-libraries-ios)
+For more information about linking libraries manually, [see React Native documentation](https://facebook.github.io/react-native/docs/linking-libraries-ios).
+
+Note that Xcode 9.3 and a deployment target of at least iOS 9.0 is required (although iOS 11.0 is recommended).
 
 ### Android (React Native)
 
