@@ -20,8 +20,9 @@
     "sqlite",
     "react",
     "react-native",
-    "watermelondb",
-    "offline"
+    "watermelon",
+    "offline",
+    "persistence"
   ],
   "repository": {
     "type": "git",
