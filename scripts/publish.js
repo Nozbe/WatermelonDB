@@ -124,7 +124,18 @@ const buildTasks = options => {
     },
     {
       title: 'publish package',
-      task: () => execa('npm', ['publish', `./nozbe-watermelondb-v${version}.tgz`]),
+      task: () =>
+        inquirer
+          .prompt([
+            {
+              type: 'input',
+              name: 'otp',
+              message: '2 Factor authentication code:',
+            },
+          ])
+          .then(answers =>
+            execa('npm', ['publish', `./nozbe-watermelondb-v${version}.tgz`, '--otp', answers.otp]),
+          ),
     },
     {
       title: 'push tags',
