@@ -14,6 +14,8 @@ Link with the Xcode project automatically:
 react-native link
 ```
 
+Or you can do it manually:
+
 #### Manually
 
 1. Open your project in Xcode, right click on **Libraries** in the Project navigator on the left and click **Add Files to "Your Project Name"**. Look under `node_modules/@nozbe/watermelondb/native/ios` and select `WatermelonDB.xcodeproj`
