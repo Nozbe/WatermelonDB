@@ -102,7 +102,7 @@ export default class Query<Record: Model> {
   // Destroys all records matching the query
   async destroyAllPermanently(): Promise<void> {
     const records = await this.fetch();
-    await allPromises(record => record.destroyPermanentyl(), records);
+    await allPromises(record => record.destroyPermanently(), records);
   }
 
   // MARK: - Internals
