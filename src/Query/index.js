@@ -78,7 +78,7 @@ export default class Query<Record: Model> {
 
   // Same as `observe()` but also emits the list when any of the records
   // on the list has one of `rawFields` chaged
-  observeWithFields(rawFields: ColumnName[]): Observable<Record[]> {
+  observeWithColumns(rawFields: ColumnName[]): Observable<Record[]> {
     return fieldObserver(this.observe(), rawFields)
   }
 

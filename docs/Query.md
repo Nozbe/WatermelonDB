@@ -147,7 +147,7 @@ The first argument for `Q.on` is the table name you're making a condition on. Th
 
 ### Advanced observing
 
-Call `query.observeWithFields(['foo', 'bar'])` to create an Observable that emits a value not only when the list of matching records changes (new records/deleted records), but also when any of the matched records changes its `foo` or `bar` column. [Use this for observing sorted lists](./Components.md)
+Call `query.observeWithColumns(['foo', 'bar'])` to create an Observable that emits a value not only when the list of matching records changes (new records/deleted records), but also when any of the matched records changes its `foo` or `bar` column. [Use this for observing sorted lists](./Components.md)
 
 #### Count throttling
 
