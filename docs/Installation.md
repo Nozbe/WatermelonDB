@@ -49,11 +49,12 @@ WatermelonDB requires Kotlin support.
 3. In `android/build.gradle`
    ```gradle
    buildscript {
-     ext.kotlin_version = '1.2.61'
-     // ...
-      dependencies {
+       ext.kotlin_version = '1.2.61'
+       // ...
+       dependencies {
            // ...
            classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+       }
    }
    ```
 4. And finally, in `android/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.java`, add:
