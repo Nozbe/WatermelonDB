@@ -103,7 +103,7 @@ const enhance = withObservables(['post'], ({ post }) => ({
 
 The result is fully reactive! Whenever a post or comment is added, changed, or removed, the right components **will automatically re-render** on screen. Doesn't matter if a change occured in a totally different part of the app, it all just works out of the box!
 
-➡️ **Learn more: [Getting Started](./docs/GettingStarted.md)** or [**see full documentation**](./docs)
+➡️ **Learn more:** [see full documentation](./docs)
 
 ## Contributing
 
