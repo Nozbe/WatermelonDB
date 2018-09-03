@@ -150,7 +150,7 @@ withObservables(['post'], ({ post }) => ({
 
 ### Advanced: observing sorted lists
 
-If you have a list that's dynamically sorted (e.g. sort comments by number of likes), use `Query.observeWithFields` to ensure the list is re-rendered when its order changes:
+If you have a list that's dynamically sorted (e.g. sort comments by number of likes), use `Query.observeWithColumns` to ensure the list is re-rendered when its order changes:
 
 ```jsx
 // This is a function that sorts an array of comments according to its `likes` field
@@ -168,13 +168,13 @@ const CommentList = ({ comments }) => (
 )
 
 const enhance = withObservables(['post'], ({ post }) => ({
-  comments: post.comments.observeWithFields(['likes'])
+  comments: post.comments.observeWithColumns(['likes'])
 }))
 
 const EnhancedCommentList = enhance(CommentList)
 ```
 
-If you inject `post.comments.observe()` into the component, the list will not re-render to change its order, only if comments are added or removed. Instead, use `query.observeWithFields()` with an array of [**column names**](./Schema.md) you use for sorting to re-render whenever a record on the list has any of those fields changed.
+If you inject `post.comments.observe()` into the component, the list will not re-render to change its order, only if comments are added or removed. Instead, use `query.observeWithColumns()` with an array of [**column names**](./Schema.md) you use for sorting to re-render whenever a record on the list has any of those fields changed.
 
 * * *
 

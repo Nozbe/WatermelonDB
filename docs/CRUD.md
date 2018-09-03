@@ -78,7 +78,7 @@ If you use Watermelon [with a Sync service](./Implementation/Sync.md), call `mar
 
 - `Model.observe()` - usually you only use this [when connecting records to components](./Components.md), but you can manually observe a record outside of React components. The returned [RxJS](https://github.com/reactivex/rxjs) `Observable` will emit the record immediately upon subscription, and then every time the record is updated. If the record is deleted, the Observable will complete.
 - `Query.observe()`, `Relation.observe()` — analagous to the above, but for [Queries](./Query.md) and [Relations](./Relation.md)
-- `Query.observeWithFields()` - used for [sorted lists](./Components.md)
+- `Query.observeWithColumns()` - used for [sorted lists](./Components.md)
 - `Collection.findAndObserve(id)` — same as using `.find(id)` and then calling `record.observe()`
 - `Model.prepareUpdate()`, `Collection.prepareCreate`, `Database.batch` — used for [batch updates](./Actions.md)
 
