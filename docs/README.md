@@ -2,12 +2,6 @@
 
 If you're completely new to WatermelonDB, [check out the README](../README.md) first!
 
-### Get started
-
-Start here for a detailed demo of WatermelonDB:
-
-1. [Getting Started](./GettingStarted.md)
-
 ### Learn to use Watermelon
 
 1. [Installation](./Installation.md)
