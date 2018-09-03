@@ -44,6 +44,9 @@ dependencies {
 
 3. And finally, in `android/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.java`, add:
 ```java
+// ...
+import com.nozbe.watermelondb.WatermelonDBPackage; // ⬅️ This!
+// ...
 @Override
 protected List<ReactPackage> getPackages() {
   return Arrays.<ReactPackage>asList(
