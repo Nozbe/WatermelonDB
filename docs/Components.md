@@ -42,6 +42,8 @@ Now, if we render `<EnhancedComment comment={comment} />`, it **will** update ev
 Let's render the whole `Post` with comments:
 
 ```jsx
+import withObservables from '@nozbe/with-observables'
+
 const Post = ({ post, comments }) => (
   <article>
     <h1>{post.name}</h1>
