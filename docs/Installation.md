@@ -27,6 +27,8 @@ Note that Xcode 9.3 and a deployment target of at least iOS 9.0 is required (alt
 
 ### Android (React Native)
 
+WatermelonDB requires Kotlin support.
+
 1. In `android/settings.gradle`, add:
 
    ```gradle
