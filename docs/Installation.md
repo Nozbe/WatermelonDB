@@ -28,47 +28,45 @@ Note that Xcode 9.3 and a deployment target of at least iOS 9.0 is required (alt
 ### Android (React Native)
 
 1. In `android/settings.gradle`, add:
-```gradle
-include ':watermelondb'
-project(':watermelondb').projectDir =
-    new File(rootProject.projectDir, '../node_modules/@nozbe/watermelondb/native/android')
-```
 
+   ```gradle
+   include ':watermelondb'
+   project(':watermelondb').projectDir =
+       new File(rootProject.projectDir, '../node_modules/@nozbe/watermelondb/native/android')
+   ```
 2. In `android/app/build.gradle`, add:
-```gradle
-apply plugin: "com.android.application"
-apply plugin: 'kotlin-android'  // ⬅️ This!
-// ...
-dependencies {
-    // ...
-    compile project(':watermelondb')
-}
-```
-
-3. In `android/build.gradle`
-```gradle
-buildscript {
-  ext.kotlin_version = '1.2.61'
-  // ...
+   ```gradle
+   apply plugin: "com.android.application"
+   apply plugin: 'kotlin-android'  // ⬅️ This!
+   // ...
    dependencies {
-        // ...
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-}
-```
-
-3. And finally, in `android/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.java`, add:
-```java
-// ...
-import com.nozbe.watermelondb.WatermelonDBPackage; // ⬅️ This!
-// ...
-@Override
-protected List<ReactPackage> getPackages() {
-  return Arrays.<ReactPackage>asList(
-    new MainReactPackage(),
-    new WatermelonDBPackage() // ⬅️ Here!
-  );
-}
-```
+       // ...
+       compile project(':watermelondb')
+   }
+   ```
+3. In `android/build.gradle`
+   ```gradle
+   buildscript {
+     ext.kotlin_version = '1.2.61'
+     // ...
+      dependencies {
+           // ...
+           classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+   }
+   ```
+4. And finally, in `android/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.java`, add:
+   ```java
+   // ...
+   import com.nozbe.watermelondb.WatermelonDBPackage; // ⬅️ This!
+   // ...
+   @Override
+   protected List<ReactPackage> getPackages() {
+     return Arrays.<ReactPackage>asList(
+       new MainReactPackage(),
+       new WatermelonDBPackage() // ⬅️ Here!
+     );
+   }
+   ```
 
 ### Web
 
