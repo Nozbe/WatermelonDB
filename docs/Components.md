@@ -7,7 +7,7 @@ After you [define some Models](./Model.md), it's time to connect Watermelon to y
 The recommended way to use Watermelon with React is with `withObservables` HOC (higher-order component). It doesn't come pre-packaged with Watermelon, but you can install it with:
 
 ```bash
-yarn add @nozbe/withObservables
+yarn add @nozbe/with-observables
 ```
 
 **Note:** If you're not familiar with higher-order components, read [React documentation](https://reactjs.org/docs/higher-order-components.html), check out [`recompose`](https://github.com/acdlite/recompose)… or just read the examples below to see it in practice!
