@@ -36,9 +36,23 @@ project(':watermelondb').projectDir =
 
 2. In `android/app/build.gradle`, add:
 ```gradle
+apply plugin: "com.android.application"
+apply plugin: 'kotlin-android'  // ⬅️ This!
+// ...
 dependencies {
     // ...
     compile project(':watermelondb')
+}
+```
+
+3. In `android/build.gradle`
+```gradle
+buildscript {
+  ext.kotlin_version = '1.2.61'
+  // ...
+   dependencies {
+        // ...
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 }
 ```
 
