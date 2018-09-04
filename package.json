@@ -1,7 +1,7 @@
 {
   "name": "@nozbe/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "scripts": {
     "build": "NODE_ENV=production node ./scripts/make.js",
     "dev": "NODE_ENV=development node ./scripts/make.js",
@@ -35,9 +35,9 @@
     "sql-escape-string": "^1.1.0"
   },
   "peerDependencies": {
+    "babel-plugin-module-resolver": "^3.1.1",
     "lokijs": "^1.5.5",
-    "react-native": "^0.56.0",
-    "babel-plugin-module-resolver": "^3.1.1"
+    "react-native": "^0.56.0"
   },
   "publishConfig": {
     "access": "public"
