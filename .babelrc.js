@@ -1,7 +1,3 @@
-const { join } = require('rambdax')
-
-const redirect = (...paths) => join('/', ['@nozbe', 'watermelondb', ...paths])
-
 const plugins = [
   'annotate-pure-calls',
   [
@@ -11,11 +7,9 @@ const plugins = [
       regenerator: true,
     },
   ],
-  // decorators
   ['@babel/plugin-proposal-decorators', { legacy: true }],
   '@babel/plugin-transform-flow-strip-types',
   ['@babel/plugin-proposal-class-properties', { loose: true }],
-  // stage-3
   '@babel/plugin-syntax-dynamic-import',
   '@babel/plugin-proposal-json-strings',
   '@babel/plugin-proposal-object-rest-spread',
@@ -44,35 +38,29 @@ const plugins = [
   ],
 ]
 
-const importRedirect = [
-  'import-redirect',
-  {
-    redirect: {
-      '(adapters|decorators|utils|observation)(.+(?=\\/index\\.js)|.+(?=\\.js)|.+)': redirect(
-        '$1$2',
-      ),
-      Collection$: redirect('Collection'),
-      CollectionMap$: redirect('CollectionMap'),
-      Database$: redirect('Database'),
-      Model$: redirect('Model'),
-      Query$: redirect('Query'),
-      QueryDescription$: redirect('QueryDescription'),
-      RawRecord$: redirect('RawRecord'),
-      Relation$: redirect('Relation'),
-      Schema$: redirect('Schema'),
+const modules = [
+  [
+    'module-resolver',
+    {
+      root: ['./src'],
     },
-    suppressResolveWarning: true,
-  },
+  ],
+  [
+    'babel-plugin-root-import',
+    {
+      rootPathSuffix: './src',
+    },
+  ],
 ]
 
 module.exports = {
   env: {
     development: {
-      plugins: [importRedirect, ...plugins],
+      plugins: [...modules, ...plugins],
     },
     production: {
       plugins: [
-        importRedirect,
+        ...modules,
         ...plugins,
         // console.log is expensive for performance on native
         // we don't want it on web either, but it's useful for development
