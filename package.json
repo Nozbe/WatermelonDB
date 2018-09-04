@@ -36,7 +36,8 @@
   },
   "peerDependencies": {
     "lokijs": "^1.5.5",
-    "react-native": "^0.56.0"
+    "react-native": "^0.56.0",
+    "babel-plugin-module-resolver": "^3.1.1"
   },
   "publishConfig": {
     "access": "public"
@@ -88,6 +89,8 @@
     "babel-plugin-minify-flip-comparisons": "^0.4.3",
     "babel-plugin-minify-guarded-expressions": "^0.4.3",
     "babel-plugin-minify-replace": "^0.4.3",
+    "babel-plugin-module-resolver": "^3.1.1",
+    "babel-plugin-root-import": "^6.1.0",
     "babel-plugin-transform-import-resolve": "^2.0.1",
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "babel-plugin-transform-remove-console": "^6.9.4",
@@ -115,13 +118,6 @@
     "p-timeout": "^2.0.1",
     "prettier-eslint-cli": "^4.7.1",
     "rimraf": "^2.6.2",
-    "rollup": "^0.64.1",
-    "rollup-plugin-babel": "^4.0.0-beta.8",
-    "rollup-plugin-commonjs": "^9.1.5",
-    "rollup-plugin-flow": "^1.1.1",
-    "rollup-plugin-node-resolve": "^3.3.0",
-    "rollup-plugin-replace": "^2.0.0",
-    "rollup-plugin-terser": "^1.0.1",
     "semver": "^5.5.1"
   }
 }
