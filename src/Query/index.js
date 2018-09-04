@@ -93,10 +93,16 @@ export default class Query<Record: Model> {
     return isThrottled ? this._cachedCountThrottledObservable : this._cachedCountObservable
   }
 
-  // Destroys all records matching the query
+  // Marks as deleted all records matching the query
   async markAllAsDeleted(): Promise<void> {
     const records = await this.fetch()
     await allPromises(record => record.markAsDeleted(), records)
+  }
+
+  // Destroys all records matching the query
+  async destroyAllPermanently(): Promise<void> {
+    const records = await this.fetch()
+    await allPromises(record => record.destroyPermanently(), records)
   }
 
   // MARK: - Internals
