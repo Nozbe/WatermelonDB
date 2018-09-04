@@ -1,8 +1,10 @@
 package com.app;
 
 import android.app.Application;
+import com.nozbe.watermelondb.WatermelonDBPackage;
 
 import com.facebook.react.ReactApplication;
+import im.shimo.react.prompt.RNPromptPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
@@ -22,7 +24,9 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
-          new MainReactPackage()
+          new MainReactPackage(),
+          new RNPromptPackage(),
+          new WatermelonDBPackage()
       );
     }
 

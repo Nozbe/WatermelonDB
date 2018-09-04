@@ -1,7 +1,29 @@
-/** @format */
+import { AppRegistry, NativeModules } from 'react-native'
 
-import { AppRegistry } from 'react-native'
-import App from './App'
-import { name as appName } from './app.json'
+import { Database } from '@nozbe/watermelondb'
+import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite'
 
-AppRegistry.registerComponent(appName, () => App)
+import { mySchema } from './src/models/schema'
+import Blog from './src/models/Blog'
+import Post from './src/models/Post'
+import Comment from './src/models/Comment'
+
+import { createNavigation } from './src/components/helpers/Navigation'
+
+const adapter = new SQLiteAdapter({
+  dbName: 'WatermelonDemo',
+  schema: mySchema,
+})
+
+const database = new Database({
+  adapter,
+  modelClasses: [Blog, Post, Comment],
+})
+
+const appStartedLaunchingAt = NativeModules.NozbePlugin.appInitTimestamp
+
+const timeToLaunch = new Date().getTime() - appStartedLaunchingAt
+
+const Navigation = createNavigation({ database, timeToLaunch })
+
+AppRegistry.registerComponent('App', () => Navigation)

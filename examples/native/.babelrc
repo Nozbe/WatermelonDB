@@ -1,6 +1,7 @@
 {
   "presets": ["react-native"],
   "plugins": [
-    "@nozbe/watermelondb/babel/cjs"
+    "@nozbe/watermelondb/babel/cjs",
+    ["@babel/plugin-proposal-decorators", { "legacy": true }]
   ]
 }
