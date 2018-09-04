@@ -10,14 +10,12 @@ const {
   prop,
   replace,
   join,
-  reduce,
   omit,
   merge,
   forEach,
-  tail,
 } = require('rambdax')
 
-const rollup = require('rollup')
+const babel = require('@babel/core')
 const klaw = require('klaw-sync')
 const mkdirp = require('mkdirp')
 const path = require('path')
@@ -28,11 +26,9 @@ const anymatch = require('anymatch')
 const rimraf = require('rimraf')
 
 const pkg = require('../package.json')
-const createRollupConfig = require('./rollup.config')
 
 const resolvePath = (...paths) => path.resolve(__dirname, '..', ...paths)
 const isDevelopment = process.env.NODE_ENV === 'development'
-const rollupConfig = createRollupConfig({ env: process.env.NODE_ENV })
 
 const ESM_MODULES = 'esm'
 const CJS_MODULES = 'cjs'
@@ -49,7 +45,6 @@ const DO_NOT_BUILD_PATHS = [
   /type\.js/,
   /integrationTest\.js/,
   /__mocks__/,
-  /Collection\/RecordCache\.js/,
   /\.DS_Store/,
 ]
 
@@ -101,10 +96,7 @@ const createPathName = file => {
   return endsWith('index.js', value) ? path.dirname(value) : replace('.js', '', value)
 }
 
-const createModuleName = name => {
-  const module = tail(name)
-  return `${pkg.name}${module === '' ? module : `/${module}`}`
-}
+const createModuleName = name => `${pkg.name}${name}`
 
 const buildPathMapping = format =>
   pipe(
@@ -128,36 +120,33 @@ const buildPathMapping = format =>
     },
   )
 
+const createFolder = dir => mkdirp.sync(resolvePath(dir))
+
+const babelTransform = (format, file) => {
+  const config = {
+    overrides: [
+      {
+        plugins: format === CJS_MODULES ? ['@babel/plugin-transform-modules-commonjs'] : [],
+      },
+    ],
+  }
+  const { code } = babel.transformFileSync(file, config)
+  return code
+}
+
 const paths = klaw(SOURCE_PATH)
 const modules = takeModules(paths)
-const createExternals = pipe(
-  filter(takeFiles),
-  reduce((acc, file) => {
-    const name = createPathName(file.path)
-    return [...acc, createModuleName(name)]
-  }, []),
-)
-const externals = createExternals(paths)
 
 const buildCjsPathMapping = buildPathMapping(CJS_MODULES)
 const buildEsmPathMapping = buildPathMapping(ESM_MODULES)
 
-const buildModule = format => async file => {
+const buildModule = format => file => {
   const modulePath = createModulePath(format)
-  const inputOptions = {
-    ...rollupConfig,
-    external: [...rollupConfig.external, ...externals],
-    input: file,
-  }
-  const outputOptions = {
-    format,
-    file: modulePath(file),
-    exports: 'named',
-  }
+  const code = babelTransform(format, file)
+  const filename = modulePath(file)
 
-  const bundle = await rollup.rollup(inputOptions)
-
-  await bundle.write(outputOptions)
+  createFolder(path.dirname(filename))
+  fs.writeFileSync(filename, code)
 }
 
 const prepareJson = pipe(
@@ -170,15 +159,16 @@ const prepareJson = pipe(
   obj => prettyJson(obj),
 )
 
-const createFolder = dir => mkdirp.sync(resolvePath(dir))
-
 const createPackageJson = (dir, obj) => {
   const json = prepareJson(obj)
   fs.writeFileSync(resolvePath(dir, 'package.json'), json)
 }
 
-const copyFiles = (dir, files) =>
-  forEach(file => fs.copySync(resolvePath(file), resolvePath(dir, file)), files)
+const copyFiles = (dir, files, rm = resolvePath()) =>
+  forEach(file => {
+    // console.log(dir, file, path.join(dir, replace(resolvePath(), '', file)))
+    fs.copySync(file, path.join(dir, replace(rm, '', file)))
+  }, files)
 
 if (isDevelopment) {
   const buildCjsModule = buildModule(CJS_MODULES)
@@ -217,7 +207,8 @@ if (isDevelopment) {
   cleanFolder(DIST_PATH)
   createFolder(DIST_PATH)
   createPackageJson(DIST_PATH, pkg)
-  copyFiles(DIST_PATH, ['LICENSE', 'README.md', 'yarn.lock', 'docs', 'src', 'native'])
+  copyFiles(DIST_PATH, ['LICENSE', 'README.md', 'yarn.lock', 'docs', 'native', 'babel'])
+  copyFiles(DIST_PATH, modules, SOURCE_PATH)
   buildCjsPathMapping(modules)
   buildEsmPathMapping(modules)
   buildEsmModules(modules)
