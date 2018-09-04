@@ -9,11 +9,15 @@
     "test": "jest"
   },
   "dependencies": {
+    "@nozbe/watermelondb": "^0.1.22",
+    "@nozbe/with-observables": "^0.1.0",
     "react": "16.4.1",
-    "react-native": "0.56.0"
+    "react-native": "0.56.0",
+    "rxjs-compat": "^6.3.2"
   },
   "devDependencies": {
     "babel-jest": "23.4.2",
+    "babel-plugin-module-resolver": "^3.1.1",
     "babel-preset-react-native": "^5",
     "eslint": "^5.4.0",
     "eslint-config-airbnb": "^17.1.0",

@@ -1,3 +1,6 @@
 {
-  "presets": ["react-native"]
+  "presets": ["react-native"],
+  "plugins": [
+    "@nozbe/watermelondb/babel/cjs"
+  ]
 }
