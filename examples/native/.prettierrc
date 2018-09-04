@@ -1,0 +1,5 @@
+{
+  "parser": "babylon",
+  "printWidth": 100,
+  "trailingComma": "all"
+}

@@ -1,0 +1,84 @@
+---
+
+env:
+  es6: true
+
+extends:
+  - airbnb
+  - prettier
+
+parser: babel-eslint
+
+rules:
+  arrow-parens:
+    - 2
+    - as-needed
+  semi:
+    - 2
+    - never
+  class-methods-use-this: 0
+  comma-dangle:
+    - 2
+    - always-multiline
+  no-console:
+    - 2
+  no-unused-expressions: 0
+  no-param-reassign:
+    - 2
+    - props: false
+  no-useless-escape: 0
+  func-names: 0
+  quotes:
+    - 2
+    - single
+    - allowTemplateLiterals: true
+  no-underscore-dangle: 0
+  object-curly-newline: 0
+  function-paren-newline: 0
+  operator-linebreak:
+    - 2
+    - after
+  no-unused-vars:
+    - 2
+    - argsIgnorePattern: "^_"
+  no-else-return:
+    - 2
+    - allowElseIf: true
+  # jsx a11y
+  jsx-a11y/no-static-element-interactions: 0
+  jsx-a11y/anchor-is-valid:
+    - 2
+    - specialLink:
+        - to
+  # react
+  react/prop-types: 0
+  react/jsx-filename-extension: 0
+  react/jsx-no-bind:
+    - 2
+    - ignoreRefs: true
+  react/jsx-first-prop-new-line:
+    - 2
+    - never
+  react/jsx-indent-props:
+    - 2
+    - 2
+  react/jsx-closing-bracket-location:
+    - 1
+    - selfClosing: after-props
+      nonEmpty: after-props
+  react/prefer-stateless-function:
+    - 1
+    - ignorePureComponents: true
+  react/jsx-boolean-value:
+    - 2
+    - always
+  react/no-unused-prop-types: 0
+  # https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/destructuring-assignment.md
+  react/destructuring-assignment: 0
+  # https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-one-expression-per-line.md
+  react/jsx-one-expression-per-line: 0
+  import/no-cycle: 0
+  import/no-unresolved: 0
+  import/extensions: 0
+  import/no-extraneous-dependencies: 0
+  import/prefer-default-export: 0

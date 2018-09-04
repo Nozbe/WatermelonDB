@@ -1,0 +1,32 @@
+{
+  "name": "watermelondb-demo",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "node node_modules/react-native/local-cli/cli.js start",
+    "start:ios": "react-native run-ios",
+    "start:android": "react-native run-android",
+    "test": "jest"
+  },
+  "dependencies": {
+    "react": "16.4.1",
+    "react-native": "0.56.0"
+  },
+  "devDependencies": {
+    "babel-jest": "23.4.2",
+    "babel-preset-react-native": "^5",
+    "eslint": "^5.4.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-prettier": "^3.0.1",
+    "eslint-plugin-flowtype": "^2.50.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.1",
+    "eslint-plugin-react": "^7.11.1",
+    "jest": "23.5.0",
+    "prettier-eslint-cli": "^4.7.1",
+    "react-test-renderer": "16.4.1"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}

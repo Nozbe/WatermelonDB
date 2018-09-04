@@ -3,6 +3,7 @@
 <PROJECT_ROOT>/__tests__
 <PROJECT_ROOT>/dist
 <PROJECT_ROOT>/dev
+<PROJECT_ROOT>/examples
 
 [include]
 
