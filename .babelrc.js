@@ -1,16 +1,10 @@
 const plugins = [
-  'annotate-pure-calls',
-  [
-    '@babel/plugin-transform-runtime',
-    {
-      helpers: true,
-      regenerator: true,
-    },
-  ],
   ['@babel/plugin-proposal-decorators', { legacy: true }],
   '@babel/plugin-transform-flow-strip-types',
   ['@babel/plugin-proposal-class-properties', { loose: true }],
+  '@babel/plugin-transform-classes',
   '@babel/plugin-syntax-dynamic-import',
+  '@babel/plugin-transform-block-scoping',
   '@babel/plugin-proposal-json-strings',
   '@babel/plugin-proposal-object-rest-spread',
   '@babel/plugin-proposal-unicode-property-regex',
@@ -20,6 +14,8 @@ const plugins = [
   '@babel/plugin-transform-literals',
   '@babel/plugin-transform-function-name',
   '@babel/plugin-transform-arrow-functions',
+  '@babel/plugin-transform-shorthand-properties',
+  '@babel/plugin-transform-spread',
   [
     '@babel/plugin-transform-computed-properties',
     {
