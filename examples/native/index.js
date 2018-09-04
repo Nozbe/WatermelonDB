@@ -20,10 +20,10 @@ const database = new Database({
   modelClasses: [Blog, Post, Comment],
 })
 
-const appStartedLaunchingAt = NativeModules.NozbePlugin.appInitTimestamp
+// const appStartedLaunchingAt = NativeModules.NozbePlugin.appInitTimestamp
 
-const timeToLaunch = new Date().getTime() - appStartedLaunchingAt
+// const timeToLaunch = new Date().getTime() - appStartedLaunchingAt
 
-const Navigation = createNavigation({ database, timeToLaunch })
+const Navigation = createNavigation({ database, timeToLaunch: 0 })
 
 AppRegistry.registerComponent('App', () => Navigation)
