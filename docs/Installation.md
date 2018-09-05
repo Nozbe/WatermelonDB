@@ -49,6 +49,7 @@ For more information about linking libraries manually, [see React Native documen
 
 ### Android (React Native)
 
+1. Set up Babel config in your project — see instructions above
 1. In `android/settings.gradle`, add:
 
    ```gradle
