@@ -92,6 +92,22 @@ For more information about linking libraries manually, [see React Native documen
    }
    ```
 
+### Troubleshooting
+
+> `Can't find variable: Symbol`
+
+You might need a polyfill for ES6 Symbol:
+
+```bash
+yarn add es6-symbol
+```
+
+And in your `index.js`:
+
+```bash
+import 'es6-symbol/implement'
+```
+
 ## Web setup
 
 This guide assumes you use Webpack as your bundler.
