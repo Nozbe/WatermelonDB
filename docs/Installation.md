@@ -12,23 +12,23 @@ yarn add @nozbe/watermelondb
     ```bash
     react-native link
     ```
-2. If you get linker errors when building:
+2. If you get linker errors when building, you need to add Swift support to the project:
    - Open `ios/YourAppName.xcodeproj` in Xcode
    - Right-click on **Your App Name** in the Project Navigator on the left, and click **New File…**
    - Create a single empty Swift file to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header**.
 
+Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (although iOS 11.0 is recommended).
+
 #### Manual linking
+
+If you don't want to use `react-native link`, you can manually link WatermelonDB's native library with your Xcode project. All other steps are the same.
 
 1. Open your project in Xcode, right click on **Libraries** in the Project Navigator on the left and click **Add Files to "Your Project Name"**. Look under `node_modules/@nozbe/watermelondb/native/ios` and select `WatermelonDB.xcodeproj`
 2. Go to Project settings (top item in the Project navigator on the left), select your app name under **Targets** → **Build Phases** → **Link Binary With Libraries**, and add `libWatermelonDB.a`
 
 For more information about linking libraries manually, [see React Native documentation](https://facebook.github.io/react-native/docs/linking-libraries-ios).
 
-Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (although iOS 11.0 is recommended).
-
 ### Android (React Native)
-
-WatermelonDB requires Kotlin support.
 
 1. In `android/settings.gradle`, add:
 
@@ -44,10 +44,10 @@ WatermelonDB requires Kotlin support.
    // ...
    dependencies {
        // ...
-       compile project(':watermelondb')
+       compile project(':watermelondb')  // ⬅️ This!
    }
    ```
-3. In `android/build.gradle`
+3. In `android/build.gradle`, add Kotlin support to the project:
    ```gradle
    buildscript {
        ext.kotlin_version = '1.2.61'
