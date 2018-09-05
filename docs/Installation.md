@@ -116,30 +116,48 @@ This guide assumes you use Webpack as your bundler.
     ```sh
     yarn add --dev worker-loader
     ```
-2. … and add this to Webpack configuration:
+2. And add this to Webpack configuration:
     ```js
     // webpack.config.js
     {
       module: {
         rules: [
+          // ⬇️ Add this:
           {
             test: /\.worker\.js$/,
             use: { loader: 'worker-loader' }
           }
         ]
+      },
+      // ...
+      output: {
+        // ...
+        globalObject: 'this', // ⬅️ And this
       }
     }
     ```
-3. Install the Babel plugin for decorators if you haven't already:
+3. If you haven't already, install Babel plugins for decorators, static class properties, and async/await to get the most out of Watermelon. This assumes you use Babel 7 and already support ES6 syntax.
     ```bash
     yarn add --dev @babel/plugin-proposal-decorators
+    yarn add --dev @babel/plugin-proposal-class-properties
+    yarn add --dev @babel/plugin-transform-runtime
     ```
-4. Add Watermelon Babel plugin and ES6 decorators support to your `.babelrc` file:
+4. Add Watermelon Babel plugin and ES7 support to your `.babelrc` file:
     ```json
     {
       "plugins": [
+        // ⬇️ Add this to support Watermelon
         "@nozbe/watermelondb/babel/esm",
-        ["@babel/plugin-proposal-decorators", { "legacy": true }]
+        // ⬇️ Add these if you don't have them already:
+        ["@babel/plugin-proposal-decorators", { "legacy": true }],
+        ["@babel/plugin-proposal-class-properties", { "loose": true }],
+        [
+          "@babel/plugin-transform-runtime",
+           {
+             "helpers": true,
+             "regenerator": true
+           }
+        ]
       ]
     }
     ```
