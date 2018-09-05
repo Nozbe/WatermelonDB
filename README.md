@@ -78,7 +78,7 @@ const Comment = ({ comment }) => (
 // This is how you make your app reactive! ✨
 const enhance = withObservables(['comment'], ({ comment }) => ({
   comment: comment.observe()
-})
+}))
 const EnhancedComment = enhance(Comment)
 ```
 
@@ -98,7 +98,7 @@ const Post = ({ post, comments }) => (
 const enhance = withObservables(['post'], ({ post }) => ({
   post: post.observe(),
   comments: post.comments.observe()
-})
+}))
 ```
 
 The result is fully reactive! Whenever a post or comment is added, changed, or removed, the right components **will automatically re-render** on screen. Doesn't matter if a change occured in a totally different part of the app, it all just works out of the box!
