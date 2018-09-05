@@ -1,0 +1,5 @@
+.root {
+  background: #eee;
+  display: flex;
+  flex-direction: column;
+}

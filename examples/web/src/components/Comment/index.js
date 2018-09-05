@@ -4,11 +4,9 @@ import withObservables from '@nozbe/with-observables'
 import style from './style'
 
 const RawComment = ({ comment }) => (
-  <div style={style.root}>
-    <span>
-      {comment.isNasty && '☹️ '}
-      {comment.body}
-    </span>
+  <div className={style.root}>
+    {comment.isNasty && '☹️ '}
+    {comment.body}
   </div>
 )
 

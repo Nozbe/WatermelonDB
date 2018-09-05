@@ -23,10 +23,10 @@ const Blog = props => {
   const { blog, posts, moderate } = props
 
   return (
-    <div>
+    <div className={style.root}>
+      <div className={style.postLength}>Posts: {posts.length}</div>
       <Button title="Moderate" onClick={moderate} />
       <NastyCommentsItem blog={blog} to={`/blog/${blog.id}/nasty/${blog.id}`} />
-      <div className={style.postLength}>Posts: {posts.length}</div>
       {posts.map(post => (
         <PostItem post={post} key={post.id} to={`/blog/${blog.id}/post/${post.id}`} />
       ))}

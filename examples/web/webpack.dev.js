@@ -91,7 +91,7 @@ module.exports = {
       'process.env.NODE_ENV': JSON.stringify('development'),
     }),
     new HtmlWebpackPlugin({
-      title: 'App',
+      title: 'WatermelonDB Demo',
       template: './index.ejs',
     }),
   ],

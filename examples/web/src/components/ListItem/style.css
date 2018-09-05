@@ -1,0 +1,15 @@
+.root {
+  color: #2c2c54;
+  text-decoration: none;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 5px 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.counter {
+  display: inline-block;
+  padding-left: 10px;
+  font-size: smaller;
+}

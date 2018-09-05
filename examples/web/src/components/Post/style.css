@@ -1,0 +1,21 @@
+
+.title {
+  font-size: 2.4rem;
+  margin-bottom: 30px;
+}
+
+.subtitle {
+  font-size: 1.8rem;
+  margin: 20px 0 10px;
+}
+
+.comments {
+  margin-top: 20px;
+  padding: 10px;
+  background: #f5f5f5;
+}
+
+.commentsTitle {
+  font-size: 1.6rem;
+  margin-bottom: 10px;
+}

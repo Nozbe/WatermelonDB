@@ -4,6 +4,8 @@ import withObservables from '@nozbe/with-observables'
 
 import ListItem from 'components/ListItem'
 
+import style from './style'
+
 const RawBlogItem = ({ blog, to }) => (
   <ListItem title={blog.name} countObservable={blog.posts.observeCount()} to={to} />
 )
@@ -13,7 +15,7 @@ const BlogItem = withObservables(['blog'], ({ blog }) => ({
 }))(RawBlogItem)
 
 const BlogList = ({ blogs }) => (
-  <div>
+  <div className={style.root}>
     {blogs.map(blog => (
       <BlogItem blog={blog} key={blog.id} to={`/blog/${blog.id}`} />
     ))}

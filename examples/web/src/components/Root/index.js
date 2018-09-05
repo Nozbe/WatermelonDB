@@ -31,21 +31,31 @@ class Root extends Component {
     const { database } = this.props
     return (
       <Router>
-        <Fragment>
-          <Button title="Generate 100 records" onClick={this.generate100} />
-          <Button title="Generate 10,000 records" onClick={this.generate10k} />
-          {!this.state.isGenerating && <BlogList database={database} />}
-          <Route path="/blog/:blogId"
-            render={props => (
-              <Blog key={props.match.params.blogId} database={database} {...props} />
-            )} />
-          <Switch>
-            <Route path="/blog/:blogId/nasty"
-              render={props => <ModerationQueue database={database} {...props} />} />
-            <Route path="/blog/:blogId/post/:postId"
-              render={props => <Post database={database} {...props} />} />
-          </Switch>
-        </Fragment>
+        <div className={style.root}>
+          <div className={style.header}>
+            <Button title="Generate 100 records" onClick={this.generate100} />
+            <Button title="Generate 10,000 records" onClick={this.generate10k} />
+          </div>
+          <div className={style.content}>
+            <div className={style.sidebar}>
+              {!this.state.isGenerating && <BlogList database={database} />}
+            </div>
+            <Route path="/blog/:blogId"
+              render={props => (
+                <div className={style.sidebar}>
+                  <Blog key={props.match.params.blogId} database={database} {...props} />
+                </div>
+              )} />
+            <div className={style.main}>
+              <Switch>
+                <Route path="/blog/:blogId/nasty"
+                  render={props => <ModerationQueue database={database} {...props} />} />
+                <Route path="/blog/:blogId/post/:postId"
+                  render={props => <Post database={database} {...props} />} />
+              </Switch>
+            </div>
+          </div>
+        </div>
       </Router>
     )
   }

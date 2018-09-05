@@ -1,0 +1,18 @@
+.content {
+  display: flex;
+  flex-direction: row;
+}
+
+.header {
+  height: 60px;
+}
+
+.sidebar {
+  width: 200px;
+  flex: 0 0 auto;
+}
+
+.main {
+  flex: 1;
+  padding: 0 30px;
+}

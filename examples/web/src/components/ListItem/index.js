@@ -15,7 +15,7 @@ const Counter = withObservables(['observable'], ({ observable }) => ({
 const ListItem = ({ title, countObservable, to }) => (
   <Link to={to} className={style.root}>
     <span className={style.title}>{title}</span>
-    <span className={style.conunter}>
+    <span className={style.counter}>
       <Counter observable={countObservable} />
     </span>
   </Link>

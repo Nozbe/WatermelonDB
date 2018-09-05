@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
-import { compose, withPropsOnChange } from 'recompose'
+import React from 'react'
+import { compose, withPropsOnChange, withHandlers } from 'recompose'
 
 import withObservables from '@nozbe/with-observables'
 
@@ -8,27 +8,23 @@ import Button from 'components/Button'
 
 import style from './style'
 
-class Post extends Component {
-  addComment = async () => {
-    const comment = prompt('Write a comment')
-    await this.props.post.addComment(comment)
-  }
+const Post = props => {
+  const { post, comments, addComment } = props
 
-  render() {
-    const { post, comments } = this.props
-    return (
-      <div className={style.post}>
-        <span className={style.title}>{post.title}</span>
-        <span className={style.subtitle}>{post.subtitle}</span>
-        <span className={style.body}>{post.body}</span>
-        <span className={style.subtitle}>Comments ({comments.length})</span>
+  return (
+    <div>
+      <div className={style.title}>{post.title}</div>
+      <div className={style.subtitle}>{post.subtitle}</div>
+      <div className={style.body}>{post.body}</div>
+      <div className={style.comments}>
+        <div className={style.commentsTitle}>Comments ({comments.length})</div>
         {comments.map(comment => (
           <Comment comment={comment} key={comment.id} />
         ))}
-        <Button title="Add comment" onClick={this.addComment} />
+        <Button title="Add comment" onClick={addComment} />
       </div>
-    )
-  }
+    </div>
+  )
 }
 
 const enhance = compose(
@@ -41,5 +37,11 @@ const enhance = compose(
   withObservables(['post'], ({ post }) => ({
     comments: post.comments.observe(),
   })),
+  withHandlers({
+    addComment: props => async () => {
+      const comment = prompt('Write a comment')
+      await props.post.addComment(comment)
+    },
+  }),
 )
 export default enhance(Post)
