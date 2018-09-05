@@ -1,5 +1,7 @@
 # Demo
 
+See WatermelonDB perform at large scales in the demo app.
+
 ## See web demo online
 
 ⚠️ Coming soon!
