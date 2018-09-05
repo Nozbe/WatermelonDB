@@ -31,6 +31,11 @@ allprojects {
             url 'https://maven.google.com/'
             name 'Google'
         }
+        // This is optional, but makes the demo faster!
+        maven {
+            // Local Maven repo containing AARs with JSC library built for Android
+            url "$rootDir/../node_modules/jsc-android/dist"
+        }
     }
 }
 
