@@ -105,6 +105,8 @@ For more information about linking libraries manually, [see React Native documen
     ```bash
     import 'es6-symbol/implement'
     ```
+    
+    Alternatively, we also recommend [`jsc-android`](https://github.com/react-community/jsc-android-buildscripts), with which you don't need this polyfill, and it also makes your app faster. 
 
 ## Web setup
 
