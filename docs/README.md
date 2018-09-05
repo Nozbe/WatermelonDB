@@ -1,6 +1,9 @@
 # WatermelonDB Documentation
 
-If you're completely new to WatermelonDB, [check out the README](../README.md) first!
+### Get excited
+
+1. [Check out the README](../README.md) for the "Why" and a quick example
+2. [See the demo](./Demo.md) of Watermelon in action
 
 ### Learn to use Watermelon
 
