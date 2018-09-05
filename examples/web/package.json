@@ -61,8 +61,8 @@
     "worker-loader": "^2.0.0"
   },
   "dependencies": {
-    "@nozbe/watermelondb": "^0.1.24",
-    "@nozbe/with-observables": "^0.1.0",
+    "@nozbe/watermelondb": "^0.6.0",
+    "@nozbe/with-observables": "^0.1.1",
     "lokijs": "^1.5.5",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",

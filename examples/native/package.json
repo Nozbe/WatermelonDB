@@ -9,8 +9,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "@nozbe/watermelondb": "^0.1.24",
-    "@nozbe/with-observables": "^0.1.0",
+    "@nozbe/watermelondb": "^0.6.0",
+    "@nozbe/with-observables": "^0.1.1",
     "jsc-android": "224109.x.x",
     "react": "16.4.1",
     "react-native": "0.56.0",

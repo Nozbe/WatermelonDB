@@ -682,9 +682,9 @@
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
 
-"@nozbe/watermelondb@^0.1.24":
-  version "0.1.24"
-  resolved "https://registry.yarnpkg.com/@nozbe/watermelondb/-/watermelondb-0.1.24.tgz#4af2611486cba6b3a3d1a7f5186de1dfd45679cd"
+"@nozbe/watermelondb@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@nozbe/watermelondb/-/watermelondb-0.6.0.tgz#585d229af4a19472643940ec9b3dcbadb81e9faf"
   dependencies:
     async "^2.6.1"
     babel-plugin-module-resolver "^3.1.1"
@@ -693,9 +693,9 @@
     rxjs-compat "^6.3.2"
     sql-escape-string "^1.1.0"
 
-"@nozbe/with-observables@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@nozbe/with-observables/-/with-observables-0.1.0.tgz#1da33c675683bb30ec97c3298d52e7587c163124"
+"@nozbe/with-observables@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@nozbe/with-observables/-/with-observables-0.1.1.tgz#b1d7f1958bc3f8270e69c5d5a29f2d937bd87ca1"
   dependencies:
     rxjs "^6.2.2"
 
