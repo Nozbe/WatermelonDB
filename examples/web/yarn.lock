@@ -668,13 +668,15 @@
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
 
-"@nozbe/watermelondb@^0.1.22":
-  version "0.1.22"
-  resolved "https://registry.yarnpkg.com/@nozbe/watermelondb/-/watermelondb-0.1.22.tgz#17a5b67fed0e6d2cf1c2e4eef05a7f8223ce2dd0"
+"@nozbe/watermelondb@^0.1.24":
+  version "0.1.24"
+  resolved "https://registry.yarnpkg.com/@nozbe/watermelondb/-/watermelondb-0.1.24.tgz#4af2611486cba6b3a3d1a7f5186de1dfd45679cd"
   dependencies:
     async "^2.6.1"
+    babel-plugin-module-resolver "^3.1.1"
     rambdax "^0.10.0"
     rxjs "^6.2.2"
+    rxjs-compat "^6.3.2"
     sql-escape-string "^1.1.0"
 
 "@nozbe/with-observables@^0.1.0":

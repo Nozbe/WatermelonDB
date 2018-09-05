@@ -583,13 +583,15 @@
     lodash "^4.17.5"
     to-fast-properties "^2.0.0"
 
-"@nozbe/watermelondb@^0.1.23":
-  version "0.1.23"
-  resolved "https://registry.yarnpkg.com/@nozbe/watermelondb/-/watermelondb-0.1.23.tgz#de38bcd5a7bb30c43c645178e946bbf672d59db3"
+"@nozbe/watermelondb@^0.1.24":
+  version "0.1.24"
+  resolved "https://registry.yarnpkg.com/@nozbe/watermelondb/-/watermelondb-0.1.24.tgz#4af2611486cba6b3a3d1a7f5186de1dfd45679cd"
   dependencies:
     async "^2.6.1"
+    babel-plugin-module-resolver "^3.1.1"
     rambdax "^0.10.0"
     rxjs "^6.2.2"
+    rxjs-compat "^6.3.2"
     sql-escape-string "^1.1.0"
 
 "@nozbe/with-observables@^0.1.0":
