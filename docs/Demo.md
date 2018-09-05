@@ -1,12 +1,12 @@
 # Demo
 
-See WatermelonDB perform at large scales in the demo app.
+See how WatermelonDB performs at large scales in the demo app.
 
 ## See web demo online
 
 ⚠️ Coming soon!
 
-## React Native demo
+## Running React Native demo
 
 To compile the WatermelonDB demo on your own machine:
 
@@ -28,3 +28,20 @@ To compile the WatermelonDB demo on your own machine:
     ```
 
 ⚠️ Note that for accurate measurement of performance, you need to compile the demo app in Release mode and run it on a real device, not the simulator.
+
+
+## Running web demo
+
+To compile the WatermelonDB demo on your own machine:
+
+1. Download this project
+    ```bash
+    git clone https://github.com/Nozbe/WatermelonDB.git
+    cd WatermelonDB/examples/web
+    yarn
+    ```
+2. Run the server:
+    ```bash
+    yarn dev
+    ```
+3. Open [localhost:8888](http://localhost:8888)
