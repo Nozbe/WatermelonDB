@@ -12,7 +12,7 @@ To compile the WatermelonDB demo on your own machine:
 
 1. Download the project
     ```bash
-    https://github.com/Nozbe/WatermelonDB.git
+    git clone https://github.com/Nozbe/WatermelonDB.git
     cd WatermelonDB/examples/native
     yarn
     ```
