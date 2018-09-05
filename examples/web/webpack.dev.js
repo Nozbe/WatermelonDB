@@ -21,6 +21,7 @@ module.exports = {
     filename: '[name].[hash].js',
     chunkFilename: '[name].[hash].js',
     publicPath: '/',
+    globalObject: 'this',
   },
   performance: {
     hints: false,

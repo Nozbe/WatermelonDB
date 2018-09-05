@@ -3,15 +3,24 @@
 import React from 'react'
 import { render } from 'react-dom'
 
-import withObservables from '@nozbe/with-observables'
+import { Database } from '@nozbe/watermelondb'
 import LokiJSAdapter from '@nozbe/watermelondb/adapters/lokijs'
 
-import { Model } from '@nozbe/watermelondb'
-import { field, text, children, nochange } from '@nozbe/watermelondb/decorators'
+import { mySchema } from 'models/schema'
+import Blog from 'models/Blog'
+import Post from 'models/Post'
+import Comment from 'models/Comment'
 
 import Root from 'components/Root'
 
-// eslint-disable-next-line
-console.log(withObservables, LokiJSAdapter, Model, field, text, children, nochange)
+const adapter = new LokiJSAdapter({
+  dbName: 'WatermelonDemo',
+  schema: mySchema,
+})
 
-render(<Root />, document.getElementById('application'))
+const database = new Database({
+  adapter,
+  modelClasses: [Blog, Post, Comment],
+})
+
+render(<Root database={database} />, document.getElementById('application'))
