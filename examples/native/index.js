@@ -1,5 +1,3 @@
-import 'es6-symbol/implement'
-
 import { AppRegistry, NativeModules } from 'react-native'
 
 import { Database } from '@nozbe/watermelondb'
