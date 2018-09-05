@@ -146,9 +146,7 @@ This guide assumes you use Webpack as your bundler.
     ```json
     {
       "plugins": [
-        // ⬇️ Add this to support Watermelon
         "@nozbe/watermelondb/babel/esm",
-        // ⬇️ Add these if you don't have them already:
         ["@babel/plugin-proposal-decorators", { "legacy": true }],
         ["@babel/plugin-proposal-class-properties", { "loose": true }],
         [
