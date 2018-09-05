@@ -4609,6 +4609,10 @@ rx-lite@*, rx-lite@^4.0.8:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/rx-lite/-/rx-lite-4.0.8.tgz#0b1e11af8bc44836f04a6407e92da42467b79444"
 
+rxjs-compat@^6.3.2:
+  version "6.3.2"
+  resolved "https://registry.yarnpkg.com/rxjs-compat/-/rxjs-compat-6.3.2.tgz#2386ade05e693480fdf96f56042a629aef6c5ea5"
+
 rxjs@^5.3.0, rxjs@^5.5.2:
   version "5.5.11"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-5.5.11.tgz#f733027ca43e3bec6b994473be4ab98ad43ced87"
