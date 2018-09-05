@@ -8,13 +8,14 @@ yarn add @nozbe/watermelondb
 
 ### iOS (React Native)
 
-Link with the Xcode project automatically:
-
-```bash
-react-native link
-```
-
-If you get linker errors when building, open `ios/YourAppName.xcodeproj` in Xcode, right-click on **Your App Name** in the Project Navigator on the left, and click **New File…**. Create a single empty Swift file to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header**.
+1.  Link with the Xcode project automatically:
+  ```bash
+  react-native link
+  ```
+2. If you get linker errors when building:
+  - Open `ios/YourAppName.xcodeproj` in Xcode
+  - Right-click on **Your App Name** in the Project Navigator on the left, and click **New File…**
+  - Create a single empty Swift file to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header**.
 
 #### Manual linking
 
@@ -23,7 +24,7 @@ If you get linker errors when building, open `ios/YourAppName.xcodeproj` in Xcod
 
 For more information about linking libraries manually, [see React Native documentation](https://facebook.github.io/react-native/docs/linking-libraries-ios).
 
-Note that Xcode 9.3 and a deployment target of at least iOS 9.0 is required (although iOS 11.0 is recommended).
+Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (although iOS 11.0 is recommended).
 
 ### Android (React Native)
 
