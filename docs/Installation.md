@@ -9,9 +9,9 @@ yarn add @nozbe/watermelondb
 ### iOS (React Native)
 
 1.  Link with the Xcode project automatically:
-   ```bash
-   react-native link
-   ```
+    ```bash
+    react-native link
+    ```
 2. If you get linker errors when building:
    - Open `ios/YourAppName.xcodeproj` in Xcode
    - Right-click on **Your App Name** in the Project Navigator on the left, and click **New File…**
