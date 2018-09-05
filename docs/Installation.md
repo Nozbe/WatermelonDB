@@ -149,8 +149,8 @@ You'll need it for [the next step](./Schema.md). Now, in your `index.js`:
 import { Database } from '@nozbe/watermelondb'
 import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite'
 
-import { mySchema } from 'model/schema'
-// import Post from 'model/Post' // ⬅️ You'll import your Models here
+import { mySchema } from './model/schema'
+// import Post from './model/Post' // ⬅️ You'll import your Models here
 
 // First, create the adapter to the underlying database:
 const adapter = new SQLiteAdapter({
