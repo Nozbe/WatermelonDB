@@ -26,11 +26,12 @@ yarn add @nozbe/watermelondb
 
 ### iOS (React Native)
 
-1.  Link with the Xcode project automatically:
+1. Set up Babel config in your project — see instructions above
+2. Link with the Xcode project automatically:
     ```bash
     react-native link
     ```
-2. If you get linker errors when building, you need to add Swift support to the project:
+3. If you get linker errors when building, you need to add Swift support to the project:
    - Open `ios/YourAppName.xcodeproj` in Xcode
    - Right-click on **Your App Name** in the Project Navigator on the left, and click **New File…**
    - Create a single empty Swift file to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header**.
