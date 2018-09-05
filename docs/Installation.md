@@ -6,10 +6,14 @@ First, add Watermelon to your project:
 yarn add @nozbe/watermelondb
 ```
 
-### React Native
+## React Native setup
 
-1. Add Watermelon Babel plugin and ES6 decorators support to your `.babelrc` file:
+1. Install the Babel plugin for decorators if you haven't already:
+    ```bash
+    yarn add --dev @babel/plugin-proposal-decorators
     ```
+2. Add Watermelon Babel plugin and ES6 decorators support to your `.babelrc` file:
+    ```json
     {
       "presets": ["react-native"],
       "plugins": [
@@ -18,7 +22,7 @@ yarn add @nozbe/watermelondb
       ]
     }
     ```
-2. Set up your iOS or Android project — see instructions below
+3. Set up your iOS or Android project — see instructions below
 
 ### iOS (React Native)
 
@@ -86,31 +90,41 @@ For more information about linking libraries manually, [see React Native documen
    }
    ```
 
-### Web
+## Web setup
 
-WatermelonDB requires Web Workers support. If you use Webpack, just add [worker-loader](https://github.com/webpack-contrib/worker-loader) to your project:
+This guide assumes you use Webpack as your bundler.
 
-```sh
-yarn add --dev worker-loader
-```
-
-And in your Webpack config, add this:
-
-```js
-// webpack.config.js
-{
-  module: {
-    rules: [
-      {
-        test: /\.worker\.js$/,
-        use: { loader: 'worker-loader' }
+1. Install [worker-loader](https://github.com/webpack-contrib/worker-loader) Webpack plugin to add support for Web Workers to your app:
+    ```sh
+    yarn add --dev worker-loader
+    ```
+2. … and add this to Webpack configuration:
+    ```js
+    // webpack.config.js
+    {
+      module: {
+        rules: [
+          {
+            test: /\.worker\.js$/,
+            use: { loader: 'worker-loader' }
+          }
+        ]
       }
-    ]
-  }
-}
-```
-
-You also need Babel support for [decorators](https://github.com/loganfsmyth/babel-plugin-transform-decorators-legacy) and `async/await` to take full advantage of WatermelonDB
+    }
+    ```
+3. Install the Babel plugin for decorators if you haven't already:
+    ```bash
+    yarn add --dev @babel/plugin-proposal-decorators
+    ```
+4. Add Watermelon Babel plugin and ES6 decorators support to your `.babelrc` file:
+    ```json
+    {
+      "plugins": [
+        "@nozbe/watermelondb/babel/esm",
+        ["@babel/plugin-proposal-decorators", { "legacy": true }]
+      ]
+    }
+    ```
 
 ## Set up `Database`
 
