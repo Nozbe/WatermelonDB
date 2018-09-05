@@ -1,10 +1,24 @@
 # Installation
 
-Add Watermelon to your project:
+First, add Watermelon to your project:
 
 ```bash
 yarn add @nozbe/watermelondb
 ```
+
+### React Native
+
+1. Add Watermelon Babel plugin and ES6 decorators support to your `.babelrc` file:
+    ```
+    {
+      "presets": ["react-native"],
+      "plugins": [
+        "@nozbe/watermelondb/babel/cjs",
+        ["@babel/plugin-proposal-decorators", { "legacy": true }]
+      ]
+    }
+    ```
+2. Set up your iOS or Android project — see instructions below
 
 ### iOS (React Native)
 
