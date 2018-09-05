@@ -7,7 +7,7 @@ A `Relation` object represents one record pointing to another — such as the au
 There's two steps to defining a relation:
 
 1. A [**table column**](./Schema.md) for the related record's ID
-   
+
    ```js
    tableSchema({
      name: 'comments',
@@ -20,14 +20,14 @@ There's two steps to defining a relation:
 2. A `@relation` field [defined on a `Model`](./Model.md) class:
 
    ```js
-   import { relation } from 'watermelondb/decorators'
-   
+   import { relation } from '@nozbe/watermelondb/decorators'
+
    class Comment extends Model {
      // ...
      @relation('users', 'author_id') author
    }
    ```
-   
+
    The first argument is the _table name_ of the related record, and the second is the _column name_ with an ID for the related record.
 
 ## Relation API
@@ -95,7 +95,7 @@ await comment.update(() => {
 If you have a relation that cannot change (for example, a comment can't change its author), you can use `@immutableRelation` for extra protection and performance:
 
 ```js
-import { immutableRelation } from 'watermelondb/decorators'
+import { immutableRelation } from '@nozbe/watermelondb/decorators'
 
 class Comment extends Model {
   // ...

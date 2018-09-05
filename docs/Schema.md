@@ -8,7 +8,7 @@ Say you want Models `Post`, `Comment` in your app. For each of those Models, you
 
 ```js
 // model/schema.js
-import { appSchema, tableSchema } from 'watermelondb'
+import { appSchema, tableSchema } from '@nozbe/watermelondb'
 
 export const mySchema = appSchema({
   version: 1,

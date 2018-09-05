@@ -103,7 +103,7 @@ You also need Babel support for [decorators](https://github.com/loganfsmyth/babe
 Create `model/schema.js` in your project:
 
 ```js
-import { appSchema, tableSchema } from 'watermelondb'
+import { appSchema, tableSchema } from '@nozbe/watermelondb'
 
 export const mySchema = appSchema({
   version: 1,
@@ -116,8 +116,8 @@ export const mySchema = appSchema({
 You'll need it for [the next step](./Schema.md). Now, in your `index.js`:
 
 ```js
-import { Database } from 'watermelondb'
-import SQLiteAdapter from 'watermelondb/adapters/sqlite'
+import { Database } from '@nozbe/watermelondb'
+import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite'
 
 import { mySchema } from 'model/schema'
 // import Post from 'model/Post' // ⬅️ You'll import your Models here
@@ -140,7 +140,7 @@ const database = new Database({
 The above will work on iOS and Android (React Native). For the web, instead of `SQLiteAdapter` use `LokiJSAdapter`:
 
 ```js
-import LokiJSAdapter from 'watermelondb/adapters/lokijs'
+import LokiJSAdapter from '@nozbe/watermelondb/adapters/lokijs'
 
 const adapter = new LokiJSAdapter({
   dbName: 'myAwesomeApp',

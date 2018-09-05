@@ -5,7 +5,7 @@
 You can use `@text` instead of `@field` to enable user text sanitization. When setting a new value on a `@text` field, excess whitespace will be trimmed from both ends from the string.
 
 ```js
-import { date } from 'watermelondb/decorators'
+import { date } from '@nozbe/watermelondb/decorators'
 
 class Post extends Model {
   // ...
@@ -33,7 +33,7 @@ tableSchema({
 Then in the Model definition:
 
 ```js
-import { json } from 'watermelondb/decorators'
+import { json } from '@nozbe/watermelondb/decorators'
 
 class Comment extends Model {
   // ...
@@ -78,7 +78,7 @@ Only use JSON fields when you need the flexibility of complex freeform data, or 
 For extra protection, you can mark fields as `@nochange` to ensure they can't be modified. Always put `@nochange` before `@field` / `@date` / `@text`
 
 ```js
-import { field, nochange } from 'watermelondb/decorators'
+import { field, nochange } from '@nozbe/watermelondb/decorators'
 
 class User extends Model {
   // ...
@@ -115,7 +115,7 @@ Another way is to define an observable property on the Model layer, like so:
 
 ```js
 import { distinctUntilChanged, map as map$ } from 'rxjs/operators'
-import { lazy } from 'watermelondb/decorators'
+import { lazy } from '@nozbe/watermelondb/decorators'
 
 class Post extends Model {
   @lazy isPopular = this.comments.observeCount().pipe(
@@ -145,7 +145,7 @@ Let's make this example more complicated. Say the post is **always** popular if 
 ```js
 import { of as of$ } from 'rxjs/observable/of'
 import { distinctUntilChanged, map as map$ } from 'rxjs/operators'
-import { lazy } from 'watermelondb/decorators'
+import { lazy } from '@nozbe/watermelondb/decorators'
 
 class Post extends Model {
   @lazy isPopular = this.observe().pipe(

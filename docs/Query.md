@@ -28,7 +28,7 @@ class Post extends Model {
 To **narrow down** a `Query` (add [extra conditions](#query-conditions) to an existing Query), use `.extend()`:
 
 ```js
-import { children, lazy } from 'watermelondb/decorators'
+import { children, lazy } from '@nozbe/watermelondb/decorators'
 
 class Post extends Model {
   // ...
@@ -77,7 +77,7 @@ const verifiedCommentCount = await post.verifiedComments.fetchCount()
 ## Query conditions
 
 ```js
-import { Q } from 'watermelondb'
+import { Q } from '@nozbe/watermelondb'
 // ...
 commentCollection.query(
   Q.where('is_verified', true)

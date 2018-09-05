@@ -28,7 +28,7 @@ We recommend defining symbols like this:
 // File: model/schema.js
 // @flow
 
-import { tableName, columnName, type TableName, appSchema, tableSchema } from 'watermelondb'
+import { tableName, columnName, type TableName, appSchema, tableSchema } from '@nozbe/watermelondb'
 import type Comment from './Comment.js'
 
 export const Tables = {
@@ -63,8 +63,8 @@ And then using them like so:
 // File: model/Comment.js
 // @flow
 
-import { Model } from 'watermelondb'
-import { text } from 'watermelondb/decorators'
+import { Model } from '@nozbe/watermelondb'
+import { text } from '@nozbe/watermelondb/decorators'
 
 import { Tables, Columns } from './schema.js'
 
@@ -93,7 +93,7 @@ In general, we find that untyped string constants lead to bugs, and defining typ
 When using Flow, you define model associations like this:
 
 ```js
-import { Model, associations } from 'watermelondb'
+import { Model, associations } from '@nozbe/watermelondb'
 import { Tables, Columns } from './schema.js'
 
 const Column = Columns.posts

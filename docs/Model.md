@@ -10,7 +10,7 @@ Let's define the `Post` model:
 
 ```js
 // model/Post.js
-import { Model } from 'watermelondb'
+import { Model } from '@nozbe/watermelondb'
 
 export default class Post extends Model {
   static table = 'posts'
@@ -60,7 +60,7 @@ On the "parent" side (`posts`) you define an equivalent `has_many` association a
 Next, define the Model's _fields_ (properties). Those correspond to [table columns](./Schema.md) defined earlier in the schema.
 
 ```js
-import { field } from 'watermelondb/decorators'
+import { field } from '@nozbe/watermelondb/decorators'
 
 class Post extends Model {
   static table = 'posts'
@@ -85,7 +85,7 @@ Fields are defined using ES6 decorators. Pass **column name** you defined in Sch
 For date fields, use `@date` instead of `@field`. This will return a JavaScript `Date` object (instead of Unix timestamp integer).
 
 ```js
-import { date } from 'watermelondb/decorators'
+import { date } from '@nozbe/watermelondb/decorators'
 
 class Post extends Model {
   // ...
@@ -100,7 +100,7 @@ class Post extends Model {
 To point to a related record, e.g. `Post` a `Comment` belongs to, or author (`User`) of a `Comment`, use `@relation`:
 
 ```js
-import { relation } from 'watermelondb/decorators'
+import { relation } from '@nozbe/watermelondb/decorators'
 
 class Comment extends Model {
   // ...
@@ -116,7 +116,7 @@ class Comment extends Model {
 To point to a list of records that belong to this Model, e.g. all `Comment`s that belong to a `Post`, you can define a simple `Query` using `@children`:
 
 ```js
-import { children } from 'watermelondb/decorators'
+import { children } from '@nozbe/watermelondb/decorators'
 
 class Post extends Model {
   static table = 'posts'
