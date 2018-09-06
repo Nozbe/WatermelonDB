@@ -8,7 +8,8 @@
     "release": "node ./scripts/publish.js",
     "flow": "flow check",
     "eslint": "eslint ./src -c ./.eslintrc.yml --cache --cache-location ./.cache/.eslintcache",
-    "test": "jest --config=./jest.config.js --forceExit --detectOpenHandles --no-cache"
+    "test": "jest --config=./jest.config.js --forceExit --detectOpenHandles --no-cache",
+    "ci:check": "concurrently 'yarn test' 'yarn eslint' 'yarn flow' --kill-others-on-fail"
   },
   "author": "@Nozbe",
   "homepage": "https://github.com/Nozbe/WatermelonDB#readme",
@@ -93,6 +94,7 @@
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "chokidar": "^2.0.4",
+    "concurrently": "^4.0.1",
     "eslint": "^5.3.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-prettier": "^3.0.1",
