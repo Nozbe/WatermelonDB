@@ -78,7 +78,7 @@ For more information about linking libraries manually, [see React Native documen
        }
    }
    ```
-4. And finally, in `android/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.java`, add:
+4. And finally, in `android/app/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.java`, add:
    ```java
    // ...
    import com.nozbe.watermelondb.WatermelonDBPackage; // ⬅️ This!
