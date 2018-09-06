@@ -117,6 +117,7 @@
     "mkdirp": "^0.5.1",
     "p-timeout": "^2.0.1",
     "prettier-eslint-cli": "^4.7.1",
+    "react-native": "^0.56.0",
     "rimraf": "^2.6.2",
     "semver": "^5.5.1"
   }

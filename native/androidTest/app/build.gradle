@@ -68,10 +68,10 @@ import com.android.build.OutputFile
 
 project.ext.react = [
         entryFile: "index.integrationTest.native.js",
-        cliPath  : "../../../node_modules/react-native/local-cli/cli.js"
+        cliPath  : "../../node_modules/react-native/local-cli/cli.js"
 ]
 
-apply from: "../../../../../node_modules/react-native/react.gradle"
+apply from: "../../../node_modules/react-native/react.gradle"
 
 /**
  * Set this to true to create two separate APKs instead of one:
@@ -148,17 +148,6 @@ android {
             if (abi != null) {  // null for the universal-debug, universal-release variants
                 output.versionCodeOverride =
                         versionCodes.get(abi) * 1048576 + defaultConfig.versionCode
-            }
-        }
-    }
-}
-
-//TODO: Remove JSC-Android
-configurations.all {
-    resolutionStrategy {
-        eachDependency { DependencyResolveDetails details ->
-            if (details.requested.name == 'android-jsc') {
-                details.useTarget group: details.requested.group, name: 'android-jsc-intl', version: 'r224109'
             }
         }
     }
