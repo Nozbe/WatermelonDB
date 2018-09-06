@@ -4,6 +4,7 @@
 <PROJECT_ROOT>/dist
 <PROJECT_ROOT>/dev
 <PROJECT_ROOT>/examples
+.*/node_modules/react\-native/.*
 
 [include]
 
