@@ -63,7 +63,8 @@ describe('watermelondb/decorators/json', () => {
     expect(
       () =>
         class {
-          @json noName
+          @json
+          noName
         },
     ).toThrowError(/column name/)
   })

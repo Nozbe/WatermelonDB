@@ -1,11 +1,5 @@
 import { expectToRejectWithMessage } from '__tests__/utils'
-import {
-  mockDatabase,
-  MockProject,
-  MockTask,
-  MockComment,
-  testSchema,
-} from '__tests__/testModels'
+import { mockDatabase, MockProject, MockTask, MockComment, testSchema } from '__tests__/testModels'
 
 import Database from '.'
 

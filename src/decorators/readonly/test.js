@@ -21,7 +21,8 @@ describe('watermelondb/decorators/utils/readonly', () => {
   })
   it('throws on attempt to set a new value to @readonly field', () => {
     class Mock extends Model {
-      @readonly test = 'blah'
+      @readonly
+      test = 'blah'
     }
     const object = new Mock({ schema }, {})
     object.test

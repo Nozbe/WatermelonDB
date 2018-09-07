@@ -9,7 +9,8 @@ describe('decorators/lazy', () => {
     }
 
     class X {
-      @lazy foo = makeFoo()
+      @lazy
+      foo = makeFoo()
     }
     const x = new X()
 

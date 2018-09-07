@@ -12,9 +12,11 @@ const schema = tableSchema({
 })
 
 class MockModel extends Model {
-  @text('string') string
+  @text('string')
+  string
 
-  @text('string2') string2
+  @text('string2')
+  string2
 }
 
 describe('watermelondb/decorators/text', () => {
@@ -51,7 +53,8 @@ describe('watermelondb/decorators/text', () => {
     expect(
       () =>
         class {
-          @text noName
+          @text
+          noName
         },
     ).toThrowError(/column name/)
   })

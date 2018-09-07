@@ -6,7 +6,7 @@ import { defer } from 'rxjs/observable/defer'
 // Performs an action when Observable is subscribed to; analogous to `Observable.do`
 
 export default function doOnSubscribe<T>(
-  onSubscribe: () => void
+  onSubscribe: () => void,
 ): (Observable<T>) => Observable<T> {
   return source =>
     defer(() => {

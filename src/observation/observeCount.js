@@ -14,7 +14,7 @@ import type Model from 'Model'
 
 export default function observeCount<Record: Model>(
   query: Query<Record>,
-  isThrottled: boolean
+  isThrottled: boolean,
 ): Observable<number> {
   const { database } = query.collection
   const changes = database.withChangesForTables(query.allTables)
@@ -22,6 +22,6 @@ export default function observeCount<Record: Model>(
 
   return throttledChanges.pipe(
     switchMap(() => query.collection.fetchCount(query)),
-    distinctUntilChanged()
+    distinctUntilChanged(),
   )
 }

@@ -13,7 +13,7 @@ import simpleObserver from './simpleObserver'
 const observeQuery: <Record: Model>(Query<Record>) => Observable<Record[]> = ifElse(
   prop('hasJoins'),
   reloadingObserver,
-  simpleObserver
+  simpleObserver,
 )
 
 export default observeQuery

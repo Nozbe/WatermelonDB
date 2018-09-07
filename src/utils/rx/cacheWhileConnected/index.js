@@ -10,5 +10,10 @@ import publishReplayLatestWhileConnected from 'utils/rx/publishReplayLatestWhile
 // observable, and skips emissions that are the same as the previous one
 
 export default function cacheWhileConnected<T>(source: Observable<T>): Observable<T> {
-  return source.pipe(distinctUntilChanged(), publishReplayLatestWhileConnected).refCount()
+  return source
+    .pipe(
+      distinctUntilChanged(),
+      publishReplayLatestWhileConnected,
+    )
+    .refCount()
 }
