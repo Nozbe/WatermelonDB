@@ -10,7 +10,8 @@
     "flow": "flow check",
     "eslint": "eslint ./src -c ./.eslintrc.yml --cache --cache-location ./.cache/.eslintcache",
     "test": "jest --config=./jest.config.js --forceExit --detectOpenHandles --no-cache",
-    "ci:check": "concurrently 'yarn test' 'yarn eslint' 'yarn flow' --kill-others-on-fail"
+    "ci:check": "concurrently 'yarn test' 'yarn eslint' 'yarn flow' --kill-others-on-fail",
+    "test:android": "cd native/androidTest; ./gradlew connectedAndroidTest"
   },
   "author": "@Nozbe",
   "homepage": "https://github.com/Nozbe/WatermelonDB#readme",
