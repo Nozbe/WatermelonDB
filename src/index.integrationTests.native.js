@@ -1,7 +1,8 @@
 import React from 'react'
 import { AppRegistry, Text, NativeModules } from 'react-native'
-import { Tester, TestHookStore } from 'cavy'
-import integrationTests from '__tests__/integrationTests'
+import Tester from 'cavy/src/Tester'
+import TestHookStore from 'cavy/src/TestHookStore'
+import integrationTests from './__tests__/integrationTests'
 
 // Mysteriously fixes React Native stacktrace symbolication ¯\_(ツ)_/¯
 if (typeof global.self === 'undefined') {
