@@ -1012,7 +1012,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export NODE_BINARY=node\n../../node_modules/react-native/scripts/react-native-xcode.sh";
+			shellScript = "if [ -d \"/Users/travis/\" ]; then\n  export NODE_BINARY=$TRAVIS_NODE_BINARY\n  FORCE_BUNDLING=1 ../../node_modules/react-native/scripts/react-native-xcode.sh \"index.integrationTest.native.js\"\nelse\n  export NODE_BINARY=node\n  ../../node_modules/react-native/scripts/react-native-xcode.sh \"index.integrationTest.native.js\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
