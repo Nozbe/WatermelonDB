@@ -20,7 +20,7 @@ class MainApplication : Application(), ReactApplication {
                         WatermelonDBPackage()
                 )
 
-        override fun getJSMainModuleName(): String = "index.integrationTest.native"
+        override fun getJSMainModuleName(): String = "src/index.integrationTests.native"
     }
 
     override fun getReactNativeHost(): ReactNativeHost = reactNativeHost
