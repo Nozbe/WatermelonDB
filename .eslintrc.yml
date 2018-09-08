@@ -54,6 +54,32 @@ rules:
   no-else-return:
     - 2
     - allowElseIf: true
+
+  # react
+  react/prop-types: 0
+  react/jsx-filename-extension: 0
+  react/jsx-no-bind:
+    - 2
+    - ignoreRefs: true
+  react/jsx-first-prop-new-line:
+    - 2
+    - never
+  react/jsx-indent-props:
+    - 2
+    - 2
+  react/jsx-closing-bracket-location:
+    - 1
+    - selfClosing: after-props
+      nonEmpty: after-props
+  react/prefer-stateless-function:
+    - 1
+    - ignorePureComponents: true
+  react/jsx-boolean-value:
+    - 2
+    - always
+  react/no-unused-prop-types: 0
+  react/destructuring-assignment: 0
+  react/jsx-one-expression-per-line: 0
   flowtype/delimiter-dangle:
     - 2
     - always-multiline
