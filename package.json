@@ -70,7 +70,7 @@
     "@babel/plugin-transform-react-constant-elements": "^7.0.0-beta.56",
     "@babel/plugin-transform-react-display-name": "^7.0.0-beta.56",
     "@babel/plugin-transform-react-inline-elements": "^7.0.0-beta.56",
-    "@babel/plugin-transform-react-jsx": "^7.0.0-beta.56",
+    "@babel/plugin-transform-react-jsx": "^7.0.0",
     "@babel/plugin-transform-react-jsx-source": "^7.0.0-beta.56",
     "@babel/plugin-transform-regenerator": "^7.0.0-beta.56",
     "@babel/plugin-transform-runtime": "^7.0.0-beta.56",
@@ -121,6 +121,7 @@
     "prettier": "^1.14.2",
     "prettier-eslint": "^8.8.2",
     "prettier-eslint-cli": "^4.7.1",
+    "react": "^16.5.0",
     "react-native": "^0.56.0",
     "rimraf": "^2.6.2",
     "semver": "^5.5.1"

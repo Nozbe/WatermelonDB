@@ -16,6 +16,7 @@ const plugins = [
   '@babel/plugin-transform-arrow-functions',
   '@babel/plugin-transform-shorthand-properties',
   '@babel/plugin-transform-spread',
+  '@babel/plugin-transform-react-jsx',
   [
     '@babel/plugin-transform-computed-properties',
     {
