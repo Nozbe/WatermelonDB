@@ -1,4 +1,5 @@
 const blacklist = require('metro/src/blacklist')
+const path = require('path')
 
 const config = {
   getBlacklistRE() {
@@ -9,6 +10,9 @@ const config = {
     const newPattern = defaultPattern.replace(`|.*\\/__tests__\\/.*`, '')
 
     return RegExp(newPattern)
+  },
+  getTransformModulePath() {
+    return path.resolve(__dirname, 'rn-transformer.js')
   },
 }
 
