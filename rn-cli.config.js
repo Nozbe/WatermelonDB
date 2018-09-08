@@ -6,8 +6,7 @@ const config = {
     const defaultPattern = blacklist()
       .toString()
       .slice(1, -1)
-    let newPattern = defaultPattern.replace(`|.*\\/__tests__\\/.*`, '')
-    newPattern += '|dist\\/.*'
+    const newPattern = defaultPattern.replace(`|.*\\/__tests__\\/.*`, '')
 
     return RegExp(newPattern)
   },
