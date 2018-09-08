@@ -7,8 +7,8 @@ matrix:
         directories:
           - $HOME/.cache/yarn
           - node_modules
-          - native/ios/build
-          - vendor/bundle
+          # - native/ios/build
+          # - vendor/bundle
 
       env:
         global:
@@ -20,22 +20,22 @@ matrix:
         - which node
         - node --version
         - export TRAVIS_NODE_BINARY=$(which node)
-        - npm install -g yarn
-        - yarn -version
-        - rm -fr native/ios/build/Build/Intermediates.noindex/PrecompiledHeaders/
+        # - npm install -g yarn
+        # - yarn -version
+        # - rm -fr native/ios/build/Build/Intermediates.noindex/PrecompiledHeaders/
         # - sudo gem install bundler
 
       install:
-        - yarn
+        - npm install
         # - sudo bundle install --deployment
 
       script:
-        - yarn ci:check
-        # - cd native; bundle exec fastlane test_ios
+        - npm run ci:check
+        - npm run test:ios
         # - npm run swiftlint
 
       after_script:
-        - rm -fr native/ios/build/Build/Intermediates.noindex/PrecompiledHeaders/
+        # - rm -fr native/ios/build/Build/Intermediates.noindex/PrecompiledHeaders/
 
     # - language: android
     #   jdk: oraclejdk8
