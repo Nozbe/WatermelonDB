@@ -6,9 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-### Addded
+### Added
 
 ### Changed
+- Add quotes to all names in sql queries to allow keywords as table or column names
 
 ## [0.6.0] - 2018-09-05
 
