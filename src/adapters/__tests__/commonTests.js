@@ -34,7 +34,7 @@ export default () => [
   [
     'can create and find records (sanity test)',
     adapter => async () => {
-      const record = makeMockTask({ id: 'abc', text1: 'bar' })
+      const record = makeMockTask({ id: 'abc', text1: 'bar', order: 1 })
       await adapter.batch([['create', record]])
       expect(await adapter.find('tasks', 'abc')).toBe('abc')
     },
@@ -43,8 +43,8 @@ export default () => [
     'can find single records',
     adapter => async () => {
       // side-add records
-      const s1 = makeMockTask({ id: 's1', text1: 'bar' })
-      const s2 = makeMockTask({ id: 's2', bool1: true })
+      const s1 = makeMockTask({ id: 's1', text1: 'bar', order: 1 })
+      const s2 = makeMockTask({ id: 's2', bool1: true, order: 2 })
       await adapter.batch([['create', s1], ['create', s2]])
       await adapter.unsafeClearCachedRecords()
 
@@ -86,9 +86,9 @@ export default () => [
   [
     'can query and count records',
     adapter => async () => {
-      const record1 = makeMockTask({ id: 't1', text1: 'bar', bool1: false })
-      const record2 = makeMockTask({ id: 't2', text1: 'baz', bool1: true })
-      const record3 = makeMockTask({ id: 't3', text1: 'abc', bool1: false })
+      const record1 = makeMockTask({ id: 't1', text1: 'bar', bool1: false, order: 1 })
+      const record2 = makeMockTask({ id: 't2', text1: 'baz', bool1: true, order: 2 })
+      const record3 = makeMockTask({ id: 't3', text1: 'abc', bool1: false, order: 3 })
 
       await adapter.batch([['create', record1], ['create', record2], ['create', record3]])
 
@@ -111,8 +111,8 @@ export default () => [
       const queryAll = () => adapter.query(taskQuery())
 
       // side-add records
-      const s1 = makeMockTask({ id: 's1' })
-      const s2 = makeMockTask({ id: 's2' })
+      const s1 = makeMockTask({ id: 's1', order: 1 })
+      const s2 = makeMockTask({ id: 's2', order: 2 })
       await adapter.batch([['create', s1]])
       await adapter.batch([['create', s2]])
       await adapter.unsafeClearCachedRecords()
@@ -149,8 +149,8 @@ export default () => [
     'sanitizes records on query',
     adapter => async () => {
       // Unsanitized raw!
-      const t1 = new MockTask({ table: 'tasks' }, { id: 't1', text1: 'foo' })
-      const t2 = new MockTask({ table: 'tasks' }, { id: 't2', text2: 'bar' })
+      const t1 = new MockTask({ table: 'tasks' }, { id: 't1', text1: 'foo', order: 1 })
+      const t2 = new MockTask({ table: 'tasks' }, { id: 't2', text2: 'bar', order: 2 })
       expect(t1._raw._status).toBeUndefined()
       expect(t2._raw._status).toBeUndefined()
 
