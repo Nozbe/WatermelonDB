@@ -6,8 +6,11 @@ import type Model from 'Model'
 import { type RawRecord } from 'RawRecord'
 import type { SQL, SQLiteQuery, SQLiteArg } from '../index'
 
+import encodeName from '../encodeName'
+
 const encodeSetPlaceholders: RawRecord => SQL = pipe(
   keys,
+  map(encodeName),
   map(key => `${key}=?`),
   join(', '),
 )
@@ -20,7 +23,7 @@ const getArgs: RawRecord => SQLiteArg[] = raw =>
 
 export default function encodeUpdate(model: Model): SQLiteQuery {
   const { _raw: raw, table } = model
-  const sql = `update ${table} set ${encodeSetPlaceholders(raw)} where id is ?`
+  const sql = `update ${encodeName(table)} set ${encodeSetPlaceholders(raw)} where "id" is ?`
   const args = getArgs(raw)
 
   return [sql, args]

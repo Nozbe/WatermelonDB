@@ -13,7 +13,7 @@ describe('watermelondb/adapters/sqlite/encodeInsert', () => {
       },
     }
     expect(encodeInsert(mockModel)).toEqual([
-      `insert into tasks (id, project_id, flag1, flag2, optional_attribute) values (?, ?, ?, ?, ?)`,
+      `insert into tasks ("id", "project_id", "flag1", "flag2", "optional_attribute") values (?, ?, ?, ?, ?)`,
       ['abcdef', '12345', true, false, null],
     ])
   })

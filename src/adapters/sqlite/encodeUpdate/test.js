@@ -13,7 +13,7 @@ describe('watermelondb/adapters/sqlite/encodeUpdate', () => {
       },
     }
     expect(encodeUpdate(mockModel)).toEqual([
-      `update tasks set id=?, project_id=?, flag1=?, flag2=?, optional_attribute=? where id is ?`,
+      `update "tasks" set "id"=?, "project_id"=?, "flag1"=?, "flag2"=?, "optional_attribute"=? where "id" is ?`,
       ['abcdef', '12345', true, false, null, 'abcdef'],
     ])
   })
