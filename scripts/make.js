@@ -207,7 +207,15 @@ if (isDevelopment) {
   cleanFolder(DIST_PATH)
   createFolder(DIST_PATH)
   createPackageJson(DIST_PATH, pkg)
-  copyFiles(DIST_PATH, ['LICENSE', 'README.md', 'yarn.lock', 'docs', 'native', 'babel'])
+  copyFiles(DIST_PATH, [
+    'LICENSE',
+    'README.md',
+    'yarn.lock',
+    'docs',
+    'native/ios',
+    'native/android',
+    'babel',
+  ])
   copyFiles(DIST_PATH, modules, SOURCE_PATH)
   buildCjsPathMapping(modules)
   buildEsmPathMapping(modules)
