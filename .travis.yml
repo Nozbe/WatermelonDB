@@ -49,7 +49,6 @@ matrix:
           - $HOME/native/android/.android/build-cache
       components:
         - extra-android-support
-        - sys-img-armeabi-v7a-android-24
         - android-24
       before_install:
         - nvm install 9
@@ -59,7 +58,7 @@ matrix:
         - npm install -g yarn
         - yarn -version
         # - echo y | android update sdk -a --no-ui --filter android-24
-        # - echo y | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-24
+        - echo y | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-24
         - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
         - echo no | android create avd --force -n test -t android-24 --abi armeabi-v7a
         - emulator -avd test -no-skin -no-window &
@@ -72,7 +71,7 @@ matrix:
         - android-wait-for-emulator
         - adb shell input keyevent 82 &
         - adb wait-for-device get-serialno
-      # env:
-      #   - ANDROID_HOME=$HOME/android-sdk
+      env:
+        - ANDROID_HOME=$HOME/android-sdk
       script:
         - npm run test:android
