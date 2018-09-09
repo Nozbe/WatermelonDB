@@ -74,5 +74,5 @@ matrix:
     #     - adb shell input keyevent 82 &
     #     - adb wait-for-device get-serialno
     #   script:
-    #     - yes | sudo $ANDROID_HOME/tools/bin/sdkmanager --licenses                                                                                                                                                                                                                                                                            ✔  653  18:24:30 
+    #     - yes | sudo $ANDROID_HOME/tools/bin/sdkmanager --licenses
     #     - npm run test:android
