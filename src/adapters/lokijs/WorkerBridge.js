@@ -25,7 +25,8 @@ class WorkerBridge {
   _pendingRequests: WorkerActions = []
 
   _createWorker(): Worker {
-    const worker: Worker = new LokiWorker()
+    const WorkerClass = (LokiWorker: any)
+    const worker: Worker = new WorkerClass()
 
     worker.onmessage = ({ data }) => {
       const { type, payload }: WorkerResponseAction = (data: any)
