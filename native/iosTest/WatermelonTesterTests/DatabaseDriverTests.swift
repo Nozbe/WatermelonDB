@@ -48,7 +48,7 @@ class DatabaseDriverTests: XCTestCase {
             .markAsDeleted(table: "test", id: "2"),
             .create(id: "4", query: insertTestQuery, args: testRecord4Args),
             .markAsDeleted(table: "test", id: "4"),
-            .execute(query: "update test set name=? where id=?", args: ["new_name", "1"])
+            .execute(query: "update test set name=? where id=?", args: ["new_name", "1"]),
         ])
 
         expect(try! ns(db.cachedQuery("select * from test where id='1'"))) == ns([
