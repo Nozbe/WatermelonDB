@@ -47,9 +47,10 @@ matrix:
 
           # Android build cache (see http://tools.android.com/tech-docs/build-cache)
           - $HOME/native/android/.android/build-cache
-      components:
-        - extra-android-support
-        - build-tools-28.0.0
+      android:
+        components:
+          - extra-android-support
+          - build-tools-28.0.0
       before_install:
         - nvm install 9
         - which node
