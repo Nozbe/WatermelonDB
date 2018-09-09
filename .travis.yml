@@ -31,6 +31,8 @@ matrix:
 
     - language: android
       jdk: oraclejdk8
+       env:
+        - ANDROID_HOME=$HOME/android-sdk
       android:
         components:
           - extra-android-support
@@ -71,8 +73,6 @@ matrix:
         - android-wait-for-emulator
         - adb shell input keyevent 82 &
         - adb wait-for-device get-serialno
-      env:
-        - ANDROID_HOME=$HOME/android-sdk
       script:
         - yes | sudo $ANDROID_HOME/tools/bin/sdkmanager --licenses                                                                                                                                                                                                                                                                            ✔  653  18:24:30 
         - npm run test:android
