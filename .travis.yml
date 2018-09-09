@@ -31,6 +31,12 @@ matrix:
 
     - language: android
       jdk: oraclejdk8
+      android:
+        components:
+          - extra-android-support
+          - build-tools-28.0.0
+          - android 24
+          - android-28
       before_cache:
         # Do not cache a few Gradle files/directories (see https://docs.travis-ci.com/user/languages/java/#Caching)
         - rm -f  $HOME/native/android/.gradle/caches/modules-2/modules-2.lock
@@ -47,19 +53,12 @@ matrix:
 
           # Android build cache (see http://tools.android.com/tech-docs/build-cache)
           - $HOME/native/android/.android/build-cache
-      android:
-        components:
-          - extra-android-support
-          - build-tools-28.0.0
       before_install:
         - nvm install 9
         - which node
         - node --version
         - export TRAVIS_NODE_BINARY=$(which node)
-        - npm install -g yarn
-        - yarn -version
-        - echo y | android update sdk -a --no-ui --filter android-24
-        - echo y | android update sdk -a --no-ui --filter android-28
+        - yes | sudo sdkmanager --licenses
         - echo y | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-24
         - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
         - echo no | android create avd --force -n test -t android-24 --abi armeabi-v7a
