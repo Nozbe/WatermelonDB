@@ -57,6 +57,7 @@ matrix:
         - npm install -g yarn
         - yarn -version
         - echo y | android update sdk -a --no-ui --filter android-24
+        - echo y | android update sdk -a --no-ui --filter android-28
         - echo y | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-24
         - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
         - echo no | android create avd --force -n test -t android-24 --abi armeabi-v7a
