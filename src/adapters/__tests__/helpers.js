@@ -52,8 +52,8 @@ export const testSchema = appSchema({
         { name: 'text2', type: 'string' },
         { name: 'bool1', type: 'bool' },
         { name: 'bool2', type: 'bool' },
-        { name: 'order', type: 'number'},
-        { name: 'from', type: 'string'},
+        { name: 'order', type: 'number' },
+        { name: 'from', type: 'string' },
       ],
     }),
     tableSchema({

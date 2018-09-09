@@ -251,6 +251,7 @@ export default () => [
       const fetchedUpdatedRaw = await adapter.find('tasks', 't1')
       // eslint-disable-next-line
       expect(fetchedUpdatedRaw.bool1 == true).toEqual(true)
+      // eslint-disable-next-line
       expect(fetchedUpdatedRaw.order == 2).toEqual(true)
       expect(fetchedUpdatedRaw).toEqual(record._raw)
       expect(fetchedUpdatedRaw).not.toBe(record._raw)
@@ -298,7 +299,7 @@ export default () => [
       const queryAll = () => adapter.query(taskQuery())
 
       const m1 = makeMockTask({ id: 't1', text1: 'bar1', order: 1 })
-      const m2 = makeMockTask({ id: 't2', text1: 'bar2', order: 2})
+      const m2 = makeMockTask({ id: 't2', text1: 'bar2', order: 2 })
       const m3 = makeMockTask({ id: 't3', text1: 'bar3', order: 3 })
 
       await adapter.batch([
