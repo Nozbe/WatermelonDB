@@ -76,7 +76,7 @@ describe('watermelondb/adapters/sqlite/encodeQuery', () => {
     const query = new Query(mockCollection, [Q.where('col1', 'value')])
     const sql = encodeQuery(query, true)
     expect(sql).toBe(
-      `select count(*) as count from "tasks" where "tasks"."col1" is 'value' and "tasks"."_status" is not 'deleted'`,
+      `select count(*) as "count" from "tasks" where "tasks"."col1" is 'value' and "tasks"."_status" is not 'deleted'`,
     )
   })
   it('encodes JOIN queries', () => {
@@ -90,7 +90,7 @@ describe('watermelondb/adapters/sqlite/encodeQuery', () => {
 
     expect(encodeQuery(query)).toBe(`select distinct "tasks".* from "tasks" ${expectedQuery}`)
     expect(encodeQuery(query, true)).toBe(
-      `select count(distinct "tasks"."id") as count from "tasks" ${expectedQuery}`,
+      `select count(distinct "tasks"."id") as "count" from "tasks" ${expectedQuery}`,
     )
   })
   it('encodes column comparisons on JOIN queries', () => {

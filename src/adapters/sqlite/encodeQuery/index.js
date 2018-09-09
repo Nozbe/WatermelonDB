@@ -130,8 +130,8 @@ const encodeMethod = (
 ): string => {
   if (countMode) {
     return needsDistinct ?
-      `select count(distinct ${encodeName(table)}."id") as count from ${encodeName(table)}` :
-      `select count(*) as count from ${encodeName(table)}`
+      `select count(distinct ${encodeName(table)}."id") as "count" from ${encodeName(table)}` :
+      `select count(*) as "count" from ${encodeName(table)}`
   }
 
   return needsDistinct ?
