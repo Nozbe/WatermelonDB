@@ -98,11 +98,15 @@ export default () => [
 
       // some records
       expectSortedEqual(await adapter.query(taskQuery(Q.where('bool1', false))), ['t1', 't3'])
+      expectSortedEqual(await adapter.query(taskQuery(Q.where('order', 2))), ['t2'])
+      expectSortedEqual(await adapter.query(taskQuery(Q.where('order', 3))), ['t3'])
+
       expect(await adapter.count(taskQuery(Q.where('bool1', false)))).toBe(2)
 
       // no records
       expectSortedEqual(await adapter.query(taskQuery(Q.where('text1', 'nope'))), [])
       expect(await adapter.count(taskQuery(Q.where('text1', 'nope')))).toBe(0)
+      expect(await adapter.count(taskQuery(Q.where('order', 4)))).toBe(0)
     },
   ],
   [
@@ -190,7 +194,7 @@ export default () => [
 
       m1._isEditing = true
       m1._setRaw('bool1', true)
-      const m2 = makeMockTask({ id: 't2', text1: 'bar', bool2: true })
+      const m2 = makeMockTask({ id: 't2', text1: 'bar', bool2: true, order: 2 })
 
       await adapter.batch([
         ['create', m3],
@@ -241,11 +245,13 @@ export default () => [
       await adapter.batch([['create', record]])
       record._isEditing = true
       record._setRaw('bool1', true)
+      record._setRaw('order', 2)
       await adapter.batch([['update', record]])
       await adapter.unsafeClearCachedRecords()
       const fetchedUpdatedRaw = await adapter.find('tasks', 't1')
       // eslint-disable-next-line
       expect(fetchedUpdatedRaw.bool1 == true).toEqual(true)
+      expect(fetchedUpdatedRaw.order == 2).toEqual(true)
       expect(fetchedUpdatedRaw).toEqual(record._raw)
       expect(fetchedUpdatedRaw).not.toBe(record._raw)
     },
@@ -253,8 +259,8 @@ export default () => [
   [
     'can get deleted record ids',
     adapter => async () => {
-      const m1 = makeMockTask({ id: 't1', text1: 'bar1' })
-      const m2 = makeMockTask({ id: 't2', text1: 'bar2' })
+      const m1 = makeMockTask({ id: 't1', text1: 'bar1', order: 1 })
+      const m2 = makeMockTask({ id: 't2', text1: 'bar2', order: 2 })
       await adapter.batch([
         ['create', m1],
         ['markAsDeleted', m1],
@@ -268,9 +274,9 @@ export default () => [
   [
     'can destroy deleted records',
     adapter => async () => {
-      const m1 = makeMockTask({ id: 't1', text1: 'bar1' })
-      const m2 = makeMockTask({ id: 't2', text1: 'bar2' })
-      const m3 = makeMockTask({ id: 't3', text1: 'bar3' })
+      const m1 = makeMockTask({ id: 't1', text1: 'bar1', order: 1 })
+      const m2 = makeMockTask({ id: 't2', text1: 'bar2', order: 2 })
+      const m3 = makeMockTask({ id: 't3', text1: 'bar3', order: 3 })
       await adapter.batch([
         ['create', m1],
         ['create', m2],
@@ -291,9 +297,9 @@ export default () => [
     adapter => async () => {
       const queryAll = () => adapter.query(taskQuery())
 
-      const m1 = makeMockTask({ id: 't1', text1: 'bar1' })
-      const m2 = makeMockTask({ id: 't2', text1: 'bar2' })
-      const m3 = makeMockTask({ id: 't3', text1: 'bar3' })
+      const m1 = makeMockTask({ id: 't1', text1: 'bar1', order: 1 })
+      const m2 = makeMockTask({ id: 't2', text1: 'bar2', order: 2})
+      const m3 = makeMockTask({ id: 't3', text1: 'bar3', order: 3 })
 
       await adapter.batch([
         ['create', m1],
@@ -323,12 +329,12 @@ export default () => [
   [
     'can unsafely reset database',
     adapter => async () => {
-      await adapter.batch([['create', makeMockTask({ id: 't1', text1: 'bar' })]])
+      await adapter.batch([['create', makeMockTask({ id: 't1', text1: 'bar', order: 1 })]])
       await adapter.unsafeResetDatabase()
       await expect(await adapter.count(taskQuery())).toBe(0)
 
       // check that reset database still works
-      await adapter.batch([['create', makeMockTask({ id: 't2', text1: 'baz' })]])
+      await adapter.batch([['create', makeMockTask({ id: 't2', text1: 'baz', order: 2 })]])
       expect(await adapter.count(taskQuery())).toBe(1)
     },
   ],
@@ -378,6 +384,11 @@ export default () => [
       // can be safely reassigned
       await adapter.setLocal('test1', 'val3')
       expect(await adapter.getLocal('test1')).toBe('val3')
+
+      // can use keywords as keys
+      // can be safely reassigned
+      await adapter.setLocal('order', '3')
+      expect(await adapter.getLocal('order')).toBe('3')
 
       // deleting already undefined is safe
       await adapter.removeLocal('nonexisting')
