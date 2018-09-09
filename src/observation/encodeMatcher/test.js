@@ -2,7 +2,7 @@ import Query from 'Query'
 import * as Q from 'QueryDescription'
 import Model from 'Model'
 import encodeMatcher from 'observation/encodeMatcher'
-import { matchTests } from '../__tests__/databaseTests'
+import { matchTests } from '../../__tests__/databaseTests'
 
 const mockModelClass = { table: 'tasks' }
 const mockCollection = { modelClass: mockModelClass }
