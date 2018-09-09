@@ -1,6 +1,6 @@
 package com.nozbe.watermelonTest
 
-import com.nozbe.watermelondb.helpers.BridgeTestReporter
+import com.nozbe.watermelonTest.BridgeTestReporter
 import org.junit.Test
 import android.support.test.rule.ActivityTestRule
 import android.util.Log
