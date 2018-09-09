@@ -32,7 +32,7 @@ matrix:
       script:
         - npm run ci:check
         - npm run test:ios
-        # - npm run swiftlint
+        - npm run swiftlint
 
       after_script:
         # - rm -fr native/ios/build/Build/Intermediates.noindex/PrecompiledHeaders/
