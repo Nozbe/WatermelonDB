@@ -2,6 +2,7 @@ matrix:
   include:
     - language: objective-c
       osx_image: xcode9.4
+      rvm: 2.3
       cache:
         timeout: 600
         directories:
@@ -20,6 +21,7 @@ matrix:
         - which node
         - node --version
         - export TRAVIS_NODE_BINARY=$(which node)
+        - gem install xcpretty
         # - npm install -g yarn
         # - yarn -version
         # - rm -fr native/ios/build/Build/Intermediates.noindex/PrecompiledHeaders/
@@ -30,8 +32,9 @@ matrix:
         # - sudo bundle install --deployment
 
       script:
+        - set -o pipefail
         - npm run ci:check
-        - npm run test:ios
+        - npm run test:ios | xcpretty
         # - npm run swiftlint
 
       after_script:
