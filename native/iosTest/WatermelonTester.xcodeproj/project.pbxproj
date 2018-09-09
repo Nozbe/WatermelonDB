@@ -26,6 +26,8 @@
 		6ED501392143FE770031A190 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED501362143FE760031A190 /* Tests.swift */; };
 		6ED5013A2143FE770031A190 /* BridgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED501372143FE770031A190 /* BridgeTests.swift */; };
 		6ED5013C2143FEE80031A190 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED5013B2143FEE80031A190 /* AppDelegate.swift */; };
+		6ED5018C214550C20031A190 /* BridgeTestReporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED50164214550C20031A190 /* BridgeTestReporter.m */; };
+		6ED5018D214550C20031A190 /* BridgeTestReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED5018B214550C20031A190 /* BridgeTestReporter.swift */; };
 		74495B067A2AC39EC93E72DA /* libPods-WatermelonTester.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A01CD653626AB115D2D4A8E8 /* libPods-WatermelonTester.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
@@ -334,6 +336,8 @@
 		6ED501362143FE760031A190 /* Tests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
 		6ED501372143FE770031A190 /* BridgeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BridgeTests.swift; sourceTree = "<group>"; };
 		6ED5013B2143FEE80031A190 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		6ED50164214550C20031A190 /* BridgeTestReporter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BridgeTestReporter.m; sourceTree = "<group>"; };
+		6ED5018B214550C20031A190 /* BridgeTestReporter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BridgeTestReporter.swift; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		A01CD653626AB115D2D4A8E8 /* libPods-WatermelonTester.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WatermelonTester.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -463,6 +467,8 @@
 		13B07FAE1A68108700A75B9A /* WatermelonTester */ = {
 			isa = PBXGroup;
 			children = (
+				6ED50164214550C20031A190 /* BridgeTestReporter.m */,
+				6ED5018B214550C20031A190 /* BridgeTestReporter.swift */,
 				6ED5013B2143FEE80031A190 /* AppDelegate.swift */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -1114,6 +1120,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				6ED5013C2143FEE80031A190 /* AppDelegate.swift in Sources */,
+				6ED5018C214550C20031A190 /* BridgeTestReporter.m in Sources */,
+				6ED5018D214550C20031A190 /* BridgeTestReporter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1201,6 +1209,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
+				ENABLE_TESTABILITY = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../../node_modules/react-native/React",
@@ -1230,6 +1239,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_TESTABILITY = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../../node_modules/react-native/React",

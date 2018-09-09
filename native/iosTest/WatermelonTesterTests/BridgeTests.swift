@@ -1,3 +1,4 @@
+@testable import WatermelonTester
 @testable import WatermelonDB
 import XCTest
 import Nimble
