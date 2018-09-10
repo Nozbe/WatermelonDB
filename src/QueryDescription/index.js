@@ -186,9 +186,13 @@ export function or(...conditions: Where[]): Or {
   return { type: 'or', conditions }
 }
 
-type OnFunction = ((TableName<any>, ColumnName, Value) => On) &
-  ((TableName<any>, ColumnName, Comparison) => On) &
-  ((TableName<any>, WhereDescription) => On)
+// Note: we have to write out three separate meanings of OnFunction because of a Babel bug
+// (it will remove the parentheses, changing the meaning of the flow type)
+type _OnFunctionColumnValue = (TableName<any>, ColumnName, Value) => On
+type _OnFunctionColumnComparison = (TableName<any>, ColumnName, Comparison) => On
+type _OnFunctionWhereDescription = (TableName<any>, WhereDescription) => On
+
+type OnFunction = _OnFunctionColumnValue & _OnFunctionColumnComparison & _OnFunctionWhereDescription
 
 // Use: on('tableName', 'left_column', 'right_value')
 // or: on('tableName', 'left_column', gte(10))

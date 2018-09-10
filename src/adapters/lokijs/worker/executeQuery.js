@@ -21,8 +21,7 @@ function refineResultsForColumnComparisons(
     const matcher = encodeMatcher(queryWithoutJoins)
 
     // Workaround: encodeMatcher expects a Model so we wrap the raw in an { _raw:... } object
-    // $FlowFixMe
-    const lokiMatcher = raw => matcher({ _raw: raw })
+    const lokiMatcher = raw => matcher(({ _raw: raw }: any))
 
     return roughResults.where(lokiMatcher)
   }

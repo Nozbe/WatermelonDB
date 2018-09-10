@@ -2,7 +2,7 @@
 
 import hasIn from 'utils/fp/hasIn'
 
-import type Model from '.'
+import type Model from './index'
 
 const hasCreatedAt = hasIn('createdAt')
 export const hasUpdatedAt = hasIn('updatedAt')
