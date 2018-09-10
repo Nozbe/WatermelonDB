@@ -41,12 +41,12 @@ const modules = [
       root: ['./src'],
     },
   ],
-  [
-    'babel-plugin-root-import',
-    {
-      rootPathSuffix: './src',
-    },
-  ],
+  // [
+  //   'babel-plugin-root-import',
+  //   {
+  //     rootPathSuffix: './src',
+  //   },
+  // ],
 ]
 
 module.exports = {
@@ -68,6 +68,17 @@ module.exports = {
     },
     test: {
       plugins: ['@babel/plugin-transform-modules-commonjs', ...plugins],
+    },
+    rewriteonly: {
+      plugins: [
+        '@babel/plugin-syntax-flow',
+        '@babel/plugin-syntax-class-properties',
+        ['@babel/plugin-syntax-decorators', { legacy: true }],
+        '@babel/plugin-syntax-jsx',
+        '@babel/plugin-syntax-object-rest-spread',
+        '@babel/plugin-syntax-optional-chaining',
+        ...modules,
+      ],
     },
   },
 }
