@@ -216,6 +216,7 @@ if (isDevelopment) {
     'native/android',
     'babel',
   ])
+  cleanFolder(`${DIST_PATH}/native/android/build`)
   copyFiles(DIST_PATH, modules, SOURCE_PATH)
   buildCjsPathMapping(modules)
   buildEsmPathMapping(modules)
