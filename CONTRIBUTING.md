@@ -60,7 +60,10 @@ yarn test:ios
 yarn test:android
 ```
 
-You can also run iOS integration tests manually by opening the `native/iosTest/WatermelonTester.xcworkspace` project and hitting Cmd+U.
+#### Running tests manualy
+- For iOS open the `native/iosTest/WatermelonTester.xcworkspace` project and hit Cmd+U.
+- For Android open `native/androidTest` in AndroidStudio navigate to `app/src/androidTest/java/com.nozbe.watermelonTest/BridgeTest` and click green arrow near `class BridgeTest`
+
 
 ### Native linting
 
