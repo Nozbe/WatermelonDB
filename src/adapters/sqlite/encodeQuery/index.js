@@ -18,6 +18,7 @@ import { type TableName, type ColumnName } from 'Schema'
 import type Model from 'Model'
 
 import encodeValue from '../encodeValue'
+import encodeName from '../encodeName'
 
 function mapJoin<T>(array: T[], mapper: T => string, joiner: string): string {
   return array.reduce(
@@ -36,7 +37,7 @@ const getComparisonRight = (table: TableName<any>, comparisonRight: ComparisonRi
   if (comparisonRight.values) {
     return encodeValues(comparisonRight.values)
   } else if (comparisonRight.column) {
-    return `${table}.${comparisonRight.column}`
+    return `${encodeName(table)}.${encodeName(comparisonRight.column)}`
   }
 
   return typeof comparisonRight.value !== 'undefined' ? encodeValue(comparisonRight.value) : 'null'
@@ -94,7 +95,7 @@ const encodeWhereCondition = (
     )
   }
 
-  return `${table}.${left} ${encodeComparison(table, comparison)}`
+  return `${encodeName(table)}.${encodeName(left)} ${encodeComparison(table, comparison)}`
 }
 
 const encodeAndOr = (op: string, table: TableName<any>, andOr: And | Or) => {
@@ -129,13 +130,13 @@ const encodeMethod = (
 ): string => {
   if (countMode) {
     return needsDistinct ?
-      `select count(distinct ${table}.id) as count from ${table}` :
-      `select count(*) as count from ${table}`
+      `select count(distinct ${encodeName(table)}."id") as "count" from ${encodeName(table)}` :
+      `select count(*) as "count" from ${encodeName(table)}`
   }
 
   return needsDistinct ?
-    `select distinct ${table}.* from ${table}` :
-    `select ${table}.* from ${table}`
+    `select distinct ${encodeName(table)}.* from ${encodeName(table)}` :
+    `select ${encodeName(table)}.* from ${encodeName(table)}`
 }
 
 const encodeAssociation: (TableName<any>) => AssociationArgs => string = mainTable => ([
@@ -143,8 +144,12 @@ const encodeAssociation: (TableName<any>) => AssociationArgs => string = mainTab
   association,
 ]) =>
   association.type === 'belongs_to' ?
-    ` join ${joinedTable} on ${joinedTable}.id = ${mainTable}.${association.key}` :
-    ` join ${joinedTable} on ${joinedTable}.${association.foreignKey} = ${mainTable}.id`
+    ` join ${encodeName(joinedTable)} on ${encodeName(joinedTable)}."id" = ${encodeName(
+        mainTable,
+      )}.${encodeName(association.key)}` :
+    ` join ${encodeName(joinedTable)} on ${encodeName(joinedTable)}.${encodeName(
+        association.foreignKey,
+      )} = ${encodeName(mainTable)}."id"`
 
 const encodeJoin = (table: TableName<any>, associations: AssociationArgs[]): string =>
   associations.length ? mapConcat(associations, encodeAssociation(table)) : ''
