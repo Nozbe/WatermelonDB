@@ -72,6 +72,5 @@ export default function encodeMatcher<Element: Model>(query: QueryDescription): 
 
   invariant(!join.length, `Queries with joins can't be encoded into a matcher`)
 
-  // $FlowFixMe
-  return encodeConditions(where)
+  return (encodeConditions(where): any)
 }

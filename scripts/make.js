@@ -26,10 +26,12 @@ const anymatch = require('anymatch')
 const rimraf = require('rimraf')
 
 const pkg = require('../package.json')
+const babelrc = require('../.babelrc.js')
 
 const resolvePath = (...paths) => path.resolve(__dirname, '..', ...paths)
 const isDevelopment = process.env.NODE_ENV === 'development'
 
+const SOURCE_FORMAT = 'src' // same as source, only rewritten paths
 const ESM_MODULES = 'esm'
 const CJS_MODULES = 'cjs'
 
@@ -43,7 +45,6 @@ const DO_NOT_BUILD_PATHS = [
   /__tests__/,
   /adapters\/__tests__/,
   /test\.js/,
-  /type\.js/,
   /integrationTest/,
   /__mocks__/,
   /\.DS_Store/,
@@ -123,14 +124,26 @@ const buildPathMapping = format =>
 
 const createFolder = dir => mkdirp.sync(resolvePath(dir))
 
-const babelTransform = (format, file) => {
-  const config = {
+const configForFormat = format => {
+  if (format === SOURCE_FORMAT) {
+    // Ignore .babelrc, just rewrite imports
+    return {
+      babelrc: false,
+      ...babelrc.env.rewriteonly,
+    }
+  }
+
+  return {
     overrides: [
       {
         plugins: format === CJS_MODULES ? ['@babel/plugin-transform-modules-commonjs'] : [],
       },
     ],
   }
+}
+
+const babelTransform = (format, file) => {
+  const config = configForFormat(format)
   const { code } = babel.transformFileSync(file, config)
   return code
 }
@@ -204,14 +217,25 @@ if (isDevelopment) {
   const buildModules = format => mapAsync(buildModule(format))
   const buildCjsModules = buildModules(CJS_MODULES)
   const buildEsmModules = buildModules(ESM_MODULES)
+  const buildSourceModules = buildModules(SOURCE_FORMAT)
 
   cleanFolder(DIST_PATH)
   createFolder(DIST_PATH)
   createPackageJson(DIST_PATH, pkg)
-  copyFiles(DIST_PATH, ['LICENSE', 'README.md', 'yarn.lock', 'docs', 'native', 'babel'])
-  copyFiles(DIST_PATH, modules, SOURCE_PATH)
+  copyFiles(DIST_PATH, [
+    'LICENSE',
+    'README.md',
+    'yarn.lock',
+    'docs',
+    'native/ios',
+    'native/android',
+    'babel',
+  ])
+  cleanFolder(`${DIST_PATH}/native/android/build`)
+  // copyFiles(DIST_PATH, modules, SOURCE_PATH)
   buildCjsPathMapping(modules)
   buildEsmPathMapping(modules)
   buildEsmModules(modules)
   buildCjsModules(modules)
+  buildSourceModules(modules)
 }

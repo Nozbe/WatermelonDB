@@ -107,7 +107,9 @@ The result is fully reactive! Whenever a post or comment is added, changed, or r
 
 ## Contributing
 
-If you have comments, complaints, or ideas for improvements, feel free to open an issue or a pull request! If you make an app using WatermelonDB, please contact us!
+If you have comments, complaints, or ideas for improvements, feel free to open an issue or a pull request! See [Contributing guide](./CONTRIBUTING.md) for details about project setup, testing, etc.
+
+If you make or are considering making an app using WatermelonDB, please let us know!
 
 ## Author and license
 

@@ -55,10 +55,16 @@ const questions = [
     when: answers => !answers.version,
     validate: input => isValidAndGreaterVersion(input),
   },
+  {
+    type: 'list',
+    name: 'tag',
+    message: 'NPM tag (next for prerelease):',
+    choices: ['latest', 'next'],
+  },
 ]
 
 const buildTasks = options => {
-  const { version } = options
+  const { version, tag } = options
 
   return [
     {
@@ -129,7 +135,13 @@ const buildTasks = options => {
         listrInput('2-Factor Authentication code', {
           validate: otp => otp.length > 0,
           done: otp =>
-            execa('npm', ['publish', `./nozbe-watermelondb-v${version}.tgz`, `--otp=${otp}`]),
+            execa('npm', [
+              'publish',
+              `./nozbe-watermelondb-v${version}.tgz`,
+              `--otp=${otp}`,
+              '--tag',
+              tag,
+            ]),
         }),
     },
     {

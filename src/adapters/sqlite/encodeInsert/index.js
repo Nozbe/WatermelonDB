@@ -5,8 +5,11 @@ import { pipe, join, keys, values, always, map } from 'rambdax'
 import type Model from 'Model'
 import type { SQLiteQuery } from '../index'
 
+import encodeName from '../encodeName'
+
 const columnNames = pipe(
   keys,
+  map(encodeName),
   join(', '),
 )
 

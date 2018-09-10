@@ -46,8 +46,8 @@ export default class LokiWorker {
     // https://github.com/facebook/flow/blob/master/lib/bom.js#L504
     // looks like incorrect type, should be: onmessage: (ev: MessageEvent) => any;
     // PR: https://github.com/facebook/flow/pull/6100
-    // $FlowFixMe
-    this.workerContext.onmessage = (e: MessageEvent) => {
+    const context = (this.workerContext: any)
+    context.onmessage = (e: MessageEvent) => {
       this.asyncQueue.push(e.data, (action: WorkerExecutorAction) => {
         const { type, payload } = action
 
