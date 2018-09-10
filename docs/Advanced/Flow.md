@@ -6,7 +6,7 @@ If you're a Flow user yourself (and we highly recommend it!), here's some things
 
 ## Setup
 
-Add to your `.flowconfig` file:
+Add this to your `.flowconfig` file so that Flow can see Watermelon's types.
 
 ```ini
 [options]
