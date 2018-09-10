@@ -1,7 +1,6 @@
 // @flow
 /* eslint-disable no-restricted-globals */
 /* eslint-disable global-require */
-/* eslint-disable import/no-mutable-exports */
 
 import LokiWorker from './lokiWorker'
 
