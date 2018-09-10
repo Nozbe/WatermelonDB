@@ -69,8 +69,7 @@ export default class Relation<T: ?Model> {
       return this._model.collections.get(this._relationTableName).find(id)
     }
 
-    // $FlowFixMe
-    return Promise.resolve(null)
+    return Promise.resolve((null: any))
   }
 
   set(record: T): void {

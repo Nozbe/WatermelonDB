@@ -4,6 +4,18 @@ Watermelon was developed with [Flow](https://flow.org) in mind.
 
 If you're a Flow user yourself (and we highly recommend it!), here's some things you need to keep in mind:
 
+## Setup
+
+Add this to your `.flowconfig` file so that Flow can see Watermelon's types.
+
+```ini
+[options]
+
+module.name_mapper='^@nozbe/watermelondb\(.*\)$' -> '<PROJECT_ROOT>/node_modules/@nozbe/watermelondb/src\1'
+```
+
+Note that this won't work if you put the entire `node_modules/` folder under the `[ignore]` section. In that case, change it to only ignore the specific node modules that throw errors in your app, so that Flow can scan Watermelon files.
+
 ## Tables and columns
 
 Table and column names are **opaque types** in Flow.
