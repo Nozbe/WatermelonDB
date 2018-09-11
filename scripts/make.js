@@ -42,9 +42,10 @@ const DEV_PATH = resolvePath('dev')
 const DIR_PATH = isDevelopment ? DEV_PATH : DIST_PATH
 
 const DO_NOT_BUILD_PATHS = [
+  /__tests__/,
   /adapters\/__tests__/,
   /test\.js/,
-  /integrationTest\.js/,
+  /integrationTest/,
   /__mocks__/,
   /\.DS_Store/,
 ]

@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
+- Added iOS and Android integration tests
+
 ### Changed
 - Changed Flow setup for apps using Watermelon - see docs/Advanced/Flow.md
 

@@ -6,7 +6,7 @@ import { sanitizedRaw } from 'RawRecord'
 import * as Q from 'QueryDescription'
 // import { platform } from 'utils/common'
 
-import { matchTests, joinTests } from '__tests__/databaseTests'
+import { matchTests, joinTests } from '../../__tests__/databaseTests'
 import {
   testSchema,
   taskQuery,

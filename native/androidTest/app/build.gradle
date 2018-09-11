@@ -67,8 +67,8 @@ import com.android.build.OutputFile
  */
 
 project.ext.react = [
-        entryFile: "index.integrationTest.native.js",
-        cliPath  : "../../node_modules/react-native/local-cli/cli.js"
+        entryFile: "src/index.integrationTests.native.js",
+        cliPath  : "../node_modules/react-native/local-cli/cli.js"
 ]
 
 apply from: "../../../node_modules/react-native/react.gradle"
@@ -172,6 +172,12 @@ dependencies {
     androidTestImplementation 'com.android.support:support-annotations:27.1.1'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'org.webkit:android-jsc:r224109'
+    }
 }
 
 

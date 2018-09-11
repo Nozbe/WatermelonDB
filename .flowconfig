@@ -1,6 +1,6 @@
 [ignore]
 <PROJECT_ROOT>/.cache
-<PROJECT_ROOT>/__tests__
+<PROJECT_ROOT>/src/__tests__
 <PROJECT_ROOT>/dist
 <PROJECT_ROOT>/dev
 <PROJECT_ROOT>/examples
