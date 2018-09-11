@@ -1,6 +1,5 @@
 package com.nozbe.watermelonTest
 
-import com.nozbe.watermelonTest.BridgeTestReporter
 import org.junit.Test
 import android.support.test.rule.ActivityTestRule
 import android.util.Log
@@ -28,7 +27,6 @@ class BridgeTest {
                         it.isNotEmpty()
                     }.joinToString(separator = "\n")
                     Assert.fail(failureString)
-
                 }
             }
         } catch (e: UninitializedPropertyAccessException) {
