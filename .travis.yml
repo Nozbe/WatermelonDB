@@ -1,77 +1,77 @@
 matrix:
   include:
-    - language: objective-c
-      osx_image: xcode9.4
-      cache:
-        timeout: 600
-        directories:
-          - $HOME/.cache/yarn
-          - node_modules
-      env:
-        global:
-        - LC_CTYPE=en_US.UTF-8
-        - LANG=en_US.UTF-8
-
-      before_install:
-        - nvm install 9
-        - which node
-        - node --version
-        - export TRAVIS_NODE_BINARY=$(which node)
-        - sudo gem install xcpretty
-
-      install:
-        - npm install
-
-      script:
-        - set -o pipefail
-        - npm run ci:check
-        - npm run test:ios | xcpretty
-        - npm run swiftlint
-
-    # - language: android
-    #   jdk: oraclejdk8
-    #   env:
-    #     - ANDROID_HOME=$HOME/android-sdk
-    #   android:
-    #     components:
-    #       # - extra-android-support
-    #       # - build-tools-28.0.0
-    #       # - android-28
-    #   before_cache:
-    #     - rm -f  $HOME/native/android/.gradle/caches/modules-2/modules-2.lock
-    #     - rm -fr $HOME/native/android/.gradle/caches/*/plugin-resolution/
+    # - language: objective-c
+    #   osx_image: xcode9.4
     #   cache:
+    #     timeout: 600
     #     directories:
-    #       # Android SDK
-    #       - $HOME/android-sdk-dl
-    #       - $HOME/android-sdk
+    #       - $HOME/.cache/yarn
+    #       - node_modules
+    #   env:
+    #     global:
+    #     - LC_CTYPE=en_US.UTF-8
+    #     - LANG=en_US.UTF-8
 
-    #       # Gradle dependencies
-    #       - $HOME/native/android/.gradle/caches/
-    #       - $HOME/native/android/.gradle/wrapper/
-
-    #       # Android build cache (see http://tools.android.com/tech-docs/build-cache)
-    #       - $HOME/native/android/.android/build-cache
     #   before_install:
     #     - nvm install 9
     #     - which node
     #     - node --version
     #     - export TRAVIS_NODE_BINARY=$(which node)
-    #     # - echo y | android update sdk -a --no-ui --filter android-24
-    #     # - echo y | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-24
-    #     # - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
-    #     # - echo no | android create avd --force -n test -t android-24 --abi armeabi-v7a
-    #     # - emulator -avd test -no-skin -no-window &
-    #   licenses:
-    #     - android-sdk-preview-license-.+
-    #     - android-sdk-license-.+
-    #     - google-gdk-license-.+
+    #     - sudo gem install xcpretty
+
     #   install:
     #     - npm install
-    #     # - android-wait-for-emulator
-    #     # - adb shell input keyevent 82 &
-    #     # - adb wait-for-device get-serialno
+
     #   script:
-    #     - yes | sudo $ANDROID_HOME/tools/bin/sdkmanager --licenses
-    #     - npm run ktlint
-    #     # - npm run test:android
+    #     - set -o pipefail
+    #     - npm run ci:check
+    #     - npm run test:ios | xcpretty
+    #     - npm run swiftlint
+
+    - language: android
+      jdk: oraclejdk8
+      env:
+        - ANDROID_HOME=$HOME/android-sdk
+      android:
+        components:
+          - extra-android-support
+          # - build-tools-28.0.0
+          # - android-28
+      before_cache:
+        - rm -f  $HOME/native/android/.gradle/caches/modules-2/modules-2.lock
+        - rm -fr $HOME/native/android/.gradle/caches/*/plugin-resolution/
+      cache:
+        directories:
+          # Android SDK
+          - $HOME/android-sdk-dl
+          - $HOME/android-sdk
+
+          # Gradle dependencies
+          - $HOME/native/android/.gradle/caches/
+          - $HOME/native/android/.gradle/wrapper/
+
+          # Android build cache (see http://tools.android.com/tech-docs/build-cache)
+          - $HOME/native/android/.android/build-cache
+      before_install:
+        - nvm install 9
+        - which node
+        - node --version
+        - export TRAVIS_NODE_BINARY=$(which node)
+        # - echo y | android update sdk -a --no-ui --filter android-24
+        # - echo y | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-24
+        # - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
+        # - echo no | android create avd --force -n test -t android-24 --abi armeabi-v7a
+        # - emulator -avd test -no-skin -no-window &
+      licenses:
+        - android-sdk-preview-license-.+
+        - android-sdk-license-.+
+        - google-gdk-license-.+
+      install:
+        - npm install
+        # - android-wait-for-emulator
+        # - adb shell input keyevent 82 &
+        # - adb wait-for-device get-serialno
+      script:
+        - yes | sudo $ANDROID_HOME/tools/bin/sdkmanager --licenses
+        - npm run ktlint
+        # - npm run test:android
