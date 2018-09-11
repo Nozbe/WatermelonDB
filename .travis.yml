@@ -38,7 +38,6 @@ matrix:
           # - build-tools-28.0.0
           # - android-28
       before_cache:
-        # Do not cache a few Gradle files/directories (see https://docs.travis-ci.com/user/languages/java/#Caching)
         - rm -f  $HOME/native/android/.gradle/caches/modules-2/modules-2.lock
         - rm -fr $HOME/native/android/.gradle/caches/*/plugin-resolution/
       cache:
