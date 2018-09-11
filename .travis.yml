@@ -2,6 +2,7 @@ matrix:
   include:
     - language: objective-c
       osx_image: xcode9.4
+      jdk: oraclejdk8
       cache:
         timeout: 600
         directories:
@@ -28,6 +29,7 @@ matrix:
         - npm run ci:check
         - npm run test:ios | xcpretty
         - npm run swiftlint
+        - npm run ktlint
 
     # - language: android
     #   jdk: oraclejdk8
