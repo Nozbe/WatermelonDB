@@ -92,7 +92,6 @@ android {
     testBuildType "release"
 
     compileSdkVersion rootProject.compileSdkVersion
-    buildToolsVersion rootProject.buildToolsVersion
 
     defaultConfig {
         applicationId "com.nozbe.watermelondb"
