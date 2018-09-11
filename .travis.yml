@@ -38,10 +38,10 @@ matrix:
           - android-28
           - add-on
           - extra
-      licenses:
-        - 'android-sdk-preview-license-52d11cd2'
-        - 'android-sdk-license-.+'
-        - 'google-gdk-license-.+'
+      # licenses:
+      #   - 'android-sdk-preview-license-52d11cd2'
+      #   - 'android-sdk-license-.+'
+      #   - 'google-gdk-license-.+'
       before_cache:
         - rm -f  $HOME/native/android/.gradle/caches/modules-2/modules-2.lock
         - rm -fr $HOME/native/android/.gradle/caches/*/plugin-resolution/
