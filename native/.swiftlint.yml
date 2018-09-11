@@ -1,0 +1,15 @@
+excluded:
+ - iosTest/Pods
+
+line_length: 120
+function_parameter_count: 6
+disabled_rules:
+ - identifier_name
+ - todo
+ - large_tuple
+
+trailing_comma:
+   mandatory_comma: true
+
+opt_in_rules:
+ - nimble_operator
