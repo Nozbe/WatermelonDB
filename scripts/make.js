@@ -37,7 +37,7 @@ const CJS_MODULES = 'cjs'
 
 const SOURCE_PATH = resolvePath('src')
 const DIST_PATH = resolvePath('dist')
-const DEV_PATH = resolvePath('dev')
+const DEV_PATH = process.env.DEV_PATH || resolvePath('dev')
 
 const DIR_PATH = isDevelopment ? DEV_PATH : DIST_PATH
 
