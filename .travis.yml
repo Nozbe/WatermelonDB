@@ -62,10 +62,13 @@ matrix:
           # Android build cache (see http://tools.android.com/tech-docs/build-cache)
           - $HOME/native/android/.android/build-cache
       before_install:
-        - nvm install 9
+        - nvm install 10
         - which node
         - node --version
         - export TRAVIS_NODE_BINARY=$(which node)
+        - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.9.4
+        - export PATH=$HOME/.yarn/bin:$PATH
+        - yarn -version
         - echo y | android update sdk --no-ui --filter build-tools-28.0.0,android-28,extra-android-m2repository
         # - echo y | android update sdk -a --no-ui --filter android-24
         # - echo y | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-24
@@ -73,10 +76,11 @@ matrix:
         # - echo no | android create avd --force -n test -t android-24 --abi armeabi-v7a
         # - emulator -avd test -no-skin -no-window &
       install:
-        - npm install
+        - yarn
         # - android-wait-for-emulator
         # - adb shell input keyevent 82 &
         # - adb wait-for-device get-serialno
+
       script:
         - ls $ANDROID_HOME
         - ls $ANDROID_HOME/tools/bin
