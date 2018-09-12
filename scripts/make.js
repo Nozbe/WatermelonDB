@@ -26,12 +26,12 @@ const anymatch = require('anymatch')
 const rimraf = require('rimraf')
 
 const pkg = require('../package.json')
-const babelrc = require('../.babelrc.js')
+const babelrc = require('../babel.config.js')
 
 const resolvePath = (...paths) => path.resolve(__dirname, '..', ...paths)
 const isDevelopment = process.env.NODE_ENV === 'development'
 
-const SOURCE_FORMAT = 'src' // same as source, only rewritten paths
+const SRC_MODULES = 'src' // same as source, only rewritten imports
 const ESM_MODULES = 'esm'
 const CJS_MODULES = 'cjs'
 
@@ -48,6 +48,7 @@ const DO_NOT_BUILD_PATHS = [
   /integrationTest/,
   /__mocks__/,
   /\.DS_Store/,
+  /package\.json/,
 ]
 
 const isNotIncludedInBuildPaths = value => !anymatch(DO_NOT_BUILD_PATHS, value)
@@ -125,7 +126,7 @@ const buildPathMapping = format =>
 const createFolder = dir => mkdirp.sync(resolvePath(dir))
 
 const configForFormat = format => {
-  if (format === SOURCE_FORMAT) {
+  if (format === SRC_MODULES) {
     // Ignore .babelrc, just rewrite imports
     return {
       babelrc: false,
@@ -184,17 +185,34 @@ const copyFiles = (dir, files, rm = resolvePath()) =>
     fs.copySync(file, path.join(dir, replace(rm, '', file)))
   }, files)
 
+const copyNonJavaScriptFiles = buildPath => {
+  createPackageJson(buildPath, pkg)
+  copyFiles(buildPath, [
+    'LICENSE',
+    'README.md',
+    'yarn.lock',
+    'docs',
+    'native/ios',
+    'native/android',
+    'babel',
+  ])
+  cleanFolder(`${buildPath}/native/android/build`)
+}
+
 if (isDevelopment) {
   const buildCjsModule = buildModule(CJS_MODULES)
   const buildEsmModule = buildModule(ESM_MODULES)
+  const buildSrcModule = buildModule(SRC_MODULES)
 
-  const buildModules = file => {
+  const buildFile = file => {
     buildCjsModule(file)
     buildEsmModule(file)
+    buildSrcModule(file)
   }
 
   cleanFolder(DEV_PATH)
   createFolder(DEV_PATH)
+  copyNonJavaScriptFiles(DEV_PATH)
   buildCjsPathMapping(modules)
   buildEsmPathMapping(modules)
 
@@ -207,7 +225,7 @@ if (isDevelopment) {
         case 'change':
           // eslint-disable-next-line
           console.log(`✓ ${removeSourcePath(fileOrDir)}`)
-          buildModules(fileOrDir)
+          buildFile(fileOrDir)
           break
         default:
           break
@@ -217,25 +235,14 @@ if (isDevelopment) {
   const buildModules = format => mapAsync(buildModule(format))
   const buildCjsModules = buildModules(CJS_MODULES)
   const buildEsmModules = buildModules(ESM_MODULES)
-  const buildSourceModules = buildModules(SOURCE_FORMAT)
+  const buildSrcModules = buildModules(SRC_MODULES)
 
   cleanFolder(DIST_PATH)
   createFolder(DIST_PATH)
-  createPackageJson(DIST_PATH, pkg)
-  copyFiles(DIST_PATH, [
-    'LICENSE',
-    'README.md',
-    'yarn.lock',
-    'docs',
-    'native/ios',
-    'native/android',
-    'babel',
-  ])
-  cleanFolder(`${DIST_PATH}/native/android/build`)
-  // copyFiles(DIST_PATH, modules, SOURCE_PATH)
+  copyNonJavaScriptFiles(DIST_PATH)
   buildCjsPathMapping(modules)
   buildEsmPathMapping(modules)
   buildEsmModules(modules)
   buildCjsModules(modules)
-  buildSourceModules(modules)
+  buildSrcModules(modules)
 }
