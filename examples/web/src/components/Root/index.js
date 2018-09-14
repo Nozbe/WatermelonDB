@@ -12,7 +12,7 @@ import logoSrc from './WatermelonLogo.svg'
 import style from './style'
 
 class Root extends Component {
-  state = { isGenerating: false }
+  state = { isGenerating: false, isGenerated: false }
 
   generateWith = async generator => {
     this.setState({ isGenerating: true })
@@ -21,7 +21,7 @@ class Root extends Component {
 
     alert(`Generated ${count} records!`)
 
-    this.setState({ isGenerating: false })
+    this.setState({ isGenerating: false, isGenerated: true })
   }
 
   generate100 = () => this.generateWith(generate100)
@@ -34,29 +34,35 @@ class Root extends Component {
       <Router>
         <div className={style.root}>
           <div className={style.header}>
-            <img src={logoSrc} className={style.logo} />
+            <img src={logoSrc} alt="WatermelonDB Logo" className={style.logo} />
             <Button title="Generate 100 records" onClick={this.generate100} />
             <Button title="Generate 10,000 records" onClick={this.generate10k} />
           </div>
-          <div className={style.content}>
-            <div className={style.sidebar}>
-              {!this.state.isGenerating && <BlogList database={database} />}
+          {this.state.isGenerated && (
+            <div className={style.content}>
+              <div className={style.sidebar}>
+                {!this.state.isGenerating && <BlogList database={database} />}
+              </div>
+              <Route path="/blog/:blogId"
+                render={props => (
+                  <div className={style.postList}>
+                    {!this.state.isGenerating && (
+                      <Blog key={props.match.params.blogId} database={database} {...props} />
+                    )}
+                  </div>
+                )} />
+              <div className={style.main}>
+                {!this.state.isGenerating && (
+                  <Switch>
+                    <Route path="/blog/:blogId/nasty"
+                      render={props => <ModerationQueue database={database} {...props} />} />
+                    <Route path="/blog/:blogId/post/:postId"
+                      render={props => <Post database={database} {...props} />} />
+                  </Switch>
+                )}
+              </div>
             </div>
-            <Route path="/blog/:blogId"
-              render={props => (
-                <div className={style.postList}>
-                  <Blog key={props.match.params.blogId} database={database} {...props} />
-                </div>
-              )} />
-            <div className={style.main}>
-              <Switch>
-                <Route path="/blog/:blogId/nasty"
-                  render={props => <ModerationQueue database={database} {...props} />} />
-                <Route path="/blog/:blogId/post/:postId"
-                  render={props => <Post database={database} {...props} />} />
-              </Switch>
-            </div>
-          </div>
+          )}
         </div>
       </Router>
     )

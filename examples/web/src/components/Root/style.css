@@ -10,6 +10,7 @@
   line-height: 1.32;
   display: flex;
   flex-direction: row;
+  flex: 1;
   background: #f1f1f1;
   margin: 10px;
   border: 1px solid #ddd;
@@ -19,6 +20,7 @@
 
 .header {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   position: relative;
   margin: 10px;

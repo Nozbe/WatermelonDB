@@ -18,6 +18,7 @@ const ListItem = ({ title, countObservable, to, isActive, onClick }) => (
     <span className={style.title}>{title}</span>
     <span className={style.counter}>
       <Counter observable={countObservable} />
+      <span className={style.arrow}>⌃</span>
     </span>
   </Link>
 )

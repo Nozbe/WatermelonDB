@@ -3,6 +3,7 @@
   text-decoration: none;
   display: flex;
   flex-direction: row;
+  align-items: center;
   justify-content: space-between;
   padding: 10px;
   border-bottom: 1px solid #ddd;
@@ -13,11 +14,18 @@
 }
 
 .counter {
-  display: inline-block;
-  padding-left: 10px;
+  display: flex;
+  padding-left: 20px;
   font-size: smaller;
 }
 
 .isActive {
   background: #dedede;
+}
+
+.arrow {
+  display: inline-block;
+  margin-left: 5px;
+  transform: rotate(90deg);
+  opacity: .2;
 }
