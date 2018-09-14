@@ -58,13 +58,13 @@ matrix:
         - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.9.4
         - export PATH=$HOME/.yarn/bin:$PATH
         - yarn -version
+        - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
         - echo no | android create avd --force -n test -t android-24 --abi armeabi-v7a
-        - emulator -avd test -no-audio -no-window &
+        - emulator -avd test -no-skin -no-window &
       install:
         - yarn
       before_script:
         # - android-wait-for-emulator
-        - adb shell setprop dalvik.vm.dexopt-flags v=n,o=v
         - adb shell input keyevent 82 &
       script:
         - yarn ktlint
