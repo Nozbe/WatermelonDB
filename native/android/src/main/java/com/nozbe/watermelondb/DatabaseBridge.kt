@@ -16,8 +16,13 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     override fun getName(): String = "DatabaseBridge"
 
     @ReactMethod
-    fun setUp(tag: ConnectionTag, databaseName: String,
-              schema: SQL, schemaVersion: Int, promise: Promise) {
+    fun setUp(
+        tag: ConnectionTag,
+        databaseName: String,
+        schema: SQL,
+        schemaVersion: Int,
+        promise: Promise
+    ) {
         val driver = DatabaseDriver(
                 reactContext,
                 DatabaseDriver.Configuration(
@@ -51,8 +56,12 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             connections[tag]?.doWithPromise(promise) { it.getDeletedRecords(table) }
 
     @ReactMethod
-    fun destroyDeletedRecords(tag: ConnectionTag, table: TableName,
-                              records: ReadableArray, promise: Promise) =
+    fun destroyDeletedRecords(
+        tag: ConnectionTag,
+        table: TableName,
+        records: ReadableArray,
+        promise: Promise
+    ) =
             connections[tag]?.doWithPromise(promise) {
                 it.destroyDeletedRecords(table, records.toArrayList())
             }

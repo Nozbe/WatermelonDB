@@ -13,7 +13,9 @@
     "ci:check": "concurrently 'npm run test' 'npm run eslint' 'npm run flow' --kill-others-on-fail",
     "test:android": "cd native/androidTest; ./gradlew connectedAndroidTest",
     "test:ios": "cd native/iosTest; xcodebuild -workspace WatermelonTester.xcworkspace -scheme 'WatermelonTester' -destination 'name=iPhone 8' test",
-    "swiftlint": "cd native; swiftlint"
+    "swiftlint": "cd native; swiftlint",
+    "ktlint": "cd native/androidTest; ./gradlew ktlint",
+    "ktlint:format": "cd native/androidTest; ./gradlew ktlintFormat"
   },
   "author": "@Nozbe",
   "homepage": "https://github.com/Nozbe/WatermelonDB#readme",

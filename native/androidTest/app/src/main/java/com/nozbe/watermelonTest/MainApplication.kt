@@ -24,5 +24,4 @@ class MainApplication : Application(), ReactApplication {
     }
 
     override fun getReactNativeHost(): ReactNativeHost = reactNativeHost
-
 }
