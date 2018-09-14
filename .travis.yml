@@ -48,8 +48,15 @@ matrix:
         - which node
         - node --version
         - export TRAVIS_NODE_BINARY=$(which node)
+        - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
+        - emulator -avd test -no-audio -no-window &
       install:
         - npm install
+        # Emulator Management: Create, Start and Wait
+      before_script:
+        - android-wait-for-emulator
+        - adb shell input keyevent 82 &
       script:
         - npm run ktlint
+        - npm run test:android
 
