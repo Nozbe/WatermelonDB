@@ -219,7 +219,7 @@
     "@babel/helper-replace-supers" "^7.0.0"
     "@babel/plugin-syntax-class-properties" "^7.0.0"
 
-"@babel/plugin-proposal-decorators@^7.0.0":
+"@babel/plugin-proposal-decorators@7.0.0":
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-decorators/-/plugin-proposal-decorators-7.0.0.tgz#33e7e683ca9f8ec3f72104ed11096839d48df502"
   dependencies:
@@ -693,9 +693,9 @@
     rxjs-compat "^6.3.2"
     sql-escape-string "^1.1.0"
 
-"@nozbe/with-observables@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@nozbe/with-observables/-/with-observables-0.1.1.tgz#b1d7f1958bc3f8270e69c5d5a29f2d937bd87ca1"
+"@nozbe/with-observables@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@nozbe/with-observables/-/with-observables-1.0.0.tgz#ca6dd2a9f8e982f368e63c996068e77035d964a7"
   dependencies:
     rxjs "^6.2.2"
 
@@ -5407,14 +5407,14 @@ react-router@^4.3.1:
     prop-types "^15.6.1"
     warning "^4.0.1"
 
-react@^16.4.2:
-  version "16.4.2"
-  resolved "https://registry.yarnpkg.com/react/-/react-16.4.2.tgz#2cd90154e3a9d9dd8da2991149fdca3c260e129f"
+react@16.5.1:
+  version "16.5.1"
+  resolved "https://registry.yarnpkg.com/react/-/react-16.5.1.tgz#8cb8e9f8cdcb4bde41c9a138bfbf907e66132372"
   dependencies:
-    fbjs "^0.8.16"
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
-    prop-types "^15.6.0"
+    prop-types "^15.6.2"
+    schedule "^0.4.0"
 
 read-cache@^1.0.0:
   version "1.0.0"
@@ -5824,6 +5824,12 @@ safe-regex@^1.1.0:
 sax@^1.2.4:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
+
+schedule@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/schedule/-/schedule-0.4.0.tgz#fa20cfd0bfbf91c47d02272fd7096780d3170bbb"
+  dependencies:
+    object-assign "^4.1.1"
 
 schema-utils@^0.4.0, schema-utils@^0.4.4, schema-utils@^0.4.5:
   version "0.4.7"
