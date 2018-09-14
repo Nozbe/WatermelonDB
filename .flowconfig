@@ -36,4 +36,4 @@ module.name_mapper='^Relation$' -> '<PROJECT_ROOT>/src/Relation'
 module.name_mapper='^Schema$' -> '<PROJECT_ROOT>/src/Schema'
 
 [version]
-^0.79.1
+^0.80.0
