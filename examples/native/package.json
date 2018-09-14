@@ -10,16 +10,16 @@
   },
   "dependencies": {
     "@nozbe/watermelondb": "^0.6.0",
-    "@nozbe/with-observables": "^0.1.1",
+    "@nozbe/with-observables": "^1.0.0",
     "jsc-android": "224109.x.x",
-    "react": "16.4.1",
-    "react-native": "0.56.0",
+    "react": "16.5.1",
+    "react-native": "0.57.0",
     "react-native-prompt-android": "^0.3.3",
     "react-navigation": "^2.12.1"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-decorators": "7.0.0-beta.47",
-    "babel-jest": "23.4.2",
+    "@babel/plugin-proposal-decorators": "7.0.0",
+    "babel-jest": "23.6.0",
     "babel-preset-react-native": "^5",
     "eslint": "^5.4.0",
     "eslint-config-airbnb": "^17.1.0",
@@ -28,9 +28,9 @@
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jsx-a11y": "^6.1.1",
     "eslint-plugin-react": "^7.11.1",
-    "jest": "23.5.0",
+    "jest": "23.6.0",
     "prettier-eslint-cli": "^4.7.1",
-    "react-test-renderer": "16.4.1"
+    "react-test-renderer": "16.5.1"
   },
   "jest": {
     "preset": "react-native"
