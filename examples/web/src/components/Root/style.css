@@ -1,18 +1,54 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100vh;
+}
+
 .content {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.32;
   display: flex;
   flex-direction: row;
+  background: #f1f1f1;
+  margin: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .header {
-  height: 60px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin: 10px;
+  padding: 20px 0;
+}
+
+.logo {
+  width: 300px;
+  margin-right: 50px;
 }
 
 .sidebar {
-  width: 200px;
+  min-width: 240px;
   flex: 0 0 auto;
+  background: #eee;
+  border-right: 1px solid #ddd;
+  overflow: auto;
+}
+
+.postList {
+  width: 320px;
+  flex: 0 0 auto;
+  background: #f5f5f5;
+  border-right: 1px solid #ddd;
+  overflow: auto;
 }
 
 .main {
   flex: 1;
-  padding: 0 30px;
+  padding: 20px;
+  background: #fff;
+  overflow: auto;
 }

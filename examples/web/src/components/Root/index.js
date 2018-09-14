@@ -7,6 +7,7 @@ import BlogList from 'components/BlogList'
 import Post from 'components/Post'
 import Blog from 'components/Blog'
 import ModerationQueue from 'components/ModerationQueue'
+import logoSrc from './WatermelonLogo.svg'
 
 import style from './style'
 
@@ -33,6 +34,7 @@ class Root extends Component {
       <Router>
         <div className={style.root}>
           <div className={style.header}>
+            <img src={logoSrc} className={style.logo} />
             <Button title="Generate 100 records" onClick={this.generate100} />
             <Button title="Generate 10,000 records" onClick={this.generate10k} />
           </div>
@@ -42,7 +44,7 @@ class Root extends Component {
             </div>
             <Route path="/blog/:blogId"
               render={props => (
-                <div className={style.sidebar}>
+                <div className={style.postList}>
                   <Blog key={props.match.params.blogId} database={database} {...props} />
                 </div>
               )} />

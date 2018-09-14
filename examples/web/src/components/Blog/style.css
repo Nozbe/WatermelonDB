@@ -1,8 +1,11 @@
-.root {
-  background: #f5f5f5;
-}
-
 .postLength {
-  font-size: 1.6rem;
-  padding: 10px 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.2rem;
+  padding: 10px;
+
+  & span {
+    font-weight: 600;
+  }
 }

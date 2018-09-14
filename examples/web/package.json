@@ -24,6 +24,7 @@
     "@babel/runtime": "^7.0.0",
     "babel-eslint": "9.0.0",
     "babel-loader": "^8.0.0",
+    "classnames": "^2.2.6",
     "compression": "^1.7.3",
     "css-loader": "^1.0.0",
     "eslint": "^5.4.0",

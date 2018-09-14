@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import classNames from 'classnames'
 import withObservables from '@nozbe/with-observables'
 
 import style from './style'
@@ -12,8 +13,8 @@ const Counter = withObservables(['observable'], ({ observable }) => ({
   count: observable,
 }))(RawCounter)
 
-const ListItem = ({ title, countObservable, to }) => (
-  <Link to={to} className={style.root}>
+const ListItem = ({ title, countObservable, to, isActive, onClick }) => (
+  <Link to={to} className={classNames(style.root, isActive && style.isActive)} onClick={onClick}>
     <span className={style.title}>{title}</span>
     <span className={style.counter}>
       <Counter observable={countObservable} />
