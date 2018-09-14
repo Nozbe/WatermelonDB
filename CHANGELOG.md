@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 
 - Added iOS and Android integration tests
+- Added iOS and Android integration tests and lint checks to TravisCI
 
 ### Changed
 - Changed Flow setup for apps using Watermelon - see docs/Advanced/Flow.md

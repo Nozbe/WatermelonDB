@@ -14,6 +14,5 @@ class WatermelonDBPackage : ReactPackage {
     @Deprecated("Deprecated RN 0.47", ReplaceWith("createViewManagers()"))
     fun createJSModules(): List<Class<out JavaScriptModule>> = emptyList()
 
-    override fun createViewManagers(reactContext: ReactApplicationContext)
-            : List<ViewManager<*, *>> = emptyList()
+    override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> = emptyList()
 }
