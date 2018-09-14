@@ -39,6 +39,8 @@
 
 ## Why Watermelon?
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/Nozbe/WatermelonDB.svg)](https://greenkeeper.io/)
+
 **WatermelonDB** is a new way of dealing with user data in React Native and React web apps.
 
 It's optimized for building **complex applications** in React / React Native, and the number one goal is **real-world performance**. In simple words, _your app must launch fast_.
