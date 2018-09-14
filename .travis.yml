@@ -1,39 +1,44 @@
 matrix:
   include:
-    # - language: objective-c
-    #   osx_image: xcode9.4
-    #   cache:
-    #     timeout: 600
-    #     directories:
-    #       - $HOME/.cache/yarn
-    #       - node_modules
-    #   env:
-    #     global:
-    #     - LC_CTYPE=en_US.UTF-8
-    #     - LANG=en_US.UTF-8
+    - language: objective-c
+      osx_image: xcode9.4
+      cache:
+        timeout: 600
+        directories:
+          - $HOME/.cache/yarn
+          - node_modules
 
-    #   before_install:
-    #     - nvm install 9
-    #     - which node
-    #     - node --version
-    #     - export TRAVIS_NODE_BINARY=$(which node)
-    #     - sudo gem install xcpretty
+      env:
+        global:
+        - LC_CTYPE=en_US.UTF-8
+        - LANG=en_US.UTF-8
 
-    #   install:
-    #     - npm install
+      before_install:
+        - nvm install 10
+        - which node
+        - node --version
+        - export TRAVIS_NODE_BINARY=$(which node)
+        - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.9.4
+        - export PATH=$HOME/.yarn/bin:$PATH
+        - yarn -version
+        - sudo gem install xcpretty
 
-    #   script:
-    #     - set -o pipefail
-    #     - npm run ci:check
-    #     - npm run test:ios | xcpretty
-    #     - npm run swiftlint
+      install:
+        - yarn
+
+      script:
+        - set -o pipefail
+        - npm run ci:check
+        - npm run test:ios | xcpretty
+        - npm run swiftlint
+
     - language: android
       android:
         components:
           - build-tools-26.0.2
           - android-26
-          - android-23
-          - sys-img-x86-android-23
+          - android-24
+          - sys-img-armeabi-v7a-android-24
           - tools
           - platform-tools
           - tools
@@ -46,21 +51,23 @@ matrix:
           - $HOME/.gradle/wrapper/
           - $HOME/.android/build-cache
       before_install:
-        - nvm install 9
+        - nvm install 10
         - which node
         - node --version
         - export TRAVIS_NODE_BINARY=$(which node)
-        - android list targets
-        - echo no | android create avd --force -n test -t android-23 --abi x86
+        - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.9.4
+        - export PATH=$HOME/.yarn/bin:$PATH
+        - yarn -version
+        - echo no | android create avd --force -n test -t android-24 --abi armeabi-v7a
         - emulator -avd test -no-audio -no-window &
       install:
-        - npm install
+        - yarn
         # Emulator Management: Create, Start and Wait
       before_script:
         - android-wait-for-emulator
         - adb shell setprop dalvik.vm.dexopt-flags v=n,o=v
         - adb shell input keyevent 82 &
       script:
-        - npm run ktlint
-        - npm run test:android
+        - yarn ktlint
+        - yarn test:android
 
