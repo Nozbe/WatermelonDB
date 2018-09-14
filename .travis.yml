@@ -51,7 +51,7 @@ matrix:
         - node --version
         - export TRAVIS_NODE_BINARY=$(which node)
         - android list targets
-        - echo no | android create avd --force -n test -t android-23 --abi x86 -no-accel
+        - echo no | android create avd --force -n test -t android-23 --abi x86
         - emulator -avd test -no-audio -no-window &
       install:
         - npm install
