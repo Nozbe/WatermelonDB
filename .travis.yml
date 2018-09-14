@@ -49,6 +49,7 @@ matrix:
         - which node
         - node --version
         - export TRAVIS_NODE_BINARY=$(which node)
+        - android list targets
         - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
         - emulator -avd test -no-audio -no-window &
       install:
