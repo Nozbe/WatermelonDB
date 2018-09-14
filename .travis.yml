@@ -32,6 +32,7 @@ matrix:
         components:
           - build-tools-26.0.2
           - android-26
+          - sys-img-armeabi-v7a-android-22
           - tools
           - platform-tools
           - tools
