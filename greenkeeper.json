@@ -2,22 +2,9 @@
   "groups": {
     "default": {
       "packages": [
-        "examples/native/package.json",
-        "examples/web/package.json",
         "package.json",
-        "src/Collection/package.json",
-        "src/CollectionMap/package.json",
-        "src/Database/package.json",
-        "src/Model/package.json",
-        "src/Query/package.json",
-        "src/QueryDescription/package.json",
-        "src/RawRecord/package.json",
-        "src/Relation/package.json",
-        "src/Schema/package.json",
-        "src/adapters/package.json",
-        "src/decorators/package.json",
-        "src/observation/package.json",
-        "src/utils/package.json"
+        "examples/native/package.json",
+        "examples/web/package.json"
       ]
     }
   }
