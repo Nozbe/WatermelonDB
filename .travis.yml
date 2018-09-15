@@ -35,8 +35,8 @@ matrix:
     - language: android
       android:
         components:
-          - build-tools-26.0.2
-          - android-26
+          - build-tools-28.0.2
+          - android-28
           - android-24
           - sys-img-armeabi-v7a-android-24
           - tools
