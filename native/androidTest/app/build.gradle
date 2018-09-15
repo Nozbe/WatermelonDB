@@ -159,24 +159,24 @@ configurations {
 
 dependencies {
     ktlint "com.github.shyiko:ktlint:0.24.0"
-    compile fileTree(dir: "libs", include: ["*.jar"])
-    compile project(':watermelondb')
-    compile "com.android.support:appcompat-v7:27.1.1"
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation project(':watermelondb')
+    implementation "com.android.support:appcompat-v7:27.1.1"
     //noinspection GradleDynamicVersion
-    compile "com.facebook.react:react-native:+"  // From node_modules
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "com.facebook.react:react-native:+"  // From node_modules
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-    testCompile 'junit:junit:4.12'
-    testCompile "org.robolectric:robolectric:3.8"
-    testCompile 'org.powermock:powermock-core:2.0.0-beta.5'
-    testCompile "org.powermock:powermock-api-mockito2:2.0.0-beta.5"
-    testCompile "org.powermock:powermock-module-junit4-rule:2.0.0-beta.5"
-    testCompile "org.powermock:powermock-module-junit4:1.7.4"
-    testCompile "org.powermock:powermock-classloading-xstream:2.0.0-beta.5"
-    testCompile "org.mockito:mockito-core:2.10.0"
-    androidTestCompile 'com.android.support:support-annotations:27.1.1'
-    androidTestCompile 'com.android.support.test:runner:1.0.2'
-    androidTestCompile 'com.android.support.test:rules:1.0.2'
+    testImplementation 'junit:junit:4.12'
+    testImplementation "org.robolectric:robolectric:3.8"
+    testImplementation 'org.powermock:powermock-core:2.0.0-beta.5'
+    testImplementation "org.powermock:powermock-api-mockito2:2.0.0-beta.5"
+    testImplementation "org.powermock:powermock-module-junit4-rule:2.0.0-beta.5"
+    testImplementation "org.powermock:powermock-module-junit4:1.7.4"
+    testImplementation "org.powermock:powermock-classloading-xstream:2.0.0-beta.5"
+    testImplementation "org.mockito:mockito-core:2.10.0"
+    androidTestImplementation 'com.android.support:support-annotations:27.1.1'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
 }
 
 task ktlint(type: JavaExec, group: "verification") {
