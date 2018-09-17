@@ -43,11 +43,18 @@
 
 **WatermelonDB** is a new way of dealing with user data in React Native and React web apps.
 
-It's optimized for building **complex applications** in React / React Native, and the number one goal is **real-world performance**. In simple words, _your app must launch fast_.
+It's optimized for building **complex applications** in React Native, and the number one goal is **real-world performance**. In simple words, _your app must launch fast_.
 
-If you have a simple app, keep using Redux or MobX with a persistence adapter. But if you start scaling to thousands or tens of thousands of database records, you'll notice a big impact on how fast the app launches, especially on slower Android devices. Loading a full database into JavaScript is expensive!
+For simple apps, using Redux or MobX with a persistence adapter is the easiest way to go. But when you start scaling to thousands or tens of thousands of database records, your app will now be slow to launch (especially on slower Android devices). Loading a full database into JavaScript is expensive!
 
-Watermelon fixes it **by being lazy**. Nothing is loaded unless requested. And because all querying is performed directly on the rock-solid [SQLite database](https://www.sqlite.org/index.html) on a separate thread, most queries resolve in **less than 1ms**, even with 10,000 records, even on slower Android devices!
+Watermelon fixes it **by being lazy**. Nothing is loaded unless requested. And since all querying is performed directly on the rock-solid [SQLite database](https://www.sqlite.org/index.html) on a separate native thread, most queries resolve in an instant.
+
+But unlike using SQLite directly, Watermelon is **fully observable**. So whenever you change a record, all UI that depends on it will automatically re-render. For example, completing a task in a todo app will re-render the task component, the list (to reorder), and all relevant task counters.
+
+<a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw">
+  <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-talk-thumbnail.jpg" alt="React Native EU: Next-generation React Databases" width="300" /><br>
+  📺 <strong>Next-generation React databases</strong> — talk about WatermelonDB
+</a>
 
 ## Usage
 

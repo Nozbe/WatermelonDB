@@ -20,7 +20,7 @@
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "7.0.0",
     "babel-jest": "23.6.0",
-    "babel-preset-react-native": "^5",
+    "metro-react-native-babel-preset": "^0.45.0",
     "eslint": "^5.4.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-prettier": "^3.0.1",
