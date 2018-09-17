@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import { generate100, generate10k } from 'models/generate'
 
@@ -12,7 +12,7 @@ import logoSrc from './WatermelonLogo.svg'
 import style from './style'
 
 class Root extends Component {
-  state = { isGenerating: false, isGenerated: false }
+  state = { isGenerating: false, isGenerated: sessionStorage.getItem('isGenerated') }
 
   generateWith = async generator => {
     this.setState({ isGenerating: true })
@@ -22,6 +22,7 @@ class Root extends Component {
     alert(`Generated ${count} records!`)
 
     this.setState({ isGenerating: false, isGenerated: true })
+    sessionStorage.setItem('isGenerated', true)
   }
 
   generate100 = () => this.generateWith(generate100)
