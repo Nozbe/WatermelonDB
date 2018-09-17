@@ -9,11 +9,11 @@ import com.facebook.react.uimanager.ViewManager
 class WatermelonDBPackage : ReactPackage {
 
     override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> =
-        listOf(DatabaseBridge(reactContext))
+            listOf(DatabaseBridge(reactContext))
 
     @Deprecated("Deprecated RN 0.47", ReplaceWith("createViewManagers()"))
     fun createJSModules(): List<Class<out JavaScriptModule>> = emptyList()
 
-    override fun createViewManagers(reactContext: ReactApplicationContext)
-            : List<ViewManager<*, *>> = emptyList()
+    override fun createViewManagers(reactContext: ReactApplicationContext):
+            List<ViewManager<*, *>> = emptyList()
 }

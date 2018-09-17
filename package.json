@@ -1,7 +1,7 @@
 {
   "name": "@nozbe/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
-  "version": "0.6.1-1",
+  "version": "0.6.1-2",
   "scripts": {
     "build": "NODE_ENV=production node ./scripts/make.js",
     "dev": "NODE_ENV=development node ./scripts/make.js",
@@ -13,7 +13,9 @@
     "ci:check": "concurrently 'npm run test' 'npm run eslint' 'npm run flow' --kill-others-on-fail",
     "test:android": "cd native/androidTest; ./gradlew connectedAndroidTest",
     "test:ios": "cd native/iosTest; xcodebuild -workspace WatermelonTester.xcworkspace -scheme 'WatermelonTester' -destination 'name=iPhone 8' test",
-    "swiftlint": "cd native; swiftlint"
+    "swiftlint": "cd native; swiftlint",
+    "ktlint": "cd native/androidTest; ./gradlew ktlint",
+    "ktlint:format": "cd native/androidTest; ./gradlew ktlintFormat"
   },
   "author": "@Nozbe",
   "homepage": "https://github.com/Nozbe/WatermelonDB#readme",
@@ -126,7 +128,7 @@
     "prettier-eslint": "^8.8.2",
     "prettier-eslint-cli": "^4.7.1",
     "react": "^16.5.0",
-    "react-native": "^0.56.0",
+    "react-native": "^0.57.0",
     "rimraf": "^2.6.2",
     "semver": "^5.5.1"
   }

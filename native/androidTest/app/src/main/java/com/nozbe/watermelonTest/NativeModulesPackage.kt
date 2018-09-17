@@ -5,13 +5,11 @@ import com.facebook.react.bridge.NativeModule
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.uimanager.ViewManager
 
-import com.nozbe.watermelonTest.BridgeTestReporter
-
 class NativeModulesPackage : ReactPackage {
 
-    override fun createViewManagers(reactContext: ReactApplicationContext)
-            : List<ViewManager<*, *>> = emptyList()
+    override fun createViewManagers(reactContext: ReactApplicationContext):
+            List<ViewManager<*, *>> = emptyList()
 
-    override fun createNativeModules(reactContext: ReactApplicationContext)
-            : List<NativeModule> = listOf(BridgeTestReporter(reactContext))
+    override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> =
+            listOf(BridgeTestReporter(reactContext))
 }

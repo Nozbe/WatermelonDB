@@ -153,10 +153,15 @@ android {
     }
 }
 
+configurations {
+    ktlint
+}
+
 dependencies {
+    ktlint "com.github.shyiko:ktlint:0.24.0"
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation project(':watermelondb')
-    implementation "com.android.support:appcompat-v7:28.0.0-rc01"
+    implementation "com.android.support:appcompat-v7:27.1.1"
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -172,6 +177,24 @@ dependencies {
     androidTestImplementation 'com.android.support:support-annotations:27.1.1'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
+}
+
+task ktlint(type: JavaExec, group: "verification") {
+    description = "Check Kotlin code style."
+    classpath = configurations.ktlint
+    main = "com.github.shyiko.ktlint.Main"
+    args "../../**/*.kt"
+    // to generate report in checkstyle format prepend following args:
+    // "--reporter=plain", "--reporter=checkstyle,output=${buildDir}/ktlint.xml"
+    // see https://github.com/shyiko/ktlint#usage for more
+}
+check.dependsOn ktlint
+
+task ktlintFormat(type: JavaExec, group: "formatting") {
+    description = "Fix Kotlin code style deviations."
+    classpath = configurations.ktlint
+    main = "com.github.shyiko.ktlint.Main"
+    args "-F", "../../**/*.kt"
 }
 
 configurations.all {

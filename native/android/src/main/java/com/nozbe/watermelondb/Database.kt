@@ -13,7 +13,7 @@ class Database(private val name: String?, private val context: Context) {
         if (name.isNullOrBlank() || name == "test") {
             SQLiteDatabase.create(null)
         } else {
-            //On some systems there is some kind of lock on `/databases` folder ¯\_(ツ)_/¯
+            // On some systems there is some kind of lock on `/databases` folder ¯\_(ツ)_/¯
             SQLiteDatabase.openOrCreateDatabase(
                     context.getDatabasePath("$name.db").path
                             .replace("/databases", ""), null)
