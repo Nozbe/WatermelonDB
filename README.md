@@ -49,6 +49,11 @@ Watermelon fixes it **by being lazy**. Nothing is loaded unless requested. And s
 
 But unlike using SQLite directly, Watermelon is **fully observable**. So whenever you change a record, all UI that depends on it will automatically re-render. For example, completing a task in a todo app will re-render the task component, the list (to reorder), and all relevant task counters.
 
+<a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw">
+  <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-talk-thumbnail.jpg" alt="React Native EU: Next-generation React Databases" width="300" /><br>
+  📺 <strong>Next-generation React databases</strong> — talk about WatermelonDB
+</a>
+
 ## Usage
 
 **Quick (over-simplified) example:** an app with posts and comments.
