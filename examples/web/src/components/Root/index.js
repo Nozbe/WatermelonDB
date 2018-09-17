@@ -30,7 +30,8 @@ class Root extends Component {
   generate10k = () => this.generateWith(generate10k)
 
   render() {
-    const { database, blogsCount } = this.props
+    const { database } = this.props
+    const { isGenerating } = this.state
 
     return (
       <Router>
@@ -40,42 +41,32 @@ class Root extends Component {
             <Button title="Generate 100 records" onClick={this.generate100} />
             <Button title="Generate 10,000 records" onClick={this.generate10k} />
           </div>
-          {blogsCount > 0 && (
-            <div className={style.content}>
-              <div className={style.sidebar}>
-                {!this.state.isGenerating && <BlogList database={database} />}
-              </div>
+
+          <div className={style.content}>
+            <div className={style.sidebar}>{!isGenerating && <BlogList database={database} />}</div>
+            <div className={style.postList}>
               <Route path="/blog/:blogId"
-                render={props => (
-                  <div className={style.postList}>
-                    {!this.state.isGenerating && (
-                      <Blog key={props.match.params.blogId} database={database} {...props} />
-                    )}
-                  </div>
-                )} />
-              <div className={style.main}>
-                {!this.state.isGenerating && (
-                  <Switch>
-                    <Route path="/blog/:blogId/nasty"
-                      render={props => <ModerationQueue database={database} {...props} />} />
-                    <Route path="/blog/:blogId/post/:postId"
-                      render={props => <Post database={database} {...props} />} />
-                  </Switch>
-                )}
-              </div>
+                render={props =>
+                  !isGenerating && (
+                    <Blog key={props.match.params.blogId} database={database} {...props} />
+                  )
+                } />
             </div>
-          )}
+            <div className={style.main}>
+              {!isGenerating && (
+                <Switch>
+                  <Route path="/blog/:blogId/nasty"
+                    render={props => <ModerationQueue database={database} {...props} />} />
+                  <Route path="/blog/:blogId/post/:postId"
+                    render={props => <Post database={database} {...props} />} />
+                </Switch>
+              )}
+            </div>
+          </div>
         </div>
       </Router>
     )
   }
 }
 
-const enhance = withObservables(null, ({ database }) => ({
-  blogsCount: database.collections
-    .get('blogs')
-    .query()
-    .observeCount(),
-}))
-
-export default enhance(Root)
+export default Root

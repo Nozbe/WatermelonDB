@@ -34,6 +34,7 @@ const BlogList = ({ blogs, setActiveItem, activeItem }) => (
         isActive={blog.id === activeItem}
         onClick={setActiveItem} />
     ))}
+    {!blogs.length && <span className={style.placeholder}>Click “Generate x records” above!</span>}
   </div>
 )
 
