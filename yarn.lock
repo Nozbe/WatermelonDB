@@ -6503,6 +6503,10 @@ util.promisify@^1.0.0:
     define-properties "^1.1.2"
     object.getownpropertydescriptors "^2.0.3"
 
+utility-types@^2.1.0:
+  version "2.1.0"
+  resolved "http://chariten:3001/utility-types/-/utility-types-2.1.0.tgz#0c78fc9f7eb424d14302222b4ddd13fdb17f44ab"
+
 utils-merge@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"

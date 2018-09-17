@@ -130,6 +130,7 @@
     "react": "^16.5.0",
     "react-native": "^0.57.0",
     "rimraf": "^2.6.2",
-    "semver": "^5.5.1"
+    "semver": "^5.5.1",
+    "utility-types": "^2.1.0"
   }
 }

@@ -11,7 +11,7 @@ export { default as Query } from 'Query'
 export { tableName, columnName, appSchema, tableSchema } from 'Schema'
 
 export type { DatabaseAdapter } from 'adapters/type'
-export type { RawRecord, DirtyRaw } from 'RawRecord'
+export type { RawRecord, DirtyRaw } from 'Relation/index'
 export type { RecordId } from 'Model'
 export type {
   TableName,
