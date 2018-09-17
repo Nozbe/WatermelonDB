@@ -1,18 +1,21 @@
-const blacklist = require('metro/src/blacklist')
+const blacklist = require('metro-config/src/defaults/blacklist')
 const path = require('path')
 
 const config = {
-  getBlacklistRE() {
-    // delete __tests__ from the default blacklist
-    const defaultPattern = blacklist()
-      .toString()
-      .slice(1, -1)
-    const newPattern = defaultPattern.replace(`|.*\\/__tests__\\/.*`, '')
+  resolver: {
+    getBlacklistRE: (() => {
+      // delete __tests__ from the default blacklist
+      const defaultPattern = blacklist()
+        .toString()
+        .slice(1, -1)
 
-    return RegExp(newPattern)
+      const newPattern = defaultPattern.replace(`|.*\\/__tests__\\/.*`, '')
+      console.log(newPattern)
+      return RegExp(newPattern)
+    })(),
   },
-  getTransformModulePath() {
-    return path.resolve(__dirname, 'rn-transformer.js')
+  transformer: {
+    babelTransformerPath: path.resolve(__dirname, 'rn-transformer.js'),
   },
 }
 
