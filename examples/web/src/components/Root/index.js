@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import withObservables from '@nozbe/with-observables'
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import { generate100, generate10k } from 'models/generate'
 
@@ -12,7 +13,7 @@ import logoSrc from './WatermelonLogo.svg'
 import style from './style'
 
 class Root extends Component {
-  state = { isGenerating: false, isGenerated: sessionStorage.getItem('isGenerated') }
+  state = { isGenerating: false }
 
   generateWith = async generator => {
     this.setState({ isGenerating: true })
@@ -21,8 +22,7 @@ class Root extends Component {
 
     alert(`Generated ${count} records!`)
 
-    this.setState({ isGenerating: false, isGenerated: true })
-    sessionStorage.setItem('isGenerated', true)
+    this.setState({ isGenerating: false })
   }
 
   generate100 = () => this.generateWith(generate100)
@@ -30,7 +30,8 @@ class Root extends Component {
   generate10k = () => this.generateWith(generate10k)
 
   render() {
-    const { database } = this.props
+    const { database, blogsCount } = this.props
+
     return (
       <Router>
         <div className={style.root}>
@@ -39,7 +40,7 @@ class Root extends Component {
             <Button title="Generate 100 records" onClick={this.generate100} />
             <Button title="Generate 10,000 records" onClick={this.generate10k} />
           </div>
-          {this.state.isGenerated && (
+          {blogsCount > 0 && (
             <div className={style.content}>
               <div className={style.sidebar}>
                 {!this.state.isGenerating && <BlogList database={database} />}
@@ -64,10 +65,18 @@ class Root extends Component {
               </div>
             </div>
           )}
+          )
         </div>
       </Router>
     )
   }
 }
 
-export default Root
+const enhance = withObservables(null, ({ database }) => ({
+  blogsCount: database.collections
+    .get('blogs')
+    .query()
+    .observeCount(),
+}))
+
+export default enhance(Root)
