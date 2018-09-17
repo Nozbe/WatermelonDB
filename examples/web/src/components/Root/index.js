@@ -65,7 +65,6 @@ class Root extends Component {
               </div>
             </div>
           )}
-          )
         </div>
       </Router>
     )
