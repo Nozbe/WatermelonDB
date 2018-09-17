@@ -7,7 +7,9 @@ import com.facebook.react.uimanager.ViewManager
 
 class NativeModulesPackage : ReactPackage {
 
-    override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> = emptyList()
+    override fun createViewManagers(reactContext: ReactApplicationContext):
+            List<ViewManager<*, *>> = emptyList()
 
-    override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> = listOf(BridgeTestReporter(reactContext))
+    override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> =
+            listOf(BridgeTestReporter(reactContext))
 }

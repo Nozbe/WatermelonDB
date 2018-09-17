@@ -14,7 +14,7 @@ class DatabaseDriver(context: Context, private val configuration: Configuration)
         class MarkAsDeleted(val table: TableName, val id: RecordID) : Operation()
         class DestroyPermanently(val table: TableName, val id: RecordID) : Operation()
         // class SetLocal(val key: String, val value: String) : Operation()
-        // class RemoveLoacl(val key: String) : Operation()
+        // class RemoveLocal(val key: String) : Operation()
     }
 
     private val database: Database by lazy { Database(configuration.name, context) }
@@ -163,7 +163,8 @@ class DatabaseDriver(context: Context, private val configuration: Configuration)
 
     private fun setUpSchema() {
         log?.info("Setting up schema")
-        database.executeSchema(configuration.schema + Queries.localStorageSchema, configuration.schemaVersion)
+        database.executeSchema(configuration.schema + Queries.localStorageSchema,
+                configuration.schemaVersion)
     }
 
     init {
