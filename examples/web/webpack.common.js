@@ -86,7 +86,7 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       title: 'WatermelonDB Demo',
-      template: './index.ejs',
+      template: './src/index.ejs',
     }),
   ],
 }
