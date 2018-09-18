@@ -1,6 +1,6 @@
 # Publishing WatermelonDB
 
-### Run all automated tests
+### Step 1: Run all automated tests
 
 ```js
 yarn ci:check
@@ -10,7 +10,7 @@ yarn swiftlint
 yarn ktlint
 ```
 
-### Test manually in a real app
+### Step 2: Test manually in a real app
 
 ```js
 yarn build
@@ -19,6 +19,10 @@ yarn build
 Then copy `dist/` and replace `app/node_modules/@nozbe/watermelondb` with it.
 
 If a quick smoke test passes, proceed to publish.
+
+### Step 3: Update CHANGELOG
+
+Change `Unreleased` header to the new version, add new Unreleased
 
 ### Publish
 
