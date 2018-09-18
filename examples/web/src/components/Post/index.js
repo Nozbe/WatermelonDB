@@ -21,7 +21,9 @@ const Post = props => {
         {comments.map(comment => (
           <Comment comment={comment} key={comment.id} />
         ))}
-        <Button title="Add comment" onClick={addComment} />
+        <div className={style.addCommentContainer}>
+          <Button title="Add comment" onClick={addComment} />
+        </div>
       </div>
     </div>
   )

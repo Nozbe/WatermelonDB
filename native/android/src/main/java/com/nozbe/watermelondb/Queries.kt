@@ -12,6 +12,7 @@ object Queries {
     fun selectDeletedIdsFromTable(table: String) = "select id from $table where _status='deleted'"
     fun multipleDeleteFromTable(table: String, args: QueryArgs) =
             "delete from $table where id in ${args.preparePlaceholder()}"
+
     const val localStorageSchema = """
         create table local_storage (
         key varchar(16) primary key not null,
@@ -21,6 +22,5 @@ object Queries {
         create index local_storage_key_index on local_storage (key);
     """
 
-    private fun QueryArgs.preparePlaceholder(): String =
-            "(${this.joinToString { _ -> "?" }})"
+    private fun QueryArgs.preparePlaceholder(): String = "(${this.joinToString { _ -> "?" }})"
 }

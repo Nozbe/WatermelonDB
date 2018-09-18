@@ -11,11 +11,16 @@
 
 .comments {
   margin-top: 20px;
-  padding: 10px;
   background: #f5f5f5;
+  border-radius: 8px;
 }
 
 .commentsTitle {
-  font-size: 1.6rem;
+  font-size: 1.4rem;
+  padding: 10px;
   margin-bottom: 10px;
+}
+
+.addCommentContainer {
+  padding: 10px;
 }
