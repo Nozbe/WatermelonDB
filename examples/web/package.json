@@ -5,7 +5,8 @@
   "description": "",
   "private": true,
   "scripts": {
-    "dev": "node webpack.server.js"
+    "dev": "node webpack.server.js",
+    "build": "webpack --config ./webpack.prod.js"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
