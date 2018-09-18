@@ -2,8 +2,18 @@ import { StyleSheet, Platform } from 'react-native'
 
 export default StyleSheet.create({
   title: { fontSize: 26, fontWeight: 'bold', color: 'black' },
-  subtitle: { fontSize: 20, fontWeight: '500', paddingVertical: 3, color: '#333' },
-  body: { paddingVertical: 5, color: '#333' },
+  subtitle: { fontSize: 16, fontWeight: '500', paddingVertical: 10, color: '#333' },
+  body: { paddingVertical: 10, color: '#333' },
+  container: { flex: 1, paddingHorizontal: 10, marginVertical: 10 },
+  header: {
+    flex: 1,
+    padding: 5,
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  marginContainer: { marginBottom: 10 },
+  buttonContainer: { flex: 1, flexDirection: 'row', justifyContent: 'space-around' },
   button: Platform.select({ android: { marginHorizontal: 12, marginBottom: 15 } }),
   listItem: {
     backgroundColor: '#f0f0f0',
@@ -16,9 +26,9 @@ export default StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
   },
-  listItemTitle: { flex: 1 },
-  listItemCounter: { width: 30, textAlign: 'right' },
-  post: { padding: 7 },
+  listItemTitle: { flex: 1, fontWeight: '500' },
+  listItemCounter: { width: 30, textAlign: 'right', opacity: 0.6 },
+  post: { textAlign: 'center', padding: 7, opacity: 0.7 },
   topPadding: { paddingTop: 15 },
   comment: {
     backgroundColor: '#f0f0f0',
@@ -28,5 +38,11 @@ export default StyleSheet.create({
     borderRadius: 10,
     borderColor: '#e0e0e0',
     borderWidth: 1,
+  },
+  postsListHeader: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginTop: 10,
+    padding: 10,
   },
 })

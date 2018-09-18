@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { ScrollView, Text, SafeAreaView, FlatList } from 'react-native'
+import { ScrollView, Text, SafeAreaView, FlatList, View } from 'react-native'
 import withObservables from '@nozbe/with-observables'
 
 import Comment from './Comment'
@@ -19,14 +19,16 @@ class Post extends Component {
   render() {
     const { post, comments } = this.props
     return (
-      <ScrollView style={styles.post}>
+      <ScrollView style={styles.container}>
         <SafeAreaView>
           <Text style={styles.title}>{post.title}</Text>
           <Text style={styles.subtitle}>{post.subtitle}</Text>
           <Text style={styles.body}>{post.body}</Text>
           <Text style={styles.subtitle}>Comments ({comments.length})</Text>
           <FlatList data={comments} renderItem={renderComment} keyExtractor={extractId} />
-          <Button style={styles.button} title="Add comment" onPress={this.addComment} />
+          <View styles={styles.marginContainer}>
+            <Button style={styles.button} title="Add comment" onPress={this.addComment} />
+          </View>
         </SafeAreaView>
       </ScrollView>
     )

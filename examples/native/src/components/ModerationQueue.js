@@ -9,7 +9,7 @@ import { extractId } from '../utils'
 const renderComment = ({ item }) => <Comment comment={item} key={item.id} />
 
 const ModerationQueue = ({ blog, nastyComments }) => (
-  <ScrollView style={styles.post}>
+  <ScrollView style={styles.container}>
     <SafeAreaView>
       <Text style={styles.title}>Moderation queue for {blog.name}</Text>
       <Text style={styles.subtitle}>Nasty comments ({nastyComments.length})</Text>

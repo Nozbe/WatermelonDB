@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { ScrollView, SafeAreaView, Alert, Text } from 'react-native'
+import { ScrollView, SafeAreaView, Alert, Text, View } from 'react-native'
 
 import { generate100, generate10k } from '../models/generate'
 import Button from './helpers/Button'
@@ -27,8 +27,13 @@ class Root extends Component {
       <ScrollView>
         <SafeAreaView>
           <Text style={styles.post}>Launch time: {this.props.timeToLaunch} ms</Text>
-          <Button title="Generate 100 records" onPress={this.generate100} />
-          <Button title="Generate 10,000 records" onPress={this.generate10k} />
+          <View style={styles.marginContainer}>
+            <Text style={styles.header}>Generate:</Text>
+            <View style={styles.buttonContainer}>
+              <Button title="100 records" onPress={this.generate100} />
+              <Button title="10,000 records" onPress={this.generate10k} />
+            </View>
+          </View>
           {!this.state.isGenerating && (
             <BlogList database={this.props.database} navigation={this.props.navigation} />
           )}
