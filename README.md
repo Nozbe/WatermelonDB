@@ -121,6 +121,6 @@ If you make or are considering making an app using WatermelonDB, please let us k
 
 **WatermelonDB** was created by [@Nozbe](https://github.com/Nozbe). Main author and maintainer is [Radek Pietruszewski](https://github.com/radex).
 
-**Contributors:** [@mobily](https://github.com/mobily), [@kokusGr](https://github.com/kokusGr), [@rozPierog](https://github.com/rozPierog), [@rkrajewski](https://github.com/rkrajewski), [@domeknn](https://github.com/domeknn), [@Tereszkiewicz](https://github.com/Tereszkiewicz).
+**Contributors:** [@mobily](https://github.com/mobily), [@kokusGr](https://github.com/kokusGr), [@rozPierog](https://github.com/rozPierog), [@rkrajewski](https://github.com/rkrajewski), [@domeknn](https://github.com/domeknn), [@Tereszkiewicz](https://github.com/Tereszkiewicz) and [more](https://github.com/Nozbe/WatermelonDB/graphs/contributors).
 
 WatermelonDB is available under the MIT license. See the [LICENSE file](./LICENSE) for more info.
