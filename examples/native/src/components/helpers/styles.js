@@ -3,17 +3,17 @@ import { StyleSheet, Platform } from 'react-native'
 export default StyleSheet.create({
   title: { fontSize: 26, fontWeight: 'bold', color: 'black' },
   subtitle: { fontSize: 16, fontWeight: '500', paddingVertical: 10, color: '#333' },
-  body: { paddingVertical: 10, color: '#333' },
+  body: { paddingVertical: 10, color: '#333', lineHeight: 20 },
   container: { flex: 1, paddingHorizontal: 10, marginVertical: 10 },
   header: {
     flex: 1,
-    padding: 5,
+    padding: 10,
     textAlign: 'center',
     fontSize: 16,
     fontWeight: '500',
   },
-  marginContainer: { marginBottom: 10 },
-  buttonContainer: { flex: 1, flexDirection: 'row', justifyContent: 'space-around' },
+  marginContainer: { marginVertical: 10 },
+  buttonContainer: { flex: 1, flexDirection: 'row', justifyContent: 'center' },
   button: Platform.select({ android: { marginHorizontal: 12, marginBottom: 15 } }),
   listItem: {
     backgroundColor: '#f0f0f0',

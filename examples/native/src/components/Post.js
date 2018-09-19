@@ -19,16 +19,17 @@ class Post extends Component {
   render() {
     const { post, comments } = this.props
     return (
-      <ScrollView style={styles.container}>
-        <SafeAreaView>
+      <ScrollView>
+        <SafeAreaView style={styles.container}>
           <Text style={styles.title}>{post.title}</Text>
           <Text style={styles.subtitle}>{post.subtitle}</Text>
           <Text style={styles.body}>{post.body}</Text>
           <Text style={styles.subtitle}>Comments ({comments.length})</Text>
-          <FlatList data={comments} renderItem={renderComment} keyExtractor={extractId} />
-          <View styles={styles.marginContainer}>
-            <Button style={styles.button} title="Add comment" onPress={this.addComment} />
-          </View>
+          <FlatList style={styles.marginContainer}
+            data={comments}
+            renderItem={renderComment}
+            keyExtractor={extractId} />
+          <Button style={styles.button} title="Add comment" onPress={this.addComment} />
         </SafeAreaView>
       </ScrollView>
     )
