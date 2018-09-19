@@ -8,13 +8,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Added iOS and Android integration tests
 - Added iOS and Android integration tests and lint checks to TravisCI
 
 ### Changed
+
 - Changed Flow setup for apps using Watermelon - see docs/Advanced/Flow.md
+- Improved documentation, and demo code
+- Updated dependencies
 
 ### Fixed
+
 - Add quotes to all names in sql queries to allow keywords as table or column names
 - Fixed running model tests in apps with Watermelon in the loop
 - Fixed Flow when using Watermelon in apps

@@ -5,12 +5,13 @@
   "description": "",
   "private": true,
   "scripts": {
-    "dev": "node webpack.server.js"
+    "dev": "node webpack.server.js",
+    "build": "webpack --config ./webpack.prod.js"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
     "@babel/plugin-proposal-class-properties": "^7.0.0",
-    "@babel/plugin-proposal-decorators": "^7.0.0",
+    "@babel/plugin-proposal-decorators": "7.1.0",
     "@babel/plugin-proposal-export-namespace-from": "^7.0.0",
     "@babel/plugin-proposal-function-sent": "^7.0.0",
     "@babel/plugin-proposal-json-strings": "^7.0.0",
@@ -24,6 +25,8 @@
     "@babel/runtime": "^7.0.0",
     "babel-eslint": "9.0.0",
     "babel-loader": "^8.0.0",
+    "classnames": "^2.2.6",
+    "clean-webpack-plugin": "^0.1.19",
     "compression": "^1.7.3",
     "css-loader": "^1.0.0",
     "eslint": "^5.4.0",
@@ -53,21 +56,27 @@
     "postcss-url": "^8.0.0",
     "prettier-eslint-cli": "^4.7.1",
     "serve-static": "^1.13.2",
-    "style-loader": "^0.23.0",
     "url-loader": "^1.1.1",
     "webpack": "^4.17.1",
     "webpack-cli": "^3.1.0",
+    "webpack-merge": "^4.1.4",
     "webpack-serve": "^2.0.2",
     "worker-loader": "^2.0.0"
   },
   "dependencies": {
     "@nozbe/watermelondb": "^0.6.0",
-    "@nozbe/with-observables": "^0.1.1",
+    "@nozbe/with-observables": "^1.0.0",
     "lokijs": "^1.5.5",
-    "react": "^16.4.2",
+    "react": "16.5.1",
     "react-dom": "^16.4.2",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
     "recompose": "^0.30.0"
+  },
+  "now": {
+    "type": "static",
+    "name": "watermelondb",
+    "alias": "watermelondb",
+    "public": true
   }
 }

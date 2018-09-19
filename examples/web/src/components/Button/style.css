@@ -1,0 +1,15 @@
+.root {
+  display: inline-flex;
+  background: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+
+  & + .root {
+    margin-left: 10px;
+  }
+}
