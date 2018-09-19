@@ -5,7 +5,7 @@ import styles from './styles'
 
 const Button = ({ title, onPress }) => (
   <View style={styles.button}>
-    <RNButton title={title} onPress={onPress} />
+    <RNButton title={title} onPress={onPress} color="#EC5B59" />
   </View>
 )
 
