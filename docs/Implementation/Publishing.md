@@ -2,7 +2,7 @@
 
 ### Step 1: Run all automated tests
 
-```js
+```bash
 yarn ci:check
 yarn test:ios
 yarn test:android
@@ -12,7 +12,7 @@ yarn ktlint
 
 ### Step 2: Test manually in a real app
 
-```js
+```bash
 yarn build
 ```
 
@@ -24,10 +24,29 @@ If a quick smoke test passes, proceed to publish.
 
 Change `Unreleased` header to the new version, add new Unreleased
 
-### Publish
+### Step 4: Publish
 
-```
+```bash
 npm run release
 ```
 
 Don't use `yarn release` (or `yarn publish`) — it won't work (yarn doesn't support NPM 2FA).
+
+### Step 5: Update demo/example code
+
+```bash
+cd examples/native
+yarn upgrade-interactive
+# check out if native works
+
+cd ../web
+yarn upgrade-interactive
+# check out if web works
+```
+
+Then deploy updated web demo:
+
+```bash
+now
+now alias watermelondb-xxxxxxxxx.now.sh watermelondb
+```
