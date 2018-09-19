@@ -1,6 +1,14 @@
 import { StyleSheet, Platform } from 'react-native'
 
 export default StyleSheet.create({
+  logo: {
+    width: 300,
+    height: 65,
+    maxWidth: '100%',
+    marginVertical: 20,
+    alignSelf: 'center',
+    flex: 1,
+  },
   title: { fontSize: 26, fontWeight: 'bold', color: 'black' },
   subtitle: { fontSize: 16, fontWeight: '500', paddingVertical: 10, color: '#333' },
   body: { paddingVertical: 10, color: '#333', lineHeight: 20 },

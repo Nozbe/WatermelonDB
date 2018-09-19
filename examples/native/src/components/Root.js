@@ -1,10 +1,12 @@
 import React, { Component } from 'react'
-import { ScrollView, SafeAreaView, Alert, Text, View } from 'react-native'
+import { ScrollView, SafeAreaView, Alert, Text, View, Image } from 'react-native'
 
 import { generate100, generate10k } from '../models/generate'
 import Button from './helpers/Button'
 import styles from './helpers/styles'
 import BlogList from './BlogList'
+
+import logoSrc from './assets/logo-app.png'
 
 class Root extends Component {
   state = { isGenerating: false }
@@ -26,6 +28,7 @@ class Root extends Component {
     return (
       <ScrollView>
         <SafeAreaView>
+          <Image style={styles.logo} source={logoSrc} />
           <Text style={styles.post}>Launch time: {this.props.timeToLaunch} ms</Text>
           <View style={styles.marginContainer}>
             <Text style={styles.header}>Generate:</Text>
