@@ -2,9 +2,16 @@
 
 See how WatermelonDB performs at large scales in the demo app.
 
-## See web demo online
+## Online demo
 
-⚠️ Coming soon!
+<h3>
+<a href="https://watermelondb.now.sh">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-demo-medium.png" alt="WatermelonDB Demo" width="600" /><br>
+    Check out WatermelonDB demo online
+</a>
+</h3>
+
+Note that where Watermelon really shines is in React Native apps — see instructions below ⬇️
 
 ## Running React Native demo
 
