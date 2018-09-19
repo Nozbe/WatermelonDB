@@ -29,7 +29,6 @@ To compile the WatermelonDB demo on your own machine:
 
 ⚠️ Note that for accurate measurement of performance, you need to compile the demo app in Release mode and run it on a real device, not the simulator.
 
-
 ## Running web demo
 
 To compile the WatermelonDB demo on your own machine:
@@ -44,4 +43,15 @@ To compile the WatermelonDB demo on your own machine:
     ```bash
     yarn dev
     ```
-3. Open [localhost:8888](http://localhost:8888)
+3. Webpack will point you to the right URL to open in the browser
+
+You can also [use Now](https://zeit.co/now) to deploy the demo app (requires a Zeit account):
+
+```bash
+now
+```
+
+## Troubleshooting
+
+- You might want to `git checkout` the [latest stable tag](https://github.com/Nozbe/WatermelonDB/releases) if the demo app doesn't work
+- If iOS app doesn't compile, try running it from Xcode instead of the terminal first
