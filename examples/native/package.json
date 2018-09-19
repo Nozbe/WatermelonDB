@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "node node_modules/react-native/local-cli/cli.js start",
+    "dev": "node ./node_modules/react-native/local-cli/cli.js start",
     "start:ios": "react-native run-ios",
     "start:android": "react-native run-android",
     "test": "jest"
