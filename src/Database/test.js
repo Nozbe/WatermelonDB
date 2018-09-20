@@ -1,6 +1,6 @@
 import { expectToRejectWithMessage } from '__tests__/utils'
 import { mockDatabase, MockProject, MockTask, MockComment, testSchema } from '__tests__/testModels'
-
+import { CollectionChangeTypes } from 'Collection'
 import Database from '.'
 
 describe('watermelondb/Database', () => {
@@ -57,14 +57,14 @@ describe('watermelondb/Database', () => {
     ])
 
     expect(collectionObserver).toHaveBeenCalledTimes(4)
-    expect(collectionObserver).toBeCalledWith({ record: m1, isDestroyed: false })
-    expect(collectionObserver).toBeCalledWith({ record: m2, isDestroyed: false })
+    expect(collectionObserver).toBeCalledWith([{ record: m1, type: CollectionChangeTypes.updated }])
+    expect(collectionObserver).toBeCalledWith([{ record: m2, type: CollectionChangeTypes.updated }])
 
     const createdRecords = [m3, m4]
     createdRecords.forEach(record => {
       expect(record._isCommitted).toBe(true)
       expect(collection._cache.get(record.id)).toBe(record)
-      expect(collectionObserver).toBeCalledWith({ record, isDestroyed: false })
+      expect(collectionObserver).toBeCalledWith([{ record, type: CollectionChangeTypes.created }])
     })
 
     expect(recordObserver).toHaveBeenCalledTimes(2)
@@ -104,22 +104,22 @@ describe('watermelondb/Database', () => {
     const m3 = await commentsCollection.create()
 
     expect(observer).toHaveBeenCalledTimes(4)
-    expect(observer).toBeCalledWith({ record: m1, isDestroyed: false })
-    expect(observer).lastCalledWith({ record: m2, isDestroyed: false })
+    expect(observer).toBeCalledWith([{ record: m1, type: CollectionChangeTypes.created }])
+    expect(observer).lastCalledWith([{ record: m2, type: CollectionChangeTypes.created }])
 
     await m1.update()
     await m2.update()
     await m3.update()
 
     expect(observer).toHaveBeenCalledTimes(6)
-    expect(observer).lastCalledWith({ record: m2, isDestroyed: false })
+    expect(observer).lastCalledWith([{ record: m2, type: CollectionChangeTypes.updated }])
 
     await m1.destroyPermanently()
     await m2.destroyPermanently()
     await m3.destroyPermanently()
 
     expect(observer).toHaveBeenCalledTimes(8)
-    expect(observer).toBeCalledWith({ record: m1, isDestroyed: true })
-    expect(observer).lastCalledWith({ record: m2, isDestroyed: true })
+    expect(observer).toBeCalledWith([{ record: m1, type: CollectionChangeTypes.destroyed }])
+    expect(observer).lastCalledWith([{ record: m2, type: CollectionChangeTypes.destroyed }])
   })
 })

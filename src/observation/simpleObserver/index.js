@@ -31,7 +31,7 @@ function observeChanges<Record: Model>(query: Query<Record>): (Record[]) => Obse
         const index = matchingRecords.indexOf(record)
         const currentlyMatching = index > -1
 
-        if (currentlyMatching && type == CollectionChangeTypes.destroyed) {
+        if (currentlyMatching && type === CollectionChangeTypes.destroyed) {
           // Remove if record was deleted
           matchingRecords.splice(index, 1)
           emit()
