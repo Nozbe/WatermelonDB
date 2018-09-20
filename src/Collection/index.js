@@ -15,19 +15,14 @@ import { type TableName, type TableSchema } from 'Schema'
 
 import RecordCache from './RecordCache'
 
-// const CollectionChangeType = Object.freeze({
-//   created: 'created',
-//   updated: 'updated',
-//   destroyed: 'destroyed',
-// })
-type CollectionChangeType = {
+export const CollectionChangeTypes = {
   created: 'created',
   updated: 'updated',
   destroyed: 'destroyed',
 }
-// type CollectionChangeType = 'created' | 'updated' | 'destroyed'
+type CollectionChangeType = 'created' | 'updated' | 'destroyed'
 export type CollectionChange<Record: Model> = { record: Record, type: CollectionChangeType }
-type CollectionChangeSet<T> = CollectionChange<T>[]
+export type CollectionChangeSet<T> = CollectionChange<T>[]
 
 export default class Collection<Record: Model> {
   database: Database
@@ -136,17 +131,17 @@ export default class Collection<Record: Model> {
   _onRecordCreated(record: Record): void {
     record._isCommitted = true
     this._cache.add(record)
-    this.changes.next([{ record, type: CollectionChangeType.created }])
+    this.changes.next([{ record, type: CollectionChangeTypes.created }])
   }
 
   _onRecordUpdated(record: Record): void {
-    this.changes.next([{ record, type: CollectionChangeType.updated }])
+    this.changes.next([{ record, type: CollectionChangeTypes.updated }])
     record._notifyChanged()
   }
 
   _onRecordDestroyed(record: Record): void {
     this._cache.delete(record)
-    this.changes.next([{ record, type: CollectionChangeType.destroyed }])
+    this.changes.next([{ record, type: CollectionChangeTypes.destroyed }])
     record._notifyDestroyed()
   }
 

@@ -8,6 +8,7 @@ import doOnDispose from 'utils/rx/doOnDispose'
 import doOnSubscribe from 'utils/rx/doOnSubscribe'
 
 import logger from 'utils/common/logger'
+import { CollectionChangeTypes } from 'Collection'
 
 import type Query from 'Query'
 import type Model from 'Model'
@@ -25,12 +26,12 @@ function observeChanges<Record: Model>(query: Query<Record>): (Record[]) => Obse
       emit()
 
       // Observe changes to the collection
-      return query.collection.changes.subscribe(change => {
-        const { record, isDestroyed } = change
+      return query.collection.changes.subscribe(changes => {
+        const [{ record, type }] = changes
         const index = matchingRecords.indexOf(record)
         const currentlyMatching = index > -1
 
-        if (currentlyMatching && isDestroyed) {
+        if (currentlyMatching && type == CollectionChangeTypes.destroyed) {
           // Remove if record was deleted
           matchingRecords.splice(index, 1)
           emit()
