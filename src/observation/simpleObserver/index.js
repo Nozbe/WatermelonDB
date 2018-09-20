@@ -27,6 +27,7 @@ function observeChanges<Record: Model>(query: Query<Record>): (Record[]) => Obse
 
       // Observe changes to the collection
       return query.collection.changes.subscribe(changes => {
+        let shouldUpdate: boolean = false
         changes.forEach(change => {
           const { record, type } = change
           const index = matchingRecords.indexOf(record)
@@ -35,6 +36,7 @@ function observeChanges<Record: Model>(query: Query<Record>): (Record[]) => Obse
           if (currentlyMatching && type === CollectionChangeTypes.destroyed) {
             // Remove if record was deleted
             matchingRecords.splice(index, 1)
+            shouldUpdate = true
             return
           }
 
@@ -43,12 +45,14 @@ function observeChanges<Record: Model>(query: Query<Record>): (Record[]) => Obse
           if (currentlyMatching && !matches) {
             // Remove if doesn't match anymore
             matchingRecords.splice(index, 1)
+            shouldUpdate = true
           } else if (matches && !currentlyMatching) {
             // Add if should be included but isn't
             matchingRecords.push(record)
+            shouldUpdate = true
           }
         })
-        emit()
+        if (shouldUpdate) emit()
       })
     })
 }
