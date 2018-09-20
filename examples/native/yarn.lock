@@ -876,8 +876,8 @@
   resolved "https://registry.yarnpkg.com/@emotion/utils/-/utils-0.8.1.tgz#f3a81587ad8d0ef33cdad6f3b4310774fcc1053e"
 
 "@nozbe/watermelondb@^0.6.0":
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/@nozbe/watermelondb/-/watermelondb-0.6.0.tgz#585d229af4a19472643940ec9b3dcbadb81e9faf"
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/@nozbe/watermelondb/-/watermelondb-0.6.1.tgz#d01ec27e1b70b2f5568df79bacb52803fbe49df8"
   dependencies:
     async "^2.6.1"
     babel-plugin-module-resolver "^3.1.1"
@@ -887,8 +887,8 @@
     sql-escape-string "^1.1.0"
 
 "@nozbe/with-observables@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@nozbe/with-observables/-/with-observables-1.0.0.tgz#ca6dd2a9f8e982f368e63c996068e77035d964a7"
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@nozbe/with-observables/-/with-observables-1.0.1.tgz#edfb34c51db11a5be5ddcb86e84a0c73325bc6dd"
   dependencies:
     rxjs "^6.2.2"
 
@@ -4598,11 +4598,11 @@ lodash@^3.10.0:
   version "3.10.1"
   resolved "http://registry.npmjs.org/lodash/-/lodash-3.10.1.tgz#5bf45e8e49ba4189e17d482789dfd15bd140b7b6"
 
-lodash@^4.13.1, lodash@^4.17.10, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.3.0, lodash@^4.6.1:
+lodash@^4.13.1, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.3.0, lodash@^4.6.1:
   version "4.17.10"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.10.tgz#1b7793cf7259ea38fb3661d4d38b3260af8ae4e7"
 
-lodash@^4.16.5:
+lodash@^4.16.5, lodash@^4.17.10:
   version "4.17.11"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
 
