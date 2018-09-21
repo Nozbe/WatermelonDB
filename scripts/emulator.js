@@ -86,7 +86,6 @@ const emulatorTasks = options => {
           // eslint-disable-next-line
           console.log('Downloading Emulator Image\nIt may take a while')
           execSync('touch ~/.android/repositories.cfg')
-          execSync('export JAVA_OPTS="-XX:+IgnoreUnrecognizedVMOptions --add-modules java.se.ee"')
           execSync(`$ANDROID_HOME/tools/bin/sdkmanager "${sdkPath}"`)
         },
       })
