@@ -7,6 +7,8 @@ const inquirer = require('inquirer')
 
 const { execSync } = require('child_process')
 
+const { add } = require('rambdax')
+
 const emulators = execSync(`$ANDROID_HOME/emulator/emulator -list-avds`).toString()
 const sdks = execSync(
   `$ANDROID_HOME/tools/bin/sdkmanager --list | grep "system-images/" `,
@@ -17,6 +19,7 @@ const askForEmu = [
     type: 'list',
     name: 'name',
     message: 'Pick Emulator from list or add a new one',
+    pageSize: add(emulators.length, 4),
     choices: emulators
       .split('\n')
       .filter(value => value.length > 0)
@@ -38,6 +41,7 @@ const askForEmu = [
     name: 'sdk',
     when: answers => !answers.name,
     message: 'Sdk Version:',
+    pageSize: add(sdks.length, 4),
     choices: sdks
       .split('\n')
       .filter(value => value.length > 0)
@@ -78,6 +82,7 @@ const openEmu = options => {
       {
         title: 'Downloading Emulator Image',
         task: () => {
+          // eslint-disable-next-line
           console.log('Downloading Emulator Image\nIt may take a while')
           execSync('touch ~/.android/repositories.cfg')
           execSync('export JAVA_OPTS="-XX:+IgnoreUnrecognizedVMOptions --add-modules java.se.ee"')
