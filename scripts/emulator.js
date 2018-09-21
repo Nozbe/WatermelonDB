@@ -8,6 +8,9 @@ const inquirer = require('inquirer')
 const { execSync } = require('child_process')
 
 const emulators = execSync(`$ANDROID_HOME/emulator/emulator -list-avds`).toString()
+const sdks = execSync(
+  `$ANDROID_HOME/tools/bin/sdkmanager --list | grep "system-images/" `,
+).toString()
 
 const askForEmu = [
   {
@@ -24,7 +27,28 @@ const askForEmu = [
       .concat([
         new inquirer.Separator(),
         {
-          name: 'New Emu',
+          name: 'New Emulator',
+          value: null,
+        },
+        new inquirer.Separator(),
+      ]),
+  },
+  {
+    type: 'list',
+    name: 'sdk',
+    when: answers => !answers.name,
+    message: 'Sdk Version:',
+    choices: sdks
+      .split('\n')
+      .filter(value => value.length > 0)
+      .map(sdk => ({
+        name: sdk.split(' ')[2].slice(14),
+        value: sdk.split(' ')[2],
+      }))
+      .concat([
+        new inquirer.Separator(),
+        {
+          name: 'Other Sdk',
           value: null,
         },
         new inquirer.Separator(),
@@ -33,7 +57,7 @@ const askForEmu = [
   {
     type: 'input',
     name: 'sdk',
-    when: answers => !answers.name,
+    when: answers => !answers.sdk && !answers.name,
     message: 'Sdk Version (21-28):',
     validate: input => input > 20 && input < 29,
   },
@@ -48,6 +72,8 @@ const askForEmu = [
 const openEmu = options => {
   const { name, sdk } = options
   if (sdk !== undefined) {
+    const sdkPath =
+      sdk.length === 2 ? `system-images;android-${sdk.replace(/\s/g, '')};google_apis;x86` : sdk
     return [
       {
         title: 'Downloading Emulator Image',
@@ -55,25 +81,15 @@ const openEmu = options => {
           console.log('Downloading Emulator Image\nIt may take a while')
           execSync('touch ~/.android/repositories.cfg')
           execSync('export JAVA_OPTS="-XX:+IgnoreUnrecognizedVMOptions --add-modules java.se.ee"')
-          execSync(
-            `$ANDROID_HOME/tools/bin/sdkmanager "system-images;android-${sdk.replace(
-              /\s/g,
-              '',
-            )};google_apis;x86"`,
-          )
+          execSync(`$ANDROID_HOME/tools/bin/sdkmanager "${sdkPath}"`)
         },
       },
       {
         title: `Creating Emulator ${name}`,
         task: () => {
           execSync(
-            `echo no | $ANDROID_HOME/tools/bin/avdmanager create avd -n ${name.replace(
-              /\s/g,
-              '',
-            )} -k "system-images;android-${sdk.replace(
-              /\s/g,
-              '',
-            )};google_apis;x86" --device "Nexus 6P"`,
+            `echo no | $ANDROID_HOME/tools/bin/avdmanager \
+             create avd -n ${name.replace(/\s/g, '')} -k "${sdkPath}" --device "Nexus 6P"`,
           )
         },
       },
