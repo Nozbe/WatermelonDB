@@ -46,17 +46,20 @@ const askForEmu = [
 
 const openEmu = options => {
   const { name, sdk } = options
-  if (sdk !== null) {
+  if (sdk !== undefined) {
     return [
       {
         title: 'create emu',
         task: () => {
           execSync('export JAVA_OPTS="-XX:+IgnoreUnrecognizedVMOptions --add-modules java.se.ee"')
           execSync(
-            `echo yes | $ANDROID_HOME/tools/bin/avdmanager create avd -n ${name.replace(
+            `echo no | $ANDROID_HOME/tools/bin/avdmanager create avd -n ${name.replace(
               /\s/g,
               '',
-            )} -k "system-images;android-${sdk.replace(/\s/g, '')};google_apis_playstore;x86"`,
+            )} -k "system-images;android-${sdk.replace(
+              /\s/g,
+              '',
+            )};google_apis;x86" --device "Nexus 6P"`,
           )
         },
       },
@@ -65,7 +68,7 @@ const openEmu = options => {
   return [
     {
       title: 'Open Emulator',
-      task: () => execSync(`$ANDROID_HOME/emulator/emulator`, [`@${name}`]),
+      task: () => execSync(`$ANDROID_HOME/emulator/emulator @${name}`),
     },
   ]
 }
