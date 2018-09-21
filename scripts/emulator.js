@@ -16,6 +16,7 @@ const askForEmu = [
     message: 'Pick Emulator from list or add a new one',
     choices: emulators
       .split('\n')
+      .filter(value => value.length > 0)
       .map(emu => ({
         name: emu,
         value: emu,
