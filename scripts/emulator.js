@@ -33,7 +33,7 @@ const askForEmu = [
     type: 'input',
     name: 'sdk',
     when: answers => !answers.name,
-    message: 'sdk number:',
+    message: 'Sdk Version (21-28):',
     validate: input => input > 20 && input < 29,
   },
   {
@@ -49,9 +49,22 @@ const openEmu = options => {
   if (sdk !== undefined) {
     return [
       {
-        title: 'create emu',
+        title: 'Downloading Emulator Image',
         task: () => {
+          console.log('Downloading Emulator Image\nIt may take a while')
+          execSync('touch ~/.android/repositories.cfg')
           execSync('export JAVA_OPTS="-XX:+IgnoreUnrecognizedVMOptions --add-modules java.se.ee"')
+          execSync(
+            `$ANDROID_HOME/tools/bin/sdkmanager "system-images;android-${sdk.replace(
+              /\s/g,
+              '',
+            )};google_apis;x86"`,
+          )
+        },
+      },
+      {
+        title: `Creating Emulator ${name}`,
+        task: () => {
           execSync(
             `echo no | $ANDROID_HOME/tools/bin/avdmanager create avd -n ${name.replace(
               /\s/g,
