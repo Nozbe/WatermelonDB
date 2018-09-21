@@ -26,12 +26,11 @@ const anymatch = require('anymatch')
 const rimraf = require('rimraf')
 
 const pkg = require('../package.json')
-const babelrc = require('../babel.config.js')
 
 const resolvePath = (...paths) => path.resolve(__dirname, '..', ...paths)
 const isDevelopment = process.env.NODE_ENV === 'development'
 
-const SRC_MODULES = 'src' // same as source, only rewritten imports
+const SRC_MODULES = 'src'
 const ESM_MODULES = 'esm'
 const CJS_MODULES = 'cjs'
 
@@ -125,26 +124,20 @@ const buildPathMapping = format =>
 
 const createFolder = dir => mkdirp.sync(resolvePath(dir))
 
-const configForFormat = format => {
-  if (format === SRC_MODULES) {
-    // Ignore .babelrc, just rewrite imports
-    return {
-      babelrc: false,
-      configFile: false,
-      ...babelrc.env.rewriteonly,
-    }
-  }
-
-  return {
-    overrides: [
-      {
-        plugins: format === CJS_MODULES ? ['@babel/plugin-transform-modules-commonjs'] : [],
-      },
-    ],
-  }
-}
+const configForFormat = format => ({
+  overrides: [
+    {
+      plugins: format === CJS_MODULES ? ['@babel/plugin-transform-modules-commonjs'] : [],
+    },
+  ],
+})
 
 const babelTransform = (format, file) => {
+  if (format === SRC_MODULES) {
+    // no transform, just return source
+    return fs.readFileSync(file)
+  }
+
   const config = configForFormat(format)
   const { code } = babel.transformFileSync(file, config)
   return code
@@ -182,7 +175,6 @@ const createPackageJson = (dir, obj) => {
 
 const copyFiles = (dir, files, rm = resolvePath()) =>
   forEach(file => {
-    // console.log(dir, file, path.join(dir, replace(resolvePath(), '', file)))
     fs.copySync(file, path.join(dir, replace(rm, '', file)))
   }, files)
 
@@ -206,9 +198,9 @@ if (isDevelopment) {
   const buildSrcModule = buildModule(SRC_MODULES)
 
   const buildFile = file => {
+    buildSrcModule(file)
     buildCjsModule(file)
     buildEsmModule(file)
-    buildSrcModule(file)
   }
 
   cleanFolder(DEV_PATH)
@@ -241,9 +233,10 @@ if (isDevelopment) {
   cleanFolder(DIST_PATH)
   createFolder(DIST_PATH)
   copyNonJavaScriptFiles(DIST_PATH)
+  buildSrcModules(modules)
+
   buildCjsPathMapping(modules)
   buildEsmPathMapping(modules)
   buildEsmModules(modules)
   buildCjsModules(modules)
-  buildSrcModules(modules)
 }
