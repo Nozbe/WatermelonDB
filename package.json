@@ -15,7 +15,8 @@
     "test:ios": "cd native/iosTest; xcodebuild -workspace WatermelonTester.xcworkspace -scheme 'WatermelonTester' -destination 'name=iPhone 8' test",
     "swiftlint": "cd native; swiftlint",
     "ktlint": "cd native/androidTest; ./gradlew ktlint",
-    "ktlint:format": "cd native/androidTest; ./gradlew ktlintFormat"
+    "ktlint:format": "cd native/androidTest; ./gradlew ktlintFormat",
+    "android:emulator": "node ./scripts/emulator.js"
   },
   "author": "@Nozbe",
   "homepage": "https://github.com/Nozbe/WatermelonDB#readme",
