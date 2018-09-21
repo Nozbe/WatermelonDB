@@ -4,11 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
-### Added
-
-### Changed
-
-### Fixed
+- Simplified build system by using relative imports
 
 ## 0.6.1 - 2018-09-20
 
