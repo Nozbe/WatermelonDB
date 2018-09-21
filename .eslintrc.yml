@@ -88,9 +88,8 @@ rules:
     - always
     - excludeArrowFunctions: true
       annotateUndefined: always
-  import/no-unresolved: 0
+  # doesn't seem to work with Flow
   import/named: 0
-  import/no-extraneous-dependencies: 0
 
 globals:
   document: true
