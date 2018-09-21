@@ -52,7 +52,7 @@ const askForEmu = [
       .concat([
         new inquirer.Separator(),
         {
-          name: 'Other Sdk',
+          name: 'Other Sdk (Require download)',
           value: null,
         },
         new inquirer.Separator(),
@@ -73,13 +73,14 @@ const askForEmu = [
   },
 ]
 
-const openEmu = options => {
+const emulatorTasks = options => {
   const { name, sdk } = options
+  const tasks = []
   if (sdk !== undefined) {
     const sdkPath =
       sdk.length === 2 ? `system-images;android-${sdk.replace(/\s/g, '')};google_apis;x86` : sdk
-    return [
-      {
+    if (sdk.length === 2) {
+      tasks.push({
         title: 'Downloading Emulator Image',
         task: () => {
           // eslint-disable-next-line
@@ -88,27 +89,27 @@ const openEmu = options => {
           execSync('export JAVA_OPTS="-XX:+IgnoreUnrecognizedVMOptions --add-modules java.se.ee"')
           execSync(`$ANDROID_HOME/tools/bin/sdkmanager "${sdkPath}"`)
         },
-      },
-      {
-        title: `Creating Emulator ${name}`,
-        task: () => {
-          execSync(
-            `echo no | $ANDROID_HOME/tools/bin/avdmanager \
+      })
+    }
+    tasks.push({
+      title: `Creating Emulator ${name}`,
+      task: () => {
+        execSync(
+          `echo no | $ANDROID_HOME/tools/bin/avdmanager \
              create avd -n ${name.replace(/\s/g, '')} -k "${sdkPath}" --device "Nexus 6P"`,
-          )
-        },
+        )
       },
-    ]
+    })
   }
-  return [
-    {
-      title: 'Open Emulator',
-      task: () => execSync(`$ANDROID_HOME/emulator/emulator @${name}`),
-    },
-  ]
+  tasks.push({
+    title: 'Open Emulator',
+    task: () => execSync(`$ANDROID_HOME/emulator/emulator @${name}`),
+  })
+  return tasks
 }
+
 inquirer.prompt(askForEmu).then(options => {
-  const tasks = openEmu(options)
+  const tasks = emulatorTasks(options)
   const listr = new Listr(tasks)
   listr.run()
 })
