@@ -1,4 +1,5 @@
 const plugins = [
+  '@babel/plugin-transform-modules-commonjs',
   ['@babel/plugin-proposal-decorators', { legacy: true }],
   '@babel/plugin-transform-flow-strip-types',
   ['@babel/plugin-proposal-class-properties', { loose: true }],
@@ -52,7 +53,7 @@ module.exports = {
       ],
     },
     test: {
-      plugins: ['@babel/plugin-transform-modules-commonjs', ...plugins],
+      plugins,
     },
   },
 }
