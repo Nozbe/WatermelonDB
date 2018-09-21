@@ -4,8 +4,8 @@ import type { Observable } from 'rxjs'
 import { of as of$ } from 'rxjs/observable/of'
 import { map as map$, switchMap, distinctUntilChanged } from 'rxjs/operators'
 
-import type Relation from 'Relation'
-import type Model from 'Model'
+import type Relation from './index'
+import type Model from '../Model'
 
 const getImmutableObservable = <T: ?Model>(relation: Relation<T>): Observable<T> =>
   relation._model.collections

@@ -1,4 +1,4 @@
-import encodeUpdate from '.'
+import encodeUpdate from './index'
 
 describe('watermelondb/adapters/sqlite/encodeUpdate', () => {
   it('encodes model updates', () => {

@@ -1,7 +1,7 @@
 // inspired by rambda and ramda
 /* eslint-disable */
 
-import is from 'utils/fp/is'
+import is from '../is'
 
 export default function partition(pred, arr) {
   if (arr === undefined) {

@@ -1,6 +1,6 @@
 // @flow
 
-import diagnosticError from 'utils/common/diagnosticError'
+import diagnosticError from '../diagnosticError'
 
 // If `condition` is falsy, throws an Error with the passed message
 

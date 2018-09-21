@@ -1,15 +1,15 @@
 /* eslint no-multi-spaces: 0 */
 
-import { makeScheduler, expectToRejectWithMessage } from '__tests__/utils'
 import { mergeMap } from 'rxjs/operators'
+import { makeScheduler, expectToRejectWithMessage } from '../__tests__/utils'
 
-import Database from 'Database'
-import { appSchema, tableSchema } from 'Schema'
-import { field, date, readonly } from 'decorators'
-import { noop } from 'utils/fp'
-import { sanitizedRaw } from 'RawRecord'
+import Database from '../Database'
+import { appSchema, tableSchema } from '../Schema'
+import { field, date, readonly } from '../decorators'
+import { noop } from '../utils/fp'
+import { sanitizedRaw } from '../RawRecord'
 
-import Model from '.'
+import Model from './index'
 
 const mockSchema = appSchema({
   version: 1,

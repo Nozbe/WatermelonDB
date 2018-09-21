@@ -5,14 +5,14 @@ import { merge as merge$ } from 'rxjs/observable/merge'
 import { startWith } from 'rxjs/operators'
 import { values } from 'rambdax'
 
-import invariant from 'utils/common/invariant'
+import invariant from '../utils/common/invariant'
 
-import CollectionMap from 'CollectionMap'
+import CollectionMap from '../CollectionMap'
 
-import type { DatabaseAdapter } from 'adapters/type'
-import type Model from 'Model'
-import type { CollectionChange } from 'Collection'
-import type { TableName, AppSchema } from 'Schema'
+import type { DatabaseAdapter } from '../adapters/type'
+import type Model from '../Model'
+import type { CollectionChange } from '../Collection'
+import type { TableName, AppSchema } from '../Schema'
 
 // Database is the owner of all Collections and the DatabaseAdapter
 

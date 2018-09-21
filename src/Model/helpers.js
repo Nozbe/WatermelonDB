@@ -1,6 +1,6 @@
 // @flow
 
-import hasIn from 'utils/fp/hasIn'
+import hasIn from '../utils/fp/hasIn'
 
 import type Model from './index'
 

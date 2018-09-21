@@ -1,4 +1,4 @@
-import encodeName from '.'
+import encodeName from './index'
 
 describe('watermelondb/adapters/sqlite/encodeName', () => {
   it('encodes names', () => {

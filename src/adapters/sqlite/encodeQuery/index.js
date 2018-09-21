@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import type Query, { AssociationArgs } from 'Query'
+import type Query, { AssociationArgs } from '../../../Query'
 import type {
   NonNullValue,
   Operator,
@@ -12,10 +12,10 @@ import type {
   And,
   Or,
   QueryDescription,
-} from 'QueryDescription'
-import * as Q from 'QueryDescription'
-import { type TableName, type ColumnName } from 'Schema'
-import type Model from 'Model'
+} from '../../../QueryDescription'
+import * as Q from '../../../QueryDescription'
+import { type TableName, type ColumnName } from '../../../Schema'
+import type Model from '../../../Model'
 
 import encodeValue from '../encodeValue'
 import encodeName from '../encodeName'

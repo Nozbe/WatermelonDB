@@ -3,8 +3,8 @@
 import queue from 'async/queue'
 
 // don't import whole `utils` to keep worker size small
-import logError from 'utils/common/logError'
-import invariant from 'utils/common/invariant'
+import logError from '../../../utils/common/logError'
+import invariant from '../../../utils/common/invariant'
 
 import LokiExecutor from './executor'
 import { actions, responseActions, type WorkerExecutorAction } from '../common'

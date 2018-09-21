@@ -1,7 +1,7 @@
-import Query from 'Query'
-import Model from 'Model'
-import * as Q from 'QueryDescription'
-import encodeQuery from '.'
+import Query from '../../../Query'
+import Model from '../../../Model'
+import * as Q from '../../../QueryDescription'
+import encodeQuery from './index'
 
 class MockTask extends Model {
   static table = 'tasks'

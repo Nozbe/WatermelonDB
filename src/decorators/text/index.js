@@ -1,10 +1,10 @@
 // @flow
 
-import makeDecorator from 'utils/common/makeDecorator'
+import makeDecorator from '../../utils/common/makeDecorator'
 
-import { ensureDecoratorUsedProperly } from 'decorators/common'
+import { ensureDecoratorUsedProperly } from '../common'
 
-import { type ColumnName } from 'Schema'
+import { type ColumnName } from '../../Schema'
 
 // Defines a model property representing user-input text
 //

@@ -1,6 +1,6 @@
 // @flow
 
-import type { Descriptor } from 'utils/common/makeDecorator'
+import type { Descriptor } from '../../utils/common/makeDecorator'
 
 // Defines a property whose value is evaluated the first time it is accessed
 // For example:

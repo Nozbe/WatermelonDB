@@ -1,7 +1,7 @@
 // @flow
 
-import { is } from 'utils/fp'
-import invariant from 'utils/common/invariant'
+import { is } from '../../fp'
+import invariant from '../invariant'
 
 // Throws if passed value if a Promise
 // Otherwise, returns the passed value as-is.

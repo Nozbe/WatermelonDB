@@ -1,9 +1,9 @@
 // @flow
 
-import type Query from 'Query'
-import type { TableName, AppSchema } from 'Schema'
-import type Model, { RecordId } from 'Model'
-import type { RawRecord } from 'RawRecord'
+import type Query from '../Query'
+import type { TableName, AppSchema } from '../Schema'
+import type Model, { RecordId } from '../Model'
+import type { RawRecord } from '../RawRecord'
 
 export type CachedFindResult = RecordId | ?RawRecord
 export type CachedQueryResult = Array<RecordId | RawRecord>
