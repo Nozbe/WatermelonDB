@@ -20,7 +20,5 @@ declare module '@nozbe/watermelondb/Database' {
     withChangesForTables(tables: TableName<any>[]): Observable<CollectionChange<any> | null>;
 
     unsafeResetDatabase(): Promise<void>;
-
-
   }
 }

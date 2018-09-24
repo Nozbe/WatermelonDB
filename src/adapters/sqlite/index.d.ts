@@ -1,4 +1,4 @@
-declare module "@nozbe/watermelondb/adapters/sqlite" {
+declare module '@nozbe/watermelondb/adapters/sqlite' {
   import {
     AppSchema, DatabaseAdapter, Model,
     Query, RecordId, TableName,

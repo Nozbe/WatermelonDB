@@ -1,3 +1,5 @@
+import { Model } from "@nozbe/watermelondb";
+
 declare module '@nozbe/watermelondb/Relation' {
   import { ColumnName, Model, RecordId, TableName } from "@nozbe/watermelondb";
   import { $Call } from "utility-types";
@@ -11,7 +13,7 @@ declare module '@nozbe/watermelondb/Relation' {
     isImmutable: boolean,
   }
 
-  export default class Relation<T extends Model> {
+  export default class Relation<T extends (Model | void)> {
     constructor(
       model: Model,
       relationTableName: TableName<T>,

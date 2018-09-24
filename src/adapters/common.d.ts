@@ -1,4 +1,4 @@
-declare module "@nozbe/watermelondb/adapters/common" {
+declare module '@nozbe/watermelondb/adapters/common' {
   import { DirtyRaw, Model, Query, RecordId, TableSchema } from "@nozbe/watermelondb";
   import { BatchOperation, CachedFindResult, CachedQueryResult } from "@nozbe/watermelondb/adapters/type";
 

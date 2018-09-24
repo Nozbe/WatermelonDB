@@ -17,7 +17,7 @@ declare module '@nozbe/watermelondb/Model' {
 
   export default class Model {
     // FIXME: How to correctly point to a static this?
-    static table: TableName<ThisType<Model>>;
+    static table: TableName<Model>;
 
     static associations: Associations;
 
