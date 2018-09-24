@@ -19,6 +19,8 @@
 
 ## Running Watermelon in development
 
+### Download source and dependencies
+
 ```bash
 git clone https://github.com/Nozbe/WatermelonDB.git
 cd WatermelonDB
@@ -89,7 +91,6 @@ yarn test:android
 - For iOS open the `native/iosTest/WatermelonTester.xcworkspace` project and hit Cmd+U.
 - For Android open `native/androidTest` in AndroidStudio navigate to `app/src/androidTest/java/com.nozbe.watermelonTest/BridgeTest` and click green arrow near `class BridgeTest`
 
-
 ### Native linting
 
 Make sure the native code you're editing conforms to Watermelon standards:
@@ -98,3 +99,14 @@ Make sure the native code you're editing conforms to Watermelon standards:
 yarn swiftlint
 yarn ktlint
 ```
+
+### Native code troubleshooting
+
+1. If `test:ios` fails in terminal:
+  - Run tests in Xcode first before running from terminal
+  - Make sure you have the right version of Xcode CLI tools set in Preferences -> Locations
+1. Make sure you're on the most recent stable version of Xcode / Android Studio
+1. Remove native caches:
+  - Xcode: `~/Library/Developer/Xcode/DerivedData`:
+  - Android: `.gradle` and `build` folders in `native/android` and `native/androidTest`
+  - `node_modules` (because of React Native precompiled third party libraries)
