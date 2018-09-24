@@ -9,6 +9,7 @@ import noop from 'utils/fp/noop'
 type VoidReturn = void | Promise<void>
 type QueueWorkerCallback = any => void
 type QueueWorker = (any, QueueWorkerCallback) => VoidReturn
+
 export type QueueObject = $Exact<{
   push: (any, QueueWorkerCallback) => VoidReturn,
 }>
@@ -21,6 +22,8 @@ const createQueueTask = (worker: QueueWorker, data: any, callback: Function) =>
       observer.complete()
     })
   })
+
+// TODO: Refactor Queue code to follow idiomatic Rx style instead of approximating the API of `async/queue`
 
 export default (worker: QueueWorker): QueueObject => {
   const subject = new Subject()
