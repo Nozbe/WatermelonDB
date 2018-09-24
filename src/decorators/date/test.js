@@ -28,13 +28,13 @@ describe('watermelondb/decorators/timestamp', () => {
   it('sets timestamps cast from dates', () => {
     const model = new MockModel({ schema }, {})
     model._isEditing = true
-    model.date = Date.now()
+    model.field = Date.now()
     expect(model._getRaw('date')).toBeGreaterThan(1500000000000)
   })
   it('sets null if passed', () => {
     const model = new MockModel({ schema }, {})
     model._isEditing = true
-    model.date = null
+    model.field = null
     expect(model._getRaw('date')).toBe(null)
   })
   it('fails if applied to incorrect fields', () => {

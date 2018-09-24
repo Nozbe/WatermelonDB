@@ -1,5 +1,3 @@
-import { Model } from "@nozbe/watermelondb";
-
 declare module '@nozbe/watermelondb/Relation' {
   import { ColumnName, Model, RecordId, TableName } from "@nozbe/watermelondb";
   import { $Call } from "utility-types";
