@@ -130,6 +130,7 @@ const configForFormat = format => {
     // Ignore .babelrc, just rewrite imports
     return {
       babelrc: false,
+      configFile: false,
       ...babelrc.env.rewriteonly,
     }
   }

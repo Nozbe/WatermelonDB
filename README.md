@@ -49,10 +49,9 @@ Watermelon fixes it **by being lazy**. Nothing is loaded unless requested. And s
 
 But unlike using SQLite directly, Watermelon is **fully observable**. So whenever you change a record, all UI that depends on it will automatically re-render. For example, completing a task in a todo app will re-render the task component, the list (to reorder), and all relevant task counters.
 
-<a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw">
-  <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-talk-thumbnail.jpg" alt="React Native EU: Next-generation React Databases" width="300" /><br>
-  📺 <strong>Next-generation React databases</strong> — talk about WatermelonDB
-</a>
+| <a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw"><img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-talk-thumbnail.jpg" alt="React Native EU: Next-generation React Databases" width="300" /></a> | <a href="https://github.com/Nozbe/WatermelonDB/blob/master/docs/Demo.md"><img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-demo-thumbnail.png" alt="WatermelonDB Demo" width="300" /></a> |
+| ---- | --- |
+| <p align="center"><a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw">📺 <strong>Next-generation React databases</strong><br>(a talk about WatermelonDB)</a></p> | <p align="center"><a href="https://github.com/Nozbe/WatermelonDB/blob/master/docs/Demo.md">✨ <strong>Check out the Demo</strong></a></p> |
 
 ## Usage
 
@@ -122,6 +121,6 @@ If you make or are considering making an app using WatermelonDB, please let us k
 
 **WatermelonDB** was created by [@Nozbe](https://github.com/Nozbe). Main author and maintainer is [Radek Pietruszewski](https://github.com/radex).
 
-**Contributors:** [@mobily](https://github.com/mobily), [@kokusGr](https://github.com/kokusGr), [@rozPierog](https://github.com/rozPierog), [@rkrajewski](https://github.com/rkrajewski), [@domeknn](https://github.com/domeknn), [@Tereszkiewicz](https://github.com/Tereszkiewicz).
+**Contributors:** [@mobily](https://github.com/mobily), [@kokusGr](https://github.com/kokusGr), [@rozPierog](https://github.com/rozPierog), [@rkrajewski](https://github.com/rkrajewski), [@domeknn](https://github.com/domeknn), [@Tereszkiewicz](https://github.com/Tereszkiewicz) and [more](https://github.com/Nozbe/WatermelonDB/graphs/contributors).
 
 WatermelonDB is available under the MIT license. See the [LICENSE file](./LICENSE) for more info.
