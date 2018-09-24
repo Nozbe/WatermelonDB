@@ -4,11 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
-### Added
+### Refactoring
 
-### Changed
-
-### Fixed
+- Removed dependency on `async` (Web Worker should be ~30KB smaller)
 
 ## 0.6.1 - 2018-09-20
 
