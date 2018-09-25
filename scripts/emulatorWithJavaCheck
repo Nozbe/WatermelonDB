@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if javac --version | grep -q '10.0'; then
+  export JAVA_OPTS="-XX:+IgnoreUnrecognizedVMOptions --add-modules java.se.ee"
+fi
+if javac --version | grep -q '1.9'; then
+  export JAVA_OPTS="-XX:+IgnoreUnrecognizedVMOptions --add-modules java.se.ee"
+fi
+  node ./scripts/emulator.js
