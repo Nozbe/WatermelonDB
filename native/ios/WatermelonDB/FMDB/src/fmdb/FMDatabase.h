@@ -41,6 +41,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef int(^FMDBExecuteStatementsCallbackBlock)(NSDictionary *resultsDictionary);
 
+typedef NS_ENUM(int, FMDBCheckpointMode) {
+    FMDBCheckpointModePassive  = 0, // SQLITE_CHECKPOINT_PASSIVE,
+    FMDBCheckpointModeFull     = 1, // SQLITE_CHECKPOINT_FULL,
+    FMDBCheckpointModeRestart  = 2, // SQLITE_CHECKPOINT_RESTART,
+    FMDBCheckpointModeTruncate = 3  // SQLITE_CHECKPOINT_TRUNCATE
+};
 
 /** A SQLite ([http://sqlite.org/](http://sqlite.org/)) Objective-C wrapper.
  
@@ -214,6 +220,10 @@ typedef int(^FMDBExecuteStatementsCallbackBlock)(NSDictionary *resultsDictionary
 ///-----------------------------------
 /// @name Opening and closing database
 ///-----------------------------------
+
+/// Is the database open or not?
+
+@property (nonatomic) BOOL isOpen;
 
 /** Opening a new database connection
  
@@ -679,6 +689,15 @@ typedef int(^FMDBExecuteStatementsCallbackBlock)(NSDictionary *resultsDictionary
  @see rollback
  @see beginDeferredTransaction
  @see isInTransaction
+ 
+ @warning    Unlike SQLite's `BEGIN TRANSACTION`, this method currently performs
+             an exclusive transaction, not a deferred transaction. This behavior
+             is likely to change in future versions of FMDB, whereby this method
+             will likely eventually adopt standard SQLite behavior and perform
+             deferred transactions. If you really need exclusive tranaction, it is
+             recommended that you use `beginExclusiveTransaction`, instead, not
+             only to make your intent explicit, but also to future-proof your code.
+
  */
 
 - (BOOL)beginTransaction;
@@ -694,6 +713,30 @@ typedef int(^FMDBExecuteStatementsCallbackBlock)(NSDictionary *resultsDictionary
  */
 
 - (BOOL)beginDeferredTransaction;
+
+/** Begin an immediate transaction
+ 
+ @return `YES` on success; `NO` on failure. If failed, you can call `<lastError>`, `<lastErrorCode>`, or `<lastErrorMessage>` for diagnostic information regarding the failure.
+ 
+ @see commit
+ @see rollback
+ @see beginTransaction
+ @see isInTransaction
+ */
+
+- (BOOL)beginImmediateTransaction;
+
+/** Begin an exclusive transaction
+ 
+ @return `YES` on success; `NO` on failure. If failed, you can call `<lastError>`, `<lastErrorCode>`, or `<lastErrorMessage>` for diagnostic information regarding the failure.
+ 
+ @see commit
+ @see rollback
+ @see beginTransaction
+ @see isInTransaction
+ */
+
+- (BOOL)beginExclusiveTransaction;
 
 /** Commit a transaction
 
@@ -987,6 +1030,39 @@ typedef int(^FMDBExecuteStatementsCallbackBlock)(NSDictionary *resultsDictionary
 
 - (NSError * _Nullable)inSavePoint:(__attribute__((noescape)) void (^)(BOOL *rollback))block;
 
+
+///-----------------
+/// @name Checkpoint
+///-----------------
+
+/** Performs a WAL checkpoint
+ 
+ @param checkpointMode The checkpoint mode for sqlite3_wal_checkpoint_v2
+ @param error The NSError corresponding to the error, if any.
+ @return YES on success, otherwise NO.
+ */
+- (BOOL)checkpoint:(FMDBCheckpointMode)checkpointMode error:(NSError * _Nullable *)error;
+
+/** Performs a WAL checkpoint
+ 
+ @param checkpointMode The checkpoint mode for sqlite3_wal_checkpoint_v2
+ @param name The db name for sqlite3_wal_checkpoint_v2
+ @param error The NSError corresponding to the error, if any.
+ @return YES on success, otherwise NO.
+ */
+- (BOOL)checkpoint:(FMDBCheckpointMode)checkpointMode name:(NSString * _Nullable)name error:(NSError * _Nullable *)error;
+
+/** Performs a WAL checkpoint
+ 
+ @param checkpointMode The checkpoint mode for sqlite3_wal_checkpoint_v2
+ @param name The db name for sqlite3_wal_checkpoint_v2
+ @param error The NSError corresponding to the error, if any.
+ @param logFrameCount If not NULL, then this is set to the total number of frames in the log file or to -1 if the checkpoint could not run because of an error or because the database is not in WAL mode.
+ @param checkpointCount If not NULL, then this is set to the total number of checkpointed frames in the log file (including any that were already checkpointed before the function was called) or to -1 if the checkpoint could not run due to an error or because the database is not in WAL mode.
+ @return YES on success, otherwise NO.
+ */
+- (BOOL)checkpoint:(FMDBCheckpointMode)checkpointMode name:(NSString * _Nullable)name logFrameCount:(int * _Nullable)logFrameCount checkpointCount:(int * _Nullable)checkpointCount error:(NSError * _Nullable *)error;
+
 ///----------------------------
 /// @name SQLite library status
 ///----------------------------
@@ -1265,7 +1341,7 @@ typedef NS_ENUM(int, SqliteValueType) {
  @warning Note there is no direct getter for the `NSDateFormatter`, and you should not use the formatter you pass to FMDB for other purposes, as `NSDateFormatter` is not thread-safe.
  */
 
-- (void)setDateFormat:(NSDateFormatter *)format;
+- (void)setDateFormat:(NSDateFormatter * _Nullable)format;
 
 /** Convert the supplied NSString to NSDate, using the current database formatter.
  
@@ -1295,7 +1371,7 @@ typedef NS_ENUM(int, SqliteValueType) {
  @see storeableDateFormat:
  */
 
-- (NSString *)stringFromDate:(NSDate *)date;
+- (NSString * _Nullable)stringFromDate:(NSDate *)date;
 
 @end
 
