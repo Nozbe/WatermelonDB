@@ -7,10 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "FMDatabase.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-@class FMDatabase;
 
 /** To perform queries and updates on multiple threads, you'll want to use `FMDatabaseQueue`.
 
@@ -86,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
  @return The `FMDatabaseQueue` object. `nil` on error.
  */
 
-+ (instancetype)databaseQueueWithPath:(NSString * _Nullable)aPath;
++ (nullable instancetype)databaseQueueWithPath:(NSString * _Nullable)aPath;
 
 /** Create queue using file URL.
  
@@ -95,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
  @return The `FMDatabaseQueue` object. `nil` on error.
  */
 
-+ (instancetype)databaseQueueWithURL:(NSURL * _Nullable)url;
++ (nullable instancetype)databaseQueueWithURL:(NSURL * _Nullable)url;
 
 /** Create queue using path and specified flags.
  
@@ -104,7 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
  
  @return The `FMDatabaseQueue` object. `nil` on error.
  */
-+ (instancetype)databaseQueueWithPath:(NSString * _Nullable)aPath flags:(int)openFlags;
++ (nullable instancetype)databaseQueueWithPath:(NSString * _Nullable)aPath flags:(int)openFlags;
 
 /** Create queue using file URL and specified flags.
  
@@ -113,7 +112,7 @@ NS_ASSUME_NONNULL_BEGIN
  
  @return The `FMDatabaseQueue` object. `nil` on error.
  */
-+ (instancetype)databaseQueueWithURL:(NSURL * _Nullable)url flags:(int)openFlags;
++ (nullable instancetype)databaseQueueWithURL:(NSURL * _Nullable)url flags:(int)openFlags;
 
 /** Create queue using path.
  
@@ -122,7 +121,7 @@ NS_ASSUME_NONNULL_BEGIN
  @return The `FMDatabaseQueue` object. `nil` on error.
  */
 
-- (instancetype)initWithPath:(NSString * _Nullable)aPath;
+- (nullable instancetype)initWithPath:(NSString * _Nullable)aPath;
 
 /** Create queue using file URL.
  
@@ -131,7 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
  @return The `FMDatabaseQueue` object. `nil` on error.
  */
 
-- (instancetype)initWithURL:(NSURL * _Nullable)url;
+- (nullable instancetype)initWithURL:(NSURL * _Nullable)url;
 
 /** Create queue using path and specified flags.
  
@@ -141,7 +140,7 @@ NS_ASSUME_NONNULL_BEGIN
  @return The `FMDatabaseQueue` object. `nil` on error.
  */
 
-- (instancetype)initWithPath:(NSString * _Nullable)aPath flags:(int)openFlags;
+- (nullable instancetype)initWithPath:(NSString * _Nullable)aPath flags:(int)openFlags;
 
 /** Create queue using file URL and specified flags.
  
@@ -151,7 +150,7 @@ NS_ASSUME_NONNULL_BEGIN
  @return The `FMDatabaseQueue` object. `nil` on error.
  */
 
-- (instancetype)initWithURL:(NSURL * _Nullable)url flags:(int)openFlags;
+- (nullable instancetype)initWithURL:(NSURL * _Nullable)url flags:(int)openFlags;
 
 /** Create queue using path and specified flags.
  
@@ -162,7 +161,7 @@ NS_ASSUME_NONNULL_BEGIN
  @return The `FMDatabaseQueue` object. `nil` on error.
  */
 
-- (instancetype)initWithPath:(NSString * _Nullable)aPath flags:(int)openFlags vfs:(NSString * _Nullable)vfsName;
+- (nullable instancetype)initWithPath:(NSString * _Nullable)aPath flags:(int)openFlags vfs:(NSString * _Nullable)vfsName;
 
 /** Create queue using file URL and specified flags.
  
@@ -173,7 +172,7 @@ NS_ASSUME_NONNULL_BEGIN
  @return The `FMDatabaseQueue` object. `nil` on error.
  */
 
-- (instancetype)initWithURL:(NSURL * _Nullable)url flags:(int)openFlags vfs:(NSString * _Nullable)vfsName;
+- (nullable instancetype)initWithURL:(NSURL * _Nullable)url flags:(int)openFlags vfs:(NSString * _Nullable)vfsName;
 
 /** Returns the Class of 'FMDatabase' subclass, that will be used to instantiate database object.
  
@@ -206,16 +205,39 @@ NS_ASSUME_NONNULL_BEGIN
 /** Synchronously perform database operations on queue, using transactions.
 
  @param block The code to be run on the queue of `FMDatabaseQueue`
+ 
+ @warning    Unlike SQLite's `BEGIN TRANSACTION`, this method currently performs
+             an exclusive transaction, not a deferred transaction. This behavior
+             is likely to change in future versions of FMDB, whereby this method
+             will likely eventually adopt standard SQLite behavior and perform
+             deferred transactions. If you really need exclusive tranaction, it is
+             recommended that you use `inExclusiveTransaction`, instead, not only
+             to make your intent explicit, but also to future-proof your code.
+
  */
 
 - (void)inTransaction:(__attribute__((noescape)) void (^)(FMDatabase *db, BOOL *rollback))block;
 
 /** Synchronously perform database operations on queue, using deferred transactions.
-
+ 
  @param block The code to be run on the queue of `FMDatabaseQueue`
  */
 
 - (void)inDeferredTransaction:(__attribute__((noescape)) void (^)(FMDatabase *db, BOOL *rollback))block;
+
+/** Synchronously perform database operations on queue, using exclusive transactions.
+ 
+ @param block The code to be run on the queue of `FMDatabaseQueue`
+ */
+
+- (void)inExclusiveTransaction:(__attribute__((noescape)) void (^)(FMDatabase *db, BOOL *rollback))block;
+
+/** Synchronously perform database operations on queue, using immediate transactions.
+
+ @param block The code to be run on the queue of `FMDatabaseQueue`
+ */
+
+- (void)inImmediateTransaction:(__attribute__((noescape)) void (^)(FMDatabase *db, BOOL *rollback))block;
 
 ///-----------------------------------------------
 /// @name Dispatching database operations to queue
@@ -229,6 +251,38 @@ NS_ASSUME_NONNULL_BEGIN
 // NOTE: you can not nest these, since calling it will pull another database out of the pool and you'll get a deadlock.
 // If you need to nest, use FMDatabase's startSavePointWithName:error: instead.
 - (NSError * _Nullable)inSavePoint:(__attribute__((noescape)) void (^)(FMDatabase *db, BOOL *rollback))block;
+
+///-----------------
+/// @name Checkpoint
+///-----------------
+
+/** Performs a WAL checkpoint
+ 
+ @param checkpointMode The checkpoint mode for sqlite3_wal_checkpoint_v2
+ @param error The NSError corresponding to the error, if any.
+ @return YES on success, otherwise NO.
+ */
+- (BOOL)checkpoint:(FMDBCheckpointMode)checkpointMode error:(NSError * _Nullable *)error;
+
+/** Performs a WAL checkpoint
+ 
+ @param checkpointMode The checkpoint mode for sqlite3_wal_checkpoint_v2
+ @param name The db name for sqlite3_wal_checkpoint_v2
+ @param error The NSError corresponding to the error, if any.
+ @return YES on success, otherwise NO.
+ */
+- (BOOL)checkpoint:(FMDBCheckpointMode)checkpointMode name:(NSString * _Nullable)name error:(NSError * _Nullable *)error;
+
+/** Performs a WAL checkpoint
+ 
+ @param checkpointMode The checkpoint mode for sqlite3_wal_checkpoint_v2
+ @param name The db name for sqlite3_wal_checkpoint_v2
+ @param error The NSError corresponding to the error, if any.
+ @param logFrameCount If not NULL, then this is set to the total number of frames in the log file or to -1 if the checkpoint could not run because of an error or because the database is not in WAL mode.
+ @param checkpointCount If not NULL, then this is set to the total number of checkpointed frames in the log file (including any that were already checkpointed before the function was called) or to -1 if the checkpoint could not run due to an error or because the database is not in WAL mode.
+ @return YES on success, otherwise NO.
+ */
+- (BOOL)checkpoint:(FMDBCheckpointMode)checkpointMode name:(NSString * _Nullable)name logFrameCount:(int * _Nullable)logFrameCount checkpointCount:(int * _Nullable)checkpointCount error:(NSError * _Nullable *)error;
 
 @end
 
