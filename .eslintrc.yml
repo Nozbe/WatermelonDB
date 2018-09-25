@@ -20,6 +20,9 @@ settings:
     onlyFilesWithFlowAnnotation: true
 
 rules:
+  curly:
+    - 2
+    - all
   arrow-parens:
     - 2
     - as-needed
