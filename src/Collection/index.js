@@ -15,7 +15,14 @@ import { type TableName, type TableSchema } from 'Schema'
 
 import RecordCache from './RecordCache'
 
-export type CollectionChange<Record: Model> = { record: Record, isDestroyed: boolean }
+export const CollectionChangeTypes = {
+  created: 'created',
+  updated: 'updated',
+  destroyed: 'destroyed',
+}
+type CollectionChangeType = 'created' | 'updated' | 'destroyed'
+export type CollectionChange<Record: Model> = { record: Record, type: CollectionChangeType }
+export type CollectionChangeSet<T> = CollectionChange<T>[]
 
 export default class Collection<Record: Model> {
   database: Database
@@ -26,7 +33,7 @@ export default class Collection<Record: Model> {
 
   // Emits event every time a record inside Collection changes or is deleted
   // (Use Query API to observe collection changes)
-  changes: Subject<CollectionChange<Record>> = new Subject()
+  changes: Subject<CollectionChangeSet<Record>> = new Subject()
 
   constructor(database: Database, ModelClass: Class<Record>): void {
     this.database = database
@@ -124,17 +131,17 @@ export default class Collection<Record: Model> {
   _onRecordCreated(record: Record): void {
     record._isCommitted = true
     this._cache.add(record)
-    this.changes.next({ record, isDestroyed: false })
+    this.changes.next([{ record, type: CollectionChangeTypes.created }])
   }
 
   _onRecordUpdated(record: Record): void {
-    this.changes.next({ record, isDestroyed: false })
+    this.changes.next([{ record, type: CollectionChangeTypes.updated }])
     record._notifyChanged()
   }
 
   _onRecordDestroyed(record: Record): void {
     this._cache.delete(record)
-    this.changes.next({ record, isDestroyed: true })
+    this.changes.next([{ record, type: CollectionChangeTypes.destroyed }])
     record._notifyDestroyed()
   }
 
