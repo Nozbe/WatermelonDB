@@ -49,24 +49,31 @@ export function appSchema({
 
 export type TableSchemaSpec = $Exact<{ name: TableName<any>, columns: ColumnSchema[] }>
 
+export function validateColumnSchema(column: ColumnSchema): void {
+  if (isDevelopment) {
+    invariant(column.name, `Missing column name`)
+    invariant(
+      contains(column.type, ['string', 'bool', 'number']),
+      `Invalid type ${column.type} for column ${column.name}`,
+    )
+    invariant(
+      !contains(column.name, ['id', 'last_modified', '_changed', '_status']),
+      `You must not define columns with name ${column.name}`,
+    )
+    if (column.name === 'created_at' || column.name === 'updated_at') {
+      invariant(
+        column.type === 'number' && !column.isOptional,
+        `${column.name} must be of type number and not optional`,
+      )
+    }
+  }
+}
+
 export function tableSchema({ name, columns: columnList }: TableSchemaSpec): TableSchema {
   isDevelopment && invariant(name, `Missing table name in schema`)
   const columns: ColumnMap = columnList.reduce((map, column) => {
     if (isDevelopment) {
-      invariant(column.name, `Missing column name in ${name} schema`)
-      invariant(
-        contains(column.type, ['string', 'bool', 'number']),
-        `Invalid type ${column.type} for ${name}.${column.name}`,
-      )
-      invariant(
-        !contains(column.name, ['id', 'last_modified', '_changed', '_status']),
-        `You must not define columns with name ${column.name}`,
-      )
-      invariant(
-        !contains(column.name, ['created_at', 'updated_at']) ||
-          (column.type === 'number' && !column.isOptional),
-        `${column.name} must be of type number and not optional`,
-      )
+      validateColumnSchema(column)
     }
     map[column.name] = column
     return map
