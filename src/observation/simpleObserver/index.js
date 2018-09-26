@@ -8,6 +8,7 @@ import doOnDispose from 'utils/rx/doOnDispose'
 import doOnSubscribe from 'utils/rx/doOnSubscribe'
 
 import logger from 'utils/common/logger'
+import { CollectionChangeTypes } from 'Collection'
 
 import type Query from 'Query'
 import type Model from 'Model'
@@ -25,27 +26,33 @@ function observeChanges<Record: Model>(query: Query<Record>): (Record[]) => Obse
       emit()
 
       // Observe changes to the collection
-      return query.collection.changes.subscribe(change => {
-        const { record, isDestroyed } = change
-        const index = matchingRecords.indexOf(record)
-        const currentlyMatching = index > -1
+      return query.collection.changes.subscribe(changes => {
+        let shouldEmit = false
+        changes.forEach(change => {
+          const { record, type } = change
+          const index = matchingRecords.indexOf(record)
+          const currentlyMatching = index > -1
 
-        if (currentlyMatching && isDestroyed) {
-          // Remove if record was deleted
-          matchingRecords.splice(index, 1)
-          emit()
-          return
-        }
+          if (currentlyMatching && type === CollectionChangeTypes.destroyed) {
+            // Remove if record was deleted
+            matchingRecords.splice(index, 1)
+            shouldEmit = true
+            return
+          }
 
-        const matches = matcher(record)
+          const matches = matcher(record)
 
-        if (currentlyMatching && !matches) {
-          // Remove if doesn't match anymore
-          matchingRecords.splice(index, 1)
-          emit()
-        } else if (matches && !currentlyMatching) {
-          // Add if should be included but isn't
-          matchingRecords.push(record)
+          if (currentlyMatching && !matches) {
+            // Remove if doesn't match anymore
+            matchingRecords.splice(index, 1)
+            shouldEmit = true
+          } else if (matches && !currentlyMatching) {
+            // Add if should be included but isn't
+            matchingRecords.push(record)
+            shouldEmit = true
+          }
+        })
+        if (shouldEmit) {
           emit()
         }
       })

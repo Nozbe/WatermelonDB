@@ -34,7 +34,7 @@ class Blog extends Component {
           <Button style={styles.button} title="Moderate" onPress={this.moderate} />
           <NastyCommentsItem blog={blog}
             onPress={() => navigation.navigate('ModerationQueue', { blog })} />
-          <Text style={styles.post}>Posts: {posts.length}</Text>
+          <Text style={styles.postsListHeader}>Posts: {posts.length}</Text>
           <FlatList data={posts}
             renderItem={({ item: post }) => (
               <PostItem post={post}

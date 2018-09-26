@@ -3,24 +3,23 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "node node_modules/react-native/local-cli/cli.js start",
+    "dev": "node ./node_modules/react-native/local-cli/cli.js start",
     "start:ios": "react-native run-ios",
     "start:android": "react-native run-android",
     "test": "jest"
   },
   "dependencies": {
     "@nozbe/watermelondb": "^0.6.0",
-    "@nozbe/with-observables": "^0.1.1",
+    "@nozbe/with-observables": "^1.0.0",
     "jsc-android": "224109.x.x",
-    "react": "16.4.1",
-    "react-native": "0.56.0",
+    "react": "16.5.1",
+    "react-native": "0.57.0",
     "react-native-prompt-android": "^0.3.3",
     "react-navigation": "^2.12.1"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-decorators": "7.0.0-beta.47",
-    "babel-jest": "23.4.2",
-    "metro-react-native-babel-preset": "^0.45.0",
+    "@babel/plugin-proposal-decorators": "7.1.0",
+    "babel-jest": "23.6.0",
     "eslint": "^5.4.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-prettier": "^3.0.1",
@@ -28,9 +27,10 @@
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jsx-a11y": "^6.1.1",
     "eslint-plugin-react": "^7.11.1",
-    "jest": "23.5.0",
+    "jest": "23.6.0",
+    "metro-react-native-babel-preset": "^0.45.0",
     "prettier-eslint-cli": "^4.7.1",
-    "react-test-renderer": "16.4.1"
+    "react-test-renderer": "16.5.1"
   },
   "jest": {
     "preset": "react-native"
