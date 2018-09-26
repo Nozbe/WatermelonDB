@@ -127,6 +127,7 @@ describe('watermelondb/Model', () => {
   it('can update a record', async () => {
     const database = makeDatabase()
     database.adapter.batch = jest.fn()
+    const spyBatchDB = jest.spyOn(database, 'batch')
 
     const collection = database.collections.get('mock')
     const storeUpdate = jest.spyOn(collection, '_update')
@@ -145,7 +146,7 @@ describe('watermelondb/Model', () => {
       record.name = 'New name'
     })
 
-    expect(database.adapter.batch).toBeCalledWith([['update', m1]])
+    expect(spyBatchDB).toBeCalledWith(m1)
     expect(storeUpdate).toBeCalledWith(m1)
     expect(observer).toHaveBeenCalledTimes(2)
 
