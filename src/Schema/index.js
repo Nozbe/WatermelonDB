@@ -26,7 +26,7 @@ export type ColumnSchema = $Exact<{
   isIndexed?: boolean,
 }>
 
-type ColumnMap = { [name: ColumnName]: ColumnSchema }
+export type ColumnMap = { [name: ColumnName]: ColumnSchema }
 
 export type TableSchema = $Exact<{ name: TableName<any>, columns: ColumnMap }>
 
@@ -47,10 +47,9 @@ export function appSchema({
   return { version, tables }
 }
 
-export function tableSchema({
-  name,
-  columns: columnList,
-}: $Exact<{ name: TableName<any>, columns: ColumnSchema[] }>): TableSchema {
+export type TableSchemaSpec = $Exact<{ name: TableName<any>, columns: ColumnSchema[] }>
+
+export function tableSchema({ name, columns: columnList }: TableSchemaSpec): TableSchema {
   isDevelopment && invariant(name, `Missing table name in schema`)
   const columns: ColumnMap = columnList.reduce((map, column) => {
     if (isDevelopment) {
