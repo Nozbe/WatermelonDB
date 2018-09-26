@@ -1,10 +1,10 @@
 declare module '@nozbe/watermelondb/RawRecord' {
-  import { SyncStatus } from "@nozbe/watermelondb/Model";
   import { ColumnName, ColumnSchema, RecordId, TableSchema } from "@nozbe/watermelondb";
+  import { SyncStatus } from "@nozbe/watermelondb/Model";
   
-  export type DirtyRaw = Object
+  export type DirtyRaw = object
 
-  export type RawRecord = {
+  export interface RawRecord {
     id: RecordId,
     _status: SyncStatus,
     _changed: string,

@@ -5,24 +5,24 @@ declare module '@nozbe/watermelondb/Collection/RecordCache' {
   type Instantiator<T> = (raw: RawRecord) => T;
 
   export default class RecordCache<Record extends Model> {
-    map: Map<RecordId, Record>;
+    public map: Map<RecordId, Record>;
 
-    tableName: TableName<Record>;
+    public tableName: TableName<Record>;
 
-    recordInsantiator: Instantiator<Record>;
+    public recordInsantiator: Instantiator<Record>;
 
-    constructor(tableName: TableName<Record>, recordInsantiator: Instantiator<Record>);
+    public constructor(tableName: TableName<Record>, recordInsantiator: Instantiator<Record>);
 
-    get(id: RecordId): Record | void;
+    public get(id: RecordId): Record | void;
 
-    add(record: Record): void;
+    public add(record: Record): void;
 
-    delete(record: Record): void;
+    public delete(record: Record): void;
 
-    unsafeClear(): void;
+    public unsafeClear(): void;
 
-    recordsFromQueryResult(result: CachedQueryResult): Record[];
+    public recordsFromQueryResult(result: CachedQueryResult): Record[];
 
-    recordFromQueryResult(result: RecordId | RawRecord): Record;
+    public recordFromQueryResult(result: RecordId | RawRecord): Record;
   }
 }

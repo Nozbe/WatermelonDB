@@ -17,35 +17,46 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     | 'notIn'
     | 'between'
 
-  export type ColumnDescription = { column: ColumnName }
+  export interface ColumnDescription {
+    column: ColumnName,
+  }
 
   export type ComparisonRight =
     { value: Value }
     | { values: NonNullValue[] }
     | ColumnDescription
 
-  export type Comparison = {
+  export interface Comparison {
     operator: Operator,
     right: ComparisonRight,
   }
 
-  export type WhereDescription = {
+  export interface WhereDescription {
     type: 'where',
     left: ColumnName,
     comparison: Comparison,
   }
 
   export type Where = WhereDescription | And | Or
-  export type And = { type: 'and', conditions: Where[] }
-  export type Or = { type: 'or', conditions: Where[] }
-  export type On = {
+  export interface And {
+    type: 'and',
+    conditions: Where[],
+  }
+  export interface Or {
+    type: 'or',
+    conditions: Where[],
+  }
+  export interface On {
     type: 'on',
     table: TableName<any>,
     left: ColumnName,
     comparison: Comparison,
   }
   export type Condition = Where | On
-  export type QueryDescription = { where: Where[], join: On[] }
+  export interface QueryDescription {
+    where: Where[],
+    join: On[],
+  }
 
   export function eq(valueOrColumn: Value | ColumnDescription): Comparison
   export function notEq(valueOrColumn: Value | ColumnDescription): Comparison

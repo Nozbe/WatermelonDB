@@ -2,10 +2,10 @@ declare module '@nozbe/watermelondb/CollectionMap' {
   import { Collection, Database, Model, TableName } from "@nozbe/watermelondb";
 
   export default class CollectionMap {
-    map: { [tableName: string]: Collection<any> };
+    public map: { [tableName: string]: Collection<any> };
 
-    constructor(database: Database, modelClasses: Class<Model>[]);
+    public constructor(database: Database, modelClasses: Array<Class<Model>>);
 
-    get<T extends Model>(tableName: TableName<T>): Collection<T>;
+    public get<T extends Model>(tableName: TableName<T>): Collection<T>;
   }
 }

@@ -5,6 +5,8 @@
     "tslint-config-prettier"
   ],
   "jsRules": {},
-  "rules": {},
+  "rules": {
+    "interface-name": false
+  },
   "rulesDirectory": []
 }

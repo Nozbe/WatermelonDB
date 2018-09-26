@@ -1,40 +1,42 @@
 declare module '@nozbe/watermelondb/Collection' {
-  import { Database, Model, Query, RecordId, TableName, TableSchema } from "@nozbe/watermelondb";
+  import {
+    Database, Model, Query, RecordId, TableName, TableSchema,
+  } from "@nozbe/watermelondb";
   import { Condition } from "@nozbe/watermelondb/QueryDescription";
   import { Observable, Subject } from "rxjs";
 
-  export type CollectionChange<Record extends Model> = {
+  export interface CollectionChange<Record extends Model> {
     record: Record,
     isDestroyed: boolean,
   }
 
   export default class Collection<Record extends Model> {
-    database: Database;
+    public database: Database;
 
-    modelClass: Class<Record>;
+    public modelClass: Class<Record>;
 
-    changes: Subject<CollectionChange<Record>>;
+    public changes: Subject<CollectionChange<Record>>;
 
-    constructor(database: Database, ModelClass: Class<Record>);
+    public table: TableName<Record>;
 
-    find(id: RecordId): Promise<Record>;
+    public schema: TableSchema;
 
-    findAndObserve(id: RecordId): Observable<Record>;
+    public constructor(database: Database, ModelClass: Class<Record>);
 
-    query(...conditions: Condition[]): Query<Record>;
+    public find(id: RecordId): Promise<Record>;
 
-    create(recordBuilder?: (record: Record) => void): Promise<Record>;
+    public findAndObserve(id: RecordId): Observable<Record>;
 
-    prepareCreate(recordBuilder?: (record: Record) => void): Record;
+    public query(...conditions: Condition[]): Query<Record>;
 
-    fetchQuery(query: Query<Record>): Promise<Record[]>;
+    public create(recordBuilder?: (record: Record) => void): Promise<Record>;
 
-    fetchCount(query: Query<Record>): Promise<number>;
+    public prepareCreate(recordBuilder?: (record: Record) => void): Record;
 
-    table: TableName<Record>;
+    public fetchQuery(query: Query<Record>): Promise<Record[]>;
 
-    schema: TableSchema;
+    public fetchCount(query: Query<Record>): Promise<number>;
 
-    unsafeClearCache(): void;
+    public unsafeClearCache(): void;
   }
 }

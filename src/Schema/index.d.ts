@@ -9,20 +9,30 @@ declare module '@nozbe/watermelondb/Schema' {
   export function columnName(name: string): ColumnName
 
   export type ColumnType = 'string' | 'number' | 'bool'
-  export type ColumnSchema = {
+  export interface ColumnSchema {
     name: ColumnName,
     type: ColumnType,
     isOptional?: boolean,
     isIndexed?: boolean,
   }
 
-  type ColumnMap = { [name: string]: ColumnSchema }
+  interface ColumnMap {
+    [name: string]: ColumnSchema,
+  }
 
-  export type TableSchema = { name: TableName<any>, columns: ColumnMap }
+  export interface TableSchema {
+    name: TableName<any>,
+    columns: ColumnMap,
+  }
 
-  type TableMap = { [name: string]: TableSchema }
+  interface TableMap {
+    [name: string]: TableSchema,
+  }
 
-  export type AppSchema = { version: number, tables: TableMap }
+  export interface AppSchema {
+    version: number,
+    tables: TableMap,
+  }
 
   export function appSchema(options: {
     version: number,

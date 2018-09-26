@@ -5,33 +5,33 @@ declare module '@nozbe/watermelondb/Query' {
   import { Observable } from "rxjs";
 
   export type AssociationArgs = [TableName<any>, AssociationInfo]
-  export type SerializedQuery = {
+  export interface SerializedQuery {
     table: TableName<any>,
     description: QueryDescription,
     associations: AssociationArgs[],
   }
 
   export default class Query<Record extends Model> {
-    collection: Collection<Record>;
+    public collection: Collection<Record>;
 
-    description: QueryDescription;
+    public description: QueryDescription;
 
-    extend(...conditions: Condition[]): Query<Record>;
+    public extend(...conditions: Condition[]): Query<Record>;
 
-    pipe<T>(transform: (this: this) => T): T;
+    public pipe<T>(transform: (this: this) => T): T;
 
-    fetch(): Promise<Record[]>;
+    public fetch(): Promise<Record[]>;
 
-    observe(): Observable<Record[]>;
+    public observe(): Observable<Record[]>;
 
-    observeWithColumns(rawFields: ColumnName[]): Observable<Record[]>;
+    public observeWithColumns(rawFields: ColumnName[]): Observable<Record[]>;
 
-    fetchCount(): Promise<number>;
+    public fetchCount(): Promise<number>;
 
-    observeCount(isThrottled?: boolean): Observable<number>;
+    public observeCount(isThrottled?: boolean): Observable<number>;
 
-    markAllAsDeleted(): Promise<void>;
+    public markAllAsDeleted(): Promise<void>;
 
-    destroyAllPermanently(): Promise<void>;
+    public destroyAllPermanently(): Promise<void>;
   }
 }
