@@ -184,6 +184,9 @@ describe('watermelondb/Collection', () => {
     const m1 = new MockTask(collection, { id: 'm1' })
     collection._cache.add(m1)
 
+    await m1.prepareUpdate(task => {
+      task.name = 'New name'
+    })
     await collection._update(m1)
 
     // Check database update, observers update
