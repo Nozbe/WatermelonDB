@@ -135,6 +135,7 @@ describe('watermelondb/Model', () => {
       record.name = 'Original name'
     })
 
+    const spyOnPrepareUpdate = jest.spyOn(m1, 'prepareUpdate')
     const observer = jest.fn()
     m1.observe().subscribe(observer)
 
@@ -146,6 +147,7 @@ describe('watermelondb/Model', () => {
     })
 
     expect(spyBatchDB).toBeCalledWith(m1)
+    expect(spyOnPrepareUpdate).toHaveBeenCalledTimes(1)
     expect(observer).toHaveBeenCalledTimes(2)
 
     expect(m1.name).toBe('New name')
