@@ -1,14 +1,41 @@
 // @flow
 
-import { devMeasureTimeAsync, logger } from 'utils/common'
+import { devMeasureTimeAsync, logger, isDevelopment, invariant } from 'utils/common'
 import type Model, { RecordId } from 'Model'
 import type Query from 'Query'
 import type { TableSchema } from 'Schema'
-import type { BatchOperation, CachedQueryResult, CachedFindResult } from 'adapters/type'
+import type {
+  BatchOperation,
+  CachedQueryResult,
+  CachedFindResult,
+  DatabaseAdapter,
+} from 'adapters/type'
 import { sanitizedRaw, type DirtyRaw } from 'RawRecord'
 
 export type DirtyFindResult = RecordId | ?DirtyRaw
 export type DirtyQueryResult = Array<RecordId | DirtyRaw>
+
+export function validateAdapter(adapter: DatabaseAdapter): void {
+  if (isDevelopment) {
+    const { schema, migrations } = adapter
+    // TODO: uncomment when full migrations are shipped
+    // invariant(migrations, `Missing migrations`)
+    if (migrations) {
+      invariant(
+        migrations.validated,
+        `Invalid migrations - use schemaMigrations() to create migrations. See docs for more details.`,
+      )
+      invariant(
+        migrations.currentVersion === schema.version,
+        `Missing migration. Database schema is currently at version ${
+          schema.version
+        }, but migrations only cover range from ${migrations.minimumVersion} to ${
+          migrations.currentVersion
+        }`,
+      )
+    }
+  }
+}
 
 export function sanitizeFindResult(
   dirtyRecord: DirtyFindResult,

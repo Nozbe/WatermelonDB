@@ -1,6 +1,7 @@
 // @flow
 
 import { map } from 'rambdax'
+import { isDevelopment } from 'utils/common'
 
 import type Model, { RecordId } from 'Model'
 import type { TableName, AppSchema } from 'Schema'
@@ -11,7 +12,14 @@ import type {
   CachedFindResult,
   BatchOperation,
 } from 'adapters/type'
-import { devLogFind, devLogQuery, devLogCount, devLogBatch, devLogSetUp } from 'adapters/common'
+import {
+  devLogFind,
+  devLogQuery,
+  devLogCount,
+  devLogBatch,
+  devLogSetUp,
+  validateAdapter,
+} from 'adapters/common'
 import type { SchemaMigrations } from '../../Schema/migrations'
 
 import WorkerBridge from './WorkerBridge'
@@ -41,8 +49,10 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
   constructor(options: LokiAdapterOptions): void {
     this._setUp(options)
-    this.schema = options.schema
-    this.migrations = options.migrationsExperimental
+    const { schema, migrationsExperimental: migrations } = options
+    this.schema = schema
+    this.migrations = migrations
+    isDevelopment && validateAdapter(this)
   }
 
   async _setUp(options: LokiAdapterOptions): Promise<void> {

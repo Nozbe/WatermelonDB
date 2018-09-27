@@ -1,7 +1,7 @@
 // @flow
 
 import { NativeModules } from 'react-native'
-import { connectionTag, type ConnectionTag, logger } from 'utils/common'
+import { connectionTag, type ConnectionTag, logger, isDevelopment } from 'utils/common'
 
 import type Model, { RecordId } from 'Model'
 import type Query from 'Query'
@@ -22,6 +22,7 @@ import {
   devLogCount,
   devLogBatch,
   devLogSetUp,
+  validateAdapter,
 } from 'adapters/common'
 import type { SchemaMigrations } from '../../Schema/migrations'
 
@@ -78,6 +79,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   async _setUp({ dbName, schema, migrationsExperimental }: SQLiteAdapterOptions): Promise<void> {
     this.schema = schema
     this.migrations = migrationsExperimental
+    isDevelopment && validateAdapter(this)
     const schemaSQL = encodeSchema(schema)
     await devLogSetUp(() => Native.setUp(this._tag, dbName, schemaSQL, schema.version))
   }
