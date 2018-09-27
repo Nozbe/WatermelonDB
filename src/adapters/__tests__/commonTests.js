@@ -209,13 +209,11 @@ export default () => [
       const fetched1 = await adapter.find('tasks', 't1')
       const fetched2 = await adapter.find('tasks', 't2')
 
-      // eslint-disable-next-line
-      expect(fetched1.bool1 == true).toEqual(true)
+      expect(fetched1.bool1).toBe(true)
       expect(fetched1).toEqual(m1._raw)
       expect(fetched1).not.toBe(m1._raw)
 
-      // eslint-disable-next-line
-      expect(fetched2.bool2 == true).toEqual(true)
+      expect(fetched2.bool2).toBe(true)
       expect(fetched2).toEqual(m2._raw)
       expect(fetched2).not.toBe(m2._raw)
 
@@ -249,10 +247,8 @@ export default () => [
       await adapter.batch([['update', record]])
       await adapter.unsafeClearCachedRecords()
       const fetchedUpdatedRaw = await adapter.find('tasks', 't1')
-      // eslint-disable-next-line
-      expect(fetchedUpdatedRaw.bool1 == true).toEqual(true)
-      // eslint-disable-next-line
-      expect(fetchedUpdatedRaw.order == 2).toEqual(true)
+      expect(fetchedUpdatedRaw.bool1).toBe(true)
+      expect(fetchedUpdatedRaw.order).toBe(2)
       expect(fetchedUpdatedRaw).toEqual(record._raw)
       expect(fetchedUpdatedRaw).not.toBe(record._raw)
     },
