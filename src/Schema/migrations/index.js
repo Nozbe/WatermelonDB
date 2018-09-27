@@ -29,6 +29,7 @@ type Migration = $Exact<{
 }>
 
 type SchemaMigrations = $Exact<{
+  +validated: true,
   +minimumVersion: SchemaVersion,
   +currentVersion: SchemaVersion,
   +migrations: Migration[],
@@ -116,10 +117,13 @@ export function schemaMigrations(migrationSpec: SchemaMigrations): SchemaMigrati
     })
     invariant(
       maxCoveredRange === currentVersion,
-      `Invalid migrations! schemaMigrations() says the current version is ${currentVersion}, but migrations listed only cover shema versions range from ${minimumVersion} to ${maxCoveredRange}. Remember that migrations must be listed in reverse chronological order`,
+      `Invalid migrations! schemaMigrations() says the current version is ${currentVersion}, but migrations listed only cover schema versions range from ${minimumVersion} to ${maxCoveredRange}. Remember that migrations must be listed in reverse chronological order`,
     )
   }
-  return migrationSpec
+  return {
+    ...migrationSpec,
+    validated: true,
+  }
 }
 
 export function createTable(tableSchemaSpec: TableSchemaSpec): CreateTableMigrationStep {
