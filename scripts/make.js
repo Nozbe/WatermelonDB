@@ -49,9 +49,15 @@ const DO_NOT_BUILD_PATHS = [
   /__mocks__/,
   /\.DS_Store/,
   /package\.json/,
+  /___jb_tmp___$/,
+]
+
+const PASS_THROUGH_PATHS = [
+  /\.ts$/,
 ]
 
 const isNotIncludedInBuildPaths = value => !anymatch(DO_NOT_BUILD_PATHS, value)
+const shouldPassThrough = value => anymatch(PASS_THROUGH_PATHS, value)
 
 const cleanFolder = dir => rimraf.sync(dir)
 
@@ -150,6 +156,14 @@ const babelTransform = (format, file) => {
   return code
 }
 
+const transform = (format, file) => {
+  if (shouldPassThrough(file)) {
+    return fs.readFileSync(file)
+  }
+
+  return babelTransform(format, file)
+}
+
 const paths = klaw(SOURCE_PATH)
 const modules = takeModules(paths)
 
@@ -158,7 +172,7 @@ const buildEsmPathMapping = buildPathMapping(ESM_MODULES)
 
 const buildModule = format => file => {
   const modulePath = createModulePath(format)
-  const code = babelTransform(format, file)
+  const code = transform(format, file)
   const filename = modulePath(file)
 
   createFolder(path.dirname(filename))

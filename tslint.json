@@ -6,7 +6,8 @@
   ],
   "jsRules": {},
   "rules": {
-    "interface-name": false
+    "interface-name": false,
+    "jsdoc-format": false
   },
   "rulesDirectory": []
 }
