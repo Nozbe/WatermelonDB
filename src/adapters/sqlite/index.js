@@ -72,16 +72,14 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
   _tag: ConnectionTag = connectionTag()
 
-  constructor(options: SQLiteAdapterOptions): void {
-    this._setUp(options)
-  }
-
-  async _setUp({ dbName, schema, migrationsExperimental }: SQLiteAdapterOptions): Promise<void> {
+  constructor({ dbName, schema, migrationsExperimental }: SQLiteAdapterOptions): void {
     this.schema = schema
     this.migrations = migrationsExperimental
     isDevelopment && validateAdapter(this)
+
     const schemaSQL = encodeSchema(schema)
-    await devLogSetUp(() => Native.setUp(this._tag, dbName, schemaSQL, schema.version))
+    // TODO: Don't compile schema at launch, only send version, and if rejected, try again
+    devLogSetUp(() => Native.setUp(this._tag, dbName, schemaSQL, schema.version))
   }
 
   async find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {
