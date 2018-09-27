@@ -83,6 +83,7 @@ export function schemaMigrations(migrationSpec: SchemaMigrations): SchemaMigrati
     const { minimumVersion, currentVersion, migrations } = migrationSpec
     invariant(typeof minimumVersion === 'number', 'Minimum schema version missing in migrations')
     invariant(typeof currentVersion === 'number', 'Current schema version missing in migrations')
+    invariant(minimumVersion > 0, 'Minimum version must be at least 1')
     invariant(
       currentVersion >= minimumVersion,
       'Current schema version must be greater than minimum migrable version',

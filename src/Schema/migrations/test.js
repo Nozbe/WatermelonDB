@@ -103,6 +103,13 @@ describe('schemaMigrations()', () => {
     ).toThrow(/current schema version/i)
     expect(() =>
       schemaMigrations({
+        minimumVersion: 0,
+        currentVersion: 1,
+        migrations: [],
+      }),
+    ).toThrow(/at least 1/)
+    expect(() =>
+      schemaMigrations({
         minimumVersion: 2,
         currentVersion: 1,
         migrations: [],
