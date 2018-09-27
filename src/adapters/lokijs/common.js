@@ -4,6 +4,8 @@ import type { CachedQueryResult } from 'adapters/type'
 import type { TableName, AppSchema } from 'Schema'
 import type { RawRecord } from 'RawRecord'
 
+import type { SchemaMigrations } from '../../Schema/migrations'
+
 export const actions = {
   SETUP: 'SETUP',
   FIND: 'FIND',
@@ -26,6 +28,7 @@ export const actions = {
 export type LokiAdapterOptions = $Exact<{
   dbName: string,
   schema: AppSchema,
+  migrationsExperimental?: SchemaMigrations,
 }>
 
 export const responseActions = {

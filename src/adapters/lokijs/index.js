@@ -12,6 +12,7 @@ import type {
   BatchOperation,
 } from 'adapters/type'
 import { devLogFind, devLogQuery, devLogCount, devLogBatch, devLogSetUp } from 'adapters/common'
+import type { SchemaMigrations } from '../../Schema/migrations'
 
 import WorkerBridge from './WorkerBridge'
 import { actions, type LokiAdapterOptions } from './common'
@@ -36,12 +37,16 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
   schema: AppSchema
 
+  migrations: ?SchemaMigrations
+
   constructor(options: LokiAdapterOptions): void {
     this._setUp(options)
     this.schema = options.schema
+    this.migrations = options.migrationsExperimental
   }
 
   async _setUp(options: LokiAdapterOptions): Promise<void> {
+    // TODO: Should migrations be sent?
     await devLogSetUp(() => this.workerBridge.send(SETUP, [options]))
   }
 

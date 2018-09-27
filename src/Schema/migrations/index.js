@@ -28,7 +28,7 @@ type Migration = $Exact<{
   +steps: MigrationStep[],
 }>
 
-type SchemaMigrations = $Exact<{
+export type SchemaMigrations = $Exact<{
   +validated: true,
   +minimumVersion: SchemaVersion,
   +currentVersion: SchemaVersion,

@@ -23,6 +23,7 @@ import {
   devLogBatch,
   devLogSetUp,
 } from 'adapters/common'
+import type { SchemaMigrations } from '../../Schema/migrations'
 
 import encodeQuery from './encodeQuery'
 import encodeUpdate from './encodeUpdate'
@@ -60,10 +61,13 @@ const Native: NativeBridgeType = NativeModules.DatabaseBridge
 export type SQLiteAdapterOptions = $Exact<{
   dbName: string,
   schema: AppSchema,
+  migrationsExperimental?: SchemaMigrations,
 }>
 
 export default class SQLiteAdapter implements DatabaseAdapter {
   schema: AppSchema
+
+  migrations: ?SchemaMigrations
 
   _tag: ConnectionTag = connectionTag()
 
@@ -71,8 +75,9 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     this._setUp(options)
   }
 
-  async _setUp({ dbName, schema }: SQLiteAdapterOptions): Promise<void> {
+  async _setUp({ dbName, schema, migrationsExperimental }: SQLiteAdapterOptions): Promise<void> {
     this.schema = schema
+    this.migrations = migrationsExperimental
     const schemaSQL = encodeSchema(schema)
     await devLogSetUp(() => Native.setUp(this._tag, dbName, schemaSQL, schema.version))
   }
