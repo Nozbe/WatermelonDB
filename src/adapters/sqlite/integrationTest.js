@@ -9,7 +9,7 @@ const SQLiteAdapterTest = spec => {
     commonTests().forEach(testCase => {
       const [name, test] = testCase
       const adapter = newAdapter()
-      spec.it(name, test(adapter))
+      spec.it(name, test(adapter, SQLiteAdapter))
     })
   })
 }

@@ -48,11 +48,11 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   migrations: ?SchemaMigrations
 
   constructor(options: LokiAdapterOptions): void {
-    this._setUp(options)
     const { schema, migrationsExperimental: migrations } = options
     this.schema = schema
     this.migrations = migrations
     isDevelopment && validateAdapter(this)
+    this._setUp(options)
   }
 
   async _setUp(options: LokiAdapterOptions): Promise<void> {

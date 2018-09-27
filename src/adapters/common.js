@@ -26,6 +26,12 @@ export function validateAdapter(adapter: DatabaseAdapter): void {
         `Invalid migrations - use schemaMigrations() to create migrations. See docs for more details.`,
       )
       invariant(
+        migrations.minimumVersion <= schema.version,
+        `Migrations supplied to adapter don't match schema - schema is at version ${
+          schema.version
+        }, but minimum migrable version is greater: ${migrations.minimumVersion}`,
+      )
+      invariant(
         migrations.currentVersion === schema.version,
         `Missing migration. Database schema is currently at version ${
           schema.version

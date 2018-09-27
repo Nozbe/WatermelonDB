@@ -4,6 +4,7 @@ import Model from 'Model'
 import Query from 'Query'
 import { sanitizedRaw } from 'RawRecord'
 import * as Q from 'QueryDescription'
+import { schemaMigrations } from '../../Schema/migrations'
 // import { platform } from 'utils/common'
 
 import { matchTests, joinTests } from '../../__tests__/databaseTests'
@@ -23,6 +24,52 @@ class BadModel extends Model {
 }
 
 export default () => [
+  [
+    'validates adapter options',
+    (_adapter, AdapterClass) => async () => {
+      const schema = { ...testSchema, version: 10 }
+
+      const makeAdapter = options => new AdapterClass({ dbName: 'test', schema, ...options })
+      const adapterWithMigrations = migrations =>
+        makeAdapter({ migrationsExperimental: migrations })
+
+      // expect(() => makeAdapter({})).toThrowError(/missing migrations/)
+
+      expect(() =>
+        adapterWithMigrations({ minimumVersion: 10, currentVersion: 10, migrations: [] }),
+      ).toThrowError(/use schemaMigrations()/)
+
+      expect(() =>
+        adapterWithMigrations(
+          schemaMigrations({
+            minimumVersion: 10,
+            currentVersion: 10,
+            migrations: [],
+          }),
+        ),
+      ).not.toThrowError()
+
+      expect(() =>
+        adapterWithMigrations(
+          schemaMigrations({
+            minimumVersion: 8,
+            currentVersion: 8,
+            migrations: [],
+          }),
+        ),
+      ).toThrowError(/Missing migration/)
+
+      expect(() =>
+        adapterWithMigrations(
+          schemaMigrations({
+            minimumVersion: 12,
+            currentVersion: 12,
+            migrations: [],
+          }),
+        ),
+      ).toThrowError(/don't match schema/)
+    },
+  ],
   [
     'can query and count on empty db',
     adapter => async () => {
