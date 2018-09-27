@@ -130,7 +130,6 @@ describe('watermelondb/Model', () => {
     const spyBatchDB = jest.spyOn(database, 'batch')
 
     const collection = database.collections.get('mock')
-    const storeUpdate = jest.spyOn(collection, '_update')
 
     const m1 = await collection.create(record => {
       record.name = 'Original name'
@@ -147,7 +146,6 @@ describe('watermelondb/Model', () => {
     })
 
     expect(spyBatchDB).toBeCalledWith(m1)
-    expect(storeUpdate).toBeCalledWith(m1)
     expect(observer).toHaveBeenCalledTimes(2)
 
     expect(m1.name).toBe('New name')
@@ -161,7 +159,6 @@ describe('watermelondb/Model', () => {
     database.adapter.batch = jest.fn()
 
     const collection = database.collections.get('mock')
-    const storeUpdate = jest.spyOn(collection, '_update')
 
     const m1 = await collection.create(record => {
       record.name = 'Original name'
@@ -184,7 +181,6 @@ describe('watermelondb/Model', () => {
     expect(m1._isEditing).toBe(false)
     expect(m1._hasPendingUpdate).toBe(true)
     expect(database.adapter.batch).toHaveBeenCalledTimes(1)
-    expect(storeUpdate).toHaveBeenCalledTimes(0)
 
     expect(observer).toHaveBeenCalledTimes(1)
 

@@ -111,10 +111,6 @@ export default class Collection<Record: Model> {
     return this._cache.recordFromQueryResult(raw)
   }
 
-  async _update(record: Record): Promise<void> {
-    await this.database.batch(record)
-  }
-
   async _markAsDeleted(record: Record): Promise<void> {
     await this.database.adapter.batch([['markAsDeleted', record]])
     this._onRecordDestroyed(record)
