@@ -1,12 +1,11 @@
 // @flow
 
-import queue from 'async/queue'
-
 // don't import whole `utils` to keep worker size small
 import logError from '../../../utils/common/logError'
 import invariant from '../../../utils/common/invariant'
 
 import LokiExecutor from './executor'
+import queue, { type QueueObject } from './helpers/queue'
 import { actions, responseActions, type WorkerExecutorAction } from '../common'
 
 const ExecutorProto = LokiExecutor.prototype
@@ -36,7 +35,7 @@ export default class LokiWorker {
 
   executor: ?LokiExecutor
 
-  asyncQueue: any
+  asyncQueue: QueueObject
 
   constructor(workerContext: DedicatedWorkerGlobalScope): void {
     this.workerContext = workerContext
@@ -90,6 +89,6 @@ export default class LokiWorker {
           payload: error,
         })
       }
-    }, 1)
+    })
   }
 }

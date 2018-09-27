@@ -11,7 +11,7 @@ import CollectionMap from '../CollectionMap'
 
 import type { DatabaseAdapter } from '../adapters/type'
 import type Model from '../Model'
-import type { CollectionChange } from '../Collection'
+import type { CollectionChangeSet } from '../Collection'
 import type { TableName, AppSchema } from '../Schema'
 
 // Database is the owner of all Collections and the DatabaseAdapter
@@ -66,7 +66,7 @@ export default class Database {
   }
 
   // Emits a signal immediately, and on change in any of the passed tables
-  withChangesForTables(tables: TableName<any>[]): Observable<CollectionChange<any> | null> {
+  withChangesForTables(tables: TableName<any>[]): Observable<CollectionChangeSet<any> | null> {
     const changesSignals = tables.map(table => this.collections.get(table).changes)
 
     return merge$(...changesSignals).pipe(startWith(null))

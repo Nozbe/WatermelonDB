@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Refactoring
+
+- Removed dependency on `async` (Web Worker should be ~30KB smaller)
+- Refactored `Collection` and `simpleObserver` for getting changes in an array and also adds CollectionChangeTypes for differentiation between different changes
+- Updated dependencies
 - Simplified build system by using relative imports
 
 ## 0.6.1 - 2018-09-20

@@ -1,6 +1,7 @@
 import Query from '../Query'
 import * as Q from '../QueryDescription'
 import { logger } from '../utils/common'
+import { CollectionChangeTypes } from '../Collection'
 
 import { mockDatabase, MockTask, testSchema } from '../__tests__/testModels'
 
@@ -153,7 +154,7 @@ describe('watermelondb/Collection', () => {
     expect(dbBatchSpy).toHaveBeenCalledTimes(1)
     expect(dbBatchSpy).toBeCalledWith([['create', m1]])
     expect(observer).toHaveBeenCalledTimes(1)
-    expect(observer).toBeCalledWith({ record: m1, isDestroyed: false })
+    expect(observer).toBeCalledWith([{ record: m1, type: CollectionChangeTypes.created }])
     expect(collection._cache.get(m1.id)).toBe(m1)
     expect(await collection.find(m1.id)).toBe(m1)
   })
@@ -189,7 +190,7 @@ describe('watermelondb/Collection', () => {
     expect(adapter.batch).toHaveBeenCalledTimes(1)
     expect(adapter.batch).toBeCalledWith([['update', m1]])
     expect(observer).toHaveBeenCalledTimes(1)
-    expect(observer).toBeCalledWith({ record: m1, isDestroyed: false })
+    expect(observer).toBeCalledWith([{ record: m1, type: CollectionChangeTypes.updated }])
   })
   it('can destroy records permanently', async () => {
     const { tasksCollection: collection, adapter } = mockDatabase()
@@ -208,7 +209,7 @@ describe('watermelondb/Collection', () => {
     expect(adapter.batch).toBeCalledWith([['destroyPermanently', m1]])
     expect(collection._cache.get('m1')).toBe(undefined)
     expect(observer).toHaveBeenCalledTimes(1)
-    expect(observer).toBeCalledWith({ record: m1, isDestroyed: true })
+    expect(observer).toBeCalledWith([{ record: m1, type: CollectionChangeTypes.destroyed }])
   })
   it('exposes schema', () => {
     const { tasksCollection, projectsCollection } = mockDatabase()
