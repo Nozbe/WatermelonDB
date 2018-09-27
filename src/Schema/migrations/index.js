@@ -1,6 +1,6 @@
 // @flow
 
-import type { ColumnSchema, TableName, ColumnMap, TableSchemaSpec } from 'Schema'
+import type { ColumnSchema, TableName, ColumnMap, TableSchemaSpec, SchemaVersion } from 'Schema'
 import { tableSchema, validateColumnSchema } from 'Schema'
 
 import { isDevelopment, invariant } from 'utils/common'
@@ -20,19 +20,21 @@ type AddColumnMigrationStep = $Exact<{
 
 type MigrationStep = CreateTableMigrationStep | AddColumnMigrationStep
 
-type SchemaVersion = number
-
 type Migration = $Exact<{
   +from: SchemaVersion,
   +to: SchemaVersion,
   +steps: MigrationStep[],
 }>
 
-export type SchemaMigrations = $Exact<{
-  +validated: true,
+type SchemaMigrationsSpec = $Exact<{
   +minimumVersion: SchemaVersion,
   +currentVersion: SchemaVersion,
   +migrations: Migration[],
+}>
+
+export type SchemaMigrations = $Exact<{
+  +validated: true,
+  ...SchemaMigrationsSpec,
 }>
 
 // Creates a specification of how to migrate between different versions of
@@ -77,7 +79,7 @@ export type SchemaMigrations = $Exact<{
 //   ],
 // })
 
-export function schemaMigrations(migrationSpec: SchemaMigrations): SchemaMigrations {
+export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMigrations {
   if (isDevelopment) {
     // validate migrations spec object
     const { minimumVersion, currentVersion, migrations } = migrationSpec

@@ -10,14 +10,6 @@ import type Model from 'Model'
 export opaque type TableName<+T: Model>: string = string
 export opaque type ColumnName: string = string
 
-export function tableName<T: Model>(name: string): TableName<T> {
-  return name
-}
-
-export function columnName(name: string): ColumnName {
-  return name
-}
-
 export type ColumnType = 'string' | 'number' | 'bool'
 export type ColumnSchema = $Exact<{
   name: ColumnName,
@@ -28,11 +20,23 @@ export type ColumnSchema = $Exact<{
 
 export type ColumnMap = { [name: ColumnName]: ColumnSchema }
 
+export type TableSchemaSpec = $Exact<{ name: TableName<any>, columns: ColumnSchema[] }>
+
 export type TableSchema = $Exact<{ name: TableName<any>, columns: ColumnMap }>
 
 type TableMap = { [name: TableName<any>]: TableSchema }
 
-export type AppSchema = $Exact<{ version: number, tables: TableMap }>
+export type SchemaVersion = number
+
+export type AppSchema = $Exact<{ version: SchemaVersion, tables: TableMap }>
+
+export function tableName<T: Model>(name: string): TableName<T> {
+  return name
+}
+
+export function columnName(name: string): ColumnName {
+  return name
+}
 
 export function appSchema({
   version,
@@ -46,8 +50,6 @@ export function appSchema({
 
   return { version, tables }
 }
-
-export type TableSchemaSpec = $Exact<{ name: TableName<any>, columns: ColumnSchema[] }>
 
 export function validateColumnSchema(column: ColumnSchema): void {
   if (isDevelopment) {
