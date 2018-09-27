@@ -6,26 +6,30 @@ import { concatMap } from 'rxjs/operators'
 import identity from 'utils/fp/identity'
 import noop from 'utils/fp/noop'
 
-type VoidReturn = void | Promise<void>
-type QueueWorkerCallback = any => void
-type QueueWorker = (any, QueueWorkerCallback) => VoidReturn
+type QueueWorkerCallback<Result> = Result => void
+type QueueWorker<Input, Output> = (Input, QueueWorkerCallback<Output>) => Promise<void>
 
-export type QueueObject = $Exact<{
-  push: (any, QueueWorkerCallback) => VoidReturn,
+export type QueueObject<Input, Output> = $Exact<{
+  push: (Input, QueueWorkerCallback<Output>) => void,
 }>
 
-const createQueueTask = (worker: QueueWorker, data: any, callback: Function) =>
-  Observable.create(observer => {
+function createQueueTask<Input, Output>(
+  worker: QueueWorker<Input, Output>,
+  data: Input,
+  callback: QueueWorkerCallback<Output>,
+): Observable<any> {
+  return Observable.create(observer => {
     worker(data, result => {
       observer.next(data)
       callback(result)
       observer.complete()
     })
   })
+}
 
 // TODO: Refactor Queue code to follow idiomatic Rx style instead of approximating the API of `async/queue`
 
-export default (worker: QueueWorker): QueueObject => {
+function makeQueue<Input, Output>(worker: QueueWorker<Input, Output>): QueueObject<Input, Output> {
   const subject = new Subject()
 
   subject.pipe(concatMap(identity, noop)).subscribe(noop)
@@ -36,3 +40,5 @@ export default (worker: QueueWorker): QueueObject => {
     },
   }
 }
+
+export default makeQueue

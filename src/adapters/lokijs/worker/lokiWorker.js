@@ -6,7 +6,12 @@ import invariant from 'utils/common/invariant'
 
 import LokiExecutor from './executor'
 import queue, { type QueueObject } from './helpers/queue'
-import { actions, responseActions, type WorkerExecutorAction } from '../common'
+import {
+  actions,
+  responseActions,
+  type WorkerExecutorAction,
+  type WorkerResponseAction,
+} from '../common'
 
 const ExecutorProto = LokiExecutor.prototype
 const executorMethods = {
@@ -35,7 +40,7 @@ export default class LokiWorker {
 
   executor: ?LokiExecutor
 
-  asyncQueue: QueueObject
+  asyncQueue: QueueObject<WorkerExecutorAction, WorkerResponseAction>
 
   constructor(workerContext: DedicatedWorkerGlobalScope): void {
     this.workerContext = workerContext
@@ -47,7 +52,7 @@ export default class LokiWorker {
     // PR: https://github.com/facebook/flow/pull/6100
     const context = (this.workerContext: any)
     context.onmessage = (e: MessageEvent) => {
-      this.asyncQueue.push(e.data, (action: WorkerExecutorAction) => {
+      this.asyncQueue.push((e.data: any), (action: WorkerResponseAction) => {
         const { type, payload } = action
 
         this.workerContext.postMessage({

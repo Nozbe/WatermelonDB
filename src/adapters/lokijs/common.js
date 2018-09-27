@@ -1,10 +1,9 @@
 // @flow
 
-import type { CachedQueryResult } from 'adapters/type'
-import type { TableName, AppSchema } from 'Schema'
+import type { CachedQueryResult, CachedFindResult } from 'adapters/type'
+import type { TableName } from 'Schema'
 import type { RawRecord } from 'RawRecord'
-
-import type { SchemaMigrations } from '../../Schema/migrations'
+import type { RecordId } from 'Model'
 
 export const actions = {
   SETUP: 'SETUP',
@@ -35,7 +34,7 @@ export type WorkerExecutorPayload = any[]
 
 export type WorkerResponseType = $Values<typeof responseActions>
 
-export type WorkerResponseData = CachedQueryResult | number | void | Array<?number>
+export type WorkerResponseData = CachedQueryResult | CachedFindResult | number | RecordId[]
 export type WorkerResponseError = string
 export type WorkerResponsePayload = WorkerResponseData | WorkerResponseError
 
