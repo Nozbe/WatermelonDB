@@ -5,7 +5,7 @@ import logError from '../../../utils/common/logError'
 import invariant from '../../../utils/common/invariant'
 
 import LokiExecutor from './executor'
-import queue, { type QueueObject } from './helpers/queue'
+import queue, { type QueueObject } from './queue'
 import { actions, responseActions, type WorkerExecutorAction } from '../common'
 
 const ExecutorProto = LokiExecutor.prototype
