@@ -23,7 +23,7 @@ import {
 import type { SchemaMigrations } from '../../Schema/migrations'
 
 import WorkerBridge from './WorkerBridge'
-import { actions, type LokiAdapterOptions } from './common'
+import { actions } from './common'
 
 const {
   SETUP,
@@ -40,6 +40,12 @@ const {
   UNSAFE_CLEAR_CACHED_RECORDS,
 } = actions
 
+type LokiAdapterOptions = $Exact<{
+  dbName: string,
+  schema: AppSchema,
+  migrationsExperimental?: SchemaMigrations,
+}>
+
 export default class LokiJSAdapter implements DatabaseAdapter {
   workerBridge: WorkerBridge = new WorkerBridge()
 
@@ -52,12 +58,8 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     this.schema = schema
     this.migrations = migrations
     isDevelopment && validateAdapter(this)
-    this._setUp(options)
-  }
 
-  async _setUp(options: LokiAdapterOptions): Promise<void> {
-    // TODO: Should migrations be sent?
-    await devLogSetUp(() => this.workerBridge.send(SETUP, [options]))
+    devLogSetUp(() => this.workerBridge.send(SETUP, [options]))
   }
 
   async find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {

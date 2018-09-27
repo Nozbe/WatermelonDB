@@ -10,35 +10,40 @@ import type { SerializedQuery } from 'Query'
 import type { RecordId } from 'Model'
 import { type RawRecord, sanitizedRaw, type DirtyRaw } from 'RawRecord'
 
+import { type SchemaMigrations } from '../../../Schema/migrations'
 import { newLoki, loadDatabase, deleteDatabase } from './lokiExtensions'
 import executeQuery from './executeQuery'
-import type { LokiAdapterOptions, WorkerBatchOperation } from '../common'
+import type { WorkerBatchOperation } from '../common'
 
 const SCHEMA_VERSION_KEY = '_loki_schema_version'
+
+type LokiExecutorOptions = $Exact<{
+  dbName: string,
+  schema: AppSchema,
+  migrations: ?SchemaMigrations, // TODO: not optional
+}>
 
 export default class LokiExecutor {
   dbName: string
 
   schema: AppSchema
 
+  migrations: ?SchemaMigrations
+
   loki: Loki
 
   cachedRecords: Set<RecordId> = new Set([])
 
-  constructor(options: LokiAdapterOptions): void {
-    const { dbName, schema } = options
+  constructor(options: LokiExecutorOptions): void {
+    const { dbName, schema, migrations } = options
     this.dbName = dbName
     this.schema = schema
+    this.migrations = migrations
   }
 
   async setUp(): Promise<void> {
     await this._openDatabase()
-
-    // Set up schema if needed
-    if (this._requiresMigration) {
-      logger.log('[DB][Worker] Migration required, updating...')
-      await this.unsafeResetDatabase()
-    }
+    await this._migrateIfNeeded()
   }
 
   find(table: TableName<any>, id: RecordId): CachedFindResult {
@@ -224,6 +229,21 @@ export default class LokiExecutor {
     const databaseVersion = parseInt(databaseVersionRaw, 10) || 0
 
     return databaseVersion !== this.schema.version
+  }
+
+  async _migrateIfNeeded(): Promise<void> {
+    if (this._requiresMigration) {
+      logger.log('[DB][Worker] Database has old schema version. Migration is required.')
+
+      if (this.migrations) {
+        logger.log('[DB][Worker] Migrations available, migrating schema…')
+        throw new Error('Oops! Migrations not implemented')
+      } else {
+        // TODO: Delete this altogether? Or put under "development" flag only?
+        logger.warn('[DB][Worker] No migrations available, resetting database')
+        await this.unsafeResetDatabase()
+      }
+    }
   }
 
   // Maps records to their IDs if the record is already cached on JS side

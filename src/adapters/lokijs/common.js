@@ -25,12 +25,6 @@ export const actions = {
   UNSAFE_CLEAR_CACHED_RECORDS: 'UNSAFE_CLEAR_CACHED_RECORDS',
 }
 
-export type LokiAdapterOptions = $Exact<{
-  dbName: string,
-  schema: AppSchema,
-  migrationsExperimental?: SchemaMigrations,
-}>
-
 export const responseActions = {
   RESPONSE_SUCCESS: 'RESPONSE_SUCCESS',
   RESPONSE_ERROR: 'RESPONSE_ERROR',
