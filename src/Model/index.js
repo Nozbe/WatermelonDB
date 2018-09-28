@@ -74,7 +74,7 @@ export default class Model {
   // })
   async update(recordUpdater: this => void = noop): Promise<void> {
     this.prepareUpdate(recordUpdater)
-    await this.collection._update(this)
+    await this.collection.database.batch(this)
   }
 
   // Prepares an update to the database (using passed function).
