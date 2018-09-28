@@ -51,12 +51,10 @@ export default class Database {
 
       return ['create', record]
     })
-
     await this.adapter.batch(operations)
 
     operations.forEach(([type, record]) => {
       const { collection } = record
-
       if (type === 'create') {
         collection._onRecordCreated(record)
       } else if (type === 'update') {

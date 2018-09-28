@@ -174,24 +174,6 @@ describe('watermelondb/Collection', () => {
     expect(observer).toHaveBeenCalledTimes(0)
     await expect(collection.find(m1.id)).rejects.toBeInstanceOf(Error)
   })
-  it('can update records', async () => {
-    const { tasksCollection: collection, adapter } = mockDatabase()
-    adapter.batch = jest.fn()
-
-    const observer = jest.fn()
-    collection.changes.subscribe(observer)
-
-    const m1 = new MockTask(collection, { id: 'm1' })
-    collection._cache.add(m1)
-
-    await collection._update(m1)
-
-    // Check database update, observers update
-    expect(adapter.batch).toHaveBeenCalledTimes(1)
-    expect(adapter.batch).toBeCalledWith([['update', m1]])
-    expect(observer).toHaveBeenCalledTimes(1)
-    expect(observer).toBeCalledWith([{ record: m1, type: CollectionChangeTypes.updated }])
-  })
   it('can destroy records permanently', async () => {
     const { tasksCollection: collection, adapter } = mockDatabase()
     adapter.batch = jest.fn()

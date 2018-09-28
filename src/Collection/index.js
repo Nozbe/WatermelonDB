@@ -69,9 +69,8 @@ export default class Collection<Record: Model> {
   //   task.name = 'Task name'
   // })
   async create(recordBuilder: Record => void = noop): Promise<Record> {
-    const record = this.modelClass._prepareCreate(this, recordBuilder)
-    await this.database.adapter.batch([['create', record]])
-    this._onRecordCreated(record)
+    const record = this.prepareCreate(recordBuilder)
+    await this.database.batch(record)
     return record
   }
 
@@ -110,12 +109,6 @@ export default class Collection<Record: Model> {
     const raw = await this.database.adapter.find(this.table, id)
     invariant(raw, `Record ${this.table}#${id} not found`)
     return this._cache.recordFromQueryResult(raw)
-  }
-
-  async _update(record: Record): Promise<void> {
-    record._hasPendingUpdate = false
-    await this.database.adapter.batch([['update', record]])
-    this._onRecordUpdated(record)
   }
 
   async _markAsDeleted(record: Record): Promise<void> {
