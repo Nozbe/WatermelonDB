@@ -2,12 +2,12 @@
 
 import { always } from 'rambdax'
 
-import makeDecorator from 'utils/common/makeDecorator'
-import tryCatch from 'utils/fp/tryCatch'
+import makeDecorator from '../../utils/common/makeDecorator'
+import tryCatch from '../../utils/fp/tryCatch'
 
-import { type ColumnName } from 'Schema'
+import { type ColumnName } from '../../Schema'
 
-import { ensureDecoratorUsedProperly } from 'decorators/common'
+import { ensureDecoratorUsedProperly } from '../common'
 
 // Defines a model property that's (de)serialized to and from JSON using custom sanitizer function.
 //

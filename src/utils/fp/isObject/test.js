@@ -1,4 +1,4 @@
-import isObject from '.'
+import isObject from './index'
 
 describe('watermelondb/utils/fp/isObject', () => {
   it('checks for objects correctly', () => {

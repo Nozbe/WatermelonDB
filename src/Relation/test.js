@@ -1,6 +1,6 @@
-import { MockTask, MockProject, mockDatabase } from '__tests__/testModels'
+import { MockTask, MockProject, mockDatabase } from '../__tests__/testModels'
 
-import Relation from '.'
+import Relation from './index'
 
 describe('watermelondb/Relation', () => {
   it('gets id', () => {

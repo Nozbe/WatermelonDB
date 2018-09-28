@@ -1,7 +1,7 @@
 // @flow
 
 import { keys, values } from 'rambdax'
-import type { TableSchema, AppSchema } from 'Schema'
+import type { TableSchema, AppSchema } from '../../../Schema'
 import type { SQL } from '../index'
 
 import encodeName from '../encodeName'

@@ -1,17 +1,12 @@
 // @flow
 
 import { NativeModules } from 'react-native'
-import { connectionTag, type ConnectionTag, logger } from 'utils/common'
+import { connectionTag, type ConnectionTag, logger } from '../../utils/common'
 
-import type Model, { RecordId } from 'Model'
-import type Query from 'Query'
-import type { TableName, AppSchema } from 'Schema'
-import type {
-  DatabaseAdapter,
-  CachedQueryResult,
-  CachedFindResult,
-  BatchOperation,
-} from 'adapters/type'
+import type Model, { RecordId } from '../../Model'
+import type Query from '../../Query'
+import type { TableName, AppSchema } from '../../Schema'
+import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
 import {
   type DirtyFindResult,
   type DirtyQueryResult,
@@ -22,7 +17,7 @@ import {
   devLogCount,
   devLogBatch,
   devLogSetUp,
-} from 'adapters/common'
+} from '../common'
 
 import encodeQuery from './encodeQuery'
 import encodeUpdate from './encodeUpdate'

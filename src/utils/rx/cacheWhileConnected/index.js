@@ -2,7 +2,7 @@
 
 import type { Observable } from 'rxjs/Observable'
 import { distinctUntilChanged } from 'rxjs/operators'
-import publishReplayLatestWhileConnected from 'utils/rx/publishReplayLatestWhileConnected'
+import publishReplayLatestWhileConnected from '../publishReplayLatestWhileConnected'
 
 // Equivalent to observable |> distinctUntilChanged |> publishReplayLatestWhileConnected |> refCount
 //

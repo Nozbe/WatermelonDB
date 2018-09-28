@@ -1,5 +1,5 @@
-import { logger } from 'utils/common'
-import encodeValue from '.'
+import { logger } from '../../../utils/common'
+import encodeValue from './index'
 
 describe('watermelondb/adapters/sqlite/encodeValue', () => {
   it('encodes SQLite values', () => {

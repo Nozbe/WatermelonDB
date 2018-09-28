@@ -4,8 +4,8 @@
 import { pipe, map, prop, allPass, anyPass, has, propEq } from 'rambdax'
 
 // don't import whole `utils` to keep worker size small
-import cond from 'utils/fp/cond'
-import invariant from 'utils/common/invariant'
+import cond from '../../utils/fp/cond'
+import invariant from '../../utils/common/invariant'
 
 import type {
   QueryDescription,
@@ -15,8 +15,8 @@ import type {
   Or,
   Where,
   ComparisonRight,
-} from 'QueryDescription'
-import type Model from 'Model'
+} from '../../QueryDescription'
+import type Model from '../../Model'
 
 import operators from './operators'
 

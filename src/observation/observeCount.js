@@ -3,8 +3,8 @@
 import type { Observable } from 'rxjs/Observable'
 import { switchMap, distinctUntilChanged, throttleTime } from 'rxjs/operators'
 
-import type Query from 'Query'
-import type Model from 'Model'
+import type Query from '../Query'
+import type Model from '../Model'
 
 // Produces an observable version of a query count by re-querying the database
 // when any change occurs in any of the relevant Stores.

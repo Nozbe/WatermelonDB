@@ -1,8 +1,8 @@
 // @flow
 
-import type { CachedQueryResult } from 'adapters/type'
-import type { TableName, AppSchema } from 'Schema'
-import type { RawRecord } from 'RawRecord'
+import type { CachedQueryResult } from '../type'
+import type { TableName, AppSchema } from '../../Schema'
+import type { RawRecord } from '../../RawRecord'
 
 export const actions = {
   SETUP: 'SETUP',

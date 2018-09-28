@@ -1,5 +1,5 @@
-import Model from 'Model'
-import field from '.'
+import Model from '../../Model'
+import field from './index'
 
 class MockModel extends Model {
   @field('foo_bar')

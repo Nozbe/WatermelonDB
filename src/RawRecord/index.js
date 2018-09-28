@@ -3,10 +3,10 @@
 /* eslint-disable no-self-compare */
 
 import { values } from 'rambdax'
-import { type ColumnName, type ColumnSchema, type TableSchema } from 'Schema'
-import { type RecordId, type SyncStatus } from 'Model'
+import { type ColumnName, type ColumnSchema, type TableSchema } from '../Schema'
+import { type RecordId, type SyncStatus } from '../Model'
 
-import randomId from 'utils/common/randomId'
+import randomId from '../utils/common/randomId'
 
 // Raw object representing a model record, coming from an untrusted source
 // (disk, sync, user data). Before it can be used to create a Model instance

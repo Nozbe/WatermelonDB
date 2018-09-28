@@ -1,11 +1,11 @@
 // @flow
 
-import { devMeasureTimeAsync, logger } from 'utils/common'
-import type Model, { RecordId } from 'Model'
-import type Query from 'Query'
-import type { TableSchema } from 'Schema'
-import type { BatchOperation, CachedQueryResult, CachedFindResult } from 'adapters/type'
-import { sanitizedRaw, type DirtyRaw } from 'RawRecord'
+import { devMeasureTimeAsync, logger } from '../utils/common'
+import type Model, { RecordId } from '../Model'
+import type Query from '../Query'
+import type { TableSchema } from '../Schema'
+import type { BatchOperation, CachedQueryResult, CachedFindResult } from './type'
+import { sanitizedRaw, type DirtyRaw } from '../RawRecord'
 
 export type DirtyFindResult = RecordId | ?DirtyRaw
 export type DirtyQueryResult = Array<RecordId | DirtyRaw>

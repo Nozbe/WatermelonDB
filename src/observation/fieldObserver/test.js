@@ -1,6 +1,6 @@
 import { Subject } from 'rxjs/Subject'
-import { mockDatabase } from '__tests__/testModels'
-import fieldObserver from '.'
+import { mockDatabase } from '../../__tests__/testModels'
+import fieldObserver from './index'
 
 const makeDatabase = () => {
   // TODO: Change test to actually go through the DB

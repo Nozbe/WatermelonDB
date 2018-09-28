@@ -2,9 +2,9 @@
 /* eslint-disable eqeqeq */
 
 import { contains } from 'rambdax'
-import { gt, gte, lt, lte, complement } from 'utils/fp'
+import { gt, gte, lt, lte, complement } from '../../utils/fp'
 
-import type { Value, CompoundValue, Operator } from 'QueryDescription'
+import type { Value, CompoundValue, Operator } from '../../QueryDescription'
 
 type OperatorFunction = $FlowFixMe<(Value, CompoundValue) => boolean>
 

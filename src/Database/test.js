@@ -1,7 +1,13 @@
-import { expectToRejectWithMessage } from '__tests__/utils'
-import { mockDatabase, MockProject, MockTask, MockComment, testSchema } from '__tests__/testModels'
-import { CollectionChangeTypes } from 'Collection'
-import Database from '.'
+import { expectToRejectWithMessage } from '../__tests__/utils'
+import {
+  mockDatabase,
+  MockProject,
+  MockTask,
+  MockComment,
+  testSchema,
+} from '../__tests__/testModels'
+import { CollectionChangeTypes } from '../Collection'
+import Database from './index'
 
 describe('watermelondb/Database', () => {
   it('implements collectionMap', () => {

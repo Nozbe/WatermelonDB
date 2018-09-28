@@ -35,29 +35,13 @@ const plugins = [
   ],
 ]
 
-const modules = [
-  [
-    'module-resolver',
-    {
-      root: ['./src'],
-    },
-  ],
-  // [
-  //   'babel-plugin-root-import',
-  //   {
-  //     rootPathSuffix: './src',
-  //   },
-  // ],
-]
-
 module.exports = {
   env: {
     development: {
-      plugins: [...modules, ...plugins],
+      plugins,
     },
     production: {
       plugins: [
-        ...modules,
         ...plugins,
         // console.log is expensive for performance on native
         // we don't want it on web either, but it's useful for development
@@ -69,17 +53,6 @@ module.exports = {
     },
     test: {
       plugins: ['@babel/plugin-transform-modules-commonjs', ...plugins],
-    },
-    rewriteonly: {
-      plugins: [
-        '@babel/plugin-syntax-class-properties',
-        ['@babel/plugin-syntax-decorators', { legacy: true }],
-        // '@babel/plugin-syntax-jsx',
-        '@babel/plugin-syntax-object-rest-spread',
-        '@babel/plugin-syntax-optional-chaining',
-        '@babel/plugin-syntax-flow',
-        ...modules,
-      ],
     },
   },
 }
