@@ -15,7 +15,14 @@ import { type TableName, type TableSchema } from '../Schema'
 
 import RecordCache from './RecordCache'
 
-export type CollectionChange<Record: Model> = { record: Record, isDestroyed: boolean }
+export const CollectionChangeTypes = {
+  created: 'created',
+  updated: 'updated',
+  destroyed: 'destroyed',
+}
+type CollectionChangeType = 'created' | 'updated' | 'destroyed'
+export type CollectionChange<Record: Model> = { record: Record, type: CollectionChangeType }
+export type CollectionChangeSet<T> = CollectionChange<T>[]
 
 export default class Collection<Record: Model> {
   database: Database
@@ -26,7 +33,7 @@ export default class Collection<Record: Model> {
 
   // Emits event every time a record inside Collection changes or is deleted
   // (Use Query API to observe collection changes)
-  changes: Subject<CollectionChange<Record>> = new Subject()
+  changes: Subject<CollectionChangeSet<Record>> = new Subject()
 
   constructor(database: Database, ModelClass: Class<Record>): void {
     this.database = database
@@ -62,9 +69,8 @@ export default class Collection<Record: Model> {
   //   task.name = 'Task name'
   // })
   async create(recordBuilder: Record => void = noop): Promise<Record> {
-    const record = this.modelClass._prepareCreate(this, recordBuilder)
-    await this.database.adapter.batch([['create', record]])
-    this._onRecordCreated(record)
+    const record = this.prepareCreate(recordBuilder)
+    await this.database.batch(record)
     return record
   }
 
@@ -105,12 +111,6 @@ export default class Collection<Record: Model> {
     return this._cache.recordFromQueryResult(raw)
   }
 
-  async _update(record: Record): Promise<void> {
-    record._hasPendingUpdate = false
-    await this.database.adapter.batch([['update', record]])
-    this._onRecordUpdated(record)
-  }
-
   async _markAsDeleted(record: Record): Promise<void> {
     await this.database.adapter.batch([['markAsDeleted', record]])
     this._onRecordDestroyed(record)
@@ -124,17 +124,17 @@ export default class Collection<Record: Model> {
   _onRecordCreated(record: Record): void {
     record._isCommitted = true
     this._cache.add(record)
-    this.changes.next({ record, isDestroyed: false })
+    this.changes.next([{ record, type: CollectionChangeTypes.created }])
   }
 
   _onRecordUpdated(record: Record): void {
-    this.changes.next({ record, isDestroyed: false })
+    this.changes.next([{ record, type: CollectionChangeTypes.updated }])
     record._notifyChanged()
   }
 
   _onRecordDestroyed(record: Record): void {
     this._cache.delete(record)
-    this.changes.next({ record, isDestroyed: true })
+    this.changes.next([{ record, type: CollectionChangeTypes.destroyed }])
     record._notifyDestroyed()
   }
 
