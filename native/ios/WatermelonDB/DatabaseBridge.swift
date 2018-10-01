@@ -16,11 +16,9 @@ final public class DatabaseBridge: NSObject {
                reject: RCTPromiseRejectBlock) {
         assert(connections[tag.intValue] == nil, "A driver with tag \(tag) already set up")
         do {
-            let driver = try DatabaseDriver(configuration:
-                DatabaseDriver.Configuration(dbName: databaseName,
-                                             schema: schema,
-                                             schemaVersion: schemaVersion.intValue)
-            )
+            let driver = try DatabaseDriver(dbName: databaseName,
+                                            schema: schema,
+                                            schemaVersion: schemaVersion.intValue)
             connections[tag.intValue] = driver
             resolve(true)
         } catch let error as DatabaseDriver.SchemaNeededError {

@@ -9,17 +9,15 @@ class DatabaseDriver {
         let databaseVersion: SchemaVersion
     }
 
-    struct Configuration {
-        let dbName: String
-        let schema: Database.SQL
-        let schemaVersion: SchemaVersion
-    }
+    private let schema: Database.SQL
+    private let schemaVersion: SchemaVersion
 
-    let configuration: Configuration
-    private(set) lazy var database = Database(isTestRunning ? nil : "\(self.configuration.dbName).db")
+    private let database: Database
 
-    init(configuration: Configuration) throws {
-        self.configuration = configuration
+    init(dbName: String, schema: Database.SQL, schemaVersion: SchemaVersion) throws {
+        self.schema = schema
+        self.schemaVersion = schemaVersion
+        self.database = Database(isTestRunning ? nil : "\(dbName).db")
         setUp()
     }
 
@@ -158,7 +156,7 @@ class DatabaseDriver {
         // If database is outdated, build a clean one
         // TODO: Perform actual migrations
         do {
-            if database.userVersion != configuration.schemaVersion {
+            if database.userVersion != schemaVersion {
                 try unsafeResetDatabase()
             }
         } catch {
@@ -175,8 +173,8 @@ class DatabaseDriver {
 
     private func setUpSchema() throws {
         consoleLog("Setting up schema")
-        try database.executeStatements(configuration.schema + localStorageSchema)
-        database.userVersion = configuration.schemaVersion
+        try database.executeStatements(schema + localStorageSchema)
+        database.userVersion = schemaVersion
     }
 
     private let localStorageSchema = """
