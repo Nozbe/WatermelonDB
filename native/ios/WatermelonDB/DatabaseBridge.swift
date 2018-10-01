@@ -103,51 +103,6 @@ final public class DatabaseBridge: NSObject {
         }
     }
 
-    @objc(execute:query:args:resolve:reject:)
-    func execute(tag: ConnectionTag,
-                 query: Database.SQL,
-                 args: Database.QueryArgs,
-                 resolve: RCTPromiseResolveBlock,
-                 reject: RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.perform(.execute(query: query, args: args))
-        }
-    }
-
-    @objc(create:id:query:args:resolve:reject:)
-    func create(tag: ConnectionTag,
-                id: DatabaseDriver.RecordId,
-                query: Database.SQL,
-                args: Database.QueryArgs,
-                resolve: RCTPromiseResolveBlock,
-                reject: RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.perform(.create(id: id, query: query, args: args))
-        }
-    }
-
-    @objc(destroyPermanently:table:id:resolve:reject:)
-    func destroyPermanently(tag: ConnectionTag,
-                            table: Database.TableName,
-                            id: DatabaseDriver.RecordId,
-                            resolve: RCTPromiseResolveBlock,
-                            reject: RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.destroyPermanently(table: table, id: id)
-        }
-    }
-
-    @objc(markAsDeleted:table:id:resolve:reject:)
-    func markAsDeleted(tag: ConnectionTag,
-                       table: Database.TableName,
-                       id: DatabaseDriver.RecordId,
-                       resolve: RCTPromiseResolveBlock,
-                       reject: RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.perform(.markAsDeleted(table: table, id: id))
-        }
-    }
-
     @objc(getDeletedRecords:table:resolve:reject:)
     func getDeletedRecords(tag: ConnectionTag,
                            table: Database.TableName,
