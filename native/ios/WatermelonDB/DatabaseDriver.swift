@@ -76,6 +76,7 @@ class DatabaseDriver {
                     removedIds.append(id)
 
                 case .destroyPermanently(table: let table, id: let id):
+                    // TODO: What's the behavior if nothing got deleted?
                     try database.execute("delete from \(table) where id == ?", [id])
                     removedIds.append(id)
                 }
@@ -89,16 +90,6 @@ class DatabaseDriver {
         for id in removedIds {
             cachedRecords.remove(id)
         }
-    }
-
-    func perform(_ operation: Operation) throws {
-        try batch([operation])
-    }
-
-    func destroyPermanently(table: Database.TableName, id: RecordId) throws {
-        // TODO: What's the behavior if nothing got deleted?
-        try database.execute("delete from \(table) where id == ?", [id])
-        cachedRecords.remove(id)
     }
 
     func getDeletedRecords(table: Database.TableName) throws -> [RecordId] {
