@@ -8,6 +8,7 @@ import { values } from 'rambdax'
 import invariant from '../utils/common/invariant'
 
 import CollectionMap from '../CollectionMap'
+import { CollectionChangeTypes } from '../Collection'
 
 import type { DatabaseAdapter } from '../adapters/type'
 import type Model from '../Model'
@@ -52,15 +53,25 @@ export default class Database {
       return ['create', record]
     })
     await this.adapter.batch(operations)
-
+    const sortedOperations = []
     operations.forEach(([type, record]) => {
-      const { collection } = record
-      if (type === 'create') {
-        collection._onRecordCreated(record)
-      } else if (type === 'update') {
-        collection._onRecordUpdated(record)
+      const operation =
+        type === 'create' ?
+          { record, type: CollectionChangeTypes.created } :
+          { record, type: CollectionChangeTypes.updated }
+      const indexOfCollection = sortedOperations.findIndex(
+        ({ collection }) => collection === record.collection,
+      )
+      if (indexOfCollection !== -1) {
+        sortedOperations[indexOfCollection].operations.push(operation)
+      } else {
+        const { collection } = record
+        sortedOperations.push({ collection, operations: [operation] })
       }
     })
+    sortedOperations.forEach(({ collection, operations: operationz }) =>
+      collection.changeSet(operationz),
+    )
   }
 
   // Emits a signal immediately, and on change in any of the passed tables
