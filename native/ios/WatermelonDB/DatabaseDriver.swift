@@ -4,15 +4,13 @@ class DatabaseDriver {
     typealias SchemaVersion = Int
 
     struct SchemaNeededError: Error { }
-    
     struct MigrationNeededError: Error {
         let databaseVersion: SchemaVersion
     }
 
     private let schema: Database.SQL
     private let schemaVersion: SchemaVersion
-
-    private let database: Database
+    let database: Database
 
     init(dbName: String, schema: Database.SQL, schemaVersion: SchemaVersion) throws {
         self.schema = schema

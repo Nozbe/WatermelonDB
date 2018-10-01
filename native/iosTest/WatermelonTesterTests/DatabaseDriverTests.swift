@@ -25,10 +25,8 @@ let testSchema = """
     );
     """
 
-let testConfiguration = DatabaseDriver.Configuration(dbName: "test", schema: testSchema, schemaVersion: 1)
-
 func newDatabase() -> DatabaseDriver {
-    return DatabaseDriver(configuration: testConfiguration)
+    return try! DatabaseDriver(dbName: "test", schema: testSchema, schemaVersion: 1)
 }
 
 class DatabaseDriverTests: XCTestCase {
@@ -40,8 +38,8 @@ class DatabaseDriverTests: XCTestCase {
     func testExecuteBatch() {
         let db = newDatabase()
 
-        try! db.perform(.execute(query: insertTestQuery, args: testRecord1Args))
-        try! db.perform(.create(id: "2", query: insertTestQuery, args: testRecord2Args))
+        try! db.batch([.execute(query: insertTestQuery, args: testRecord1Args)])
+        try! db.batch([.create(id: "2", query: insertTestQuery, args: testRecord2Args)])
 
         try! db.batch([
             .create(id: "3", query: insertTestQuery, args: testRecord3Args),
@@ -65,7 +63,7 @@ class DatabaseDriverTests: XCTestCase {
     func testExecuteBatchTransactionality() {
         let db = newDatabase()
 
-        try! db.perform(.create(id: "1", query: insertTestQuery, args: testRecord1Args))
+        try! db.batch([.create(id: "1", query: insertTestQuery, args: testRecord1Args)])
 
         expect {
             try db.batch([
@@ -86,11 +84,11 @@ class DatabaseDriverTests: XCTestCase {
     func testBadQueries() {
         let db = newDatabase()
 
-        expect { try db.perform(.execute(query:"blah blah", args: [])) }.to(throwError())
+        expect { try db.batch([.execute(query:"blah blah", args: [])]) }.to(throwError())
         expect { try db.cachedQuery("blah blah") }.to(throwError())
         expect { try db.count("blah blah") }.to(throwError())
 
-        expect { try db.perform(.execute(query: "insert into bad_table (a) values (1)", args: [])) }.to(throwError())
+        expect { try db.batch([.execute(query: "insert into bad_table (a) values (1)", args: [])]) }.to(throwError())
 
         expect { try db.count(selectAllQuery) }.to(throwError())
         expect { try db.count("select count(*) from test") }.to(throwError()) // missing `as count`
