@@ -19,6 +19,22 @@ class DatabaseDriver {
         setUp()
     }
 
+    init(dbName: String, schemaVersion: SchemaVersion) throws {
+        self.schema = ""
+        self.schemaVersion = schemaVersion
+        self.database = Database(isTestRunning ? nil : "\(dbName).db")
+
+        switch schemaStatus {
+        case .UpToDate: break;
+        case .NeedsSetup: throw SchemaNeededError()
+        case .NeedsMigration(databaseVersion: let dbVersion):
+            throw MigrationNeededError(databaseVersion: dbVersion)
+        case .Invalid:
+            // TODO: Let JS decide? Log error?
+            throw SchemaNeededError()
+        }
+    }
+
     func find(table: Database.TableName, id: RecordId) throws -> Any? {
         guard !isCached(id) else {
             return id
@@ -149,6 +165,28 @@ class DatabaseDriver {
     }
 
 // MARK: - Other private details
+
+    private enum SchemaStatus {
+        case UpToDate
+        case NeedsSetup
+        case NeedsMigration(databaseVersion: SchemaVersion)
+        case Invalid
+    }
+
+    private var schemaStatus: SchemaStatus {
+        let databaseVersion = database.userVersion
+
+        if databaseVersion == schemaVersion {
+            return .UpToDate
+        } else if databaseVersion == 0 {
+            return .NeedsSetup
+        } else if databaseVersion > 0 && databaseVersion < schemaVersion {
+            return .NeedsMigration(databaseVersion: databaseVersion)
+        } else {
+            // database has newer version than app supports
+            return .Invalid
+        }
+    }
 
     private func setUp() {
         // If database is outdated, build a clean one
