@@ -14,14 +14,23 @@ final public class DatabaseBridge: NSObject {
                schemaVersion: NSNumber,
                resolve: RCTPromiseResolveBlock,
                reject: RCTPromiseRejectBlock) {
-        let driver = DatabaseDriver(configuration:
-            DatabaseDriver.Configuration(dbName: databaseName,
-                                         schema: schema,
-                                         schemaVersion: schemaVersion.intValue)
-        )
         assert(connections[tag.intValue] == nil, "A driver with tag \(tag) already set up")
-        connections[tag.intValue] = driver
-        resolve(true)
+        do {
+            let driver = try DatabaseDriver(configuration:
+                DatabaseDriver.Configuration(dbName: databaseName,
+                                             schema: schema,
+                                             schemaVersion: schemaVersion.intValue)
+            )
+            connections[tag.intValue] = driver
+            resolve(true)
+        } catch let error as DatabaseDriver.SchemaNeededError {
+            // TODO
+        } catch let error as DatabaseDriver.MigrationNeededError {
+            // TODO
+        } catch {
+            assertionFailure("Unknown error thrown in DatabaseDriver.init")
+            sendReject(reject, error)
+        }
     }
 
     @objc(find:table:id:resolve:reject:)
@@ -177,7 +186,13 @@ final public class DatabaseBridge: NSObject {
             let result = try action(driver)
             resolve(result)
         } catch {
-            reject("db.\(functionName).error", error.localizedDescription, error)
+            sendReject(reject, error, functionName: functionName)
         }
+    }
+
+    private func sendReject(_ reject: RCTPromiseRejectBlock,
+                            _ error: Error,
+                            functionName: String = #function) {
+        reject("db.\(functionName).error", error.localizedDescription, error)
     }
 }

@@ -1,16 +1,24 @@
 import Foundation
 
 class DatabaseDriver {
+    typealias SchemaVersion = Int
+
+    struct SchemaNeededError: Error { }
+    
+    struct MigrationNeededError: Error {
+        let databaseVersion: SchemaVersion
+    }
+
     struct Configuration {
         let dbName: String
         let schema: Database.SQL
-        let schemaVersion: Int
+        let schemaVersion: SchemaVersion
     }
 
     let configuration: Configuration
     private(set) lazy var database = Database(isTestRunning ? nil : "\(self.configuration.dbName).db")
 
-    init(configuration: Configuration) {
+    init(configuration: Configuration) throws {
         self.configuration = configuration
         setUp()
     }
