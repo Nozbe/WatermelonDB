@@ -1,8 +1,8 @@
-import Model from 'Model'
-import { field } from 'decorators'
+import Model from '../../Model'
+import { field } from '..'
 
-import { tableSchema } from 'Schema'
-import readonly from '.'
+import { tableSchema } from '../../Schema'
+import readonly from './index'
 
 const schema = tableSchema({ name: 'mock', columns: [{ name: 'test', type: 'string' }] })
 

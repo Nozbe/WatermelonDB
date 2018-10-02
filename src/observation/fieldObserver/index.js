@@ -5,13 +5,13 @@ import { Observable } from 'rxjs/Observable'
 import { skip as skip$ } from 'rxjs/operators'
 import { pipe, pickAll, values, forEach } from 'rambdax'
 
-import withoutIdentical from 'utils/fp/withoutIdentical'
-import identicalArrays from 'utils/fp/identicalArrays'
+import withoutIdentical from '../../utils/fp/withoutIdentical'
+import identicalArrays from '../../utils/fp/identicalArrays'
 
-import { type Value } from 'QueryDescription'
-import { type ColumnName } from 'Schema'
+import { type Value } from '../../QueryDescription'
+import { type ColumnName } from '../../Schema'
 
-import type Model, { RecordId } from 'Model'
+import type Model, { RecordId } from '../../Model'
 
 type RecordState = { [field: ColumnName]: Value }
 type RecordStates = { [id: RecordId]: RecordState }

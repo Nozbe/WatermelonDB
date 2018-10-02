@@ -3,20 +3,20 @@
 import { type Observable } from 'rxjs/Observable'
 import { prepend } from 'rambdax'
 
-import cacheWhileConnected from 'utils/rx/cacheWhileConnected'
-import allPromises from 'utils/fp/allPromises'
+import cacheWhileConnected from '../utils/rx/cacheWhileConnected'
+import allPromises from '../utils/fp/allPromises'
 
 // TODO: ?
-import lazy from 'decorators/lazy' // import from decorarators break the app on web production WTF ¯\_(ツ)_/¯
+import lazy from '../decorators/lazy' // import from decorarators break the app on web production WTF ¯\_(ツ)_/¯
 
-import observeCount from 'observation/observeCount'
-import observeQuery from 'observation/observeQuery'
-import fieldObserver from 'observation/fieldObserver'
-import { buildQueryDescription, queryWithoutDeleted } from 'QueryDescription'
-import type { Condition, QueryDescription } from 'QueryDescription'
-import type Model, { AssociationInfo } from 'Model'
-import type Collection from 'Collection'
-import type { TableName, ColumnName } from 'Schema'
+import observeCount from '../observation/observeCount'
+import observeQuery from '../observation/observeQuery'
+import fieldObserver from '../observation/fieldObserver'
+import { buildQueryDescription, queryWithoutDeleted } from '../QueryDescription'
+import type { Condition, QueryDescription } from '../QueryDescription'
+import type Model, { AssociationInfo } from '../Model'
+import type Collection from '../Collection'
+import type { TableName, ColumnName } from '../Schema'
 
 import { getSecondaryTables, getAssociations } from './helpers'
 

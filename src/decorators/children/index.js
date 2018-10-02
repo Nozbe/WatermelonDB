@@ -1,13 +1,13 @@
 // @flow
 
-import makeDecorator from 'utils/common/makeDecorator'
-import logError from 'utils/common/logError'
-import invariant from 'utils/common/invariant'
+import makeDecorator from '../../utils/common/makeDecorator'
+import logError from '../../utils/common/logError'
+import invariant from '../../utils/common/invariant'
 
-import * as Q from 'QueryDescription'
-import type { TableName } from 'Schema'
-import type Model from 'Model'
-import type Query from 'Query'
+import * as Q from '../../QueryDescription'
+import type { TableName } from '../../Schema'
+import type Model from '../../Model'
+import type Query from '../../Query'
 
 // Defines a model property that queries records that *belong_to* this model
 // Pass name of the table with desired records. (The model defining a @children property must

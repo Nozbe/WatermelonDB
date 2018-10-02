@@ -1,11 +1,11 @@
-import { appSchema, tableSchema } from 'Schema'
-import * as Q from 'QueryDescription'
-import Model from 'Model'
-import Database from 'Database'
-import { field } from 'decorators'
-import { logger } from 'utils/common'
+import { appSchema, tableSchema } from '../../Schema'
+import * as Q from '../../QueryDescription'
+import Model from '../../Model'
+import Database from '../../Database'
+import { field } from '..'
+import { logger } from '../../utils/common'
 
-import children from '.'
+import children from './index'
 
 class MockParent extends Model {
   static table = 'mock_parent'

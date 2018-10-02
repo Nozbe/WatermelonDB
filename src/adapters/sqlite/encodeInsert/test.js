@@ -1,4 +1,4 @@
-import encodeInsert from '.'
+import encodeInsert from './index'
 
 describe('watermelondb/adapters/sqlite/encodeInsert', () => {
   it('encodes model inserts', () => {

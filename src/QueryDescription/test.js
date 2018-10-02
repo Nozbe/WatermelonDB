@@ -1,4 +1,4 @@
-import * as Q from '.'
+import * as Q from './index'
 
 describe('watermelondb/QueryDescription', () => {
   it('builds empty query', () => {

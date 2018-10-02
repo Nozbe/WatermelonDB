@@ -2,8 +2,8 @@
 
 import { pipe, map, join, keys, values, append } from 'rambdax'
 
-import type Model from 'Model'
-import { type RawRecord } from 'RawRecord'
+import type Model from '../../../Model'
+import { type RawRecord } from '../../../RawRecord'
 import type { SQL, SQLiteQuery, SQLiteArg } from '../index'
 
 import encodeName from '../encodeName'

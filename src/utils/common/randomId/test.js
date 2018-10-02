@@ -1,4 +1,4 @@
-import randomId from '.'
+import randomId from './index'
 
 describe('watermelondb/utils/common/randomId', () => {
   it('generates a random string', () => {

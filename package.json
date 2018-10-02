@@ -1,7 +1,7 @@
 {
   "name": "@nozbe/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
-  "version": "0.6.2-0",
+  "version": "0.6.2-1",
   "scripts": {
     "build": "NODE_ENV=production node ./scripts/make.js",
     "dev": "NODE_ENV=development node ./scripts/make.js",
@@ -37,8 +37,7 @@
     "url": "https://github.com/Nozbe/WatermelonDB.git"
   },
   "dependencies": {
-    "babel-plugin-module-resolver": "^3.1.1",
-    "rambdax": "^0.10.0",
+    "rambdax": "^0.12.3",
     "rxjs": "^6.2.2",
     "rxjs-compat": "^6.3.2",
     "sql-escape-string": "^1.1.0"
@@ -95,9 +94,6 @@
     "babel-plugin-minify-guarded-expressions": "^0.4.3",
     "babel-plugin-minify-replace": "^0.5.0",
     "babel-plugin-module-resolver": "^3.1.1",
-    "babel-plugin-root-import": "^6.1.0",
-    "babel-plugin-transform-import-resolve": "^2.0.1",
-    "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "cavy": "git+https://github.com/Nozbe/cavy.git",
     "chokidar": "^2.0.4",

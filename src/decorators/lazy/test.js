@@ -1,4 +1,4 @@
-import lazy from '.'
+import lazy from './index'
 
 describe('decorators/lazy', () => {
   it('calculates value on first evaluation only', () => {
