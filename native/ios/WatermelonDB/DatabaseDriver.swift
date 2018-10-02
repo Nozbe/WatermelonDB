@@ -16,7 +16,7 @@ class DatabaseDriver {
         self.init(dbName: dbName)
 
         switch isCompatible(withVersion: schemaVersion) {
-        case .Compatible: break;
+        case .Compatible: break
         case .NeedsSetup:
             throw SchemaNeededError()
         case .NeedsMigration(fromVersion: let dbVersion):
@@ -217,7 +217,7 @@ class DatabaseDriver {
     private func migrate(with migrations: MigrationSet) {
         consoleLog("Migrating database from version \(migrations.from) to \(migrations.to)")
         precondition(database.userVersion == migrations.from, "Incompatbile migration set applied. DB: \(database.userVersion), migration: \(migrations.from)")
-        
+
         do {
             try database.executeStatements(migrations.sql)
             database.userVersion = migrations.to
