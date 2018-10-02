@@ -15,16 +15,25 @@ final public class DatabaseBridge: NSObject {
                resolve: RCTPromiseResolveBlock,
                reject: RCTPromiseRejectBlock) {
         assert(connections[tag.intValue] == nil, "A driver with tag \(tag) already set up")
+
         do {
-            let driver = try DatabaseDriver(dbName: databaseName,
-                                            schema: schema,
-                                            schemaVersion: schemaVersion.intValue)
+            let driver = try DatabaseDriver(dbName: databaseName, schemaVersion: schemaVersion.intValue)
             connections[tag.intValue] = driver
             resolve(true)
-        } catch let error as DatabaseDriver.SchemaNeededError {
-            // TODO
+        } catch _ as DatabaseDriver.SchemaNeededError {
+            consoleLog("Schema needed!")
+
+            let driver = DatabaseDriver(dbName: databaseName, schema: schema, schemaVersion: schemaVersion.intValue)
+            connections[tag.intValue] = driver
+            resolve(true)
+            // TODO: send to js
         } catch let error as DatabaseDriver.MigrationNeededError {
-            // TODO
+            // TODO: migrations
+            let databaseVersion = error.databaseVersion
+            consoleLog("Migrations needed! from: \(databaseVersion)")
+            let driver = DatabaseDriver(dbName: databaseName, schema: schema, schemaVersion: schemaVersion.intValue)
+            connections[tag.intValue] = driver
+            resolve(true)
         } catch {
             assertionFailure("Unknown error thrown in DatabaseDriver.init")
             sendReject(reject, error)

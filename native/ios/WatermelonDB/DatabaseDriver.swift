@@ -12,7 +12,7 @@ class DatabaseDriver {
     private let schemaVersion: SchemaVersion
     let database: Database
 
-    init(dbName: String, schema: Database.SQL, schemaVersion: SchemaVersion) throws {
+    init(dbName: String, schema: Database.SQL, schemaVersion: SchemaVersion) {
         self.schema = schema
         self.schemaVersion = schemaVersion
         self.database = Database(isTestRunning ? nil : "\(dbName).db")
