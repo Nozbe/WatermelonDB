@@ -3,21 +3,21 @@
 import type { Observable } from 'rxjs'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 
-import isDevelopment from 'utils/common/isDevelopment'
-import invariant from 'utils/common/invariant'
-import ensureSync from 'utils/common/ensureSync'
+import isDevelopment from '../utils/common/isDevelopment'
+import invariant from '../utils/common/invariant'
+import ensureSync from '../utils/common/ensureSync'
 
-import fromPairs from 'utils/fp/fromPairs'
-import noop from 'utils/fp/noop'
+import fromPairs from '../utils/fp/fromPairs'
+import noop from '../utils/fp/noop'
 
-import field from 'decorators/field'
-import readonly from 'decorators/readonly'
+import field from '../decorators/field'
+import readonly from '../decorators/readonly'
 
-import type Collection from 'Collection'
-import type CollectionMap from 'CollectionMap'
-import { type TableName, type ColumnName, columnName } from 'Schema'
-import type { Value } from 'QueryDescription'
-import { type RawRecord, sanitizedRaw, setRawSanitized } from 'RawRecord'
+import type Collection from '../Collection'
+import type CollectionMap from '../CollectionMap'
+import { type TableName, type ColumnName, columnName } from '../Schema'
+import type { Value } from '../QueryDescription'
+import { type RawRecord, sanitizedRaw, setRawSanitized } from '../RawRecord'
 
 import { createTimestampsFor, hasUpdatedAt, addToRawSet } from './helpers'
 
@@ -74,7 +74,7 @@ export default class Model {
   // })
   async update(recordUpdater: this => void = noop): Promise<void> {
     this.prepareUpdate(recordUpdater)
-    await this.collection._update(this)
+    await this.collection.database.batch(this)
   }
 
   // Prepares an update to the database (using passed function).

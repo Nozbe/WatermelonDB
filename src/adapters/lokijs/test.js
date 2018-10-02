@@ -1,7 +1,7 @@
-import { makeMockTask, testSchema } from 'adapters/__tests__/helpers'
-import commonTests from 'adapters/__tests__/commonTests'
+import { makeMockTask, testSchema } from '../__tests__/helpers'
+import commonTests from '../__tests__/commonTests'
 
-import LokiJSAdapter from 'adapters/lokijs'
+import LokiJSAdapter from './index'
 
 const newAdapter = () =>
   new LokiJSAdapter({

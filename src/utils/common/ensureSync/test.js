@@ -1,4 +1,4 @@
-import ensureSync from '.'
+import ensureSync from './index'
 
 describe('watermelondb/utils/common/ensureSync', () => {
   it('passes values through', () => {

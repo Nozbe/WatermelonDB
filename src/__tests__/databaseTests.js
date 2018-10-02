@@ -1,4 +1,4 @@
-import * as Q from 'QueryDescription'
+import * as Q from '../QueryDescription'
 
 export const matchTests = [
   {

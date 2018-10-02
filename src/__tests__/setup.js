@@ -1,3 +1,3 @@
-import { logger } from 'utils/common'
+import { logger } from '../utils/common'
 
 logger.silence()

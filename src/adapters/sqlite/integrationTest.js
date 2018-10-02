@@ -1,6 +1,6 @@
-import SQLiteAdapter from 'adapters/sqlite'
-import { testSchema } from 'adapters/__tests__/helpers'
-import commonTests from 'adapters/__tests__/commonTests'
+import SQLiteAdapter from './index'
+import { testSchema } from '../__tests__/helpers'
+import commonTests from '../__tests__/commonTests'
 
 const newAdapter = () => new SQLiteAdapter({ dbName: 'test', schema: testSchema })
 

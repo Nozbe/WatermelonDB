@@ -1,17 +1,13 @@
 // @flow
 
 import { map } from 'rambdax'
-import { isDevelopment } from 'utils/common'
+import { isDevelopment } from '../../utils/common'
 
-import type Model, { RecordId } from 'Model'
-import type { TableName, AppSchema } from 'Schema'
-import type Query from 'Query'
-import type {
-  DatabaseAdapter,
-  CachedQueryResult,
-  CachedFindResult,
-  BatchOperation,
-} from 'adapters/type'
+import type Model, { RecordId } from '../../Model'
+import type { TableName, AppSchema } from '../../Schema'
+import type { SchemaMigrations } from '../../Schema/migrations'
+import type Query from '../../Query'
+import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
 import {
   devLogFind,
   devLogQuery,
@@ -19,8 +15,7 @@ import {
   devLogBatch,
   devLogSetUp,
   validateAdapter,
-} from 'adapters/common'
-import type { SchemaMigrations } from '../../Schema/migrations'
+} from '../common'
 
 import WorkerBridge from './WorkerBridge'
 import { actions } from './common'

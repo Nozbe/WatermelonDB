@@ -1,6 +1,6 @@
-import { appSchema, tableSchema } from 'Schema'
+import { appSchema, tableSchema } from '../../../Schema'
 
-import encodeSchema from '.'
+import encodeSchema from './index'
 
 const testSchema = appSchema({
   version: 1,

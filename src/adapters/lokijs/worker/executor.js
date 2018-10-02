@@ -2,13 +2,13 @@
 
 import Loki, { LokiCollection } from 'lokijs'
 import { prop, forEach, values } from 'rambdax'
-import { logger } from 'utils/common'
+import { logger } from '../../../utils/common'
 
-import type { CachedQueryResult, CachedFindResult } from 'adapters/type'
-import type { TableName, AppSchema } from 'Schema'
-import type { SerializedQuery } from 'Query'
-import type { RecordId } from 'Model'
-import { type RawRecord, sanitizedRaw, type DirtyRaw } from 'RawRecord'
+import type { CachedQueryResult, CachedFindResult } from '../../type'
+import type { TableName, AppSchema } from '../../../Schema'
+import type { SerializedQuery } from '../../../Query'
+import type { RecordId } from '../../../Model'
+import { type RawRecord, sanitizedRaw, type DirtyRaw } from '../../../RawRecord'
 
 import { type SchemaMigrations } from '../../../Schema/migrations'
 import { newLoki, loadDatabase, deleteDatabase } from './lokiExtensions'

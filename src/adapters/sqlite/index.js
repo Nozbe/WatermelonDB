@@ -2,17 +2,13 @@
 /* eslint-disable global-require */
 
 import { NativeModules, Platform } from 'react-native'
-import { connectionTag, type ConnectionTag, logger, isDevelopment } from 'utils/common'
+import { connectionTag, type ConnectionTag, logger, isDevelopment } from '../../utils/common'
 
-import type Model, { RecordId } from 'Model'
-import type Query from 'Query'
-import type { TableName, AppSchema } from 'Schema'
-import type {
-  DatabaseAdapter,
-  CachedQueryResult,
-  CachedFindResult,
-  BatchOperation,
-} from 'adapters/type'
+import type Model, { RecordId } from '../../Model'
+import type Query from '../../Query'
+import type { TableName, AppSchema } from '../../Schema'
+import type { SchemaMigrations } from '../../Schema/migrations'
+import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
 import {
   type DirtyFindResult,
   type DirtyQueryResult,
@@ -24,8 +20,7 @@ import {
   devLogBatch,
   devLogSetUp,
   validateAdapter,
-} from 'adapters/common'
-import type { SchemaMigrations } from '../../Schema/migrations'
+} from '../common'
 
 import encodeQuery from './encodeQuery'
 import encodeUpdate from './encodeUpdate'

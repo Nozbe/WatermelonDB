@@ -1,4 +1,4 @@
-import withoutIdentical from '.'
+import withoutIdentical from './index'
 
 describe('watermelondb/utils/fp/withoutIdentical', () => {
   it('removes stuff from the array', () => {

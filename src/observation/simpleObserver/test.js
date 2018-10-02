@@ -1,9 +1,9 @@
-import { mockDatabase } from '__tests__/testModels'
+import { mockDatabase } from '../../__tests__/testModels'
 
-import Query from 'Query'
-import * as Q from 'QueryDescription'
+import Query from '../../Query'
+import * as Q from '../../QueryDescription'
 
-import simpleObserver from '.'
+import simpleObserver from './index'
 
 const makeDatabase = () => {
   // TODO: Change test to actually go through the DB

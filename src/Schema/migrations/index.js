@@ -1,10 +1,10 @@
 // @flow
 
-import type { ColumnSchema, TableName, ColumnMap, TableSchemaSpec, SchemaVersion } from 'Schema'
-import { tableSchema, validateColumnSchema } from 'Schema'
+import type { ColumnSchema, TableName, ColumnMap, TableSchemaSpec, SchemaVersion } from '../index'
+import { tableSchema, validateColumnSchema } from '../index'
 
-import { isDevelopment, invariant } from 'utils/common'
-import { isObject } from 'utils/fp'
+import { isDevelopment, invariant } from '../../utils/common'
+import { isObject } from '../../utils/fp'
 
 type CreateTableMigrationStep = $Exact<{
   +type: 'create_table',
@@ -12,13 +12,13 @@ type CreateTableMigrationStep = $Exact<{
   +columns: ColumnMap,
 }>
 
-type AddColumnMigrationStep = $Exact<{
-  +type: 'add_column',
+type AddColumnsMigrationStep = $Exact<{
+  +type: 'add_columns',
   +table: TableName<any>,
-  +column: ColumnSchema,
+  +columns: ColumnSchema[],
 }>
 
-type MigrationStep = CreateTableMigrationStep | AddColumnMigrationStep
+type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep
 
 type Migration = $Exact<{
   +from: SchemaVersion,
@@ -56,15 +56,18 @@ export type SchemaMigrations = $Exact<{
 //       from: 2,
 //       to: 3,
 //       steps: [
-//         addColumn({
-//           table: 'posts',
-//           column: { name: 'subtitle', type: 'string', isOptional: true },
-//         }),
 //         createTable({
 //           name: 'comments',
 //           columns: [
 //             { name: 'post_id', type: 'string', isIndexed: true },
 //             { name: 'body', type: 'string' },
+//           ],
+//         }),
+//         addColumns({
+//           table: 'posts',
+//           columns: [
+//             { name: 'subtitle', type: 'string', isOptional: true },
+//             { name: 'is_pinned', type: 'bool' },
 //           ],
 //         }),
 //       ],
@@ -134,17 +137,17 @@ export function createTable(tableSchemaSpec: TableSchemaSpec): CreateTableMigrat
   return { type: 'create_table', name, columns }
 }
 
-export function addColumn({
+export function addColumns({
   table,
-  column,
-}: $Exact<{ table: TableName<any>, column: ColumnSchema }>): AddColumnMigrationStep {
+  columns,
+}: $Exact<{ table: TableName<any>, columns: ColumnSchema[] }>): AddColumnsMigrationStep {
   if (isDevelopment) {
     invariant(table, `Missing table name in addColumn()`)
-    invariant(column, `Missing column schema in addColumn()`)
-    validateColumnSchema(column)
+    invariant(columns && Array.isArray(columns), `Missing 'columns' or not an array in addColumn()`)
+    columns.forEach(column => validateColumnSchema(column))
   }
 
-  return { type: 'add_column', table, column }
+  return { type: 'add_columns', table, columns }
 }
 
 /*

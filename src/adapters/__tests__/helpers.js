@@ -1,11 +1,11 @@
 import { sortBy, identity, pipe, pluck } from 'rambdax'
 import expect from 'expect'
-import { allPromises, toPairs } from 'utils/fp'
+import { allPromises, toPairs } from '../../utils/fp'
 
-import Model from 'Model'
-import Query from 'Query'
-import { appSchema, tableSchema } from 'Schema'
-import { sanitizedRaw } from 'RawRecord'
+import Model from '../../Model'
+import Query from '../../Query'
+import { appSchema, tableSchema } from '../../Schema'
+import { sanitizedRaw } from '../../RawRecord'
 
 export class MockTask extends Model {
   static table = 'tasks'

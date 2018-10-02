@@ -16,12 +16,12 @@ import {
 } from 'rambdax'
 
 // don't import whole `utils` to keep worker size small
-import cond from 'utils/fp/cond'
-import partition from 'utils/fp/partition'
-import isObject from 'utils/fp/isObject'
-import invariant from 'utils/common/invariant'
+import cond from '../utils/fp/cond'
+import partition from '../utils/fp/partition'
+import isObject from '../utils/fp/isObject'
+import invariant from '../utils/common/invariant'
 
-import { type TableName, type ColumnName, columnName } from 'Schema'
+import { type TableName, type ColumnName, columnName } from '../Schema'
 
 export type NonNullValue = number | string | boolean
 export type Value = NonNullValue | null

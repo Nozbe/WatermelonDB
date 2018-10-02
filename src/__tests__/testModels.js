@@ -1,8 +1,8 @@
-import { appSchema, tableSchema } from 'Schema'
-import { field, relation, immutableRelation } from 'decorators'
-import Model from 'Model'
-import Database from 'Database'
-import LokiJSAdapter from 'adapters/lokijs'
+import { appSchema, tableSchema } from '../Schema'
+import { field, relation, immutableRelation } from '../decorators'
+import Model from '../Model'
+import Database from '../Database'
+import LokiJSAdapter from '../adapters/lokijs'
 
 export const testSchema = appSchema({
   version: 1,

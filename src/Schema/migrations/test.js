@@ -1,4 +1,4 @@
-import { createTable, addColumn, schemaMigrations } from './index'
+import { createTable, addColumns, schemaMigrations } from './index'
 
 describe('schemaMigrations()', () => {
   it('returns a basic schema migrations spec', () => {
@@ -31,19 +31,22 @@ describe('schemaMigrations()', () => {
                 { name: 'body', type: 'string' },
               ],
             }),
+            addColumns({
+              table: 'posts',
+              columns: [{ name: 'author_id', type: 'string', isIndexed: true }],
+            }),
           ],
         },
         {
           from: 1,
           to: 2,
           steps: [
-            addColumn({
+            addColumns({
               table: 'posts',
-              column: { name: 'subtitle', type: 'string', isOptional: true },
-            }),
-            addColumn({
-              table: 'posts',
-              column: { name: 'author_id', type: 'string', isIndexed: true },
+              columns: [
+                { name: 'subtitle', type: 'string', isOptional: true },
+                { name: 'is_pinned', type: 'bool' },
+              ],
             }),
           ],
         },
@@ -67,6 +70,11 @@ describe('schemaMigrations()', () => {
                 body: { name: 'body', type: 'string' },
               },
             },
+            {
+              type: 'add_columns',
+              table: 'posts',
+              columns: [{ name: 'author_id', type: 'string', isIndexed: true }],
+            },
           ],
         },
         {
@@ -74,14 +82,12 @@ describe('schemaMigrations()', () => {
           to: 2,
           steps: [
             {
-              type: 'add_column',
+              type: 'add_columns',
               table: 'posts',
-              column: { name: 'subtitle', type: 'string', isOptional: true },
-            },
-            {
-              type: 'add_column',
-              table: 'posts',
-              column: { name: 'author_id', type: 'string', isIndexed: true },
+              columns: [
+                { name: 'subtitle', type: 'string', isOptional: true },
+                { name: 'is_pinned', type: 'bool' },
+              ],
             },
           ],
         },
@@ -169,8 +175,14 @@ describe('migration step functions', () => {
       /type/,
     )
   })
-  it('throws if addColumn() is malformed', () => {
-    expect(() => addColumn({ column: {} })).toThrow(/table/)
-    expect(() => addColumn({ table: 'foo', column: { name: 'x', type: 'blah' } })).toThrow(/type/)
+  it('throws if addColumns() is malformed', () => {
+    expect(() => addColumns({ columns: [{}] })).toThrow(/table/)
+    expect(() => addColumns({ table: 'foo' })).toThrow(/columns/)
+    expect(() => addColumns({ table: 'foo', columns: { name: 'x', type: 'blah' } })).toThrow(
+      /columns/,
+    )
+    expect(() => addColumns({ table: 'foo', columns: [{ name: 'x', type: 'blah' }] })).toThrow(
+      /type/,
+    )
   })
 })
