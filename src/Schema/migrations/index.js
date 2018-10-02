@@ -1,10 +1,10 @@
 // @flow
 
-import type { ColumnSchema, TableName, ColumnMap, TableSchemaSpec } from 'Schema'
-import { tableSchema, validateColumnSchema } from 'Schema'
+import type { ColumnSchema, TableName, ColumnMap, TableSchemaSpec } from '../index'
+import { tableSchema, validateColumnSchema } from '../index'
 
-import { isDevelopment, invariant } from 'utils/common'
-import { isObject } from 'utils/fp'
+import { isDevelopment, invariant } from '../../utils/common'
+import { isObject } from '../../utils/fp'
 
 type CreateTableMigrationStep = $Exact<{
   +type: 'create_table',
