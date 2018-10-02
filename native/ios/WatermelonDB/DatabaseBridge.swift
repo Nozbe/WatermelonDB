@@ -23,7 +23,7 @@ final public class DatabaseBridge: NSObject {
         } catch _ as DatabaseDriver.SchemaNeededError {
             consoleLog("Schema needed!")
 
-            let driver = DatabaseDriver(dbName: databaseName, schema: schema, schemaVersion: schemaVersion.intValue)
+            let driver = DatabaseDriver(dbName: databaseName, setUpWithSchema: (version: schemaVersion.intValue, sql: schema))
             connections[tag.intValue] = driver
             resolve(true)
             // TODO: send to js
@@ -31,7 +31,7 @@ final public class DatabaseBridge: NSObject {
             // TODO: migrations
             let databaseVersion = error.databaseVersion
             consoleLog("Migrations needed! from: \(databaseVersion)")
-            let driver = DatabaseDriver(dbName: databaseName, schema: schema, schemaVersion: schemaVersion.intValue)
+            let driver = DatabaseDriver(dbName: databaseName, setUpWithSchema: (version: schemaVersion.intValue, sql: schema))
             connections[tag.intValue] = driver
             resolve(true)
         } catch {
@@ -140,10 +140,14 @@ final public class DatabaseBridge: NSObject {
         }
     }
 
-    @objc(unsafeResetDatabase:resolve:reject:)
-    func unsafeResetDatabase(tag: ConnectionTag, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    @objc(unsafeResetDatabase:schema:schemaVersion:resolve:reject:)
+    func unsafeResetDatabase(tag: ConnectionTag,
+                             schema: Database.SQL,
+                             schemaVersion: NSNumber,
+                             resolve: RCTPromiseResolveBlock,
+                             reject: RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
-            try $0.unsafeResetDatabase()
+            try $0.unsafeResetDatabase(schema: (version: schemaVersion.intValue, sql: schema))
         }
     }
 

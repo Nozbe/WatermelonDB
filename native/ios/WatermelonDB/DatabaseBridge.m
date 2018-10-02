@@ -49,6 +49,8 @@ RCT_EXTERN_METHOD(destroyDeletedRecords:(nonnull NSNumber *)connectionTag
 )
 
 RCT_EXTERN_METHOD(unsafeResetDatabase:(nonnull NSNumber *)connectionTag
+  schema:(nonnull NSString *)schema
+  schemaVersion:(nonnull NSNumber *)version
   resolve:(RCTPromiseResolveBlock)resolve
   reject:(RCTPromiseRejectBlock)reject
 )

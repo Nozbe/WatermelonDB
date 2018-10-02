@@ -2,37 +2,34 @@ import Foundation
 
 class DatabaseDriver {
     typealias SchemaVersion = Int
+    typealias Schema = (version: SchemaVersion, sql: Database.SQL)
 
     struct SchemaNeededError: Error { }
     struct MigrationNeededError: Error {
         let databaseVersion: SchemaVersion
     }
 
-    private let schema: Database.SQL
-    private let schemaVersion: SchemaVersion
     let database: Database
 
-    init(dbName: String, schema: Database.SQL, schemaVersion: SchemaVersion) {
-        self.schema = schema
-        self.schemaVersion = schemaVersion
-        self.database = Database(isTestRunning ? nil : "\(dbName).db")
-        setUp()
+    convenience init(dbName: String, schemaVersion: SchemaVersion) throws {
+        self.init(dbName: dbName)
+
+        switch isCompatible(withVersion: schemaVersion) {
+        case .Compatible: break;
+        case .NeedsSetup:
+            throw SchemaNeededError()
+        case .NeedsMigration(fromVersion: let dbVersion):
+            throw MigrationNeededError(databaseVersion: dbVersion)
+        }
     }
 
-    init(dbName: String, schemaVersion: SchemaVersion) throws {
-        self.schema = ""
-        self.schemaVersion = schemaVersion
-        self.database = Database(isTestRunning ? nil : "\(dbName).db")
+    convenience init(dbName: String, setUpWithSchema schema: Schema) {
+        self.init(dbName: dbName)
+        setUpDatabase(schema: schema)
+    }
 
-        switch schemaStatus {
-        case .UpToDate: break;
-        case .NeedsSetup: throw SchemaNeededError()
-        case .NeedsMigration(databaseVersion: let dbVersion):
-            throw MigrationNeededError(databaseVersion: dbVersion)
-        case .Invalid:
-            // TODO: Let JS decide? Log error?
-            throw SchemaNeededError()
-        }
+    private init(dbName: String) {
+        self.database = Database(isTestRunning ? nil : "\(dbName).db")
     }
 
     func find(table: Database.TableName, id: RecordId) throws -> Any? {
@@ -166,51 +163,49 @@ class DatabaseDriver {
 
 // MARK: - Other private details
 
-    private enum SchemaStatus {
-        case UpToDate
+    private enum SchemaCompatibility {
+        case Compatible
         case NeedsSetup
-        case NeedsMigration(databaseVersion: SchemaVersion)
-        case Invalid
+        case NeedsMigration(fromVersion: SchemaVersion)
     }
 
-    private var schemaStatus: SchemaStatus {
+    private func isCompatible(withVersion schemaVersion: SchemaVersion) -> SchemaCompatibility {
         let databaseVersion = database.userVersion
 
         if databaseVersion == schemaVersion {
-            return .UpToDate
+            return .Compatible
         } else if databaseVersion == 0 {
             return .NeedsSetup
         } else if databaseVersion > 0 && databaseVersion < schemaVersion {
-            return .NeedsMigration(databaseVersion: databaseVersion)
+            return .NeedsMigration(fromVersion: databaseVersion)
         } else {
-            // database has newer version than app supports
-            return .Invalid
+            // TODO: Safe to assume this would only happen in dev and we can safely reset the database?
+            consoleLog("Seems like the database has newer version (\(databaseVersion)) than what the app supports (\(schemaVersion)). Will reset database.")
+            return .NeedsSetup
         }
     }
 
-    private func setUp() {
-        // If database is outdated, build a clean one
-        // TODO: Perform actual migrations
+    private func setUpDatabase(schema: Schema) {
+        consoleLog("Setting up database with version \(schema.version)")
+
         do {
-            if database.userVersion != schemaVersion {
-                try unsafeResetDatabase()
-            }
+            try unsafeResetDatabase(schema: schema)
         } catch {
             fatalError("Error while setting up the database: \(error)")
         }
     }
 
-    func unsafeResetDatabase() throws {
+    func unsafeResetDatabase(schema: Schema) throws {
         try database.unsafeDestroyEverything()
         cachedRecords = []
 
-        try setUpSchema()
+        try setUpSchema(schema: schema)
     }
 
-    private func setUpSchema() throws {
+    private func setUpSchema(schema: Schema) throws {
         consoleLog("Setting up schema")
-        try database.executeStatements(schema + localStorageSchema)
-        database.userVersion = schemaVersion
+        try database.executeStatements(schema.sql + localStorageSchema)
+        database.userVersion = schema.version
     }
 
     private let localStorageSchema = """

@@ -1,6 +1,6 @@
 // @flow
 
-import { NativeModules } from 'react-native'
+import { NativeModules, Platform } from 'react-native'
 import { connectionTag, type ConnectionTag, logger, isDevelopment } from 'utils/common'
 
 import type Model, { RecordId } from 'Model'
@@ -51,7 +51,7 @@ type NativeBridgeType = {
   batch: (ConnectionTag, NativeBridgeBatchOperation[]) => Promise<void>,
   getDeletedRecords: (ConnectionTag, TableName<any>) => Promise<RecordId[]>,
   destroyDeletedRecords: (ConnectionTag, TableName<any>, RecordId[]) => Promise<void>,
-  unsafeResetDatabase: ConnectionTag => Promise<void>,
+  unsafeResetDatabase: (ConnectionTag, SQL, number) => Promise<void>,
   getLocal: (ConnectionTag, string) => Promise<?string>,
   setLocal: (ConnectionTag, string, string) => Promise<void>,
   removeLocal: (ConnectionTag, string) => Promise<void>,
@@ -136,7 +136,14 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   async unsafeResetDatabase(): Promise<void> {
-    await Native.unsafeResetDatabase(this._tag)
+    // TODO: Temporary, remove me after Android is updated
+    if (Platform.OS === 'ios') {
+      const schemaSQL = encodeSchema(this.schema)
+      await Native.unsafeResetDatabase(this._tag, schemaSQL, this.schema.version)
+    } else {
+      // $FlowFixMe
+      await Native.unsafeResetDatabase(this._tag)
+    }
     logger.log('[DB] Database is now reset')
   }
 
