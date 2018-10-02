@@ -3,6 +3,7 @@ import Foundation
 class DatabaseDriver {
     typealias SchemaVersion = Int
     typealias Schema = (version: SchemaVersion, sql: Database.SQL)
+    typealias MigrationSet = (from: SchemaVersion, to: SchemaVersion, sql: Database.SQL)
 
     struct SchemaNeededError: Error { }
     struct MigrationNeededError: Error {
@@ -26,6 +27,11 @@ class DatabaseDriver {
     convenience init(dbName: String, setUpWithSchema schema: Schema) {
         self.init(dbName: dbName)
         setUpDatabase(schema: schema)
+    }
+
+    convenience init(dbName: String, setUpWithMigrations migrations: MigrationSet) {
+        self.init(dbName: dbName)
+        migrate(with: migrations)
     }
 
     private init(dbName: String) {
@@ -206,6 +212,19 @@ class DatabaseDriver {
         consoleLog("Setting up schema")
         try database.executeStatements(schema.sql + localStorageSchema)
         database.userVersion = schema.version
+    }
+
+    private func migrate(with migrations: MigrationSet) {
+        consoleLog("Migrating database from version \(migrations.from) to \(migrations.to)")
+        precondition(database.userVersion == migrations.from, "Incompatbile migration set applied. DB: \(database.userVersion), migration: \(migrations.from)")
+        
+        do {
+            try database.executeStatements(migrations.sql)
+            database.userVersion = migrations.to
+        } catch {
+            // TODO: Should we crash here? Is this recoverable? Is handling in JS better?
+            fatalError("Error while performing migrations: \(error)")
+        }
     }
 
     private let localStorageSchema = """
