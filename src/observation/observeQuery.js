@@ -3,8 +3,8 @@
 import type { Observable } from 'rxjs/Observable'
 import { ifElse, prop } from 'rambdax'
 
-import type Query from 'Query'
-import type Model from 'Model'
+import type Query from '../Query'
+import type Model from '../Model'
 
 import reloadingObserver from './reloadingObserver'
 import simpleObserver from './simpleObserver'

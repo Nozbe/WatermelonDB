@@ -2,10 +2,10 @@
 
 import { contains } from 'rambdax'
 
-import isDevelopment from 'utils/common/isDevelopment'
-import invariant from 'utils/common/invariant'
+import isDevelopment from '../utils/common/isDevelopment'
+import invariant from '../utils/common/invariant'
 
-import type Model from 'Model'
+import type Model from '../Model'
 
 export opaque type TableName<+T: Model>: string = string
 export opaque type ColumnName: string = string

@@ -18,22 +18,5 @@ emoji=true
 module.ignore_non_literal_requires=true
 module.file_ext=.js
 
-module.name_mapper='^adapters\/\(.*\)$' -> '<PROJECT_ROOT>/src/adapters/\1'
-module.name_mapper='^decorators$' -> '<PROJECT_ROOT>/src/decorators'
-module.name_mapper='^decorators\/\(.*\)$' -> '<PROJECT_ROOT>/src/decorators/\1'
-module.name_mapper='^observation\/\(.*\)$' -> '<PROJECT_ROOT>/src/observation/\1'
-module.name_mapper='^utils\/\(.*\)$' -> '<PROJECT_ROOT>/src/utils/\1'
-
-module.name_mapper='^Database$' -> '<PROJECT_ROOT>/src/Database'
-module.name_mapper='^Database\/\(.*\)$' -> '<PROJECT_ROOT>/src/Database/\1'
-module.name_mapper='^Collection$' -> '<PROJECT_ROOT>/src/Collection'
-module.name_mapper='^CollectionMap$' -> '<PROJECT_ROOT>/src/CollectionMap'
-module.name_mapper='^Model$' -> '<PROJECT_ROOT>/src/Model'
-module.name_mapper='^Query$' -> '<PROJECT_ROOT>/src/Query'
-module.name_mapper='^QueryDescription$' -> '<PROJECT_ROOT>/src/QueryDescription'
-module.name_mapper='^RawRecord$' -> '<PROJECT_ROOT>/src/RawRecord'
-module.name_mapper='^Relation$' -> '<PROJECT_ROOT>/src/Relation'
-module.name_mapper='^Schema$' -> '<PROJECT_ROOT>/src/Schema'
-
 [version]
 ^0.81.0

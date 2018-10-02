@@ -3,8 +3,8 @@
 import { Subject } from 'rxjs/Subject'
 import { Observable } from 'rxjs/Observable'
 import { concatMap } from 'rxjs/operators'
-import identity from 'utils/fp/identity'
-import noop from 'utils/fp/noop'
+import identity from '../../../utils/fp/identity'
+import noop from '../../../utils/fp/noop'
 
 type VoidReturn = void | Promise<void>
 type QueueWorkerCallback = any => void

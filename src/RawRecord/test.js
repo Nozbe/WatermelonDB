@@ -1,7 +1,7 @@
 import { omit } from 'rambdax'
 
-import { tableSchema } from 'Schema'
-import { setRawSanitized, sanitizedRaw } from '.'
+import { tableSchema } from '../Schema'
+import { setRawSanitized, sanitizedRaw } from './index'
 
 const stringNull = ['', null]
 const boolNull = [false, null]

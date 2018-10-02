@@ -1,6 +1,6 @@
-import { MockComment, mockDatabase } from '__tests__/testModels'
+import { MockComment, mockDatabase } from '../../__tests__/testModels'
 
-import Relation from 'Relation'
+import Relation from '../../Relation'
 
 describe('watermelondb/decorators/immutableRelation', () => {
   it('creates immutable Relation object', () => {

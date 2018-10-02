@@ -17,13 +17,13 @@ import {
 } from 'rambdax'
 
 // don't import whole `utils` to keep worker size small
-import identical from 'utils/fp/identical'
-import objOf from 'utils/fp/objOf'
-import zip from 'utils/fp/zip'
-import cond from 'utils/fp/cond'
-import invariant from 'utils/common/invariant'
+import identical from '../../../../utils/fp/identical'
+import objOf from '../../../../utils/fp/objOf'
+import zip from '../../../../utils/fp/zip'
+import cond from '../../../../utils/fp/cond'
+import invariant from '../../../../utils/common/invariant'
 
-import type { AssociationArgs, SerializedQuery } from 'Query'
+import type { AssociationArgs, SerializedQuery } from '../../../../Query'
 import type {
   Operator,
   WhereDescription,
@@ -35,9 +35,9 @@ import type {
   Comparison,
   Condition,
   CompoundValue,
-} from 'QueryDescription'
-import { type TableName, type ColumnName, columnName } from 'Schema'
-import type { AssociationInfo } from 'Model'
+} from '../../../../QueryDescription'
+import { type TableName, type ColumnName, columnName } from '../../../../Schema'
+import type { AssociationInfo } from '../../../../Model'
 
 export type LokiRawQuery = Object | typeof undefined
 type LokiOperator =

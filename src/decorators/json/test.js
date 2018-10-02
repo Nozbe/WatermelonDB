@@ -1,7 +1,7 @@
-import Model from 'Model'
+import Model from '../../Model'
 
-import { tableSchema } from 'Schema'
-import json from '.'
+import { tableSchema } from '../../Schema'
+import json from './index'
 
 const schema = tableSchema({
   name: 'mock',

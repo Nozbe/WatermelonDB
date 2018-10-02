@@ -1,9 +1,9 @@
-import Query from 'Query'
-import * as Q from 'QueryDescription'
-import { logger } from 'utils/common'
-import { CollectionChangeTypes } from 'Collection'
+import Query from '../Query'
+import * as Q from '../QueryDescription'
+import { logger } from '../utils/common'
+import { CollectionChangeTypes } from './index'
 
-import { mockDatabase, MockTask, testSchema } from '__tests__/testModels'
+import { mockDatabase, MockTask, testSchema } from '../__tests__/testModels'
 
 const mockQuery = collection => new Query(collection, [Q.where('a', 'b')])
 

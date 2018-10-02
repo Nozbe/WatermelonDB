@@ -1,4 +1,4 @@
-import { appSchema, tableSchema } from '.'
+import { appSchema, tableSchema } from './index'
 
 describe('watermelondb/Schema', () => {
   it('can prepare schema', () => {

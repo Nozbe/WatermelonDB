@@ -2,16 +2,11 @@
 
 import { map } from 'rambdax'
 
-import type Model, { RecordId } from 'Model'
-import type { TableName, AppSchema } from 'Schema'
-import type Query from 'Query'
-import type {
-  DatabaseAdapter,
-  CachedQueryResult,
-  CachedFindResult,
-  BatchOperation,
-} from 'adapters/type'
-import { devLogFind, devLogQuery, devLogCount, devLogBatch, devLogSetUp } from 'adapters/common'
+import type Model, { RecordId } from '../../Model'
+import type { TableName, AppSchema } from '../../Schema'
+import type Query from '../../Query'
+import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
+import { devLogFind, devLogQuery, devLogCount, devLogBatch, devLogSetUp } from '../common'
 
 import WorkerBridge from './WorkerBridge'
 import { actions, type LokiAdapterOptions } from './common'

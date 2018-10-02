@@ -1,11 +1,11 @@
-import { expectToRejectWithMessage } from '__tests__/utils'
-import { appSchema, tableSchema } from 'Schema'
+import { expectToRejectWithMessage } from '../../__tests__/utils'
+import { appSchema, tableSchema } from '../../Schema'
 
-import Database from 'Database'
-import Model from 'Model'
-import field from 'decorators/field'
+import Database from '../../Database'
+import Model from '../../Model'
+import field from '../field'
 
-import nochange from '.'
+import nochange from './index'
 
 class MockModel extends Model {
   static table = 'mock'

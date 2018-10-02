@@ -1,7 +1,7 @@
 // @flow
 
-import makeDecorator from 'utils/common/makeDecorator'
-import invariant from 'utils/common/invariant'
+import makeDecorator from '../../utils/common/makeDecorator'
+import invariant from '../../utils/common/invariant'
 
 // Marks a model field as immutable after create — you can set and change the value in
 // create() and prepareCreate(), but after it's saved to the database, it cannot be changed

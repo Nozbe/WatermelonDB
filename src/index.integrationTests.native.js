@@ -1,3 +1,5 @@
+/* eslint-disable import/no-extraneous-dependencies */
+
 import React from 'react'
 import { AppRegistry, Text, NativeModules } from 'react-native'
 import Tester from 'cavy/src/Tester'

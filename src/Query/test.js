@@ -1,7 +1,7 @@
-import Model from 'Model'
-import * as Q from 'QueryDescription'
+import Model from '../Model'
+import * as Q from '../QueryDescription'
 
-import Query from '.'
+import Query from './index'
 
 class MockTaskModel extends Model {
   static table = 'mock_tasks'

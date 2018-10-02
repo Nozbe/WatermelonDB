@@ -1,9 +1,9 @@
 // @flow
 
-import makeDecorator from 'utils/common/makeDecorator'
-import { type ColumnName } from 'Schema'
+import makeDecorator from '../../utils/common/makeDecorator'
+import { type ColumnName } from '../../Schema'
 
-import { ensureDecoratorUsedProperly } from 'decorators/common'
+import { ensureDecoratorUsedProperly } from '../common'
 
 // Defines a model property representing a date
 //
