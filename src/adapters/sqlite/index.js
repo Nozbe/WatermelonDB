@@ -1,4 +1,5 @@
 // @flow
+/* eslint-disable global-require */
 
 import { NativeModules, Platform } from 'react-native'
 import { connectionTag, type ConnectionTag, logger, isDevelopment } from 'utils/common'
@@ -29,7 +30,6 @@ import type { SchemaMigrations } from '../../Schema/migrations'
 import encodeQuery from './encodeQuery'
 import encodeUpdate from './encodeUpdate'
 import encodeInsert from './encodeInsert'
-import encodeSchema from './encodeSchema'
 
 export type SQL = string
 export type SQLiteArg = string | boolean | number | null
@@ -77,9 +77,8 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     this.migrations = migrationsExperimental
     isDevelopment && validateAdapter(this)
 
-    const schemaSQL = encodeSchema(schema)
     // TODO: Don't compile schema at launch, only send version, and if rejected, try again
-    devLogSetUp(() => Native.setUp(this._tag, dbName, schemaSQL, schema.version))
+    devLogSetUp(() => Native.setUp(this._tag, dbName, this._encodedSchema(), schema.version))
   }
 
   async find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {
@@ -138,8 +137,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   async unsafeResetDatabase(): Promise<void> {
     // TODO: Temporary, remove me after Android is updated
     if (Platform.OS === 'ios') {
-      const schemaSQL = encodeSchema(this.schema)
-      await Native.unsafeResetDatabase(this._tag, schemaSQL, this.schema.version)
+      await Native.unsafeResetDatabase(this._tag, this._encodedSchema(), this.schema.version)
     } else {
       // $FlowFixMe
       await Native.unsafeResetDatabase(this._tag)
@@ -161,5 +159,10 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
   unsafeClearCachedRecords(): Promise<void> {
     return Native.unsafeClearCachedRecords(this._tag)
+  }
+
+  _encodedSchema(): SQL {
+    const encodeSchema = require('./encodeSchema').default
+    return encodeSchema(this.schema)
   }
 }
