@@ -77,8 +77,16 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     this.migrations = migrationsExperimental
     isDevelopment && validateAdapter(this)
 
-    // TODO: Don't compile schema at launch, only send version, and if rejected, try again
-    devLogSetUp(() => Native.setUp(this._tag, dbName, this._encodedSchema(), schema.version))
+    devLogSetUp(() => this._init(dbName))
+  }
+
+  async _init(dbName: string): Promise<void> {
+    // TODO: Temporary, remove me after Android is updated
+    if (Platform.OS === 'ios') {
+      Native.setUp(this._tag, dbName, this._encodedSchema(), this.schema.version)
+    } else {
+      Native.setUp(this._tag, dbName, this._encodedSchema(), this.schema.version)
+    }
   }
 
   async find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {

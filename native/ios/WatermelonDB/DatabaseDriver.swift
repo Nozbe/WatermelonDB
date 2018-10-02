@@ -186,7 +186,8 @@ class DatabaseDriver {
             return .NeedsMigration(fromVersion: databaseVersion)
         } else {
             // TODO: Safe to assume this would only happen in dev and we can safely reset the database?
-            consoleLog("Seems like the database has newer version (\(databaseVersion)) than what the app supports (\(schemaVersion)). Will reset database.")
+            consoleLog("Database has newer version (\(databaseVersion)) than what the " +
+                "app supports (\(schemaVersion)). Will reset database.")
             return .NeedsSetup
         }
     }
@@ -216,7 +217,10 @@ class DatabaseDriver {
 
     private func migrate(with migrations: MigrationSet) {
         consoleLog("Migrating database from version \(migrations.from) to \(migrations.to)")
-        precondition(database.userVersion == migrations.from, "Incompatbile migration set applied. DB: \(database.userVersion), migration: \(migrations.from)")
+        precondition(
+            database.userVersion == migrations.from,
+            "Incompatbile migration set applied. DB: \(database.userVersion), migration: \(migrations.from)"
+        )
 
         do {
             try database.executeStatements(migrations.sql)

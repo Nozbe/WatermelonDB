@@ -28,7 +28,8 @@ final public class DatabaseBridge: NSObject {
         } catch _ as DatabaseDriver.SchemaNeededError {
             consoleLog("Schema needed!")
 
-            let driver = DatabaseDriver(dbName: databaseName, setUpWithSchema: (version: schemaVersion.intValue, sql: schema))
+            let driver = DatabaseDriver(dbName: databaseName,
+                                        setUpWithSchema: (version: schemaVersion.intValue, sql: schema))
             connections[tag.intValue] = .connected(driver: driver)
             resolve(true)
             // TODO: send to js
@@ -36,7 +37,8 @@ final public class DatabaseBridge: NSObject {
             // TODO: migrations
             let databaseVersion = error.databaseVersion
             consoleLog("Migrations needed! from: \(databaseVersion)")
-            let driver = DatabaseDriver(dbName: databaseName, setUpWithSchema: (version: schemaVersion.intValue, sql: schema))
+            let driver = DatabaseDriver(dbName: databaseName,
+                                        setUpWithSchema: (version: schemaVersion.intValue, sql: schema))
             connections[tag.intValue] = .connected(driver: driver)
             resolve(true)
         } catch {
@@ -149,8 +151,8 @@ final public class DatabaseBridge: NSObject {
     func unsafeResetDatabase(tag: ConnectionTag,
                              schema: Database.SQL,
                              schemaVersion: NSNumber,
-                               resolve: @escaping RCTPromiseResolveBlock,
-                               reject: @escaping RCTPromiseRejectBlock) {
+                             resolve: @escaping RCTPromiseResolveBlock,
+                             reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
             try $0.unsafeResetDatabase(schema: (version: schemaVersion.intValue, sql: schema))
         }
@@ -158,7 +160,7 @@ final public class DatabaseBridge: NSObject {
 
     @objc(getLocal:key:resolve:reject:)
     func getLocal(tag: ConnectionTag, key: String,
-                   resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+                  resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
             try $0.getLocal(key: key) as Any
         }
@@ -207,6 +209,7 @@ final public class DatabaseBridge: NSObject {
                 let result = try action(driver)
                 resolve(result)
             case .waiting(var queue):
+                consoleLog("Operation for driver \(tagID) enquueed")
                 // try again when driver is ready
                 queue.append {
                     self.withDriver(connectionTag, resolve, reject, functionName: functionName, action: action)
