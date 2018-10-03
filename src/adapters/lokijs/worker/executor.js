@@ -5,12 +5,12 @@ import { prop, forEach, values } from 'rambdax'
 import { logger } from '../../../utils/common'
 
 import type { CachedQueryResult, CachedFindResult } from '../../type'
-import type { TableName, AppSchema } from '../../../Schema'
+import type { TableName, AppSchema, SchemaVersion } from '../../../Schema'
+import { type SchemaMigrations } from '../../../Schema/migrations'
 import type { SerializedQuery } from '../../../Query'
 import type { RecordId } from '../../../Model'
 import { type RawRecord, sanitizedRaw, type DirtyRaw } from '../../../RawRecord'
 
-import { type SchemaMigrations } from '../../../Schema/migrations'
 import { newLoki, loadDatabase, deleteDatabase } from './lokiExtensions'
 import executeQuery from './executeQuery'
 import type { WorkerBatchOperation } from '../common'
@@ -224,15 +224,21 @@ export default class LokiExecutor {
     logger.log('[DB][Worker] Database collections set up')
   }
 
-  get _requiresMigration(): boolean {
+  get _databaseVersion(): SchemaVersion {
     const databaseVersionRaw = this.getLocal(SCHEMA_VERSION_KEY) || ''
-    const databaseVersion = parseInt(databaseVersionRaw, 10) || 0
-
-    return databaseVersion !== this.schema.version
+    return parseInt(databaseVersionRaw, 10) || 0
   }
 
   async _migrateIfNeeded(): Promise<void> {
-    if (this._requiresMigration) {
+    const dbVersion = this._databaseVersion
+    const schemaVersion = this.schema.version
+
+    if (dbVersion === schemaVersion) {
+      // All good!
+    } else if (dbVersion === 0) {
+      logger.log('[DB][Worker] Empty database, setting up')
+      await this.unsafeResetDatabase()
+    } else if (dbVersion > 0 && dbVersion < schemaVersion) {
       logger.log('[DB][Worker] Database has old schema version. Migration is required.')
 
       if (this.migrations) {
@@ -243,6 +249,9 @@ export default class LokiExecutor {
         logger.warn('[DB][Worker] No migrations available, resetting database')
         await this.unsafeResetDatabase()
       }
+    } else {
+      logger.warn('[DB][Worker] Database has newer version than app schema. Resetting database.')
+      await this.unsafeResetDatabase()
     }
   }
 
