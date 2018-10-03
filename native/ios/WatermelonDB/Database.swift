@@ -29,6 +29,13 @@ class Database {
         }
     }
 
+    init(db: FMDatabase) {
+        fmdb = db
+        guard fmdb.open() else {
+            fatalError("Failed to open the database. \(fmdb.lastErrorMessage())")
+        }
+    }
+
     func inTransaction(_ executeBlock: () throws -> Void) throws {
         guard fmdb.beginTransaction() else { throw fmdb.lastError() }
 
