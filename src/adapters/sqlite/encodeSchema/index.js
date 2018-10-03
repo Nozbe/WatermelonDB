@@ -62,6 +62,6 @@ export const encodeMigrationSteps: (MigrationStep[]) => SQL = steps =>
         return encodeAddColumnsMigrationStep(step)
       }
 
-      return ''
+      throw new Error(`Unsupported migration step ${step.type}`)
     })
     .join('')
