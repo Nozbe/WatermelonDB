@@ -18,7 +18,7 @@ type AddColumnsMigrationStep = $Exact<{
   +columns: ColumnSchema[],
 }>
 
-type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep
+export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep
 
 type Migration = $Exact<{
   +from: SchemaVersion,
