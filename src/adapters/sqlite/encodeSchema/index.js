@@ -23,14 +23,14 @@ const encodeCreateTable: TableSchema => SQL = ({ name, columns }) => {
 const encodeIndex: (ColumnSchema, TableName<any>) => SQL = (column, tableName) =>
   `create index ${tableName}_${column.name} on ${encodeName(tableName)} (${encodeName(
     column.name,
-  )})`
+  )});`
 
 const encodeTableIndicies: TableSchema => SQL = ({ name: tableName, columns }) =>
   values(columns)
     .filter(column => column.isIndexed)
     .map(column => encodeIndex(column, tableName))
-    .concat([`create index ${tableName}__status on ${encodeName(tableName)} ("_status")`])
-    .join(';')
+    .concat([`create index ${tableName}__status on ${encodeName(tableName)} ("_status");`])
+    .join('')
 
 const encodeTable: TableSchema => SQL = table =>
   encodeCreateTable(table) + encodeTableIndicies(table)
@@ -38,11 +38,30 @@ const encodeTable: TableSchema => SQL = table =>
 export const encodeSchema: AppSchema => SQL = ({ tables }) =>
   values(tables)
     .map(encodeTable)
-    .concat([''])
-    .join(';')
+    .join('')
 
-//     +// TODO: Default values, indexes
-// +const encodeCreateColumn: (ColumnSchema, TableName<any>) => SQL = (column, tableName) =>
-// +  `alter table ${encodeName(tableName)} add ${encodeName(column.name)}`
+const encodeCreateTableMigrationStep: CreateTableMigrationStep => SQL = ({ name, columns }) =>
+  encodeTable({ name, columns })
 
-export const encodeMigrationSteps: (MigrationStep[]) => SQL = steps => ''
+const encodeAddColumnsMigrationStep: AddColumnsMigrationStep => SQL = ({ table, columns }) =>
+  columns
+    .map(
+      column =>
+        `alter table ${encodeName(table)} add ${encodeName(column.name)};${
+          column.isIndexed ? encodeIndex(column, table) : ''
+        }`,
+    )
+    .join('')
+
+export const encodeMigrationSteps: (MigrationStep[]) => SQL = steps =>
+  steps
+    .map(step => {
+      if (step.type === 'create_table') {
+        return encodeCreateTableMigrationStep(step)
+      } else if (step.type === 'add_columns') {
+        return encodeAddColumnsMigrationStep(step)
+      }
+
+      return ''
+    })
+    .join('')

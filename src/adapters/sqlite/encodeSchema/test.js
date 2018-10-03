@@ -31,20 +31,13 @@ describe('encodeSchema', () => {
       'create table "comments" ("id" primary key, "_changed", "_status", "last_modified", "is_ended", "reactions");' +
       'create index comments__status on "comments" ("_status");'
 
-    expect(encodeSchema(testSchema)).toEqual(expectedSchema)
+    expect(encodeSchema(testSchema)).toBe(expectedSchema)
   })
   it('encodes migrations', () => {
     const migrationSteps = [
       addColumns({
         table: 'posts',
-        columns: [
-          { name: 'subtitle', type: 'string', isOptional: true },
-          { name: 'is_pinned', type: 'bool' },
-        ],
-      }),
-      addColumns({
-        table: 'posts',
-        columns: [{ name: 'author_id', type: 'string', isIndexed: true }],
+        columns: [{ name: 'subtitle', type: 'string', isOptional: true }],
       }),
       createTable({
         name: 'comments',
@@ -53,8 +46,25 @@ describe('encodeSchema', () => {
           { name: 'body', type: 'string' },
         ],
       }),
+      addColumns({
+        table: 'posts',
+        columns: [
+          { name: 'author_id', type: 'string', isIndexed: true },
+          { name: 'is_pinned', type: 'bool', isIndexed: true },
+        ],
+      }),
     ]
 
-    expect(encodeMigrationSteps(migrationSteps)).toEqual('blabla')
+    const expectedSQL =
+      'alter table "posts" add "subtitle";' +
+      'create table "comments" ("id" primary key, "_changed", "_status", "last_modified", "post_id", "body");' +
+      'create index comments_post_id on "comments" ("post_id");' +
+      'create index comments__status on "comments" ("_status");' +
+      'alter table "posts" add "author_id";' +
+      'create index posts_author_id on "posts" ("author_id");' +
+      'alter table "posts" add "is_pinned";' +
+      'create index posts_is_pinned on "posts" ("is_pinned");'
+
+    expect(encodeMigrationSteps(migrationSteps)).toBe(expectedSQL)
   })
 })
