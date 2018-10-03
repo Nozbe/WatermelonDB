@@ -2,10 +2,26 @@
 
 @interface RCT_EXTERN_MODULE(DatabaseBridge, NSObject)
 
-RCT_EXTERN_METHOD(setUp:(nonnull NSNumber *)connectionTag
+RCT_EXTERN_METHOD(initialize:(nonnull NSNumber *)connectionTag
+  databaseName:(nonnull NSString *)name
+  schemaVersion:(nonnull NSNumber *)version
+  resolve:(RCTPromiseResolveBlock)resolve
+  reject:(RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(setUpWithSchema:(nonnull NSNumber *)connectionTag
   databaseName:(nonnull NSString *)name
   schema:(nonnull NSString *)schema
   schemaVersion:(nonnull NSNumber *)version
+  resolve:(RCTPromiseResolveBlock)resolve
+  reject:(RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(setUpWithMigrations:(nonnull NSNumber *)connectionTag
+  databaseName:(nonnull NSString *)name
+  migrations:(nonnull NSString *)migrationSQL
+  fromVersion:(nonnull NSNumber *)version
+  toVersion:(nonnull NSNumber *)version
   resolve:(RCTPromiseResolveBlock)resolve
   reject:(RCTPromiseRejectBlock)reject
 )

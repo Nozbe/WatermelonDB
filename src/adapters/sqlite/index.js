@@ -2,11 +2,17 @@
 /* eslint-disable global-require */
 
 import { NativeModules, Platform } from 'react-native'
-import { connectionTag, type ConnectionTag, logger, isDevelopment } from '../../utils/common'
+import {
+  connectionTag,
+  type ConnectionTag,
+  logger,
+  isDevelopment,
+  invariant,
+} from '../../utils/common'
 
 import type Model, { RecordId } from '../../Model'
 import type Query from '../../Query'
-import type { TableName, AppSchema } from '../../Schema'
+import type { TableName, AppSchema, SchemaVersion } from '../../Schema'
 import type { SchemaMigrations } from '../../Schema/migrations'
 import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
 import {
@@ -38,15 +44,22 @@ type NativeBridgeBatchOperation =
 // | ['setLocal', string, string]
 // | ['removeLocal', string]
 
+type InitializeStatus =
+  | { code: 'ok' | 'schema_needed' }
+  | { code: 'migrations_needed', databaseVersion: SchemaVersion }
+
 type NativeBridgeType = {
-  setUp: (ConnectionTag, string, SQL, number) => Promise<void>,
+  setUp: (ConnectionTag, string, SQL, SchemaVersion) => Promise<void>, // TODO: Remove me
+  initialize: (ConnectionTag, string, SchemaVersion) => Promise<InitializeStatus>,
+  setUpWithSchema: (ConnectionTag, string, SQL, SchemaVersion) => Promise<void>,
+  setUpWithMigrations: (ConnectionTag, string, SQL, SchemaVersion, SchemaVersion) => Promise<void>,
   find: (ConnectionTag, TableName<any>, RecordId) => Promise<DirtyFindResult>,
   query: (ConnectionTag, SQL) => Promise<DirtyQueryResult>,
   count: (ConnectionTag, SQL) => Promise<number>,
   batch: (ConnectionTag, NativeBridgeBatchOperation[]) => Promise<void>,
   getDeletedRecords: (ConnectionTag, TableName<any>) => Promise<RecordId[]>,
   destroyDeletedRecords: (ConnectionTag, TableName<any>, RecordId[]) => Promise<void>,
-  unsafeResetDatabase: (ConnectionTag, SQL, number) => Promise<void>,
+  unsafeResetDatabase: (ConnectionTag, SQL, SchemaVersion) => Promise<void>,
   getLocal: (ConnectionTag, string) => Promise<?string>,
   setLocal: (ConnectionTag, string, string) => Promise<void>,
   removeLocal: (ConnectionTag, string) => Promise<void>,
@@ -78,9 +91,26 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   async _init(dbName: string): Promise<void> {
     // TODO: Temporary, remove me after Android is updated
     if (Platform.OS === 'ios') {
-      Native.setUp(this._tag, dbName, this._encodedSchema(), this.schema.version)
+      // Try to initialize the database with just the schema number. If it matches the database,
+      // we're good. If not, we try again, this time sending the compiled schema or a migration set
+      // This is to speed up the launch (less to do and pass through bridge), and avoid repeating
+      // migration logic inside native code
+      const status = await Native.initialize(this._tag, dbName, this.schema.version)
+
+      if (status.code === 'schema_needed') {
+        logger.log('[DB] Database needs setup. Setting up schema.')
+        await Native.setUpWithSchema(this._tag, dbName, this._encodedSchema(), this.schema.version)
+      } else if (status.code === 'migrations_needed') {
+        logger.log('[DB] Database needs migrations')
+        const { databaseVersion } = status
+        invariant(databaseVersion > 0, 'Invalid database schema version')
+        // TODO: Apply migrations
+        await Native.setUpWithSchema(this._tag, dbName, this._encodedSchema(), this.schema.version)
+      } else {
+        invariant(status.code === 'ok', 'Invalid database initialization status')
+      }
     } else {
-      Native.setUp(this._tag, dbName, this._encodedSchema(), this.schema.version)
+      await Native.setUp(this._tag, dbName, this._encodedSchema(), this.schema.version)
     }
   }
 

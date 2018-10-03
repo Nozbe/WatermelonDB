@@ -9,42 +9,67 @@ final public class DatabaseBridge: NSObject {
     private enum Connection {
         case connected(driver: DatabaseDriver)
         case waiting(queue: [() -> Void])
+
+        var queue: [() -> Void] {
+            switch self {
+            case .connected(driver: _): return []
+            case .waiting(queue: let queue): return queue
+            }
+        }
     }
     private var connections: [Int: Connection] = [:]
 
-    @objc(setUp:databaseName:schema:schemaVersion:resolve:reject:)
-    func setUp(tag: ConnectionTag,
-               databaseName: String,
-               schema: Database.SQL,
-               schemaVersion: NSNumber,
-               resolve: RCTPromiseResolveBlock,
-               reject: RCTPromiseRejectBlock) {
+    @objc(initialize:databaseName:schemaVersion:resolve:reject:)
+    func initialize(tag: ConnectionTag,
+                    databaseName: String,
+                    schemaVersion: NSNumber,
+                    resolve: RCTPromiseResolveBlock,
+                    reject: RCTPromiseRejectBlock) {
         assert(connections[tag.intValue] == nil, "A driver with tag \(tag) already set up")
 
         do {
             let driver = try DatabaseDriver(dbName: databaseName, schemaVersion: schemaVersion.intValue)
             connections[tag.intValue] = .connected(driver: driver)
-            resolve(true)
+            resolve(["code": "ok"])
         } catch _ as DatabaseDriver.SchemaNeededError {
-            consoleLog("Schema needed!")
-
-            let driver = DatabaseDriver(dbName: databaseName,
-                                        setUpWithSchema: (version: schemaVersion.intValue, sql: schema))
-            connections[tag.intValue] = .connected(driver: driver)
-            resolve(true)
-            // TODO: send to js
+            connections[tag.intValue] = .waiting(queue: [])
+            resolve(["code": "schema_needed"])
         } catch let error as DatabaseDriver.MigrationNeededError {
-            // TODO: migrations
-            let databaseVersion = error.databaseVersion
-            consoleLog("Migrations needed! from: \(databaseVersion)")
-            let driver = DatabaseDriver(dbName: databaseName,
-                                        setUpWithSchema: (version: schemaVersion.intValue, sql: schema))
-            connections[tag.intValue] = .connected(driver: driver)
-            resolve(true)
+            connections[tag.intValue] = .waiting(queue: [])
+            resolve(["code": "migrations_needed", "databaseVersion": error.databaseVersion])
         } catch {
             assertionFailure("Unknown error thrown in DatabaseDriver.init")
             sendReject(reject, error)
         }
+    }
+
+    @objc(setUpWithSchema:databaseName:schema:schemaVersion:resolve:reject:)
+    func setUpWithSchema(tag: ConnectionTag,
+                         databaseName: String,
+                         schema: Database.SQL,
+                         schemaVersion: NSNumber,
+                         resolve: RCTPromiseResolveBlock,
+                         reject: RCTPromiseRejectBlock) {
+        let driver = DatabaseDriver(dbName: databaseName,
+                                    setUpWithSchema: (version: schemaVersion.intValue, sql: schema))
+        connectDriver(connectionTag: tag, driver: driver)
+        resolve(true)
+    }
+
+    @objc(setUpWithMigrations:databaseName:migrations:fromVersion:toVersion:resolve:reject:)
+    func setUpWithMigrations(tag: ConnectionTag,
+                             databaseName: String,
+                             migrations: Database.SQL,
+                             fromVersion: NSNumber,
+                             toVersion: NSNumber,
+                             resolve: RCTPromiseResolveBlock,
+                             reject: RCTPromiseRejectBlock) {
+        let driver = DatabaseDriver(
+            dbName: databaseName,
+            setUpWithMigrations: (from: fromVersion.intValue, to: toVersion.intValue, sql: migrations)
+        )
+        connectDriver(connectionTag: tag, driver: driver)
+        resolve(true)
     }
 
     @objc(find:table:id:resolve:reject:)
@@ -218,6 +243,16 @@ final public class DatabaseBridge: NSObject {
             }
         } catch {
             sendReject(reject, error, functionName: functionName)
+        }
+    }
+
+    private func connectDriver(connectionTag: ConnectionTag, driver: DatabaseDriver) {
+        let tagID = connectionTag.intValue
+        let queue = connections[tagID]?.queue ?? []
+        connections[tagID] = .connected(driver: driver)
+
+        for operation in queue {
+            operation()
         }
     }
 
