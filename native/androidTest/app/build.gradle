@@ -68,7 +68,8 @@ import com.android.build.OutputFile
 
 project.ext.react = [
         entryFile: "src/index.integrationTests.native.js",
-        cliPath  : "../node_modules/react-native/local-cli/cli.js"
+        cliPath  : "../node_modules/react-native/local-cli/cli.js",
+        bundleInDebug: true,
 ]
 
 apply from: "../../../node_modules/react-native/react.gradle"
@@ -89,7 +90,7 @@ def enableSeparateBuildPerCPUArchitecture = false
 def enableProguardInReleaseBuilds = false
 
 android {
-    testBuildType "release"
+    testBuildType "debug"
 
     compileSdkVersion rootProject.compileSdkVersion
     buildToolsVersion rootProject.buildToolsVersion
