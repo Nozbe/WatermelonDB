@@ -6,13 +6,13 @@ import { tableSchema, validateColumnSchema } from '../index'
 import { isDevelopment, invariant } from '../../utils/common'
 import { isObject } from '../../utils/fp'
 
-type CreateTableMigrationStep = $Exact<{
+export type CreateTableMigrationStep = $Exact<{
   +type: 'create_table',
   +name: TableName<any>,
   +columns: ColumnMap,
 }>
 
-type AddColumnsMigrationStep = $Exact<{
+export type AddColumnsMigrationStep = $Exact<{
   +type: 'add_columns',
   +table: TableName<any>,
   +columns: ColumnSchema[],

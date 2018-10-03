@@ -195,7 +195,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   _encodedSchema(): SQL {
-    const encodeSchema = require('./encodeSchema').default
+    const { encodeSchema } = require('./encodeSchema')
     return encodeSchema(this.schema)
   }
 }
