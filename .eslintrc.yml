@@ -91,6 +91,7 @@ rules:
     - always
     - excludeArrowFunctions: true
       annotateUndefined: always
+  import/prefer-default-export: 0
   import/named: 0 # doesn't seem to work with Flow
   import/no-extraneous-dependencies: 0
 
