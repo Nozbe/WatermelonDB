@@ -125,10 +125,4 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   removeLocal(key: string): Promise<void> {
     return this.workerBridge.send(REMOVE_LOCAL, [key])
   }
-
-  async unsafeClearCachedRecords(): Promise<void> {
-    if (process.env.NODE_ENV === 'test') {
-      await this.workerBridge.send(UNSAFE_CLEAR_CACHED_RECORDS, [])
-    }
-  }
 }

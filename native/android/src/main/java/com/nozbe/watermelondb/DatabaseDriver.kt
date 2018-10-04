@@ -76,10 +76,6 @@ class DatabaseDriver(context: Context, private val configuration: Configuration)
         return resultArray
     }
 
-    fun unsafeClearCachedRecords() {
-        cachedRecords = arrayListOf()
-    }
-
     fun destroyDeletedRecords(table: TableName, records: QueryArgs) =
             database.delete(Queries.multipleDeleteFromTable(table, records), records)
 

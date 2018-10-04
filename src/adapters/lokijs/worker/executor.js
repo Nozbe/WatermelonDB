@@ -187,12 +187,6 @@ export default class LokiExecutor {
     }
   }
 
-  unsafeClearCachedRecords(): void {
-    if (process.env.NODE_ENV === 'test') {
-      this.cachedRecords.clear()
-    }
-  }
-
   // *** Internals ***
 
   async _openDatabase(adapter?: LokiMemoryAdapter): Promise<void> {

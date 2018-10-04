@@ -210,14 +210,6 @@ final public class DatabaseBridge: NSObject {
         }
     }
 
-    @objc(unsafeClearCachedRecords:resolve:reject:)
-    func unsafeClearCachedRecords(tag: ConnectionTag,
-                                  resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            $0.unsafeClearCachedRecords()
-        }
-    }
-
     private func withDriver(_ connectionTag: ConnectionTag,
                             _ resolve: @escaping RCTPromiseResolveBlock,
                             _ reject: @escaping RCTPromiseRejectBlock,

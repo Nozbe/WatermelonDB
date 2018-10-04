@@ -167,12 +167,6 @@ class DatabaseDriver {
         cachedRecords.insert(id)
     }
 
-    func unsafeClearCachedRecords() {
-        if isTestRunning {
-            cachedRecords = []
-        }
-    }
-
 // MARK: - Other private details
 
     private enum SchemaCompatibility {

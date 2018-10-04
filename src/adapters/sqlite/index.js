@@ -63,7 +63,6 @@ type NativeBridgeType = {
   getLocal: (ConnectionTag, string) => Promise<?string>,
   setLocal: (ConnectionTag, string, string) => Promise<void>,
   removeLocal: (ConnectionTag, string) => Promise<void>,
-  unsafeClearCachedRecords: ConnectionTag => Promise<void>,
 }
 const Native: NativeBridgeType = NativeModules.DatabaseBridge
 
@@ -234,10 +233,6 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
   removeLocal(key: string): Promise<void> {
     return Native.removeLocal(this._tag, key)
-  }
-
-  unsafeClearCachedRecords(): Promise<void> {
-    return Native.unsafeClearCachedRecords(this._tag)
   }
 
   _encodedSchema(): SQL {

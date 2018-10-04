@@ -90,9 +90,4 @@ RCT_EXTERN_METHOD(removeLocal:(nonnull NSNumber *)connectionTag
   reject:(RCTPromiseRejectBlock)reject
 )
 
-RCT_EXTERN_METHOD(unsafeClearCachedRecords:(nonnull NSNumber *)connectionTag
-  resolve:(RCTPromiseResolveBlock)resolve
-  reject:(RCTPromiseRejectBlock)reject
-)
-
 @end
