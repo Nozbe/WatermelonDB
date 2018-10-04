@@ -35,7 +35,13 @@ class DatabaseDriver {
     }
 
     private init(dbName: String) {
-        self.database = Database(isTestRunning ? nil : "\(dbName).db")
+        let path = try! FileManager.default
+            .url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+            .appendingPathComponent("\(dbName).db")
+            .path
+
+        // In test env, pass name of memory db
+        self.database = Database(path: isTestRunning ? dbName : path)
     }
 
     func find(table: Database.TableName, id: RecordId) throws -> Any? {

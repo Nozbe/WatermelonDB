@@ -29,7 +29,7 @@ export default () => [
     (_adapter, AdapterClass) => async () => {
       const schema = { ...testSchema, version: 10 }
 
-      const makeAdapter = options => new AdapterClass({ dbName: 'test', schema, ...options })
+      const makeAdapter = options => new AdapterClass({ isTest: true, schema, ...options })
       const adapterWithMigrations = migrations =>
         makeAdapter({ migrationsExperimental: migrations })
 

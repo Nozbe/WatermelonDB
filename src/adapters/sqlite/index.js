@@ -68,7 +68,8 @@ type NativeBridgeType = {
 const Native: NativeBridgeType = NativeModules.DatabaseBridge
 
 export type SQLiteAdapterOptions = $Exact<{
-  dbName: string,
+  dbName?: string,
+  isTest?: boolean,
   schema: AppSchema,
   migrationsExperimental?: SchemaMigrations,
 }>
@@ -80,26 +81,48 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
   _tag: ConnectionTag = connectionTag()
 
-  constructor({ dbName, schema, migrationsExperimental }: SQLiteAdapterOptions): void {
+  _dbName: string
+
+  constructor({ dbName, schema, migrationsExperimental, isTest }: SQLiteAdapterOptions): void {
     this.schema = schema
     this.migrations = migrationsExperimental
+    this._dbName = this._getName(dbName, !!isTest)
     isDevelopment && validateAdapter(this)
 
-    devLogSetUp(() => this._init(dbName))
+    devLogSetUp(() => this._init())
   }
 
-  async _init(dbName: string): Promise<void> {
+  // Allows tests to create a new adapter connecting to the same data as the old one, simulating an
+  // app relaunching - for testing caching, setup, migrations
+  static testReopenDatabase(adapter: SQLiteAdapter, options: SQLiteAdapterOptions): SQLiteAdapter {
+    return new SQLiteAdapter({
+      ...options,
+      dbName: adapter._dbName,
+      isTest: true,
+    })
+  }
+
+  _getName(name: ?string, isTest: boolean): string {
+    if (name) {
+      return name
+    } else if (isTest) {
+      return `file:testdb${this._tag}?mode=memory&cache=shared`
+    }
+    return 'watermelon'
+  }
+
+  async _init(): Promise<void> {
     // TODO: Temporary, remove me after Android is updated
     if (Platform.OS === 'ios') {
       // Try to initialize the database with just the schema number. If it matches the database,
       // we're good. If not, we try again, this time sending the compiled schema or a migration set
       // This is to speed up the launch (less to do and pass through bridge), and avoid repeating
       // migration logic inside native code
-      const status = await Native.initialize(this._tag, dbName, this.schema.version)
+      const status = await Native.initialize(this._tag, this._dbName, this.schema.version)
 
       if (status.code === 'schema_needed') {
         logger.log('[DB] Database needs setup. Setting up schema.')
-        await this._setUpWithSchema(dbName)
+        await this._setUpWithSchema()
       } else if (status.code === 'migrations_needed') {
         logger.log('[DB] Database needs migrations')
         const { databaseVersion } = status
@@ -109,7 +132,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
           const migrationSQL = this._encodedMigrations(this.migrations, databaseVersion)
           await Native.setUpWithMigrations(
             this._tag,
-            dbName,
+            this._dbName,
             migrationSQL,
             databaseVersion,
             this.schema.version,
@@ -118,18 +141,23 @@ export default class SQLiteAdapter implements DatabaseAdapter {
         } else {
           // TODO: Temporary, remove this branch later
           logger.warn('[DB] Migrations not available. Resetting database instead')
-          await this._setUpWithSchema(dbName)
+          await this._setUpWithSchema()
         }
       } else {
         invariant(status.code === 'ok', 'Invalid database initialization status')
       }
     } else {
-      await Native.setUp(this._tag, dbName, this._encodedSchema(), this.schema.version)
+      await Native.setUp(this._tag, this._dbName, this._encodedSchema(), this.schema.version)
     }
   }
 
-  async _setUpWithSchema(dbName: string): Promise<void> {
-    return Native.setUpWithSchema(this._tag, dbName, this._encodedSchema(), this.schema.version)
+  async _setUpWithSchema(): Promise<void> {
+    return Native.setUpWithSchema(
+      this._tag,
+      this._dbName,
+      this._encodedSchema(),
+      this.schema.version,
+    )
   }
 
   async find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {

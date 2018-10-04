@@ -2,7 +2,7 @@ import SQLiteAdapter from './index'
 import { testSchema } from '../__tests__/helpers'
 import commonTests from '../__tests__/commonTests'
 
-const newAdapter = () => new SQLiteAdapter({ dbName: 'test', schema: testSchema })
+const newAdapter = () => new SQLiteAdapter({ isTest: true, schema: testSchema })
 
 const SQLiteAdapterTest = spec => {
   spec.describe('watermelondb/adapters/sqlite', () => {

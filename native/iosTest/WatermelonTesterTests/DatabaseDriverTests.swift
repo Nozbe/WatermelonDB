@@ -26,7 +26,7 @@ let testSchema = """
     """
 
 func newDatabase() -> DatabaseDriver {
-    return DatabaseDriver(dbName: "test", setUpWithSchema: (version: 1, sql: testSchema))
+    return DatabaseDriver(dbName: ":memory:", setUpWithSchema: (version: 1, sql: testSchema))
 }
 
 class DatabaseDriverTests: XCTestCase {
@@ -35,7 +35,7 @@ class DatabaseDriverTests: XCTestCase {
         expect(try! db.database.count("select count(*) as count from sqlite_master")) > 0
 
         // TODO: remove me
-        let db1 = Database(db: FMDatabase(path: "file:memdb1?mode=memory&cache=shared"))
+        let db1 = Database(path: "file:memdb1?mode=memory&cache=shared")
 
         try! db1.execute("create table tests (a)", [])
         expect(try! db1.count("select count(*) as count from tests")) == 0
@@ -43,7 +43,7 @@ class DatabaseDriverTests: XCTestCase {
         try! db1.execute("insert into tests (a) values (10)")
         expect(try! db1.count("select count(*) as count from tests")) == 1
 
-        let db2 = Database(db: FMDatabase(path: "file:memdb1?mode=memory&cache=shared"))
+        let db2 = Database(path: "file:memdb1?mode=memory&cache=shared")
         expect(try! db2.count("select count(*) as count from tests")) == 1
     }
 
