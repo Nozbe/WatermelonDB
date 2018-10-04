@@ -33,18 +33,6 @@ class DatabaseDriverTests: XCTestCase {
     func testSetUp() {
         let db = newDatabase()
         expect(try! db.database.count("select count(*) as count from sqlite_master")) > 0
-
-        // TODO: remove me
-        let db1 = Database(path: "file:memdb1?mode=memory&cache=shared")
-
-        try! db1.execute("create table tests (a)", [])
-        expect(try! db1.count("select count(*) as count from tests")) == 0
-
-        try! db1.execute("insert into tests (a) values (10)")
-        expect(try! db1.count("select count(*) as count from tests")) == 1
-
-        let db2 = Database(path: "file:memdb1?mode=memory&cache=shared")
-        expect(try! db2.count("select count(*) as count from tests")) == 1
     }
 
     func testExecuteBatch() {
