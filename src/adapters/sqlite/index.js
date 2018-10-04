@@ -68,7 +68,6 @@ const Native: NativeBridgeType = NativeModules.DatabaseBridge
 
 export type SQLiteAdapterOptions = $Exact<{
   dbName?: string,
-  isTest?: boolean,
   schema: AppSchema,
   migrationsExperimental?: SchemaMigrations,
 }>
@@ -82,10 +81,10 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
   _dbName: string
 
-  constructor({ dbName, schema, migrationsExperimental, isTest }: SQLiteAdapterOptions): void {
+  constructor({ dbName, schema, migrationsExperimental }: SQLiteAdapterOptions): void {
     this.schema = schema
     this.migrations = migrationsExperimental
-    this._dbName = this._getName(dbName, !!isTest)
+    this._dbName = this._getName(dbName)
     isDevelopment && validateAdapter(this)
 
     devLogSetUp(() => this._init())
@@ -94,20 +93,18 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   testClone(options?: $Shape<SQLiteAdapterOptions> = {}): SQLiteAdapter {
     return new SQLiteAdapter({
       dbName: this._dbName,
-      isTest: true,
       schema: this.schema,
       ...(this.migrations ? { migrationsExperimental: this.migrations } : {}),
       ...options,
     })
   }
 
-  _getName(name: ?string, isTest: boolean): string {
-    if (name) {
-      return name
-    } else if (isTest) {
-      return `file:testdb${this._tag}?mode=memory&cache=shared`
+  _getName(name: ?string): string {
+    if (process.env.NODE_ENV === 'test') {
+      return name || `file:testdb${this._tag}?mode=memory&cache=shared`
     }
-    return 'watermelon'
+
+    return name || 'watermelon'
   }
 
   async _init(): Promise<void> {
