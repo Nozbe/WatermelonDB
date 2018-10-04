@@ -1,6 +1,6 @@
 // @flow
 
-import Loki, { LokiCollection } from 'lokijs'
+import Loki, { LokiCollection, type LokiMemoryAdapter } from 'lokijs'
 import { prop, forEach, values } from 'rambdax'
 import { logger } from '../../../utils/common'
 
@@ -23,13 +23,14 @@ import type { WorkerBatchOperation } from '../common'
 const SCHEMA_VERSION_KEY = '_loki_schema_version'
 
 type LokiExecutorOptions = $Exact<{
-  dbName: string,
+  dbName: ?string,
   schema: AppSchema,
   migrations: ?SchemaMigrations, // TODO: not optional
+  _testLokiAdapter?: LokiMemoryAdapter,
 }>
 
 export default class LokiExecutor {
-  dbName: string
+  dbName: ?string
 
   schema: AppSchema
 
@@ -37,17 +38,20 @@ export default class LokiExecutor {
 
   loki: Loki
 
+  _testLokiAdapter: ?LokiMemoryAdapter
+
   cachedRecords: Set<RecordId> = new Set([])
 
   constructor(options: LokiExecutorOptions): void {
-    const { dbName, schema, migrations } = options
+    const { dbName, schema, migrations, _testLokiAdapter } = options
     this.dbName = dbName
     this.schema = schema
     this.migrations = migrations
+    this._testLokiAdapter = _testLokiAdapter
   }
 
   async setUp(): Promise<void> {
-    await this._openDatabase()
+    await this._openDatabase(this._testLokiAdapter)
     await this._migrateIfNeeded()
   }
 
@@ -191,10 +195,10 @@ export default class LokiExecutor {
 
   // *** Internals ***
 
-  async _openDatabase(): Promise<void> {
+  async _openDatabase(adapter?: LokiMemoryAdapter): Promise<void> {
     logger.log('[DB][Worker] Initializing IndexedDB')
 
-    this.loki = newLoki(this.dbName)
+    this.loki = newLoki(this.dbName, adapter)
     await loadDatabase(this.loki) // Force database to load now
 
     logger.log('[DB][Worker] Database loaded')

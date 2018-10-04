@@ -1,5 +1,6 @@
 // @flow
 
+import type { LokiMemoryAdapter } from 'lokijs'
 import { map } from 'rambdax'
 import { isDevelopment } from '../../utils/common'
 
@@ -36,9 +37,10 @@ const {
 } = actions
 
 type LokiAdapterOptions = $Exact<{
-  dbName: string,
+  dbName?: ?string,
   schema: AppSchema,
   migrationsExperimental?: SchemaMigrations,
+  _testLokiAdapter?: LokiMemoryAdapter,
 }>
 
 export default class LokiJSAdapter implements DatabaseAdapter {
@@ -48,13 +50,34 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
   migrations: ?SchemaMigrations
 
+  _dbName: ?string
+
   constructor(options: LokiAdapterOptions): void {
-    const { schema, migrationsExperimental: migrations } = options
+    const { schema, migrationsExperimental: migrations, dbName } = options
     this.schema = schema
     this.migrations = migrations
+    this._dbName = dbName
     isDevelopment && validateAdapter(this)
 
     devLogSetUp(() => this.workerBridge.send(SETUP, [options]))
+  }
+
+  testClone(options?: $Shape<LokiAdapterOptions> = {}): LokiJSAdapter {
+    // Ensure data is saved to memory
+    // $FlowFixMe
+    const { executor } = this.workerBridge._worker._worker
+    executor.loki.close()
+
+    // Copy
+    const lokiAdapter = executor.loki.persistenceAdapter
+
+    return new LokiJSAdapter({
+      dbName: this._dbName,
+      schema: this.schema,
+      ...(this.migrations ? { migrationsExperimental: this.migrations } : {}),
+      _testLokiAdapter: lokiAdapter,
+      ...options,
+    })
   }
 
   async find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {
