@@ -88,12 +88,14 @@ export default () => [
   ],
   [
     'can find single records',
-    adapter => async () => {
+    _adapter => async () => {
+      let adapter = _adapter
+
       // side-add records
       const s1 = makeMockTask({ id: 's1', text1: 'bar', order: 1 })
       const s2 = makeMockTask({ id: 's2', bool1: true, order: 2 })
       await adapter.batch([['create', s1], ['create', s2]])
-      await adapter.unsafeClearCachedRecords()
+      adapter = adapter.testClone()
 
       // add records with caching
       const s3 = makeMockTask({ id: 's3', text1: 'baz' })

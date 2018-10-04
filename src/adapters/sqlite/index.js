@@ -94,11 +94,13 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
   // Allows tests to create a new adapter connecting to the same data as the old one, simulating an
   // app relaunching - for testing caching, setup, migrations
-  static testReopenDatabase(adapter: SQLiteAdapter, options: SQLiteAdapterOptions): SQLiteAdapter {
+  testClone(options?: $Shape<SQLiteAdapterOptions> = {}): SQLiteAdapter {
     return new SQLiteAdapter({
-      ...options,
-      dbName: adapter._dbName,
+      dbName: this._dbName,
       isTest: true,
+      schema: this.schema,
+      ...(this.migrations ? { migrationsExperimental: this.migrations } : {}),
+      ...options,
     })
   }
 
