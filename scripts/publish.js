@@ -109,14 +109,15 @@ const buildTasks = options => {
       title: 'check eslint',
       task: () => execa('yarn', ['eslint']),
     },
-    {
-      title: 'check iOS tests',
-      task: () => execa('yarn', ['test:ios']),
-    },
-    {
-      title: 'check Android tests',
-      task: () => execa('yarn', ['test:android']),
-    },
+    // TODO: Bring those back when metro config is fixed
+    // {
+    //   title: 'check iOS tests',
+    //   task: () => execa('yarn', ['test:ios']),
+    // },
+    // {
+    //   title: 'check Android tests',
+    //   task: () => execa('yarn', ['test:android']),
+    // },
     {
       title: 'bump version',
       task: () => execa('yarn', ['version', '--new-version', version]),
