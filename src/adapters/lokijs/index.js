@@ -33,7 +33,6 @@ const {
   REMOVE_LOCAL,
   GET_DELETED_RECORDS,
   DESTROY_DELETED_RECORDS,
-  UNSAFE_CLEAR_CACHED_RECORDS,
 } = actions
 
 type LokiAdapterOptions = $Exact<{
