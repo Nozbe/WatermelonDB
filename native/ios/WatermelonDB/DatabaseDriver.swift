@@ -35,6 +35,7 @@ class DatabaseDriver {
     }
 
     private init(dbName: String) {
+        // swiftlint:disable:next force_try
         let path = try! FileManager.default
             .url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
             .appendingPathComponent("\(dbName).db")

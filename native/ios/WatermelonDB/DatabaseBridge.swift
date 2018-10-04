@@ -57,7 +57,7 @@ final public class DatabaseBridge: NSObject {
     }
 
     @objc(setUpWithMigrations:databaseName:migrations:fromVersion:toVersion:resolve:reject:)
-    func setUpWithMigrations(tag: ConnectionTag,
+    func setUpWithMigrations(tag: ConnectionTag, // swiftlint:disable:this function_parameter_count
                              databaseName: String,
                              migrations: Database.SQL,
                              fromVersion: NSNumber,
