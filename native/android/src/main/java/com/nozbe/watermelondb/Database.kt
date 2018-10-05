@@ -14,7 +14,6 @@ class Database(private val name: String?, private val context: Context) {
         SQLiteDatabase.openOrCreateDatabase(
                 context.getDatabasePath("$name.db").path
                         .replace("/databases", ""), null)
-
     }
 
     var userVersion: Int
