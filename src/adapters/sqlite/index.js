@@ -89,8 +89,6 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   async _init(dbName: string): Promise<void> {
-    // TODO: Temporary, remove me after Android is updated
-    if (Platform.OS === 'ios') {
       // Try to initialize the database with just the schema number. If it matches the database,
       // we're good. If not, we try again, this time sending the compiled schema or a migration set
       // This is to speed up the launch (less to do and pass through bridge), and avoid repeating
@@ -109,9 +107,6 @@ export default class SQLiteAdapter implements DatabaseAdapter {
       } else {
         invariant(status.code === 'ok', 'Invalid database initialization status')
       }
-    } else {
-      await Native.setUp(this._tag, dbName, this._encodedSchema(), this.schema.version)
-    }
   }
 
   async find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {
