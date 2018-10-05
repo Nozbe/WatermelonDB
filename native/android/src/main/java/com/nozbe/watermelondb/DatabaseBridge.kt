@@ -17,7 +17,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun setUp(
-        tag: ConnectionTag,
+         tag: ConnectionTag,
         databaseName: String,
         schema: SQL,
         schemaVersion: Int,
