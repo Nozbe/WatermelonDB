@@ -6,6 +6,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableArray
+import com.facebook.react.bridge.Arguments
 import com.nozbe.watermelondb.DatabaseDriver.Operation
 
 class DatabaseBridge(private val reactContext: ReactApplicationContext) :
@@ -34,19 +35,22 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         promise: Promise
     ) {
         assert(connections[tag] == null) { "A driver with tag $tag already set up" }
+        val promiseMap = Arguments.createMap()
 
         try {
             val driver = DatabaseDriver(reactContext, dbName = databaseName, schemaVersion = schemaVersion)
             connections[tag] = Connection.Connected(driver)
-            promise.resolve(mapOf("code" to "ok"))
+            promiseMap.putString("code", "ok")
+            promise.resolve(promiseMap)
         } catch (e: DatabaseDriver.SchemaNeededError) {
             connections[tag] = Connection.Waiting(arrayOf())
-            promise.resolve(mapOf("code" to "schema_needed"))
+            promiseMap.putString("code", "schema_needed")
+            promise.resolve(promiseMap)
         } catch (e: DatabaseDriver.MigrationNeededError) {
             connections[tag] = Connection.Waiting(arrayOf())
-            promise.resolve(
-                    mapOf("code" to "migrations_needed", "databaseVersion" to e.databaseVersion)
-            )
+            promiseMap.putString("code", "migrations_needed")
+            promiseMap.putInt("databaseVersion", e.databaseVersion)
+            promise.resolve(promiseMap)
         } catch (e: Exception) {
             promise.reject(e)
         }
