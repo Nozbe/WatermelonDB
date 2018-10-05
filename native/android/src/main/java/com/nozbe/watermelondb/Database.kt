@@ -3,11 +3,8 @@ package com.nozbe.watermelondb
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import java.util.logging.Logger
 
 class Database(private val name: String?, private val context: Context) {
-
-    private val log = if (BuildConfig.DEBUG) Logger.getLogger("Database") else null
 
     private val db: SQLiteDatabase by lazy {
         if (name.isNullOrBlank() || name == "test") {
@@ -25,19 +22,6 @@ class Database(private val name: String?, private val context: Context) {
         set(value) {
             db.version = value
         }
-
-    fun executeSchema(schema: SQL, schemaVersion: Int) {
-        log?.info("[Setting up database] clearing")
-        clear()
-        log?.info("[Setting up database] creating tables")
-        db.transaction {
-            schema.split(";").forEach {
-                if (it.isNotBlank()) execute(it)
-            }
-            userVersion = schemaVersion
-        }
-        log?.info("[Setting up database] done")
-    }
 
     fun executeStatements(statements: SQL) =
             db.transaction {
@@ -73,23 +57,6 @@ class Database(private val name: String?, private val context: Context) {
     fun unsafeResetDatabase(): Boolean = context.deleteDatabase(name)
 
     fun inTransaction(function: () -> Unit) = db.transaction { function() }
-
-    private fun clear() =
-            db.transaction { getAllTables().forEach { execute(Queries.dropTable(it)) } }
-
-    private fun getAllTables(): ArrayList<String> {
-        val allTables: ArrayList<String> = arrayListOf()
-        rawQuery(Queries.select_tables).use {
-            it.moveToFirst()
-            val index = it.getColumnIndex("name")
-            if (index > -1) {
-                while (it.moveToNext()) {
-                    allTables.add(it.getString(index))
-                }
-            }
-        }
-        return allTables
-    }
 
     fun close() = db.close()
 }

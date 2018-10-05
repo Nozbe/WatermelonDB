@@ -29,7 +29,6 @@ class DatabaseDriver {
             is SchemaCompatibility.NeedsMigration ->
                 throw MigrationNeededError(compatibility.fromVersion)
         }
-
     }
 
     constructor(context: Context, dbName: String, schema: Schema) : this(context, dbName) {
@@ -172,14 +171,6 @@ class DatabaseDriver {
         return didDelete
     }
 
-//    private fun setUp() {
-//        log?.info("SetUp Database without reset")
-//        cachedRecords.clear()
-//        if (database.userVersion != configuration.schemaVersion) {
-//            unsafeResetDatabase()
-//        }
-//    }
-
     fun close() = database.close()
 
     private fun markAsCached(id: RecordID) {
@@ -191,7 +182,8 @@ class DatabaseDriver {
 
     private fun setUpSchema(schema: Schema) {
         log?.info("Setting up schema")
-        database.executeSchema(schema.sql + Queries.localStorageSchema, schema.version)
+        database.executeStatements(schema.sql + Queries.localStorageSchema)
+        database.userVersion = schema.version
     }
 
     private fun setUpDatabase(schema: Schema) {
@@ -218,9 +210,7 @@ class DatabaseDriver {
 //                fatalError("Error while performing migrations: \(error)")
             e.printStackTrace()
         }
-
     }
-
 
     sealed class SchemaCompatibility {
         object Compatible : SchemaCompatibility()
