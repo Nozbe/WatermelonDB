@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Fixed
+
+- Fixed "dependency cycle" warning
+
 ## 0.6.2 - 2018-10-04
 
 ### Deprecations
