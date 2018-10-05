@@ -11,88 +11,150 @@ import com.nozbe.watermelondb.DatabaseDriver.Operation
 class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         ReactContextBaseJavaModule(reactContext) {
 
-    private val connections: MutableMap<ConnectionTag, DatabaseDriver> = mutableMapOf()
+    private val connections: MutableMap<ConnectionTag, Connection> = mutableMapOf()
 
     override fun getName(): String = "DatabaseBridge"
 
+    sealed class Connection {
+        class Connected(val driver: DatabaseDriver) : Connection()
+        class Waiting(var queueW: Array<(() -> Unit)>) : Connection()
+
+        var queue: Array<(() -> Unit)> = arrayOf()
+            get() = when (this) {
+                is Connection.Connected -> emptyArray()
+                is Connection.Waiting -> this.queueW
+            }
+    }
+
     @ReactMethod
-    fun setUp(
-        tag: ConnectionTag,
-        databaseName: String,
-        schema: SQL,
-        schemaVersion: Int,
-        promise: Promise
-    ) {
+    fun initialize(tag: ConnectionTag,
+                   databaseName: String,
+                   schemaVersion: Int,
+                   promise: Promise) {
+//        assert(connections[tag] == null, "A driver with tag \(tag) already set up")
+
+        try {
+            val driver = DatabaseDriver(reactContext, dbName = databaseName, schemaVersion = schemaVersion)
+            connections[tag] = Connection.Connected(driver)
+            promise.resolve(mapOf("code" to "ok"))
+        } catch (e: DatabaseDriver.SchemaNeededError) {
+            connections[tag] = Connection.Waiting(arrayOf())
+            promise.resolve(mapOf("code" to "schema_needed"))
+        } catch (e: DatabaseDriver.MigrationNeededError) {
+            connections[tag] = Connection.Waiting(arrayOf())
+            promise.resolve(
+                    mapOf("code" to "migrations_needed", "databaseVersion" to e.databaseVersion)
+            )
+        } catch (e: Exception) {
+            //                assertionFailure("Unknown error thrown in DatabaseDriver.init")
+            promise.reject(e)
+        }
+    }
+
+    @ReactMethod
+    fun setUpWithSchema(tag: ConnectionTag,
+                        databaseName: String,
+                        schema: SQL,
+                        schemaVersion: Int,
+                        promise: Promise) {
         val driver = DatabaseDriver(
-                reactContext,
-                DatabaseDriver.Configuration(
-                        databaseName,
-                        schema,
-                        schemaVersion
-                )
+                context = reactContext,
+                dbName = databaseName,
+                schema = Schema(schemaVersion, schema)
         )
-        connections[tag] = driver
+        connectDriver(tag, driver)
+        promise.resolve(true)
+    }
+
+    @ReactMethod
+    fun setUpWithMigrations(tag: ConnectionTag,
+                            databaseName: String,
+                            migrations: SQL,
+                            fromVersion: Int,
+                            toVersion: Int,
+                            promise: Promise) {
+        val driver = DatabaseDriver(
+                context = reactContext,
+                dbName = databaseName,
+                migrations = MigrationSet(from = fromVersion, to = toVersion, sql = migrations)
+        )
+        connectDriver(tag, driver)
         promise.resolve(true)
     }
 
     @ReactMethod
     fun find(tag: ConnectionTag, table: TableName, id: RecordID, promise: Promise) =
-            connections[tag]?.doWithPromise(promise) { it.find(table, id) }
+            withDriver(tag, promise) { it.find(table, id) }
 
     @ReactMethod
     fun query(tag: ConnectionTag, query: SQL, promise: Promise) =
-            connections[tag]?.doWithPromise(promise) { it.cachedQuery(query) }
+            withDriver(tag, promise) { it.cachedQuery(query) }
 
     @ReactMethod
     fun count(tag: ConnectionTag, query: SQL, promise: Promise) =
-            connections[tag]?.doWithPromise(promise) { it.count(query) }
+            withDriver(tag, promise) { it.count(query) }
 
     @ReactMethod
     fun batch(tag: ConnectionTag, operations: ReadableArray, promise: Promise) =
-            connections[tag]?.doWithPromise(promise) { it.batch(operations.toOperationsArray()) }
+            withDriver(tag, promise) { it.batch(operations.toOperationsArray()) }
 
     @ReactMethod
     fun getDeletedRecords(tag: ConnectionTag, table: TableName, promise: Promise) =
-            connections[tag]?.doWithPromise(promise) { it.getDeletedRecords(table) }
+            withDriver(tag, promise) { it.getDeletedRecords(table) }
 
     @ReactMethod
     fun destroyDeletedRecords(
-        tag: ConnectionTag,
-        table: TableName,
-        records: ReadableArray,
-        promise: Promise
+            tag: ConnectionTag,
+            table: TableName,
+            records: ReadableArray,
+            promise: Promise
     ) =
-            connections[tag]?.doWithPromise(promise) {
+            withDriver(tag, promise) {
                 it.destroyDeletedRecords(table, records.toArrayList())
             }
 
     @ReactMethod
-    fun unsafeResetDatabase(tag: ConnectionTag, promise: Promise) =
-            connections[tag]?.doWithPromise(promise) { it.unsafeResetDatabase() }
+    fun unsafeResetDatabase(tag: ConnectionTag, schema: Schema, promise: Promise) =
+            withDriver(tag, promise) { it.unsafeResetDatabase(schema) }
 
     @ReactMethod
     fun unsafeClearCachedRecords(tag: ConnectionTag, promise: Promise) =
-            connections[tag]?.doWithPromise(promise) { it.unsafeClearCachedRecords() }
+            withDriver(tag, promise) { it.unsafeClearCachedRecords() }
 
     @ReactMethod
     fun getLocal(tag: ConnectionTag, key: String, promise: Promise) =
-            connections[tag]?.doWithPromise(promise) { it.getLocal(key) }
+            withDriver(tag, promise) { it.getLocal(key) }
 
     @ReactMethod
     fun setLocal(tag: ConnectionTag, key: String, value: String, promise: Promise) =
-            connections[tag]?.doWithPromise(promise) { it.setLocal(key, value) }
+            withDriver(tag, promise) { it.setLocal(key, value) }
 
     @ReactMethod
     fun removeLocal(tag: ConnectionTag, key: String, promise: Promise) =
-            connections[tag]?.doWithPromise(promise) { it.removeLocal(key) }
+            withDriver(tag, promise) { it.removeLocal(key) }
 
-    private fun DatabaseDriver.doWithPromise(promise: Promise, function: (DatabaseDriver) -> Any?) =
-            try {
-                val result = function(this)
-                promise.resolve(if (result === Unit) true else result)
-            } catch (e: SQLException) {
-                promise.reject(e)
+    private fun withDriver(tag: ConnectionTag, promise: Promise, function: (DatabaseDriver) -> Any?) {
+        try {
+            val connection = connections[tag]
+            when (connection) {
+                is Connection.Connected -> {
+                    val result = function(connection.driver)
+                    promise.resolve(if (result === Unit) true else result)
+                }
+                is Connection.Waiting -> {
+                    // try again when driver is ready
+                    connection.queue.plus {
+                        this.withDriver(tag, promise, function)
+                    }
+                    connections[tag] = Connection.Waiting(connection.queue)
+                }
+                else -> {
+                }
             }
+        } catch (e: SQLException) {
+            promise.reject(e)
+        }
+    }
 
     private fun ReadableArray.toOperationsArray(): ArrayList<Operation> {
         val preparedOperations = arrayListOf<Operation>()
@@ -143,4 +205,14 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         }
         return preparedOperations
     }
+
+    private fun connectDriver(connectionTag: ConnectionTag, driver: DatabaseDriver) {
+        val queue = connections[connectionTag]?.queue ?: emptyArray()
+        connections[connectionTag] = Connection.Connected(driver)
+
+        for (operation in queue) {
+            operation()
+        }
+    }
+
 }

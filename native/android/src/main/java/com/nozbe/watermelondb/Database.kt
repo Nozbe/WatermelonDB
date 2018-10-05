@@ -39,6 +39,13 @@ class Database(private val name: String?, private val context: Context) {
         log?.info("[Setting up database] done")
     }
 
+    fun executeStatements(statements: SQL) =
+            db.transaction {
+                statements.split(";").forEach {
+                    if (it.isNotBlank()) execute(it)
+                }
+            }
+
     fun execute(query: SQL, values: QueryArgs = arrayListOf()) = db.execSQL(query, values.toArray())
 
     fun delete(query: SQL, queryArgs: QueryArgs) = db.execSQL(query, queryArgs.toArray())

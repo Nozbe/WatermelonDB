@@ -10,6 +10,9 @@ typealias TableName = String
 typealias QueryArgs = ArrayList<Any>
 typealias RawQueryArgs = Array<String>
 typealias ConnectionTag = Int
+typealias SchemaVersion = Int
+data class Schema(val version: SchemaVersion, val sql: SQL)
+data class MigrationSet(val from: SchemaVersion, val to: SchemaVersion, val sql: SQL)
 
 fun WritableMap.mapCursor(cursor: Cursor) {
     for (i in 0 until cursor.columnCount) {
