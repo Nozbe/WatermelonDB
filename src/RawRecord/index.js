@@ -119,7 +119,7 @@ export function nullValue(columnSchema: ColumnSchema): NullValue {
     return ''
   } else if (type === 'number') {
     return 0
-  } else if (type === 'boolean') {
+  } else if (type === 'bool') {
     return false
   }
 

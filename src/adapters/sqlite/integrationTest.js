@@ -8,8 +8,10 @@ const SQLiteAdapterTest = spec => {
   spec.describe('watermelondb/adapters/sqlite', () => {
     commonTests().forEach(testCase => {
       const [name, test] = testCase
-      const adapter = newAdapter()
-      spec.it(name, test(adapter, SQLiteAdapter))
+      spec.it(name, async () => {
+        const adapter = newAdapter()
+        await test(adapter, SQLiteAdapter)
+      })
     })
   })
 }

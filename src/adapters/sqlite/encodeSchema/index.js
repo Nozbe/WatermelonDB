@@ -2,6 +2,7 @@
 
 import { keys, values } from 'rambdax'
 import type { TableSchema, AppSchema, ColumnSchema, TableName } from '../../../Schema'
+import { nullValue } from '../../../RawRecord'
 import type {
   MigrationStep,
   CreateTableMigrationStep,
@@ -10,6 +11,7 @@ import type {
 import type { SQL } from '../index'
 
 import encodeName from '../encodeName'
+import encodeValue from '../encodeValue'
 
 const standardColumns = `"id" primary key, "_changed", "_status", "last_modified"`
 
@@ -21,13 +23,14 @@ const encodeCreateTable: TableSchema => SQL = ({ name, columns }) => {
 }
 
 const encodeIndex: (ColumnSchema, TableName<any>) => SQL = (column, tableName) =>
-  `create index ${tableName}_${column.name} on ${encodeName(tableName)} (${encodeName(
-    column.name,
-  )});`
+  column.isIndexed ?
+    `create index ${tableName}_${column.name} on ${encodeName(tableName)} (${encodeName(
+        column.name,
+      )});` :
+    ''
 
 const encodeTableIndicies: TableSchema => SQL = ({ name: tableName, columns }) =>
   values(columns)
-    .filter(column => column.isIndexed)
     .map(column => encodeIndex(column, tableName))
     .concat([`create index ${tableName}__status on ${encodeName(tableName)} ("_status");`])
     .join('')
@@ -45,12 +48,15 @@ const encodeCreateTableMigrationStep: CreateTableMigrationStep => SQL = ({ name,
 
 const encodeAddColumnsMigrationStep: AddColumnsMigrationStep => SQL = ({ table, columns }) =>
   columns
-    .map(
-      column =>
-        `alter table ${encodeName(table)} add ${encodeName(column.name)};${
-          column.isIndexed ? encodeIndex(column, table) : ''
-        }`,
-    )
+    .map(column => {
+      const addColumn = `alter table ${encodeName(table)} add ${encodeName(column.name)};`
+      const setDefaultValue = `update ${encodeName(table)} set ${encodeName(
+        column.name,
+      )} = ${encodeValue(nullValue(column))};`
+      const addIndex = encodeIndex(column, table)
+
+      return addColumn + setDefaultValue + addIndex
+    })
     .join('')
 
 export const encodeMigrationSteps: (MigrationStep[]) => SQL = steps =>

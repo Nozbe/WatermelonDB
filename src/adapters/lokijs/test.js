@@ -12,7 +12,10 @@ const newAdapter = () =>
 describe('watermelondb/adapters/lokijs', () => {
   commonTests().forEach(testCase => {
     const [name, test] = testCase
-    const adapter = newAdapter()
-    it(name, test(adapter, LokiJSAdapter))
+
+    it(name, async () => {
+      const adapter = newAdapter()
+      await test(adapter, LokiJSAdapter)
+    })
   })
 })
