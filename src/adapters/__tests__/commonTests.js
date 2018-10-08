@@ -4,8 +4,8 @@ import Model from '../../Model'
 import Query from '../../Query'
 import { sanitizedRaw } from '../../RawRecord'
 import * as Q from '../../QueryDescription'
-import { schemaMigrations } from '../../Schema/migrations'
-// import { platform } from 'utils/common'
+import { appSchema, tableSchema } from '../../Schema'
+import { schemaMigrations, createTable, addColumns } from '../../Schema/migrations'
 
 import { matchTests, joinTests } from '../../__tests__/databaseTests'
 import {
@@ -16,6 +16,7 @@ import {
   performJoinTest,
   expectSortedEqual,
   MockTask,
+  MockProject,
   MockTagAssignment,
 } from './helpers'
 
@@ -449,6 +450,119 @@ export default () => [
 
       // deleting already undefined is safe
       await adapter.removeLocal('nonexisting')
+    },
+  ],
+  [
+    'migrates database between versions',
+    (_adapter, AdapterClass) => async () => {
+      // launch app in one version
+      const testSchemaV3 = appSchema({
+        version: 3,
+        tables: [
+          tableSchema({
+            name: 'tasks',
+            columns: [{ name: 'num1', type: 'number' }],
+          }),
+          tableSchema({
+            name: 'projects',
+            columns: [{ name: 'text1', type: 'string' }],
+          }),
+        ],
+      })
+      const migrationsV3 = schemaMigrations({
+        minimumVersion: 3,
+        currentVersion: 3,
+        migrations: [],
+      })
+      let adapter = new AdapterClass({
+        schema: testSchemaV3,
+        migrationsExperimental: migrationsV3,
+      })
+
+      // add data
+      await adapter.batch([
+        ['create', new MockTask({}, { num1: 10 })],
+        ['create', new MockTask({}, { num1: 20 })],
+        ['create', new MockProject({}, { id: 'p1', text1: 'hello', text2: 'yo' })],
+      ])
+
+      // can't add to things that don't exist yet
+      await expect(
+        adapter.batch([['create', new MockTagAssignment({}, { text1: 'hello' })]]),
+      ).rejects.toBeInstanceOf(Error)
+
+      // can't use columns that don't exist yet
+      const p1 = await adapter.find('projects', 'p1')
+      expect(p1.text2).toBeUndefined()
+
+      // migrate to new version
+      const testSchemaV5 = appSchema({
+        version: 5,
+        tables: [
+          tableSchema({
+            name: 'tasks',
+            columns: [{ name: 'num1', type: 'number' }],
+          }),
+          tableSchema({
+            name: 'projects',
+            columns: [{ name: 'text1', type: 'string' }],
+          }),
+        ],
+      })
+      const migrationsV5 = schemaMigrations({
+        minimumVersion: 2,
+        currentVersion: 5,
+        migrations: [
+          {
+            from: 4,
+            to: 5,
+            steps: [
+              addColumns({
+                table: 'tasks',
+                columns: [
+                  { name: 'test_string', type: 'string' },
+                  { name: 'test_string_optional', type: 'string', isOptional: true },
+                  { name: 'test_number', type: 'number' },
+                  { name: 'test_number_optional', type: 'number', isOptional: true },
+                  { name: 'test_boolean', type: 'bool' },
+                  { name: 'test_boolean_optional', type: 'bool', isOptional: true },
+                ],
+              }),
+            ],
+          },
+          {
+            from: 3,
+            to: 4,
+            steps: [
+              createTable({
+                name: 'tag_assignments',
+                columns: [{ name: 'text1', type: 'string' }],
+              }),
+              addColumns({
+                table: 'projects',
+                columns: [{ name: 'text2', type: 'string', isIndexed: true }],
+              }),
+            ],
+          },
+          {
+            from: 2,
+            to: 3,
+            steps: [
+              createTable({
+                name: 'will_not_be_created',
+                columns: [{ name: 'num1', type: 'number' }],
+              }),
+            ],
+          },
+        ],
+      })
+      adapter = adapter.testClone({
+        schema: testSchemaV5,
+        migrationsExperimental: migrationsV5,
+      })
+
+      // check that the data is still there
+      expect(await adapter.count(new Query({ modelClass: MockTask }, []))).toBe(2)
     },
   ],
   ...matchTests.map(testCase => [
