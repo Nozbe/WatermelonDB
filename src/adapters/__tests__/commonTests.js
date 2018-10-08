@@ -456,17 +456,13 @@ export default () => [
     'migrates database between versions',
     (_adapter, AdapterClass) => async () => {
       // launch app in one version
+      const taskColumnsV3 = [{ name: 'num1', type: 'number' }]
+      const projectColumnsV3 = [{ name: 'text1', type: 'string' }]
       const testSchemaV3 = appSchema({
         version: 3,
         tables: [
-          tableSchema({
-            name: 'tasks',
-            columns: [{ name: 'num1', type: 'number' }],
-          }),
-          tableSchema({
-            name: 'projects',
-            columns: [{ name: 'text1', type: 'string' }],
-          }),
+          tableSchema({ name: 'tasks', columns: taskColumnsV3 }),
+          tableSchema({ name: 'projects', columns: projectColumnsV3 }),
         ],
       })
       const migrationsV3 = schemaMigrations({
@@ -496,17 +492,32 @@ export default () => [
       expect(p1.text2).toBeUndefined()
 
       // migrate to new version
+      const taskColumnsV5 = [
+        { name: 'test_string', type: 'string' },
+        { name: 'test_string_optional', type: 'string', isOptional: true },
+        { name: 'test_number', type: 'number' },
+        { name: 'test_number_optional', type: 'number', isOptional: true },
+        { name: 'test_boolean', type: 'bool' },
+        { name: 'test_boolean_optional', type: 'bool', isOptional: true },
+      ]
+      const projectColumnsV5 = [{ name: 'text2', type: 'string', isIndexed: true }]
+      const tagAssignmentSchema = {
+        name: 'tag_assignments',
+        columns: [{ name: 'text1', type: 'string' }],
+      }
+
       const testSchemaV5 = appSchema({
         version: 5,
         tables: [
           tableSchema({
             name: 'tasks',
-            columns: [{ name: 'num1', type: 'number' }],
+            columns: [...taskColumnsV3, ...taskColumnsV5],
           }),
           tableSchema({
             name: 'projects',
-            columns: [{ name: 'text1', type: 'string' }],
+            columns: [...projectColumnsV3, ...projectColumnsV5],
           }),
+          tagAssignmentSchema,
         ],
       })
       const migrationsV5 = schemaMigrations({
@@ -516,32 +527,14 @@ export default () => [
           {
             from: 4,
             to: 5,
-            steps: [
-              addColumns({
-                table: 'tasks',
-                columns: [
-                  { name: 'test_string', type: 'string' },
-                  { name: 'test_string_optional', type: 'string', isOptional: true },
-                  { name: 'test_number', type: 'number' },
-                  { name: 'test_number_optional', type: 'number', isOptional: true },
-                  { name: 'test_boolean', type: 'bool' },
-                  { name: 'test_boolean_optional', type: 'bool', isOptional: true },
-                ],
-              }),
-            ],
+            steps: [addColumns({ table: 'tasks', columns: taskColumnsV5 })],
           },
           {
             from: 3,
             to: 4,
             steps: [
-              createTable({
-                name: 'tag_assignments',
-                columns: [{ name: 'text1', type: 'string' }],
-              }),
-              addColumns({
-                table: 'projects',
-                columns: [{ name: 'text2', type: 'string', isIndexed: true }],
-              }),
+              createTable(tagAssignmentSchema),
+              addColumns({ table: 'projects', columns: projectColumnsV5 }),
             ],
           },
           {
@@ -563,6 +556,53 @@ export default () => [
 
       // check that the data is still there
       expect(await adapter.count(new Query({ modelClass: MockTask }, []))).toBe(2)
+      expect(await adapter.count(new Query({ modelClass: MockProject }, []))).toBe(1)
+
+      // check if new columns were populated with appropriate default values
+      const checkTaskColumn = (columnName, expectedValue) =>
+        new Query({ modelClass: MockTask }, [Q.where(columnName, expectedValue)])
+
+      expect(await adapter.count(checkTaskColumn('test_string', ''))).toBe(2)
+      expect(await adapter.count(checkTaskColumn('test_string_optional', null))).toBe(2)
+      expect(await adapter.count(checkTaskColumn('test_number', 0))).toBe(2)
+      expect(await adapter.count(checkTaskColumn('test_number_optional', null))).toBe(2)
+      expect(await adapter.count(checkTaskColumn('test_boolean', false))).toBe(2)
+      expect(await adapter.count(checkTaskColumn('test_boolean_optional', null))).toBe(2)
+
+      // check I can use new table and columns
+      adapter.batch([
+        ['create', new MockTagAssignment({}, { id: 'tt1', text1: 'hello' })],
+        ['create', new MockProject({}, { id: 'p2', text1: 'hey', text2: 'foo' })],
+        [
+          'create',
+          new MockTask(
+            {},
+            { id: 't1', test_string: 'hey', test_number: 2, test_boolean_optional: true },
+          ),
+        ],
+      ])
+
+      // check that out-of-range migration was not executed
+      class WillNotBeCreated extends Model {
+        static table = 'will_not_be_created'
+      }
+      await expect(
+        adapter.batch([['create', new WillNotBeCreated({}, { text1: 'hello' })]]),
+      ).rejects.toBeInstanceOf(Error)
+
+      // make sure new fields actually work and that migrations won't be applied again
+      adapter = adapter.testClone()
+
+      const p2 = await adapter.find('projects', 'p2')
+      expect(p2.text2).toBe('foo')
+
+      const t1 = await adapter.find('tasks', 't1')
+      expect(t1.test_string).toBe('hey')
+      expect(t1.test_number).toBe(2)
+      expect(t1.test_boolean).toBe(false)
+
+      const tt1 = await adapter.find('tag_assignments', 'tt1')
+      expect(tt1.text1).toBe('hello')
     },
   ],
   ...matchTests.map(testCase => [
