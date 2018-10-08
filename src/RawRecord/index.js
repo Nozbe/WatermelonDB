@@ -108,3 +108,20 @@ export function setRawSanitized(
 ): void {
   _setRaw(rawRecord, columnName, value, columnSchema)
 }
+
+export type NullValue = null | '' | 0 | false
+
+export function nullValue(columnSchema: ColumnSchema): NullValue {
+  const { isOptional, type } = columnSchema
+  if (isOptional) {
+    return null
+  } else if (type === 'string') {
+    return ''
+  } else if (type === 'number') {
+    return 0
+  } else if (type === 'boolean') {
+    return false
+  }
+
+  throw new Error(`Unknown type for column schema ${JSON.stringify(columnSchema)}`)
+}

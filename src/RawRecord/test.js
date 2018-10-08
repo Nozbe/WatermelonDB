@@ -1,7 +1,7 @@
 import { omit } from 'rambdax'
 
 import { tableSchema } from '../Schema'
-import { setRawSanitized, sanitizedRaw } from './index'
+import { setRawSanitized, sanitizedRaw, nullValue } from './index'
 
 const stringNull = ['', null]
 const boolNull = [false, null]
@@ -51,7 +51,7 @@ const mockTaskSchema = tableSchema({
   ],
 })
 
-describe('RawRecord', () => {
+describe('sanitizedRaw()', () => {
   it('can sanitize the whole raw', () => {
     const goodTask = {
       id: 'abcdef',
@@ -167,6 +167,9 @@ describe('RawRecord', () => {
     )
     expect(raw4).toEqual({ id: 'i2', _status: 'deleted', _changed: '', last_modified: null })
   })
+})
+
+describe('setRawSanitized()', () => {
   it('can set one value on a sanitized raw', () => {
     const raw = sanitizedRaw({}, mockTaskSchema)
 
@@ -208,5 +211,16 @@ describe('RawRecord', () => {
       expect(test(value, 'number')).toBe(number[0])
       expect(test(value, 'number', true)).toBe(number[1])
     })
+  })
+})
+
+describe('nullValue()', () => {
+  it('can return null value for any column schema', () => {
+    expect(nullValue({ name: 'foo', type: 'string' })).toBe('')
+    expect(nullValue({ name: 'foo', type: 'string', isOptional: true })).toBe(null)
+    expect(nullValue({ name: 'foo', type: 'number' })).toBe(0)
+    expect(nullValue({ name: 'foo', type: 'number', isOptional: true })).toBe(null)
+    expect(nullValue({ name: 'foo', type: 'boolean' })).toBe(false)
+    expect(nullValue({ name: 'foo', type: 'boolean', isOptional: true })).toBe(null)
   })
 })
