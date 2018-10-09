@@ -27,7 +27,7 @@ class BadModel extends Model {
 export default () => [
   [
     'validates adapter options',
-    (_adapter, AdapterClass) => async () => {
+    async (_adapter, AdapterClass) => {
       const schema = { ...testSchema, version: 10 }
 
       const makeAdapter = options => new AdapterClass({ schema, ...options })
@@ -73,7 +73,7 @@ export default () => [
   ],
   [
     'can query and count on empty db',
-    adapter => async () => {
+    async adapter => {
       const query = taskQuery()
       expect(await adapter.query(query)).toEqual([])
       expect(await adapter.count(query)).toBe(0)
@@ -81,7 +81,7 @@ export default () => [
   ],
   [
     'can create and find records (sanity test)',
-    adapter => async () => {
+    async adapter => {
       const record = makeMockTask({ id: 'abc', text1: 'bar', order: 1 })
       await adapter.batch([['create', record]])
       expect(await adapter.find('tasks', 'abc')).toBe('abc')
@@ -89,7 +89,7 @@ export default () => [
   ],
   [
     'can find records by ID',
-    _adapter => async () => {
+    async _adapter => {
       let adapter = _adapter
 
       // add a record
@@ -118,7 +118,7 @@ export default () => [
   ],
   [
     'sanitizes records on find',
-    _adapter => async () => {
+    async _adapter => {
       let adapter = _adapter
       const tt1 = new MockTagAssignment(
         { table: 'tag_assignments' },
@@ -136,7 +136,7 @@ export default () => [
   ],
   [
     'can query and count records',
-    adapter => async () => {
+    async adapter => {
       const record1 = makeMockTask({ id: 't1', text1: 'bar', bool1: false, order: 1 })
       const record2 = makeMockTask({ id: 't2', text1: 'baz', bool1: true, order: 2 })
       const record3 = makeMockTask({ id: 't3', text1: 'abc', bool1: false, order: 3 })
@@ -162,7 +162,7 @@ export default () => [
   ],
   [
     'compacts query results',
-    _adapter => async () => {
+    async _adapter => {
       let adapter = _adapter
       const queryAll = () => adapter.query(taskQuery())
 
@@ -202,7 +202,7 @@ export default () => [
   ],
   [
     'sanitizes records on query',
-    _adapter => async () => {
+    async _adapter => {
       let adapter = _adapter
       // Unsanitized raw!
       const t1 = new MockTask({ table: 'tasks' }, { id: 't1', text1: 'foo', order: 1 })
@@ -221,7 +221,7 @@ export default () => [
   ],
   [
     'returns a COPY of the data',
-    _adapter => async () => {
+    async _adapter => {
       let adapter = _adapter
       const record = makeMockTask({ id: 't1', text1: 'bar' })
       const originalRaw = { ...record._raw }
@@ -244,7 +244,7 @@ export default () => [
   ],
   [
     'can update records',
-    _adapter => async () => {
+    async _adapter => {
       let adapter = _adapter
       const record = makeMockTask({ id: 't1', text1: 'bar' })
       await adapter.batch([['create', record]])
@@ -265,7 +265,7 @@ export default () => [
   ],
   [
     'can mark records as deleted',
-    adapter => async () => {
+    async adapter => {
       const m1 = makeMockTask({ id: 't1', text1: 'bar1' })
       await adapter.batch([['create', m1]])
       expect(await adapter.query(taskQuery())).toEqual(['t1'])
@@ -282,7 +282,7 @@ export default () => [
   ],
   [
     'can get deleted record ids',
-    adapter => async () => {
+    async adapter => {
       const m1 = makeMockTask({ id: 't1', text1: 'bar1', order: 1 })
       const m2 = makeMockTask({ id: 't2', text1: 'bar2', order: 2 })
       await adapter.batch([
@@ -297,7 +297,7 @@ export default () => [
   ],
   [
     'can destroy deleted records',
-    adapter => async () => {
+    async adapter => {
       const m1 = makeMockTask({ id: 't1', text1: 'bar1', order: 1 })
       const m2 = makeMockTask({ id: 't2', text1: 'bar2', order: 2 })
       const m3 = makeMockTask({ id: 't3', text1: 'bar3', order: 3 })
@@ -318,7 +318,7 @@ export default () => [
   ],
   [
     'can run mixed batches',
-    _adapter => async () => {
+    async _adapter => {
       let adapter = _adapter
       const m1 = makeMockTask({ id: 't1', text1: 'bar' })
       const m3 = makeMockTask({ id: 't3' })
@@ -355,7 +355,7 @@ export default () => [
   ],
   [
     'can run sync-like flow',
-    adapter => async () => {
+    async adapter => {
       const queryAll = () => adapter.query(taskQuery())
 
       const m1 = makeMockTask({ id: 't1', text1: 'bar1', order: 1 })
@@ -386,7 +386,7 @@ export default () => [
   ],
   [
     'can unsafely reset database',
-    adapter => async () => {
+    async adapter => {
       await adapter.batch([['create', makeMockTask({ id: 't1', text1: 'bar', order: 1 })]])
       await adapter.unsafeResetDatabase()
       await expect(await adapter.count(taskQuery())).toBe(0)
@@ -398,7 +398,7 @@ export default () => [
   ],
   [
     'fails on bad queries, creates, updates, deletes',
-    adapter => async () => {
+    async adapter => {
       const badQuery = new Query({ modelClass: BadModel }, [])
       await expect(adapter.query(badQuery)).rejects.toBeInstanceOf(Error)
       await expect(adapter.count(badQuery)).rejects.toBeInstanceOf(Error)
@@ -423,7 +423,7 @@ export default () => [
   ],
   [
     'supports LocalStorage',
-    adapter => async () => {
+    async adapter => {
       // non-existent fields return undefined
       expect(await adapter.getLocal('nonexisting')).toBeNull()
 
@@ -454,7 +454,7 @@ export default () => [
   ],
   [
     'migrates database between versions',
-    (_adapter, AdapterClass) => async () => {
+    async (_adapter, AdapterClass) => {
       // launch app in one version
       const taskColumnsV3 = [{ name: 'num1', type: 'number' }]
       const projectColumnsV3 = [{ name: 'text1', type: 'string' }]
@@ -607,13 +607,13 @@ export default () => [
   ],
   ...matchTests.map(testCase => [
     `[shared match test] ${testCase.name}`,
-    adapter => async () => {
+    async adapter => {
       await performMatchTest(adapter, testCase)
     },
   ]),
   ...joinTests.map(testCase => [
     `[shared join test] ${testCase.name}`,
-    adapter => async () => {
+    async adapter => {
       await performJoinTest(adapter, testCase)
     },
   ]),
