@@ -135,7 +135,7 @@ class DatabaseDriver(context: Context, dbName: String) {
     fun batch(operations: List<Operation>) {
         val newIds = arrayListOf<RecordID>()
         val removedIds = arrayListOf<RecordID>()
-        database.inTransaction {
+        database.transaction {
             operations.forEach {
                 when (it) {
                     is Operation.Execute -> execute(it.query, it.args)

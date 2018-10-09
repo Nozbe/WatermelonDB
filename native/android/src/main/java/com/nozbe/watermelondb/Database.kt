@@ -24,7 +24,7 @@ class Database(private val name: String?, private val context: Context) {
         }
 
     fun executeStatements(statements: SQL) =
-            db.transaction {
+            transaction {
                 statements.split(";").forEach {
                     if (it.isNotBlank()) execute(it)
                 }
@@ -62,7 +62,7 @@ class Database(private val name: String?, private val context: Context) {
 //    fun unsafeResetDatabase() = context.deleteDatabase("$name.db")
 
     fun unsafeDestroyEverything() =
-            inTransaction {
+            transaction {
                 getAllTables().forEach { execute(Queries.dropTable(it)) }
                 execute("pragma writable_schema=1")
                 execute("delete from sqlite_master")
@@ -84,7 +84,16 @@ class Database(private val name: String?, private val context: Context) {
         return allTables
     }
 
-    fun inTransaction(function: () -> Unit) = db.transaction { function() }
+    fun transaction(function: () -> Unit) {
+        db.beginTransaction()
+        try {
+            function()
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+        }
+    }
 
     fun close() = db.close()
+
 }

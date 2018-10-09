@@ -25,13 +25,3 @@ fun WritableMap.mapCursor(cursor: Cursor) {
         }
     }
 }
-
-fun SQLiteDatabase.transaction(function: () -> Unit) {
-    beginTransaction()
-    try {
-        function()
-        setTransactionSuccessful()
-    } finally {
-        endTransaction()
-    }
-}
