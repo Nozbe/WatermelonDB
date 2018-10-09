@@ -29,21 +29,22 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun initialize(
-        tag: ConnectionTag,
-        databaseName: String,
-        schemaVersion: Int,
-        promise: Promise
+            tag: ConnectionTag,
+            databaseName: String,
+            schemaVersion: Int,
+            promise: Promise
     ) {
         assert(connections[tag] == null) { "A driver with tag $tag already set up" }
         val promiseMap = Arguments.createMap()
 
         try {
-            val driver = DatabaseDriver(
-                    context = reactContext,
-                    dbName = databaseName,
-                    schemaVersion = schemaVersion
+            connections[tag] = Connection.Connected(
+                    driver = DatabaseDriver(
+                            context = reactContext,
+                            dbName = databaseName,
+                            schemaVersion = schemaVersion
+                    )
             )
-            connections[tag] = Connection.Connected(driver)
             promiseMap.putString("code", "ok")
             promise.resolve(promiseMap)
         } catch (e: DatabaseDriver.SchemaNeededError) {
@@ -62,38 +63,46 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun setUpWithSchema(
-        tag: ConnectionTag,
-        databaseName: String,
-        schema: SQL,
-        schemaVersion: SchemaVersion,
-        promise: Promise
-    ) {
-        val driver = DatabaseDriver(
-                context = reactContext,
-                dbName = databaseName,
-                schema = Schema(schemaVersion, schema)
-        )
-        connectDriver(tag, driver)
-        promise.resolve(true)
-    }
+            tag: ConnectionTag,
+            databaseName: String,
+            schema: SQL,
+            schemaVersion: SchemaVersion,
+            promise: Promise
+    ) = connectDriver(
+            connectionTag = tag,
+            driver = DatabaseDriver(
+                    context = reactContext,
+                    dbName = databaseName,
+                    schema = Schema(
+                            version = schemaVersion,
+                            sql = schema
+                    )
+            ),
+            promise = promise
+    )
 
     @ReactMethod
     fun setUpWithMigrations(
-        tag: ConnectionTag,
-        databaseName: String,
-        migrations: SQL,
-        fromVersion: SchemaVersion,
-        toVersion: SchemaVersion,
-        promise: Promise
-    ) {
-        val driver = DatabaseDriver(
-                context = reactContext,
-                dbName = databaseName,
-                migrations = MigrationSet(from = fromVersion, to = toVersion, sql = migrations)
-        )
-        connectDriver(tag, driver)
-        promise.resolve(true)
-    }
+            tag: ConnectionTag,
+            databaseName: String,
+            migrations: SQL,
+            fromVersion: SchemaVersion,
+            toVersion: SchemaVersion,
+            promise: Promise
+    ) = connectDriver(
+            connectionTag = tag,
+            driver = DatabaseDriver(
+                    context = reactContext,
+                    dbName = databaseName,
+                    migrations = MigrationSet(
+                            from = fromVersion,
+                            to = toVersion,
+                            sql = migrations
+                    )
+            ),
+            promise = promise
+    )
+
 
     @ReactMethod
     fun find(tag: ConnectionTag, table: TableName, id: RecordID, promise: Promise) =
@@ -117,23 +126,19 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun destroyDeletedRecords(
-        tag: ConnectionTag,
-        table: TableName,
-        records: ReadableArray,
-        promise: Promise
-    ) =
-            withDriver(tag, promise) {
-                it.destroyDeletedRecords(table, records.toArrayList())
-            }
+            tag: ConnectionTag,
+            table: TableName,
+            records: ReadableArray,
+            promise: Promise
+    ) = withDriver(tag, promise) { it.destroyDeletedRecords(table, records.toArrayList()) }
 
     @ReactMethod
     fun unsafeResetDatabase(
-        tag: ConnectionTag,
-        schema: SQL,
-        schemaVersion: SchemaVersion,
-        promise: Promise
-    ) =
-            withDriver(tag, promise) { it.unsafeResetDatabase(Schema(schemaVersion, schema)) }
+            tag: ConnectionTag,
+            schema: SQL,
+            schemaVersion: SchemaVersion,
+            promise: Promise
+    ) = withDriver(tag, promise) { it.unsafeResetDatabase(Schema(schemaVersion, schema)) }
 
     @ReactMethod
     fun unsafeClearCachedRecords(tag: ConnectionTag, promise: Promise) =
@@ -152,9 +157,9 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             withDriver(tag, promise) { it.removeLocal(key) }
 
     private fun withDriver(
-        tag: ConnectionTag,
-        promise: Promise,
-        function: (DatabaseDriver) -> Any?
+            tag: ConnectionTag,
+            promise: Promise,
+            function: (DatabaseDriver) -> Any?
     ) {
         try {
             val connection = connections[tag]
@@ -228,12 +233,14 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         return preparedOperations
     }
 
-    private fun connectDriver(connectionTag: ConnectionTag, driver: DatabaseDriver) {
+    private fun connectDriver(connectionTag: ConnectionTag, driver: DatabaseDriver,
+                              promise: Promise) {
         val queue = connections[connectionTag]?.queue ?: arrayListOf()
         connections[connectionTag] = Connection.Connected(driver)
 
         for (operation in queue) {
             operation()
         }
+        promise.resolve(true)
     }
 }
