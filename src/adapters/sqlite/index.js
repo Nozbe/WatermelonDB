@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable global-require */
 
-import { NativeModules, Platform } from 'react-native'
+import { NativeModules } from 'react-native'
 import {
   connectionTag,
   type ConnectionTag,
