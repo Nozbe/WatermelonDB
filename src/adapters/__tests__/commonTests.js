@@ -477,19 +477,14 @@ export default () => [
 
       // add data
       await adapter.batch([
-        ['create', new MockTask({}, { num1: 10 })],
-        ['create', new MockTask({}, { num1: 20 })],
-        ['create', new MockProject({}, { id: 'p1', text1: 'hello', text2: 'yo' })],
+        ['create', new MockTask({}, { id: 't1', num1: 10 })],
+        ['create', new MockTask({}, { id: 't2', num1: 20 })],
       ])
 
-      // can't add to things that don't exist yet
+      // can't add to tables that don't exist yet
       await expect(
-        adapter.batch([['create', new MockTagAssignment({}, { text1: 'hello' })]]),
+        adapter.batch([['create', new MockTagAssignment({}, { id: 'tt1', text1: 'hello' })]]),
       ).rejects.toBeInstanceOf(Error)
-
-      // can't use columns that don't exist yet
-      const p1 = await adapter.find('projects', 'p1')
-      expect(p1.text2).toBeUndefined()
 
       // migrate to new version
       const taskColumnsV5 = [
@@ -556,7 +551,6 @@ export default () => [
 
       // check that the data is still there
       expect(await adapter.count(new Query({ modelClass: MockTask }, []))).toBe(2)
-      expect(await adapter.count(new Query({ modelClass: MockProject }, []))).toBe(1)
 
       // check if new columns were populated with appropriate default values
       const checkTaskColumn = (columnName, expectedValue) =>
@@ -571,13 +565,13 @@ export default () => [
 
       // check I can use new table and columns
       adapter.batch([
-        ['create', new MockTagAssignment({}, { id: 'tt1', text1: 'hello' })],
-        ['create', new MockProject({}, { id: 'p2', text1: 'hey', text2: 'foo' })],
+        ['create', new MockTagAssignment({}, { id: 'tt2', text1: 'hello' })],
+        ['create', new MockProject({}, { id: 'p1', text1: 'hey', text2: 'foo' })],
         [
           'create',
           new MockTask(
             {},
-            { id: 't1', test_string: 'hey', test_number: 2, test_boolean_optional: true },
+            { id: 't3', test_string: 'hey', test_number: 2, test_boolean_optional: true },
           ),
         ],
       ])
@@ -587,21 +581,21 @@ export default () => [
         static table = 'will_not_be_created'
       }
       await expect(
-        adapter.batch([['create', new WillNotBeCreated({}, { text1: 'hello' })]]),
+        adapter.batch([['create', new WillNotBeCreated({}, { id: 'w1', text1: 'hello' })]]),
       ).rejects.toBeInstanceOf(Error)
 
       // make sure new fields actually work and that migrations won't be applied again
       adapter = adapter.testClone()
 
-      const p2 = await adapter.find('projects', 'p2')
-      expect(p2.text2).toBe('foo')
+      const p1 = await adapter.find('projects', 'p1')
+      expect(p1.text2).toBe('foo')
 
-      const t1 = await adapter.find('tasks', 't1')
+      const t1 = await adapter.find('tasks', 't3')
       expect(t1.test_string).toBe('hey')
       expect(t1.test_number).toBe(2)
       expect(t1.test_boolean).toBe(false)
 
-      const tt1 = await adapter.find('tag_assignments', 'tt1')
+      const tt1 = await adapter.find('tag_assignments', 'tt2')
       expect(tt1.text1).toBe('hello')
     },
   ],
