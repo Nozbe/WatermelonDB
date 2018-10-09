@@ -7,7 +7,7 @@ import com.facebook.react.bridge.WritableArray
 import java.lang.Exception
 import java.util.logging.Logger
 
-class DatabaseDriver {
+class DatabaseDriver(context: Context, dbName: String) {
     sealed class Operation {
         class Execute(val query: SQL, val args: QueryArgs) : Operation()
         class Create(val id: RecordID, val query: SQL, val args: QueryArgs) : Operation()
@@ -39,11 +39,7 @@ class DatabaseDriver {
         migrate(migrations)
     }
 
-    constructor(context: Context, dbName: String) {
-        this.database = Database(dbName, context)
-    }
-
-    private val database: Database
+    private val database: Database = Database(dbName, context)
 
     private val log: Logger? = if (BuildConfig.DEBUG) Logger.getLogger("DB_Driver") else null
 
