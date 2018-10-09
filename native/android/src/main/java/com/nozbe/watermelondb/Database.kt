@@ -30,7 +30,8 @@ class Database(private val name: String?, private val context: Context) {
                 }
             }
 
-    fun execute(query: SQL, values: QueryArgs = arrayListOf()) = db.execSQL(query, values.toArray())
+    fun execute(query: SQL, values: QueryArgs = arrayListOf()) =
+            db.execSQL(query, values.toArray())
 
     fun delete(query: SQL, queryArgs: QueryArgs) = db.execSQL(query, queryArgs.toArray())
 
@@ -39,7 +40,11 @@ class Database(private val name: String?, private val context: Context) {
     fun getFromLocalStorage(key: String): String? =
             rawQuery(Queries.select_local_storage, arrayOf(key)).use {
                 it.moveToFirst()
-                return if (it.count > 0) it.getString(0) else null
+                return if (it.count > 0) {
+                    it.getString(0)
+                } else {
+                    null
+                }
             }
 
     fun insertToLocalStorage(key: String, value: String) =
@@ -54,7 +59,30 @@ class Database(private val name: String?, private val context: Context) {
                 return it.getInt(it.getColumnIndex("count"))
             }
 
-    fun unsafeResetDatabase(): Boolean = context.deleteDatabase(name)
+    fun unsafeResetDatabase() = context.deleteDatabase(name)
+
+    fun unsafeDestroyEverything() =
+            inTransaction {
+                getAllTables().forEach { execute(Queries.dropTable(it)) }
+                execute("pragma writable_schema=1")
+                execute("delete from sqlite_master")
+                execute("pragma user_version=0")
+                execute("pragma writable_schema=0")
+            }
+
+    private fun getAllTables(): ArrayList<String> {
+        val allTables: ArrayList<String> = arrayListOf()
+        rawQuery(Queries.select_tables).use {
+            it.moveToFirst()
+            val index = it.getColumnIndex("name")
+            if (index > -1) {
+                while (it.moveToNext()) {
+                    allTables.add(it.getString(index))
+                }
+            }
+        }
+        return allTables
+    }
 
     fun inTransaction(function: () -> Unit) = db.transaction { function() }
 

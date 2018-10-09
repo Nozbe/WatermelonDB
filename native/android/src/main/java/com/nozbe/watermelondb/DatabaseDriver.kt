@@ -8,8 +8,6 @@ import java.lang.Exception
 import java.util.logging.Logger
 
 class DatabaseDriver {
-    data class Configuration(val name: String?, val schema: SQL, val schemaVersion: Int)
-
     sealed class Operation {
         class Execute(val query: SQL, val args: QueryArgs) : Operation()
         class Create(val id: RecordID, val query: SQL, val args: QueryArgs) : Operation()
@@ -22,7 +20,8 @@ class DatabaseDriver {
     class SchemaNeededError : Exception()
     data class MigrationNeededError(val databaseVersion: SchemaVersion) : Exception()
 
-    constructor(context: Context, dbName: String, schemaVersion: Int) : this(context, dbName) {
+    constructor(context: Context, dbName: String, schemaVersion: SchemaVersion)
+            : this(context, dbName) {
         val compatibility = isCompatible(schemaVersion)
         when (compatibility) {
             is SchemaCompatibility.NeedsSetup -> throw SchemaNeededError()
@@ -41,7 +40,7 @@ class DatabaseDriver {
     }
 
     constructor(context: Context, dbName: String) {
-        this.database = Database("$dbName.db", context)
+        this.database = Database(dbName, context)
     }
 
     private val database: Database
@@ -163,12 +162,11 @@ class DatabaseDriver {
         removedIds.forEach { cachedRecords.remove(it) }
     }
 
-    fun unsafeResetDatabase(schema: Schema): Boolean {
+    fun unsafeResetDatabase(schema: Schema) {
         log?.info("Unsafe Reset Database")
-        val didDelete = database.unsafeResetDatabase()
+        database.unsafeDestroyEverything()
         cachedRecords.clear()
         setUpSchema(schema)
-        return didDelete
     }
 
     fun close() = database.close()

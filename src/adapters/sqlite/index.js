@@ -89,24 +89,24 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   async _init(dbName: string): Promise<void> {
-      // Try to initialize the database with just the schema number. If it matches the database,
-      // we're good. If not, we try again, this time sending the compiled schema or a migration set
-      // This is to speed up the launch (less to do and pass through bridge), and avoid repeating
-      // migration logic inside native code
-      const status = await Native.initialize(this._tag, dbName, this.schema.version)
+    // Try to initialize the database with just the schema number. If it matches the database,
+    // we're good. If not, we try again, this time sending the compiled schema or a migration set
+    // This is to speed up the launch (less to do and pass through bridge), and avoid repeating
+    // migration logic inside native code
+    const status = await Native.initialize(this._tag, dbName, this.schema.version)
 
-      if (status.code === 'schema_needed') {
-        logger.log('[DB] Database needs setup. Setting up schema.')
-        await Native.setUpWithSchema(this._tag, dbName, this._encodedSchema(), this.schema.version)
-      } else if (status.code === 'migrations_needed') {
-        logger.log('[DB] Database needs migrations')
-        const { databaseVersion } = status
-        invariant(databaseVersion > 0, 'Invalid database schema version')
-        // TODO: Apply migrations
-        await Native.setUpWithSchema(this._tag, dbName, this._encodedSchema(), this.schema.version)
-      } else {
-        invariant(status.code === 'ok', 'Invalid database initialization status')
-      }
+    if (status.code === 'schema_needed') {
+      logger.log('[DB] Database needs setup. Setting up schema.')
+      await Native.setUpWithSchema(this._tag, dbName, this._encodedSchema(), this.schema.version)
+    } else if (status.code === 'migrations_needed') {
+      logger.log('[DB] Database needs migrations')
+      const { databaseVersion } = status
+      invariant(databaseVersion > 0, 'Invalid database schema version')
+      // TODO: Apply migrations
+      await Native.setUpWithSchema(this._tag, dbName, this._encodedSchema(), this.schema.version)
+    } else {
+      invariant(status.code === 'ok', 'Invalid database initialization status')
+    }
   }
 
   async find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {
@@ -163,13 +163,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   async unsafeResetDatabase(): Promise<void> {
-    // TODO: Temporary, remove me after Android is updated
-    if (Platform.OS === 'ios') {
-      await Native.unsafeResetDatabase(this._tag, this._encodedSchema(), this.schema.version)
-    } else {
-      // $FlowFixMe
-      await Native.unsafeResetDatabase(this._tag)
-    }
+    await Native.unsafeResetDatabase(this._tag, this._encodedSchema(), this.schema.version)
     logger.log('[DB] Database is now reset')
   }
 

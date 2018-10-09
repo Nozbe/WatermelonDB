@@ -18,11 +18,11 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
 
     sealed class Connection {
         class Connected(val driver: DatabaseDriver) : Connection()
-        class Waiting(var queueW: Array<(() -> Unit)>) : Connection()
+        class Waiting(var queueW: ArrayList<(() -> Unit)>) : Connection()
 
-        var queue: Array<(() -> Unit)> = arrayOf()
+        var queue: ArrayList<(() -> Unit)> = arrayListOf()
             get() = when (this) {
-                is Connection.Connected -> emptyArray()
+                is Connection.Connected -> arrayListOf()
                 is Connection.Waiting -> this.queueW
             }
     }
@@ -38,16 +38,20 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         val promiseMap = Arguments.createMap()
 
         try {
-            val driver = DatabaseDriver(reactContext, dbName = databaseName, schemaVersion = schemaVersion)
+            val driver = DatabaseDriver(
+                    context = reactContext,
+                    dbName = databaseName,
+                    schemaVersion = schemaVersion
+            )
             connections[tag] = Connection.Connected(driver)
             promiseMap.putString("code", "ok")
             promise.resolve(promiseMap)
         } catch (e: DatabaseDriver.SchemaNeededError) {
-            connections[tag] = Connection.Waiting(arrayOf())
+            connections[tag] = Connection.Waiting(queueW = arrayListOf())
             promiseMap.putString("code", "schema_needed")
             promise.resolve(promiseMap)
         } catch (e: DatabaseDriver.MigrationNeededError) {
-            connections[tag] = Connection.Waiting(arrayOf())
+            connections[tag] = Connection.Waiting(queueW = arrayListOf())
             promiseMap.putString("code", "migrations_needed")
             promiseMap.putInt("databaseVersion", e.databaseVersion)
             promise.resolve(promiseMap)
@@ -61,7 +65,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         tag: ConnectionTag,
         databaseName: String,
         schema: SQL,
-        schemaVersion: Int,
+        schemaVersion: SchemaVersion,
         promise: Promise
     ) {
         val driver = DatabaseDriver(
@@ -78,8 +82,8 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         tag: ConnectionTag,
         databaseName: String,
         migrations: SQL,
-        fromVersion: Int,
-        toVersion: Int,
+        fromVersion: SchemaVersion,
+        toVersion: SchemaVersion,
         promise: Promise
     ) {
         val driver = DatabaseDriver(
@@ -123,8 +127,13 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             }
 
     @ReactMethod
-    fun unsafeResetDatabase(tag: ConnectionTag, schema: Schema, promise: Promise) =
-            withDriver(tag, promise) { it.unsafeResetDatabase(schema) }
+    fun unsafeResetDatabase(
+        tag: ConnectionTag,
+        schema: SQL,
+        schemaVersion: SchemaVersion,
+        promise: Promise
+    ) =
+            withDriver(tag, promise) { it.unsafeResetDatabase(Schema(schemaVersion, schema)) }
 
     @ReactMethod
     fun unsafeClearCachedRecords(tag: ConnectionTag, promise: Promise) =
@@ -142,26 +151,30 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     fun removeLocal(tag: ConnectionTag, key: String, promise: Promise) =
             withDriver(tag, promise) { it.removeLocal(key) }
 
-    private fun withDriver(tag: ConnectionTag, promise: Promise, function: (DatabaseDriver) -> Any?) {
+    private fun withDriver(
+        tag: ConnectionTag,
+        promise: Promise,
+        function: (DatabaseDriver) -> Any?
+    ) {
         try {
             val connection = connections[tag]
             when (connection) {
                 is Connection.Connected -> {
                     val result = function(connection.driver)
-                    promise.resolve(if (result === Unit) true else result)
+                    promise.resolve(if (result === Unit) {
+                        true
+                    } else {
+                        result
+                    })
                 }
                 is Connection.Waiting -> {
                     // try again when driver is ready
-                    connection.queue.plus {
-                        this.withDriver(tag, promise, function)
-                    }
+                    connection.queue.add { withDriver(tag, promise, function) }
                     connections[tag] = Connection.Waiting(connection.queue)
-                }
-                else -> {
                 }
             }
         } catch (e: SQLException) {
-            promise.reject(e)
+            promise.reject(function.javaClass.enclosingMethod?.name, e)
         }
     }
 
@@ -216,7 +229,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     }
 
     private fun connectDriver(connectionTag: ConnectionTag, driver: DatabaseDriver) {
-        val queue = connections[connectionTag]?.queue ?: emptyArray()
+        val queue = connections[connectionTag]?.queue ?: arrayListOf()
         connections[connectionTag] = Connection.Connected(driver)
 
         for (operation in queue) {
