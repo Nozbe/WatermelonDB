@@ -59,7 +59,7 @@ class Database(private val name: String?, private val context: Context) {
                 return it.getInt(it.getColumnIndex("count"))
             }
 
-    fun unsafeResetDatabase() = context.deleteDatabase(name)
+//    fun unsafeResetDatabase() = context.deleteDatabase("$name.db")
 
     fun unsafeDestroyEverything() =
             inTransaction {
@@ -76,9 +76,9 @@ class Database(private val name: String?, private val context: Context) {
             it.moveToFirst()
             val index = it.getColumnIndex("name")
             if (index > -1) {
-                while (it.moveToNext()) {
+                do {
                     allTables.add(it.getString(index))
-                }
+                } while (it.moveToNext())
             }
         }
         return allTables
