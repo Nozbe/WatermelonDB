@@ -205,8 +205,7 @@ class DatabaseDriver {
             database.userVersion = migrations.to
         } catch (e: Exception) {
             // TODO: Should we crash here? Is this recoverable? Is handling in JS better?
-//                fatalError("Error while performing migrations: \(error)")
-            e.printStackTrace()
+            throw Exception("Error while performing migrations", e)
         }
     }
 
