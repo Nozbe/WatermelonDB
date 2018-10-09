@@ -18,12 +18,12 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
 
     sealed class Connection {
         class Connected(val driver: DatabaseDriver) : Connection()
-        class Waiting(var queueW: ArrayList<(() -> Unit)>) : Connection()
+        class Waiting(val queueInWaiting: ArrayList<(() -> Unit)>) : Connection()
 
-        var queue: ArrayList<(() -> Unit)> = arrayListOf()
+        val queue: ArrayList<(() -> Unit)>
             get() = when (this) {
                 is Connection.Connected -> arrayListOf()
-                is Connection.Waiting -> this.queueW
+                is Connection.Waiting -> this.queueInWaiting
             }
     }
 
@@ -48,11 +48,11 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             promiseMap.putString("code", "ok")
             promise.resolve(promiseMap)
         } catch (e: DatabaseDriver.SchemaNeededError) {
-            connections[tag] = Connection.Waiting(queueW = arrayListOf())
+            connections[tag] = Connection.Waiting(queueInWaiting = arrayListOf())
             promiseMap.putString("code", "schema_needed")
             promise.resolve(promiseMap)
         } catch (e: DatabaseDriver.MigrationNeededError) {
-            connections[tag] = Connection.Waiting(queueW = arrayListOf())
+            connections[tag] = Connection.Waiting(queueInWaiting = arrayListOf())
             promiseMap.putString("code", "migrations_needed")
             promiseMap.putInt("databaseVersion", e.databaseVersion)
             promise.resolve(promiseMap)
