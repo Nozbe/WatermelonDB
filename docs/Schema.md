@@ -19,7 +19,7 @@ export const mySchema = appSchema({
         { name: 'title', type: 'string' },
         { name: 'subtitle', type: 'string', isOptional: true },
         { name: 'body', type: 'string' },
-        { name: 'is_pinned', type: 'bool' },
+        { name: 'is_pinned', type: 'boolean' },
       ]
     }),
     tableSchema({
@@ -55,7 +55,7 @@ To add a relation to a table (e.g. `Post` where a `Comment` was published, or au
 Boolean columns should have names starting with `is_`:
 
 ```js
-{ name: 'is_pinned', type: 'bool' }
+{ name: 'is_pinned', type: 'boolean' }
 ```
 
 Date fields should be `number` (dates are stored as Unix timestamps) and have names ending with `_at`:

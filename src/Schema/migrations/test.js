@@ -46,7 +46,7 @@ describe('schemaMigrations()', () => {
               table: 'posts',
               columns: [
                 { name: 'subtitle', type: 'string', isOptional: true },
-                { name: 'is_pinned', type: 'bool' },
+                { name: 'is_pinned', type: 'boolean' },
               ],
             }),
           ],
@@ -87,7 +87,7 @@ describe('schemaMigrations()', () => {
               table: 'posts',
               columns: [
                 { name: 'subtitle', type: 'string', isOptional: true },
-                { name: 'is_pinned', type: 'bool' },
+                { name: 'is_pinned', type: 'boolean' },
               ],
             },
           ],
@@ -194,7 +194,7 @@ describe('migration execution helpers', () => {
       table: 'posts',
       columns: [
         { name: 'subtitle', type: 'string', isOptional: true },
-        { name: 'is_pinned', type: 'bool' },
+        { name: 'is_pinned', type: 'boolean' },
       ],
     })
     const step2 = addColumns({

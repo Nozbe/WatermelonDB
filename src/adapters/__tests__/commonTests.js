@@ -492,8 +492,8 @@ export default () => [
         { name: 'test_string_optional', type: 'string', isOptional: true },
         { name: 'test_number', type: 'number' },
         { name: 'test_number_optional', type: 'number', isOptional: true },
-        { name: 'test_boolean', type: 'bool' },
-        { name: 'test_boolean_optional', type: 'bool', isOptional: true },
+        { name: 'test_boolean', type: 'boolean' },
+        { name: 'test_boolean_optional', type: 'boolean', isOptional: true },
       ]
       const projectColumnsV5 = [{ name: 'text2', type: 'string', isIndexed: true }]
       const tagAssignmentSchema = {

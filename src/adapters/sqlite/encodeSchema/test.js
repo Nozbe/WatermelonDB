@@ -18,7 +18,7 @@ describe('encodeSchema', () => {
         }),
         tableSchema({
           name: 'comments',
-          columns: [{ name: 'is_ended', type: 'bool' }, { name: 'reactions', type: 'number' }],
+          columns: [{ name: 'is_ended', type: 'boolean' }, { name: 'reactions', type: 'number' }],
         }),
       ],
     })
@@ -50,7 +50,7 @@ describe('encodeSchema', () => {
         table: 'posts',
         columns: [
           { name: 'author_id', type: 'string', isIndexed: true },
-          { name: 'is_pinned', type: 'bool', isIndexed: true },
+          { name: 'is_pinned', type: 'boolean', isIndexed: true },
         ],
       }),
     ]

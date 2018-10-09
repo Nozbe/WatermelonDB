@@ -46,8 +46,8 @@ const mockTaskSchema = tableSchema({
     { name: 'ended_at', type: 'number', isOptional: true },
     { name: 'project_position', type: 'number' },
     { name: 'priority_position', type: 'number', isOptional: true },
-    { name: 'is_abandonned', type: 'bool' },
-    { name: 'is_all_day', type: 'bool', isOptional: true },
+    { name: 'is_abandonned', type: 'boolean' },
+    { name: 'is_all_day', type: 'boolean', isOptional: true },
   ],
 })
 
@@ -205,8 +205,8 @@ describe('setRawSanitized()', () => {
       expect(test(value, 'string')).toBe(string[0])
       expect(test(value, 'string', true)).toBe(string[1])
 
-      expect(test(value, 'bool')).toBe(bool[0])
-      expect(test(value, 'bool', true)).toBe(bool[1])
+      expect(test(value, 'boolean')).toBe(bool[0])
+      expect(test(value, 'boolean', true)).toBe(bool[1])
 
       expect(test(value, 'number')).toBe(number[0])
       expect(test(value, 'number', true)).toBe(number[1])
@@ -220,7 +220,7 @@ describe('nullValue()', () => {
     expect(nullValue({ name: 'foo', type: 'string', isOptional: true })).toBe(null)
     expect(nullValue({ name: 'foo', type: 'number' })).toBe(0)
     expect(nullValue({ name: 'foo', type: 'number', isOptional: true })).toBe(null)
-    expect(nullValue({ name: 'foo', type: 'bool' })).toBe(false)
-    expect(nullValue({ name: 'foo', type: 'bool', isOptional: true })).toBe(null)
+    expect(nullValue({ name: 'foo', type: 'boolean' })).toBe(false)
+    expect(nullValue({ name: 'foo', type: 'boolean', isOptional: true })).toBe(null)
   })
 })

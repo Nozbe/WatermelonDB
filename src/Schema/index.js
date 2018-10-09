@@ -10,7 +10,7 @@ import type Model from '../Model'
 export opaque type TableName<+T: Model>: string = string
 export opaque type ColumnName: string = string
 
-export type ColumnType = 'string' | 'number' | 'bool'
+export type ColumnType = 'string' | 'number' | 'boolean'
 export type ColumnSchema = $Exact<{
   name: ColumnName,
   type: ColumnType,
@@ -55,7 +55,7 @@ export function validateColumnSchema(column: ColumnSchema): void {
   if (isDevelopment) {
     invariant(column.name, `Missing column name`)
     invariant(
-      contains(column.type, ['string', 'bool', 'number']),
+      contains(column.type, ['string', 'boolean', 'number']),
       `Invalid type ${column.type} for column ${column.name}`,
     )
     invariant(

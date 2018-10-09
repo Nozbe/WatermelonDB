@@ -44,7 +44,7 @@ function _setRaw(raw: Object, key: string, value: any, columnSchema: ColumnSchem
     } else {
       raw[key] = isOptional ? null : ''
     }
-  } else if (type === 'bool') {
+  } else if (type === 'boolean') {
     if (typeof value === 'boolean') {
       raw[key] = value
     } else if (value === 1 || value === 0) {
@@ -119,7 +119,7 @@ export function nullValue(columnSchema: ColumnSchema): NullValue {
     return ''
   } else if (type === 'number') {
     return 0
-  } else if (type === 'bool') {
+  } else if (type === 'boolean') {
     return false
   }
 
