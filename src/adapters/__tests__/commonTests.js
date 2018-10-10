@@ -8,6 +8,7 @@ import { appSchema, tableSchema } from '../../Schema'
 import { schemaMigrations, createTable, addColumns } from '../../Schema/migrations'
 
 import { matchTests, joinTests } from '../../__tests__/databaseTests'
+import LokiJSAdapter from '../lokijs/index'
 import {
   testSchema,
   taskQuery,
@@ -584,6 +585,102 @@ export default () => [
 
       const tt1 = await adapter.find('tag_assignments', 'tt2')
       expect(tt1.text1).toBe('hello')
+    },
+  ],
+  [
+    `resets database when it's newer than app schema`,
+    async (_adapter, AdapterClass) => {
+      const schema = tableSchema({ name: 'tasks', columns: [{ name: 'text1', type: 'string' }] })
+      const makeTaskQuery = () => new Query({ modelClass: MockTask }, [])
+
+      // launch newer version of the app
+      const testSchemaV3 = appSchema({ version: 3, tables: [schema] })
+      let adapter = new AdapterClass({
+        schema: testSchemaV3,
+        migrationsExperimental: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
+      })
+
+      await adapter.batch([['create', new MockTask({}, { id: 't1', text1: 'foo' })]])
+      expect(await adapter.count(makeTaskQuery())).toBe(1)
+
+      // launch older version of the app (actually has the same schema, only different version
+      // -- we want to test that db was reset, not that it errored out on duplicates)
+      const testSchemaV1 = appSchema({ version: 1, tables: [schema] })
+      adapter = adapter.testClone({
+        schema: testSchemaV1,
+        migrationsExperimental: schemaMigrations({ migrations: [] }),
+      })
+
+      expect(await adapter.count(makeTaskQuery())).toBe(0)
+      await adapter.batch([['create', new MockTask({}, { id: 't1', text1: 'foo' })]])
+      expect(await adapter.count(makeTaskQuery())).toBe(1)
+    },
+  ],
+  [
+    'resets database when there are no available migrations',
+    async (_adapter, AdapterClass) => {
+      const schema = tableSchema({ name: 'tasks', columns: [{ name: 'text1', type: 'string' }] })
+      const makeTaskQuery = () => new Query({ modelClass: MockTask }, [])
+
+      // launch older version of the app
+      const testSchemaV1 = appSchema({ version: 1, tables: [schema] })
+      let adapter = new AdapterClass({
+        schema: testSchemaV1,
+        migrationsExperimental: schemaMigrations({ migrations: [] }),
+      })
+
+      await adapter.batch([['create', new MockTask({}, { id: 't1', text1: 'foo' })]])
+      expect(await adapter.count(makeTaskQuery())).toBe(1)
+
+      // launch newer version of the app, without migrations available
+      const testSchemaV3 = appSchema({ version: 3, tables: [schema] })
+      adapter = adapter.testClone({
+        schema: testSchemaV3,
+        migrationsExperimental: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
+      })
+
+      expect(await adapter.count(makeTaskQuery())).toBe(0)
+      await adapter.batch([['create', new MockTask({}, { id: 't1', text1: 'foo' })]])
+      expect(await adapter.count(makeTaskQuery())).toBe(1)
+    },
+  ],
+  [
+    'resets database when migration fails',
+    async (_adapter, AdapterClass) => {
+      const schema = { name: 'tasks', columns: [{ name: 'text1', type: 'string' }] }
+      const makeTaskQuery = () => new Query({ modelClass: MockTask }, [])
+
+      // launch older version of the app
+      const testSchemaV1 = appSchema({ version: 1, tables: [tableSchema(schema)] })
+      let adapter = new AdapterClass({
+        schema: testSchemaV1,
+        migrationsExperimental: schemaMigrations({ migrations: [] }),
+      })
+
+      await adapter.batch([['create', new MockTask({}, { id: 't1', text1: 'foo' })]])
+      expect(await adapter.count(makeTaskQuery())).toBe(1)
+
+      // launch newer version of the app with a migration that will fail
+      const testSchemaV2 = appSchema({ version: 2, tables: [tableSchema(schema)] })
+      adapter = adapter.testClone({
+        schema: testSchemaV2,
+        migrationsExperimental: schemaMigrations({
+          migrations: [
+            {
+              toVersion: 2,
+              steps: [
+                // with SQLite, trying to create a duplicate table will fail, but Loki will just ignore it
+                // so let's insert something that WILL fail
+                AdapterClass === LokiJSAdapter ? { type: 'bad_type' } : createTable(schema),
+              ],
+            },
+          ],
+        }),
+      })
+
+      expect(await adapter.count(makeTaskQuery())).toBe(0)
+      await adapter.batch([['create', new MockTask({}, { id: 't1', text1: 'foo' })]])
+      expect(await adapter.count(makeTaskQuery())).toBe(1)
     },
   ],
   ...matchTests.map(testCase => [
