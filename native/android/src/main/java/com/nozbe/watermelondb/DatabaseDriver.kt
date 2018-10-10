@@ -4,10 +4,10 @@ import android.content.Context
 import android.database.Cursor
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.WritableArray
+import java.lang.Exception
 import java.util.logging.Logger
 
-class DatabaseDriver(context: Context, private val configuration: Configuration) {
-    data class Configuration(val name: String?, val schema: SQL, val schemaVersion: Int)
+class DatabaseDriver(context: Context, dbName: String) {
     sealed class Operation {
         class Execute(val query: SQL, val args: QueryArgs) : Operation()
         class Create(val id: RecordID, val query: SQL, val args: QueryArgs) : Operation()
@@ -17,7 +17,29 @@ class DatabaseDriver(context: Context, private val configuration: Configuration)
         // class RemoveLocal(val key: String) : Operation()
     }
 
-    private val database: Database by lazy { Database(configuration.name, context) }
+    class SchemaNeededError : Exception()
+    data class MigrationNeededError(val databaseVersion: SchemaVersion) : Exception()
+
+    constructor(context: Context, dbName: String, schemaVersion: SchemaVersion)
+            : this(context, dbName) {
+        val compatibility = isCompatible(schemaVersion)
+        when (compatibility) {
+            is SchemaCompatibility.NeedsSetup -> throw SchemaNeededError()
+            is SchemaCompatibility.NeedsMigration ->
+                throw MigrationNeededError(compatibility.fromVersion)
+        }
+    }
+
+    constructor(context: Context, dbName: String, schema: Schema) : this(context, dbName) {
+        setUpDatabase(schema)
+    }
+
+    constructor(context: Context, dbName: String, migrations: MigrationSet) :
+            this(context, dbName) {
+        migrate(migrations)
+    }
+
+    private val database: Database = Database(dbName, context)
 
     private val log: Logger? = if (BuildConfig.DEBUG) Logger.getLogger("DB_Driver") else null
 
@@ -109,7 +131,7 @@ class DatabaseDriver(context: Context, private val configuration: Configuration)
     fun batch(operations: List<Operation>) {
         val newIds = arrayListOf<RecordID>()
         val removedIds = arrayListOf<RecordID>()
-        database.inTransaction {
+        database.transaction {
             operations.forEach {
                 when (it) {
                     is Operation.Execute -> execute(it.query, it.args)
@@ -132,20 +154,11 @@ class DatabaseDriver(context: Context, private val configuration: Configuration)
         removedIds.forEach { cachedRecords.remove(it) }
     }
 
-    fun unsafeResetDatabase(): Boolean {
+    fun unsafeResetDatabase(schema: Schema) {
         log?.info("Unsafe Reset Database")
-        val didDelete = database.unsafeResetDatabase()
+        database.unsafeDestroyEverything()
         cachedRecords.clear()
-        setUpSchema()
-        return didDelete
-    }
-
-    private fun setUp() {
-        log?.info("SetUp Database without reset")
-        cachedRecords.clear()
-        if (database.userVersion != configuration.schemaVersion) {
-            unsafeResetDatabase()
-        }
+        setUpSchema(schema)
     }
 
     fun close() = database.close()
@@ -157,13 +170,57 @@ class DatabaseDriver(context: Context, private val configuration: Configuration)
 
     private fun isCached(id: RecordID): Boolean = cachedRecords.contains(id)
 
-    private fun setUpSchema() {
+    private fun setUpSchema(schema: Schema) {
         log?.info("Setting up schema")
-        database.executeSchema(configuration.schema + Queries.localStorageSchema,
-                configuration.schemaVersion)
+        database.executeStatements(schema.sql + Queries.localStorageSchema)
+        database.userVersion = schema.version
     }
 
-    init {
-        setUp()
+    private fun setUpDatabase(schema: Schema) {
+        log?.info("Setting up database with version ${schema.version}")
+        try {
+            unsafeResetDatabase(schema)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun migrate(migrations: MigrationSet) {
+        log?.info("Migrating database from version ${migrations.from} to ${migrations.to}")
+        require(database.userVersion == migrations.from) {
+            "Incompatbile migration set applied. " +
+                    "DB: ${database.userVersion}, migration: ${migrations.from}"
+        }
+
+        try {
+            database.executeStatements(migrations.sql)
+            database.userVersion = migrations.to
+        } catch (e: Exception) {
+            // TODO: Should we crash here? Is this recoverable? Is handling in JS better?
+            throw Exception("Error while performing migrations", e)
+        }
+    }
+
+    sealed class SchemaCompatibility {
+        object Compatible : SchemaCompatibility()
+        object NeedsSetup : SchemaCompatibility()
+        class NeedsMigration(val fromVersion: SchemaVersion) : SchemaCompatibility()
+    }
+
+    private fun isCompatible(schemaVersion: SchemaVersion): SchemaCompatibility {
+        val databaseVersion = database.userVersion
+
+        return when (databaseVersion) {
+            schemaVersion -> SchemaCompatibility.Compatible
+            0 -> SchemaCompatibility.NeedsSetup
+            in 1..(schemaVersion - 1) ->
+                SchemaCompatibility.NeedsMigration(fromVersion = databaseVersion)
+            else -> {
+                // TODO: Safe to assume this would only happen in dev and we can safely reset the database?
+                log?.info("Database has newer version ($databaseVersion) than what the " +
+                        "app supports ($schemaVersion). Will reset database.")
+                SchemaCompatibility.NeedsSetup
+            }
+        }
     }
 }

@@ -6,7 +6,7 @@ import {
   MockComment,
   testSchema,
 } from '../__tests__/testModels'
-import { CollectionChangeTypes } from '../Collection'
+import { CollectionChangeTypes } from '../Collection/common'
 import Database from './index'
 
 describe('watermelondb/Database', () => {

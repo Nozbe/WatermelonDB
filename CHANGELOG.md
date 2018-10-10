@@ -8,6 +8,20 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Fixed
+
+- Fixed "dependency cycle" warning
+
+### Improvements
+
+- [React Native] App should launch a little faster, because schema is only compiled on demand now
+
+### Refactoring
+
+- [WIP] Migrations
+
+## 0.6.2 - 2018-10-04
+
 ### Deprecations
 
 - The `@nozbe/watermelondb/babel/cjs` / `@nozbe/watermelondb/babel/esm` Babel plugin that ships with Watermelon is deprecated and no longer necessary. Delete it from your Babel config as it will be removed in a future update

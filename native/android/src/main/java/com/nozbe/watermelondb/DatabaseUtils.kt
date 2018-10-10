@@ -1,7 +1,6 @@
 package com.nozbe.watermelondb
 
 import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase
 import com.facebook.react.bridge.WritableMap
 
 typealias SQL = String
@@ -10,6 +9,9 @@ typealias TableName = String
 typealias QueryArgs = ArrayList<Any>
 typealias RawQueryArgs = Array<String>
 typealias ConnectionTag = Int
+typealias SchemaVersion = Int
+data class Schema(val version: SchemaVersion, val sql: SQL)
+data class MigrationSet(val from: SchemaVersion, val to: SchemaVersion, val sql: SQL)
 
 fun WritableMap.mapCursor(cursor: Cursor) {
     for (i in 0 until cursor.columnCount) {
@@ -20,15 +22,5 @@ fun WritableMap.mapCursor(cursor: Cursor) {
             Cursor.FIELD_TYPE_STRING -> putString(cursor.getColumnName(i), cursor.getString(i))
             else -> putString(cursor.getColumnName(i), "")
         }
-    }
-}
-
-fun SQLiteDatabase.transaction(function: () -> Unit) {
-    beginTransaction()
-    try {
-        function()
-        setTransactionSuccessful()
-    } finally {
-        endTransaction()
     }
 }
