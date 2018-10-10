@@ -1,11 +1,12 @@
 // @flow
 
 import { NativeModules } from 'react-native'
-import { connectionTag, type ConnectionTag, logger } from '../../utils/common'
+import { connectionTag, type ConnectionTag, logger, isDevelopment } from '../../utils/common'
 
 import type Model, { RecordId } from '../../Model'
 import type Query from '../../Query'
 import type { TableName, AppSchema } from '../../Schema'
+import type { SchemaMigrations } from '../../Schema/migrations'
 import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
 import {
   type DirtyFindResult,
@@ -17,6 +18,7 @@ import {
   devLogCount,
   devLogBatch,
   devLogSetUp,
+  validateAdapter,
 } from '../common'
 
 import encodeQuery from './encodeQuery'
@@ -55,21 +57,24 @@ const Native: NativeBridgeType = NativeModules.DatabaseBridge
 export type SQLiteAdapterOptions = $Exact<{
   dbName: string,
   schema: AppSchema,
+  migrationsExperimental?: SchemaMigrations,
 }>
 
 export default class SQLiteAdapter implements DatabaseAdapter {
   schema: AppSchema
 
+  migrations: ?SchemaMigrations
+
   _tag: ConnectionTag = connectionTag()
 
-  constructor(options: SQLiteAdapterOptions): void {
-    this._setUp(options)
-  }
-
-  async _setUp({ dbName, schema }: SQLiteAdapterOptions): Promise<void> {
+  constructor({ dbName, schema, migrationsExperimental }: SQLiteAdapterOptions): void {
     this.schema = schema
+    this.migrations = migrationsExperimental
+    isDevelopment && validateAdapter(this)
+
     const schemaSQL = encodeSchema(schema)
-    await devLogSetUp(() => Native.setUp(this._tag, dbName, schemaSQL, schema.version))
+    // TODO: Don't compile schema at launch, only send version, and if rejected, try again
+    devLogSetUp(() => Native.setUp(this._tag, dbName, schemaSQL, schema.version))
   }
 
   async find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {
