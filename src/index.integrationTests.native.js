@@ -1,4 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable import/first */
+
+process.env.NODE_ENV = 'test'
 
 import React from 'react'
 import { AppRegistry, Text, NativeModules } from 'react-native'

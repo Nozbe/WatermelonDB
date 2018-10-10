@@ -3,12 +3,12 @@
 import Loki, { LokiMemoryAdapter } from 'lokijs'
 import LokiIndexedAdapter from 'lokijs/src/loki-indexed-adapter'
 
-export function newLoki(name: string): Loki {
-  const adapter =
+export function newLoki(name: ?string, peristenceAdapter?: LokiMemoryAdapter): Loki {
+  const newAdapter =
     process.env.NODE_ENV === 'test' ? new LokiMemoryAdapter() : new LokiIndexedAdapter(name)
 
   return new Loki(name, {
-    adapter,
+    adapter: peristenceAdapter || newAdapter,
     autosave: true,
     autosaveInterval: 250, // TODO: Remove this and force database save when we have transactions
     env: 'BROWSER', // TODO: ?

@@ -1,4 +1,5 @@
 import { createTable, addColumns, schemaMigrations } from './index'
+import { stepsForMigration } from './helpers'
 
 describe('schemaMigrations()', () => {
   it('returns a basic schema migrations spec', () => {
@@ -184,5 +185,49 @@ describe('migration step functions', () => {
     expect(() => addColumns({ table: 'foo', columns: [{ name: 'x', type: 'blah' }] })).toThrow(
       /type/,
     )
+  })
+})
+
+describe('migration execution helpers', () => {
+  it('finds the right migration steps', () => {
+    const step1 = addColumns({
+      table: 'posts',
+      columns: [
+        { name: 'subtitle', type: 'string', isOptional: true },
+        { name: 'is_pinned', type: 'bool' },
+      ],
+    })
+    const step2 = addColumns({
+      table: 'posts',
+      columns: [{ name: 'author_id', type: 'string', isIndexed: true }],
+    })
+    const step3 = createTable({
+      name: 'comments',
+      columns: [
+        { name: 'post_id', type: 'string', isIndexed: true },
+        { name: 'body', type: 'string' },
+      ],
+    })
+
+    const migrations = schemaMigrations({
+      minimumVersion: 1,
+      currentVersion: 5,
+      migrations: [
+        { from: 4, to: 5, steps: [step2, step3] },
+        { from: 2, to: 4, steps: [] },
+        { from: 1, to: 2, steps: [step1] },
+      ],
+    })
+
+    expect(stepsForMigration({ migrations, fromVersion: 1, toVersion: 2 })).toEqual([step1])
+    expect(stepsForMigration({ migrations, fromVersion: 1, toVersion: 4 })).toEqual([step1])
+    expect(stepsForMigration({ migrations, fromVersion: 1, toVersion: 5 })).toEqual([
+      step1,
+      step2,
+      step3,
+    ])
+    expect(stepsForMigration({ migrations, fromVersion: 2, toVersion: 5 })).toEqual([step2, step3])
+    expect(stepsForMigration({ migrations, fromVersion: 2, toVersion: 4 })).toEqual([])
+    expect(stepsForMigration({ migrations, fromVersion: 4, toVersion: 5 })).toEqual([step2, step3])
   })
 })

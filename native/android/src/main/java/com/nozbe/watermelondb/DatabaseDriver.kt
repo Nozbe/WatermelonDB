@@ -98,10 +98,6 @@ class DatabaseDriver(context: Context, dbName: String) {
         return resultArray
     }
 
-    fun unsafeClearCachedRecords() {
-        cachedRecords = arrayListOf()
-    }
-
     fun destroyDeletedRecords(table: TableName, records: QueryArgs) =
             database.delete(Queries.multipleDeleteFromTable(table, records), records)
 

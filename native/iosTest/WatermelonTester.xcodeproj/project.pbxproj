@@ -643,6 +643,7 @@
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
+				6E0A6C1421661F7700195262 /* Run SwiftLint */,
 			);
 			buildRules = (
 			);
@@ -1083,6 +1084,24 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WatermelonTesterTests/Pods-WatermelonTesterTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		6E0A6C1421661F7700195262 /* Run SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run SwiftLint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\n    cd ../../\n    yarn swiftlint\nelse\n    echo \"warning: SwiftLint not installed, download by running `brew install swiftlint`\"\nfi\n";
 		};
 		FBDE50819C02F2F4954F1CCD /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
