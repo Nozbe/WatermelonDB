@@ -2,11 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
 ### Deprecations
 
 - [Schema] Column type 'bool' is deprecated — change to 'boolean'
-
-## Unreleased
 
 ### Fixed
 
