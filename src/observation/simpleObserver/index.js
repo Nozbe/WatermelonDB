@@ -8,7 +8,7 @@ import doOnDispose from '../../utils/rx/doOnDispose'
 import doOnSubscribe from '../../utils/rx/doOnSubscribe'
 
 import logger from '../../utils/common/logger'
-import { CollectionChangeTypes } from '../../Collection'
+import { CollectionChangeTypes } from '../../Collection/common'
 
 import type Query from '../../Query'
 import type Model from '../../Model'
