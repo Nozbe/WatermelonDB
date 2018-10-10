@@ -16,10 +16,10 @@ class DatabaseDriver {
         self.init(dbName: dbName)
 
         switch isCompatible(withVersion: schemaVersion) {
-        case .Compatible: break
-        case .NeedsSetup:
+        case .compatible: break
+        case .needsSetup:
             throw SchemaNeededError()
-        case .NeedsMigration(fromVersion: let dbVersion):
+        case .needsMigration(fromVersion: let dbVersion):
             throw MigrationNeededError(databaseVersion: dbVersion)
         }
     }
@@ -176,24 +176,22 @@ class DatabaseDriver {
 // MARK: - Other private details
 
     private enum SchemaCompatibility {
-        case Compatible
-        case NeedsSetup
-        case NeedsMigration(fromVersion: SchemaVersion)
+        case compatible
+        case needsSetup
+        case needsMigration(fromVersion: SchemaVersion)
     }
 
     private func isCompatible(withVersion schemaVersion: SchemaVersion) -> SchemaCompatibility {
         let databaseVersion = database.userVersion
 
-        if databaseVersion == schemaVersion {
-            return .Compatible
-        } else if databaseVersion == 0 {
-            return .NeedsSetup
-        } else if databaseVersion > 0 && databaseVersion < schemaVersion {
-            return .NeedsMigration(fromVersion: databaseVersion)
-        } else {
+        switch databaseVersion {
+        case schemaVersion: return .compatible
+        case 0: return .needsSetup
+        case (1..<schemaVersion): return .needsMigration(fromVersion: databaseVersion)
+        default:
             consoleLog("Database has newer version (\(databaseVersion)) than what the " +
                 "app supports (\(schemaVersion)). Will reset database.")
-            return .NeedsSetup
+            return .needsSetup
         }
     }
 
