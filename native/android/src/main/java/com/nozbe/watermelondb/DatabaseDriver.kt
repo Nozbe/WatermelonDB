@@ -175,8 +175,10 @@ class DatabaseDriver(context: Context, dbName: String) {
     private fun isCached(id: RecordID): Boolean = cachedRecords.contains(id)
 
     private fun setUpSchema(schema: Schema) {
-        database.executeStatements(schema.sql + Queries.localStorageSchema)
-        database.userVersion = schema.version
+        database.transaction {
+            database.executeStatements(schema.sql + Queries.localStorageSchema)
+            database.userVersion = schema.version
+        }
     }
 
     private fun migrate(migrations: MigrationSet) {
@@ -185,8 +187,10 @@ class DatabaseDriver(context: Context, dbName: String) {
                     "DB: ${database.userVersion}, migration: ${migrations.from}"
         }
 
-        database.executeStatements(migrations.sql)
-        database.userVersion = migrations.to
+        database.transaction {
+            database.executeStatements(migrations.sql)
+            database.userVersion = migrations.to
+        }
     }
 
     sealed class SchemaCompatibility {

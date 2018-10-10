@@ -203,8 +203,10 @@ class DatabaseDriver {
     }
 
     private func setUpSchema(schema: Schema) throws {
-        try database.executeStatements(schema.sql + localStorageSchema)
-        database.userVersion = schema.version
+        try database.inTransaction {
+            try database.executeStatements(schema.sql + localStorageSchema)
+            database.userVersion = schema.version
+        }
     }
 
     private func migrate(with migrations: MigrationSet) throws {
@@ -213,8 +215,10 @@ class DatabaseDriver {
             "Incompatbile migration set applied. DB: \(database.userVersion), migration: \(migrations.from)"
         )
 
-        try database.executeStatements(migrations.sql)
-        database.userVersion = migrations.to
+        try database.inTransaction {
+            try database.executeStatements(migrations.sql)
+            database.userVersion = migrations.to
+        }
     }
 
     private let localStorageSchema = """
