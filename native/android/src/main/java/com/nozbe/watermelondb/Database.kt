@@ -95,5 +95,4 @@ class Database(private val name: String?, private val context: Context) {
     }
 
     fun close() = db.close()
-
 }

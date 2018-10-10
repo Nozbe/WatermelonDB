@@ -1,7 +1,6 @@
 package com.nozbe.watermelondb
 
 import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase
 import com.facebook.react.bridge.WritableMap
 
 typealias SQL = String
