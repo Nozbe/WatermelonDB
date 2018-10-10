@@ -142,16 +142,6 @@ describe('schemaMigrations()', () => {
         ],
       }),
     ).not.toThrow()
-
-    // expect(() => schemaMigrations({ migrations: [{ version: 3, steps: [] }] })).toThrow(
-    //   /covers schema versions/,
-    // )
-    // expect(() => schemaMigrations({ migrations: [{ version: 2, steps: [] }] })).toThrow(
-    //   /cover schema versions/,
-    // )
-    // expect(() =>
-    //   schemaMigrations({ migrations: [{ version: 2, steps: [] }, { version: 3, steps: [] }] }),
-    // ).toThrow(/covers schema versions/)
   })
 })
 
