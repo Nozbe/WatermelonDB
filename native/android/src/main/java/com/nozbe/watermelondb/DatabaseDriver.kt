@@ -31,7 +31,11 @@ class DatabaseDriver(context: Context, dbName: String) {
     }
 
     constructor(context: Context, dbName: String, schema: Schema) : this(context, dbName) {
-        setUpDatabase(schema)
+        try {
+            unsafeResetDatabase(schema)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     constructor(context: Context, dbName: String, migrations: MigrationSet) :
@@ -171,34 +175,18 @@ class DatabaseDriver(context: Context, dbName: String) {
     private fun isCached(id: RecordID): Boolean = cachedRecords.contains(id)
 
     private fun setUpSchema(schema: Schema) {
-        log?.info("Setting up schema")
         database.executeStatements(schema.sql + Queries.localStorageSchema)
         database.userVersion = schema.version
     }
 
-    private fun setUpDatabase(schema: Schema) {
-        log?.info("Setting up database with version ${schema.version}")
-        try {
-            unsafeResetDatabase(schema)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
     private fun migrate(migrations: MigrationSet) {
-        log?.info("Migrating database from version ${migrations.from} to ${migrations.to}")
         require(database.userVersion == migrations.from) {
             "Incompatbile migration set applied. " +
                     "DB: ${database.userVersion}, migration: ${migrations.from}"
         }
 
-        try {
-            database.executeStatements(migrations.sql)
-            database.userVersion = migrations.to
-        } catch (e: Exception) {
-            // TODO: Should we crash here? Is this recoverable? Is handling in JS better?
-            throw Exception("Error while performing migrations", e)
-        }
+        database.executeStatements(migrations.sql)
+        database.userVersion = migrations.to
     }
 
     sealed class SchemaCompatibility {
@@ -216,7 +204,6 @@ class DatabaseDriver(context: Context, dbName: String) {
             in 1..(schemaVersion - 1) ->
                 SchemaCompatibility.NeedsMigration(fromVersion = databaseVersion)
             else -> {
-                // TODO: Safe to assume this would only happen in dev and we can safely reset the database?
                 log?.info("Database has newer version ($databaseVersion) than what the " +
                         "app supports ($schemaVersion). Will reset database.")
                 SchemaCompatibility.NeedsSetup

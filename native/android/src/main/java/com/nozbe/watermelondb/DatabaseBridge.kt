@@ -89,19 +89,25 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         fromVersion: SchemaVersion,
         toVersion: SchemaVersion,
         promise: Promise
-    ) = connectDriver(
-            connectionTag = tag,
-            driver = DatabaseDriver(
-                    context = reactContext,
-                    dbName = databaseName,
-                    migrations = MigrationSet(
-                            from = fromVersion,
-                            to = toVersion,
-                            sql = migrations
-                    )
-            ),
-            promise = promise
-    )
+    ) {
+        try {
+            connectDriver(
+                connectionTag = tag,
+                driver = DatabaseDriver(
+                        context = reactContext,
+                        dbName = databaseName,
+                        migrations = MigrationSet(
+                                from = fromVersion,
+                                to = toVersion,
+                                sql = migrations
+                        )
+                ),
+                promise = promise
+            )
+        } catch (e: Exception) {
+            promise.reject(e)
+        }
+    }
 
     @ReactMethod
     fun find(tag: ConnectionTag, table: TableName, id: RecordID, promise: Promise) =
