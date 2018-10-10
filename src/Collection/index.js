@@ -14,12 +14,8 @@ import type { Condition } from '../QueryDescription'
 import { type TableName, type TableSchema } from '../Schema'
 
 import RecordCache from './RecordCache'
+import { CollectionChangeTypes } from './common'
 
-export const CollectionChangeTypes = {
-  created: 'created',
-  updated: 'updated',
-  destroyed: 'destroyed',
-}
 type CollectionChangeType = 'created' | 'updated' | 'destroyed'
 export type CollectionChange<Record: Model> = { record: Record, type: CollectionChangeType }
 export type CollectionChangeSet<T> = CollectionChange<T>[]

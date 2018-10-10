@@ -234,7 +234,7 @@ final public class DatabaseBridge: NSObject {
                 let result = try action(driver)
                 resolve(result)
             case .waiting(var queue):
-                consoleLog("Operation for driver \(tagID) enquueed")
+                consoleLog("Operation for driver \(tagID) enqueued")
                 // try again when driver is ready
                 queue.append {
                     self.withDriver(connectionTag, resolve, reject, functionName: functionName, action: action)
