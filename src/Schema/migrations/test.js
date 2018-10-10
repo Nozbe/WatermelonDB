@@ -80,21 +80,25 @@ describe('schemaMigrations()', () => {
   })
   it('throws if migration spec is malformed', () => {
     expect(() => schemaMigrations({ migrations: [{}] })).toThrow(/Invalid migration/)
-    expect(() => schemaMigrations({ migrations: [{ version: 0 }] })).toThrow(/greater than/)
-    expect(() => schemaMigrations({ migrations: [{ version: 1 }] })).toThrow(/greater than/)
+    expect(() => schemaMigrations({ migrations: [{ version: 0, steps: [] }] })).toThrow(
+      /minimum.*is 2/i,
+    )
+    expect(() => schemaMigrations({ migrations: [{ version: 1, steps: [] }] })).toThrow(
+      /minimum.*is 2/i,
+    )
     expect(() =>
       schemaMigrations({
         migrations: [{ version: 2, steps: [{ table: 'x' }] }],
       }),
     ).toThrow(/Invalid migration steps/)
   })
-  it(`throws if there are gaps in the migrable range`, () => {
+  it(`throws if there are gaps in the migrable range or not listed in the right order`, () => {
     expect(() =>
       schemaMigrations({ migrations: [{ version: 2, steps: [] }, { version: 2, steps: [] }] }),
-    ).toThrow(/covers schema versions/)
+    ).toThrow(/in reverse chronological order/)
     expect(() =>
       schemaMigrations({ migrations: [{ version: 2, steps: [] }, { version: 3, steps: [] }] }),
-    ).toThrow(/covers schema versions/)
+    ).toThrow(/in reverse chronological order/)
     expect(() =>
       schemaMigrations({
         migrations: [
@@ -103,7 +107,7 @@ describe('schemaMigrations()', () => {
           { version: 2, steps: [] },
         ],
       }),
-    ).toThrow(/covers schema versions/)
+    ).toThrow(/in reverse chronological order/)
 
     // missing migrations from 2 to x are ok
     expect(() =>

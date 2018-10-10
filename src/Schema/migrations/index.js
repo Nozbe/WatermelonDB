@@ -21,14 +21,11 @@ export type AddColumnsMigrationStep = $Exact<{
 export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep
 
 type Migration = $Exact<{
-  +from: SchemaVersion,
-  +to: SchemaVersion,
+  +version: SchemaVersion,
   +steps: MigrationStep[],
 }>
 
 type SchemaMigrationsSpec = $Exact<{
-  +minimumVersion: SchemaVersion,
-  +currentVersion: SchemaVersion,
   +migrations: Migration[],
 }>
 
@@ -41,20 +38,17 @@ export type SchemaMigrations = $Exact<{
 // database schema. Every time you change the database schema, you must
 // create a corresponding migration.
 //
-// Note that migrations must cover the whole range from `minimumVersion` to `currentVersion`
-// and be listed in reverse chronological order (migration to newest version at the top)
+// Note that migrations must be listed in reverse chronological order
+// (migration to newest version at the top)
 //
 // See docs for more details
 //
 // Example:
 //
 // schemaMigrations({
-//   minimumVersion: 1,
-//   currentVersion: 3,
 //   migrations: [
 //     {
-//       from: 2,
-//       to: 3,
+//       version: 3,
 //       steps: [
 //         createTable({
 //           name: 'comments',
@@ -73,8 +67,7 @@ export type SchemaMigrations = $Exact<{
 //       ],
 //     },
 //     {
-//       from: 1,
-//       to: 2,
+//       version: 2,
 //       steps: [
 //         // ...
 //       ],
@@ -85,46 +78,39 @@ export type SchemaMigrations = $Exact<{
 export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMigrations {
   if (isDevelopment) {
     // validate migrations spec object
-    const { minimumVersion, currentVersion, migrations } = migrationSpec
-    invariant(typeof minimumVersion === 'number', 'Minimum schema version missing in migrations')
-    invariant(typeof currentVersion === 'number', 'Current schema version missing in migrations')
-    invariant(minimumVersion > 0, 'Minimum version must be at least 1')
-    invariant(
-      currentVersion >= minimumVersion,
-      'Current schema version must be greater than minimum migrable version',
-    )
-
+    const { migrations } = migrationSpec
     invariant(Array.isArray(migrations), 'Missing migrations array')
 
     // validate migrations format
     migrations.forEach(migration => {
       invariant(isObject(migration), `Invalid migration (not an object) in schema migrations`)
-      const { from, to, steps } = migration
+      const { version, steps } = migration
+      invariant(typeof version === 'number', 'Invalid migration - `version` must be a number')
       invariant(
-        typeof from === 'number' && typeof to === 'number' && to > from,
-        'Invalid migration - `to` version must be greater than `from` version',
+        version >= 2,
+        `Invalid migration to version ${version}. Minimum possible migration version is 2`,
       )
       invariant(
         Array.isArray(steps) && steps.every(step => typeof step.type === 'string'),
-        `Invalid migration steps for migration from version ${from} to ${to}. 'changes' should be an array of migration step calls`,
+        `Invalid migration steps for migration to version ${version}. 'steps' should be an array of migration step calls`,
       )
     })
 
-    // validate if migration spec actually covers every schema version it says it supports
-    const chronologicalMigrations = [...migrations].reverse()
-    let maxCoveredRange = minimumVersion
+    // validate that migration spec is reverse-chronological and without gaps
+    let maxCoveredVersion: ?number = null
 
-    chronologicalMigrations.forEach(({ from, to }) => {
-      invariant(
-        maxCoveredRange === from,
-        `Invalid migrations! schemaMigrations() says it covers schema versions from ${minimumVersion} to ${currentVersion}, but there is no listed migration from ${maxCoveredRange} to ${from}. Remember that migrations must be listed in reverse chronological order`,
-      )
-      maxCoveredRange = to
+    migrations.forEach(migration => {
+      const { version } = migration
+      if (maxCoveredVersion) {
+        invariant(
+          version === maxCoveredVersion - 1,
+          `Invalid migrations! Migration ${JSON.stringify(
+            migration,
+          )} is to version ${version}, but previously listed migration is to version ${maxCoveredVersion}. Remember that migrations must be listed in reverse chronological order and without gaps -- migration to newest version must be at the top, and every following migration must be to version 1 number smaller`,
+        )
+      }
+      maxCoveredVersion = version
     })
-    invariant(
-      maxCoveredRange === currentVersion,
-      `Invalid migrations! schemaMigrations() says the current version is ${currentVersion}, but migrations listed only cover schema versions range from ${minimumVersion} to ${maxCoveredRange}. Remember that migrations must be listed in reverse chronological order`,
-    )
   }
   return {
     ...migrationSpec,
