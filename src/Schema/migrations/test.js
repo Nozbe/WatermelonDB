@@ -3,27 +3,15 @@ import { stepsForMigration } from './helpers'
 
 describe('schemaMigrations()', () => {
   it('returns a basic schema migrations spec', () => {
-    const migrations = schemaMigrations({
-      minimumVersion: 1,
-      currentVersion: 1,
-      migrations: [],
-    })
-    expect(migrations).toEqual({
-      minimumVersion: 1,
-      currentVersion: 1,
-      migrations: [],
-      validated: true,
-    })
+    const migrations = schemaMigrations({ migrations: [] })
+    expect(migrations).toEqual({ migrations: [], validated: true })
   })
   it('returns a complex schema migrations spec', () => {
     const migrations = schemaMigrations({
-      minimumVersion: 1,
-      currentVersion: 5,
       migrations: [
-        { from: 4, to: 5, steps: [] },
+        { version: 5, steps: [] },
         {
-          from: 2,
-          to: 4,
+          version: 2,
           steps: [
             createTable({
               name: 'comments',
@@ -39,8 +27,7 @@ describe('schemaMigrations()', () => {
           ],
         },
         {
-          from: 1,
-          to: 2,
+          version: 1,
           steps: [
             addColumns({
               table: 'posts',
@@ -55,13 +42,10 @@ describe('schemaMigrations()', () => {
     })
     expect(migrations).toEqual({
       validated: true,
-      minimumVersion: 1,
-      currentVersion: 5,
       migrations: [
-        { from: 4, to: 5, steps: [] },
+        { version: 5, steps: [] },
         {
-          from: 2,
-          to: 4,
+          version: 4,
           steps: [
             {
               type: 'create_table',
@@ -79,8 +63,7 @@ describe('schemaMigrations()', () => {
           ],
         },
         {
-          from: 1,
-          to: 2,
+          version: 2,
           steps: [
             {
               type: 'add_columns',
@@ -96,75 +79,23 @@ describe('schemaMigrations()', () => {
     })
   })
   it('throws if migration spec is malformed', () => {
+    expect(() => schemaMigrations({ migrations: [{}] })).toThrow(/Invalid migration/)
+    expect(() => schemaMigrations({ migrations: [{ version: 0 }] })).toThrow(/greater than/)
     expect(() =>
       schemaMigrations({
-        currentVersion: 1,
-        migrations: [],
-      }),
-    ).toThrow(/minimum schema version/i)
-    expect(() =>
-      schemaMigrations({
-        minimumVersion: 1,
-        migrations: [],
-      }),
-    ).toThrow(/current schema version/i)
-    expect(() =>
-      schemaMigrations({
-        minimumVersion: 0,
-        currentVersion: 1,
-        migrations: [],
-      }),
-    ).toThrow(/at least 1/)
-    expect(() =>
-      schemaMigrations({
-        minimumVersion: 2,
-        currentVersion: 1,
-        migrations: [],
-      }),
-    ).toThrow(/greater than/)
-    expect(() =>
-      schemaMigrations({
-        minimumVersion: 1,
-        currentVersion: 1,
-        migrations: [{}],
-      }),
-    ).toThrow(/Invalid migration/)
-    expect(() =>
-      schemaMigrations({
-        minimumVersion: 1,
-        currentVersion: 1,
-        migrations: [{ from: 1, to: 1 }],
-      }),
-    ).toThrow(/greater than/)
-    expect(() =>
-      schemaMigrations({
-        minimumVersion: 1,
-        currentVersion: 2,
-        migrations: [{ from: 1, to: 2, steps: [{ table: 'x' }] }],
+        migrations: [{ version: 2, steps: [{ table: 'x' }] }],
       }),
     ).toThrow(/Invalid migration steps/)
   })
   it(`throws if migrations don't cover the whole migrable range`, () => {
+    expect(() => schemaMigrations({ migrations: [{ version: 3, steps: [] }] })).toThrow(
+      /covers schema versions/,
+    )
+    expect(() => schemaMigrations({ migrations: [{ version: 2, steps: [] }] })).toThrow(
+      /cover schema versions/,
+    )
     expect(() =>
-      schemaMigrations({
-        minimumVersion: 1,
-        currentVersion: 3,
-        migrations: [{ from: 2, to: 3, steps: [] }],
-      }),
-    ).toThrow(/covers schema versions/)
-    expect(() =>
-      schemaMigrations({
-        minimumVersion: 1,
-        currentVersion: 3,
-        migrations: [{ from: 1, to: 2, steps: [] }],
-      }),
-    ).toThrow(/cover schema versions/)
-    expect(() =>
-      schemaMigrations({
-        minimumVersion: 1,
-        currentVersion: 4,
-        migrations: [{ from: 1, to: 2, steps: [] }, { from: 2, to: 3, steps: [] }],
-      }),
+      schemaMigrations({ migrations: [{ version: 2, steps: [] }, { version: 3, steps: [] }] }),
     ).toThrow(/covers schema versions/)
   })
 })
@@ -210,12 +141,10 @@ describe('migration execution helpers', () => {
     })
 
     const migrations = schemaMigrations({
-      minimumVersion: 1,
-      currentVersion: 5,
       migrations: [
-        { from: 4, to: 5, steps: [step2, step3] },
-        { from: 2, to: 4, steps: [] },
-        { from: 1, to: 2, steps: [step1] },
+        { version: 5, steps: [step2, step3] },
+        { version: 4, steps: [] },
+        { version: 2, steps: [step1] },
       ],
     })
 

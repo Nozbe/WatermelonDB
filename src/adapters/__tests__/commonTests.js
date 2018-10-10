@@ -36,39 +36,17 @@ export default () => [
 
       // expect(() => makeAdapter({})).toThrowError(/missing migrations/)
 
-      expect(() =>
-        adapterWithMigrations({ minimumVersion: 10, currentVersion: 10, migrations: [] }),
-      ).toThrowError(/use schemaMigrations()/)
+      expect(() => adapterWithMigrations({ migrations: [] })).toThrowError(/use schemaMigrations()/)
 
-      expect(() =>
-        adapterWithMigrations(
-          schemaMigrations({
-            minimumVersion: 10,
-            currentVersion: 10,
-            migrations: [],
-          }),
-        ),
-      ).not.toThrowError()
+      expect(() => adapterWithMigrations(schemaMigrations({ migrations: [] }))).not.toThrowError()
 
-      expect(() =>
-        adapterWithMigrations(
-          schemaMigrations({
-            minimumVersion: 8,
-            currentVersion: 8,
-            migrations: [],
-          }),
-        ),
-      ).toThrowError(/Missing migration/)
+      expect(() => adapterWithMigrations(schemaMigrations({ migrations: [] }))).toThrowError(
+        /Missing migration/,
+      )
 
-      expect(() =>
-        adapterWithMigrations(
-          schemaMigrations({
-            minimumVersion: 12,
-            currentVersion: 12,
-            migrations: [],
-          }),
-        ),
-      ).toThrowError(/don't match schema/)
+      expect(() => adapterWithMigrations(schemaMigrations({ migrations: [] }))).toThrowError(
+        /don't match schema/,
+      )
     },
   ],
   [
@@ -465,14 +443,10 @@ export default () => [
           tableSchema({ name: 'projects', columns: projectColumnsV3 }),
         ],
       })
-      const migrationsV3 = schemaMigrations({
-        minimumVersion: 3,
-        currentVersion: 3,
-        migrations: [],
-      })
+
       let adapter = new AdapterClass({
         schema: testSchemaV3,
-        migrationsExperimental: migrationsV3,
+        migrationsExperimental: schemaMigrations({ migrations: [] }),
       })
 
       // add data
@@ -516,25 +490,20 @@ export default () => [
         ],
       })
       const migrationsV5 = schemaMigrations({
-        minimumVersion: 2,
-        currentVersion: 5,
         migrations: [
           {
-            from: 4,
-            to: 5,
+            version: 5,
             steps: [addColumns({ table: 'tasks', columns: taskColumnsV5 })],
           },
           {
-            from: 3,
-            to: 4,
+            version: 4,
             steps: [
               createTable(tagAssignmentSchema),
               addColumns({ table: 'projects', columns: projectColumnsV5 }),
             ],
           },
           {
-            from: 2,
-            to: 3,
+            versions: 3,
             steps: [
               createTable({
                 name: 'will_not_be_created',
