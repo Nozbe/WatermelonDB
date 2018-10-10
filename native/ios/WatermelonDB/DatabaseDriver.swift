@@ -26,12 +26,17 @@ class DatabaseDriver {
 
     convenience init(dbName: String, setUpWithSchema schema: Schema) {
         self.init(dbName: dbName)
-        setUpDatabase(schema: schema)
+
+        do {
+            try unsafeResetDatabase(schema: schema)
+        } catch {
+            fatalError("Error while setting up the database: \(error)")
+        }
     }
 
-    convenience init(dbName: String, setUpWithMigrations migrations: MigrationSet) {
+    convenience init(dbName: String, setUpWithMigrations migrations: MigrationSet) throws {
         self.init(dbName: dbName)
-        migrate(with: migrations)
+        try migrate(with: migrations)
     }
 
     private init(dbName: String) {
@@ -186,20 +191,9 @@ class DatabaseDriver {
         } else if databaseVersion > 0 && databaseVersion < schemaVersion {
             return .NeedsMigration(fromVersion: databaseVersion)
         } else {
-            // TODO: Safe to assume this would only happen in dev and we can safely reset the database?
             consoleLog("Database has newer version (\(databaseVersion)) than what the " +
                 "app supports (\(schemaVersion)). Will reset database.")
             return .NeedsSetup
-        }
-    }
-
-    private func setUpDatabase(schema: Schema) {
-        consoleLog("Setting up database with version \(schema.version)")
-
-        do {
-            try unsafeResetDatabase(schema: schema)
-        } catch {
-            fatalError("Error while setting up the database: \(error)")
         }
     }
 
@@ -211,25 +205,18 @@ class DatabaseDriver {
     }
 
     private func setUpSchema(schema: Schema) throws {
-        consoleLog("Setting up schema")
         try database.executeStatements(schema.sql + localStorageSchema)
         database.userVersion = schema.version
     }
 
-    private func migrate(with migrations: MigrationSet) {
-        consoleLog("Migrating database from version \(migrations.from) to \(migrations.to)")
+    private func migrate(with migrations: MigrationSet) throws {
         precondition(
             database.userVersion == migrations.from,
             "Incompatbile migration set applied. DB: \(database.userVersion), migration: \(migrations.from)"
         )
 
-        do {
-            try database.executeStatements(migrations.sql)
-            database.userVersion = migrations.to
-        } catch {
-            // TODO: Should we crash here? Is this recoverable? Is handling in JS better?
-            fatalError("Error while performing migrations: \(error)")
-        }
+        try database.executeStatements(migrations.sql)
+        database.userVersion = migrations.to
     }
 
     private let localStorageSchema = """

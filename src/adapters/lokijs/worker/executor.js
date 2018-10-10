@@ -257,7 +257,12 @@ export default class LokiExecutor {
 
       if (migrationSteps) {
         logger.log(`[DB][Worker] Migrating from version ${dbVersion} to ${this.schema.version}...`)
-        await this._migrate(migrationSteps)
+        try {
+          await this._migrate(migrationSteps)
+        } catch (error) {
+          logger.error('[DB][Worker] Migration failed. Resetting database instead', error)
+          await this.unsafeResetDatabase()
+        }
       } else {
         logger.warn(
           '[DB][Worker] Migrations not available for this version range, resetting database instead',

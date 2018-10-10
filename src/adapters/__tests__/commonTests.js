@@ -8,7 +8,6 @@ import { appSchema, tableSchema } from '../../Schema'
 import { schemaMigrations, createTable, addColumns } from '../../Schema/migrations'
 
 import { matchTests, joinTests } from '../../__tests__/databaseTests'
-import LokiJSAdapter from '../lokijs/index'
 import {
   testSchema,
   taskQuery,
@@ -671,7 +670,7 @@ export default () => [
               steps: [
                 // with SQLite, trying to create a duplicate table will fail, but Loki will just ignore it
                 // so let's insert something that WILL fail
-                AdapterClass === LokiJSAdapter ? { type: 'bad_type' } : createTable(schema),
+                AdapterClass.name === 'LokiJSAdapter' ? { type: 'bad_type' } : createTable(schema),
               ],
             },
           ],

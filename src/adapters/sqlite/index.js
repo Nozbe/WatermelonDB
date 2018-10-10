@@ -115,18 +115,24 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     const status = await Native.initialize(this._tag, this._dbName, this.schema.version)
 
     if (status.code === 'schema_needed') {
-      logger.log('[DB] Database needs setup. Setting up schema.')
       await this._setUpWithSchema()
     } else if (status.code === 'migrations_needed') {
-      logger.log('[DB] Database needs migrations')
-      const { databaseVersion } = status
-      invariant(databaseVersion > 0, 'Invalid database schema version')
+      this._setUpWithMigrations(status.databaseVersion)
+    } else {
+      invariant(status.code === 'ok', 'Invalid database initialization status')
+    }
+  }
 
-      const migrationSQL = this._encodedMigrations(databaseVersion)
+  async _setUpWithMigrations(databaseVersion: SchemaVersion): Promise<void> {
+    logger.log('[DB] Database needs migrations')
+    invariant(databaseVersion > 0, 'Invalid database schema version')
 
-      if (migrationSQL) {
-        logger.log(`[DB] Migrating from version ${databaseVersion} to ${this.schema.version}...`)
+    const migrationSQL = this._encodedMigrations(databaseVersion)
 
+    if (migrationSQL) {
+      logger.log(`[DB] Migrating from version ${databaseVersion} to ${this.schema.version}...`)
+
+      try {
         await Native.setUpWithMigrations(
           this._tag,
           this._dbName,
@@ -135,24 +141,27 @@ export default class SQLiteAdapter implements DatabaseAdapter {
           this.schema.version,
         )
         logger.log('[DB] Migration successful')
-      } else {
-        logger.warn(
-          '[DB] Migrations not available for this version range, resetting database instead',
-        )
+      } catch (error) {
+        logger.error('[DB] Migration failed. Resetting database instead.', error)
         await this._setUpWithSchema()
       }
     } else {
-      invariant(status.code === 'ok', 'Invalid database initialization status')
+      logger.warn(
+        '[DB] Migrations not available for this version range, resetting database instead',
+      )
+      await this._setUpWithSchema()
     }
   }
 
   async _setUpWithSchema(): Promise<void> {
-    return Native.setUpWithSchema(
+    logger.log(`[DB] Setting up database with schema version ${this.schema.version}`)
+    await Native.setUpWithSchema(
       this._tag,
       this._dbName,
       this._encodedSchema(),
       this.schema.version,
     )
+    logger.log(`[DB] Schema set up successfully`)
   }
 
   async find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {

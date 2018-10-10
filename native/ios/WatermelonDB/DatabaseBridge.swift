@@ -64,12 +64,16 @@ final public class DatabaseBridge: NSObject {
                              toVersion: NSNumber,
                              resolve: RCTPromiseResolveBlock,
                              reject: RCTPromiseRejectBlock) {
-        let driver = DatabaseDriver(
-            dbName: databaseName,
-            setUpWithMigrations: (from: fromVersion.intValue, to: toVersion.intValue, sql: migrations)
-        )
-        connectDriver(connectionTag: tag, driver: driver)
-        resolve(true)
+        do {
+            let driver = try DatabaseDriver(
+                dbName: databaseName,
+                setUpWithMigrations: (from: fromVersion.intValue, to: toVersion.intValue, sql: migrations)
+            )
+            connectDriver(connectionTag: tag, driver: driver)
+            resolve(true)
+        } catch {
+            sendReject(reject, error)
+        }
     }
 
     @objc(find:table:id:resolve:reject:)
