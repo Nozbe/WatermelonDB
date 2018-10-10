@@ -1,6 +1,5 @@
 // @flow
 
-import { last, head } from 'rambdax'
 import { devMeasureTimeAsync, logger, isDevelopment, invariant } from '../utils/common'
 import type Model, { RecordId } from '../Model'
 import type Query from '../Query'
