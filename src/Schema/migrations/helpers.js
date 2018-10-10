@@ -29,7 +29,7 @@ export function stepsForMigration({
 
   // return steps
   const matchingMigrations = sortedMigrations.filter(
-    ({ version }) => version > fromVersion && version <= toVersion,
+    ({ toVersion: version }) => version > fromVersion && version <= toVersion,
   )
 
   return getAllSteps(matchingMigrations)

@@ -42,9 +42,9 @@ export default () => [
       const adapterWithRealMigrations = migrations =>
         adapterWithMigrations(schemaMigrations({ migrations }))
 
-      expect(() => adapterWithRealMigrations([{ version: 10, steps: [] }])).not.toThrowError()
+      expect(() => adapterWithRealMigrations([{ toVersion: 10, steps: [] }])).not.toThrowError()
       expect(() =>
-        adapterWithRealMigrations([{ version: 10, steps: [] }, { version: 9, steps: [] }]),
+        adapterWithRealMigrations([{ toVersion: 10, steps: [] }, { toVersion: 9, steps: [] }]),
       ).not.toThrowError()
 
       // Empty migrations only allowed if version 1
@@ -58,12 +58,12 @@ export default () => [
       expect(() => adapterWithRealMigrations([])).toThrowError(/Missing migration/)
 
       // Migrations can't be newer than schema
-      expect(() => adapterWithRealMigrations([{ version: 11, steps: [] }])).toThrowError(
+      expect(() => adapterWithRealMigrations([{ toVersion: 11, steps: [] }])).toThrowError(
         /migrations can't be newer than schema/i,
       )
       // Migration to latest version must be present
       expect(() =>
-        adapterWithRealMigrations([{ version: 9, steps: [] }, { version: 8, steps: [] }]),
+        adapterWithRealMigrations([{ toVersion: 9, steps: [] }, { toVersion: 8, steps: [] }]),
       ).toThrowError(/Missing migration/)
     },
   ],
@@ -464,7 +464,7 @@ export default () => [
 
       let adapter = new AdapterClass({
         schema: testSchemaV3,
-        migrationsExperimental: schemaMigrations({ migrations: [{ version: 3, steps: [] }] }),
+        migrationsExperimental: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
       })
 
       // add data
@@ -510,18 +510,18 @@ export default () => [
       const migrationsV5 = schemaMigrations({
         migrations: [
           {
-            version: 5,
+            toVersion: 5,
             steps: [addColumns({ table: 'tasks', columns: taskColumnsV5 })],
           },
           {
-            version: 4,
+            toVersion: 4,
             steps: [
               createTable(tagAssignmentSchema),
               addColumns({ table: 'projects', columns: projectColumnsV5 }),
             ],
           },
           {
-            version: 3,
+            toVersion: 3,
             steps: [
               createTable({
                 name: 'will_not_be_created',

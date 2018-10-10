@@ -22,7 +22,7 @@ export type AddColumnsMigrationStep = $Exact<{
 export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep
 
 type Migration = $Exact<{
-  +version: SchemaVersion,
+  +toVersion: SchemaVersion,
   +steps: MigrationStep[],
 }>
 
@@ -37,7 +37,7 @@ export type SchemaMigrations = $Exact<{
   +sortedMigrations: Migration[],
 }>
 
-const sortMigrations = sortBy(prop('version'))
+const sortMigrations = sortBy(prop('toVersion'))
 
 // Creates a specification of how to migrate between different versions of
 // database schema. Every time you change the database schema, you must
@@ -53,7 +53,7 @@ const sortMigrations = sortBy(prop('version'))
 // schemaMigrations({
 //   migrations: [
 //     {
-//       version: 3,
+//       toVersion: 3,
 //       steps: [
 //         createTable({
 //           name: 'comments',
@@ -72,7 +72,7 @@ const sortMigrations = sortBy(prop('version'))
 //       ],
 //     },
 //     {
-//       version: 2,
+//       toVersion: 2,
 //       steps: [
 //         // ...
 //       ],
@@ -90,15 +90,15 @@ export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMig
     // validate migrations format
     migrations.forEach(migration => {
       invariant(isObject(migration), `Invalid migration (not an object) in schema migrations`)
-      const { version, steps } = migration
-      invariant(typeof version === 'number', 'Invalid migration - `version` must be a number')
+      const { toVersion, steps } = migration
+      invariant(typeof toVersion === 'number', 'Invalid migration - `toVersion` must be a number')
       invariant(
-        version >= 2,
-        `Invalid migration to version ${version}. Minimum possible migration version is 2`,
+        toVersion >= 2,
+        `Invalid migration to version ${toVersion}. Minimum possible migration version is 2`,
       )
       invariant(
         Array.isArray(steps) && steps.every(step => typeof step.type === 'string'),
-        `Invalid migration steps for migration to version ${version}. 'steps' should be an array of migration step calls`,
+        `Invalid migration steps for migration to version ${toVersion}. 'steps' should be an array of migration step calls`,
       )
     })
 
@@ -106,24 +106,24 @@ export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMig
     let maxCoveredVersion: ?number = null
 
     migrations.forEach(migration => {
-      const { version } = migration
+      const { toVersion } = migration
       if (maxCoveredVersion) {
         invariant(
-          version === maxCoveredVersion - 1,
+          toVersion === maxCoveredVersion - 1,
           `Invalid migrations! Migration ${JSON.stringify(
             migration,
-          )} is to version ${version}, but previously listed migration is to version ${maxCoveredVersion}. Remember that migrations must be listed in reverse chronological order and without gaps -- migration to newest version must be at the top, and every following migration must be to version 1 number smaller`,
+          )} is to version ${toVersion}, but previously listed migration is to version ${maxCoveredVersion}. Remember that migrations must be listed in reverse chronological order and without gaps -- migration to newest version must be at the top, and every following migration must be to version 1 number smaller`,
         )
       }
-      maxCoveredVersion = version
+      maxCoveredVersion = toVersion
     })
   }
 
   const sortedMigrations = sortMigrations(migrations)
   const oldestMigration = head(sortedMigrations)
   const newestMigration = last(sortedMigrations)
-  const minVersion = oldestMigration ? oldestMigration.version - 1 : 1
-  const maxVersion = newestMigration ? newestMigration.version : 1
+  const minVersion = oldestMigration ? oldestMigration.toVersion - 1 : 1
+  const maxVersion = newestMigration ? newestMigration.toVersion : 1
 
   return {
     sortedMigrations,
