@@ -51,14 +51,14 @@ export default () => [
       expect(() =>
         adapterWithMigrations(
           schemaMigrations({
-            migrations: [{ version: 8, steps: [] }, { version: 9, steps: [] }],
+            migrations: [{ version: 9, steps: [] }, { version: 8, steps: [] }],
           }),
         ),
-      ).toThrowError(/no available migrations/)
+      ).toThrowError(/Missing migration/)
 
       expect(() =>
         adapterWithMigrations(
-          schemaMigrations({ migrations: [{ version: 9, steps: [] }, { version: 10, steps: [] }] }),
+          schemaMigrations({ migrations: [{ version: 10, steps: [] }, { version: 9, steps: [] }] }),
         ),
       ).not.toThrowError()
     },
@@ -517,7 +517,7 @@ export default () => [
             ],
           },
           {
-            versions: 3,
+            version: 3,
             steps: [
               createTable({
                 name: 'will_not_be_created',

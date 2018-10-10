@@ -1,5 +1,6 @@
 // @flow
 
+import { last, head } from 'rambdax'
 import { devMeasureTimeAsync, logger, isDevelopment, invariant } from '../utils/common'
 import type Model, { RecordId } from '../Model'
 import type Query from '../Query'
@@ -20,20 +21,30 @@ export function validateAdapter(adapter: DatabaseAdapter): void {
         migrations.validated,
         `Invalid migrations - use schemaMigrations() to create migrations. See docs for more details.`,
       )
-      invariant(
-        migrations.minimumVersion <= schema.version,
-        `Migrations supplied to adapter don't match schema - schema is at version ${
-          schema.version
-        }, but minimum migrable version is greater: ${migrations.minimumVersion}`,
-      )
-      invariant(
-        migrations.currentVersion === schema.version,
-        `Missing migration. Database schema is currently at version ${
-          schema.version
-        }, but migrations only cover range from ${migrations.minimumVersion} to ${
-          migrations.currentVersion
-        }`,
-      )
+
+      const oldestMigration = last(migrations.migrations)
+      const newestMigration = head(migrations.migrations)
+
+      // no migrations
+      if (oldestMigration && newestMigration) {
+        const minimumVersion = oldestMigration.version - 1
+        const maximumVersion = newestMigration.version
+
+        invariant(
+          maximumVersion <= schema.version,
+          `Migrations supplied to adapter don't match schema - schema is at version ${
+            schema.version
+          }, but minimum migrable version is greater: ${minimumVersion}`,
+        )
+        invariant(
+          maximumVersion === schema.version,
+          `Missing migration. Database schema is currently at version ${
+            schema.version
+          }, but migrations only cover range from ${minimumVersion} to ${maximumVersion}`,
+        )
+      } else if (schema.version > 1) {
+        logger.warn(`No migrations listed even though schema is at version ${schema.version}`)
+      }
     }
   }
 }
