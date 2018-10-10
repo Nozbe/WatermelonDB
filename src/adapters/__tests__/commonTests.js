@@ -551,7 +551,7 @@ export default () => [
       expect(await adapter.count(checkTaskColumn('test_boolean_optional', null))).toBe(2)
 
       // check I can use new table and columns
-      adapter.batch([
+      await adapter.batch([
         ['create', new MockTagAssignment({}, { id: 'tt2', text1: 'hello' })],
         ['create', new MockProject({}, { id: 'p1', text1: 'hey', text2: 'foo' })],
         [
