@@ -30,7 +30,7 @@ class BridgeTest {
                 }
             }
         } catch (e: UninitializedPropertyAccessException) {
-            Assert.fail("Report could not have been obtained.")
+            Assert.fail("Bridge tests timed out and a report could not have been obtained. Either JS code could not be run at all or one of the asynchronous tests never returned")
         }
     }
 }
