@@ -40,13 +40,27 @@ export default () => [
 
       expect(() => adapterWithMigrations(schemaMigrations({ migrations: [] }))).not.toThrowError()
 
-      expect(() => adapterWithMigrations(schemaMigrations({ migrations: [] }))).toThrowError(
-        /Missing migration/,
-      )
+      expect(() =>
+        adapterWithMigrations(
+          schemaMigrations({
+            migrations: [{ version: 11, steps: [] }],
+          }),
+        ),
+      ).toThrowError(/don't match schema/)
 
-      expect(() => adapterWithMigrations(schemaMigrations({ migrations: [] }))).toThrowError(
-        /don't match schema/,
-      )
+      expect(() =>
+        adapterWithMigrations(
+          schemaMigrations({
+            migrations: [{ version: 8, steps: [] }, { version: 9, steps: [] }],
+          }),
+        ),
+      ).toThrowError(/no available migrations/)
+
+      expect(() =>
+        adapterWithMigrations(
+          schemaMigrations({ migrations: [{ version: 9, steps: [] }, { version: 10, steps: [] }] }),
+        ),
+      ).not.toThrowError()
     },
   ],
   [

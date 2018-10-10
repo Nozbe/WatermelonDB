@@ -9,9 +9,9 @@ describe('schemaMigrations()', () => {
   it('returns a complex schema migrations spec', () => {
     const migrations = schemaMigrations({
       migrations: [
-        { version: 5, steps: [] },
+        { version: 4, steps: [] },
         {
-          version: 2,
+          version: 3,
           steps: [
             createTable({
               name: 'comments',
@@ -27,7 +27,7 @@ describe('schemaMigrations()', () => {
           ],
         },
         {
-          version: 1,
+          version: 2,
           steps: [
             addColumns({
               table: 'posts',
@@ -43,9 +43,9 @@ describe('schemaMigrations()', () => {
     expect(migrations).toEqual({
       validated: true,
       migrations: [
-        { version: 5, steps: [] },
+        { version: 4, steps: [] },
         {
-          version: 4,
+          version: 3,
           steps: [
             {
               type: 'create_table',
@@ -81,22 +81,50 @@ describe('schemaMigrations()', () => {
   it('throws if migration spec is malformed', () => {
     expect(() => schemaMigrations({ migrations: [{}] })).toThrow(/Invalid migration/)
     expect(() => schemaMigrations({ migrations: [{ version: 0 }] })).toThrow(/greater than/)
+    expect(() => schemaMigrations({ migrations: [{ version: 1 }] })).toThrow(/greater than/)
     expect(() =>
       schemaMigrations({
         migrations: [{ version: 2, steps: [{ table: 'x' }] }],
       }),
     ).toThrow(/Invalid migration steps/)
   })
-  it(`throws if migrations don't cover the whole migrable range`, () => {
-    expect(() => schemaMigrations({ migrations: [{ version: 3, steps: [] }] })).toThrow(
-      /covers schema versions/,
-    )
-    expect(() => schemaMigrations({ migrations: [{ version: 2, steps: [] }] })).toThrow(
-      /cover schema versions/,
-    )
+  it(`throws if there are gaps in the migrable range`, () => {
+    expect(() =>
+      schemaMigrations({ migrations: [{ version: 2, steps: [] }, { version: 2, steps: [] }] }),
+    ).toThrow(/covers schema versions/)
     expect(() =>
       schemaMigrations({ migrations: [{ version: 2, steps: [] }, { version: 3, steps: [] }] }),
     ).toThrow(/covers schema versions/)
+    expect(() =>
+      schemaMigrations({
+        migrations: [
+          { version: 5, steps: [] },
+          { version: 4, steps: [] },
+          { version: 2, steps: [] },
+        ],
+      }),
+    ).toThrow(/covers schema versions/)
+
+    // missing migrations from 2 to x are ok
+    expect(() =>
+      schemaMigrations({
+        migrations: [
+          { version: 6, steps: [] },
+          { version: 5, steps: [] },
+          { version: 4, steps: [] },
+        ],
+      }),
+    ).not.toThrow()
+
+    // expect(() => schemaMigrations({ migrations: [{ version: 3, steps: [] }] })).toThrow(
+    //   /covers schema versions/,
+    // )
+    // expect(() => schemaMigrations({ migrations: [{ version: 2, steps: [] }] })).toThrow(
+    //   /cover schema versions/,
+    // )
+    // expect(() =>
+    //   schemaMigrations({ migrations: [{ version: 2, steps: [] }, { version: 3, steps: [] }] }),
+    // ).toThrow(/covers schema versions/)
   })
 })
 
@@ -144,19 +172,26 @@ describe('migration execution helpers', () => {
       migrations: [
         { version: 5, steps: [step2, step3] },
         { version: 4, steps: [] },
-        { version: 2, steps: [step1] },
+        { version: 3, steps: [step1] },
       ],
     })
 
-    expect(stepsForMigration({ migrations, fromVersion: 1, toVersion: 2 })).toEqual([step1])
-    expect(stepsForMigration({ migrations, fromVersion: 1, toVersion: 4 })).toEqual([step1])
-    expect(stepsForMigration({ migrations, fromVersion: 1, toVersion: 5 })).toEqual([
+    expect(stepsForMigration({ migrations, fromVersion: 2, toVersion: 3 })).toEqual([step1])
+    expect(stepsForMigration({ migrations, fromVersion: 2, toVersion: 4 })).toEqual([step1])
+    expect(stepsForMigration({ migrations, fromVersion: 2, toVersion: 5 })).toEqual([
       step1,
       step2,
       step3,
     ])
-    expect(stepsForMigration({ migrations, fromVersion: 2, toVersion: 5 })).toEqual([step2, step3])
-    expect(stepsForMigration({ migrations, fromVersion: 2, toVersion: 4 })).toEqual([])
+    expect(stepsForMigration({ migrations, fromVersion: 3, toVersion: 5 })).toEqual([step2, step3])
+    expect(stepsForMigration({ migrations, fromVersion: 3, toVersion: 4 })).toEqual([])
     expect(stepsForMigration({ migrations, fromVersion: 4, toVersion: 5 })).toEqual([step2, step3])
+
+    // if no available steps, return null
+    expect(stepsForMigration({ migrations, fromVersion: 1, toVersion: 2 })).toEqual(null)
+    expect(stepsForMigration({ migrations, fromVersion: 1, toVersion: 3 })).toEqual(null)
+    expect(stepsForMigration({ migrations, fromVersion: 1, toVersion: 5 })).toEqual(null)
+    expect(stepsForMigration({ migrations, fromVersion: 3, toVersion: 6 })).toEqual(null)
+    expect(stepsForMigration({ migrations, fromVersion: 5, toVersion: 6 })).toEqual(null)
   })
 })
