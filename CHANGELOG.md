@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 
 - Fixed "dependency cycle" warning
 
+### Improvements
+
+- [React Native] App should launch a little faster, because schema is only compiled on demand now
+
 ### Refactoring
 
 - [WIP] Migrations
