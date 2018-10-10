@@ -4,7 +4,28 @@ import { stepsForMigration } from './helpers'
 describe('schemaMigrations()', () => {
   it('returns a basic schema migrations spec', () => {
     const migrations = schemaMigrations({ migrations: [] })
-    expect(migrations).toEqual({ migrations: [], validated: true })
+    expect(migrations).toEqual({
+      sortedMigrations: [],
+      validated: true,
+      minVersion: 1,
+      maxVersion: 1,
+    })
+
+    const migrations2 = schemaMigrations({ migrations: [{ version: 2, steps: [] }] })
+    expect(migrations2).toEqual({
+      validated: true,
+      minVersion: 1,
+      maxVersion: 2,
+      sortedMigrations: [{ version: 2, steps: [] }],
+    })
+
+    const migrations3 = schemaMigrations({ migrations: [{ version: 4, steps: [] }] })
+    expect(migrations3).toEqual({
+      validated: true,
+      minVersion: 3,
+      maxVersion: 4,
+      sortedMigrations: [{ version: 4, steps: [] }],
+    })
   })
   it('returns a complex schema migrations spec', () => {
     const migrations = schemaMigrations({
@@ -42,8 +63,22 @@ describe('schemaMigrations()', () => {
     })
     expect(migrations).toEqual({
       validated: true,
-      migrations: [
-        { version: 4, steps: [] },
+      minVersion: 1,
+      maxVersion: 4,
+      sortedMigrations: [
+        {
+          version: 2,
+          steps: [
+            {
+              type: 'add_columns',
+              table: 'posts',
+              columns: [
+                { name: 'subtitle', type: 'string', isOptional: true },
+                { name: 'is_pinned', type: 'boolean' },
+              ],
+            },
+          ],
+        },
         {
           version: 3,
           steps: [
@@ -62,19 +97,7 @@ describe('schemaMigrations()', () => {
             },
           ],
         },
-        {
-          version: 2,
-          steps: [
-            {
-              type: 'add_columns',
-              table: 'posts',
-              columns: [
-                { name: 'subtitle', type: 'string', isOptional: true },
-                { name: 'is_pinned', type: 'boolean' },
-              ],
-            },
-          ],
-        },
+        { version: 4, steps: [] },
       ],
     })
   })

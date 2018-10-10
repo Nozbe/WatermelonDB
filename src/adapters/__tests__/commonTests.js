@@ -38,29 +38,33 @@ export default () => [
 
       expect(() => adapterWithMigrations({ migrations: [] })).toThrowError(/use schemaMigrations()/)
 
-      expect(() => adapterWithMigrations(schemaMigrations({ migrations: [] }))).not.toThrowError()
+      // OK migrations passed
+      const adapterWithRealMigrations = migrations =>
+        adapterWithMigrations(schemaMigrations({ migrations }))
 
+      expect(() => adapterWithRealMigrations([{ version: 10, steps: [] }])).not.toThrowError()
       expect(() =>
-        adapterWithMigrations(
-          schemaMigrations({
-            migrations: [{ version: 11, steps: [] }],
-          }),
-        ),
-      ).toThrowError(/don't match schema/)
-
-      expect(() =>
-        adapterWithMigrations(
-          schemaMigrations({
-            migrations: [{ version: 9, steps: [] }, { version: 8, steps: [] }],
-          }),
-        ),
-      ).toThrowError(/Missing migration/)
-
-      expect(() =>
-        adapterWithMigrations(
-          schemaMigrations({ migrations: [{ version: 10, steps: [] }, { version: 9, steps: [] }] }),
-        ),
+        adapterWithRealMigrations([{ version: 10, steps: [] }, { version: 9, steps: [] }]),
       ).not.toThrowError()
+
+      // Empty migrations only allowed if version 1
+      expect(
+        () =>
+          new AdapterClass({
+            schema: { ...testSchema, version: 1 },
+            migrations: schemaMigrations({ migrations: [] }),
+          }),
+      ).not.toThrowError()
+      expect(() => adapterWithRealMigrations([])).toThrowError(/Missing migration/)
+
+      // Migrations can't be newer than schema
+      expect(() => adapterWithRealMigrations([{ version: 11, steps: [] }])).toThrowError(
+        /migrations can't be newer than schema/i,
+      )
+      // Migration to latest version must be present
+      expect(() =>
+        adapterWithRealMigrations([{ version: 9, steps: [] }, { version: 8, steps: [] }]),
+      ).toThrowError(/Missing migration/)
     },
   ],
   [
@@ -460,7 +464,7 @@ export default () => [
 
       let adapter = new AdapterClass({
         schema: testSchemaV3,
-        migrationsExperimental: schemaMigrations({ migrations: [] }),
+        migrationsExperimental: schemaMigrations({ migrations: [{ version: 3, steps: [] }] }),
       })
 
       // add data

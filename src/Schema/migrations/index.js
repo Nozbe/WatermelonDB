@@ -1,5 +1,6 @@
 // @flow
 
+import { sortBy, prop, last, head } from 'rambdax'
 import type { ColumnSchema, TableName, ColumnMap, TableSchemaSpec, SchemaVersion } from '../index'
 import { tableSchema, validateColumnSchema } from '../index'
 
@@ -31,8 +32,12 @@ type SchemaMigrationsSpec = $Exact<{
 
 export type SchemaMigrations = $Exact<{
   +validated: true,
-  ...SchemaMigrationsSpec,
+  +minVersion: SchemaVersion,
+  +maxVersion: SchemaVersion,
+  +sortedMigrations: Migration[],
 }>
+
+const sortMigrations = sortBy(prop('version'))
 
 // Creates a specification of how to migrate between different versions of
 // database schema. Every time you change the database schema, you must
@@ -76,9 +81,10 @@ export type SchemaMigrations = $Exact<{
 // })
 
 export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMigrations {
+  const { migrations } = migrationSpec
+
   if (isDevelopment) {
     // validate migrations spec object
-    const { migrations } = migrationSpec
     invariant(Array.isArray(migrations), 'Missing migrations array')
 
     // validate migrations format
@@ -112,8 +118,17 @@ export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMig
       maxCoveredVersion = version
     })
   }
+
+  const sortedMigrations = sortMigrations(migrations)
+  const oldestMigration = head(sortedMigrations)
+  const newestMigration = last(sortedMigrations)
+  const minVersion = oldestMigration ? oldestMigration.version - 1 : 1
+  const maxVersion = newestMigration ? newestMigration.version : 1
+
   return {
-    ...migrationSpec,
+    sortedMigrations,
+    minVersion,
+    maxVersion,
     validated: true,
   }
 }
