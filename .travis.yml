@@ -64,8 +64,8 @@ matrix:
       install:
         - yarn
       script:
-        - yarn ktlint
+        - TERM=dumb yarn ktlint
         - android-wait-for-emulator
         - adb shell input keyevent 82 &
-        - yarn test:android
+        - TERM=dumb yarn test:android
 
