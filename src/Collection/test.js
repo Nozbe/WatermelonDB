@@ -1,7 +1,7 @@
 import Query from '../Query'
 import * as Q from '../QueryDescription'
 import { logger } from '../utils/common'
-import { CollectionChangeTypes } from './index'
+import { CollectionChangeTypes } from './common'
 
 import { mockDatabase, MockTask, testSchema } from '../__tests__/testModels'
 

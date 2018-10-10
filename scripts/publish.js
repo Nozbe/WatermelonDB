@@ -98,7 +98,7 @@ const buildTasks = options => {
           .then(when(result => result !== '0', throwError('please pull changes first'))),
     },
     {
-      title: 'check eslint',
+      title: 'check tests',
       task: () => execa('yarn', ['test']),
     },
     {
@@ -106,9 +106,18 @@ const buildTasks = options => {
       task: () => execa('yarn', ['flow']),
     },
     {
-      title: 'run tests',
-      task: () => execa('yarn', ['test']),
+      title: 'check eslint',
+      task: () => execa('yarn', ['eslint']),
     },
+    // TODO: Bring those back when metro config is fixed
+    // {
+    //   title: 'check iOS tests',
+    //   task: () => execa('yarn', ['test:ios']),
+    // },
+    // {
+    //   title: 'check Android tests',
+    //   task: () => execa('yarn', ['test:android']),
+    // },
     {
       title: 'bump version',
       task: () => execa('yarn', ['version', '--new-version', version]),
