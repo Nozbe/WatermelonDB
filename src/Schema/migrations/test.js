@@ -192,6 +192,13 @@ describe('migration execution helpers', () => {
     expect(stepsForMigration({ migrations, fromVersion: 4, toVersion: 5 })).toEqual([step2, step3])
 
     // if no available steps, return null
+    expect(
+      stepsForMigration({
+        migrations: schemaMigrations({ migrations: [] }),
+        fromVersion: 1,
+        toVersion: 2,
+      }),
+    ).toEqual(null)
     expect(stepsForMigration({ migrations, fromVersion: 1, toVersion: 2 })).toEqual(null)
     expect(stepsForMigration({ migrations, fromVersion: 1, toVersion: 3 })).toEqual(null)
     expect(stepsForMigration({ migrations, fromVersion: 1, toVersion: 5 })).toEqual(null)
