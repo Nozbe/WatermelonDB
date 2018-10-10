@@ -108,42 +108,37 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   async _init(): Promise<void> {
-    // TODO: Temporary, remove me after Android is updated
-    if (Platform.OS === 'ios') {
-      // Try to initialize the database with just the schema number. If it matches the database,
-      // we're good. If not, we try again, this time sending the compiled schema or a migration set
-      // This is to speed up the launch (less to do and pass through bridge), and avoid repeating
-      // migration logic inside native code
-      const status = await Native.initialize(this._tag, this._dbName, this.schema.version)
+    // Try to initialize the database with just the schema number. If it matches the database,
+    // we're good. If not, we try again, this time sending the compiled schema or a migration set
+    // This is to speed up the launch (less to do and pass through bridge), and avoid repeating
+    // migration logic inside native code
+    const status = await Native.initialize(this._tag, this._dbName, this.schema.version)
 
-      if (status.code === 'schema_needed') {
-        logger.log('[DB] Database needs setup. Setting up schema.')
-        await this._setUpWithSchema()
-      } else if (status.code === 'migrations_needed') {
-        logger.log('[DB] Database needs migrations')
-        const { databaseVersion } = status
-        invariant(databaseVersion > 0, 'Invalid database schema version')
+    if (status.code === 'schema_needed') {
+      logger.log('[DB] Database needs setup. Setting up schema.')
+      await this._setUpWithSchema()
+    } else if (status.code === 'migrations_needed') {
+      logger.log('[DB] Database needs migrations')
+      const { databaseVersion } = status
+      invariant(databaseVersion > 0, 'Invalid database schema version')
 
-        if (this.migrations) {
-          const migrationSQL = this._encodedMigrations(this.migrations, databaseVersion)
-          await Native.setUpWithMigrations(
-            this._tag,
-            this._dbName,
-            migrationSQL,
-            databaseVersion,
-            this.schema.version,
-          )
-          logger.log('[DB] Migrations applied successfully')
-        } else {
-          // TODO: Temporary, remove this branch later
-          logger.warn('[DB] Migrations not available. Resetting database instead')
-          await this._setUpWithSchema()
-        }
+      if (this.migrations) {
+        const migrationSQL = this._encodedMigrations(this.migrations, databaseVersion)
+        await Native.setUpWithMigrations(
+          this._tag,
+          this._dbName,
+          migrationSQL,
+          databaseVersion,
+          this.schema.version,
+        )
+        logger.log('[DB] Migrations applied successfully')
       } else {
-        invariant(status.code === 'ok', 'Invalid database initialization status')
+        // TODO: Temporary, remove this branch later
+        logger.warn('[DB] Migrations not available. Resetting database instead')
+        await this._setUpWithSchema()
       }
     } else {
-      await Native.setUp(this._tag, this._dbName, this._encodedSchema(), this.schema.version)
+      invariant(status.code === 'ok', 'Invalid database initialization status')
     }
   }
 
