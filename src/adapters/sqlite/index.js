@@ -124,14 +124,21 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
       if (this.migrations) {
         const migrationSQL = this._encodedMigrations(this.migrations, databaseVersion)
-        await Native.setUpWithMigrations(
-          this._tag,
-          this._dbName,
-          migrationSQL,
-          databaseVersion,
-          this.schema.version,
-        )
-        logger.log('[DB] Migrations applied successfully')
+        if (migrationSQL) {
+          await Native.setUpWithMigrations(
+            this._tag,
+            this._dbName,
+            migrationSQL,
+            databaseVersion,
+            this.schema.version,
+          )
+          logger.log('[DB] Migrations applied successfully')
+        } else {
+          logger.warn(
+            `[DB] Migrations not available for this version range. Resetting database instead`,
+          )
+          await this._setUpWithSchema()
+        }
       } else {
         // TODO: Temporary, remove this branch later
         logger.warn('[DB] Migrations not available. Resetting database instead')
@@ -226,7 +233,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     return encodeSchema(this.schema)
   }
 
-  _encodedMigrations(migrations: SchemaMigrations, fromVersion: SchemaVersion): SQL {
+  _encodedMigrations(migrations: SchemaMigrations, fromVersion: SchemaVersion): ?SQL {
     const { encodeMigrationSteps } = require('./encodeSchema')
     const { stepsForMigration } = require('../../Schema/migrations/helpers')
     const migrationSteps = stepsForMigration({
@@ -234,6 +241,9 @@ export default class SQLiteAdapter implements DatabaseAdapter {
       fromVersion,
       toVersion: this.schema.version,
     })
+    if (!migrationSteps) {
+      return null
+    }
     return encodeMigrationSteps(migrationSteps)
   }
 }

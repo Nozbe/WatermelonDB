@@ -255,7 +255,7 @@ export default class LokiExecutor {
       const { migrations } = this
       if (migrations) {
         logger.log('[DB][Worker] Migrations available, migrating schema…')
-        this._migrate(migrations, dbVersion)
+        await this._migrate(migrations, dbVersion)
       } else {
         // TODO: Delete this altogether? Or put under "development" flag only?
         logger.warn('[DB][Worker] No migrations available, resetting database')
@@ -267,12 +267,20 @@ export default class LokiExecutor {
     }
   }
 
-  _migrate(migrations: SchemaMigrations, fromVersion: SchemaVersion): void {
+  async _migrate(migrations: SchemaMigrations, fromVersion: SchemaVersion): Promise<void> {
     const migrationSteps = stepsForMigration({
       migrations,
       fromVersion,
       toVersion: this.schema.version,
     })
+
+    if (!migrationSteps) {
+      logger.warn(
+        `[DB] Migrations not available for this version range. Resetting database instead`,
+      )
+      await this.unsafeResetDatabase()
+      return
+    }
 
     migrationSteps.forEach(step => {
       if (step.type === 'create_table') {
