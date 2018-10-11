@@ -34,7 +34,7 @@ class DatabaseDriver(context: Context, dbName: String) {
         try {
             unsafeResetDatabase(schema)
         } catch (e: Exception) {
-            e.printStackTrace()
+            throw e
         }
     }
 
