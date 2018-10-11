@@ -8,7 +8,7 @@ export { default as CollectionMap } from './CollectionMap'
 export { default as Relation } from './Relation'
 export { default as Model, associations } from './Model'
 export { default as Query } from './Query'
-export { tableName, columnName, appSchema, tableSchema } from './Schema'
+export { tableName, columnName, appSchema, tableSchema } from './schema'
 
 export type { DatabaseAdapter } from './adapters/type'
 export type { RawRecord, DirtyRaw } from './RawRecord'
@@ -20,6 +20,6 @@ export type {
   ColumnSchema,
   TableSchema,
   AppSchema,
-} from './Schema'
+} from './schema'
 
 export { Q }

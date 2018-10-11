@@ -1,7 +1,7 @@
 import Model from '../../Model'
 import { field } from '..'
 
-import { tableSchema } from '../../Schema'
+import { tableSchema } from '../../schema'
 import readonly from './index'
 
 const schema = tableSchema({ name: 'mock', columns: [{ name: 'test', type: 'string' }] })

@@ -21,7 +21,7 @@ import partition from '../utils/fp/partition'
 import isObject from '../utils/fp/isObject'
 import invariant from '../utils/common/invariant'
 
-import { type TableName, type ColumnName, columnName } from '../Schema'
+import { type TableName, type ColumnName, columnName } from '../schema'
 
 export type NonNullValue = number | string | boolean
 export type Value = NonNullValue | null

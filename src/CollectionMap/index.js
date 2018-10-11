@@ -3,7 +3,7 @@
 import type Model from '../Model'
 import type Database from '../Database'
 import Collection from '../Collection'
-import type { TableName } from '../Schema'
+import type { TableName } from '../schema'
 
 export default class CollectionMap {
   map: { [TableName<any>]: Collection<any> }

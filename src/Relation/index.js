@@ -6,7 +6,7 @@ import invariant from '../utils/common/invariant'
 import publishReplayLatestWhileConnected from '../utils/rx/publishReplayLatestWhileConnected'
 
 import type Model, { RecordId } from '../Model'
-import type { ColumnName, TableName } from '../Schema'
+import type { ColumnName, TableName } from '../schema'
 
 import { createObservable } from './helpers'
 

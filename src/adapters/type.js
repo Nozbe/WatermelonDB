@@ -1,8 +1,8 @@
 // @flow
 
 import type Query from '../Query'
-import type { TableName, AppSchema } from '../Schema'
-import type { SchemaMigrations } from '../Schema/migrations'
+import type { TableName, AppSchema } from '../schema'
+import type { SchemaMigrations } from '../schema/migrations'
 import type Model, { RecordId } from '../Model'
 import type { RawRecord } from '../RawRecord'
 

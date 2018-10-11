@@ -1,4 +1,4 @@
-import { appSchema, tableSchema } from '../Schema'
+import { appSchema, tableSchema } from '../schema'
 import { field, relation, immutableRelation } from '../decorators'
 import Model from '../Model'
 import Database from '../Database'

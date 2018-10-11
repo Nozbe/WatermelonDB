@@ -1,6 +1,6 @@
 import Model from '../../Model'
 
-import { tableSchema } from '../../Schema'
+import { tableSchema } from '../../schema'
 import date from './index'
 
 const schema = tableSchema({

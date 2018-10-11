@@ -1,7 +1,7 @@
 // @flow
 
 import type { CachedQueryResult, CachedFindResult } from '../type'
-import type { TableName } from '../../Schema'
+import type { TableName } from '../../schema'
 import type { RawRecord } from '../../RawRecord'
 import type { RecordId } from '../../Model'
 

@@ -5,8 +5,8 @@ import { map } from 'rambdax'
 import { isDevelopment } from '../../utils/common'
 
 import type Model, { RecordId } from '../../Model'
-import type { TableName, AppSchema } from '../../Schema'
-import type { SchemaMigrations } from '../../Schema/migrations'
+import type { TableName, AppSchema } from '../../schema'
+import type { SchemaMigrations } from '../../schema/migrations'
 import type Query from '../../Query'
 import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
 import {

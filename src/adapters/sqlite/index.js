@@ -12,8 +12,8 @@ import {
 
 import type Model, { RecordId } from '../../Model'
 import type Query from '../../Query'
-import type { TableName, AppSchema, SchemaVersion } from '../../Schema'
-import type { SchemaMigrations } from '../../Schema/migrations'
+import type { TableName, AppSchema, SchemaVersion } from '../../schema'
+import type { SchemaMigrations } from '../../schema/migrations'
 import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
 import {
   type DirtyFindResult,
@@ -241,7 +241,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
   _encodedMigrations(fromVersion: SchemaVersion): ?SQL {
     const { encodeMigrationSteps } = require('./encodeSchema')
-    const { stepsForMigration } = require('../../Schema/migrations/helpers')
+    const { stepsForMigration } = require('../../schema/migrations/helpers')
     const { migrations } = this
     // TODO: Remove this after migrations are shipped
     if (!migrations) {

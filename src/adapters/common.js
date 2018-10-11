@@ -3,7 +3,7 @@
 import { devMeasureTimeAsync, logger, isDevelopment, invariant } from '../utils/common'
 import type Model, { RecordId } from '../Model'
 import type Query from '../Query'
-import type { TableSchema } from '../Schema'
+import type { TableSchema } from '../schema'
 import type { BatchOperation, CachedQueryResult, CachedFindResult, DatabaseAdapter } from './type'
 import { sanitizedRaw, type DirtyRaw } from '../RawRecord'
 

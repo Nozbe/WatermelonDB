@@ -4,7 +4,7 @@ import makeDecorator from '../../utils/common/makeDecorator'
 
 import { ensureDecoratorUsedProperly } from '../common'
 
-import { type ColumnName } from '../../Schema'
+import { type ColumnName } from '../../schema'
 
 // Defines a model property representing user-input text
 //

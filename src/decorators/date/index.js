@@ -1,7 +1,7 @@
 // @flow
 
 import makeDecorator from '../../utils/common/makeDecorator'
-import { type ColumnName } from '../../Schema'
+import { type ColumnName } from '../../schema'
 
 import { ensureDecoratorUsedProperly } from '../common'
 
