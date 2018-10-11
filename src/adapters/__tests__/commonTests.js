@@ -587,6 +587,28 @@ export default () => [
     },
   ],
   [
+    `can perform empty migrations (regression test)`,
+    async (_adapter, AdapterClass) => {
+      let adapter = new AdapterClass({
+        schema: { ...testSchema, version: 1 },
+        migrationsExperimental: schemaMigrations({ migrations: [] }),
+      })
+
+      await adapter.batch([['create', makeMockTask({ id: 't1', text1: 'foo' })]])
+      expect(await adapter.count(taskQuery())).toBe(1)
+
+      // Perform an empty migration (no steps, just version bump)
+      adapter = adapter.testClone({
+        schema: { ...testSchema, version: 2 },
+        migrationsExperimental: schemaMigrations({ migrations: [{ toVersion: 2, steps: [] }] }),
+      })
+
+      // check that migration worked, no data lost
+      expect(await adapter.count(taskQuery())).toBe(1)
+      expect((await adapter.find('tasks', 't1')).text1).toBe('foo')
+    },
+  ],
+  [
     `resets database when it's newer than app schema`,
     async (_adapter, AdapterClass) => {
       // launch newer version of the app
