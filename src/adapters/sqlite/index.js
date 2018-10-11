@@ -13,7 +13,7 @@ import {
 import type Model, { RecordId } from '../../Model'
 import type Query from '../../Query'
 import type { TableName, AppSchema, SchemaVersion } from '../../schema'
-import type { SchemaMigrations } from '../../schema/migrations'
+import type { SchemaMigrations, MigrationStep } from '../../schema/migrations'
 import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
 import {
   type DirtyFindResult,
@@ -116,7 +116,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     if (status.code === 'schema_needed') {
       await this._setUpWithSchema()
     } else if (status.code === 'migrations_needed') {
-      this._setUpWithMigrations(status.databaseVersion)
+      await this._setUpWithMigrations(status.databaseVersion)
     } else {
       invariant(status.code === 'ok', 'Invalid database initialization status')
     }
@@ -126,16 +126,16 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     logger.log('[DB] Database needs migrations')
     invariant(databaseVersion > 0, 'Invalid database schema version')
 
-    const migrationSQL = this._encodedMigrations(databaseVersion)
+    const migrationSteps = this._migrationSteps(databaseVersion)
 
-    if (migrationSQL) {
+    if (migrationSteps) {
       logger.log(`[DB] Migrating from version ${databaseVersion} to ${this.schema.version}...`)
 
       try {
         await Native.setUpWithMigrations(
           this._tag,
           this._dbName,
-          migrationSQL,
+          this._encodeMigrations(migrationSteps),
           databaseVersion,
           this.schema.version,
         )
@@ -238,22 +238,22 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     return encodeSchema(this.schema)
   }
 
-  _encodedMigrations(fromVersion: SchemaVersion): ?SQL {
-    const { encodeMigrationSteps } = require('./encodeSchema')
+  _migrationSteps(fromVersion: SchemaVersion): ?(MigrationStep[]) {
     const { stepsForMigration } = require('../../schema/migrations/helpers')
     const { migrations } = this
     // TODO: Remove this after migrations are shipped
     if (!migrations) {
       return null
     }
-    const migrationSteps = stepsForMigration({
+    return stepsForMigration({
       migrations,
       fromVersion,
       toVersion: this.schema.version,
     })
-    if (!migrationSteps) {
-      return null
-    }
-    return encodeMigrationSteps(migrationSteps)
+  }
+
+  _encodeMigrations(steps: MigrationStep[]): SQL {
+    const { encodeMigrationSteps } = require('./encodeSchema')
+    return encodeMigrationSteps(steps)
   }
 }
