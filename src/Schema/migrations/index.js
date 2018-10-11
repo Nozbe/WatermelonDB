@@ -43,9 +43,6 @@ const sortMigrations = sortBy(prop('toVersion'))
 // database schema. Every time you change the database schema, you must
 // create a corresponding migration.
 //
-// Note that migrations must be listed in reverse chronological order
-// (migration to newest version at the top)
-//
 // See docs for more details
 //
 // Example:
@@ -101,29 +98,31 @@ export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMig
         `Invalid migration steps for migration to version ${toVersion}. 'steps' should be an array of migration step calls`,
       )
     })
-
-    // validate that migration spec is reverse-chronological and without gaps
-    let maxCoveredVersion: ?number = null
-
-    migrations.forEach(migration => {
-      const { toVersion } = migration
-      if (maxCoveredVersion) {
-        invariant(
-          toVersion === maxCoveredVersion - 1,
-          `Invalid migrations! Migration ${JSON.stringify(
-            migration,
-          )} is to version ${toVersion}, but previously listed migration is to version ${maxCoveredVersion}. Remember that migrations must be listed in reverse chronological order and without gaps -- migration to newest version must be at the top, and every following migration must be to version 1 number smaller`,
-        )
-      }
-      maxCoveredVersion = toVersion
-    })
   }
 
   const sortedMigrations = sortMigrations(migrations)
   const oldestMigration = head(sortedMigrations)
   const newestMigration = last(sortedMigrations)
   const minVersion = oldestMigration ? oldestMigration.toVersion - 1 : 1
-  const maxVersion = newestMigration ? newestMigration.toVersion : 1
+  const maxVersion = newestMigration?.toVersion || 1
+
+  if (isDevelopment) {
+    // validate that migration spec is without gaps and duplicates
+    let maxCoveredVersion: ?number = null
+
+    sortedMigrations.forEach(migration => {
+      const { toVersion } = migration
+      if (maxCoveredVersion) {
+        invariant(
+          toVersion === maxCoveredVersion + 1,
+          `Invalid migrations! Migrations listed cover range from version ${minVersion} to ${maxCoveredVersion}, but migration ${JSON.stringify(
+            migration,
+          )} is to version ${toVersion}. Migrations must be listed without gaps, or duplicates.`,
+        )
+      }
+      maxCoveredVersion = toVersion
+    })
+  }
 
   return {
     sortedMigrations,
