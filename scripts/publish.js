@@ -77,7 +77,14 @@ const buildTasks = options => {
         ),
     },
     ...(isPrerelease ?
-      [] :
+      [
+          {
+            title: 'check git',
+            task: () =>
+              // eslint-disable-next-line
+              console.warn('Warning: skipping git checks because this is a prerelease build'),
+          },
+        ] :
       [
           {
             title: 'check current branch',
@@ -86,21 +93,21 @@ const buildTasks = options => {
                 .stdout('git', ['symbolic-ref', '--short', 'HEAD'])
                 .then(when(branch => branch !== 'master', throwError('not on `master` branch'))),
           },
+          {
+            title: 'check local working tree',
+            task: () =>
+              execa
+                .stdout('git', ['status', '--porcelain'])
+                .then(when(status => status !== '', throwError('commit or stash changes first'))),
+          },
+          {
+            title: 'check remote history',
+            task: () =>
+              execa
+                .stdout('git', ['rev-list', '--count', '--left-only', '@{u}...HEAD'])
+                .then(when(result => result !== '0', throwError('please pull changes first'))),
+          },
         ]),
-    {
-      title: 'check local working tree',
-      task: () =>
-        execa
-          .stdout('git', ['status', '--porcelain'])
-          .then(when(status => status !== '', throwError('commit or stash changes first'))),
-    },
-    {
-      title: 'check remote history',
-      task: () =>
-        execa
-          .stdout('git', ['rev-list', '--count', '--left-only', '@{u}...HEAD'])
-          .then(when(result => result !== '0', throwError('please pull changes first'))),
-    },
     {
       title: 'check tests',
       task: () => execa('yarn', ['test']),
