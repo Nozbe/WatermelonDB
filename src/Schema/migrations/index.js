@@ -123,7 +123,7 @@ export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMig
   const oldestMigration = head(sortedMigrations)
   const newestMigration = last(sortedMigrations)
   const minVersion = oldestMigration ? oldestMigration.toVersion - 1 : 1
-  const maxVersion = newestMigration ? newestMigration.toVersion : 1
+  const maxVersion = newestMigration?.toVersion || 1
 
   return {
     sortedMigrations,

@@ -130,7 +130,7 @@ describe('schemaMigrations()', () => {
           { toVersion: 2, steps: [] },
         ],
       }),
-    ).toThrow(/in reverse chronological order/)
+    ).toThrow(/gaps/)
 
     // missing migrations from 2 to x are ok
     expect(() =>
