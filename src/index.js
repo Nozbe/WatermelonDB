@@ -4,7 +4,7 @@ import * as Q from './QueryDescription'
 
 export { default as Collection } from './Collection'
 export { default as Database } from './Database'
-export { default as CollectionMap } from './CollectionMap'
+export { default as CollectionMap } from './Database/CollectionMap'
 export { default as Relation } from './Relation'
 export { default as Model, associations } from './Model'
 export { default as Query } from './Query'
@@ -21,5 +21,6 @@ export type {
   TableSchema,
   AppSchema,
 } from './schema'
+export type { SchemaMigrations } from './schema/migrations'
 
 export { Q }

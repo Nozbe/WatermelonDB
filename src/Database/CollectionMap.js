@@ -1,9 +1,9 @@
 // @flow
 
 import type Model from '../Model'
-import type Database from '../Database'
 import Collection from '../Collection'
 import type { TableName } from '../schema'
+import type Database from './index'
 
 export default class CollectionMap {
   map: { [TableName<any>]: Collection<any> }
