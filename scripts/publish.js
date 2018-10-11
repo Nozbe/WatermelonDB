@@ -76,13 +76,17 @@ const buildTasks = options => {
           'Connection to npm registry timed out',
         ),
     },
-    {
-      title: 'check current branch',
-      task: () =>
-        execa
-          .stdout('git', ['symbolic-ref', '--short', 'HEAD'])
-          .then(when(branch => branch !== 'master', throwError('not on `master` branch'))),
-    },
+    ...(isPrerelease ?
+      [] :
+      [
+          {
+            title: 'check current branch',
+            task: () =>
+              execa
+                .stdout('git', ['symbolic-ref', '--short', 'HEAD'])
+                .then(when(branch => branch !== 'master', throwError('not on `master` branch'))),
+          },
+        ]),
     {
       title: 'check local working tree',
       task: () =>
