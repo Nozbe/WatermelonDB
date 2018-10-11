@@ -83,6 +83,7 @@
     "@babel/plugin-transform-sticky-regex": "^7.0.0",
     "@babel/plugin-transform-template-literals": "^7.0.0",
     "@babel/plugin-transform-unicode-regex": "^7.0.0",
+    "@babel/preset-react": "^7.0.0",
     "anymatch": "^2.0.0",
     "babel-core": "^7.0.0-0",
     "babel-eslint": "9.0.0",
@@ -125,6 +126,7 @@
     "prettier-eslint-cli": "^4.7.1",
     "react": "^16.5.0",
     "react-native": "^0.57.0",
+    "react-test-renderer": "16.5.0",
     "rimraf": "^2.6.2",
     "semver": "^5.5.1"
   }

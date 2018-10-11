@@ -1,0 +1,53 @@
+import React from 'react'
+import * as TestRenderer from 'react-test-renderer'
+import Database from '../Database'
+import { MockProject, MockTask, MockComment } from '../__tests__/testModels'
+import DatabaseProvider, { Consumer, withDatabase } from '.'
+
+// Simple mock component
+function MockComponent() {
+  return <span />
+}
+
+describe('watermelondb/DatabaseProvider', () => {
+  let database
+  beforeAll(() => {
+    database = new Database({
+      adapter: { schema: null },
+      modelClasses: [MockProject, MockTask, MockComment],
+    })
+  })
+  it('throws if no database or adapter supplied', () => {
+    expect(() => {
+      TestRenderer.create(
+        <DatabaseProvider>
+          <p />
+        </DatabaseProvider>,
+      )
+    }).toThrowError(/You must supply a database/i)
+  })
+  it('passes database to consumer', () => {
+    const instance = TestRenderer.create(
+      <DatabaseProvider database={database}>
+        <Consumer>{db => <MockComponent database={db} />}</Consumer>
+      </DatabaseProvider>,
+    )
+    const component = instance.root.find(MockComponent)
+    expect(component.props.database).toBeDefined()
+    expect(component.props.database).toBeInstanceOf(Database)
+  })
+
+  describe('withDatabase', () => {
+    test('should pass the database from the context to the consumer', () => {
+      const Child = withDatabase(MockComponent)
+      const instance = TestRenderer.create(
+        <DatabaseProvider database={database}>
+          <Child />
+        </DatabaseProvider>,
+      )
+      const component = instance.root.find(MockComponent)
+      expect(component.props.database).toBeDefined()
+      expect(component.props.database).toBeInstanceOf(Database)
+    })
+  })
+})

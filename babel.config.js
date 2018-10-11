@@ -53,6 +53,7 @@ module.exports = {
       ],
     },
     test: {
+      presets: ['@babel/preset-react'],
       plugins,
     },
   },

@@ -178,6 +178,49 @@ const EnhancedCommentList = enhance(CommentList)
 
 If you inject `post.comments.observe()` into the component, the list will not re-render to change its order, only if comments are added or removed. Instead, use `query.observeWithColumns()` with an array of [**column names**](./Schema.md) you use for sorting to re-render whenever a record on the list has any of those fields changed.
 
+## Database Provider
+To prevent prop drilling you can utilise the Database Provider and the `withDatabase` Higher-Order Component.
+
+### Example
+
+```jsx
+import DatabaseProvider from '@nozbe/watermelondb/DatabaseProvider'
+
+// ...
+
+const database = new Database({
+  adapter,
+  modelClasses: [Blog, Post, Comment],
+})
+
+render(
+  <DatabaseProvider database={database}>
+    <Root />
+  </DatabaseProvider>, document.getElementById('application')
+)
+
+```
+
+To consume the database in your components you just wrap your component like so:
+
+```jsx
+import { withDatabase } from '@nozbe/watermelondb/DatabaseProvider'
+
+// ...
+
+export default withDatabase(withObservables([], ({ database }) => ({
+    blogs: database.collections
+      .get('blogs')
+      .query()
+      .observe(),
+}))(BlogList))
+
+```
+
+The database prop in the `withObservables` Higher-Order Component is provided by the database provider.
+
+
+
 * * *
 
 ## Next steps
