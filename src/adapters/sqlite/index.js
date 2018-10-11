@@ -49,7 +49,6 @@ type InitializeStatus =
   | { code: 'migrations_needed', databaseVersion: SchemaVersion }
 
 type NativeBridgeType = {
-  setUp: (ConnectionTag, string, SQL, SchemaVersion) => Promise<void>, // TODO: Remove me
   initialize: (ConnectionTag, string, SchemaVersion) => Promise<InitializeStatus>,
   setUpWithSchema: (ConnectionTag, string, SQL, SchemaVersion) => Promise<void>,
   setUpWithMigrations: (ConnectionTag, string, SQL, SchemaVersion, SchemaVersion) => Promise<void>,
