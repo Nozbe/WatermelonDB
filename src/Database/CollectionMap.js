@@ -2,7 +2,7 @@
 
 import type Model from '../Model'
 import Collection from '../Collection'
-import type { TableName } from '../schema'
+import type { TableName } from '../Schema'
 import type Database from './index'
 
 export default class CollectionMap {

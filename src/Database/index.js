@@ -12,7 +12,7 @@ import CollectionMap from './CollectionMap'
 import type { DatabaseAdapter } from '../adapters/type'
 import type Model from '../Model'
 import type { CollectionChangeSet } from '../Collection'
-import type { TableName, AppSchema } from '../schema'
+import type { TableName, AppSchema } from '../Schema'
 
 // Database is the owner of all Collections and the DatabaseAdapter
 

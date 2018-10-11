@@ -14,7 +14,7 @@ import type {
   QueryDescription,
 } from '../../../QueryDescription'
 import * as Q from '../../../QueryDescription'
-import { type TableName, type ColumnName } from '../../../schema'
+import { type TableName, type ColumnName } from '../../../Schema'
 import type Model from '../../../Model'
 
 import encodeValue from '../encodeValue'

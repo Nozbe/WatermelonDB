@@ -4,8 +4,8 @@ import Model from '../../Model'
 import Query from '../../Query'
 import { sanitizedRaw } from '../../RawRecord'
 import * as Q from '../../QueryDescription'
-import { appSchema, tableSchema } from '../../schema'
-import { schemaMigrations, createTable, addColumns } from '../../schema/migrations'
+import { appSchema, tableSchema } from '../../Schema'
+import { schemaMigrations, createTable, addColumns } from '../../Schema/migrations'
 
 import { matchTests, joinTests } from '../../__tests__/databaseTests'
 import {

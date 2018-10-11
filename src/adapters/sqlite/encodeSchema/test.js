@@ -1,5 +1,5 @@
-import { appSchema, tableSchema } from '../../../schema'
-import { addColumns, createTable } from '../../../schema/migrations'
+import { appSchema, tableSchema } from '../../../Schema'
+import { addColumns, createTable } from '../../../Schema/migrations'
 
 import { encodeSchema, encodeMigrationSteps } from './index'
 

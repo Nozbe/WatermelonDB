@@ -5,7 +5,7 @@ import logError from '../../utils/common/logError'
 import invariant from '../../utils/common/invariant'
 
 import * as Q from '../../QueryDescription'
-import type { TableName } from '../../schema'
+import type { TableName } from '../../Schema'
 import type Model from '../../Model'
 import type Query from '../../Query'
 

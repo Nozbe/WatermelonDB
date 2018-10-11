@@ -1,13 +1,13 @@
 // @flow
 
 import { keys, values } from 'rambdax'
-import type { TableSchema, AppSchema, ColumnSchema, TableName } from '../../../schema'
+import type { TableSchema, AppSchema, ColumnSchema, TableName } from '../../../Schema'
 import { nullValue } from '../../../RawRecord'
 import type {
   MigrationStep,
   CreateTableMigrationStep,
   AddColumnsMigrationStep,
-} from '../../../schema/migrations'
+} from '../../../Schema/migrations'
 import type { SQL } from '../index'
 
 import encodeName from '../encodeName'

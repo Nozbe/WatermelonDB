@@ -36,7 +36,7 @@ import type {
   Condition,
   CompoundValue,
 } from '../../../../QueryDescription'
-import { type TableName, type ColumnName, columnName } from '../../../../schema'
+import { type TableName, type ColumnName, columnName } from '../../../../Schema'
 import type { AssociationInfo } from '../../../../Model'
 
 export type LokiRawQuery = Object | typeof undefined

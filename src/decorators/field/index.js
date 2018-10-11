@@ -3,7 +3,7 @@
 import makeDecorator from '../../utils/common/makeDecorator'
 
 import { type Value } from '../../QueryDescription'
-import { type ColumnName } from '../../schema'
+import { type ColumnName } from '../../Schema'
 
 import { ensureDecoratorUsedProperly } from '../common'
 

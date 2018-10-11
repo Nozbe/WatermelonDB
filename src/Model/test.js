@@ -4,7 +4,7 @@ import { mergeMap } from 'rxjs/operators'
 import { makeScheduler, expectToRejectWithMessage } from '../__tests__/utils'
 
 import Database from '../Database'
-import { appSchema, tableSchema } from '../schema'
+import { appSchema, tableSchema } from '../Schema'
 import { field, date, readonly } from '../decorators'
 import { noop } from '../utils/fp'
 import { sanitizedRaw } from '../RawRecord'

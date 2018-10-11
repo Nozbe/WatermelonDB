@@ -3,7 +3,7 @@
 /* eslint-disable no-self-compare */
 
 import { values } from 'rambdax'
-import { type ColumnName, type ColumnSchema, type TableSchema } from '../schema'
+import { type ColumnName, type ColumnSchema, type TableSchema } from '../Schema'
 import { type RecordId, type SyncStatus } from '../Model'
 
 import randomId from '../utils/common/randomId'

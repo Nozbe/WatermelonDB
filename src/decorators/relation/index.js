@@ -4,7 +4,7 @@ import { ensureDecoratorUsedProperly } from '../common'
 
 import Relation, { type Options } from '../../Relation'
 import type Model from '../../Model'
-import type { ColumnName, TableName } from '../../schema'
+import type { ColumnName, TableName } from '../../Schema'
 
 // Defines a model property that fetches a record with a specific ID
 // Returns an mutable Relation object

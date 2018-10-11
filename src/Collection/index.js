@@ -11,7 +11,7 @@ import Query from '../Query'
 import type Database from '../Database'
 import type Model, { RecordId } from '../Model'
 import type { Condition } from '../QueryDescription'
-import { type TableName, type TableSchema } from '../schema'
+import { type TableName, type TableSchema } from '../Schema'
 
 import RecordCache from './RecordCache'
 import { CollectionChangeTypes } from './common'

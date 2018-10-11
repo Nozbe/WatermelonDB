@@ -1,4 +1,4 @@
-import { appSchema, tableSchema } from '../../schema'
+import { appSchema, tableSchema } from '../../Schema'
 import * as Q from '../../QueryDescription'
 import Model from '../../Model'
 import Database from '../../Database'

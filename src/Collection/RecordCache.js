@@ -5,7 +5,7 @@ import invariant from '../utils/common/invariant'
 
 import type Model, { RecordId } from '../Model'
 import type { CachedQueryResult } from '../adapters/type'
-import type { TableName } from '../schema'
+import type { TableName } from '../Schema'
 import type { RawRecord } from '../RawRecord'
 
 type Instantiator<T> = RawRecord => T

@@ -1,6 +1,6 @@
 import { omit } from 'rambdax'
 
-import { tableSchema } from '../schema'
+import { tableSchema } from '../Schema'
 import { setRawSanitized, sanitizedRaw, nullValue } from './index'
 
 const stringNull = ['', null]

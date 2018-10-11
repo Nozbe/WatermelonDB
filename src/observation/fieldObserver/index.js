@@ -9,7 +9,7 @@ import withoutIdentical from '../../utils/fp/withoutIdentical'
 import identicalArrays from '../../utils/fp/identicalArrays'
 
 import { type Value } from '../../QueryDescription'
-import { type ColumnName } from '../../schema'
+import { type ColumnName } from '../../Schema'
 
 import type Model, { RecordId } from '../../Model'
 

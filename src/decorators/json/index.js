@@ -5,7 +5,7 @@ import { always } from 'rambdax'
 import makeDecorator from '../../utils/common/makeDecorator'
 import tryCatch from '../../utils/fp/tryCatch'
 
-import { type ColumnName } from '../../schema'
+import { type ColumnName } from '../../Schema'
 
 import { ensureDecoratorUsedProperly } from '../common'
 

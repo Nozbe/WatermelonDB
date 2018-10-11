@@ -1,6 +1,6 @@
 // @flow
 
-import type { ColumnName, TableName } from '../../schema'
+import type { ColumnName, TableName } from '../../Schema'
 
 import relation from '../relation'
 

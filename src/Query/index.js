@@ -16,7 +16,7 @@ import { buildQueryDescription, queryWithoutDeleted } from '../QueryDescription'
 import type { Condition, QueryDescription } from '../QueryDescription'
 import type Model, { AssociationInfo } from '../Model'
 import type Collection from '../Collection'
-import type { TableName, ColumnName } from '../schema'
+import type { TableName, ColumnName } from '../Schema'
 
 import { getSecondaryTables, getAssociations } from './helpers'
 

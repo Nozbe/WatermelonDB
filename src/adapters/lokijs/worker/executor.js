@@ -5,14 +5,14 @@ import { prop, forEach, values } from 'rambdax'
 import { logger } from '../../../utils/common'
 
 import type { CachedQueryResult, CachedFindResult } from '../../type'
-import type { TableName, AppSchema, SchemaVersion, TableSchema } from '../../../schema'
+import type { TableName, AppSchema, SchemaVersion, TableSchema } from '../../../Schema'
 import type {
   SchemaMigrations,
   CreateTableMigrationStep,
   AddColumnsMigrationStep,
   MigrationStep,
-} from '../../../schema/migrations'
-import { stepsForMigration } from '../../../schema/migrations/helpers'
+} from '../../../Schema/migrations'
+import { stepsForMigration } from '../../../Schema/migrations/helpers'
 import type { SerializedQuery } from '../../../Query'
 import type { RecordId } from '../../../Model'
 import { type RawRecord, sanitizedRaw, setRawSanitized, type DirtyRaw } from '../../../RawRecord'

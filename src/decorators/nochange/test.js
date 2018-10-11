@@ -1,5 +1,5 @@
 import { expectToRejectWithMessage } from '../../__tests__/utils'
-import { appSchema, tableSchema } from '../../schema'
+import { appSchema, tableSchema } from '../../Schema'
 
 import Database from '../../Database'
 import Model from '../../Model'

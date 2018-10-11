@@ -3,7 +3,7 @@
 import is from '../utils/fp/is'
 import invariant from '../utils/common/invariant'
 
-import type { ColumnName } from '../schema'
+import type { ColumnName } from '../Schema'
 
 // eslint-disable-next-line
 export function ensureDecoratorUsedProperly(

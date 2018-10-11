@@ -4,7 +4,7 @@ import { allPromises, toPairs } from '../../utils/fp'
 
 import Model from '../../Model'
 import Query from '../../Query'
-import { appSchema, tableSchema } from '../../schema'
+import { appSchema, tableSchema } from '../../Schema'
 import { sanitizedRaw } from '../../RawRecord'
 
 export class MockTask extends Model {
