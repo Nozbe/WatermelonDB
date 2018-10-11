@@ -1,18 +1,41 @@
 import Foundation
 
 class DatabaseDriver {
-    struct Configuration {
-        let dbName: String
-        let schema: Database.SQL
-        let schemaVersion: Int
+    typealias SchemaVersion = Int
+    typealias Schema = (version: SchemaVersion, sql: Database.SQL)
+    typealias MigrationSet = (from: SchemaVersion, to: SchemaVersion, sql: Database.SQL)
+
+    struct SchemaNeededError: Error { }
+    struct MigrationNeededError: Error {
+        let databaseVersion: SchemaVersion
     }
 
-    let configuration: Configuration
-    private(set) lazy var database = Database(isTestRunning ? nil : "\(self.configuration.dbName).db")
+    let database: Database
 
-    init(configuration: Configuration) {
-        self.configuration = configuration
-        setUp()
+    convenience init(dbName: String, schemaVersion: SchemaVersion) throws {
+        self.init(dbName: dbName)
+
+        switch isCompatible(withVersion: schemaVersion) {
+        case .Compatible: break
+        case .NeedsSetup:
+            throw SchemaNeededError()
+        case .NeedsMigration(fromVersion: let dbVersion):
+            throw MigrationNeededError(databaseVersion: dbVersion)
+        }
+    }
+
+    convenience init(dbName: String, setUpWithSchema schema: Schema) {
+        self.init(dbName: dbName)
+        setUpDatabase(schema: schema)
+    }
+
+    convenience init(dbName: String, setUpWithMigrations migrations: MigrationSet) {
+        self.init(dbName: dbName)
+        migrate(with: migrations)
+    }
+
+    private init(dbName: String) {
+        self.database = Database(isTestRunning ? nil : "\(dbName).db")
     }
 
     func find(table: Database.TableName, id: RecordId) throws -> Any? {
@@ -76,6 +99,7 @@ class DatabaseDriver {
                     removedIds.append(id)
 
                 case .destroyPermanently(table: let table, id: let id):
+                    // TODO: What's the behavior if nothing got deleted?
                     try database.execute("delete from \(table) where id == ?", [id])
                     removedIds.append(id)
                 }
@@ -89,16 +113,6 @@ class DatabaseDriver {
         for id in removedIds {
             cachedRecords.remove(id)
         }
-    }
-
-    func perform(_ operation: Operation) throws {
-        try batch([operation])
-    }
-
-    func destroyPermanently(table: Database.TableName, id: RecordId) throws {
-        // TODO: What's the behavior if nothing got deleted?
-        try database.execute("delete from \(table) where id == ?", [id])
-        cachedRecords.remove(id)
     }
 
     func getDeletedRecords(table: Database.TableName) throws -> [RecordId] {
@@ -155,29 +169,66 @@ class DatabaseDriver {
 
 // MARK: - Other private details
 
-    private func setUp() {
-        // If database is outdated, build a clean one
-        // TODO: Perform actual migrations
+    private enum SchemaCompatibility {
+        case Compatible
+        case NeedsSetup
+        case NeedsMigration(fromVersion: SchemaVersion)
+    }
+
+    private func isCompatible(withVersion schemaVersion: SchemaVersion) -> SchemaCompatibility {
+        let databaseVersion = database.userVersion
+
+        if databaseVersion == schemaVersion {
+            return .Compatible
+        } else if databaseVersion == 0 {
+            return .NeedsSetup
+        } else if databaseVersion > 0 && databaseVersion < schemaVersion {
+            return .NeedsMigration(fromVersion: databaseVersion)
+        } else {
+            // TODO: Safe to assume this would only happen in dev and we can safely reset the database?
+            consoleLog("Database has newer version (\(databaseVersion)) than what the " +
+                "app supports (\(schemaVersion)). Will reset database.")
+            return .NeedsSetup
+        }
+    }
+
+    private func setUpDatabase(schema: Schema) {
+        consoleLog("Setting up database with version \(schema.version)")
+
         do {
-            if database.userVersion != configuration.schemaVersion {
-                try unsafeResetDatabase()
-            }
+            try unsafeResetDatabase(schema: schema)
         } catch {
             fatalError("Error while setting up the database: \(error)")
         }
     }
 
-    func unsafeResetDatabase() throws {
+    func unsafeResetDatabase(schema: Schema) throws {
         try database.unsafeDestroyEverything()
         cachedRecords = []
 
-        try setUpSchema()
+        try setUpSchema(schema: schema)
     }
 
-    private func setUpSchema() throws {
+    private func setUpSchema(schema: Schema) throws {
         consoleLog("Setting up schema")
-        try database.executeStatements(configuration.schema + localStorageSchema)
-        database.userVersion = configuration.schemaVersion
+        try database.executeStatements(schema.sql + localStorageSchema)
+        database.userVersion = schema.version
+    }
+
+    private func migrate(with migrations: MigrationSet) {
+        consoleLog("Migrating database from version \(migrations.from) to \(migrations.to)")
+        precondition(
+            database.userVersion == migrations.from,
+            "Incompatbile migration set applied. DB: \(database.userVersion), migration: \(migrations.from)"
+        )
+
+        do {
+            try database.executeStatements(migrations.sql)
+            database.userVersion = migrations.to
+        } catch {
+            // TODO: Should we crash here? Is this recoverable? Is handling in JS better?
+            fatalError("Error while performing migrations: \(error)")
+        }
     }
 
     private let localStorageSchema = """

@@ -10,7 +10,7 @@ const inquirer = require('inquirer')
 const semver = require('semver')
 const fs = require('fs-extra')
 
-const { when, includes, flip, both, add } = require('rambdax')
+const { when, includes, flip, both, add, contains } = require('rambdax')
 
 const pkg = require('../package.json')
 
@@ -55,16 +55,16 @@ const questions = [
     when: answers => !answers.version,
     validate: input => isValidAndGreaterVersion(input),
   },
-  {
-    type: 'list',
-    name: 'tag',
-    message: 'NPM tag (next for prerelease):',
-    choices: ['latest', 'next'],
-  },
 ]
 
 const buildTasks = options => {
-  const { version, tag } = options
+  const { version } = options
+
+  const isPrerelease = contains('-', version)
+  const tag = isPrerelease ? 'next' : 'latest'
+
+  // eslint-disable-next-line
+  console.warn(`Will publish with NPM tag ${tag}`)
 
   return [
     {
@@ -98,7 +98,7 @@ const buildTasks = options => {
           .then(when(result => result !== '0', throwError('please pull changes first'))),
     },
     {
-      title: 'check eslint',
+      title: 'check tests',
       task: () => execa('yarn', ['test']),
     },
     {
@@ -106,9 +106,18 @@ const buildTasks = options => {
       task: () => execa('yarn', ['flow']),
     },
     {
-      title: 'run tests',
-      task: () => execa('yarn', ['test']),
+      title: 'check eslint',
+      task: () => execa('yarn', ['eslint']),
     },
+    // TODO: Bring those back when metro config is fixed
+    // {
+    //   title: 'check iOS tests',
+    //   task: () => execa('yarn', ['test:ios']),
+    // },
+    // {
+    //   title: 'check Android tests',
+    //   task: () => execa('yarn', ['test:android']),
+    // },
     {
       title: 'bump version',
       task: () => execa('yarn', ['version', '--new-version', version]),

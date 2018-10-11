@@ -13,7 +13,7 @@ describe('watermelondb/adapters/lokijs', () => {
   commonTests().forEach(testCase => {
     const [name, test] = testCase
     const adapter = newAdapter()
-    it(name, test(adapter))
+    it(name, test(adapter, LokiJSAdapter))
   })
   it('does not return any Loki junk', async () => {
     const adapter = newAdapter()

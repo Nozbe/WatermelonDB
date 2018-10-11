@@ -6128,10 +6128,10 @@ rambda@^1.2.2:
   resolved "https://registry.yarnpkg.com/rambda/-/rambda-1.2.2.tgz#92e22c70e3eac170b79defe75053a9806d88c6ca"
   integrity sha512-nXHvvgXqtWJgbRY7k/UH4NBIcB2PHf7kE6OLnjRbTWjvntRqAShGaqEr0UNg3OzXE4TUrxrjMMQXQUqFcSG3fA==
 
-rambdax@^0.10.0:
-  version "0.10.1"
-  resolved "https://registry.yarnpkg.com/rambdax/-/rambdax-0.10.1.tgz#181eb6dfe5707413a56243ab70465c955dc1c515"
-  integrity sha512-akNDk0DxbHXDoU43CS5Dg50ZN87v2ZOxWlI0brPb4cGUysQmgDx4u9qZZpX078OMykRl5uTY5bdyPh/82FaVxg==
+rambdax@^0.12.3:
+  version "0.12.3"
+  resolved "https://registry.yarnpkg.com/rambdax/-/rambdax-0.12.3.tgz#53a66dfa35cd4c1d984b8c6583478c313df36a7b"
+  integrity sha512-IgmiILrUrGYmBOiTwcTauBPk6ChjDiF/MJfDvNR0C5tLDqaInM5mGHukIQ5vhfU6nG/TE2ZJMOWbNUgzL2dW4Q==
   dependencies:
     rambda "^1.2.2"
 

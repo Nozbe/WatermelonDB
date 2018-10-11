@@ -5,7 +5,7 @@ import { merge as merge$ } from 'rxjs/observable/merge'
 import { startWith } from 'rxjs/operators'
 import { values } from 'rambdax'
 
-import invariant from '../utils/common/invariant'
+import { invariant } from '../utils/common'
 
 import CollectionMap from '../CollectionMap'
 import { CollectionChangeTypes } from '../Collection'

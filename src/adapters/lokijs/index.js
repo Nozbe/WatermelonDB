@@ -1,15 +1,24 @@
 // @flow
 
 import { map } from 'rambdax'
+import { isDevelopment } from '../../utils/common'
 
 import type Model, { RecordId } from '../../Model'
 import type { TableName, AppSchema } from '../../Schema'
+import type { SchemaMigrations } from '../../Schema/migrations'
 import type Query from '../../Query'
 import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
-import { devLogFind, devLogQuery, devLogCount, devLogBatch, devLogSetUp } from '../common'
+import {
+  devLogFind,
+  devLogQuery,
+  devLogCount,
+  devLogBatch,
+  devLogSetUp,
+  validateAdapter,
+} from '../common'
 
 import WorkerBridge from './WorkerBridge'
-import { actions, type LokiAdapterOptions } from './common'
+import { actions } from './common'
 
 const {
   SETUP,
@@ -26,18 +35,26 @@ const {
   UNSAFE_CLEAR_CACHED_RECORDS,
 } = actions
 
+type LokiAdapterOptions = $Exact<{
+  dbName: string,
+  schema: AppSchema,
+  migrationsExperimental?: SchemaMigrations,
+}>
+
 export default class LokiJSAdapter implements DatabaseAdapter {
   workerBridge: WorkerBridge = new WorkerBridge()
 
   schema: AppSchema
 
-  constructor(options: LokiAdapterOptions): void {
-    this._setUp(options)
-    this.schema = options.schema
-  }
+  migrations: ?SchemaMigrations
 
-  async _setUp(options: LokiAdapterOptions): Promise<void> {
-    await devLogSetUp(() => this.workerBridge.send(SETUP, [options]))
+  constructor(options: LokiAdapterOptions): void {
+    const { schema, migrationsExperimental: migrations } = options
+    this.schema = schema
+    this.migrations = migrations
+    isDevelopment && validateAdapter(this)
+
+    devLogSetUp(() => this.workerBridge.send(SETUP, [options]))
   }
 
   async find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {

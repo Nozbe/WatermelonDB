@@ -2,6 +2,7 @@
 
 import type Query from '../Query'
 import type { TableName, AppSchema } from '../Schema'
+import type { SchemaMigrations } from '../Schema/migrations'
 import type Model, { RecordId } from '../Model'
 import type { RawRecord } from '../RawRecord'
 
@@ -15,6 +16,9 @@ export type BatchOperation =
 
 export interface DatabaseAdapter {
   schema: AppSchema;
+
+  migrations: ?SchemaMigrations; // TODO: Not optional
+
   // Fetches given (one) record or null. Should not send raw object if already cached in JS
   find(table: TableName<any>, id: RecordId): Promise<CachedFindResult>;
 
