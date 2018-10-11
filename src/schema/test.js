@@ -1,6 +1,6 @@
 import { appSchema, tableSchema } from './index'
 
-describe('watermelondb/Schema', () => {
+describe('watermelondb/schema', () => {
   it('can prepare schema', () => {
     const testSchema = appSchema({
       version: 1,
