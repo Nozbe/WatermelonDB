@@ -115,13 +115,10 @@ describe('schemaMigrations()', () => {
       }),
     ).toThrow(/Invalid migration steps/)
   })
-  it(`throws if there are gaps in the migrable range or not listed in the right order`, () => {
+  it(`throws if there are gaps or duplicates in migrations`, () => {
     expect(() =>
       schemaMigrations({ migrations: [{ toVersion: 2, steps: [] }, { toVersion: 2, steps: [] }] }),
-    ).toThrow(/in reverse chronological order/)
-    expect(() =>
-      schemaMigrations({ migrations: [{ toVersion: 2, steps: [] }, { toVersion: 3, steps: [] }] }),
-    ).toThrow(/in reverse chronological order/)
+    ).toThrow(/duplicates/)
     expect(() =>
       schemaMigrations({
         migrations: [
@@ -139,6 +136,17 @@ describe('schemaMigrations()', () => {
           { toVersion: 6, steps: [] },
           { toVersion: 5, steps: [] },
           { toVersion: 4, steps: [] },
+        ],
+      }),
+    ).not.toThrow()
+
+    // chronological is ok too
+    expect(() =>
+      schemaMigrations({
+        migrations: [
+          { toVersion: 4, steps: [] },
+          { toVersion: 5, steps: [] },
+          { toVersion: 6, steps: [] },
         ],
       }),
     ).not.toThrow()
