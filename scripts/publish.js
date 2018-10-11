@@ -79,10 +79,8 @@ const buildTasks = options => {
     ...(isPrerelease ?
       [
           {
-            title: 'check git',
-            task: () =>
-              // eslint-disable-next-line
-              console.warn('Warning: skipping git checks because this is a prerelease build'),
+            title: 'WARN: Skipping git checks',
+            task: () => {},
           },
         ] :
       [
