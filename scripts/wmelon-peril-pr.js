@@ -49,7 +49,7 @@ if (hasAppChanges && !hasTestChanges) {
 }
 
 // Warn if someone wants to change peril settings
-if (modified.filter(p => p.includes('peril'))) {
+if (modified.filter(p => p.includes('peril')).length) {
   fail('Peril settings are being changed')
 }
 
