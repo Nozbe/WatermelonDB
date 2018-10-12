@@ -3,6 +3,7 @@
     package="com.nozbe.watermelonTest">
     <uses-permission android:name="android.permission.INTERNET" />
 
+  <uses-permission android:name="android.permission.INTERNET" />
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
