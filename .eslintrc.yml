@@ -94,6 +94,19 @@ rules:
   import/named: 0 # doesn't seem to work with Flow
   import/no-extraneous-dependencies: 0
 
+overrides:
+  files:
+    - "src/**/*.js"
+  excludedFiles:
+    - "*integrationTest.js"
+    - "*test.js"
+    - "**/__tests__/**"
+    - "*test.*.js"
+  rules:
+    flowtype/require-valid-file-annotation:
+      - 2
+      - always
+
 globals:
   document: true
   window: true
