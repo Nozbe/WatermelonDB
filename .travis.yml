@@ -1,18 +1,55 @@
 matrix:
   include:
-    - language: objective-c
-      osx_image: xcode9.4
+    # - language: objective-c
+    #   osx_image: xcode9.4
+    #   cache:
+    #     timeout: 600
+    #     directories:
+    #       - $HOME/.cache/yarn
+    #       - node_modules
+
+    #   env:
+    #     global:
+    #     - LC_CTYPE=en_US.UTF-8
+    #     - LANG=en_US.UTF-8
+
+    #   before_install:
+    #     - nvm install 10
+    #     - which node
+    #     - node --version
+    #     - export TRAVIS_NODE_BINARY=$(which node)
+    #     - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.9.4
+    #     - export PATH=$HOME/.yarn/bin:$PATH
+    #     - yarn -version
+    #     - sudo gem install xcpretty
+
+    #   install:
+    #     - yarn
+
+    #   script:
+    #     - set -o pipefail
+    #     - npm run ci:check
+    #     - npm run test:ios | xcpretty
+    #     - npm run swiftlint
+
+    - language: android
+      android:
+        components:
+          - build-tools-28.0.2
+          - android-28
+          - android-21
+          - sys-img-armeabi-v7a-android-21
+          - tools
+          - platform-tools
+          - tools
+      before_cache:
+        - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+        - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
       cache:
-        timeout: 600
         directories:
-          - $HOME/.cache/yarn
-          - node_modules
-
-      env:
-        global:
-        - LC_CTYPE=en_US.UTF-8
-        - LANG=en_US.UTF-8
-
+          - $HOME/.gradle/caches/
+          - $HOME/.gradle/wrapper/
+          - $HOME/.android/build-cache
       before_install:
         - nvm install 10
         - which node
@@ -21,16 +58,90 @@ matrix:
         - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.9.4
         - export PATH=$HOME/.yarn/bin:$PATH
         - yarn -version
-        - sudo gem install xcpretty
-
+        - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
+        - echo no | android create avd --force -n test -t android-21 --abi armeabi-v7a
+        - emulator -avd test -no-skin -no-window &
       install:
         - yarn
-
       script:
-        - set -o pipefail
-        - npm run ci:check
-        - npm run test:ios | xcpretty
-        - npm run swiftlint
+        - TERM=dumb yarn ktlint
+        - android-wait-for-emulator
+        - adb shell input keyevent 82 &
+        - TERM=dumb yarn test:android
+
+    - language: android
+      android:
+        components:
+          - build-tools-28.0.2
+          - android-28
+          - android-22
+          - sys-img-armeabi-v7a-android-22
+          - tools
+          - platform-tools
+          - tools
+      before_cache:
+        - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+        - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+      cache:
+        directories:
+          - $HOME/.gradle/caches/
+          - $HOME/.gradle/wrapper/
+          - $HOME/.android/build-cache
+      before_install:
+        - nvm install 10
+        - which node
+        - node --version
+        - export TRAVIS_NODE_BINARY=$(which node)
+        - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.9.4
+        - export PATH=$HOME/.yarn/bin:$PATH
+        - yarn -version
+        - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
+        - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
+        - emulator -avd test -no-skin -no-window &
+      install:
+        - yarn
+      script:
+        - TERM=dumb yarn ktlint
+        - android-wait-for-emulator
+        - adb shell input keyevent 82 &
+        - TERM=dumb yarn test:android
+
+    - language: android
+      android:
+        components:
+          - build-tools-28.0.2
+          - android-28
+          - android-23
+          - sys-img-armeabi-v7a-android-23
+          - tools
+          - platform-tools
+          - tools
+      before_cache:
+        - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+        - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+      cache:
+        directories:
+          - $HOME/.gradle/caches/
+          - $HOME/.gradle/wrapper/
+          - $HOME/.android/build-cache
+      before_install:
+        - nvm install 10
+        - which node
+        - node --version
+        - export TRAVIS_NODE_BINARY=$(which node)
+        - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.9.4
+        - export PATH=$HOME/.yarn/bin:$PATH
+        - yarn -version
+        - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
+        - echo no | android create avd --force -n test -t android-23 --abi armeabi-v7a
+        - emulator -avd test -no-skin -no-window &
+      install:
+        - yarn
+      script:
+        - TERM=dumb yarn ktlint
+        - android-wait-for-emulator
+        - adb shell input keyevent 82 &
+        - TERM=dumb yarn test:android
 
     - language: android
       android:
@@ -60,6 +171,153 @@ matrix:
         - yarn -version
         - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
         - echo no | android create avd --force -n test -t android-24 --abi armeabi-v7a
+        - emulator -avd test -no-skin -no-window &
+      install:
+        - yarn
+      script:
+        - TERM=dumb yarn ktlint
+        - android-wait-for-emulator
+        - adb shell input keyevent 82 &
+        - TERM=dumb yarn test:android
+
+    - language: android
+      android:
+        components:
+          - build-tools-28.0.2
+          - android-28
+          - android-25
+          - sys-img-armeabi-v7a-android-25
+          - tools
+          - platform-tools
+          - tools
+      before_cache:
+        - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+        - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+      cache:
+        directories:
+          - $HOME/.gradle/caches/
+          - $HOME/.gradle/wrapper/
+          - $HOME/.android/build-cache
+      before_install:
+        - nvm install 10
+        - which node
+        - node --version
+        - export TRAVIS_NODE_BINARY=$(which node)
+        - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.9.4
+        - export PATH=$HOME/.yarn/bin:$PATH
+        - yarn -version
+        - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
+        - echo no | android create avd --force -n test -t android-25 --abi armeabi-v7a
+        - emulator -avd test -no-skin -no-window &
+      install:
+        - yarn
+      script:
+        - TERM=dumb yarn ktlint
+        - android-wait-for-emulator
+        - adb shell input keyevent 82 &
+        - TERM=dumb yarn test:android
+
+    - language: android
+      android:
+        components:
+          - build-tools-28.0.2
+          - android-28
+          - android-26
+          - sys-img-armeabi-v7a-android-26
+          - tools
+          - platform-tools
+          - tools
+      before_cache:
+        - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+        - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+      cache:
+        directories:
+          - $HOME/.gradle/caches/
+          - $HOME/.gradle/wrapper/
+          - $HOME/.android/build-cache
+      before_install:
+        - nvm install 10
+        - which node
+        - node --version
+        - export TRAVIS_NODE_BINARY=$(which node)
+        - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.9.4
+        - export PATH=$HOME/.yarn/bin:$PATH
+        - yarn -version
+        - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
+        - echo no | android create avd --force -n test -t android-26 --abi armeabi-v7a
+        - emulator -avd test -no-skin -no-window &
+      install:
+        - yarn
+      script:
+        - TERM=dumb yarn ktlint
+        - android-wait-for-emulator
+        - adb shell input keyevent 82 &
+        - TERM=dumb yarn test:android
+
+    - language: android
+      android:
+        components:
+          - build-tools-28.0.2
+          - android-28
+          - android-27
+          - sys-img-armeabi-v7a-android-27
+          - tools
+          - platform-tools
+          - tools
+      before_cache:
+        - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+        - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+      cache:
+        directories:
+          - $HOME/.gradle/caches/
+          - $HOME/.gradle/wrapper/
+          - $HOME/.android/build-cache
+      before_install:
+        - nvm install 10
+        - which node
+        - node --version
+        - export TRAVIS_NODE_BINARY=$(which node)
+        - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.9.4
+        - export PATH=$HOME/.yarn/bin:$PATH
+        - yarn -version
+        - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
+        - echo no | android create avd --force -n test -t android-27 --abi armeabi-v7a
+        - emulator -avd test -no-skin -no-window &
+      install:
+        - yarn
+      script:
+        - TERM=dumb yarn ktlint
+        - android-wait-for-emulator
+        - adb shell input keyevent 82 &
+        - TERM=dumb yarn test:android
+
+    - language: android
+      android:
+        components:
+          - build-tools-28.0.2
+          - android-28
+          - sys-img-armeabi-v7a-android-28
+          - tools
+          - platform-tools
+          - tools
+      before_cache:
+        - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+        - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+      cache:
+        directories:
+          - $HOME/.gradle/caches/
+          - $HOME/.gradle/wrapper/
+          - $HOME/.android/build-cache
+      before_install:
+        - nvm install 10
+        - which node
+        - node --version
+        - export TRAVIS_NODE_BINARY=$(which node)
+        - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.9.4
+        - export PATH=$HOME/.yarn/bin:$PATH
+        - yarn -version
+        - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
+        - echo no | android create avd --force -n test -t android-28 --abi armeabi-v7a
         - emulator -avd test -no-skin -no-window &
       install:
         - yarn
