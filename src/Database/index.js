@@ -8,7 +8,7 @@ import { values } from 'rambdax'
 import { invariant } from '../utils/common'
 
 import CollectionMap from '../CollectionMap'
-import { CollectionChangeTypes } from '../Collection'
+import { CollectionChangeTypes } from '../Collection/common'
 
 import type { DatabaseAdapter } from '../adapters/type'
 import type Model from '../Model'
