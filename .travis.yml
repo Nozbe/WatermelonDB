@@ -112,7 +112,7 @@ matrix:
           - build-tools-28.0.2
           - android-28
           - android-23
-          - sys-img-armeabi-v7a-android-23
+          - sys-img-armeabi-v7a-google_apis-23
           - tools
           - platform-tools
           - tools
@@ -186,7 +186,7 @@ matrix:
           - build-tools-28.0.2
           - android-28
           - android-25
-          - sys-img-armeabi-v7a-android-25
+          - sys-img-armeabi-v7a-google_apis-25
           - tools
           - platform-tools
           - tools
@@ -259,8 +259,8 @@ matrix:
         components:
           - build-tools-28.0.2
           - android-28
-          - android-27
-          - sys-img-armeabi-v7a-android-27
+          - android-21
+          - sys-img-x86-google_apis-21
           - tools
           - platform-tools
           - tools
@@ -281,7 +281,7 @@ matrix:
         - export PATH=$HOME/.yarn/bin:$PATH
         - yarn -version
         - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
-        - echo no | android create avd --force -n test -t android-27 --abi armeabi-v7a
+        - echo no | android create avd --force -n test -t android-21 --abi x86
         - emulator -avd test -no-skin -no-window &
       install:
         - yarn
@@ -296,7 +296,8 @@ matrix:
         components:
           - build-tools-28.0.2
           - android-28
-          - sys-img-armeabi-v7a-android-28
+          - android-22
+          - sys-img-x86-google_apis-22
           - tools
           - platform-tools
           - tools
@@ -317,7 +318,7 @@ matrix:
         - export PATH=$HOME/.yarn/bin:$PATH
         - yarn -version
         - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
-        - echo no | android create avd --force -n test -t android-28 --abi armeabi-v7a
+        - echo no | android create avd --force -n test -t android-22 --abi x86
         - emulator -avd test -no-skin -no-window &
       install:
         - yarn
