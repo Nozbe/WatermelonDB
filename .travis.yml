@@ -133,7 +133,7 @@ matrix:
         - export PATH=$HOME/.yarn/bin:$PATH
         - yarn -version
         - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
-        - echo no | android create avd --force -n test -t android-23 --abi armeabi-v7a
+        - echo no | android create avd --force -n test -t android-23 --abi google_apis/armeabi-v7a
         - emulator -avd test -no-skin -no-window &
       install:
         - yarn
@@ -207,7 +207,7 @@ matrix:
         - export PATH=$HOME/.yarn/bin:$PATH
         - yarn -version
         - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
-        - echo no | android create avd --force -n test -t android-25 --abi armeabi-v7a
+        - echo no | android create avd --force -n test -t android-25 --abi google_apis/armeabi-v7a
         - emulator -avd test -no-skin -no-window &
       install:
         - yarn
@@ -281,7 +281,7 @@ matrix:
         - export PATH=$HOME/.yarn/bin:$PATH
         - yarn -version
         - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
-        - echo no | android create avd --force -n test -t android-21 --abi x86
+        - echo no | android create avd --force -n test -t android-21 --abi google_apis/x86
         - emulator -avd test -no-skin -no-window &
       install:
         - yarn
@@ -318,7 +318,7 @@ matrix:
         - export PATH=$HOME/.yarn/bin:$PATH
         - yarn -version
         - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
-        - echo no | android create avd --force -n test -t android-22 --abi x86
+        - echo no | android create avd --force -n test -t android-22 --abi google_apis/x86
         - emulator -avd test -no-skin -no-window &
       install:
         - yarn
