@@ -119,6 +119,9 @@ export default class Collection<Record: Model> {
 
   changeSet(operations: { record: Record, type: CollectionChangeType }[]): void {
     this.changes.next(operations)
+    // this.changes.next(
+    //   operations.filter(operation => operation.type === CollectionChangeTypes.updated),
+    // )
     operations.forEach(({ record, type }) => {
       if (type === 'create') {
         this._onRecordCreated(record)
@@ -126,14 +129,19 @@ export default class Collection<Record: Model> {
         this._onRecordUpdated(record)
       }
     })
+    // this.changes.next(
+    //   operations.filter(operation => operation.type === CollectionChangeTypes.created),
+    // )
   }
 
   _onRecordCreated(record: Record): void {
     record._isCommitted = true
     this._cache.add(record)
+    this.changes.next([{ record, type: CollectionChangeTypes.created }])
   }
 
   _onRecordUpdated(record: Record): void {
+    this.changes.next([{ record, type: CollectionChangeTypes.updated }])
     record._notifyChanged()
   }
 
