@@ -56,14 +56,17 @@ describe('encodeSchema', () => {
     ]
 
     const expectedSQL =
-      'alter table "posts" add "subtitle";' +
-      'create table "comments" ("id" primary key, "_changed", "_status", "last_modified", "post_id", "body");' +
-      'create index comments_post_id on "comments" ("post_id");' +
-      'create index comments__status on "comments" ("_status");' +
-      'alter table "posts" add "author_id";' +
-      'create index posts_author_id on "posts" ("author_id");' +
-      'alter table "posts" add "is_pinned";' +
-      'create index posts_is_pinned on "posts" ("is_pinned");'
+      `alter table "posts" add "subtitle";` +
+      `update "posts" set "subtitle" = null;` +
+      `create table "comments" ("id" primary key, "_changed", "_status", "last_modified", "post_id", "body");` +
+      `create index comments_post_id on "comments" ("post_id");` +
+      `create index comments__status on "comments" ("_status");` +
+      `alter table "posts" add "author_id";` +
+      `update "posts" set "author_id" = '';` +
+      `create index posts_author_id on "posts" ("author_id");` +
+      `alter table "posts" add "is_pinned";` +
+      `update "posts" set "is_pinned" = 0;` +
+      `create index posts_is_pinned on "posts" ("is_pinned");`
 
     expect(encodeMigrationSteps(migrationSteps)).toBe(expectedSQL)
   })

@@ -25,7 +25,7 @@ const SCHEMA_VERSION_KEY = '_loki_schema_version'
 type LokiExecutorOptions = $Exact<{
   dbName: ?string,
   schema: AppSchema,
-  migrations: ?SchemaMigrations, // TODO: not optional
+  migrationsExperimental: ?SchemaMigrations, // TODO: not optional
   _testLokiAdapter?: LokiMemoryAdapter,
 }>
 
@@ -43,10 +43,10 @@ export default class LokiExecutor {
   cachedRecords: Set<RecordId> = new Set([])
 
   constructor(options: LokiExecutorOptions): void {
-    const { dbName, schema, migrations, _testLokiAdapter } = options
+    const { dbName, schema, migrationsExperimental, _testLokiAdapter } = options
     this.dbName = dbName
     this.schema = schema
-    this.migrations = migrations
+    this.migrations = migrationsExperimental
     this._testLokiAdapter = _testLokiAdapter
   }
 
@@ -213,7 +213,7 @@ export default class LokiExecutor {
     })
 
     // Set database version
-    this.setLocal(SCHEMA_VERSION_KEY, `${this.schema.version}`)
+    this._databaseVersion = this.schema.version
 
     logger.log('[DB][Worker] Database collections set up')
   }
@@ -235,6 +235,10 @@ export default class LokiExecutor {
   get _databaseVersion(): SchemaVersion {
     const databaseVersionRaw = this.getLocal(SCHEMA_VERSION_KEY) || ''
     return parseInt(databaseVersionRaw, 10) || 0
+  }
+
+  set _databaseVersion(version: SchemaVersion): void {
+    this.setLocal(SCHEMA_VERSION_KEY, `${version}`)
   }
 
   async _migrateIfNeeded(): Promise<void> {
@@ -275,10 +279,15 @@ export default class LokiExecutor {
         this._executeCreateTableMigration(step)
       } else if (step.type === 'add_columns') {
         this._executeAddColumnsMigration(step)
+      } else {
+        throw new Error(`Unsupported migration step ${step.type}`)
       }
-
-      throw new Error(`Unsupported migration step ${step.type}`)
     })
+
+    // Set database version
+    this._databaseVersion = this.schema.version
+
+    logger.log('[DB][Worker] Database migrations performed')
   }
 
   _executeCreateTableMigration({ name, columns }: CreateTableMigrationStep): void {
@@ -289,7 +298,7 @@ export default class LokiExecutor {
     const collection = this.loki.getCollection(table)
 
     // update ALL records in the collection, adding new fields
-    collection.find().update(record => {
+    collection.findAndUpdate({}, record => {
       columns.forEach(column => {
         setRawSanitized(record, column.name, null, column)
       })
