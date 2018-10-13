@@ -67,7 +67,7 @@ export type SchemaMigrations = $Exact<{
 //           table: 'posts',
 //           columns: [
 //             { name: 'subtitle', type: 'string', isOptional: true },
-//             { name: 'is_pinned', type: 'bool' },
+//             { name: 'is_pinned', type: 'boolean' },
 //           ],
 //         }),
 //       ],

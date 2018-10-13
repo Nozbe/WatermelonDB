@@ -21,7 +21,7 @@ export const mySchema = appSchema({
       columns: [
         { name: 'body', type: 'string' },
         { name: 'post_id', type: 'string', isIndexed: true },
-        { name: 'is_nasty', type: 'bool' },
+        { name: 'is_nasty', type: 'boolean' },
       ],
     }),
   ],

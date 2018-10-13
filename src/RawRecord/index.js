@@ -24,7 +24,7 @@ type _RawRecord = {
 // Raw object representing a model record. A RawRecord is guaranteed by the type system
 // to be safe to use (sanitied with `sanitizedRaw`):
 // - it has exactly the fields described by TableSchema (+ standard fields)
-// - every field is exactly the type described by ColumnSchema (string, number, or bool)
+// - every field is exactly the type described by ColumnSchema (string, number, or boolean)
 // - … and the same optionality (will not be null unless isOptional: true)
 export opaque type RawRecord: _RawRecord = _RawRecord
 
@@ -44,7 +44,7 @@ function _setRaw(raw: Object, key: string, value: any, columnSchema: ColumnSchem
     } else {
       raw[key] = isOptional ? null : ''
     }
-  } else if (type === 'bool') {
+  } else if (type === 'boolean') {
     if (typeof value === 'boolean') {
       raw[key] = value
     } else if (value === 1 || value === 0) {
@@ -119,7 +119,7 @@ export function nullValue(columnSchema: ColumnSchema): NullValue {
     return ''
   } else if (type === 'number') {
     return 0
-  } else if (type === 'bool') {
+  } else if (type === 'boolean') {
     return false
   }
 

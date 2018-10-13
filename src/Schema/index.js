@@ -10,7 +10,7 @@ import type Model from '../Model'
 export opaque type TableName<+T: Model>: string = string
 export opaque type ColumnName: string = string
 
-export type ColumnType = 'string' | 'number' | 'bool'
+export type ColumnType = 'string' | 'number' | 'boolean'
 export type ColumnSchema = $Exact<{
   name: ColumnName,
   type: ColumnType,
@@ -55,8 +55,8 @@ export function validateColumnSchema(column: ColumnSchema): void {
   if (isDevelopment) {
     invariant(column.name, `Missing column name`)
     invariant(
-      contains(column.type, ['string', 'bool', 'number']),
-      `Invalid type ${column.type} for column ${column.name}`,
+      contains(column.type, ['string', 'boolean', 'number']),
+      `Invalid type ${column.type} for column ${column.name} (valid: string, boolean, number)`,
     )
     invariant(
       !contains(column.name, ['id', 'last_modified', '_changed', '_status']),
@@ -74,6 +74,19 @@ export function validateColumnSchema(column: ColumnSchema): void {
 export function tableSchema({ name, columns: columnList }: TableSchemaSpec): TableSchema {
   isDevelopment && invariant(name, `Missing table name in schema`)
   const columns: ColumnMap = columnList.reduce((map, column) => {
+    // TODO: `bool` is deprecated -- remove compat after a while
+    if (column.type === 'bool') {
+      column.type = 'boolean'
+      if (isDevelopment) {
+        // eslint-disable-next-line
+        console.warn(
+          `[DEPRECATION] Column type 'bool' is deprecated — change to 'boolean' (in ${JSON.stringify(
+            column,
+          )})`,
+        )
+      }
+    }
+
     if (isDevelopment) {
       validateColumnSchema(column)
     }
