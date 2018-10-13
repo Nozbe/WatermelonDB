@@ -99,19 +99,37 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
       if (status.code === 'schema_needed') {
         logger.log('[DB] Database needs setup. Setting up schema.')
-        await Native.setUpWithSchema(this._tag, dbName, this._encodedSchema(), this.schema.version)
+        await this._setUpWithSchema(dbName)
       } else if (status.code === 'migrations_needed') {
         logger.log('[DB] Database needs migrations')
         const { databaseVersion } = status
         invariant(databaseVersion > 0, 'Invalid database schema version')
-        // TODO: Apply migrations
-        await Native.setUpWithSchema(this._tag, dbName, this._encodedSchema(), this.schema.version)
+
+        if (this.migrations) {
+          const migrationSQL = this._encodedMigrations(this.migrations, databaseVersion)
+          await Native.setUpWithMigrations(
+            this._tag,
+            dbName,
+            migrationSQL,
+            databaseVersion,
+            this.schema.version,
+          )
+          logger.log('[DB] Migrations applied successfully')
+        } else {
+          // TODO: Temporary, remove this branch later
+          logger.warn('[DB] Migrations not available. Resetting database instead')
+          await this._setUpWithSchema(dbName)
+        }
       } else {
         invariant(status.code === 'ok', 'Invalid database initialization status')
       }
     } else {
       await Native.setUp(this._tag, dbName, this._encodedSchema(), this.schema.version)
     }
+  }
+
+  async _setUpWithSchema(dbName: string): Promise<void> {
+    return Native.setUpWithSchema(this._tag, dbName, this._encodedSchema(), this.schema.version)
   }
 
   async find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {
@@ -195,7 +213,18 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   _encodedSchema(): SQL {
-    const encodeSchema = require('./encodeSchema').default
+    const { encodeSchema } = require('./encodeSchema')
     return encodeSchema(this.schema)
+  }
+
+  _encodedMigrations(migrations: SchemaMigrations, fromVersion: SchemaVersion): SQL {
+    const { encodeMigrationSteps } = require('./encodeSchema')
+    const { stepsForMigration } = require('../../Schema/migrations/helpers')
+    const migrationSteps = stepsForMigration({
+      migrations,
+      fromVersion,
+      toVersion: this.schema.version,
+    })
+    return encodeMigrationSteps(migrationSteps)
   }
 }
