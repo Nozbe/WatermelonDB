@@ -10,14 +10,10 @@ class Database(private val name: String?, private val context: Context) {
     private val log = if (BuildConfig.DEBUG) Logger.getLogger("Database") else null
 
     private val db: SQLiteDatabase by lazy {
-        if (name.isNullOrBlank() || name == "test") {
-            SQLiteDatabase.create(null)
-        } else {
-            // On some systems there is some kind of lock on `/databases` folder ¯\_(ツ)_/¯
-            SQLiteDatabase.openOrCreateDatabase(
-                    context.getDatabasePath("$name.db").path
-                            .replace("/databases", ""), null)
-        }
+        // On some systems there is some kind of lock on `/databases` folder ¯\_(ツ)_/¯
+        SQLiteDatabase.openOrCreateDatabase(
+                context.getDatabasePath("$name.db").path
+                        .replace("/databases", ""), null)
     }
 
     var userVersion: Int

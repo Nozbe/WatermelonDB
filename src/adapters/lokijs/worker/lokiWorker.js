@@ -30,7 +30,6 @@ const executorMethods = {
   [actions.MARK_AS_DELETED]: ExecutorProto.markAsDeleted,
   [actions.GET_DELETED_RECORDS]: ExecutorProto.getDeletedRecords,
   [actions.DESTROY_DELETED_RECORDS]: ExecutorProto.destroyDeletedRecords,
-  [actions.UNSAFE_CLEAR_CACHED_RECORDS]: ExecutorProto.unsafeClearCachedRecords,
 }
 
 const { RESPONSE_SUCCESS, RESPONSE_ERROR } = responseActions

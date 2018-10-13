@@ -71,10 +71,6 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             connections[tag]?.doWithPromise(promise) { it.unsafeResetDatabase() }
 
     @ReactMethod
-    fun unsafeClearCachedRecords(tag: ConnectionTag, promise: Promise) =
-            connections[tag]?.doWithPromise(promise) { it.unsafeClearCachedRecords() }
-
-    @ReactMethod
     fun getLocal(tag: ConnectionTag, key: String, promise: Promise) =
             connections[tag]?.doWithPromise(promise) { it.getLocal(key) }
 
