@@ -45,7 +45,7 @@
     "optimize-js-plugin": "^0.0.4",
     "postcss": "^7.0.2",
     "postcss-browser-reporter": "^0.5.0",
-    "postcss-calc": "^6.0.1",
+    "postcss-calc": "^7.0.0",
     "postcss-hexrgba": "^1.0.1",
     "postcss-import": "^12.0.0",
     "postcss-loader": "^3.0.0",
