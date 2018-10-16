@@ -19,7 +19,7 @@ export const mySchema = appSchema({
         { name: 'title', type: 'string' },
         { name: 'subtitle', type: 'string', isOptional: true },
         { name: 'body', type: 'string' },
-        { name: 'is_pinned', type: 'bool' },
+        { name: 'is_pinned', type: 'boolean' },
       ]
     }),
     tableSchema({
@@ -37,7 +37,7 @@ export const mySchema = appSchema({
 
 ### Column types
 
-Columns have one of three types: `string`, `number`, or `bool`.
+Columns have one of three types: `string`, `number`, or `boolean`.
 
 Fields of those types will default to `''`, `0`, or `false` respectively, if you create a record with a missing field.
 
@@ -55,7 +55,7 @@ To add a relation to a table (e.g. `Post` where a `Comment` was published, or au
 Boolean columns should have names starting with `is_`:
 
 ```js
-{ name: 'is_pinned', type: 'bool' }
+{ name: 'is_pinned', type: 'boolean' }
 ```
 
 Date fields should be `number` (dates are stored as Unix timestamps) and have names ending with `_at`:
@@ -86,7 +86,7 @@ For example, you will often want to query all comments belonging to a post (that
 
 However, if you rarely query all comments by its author, indexing `author_id` is probably not worth it.
 
-In general, most `_id` fields are indexed. Sometimes, `bool` fields are worth indexing if you often use it for queries. However, you should almost never index date (`_at`) columns or `string` columns.
+In general, most `_id` fields are indexed. Sometimes, `boolean` fields are worth indexing if you often use it for queries. However, you should almost never index date (`_at`) columns or `string` columns.
 
 * * *
 

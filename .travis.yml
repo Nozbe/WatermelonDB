@@ -68,4 +68,6 @@ matrix:
         - android-wait-for-emulator
         - adb shell input keyevent 82 &
         - TERM=dumb yarn test:android
-
+      after_failure:
+        - adb logcat -d > logcat.txt
+        - echo "$(cat logcat.txt)"

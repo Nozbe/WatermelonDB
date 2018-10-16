@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
  - Added DatabaseProvider and withDatabase Higher-Order Component to reduce prop drilling.
+
+### Deprecations
+
+- [Schema] Column type 'bool' is deprecated — change to 'boolean'
+
 ### Fixed
 
 - Fixed "dependency cycle" warning
@@ -11,6 +16,10 @@ All notable changes to this project will be documented in this file.
 ### Improvements
 
 - [React Native] App should launch a little faster, because schema is only compiled on demand now
+
+### Changed
+
+- Updated Flow to 0.83
 
 ### Refactoring
 

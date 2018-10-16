@@ -48,7 +48,4 @@ export interface DatabaseAdapter {
 
   // Removes key from local storage
   removeLocal(key: string): Promise<void>;
-
-  // Do not use — only for testing purposes
-  unsafeClearCachedRecords(): Promise<void>;
 }

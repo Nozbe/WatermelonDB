@@ -9,7 +9,7 @@ import org.junit.Rule
 class BridgeTest {
 
     @get:Rule
-    var activityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
+    val activityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
 
     @Test
     fun testBridge() {
@@ -23,7 +23,7 @@ class BridgeTest {
                     result.result.filter { it.isNotEmpty() }.forEach { Log.d("BridgeTest", it) }
                 }
                 is BridgeTestReporter.Result.Failure -> {
-                    val failureString = result.errors.filter {
+                    val failureString = result.errors.asSequence().filter {
                         it.isNotEmpty()
                     }.joinToString(separator = "\n")
                     Assert.fail(failureString)

@@ -57,7 +57,7 @@ final public class DatabaseBridge: NSObject {
     }
 
     @objc(setUpWithMigrations:databaseName:migrations:fromVersion:toVersion:resolve:reject:)
-    func setUpWithMigrations(tag: ConnectionTag,
+    func setUpWithMigrations(tag: ConnectionTag, // swiftlint:disable:this function_parameter_count
                              databaseName: String,
                              migrations: Database.SQL,
                              fromVersion: NSNumber,
@@ -207,14 +207,6 @@ final public class DatabaseBridge: NSObject {
                      resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
             try $0.removeLocal(key: key)
-        }
-    }
-
-    @objc(unsafeClearCachedRecords:resolve:reject:)
-    func unsafeClearCachedRecords(tag: ConnectionTag,
-                                  resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            $0.unsafeClearCachedRecords()
         }
     }
 

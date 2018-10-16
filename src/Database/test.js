@@ -23,7 +23,7 @@ describe('watermelondb/Database', () => {
     expect(database.collections.get('non_existent')).toBeUndefined()
   })
   it('can batch records', async () => {
-    const { database, tasksCollection: collection } = mockDatabase()
+    let { database, tasksCollection: collection } = mockDatabase()
     const adapterBatchSpy = jest.spyOn(database.adapter, 'batch')
 
     const m1 = await collection.create()
@@ -76,14 +76,15 @@ describe('watermelondb/Database', () => {
     expect(recordObserver).toHaveBeenCalledTimes(2)
 
     // simulate reload -- check if changes actually got saved
-    // TODO: There should be an API for that
-    const { adapter } = database
-    const database2 = new Database({ adapter, schema: testSchema, modelClasses: [MockTask] })
-    const collection2 = database2.collections.get('mock_tasks')
-    await adapter.unsafeClearCachedRecords()
+    database = new Database({
+      adapter: database.adapter.testClone(),
+      schema: testSchema,
+      modelClasses: [MockTask],
+    })
+    collection = database.collections.get('mock_tasks')
 
-    const fetchedM1 = await collection2.find(m1.id)
-    const fetchedM2 = await collection2.find(m2.id)
+    const fetchedM1 = await collection.find(m1.id)
+    const fetchedM2 = await collection.find(m2.id)
     expect(fetchedM1.name).toBe('bar1')
     expect(fetchedM2.name).toBe('baz1')
   })

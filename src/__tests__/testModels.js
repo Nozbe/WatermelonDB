@@ -16,7 +16,7 @@ export const testSchema = appSchema({
       columns: [
         { name: 'name', type: 'string' },
         { name: 'position', type: 'number' },
-        { name: 'is_completed', type: 'bool' },
+        { name: 'is_completed', type: 'boolean' },
         { name: 'description', type: 'string', isOptional: true },
         { name: 'project_id', type: 'string' },
       ],
