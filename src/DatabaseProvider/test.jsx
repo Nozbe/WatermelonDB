@@ -33,7 +33,6 @@ describe('watermelondb/DatabaseProvider', () => {
       </DatabaseProvider>,
     )
     const component = instance.root.find(MockComponent)
-    expect(component.props.database).toBeDefined()
     expect(component.props.database).toBeInstanceOf(Database)
   })
 
@@ -46,7 +45,6 @@ describe('watermelondb/DatabaseProvider', () => {
         </DatabaseProvider>,
       )
       const component = instance.root.find(MockComponent)
-      expect(component.props.database).toBeDefined()
       expect(component.props.database).toBeInstanceOf(Database)
     })
   })
