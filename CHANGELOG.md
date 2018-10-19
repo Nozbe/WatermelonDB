@@ -17,6 +17,10 @@ All notable changes to this project will be documented in this file.
 
 - [React Native] App should launch a little faster, because schema is only compiled on demand now
 
+### Changed
+
+- Updated Flow to 0.83
+
 ### Refactoring
 
 - [WIP] Migrations
