@@ -3,8 +3,6 @@
     "default": {
       "packages": [
         "package.json",
-        "examples/native/package.json",
-        "examples/web/package.json"
       ]
     }
   }
