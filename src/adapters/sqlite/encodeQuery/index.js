@@ -3,7 +3,6 @@
 
 import type Query, { AssociationArgs } from '../../../Query'
 import type {
-  NonNullValue,
   NonNullValues,
   Operator,
   Where,
