@@ -23,7 +23,10 @@ import invariant from '../utils/common/invariant'
 
 import { type TableName, type ColumnName, columnName } from '../Schema'
 
+type $RE<Type> = $ReadOnly<$Exact<Type>>
+
 export type NonNullValue = number | string | boolean
+export type NonNullValues = number[] | string[] | boolean[]
 export type Value = NonNullValue | null
 export type CompoundValue = Value | Value[]
 
@@ -39,14 +42,14 @@ export type Operator =
   | 'notIn'
   | 'between'
 
-export type ColumnDescription = $Exact<{ column: ColumnName }>
+export type ColumnDescription = $RE<{ column: ColumnName }>
 export type ComparisonRight =
-  | $Exact<{ value: Value }>
-  | $Exact<{ values: NonNullValue[] }>
+  | $RE<{ value: Value }>
+  | $RE<{ values: NonNullValues }>
   | ColumnDescription
-export type Comparison = $Exact<{ operator: Operator, right: ComparisonRight }>
+export type Comparison = $RE<{ operator: Operator, right: ComparisonRight }>
 
-export type WhereDescription = $Exact<{
+export type WhereDescription = $RE<{
   type: 'where',
   left: ColumnName,
   comparison: Comparison,
@@ -54,16 +57,16 @@ export type WhereDescription = $Exact<{
 
 /* eslint-disable-next-line */
 export type Where = WhereDescription | And | Or
-export type And = $Exact<{ type: 'and', conditions: Where[] }>
-export type Or = $Exact<{ type: 'or', conditions: Where[] }>
-export type On = $Exact<{
+export type And = $RE<{ type: 'and', conditions: Where[] }>
+export type Or = $RE<{ type: 'or', conditions: Where[] }>
+export type On = $RE<{
   type: 'on',
   table: TableName<any>,
   left: ColumnName,
   comparison: Comparison,
 }>
 export type Condition = Where | On
-export type QueryDescription = $Exact<{ where: Where[], join: On[] }>
+export type QueryDescription = $RE<{ where: Where[], join: On[] }>
 
 // Note: These operators are designed to match SQLite semantics
 // to ensure that iOS, Android, web, and Query observation yield exactly the same results
@@ -145,7 +148,7 @@ export function lte(valueOrColumn: NonNullValue | ColumnDescription): Comparison
 // Value in a set (SQLite IN semantics)
 // Note:
 // - `null` in `values` is not allowed!
-export function oneOf(values: NonNullValue[]): Comparison {
+export function oneOf(values: NonNullValues): Comparison {
   return { operator: 'oneOf', right: { values } }
 }
 
@@ -153,13 +156,14 @@ export function oneOf(values: NonNullValue[]): Comparison {
 // Note:
 // - `null` in `values` is not allowed!
 // - (null NOT IN (1, 2, 3)) == false
-export function notIn(values: NonNullValue[]): Comparison {
+export function notIn(values: NonNullValues): Comparison {
   return { operator: 'notIn', right: { values } }
 }
 
 // Number is between two numbers (greater than or equal left, and less than or equal right)
 export function between(left: number, right: number): Comparison {
-  return { operator: 'between', right: { values: [left, right] } }
+  const values: number[] = [left, right]
+  return { operator: 'between', right: { values } }
 }
 
 export function column(name: ColumnName): ColumnDescription {
