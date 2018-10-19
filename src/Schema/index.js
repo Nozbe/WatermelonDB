@@ -11,24 +11,24 @@ export opaque type TableName<+T: Model>: string = string
 export opaque type ColumnName: string = string
 
 export type ColumnType = 'string' | 'number' | 'boolean'
-export type ColumnSchema = $Exact<{
-  name: ColumnName,
-  type: ColumnType,
-  isOptional?: boolean,
-  isIndexed?: boolean,
-}>
+export type ColumnSchema = $ReadOnly<$Exact<{
+    name: ColumnName,
+    type: ColumnType,
+    isOptional?: boolean,
+    isIndexed?: boolean,
+  }>,>
 
 export type ColumnMap = { [name: ColumnName]: ColumnSchema }
 
 export type TableSchemaSpec = $Exact<{ name: TableName<any>, columns: ColumnSchema[] }>
 
-export type TableSchema = $Exact<{ name: TableName<any>, columns: ColumnMap }>
+export type TableSchema = $ReadOnly<$Exact<{ name: TableName<any>, columns: ColumnMap }>>
 
 type TableMap = { [name: TableName<any>]: TableSchema }
 
 export type SchemaVersion = number
 
-export type AppSchema = $Exact<{ version: SchemaVersion, tables: TableMap }>
+export type AppSchema = $ReadOnly<$Exact<{ version: SchemaVersion, tables: TableMap }>>
 
 export function tableName<T: Model>(name: string): TableName<T> {
   return name

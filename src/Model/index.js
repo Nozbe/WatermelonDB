@@ -25,8 +25,8 @@ export type RecordId = string
 
 export type SyncStatus = 'synced' | 'created' | 'updated' | 'deleted'
 
-export type BelongsToAssociation = $Exact<{ type: 'belongs_to', +key: ColumnName }>
-export type HasManyAssociation = $Exact<{ type: 'has_many', +foreignKey: ColumnName }>
+export type BelongsToAssociation = $ReadOnly<$Exact<{ type: 'belongs_to', key: ColumnName }>>
+export type HasManyAssociation = $ReadOnly<$Exact<{ type: 'has_many', foreignKey: ColumnName }>>
 export type AssociationInfo = BelongsToAssociation | HasManyAssociation
 export type Associations = { +[TableName<any>]: AssociationInfo }
 
