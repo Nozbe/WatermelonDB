@@ -72,6 +72,7 @@ final public class DatabaseBridge: NSObject {
             connectDriver(connectionTag: tag, driver: driver)
             resolve(true)
         } catch {
+            disconnectDriver(tag)
             sendReject(reject, error)
         }
     }
@@ -246,6 +247,16 @@ final public class DatabaseBridge: NSObject {
         let tagID = connectionTag.intValue
         let queue = connections[tagID]?.queue ?? []
         connections[tagID] = .connected(driver: driver)
+
+        for operation in queue {
+            operation()
+        }
+    }
+
+    private func disconnectDriver(_ connectionTag: ConnectionTag) {
+        let tagID = connectionTag.intValue
+        let queue = connections[tagID]?.queue ?? []
+        connections[tagID] = nil
 
         for operation in queue {
             operation()

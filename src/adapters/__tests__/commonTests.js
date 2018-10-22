@@ -655,7 +655,7 @@ export default () => [
     },
   ],
   [
-    'resets database when migration fails',
+    'errors when migration fails',
     async (_adapter, AdapterClass) => {
       // launch older version of the app
       let adapter = new AdapterClass({
@@ -685,9 +685,8 @@ export default () => [
         }),
       })
 
-      expect(await adapter.count(taskQuery())).toBe(0)
-      await adapter.batch([['create', makeMockTask({})]])
-      expect(await adapter.count(taskQuery())).toBe(1)
+      await expect(adapter.count(taskQuery())).rejects.toBeInstanceOf(Error)
+      await expect(adapter.batch([['create', makeMockTask({})]])).rejects.toBeInstanceOf(Error)
     },
   ],
   ...matchTests.map(testCase => [

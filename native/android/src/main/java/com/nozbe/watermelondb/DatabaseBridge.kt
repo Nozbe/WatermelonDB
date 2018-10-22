@@ -105,6 +105,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
                 promise = promise
             )
         } catch (e: Exception) {
+            disconnectDriver(tag)
             promise.reject(e)
         }
     }
@@ -246,5 +247,14 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             operation()
         }
         promise.resolve(true)
+    }
+
+    private fun disconnectDriver(connectionTag: ConnectionTag) {
+        val queue = connections[connectionTag]?.queue ?: arrayListOf()
+        connections.remove(connectionTag)
+
+        for (operation in queue) {
+            operation()
+        }
     }
 }

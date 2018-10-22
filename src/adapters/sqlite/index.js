@@ -141,8 +141,8 @@ export default class SQLiteAdapter implements DatabaseAdapter {
         )
         logger.log('[DB] Migration successful')
       } catch (error) {
-        logger.error('[DB] Migration failed. Resetting database instead.', error)
-        await this._setUpWithSchema()
+        logger.error('[DB] Migration failed', error)
+        throw error
       }
     } else {
       logger.warn(

@@ -260,8 +260,8 @@ export default class LokiExecutor {
         try {
           await this._migrate(migrationSteps)
         } catch (error) {
-          logger.error('[DB][Worker] Migration failed. Resetting database instead', error)
-          await this.unsafeResetDatabase()
+          logger.error('[DB][Worker] Migration failed', error)
+          throw error
         }
       } else {
         logger.warn(
