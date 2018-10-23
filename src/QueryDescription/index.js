@@ -20,10 +20,9 @@ import cond from '../utils/fp/cond'
 import partition from '../utils/fp/partition'
 import isObject from '../utils/fp/isObject'
 import invariant from '../utils/common/invariant'
+import type { $RE } from '../types'
 
 import { type TableName, type ColumnName, columnName } from '../Schema'
-
-type $RE<Type> = $ReadOnly<$Exact<Type>>
 
 export type NonNullValue = number | string | boolean
 export type NonNullValues = number[] | string[] | boolean[]

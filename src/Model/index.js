@@ -2,13 +2,12 @@
 
 import type { Observable } from 'rxjs'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
-
 import isDevelopment from '../utils/common/isDevelopment'
 import invariant from '../utils/common/invariant'
 import ensureSync from '../utils/common/ensureSync'
-
 import fromPairs from '../utils/fp/fromPairs'
 import noop from '../utils/fp/noop'
+import type { $RE } from '../types'
 
 import field from '../decorators/field'
 import readonly from '../decorators/readonly'
@@ -25,8 +24,8 @@ export type RecordId = string
 
 export type SyncStatus = 'synced' | 'created' | 'updated' | 'deleted'
 
-export type BelongsToAssociation = $ReadOnly<$Exact<{ type: 'belongs_to', key: ColumnName }>>
-export type HasManyAssociation = $ReadOnly<$Exact<{ type: 'has_many', foreignKey: ColumnName }>>
+export type BelongsToAssociation = $RE<{ type: 'belongs_to', key: ColumnName }>
+export type HasManyAssociation = $RE<{ type: 'has_many', foreignKey: ColumnName }>
 export type AssociationInfo = BelongsToAssociation | HasManyAssociation
 export type Associations = { +[TableName<any>]: AssociationInfo }
 
