@@ -92,17 +92,17 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     ) {
         try {
             connectDriver(
-                connectionTag = tag,
-                driver = DatabaseDriver(
-                        context = reactContext,
-                        dbName = databaseName,
-                        migrations = MigrationSet(
-                                from = fromVersion,
-                                to = toVersion,
-                                sql = migrations
-                        )
-                ),
-                promise = promise
+                    connectionTag = tag,
+                    driver = DatabaseDriver(
+                            context = reactContext,
+                            dbName = databaseName,
+                            migrations = MigrationSet(
+                                    from = fromVersion,
+                                    to = toVersion,
+                                    sql = migrations
+                            )
+                    ),
+                    promise = promise
             )
         } catch (e: Exception) {
             disconnectDriver(tag)
@@ -164,7 +164,8 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         function: (DatabaseDriver) -> Any?
     ) {
         try {
-            val connection = connections[tag]
+            val connection =
+                    connections[tag] ?: throw Exception("No driver with tag $tag available")
             when (connection) {
                 is Connection.Connected -> {
                     val result = function(connection.driver)
