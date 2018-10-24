@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 ### Deprecations
 
 - [Schema] Column type 'bool' is deprecated — change to 'boolean'
+- Updated docs
+- Added fundaments for integration of Danger with Jest
 
 ### Fixed
 
