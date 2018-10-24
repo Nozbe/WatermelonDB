@@ -108,9 +108,7 @@ export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMig
 
   if (isDevelopment) {
     // validate that migration spec is without gaps and duplicates
-    let maxCoveredVersion: ?number = null
-
-    sortedMigrations.forEach(migration => {
+    sortedMigrations.reduce((maxCoveredVersion, migration) => {
       const { toVersion } = migration
       if (maxCoveredVersion) {
         invariant(
@@ -120,8 +118,8 @@ export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMig
           )} is to version ${toVersion}. Migrations must be listed without gaps, or duplicates.`,
         )
       }
-      maxCoveredVersion = toVersion
-    })
+      return toVersion
+    }, null)
   }
 
   return {
