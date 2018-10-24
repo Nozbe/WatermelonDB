@@ -113,7 +113,9 @@ The result is fully reactive! Whenever a post or comment is added, changed, or r
 
 ## Contributing
 
-If you have comments, complaints, or ideas for improvements, feel free to open an issue or a pull request! See [Contributing guide](./CONTRIBUTING.md) for details about project setup, testing, etc.
+If you have comments, complaints, or ideas for improvements, feel free to open an issue or a pull request!
+
+If you want to contribute, see [Contributing guide](./CONTRIBUTING.md) for details about project setup, testing, etc. See [good first issues](https://github.com/Nozbe/WatermelonDB/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22). If you make a non-trivial contribution, email me, and I'll send you a nice 🍉 sticker!
 
 If you make or are considering making an app using WatermelonDB, please let us know!
 
