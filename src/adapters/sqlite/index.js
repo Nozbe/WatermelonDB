@@ -121,8 +121,11 @@ export default class SQLiteAdapter implements DatabaseAdapter {
       const { databaseVersion } = status
       invariant(databaseVersion > 0, 'Invalid database schema version')
 
-      if (this.migrations) {
-        const migrationSQL = this._encodedMigrations(this.migrations, databaseVersion)
+      const migrationSQL = this._encodedMigrations(databaseVersion)
+
+      if (migrationSQL) {
+        logger.log(`[DB] Migrating from version ${databaseVersion} to ${this.schema.version}...`)
+
         await Native.setUpWithMigrations(
           this._tag,
           this._dbName,
@@ -130,10 +133,11 @@ export default class SQLiteAdapter implements DatabaseAdapter {
           databaseVersion,
           this.schema.version,
         )
-        logger.log('[DB] Migrations applied successfully')
+        logger.log('[DB] Migration successful')
       } else {
-        // TODO: Temporary, remove this branch later
-        logger.warn('[DB] Migrations not available. Resetting database instead')
+        logger.warn(
+          '[DB] Migrations not available for this version range, resetting database instead',
+        )
         await this._setUpWithSchema()
       }
     } else {
@@ -225,14 +229,22 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     return encodeSchema(this.schema)
   }
 
-  _encodedMigrations(migrations: SchemaMigrations, fromVersion: SchemaVersion): SQL {
+  _encodedMigrations(fromVersion: SchemaVersion): ?SQL {
     const { encodeMigrationSteps } = require('./encodeSchema')
     const { stepsForMigration } = require('../../Schema/migrations/helpers')
+    const { migrations } = this
+    // TODO: Remove this after migrations are shipped
+    if (!migrations) {
+      return null
+    }
     const migrationSteps = stepsForMigration({
       migrations,
       fromVersion,
       toVersion: this.schema.version,
     })
+    if (!migrationSteps) {
+      return null
+    }
     return encodeMigrationSteps(migrationSteps)
   }
 }
