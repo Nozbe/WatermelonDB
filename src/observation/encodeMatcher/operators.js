@@ -24,6 +24,10 @@ const noNullComparisons: OperatorFunction => OperatorFunction = operator => (lef
 // Same as `a > b`, but `5 > undefined` is also true
 const weakGt = (left, right) => left > right || (left != null && right == null)
 
+export const like = (left, right) => (
+  left.match(new RegExp(right.replace(/%/g, '.*').replace('_', '.'), 'i'))
+)
+
 const operators: { [Operator]: OperatorFunction } = {
   eq: rawFieldEquals,
   notEq: complement(rawFieldEquals),
@@ -35,6 +39,7 @@ const operators: { [Operator]: OperatorFunction } = {
   oneOf: contains,
   notIn: noNullComparisons(complement(contains)),
   between,
+  like,
 }
 
 export default operators

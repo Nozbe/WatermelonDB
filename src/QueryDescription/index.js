@@ -38,6 +38,7 @@ export type Operator =
   | 'oneOf'
   | 'notIn'
   | 'between'
+  | 'like'
 
 export type ColumnDescription = $Exact<{ column: ColumnName }>
 export type ComparisonRight =
@@ -160,6 +161,10 @@ export function notIn(values: NonNullValue[]): Comparison {
 // Number is between two numbers (greater than or equal left, and less than or equal right)
 export function between(left: number, right: number): Comparison {
   return { operator: 'between', right: { values: [left, right] } }
+}
+
+export function like(value: NonNullValue[]): Comparison {
+  return { operator: 'like', right: { value } }
 }
 
 export function column(name: ColumnName): ColumnDescription {

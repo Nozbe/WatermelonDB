@@ -56,6 +56,7 @@ const operators: { [Operator]: string } = {
   oneOf: 'in',
   notIn: 'not in',
   between: 'between',
+  like: 'like',
 }
 
 const encodeComparison = (table: TableName<any>, comparison: Comparison) => {

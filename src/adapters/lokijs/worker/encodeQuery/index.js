@@ -51,6 +51,7 @@ type LokiOperator =
   | '$in'
   | '$nin'
   | '$between'
+  | '$regex'
 type LokiKeyword = LokiOperator | '$and' | '$or'
 
 export type LokiJoin = $Exact<{
@@ -86,6 +87,10 @@ const noNullComparisons: OperatorFunction => OperatorFunction = operator => valu
   $and: [operator(value), weakNotEqual(null)],
 })
 
+const like = value => ({
+  $regex: new RegExp(value.replace(/%/g, '.*').replace('_', '.'), 'i'),
+})
+
 const operators: { [Operator]: OperatorFunction } = {
   eq: objOf('$aeq'),
   notEq: weakNotEqual,
@@ -97,6 +102,7 @@ const operators: { [Operator]: OperatorFunction } = {
   oneOf: objOf('$in'),
   notIn: noNullComparisons(objOf('$nin')),
   between: objOf('$between'),
+  like,
 }
 
 const encodeComparison: Comparison => LokiRawQuery = ({ operator, right }) =>
