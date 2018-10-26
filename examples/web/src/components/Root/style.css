@@ -54,3 +54,12 @@
   background: #fff;
   overflow: auto;
 }
+
+.searchInput {
+  width: 230px;
+  margin-left: 10px;
+  padding: 5px;
+  font-size: 16px;
+  border: none;
+  outline: none;
+}
