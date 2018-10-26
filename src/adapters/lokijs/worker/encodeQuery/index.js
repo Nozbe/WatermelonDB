@@ -87,9 +87,17 @@ const noNullComparisons: OperatorFunction => OperatorFunction = operator => valu
   $and: [operator(value), weakNotEqual(null)],
 })
 
-const like = value => ({
-  $regex: new RegExp(value.replace(/%/g, '.*').replace('_', '.'), 'i'),
-})
+const like: OperatorFunction = value => {
+  if (typeof value === 'string') {
+    return {
+      $regex: new RegExp(value.replace(/%/g, '.*').replace('_', '.'), 'i'),
+    }
+  }
+
+  return {
+    $regex: new RegExp('.*', 'i'),
+  }
+}
 
 const operators: { [Operator]: OperatorFunction } = {
   eq: objOf('$aeq'),
