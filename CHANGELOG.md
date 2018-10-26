@@ -20,6 +20,11 @@ All notable changes to this project will be documented in this file.
 
 - Updated Flow to 0.83
 
+### Added
+
+- Query like
+
+
 ### Refactoring
 
 - [WIP] Migrations
