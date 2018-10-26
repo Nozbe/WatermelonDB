@@ -25,7 +25,7 @@ const noNullComparisons: OperatorFunction => OperatorFunction = operator => (lef
 const weakGt = (left, right) => left > right || (left != null && right == null)
 
 export const like = (left, right) => (
-  left.match(new RegExp(right.replace(/%/g, '.*').replace('_', '.'), 'i'))
+  left && left.match(new RegExp(right.replace(/%/g, '.*').replace('_', '.'), 'i'))
 )
 
 const operators: { [Operator]: OperatorFunction } = {

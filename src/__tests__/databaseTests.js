@@ -301,6 +301,18 @@ export const matchTests = [
     matching: [{ id: 'm1' }, { id: 'm2', num1: null }, { id: 'm3', num1: 10 }],
     nonMatching: [{ id: 'n1', num1: 0 }, { id: 'n2', num1: 2 }],
   },
+  {
+    name: 'match like',
+    query: [Q.where('value', Q.like('%ipsum%'))],
+    matching: [
+      { id: 'm1', value: 'Lorem ipsum dolor sit amet,' },
+      { id: 'm2', value: 'Lorem Ipsum dolor sit amet,' },
+    ],
+    nonMatching: [
+      { id: 'n1', value: 'consectetur adipiscing elit.' },
+      { id: 'n2', value: null },
+    ],
+  },
 ]
 
 export const joinTests = [
