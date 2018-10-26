@@ -65,7 +65,7 @@ matrix:
         - yarn
       script:
         - TERM=dumb yarn ktlint
-        - android-wait-for-emulator
+        - TERM=dumb android-wait-for-emulator
         - adb kill-server
         - adb start-server
         - adb shell input keyevent 82 &
