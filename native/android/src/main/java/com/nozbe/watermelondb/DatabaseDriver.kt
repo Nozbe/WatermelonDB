@@ -31,11 +31,7 @@ class DatabaseDriver(context: Context, dbName: String) {
     }
 
     constructor(context: Context, dbName: String, schema: Schema) : this(context, dbName) {
-        try {
-            unsafeResetDatabase(schema)
-        } catch (e: Exception) {
-            throw e
-        }
+        unsafeResetDatabase(schema)
     }
 
     constructor(context: Context, dbName: String, migrations: MigrationSet) :
