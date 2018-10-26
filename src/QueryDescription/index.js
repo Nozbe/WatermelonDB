@@ -246,11 +246,21 @@ const isNotObject = complement(isObject)
 
 const searchForColumnComparisons: any => boolean = cond([
   [is(Array), any(value => searchForColumnComparisons(value))], // dig deeper into arrays
-  [isNotObject, F], // bail if primitive value
+  [
+    isNotObject,
+    x => {
+      console.log('not object', x)
+      return false
+    },
+  ], // bail if primitive value
   [has('column'), T], // bingo!
   [
     T,
     pipe(
+      x => {
+        console.log(x)
+        return x
+      },
       // dig deeper into objects
       getValues,
       any(value => searchForColumnComparisons(value)),

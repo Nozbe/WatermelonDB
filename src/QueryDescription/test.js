@@ -1,3 +1,4 @@
+import { is } from 'rambdax'
 import * as Q from './index'
 
 describe('watermelondb/QueryDescription', () => {
@@ -310,20 +311,21 @@ describe('watermelondb/QueryDescription', () => {
       ]),
     )
   })
-  it('can recognize whether a query has column comparisons or not', () => {
-    const query1 = Q.buildQueryDescription([])
-    expect(Q.hasColumnComparisons(query1)).toBe(false)
+  it.only('can recognize whether a query has column comparisons or not', () => {
+    console.log('is?', is(Array)([{}]))
+    // const query1 = Q.buildQueryDescription([])
+    // expect(Q.hasColumnComparisons(query1)).toBe(false)
 
-    const query2 = Q.buildQueryDescription([
-      Q.where('col1', 'value'),
-      Q.or(
-        Q.where('col2', true),
-        Q.where('col3', null),
-        Q.and(Q.where('col4', Q.gt(5)), Q.where('col5', Q.notIn([6, 7]))),
-      ),
-      Q.on('foreign_table', 'foreign_column', 'value'),
-    ])
-    expect(Q.hasColumnComparisons(query2)).toBe(false)
+    // const query2 = Q.buildQueryDescription([
+    //   Q.where('col1', 'value'),
+    //   Q.or(
+    //     Q.where('col2', true),
+    //     Q.where('col3', null),
+    //     Q.and(Q.where('col4', Q.gt(5)), Q.where('col5', Q.notIn([6, 7]))),
+    //   ),
+    //   Q.on('foreign_table', 'foreign_column', 'value'),
+    // ])
+    // expect(Q.hasColumnComparisons(query2)).toBe(false)
 
     const query3 = Q.buildQueryDescription([
       Q.where('left_column', Q.gte(Q.column('right_column'))),
