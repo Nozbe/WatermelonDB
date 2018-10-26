@@ -1,8 +1,9 @@
 #!/bin/bash
 
 TERM=dumb yarn test:android;
-if { "$?" -ne 0 } then
+if [ "$?" -ne 0 ]; then
+  echo "eeecho" &
   adb kill-server &
   adb start-server &
   TERM=dumb yarn test:android
-fi
+fi;
