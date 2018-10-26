@@ -19,4 +19,4 @@ module.ignore_non_literal_requires=true
 module.file_ext=.js
 
 [version]
-^0.83.0
+^0.84.0
