@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
-import { ScrollView, SafeAreaView, Alert, Text, View, Image } from 'react-native'
+import React, { Component, Fragment } from 'react'
+import { ScrollView, SafeAreaView, Alert, Text, View, Image, TextInput } from 'react-native'
 
 import { generate100, generate10k } from '../models/generate'
 import Button from './helpers/Button'
@@ -9,7 +9,11 @@ import BlogList from './BlogList'
 import logoSrc from './assets/logo-app.png'
 
 class Root extends Component {
-  state = { isGenerating: false }
+  state = {
+    isGenerating: false,
+    search: '',
+    isSearchFocused: false,
+  }
 
   generateWith = async generator => {
     this.setState({ isGenerating: true })
@@ -24,21 +28,40 @@ class Root extends Component {
 
   generate10k = () => this.generateWith(generate10k)
 
+  handleTextChanges = v => this.setState({ search: v })
+
+  handleOnFocus = () => this.setState({ isSearchFocused: true })
+
+  handleOnBlur = () => this.setState({ isSearchFocused: false})
+
   render() {
+    const { search, isGenerating, isSearchFocused } = this.state
+    const { database, navigation, timeToLaunch } = this.props
+
     return (
       <ScrollView>
         <SafeAreaView>
-          <Image style={styles.logo} source={logoSrc} />
-          <Text style={styles.post}>Launch time: {this.props.timeToLaunch} ms</Text>
-          <View style={styles.marginContainer}>
-            <Text style={styles.header}>Generate:</Text>
-            <View style={styles.buttonContainer}>
-              <Button title="100 records" onPress={this.generate100} />
-              <Button title="10,000 records" onPress={this.generate10k} />
-            </View>
-          </View>
-          {!this.state.isGenerating && (
-            <BlogList database={this.props.database} navigation={this.props.navigation} />
+          {!isSearchFocused && (
+            <Fragment>
+              <Image style={styles.logo} source={logoSrc} />
+              <Text style={styles.post}>Launch time: {timeToLaunch} ms</Text>
+              <View style={styles.marginContainer}>
+                <Text style={styles.header}>Generate:</Text>
+                <View style={styles.buttonContainer}>
+                  <Button title="100 records" onPress={this.generate100} />
+                  <Button title="10,000 records" onPress={this.generate10k} />
+                </View>
+              </View>
+            </Fragment>
+          )}
+          <TextInput style={{ padding: 5, fontSize: 16 }}
+            placeholder="Search ..."
+            defaultValue=""
+            onFocus={this.handleOnFocus}
+            onBlur={this.handleOnBlur}
+            onChangeText={this.handleTextChanges} />
+          {!isGenerating && (
+            <BlogList database={database} search={search} navigation={navigation} />
           )}
         </SafeAreaView>
       </ScrollView>
