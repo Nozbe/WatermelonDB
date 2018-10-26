@@ -158,6 +158,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     fun removeLocal(tag: ConnectionTag, key: String, promise: Promise) =
             withDriver(tag, promise) { it.removeLocal(key) }
 
+    @Throws(Exception::class)
     private fun withDriver(
         tag: ConnectionTag,
         promise: Promise,
@@ -165,7 +166,8 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     ) {
         try {
             val connection =
-                    connections[tag] ?: throw Exception("No driver with tag $tag available")
+                    connections[tag] ?: promise.reject(
+                            Exception("No driver with tag $tag available"))
             when (connection) {
                 is Connection.Connected -> {
                     val result = function(connection.driver)
