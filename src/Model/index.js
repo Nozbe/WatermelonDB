@@ -14,7 +14,7 @@ import field from '../decorators/field'
 import readonly from '../decorators/readonly'
 
 import type Collection from '../Collection'
-import type CollectionMap from '../CollectionMap'
+import type CollectionMap from '../Database/CollectionMap'
 import { type TableName, type ColumnName, columnName } from '../Schema'
 import type { Value } from '../QueryDescription'
 import { type RawRecord, sanitizedRaw, setRawSanitized } from '../RawRecord'
