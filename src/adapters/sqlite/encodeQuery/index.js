@@ -3,7 +3,7 @@
 
 import type Query, { AssociationArgs } from '../../../Query'
 import type {
-  NonNullValue,
+  NonNullValues,
   Operator,
   Where,
   ComparisonRight,
@@ -31,7 +31,8 @@ function mapConcat<T>(array: T[], mapper: T => string): string {
   return array.reduce((string, value) => `${string}${mapper(value)}`, '')
 }
 
-const encodeValues: (NonNullValue[]) => string = values => `(${mapJoin(values, encodeValue, ', ')})`
+const encodeValues: NonNullValues => string = values =>
+  `(${mapJoin((values: any[]), encodeValue, ', ')})`
 
 const getComparisonRight = (table: TableName<any>, comparisonRight: ComparisonRight): string => {
   if (comparisonRight.values) {
