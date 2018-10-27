@@ -68,30 +68,30 @@ export default class LokiWorker {
         const { type, payload } = action
         invariant(type in actions, `Unknown worker action ${type}`)
 
-        // app just launched, set up executor with options sent
         if (type === actions.SETUP) {
+          // app just launched, set up executor with options sent
           invariant(!this.executor, `Loki executor already set up - cannot set up again`)
           const [options] = payload
-          this.executor = new LokiExecutor(options)
+          const executor = new LokiExecutor(options)
+
+          // set up, make this.executor available only if successful
+          await executor.setUp()
+          this.executor = executor
+
+          callback({ type: RESPONSE_SUCCESS, payload: null })
+        } else {
+          // run action
+          invariant(this.executor, `Cannot run actions because executor is not set up`)
+
+          const runExecutorAction = executorMethods[type].bind(this.executor)
+          const response = await runExecutorAction(...payload)
+
+          callback({ type: RESPONSE_SUCCESS, payload: response })
         }
-
-        // run action
-        invariant(this.executor, `Cannot run actions because executor is not set up`)
-
-        const runExecutorAction = executorMethods[type].bind(this.executor)
-        const data = await runExecutorAction(...payload)
-
-        callback({
-          type: RESPONSE_SUCCESS,
-          payload: data,
-        })
       } catch (error) {
         // Main process only receives error message — this logError is to retain call stack
         logError(error)
-        callback({
-          type: RESPONSE_ERROR,
-          payload: error,
-        })
+        callback({ type: RESPONSE_ERROR, payload: error })
       }
     })
   }

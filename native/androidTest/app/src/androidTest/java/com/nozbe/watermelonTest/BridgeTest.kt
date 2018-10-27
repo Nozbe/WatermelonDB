@@ -14,7 +14,7 @@ class BridgeTest {
     @Test
     fun testBridge() {
         synchronized(BridgeTestReporter.testFinishedNotification) {
-            BridgeTestReporter.testFinishedNotification.wait()
+            BridgeTestReporter.testFinishedNotification.wait(500000)
         }
         try {
             val result = BridgeTestReporter.result
@@ -30,7 +30,7 @@ class BridgeTest {
                 }
             }
         } catch (e: UninitializedPropertyAccessException) {
-            Assert.fail("Report could not have been obtained.")
+            Assert.fail("Bridge tests timed out and a report could not have been obtained. Either JS code could not be run at all or one of the asynchronous tests never returned")
         }
     }
 }

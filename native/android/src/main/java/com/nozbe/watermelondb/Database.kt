@@ -3,14 +3,20 @@ package com.nozbe.watermelondb
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import java.io.File
 
-class Database(private val name: String?, private val context: Context) {
+class Database(private val name: String, private val context: Context) {
 
     private val db: SQLiteDatabase by lazy {
-        // On some systems there is some kind of lock on `/databases` folder ¯\_(ツ)_/¯
         SQLiteDatabase.openOrCreateDatabase(
-                context.getDatabasePath("$name.db").path
-                        .replace("/databases", ""), null)
+                // TODO: This SUCKS. Seems like Android doesn't like sqlite `?mode=memory&cache=shared` mode. To avoid random breakages, save the file to /tmp, but this is slow.
+                if (name == ":memory:" || name.contains("mode=memory")) {
+                    context.cacheDir.delete()
+                    File(context.cacheDir, name).path
+                } else
+                    // On some systems there is some kind of lock on `/databases` folder ¯\_(ツ)_/¯
+                    context.getDatabasePath("$name.db").path.replace("/databases", ""),
+                null)
     }
 
     var userVersion: Int
