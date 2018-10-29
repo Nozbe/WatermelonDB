@@ -2,7 +2,7 @@ import React from 'react'
 import * as TestRenderer from 'react-test-renderer'
 import Database from '../Database'
 import { MockProject, MockTask, MockComment } from '../__tests__/testModels'
-import DatabaseProvider, { Consumer, withDatabase } from '.'
+import DatabaseProvider, { DatabaseConsumer, withDatabase } from '.'
 
 // Simple mock component
 function MockComponent() {
@@ -29,7 +29,7 @@ describe('watermelondb/DatabaseProvider', () => {
   it('passes database to consumer', () => {
     const instance = TestRenderer.create(
       <DatabaseProvider database={database}>
-        <Consumer>{db => <MockComponent database={db} />}</Consumer>
+        <DatabaseConsumer>{db => <MockComponent database={db} />}</DatabaseConsumer>
       </DatabaseProvider>,
     )
     const component = instance.root.find(MockComponent)

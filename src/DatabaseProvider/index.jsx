@@ -19,6 +19,6 @@ function DatabaseProvider({ children, database }: Props): React.ComponentType<an
   return <Provider value={database}>{children}</Provider>
 }
 
-export { Consumer }
+export { Consumer as DatabaseConsumer }
 export { default as withDatabase } from './withDatabase'
 export default DatabaseProvider
