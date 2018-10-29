@@ -1,10 +1,10 @@
-declare module '@nozbe/watermelondb/Collection' {
-  import {
-    Database, Model, Query, RecordId, TableName, TableSchema,
-  } from "@nozbe/watermelondb";
-  import { Condition } from "@nozbe/watermelondb/QueryDescription";
-  import { Observable, Subject } from "rxjs";
+import {
+  Database, Model, Query, RecordId, TableName, TableSchema,
+} from "@nozbe/watermelondb";
+import { Condition } from "@nozbe/watermelondb/QueryDescription";
+import { Observable, Subject } from "rxjs";
 
+declare module '@nozbe/watermelondb/Collection' {
   export interface CollectionChange<Record extends Model> {
     record: Record,
     isDestroyed: boolean,

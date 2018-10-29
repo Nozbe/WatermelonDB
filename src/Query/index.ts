@@ -1,9 +1,9 @@
-declare module '@nozbe/watermelondb/Query' {
-  import { Collection, ColumnName, Model, TableName } from "@nozbe/watermelondb";
-  import { AssociationInfo } from "@nozbe/watermelondb/Model";
-  import { Condition, QueryDescription } from "@nozbe/watermelondb/QueryDescription";
-  import { Observable } from "rxjs";
+import { Collection, ColumnName, Model, TableName } from "@nozbe/watermelondb";
+import { AssociationInfo } from "@nozbe/watermelondb/Model";
+import { Condition, QueryDescription } from "@nozbe/watermelondb/QueryDescription";
+import { Observable } from "rxjs";
 
+declare module '@nozbe/watermelondb/Query' {
   export type AssociationArgs = [TableName<any>, AssociationInfo]
   export interface SerializedQuery {
     table: TableName<any>,

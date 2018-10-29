@@ -2,9 +2,11 @@
   "name": "@nozbe/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
   "version": "0.6.2-0",
+  "types": "./types/index.d.ts",
   "scripts": {
-    "build": "NODE_ENV=production node ./scripts/make.js",
-    "dev": "NODE_ENV=development node ./scripts/make.js",
+    "make": "node ./scripts/make.js",
+    "build": "NODE_ENV=production npm run make",
+    "dev": "NODE_ENV=development npm run make",
     "release": "node ./scripts/publish.js",
     "prettier": "prettier-eslint --config ./.prettierrc --write \"./src/**/*.js\"",
     "flow": "flow check",
@@ -40,7 +42,7 @@
   "dependencies": {
     "babel-plugin-module-resolver": "^3.1.1",
     "rambdax": "^0.10.0",
-    "rxjs": "^6.2.2",
+    "rxjs": "^6.3.3",
     "rxjs-compat": "^6.3.2",
     "sql-escape-string": "^1.1.0"
   },

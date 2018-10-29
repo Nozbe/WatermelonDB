@@ -13,6 +13,7 @@ const {
   omit,
   merge,
   forEach,
+  debounce,
 } = require('rambdax')
 
 const babel = require('@babel/core')
@@ -24,6 +25,7 @@ const prettyJson = require('json-stringify-pretty-compact')
 const chokidar = require('chokidar')
 const anymatch = require('anymatch')
 const rimraf = require('rimraf')
+const { execFile } = require('child_process')
 
 const pkg = require('../package.json')
 const babelrc = require('../babel.config.js')
@@ -52,12 +54,15 @@ const DO_NOT_BUILD_PATHS = [
   /___jb_tmp___$/,
 ]
 
-const PASS_THROUGH_PATHS = [
+const ONLY_WATCH_PATHS = [
   /\.ts$/,
 ]
 
-const isNotIncludedInBuildPaths = value => !anymatch(DO_NOT_BUILD_PATHS, value)
-const shouldPassThrough = value => anymatch(PASS_THROUGH_PATHS, value)
+
+const isNotIncludedInBuildPaths = value => !anymatch([
+  ...DO_NOT_BUILD_PATHS,
+  ...ONLY_WATCH_PATHS,
+], value)
 
 const cleanFolder = dir => rimraf.sync(dir)
 
@@ -156,13 +161,7 @@ const babelTransform = (format, file) => {
   return code
 }
 
-const transform = (format, file) => {
-  if (shouldPassThrough(file)) {
-    return fs.readFileSync(file)
-  }
-
-  return babelTransform(format, file)
-}
+const transform = (format, file) => babelTransform(format, file)
 
 const paths = klaw(SOURCE_PATH)
 const modules = takeModules(paths)
@@ -214,6 +213,18 @@ const copyNonJavaScriptFiles = buildPath => {
   cleanFolder(`${buildPath}/native/android/build`)
 }
 
+const isTypescript = file => file.match(/\.ts$/)
+
+const compileTypescriptDefinitions = () => {
+  // eslint-disable-next-line
+  console.log(`✓ TypeScript definitions`)
+
+  execFile('./node_modules/.bin/tsc', [
+    '--project', '.',
+    '--outDir', path.join(DIR_PATH, 'types'),
+  ])
+}
+
 if (isDevelopment) {
   const buildCjsModule = buildModule(CJS_MODULES)
   const buildEsmModule = buildModule(ESM_MODULES)
@@ -223,6 +234,21 @@ if (isDevelopment) {
     buildCjsModule(file)
     buildEsmModule(file)
     buildSrcModule(file)
+  }
+
+  const compileTypescriptDefinitionsWhenIdle = debounce(
+    compileTypescriptDefinitions,
+    250,
+  )
+
+  const processFile = file => {
+    if (isTypescript(file)) {
+      compileTypescriptDefinitionsWhenIdle()
+    } else {
+      // eslint-disable-next-line
+      console.log(`✓ ${removeSourcePath(file)}`)
+      buildFile(file)
+    }
   }
 
   cleanFolder(DEV_PATH)
@@ -238,9 +264,7 @@ if (isDevelopment) {
       switch (event) {
         case 'add':
         case 'change':
-          // eslint-disable-next-line
-          console.log(`✓ ${removeSourcePath(fileOrDir)}`)
-          buildFile(fileOrDir)
+          processFile(fileOrDir)
           break
         default:
           break
@@ -260,4 +284,5 @@ if (isDevelopment) {
   buildEsmModules(modules)
   buildCjsModules(modules)
   buildSrcModules(modules)
+  compileTypescriptDefinitions()
 }

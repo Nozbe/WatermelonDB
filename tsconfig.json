@@ -1,7 +1,13 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "rootDir": "./typings",
-    "strict": true
-  }
+    "outDir": "types",
+    "declaration": true,
+    "emitDeclarationOnly": true
+  },
+  "exclude": [
+    "node_modules",
+    "types",
+    "dev"
+  ]
 }

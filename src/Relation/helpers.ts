@@ -1,5 +1,3 @@
-import { Model } from "@nozbe/watermelondb";
-
 declare module '@nozbe/watermelondb/Relation/helpers' {
   import { Model, Relation } from "@nozbe/watermelondb";
   import { Observable } from "rxjs";
