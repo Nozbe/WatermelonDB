@@ -1,6 +1,6 @@
-import { Collection, Database, Model, TableName } from "@nozbe/watermelondb";
-
 declare module '@nozbe/watermelondb/CollectionMap' {
+  import { Collection, Database, Model, TableName } from "@nozbe/watermelondb";
+
   export default class CollectionMap {
     public map: { [tableName: string]: Collection<any> };
 

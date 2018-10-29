@@ -203,10 +203,6 @@ if (isDevelopment) {
   copyNonJavaScriptFiles(DIST_PATH)
 
   buildSrcModules(modules)
-<<<<<<< HEAD
+  buildCjsModules(modules)
   compileTypescriptDefinitions()
 }
-=======
-  buildCjsModules(modules)
-}
->>>>>>> upstream/master

@@ -1,7 +1,7 @@
-import { ColumnName, TableName } from "@nozbe/watermelondb";
-import { Observable } from "rxjs";
-
 declare module '@nozbe/watermelondb/Model' {
+  import { ColumnName, TableName } from "@nozbe/watermelondb";
+  import { Observable } from "rxjs";
+
   export type RecordId = string
 
   export type SyncStatus = 'synced' | 'created' | 'updated' | 'deleted'
