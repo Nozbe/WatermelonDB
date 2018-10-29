@@ -3,6 +3,7 @@ declare module '@nozbe/watermelondb/Database' {
     AppSchema, CollectionMap, DatabaseAdapter, Model, TableName,
   } from "@nozbe/watermelondb";
   import { CollectionChange } from "@nozbe/watermelondb/Collection";
+  import { Class } from "@nozbe/watermelondb/utils/common/typeUtils";
   import { Observable } from "rxjs";
 
   export default class Database {
