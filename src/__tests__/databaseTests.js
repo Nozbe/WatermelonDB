@@ -303,26 +303,26 @@ export const matchTests = [
   },
   {
     name: 'match like (string)',
-    query: [Q.where('value', Q.like('%ipsum%'))],
+    query: [Q.where('text1', Q.like('%ipsum%'))],
     matching: [
-      { id: 'm1', value: 'Lorem ipsum dolor sit amet,' },
-      { id: 'm2', value: 'Lorem Ipsum dolor sit amet,' },
+      { id: 'm1', text1: 'Lorem ipsum dolor sit amet,' },
+      { id: 'm2', text1: 'Lorem Ipsum dolor sit amet,' },
     ],
     nonMatching: [
-      { id: 'n1', value: 'consectetur adipiscing elit.' },
-      { id: 'n2', value: null },
+      { id: 'n1', text1: 'consectetur adipiscing elit.' },
+      { id: 'n2', text1: null },
     ],
   },
   {
     name: 'match like (null)',
-    query: [Q.where('value', Q.like(null))],
-    matching: [
-      { id: 'm1', value: 'Lorem ipsum dolor sit amet,' },
-      { id: 'm2', value: 'Lorem Ipsum dolor sit amet,' },
-      { id: 'm3', value: 'consectetur adipiscing elit.' },
-      { id: 'm4', value: null },
+    query: [Q.where('text1', Q.like(null))],
+    matching: [],
+    nonMatching: [
+      { id: 'n1', text1: 'Lorem ipsum dolor sit amet,' },
+      { id: 'n2', text1: 'Lorem Ipsum dolor sit amet,' },
+      { id: 'n3', text1: 'consectetur adipiscing elit.' },
+      { id: 'n4', text1: null },
     ],
-    nonMatching: [],
   },
 ]
 
