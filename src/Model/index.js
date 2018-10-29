@@ -2,22 +2,21 @@
 
 import type { Observable } from 'rxjs'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
+import isDevelopment from '../utils/common/isDevelopment'
+import invariant from '../utils/common/invariant'
+import ensureSync from '../utils/common/ensureSync'
+import fromPairs from '../utils/fp/fromPairs'
+import noop from '../utils/fp/noop'
+import type { $RE } from '../types'
 
-import isDevelopment from 'utils/common/isDevelopment'
-import invariant from 'utils/common/invariant'
-import ensureSync from 'utils/common/ensureSync'
+import field from '../decorators/field'
+import readonly from '../decorators/readonly'
 
-import fromPairs from 'utils/fp/fromPairs'
-import noop from 'utils/fp/noop'
-
-import field from 'decorators/field'
-import readonly from 'decorators/readonly'
-
-import type Collection from 'Collection'
-import type CollectionMap from 'CollectionMap'
-import { type TableName, type ColumnName, columnName } from 'Schema'
-import type { Value } from 'QueryDescription'
-import { type RawRecord, sanitizedRaw, setRawSanitized } from 'RawRecord'
+import type Collection from '../Collection'
+import type CollectionMap from '../Database/CollectionMap'
+import { type TableName, type ColumnName, columnName } from '../Schema'
+import type { Value } from '../QueryDescription'
+import { type RawRecord, sanitizedRaw, setRawSanitized } from '../RawRecord'
 
 import { createTimestampsFor, hasUpdatedAt, addToRawSet } from './helpers'
 
@@ -25,8 +24,8 @@ export type RecordId = string
 
 export type SyncStatus = 'synced' | 'created' | 'updated' | 'deleted'
 
-export type BelongsToAssociation = $Exact<{ type: 'belongs_to', +key: ColumnName }>
-export type HasManyAssociation = $Exact<{ type: 'has_many', +foreignKey: ColumnName }>
+export type BelongsToAssociation = $RE<{ type: 'belongs_to', key: ColumnName }>
+export type HasManyAssociation = $RE<{ type: 'has_many', foreignKey: ColumnName }>
 export type AssociationInfo = BelongsToAssociation | HasManyAssociation
 export type Associations = { +[TableName<any>]: AssociationInfo }
 
@@ -74,7 +73,7 @@ export default class Model {
   // })
   async update(recordUpdater: this => void = noop): Promise<void> {
     this.prepareUpdate(recordUpdater)
-    await this.collection._update(this)
+    await this.collection.database.batch(this)
   }
 
   // Prepares an update to the database (using passed function).

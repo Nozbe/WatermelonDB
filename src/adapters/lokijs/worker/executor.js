@@ -1,44 +1,59 @@
 // @flow
 
-import Loki, { LokiCollection } from 'lokijs'
+import Loki, { LokiCollection, type LokiMemoryAdapter } from 'lokijs'
 import { prop, forEach, values } from 'rambdax'
-import { logger } from 'utils/common'
+import { logger } from '../../../utils/common'
 
-import type { CachedQueryResult, CachedFindResult } from 'adapters/type'
-import type { TableName, AppSchema } from 'Schema'
-import type { SerializedQuery } from 'Query'
-import type { RecordId } from 'Model'
-import { type RawRecord, sanitizedRaw, type DirtyRaw } from 'RawRecord'
+import type { CachedQueryResult, CachedFindResult } from '../../type'
+import type { TableName, AppSchema, SchemaVersion, TableSchema } from '../../../Schema'
+import type {
+  SchemaMigrations,
+  CreateTableMigrationStep,
+  AddColumnsMigrationStep,
+  MigrationStep,
+} from '../../../Schema/migrations'
+import { stepsForMigration } from '../../../Schema/migrations/helpers'
+import type { SerializedQuery } from '../../../Query'
+import type { RecordId } from '../../../Model'
+import { type RawRecord, sanitizedRaw, setRawSanitized, type DirtyRaw } from '../../../RawRecord'
 
 import { newLoki, loadDatabase, deleteDatabase } from './lokiExtensions'
 import executeQuery from './executeQuery'
-import type { LokiAdapterOptions, WorkerBatchOperation } from '../common'
+import type { WorkerBatchOperation } from '../common'
 
 const SCHEMA_VERSION_KEY = '_loki_schema_version'
 
+type LokiExecutorOptions = $Exact<{
+  dbName: ?string,
+  schema: AppSchema,
+  migrationsExperimental: ?SchemaMigrations, // TODO: not optional
+  _testLokiAdapter?: LokiMemoryAdapter,
+}>
+
 export default class LokiExecutor {
-  dbName: string
+  dbName: ?string
 
   schema: AppSchema
 
+  migrations: ?SchemaMigrations
+
   loki: Loki
+
+  _testLokiAdapter: ?LokiMemoryAdapter
 
   cachedRecords: Set<RecordId> = new Set([])
 
-  constructor(options: LokiAdapterOptions): void {
-    const { dbName, schema } = options
+  constructor(options: LokiExecutorOptions): void {
+    const { dbName, schema, migrationsExperimental, _testLokiAdapter } = options
     this.dbName = dbName
     this.schema = schema
+    this.migrations = migrationsExperimental
+    this._testLokiAdapter = _testLokiAdapter
   }
 
   async setUp(): Promise<void> {
-    await this._openDatabase()
-
-    // Set up schema if needed
-    if (this._requiresMigration) {
-      logger.log('[DB][Worker] Migration required, updating...')
-      await this.unsafeResetDatabase()
-    }
+    await this._openDatabase(this._testLokiAdapter)
+    await this._migrateIfNeeded()
   }
 
   find(table: TableName<any>, id: RecordId): CachedFindResult {
@@ -173,18 +188,12 @@ export default class LokiExecutor {
     }
   }
 
-  unsafeClearCachedRecords(): void {
-    if (process.env.NODE_ENV === 'test') {
-      this.cachedRecords.clear()
-    }
-  }
-
   // *** Internals ***
 
-  async _openDatabase(): Promise<void> {
+  async _openDatabase(adapter?: LokiMemoryAdapter): Promise<void> {
     logger.log('[DB][Worker] Initializing IndexedDB')
 
-    this.loki = newLoki(this.dbName)
+    this.loki = newLoki(this.dbName, adapter)
     await loadDatabase(this.loki) // Force database to load now
 
     logger.log('[DB][Worker] Database loaded')
@@ -194,17 +203,8 @@ export default class LokiExecutor {
     logger.log('[DB][Worker] Setting up schema')
 
     // Add collections
-    values(this.schema.tables).forEach(({ name, columns }) => {
-      const indexedColumns = values(columns).reduce(
-        (indexes, column) => (column.isIndexed ? indexes.concat([(column.name: string)]) : indexes),
-        [],
-      )
-
-      this.loki.addCollection(name, {
-        unique: ['id'],
-        indices: ['_status', ...indexedColumns],
-        disableMeta: true,
-      })
+    values(this.schema.tables).forEach(tableSchema => {
+      this._addCollection(tableSchema)
     })
 
     this.loki.addCollection('local_storage', {
@@ -214,16 +214,118 @@ export default class LokiExecutor {
     })
 
     // Set database version
-    this.setLocal(SCHEMA_VERSION_KEY, `${this.schema.version}`)
+    this._databaseVersion = this.schema.version
 
     logger.log('[DB][Worker] Database collections set up')
   }
 
-  get _requiresMigration(): boolean {
-    const databaseVersionRaw = this.getLocal(SCHEMA_VERSION_KEY) || ''
-    const databaseVersion = parseInt(databaseVersionRaw, 10) || 0
+  _addCollection(tableSchema: TableSchema): void {
+    const { name, columns } = tableSchema
+    const indexedColumns = values(columns).reduce(
+      (indexes, column) => (column.isIndexed ? indexes.concat([(column.name: string)]) : indexes),
+      [],
+    )
 
-    return databaseVersion !== this.schema.version
+    this.loki.addCollection(name, {
+      unique: ['id'],
+      indices: ['_status', ...indexedColumns],
+      disableMeta: true,
+    })
+  }
+
+  get _databaseVersion(): SchemaVersion {
+    const databaseVersionRaw = this.getLocal(SCHEMA_VERSION_KEY) || ''
+    return parseInt(databaseVersionRaw, 10) || 0
+  }
+
+  set _databaseVersion(version: SchemaVersion): void {
+    this.setLocal(SCHEMA_VERSION_KEY, `${version}`)
+  }
+
+  async _migrateIfNeeded(): Promise<void> {
+    const dbVersion = this._databaseVersion
+    const schemaVersion = this.schema.version
+
+    if (dbVersion === schemaVersion) {
+      // All good!
+    } else if (dbVersion === 0) {
+      logger.log('[DB][Worker] Empty database, setting up')
+      await this.unsafeResetDatabase()
+    } else if (dbVersion > 0 && dbVersion < schemaVersion) {
+      logger.log('[DB][Worker] Database has old schema version. Migration is required.')
+      const migrationSteps = this._getMigrationSteps(dbVersion)
+
+      if (migrationSteps) {
+        logger.log(`[DB][Worker] Migrating from version ${dbVersion} to ${this.schema.version}...`)
+        try {
+          await this._migrate(migrationSteps)
+        } catch (error) {
+          logger.error('[DB][Worker] Migration failed', error)
+          throw error
+        }
+      } else {
+        logger.warn(
+          '[DB][Worker] Migrations not available for this version range, resetting database instead',
+        )
+        await this.unsafeResetDatabase()
+      }
+    } else {
+      logger.warn('[DB][Worker] Database has newer version than app schema. Resetting database.')
+      await this.unsafeResetDatabase()
+    }
+  }
+
+  _getMigrationSteps(fromVersion: SchemaVersion): ?(MigrationStep[]) {
+    // TODO: Remove this after migrations are shipped
+    const { migrations } = this
+    if (!migrations) {
+      return null
+    }
+
+    return stepsForMigration({
+      migrations,
+      fromVersion,
+      toVersion: this.schema.version,
+    })
+  }
+
+  async _migrate(steps: MigrationStep[]): Promise<void> {
+    steps.forEach(step => {
+      if (step.type === 'create_table') {
+        this._executeCreateTableMigration(step)
+      } else if (step.type === 'add_columns') {
+        this._executeAddColumnsMigration(step)
+      } else {
+        throw new Error(`Unsupported migration step ${step.type}`)
+      }
+    })
+
+    // Set database version
+    this._databaseVersion = this.schema.version
+
+    logger.log(`[DB][Worker] Migration successful`)
+  }
+
+  _executeCreateTableMigration({ name, columns }: CreateTableMigrationStep): void {
+    this._addCollection({ name, columns })
+  }
+
+  _executeAddColumnsMigration({ table, columns }: AddColumnsMigrationStep): void {
+    const collection = this.loki.getCollection(table)
+
+    // update ALL records in the collection, adding new fields
+    collection.findAndUpdate({}, record => {
+      columns.forEach(column => {
+        setRawSanitized(record, column.name, null, column)
+      })
+    })
+
+    // add indexes, if needed
+    columns.forEach(column => {
+      if (column.isIndexed) {
+        collection.ensureIndex(column.name)
+      }
+    })
   }
 
   // Maps records to their IDs if the record is already cached on JS side

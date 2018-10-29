@@ -9,7 +9,6 @@ const {
   both,
   prop,
   replace,
-  join,
   omit,
   merge,
   forEach,
@@ -28,13 +27,11 @@ const rimraf = require('rimraf')
 const { execFile } = require('child_process')
 
 const pkg = require('../package.json')
-const babelrc = require('../babel.config.js')
 
 const resolvePath = (...paths) => path.resolve(__dirname, '..', ...paths)
 const isDevelopment = process.env.NODE_ENV === 'development'
 
-const SRC_MODULES = 'src' // same as source, only rewritten imports
-const ESM_MODULES = 'esm'
+const SRC_MODULES = 'src'
 const CJS_MODULES = 'cjs'
 
 const SOURCE_PATH = resolvePath('src')
@@ -77,87 +74,22 @@ const takeModules = pipe(
 )
 
 const removeSourcePath = replace(SOURCE_PATH, '')
-const toStringKeyValue = module => `'${module.key}': '${module.value}'`
-const indentLine = line => `    ${line},`
-const toStringObject = pipe(
-  map(
-    pipe(
-      toStringKeyValue,
-      indentLine,
-    ),
-  ),
-  join('\n'),
-)
-
-const pathMappingTemplate = obj =>
-  `
-"use strict"
-
-module.exports = function() {
-  return {
-${toStringObject(obj)}
-  }
-}
-  `
 
 const createModulePath = format => {
-  const modulePath = resolvePath(DIR_PATH, format)
+  const formatPathSegment = format === CJS_MODULES ? [] : [format]
+  const modulePath = resolvePath(DIR_PATH, ...formatPathSegment)
   return replace(SOURCE_PATH, modulePath)
 }
 
-const createPathName = file => {
-  const value = removeSourcePath(file)
-  return endsWith('index.js', value) ? path.dirname(value) : replace('.js', '', value)
-}
-
-const createModuleName = name => `${pkg.name}${name}`
-
-const buildPathMapping = format =>
-  pipe(
-    map(file => {
-      const name = createPathName(file)
-
-      return {
-        key: createModuleName(name),
-        value: `${isDevelopment ? DEV_PATH : pkg.name}/${format}${name}`,
-      }
-    }),
-    pathMappingTemplate,
-    content => {
-      try {
-        mkdirp.sync(resolvePath(DIR_PATH, format))
-        fs.writeFileSync(resolvePath(DIR_PATH, format, 'path-mapping.js'), content)
-      } catch (err) {
-        // eslint-disable-next-line
-        console.error(err)
-      }
-    },
-  )
-
 const createFolder = dir => mkdirp.sync(resolvePath(dir))
 
-const configForFormat = format => {
-  if (format === SRC_MODULES) {
-    // Ignore .babelrc, just rewrite imports
-    return {
-      babelrc: false,
-      configFile: false,
-      ...babelrc.env.rewriteonly,
-    }
-  }
-
-  return {
-    overrides: [
-      {
-        plugins: format === CJS_MODULES ? ['@babel/plugin-transform-modules-commonjs'] : [],
-      },
-    ],
-  }
-}
-
 const babelTransform = (format, file) => {
-  const config = configForFormat(format)
-  const { code } = babel.transformFileSync(file, config)
+  if (format === SRC_MODULES) {
+    // no transform, just return source
+    return fs.readFileSync(file)
+  }
+
+  const { code } = babel.transformFileSync(file, {})
   return code
 }
 
@@ -165,9 +97,6 @@ const transform = (format, file) => babelTransform(format, file)
 
 const paths = klaw(SOURCE_PATH)
 const modules = takeModules(paths)
-
-const buildCjsPathMapping = buildPathMapping(CJS_MODULES)
-const buildEsmPathMapping = buildPathMapping(ESM_MODULES)
 
 const buildModule = format => file => {
   const modulePath = createModulePath(format)
@@ -181,8 +110,7 @@ const buildModule = format => file => {
 const prepareJson = pipe(
   omit(['scripts']),
   merge({
-    main: './cjs/index.js',
-    module: './esm/index.js',
+    main: './index.js',
     sideEffects: false,
   }),
   obj => prettyJson(obj),
@@ -195,7 +123,6 @@ const createPackageJson = (dir, obj) => {
 
 const copyFiles = (dir, files, rm = resolvePath()) =>
   forEach(file => {
-    // console.log(dir, file, path.join(dir, replace(resolvePath(), '', file)))
     fs.copySync(file, path.join(dir, replace(rm, '', file)))
   }, files)
 
@@ -227,13 +154,11 @@ const compileTypescriptDefinitions = () => {
 
 if (isDevelopment) {
   const buildCjsModule = buildModule(CJS_MODULES)
-  const buildEsmModule = buildModule(ESM_MODULES)
   const buildSrcModule = buildModule(SRC_MODULES)
 
   const buildFile = file => {
-    buildCjsModule(file)
-    buildEsmModule(file)
     buildSrcModule(file)
+    buildCjsModule(file)
   }
 
   const compileTypescriptDefinitionsWhenIdle = debounce(
@@ -254,8 +179,6 @@ if (isDevelopment) {
   cleanFolder(DEV_PATH)
   createFolder(DEV_PATH)
   copyNonJavaScriptFiles(DEV_PATH)
-  buildCjsPathMapping(modules)
-  buildEsmPathMapping(modules)
 
   chokidar
     .watch(resolvePath('src'), { ignored: DO_NOT_BUILD_PATHS })
@@ -273,16 +196,17 @@ if (isDevelopment) {
 } else {
   const buildModules = format => mapAsync(buildModule(format))
   const buildCjsModules = buildModules(CJS_MODULES)
-  const buildEsmModules = buildModules(ESM_MODULES)
   const buildSrcModules = buildModules(SRC_MODULES)
 
   cleanFolder(DIST_PATH)
   createFolder(DIST_PATH)
   copyNonJavaScriptFiles(DIST_PATH)
-  buildCjsPathMapping(modules)
-  buildEsmPathMapping(modules)
-  buildEsmModules(modules)
-  buildCjsModules(modules)
+
   buildSrcModules(modules)
+<<<<<<< HEAD
   compileTypescriptDefinitions()
 }
+=======
+  buildCjsModules(modules)
+}
+>>>>>>> upstream/master

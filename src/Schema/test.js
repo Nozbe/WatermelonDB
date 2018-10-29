@@ -1,4 +1,4 @@
-import { appSchema, tableSchema } from '.'
+import { appSchema, tableSchema } from './index'
 
 describe('watermelondb/Schema', () => {
   it('can prepare schema', () => {
@@ -11,7 +11,11 @@ describe('watermelondb/Schema', () => {
         }),
         tableSchema({
           name: 'bar',
-          columns: [{ name: 'col1', type: 'number' }],
+          columns: [
+            { name: 'col1', type: 'number' },
+            { name: 'col2', type: 'bool' }, // TODO: Deprecated (remove after a while)
+            { name: 'col3', type: 'boolean' },
+          ],
         }),
       ],
     })
@@ -28,7 +32,11 @@ describe('watermelondb/Schema', () => {
         },
         bar: {
           name: 'bar',
-          columns: { col1: { name: 'col1', type: 'number' } },
+          columns: {
+            col1: { name: 'col1', type: 'number' },
+            col2: { name: 'col2', type: 'boolean' },
+            col3: { name: 'col3', type: 'boolean' },
+          },
         },
       },
     })

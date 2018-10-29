@@ -3,10 +3,10 @@
 /* eslint-disable no-self-compare */
 
 import { values } from 'rambdax'
-import { type ColumnName, type ColumnSchema, type TableSchema } from 'Schema'
-import { type RecordId, type SyncStatus } from 'Model'
+import { type ColumnName, type ColumnSchema, type TableSchema } from '../Schema'
+import { type RecordId, type SyncStatus } from '../Model'
 
-import randomId from 'utils/common/randomId'
+import randomId from '../utils/common/randomId'
 
 // Raw object representing a model record, coming from an untrusted source
 // (disk, sync, user data). Before it can be used to create a Model instance
@@ -24,7 +24,7 @@ type _RawRecord = {
 // Raw object representing a model record. A RawRecord is guaranteed by the type system
 // to be safe to use (sanitied with `sanitizedRaw`):
 // - it has exactly the fields described by TableSchema (+ standard fields)
-// - every field is exactly the type described by ColumnSchema (string, number, or bool)
+// - every field is exactly the type described by ColumnSchema (string, number, or boolean)
 // - … and the same optionality (will not be null unless isOptional: true)
 export opaque type RawRecord: _RawRecord = _RawRecord
 
@@ -44,7 +44,7 @@ function _setRaw(raw: Object, key: string, value: any, columnSchema: ColumnSchem
     } else {
       raw[key] = isOptional ? null : ''
     }
-  } else if (type === 'bool') {
+  } else if (type === 'boolean') {
     if (typeof value === 'boolean') {
       raw[key] = value
     } else if (value === 1 || value === 0) {
@@ -107,4 +107,21 @@ export function setRawSanitized(
   columnSchema: ColumnSchema,
 ): void {
   _setRaw(rawRecord, columnName, value, columnSchema)
+}
+
+export type NullValue = null | '' | 0 | false
+
+export function nullValue(columnSchema: ColumnSchema): NullValue {
+  const { isOptional, type } = columnSchema
+  if (isOptional) {
+    return null
+  } else if (type === 'string') {
+    return ''
+  } else if (type === 'number') {
+    return 0
+  } else if (type === 'boolean') {
+    return false
+  }
+
+  throw new Error(`Unknown type for column schema ${JSON.stringify(columnSchema)}`)
 }

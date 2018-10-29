@@ -1,11 +1,11 @@
 import { sortBy, identity, pipe, pluck } from 'rambdax'
 import expect from 'expect'
-import { allPromises, toPairs } from 'utils/fp'
+import { allPromises, toPairs } from '../../utils/fp'
 
-import Model from 'Model'
-import Query from 'Query'
-import { appSchema, tableSchema } from 'Schema'
-import { sanitizedRaw } from 'RawRecord'
+import Model from '../../Model'
+import Query from '../../Query'
+import { appSchema, tableSchema } from '../../Schema'
+import { sanitizedRaw } from '../../RawRecord'
 
 export class MockTask extends Model {
   static table = 'tasks'
@@ -50,8 +50,8 @@ export const testSchema = appSchema({
         { name: 'float2', type: 'number' },
         { name: 'text1', type: 'string' },
         { name: 'text2', type: 'string' },
-        { name: 'bool1', type: 'bool' },
-        { name: 'bool2', type: 'bool' },
+        { name: 'bool1', type: 'boolean' },
+        { name: 'bool2', type: 'boolean' },
         { name: 'order', type: 'number' },
         { name: 'from', type: 'string' },
       ],
@@ -64,7 +64,7 @@ export const testSchema = appSchema({
         { name: 'text1', type: 'string' },
         { name: 'text2', type: 'string' },
         { name: 'text3', type: 'string' },
-        { name: 'bool1', type: 'bool' },
+        { name: 'bool1', type: 'boolean' },
       ],
     }),
     tableSchema({

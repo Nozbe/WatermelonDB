@@ -124,8 +124,8 @@ This queries all comments that are **both** verified **and** awesome.
 | `Q.where('dislikes', Q.lt(100))` | `dislikes < 100` |
 | `Q.where('dislikes', Q.lte(100))` | `dislikes <= 100` |
 | `Q.where('likes', Q.between(10, 100))` | `likes >= 10 && likes <= 100` |
-| `Q.where('status', Q.oneOf('published', 'draft'))` | `status === 'published' \|\| status === 'draft'` |
-| `Q.where('status', Q.notIn('archived', 'deleted'))` | `status !== 'archived' && status !== 'deleted'` |
+| `Q.where('status', Q.oneOf(['published', 'draft']))` | `status === 'published' \|\| status === 'draft'` |
+| `Q.where('status', Q.notIn(['archived', 'deleted']))` | `status !== 'archived' && status !== 'deleted'` |
 
 ### Conditions on related tables
 

@@ -1,18 +1,53 @@
 import Foundation
 
 class DatabaseDriver {
-    struct Configuration {
-        let dbName: String
-        let schema: Database.SQL
-        let schemaVersion: Int
+    typealias SchemaVersion = Int
+    typealias Schema = (version: SchemaVersion, sql: Database.SQL)
+    typealias MigrationSet = (from: SchemaVersion, to: SchemaVersion, sql: Database.SQL)
+
+    struct SchemaNeededError: Error { }
+    struct MigrationNeededError: Error {
+        let databaseVersion: SchemaVersion
     }
 
-    let configuration: Configuration
-    private(set) lazy var database = Database(isTestRunning ? nil : "\(self.configuration.dbName).db")
+    let database: Database
 
-    init(configuration: Configuration) {
-        self.configuration = configuration
-        setUp()
+    convenience init(dbName: String, schemaVersion: SchemaVersion) throws {
+        self.init(dbName: dbName)
+
+        switch isCompatible(withVersion: schemaVersion) {
+        case .compatible: break
+        case .needsSetup:
+            throw SchemaNeededError()
+        case .needsMigration(fromVersion: let dbVersion):
+            throw MigrationNeededError(databaseVersion: dbVersion)
+        }
+    }
+
+    convenience init(dbName: String, setUpWithSchema schema: Schema) {
+        self.init(dbName: dbName)
+
+        do {
+            try unsafeResetDatabase(schema: schema)
+        } catch {
+            fatalError("Error while setting up the database: \(error)")
+        }
+    }
+
+    convenience init(dbName: String, setUpWithMigrations migrations: MigrationSet) throws {
+        self.init(dbName: dbName)
+        try migrate(with: migrations)
+    }
+
+    private init(dbName: String) {
+        // swiftlint:disable:next force_try
+        let path = try! FileManager.default
+            .url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+            .appendingPathComponent("\(dbName).db")
+            .path
+
+        // In test env, pass name of memory db
+        self.database = Database(path: isTestRunning ? dbName : path)
     }
 
     func find(table: Database.TableName, id: RecordId) throws -> Any? {
@@ -76,6 +111,7 @@ class DatabaseDriver {
                     removedIds.append(id)
 
                 case .destroyPermanently(table: let table, id: let id):
+                    // TODO: What's the behavior if nothing got deleted?
                     try database.execute("delete from \(table) where id == ?", [id])
                     removedIds.append(id)
                 }
@@ -89,16 +125,6 @@ class DatabaseDriver {
         for id in removedIds {
             cachedRecords.remove(id)
         }
-    }
-
-    func perform(_ operation: Operation) throws {
-        try batch([operation])
-    }
-
-    func destroyPermanently(table: Database.TableName, id: RecordId) throws {
-        // TODO: What's the behavior if nothing got deleted?
-        try database.execute("delete from \(table) where id == ?", [id])
-        cachedRecords.remove(id)
     }
 
     func getDeletedRecords(table: Database.TableName) throws -> [RecordId] {
@@ -147,37 +173,52 @@ class DatabaseDriver {
         cachedRecords.insert(id)
     }
 
-    func unsafeClearCachedRecords() {
-        if isTestRunning {
-            cachedRecords = []
-        }
-    }
-
 // MARK: - Other private details
 
-    private func setUp() {
-        // If database is outdated, build a clean one
-        // TODO: Perform actual migrations
-        do {
-            if database.userVersion != configuration.schemaVersion {
-                try unsafeResetDatabase()
-            }
-        } catch {
-            fatalError("Error while setting up the database: \(error)")
+    private enum SchemaCompatibility {
+        case compatible
+        case needsSetup
+        case needsMigration(fromVersion: SchemaVersion)
+    }
+
+    private func isCompatible(withVersion schemaVersion: SchemaVersion) -> SchemaCompatibility {
+        let databaseVersion = database.userVersion
+
+        switch databaseVersion {
+        case schemaVersion: return .compatible
+        case 0: return .needsSetup
+        case (1..<schemaVersion): return .needsMigration(fromVersion: databaseVersion)
+        default:
+            consoleLog("Database has newer version (\(databaseVersion)) than what the " +
+                "app supports (\(schemaVersion)). Will reset database.")
+            return .needsSetup
         }
     }
 
-    func unsafeResetDatabase() throws {
+    func unsafeResetDatabase(schema: Schema) throws {
         try database.unsafeDestroyEverything()
         cachedRecords = []
 
-        try setUpSchema()
+        try setUpSchema(schema: schema)
     }
 
-    private func setUpSchema() throws {
-        consoleLog("Setting up schema")
-        try database.executeStatements(configuration.schema + localStorageSchema)
-        database.userVersion = configuration.schemaVersion
+    private func setUpSchema(schema: Schema) throws {
+        try database.inTransaction {
+            try database.executeStatements(schema.sql + localStorageSchema)
+            database.userVersion = schema.version
+        }
+    }
+
+    private func migrate(with migrations: MigrationSet) throws {
+        precondition(
+            database.userVersion == migrations.from,
+            "Incompatbile migration set applied. DB: \(database.userVersion), migration: \(migrations.from)"
+        )
+
+        try database.inTransaction {
+            try database.executeStatements(migrations.sql)
+            database.userVersion = migrations.to
+        }
     }
 
     private let localStorageSchema = """

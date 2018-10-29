@@ -1,9 +1,9 @@
 // @flow
 
 import escapeString from 'sql-escape-string'
-import { logError } from 'utils/common'
+import { logError } from '../../../utils/common'
 
-import type { Value } from 'QueryDescription'
+import type { Value } from '../../../QueryDescription'
 
 // Note: SQLite doesn't support literal TRUE and FALSE; expects 1 or 0 instead
 // It also doesn't encode strings the same way

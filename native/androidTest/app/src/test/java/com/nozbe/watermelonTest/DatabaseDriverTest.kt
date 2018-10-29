@@ -7,6 +7,7 @@ import com.facebook.react.bridge.WritableMap
 import com.facebook.react.bridge.JavaOnlyArray
 import com.facebook.react.bridge.JavaOnlyMap
 import com.nozbe.watermelondb.DatabaseDriver
+import com.nozbe.watermelondb.Schema
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -47,8 +48,9 @@ class DatabaseDriverTests {
     @Before
     fun setUp() {
         databaseDriver = DatabaseDriver(
-                RuntimeEnvironment.application.applicationContext,
-                DatabaseDriver.Configuration(name = null, schema = testSchema, schemaVersion = 1)
+                context = RuntimeEnvironment.application.applicationContext,
+                dbName = "test",
+                schema = Schema(1, testSchema)
         )
         PowerMockito.mockStatic(Arguments::class.java)
         PowerMockito.`when`<WritableArray>(Arguments.createArray()).thenAnswer { JavaOnlyArray() }

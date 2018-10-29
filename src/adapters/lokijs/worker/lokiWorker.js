@@ -1,12 +1,17 @@
 // @flow
 
 // don't import whole `utils` to keep worker size small
-import logError from 'utils/common/logError'
-import invariant from 'utils/common/invariant'
+import logError from '../../../utils/common/logError'
+import invariant from '../../../utils/common/invariant'
 
 import LokiExecutor from './executor'
-import queue, { type QueueObject } from './helpers/queue'
-import { actions, responseActions, type WorkerExecutorAction } from '../common'
+import queue, { type QueueObject } from './queue'
+import {
+  actions,
+  responseActions,
+  type WorkerExecutorAction,
+  type WorkerResponseAction,
+} from '../common'
 
 const ExecutorProto = LokiExecutor.prototype
 const executorMethods = {
@@ -25,7 +30,6 @@ const executorMethods = {
   [actions.MARK_AS_DELETED]: ExecutorProto.markAsDeleted,
   [actions.GET_DELETED_RECORDS]: ExecutorProto.getDeletedRecords,
   [actions.DESTROY_DELETED_RECORDS]: ExecutorProto.destroyDeletedRecords,
-  [actions.UNSAFE_CLEAR_CACHED_RECORDS]: ExecutorProto.unsafeClearCachedRecords,
 }
 
 const { RESPONSE_SUCCESS, RESPONSE_ERROR } = responseActions
@@ -35,7 +39,7 @@ export default class LokiWorker {
 
   executor: ?LokiExecutor
 
-  asyncQueue: QueueObject
+  asyncQueue: QueueObject<WorkerExecutorAction, WorkerResponseAction>
 
   constructor(workerContext: DedicatedWorkerGlobalScope): void {
     this.workerContext = workerContext
@@ -47,7 +51,7 @@ export default class LokiWorker {
     // PR: https://github.com/facebook/flow/pull/6100
     const context = (this.workerContext: any)
     context.onmessage = (e: MessageEvent) => {
-      this.asyncQueue.push(e.data, (action: WorkerExecutorAction) => {
+      this.asyncQueue.push((e.data: any), (action: WorkerResponseAction) => {
         const { type, payload } = action
 
         this.workerContext.postMessage({
@@ -64,30 +68,30 @@ export default class LokiWorker {
         const { type, payload } = action
         invariant(type in actions, `Unknown worker action ${type}`)
 
-        // app just launched, set up executor with options sent
         if (type === actions.SETUP) {
+          // app just launched, set up executor with options sent
           invariant(!this.executor, `Loki executor already set up - cannot set up again`)
           const [options] = payload
-          this.executor = new LokiExecutor(options)
+          const executor = new LokiExecutor(options)
+
+          // set up, make this.executor available only if successful
+          await executor.setUp()
+          this.executor = executor
+
+          callback({ type: RESPONSE_SUCCESS, payload: null })
+        } else {
+          // run action
+          invariant(this.executor, `Cannot run actions because executor is not set up`)
+
+          const runExecutorAction = executorMethods[type].bind(this.executor)
+          const response = await runExecutorAction(...payload)
+
+          callback({ type: RESPONSE_SUCCESS, payload: response })
         }
-
-        // run action
-        invariant(this.executor, `Cannot run actions because executor is not set up`)
-
-        const runExecutorAction = executorMethods[type].bind(this.executor)
-        const data = await runExecutorAction(...payload)
-
-        callback({
-          type: RESPONSE_SUCCESS,
-          payload: data,
-        })
       } catch (error) {
         // Main process only receives error message — this logError is to retain call stack
         logError(error)
-        callback({
-          type: RESPONSE_ERROR,
-          payload: error,
-        })
+        callback({ type: RESPONSE_ERROR, payload: error })
       }
     })
   }

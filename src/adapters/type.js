@@ -1,9 +1,10 @@
 // @flow
 
-import type Query from 'Query'
-import type { TableName, AppSchema } from 'Schema'
-import type Model, { RecordId } from 'Model'
-import type { RawRecord } from 'RawRecord'
+import type Query from '../Query'
+import type { TableName, AppSchema } from '../Schema'
+import type { SchemaMigrations } from '../Schema/migrations'
+import type Model, { RecordId } from '../Model'
+import type { RawRecord } from '../RawRecord'
 
 export type CachedFindResult = RecordId | ?RawRecord
 export type CachedQueryResult = Array<RecordId | RawRecord>
@@ -15,6 +16,9 @@ export type BatchOperation =
 
 export interface DatabaseAdapter {
   schema: AppSchema;
+
+  migrations: ?SchemaMigrations; // TODO: Not optional
+
   // Fetches given (one) record or null. Should not send raw object if already cached in JS
   find(table: TableName<any>, id: RecordId): Promise<CachedFindResult>;
 
@@ -44,7 +48,4 @@ export interface DatabaseAdapter {
 
   // Removes key from local storage
   removeLocal(key: string): Promise<void>;
-
-  // Do not use — only for testing purposes
-  unsafeClearCachedRecords(): Promise<void>;
 }

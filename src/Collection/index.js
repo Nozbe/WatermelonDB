@@ -4,22 +4,18 @@ import type { Observable } from 'rxjs'
 import { Subject } from 'rxjs/Subject'
 import { defer } from 'rxjs/observable/defer'
 import { switchMap } from 'rxjs/operators'
-import invariant from 'utils/common/invariant'
-import noop from 'utils/fp/noop'
+import invariant from '../utils/common/invariant'
+import noop from '../utils/fp/noop'
 
-import Query from 'Query'
-import type Database from 'Database'
-import type Model, { RecordId } from 'Model'
-import type { Condition } from 'QueryDescription'
-import { type TableName, type TableSchema } from 'Schema'
+import Query from '../Query'
+import type Database from '../Database'
+import type Model, { RecordId } from '../Model'
+import type { Condition } from '../QueryDescription'
+import { type TableName, type TableSchema } from '../Schema'
 
 import RecordCache from './RecordCache'
+import { CollectionChangeTypes } from './common'
 
-export const CollectionChangeTypes = {
-  created: 'created',
-  updated: 'updated',
-  destroyed: 'destroyed',
-}
 type CollectionChangeType = 'created' | 'updated' | 'destroyed'
 export type CollectionChange<Record: Model> = { record: Record, type: CollectionChangeType }
 export type CollectionChangeSet<T> = CollectionChange<T>[]
@@ -69,9 +65,8 @@ export default class Collection<Record: Model> {
   //   task.name = 'Task name'
   // })
   async create(recordBuilder: Record => void = noop): Promise<Record> {
-    const record = this.modelClass._prepareCreate(this, recordBuilder)
-    await this.database.adapter.batch([['create', record]])
-    this._onRecordCreated(record)
+    const record = this.prepareCreate(recordBuilder)
+    await this.database.batch(record)
     return record
   }
 
@@ -110,12 +105,6 @@ export default class Collection<Record: Model> {
     const raw = await this.database.adapter.find(this.table, id)
     invariant(raw, `Record ${this.table}#${id} not found`)
     return this._cache.recordFromQueryResult(raw)
-  }
-
-  async _update(record: Record): Promise<void> {
-    record._hasPendingUpdate = false
-    await this.database.adapter.batch([['update', record]])
-    this._onRecordUpdated(record)
   }
 
   async _markAsDeleted(record: Record): Promise<void> {

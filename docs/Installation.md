@@ -12,12 +12,11 @@ yarn add @nozbe/watermelondb
     ```bash
     yarn add --dev @babel/plugin-proposal-decorators
     ```
-2. Add Watermelon Babel plugin and ES6 decorators support to your `.babelrc` file:
+2. Add ES6 decorators support to your `.babelrc` file:
     ```json
     {
-      "presets": ["react-native"],
+      "presets": ["module:metro-react-native-babel-preset"],
       "plugins": [
-        "@nozbe/watermelondb/babel/cjs",
         ["@babel/plugin-proposal-decorators", { "legacy": true }]
       ]
     }
@@ -27,25 +26,29 @@ yarn add @nozbe/watermelondb
 ### iOS (React Native)
 
 1. Set up Babel config in your project — see instructions above
-2. Link with the Xcode project automatically:
+2. Link WatermelonDB's native library with the Xcode project:
+    
+    **Automatically**
+    
     ```bash
     react-native link
     ```
+    
+    **Or manually**
+    
+    If you don't want to use `react-native link`, you can link the library manually:
+    
+    1. Open your project in Xcode, right click on **Libraries** in the Project Navigator on the left and click **Add Files to "Your Project Name"**. Look under `node_modules/@nozbe/watermelondb/native/ios` and select `WatermelonDB.xcodeproj`
+    2. Go to Project settings (top item in the Project navigator on the left), select your app name under **Targets** → **Build Phases** → **Link Binary With Libraries**, and add `libWatermelonDB.a`
+    
+    For more information about linking libraries manually, [see React Native documentation](https://facebook.github.io/react-native/docs/linking-libraries-ios).
+    
 3. If you get linker errors when building, you need to add Swift support to the project:
    - Open `ios/YourAppName.xcodeproj` in Xcode
    - Right-click on **Your App Name** in the Project Navigator on the left, and click **New File…**
-   - Create a single empty Swift file to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header**.
+   - Create a single empty `Swift` file to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header** and **do not remove `Swift`** file then.
 
-Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (although iOS 11.0 is recommended).
-
-#### Manual linking
-
-If you don't want to use `react-native link`, you can manually link WatermelonDB's native library with your Xcode project. All other steps are the same.
-
-1. Open your project in Xcode, right click on **Libraries** in the Project Navigator on the left and click **Add Files to "Your Project Name"**. Look under `node_modules/@nozbe/watermelondb/native/ios` and select `WatermelonDB.xcodeproj`
-2. Go to Project settings (top item in the Project navigator on the left), select your app name under **Targets** → **Build Phases** → **Link Binary With Libraries**, and add `libWatermelonDB.a`
-
-For more information about linking libraries manually, [see React Native documentation](https://facebook.github.io/react-native/docs/linking-libraries-ios).
+Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (although Xcode 10 and iOS 11.0 are recommended).
 
 ### Android (React Native)
 
@@ -112,6 +115,10 @@ For more information about linking libraries manually, [see React Native documen
 
 This guide assumes you use Webpack as your bundler.
 
+1. Install LokiJS dependency:
+    ```sh
+    yarn add lokijs
+    ```
 1. Install [worker-loader](https://github.com/webpack-contrib/worker-loader) Webpack plugin to add support for Web Workers to your app:
     ```sh
     yarn add --dev worker-loader
@@ -142,11 +149,10 @@ This guide assumes you use Webpack as your bundler.
     yarn add --dev @babel/plugin-proposal-class-properties
     yarn add --dev @babel/plugin-transform-runtime
     ```
-4. Add Watermelon Babel plugin and ES7 support to your `.babelrc` file:
+4. Add ES7 support to your `.babelrc` file:
     ```json
     {
       "plugins": [
-        "@nozbe/watermelondb/babel/esm",
         ["@babel/plugin-proposal-decorators", { "legacy": true }],
         ["@babel/plugin-proposal-class-properties", { "loose": true }],
         [

@@ -3,21 +3,20 @@ package com.nozbe.watermelondb
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import java.util.logging.Logger
+import java.io.File
 
-class Database(private val name: String?, private val context: Context) {
-
-    private val log = if (BuildConfig.DEBUG) Logger.getLogger("Database") else null
+class Database(private val name: String, private val context: Context) {
 
     private val db: SQLiteDatabase by lazy {
-        if (name.isNullOrBlank() || name == "test") {
-            SQLiteDatabase.create(null)
-        } else {
-            // On some systems there is some kind of lock on `/databases` folder ¯\_(ツ)_/¯
-            SQLiteDatabase.openOrCreateDatabase(
-                    context.getDatabasePath("$name.db").path
-                            .replace("/databases", ""), null)
-        }
+        SQLiteDatabase.openOrCreateDatabase(
+                // TODO: This SUCKS. Seems like Android doesn't like sqlite `?mode=memory&cache=shared` mode. To avoid random breakages, save the file to /tmp, but this is slow.
+                if (name == ":memory:" || name.contains("mode=memory")) {
+                    context.cacheDir.delete()
+                    File(context.cacheDir, name).path
+                } else
+                    // On some systems there is some kind of lock on `/databases` folder ¯\_(ツ)_/¯
+                    context.getDatabasePath("$name.db").path.replace("/databases", ""),
+                null)
     }
 
     var userVersion: Int
@@ -26,20 +25,15 @@ class Database(private val name: String?, private val context: Context) {
             db.version = value
         }
 
-    fun executeSchema(schema: SQL, schemaVersion: Int) {
-        log?.info("[Setting up database] clearing")
-        clear()
-        log?.info("[Setting up database] creating tables")
-        db.transaction {
-            schema.split(";").forEach {
-                if (it.isNotBlank()) execute(it)
+    fun executeStatements(statements: SQL) =
+            transaction {
+                statements.split(";").forEach {
+                    if (it.isNotBlank()) execute(it)
+                }
             }
-            userVersion = schemaVersion
-        }
-        log?.info("[Setting up database] done")
-    }
 
-    fun execute(query: SQL, values: QueryArgs = arrayListOf()) = db.execSQL(query, values.toArray())
+    fun execute(query: SQL, values: QueryArgs = arrayListOf()) =
+            db.execSQL(query, values.toArray())
 
     fun delete(query: SQL, queryArgs: QueryArgs) = db.execSQL(query, queryArgs.toArray())
 
@@ -48,7 +42,11 @@ class Database(private val name: String?, private val context: Context) {
     fun getFromLocalStorage(key: String): String? =
             rawQuery(Queries.select_local_storage, arrayOf(key)).use {
                 it.moveToFirst()
-                return if (it.count > 0) it.getString(0) else null
+                return if (it.count > 0) {
+                    it.getString(0)
+                } else {
+                    null
+                }
             }
 
     fun insertToLocalStorage(key: String, value: String) =
@@ -63,12 +61,16 @@ class Database(private val name: String?, private val context: Context) {
                 return it.getInt(it.getColumnIndex("count"))
             }
 
-    fun unsafeResetDatabase(): Boolean = context.deleteDatabase(name)
+//    fun unsafeResetDatabase() = context.deleteDatabase("$name.db")
 
-    fun inTransaction(function: () -> Unit) = db.transaction { function() }
-
-    private fun clear() =
-            db.transaction { getAllTables().forEach { execute(Queries.dropTable(it)) } }
+    fun unsafeDestroyEverything() =
+            transaction {
+                getAllTables().forEach { execute(Queries.dropTable(it)) }
+                execute("pragma writable_schema=1")
+                execute("delete from sqlite_master")
+                execute("pragma user_version=0")
+                execute("pragma writable_schema=0")
+            }
 
     private fun getAllTables(): ArrayList<String> {
         val allTables: ArrayList<String> = arrayListOf()
@@ -76,12 +78,22 @@ class Database(private val name: String?, private val context: Context) {
             it.moveToFirst()
             val index = it.getColumnIndex("name")
             if (index > -1) {
-                while (it.moveToNext()) {
+                do {
                     allTables.add(it.getString(index))
-                }
+                } while (it.moveToNext())
             }
         }
         return allTables
+    }
+
+    fun transaction(function: () -> Unit) {
+        db.beginTransaction()
+        try {
+            function()
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+        }
     }
 
     fun close() = db.close()

@@ -1,15 +1,17 @@
-import SQLiteAdapter from 'adapters/sqlite'
-import { testSchema } from 'adapters/__tests__/helpers'
-import commonTests from 'adapters/__tests__/commonTests'
+import SQLiteAdapter from './index'
+import { testSchema } from '../__tests__/helpers'
+import commonTests from '../__tests__/commonTests'
 
-const newAdapter = () => new SQLiteAdapter({ dbName: 'test', schema: testSchema })
+const newAdapter = () => new SQLiteAdapter({ schema: testSchema })
 
 const SQLiteAdapterTest = spec => {
   spec.describe('watermelondb/adapters/sqlite', () => {
     commonTests().forEach(testCase => {
       const [name, test] = testCase
-      const adapter = newAdapter()
-      spec.it(name, test(adapter))
+      spec.it(name, async () => {
+        const adapter = newAdapter()
+        await test(adapter, SQLiteAdapter)
+      })
     })
   })
 }

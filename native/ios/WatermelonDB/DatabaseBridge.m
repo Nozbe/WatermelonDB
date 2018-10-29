@@ -2,10 +2,26 @@
 
 @interface RCT_EXTERN_MODULE(DatabaseBridge, NSObject)
 
-RCT_EXTERN_METHOD(setUp:(nonnull NSNumber *)connectionTag
+RCT_EXTERN_METHOD(initialize:(nonnull NSNumber *)connectionTag
+  databaseName:(nonnull NSString *)name
+  schemaVersion:(nonnull NSNumber *)version
+  resolve:(RCTPromiseResolveBlock)resolve
+  reject:(RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(setUpWithSchema:(nonnull NSNumber *)connectionTag
   databaseName:(nonnull NSString *)name
   schema:(nonnull NSString *)schema
   schemaVersion:(nonnull NSNumber *)version
+  resolve:(RCTPromiseResolveBlock)resolve
+  reject:(RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN_METHOD(setUpWithMigrations:(nonnull NSNumber *)connectionTag
+  databaseName:(nonnull NSString *)name
+  migrations:(nonnull NSString *)migrationSQL
+  fromVersion:(nonnull NSNumber *)version
+  toVersion:(nonnull NSNumber *)version
   resolve:(RCTPromiseResolveBlock)resolve
   reject:(RCTPromiseRejectBlock)reject
 )
@@ -35,35 +51,6 @@ RCT_EXTERN_METHOD(batch:(nonnull NSNumber *)connectionTag
   reject:(RCTPromiseRejectBlock)reject
 )
 
-RCT_EXTERN_METHOD(execute:(nonnull NSNumber *)connectionTag
-  query:(nonnull NSString *)query
-  args:(NSArray *)args
-  resolve:(RCTPromiseResolveBlock)resolve
-  reject:(RCTPromiseRejectBlock)reject
-)
-
-RCT_EXTERN_METHOD(create:(nonnull NSNumber *)connectionTag
-  id:(nonnull NSString *)id
-  query:(nonnull NSString *)query
-  args:(NSArray *)args
-  resolve:(RCTPromiseResolveBlock)resolve
-  reject:(RCTPromiseRejectBlock)reject
-)
-
-RCT_EXTERN_METHOD(destroyPermanently:(nonnull NSNumber *)connectionTag
-  table:(nonnull NSString *)table
-  id:(nonnull NSString *)id
-  resolve:(RCTPromiseResolveBlock)resolve
-  reject:(RCTPromiseRejectBlock)reject
-)
-
-RCT_EXTERN_METHOD(markAsDeleted:(nonnull NSNumber *)connectionTag
-  table:(nonnull NSString *)table
-  id:(nonnull NSString *)id
-  resolve:(RCTPromiseResolveBlock)resolve
-  reject:(RCTPromiseRejectBlock)reject
-)
-
 RCT_EXTERN_METHOD(getDeletedRecords:(nonnull NSNumber *)connectionTag
   table:(nonnull NSString *)table
   resolve:(RCTPromiseResolveBlock)resolve
@@ -78,6 +65,8 @@ RCT_EXTERN_METHOD(destroyDeletedRecords:(nonnull NSNumber *)connectionTag
 )
 
 RCT_EXTERN_METHOD(unsafeResetDatabase:(nonnull NSNumber *)connectionTag
+  schema:(nonnull NSString *)schema
+  schemaVersion:(nonnull NSNumber *)version
   resolve:(RCTPromiseResolveBlock)resolve
   reject:(RCTPromiseRejectBlock)reject
 )
@@ -97,11 +86,6 @@ RCT_EXTERN_METHOD(setLocal:(nonnull NSNumber *)connectionTag
 
 RCT_EXTERN_METHOD(removeLocal:(nonnull NSNumber *)connectionTag
   key:(nonnull NSString *)key
-  resolve:(RCTPromiseResolveBlock)resolve
-  reject:(RCTPromiseRejectBlock)reject
-)
-
-RCT_EXTERN_METHOD(unsafeClearCachedRecords:(nonnull NSNumber *)connectionTag
   resolve:(RCTPromiseResolveBlock)resolve
   reject:(RCTPromiseRejectBlock)reject
 )

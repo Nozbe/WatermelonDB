@@ -1,8 +1,8 @@
 // @flow
 
-import type { ColumnName, TableName } from 'Schema'
+import type { ColumnName, TableName } from '../../Schema'
 
-import relation from 'decorators/relation'
+import relation from '../relation'
 
 // Defines a model property that fetches a record with a specific ID
 // The property defined must be *immutable*, i.e. the relation ID must never change

@@ -1,9 +1,9 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import type Query, { AssociationArgs } from 'Query'
+import type Query, { AssociationArgs } from '../../../Query'
 import type {
-  NonNullValue,
+  NonNullValues,
   Operator,
   Where,
   ComparisonRight,
@@ -12,10 +12,10 @@ import type {
   And,
   Or,
   QueryDescription,
-} from 'QueryDescription'
-import * as Q from 'QueryDescription'
-import { type TableName, type ColumnName } from 'Schema'
-import type Model from 'Model'
+} from '../../../QueryDescription'
+import * as Q from '../../../QueryDescription'
+import { type TableName, type ColumnName } from '../../../Schema'
+import type Model from '../../../Model'
 
 import encodeValue from '../encodeValue'
 import encodeName from '../encodeName'
@@ -31,7 +31,8 @@ function mapConcat<T>(array: T[], mapper: T => string): string {
   return array.reduce((string, value) => `${string}${mapper(value)}`, '')
 }
 
-const encodeValues: (NonNullValue[]) => string = values => `(${mapJoin(values, encodeValue, ', ')})`
+const encodeValues: NonNullValues => string = values =>
+  `(${mapJoin((values: any[]), encodeValue, ', ')})`
 
 const getComparisonRight = (table: TableName<any>, comparisonRight: ComparisonRight): string => {
   if (comparisonRight.values) {

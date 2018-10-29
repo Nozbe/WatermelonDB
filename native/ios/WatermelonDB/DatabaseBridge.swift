@@ -5,30 +5,83 @@ final public class DatabaseBridge: NSObject {
     typealias ConnectionTag = NSNumber
     @objc static let requiresMainQueueSetup: Bool = false
     @objc let methodQueue = DispatchQueue(label: "com.nozbe.watermelondb.database", qos: .userInteractive)
-    var connections: [Int: DatabaseDriver] = [:]
 
-    @objc(setUp:databaseName:schema:schemaVersion:resolve:reject:)
-    func setUp(tag: ConnectionTag,
-               databaseName: String,
-               schema: Database.SQL,
-               schemaVersion: NSNumber,
-               resolve: RCTPromiseResolveBlock,
-               reject: RCTPromiseRejectBlock) {
-        let driver = DatabaseDriver(configuration:
-            DatabaseDriver.Configuration(dbName: databaseName,
-                                         schema: schema,
-                                         schemaVersion: schemaVersion.intValue)
-        )
+    private enum Connection {
+        case connected(driver: DatabaseDriver)
+        case waiting(queue: [() -> Void])
+
+        var queue: [() -> Void] {
+            switch self {
+            case .connected(driver: _): return []
+            case .waiting(queue: let queue): return queue
+            }
+        }
+    }
+    private var connections: [Int: Connection] = [:]
+
+    @objc(initialize:databaseName:schemaVersion:resolve:reject:)
+    func initialize(tag: ConnectionTag,
+                    databaseName: String,
+                    schemaVersion: NSNumber,
+                    resolve: RCTPromiseResolveBlock,
+                    reject: RCTPromiseRejectBlock) {
         assert(connections[tag.intValue] == nil, "A driver with tag \(tag) already set up")
-        connections[tag.intValue] = driver
+
+        do {
+            let driver = try DatabaseDriver(dbName: databaseName, schemaVersion: schemaVersion.intValue)
+            connections[tag.intValue] = .connected(driver: driver)
+            resolve(["code": "ok"])
+        } catch _ as DatabaseDriver.SchemaNeededError {
+            connections[tag.intValue] = .waiting(queue: [])
+            resolve(["code": "schema_needed"])
+        } catch let error as DatabaseDriver.MigrationNeededError {
+            connections[tag.intValue] = .waiting(queue: [])
+            resolve(["code": "migrations_needed", "databaseVersion": error.databaseVersion])
+        } catch {
+            assertionFailure("Unknown error thrown in DatabaseDriver.init")
+            sendReject(reject, error)
+        }
+    }
+
+    @objc(setUpWithSchema:databaseName:schema:schemaVersion:resolve:reject:)
+    func setUpWithSchema(tag: ConnectionTag,
+                         databaseName: String,
+                         schema: Database.SQL,
+                         schemaVersion: NSNumber,
+                         resolve: RCTPromiseResolveBlock,
+                         reject: RCTPromiseRejectBlock) {
+        let driver = DatabaseDriver(dbName: databaseName,
+                                    setUpWithSchema: (version: schemaVersion.intValue, sql: schema))
+        connectDriver(connectionTag: tag, driver: driver)
         resolve(true)
+    }
+
+    @objc(setUpWithMigrations:databaseName:migrations:fromVersion:toVersion:resolve:reject:)
+    func setUpWithMigrations(tag: ConnectionTag, // swiftlint:disable:this function_parameter_count
+                             databaseName: String,
+                             migrations: Database.SQL,
+                             fromVersion: NSNumber,
+                             toVersion: NSNumber,
+                             resolve: RCTPromiseResolveBlock,
+                             reject: RCTPromiseRejectBlock) {
+        do {
+            let driver = try DatabaseDriver(
+                dbName: databaseName,
+                setUpWithMigrations: (from: fromVersion.intValue, to: toVersion.intValue, sql: migrations)
+            )
+            connectDriver(connectionTag: tag, driver: driver)
+            resolve(true)
+        } catch {
+            disconnectDriver(tag)
+            sendReject(reject, error)
+        }
     }
 
     @objc(find:table:id:resolve:reject:)
     func find(tag: ConnectionTag,
               table: Database.TableName,
               id: DatabaseDriver.RecordId,
-              resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+              resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
             try $0.find(table: table, id: id) as Any
         }
@@ -36,7 +89,8 @@ final public class DatabaseBridge: NSObject {
 
     @objc(query:query:resolve:reject:)
     func query(tag: ConnectionTag,
-               query: Database.SQL, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+               query: Database.SQL,
+               resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
             try $0.cachedQuery(query)
         }
@@ -45,8 +99,7 @@ final public class DatabaseBridge: NSObject {
     @objc(count:query:resolve:reject:)
     func count(tag: ConnectionTag,
                query: Database.SQL,
-               resolve: RCTPromiseResolveBlock,
-               reject: RCTPromiseRejectBlock) {
+               resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
             try $0.count(query)
         }
@@ -55,8 +108,8 @@ final public class DatabaseBridge: NSObject {
     @objc(batch:operations:resolve:reject:)
     func batch(tag: ConnectionTag,
                operations: [[Any]],
-               resolve: RCTPromiseResolveBlock,
-               reject: RCTPromiseRejectBlock) {
+               resolve: @escaping RCTPromiseResolveBlock,
+               reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
             try $0.batch(operations.map { operation in
                 switch operation[safe: 0] as? String {
@@ -103,56 +156,11 @@ final public class DatabaseBridge: NSObject {
         }
     }
 
-    @objc(execute:query:args:resolve:reject:)
-    func execute(tag: ConnectionTag,
-                 query: Database.SQL,
-                 args: Database.QueryArgs,
-                 resolve: RCTPromiseResolveBlock,
-                 reject: RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.perform(.execute(query: query, args: args))
-        }
-    }
-
-    @objc(create:id:query:args:resolve:reject:)
-    func create(tag: ConnectionTag,
-                id: DatabaseDriver.RecordId,
-                query: Database.SQL,
-                args: Database.QueryArgs,
-                resolve: RCTPromiseResolveBlock,
-                reject: RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.perform(.create(id: id, query: query, args: args))
-        }
-    }
-
-    @objc(destroyPermanently:table:id:resolve:reject:)
-    func destroyPermanently(tag: ConnectionTag,
-                            table: Database.TableName,
-                            id: DatabaseDriver.RecordId,
-                            resolve: RCTPromiseResolveBlock,
-                            reject: RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.destroyPermanently(table: table, id: id)
-        }
-    }
-
-    @objc(markAsDeleted:table:id:resolve:reject:)
-    func markAsDeleted(tag: ConnectionTag,
-                       table: Database.TableName,
-                       id: DatabaseDriver.RecordId,
-                       resolve: RCTPromiseResolveBlock,
-                       reject: RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.perform(.markAsDeleted(table: table, id: id))
-        }
-    }
-
     @objc(getDeletedRecords:table:resolve:reject:)
     func getDeletedRecords(tag: ConnectionTag,
                            table: Database.TableName,
-                           resolve: RCTPromiseResolveBlock,
-                           reject: RCTPromiseRejectBlock) {
+                           resolve: @escaping RCTPromiseResolveBlock,
+                           reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
             try $0.getDeletedRecords(table: table)
         }
@@ -162,22 +170,27 @@ final public class DatabaseBridge: NSObject {
     func destroyDeletedRecords(tag: ConnectionTag,
                                table: Database.TableName,
                                records: [DatabaseDriver.RecordId],
-                               resolve: RCTPromiseResolveBlock,
-                               reject: RCTPromiseRejectBlock) {
+                               resolve: @escaping RCTPromiseResolveBlock,
+                               reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
             try $0.destroyDeletedRecords(table: table, records: records)
         }
     }
 
-    @objc(unsafeResetDatabase:resolve:reject:)
-    func unsafeResetDatabase(tag: ConnectionTag, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    @objc(unsafeResetDatabase:schema:schemaVersion:resolve:reject:)
+    func unsafeResetDatabase(tag: ConnectionTag,
+                             schema: Database.SQL,
+                             schemaVersion: NSNumber,
+                             resolve: @escaping RCTPromiseResolveBlock,
+                             reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
-            try $0.unsafeResetDatabase()
+            try $0.unsafeResetDatabase(schema: (version: schemaVersion.intValue, sql: schema))
         }
     }
 
     @objc(getLocal:key:resolve:reject:)
-    func getLocal(tag: ConnectionTag, key: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    func getLocal(tag: ConnectionTag, key: String,
+                  resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
             try $0.getLocal(key: key) as Any
         }
@@ -187,42 +200,72 @@ final public class DatabaseBridge: NSObject {
     func setLocal(tag: ConnectionTag,
                   key: String,
                   value: String,
-                  resolve: RCTPromiseResolveBlock,
-                  reject: RCTPromiseRejectBlock) {
+                  resolve: @escaping RCTPromiseResolveBlock,
+                  reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
             try $0.setLocal(key: key, value: value)
         }
     }
 
     @objc(removeLocal:key:resolve:reject:)
-    func removeLocal(tag: ConnectionTag, key: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+    func removeLocal(tag: ConnectionTag, key: String,
+                     resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
             try $0.removeLocal(key: key)
         }
     }
 
-    @objc(unsafeClearCachedRecords:resolve:reject:)
-    func unsafeClearCachedRecords(tag: ConnectionTag, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            $0.unsafeClearCachedRecords()
-        }
-    }
-
     private func withDriver(_ connectionTag: ConnectionTag,
-                            _ resolve: RCTPromiseResolveBlock,
-                            _ reject: RCTPromiseRejectBlock,
+                            _ resolve: @escaping RCTPromiseResolveBlock,
+                            _ reject: @escaping RCTPromiseRejectBlock,
                             functionName: String = #function,
-                            action: (DatabaseDriver) throws -> Any) {
+                            action: @escaping (DatabaseDriver) throws -> Any) {
         do {
-            guard let driver = connections[connectionTag.intValue] else {
-                // TODO: Add waiting logic
+            let tagID = connectionTag.intValue
+            guard let connection = connections[tagID] else {
                 throw "No driver for with tag \(connectionTag) available".asError()
             }
 
-            let result = try action(driver)
-            resolve(result)
+            switch connection {
+            case .connected(let driver):
+                let result = try action(driver)
+                resolve(result)
+            case .waiting(var queue):
+                consoleLog("Operation for driver \(tagID) enqueued")
+                // try again when driver is ready
+                queue.append {
+                    self.withDriver(connectionTag, resolve, reject, functionName: functionName, action: action)
+                }
+                connections[tagID] = .waiting(queue: queue)
+            }
         } catch {
-            reject("db.\(functionName).error", error.localizedDescription, error)
+            sendReject(reject, error, functionName: functionName)
         }
+    }
+
+    private func connectDriver(connectionTag: ConnectionTag, driver: DatabaseDriver) {
+        let tagID = connectionTag.intValue
+        let queue = connections[tagID]?.queue ?? []
+        connections[tagID] = .connected(driver: driver)
+
+        for operation in queue {
+            operation()
+        }
+    }
+
+    private func disconnectDriver(_ connectionTag: ConnectionTag) {
+        let tagID = connectionTag.intValue
+        let queue = connections[tagID]?.queue ?? []
+        connections[tagID] = nil
+
+        for operation in queue {
+            operation()
+        }
+    }
+
+    private func sendReject(_ reject: RCTPromiseRejectBlock,
+                            _ error: Error,
+                            functionName: String = #function) {
+        reject("db.\(functionName).error", error.localizedDescription, error)
     }
 }

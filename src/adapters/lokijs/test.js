@@ -1,7 +1,7 @@
-import { makeMockTask, testSchema } from 'adapters/__tests__/helpers'
-import commonTests from 'adapters/__tests__/commonTests'
+import { testSchema } from '../__tests__/helpers'
+import commonTests from '../__tests__/commonTests'
 
-import LokiJSAdapter from 'adapters/lokijs'
+import LokiJSAdapter from './index'
 
 const newAdapter = () =>
   new LokiJSAdapter({
@@ -12,14 +12,10 @@ const newAdapter = () =>
 describe('watermelondb/adapters/lokijs', () => {
   commonTests().forEach(testCase => {
     const [name, test] = testCase
-    const adapter = newAdapter()
-    it(name, test(adapter))
-  })
-  it('does not return any Loki junk', async () => {
-    const adapter = newAdapter()
-    const record = makeMockTask({ id: 'abc', foo: 'bar' })
 
-    await adapter.batch([['CREATE', record]])
-    expect(record._raw.$loki).toBeUndefined()
+    it(name, async () => {
+      const adapter = newAdapter()
+      await test(adapter, LokiJSAdapter)
+    })
   })
 })

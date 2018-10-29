@@ -3,10 +3,10 @@
 import Loki from 'lokijs'
 import type { LokiResultset } from 'lokijs'
 
-import type { SerializedQuery } from 'Query'
+import type { SerializedQuery } from '../../../Query'
 
-import encodeMatcher from 'observation/encodeMatcher'
-import { hasColumnComparisons, type Where } from 'QueryDescription'
+import encodeMatcher from '../../../observation/encodeMatcher'
+import { hasColumnComparisons, type Where } from '../../../QueryDescription'
 
 import encodeQuery from './encodeQuery'
 import type { LokiQuery, LokiJoin, LokiRawQuery } from './encodeQuery'

@@ -1,8 +1,9 @@
 // @flow
 
-import type { CachedQueryResult } from 'adapters/type'
-import type { TableName, AppSchema } from 'Schema'
-import type { RawRecord } from 'RawRecord'
+import type { CachedQueryResult, CachedFindResult } from '../type'
+import type { TableName } from '../../Schema'
+import type { RawRecord } from '../../RawRecord'
+import type { RecordId } from '../../Model'
 
 export const actions = {
   SETUP: 'SETUP',
@@ -20,13 +21,7 @@ export const actions = {
   GET_LOCAL: 'GET_LOCAL',
   SET_LOCAL: 'SET_LOCAL',
   REMOVE_LOCAL: 'REMOVE_LOCAL',
-  UNSAFE_CLEAR_CACHED_RECORDS: 'UNSAFE_CLEAR_CACHED_RECORDS',
 }
-
-export type LokiAdapterOptions = $Exact<{
-  dbName: string,
-  schema: AppSchema,
-}>
 
 export const responseActions = {
   RESPONSE_SUCCESS: 'RESPONSE_SUCCESS',
@@ -38,7 +33,7 @@ export type WorkerExecutorPayload = any[]
 
 export type WorkerResponseType = $Values<typeof responseActions>
 
-export type WorkerResponseData = CachedQueryResult | number | void | Array<?number>
+export type WorkerResponseData = CachedQueryResult | CachedFindResult | number | RecordId[]
 export type WorkerResponseError = string
 export type WorkerResponsePayload = WorkerResponseData | WorkerResponseError
 
