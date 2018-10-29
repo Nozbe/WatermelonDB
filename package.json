@@ -40,14 +40,8 @@
     "url": "https://github.com/Nozbe/WatermelonDB.git"
   },
   "dependencies": {
-<<<<<<< HEAD
-    "babel-plugin-module-resolver": "^3.1.1",
-    "rambdax": "^0.10.0",
-    "rxjs": "^6.3.3",
-=======
     "rambdax": "^0.12.3",
     "rxjs": "^6.2.2",
->>>>>>> upstream/master
     "rxjs-compat": "^6.3.2",
     "sql-escape-string": "^1.1.0"
   },
