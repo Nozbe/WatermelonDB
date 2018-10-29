@@ -53,8 +53,8 @@ module.exports = {
       ],
     },
     test: {
-      presets: ['@babel/preset-react'],
-      plugins,
+      plugins: [...plugins,
+        '@babel/plugin-syntax-jsx'],
     },
   },
 }
