@@ -5,7 +5,7 @@ import Database from '../Database'
 const { Provider, Consumer } = React.createContext({})
 
 export type Props = {
-  database?: Database, // eslint-disable-line react/require-default-props
+  database: Database, // eslint-disable-line react/require-default-props
   children: React.Node,
 }
 /**
