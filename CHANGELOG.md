@@ -12,6 +12,8 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - Fixed "dependency cycle" warning
+- [SQLite] Fixed rare cases where database could be left in an unusable state (added missing transaction)
+- [Flow] Fixes `oneOf()` typing and some other variance errors
 
 ### Improvements
 

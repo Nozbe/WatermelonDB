@@ -67,7 +67,7 @@ matrix:
         - TERM=dumb yarn ktlint
         - android-wait-for-emulator
         - adb shell input keyevent 82 &
-        - TERM=dumb yarn test:android
+        - ./scripts/retryEmuAndTest
       after_failure:
         - adb logcat -d > logcat.txt
         - echo "$(cat logcat.txt)"
