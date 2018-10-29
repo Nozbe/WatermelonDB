@@ -6,7 +6,7 @@
     "build": "NODE_ENV=production node ./scripts/make.js",
     "dev": "NODE_ENV=development node ./scripts/make.js",
     "release": "node ./scripts/publish.js",
-    "prettier": "prettier-eslint --config ./.prettierrc --write \"./src/**/*.{js,jsx}\"",
+    "prettier": "prettier-eslint --config ./.prettierrc --write \"./src/**/*.js\"",
     "flow": "flow check",
     "eslint": "eslint ./src -c ./.eslintrc.yml --cache --cache-location ./.cache/.eslintcache",
     "test": "jest --config=./jest.config.js --forceExit --detectOpenHandles --no-cache",
