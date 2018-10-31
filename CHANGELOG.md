@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+
+## 0.7.0 - 2018-10-31
+
 ### Deprecations
 
 - [Schema] Column type 'bool' is deprecated — change to 'boolean'
