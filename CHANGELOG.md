@@ -8,23 +8,17 @@ All notable changes to this project will be documented in this file.
 
 - [Schema] Column type 'bool' is deprecated — change to 'boolean'
 
-### Fixed
+### New
+
+- Added support for Schema Migrations. See `Schema/migrations/index.js` for more details. Detailed documentation will be provided in the next minor release.
+
+### Changes
 
 - Fixed "dependency cycle" warning
 - [SQLite] Fixed rare cases where database could be left in an unusable state (added missing transaction)
 - [Flow] Fixes `oneOf()` typing and some other variance errors
-
-### Improvements
-
 - [React Native] App should launch a little faster, because schema is only compiled on demand now
-
-### Changed
-
-- Updated Flow to 0.83
-
-### Refactoring
-
-- [WIP] Migrations
+- Updated Flow to 0.85
 
 ## 0.6.2 - 2018-10-04
 
