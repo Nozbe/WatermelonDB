@@ -89,8 +89,9 @@ const noNullComparisons: OperatorFunction => OperatorFunction = operator => valu
 
 const like: OperatorFunction = value => {
   if (typeof value === 'string') {
+    const regexp = `^${value}$`.replace(/%/g, '.*').replace(/_/g, '.')
     return {
-      $regex: new RegExp(value.replace(/%/g, '.*').replace(/_/g, '.'), 'i'),
+      $regex: new RegExp(regexp, 'i'),
     }
   }
 
