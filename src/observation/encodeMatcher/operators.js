@@ -28,7 +28,7 @@ const handleLikeValue = (v, defaultV) => typeof v === 'string' ? v : defaultV
 
 export const like: OperatorFunction = (left, right) => {
   const leftV = handleLikeValue(left, '')
-  const rightV = handleLikeValue(right, '!.*')
+  const rightV = handleLikeValue(right, '(?!.*)')
   const regexp = rightV.replace(/%/g, '.*').replace('_', '.')
 
   return leftV.match(new RegExp(regexp, 'i'))

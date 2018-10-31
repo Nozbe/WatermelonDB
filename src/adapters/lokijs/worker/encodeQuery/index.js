@@ -90,12 +90,12 @@ const noNullComparisons: OperatorFunction => OperatorFunction = operator => valu
 const like: OperatorFunction = value => {
   if (typeof value === 'string') {
     return {
-      $regex: new RegExp(value.replace(/%/g, '.*').replace('_', '.'), 'i'),
+      $regex: new RegExp(value.replace(/%/g, '.*').replace(/_/g, '.'), 'i'),
     }
   }
 
   return {
-    $regex: new RegExp('!.*', 'i'),
+    $regex: new RegExp('(?!.*)', 'i'),
   }
 }
 
