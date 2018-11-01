@@ -13,7 +13,7 @@
     "@nozbe/with-observables": "^1.0.0",
     "jsc-android": "224109.x.x",
     "react": "16.5.1",
-    "react-native": "0.57.0",
+    "react-native": "0.57.4",
     "react-native-prompt-android": "^0.3.3",
     "react-navigation": "^2.12.1"
   },
