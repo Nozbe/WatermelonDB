@@ -3,11 +3,11 @@
 </p>
 
 <h4 align="center">
-  Next-generation React database
+  High-performance reactive database framework
 </h4>
 
 <p align="center">
-  Build powerful React and React Native apps that scale from hundreds to tens of thousands of records and remain <em>fast</em>
+  Build powerful React and React Native apps that scale from hundreds to tens of thousands of records and remain <em>fast</em> ⚡️
 </p>
 
 <p align="center">

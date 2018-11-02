@@ -1,7 +1,7 @@
 {
   "name": "@nozbe/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
-  "version": "0.7.0-1",
+  "version": "0.7.0",
   "scripts": {
     "build": "NODE_ENV=production node ./scripts/make.js",
     "dev": "NODE_ENV=development node ./scripts/make.js",
@@ -37,7 +37,7 @@
     "url": "https://github.com/Nozbe/WatermelonDB.git"
   },
   "dependencies": {
-    "rambdax": "^0.12.3",
+    "rambdax": "^0.18.0",
     "rxjs": "^6.2.2",
     "rxjs-compat": "^6.3.2",
     "sql-escape-string": "^1.1.0"
@@ -109,7 +109,7 @@
     "eslint-plugin-react": "^7.11.0",
     "execa": "^1.0.0",
     "fast-async": "^6.3.7",
-    "flow-bin": "^0.84.0",
+    "flow-bin": "^0.85.0",
     "fs-extra": "^7.0.0",
     "inquirer": "^6.2.0",
     "jest": "23.6.0",
