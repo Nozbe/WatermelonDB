@@ -2,18 +2,18 @@
 import React from 'react'
 import Database from '../Database'
 
-const { Provider, Consumer } = React.createContext({})
+const { Provider, Consumer } = (React.createContext(): any)
 
 export type Props = {
   database: Database,
-  children: React$Element<any>,
+  children: React$Node,
 }
 
 /**
  * Database provider to create the database context
  * to allow child components to consume the database without prop drilling
  */
-function DatabaseProvider({ children, database }: Props): React$Element<any> {
+function DatabaseProvider({ children, database }: Props): React$Element<typeof Provider> {
   if (!database) {
     throw new Error('You must supply a database prop to the DatabaseProvider')
   }
