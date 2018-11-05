@@ -76,27 +76,36 @@ const buildTasks = options => {
           'Connection to npm registry timed out',
         ),
     },
-    {
-      title: 'check current branch',
-      task: () =>
-        execa
-          .stdout('git', ['symbolic-ref', '--short', 'HEAD'])
-          .then(when(branch => branch !== 'master', throwError('not on `master` branch'))),
-    },
-    {
-      title: 'check local working tree',
-      task: () =>
-        execa
-          .stdout('git', ['status', '--porcelain'])
-          .then(when(status => status !== '', throwError('commit or stash changes first'))),
-    },
-    {
-      title: 'check remote history',
-      task: () =>
-        execa
-          .stdout('git', ['rev-list', '--count', '--left-only', '@{u}...HEAD'])
-          .then(when(result => result !== '0', throwError('please pull changes first'))),
-    },
+    ...(isPrerelease ?
+      [
+          {
+            title: 'WARN: Skipping git checks',
+            task: () => {},
+          },
+        ] :
+      [
+          {
+            title: 'check current branch',
+            task: () =>
+              execa
+                .stdout('git', ['symbolic-ref', '--short', 'HEAD'])
+                .then(when(branch => branch !== 'master', throwError('not on `master` branch'))),
+          },
+          {
+            title: 'check local working tree',
+            task: () =>
+              execa
+                .stdout('git', ['status', '--porcelain'])
+                .then(when(status => status !== '', throwError('commit or stash changes first'))),
+          },
+          {
+            title: 'check remote history',
+            task: () =>
+              execa
+                .stdout('git', ['rev-list', '--count', '--left-only', '@{u}...HEAD'])
+                .then(when(result => result !== '0', throwError('please pull changes first'))),
+          },
+        ]),
     {
       title: 'check tests',
       task: () => execa('yarn', ['test']),

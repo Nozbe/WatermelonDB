@@ -4,6 +4,7 @@ import { contains } from 'rambdax'
 
 import isDevelopment from '../utils/common/isDevelopment'
 import invariant from '../utils/common/invariant'
+import type { $RE } from '../types'
 
 import type Model from '../Model'
 
@@ -11,7 +12,7 @@ export opaque type TableName<+T: Model>: string = string
 export opaque type ColumnName: string = string
 
 export type ColumnType = 'string' | 'number' | 'boolean'
-export type ColumnSchema = $Exact<{
+export type ColumnSchema = $RE<{
   name: ColumnName,
   type: ColumnType,
   isOptional?: boolean,
@@ -22,13 +23,13 @@ export type ColumnMap = { [name: ColumnName]: ColumnSchema }
 
 export type TableSchemaSpec = $Exact<{ name: TableName<any>, columns: ColumnSchema[] }>
 
-export type TableSchema = $Exact<{ name: TableName<any>, columns: ColumnMap }>
+export type TableSchema = $RE<{ name: TableName<any>, columns: ColumnMap }>
 
 type TableMap = { [name: TableName<any>]: TableSchema }
 
 export type SchemaVersion = number
 
-export type AppSchema = $Exact<{ version: SchemaVersion, tables: TableMap }>
+export type AppSchema = $RE<{ version: SchemaVersion, tables: TableMap }>
 
 export function tableName<T: Model>(name: string): TableName<T> {
   return name
