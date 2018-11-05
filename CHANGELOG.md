@@ -4,7 +4,6 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
-
 ## 0.7.0 - 2018-10-31
 
 ### Deprecations
@@ -13,7 +12,7 @@ All notable changes to this project will be documented in this file.
 
 ### New
 
-- Added support for Schema Migrations. See `Schema/migrations/index.js` for more details. Detailed documentation will be provided in the next minor release.
+- Added support for Schema Migrations. See documentation for more details.
 
 ### Changes
 
