@@ -25,6 +25,7 @@ Without migrations, if a user of your app upgrades from one version to another, 
 2. Hook up migrations to the Database adapter setup:
 
    ```js
+   // index.js
    import migrations from 'model/migrations'
 
    const adapter = new SQLiteAdapter({
@@ -38,7 +39,7 @@ Without migrations, if a user of your app upgrades from one version to another, 
 
 ## Migrations workflow
 
-If you want to make schema changes when you use migrations, be sure to do this in this specific order, to minimize the likelihood of making an error:
+When you make schema changes when you use migrations, be sure to do this in this specific order, to minimize the likelihood of making an error.
 
 ### Step 1: Add a new migration
 
@@ -77,7 +78,7 @@ Refresh your simulator/browser. You should see this error:
 
 If so, good, move to the next step!
 
-But you might also see an error like "Missing table name in schema", which means you made an error in defining migrations. See "Migrations API" below for details.
+But you might also see an error like "Missing table name in schema", which means you made an error in defining migrations. See ["Migrations API" below](#migrations-api) for details.
 
 ### Step 2: Make matching changes in schema
 
@@ -129,16 +130,16 @@ If you refresh again, your app should show up without issues — but now you can
 
 Before shipping a new version of the app, please check that your database changes are all compatible:
 
-1. Install the previous version of your app, then update to the version you're about to ship, and make sure it still works (migrations test)
-2. Remove the app, and then install the _new_ version of the app, and make sure it works (fresh schema install test)
+1. Migrations test: Install the previous version of your app, then update to the version you're about to ship, and make sure it still works
+2. Fresh schema install test: Remove the app, and then install the _new_ version of the app, and make sure it works
 
-### Why is order important
+### Why is this order important
 
 It's simply because React Native simulator (and often React web projects) are configured to automatically refresh when you save a file. You don't want to database to accidentally migrate (upgrade) with changes that have a mistake, or changes you haven't yet completed making. By making migrations first, and bumping version last, you can double check you haven't made a mistake.
 
-## Migration API
+## Migrations API
 
-Each migration must migrate to a version one above the previous migration, and have multiple _steps_ (such as adding a new table, or new columns):
+Each migration must migrate to a version one above the previous migration, and have multiple _steps_ (such as adding a new table, or new columns). Larger example:
 
 ```js
 schemaMigrations({
@@ -176,12 +177,12 @@ schemaMigrations({
 
 - `createTable({ name: 'table_name', columns: [ ... ] })` - same API as `tableSchema()`
 - `addColumns({ table: 'table_name', columns: [ ... ] })` - you can add one or multiple columns to an existing table. The columns table has the same format as in schema definitions
-- Other types of migrations (e.g. deleting or renaming tables and columns) are not yet implemented. See `migrations/index.js`. Please contribute!
+- Other types of migrations (e.g. deleting or renaming tables and columns) are not yet implemented. See [`migrations/index.js`](https://github.com/Nozbe/WatermelonDB/blob/master/src/Schema/migrations/index.js). Please contribute!
 
 ## Database reseting and other edge cases
 
-1. When you're **not** using migrations, the database will reset (delete all its contents) whenever you change the schema version
-2. If the migration fails, the database will fail to set up. The migration changes will roll back to previous version. This is unlikely, but could happen if you, for example, create a migration that tries to create the same table twice. The reason why the database will fail instead of reset is to avoid losing user data (also it's less confusing in development). You can notice the problem, fix the migration, and ship it again without data loss.
+1. When you're **not** using migrations, the database will reset (delete all its contents) whenever you change the schema version.
+2. If the migration fails, the database will fail to initialize, and will roll back to previous version. This is unlikely, but could happen if you, for example, create a migration that tries to create the same table twice. The reason why the database will fail instead of reset is to avoid losing user data (also it's less confusing in development). You can notice the problem, fix the migration, and ship it again without data loss.
 3. When database in the running app has *newer* database version than the schema version defined in code, the database will reset (clear its contents). This is useful in development
 4. If there's no available migrations path (e.g. user has app with database version 4, but oldest migration is from version 10 to 11), the database will reset.
 
