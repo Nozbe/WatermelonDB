@@ -5438,6 +5438,11 @@ react-devtools-core@^3.4.0:
     shell-quote "^1.6.1"
     ws "^3.3.1"
 
+react-is@^16.5.0:
+  version "16.5.2"
+  resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.5.2.tgz#e2a7b7c3f5d48062eb769fcb123505eb928722e3"
+  integrity sha512-hSl7E6l25GTjNEZATqZIuWOgSnpXb3kD0DVCujmg46K5zLxsbiKaaT6VO9slkSBDPZfYs30lwfJwbOFOnoEnKQ==
+
 react-native@^0.57.0:
   version "0.57.4"
   resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.57.4.tgz#cb7ba78e8be420737868fa9a97caa897a534c893"
@@ -5501,6 +5506,16 @@ react-proxy@^1.1.7:
   dependencies:
     lodash "^4.6.1"
     react-deep-force-update "^1.0.0"
+
+react-test-renderer@16.5.0:
+  version "16.5.0"
+  resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-16.5.0.tgz#1aeca0edc4f27f63265dcaed80ba82e11e762f56"
+  integrity sha512-cuN9BoZ1p6T3oxrjxN7pQDSmgWzAxWBi8gtCHcViMYcw/1xqOIyatt2YFhiCWg7115TPQqkTKEu+F44YjFE4ig==
+  dependencies:
+    object-assign "^4.1.1"
+    prop-types "^15.6.2"
+    react-is "^16.5.0"
+    schedule "^0.3.0"
 
 react-timer-mixin@^0.13.2:
   version "0.13.4"
@@ -5870,6 +5885,13 @@ sax@^1.2.4:
 sax@~1.1.1:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.1.6.tgz#5d616be8a5e607d54e114afae55b7eaf2fcc3240"
+
+schedule@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/schedule/-/schedule-0.3.0.tgz#1be2ab2fc2e768536269ce7326efb478d6c045e8"
+  integrity sha512-20+1KVo517sR7Nt+bYBN8a+bEJDKLPEx7Ohtts1kX05E4/HY53YUNuhfkVNItmWAnBYHcpG9vsd2/CJxG+aPCQ==
+  dependencies:
+    object-assign "^4.1.1"
 
 scheduler@^0.10.0:
   version "0.10.0"

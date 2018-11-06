@@ -53,7 +53,8 @@ module.exports = {
       ],
     },
     test: {
-      plugins,
+      plugins: [...plugins,
+        '@babel/plugin-syntax-jsx'],
     },
   },
 }
