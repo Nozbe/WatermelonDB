@@ -14,6 +14,12 @@ import type Model from '../Model'
 import type { CollectionChangeSet } from '../Collection'
 import type { TableName, AppSchema } from '../Schema'
 
+type ActionQueueItem<T> = $Exact<{
+  work: () => Promise<T>,
+  resolve: (value: T) => void,
+  reject: (reason: any) => void,
+}>
+
 // Database is the owner of all Collections and the DatabaseAdapter
 
 export default class Database {
@@ -61,6 +67,36 @@ export default class Database {
         collection._onRecordUpdated(record)
       }
     })
+  }
+
+  _actionQueue: ActionQueueItem<any>[]
+
+  action<T>(work: () => Promise<T>): Promise<T> {
+    return new Promise((resolve, reject) => {
+      this._enqueueAction({ work, resolve, reject })
+    })
+  }
+
+  _enqueueAction(item: ActionQueueItem<any>): void {
+    this._actionQueue.push(item)
+
+    if (this._actionQueue.length === 1) {
+      this._executeActionQueue()
+    }
+  }
+
+  async _executeActionQueue(): Promise<void> {
+    const { work, resolve, reject } = this._actionQueue.shift()
+
+    try {
+      resolve(await work())
+    } catch (error) {
+      reject(error)
+    }
+
+    if (this._actionQueue.length) {
+      this._executeActionQueue()
+    }
   }
 
   // Emits a signal immediately, and on change in any of the passed tables
