@@ -90,21 +90,22 @@ export default class Database {
   }
 
   async _executeActionQueue(): Promise<void> {
-    console.warn('Doing queue')
     const { work, resolve, reject } = this._actionQueue[0]
+    console.warn('Doing queue', work)
 
     try {
       const result = await work()
       this._actionQueue.shift()
+      console.warn('Success', result)
       resolve(result)
-      console.warn('Success')
     } catch (error) {
+      this._actionQueue.shift()
+      console.warn('Failure', error)
       reject(error)
-      console.warn('Failure')
     }
 
     if (this._actionQueue.length) {
-      console.warn('Next in line!')
+      console.warn('Next in line!', this._actionQueue.length)
       this._executeActionQueue()
     }
   }
