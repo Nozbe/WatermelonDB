@@ -7,18 +7,13 @@ import { values } from 'rambdax'
 
 import { invariant } from '../utils/common'
 
-import CollectionMap from './CollectionMap'
-
 import type { DatabaseAdapter } from '../adapters/type'
 import type Model from '../Model'
 import type { CollectionChangeSet } from '../Collection'
 import type { TableName, AppSchema } from '../Schema'
 
-type ActionQueueItem<T> = $Exact<{
-  work: () => Promise<T>,
-  resolve: (value: T) => void,
-  reject: (reason: any) => void,
-}>
+import CollectionMap from './CollectionMap'
+import ActionQueue from './ActionQueue'
 
 // Database is the owner of all Collections and the DatabaseAdapter
 
@@ -28,6 +23,8 @@ export default class Database {
   schema: AppSchema
 
   collections: CollectionMap
+
+  _actionQueue = new ActionQueue()
 
   constructor({
     adapter,
@@ -69,36 +66,8 @@ export default class Database {
     })
   }
 
-  _actionQueue: ActionQueueItem<any>[] = []
-
   action<T>(work: () => Promise<T>): Promise<T> {
-    return new Promise((resolve, reject) => {
-      this._enqueueAction({ work, resolve, reject })
-    })
-  }
-
-  _enqueueAction(item: ActionQueueItem<any>): void {
-    this._actionQueue.push(item)
-
-    if (this._actionQueue.length === 1) {
-      this._executeActionQueue()
-    }
-  }
-
-  async _executeActionQueue(): Promise<void> {
-    const { work, resolve, reject } = this._actionQueue[0]
-
-    try {
-      resolve(await work())
-    } catch (error) {
-      reject(error)
-    }
-
-    this._actionQueue.shift()
-
-    if (this._actionQueue.length) {
-      setTimeout(() => this._executeActionQueue(), 0)
-    }
+    return this._actionQueue.enqueue(work)
   }
 
   // Emits a signal immediately, and on change in any of the passed tables
