@@ -4,9 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
-### New
  - Added DatabaseProvider and withDatabase Higher-Order Component to reduce prop drilling.
-
 
 ## 0.7.0 - 2018-10-31
 
@@ -16,7 +14,7 @@ All notable changes to this project will be documented in this file.
 
 ### New
 
-- Added support for Schema Migrations. See `Schema/migrations/index.js` for more details. Detailed documentation will be provided in the next minor release.
+- Added support for Schema Migrations. See documentation for more details.
 
 ### Changes
 
