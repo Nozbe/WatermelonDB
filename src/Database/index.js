@@ -69,7 +69,7 @@ export default class Database {
     })
   }
 
-  _actionQueue: ActionQueueItem<any>[]
+  _actionQueue: ActionQueueItem<any>[] = []
 
   action<T>(work: () => Promise<T>): Promise<T> {
     return new Promise((resolve, reject) => {
@@ -78,23 +78,33 @@ export default class Database {
   }
 
   _enqueueAction(item: ActionQueueItem<any>): void {
+    console.warn('Enqueueing!')
     this._actionQueue.push(item)
 
     if (this._actionQueue.length === 1) {
+      console.warn('Starting queue')
       this._executeActionQueue()
+    } else {
+      console.warn('waiting in line...')
     }
   }
 
   async _executeActionQueue(): Promise<void> {
-    const { work, resolve, reject } = this._actionQueue.shift()
+    console.warn('Doing queue')
+    const { work, resolve, reject } = this._actionQueue[0]
 
     try {
-      resolve(await work())
+      const result = await work()
+      this._actionQueue.shift()
+      resolve(result)
+      console.warn('Success')
     } catch (error) {
       reject(error)
+      console.warn('Failure')
     }
 
     if (this._actionQueue.length) {
+      console.warn('Next in line!')
       this._executeActionQueue()
     }
   }
