@@ -78,35 +78,26 @@ export default class Database {
   }
 
   _enqueueAction(item: ActionQueueItem<any>): void {
-    console.warn('Enqueueing!')
     this._actionQueue.push(item)
 
     if (this._actionQueue.length === 1) {
-      console.warn('Starting queue')
       this._executeActionQueue()
-    } else {
-      console.warn('waiting in line...')
     }
   }
 
   async _executeActionQueue(): Promise<void> {
     const { work, resolve, reject } = this._actionQueue[0]
-    console.warn('Doing queue', work)
 
     try {
-      const result = await work()
-      this._actionQueue.shift()
-      console.warn('Success', result)
-      resolve(result)
+      resolve(await work())
     } catch (error) {
-      this._actionQueue.shift()
-      console.warn('Failure', error)
       reject(error)
     }
 
+    this._actionQueue.shift()
+
     if (this._actionQueue.length) {
-      console.warn('Next in line!', this._actionQueue.length)
-      this._executeActionQueue()
+      setTimeout(() => this._executeActionQueue(), 0)
     }
   }
 

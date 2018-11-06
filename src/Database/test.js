@@ -157,7 +157,7 @@ describe('Database actions', () => {
     const promise2 = database.action(actions[2])
 
     expect(actions[0]).toHaveBeenCalledTimes(1)
-    expect(actions[1]).toHaveBeenCalledTimes(1)
+    expect(actions[1]).toHaveBeenCalledTimes(0)
     expect(actions[2]).toHaveBeenCalledTimes(0)
 
     await promise2
@@ -185,7 +185,7 @@ describe('Database actions', () => {
       'test error',
     )
   })
-  it.only('queues actions correctly even if some error out', async () => {
+  it('queues actions correctly even if some error out', async () => {
     const { database } = mockDatabase()
 
     const actions = [
