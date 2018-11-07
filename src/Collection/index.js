@@ -65,6 +65,10 @@ export default class Collection<Record: Model> {
   //   task.name = 'Task name'
   // })
   async create(recordBuilder: Record => void = noop): Promise<Record> {
+    this.database._ensureInAction(
+      `Collection.create() can only be called from inside of an Action. See docs for more details.`,
+    )
+
     const record = this.prepareCreate(recordBuilder)
     await this.database.batch(record)
     return record
