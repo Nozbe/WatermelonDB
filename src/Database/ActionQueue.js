@@ -1,6 +1,8 @@
 // @flow
 /* eslint-disable no-console */
 
+import { invariant } from '../utils/common'
+
 type ActionQueueItem<T> = $Exact<{
   work: () => Promise<T>,
   resolve: (value: T) => void,
@@ -45,7 +47,16 @@ export default class ActionQueue {
     const { work, resolve, reject } = this._queue[0]
 
     try {
-      resolve(await work())
+      const workPromise = work()
+
+      if (process.env.NODE_ENV !== 'production') {
+        invariant(
+          workPromise instanceof Promise,
+          `The function passed to database.action() or a method marked as @action must be asynchronous — either marked as 'async' or always returning a promise`,
+        )
+      }
+
+      resolve(await workPromise)
     } catch (error) {
       reject(error)
     }
