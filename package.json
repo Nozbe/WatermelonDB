@@ -79,7 +79,7 @@
     "@babel/plugin-transform-react-jsx": "^7.0.0",
     "@babel/plugin-transform-react-jsx-source": "^7.0.0",
     "@babel/plugin-transform-regenerator": "^7.0.0",
-    "@babel/plugin-transform-runtime": "^7.0.0",
+    "@babel/plugin-transform-runtime": "^7.1.0",
     "@babel/plugin-transform-shorthand-properties": "^7.0.0",
     "@babel/plugin-transform-spread": "^7.0.0",
     "@babel/plugin-transform-sticky-regex": "^7.0.0",
