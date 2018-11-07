@@ -93,13 +93,14 @@ describe('Model', () => {
 
 describe('CRUD', () => {
   it('_prepareCreate: can instantiate new records', () => {
-    const mockCollection = { schema: mockSchema.tables.mock }
-    const m1 = MockModel._prepareCreate(mockCollection, record => {
+    const database = makeDatabase()
+    const collection = database.collections.get('mock')
+    const m1 = MockModel._prepareCreate(collection, record => {
       expect(record._isEditing).toBe(true)
       record.name = 'Some name'
     })
 
-    expect(m1.collection).toBe(mockCollection)
+    expect(m1.collection).toBe(collection)
     expect(m1._isEditing).toBe(false)
     expect(m1._isCommitted).toBe(false)
     expect(m1.id.length).toBe(16)
@@ -123,7 +124,6 @@ describe('CRUD', () => {
     const spyBatchDB = jest.spyOn(database, 'batch')
 
     const collection = database.collections.get('mock')
-
     const m1 = await collection.create(record => {
       record.name = 'Original name'
     })
@@ -264,8 +264,8 @@ describe('Safety features', () => {
   })
 
   it('disallows operations on uncommited records', async () => {
-    const mockCollection = { schema: mockSchema.tables.mock }
-    const model = MockModel._prepareCreate(mockCollection, () => {})
+    const database = makeDatabase()
+    const model = MockModel._prepareCreate(database.collections.get('mock'), () => {})
     expect(model._isCommitted).toBe(false)
 
     await expectToRejectWithMessage(model.update(() => {}), /uncommitted/)
@@ -275,8 +275,9 @@ describe('Safety features', () => {
   })
   it('disallows changes on records with pending updates', async () => {
     const database = makeDatabase()
-    const collection = database.collections.get('mock')
-    const model = new MockModel(collection, {})
+    database.adapter.batch = jest.fn()
+
+    const model = new MockModel(database.collections.get('mock'), {})
     model.prepareUpdate()
     expect(() => {
       model.prepareUpdate()
@@ -290,15 +291,17 @@ describe('Safety features', () => {
 
 describe('Automatic created_at/updated_at', () => {
   it('_prepareCreate: sets created_at on create if model defines it', () => {
-    const m1 = MockModelCreated._prepareCreate({ schema: mockSchema.tables.mock_created }, noop)
+    const database = makeDatabase()
+    const m1 = MockModelCreated._prepareCreate(database.collections.get('mock_created'), noop)
 
     expect(m1.createdAt).toBeInstanceOf(Date)
     expect(+m1.createdAt).toBeGreaterThan(1500000000000)
     expect(m1.updatedAt).toBe(undefined)
   })
   it('_prepareCreate: sets created_at, updated_at on create if model defines it', () => {
+    const database = makeDatabase()
     const m1 = MockModelCreatedUpdated._prepareCreate(
-      { schema: mockSchema.tables.mock_created_updated },
+      database.collections.get('mock_created_updated'),
       noop,
     )
 
@@ -414,11 +417,17 @@ describe('Sync status fields', () => {
     const database = makeDatabase()
     database.adapter.batch = jest.fn()
 
-    const mock = new MockModel(database.collections.get('mock'), {
-      status: null,
-      changes: null,
-      name: 'Initial name',
-    })
+    const mock = new MockModel(
+      database.collections.get('mock'),
+      sanitizedRaw(
+        {
+          id: '',
+          _status: 'synced',
+          name: 'Initial name',
+        },
+        mockSchema.tables.mock,
+      ),
+    )
 
     // update
     await mock.update(record => {
