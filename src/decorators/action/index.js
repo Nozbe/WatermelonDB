@@ -6,8 +6,8 @@ export default function action(target: Object, key: string, descriptor: Descript
   const actionName = `${target.table}.${key}`
   return {
     ...descriptor,
-    value(): Promise<any> {
-      return this.collection.database.action(descriptor.value.bind(this))
+    value(...args): Promise<any> {
+      return this.collection.database.action(descriptor.value.bind(this, ...args))
     },
   }
 }
