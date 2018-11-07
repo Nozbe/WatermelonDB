@@ -7,16 +7,16 @@ All notable changes to this project will be documented in this file.
 ### Deprecations
 
 - [Schema] Column type 'bool' is deprecated — change to 'boolean'
-- Updated docs
-- Added fundaments for integration of Danger with Jest
 
 ### Fixed
 
 - Fixed "dependency cycle" warning
+- Fixed typos in README.md
 
 ### Improvements
 
 - [React Native] App should launch a little faster, because schema is only compiled on demand now
+- Added fundaments for integration of Danger with Jest
 
 ### Changed
 
