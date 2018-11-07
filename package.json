@@ -44,7 +44,8 @@
   },
   "peerDependencies": {
     "lokijs": "^1.5.5",
-    "react-native": "^0.56.0"
+    "react-native": "^0.56.0",
+    "react": "^16.5.0"
   },
   "publishConfig": {
     "access": "public"
@@ -59,6 +60,7 @@
     "@babel/plugin-proposal-optional-chaining": "^7.0.0",
     "@babel/plugin-proposal-unicode-property-regex": "^7.0.0",
     "@babel/plugin-syntax-dynamic-import": "^7.0.0",
+    "@babel/plugin-syntax-jsx": "^7.0.0",
     "@babel/plugin-transform-arrow-functions": "^7.0.0",
     "@babel/plugin-transform-block-scoping": "^7.0.0",
     "@babel/plugin-transform-classes": "^7.0.0",
@@ -125,6 +127,7 @@
     "prettier-eslint-cli": "^4.7.1",
     "react": "^16.6.0-alpha.8af6728",
     "react-native": "^0.57.0",
+    "react-test-renderer": "16.5.0",
     "rimraf": "^2.6.2",
     "semver": "^5.5.1"
   }

@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### New
 
+- Added DatabaseProvider and withDatabase Higher-Order Component to reduce prop drilling.
 - [WIP] Actions API
 
 ## 0.7.0 - 2018-10-31
