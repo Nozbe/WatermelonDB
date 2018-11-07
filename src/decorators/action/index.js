@@ -7,7 +7,7 @@ export default function action(target: Object, key: string, descriptor: Descript
   return {
     ...descriptor,
     value(...args): Promise<any> {
-      return this.collection.database.action(descriptor.value.bind(this, ...args))
+      return this.collection.database.action(descriptor.value.bind(this, ...args), actionName)
     },
   }
 }
