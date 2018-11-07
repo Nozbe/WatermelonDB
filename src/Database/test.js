@@ -6,10 +6,11 @@ import {
   MockComment,
   testSchema,
 } from '../__tests__/testModels'
+import { noop } from '../utils/fp'
 import { CollectionChangeTypes } from '../Collection/common'
 import Database from './index'
 
-describe('watermelondb/Database', () => {
+describe('Database', () => {
   it('implements collectionMap', () => {
     const database = new Database({
       adapter: { schema: null },
@@ -22,6 +23,9 @@ describe('watermelondb/Database', () => {
     expect(tasks.modelClass).toBe(MockTask)
     expect(database.collections.get('non_existent')).toBeUndefined()
   })
+})
+
+describe('Batch writes', () => {
   it('can batch records', async () => {
     let { database, tasksCollection: collection } = mockDatabase()
     const adapterBatchSpy = jest.spyOn(database.adapter, 'batch')
@@ -92,11 +96,33 @@ describe('watermelondb/Database', () => {
     const { database, tasksCollection: collection } = mockDatabase()
     const m1 = await collection.create()
 
-    expectToRejectWithMessage(
+    await expectToRejectWithMessage(
       database.batch(m1),
       /doesn't have a prepared create or prepared update/,
     )
   })
+  it('throws error if batch is called outside of an action', async () => {
+    const { database, tasksCollection } = mockDatabase({ actionsEnabled: true })
+
+    await expectToRejectWithMessage(
+      database.batch(tasksCollection.prepareCreate(noop)),
+      /can only be called from inside of an Action/,
+    )
+
+    // check if in action is successful
+    await database.action(() =>
+      database.batch(
+        tasksCollection.prepareCreate(task => {
+          task.name = 'foo1'
+        }),
+      ),
+    )
+    const [task] = await tasksCollection.query().fetch()
+    expect(task.name).toBe('foo1')
+  })
+})
+
+describe('Observation', () => {
   it('implements withChangesForTables', async () => {
     const { database, projectsCollection, tasksCollection, commentsCollection } = mockDatabase()
 
