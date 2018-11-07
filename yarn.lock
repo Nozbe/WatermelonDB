@@ -3962,9 +3962,9 @@ jsbn@~0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/jsbn/-/jsbn-0.1.1.tgz#a5e654c2e5a2deb5f201d96cefbca80c0ef2f513"
 
-jsc-android@224109.x.x:
-  version "224109.1.0"
-  resolved "https://registry.yarnpkg.com/jsc-android/-/jsc-android-224109.1.0.tgz#9749ec92f1e284b3c09befe7c47cc6e60b1f0cdf"
+jsc-android@^236355.0.0:
+  version "236355.0.0"
+  resolved "https://registry.yarnpkg.com/jsc-android/-/jsc-android-236355.0.0.tgz#22795b980e1cded0fc19a7f95fe780601cec8377"
 
 jsdom@^11.5.1:
   version "11.12.0"
@@ -5441,7 +5441,6 @@ react-devtools-core@^3.4.0:
 react-is@^16.5.0:
   version "16.5.2"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.5.2.tgz#e2a7b7c3f5d48062eb769fcb123505eb928722e3"
-  integrity sha512-hSl7E6l25GTjNEZATqZIuWOgSnpXb3kD0DVCujmg46K5zLxsbiKaaT6VO9slkSBDPZfYs30lwfJwbOFOnoEnKQ==
 
 react-native@^0.57.0:
   version "0.57.4"
@@ -5510,7 +5509,6 @@ react-proxy@^1.1.7:
 react-test-renderer@16.5.0:
   version "16.5.0"
   resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-16.5.0.tgz#1aeca0edc4f27f63265dcaed80ba82e11e762f56"
-  integrity sha512-cuN9BoZ1p6T3oxrjxN7pQDSmgWzAxWBi8gtCHcViMYcw/1xqOIyatt2YFhiCWg7115TPQqkTKEu+F44YjFE4ig==
   dependencies:
     object-assign "^4.1.1"
     prop-types "^15.6.2"
@@ -5889,7 +5887,6 @@ sax@~1.1.1:
 schedule@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/schedule/-/schedule-0.3.0.tgz#1be2ab2fc2e768536269ce7326efb478d6c045e8"
-  integrity sha512-20+1KVo517sR7Nt+bYBN8a+bEJDKLPEx7Ohtts1kX05E4/HY53YUNuhfkVNItmWAnBYHcpG9vsd2/CJxG+aPCQ==
   dependencies:
     object-assign "^4.1.1"
 
