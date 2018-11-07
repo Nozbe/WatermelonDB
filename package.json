@@ -69,7 +69,7 @@
     "@babel/plugin-transform-exponentiation-operator": "^7.1.0",
     "@babel/plugin-transform-flow-strip-types": "^7.0.0",
     "@babel/plugin-transform-for-of": "^7.0.0",
-    "@babel/plugin-transform-function-name": "^7.0.0",
+    "@babel/plugin-transform-function-name": "^7.1.0",
     "@babel/plugin-transform-literals": "^7.0.0",
     "@babel/plugin-transform-modules-commonjs": "^7.0.0",
     "@babel/plugin-transform-parameters": "^7.0.0",
