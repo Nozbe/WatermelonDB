@@ -15,7 +15,11 @@ import type { TableName, AppSchema } from '../Schema'
 import CollectionMap from './CollectionMap'
 import ActionQueue from './ActionQueue'
 
-// Database is the owner of all Collections and the DatabaseAdapter
+type DatabaseProps = $Exact<{
+  adapter: DatabaseAdapter,
+  modelClasses: Array<Class<Model>>,
+  actionsEnabled?: boolean,
+}>
 
 export default class Database {
   adapter: DatabaseAdapter
@@ -26,21 +30,22 @@ export default class Database {
 
   _actionQueue = new ActionQueue()
 
-  constructor({
-    adapter,
-    modelClasses,
-  }: $Exact<{
-    adapter: DatabaseAdapter,
-    modelClasses: Array<Class<Model>>,
-  }>): void {
+  _actionsEnabled: boolean
+
+  constructor({ adapter, modelClasses, actionsEnabled = false }: DatabaseProps): void {
     this.adapter = adapter
     this.schema = adapter.schema
     this.collections = new CollectionMap(this, modelClasses)
+    this._actionsEnabled = actionsEnabled
   }
 
   // Executes multiple prepared operations
   // (made with `collection.prepareCreate` and `record.prepareUpdate`)
   async batch(...records: $ReadOnlyArray<Model>): Promise<void> {
+    this._ensureInAction(
+      `Database.batch() can only be called from inside of an Action. See docs for more details.`,
+    )
+
     const operations = records.map(record => {
       invariant(
         !record._isCommitted || record._hasPendingUpdate,
@@ -87,5 +92,9 @@ export default class Database {
     values(this.collections.map).forEach(collection => {
       collection.unsafeClearCache()
     })
+  }
+
+  _ensureInAction(error: string): void {
+    this._actionsEnabled && invariant(this._actionQueue.isRunning, error)
   }
 }

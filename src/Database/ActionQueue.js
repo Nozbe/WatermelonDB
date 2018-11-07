@@ -9,6 +9,10 @@ type ActionQueueItem<T> = $Exact<{
 export default class ActionQueue {
   _queue: ActionQueueItem<any>[] = []
 
+  get isRunning(): boolean {
+    return this._queue.length > 0
+  }
+
   enqueue<T>(work: () => Promise<T>): Promise<T> {
     return new Promise((resolve, reject) => {
       this._queue.push({ work, resolve, reject })
