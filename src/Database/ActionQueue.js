@@ -52,7 +52,8 @@ export default class ActionQueue {
       if (process.env.NODE_ENV !== 'production') {
         invariant(
           workPromise instanceof Promise,
-          `The function passed to database.action() or a method marked as @action must be asynchronous — either marked as 'async' or always returning a promise`,
+          `The function passed to database.action() or a method marked as @action must be asynchronous — either marked as 'async' or always returning a promise (in: ${this
+            ._queue[0].description || 'unnamed'})`,
         )
       }
 

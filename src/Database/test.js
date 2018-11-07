@@ -163,7 +163,7 @@ describe('Database actions', () => {
   it('can execute an action', async () => {
     const { database } = mockDatabase()
 
-    const action = jest.fn()
+    const action = jest.fn(() => Promise.resolve(true))
     await database.action(action)
 
     expect(action).toHaveBeenCalledTimes(1)
@@ -193,9 +193,10 @@ describe('Database actions', () => {
     expect(actions[2]).toHaveBeenCalledTimes(1)
 
     // after queue is empty I can queue again and have result immediately
-    const action3 = jest.fn()
-    database.action(action3)
+    const action3 = jest.fn(async () => 42)
+    const promise3 = database.action(action3)
     expect(action3).toHaveBeenCalledTimes(1)
+    await promise3
   })
   it('returns value from action', async () => {
     const { database } = mockDatabase()
@@ -215,7 +216,7 @@ describe('Database actions', () => {
     const { database } = mockDatabase()
 
     const actions = [
-      () => true,
+      async () => true,
       async () => {
         throw new Error('error1') // async error
       },
@@ -238,8 +239,8 @@ describe('Database actions', () => {
     await promises[4]
 
     // after queue is empty I can queue again
-    const action5 = jest.fn()
-    database.action(action5)
+    const action5 = jest.fn(async () => 42)
+    const promise5 = database.action(action5)
     expect(action5).toHaveBeenCalledTimes(1)
 
     // check if right answers
@@ -247,5 +248,7 @@ describe('Database actions', () => {
     expect(await promises[1]).toMatchObject(['error', { message: 'error1' }])
     expect(await promises[2]).toEqual(['value', 42])
     expect(await promises[3]).toMatchObject(['error', { message: 'error2' }])
+    expect(await promises[4]).toEqual(['value', undefined])
+    await promise5
   })
 })
