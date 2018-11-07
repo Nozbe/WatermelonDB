@@ -64,12 +64,17 @@ final public class DatabaseBridge: NSObject {
                              toVersion: NSNumber,
                              resolve: RCTPromiseResolveBlock,
                              reject: RCTPromiseRejectBlock) {
-        let driver = DatabaseDriver(
-            dbName: databaseName,
-            setUpWithMigrations: (from: fromVersion.intValue, to: toVersion.intValue, sql: migrations)
-        )
-        connectDriver(connectionTag: tag, driver: driver)
-        resolve(true)
+        do {
+            let driver = try DatabaseDriver(
+                dbName: databaseName,
+                setUpWithMigrations: (from: fromVersion.intValue, to: toVersion.intValue, sql: migrations)
+            )
+            connectDriver(connectionTag: tag, driver: driver)
+            resolve(true)
+        } catch {
+            disconnectDriver(tag)
+            sendReject(reject, error)
+        }
     }
 
     @objc(find:table:id:resolve:reject:)
@@ -242,6 +247,16 @@ final public class DatabaseBridge: NSObject {
         let tagID = connectionTag.intValue
         let queue = connections[tagID]?.queue ?? []
         connections[tagID] = .connected(driver: driver)
+
+        for operation in queue {
+            operation()
+        }
+    }
+
+    private func disconnectDriver(_ connectionTag: ConnectionTag) {
+        let tagID = connectionTag.intValue
+        let queue = connections[tagID]?.queue ?? []
+        connections[tagID] = nil
 
         for operation in queue {
             operation()

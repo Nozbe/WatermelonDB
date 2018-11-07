@@ -4,27 +4,27 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+ - Added DatabaseProvider and withDatabase Higher-Order Component to reduce prop drilling.
+
+## 0.7.0 - 2018-10-31
+
 ### Deprecations
 
 - [Schema] Column type 'bool' is deprecated — change to 'boolean'
 
-### Fixed
+### New
 
-- Fixed "dependency cycle" warning
-- Fixed typos in README.md
-
-### Improvements
-
-- [React Native] App should launch a little faster, because schema is only compiled on demand now
+- Added support for Schema Migrations. See documentation for more details.
 - Added fundaments for integration of Danger with Jest
 
-### Changed
+### Changes
 
-- Updated Flow to 0.83
-
-### Refactoring
-
-- [WIP] Migrations
+- Fixed "dependency cycle" warning
+- [SQLite] Fixed rare cases where database could be left in an unusable state (added missing transaction)
+- [Flow] Fixes `oneOf()` typing and some other variance errors
+- [React Native] App should launch a little faster, because schema is only compiled on demand now
+- Fixed typos in README.md
+- Updated Flow to 0.85
 
 ## 0.6.2 - 2018-10-04
 

@@ -27,26 +27,26 @@ yarn add @nozbe/watermelondb
 
 1. Set up Babel config in your project — see instructions above
 2. Link WatermelonDB's native library with the Xcode project:
-    
+
     **Automatically**
-    
+
     ```bash
     react-native link
     ```
-    
+
     **Or manually**
-    
+
     If you don't want to use `react-native link`, you can link the library manually:
-    
+
     1. Open your project in Xcode, right click on **Libraries** in the Project Navigator on the left and click **Add Files to "Your Project Name"**. Look under `node_modules/@nozbe/watermelondb/native/ios` and select `WatermelonDB.xcodeproj`
     2. Go to Project settings (top item in the Project navigator on the left), select your app name under **Targets** → **Build Phases** → **Link Binary With Libraries**, and add `libWatermelonDB.a`
-    
+
     For more information about linking libraries manually, [see React Native documentation](https://facebook.github.io/react-native/docs/linking-libraries-ios).
-    
+
 3. If you get linker errors when building, you need to add Swift support to the project:
    - Open `ios/YourAppName.xcodeproj` in Xcode
    - Right-click on **Your App Name** in the Project Navigator on the left, and click **New File…**
-   - Create a single empty Swift file to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header**.
+   - Create a single empty `Swift` file to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header** and **do not remove `Swift`** file then.
 
 Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (although Xcode 10 and iOS 11.0 are recommended).
 
@@ -96,20 +96,20 @@ Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (alt
    ```
 5. **Troubleshooting**. If you get this error:
     > `Can't find variable: Symbol`
-    
+
     You might need a polyfill for ES6 Symbol:
-    
+
     ```bash
     yarn add es6-symbol
     ```
-    
+
     And in your `index.js`:
-    
+
     ```bash
     import 'es6-symbol/implement'
     ```
-    
-    Alternatively, we also recommend [`jsc-android`](https://github.com/react-community/jsc-android-buildscripts), with which you don't need this polyfill, and it also makes your app faster. 
+
+    Alternatively, we also recommend [`jsc-android`](https://github.com/react-community/jsc-android-buildscripts), with which you don't need this polyfill, and it also makes your app faster.
 
 ## Web setup
 
@@ -192,7 +192,6 @@ import { mySchema } from './model/schema'
 
 // First, create the adapter to the underlying database:
 const adapter = new SQLiteAdapter({
-  dbName: 'myAwesomeApp', // ⬅️ Give your database a name!
   schema: mySchema,
 })
 
@@ -211,7 +210,6 @@ The above will work on iOS and Android (React Native). For the web, instead of `
 import LokiJSAdapter from '@nozbe/watermelondb/adapters/lokijs'
 
 const adapter = new LokiJSAdapter({
-  dbName: 'myAwesomeApp',
   schema: mySchema,
 })
 

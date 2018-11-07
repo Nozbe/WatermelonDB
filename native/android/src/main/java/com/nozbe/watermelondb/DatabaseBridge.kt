@@ -89,19 +89,26 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         fromVersion: SchemaVersion,
         toVersion: SchemaVersion,
         promise: Promise
-    ) = connectDriver(
-            connectionTag = tag,
-            driver = DatabaseDriver(
-                    context = reactContext,
-                    dbName = databaseName,
-                    migrations = MigrationSet(
-                            from = fromVersion,
-                            to = toVersion,
-                            sql = migrations
-                    )
-            ),
-            promise = promise
-    )
+    ) {
+        try {
+            connectDriver(
+                    connectionTag = tag,
+                    driver = DatabaseDriver(
+                            context = reactContext,
+                            dbName = databaseName,
+                            migrations = MigrationSet(
+                                    from = fromVersion,
+                                    to = toVersion,
+                                    sql = migrations
+                            )
+                    ),
+                    promise = promise
+            )
+        } catch (e: Exception) {
+            disconnectDriver(tag)
+            promise.reject(e)
+        }
+    }
 
     @ReactMethod
     fun find(tag: ConnectionTag, table: TableName, id: RecordID, promise: Promise) =
@@ -151,13 +158,16 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     fun removeLocal(tag: ConnectionTag, key: String, promise: Promise) =
             withDriver(tag, promise) { it.removeLocal(key) }
 
+    @Throws(Exception::class)
     private fun withDriver(
         tag: ConnectionTag,
         promise: Promise,
         function: (DatabaseDriver) -> Any?
     ) {
         try {
-            val connection = connections[tag]
+            val connection =
+                    connections[tag] ?: promise.reject(
+                            Exception("No driver with tag $tag available"))
             when (connection) {
                 is Connection.Connected -> {
                     val result = function(connection.driver)
@@ -240,5 +250,14 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             operation()
         }
         promise.resolve(true)
+    }
+
+    private fun disconnectDriver(connectionTag: ConnectionTag) {
+        val queue = connections[connectionTag]?.queue ?: arrayListOf()
+        connections.remove(connectionTag)
+
+        for (operation in queue) {
+            operation()
+        }
     }
 }

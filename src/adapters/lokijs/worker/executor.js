@@ -10,6 +10,7 @@ import type {
   SchemaMigrations,
   CreateTableMigrationStep,
   AddColumnsMigrationStep,
+  MigrationStep,
 } from '../../../Schema/migrations'
 import { stepsForMigration } from '../../../Schema/migrations/helpers'
 import type { SerializedQuery } from '../../../Query'
@@ -252,13 +253,20 @@ export default class LokiExecutor {
       await this.unsafeResetDatabase()
     } else if (dbVersion > 0 && dbVersion < schemaVersion) {
       logger.log('[DB][Worker] Database has old schema version. Migration is required.')
-      const { migrations } = this
-      if (migrations) {
-        logger.log('[DB][Worker] Migrations available, migrating schema…')
-        this._migrate(migrations, dbVersion)
+      const migrationSteps = this._getMigrationSteps(dbVersion)
+
+      if (migrationSteps) {
+        logger.log(`[DB][Worker] Migrating from version ${dbVersion} to ${this.schema.version}...`)
+        try {
+          await this._migrate(migrationSteps)
+        } catch (error) {
+          logger.error('[DB][Worker] Migration failed', error)
+          throw error
+        }
       } else {
-        // TODO: Delete this altogether? Or put under "development" flag only?
-        logger.warn('[DB][Worker] No migrations available, resetting database')
+        logger.warn(
+          '[DB][Worker] Migrations not available for this version range, resetting database instead',
+        )
         await this.unsafeResetDatabase()
       }
     } else {
@@ -267,14 +275,22 @@ export default class LokiExecutor {
     }
   }
 
-  _migrate(migrations: SchemaMigrations, fromVersion: SchemaVersion): void {
-    const migrationSteps = stepsForMigration({
+  _getMigrationSteps(fromVersion: SchemaVersion): ?(MigrationStep[]) {
+    // TODO: Remove this after migrations are shipped
+    const { migrations } = this
+    if (!migrations) {
+      return null
+    }
+
+    return stepsForMigration({
       migrations,
       fromVersion,
       toVersion: this.schema.version,
     })
+  }
 
-    migrationSteps.forEach(step => {
+  async _migrate(steps: MigrationStep[]): Promise<void> {
+    steps.forEach(step => {
       if (step.type === 'create_table') {
         this._executeCreateTableMigration(step)
       } else if (step.type === 'add_columns') {
@@ -287,7 +303,7 @@ export default class LokiExecutor {
     // Set database version
     this._databaseVersion = this.schema.version
 
-    logger.log('[DB][Worker] Database migrations performed')
+    logger.log(`[DB][Worker] Migration successful`)
   }
 
   _executeCreateTableMigration({ name, columns }: CreateTableMigrationStep): void {

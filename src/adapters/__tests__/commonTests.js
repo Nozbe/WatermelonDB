@@ -36,39 +36,35 @@ export default () => [
 
       // expect(() => makeAdapter({})).toThrowError(/missing migrations/)
 
-      expect(() =>
-        adapterWithMigrations({ minimumVersion: 10, currentVersion: 10, migrations: [] }),
-      ).toThrowError(/use schemaMigrations()/)
+      expect(() => adapterWithMigrations({ migrations: [] })).toThrowError(/use schemaMigrations()/)
 
+      // OK migrations passed
+      const adapterWithRealMigrations = migrations =>
+        adapterWithMigrations(schemaMigrations({ migrations }))
+
+      expect(() => adapterWithRealMigrations([{ toVersion: 10, steps: [] }])).not.toThrowError()
       expect(() =>
-        adapterWithMigrations(
-          schemaMigrations({
-            minimumVersion: 10,
-            currentVersion: 10,
-            migrations: [],
-          }),
-        ),
+        adapterWithRealMigrations([{ toVersion: 10, steps: [] }, { toVersion: 9, steps: [] }]),
       ).not.toThrowError()
 
-      expect(() =>
-        adapterWithMigrations(
-          schemaMigrations({
-            minimumVersion: 8,
-            currentVersion: 8,
-            migrations: [],
+      // Empty migrations only allowed if version 1
+      expect(
+        () =>
+          new AdapterClass({
+            schema: { ...testSchema, version: 1 },
+            migrations: schemaMigrations({ migrations: [] }),
           }),
-        ),
-      ).toThrowError(/Missing migration/)
+      ).not.toThrowError()
+      expect(() => adapterWithRealMigrations([])).toThrowError(/Missing migration/)
 
+      // Migrations can't be newer than schema
+      expect(() => adapterWithRealMigrations([{ toVersion: 11, steps: [] }])).toThrowError(
+        /migrations can't be newer than schema/i,
+      )
+      // Migration to latest version must be present
       expect(() =>
-        adapterWithMigrations(
-          schemaMigrations({
-            minimumVersion: 12,
-            currentVersion: 12,
-            migrations: [],
-          }),
-        ),
-      ).toThrowError(/don't match schema/)
+        adapterWithRealMigrations([{ toVersion: 9, steps: [] }, { toVersion: 8, steps: [] }]),
+      ).toThrowError(/Missing migration/)
     },
   ],
   [
@@ -465,14 +461,10 @@ export default () => [
           tableSchema({ name: 'projects', columns: projectColumnsV3 }),
         ],
       })
-      const migrationsV3 = schemaMigrations({
-        minimumVersion: 3,
-        currentVersion: 3,
-        migrations: [],
-      })
+
       let adapter = new AdapterClass({
         schema: testSchemaV3,
-        migrationsExperimental: migrationsV3,
+        migrationsExperimental: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
       })
 
       // add data
@@ -516,25 +508,20 @@ export default () => [
         ],
       })
       const migrationsV5 = schemaMigrations({
-        minimumVersion: 2,
-        currentVersion: 5,
         migrations: [
           {
-            from: 4,
-            to: 5,
+            toVersion: 5,
             steps: [addColumns({ table: 'tasks', columns: taskColumnsV5 })],
           },
           {
-            from: 3,
-            to: 4,
+            toVersion: 4,
             steps: [
               createTable(tagAssignmentSchema),
               addColumns({ table: 'projects', columns: projectColumnsV5 }),
             ],
           },
           {
-            from: 2,
-            to: 3,
+            toVersion: 3,
             steps: [
               createTable({
                 name: 'will_not_be_created',
@@ -564,7 +551,7 @@ export default () => [
       expect(await adapter.count(checkTaskColumn('test_boolean_optional', null))).toBe(2)
 
       // check I can use new table and columns
-      adapter.batch([
+      await adapter.batch([
         ['create', new MockTagAssignment({}, { id: 'tt2', text1: 'hello' })],
         ['create', new MockProject({}, { id: 'p1', text1: 'hey', text2: 'foo' })],
         [
@@ -597,6 +584,109 @@ export default () => [
 
       const tt1 = await adapter.find('tag_assignments', 'tt2')
       expect(tt1.text1).toBe('hello')
+    },
+  ],
+  [
+    `can perform empty migrations (regression test)`,
+    async (_adapter, AdapterClass) => {
+      let adapter = new AdapterClass({
+        schema: { ...testSchema, version: 1 },
+        migrationsExperimental: schemaMigrations({ migrations: [] }),
+      })
+
+      await adapter.batch([['create', makeMockTask({ id: 't1', text1: 'foo' })]])
+      expect(await adapter.count(taskQuery())).toBe(1)
+
+      // Perform an empty migration (no steps, just version bump)
+      adapter = adapter.testClone({
+        schema: { ...testSchema, version: 2 },
+        migrationsExperimental: schemaMigrations({ migrations: [{ toVersion: 2, steps: [] }] }),
+      })
+
+      // check that migration worked, no data lost
+      expect(await adapter.count(taskQuery())).toBe(1)
+      expect((await adapter.find('tasks', 't1')).text1).toBe('foo')
+    },
+  ],
+  [
+    `resets database when it's newer than app schema`,
+    async (_adapter, AdapterClass) => {
+      // launch newer version of the app
+      let adapter = new AdapterClass({
+        schema: { ...testSchema, version: 3 },
+        migrationsExperimental: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
+      })
+
+      await adapter.batch([['create', makeMockTask({})]])
+      expect(await adapter.count(taskQuery())).toBe(1)
+
+      // launch older version of the app
+      adapter = adapter.testClone({
+        schema: { ...testSchema, version: 1 },
+        migrationsExperimental: schemaMigrations({ migrations: [] }),
+      })
+
+      expect(await adapter.count(taskQuery())).toBe(0)
+      await adapter.batch([['create', makeMockTask({})]])
+      expect(await adapter.count(taskQuery())).toBe(1)
+    },
+  ],
+  [
+    'resets database when there are no available migrations',
+    async (_adapter, AdapterClass) => {
+      // launch older version of the app
+      let adapter = new AdapterClass({
+        schema: { ...testSchema, version: 1 },
+        migrationsExperimental: schemaMigrations({ migrations: [] }),
+      })
+
+      await adapter.batch([['create', makeMockTask({})]])
+      expect(await adapter.count(taskQuery())).toBe(1)
+
+      // launch newer version of the app, without migrations available
+      adapter = adapter.testClone({
+        schema: { ...testSchema, version: 3 },
+        migrationsExperimental: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
+      })
+
+      expect(await adapter.count(taskQuery())).toBe(0)
+      await adapter.batch([['create', makeMockTask({})]])
+      expect(await adapter.count(taskQuery())).toBe(1)
+    },
+  ],
+  [
+    'errors when migration fails',
+    async (_adapter, AdapterClass) => {
+      // launch older version of the app
+      let adapter = new AdapterClass({
+        schema: { ...testSchema, version: 1 },
+        migrationsExperimental: schemaMigrations({ migrations: [] }),
+      })
+
+      await adapter.batch([['create', makeMockTask({})]])
+      expect(await adapter.count(taskQuery())).toBe(1)
+
+      // launch newer version of the app with a migration that will fail
+      adapter = adapter.testClone({
+        schema: { ...testSchema, version: 2 },
+        migrationsExperimental: schemaMigrations({
+          migrations: [
+            {
+              toVersion: 2,
+              steps: [
+                // with SQLite, trying to create a duplicate table will fail, but Loki will just ignore it
+                // so let's insert something that WILL fail
+                AdapterClass.name === 'LokiJSAdapter' ?
+                  { type: 'bad_type' } :
+                  createTable({ name: 'tasks', columns: [] }),
+              ],
+            },
+          ],
+        }),
+      })
+
+      await expect(adapter.count(taskQuery())).rejects.toBeInstanceOf(Error)
+      await expect(adapter.batch([['create', makeMockTask({})]])).rejects.toBeInstanceOf(Error)
     },
   ],
   ...matchTests.map(testCase => [
