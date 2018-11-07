@@ -76,10 +76,11 @@ class MockModelCreatedUpdated extends Model {
   updatedAt
 }
 
-const makeDatabase = () =>
+const makeDatabase = ({ actionsEnabled = false } = {}) =>
   new Database({
     adapter: { schema: mockSchema },
     modelClasses: [MockModel, MockModelCreated, MockModelUpdated, MockModelCreatedUpdated],
+    actionsEnabled,
   })
 
 describe('Model', () => {
@@ -286,6 +287,34 @@ describe('Safety features', () => {
 
     // need to call batch or a dev check will get angry
     database.batch(model)
+  })
+  it('disallows writes outside of an action', async () => {
+    const database = makeDatabase({ actionsEnabled: true })
+    database.adapter.batch = jest.fn()
+
+    const model = await database.action(() => database.collections.get('mock').create())
+
+    await expectToRejectWithMessage(
+      model.update(noop),
+      /can only be called from inside of an Action/,
+    )
+
+    await expectToRejectWithMessage(
+      model.markAsDeleted(),
+      /can only be called from inside of an Action/,
+    )
+
+    await expectToRejectWithMessage(
+      model.markAsDeleted(),
+      /can only be called from inside of an Action/,
+    )
+
+    // check that no throw inside action
+    await database.action(async () => {
+      await model.update(noop)
+      await model.markAsDeleted()
+      await model.markAsDeleted()
+    })
   })
 })
 
