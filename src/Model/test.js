@@ -313,7 +313,7 @@ describe('Safety features', () => {
     await database.action(async () => {
       await model.update(noop)
       await model.markAsDeleted()
-      await model.markAsDeleted()
+      await model.destroyPermanently()
     })
   })
 })
