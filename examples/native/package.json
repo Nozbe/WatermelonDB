@@ -11,7 +11,7 @@
   "dependencies": {
     "@nozbe/watermelondb": "^0.7.0",
     "@nozbe/with-observables": "^1.0.0",
-    "jsc-android": "224109.x.x",
+    "jsc-android": "236355.0.0",
     "react": "16.5.1",
     "react-native": "0.57.4",
     "react-native-prompt-android": "^0.3.3",
