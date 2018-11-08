@@ -71,6 +71,7 @@ export default class Database {
     })
   }
 
+  // TODO: Document me!
   action<T>(work: ActionInterface => Promise<T>, description?: string): Promise<T> {
     return this._actionQueue.enqueue(work, description)
   }

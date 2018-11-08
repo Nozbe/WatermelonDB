@@ -6,6 +6,11 @@ class MockTaskExtended extends MockTask {
   async returnArgs(a, b, ...c) {
     return [this.name, a, b, c]
   }
+
+  @action
+  async nested(...args) {
+    return this.subAction(() => this.returnArgs('sub', ...args))
+  }
 }
 
 describe('@action', () => {
@@ -20,5 +25,11 @@ describe('@action', () => {
     expect(actionSpy).toHaveBeenCalledTimes(1)
     expect(actionSpy.mock.calls[0][0]).toBeInstanceOf(Function)
     expect(actionSpy.mock.calls[0][1]).toBe('mock_tasks.returnArgs')
+  })
+  it('can call subactions using this.subAction', async () => {
+    const { tasksCollection } = mockDatabase({ actionsEnabled: true })
+    const record = new MockTaskExtended(tasksCollection, { name: 'test' })
+
+    expect(await record.nested(1, 2, 3, 4)).toEqual(['test', 'sub', 1, [2, 3, 4]])
   })
 })

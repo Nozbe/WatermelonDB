@@ -2,6 +2,7 @@
 
 import type { Descriptor } from '../../utils/common/makeDecorator'
 
+// TODO: Document me
 export default function action(target: Object, key: string, descriptor: Descriptor): Descriptor {
   const actionName = `${target.table}.${key}`
   return {
