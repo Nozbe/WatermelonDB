@@ -1,4 +1,5 @@
 import { addToRawSet, setRawColumnChange } from './helpers'
+import { resolveConflict } from './syncHelpers'
 
 describe('addToRawSet', () => {
   it('transforms raw set', () => {
@@ -25,5 +26,22 @@ describe('setRawColumnChange', () => {
       _status: 'updated',
       _changed: 'foo,bar',
     })
+  })
+})
+
+describe('Conflict resolution', () => {
+  it('can resolve per-column conflicts', () => {
+    expect(
+      resolveConflict(
+        { col1: 'a', col2: true, col3: 10, _status: 'updated', _changed: 'col2' },
+        { col1: 'b', col2: false, col3: 10 },
+      ),
+    ).toEqual({ _status: 'updated', _changed: 'col2', col1: 'b', col2: true, col3: 10 })
+    expect(
+      resolveConflict(
+        { col1: 'a', col2: true, col3: 20, _status: 'updated', _changed: 'col2,col3' },
+        { col1: 'b', col2: false, col3: 10 },
+      ),
+    ).toEqual({ _status: 'updated', _changed: 'col2,col3', col1: 'b', col2: true, col3: 20 })
   })
 })
