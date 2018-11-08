@@ -251,4 +251,59 @@ describe('Database actions', () => {
     expect(await promises[4]).toEqual(['value', undefined])
     await promise5
   })
+  it('action calling another action directly will get stuck', async () => {
+    const { database } = mockDatabase()
+
+    let called = 0
+    const subaction = () =>
+      database.action(async () => {
+        called += 1
+      })
+
+    await database.action(() => {
+      subaction()
+      return delayPromise() // don't await subaction, just see it will never be called
+    })
+    expect(called).toBe(0)
+  })
+  it('can call subactions with subAction()', async () => {
+    const { database } = mockDatabase()
+
+    const action2 = () => database.action(async () => 32)
+    const result = await database.action(async action => {
+      const a = await action.subAction(() => action2())
+      return a + 10
+    })
+    expect(result).toBe(42)
+  })
+  it('can arbitrarily nest subactions', async () => {
+    const { database } = mockDatabase()
+
+    const action1 = () => database.action(async () => 42)
+    const action2 = () => database.action(async action => action.subAction(() => action1()))
+    const action3 = () => database.action(async action => action.subAction(() => action2()))
+    expect(await action3()).toBe(42)
+  })
+  it('sub actions skip the line only once', async () => {
+    const { database } = mockDatabase()
+
+    let called1 = 0
+    let called2 = 0
+
+    const action1 = () =>
+      database.action(async () => {
+        called1 += 1
+      })
+    const action2 = () =>
+      database.action(async () => {
+        called2 += 1
+      })
+    await database.action(action => {
+      action.subAction(() => action1())
+      action2()
+      return delayPromise() // don't await subaction, just see it will never be called
+    })
+    expect(called1).toBe(1)
+    expect(called2).toBe(0)
+  })
 })

@@ -3,21 +3,33 @@
 
 import { invariant } from '../utils/common'
 
+export interface ActionInterface {
+  subAction<T>(action: () => Promise<T>): Promise<T>;
+}
+
 type ActionQueueItem<T> = $Exact<{
-  work: () => Promise<T>,
+  work: ActionInterface => Promise<T>,
   resolve: (value: T) => void,
   reject: (reason: any) => void,
   description: ?string,
 }>
 
-export default class ActionQueue {
+export default class ActionQueue implements ActionInterface {
   _queue: ActionQueueItem<any>[] = []
+
+  _subActionIncoming = false
 
   get isRunning(): boolean {
     return this._queue.length > 0
   }
 
-  enqueue<T>(work: () => Promise<T>, description?: string): Promise<T> {
+  enqueue<T>(work: ActionInterface => Promise<T>, description?: string): Promise<T> {
+    // If a subAction was scheduled using subAction(), database.action() calls skip the line
+    if (this._subActionIncoming) {
+      this._subActionIncoming = false
+      return work(this)
+    }
+
     return new Promise((resolve, reject) => {
       if (process.env.NODE_ENV !== 'production') {
         const queue = this._queue
@@ -43,11 +55,21 @@ export default class ActionQueue {
     })
   }
 
+  subAction<T>(action: () => Promise<T>): Promise<T> {
+    try {
+      this._subActionIncoming = true
+      return action()
+    } catch (error) {
+      this._subActionIncoming = false
+      return Promise.reject(error)
+    }
+  }
+
   async _executeNext(): Promise<void> {
     const { work, resolve, reject } = this._queue[0]
 
     try {
-      const workPromise = work()
+      const workPromise = work(this)
 
       if (process.env.NODE_ENV !== 'production') {
         invariant(
