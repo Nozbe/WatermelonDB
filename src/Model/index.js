@@ -17,8 +17,9 @@ import type CollectionMap from '../Database/CollectionMap'
 import { type TableName, type ColumnName, columnName } from '../Schema'
 import type { Value } from '../QueryDescription'
 import { type RawRecord, sanitizedRaw, setRawSanitized } from '../RawRecord'
+import { setRawColumnChange } from '../sync/helpers'
 
-import { createTimestampsFor, hasUpdatedAt, addToRawSet } from './helpers'
+import { createTimestampsFor, hasUpdatedAt } from './helpers'
 
 export type RecordId = string
 
@@ -200,14 +201,7 @@ export default class Model {
       'Not allowed to change deleted records',
     )
 
-    // mark change
-    if (this._raw._status !== 'created') {
-      // Add another changed field
-      this._raw._changed = addToRawSet(this._raw._changed, rawFieldName)
-      this._raw._status = 'updated'
-    }
-
-    // set raw
+    setRawColumnChange(this._raw, rawFieldName)
     setRawSanitized(this._raw, rawFieldName, rawValue, this.collection.schema.columns[rawFieldName])
   }
 }
