@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 ### New
 
 - Added support for Schema Migrations. See documentation for more details.
+- Added fundaments for integration of Danger with Jest
 
 ### Changes
 
@@ -22,6 +23,7 @@ All notable changes to this project will be documented in this file.
 - [SQLite] Fixed rare cases where database could be left in an unusable state (added missing transaction)
 - [Flow] Fixes `oneOf()` typing and some other variance errors
 - [React Native] App should launch a little faster, because schema is only compiled on demand now
+- Fixed typos in README.md
 - Updated Flow to 0.85
 
 ## 0.6.2 - 2018-10-04
