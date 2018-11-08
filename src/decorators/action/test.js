@@ -1,9 +1,17 @@
 import { MockTask, mockDatabase } from '../../__tests__/testModels'
+import action from './index'
+
+class MockTaskExtended extends MockTask {
+  @action
+  async returnArgs(a, b, ...c) {
+    return [this.name, a, b, c]
+  }
+}
 
 describe('@action', () => {
   it('calls db.action() and passes arguments correctly', async () => {
     const { database, tasksCollection } = mockDatabase({ actionsEnabled: true })
-    const record = new MockTask(tasksCollection, { name: 'test' })
+    const record = new MockTaskExtended(tasksCollection, { name: 'test' })
 
     const actionSpy = jest.spyOn(database, 'action')
 
