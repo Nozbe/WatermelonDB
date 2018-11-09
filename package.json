@@ -109,7 +109,6 @@
     "eslint-plugin-jsx-a11y": "^6.1.1",
     "eslint-plugin-react": "^7.11.0",
     "execa": "^1.0.0",
-    "fast-async": "^7.0",
     "flow-bin": "^0.86.0",
     "fs-extra": "^7.0.0",
     "inquirer": "^6.2.0",

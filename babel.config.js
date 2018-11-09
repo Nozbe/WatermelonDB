@@ -1,23 +1,17 @@
-const plugins = [
-  '@babel/plugin-transform-modules-commonjs',
-  ['@babel/plugin-proposal-decorators', { legacy: true }],
-  '@babel/plugin-transform-flow-strip-types',
-  ['@babel/plugin-proposal-class-properties', { loose: true }],
-  '@babel/plugin-transform-classes',
-  '@babel/plugin-syntax-dynamic-import',
+// Adapted from React Native
+const standardPlugins = [
+  '@babel/plugin-proposal-optional-catch-binding',
   '@babel/plugin-transform-block-scoping',
-  '@babel/plugin-proposal-json-strings',
-  '@babel/plugin-proposal-object-rest-spread',
-  '@babel/plugin-proposal-unicode-property-regex',
-  // See http://incaseofstairs.com/six-speed/ for speed comparison between native and transpiled ES6
-  '@babel/plugin-proposal-optional-chaining',
-  '@babel/plugin-transform-template-literals',
-  '@babel/plugin-transform-literals',
-  '@babel/plugin-transform-function-name',
-  '@babel/plugin-transform-arrow-functions',
-  '@babel/plugin-transform-shorthand-properties',
-  '@babel/plugin-transform-spread',
-  '@babel/plugin-transform-react-jsx',
+  // the flow strip types plugin must go BEFORE class properties!
+  // there'll be a test case that fails if you don't.
+  '@babel/plugin-transform-flow-strip-types',
+  [
+    '@babel/plugin-proposal-class-properties',
+    // use `this.foo = bar` instead of `this.defineProperty('foo', ...)`
+    { loose: true },
+  ],
+  '@babel/plugin-syntax-dynamic-import',
+  '@babel/plugin-syntax-export-default-from',
   [
     '@babel/plugin-transform-computed-properties',
     {
@@ -25,8 +19,54 @@ const plugins = [
       loose: true,
     },
   ],
+  '@babel/plugin-transform-destructuring',
+  '@babel/plugin-transform-function-name',
+  '@babel/plugin-transform-literals',
+  '@babel/plugin-transform-parameters',
+  '@babel/plugin-transform-shorthand-properties',
+  '@babel/plugin-transform-react-jsx',
+  '@babel/plugin-transform-regenerator',
   '@babel/plugin-transform-sticky-regex',
   '@babel/plugin-transform-unicode-regex',
+  [
+    '@babel/plugin-transform-modules-commonjs',
+    {
+      strict: false,
+      strictMode: false, // prevent "use strict" injections
+      allowTopLevelThis: true, // dont rewrite global `this` -> `undefined`
+    },
+  ],
+  '@babel/plugin-proposal-export-default-from',
+  '@babel/plugin-transform-classes',
+  '@babel/plugin-transform-arrow-functions',
+  '@babel/plugin-transform-spread',
+  '@babel/plugin-proposal-object-rest-spread',
+  [
+    '@babel/plugin-transform-template-literals',
+    { loose: true }, // dont 'a'.concat('b'), just use 'a'+'b'
+  ],
+  '@babel/plugin-transform-exponentiation-operator',
+  '@babel/plugin-transform-object-assign',
+  ['@babel/plugin-transform-for-of', { loose: true }],
+  ['@babel/plugin-proposal-optional-chaining', { loose: true }],
+  ['@babel/plugin-proposal-nullish-coalescing-operator', { loose: true }],
+  [
+    '@babel/plugin-transform-runtime',
+    {
+      helpers: true,
+      regenerator: true,
+    },
+  ],
+]
+
+const plugins = [
+  ['@babel/plugin-proposal-decorators', { legacy: true }],
+
+  ...standardPlugins,
+
+  // Custom transformations
+  '@babel/plugin-proposal-json-strings',
+  // TODO: Changed fast-async back to regenerator because of an Android React Native issue :/ #138
   '@babel/plugin-transform-async-to-generator',
   // [
   //   // TODO: We can get this faster by tweaking with options, but have to test thoroughly...
@@ -45,9 +85,7 @@ module.exports = {
     production: {
       plugins: [
         ...plugins,
-        // console.log is expensive for performance on native
-        // we don't want it on web either, but it's useful for development
-        ['transform-remove-console', { exclude: ['error', 'warn'] }],
+        // ['transform-remove-console', { exclude: ['error', 'warn'] }],
         'minify-flip-comparisons',
         'minify-guarded-expressions',
         'minify-dead-code-elimination',
