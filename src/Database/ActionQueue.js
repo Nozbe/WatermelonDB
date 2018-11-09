@@ -1,9 +1,13 @@
 // @flow
+/* eslint-disable no-console */
+
+import { invariant } from '../utils/common'
 
 type ActionQueueItem<T> = $Exact<{
   work: () => Promise<T>,
   resolve: (value: T) => void,
   reject: (reason: any) => void,
+  description: ?string,
 }>
 
 export default class ActionQueue {
@@ -13,9 +17,25 @@ export default class ActionQueue {
     return this._queue.length > 0
   }
 
-  enqueue<T>(work: () => Promise<T>): Promise<T> {
+  enqueue<T>(work: () => Promise<T>, description?: string): Promise<T> {
     return new Promise((resolve, reject) => {
-      this._queue.push({ work, resolve, reject })
+      if (process.env.NODE_ENV !== 'production') {
+        const queue = this._queue
+        if (queue.length) {
+          const current = queue[0]
+          console.warn(
+            `The action you're trying to perform (${description ||
+              'unnamed'}) can't be performed yet, beacuse there are ${
+              queue.length
+            } actions in the queue. Current action: ${current.description ||
+              'unnamed'}. Ignore this message if everything is working fine. But if your actions are not running, it's because the current action is stuck. Remember that if you're calling an action from an action, you must use subAction(). See docs for more details.`,
+          )
+          console.log(`Enqueued action:`, work)
+          console.log(`Running action:`, current.work)
+        }
+      }
+
+      this._queue.push({ work, resolve, reject, description })
 
       if (this._queue.length === 1) {
         this._executeNext()
@@ -27,7 +47,17 @@ export default class ActionQueue {
     const { work, resolve, reject } = this._queue[0]
 
     try {
-      resolve(await work())
+      const workPromise = work()
+
+      if (process.env.NODE_ENV !== 'production') {
+        invariant(
+          workPromise instanceof Promise,
+          `The function passed to database.action() or a method marked as @action must be asynchronous — either marked as 'async' or always returning a promise (in: ${this
+            ._queue[0].description || 'unnamed'})`,
+        )
+      }
+
+      resolve(await workPromise)
     } catch (error) {
       reject(error)
     }

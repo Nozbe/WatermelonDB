@@ -71,8 +71,8 @@ export default class Database {
     })
   }
 
-  action<T>(work: () => Promise<T>): Promise<T> {
-    return this._actionQueue.enqueue(work)
+  action<T>(work: () => Promise<T>, description?: string): Promise<T> {
+    return this._actionQueue.enqueue(work, description)
   }
 
   // Emits a signal immediately, and on change in any of the passed tables

@@ -1,5 +1,6 @@
 // @flow
 
+export { default as action } from './action'
 export { default as children } from './children'
 export { default as json } from './json'
 export { default as nochange } from './nochange'
