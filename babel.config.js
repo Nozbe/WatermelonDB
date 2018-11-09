@@ -27,13 +27,14 @@ const plugins = [
   ],
   '@babel/plugin-transform-sticky-regex',
   '@babel/plugin-transform-unicode-regex',
-  [
-    // TODO: We can get this faster by tweaking with options, but have to test thoroughly...
-    'module:fast-async',
-    {
-      spec: true,
-    },
-  ],
+  '@babel/plugin-transform-async-to-generator',
+  // [
+  //   // TODO: We can get this faster by tweaking with options, but have to test thoroughly...
+  //   'module:fast-async',
+  //   {
+  //     spec: true,
+  //   },
+  // ],
 ]
 
 module.exports = {
@@ -53,8 +54,7 @@ module.exports = {
       ],
     },
     test: {
-      plugins: [...plugins,
-        '@babel/plugin-syntax-jsx'],
+      plugins: [...plugins, '@babel/plugin-syntax-jsx'],
     },
   },
 }
