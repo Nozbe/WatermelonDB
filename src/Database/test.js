@@ -130,3 +130,96 @@ describe('watermelondb/Database', () => {
     expect(observer).lastCalledWith([{ record: m2, type: CollectionChangeTypes.destroyed }])
   })
 })
+
+const delayPromise = () => new Promise(resolve => setTimeout(resolve, 100))
+
+describe('Database actions', () => {
+  it('can execute an action', async () => {
+    const { database } = mockDatabase()
+
+    const action = jest.fn()
+    await database.action(action)
+
+    expect(action).toHaveBeenCalledTimes(1)
+  })
+  it('queues actions', async () => {
+    const { database } = mockDatabase()
+
+    const actions = [jest.fn(delayPromise), jest.fn(delayPromise), jest.fn(delayPromise)]
+
+    const promise0 = database.action(actions[0])
+    database.action(actions[1])
+
+    expect(actions[0]).toHaveBeenCalledTimes(1)
+    expect(actions[1]).toHaveBeenCalledTimes(0)
+
+    await promise0
+    const promise2 = database.action(actions[2])
+
+    expect(actions[0]).toHaveBeenCalledTimes(1)
+    expect(actions[1]).toHaveBeenCalledTimes(0)
+    expect(actions[2]).toHaveBeenCalledTimes(0)
+
+    await promise2
+
+    expect(actions[0]).toHaveBeenCalledTimes(1)
+    expect(actions[1]).toHaveBeenCalledTimes(1)
+    expect(actions[2]).toHaveBeenCalledTimes(1)
+
+    // after queue is empty I can queue again and have result immediately
+    const action3 = jest.fn()
+    database.action(action3)
+    expect(action3).toHaveBeenCalledTimes(1)
+  })
+  it('returns value from action', async () => {
+    const { database } = mockDatabase()
+    const result = await database.action(async () => 42)
+    expect(result).toBe(42)
+  })
+  it('passes error from action', async () => {
+    const { database } = mockDatabase()
+    await expectToRejectWithMessage(
+      database.action(async () => {
+        throw new Error('test error')
+      }),
+      'test error',
+    )
+  })
+  it('queues actions correctly even if some error out', async () => {
+    const { database } = mockDatabase()
+
+    const actions = [
+      () => true,
+      async () => {
+        throw new Error('error1') // async error
+      },
+      async () => {
+        await delayPromise()
+        return 42
+      },
+      () => {
+        throw new Error('error2') // sync error
+      },
+      () => delayPromise(),
+    ]
+    const promises = actions.map(action =>
+      database.action(action).then(
+        // jest will automatically fail the test if a promise rejects even though we're testing it later
+        value => ['value', value],
+        error => ['error', error],
+      ),
+    )
+    await promises[4]
+
+    // after queue is empty I can queue again
+    const action5 = jest.fn()
+    database.action(action5)
+    expect(action5).toHaveBeenCalledTimes(1)
+
+    // check if right answers
+    expect(await promises[0]).toEqual(['value', true])
+    expect(await promises[1]).toMatchObject(['error', { message: 'error1' }])
+    expect(await promises[2]).toEqual(['value', 42])
+    expect(await promises[3]).toMatchObject(['error', { message: 'error2' }])
+  })
+})

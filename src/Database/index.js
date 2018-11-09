@@ -7,12 +7,13 @@ import { values } from 'rambdax'
 
 import { invariant } from '../utils/common'
 
-import CollectionMap from './CollectionMap'
-
 import type { DatabaseAdapter } from '../adapters/type'
 import type Model from '../Model'
 import type { CollectionChangeSet } from '../Collection'
 import type { TableName, AppSchema } from '../Schema'
+
+import CollectionMap from './CollectionMap'
+import ActionQueue from './ActionQueue'
 
 // Database is the owner of all Collections and the DatabaseAdapter
 
@@ -22,6 +23,8 @@ export default class Database {
   schema: AppSchema
 
   collections: CollectionMap
+
+  _actionQueue = new ActionQueue()
 
   constructor({
     adapter,
@@ -61,6 +64,10 @@ export default class Database {
         collection._onRecordUpdated(record)
       }
     })
+  }
+
+  action<T>(work: () => Promise<T>): Promise<T> {
+    return this._actionQueue.enqueue(work)
   }
 
   // Emits a signal immediately, and on change in any of the passed tables
