@@ -2,7 +2,7 @@
 
 **Schema migrations** is the mechanism by which you can add new tables and columns to the database in a backward-compatible way.
 
-Without migrations, if a user of your app upgrades from one version to another, their local database will be cleared at launch, and they will use all their data.
+Without migrations, if a user of your app upgrades from one version to another, their local database will be cleared at launch, and they will lose all their data.
 
 ⚠️ Always use migrations!
 
