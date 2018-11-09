@@ -162,6 +162,12 @@ export default class Model {
     return this.collection.database.batch(...records)
   }
 
+  // TODO: Document me
+  // To be used by Model subclass methods only
+  subAction<T>(action: () => Promise<T>): Promise<T> {
+    return this.collection.database._actionQueue.subAction(action)
+  }
+
   get table(): TableName<this> {
     return this.constructor.table
   }

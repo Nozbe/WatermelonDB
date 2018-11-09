@@ -1,5 +1,5 @@
 import { appSchema, tableSchema } from '../Schema'
-import { field, relation, immutableRelation, action } from '../decorators'
+import { field, relation, immutableRelation } from '../decorators'
 import Model from '../Model'
 import Database from '../Database'
 import LokiJSAdapter from '../adapters/lokijs'
@@ -55,11 +55,6 @@ export class MockTask extends Model {
 
   @relation('mock_projects', 'project_id')
   project
-
-  @action
-  async returnArgs(a, b, ...c) {
-    return [this.name, a, b, c]
-  }
 }
 
 export class MockComment extends Model {

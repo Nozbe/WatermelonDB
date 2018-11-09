@@ -13,7 +13,7 @@ import type { CollectionChangeSet } from '../Collection'
 import type { TableName, AppSchema } from '../Schema'
 
 import CollectionMap from './CollectionMap'
-import ActionQueue from './ActionQueue'
+import ActionQueue, { type ActionInterface } from './ActionQueue'
 
 type DatabaseProps = $Exact<{
   adapter: DatabaseAdapter,
@@ -71,7 +71,8 @@ export default class Database {
     })
   }
 
-  action<T>(work: () => Promise<T>, description?: string): Promise<T> {
+  // TODO: Document me!
+  action<T>(work: ActionInterface => Promise<T>, description?: string): Promise<T> {
     return this._actionQueue.enqueue(work, description)
   }
 
