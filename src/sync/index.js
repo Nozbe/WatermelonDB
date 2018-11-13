@@ -57,6 +57,9 @@ export async function synchronize({
   // - What about the last_modified fields on every single item?
   // - Can I end action and begin new one between pull and push stage?
   // - How can I safely avoid a blocking action while pushing changes?
+  //   - Option 1: fetchLocalChanges() should return not just extracted raws, but also references to the Model objects. After server ACK, those Models should be passed to markLocalChangseAsSynced. Other changes that happen in the meantime will be ignored. And for changes in _those_ records, compare a COPY of extracted raw to the current one. If different, don't mark as synced.
+  //   - Option 2: If cloning raw object is too expensive, you could mutate a Model to mark a flag `isBeingSynced`. If true, further changes to the object would make a raw copy. (ugh)
+  //   - Maybe cloning raw object is necessary anyway? Write tests!
   // - What are different sync failure modes and how can they be dealt with safely?:
   //   - failure to fetch changes
   //   - failure to apply fetched changes
