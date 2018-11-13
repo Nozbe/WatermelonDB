@@ -7,7 +7,7 @@ import { type DirtyRaw, sanitizedRaw } from '../RawRecord'
 import * as Q from '../QueryDescription'
 import { columnName } from '../Schema'
 
-import { resolveConflict } from './syncHelpers'
+import { resolveConflict, replaceRaw } from './syncHelpers'
 
 // TODO: Document me!
 
@@ -101,7 +101,7 @@ export function applyRemoteChangesToCollection<T: Model>(
         // TODO: Error, record already exists, update instead
       } else {
         return collection.prepareCreate(record => {
-          record._raw = sanitizedRaw(raw, collection.schema)
+          replaceRaw(record, raw)
         })
       }
     })
@@ -113,15 +113,12 @@ export function applyRemoteChangesToCollection<T: Model>(
         if (currentRecord.syncStatus === 'synced') {
           // just replace
           return currentRecord.prepareUpdate(() => {
-            currentRecord._raw = sanitizedRaw(raw, collection.schema)
+            replaceRaw(currentRecord, raw)
           })
         } else if (currentRecord.syncStatus === 'updated') {
           // conflict
           return currentRecord.prepareUpdate(() => {
-            currentRecord._raw = sanitizedRaw(
-              resolveConflict(currentRecord._raw, raw),
-              collection.schema,
-            )
+            replaceRaw(currentRecord, resolveConflict(currentRecord._raw, raw))
           })
         }
         // TODO: ????
@@ -129,7 +126,7 @@ export function applyRemoteChangesToCollection<T: Model>(
         // Nothing to do, record was locally deleted, deletion will be pushed later
       } else {
         return collection.prepareCreate(record => {
-          record._raw = sanitizedRaw(raw, collection.schema)
+          replaceRaw(record, raw)
         })
       }
     })

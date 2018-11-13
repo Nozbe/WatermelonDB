@@ -1,6 +1,7 @@
 // @flow
 
-import type { RawRecord, DirtyRaw } from '../RawRecord'
+import type { Model } from '..'
+import { type RawRecord, type DirtyRaw, sanitizedRaw } from '../RawRecord'
 
 // Returns raw record with naive solution to a conflict based on local `_changed` field
 // This is a per-column resolution algorithm. All columns that were changed locally win
@@ -22,4 +23,10 @@ export function resolveConflict(local: RawRecord, remote: DirtyRaw): DirtyRaw {
 
   // TODO: What about last_modified?
   return resolved
+}
+
+// TODO: Document?
+// TODO: Test?
+export function replaceRaw(record: Model, dirtyRaw: DirtyRaw): void {
+  record._raw = sanitizedRaw(dirtyRaw, record.collection.schema)
 }
