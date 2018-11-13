@@ -1,7 +1,13 @@
 // @flow
 
-import type { Database, RecordId, TableName } from '..'
-import type { DirtyRaw } from '../RawRecord'
+import { mapAsync, contains } from 'rambdax'
+import { allPromises } from '../utils/fp'
+import type { Database, RecordId, TableName, Collection, Model } from '..'
+import { type DirtyRaw, sanitizedRaw } from '../RawRecord'
+import * as Q from '../QueryDescription'
+import { columnName } from '../Schema'
+
+import { resolveConflict } from './syncHelpers'
 
 // TODO: Document me!
 
@@ -53,23 +59,99 @@ export async function synchronize({
   //   - failure to update after push
   //   - bad timestamps?
   // - batching (i.e. splitting into smaller chunks) — necessary? how much can wmelon take?
+  // - error handling — preventing data corruption in case sync fails
 }
 
-export async function applyRemoteChanges(
+export function applyRemoteChangesToCollection<T: Model>(
+  collection: Collection<T>,
+  changes: SyncTableChangeSet,
+): Promise<void> {
+  const { database } = collection
+  return database.action(async () => {
+    // - insert new records
+    //   - if already exists (error), update
+    // - destroy deleted records permanently
+    //   - if already deleted, ignore
+    //   - TODO: Should we delete with descendants? Or just let sync point to record to delete?
+    // - update records:
+    //   - if locally synced, update
+    //   - if locally updated (conflict):
+    //     - take changes from server, apply local changes from _changed, update
+    //   - if locally deleted:
+    //     - ignore (will push deletion later)
+    //   - if not found, insert
+    // TODO: Does the order between insert/update/destroy matter?
+
+    const { created, updated, deleted: deletedIds } = changes
+
+    const ids: RecordId[] = [...created, ...updated].map(({ id }) => id).concat(deletedIds)
+    const records = await collection.query(Q.where(columnName('id'), Q.oneOf(ids))).fetch()
+    const locallyDeletedIds = await database.adapter.getDeletedRecords(collection.table)
+
+    // Destroy records (if already marked as deleted, just destroy permanently)
+    const recordsToDestroy = records.filter(record => contains(record.id, deletedIds))
+    const deletedRecordsToDestroy = locallyDeletedIds.filter(id => contains(id, deletedIds))
+
+    await allPromises(record => record.destroyPermanently(), recordsToDestroy)
+    await database.adapter.destroyDeletedRecords(collection.table, deletedRecordsToDestroy)
+
+    // Insert and update records
+    const recordsToInsert = created.map(raw => {
+      if (records.find(record => record.id === raw.id)) {
+        // TODO: Error, record already exists, update instead
+      } else {
+        return collection.prepareCreate(record => {
+          record._raw = sanitizedRaw(raw, collection.schema)
+        })
+      }
+    })
+
+    const recordsToUpdate = updated.map(raw => {
+      const currentRecord = records.find(record => record.id === raw.id)
+
+      if (currentRecord) {
+        if (currentRecord.syncStatus === 'synced') {
+          // just replace
+          return currentRecord.prepareUpdate(() => {
+            currentRecord._raw = sanitizedRaw(raw, collection.schema)
+          })
+        } else if (currentRecord.syncStatus === 'updated') {
+          // conflict
+          return currentRecord.prepareUpdate(() => {
+            currentRecord._raw = sanitizedRaw(
+              resolveConflict(currentRecord._raw, raw),
+              collection.schema,
+            )
+          })
+        }
+        // TODO: ????
+      } else if (locallyDeletedIds.some(id => id === raw.id)) {
+        // Nothing to do, record was locally deleted, deletion will be pushed later
+      } else {
+        return collection.prepareCreate(record => {
+          record._raw = sanitizedRaw(raw, collection.schema)
+        })
+      }
+    })
+
+    await database.batch(...recordsToInsert, ...recordsToUpdate)
+  })
+}
+
+export function applyRemoteChanges(
   db: Database,
   remoteChanges: SyncDatabaseChangeSet,
 ): Promise<void> {
-  // - insert new records
-  //   - if already exists (error), update
-  // - destroy permanently deleted records
-  //   - if already deleted, ignore
-  // - update records:
-  //   - if locally synced, update
-  //   - if locally updated (conflict):
-  //     - take changes from server, apply local changes from _changed, update
-  //   - if locally deleted:
-  //     - ignore (will push deletion later)
-  //   - if not found, insert
+  return db.action(async action => {
+    // TODO: Does the order of collections matter? Should they be done one by one? Or all at once?
+    await mapAsync(
+      ([changes, tableName]) =>
+        action.subAction(() =>
+          applyRemoteChangesToCollection(db.collections.get(tableName), changes),
+        ),
+      remoteChanges,
+    )
+  })
 }
 
 export async function fetchLocalChanges(db: Database): Promise<SyncDatabaseChangeSet> {
@@ -82,6 +164,6 @@ export async function markLocalChangesAsSynced(
   db: Database,
   syncedLocalChanges: SyncDatabaseChangeSet,
 ): Promise<void> {
-  // - destroy permanently deleted records
+  // - destroy deleted records permanently
   // - mark `created` and `updated` records as `synced` + reset _changed
 }
