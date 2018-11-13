@@ -2,12 +2,18 @@
 
 import { mapAsync, contains } from 'rambdax'
 import { allPromises } from '../utils/fp'
+// import { logError } from '../utils/common'
 import type { Database, RecordId, TableName, Collection, Model } from '..'
 import { type DirtyRaw, sanitizedRaw } from '../RawRecord'
 import * as Q from '../QueryDescription'
 import { columnName } from '../Schema'
 
-import { resolveConflict, replaceRaw } from './syncHelpers'
+import {
+  resolveConflict,
+  replaceRaw,
+  prepareCreateFromRaw,
+  prepareUpdateFromRaw,
+} from './syncHelpers'
 
 // TODO: Document me!
 
@@ -45,7 +51,7 @@ export async function synchronize({
   //   - markLocalChangesAsSynced()
   //   - END ACTION
   //
-  // Open questions:
+  // TODO:
   //
   // - What about the last synced at timestamp? How does it work?
   // - What about the last_modified fields on every single item?
@@ -60,6 +66,8 @@ export async function synchronize({
   //   - bad timestamps?
   // - batching (i.e. splitting into smaller chunks) — necessary? how much can wmelon take?
   // - error handling — preventing data corruption in case sync fails
+  // - error logging - logging invalid scenarios (suggesting a bug) — e.g.
+  // - sync adapters - should this be THE implemention? A collection of helpers for others to use to build their own sync engines/adapters? Should this be a class, similar to DatabaseAdapter?
 }
 
 export function applyRemoteChangesToCollection<T: Model>(
@@ -97,39 +105,29 @@ export function applyRemoteChangesToCollection<T: Model>(
 
     // Insert and update records
     const recordsToInsert = created.map(raw => {
-      if (records.find(record => record.id === raw.id)) {
-        // TODO: Error, record already exists, update instead
-      } else {
-        return collection.prepareCreate(record => {
-          replaceRaw(record, raw)
-        })
-      }
-    })
-
-    const recordsToUpdate = updated.map(raw => {
       const currentRecord = records.find(record => record.id === raw.id)
-
       if (currentRecord) {
-        if (currentRecord.syncStatus === 'synced') {
-          // just replace
-          return currentRecord.prepareUpdate(() => {
-            replaceRaw(currentRecord, raw)
-          })
-        } else if (currentRecord.syncStatus === 'updated') {
-          // conflict
-          return currentRecord.prepareUpdate(() => {
-            replaceRaw(currentRecord, resolveConflict(currentRecord._raw, raw))
-          })
-        }
-        // TODO: ????
-      } else if (locallyDeletedIds.some(id => id === raw.id)) {
-        // Nothing to do, record was locally deleted, deletion will be pushed later
-      } else {
-        return collection.prepareCreate(record => {
-          replaceRaw(record, raw)
-        })
+        // TODO: log error -- record already exists, update instead
+        return prepareUpdateFromRaw(currentRecord, raw)
       }
+
+      return prepareCreateFromRaw(collection, raw)
     })
+
+    const recordsToUpdate = updated
+      .map(raw => {
+        const currentRecord = records.find(record => record.id === raw.id)
+
+        if (currentRecord) {
+          return prepareUpdateFromRaw(currentRecord, raw)
+        } else if (locallyDeletedIds.some(id => id === raw.id)) {
+          // Nothing to do, record was locally deleted, deletion will be pushed later
+        } else {
+          // Record doesn't exist (but should) — just create it
+          return prepareCreateFromRaw(collection, raw)
+        }
+      })
+      .filter(Boolean)
 
     await database.batch(...recordsToInsert, ...recordsToUpdate)
   })
