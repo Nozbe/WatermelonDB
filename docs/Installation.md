@@ -110,6 +110,10 @@ Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (alt
     ```
 
     Alternatively, we also recommend [`jsc-android`](https://github.com/react-community/jsc-android-buildscripts), with which you don't need this polyfill, and it also makes your app faster.
+    
+    > SyntaxError: Strict mode does not allow function declarations in a lexically nested statement
+    
+    Currently the known workaround for this is using [`jsc-android`](https://github.com/react-community/jsc-android-buildscripts). Please see https://github.com/Nozbe/WatermelonDB/issues/138 and contribute if you'd like this properly fixed
 
 ## Web setup
 
