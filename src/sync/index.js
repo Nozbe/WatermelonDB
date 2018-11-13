@@ -149,16 +149,65 @@ export function applyRemoteChanges(
   })
 }
 
-export async function fetchLocalChanges(db: Database): Promise<SyncDatabaseChangeSet> {
-  // - fetch all locally changed records (created, updated) - for all collections
-  // - get all locally deleted ids - for all collections
-  return {}
+export async function fetchLocalChangesForCollection<T: Model>(
+  collection: Collection<T>,
+): Promise<SyncTableChangeSet> {
+  const changedRecords = await collection
+    .query(Q.where(columnName('_status'), Q.notEq('synced')))
+    .fetch()
+  const created = changedRecords
+    .filter(record => record.syncStatus === 'created')
+    .map(record => record._raw)
+  const updated = changedRecords
+    .filter(record => record.syncStatus === 'updated')
+    .map(record => record._raw)
+  const deleted = await collection.database.adapter.getDeletedRecords(collection.table)
+  return { created, updated, deleted }
 }
 
-export async function markLocalChangesAsSynced(
+export function fetchLocalChanges(db: Database): Promise<SyncDatabaseChangeSet> {
+  // - fetch all locally changed records (created, updated) - for all collections
+  // - get all locally deleted ids - for all collections
+
+  // TODO: Use parallel mapping
+  return mapAsync(fetchLocalChangesForCollection, db.collections.map)
+}
+
+export function markLocalChangesAsSyncedForCollection<T: Model>(
+  collection: Collection<T>,
+  syncedLocalChanges: SyncTableChangeSet,
+): Promise<void> {
+  const { database } = collection
+  return database.action(async () => {
+    // - destroy deleted records permanently
+    // - mark `created` and `updated` records as `synced` + reset _changed
+
+    const { created, updated, deleted } = syncedLocalChanges
+
+    database.adapter.destroyDeletedRecords(collection.table, deleted)
+    database.batch(
+      ...[...created, ...updated].map(record =>
+        record.prepareUpdate(() => {
+          record._raw._changed = ''
+          record._raw._status = 'synced'
+        }),
+      ),
+    )
+  })
+}
+
+export function markLocalChangesAsSynced(
   db: Database,
   syncedLocalChanges: SyncDatabaseChangeSet,
 ): Promise<void> {
-  // - destroy deleted records permanently
-  // - mark `created` and `updated` records as `synced` + reset _changed
+  return db.action(async action => {
+    // TODO: Does the order of collections matter? Should they be done one by one? Or all at once?
+    await mapAsync(
+      ([changes, tableName]) =>
+        action.subAction(() =>
+          markLocalChangesAsSyncedForCollection(db.collections.get(tableName), changes),
+        ),
+      syncedLocalChanges,
+    )
+  })
 }
