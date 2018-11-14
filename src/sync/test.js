@@ -214,4 +214,10 @@ describe('markLocalChangesAsSynced', () => {
     expect(await adapter.getDeletedRecords('mock_tasks')).toBe([])
     expect(await adapter.getDeletedRecords('mock_comments')).toBe([])
   })
+  it.skip('only emits one collection batch change', async () => {
+    // TODO
+  })
+  it.skip(`doesn't mark as synced records that changed since changes were fetched`, async () => {
+    // TODO
+  })
 })
