@@ -1,6 +1,6 @@
 // @flow
 
-import { mapAsync, contains } from 'rambdax'
+import { mapAsync, promiseAllObject, map, contains, reduce } from 'rambdax'
 import { allPromises } from '../utils/fp'
 // import { logError } from '../utils/common'
 import type { Database, RecordId, TableName, Collection, Model } from '..'
@@ -47,6 +47,8 @@ export async function synchronize({
   // - push changes
   //   - BEGIN ACTION
   //   - fetchLocalChanges()
+  //     - fetch all locally changed records (created, updated) - for all collections
+  //     - get all locally deleted ids - for all collections
   //   - push local changes to server - wait for ACK
   //   - markLocalChangesAsSynced()
   //   - END ACTION
@@ -153,28 +155,33 @@ export function applyRemoteChanges(
   })
 }
 
-export async function fetchLocalChangesForCollection<T: Model>(
+const notSyncedQuery = Q.where(columnName('_status'), Q.notEq('synced'))
+const rawsForStatus = (status, records) =>
+  reduce(
+    (raws, record) => (record._raw._status === status ? raws.concat(record._raw) : raws),
+    [],
+    records,
+  )
+
+async function fetchLocalChangesForCollection<T: Model>(
   collection: Collection<T>,
 ): Promise<SyncTableChangeSet> {
-  const changedRecords = await collection
-    .query(Q.where(columnName('_status'), Q.notEq('synced')))
-    .fetch()
-  const created = changedRecords
-    .filter(record => record.syncStatus === 'created')
-    .map(record => record._raw)
-  const updated = changedRecords
-    .filter(record => record.syncStatus === 'updated')
-    .map(record => record._raw)
-  const deleted = await collection.database.adapter.getDeletedRecords(collection.table)
-  return { created, updated, deleted }
+  const changedRecords = await collection.query(notSyncedQuery).fetch()
+  return {
+    created: rawsForStatus('created', changedRecords),
+    updated: rawsForStatus('updated', changedRecords),
+    deleted: await collection.database.adapter.getDeletedRecords(collection.table),
+  }
 }
 
 export function fetchLocalChanges(db: Database): Promise<SyncDatabaseChangeSet> {
-  // - fetch all locally changed records (created, updated) - for all collections
-  // - get all locally deleted ids - for all collections
-
-  // TODO: Use parallel mapping
-  return mapAsync(fetchLocalChangesForCollection, db.collections.map)
+  return promiseAllObject(
+    map(
+      fetchLocalChangesForCollection,
+      // $FlowFixMe
+      db.collections.map,
+    ),
+  )
 }
 
 export function markLocalChangesAsSyncedForCollection<T: Model>(
@@ -211,6 +218,7 @@ export function markLocalChangesAsSynced(
         action.subAction(() =>
           markLocalChangesAsSyncedForCollection(db.collections.get(tableName), changes),
         ),
+
       syncedLocalChanges,
     )
   })
