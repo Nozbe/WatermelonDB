@@ -1,9 +1,12 @@
 import clone from 'lodash.clonedeep'
+import { sortBy, identity } from 'rambdax'
 import { mockDatabase } from '../__tests__/testModels'
 
 import { fetchLocalChanges, markLocalChangesAsSynced } from './index'
 import { addToRawSet, setRawColumnChange } from './helpers'
 import { resolveConflict, prepareCreateFromRaw } from './syncHelpers'
+
+const sort = sortBy(identity)
 
 describe('addToRawSet', () => {
   it('transforms raw set', () => {
@@ -112,7 +115,10 @@ const makeLocalChanges = async mock => {
 describe('fetchLocalChanges', () => {
   it('returns empty object if no changes', async () => {
     const { database } = mockDatabase({ actionsEnabled: true })
-    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+    expect(await fetchLocalChanges(database)).toEqual({
+      changes: emptyLocalChanges,
+      affectedRecords: [],
+    })
   })
   it('fetches all local changes', async () => {
     const mock = mockDatabase()
@@ -134,7 +140,7 @@ describe('fetchLocalChanges', () => {
     expect(p3updated._raw._status).toBe('updated')
     expect(p3updated._raw._changed).toBe('name')
     expect(t2deleted._raw._status).toBe('deleted')
-    const expected = clone({
+    const expectedChanges = clone({
       mock_projects: {
         created: [p1created._raw, p2created._raw],
         updated: [p3updated._raw],
@@ -147,12 +153,18 @@ describe('fetchLocalChanges', () => {
         deleted: [],
       },
     })
+    const expectedAffectedRecords = [p1created, p2created, p3updated, t1created, c1created]
     const result = await fetchLocalChanges(database)
-    expect(result).toEqual(expected)
+    expect(result.changes).toEqual(expectedChanges)
+    expect(result.affectedRecords).toEqual(expectedAffectedRecords)
 
     // simulate reload
     database = cloneDatabase()
-    expect(await fetchLocalChanges(database)).toEqual(expected)
+    const result2 = await fetchLocalChanges(database)
+    expect(result2.changes).toEqual(expectedChanges)
+    expect(result2.affectedRecords.map(r => r._raw)).toEqual(
+      expectedAffectedRecords.map(r => r._raw),
+    )
   })
   it('returns object copies', async () => {
     const mock = mockDatabase()
@@ -160,14 +172,14 @@ describe('fetchLocalChanges', () => {
 
     const { p3updated } = await makeLocalChanges(mock)
 
-    const result = await fetchLocalChanges(database)
-    const resultCloned = clone(result)
+    const { changes } = await fetchLocalChanges(database)
+    const changesCloned = clone(changes)
 
     // raws should be cloned - further changes don't affect result
     await p3updated.update(p => {
       p.name = 'y'
     })
-    expect(result).toEqual(resultCloned)
+    expect(changes).toEqual(changesCloned)
   })
 })
 
@@ -177,11 +189,11 @@ describe('markLocalChangesAsSynced', () => {
     const { database } = mock
 
     await makeLocalChanges(mock)
-    const localChanges1 = clone(await fetchLocalChanges(database))
+    const localChanges1 = await fetchLocalChanges(database)
 
     await markLocalChangesAsSynced(database, emptyLocalChanges)
 
-    const localChanges2 = clone(await fetchLocalChanges(database))
+    const localChanges2 = await fetchLocalChanges(database)
     expect(localChanges1).toEqual(localChanges2)
   })
   it('marks local changes as synced', async () => {

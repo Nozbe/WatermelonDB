@@ -1,7 +1,7 @@
 // @flow
 
-import { mapAsync, promiseAllObject, map, contains, reduce } from 'rambdax'
-import { allPromises } from '../utils/fp'
+import { mapAsync, promiseAllObject, map, contains, reduce, values, pipe } from 'rambdax'
+import { allPromises, unnest } from '../utils/fp'
 // import { logError } from '../utils/common'
 import type { Database, RecordId, TableName, Collection, Model } from '..'
 import { type DirtyRaw, sanitizedRaw } from '../RawRecord'
@@ -24,6 +24,9 @@ export type SyncTableChangeSet = $Exact<{
   deleted: RecordId[],
 }>
 export type SyncDatabaseChangeSet = $Exact<{ [TableName<any>]: SyncTableChangeSet }>
+
+export type SyncLocalChanges = $Exact<{ changes: SyncDatabaseChangeSet, affectedRecords: Model[] }>
+
 export type SyncPullResult = $Exact<{ changes: SyncDatabaseChangeSet, timestamp: Timestamp }>
 export type SyncParams = $Exact<{
   database: Database,
@@ -165,23 +168,36 @@ const rawsForStatus = (status, records) =>
 
 async function fetchLocalChangesForCollection<T: Model>(
   collection: Collection<T>,
-): Promise<SyncTableChangeSet> {
+): Promise<[SyncTableChangeSet, T[]]> {
   const changedRecords = await collection.query(notSyncedQuery).fetch()
-  return {
+  const changeSet = {
     created: rawsForStatus('created', changedRecords),
     updated: rawsForStatus('updated', changedRecords),
     deleted: await collection.database.adapter.getDeletedRecords(collection.table),
   }
+  return [changeSet, changedRecords]
 }
 
-export function fetchLocalChanges(db: Database): Promise<SyncDatabaseChangeSet> {
-  return promiseAllObject(
-    map(
-      fetchLocalChangesForCollection,
-      // $FlowFixMe
-      db.collections.map,
-    ),
-  )
+export function fetchLocalChanges(db: Database): Promise<SyncLocalChanges> {
+  return db.action(async () => {
+    const changesWithRecords = await promiseAllObject(
+      map(
+        fetchLocalChangesForCollection,
+        // $FlowFixMe
+        db.collections.map,
+      ),
+    )
+    const changes = map(([changeSet]) => changeSet, changesWithRecords)
+    const affectedRecords = pipe(
+      values,
+      map(([, records]) => records),
+      unnest,
+    )(changesWithRecords)
+    return {
+      changes,
+      affectedRecords,
+    }
+  })
 }
 
 export function markLocalChangesAsSyncedForCollection<T: Model>(
@@ -209,7 +225,7 @@ export function markLocalChangesAsSyncedForCollection<T: Model>(
 
 export function markLocalChangesAsSynced(
   db: Database,
-  syncedLocalChanges: SyncDatabaseChangeSet,
+  syncedLocalChanges: SyncLocalChanges,
 ): Promise<void> {
   return db.action(async action => {
     // TODO: Does the order of collections matter? Should they be done one by one? Or all at once?
@@ -218,7 +234,7 @@ export function markLocalChangesAsSynced(
         action.subAction(() =>
           markLocalChangesAsSyncedForCollection(db.collections.get(tableName), changes),
         ),
-      syncedLocalChanges,
+      syncedLocalChanges.changes,
     )
   })
 }
