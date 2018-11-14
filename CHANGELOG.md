@@ -6,9 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ### New
 
-- Added DatabaseProvider and withDatabase Higher-Order Component to reduce prop drilling.
-- [WIP] Actions API
+- Added DatabaseProvider and withDatabase Higher-Order Component to reduce prop drilling
+- Added experimental Actions API. This will be documented in a future release.
 - [WIP] Sync primitives
+
+### Fixes
+
+- Fixes crash on older Android React Native targets without `jsc-android` installed
 
 ## 0.7.0 - 2018-10-31
 
