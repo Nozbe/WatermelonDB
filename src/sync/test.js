@@ -206,7 +206,10 @@ describe('markLocalChangesAsSynced', () => {
     await markLocalChangesAsSynced(database, localChanges)
 
     // no more changes
-    expect((await fetchLocalChanges(database)).changes).toEqual(emptyLocalChanges)
+    expect(await fetchLocalChanges(database)).toEqual({
+      changes: emptyLocalChanges,
+      affectedRecords: [],
+    })
 
     // still just as many objects
     const projects = await projectsCollection.query().fetch()
