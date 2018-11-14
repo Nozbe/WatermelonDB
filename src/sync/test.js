@@ -59,13 +59,9 @@ describe('fetchLocalChanges', () => {
     })
   })
   it('fetches all local changes', async () => {
-    const {
-      database,
-      cloneDatabase,
-      projectsCollection,
-      tasksCollection,
-      commentsCollection,
-    } = mockDatabase()
+    const mock = mockDatabase()
+    const { cloneDatabase, projectsCollection, tasksCollection, commentsCollection } = mock
+    let { database } = mock
 
     // create records
     const p1created = prepareCreateFromRaw(projectsCollection, {})
@@ -123,7 +119,7 @@ describe('fetchLocalChanges', () => {
     expect(await fetchLocalChanges(database)).toEqual(expected)
 
     // simulate reload
-    const database2 = cloneDatabase()
-    expect(await fetchLocalChanges(database2)).toEqual(expected)
+    database = cloneDatabase()
+    expect(await fetchLocalChanges(database)).toEqual(expected)
   })
 })
