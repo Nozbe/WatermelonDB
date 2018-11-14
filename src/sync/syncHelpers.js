@@ -56,3 +56,8 @@ export function prepareUpdateFromRaw<T: Model>(record: T, updatedDirtyRaw: Dirty
     }
   })
 }
+
+export function markAsSynced(record: Model): void {
+  record._raw._status = 'synced'
+  record._raw._changed = ''
+}

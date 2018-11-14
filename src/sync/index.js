@@ -4,16 +4,11 @@ import { mapAsync, promiseAllObject, map, contains, reduce, values, pipe } from 
 import { allPromises, unnest } from '../utils/fp'
 // import { logError } from '../utils/common'
 import type { Database, RecordId, TableName, Collection, Model } from '..'
-import { type DirtyRaw, sanitizedRaw } from '../RawRecord'
+import { type DirtyRaw } from '../RawRecord'
 import * as Q from '../QueryDescription'
 import { columnName } from '../Schema'
 
-import {
-  resolveConflict,
-  replaceRaw,
-  prepareCreateFromRaw,
-  prepareUpdateFromRaw,
-} from './syncHelpers'
+import { markAsSynced, prepareCreateFromRaw, prepareUpdateFromRaw } from './syncHelpers'
 
 // TODO: Document me!
 
@@ -54,6 +49,8 @@ export async function synchronize({
   //     - get all locally deleted ids - for all collections
   //   - push local changes to server - wait for ACK
   //   - markLocalChangesAsSynced()
+  //     - destroy deleted records permanently
+  //     - mark `created` and `updated` records as `synced` + reset _changed
   //   - END ACTION
   //
   // TODO:
@@ -202,6 +199,21 @@ export function fetchLocalChanges(db: Database): Promise<SyncLocalChanges> {
   })
 }
 
+const recordsForRaws = (raws, recordCache) =>
+  reduce(
+    (records, raw) => {
+      const record = recordCache.find(model => model.id === raw.id)
+      if (record) {
+        return records.concat(record)
+      }
+
+      // TODO: Log error
+      return records
+    },
+    [],
+    raws,
+  )
+
 export function markLocalChangesAsSyncedForCollection<T: Model>(
   collection: Collection<T>,
   syncedLocalChanges: SyncTableChangeSet,
@@ -209,20 +221,11 @@ export function markLocalChangesAsSyncedForCollection<T: Model>(
 ): Promise<void> {
   const { database } = collection
   return database.action(async () => {
-    // - destroy deleted records permanently
-    // - mark `created` and `updated` records as `synced` + reset _changed
-
     const { created, updated, deleted } = syncedLocalChanges
 
     await database.adapter.destroyDeletedRecords(collection.table, deleted)
-    await database.batch(
-      ...[...created, ...updated].map(raw =>
-        cachedRecords.find(record => record.id === raw.id).prepareUpdate(record => {
-          record._raw._changed = ''
-          record._raw._status = 'synced'
-        }),
-      ),
-    )
+    const syncedRecords = recordsForRaws([...created, ...updated], cachedRecords)
+    await database.batch(...syncedRecords.map(record => record.prepareUpdate(markAsSynced)))
   })
 }
 
