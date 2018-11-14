@@ -71,6 +71,7 @@ export async function synchronize({
   // - error handling — preventing data corruption in case sync fails
   // - error logging - logging invalid scenarios (suggesting a bug) — e.g.
   // - sync adapters - should this be THE implemention? A collection of helpers for others to use to build their own sync engines/adapters? Should this be a class, similar to DatabaseAdapter?
+  // - What happens if I create then delete something locally - do i send it to sync?
 }
 
 export function applyRemoteChangesToCollection<T: Model>(

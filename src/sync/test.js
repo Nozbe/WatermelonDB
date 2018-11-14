@@ -1,5 +1,8 @@
+import { mockDatabase } from '../__tests__/testModels'
+
+import { fetchLocalChanges } from './index'
 import { addToRawSet, setRawColumnChange } from './helpers'
-import { resolveConflict } from './syncHelpers'
+import { resolveConflict, prepareCreateFromRaw } from './syncHelpers'
 
 describe('addToRawSet', () => {
   it('transforms raw set', () => {
@@ -43,5 +46,84 @@ describe('Conflict resolution', () => {
         { col1: 'b', col2: false, col3: 10 },
       ),
     ).toEqual({ _status: 'updated', _changed: 'col2,col3', col1: 'b', col2: true, col3: 20 })
+  })
+})
+
+describe('fetchLocalChanges', () => {
+  it('returns empty object if no changes', async () => {
+    const { database } = mockDatabase({ actionsEnabled: true })
+    expect(await fetchLocalChanges(database)).toEqual({
+      mock_projects: { created: [], updated: [], deleted: [] },
+      mock_tasks: { created: [], updated: [], deleted: [] },
+      mock_comments: { created: [], updated: [], deleted: [] },
+    })
+  })
+  it('fetches all local changes', async () => {
+    const {
+      database,
+      cloneDatabase,
+      projectsCollection,
+      tasksCollection,
+      commentsCollection,
+    } = mockDatabase()
+
+    // create records
+    const p1created = prepareCreateFromRaw(projectsCollection, {})
+    const p2created = prepareCreateFromRaw(projectsCollection, {})
+    const p3updated = prepareCreateFromRaw(projectsCollection, {
+      id: 'updated1',
+      _status: 'synced',
+    })
+    const p4deleted = prepareCreateFromRaw(projectsCollection, {})
+    const t1created = prepareCreateFromRaw(tasksCollection, {})
+    const t2deleted = prepareCreateFromRaw(tasksCollection, { id: 'tsynced1', _status: 'synced' })
+    const c1created = prepareCreateFromRaw(commentsCollection, {})
+    await database.batch(
+      p1created,
+      p2created,
+      prepareCreateFromRaw(projectsCollection, { _status: 'synced', id: 'synced1' }),
+      p3updated,
+      p4deleted,
+      t1created,
+      prepareCreateFromRaw(tasksCollection, { _status: 'synced', id: 'synced2' }),
+      t2deleted,
+      c1created,
+    )
+
+    // update records
+    await p3updated.update(p => {
+      p.name = 'x'
+    })
+    await t2deleted.update(t => {
+      t.name = 'yy'
+    })
+
+    // delete records
+    await p4deleted.markAsDeleted()
+    await t2deleted.markAsDeleted()
+
+    // check
+    expect(p1created._raw._status).toBe('created')
+    expect(p3updated._raw._status).toBe('updated')
+    expect(p3updated._raw._changed).toBe('name')
+    expect(t2deleted._raw._status).toBe('deleted')
+    const expected = {
+      mock_projects: {
+        created: [p1created._raw, p2created._raw],
+        updated: [p3updated._raw],
+        deleted: [p4deleted.id],
+      },
+      mock_tasks: { created: [t1created._raw], updated: [], deleted: [t2deleted.id] },
+      mock_comments: {
+        created: [c1created._raw],
+        updated: [],
+        deleted: [],
+      },
+    }
+    expect(await fetchLocalChanges(database)).toEqual(expected)
+
+    // simulate reload
+    const database2 = cloneDatabase()
+    expect(await fetchLocalChanges(database2)).toEqual(expected)
   })
 })
