@@ -27,7 +27,8 @@ describe('Database', () => {
 
 describe('Batch writes', () => {
   it('can batch records', async () => {
-    let { database, tasksCollection: collection } = mockDatabase()
+    // eslint-disable-next-line
+    let { database, cloneDatabase, tasksCollection: collection } = mockDatabase()
     const adapterBatchSpy = jest.spyOn(database.adapter, 'batch')
 
     const m1 = await collection.create()
@@ -80,11 +81,7 @@ describe('Batch writes', () => {
     expect(recordObserver).toHaveBeenCalledTimes(2)
 
     // simulate reload -- check if changes actually got saved
-    database = new Database({
-      adapter: database.adapter.testClone(),
-      schema: testSchema,
-      modelClasses: [MockTask],
-    })
+    database = cloneDatabase()
     collection = database.collections.get('mock_tasks')
 
     const fetchedM1 = await collection.find(m1.id)
