@@ -1,3 +1,4 @@
+import clone from 'lodash.clonedeep'
 import { mockDatabase } from '../__tests__/testModels'
 
 import { fetchLocalChanges } from './index'
@@ -49,61 +50,91 @@ describe('Conflict resolution', () => {
   })
 })
 
+const emptyChanges = Object.freeze({
+  mock_projects: { created: [], updated: [], deleted: [] },
+  mock_tasks: { created: [], updated: [], deleted: [] },
+  mock_comments: { created: [], updated: [], deleted: [] },
+})
+
+const makeLocalChanges = async mock => {
+  const { database, projectsCollection, tasksCollection, commentsCollection } = mock
+
+  // create records
+  const p1created = prepareCreateFromRaw(projectsCollection, {})
+  const p2created = prepareCreateFromRaw(projectsCollection, {})
+  const p3updated = prepareCreateFromRaw(projectsCollection, {
+    id: 'updated1',
+    _status: 'synced',
+  })
+  const p4deleted = prepareCreateFromRaw(projectsCollection, {})
+  const t1created = prepareCreateFromRaw(tasksCollection, {})
+  const t2deleted = prepareCreateFromRaw(tasksCollection, { id: 'tsynced1', _status: 'synced' })
+  const c1created = prepareCreateFromRaw(commentsCollection, {})
+  const c2destroyed = prepareCreateFromRaw(commentsCollection, {})
+
+  await database.batch(
+    p1created,
+    p2created,
+    prepareCreateFromRaw(projectsCollection, { _status: 'synced', id: 'synced1' }),
+    p3updated,
+    p4deleted,
+    t1created,
+    prepareCreateFromRaw(tasksCollection, { _status: 'synced', id: 'synced2' }),
+    t2deleted,
+    c1created,
+    c2destroyed,
+  )
+
+  // update records
+  await p3updated.update(p => {
+    p.name = 'x'
+  })
+  await t2deleted.update(t => {
+    t.name = 'yy'
+  })
+
+  // delete records
+  await p4deleted.markAsDeleted()
+  await t2deleted.markAsDeleted()
+  await c2destroyed.destroyPermanently() // sanity check
+
+  return {
+    p1created,
+    p2created,
+    p3updated,
+    p4deleted,
+    t1created,
+    t2deleted,
+    c1created,
+  }
+}
+
 describe('fetchLocalChanges', () => {
   it('returns empty object if no changes', async () => {
     const { database } = mockDatabase({ actionsEnabled: true })
-    expect(await fetchLocalChanges(database)).toEqual({
-      mock_projects: { created: [], updated: [], deleted: [] },
-      mock_tasks: { created: [], updated: [], deleted: [] },
-      mock_comments: { created: [], updated: [], deleted: [] },
-    })
+    expect(await fetchLocalChanges(database)).toEqual(emptyChanges)
   })
   it('fetches all local changes', async () => {
     const mock = mockDatabase()
-    const { cloneDatabase, projectsCollection, tasksCollection, commentsCollection } = mock
-    let { database } = mock
+    // eslint-disable-next-line
+    let { database, cloneDatabase } = mock
 
-    // create records
-    const p1created = prepareCreateFromRaw(projectsCollection, {})
-    const p2created = prepareCreateFromRaw(projectsCollection, {})
-    const p3updated = prepareCreateFromRaw(projectsCollection, {
-      id: 'updated1',
-      _status: 'synced',
-    })
-    const p4deleted = prepareCreateFromRaw(projectsCollection, {})
-    const t1created = prepareCreateFromRaw(tasksCollection, {})
-    const t2deleted = prepareCreateFromRaw(tasksCollection, { id: 'tsynced1', _status: 'synced' })
-    const c1created = prepareCreateFromRaw(commentsCollection, {})
-    await database.batch(
+    const {
       p1created,
       p2created,
-      prepareCreateFromRaw(projectsCollection, { _status: 'synced', id: 'synced1' }),
       p3updated,
       p4deleted,
       t1created,
-      prepareCreateFromRaw(tasksCollection, { _status: 'synced', id: 'synced2' }),
       t2deleted,
       c1created,
-    )
-
-    // update records
-    await p3updated.update(p => {
-      p.name = 'x'
-    })
-    await t2deleted.update(t => {
-      t.name = 'yy'
-    })
-
-    // delete records
-    await p4deleted.markAsDeleted()
-    await t2deleted.markAsDeleted()
+    } = await makeLocalChanges(mock)
 
     // check
     expect(p1created._raw._status).toBe('created')
     expect(p3updated._raw._status).toBe('updated')
     expect(p3updated._raw._changed).toBe('name')
     expect(t2deleted._raw._status).toBe('deleted')
-    const expected = {
+    const expected = clone({
       mock_projects: {
         created: [p1created._raw, p2created._raw],
         updated: [p3updated._raw],
@@ -115,11 +146,29 @@ describe('fetchLocalChanges', () => {
         updated: [],
         deleted: [],
       },
-    }
-    expect(await fetchLocalChanges(database)).toEqual(expected)
+    })
+    const result = await fetchLocalChanges(database)
+    expect(result).toEqual(expected)
 
     // simulate reload
     database = cloneDatabase()
     expect(await fetchLocalChanges(database)).toEqual(expected)
   })
+  it('returns cloned raws', async () => {
+    const mock = mockDatabase()
+    const { database } = mock
+
+    const { p3updated } = await makeLocalChanges(mock)
+
+    const result = await fetchLocalChanges(database)
+    const resultCloned = clone(result)
+
+    // raws should be cloned - further changes don't affect result
+    await p3updated.update(p => {
+      p.name = 'y'
+    })
+    expect(result).toEqual(resultCloned)
+  })
 })
+
+describe('markLocalChangesAsSynced', () => {})

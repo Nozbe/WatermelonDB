@@ -158,7 +158,7 @@ export function applyRemoteChanges(
 const notSyncedQuery = Q.where(columnName('_status'), Q.notEq('synced'))
 const rawsForStatus = (status, records) =>
   reduce(
-    (raws, record) => (record._raw._status === status ? raws.concat(record._raw) : raws),
+    (raws, record) => (record._raw._status === status ? raws.concat({ ...record._raw }) : raws),
     [],
     records,
   )
@@ -195,8 +195,8 @@ export function markLocalChangesAsSyncedForCollection<T: Model>(
 
     const { created, updated, deleted } = syncedLocalChanges
 
-    database.adapter.destroyDeletedRecords(collection.table, deleted)
-    database.batch(
+    await database.adapter.destroyDeletedRecords(collection.table, deleted)
+    await database.batch(
       ...[...created, ...updated].map(record =>
         record.prepareUpdate(() => {
           record._raw._changed = ''
