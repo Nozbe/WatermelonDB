@@ -214,11 +214,10 @@ export function markLocalChangesAsSynced(
   return db.action(async action => {
     // TODO: Does the order of collections matter? Should they be done one by one? Or all at once?
     await mapAsync(
-      ([changes, tableName]) =>
+      (changes, tableName) =>
         action.subAction(() =>
           markLocalChangesAsSyncedForCollection(db.collections.get(tableName), changes),
         ),
-
       syncedLocalChanges,
     )
   })

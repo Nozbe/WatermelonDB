@@ -1,7 +1,7 @@
 import clone from 'lodash.clonedeep'
 import { mockDatabase } from '../__tests__/testModels'
 
-import { fetchLocalChanges } from './index'
+import { fetchLocalChanges, markLocalChangesAsSynced } from './index'
 import { addToRawSet, setRawColumnChange } from './helpers'
 import { resolveConflict, prepareCreateFromRaw } from './syncHelpers'
 
@@ -50,7 +50,7 @@ describe('Conflict resolution', () => {
   })
 })
 
-const emptyChanges = Object.freeze({
+const emptyLocalChanges = Object.freeze({
   mock_projects: { created: [], updated: [], deleted: [] },
   mock_tasks: { created: [], updated: [], deleted: [] },
   mock_comments: { created: [], updated: [], deleted: [] },
@@ -112,7 +112,7 @@ const makeLocalChanges = async mock => {
 describe('fetchLocalChanges', () => {
   it('returns empty object if no changes', async () => {
     const { database } = mockDatabase({ actionsEnabled: true })
-    expect(await fetchLocalChanges(database)).toEqual(emptyChanges)
+    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
   })
   it('fetches all local changes', async () => {
     const mock = mockDatabase()
@@ -154,7 +154,7 @@ describe('fetchLocalChanges', () => {
     database = cloneDatabase()
     expect(await fetchLocalChanges(database)).toEqual(expected)
   })
-  it('returns cloned raws', async () => {
+  it('returns object copies', async () => {
     const mock = mockDatabase()
     const { database } = mock
 
@@ -171,4 +171,47 @@ describe('fetchLocalChanges', () => {
   })
 })
 
-describe('markLocalChangesAsSynced', () => {})
+describe('markLocalChangesAsSynced', () => {
+  it('does nothing for empty local changes', async () => {
+    const mock = mockDatabase()
+    const { database } = mock
+
+    await makeLocalChanges(mock)
+    const localChanges1 = clone(await fetchLocalChanges(database))
+
+    await markLocalChangesAsSynced(database, emptyLocalChanges)
+
+    const localChanges2 = clone(await fetchLocalChanges(database))
+    expect(localChanges1).toEqual(localChanges2)
+  })
+  it('marks local changes as synced', async () => {
+    const mock = mockDatabase()
+    const { database, adapter, projectsCollection, tasksCollection } = mock
+
+    await makeLocalChanges(mock)
+
+    const projectCount = await projectsCollection.query().fetchCount()
+    const taskCount = await tasksCollection.query().fetchCount()
+
+    const localChanges = await fetchLocalChanges(database)
+    await markLocalChangesAsSynced(database, localChanges)
+
+    // no more changes
+    expect(await makeLocalChanges(mock)).toEqual(emptyLocalChanges)
+
+    // still just as many objects
+    const projects = await projectsCollection.query().fetch()
+    const tasks = await tasksCollection.query().fetch()
+    expect(projects.length).toBe(projectCount)
+    expect(tasks.length).toBe(taskCount)
+
+    // all objects marked as synced
+    expect(projects.every(record => record.syncStatus === 'synced')).toBe(true)
+    expect(tasks.every(record => record.syncStatus === 'synced')).toBe(true)
+
+    // no objects marked as deleted
+    expect(await adapter.getDeletedRecords('mock_projects')).toBe([])
+    expect(await adapter.getDeletedRecords('mock_tasks')).toBe([])
+    expect(await adapter.getDeletedRecords('mock_comments')).toBe([])
+  })
+})
