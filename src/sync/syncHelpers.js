@@ -25,9 +25,7 @@ export function resolveConflict(local: RawRecord, remote: DirtyRaw): DirtyRaw {
   return resolved
 }
 
-// TODO: Document?
-// TODO: Test?
-export function replaceRaw(record: Model, dirtyRaw: DirtyRaw): void {
+function replaceRaw(record: Model, dirtyRaw: DirtyRaw): void {
   record._raw = sanitizedRaw(dirtyRaw, record.collection.schema)
 }
 

@@ -1,5 +1,6 @@
 // @flow
 
+// $FlowFixMe
 import { mapAsync, promiseAllObject, map, contains, reduce, values, pipe } from 'rambdax'
 import { allPromises, unnest } from '../utils/fp'
 // import { logError } from '../utils/common'

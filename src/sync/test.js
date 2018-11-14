@@ -1,12 +1,9 @@
 import clone from 'lodash.clonedeep'
-import { sortBy, identity } from 'rambdax'
 import { mockDatabase } from '../__tests__/testModels'
 
 import { fetchLocalChanges, markLocalChangesAsSynced } from './index'
 import { addToRawSet, setRawColumnChange } from './helpers'
 import { resolveConflict, prepareCreateFromRaw } from './syncHelpers'
-
-const sort = sortBy(identity)
 
 describe('addToRawSet', () => {
   it('transforms raw set', () => {
@@ -209,7 +206,10 @@ describe('markLocalChangesAsSynced', () => {
     await markLocalChangesAsSynced(database, localChanges)
 
     // no more changes
-    expect((await fetchLocalChanges(database)).changes).toEqual(emptyLocalChanges)
+    expect(await fetchLocalChanges(database)).toEqual({
+      changes: emptyLocalChanges,
+      affectedRecords: [],
+    })
 
     // still just as many objects
     const projects = await projectsCollection.query().fetch()
