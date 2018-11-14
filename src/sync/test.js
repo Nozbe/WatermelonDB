@@ -209,7 +209,7 @@ describe('markLocalChangesAsSynced', () => {
     await markLocalChangesAsSynced(database, localChanges)
 
     // no more changes
-    expect(await makeLocalChanges(mock)).toEqual(emptyLocalChanges)
+    expect((await fetchLocalChanges(database)).changes).toEqual(emptyLocalChanges)
 
     // still just as many objects
     const projects = await projectsCollection.query().fetch()
@@ -222,9 +222,9 @@ describe('markLocalChangesAsSynced', () => {
     expect(tasks.every(record => record.syncStatus === 'synced')).toBe(true)
 
     // no objects marked as deleted
-    expect(await adapter.getDeletedRecords('mock_projects')).toBe([])
-    expect(await adapter.getDeletedRecords('mock_tasks')).toBe([])
-    expect(await adapter.getDeletedRecords('mock_comments')).toBe([])
+    expect(await adapter.getDeletedRecords('mock_projects')).toEqual([])
+    expect(await adapter.getDeletedRecords('mock_tasks')).toEqual([])
+    expect(await adapter.getDeletedRecords('mock_comments')).toEqual([])
   })
   it.skip('only emits one collection batch change', async () => {
     // TODO

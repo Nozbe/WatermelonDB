@@ -178,24 +178,26 @@ async function fetchLocalChangesForCollection<T: Model>(
   return [changeSet, changedRecords]
 }
 
+const extractChanges = map(([changeSet]) => changeSet)
+const extractAllAffectedRecords = pipe(
+  values,
+  map(([, records]) => records),
+  unnest,
+)
+
 export function fetchLocalChanges(db: Database): Promise<SyncLocalChanges> {
   return db.action(async () => {
-    const changesWithRecords = await promiseAllObject(
+    const changes = await promiseAllObject(
       map(
         fetchLocalChangesForCollection,
         // $FlowFixMe
         db.collections.map,
       ),
     )
-    const changes = map(([changeSet]) => changeSet, changesWithRecords)
-    const affectedRecords = pipe(
-      values,
-      map(([, records]) => records),
-      unnest,
-    )(changesWithRecords)
     return {
-      changes,
-      affectedRecords,
+      // $FlowFixMe
+      changes: extractChanges(changes),
+      affectedRecords: extractAllAffectedRecords(changes),
     }
   })
 }
@@ -203,6 +205,7 @@ export function fetchLocalChanges(db: Database): Promise<SyncLocalChanges> {
 export function markLocalChangesAsSyncedForCollection<T: Model>(
   collection: Collection<T>,
   syncedLocalChanges: SyncTableChangeSet,
+  cachedRecords: Model[],
 ): Promise<void> {
   const { database } = collection
   return database.action(async () => {
@@ -213,8 +216,8 @@ export function markLocalChangesAsSyncedForCollection<T: Model>(
 
     await database.adapter.destroyDeletedRecords(collection.table, deleted)
     await database.batch(
-      ...[...created, ...updated].map(record =>
-        record.prepareUpdate(() => {
+      ...[...created, ...updated].map(raw =>
+        cachedRecords.find(record => record.id === raw.id).prepareUpdate(record => {
           record._raw._changed = ''
           record._raw._status = 'synced'
         }),
@@ -229,12 +232,17 @@ export function markLocalChangesAsSynced(
 ): Promise<void> {
   return db.action(async action => {
     // TODO: Does the order of collections matter? Should they be done one by one? Or all at once?
+    const { changes: localChanges, affectedRecords } = syncedLocalChanges
     await mapAsync(
       (changes, tableName) =>
         action.subAction(() =>
-          markLocalChangesAsSyncedForCollection(db.collections.get(tableName), changes),
+          markLocalChangesAsSyncedForCollection(
+            db.collections.get(tableName),
+            changes,
+            affectedRecords,
+          ),
         ),
-      syncedLocalChanges.changes,
+      localChanges,
     )
   })
 }
