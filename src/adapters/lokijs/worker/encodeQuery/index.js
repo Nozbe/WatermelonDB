@@ -22,6 +22,7 @@ import objOf from '../../../../utils/fp/objOf'
 import zip from '../../../../utils/fp/zip'
 import cond from '../../../../utils/fp/cond'
 import invariant from '../../../../utils/common/invariant'
+import { likeToRegexp } from '../../../../utils/regexp'
 
 import type { AssociationArgs, SerializedQuery } from '../../../../Query'
 import type {
@@ -89,9 +90,8 @@ const noNullComparisons: OperatorFunction => OperatorFunction = operator => valu
 
 const like: OperatorFunction = value => {
   if (typeof value === 'string') {
-    const regexp = `^${value}$`.replace(/%/g, '.*').replace(/_/g, '.')
     return {
-      $regex: new RegExp(regexp, 'i'),
+      $regex: likeToRegexp(value),
     }
   }
 

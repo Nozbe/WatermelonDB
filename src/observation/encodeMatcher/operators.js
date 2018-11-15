@@ -3,6 +3,7 @@
 
 import { contains } from 'rambdax'
 import { gt, gte, lt, lte, complement } from '../../utils/fp'
+import { likeToRegexp } from '../../utils/regexp'
 
 import type { Value, CompoundValue, Operator } from '../../QueryDescription'
 
@@ -29,11 +30,8 @@ const handleLikeValue = (v, defaultV) => typeof v === 'string' ? v : defaultV
 export const like: OperatorFunction = (left, right) => {
   const leftV = handleLikeValue(left, '')
   const rightV = handleLikeValue(right, '(?!.*)')
-  const regexp = `^${rightV}$`
-    .replace(/%/g, '.*')
-    .replace(/_/g, '.')
 
-  return new RegExp(regexp, 'i').test(leftV)
+  return likeToRegexp(rightV).test(leftV)
 }
 
 const operators: { [Operator]: OperatorFunction } = {
