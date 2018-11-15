@@ -1,7 +1,7 @@
 import clone from 'lodash.clonedeep'
 import { mockDatabase } from '../__tests__/testModels'
 
-import { fetchLocalChanges, markLocalChangesAsSynced } from './index'
+import { fetchLocalChanges, markLocalChangesAsSynced, applyRemoteChanges } from './index'
 import { addToRawSet, setRawColumnChange } from './helpers'
 import { resolveConflict, prepareCreateFromRaw } from './syncHelpers'
 
@@ -50,7 +50,7 @@ describe('Conflict resolution', () => {
   })
 })
 
-const emptyLocalChanges = Object.freeze({
+const emptyChangeSet = Object.freeze({
   mock_projects: { created: [], updated: [], deleted: [] },
   mock_tasks: { created: [], updated: [], deleted: [] },
   mock_comments: { created: [], updated: [], deleted: [] },
@@ -113,7 +113,7 @@ describe('fetchLocalChanges', () => {
   it('returns empty object if no changes', async () => {
     const { database } = mockDatabase({ actionsEnabled: true })
     expect(await fetchLocalChanges(database)).toEqual({
-      changes: emptyLocalChanges,
+      changes: emptyChangeSet,
       affectedRecords: [],
     })
   })
@@ -188,7 +188,7 @@ describe('markLocalChangesAsSynced', () => {
     await makeLocalChanges(mock)
     const localChanges1 = await fetchLocalChanges(database)
 
-    await markLocalChangesAsSynced(database, emptyLocalChanges)
+    await markLocalChangesAsSynced(database, { changes: emptyChangeSet, affectedRecords: [] })
 
     const localChanges2 = await fetchLocalChanges(database)
     expect(localChanges1).toEqual(localChanges2)
@@ -207,7 +207,7 @@ describe('markLocalChangesAsSynced', () => {
 
     // no more changes
     expect(await fetchLocalChanges(database)).toEqual({
-      changes: emptyLocalChanges,
+      changes: emptyChangeSet,
       affectedRecords: [],
     })
 
@@ -231,5 +231,35 @@ describe('markLocalChangesAsSynced', () => {
   })
   it.skip(`doesn't mark as synced records that changed since changes were fetched`, async () => {
     // TODO
+  })
+})
+
+describe('applyRemoteChanges', () => {
+  it('does nothing with an empty remote changes object', async () => {
+    const mock = mockDatabase()
+    const { database } = mock
+
+    await makeLocalChanges(mock)
+    const localChanges1 = await fetchLocalChanges(database)
+
+    await applyRemoteChanges(database, emptyChangeSet)
+
+    const localChanges2 = await fetchLocalChanges(database)
+    expect(localChanges1).toEqual(localChanges2)
+  })
+  it('can apply remote changes successfully', async () => {
+    const mock = mockDatabase()
+    const { database, adapter, projectsCollection, tasksCollection } = mock
+
+    // make a local mess first
+    await makeLocalChanges(mock)
+
+    // apply these changes from server
+    const remoteChanges = {
+      mock_projects: { created: [], updated: [], deleted: [] },
+      mock_tasks: { created: [], updated: [], deleted: [] },
+      mock_comments: { created: [], updated: [], deleted: [] },
+    }
+    await applyRemoteChanges(database, remoteChanges)
   })
 })

@@ -20,6 +20,15 @@ export type SyncDatabaseChangeSet = $Exact<{ [TableName<any>]: SyncTableChangeSe
 
 export type SyncLocalChanges = $Exact<{ changes: SyncDatabaseChangeSet, affectedRecords: Model[] }>
 
+// *** Applying remote changes ***
+
+export async function applyRemoteChanges(
+  db: Database,
+  remoteChanges: SyncDatabaseChangeSet,
+): Promise<void> {}
+
+// *** Fetching local changes ***
+
 const notSyncedQuery = Q.where(columnName('_status'), Q.notEq('synced'))
 const rawsForStatus = (status, records) =>
   reduce(
@@ -64,6 +73,8 @@ export function fetchLocalChanges(db: Database): Promise<SyncLocalChanges> {
   })
 }
 
+// *** Mark local changes as synced ***
+
 const recordsForRaws = (raws, recordCache) =>
   reduce(
     (records, raw) => {
@@ -79,7 +90,7 @@ const recordsForRaws = (raws, recordCache) =>
     raws,
   )
 
-export function markLocalChangesAsSyncedForCollection<T: Model>(
+function markLocalChangesAsSyncedForCollection<T: Model>(
   collection: Collection<T>,
   syncedLocalChanges: SyncTableChangeSet,
   cachedRecords: Model[],
