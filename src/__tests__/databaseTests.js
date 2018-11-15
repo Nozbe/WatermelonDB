@@ -314,17 +314,6 @@ export const matchTests = [
     ],
   },
   {
-    name: 'match like (null)',
-    query: [Q.where('text1', Q.like(null))],
-    matching: [],
-    nonMatching: [
-      { id: 'n1', text1: 'Lorem ipsum dolor sit amet,' },
-      { id: 'n2', text1: 'Lorem Ipsum dolor sit amet,' },
-      { id: 'n3', text1: 'consectetur adipiscing elit.' },
-      { id: 'n4', text1: null },
-    ],
-  },
-  {
     name: 'match like (value%)',
     query: [Q.where('text1', Q.like('Lorem%'))],
     matching: [
