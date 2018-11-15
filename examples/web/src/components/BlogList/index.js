@@ -43,7 +43,7 @@ const enhance = compose(
   withObservables(['search'], ({ database, search }) => ({
       blogs: database.collections
         .get('blogs')
-        .query(Q.where('name', Q.like(`${search}%`)))
+        .query(Q.where('name', Q.like(`${Q.sanitizeLikeString(search)}%`)))
         .observe(),
     })
   ),
