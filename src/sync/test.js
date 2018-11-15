@@ -68,26 +68,39 @@ const makeLocalChanges = async mock => {
   })
   const pDeleted1 = prepareCreateFromRaw(projectsCollection, { id: 'pDeleted1' })
   const tCreated1 = prepareCreateFromRaw(tasksCollection, { id: 'tCreated1' })
+  const tUpdated1 = prepareCreateFromRaw(tasksCollection, { id: 'tUpdated1', _status: 'synced' })
   const tDeleted1 = prepareCreateFromRaw(tasksCollection, { id: 'tDeleted1', _status: 'synced' })
   const cCreated1 = prepareCreateFromRaw(commentsCollection, { id: 'cCreated1' })
+  const cUpdated1 = prepareCreateFromRaw(commentsCollection, { id: 'cUpdated1', _status: 'synced' })
+  const cDeleted1 = prepareCreateFromRaw(commentsCollection, { id: 'cDeleted1' })
   const cDestroyed1 = prepareCreateFromRaw(commentsCollection, { id: 'cDestroyed1' })
 
   await database.batch(
+    prepareCreateFromRaw(projectsCollection, { _status: 'synced', id: 'pSynced1' }),
     pCreated1,
     pCreated2,
-    prepareCreateFromRaw(projectsCollection, { _status: 'synced', id: 'pSynced1' }),
     pUpdated1,
     pDeleted1,
-    tCreated1,
     prepareCreateFromRaw(tasksCollection, { _status: 'synced', id: 'tSynced1' }),
+    tCreated1,
+    tUpdated1,
     tDeleted1,
+    prepareCreateFromRaw(commentsCollection, { _status: 'synced', id: 'cSynced1' }),
     cCreated1,
+    cUpdated1,
+    cDeleted1,
     cDestroyed1,
   )
 
   // update records
   await pUpdated1.update(p => {
     p.name = 'x'
+  })
+  await tUpdated1.update(p => {
+    p.name = 'old1'
+  })
+  await cUpdated1.update(c => {
+    c.body = 'old1'
   })
   await tDeleted1.update(t => {
     t.name = 'yy'
@@ -96,6 +109,7 @@ const makeLocalChanges = async mock => {
   // delete records
   await pDeleted1.markAsDeleted()
   await tDeleted1.markAsDeleted()
+  await cDeleted1.markAsDeleted()
   await cDestroyed1.destroyPermanently() // sanity check
 
   return {
@@ -104,8 +118,11 @@ const makeLocalChanges = async mock => {
     pUpdated1,
     pDeleted1,
     tCreated1,
+    tUpdated1,
     tDeleted1,
     cCreated1,
+    cUpdated1,
+    cDeleted1,
   }
 }
 
@@ -128,8 +145,11 @@ describe('fetchLocalChanges', () => {
       pUpdated1,
       pDeleted1,
       tCreated1,
+      tUpdated1,
       tDeleted1,
       cCreated1,
+      cUpdated1,
+      cDeleted1,
     } = await makeLocalChanges(mock)
 
     // check
@@ -143,14 +163,22 @@ describe('fetchLocalChanges', () => {
         updated: [pUpdated1._raw],
         deleted: [pDeleted1.id],
       },
-      mock_tasks: { created: [tCreated1._raw], updated: [], deleted: [tDeleted1.id] },
+      mock_tasks: { created: [tCreated1._raw], updated: [tUpdated1._raw], deleted: [tDeleted1.id] },
       mock_comments: {
         created: [cCreated1._raw],
-        updated: [],
-        deleted: [],
+        updated: [cUpdated1._raw],
+        deleted: [cDeleted1.id],
       },
     })
-    const expectedAffectedRecords = [pCreated1, pCreated2, pUpdated1, tCreated1, cCreated1]
+    const expectedAffectedRecords = [
+      pCreated1,
+      pCreated2,
+      pUpdated1,
+      tCreated1,
+      tUpdated1,
+      cCreated1,
+      cUpdated1,
+    ]
     const result = await fetchLocalChanges(database)
     expect(result.changes).toEqual(expectedChanges)
     expect(result.affectedRecords).toEqual(expectedAffectedRecords)
@@ -247,7 +275,7 @@ describe('applyRemoteChanges', () => {
     const localChanges2 = await fetchLocalChanges(database)
     expect(localChanges1).toEqual(localChanges2)
   })
-  it('can apply remote changes successfully', async () => {
+  it('can apply remote changes successfully in all circumstances', async () => {
     const mock = mockDatabase()
     const { database, adapter, projectsCollection, tasksCollection } = mock
 
@@ -260,22 +288,48 @@ describe('applyRemoteChanges', () => {
       // remote: created/updated/deleted
       // local: synced/created/updated/deleted/doesnt exist
       mock_projects: {
-        created: [{ id: 'remote_pCreated1' }],
-        updated: [{ id: 'pSynced1', name: 'new1' }],
-        deleted: [],
+        created: [
+          { id: 'pNew1' }, // creating new record
+          { id: 'pDeleted1' }, // error (shoult NOT exist locally)
+        ],
+        updated: [
+          { id: 'pSynced1', name: 'new1' }, // no conflict
+          { id: 'pCreated2', name: 'new1' }, // error (should not be `created` locally)
+        ],
+        deleted: [
+          'pCreated1', // error (should not be `created` locally)
+          'pUpdated1', // discard local changes
+        ],
       },
       mock_tasks: {
-        created: [],
-        updated: [{ id: 'remote_tUpdated1' }],
-        deleted: ['tDeleted1', 'tSynced1'],
+        created: [
+          { id: 'tCreated1' }, // error (should NOT exist locally)
+        ],
+        updated: [
+          { id: 'tNew1' }, // error (should exist locally)
+          { id: 'tUpdated1', name: 'new1' }, // update conflict!
+        ],
+        deleted: [
+          'tDeleted1', // would be deleted anyway
+          'tSynced1', // just delete
+        ],
       },
       mock_comments: {
-        created: [],
-        updated: [],
-        deleted: ['remote_cDeleted1'],
+        created: [
+          { id: 'cSynced1' }, // error (shoult NOT exist locally)
+          { id: 'cUpdated1' }, // error (shoult NOT exist locally)
+        ],
+        updated: [
+          { id: 'cDeleted1', body: 'new1' }, // ignore update, will be deleted anyway
+        ],
+        deleted: [
+          'cNew1', // *possibly* an error (should exist locally)
+        ],
       },
     }
     await applyRemoteChanges(database, remoteChanges)
+
+    // TODO: Test
   })
   it.skip('only emits one collection batch change', async () => {
     // TODO

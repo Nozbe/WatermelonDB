@@ -1,5 +1,5 @@
 import { appSchema, tableSchema } from '../Schema'
-import { field, relation, immutableRelation } from '../decorators'
+import { field, relation, immutableRelation, text } from '../decorators'
 import Model from '../Model'
 import Database from '../Database'
 import LokiJSAdapter from '../adapters/lokijs'
@@ -23,7 +23,7 @@ export const testSchema = appSchema({
     }),
     tableSchema({
       name: 'mock_comments',
-      columns: [{ name: 'task_id', type: 'string' }],
+      columns: [{ name: 'task_id', type: 'string' }, { name: 'body', type: 'string' }],
     }),
   ],
 })
@@ -62,6 +62,9 @@ export class MockComment extends Model {
 
   @immutableRelation('mock_tasks', 'task_id')
   task
+
+  @text('body')
+  body
 }
 
 export const mockDatabase = ({ actionsEnabled = false } = {}) => {
