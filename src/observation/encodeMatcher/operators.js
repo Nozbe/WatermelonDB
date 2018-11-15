@@ -29,7 +29,7 @@ const handleLikeValue = (v, defaultV) => typeof v === 'string' ? v : defaultV
 
 export const like: OperatorFunction = (left, right) => {
   const leftV = handleLikeValue(left, '')
-  const rightV = handleLikeValue(right, '(?!.*)')
+  const rightV = handleLikeValue(right, '(?!)')
 
   return likeToRegexp(rightV).test(leftV)
 }

@@ -586,6 +586,109 @@ export default () => [
       expect(tt1.text1).toBe('hello')
     },
   ],
+  [
+    `can perform empty migrations (regression test)`,
+    async (_adapter, AdapterClass) => {
+      let adapter = new AdapterClass({
+        schema: { ...testSchema, version: 1 },
+        migrationsExperimental: schemaMigrations({ migrations: [] }),
+      })
+
+      await adapter.batch([['create', makeMockTask({ id: 't1', text1: 'foo' })]])
+      expect(await adapter.count(taskQuery())).toBe(1)
+
+      // Perform an empty migration (no steps, just version bump)
+      adapter = adapter.testClone({
+        schema: { ...testSchema, version: 2 },
+        migrationsExperimental: schemaMigrations({ migrations: [{ toVersion: 2, steps: [] }] }),
+      })
+
+      // check that migration worked, no data lost
+      expect(await adapter.count(taskQuery())).toBe(1)
+      expect((await adapter.find('tasks', 't1')).text1).toBe('foo')
+    },
+  ],
+  [
+    `resets database when it's newer than app schema`,
+    async (_adapter, AdapterClass) => {
+      // launch newer version of the app
+      let adapter = new AdapterClass({
+        schema: { ...testSchema, version: 3 },
+        migrationsExperimental: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
+      })
+
+      await adapter.batch([['create', makeMockTask({})]])
+      expect(await adapter.count(taskQuery())).toBe(1)
+
+      // launch older version of the app
+      adapter = adapter.testClone({
+        schema: { ...testSchema, version: 1 },
+        migrationsExperimental: schemaMigrations({ migrations: [] }),
+      })
+
+      expect(await adapter.count(taskQuery())).toBe(0)
+      await adapter.batch([['create', makeMockTask({})]])
+      expect(await adapter.count(taskQuery())).toBe(1)
+    },
+  ],
+  [
+    'resets database when there are no available migrations',
+    async (_adapter, AdapterClass) => {
+      // launch older version of the app
+      let adapter = new AdapterClass({
+        schema: { ...testSchema, version: 1 },
+        migrationsExperimental: schemaMigrations({ migrations: [] }),
+      })
+
+      await adapter.batch([['create', makeMockTask({})]])
+      expect(await adapter.count(taskQuery())).toBe(1)
+
+      // launch newer version of the app, without migrations available
+      adapter = adapter.testClone({
+        schema: { ...testSchema, version: 3 },
+        migrationsExperimental: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
+      })
+
+      expect(await adapter.count(taskQuery())).toBe(0)
+      await adapter.batch([['create', makeMockTask({})]])
+      expect(await adapter.count(taskQuery())).toBe(1)
+    },
+  ],
+  [
+    'errors when migration fails',
+    async (_adapter, AdapterClass) => {
+      // launch older version of the app
+      let adapter = new AdapterClass({
+        schema: { ...testSchema, version: 1 },
+        migrationsExperimental: schemaMigrations({ migrations: [] }),
+      })
+
+      await adapter.batch([['create', makeMockTask({})]])
+      expect(await adapter.count(taskQuery())).toBe(1)
+
+      // launch newer version of the app with a migration that will fail
+      adapter = adapter.testClone({
+        schema: { ...testSchema, version: 2 },
+        migrationsExperimental: schemaMigrations({
+          migrations: [
+            {
+              toVersion: 2,
+              steps: [
+                // with SQLite, trying to create a duplicate table will fail, but Loki will just ignore it
+                // so let's insert something that WILL fail
+                AdapterClass.name === 'LokiJSAdapter' ?
+                  { type: 'bad_type' } :
+                  createTable({ name: 'tasks', columns: [] }),
+              ],
+            },
+          ],
+        }),
+      })
+
+      await expect(adapter.count(taskQuery())).rejects.toBeInstanceOf(Error)
+      await expect(adapter.batch([['create', makeMockTask({})]])).rejects.toBeInstanceOf(Error)
+    },
+  ],
   ...matchTests.map(testCase => [
     `[shared match test] ${testCase.name}`,
     async adapter => {

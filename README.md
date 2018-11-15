@@ -3,11 +3,11 @@
 </p>
 
 <h4 align="center">
-  Next-generation React database
+  High-performance reactive database framework
 </h4>
 
 <p align="center">
-  Build powerful React and React Native apps that scale from hundreds to tens of thousands of records and remain <em>fast</em>
+  Build powerful React and React Native apps that scale from hundreds to tens of thousands of records and remain <em>fast</em> ⚡️
 </p>
 
 <p align="center">
@@ -47,7 +47,7 @@ For simple apps, using Redux or MobX with a persistence adapter is the easiest w
 
 Watermelon fixes it **by being lazy**. Nothing is loaded unless requested. And since all querying is performed directly on the rock-solid [SQLite database](https://www.sqlite.org/index.html) on a separate native thread, most queries resolve in an instant.
 
-But unlike using SQLite directly, Watermelon is **fully observable**. So whenever you change a record, all UI that depends on it will automatically re-render. For example, completing a task in a todo app will re-render the task component, the list (to reorder), and all relevant task counters.
+But unlike using SQLite directly, Watermelon is **fully observable**. So whenever you change a record, all UI that depends on it will automatically re-render. For example, completing a task in a to-do app will re-render the task component, the list (to reorder), and all relevant task counters. [**Learn more**](https://www.youtube.com/watch?v=UlZ1QnFF4Cw).
 
 | <a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw"><img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-talk-thumbnail.jpg" alt="React Native EU: Next-generation React Databases" width="300" /></a> | <a href="https://github.com/Nozbe/WatermelonDB/blob/master/docs/Demo.md"><img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-demo-thumbnail.png" alt="WatermelonDB Demo" width="300" /></a> |
 | ---- | --- |
@@ -107,7 +107,7 @@ const enhance = withObservables(['post'], ({ post }) => ({
 }))
 ```
 
-The result is fully reactive! Whenever a post or comment is added, changed, or removed, the right components **will automatically re-render** on screen. Doesn't matter if a change occured in a totally different part of the app, it all just works out of the box!
+The result is fully reactive! Whenever a post or comment is added, changed, or removed, the right components **will automatically re-render** on screen. Doesn't matter if a change occurred in a totally different part of the app, it all just works out of the box!
 
 ➡️ **Learn more:** [see full documentation](./docs)
 

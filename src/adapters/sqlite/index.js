@@ -13,7 +13,7 @@ import {
 import type Model, { RecordId } from '../../Model'
 import type Query from '../../Query'
 import type { TableName, AppSchema, SchemaVersion } from '../../Schema'
-import type { SchemaMigrations } from '../../Schema/migrations'
+import type { SchemaMigrations, MigrationStep } from '../../Schema/migrations'
 import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
 import {
   type DirtyFindResult,
@@ -114,44 +114,53 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     const status = await Native.initialize(this._tag, this._dbName, this.schema.version)
 
     if (status.code === 'schema_needed') {
-      logger.log('[DB] Database needs setup. Setting up schema.')
       await this._setUpWithSchema()
     } else if (status.code === 'migrations_needed') {
-      logger.log('[DB] Database needs migrations')
-      const { databaseVersion } = status
-      invariant(databaseVersion > 0, 'Invalid database schema version')
-
-      const migrationSQL = this._encodedMigrations(databaseVersion)
-
-      if (migrationSQL) {
-        logger.log(`[DB] Migrating from version ${databaseVersion} to ${this.schema.version}...`)
-
-        await Native.setUpWithMigrations(
-          this._tag,
-          this._dbName,
-          migrationSQL,
-          databaseVersion,
-          this.schema.version,
-        )
-        logger.log('[DB] Migration successful')
-      } else {
-        logger.warn(
-          '[DB] Migrations not available for this version range, resetting database instead',
-        )
-        await this._setUpWithSchema()
-      }
+      await this._setUpWithMigrations(status.databaseVersion)
     } else {
       invariant(status.code === 'ok', 'Invalid database initialization status')
     }
   }
 
+  async _setUpWithMigrations(databaseVersion: SchemaVersion): Promise<void> {
+    logger.log('[DB] Database needs migrations')
+    invariant(databaseVersion > 0, 'Invalid database schema version')
+
+    const migrationSteps = this._migrationSteps(databaseVersion)
+
+    if (migrationSteps) {
+      logger.log(`[DB] Migrating from version ${databaseVersion} to ${this.schema.version}...`)
+
+      try {
+        await Native.setUpWithMigrations(
+          this._tag,
+          this._dbName,
+          this._encodeMigrations(migrationSteps),
+          databaseVersion,
+          this.schema.version,
+        )
+        logger.log('[DB] Migration successful')
+      } catch (error) {
+        logger.error('[DB] Migration failed', error)
+        throw error
+      }
+    } else {
+      logger.warn(
+        '[DB] Migrations not available for this version range, resetting database instead',
+      )
+      await this._setUpWithSchema()
+    }
+  }
+
   async _setUpWithSchema(): Promise<void> {
-    return Native.setUpWithSchema(
+    logger.log(`[DB] Setting up database with schema version ${this.schema.version}`)
+    await Native.setUpWithSchema(
       this._tag,
       this._dbName,
       this._encodedSchema(),
       this.schema.version,
     )
+    logger.log(`[DB] Schema set up successfully`)
   }
 
   async find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {
@@ -229,22 +238,22 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     return encodeSchema(this.schema)
   }
 
-  _encodedMigrations(fromVersion: SchemaVersion): ?SQL {
-    const { encodeMigrationSteps } = require('./encodeSchema')
+  _migrationSteps(fromVersion: SchemaVersion): ?(MigrationStep[]) {
     const { stepsForMigration } = require('../../Schema/migrations/helpers')
     const { migrations } = this
     // TODO: Remove this after migrations are shipped
     if (!migrations) {
       return null
     }
-    const migrationSteps = stepsForMigration({
+    return stepsForMigration({
       migrations,
       fromVersion,
       toVersion: this.schema.version,
     })
-    if (!migrationSteps) {
-      return null
-    }
-    return encodeMigrationSteps(migrationSteps)
+  }
+
+  _encodeMigrations(steps: MigrationStep[]): SQL {
+    const { encodeMigrationSteps } = require('./encodeSchema')
+    return encodeMigrationSteps(steps)
   }
 }

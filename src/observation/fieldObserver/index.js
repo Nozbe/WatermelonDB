@@ -5,8 +5,8 @@ import { Observable } from 'rxjs/Observable'
 import { skip as skip$ } from 'rxjs/operators'
 import { pipe, pickAll, values, forEach } from 'rambdax'
 
-import withoutIdentical from '../../utils/fp/withoutIdentical'
 import identicalArrays from '../../utils/fp/identicalArrays'
+import arrayDifference from '../../utils/fp/arrayDifference'
 
 import { type Value } from '../../QueryDescription'
 import { type ColumnName } from '../../Schema'
@@ -30,12 +30,6 @@ const unsubscribeAll: Subscriptions => * = pipe(
   values,
   forEach(subscription => subscription.unsubscribe()),
 )
-
-type ArrayDiff<T> = { added: T[], removed: T[] }
-const arrayDifference = <A, T: A>(previousList: T[], newList: T[]): ArrayDiff<T> => ({
-  added: withoutIdentical(previousList, newList),
-  removed: withoutIdentical(newList, previousList),
-})
 
 // Observes the given observable list of records, and in those records,
 // changes to given `rawFields`
