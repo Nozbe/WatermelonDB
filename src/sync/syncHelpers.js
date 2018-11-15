@@ -35,6 +35,26 @@ export function prepareCreateFromRaw<T: Model>(collection: Collection<T>, dirtyR
   })
 }
 
+export function prepareUpdateFromRaw<T: Model>(record: T, updatedDirtyRaw: DirtyRaw): T {
+  return record.prepareUpdate(() => {
+    const { syncStatus } = record
+    // TODO: Shouldn't this be abstracted away in the `resolveConflict` function?
+    if (syncStatus === 'synced') {
+      replaceRaw(record, updatedDirtyRaw)
+    } else if (syncStatus === 'updated') {
+      replaceRaw(record, resolveConflict(record._raw, updatedDirtyRaw))
+    } else if (syncStatus === 'created') {
+      // This is almost certainly programmer error - we have a record that was remotely UPDATED, but
+      // it's marked as 'locally created'. We'll assume it should be marked as `updated`, and update it
+      replaceRaw(record, resolveConflict(record._raw, updatedDirtyRaw))
+      // TODO: Log error
+    } else if (syncStatus === 'deleted') {
+      // We probably *shouldn't* have a reference to a `deleted` record, but since it was locally
+      // deleted, there's nothing to update, since the local deletion will still be pushed to the server
+    }
+  })
+}
+
 export function markAsSynced(record: Model): void {
   record._raw._status = 'synced'
   record._raw._changed = ''
