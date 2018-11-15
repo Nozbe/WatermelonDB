@@ -62,67 +62,67 @@ const makeLocalChanges = async mock => {
   // create records
   const pCreated1 = prepareCreateFromRaw(projectsCollection, { id: 'pCreated1' })
   const pCreated2 = prepareCreateFromRaw(projectsCollection, { id: 'pCreated2' })
-  const pUpdated1 = prepareCreateFromRaw(projectsCollection, {
-    id: 'pUpdated1',
+  const pUpdated = prepareCreateFromRaw(projectsCollection, {
+    id: 'pUpdated',
     _status: 'synced',
   })
-  const pDeleted1 = prepareCreateFromRaw(projectsCollection, { id: 'pDeleted1' })
-  const tCreated1 = prepareCreateFromRaw(tasksCollection, { id: 'tCreated1' })
-  const tUpdated1 = prepareCreateFromRaw(tasksCollection, { id: 'tUpdated1', _status: 'synced' })
-  const tDeleted1 = prepareCreateFromRaw(tasksCollection, { id: 'tDeleted1', _status: 'synced' })
-  const cCreated1 = prepareCreateFromRaw(commentsCollection, { id: 'cCreated1' })
-  const cUpdated1 = prepareCreateFromRaw(commentsCollection, { id: 'cUpdated1', _status: 'synced' })
-  const cDeleted1 = prepareCreateFromRaw(commentsCollection, { id: 'cDeleted1' })
-  const cDestroyed1 = prepareCreateFromRaw(commentsCollection, { id: 'cDestroyed1' })
+  const pDeleted = prepareCreateFromRaw(projectsCollection, { id: 'pDeleted' })
+  const tCreated = prepareCreateFromRaw(tasksCollection, { id: 'tCreated' })
+  const tUpdated = prepareCreateFromRaw(tasksCollection, { id: 'tUpdated', _status: 'synced' })
+  const tDeleted = prepareCreateFromRaw(tasksCollection, { id: 'tDeleted', _status: 'synced' })
+  const cCreated = prepareCreateFromRaw(commentsCollection, { id: 'cCreated' })
+  const cUpdated = prepareCreateFromRaw(commentsCollection, { id: 'cUpdated', _status: 'synced' })
+  const cDeleted = prepareCreateFromRaw(commentsCollection, { id: 'cDeleted' })
+  const cDestroyed = prepareCreateFromRaw(commentsCollection, { id: 'cDestroyed' })
 
   await database.batch(
-    prepareCreateFromRaw(projectsCollection, { _status: 'synced', id: 'pSynced1' }),
+    prepareCreateFromRaw(projectsCollection, { _status: 'synced', id: 'pSynced' }),
     pCreated1,
     pCreated2,
-    pUpdated1,
-    pDeleted1,
-    prepareCreateFromRaw(tasksCollection, { _status: 'synced', id: 'tSynced1' }),
-    tCreated1,
-    tUpdated1,
-    tDeleted1,
-    prepareCreateFromRaw(commentsCollection, { _status: 'synced', id: 'cSynced1' }),
-    cCreated1,
-    cUpdated1,
-    cDeleted1,
-    cDestroyed1,
+    pUpdated,
+    pDeleted,
+    prepareCreateFromRaw(tasksCollection, { _status: 'synced', id: 'tSynced' }),
+    tCreated,
+    tUpdated,
+    tDeleted,
+    prepareCreateFromRaw(commentsCollection, { _status: 'synced', id: 'cSynced' }),
+    cCreated,
+    cUpdated,
+    cDeleted,
+    cDestroyed,
   )
 
   // update records
-  await pUpdated1.update(p => {
+  await pUpdated.update(p => {
     p.name = 'x'
   })
-  await tUpdated1.update(p => {
+  await tUpdated.update(p => {
     p.name = 'old1'
   })
-  await cUpdated1.update(c => {
+  await cUpdated.update(c => {
     c.body = 'old1'
   })
-  await tDeleted1.update(t => {
+  await tDeleted.update(t => {
     t.name = 'yy'
   })
 
   // delete records
-  await pDeleted1.markAsDeleted()
-  await tDeleted1.markAsDeleted()
-  await cDeleted1.markAsDeleted()
-  await cDestroyed1.destroyPermanently() // sanity check
+  await pDeleted.markAsDeleted()
+  await tDeleted.markAsDeleted()
+  await cDeleted.markAsDeleted()
+  await cDestroyed.destroyPermanently() // sanity check
 
   return {
     pCreated1,
     pCreated2,
-    pUpdated1,
-    pDeleted1,
-    tCreated1,
-    tUpdated1,
-    tDeleted1,
-    cCreated1,
-    cUpdated1,
-    cDeleted1,
+    pUpdated,
+    pDeleted,
+    tCreated,
+    tUpdated,
+    tDeleted,
+    cCreated,
+    cUpdated,
+    cDeleted,
   }
 }
 
@@ -142,42 +142,42 @@ describe('fetchLocalChanges', () => {
     const {
       pCreated1,
       pCreated2,
-      pUpdated1,
-      pDeleted1,
-      tCreated1,
-      tUpdated1,
-      tDeleted1,
-      cCreated1,
-      cUpdated1,
-      cDeleted1,
+      pUpdated,
+      pDeleted,
+      tCreated,
+      tUpdated,
+      tDeleted,
+      cCreated,
+      cUpdated,
+      cDeleted,
     } = await makeLocalChanges(mock)
 
     // check
     expect(pCreated1._raw._status).toBe('created')
-    expect(pUpdated1._raw._status).toBe('updated')
-    expect(pUpdated1._raw._changed).toBe('name')
-    expect(tDeleted1._raw._status).toBe('deleted')
+    expect(pUpdated._raw._status).toBe('updated')
+    expect(pUpdated._raw._changed).toBe('name')
+    expect(tDeleted._raw._status).toBe('deleted')
     const expectedChanges = clone({
       mock_projects: {
         created: [pCreated1._raw, pCreated2._raw],
-        updated: [pUpdated1._raw],
-        deleted: [pDeleted1.id],
+        updated: [pUpdated._raw],
+        deleted: [pDeleted.id],
       },
-      mock_tasks: { created: [tCreated1._raw], updated: [tUpdated1._raw], deleted: [tDeleted1.id] },
+      mock_tasks: { created: [tCreated._raw], updated: [tUpdated._raw], deleted: [tDeleted.id] },
       mock_comments: {
-        created: [cCreated1._raw],
-        updated: [cUpdated1._raw],
-        deleted: [cDeleted1.id],
+        created: [cCreated._raw],
+        updated: [cUpdated._raw],
+        deleted: [cDeleted.id],
       },
     })
     const expectedAffectedRecords = [
       pCreated1,
       pCreated2,
-      pUpdated1,
-      tCreated1,
-      tUpdated1,
-      cCreated1,
-      cUpdated1,
+      pUpdated,
+      tCreated,
+      tUpdated,
+      cCreated,
+      cUpdated,
     ]
     const result = await fetchLocalChanges(database)
     expect(result.changes).toEqual(expectedChanges)
@@ -195,13 +195,13 @@ describe('fetchLocalChanges', () => {
     const mock = mockDatabase()
     const { database } = mock
 
-    const { pUpdated1 } = await makeLocalChanges(mock)
+    const { pUpdated } = await makeLocalChanges(mock)
 
     const { changes } = await fetchLocalChanges(database)
     const changesCloned = clone(changes)
 
     // raws should be cloned - further changes don't affect result
-    await pUpdated1.update(p => {
+    await pUpdated.update(p => {
       p.name = 'y'
     })
     expect(changes).toEqual(changesCloned)
@@ -289,41 +289,41 @@ describe('applyRemoteChanges', () => {
       // local: synced/created/updated/deleted/doesnt exist
       mock_projects: {
         created: [
-          { id: 'pNew1' }, // creating new record
-          { id: 'pDeleted1' }, // error (shoult NOT exist locally)
+          { id: 'pNew' }, // create new record
+          { id: 'pDeleted' }, // error (shoult NOT exist locally)
         ],
         updated: [
-          { id: 'pSynced1', name: 'new1' }, // no conflict
+          { id: 'pSynced', name: 'new1' }, // update (no conflict)
           { id: 'pCreated2', name: 'new1' }, // error (should not be `created` locally)
         ],
         deleted: [
           'pCreated1', // error (should not be `created` locally)
-          'pUpdated1', // discard local changes
+          'pUpdated', // discard local changes
         ],
       },
       mock_tasks: {
         created: [
-          { id: 'tCreated1' }, // error (should NOT exist locally)
+          { id: 'tCreated' }, // error (should NOT exist locally)
         ],
         updated: [
-          { id: 'tNew1' }, // error (should exist locally)
-          { id: 'tUpdated1', name: 'new1' }, // update conflict!
+          { id: 'tNew' }, // error (should exist locally)
+          { id: 'tUpdated', name: 'new1' }, // update conflict!
         ],
         deleted: [
-          'tDeleted1', // would be deleted anyway
-          'tSynced1', // just delete
+          'tDeleted', // would be deleted anyway
+          'tSynced', // just delete
         ],
       },
       mock_comments: {
         created: [
-          { id: 'cSynced1' }, // error (shoult NOT exist locally)
-          { id: 'cUpdated1' }, // error (shoult NOT exist locally)
+          { id: 'cSynced' }, // error (shoult NOT exist locally)
+          { id: 'cUpdated' }, // error (shoult NOT exist locally)
         ],
         updated: [
-          { id: 'cDeleted1', body: 'new1' }, // ignore update, will be deleted anyway
+          { id: 'cDeleted', body: 'new1' }, // ignore update, will be deleted anyway
         ],
         deleted: [
-          'cNew1', // *possibly* an error (should exist locally)
+          'cNew', // *possibly* an error (should exist locally)
         ],
       },
     }
