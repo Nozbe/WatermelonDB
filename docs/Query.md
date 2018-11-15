@@ -126,6 +126,9 @@ This queries all comments that are **both** verified **and** awesome.
 | `Q.where('likes', Q.between(10, 100))` | `likes >= 10 && likes <= 100` |
 | `Q.where('status', Q.oneOf(['published', 'draft']))` | `status === 'published' \|\| status === 'draft'` |
 | `Q.where('status', Q.notIn(['archived', 'deleted']))` | `status !== 'archived' && status !== 'deleted'` |
+| `Q.where('status', Q.like('%bl_sh%'))` | `/.*bl.sh.*/g` |
+
+> It's not safe to use `Q.like` with special charactere. Because charactere like `%` or `_` is not escaped. So we recommand to wrap searchs in `Q.sanitizeLikeString` to allow only [a-zA-Z0-9]. Of course you can use your custom wrapper.
 
 ### Conditions on related tables
 
@@ -184,7 +187,7 @@ commentCollection.query(
 
 ### `null` behavior
 
-There are some gotchas you should be aware of. The `Q.gt`, `gte`, `lt`, `lte`, `oneOf`, `notIn` operators match the semantics of SQLite in terms of how they treat `null`. Those are different from JavaScript.
+There are some gotchas you should be aware of. The `Q.gt`, `gte`, `lt`, `lte`, `oneOf`, `notIn`, `like` operators match the semantics of SQLite in terms of how they treat `null`. Those are different from JavaScript.
 
 **Rule of thumb:** No null comparisons are allowed.
 

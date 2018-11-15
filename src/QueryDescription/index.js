@@ -163,8 +163,12 @@ export function between(left: number, right: number): Comparison {
   return { operator: 'between', right: { values: [left, right] } }
 }
 
-export function like(value: Value): Comparison {
+export function like(value: string): Comparison {
   return { operator: 'like', right: { value } }
+}
+
+export function sanitizeLikeString(value: string): string {
+  return value.replace(/[^a-zA-Z0-9]/g, '')
 }
 
 export function column(name: ColumnName): ColumnDescription {
