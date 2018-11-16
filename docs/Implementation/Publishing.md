@@ -3,11 +3,7 @@
 ### Step 1: Run all automated tests
 
 ```bash
-yarn ci:check
-yarn test:ios
-yarn test:android
-yarn swiftlint
-yarn ktlint
+yarn ci:check && yarn test:ios && yarn test:android && yarn swiftlint && yarn ktlint
 ```
 
 ### Step 2: Test manually in a real app
