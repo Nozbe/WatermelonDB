@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+
+
+## 0.8.0 - 2018-11-16
+
 ### New
 
 - Added DatabaseProvider and withDatabase Higher-Order Component to reduce prop drilling
