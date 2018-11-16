@@ -171,7 +171,7 @@ export function like(value: string): Comparison {
 }
 
 export function sanitizeLikeString(value: string): string {
-  return value.replace(/[^a-zA-Z0-9]/g, '')
+  return value.replace(/[^a-zA-Z0-9]/g, '_')
 }
 
 export function column(name: ColumnName): ColumnDescription {

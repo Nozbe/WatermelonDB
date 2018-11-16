@@ -404,6 +404,65 @@ export const matchTests = [
       { id: 'n6', text1: null },
     ],
   },
+  {
+    name: 'match like sanitized (value%)',
+    query: [Q.where('text1', Q.like(Q.sanitizeLikeString('lorem%')))],
+    matching: [
+      { id: 'm2', text1: 'Lorem%' },
+    ],
+    nonMatching: [
+      { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },
+      { id: 'n2', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem' },
+      { id: 'n3', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
+      { id: 'n4', text1: 'Integer accumsan tincidunt velit, eu fermentum lorem mollis at.' },
+      { id: 'n5', text1: 'consectetur adipiscing elit.' },
+      { id: 'n6', text1: null },
+    ],
+  },
+  {
+    name: 'match like sanitized (value_)',
+    query: [Q.where('text1', Q.like(Q.sanitizeLikeString('lorem_')))],
+    matching: [
+      { id: 'm2', text1: 'Lorem%' },
+    ],
+    nonMatching: [
+      { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },
+      { id: 'n2', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem' },
+      { id: 'n3', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
+      { id: 'n4', text1: 'Integer accumsan tincidunt velit, eu fermentum lorem mollis at.' },
+      { id: 'n5', text1: 'consectetur adipiscing elit.' },
+      { id: 'n6', text1: null },
+    ],
+  },
+  {
+    name: 'match like sanitized (value.*)',
+    query: [Q.where('text1', Q.like(Q.sanitizeLikeString('lorem.*')))],
+    matching: [
+      { id: 'm2', text1: 'Lorem.*' },
+    ],
+    nonMatching: [
+      { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },
+      { id: 'n2', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem' },
+      { id: 'n3', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
+      { id: 'n4', text1: 'Integer accumsan tincidunt velit, eu fermentum lorem mollis at.' },
+      { id: 'n5', text1: 'consectetur adipiscing elit.' },
+      { id: 'n6', text1: null },
+    ],
+  },
+  {
+    name: 'match like sanitized (%(value,)%)',
+    query: [Q.where('text1', Q.like(`%${Q.sanitizeLikeString('commodo,')}%`))],
+    matching: [
+      { id: 'm1', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem' },
+      { id: 'm2', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
+    ],
+    nonMatching: [
+      { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },
+      { id: 'n2', text1: 'Integer accumsan tincidunt velit, eu fermentum lorem mollis at.' },
+      { id: 'n3', text1: 'consectetur adipiscing elit.' },
+      { id: 'n4', text1: null },
+    ],
+  },
 ]
 
 export const joinTests = [

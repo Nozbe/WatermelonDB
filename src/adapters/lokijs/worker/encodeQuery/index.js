@@ -22,7 +22,7 @@ import objOf from '../../../../utils/fp/objOf'
 import zip from '../../../../utils/fp/zip'
 import cond from '../../../../utils/fp/cond'
 import invariant from '../../../../utils/common/invariant'
-import { likeToRegexp } from '../../../../utils/regexp'
+import likeToRegexp from '../../../../utils/fp/likeToRegexp'
 
 import type { AssociationArgs, SerializedQuery } from '../../../../Query'
 import type {
