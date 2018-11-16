@@ -46,6 +46,10 @@ export function prepareUpdateFromRaw<T: Model>(record: T, updatedDirtyRaw: Dirty
     } else if (syncStatus === 'created') {
       // This is almost certainly programmer error - we have a record that was remotely UPDATED, but
       // it's marked as 'locally created'. We'll assume it should be marked as `updated`, and update it
+
+      // TODO: This is where I left off. I think this makes no sense because if status is created, `_changed` is empty, so local version will be replaced with the remote version anyway
+      // !!!!!!!
+
       replaceRaw(record, { ...resolveConflict(record._raw, updatedDirtyRaw), _status: 'updated' })
       // TODO: Log error
     } else if (syncStatus === 'deleted') {
