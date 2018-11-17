@@ -5519,9 +5519,9 @@ quick-lru@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-1.1.0.tgz#4360b17c61136ad38078397ff11416e186dcfbb8"
 
-rambdax@^0.21.0:
-  version "0.21.0"
-  resolved "https://registry.yarnpkg.com/rambdax/-/rambdax-0.21.0.tgz#2794eda3119e12092efb3756ca824cb387aa0ec2"
+rambdax@^0.22.0:
+  version "0.22.0"
+  resolved "https://registry.yarnpkg.com/rambdax/-/rambdax-0.22.0.tgz#54f0752aa35eecca507908bc57db9eb6975b5de3"
 
 randomatic@^3.0.0:
   version "3.1.1"
