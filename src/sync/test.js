@@ -274,6 +274,36 @@ describe('applyRemoteChanges', () => {
     const localChanges2 = await fetchLocalChanges(database)
     expect(localChanges1).toEqual(localChanges2)
   })
+  // Note: We need to test all possible status combinations - xproduct of:
+  // remote: created/updated/deleted
+  // local: synced/created/updated/deleted/doesn't exist
+  // (15 cases)
+  it('can create, update, delete records', async () => {
+    // create / doesn't exist - create
+    // update / synced - update (stay synced)
+    // delete / synced - destroy
+  })
+  it('can resolve update conflicts', async () => {
+    // update / updated - resolve and update (stay updated)
+    // update / deleted - ignore (will be deleted)
+  })
+  it('can delete records in all edge cases', async () => {
+    // delete / doesn't exist - ignore
+    // delete / created - weird. destroy
+    // delete / updated - destroy
+    // delete / deleted - destroy
+  })
+  it('can handle sync failure cases', async () => {
+    // these cases can occur when sync fails for some reason and the same records are fetched and reapplied:
+    // create / synced - resolve and update (stay synced)
+    // create / updated - resolve and update (stay updated)
+    // create / deleted - destroy and recreate? (or just un-delete?)
+  })
+  it('can handle weird edge cases', async () => {
+    // create / created - very weird case. update with resolution (stay updated)
+    // update / created - very weird. resolve and update (stay updated)
+    // update / doesn't exist - create (stay synced)
+  })
   it('can apply remote changes successfully in all circumstances', async () => {
     const mock = mockDatabase()
     const { database, projectsCollection, tasksCollection, commentsCollection } = mock
@@ -285,9 +315,6 @@ describe('applyRemoteChanges', () => {
 
     // apply these changes from server
     const remoteChanges = {
-      // test all possible status combinations - xproduct of:
-      // remote: created/updated/deleted
-      // local: synced/created/updated/deleted/doesnt exist
       mock_projects: {
         created: [
           { id: 'pNew' }, // create new record
