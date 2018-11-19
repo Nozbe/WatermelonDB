@@ -50,6 +50,14 @@ describe('Conflict resolution', () => {
       ),
     ).toEqual({ _status: 'updated', _changed: 'col2,col3', col1: 'b', col2: true, col3: 20 })
   })
+  it('ignores missing remote columns', () => {
+    expect(
+      resolveConflict(
+        { col1: 'a', col2: true, col3: 20, _status: 'updated', _changed: 'col2' },
+        { col2: false },
+      ),
+    ).toEqual({ _status: 'updated', _changed: 'col2', col1: 'a', col2: true, col3: 20 })
+  })
 })
 
 const emptyChangeSet = Object.freeze({
@@ -325,9 +333,6 @@ describe('applyRemoteChanges', () => {
     expect(await getRaw(commentsCollection, 'cSynced')).toBe(null)
   })
   it('can resolve update conflicts', async () => {
-    // update / updated - resolve and update (stay updated)
-    // update / deleted - ignore (will be deleted)
-
     const mock = mockDatabase()
     const { database, projectsCollection, tasksCollection, commentsCollection } = mock
 
@@ -357,11 +362,14 @@ describe('applyRemoteChanges', () => {
       },
       mock_tasks: {
         created: [],
+        // update / updated - resolve and update (stay updated)
         updated: [{ id: 'tUpdated', name: 'remote', description: 'remote' }],
         deleted: [],
       },
       mock_comments: {
         created: [],
+        // update / deleted - ignore (will be deleted)
+
         updated: [{ id: 'cDeleted', body: 'remote' }],
         deleted: [],
       },

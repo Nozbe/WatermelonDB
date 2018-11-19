@@ -9,6 +9,7 @@ import { type RawRecord, type DirtyRaw, sanitizedRaw } from '../RawRecord'
 export function resolveConflict(local: RawRecord, remote: DirtyRaw): DirtyRaw {
   // mutating code - performance-critical path
   const resolved = {
+    ...local, // use local fields if remote is missing columns
     ...remote,
     _status: local._status,
     // TODO: in Purple code resolution changes _changed to null, but is that right? i think until local changes are pushed, local changes are NOT synced. if pull succeeded, but push failed, this param change would get lost
