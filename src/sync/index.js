@@ -2,8 +2,6 @@
 
 import {
   // $FlowFixMe
-  mapAsync,
-  // $FlowFixMe
   promiseAllObject,
   map,
   reduce,
@@ -13,7 +11,7 @@ import {
   filter,
   find,
 } from 'rambdax'
-import { allPromises, unnest, toPairs } from '../utils/fp'
+import { allPromises, unnest } from '../utils/fp'
 // import { logError } from '../utils/common'
 import type { Database, RecordId, TableName, Collection, Model } from '..'
 import { type DirtyRaw } from '../RawRecord'
