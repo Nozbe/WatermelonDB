@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 
 - Added DatabaseProvider and withDatabase Higher-Order Component to reduce prop drilling
 - Added experimental Actions API. This will be documented in a future release.
+- [WIP] Sync primitives
 
 ### Fixes
 
