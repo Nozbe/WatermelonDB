@@ -355,7 +355,7 @@ describe('applyRemoteChanges', () => {
         created: [
           cCreated._raw, // not touched by sync
         ],
-        updated: [cSynced._raw, cUpdated._raw],
+        updated: [cUpdated._raw],
         deleted: ['cDeleted'],
       },
     })
@@ -363,8 +363,15 @@ describe('applyRemoteChanges', () => {
     // check status of synced changes -- created
     const getRaw = async (collection, id) => (await collection.find(id))._raw
     const expectSyncedAndMatches = async (collection, id, match) =>
-      expect(await getRaw(collection.id)).toMatchObject({
+      expect(await getRaw(collection, id)).toMatchObject({
         _status: 'synced',
+        _changed: '',
+        id,
+        ...match,
+      })
+    const expectUpdatedAndMatches = async (collection, id, match) =>
+      expect(await getRaw(collection, id)).toMatchObject({
+        _status: 'updated',
         _changed: '',
         id,
         ...match,
@@ -375,16 +382,19 @@ describe('applyRemoteChanges', () => {
 
     // TODO: fix me
     // await expectSyncedAndMatches(projectsCollection, 'pDeleted', { name: 'remote' })
-    await expectSyncedAndMatches(tasksCollection, 'tCreated', { name: 'remote' })
+    await expectUpdatedAndMatches(tasksCollection, 'tCreated', { name: 'remote' })
     await expectSyncedAndMatches(commentsCollection, 'cSynced', { body: 'remote' })
-    await expectSyncedAndMatches(commentsCollection, 'cUpdated', { body: 'remote' })
+    await expectUpdatedAndMatches(commentsCollection, 'cUpdated', {
+      _changed: 'body',
+      body: 'local',
+    })
 
     // check status of synced changes -- updated
     await expectSyncedAndMatches(projectsCollection, 'pSynced', { name: 'remote' })
-    await expectSyncedAndMatches(projectsCollection, 'pCreated2', { name: 'remote' })
-    await expectSyncedAndMatches(tasksCollection, 'tNew', { name: 'remote' })
+    await expectUpdatedAndMatches(projectsCollection, 'pCreated2', { name: 'remote' })
+    await expectSyncedAndMatches(tasksCollection, 'tNew', { name: '' })
     // TODO: Verify conflict resolution
-    await expectSyncedAndMatches(tasksCollection, 'tUpdated', { name: 'local1' })
+    await expectUpdatedAndMatches(tasksCollection, 'tUpdated', { _changed: 'name', name: 'local' })
 
     // TODO: Check we didn't miss anything
 
