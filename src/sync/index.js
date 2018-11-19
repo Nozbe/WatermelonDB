@@ -33,21 +33,26 @@ export type SyncLocalChanges = $Exact<{ changes: SyncDatabaseChangeSet, affected
 
 // *** Applying remote changes ***
 
-const getRawId = ({ id }) => id
-const getIds = map(getRawId)
+const getIds = map(({ id }) => id)
+const idsForChanges = ({ created, updated, deleted }: SyncTableChangeSet): RecordId[] => [
+  ...getIds(created),
+  ...getIds(updated),
+  ...deleted,
+]
+const queryForChanges = changes => Q.where(columnName('id'), Q.oneOf(idsForChanges(changes)))
+
 const findRecord = <T: Model>(id: RecordId, list: T[]) => find(record => record.id === id, list)
 
 function applyRemoteChangesToCollection<T: Model>(
   collection: Collection<T>,
   changes: SyncTableChangeSet,
 ): Promise<void> {
-  const { database } = collection
+  const { database, table } = collection
   return database.action(async () => {
     const { created, updated, deleted: deletedIds } = changes
 
-    const ids: RecordId[] = [...getIds(created), ...getIds(updated), ...deletedIds]
-    const records = await collection.query(Q.where(columnName('id'), Q.oneOf(ids))).fetch()
-    const locallyDeletedIds = await database.adapter.getDeletedRecords(collection.table)
+    const records = await collection.query(queryForChanges(changes)).fetch()
+    const locallyDeletedIds = await database.adapter.getDeletedRecords(table)
 
     // Destroy records (if already marked as deleted, just destroy permanently)
     const recordsToDestroy = filter(record => contains(record.id, deletedIds), records)
@@ -94,13 +99,15 @@ export function applyRemoteChanges(
   remoteChanges: SyncDatabaseChangeSet,
 ): Promise<void> {
   return db.action(async action => {
-    // TODO: Does the order of collections matter? Should they be done one by one? Or all at once?
-    await mapAsync(
-      (changes, tableName) =>
-        action.subAction(() =>
-          applyRemoteChangesToCollection(db.collections.get(tableName), changes),
-        ),
-      remoteChanges,
+    await promiseAllObject(
+      map(
+        (changes, tableName) =>
+          action.subAction(() =>
+            applyRemoteChangesToCollection(db.collections.get(tableName), changes),
+          ),
+        // $FlowFixMe
+        remoteChanges,
+      ),
     )
   })
 }
