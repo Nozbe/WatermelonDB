@@ -12,7 +12,6 @@ import {
   pipe,
   filter,
   find,
-  any,
 } from 'rambdax'
 import { allPromises, unnest } from '../utils/fp'
 // import { logError } from '../utils/common'
@@ -36,7 +35,7 @@ export type SyncLocalChanges = $Exact<{ changes: SyncDatabaseChangeSet, affected
 
 const getRawId = ({ id }) => id
 const getIds = map(getRawId)
-const findRecord = (id, list) => find(record => record.id === id, list)
+const findRecord = <T: Model>(id: RecordId, list: T[]) => find(record => record.id === id, list)
 
 function applyRemoteChangesToCollection<T: Model>(
   collection: Collection<T>,
