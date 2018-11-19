@@ -46,14 +46,14 @@ function applyRemoteChangesToCollection<T: Model>(
       const currentRecord = records.find(record => record.id === raw.id)
       if (currentRecord) {
         // TODO: log error -- record already exists, update instead
-        return prepareUpdateFromRaw(currentRecord, { _status: 'synced', ...raw })
+        return prepareUpdateFromRaw(currentRecord, raw)
       } else if (locallyDeletedIds.some(id => id === raw.id)) {
         // TODO: whoa whoa
         database.adapter.destroyDeletedRecords(collection.table, raw.id)
-        return prepareCreateFromRaw(collection, { _status: 'synced', ...raw })
+        return prepareCreateFromRaw(collection, raw)
       }
 
-      return prepareCreateFromRaw(collection, { _status: 'synced', ...raw })
+      return prepareCreateFromRaw(collection, raw)
     })
 
     const recordsToUpdate = updated
@@ -61,14 +61,14 @@ function applyRemoteChangesToCollection<T: Model>(
         const currentRecord = records.find(record => record.id === raw.id)
 
         if (currentRecord) {
-          return prepareUpdateFromRaw(currentRecord, { _status: 'synced', ...raw })
+          return prepareUpdateFromRaw(currentRecord, raw)
         } else if (locallyDeletedIds.some(id => id === raw.id)) {
           // Nothing to do, record was locally deleted, deletion will be pushed later
           return null
         }
 
         // Record doesn't exist (but should) — just create it
-        return prepareCreateFromRaw(collection, { _status: 'synced', ...raw })
+        return prepareCreateFromRaw(collection, raw)
       })
       .filter(Boolean)
 

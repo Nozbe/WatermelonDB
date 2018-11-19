@@ -78,40 +78,42 @@ const makeLocalChanges = async mock => {
   const { database, projectsCollection, tasksCollection, commentsCollection } = mock
 
   // create records
-  const pCreated1 = prepareCreateFromRaw(projectsCollection, { id: 'pCreated1' })
-  const pCreated2 = prepareCreateFromRaw(projectsCollection, { id: 'pCreated2' })
+  const pCreated1 = prepareCreateFromRaw(projectsCollection, {
+    _status: 'created',
+    id: 'pCreated1',
+  })
+  const pCreated2 = prepareCreateFromRaw(projectsCollection, {
+    _status: 'created',
+    id: 'pCreated2',
+  })
   const pUpdated = prepareCreateFromRaw(projectsCollection, {
     id: 'pUpdated',
-    _status: 'synced',
   })
   const pDeleted = prepareCreateFromRaw(projectsCollection, { id: 'pDeleted' })
-  const tCreated = prepareCreateFromRaw(tasksCollection, { id: 'tCreated' })
+  const tCreated = prepareCreateFromRaw(tasksCollection, { _status: 'created', id: 'tCreated' })
   const tUpdated = prepareCreateFromRaw(tasksCollection, {
     id: 'tUpdated',
-    _status: 'synced',
     name: 'orig',
     description: 'orig',
     project_id: 'orig',
   })
-  const tDeleted = prepareCreateFromRaw(tasksCollection, { id: 'tDeleted', _status: 'synced' })
-  const cCreated = prepareCreateFromRaw(commentsCollection, { id: 'cCreated' })
-  const cUpdated = prepareCreateFromRaw(commentsCollection, { id: 'cUpdated', _status: 'synced' })
+  const tDeleted = prepareCreateFromRaw(tasksCollection, { id: 'tDeleted' })
+  const cCreated = prepareCreateFromRaw(commentsCollection, { _status: 'created', id: 'cCreated' })
+  const cUpdated = prepareCreateFromRaw(commentsCollection, { id: 'cUpdated' })
   const cDeleted = prepareCreateFromRaw(commentsCollection, { id: 'cDeleted' })
   const cDestroyed = prepareCreateFromRaw(commentsCollection, { id: 'cDestroyed' })
 
-  const cSynced = prepareCreateFromRaw(commentsCollection, { _status: 'synced', id: 'cSynced' })
-
   await database.batch(
-    prepareCreateFromRaw(projectsCollection, { _status: 'synced', id: 'pSynced' }),
+    prepareCreateFromRaw(projectsCollection, { id: 'pSynced' }),
     pCreated1,
     pCreated2,
     pUpdated,
     pDeleted,
-    prepareCreateFromRaw(tasksCollection, { _status: 'synced', id: 'tSynced' }),
+    prepareCreateFromRaw(tasksCollection, { id: 'tSynced' }),
     tCreated,
     tUpdated,
     tDeleted,
-    cSynced,
+    prepareCreateFromRaw(commentsCollection, { id: 'cSynced' }),
     cCreated,
     cUpdated,
     cDeleted,
@@ -145,7 +147,6 @@ const makeLocalChanges = async mock => {
     tCreated,
     tUpdated,
     tDeleted,
-    cSynced,
     cCreated,
     cUpdated,
   }
@@ -384,8 +385,8 @@ describe('applyRemoteChanges', () => {
 
     expect(await getRaw(projectsCollection, 'does_not_exist')).toBe(null)
     expect(await getRaw(projectsCollection, 'pCreated')).toBe(null)
-    expect(await getRaw(projectsCollection, 'tUpdated')).toBe(null)
-    expect(await getRaw(projectsCollection, 'tDeleted')).toBe(null)
+    expect(await getRaw(projectsCollection, 'pUpdated')).toBe(null)
+    expect(await getRaw(projectsCollection, 'pDeleted')).toBe(null)
   })
   it('can handle sync failure cases', async () => {
     const mock = mockDatabase()
