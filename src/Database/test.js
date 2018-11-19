@@ -22,7 +22,7 @@ describe('Database', () => {
 describe('Batch writes', () => {
   it('can batch records', async () => {
     // eslint-disable-next-line
-    let { database, cloneDatabase, tasksCollection: collection } = mockDatabase()
+    let { database, cloneDatabase, tasks: collection } = mockDatabase()
     const adapterBatchSpy = jest.spyOn(database.adapter, 'batch')
 
     const m1 = await collection.create()
@@ -84,7 +84,7 @@ describe('Batch writes', () => {
     expect(fetchedM2.name).toBe('baz1')
   })
   it('throws error if attempting to batch records without a pending operation', async () => {
-    const { database, tasksCollection: collection } = mockDatabase()
+    const { database, tasks: collection } = mockDatabase()
     const m1 = await collection.create()
 
     await expectToRejectWithMessage(
@@ -93,39 +93,39 @@ describe('Batch writes', () => {
     )
   })
   it('throws error if batch is called outside of an action', async () => {
-    const { database, tasksCollection } = mockDatabase({ actionsEnabled: true })
+    const { database, tasks } = mockDatabase({ actionsEnabled: true })
 
     await expectToRejectWithMessage(
-      database.batch(tasksCollection.prepareCreate(noop)),
+      database.batch(tasks.prepareCreate(noop)),
       /can only be called from inside of an Action/,
     )
 
     // check if in action is successful
     await database.action(() =>
       database.batch(
-        tasksCollection.prepareCreate(task => {
+        tasks.prepareCreate(task => {
           task.name = 'foo1'
         }),
       ),
     )
-    const [task] = await tasksCollection.query().fetch()
+    const [task] = await tasks.query().fetch()
     expect(task.name).toBe('foo1')
   })
 })
 
 describe('Observation', () => {
   it('implements withChangesForTables', async () => {
-    const { database, projectsCollection, tasksCollection, commentsCollection } = mockDatabase()
+    const { database, projects, tasks, comments } = mockDatabase()
 
     const observer = jest.fn()
     database.withChangesForTables(['mock_projects', 'mock_tasks']).subscribe(observer)
 
     expect(observer).toHaveBeenCalledTimes(1)
 
-    await projectsCollection.create()
-    const m1 = await projectsCollection.create()
-    const m2 = await tasksCollection.create()
-    const m3 = await commentsCollection.create()
+    await projects.create()
+    const m1 = await projects.create()
+    const m2 = await tasks.create()
+    const m3 = await comments.create()
 
     expect(observer).toHaveBeenCalledTimes(4)
     expect(observer).toBeCalledWith([{ record: m1, type: CollectionChangeTypes.created }])

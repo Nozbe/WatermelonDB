@@ -4,8 +4,8 @@ import Relation from './index'
 
 describe('watermelondb/Relation', () => {
   it('gets id', () => {
-    const { tasksCollection } = mockDatabase()
-    const primary = new MockTask(tasksCollection, { project_id: 's1' })
+    const { tasks } = mockDatabase()
+    const primary = new MockTask(tasks, { project_id: 's1' })
 
     const relation = new Relation(primary, 'mock_projects', 'project_id', { isImmutable: false })
     expect(relation.id).toBe('s1')
@@ -16,10 +16,10 @@ describe('watermelondb/Relation', () => {
   })
 
   it('sets id', () => {
-    const { tasksCollection, projectsCollection } = mockDatabase()
+    const { tasks, projects } = mockDatabase()
 
-    const primary = new MockTask(tasksCollection, { project_id: null })
-    const secondary = new MockProject(projectsCollection, {
+    const primary = new MockTask(tasks, { project_id: null })
+    const secondary = new MockProject(projects, {
       id: 's1',
     })
 
@@ -33,9 +33,9 @@ describe('watermelondb/Relation', () => {
   })
 
   it('sets record', () => {
-    const { tasksCollection, projectsCollection } = mockDatabase()
-    const primary = new MockTask(tasksCollection, {})
-    const secondary = new MockProject(projectsCollection, { id: 's1' })
+    const { tasks, projects } = mockDatabase()
+    const primary = new MockTask(tasks, {})
+    const secondary = new MockProject(projects, { id: 's1' })
 
     const relation = new Relation(primary, 'mock_projects', 'project_id', { isImmutable: false })
     primary._isEditing = true
@@ -45,13 +45,13 @@ describe('watermelondb/Relation', () => {
   })
 
   it('allows setting id/record only on create/prepareCreate when immutable', async () => {
-    const { tasksCollection, commentsCollection } = mockDatabase()
+    const { tasks, comments } = mockDatabase()
 
-    const secondary = await tasksCollection.create(mock => {
+    const secondary = await tasks.create(mock => {
       mock.name = 'foo'
     })
 
-    const primary = await commentsCollection.create(mock => {
+    const primary = await comments.create(mock => {
       mock.task.id = secondary.id
     })
 
@@ -63,11 +63,11 @@ describe('watermelondb/Relation', () => {
       }),
     ).toThrow()
 
-    const secondary2 = await commentsCollection.create(mock => {
+    const secondary2 = await comments.create(mock => {
       mock.name = 'bar'
     })
 
-    const primary2 = await commentsCollection.prepareCreate(mock => {
+    const primary2 = await comments.prepareCreate(mock => {
       mock.task.id = secondary.id
       expect(mock.task.id).toBe(secondary.id)
       mock.task.set(secondary2)
@@ -78,13 +78,13 @@ describe('watermelondb/Relation', () => {
   })
 
   it('observers related record', async () => {
-    const { tasksCollection, projectsCollection } = mockDatabase()
+    const { tasks, projects } = mockDatabase()
 
-    const secondary = await projectsCollection.create(mock => {
+    const secondary = await projects.create(mock => {
       mock.name = 'foo'
     })
 
-    const primary = await tasksCollection.create(mock => {
+    const primary = await tasks.create(mock => {
       mock.projectId = secondary.id
     })
 
@@ -106,13 +106,13 @@ describe('watermelondb/Relation', () => {
   })
 
   it('fetches current record', async () => {
-    const { tasksCollection, projectsCollection } = mockDatabase()
+    const { tasks, projects } = mockDatabase()
 
-    const secondary = await projectsCollection.create(mock => {
+    const secondary = await projects.create(mock => {
       mock.name = 'foo'
     })
 
-    const primary = await tasksCollection.create(mock => {
+    const primary = await tasks.create(mock => {
       mock.projectId = secondary.id
     })
 
@@ -121,7 +121,7 @@ describe('watermelondb/Relation', () => {
     let currentRecord = await relation.fetch()
     expect(currentRecord).toBe(secondary)
 
-    const newSecondary = await projectsCollection.create(mock => {
+    const newSecondary = await projects.create(mock => {
       mock.name = 'bar'
     })
 
@@ -134,8 +134,8 @@ describe('watermelondb/Relation', () => {
   })
 
   it('caches observable', () => {
-    const { tasksCollection } = mockDatabase()
-    const model = new MockTask(tasksCollection, {})
+    const { tasks } = mockDatabase()
+    const model = new MockTask(tasks, {})
     const relation = new Relation(model, 't1', 'c1', { isImmutable: false })
 
     const observable1 = relation.observe()
@@ -145,8 +145,8 @@ describe('watermelondb/Relation', () => {
   })
 
   it('caches observable', () => {
-    const { tasksCollection } = mockDatabase()
-    const model = new MockTask(tasksCollection, {})
+    const { tasks } = mockDatabase()
+    const model = new MockTask(tasks, {})
     const relation = new Relation(model, 't1', 'c1', { isImmutable: false })
 
     const observable1 = relation.observe()
