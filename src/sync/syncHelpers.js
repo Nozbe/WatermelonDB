@@ -9,7 +9,8 @@ import { type RawRecord, type DirtyRaw, sanitizedRaw } from '../RawRecord'
 export function resolveConflict(local: RawRecord, remote: DirtyRaw): DirtyRaw {
   // mutating code - performance-critical path
   const resolved = {
-    ...local, // use local fields if remote is missing columns
+    // use local fields if remote is missing columns (shouldn't but just in case)
+    ...local,
     ...remote,
     _status: local._status,
     // TODO: in Purple code resolution changes _changed to null, but is that right? i think until local changes are pushed, local changes are NOT synced. if pull succeeded, but push failed, this param change would get lost
@@ -32,7 +33,7 @@ function replaceRaw(record: Model, dirtyRaw: DirtyRaw): void {
 
 export function prepareCreateFromRaw<T: Model>(collection: Collection<T>, dirtyRaw: DirtyRaw): T {
   return collection.prepareCreate(record => {
-    replaceRaw(record, dirtyRaw)
+    replaceRaw(record, { ...dirtyRaw })
   })
 }
 
@@ -46,12 +47,9 @@ export function prepareUpdateFromRaw<T: Model>(record: T, updatedDirtyRaw: Dirty
       replaceRaw(record, resolveConflict(record._raw, updatedDirtyRaw))
     } else if (syncStatus === 'created') {
       // This is almost certainly programmer error - we have a record that was remotely UPDATED, but
-      // it's marked as 'locally created'. We'll assume it should be marked as `updated`, and update it
-
-      // TODO: This is where I left off. I think this makes no sense because if status is created, `_changed` is empty, so local version will be replaced with the remote version anyway
-      // !!!!!!!
-
-      replaceRaw(record, { ...resolveConflict(record._raw, updatedDirtyRaw), _status: 'updated' })
+      // it's marked as 'locally created'. We'll assume it should have been `synced`, and just replace the raw.
+      // (since it's created, _changed is empty so there's nothing to resolve anyway)
+      replaceRaw(record, { ...resolveConflict(record._raw, updatedDirtyRaw), _status: 'synced' })
       // TODO: Log error
     } else if (syncStatus === 'deleted') {
       // We probably *shouldn't* have a reference to a `deleted` record, but since it was locally
