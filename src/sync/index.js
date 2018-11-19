@@ -1,7 +1,19 @@
 // @flow
 
-// $FlowFixMe
-import { mapAsync, promiseAllObject, map, reduce, contains, values, pipe } from 'rambdax'
+import {
+  // $FlowFixMe
+  mapAsync,
+  // $FlowFixMe
+  promiseAllObject,
+  map,
+  reduce,
+  contains,
+  values,
+  pipe,
+  filter,
+  find,
+  any,
+} from 'rambdax'
 import { allPromises, unnest } from '../utils/fp'
 // import { logError } from '../utils/common'
 import type { Database, RecordId, TableName, Collection, Model } from '..'
@@ -22,6 +34,10 @@ export type SyncLocalChanges = $Exact<{ changes: SyncDatabaseChangeSet, affected
 
 // *** Applying remote changes ***
 
+const getRawId = ({ id }) => id
+const getIds = map(getRawId)
+const findRecord = (id, list) => find(record => record.id === id, list)
+
 function applyRemoteChangesToCollection<T: Model>(
   collection: Collection<T>,
   changes: SyncTableChangeSet,
@@ -30,47 +46,45 @@ function applyRemoteChangesToCollection<T: Model>(
   return database.action(async () => {
     const { created, updated, deleted: deletedIds } = changes
 
-    const ids: RecordId[] = [...created, ...updated].map(({ id }) => id).concat(deletedIds)
+    const ids: RecordId[] = [...getIds(created), ...getIds(updated), ...deletedIds]
     const records = await collection.query(Q.where(columnName('id'), Q.oneOf(ids))).fetch()
     const locallyDeletedIds = await database.adapter.getDeletedRecords(collection.table)
 
     // Destroy records (if already marked as deleted, just destroy permanently)
-    const recordsToDestroy = records.filter(record => contains(record.id, deletedIds))
-    const deletedRecordsToDestroy = locallyDeletedIds.filter(id => contains(id, deletedIds))
+    const recordsToDestroy = filter(record => contains(record.id, deletedIds), records)
+    const deletedRecordsToDestroy = filter(id => contains(id, deletedIds), locallyDeletedIds)
 
     await allPromises(record => record.destroyPermanently(), recordsToDestroy)
     await database.adapter.destroyDeletedRecords(collection.table, deletedRecordsToDestroy)
 
     // Insert and update records
-    const recordsToInsert = created.map(raw => {
-      const currentRecord = records.find(record => record.id === raw.id)
+    const recordsToInsert = map(raw => {
+      const currentRecord = findRecord(raw.id, records)
       if (currentRecord) {
         // TODO: log error -- record already exists, update instead
         return prepareUpdateFromRaw(currentRecord, raw)
-      } else if (locallyDeletedIds.some(id => id === raw.id)) {
-        // TODO: whoa whoa
-        database.adapter.destroyDeletedRecords(collection.table, raw.id)
+      } else if (contains(raw.id, locallyDeletedIds)) {
+        // FIXME: this will fail
+        // database.adapter.destroyDeletedRecords(collection.table, raw.id)
         return prepareCreateFromRaw(collection, raw)
       }
 
       return prepareCreateFromRaw(collection, raw)
-    })
+    }, created)
 
-    const recordsToUpdate = updated
-      .map(raw => {
-        const currentRecord = records.find(record => record.id === raw.id)
+    const recordsToUpdate = map(raw => {
+      const currentRecord = findRecord(raw.id, records)
 
-        if (currentRecord) {
-          return prepareUpdateFromRaw(currentRecord, raw)
-        } else if (locallyDeletedIds.some(id => id === raw.id)) {
-          // Nothing to do, record was locally deleted, deletion will be pushed later
-          return null
-        }
+      if (currentRecord) {
+        return prepareUpdateFromRaw(currentRecord, raw)
+      } else if (contains(raw.id, locallyDeletedIds)) {
+        // Nothing to do, record was locally deleted, deletion will be pushed later
+        return null
+      }
 
-        // Record doesn't exist (but should) — just create it
-        return prepareCreateFromRaw(collection, raw)
-      })
-      .filter(Boolean)
+      // Record doesn't exist (but should) — just create it
+      return prepareCreateFromRaw(collection, raw)
+    }, updated).filter(Boolean)
 
     await database.batch(...recordsToInsert, ...recordsToUpdate)
   })
@@ -166,7 +180,7 @@ function markLocalChangesAsSyncedForCollection<T: Model>(
 
     await database.adapter.destroyDeletedRecords(collection.table, deleted)
     const syncedRecords = recordsForRaws([...created, ...updated], cachedRecords)
-    await database.batch(...syncedRecords.map(record => record.prepareUpdate(markAsSynced)))
+    await database.batch(...map(record => record.prepareUpdate(markAsSynced), syncedRecords))
   })
 }
 
