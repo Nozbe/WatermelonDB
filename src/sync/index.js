@@ -13,14 +13,14 @@ import {
   filter,
   find,
 } from 'rambdax'
-import { allPromises, unnest } from '../utils/fp'
+import { allPromises, unnest, toPairs } from '../utils/fp'
 // import { logError } from '../utils/common'
 import type { Database, RecordId, TableName, Collection, Model } from '..'
 import { type DirtyRaw } from '../RawRecord'
 import * as Q from '../QueryDescription'
 import { columnName } from '../Schema'
 
-import { markAsSynced, prepareCreateFromRaw, prepareUpdateFromRaw } from './syncHelpers'
+import { prepareMarkAsSynced, prepareCreateFromRaw, prepareUpdateFromRaw } from './syncHelpers'
 
 export type SyncTableChangeSet = $Exact<{
   created: DirtyRaw[],
@@ -175,38 +175,31 @@ const recordsForRaws = (raws, recordCache) =>
     raws,
   )
 
-function markLocalChangesAsSyncedForCollection<T: Model>(
-  collection: Collection<T>,
-  syncedLocalChanges: SyncTableChangeSet,
-  cachedRecords: Model[],
-): Promise<void> {
-  const { database } = collection
-  return database.action(async () => {
-    const { created, updated, deleted } = syncedLocalChanges
+const recordsToMarkAsSynced = ({ changes, affectedRecords }: SyncLocalChanges): Model[] =>
+  pipe(
+    values,
+    map(({ created, updated }) => recordsForRaws([...created, ...updated], affectedRecords)),
+    unnest,
+  )(changes)
 
-    await database.adapter.destroyDeletedRecords(collection.table, deleted)
-    const syncedRecords = recordsForRaws([...created, ...updated], cachedRecords)
-    await database.batch(...map(record => record.prepareUpdate(markAsSynced), syncedRecords))
-  })
-}
+const destroyDeletedRecords = (db: Database, { changes }: SyncLocalChanges): Promise<*> =>
+  promiseAllObject(
+    map(
+      ({ deleted }, tableName) => db.adapter.destroyDeletedRecords(tableName, deleted),
+      // $FlowFixMe
+      changes,
+    ),
+  )
 
 export function markLocalChangesAsSynced(
   db: Database,
   syncedLocalChanges: SyncLocalChanges,
 ): Promise<void> {
-  return db.action(async action => {
-    // TODO: Does the order of collections matter? Should they be done one by one? Or all at once?
-    const { changes: localChanges, affectedRecords } = syncedLocalChanges
-    await mapAsync(
-      (changes, tableName) =>
-        action.subAction(() =>
-          markLocalChangesAsSyncedForCollection(
-            db.collections.get(tableName),
-            changes,
-            affectedRecords,
-          ),
-        ),
-      localChanges,
-    )
+  return db.action(async () => {
+    // update and destroy records concurrently
+    await Promise.all([
+      db.batch(...map(prepareMarkAsSynced, recordsToMarkAsSynced(syncedLocalChanges))),
+      destroyDeletedRecords(db, syncedLocalChanges),
+    ])
   })
 }
