@@ -78,19 +78,12 @@ const makeLocalChanges = async mock => {
   const { database, projectsCollection, tasksCollection, commentsCollection } = mock
 
   // create records
-  const pCreated1 = prepareCreateFromRaw(projectsCollection, {
-    _status: 'created',
-    id: 'pCreated1',
-  })
-  const pCreated2 = prepareCreateFromRaw(projectsCollection, {
-    _status: 'created',
-    id: 'pCreated2',
-  })
-  const pUpdated = prepareCreateFromRaw(projectsCollection, {
-    id: 'pUpdated',
-  })
+  const created = obj => ({ _status: 'created', ...obj })
+  const pCreated1 = prepareCreateFromRaw(projectsCollection, created({ id: 'pCreated1' }))
+  const pCreated2 = prepareCreateFromRaw(projectsCollection, created({ id: 'pCreated2' }))
+  const pUpdated = prepareCreateFromRaw(projectsCollection, { id: 'pUpdated' })
   const pDeleted = prepareCreateFromRaw(projectsCollection, { id: 'pDeleted' })
-  const tCreated = prepareCreateFromRaw(tasksCollection, { _status: 'created', id: 'tCreated' })
+  const tCreated = prepareCreateFromRaw(tasksCollection, created({ id: 'tCreated' }))
   const tUpdated = prepareCreateFromRaw(tasksCollection, {
     id: 'tUpdated',
     name: 'orig',
@@ -98,7 +91,7 @@ const makeLocalChanges = async mock => {
     project_id: 'orig',
   })
   const tDeleted = prepareCreateFromRaw(tasksCollection, { id: 'tDeleted' })
-  const cCreated = prepareCreateFromRaw(commentsCollection, { _status: 'created', id: 'cCreated' })
+  const cCreated = prepareCreateFromRaw(commentsCollection, created({ id: 'cCreated' }))
   const cUpdated = prepareCreateFromRaw(commentsCollection, { id: 'cUpdated' })
   const cDeleted = prepareCreateFromRaw(commentsCollection, { id: 'cDeleted' })
   const cDestroyed = prepareCreateFromRaw(commentsCollection, { id: 'cDestroyed' })
@@ -140,16 +133,7 @@ const makeLocalChanges = async mock => {
   await cDeleted.markAsDeleted()
   await cDestroyed.destroyPermanently() // sanity check
 
-  return {
-    pCreated1,
-    pCreated2,
-    pUpdated,
-    tCreated,
-    tUpdated,
-    tDeleted,
-    cCreated,
-    cUpdated,
-  }
+  return { pCreated1, pCreated2, pUpdated, tCreated, tUpdated, tDeleted, cCreated, cUpdated }
 }
 
 describe('fetchLocalChanges', () => {
