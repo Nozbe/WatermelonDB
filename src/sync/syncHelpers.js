@@ -7,6 +7,12 @@ import { type RawRecord, type DirtyRaw, sanitizedRaw } from '../RawRecord'
 // This is a per-column resolution algorithm. All columns that were changed locally win
 // and will be applied on top of the remote version.
 export function resolveConflict(local: RawRecord, remote: DirtyRaw): DirtyRaw {
+  // We SHOULD NOT have a reference to a `deleted` record, but since it was locally
+  // deleted, there's nothing to update, since the local deletion will still be pushed to the server -- return raw as is
+  if (local._status === 'deleted') {
+    return local
+  }
+
   // mutating code - performance-critical path
   const resolved = {
     // use local fields if remote is missing columns (shouldn't but just in case)
@@ -46,14 +52,9 @@ export function prepareCreateFromRaw<T: Model>(collection: Collection<T>, dirtyR
 }
 
 export function prepareUpdateFromRaw<T: Model>(record: T, updatedDirtyRaw: DirtyRaw): T {
+  const newRaw = resolveConflict(record._raw, updatedDirtyRaw)
   return record.prepareUpdate(() => {
-    const { syncStatus } = record
-    if (syncStatus !== 'deleted') {
-      replaceRaw(record, resolveConflict(record._raw, updatedDirtyRaw))
-    } else {
-      // We SHOULD NOT have a reference to a `deleted` record, but since it was locally
-      // deleted, there's nothing to update, since the local deletion will still be pushed to the server
-    }
+    replaceRaw(record, newRaw)
   })
 }
 
