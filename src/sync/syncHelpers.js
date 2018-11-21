@@ -59,8 +59,8 @@ export function prepareUpdateFromRaw<T: Model>(record: T, updatedDirtyRaw: Dirty
 }
 
 export function prepareMarkAsSynced<T: Model>(record: T): T {
+  const newRaw = { ...record._raw, _status: 'synced', _changed: '' }
   return record.prepareUpdate(() => {
-    record._raw._status = 'synced'
-    record._raw._changed = ''
+    replaceRaw(record, newRaw)
   })
 }

@@ -268,12 +268,12 @@ describe('markLocalChangesAsSynced', () => {
     const { database, comments } = mock
 
     await makeLocalChanges(mock)
+    const updatedAt = (await getRaw(comments, 'cUpdated')).updated_at
     await markLocalChangesAsSynced(database, await fetchLocalChanges(database))
 
-    const timestamps = { created_at: 1000, updated_at: 2000 }
-    await expectSyncedAndMatches(comments, 'cCreated', timestamps)
-    await expectSyncedAndMatches(comments, 'cUpdated', timestamps)
-    await expectSyncedAndMatches(comments, 'cSynced', timestamps)
+    await expectSyncedAndMatches(comments, 'cCreated', { created_at: 1000, updated_at: 2000 })
+    await expectSyncedAndMatches(comments, 'cUpdated', { created_at: 1000, updated_at: updatedAt })
+    await expectSyncedAndMatches(comments, 'cSynced', { created_at: 1000, updated_at: 2000 })
   })
   it.skip('only emits one collection batch change', async () => {
     // TODO
