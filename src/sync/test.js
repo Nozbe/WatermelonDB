@@ -307,13 +307,13 @@ describe('markLocalChangesAsSynced', () => {
     // mark local changes as synced; check if new changes are still pending sync
     await markLocalChangesAsSynced(database, localChanges)
 
-    const result = await fetchLocalChanges(database)
-    expect(result.changes).toEqual({
+    const localChanges2 = await fetchLocalChanges(database)
+    expect(localChanges2.changes).toEqual({
       mock_projects: { created: [newProject._raw], updated: [pSynced._raw], deleted: [] },
       mock_tasks: { created: [tCreated._raw], updated: [tUpdated._raw], deleted: ['tSynced'] },
       mock_comments: { created: [], updated: [], deleted: ['cUpdated', 'cCreated'] },
     })
-    expect(result.affectedRecords).toEqual([pSynced, newProject, tCreated, tUpdated])
+    expect(localChanges2.affectedRecords).toEqual([pSynced, newProject, tCreated, tUpdated])
 
     await expectSyncedAndMatches(tasks, 'tUpdated', {
       _status: 'updated',
@@ -322,6 +322,13 @@ describe('markLocalChangesAsSynced', () => {
       name: 'local2',
       description: 'local2',
       position: 100,
+    })
+
+    // test that second push will mark all as synced
+    await markLocalChangesAsSynced(database, localChanges2)
+    expect(await fetchLocalChanges(database)).toEqual({
+      changes: emptyChangeSet,
+      affectedRecords: [],
     })
   })
   it.skip('only emits one collection batch change', async () => {})
