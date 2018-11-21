@@ -57,7 +57,10 @@ function applyRemoteChangesToCollection<T: Model>(
     const deletedRecordsToDestroy = filter(id => contains(id, deletedIds), locallyDeletedIds)
 
     await allPromises(record => record.destroyPermanently(), recordsToDestroy)
-    await database.adapter.destroyDeletedRecords(collection.table, deletedRecordsToDestroy)
+
+    if (deletedRecordsToDestroy.length) {
+      await database.adapter.destroyDeletedRecords(table, deletedRecordsToDestroy)
+    }
 
     // Insert and update records
     const recordsToInsert = map(raw => {
@@ -66,8 +69,10 @@ function applyRemoteChangesToCollection<T: Model>(
         // TODO: log error -- record already exists, update instead
         return prepareUpdateFromRaw(currentRecord, raw)
       } else if (contains(raw.id, locallyDeletedIds)) {
-        // FIXME: this will fail
-        // database.adapter.destroyDeletedRecords(collection.table, raw.id)
+        // This record is marked as deleted, but shouldn't exist. We'll destroy it
+        // and then recreate it. Note that we're not awaiting the async operation
+        // (but it will always complete before the batch)
+        database.adapter.destroyDeletedRecords(table, [raw.id])
         return prepareCreateFromRaw(collection, raw)
       }
 

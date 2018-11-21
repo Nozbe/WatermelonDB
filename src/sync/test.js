@@ -386,9 +386,8 @@ describe('applyRemoteChanges', () => {
           { id: 'tSynced', name: 'remote' },
           // create / updated - resolve and update (stay updated)
           { id: 'tUpdated', name: 'remote', description: 'remote' },
-          // FIXME:
           // create / deleted - destroy and recreate? (or just un-delete?)
-          // { id: 'tDeleted', name: 'remote' },
+          { id: 'tDeleted', name: 'remote' },
         ],
         updated: [],
         deleted: [],
@@ -403,8 +402,7 @@ describe('applyRemoteChanges', () => {
       description: 'remote', // remote change
       project_id: 'orig', // unchanged
     })
-    // FIXME:
-    // await expectSyncedAndMatches(tasks, 'tDeleted', { name: 'remote' })
+    await expectSyncedAndMatches(tasks, 'tDeleted', { name: 'remote' })
   })
   it('can handle weird edge cases', async () => {
     const mock = mockDatabase()
