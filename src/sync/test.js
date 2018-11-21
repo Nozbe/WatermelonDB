@@ -327,7 +327,25 @@ describe('markLocalChangesAsSynced', () => {
     await markLocalChangesAsSynced(database, localChanges2)
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
   })
-  it.skip('only emits one collection batch change', async () => {})
+  // TODO: Unskip the test when batch collection emissions are implemented
+  it.skip('only emits one collection batch change', async () => {
+    const mock = mockDatabase()
+    const { database, projects } = mock
+
+    const { pCreated1 } = await makeLocalChanges(mock)
+    const localChanges = await fetchLocalChanges(database)
+
+    const projectsObserver = jest.fn()
+    projects.changes.subscribe(projectsObserver)
+
+    await markLocalChangesAsSynced(database, localChanges)
+
+    expect(projectsObserver).toBeCalledTimes(1)
+    expect(projectsObserver).toBeCalledWith([
+      { type: 'created', record: pCreated1 },
+      // TODO: missing changes + changes in other collections
+    ])
+  })
 })
 
 describe('applyRemoteChanges', () => {
@@ -532,6 +550,6 @@ describe('applyRemoteChanges', () => {
     // TODO: Add this test when fast delete is implemented
   })
   it.skip('only emits one collection batch change', async () => {
-    // TODO
+    // TODO: Implement and unskip test when batch change emissions are implemented
   })
 })
