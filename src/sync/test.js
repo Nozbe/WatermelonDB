@@ -106,7 +106,7 @@ const makeLocalChanges = async mock => {
     tCreated,
     tUpdated,
     tDeleted,
-    prepareCreateFromRaw(comments, { id: 'cSynced' }),
+    prepareCreateFromRaw(comments, { id: 'cSynced', created_at: 1000, updated_at: 2000 }),
     cCreated,
     cUpdated,
     cDeleted,
@@ -434,6 +434,46 @@ describe('applyRemoteChanges', () => {
     await expectSyncedAndMatches(projects, 'pCreated', { name: 'remote' })
     await expectSyncedAndMatches(tasks, 'tCreated', { name: 'remote' })
     await expectSyncedAndMatches(tasks, 'does_not_exist', { name: 'remote' })
+  })
+  it(`doesn't touch created_at/updated_at when applying updates`, async () => {
+    const mock = mockDatabase()
+    const { database, comments } = mock
+
+    await makeLocalChanges(mock)
+    await applyRemoteChanges(database, {
+      ...emptyChangeSet,
+      mock_comments: {
+        created: [],
+        updated: [{ id: 'cSynced', body: 'remote' }],
+        deleted: [],
+      },
+    })
+
+    await expectSyncedAndMatches(comments, 'cSynced', {
+      created_at: 1000,
+      updated_at: 2000,
+      body: 'remote',
+    })
+  })
+  it('can replace created_at/updated_at during sync', async () => {
+    const mock = mockDatabase()
+    const { database, comments } = mock
+
+    await makeLocalChanges(mock)
+    await applyRemoteChanges(database, {
+      ...emptyChangeSet,
+      mock_comments: {
+        created: [],
+        updated: [{ id: 'cSynced', created_at: 10, updated_at: 20 }],
+        deleted: [],
+      },
+    })
+
+    await expectSyncedAndMatches(comments, 'cSynced', {
+      created_at: 10,
+      updated_at: 20,
+      body: '',
+    })
   })
   it.skip('only emits one collection batch change', async () => {
     // TODO
