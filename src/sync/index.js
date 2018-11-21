@@ -13,7 +13,7 @@ import {
   equals,
 } from 'rambdax'
 import { allPromises, unnest } from '../utils/fp'
-// import { logError } from '../utils/common'
+import { logError } from '../utils/common'
 import type { Database, RecordId, TableName, Collection, Model } from '..'
 import { type DirtyRaw } from '../RawRecord'
 import * as Q from '../QueryDescription'
@@ -67,12 +67,19 @@ function applyRemoteChangesToCollection<T: Model>(
     const recordsToInsert = map(raw => {
       const currentRecord = findRecord(raw.id, records)
       if (currentRecord) {
-        // TODO: log error -- record already exists, update instead
+        logError(
+          `[Sync] Server wants client to create record ${table}#${
+            raw.id
+          }, but it already exists locally. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will update existing record instead.`,
+        )
         return prepareUpdateFromRaw(currentRecord, raw)
       } else if (contains(raw.id, locallyDeletedIds)) {
-        // This record is marked as deleted, but shouldn't exist. We'll destroy it
-        // and then recreate it. Note that we're not awaiting the async operation
-        // (but it will always complete before the batch)
+        logError(
+          `[Sync] Server wants client to create record ${table}#${
+            raw.id
+          }, but it already exists locally and is marked as deleted. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will delete local record and recreate it instead.`,
+        )
+        // Note: we're not awaiting the async operation (but it will always complete before the batch)
         database.adapter.destroyDeletedRecords(table, [raw.id])
         return prepareCreateFromRaw(collection, raw)
       }
@@ -91,6 +98,12 @@ function applyRemoteChangesToCollection<T: Model>(
       }
 
       // Record doesn't exist (but should) — just create it
+      logError(
+        `[Sync] Server wants client to update record ${table}#${
+          raw.id
+        }, but it doesn't exist locally. This could be a serious bug. Will create record instead.`,
+      )
+
       return prepareCreateFromRaw(collection, raw)
     }, updated).filter(Boolean)
 
@@ -168,14 +181,18 @@ const unchangedRecordsForRaws = (raws, recordCache) =>
   reduce(
     (records, raw) => {
       const record = recordCache.find(model => model.id === raw.id)
-      if (record) {
-        // only include if it didn't change since fetch
-        // TODO: get rid of `equals`
-        return equals(record._raw, raw) ? records.concat(record) : records
+      if (!record) {
+        logError(
+          `[Sync] Looking for record ${
+            raw.id
+          } to mark it as synced, but I can't find it. Will ignore it (it should get synced next time). This is probably a Watermelon bug — please file an issue!`,
+        )
+        return records
       }
 
-      // TODO: Log error
-      return records
+      // only include if it didn't change since fetch
+      // TODO: get rid of `equals`
+      return equals(record._raw, raw) ? records.concat(record) : records
     },
     [],
     raws,

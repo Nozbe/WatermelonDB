@@ -1,5 +1,7 @@
 // @flow
 
+import { logError } from '../utils/common'
+
 import type { Model, Collection } from '..'
 import { type RawRecord, type DirtyRaw, sanitizedRaw } from '../RawRecord'
 
@@ -18,7 +20,6 @@ export function resolveConflict(local: RawRecord, remote: DirtyRaw): DirtyRaw {
     // use local fields if remote is missing columns (shouldn't but just in case)
     ...local,
     // Note: remote MUST NOT have a _status of _changed fields
-    // TODO: in Purple code resolution changes _changed to null, but is that right? i think until local changes are pushed, local changes are NOT synced. if pull succeeded, but push failed, this param change would get lost
     ...remote,
   }
 
@@ -27,10 +28,13 @@ export function resolveConflict(local: RawRecord, remote: DirtyRaw): DirtyRaw {
     resolved[column] = local[column]
   })
 
-  // This is a programmer error - we have a record that was remotely UPDATED, but
-  // it's marked as 'locally created'. We'll assume it should have been `synced`, and just replace the raw
+  // Handle edge case
   if (local._status === 'created') {
-    // TODO: Log error
+    logError(
+      `[Sync] Server wants client to update record ${
+        local.id
+      }, but it's marked as locally created. This is most likely either a server error or a Watermelon bug (please file an issue if it is!). Will assume it should have been 'synced', and just replace the raw`,
+    )
     resolved._status = 'synced'
   }
 
