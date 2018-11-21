@@ -10,6 +10,7 @@ import {
   pipe,
   filter,
   find,
+  equals,
 } from 'rambdax'
 import { allPromises, unnest } from '../utils/fp'
 // import { logError } from '../utils/common'
@@ -163,12 +164,14 @@ export function fetchLocalChanges(db: Database): Promise<SyncLocalChanges> {
 
 // *** Mark local changes as synced ***
 
-const recordsForRaws = (raws, recordCache) =>
+const unchangedRecordsForRaws = (raws, recordCache) =>
   reduce(
     (records, raw) => {
       const record = recordCache.find(model => model.id === raw.id)
       if (record) {
-        return records.concat(record)
+        // only include if it didn't change since fetch
+        // TODO: get rid of `equals`
+        return equals(record._raw, raw) ? records.concat(record) : records
       }
 
       // TODO: Log error
@@ -181,7 +184,9 @@ const recordsForRaws = (raws, recordCache) =>
 const recordsToMarkAsSynced = ({ changes, affectedRecords }: SyncLocalChanges): Model[] =>
   pipe(
     values,
-    map(({ created, updated }) => recordsForRaws([...created, ...updated], affectedRecords)),
+    map(({ created, updated }) =>
+      unchangedRecordsForRaws([...created, ...updated], affectedRecords),
+    ),
     unnest,
   )(changes)
 
