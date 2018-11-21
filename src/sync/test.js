@@ -91,9 +91,10 @@ const makeLocalChanges = async mock => {
     project_id: 'orig',
   })
   const tDeleted = prepareCreateFromRaw(tasks, { id: 'tDeleted' })
-  const cCreated = prepareCreateFromRaw(comments, created({ id: 'cCreated' }))
-  const cUpdated = prepareCreateFromRaw(comments, { id: 'cUpdated' })
-  const cDeleted = prepareCreateFromRaw(comments, { id: 'cDeleted' })
+  const timestamps = { created_at: 1000, updated_at: 2000 }
+  const cCreated = prepareCreateFromRaw(comments, created({ id: 'cCreated', ...timestamps }))
+  const cUpdated = prepareCreateFromRaw(comments, { id: 'cUpdated', ...timestamps })
+  const cDeleted = prepareCreateFromRaw(comments, { id: 'cDeleted', ...timestamps })
   const cDestroyed = prepareCreateFromRaw(comments, { id: 'cDestroyed' })
 
   await database.batch(
@@ -106,7 +107,7 @@ const makeLocalChanges = async mock => {
     tCreated,
     tUpdated,
     tDeleted,
-    prepareCreateFromRaw(comments, { id: 'cSynced', created_at: 1000, updated_at: 2000 }),
+    prepareCreateFromRaw(comments, { id: 'cSynced', ...timestamps }),
     cCreated,
     cUpdated,
     cDeleted,
@@ -261,6 +262,18 @@ describe('markLocalChangesAsSynced', () => {
     expect(await adapter.getDeletedRecords('mock_projects')).toEqual([])
     expect(await adapter.getDeletedRecords('mock_tasks')).toEqual([])
     expect(await adapter.getDeletedRecords('mock_comments')).toEqual([])
+  })
+  it(`doesn't modify updated_at timestamps`, async () => {
+    const mock = mockDatabase()
+    const { database, comments } = mock
+
+    await makeLocalChanges(mock)
+    await markLocalChangesAsSynced(database, await fetchLocalChanges(database))
+
+    const timestamps = { created_at: 1000, updated_at: 2000 }
+    await expectSyncedAndMatches(comments, 'cCreated', timestamps)
+    await expectSyncedAndMatches(comments, 'cUpdated', timestamps)
+    await expectSyncedAndMatches(comments, 'cSynced', timestamps)
   })
   it.skip('only emits one collection batch change', async () => {
     // TODO
@@ -463,17 +476,14 @@ describe('applyRemoteChanges', () => {
     await applyRemoteChanges(database, {
       ...emptyChangeSet,
       mock_comments: {
-        created: [],
+        created: [{ id: 'cNew', created_at: 1, updated_at: 2 }],
         updated: [{ id: 'cSynced', created_at: 10, updated_at: 20 }],
         deleted: [],
       },
     })
 
-    await expectSyncedAndMatches(comments, 'cSynced', {
-      created_at: 10,
-      updated_at: 20,
-      body: '',
-    })
+    await expectSyncedAndMatches(comments, 'cNew', { created_at: 1, updated_at: 2, body: '' })
+    await expectSyncedAndMatches(comments, 'cSynced', { created_at: 10, updated_at: 20, body: '' })
   })
   it.skip('only emits one collection batch change', async () => {
     // TODO
