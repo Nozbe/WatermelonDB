@@ -105,9 +105,9 @@ function applyRemoteChangesToCollection<T: Model>(
       )
 
       return prepareCreateFromRaw(collection, raw)
-    }, updated).filter(Boolean)
+    }, updated)
 
-    await database.batch(...recordsToInsert, ...recordsToUpdate)
+    await database.batch(...recordsToInsert, ...recordsToUpdate.filter(Boolean))
   })
 }
 
