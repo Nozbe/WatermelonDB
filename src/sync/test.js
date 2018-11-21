@@ -79,62 +79,53 @@ const makeLocalChanges = async mock => {
 
   // create records
   const created = obj => ({ _status: 'created', ...obj })
-  const pCreated1 = prepareCreateFromRaw(projects, created({ id: 'pCreated1' }))
-  const pCreated2 = prepareCreateFromRaw(projects, created({ id: 'pCreated2' }))
-  const pUpdated = prepareCreateFromRaw(projects, { id: 'pUpdated' })
-  const pDeleted = prepareCreateFromRaw(projects, { id: 'pDeleted' })
-  const tCreated = prepareCreateFromRaw(tasks, created({ id: 'tCreated' }))
-  const tUpdated = prepareCreateFromRaw(tasks, {
-    id: 'tUpdated',
-    name: 'orig',
-    description: 'orig',
-    project_id: 'orig',
-  })
-  const tDeleted = prepareCreateFromRaw(tasks, { id: 'tDeleted' })
   const timestamps = { created_at: 1000, updated_at: 2000 }
-  const cCreated = prepareCreateFromRaw(comments, created({ id: 'cCreated', ...timestamps }))
-  const cUpdated = prepareCreateFromRaw(comments, { id: 'cUpdated', ...timestamps })
-  const cDeleted = prepareCreateFromRaw(comments, { id: 'cDeleted', ...timestamps })
-  const cDestroyed = prepareCreateFromRaw(comments, { id: 'cDestroyed' })
 
-  await database.batch(
-    prepareCreateFromRaw(projects, { id: 'pSynced' }),
-    pCreated1,
-    pCreated2,
-    pUpdated,
-    pDeleted,
-    prepareCreateFromRaw(tasks, { id: 'tSynced' }),
-    tCreated,
-    tUpdated,
-    tDeleted,
-    prepareCreateFromRaw(comments, { id: 'cSynced', ...timestamps }),
-    cCreated,
-    cUpdated,
-    cDeleted,
-    cDestroyed,
-  )
+  const records = {
+    pSynced: prepareCreateFromRaw(projects, { id: 'pSynced' }),
+    pCreated1: prepareCreateFromRaw(projects, created({ id: 'pCreated1' })),
+    pCreated2: prepareCreateFromRaw(projects, created({ id: 'pCreated2' })),
+    pUpdated: prepareCreateFromRaw(projects, { id: 'pUpdated' }),
+    pDeleted: prepareCreateFromRaw(projects, { id: 'pDeleted' }),
+    tSynced: prepareCreateFromRaw(tasks, { id: 'tSynced' }),
+    tCreated: prepareCreateFromRaw(tasks, created({ id: 'tCreated' })),
+    tUpdated: prepareCreateFromRaw(tasks, {
+      id: 'tUpdated',
+      name: 'orig',
+      description: 'orig',
+      project_id: 'orig',
+    }),
+    tDeleted: prepareCreateFromRaw(tasks, { id: 'tDeleted' }),
+    cSynced: prepareCreateFromRaw(comments, { id: 'cSynced', ...timestamps }),
+    cCreated: prepareCreateFromRaw(comments, created({ id: 'cCreated', ...timestamps })),
+    cUpdated: prepareCreateFromRaw(comments, { id: 'cUpdated', ...timestamps }),
+    cDeleted: prepareCreateFromRaw(comments, { id: 'cDeleted', ...timestamps }),
+    cDestroyed: prepareCreateFromRaw(comments, { id: 'cDestroyed' }),
+  }
+
+  await database.batch(...Object.values(records))
 
   // update records
-  await pUpdated.update(p => {
+  await records.pUpdated.update(p => {
     p.name = 'local'
   })
-  await tUpdated.update(p => {
+  await records.tUpdated.update(p => {
     p.name = 'local'
   })
-  await cUpdated.update(c => {
+  await records.cUpdated.update(c => {
     c.body = 'local'
   })
-  await tDeleted.update(t => {
+  await records.tDeleted.update(t => {
     t.name = 'local'
   })
 
   // delete records
-  await pDeleted.markAsDeleted()
-  await tDeleted.markAsDeleted()
-  await cDeleted.markAsDeleted()
-  await cDestroyed.destroyPermanently() // sanity check
+  await records.pDeleted.markAsDeleted()
+  await records.tDeleted.markAsDeleted()
+  await records.cDeleted.markAsDeleted()
+  await records.cDestroyed.destroyPermanently() // sanity check
 
-  return { pCreated1, pCreated2, pUpdated, tCreated, tUpdated, tDeleted, cCreated, cUpdated }
+  return records
 }
 
 describe('fetchLocalChanges', () => {
@@ -239,8 +230,7 @@ describe('markLocalChangesAsSynced', () => {
     const projectCount = await projects.query().fetchCount()
     const taskCount = await tasks.query().fetchCount()
 
-    const localChanges = await fetchLocalChanges(database)
-    await markLocalChangesAsSynced(database, localChanges)
+    await markLocalChangesAsSynced(database, await fetchLocalChanges(database))
 
     // no more changes
     expect(await fetchLocalChanges(database)).toEqual({
@@ -275,12 +265,54 @@ describe('markLocalChangesAsSynced', () => {
     await expectSyncedAndMatches(comments, 'cUpdated', { created_at: 1000, updated_at: updatedAt })
     await expectSyncedAndMatches(comments, 'cSynced', { created_at: 1000, updated_at: 2000 })
   })
-  it.skip('only emits one collection batch change', async () => {
-    // TODO
+  it.only(`doesn't mark as synced records that changed since changes were fetched`, async () => {
+    const mock = mockDatabase()
+    const { database, projects, tasks, comments } = mock
+
+    const {
+      tUpdated,
+      pSynced,
+      tSynced,
+      cSynced,
+      cCreated,
+      cUpdated,
+      cDeleted,
+    } = await makeLocalChanges(mock)
+    const localChanges = await fetchLocalChanges(database)
+
+    // simulate user making changes the the app while sync push request is in progress
+
+    // non-confliting changes: new record, update synced record, delete synced record
+    const newProject = await projects.create()
+    await pSynced.update(() => {
+      pSynced.name = 'local2'
+    })
+    await tSynced.markAsDeleted()
+    await cSynced.destroyPermanently()
+
+    // conflicting changes: update already updated, delete created/updated/deleted
+    await tUpdated.update(() => {
+      tUpdated.name = 'local2' // change what was already changed
+      tUpdated.description = 'local2' // new change
+    })
+    await cCreated.markAsDeleted()
+    await cUpdated.markAsDeleted()
+    await cDeleted.destroyPermanently()
+
+    // mark local changes as synced; check if new changes are still pending sync
+    await markLocalChangesAsSynced(database, localChanges)
+
+    const expectedChanges = clone({
+      mock_projects: { created: [newProject._raw], updated: [pSynced._raw], deleted: [] },
+      mock_tasks: { created: [], updated: [tUpdated._raw], deleted: ['tSynced'] },
+      mock_comments: { created: [], updated: [], deleted: ['cCreated', 'cUpdated'] },
+    })
+    const expectedAffectedRecords = [newProject, pSynced, tUpdated]
+    const result = await fetchLocalChanges(database)
+    expect(result.changes).toEqual(expectedChanges)
+    expect(result.affectedRecords).toEqual(expectedAffectedRecords)
   })
-  it.skip(`doesn't mark as synced records that changed since changes were fetched`, async () => {
-    // TODO
-  })
+  it.skip('only emits one collection batch change', async () => {})
 })
 
 describe('applyRemoteChanges', () => {
@@ -484,6 +516,9 @@ describe('applyRemoteChanges', () => {
 
     await expectSyncedAndMatches(comments, 'cNew', { created_at: 1, updated_at: 2, body: '' })
     await expectSyncedAndMatches(comments, 'cSynced', { created_at: 10, updated_at: 20, body: '' })
+  })
+  it.skip(`doesn't destroy dependent objects`, async () => {
+    // TODO: Add this test when fast delete is implemented
   })
   it.skip('only emits one collection batch change', async () => {
     // TODO
