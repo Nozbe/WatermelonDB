@@ -13,7 +13,6 @@ describe('addToRawSet', () => {
     expect(addToRawSet('foo,bar', 'baz')).toBe('foo,bar,baz')
     expect(addToRawSet('foo,bar', 'foo')).toBe('foo,bar')
     expect(addToRawSet('foo,bar', 'bar')).toBe('foo,bar')
-    expect(addToRawSet(null, 'bar')).toBe('bar')
   })
 })
 

@@ -3,7 +3,7 @@
 import type { ColumnName } from '..'
 import type { RawRecord } from '../RawRecord'
 
-export function addToRawSet(rawSet: ?string, value: string): string {
+export function addToRawSet(rawSet: string, value: string): string {
   const array = rawSet ? rawSet.split(',') : []
   const set = new Set(array)
   set.add(value)

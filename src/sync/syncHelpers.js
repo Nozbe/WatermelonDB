@@ -23,10 +23,7 @@ export function resolveConflict(local: RawRecord, remote: DirtyRaw): DirtyRaw {
   }
 
   // Use local properties where changed
-  // TODO: Doesn't raw sanitization prohibit null? (if so, also change addToRawSet; if not, add test)
-  const localChanges = (local._changed || '').split(',')
-
-  localChanges.forEach(column => {
+  local._changed.split(',').forEach(column => {
     resolved[column] = local[column]
   })
 
@@ -37,7 +34,6 @@ export function resolveConflict(local: RawRecord, remote: DirtyRaw): DirtyRaw {
     resolved._status = 'synced'
   }
 
-  // TODO: What about last_modified?
   return resolved
 }
 
