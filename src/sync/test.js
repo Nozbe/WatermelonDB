@@ -511,6 +511,17 @@ describe('applyRemoteChanges', () => {
   })
 })
 
+const observeDatabase = database => {
+  const observer = jest.fn()
+  const tables = ['mock_projects', 'mock_tasks', 'mock_comments']
+  expect(tables).toEqual(Object.keys(database.collections.map))
+  database
+    .withChangesForTables(tables)
+    .pipe(skip$(1))
+    .subscribe(observer)
+  return observer
+}
+
 describe.only('synchronize', () => {
   it('can synchronize changes', async () => {
     const mock = mockDatabase()
@@ -586,14 +597,9 @@ describe.only('synchronize', () => {
   })
   it('can recover from pull failure', async () => {
     const mock = mockDatabase()
-    const { database, tables } = mock
+    const { database } = mock
 
-    const observer = jest.fn()
-    database
-      .withChangesForTables(tables)
-      .pipe(skip$(1))
-      .subscribe(observer)
-
+    const observer = observeDatabase(database)
     const pullChanges = jest.fn(() => Promise.reject('pull-fail'))
     const pushChanges = jest.fn()
     const sync = await synchronize({ database, pullChanges, pushChanges }).catch(e => e)
@@ -605,7 +611,34 @@ describe.only('synchronize', () => {
     expect(await getLastSyncedAt(database)).toBe(null)
   })
   it('can recover from push failure', async () => {
-    // TODO:
+    const mock = mockDatabase()
+    const { database, projects } = mock
+
+    await makeLocalChanges(mock)
+    const localChanges = await fetchLocalChanges(database)
+
+    const observer = observeDatabase(database)
+    const pullChanges = async () => ({
+      changes: makeChangeSet({
+        mock_projects: {
+          created: [{ id: 'new_project', name: 'remote' }],
+        },
+      }),
+      timestamp: 1500,
+    })
+    const pushChanges = jest.fn(() => Promise.reject('push-fail'))
+    const sync = await synchronize({ database, pullChanges, pushChanges }).catch(e => e)
+
+    // full sync failed - local changes still awaiting sync
+    expect(pushChanges).toBeCalledTimes(1)
+    expect(pushChanges).toBeCalledWith({ changes: localChanges.changes })
+    expect(sync).toBe('push-fail')
+    expect(await fetchLocalChanges(database)).toEqual(localChanges)
+
+    // but pull phase succeeded
+    expect(await getLastSyncedAt(database)).toBe(1500)
+    expect(observer).toBeCalledTimes(1)
+    await expectSyncedAndMatches(projects, 'new_project', { name: 'remote' })
   })
   it('can handle local changes during sync', async () => {
     // TODO:

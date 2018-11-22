@@ -35,6 +35,7 @@ export type SyncArgs = $Exact<{
 }>
 
 export async function synchronize({ database, pullChanges, pushChanges }: SyncArgs): Promise<void> {
+  // pull phase
   const lastSyncedAt = await getLastSyncedAt(database)
   const { changes: remoteChanges, timestamp } = await pullChanges({ lastSyncedAt })
   await database.action(async action => {
@@ -46,6 +47,7 @@ export async function synchronize({ database, pullChanges, pushChanges }: SyncAr
     await setLastSyncedAt(database, timestamp)
   })
 
+  // push phase
   const localChanges = await fetchLocalChanges(database)
   await pushChanges({ changes: localChanges.changes })
   await markLocalChangesAsSynced(database, localChanges)
