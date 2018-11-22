@@ -643,6 +643,8 @@ describe('synchronize', () => {
     expect(pullChanges).toBeCalledTimes(1)
     expect(pullChanges).toBeCalledWith({ lastSyncedAt: 1500 })
     expect(await getLastSyncedAt(database)).toBe(2500)
+    // check underlying database since it's essentially API
+    expect(await database.adapter.getLocal('__watermelon_last_synced_at')).toBe('2500')
   })
   it('prevents concurrent syncs', async () => {
     const { database } = mockDatabase()
@@ -696,7 +698,6 @@ describe('synchronize', () => {
     const sync = await synchronize({ database, pullChanges, pushChanges }).catch(e => e)
 
     // full sync failed - local changes still awaiting sync
-    expect(pushChanges).toBeCalledTimes(1)
     expect(pushChanges).toBeCalledWith({ changes: localChanges.changes })
     expect(sync).toMatchObject({ message: 'push-fail' })
     expect(await fetchLocalChanges(database)).toEqual(localChanges)
