@@ -372,6 +372,7 @@ describe('applyRemoteChanges', () => {
         ],
       },
       mock_comments: {
+        // update / deleted - ignore (will be synced anyway)
         updated: [{ id: 'cDeleted', body: 'remote' }],
       },
     })
@@ -542,8 +543,70 @@ describe('synchronize', () => {
     await expectSyncedAndMatches(projects, 'pSynced', { name: 'remote' })
     expect(await getRaw(tasks, 'tSynced')).toBe(null)
   })
-  it('can synchronize changes with conflicts', async () => {
-    // TODO:
+  it.only('can synchronize changes with conflicts', async () => {
+    const { database, projects, tasks, comments } = mockDatabase()
+
+    await makeLocalChanges(database)
+    const localChanges = await fetchLocalChanges(database)
+
+    const pullChanges = async () => ({
+      changes: makeChangeSet({
+        mock_projects: {
+          created: [{ id: 'pCreated1', name: 'remote' }], // error - update, stay synced
+          deleted: [
+            // FIXME:
+            // 'pUpdated',
+            'does_not_exist',
+            'pDeleted',
+          ],
+        },
+        mock_tasks: {
+          updated: [
+            { id: 'tUpdated', name: 'remote', description: 'remote' }, // just a conflict; stay updated
+            { id: 'tDeleted', body: 'remote' }, // ignore
+          ],
+        },
+        mock_comments: {
+          created: [
+            { id: 'cUpdated', body: 'remote', task_id: 'remote' }, // error - resolve and update (stay updated)
+          ],
+        },
+      }),
+      timestamp: 1500,
+    })
+    const pushChanges = jest.fn(async () => {})
+
+    await synchronize({ database, pullChanges, pushChanges })
+
+    expect(pushChanges).toBeCalledTimes(1)
+    const pushedChanges = pushChanges.mock.calls[0][0].changes
+    expect(pushedChanges).not.toEqual(localChanges.changes)
+    expect(pushedChanges.mock_projects.created).not.toContainEqual(
+      await getRaw(projects, 'pCreated1'),
+    )
+    expect(pushedChanges.mock_projects.deleted).not.toContain('pDeleted')
+    expect(pushedChanges.mock_tasks.updated).toContainEqual({
+      // TODO: That's just dirty
+      ...(await getRaw(tasks, 'tUpdated')),
+      _status: 'updated',
+      _changed: 'name,position',
+    })
+    expect(pushedChanges.mock_tasks.deleted).toContain('tDeleted')
+    expect(pushedChanges.mock_comments.updated).toContainEqual({
+      // TODO: That's just dirty
+      ...(await getRaw(comments, 'cUpdated')),
+      _status: 'updated',
+      _changed: 'updated_at,body',
+    })
+
+    await expectSyncedAndMatches(projects, 'pCreated1', { name: 'remote' })
+    // expect(await getRaw(projects, 'pUpdated')).toBe(null) // FIXME:
+    expect(await getRaw(projects, 'pDeleted')).toBe(null)
+    await expectSyncedAndMatches(tasks, 'tUpdated', { name: 'local', description: 'remote' })
+    expect(await getRaw(tasks, 'tDeleted')).toBe(null)
+    await expectSyncedAndMatches(comments, 'cUpdated', { body: 'local', task_id: 'remote' })
+
+    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
   })
   it('remembers last_synced_at timestamp', async () => {
     const { database } = mockDatabase()
