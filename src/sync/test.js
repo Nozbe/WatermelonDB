@@ -511,11 +511,39 @@ const observeDatabase = database => {
 }
 
 describe('synchronize', () => {
-  it('can synchronize changes', async () => {
-    const { database, projects, tasks } = mockDatabase()
+  it('can perform an empty sync', async () => {
+    const { database } = mockDatabase()
+    const observer = observeDatabase(database)
+
+    const pullChanges = jest.fn(async () => ({ changes: emptyChangeSet, timestamp: 1500 }))
+    const pushChanges = jest.fn()
+
+    await synchronize({ database, pullChanges, pushChanges })
+
+    expect(observer).toBeCalledTimes(0)
+    expect(pullChanges).toBeCalledTimes(1)
+    expect(pullChanges).toBeCalledWith({ lastSyncedAt: null })
+    expect(pushChanges).toBeCalledTimes(1)
+    expect(pushChanges).toBeCalledWith({ changes: emptyChangeSet })
+  })
+  it.skip(`doesn't push changes if nothing to push`, async () => {
+    // TODO: Future optimization
+  })
+  it('can push changes', async () => {
+    const { database } = mockDatabase()
 
     await makeLocalChanges(database)
     const localChanges = await fetchLocalChanges(database)
+
+    const pullChanges = jest.fn(async () => ({ changes: emptyChangeSet, timestamp: 1500 }))
+    const pushChanges = jest.fn()
+    await synchronize({ database, pullChanges, pushChanges })
+
+    expect(pushChanges).toBeCalledWith({ changes: localChanges.changes })
+    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+  })
+  it('can pull changes', async () => {
+    const { database, projects, tasks } = mockDatabase()
 
     const pullChanges = jest.fn(async () => ({
       changes: makeChangeSet({
@@ -533,10 +561,8 @@ describe('synchronize', () => {
 
     await synchronize({ database, pullChanges, pushChanges })
 
-    expect(pullChanges).toBeCalledTimes(1)
     expect(pullChanges).toBeCalledWith({ lastSyncedAt: null })
-    expect(pushChanges).toBeCalledTimes(1)
-    expect(pushChanges).toBeCalledWith({ changes: localChanges.changes })
+    expect(pushChanges).toBeCalledWith({ changes: emptyChangeSet })
 
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
     await expectSyncedAndMatches(projects, 'new_project', { name: 'remote' })
@@ -641,14 +667,14 @@ describe('synchronize', () => {
     const { database } = mockDatabase()
 
     const observer = observeDatabase(database)
-    const pullChanges = jest.fn(() => Promise.reject('pull-fail'))
+    const pullChanges = jest.fn(() => Promise.reject(new Error('pull-fail')))
     const pushChanges = jest.fn()
     const sync = await synchronize({ database, pullChanges, pushChanges }).catch(e => e)
 
     expect(observer).toBeCalledTimes(0)
     expect(pullChanges).toBeCalledTimes(1)
     expect(pushChanges).toBeCalledTimes(0)
-    expect(sync).toBe('pull-fail')
+    expect(sync).toMatchObject({ message: 'pull-fail' })
     expect(await getLastSyncedAt(database)).toBe(null)
   })
   it('can recover from push failure', async () => {
@@ -666,13 +692,13 @@ describe('synchronize', () => {
       }),
       timestamp: 1500,
     })
-    const pushChanges = jest.fn(() => Promise.reject('push-fail'))
+    const pushChanges = jest.fn(() => Promise.reject(new Error('push-fail')))
     const sync = await synchronize({ database, pullChanges, pushChanges }).catch(e => e)
 
     // full sync failed - local changes still awaiting sync
     expect(pushChanges).toBeCalledTimes(1)
     expect(pushChanges).toBeCalledWith({ changes: localChanges.changes })
-    expect(sync).toBe('push-fail')
+    expect(sync).toMatchObject({ message: 'push-fail' })
     expect(await fetchLocalChanges(database)).toEqual(localChanges)
 
     // but pull phase succeeded
@@ -680,10 +706,10 @@ describe('synchronize', () => {
     expect(observer).toBeCalledTimes(1)
     await expectSyncedAndMatches(projects, 'new_project', { name: 'remote' })
   })
-  it('can handle local changes during sync', async () => {
+  it.skip('can handle local changes during sync', async () => {
     // TODO:
   })
-  it('can synchronize lots of data', async () => {
+  it.skip('can synchronize lots of data', async () => {
     // TODO:
   })
 })
