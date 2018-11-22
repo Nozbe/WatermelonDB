@@ -19,9 +19,19 @@ import * as Q from '../QueryDescription'
 import { columnName } from '../Schema'
 
 import { prepareMarkAsSynced, prepareCreateFromRaw, prepareUpdateFromRaw } from './syncHelpers'
-import type { SyncTableChangeSet, SyncDatabaseChangeSet } from './index'
+import type { SyncTableChangeSet, SyncDatabaseChangeSet, Timestamp } from './index'
 
 export type SyncLocalChanges = $Exact<{ changes: SyncDatabaseChangeSet, affectedRecords: Model[] }>
+
+const lastSyncedAtKey = '__watermelon_last_synced_at'
+
+export async function getLastSyncedAt(database: Database): Promise<?Timestamp> {
+  return parseInt(await database.adapter.getLocal(lastSyncedAtKey), 10) || null
+}
+
+export async function setLastSyncedAt(database: Database, timestamp: Timestamp): Promise<void> {
+  await database.adapter.setLocal(lastSyncedAtKey, `${timestamp}`)
+}
 
 // *** Applying remote changes ***
 

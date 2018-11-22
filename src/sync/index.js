@@ -3,9 +3,15 @@
 import type { Database, RecordId, TableName, Model } from '..'
 import { type DirtyRaw } from '../RawRecord'
 
-import { applyRemoteChanges, fetchLocalChanges, markLocalChangesAsSynced } from './impl'
+import {
+  applyRemoteChanges,
+  fetchLocalChanges,
+  markLocalChangesAsSynced,
+  getLastSyncedAt,
+  setLastSyncedAt,
+} from './impl'
 
-type Timestamp = number
+export type Timestamp = number
 
 export type SyncTableChangeSet = $Exact<{
   created: DirtyRaw[],
@@ -28,10 +34,10 @@ export type SyncArgs = $Exact<{
 }>
 
 export async function synchronize({ database, pullChanges, pushChanges }: SyncArgs): Promise<void> {
-  // TODO: Get lastSyncedAt
-  const { changes: remoteChanges, timestamp } = await pullChanges({ lastSyncedAt: null })
+  const lastSyncedAt = await getLastSyncedAt(database)
+  const { changes: remoteChanges, timestamp } = await pullChanges({ lastSyncedAt })
   await applyRemoteChanges(database, remoteChanges)
-  // TODO: Set lastSyncedAt
+  await setLastSyncedAt(database, timestamp)
 
   const localChanges = await fetchLocalChanges(database)
   await pushChanges({ changes: localChanges.changes })

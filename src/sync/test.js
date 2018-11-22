@@ -543,12 +543,27 @@ describe.only('synchronize', () => {
     // TODO:
   })
   it('remembers last_synced_at timestamp', async () => {
-    // TODO:
+    const mock = mockDatabase()
+    const { database } = mock
+
+    let pullChanges = jest.fn(async () => ({ changes: emptyChangeSet, timestamp: 1500 }))
+    await synchronize({ database, pullChanges, pushChanges: jest.fn() })
+
+    expect(pullChanges).toBeCalledWith({ lastSyncedAt: null })
+
+    pullChanges = jest.fn(async () => ({ changes: emptyChangeSet, timestamp: 2500 }))
+    await synchronize({ database, pullChanges, pushChanges: jest.fn() })
+
+    expect(pullChanges).toBeCalledTimes(1)
+    expect(pullChanges).toBeCalledWith({ lastSyncedAt: 1500 })
   })
   it('prevents concurrent syncs', async () => {
     // TODO:
   })
   it('can recover from pull / push failure', async () => {
+    // TODO:
+  })
+  it('can handle local changes during sync', async () => {
     // TODO:
   })
   it('can synchronize lots of data', async () => {
