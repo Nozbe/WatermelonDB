@@ -2,7 +2,7 @@ import { change } from 'rambdax'
 import clone from 'lodash.clonedeep'
 import { mockDatabase } from '../__tests__/testModels'
 
-import { fetchLocalChanges, markLocalChangesAsSynced, applyRemoteChanges } from './index'
+import { fetchLocalChanges, markLocalChangesAsSynced, applyRemoteChanges } from './impl'
 import { addToRawSet, setRawColumnChange } from './helpers'
 import { resolveConflict, prepareCreateFromRaw } from './syncHelpers'
 
