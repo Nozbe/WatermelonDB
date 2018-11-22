@@ -194,18 +194,6 @@ const enhanceAuthorContact = withObservables(['author'], ({author}) => ({
 
 const EnhancedPost = enhancePostAndAuthor(enhanceAuthorContact(PostComponent));
 ```
-With this approach, `PostComponent` will have `Post`, `Author` and `Contact` props.
-
-**Note:** If you have an optional relation between `Post` and `Author`, the `enhanceAuthorContact` might receive `null` as `author` prop. For this case, as you must always return an observable for the `contact` prop, you can use `rxjs` `of` function to create a default or empty `Contact` prop:
-
-```js
-import { of as observableOf } from 'rxjs';
-
-
-const enhanceAuthorContact = withObservables(['author'], ({author}) => ({
-  contact: author ? author.contact.observe() : observableOf(null)
-}));
-```
 
 If you are familiar with `rxjs`, another way to achieve the same result is using `switchMap` operator:
 
@@ -220,7 +208,25 @@ const enhancePost = withObservables(['post'], ({post}) => ({
 
 const EnhancedPost = enhancePost(PostComponent);
 ```
-The optional relation check can be made inside the `switchMap` callback function.
+
+Now `PostComponent` will have `Post`, `Author` and `Contact` props.
+
+**Note:** If you have an optional relation between `Post` and `Author`, the `enhanceAuthorContact` might receive `null` as `author` prop. For this case, as you must always return an observable for the `contact` prop, you can use `rxjs` `of` function to create a default or empty `Contact` prop:
+
+```js
+import { of as observableOf } from 'rxjs';
+
+
+const enhanceAuthorContact = withObservables(['author'], ({author}) => ({
+  contact: author ? author.contact.observe() : observableOf(null)
+}));
+```
+
+With the `switchMap` approach, you can obtain the same result by doing:
+
+```js
+contact: post.autor.observe().pipe(switchMap(author => author ? autor.contact : observableOf(null)))
+```
 
 ## Database Provider
 To prevent prop drilling you can utilise the Database Provider and the `withDatabase` Higher-Order Component.
