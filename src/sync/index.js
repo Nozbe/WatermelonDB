@@ -43,7 +43,7 @@ export async function synchronize({ database, pullChanges, pushChanges }: SyncAr
       lastSyncedAt === (await getLastSyncedAt(database)),
       '[Sync] Concurrent synchronization is not allowed. More than one synchronize() call was running at the same time, and the later one was aborted before committing results to local database.',
     )
-    action.subAction(() => applyRemoteChanges(database, remoteChanges))
+    await action.subAction(() => applyRemoteChanges(database, remoteChanges))
     await setLastSyncedAt(database, timestamp)
   })
 

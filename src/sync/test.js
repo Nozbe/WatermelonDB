@@ -543,7 +543,7 @@ describe('synchronize', () => {
     await expectSyncedAndMatches(projects, 'pSynced', { name: 'remote' })
     expect(await getRaw(tasks, 'tSynced')).toBe(null)
   })
-  it.only('can synchronize changes with conflicts', async () => {
+  it('can synchronize changes with conflicts', async () => {
     const { database, projects, tasks, comments } = mockDatabase()
 
     await makeLocalChanges(database)
@@ -553,12 +553,7 @@ describe('synchronize', () => {
       changes: makeChangeSet({
         mock_projects: {
           created: [{ id: 'pCreated1', name: 'remote' }], // error - update, stay synced
-          deleted: [
-            // FIXME:
-            // 'pUpdated',
-            'does_not_exist',
-            'pDeleted',
-          ],
+          deleted: ['pUpdated', 'does_not_exist', 'pDeleted'],
         },
         mock_tasks: {
           updated: [
@@ -600,7 +595,7 @@ describe('synchronize', () => {
     })
 
     await expectSyncedAndMatches(projects, 'pCreated1', { name: 'remote' })
-    // expect(await getRaw(projects, 'pUpdated')).toBe(null) // FIXME:
+    expect(await getRaw(projects, 'pUpdated')).toBe(null)
     expect(await getRaw(projects, 'pDeleted')).toBe(null)
     await expectSyncedAndMatches(tasks, 'tUpdated', { name: 'local', description: 'remote' })
     expect(await getRaw(tasks, 'tDeleted')).toBe(null)
