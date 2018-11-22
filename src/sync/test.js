@@ -1,4 +1,5 @@
 import { change } from 'rambdax'
+import { skip as skip$ } from 'rxjs/operators'
 import clone from 'lodash.clonedeep'
 import { mockDatabase } from '../__tests__/testModels'
 
@@ -583,7 +584,27 @@ describe.only('synchronize', () => {
     expect(await sync2).toMatchObject({ message: /concurrent sync/i })
     expect(await getLastSyncedAt(database)).toBe(100)
   })
-  it('can recover from pull / push failure', async () => {
+  it('can recover from pull failure', async () => {
+    const mock = mockDatabase()
+    const { database, tables } = mock
+
+    const observer = jest.fn()
+    database
+      .withChangesForTables(tables)
+      .pipe(skip$(1))
+      .subscribe(observer)
+
+    const pullChanges = jest.fn(() => Promise.reject('pull-fail'))
+    const pushChanges = jest.fn()
+    const sync = await synchronize({ database, pullChanges, pushChanges }).catch(e => e)
+
+    expect(observer).toBeCalledTimes(0)
+    expect(pullChanges).toBeCalledTimes(1)
+    expect(pushChanges).toBeCalledTimes(0)
+    expect(sync).toBe('pull-fail')
+    expect(await getLastSyncedAt(database)).toBe(null)
+  })
+  it('can recover from push failure', async () => {
     // TODO:
   })
   it('can handle local changes during sync', async () => {
