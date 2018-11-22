@@ -2,6 +2,7 @@ import { change } from 'rambdax'
 import clone from 'lodash.clonedeep'
 import { mockDatabase } from '../__tests__/testModels'
 
+import { synchronize } from './index'
 import { fetchLocalChanges, markLocalChangesAsSynced, applyRemoteChanges } from './impl'
 import { resolveConflict, prepareCreateFromRaw } from './syncHelpers'
 
@@ -501,5 +502,56 @@ describe('applyRemoteChanges', () => {
   })
   it.skip('only emits one collection batch change', async () => {
     // TODO: Implement and unskip test when batch change emissions are implemented
+  })
+})
+
+describe.only('synchronize', () => {
+  it('can synchronize changes', async () => {
+    const mock = mockDatabase()
+    const { database, projects, tasks } = mock
+
+    await makeLocalChanges(mock)
+    const localChanges = await fetchLocalChanges(database)
+
+    const pullChanges = jest.fn(async () => ({
+      changes: makeChangeSet({
+        mock_projects: {
+          created: [{ id: 'new_project', name: 'remote' }],
+          updated: [{ id: 'pSynced', name: 'remote' }],
+        },
+        mock_tasks: {
+          deleted: ['tSynced'],
+        },
+      }),
+      timestamp: 1500,
+    }))
+    const pushChanges = jest.fn(async () => {})
+
+    await synchronize({ database, pullChanges, pushChanges })
+
+    expect(pullChanges).toBeCalledTimes(1)
+    expect(pullChanges).toBeCalledWith({ lastSyncedAt: null })
+    expect(pushChanges).toBeCalledTimes(1)
+    expect(pushChanges).toBeCalledWith({ changes: localChanges.changes })
+
+    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+    await expectSyncedAndMatches(projects, 'new_project', { name: 'remote' })
+    await expectSyncedAndMatches(projects, 'pSynced', { name: 'remote' })
+    expect(await getRaw(tasks, 'tSynced')).toBe(null)
+  })
+  it('can synchronize changes with conflicts', async () => {
+    // TODO:
+  })
+  it('remembers last_synced_at timestamp', async () => {
+    // TODO:
+  })
+  it('prevents concurrent syncs', async () => {
+    // TODO:
+  })
+  it('can recover from pull / push failure', async () => {
+    // TODO:
+  })
+  it('can synchronize lots of data', async () => {
+    // TODO:
   })
 })
