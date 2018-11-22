@@ -3,7 +3,12 @@ import clone from 'lodash.clonedeep'
 import { mockDatabase } from '../__tests__/testModels'
 
 import { synchronize } from './index'
-import { fetchLocalChanges, markLocalChangesAsSynced, applyRemoteChanges } from './impl'
+import {
+  fetchLocalChanges,
+  markLocalChangesAsSynced,
+  applyRemoteChanges,
+  getLastSyncedAt,
+} from './impl'
 import { resolveConflict, prepareCreateFromRaw } from './syncHelpers'
 
 describe('Conflict resolution', () => {
@@ -556,9 +561,27 @@ describe.only('synchronize', () => {
 
     expect(pullChanges).toBeCalledTimes(1)
     expect(pullChanges).toBeCalledWith({ lastSyncedAt: 1500 })
+    expect(await getLastSyncedAt(database)).toBe(2500)
   })
   it('prevents concurrent syncs', async () => {
-    // TODO:
+    const mock = mockDatabase()
+    const { database } = mock
+
+    const delayPromise = delay => new Promise(resolve => setTimeout(resolve, delay))
+    const syncWithDelay = delay =>
+      synchronize({
+        database,
+        pullChanges: () =>
+          delayPromise(delay).then(() => ({ changes: emptyChangeSet, timestamp: delay })),
+        pushChanges: jest.fn(),
+      })
+
+    const sync1 = syncWithDelay(100)
+    const sync2 = syncWithDelay(300).catch(error => error)
+
+    expect(await sync1).toBe(undefined)
+    expect(await sync2).toMatchObject({ message: /concurrent sync/i })
+    expect(await getLastSyncedAt(database)).toBe(100)
   })
   it('can recover from pull / push failure', async () => {
     // TODO:
