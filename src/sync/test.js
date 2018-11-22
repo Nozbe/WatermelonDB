@@ -46,6 +46,7 @@ const expectSyncedAndMatches = async (collection, id, match) =>
     id,
     ...match,
   })
+const expectDoesNotExist = async (collection, id) => expect(await getRaw(collection, id)).toBe(null)
 
 const emptyChangeSet = Object.freeze({
   mock_projects: { created: [], updated: [], deleted: [] },
@@ -358,7 +359,7 @@ describe('applyRemoteChanges', () => {
 
     await expectSyncedAndMatches(projects, 'new_project', { name: 'remote' })
     await expectSyncedAndMatches(tasks, 'tSynced', { name: 'remote' })
-    expect(await getRaw(comments, 'cSynced')).toBe(null)
+    await expectDoesNotExist(comments, 'cSynced')
   })
   it('can resolve update conflicts', async () => {
     const { database, tasks, comments } = mockDatabase()
@@ -402,10 +403,10 @@ describe('applyRemoteChanges', () => {
       },
     })
 
-    expect(await getRaw(projects, 'does_not_exist')).toBe(null)
-    expect(await getRaw(projects, 'pCreated')).toBe(null)
-    expect(await getRaw(projects, 'pUpdated')).toBe(null)
-    expect(await getRaw(projects, 'pDeleted')).toBe(null)
+    await expectDoesNotExist(projects, 'does_not_exist')
+    await expectDoesNotExist(projects, 'pCreated')
+    await expectDoesNotExist(projects, 'pUpdated')
+    await expectDoesNotExist(projects, 'pDeleted')
   })
   it('can handle sync failure cases', async () => {
     const { database, tasks } = mockDatabase()
@@ -510,12 +511,14 @@ const observeDatabase = database => {
   return observer
 }
 
+const emptyPull = (timestamp = 1500) => async () => ({ changes: emptyChangeSet, timestamp })
+
 describe('synchronize', () => {
   it('can perform an empty sync', async () => {
     const { database } = mockDatabase()
     const observer = observeDatabase(database)
 
-    const pullChanges = jest.fn(async () => ({ changes: emptyChangeSet, timestamp: 1500 }))
+    const pullChanges = jest.fn(emptyPull())
     const pushChanges = jest.fn()
 
     await synchronize({ database, pullChanges, pushChanges })
@@ -535,7 +538,7 @@ describe('synchronize', () => {
     await makeLocalChanges(database)
     const localChanges = await fetchLocalChanges(database)
 
-    const pullChanges = jest.fn(async () => ({ changes: emptyChangeSet, timestamp: 1500 }))
+    const pullChanges = jest.fn(emptyPull())
     const pushChanges = jest.fn()
     await synchronize({ database, pullChanges, pushChanges })
 
@@ -567,7 +570,7 @@ describe('synchronize', () => {
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
     await expectSyncedAndMatches(projects, 'new_project', { name: 'remote' })
     await expectSyncedAndMatches(projects, 'pSynced', { name: 'remote' })
-    expect(await getRaw(tasks, 'tSynced')).toBe(null)
+    await expectDoesNotExist(tasks, 'tSynced')
   })
   it('can synchronize changes with conflicts', async () => {
     const { database, projects, tasks, comments } = mockDatabase()
@@ -621,10 +624,10 @@ describe('synchronize', () => {
     })
 
     await expectSyncedAndMatches(projects, 'pCreated1', { name: 'remote' })
-    expect(await getRaw(projects, 'pUpdated')).toBe(null)
-    expect(await getRaw(projects, 'pDeleted')).toBe(null)
+    await expectDoesNotExist(projects, 'pUpdated')
+    await expectDoesNotExist(projects, 'pDeleted')
     await expectSyncedAndMatches(tasks, 'tUpdated', { name: 'local', description: 'remote' })
-    expect(await getRaw(tasks, 'tDeleted')).toBe(null)
+    await expectDoesNotExist(tasks, 'tDeleted')
     await expectSyncedAndMatches(comments, 'cUpdated', { body: 'local', task_id: 'remote' })
 
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
@@ -632,18 +635,18 @@ describe('synchronize', () => {
   it('remembers last_synced_at timestamp', async () => {
     const { database } = mockDatabase()
 
-    let pullChanges = jest.fn(async () => ({ changes: emptyChangeSet, timestamp: 1500 }))
+    let pullChanges = jest.fn(emptyPull(1500))
     await synchronize({ database, pullChanges, pushChanges: jest.fn() })
 
     expect(pullChanges).toBeCalledWith({ lastSyncedAt: null })
 
-    pullChanges = jest.fn(async () => ({ changes: emptyChangeSet, timestamp: 2500 }))
+    pullChanges = jest.fn(emptyPull(2500))
     await synchronize({ database, pullChanges, pushChanges: jest.fn() })
 
     expect(pullChanges).toBeCalledTimes(1)
     expect(pullChanges).toBeCalledWith({ lastSyncedAt: 1500 })
     expect(await getLastSyncedAt(database)).toBe(2500)
-    // check underlying database since it's essentially API
+    // check underlying database since it's an implicit API
     expect(await database.adapter.getLocal('__watermelon_last_synced_at')).toBe('2500')
   })
   it('prevents concurrent syncs', async () => {
@@ -653,8 +656,7 @@ describe('synchronize', () => {
     const syncWithDelay = delay =>
       synchronize({
         database,
-        pullChanges: () =>
-          delayPromise(delay).then(() => ({ changes: emptyChangeSet, timestamp: delay })),
+        pullChanges: () => delayPromise(delay).then(emptyPull(delay)),
         pushChanges: jest.fn(),
       })
 
