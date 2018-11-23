@@ -12,7 +12,7 @@ import logoSrc from './WatermelonLogo.svg'
 import style from './style'
 
 class Root extends Component {
-  state = { isGenerating: false }
+  state = { isGenerating: false, search: '' }
 
   generateWith = async generator => {
     this.setState({
