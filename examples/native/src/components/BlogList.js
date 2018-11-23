@@ -24,8 +24,7 @@ const BlogList = ({ blogs, navigation }) => (
 const enhance = withObservables(['search'], ({ database, search }) => ({
   blogs: database.collections
     .get('blogs')
-    .query(Q.where('name', Q.like(`%${search}%`)))
-    .observe(),
+    .query(Q.where('name', Q.like(`%${Q.sanitizeLikeString(search)}%`))),
 }))
 
 export default enhance(BlogList)

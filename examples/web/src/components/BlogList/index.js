@@ -41,12 +41,10 @@ const BlogList = ({ blogs, setActiveItem, activeItem }) => (
 
 const enhance = compose(
   withObservables(['search'], ({ database, search }) => ({
-      blogs: database.collections
-        .get('blogs')
-        .query(Q.where('name', Q.like(`${Q.sanitizeLikeString(search)}%`)))
-        .observe(),
-    })
-  ),
+    blogs: database.collections
+      .get('blogs')
+      .query(Q.where('name', Q.like(`%${Q.sanitizeLikeString(search)}%`))),
+  })),
   withStateHandlers(
     {
       activeItem: null,
