@@ -3,6 +3,7 @@
 
 import { contains } from 'rambdax'
 import { gt, gte, lt, lte, complement } from '../../utils/fp'
+import likeToRegexp from '../../utils/fp/likeToRegexp'
 
 import type { Value, CompoundValue, Operator } from '../../QueryDescription'
 
@@ -24,6 +25,14 @@ const noNullComparisons: OperatorFunction => OperatorFunction = operator => (lef
 // Same as `a > b`, but `5 > undefined` is also true
 const weakGt = (left, right) => left > right || (left != null && right == null)
 
+const handleLikeValue = (v, defaultV) => typeof v === 'string' ? v : defaultV
+
+export const like: OperatorFunction = (left, right) => {
+  const leftV = handleLikeValue(left, '')
+
+  return likeToRegexp(right).test(leftV)
+}
+
 const operators: { [Operator]: OperatorFunction } = {
   eq: rawFieldEquals,
   notEq: complement(rawFieldEquals),
@@ -35,6 +44,7 @@ const operators: { [Operator]: OperatorFunction } = {
   oneOf: contains,
   notIn: noNullComparisons(complement(contains)),
   between,
+  like,
 }
 
 export default operators

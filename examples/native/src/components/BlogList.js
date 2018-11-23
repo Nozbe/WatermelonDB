@@ -1,6 +1,7 @@
 import React from 'react'
 import { View } from 'react-native'
 
+import { Q } from '@nozbe/watermelondb'
 import withObservables from '@nozbe/with-observables'
 
 import ListItem from './helpers/ListItem'
@@ -20,12 +21,10 @@ const BlogList = ({ blogs, navigation }) => (
     ))}
   </View>
 )
-
-const enhance = withObservables([], ({ database }) => ({
+const enhance = withObservables(['search'], ({ database, search }) => ({
   blogs: database.collections
     .get('blogs')
-    .query()
-    .observe(),
+    .query(Q.where('name', Q.like(`%${Q.sanitizeLikeString(search)}%`))),
 }))
 
 export default enhance(BlogList)

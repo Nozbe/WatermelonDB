@@ -40,6 +40,7 @@ export type Operator =
   | 'oneOf'
   | 'notIn'
   | 'between'
+  | 'like'
 
 export type ColumnDescription = $RE<{ column: ColumnName }>
 export type ComparisonRight =
@@ -163,6 +164,14 @@ export function notIn(values: NonNullValues): Comparison {
 export function between(left: number, right: number): Comparison {
   const values: number[] = [left, right]
   return { operator: 'between', right: { values } }
+}
+
+export function like(value: string): Comparison {
+  return { operator: 'like', right: { value } }
+}
+
+export function sanitizeLikeString(value: string): string {
+  return value.replace(/[^a-zA-Z0-9]/g, '_')
 }
 
 export function column(name: ColumnName): ColumnDescription {
