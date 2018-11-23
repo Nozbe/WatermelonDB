@@ -6,12 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ### New
 
+- [WIP] Sync primitives
+
 ## 0.9.0 - 2018-11-23
 
 ### New
 
 - Added `Q.like` - you can now make queries similar to SQL `LIKE`
-- [WIP] Sync primitives
 
 ## 0.8.0 - 2018-11-16
 
