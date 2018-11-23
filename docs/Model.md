@@ -111,7 +111,7 @@ class Comment extends Model {
 
 **➡️ Learn more:** [Relation API](./Relation.md)
 
-### Children
+### To-Many relation
 
 To point to a list of records that belong to this Model, e.g. all `Comment`s that belong to a `Post`, you can define a simple `Query` using `@children`:
 
@@ -131,6 +131,66 @@ class Post extends Model {
 Pass the _table name_ of the related records as an argument to `@children`. The resulting property will be a `Query` you can fetch, observe, or count.
 
 **Note:** You must define a `has_many` association in `static associations` for this to work
+
+### Many-To-Many Relation
+
+If for instance, our app `Post`s can be authored by many `User`s and a user can author many `Post`s. We would create such a relation following the below steps:- 
+
+1. Create a pivot schema and model that both the `User` model and `Post` model has association to; say `PostUser`
+2. Create has_many association on both `User` and `Post` pointing to `PostUser` Model 
+3. Create belongs_to association on `PostUser` pointing to both `User` and `Post`
+4. Retrieve all `Posts` for a user by defining a query that uses the pivot `PostUser` to infer the `Post`s that were authored by the User.
+
+```js
+import {lazy } from '@nozbe/watermelondb/decorators'
+
+class Post extends Model {
+  static table = 'posts'
+  static associations = {
+    post_users: { type: 'has_many', foreignKey: 'post_id' },
+  }
+
+  @lazy
+  posts = this.collections
+    .get('users')
+    .query(Q.on('post_users', 'post_id', this.id));
+}
+```
+
+```js
+import { field } from '@nozbe/watermelondb/decorators'
+
+class PostUser extends Model {
+  static table = 'post_users'
+  static associations = {
+    posts: { type: 'belongs_to', Key: 'post_id' },
+    users: { type: 'belongs_to', Key: 'user_id' },
+  }
+  @field('post_id') postId
+  @field('user_id') userId
+}
+
+```
+
+```js
+import {lazy } from '@nozbe/watermelondb/decorators'
+
+class User extends Model {
+  static table = 'users'
+  static associations = {
+    post_users: { type: 'has_many', foreignKey: 'user_id' },
+  }
+
+  @lazy
+  posts = this.collections
+    .get('posts')
+    .query(Q.on('post_users', 'user_id', this.id));
+
+}
+```
+
+
+
 
 **➡️ Learn more:** [Queries](./Query.md)
 
