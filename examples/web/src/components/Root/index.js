@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import withObservables from '@nozbe/with-observables'
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import { generate100, generate10k } from 'models/generate'
 
@@ -16,7 +15,10 @@ class Root extends Component {
   state = { isGenerating: false }
 
   generateWith = async generator => {
-    this.setState({ isGenerating: true })
+    this.setState({
+      isGenerating: true,
+      search: '',
+    })
 
     const count = await generator(this.props.database)
 
@@ -29,9 +31,13 @@ class Root extends Component {
 
   generate10k = () => this.generateWith(generate10k)
 
+  handleTextChange = e => {
+    this.setState({ search: e.target.value })
+  }
+
   render() {
     const { database } = this.props
-    const { isGenerating } = this.state
+    const { isGenerating, search } = this.state
 
     return (
       <Router>
@@ -42,8 +48,16 @@ class Root extends Component {
             <Button title="Generate 10,000 records" onClick={this.generate10k} />
           </div>
 
+          <input className={style.searchInput}
+            placeholder="Search ..."
+            type="text"
+            defaultValue=""
+            onChange={this.handleTextChange} />
+
           <div className={style.content}>
-            <div className={style.sidebar}>{!isGenerating && <BlogList database={database} />}</div>
+            <div className={style.sidebar}>
+              {!isGenerating && <BlogList search={search} database={database} />}
+            </div>
             <div className={style.postList}>
               <Route path="/blog/:blogId"
                 render={props =>

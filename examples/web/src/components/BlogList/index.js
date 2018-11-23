@@ -1,5 +1,6 @@
 import React from 'react'
 import { compose, withStateHandlers, withHandlers } from 'recompose'
+import { Q } from '@nozbe/watermelondb'
 import withObservables from '@nozbe/with-observables'
 
 import ListItem from 'components/ListItem'
@@ -39,12 +40,13 @@ const BlogList = ({ blogs, setActiveItem, activeItem }) => (
 )
 
 const enhance = compose(
-  withObservables([], ({ database }) => ({
-    blogs: database.collections
-      .get('blogs')
-      .query()
-      .observe(),
-  })),
+  withObservables(['search'], ({ database, search }) => ({
+      blogs: database.collections
+        .get('blogs')
+        .query(Q.where('name', Q.like(`${Q.sanitizeLikeString(search)}%`)))
+        .observe(),
+    })
+  ),
   withStateHandlers(
     {
       activeItem: null,

@@ -22,6 +22,7 @@ import objOf from '../../../../utils/fp/objOf'
 import zip from '../../../../utils/fp/zip'
 import cond from '../../../../utils/fp/cond'
 import invariant from '../../../../utils/common/invariant'
+import likeToRegexp from '../../../../utils/fp/likeToRegexp'
 
 import type { AssociationArgs, SerializedQuery } from '../../../../Query'
 import type {
@@ -51,6 +52,7 @@ type LokiOperator =
   | '$in'
   | '$nin'
   | '$between'
+  | '$regex'
 type LokiKeyword = LokiOperator | '$and' | '$or'
 
 export type LokiJoin = $Exact<{
@@ -86,6 +88,16 @@ const noNullComparisons: OperatorFunction => OperatorFunction = operator => valu
   $and: [operator(value), weakNotEqual(null)],
 })
 
+const like: OperatorFunction = value => {
+  if (typeof value === 'string') {
+    return {
+      $regex: likeToRegexp(value),
+    }
+  }
+
+  return {}
+}
+
 const operators: { [Operator]: OperatorFunction } = {
   eq: objOf('$aeq'),
   notEq: weakNotEqual,
@@ -97,6 +109,7 @@ const operators: { [Operator]: OperatorFunction } = {
   oneOf: objOf('$in'),
   notIn: noNullComparisons(objOf('$nin')),
   between: objOf('$between'),
+  like,
 }
 
 const encodeComparison: Comparison => LokiRawQuery = ({ operator, right }) =>
