@@ -132,7 +132,7 @@ Pass the _table name_ of the related records as an argument to `@children`. The 
 
 **Note:** You must define a `has_many` association in `static associations` for this to work
 
-**➡️ Learn more:** [Relation API](./Relation.md)
+**➡️ Learn more:** [Queries](./Query.md)
 
 ## Advanced
 
