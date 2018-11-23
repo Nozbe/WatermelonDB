@@ -178,6 +178,56 @@ const EnhancedCommentList = enhance(CommentList)
 
 If you inject `post.comments.observe()` into the component, the list will not re-render to change its order, only if comments are added or removed. Instead, use `query.observeWithColumns()` with an array of [**column names**](./Schema.md) you use for sorting to re-render whenever a record on the list has any of those fields changed.
 
+### Advanced: observing 2nd level relations
+
+If you have 2nd level relations, like author's `Contact` info, and want to connect it to a component as well, you cannot simply use `post.author.contact.observe()` in `withComponents`. Before accessing and observing the `Contact` relation, you need to resolve the `author` itself. Here is the simplest way to do it:
+
+```js
+const enhancePostAndAuthor = withObservables(['post'], ({post}) => ({
+  post: post.observe(),
+  author: post.author.observe()
+}));
+
+const enhanceAuthorContact = withObservables(['author'], ({author}) => ({
+  contact: author.contact.observe()
+}));
+
+const EnhancedPost = enhancePostAndAuthor(enhanceAuthorContact(PostComponent));
+```
+
+If you are familiar with `rxjs`, another way to achieve the same result is using `switchMap` operator:
+
+```js
+import { switchMap } from 'rxjs/operators'
+
+const enhancePost = withObservables(['post'], ({post}) => ({
+  post: post.observe(),
+  author: post.author.observe(),
+  contact: post.author.observe().pipe(switchMap(author => author.contact.observe()))
+}));
+
+const EnhancedPost = enhancePost(PostComponent);
+```
+
+Now `PostComponent` will have `Post`, `Author` and `Contact` props.
+
+**Note:** If you have an optional relation between `Post` and `Author`, the `enhanceAuthorContact` might receive `null` as `author` prop. For this case, as you must always return an observable for the `contact` prop, you can use `rxjs` `of` function to create a default or empty `Contact` prop:
+
+```js
+import { of as observableOf } from 'rxjs';
+
+
+const enhanceAuthorContact = withObservables(['author'], ({author}) => ({
+  contact: author ? author.contact.observe() : observableOf(null)
+}));
+```
+
+With the `switchMap` approach, you can obtain the same result by doing:
+
+```js
+contact: post.autor.observe().pipe(switchMap(author => author ? autor.contact : observableOf(null)))
+```
+
 ## Database Provider
 To prevent prop drilling you can utilise the Database Provider and the `withDatabase` Higher-Order Component.
 
