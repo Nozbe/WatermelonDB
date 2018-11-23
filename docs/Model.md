@@ -134,7 +134,7 @@ Pass the _table name_ of the related records as an argument to `@children`. The 
 
 ### Many-To-Many Relation
 
-If for instance, our app `Post`s can be authored by many `User`s and a user can author many `Post`s. We would create such a relation following the below steps:- 
+If for instance, our app `Post`s can be authored by many `User`s and a user can author many `Post`s. We would create such a relation following these steps:- 
 
 1. Create a pivot schema and model that both the `User` model and `Post` model has association to; say `PostUser`
 2. Create has_many association on both `User` and `Post` pointing to `PostUser` Model 
