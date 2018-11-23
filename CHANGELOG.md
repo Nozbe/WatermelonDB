@@ -6,13 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ### New
 
-- Query like
+- Added `Q.like` - you can now make queries similar to SQL `LIKE`
 
 ## 0.8.0 - 2018-11-16
 
 ### New
 
-- Added DatabaseProvider and withDatabase Higher-Order Component to reduce prop drilling
+- Added `DatabaseProvider` and `withDatabase` Higher-Order Component to reduce prop drilling
 - Added experimental Actions API. This will be documented in a future release.
 - [WIP] Sync primitives
 
