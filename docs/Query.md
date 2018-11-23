@@ -128,7 +128,7 @@ This queries all comments that are **both** verified **and** awesome.
 | `Q.where('status', Q.notIn(['archived', 'deleted']))` | `status !== 'archived' && status !== 'deleted'` |
 | `Q.where('status', Q.like('%bl_sh%'))` | `/.*bl.sh.*/g` |
 
-> It's not safe to use `Q.like` with special charactere. Because charactere like `%` or `_` is not escaped. So we recommand to wrap searchs in `Q.sanitizeLikeString` to allow only [a-zA-Z0-9]. Of course you can use your custom wrapper.
+**Note:** It's NOT SAFE to use `Q.like` with user input directly, because special characters like `%` or `_` are not escaped. Always sanitize user input like so: `Q.like(\`%${Q.sanitizeLikeString(userInput)}%\`)`
 
 ### Conditions on related tables
 
