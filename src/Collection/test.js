@@ -12,19 +12,19 @@ const mockQuery = collection => new Query(collection, [Q.where('a', 'b')])
 
 describe('Collection', () => {
   it('exposes schema', () => {
-    const { tasksCollection, projectsCollection } = mockDatabase()
+    const { tasks, projects } = mockDatabase()
 
-    expect(tasksCollection.schema).toBe(testSchema.tables.mock_tasks)
-    expect(tasksCollection.schema.name).toBe('mock_tasks')
-    expect(tasksCollection.schema.columns.name).toEqual({ name: 'name', type: 'string' })
+    expect(tasks.schema).toBe(testSchema.tables.mock_tasks)
+    expect(tasks.schema.name).toBe('mock_tasks')
+    expect(tasks.schema.columns.name).toEqual({ name: 'name', type: 'string' })
 
-    expect(projectsCollection.schema).toBe(testSchema.tables.mock_projects)
+    expect(projects.schema).toBe(testSchema.tables.mock_projects)
   })
 })
 
 describe('finding records', () => {
   it('finds records in cache if available', async () => {
-    const { tasksCollection: collection } = mockDatabase()
+    const { tasks: collection } = mockDatabase()
 
     const m1 = new MockTask(collection, { id: 'm1' })
     collection._cache.add(m1)
@@ -38,7 +38,7 @@ describe('finding records', () => {
     expect(await collection.find('m2')).toBe(m2)
   })
   it('finds records in database if not in cache', async () => {
-    const { tasksCollection: collection, adapter } = mockDatabase()
+    const { tasks: collection, adapter } = mockDatabase()
 
     // TODO: Don't mock
     // TODO: Should ID (not raw) response be tested?
@@ -64,7 +64,7 @@ describe('finding records', () => {
     expect(adapter.find.mock.calls.length).toBe(1)
   })
   it('rejects promise if record cannot be found', async () => {
-    const { tasksCollection: collection, adapter } = mockDatabase()
+    const { tasks: collection, adapter } = mockDatabase()
 
     adapter.find = jest.fn().mockReturnValue(null)
 
@@ -77,7 +77,7 @@ describe('finding records', () => {
 
 describe('fetching queries', () => {
   it('fetches queries and caches records', async () => {
-    const { tasksCollection: collection, adapter } = mockDatabase()
+    const { tasks: collection, adapter } = mockDatabase()
 
     adapter.query = jest.fn().mockReturnValueOnce([{ id: 'm1' }, { id: 'm2' }])
 
@@ -102,7 +102,7 @@ describe('fetching queries', () => {
     expect(adapter.query.mock.calls[0][0]).toBe(query)
   })
   it('fetches query records from cache if possible', async () => {
-    const { tasksCollection: collection, adapter } = mockDatabase()
+    const { tasks: collection, adapter } = mockDatabase()
 
     adapter.query = jest.fn().mockReturnValueOnce(['m1', { id: 'm2' }])
 
@@ -119,7 +119,7 @@ describe('fetching queries', () => {
     expect(collection._cache.map.get('m2')).toBe(models[1])
   })
   it('fetches query records from cache even if full raw object was sent', async () => {
-    const { tasksCollection: collection, adapter } = mockDatabase()
+    const { tasks: collection, adapter } = mockDatabase()
 
     adapter.query = jest.fn().mockReturnValueOnce([{ id: 'm1' }, { id: 'm2' }])
 
@@ -138,7 +138,7 @@ describe('fetching queries', () => {
     expect(models[1]._raw).toEqual({ id: 'm2' })
   })
   it('fetches counts', async () => {
-    const { tasksCollection: collection, adapter } = mockDatabase()
+    const { tasks: collection, adapter } = mockDatabase()
 
     adapter.count = jest
       .fn()
@@ -158,7 +158,7 @@ describe('fetching queries', () => {
 
 describe('creating new records', () => {
   it('can create records', async () => {
-    const { tasksCollection: collection, adapter } = mockDatabase()
+    const { tasks: collection, adapter } = mockDatabase()
     const dbBatchSpy = jest.spyOn(adapter, 'batch')
 
     const observer = jest.fn()
@@ -180,7 +180,7 @@ describe('creating new records', () => {
     expect(await collection.find(m1.id)).toBe(m1)
   })
   it('can prepare records', async () => {
-    const { tasksCollection: collection, database } = mockDatabase()
+    const { tasks: collection, database } = mockDatabase()
     database.adapter = {} // make sure not called
 
     const observer = jest.fn()
@@ -196,19 +196,19 @@ describe('creating new records', () => {
     await expect(collection.find(m1.id)).rejects.toBeInstanceOf(Error)
   })
   it('disallows record creating outside of an action', async () => {
-    const { database, tasksCollection } = mockDatabase({ actionsEnabled: true })
+    const { database, tasks } = mockDatabase({ actionsEnabled: true })
 
     await expectToRejectWithMessage(
-      tasksCollection.create(noop),
+      tasks.create(noop),
       /can only be called from inside of an Action/,
     )
 
     // no throw inside action
-    await database.action(() => tasksCollection.create(noop))
+    await database.action(() => tasks.create(noop))
   })
   it('can destroy records permanently', async () => {
     // should this even be tested here? Shouldn't it be tested on Model, without mocks?
-    const { tasksCollection: collection, adapter } = mockDatabase()
+    const { tasks: collection, adapter } = mockDatabase()
     adapter.batch = jest.fn()
 
     const observer = jest.fn()

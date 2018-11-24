@@ -15,8 +15,8 @@ class MockTaskExtended extends MockTask {
 
 describe('@action', () => {
   it('calls db.action() and passes arguments correctly', async () => {
-    const { database, tasksCollection } = mockDatabase({ actionsEnabled: true })
-    const record = new MockTaskExtended(tasksCollection, { name: 'test' })
+    const { database, tasks } = mockDatabase({ actionsEnabled: true })
+    const record = new MockTaskExtended(tasks, { name: 'test' })
 
     const actionSpy = jest.spyOn(database, 'action')
 
@@ -27,8 +27,8 @@ describe('@action', () => {
     expect(actionSpy.mock.calls[0][1]).toBe('mock_tasks.returnArgs')
   })
   it('can call subactions using this.subAction', async () => {
-    const { tasksCollection } = mockDatabase({ actionsEnabled: true })
-    const record = new MockTaskExtended(tasksCollection, { name: 'test' })
+    const { tasks } = mockDatabase({ actionsEnabled: true })
+    const record = new MockTaskExtended(tasks, { name: 'test' })
 
     expect(await record.nested(1, 2, 3, 4)).toEqual(['test', 'sub', 1, [2, 3, 4]])
   })
