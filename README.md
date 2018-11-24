@@ -28,13 +28,13 @@
 | - | ------------ |
 | ⚡️ | **Launch your app instantly** no matter how much data you have |
 | 📈 | **Highly scalable** from hundreds to tens of thousands of records |
-| 😎 | **Lazy loaded** everything. Only load data you need |
+| 😎 | **Lazy loaded**. Only load data when you need it |
 | ✨ | **Reactive** API with [RxJS](https://github.com/ReactiveX/rxjs) |
-| 📱 | Supports iOS, Android, and the web |
-| ⚛️ | Made for React. Easily plug data into components |
+| 📱 | **Multiplatform**. iOS, Android, and the web |
+| ⚛️ | **Made for React.** Easily plug data into components |
 | ⏱ | Fast. Async. Multi-threaded. Highly cached. |
 | 🔗 | Relational. Built on rock-solid [SQLite](https://www.sqlite.org) foundation |
-| ⚠️ | Statically typed with [Flow](https://flow.org) |
+| ⚠️ | **Static typing** with [Flow](https://flow.org) |
 | 🔄 | **Offline-first.** (Plug in your own sync engine) |
 
 ## Why Watermelon?
