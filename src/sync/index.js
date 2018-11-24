@@ -1,15 +1,26 @@
 // @flow
 
-// $FlowFixMe
-import { mapAsync, promiseAllObject, map, reduce, values, pipe } from 'rambdax'
-import { unnest } from '../utils/fp'
+import {
+  // $FlowFixMe
+  mapAsync,
+  // $FlowFixMe
+  promiseAllObject,
+  map,
+  reduce,
+  contains,
+  values,
+  pipe,
+  filter,
+  find,
+} from 'rambdax'
+import { allPromises, unnest } from '../utils/fp'
 // import { logError } from '../utils/common'
 import type { Database, RecordId, TableName, Collection, Model } from '..'
 import { type DirtyRaw } from '../RawRecord'
 import * as Q from '../QueryDescription'
 import { columnName } from '../Schema'
 
-import { markAsSynced } from './syncHelpers'
+import { markAsSynced, prepareCreateFromRaw, prepareUpdateFromRaw } from './syncHelpers'
 
 export type SyncTableChangeSet = $Exact<{
   created: DirtyRaw[],
@@ -19,6 +30,89 @@ export type SyncTableChangeSet = $Exact<{
 export type SyncDatabaseChangeSet = $Exact<{ [TableName<any>]: SyncTableChangeSet }>
 
 export type SyncLocalChanges = $Exact<{ changes: SyncDatabaseChangeSet, affectedRecords: Model[] }>
+
+// *** Applying remote changes ***
+
+const getIds = map(({ id }) => id)
+const idsForChanges = ({ created, updated, deleted }: SyncTableChangeSet): RecordId[] => [
+  ...getIds(created),
+  ...getIds(updated),
+  ...deleted,
+]
+const queryForChanges = changes => Q.where(columnName('id'), Q.oneOf(idsForChanges(changes)))
+
+const findRecord = <T: Model>(id: RecordId, list: T[]) => find(record => record.id === id, list)
+
+function applyRemoteChangesToCollection<T: Model>(
+  collection: Collection<T>,
+  changes: SyncTableChangeSet,
+): Promise<void> {
+  const { database, table } = collection
+  return database.action(async () => {
+    const { created, updated, deleted: deletedIds } = changes
+
+    const records = await collection.query(queryForChanges(changes)).fetch()
+    const locallyDeletedIds = await database.adapter.getDeletedRecords(table)
+
+    // Destroy records (if already marked as deleted, just destroy permanently)
+    const recordsToDestroy = filter(record => contains(record.id, deletedIds), records)
+    const deletedRecordsToDestroy = filter(id => contains(id, deletedIds), locallyDeletedIds)
+
+    await allPromises(record => record.destroyPermanently(), recordsToDestroy)
+    await database.adapter.destroyDeletedRecords(collection.table, deletedRecordsToDestroy)
+
+    // Insert and update records
+    const recordsToInsert = map(raw => {
+      const currentRecord = findRecord(raw.id, records)
+      if (currentRecord) {
+        // TODO: log error -- record already exists, update instead
+        return prepareUpdateFromRaw(currentRecord, raw)
+      } else if (contains(raw.id, locallyDeletedIds)) {
+        // FIXME: this will fail
+        // database.adapter.destroyDeletedRecords(collection.table, raw.id)
+        return prepareCreateFromRaw(collection, raw)
+      }
+
+      return prepareCreateFromRaw(collection, raw)
+    }, created)
+
+    const recordsToUpdate = map(raw => {
+      const currentRecord = findRecord(raw.id, records)
+
+      if (currentRecord) {
+        return prepareUpdateFromRaw(currentRecord, raw)
+      } else if (contains(raw.id, locallyDeletedIds)) {
+        // Nothing to do, record was locally deleted, deletion will be pushed later
+        return null
+      }
+
+      // Record doesn't exist (but should) — just create it
+      return prepareCreateFromRaw(collection, raw)
+    }, updated).filter(Boolean)
+
+    await database.batch(...recordsToInsert, ...recordsToUpdate)
+  })
+}
+
+export function applyRemoteChanges(
+  db: Database,
+  remoteChanges: SyncDatabaseChangeSet,
+): Promise<void> {
+  return db.action(async action => {
+    await promiseAllObject(
+      map(
+        (changes, tableName) =>
+          action.subAction(() =>
+            applyRemoteChangesToCollection(db.collections.get(tableName), changes),
+          ),
+        // $FlowFixMe
+        remoteChanges,
+      ),
+    )
+  })
+}
+
+// *** Fetching local changes ***
 
 const notSyncedQuery = Q.where(columnName('_status'), Q.notEq('synced'))
 const rawsForStatus = (status, records) =>
@@ -64,6 +158,8 @@ export function fetchLocalChanges(db: Database): Promise<SyncLocalChanges> {
   })
 }
 
+// *** Mark local changes as synced ***
+
 const recordsForRaws = (raws, recordCache) =>
   reduce(
     (records, raw) => {
@@ -79,7 +175,7 @@ const recordsForRaws = (raws, recordCache) =>
     raws,
   )
 
-export function markLocalChangesAsSyncedForCollection<T: Model>(
+function markLocalChangesAsSyncedForCollection<T: Model>(
   collection: Collection<T>,
   syncedLocalChanges: SyncTableChangeSet,
   cachedRecords: Model[],
@@ -90,7 +186,7 @@ export function markLocalChangesAsSyncedForCollection<T: Model>(
 
     await database.adapter.destroyDeletedRecords(collection.table, deleted)
     const syncedRecords = recordsForRaws([...created, ...updated], cachedRecords)
-    await database.batch(...syncedRecords.map(record => record.prepareUpdate(markAsSynced)))
+    await database.batch(...map(record => record.prepareUpdate(markAsSynced), syncedRecords))
   })
 }
 
