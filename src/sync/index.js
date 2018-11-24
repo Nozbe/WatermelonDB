@@ -10,9 +10,10 @@ import {
   pipe,
   filter,
   find,
+  equals,
 } from 'rambdax'
 import { allPromises, unnest } from '../utils/fp'
-// import { logError } from '../utils/common'
+import { logError } from '../utils/common'
 import type { Database, RecordId, TableName, Collection, Model } from '..'
 import { type DirtyRaw } from '../RawRecord'
 import * as Q from '../QueryDescription'
@@ -57,17 +58,29 @@ function applyRemoteChangesToCollection<T: Model>(
     const deletedRecordsToDestroy = filter(id => contains(id, deletedIds), locallyDeletedIds)
 
     await allPromises(record => record.destroyPermanently(), recordsToDestroy)
-    await database.adapter.destroyDeletedRecords(collection.table, deletedRecordsToDestroy)
+
+    if (deletedRecordsToDestroy.length) {
+      await database.adapter.destroyDeletedRecords(table, deletedRecordsToDestroy)
+    }
 
     // Insert and update records
     const recordsToInsert = map(raw => {
       const currentRecord = findRecord(raw.id, records)
       if (currentRecord) {
-        // TODO: log error -- record already exists, update instead
+        logError(
+          `[Sync] Server wants client to create record ${table}#${
+            raw.id
+          }, but it already exists locally. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will update existing record instead.`,
+        )
         return prepareUpdateFromRaw(currentRecord, raw)
       } else if (contains(raw.id, locallyDeletedIds)) {
-        // FIXME: this will fail
-        // database.adapter.destroyDeletedRecords(collection.table, raw.id)
+        logError(
+          `[Sync] Server wants client to create record ${table}#${
+            raw.id
+          }, but it already exists locally and is marked as deleted. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will delete local record and recreate it instead.`,
+        )
+        // Note: we're not awaiting the async operation (but it will always complete before the batch)
+        database.adapter.destroyDeletedRecords(table, [raw.id])
         return prepareCreateFromRaw(collection, raw)
       }
 
@@ -85,10 +98,16 @@ function applyRemoteChangesToCollection<T: Model>(
       }
 
       // Record doesn't exist (but should) — just create it
-      return prepareCreateFromRaw(collection, raw)
-    }, updated).filter(Boolean)
+      logError(
+        `[Sync] Server wants client to update record ${table}#${
+          raw.id
+        }, but it doesn't exist locally. This could be a serious bug. Will create record instead.`,
+      )
 
-    await database.batch(...recordsToInsert, ...recordsToUpdate)
+      return prepareCreateFromRaw(collection, raw)
+    }, updated)
+
+    await database.batch(...recordsToInsert, ...recordsToUpdate.filter(Boolean))
   })
 }
 
@@ -158,16 +177,22 @@ export function fetchLocalChanges(db: Database): Promise<SyncLocalChanges> {
 
 // *** Mark local changes as synced ***
 
-const recordsForRaws = (raws, recordCache) =>
+const unchangedRecordsForRaws = (raws, recordCache) =>
   reduce(
     (records, raw) => {
       const record = recordCache.find(model => model.id === raw.id)
-      if (record) {
-        return records.concat(record)
+      if (!record) {
+        logError(
+          `[Sync] Looking for record ${
+            raw.id
+          } to mark it as synced, but I can't find it. Will ignore it (it should get synced next time). This is probably a Watermelon bug — please file an issue!`,
+        )
+        return records
       }
 
-      // TODO: Log error
-      return records
+      // only include if it didn't change since fetch
+      // TODO: get rid of `equals`
+      return equals(record._raw, raw) ? records.concat(record) : records
     },
     [],
     raws,
@@ -176,7 +201,9 @@ const recordsForRaws = (raws, recordCache) =>
 const recordsToMarkAsSynced = ({ changes, affectedRecords }: SyncLocalChanges): Model[] =>
   pipe(
     values,
-    map(({ created, updated }) => recordsForRaws([...created, ...updated], affectedRecords)),
+    map(({ created, updated }) =>
+      unchangedRecordsForRaws([...created, ...updated], affectedRecords),
+    ),
     unnest,
   )(changes)
 

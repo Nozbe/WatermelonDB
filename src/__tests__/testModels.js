@@ -1,5 +1,5 @@
 import { appSchema, tableSchema } from '../Schema'
-import { field, relation, immutableRelation, text } from '../decorators'
+import { field, relation, immutableRelation, text, readonly, date } from '../decorators'
 import Model from '../Model'
 import Database from '../Database'
 import LokiJSAdapter from '../adapters/lokijs'
@@ -23,7 +23,12 @@ export const testSchema = appSchema({
     }),
     tableSchema({
       name: 'mock_comments',
-      columns: [{ name: 'task_id', type: 'string' }, { name: 'body', type: 'string' }],
+      columns: [
+        { name: 'task_id', type: 'string' },
+        { name: 'body', type: 'string' },
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
+      ],
     }),
   ],
 })
@@ -65,6 +70,14 @@ export class MockComment extends Model {
 
   @text('body')
   body
+
+  @readonly
+  @date('created_at')
+  createdAt
+
+  @readonly
+  @date('updated_at')
+  updatedAt
 }
 
 export const mockDatabase = ({ actionsEnabled = false } = {}) => {
