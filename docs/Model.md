@@ -111,7 +111,7 @@ class Comment extends Model {
 
 **➡️ Learn more:** [Relation API](./Relation.md)
 
-### Children
+### Children (To-Many relation)
 
 To point to a list of records that belong to this Model, e.g. all `Comment`s that belong to a `Post`, you can define a simple `Query` using `@children`:
 
