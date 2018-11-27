@@ -132,7 +132,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   }, updated)
 
   // $FlowFixMe
-  return [...recordsToInsert, ...recordsToUpdate.filter(Boolean)]
+  return [...recordsToInsert, ...filter(Boolean, recordsToUpdate)]
 }
 
 const getAllRecordsToApply = (db: Database, remoteChanges: SyncDatabaseChangeSet) =>
