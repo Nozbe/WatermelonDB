@@ -16,7 +16,7 @@ import {
 } from 'rambdax'
 import { allPromises, unnest } from '../utils/fp'
 import { logError, invariant } from '../utils/common'
-import type { Database, RecordId, Collection, Model } from '..'
+import type { Database, RecordId, Collection, Model, TableName } from '..'
 import * as Q from '../QueryDescription'
 import { columnName } from '../Schema'
 
@@ -135,7 +135,12 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   return [...recordsToInsert, ...filter(Boolean, recordsToUpdate)]
 }
 
-const getAllRecordsToApply = (db: Database, remoteChanges: SyncDatabaseChangeSet) =>
+type AllRecordsToApply = { [TableName<any>]: RecordsToApplyRemoteChangesTo<Model> }
+
+const getAllRecordsToApply = (
+  db: Database,
+  remoteChanges: SyncDatabaseChangeSet,
+): AllRecordsToApply =>
   piped(
     remoteChanges,
     map((changes, tableName) =>
@@ -144,13 +149,13 @@ const getAllRecordsToApply = (db: Database, remoteChanges: SyncDatabaseChangeSet
     promiseAllObject,
   )
 
-const getAllRecordsToDestroy = pipe(
+const getAllRecordsToDestroy: AllRecordsToApply => Model[] = pipe(
   values,
   map(({ recordsToDestroy }) => recordsToDestroy),
   unnest,
 )
 
-const destroyAllDeletedRecords = (db, recordsToApply) =>
+const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply) =>
   piped(
     recordsToApply,
     map(
@@ -161,7 +166,7 @@ const destroyAllDeletedRecords = (db, recordsToApply) =>
     promiseAllObject,
   )
 
-const prepareApplyAllRemoteChanges = (db, recordsToApply) =>
+const prepareApplyAllRemoteChanges = (db: Database, recordsToApply: AllRecordsToApply) =>
   piped(
     recordsToApply,
     map((records, tableName) =>
