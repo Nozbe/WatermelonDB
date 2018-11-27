@@ -11,9 +11,10 @@ import {
   filter,
   find,
   equals,
+  // $FlowFixMe
   piped,
 } from 'rambdax'
-import { allPromises, unnest, toPairs } from '../utils/fp'
+import { allPromises, unnest } from '../utils/fp'
 import { logError, invariant } from '../utils/common'
 import type { Database, RecordId, Collection, Model } from '..'
 import * as Q from '../QueryDescription'
@@ -134,50 +135,58 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   return [...recordsToInsert, ...recordsToUpdate.filter(Boolean)]
 }
 
+const getAllRecordsToApply = (db: Database, remoteChanges: SyncDatabaseChangeSet) =>
+  piped(
+    remoteChanges,
+    map((changes, tableName) =>
+      recordsToApplyRemoteChangesTo(db.collections.get((tableName: any)), changes),
+    ),
+    promiseAllObject,
+  )
+
+const getAllRecordsToDestroy = pipe(
+  values,
+  map(({ recordsToDestroy }) => recordsToDestroy),
+  unnest,
+)
+
+const destroyAllDeletedRecords = (db, recordsToApply) =>
+  piped(
+    recordsToApply,
+    map(
+      ({ deletedRecordsToDestroy }, tableName) =>
+        deletedRecordsToDestroy.length &&
+        db.adapter.destroyDeletedRecords((tableName: any), deletedRecordsToDestroy),
+    ),
+    promiseAllObject,
+  )
+
+const prepareApplyAllRemoteChanges = (db, recordsToApply) =>
+  piped(
+    recordsToApply,
+    map((records, tableName) =>
+      prepareApplyRemoteChangesToCollection(db.collections.get((tableName: any)), records),
+    ),
+    values,
+    unnest,
+  )
+
+const destroyPermanently = record => record.destroyPermanently()
+
 export function applyRemoteChanges(
   db: Database,
   remoteChanges: SyncDatabaseChangeSet,
 ): Promise<void> {
   ensureActionsEnabled(db)
-  return db.action(async action => {
-    const recordsToApply = await piped(
-      remoteChanges,
-      map((changes, tableName) =>
-        recordsToApplyRemoteChangesTo(db.collections.get(tableName), changes),
-      ),
-      promiseAllObject,
-    )
+  return db.action(async () => {
+    const recordsToApply = await getAllRecordsToApply(db, remoteChanges)
 
-    const allRecordsToDestroy = piped(
-      recordsToApply,
-      values,
-      map(({ recordsToDestroy }) => recordsToDestroy),
-      unnest,
-    )
-
-    await allPromises(record => record.destroyPermanently(), allRecordsToDestroy)
-
-    await piped(
-      recordsToApply,
-      map(
-        ({ deletedRecordsToDestroy }, tableName) =>
-          deletedRecordsToDestroy.length &&
-          db.adapter.destroyDeletedRecords(tableName, deletedRecordsToDestroy),
-      ),
-      promiseAllObject,
-    )
-
-    const allPreparedChanges = piped(
-      recordsToApply,
-      map((recordsToApply2, tableName) => {
-        const collection = db.collections.get(tableName)
-        return prepareApplyRemoteChangesToCollection(collection, recordsToApply2)
-      }),
-      values,
-      unnest,
-    )
-
-    await db.batch(...allPreparedChanges)
+    // Perform steps concurrently
+    await Promise.all([
+      allPromises(destroyPermanently, getAllRecordsToDestroy(recordsToApply)),
+      destroyAllDeletedRecords(db, recordsToApply),
+      db.batch(...prepareApplyAllRemoteChanges(db, recordsToApply)),
+    ])
   })
 }
 
