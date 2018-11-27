@@ -13,7 +13,7 @@ import {
   equals,
 } from 'rambdax'
 import { allPromises, unnest } from '../utils/fp'
-import { logError } from '../utils/common'
+import { logError, invariant } from '../utils/common'
 import type { Database, RecordId, Collection, Model } from '..'
 import * as Q from '../QueryDescription'
 import { columnName } from '../Schema'
@@ -31,6 +31,13 @@ export async function getLastSyncedAt(database: Database): Promise<?Timestamp> {
 
 export async function setLastSyncedAt(database: Database, timestamp: Timestamp): Promise<void> {
   await database.adapter.setLocal(lastSyncedAtKey, `${timestamp}`)
+}
+
+export function ensureActionsEnabled(database: Database): void {
+  invariant(
+    database._actionsEnabled,
+    '[Sync] To use Sync, Actions must be enabled. Pass `{ actionsEnabled: true }` to Database constructor — see docs for more details',
+  )
 }
 
 // *** Applying remote changes ***
@@ -118,6 +125,7 @@ export function applyRemoteChanges(
   db: Database,
   remoteChanges: SyncDatabaseChangeSet,
 ): Promise<void> {
+  ensureActionsEnabled(db)
   return db.action(async action => {
     await promiseAllObject(
       map(
@@ -162,6 +170,7 @@ const extractAllAffectedRecords = pipe(
 )
 
 export function fetchLocalChanges(db: Database): Promise<SyncLocalChanges> {
+  ensureActionsEnabled(db)
   return db.action(async () => {
     const changes = await promiseAllObject(
       map(
@@ -223,6 +232,7 @@ export function markLocalChangesAsSynced(
   db: Database,
   syncedLocalChanges: SyncLocalChanges,
 ): Promise<void> {
+  ensureActionsEnabled(db)
   return db.action(async () => {
     // update and destroy records concurrently
     await Promise.all([
