@@ -1,5 +1,5 @@
 import { appSchema, tableSchema } from '../Schema'
-import { field, relation, immutableRelation } from '../decorators'
+import { field, relation, immutableRelation, text, readonly, date } from '../decorators'
 import Model from '../Model'
 import Database from '../Database'
 import LokiJSAdapter from '../adapters/lokijs'
@@ -16,14 +16,19 @@ export const testSchema = appSchema({
       columns: [
         { name: 'name', type: 'string' },
         { name: 'position', type: 'number' },
-        { name: 'is_completed', type: 'bool' },
+        { name: 'is_completed', type: 'boolean' },
         { name: 'description', type: 'string', isOptional: true },
         { name: 'project_id', type: 'string' },
       ],
     }),
     tableSchema({
       name: 'mock_comments',
-      columns: [{ name: 'task_id', type: 'string' }],
+      columns: [
+        { name: 'task_id', type: 'string' },
+        { name: 'body', type: 'string' },
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
+      ],
     }),
   ],
 })
@@ -62,9 +67,20 @@ export class MockComment extends Model {
 
   @immutableRelation('mock_tasks', 'task_id')
   task
+
+  @text('body')
+  body
+
+  @readonly
+  @date('created_at')
+  createdAt
+
+  @readonly
+  @date('updated_at')
+  updatedAt
 }
 
-export const mockDatabase = () => {
+export const mockDatabase = ({ actionsEnabled = false } = {}) => {
   const adapter = new LokiJSAdapter({
     dbName: 'test',
     schema: testSchema,
@@ -73,12 +89,21 @@ export const mockDatabase = () => {
     adapter,
     schema: testSchema,
     modelClasses: [MockProject, MockTask, MockComment],
+    actionsEnabled,
   })
   return {
     database,
     adapter,
-    projectsCollection: database.collections.get('mock_projects'),
-    tasksCollection: database.collections.get('mock_tasks'),
-    commentsCollection: database.collections.get('mock_comments'),
+    projects: database.collections.get('mock_projects'),
+    tasks: database.collections.get('mock_tasks'),
+    comments: database.collections.get('mock_comments'),
+    cloneDatabase: () =>
+      // simulate reload
+      new Database({
+        adapter: database.adapter.testClone(),
+        schema: testSchema,
+        modelClasses: [MockProject, MockTask, MockComment],
+        actionsEnabled,
+      }),
   }
 }

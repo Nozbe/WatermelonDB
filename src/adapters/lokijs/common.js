@@ -21,7 +21,6 @@ export const actions = {
   GET_LOCAL: 'GET_LOCAL',
   SET_LOCAL: 'SET_LOCAL',
   REMOVE_LOCAL: 'REMOVE_LOCAL',
-  UNSAFE_CLEAR_CACHED_RECORDS: 'UNSAFE_CLEAR_CACHED_RECORDS',
 }
 
 export const responseActions = {

@@ -20,19 +20,21 @@ export function validateAdapter(adapter: DatabaseAdapter): void {
         migrations.validated,
         `Invalid migrations - use schemaMigrations() to create migrations. See docs for more details.`,
       )
+
+      const { minVersion, maxVersion } = migrations
+
       invariant(
-        migrations.minimumVersion <= schema.version,
-        `Migrations supplied to adapter don't match schema - schema is at version ${
+        maxVersion <= schema.version,
+        `Migrations can't be newer than schema. Schema is version ${
           schema.version
-        }, but minimum migrable version is greater: ${migrations.minimumVersion}`,
+        } and migrations cover range from ${minVersion} to ${maxVersion}`,
       )
+
       invariant(
-        migrations.currentVersion === schema.version,
+        maxVersion === schema.version,
         `Missing migration. Database schema is currently at version ${
           schema.version
-        }, but migrations only cover range from ${migrations.minimumVersion} to ${
-          migrations.currentVersion
-        }`,
+        }, but migrations only cover range from ${minVersion} to ${maxVersion}`,
       )
     }
   }

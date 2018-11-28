@@ -1,40 +1,40 @@
 import { omit } from 'rambdax'
 
 import { tableSchema } from '../Schema'
-import { setRawSanitized, sanitizedRaw } from './index'
+import { setRawSanitized, sanitizedRaw, nullValue } from './index'
 
 const stringNull = ['', null]
-const boolNull = [false, null]
+const booleanNull = [false, null]
 const numberNull = [0, null]
 
-// value - input, string/bool: [a, b] - expected outputs for a - required fields, b - optional fields
+// value - input, value: [a, b] - expected outputs for a - required fields, b - optional fields
 const expectedSanitizations = [
-  { value: 'Hello', string: ['Hello', 'Hello'], bool: boolNull, number: numberNull },
-  { value: '', string: ['', ''], bool: boolNull, number: numberNull },
-  { value: 'true', string: ['true', 'true'], bool: boolNull, number: numberNull },
-  { value: 'false', string: ['false', 'false'], bool: boolNull, number: numberNull },
-  { value: '1', string: ['1', '1'], bool: boolNull, number: numberNull },
-  { value: '0', string: ['0', '0'], bool: boolNull, number: numberNull },
-  { value: 'NaN', string: ['NaN', 'NaN'], bool: boolNull, number: numberNull },
-  { value: 1, string: stringNull, bool: [true, true], number: [1, 1] },
-  { value: 0, string: stringNull, bool: [false, false], number: [0, 0] },
-  { value: 3.14, string: stringNull, bool: boolNull, number: [3.14, 3.14] },
-  { value: -3.14, string: stringNull, bool: boolNull, number: [-3.14, -3.14] },
+  { value: 'Hello', string: ['Hello', 'Hello'], boolean: booleanNull, number: numberNull },
+  { value: '', string: ['', ''], boolean: booleanNull, number: numberNull },
+  { value: 'true', string: ['true', 'true'], boolean: booleanNull, number: numberNull },
+  { value: 'false', string: ['false', 'false'], boolean: booleanNull, number: numberNull },
+  { value: '1', string: ['1', '1'], boolean: booleanNull, number: numberNull },
+  { value: '0', string: ['0', '0'], boolean: booleanNull, number: numberNull },
+  { value: 'NaN', string: ['NaN', 'NaN'], boolean: booleanNull, number: numberNull },
+  { value: 1, string: stringNull, boolean: [true, true], number: [1, 1] },
+  { value: 0, string: stringNull, boolean: [false, false], number: [0, 0] },
+  { value: 3.14, string: stringNull, boolean: booleanNull, number: [3.14, 3.14] },
+  { value: -3.14, string: stringNull, boolean: booleanNull, number: [-3.14, -3.14] },
   {
     value: 1532612920392,
     string: stringNull,
-    bool: boolNull,
+    boolean: booleanNull,
     number: [1532612920392, 1532612920392],
   },
-  { value: true, string: stringNull, bool: [true, true], number: numberNull },
-  { value: false, string: stringNull, bool: [false, false], number: numberNull },
-  { value: NaN, string: stringNull, bool: boolNull, number: numberNull },
-  { value: Infinity, string: stringNull, bool: boolNull, number: numberNull },
-  { value: -Infinity, string: stringNull, bool: boolNull, number: numberNull },
-  { value: null, string: stringNull, bool: boolNull, number: numberNull },
-  { value: undefined, string: stringNull, bool: boolNull, number: numberNull },
-  { value: {}, string: stringNull, bool: boolNull, number: numberNull },
-  { value: [], string: stringNull, bool: boolNull, number: numberNull },
+  { value: true, string: stringNull, boolean: [true, true], number: numberNull },
+  { value: false, string: stringNull, boolean: [false, false], number: numberNull },
+  { value: NaN, string: stringNull, boolean: booleanNull, number: numberNull },
+  { value: Infinity, string: stringNull, boolean: booleanNull, number: numberNull },
+  { value: -Infinity, string: stringNull, boolean: booleanNull, number: numberNull },
+  { value: null, string: stringNull, boolean: booleanNull, number: numberNull },
+  { value: undefined, string: stringNull, boolean: booleanNull, number: numberNull },
+  { value: {}, string: stringNull, boolean: booleanNull, number: numberNull },
+  { value: [], string: stringNull, boolean: booleanNull, number: numberNull },
 ]
 
 const mockTaskSchema = tableSchema({
@@ -46,12 +46,12 @@ const mockTaskSchema = tableSchema({
     { name: 'ended_at', type: 'number', isOptional: true },
     { name: 'project_position', type: 'number' },
     { name: 'priority_position', type: 'number', isOptional: true },
-    { name: 'is_abandonned', type: 'bool' },
-    { name: 'is_all_day', type: 'bool', isOptional: true },
+    { name: 'is_abandonned', type: 'boolean' },
+    { name: 'is_all_day', type: 'boolean', isOptional: true },
   ],
 })
 
-describe('RawRecord', () => {
+describe('sanitizedRaw()', () => {
   it('can sanitize the whole raw', () => {
     const goodTask = {
       id: 'abcdef',
@@ -167,6 +167,9 @@ describe('RawRecord', () => {
     )
     expect(raw4).toEqual({ id: 'i2', _status: 'deleted', _changed: '', last_modified: null })
   })
+})
+
+describe('setRawSanitized()', () => {
   it('can set one value on a sanitized raw', () => {
     const raw = sanitizedRaw({}, mockTaskSchema)
 
@@ -179,7 +182,7 @@ describe('RawRecord', () => {
     setRawSanitized(raw, 'responsible_id', false, mockTaskSchema.columns.responsible_id)
     expect(raw.responsible_id).toBe(null)
 
-    // bool
+    // boolean
     expect(raw.is_abandonned).toBe(false)
 
     setRawSanitized(raw, 'is_abandonned', true, mockTaskSchema.columns.is_abandonned)
@@ -198,15 +201,26 @@ describe('RawRecord', () => {
       return raw.foo
     }
 
-    expectedSanitizations.forEach(({ value, string, bool, number }) => {
+    expectedSanitizations.forEach(({ value, string, boolean, number }) => {
       expect(test(value, 'string')).toBe(string[0])
       expect(test(value, 'string', true)).toBe(string[1])
 
-      expect(test(value, 'bool')).toBe(bool[0])
-      expect(test(value, 'bool', true)).toBe(bool[1])
+      expect(test(value, 'boolean')).toBe(boolean[0])
+      expect(test(value, 'boolean', true)).toBe(boolean[1])
 
       expect(test(value, 'number')).toBe(number[0])
       expect(test(value, 'number', true)).toBe(number[1])
     })
+  })
+})
+
+describe('nullValue()', () => {
+  it('can return null value for any column schema', () => {
+    expect(nullValue({ name: 'foo', type: 'string' })).toBe('')
+    expect(nullValue({ name: 'foo', type: 'string', isOptional: true })).toBe(null)
+    expect(nullValue({ name: 'foo', type: 'number' })).toBe(0)
+    expect(nullValue({ name: 'foo', type: 'number', isOptional: true })).toBe(null)
+    expect(nullValue({ name: 'foo', type: 'boolean' })).toBe(false)
+    expect(nullValue({ name: 'foo', type: 'boolean', isOptional: true })).toBe(null)
   })
 })

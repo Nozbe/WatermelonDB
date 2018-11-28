@@ -9,12 +9,12 @@ import org.junit.Rule
 class BridgeTest {
 
     @get:Rule
-    var activityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
+    val activityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
 
     @Test
     fun testBridge() {
         synchronized(BridgeTestReporter.testFinishedNotification) {
-            BridgeTestReporter.testFinishedNotification.wait(60000)
+            BridgeTestReporter.testFinishedNotification.wait(500000)
         }
         try {
             val result = BridgeTestReporter.result
@@ -23,14 +23,14 @@ class BridgeTest {
                     result.result.filter { it.isNotEmpty() }.forEach { Log.d("BridgeTest", it) }
                 }
                 is BridgeTestReporter.Result.Failure -> {
-                    val failureString = result.errors.filter {
+                    val failureString = result.errors.asSequence().filter {
                         it.isNotEmpty()
                     }.joinToString(separator = "\n")
                     Assert.fail(failureString)
                 }
             }
         } catch (e: UninitializedPropertyAccessException) {
-            Assert.fail("Report could not have been obtained.")
+            Assert.fail("Bridge tests timed out and a report could not have been obtained. Either JS code could not be run at all or one of the asynchronous tests never returned")
         }
     }
 }

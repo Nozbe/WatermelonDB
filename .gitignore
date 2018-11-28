@@ -10,3 +10,4 @@ dist/
 dev/
 
 *.tgz
+coverage/

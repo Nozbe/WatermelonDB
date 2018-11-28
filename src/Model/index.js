@@ -2,31 +2,31 @@
 
 import type { Observable } from 'rxjs'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
-
 import isDevelopment from '../utils/common/isDevelopment'
 import invariant from '../utils/common/invariant'
 import ensureSync from '../utils/common/ensureSync'
-
 import fromPairs from '../utils/fp/fromPairs'
 import noop from '../utils/fp/noop'
+import type { $RE } from '../types'
 
 import field from '../decorators/field'
 import readonly from '../decorators/readonly'
 
 import type Collection from '../Collection'
-import type CollectionMap from '../CollectionMap'
+import type CollectionMap from '../Database/CollectionMap'
 import { type TableName, type ColumnName, columnName } from '../Schema'
 import type { Value } from '../QueryDescription'
 import { type RawRecord, sanitizedRaw, setRawSanitized } from '../RawRecord'
+import { setRawColumnChange } from '../sync/helpers'
 
-import { createTimestampsFor, hasUpdatedAt, addToRawSet } from './helpers'
+import { createTimestampsFor, hasUpdatedAt } from './helpers'
 
 export type RecordId = string
 
 export type SyncStatus = 'synced' | 'created' | 'updated' | 'deleted'
 
-export type BelongsToAssociation = $Exact<{ type: 'belongs_to', +key: ColumnName }>
-export type HasManyAssociation = $Exact<{ type: 'has_many', +foreignKey: ColumnName }>
+export type BelongsToAssociation = $RE<{ type: 'belongs_to', key: ColumnName }>
+export type HasManyAssociation = $RE<{ type: 'has_many', foreignKey: ColumnName }>
 export type AssociationInfo = BelongsToAssociation | HasManyAssociation
 export type Associations = { +[TableName<any>]: AssociationInfo }
 
@@ -73,6 +73,9 @@ export default class Model {
   //   task.name = 'New name'
   // })
   async update(recordUpdater: this => void = noop): Promise<void> {
+    this.collection.database._ensureInAction(
+      `Model.update() can only be called from inside of an Action. See docs for more details.`,
+    )
     this.prepareUpdate(recordUpdater)
     await this.collection.database.batch(this)
   }
@@ -118,6 +121,9 @@ export default class Model {
   // Marks this record as deleted (will be permanently deleted after sync)
   // Note: Use this only with Sync
   async markAsDeleted(): Promise<void> {
+    this.collection.database._ensureInAction(
+      `Model.markAsDeleted() can only be called from inside of an Action. See docs for more details.`,
+    )
     invariant(this._isCommitted, `Cannot mark as deleted uncommitted record`)
     this._raw._status = 'deleted'
     await this.collection._markAsDeleted(this)
@@ -126,6 +132,9 @@ export default class Model {
   // Pernamently removes this record from the database
   // Note: Don't use this when using Sync
   async destroyPermanently(): Promise<void> {
+    this.collection.database._ensureInAction(
+      `Model.destroyPermanently() can only be called from inside of an Action. See docs for more details.`,
+    )
     invariant(this._isCommitted, `Cannot destroy uncommitted record`)
     await this.collection._destroyPermanently(this)
   }
@@ -152,6 +161,12 @@ export default class Model {
   // To be used by Model subclass methods only
   batch(...records: $ReadOnlyArray<Model>): Promise<void> {
     return this.collection.database.batch(...records)
+  }
+
+  // TODO: Document me
+  // To be used by Model subclass methods only
+  subAction<T>(action: () => Promise<T>): Promise<T> {
+    return this.collection.database._actionQueue.subAction(action)
   }
 
   get table(): TableName<this> {
@@ -201,14 +216,7 @@ export default class Model {
       'Not allowed to change deleted records',
     )
 
-    // mark change
-    if (this._raw._status !== 'created') {
-      // Add another changed field
-      this._raw._changed = addToRawSet(this._raw._changed, rawFieldName)
-      this._raw._status = 'updated'
-    }
-
-    // set raw
+    setRawColumnChange(this._raw, rawFieldName)
     setRawSanitized(this._raw, rawFieldName, rawValue, this.collection.schema.columns[rawFieldName])
   }
 }

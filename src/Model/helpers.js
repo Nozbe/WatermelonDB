@@ -21,12 +21,3 @@ export const createTimestampsFor = (model: Model) => {
 
   return timestamps
 }
-
-// TODO: Measure and optimize performance!
-
-export function addToRawSet(rawSet: ?string, value: string): string {
-  const array = rawSet ? rawSet.split(',') : []
-  const set = new Set(array)
-  set.add(value)
-  return Array.from(set).join(',')
-}

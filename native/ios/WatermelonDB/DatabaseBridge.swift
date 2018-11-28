@@ -57,19 +57,24 @@ final public class DatabaseBridge: NSObject {
     }
 
     @objc(setUpWithMigrations:databaseName:migrations:fromVersion:toVersion:resolve:reject:)
-    func setUpWithMigrations(tag: ConnectionTag,
+    func setUpWithMigrations(tag: ConnectionTag, // swiftlint:disable:this function_parameter_count
                              databaseName: String,
                              migrations: Database.SQL,
                              fromVersion: NSNumber,
                              toVersion: NSNumber,
                              resolve: RCTPromiseResolveBlock,
                              reject: RCTPromiseRejectBlock) {
-        let driver = DatabaseDriver(
-            dbName: databaseName,
-            setUpWithMigrations: (from: fromVersion.intValue, to: toVersion.intValue, sql: migrations)
-        )
-        connectDriver(connectionTag: tag, driver: driver)
-        resolve(true)
+        do {
+            let driver = try DatabaseDriver(
+                dbName: databaseName,
+                setUpWithMigrations: (from: fromVersion.intValue, to: toVersion.intValue, sql: migrations)
+            )
+            connectDriver(connectionTag: tag, driver: driver)
+            resolve(true)
+        } catch {
+            disconnectDriver(tag)
+            sendReject(reject, error)
+        }
     }
 
     @objc(find:table:id:resolve:reject:)
@@ -210,14 +215,6 @@ final public class DatabaseBridge: NSObject {
         }
     }
 
-    @objc(unsafeClearCachedRecords:resolve:reject:)
-    func unsafeClearCachedRecords(tag: ConnectionTag,
-                                  resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            $0.unsafeClearCachedRecords()
-        }
-    }
-
     private func withDriver(_ connectionTag: ConnectionTag,
                             _ resolve: @escaping RCTPromiseResolveBlock,
                             _ reject: @escaping RCTPromiseRejectBlock,
@@ -250,6 +247,16 @@ final public class DatabaseBridge: NSObject {
         let tagID = connectionTag.intValue
         let queue = connections[tagID]?.queue ?? []
         connections[tagID] = .connected(driver: driver)
+
+        for operation in queue {
+            operation()
+        }
+    }
+
+    private func disconnectDriver(_ connectionTag: ConnectionTag) {
+        let tagID = connectionTag.intValue
+        let queue = connections[tagID]?.queue ?? []
+        connections[tagID] = nil
 
         for operation in queue {
             operation()

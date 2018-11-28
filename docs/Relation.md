@@ -104,6 +104,68 @@ class Comment extends Model {
 }
 ```
 
+### Many-To-Many Relation
+
+If for instance, our app `Post`s can be authored by many `User`s and a user can author many `Post`s. We would create such a relation following these steps:- 
+
+1. Create a pivot schema and model that both the `User` model and `Post` model has association to; say `PostAuthor`
+2. Create has_many association on both `User` and `Post` pointing to `PostAuthor` Model 
+3. Create belongs_to association on `PostAuthor` pointing to both `User` and `Post`
+4. Retrieve all `Posts` for a user by defining a query that uses the pivot `PostAuthor` to infer the `Post`s that were authored by the User.
+
+```js
+import {lazy } from '@nozbe/watermelondb/decorators'
+
+class Post extends Model {
+  static table = 'posts'
+  static associations = {
+    post_authors: { type: 'has_many', foreignKey: 'post_id' },
+  }
+
+  @lazy
+  authors = this.collections
+    .get('users')
+    .query(Q.on('post_authors', 'post_id', this.id));
+}
+```
+
+```js
+import { field } from '@nozbe/watermelondb/decorators'
+
+class PostAuthor extends Model {
+  static table = 'post_authors'
+  static associations = {
+    posts: { type: 'belongs_to', Key: 'post_id' },
+    users: { type: 'belongs_to', Key: 'user_id' },
+  }
+  @field('post_id') postId
+  @field('user_id') userId
+}
+
+```
+
+```js
+import {lazy } from '@nozbe/watermelondb/decorators'
+
+class User extends Model {
+  static table = 'users'
+  static associations = {
+    post_authors: { type: 'has_many', foreignKey: 'user_id' },
+  }
+
+  @lazy
+  posts = this.collections
+    .get('posts')
+    .query(Q.on('post_authors', 'user_id', this.id));
+
+}
+```
+```js
+withObservables(['post'], ({ post }) => ({
+  authors: post.authors.observe(),
+}))
+```
+
 * * *
 
 ## Next steps

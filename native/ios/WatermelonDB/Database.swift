@@ -7,26 +7,14 @@ class Database {
 
     private let fmdb: FMDatabase
 
-    init(_ name: String?) {
-        if let name = name {
-            // Path to the database
-            // swiftlint:disable:next force_try
-            let url = try! FileManager.default
-                .url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-                .appendingPathComponent(name)
-
-            consoleLog("Database is at: \(url.path)")
-
-            // Open a connection
-            fmdb = FMDatabase(path: url.path)
-        } else {
-            // Open in-memory database (for testing)
-            fmdb = FMDatabase(path: nil)
-        }
+    init(path: String) {
+        fmdb = FMDatabase(path: path)
 
         guard fmdb.open() else {
             fatalError("Failed to open the database. \(fmdb.lastErrorMessage())")
         }
+
+        consoleLog("Opened database at: \(path)")
     }
 
     func inTransaction(_ executeBlock: () throws -> Void) throws {
@@ -99,21 +87,19 @@ class Database {
         // TODO: Shouldn't this simply destroy the database file?
         consoleLog("Clearing database")
 
-        fmdb.beginTransaction()
+        try inTransaction {
+            let tables = try queryRaw("select * from sqlite_master where type='table'").map { table in
+                table.string(forColumn: "name")!
+            }
 
-        let tables = try queryRaw("select * from sqlite_master where type='table'").map { table in
-            table.string(forColumn: "name")!
+            for table in tables {
+                try execute("drop table if exists \(table)")
+            }
+
+            try execute("pragma writable_schema=1")
+            try execute("delete from sqlite_master")
+            try execute("pragma user_version=0")
+            try execute("pragma writable_schema=0")
         }
-
-        for table in tables {
-            try execute("drop table if exists \(table)")
-        }
-
-        try execute("pragma writable_schema=1")
-        try execute("delete from sqlite_master")
-        try execute("pragma user_version=0")
-        try execute("pragma writable_schema=0")
-
-        fmdb.commit()
     }
 }

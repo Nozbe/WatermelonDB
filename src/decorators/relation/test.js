@@ -4,8 +4,8 @@ import Relation from '../../Relation'
 
 describe('watermelondb/decorators/relation', () => {
   it('creates Relation object', () => {
-    const { taskCollections } = mockDatabase()
-    const primary = new MockTask(taskCollections, { project_id: 's1' })
+    const { tasks } = mockDatabase()
+    const primary = new MockTask(tasks, { project_id: 's1' })
 
     const relation = primary.project
     expect(relation).toEqual(
@@ -14,8 +14,8 @@ describe('watermelondb/decorators/relation', () => {
   })
 
   it('disallows to set relation directly', () => {
-    const { taskCollections } = mockDatabase()
-    const primary = new MockTask(taskCollections, { project_id: 's1' })
+    const { tasks } = mockDatabase()
+    const primary = new MockTask(tasks, { project_id: 's1' })
 
     expect(() => {
       primary.project = 'blah'
@@ -23,8 +23,8 @@ describe('watermelondb/decorators/relation', () => {
   })
 
   it('caches Relation object', () => {
-    const { taskCollections } = mockDatabase()
-    const primary = new MockTask(taskCollections, { project_id: 's1' })
+    const { tasks } = mockDatabase()
+    const primary = new MockTask(tasks, { project_id: 's1' })
 
     const relation1 = primary.project
     const relation2 = primary.project

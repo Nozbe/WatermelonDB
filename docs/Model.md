@@ -76,7 +76,7 @@ class Post extends Model {
 
 Fields are defined using ES6 decorators. Pass **column name** you defined in Schema as the argument to `@field`.
 
-**Field types**. Fields are guaranteed to be the same type (string/number/bool) as the column type defined in Schema. If column is marked `isOptional: true`, fields may also be null.
+**Field types**. Fields are guaranteed to be the same type (string/number/boolean) as the column type defined in Schema. If column is marked `isOptional: true`, fields may also be null.
 
 **Note:** Why do I have to type the field/column name twice? The database convention is to use `snake_case` for names, and the JavaScript convention is to use camelCase. So for any multi-word name, the two differ. Also, for resiliency, we believe it's better to be explicit, because over time, you might want to refactor how you name your JavaScript field names, but column names must stay the same for backward compatibility.
 
@@ -111,7 +111,7 @@ class Comment extends Model {
 
 **➡️ Learn more:** [Relation API](./Relation.md)
 
-### Children
+### Children (To-Many relation)
 
 To point to a list of records that belong to this Model, e.g. all `Comment`s that belong to a `Post`, you can define a simple `Query` using `@children`:
 

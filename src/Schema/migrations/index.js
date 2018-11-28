@@ -1,60 +1,56 @@
 // @flow
 
+import { sortBy, prop, last, head } from 'rambdax'
 import type { ColumnSchema, TableName, ColumnMap, TableSchemaSpec, SchemaVersion } from '../index'
 import { tableSchema, validateColumnSchema } from '../index'
 
 import { isDevelopment, invariant } from '../../utils/common'
 import { isObject } from '../../utils/fp'
 
-type CreateTableMigrationStep = $Exact<{
+export type CreateTableMigrationStep = $Exact<{
   +type: 'create_table',
   +name: TableName<any>,
   +columns: ColumnMap,
 }>
 
-type AddColumnsMigrationStep = $Exact<{
+export type AddColumnsMigrationStep = $Exact<{
   +type: 'add_columns',
   +table: TableName<any>,
   +columns: ColumnSchema[],
 }>
 
-type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep
+export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep
 
 type Migration = $Exact<{
-  +from: SchemaVersion,
-  +to: SchemaVersion,
+  +toVersion: SchemaVersion,
   +steps: MigrationStep[],
 }>
 
 type SchemaMigrationsSpec = $Exact<{
-  +minimumVersion: SchemaVersion,
-  +currentVersion: SchemaVersion,
   +migrations: Migration[],
 }>
 
 export type SchemaMigrations = $Exact<{
   +validated: true,
-  ...SchemaMigrationsSpec,
+  +minVersion: SchemaVersion,
+  +maxVersion: SchemaVersion,
+  +sortedMigrations: Migration[],
 }>
+
+const sortMigrations = sortBy(prop('toVersion'))
 
 // Creates a specification of how to migrate between different versions of
 // database schema. Every time you change the database schema, you must
 // create a corresponding migration.
-//
-// Note that migrations must cover the whole range from `minimumVersion` to `currentVersion`
-// and be listed in reverse chronological order (migration to newest version at the top)
 //
 // See docs for more details
 //
 // Example:
 //
 // schemaMigrations({
-//   minimumVersion: 1,
-//   currentVersion: 3,
 //   migrations: [
 //     {
-//       from: 2,
-//       to: 3,
+//       toVersion: 3,
 //       steps: [
 //         createTable({
 //           name: 'comments',
@@ -67,14 +63,13 @@ export type SchemaMigrations = $Exact<{
 //           table: 'posts',
 //           columns: [
 //             { name: 'subtitle', type: 'string', isOptional: true },
-//             { name: 'is_pinned', type: 'bool' },
+//             { name: 'is_pinned', type: 'boolean' },
 //           ],
 //         }),
 //       ],
 //     },
 //     {
-//       from: 1,
-//       to: 2,
+//       toVersion: 2,
 //       steps: [
 //         // ...
 //       ],
@@ -83,51 +78,54 @@ export type SchemaMigrations = $Exact<{
 // })
 
 export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMigrations {
+  const { migrations } = migrationSpec
+
   if (isDevelopment) {
     // validate migrations spec object
-    const { minimumVersion, currentVersion, migrations } = migrationSpec
-    invariant(typeof minimumVersion === 'number', 'Minimum schema version missing in migrations')
-    invariant(typeof currentVersion === 'number', 'Current schema version missing in migrations')
-    invariant(minimumVersion > 0, 'Minimum version must be at least 1')
-    invariant(
-      currentVersion >= minimumVersion,
-      'Current schema version must be greater than minimum migrable version',
-    )
-
     invariant(Array.isArray(migrations), 'Missing migrations array')
 
     // validate migrations format
     migrations.forEach(migration => {
       invariant(isObject(migration), `Invalid migration (not an object) in schema migrations`)
-      const { from, to, steps } = migration
+      const { toVersion, steps } = migration
+      invariant(typeof toVersion === 'number', 'Invalid migration - `toVersion` must be a number')
       invariant(
-        typeof from === 'number' && typeof to === 'number' && to > from,
-        'Invalid migration - `to` version must be greater than `from` version',
+        toVersion >= 2,
+        `Invalid migration to version ${toVersion}. Minimum possible migration version is 2`,
       )
       invariant(
         Array.isArray(steps) && steps.every(step => typeof step.type === 'string'),
-        `Invalid migration steps for migration from version ${from} to ${to}. 'changes' should be an array of migration step calls`,
+        `Invalid migration steps for migration to version ${toVersion}. 'steps' should be an array of migration step calls`,
       )
     })
-
-    // validate if migration spec actually covers every schema version it says it supports
-    const chronologicalMigrations = [...migrations].reverse()
-    let maxCoveredRange = minimumVersion
-
-    chronologicalMigrations.forEach(({ from, to }) => {
-      invariant(
-        maxCoveredRange === from,
-        `Invalid migrations! schemaMigrations() says it covers schema versions from ${minimumVersion} to ${currentVersion}, but there is no listed migration from ${maxCoveredRange} to ${from}. Remember that migrations must be listed in reverse chronological order`,
-      )
-      maxCoveredRange = to
-    })
-    invariant(
-      maxCoveredRange === currentVersion,
-      `Invalid migrations! schemaMigrations() says the current version is ${currentVersion}, but migrations listed only cover schema versions range from ${minimumVersion} to ${maxCoveredRange}. Remember that migrations must be listed in reverse chronological order`,
-    )
   }
+
+  const sortedMigrations = sortMigrations(migrations)
+  const oldestMigration = head(sortedMigrations)
+  const newestMigration = last(sortedMigrations)
+  const minVersion = oldestMigration ? oldestMigration.toVersion - 1 : 1
+  const maxVersion = newestMigration?.toVersion || 1
+
+  if (isDevelopment) {
+    // validate that migration spec is without gaps and duplicates
+    sortedMigrations.reduce((maxCoveredVersion, migration) => {
+      const { toVersion } = migration
+      if (maxCoveredVersion) {
+        invariant(
+          toVersion === maxCoveredVersion + 1,
+          `Invalid migrations! Migrations listed cover range from version ${minVersion} to ${maxCoveredVersion}, but migration ${JSON.stringify(
+            migration,
+          )} is to version ${toVersion}. Migrations must be listed without gaps, or duplicates.`,
+        )
+      }
+      return toVersion
+    }, null)
+  }
+
   return {
-    ...migrationSpec,
+    sortedMigrations,
+    minVersion,
+    maxVersion,
     validated: true,
   }
 }
