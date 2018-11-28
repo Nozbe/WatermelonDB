@@ -9,7 +9,7 @@ import {
   fetchLocalChanges,
   markLocalChangesAsSynced,
   applyRemoteChanges,
-  getLastSyncedAt,
+  getLastPulledAt,
 } from './impl'
 import { resolveConflict, prepareCreateFromRaw } from './syncHelpers'
 
@@ -533,7 +533,7 @@ describe('synchronize', () => {
 
     expect(observer).toBeCalledTimes(0)
     expect(pullChanges).toBeCalledTimes(1)
-    expect(pullChanges).toBeCalledWith({ lastSyncedAt: null })
+    expect(pullChanges).toBeCalledWith({ lastPulledAt: null })
     expect(pushChanges).toBeCalledTimes(1)
     expect(pushChanges).toBeCalledWith({ changes: emptyChangeSet })
   })
@@ -572,7 +572,7 @@ describe('synchronize', () => {
 
     await synchronize({ database, pullChanges, pushChanges })
 
-    expect(pullChanges).toBeCalledWith({ lastSyncedAt: null })
+    expect(pullChanges).toBeCalledWith({ lastPulledAt: null })
     expect(pushChanges).toBeCalledWith({ changes: emptyChangeSet })
 
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
@@ -646,16 +646,16 @@ describe('synchronize', () => {
     let pullChanges = jest.fn(emptyPull(1500))
     await synchronize({ database, pullChanges, pushChanges: jest.fn() })
 
-    expect(pullChanges).toBeCalledWith({ lastSyncedAt: null })
+    expect(pullChanges).toBeCalledWith({ lastPulledAt: null })
 
     pullChanges = jest.fn(emptyPull(2500))
     await synchronize({ database, pullChanges, pushChanges: jest.fn() })
 
     expect(pullChanges).toBeCalledTimes(1)
-    expect(pullChanges).toBeCalledWith({ lastSyncedAt: 1500 })
-    expect(await getLastSyncedAt(database)).toBe(2500)
+    expect(pullChanges).toBeCalledWith({ lastPulledAt: 1500 })
+    expect(await getLastPulledAt(database)).toBe(2500)
     // check underlying database since it's an implicit API
-    expect(await database.adapter.getLocal('__watermelon_last_synced_at')).toBe('2500')
+    expect(await database.adapter.getLocal('__watermelon_last_pulled_at')).toBe('2500')
   })
   it('prevents concurrent syncs', async () => {
     const { database } = makeDatabase()
@@ -673,7 +673,7 @@ describe('synchronize', () => {
 
     expect(await sync1).toBe(undefined)
     expect(await sync2).toMatchObject({ message: /concurrent sync/i })
-    expect(await getLastSyncedAt(database)).toBe(100)
+    expect(await getLastPulledAt(database)).toBe(100)
   })
   it('can recover from pull failure', async () => {
     const { database } = makeDatabase()
@@ -687,7 +687,7 @@ describe('synchronize', () => {
     expect(pullChanges).toBeCalledTimes(1)
     expect(pushChanges).toBeCalledTimes(0)
     expect(sync).toMatchObject({ message: 'pull-fail' })
-    expect(await getLastSyncedAt(database)).toBe(null)
+    expect(await getLastPulledAt(database)).toBe(null)
   })
   it('can recover from push failure', async () => {
     const { database, projects } = makeDatabase()
@@ -713,7 +713,7 @@ describe('synchronize', () => {
     expect(await fetchLocalChanges(database)).toEqual(localChanges)
 
     // but pull phase succeeded
-    expect(await getLastSyncedAt(database)).toBe(1500)
+    expect(await getLastPulledAt(database)).toBe(1500)
     expect(observer).toBeCalledTimes(1)
     await expectSyncedAndMatches(projects, 'new_project', { name: 'remote' })
   })

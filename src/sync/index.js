@@ -8,8 +8,8 @@ import {
   applyRemoteChanges,
   fetchLocalChanges,
   markLocalChangesAsSynced,
-  getLastSyncedAt,
-  setLastSyncedAt,
+  getLastPulledAt,
+  setLastPulledAt,
   ensureActionsEnabled,
 } from './impl'
 
@@ -24,7 +24,7 @@ export type SyncDatabaseChangeSet = $Exact<{ [TableName<any>]: SyncTableChangeSe
 
 export type SyncLocalChanges = $Exact<{ changes: SyncDatabaseChangeSet, affectedRecords: Model[] }>
 
-export type SyncPullArgs = $Exact<{ lastSyncedAt: ?Timestamp }>
+export type SyncPullArgs = $Exact<{ lastPulledAt: ?Timestamp }>
 export type SyncPullResult = $Exact<{ changes: SyncDatabaseChangeSet, timestamp: Timestamp }>
 
 export type SyncPushArgs = $Exact<{ changes: SyncDatabaseChangeSet }>
@@ -39,15 +39,15 @@ export async function synchronize({ database, pullChanges, pushChanges }: SyncAr
   ensureActionsEnabled(database)
 
   // pull phase
-  const lastSyncedAt = await getLastSyncedAt(database)
-  const { changes: remoteChanges, timestamp } = await pullChanges({ lastSyncedAt })
+  const lastPulledAt = await getLastPulledAt(database)
+  const { changes: remoteChanges, timestamp: newLastPulledAt } = await pullChanges({ lastPulledAt })
   await database.action(async action => {
     invariant(
-      lastSyncedAt === (await getLastSyncedAt(database)),
+      lastPulledAt === (await getLastPulledAt(database)),
       '[Sync] Concurrent synchronization is not allowed. More than one synchronize() call was running at the same time, and the later one was aborted before committing results to local database.',
     )
     await action.subAction(() => applyRemoteChanges(database, remoteChanges))
-    await setLastSyncedAt(database, timestamp)
+    await setLastPulledAt(database, newLastPulledAt)
   })
 
   // push phase
