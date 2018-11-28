@@ -535,7 +535,7 @@ describe('synchronize', () => {
     expect(pullChanges).toBeCalledTimes(1)
     expect(pullChanges).toBeCalledWith({ lastPulledAt: null })
     expect(pushChanges).toBeCalledTimes(1)
-    expect(pushChanges).toBeCalledWith({ changes: emptyChangeSet })
+    expect(pushChanges).toBeCalledWith({ changes: emptyChangeSet, lastPulledAt: 1500 })
   })
   it.skip(`doesn't push changes if nothing to push`, async () => {
     // TODO: Future optimization
@@ -550,7 +550,7 @@ describe('synchronize', () => {
     const pushChanges = jest.fn()
     await synchronize({ database, pullChanges, pushChanges })
 
-    expect(pushChanges).toBeCalledWith({ changes: localChanges.changes })
+    expect(pushChanges).toBeCalledWith({ changes: localChanges.changes, lastPulledAt: 1500 })
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
   })
   it('can pull changes', async () => {
@@ -573,7 +573,7 @@ describe('synchronize', () => {
     await synchronize({ database, pullChanges, pushChanges })
 
     expect(pullChanges).toBeCalledWith({ lastPulledAt: null })
-    expect(pushChanges).toBeCalledWith({ changes: emptyChangeSet })
+    expect(pushChanges).toBeCalledWith({ changes: emptyChangeSet, lastPulledAt: 1500 })
 
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
     await expectSyncedAndMatches(projects, 'new_project', { name: 'remote' })
@@ -708,7 +708,7 @@ describe('synchronize', () => {
     const sync = await synchronize({ database, pullChanges, pushChanges }).catch(e => e)
 
     // full sync failed - local changes still awaiting sync
-    expect(pushChanges).toBeCalledWith({ changes: localChanges.changes })
+    expect(pushChanges).toBeCalledWith({ changes: localChanges.changes, lastPulledAt: 1500 })
     expect(sync).toMatchObject({ message: 'push-fail' })
     expect(await fetchLocalChanges(database)).toEqual(localChanges)
 

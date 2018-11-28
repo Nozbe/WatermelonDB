@@ -27,7 +27,7 @@ export type SyncLocalChanges = $Exact<{ changes: SyncDatabaseChangeSet, affected
 export type SyncPullArgs = $Exact<{ lastPulledAt: ?Timestamp }>
 export type SyncPullResult = $Exact<{ changes: SyncDatabaseChangeSet, timestamp: Timestamp }>
 
-export type SyncPushArgs = $Exact<{ changes: SyncDatabaseChangeSet }>
+export type SyncPushArgs = $Exact<{ changes: SyncDatabaseChangeSet, lastPulledAt: Timestamp }>
 
 export type SyncArgs = $Exact<{
   database: Database,
@@ -52,6 +52,6 @@ export async function synchronize({ database, pullChanges, pushChanges }: SyncAr
 
   // push phase
   const localChanges = await fetchLocalChanges(database)
-  await pushChanges({ changes: localChanges.changes })
+  await pushChanges({ changes: localChanges.changes, lastPulledAt: newLastPulledAt })
   await markLocalChangesAsSynced(database, localChanges)
 }
