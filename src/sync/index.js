@@ -159,6 +159,7 @@ not experienced at this, stick to these rules and suggestions:
 1. Please help out with solving the current limitations!
 2. If you write server-side code made to be compatible with Watermelon, especially for popular platforms (Node, Ruby on Rails, Kinto, etc.) - please open source it and let us know! This would dramatically simplify implementing sync for people
 3. If you find Watermelon sync bugs, please report the issue! And if possible, write regression tests to make sure it never happens again
+4. If you want to implement a different synchronization scheme (e.g. single push / server resolves conflict), check out synchronization implementation details, use Watermelon sync helpers if possible, and contribute the result back if possible!
 
 */
 
