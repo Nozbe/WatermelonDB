@@ -113,9 +113,9 @@ Arguments:
 }
 ```
 
-`pushChanges` should call the server with the changes, and apply them remotely (create/update/delete on the server records created/updated/deleted remotely).
+`pushChanges` should call the server with the changes, and apply them remotely (create/update/delete on the server records that were created/updated/deleted locally).
 
-If successful, `pushChanges` should resolve when done. If there's a problem, server should revert all changes, and `pushChanges` should reject.
+If successful, `pushChanges` should resolve. If there's a problem, server should revert all changes, and `pushChanges` should reject.
 
 If a record that's being pushed to the server has been changed on the server AFTER the time specified by `lastSyncedAt` (which means someone modified what we're pushing between pullChanges and pushChanges), we have a conflict, and push should be aborted. (`pushChanges` should reject). The local changes will sync during next sync.
 
@@ -146,7 +146,7 @@ not experienced at this, stick to these rules and suggestions:
     - … update a record that doesn't exist, create it
     - … create a record that does exist, update it
   - If there's something wrong with the data format, prefer to "fix" the data if possible instead of failing sync. You don't want the user to have an unsyncable app because of a mistake caused by a bug 5 versions ago.
-  - As with any API, remember to check permissions to create/modify records, and all standard stuff!
+  - As with any API, remember to check permissions to create/modify records, make sure you version your API together with local Schema versioning, and all other standard stuff!
 
 ### Current limitations
 
@@ -156,10 +156,11 @@ not experienced at this, stick to these rules and suggestions:
 
 ### Contributing
 
-1. Please help out with solving the current limitations!
-2. If you write server-side code made to be compatible with Watermelon, especially for popular platforms (Node, Ruby on Rails, Kinto, etc.) - please open source it and let us know! This would dramatically simplify implementing sync for people
-3. If you find Watermelon sync bugs, please report the issue! And if possible, write regression tests to make sure it never happens again
-4. If you want to implement a different synchronization scheme (e.g. single push / server resolves conflict), check out synchronization implementation details, use Watermelon sync helpers if possible, and contribute the result back if possible!
+1. If you implement Watermelon sync but found this guide confusing, please contribute improvements!
+2. Please help out with solving the current limitations!
+3. If you write server-side code made to be compatible with Watermelon, especially for popular platforms (Node, Ruby on Rails, Kinto, etc.) - please open source it and let us know! This would dramatically simplify implementing sync for people
+4. If you find Watermelon sync bugs, please report the issue! And if possible, write regression tests to make sure it never happens again
+5. If you want to implement a different synchronization scheme (e.g. single push / server resolves conflict), check out synchronization implementation details, use Watermelon sync helpers if possible, and contribute the result back if possible!
 
 */
 
