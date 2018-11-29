@@ -751,8 +751,91 @@ describe('synchronize', () => {
     expect(observer).toBeCalledTimes(1)
     await expectSyncedAndMatches(projects, 'new_project', { name: 'remote' })
   })
-  it.skip('can handle local changes during sync', async () => {
-    // TODO:
+  it('can safely handle local changes during sync', async () => {
+    const { database, projects } = makeDatabase()
+
+    await makeLocalChanges(database)
+    const localChanges = await fetchLocalChanges(database)
+
+    const pullChanges = jest.fn(async () => ({
+      changes: makeChangeSet({
+        mock_projects: {
+          created: [{ id: 'new_project', name: 'remote' }],
+        },
+      }),
+      timestamp: 1500,
+    }))
+
+    let betweenFetchAndMarkAction
+    const pushChanges = jest.fn(
+      () => betweenFetchAndMarkAction(), // this will run before push completes
+    )
+
+    let syncCompleted = false
+    const sync = synchronize({ database, pullChanges, pushChanges }).then(() => {
+      syncCompleted = true
+    })
+
+    const createProject = name =>
+      projects.create(project => {
+        project.name = name
+      })
+
+    // run this between fetchLocalChanges and markLocalChangesAsSynced
+    // (doesn't really matter if it's before or after pushChanges is called)
+    let project3
+    betweenFetchAndMarkAction = jest.fn(() =>
+      database.action(async () => {
+        await expectSyncedAndMatches(projects, 'new_project', {})
+        expect(syncCompleted).toBe(false)
+        project3 = await createProject('project3')
+      }, 'betweenFetchAndMarkAction'),
+    )
+
+    // run this between applyRemoteChanges and fetchLocalChanges
+    let project2
+    const betweenApplyAndFetchAction = jest.fn(async () => {
+      await expectSyncedAndMatches(projects, 'new_project', {})
+      expect(pushChanges).toBeCalledTimes(0)
+      project2 = (await createProject('project2'))._raw
+    })
+
+    // run this before applyRemoteChanges
+    let project1
+    const beforeApplyAction = jest.fn(async () => {
+      await expectDoesNotExist(projects, 'new_project')
+      project1 = (await createProject('project1'))._raw
+      database.action(betweenApplyAndFetchAction, 'betweenApplyAndFetchAction')
+    })
+    database.action(beforeApplyAction, 'beforeApplyAction')
+
+    // we sync successfully and have received an object
+    await sync
+
+    expect(beforeApplyAction).toBeCalledTimes(1)
+    expect(betweenApplyAndFetchAction).toBeCalledTimes(1)
+    expect(betweenFetchAndMarkAction).toBeCalledTimes(1)
+
+    await expectSyncedAndMatches(projects, 'new_project', {})
+
+    // Expect project1, project2 to have been pushed
+    const pushedChanges = pushChanges.mock.calls[0][0].changes
+    expect(pushedChanges).not.toEqual(localChanges.changes)
+    const expectedPushedChanges = clone(localChanges.changes)
+    expectedPushedChanges.mock_projects.created.push(project1, project2)
+    expect(pushedChanges).toEqual(expectedPushedChanges)
+
+    // Expect project3 to still need pushing
+    const localChanges2 = await fetchLocalChanges(database)
+    expect(localChanges2).not.toEqual(emptyLocalChanges)
+    expect(localChanges2).toEqual({
+      changes: makeChangeSet({
+        mock_projects: {
+          created: [project3._raw],
+        },
+      }),
+      affectedRecords: [project3],
+    })
   })
   it.skip('can synchronize lots of data', async () => {
     // TODO:
