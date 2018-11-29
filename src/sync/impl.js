@@ -246,6 +246,7 @@ export function fetchLocalChanges(db: Database): Promise<SyncLocalChanges> {
         db.collections.map,
       ),
     )
+    // TODO: deep-freeze changes object (in dev mode only) to detect mutations (user bug)
     return {
       // $FlowFixMe
       changes: extractChanges(changes),
