@@ -19,8 +19,11 @@ export function resolveConflict(local: RawRecord, remote: DirtyRaw): DirtyRaw {
   const resolved = {
     // use local fields if remote is missing columns (shouldn't but just in case)
     ...local,
-    // Note: remote MUST NOT have a _status of _changed fields
+    // Note: remote MUST NOT have a _status of _changed fields (will replace them anyway just in case)
     ...remote,
+    id: local.id,
+    _status: local._status,
+    _changed: local._changed,
   }
 
   // Use local properties where changed
@@ -47,7 +50,7 @@ function replaceRaw(record: Model, dirtyRaw: DirtyRaw): void {
 
 export function prepareCreateFromRaw<T: Model>(collection: Collection<T>, dirtyRaw: DirtyRaw): T {
   return collection.prepareCreate(record => {
-    replaceRaw(record, { _status: 'synced', ...dirtyRaw })
+    replaceRaw(record, { ...dirtyRaw, _status: 'synced', _changed: '' })
   })
 }
 

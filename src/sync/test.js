@@ -3,6 +3,7 @@ import { skip as skip$ } from 'rxjs/operators'
 import clone from 'lodash.clonedeep'
 import { mockDatabase } from '../__tests__/testModels'
 import { expectToRejectWithMessage } from '../__tests__/utils'
+import { sanitizedRaw } from '../RawRecord'
 
 import { synchronize } from './index'
 import {
@@ -11,7 +12,7 @@ import {
   applyRemoteChanges,
   getLastPulledAt,
 } from './impl'
-import { resolveConflict, prepareCreateFromRaw } from './syncHelpers'
+import { resolveConflict } from './syncHelpers'
 
 describe('Conflict resolution', () => {
   it('can resolve per-column conflicts', () => {
@@ -39,6 +40,11 @@ describe('Conflict resolution', () => {
 })
 
 const makeDatabase = () => mockDatabase({ actionsEnabled: true })
+
+const prepareCreateFromRaw = (collection, dirtyRaw) =>
+  collection.prepareCreate(record => {
+    record._raw = sanitizedRaw({ _status: 'synced', ...dirtyRaw }, record.collection.schema)
+  })
 
 const getRaw = (collection, id) => collection.find(id).then(record => record._raw, () => null)
 
@@ -505,6 +511,28 @@ describe('applyRemoteChanges', () => {
   })
   it.skip('only emits one collection batch change', async () => {
     // TODO: Implement and unskip test when batch change emissions are implemented
+  })
+  it('rejects invalid records', async () => {
+    const { database } = makeDatabase()
+
+    const expectChangeFails = changes =>
+      expectToRejectWithMessage(
+        testApplyRemoteChanges(database, { mock_projects: changes }),
+        /invalid raw record/i,
+      )
+
+    const expectCreateFails = raw => expectChangeFails({ created: [raw] })
+    const expectUpdateFails = raw => expectChangeFails({ updated: [raw] })
+
+    await expectCreateFails({ id: 'foo', _status: 'created' })
+    await expectCreateFails({ id: 'foo', _changed: 'bla' })
+    await expectCreateFails({ foo: 'bar' })
+
+    await expectUpdateFails({ id: 'foo', _status: 'created' })
+    await expectUpdateFails({ id: 'foo', _changed: 'bla' })
+    await expectUpdateFails({ foo: 'bar' })
+
+    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
   })
 })
 

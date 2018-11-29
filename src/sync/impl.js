@@ -16,7 +16,7 @@ import {
 } from 'rambdax'
 import { allPromises, unnest } from '../utils/fp'
 import { logError, invariant } from '../utils/common'
-import type { Database, RecordId, Collection, Model, TableName } from '..'
+import type { Database, RecordId, Collection, Model, TableName, DirtyRaw } from '..'
 import * as Q from '../QueryDescription'
 import { columnName } from '../Schema'
 
@@ -80,6 +80,13 @@ async function recordsToApplyRemoteChangesTo<T: Model>(
   }
 }
 
+function validateRemoteRaw(raw: DirtyRaw): void {
+  invariant(
+    raw && typeof raw === 'object' && 'id' in raw && !('_status' in raw || '_changed' in raw),
+    `[Sync] Invalid raw record supplied to Sync. Records must be objects, must have an 'id' field, and must NOT have a '_status' or '_changed' fields`,
+  )
+}
+
 function prepareApplyRemoteChangesToCollection<T: Model>(
   collection: Collection<T>,
   recordsToApply: RecordsToApplyRemoteChangesTo<T>,
@@ -89,6 +96,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
 
   // Insert and update records
   const recordsToInsert = map(raw => {
+    validateRemoteRaw(raw)
     const currentRecord = findRecord(raw.id, records)
     if (currentRecord) {
       logError(
@@ -112,6 +120,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   }, created)
 
   const recordsToUpdate = map(raw => {
+    validateRemoteRaw(raw)
     const currentRecord = findRecord(raw.id, records)
 
     if (currentRecord) {
