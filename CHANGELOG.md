@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
   ```
   { name: 'last_modified', type: 'number', isOptional: true }
   ```
+  *Don't* bump schema version or write a migration for this.
 
 ### New
 
