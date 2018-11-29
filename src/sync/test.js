@@ -1,6 +1,8 @@
-import { change } from 'rambdax'
+import { change, times, map, length } from 'rambdax'
 import { skip as skip$ } from 'rxjs/operators'
 import clone from 'lodash.clonedeep'
+import { noop, allPromises } from '../utils/fp'
+import { randomId } from '../utils/common'
 import { mockDatabase } from '../__tests__/testModels'
 import { expectToRejectWithMessage } from '../__tests__/utils'
 import { sanitizedRaw } from '../RawRecord'
@@ -837,8 +839,56 @@ describe('synchronize', () => {
       affectedRecords: [project3],
     })
   })
-  it.skip('can synchronize lots of data', async () => {
-    // TODO:
+  it('can synchronize lots of data', async () => {
+    const { database, projects, tasks, comments } = makeDatabase()
+
+    // TODO: This is kinda useless right now, but would make a great fuzz test or a benchmark
+
+    // local changes
+    const sample = 500
+    await database.action(async () => {
+      const createdProjects = times(() => projects.prepareCreate(noop), sample)
+      const updatedTasks = times(() => prepareCreateFromRaw(tasks, { id: randomId() }), sample)
+      const deletedComments = times(
+        () => prepareCreateFromRaw(comments, { id: randomId() }),
+        sample,
+      )
+      await database.batch(...createdProjects, ...updatedTasks, ...deletedComments)
+      await database.batch(
+        ...updatedTasks.map(task =>
+          task.prepareUpdate(() => {
+            task.name = 'x'
+          }),
+        ),
+      )
+      await allPromises(comment => comment.markAsDeleted(), deletedComments)
+    })
+
+    // remote changes
+    const pullChanges = jest.fn(async () => ({
+      changes: makeChangeSet({
+        mock_projects: {
+          deleted: times(() => randomId(), sample),
+        },
+        mock_tasks: {
+          created: times(() => ({ id: randomId() }), sample),
+        },
+      }),
+      timestamp: 1500,
+    }))
+    const pushChanges = jest.fn()
+
+    // check
+    await synchronize({ database, pullChanges, pushChanges })
+
+    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+    const pushedChanges = pushChanges.mock.calls[0][0].changes
+    const pushedCounts = map(map(length), pushedChanges)
+    expect(pushedCounts).toEqual({
+      mock_projects: { created: sample, updated: 0, deleted: 0 },
+      mock_tasks: { created: 0, updated: sample, deleted: 0 },
+      mock_comments: { created: 0, updated: 0, deleted: sample },
+    })
   })
   it.skip(`can accept remote changes received during push`, async () => {
     // TODO: future improvement?
