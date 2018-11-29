@@ -334,6 +334,12 @@ describe('markLocalChangesAsSynced', () => {
       // TODO: missing changes + changes in other collections
     ])
   })
+  it.skip(`doesn't send _status, _changed fields`, async () => {
+    // TODO: Future improvement
+  })
+  it.skip('only returns changed fields', async () => {
+    // TODO: Possible future improvement?
+  })
 })
 
 describe('applyRemoteChanges', () => {
@@ -750,6 +756,12 @@ describe('synchronize', () => {
   })
   it.skip('can synchronize lots of data', async () => {
     // TODO:
+  })
+  it.skip(`can accept remote changes received during push`, async () => {
+    // TODO: future improvement?
+  })
+  it.skip(`can resolve push-time sync conflicts`, async () => {
+    // TODO: future improvement?
   })
   it('aborts if actions are not enabled', async () => {
     const { database } = mockDatabase({ actionsEnabled: false })
