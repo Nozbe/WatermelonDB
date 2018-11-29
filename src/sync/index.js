@@ -113,6 +113,8 @@ Arguments:
 }
 ```
 
+Note: Records sent to pushChanges might contain special `_status`, `_changed` fields. You must ignore them. You must not mutate passed changes object.
+
 `pushChanges` should call the server with the changes, and apply them remotely (create/update/delete on the server records that were created/updated/deleted locally).
 
 If successful, `pushChanges` should resolve. If there's a problem, server should revert all changes, and `pushChanges` should reject.
