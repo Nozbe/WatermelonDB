@@ -9,7 +9,7 @@ Note that Watermelon is only a local database — you need to **bring your own b
 
 ## Using `synchronize()`
 
-⚠️ The `synchronize()` function is not yet released (see pull requests for more details) and is currently experimental and cutting-edge. There are extensive tests for this sync adapter, but it has not yet been battle tested.
+> ⚠️ The `synchronize()` function is not yet released (see pull requests for more details) and is currently experimental and cutting-edge. There are extensive tests for this sync adapter, but it has not yet been battle tested.
 
 Using Watermelon sync looks roughly like this:
 
@@ -31,17 +31,17 @@ async function mySync() {
 
 ```
 
-You need to pass two functions, `pullChanges` and `pushChanges` that can talk to your backend in a compatible way.
+You need to pass two functions, `pullChanges` and `pushChanges` that can talk to your backend in a compatible way.****
 
 ### `changes` objects
 
-Changes (received from `pullChanges` and sent to `pushChanges`) are represented as an object with *raw records*. Those only use raw table and column names, and raw values (strings/numbers/booleans) — the same as in [Schema](./Schema.md).
+Changes (received from `pullChanges` and sent to `pushChanges`) are represented as an object with *raw records*. Those only use raw table and column names, and raw values (strings/numbers/booleans) — the same as in [Schema](../Schema.md).
 
 Deleted objects are always only represented by their IDs.
 
 Example:
 
-```
+```js
 {
   projects: {
     created: [
@@ -83,7 +83,7 @@ Return a Promise resolving to an object like this:
 }
 ```
 
-Raw records passed must match your app [Schema](./Schema.md), and must not contain special `_status`, `_changed` fields.
+Raw records passed must match your app [Schema](../Schema.md), and must not contain special `_status`, `_changed` fields.
 
 The timestamp returned by the server must be a value that, if passed again to `pullChanges()` as `lastPulledAt`, will return all changes that happened since this moment.
 
@@ -141,9 +141,9 @@ Synchronization is serious business! It's very easy to make mistakes that will c
 ### Current limitations
 
 1. If a record being pushed changes between pull and push, push will just fail. It would be better if it failed with a list of conflicts, so that `synchronize()` can automatically respond. Alternatively, sync could only send changed fields and server could automatically always just apply those changed fields to the server version (since that's what per-column client-wins resolver will do anyway)
-1. During next sync pull, changes we've just pushed will be pulled again, which is unnecessary. It would be better if server, during push, also pulled local changes since `lastPulledAt` and responded with NEW timestamp to be treated as `lastPulledAt`.
-1. It shouldn't be necessary to push the whole updated record — just changed fields + ID should be enough
-1. The performance of `synchronize()` has not yet been optimized
+2. During next sync pull, changes we've just pushed will be pulled again, which is unnecessary. It would be better if server, during push, also pulled local changes since `lastPulledAt` and responded with NEW timestamp to be treated as `lastPulledAt`.
+3. It shouldn't be necessary to push the whole updated record — just changed fields + ID should be enough
+4. The performance of `synchronize()` has not yet been optimized
 
 ### Contributing
 
