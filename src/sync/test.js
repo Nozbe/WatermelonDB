@@ -896,6 +896,9 @@ describe('synchronize', () => {
   it.skip(`can resolve push-time sync conflicts`, async () => {
     // TODO: future improvement?
   })
+  it.skip(`only emits one collection batch change`, async () => {
+    // TODO: unskip when batch change emissions are implemented
+  })
   it('aborts if actions are not enabled', async () => {
     const { database } = mockDatabase({ actionsEnabled: false })
 
