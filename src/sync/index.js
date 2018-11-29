@@ -179,7 +179,7 @@ export async function synchronize({ database, pullChanges, pushChanges }: SyncAr
     )
     await action.subAction(() => applyRemoteChanges(database, remoteChanges))
     await setLastPulledAt(database, newLastPulledAt)
-  })
+  }, 'sync-synchronize-apply')
 
   // push phase
   const localChanges = await fetchLocalChanges(database)

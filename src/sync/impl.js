@@ -201,7 +201,7 @@ export function applyRemoteChanges(
       destroyAllDeletedRecords(db, recordsToApply),
       db.batch(...prepareApplyAllRemoteChanges(db, recordsToApply)),
     ])
-  })
+  }, 'sync-applyRemoteChanges')
 }
 
 // *** Fetching local changes ***
@@ -252,7 +252,7 @@ export function fetchLocalChanges(db: Database): Promise<SyncLocalChanges> {
       changes: extractChanges(changes),
       affectedRecords: extractAllAffectedRecords(changes),
     }
-  })
+  }, 'sync-fetchLocalChanges')
 }
 
 // *** Mark local changes as synced ***
@@ -307,5 +307,5 @@ export function markLocalChangesAsSynced(
       db.batch(...map(prepareMarkAsSynced, recordsToMarkAsSynced(syncedLocalChanges))),
       destroyDeletedRecords(db, syncedLocalChanges),
     ])
-  })
+  }, 'sync-markLocalChangesAsSynced')
 }
