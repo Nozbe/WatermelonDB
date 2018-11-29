@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Breaking
+
+- BREAKING: Table column `last_modified` is no longer automatically added to all database tables. If
+  you don't use this column (e.g. in your custom sync code), you don't have to do anything.
+  If you do, manually add this column to all table definitions in your Schema:
+  ```
+  { name: 'last_modified', type: 'number', isOptional: true }
+  ```
+
 ### New
 
 - [WIP] Sync primitives
