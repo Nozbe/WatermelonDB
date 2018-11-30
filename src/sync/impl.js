@@ -11,10 +11,12 @@ import {
   filter,
   find,
   equals,
+  // $FlowFixMe
+  piped,
 } from 'rambdax'
 import { allPromises, unnest } from '../utils/fp'
-import { logError } from '../utils/common'
-import type { Database, RecordId, Collection, Model } from '..'
+import { logError, invariant } from '../utils/common'
+import type { Database, RecordId, Collection, Model, TableName } from '..'
 import * as Q from '../QueryDescription'
 import { columnName } from '../Schema'
 
@@ -33,6 +35,13 @@ export async function setLastSyncedAt(database: Database, timestamp: Timestamp):
   await database.adapter.setLocal(lastSyncedAtKey, `${timestamp}`)
 }
 
+export function ensureActionsEnabled(database: Database): void {
+  invariant(
+    database._actionsEnabled,
+    '[Sync] To use Sync, Actions must be enabled. Pass `{ actionsEnabled: true }` to Database constructor — see docs for more details',
+  )
+}
+
 // *** Applying remote changes ***
 
 const getIds = map(({ id }) => id)
@@ -45,90 +54,144 @@ const queryForChanges = changes => Q.where(columnName('id'), Q.oneOf(idsForChang
 
 const findRecord = <T: Model>(id: RecordId, list: T[]) => find(record => record.id === id, list)
 
-function applyRemoteChangesToCollection<T: Model>(
+type RecordsToApplyRemoteChangesTo<T: Model> = {
+  ...SyncTableChangeSet,
+  records: T[],
+  recordsToDestroy: T[],
+  locallyDeletedIds: RecordId[],
+  deletedRecordsToDestroy: RecordId[],
+}
+async function recordsToApplyRemoteChangesTo<T: Model>(
   collection: Collection<T>,
   changes: SyncTableChangeSet,
-): Promise<void> {
+): Promise<RecordsToApplyRemoteChangesTo<T>> {
   const { database, table } = collection
-  return database.action(async () => {
-    const { created, updated, deleted: deletedIds } = changes
+  const { deleted: deletedIds } = changes
 
-    const records = await collection.query(queryForChanges(changes)).fetch()
-    const locallyDeletedIds = await database.adapter.getDeletedRecords(table)
+  const records = await collection.query(queryForChanges(changes)).fetch()
+  const locallyDeletedIds = await database.adapter.getDeletedRecords(table)
 
-    // Destroy records (if already marked as deleted, just destroy permanently)
-    const recordsToDestroy = filter(record => contains(record.id, deletedIds), records)
-    const deletedRecordsToDestroy = filter(id => contains(id, deletedIds), locallyDeletedIds)
+  return {
+    ...changes,
+    records,
+    locallyDeletedIds,
+    recordsToDestroy: filter(record => contains(record.id, deletedIds), records),
+    deletedRecordsToDestroy: filter(id => contains(id, deletedIds), locallyDeletedIds),
+  }
+}
 
-    await allPromises(record => record.destroyPermanently(), recordsToDestroy)
+function prepareApplyRemoteChangesToCollection<T: Model>(
+  collection: Collection<T>,
+  recordsToApply: RecordsToApplyRemoteChangesTo<T>,
+): T[] {
+  const { database, table } = collection
+  const { created, updated, records, locallyDeletedIds } = recordsToApply
 
-    if (deletedRecordsToDestroy.length) {
-      await database.adapter.destroyDeletedRecords(table, deletedRecordsToDestroy)
+  // Insert and update records
+  const recordsToInsert = map(raw => {
+    const currentRecord = findRecord(raw.id, records)
+    if (currentRecord) {
+      logError(
+        `[Sync] Server wants client to create record ${table}#${
+          raw.id
+        }, but it already exists locally. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will update existing record instead.`,
+      )
+      return prepareUpdateFromRaw(currentRecord, raw)
+    } else if (contains(raw.id, locallyDeletedIds)) {
+      logError(
+        `[Sync] Server wants client to create record ${table}#${
+          raw.id
+        }, but it already exists locally and is marked as deleted. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will delete local record and recreate it instead.`,
+      )
+      // Note: we're not awaiting the async operation (but it will always complete before the batch)
+      database.adapter.destroyDeletedRecords(table, [raw.id])
+      return prepareCreateFromRaw(collection, raw)
     }
 
-    // Insert and update records
-    const recordsToInsert = map(raw => {
-      const currentRecord = findRecord(raw.id, records)
-      if (currentRecord) {
-        logError(
-          `[Sync] Server wants client to create record ${table}#${
-            raw.id
-          }, but it already exists locally. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will update existing record instead.`,
-        )
-        return prepareUpdateFromRaw(currentRecord, raw)
-      } else if (contains(raw.id, locallyDeletedIds)) {
-        logError(
-          `[Sync] Server wants client to create record ${table}#${
-            raw.id
-          }, but it already exists locally and is marked as deleted. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will delete local record and recreate it instead.`,
-        )
-        // Note: we're not awaiting the async operation (but it will always complete before the batch)
-        database.adapter.destroyDeletedRecords(table, [raw.id])
-        return prepareCreateFromRaw(collection, raw)
-      }
+    return prepareCreateFromRaw(collection, raw)
+  }, created)
 
-      return prepareCreateFromRaw(collection, raw)
-    }, created)
+  const recordsToUpdate = map(raw => {
+    const currentRecord = findRecord(raw.id, records)
 
-    const recordsToUpdate = map(raw => {
-      const currentRecord = findRecord(raw.id, records)
+    if (currentRecord) {
+      return prepareUpdateFromRaw(currentRecord, raw)
+    } else if (contains(raw.id, locallyDeletedIds)) {
+      // Nothing to do, record was locally deleted, deletion will be pushed later
+      return null
+    }
 
-      if (currentRecord) {
-        return prepareUpdateFromRaw(currentRecord, raw)
-      } else if (contains(raw.id, locallyDeletedIds)) {
-        // Nothing to do, record was locally deleted, deletion will be pushed later
-        return null
-      }
+    // Record doesn't exist (but should) — just create it
+    logError(
+      `[Sync] Server wants client to update record ${table}#${
+        raw.id
+      }, but it doesn't exist locally. This could be a serious bug. Will create record instead.`,
+    )
 
-      // Record doesn't exist (but should) — just create it
-      logError(
-        `[Sync] Server wants client to update record ${table}#${
-          raw.id
-        }, but it doesn't exist locally. This could be a serious bug. Will create record instead.`,
-      )
+    return prepareCreateFromRaw(collection, raw)
+  }, updated)
 
-      return prepareCreateFromRaw(collection, raw)
-    }, updated)
-
-    await database.batch(...recordsToInsert, ...recordsToUpdate.filter(Boolean))
-  })
+  // $FlowFixMe
+  return [...recordsToInsert, ...filter(Boolean, recordsToUpdate)]
 }
+
+type AllRecordsToApply = { [TableName<any>]: RecordsToApplyRemoteChangesTo<Model> }
+
+const getAllRecordsToApply = (
+  db: Database,
+  remoteChanges: SyncDatabaseChangeSet,
+): AllRecordsToApply =>
+  piped(
+    remoteChanges,
+    map((changes, tableName) =>
+      recordsToApplyRemoteChangesTo(db.collections.get((tableName: any)), changes),
+    ),
+    promiseAllObject,
+  )
+
+const getAllRecordsToDestroy: AllRecordsToApply => Model[] = pipe(
+  values,
+  map(({ recordsToDestroy }) => recordsToDestroy),
+  unnest,
+)
+
+const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply) =>
+  piped(
+    recordsToApply,
+    map(
+      ({ deletedRecordsToDestroy }, tableName) =>
+        deletedRecordsToDestroy.length &&
+        db.adapter.destroyDeletedRecords((tableName: any), deletedRecordsToDestroy),
+    ),
+    promiseAllObject,
+  )
+
+const prepareApplyAllRemoteChanges = (db: Database, recordsToApply: AllRecordsToApply) =>
+  piped(
+    recordsToApply,
+    map((records, tableName) =>
+      prepareApplyRemoteChangesToCollection(db.collections.get((tableName: any)), records),
+    ),
+    values,
+    unnest,
+  )
+
+const destroyPermanently = record => record.destroyPermanently()
 
 export function applyRemoteChanges(
   db: Database,
   remoteChanges: SyncDatabaseChangeSet,
 ): Promise<void> {
-  return db.action(async action => {
-    await promiseAllObject(
-      map(
-        (changes, tableName) =>
-          action.subAction(() =>
-            applyRemoteChangesToCollection(db.collections.get(tableName), changes),
-          ),
-        // $FlowFixMe
-        remoteChanges,
-      ),
-    )
+  ensureActionsEnabled(db)
+  return db.action(async () => {
+    const recordsToApply = await getAllRecordsToApply(db, remoteChanges)
+
+    // Perform steps concurrently
+    await Promise.all([
+      allPromises(destroyPermanently, getAllRecordsToDestroy(recordsToApply)),
+      destroyAllDeletedRecords(db, recordsToApply),
+      db.batch(...prepareApplyAllRemoteChanges(db, recordsToApply)),
+    ])
   })
 }
 
@@ -162,6 +225,7 @@ const extractAllAffectedRecords = pipe(
 )
 
 export function fetchLocalChanges(db: Database): Promise<SyncLocalChanges> {
+  ensureActionsEnabled(db)
   return db.action(async () => {
     const changes = await promiseAllObject(
       map(
@@ -223,6 +287,7 @@ export function markLocalChangesAsSynced(
   db: Database,
   syncedLocalChanges: SyncLocalChanges,
 ): Promise<void> {
+  ensureActionsEnabled(db)
   return db.action(async () => {
     // update and destroy records concurrently
     await Promise.all([

@@ -2,6 +2,7 @@ import { change } from 'rambdax'
 import { skip as skip$ } from 'rxjs/operators'
 import clone from 'lodash.clonedeep'
 import { mockDatabase } from '../__tests__/testModels'
+import { expectToRejectWithMessage } from '../__tests__/utils'
 
 import { synchronize } from './index'
 import {
@@ -37,6 +38,8 @@ describe('Conflict resolution', () => {
   })
 })
 
+const makeDatabase = () => mockDatabase({ actionsEnabled: true })
+
 const getRaw = (collection, id) => collection.find(id).then(record => record._raw, () => null)
 
 const expectSyncedAndMatches = async (collection, id, match) =>
@@ -58,71 +61,72 @@ const emptyLocalChanges = Object.freeze({ changes: emptyChangeSet, affectedRecor
 const makeChangeSet = set => change(emptyChangeSet, '', set)
 const testApplyRemoteChanges = (db, set) => applyRemoteChanges(db, makeChangeSet(set))
 
-const makeLocalChanges = async database => {
-  const projects = database.collections.get('mock_projects')
-  const tasks = database.collections.get('mock_tasks')
-  const comments = database.collections.get('mock_comments')
+const makeLocalChanges = database =>
+  database.action(async () => {
+    const projects = database.collections.get('mock_projects')
+    const tasks = database.collections.get('mock_tasks')
+    const comments = database.collections.get('mock_comments')
 
-  // create records
-  const created = obj => ({ _status: 'created', ...obj })
-  const timestamps = { created_at: 1000, updated_at: 2000 }
+    // create records
+    const created = obj => ({ _status: 'created', ...obj })
+    const timestamps = { created_at: 1000, updated_at: 2000 }
 
-  const records = {
-    pSynced: prepareCreateFromRaw(projects, { id: 'pSynced' }),
-    pCreated1: prepareCreateFromRaw(projects, created({ id: 'pCreated1' })),
-    pCreated2: prepareCreateFromRaw(projects, created({ id: 'pCreated2' })),
-    pUpdated: prepareCreateFromRaw(projects, { id: 'pUpdated' }),
-    pDeleted: prepareCreateFromRaw(projects, { id: 'pDeleted' }),
-    tSynced: prepareCreateFromRaw(tasks, { id: 'tSynced' }),
-    tCreated: prepareCreateFromRaw(tasks, created({ id: 'tCreated' })),
-    tUpdated: prepareCreateFromRaw(tasks, {
-      id: 'tUpdated',
-      name: 'orig',
-      description: 'orig',
-      project_id: 'orig',
-    }),
-    tDeleted: prepareCreateFromRaw(tasks, { id: 'tDeleted' }),
-    cSynced: prepareCreateFromRaw(comments, { id: 'cSynced', ...timestamps }),
-    cCreated: prepareCreateFromRaw(comments, created({ id: 'cCreated', ...timestamps })),
-    cUpdated: prepareCreateFromRaw(comments, { id: 'cUpdated', ...timestamps }),
-    cDeleted: prepareCreateFromRaw(comments, { id: 'cDeleted', ...timestamps }),
-    cDestroyed: prepareCreateFromRaw(comments, { id: 'cDestroyed' }),
-  }
+    const records = {
+      pSynced: prepareCreateFromRaw(projects, { id: 'pSynced' }),
+      pCreated1: prepareCreateFromRaw(projects, created({ id: 'pCreated1' })),
+      pCreated2: prepareCreateFromRaw(projects, created({ id: 'pCreated2' })),
+      pUpdated: prepareCreateFromRaw(projects, { id: 'pUpdated' }),
+      pDeleted: prepareCreateFromRaw(projects, { id: 'pDeleted' }),
+      tSynced: prepareCreateFromRaw(tasks, { id: 'tSynced' }),
+      tCreated: prepareCreateFromRaw(tasks, created({ id: 'tCreated' })),
+      tUpdated: prepareCreateFromRaw(tasks, {
+        id: 'tUpdated',
+        name: 'orig',
+        description: 'orig',
+        project_id: 'orig',
+      }),
+      tDeleted: prepareCreateFromRaw(tasks, { id: 'tDeleted' }),
+      cSynced: prepareCreateFromRaw(comments, { id: 'cSynced', ...timestamps }),
+      cCreated: prepareCreateFromRaw(comments, created({ id: 'cCreated', ...timestamps })),
+      cUpdated: prepareCreateFromRaw(comments, { id: 'cUpdated', ...timestamps }),
+      cDeleted: prepareCreateFromRaw(comments, { id: 'cDeleted', ...timestamps }),
+      cDestroyed: prepareCreateFromRaw(comments, { id: 'cDestroyed' }),
+    }
 
-  await database.batch(...Object.values(records))
+    await database.batch(...Object.values(records))
 
-  // update records
-  await records.pUpdated.update(p => {
-    p.name = 'local'
+    // update records
+    await records.pUpdated.update(p => {
+      p.name = 'local'
+    })
+    await records.tUpdated.update(p => {
+      p.name = 'local'
+      p.position = 100
+    })
+    await records.cUpdated.update(c => {
+      c.body = 'local'
+    })
+    await records.tDeleted.update(t => {
+      t.name = 'local'
+    })
+
+    // delete records
+    await records.pDeleted.markAsDeleted()
+    await records.tDeleted.markAsDeleted()
+    await records.cDeleted.markAsDeleted()
+    await records.cDestroyed.destroyPermanently() // sanity check
+
+    return records
   })
-  await records.tUpdated.update(p => {
-    p.name = 'local'
-    p.position = 100
-  })
-  await records.cUpdated.update(c => {
-    c.body = 'local'
-  })
-  await records.tDeleted.update(t => {
-    t.name = 'local'
-  })
-
-  // delete records
-  await records.pDeleted.markAsDeleted()
-  await records.tDeleted.markAsDeleted()
-  await records.cDeleted.markAsDeleted()
-  await records.cDestroyed.destroyPermanently() // sanity check
-
-  return records
-}
 
 describe('fetchLocalChanges', () => {
   it('returns empty object if no changes', async () => {
-    const { database } = mockDatabase({ actionsEnabled: true })
+    const { database } = makeDatabase()
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
   })
   it('fetches all local changes', async () => {
     // eslint-disable-next-line
-    let { database, cloneDatabase } = mockDatabase()
+    let { database, cloneDatabase } = makeDatabase()
 
     const {
       pCreated1,
@@ -175,7 +179,7 @@ describe('fetchLocalChanges', () => {
     )
   })
   it('returns object copies', async () => {
-    const { database } = mockDatabase()
+    const { database } = makeDatabase()
 
     const { pUpdated } = await makeLocalChanges(database)
 
@@ -183,16 +187,18 @@ describe('fetchLocalChanges', () => {
     const changesCloned = clone(changes)
 
     // raws should be cloned - further changes don't affect result
-    await pUpdated.update(p => {
-      p.name = 'y'
-    })
+    await database.action(() =>
+      pUpdated.update(p => {
+        p.name = 'y'
+      }),
+    )
     expect(changes).toEqual(changesCloned)
   })
 })
 
 describe('markLocalChangesAsSynced', () => {
   it('does nothing for empty local changes', async () => {
-    const { database } = mockDatabase()
+    const { database } = makeDatabase()
 
     await makeLocalChanges(database)
     const localChanges1 = await fetchLocalChanges(database)
@@ -203,7 +209,7 @@ describe('markLocalChangesAsSynced', () => {
     expect(localChanges1).toEqual(localChanges2)
   })
   it('marks local changes as synced', async () => {
-    const { database, adapter, projects, tasks } = mockDatabase()
+    const { database, adapter, projects, tasks } = makeDatabase()
 
     await makeLocalChanges(database)
 
@@ -231,7 +237,7 @@ describe('markLocalChangesAsSynced', () => {
     expect(await adapter.getDeletedRecords('mock_comments')).toEqual([])
   })
   it(`doesn't modify updated_at timestamps`, async () => {
-    const { database, comments } = mockDatabase()
+    const { database, comments } = makeDatabase()
 
     await makeLocalChanges(database)
     const updatedAt = (await getRaw(comments, 'cUpdated')).updated_at
@@ -242,7 +248,7 @@ describe('markLocalChangesAsSynced', () => {
     await expectSyncedAndMatches(comments, 'cSynced', { created_at: 1000, updated_at: 2000 })
   })
   it(`doesn't mark as synced records that changed since changes were fetched`, async () => {
-    const { database, projects, tasks } = mockDatabase()
+    const { database, projects, tasks } = makeDatabase()
 
     const {
       pSynced,
@@ -257,26 +263,28 @@ describe('markLocalChangesAsSynced', () => {
     const localChanges = await fetchLocalChanges(database)
 
     // simulate user making changes the the app while sync push request is in progress
+    let newProject
+    await database.action(async () => {
+      // non-confliting changes: new record, update synced record, delete synced record
+      newProject = await projects.create()
+      await pSynced.update(() => {
+        pSynced.name = 'local2'
+      })
+      await tSynced.markAsDeleted()
+      await cSynced.destroyPermanently()
 
-    // non-confliting changes: new record, update synced record, delete synced record
-    const newProject = await projects.create()
-    await pSynced.update(() => {
-      pSynced.name = 'local2'
+      // conflicting changes: update updated/created, delete created/updated/deleted
+      await tCreated.update(() => {
+        tCreated.name = 'local2'
+      })
+      await tUpdated.update(() => {
+        tUpdated.name = 'local2' // change what was already changed
+        tUpdated.description = 'local2' // new change
+      })
+      await cCreated.markAsDeleted()
+      await cUpdated.markAsDeleted()
+      await cDeleted.destroyPermanently()
     })
-    await tSynced.markAsDeleted()
-    await cSynced.destroyPermanently()
-
-    // conflicting changes: update updated/created, delete created/updated/deleted
-    await tCreated.update(() => {
-      tCreated.name = 'local2'
-    })
-    await tUpdated.update(() => {
-      tUpdated.name = 'local2' // change what was already changed
-      tUpdated.description = 'local2' // new change
-    })
-    await cCreated.markAsDeleted()
-    await cUpdated.markAsDeleted()
-    await cDeleted.destroyPermanently()
 
     // mark local changes as synced; check if new changes are still pending sync
     await markLocalChangesAsSynced(database, localChanges)
@@ -304,7 +312,7 @@ describe('markLocalChangesAsSynced', () => {
   })
   // TODO: Unskip the test when batch collection emissions are implemented
   it.skip('only emits one collection batch change', async () => {
-    const { database, projects } = mockDatabase()
+    const { database, projects } = makeDatabase()
 
     const { pCreated1 } = await makeLocalChanges(database)
     const localChanges = await fetchLocalChanges(database)
@@ -324,7 +332,7 @@ describe('markLocalChangesAsSynced', () => {
 
 describe('applyRemoteChanges', () => {
   it('does nothing if no remote changes', async () => {
-    const { database } = mockDatabase()
+    const { database } = makeDatabase()
 
     await makeLocalChanges(database)
     const localChanges1 = await fetchLocalChanges(database)
@@ -339,7 +347,7 @@ describe('applyRemoteChanges', () => {
   // local: synced/created/updated/deleted/doesn't exist
   // (15 cases)
   it('can create, update, delete records', async () => {
-    const { database, projects, tasks, comments } = mockDatabase()
+    const { database, projects, tasks, comments } = makeDatabase()
 
     await makeLocalChanges(database)
     await testApplyRemoteChanges(database, {
@@ -362,7 +370,7 @@ describe('applyRemoteChanges', () => {
     await expectDoesNotExist(comments, 'cSynced')
   })
   it('can resolve update conflicts', async () => {
-    const { database, tasks, comments } = mockDatabase()
+    const { database, tasks, comments } = makeDatabase()
 
     await makeLocalChanges(database)
     await testApplyRemoteChanges(database, {
@@ -389,7 +397,7 @@ describe('applyRemoteChanges', () => {
     await expectSyncedAndMatches(comments, 'cDeleted', { _status: 'deleted', body: '' })
   })
   it('can delete records in all edge cases', async () => {
-    const { database, projects } = mockDatabase()
+    const { database, projects } = makeDatabase()
 
     await makeLocalChanges(database)
     await testApplyRemoteChanges(database, {
@@ -409,7 +417,7 @@ describe('applyRemoteChanges', () => {
     await expectDoesNotExist(projects, 'pDeleted')
   })
   it('can handle sync failure cases', async () => {
-    const { database, tasks } = mockDatabase()
+    const { database, tasks } = makeDatabase()
 
     await makeLocalChanges(database)
     await testApplyRemoteChanges(database, {
@@ -438,7 +446,7 @@ describe('applyRemoteChanges', () => {
     await expectSyncedAndMatches(tasks, 'tDeleted', { name: 'remote' })
   })
   it('can handle weird edge cases', async () => {
-    const { database, projects, tasks } = mockDatabase()
+    const { database, projects, tasks } = makeDatabase()
 
     await makeLocalChanges(database)
     await testApplyRemoteChanges(database, {
@@ -463,7 +471,7 @@ describe('applyRemoteChanges', () => {
     await expectSyncedAndMatches(tasks, 'does_not_exist', { name: 'remote' })
   })
   it(`doesn't touch created_at/updated_at when applying updates`, async () => {
-    const { database, comments } = mockDatabase()
+    const { database, comments } = makeDatabase()
 
     await makeLocalChanges(database)
     await testApplyRemoteChanges(database, {
@@ -479,7 +487,7 @@ describe('applyRemoteChanges', () => {
     })
   })
   it('can replace created_at/updated_at during sync', async () => {
-    const { database, comments } = mockDatabase()
+    const { database, comments } = makeDatabase()
 
     await makeLocalChanges(database)
     await testApplyRemoteChanges(database, {
@@ -515,7 +523,7 @@ const emptyPull = (timestamp = 1500) => async () => ({ changes: emptyChangeSet, 
 
 describe('synchronize', () => {
   it('can perform an empty sync', async () => {
-    const { database } = mockDatabase()
+    const { database } = makeDatabase()
     const observer = observeDatabase(database)
 
     const pullChanges = jest.fn(emptyPull())
@@ -533,7 +541,7 @@ describe('synchronize', () => {
     // TODO: Future optimization
   })
   it('can push changes', async () => {
-    const { database } = mockDatabase()
+    const { database } = makeDatabase()
 
     await makeLocalChanges(database)
     const localChanges = await fetchLocalChanges(database)
@@ -546,7 +554,7 @@ describe('synchronize', () => {
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
   })
   it('can pull changes', async () => {
-    const { database, projects, tasks } = mockDatabase()
+    const { database, projects, tasks } = makeDatabase()
 
     const pullChanges = jest.fn(async () => ({
       changes: makeChangeSet({
@@ -573,7 +581,7 @@ describe('synchronize', () => {
     await expectDoesNotExist(tasks, 'tSynced')
   })
   it('can synchronize changes with conflicts', async () => {
-    const { database, projects, tasks, comments } = mockDatabase()
+    const { database, projects, tasks, comments } = makeDatabase()
 
     await makeLocalChanges(database)
     const localChanges = await fetchLocalChanges(database)
@@ -633,7 +641,7 @@ describe('synchronize', () => {
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
   })
   it('remembers last_synced_at timestamp', async () => {
-    const { database } = mockDatabase()
+    const { database } = makeDatabase()
 
     let pullChanges = jest.fn(emptyPull(1500))
     await synchronize({ database, pullChanges, pushChanges: jest.fn() })
@@ -650,7 +658,7 @@ describe('synchronize', () => {
     expect(await database.adapter.getLocal('__watermelon_last_synced_at')).toBe('2500')
   })
   it('prevents concurrent syncs', async () => {
-    const { database } = mockDatabase()
+    const { database } = makeDatabase()
 
     const delayPromise = delay => new Promise(resolve => setTimeout(resolve, delay))
     const syncWithDelay = delay =>
@@ -668,7 +676,7 @@ describe('synchronize', () => {
     expect(await getLastSyncedAt(database)).toBe(100)
   })
   it('can recover from pull failure', async () => {
-    const { database } = mockDatabase()
+    const { database } = makeDatabase()
 
     const observer = observeDatabase(database)
     const pullChanges = jest.fn(() => Promise.reject(new Error('pull-fail')))
@@ -682,7 +690,7 @@ describe('synchronize', () => {
     expect(await getLastSyncedAt(database)).toBe(null)
   })
   it('can recover from push failure', async () => {
-    const { database, projects } = mockDatabase()
+    const { database, projects } = makeDatabase()
 
     await makeLocalChanges(database)
     const localChanges = await fetchLocalChanges(database)
@@ -714,5 +722,13 @@ describe('synchronize', () => {
   })
   it.skip('can synchronize lots of data', async () => {
     // TODO:
+  })
+  it('aborts if actions are not enabled', async () => {
+    const { database } = mockDatabase({ actionsEnabled: false })
+
+    await expectToRejectWithMessage(
+      synchronize({ database, pullChanges: jest.fn(), pushChanges: jest.fn() }),
+      /actions must be enabled/i,
+    )
   })
 })

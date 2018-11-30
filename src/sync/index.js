@@ -10,6 +10,7 @@ import {
   markLocalChangesAsSynced,
   getLastSyncedAt,
   setLastSyncedAt,
+  ensureActionsEnabled,
 } from './impl'
 
 export type Timestamp = number
@@ -35,6 +36,8 @@ export type SyncArgs = $Exact<{
 }>
 
 export async function synchronize({ database, pullChanges, pushChanges }: SyncArgs): Promise<void> {
+  ensureActionsEnabled(database)
+
   // pull phase
   const lastSyncedAt = await getLastSyncedAt(database)
   const { changes: remoteChanges, timestamp } = await pullChanges({ lastSyncedAt })
