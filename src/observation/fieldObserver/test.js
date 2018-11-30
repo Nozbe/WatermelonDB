@@ -33,13 +33,13 @@ describe('watermelondb/observation/fieldObserver', () => {
     const m1 = await mockTask(database, 'name1', false, 10)
     const m2 = await mockTask(database, 'name2', false, 20)
     source.next([m1, m2])
-    expect(observer).toBeCalledWith([m1, m2])
+    expect(observer).toHaveBeenCalledWith([m1, m2])
     expect(observer).toHaveBeenCalledTimes(1)
 
     // add matches, remove matches
     const m3 = await mockTask(database, 'name3', false, 30)
     source.next([m2, m3])
-    expect(observer).toBeCalledWith([m2, m3])
+    expect(observer).toHaveBeenCalledWith([m2, m3])
     expect(observer).toHaveBeenCalledTimes(2)
 
     // make some irrelevant changes (no emission)
@@ -52,7 +52,7 @@ describe('watermelondb/observation/fieldObserver', () => {
     await m3.update(mock => {
       mock.position += 1
     })
-    expect(observer).toBeCalledWith([m2, m3])
+    expect(observer).toHaveBeenCalledWith([m2, m3])
     expect(observer).toHaveBeenCalledTimes(3)
 
     // change another relevant field
@@ -60,7 +60,7 @@ describe('watermelondb/observation/fieldObserver', () => {
       mock.isCompleted = true
     })
 
-    expect(observer).toBeCalledWith([m2, m3])
+    expect(observer).toHaveBeenCalledWith([m2, m3])
     expect(observer).toHaveBeenCalledTimes(4)
 
     // change a relevant field in a previously-observed record (no emission)

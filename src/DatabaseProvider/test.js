@@ -24,7 +24,7 @@ describe('watermelondb/DatabaseProvider', () => {
           <p />
         </DatabaseProvider>,
       )
-    }).toThrowError(/You must supply a database/i)
+    }).toThrow(/You must supply a database/i)
   })
   it('passes database to consumer', () => {
     const instance = TestRenderer.create(

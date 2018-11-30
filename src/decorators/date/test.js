@@ -44,6 +44,6 @@ describe('watermelondb/decorators/timestamp', () => {
           @date
           noName
         },
-    ).toThrowError(/column name/)
+    ).toThrow(/column name/)
   })
 })

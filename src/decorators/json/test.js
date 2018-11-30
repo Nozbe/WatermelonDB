@@ -66,6 +66,6 @@ describe('watermelondb/decorators/json', () => {
           @json
           noName
         },
-    ).toThrowError(/column name/)
+    ).toThrow(/column name/)
   })
 })

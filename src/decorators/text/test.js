@@ -56,6 +56,6 @@ describe('watermelondb/decorators/text', () => {
           @text
           noName
         },
-    ).toThrowError(/column name/)
+    ).toThrow(/column name/)
   })
 })

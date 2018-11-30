@@ -18,10 +18,10 @@ describe('watermelondb/decorators/field', () => {
     model.fooBar = 'bar'
 
     expect(model._getRaw).toHaveBeenCalledTimes(2)
-    expect(model._getRaw).toBeCalledWith('foo_bar')
+    expect(model._getRaw).toHaveBeenCalledWith('foo_bar')
     expect(model._setRaw).toHaveBeenCalledTimes(2)
-    expect(model._setRaw).toBeCalledWith('foo_bar', 'xx')
-    expect(model._setRaw).lastCalledWith('foo_bar', 'bar')
+    expect(model._setRaw).toHaveBeenCalledWith('foo_bar', 'xx')
+    expect(model._setRaw).toHaveBeenLastCalledWith('foo_bar', 'bar')
   })
   it('fails if applied to incorrect fields', () => {
     expect(
@@ -30,21 +30,21 @@ describe('watermelondb/decorators/field', () => {
           @field
           noName
         },
-    ).toThrowError(/column name/)
+    ).toThrow(/column name/)
     expect(
       () =>
         class {
           @field()
           noName
         },
-    ).toThrowError(/column name/)
+    ).toThrow(/column name/)
     expect(
       () =>
         class {
           @field('field_with_default_value')
           fieldWithDefaultValue = 'hey'
         },
-    ).toThrowError(/properties with a default value/)
+    ).toThrow(/properties with a default value/)
     expect(
       () =>
         class {
@@ -53,13 +53,13 @@ describe('watermelondb/decorators/field', () => {
             return 'hey'
           }
         },
-    ).toThrowError(/simple properties/)
+    ).toThrow(/simple properties/)
     expect(
       () =>
         class {
           @field('method')
           method() {}
         },
-    ).toThrowError(/simple properties/)
+    ).toThrow(/simple properties/)
   })
 })

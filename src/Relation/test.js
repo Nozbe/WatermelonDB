@@ -2,7 +2,7 @@ import { MockTask, MockProject, mockDatabase } from '../__tests__/testModels'
 
 import Relation from './index'
 
-describe('watermelondb/Relation', () => {
+describe('Relation', () => {
   it('gets id', () => {
     const { tasks } = mockDatabase()
     const primary = new MockTask(tasks, { project_id: 's1' })
@@ -14,7 +14,6 @@ describe('watermelondb/Relation', () => {
     primary.projectId = 's2'
     expect(relation.id).toBe('s2')
   })
-
   it('sets id', () => {
     const { tasks, projects } = mockDatabase()
 
@@ -31,7 +30,6 @@ describe('watermelondb/Relation', () => {
     expect(relation.id).toBe('s1')
     expect(primary.projectId).toBe('s1')
   })
-
   it('sets record', () => {
     const { tasks, projects } = mockDatabase()
     const primary = new MockTask(tasks, {})
@@ -43,7 +41,6 @@ describe('watermelondb/Relation', () => {
 
     expect(relation.id).toBe('s1')
   })
-
   it('allows setting id/record only on create/prepareCreate when immutable', async () => {
     const { tasks, comments } = mockDatabase()
 
@@ -76,7 +73,6 @@ describe('watermelondb/Relation', () => {
 
     expect(primary2.task.id).toBe(secondary2.id)
   })
-
   it('observers related record', async () => {
     const { tasks, projects } = mockDatabase()
 
@@ -95,7 +91,7 @@ describe('watermelondb/Relation', () => {
 
     await new Promise(process.nextTick) // give time to propagate
 
-    expect(observer).toBeCalledWith(secondary)
+    expect(observer).toHaveBeenCalledWith(secondary)
 
     await secondary.update(mock => {
       mock.name = 'bar'
@@ -104,7 +100,6 @@ describe('watermelondb/Relation', () => {
     expect(observer).toHaveBeenCalledTimes(2)
     subscription.unsubscribe()
   })
-
   it('fetches current record', async () => {
     const { tasks, projects } = mockDatabase()
 
@@ -132,18 +127,6 @@ describe('watermelondb/Relation', () => {
     currentRecord = await relation.fetch()
     expect(currentRecord).toBe(newSecondary)
   })
-
-  it('caches observable', () => {
-    const { tasks } = mockDatabase()
-    const model = new MockTask(tasks, {})
-    const relation = new Relation(model, 't1', 'c1', { isImmutable: false })
-
-    const observable1 = relation.observe()
-    const observable2 = relation.observe()
-
-    expect(observable1).toBe(observable2)
-  })
-
   it('caches observable', () => {
     const { tasks } = mockDatabase()
     const model = new MockTask(tasks, {})
