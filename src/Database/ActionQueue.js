@@ -1,7 +1,6 @@
 // @flow
-/* eslint-disable no-console */
 
-import { invariant } from '../utils/common'
+import { invariant, logger } from '../utils/common'
 
 export interface ActionInterface {
   subAction<T>(action: () => Promise<T>): Promise<T>;
@@ -35,15 +34,15 @@ export default class ActionQueue implements ActionInterface {
         const queue = this._queue
         if (queue.length) {
           const current = queue[0]
-          console.warn(
+          logger.warn(
             `The action you're trying to perform (${description ||
               'unnamed'}) can't be performed yet, beacuse there are ${
               queue.length
             } actions in the queue. Current action: ${current.description ||
               'unnamed'}. Ignore this message if everything is working fine. But if your actions are not running, it's because the current action is stuck. Remember that if you're calling an action from an action, you must use subAction(). See docs for more details.`,
           )
-          console.log(`Enqueued action:`, work)
-          console.log(`Running action:`, current.work)
+          logger.log(`Enqueued action:`, work)
+          logger.log(`Running action:`, current.work)
         }
       }
 
