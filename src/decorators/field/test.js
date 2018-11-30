@@ -6,7 +6,7 @@ class MockModel extends Model {
   fooBar
 }
 
-describe('watermelondb/decorators/field', () => {
+describe('decorators/field', () => {
   it('delegates accesses to _getRaw/_setRaw', () => {
     const model = new MockModel({}, {})
     model._getRaw = jest.fn()

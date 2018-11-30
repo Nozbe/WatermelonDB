@@ -21,7 +21,7 @@ const makeMock = (database, name) =>
     mock.name = name
   })
 
-describe('watermelondb/observation/simpleObserver', () => {
+describe('simpleObserver', () => {
   it('observes changes correctly', async () => {
     const database = makeDatabase()
 

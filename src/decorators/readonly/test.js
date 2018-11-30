@@ -6,7 +6,7 @@ import readonly from './index'
 
 const schema = tableSchema({ name: 'mock', columns: [{ name: 'test', type: 'string' }] })
 
-describe('watermelondb/decorators/utils/readonly', () => {
+describe('decorators/utils/readonly', () => {
   it('throws on attempt to call a setter of @readonly field', () => {
     class Mock extends Model {
       @readonly

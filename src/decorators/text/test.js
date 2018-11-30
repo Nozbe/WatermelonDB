@@ -19,7 +19,7 @@ class MockModel extends Model {
   string2
 }
 
-describe('watermelondb/decorators/text', () => {
+describe('decorators/text', () => {
   it('trims strings when setting', () => {
     const model = new MockModel({ schema }, {})
     model._isEditing = true

@@ -20,7 +20,7 @@ const mockTask = (database, name, isCompleted, position) =>
     mock.position = position
   })
 
-describe('watermelondb/observation/fieldObserver', () => {
+describe('fieldObserver', () => {
   it('observes changes correctly', async () => {
     const database = makeDatabase()
 

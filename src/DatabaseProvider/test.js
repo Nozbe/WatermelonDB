@@ -9,7 +9,7 @@ function MockComponent() {
   return <span />
 }
 
-describe('watermelondb/DatabaseProvider', () => {
+describe('DatabaseProvider', () => {
   let database
   beforeAll(() => {
     database = new Database({

@@ -27,7 +27,7 @@ class MockModel2 extends Model {
   extras
 }
 
-describe('watermelondb/decorators/json', () => {
+describe('decorators/json', () => {
   it('deserializes value from JSON', () => {
     const model = new MockModel(
       { schema },

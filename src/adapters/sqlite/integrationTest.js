@@ -5,7 +5,7 @@ import commonTests from '../__tests__/commonTests'
 const newAdapter = () => new SQLiteAdapter({ schema: testSchema })
 
 const SQLiteAdapterTest = spec => {
-  spec.describe('watermelondb/adapters/sqlite', () => {
+  spec.describe('SQLiteAdapter', () => {
     commonTests().forEach(testCase => {
       const [name, test] = testCase
       spec.it(name, async () => {

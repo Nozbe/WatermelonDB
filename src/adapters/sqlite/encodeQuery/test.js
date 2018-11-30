@@ -14,7 +14,7 @@ class MockTask extends Model {
 
 const mockCollection = Object.freeze({ modelClass: MockTask })
 
-describe('watermelondb/adapters/sqlite/encodeQuery', () => {
+describe('SQLite encodeQuery', () => {
   it('encodes simple queries', () => {
     const query = new Query(mockCollection, [])
     expect(encodeQuery(query)).toBe(

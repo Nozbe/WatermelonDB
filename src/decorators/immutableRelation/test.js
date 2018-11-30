@@ -2,7 +2,7 @@ import { MockComment, mockDatabase } from '../../__tests__/testModels'
 
 import Relation from '../../Relation'
 
-describe('watermelondb/decorators/immutableRelation', () => {
+describe('decorators/immutableRelation', () => {
   it('creates immutable Relation object', () => {
     const { comments } = mockDatabase()
     const primary = new MockComment(comments, { task_id: 's1' })
