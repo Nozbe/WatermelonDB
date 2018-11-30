@@ -31,6 +31,7 @@ matrix:
         - npm run ci:check
         - npm run test:ios | xcpretty
         - npm run swiftlint
+        - npm run test --coverage --coverageReporters=text-lcov | ./node_modules/coveralls/bin/coveralls.js
 
     - language: android
       android:

@@ -101,6 +101,7 @@
     "cavy": "git+https://github.com/Nozbe/cavy.git",
     "chokidar": "^2.0.4",
     "concurrently": "^4.0.1",
+    "coveralls": "^3.0.2",
     "eslint": "^5.3.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-prettier": "^3.0.1",
