@@ -53,7 +53,7 @@ type NativeBridgeType = {
   setUpWithSchema: (ConnectionTag, string, SQL, SchemaVersion) => Promise<void>,
   setUpWithMigrations: (ConnectionTag, string, SQL, SchemaVersion, SchemaVersion) => Promise<void>,
   find: (ConnectionTag, TableName<any>, RecordId) => Promise<DirtyFindResult>,
-  query: (ConnectionTag, SQL) => Promise<DirtyQueryResult>,
+  query: (ConnectionTag, TableName<any>, SQL) => Promise<DirtyQueryResult>,
   count: (ConnectionTag, SQL) => Promise<number>,
   batch: (ConnectionTag, NativeBridgeBatchOperation[]) => Promise<void>,
   getDeletedRecords: (ConnectionTag, TableName<any>) => Promise<RecordId[]>,
@@ -176,7 +176,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     return devLogQuery(
       async () =>
         sanitizeQueryResult(
-          await Native.query(this._tag, encodeQuery(query)),
+          await Native.query(this._tag, query.table, encodeQuery(query)),
           this.schema.tables[query.table],
         ),
       query,
@@ -194,14 +194,14 @@ export default class SQLiteAdapter implements DatabaseAdapter {
         operations.map(([type, record]) => {
           switch (type) {
             case 'create':
-              return ['create', record.id, ...encodeInsert(record)]
+              return ['create', record.table, record.id, ...encodeInsert(record)]
             case 'markAsDeleted':
               return ['markAsDeleted', record.table, record.id]
             case 'destroyPermanently':
               return ['destroyPermanently', record.table, record.id]
             default:
               // case 'update':
-              return ['execute', ...encodeUpdate(record)]
+              return ['execute', record.table, ...encodeUpdate(record)]
           }
         }),
       )

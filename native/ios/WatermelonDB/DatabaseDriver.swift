@@ -51,7 +51,7 @@ class DatabaseDriver {
     }
 
     func find(table: Database.TableName, id: RecordId) throws -> Any? {
-        guard !isCached(id) else {
+        guard !isCached(table, id) else {
             return id
         }
 
@@ -61,18 +61,18 @@ class DatabaseDriver {
             return nil
         }
 
-        markAsCached(id)
+        markAsCached(table, id)
         return record.resultDictionary!
     }
 
-    func cachedQuery(_ query: Database.SQL) throws -> [Any] {
+    func cachedQuery(table: Database.TableName, query: Database.SQL) throws -> [Any] {
         return try database.queryRaw(query).map { row in
             let id = row.string(forColumn: "id")!
 
-            if isCached(id) {
+            if isCached(table, id) {
                 return id
             } else {
-                markAsCached(id)
+                markAsCached(table, id)
                 return row.resultDictionary!
             }
         }
@@ -83,8 +83,8 @@ class DatabaseDriver {
     }
 
     enum Operation {
-        case execute(query: Database.SQL, args: Database.QueryArgs)
-        case create(id: RecordId, query: Database.SQL, args: Database.QueryArgs)
+        case execute(table: Database.TableName, query: Database.SQL, args: Database.QueryArgs)
+        case create(table: Database.TableName, id: RecordId, query: Database.SQL, args: Database.QueryArgs)
         case destroyPermanently(table: Database.TableName, id: RecordId)
         case markAsDeleted(table: Database.TableName, id: RecordId)
         // case destroyDeletedRecords(table: Database.TableName, records: [RecordId])
@@ -93,37 +93,37 @@ class DatabaseDriver {
     }
 
     func batch(_ operations: [Operation]) throws {
-        var newIds: [RecordId] = []
-        var removedIds: [RecordId] = []
+        var newIds: [(Database.TableName, RecordId)] = []
+        var removedIds: [(Database.TableName, RecordId)] = []
 
         try database.inTransaction {
             for operation in operations {
                 switch operation {
-                case .execute(let query, args: let args):
+                case .execute(table: let table, query: let query, args: let args):
                     try database.execute(query, args)
 
-                case .create(id: let id, query: let query, args: let args):
+                case .create(table: let table, id: let id, query: let query, args: let args):
                     try database.execute(query, args)
-                    newIds.append(id)
+                    newIds.append((table, id))
 
                 case .markAsDeleted(table: let table, id: let id):
                     try database.execute("update \(table) set _status='deleted' where id == ?", [id])
-                    removedIds.append(id)
+                    removedIds.append((table, id))
 
                 case .destroyPermanently(table: let table, id: let id):
                     // TODO: What's the behavior if nothing got deleted?
                     try database.execute("delete from \(table) where id == ?", [id])
-                    removedIds.append(id)
+                    removedIds.append((table, id))
                 }
             }
         }
 
-        for id in newIds {
-            markAsCached(id)
+        for (table, id) in newIds {
+            markAsCached(table, id)
         }
 
-        for id in removedIds {
-            cachedRecords.remove(id)
+        for (table, id) in removedIds {
+            removeFromCache(table, id)
         }
     }
 
@@ -163,14 +163,18 @@ class DatabaseDriver {
 
     typealias RecordId = String
 
-    private var cachedRecords: Set<RecordId> = []
+    private var cachedRecords: [Database.TableName: Set<RecordId>] = []
 
-    func isCached(_ id: RecordId) -> Bool {
-        return cachedRecords.contains(id)
+    func isCached(_ table: Database.TableName, _ id: RecordId) -> Bool {
+        return cachedRecords[table].contains(id)
     }
 
-    private func markAsCached(_ id: RecordId) {
-        cachedRecords.insert(id)
+    private func markAsCached(_ table: Database.TableName, _ id: RecordId) {
+        cachedRecords[table].insert(id)
+    }
+    
+    private func removeFromCache(_ table: Database.TableName, _ id: RecordId) {
+        cachedRecords[table].remove(id)
     }
 
 // MARK: - Other private details

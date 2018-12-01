@@ -9,8 +9,8 @@ import java.util.logging.Logger
 
 class DatabaseDriver(context: Context, dbName: String) {
     sealed class Operation {
-        class Execute(val query: SQL, val args: QueryArgs) : Operation()
-        class Create(val id: RecordID, val query: SQL, val args: QueryArgs) : Operation()
+        class Execute(val table: TableName, val query: SQL, val args: QueryArgs) : Operation()
+        class Create(val table: TableName, val id: RecordID, val query: SQL, val args: QueryArgs) : Operation()
         class MarkAsDeleted(val table: TableName, val id: RecordID) : Operation()
         class DestroyPermanently(val table: TableName, val id: RecordID) : Operation()
         // class SetLocal(val key: String, val value: String) : Operation()
@@ -43,10 +43,10 @@ class DatabaseDriver(context: Context, dbName: String) {
 
     private val log: Logger? = if (BuildConfig.DEBUG) Logger.getLogger("DB_Driver") else null
 
-    private var cachedRecords: ArrayList<String> = arrayListOf()
+    private val cachedRecords: MutableMap<TableName, MutableList<RecordID>> = mutableMapOf()
 
     fun find(table: TableName, id: RecordID): Any? {
-        if (isCached(id)) {
+        if (isCached(table, id)) {
             return id
         }
         database.rawQuery("select * from $table where id == ? limit 1", arrayOf(id)).use {
@@ -54,24 +54,24 @@ class DatabaseDriver(context: Context, dbName: String) {
                 return null
             }
             val resultMap = Arguments.createMap()
-            markAsCached(id)
+            markAsCached(table, id)
             it.moveToFirst()
             resultMap.mapCursor(it)
             return resultMap
         }
     }
 
-    fun cachedQuery(query: SQL): WritableArray {
+    fun cachedQuery(table: TableName, query: SQL): WritableArray {
         log?.info("Cached Query: $query")
         val resultArray = Arguments.createArray()
         database.rawQuery(query).use {
             if (it.count > 0 && it.columnNames.contains("id")) {
                 while (it.moveToNext()) {
                     val id = it.getString(it.getColumnIndex("id"))
-                    if (isCached(id)) {
+                    if (isCached(table, id)) {
                         resultArray.pushString(id)
                     } else {
-                        markAsCached(id)
+                        markAsCached(table, id)
                         resultArray.pushMapFromCursor(it)
                     }
                 }
@@ -129,29 +129,29 @@ class DatabaseDriver(context: Context, dbName: String) {
     }
 
     fun batch(operations: List<Operation>) {
-        val newIds = arrayListOf<RecordID>()
-        val removedIds = arrayListOf<RecordID>()
+        val newIds = arrayListOf<Pair<TableName, RecordID>>()
+        val removedIds = arrayListOf<Pair<TableName, RecordID>>()
         database.transaction {
             operations.forEach {
                 when (it) {
                     is Operation.Execute -> execute(it.query, it.args)
                     is Operation.Create -> {
                         create(it.id, it.query, it.args)
-                        newIds.add(it.id)
+                        newIds.add(Pair(it.table, it.id))
                     }
                     is Operation.MarkAsDeleted -> {
                         database.execute(Queries.setStatusDeleted(it.table), arrayListOf(it.id))
-                        removedIds.add(it.id)
+                        removedIds.add(Pair(it.table, it.id))
                     }
                     is Operation.DestroyPermanently -> {
                         database.execute(Queries.destroyPermanently(it.table), arrayListOf(it.id))
-                        removedIds.add(it.id)
+                        removedIds.add(Pair(it.table, it.id))
                     }
                 }
             }
         }
-        newIds.forEach(this::markAsCached)
-        removedIds.forEach { cachedRecords.remove(it) }
+        newIds.forEach { markAsCached(it.first, it.second) }
+        removedIds.forEach { removeFromCache(it.first, it.second) }
     }
 
     fun unsafeResetDatabase(schema: Schema) {
@@ -163,12 +163,19 @@ class DatabaseDriver(context: Context, dbName: String) {
 
     fun close() = database.close()
 
-    private fun markAsCached(id: RecordID) {
+    private fun markAsCached(table: TableName, id: RecordID) {
         log?.info("Mark as cached $id")
-        cachedRecords.add(id)
+        var cache = cachedRecords[table]
+        if (cache == null) {
+            cache = mutableListOf<RecordID>()
+            cachedRecords[table] = cache!!
+        }
+        cache!!.add(id)
     }
 
-    private fun isCached(id: RecordID): Boolean = cachedRecords.contains(id)
+    private fun isCached(table: TableName, id: RecordID): Boolean = cachedRecords[table]?.contains(id) ?: false
+
+    private fun removeFromCache(table: TableName, id: RecordID) { cachedRecords[table]?.remove(id) }
 
     private fun setUpSchema(schema: Schema) {
         database.transaction {
