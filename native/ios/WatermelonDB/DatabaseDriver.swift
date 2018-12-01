@@ -163,18 +163,23 @@ class DatabaseDriver {
 
     typealias RecordId = String
 
-    private var cachedRecords: [Database.TableName: Set<RecordId>] = []
+    private var cachedRecords: [Database.TableName: Set<RecordId>] = [:]
 
     func isCached(_ table: Database.TableName, _ id: RecordId) -> Bool {
-        return cachedRecords[table].contains(id)
+        return cachedRecords[table]?.contains(id) ?? false
     }
 
     private func markAsCached(_ table: Database.TableName, _ id: RecordId) {
-        cachedRecords[table].insert(id)
+        var cachedSet = cachedRecords[table];
+        if cachedSet == nil {
+            cachedSet = []
+        }
+        cachedSet!.insert(id)
+        cachedRecords[table] = cachedSet
     }
     
     private func removeFromCache(_ table: Database.TableName, _ id: RecordId) {
-        cachedRecords[table].remove(id)
+        cachedRecords[table]?.remove(id)
     }
 
 // MARK: - Other private details
@@ -201,7 +206,7 @@ class DatabaseDriver {
 
     func unsafeResetDatabase(schema: Schema) throws {
         try database.unsafeDestroyEverything()
-        cachedRecords = []
+        cachedRecords = [:]
 
         try setUpSchema(schema: schema)
     }

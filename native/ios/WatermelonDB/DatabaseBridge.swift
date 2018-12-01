@@ -87,13 +87,13 @@ final public class DatabaseBridge: NSObject {
         }
     }
 
-    @objc(query:query:resolve:reject:)
+    @objc(query:table:query:resolve:reject:)
     func query(tag: ConnectionTag,
                table: Database.TableName,
                query: Database.SQL,
                resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
-            try $0.cachedQuery(table, query)
+            try $0.cachedQuery(table: table, query: query)
         }
     }
 
