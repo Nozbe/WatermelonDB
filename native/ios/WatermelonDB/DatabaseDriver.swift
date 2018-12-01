@@ -99,7 +99,7 @@ class DatabaseDriver {
         try database.inTransaction {
             for operation in operations {
                 switch operation {
-                case .execute(table: let table, query: let query, args: let args):
+                case .execute(table: _, query: let query, args: let args):
                     try database.execute(query, args)
 
                 case .create(table: let table, id: let id, query: let query, args: let args):
