@@ -37,8 +37,8 @@ export type SQLiteArg = string | boolean | number | null
 export type SQLiteQuery = [SQL, SQLiteArg[]]
 
 type NativeBridgeBatchOperation =
-  | ['execute', SQL, SQLiteArg[]]
-  | ['create', RecordId, SQL, SQLiteArg[]]
+  | ['execute', TableName<any>, SQL, SQLiteArg[]]
+  | ['create', TableName<any>, RecordId, SQL, SQLiteArg[]]
   | ['markAsDeleted', TableName<any>, RecordId]
   | ['destroyPermanently', TableName<any>, RecordId]
 // | ['setLocal', string, string]
