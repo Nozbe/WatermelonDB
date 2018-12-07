@@ -150,8 +150,8 @@ class DatabaseDriver(context: Context, dbName: String) {
                 }
             }
         }
-        newIds.forEach { markAsCached(it.first, it.second) }
-        removedIds.forEach { removeFromCache(it.first, it.second) }
+        newIds.forEach { markAsCached(table = it.first, id = it.second) }
+        removedIds.forEach { removeFromCache(table = it.first, id = it.second) }
     }
 
     fun unsafeResetDatabase(schema: Schema) {
