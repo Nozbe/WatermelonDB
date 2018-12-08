@@ -145,6 +145,8 @@ export default () => [
 
       // returns raw if not cached for a different table
       expect(await adapter.find('projects', 'id2')).toEqual(p2._raw)
+      // returns cached ID after previous find
+      expect(await adapter.find('projects', 'id2')).toBe('id2')
     },
   ],
   [
@@ -178,6 +180,8 @@ export default () => [
 
       // returns raw if not cached for a different table
       expectSortedEqual(await adapter.query(projectQuery()), [p1._raw, p2._raw])
+      // returns cached IDs after previous query
+      expectSortedEqual(await adapter.query(taskQuery()), ['id1', 'id2'])
     },
   ],
   [
