@@ -58,11 +58,7 @@ export default class LokiExecutor {
 
   isCached(table: TableName<any>, id: RecordId): boolean {
     const cachedSet = this.cachedRecords.get(table)
-    if (!cachedSet) {
-      return false
-    }
-
-    return cachedSet.has(id)
+    return cachedSet ? cachedSet.has(id) : false
   }
 
   markAsCached(table: TableName<any>, id: RecordId): void {
