@@ -167,10 +167,10 @@ class DatabaseDriver(context: Context, dbName: String) {
         log?.info("Mark as cached $id")
         var cache = cachedRecords[table]
         if (cache == null) {
-            cache = mutableListOf<RecordID>()
-            cachedRecords[table] = cache!!
+            cache = mutableListOf()
+            cachedRecords[table] = cache
         }
-        cache!!.add(id)
+        cache.add(id)
     }
 
     private fun isCached(table: TableName, id: RecordID): Boolean = cachedRecords[table]?.contains(id) ?: false
