@@ -62,13 +62,12 @@ export default class LokiExecutor {
   }
 
   markAsCached(table: TableName<any>, id: RecordId): void {
-    let cachedSet = this.cachedRecords.get(table)
-    if (!cachedSet) {
-      cachedSet = new Set()
-      this.cachedRecords.set(table, cachedSet)
+    const cachedSet = this.cachedRecords.get(table)
+    if (cachedSet) {
+      cachedSet.add(id)
+    } else {
+      this.cachedRecords.set(table, new Set(id))
     }
-
-    cachedSet.add(id)
   }
 
   removeFromCache(table: TableName<any>, id: RecordId): void {
