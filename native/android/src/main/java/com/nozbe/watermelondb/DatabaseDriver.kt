@@ -175,7 +175,7 @@ class DatabaseDriver(context: Context, dbName: String) {
 
     private fun isCached(table: TableName, id: RecordID): Boolean = cachedRecords[table]?.contains(id) ?: false
 
-    private fun removeFromCache(table: TableName, id: RecordID) { cachedRecords[table]?.remove(id) }
+    private fun removeFromCache(table: TableName, id: RecordID) = cachedRecords[table]?.remove(id)
 
     private fun setUpSchema(schema: Schema) {
         database.transaction {
