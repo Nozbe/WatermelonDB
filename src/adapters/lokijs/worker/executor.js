@@ -72,11 +72,9 @@ export default class LokiExecutor {
 
   removeFromCache(table: TableName<any>, id: RecordId): void {
     const cachedSet = this.cachedRecords.get(table)
-    if (!cachedSet) {
-      return
+    if (cachedSet) {
+      cachedSet.delete(id)
     }
-
-    cachedSet.delete(id)
   }
 
   find(table: TableName<any>, id: RecordId): CachedFindResult {
