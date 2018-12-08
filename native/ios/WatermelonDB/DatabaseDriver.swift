@@ -170,11 +170,8 @@ class DatabaseDriver {
     }
 
     private func markAsCached(_ table: Database.TableName, _ id: RecordId) {
-        var cachedSet = cachedRecords[table];
-        if cachedSet == nil {
-            cachedSet = []
-        }
-        cachedSet!.insert(id)
+        var cachedSet = cachedRecords[table] ?? []
+        cachedSet.insert(id)
         cachedRecords[table] = cachedSet
     }
     
