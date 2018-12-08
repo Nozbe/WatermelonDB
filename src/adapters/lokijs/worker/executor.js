@@ -66,7 +66,7 @@ export default class LokiExecutor {
     if (cachedSet) {
       cachedSet.add(id)
     } else {
-      this.cachedRecords.set(table, new Set(id))
+      this.cachedRecords.set(table, new Set([id]))
     }
   }
 
