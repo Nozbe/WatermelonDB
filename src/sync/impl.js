@@ -25,13 +25,13 @@ import type { SyncTableChangeSet, SyncDatabaseChangeSet, Timestamp } from './ind
 
 export type SyncLocalChanges = $Exact<{ changes: SyncDatabaseChangeSet, affectedRecords: Model[] }>
 
-const lastSyncedAtKey = '__watermelon_last_synced_at'
+const lastSyncedAtKey = '__watermelon_last_pulled_at'
 
-export async function getLastSyncedAt(database: Database): Promise<?Timestamp> {
+export async function getLastPulledAt(database: Database): Promise<?Timestamp> {
   return parseInt(await database.adapter.getLocal(lastSyncedAtKey), 10) || null
 }
 
-export async function setLastSyncedAt(database: Database, timestamp: Timestamp): Promise<void> {
+export async function setLastPulledAt(database: Database, timestamp: Timestamp): Promise<void> {
   await database.adapter.setLocal(lastSyncedAtKey, `${timestamp}`)
 }
 
