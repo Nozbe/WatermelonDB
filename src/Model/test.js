@@ -112,7 +112,6 @@ describe('CRUD', () => {
       id: m1.id,
       _status: 'created',
       _changed: '',
-      last_modified: null,
       name: 'Some name',
       otherfield: '',
       col3: '',

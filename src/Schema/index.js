@@ -60,13 +60,19 @@ export function validateColumnSchema(column: ColumnSchema): void {
       `Invalid type ${column.type} for column ${column.name} (valid: string, boolean, number)`,
     )
     invariant(
-      !contains(column.name, ['id', 'last_modified', '_changed', '_status']),
-      `You must not define columns with name ${column.name}`,
+      !contains(column.name, ['id', '_changed', '_status']),
+      `You must not define a column with name ${column.name}`,
     )
     if (column.name === 'created_at' || column.name === 'updated_at') {
       invariant(
         column.type === 'number' && !column.isOptional,
         `${column.name} must be of type number and not optional`,
+      )
+    }
+    if (column.name === 'last_modified') {
+      invariant(
+        column.type === 'number',
+        `For compatibility reasons, column last_modified must be of type 'number', and should be optional`,
       )
     }
   }
