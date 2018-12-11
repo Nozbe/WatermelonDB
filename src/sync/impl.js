@@ -16,7 +16,7 @@ import {
 } from 'rambdax'
 import { allPromises, unnest } from '../utils/fp'
 import { logError, invariant } from '../utils/common'
-import type { Database, RecordId, Collection, Model, TableName } from '..'
+import type { Database, RecordId, Collection, Model, TableName, DirtyRaw } from '..'
 import * as Q from '../QueryDescription'
 import { columnName } from '../Schema'
 
@@ -80,6 +80,13 @@ async function recordsToApplyRemoteChangesTo<T: Model>(
   }
 }
 
+function validateRemoteRaw(raw: DirtyRaw): void {
+  invariant(
+    raw && typeof raw === 'object' && 'id' in raw && !('_status' in raw || '_changed' in raw),
+    `[Sync] Invalid raw record supplied to Sync. Records must be objects, must have an 'id' field, and must NOT have a '_status' or '_changed' fields`,
+  )
+}
+
 function prepareApplyRemoteChangesToCollection<T: Model>(
   collection: Collection<T>,
   recordsToApply: RecordsToApplyRemoteChangesTo<T>,
@@ -89,6 +96,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
 
   // Insert and update records
   const recordsToInsert = map(raw => {
+    validateRemoteRaw(raw)
     const currentRecord = findRecord(raw.id, records)
     if (currentRecord) {
       logError(
@@ -112,6 +120,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   }, created)
 
   const recordsToUpdate = map(raw => {
+    validateRemoteRaw(raw)
     const currentRecord = findRecord(raw.id, records)
 
     if (currentRecord) {
@@ -192,12 +201,15 @@ export function applyRemoteChanges(
       destroyAllDeletedRecords(db, recordsToApply),
       db.batch(...prepareApplyAllRemoteChanges(db, recordsToApply)),
     ])
-  })
+  }, 'sync-applyRemoteChanges')
 }
 
 // *** Fetching local changes ***
 
 const notSyncedQuery = Q.where(columnName('_status'), Q.notEq('synced'))
+// TODO: It would be best to omit _status, _changed fields, since they're not necessary for the server
+// but this complicates markLocalChangesAsDone, since we don't have the exact copy to compare if record changed
+// TODO: It would probably also be good to only send to server locally changed fields, not full records
 const rawsForStatus = (status, records) =>
   reduce(
     (raws, record) => (record._raw._status === status ? raws.concat({ ...record._raw }) : raws),
@@ -234,12 +246,13 @@ export function fetchLocalChanges(db: Database): Promise<SyncLocalChanges> {
         db.collections.map,
       ),
     )
+    // TODO: deep-freeze changes object (in dev mode only) to detect mutations (user bug)
     return {
       // $FlowFixMe
       changes: extractChanges(changes),
       affectedRecords: extractAllAffectedRecords(changes),
     }
-  })
+  }, 'sync-fetchLocalChanges')
 }
 
 // *** Mark local changes as synced ***
@@ -294,5 +307,5 @@ export function markLocalChangesAsSynced(
       db.batch(...map(prepareMarkAsSynced, recordsToMarkAsSynced(syncedLocalChanges))),
       destroyDeletedRecords(db, syncedLocalChanges),
     ])
-  })
+  }, 'sync-markLocalChangesAsSynced')
 }

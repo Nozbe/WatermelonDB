@@ -70,7 +70,7 @@ There are two ways of deleting records: permanent and syncable. If you only use 
 await somePost.destroyPermanently()
 ```
 
-If you use Watermelon [with a Sync service](./Implementation/Sync.md), call `markAsDeleted()` instead.
+If you use Watermelon [with a Sync service](./Advanced/Sync.md), call `markAsDeleted()` instead.
 
 **Note:** Don't access, update, or observe records after they're destroyed.
 
