@@ -126,7 +126,7 @@ This queries all comments that are **both** verified **and** awesome.
 | `Q.where('likes', Q.between(10, 100))` | `likes >= 10 && likes <= 100` |
 | `Q.where('status', Q.oneOf(['published', 'draft']))` | `status === 'published' \|\| status === 'draft'` |
 | `Q.where('status', Q.notIn(['archived', 'deleted']))` | `status !== 'archived' && status !== 'deleted'` |
-| `Q.where('status', Q.like('%bl_sh%'))` | `/.*bl.sh.*/g` |
+| `Q.where('status', Q.like('%bl_sh%'))` | `/.*bl.sh.*/g` (See note below!) |
 
 **Note:** It's NOT SAFE to use `Q.like` with user input directly, because special characters like `%` or `_` are not escaped. Always sanitize user input like so: `Q.like(\`%${Q.sanitizeLikeString(userInput)}%\`)`
 

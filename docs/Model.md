@@ -17,7 +17,9 @@ export default class Post extends Model {
 }
 ```
 
-Mark the table name for this Model — the same you defined [in the schema](./Schema.md). Remember to add new Models to `Database`:
+Mark the table name for this Model — the same you defined [in the schema](./Schema.md).
+
+Now add the new Model to `Database`:
 
 ```js
 // index.js
@@ -25,9 +27,7 @@ import Post from 'model/Post'
 
 const database = new Database({
   // ...
-  modelClasses: [
-    Post,
-  ],
+  modelClasses: [Post],
 })
 ```
 
