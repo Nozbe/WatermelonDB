@@ -201,6 +201,7 @@ const database = new Database({
   modelClasses: [
     // Post, // ⬅️ You'll add Models to Watermelon here
   ],
+  actionsEnabled: true,
 })
 ```
 
