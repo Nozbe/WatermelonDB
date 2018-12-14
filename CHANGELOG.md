@@ -16,8 +16,9 @@ All notable changes to this project will be documented in this file.
 
 ### New
 
-- **Actions API**
-  This was actually released in 0.8.0 but is now documented in [./docs/CRUD.md][] and [./docs/Actions.md][].
+- **Actions API**.
+
+  This was actually released in 0.8.0 but is now documented in [CRUD.md](./docs/CRUD.md) and [Actions.md](./docs/Actions.md).
   With Actions enabled, all create/update/delete/batch calls must be wrapped in an Action.
 
   To use Actions, call `await database.action(async () => { /* perform writes here */ }`, and in
@@ -30,6 +31,7 @@ All notable changes to this project will be documented in this file.
 
   See documentation for more details.
 - **Watermelon Sync Adapter**
+
   Added `synchronize()` function that allows you to easily add full synchronization capabilities to
   your Watermelon app. You only need to provide two fetch calls to your remote server that conforms
   to Watermelon synchronization protocol, and all the client-side processing (applying remote changes,
