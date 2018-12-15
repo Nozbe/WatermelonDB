@@ -58,7 +58,7 @@
     "@babel/plugin-proposal-json-strings": "^7.2.0",
     "@babel/plugin-proposal-object-rest-spread": "^7.2.0",
     "@babel/plugin-proposal-optional-chaining": "^7.2.0",
-    "@babel/plugin-proposal-unicode-property-regex": "^7.0.0",
+    "@babel/plugin-proposal-unicode-property-regex": "^7.2.0",
     "@babel/plugin-syntax-dynamic-import": "^7.0.0",
     "@babel/plugin-syntax-jsx": "^7.0.0",
     "@babel/plugin-transform-arrow-functions": "^7.0.0",
