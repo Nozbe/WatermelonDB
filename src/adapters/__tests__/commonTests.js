@@ -42,10 +42,10 @@ export default () => [
       const adapterWithRealMigrations = migrations =>
         adapterWithMigrations(schemaMigrations({ migrations }))
 
-      expect(() => adapterWithRealMigrations([{ toVersion: 10, steps: [] }])).not.toThrowError()
+      expect(() => adapterWithRealMigrations([{ toVersion: 10, steps: [] }])).not.toThrow()
       expect(() =>
         adapterWithRealMigrations([{ toVersion: 10, steps: [] }, { toVersion: 9, steps: [] }]),
-      ).not.toThrowError()
+      ).not.toThrow()
 
       // Empty migrations only allowed if version 1
       expect(
@@ -54,7 +54,7 @@ export default () => [
             schema: { ...testSchema, version: 1 },
             migrations: schemaMigrations({ migrations: [] }),
           }),
-      ).not.toThrowError()
+      ).not.toThrow()
       expect(() => adapterWithRealMigrations([])).toThrow(/Missing migration/)
 
       // Migrations can't be newer than schema
