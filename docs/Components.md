@@ -214,18 +214,18 @@ Now `PostComponent` will have `Post`, `Author` and `Contact` props.
 **Note:** If you have an optional relation between `Post` and `Author`, the `enhanceAuthorContact` might receive `null` as `author` prop. For this case, as you must always return an observable for the `contact` prop, you can use `rxjs` `of` function to create a default or empty `Contact` prop:
 
 ```js
-import { of as observableOf } from 'rxjs';
+import { of as of$ } from 'rxjs';
 
 
 const enhanceAuthorContact = withObservables(['author'], ({author}) => ({
-  contact: author ? author.contact.observe() : observableOf(null)
+  contact: author ? author.contact.observe() : of$(null)
 }));
 ```
 
 With the `switchMap` approach, you can obtain the same result by doing:
 
 ```js
-contact: post.autor.observe().pipe(switchMap(author => author ? autor.contact : observableOf(null)))
+contact: post.autor.observe().pipe(switchMap(author => author ? autor.contact : of$(null)))
 ```
 
 ## Database Provider
@@ -259,10 +259,7 @@ import { withDatabase } from '@nozbe/watermelondb/DatabaseProvider'
 // ...
 
 export default withDatabase(withObservables([], ({ database }) => ({
-    blogs: database.collections
-      .get('blogs')
-      .query()
-      .observe(),
+  blogs: database.collections.get('blogs').query().observe(),
 }))(BlogList))
 
 ```

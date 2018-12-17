@@ -149,6 +149,10 @@ export function lte(valueOrColumn: NonNullValue | ColumnDescription): Comparison
 // Note:
 // - `null` in `values` is not allowed!
 export function oneOf(values: NonNullValues): Comparison {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(Array.isArray(values), `argument passed to oneOf() is not an array`)
+  }
+
   return { operator: 'oneOf', right: { values } }
 }
 
@@ -157,6 +161,10 @@ export function oneOf(values: NonNullValues): Comparison {
 // - `null` in `values` is not allowed!
 // - (null NOT IN (1, 2, 3)) == false
 export function notIn(values: NonNullValues): Comparison {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(Array.isArray(values), `argument passed to notIn() is not an array`)
+  }
+
   return { operator: 'notIn', right: { values } }
 }
 
