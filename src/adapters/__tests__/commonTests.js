@@ -18,6 +18,8 @@ import {
   MockTask,
   MockProject,
   MockTagAssignment,
+  makeMockProject,
+  projectQuery,
 } from './helpers'
 
 class BadModel extends Model {
@@ -110,6 +112,76 @@ export default () => [
 
       // returns null if not found
       expect(await adapter.find('tasks', 's4')).toBe(null)
+    },
+  ],
+  [
+    'can cache non-global IDs on find',
+    async _adapter => {
+      let adapter = _adapter
+
+      // add a record
+      const s1 = makeMockTask({ id: 'id1', text1: 'bar', order: 1 })
+      await adapter.batch([['create', s1]])
+
+      // returns null if not found in a different table
+      expect(await adapter.find('projects', 'id1')).toBe(null)
+
+      const p1 = makeMockProject({ id: 'id1', num1: 1, text1: 'foo' })
+      await adapter.batch([['create', p1]])
+
+      // returns cached ID after create
+      expect(await adapter.find('projects', 'id1')).toBe('id1')
+
+      // add more project, restart app
+      const p2 = makeMockProject({ id: 'id2', num1: 1, text1: 'foo' })
+      await adapter.batch([['create', p2]])
+      adapter = adapter.testClone()
+
+      const s2 = makeMockTask({ id: 'id2', text1: 'baz', order: 2 })
+      await adapter.batch([['create', s2]])
+
+      // returns cached ID after create
+      expect(await adapter.find('tasks', 'id2')).toBe('id2')
+
+      // returns raw if not cached for a different table
+      expect(await adapter.find('projects', 'id2')).toEqual(p2._raw)
+      // returns cached ID after previous find
+      expect(await adapter.find('projects', 'id2')).toBe('id2')
+    },
+  ],
+  [
+    'can cache non-global IDs on query',
+    async _adapter => {
+      let adapter = _adapter
+
+      // add a record
+      const s1 = makeMockTask({ id: 'id1', text1: 'bar', order: 1 })
+      await adapter.batch([['create', s1]])
+
+      // returns empty array
+      expectSortedEqual(await adapter.query(projectQuery()), [])
+
+      const p1 = makeMockProject({ id: 'id1', num1: 1, text1: 'foo' })
+      await adapter.batch([['create', p1]])
+
+      // returns cached ID after create
+      expectSortedEqual(await adapter.query(projectQuery()), ['id1'])
+
+      // add more project, restart app
+      const p2 = makeMockProject({ id: 'id2', num1: 1, text1: 'foo' })
+      await adapter.batch([['create', p2]])
+      adapter = adapter.testClone()
+
+      const s2 = makeMockTask({ id: 'id2', text1: 'baz', order: 2 })
+      await adapter.batch([['create', s2]])
+
+      // returns cached IDs after create
+      expectSortedEqual(await adapter.query(taskQuery()), [s1._raw, 'id2'])
+
+      // returns raw if not cached for a different table
+      expectSortedEqual(await adapter.query(projectQuery()), [p1._raw, p2._raw])
+      // returns cached IDs after previous query
+      expectSortedEqual(await adapter.query(taskQuery()), ['id1', 'id2'])
     },
   ],
   [

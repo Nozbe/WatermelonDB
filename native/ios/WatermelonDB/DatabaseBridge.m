@@ -34,6 +34,7 @@ RCT_EXTERN_METHOD(find:(nonnull NSNumber *)connectionTag
 )
 
 RCT_EXTERN_METHOD(query:(nonnull NSNumber *)connectionTag
+  table:(nonnull NSString *)table
   query:(nonnull NSString *)query
   resolve:(RCTPromiseResolveBlock)resolve
   reject:(RCTPromiseRejectBlock)reject

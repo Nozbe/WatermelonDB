@@ -39,6 +39,8 @@ All notable changes to this project will be documented in this file.
 
   See documentation for more details.
 
+- **Support caching for non-global IDs at Native level**
+
 ## 0.9.0 - 2018-11-23
 
 ### New
