@@ -10,8 +10,8 @@ import {
   markLocalChangesAsSynced,
   getLastPulledAt,
   setLastPulledAt,
-  ensureActionsEnabled,
 } from './impl'
+import { ensureActionsEnabled } from './impl/helpers'
 
 export type Timestamp = number
 
