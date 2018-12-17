@@ -1,6 +1,6 @@
 import arrayDifference from './index'
 
-describe('watermelondb/utils/fp/arrayDifference', () => {
+describe('arrayDifference', () => {
   it('checks for differences between arrays', () => {
     expect(arrayDifference([], [])).toEqual({ added: [], removed: [] })
     expect(arrayDifference([null], [null])).toEqual({ added: [], removed: [] })

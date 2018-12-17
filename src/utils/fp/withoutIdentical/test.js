@@ -1,6 +1,6 @@
 import withoutIdentical from './index'
 
-describe('watermelondb/utils/fp/withoutIdentical', () => {
+describe('withoutIdentical', () => {
   it('removes stuff from the array', () => {
     expect(withoutIdentical(['a'], ['a', 'b', 'c'])).toEqual(['b', 'c'])
     expect(withoutIdentical(['a', 'c', 'z'], ['a', 'b', 'c'])).toEqual(['b'])

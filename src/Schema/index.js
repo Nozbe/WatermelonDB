@@ -2,6 +2,7 @@
 
 import { contains } from 'rambdax'
 
+import logger from '../utils/common/logger'
 import isDevelopment from '../utils/common/isDevelopment'
 import invariant from '../utils/common/invariant'
 import type { $RE } from '../types'
@@ -85,8 +86,7 @@ export function tableSchema({ name, columns: columnList }: TableSchemaSpec): Tab
     if (column.type === 'bool') {
       column.type = 'boolean'
       if (isDevelopment) {
-        // eslint-disable-next-line
-        console.warn(
+        logger.warn(
           `[DEPRECATION] Column type 'bool' is deprecated — change to 'boolean' (in ${JSON.stringify(
             column,
           )})`,

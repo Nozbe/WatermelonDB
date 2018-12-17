@@ -44,7 +44,7 @@ const makeDatabase = () =>
     modelClasses: [MockParent, MockChild],
   })
 
-describe('watermelondb/decorators/children', () => {
+describe('decorators/children', () => {
   it('fetches children of a model', async () => {
     const database = makeDatabase()
     database.adapter.batch = jest.fn()

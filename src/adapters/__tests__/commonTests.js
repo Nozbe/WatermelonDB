@@ -38,16 +38,16 @@ export default () => [
 
       // expect(() => makeAdapter({})).toThrowError(/missing migrations/)
 
-      expect(() => adapterWithMigrations({ migrations: [] })).toThrowError(/use schemaMigrations()/)
+      expect(() => adapterWithMigrations({ migrations: [] })).toThrow(/use schemaMigrations()/)
 
       // OK migrations passed
       const adapterWithRealMigrations = migrations =>
         adapterWithMigrations(schemaMigrations({ migrations }))
 
-      expect(() => adapterWithRealMigrations([{ toVersion: 10, steps: [] }])).not.toThrowError()
+      expect(() => adapterWithRealMigrations([{ toVersion: 10, steps: [] }])).not.toThrow()
       expect(() =>
         adapterWithRealMigrations([{ toVersion: 10, steps: [] }, { toVersion: 9, steps: [] }]),
-      ).not.toThrowError()
+      ).not.toThrow()
 
       // Empty migrations only allowed if version 1
       expect(
@@ -56,17 +56,17 @@ export default () => [
             schema: { ...testSchema, version: 1 },
             migrations: schemaMigrations({ migrations: [] }),
           }),
-      ).not.toThrowError()
-      expect(() => adapterWithRealMigrations([])).toThrowError(/Missing migration/)
+      ).not.toThrow()
+      expect(() => adapterWithRealMigrations([])).toThrow(/Missing migration/)
 
       // Migrations can't be newer than schema
-      expect(() => adapterWithRealMigrations([{ toVersion: 11, steps: [] }])).toThrowError(
+      expect(() => adapterWithRealMigrations([{ toVersion: 11, steps: [] }])).toThrow(
         /migrations can't be newer than schema/i,
       )
       // Migration to latest version must be present
       expect(() =>
         adapterWithRealMigrations([{ toVersion: 9, steps: [] }, { toVersion: 8, steps: [] }]),
-      ).toThrowError(/Missing migration/)
+      ).toThrow(/Missing migration/)
     },
   ],
   [

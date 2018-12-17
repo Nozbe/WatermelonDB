@@ -2,7 +2,7 @@ import { MockTask, mockDatabase } from '../../__tests__/testModels'
 
 import Relation from '../../Relation'
 
-describe('watermelondb/decorators/relation', () => {
+describe('decorators/relation', () => {
   it('creates Relation object', () => {
     const { tasks } = mockDatabase()
     const primary = new MockTask(tasks, { project_id: 's1' })

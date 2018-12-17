@@ -1,6 +1,6 @@
 import encodeInsert from './index'
 
-describe('watermelondb/adapters/sqlite/encodeInsert', () => {
+describe('SQLite encodeInsert', () => {
   it('encodes model inserts', () => {
     const mockModel = {
       table: 'tasks',

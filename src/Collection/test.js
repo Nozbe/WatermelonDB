@@ -173,9 +173,9 @@ describe('creating new records', () => {
     expect(m1._isCommitted).toBe(true)
     expect(newModelSpy).toHaveBeenCalledTimes(1)
     expect(dbBatchSpy).toHaveBeenCalledTimes(1)
-    expect(dbBatchSpy).toBeCalledWith([['create', m1]])
+    expect(dbBatchSpy).toHaveBeenCalledWith([['create', m1]])
     expect(observer).toHaveBeenCalledTimes(1)
-    expect(observer).toBeCalledWith([{ record: m1, type: CollectionChangeTypes.created }])
+    expect(observer).toHaveBeenCalledWith([{ record: m1, type: CollectionChangeTypes.created }])
     expect(collection._cache.get(m1.id)).toBe(m1)
     expect(await collection.find(m1.id)).toBe(m1)
   })
@@ -221,9 +221,9 @@ describe('creating new records', () => {
 
     // Check database delete, cache delete, observers update
     expect(adapter.batch).toHaveBeenCalledTimes(1)
-    expect(adapter.batch).toBeCalledWith([['destroyPermanently', m1]])
+    expect(adapter.batch).toHaveBeenCalledWith([['destroyPermanently', m1]])
     expect(collection._cache.get('m1')).toBe(undefined)
     expect(observer).toHaveBeenCalledTimes(1)
-    expect(observer).toBeCalledWith([{ record: m1, type: CollectionChangeTypes.destroyed }])
+    expect(observer).toHaveBeenCalledWith([{ record: m1, type: CollectionChangeTypes.destroyed }])
   })
 })
