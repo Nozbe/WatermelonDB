@@ -9,7 +9,7 @@ Note that Watermelon is only a local database — you need to **bring your own b
 
 ## Using `synchronize()`
 
-> ⚠️ The `synchronize()` function is not yet released (see pull requests for more details) and is currently experimental and cutting-edge. There are extensive tests for this sync adapter, but it has not yet been battle tested.
+> ⚠️ The `synchronize()` function is not yet formally released (see changelog & pull requests for more details) and is currently experimental. There are extensive tests for this sync adapter, but it has not yet been battle tested. It's also not yet fully optimized, so you might experience less than ideal performance during sync.
 
 Using Watermelon sync looks roughly like this:
 
@@ -20,18 +20,29 @@ async function mySync() {
   await synchronize({
     database,
     pullChanges: async ({ lastPulledAt }) => {
-      await ... // fetch remote changes since lastPulledAt from the server
-      return { changes: ..., timestamp: ... }
+      const response = await fetch(`https://my.backend/sync?last_pulled_at=${lastPulledAt}`)
+      if (!response.ok) {
+        throw new Error(await response.text())
+      }
+      
+      const { changes, timestamp } = await response.json()
+      return { changes, timestamp }
     },
     pushChanges: async ({ changes, lastPulledAt }) => {
-      await ... // push local changes to the server
+      const response = await fetch(`https://my.backend/sync?last_pulled_at=${lastPulledAt}`, {
+        method: 'POST',
+        body: JSON.stringify(changes)
+      })
+      if (!response.ok) {
+        throw new Error(await response.text())
+      }
     }
   })
 }
 
 ```
 
-You need to pass two functions, `pullChanges` and `pushChanges` that can talk to your backend in a compatible way.****
+You need to pass two functions, `pullChanges` and `pushChanges` that can talk to your backend in a compatible way.
 
 ### `changes` objects
 
