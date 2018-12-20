@@ -129,7 +129,7 @@
     "prettier-eslint-cli": "^4.7.1",
     "react": "^16.7.0",
     "react-native": "^0.57.0",
-    "react-test-renderer": "16.6.3",
+    "react-test-renderer": "16.7.0",
     "rimraf": "^2.6.2",
     "semver": "^5.5.1"
   }
