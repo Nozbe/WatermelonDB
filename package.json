@@ -51,10 +51,10 @@
     "access": "public"
   },
   "devDependencies": {
-    "@babel/cli": "^7.2.0",
+    "@babel/cli": "^7.2.3",
     "@babel/core": "^7.2.2",
-    "@babel/plugin-proposal-class-properties": "^7.2.1",
-    "@babel/plugin-proposal-decorators": "7.2.2",
+    "@babel/plugin-proposal-class-properties": "^7.2.3",
+    "@babel/plugin-proposal-decorators": "7.2.3",
     "@babel/plugin-proposal-json-strings": "^7.2.0",
     "@babel/plugin-proposal-object-rest-spread": "^7.2.0",
     "@babel/plugin-proposal-optional-chaining": "^7.2.0",
@@ -68,7 +68,7 @@
     "@babel/plugin-transform-computed-properties": "^7.2.0",
     "@babel/plugin-transform-destructuring": "^7.2.0",
     "@babel/plugin-transform-exponentiation-operator": "^7.2.0",
-    "@babel/plugin-transform-flow-strip-types": "^7.2.0",
+    "@babel/plugin-transform-flow-strip-types": "^7.2.3",
     "@babel/plugin-transform-for-of": "^7.2.0",
     "@babel/plugin-transform-function-name": "^7.2.0",
     "@babel/plugin-transform-literals": "^7.2.0",
