@@ -67,7 +67,7 @@ class Database(private val name: String, private val context: Context) {
             transaction {
                 getAllTables().forEach { execute(Queries.dropTable(it)) }
                 execute("pragma writable_schema=1")
-                execute("delete from sqlite_master")
+                execute("delete from sqlite_master where type in ('table', 'index', 'trigger'")
                 execute("pragma user_version=0")
                 execute("pragma writable_schema=0")
             }
