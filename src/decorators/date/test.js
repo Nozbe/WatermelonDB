@@ -15,7 +15,7 @@ class MockModel extends Model {
   date
 }
 
-describe('watermelondb/decorators/timestamp', () => {
+describe('decorators/timestamp', () => {
   it('returns timestamps cast to Date', () => {
     const model = new MockModel({ schema }, { date: 1400000000000 })
     expect(model.date).toBeInstanceOf(Date)
@@ -44,6 +44,6 @@ describe('watermelondb/decorators/timestamp', () => {
           @date
           noName
         },
-    ).toThrowError(/column name/)
+    ).toThrow(/column name/)
   })
 })

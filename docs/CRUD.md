@@ -33,12 +33,28 @@ const starredPosts = await postsCollection.query(Q.where('is_starred', true)).fe
 
 **➡️ Learn more:** [Queries](./Query.md)
 
+## Modifying the database
+
+To create, update, or delete records, use the respective operations **wrapped in an Action**:
+
+```js
+await database.action(async () => {
+  const post = await postsCollection.find('abcdef')
+  await post.update( /* update the post */ )
+  await post.markAsDeleted()
+})
+```
+
+**➡️ Learn more:** [Actions](./Actions.md)
+
 ### Create a new record
 
 ```js
-const newPost = await postsCollection.create(post => {
-  post.title = 'New post'
-  post.body = 'Lorem ipsum...'
+await database.action(async () => {
+  const newPost = await postsCollection.create(post => {
+    post.title = 'New post'
+    post.body = 'Lorem ipsum...'
+  })
 })
 ```
 
@@ -48,13 +64,13 @@ const newPost = await postsCollection.create(post => {
 
 **Note:** You can only use field setters in `create()` or `update()` builder functions.
 
-## Model actions
-
 ### Update a record
 
 ```js
-await somePost.update(post => {
-  post.title = 'Updated title'
+await database.action(async () => {
+  await somePost.update(post => {
+    post.title = 'Updated title'
+  })
 })
 ```
 
@@ -64,13 +80,16 @@ Like creating, updating takes a builder function, where you can use field setter
 
 ### Delete a record
 
-There are two ways of deleting records: permanent and syncable. If you only use Watermelon as a local database, destroy records permanently:
+There are two ways of deleting records: syncable (mark as deleted), and permanent.
+
+If you only use Watermelon as a local database, destroy records permanently, if you [synchronize](./Advanced/Sync.md), mark as deleted instead.
 
 ```js
-await somePost.destroyPermanently()
+await database.action(async () => {
+  await somePost.markAsDeleted() // syncable
+  await somePost.destroyPermanently() // permanent
+})
 ```
-
-If you use Watermelon [with a Sync service](./Implementation/Sync.md), call `markAsDeleted()` instead.
 
 **Note:** Don't access, update, or observe records after they're destroyed.
 

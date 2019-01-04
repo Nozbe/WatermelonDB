@@ -10,10 +10,14 @@ WatermelonDB is currently in active development at [Nozbe](https://nozbe.com) fo
 
 - [Migrations](./Advanced/Migrations.md)
 
-### v0.8 - v0.9
+### Next
 
-- Full Transaction support
-  - We already support batch changes, but exclusive write lock is missing to ensure consistency of async actions
+- Actions — safe parallel async actions
+- Sync Adapter
+
+### v0.xxx
+
+- Full transactionality (atomicity) support
 - Field sanitizers
 - Optimized batch change propagation
 - Optimized tree deleting

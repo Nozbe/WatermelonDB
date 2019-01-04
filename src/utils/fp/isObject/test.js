@@ -1,6 +1,6 @@
 import isObject from './index'
 
-describe('watermelondb/utils/fp/isObject', () => {
+describe('isObject', () => {
   it('checks for objects correctly', () => {
     expect(isObject({})).toBe(true)
     expect(isObject({ foo: 1, bar: 2 })).toBe(true)

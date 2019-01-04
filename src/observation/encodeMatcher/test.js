@@ -13,7 +13,7 @@ const expectModel = (matcher, raw) => expect(matcher(new Model(null, raw)))
 const expectTrue = (matcher, raw) => expectModel(matcher, raw).toBe(true)
 const expectFalse = (matcher, raw) => expectModel(matcher, raw).toBe(false)
 
-describe('watermelondb/adapters/sqlite/encodeMatcher', () => {
+describe('SQLite encodeMatcher', () => {
   matchTests.forEach(testCase => {
     it(`passes db test: ${testCase.name}`, () => {
       const matcher = makeMatcher(testCase.query)

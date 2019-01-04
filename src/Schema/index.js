@@ -2,6 +2,7 @@
 
 import { contains } from 'rambdax'
 
+import logger from '../utils/common/logger'
 import isDevelopment from '../utils/common/isDevelopment'
 import invariant from '../utils/common/invariant'
 import type { $RE } from '../types'
@@ -60,13 +61,19 @@ export function validateColumnSchema(column: ColumnSchema): void {
       `Invalid type ${column.type} for column ${column.name} (valid: string, boolean, number)`,
     )
     invariant(
-      !contains(column.name, ['id', 'last_modified', '_changed', '_status']),
-      `You must not define columns with name ${column.name}`,
+      !contains(column.name, ['id', '_changed', '_status']),
+      `You must not define a column with name ${column.name}`,
     )
     if (column.name === 'created_at' || column.name === 'updated_at') {
       invariant(
         column.type === 'number' && !column.isOptional,
         `${column.name} must be of type number and not optional`,
+      )
+    }
+    if (column.name === 'last_modified') {
+      invariant(
+        column.type === 'number',
+        `For compatibility reasons, column last_modified must be of type 'number', and should be optional`,
       )
     }
   }
@@ -79,8 +86,7 @@ export function tableSchema({ name, columns: columnList }: TableSchemaSpec): Tab
     if (column.type === 'bool') {
       column.type = 'boolean'
       if (isDevelopment) {
-        // eslint-disable-next-line
-        console.warn(
+        logger.warn(
           `[DEPRECATION] Column type 'bool' is deprecated — change to 'boolean' (in ${JSON.stringify(
             column,
           )})`,

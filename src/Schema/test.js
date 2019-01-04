@@ -1,6 +1,6 @@
 import { appSchema, tableSchema } from './index'
 
-describe('watermelondb/Schema', () => {
+describe('Schema', () => {
   it('can prepare schema', () => {
     const testSchema = appSchema({
       version: 1,
@@ -40,5 +40,25 @@ describe('watermelondb/Schema', () => {
         },
       },
     })
+  })
+  it('can define last_modified in user land', () => {
+    expect(() =>
+      tableSchema({
+        name: 'foo',
+        columns: [{ name: 'last_modified', type: 'number', isOptional: true }],
+      }),
+    ).not.toThrow()
+    expect(() =>
+      tableSchema({
+        name: 'foo',
+        columns: [{ name: 'last_modified', type: 'number' }],
+      }),
+    ).not.toThrow()
+    expect(() =>
+      tableSchema({
+        name: 'foo',
+        columns: [{ name: 'last_modified', type: 'string' }],
+      }),
+    ).toThrow(/last_modified must be.*number/)
   })
 })

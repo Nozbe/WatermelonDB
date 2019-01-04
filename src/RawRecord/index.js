@@ -18,7 +18,6 @@ type _RawRecord = {
   id: RecordId,
   _status: SyncStatus,
   _changed: string,
-  last_modified: number | null,
 }
 
 // Raw object representing a model record. A RawRecord is guaranteed by the type system
@@ -70,7 +69,7 @@ function isValidStatus(value: any): boolean {
 
 // Transforms a dirty raw record object into a trusted sanitized RawRecord according to passed TableSchema
 export function sanitizedRaw(dirtyRaw: DirtyRaw, tableSchema: TableSchema): RawRecord {
-  const { id, _status, _changed, last_modified: lastModified } = dirtyRaw
+  const { id, _status, _changed } = dirtyRaw
 
   // This is called with `{}` when making a new record, so we need to set a new ID, status
   // Also: If an existing has one of those fields broken, we're screwed. Safest to treat it as a
@@ -81,12 +80,10 @@ export function sanitizedRaw(dirtyRaw: DirtyRaw, tableSchema: TableSchema): RawR
     raw.id = id
     raw._status = isValidStatus(_status) ? _status : 'created'
     raw._changed = typeof _changed === 'string' ? _changed : ''
-    raw.last_modified = isValidNumber(lastModified) ? lastModified : null
   } else {
     raw.id = randomId()
     raw._status = 'created'
     raw._changed = ''
-    raw.last_modified = null
   }
 
   values(tableSchema.columns).forEach(columnSchema => {

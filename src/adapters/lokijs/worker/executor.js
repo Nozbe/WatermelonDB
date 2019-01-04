@@ -41,7 +41,7 @@ export default class LokiExecutor {
 
   _testLokiAdapter: ?LokiMemoryAdapter
 
-  cachedRecords: Set<RecordId> = new Set([])
+  cachedRecords: Map<TableName<any>, Set<RecordId>> = new Map()
 
   constructor(options: LokiExecutorOptions): void {
     const { dbName, schema, migrationsExperimental, _testLokiAdapter } = options
@@ -56,8 +56,29 @@ export default class LokiExecutor {
     await this._migrateIfNeeded()
   }
 
+  isCached(table: TableName<any>, id: RecordId): boolean {
+    const cachedSet = this.cachedRecords.get(table)
+    return cachedSet ? cachedSet.has(id) : false
+  }
+
+  markAsCached(table: TableName<any>, id: RecordId): void {
+    const cachedSet = this.cachedRecords.get(table)
+    if (cachedSet) {
+      cachedSet.add(id)
+    } else {
+      this.cachedRecords.set(table, new Set([id]))
+    }
+  }
+
+  removeFromCache(table: TableName<any>, id: RecordId): void {
+    const cachedSet = this.cachedRecords.get(table)
+    if (cachedSet) {
+      cachedSet.delete(id)
+    }
+  }
+
   find(table: TableName<any>, id: RecordId): CachedFindResult {
-    if (this.cachedRecords.has(id)) {
+    if (this.isCached(table, id)) {
       return id
     }
 
@@ -67,7 +88,7 @@ export default class LokiExecutor {
       return null
     }
 
-    this.cachedRecords.add(id)
+    this.markAsCached(table, id)
     return sanitizedRaw(raw, this.schema.tables[table])
   }
 
@@ -82,7 +103,7 @@ export default class LokiExecutor {
 
   create(table: TableName<any>, raw: RawRecord): void {
     this.loki.getCollection(table).insert(raw)
-    this.cachedRecords.add(raw.id)
+    this.markAsCached(table, raw.id)
   }
 
   update(table: TableName<any>, rawRecord: RawRecord): void {
@@ -98,7 +119,7 @@ export default class LokiExecutor {
     const collection = this.loki.getCollection(table)
     const record = collection.by('id', id)
     collection.remove(record)
-    this.cachedRecords.delete(id)
+    this.removeFromCache(table, id)
   }
 
   markAsDeleted(table: TableName<any>, id: RecordId): void {
@@ -107,7 +128,7 @@ export default class LokiExecutor {
     if (record) {
       record._status = 'deleted'
       collection.update(record)
-      this.cachedRecords.delete(id)
+      this.removeFromCache(table, id)
     }
   }
 
@@ -333,11 +354,11 @@ export default class LokiExecutor {
     return records.map(raw => {
       const { id } = raw
 
-      if (this.cachedRecords.has(id)) {
+      if (this.isCached(table, id)) {
         return id
       }
 
-      this.cachedRecords.add(id)
+      this.markAsCached(table, id)
       return sanitizedRaw(raw, this.schema.tables[table])
     })
   }

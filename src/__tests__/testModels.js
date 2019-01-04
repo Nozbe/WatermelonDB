@@ -1,5 +1,5 @@
 import { appSchema, tableSchema } from '../Schema'
-import { field, relation, immutableRelation } from '../decorators'
+import { field, relation, immutableRelation, text, readonly, date } from '../decorators'
 import Model from '../Model'
 import Database from '../Database'
 import LokiJSAdapter from '../adapters/lokijs'
@@ -23,7 +23,12 @@ export const testSchema = appSchema({
     }),
     tableSchema({
       name: 'mock_comments',
-      columns: [{ name: 'task_id', type: 'string' }],
+      columns: [
+        { name: 'task_id', type: 'string' },
+        { name: 'body', type: 'string' },
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
+      ],
     }),
   ],
 })
@@ -62,6 +67,17 @@ export class MockComment extends Model {
 
   @immutableRelation('mock_tasks', 'task_id')
   task
+
+  @text('body')
+  body
+
+  @readonly
+  @date('created_at')
+  createdAt
+
+  @readonly
+  @date('updated_at')
+  updatedAt
 }
 
 export const mockDatabase = ({ actionsEnabled = false } = {}) => {
@@ -78,8 +94,16 @@ export const mockDatabase = ({ actionsEnabled = false } = {}) => {
   return {
     database,
     adapter,
-    projectsCollection: database.collections.get('mock_projects'),
-    tasksCollection: database.collections.get('mock_tasks'),
-    commentsCollection: database.collections.get('mock_comments'),
+    projects: database.collections.get('mock_projects'),
+    tasks: database.collections.get('mock_tasks'),
+    comments: database.collections.get('mock_comments'),
+    cloneDatabase: () =>
+      // simulate reload
+      new Database({
+        adapter: database.adapter.testClone(),
+        schema: testSchema,
+        modelClasses: [MockProject, MockTask, MockComment],
+        actionsEnabled,
+      }),
   }
 }

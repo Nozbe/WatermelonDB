@@ -79,15 +79,25 @@ export const testSchema = appSchema({
   ],
 })
 
-export const taskQuery = (...conditions) => {
-  const mockCollection = { modelClass: MockTask }
+export const modelQuery = (modelClass, ...conditions) => {
+  const mockCollection = { modelClass }
   return new Query(mockCollection, conditions)
 }
+
+export const taskQuery = (...conditions) => modelQuery(MockTask, ...conditions)
 
 export const makeMockTask = raw =>
   new MockTask(
     { table: 'tasks', schema: testSchema.tables.tasks },
     sanitizedRaw(raw, testSchema.tables.tasks),
+  )
+
+export const projectQuery = (...conditions) => modelQuery(MockProject, ...conditions)
+
+export const makeMockProject = raw =>
+  new MockProject(
+    { table: 'projects', schema: testSchema.tables.projects },
+    sanitizedRaw(raw, testSchema.tables.projects),
   )
 
 const insertAll = async (adapter, table, records) =>
