@@ -128,7 +128,21 @@ This queries all comments that are **both** verified **and** awesome.
 | `Q.where('status', Q.notIn(['archived', 'deleted']))` | `status !== 'archived' && status !== 'deleted'` |
 | `Q.where('status', Q.like('%bl_sh%'))` | `/.*bl.sh.*/g` (See note below!) |
 
-**Note:** It's NOT SAFE to use `Q.like` with user input directly, because special characters like `%` or `_` are not escaped. Always sanitize user input like so: `Q.like(\`%${Q.sanitizeLikeString(userInput)}%\`)`
+**Note:** It's NOT SAFE to use `Q.like` with user input directly, because special characters like `%` or `_` are not escaped. Always sanitize user input like so: 
+```js
+Q.like(`\%${Q.sanitizeLikeString(userInput)}%\`)
+```
+
+You can use `Q.like` for search-related tasks. For example, to find all users whose username start with "jas" (case-insensitive) you can write
+
+```js
+usersCollection.query(
+  Q.where("username", Q.like(`\%${Q.sanitizeLikeString("jas")}%\`)
+)
+```
+
+where `"jas"` can be changed dynamically with user input.
+
 
 ### Conditions on related tables
 
