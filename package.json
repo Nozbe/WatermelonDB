@@ -37,7 +37,7 @@
     "url": "https://github.com/Nozbe/WatermelonDB.git"
   },
   "dependencies": {
-    "rambdax": "^1.2.0",
+    "rambdax": "^1.5.6",
     "rxjs": "^6.2.2",
     "rxjs-compat": "^6.3.2",
     "sql-escape-string": "^1.1.0"
