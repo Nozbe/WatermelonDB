@@ -14,7 +14,7 @@ import {
   applyRemoteChanges,
   getLastPulledAt,
 } from './impl'
-import { resolveConflict } from './syncHelpers'
+import { resolveConflict } from './impl/helpers'
 
 describe('Conflict resolution', () => {
   it('can resolve per-column conflicts', () => {
