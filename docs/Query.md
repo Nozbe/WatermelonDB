@@ -130,14 +130,14 @@ This queries all comments that are **both** verified **and** awesome.
 
 **Note:** It's NOT SAFE to use `Q.like` with user input directly, because special characters like `%` or `_` are not escaped. Always sanitize user input like so: 
 ```js
-Q.like(`\%${Q.sanitizeLikeString(userInput)}%\`)
+Q.like(`%${Q.sanitizeLikeString(userInput)}%`)
 ```
 
 You can use `Q.like` for search-related tasks. For example, to find all users whose username start with "jas" (case-insensitive) you can write
 
 ```js
 usersCollection.query(
-  Q.where("username", Q.like(`\%${Q.sanitizeLikeString("jas")}%\`)
+  Q.where("username", Q.like(`${Q.sanitizeLikeString("jas")}%`)
 )
 ```
 
