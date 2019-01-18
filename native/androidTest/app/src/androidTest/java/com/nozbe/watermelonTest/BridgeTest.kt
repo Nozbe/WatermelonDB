@@ -1,7 +1,7 @@
 package com.nozbe.watermelonTest
 
 import org.junit.Test
-import android.support.test.rule.ActivityTestRule
+import androidx.test.rule.ActivityTestRule
 import android.util.Log
 import org.junit.Assert
 import org.junit.Rule
