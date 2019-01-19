@@ -54,7 +54,7 @@ describe('Batch writes', () => {
     await batchPromise
 
     expect(adapterBatchSpy).toHaveBeenCalledTimes(3)
-    expect(adapterBatchSpy).lastCalledWith([
+    expect(adapterBatchSpy).toHaveBeenLastCalledWith([
       ['create', m3],
       ['update', m1],
       ['create', m4],
@@ -62,14 +62,14 @@ describe('Batch writes', () => {
     ])
 
     expect(collectionObserver).toHaveBeenCalledTimes(4)
-    expect(collectionObserver).toBeCalledWith([{ record: m1, type: CollectionChangeTypes.updated }])
-    expect(collectionObserver).toBeCalledWith([{ record: m2, type: CollectionChangeTypes.updated }])
+    expect(collectionObserver).toHaveBeenCalledWith([{ record: m1, type: CollectionChangeTypes.updated }])
+    expect(collectionObserver).toHaveBeenCalledWith([{ record: m2, type: CollectionChangeTypes.updated }])
 
     const createdRecords = [m3, m4]
     createdRecords.forEach(record => {
       expect(record._isCommitted).toBe(true)
       expect(collection._cache.get(record.id)).toBe(record)
-      expect(collectionObserver).toBeCalledWith([{ record, type: CollectionChangeTypes.created }])
+      expect(collectionObserver).toHaveBeenCalledWith([{ record, type: CollectionChangeTypes.created }])
     })
 
     expect(recordObserver).toHaveBeenCalledTimes(2)
@@ -128,23 +128,23 @@ describe('Observation', () => {
     const m3 = await comments.create()
 
     expect(observer).toHaveBeenCalledTimes(4)
-    expect(observer).toBeCalledWith([{ record: m1, type: CollectionChangeTypes.created }])
-    expect(observer).lastCalledWith([{ record: m2, type: CollectionChangeTypes.created }])
+    expect(observer).toHaveBeenCalledWith([{ record: m1, type: CollectionChangeTypes.created }])
+    expect(observer).toHaveBeenLastCalledWith([{ record: m2, type: CollectionChangeTypes.created }])
 
     await m1.update()
     await m2.update()
     await m3.update()
 
     expect(observer).toHaveBeenCalledTimes(6)
-    expect(observer).lastCalledWith([{ record: m2, type: CollectionChangeTypes.updated }])
+    expect(observer).toHaveBeenLastCalledWith([{ record: m2, type: CollectionChangeTypes.updated }])
 
     await m1.destroyPermanently()
     await m2.destroyPermanently()
     await m3.destroyPermanently()
 
     expect(observer).toHaveBeenCalledTimes(8)
-    expect(observer).toBeCalledWith([{ record: m1, type: CollectionChangeTypes.destroyed }])
-    expect(observer).lastCalledWith([{ record: m2, type: CollectionChangeTypes.destroyed }])
+    expect(observer).toHaveBeenCalledWith([{ record: m1, type: CollectionChangeTypes.destroyed }])
+    expect(observer).toHaveBeenLastCalledWith([{ record: m2, type: CollectionChangeTypes.destroyed }])
   })
 })
 

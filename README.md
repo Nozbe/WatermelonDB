@@ -35,7 +35,7 @@
 | ⏱ | Fast. Async. Multi-threaded. Highly cached. |
 | 🔗 | Relational. Built on rock-solid [SQLite](https://www.sqlite.org) foundation |
 | ⚠️ | **Static typing** with [Flow](https://flow.org) |
-| 🔄 | **Offline-first.** (Plug in your own sync engine) |
+| 🔄 | **Offline-first.** [Sync](docs/Advanced/Sync.md) with your own backend |
 
 ## Why Watermelon?
 

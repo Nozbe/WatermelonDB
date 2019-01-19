@@ -1,9 +1,9 @@
 // @flow
 
-import { logError } from '../utils/common'
+import { logError, invariant } from '../../utils/common'
 
-import type { Model, Collection } from '..'
-import { type RawRecord, type DirtyRaw, sanitizedRaw } from '../RawRecord'
+import type { Model, Collection, Database } from '../..'
+import { type RawRecord, type DirtyRaw, sanitizedRaw } from '../../RawRecord'
 
 // Returns raw record with naive solution to a conflict based on local `_changed` field
 // This is a per-column resolution algorithm. All columns that were changed locally win
@@ -19,8 +19,11 @@ export function resolveConflict(local: RawRecord, remote: DirtyRaw): DirtyRaw {
   const resolved = {
     // use local fields if remote is missing columns (shouldn't but just in case)
     ...local,
-    // Note: remote MUST NOT have a _status of _changed fields
+    // Note: remote MUST NOT have a _status of _changed fields (will replace them anyway just in case)
     ...remote,
+    id: local.id,
+    _status: local._status,
+    _changed: local._changed,
   }
 
   // Use local properties where changed
@@ -47,7 +50,7 @@ function replaceRaw(record: Model, dirtyRaw: DirtyRaw): void {
 
 export function prepareCreateFromRaw<T: Model>(collection: Collection<T>, dirtyRaw: DirtyRaw): T {
   return collection.prepareCreate(record => {
-    replaceRaw(record, { _status: 'synced', ...dirtyRaw })
+    replaceRaw(record, { ...dirtyRaw, _status: 'synced', _changed: '' })
   })
 }
 
@@ -63,4 +66,11 @@ export function prepareMarkAsSynced<T: Model>(record: T): T {
   return record.prepareUpdate(() => {
     replaceRaw(record, newRaw)
   })
+}
+
+export function ensureActionsEnabled(database: Database): void {
+  invariant(
+    database._actionsEnabled,
+    '[Sync] To use Sync, Actions must be enabled. Pass `{ actionsEnabled: true }` to Database constructor — see docs for more details',
+  )
 }

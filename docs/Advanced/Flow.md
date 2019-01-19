@@ -127,6 +127,7 @@ Many types are tagged with the model class the type refers to:
 TableName<Post> // a table name referring to posts
 Collection<Post> // the Collection for posts
 Relation<Comment> // a relation that can fetch a Comment
+Relation<?Comment> // a relation that can fetch a Comment or `null`
 Query<Comment> // a query that can fetch many Comments
 ```
 

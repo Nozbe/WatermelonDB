@@ -9,7 +9,7 @@ const newAdapter = () =>
     schema: testSchema,
   })
 
-describe('watermelondb/adapters/lokijs', () => {
+describe('LokiJS Adapter', () => {
   commonTests().forEach(testCase => {
     const [name, test] = testCase
 

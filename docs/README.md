@@ -19,20 +19,20 @@
 ### Advanced guides
 
 1. [Migrations](./Advanced/Migrations.md)
-1. [Automatic create/update tracking](./Advanced/CreateUpdateTracking.md)
-1. [Advanced fields](./Advanced/AdvancedFields.md) — JSON, sanitizers
-1. [Flow](./Advanced/Flow.md) — using Watermelon with Flow
-1. [LocalStorage](./Advanced/LocalStorage.md)
-1. Performance tips — TODO
+2. [Sync](./Advanced/Sync.md)
+3. [Automatic create/update tracking](./Advanced/CreateUpdateTracking.md)
+4. [Advanced fields](./Advanced/AdvancedFields.md) — JSON, sanitizers
+5. [Flow](./Advanced/Flow.md) — using Watermelon with Flow
+6. [LocalStorage](./Advanced/LocalStorage.md)
+7. Performance tips — TODO
 
 ## Dig deeper into WatermelonDB
 
 Details about how Watermelon works, how to hack and contribute:
 
-1. [Architecture](./Implementation/Architecture.md)
-1. [Adapters](./Implementation/Adapters.md)
-1. [Sync](./Implementation/Sync.md)
-1. [📺 Digging deeper into WatermelonDB](https://www.youtube.com/watch?v=uFvHURTRLxQ) — more architectural info about caching, observation, and sync
+2. [Architecture](./Implementation/Architecture.md)
+3. [Adapters](./Implementation/Adapters.md)
+4. [📺 Digging deeper into WatermelonDB](https://www.youtube.com/watch?v=uFvHURTRLxQ) — more architectural info about caching, observation, and sync
 
 ## Other
 

@@ -31,7 +31,7 @@ const makeDatabase = () =>
     modelClasses: [MockModel],
   })
 
-describe('watermelondb/decorators/nochange', () => {
+describe('decorators/nochange', () => {
   it('allows setting values in create()', async () => {
     const database = makeDatabase()
     database.adapter.batch = jest.fn()

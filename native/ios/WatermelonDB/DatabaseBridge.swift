@@ -87,12 +87,13 @@ final public class DatabaseBridge: NSObject {
         }
     }
 
-    @objc(query:query:resolve:reject:)
+    @objc(query:table:query:resolve:reject:)
     func query(tag: ConnectionTag,
+               table: Database.TableName,
                query: Database.SQL,
                resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
-            try $0.cachedQuery(query)
+            try $0.cachedQuery(table: table, query: query)
         }
     }
 
@@ -114,23 +115,25 @@ final public class DatabaseBridge: NSObject {
             try $0.batch(operations.map { operation in
                 switch operation[safe: 0] as? String {
                 case "execute":
-                    guard let query = operation[safe: 1] as? Database.SQL,
-                    let args = operation[safe: 2] as? Database.QueryArgs
+                    guard let table = operation[safe: 1] as? Database.TableName,
+                    let query = operation[safe: 2] as? Database.SQL,
+                    let args = operation[safe: 3] as? Database.QueryArgs
                     else {
                         throw "Bad execute arguments".asError()
                     }
 
-                    return .execute(query: query, args: args)
+                    return .execute(table: table, query: query, args: args)
 
                 case "create":
-                    guard let id = operation[safe: 1] as? DatabaseDriver.RecordId,
-                    let query = operation[safe: 2] as? Database.SQL,
-                    let args = operation[safe: 3] as? Database.QueryArgs
+                    guard let table = operation[safe: 1] as? Database.TableName,
+                    let id = operation[safe: 2] as? DatabaseDriver.RecordId,
+                    let query = operation[safe: 3] as? Database.SQL,
+                    let args = operation[safe: 4] as? Database.QueryArgs
                     else {
                         throw "Bad create arguments".asError()
                     }
 
-                    return .create(id: id, query: query, args: args)
+                    return .create(table: table, id: id, query: query, args: args)
 
                 case "markAsDeleted":
                     guard let table = operation[safe: 1] as? Database.SQL,
@@ -142,7 +145,7 @@ final public class DatabaseBridge: NSObject {
                     return .markAsDeleted(table: table, id: id)
 
                 case "destroyPermanently":
-                    guard let table = operation[safe: 1] as? Database.SQL,
+                    guard let table = operation[safe: 1] as? Database.TableName,
                     let id = operation[safe: 2] as? DatabaseDriver.RecordId
                     else {
                         throw "Bad destroyPermanently arguments".asError()

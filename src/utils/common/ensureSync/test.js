@@ -1,6 +1,6 @@
 import ensureSync from './index'
 
-describe('watermelondb/utils/common/ensureSync', () => {
+describe('ensureSync', () => {
   it('passes values through', () => {
     expect(ensureSync('hello')).toBe('hello')
     expect(ensureSync(true)).toBe(true)

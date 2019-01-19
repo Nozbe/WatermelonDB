@@ -16,7 +16,7 @@ const mockCollection = Object.freeze({ modelClass: MockTask })
 
 const testQuery = query => encodeQuery(query.serialize())
 
-describe('watermelondb/adapters/lokijs/encodeQuery', () => {
+describe('LokiJS encodeQuery', () => {
   it('encodes simple queries', () => {
     const query = new Query(mockCollection, [])
     expect(testQuery(query)).toEqual({

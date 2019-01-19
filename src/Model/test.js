@@ -112,7 +112,6 @@ describe('CRUD', () => {
       id: m1.id,
       _status: 'created',
       _changed: '',
-      last_modified: null,
       name: 'Some name',
       otherfield: '',
       col3: '',
@@ -140,7 +139,7 @@ describe('CRUD', () => {
       record.name = 'New name'
     })
 
-    expect(spyBatchDB).toBeCalledWith(m1)
+    expect(spyBatchDB).toHaveBeenCalledWith(m1)
     expect(spyOnPrepareUpdate).toHaveBeenCalledTimes(1)
     expect(observer).toHaveBeenCalledTimes(2)
 
@@ -200,8 +199,8 @@ describe('CRUD', () => {
 
     await m1.destroyPermanently()
 
-    expect(database.adapter.batch).toBeCalledWith([['destroyPermanently', m1]])
-    expect(storeDestroy).toBeCalledWith(m1)
+    expect(database.adapter.batch).toHaveBeenCalledWith([['destroyPermanently', m1]])
+    expect(storeDestroy).toHaveBeenCalledWith(m1)
     expect(nextObserver).toHaveBeenCalledTimes(1)
     expect(completionObserver).toHaveBeenCalledTimes(1)
   })
@@ -272,7 +271,7 @@ describe('Safety features', () => {
     await expectToRejectWithMessage(model.update(() => {}), /uncommitted/)
     await expectToRejectWithMessage(model.markAsDeleted(), /uncommitted/)
     await expectToRejectWithMessage(model.destroyPermanently(), /uncommitted/)
-    expect(() => model.observe()).toThrowError(/uncommitted/)
+    expect(() => model.observe()).toThrow(/uncommitted/)
   })
   it('disallows changes on records with pending updates', async () => {
     const database = makeDatabase()
@@ -282,7 +281,7 @@ describe('Safety features', () => {
     model.prepareUpdate()
     expect(() => {
       model.prepareUpdate()
-    }).toThrowError(/pending update/)
+    }).toThrow(/pending update/)
     await expectToRejectWithMessage(model.update(() => {}), /pending update/)
 
     // need to call batch or a dev check will get angry

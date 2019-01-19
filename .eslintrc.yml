@@ -12,6 +12,7 @@ extends:
   - airbnb
   - plugin:flowtype/recommended
   - prettier
+  - plugin:jest/recommended
 
 parser: babel-eslint
 
@@ -94,6 +95,8 @@ rules:
   import/prefer-default-export: 0
   import/named: 0 # doesn't seem to work with Flow
   import/no-extraneous-dependencies: 0
+  jest/no-large-snapshots: 1
+  jest/no-disabled-tests: 0
 
 overrides:
   files:

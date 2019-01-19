@@ -14,7 +14,7 @@ class MockTaskModel extends Model {
 
 const mockCollection = Object.freeze({ modelClass: MockTaskModel })
 
-describe('watermelondb/Query', () => {
+describe('Query', () => {
   it('fetches tables correctly for simple queries', () => {
     const query = new Query(mockCollection, [Q.where('id', 'abcdef')])
     expect(query.table).toBe('mock_tasks')

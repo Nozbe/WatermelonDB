@@ -115,8 +115,8 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             withDriver(tag, promise) { it.find(table, id) }
 
     @ReactMethod
-    fun query(tag: ConnectionTag, query: SQL, promise: Promise) =
-            withDriver(tag, promise) { it.cachedQuery(query) }
+    fun query(tag: ConnectionTag, table: TableName, query: SQL, promise: Promise) =
+            withDriver(tag, promise) { it.cachedQuery(table, query) }
 
     @ReactMethod
     fun count(tag: ConnectionTag, query: SQL, promise: Promise) =
@@ -197,15 +197,17 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
                 try {
                     when (type) {
                         "execute" -> {
-                            val query = operation.getString(1) as SQL
-                            val args = operation.getArray(2).toArrayList() as QueryArgs
-                            preparedOperations.add(Operation.Execute(query, args))
-                        }
-                        "create" -> {
-                            val id = operation.getString(1) as RecordID
+                            val table = operation.getString(1) as TableName
                             val query = operation.getString(2) as SQL
                             val args = operation.getArray(3).toArrayList() as QueryArgs
-                            preparedOperations.add(Operation.Create(id, query, args))
+                            preparedOperations.add(Operation.Execute(table, query, args))
+                        }
+                        "create" -> {
+                            val table = operation.getString(1) as TableName
+                            val id = operation.getString(2) as RecordID
+                            val query = operation.getString(3) as SQL
+                            val args = operation.getArray(4).toArrayList() as QueryArgs
+                            preparedOperations.add(Operation.Create(table, id, query, args))
                         }
                         "markAsDeleted" -> {
                             val table = operation.getString(1) as TableName
