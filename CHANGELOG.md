@@ -5,8 +5,13 @@ All notable changes to this project will be documented in this file.
 ## Unreleased
 
 ### New
-
 - [WIP] Sync primitives
+
+### Changes
+- Changed `compile` to `implementation` in Library Gradle file
+  - ⚠️ might break build if you are using Android Gradle Plugin <3.X
+- Updated `peerDependency` `react-native` to `0.57.0`
+
 
 ## 0.9.0 - 2018-11-23
 
