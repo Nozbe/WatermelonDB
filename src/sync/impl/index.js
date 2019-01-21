@@ -4,7 +4,7 @@ import type { Database } from '../..'
 import type { Timestamp } from '../index'
 
 export { default as applyRemoteChanges } from './applyRemote'
-export { default as fetchLocalChanges } from './fetchLocal'
+export { default as fetchLocalChanges, hasUnsyncedChanges } from './fetchLocal'
 export { default as markLocalChangesAsSynced } from './markAsSynced'
 
 const lastSyncedAtKey = '__watermelon_last_pulled_at'

@@ -7,7 +7,7 @@ import { mockDatabase } from '../__tests__/testModels'
 import { expectToRejectWithMessage } from '../__tests__/utils'
 import { sanitizedRaw } from '../RawRecord'
 
-import { synchronize } from './index'
+import { synchronize, hasUnsyncedChanges } from './index'
 import {
   fetchLocalChanges,
   markLocalChangesAsSynced,
@@ -201,6 +201,52 @@ describe('fetchLocalChanges', () => {
       }),
     )
     expect(changes).toEqual(changesCloned)
+  })
+})
+
+describe('hasUnsyncedChanges', () => {
+  it('has no unsynced changes by default', async () => {
+    const { database } = makeDatabase()
+    expect(await hasUnsyncedChanges({ database })).toBe(false)
+  })
+  it('has unsynced changes if made', async () => {
+    const { database } = makeDatabase()
+    await makeLocalChanges(database)
+    expect(await hasUnsyncedChanges({ database })).toBe(true)
+  })
+  it('just one update is enough', async () => {
+    const { database } = makeDatabase()
+    const collection = database.collections.get('mock_comments')
+    const record = await database.action(() =>
+      collection.create(rec => {
+        rec._raw._status = 'synced'
+      }),
+    )
+
+    expect(await hasUnsyncedChanges({ database })).toBe(false)
+
+    await database.action(async () => {
+      await record.update(() => {
+        record.body = 'changed'
+      })
+    })
+
+    expect(await hasUnsyncedChanges({ database })).toBe(true)
+  })
+  it('just one delete is enough', async () => {
+    const { database } = makeDatabase()
+    const collection = database.collections.get('mock_comments')
+    const record = await database.action(() =>
+      collection.create(rec => {
+        rec._raw._status = 'synced'
+      }),
+    )
+
+    expect(await hasUnsyncedChanges({ database })).toBe(false)
+
+    await database.action(() => record.markAsDeleted())
+
+    expect(await hasUnsyncedChanges({ database })).toBe(true)
   })
 })
 
@@ -830,6 +876,7 @@ describe('synchronize', () => {
     // Expect project3 to still need pushing
     const localChanges2 = await fetchLocalChanges(database)
     expect(localChanges2).not.toEqual(emptyLocalChanges)
+    expect(await hasUnsyncedChanges({ database })).toBe(true)
     expect(localChanges2).toEqual({
       changes: makeChangeSet({
         mock_projects: {
@@ -882,6 +929,7 @@ describe('synchronize', () => {
     await synchronize({ database, pullChanges, pushChanges })
 
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+    expect(await hasUnsyncedChanges({ database })).toBe(false)
     const pushedChanges = pushChanges.mock.calls[0][0].changes
     const pushedCounts = map(map(length), pushedChanges)
     expect(pushedCounts).toEqual({

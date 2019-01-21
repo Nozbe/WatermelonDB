@@ -10,6 +10,7 @@ import {
   markLocalChangesAsSynced,
   getLastPulledAt,
   setLastPulledAt,
+  hasUnsyncedChanges as hasUnsyncedChangesImpl,
 } from './impl'
 import { ensureActionsEnabled } from './impl/helpers'
 
@@ -56,6 +57,12 @@ export async function synchronize({ database, pullChanges, pushChanges }: SyncAr
   const localChanges = await fetchLocalChanges(database)
   await pushChanges({ changes: localChanges.changes, lastPulledAt: newLastPulledAt })
   await markLocalChangesAsSynced(database, localChanges)
+}
+
+export async function hasUnsyncedChanges({
+  database,
+}: $Exact<{ database: Database }>): Promise<boolean> {
+  return hasUnsyncedChangesImpl(database)
 }
 
 /*
