@@ -67,9 +67,18 @@ function validateRemoteRaw(raw: DirtyRaw): void {
 function prepareApplyRemoteChangesToCollection<T: Model>(
   collection: Collection<T>,
   recordsToApply: RecordsToApplyRemoteChangesTo<T>,
+  sendCreatedAsUpdated: boolean,
 ): T[] {
   const { database, table } = collection
   const { created, updated, records, locallyDeletedIds } = recordsToApply
+
+  // if `sendCreatedAsUpdated`, server should send all non-deleted records as `updated`
+  // log error if it doesn't — but disable standard created vs updated errors
+  if (sendCreatedAsUpdated && created.length) {
+    logError(
+      `[Sync] 'sendCreatedAsUpdated' option is enabled, and yet server sends some records as 'created'`,
+    )
+  }
 
   // Insert and update records
   const recordsToInsert = map(raw => {
@@ -108,11 +117,12 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
     }
 
     // Record doesn't exist (but should) — just create it
-    logError(
-      `[Sync] Server wants client to update record ${table}#${
-        raw.id
-      }, but it doesn't exist locally. This could be a serious bug. Will create record instead.`,
-    )
+    !sendCreatedAsUpdated &&
+      logError(
+        `[Sync] Server wants client to update record ${table}#${
+          raw.id
+        }, but it doesn't exist locally. This could be a serious bug. Will create record instead.`,
+      )
 
     return prepareCreateFromRaw(collection, raw)
   }, updated)
@@ -152,11 +162,19 @@ const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToAppl
     promiseAllObject,
   )
 
-const prepareApplyAllRemoteChanges = (db: Database, recordsToApply: AllRecordsToApply) =>
+const prepareApplyAllRemoteChanges = (
+  db: Database,
+  recordsToApply: AllRecordsToApply,
+  sendCreatedAsUpdated: boolean,
+) =>
   piped(
     recordsToApply,
     map((records, tableName) =>
-      prepareApplyRemoteChangesToCollection(db.collections.get((tableName: any)), records),
+      prepareApplyRemoteChangesToCollection(
+        db.collections.get((tableName: any)),
+        records,
+        sendCreatedAsUpdated,
+      ),
     ),
     values,
     unnest,
@@ -167,6 +185,7 @@ const destroyPermanently = record => record.destroyPermanently()
 export default function applyRemoteChanges(
   db: Database,
   remoteChanges: SyncDatabaseChangeSet,
+  sendCreatedAsUpdated: boolean,
 ): Promise<void> {
   ensureActionsEnabled(db)
   return db.action(async () => {
@@ -176,7 +195,7 @@ export default function applyRemoteChanges(
     await Promise.all([
       allPromises(destroyPermanently, getAllRecordsToDestroy(recordsToApply)),
       destroyAllDeletedRecords(db, recordsToApply),
-      db.batch(...prepareApplyAllRemoteChanges(db, recordsToApply)),
+      db.batch(...prepareApplyAllRemoteChanges(db, recordsToApply, sendCreatedAsUpdated)),
     ])
   }, 'sync-applyRemoteChanges')
 }
