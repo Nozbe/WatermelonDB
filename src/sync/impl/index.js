@@ -1,6 +1,8 @@
 // @flow
 
 import type { Database } from '../..'
+import { logError } from '../../utils/common'
+
 import type { Timestamp } from '../index'
 
 export { default as applyRemoteChanges } from './applyRemote'
@@ -14,5 +16,12 @@ export async function getLastPulledAt(database: Database): Promise<?Timestamp> {
 }
 
 export async function setLastPulledAt(database: Database, timestamp: Timestamp): Promise<void> {
+  const previousTimestamp = (await getLastPulledAt(database)) || 0
+  if (timestamp < previousTimestamp) {
+    logError(
+      `[Sync] Pull has finished and received server time ${timestamp} — but previous pulled-at time was greater - ${previousTimestamp}. This is most likely server bug.`,
+    )
+  }
+
   await database.adapter.setLocal(lastSyncedAtKey, `${timestamp}`)
 }
