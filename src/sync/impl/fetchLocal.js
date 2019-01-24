@@ -7,8 +7,10 @@ import {
   reduce,
   values,
   pipe,
+  any,
+  identity,
 } from 'rambdax'
-import { unnest } from '../../utils/fp'
+import { unnest, allPromises } from '../../utils/fp'
 import type { Database, Collection, Model } from '../..'
 import * as Q from '../../QueryDescription'
 import { columnName } from '../../Schema'
@@ -65,4 +67,15 @@ export default function fetchLocalChanges(db: Database): Promise<SyncLocalChange
       affectedRecords: extractAllAffectedRecords(changes),
     }
   }, 'sync-fetchLocalChanges')
+}
+
+export async function hasUnsyncedChanges(db: Database): Promise<boolean> {
+  const collections = values(db.collections.map)
+  const hasUnsynced = async collection => {
+    const changes = await collection.query(notSyncedQuery).fetchCount()
+    const deleted = await db.adapter.getDeletedRecords(collection.table)
+    return changes + deleted.length > 0
+  }
+  const unsyncedFlags = await allPromises(hasUnsynced, collections)
+  return any(identity, unsyncedFlags)
 }

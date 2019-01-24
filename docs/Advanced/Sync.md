@@ -24,7 +24,7 @@ async function mySync() {
       if (!response.ok) {
         throw new Error(await response.text())
       }
-      
+
       const { changes, timestamp } = await response.json()
       return { changes, timestamp }
     },
@@ -36,7 +36,7 @@ async function mySync() {
       if (!response.ok) {
         throw new Error(await response.text())
       }
-    }
+    },
   })
 }
 
@@ -44,7 +44,7 @@ async function mySync() {
 
 You need to pass two functions, `pullChanges` and `pushChanges` that can talk to your backend in a compatible way.
 
-**⚠️ Note about a React Native / UglifyES bug**. When you import Watermelon Sync, your app might fail to compile in release mode. To fix this, configure Metro bundler to use Terser instead of UglifyES. Run: 
+**⚠️ Note about a React Native / UglifyES bug**. When you import Watermelon Sync, your app might fail to compile in release mode. To fix this, configure Metro bundler to use Terser instead of UglifyES. Run:
 
 ```bash
 yarn add metro-minify-terser
@@ -155,8 +155,8 @@ Synchronization is serious business! It's very easy to make mistakes that will c
     > This protects against weird edge cases related to server clock time changes (NTP time sync, leap seconds, etc.)
     > (Alternatively, instead of using timestamps, you could use auto-incrementing couters, but you'd have to ensure they are consistent across the whole database, not just one table)
   - You do need to implement a mechanism to track when records were deleted on the server, otherwise you wouldn't know to push them
-  - To distinguish between `created` and `updated` records, you can also store server-side `server_created_at` timestamp (if it's greater than `last_pulled_at` supplied to sync, then record is to be `created` on client, if less than — client already has it and it is to be `updated` on client). Note that this timestamp must be consistent with last_modified — and you must not use client-created `created_at` field, since you can never trust local timestamps. 
-    > Alternatively, you could just send all non-deleted records as all created or all updated and Watermelon should do the right thing, although it will be less protected against edge cases. ⚠️ TODO (@radex): Check which of these (created/updated) is the right thing to do
+  - To distinguish between `created` and `updated` records, you can also store server-side `server_created_at` timestamp (if it's greater than `last_pulled_at` supplied to sync, then record is to be `created` on client, if less than — client already has it and it is to be `updated` on client). Note that this timestamp must be consistent with last_modified — and you must not use client-created `created_at` field, since you can never trust local timestamps.
+    - Alternatively, you can send all non-deleted records as all `updated` and Watermelon will do the right thing in 99% of cases (you will be slightly less protected against weird edge cases — treatment of locally deleted records is different). If you do this, pass `sendCreatedAsUpdated: true` to `synchronize()` to supress warnings about records to be updated not existing locally.
 - **Implementing `GET changes` API endpoint**
   - Make sure you perform all queries (and checking for current timestamp) synchronously
     > This is to ensure that no changes are made to the database while you're fetching changes (otherwise you could never sync some records)
