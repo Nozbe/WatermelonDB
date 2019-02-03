@@ -3273,10 +3273,10 @@ flat-cache@^1.2.1:
     graceful-fs "^4.1.2"
     write "^0.2.1"
 
-flow-bin@^0.89.0:
-  version "0.89.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.89.0.tgz#6bd29c2af7e0f429797f820662f33749105c32fa"
-  integrity sha512-DkO4PsXYrl53V6G5+t5HbRMC5ajYUQej2LEGPUZ+j9okTb41Sn5j9vfxsCpXMEAslYnQoysHhYu4GUZsQX/DrQ==
+flow-bin@^0.91.0:
+  version "0.91.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.91.0.tgz#f5c89729f74b2ccbd47df6fbfadbdcc89cc1e478"
+  integrity sha512-j+L+xNiUYnZZ27MjVI0y2c9474ZHOvdSQq0Tjwh56mEA7tfxYqp5Dcb6aZSwvs3tGMTjCrZow9aUlZf3OoRyDQ==
 
 for-in@^1.0.1, for-in@^1.0.2:
   version "1.0.2"
@@ -5806,10 +5806,10 @@ quick-lru@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-1.1.0.tgz#4360b17c61136ad38078397ff11416e186dcfbb8"
 
-rambdax@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/rambdax/-/rambdax-1.2.0.tgz#19c0eadf4154f9961ed3072ef3a589a26fb12ac3"
-  integrity sha512-ItlFlHRJmy3yRjhY8AIfphRJUTsJdoGBay9cK9cg3AkHL3+5iLDechpQaD2iGWKK+/NXfhvXVObGRv+bdzXGag==
+rambdax@^1.5.6:
+  version "1.5.6"
+  resolved "https://registry.yarnpkg.com/rambdax/-/rambdax-1.5.6.tgz#40d416345d608454b4210d1ac39820952445bef2"
+  integrity sha512-OUNTEaLp3TZWacaSnrvKjcHtfpZsQ86fJyuObIa0b+EOvH5FNswRnwpATfRFHEH06D345VwOADjOVg/WwPEIug==
 
 randomatic@^3.0.0:
   version "3.1.1"

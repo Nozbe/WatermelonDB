@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changes
+
+- Changed `compile` to `implementation` in Library Gradle file
+  - ⚠️ might break build if you are using Android Gradle Plugin <3.X
+- Updated `peerDependency` `react-native` to `0.57.0`
+- [Sync] Added `hasUnsyncedChanges()` helper method
+- [Sync] Improved documentation for backends that can't distinguish between `created` and `updated` records
+- [Sync] Improved diagnostics / protection against edge cases
+
+
+## 0.10.0 - 2019-01-18
+
 ### Breaking
 
 - **BREAKING:** Table column `last_modified` is no longer automatically added to all database tables. If
@@ -30,7 +42,7 @@ All notable changes to this project will be documented in this file.
   will be enabled by default, and later, made mandatory.
 
   See documentation for more details.
-- **Watermelon Sync Adapter**
+- **Watermelon Sync Adapter** (Experimental)
 
   Added `synchronize()` function that allows you to easily add full synchronization capabilities to
   your Watermelon app. You only need to provide two fetch calls to your remote server that conforms

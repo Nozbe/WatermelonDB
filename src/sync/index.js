@@ -10,8 +10,9 @@ import {
   markLocalChangesAsSynced,
   getLastPulledAt,
   setLastPulledAt,
-  ensureActionsEnabled,
+  hasUnsyncedChanges as hasUnsyncedChangesImpl,
 } from './impl'
+import { ensureActionsEnabled } from './impl/helpers'
 
 export type Timestamp = number
 
@@ -33,11 +34,17 @@ export type SyncArgs = $Exact<{
   database: Database,
   pullChanges: SyncPullArgs => Promise<SyncPullResult>,
   pushChanges: SyncPushArgs => Promise<void>,
+  sendCreatedAsUpdated?: boolean,
 }>
 
 // See Sync docs for usage details
 
-export async function synchronize({ database, pullChanges, pushChanges }: SyncArgs): Promise<void> {
+export async function synchronize({
+  database,
+  pullChanges,
+  pushChanges,
+  sendCreatedAsUpdated,
+}: SyncArgs): Promise<void> {
   ensureActionsEnabled(database)
 
   // pull phase
@@ -48,7 +55,9 @@ export async function synchronize({ database, pullChanges, pushChanges }: SyncAr
       lastPulledAt === (await getLastPulledAt(database)),
       '[Sync] Concurrent synchronization is not allowed. More than one synchronize() call was running at the same time, and the later one was aborted before committing results to local database.',
     )
-    await action.subAction(() => applyRemoteChanges(database, remoteChanges))
+    await action.subAction(() =>
+      applyRemoteChanges(database, remoteChanges, !!sendCreatedAsUpdated),
+    )
     await setLastPulledAt(database, newLastPulledAt)
   }, 'sync-synchronize-apply')
 
@@ -56,6 +65,12 @@ export async function synchronize({ database, pullChanges, pushChanges }: SyncAr
   const localChanges = await fetchLocalChanges(database)
   await pushChanges({ changes: localChanges.changes, lastPulledAt: newLastPulledAt })
   await markLocalChangesAsSynced(database, localChanges)
+}
+
+export async function hasUnsyncedChanges({
+  database,
+}: $Exact<{ database: Database }>): Promise<boolean> {
+  return hasUnsyncedChangesImpl(database)
 }
 
 /*
