@@ -76,21 +76,32 @@ class MockModelCreatedUpdated extends Model {
   updatedAt
 }
 
-const makeDatabase = () =>
+const makeDatabase = ({ actionsEnabled = false } = {}) =>
   new Database({
     adapter: { schema: mockSchema },
     modelClasses: [MockModel, MockModelCreated, MockModelUpdated, MockModelCreatedUpdated],
+    actionsEnabled,
   })
 
-describe('watermelondb/Model', () => {
+describe('Model', () => {
+  it('exposes collections', () => {
+    const database = makeDatabase()
+    const model = new MockModel(database.collections.get('mock'), {})
+    expect(model.collections).toBe(database.collections)
+    expect(model.collections.get('mock_created').modelClass).toBe(MockModelCreated)
+  })
+})
+
+describe('CRUD', () => {
   it('_prepareCreate: can instantiate new records', () => {
-    const mockCollection = { schema: mockSchema.tables.mock }
-    const m1 = MockModel._prepareCreate(mockCollection, record => {
+    const database = makeDatabase()
+    const collection = database.collections.get('mock')
+    const m1 = MockModel._prepareCreate(collection, record => {
       expect(record._isEditing).toBe(true)
       record.name = 'Some name'
     })
 
-    expect(m1.collection).toBe(mockCollection)
+    expect(m1.collection).toBe(collection)
     expect(m1._isEditing).toBe(false)
     expect(m1._isCommitted).toBe(false)
     expect(m1.id.length).toBe(16)
@@ -101,28 +112,11 @@ describe('watermelondb/Model', () => {
       id: m1.id,
       _status: 'created',
       _changed: '',
-      last_modified: null,
       name: 'Some name',
       otherfield: '',
       col3: '',
       col4: '',
     })
-  })
-  it('_prepareCreate: sets created_at on create if model defines it', () => {
-    const m1 = MockModelCreated._prepareCreate({ schema: mockSchema.tables.mock_created }, noop)
-
-    expect(m1.createdAt).toBeInstanceOf(Date)
-    expect(+m1.createdAt).toBeGreaterThan(1500000000000)
-    expect(m1.updatedAt).toBe(undefined)
-  })
-  it('_prepareCreate: sets created_at, updated_at on create if model defines it', () => {
-    const m1 = MockModelCreatedUpdated._prepareCreate(
-      { schema: mockSchema.tables.mock_created_updated },
-      noop,
-    )
-
-    expect(m1.createdAt).toBeInstanceOf(Date)
-    expect(+m1.createdAt).toBe(+m1.updatedAt)
   })
   it('can update a record', async () => {
     const database = makeDatabase()
@@ -130,7 +124,6 @@ describe('watermelondb/Model', () => {
     const spyBatchDB = jest.spyOn(database, 'batch')
 
     const collection = database.collections.get('mock')
-
     const m1 = await collection.create(record => {
       record.name = 'Original name'
     })
@@ -146,7 +139,7 @@ describe('watermelondb/Model', () => {
       record.name = 'New name'
     })
 
-    expect(spyBatchDB).toBeCalledWith(m1)
+    expect(spyBatchDB).toHaveBeenCalledWith(m1)
     expect(spyOnPrepareUpdate).toHaveBeenCalledTimes(1)
     expect(observer).toHaveBeenCalledTimes(2)
 
@@ -191,6 +184,29 @@ describe('watermelondb/Model', () => {
     // need to call batch or a dev check will get angry
     database.batch(preparedUpdate)
   })
+  it('can destroy a record permanently', async () => {
+    const database = makeDatabase()
+    database.adapter.batch = jest.fn()
+
+    const collection = database.collections.get('mock')
+    const storeDestroy = jest.spyOn(collection, '_destroyPermanently')
+
+    const m1 = await collection.create()
+
+    const nextObserver = jest.fn()
+    const completionObserver = jest.fn()
+    m1.observe().subscribe(nextObserver, null, completionObserver)
+
+    await m1.destroyPermanently()
+
+    expect(database.adapter.batch).toHaveBeenCalledWith([['destroyPermanently', m1]])
+    expect(storeDestroy).toHaveBeenCalledWith(m1)
+    expect(nextObserver).toHaveBeenCalledTimes(1)
+    expect(completionObserver).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('Safety features', () => {
   it('throws if batch is not called synchronously with prepareUpdate', async () => {
     // TODO: No clue how to implement this test
   })
@@ -207,39 +223,6 @@ describe('watermelondb/Model', () => {
     expect(() => {
       model._setRaw('name', 'new')
     }).toThrow()
-  })
-  it('touches updated_at on update if model defines it', async () => {
-    const database = makeDatabase()
-    database.adapter.batch = jest.fn()
-
-    const m1 = await database.collections.get('mock_updated').create(record => {
-      record._raw.updated_at -= 100
-    })
-    const updatedAt = +m1.updatedAt
-
-    await m1.update()
-
-    expect(+m1.updatedAt).toBeGreaterThan(updatedAt)
-  })
-  it('can destroy a record permanently', async () => {
-    const database = makeDatabase()
-    database.adapter.batch = jest.fn()
-
-    const collection = database.collections.get('mock')
-    const storeDestroy = jest.spyOn(collection, '_destroyPermanently')
-
-    const m1 = await collection.create()
-
-    const nextObserver = jest.fn()
-    const completionObserver = jest.fn()
-    m1.observe().subscribe(nextObserver, null, completionObserver)
-
-    await m1.destroyPermanently()
-
-    expect(database.adapter.batch).toBeCalledWith([['destroyPermanently', m1]])
-    expect(storeDestroy).toBeCalledWith(m1)
-    expect(nextObserver).toHaveBeenCalledTimes(1)
-    expect(completionObserver).toHaveBeenCalledTimes(1)
   })
   it('disallows changes to just-deleted records', async () => {
     const database = makeDatabase()
@@ -279,6 +262,96 @@ describe('watermelondb/Model', () => {
       }),
     ).rejects.toBeInstanceOf(Error)
   })
+
+  it('disallows operations on uncommited records', async () => {
+    const database = makeDatabase()
+    const model = MockModel._prepareCreate(database.collections.get('mock'), () => {})
+    expect(model._isCommitted).toBe(false)
+
+    await expectToRejectWithMessage(model.update(() => {}), /uncommitted/)
+    await expectToRejectWithMessage(model.markAsDeleted(), /uncommitted/)
+    await expectToRejectWithMessage(model.destroyPermanently(), /uncommitted/)
+    expect(() => model.observe()).toThrow(/uncommitted/)
+  })
+  it('disallows changes on records with pending updates', async () => {
+    const database = makeDatabase()
+    database.adapter.batch = jest.fn()
+
+    const model = new MockModel(database.collections.get('mock'), {})
+    model.prepareUpdate()
+    expect(() => {
+      model.prepareUpdate()
+    }).toThrow(/pending update/)
+    await expectToRejectWithMessage(model.update(() => {}), /pending update/)
+
+    // need to call batch or a dev check will get angry
+    database.batch(model)
+  })
+  it('disallows writes outside of an action', async () => {
+    const database = makeDatabase({ actionsEnabled: true })
+    database.adapter.batch = jest.fn()
+
+    const model = await database.action(() => database.collections.get('mock').create())
+
+    await expectToRejectWithMessage(
+      model.update(noop),
+      /can only be called from inside of an Action/,
+    )
+
+    await expectToRejectWithMessage(
+      model.markAsDeleted(),
+      /can only be called from inside of an Action/,
+    )
+
+    await expectToRejectWithMessage(
+      model.markAsDeleted(),
+      /can only be called from inside of an Action/,
+    )
+
+    // check that no throw inside action
+    await database.action(async () => {
+      await model.update(noop)
+      await model.markAsDeleted()
+      await model.destroyPermanently()
+    })
+  })
+})
+
+describe('Automatic created_at/updated_at', () => {
+  it('_prepareCreate: sets created_at on create if model defines it', () => {
+    const database = makeDatabase()
+    const m1 = MockModelCreated._prepareCreate(database.collections.get('mock_created'), noop)
+
+    expect(m1.createdAt).toBeInstanceOf(Date)
+    expect(+m1.createdAt).toBeGreaterThan(1500000000000)
+    expect(m1.updatedAt).toBe(undefined)
+  })
+  it('_prepareCreate: sets created_at, updated_at on create if model defines it', () => {
+    const database = makeDatabase()
+    const m1 = MockModelCreatedUpdated._prepareCreate(
+      database.collections.get('mock_created_updated'),
+      noop,
+    )
+
+    expect(m1.createdAt).toBeInstanceOf(Date)
+    expect(+m1.createdAt).toBe(+m1.updatedAt)
+  })
+  it('touches updated_at on update if model defines it', async () => {
+    const database = makeDatabase()
+    database.adapter.batch = jest.fn()
+
+    const m1 = await database.collections.get('mock_updated').create(record => {
+      record._raw.updated_at -= 100
+    })
+    const updatedAt = +m1.updatedAt
+
+    await m1.update()
+
+    expect(+m1.updatedAt).toBeGreaterThan(updatedAt)
+  })
+})
+
+describe('RawRecord manipulation', () => {
   it('allows raw access via _getRaw', () => {
     const model = new MockModel(null, {
       col1: 'val1',
@@ -311,6 +384,9 @@ describe('watermelondb/Model', () => {
     expect(model._raw.name).toBe('val2')
     expect(model._raw.otherfield).toBe('val3')
   })
+})
+
+describe('Sync status fields', () => {
   it('adds to changes on _setRaw', () => {
     const model = new MockModel(
       { schema: mockSchema.tables.mock },
@@ -369,11 +445,17 @@ describe('watermelondb/Model', () => {
     const database = makeDatabase()
     database.adapter.batch = jest.fn()
 
-    const mock = new MockModel(database.collections.get('mock'), {
-      status: null,
-      changes: null,
-      name: 'Initial name',
-    })
+    const mock = new MockModel(
+      database.collections.get('mock'),
+      sanitizedRaw(
+        {
+          id: '',
+          _status: 'synced',
+          name: 'Initial name',
+        },
+        mockSchema.tables.mock,
+      ),
+    )
 
     // update
     await mock.update(record => {
@@ -408,71 +490,32 @@ describe('watermelondb/Model', () => {
     expect(m1._raw._status).toBe('updated')
     expect(m1._raw._changed).toBe('updated_at')
   })
-  it('disallows operations on uncommited records', async () => {
-    const mockCollection = { schema: mockSchema.tables.mock }
-    const model = MockModel._prepareCreate(mockCollection, () => {})
-    expect(model._isCommitted).toBe(false)
+})
 
-    await expectToRejectWithMessage(model.update(() => {}), /uncommitted/)
-    await expectToRejectWithMessage(model.markAsDeleted(), /uncommitted/)
-    await expectToRejectWithMessage(model.destroyPermanently(), /uncommitted/)
-    expect(() => model.observe()).toThrowError(/uncommitted/)
-  })
-  it('disallows changes on records with pending updates', async () => {
-    const database = makeDatabase()
-    const collection = database.collections.get('mock')
-    const model = new MockModel(collection, {})
-    model.prepareUpdate()
-    expect(() => {
-      model.prepareUpdate()
-    }).toThrowError(/pending update/)
-    await expectToRejectWithMessage(model.update(() => {}), /pending update/)
-
-    // need to call batch or a dev check will get angry
-    database.batch(model)
-  })
+describe('Model observation', () => {
   it('notifies observers of changes and deletion', () => {
     const model = new MockModel(null, {})
     const scheduler = makeScheduler()
 
-    const changes = '--a---a----a-a---b'
-    const a = '---x|'
-    const b = '--------x|'
+    const changes__ = '--a---a----a-a---b'
+    const a________ = '---x|'
+    const b________ = '--------x|'
+    const c________ = 'x|'
     const aExpected = '---m--m----m-m---|'
     const bExpected = '--------m--m-m---|'
+    const cExpected = 'm-m---m----m-m---|'
 
-    scheduler.hot(changes).subscribe(event => {
+    scheduler.hot(changes__).subscribe(event => {
       event === 'a' ? model._notifyChanged() : model._notifyDestroyed()
     })
 
-    const a$ = scheduler.hot(a).pipe(mergeMap(() => model.observe()))
-    const b$ = scheduler.hot(b).pipe(mergeMap(() => model.observe()))
+    const a$ = scheduler.hot(a________).pipe(mergeMap(() => model.observe()))
+    const b$ = scheduler.hot(b________).pipe(mergeMap(() => model.observe()))
+    const c$ = scheduler.hot(c________).pipe(mergeMap(() => model.observe()))
 
     scheduler.expectObservable(a$).toBe(aExpected, { m: model })
     scheduler.expectObservable(b$).toBe(bExpected, { m: model })
+    scheduler.expectObservable(c$).toBe(cExpected, { m: model })
     scheduler.flush()
-  })
-  it('emits this on observe even if no changes were made', () => {
-    const model = new MockModel(null, {})
-    const scheduler = makeScheduler()
-
-    const changes = '-----a---a--'
-    const a = '-x|'
-    const aExpected = '-m-- m---m---'
-
-    scheduler.hot(changes).subscribe(event => {
-      event === 'a' ? model._notifyChanged() : model._notifyDestroyed()
-    })
-
-    const a$ = scheduler.hot(a).pipe(mergeMap(() => model.observe()))
-
-    scheduler.expectObservable(a$).toBe(aExpected, { m: model })
-    scheduler.flush()
-  })
-  it('exposes collections', () => {
-    const database = makeDatabase()
-    const model = new MockModel(database.collections.get('mock'), {})
-    expect(model.collections).toBe(database.collections)
-    expect(model.collections.get('mock_created').modelClass).toBe(MockModelCreated)
   })
 })

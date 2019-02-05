@@ -1,6 +1,6 @@
 import randomId from './index'
 
-describe('watermelondb/utils/common/randomId', () => {
+describe('randomId', () => {
   it('generates a random string', () => {
     const id1 = randomId()
     expect(id1.length).toBe(16)

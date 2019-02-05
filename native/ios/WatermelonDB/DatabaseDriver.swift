@@ -16,22 +16,27 @@ class DatabaseDriver {
         self.init(dbName: dbName)
 
         switch isCompatible(withVersion: schemaVersion) {
-        case .Compatible: break
-        case .NeedsSetup:
+        case .compatible: break
+        case .needsSetup:
             throw SchemaNeededError()
-        case .NeedsMigration(fromVersion: let dbVersion):
+        case .needsMigration(fromVersion: let dbVersion):
             throw MigrationNeededError(databaseVersion: dbVersion)
         }
     }
 
     convenience init(dbName: String, setUpWithSchema schema: Schema) {
         self.init(dbName: dbName)
-        setUpDatabase(schema: schema)
+
+        do {
+            try unsafeResetDatabase(schema: schema)
+        } catch {
+            fatalError("Error while setting up the database: \(error)")
+        }
     }
 
-    convenience init(dbName: String, setUpWithMigrations migrations: MigrationSet) {
+    convenience init(dbName: String, setUpWithMigrations migrations: MigrationSet) throws {
         self.init(dbName: dbName)
-        migrate(with: migrations)
+        try migrate(with: migrations)
     }
 
     private init(dbName: String) {
@@ -46,7 +51,7 @@ class DatabaseDriver {
     }
 
     func find(table: Database.TableName, id: RecordId) throws -> Any? {
-        guard !isCached(id) else {
+        guard !isCached(table, id) else {
             return id
         }
 
@@ -56,18 +61,18 @@ class DatabaseDriver {
             return nil
         }
 
-        markAsCached(id)
+        markAsCached(table, id)
         return record.resultDictionary!
     }
 
-    func cachedQuery(_ query: Database.SQL) throws -> [Any] {
+    func cachedQuery(table: Database.TableName, query: Database.SQL) throws -> [Any] {
         return try database.queryRaw(query).map { row in
             let id = row.string(forColumn: "id")!
 
-            if isCached(id) {
+            if isCached(table, id) {
                 return id
             } else {
-                markAsCached(id)
+                markAsCached(table, id)
                 return row.resultDictionary!
             }
         }
@@ -78,8 +83,8 @@ class DatabaseDriver {
     }
 
     enum Operation {
-        case execute(query: Database.SQL, args: Database.QueryArgs)
-        case create(id: RecordId, query: Database.SQL, args: Database.QueryArgs)
+        case execute(table: Database.TableName, query: Database.SQL, args: Database.QueryArgs)
+        case create(table: Database.TableName, id: RecordId, query: Database.SQL, args: Database.QueryArgs)
         case destroyPermanently(table: Database.TableName, id: RecordId)
         case markAsDeleted(table: Database.TableName, id: RecordId)
         // case destroyDeletedRecords(table: Database.TableName, records: [RecordId])
@@ -88,37 +93,37 @@ class DatabaseDriver {
     }
 
     func batch(_ operations: [Operation]) throws {
-        var newIds: [RecordId] = []
-        var removedIds: [RecordId] = []
+        var newIds: [(Database.TableName, RecordId)] = []
+        var removedIds: [(Database.TableName, RecordId)] = []
 
         try database.inTransaction {
             for operation in operations {
                 switch operation {
-                case .execute(let query, args: let args):
+                case .execute(table: _, query: let query, args: let args):
                     try database.execute(query, args)
 
-                case .create(id: let id, query: let query, args: let args):
+                case .create(table: let table, id: let id, query: let query, args: let args):
                     try database.execute(query, args)
-                    newIds.append(id)
+                    newIds.append((table, id))
 
                 case .markAsDeleted(table: let table, id: let id):
                     try database.execute("update \(table) set _status='deleted' where id == ?", [id])
-                    removedIds.append(id)
+                    removedIds.append((table, id))
 
                 case .destroyPermanently(table: let table, id: let id):
                     // TODO: What's the behavior if nothing got deleted?
                     try database.execute("delete from \(table) where id == ?", [id])
-                    removedIds.append(id)
+                    removedIds.append((table, id))
                 }
             }
         }
 
-        for id in newIds {
-            markAsCached(id)
+        for (table, id) in newIds {
+            markAsCached(table, id)
         }
 
-        for id in removedIds {
-            cachedRecords.remove(id)
+        for (table, id) in removedIds {
+            removeFromCache(table, id)
         }
     }
 
@@ -158,77 +163,67 @@ class DatabaseDriver {
 
     typealias RecordId = String
 
-    private var cachedRecords: Set<RecordId> = []
+    private var cachedRecords: [Database.TableName: Set<RecordId>] = [:]
 
-    func isCached(_ id: RecordId) -> Bool {
-        return cachedRecords.contains(id)
+    func isCached(_ table: Database.TableName, _ id: RecordId) -> Bool {
+        return cachedRecords[table]?.contains(id) ?? false
     }
 
-    private func markAsCached(_ id: RecordId) {
-        cachedRecords.insert(id)
+    private func markAsCached(_ table: Database.TableName, _ id: RecordId) {
+        var cachedSet = cachedRecords[table] ?? []
+        cachedSet.insert(id)
+        cachedRecords[table] = cachedSet
+    }
+    
+    private func removeFromCache(_ table: Database.TableName, _ id: RecordId) {
+        cachedRecords[table]?.remove(id)
     }
 
 // MARK: - Other private details
 
     private enum SchemaCompatibility {
-        case Compatible
-        case NeedsSetup
-        case NeedsMigration(fromVersion: SchemaVersion)
+        case compatible
+        case needsSetup
+        case needsMigration(fromVersion: SchemaVersion)
     }
 
     private func isCompatible(withVersion schemaVersion: SchemaVersion) -> SchemaCompatibility {
         let databaseVersion = database.userVersion
 
-        if databaseVersion == schemaVersion {
-            return .Compatible
-        } else if databaseVersion == 0 {
-            return .NeedsSetup
-        } else if databaseVersion > 0 && databaseVersion < schemaVersion {
-            return .NeedsMigration(fromVersion: databaseVersion)
-        } else {
-            // TODO: Safe to assume this would only happen in dev and we can safely reset the database?
+        switch databaseVersion {
+        case schemaVersion: return .compatible
+        case 0: return .needsSetup
+        case (1..<schemaVersion): return .needsMigration(fromVersion: databaseVersion)
+        default:
             consoleLog("Database has newer version (\(databaseVersion)) than what the " +
                 "app supports (\(schemaVersion)). Will reset database.")
-            return .NeedsSetup
-        }
-    }
-
-    private func setUpDatabase(schema: Schema) {
-        consoleLog("Setting up database with version \(schema.version)")
-
-        do {
-            try unsafeResetDatabase(schema: schema)
-        } catch {
-            fatalError("Error while setting up the database: \(error)")
+            return .needsSetup
         }
     }
 
     func unsafeResetDatabase(schema: Schema) throws {
         try database.unsafeDestroyEverything()
-        cachedRecords = []
+        cachedRecords = [:]
 
         try setUpSchema(schema: schema)
     }
 
     private func setUpSchema(schema: Schema) throws {
-        consoleLog("Setting up schema")
-        try database.executeStatements(schema.sql + localStorageSchema)
-        database.userVersion = schema.version
+        try database.inTransaction {
+            try database.executeStatements(schema.sql + localStorageSchema)
+            database.userVersion = schema.version
+        }
     }
 
-    private func migrate(with migrations: MigrationSet) {
-        consoleLog("Migrating database from version \(migrations.from) to \(migrations.to)")
+    private func migrate(with migrations: MigrationSet) throws {
         precondition(
             database.userVersion == migrations.from,
             "Incompatbile migration set applied. DB: \(database.userVersion), migration: \(migrations.from)"
         )
 
-        do {
+        try database.inTransaction {
             try database.executeStatements(migrations.sql)
             database.userVersion = migrations.to
-        } catch {
-            // TODO: Should we crash here? Is this recoverable? Is handling in JS better?
-            fatalError("Error while performing migrations: \(error)")
         }
     }
 

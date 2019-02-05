@@ -1,15 +1,30 @@
+import { expectToRejectWithMessage } from '../__tests__/utils'
+import { noop } from '../utils/fp'
+
 import Query from '../Query'
 import * as Q from '../QueryDescription'
 import { logger } from '../utils/common'
-import { CollectionChangeTypes } from './common'
-
 import { mockDatabase, MockTask, testSchema } from '../__tests__/testModels'
+
+import { CollectionChangeTypes } from './common'
 
 const mockQuery = collection => new Query(collection, [Q.where('a', 'b')])
 
-describe('watermelondb/Collection', () => {
-  it('find: finds records in cache if available', async () => {
-    const { tasksCollection: collection } = mockDatabase()
+describe('Collection', () => {
+  it('exposes schema', () => {
+    const { tasks, projects } = mockDatabase()
+
+    expect(tasks.schema).toBe(testSchema.tables.mock_tasks)
+    expect(tasks.schema.name).toBe('mock_tasks')
+    expect(tasks.schema.columns.name).toEqual({ name: 'name', type: 'string' })
+
+    expect(projects.schema).toBe(testSchema.tables.mock_projects)
+  })
+})
+
+describe('finding records', () => {
+  it('finds records in cache if available', async () => {
+    const { tasks: collection } = mockDatabase()
 
     const m1 = new MockTask(collection, { id: 'm1' })
     collection._cache.add(m1)
@@ -22,8 +37,8 @@ describe('watermelondb/Collection', () => {
     expect(await collection.find('m1')).toBe(m1)
     expect(await collection.find('m2')).toBe(m2)
   })
-  it('find: finds records in database if not in cache', async () => {
-    const { tasksCollection: collection, adapter } = mockDatabase()
+  it('finds records in database if not in cache', async () => {
+    const { tasks: collection, adapter } = mockDatabase()
 
     // TODO: Don't mock
     // TODO: Should ID (not raw) response be tested?
@@ -48,8 +63,8 @@ describe('watermelondb/Collection', () => {
     expect(collection._cache.map.size).toBe(1)
     expect(adapter.find.mock.calls.length).toBe(1)
   })
-  it('find: rejects promise if record cannot be found', async () => {
-    const { tasksCollection: collection, adapter } = mockDatabase()
+  it('rejects promise if record cannot be found', async () => {
+    const { tasks: collection, adapter } = mockDatabase()
 
     adapter.find = jest.fn().mockReturnValue(null)
 
@@ -58,8 +73,11 @@ describe('watermelondb/Collection', () => {
 
     expect(adapter.find.mock.calls.length).toBe(2)
   })
-  it('fetchQuery: fetches queries and caches records', async () => {
-    const { tasksCollection: collection, adapter } = mockDatabase()
+})
+
+describe('fetching queries', () => {
+  it('fetches queries and caches records', async () => {
+    const { tasks: collection, adapter } = mockDatabase()
 
     adapter.query = jest.fn().mockReturnValueOnce([{ id: 'm1' }, { id: 'm2' }])
 
@@ -83,8 +101,8 @@ describe('watermelondb/Collection', () => {
     expect(adapter.query.mock.calls.length).toBe(1)
     expect(adapter.query.mock.calls[0][0]).toBe(query)
   })
-  it('fetchQuery: fetches query records from cache if possible', async () => {
-    const { tasksCollection: collection, adapter } = mockDatabase()
+  it('fetches query records from cache if possible', async () => {
+    const { tasks: collection, adapter } = mockDatabase()
 
     adapter.query = jest.fn().mockReturnValueOnce(['m1', { id: 'm2' }])
 
@@ -100,8 +118,8 @@ describe('watermelondb/Collection', () => {
     // check cache
     expect(collection._cache.map.get('m2')).toBe(models[1])
   })
-  it('fetchQuery: fetches query records from cache even if full raw object was sent', async () => {
-    const { tasksCollection: collection, adapter } = mockDatabase()
+  it('fetches query records from cache even if full raw object was sent', async () => {
+    const { tasks: collection, adapter } = mockDatabase()
 
     adapter.query = jest.fn().mockReturnValueOnce([{ id: 'm1' }, { id: 'm2' }])
 
@@ -119,8 +137,8 @@ describe('watermelondb/Collection', () => {
     expect(models[0]).toBe(m1)
     expect(models[1]._raw).toEqual({ id: 'm2' })
   })
-  it('fetchCount: fetches counts', async () => {
-    const { tasksCollection: collection, adapter } = mockDatabase()
+  it('fetches counts', async () => {
+    const { tasks: collection, adapter } = mockDatabase()
 
     adapter.count = jest
       .fn()
@@ -136,8 +154,11 @@ describe('watermelondb/Collection', () => {
     expect(adapter.count.mock.calls[0][0]).toBe(query)
     expect(adapter.count.mock.calls[1][0]).toBe(query)
   })
+})
+
+describe('creating new records', () => {
   it('can create records', async () => {
-    const { tasksCollection: collection, adapter } = mockDatabase()
+    const { tasks: collection, adapter } = mockDatabase()
     const dbBatchSpy = jest.spyOn(adapter, 'batch')
 
     const observer = jest.fn()
@@ -152,14 +173,14 @@ describe('watermelondb/Collection', () => {
     expect(m1._isCommitted).toBe(true)
     expect(newModelSpy).toHaveBeenCalledTimes(1)
     expect(dbBatchSpy).toHaveBeenCalledTimes(1)
-    expect(dbBatchSpy).toBeCalledWith([['create', m1]])
+    expect(dbBatchSpy).toHaveBeenCalledWith([['create', m1]])
     expect(observer).toHaveBeenCalledTimes(1)
-    expect(observer).toBeCalledWith([{ record: m1, type: CollectionChangeTypes.created }])
+    expect(observer).toHaveBeenCalledWith([{ record: m1, type: CollectionChangeTypes.created }])
     expect(collection._cache.get(m1.id)).toBe(m1)
     expect(await collection.find(m1.id)).toBe(m1)
   })
   it('can prepare records', async () => {
-    const { tasksCollection: collection, database } = mockDatabase()
+    const { tasks: collection, database } = mockDatabase()
     database.adapter = {} // make sure not called
 
     const observer = jest.fn()
@@ -174,8 +195,20 @@ describe('watermelondb/Collection', () => {
     expect(observer).toHaveBeenCalledTimes(0)
     await expect(collection.find(m1.id)).rejects.toBeInstanceOf(Error)
   })
+  it('disallows record creating outside of an action', async () => {
+    const { database, tasks } = mockDatabase({ actionsEnabled: true })
+
+    await expectToRejectWithMessage(
+      tasks.create(noop),
+      /can only be called from inside of an Action/,
+    )
+
+    // no throw inside action
+    await database.action(() => tasks.create(noop))
+  })
   it('can destroy records permanently', async () => {
-    const { tasksCollection: collection, adapter } = mockDatabase()
+    // should this even be tested here? Shouldn't it be tested on Model, without mocks?
+    const { tasks: collection, adapter } = mockDatabase()
     adapter.batch = jest.fn()
 
     const observer = jest.fn()
@@ -188,18 +221,9 @@ describe('watermelondb/Collection', () => {
 
     // Check database delete, cache delete, observers update
     expect(adapter.batch).toHaveBeenCalledTimes(1)
-    expect(adapter.batch).toBeCalledWith([['destroyPermanently', m1]])
+    expect(adapter.batch).toHaveBeenCalledWith([['destroyPermanently', m1]])
     expect(collection._cache.get('m1')).toBe(undefined)
     expect(observer).toHaveBeenCalledTimes(1)
-    expect(observer).toBeCalledWith([{ record: m1, type: CollectionChangeTypes.destroyed }])
-  })
-  it('exposes schema', () => {
-    const { tasksCollection, projectsCollection } = mockDatabase()
-
-    expect(tasksCollection.schema).toBe(testSchema.tables.mock_tasks)
-    expect(tasksCollection.schema.name).toBe('mock_tasks')
-    expect(tasksCollection.schema.columns.name).toEqual({ name: 'name', type: 'string' })
-
-    expect(projectsCollection.schema).toBe(testSchema.tables.mock_projects)
+    expect(observer).toHaveBeenCalledWith([{ record: m1, type: CollectionChangeTypes.destroyed }])
   })
 })

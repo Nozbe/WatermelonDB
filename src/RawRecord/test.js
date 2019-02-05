@@ -57,7 +57,6 @@ describe('sanitizedRaw()', () => {
       id: 'abcdef',
       _status: 'synced',
       _changed: '',
-      last_modified: 1532612920392,
       name: 'My task',
       responsible_id: 'abcdef',
       created_at: 1632612920392,
@@ -75,7 +74,6 @@ describe('sanitizedRaw()', () => {
       id: 'abcdef2',
       _status: 'updated',
       _changed: 'foo,bar',
-      last_modified: 1332612920392,
       name: 'My task 2',
       responsible_id: null,
       created_at: 1432612920392,
@@ -92,7 +90,7 @@ describe('sanitizedRaw()', () => {
       id: 'abcdef3',
       _status: 'created',
       _changed: null,
-      last_modified: 1000 /* .1 */,
+      last_modified: 1000 /* .1 */, // last_modified was removed
       name: '',
       created_at: 2018 /* .5 */,
       ended_at: 'NaN',
@@ -105,7 +103,6 @@ describe('sanitizedRaw()', () => {
       id: 'abcdef3',
       _status: 'created',
       _changed: '',
-      last_modified: 1000,
       name: '',
       responsible_id: null,
       created_at: 2018,
@@ -116,12 +113,11 @@ describe('sanitizedRaw()', () => {
       is_all_day: null,
     })
   })
-  it('can create a valid raw from nothin', () => {
+  it(`can create a valid raw from nothin'`, () => {
     const newRaw = sanitizedRaw({}, mockTaskSchema)
     expect(omit(['id'], newRaw)).toEqual({
       _status: 'created',
       _changed: '',
-      last_modified: null,
       name: '',
       responsible_id: null,
       created_at: 0,
@@ -134,7 +130,7 @@ describe('sanitizedRaw()', () => {
     expect(typeof newRaw.id).toBe('string')
     expect(newRaw.id).toHaveLength(16)
   })
-  it('sanitizes id, _status, _changed, last_modified', () => {
+  it('sanitizes id, _status, _changed', () => {
     const schema2 = tableSchema({ name: 'test2', columns: [] })
 
     const validateId = raw => {
@@ -143,29 +139,20 @@ describe('sanitizedRaw()', () => {
     }
 
     // if ID is missing or malformed, treat this as a new object
-    const raw1 = sanitizedRaw({ _status: 'updated', _changed: 'a,b', last_modified: 1234 }, schema2)
-    expect(omit(['id'], raw1)).toEqual({ _status: 'created', _changed: '', last_modified: null })
+    const raw1 = sanitizedRaw({ _status: 'updated', _changed: 'a,b' }, schema2)
+    expect(omit(['id'], raw1)).toEqual({ _status: 'created', _changed: '' })
     validateId(raw1)
 
-    const raw2 = sanitizedRaw(
-      { id: null, _status: 'updated', _changed: 'a,b', last_modified: 1234 },
-      schema2,
-    )
-    expect(omit(['id'], raw2)).toEqual({ _status: 'created', _changed: '', last_modified: null })
+    const raw2 = sanitizedRaw({ id: null, _status: 'updated', _changed: 'a,b' }, schema2)
+    expect(omit(['id'], raw2)).toEqual({ _status: 'created', _changed: '' })
     validateId(raw2)
 
     // otherwise, just sanitize other fields
-    const raw3 = sanitizedRaw(
-      { id: 'i1', _status: '', _changed: 'a,b', last_modified: 1234 },
-      schema2,
-    )
-    expect(raw3).toEqual({ id: 'i1', _status: 'created', _changed: 'a,b', last_modified: 1234 })
+    const raw3 = sanitizedRaw({ id: 'i1', _status: '', _changed: 'a,b' }, schema2)
+    expect(raw3).toEqual({ id: 'i1', _status: 'created', _changed: 'a,b' })
 
-    const raw4 = sanitizedRaw(
-      { id: 'i2', _status: 'deleted', _changed: true, last_modified: NaN },
-      schema2,
-    )
-    expect(raw4).toEqual({ id: 'i2', _status: 'deleted', _changed: '', last_modified: null })
+    const raw4 = sanitizedRaw({ id: 'i2', _status: 'deleted', _changed: true }, schema2)
+    expect(raw4).toEqual({ id: 'i2', _status: 'deleted', _changed: '' })
   })
 })
 

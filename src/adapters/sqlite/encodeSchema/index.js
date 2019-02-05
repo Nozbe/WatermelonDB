@@ -13,7 +13,7 @@ import type { SQL } from '../index'
 import encodeName from '../encodeName'
 import encodeValue from '../encodeValue'
 
-const standardColumns = `"id" primary key, "_changed", "_status", "last_modified"`
+const standardColumns = `"id" primary key, "_changed", "_status"`
 
 const encodeCreateTable: TableSchema => SQL = ({ name, columns }) => {
   const columnsSQL = [standardColumns]

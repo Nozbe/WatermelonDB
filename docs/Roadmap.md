@@ -2,20 +2,22 @@
 
 ## From today to 1.0
 
-### v0.6
+### ✅ v0.6
 
 WatermelonDB is currently in active development at [Nozbe](https://nozbe.com) for use in advanced projects. It's mostly feature-complete. However, there are a few features left before we can call it 1.0.
 
-### v0.7
+### ✅ v0.7
 
 - [Migrations](./Advanced/Migrations.md)
 
-**This is coming soon**. It's probably the only feature preventing WatermelonDB from being safely used in a production app.
+### Next
 
-### v0.8 - v0.9
+- Actions — safe parallel async actions
+- Sync Adapter
 
-- Full Transaction support
-  - We already support batch changes, but exclusive write lock is missing to ensure consistency of async actions
+### v0.xxx
+
+- Full transactionality (atomicity) support
 - Field sanitizers
 - Optimized batch change propagation
 - Optimized tree deleting

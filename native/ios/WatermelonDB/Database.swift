@@ -87,21 +87,19 @@ class Database {
         // TODO: Shouldn't this simply destroy the database file?
         consoleLog("Clearing database")
 
-        fmdb.beginTransaction()
+        try inTransaction {
+            let tables = try queryRaw("select * from sqlite_master where type='table'").map { table in
+                table.string(forColumn: "name")!
+            }
 
-        let tables = try queryRaw("select * from sqlite_master where type='table'").map { table in
-            table.string(forColumn: "name")!
+            for table in tables {
+                try execute("drop table if exists \(table)")
+            }
+
+            try execute("pragma writable_schema=1")
+            try execute("delete from sqlite_master")
+            try execute("pragma user_version=0")
+            try execute("pragma writable_schema=0")
         }
-
-        for table in tables {
-            try execute("drop table if exists \(table)")
-        }
-
-        try execute("pragma writable_schema=1")
-        try execute("delete from sqlite_master")
-        try execute("pragma user_version=0")
-        try execute("pragma writable_schema=0")
-
-        fmdb.commit()
     }
 }

@@ -1,6 +1,6 @@
 import encodeUpdate from './index'
 
-describe('watermelondb/adapters/sqlite/encodeUpdate', () => {
+describe('SQLite encodeUpdate', () => {
   it('encodes model updates', () => {
     const mockModel = {
       table: 'tasks',

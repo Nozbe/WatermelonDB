@@ -4,25 +4,91 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changes
+
+- Changed `compile` to `implementation` in Library Gradle file
+  - ⚠️ might break build if you are using Android Gradle Plugin <3.X
+- Updated `peerDependency` `react-native` to `0.57.0`
+- [Sync] Added `hasUnsyncedChanges()` helper method
+- [Sync] Improved documentation for backends that can't distinguish between `created` and `updated` records
+- [Sync] Improved diagnostics / protection against edge cases
+
+
+## 0.10.0 - 2019-01-18
+
+### Breaking
+
+- **BREAKING:** Table column `last_modified` is no longer automatically added to all database tables. If
+  you don't use this column (e.g. in your custom sync code), you don't have to do anything.
+  If you do, manually add this column to all table definitions in your Schema:
+  ```
+  { name: 'last_modified', type: 'number', isOptional: true }
+  ```
+  **Don't** bump schema version or write a migration for this.
+
+### New
+
+- **Actions API**.
+
+  This was actually released in 0.8.0 but is now documented in [CRUD.md](./docs/CRUD.md) and [Actions.md](./docs/Actions.md).
+  With Actions enabled, all create/update/delete/batch calls must be wrapped in an Action.
+
+  To use Actions, call `await database.action(async () => { /* perform writes here */ }`, and in
+  Model instance methods, you can just decorate the whole method with `@action`.
+
+  This is necessary for Watermelon Sync, and also to enable greater safety and consistency.
+
+  To enable actions, add `actionsEnabled: true` to `new Database({ ... })`. In a future release this
+  will be enabled by default, and later, made mandatory.
+
+  See documentation for more details.
+- **Watermelon Sync Adapter** (Experimental)
+
+  Added `synchronize()` function that allows you to easily add full synchronization capabilities to
+  your Watermelon app. You only need to provide two fetch calls to your remote server that conforms
+  to Watermelon synchronization protocol, and all the client-side processing (applying remote changes,
+  resolving conflicts, finding local changes, and marking them as synced) is done by Watermelon.
+
+  See documentation for more details.
+
+- **Support caching for non-global IDs at Native level**
+
+## 0.9.0 - 2018-11-23
+
+### New
+
+- Added `Q.like` - you can now make queries similar to SQL `LIKE`
+
+## 0.8.0 - 2018-11-16
+
+### New
+
+- Added `DatabaseProvider` and `withDatabase` Higher-Order Component to reduce prop drilling
+- Added experimental Actions API. This will be documented in a future release.
+
+### Fixes
+
+- Fixes crash on older Android React Native targets without `jsc-android` installed
+
+## 0.7.0 - 2018-10-31
+
 ### Deprecations
 
 - [Schema] Column type 'bool' is deprecated — change to 'boolean'
 
-### Fixed
+### New
+
+- Added support for Schema Migrations. See documentation for more details.
+- Added fundaments for integration of Danger with Jest
+
+### Changes
 
 - Fixed "dependency cycle" warning
-
-### Improvements
-
+- [SQLite] Fixed rare cases where database could be left in an unusable state (added missing transaction)
+- [Flow] Fixes `oneOf()` typing and some other variance errors
 - [React Native] App should launch a little faster, because schema is only compiled on demand now
-
-### Changed
-
-- Updated Flow to 0.83
-
-### Refactoring
-
-- [WIP] Migrations
+- Fixed typos in README.md
+- Updated Flow to 0.85
 
 ## 0.6.2 - 2018-10-04
 

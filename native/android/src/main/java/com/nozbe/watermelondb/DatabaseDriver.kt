@@ -9,8 +9,8 @@ import java.util.logging.Logger
 
 class DatabaseDriver(context: Context, dbName: String) {
     sealed class Operation {
-        class Execute(val query: SQL, val args: QueryArgs) : Operation()
-        class Create(val id: RecordID, val query: SQL, val args: QueryArgs) : Operation()
+        class Execute(val table: TableName, val query: SQL, val args: QueryArgs) : Operation()
+        class Create(val table: TableName, val id: RecordID, val query: SQL, val args: QueryArgs) : Operation()
         class MarkAsDeleted(val table: TableName, val id: RecordID) : Operation()
         class DestroyPermanently(val table: TableName, val id: RecordID) : Operation()
         // class SetLocal(val key: String, val value: String) : Operation()
@@ -31,7 +31,7 @@ class DatabaseDriver(context: Context, dbName: String) {
     }
 
     constructor(context: Context, dbName: String, schema: Schema) : this(context, dbName) {
-        setUpDatabase(schema)
+        unsafeResetDatabase(schema)
     }
 
     constructor(context: Context, dbName: String, migrations: MigrationSet) :
@@ -43,10 +43,10 @@ class DatabaseDriver(context: Context, dbName: String) {
 
     private val log: Logger? = if (BuildConfig.DEBUG) Logger.getLogger("DB_Driver") else null
 
-    private var cachedRecords: ArrayList<String> = arrayListOf()
+    private val cachedRecords: MutableMap<TableName, MutableList<RecordID>> = mutableMapOf()
 
     fun find(table: TableName, id: RecordID): Any? {
-        if (isCached(id)) {
+        if (isCached(table, id)) {
             return id
         }
         database.rawQuery("select * from $table where id == ? limit 1", arrayOf(id)).use {
@@ -54,24 +54,24 @@ class DatabaseDriver(context: Context, dbName: String) {
                 return null
             }
             val resultMap = Arguments.createMap()
-            markAsCached(id)
+            markAsCached(table, id)
             it.moveToFirst()
             resultMap.mapCursor(it)
             return resultMap
         }
     }
 
-    fun cachedQuery(query: SQL): WritableArray {
+    fun cachedQuery(table: TableName, query: SQL): WritableArray {
         log?.info("Cached Query: $query")
         val resultArray = Arguments.createArray()
         database.rawQuery(query).use {
             if (it.count > 0 && it.columnNames.contains("id")) {
                 while (it.moveToNext()) {
                     val id = it.getString(it.getColumnIndex("id"))
-                    if (isCached(id)) {
+                    if (isCached(table, id)) {
                         resultArray.pushString(id)
                     } else {
-                        markAsCached(id)
+                        markAsCached(table, id)
                         resultArray.pushMapFromCursor(it)
                     }
                 }
@@ -129,29 +129,29 @@ class DatabaseDriver(context: Context, dbName: String) {
     }
 
     fun batch(operations: List<Operation>) {
-        val newIds = arrayListOf<RecordID>()
-        val removedIds = arrayListOf<RecordID>()
+        val newIds = arrayListOf<Pair<TableName, RecordID>>()
+        val removedIds = arrayListOf<Pair<TableName, RecordID>>()
         database.transaction {
             operations.forEach {
                 when (it) {
                     is Operation.Execute -> execute(it.query, it.args)
                     is Operation.Create -> {
                         create(it.id, it.query, it.args)
-                        newIds.add(it.id)
+                        newIds.add(Pair(it.table, it.id))
                     }
                     is Operation.MarkAsDeleted -> {
                         database.execute(Queries.setStatusDeleted(it.table), arrayListOf(it.id))
-                        removedIds.add(it.id)
+                        removedIds.add(Pair(it.table, it.id))
                     }
                     is Operation.DestroyPermanently -> {
                         database.execute(Queries.destroyPermanently(it.table), arrayListOf(it.id))
-                        removedIds.add(it.id)
+                        removedIds.add(Pair(it.table, it.id))
                     }
                 }
             }
         }
-        newIds.forEach(this::markAsCached)
-        removedIds.forEach { cachedRecords.remove(it) }
+        newIds.forEach { markAsCached(table = it.first, id = it.second) }
+        removedIds.forEach { removeFromCache(table = it.first, id = it.second) }
     }
 
     fun unsafeResetDatabase(schema: Schema) {
@@ -163,41 +163,33 @@ class DatabaseDriver(context: Context, dbName: String) {
 
     fun close() = database.close()
 
-    private fun markAsCached(id: RecordID) {
+    private fun markAsCached(table: TableName, id: RecordID) {
         log?.info("Mark as cached $id")
-        cachedRecords.add(id)
+        val cache = cachedRecords[table] ?: mutableListOf()
+        cache.add(id)
+        cachedRecords[table] = cache
     }
 
-    private fun isCached(id: RecordID): Boolean = cachedRecords.contains(id)
+    private fun isCached(table: TableName, id: RecordID): Boolean = cachedRecords[table]?.contains(id) ?: false
+
+    private fun removeFromCache(table: TableName, id: RecordID) = cachedRecords[table]?.remove(id)
 
     private fun setUpSchema(schema: Schema) {
-        log?.info("Setting up schema")
-        database.executeStatements(schema.sql + Queries.localStorageSchema)
-        database.userVersion = schema.version
-    }
-
-    private fun setUpDatabase(schema: Schema) {
-        log?.info("Setting up database with version ${schema.version}")
-        try {
-            unsafeResetDatabase(schema)
-        } catch (e: Exception) {
-            throw e
+        database.transaction {
+            database.executeStatements(schema.sql + Queries.localStorageSchema)
+            database.userVersion = schema.version
         }
     }
 
     private fun migrate(migrations: MigrationSet) {
-        log?.info("Migrating database from version ${migrations.from} to ${migrations.to}")
         require(database.userVersion == migrations.from) {
             "Incompatbile migration set applied. " +
                     "DB: ${database.userVersion}, migration: ${migrations.from}"
         }
 
-        try {
+        database.transaction {
             database.executeStatements(migrations.sql)
             database.userVersion = migrations.to
-        } catch (e: Exception) {
-            // TODO: Should we crash here? Is this recoverable? Is handling in JS better?
-            throw Exception("Error while performing migrations", e)
         }
     }
 
@@ -216,7 +208,6 @@ class DatabaseDriver(context: Context, dbName: String) {
             in 1..(schemaVersion - 1) ->
                 SchemaCompatibility.NeedsMigration(fromVersion = databaseVersion)
             else -> {
-                // TODO: Safe to assume this would only happen in dev and we can safely reset the database?
                 log?.info("Database has newer version ($databaseVersion) than what the " +
                         "app supports ($schemaVersion). Will reset database.")
                 SchemaCompatibility.NeedsSetup

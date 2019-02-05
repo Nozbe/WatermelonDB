@@ -1,7 +1,7 @@
 package com.nozbe.watermelonTest
 
 import org.junit.Test
-import android.support.test.rule.ActivityTestRule
+import androidx.test.rule.ActivityTestRule
 import android.util.Log
 import org.junit.Assert
 import org.junit.Rule
@@ -14,7 +14,7 @@ class BridgeTest {
     @Test
     fun testBridge() {
         synchronized(BridgeTestReporter.testFinishedNotification) {
-            BridgeTestReporter.testFinishedNotification.wait(60000)
+            BridgeTestReporter.testFinishedNotification.wait(500000)
         }
         try {
             val result = BridgeTestReporter.result
@@ -30,7 +30,7 @@ class BridgeTest {
                 }
             }
         } catch (e: UninitializedPropertyAccessException) {
-            Assert.fail("Report could not have been obtained.")
+            Assert.fail("Bridge tests timed out and a report could not have been obtained. Either JS code could not be run at all or one of the asynchronous tests never returned")
         }
     }
 }

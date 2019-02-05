@@ -89,27 +89,34 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         fromVersion: SchemaVersion,
         toVersion: SchemaVersion,
         promise: Promise
-    ) = connectDriver(
-            connectionTag = tag,
-            driver = DatabaseDriver(
-                    context = reactContext,
-                    dbName = databaseName,
-                    migrations = MigrationSet(
-                            from = fromVersion,
-                            to = toVersion,
-                            sql = migrations
-                    )
-            ),
-            promise = promise
-    )
+    ) {
+        try {
+            connectDriver(
+                    connectionTag = tag,
+                    driver = DatabaseDriver(
+                            context = reactContext,
+                            dbName = databaseName,
+                            migrations = MigrationSet(
+                                    from = fromVersion,
+                                    to = toVersion,
+                                    sql = migrations
+                            )
+                    ),
+                    promise = promise
+            )
+        } catch (e: Exception) {
+            disconnectDriver(tag)
+            promise.reject(e)
+        }
+    }
 
     @ReactMethod
     fun find(tag: ConnectionTag, table: TableName, id: RecordID, promise: Promise) =
             withDriver(tag, promise) { it.find(table, id) }
 
     @ReactMethod
-    fun query(tag: ConnectionTag, query: SQL, promise: Promise) =
-            withDriver(tag, promise) { it.cachedQuery(query) }
+    fun query(tag: ConnectionTag, table: TableName, query: SQL, promise: Promise) =
+            withDriver(tag, promise) { it.cachedQuery(table, query) }
 
     @ReactMethod
     fun count(tag: ConnectionTag, query: SQL, promise: Promise) =
@@ -151,13 +158,16 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     fun removeLocal(tag: ConnectionTag, key: String, promise: Promise) =
             withDriver(tag, promise) { it.removeLocal(key) }
 
+    @Throws(Exception::class)
     private fun withDriver(
         tag: ConnectionTag,
         promise: Promise,
         function: (DatabaseDriver) -> Any?
     ) {
         try {
-            val connection = connections[tag]
+            val connection =
+                    connections[tag] ?: promise.reject(
+                            Exception("No driver with tag $tag available"))
             when (connection) {
                 is Connection.Connected -> {
                     val result = function(connection.driver)
@@ -187,15 +197,17 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
                 try {
                     when (type) {
                         "execute" -> {
-                            val query = operation.getString(1) as SQL
-                            val args = operation.getArray(2).toArrayList() as QueryArgs
-                            preparedOperations.add(Operation.Execute(query, args))
-                        }
-                        "create" -> {
-                            val id = operation.getString(1) as RecordID
+                            val table = operation.getString(1) as TableName
                             val query = operation.getString(2) as SQL
                             val args = operation.getArray(3).toArrayList() as QueryArgs
-                            preparedOperations.add(Operation.Create(id, query, args))
+                            preparedOperations.add(Operation.Execute(table, query, args))
+                        }
+                        "create" -> {
+                            val table = operation.getString(1) as TableName
+                            val id = operation.getString(2) as RecordID
+                            val query = operation.getString(3) as SQL
+                            val args = operation.getArray(4).toArrayList() as QueryArgs
+                            preparedOperations.add(Operation.Create(table, id, query, args))
                         }
                         "markAsDeleted" -> {
                             val table = operation.getString(1) as TableName
@@ -240,5 +252,14 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             operation()
         }
         promise.resolve(true)
+    }
+
+    private fun disconnectDriver(connectionTag: ConnectionTag) {
+        val queue = connections[connectionTag]?.queue ?: arrayListOf()
+        connections.remove(connectionTag)
+
+        for (operation in queue) {
+            operation()
+        }
     }
 }

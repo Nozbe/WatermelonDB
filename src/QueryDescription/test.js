@@ -1,6 +1,6 @@
 import * as Q from './index'
 
-describe('watermelondb/QueryDescription', () => {
+describe('QueryDescription', () => {
   it('builds empty query', () => {
     const query = Q.buildQueryDescription([])
     expect(query).toEqual({

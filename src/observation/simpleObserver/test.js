@@ -21,7 +21,7 @@ const makeMock = (database, name) =>
     mock.name = name
   })
 
-describe('watermelondb/observation/simpleObserver', () => {
+describe('simpleObserver', () => {
   it('observes changes correctly', async () => {
     const database = makeDatabase()
 
@@ -39,7 +39,7 @@ describe('watermelondb/observation/simpleObserver', () => {
 
     // check initial matches
     await new Promise(process.nextTick) // give time to propagate
-    expect(observer).toBeCalledWith([m2])
+    expect(observer).toHaveBeenCalledWith([m2])
 
     // make some irrelevant changes (no emission)
     const m3 = await makeMock(database, 'irrelevant')
@@ -50,26 +50,26 @@ describe('watermelondb/observation/simpleObserver', () => {
 
     // add a matching record
     const m4 = await makeMock(database, 'foo')
-    expect(observer).toBeCalledWith([m2, m4])
+    expect(observer).toHaveBeenCalledWith([m2, m4])
 
     // change existing record to match
     await m3.update(mock => {
       mock.name = 'foo'
     })
-    expect(observer).toBeCalledWith([m2, m4, m3])
+    expect(observer).toHaveBeenCalledWith([m2, m4, m3])
 
     // change existing record to no longer match
     await m4.update(mock => {
       mock.name = 'nope'
     })
-    expect(observer).toBeCalledWith([m2, m3])
+    expect(observer).toHaveBeenCalledWith([m2, m3])
 
     // change matching record in irrelevant ways (no emission)
     await m3.update()
 
     // remove matching record
     await m2.destroyPermanently()
-    expect(observer).toBeCalledWith([m3])
+    expect(observer).toHaveBeenCalledWith([m3])
 
     // ensure no extra emissions
     subscription.unsubscribe()

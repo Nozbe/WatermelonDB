@@ -1,7 +1,7 @@
 import { logger } from '../../../utils/common'
 import encodeValue from './index'
 
-describe('watermelondb/adapters/sqlite/encodeValue', () => {
+describe('SQLite encodeValue', () => {
   it('encodes SQLite values', () => {
     expect(encodeValue(true)).toBe('1')
     expect(encodeValue(false)).toBe('0')

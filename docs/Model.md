@@ -17,7 +17,9 @@ export default class Post extends Model {
 }
 ```
 
-Mark the table name for this Model — the same you defined [in the schema](./Schema.md). Remember to add new Models to `Database`:
+Mark the table name for this Model — the same you defined [in the schema](./Schema.md).
+
+Now add the new Model to `Database`:
 
 ```js
 // index.js
@@ -25,9 +27,7 @@ import Post from 'model/Post'
 
 const database = new Database({
   // ...
-  modelClasses: [
-    Post,
-  ],
+  modelClasses: [Post],
 })
 ```
 
@@ -111,7 +111,7 @@ class Comment extends Model {
 
 **➡️ Learn more:** [Relation API](./Relation.md)
 
-### Children
+### Children (To-Many relation)
 
 To point to a list of records that belong to this Model, e.g. all `Comment`s that belong to a `Post`, you can define a simple `Query` using `@children`:
 

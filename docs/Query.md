@@ -124,8 +124,25 @@ This queries all comments that are **both** verified **and** awesome.
 | `Q.where('dislikes', Q.lt(100))` | `dislikes < 100` |
 | `Q.where('dislikes', Q.lte(100))` | `dislikes <= 100` |
 | `Q.where('likes', Q.between(10, 100))` | `likes >= 10 && likes <= 100` |
-| `Q.where('status', Q.oneOf('published', 'draft'))` | `status === 'published' \|\| status === 'draft'` |
-| `Q.where('status', Q.notIn('archived', 'deleted'))` | `status !== 'archived' && status !== 'deleted'` |
+| `Q.where('status', Q.oneOf(['published', 'draft']))` | `status === 'published' \|\| status === 'draft'` |
+| `Q.where('status', Q.notIn(['archived', 'deleted']))` | `status !== 'archived' && status !== 'deleted'` |
+| `Q.where('status', Q.like('%bl_sh%'))` | `/.*bl.sh.*/g` (See note below!) |
+
+**Note:** It's NOT SAFE to use `Q.like` with user input directly, because special characters like `%` or `_` are not escaped. Always sanitize user input like so: 
+```js
+Q.like(`%${Q.sanitizeLikeString(userInput)}%`)
+```
+
+You can use `Q.like` for search-related tasks. For example, to find all users whose username start with "jas" (case-insensitive) you can write
+
+```js
+usersCollection.query(
+  Q.where("username", Q.like(`${Q.sanitizeLikeString("jas")}%`)
+)
+```
+
+where `"jas"` can be changed dynamically with user input.
+
 
 ### Conditions on related tables
 
@@ -184,7 +201,7 @@ commentCollection.query(
 
 ### `null` behavior
 
-There are some gotchas you should be aware of. The `Q.gt`, `gte`, `lt`, `lte`, `oneOf`, `notIn` operators match the semantics of SQLite in terms of how they treat `null`. Those are different from JavaScript.
+There are some gotchas you should be aware of. The `Q.gt`, `gte`, `lt`, `lte`, `oneOf`, `notIn`, `like` operators match the semantics of SQLite in terms of how they treat `null`. Those are different from JavaScript.
 
 **Rule of thumb:** No null comparisons are allowed.
 

@@ -1,13 +1,12 @@
 // @flow
 
-import { sortBy, prop, pipe, map } from 'rambdax'
+import { prop, pipe, map } from 'rambdax'
 import { unnest } from '../../utils/fp'
 
 import { type SchemaMigrations, type MigrationStep } from './index'
 import { type SchemaVersion } from '../index'
 
 const getAllSteps = pipe(
-  sortBy(prop('from')),
   map(prop('steps')),
   unnest,
 )
@@ -20,9 +19,17 @@ export function stepsForMigration({
   migrations: SchemaMigrations,
   fromVersion: SchemaVersion,
   toVersion: SchemaVersion,
-}>): MigrationStep[] {
-  const matchingMigrations = schemaMigrations.migrations.filter(
-    migration => migration.from >= fromVersion && migration.to <= toVersion,
+}>): ?(MigrationStep[]) {
+  const { sortedMigrations, minVersion, maxVersion } = schemaMigrations
+
+  // see if migrations in this range are available
+  if (fromVersion < minVersion || toVersion > maxVersion) {
+    return null
+  }
+
+  // return steps
+  const matchingMigrations = sortedMigrations.filter(
+    ({ toVersion: version }) => version > fromVersion && version <= toVersion,
   )
 
   return getAllSteps(matchingMigrations)
