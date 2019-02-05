@@ -135,8 +135,8 @@ import { field } from '@nozbe/watermelondb/decorators'
 class PostAuthor extends Model {
   static table = 'post_authors'
   static associations = {
-    posts: { type: 'belongs_to', Key: 'post_id' },
-    users: { type: 'belongs_to', Key: 'user_id' },
+    posts: { type: 'belongs_to', key: 'post_id' },
+    users: { type: 'belongs_to', key: 'user_id' },
   }
   @field('post_id') postId
   @field('user_id') userId
