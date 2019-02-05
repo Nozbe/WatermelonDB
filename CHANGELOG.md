@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file.
 - [Sync] Added `hasUnsyncedChanges()` helper method
 - [Sync] Improved documentation for backends that can't distinguish between `created` and `updated` records
 - [Sync] Improved diagnostics / protection against edge cases
-
+- Add missing `header search path` to support **ejected** expo project.
 
 ## 0.10.0 - 2019-01-18
 
