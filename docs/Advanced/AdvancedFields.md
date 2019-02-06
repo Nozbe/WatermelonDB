@@ -5,7 +5,7 @@
 You can use `@text` instead of `@field` to enable user text sanitization. When setting a new value on a `@text` field, excess whitespace will be trimmed from both ends from the string.
 
 ```js
-import { date } from '@nozbe/watermelondb/decorators'
+import { text } from '@nozbe/watermelondb/decorators'
 
 class Post extends Model {
   // ...
