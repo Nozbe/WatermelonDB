@@ -40,14 +40,7 @@ class DatabaseDriver {
     }
 
     private init(dbName: String) {
-        // swiftlint:disable:next force_try
-        let path = try! FileManager.default
-            .url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-            .appendingPathComponent("\(dbName).db")
-            .path
-
-        // In test env, pass name of memory db
-        self.database = Database(path: isTestRunning ? dbName : path)
+        self.database = Database(path: getPath(dbName: dbName))
     }
 
     func find(table: Database.TableName, id: RecordId) throws -> Any? {
@@ -174,7 +167,7 @@ class DatabaseDriver {
         cachedSet.insert(id)
         cachedRecords[table] = cachedSet
     }
-    
+
     private func removeFromCache(_ table: Database.TableName, _ id: RecordId) {
         cachedRecords[table]?.remove(id)
     }
@@ -235,4 +228,17 @@ class DatabaseDriver {
 
         create index local_storage_key_index on local_storage (key);
     """
+}
+
+private func getPath(dbName: String) -> String {
+    // If starts with `file:` or contains `/`, it's a path!
+    if dbName.starts(with: "file:") || dbName.contains("/") {
+        return dbName
+    } else {
+        // swiftlint:disable:next force_try
+        return try! FileManager.default
+            .url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+            .appendingPathComponent("\(dbName).db")
+            .path
+    }
 }
