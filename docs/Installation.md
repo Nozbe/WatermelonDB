@@ -31,7 +31,7 @@ yarn add @nozbe/watermelondb
     **Automatically**
 
     ```bash
-    react-native link
+    react-native link @nozbe/watermelondb
     ```
 
     **Or manually**
