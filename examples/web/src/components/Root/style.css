@@ -3,6 +3,9 @@
   flex-direction: column;
   overflow: hidden;
   height: 100vh;
+  padding: 10px;
+  min-width: 320px;
+  box-sizing: border-box;
 }
 
 .content {
@@ -11,11 +14,13 @@
   display: flex;
   flex-direction: row;
   flex: 1;
+  margin-top: 10px;
   background: #f1f1f1;
-  margin: 10px;
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
+  position: relative;
+  box-sizing: border-box;
 }
 
 .header {
@@ -23,43 +28,97 @@
   flex: 0 0 auto;
   align-items: center;
   position: relative;
-  margin: 10px;
-  padding: 20px 0;
 }
 
 .logo {
-  width: 300px;
-  margin-right: 50px;
+  width: 100%;
+  max-width: 300px;
 }
 
 .sidebar {
-  min-width: 240px;
+  width: 320px;
+  height: 100%;
   flex: 0 0 auto;
   background: #eee;
   border-right: 1px solid #ddd;
   overflow: auto;
+  box-sizing: border-box;
 }
 
 .postList {
   width: 320px;
+  height: 100%;
   flex: 0 0 auto;
   background: #f5f5f5;
   border-right: 1px solid #ddd;
   overflow: auto;
+  box-sizing: border-box;
+}
+
+.wrapper {
+  flex: 1;
+  height: 100%;
+  background: #fff;
+  overflow: auto;
+  word-wrap: break-word;
 }
 
 .main {
   flex: 1;
-  padding: 20px;
+  height: 100%;
   background: #fff;
   overflow: auto;
+  word-wrap: break-word;
 }
 
 .searchInput {
-  width: 230px;
-  margin-left: 10px;
+  width: 90%;
+  max-width: 320px;
+  margin: 5px 0 5px 5px;
   padding: 5px;
   font-size: 16px;
-  border: none;
   outline: none;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.headerBtnGroup {
+  margin: 10px 0 0;
+}
+
+.generateLink {
+  text-decoration: none;
+}
+
+@media screen and (max-width: 650px) {
+  .header {
+    flex-direction: column;
+  }
+
+  .headerBtnGroup {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sidebar {
+    width: 100%;
+  }
+
+  .postList {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+  }
+
+  .main {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+  }
 }

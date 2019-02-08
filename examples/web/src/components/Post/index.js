@@ -5,27 +5,31 @@ import withObservables from '@nozbe/with-observables'
 
 import Comment from 'components/Comment'
 import Button from 'components/Button'
+import BackLink from 'components/BackLink'
 
 import style from './style'
 
 const Post = props => {
-  const { post, comments, addComment } = props
+  const { post, comments, addComment, hideMain, match } = props
 
   return (
-    <div>
-      <div className={style.title}>{post.title}</div>
-      <div className={style.subtitle}>{post.subtitle}</div>
-      <div className={style.body}>{post.body}</div>
-      <div className={style.comments}>
-        <div className={style.commentsTitle}>Comments ({comments.length})</div>
-        {comments.map(comment => (
-          <Comment comment={comment} key={comment.id} />
-        ))}
-        <div className={style.addCommentContainer}>
-          <Button title="Add comment" onClick={addComment} />
+    <React.Fragment>
+      <BackLink to={`/blog/${match.params.blogId}`} onClick={hideMain}>&lt; Back</BackLink>
+      <div className={style.postBlock}>
+        <div className={style.title}>{post.title}</div>
+        <div className={style.subtitle}>{post.subtitle}</div>
+        <div className={style.body}>{post.body}</div>
+        <div className={style.comments}>
+          <div className={style.commentsTitle}>Comments ({comments.length})</div>
+          {comments.map(comment => (
+            <Comment comment={comment} key={comment.id} />
+          ))}
+          <div className={style.addCommentContainer}>
+            <Button title="Add comment" onClick={addComment} />
+          </div>
         </div>
       </div>
-    </div>
+    </React.Fragment>
   )
 }
 

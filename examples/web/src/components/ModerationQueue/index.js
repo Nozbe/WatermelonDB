@@ -3,16 +3,20 @@ import { compose, withPropsOnChange } from 'recompose'
 import withObservables from '@nozbe/with-observables'
 
 import Comment from 'components/Comment'
+import BackLink from 'components/BackLink'
 import style from './style'
 
-const ModerationQueue = ({ blog, nastyComments }) => (
-  <div className={style.post}>
-    <span className={style.title}>Moderation queue for {blog.name}</span>
-    <span className={style.subtitle}>Nasty comments ({nastyComments.length})</span>
-    {nastyComments.map(comment => (
-      <Comment comment={comment} key={comment.id} />
-    ))}
-  </div>
+const ModerationQueue = ({ blog, nastyComments, hideMain, match }) => (
+  <React.Fragment>
+    <BackLink to={`/blog/${match.params.blogId}`} onClick={hideMain}>&lt; Back</BackLink>
+    <div className={style.queueBlock}>
+        <span className={style.title}>Moderation queue for {blog.name}</span>
+        <span className={style.subtitle}>Nasty comments ({nastyComments.length})</span>
+        {nastyComments.map(comment => (
+            <Comment comment={comment} key={comment.id} />
+        ))}
+    </div>
+  </React.Fragment>
 )
 
 const enhance = compose(

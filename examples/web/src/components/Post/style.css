@@ -1,3 +1,7 @@
+.postBlock {
+  padding: 10px;
+  box-sizing: border-box;
+}
 
 .title {
   font-size: 2.4rem;
