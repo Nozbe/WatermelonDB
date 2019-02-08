@@ -62,20 +62,14 @@ describe('Batch writes', () => {
     ])
 
     expect(collectionObserver).toHaveBeenCalledTimes(4)
-    expect(collectionObserver).toHaveBeenCalledWith([
-      { record: m1, type: CollectionChangeTypes.updated },
-    ])
-    expect(collectionObserver).toHaveBeenCalledWith([
-      { record: m2, type: CollectionChangeTypes.updated },
-    ])
+    expect(collectionObserver).toHaveBeenCalledWith([{ record: m1, type: CollectionChangeTypes.updated }])
+    expect(collectionObserver).toHaveBeenCalledWith([{ record: m2, type: CollectionChangeTypes.updated }])
 
     const createdRecords = [m3, m4]
     createdRecords.forEach(record => {
       expect(record._isCommitted).toBe(true)
       expect(collection._cache.get(record.id)).toBe(record)
-      expect(collectionObserver).toHaveBeenCalledWith([
-        { record, type: CollectionChangeTypes.created },
-      ])
+      expect(collectionObserver).toHaveBeenCalledWith([{ record, type: CollectionChangeTypes.created }])
     })
 
     expect(recordObserver).toHaveBeenCalledTimes(2)
@@ -150,9 +144,7 @@ describe('Observation', () => {
 
     expect(observer).toHaveBeenCalledTimes(8)
     expect(observer).toHaveBeenCalledWith([{ record: m1, type: CollectionChangeTypes.destroyed }])
-    expect(observer).toHaveBeenLastCalledWith([
-      { record: m2, type: CollectionChangeTypes.destroyed },
-    ])
+    expect(observer).toHaveBeenLastCalledWith([{ record: m2, type: CollectionChangeTypes.destroyed }])
   })
 })
 
