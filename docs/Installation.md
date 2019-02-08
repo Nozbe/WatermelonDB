@@ -26,7 +26,7 @@ yarn add @nozbe/watermelondb
 ### iOS (React Native)
 
 1. Set up Babel config in your project — see instructions above
-2. Add Swift support to the project:
+2. Add Swift support to your Xcode project:
    - Open `ios/YourAppName.xcodeproj` in Xcode
    - Right-click on **Your App Name** in the Project Navigator on the left, and click **New File…**
    - Create a single empty `Swift` file to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header** and **do not remove `Swift`** file then.
