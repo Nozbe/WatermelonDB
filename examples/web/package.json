@@ -77,7 +77,7 @@
     "worker-loader": "^2.0.0"
   },
   "now": {
-    "version": 2,
+    "type": "static",
     "name": "watermelondb",
     "alias": "watermelondb",
     "public": true
