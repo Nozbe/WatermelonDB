@@ -14,7 +14,7 @@ matrix:
         - LANG=en_US.UTF-8
 
       before_install:
-        - nvm install 11
+        - nvm install 10
         - which node
         - node --version
         - export TRAVIS_NODE_BINARY=$(which node)
