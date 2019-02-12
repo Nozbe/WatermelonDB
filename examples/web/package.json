@@ -25,7 +25,9 @@
     "@babel/plugin-proposal-export-namespace-from": "^7.0.0",
     "@babel/plugin-proposal-function-sent": "^7.0.0",
     "@babel/plugin-proposal-json-strings": "^7.0.0",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.2.0",
     "@babel/plugin-proposal-numeric-separator": "^7.0.0",
+    "@babel/plugin-proposal-optional-chaining": "^7.2.0",
     "@babel/plugin-proposal-throw-expressions": "^7.0.0",
     "@babel/plugin-syntax-dynamic-import": "^7.0.0",
     "@babel/plugin-syntax-import-meta": "^7.0.0",
@@ -65,17 +67,17 @@
     "postcss-url": "^8.0.0",
     "prettier-eslint-cli": "^4.7.1",
     "serve-static": "^1.13.2",
+    "terser": "^3.16.1",
+    "uglifyjs-webpack-plugin": "2.1.1",
     "url-loader": "^1.1.1",
     "webpack": "^4.17.1",
     "webpack-cli": "^3.1.0",
     "webpack-merge": "^4.1.4",
     "webpack-serve": "^2.0.2",
-    "worker-loader": "^2.0.0",
-    "terser": "^3.16.1",
-    "uglifyjs-webpack-plugin": "2.1.1"
+    "worker-loader": "^2.0.0"
   },
   "now": {
-    "type": "static",
+    "version": 2,
     "name": "watermelondb",
     "alias": "watermelondb",
     "public": true
