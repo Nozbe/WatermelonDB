@@ -1,7 +1,6 @@
 const Webpack = require('webpack')
 const WebpackClean = require('clean-webpack-plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
-const OptimizeJsPlugin = require('optimize-js-plugin')
 const uglifyJsPkg = require('uglify-js/package.json')
 
 const path = require('path')
@@ -18,14 +17,12 @@ module.exports = merge(config, {
   },
   optimization: {
     minimizer: [
-      new OptimizeJsPlugin({ sourceMap: false }),
       new UglifyJsPlugin({
         parallel: true,
         cache: true,
         sourceMap: true,
         cacheKeys: defaultCacheKeys => {
           delete defaultCacheKeys['uglify-js']
-
           return {
             ...defaultCacheKeys,
             'uglify-js': uglifyJsPkg.version,
@@ -37,13 +34,11 @@ module.exports = merge(config, {
               comments: false,
             },
           }
-
           if (sourceMap) {
             uglifyJsOptions.sourceMap = {
               content: sourceMap,
             }
           }
-
           // eslint-disable-next-line
           return require('terser').minify(file, uglifyJsOptions)
         },
