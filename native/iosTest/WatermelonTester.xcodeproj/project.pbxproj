@@ -669,11 +669,11 @@
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
 						CreatedOnToolsVersion = 6.2;
-						LastSwiftMigration = 0940;
+						LastSwiftMigration = 1010;
 						TestTargetID = 13B07F861A680F5B00A75B9A;
 					};
 					13B07F861A680F5B00A75B9A = {
-						LastSwiftMigration = 0940;
+						LastSwiftMigration = 1010;
 					};
 				};
 			};
@@ -1194,6 +1194,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "WatermelonTesterTests/WatermelonTesterTests-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.2;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WatermelonTester.app/WatermelonTester";
 			};
 			name = Debug;
@@ -1218,6 +1219,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "WatermelonTesterTests/WatermelonTesterTests-Bridging-Header.h";
+				SWIFT_VERSION = 4.2;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WatermelonTester.app/WatermelonTester";
 			};
 			name = Release;
@@ -1249,6 +1251,7 @@
 				PRODUCT_NAME = WatermelonTester;
 				SWIFT_OBJC_BRIDGING_HEADER = "WatermelonTester/WatermelonTester-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.2;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -1278,6 +1281,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.nozbe.watermelondb.tester;
 				PRODUCT_NAME = WatermelonTester;
 				SWIFT_OBJC_BRIDGING_HEADER = "WatermelonTester/WatermelonTester-Bridging-Header.h";
+				SWIFT_VERSION = 4.2;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
