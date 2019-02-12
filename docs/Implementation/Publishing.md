@@ -32,7 +32,7 @@ Don't use `yarn release` (or `yarn publish`) — it won't work (yarn doesn't sup
 
 ```bash
 cd examples/native
-yarn upgrade-interactive
+yarn upgrade-interactive --latest
 yarn dev
 yarn start:ios
 yarn start:android
@@ -42,7 +42,7 @@ web:
 
 ```bash
 cd ../web
-yarn upgrade-interactive
+yarn upgrade-interactive --latest
 yarn dev
 # check out if web works
 ```
