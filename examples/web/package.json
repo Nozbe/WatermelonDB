@@ -8,6 +8,16 @@
     "dev": "node webpack.server.js",
     "build": "webpack --config ./webpack.prod.js"
   },
+  "dependencies": {
+    "@nozbe/watermelondb": "^0.10.1",
+    "@nozbe/with-observables": "^1.0.0",
+    "lokijs": "^1.5.5",
+    "react": "16.8.1",
+    "react-dom": "^16.4.2",
+    "react-router": "^4.3.1",
+    "react-router-dom": "^4.3.1",
+    "recompose": "^0.30.0"
+  },
   "devDependencies": {
     "@babel/core": "^7.0.0",
     "@babel/plugin-proposal-class-properties": "^7.0.0",
@@ -61,17 +71,9 @@
     "webpack-cli": "^3.1.0",
     "webpack-merge": "^4.1.4",
     "webpack-serve": "^2.0.2",
-    "worker-loader": "^2.0.0"
-  },
-  "dependencies": {
-    "@nozbe/watermelondb": "^0.10.1",
-    "@nozbe/with-observables": "^1.0.0",
-    "lokijs": "^1.5.5",
-    "react": "16.8.1",
-    "react-dom": "^16.4.2",
-    "react-router": "^4.3.1",
-    "react-router-dom": "^4.3.1",
-    "recompose": "^0.30.0"
+    "worker-loader": "^2.0.0",
+    "terser": "^3.16.1",
+    "uglifyjs-webpack-plugin": "2.1.1"
   },
   "now": {
     "type": "static",
