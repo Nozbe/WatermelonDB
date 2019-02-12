@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 0.10.1 - 2019-02-12
+
 ### Changes
 
 - [Android] Changed `compile` to `implementation` in Library Gradle file
