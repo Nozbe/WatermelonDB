@@ -141,6 +141,8 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-screens')
+    implementation project(':react-native-gesture-handler')
     implementation project(':react-native-prompt-android')
     implementation project(':watermelondb')
     implementation fileTree(include: ['*.jar'], dir: 'libs')
