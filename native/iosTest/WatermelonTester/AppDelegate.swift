@@ -8,7 +8,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
     func application(
         _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+        didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]? = nil
         ) -> Bool {
         assert(NSClassFromString("XCTest") != nil, "WatermelonTester has to be run in Test mode, not ran directly")
 
