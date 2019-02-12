@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+- Updated demo dependencies
+- LokiJS is now a dependency of WatermelonDB (although it's only required for use on the web)
+
 ## 0.10.1 - 2019-02-12
 
 ### Changes
