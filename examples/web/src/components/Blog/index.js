@@ -28,22 +28,24 @@ const PostItem = compose(
     post: post.observe(),
   })),
   withHandlers({
-    onClick: ({ onClick, post }) => e => {
+    onClick: ({ onClick, post, showMain }) => e => {
       onClick(e, post.id)
+      showMain()
     },
   }),
 )(RawPostItem)
 
 const NastyCommentsItem = compose(
   withHandlers({
-    onClick: ({ onClick, blog }) => e => {
+    onClick: ({ onClick, blog, showMain }) => e => {
       onClick(e, blog.id)
+      showMain()
     },
   }),
 )(RowNastyCommentsItem)
 
 const Blog = props => {
-  const { blog, posts, moderate, setActiveItem, activeItem } = props
+  const { blog, posts, moderate, setActiveItem, activeItem, showMain } = props
 
   return (
     <div className={style.root}>
@@ -54,13 +56,17 @@ const Blog = props => {
       <NastyCommentsItem blog={blog}
         to={`/blog/${blog.id}/nasty/${blog.id}`}
         isActive={blog.id === activeItem}
-        onClick={setActiveItem} />
+        onClick={setActiveItem}
+        showMain={showMain}
+      />
       {posts.map(post => (
         <PostItem post={post}
           key={post.id}
           to={`/blog/${blog.id}/post/${post.id}`}
           isActive={post.id === activeItem}
-          onClick={setActiveItem} />
+          onClick={setActiveItem}
+          showMain={showMain}
+        />
       ))}
     </div>
   )

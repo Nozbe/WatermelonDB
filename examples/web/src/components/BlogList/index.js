@@ -20,16 +20,18 @@ const BlogItem = compose(
     blog: blog.observe(),
   })),
   withHandlers({
-    onClick: ({ onClick, blog }) => e => {
+    onClick: ({ onClick, blog, showPostList }) => e => {
       onClick(e, blog.id)
+      showPostList()
     },
   }),
 )(RawBlogItem)
 
-const BlogList = ({ blogs, setActiveItem, activeItem }) => (
+const BlogList = ({ blogs, setActiveItem, activeItem, showPostList }) => (
   <div className={style.root}>
     {blogs.map(blog => (
       <BlogItem blog={blog}
+        showPostList={showPostList}
         key={blog.id}
         to={`/blog/${blog.id}`}
         isActive={blog.id === activeItem}
@@ -50,9 +52,11 @@ const enhance = compose(
       activeItem: null,
     },
     {
-      setActiveItem: () => (e, postId) => ({
-        activeItem: postId,
-      }),
+      setActiveItem: () => (e, postId) => {
+        return {
+          activeItem: postId,
+        }
+      },
     },
   ),
 )

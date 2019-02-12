@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - [iOS] Add missing `header search path` to support **ejected** expo project.
 - [Android] Fix crash on android < 5.0
 - [iOS] `SQLiteAdapter`'s `dbName` path now allows you to pass an absolute path to a file, instead of a name
+- [Web] Add adaptive layout for demo example with smooth scrolling for iOS
 
 ## 0.10.0 - 2019-01-18
 

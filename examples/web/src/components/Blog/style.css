@@ -1,5 +1,6 @@
 .postLength {
   display: flex;
+  flex: 1;
   align-items: center;
   justify-content: space-between;
   font-size: 1.2rem;
