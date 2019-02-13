@@ -754,7 +754,7 @@ describe('synchronize', () => {
     const sync2 = syncWithDelay(300).catch(error => error)
 
     expect(await sync1).toBe(undefined)
-    expect(await sync2).toMatchObject({ message: /concurrent sync/i })
+    expect(await sync2).toMatchObject({ message: expect.stringMatching(/concurrent sync/i) })
     expect(await getLastPulledAt(database)).toBe(100)
   })
   it('can recover from pull failure', async () => {
