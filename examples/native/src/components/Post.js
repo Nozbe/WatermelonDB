@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import { ScrollView, Text, SafeAreaView, FlatList, View } from 'react-native'
+import { Text } from 'react-native'
+import { FlatList } from 'react-navigation'
 import withObservables from '@nozbe/with-observables'
 
 import Comment from './Comment'
@@ -19,19 +20,21 @@ class Post extends Component {
   render() {
     const { post, comments } = this.props
     return (
-      <ScrollView>
-        <SafeAreaView style={styles.container}>
-          <Text style={styles.title}>{post.title}</Text>
-          <Text style={styles.subtitle}>{post.subtitle}</Text>
-          <Text style={styles.body}>{post.body}</Text>
-          <Text style={styles.subtitle}>Comments ({comments.length})</Text>
-          <FlatList style={styles.marginContainer}
-            data={comments}
-            renderItem={renderComment}
-            keyExtractor={extractId} />
+      <FlatList style={styles.marginContainer}
+        data={comments}
+        renderItem={renderComment}
+        ListHeaderComponent={() => (
+          <>
+            <Text style={styles.title}>{post.title}</Text>
+            <Text style={styles.subtitle}>{post.subtitle}</Text>
+            <Text style={styles.body}>{post.body}</Text>
+            <Text style={styles.subtitle}>Comments ({comments.length})</Text>
+          </>
+        )}
+        ListFooterComponent={() => (
           <Button style={styles.button} title="Add comment" onPress={this.addComment} />
-        </SafeAreaView>
-      </ScrollView>
+        )}
+        keyExtractor={extractId} />
     )
   }
 }

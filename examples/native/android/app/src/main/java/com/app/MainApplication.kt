@@ -7,6 +7,8 @@ import com.facebook.react.ReactPackage
 import com.facebook.react.shell.MainReactPackage
 import com.nozbe.watermelondb.WatermelonDBPackage
 import im.shimo.react.prompt.RNPromptPackage
+import com.swmansion.gesturehandler.react.RNGestureHandlerPackage
+import com.swmansion.rnscreens.RNScreensPackage
 import java.util.Arrays
 import java.util.Date
 
@@ -25,7 +27,9 @@ class MainApplication : Application(), ReactApplication {
                         MainReactPackage(),
                         NativeModulesPackage(),
                         RNPromptPackage(),
-                        WatermelonDBPackage()
+                        WatermelonDBPackage(),
+                        RNGestureHandlerPackage(),
+                        RNScreensPackage()
                 )
 
         override fun getJSMainModuleName(): String = "index"

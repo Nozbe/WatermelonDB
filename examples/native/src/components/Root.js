@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react'
-import { ScrollView, SafeAreaView, Alert, Text, View, Image, TextInput } from 'react-native'
+import { SafeAreaView, Alert, Text, View, Image, TextInput } from 'react-native'
+import { ScrollView } from 'react-navigation'
 
 import { generate100, generate10k } from '../models/generate'
 import Button from './helpers/Button'
@@ -32,7 +33,7 @@ class Root extends Component {
 
   handleOnFocus = () => this.setState({ isSearchFocused: true })
 
-  handleOnBlur = () => this.setState({ isSearchFocused: false})
+  handleOnBlur = () => this.setState({ isSearchFocused: false })
 
   render() {
     const { search, isGenerating, isSearchFocused } = this.state
