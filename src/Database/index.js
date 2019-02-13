@@ -93,7 +93,7 @@ export default class Database {
   // NOTE: This is not 100% safe automatically and you must take some precautions to avoid bugs:
   // - You must NOT hold onto any Database objects. DO NOT store or cache any records, collections, anything
   // - You must NOT observe any record or collection or query
-  // - You must NOT have any pending (queued) Actions
+  // - You SHOULD NOT have any pending (queued) Actions. Pending actions will be aborted (will reject with an error).
   //
   // It's best to reset your app to an empty / logged out state before doing this.
   //
@@ -102,7 +102,7 @@ export default class Database {
     this._ensureInAction(
       `Database.unsafeResetDatabase() can only be called from inside of an Action. See docs for more details.`,
     )
-
+    this._actionQueue._abortPendingActions()
     this._unsafeClearCaches()
     await this.adapter.unsafeResetDatabase()
   }

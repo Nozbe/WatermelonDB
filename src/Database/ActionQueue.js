@@ -87,4 +87,13 @@ export default class ActionQueue implements ActionInterface {
       setTimeout(() => this._executeNext(), 0)
     }
   }
+
+  _abortPendingActions(): void {
+    invariant(this._queue.length >= 1, 'abortPendingActions can only be called from an Action')
+    const actionsToAbort = this._queue.splice(1) // leave only the current action (calling this method) on the queue
+
+    actionsToAbort.forEach(({ reject }) => {
+      reject(new Error('Action has been aborted because the database was reset'))
+    })
+  }
 }

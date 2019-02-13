@@ -347,6 +347,7 @@ describe('Database actions', () => {
     let promise2
     let promise3
     let dangerousActionsCalled = 0
+    let safeActionsCalled = 0
 
     const manyActions = async () => {
       // this will be called before reset:
@@ -365,14 +366,25 @@ describe('Database actions', () => {
       await promise3
     }
 
-    const promises = manyActions()
+    const promises = manyActions().catch(e => e)
     await database.action(() => database.unsafeResetDatabase())
 
-    await expectToRejectWithMessage(promises, /database was reset/)
+    // actions beyond unsafe reset should be successful
+    await Promise.all([
+      database.action(async () => {
+        safeActionsCalled += 1
+      }),
+      database.action(async () => {
+        safeActionsCalled += 1
+      }),
+    ])
+
+    expect(await promises).toMatchObject({ message: expect.stringMatching(/database was reset/) })
 
     expect(await promise1).toBe(1)
     await expectToRejectWithMessage(promise2, /database was reset/)
-    await expectToRejectWithMessage(promise3, /database was reset/)
+    expect(promise3).toBe(undefined) // code will never reach this point
     expect(dangerousActionsCalled).toBe(0)
+    expect(safeActionsCalled).toBe(2)
   })
 })
