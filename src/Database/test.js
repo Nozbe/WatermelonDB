@@ -46,6 +46,16 @@ describe('unsafeResetDatabase', () => {
 
     expect(await tasks.find(m1.id)).toBe(m1)
   })
+  it('increments reset count after every reset', async () => {
+    const { database } = mockDatabase({ actionsEnabled: true })
+    expect(database._resetCount).toBe(0)
+
+    await database.action(() => database.unsafeResetDatabase())
+    expect(database._resetCount).toBe(1)
+
+    await database.action(() => database.unsafeResetDatabase())
+    expect(database._resetCount).toBe(2)
+  })
 })
 
 describe('Batch writes', () => {

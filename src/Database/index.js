@@ -88,6 +88,8 @@ export default class Database {
     return merge$(...changesSignals).pipe(startWith(null))
   }
 
+  _resetCount = 0
+
   // Resets database - permanently destroys ALL records stored in the database, and sets up empty database
   //
   // NOTE: This is not 100% safe automatically and you must take some precautions to avoid bugs:
@@ -105,6 +107,7 @@ export default class Database {
     this._actionQueue._abortPendingActions()
     this._unsafeClearCaches()
     await this.adapter.unsafeResetDatabase()
+    this._resetCount += 1
   }
 
   _unsafeClearCaches(): void {
