@@ -12,7 +12,7 @@ import {
   setLastPulledAt,
   hasUnsyncedChanges as hasUnsyncedChangesImpl,
 } from './impl'
-import { ensureActionsEnabled } from './impl/helpers'
+import { ensureActionsEnabled, ensureSameDatabase } from './impl/helpers'
 
 export type Timestamp = number
 
@@ -46,11 +46,13 @@ export async function synchronize({
   sendCreatedAsUpdated,
 }: SyncArgs): Promise<void> {
   ensureActionsEnabled(database)
+  const resetCount = database._resetCount
 
   // pull phase
   const lastPulledAt = await getLastPulledAt(database)
   const { changes: remoteChanges, timestamp: newLastPulledAt } = await pullChanges({ lastPulledAt })
   await database.action(async action => {
+    ensureSameDatabase(database, resetCount)
     invariant(
       lastPulledAt === (await getLastPulledAt(database)),
       '[Sync] Concurrent synchronization is not allowed. More than one synchronize() call was running at the same time, and the later one was aborted before committing results to local database.',
@@ -63,7 +65,11 @@ export async function synchronize({
 
   // push phase
   const localChanges = await fetchLocalChanges(database)
+
+  ensureSameDatabase(database, resetCount)
   await pushChanges({ changes: localChanges.changes, lastPulledAt: newLastPulledAt })
+
+  ensureSameDatabase(database, resetCount)
   await markLocalChangesAsSynced(database, localChanges)
 }
 

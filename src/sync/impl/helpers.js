@@ -74,3 +74,10 @@ export function ensureActionsEnabled(database: Database): void {
     '[Sync] To use Sync, Actions must be enabled. Pass `{ actionsEnabled: true }` to Database constructor — see docs for more details',
   )
 }
+
+export function ensureSameDatabase(database: Database, initialResetCount: number): void {
+  invariant(
+    database._resetCount === initialResetCount,
+    `[Sync] Sync aborted because database was reset`,
+  )
+}
