@@ -340,4 +340,39 @@ describe('Database actions', () => {
     expect(called1).toBe(1)
     expect(called2).toBe(0)
   })
+  it('aborts all pending actions if database is reset', async () => {
+    const { database } = mockDatabase({ actionsEnabled: true })
+
+    let promise1
+    let promise2
+    let promise3
+    let dangerousActionsCalled = 0
+
+    const manyActions = async () => {
+      // this will be called before reset:
+      promise1 = database.action(async () => 1)
+      await promise1
+
+      // this will be called after reset:
+      promise2 = database.action(async () => {
+        dangerousActionsCalled += 1
+      })
+      await promise2
+
+      promise3 = database.action(async () => {
+        dangerousActionsCalled += 1
+      })
+      await promise3
+    }
+
+    const promises = manyActions()
+    await database.action(() => database.unsafeResetDatabase())
+
+    await expectToRejectWithMessage(promises, /database was reset/)
+
+    expect(await promise1).toBe(1)
+    await expectToRejectWithMessage(promise2, /database was reset/)
+    await expectToRejectWithMessage(promise3, /database was reset/)
+    expect(dangerousActionsCalled).toBe(0)
+  })
 })

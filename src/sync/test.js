@@ -966,7 +966,7 @@ describe('synchronize', () => {
         }),
         pushChanges,
       }),
-      /aborted/,
+      /database was reset/,
     )
     await expectToRejectWithMessage(projects.find('new_project'), /not found/)
     expect(pushChanges).not.toHaveBeenCalled()
@@ -986,7 +986,7 @@ describe('synchronize', () => {
         }),
         pushChanges: () => database.action(() => database.unsafeResetDatabase()),
       }),
-      /aborted/,
+      /database was reset/,
     )
     await expectToRejectWithMessage(projects.find('new_project'), /not found/)
   })
