@@ -947,6 +947,49 @@ describe('synchronize', () => {
   it.skip(`only emits one collection batch change`, async () => {
     // TODO: unskip when batch change emissions are implemented
   })
+  it('aborts if database is cleared during sync', async () => {
+    const { database, projects } = makeDatabase()
+    const pushChanges = jest.fn()
+    await expectToRejectWithMessage(
+      synchronize({
+        database,
+        pullChanges: jest.fn(async () => {
+          await database.action(() => database.unsafeResetDatabase())
+          return {
+            changes: makeChangeSet({
+              mock_projects: {
+                created: [{ id: 'new_project', name: 'remote' }],
+              },
+            }),
+            timestamp: 1500,
+          }
+        }),
+        pushChanges,
+      }),
+      /aborted/,
+    )
+    await expectToRejectWithMessage(projects.find('new_project'), /not found/)
+    expect(pushChanges).not.toHaveBeenCalled()
+  })
+  it('aborts if database is cleared during sync — different case', async () => {
+    const { database, projects } = makeDatabase()
+    await expectToRejectWithMessage(
+      synchronize({
+        database,
+        pullChanges: () => ({
+          changes: makeChangeSet({
+            mock_projects: {
+              created: [{ id: 'new_project', name: 'remote' }],
+            },
+          }),
+          timestamp: 1500,
+        }),
+        pushChanges: () => database.action(() => database.unsafeResetDatabase()),
+      }),
+      /aborted/,
+    )
+    await expectToRejectWithMessage(projects.find('new_project'), /not found/)
+  })
   it('aborts if actions are not enabled', async () => {
     const { database } = mockDatabase({ actionsEnabled: false })
 
