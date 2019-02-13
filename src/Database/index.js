@@ -83,7 +83,16 @@ export default class Database {
     return merge$(...changesSignals).pipe(startWith(null))
   }
 
-  // This only works correctly when no Models are being observed!
+  // Resets database - permanently destroys ALL records stored in the database, and sets up empty database
+  //
+  // NOTE: This is not 100% safe automatically and you must take some precautions to avoid bugs:
+  // - You must NOT hold onto any Database objects. DO NOT store or cache any records, collections, anything
+  // - You must NOT observe any record or collection or query
+  // - You must NOT have any pending (queued) Actions
+  //
+  // It's best to reset your app to an empty / logged out state before doing this.
+  //
+  // Yes, this sucks and there should be some safety mechanisms or warnings. Please contribute!
   async unsafeResetDatabase(): Promise<void> {
     this._unsafeClearCaches()
     await this.adapter.unsafeResetDatabase()
