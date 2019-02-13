@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 - ⚠️ Potentially breaking: `Database.unsafeResetDatabase()` now requires that you run it inside an Action
 - [Sync] Fixed an issue where synchronization would continue running despite `unsafeResetDatabase` being called
+- Actions are now aborted when `unsafeResetDatabase()` is called, making reseting database a little bit safer
 
 ## 0.10.1 - 2019-02-12
 
