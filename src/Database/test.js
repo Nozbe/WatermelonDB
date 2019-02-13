@@ -19,6 +19,35 @@ describe('Database', () => {
   })
 })
 
+describe('unsafeResetDatabase', () => {
+  it('can reset database', async () => {
+    const { database, tasks } = mockDatabase({ actionsEnabled: true })
+
+    const m1 = await database.action(() => tasks.create())
+    const m2 = await database.action(() => tasks.create())
+
+    expect(await tasks.find(m1.id)).toBe(m1)
+    expect(await tasks.find(m2.id)).toBe(m2)
+
+    // reset
+    await database.action(() => database.unsafeResetDatabase())
+
+    await expectToRejectWithMessage(tasks.find(m1.id), /not found/)
+    await expectToRejectWithMessage(tasks.find(m2.id), /not found/)
+  })
+  it('throws error if reset is called from outside an Action', async () => {
+    const { database, tasks } = mockDatabase({ actionsEnabled: true })
+    const m1 = await database.action(() => tasks.create())
+
+    await expectToRejectWithMessage(
+      database.unsafeResetDatabase(),
+      /can only be called from inside of an Action/,
+    )
+
+    expect(await tasks.find(m1.id)).toBe(m1)
+  })
+})
+
 describe('Batch writes', () => {
   it('can batch records', async () => {
     // eslint-disable-next-line
@@ -62,14 +91,20 @@ describe('Batch writes', () => {
     ])
 
     expect(collectionObserver).toHaveBeenCalledTimes(4)
-    expect(collectionObserver).toHaveBeenCalledWith([{ record: m1, type: CollectionChangeTypes.updated }])
-    expect(collectionObserver).toHaveBeenCalledWith([{ record: m2, type: CollectionChangeTypes.updated }])
+    expect(collectionObserver).toHaveBeenCalledWith([
+      { record: m1, type: CollectionChangeTypes.updated },
+    ])
+    expect(collectionObserver).toHaveBeenCalledWith([
+      { record: m2, type: CollectionChangeTypes.updated },
+    ])
 
     const createdRecords = [m3, m4]
     createdRecords.forEach(record => {
       expect(record._isCommitted).toBe(true)
       expect(collection._cache.get(record.id)).toBe(record)
-      expect(collectionObserver).toHaveBeenCalledWith([{ record, type: CollectionChangeTypes.created }])
+      expect(collectionObserver).toHaveBeenCalledWith([
+        { record, type: CollectionChangeTypes.created },
+      ])
     })
 
     expect(recordObserver).toHaveBeenCalledTimes(2)
@@ -144,7 +179,9 @@ describe('Observation', () => {
 
     expect(observer).toHaveBeenCalledTimes(8)
     expect(observer).toHaveBeenCalledWith([{ record: m1, type: CollectionChangeTypes.destroyed }])
-    expect(observer).toHaveBeenLastCalledWith([{ record: m2, type: CollectionChangeTypes.destroyed }])
+    expect(observer).toHaveBeenLastCalledWith([
+      { record: m2, type: CollectionChangeTypes.destroyed },
+    ])
   })
 })
 

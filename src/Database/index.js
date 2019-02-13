@@ -94,6 +94,10 @@ export default class Database {
   //
   // Yes, this sucks and there should be some safety mechanisms or warnings. Please contribute!
   async unsafeResetDatabase(): Promise<void> {
+    this._ensureInAction(
+      `Database.unsafeResetDatabase() can only be called from inside of an Action. See docs for more details.`,
+    )
+
     this._unsafeClearCaches()
     await this.adapter.unsafeResetDatabase()
   }
