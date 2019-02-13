@@ -71,7 +71,12 @@ export default class Database {
     })
   }
 
-  // TODO: Document me!
+  // Enqueues an Action -- a block of code that, when its ran, has a guarantee that no other Action
+  // is running at the same time.
+  // If Database is instantiated with actions enabled, all write actions (create, update, delete)
+  // must be performed inside Actions, so Actions guarantee a write lock.
+  //
+  // See docs for more details and practical guide
   action<T>(work: ActionInterface => Promise<T>, description?: string): Promise<T> {
     return this._actionQueue.enqueue(work, description)
   }
