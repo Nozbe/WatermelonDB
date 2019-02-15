@@ -37,6 +37,18 @@ describe('decorators/timestamp', () => {
     model.date = null
     expect(model._getRaw('date')).toBe(null)
   })
+  it('returns 1970 date, not null if timestamp=0', () => {
+    const model = new MockModel({ schema }, { date: 0 })
+    expect(model.date).toBeInstanceOf(Date)
+    expect(+model.date).toBe(0)
+  })
+  it('sets 1970 date, not null if timestamp', () => {
+    const model = new MockModel({ schema }, {})
+    model._isEditing = true
+    model.date = new Date(0)
+    expect(model._getRaw('date')).toBe(0)
+    expect(+model.date).toBe(0)
+  })
   it('fails if applied to incorrect fields', () => {
     expect(
       () =>

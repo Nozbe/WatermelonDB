@@ -24,7 +24,7 @@ const dateDecorator = makeDecorator(
       enumerable: true,
       get(): ?Date {
         const rawValue = this._getRaw(columnName)
-        return rawValue ? new Date(rawValue) : null
+        return typeof rawValue === 'number' ? new Date(rawValue) : null
       },
       set(date: ?Date): void {
         const rawValue = date ? +new Date(date) : null
