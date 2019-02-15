@@ -63,15 +63,6 @@ export default class Database {
     })
     await this.adapter.batch(operations)
 
-    /* operations.forEach(([type, record]) => {
-      const { collection } = record
-      if (type === 'create') {
-        collection._onRecordCreated(record)
-      } else if (type === 'update') {
-        collection._onRecordUpdated(record)
-      }
-    }) */
-
     const sortedOperations = []
     operations.forEach(([type, record]) => {
       const operation =
@@ -90,8 +81,8 @@ export default class Database {
     })
     sortedOperations.forEach(
       ({ collection, operations: operationz }) => {
-        collection.changeSet(operationz),
-      },
+        collection.changeSet(operationz)
+      }
     )
   }
 
