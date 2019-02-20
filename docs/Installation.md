@@ -72,7 +72,7 @@ Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (alt
 3. In `android/build.gradle`, add Kotlin support to the project:
    ```gradle
    buildscript {
-       ext.kotlin_version = '1.2.61'
+       ext.kotlin_version = '1.3.21'
        // ...
        dependencies {
            // ...
