@@ -72,7 +72,7 @@ Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (alt
 3. In `android/build.gradle`, add Kotlin support to the project:
    ```gradle
    buildscript {
-       ext.kotlin_version = '1.2.61'
+       ext.kotlin_version = '1.3.21'
        // ...
        dependencies {
            // ...
@@ -114,15 +114,11 @@ Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (alt
 
 This guide assumes you use Webpack as your bundler.
 
-1. Install LokiJS dependency:
-    ```sh
-    yarn add lokijs
-    ```
-2. Install [worker-loader](https://github.com/webpack-contrib/worker-loader) Webpack plugin to add support for Web Workers to your app:
+1. Install [worker-loader](https://github.com/webpack-contrib/worker-loader) Webpack plugin to add support for Web Workers to your app:
     ```sh
     yarn add --dev worker-loader
     ```
-3. And add this to Webpack configuration:
+2. And add this to Webpack configuration:
     ```js
     // webpack.config.js
     {
@@ -142,13 +138,13 @@ This guide assumes you use Webpack as your bundler.
       }
     }
     ```
-4. If you haven't already, install Babel plugins for decorators, static class properties, and async/await to get the most out of Watermelon. This assumes you use Babel 7 and already support ES6 syntax.
+3. If you haven't already, install Babel plugins for decorators, static class properties, and async/await to get the most out of Watermelon. This assumes you use Babel 7 and already support ES6 syntax.
     ```bash
     yarn add --dev @babel/plugin-proposal-decorators
     yarn add --dev @babel/plugin-proposal-class-properties
     yarn add --dev @babel/plugin-transform-runtime
     ```
-5. Add ES7 support to your `.babelrc` file:
+4. Add ES7 support to your `.babelrc` file:
     ```json
     {
       "plugins": [

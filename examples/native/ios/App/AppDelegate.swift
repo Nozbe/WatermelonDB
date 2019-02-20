@@ -7,7 +7,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
   func application(
     _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]? = nil
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
     let jsLocation = RCTBundleURLProvider.sharedSettings()
       .jsBundleURL(forBundleRoot: "index", fallbackResource: nil)
