@@ -134,14 +134,21 @@ android {
             }
         }
     }
+
+    packagingOptions {
+        pickFirst '**/libjsc.so'
+    }
 }
 
 dependencies {
+    implementation project(':react-native-screens')
+    implementation project(':react-native-gesture-handler')
     implementation project(':react-native-prompt-android')
     implementation project(':watermelondb')
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.facebook.react:react-native:+'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     // From node_modules
 }
 
@@ -156,4 +163,7 @@ configurations.all {
 task copyDownloadableDepsToLibs(type: Copy) {
     from configurations.compile
     into 'libs'
+}
+repositories {
+    mavenCentral()
 }
