@@ -4,7 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
-- ⚠️ Potentially breaking: `Database.unsafeResetDatabase()` now requires that you run it inside an Action
+### Changes
+
+- ⚠️ Potentially BREAKING fix: a `@date` field now returns a Jan 1, 1970 date instead of `null` if the field's raw value is `0`.
+   This is considered a bug fix, since it's unexpected to receive a `null` from a getter of a field whose column schema doesn't say `isOptional: true`.
+   However, if you relied on this behavior, this might be a breaking change.
+- ⚠️ BREAKING: `Database.unsafeResetDatabase()` now requires that you run it inside an Action
 - [Sync] Fixed an issue where synchronization would continue running despite `unsafeResetDatabase` being called
 - Actions are now aborted when `unsafeResetDatabase()` is called, making reseting database a little bit safer
 
