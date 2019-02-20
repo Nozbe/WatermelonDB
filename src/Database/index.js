@@ -71,7 +71,12 @@ export default class Database {
     })
   }
 
-  // TODO: Document me!
+  // Enqueues an Action -- a block of code that, when its ran, has a guarantee that no other Action
+  // is running at the same time.
+  // If Database is instantiated with actions enabled, all write actions (create, update, delete)
+  // must be performed inside Actions, so Actions guarantee a write lock.
+  //
+  // See docs for more details and practical guide
   action<T>(work: ActionInterface => Promise<T>, description?: string): Promise<T> {
     return this._actionQueue.enqueue(work, description)
   }
@@ -83,10 +88,26 @@ export default class Database {
     return merge$(...changesSignals).pipe(startWith(null))
   }
 
-  // This only works correctly when no Models are being observed!
+  _resetCount = 0
+
+  // Resets database - permanently destroys ALL records stored in the database, and sets up empty database
+  //
+  // NOTE: This is not 100% safe automatically and you must take some precautions to avoid bugs:
+  // - You must NOT hold onto any Database objects. DO NOT store or cache any records, collections, anything
+  // - You must NOT observe any record or collection or query
+  // - You SHOULD NOT have any pending (queued) Actions. Pending actions will be aborted (will reject with an error).
+  //
+  // It's best to reset your app to an empty / logged out state before doing this.
+  //
+  // Yes, this sucks and there should be some safety mechanisms or warnings. Please contribute!
   async unsafeResetDatabase(): Promise<void> {
+    this._ensureInAction(
+      `Database.unsafeResetDatabase() can only be called from inside of an Action. See docs for more details.`,
+    )
+    this._actionQueue._abortPendingActions()
     this._unsafeClearCaches()
     await this.adapter.unsafeResetDatabase()
+    this._resetCount += 1
   }
 
   _unsafeClearCaches(): void {
