@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changes
+
+- ⚠️ Potentially BREAKING fix: a `@date` field now returns a Jan 1, 1970 date instead of `null` if the field's raw value is `0`.
+   This is considered a bug fix, since it's unexpected to receive a `null` from a getter of a field whose column schema doesn't say `isOptional: true`.
+   However, if you relied on this behavior, this might be a breaking change.
 - Updated demo dependencies
 - LokiJS is now a dependency of WatermelonDB (although it's only required for use on the web)
 
