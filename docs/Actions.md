@@ -14,8 +14,8 @@ import { action } from '@nozbe/watermelondb/decorators'
 class Post extends Model {
   // ...
 
-  @action async addComment(body, author) {
-    return await this.collections.get('comments').create(comment => {
+  @action addComment(body, author) {
+    return this.collections.get('comments').create(comment => {
       comment.post.set(this)
       comment.author.set(author)
       comment.body = body
@@ -36,8 +36,8 @@ class Comment extends Model {
   // ...
   @field('is_spam') isSpam
 
-  @action async markAsSpam() {
-    await this.update(comment => {
+  @action markAsSpam() {
+    return this.update(comment => {
       comment.isSpam = true
     })
   }
