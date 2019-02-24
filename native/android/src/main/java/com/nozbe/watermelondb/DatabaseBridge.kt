@@ -193,20 +193,20 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         for (i in 0 until this.size()) {
             try {
                 val operation = this.getArray(i)
-                val type = operation.getString(0)
+                val type = operation?.getString(0)
                 try {
                     when (type) {
                         "execute" -> {
                             val table = operation.getString(1) as TableName
                             val query = operation.getString(2) as SQL
-                            val args = operation.getArray(3).toArrayList() as QueryArgs
+                            val args = operation.getArray(3)?.toArrayList() as QueryArgs
                             preparedOperations.add(Operation.Execute(table, query, args))
                         }
                         "create" -> {
                             val table = operation.getString(1) as TableName
                             val id = operation.getString(2) as RecordID
                             val query = operation.getString(3) as SQL
-                            val args = operation.getArray(4).toArrayList() as QueryArgs
+                            val args = operation.getArray(4)?.toArrayList() as QueryArgs
                             preparedOperations.add(Operation.Create(table, id, query, args))
                         }
                         "markAsDeleted" -> {
