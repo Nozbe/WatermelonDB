@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
 - Actions are now aborted when `unsafeResetDatabase()` is called, making reseting database a little bit safer
 - Updated demo dependencies
 - LokiJS is now a dependency of WatermelonDB (although it's only required for use on the web)
+- [Android] fix compile error for kotlin 1.3+ 
 
 ## 0.10.1 - 2019-02-12
 
