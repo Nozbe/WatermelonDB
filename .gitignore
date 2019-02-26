@@ -1,11 +1,13 @@
 .DS_Store
 
+.idea/
 .cache/
 node_modules/
 
 npm-debug.log
 yarn-error.log
 
+types/
 dist/
 dev/
 
