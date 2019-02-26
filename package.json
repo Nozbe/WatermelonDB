@@ -2,6 +2,7 @@
   "name": "@nozbe/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
   "version": "0.10.1",
+  "types": "./types/index.d.ts",
   "scripts": {
     "build": "NODE_ENV=production node ./scripts/make.js",
     "dev": "NODE_ENV=development node ./scripts/make.js",
@@ -9,6 +10,7 @@
     "prettier": "prettier-eslint --config ./.prettierrc --write \"./src/**/*.js\"",
     "flow": "flow check",
     "eslint": "eslint ./src -c ./.eslintrc.yml --cache --cache-location ./.cache/.eslintcache",
+    "tslint": "tslint --project .",
     "test": "jest --config=./jest.config.js --forceExit --detectOpenHandles --no-cache",
     "ci:check": "concurrently 'npm run test' 'npm run eslint' 'npm run flow' --kill-others-on-fail",
     "test:android": "cd native/androidTest; ./gradlew connectedAndroidTest",
@@ -133,6 +135,10 @@
     "react-native": "^0.58.3",
     "react-test-renderer": "16.8.3",
     "rimraf": "^2.6.2",
-    "semver": "^5.5.1"
+    "semver": "^5.5.1",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.15.0",
+    "typescript": "^3.0.3",
+    "utility-types": "^2.1.0"
   }
 }

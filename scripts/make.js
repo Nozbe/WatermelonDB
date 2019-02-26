@@ -12,6 +12,7 @@ const {
   omit,
   merge,
   forEach,
+  debounce,
 } = require('rambdax')
 
 const babel = require('@babel/core')
@@ -23,6 +24,7 @@ const prettyJson = require('json-stringify-pretty-compact')
 const chokidar = require('chokidar')
 const anymatch = require('anymatch')
 const rimraf = require('rimraf')
+const { execFile } = require('child_process')
 
 const pkg = require('../package.json')
 
@@ -46,9 +48,13 @@ const DO_NOT_BUILD_PATHS = [
   /__mocks__/,
   /\.DS_Store/,
   /package\.json/,
+  /___jb_tmp___$/,
 ]
 
-const isNotIncludedInBuildPaths = value => !anymatch(DO_NOT_BUILD_PATHS, value)
+const ONLY_WATCH_PATHS = [/\.ts$/]
+
+const isNotIncludedInBuildPaths = value =>
+  !anymatch([...DO_NOT_BUILD_PATHS, ...ONLY_WATCH_PATHS], value)
 
 const cleanFolder = dir => rimraf.sync(dir)
 
@@ -127,6 +133,15 @@ const copyNonJavaScriptFiles = buildPath => {
   cleanFolder(`${buildPath}/native/android/build`)
 }
 
+const isTypescript = file => file.match(/\.ts$/)
+
+const compileTypescriptDefinitions = () => {
+  // eslint-disable-next-line
+  console.log(`✓ TypeScript definitions`)
+
+  execFile('./node_modules/.bin/tsc', ['--project', '.', '--outDir', path.join(DIR_PATH, 'types')])
+}
+
 if (isDevelopment) {
   const buildCjsModule = buildModule(CJS_MODULES)
   const buildSrcModule = buildModule(SRC_MODULES)
@@ -134,6 +149,18 @@ if (isDevelopment) {
   const buildFile = file => {
     buildSrcModule(file)
     buildCjsModule(file)
+  }
+
+  const compileTypescriptDefinitionsWhenIdle = debounce(compileTypescriptDefinitions, 250)
+
+  const processFile = file => {
+    if (isTypescript(file)) {
+      compileTypescriptDefinitionsWhenIdle()
+    } else {
+      // eslint-disable-next-line
+      console.log(`✓ ${removeSourcePath(file)}`)
+      buildFile(file)
+    }
   }
 
   cleanFolder(DEV_PATH)
@@ -147,9 +174,7 @@ if (isDevelopment) {
       switch (event) {
         case 'add':
         case 'change':
-          // eslint-disable-next-line
-          console.log(`✓ ${removeSourcePath(fileOrDir)}`)
-          buildFile(fileOrDir)
+          processFile(fileOrDir)
           break
         default:
           break
@@ -166,4 +191,5 @@ if (isDevelopment) {
 
   buildSrcModules(modules)
   buildCjsModules(modules)
+  compileTypescriptDefinitions()
 }
