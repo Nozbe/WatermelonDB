@@ -28,13 +28,13 @@ describe('decorators/timestamp', () => {
   it('sets timestamps cast from dates', () => {
     const model = new MockModel({ schema }, {})
     model._isEditing = true
-    model.field = Date.now()
+    model.date = Date.now()
     expect(model._getRaw('date')).toBeGreaterThan(1500000000000)
   })
   it('sets null if passed', () => {
     const model = new MockModel({ schema }, {})
     model._isEditing = true
-    model.field = null
+    model.date = null
     expect(model._getRaw('date')).toBe(null)
   })
   it('returns 1970 date, not null if timestamp=0', () => {

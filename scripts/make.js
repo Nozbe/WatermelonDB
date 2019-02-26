@@ -51,15 +51,10 @@ const DO_NOT_BUILD_PATHS = [
   /___jb_tmp___$/,
 ]
 
-const ONLY_WATCH_PATHS = [
-  /\.ts$/,
-]
+const ONLY_WATCH_PATHS = [/\.ts$/]
 
-
-const isNotIncludedInBuildPaths = value => !anymatch([
-  ...DO_NOT_BUILD_PATHS,
-  ...ONLY_WATCH_PATHS,
-], value)
+const isNotIncludedInBuildPaths = value =>
+  !anymatch([...DO_NOT_BUILD_PATHS, ...ONLY_WATCH_PATHS], value)
 
 const cleanFolder = dir => rimraf.sync(dir)
 
@@ -93,14 +88,12 @@ const babelTransform = (format, file) => {
   return code
 }
 
-const transform = (format, file) => babelTransform(format, file)
-
 const paths = klaw(SOURCE_PATH)
 const modules = takeModules(paths)
 
 const buildModule = format => file => {
   const modulePath = createModulePath(format)
-  const code = transform(format, file)
+  const code = babelTransform(format, file)
   const filename = modulePath(file)
 
   createFolder(path.dirname(filename))
@@ -146,10 +139,7 @@ const compileTypescriptDefinitions = () => {
   // eslint-disable-next-line
   console.log(`✓ TypeScript definitions`)
 
-  execFile('./node_modules/.bin/tsc', [
-    '--project', '.',
-    '--outDir', path.join(DIR_PATH, 'types'),
-  ])
+  execFile('./node_modules/.bin/tsc', ['--project', '.', '--outDir', path.join(DIR_PATH, 'types')])
 }
 
 if (isDevelopment) {
@@ -161,10 +151,7 @@ if (isDevelopment) {
     buildCjsModule(file)
   }
 
-  const compileTypescriptDefinitionsWhenIdle = debounce(
-    compileTypescriptDefinitions,
-    250,
-  )
+  const compileTypescriptDefinitionsWhenIdle = debounce(compileTypescriptDefinitions, 250)
 
   const processFile = file => {
     if (isTypescript(file)) {
