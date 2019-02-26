@@ -20,6 +20,7 @@ declare module '@nozbe/watermelondb' {
     TableSchema,
     AppSchema,
   } from '@nozbe/watermelondb/Schema'
+  export { useDatabase } from '@nozbe/watermelondb/hooks'
 
   export { Q }
 }
