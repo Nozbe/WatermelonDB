@@ -2,7 +2,8 @@
 import React from 'react'
 import Database from '../Database'
 
-const { Provider, Consumer } = (React.createContext(): any)
+export const DatabaseContext = (React.createContext(): any)
+const { Provider, Consumer } = DatabaseContext
 
 export type Props = {
   database: Database,
