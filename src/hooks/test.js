@@ -1,4 +1,5 @@
 import React from 'react'
+import * as TestRenderer from 'react-test-renderer'
 import { renderHook, cleanup } from 'react-hooks-testing-library'
 import { useDatabase } from './use-database'
 import DatabaseProvider from '../DatabaseProvider'
@@ -25,11 +26,13 @@ describe('useDatabase hook', () => {
   })
 
   test('should throw without Provider', () => {
-    const { result } = renderHook(() => useDatabase())
-    expect(result.current).toBeUndefined()
-    // expect(renderHook(() => useDatabase())).toThrow(
-    //   'Could not find database context, please make sure the component is wrapped in the <DatabaseProvider>',
-    // )
-    
+    const Component = () => {
+      useDatabase()
+    }
+    expect(() => {
+      TestRenderer.create(<Component />)
+    }).toThrow(
+      /Could not find database context, please make sure the component is wrapped in the <DatabaseProvider>/i,
+    )
   })
 })
