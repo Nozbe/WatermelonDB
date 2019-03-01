@@ -1,16 +1,17 @@
 // @flow
 import { useContext } from 'react'
 import { DatabaseContext } from '../DatabaseProvider'
-import Database from '../Database'
 import invariant from '../utils/common/invariant'
 
-import type DatabaseType from '../Database'
+import type Database from '../Database'
 
-export function useDatabase(): DatabaseType {
+export function useDatabase(): Database {
   const database = useContext(DatabaseContext)
+
   invariant(
-    typeof database !== typeof Database,
+    database,
     'Could not find database context, please make sure the component is wrapped in the <DatabaseProvider>',
   )
+
   return database
 }

@@ -1,13 +1,12 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "outDir": "types",
+    "module": "commonjs",
+    "moduleResolution": "node",
     "declaration": true,
     "emitDeclarationOnly": true
   },
-  "exclude": [
-    "node_modules",
-    "types",
-    "dev"
+  "include": [
+    "src/**/*"
   ]
 }

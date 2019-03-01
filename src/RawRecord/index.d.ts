@@ -1,14 +1,14 @@
 declare module '@nozbe/watermelondb/RawRecord' {
-  import { ColumnName, ColumnSchema, RecordId, TableSchema } from "@nozbe/watermelondb";
-  import { SyncStatus } from "@nozbe/watermelondb/Model";
-  
+  import { ColumnName, ColumnSchema, RecordId, TableSchema } from '@nozbe/watermelondb'
+  import { SyncStatus } from '@nozbe/watermelondb/Model'
+
   export type DirtyRaw = object
 
   export interface RawRecord {
-    id: RecordId,
-    _status: SyncStatus,
-    _changed: string,
-    last_modified: number | null,
+    id: RecordId
+    _status: SyncStatus
+    _changed: string
+    last_modified: number | null
   }
 
   export function sanitizedRaw(dirtyRaw: DirtyRaw, tableSchema: TableSchema): RawRecord

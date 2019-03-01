@@ -1,4 +1,4 @@
-declare module '@nozbe/watermelondb/utils/common/typeUtils' {
+declare module '@nozbe/watermelondb/utils/common' {
   // tslint:disable-next-line:interface-over-type-literal
   type Class<T> = { new(): T };
 

@@ -139,7 +139,15 @@ const compileTypescriptDefinitions = () => {
   // eslint-disable-next-line
   console.log(`✓ TypeScript definitions`)
 
-  execFile('./node_modules/.bin/tsc', ['--project', '.', '--outDir', path.join(DIR_PATH, 'types')])
+  execFile(
+    './node_modules/.bin/dts-generator',
+    // eslint-disable-next-line
+    ['--project', '.', '--out', path.resolve(DIST_PATH, 'index.d.ts')],
+    (error, stdout) => {
+      // eslint-disable-next-line
+      console.log(stdout)
+    },
+  )
 }
 
 if (isDevelopment) {

@@ -3,7 +3,7 @@ declare module '@nozbe/watermelondb' {
 
   export { default as Collection } from '@nozbe/watermelondb/Collection'
   export { default as Database } from '@nozbe/watermelondb/Database'
-  export { default as CollectionMap } from '@nozbe/watermelondb/CollectionMap'
+  export { default as CollectionMap } from '@nozbe/watermelondb/Database/CollectionMap'
   export { default as Relation } from '@nozbe/watermelondb/Relation'
   export { default as Model, associations } from '@nozbe/watermelondb/Model'
   export { default as Query } from '@nozbe/watermelondb/Query'
@@ -20,7 +20,6 @@ declare module '@nozbe/watermelondb' {
     TableSchema,
     AppSchema,
   } from '@nozbe/watermelondb/Schema'
-  export { useDatabase } from '@nozbe/watermelondb/hooks'
 
   export { Q }
 }
