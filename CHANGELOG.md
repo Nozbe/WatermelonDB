@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+- [Android] removed unused test class
+- [Android] updated ktlint to `0.30.0`
+
 ### Changes
 
 - ⚠️ Potentially BREAKING fix: a `@date` field now returns a Jan 1, 1970 date instead of `null` if the field's raw value is `0`.
@@ -14,7 +17,7 @@ All notable changes to this project will be documented in this file.
 - Actions are now aborted when `unsafeResetDatabase()` is called, making reseting database a little bit safer
 - Updated demo dependencies
 - LokiJS is now a dependency of WatermelonDB (although it's only required for use on the web)
-- [Android] fix compile error for kotlin 1.3+ 
+- [Android] fix compile error for kotlin 1.3+
 
 ## 0.10.1 - 2019-02-12
 
