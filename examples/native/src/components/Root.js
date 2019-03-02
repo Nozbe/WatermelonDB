@@ -11,13 +11,18 @@ import logoSrc from './assets/logo-app.png'
 
 class Root extends Component {
   state = {
+    isGenerating: false,
     search: '',
     isSearchFocused: false,
   }
 
   generateWith = async generator => {
+    this.setState({ isGenerating: true })
+
     const count = await generator(this.props.database)
     Alert.alert(`Generated ${count} records!`)
+
+    this.setState({ isGenerating: false })
   }
 
   generate100 = () => this.generateWith(generate100)
@@ -31,7 +36,7 @@ class Root extends Component {
   handleOnBlur = () => this.setState({ isSearchFocused: false })
 
   render() {
-    const { search, isSearchFocused } = this.state
+    const { search, isGenerating, isSearchFocused } = this.state
     const { database, navigation, timeToLaunch } = this.props
 
     return (
@@ -56,7 +61,9 @@ class Root extends Component {
             onFocus={this.handleOnFocus}
             onBlur={this.handleOnBlur}
             onChangeText={this.handleTextChanges} />
-          <BlogList database={database} search={search} navigation={navigation} />
+          {!isGenerating && (
+            <BlogList database={database} search={search} navigation={navigation} />
+          )}
         </SafeAreaView>
       </ScrollView>
     )

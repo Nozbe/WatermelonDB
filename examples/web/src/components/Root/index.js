@@ -14,6 +14,7 @@ import style from './style'
 
 class Root extends Component {
   state = {
+    isGenerating: false,
     search: '',
     isShowPostList: false,
     isShowMain: false,
@@ -21,6 +22,7 @@ class Root extends Component {
 
   generateWith = async generator => {
     this.setState({
+      isGenerating: true,
       search: '',
       isShowPostList: false,
       isShowMain: false,
@@ -29,6 +31,8 @@ class Root extends Component {
     const count = await generator(this.props.database)
 
     alert(`Generated ${count} records!`)
+
+    this.setState({ isGenerating: false })
   }
 
   generate100 = () => this.generateWith(generate100)
@@ -49,7 +53,7 @@ class Root extends Component {
 
   render() {
     const { database } = this.props
-    const { search, isShowPostList, isShowMain } = this.state
+    const { isGenerating, search, isShowPostList, isShowMain } = this.state
 
     return (
       <Router basename="/">
@@ -73,12 +77,12 @@ class Root extends Component {
                 type="text"
                 defaultValue=""
                 onChange={this.handleTextChange} />
-              <BlogList search={search} database={database} showPostList={this.showPostList} />
+              {!isGenerating && <BlogList search={search} database={database} showPostList={this.showPostList} />}
             </div>
 
               <Route path="/blog/:blogId"
                 render={props =>
-                  (isShowPostList || props.match.params.blogId) && (
+                  (!isGenerating && (isShowPostList || props.match.params.blogId)) && (
                       <div className={style.postList}>
                         <BackLink to="/blog" onClick={this.hidePostList}>&lt; Back</BackLink>
                         <Blog key={props.match.params.blogId} database={database} {...props} showMain={this.showMain} />
@@ -90,22 +94,24 @@ class Root extends Component {
 
             <div className={style.wrapper}>
               <Switch>
-                  <React.Fragment>
-                    <Route path="/blog/:blogId/nasty"
-                      render={props => (isShowMain || props.match.params.blogId) && (
-                        <div className={style.main}>
-                          <ModerationQueue database={database} hideMain={this.hideMain} {...props} />
-                        </div>
-                      )}
-                    />
-                    <Route path="/blog/:blogId/post/:postId"
-                      render={props => (isShowMain || props.match.params.postId) && (
-                        <div className={style.main}>
-                          <Post database={database} hideMain={this.hideMain} {...props} />
-                        </div>
-                      )}
-                    />
-                  </React.Fragment>
+                {!isGenerating && (
+                    <React.Fragment>
+                      <Route path="/blog/:blogId/nasty"
+                        render={props => (isShowMain || props.match.params.blogId) && (
+                          <div className={style.main}>
+                            <ModerationQueue database={database} hideMain={this.hideMain} {...props} />
+                          </div>
+                        )}
+                      />
+                      <Route path="/blog/:blogId/post/:postId"
+                        render={props => (isShowMain || props.match.params.postId) && (
+                          <div className={style.main}>
+                            <Post database={database} hideMain={this.hideMain} {...props} />
+                          </div>
+                        )}
+                      />
+                    </React.Fragment>
+                )}
               </Switch>
             </div>
           </div>
