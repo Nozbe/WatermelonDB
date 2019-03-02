@@ -114,9 +114,6 @@ describe('Batch writes', () => {
     createdRecords.forEach(record => {
       expect(record._isCommitted).toBe(true)
       expect(collection._cache.get(record.id)).toBe(record)
-      // expect(collectionObserver).toHaveBeenCalledWith([
-        // { record, type: CollectionChangeTypes.created },
-      // ])
     })
 
     expect(recordObserver).toHaveBeenCalledTimes(2)
