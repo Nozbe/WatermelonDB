@@ -122,17 +122,20 @@ export default class Collection<Record: Model> {
   }
 
   changeSet(operations: { record: Record, type: CollectionChangeType }[]): void {
-
     operations.forEach(({ record, type }) => {
       if (type === CollectionChangeTypes.created) {
         record._isCommitted = true
         this._cache.add(record)
-      } else if (type === CollectionChangeTypes.updated) {
-        record._notifyChanged()
       }
     })
 
     this.changes.next(operations)
+
+    operations.forEach(({ record, type }) => {
+      if (type === CollectionChangeTypes.updated) {
+        record._notifyChanged()
+      }
+    })
   }
 
   _onRecordDestroyed(record: Record): void {
