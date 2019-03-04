@@ -121,7 +121,7 @@ export default class Collection<Record: Model> {
     this._onRecordDestroyed(record)
   }
 
-  changeSet(operations: { record: Record, type: CollectionChangeType }[]): void {
+  changeSet(operations: CollectionChangeSet<Record>): void {
     operations.forEach(({ record, type }) => {
       if (type === CollectionChangeTypes.created) {
         record._isCommitted = true

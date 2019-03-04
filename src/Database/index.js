@@ -65,10 +65,10 @@ export default class Database {
 
     const sortedOperations = []
     operations.forEach(([type, record]) => {
-      const operation =
-        type === 'create'
-          ? { record, type: CollectionChangeTypes.created }
-          : { record, type: CollectionChangeTypes.updated }
+      const operation = {
+        record,
+        type: type === 'create' ? CollectionChangeTypes.created : CollectionChangeTypes.updated,
+      }
       const indexOfCollection = sortedOperations.findIndex(
         ({ collection }) => collection === record.collection,
       )
@@ -79,11 +79,9 @@ export default class Database {
         sortedOperations.push({ collection, operations: [operation] })
       }
     })
-    sortedOperations.forEach(
-      ({ collection, operations: operationz }) => {
-        collection.changeSet(operationz)
-      }
-    )
+    sortedOperations.forEach(({ collection, operations: operationz }) => {
+      collection.changeSet(operationz)
+    })
   }
 
   // Enqueues an Action -- a block of code that, when its ran, has a guarantee that no other Action
