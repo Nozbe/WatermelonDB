@@ -81,11 +81,11 @@ describe('Batch writes', () => {
 
     const batchPromise = database.action(() =>
       database.batch(
-        m3,
+        m4,
         m1.prepareUpdate(() => {
           m1.name = 'bar1'
         }),
-        m4,
+        m3,
         m2.prepareUpdate(() => {
           m2.body = 'baz1'
         }),
@@ -99,17 +99,17 @@ describe('Batch writes', () => {
 
     expect(adapterBatchSpy).toHaveBeenCalledTimes(3)
     expect(adapterBatchSpy).toHaveBeenLastCalledWith([
-      ['create', m3],
-      ['update', m1],
       ['create', m4],
+      ['update', m1],
+      ['create', m3],
       ['update', m2],
     ])
 
     expect(tasksCollectionObserver).toHaveBeenCalledTimes(1)
     expect(commentsCollectionObserver).toHaveBeenCalledTimes(1)
     expect(tasksCollectionObserver).toHaveBeenCalledWith([
-        { record: m3, type: CollectionChangeTypes.created },
         { record: m1, type: CollectionChangeTypes.updated },
+        { record: m3, type: CollectionChangeTypes.created },
     ])
     expect(commentsCollectionObserver).toHaveBeenCalledWith([
         { record: m4, type: CollectionChangeTypes.created },
