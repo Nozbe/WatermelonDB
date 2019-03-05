@@ -5702,10 +5702,10 @@ quick-lru@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-1.1.0.tgz#4360b17c61136ad38078397ff11416e186dcfbb8"
 
-rambdax@^1.5.6:
-  version "1.7.1"
-  resolved "https://registry.yarnpkg.com/rambdax/-/rambdax-1.7.1.tgz#28c771d835952dc2f04c1eeb86dbb0cd6d05eca2"
-  integrity sha512-qQi0cXx1GqniSWREZKttHeXzboBYOb3RNHIoW/qeyyZZ8PehxN+wbwo2n7yqUvEBE1fkRDqEkbe8KCqH92PHZA==
+rambdax@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/rambdax/-/rambdax-2.0.0.tgz#f71e03be923efbb4428a2caf267bb429461a3beb"
+  integrity sha512-VLfHjSOSfxRIZ46UHPOZ0kyWtKE+kNVE3yDaKr/aJxvgADbIeeYdSqw9r+NDwTk5OR3toK3jTJ2yfqcFQqpcTw==
 
 randomatic@^3.0.0:
   version "3.1.1"
