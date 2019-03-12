@@ -123,7 +123,7 @@
     "lodash.clonedeep": "^4.5.0",
     "lokijs": "^1.5.5",
     "mkdirp": "^0.5.1",
-    "p-timeout": "^2.0.1",
+    "p-timeout": "^3.0.0",
     "prettier": "^1.14.2",
     "prettier-eslint": "^8.8.2",
     "prettier-eslint-cli": "^4.7.1",
