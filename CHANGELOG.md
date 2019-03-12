@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changes
+
+- Improved UI performance by consolidating multiple observation emissions into a single per-collection batch emission when doing batch changes
+
 ## 0.11.0 - 2019-03-12
 
 ### Breaking
