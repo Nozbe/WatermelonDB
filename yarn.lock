@@ -5341,9 +5341,10 @@ p-reduce@^1.0.0:
   resolved "https://registry.yarnpkg.com/p-reduce/-/p-reduce-1.0.0.tgz#18c2b0dd936a4690a529f8231f58a0fdb6a47dfa"
   integrity sha1-GMKw3ZNqRpClKfgjH1ig/bakffo=
 
-p-timeout@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/p-timeout/-/p-timeout-2.0.1.tgz#d8dd1979595d2dc0139e1fe46b8b646cb3cdf038"
+p-timeout@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/p-timeout/-/p-timeout-3.0.0.tgz#1bbd42db28c669efd02e1a82ccf14dc59eb57ed1"
+  integrity sha512-HKUsVzU+2A+CcItUxgZ4Q1th5Hh2DHtSsh7gLTMkrL8Ki4Ss736nFp+yqb9M/ZKSKb5il0IXeLzBmUqD3k3mzQ==
   dependencies:
     p-finally "^1.0.0"
 
