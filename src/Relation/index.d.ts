@@ -1,7 +1,7 @@
 declare module '@nozbe/watermelondb/Relation' {
   import { ColumnName, Model, RecordId, TableName } from '@nozbe/watermelondb'
   import { Observable } from 'rxjs'
-  import { $Call } from 'utility-types'
+  import { $Call } from '@nozbe/watermelondb/utils/common'
 
   type ExtractRecordIdNonOptional<T extends Model> = (value: T) => RecordId
   type ExtractRecordIdOptional<T extends Model> = (value: T | void) => RecordId | void

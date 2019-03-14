@@ -12,7 +12,6 @@ const {
   omit,
   merge,
   forEach,
-  debounce,
 } = require('rambdax')
 
 const babel = require('@babel/core')
@@ -20,11 +19,11 @@ const klaw = require('klaw-sync')
 const mkdirp = require('mkdirp')
 const path = require('path')
 const fs = require('fs-extra')
+const glob = require('glob')
 const prettyJson = require('json-stringify-pretty-compact')
 const chokidar = require('chokidar')
 const anymatch = require('anymatch')
 const rimraf = require('rimraf')
-const { execFile } = require('child_process')
 
 const pkg = require('../package.json')
 
@@ -48,13 +47,9 @@ const DO_NOT_BUILD_PATHS = [
   /__mocks__/,
   /\.DS_Store/,
   /package\.json/,
-  /___jb_tmp___$/,
 ]
 
-const ONLY_WATCH_PATHS = [/\.ts$/]
-
-const isNotIncludedInBuildPaths = value =>
-  !anymatch([...DO_NOT_BUILD_PATHS, ...ONLY_WATCH_PATHS], value)
+const isNotIncludedInBuildPaths = value => !anymatch(DO_NOT_BUILD_PATHS, value)
 
 const cleanFolder = dir => rimraf.sync(dir)
 
@@ -133,41 +128,16 @@ const copyNonJavaScriptFiles = buildPath => {
   cleanFolder(`${buildPath}/native/android/build`)
 }
 
-const isTypescript = file => file.match(/\.ts$/)
-
-const compileTypescriptDefinitions = () => {
-  // eslint-disable-next-line
-  console.log(`✓ TypeScript definitions`)
-
-  execFile(
-    './node_modules/.bin/dts-generator',
-    // eslint-disable-next-line
-    ['--project', '.', '--out', path.resolve(DIST_PATH, 'index.d.ts')],
-    (error, stdout) => {
-      // eslint-disable-next-line
-      console.log(stdout)
-    },
-  )
-}
-
 if (isDevelopment) {
   const buildCjsModule = buildModule(CJS_MODULES)
   const buildSrcModule = buildModule(SRC_MODULES)
 
   const buildFile = file => {
-    buildSrcModule(file)
-    buildCjsModule(file)
-  }
-
-  const compileTypescriptDefinitionsWhenIdle = debounce(compileTypescriptDefinitions, 250)
-
-  const processFile = file => {
-    if (isTypescript(file)) {
-      compileTypescriptDefinitionsWhenIdle()
+    if (file.match(/\.ts$/)) {
+      fs.copySync(file, path.join(DEV_PATH, replace(SOURCE_PATH, '', file)))
     } else {
-      // eslint-disable-next-line
-      console.log(`✓ ${removeSourcePath(file)}`)
-      buildFile(file)
+      buildSrcModule(file)
+      buildCjsModule(file)
     }
   }
 
@@ -182,7 +152,9 @@ if (isDevelopment) {
       switch (event) {
         case 'add':
         case 'change':
-          processFile(fileOrDir)
+          // eslint-disable-next-line
+          console.log(`✓ ${removeSourcePath(fileOrDir)}`)
+          buildFile(fileOrDir)
           break
         default:
           break
@@ -199,5 +171,9 @@ if (isDevelopment) {
 
   buildSrcModules(modules)
   buildCjsModules(modules)
-  compileTypescriptDefinitions()
+
+  // copy typescript definitions
+  glob(`${SOURCE_PATH}/**/*.d.ts`, {}, (err, files) => {
+    copyFiles(DIST_PATH, files, SOURCE_PATH)
+  })
 }

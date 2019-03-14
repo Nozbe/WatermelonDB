@@ -1,2 +1,2 @@
 // @flow
-export * from './use-database'
+export { useDatabase } from './use-database'

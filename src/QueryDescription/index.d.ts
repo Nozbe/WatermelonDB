@@ -1,5 +1,5 @@
 declare module '@nozbe/watermelondb/QueryDescription' {
-  import { ColumnName, TableName } from "@nozbe/watermelondb";
+  import { ColumnName, TableName } from '@nozbe/watermelondb'
 
   export type NonNullValue = number | string | boolean
   export type Value = NonNullValue | null
@@ -18,44 +18,41 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     | 'between'
 
   export interface ColumnDescription {
-    column: ColumnName,
+    column: ColumnName
   }
 
-  export type ComparisonRight =
-    { value: Value }
-    | { values: NonNullValue[] }
-    | ColumnDescription
+  export type ComparisonRight = { value: Value } | { values: NonNullValue[] } | ColumnDescription
 
   export interface Comparison {
-    operator: Operator,
-    right: ComparisonRight,
+    operator: Operator
+    right: ComparisonRight
   }
 
   export interface WhereDescription {
-    type: 'where',
-    left: ColumnName,
-    comparison: Comparison,
+    type: 'where'
+    left: ColumnName
+    comparison: Comparison
   }
 
   export type Where = WhereDescription | And | Or
   export interface And {
-    type: 'and',
-    conditions: Where[],
+    type: 'and'
+    conditions: Where[]
   }
   export interface Or {
-    type: 'or',
-    conditions: Where[],
+    type: 'or'
+    conditions: Where[]
   }
   export interface On {
-    type: 'on',
-    table: TableName<any>,
-    left: ColumnName,
-    comparison: Comparison,
+    type: 'on'
+    table: TableName<any>
+    left: ColumnName
+    comparison: Comparison
   }
   export type Condition = Where | On
   export interface QueryDescription {
-    where: Where[],
-    join: On[],
+    where: Where[]
+    join: On[]
   }
 
   export function eq(valueOrColumn: Value | ColumnDescription): Comparison
@@ -75,22 +72,17 @@ declare module '@nozbe/watermelondb/QueryDescription' {
   export function like(value: string): Comparison
   export function sanitizeLikeString(value: string): string
 
-  type _OnFunctionColumnValue = (
-    table: TableName<any>,
-    column: ColumnName,
-    value: Value,
-  ) => On
+  type _OnFunctionColumnValue = (table: TableName<any>, column: ColumnName, value: Value) => On
   type _OnFunctionColumnComparison = (
     table: TableName<any>,
     column: ColumnName,
     comparison: Comparison,
   ) => On
-  type _OnFunctionWhereDescription = (
-    table: TableName<any>,
-    where: WhereDescription,
-  ) => On
+  type _OnFunctionWhereDescription = (table: TableName<any>, where: WhereDescription) => On
 
-  type OnFunction = _OnFunctionColumnValue & _OnFunctionColumnComparison & _OnFunctionWhereDescription
+  type OnFunction = _OnFunctionColumnValue &
+    _OnFunctionColumnComparison &
+    _OnFunctionWhereDescription
 
   export const on: OnFunction
 

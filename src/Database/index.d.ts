@@ -15,11 +15,12 @@ declare module '@nozbe/watermelondb/Database' {
 
     public collections: CollectionMap
 
-    public constructor(options: { adapter: DatabaseAdapter; modelClasses: Array<Class<Model>> })
+    // TODO: modelClasses: Array<ModelSubClass>
+    public constructor(options: { adapter: DatabaseAdapter; modelClasses: any[] })
 
     public batch(...records: Model[]): Promise<void>
 
-    // FIXME: action<T>(work: ActionInterface => Promise<T>, description?: string): Promise<T>
+    // TODO: action<T>(work: ActionInterface => Promise<T>, description?: string): Promise<T>
     public action<T>(work: any, description?: string): Promise<T>
 
     public withChangesForTables(

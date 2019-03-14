@@ -1,42 +1,48 @@
 declare module '@nozbe/watermelondb/adapters/lokijs' {
   import {
-    AppSchema, DatabaseAdapter, Model,
-    Query, RecordId, TableName,
-  } from "@nozbe/watermelondb";
+    AppSchema,
+    DatabaseAdapter,
+    Model,
+    Query,
+    RecordId,
+    TableName,
+  } from '@nozbe/watermelondb'
   import {
-    BatchOperation, CachedFindResult, CachedQueryResult,
-  } from "@nozbe/watermelondb/adapters/type";
+    BatchOperation,
+    CachedFindResult,
+    CachedQueryResult,
+  } from '@nozbe/watermelondb/adapters/type'
 
   export interface LokiAdapterOptions {
-    dbName: string,
-    schema: AppSchema,
+    dbName: string
+    schema: AppSchema
   }
 
   export default class LokiJSAdapter implements DatabaseAdapter {
-    schema: AppSchema;
+    schema: AppSchema
 
-    constructor(options: LokiAdapterOptions);
+    constructor(options: LokiAdapterOptions)
 
-    batch(operations: BatchOperation[]): Promise<void>;
+    batch(operations: BatchOperation[]): Promise<void>
 
-    count<T extends Model>(query: Query<T>): Promise<number>;
+    count<T extends Model>(query: Query<T>): Promise<number>
 
-    destroyDeletedRecords(tableName: TableName<any>, recordIds: RecordId[]): Promise<void>;
+    destroyDeletedRecords(tableName: TableName<any>, recordIds: RecordId[]): Promise<void>
 
-    find(table: TableName<any>, id: RecordId): Promise<CachedFindResult>;
+    find(table: TableName<any>, id: RecordId): Promise<CachedFindResult>
 
-    getDeletedRecords(tableName: TableName<any>): Promise<RecordId[]>;
+    getDeletedRecords(tableName: TableName<any>): Promise<RecordId[]>
 
-    getLocal(key: string): Promise<string | void>;
+    getLocal(key: string): Promise<string | void>
 
-    query<T extends Model>(query: Query<T>): Promise<CachedQueryResult>;
+    query<T extends Model>(query: Query<T>): Promise<CachedQueryResult>
 
-    removeLocal(key: string): Promise<void>;
+    removeLocal(key: string): Promise<void>
 
-    setLocal(key: string, value: string): Promise<void>;
+    setLocal(key: string, value: string): Promise<void>
 
-    unsafeClearCachedRecords(): Promise<void>;
+    unsafeClearCachedRecords(): Promise<void>
 
-    unsafeResetDatabase(): Promise<void>;
+    unsafeResetDatabase(): Promise<void>
   }
 }

@@ -1,8 +1,9 @@
 declare module '@nozbe/watermelondb' {
   import * as Q from '@nozbe/watermelondb/QueryDescription'
+  import Database from '@nozbe/watermelondb/Database'
 
   export { default as Collection } from '@nozbe/watermelondb/Collection'
-  export { default as Database } from '@nozbe/watermelondb/Database'
+  // export { default as Database } from '@nozbe/watermelondb/Database'
   export { default as CollectionMap } from '@nozbe/watermelondb/Database/CollectionMap'
   export { default as Relation } from '@nozbe/watermelondb/Relation'
   export { default as Model, associations } from '@nozbe/watermelondb/Model'
@@ -21,5 +22,5 @@ declare module '@nozbe/watermelondb' {
     AppSchema,
   } from '@nozbe/watermelondb/Schema'
 
-  export { Q }
+  export { Q, Database }
 }

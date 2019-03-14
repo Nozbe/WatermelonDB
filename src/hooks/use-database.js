@@ -1,12 +1,12 @@
 // @flow
-import { useContext } from 'react'
+import React from 'react'
 import { DatabaseContext } from '../DatabaseProvider'
 import invariant from '../utils/common/invariant'
 
 import type Database from '../Database'
 
 export function useDatabase(): Database {
-  const database = useContext(DatabaseContext)
+  const database = React.useContext(DatabaseContext)
 
   invariant(
     database,
