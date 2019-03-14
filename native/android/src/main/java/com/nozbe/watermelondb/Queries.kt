@@ -22,5 +22,5 @@ object Queries {
         create index local_storage_key_index on local_storage (key);
     """
 
-    private fun QueryArgs.preparePlaceholder(): String = "(${this.joinToString { _ -> "?" }})"
+    private fun QueryArgs.preparePlaceholder(): String = "(${this.joinToString { "?" }})"
 }

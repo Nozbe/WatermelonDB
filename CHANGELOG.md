@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+- [Android] removed unused test class
+- [Android] updated ktlint to `0.30.0`
+
 ### Changes
 
 - ⚠️ Potentially BREAKING fix: a `@date` field now returns a Jan 1, 1970 date instead of `null` if the field's raw value is `0`.
