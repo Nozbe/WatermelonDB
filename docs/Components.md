@@ -30,7 +30,7 @@ Let's enhance the component to make it _observe_ the `Comment` automatically:
 
 ```jsx
 const enhance = withObservables(['comment'], ({ comment }) => ({
-  comment: comment.observe()
+  comment // shortcut syntax for `comment: comment.observe()`
 }))
 const EnhancedComment = enhance(Comment)
 ```
@@ -56,8 +56,8 @@ const Post = ({ post, comments }) => (
 )
 
 const enhance = withObservables(['post'], ({ post }) => ({
-  post: post.observe(),
-  comments: post.comments.observe()
+  post,
+  comments: post.comments, // Shortcut syntax for `post.comments.observe()`
 }))
 
 const EnhancedPost = enhance(Post)
@@ -68,6 +68,8 @@ Notice a couple of things:
 1. We're starting with a simple non-reactive `Post` component
 2. Like before, we enhance it by observing the `Post`. If the post name or body changes, it will re-render.
 3. To access comments, we fetch them from the database and observe using `post.comments.observe()` and inject a new prop `comments`. (`post.comments` is a Query created using `@children`).
+   
+   Note that we can skip `.observe()` and just pass `post.comments` for convenience — `withObservables` will call observe for us
 4. By **observing the Query**, the `<Post>` component will re-render if a comment is created or deleted
 5. However, observing the comments Query will not re-render `<Post>` if a comment is _updated_ — we render the `<EnhancedComment>` so that _it_ observes the comment and re-renders if necessary.
 
@@ -85,13 +87,15 @@ const Comment = ({ comment, author }) => (
 )
 
 const enhance = withObservables(['comment'], ({ comment }) => ({
-  comment: comment.observe(),
-  author: comment.author.observe(),
+  comment,
+  author: comment.author, // shortcut syntax for `comment.author.observe()`
 }))
 const EnhancedComment = enhance(Comment)
 ```
 
 `comment.author` is a [Relation object](./Relation.md), and we can call `.observe()` on it to fetch the `User` and then observe changes to it. If author's name changes, the component will re-render.
+
+**Note** again that we can also pass `Relation` objects directly for convenience, skipping `.observe()`
 
 ### Reactive counters
 
@@ -115,6 +119,14 @@ const EnhancedPostExcerpt = enhance(PostExcerpt)
 ```
 
 This is very similar to normal `<Post>`. We take the `Query` for post's comments, but instead of observing the _list_ of comments, we call `observeCount()`. This is far more efficient. And as always, if a new comment is posted, or one is deleted, the component will re-render with the updated count.
+
+## Hey, what about React Hooks?
+
+We get it — HOCs are so 2017, and Hooks are the future! And we agree.
+
+Instead of using `withObservables` HOC you can use an alternative open-source Hook for Rx Observables. But be warned that they are probably not as optimized for performance and WatermelonDB use as `withObservables`.
+
+**If you'd like to see official `useObservables` Hook - [please contribute](https://github.com/Nozbe/withObservables/issues/16) ❤️**
 
 ## Understanding `withObservables`
 
@@ -184,12 +196,12 @@ If you have 2nd level relations, like author's `Contact` info, and want to conne
 
 ```js
 const enhancePostAndAuthor = withObservables(['post'], ({post}) => ({
-  post: post.observe(),
-  author: post.author.observe()
+  post,
+  author: post.author,
 }));
 
 const enhanceAuthorContact = withObservables(['author'], ({author}) => ({
-  contact: author.contact.observe()
+  contact: author.contact,
 }));
 
 const EnhancedPost = enhancePostAndAuthor(enhanceAuthorContact(PostComponent));
@@ -201,8 +213,8 @@ If you are familiar with `rxjs`, another way to achieve the same result is using
 import { switchMap } from 'rxjs/operators'
 
 const enhancePost = withObservables(['post'], ({post}) => ({
-  post: post.observe(),
-  author: post.author.observe(),
+  post: post,
+  author: post.author,
   contact: post.author.observe().pipe(switchMap(author => author.contact.observe()))
 }));
 
@@ -229,9 +241,8 @@ contact: post.autor.observe().pipe(switchMap(author => author ? autor.contact : 
 ```
 
 ## Database Provider
-To prevent prop drilling you can utilise the Database Provider and the `withDatabase` Higher-Order Component.
 
-### Example
+To prevent prop drilling you can utilise the Database Provider and the `withDatabase` Higher-Order Component.
 
 ```jsx
 import DatabaseProvider from '@nozbe/watermelondb/DatabaseProvider'
@@ -266,6 +277,17 @@ export default withDatabase(withObservables([], ({ database }) => ({
 
 The database prop in the `withObservables` Higher-Order Component is provided by the database provider.
 
+### `useDatabase`
+
+You can also consume `Database` object using React Hooks syntax:
+
+```js
+import { useDatabase } from '@nozbe/watermelondb/hooks'
+
+const Component = () => {
+   const database = useDatabase()
+}
+```
 
 
 * * *
