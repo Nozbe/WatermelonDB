@@ -199,6 +199,10 @@ commentCollection.query(
 )
 ```
 
+### Raw queries
+
+If this Query syntax is not enough for you, and you need to get your hands dirty on a raw SQL or Loki query, you need **rawQueries**. How to use them? Well, **we need your help** to finish this — [please contribute!](https://github.com/Nozbe/WatermelonDB/pull/199) ❤️
+
 ### `null` behavior
 
 There are some gotchas you should be aware of. The `Q.gt`, `gte`, `lt`, `lte`, `oneOf`, `notIn`, `like` operators match the semantics of SQLite in terms of how they treat `null`. Those are different from JavaScript.
