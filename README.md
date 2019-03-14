@@ -34,7 +34,7 @@
 | ⚛️ | **Made for React.** Easily plug data into components |
 | ⏱ | Fast. Async. Multi-threaded. Highly cached. |
 | 🔗 | Relational. Built on rock-solid [SQLite](https://www.sqlite.org) foundation |
-| ⚠️ | **Static typing** with [Flow](https://flow.org) |
+| ⚠️ | **Static typing** with [Flow](https://flow.org) or [TypeScript](https://typescriptlang.org) |
 | 🔄 | **Offline-first.** [Sync](docs/Advanced/Sync.md) with your own backend |
 
 ## Why Watermelon?
