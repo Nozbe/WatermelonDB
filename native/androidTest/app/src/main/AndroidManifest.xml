@@ -5,20 +5,21 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-      android:name=".MainApplication"
-      android:label="@string/app_name"
-        tools:ignore="GoogleAppIndexingWarning">
-      <activity
-        android:name=".MainActivity"
+        android:name=".MainApplication"
         android:label="@string/app_name"
-        android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
-        android:windowSoftInputMode="adjustResize">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-      </activity>
-      <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
+        android:theme="@style/Theme.AppCompat.Light"
+        tools:ignore="GoogleAppIndexingWarning">
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
+            android:label="@string/app_name"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
     </application>
 
 </manifest>

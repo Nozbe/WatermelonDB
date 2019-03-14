@@ -35,7 +35,7 @@ const makeComment = (db, post, i) =>
 const makeComments = (db, post, count) => times(i => makeComment(db, post, i), count)
 
 const generate = async (db, blogCount, postsPerBlog, commentsPerPost) => {
-  await db.unsafeResetDatabase()
+  await db.action(() => db.unsafeResetDatabase())
   const blogs = times(i => makeBlog(db, i), blogCount)
   const posts = flatMap(blog => makePosts(db, blog, fuzzCount(postsPerBlog)), blogs)
   const comments = flatMap(post => makeComments(db, post, fuzzCount(commentsPerPost)), posts)
