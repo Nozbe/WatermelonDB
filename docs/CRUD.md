@@ -100,6 +100,7 @@ await database.action(async () => {
 - `Query.observeWithColumns()` - used for [sorted lists](./Components.md)
 - `Collection.findAndObserve(id)` — same as using `.find(id)` and then calling `record.observe()`
 - `Model.prepareUpdate()`, `Collection.prepareCreate`, `Database.batch` — used for [batch updates](./Actions.md)
+- `Database.unsafeResetDatabase()` destroys the whole database - [be sure to see this comment before using it](https://github.com/Nozbe/WatermelonDB/blob/master/src/Database/index.js#L116)
 
 * * *
 
