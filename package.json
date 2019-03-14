@@ -9,6 +9,7 @@
     "prettier": "prettier-eslint --config ./.prettierrc --write \"./src/**/*.js\"",
     "flow": "flow check",
     "eslint": "eslint ./src -c ./.eslintrc.yml --cache --cache-location ./.cache/.eslintcache",
+    "tslint": "tslint --project .",
     "test": "jest --config=./jest.config.js --forceExit --detectOpenHandles --no-cache",
     "ci:check": "concurrently 'npm run test' 'npm run eslint' 'npm run flow' --kill-others-on-fail",
     "test:android": "cd native/androidTest; ./gradlew connectedAndroidTest",
@@ -86,6 +87,7 @@
     "@babel/plugin-transform-sticky-regex": "^7.2.0",
     "@babel/plugin-transform-template-literals": "^7.2.0",
     "@babel/plugin-transform-unicode-regex": "^7.2.0",
+    "@types/react": "^16.8.6",
     "anymatch": "^2.0.0",
     "babel-core": "^7.0.0-0",
     "babel-eslint": "10.0.1",
@@ -128,9 +130,14 @@
     "prettier-eslint": "^8.8.2",
     "prettier-eslint-cli": "^4.7.1",
     "react": "^16.8.4",
+    "react-dom": "^16.8.3",
+    "react-hooks-testing-library": "^0.3.4",
     "react-native": "^0.59.0",
     "react-test-renderer": "16.8.4",
     "rimraf": "^2.6.2",
-    "semver": "^5.5.1"
+    "semver": "^5.5.1",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.15.0",
+    "typescript": "^3.0.3"
   }
 }

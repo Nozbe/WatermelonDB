@@ -19,6 +19,7 @@ const klaw = require('klaw-sync')
 const mkdirp = require('mkdirp')
 const path = require('path')
 const fs = require('fs-extra')
+const glob = require('glob')
 const prettyJson = require('json-stringify-pretty-compact')
 const chokidar = require('chokidar')
 const anymatch = require('anymatch')
@@ -132,8 +133,12 @@ if (isDevelopment) {
   const buildSrcModule = buildModule(SRC_MODULES)
 
   const buildFile = file => {
-    buildSrcModule(file)
-    buildCjsModule(file)
+    if (file.match(/\.ts$/)) {
+      fs.copySync(file, path.join(DEV_PATH, replace(SOURCE_PATH, '', file)))
+    } else {
+      buildSrcModule(file)
+      buildCjsModule(file)
+    }
   }
 
   cleanFolder(DEV_PATH)
@@ -166,4 +171,9 @@ if (isDevelopment) {
 
   buildSrcModules(modules)
   buildCjsModules(modules)
+
+  // copy typescript definitions
+  glob(`${SOURCE_PATH}/**/*.d.ts`, {}, (err, files) => {
+    copyFiles(DIST_PATH, files, SOURCE_PATH)
+  })
 }
