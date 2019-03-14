@@ -102,8 +102,8 @@ const Post = ({ post, comments }) => (
 )
 
 const enhance = withObservables(['post'], ({ post }) => ({
-  post: post.observe(),
-  comments: post.comments.observe()
+  post,
+  comments: post.comments
 }))
 ```
 
