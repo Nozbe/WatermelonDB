@@ -6,7 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Changes
 
-- Improved UI performance by consolidating multiple observation emissions into a single per-collection batch emission when doing batch changes
+## 0.12.0 - 2019-03-18
+
+### Added
+
 - [Hooks] new `useDatabase` hook for consuming the Database Context:
    ```
    import { useDatabase } from '@nozbe/watermelondb/hooks';
@@ -14,7 +17,11 @@ All notable changes to this project will be documented in this file.
       const database = useDatabase();
    }
    ```
-- [TypeScript] added `.d.ts` files. Please note: TypeScript definitions are currently incomplete and should be used as a guide only. PRs for improvements would be appreciated.
+- [TypeScript] added `.d.ts` files. Please note: TypeScript definitions are currently incomplete and should be used as a guide only. **PRs for improvements would be greatly appreciated!**
+
+### Performance
+
+- Improved UI performance by consolidating multiple observation emissions into a single per-collection batch emission when doing batch changes
 
 ## 0.11.0 - 2019-03-12
 
