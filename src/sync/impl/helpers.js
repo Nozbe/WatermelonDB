@@ -60,16 +60,21 @@ export function prepareUpdateFromRaw<T: Model>(
   updatedDirtyRaw: DirtyRaw,
   log: SyncLog,
 ): T {
-  const oldLocal = record._raw
-  const newRaw = resolveConflict(oldLocal, updatedDirtyRaw)
+  // Note COPY for log - only if needed
+  const logConflict = !!record._raw._changed
+  const logLocal = logConflict ? { ...record._raw } : {}
+  const logRemote = logConflict ? { ...updatedDirtyRaw } : {}
+
+  const newRaw = resolveConflict(record._raw, updatedDirtyRaw)
   return record.prepareUpdate(() => {
     replaceRaw(record, newRaw)
 
     // log resolved conflict - if any
-    if (oldLocal._changed) {
-      log.resolvedConflicts = (log.resolvedConflicts || []).concat({
-        local: { ...oldLocal },
-        remote: { ...updatedDirtyRaw },
+    if (logConflict) {
+      log.resolvedConflicts = log.resolvedConflicts || []
+      log.resolvedConflicts.push({
+        local: logLocal,
+        remote: logRemote,
         resolved: { ...record._raw },
       })
     }
