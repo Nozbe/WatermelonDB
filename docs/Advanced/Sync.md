@@ -9,8 +9,6 @@ Note that Watermelon is only a local database — you need to **bring your own b
 
 ## Using `synchronize()`
 
-> ⚠️ The `synchronize()` function is not yet formally released (see changelog & pull requests for more details) and is currently experimental. There are extensive tests for this sync adapter, but it has not yet been battle tested. It's also not yet fully optimized, so you might experience less than ideal performance during sync.
-
 Using Watermelon sync looks roughly like this:
 
 ```js
@@ -42,7 +40,7 @@ async function mySync() {
 
 ```
 
-You need to pass two functions, `pullChanges` and `pushChanges` that can talk to your backend in a compatible way.
+You need to pass two functions, `pullChanges` and `pushChanges` that can talk to your backend in a compatible way (explained later).
 
 **⚠️ Note about a React Native / UglifyES bug**. When you import Watermelon Sync, your app might fail to compile in release mode. To fix this, configure Metro bundler to use Terser instead of UglifyES. Run:
 
@@ -170,6 +168,20 @@ Synchronization is serious business! It's very easy to make mistakes that will c
     - … create a record that does exist, update it
   - If there's something wrong with the data format, prefer to "fix" the data if possible instead of failing sync. You don't want the user to have an unsyncable app because of a mistake caused by a bug 5 versions ago.
   - As with any API, remember to check permissions to create/modify records, make sure you version your API together with local Schema versioning, and all other standard stuff!
+- **Adding logging to your sync**
+  - You can add basic sync logs to the sync process by passing an empty object to `synchronize()`. Sync will then mutate the object, populating it with diagnostic information (start/finish time, resolved conflicts, and more):
+
+    ```js
+    const log = {}
+    await synchronize({
+      database,
+      log,
+      ...
+    })
+    console.log(log.startedAt)
+    console.log(log.finishedAt)
+    ```
+  - ⚠️ Remember to act responsibly with logs, since they might contain your user's private information. Don't display, save, or send the log unless you censor the log. [Example logger and censor code you can use](https://gist.github.com/radex/a0a27761ac348f4a5552ecaf227d500c).
 
 ### Current limitations
 
