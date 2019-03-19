@@ -70,7 +70,7 @@
     "@babel/plugin-transform-destructuring": "^7.4.0",
     "@babel/plugin-transform-exponentiation-operator": "^7.2.0",
     "@babel/plugin-transform-flow-strip-types": "^7.4.0",
-    "@babel/plugin-transform-for-of": "^7.2.0",
+    "@babel/plugin-transform-for-of": "^7.4.0",
     "@babel/plugin-transform-function-name": "^7.2.0",
     "@babel/plugin-transform-literals": "^7.2.0",
     "@babel/plugin-transform-modules-commonjs": "^7.2.0",
