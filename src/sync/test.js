@@ -678,7 +678,10 @@ describe('synchronize', () => {
   it('can synchronize changes with conflicts', async () => {
     const { database, projects, tasks, comments } = makeDatabase()
 
-    await makeLocalChanges(database)
+    const records = await makeLocalChanges(database)
+    const tUpdatedInitial = { ...records.tUpdated._raw }
+    const cUpdatedInitial = { ...records.cUpdated._raw }
+
     const localChanges = await fetchLocalChanges(database)
 
     const pullChanges = async () => ({
@@ -703,7 +706,8 @@ describe('synchronize', () => {
     })
     const pushChanges = jest.fn(async () => {})
 
-    await synchronize({ database, pullChanges, pushChanges })
+    const log = {}
+    await synchronize({ database, pullChanges, pushChanges, log })
 
     expect(pushChanges).toHaveBeenCalledTimes(1)
     const pushedChanges = pushChanges.mock.calls[0][0].changes
@@ -712,19 +716,21 @@ describe('synchronize', () => {
       await getRaw(projects, 'pCreated1'),
     )
     expect(pushedChanges.mock_projects.deleted).not.toContain('pDeleted')
-    expect(pushedChanges.mock_tasks.updated).toContainEqual({
+    const tUpdatedResolvedExpected = {
       // TODO: That's just dirty
       ...(await getRaw(tasks, 'tUpdated')),
       _status: 'updated',
       _changed: 'name,position',
-    })
+    }
+    expect(pushedChanges.mock_tasks.updated).toContainEqual(tUpdatedResolvedExpected)
     expect(pushedChanges.mock_tasks.deleted).toContain('tDeleted')
-    expect(pushedChanges.mock_comments.updated).toContainEqual({
+    const cUpdatedResolvedExpected = {
       // TODO: That's just dirty
       ...(await getRaw(comments, 'cUpdated')),
       _status: 'updated',
       _changed: 'updated_at,body',
-    })
+    }
+    expect(pushedChanges.mock_comments.updated).toContainEqual(cUpdatedResolvedExpected)
 
     await expectSyncedAndMatches(projects, 'pCreated1', { name: 'remote' })
     await expectDoesNotExist(projects, 'pUpdated')
@@ -734,6 +740,20 @@ describe('synchronize', () => {
     await expectSyncedAndMatches(comments, 'cUpdated', { body: 'local', task_id: 'remote' })
 
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+
+    // check that log is good
+    expect(log.resolvedConflicts).toEqual([
+      {
+        local: tUpdatedInitial,
+        remote: { id: 'tUpdated', name: 'remote', description: 'remote' },
+        resolved: tUpdatedResolvedExpected,
+      },
+      {
+        local: cUpdatedInitial,
+        remote: { id: 'cUpdated', body: 'remote', task_id: 'remote' },
+        resolved: cUpdatedResolvedExpected,
+      },
+    ])
   })
   it('remembers last_synced_at timestamp', async () => {
     const { database } = makeDatabase()

@@ -4,6 +4,7 @@ import { logError, invariant } from '../../utils/common'
 
 import type { Model, Collection, Database } from '../..'
 import { type RawRecord, type DirtyRaw, sanitizedRaw } from '../../RawRecord'
+import type { SyncLog } from '../index'
 
 // Returns raw record with naive solution to a conflict based on local `_changed` field
 // This is a per-column resolution algorithm. All columns that were changed locally win
@@ -54,10 +55,24 @@ export function prepareCreateFromRaw<T: Model>(collection: Collection<T>, dirtyR
   })
 }
 
-export function prepareUpdateFromRaw<T: Model>(record: T, updatedDirtyRaw: DirtyRaw): T {
-  const newRaw = resolveConflict(record._raw, updatedDirtyRaw)
+export function prepareUpdateFromRaw<T: Model>(
+  record: T,
+  updatedDirtyRaw: DirtyRaw,
+  log: SyncLog,
+): T {
+  const oldLocal = record._raw
+  const newRaw = resolveConflict(oldLocal, updatedDirtyRaw)
   return record.prepareUpdate(() => {
     replaceRaw(record, newRaw)
+
+    // log resolved conflict - if any
+    if (oldLocal._changed) {
+      log.resolvedConflicts = (log.resolvedConflicts || []).concat({
+        local: { ...oldLocal },
+        remote: { ...updatedDirtyRaw },
+        resolved: { ...record._raw },
+      })
+    }
   })
 }
 
