@@ -2,7 +2,7 @@
 
 import { invariant } from '../utils/common'
 import type { Database, RecordId, TableName, Model } from '..'
-import { type DirtyRaw, type RawRecord } from '../RawRecord'
+import { type DirtyRaw } from '../RawRecord'
 
 import {
   applyRemoteChanges,
