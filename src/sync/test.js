@@ -619,6 +619,19 @@ describe('synchronize', () => {
     expect(pushChanges).toHaveBeenCalledTimes(1)
     expect(pushChanges).toHaveBeenCalledWith({ changes: emptyChangeSet, lastPulledAt: 1500 })
   })
+  it('can log basic information about a sync', async () => {
+    const { database } = makeDatabase()
+
+    const log = {}
+    await synchronize({ database, pullChanges: jest.fn(emptyPull()), pushChanges: jest.fn(), log })
+
+    expect(log.startedAt).toBeInstanceOf(Date)
+    expect(log.finishedAt).toBeInstanceOf(Date)
+    expect(log.finishedAt.getTime()).toBeGreaterThan(log.startedAt.getTime())
+
+    expect(log.lastPulledAt).toBe(null)
+    expect(log.newLastPulledAt).toBe(1500)
+  })
   it.skip(`doesn't push changes if nothing to push`, async () => {
     // TODO: Future optimization
   })
@@ -731,11 +744,14 @@ describe('synchronize', () => {
     expect(pullChanges).toHaveBeenCalledWith({ lastPulledAt: null })
 
     pullChanges = jest.fn(emptyPull(2500))
-    await synchronize({ database, pullChanges, pushChanges: jest.fn() })
+    const log = {}
+    await synchronize({ database, pullChanges, pushChanges: jest.fn(), log })
 
     expect(pullChanges).toHaveBeenCalledTimes(1)
     expect(pullChanges).toHaveBeenCalledWith({ lastPulledAt: 1500 })
     expect(await getLastPulledAt(database)).toBe(2500)
+    expect(log.lastPulledAt).toBe(1500)
+    expect(log.newLastPulledAt).toBe(2500)
     // check underlying database since it's an implicit API
     expect(await database.adapter.getLocal('__watermelon_last_pulled_at')).toBe('2500')
   })
