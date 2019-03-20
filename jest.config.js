@@ -5,7 +5,7 @@ module.exports = {
   moduleNameMapper: {
     '^rxjs(.*)$': '<rootDir>/node_modules/rxjs/internal$1',
   },
-  setupTestFrameworkScriptFile: '<rootDir>/src/__tests__/setup.js',
+  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.js'],
   rootDir: __dirname,
   modulePaths: ['<rootDir>/src'],
   moduleDirectories: ['<rootDir>/node_modules'],
@@ -14,10 +14,7 @@ module.exports = {
   moduleFileExtensions: ['js'],
   modulePathIgnorePatterns: ['<rootDir>/dist', '<rootDir>/dev'],
   collectCoverage: true,
-  collectCoverageFrom: [
-    '!**/node_modules/**',
-    'src/**',
-  ],
-  coverageDirectory: 'coverage', 
+  collectCoverageFrom: ['!**/node_modules/**', 'src/**'],
+  coverageDirectory: 'coverage',
   coverageReporters: ['html', 'json'],
 }
