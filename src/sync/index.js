@@ -54,18 +54,18 @@ export async function synchronize({
   pullChanges,
   pushChanges,
   sendCreatedAsUpdated = false,
-  log = {},
+  log,
 }: SyncArgs): Promise<void> {
   ensureActionsEnabled(database)
   const resetCount = database._resetCount
-  log.startedAt = new Date()
+  log && (log.startedAt = new Date())
 
   // pull phase
   const lastPulledAt = await getLastPulledAt(database)
-  log.lastPulledAt = lastPulledAt
+  log && (log.lastPulledAt = lastPulledAt)
 
   const { changes: remoteChanges, timestamp: newLastPulledAt } = await pullChanges({ lastPulledAt })
-  log.newLastPulledAt = newLastPulledAt
+  log && (log.newLastPulledAt = newLastPulledAt)
 
   await database.action(async action => {
     ensureSameDatabase(database, resetCount)
@@ -88,7 +88,7 @@ export async function synchronize({
   ensureSameDatabase(database, resetCount)
   await markLocalChangesAsSynced(database, localChanges)
 
-  log.finishedAt = new Date()
+  log && (log.finishedAt = new Date())
 }
 
 export async function hasUnsyncedChanges({

@@ -68,7 +68,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   collection: Collection<T>,
   recordsToApply: RecordsToApplyRemoteChangesTo<T>,
   sendCreatedAsUpdated: boolean,
-  log: SyncLog,
+  log?: SyncLog,
 ): T[] {
   const { database, table } = collection
   const { created, updated, records, locallyDeletedIds } = recordsToApply
@@ -152,7 +152,7 @@ const getAllRecordsToDestroy: AllRecordsToApply => Model[] = pipe(
   unnest,
 )
 
-const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply) =>
+const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> =>
   piped(
     recordsToApply,
     map(
@@ -167,8 +167,8 @@ const prepareApplyAllRemoteChanges = (
   db: Database,
   recordsToApply: AllRecordsToApply,
   sendCreatedAsUpdated: boolean,
-  log: SyncLog,
-) =>
+  log?: SyncLog,
+): Model[] =>
   piped(
     recordsToApply,
     map((records, tableName) =>
@@ -189,7 +189,7 @@ export default function applyRemoteChanges(
   db: Database,
   remoteChanges: SyncDatabaseChangeSet,
   sendCreatedAsUpdated: boolean,
-  log: SyncLog = {},
+  log?: SyncLog,
 ): Promise<void> {
   ensureActionsEnabled(db)
   return db.action(async () => {

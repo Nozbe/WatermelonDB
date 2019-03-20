@@ -58,10 +58,10 @@ export function prepareCreateFromRaw<T: Model>(collection: Collection<T>, dirtyR
 export function prepareUpdateFromRaw<T: Model>(
   record: T,
   updatedDirtyRaw: DirtyRaw,
-  log: SyncLog,
+  log: ?SyncLog,
 ): T {
   // Note COPY for log - only if needed
-  const logConflict = !!record._raw._changed
+  const logConflict = log && !!record._raw._changed
   const logLocal = logConflict ? { ...record._raw } : {}
   const logRemote = logConflict ? { ...updatedDirtyRaw } : {}
 
@@ -70,7 +70,7 @@ export function prepareUpdateFromRaw<T: Model>(
     replaceRaw(record, newRaw)
 
     // log resolved conflict - if any
-    if (logConflict) {
+    if (logConflict && log) {
       log.resolvedConflicts = log.resolvedConflicts || []
       log.resolvedConflicts.push({
         local: logLocal,
