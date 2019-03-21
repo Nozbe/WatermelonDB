@@ -619,6 +619,19 @@ describe('synchronize', () => {
     expect(pushChanges).toHaveBeenCalledTimes(1)
     expect(pushChanges).toHaveBeenCalledWith({ changes: emptyChangeSet, lastPulledAt: 1500 })
   })
+  it('can log basic information about a sync', async () => {
+    const { database } = makeDatabase()
+
+    const log = {}
+    await synchronize({ database, pullChanges: jest.fn(emptyPull()), pushChanges: jest.fn(), log })
+
+    expect(log.startedAt).toBeInstanceOf(Date)
+    expect(log.finishedAt).toBeInstanceOf(Date)
+    expect(log.finishedAt.getTime()).toBeGreaterThan(log.startedAt.getTime())
+
+    expect(log.lastPulledAt).toBe(null)
+    expect(log.newLastPulledAt).toBe(1500)
+  })
   it.skip(`doesn't push changes if nothing to push`, async () => {
     // TODO: Future optimization
   })
@@ -665,7 +678,10 @@ describe('synchronize', () => {
   it('can synchronize changes with conflicts', async () => {
     const { database, projects, tasks, comments } = makeDatabase()
 
-    await makeLocalChanges(database)
+    const records = await makeLocalChanges(database)
+    const tUpdatedInitial = { ...records.tUpdated._raw }
+    const cUpdatedInitial = { ...records.cUpdated._raw }
+
     const localChanges = await fetchLocalChanges(database)
 
     const pullChanges = async () => ({
@@ -690,7 +706,8 @@ describe('synchronize', () => {
     })
     const pushChanges = jest.fn(async () => {})
 
-    await synchronize({ database, pullChanges, pushChanges })
+    const log = {}
+    await synchronize({ database, pullChanges, pushChanges, log })
 
     expect(pushChanges).toHaveBeenCalledTimes(1)
     const pushedChanges = pushChanges.mock.calls[0][0].changes
@@ -699,19 +716,21 @@ describe('synchronize', () => {
       await getRaw(projects, 'pCreated1'),
     )
     expect(pushedChanges.mock_projects.deleted).not.toContain('pDeleted')
-    expect(pushedChanges.mock_tasks.updated).toContainEqual({
+    const tUpdatedResolvedExpected = {
       // TODO: That's just dirty
       ...(await getRaw(tasks, 'tUpdated')),
       _status: 'updated',
       _changed: 'name,position',
-    })
+    }
+    expect(pushedChanges.mock_tasks.updated).toContainEqual(tUpdatedResolvedExpected)
     expect(pushedChanges.mock_tasks.deleted).toContain('tDeleted')
-    expect(pushedChanges.mock_comments.updated).toContainEqual({
+    const cUpdatedResolvedExpected = {
       // TODO: That's just dirty
       ...(await getRaw(comments, 'cUpdated')),
       _status: 'updated',
       _changed: 'updated_at,body',
-    })
+    }
+    expect(pushedChanges.mock_comments.updated).toContainEqual(cUpdatedResolvedExpected)
 
     await expectSyncedAndMatches(projects, 'pCreated1', { name: 'remote' })
     await expectDoesNotExist(projects, 'pUpdated')
@@ -721,6 +740,20 @@ describe('synchronize', () => {
     await expectSyncedAndMatches(comments, 'cUpdated', { body: 'local', task_id: 'remote' })
 
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+
+    // check that log is good
+    expect(log.resolvedConflicts).toEqual([
+      {
+        local: tUpdatedInitial,
+        remote: { id: 'tUpdated', name: 'remote', description: 'remote' },
+        resolved: tUpdatedResolvedExpected,
+      },
+      {
+        local: cUpdatedInitial,
+        remote: { id: 'cUpdated', body: 'remote', task_id: 'remote' },
+        resolved: cUpdatedResolvedExpected,
+      },
+    ])
   })
   it('remembers last_synced_at timestamp', async () => {
     const { database } = makeDatabase()
@@ -731,11 +764,14 @@ describe('synchronize', () => {
     expect(pullChanges).toHaveBeenCalledWith({ lastPulledAt: null })
 
     pullChanges = jest.fn(emptyPull(2500))
-    await synchronize({ database, pullChanges, pushChanges: jest.fn() })
+    const log = {}
+    await synchronize({ database, pullChanges, pushChanges: jest.fn(), log })
 
     expect(pullChanges).toHaveBeenCalledTimes(1)
     expect(pullChanges).toHaveBeenCalledWith({ lastPulledAt: 1500 })
     expect(await getLastPulledAt(database)).toBe(2500)
+    expect(log.lastPulledAt).toBe(1500)
+    expect(log.newLastPulledAt).toBe(2500)
     // check underlying database since it's an implicit API
     expect(await database.adapter.getLocal('__watermelon_last_pulled_at')).toBe('2500')
   })

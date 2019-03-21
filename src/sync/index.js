@@ -30,11 +30,21 @@ export type SyncPullResult = $Exact<{ changes: SyncDatabaseChangeSet, timestamp:
 
 export type SyncPushArgs = $Exact<{ changes: SyncDatabaseChangeSet, lastPulledAt: Timestamp }>
 
+type SyncConflict = $Exact<{ local: DirtyRaw, remote: DirtyRaw, resolved: DirtyRaw }>
+export type SyncLog = {
+  startedAt?: Date,
+  lastPulledAt?: ?number,
+  newLastPulledAt?: number,
+  resolvedConflicts?: SyncConflict[],
+  finishedAt?: Date,
+}
+
 export type SyncArgs = $Exact<{
   database: Database,
   pullChanges: SyncPullArgs => Promise<SyncPullResult>,
   pushChanges: SyncPushArgs => Promise<void>,
   sendCreatedAsUpdated?: boolean,
+  log?: SyncLog,
 }>
 
 // See Sync docs for usage details
@@ -43,14 +53,20 @@ export async function synchronize({
   database,
   pullChanges,
   pushChanges,
-  sendCreatedAsUpdated,
+  sendCreatedAsUpdated = false,
+  log,
 }: SyncArgs): Promise<void> {
   ensureActionsEnabled(database)
   const resetCount = database._resetCount
+  log && (log.startedAt = new Date())
 
   // pull phase
   const lastPulledAt = await getLastPulledAt(database)
+  log && (log.lastPulledAt = lastPulledAt)
+
   const { changes: remoteChanges, timestamp: newLastPulledAt } = await pullChanges({ lastPulledAt })
+  log && (log.newLastPulledAt = newLastPulledAt)
+
   await database.action(async action => {
     ensureSameDatabase(database, resetCount)
     invariant(
@@ -58,7 +74,7 @@ export async function synchronize({
       '[Sync] Concurrent synchronization is not allowed. More than one synchronize() call was running at the same time, and the later one was aborted before committing results to local database.',
     )
     await action.subAction(() =>
-      applyRemoteChanges(database, remoteChanges, !!sendCreatedAsUpdated),
+      applyRemoteChanges(database, remoteChanges, sendCreatedAsUpdated, log),
     )
     await setLastPulledAt(database, newLastPulledAt)
   }, 'sync-synchronize-apply')
@@ -71,6 +87,8 @@ export async function synchronize({
 
   ensureSameDatabase(database, resetCount)
   await markLocalChangesAsSynced(database, localChanges)
+
+  log && (log.finishedAt = new Date())
 }
 
 export async function hasUnsyncedChanges({

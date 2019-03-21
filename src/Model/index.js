@@ -48,12 +48,12 @@ export default class Model {
   _isEditing = false
 
   // `false` when instantiated but not yet in the database
-  _isCommitted = true
+  _isCommitted: boolean = true
 
   // `true` when prepareUpdate was called, but not yet sent to be executed
   // turns to `false` the moment the update is sent to be executed, even if database
   // did not respond yet
-  _hasPendingUpdate = false
+  _hasPendingUpdate: boolean = false
 
   _changes = new BehaviorSubject(this)
 

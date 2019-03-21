@@ -6,12 +6,20 @@ All notable changes to this project will be documented in this file.
 
 ### Changes
 
+- [Sync] Adds basic sync logging capability to Sync. Pass an empty object to `synchronize()` to populate it with diagnostic information:
+    ```js
+    const log = {}
+    await synchronize({ database, log, ...})
+    console.log(log.startedAt)
+    ```
+    See Sync documentation for more details.
+
 ## 0.12.0 - 2019-03-18
 
 ### Added
 
 - [Hooks] new `useDatabase` hook for consuming the Database Context:
-   ```
+   ```js
    import { useDatabase } from '@nozbe/watermelondb/hooks';
    const Component = () => {
       const database = useDatabase();

@@ -9,9 +9,9 @@ import { invariant } from '../utils/common'
 
 import { CollectionChangeTypes } from '../Collection/common'
 
-import type { DatabaseAdapter } from '../adapters/type'
+import type { DatabaseAdapter, BatchOperation } from '../adapters/type'
 import type Model from '../Model'
-import type { CollectionChangeSet } from '../Collection'
+import type Collection, { CollectionChangeSet } from '../Collection'
 import type { TableName, AppSchema } from '../Schema'
 
 import CollectionMap from './CollectionMap'
@@ -48,7 +48,7 @@ export default class Database {
       `Database.batch() can only be called from inside of an Action. See docs for more details.`,
     )
 
-    const operations = records.map(record => {
+    const operations: BatchOperation[] = records.map(record => {
       invariant(
         !record._isCommitted || record._hasPendingUpdate,
         `Cannot batch a record that doesn't have a prepared create or prepared update`,
@@ -63,7 +63,7 @@ export default class Database {
     })
     await this.adapter.batch(operations)
 
-    const sortedOperations = []
+    const sortedOperations: { collection: Collection<*>, operations: CollectionChangeSet<*> }[] = []
     operations.forEach(([type, record]) => {
       const operation = {
         record,
@@ -101,7 +101,7 @@ export default class Database {
     return merge$(...changesSignals).pipe(startWith(null))
   }
 
-  _resetCount = 0
+  _resetCount: number = 0
 
   // Resets database - permanently destroys ALL records stored in the database, and sets up empty database
   //

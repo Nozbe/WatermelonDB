@@ -18,7 +18,7 @@ import type { Database, RecordId, Collection, Model, TableName, DirtyRaw } from 
 import * as Q from '../../QueryDescription'
 import { columnName } from '../../Schema'
 
-import type { SyncTableChangeSet, SyncDatabaseChangeSet } from '../index'
+import type { SyncTableChangeSet, SyncDatabaseChangeSet, SyncLog } from '../index'
 import { prepareCreateFromRaw, prepareUpdateFromRaw, ensureActionsEnabled } from './helpers'
 
 const getIds = map(({ id }) => id)
@@ -68,6 +68,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   collection: Collection<T>,
   recordsToApply: RecordsToApplyRemoteChangesTo<T>,
   sendCreatedAsUpdated: boolean,
+  log?: SyncLog,
 ): T[] {
   const { database, table } = collection
   const { created, updated, records, locallyDeletedIds } = recordsToApply
@@ -90,7 +91,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
           raw.id
         }, but it already exists locally. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will update existing record instead.`,
       )
-      return prepareUpdateFromRaw(currentRecord, raw)
+      return prepareUpdateFromRaw(currentRecord, raw, log)
     } else if (contains(raw.id, locallyDeletedIds)) {
       logError(
         `[Sync] Server wants client to create record ${table}#${
@@ -110,7 +111,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
     const currentRecord = findRecord(raw.id, records)
 
     if (currentRecord) {
-      return prepareUpdateFromRaw(currentRecord, raw)
+      return prepareUpdateFromRaw(currentRecord, raw, log)
     } else if (contains(raw.id, locallyDeletedIds)) {
       // Nothing to do, record was locally deleted, deletion will be pushed later
       return null
@@ -151,7 +152,7 @@ const getAllRecordsToDestroy: AllRecordsToApply => Model[] = pipe(
   unnest,
 )
 
-const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply) =>
+const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> =>
   piped(
     recordsToApply,
     map(
@@ -166,7 +167,8 @@ const prepareApplyAllRemoteChanges = (
   db: Database,
   recordsToApply: AllRecordsToApply,
   sendCreatedAsUpdated: boolean,
-) =>
+  log?: SyncLog,
+): Model[] =>
   piped(
     recordsToApply,
     map((records, tableName) =>
@@ -174,6 +176,7 @@ const prepareApplyAllRemoteChanges = (
         db.collections.get((tableName: any)),
         records,
         sendCreatedAsUpdated,
+        log,
       ),
     ),
     values,
@@ -186,6 +189,7 @@ export default function applyRemoteChanges(
   db: Database,
   remoteChanges: SyncDatabaseChangeSet,
   sendCreatedAsUpdated: boolean,
+  log?: SyncLog,
 ): Promise<void> {
   ensureActionsEnabled(db)
   return db.action(async () => {
@@ -195,7 +199,7 @@ export default function applyRemoteChanges(
     await Promise.all([
       allPromises(destroyPermanently, getAllRecordsToDestroy(recordsToApply)),
       destroyAllDeletedRecords(db, recordsToApply),
-      db.batch(...prepareApplyAllRemoteChanges(db, recordsToApply, sendCreatedAsUpdated)),
+      db.batch(...prepareApplyAllRemoteChanges(db, recordsToApply, sendCreatedAsUpdated, log)),
     ])
   }, 'sync-applyRemoteChanges')
 }
