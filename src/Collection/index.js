@@ -126,6 +126,8 @@ export default class Collection<Record: Model> {
       if (type === CollectionChangeTypes.created) {
         record._isCommitted = true
         this._cache.add(record)
+      } else if (type === CollectionChangeTypes.destroyed) {
+        this._cache.delete(record)
       }
     })
 
@@ -134,6 +136,8 @@ export default class Collection<Record: Model> {
     operations.forEach(({ record, type }) => {
       if (type === CollectionChangeTypes.updated) {
         record._notifyChanged()
+      } else if (type === CollectionChangeTypes.destroyed) {
+        record._notifyDestroyed()
       }
     })
   }

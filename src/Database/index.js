@@ -50,11 +50,18 @@ export default class Database {
 
     const operations: BatchOperation[] = records.map(record => {
       invariant(
-        !record._isCommitted || record._hasPendingUpdate,
+        !record._isCommitted || record._hasPendingUpdate || record._hasPendingDelete,
         `Cannot batch a record that doesn't have a prepared create or prepared update`,
       )
 
-      if (record._hasPendingUpdate) {
+      // Deletes take presedence over updates
+      if (record._hasPendingDelete !== false) {
+        if (record._hasPendingDelete === 'destroy') {
+          return ['destroyPermanently', record]
+        } else {
+          return ['markAsDeleted', record]
+        }
+      } else if (record._hasPendingUpdate) {
         record._hasPendingUpdate = false // TODO: What if this fails?
         return ['update', record]
       }
@@ -65,9 +72,23 @@ export default class Database {
 
     const sortedOperations: { collection: Collection<*>, operations: CollectionChangeSet<*> }[] = []
     operations.forEach(([type, record]) => {
+      const operationTypeToCollectionChangeType = (type) => {
+        switch(type) {
+          case 'create':
+            return CollectionChangeTypes.created
+          case 'updated':
+            return CollectionChangeTypes.updated
+          case 'markAsDeleted':
+          case 'destroyPermanently':
+            return CollectionChangeTypes.destroyed
+          default:
+            throw new Error(`${type} is invalid operation type`)
+        }
+      }
+
       const operation = {
         record,
-        type: type === 'create' ? CollectionChangeTypes.created : CollectionChangeTypes.updated,
+        type: operationTypeToCollectionChangeType(type)
       }
       const indexOfCollection = sortedOperations.findIndex(
         ({ collection }) => collection === record.collection,
