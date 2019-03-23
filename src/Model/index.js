@@ -55,6 +55,8 @@ export default class Model {
   // did not respond yet
   _hasPendingUpdate: boolean = false
 
+  _hasPendingDelete: false | 'mark' | 'destroy' = false
+
   _changes = new BehaviorSubject(this)
 
   @readonly
@@ -114,6 +116,28 @@ export default class Model {
         )
       })
     }
+
+    return this
+  }
+
+  prepareMarkAsDeleted(): this {
+    invariant(this._isCommitted, `Cannot mark an uncomitted record as deleted`)
+
+    this._isEditing = true
+    this._raw._status = 'deleted'
+    this._hasPendingDelete = 'mark'
+    this._isEditing = false
+
+    return this
+  }
+
+  prepareDestroyPermanently(): this {
+    invariant(this._isCommitted, `Cannot mark an uncomitted record as deleted`)
+
+    this._isEditing = true
+    this._raw._status = 'deleted'
+    this._hasPendingDelete = 'destroy'
+    this._isEditing = false
 
     return this
   }
