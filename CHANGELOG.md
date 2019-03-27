@@ -13,7 +13,6 @@ All notable changes to this project will be documented in this file.
     console.log(log.startedAt)
     ```
     See Sync documentation for more details.
-- [iOS] Fix compilation for projects that have whitespace in their paths
 
 ## 0.12.0 - 2019-03-18
 
