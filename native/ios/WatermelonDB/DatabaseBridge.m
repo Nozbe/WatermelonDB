@@ -1,6 +1,21 @@
 #import <React/RCTBridgeModule.h>
 
-@interface RCT_EXTERN_MODULE(DatabaseBridge, NSObject)
+//@interface RCT_EXTERN_MODULE(DatabaseBridge, NSObject)
+// TODO: Bring back the above when React Native fixes support for Swift 5 runtime
+
+@interface DatabaseBridge : NSObject
+@end
+@interface DatabaseBridge (RCTExternModule) <RCTBridgeModule>
+@end
+
+@implementation DatabaseBridge (RCTExternModule)
+
+RCT_EXTERN void RCTRegisterModule(Class);
+
++ (NSString *)moduleName { return @"DatabaseBridge"; }
+__attribute__((constructor)) static void initialize_DatabaseBridge() {
+    RCTRegisterModule([DatabaseBridge class]);
+}
 
 RCT_EXTERN_METHOD(initialize:(nonnull NSNumber *)connectionTag
   databaseName:(nonnull NSString *)name

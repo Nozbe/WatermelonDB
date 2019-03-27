@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
     console.log(log.startedAt)
     ```
     See Sync documentation for more details.
+- [iOS] Fix runtime crash when built with Xcode 10.2 (Swift 5 runtime)
 
 ## 0.12.0 - 2019-03-18
 
