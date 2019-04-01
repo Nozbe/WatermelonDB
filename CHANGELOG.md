@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### ⚠️ Hotfix
+
+- [iOS] Fix runtime crash when built with Xcode 10.2 (Swift 5 runtime).
+    ⚠️**Note**: You need to upgrade to React Native 0.59.3 for this to work. If you can't upgrade
+    React Native yet, either stick to Xcode 10.1 or manually apply this patch:
+    https://github.com/Nozbe/WatermelonDB/pull/302/commits/aa4e08ad0fa55f434da2a94407c51fc5ff18e506
+
 ### Changes
 
 - [Sync] Adds basic sync logging capability to Sync. Pass an empty object to `synchronize()` to populate it with diagnostic information:
@@ -13,7 +20,6 @@ All notable changes to this project will be documented in this file.
     console.log(log.startedAt)
     ```
     See Sync documentation for more details.
-- [iOS] Fix runtime crash when built with Xcode 10.2 (Swift 5 runtime)
 
 ## 0.12.0 - 2019-03-18
 
