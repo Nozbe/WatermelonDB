@@ -126,6 +126,7 @@ const copyNonJavaScriptFiles = buildPath => {
     'babel',
   ])
   cleanFolder(`${buildPath}/native/android/build`)
+  cleanFolder(`${buildPath}/native/android/bin/build`)
 }
 
 if (isDevelopment) {
