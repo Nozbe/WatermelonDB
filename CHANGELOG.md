@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 0.12.1 - 2019-04-01
+
 ### ⚠️ Hotfix
 
 - [iOS] Fix runtime crash when built with Xcode 10.2 (Swift 5 runtime).
