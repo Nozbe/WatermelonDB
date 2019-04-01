@@ -132,7 +132,7 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-hooks-testing-library": "^0.4.0",
-    "react-native": "^0.59.0",
+    "react-native": "^0.59.3",
     "react-test-renderer": "16.8.6",
     "rimraf": "^2.6.2",
     "semver": "^6.0.0",
