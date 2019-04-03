@@ -45,6 +45,7 @@ export type SyncArgs = $Exact<{
   pushChanges: SyncPushArgs => Promise<void>,
   sendCreatedAsUpdated?: boolean,
   log?: SyncLog,
+  _unsafeBatchPerCollection?: boolean, // commits changes in multiple batches, and not one - temporary workaround for memory issue
 }>
 
 // See Sync docs for usage details
@@ -55,6 +56,7 @@ export async function synchronize({
   pushChanges,
   sendCreatedAsUpdated = false,
   log,
+  _unsafeBatchPerCollection,
 }: SyncArgs): Promise<void> {
   ensureActionsEnabled(database)
   const resetCount = database._resetCount
@@ -74,7 +76,13 @@ export async function synchronize({
       '[Sync] Concurrent synchronization is not allowed. More than one synchronize() call was running at the same time, and the later one was aborted before committing results to local database.',
     )
     await action.subAction(() =>
-      applyRemoteChanges(database, remoteChanges, sendCreatedAsUpdated, log),
+      applyRemoteChanges(
+        database,
+        remoteChanges,
+        sendCreatedAsUpdated,
+        log,
+        _unsafeBatchPerCollection,
+      ),
     )
     await setLastPulledAt(database, newLastPulledAt)
   }, 'sync-synchronize-apply')
