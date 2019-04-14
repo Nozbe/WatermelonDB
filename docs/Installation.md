@@ -6,6 +6,12 @@ First, add Watermelon to your project:
 yarn add @nozbe/watermelondb
 yarn add @nozbe/with-observables
 ```
+or alternatively if you prefer npm:
+
+```npm
+npm install @nozbe/watermelondb
+yarn add @nozbe/with-observables
+```
 
 ## React Native setup
 
@@ -13,6 +19,11 @@ yarn add @nozbe/with-observables
     ```bash
     yarn add --dev @babel/plugin-proposal-decorators
     ```
+    or
+    
+    ```bash
+    npm install -D @babel/plugin-proposal-decorators
+    
 2. Add ES6 decorators support to your `.babelrc` file:
     ```json
     {
@@ -129,6 +140,12 @@ This guide assumes you use Webpack as your bundler.
     ```sh
     yarn add --dev worker-loader
     ```
+    or
+    
+    ```bash
+    npm install -D worker-loader
+    ```
+    
 2. And add this to Webpack configuration:
     ```js
     // webpack.config.js
@@ -154,6 +171,12 @@ This guide assumes you use Webpack as your bundler.
     yarn add --dev @babel/plugin-proposal-decorators
     yarn add --dev @babel/plugin-proposal-class-properties
     yarn add --dev @babel/plugin-transform-runtime
+    ```
+    or
+    ```bash
+    npm install -D @babel/plugin-proposal-decorators
+    npm install -D @babel/plugin-proposal-class-properties
+    npm install -D @babel/plugin-transform-runtime
     ```
 4. Add ES7 support to your `.babelrc` file:
     ```json
