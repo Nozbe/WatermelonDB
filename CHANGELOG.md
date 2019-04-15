@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changes
+
+- [Database] You can now pass falsy values to `Database.batch(...)` (false, null, undefined). This is
+    useful in keeping code clean when doing operations conditionally
+
 ## 0.12.1 - 2019-04-01
 
 ### ⚠️ Hotfix
