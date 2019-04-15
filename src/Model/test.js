@@ -4,13 +4,12 @@ import { mergeMap } from 'rxjs/operators'
 import { makeScheduler, expectToRejectWithMessage } from '../__tests__/utils'
 
 import Database from '../Database'
-import { experimentalSetOnlyMarkAsChangedIfDiffers } from '.'
 import { appSchema, tableSchema } from '../Schema'
 import { field, date, readonly } from '../decorators'
 import { noop } from '../utils/fp'
 import { sanitizedRaw } from '../RawRecord'
 
-import Model from './index'
+import Model, { experimentalSetOnlyMarkAsChangedIfDiffers } from './index'
 
 const mockSchema = appSchema({
   version: 1,
