@@ -12,6 +12,7 @@ import type { $RE } from '../types'
 import field from '../decorators/field'
 import readonly from '../decorators/readonly'
 
+import type Database from '../Database'
 import type Collection from '../Collection'
 import type CollectionMap from '../Database/CollectionMap'
 import { type TableName, type ColumnName, columnName } from '../Schema'
@@ -154,7 +155,15 @@ export default class Model {
 
   // Collections of other Models in the same domain as this record
   get collections(): CollectionMap {
-    return this.collection.database.collections
+    return this.database.collections
+  }
+
+  get database(): Database {
+    return this.collection.database
+  }
+
+  get asModel(): this {
+    return this
   }
 
   // See: Database.batch()

@@ -34,9 +34,9 @@ const children = makeDecorator((childTable: TableName<any>) => (target: Model) =
       }
 
       // Cache new Query
-      const that: Model = this
-      const childCollection = that.collections.get(childTable)
-      const query = childCollection.query(Q.where(association.foreignKey, that.id))
+      const model: Model = this.asModel
+      const childCollection = model.collections.get(childTable)
+      const query = childCollection.query(Q.where(association.foreignKey, model.id))
 
       this._childrenQueryCache[childTable] = query
       return query

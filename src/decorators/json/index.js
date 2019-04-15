@@ -36,7 +36,7 @@ export const jsonDecorator = makeDecorator(
       configurable: true,
       enumerable: true,
       get(): any {
-        const rawValue = this._getRaw(rawFieldName)
+        const rawValue = this.asModel._getRaw(rawFieldName)
         const parsedValue = parseJSON(rawValue)
 
         return sanitizer(parsedValue)
@@ -45,7 +45,7 @@ export const jsonDecorator = makeDecorator(
         const sanitizedValue = sanitizer(json)
         const stringifiedValue = sanitizedValue != null ? JSON.stringify(sanitizedValue) : null
 
-        this._setRaw(rawFieldName, stringifiedValue)
+        this.asModel._setRaw(rawFieldName, stringifiedValue)
       },
     }
   },
