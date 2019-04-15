@@ -43,12 +43,17 @@ export default class Database {
 
   // Executes multiple prepared operations
   // (made with `collection.prepareCreate` and `record.prepareUpdate`)
-  async batch(...records: $ReadOnlyArray<Model>): Promise<void> {
+  // Note: falsy values (null, undefined, false) passed to batch are just ignored
+  async batch(...records: $ReadOnlyArray<Model | null | void | false>): Promise<void> {
     this._ensureInAction(
       `Database.batch() can only be called from inside of an Action. See docs for more details.`,
     )
 
-    const operations: BatchOperation[] = records.map(record => {
+    const operations: BatchOperation[] = records.reduce((ops, record) => {
+      if (!record) {
+        return ops
+      }
+
       invariant(
         !record._isCommitted || record._hasPendingUpdate,
         `Cannot batch a record that doesn't have a prepared create or prepared update`,
@@ -56,11 +61,11 @@ export default class Database {
 
       if (record._hasPendingUpdate) {
         record._hasPendingUpdate = false // TODO: What if this fails?
-        return ['update', record]
+        return ops.concat([['update', record]])
       }
 
-      return ['create', record]
-    })
+      return ops.concat([['create', record]])
+    }, [])
     await this.adapter.batch(operations)
 
     const sortedOperations: { collection: Collection<*>, operations: CollectionChangeSet<*> }[] = []
