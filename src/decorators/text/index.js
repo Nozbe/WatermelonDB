@@ -26,10 +26,10 @@ const text = makeDecorator(
       configurable: true,
       enumerable: true,
       get(): ?string {
-        return this._getRaw(columnName)
+        return this.asModel._getRaw(columnName)
       },
       set(value: ?string): void {
-        this._setRaw(columnName, typeof value === 'string' ? value.trim() : null)
+        this.asModel._setRaw(columnName, typeof value === 'string' ? value.trim() : null)
       },
     }
   },

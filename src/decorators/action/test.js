@@ -32,4 +32,21 @@ describe('@action', () => {
 
     expect(await record.nested(1, 2, 3, 4)).toEqual(['test', 'sub', 1, [2, 3, 4]])
   })
+  it('works with arbitrary classes', async () => {
+    const { database } = mockDatabase({ actionsEnabled: true })
+    const actionSpy = jest.spyOn(database, 'action')
+    class TestClass {
+      database
+
+      @action async test() {
+        return 42
+      }
+    }
+
+    const test = new TestClass()
+    test.database = database
+
+    expect(await test.test()).toEqual(42)
+    expect(actionSpy).toHaveBeenCalledTimes(1)
+  })
 })
