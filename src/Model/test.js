@@ -4,6 +4,7 @@ import { mergeMap } from 'rxjs/operators'
 import { makeScheduler, expectToRejectWithMessage } from '../__tests__/utils'
 
 import Database from '../Database'
+import { experimentalSetOnlyMarkAsChangedIfDiffers } from '.'
 import { appSchema, tableSchema } from '../Schema'
 import { field, date, readonly } from '../decorators'
 import { noop } from '../utils/fp'
@@ -20,7 +21,8 @@ const mockSchema = appSchema({
         { name: 'name', type: 'string' },
         { name: 'otherfield', type: 'string' },
         { name: 'col3', type: 'string' },
-        { name: 'col4', type: 'string' },
+        { name: 'col4', type: 'string', isOptional: true },
+        { name: 'number', type: 'number' },
       ],
     }),
     tableSchema({
@@ -115,7 +117,8 @@ describe('CRUD', () => {
       name: 'Some name',
       otherfield: '',
       col3: '',
-      col4: '',
+      col4: null,
+      number: 0,
     })
   })
   it('can update a record', async () => {
@@ -419,6 +422,45 @@ describe('Sync status fields', () => {
 
     expect(model2._raw._status).toBe('updated')
     expect(model2._raw._changed).toBe('name')
+  })
+  it('adds to changes on _setRaw (new behavior)', async () => {
+    const model = new MockModel(
+      { schema: mockSchema.tables.mock },
+      sanitizedRaw(
+        {
+          col3: '',
+          number: 0,
+        },
+        mockSchema.tables.mock,
+      ),
+    )
+
+    experimentalSetOnlyMarkAsChangedIfDiffers(true)
+
+    model._isEditing = true
+    model._raw.id = 'xxx'
+    model._raw._status = 'updated'
+
+    model._setRaw('name', null) // ensure we're comparing sanitized values
+    model._setRaw('otherfield', '')
+    model._setRaw('col3', 'foo')
+    model._setRaw('col4', undefined)
+    model._setRaw('number', NaN)
+    expect(model._raw._changed).toBe('col3')
+    model._setRaw('number', 10)
+
+    expect(model._raw).toEqual({
+      _status: 'updated',
+      _changed: 'col3,number',
+      id: 'xxx',
+      name: '',
+      otherfield: '',
+      col3: 'foo',
+      col4: null,
+      number: 10,
+    })
+
+    experimentalSetOnlyMarkAsChangedIfDiffers(false)
   })
   it('marks new records as status:created', async () => {
     const database = makeDatabase()
