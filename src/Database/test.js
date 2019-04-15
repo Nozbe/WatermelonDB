@@ -60,9 +60,9 @@ describe('unsafeResetDatabase', () => {
 
 describe('Batch writes', () => {
   it('can batch records', async () => {
-    // eslint-disable-next-line
     let {
       database,
+      // eslint-disable-next-line
       cloneDatabase,
       tasks: tasksCollection,
       comments: commentsCollection,
