@@ -36,6 +36,12 @@ export function associations(
   return (fromPairs(associationList): any)
 }
 
+let experimentalOnlyMarkAsChangedIfDiffers = false
+
+export function experimentalSetOnlyMarkAsChangedIfDiffers(value: boolean): void {
+  experimentalOnlyMarkAsChangedIfDiffers = value
+}
+
 export default class Model {
   // Set this in concrete Models to the name of the database table
   static table: TableName<$FlowFixMe<this>>
@@ -216,7 +222,14 @@ export default class Model {
       'Not allowed to change deleted records',
     )
 
-    setRawColumnChange(this._raw, rawFieldName)
+    const valueBefore = this._raw[(rawFieldName: string)]
     setRawSanitized(this._raw, rawFieldName, rawValue, this.collection.schema.columns[rawFieldName])
+
+    if (
+      !experimentalOnlyMarkAsChangedIfDiffers ||
+      valueBefore !== this._raw[(rawFieldName: string)]
+    ) {
+      setRawColumnChange(this._raw, rawFieldName)
+    }
   }
 }
