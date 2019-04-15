@@ -25,10 +25,10 @@ const field = makeDecorator(
       configurable: true,
       enumerable: true,
       get(): Value {
-        return this._getRaw(columnName)
+        return this.asModel._getRaw(columnName)
       },
       set(value: any): void {
-        this._setRaw(columnName, value)
+        this.asModel._setRaw(columnName, value)
       },
     }
   },

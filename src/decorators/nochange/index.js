@@ -19,7 +19,7 @@ const nochange = makeDecorator(() => (target: Object, key: string, descriptor: O
   return {
     ...descriptor,
     set(value: any): void {
-      invariant(!this._isCommitted, errorMessage)
+      invariant(!this.asModel._isCommitted, errorMessage)
       descriptor.set.call(this, value)
     },
   }
