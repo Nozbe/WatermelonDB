@@ -38,7 +38,7 @@ const relation = (
       }
 
       const newRelation = new Relation(
-        this,
+        this.asModel,
         relationTable,
         relationIdColumn,
         options || { isImmutable: false },
@@ -48,7 +48,7 @@ const relation = (
       return newRelation
     },
     set(): void {
-      throw new Error('Don\'t set relation directly. Use relation.set() instead')
+      throw new Error(`Don't set relation directly. Use relation.set() instead`)
     },
   }
 }
