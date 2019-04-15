@@ -174,7 +174,7 @@ export default class Model {
 
   // See: Database.batch()
   // To be used by Model subclass methods only
-  batch(...records: $ReadOnlyArray<Model>): Promise<void> {
+  batch(...records: $ReadOnlyArray<Model | null | void | false>): Promise<void> {
     return this.collection.database.batch(...records)
   }
 
