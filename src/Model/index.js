@@ -122,6 +122,7 @@ export default class Model {
 
   prepareMarkAsDeleted(): this {
     invariant(this._isCommitted, `Cannot mark an uncomitted record as deleted`)
+    invariant(!this._hasPendingUpdate, `Cannot mark an updated record as deleted`)
 
     this._isEditing = true
     this._raw._status = 'deleted'
@@ -133,6 +134,7 @@ export default class Model {
 
   prepareDestroyPermanently(): this {
     invariant(this._isCommitted, `Cannot mark an uncomitted record as deleted`)
+    invariant(!this._hasPendingUpdate, `Cannot mark an updated record as deleted`)
 
     this._isEditing = true
     this._raw._status = 'deleted'
@@ -148,9 +150,8 @@ export default class Model {
     this.collection.database._ensureInAction(
       `Model.markAsDeleted() can only be called from inside of an Action. See docs for more details.`,
     )
-    invariant(this._isCommitted, `Cannot mark as deleted uncommitted record`)
-    this._raw._status = 'deleted'
-    await this.collection._markAsDeleted(this)
+    this.prepareMarkAsDeleted()
+    await this.collection.database.batch(this)
   }
 
   // Pernamently removes this record from the database
@@ -159,8 +160,8 @@ export default class Model {
     this.collection.database._ensureInAction(
       `Model.destroyPermanently() can only be called from inside of an Action. See docs for more details.`,
     )
-    invariant(this._isCommitted, `Cannot destroy uncommitted record`)
-    await this.collection._destroyPermanently(this)
+    this.prepareDestroyPermanently()
+    await this.collection.database.batch(this)
   }
 
   // *** Observing changes ***

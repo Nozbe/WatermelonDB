@@ -3,6 +3,7 @@ import { mockDatabase, MockProject, MockTask, MockComment } from '../__tests__/t
 import { noop } from '../utils/fp'
 import { CollectionChangeTypes } from '../Collection/common'
 import Database from './index'
+import * as Q from '../QueryDescription'
 
 describe('Database', () => {
   it('implements collectionMap', () => {
@@ -64,8 +65,13 @@ describe('Batch writes', () => {
     let { database, cloneDatabase, tasks: tasksCollection, comments: commentsCollection } = mockDatabase({ actionsEnabled: true })
     const adapterBatchSpy = jest.spyOn(database.adapter, 'batch')
 
+    // m1, m2 will be used to test batch-updates
     const m1 = await database.action(() => tasksCollection.create())
     const m2 = await database.action(() => commentsCollection.create())
+
+    // m3, m4 will be used to test batch-deletes
+    const m3 = await database.action(() => tasksCollection.create())
+    const m4 = await database.action(() => commentsCollection.create())
 
     const tasksCollectionObserver = jest.fn()
     tasksCollection.changes.subscribe(tasksCollectionObserver)
@@ -73,22 +79,25 @@ describe('Batch writes', () => {
     const commentsCollectionObserver = jest.fn()
     commentsCollection.changes.subscribe(commentsCollectionObserver)
 
-    const m3 = tasksCollection.prepareCreate()
-    const m4 = commentsCollection.prepareCreate()
+    // m5, m6 will be used to test batch-creates
+    const m5 = tasksCollection.prepareCreate()
+    const m6 = commentsCollection.prepareCreate()
 
     const recordObserver = jest.fn()
     m1.observe().subscribe(recordObserver)
 
     const batchPromise = database.action(() =>
       database.batch(
-        m4,
+        m6,
         m1.prepareUpdate(() => {
           m1.name = 'bar1'
         }),
-        m3,
+        m5,
         m2.prepareUpdate(() => {
           m2.body = 'baz1'
         }),
+        m3.prepareMarkAsDeleted(),
+        m4.prepareDestroyPermanently()
       ),
     )
 
@@ -97,27 +106,31 @@ describe('Batch writes', () => {
 
     await batchPromise
 
-    expect(adapterBatchSpy).toHaveBeenCalledTimes(3)
+    expect(adapterBatchSpy).toHaveBeenCalledTimes(5)
     expect(adapterBatchSpy).toHaveBeenLastCalledWith([
-      ['create', m4],
+      ['create', m6],
       ['update', m1],
-      ['create', m3],
+      ['create', m5],
       ['update', m2],
+      ['markAsDeleted', m3],
+      ['destroyPermanently', m4]
     ])
 
     expect(tasksCollectionObserver).toHaveBeenCalledTimes(1)
     expect(commentsCollectionObserver).toHaveBeenCalledTimes(1)
     expect(tasksCollectionObserver).toHaveBeenCalledWith([
         { record: m1, type: CollectionChangeTypes.updated },
-        { record: m3, type: CollectionChangeTypes.created },
+        { record: m5, type: CollectionChangeTypes.created },
+        { record: m3, type: CollectionChangeTypes.destroyed },
     ])
     expect(commentsCollectionObserver).toHaveBeenCalledWith([
-        { record: m4, type: CollectionChangeTypes.created },
+        { record: m6, type: CollectionChangeTypes.created },
         { record: m2, type: CollectionChangeTypes.updated },
+        { record: m4, type: CollectionChangeTypes.destroyed }
     ])
 
 
-    const createdRecords = [m3, m4]
+    const createdRecords = [m5, m6]
     createdRecords.forEach(record => {
       expect(record._isCommitted).toBe(true)
       expect(record.collection._cache.get(record.id)).toBe(record)
@@ -134,6 +147,11 @@ describe('Batch writes', () => {
     const fetchedM2 = await commentsCollection.find(m2.id)
     expect(fetchedM1.name).toBe('bar1')
     expect(fetchedM2.body).toBe('baz1')
+
+    const fetchedM3 = await tasksCollection.find(m3.id)
+    const fetchedM4 = await commentsCollection.query(Q.where('id', m4.id)).fetch()
+    expect(fetchedM3._raw._status).toBe('deleted')
+    expect(fetchedM4.length).toBe(0)
   })
   it('throws error if attempting to batch records without a pending operation', async () => {
     const { database, tasks } = mockDatabase({ actionsEnabled: true })
