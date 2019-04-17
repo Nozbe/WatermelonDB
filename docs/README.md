@@ -30,9 +30,9 @@
 
 Details about how Watermelon works, how to hack and contribute:
 
-2. [Architecture](./Implementation/Architecture.md)
-3. [Adapters](./Implementation/Adapters.md)
-4. [📺 Digging deeper into WatermelonDB](https://www.youtube.com/watch?v=uFvHURTRLxQ) — more architectural info about caching, observation, and sync
+1. [Architecture](./Implementation/Architecture.md)
+2. [Adapters](./Implementation/Adapters.md)
+3. [📺 Digging deeper into WatermelonDB](https://www.youtube.com/watch?v=uFvHURTRLxQ) — more architectural info about caching, observation, and sync
 
 ## Other
 

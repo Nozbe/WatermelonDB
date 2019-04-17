@@ -6,6 +6,24 @@ All notable changes to this project will be documented in this file.
 
 ### Changes
 
+- [Database] You can now pass falsy values to `Database.batch(...)` (false, null, undefined). This is
+    useful in keeping code clean when doing operations conditionally. (Also works with `model.batch(...)`)
+- **Decorators**. You can now use `@action` on methods of any object that has a `database: Database`
+     property, and `@field @children @date @relation @immutableRelation @json @text @nochange` decorators on
+     any object with a `asModel: Model` property.
+
+## 0.12.1 - 2019-04-01
+
+### ⚠️ Hotfix
+
+- [iOS] Fix runtime crash when built with Xcode 10.2 (Swift 5 runtime).
+
+    **⚠️ Note**: You need to upgrade to React Native 0.59.3 for this to work. If you can't upgrade
+    React Native yet, either stick to Xcode 10.1 or manually apply this patch:
+    https://github.com/Nozbe/WatermelonDB/pull/302/commits/aa4e08ad0fa55f434da2a94407c51fc5ff18e506
+
+### Changes
+
 - [Sync] Adds basic sync logging capability to Sync. Pass an empty object to `synchronize()` to populate it with diagnostic information:
     ```js
     const log = {}

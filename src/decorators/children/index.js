@@ -16,14 +16,7 @@ import type Query from '../../Query'
 // Example: a Task has_many Comments, so it may define:
 //   @children('comment') comments: Query<Comment>
 
-const children = makeDecorator((childTable: TableName<any>) => (target: Model) => {
-  const association = target.constructor.associations[childTable]
-
-  invariant(
-    association && association.type === 'has_many',
-    `@children decorator used for a table that's not has_many`,
-  )
-
+const children = makeDecorator((childTable: TableName<any>) => () => {
   return {
     get(): Query<Model> {
       // Use cached Query if possible
@@ -34,9 +27,16 @@ const children = makeDecorator((childTable: TableName<any>) => (target: Model) =
       }
 
       // Cache new Query
-      const that: Model = this
-      const childCollection = that.collections.get(childTable)
-      const query = childCollection.query(Q.where(association.foreignKey, that.id))
+      const model: Model = this.asModel
+      const childCollection = model.collections.get(childTable)
+
+      const association = model.constructor.associations[childTable]
+      invariant(
+        association && association.type === 'has_many',
+        `@children decorator used for a table that's not has_many`,
+      )
+
+      const query = childCollection.query(Q.where(association.foreignKey, model.id))
 
       this._childrenQueryCache[childTable] = query
       return query

@@ -61,8 +61,13 @@ describe('unsafeResetDatabase', () => {
 
 describe('Batch writes', () => {
   it('can batch records', async () => {
-    // eslint-disable-next-line
-    let { database, cloneDatabase, tasks: tasksCollection, comments: commentsCollection } = mockDatabase({ actionsEnabled: true })
+    let {
+      database,
+      // eslint-disable-next-line
+      cloneDatabase,
+      tasks: tasksCollection,
+      comments: commentsCollection,
+    } = mockDatabase({ actionsEnabled: true })
     const adapterBatchSpy = jest.spyOn(database.adapter, 'batch')
 
     // m1, m2 will be used to test batch-updates
@@ -152,6 +157,16 @@ describe('Batch writes', () => {
     const fetchedM4 = await commentsCollection.query(Q.where('id', m4.id)).fetch()
     expect(fetchedM3._raw._status).toBe('deleted')
     expect(fetchedM4.length).toBe(0)
+  })
+  it('ignores falsy values passed', async () => {
+    const { database, tasks: tasksCollection } = mockDatabase({ actionsEnabled: true })
+    const adapterBatchSpy = jest.spyOn(database.adapter, 'batch')
+
+    const model = tasksCollection.prepareCreate()
+    await database.action(() => database.batch(null, model, false, undefined))
+
+    expect(adapterBatchSpy).toHaveBeenCalledTimes(1)
+    expect(adapterBatchSpy).toHaveBeenLastCalledWith([['create', model]])
   })
   it('throws error if attempting to batch records without a pending operation', async () => {
     const { database, tasks } = mockDatabase({ actionsEnabled: true })

@@ -14,8 +14,7 @@ class MockParent extends Model {
     mock_child: { type: 'has_many', foreignKey: 'parent_id' },
   }
 
-  @children('mock_child')
-  children
+  @children('mock_child') children
 }
 
 class MockChild extends Model {
@@ -25,8 +24,7 @@ class MockChild extends Model {
     mock_parent: { type: 'belongs_to', key: 'parent_id' },
   }
 
-  @field('parent_id')
-  parentId
+  @field('parent_id') parentId
 }
 
 const makeDatabase = () =>
@@ -55,6 +53,19 @@ describe('decorators/children', () => {
       .get('mock_child')
       .query(Q.where('parent_id', parentMock.id))
     expect(parentMock.children).toEqual(expectedQuery)
+  })
+  it('works on arbitrary objects with asModel', async () => {
+    const database = makeDatabase()
+    database.adapter.batch = jest.fn()
+
+    const parent = await database.collections.get('mock_parent').create()
+    class ParentProxy {
+      asModel = parent
+
+      @children('mock_child') children
+    }
+    const parentProxy = new ParentProxy()
+    expect(parentProxy.children).toEqual(parent.children)
   })
   it('throws error if set is attempted', async () => {
     const database = makeDatabase()
