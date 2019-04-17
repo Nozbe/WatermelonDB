@@ -41,6 +41,10 @@ declare module '@nozbe/watermelondb/Model' {
 
     public destroyPermanently(): Promise<void>
 
+    public prepareMarkAsDeleted(): this
+
+    public prepareDestroyPermanently(): this
+
     public observe(): Observable<this>
 
     public batch(...records: Readonly<[Model]>): Promise<void>

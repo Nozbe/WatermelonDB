@@ -81,7 +81,7 @@ export default class Database {
         switch(type) {
           case 'create':
             return CollectionChangeTypes.created
-          case 'updated':
+          case 'update':
             return CollectionChangeTypes.updated
           case 'markAsDeleted':
           case 'destroyPermanently':
