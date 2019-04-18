@@ -12,6 +12,7 @@ import type { $RE } from '../types'
 import field from '../decorators/field'
 import readonly from '../decorators/readonly'
 
+import type Database from '../Database'
 import type Collection from '../Collection'
 import type CollectionMap from '../Database/CollectionMap'
 import { type TableName, type ColumnName, columnName } from '../Schema'
@@ -34,6 +35,12 @@ export function associations(
   ...associationList: [TableName<any>, AssociationInfo][]
 ): Associations {
   return (fromPairs(associationList): any)
+}
+
+let experimentalOnlyMarkAsChangedIfDiffers = false
+
+export function experimentalSetOnlyMarkAsChangedIfDiffers(value: boolean): void {
+  experimentalOnlyMarkAsChangedIfDiffers = value
 }
 
 export default class Model {
@@ -154,12 +161,20 @@ export default class Model {
 
   // Collections of other Models in the same domain as this record
   get collections(): CollectionMap {
-    return this.collection.database.collections
+    return this.database.collections
+  }
+
+  get database(): Database {
+    return this.collection.database
+  }
+
+  get asModel(): this {
+    return this
   }
 
   // See: Database.batch()
   // To be used by Model subclass methods only
-  batch(...records: $ReadOnlyArray<Model>): Promise<void> {
+  batch(...records: $ReadOnlyArray<Model | null | void | false>): Promise<void> {
     return this.collection.database.batch(...records)
   }
 
@@ -216,7 +231,14 @@ export default class Model {
       'Not allowed to change deleted records',
     )
 
-    setRawColumnChange(this._raw, rawFieldName)
+    const valueBefore = this._raw[(rawFieldName: string)]
     setRawSanitized(this._raw, rawFieldName, rawValue, this.collection.schema.columns[rawFieldName])
+
+    if (
+      !experimentalOnlyMarkAsChangedIfDiffers ||
+      valueBefore !== this._raw[(rawFieldName: string)]
+    ) {
+      setRawColumnChange(this._raw, rawFieldName)
+    }
   }
 }

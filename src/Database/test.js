@@ -60,8 +60,13 @@ describe('unsafeResetDatabase', () => {
 
 describe('Batch writes', () => {
   it('can batch records', async () => {
-    // eslint-disable-next-line
-    let { database, cloneDatabase, tasks: tasksCollection, comments: commentsCollection } = mockDatabase({ actionsEnabled: true })
+    let {
+      database,
+      // eslint-disable-next-line
+      cloneDatabase,
+      tasks: tasksCollection,
+      comments: commentsCollection,
+    } = mockDatabase({ actionsEnabled: true })
     const adapterBatchSpy = jest.spyOn(database.adapter, 'batch')
 
     const m1 = await database.action(() => tasksCollection.create())
@@ -108,14 +113,13 @@ describe('Batch writes', () => {
     expect(tasksCollectionObserver).toHaveBeenCalledTimes(1)
     expect(commentsCollectionObserver).toHaveBeenCalledTimes(1)
     expect(tasksCollectionObserver).toHaveBeenCalledWith([
-        { record: m1, type: CollectionChangeTypes.updated },
-        { record: m3, type: CollectionChangeTypes.created },
+      { record: m1, type: CollectionChangeTypes.updated },
+      { record: m3, type: CollectionChangeTypes.created },
     ])
     expect(commentsCollectionObserver).toHaveBeenCalledWith([
-        { record: m4, type: CollectionChangeTypes.created },
-        { record: m2, type: CollectionChangeTypes.updated },
+      { record: m4, type: CollectionChangeTypes.created },
+      { record: m2, type: CollectionChangeTypes.updated },
     ])
-
 
     const createdRecords = [m3, m4]
     createdRecords.forEach(record => {
@@ -134,6 +138,16 @@ describe('Batch writes', () => {
     const fetchedM2 = await commentsCollection.find(m2.id)
     expect(fetchedM1.name).toBe('bar1')
     expect(fetchedM2.body).toBe('baz1')
+  })
+  it('ignores falsy values passed', async () => {
+    const { database, tasks: tasksCollection } = mockDatabase({ actionsEnabled: true })
+    const adapterBatchSpy = jest.spyOn(database.adapter, 'batch')
+
+    const model = tasksCollection.prepareCreate()
+    await database.action(() => database.batch(null, model, false, undefined))
+
+    expect(adapterBatchSpy).toHaveBeenCalledTimes(1)
+    expect(adapterBatchSpy).toHaveBeenLastCalledWith([['create', model]])
   })
   it('throws error if attempting to batch records without a pending operation', async () => {
     const { database, tasks } = mockDatabase({ actionsEnabled: true })

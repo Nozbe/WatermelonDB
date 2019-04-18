@@ -23,12 +23,12 @@ const dateDecorator = makeDecorator(
       configurable: true,
       enumerable: true,
       get(): ?Date {
-        const rawValue = this._getRaw(columnName)
+        const rawValue = this.asModel._getRaw(columnName)
         return typeof rawValue === 'number' ? new Date(rawValue) : null
       },
       set(date: ?Date): void {
         const rawValue = date ? +new Date(date) : null
-        this._setRaw(columnName, rawValue)
+        this.asModel._setRaw(columnName, rawValue)
       },
     }
   },

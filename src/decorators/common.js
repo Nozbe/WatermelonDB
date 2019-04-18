@@ -18,16 +18,18 @@ export function ensureDecoratorUsedProperly(
       target.constructor.name
     }.prototype.${key} given.`,
   )
-  invariant(
-    'initializer' in descriptor,
-    `Model field decorators can only be used for simple properties - method, setter or getter ${
-      target.constructor.name
-    }.prototype.${key} given.`,
-  )
-  invariant(
-    !is(Function, descriptor.initializer),
-    `Model field decorators must not be used on properties with a default value - error in "${
-      target.constructor.name
-    }.prototype.${key}".`,
-  )
+  if (descriptor) {
+    invariant(
+      'initializer' in descriptor,
+      `Model field decorators can only be used for simple properties - method, setter or getter ${
+        target.constructor.name
+      }.prototype.${key} given.`,
+    )
+    invariant(
+      !is(Function, descriptor.initializer),
+      `Model field decorators must not be used on properties with a default value - error in "${
+        target.constructor.name
+      }.prototype.${key}".`,
+    )
+  }
 }

@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
+- [TypeScript] 'Cannot use 'in' operator to search for 'initializer'; decorator fix
+
+### Changes
+
+- [Database] You can now pass falsy values to `Database.batch(...)` (false, null, undefined). This is
+    useful in keeping code clean when doing operations conditionally. (Also works with `model.batch(...)`)
+- **Decorators**. You can now use `@action` on methods of any object that has a `database: Database`
+     property, and `@field @children @date @relation @immutableRelation @json @text @nochange` decorators on
+     any object with a `asModel: Model` property.
 
 ## 0.12.1 - 2019-04-01
 
