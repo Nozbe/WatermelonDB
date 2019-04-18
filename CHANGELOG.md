@@ -3,6 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
+- [TypeScript] 'Cannot use 'in' operator to search for 'initializer'; decorator fix
 
 ### Changes
 
