@@ -3,15 +3,23 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
+
+### Fixes
+
 - [TypeScript] 'Cannot use 'in' operator to search for 'initializer'; decorator fix
 
 ### Changes
 
 - [Database] You can now pass falsy values to `Database.batch(...)` (false, null, undefined). This is
     useful in keeping code clean when doing operations conditionally. (Also works with `model.batch(...)`)
-- **Decorators**. You can now use `@action` on methods of any object that has a `database: Database`
+- [Decorators]. You can now use `@action` on methods of any object that has a `database: Database`
      property, and `@field @children @date @relation @immutableRelation @json @text @nochange` decorators on
      any object with a `asModel: Model` property.
+- [Sync] Adds a temporary/experimental `_unsafeBatchPerCollection: true` flag to `synchronize()`. This
+     causes server changes to be committed to database in multiple batches, and not one. This is NOT preferred
+     for reliability and performance reasons, but it works around a memory issue that might cause your app
+     to crash on very large syncs (>20,000 records). Use this only if necessary. Note that this option
+     might be removed at any time if a better solution is found.
 
 ## 0.12.1 - 2019-04-01
 
