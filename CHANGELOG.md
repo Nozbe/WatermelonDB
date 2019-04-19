@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changes
+
+## 0.12.2 - 2019-04-19
+
 ### Fixes
 
 - [TypeScript] 'Cannot use 'in' operator to search for 'initializer'; decorator fix
