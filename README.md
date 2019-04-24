@@ -109,7 +109,15 @@ const enhance = withObservables(['post'], ({ post }) => ({
 
 The result is fully reactive! Whenever a post or comment is added, changed, or removed, the right components **will automatically re-render** on screen. Doesn't matter if a change occurred in a totally different part of the app, it all just works out of the box!
 
-➡️ **Learn more:** [see full documentation](./docs)
+### ➡️ **Learn more:** [see full documentation](./docs)
+
+## Who uses WatermelonDB
+
+  <a href="https://nozbe4.com">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/nozbe4.png" alt="WatermelonDB" width="300" />
+  </a>
+
+_Does your company or app use 🍉? Open a pull request and add your logo/icon with link here!_
 
 ## Contributing
 
