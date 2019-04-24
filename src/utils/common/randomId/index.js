@@ -13,6 +13,17 @@ const randomCharacter = () => {
 
 // Note: for explanation of generating record IDs on the client side, see:
 // https://github.com/Nozbe/WatermelonDB/issues/5#issuecomment-442046292
-export default function randomId(): string {
+const randomId = (): string => {
   return join('', times(randomCharacter, idLength))
 }
+
+let generator = () => randomId()
+
+export const setGenerator = (newGenerator: void => string) => {
+  if (typeof newGenerator() !== 'string') {
+    throw new Error('RandomId generator function needs to return a string type.')
+  }
+  generator = newGenerator
+}
+
+export default () => generator()

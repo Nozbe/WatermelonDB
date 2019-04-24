@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 - [TypeScript] 'Cannot use 'in' operator to search for 'initializer'; decorator fix
 
 ### Changes
-
+- [Database] You can now update the random id schema by importing `import { setGenerator } from '@nozbe/watermelondb/utils/common/randomId'` and then calling `setGenerator(newGenenerator)`. This allows WatermelonDB to create specific IDs for example if your backend uses UUIDs.
 - [Database] You can now pass falsy values to `Database.batch(...)` (false, null, undefined). This is
     useful in keeping code clean when doing operations conditionally. (Also works with `model.batch(...)`)
 - [Decorators]. You can now use `@action` on methods of any object that has a `database: Database`
