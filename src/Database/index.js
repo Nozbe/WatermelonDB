@@ -62,10 +62,10 @@ export default class Database {
       // Deletes take presedence over updates
       if (record._hasPendingDelete !== false) {
         if (record._hasPendingDelete === 'destroy') {
-          return ['destroyPermanently', record]
+          return ops.concat([['destroyPermanently', record]])
         }
         
-        return ['markAsDeleted', record]
+        return ops.concat([['markAsDeleted', record]])
       } else if (record._hasPendingUpdate) {
         record._hasPendingUpdate = false // TODO: What if this fails?
         return ops.concat([['update', record]])
