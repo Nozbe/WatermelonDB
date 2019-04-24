@@ -99,6 +99,7 @@ class Post extends Model {
 - Pass the list of **prepared operations** as arguments:
   - Instead of calling `await record.update()`, pass `record.prepareUpdate()` — note lack of `await`
   - Instead of `await collection.create()`, use `collection.prepareCreate()`
+  - You can pass falsy values (null, undefined, false) to batch — they will simply be ignored.
 - Otherwise, the API is the same!
 
 ## Calling Actions from Actions

@@ -35,7 +35,7 @@ export default class ActionQueue implements ActionInterface {
         const current = queue[0]
         logger.warn(
           `The action you're trying to perform (${description ||
-            'unnamed'}) can't be performed yet, beacuse there are ${
+            'unnamed'}) can't be performed yet, because there are ${
             queue.length
           } actions in the queue. Current action: ${current.description ||
             'unnamed'}. Ignore this message if everything is working fine. But if your actions are not running, it's because the current action is stuck. Remember that if you're calling an action from an action, you must use subAction(). See docs for more details.`,
