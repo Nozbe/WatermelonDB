@@ -114,16 +114,20 @@ The result is fully reactive! Whenever a post or comment is added, changed, or r
 ## Who uses WatermelonDB
 
   <a href="https://nozbe4.com">
-    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/nozbe4.png" alt="WatermelonDB" width="300" />
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/nozbe4.png" alt="Nozbe 4" width="300" />
   </a>
 
 _Does your company or app use 🍉? Open a pull request and add your logo/icon with link here!_
 
 ## Contributing
 
-If you have comments, complaints, or ideas for improvements, feel free to open an issue or a pull request!
+<img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/istockphoto-480467939-612x612.jpg" alt="We need you" width="220" />
 
-If you want to contribute, see [Contributing guide](./CONTRIBUTING.md) for details about project setup, testing, etc. See [good first issues](https://github.com/Nozbe/WatermelonDB/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22). If you make a non-trivial contribution, email me, and I'll send you a nice 🍉 sticker!
+**WatermelonDB is an open-source project and it needs your help to thrive!**
+
+If there's a missing feature, a bug, or other improvement you'd like, we encourage you to contribute! Feel free to open an issue to get some guidance and see [Contributing guide](./CONTRIBUTING.md) for details about project setup, testing, etc.
+
+If you're just getting started, see [good first issues](https://github.com/Nozbe/WatermelonDB/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) that are easy to contribute to. If you make a non-trivial contribution, email me, and I'll send you a nice 🍉 sticker!
 
 If you make or are considering making an app using WatermelonDB, please let us know!
 
