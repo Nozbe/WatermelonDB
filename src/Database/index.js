@@ -58,9 +58,9 @@ export default class Database {
       if (record._hasPendingDelete !== false) {
         if (record._hasPendingDelete === 'destroy') {
           return ['destroyPermanently', record]
-        } else {
-          return ['markAsDeleted', record]
         }
+        
+        return ['markAsDeleted', record]
       } else if (record._hasPendingUpdate) {
         record._hasPendingUpdate = false // TODO: What if this fails?
         return ['update', record]
@@ -72,8 +72,8 @@ export default class Database {
 
     const sortedOperations: { collection: Collection<*>, operations: CollectionChangeSet<*> }[] = []
     operations.forEach(([type, record]) => {
-      const operationTypeToCollectionChangeType = (type) => {
-        switch(type) {
+      const operationTypeToCollectionChangeType = input => {
+        switch(input) {
           case 'create':
             return CollectionChangeTypes.created
           case 'update':
@@ -88,7 +88,7 @@ export default class Database {
 
       const operation = {
         record,
-        type: operationTypeToCollectionChangeType(type)
+        type: operationTypeToCollectionChangeType(type),
       }
       const indexOfCollection = sortedOperations.findIndex(
         ({ collection }) => collection === record.collection,

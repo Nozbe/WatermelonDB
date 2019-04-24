@@ -113,7 +113,7 @@ describe('Batch writes', () => {
       ['create', m5],
       ['update', m2],
       ['markAsDeleted', m3],
-      ['destroyPermanently', m4]
+      ['destroyPermanently', m4],
     ])
 
     expect(tasksCollectionObserver).toHaveBeenCalledTimes(1)
@@ -126,7 +126,7 @@ describe('Batch writes', () => {
     expect(commentsCollectionObserver).toHaveBeenCalledWith([
         { record: m6, type: CollectionChangeTypes.created },
         { record: m2, type: CollectionChangeTypes.updated },
-        { record: m4, type: CollectionChangeTypes.destroyed }
+        { record: m4, type: CollectionChangeTypes.destroyed },
     ])
 
 
