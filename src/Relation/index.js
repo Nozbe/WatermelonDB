@@ -21,13 +21,29 @@ export type Options = $Exact<{
 // Defines a one-to-one relation between two Models (two tables in db)
 // Do not create this object directly! Use `relation` or `immutableRelation` decorators instead
 export default class Relation<T: ?Model> {
-  _model: Model
+  #model: Model
 
-  _columnName: ColumnName
+  #columnName: ColumnName
 
-  _relationTableName: TableName<$NonMaybeType<T>>
+  #relationTableName: TableName<$NonMaybeType<T>>
 
-  _isImmutable: boolean
+  #isImmutable: boolean
+
+  get _model(): Model {
+    return this.#model
+  }
+
+  get _columnName(): ColumnName {
+    return this.#columnName
+  }
+
+  get _relationTableName(): TableName<$NonMaybeType<T>> {
+    return this.#relationTableName
+  }
+
+  get _isImmutable(): boolean {
+    return this.#isImmutable
+  }
 
   @lazy
   _cachedObservable: Observable<T> = createObservable(this)
@@ -40,33 +56,33 @@ export default class Relation<T: ?Model> {
     columnName: ColumnName,
     options: Options,
   ): void {
-    this._model = model
-    this._relationTableName = relationTableName
-    this._columnName = columnName
-    this._isImmutable = options.isImmutable
+    this.#model = model
+    this.#relationTableName = relationTableName
+    this.#columnName = columnName
+    this.#isImmutable = options.isImmutable
   }
 
   get id(): $Call<ExtractRecordId, T> {
-    return (this._model._getRaw(this._columnName): any)
+    return (this.#model._getRaw(this.#columnName): any)
   }
 
   set id(newId: $Call<ExtractRecordId, T>): void {
-    if (this._isImmutable) {
+    if (this.#isImmutable) {
       invariant(
-        !this._model._isCommitted,
+        !this.#model._isCommitted,
         `Cannot change property marked as @immutableRelation ${
-          Object.getPrototypeOf(this._model).constructor.name
-        } - ${this._columnName}`,
+          Object.getPrototypeOf(this.#model).constructor.name
+        } - ${this.#columnName}`,
       )
     }
 
-    this._model._setRaw(this._columnName, newId || null)
+    this.#model._setRaw(this.#columnName, newId || null)
   }
 
   fetch(): Promise<T> {
     const { id } = this
     if (id) {
-      return this._model.collections.get(this._relationTableName).find(id)
+      return this.#model.collections.get(this.#relationTableName).find(id)
     }
 
     return Promise.resolve((null: any))
