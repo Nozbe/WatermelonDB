@@ -118,7 +118,7 @@ describe('Batch writes', () => {
       ['create', m5],
       ['update', m2],
       ['markAsDeleted', m3],
-      ['destroyPermanently', m4]
+      ['destroyPermanently', m4],
     ])
 
     expect(tasksCollectionObserver).toHaveBeenCalledTimes(1)

@@ -53,7 +53,7 @@ await comment.markAsSpam()
 
 ## Batch updates
 
-Whenever you make more than one change (create or update records) in an action, you should **batch them**.
+Whenever you make more than one change (create, delete or update records) in an action, you should **batch them**.
 
 > It means that the app doesn't have to go back and forth with the database (sending one command, waiting for the response, then sending another), but instead sends multiple commands in one big batch. This is faster, safer, and can avoid subtle bugs in your app
 
