@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 - **Decorators**. You can now use `@action` on methods of any object that has a `database: Database`
      property, and `@field @children @date @relation @immutableRelation @json @text @nochange` decorators on
      any object with a `asModel: Model` property.
+- [Actions] You can now batch deletes by using `prepareMarkAsDeleted` or `prepareDestroyPermanently`
 
 ## 0.12.1 - 2019-04-01
 
