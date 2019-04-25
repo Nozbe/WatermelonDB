@@ -111,14 +111,6 @@ The result is fully reactive! Whenever a post or comment is added, changed, or r
 
 ### ➡️ **Learn more:** [see full documentation](./docs)
 
-## Who uses WatermelonDB
-
-  <a href="https://nozbe4.com">
-    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/nozbe4.png" alt="Nozbe 4" width="300" />
-  </a>
-
-_Does your company or app use 🍉? Open a pull request and add your logo/icon with link here!_
-
 ## Contributing
 
 <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/istockphoto-480467939-612x612.jpg" alt="We need you" width="220" />
