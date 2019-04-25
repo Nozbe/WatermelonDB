@@ -32,7 +32,7 @@ export default class Collection<Record: Model> {
   #cache: RecordCache<Record>
 
   get _cache(): RecordCache<Record> {
-    invariant(process.env.NODE_ENV === 'test', '_chace can be accessed only in test environment')
+    invariant(process.env.NODE_ENV === 'test', '_cache can be accessed only in test environment')
 
     return this.#cache
   }
