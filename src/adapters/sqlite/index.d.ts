@@ -20,7 +20,7 @@ declare module '@nozbe/watermelondb/adapters/sqlite' {
   export type SQLiteQuery = [SQL, SQLiteArg[]]
 
   export interface SQLiteAdapterOptions {
-    dbName: string
+    dbName?: string
     schema: AppSchema
   }
 
