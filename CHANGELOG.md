@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changes
 
+- [Actions] You can now batch deletes by using `prepareMarkAsDeleted` or `prepareDestroyPermanently`
+
 ## 0.12.2 - 2019-04-19
 
 ### Fixes
@@ -19,7 +21,6 @@ All notable changes to this project will be documented in this file.
 - [Decorators]. You can now use `@action` on methods of any object that has a `database: Database`
      property, and `@field @children @date @relation @immutableRelation @json @text @nochange` decorators on
      any object with a `asModel: Model` property.
-- [Actions] You can now batch deletes by using `prepareMarkAsDeleted` or `prepareDestroyPermanently`
 - [Sync] Adds a temporary/experimental `_unsafeBatchPerCollection: true` flag to `synchronize()`. This
      causes server changes to be committed to database in multiple batches, and not one. This is NOT preferred
      for reliability and performance reasons, but it works around a memory issue that might cause your app
