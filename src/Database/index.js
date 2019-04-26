@@ -32,13 +32,13 @@ export default class Database {
 
   _actionQueue = new ActionQueue()
 
-  _actionsEnabled: boolean
+  #actionsEnabled: boolean
 
   constructor({ adapter, modelClasses, actionsEnabled = false }: DatabaseProps): void {
     this.adapter = adapter
     this.schema = adapter.schema
     this.collections = new CollectionMap(this, modelClasses)
-    this._actionsEnabled = actionsEnabled
+    this.#actionsEnabled = actionsEnabled
   }
 
   // Executes multiple prepared operations
@@ -135,6 +135,13 @@ export default class Database {
   }
 
   _ensureInAction(error: string): void {
-    this._actionsEnabled && invariant(this._actionQueue.isRunning, error)
+    this.#actionsEnabled && invariant(this._actionQueue.isRunning, error)
+  }
+
+  _ensureActionsEnabled(): void {
+    invariant(
+      this.#actionsEnabled,
+      '[Sync] To use Sync, Actions must be enabled. Pass `{ actionsEnabled: true }` to Database constructor — see docs for more details',
+    )
   }
 }

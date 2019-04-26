@@ -721,7 +721,7 @@
   dependencies:
     regenerator-runtime "^0.12.0"
 
-"@babel/runtime@^7.3.4", "@babel/runtime@^7.4.2":
+"@babel/runtime@^7.4.2":
   version "7.4.2"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.4.2.tgz#f5ab6897320f16decd855eed70b705908a313fe8"
   integrity sha512-7Bl2rALb7HpvXFL7TETNzKSAeBVCPHELzc0C//9FCxN8nsiueWSJBqaF+2oIJScyILStASR/Cx5WMkXGYTiJFA==
@@ -807,14 +807,6 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@jest/types@^24.5.0":
-  version "24.5.0"
-  resolved "https://registry.yarnpkg.com/@jest/types/-/types-24.5.0.tgz#feee214a4d0167b0ca447284e95a57aa10b3ee95"
-  integrity sha512-kN7RFzNMf2R8UDadPOl6ReyI+MT8xfqRuAnuVL+i4gwjv/zubdDK+EDeLHYwq1j0CSSR2W/MmgaRlMZJzXdmVA==
-  dependencies:
-    "@types/istanbul-lib-coverage" "^1.1.0"
-    "@types/yargs" "^12.0.9"
-
 "@react-native-community/cli@^1.2.1":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@react-native-community/cli/-/cli-1.4.0.tgz#9bae620c52b237647981c9c8a463f4773ff170fd"
@@ -861,16 +853,6 @@
   dependencies:
     any-observable "^0.3.0"
 
-"@sheerun/mutationobserver-shim@^0.3.2":
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/@sheerun/mutationobserver-shim/-/mutationobserver-shim-0.3.2.tgz#8013f2af54a2b7d735f71560ff360d3a8176a87b"
-  integrity sha512-vTCdPp/T/Q3oSqwHmZ5Kpa9oI7iLtGl3RQaA/NyLHikvcrPxACkkKVr/XzkSPJWXHRhKGzVvb0urJsbMlRxi1Q==
-
-"@types/istanbul-lib-coverage@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@types/istanbul-lib-coverage/-/istanbul-lib-coverage-1.1.0.tgz#2cc2ca41051498382b43157c8227fea60363f94a"
-  integrity sha512-ohkhb9LehJy+PA40rDtGAji61NCgdtKLAlFoYp4cnuuQEswwdK3vz9SOIkkyc3wrk8dzjphQApNs56yyXLStaQ==
-
 "@types/prop-types@*":
   version "15.7.0"
   resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.0.tgz#4c48fed958d6dcf9487195a0ef6456d5f6e0163a"
@@ -883,11 +865,6 @@
   dependencies:
     "@types/prop-types" "*"
     csstype "^2.2.0"
-
-"@types/yargs@^12.0.9":
-  version "12.0.10"
-  resolved "https://registry.yarnpkg.com/@types/yargs/-/yargs-12.0.10.tgz#17a8ec65cd8e88f51b418ceb271af18d3137df67"
-  integrity sha512-WsVzTPshvCSbHThUduGGxbmnwcpkgSctHGHTqzWyFg4lYAuV5qXlyFPOsP3OWqCINfmg/8VXP+zJaa4OxEsBQQ==
 
 abab@^2.0.0:
   version "2.0.0"
@@ -2177,16 +2154,6 @@ doctrine@^2.1.0:
   integrity sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==
   dependencies:
     esutils "^2.0.2"
-
-dom-testing-library@^3.18.2:
-  version "3.18.2"
-  resolved "https://registry.yarnpkg.com/dom-testing-library/-/dom-testing-library-3.18.2.tgz#07d65166743ad3299b7bee5b488e9622c31241bc"
-  integrity sha512-+nYUgGhHarrCY8kLVmyHlgM+IGwBXXrYsWIJB6vpAx2ne9WFgKfwMGcOkkTKQhuAro0sP6RIuRGfm5NF3+ccmQ==
-  dependencies:
-    "@babel/runtime" "^7.3.4"
-    "@sheerun/mutationobserver-shim" "^0.3.2"
-    pretty-format "^24.5.0"
-    wait-for-expect "^1.1.0"
 
 dom-walk@^0.1.0:
   version "0.1.1"
@@ -5811,16 +5778,6 @@ pretty-format@^24.0.0:
     ansi-regex "^4.0.0"
     ansi-styles "^3.2.0"
 
-pretty-format@^24.5.0:
-  version "24.5.0"
-  resolved "https://registry.yarnpkg.com/pretty-format/-/pretty-format-24.5.0.tgz#cc69a0281a62cd7242633fc135d6930cd889822d"
-  integrity sha512-/3RuSghukCf8Riu5Ncve0iI+BzVkbRU5EeUoArKARZobREycuH5O4waxvaNIloEXdb0qwgmEAed5vTpX1HNROQ==
-  dependencies:
-    "@jest/types" "^24.5.0"
-    ansi-regex "^4.0.0"
-    ansi-styles "^3.2.0"
-    react-is "^16.8.4"
-
 private@^0.1.6:
   version "0.1.8"
   resolved "https://registry.yarnpkg.com/private/-/private-0.1.8.tgz#2381edb3689f7a53d653190060fcf822d2f368ff"
@@ -5960,20 +5917,19 @@ react-dom@^16.8.6:
     prop-types "^15.6.2"
     scheduler "^0.13.6"
 
-react-hooks-testing-library@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/react-hooks-testing-library/-/react-hooks-testing-library-0.4.0.tgz#601f7eda1e817f57a86ef3fe0a17a1fdd771122b"
-  integrity sha512-N/MBIlycPeeAOJwFloUnwpKLBDH2y0L17srRMw1bI/dCyYYC2zKwg9Xccxwy4HFVAGfO9uweVrAGFvOnc6YvUw==
+react-hooks-testing-library@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/react-hooks-testing-library/-/react-hooks-testing-library-0.5.0.tgz#571af3522f88ea4ac23c634fb4deff84873f2bc2"
+  integrity sha512-qX4SA28pcCCf1Q23Gtl1VKqQk26pSPTEsdLtfJanDqm4oacT5wadL+e2Xypk/H+AOXN5kdZrWmXkt+hAaiNHgg==
   dependencies:
     "@babel/runtime" "^7.4.2"
-    react-testing-library "^6.0.3"
 
 react-is@^16.8.1:
   version "16.8.2"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.8.2.tgz#09891d324cad1cb0c1f2d91f70a71a4bee34df0f"
   integrity sha512-D+NxhSR2HUCjYky1q1DwpNUD44cDpUXzSmmFyC3ug1bClcU/iDNy0YNn1iwme28fn+NFhpA13IndOd42CrFb+Q==
 
-react-is@^16.8.4, react-is@^16.8.6:
+react-is@^16.8.6:
   version "16.8.6"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.8.6.tgz#5bbc1e2d29141c9fbdfed456343fe2bc430a6a16"
   integrity sha512-aUk3bHfZ2bRSVFFbbeVS4i+lNPZr3/WM5jT2J5omUVV1zzcs1nAaf3l51ctA5FFvCRbhrH0bdAsRRQddFJZPtA==
@@ -6051,14 +6007,6 @@ react-test-renderer@16.8.6:
     prop-types "^15.6.2"
     react-is "^16.8.6"
     scheduler "^0.13.6"
-
-react-testing-library@^6.0.3:
-  version "6.0.3"
-  resolved "https://registry.yarnpkg.com/react-testing-library/-/react-testing-library-6.0.3.tgz#8b5d276a353c17ce4f7486015bb7a1c8827c442c"
-  integrity sha512-tN0A6nywSOoL8kriqru3rSdw31PxuquL7xnW6xBI0aTNw0VO3kZQtaEa0npUH9dX0MIsSunB0nbElRrc4VtAzw==
-  dependencies:
-    "@babel/runtime" "^7.4.2"
-    dom-testing-library "^3.18.2"
 
 react-transform-hmr@^1.0.4:
   version "1.0.4"
@@ -7313,11 +7261,6 @@ w3c-hr-time@^1.0.1:
   resolved "https://registry.yarnpkg.com/w3c-hr-time/-/w3c-hr-time-1.0.1.tgz#82ac2bff63d950ea9e3189a58a65625fedf19045"
   dependencies:
     browser-process-hrtime "^0.1.2"
-
-wait-for-expect@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/wait-for-expect/-/wait-for-expect-1.1.0.tgz#6607375c3f79d32add35cd2c87ce13f351a3d453"
-  integrity sha512-vQDokqxyMyknfX3luCDn16bSaRcOyH6gGuUXMIbxBLeTo6nWuEWYqMTT9a+44FmW8c2m6TRWBdNvBBjA1hwEKg==
 
 walker@~1.0.5:
   version "1.0.7"
