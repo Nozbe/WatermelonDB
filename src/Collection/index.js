@@ -25,16 +25,22 @@ export default class Collection<Record: Model> {
 
   modelClass: Class<Record>
 
-  _cache: RecordCache<Record>
-
   // Emits event every time a record inside Collection changes or is deleted
   // (Use Query API to observe collection changes)
   changes: Subject<CollectionChangeSet<Record>> = new Subject()
 
+  #cache: RecordCache<Record>
+
+  get _cache(): RecordCache<Record> {
+    invariant(process.env.NODE_ENV === 'test', '_cache can be accessed only in test environment')
+
+    return this.#cache
+  }
+
   constructor(database: Database, ModelClass: Class<Record>): void {
     this.database = database
     this.modelClass = ModelClass
-    this._cache = new RecordCache(ModelClass.table, raw => new ModelClass(this, raw))
+    this.#cache = new RecordCache(ModelClass.table, raw => new ModelClass(this, raw))
   }
 
   // Finds a record with the given ID
@@ -42,7 +48,7 @@ export default class Collection<Record: Model> {
   async find(id: RecordId): Promise<Record> {
     invariant(id, `Invalid record ID ${this.table}#${id}`)
 
-    const cachedRecord = this._cache.get(id)
+    const cachedRecord = this.#cache.get(id)
     return cachedRecord || this._fetchRecord(id)
   }
 
@@ -86,7 +92,7 @@ export default class Collection<Record: Model> {
   async fetchQuery(query: Query<Record>): Promise<Record[]> {
     const rawRecords = await this.database.adapter.query(query)
 
-    return this._cache.recordsFromQueryResult(rawRecords)
+    return this.#cache.recordsFromQueryResult(rawRecords)
   }
 
   // See: Query.fetchCount
@@ -108,7 +114,7 @@ export default class Collection<Record: Model> {
   async _fetchRecord(id: RecordId): Promise<Record> {
     const raw = await this.database.adapter.find(this.table, id)
     invariant(raw, `Record ${this.table}#${id} not found`)
-    return this._cache.recordFromQueryResult(raw)
+    return this.#cache.recordFromQueryResult(raw)
   }
 
   async _markAsDeleted(record: Record): Promise<void> {
@@ -125,7 +131,7 @@ export default class Collection<Record: Model> {
     operations.forEach(({ record, type }) => {
       if (type === CollectionChangeTypes.created) {
         record._isCommitted = true
-        this._cache.add(record)
+        this.#cache.add(record)
       }
     })
 
@@ -139,13 +145,13 @@ export default class Collection<Record: Model> {
   }
 
   _onRecordDestroyed(record: Record): void {
-    this._cache.delete(record)
+    this.#cache.delete(record)
     this.changes.next([{ record, type: CollectionChangeTypes.destroyed }])
     record._notifyDestroyed()
   }
 
   // See: Database.unsafeClearCaches
   unsafeClearCache(): void {
-    this._cache.unsafeClear()
+    this.#cache.unsafeClear()
   }
 }
