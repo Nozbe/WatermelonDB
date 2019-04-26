@@ -53,7 +53,7 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.2.2",
+    "@babel/core": "^7.4.4",
     "@babel/plugin-proposal-class-properties": "^7.3.0",
     "@babel/plugin-proposal-decorators": "7.3.0",
     "@babel/plugin-proposal-json-strings": "^7.2.0",
