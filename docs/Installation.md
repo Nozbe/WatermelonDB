@@ -10,7 +10,7 @@ or alternatively if you prefer npm:
 
 ```npm
 npm install @nozbe/watermelondb
-yarn add @nozbe/with-observables
+npm install @nozbe/with-observables
 ```
 
 ## React Native setup
