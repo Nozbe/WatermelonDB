@@ -139,7 +139,7 @@ const getAllRecordsToApply = (
 ): AllRecordsToApply =>
   piped(
     remoteChanges,
-    map((changes, tableName) =>
+    map((changes, tableName: TableName<any>) =>
       recordsToApplyRemoteChangesTo(db.collections.get((tableName: any)), changes),
     ),
     promiseAllObject,
@@ -155,7 +155,7 @@ const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToAppl
   piped(
     recordsToApply,
     map(
-      ({ deletedRecordsToDestroy }, tableName) =>
+      ({ deletedRecordsToDestroy }, tableName: TableName<any>) =>
         deletedRecordsToDestroy.length &&
         db.adapter.destroyDeletedRecords((tableName: any), deletedRecordsToDestroy),
     ),
@@ -170,7 +170,7 @@ const prepareApplyAllRemoteChanges = (
 ): Model[] =>
   piped(
     recordsToApply,
-    map((records, tableName) =>
+    map((records, tableName: TableName<any>) =>
       prepareApplyRemoteChangesToCollection(
         db.collections.get((tableName: any)),
         records,
@@ -190,7 +190,7 @@ const batchesForRecordChanges = (
 ): Promise<void>[] =>
   piped(
     recordsToApply,
-    map((records, tableName) =>
+    map((records, tableName: TableName<any>) =>
       db.batch(
         ...prepareApplyRemoteChangesToCollection(
           db.collections.get((tableName: any)),
