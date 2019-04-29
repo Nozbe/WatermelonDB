@@ -9,7 +9,6 @@ import {
   pipe,
   filter,
   find,
-  // $FlowFixMe
   piped,
 } from 'rambdax'
 import { allPromises, unnest } from '../../utils/fp'
