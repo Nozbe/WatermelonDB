@@ -612,11 +612,11 @@ declare module rambdax {
   declare function map<T, R>(fn: (x: T, idx: number) => R, xs: Array<T>): Array<R>
   declare function map<T, R>(fn: (x: T, idx: number) => R): (xs: Array<T>) => Array<R>
   declare function map<T, R, S: { map: Function }>(fn: (x: T) => R, xs: S): S
-  declare function map<T, R>(
-    fn: (x: T) => R,
-  ): ((xs: { [key: string]: T }) => { [key: string]: R }) & ((xs: Array<T>) => Array<R>)
+  declare function map<T, R, S>(
+    fn: (x: T, key: S) => R,
+  ): ((xs: { [key: S]: T }) => { [key: S]: R }) & ((xs: Array<T>) => Array<R>)
   declare function map<T, R, S: { map: Function }>(fn: (x: T) => R): ((xs: S) => S) & ((xs: S) => S)
-  declare function map<T, R>(fn: (x: T) => R, xs: { [key: string]: T }): { [key: string]: R }
+  declare function map<T, R, S>(fn: (x: T, key: S) => R, xs: { [key: S]: T }): { [key: S]: R }
 
   declare function mapAsync<T, R>(fn: (x: T, idx: number) => R, xs: Array<T>): Promise<Array<R>>
   declare function mapAsync<T, R>(fn: (x: T, idx: number) => R): (xs: Array<T>) => Promise<Array<R>>
