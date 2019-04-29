@@ -259,6 +259,41 @@ declare module rambdax {
     (<A, B, C>(ab: UnaryFn<A, B>, bc: UnaryFn<B, C>) => UnaryFn<A, C>) &
     (<A, B>(ab: UnaryFn<A, B>) => UnaryFn<A, B>)
 
+  declare type Piped = (<A, B, C, D, E, F, G>(
+    input: A,
+    ab: UnaryFn<A, B>,
+    bc: UnaryFn<B, C>,
+    cd: UnaryFn<C, D>,
+    de: UnaryFn<D, E>,
+    ef: UnaryFn<E, F>,
+    fg: UnaryFn<F, G>,
+  ) => G) & (<A, B, C, D, E, F>(
+    input: A,
+    ab: UnaryFn<A, B>,
+    bc: UnaryFn<B, C>,
+    cd: UnaryFn<C, D>,
+    de: UnaryFn<D, E>,
+    ef: UnaryFn<E, F>,
+  ) => F) & (<A, B, C, D, E>(
+    input: A,
+    ab: UnaryFn<A, B>,
+    bc: UnaryFn<B, C>,
+    cd: UnaryFn<C, D>,
+    de: UnaryFn<D, E>,
+  ) => E) & (<A, B, C, D>(
+    input: A,
+    ab: UnaryFn<A, B>,
+    bc: UnaryFn<B, C>,
+    cd: UnaryFn<C, D>,
+  ) => D) & (<A, B, C>(
+    input: A,
+    ab: UnaryFn<A, B>,
+    bc: UnaryFn<B, C>,
+  ) => C) & (<A, B>(
+    input: A,
+    ab: UnaryFn<A, B>,
+  ) => B)
+
   declare type PipeP = (<A, B, C, D, E, F, G>(
     ab: UnaryPromiseFn<A, B>,
     bc: UnaryPromiseFn<B, C>,
@@ -364,6 +399,7 @@ declare module rambdax {
   declare var pipe: Pipe
   declare var pipeK: PipeK
   declare var pipeP: PipeP
+  declare var piped: Piped
   declare var curry: Curry
   declare function curryN(length: number, fn: (...args: Array<any>) => any): Function
 
@@ -402,7 +438,10 @@ declare module rambdax {
     string,
     string,
   >
-  declare var split: CurriedFunction2<RegExp | string, string, Array<string>>
+
+  declare function split(sep: RegExp | string, str: string): Array<string>
+  declare function split(sep: RegExp | string): (str: string) => Array<string>
+
   declare var test: CurriedFunction2<RegExp, string, boolean>
   // startsWith and endsWith use the same signature:
   declare type EdgeWith<A> = (((Array<A>) => (Array<A>) => boolean) &
@@ -554,8 +593,8 @@ declare module rambdax {
     xs: T,
   ): number
 
-  declare function forEach<T, V>(fn: (x: T) => ?V, xs: Array<T>): Array<T>
-  declare function forEach<T, V>(fn: (x: T) => ?V): (xs: Array<T>) => Array<T>
+  declare function forEach<T, V>(fn: (x: T, idx: number) => ?V, xs: Array<T>): Array<T>
+  declare function forEach<T, V>(fn: (x: T, idx: number) => ?V): (xs: Array<T>) => Array<T>
 
   declare function forEachObjIndexed<O: Object, A, B>(
     fn: (val: A, key: string, o: O) => B,
@@ -570,14 +609,32 @@ declare module rambdax {
   declare function lastIndexOf<E>(x: E, xs: Array<E>): number
   declare function lastIndexOf<E>(x: E): (xs: Array<E>) => number
 
-  declare function map<T, R>(fn: (x: T) => R, xs: Array<T>): Array<R>
-  declare function map<T, R>(fn: (x: T) => R): (xs: Array<T>) => Array<R>
+  declare function map<T, R>(fn: (x: T, idx: number) => R, xs: Array<T>): Array<R>
+  declare function map<T, R>(fn: (x: T, idx: number) => R): (xs: Array<T>) => Array<R>
   declare function map<T, R, S: { map: Function }>(fn: (x: T) => R, xs: S): S
   declare function map<T, R>(
     fn: (x: T) => R,
   ): ((xs: { [key: string]: T }) => { [key: string]: R }) & ((xs: Array<T>) => Array<R>)
   declare function map<T, R, S: { map: Function }>(fn: (x: T) => R): ((xs: S) => S) & ((xs: S) => S)
   declare function map<T, R>(fn: (x: T) => R, xs: { [key: string]: T }): { [key: string]: R }
+
+  declare function mapAsync<T, R>(fn: (x: T, idx: number) => R, xs: Array<T>): Promise<Array<R>>
+  declare function mapAsync<T, R>(fn: (x: T, idx: number) => R): (xs: Array<T>) => Promise<Array<R>>
+  declare function mapAsync<T, R, S: { map: Function }>(fn: (x: T) => R, xs: S): S
+  declare function mapAsync<T, R>(
+    fn: (x: T) => R,
+  ): ((xs: { [key: string]: T }) => Promise<{ [key: string]: R }>) & ((xs: Array<T>) => Promise<Array<R>>)
+  declare function mapAsync<T, R, S: { map: Function }>(fn: (x: T) => R): ((xs: S) => Promise<S>) & ((xs: S) => Promise<S>)
+  declare function mapAsync<T, R>(fn: (x: T) => R, xs: { [key: string]: T }): Promise<{ [key: string]: R }>
+
+  declare function mapFastAsync<T, R>(fn: (x: T, idx: number) => R, xs: Array<T>): Promise<Array<R>>
+  declare function mapFastAsync<T, R>(fn: (x: T, idx: number) => R): (xs: Array<T>) => Promise<Array<R>>
+  declare function mapFastAsync<T, R, S: { map: Function }>(fn: (x: T) => R, xs: S): S
+  declare function mapFastAsync<T, R>(
+    fn: (x: T) => R,
+  ): ((xs: { [key: string]: T }) => Promise<{ [key: string]: R }>) & ((xs: Array<T>) => Promise<Array<R>>)
+  declare function mapFastAsync<T, R, S: { map: Function }>(fn: (x: T) => R): ((xs: S) => Promise<S>) & ((xs: S) => Promise<S>)
+  declare function mapFastAsync<T, R>(fn: (x: T) => R, xs: { [key: string]: T }): Promise<{ [key: string]: R }>
 
   declare type AccumIterator<A, B, R> = (acc: R, x: A) => [R, B]
   declare function mapAccum<A, B, R>(
@@ -703,15 +760,15 @@ declare module rambdax {
   declare function reverse<T, V: Array<T> | string>(xs: V): V
 
   declare type Reduce = (<A, B>(
-    fn: (acc: A, elm: B) => $npm$ramda$Reduced<A> | A,
+    fn: (acc: A, elm: B, idx: number, arr: Array<B> | $ReadOnlyArray<B>) => $npm$ramda$Reduced<A> | A,
   ) => ((init: A) => (xs: Array<B> | $ReadOnlyArray<B>) => A) &
     ((init: A, xs: Array<B> | $ReadOnlyArray<B>) => A)) &
     (<A, B>(
-      fn: (acc: A, elm: B) => $npm$ramda$Reduced<A> | A,
+      fn: (acc: A, elm: B, idx: number, arr: Array<B> | $ReadOnlyArray<B>) => $npm$ramda$Reduced<A> | A,
       init: A,
     ) => (xs: Array<B> | $ReadOnlyArray<B>) => A) &
     (<A, B>(
-      fn: (acc: A, elm: B) => $npm$ramda$Reduced<A> | A,
+      fn: (acc: A, elm: B, idx: number, arr: Array<B> | $ReadOnlyArray<B>) => $npm$ramda$Reduced<A> | A,
       init: A,
       xs: Array<B> | $ReadOnlyArray<B>,
     ) => A)
@@ -781,8 +838,12 @@ declare module rambdax {
   declare function splitAt<V, T: Array<V> | string>(i: number): (xs: T) => [T, T]
   declare function splitEvery<V, T: Array<V> | string>(i: number, xs: T): Array<T>
   declare function splitEvery<V, T: Array<V> | string>(i: number): (xs: T) => Array<T>
-  declare function splitWhen<V, T: Array<V>>(fn: UnaryPredicateFn<V>, xs: T): [T, T]
-  declare function splitWhen<V, T: Array<V>>(fn: UnaryPredicateFn<V>): (xs: T) => [T, T]
+
+  declare type SplitWhen = <V, T: Array<V>>(fn: UnaryPredicateFn<V>, xs: T) => [T, T] &
+  <V, T: Array<V>>(fn: UnaryPredicateFn<V>) => (xs: T) => [T, T]
+
+  declare var splitWhen: SplitWhen
+  declare var splitWhenRight: SplitWhen
 
   declare function tail<T, V: Array<T> | string>(xs: V): V
 
@@ -1427,6 +1488,11 @@ declare module rambdax {
     f2: (...args: Array<any>) => C,
   ): (...args: Array<A>) => B | C
 
+  declare function includes<T>(el: T, xs: T[]): boolean
+  declare function includes<T>(el: T): (xs: T[]) => boolean
+  declare function includes(el: string, xs: string): boolean
+  declare function includes(el: string): (xs: string) => boolean
+
   declare function isEmpty(x: ?Array<any> | Object | string): boolean
 
   declare function not(x: boolean): boolean
@@ -1463,8 +1529,8 @@ declare module rambdax {
   declare function until<T>(pred: UnaryPredicateFn<T>, fn: (x: T) => T, x: T): T
 
   declare function when<T, V, S>(
-    pred: UnaryPredicateFn<T>,
+    pred: UnaryPredicateFn<T> | boolean,
   ): ((fn: (x: S) => V) => (x: T | S) => T | V) & ((fn: (x: S) => V, x: T | S) => T | V)
-  declare function when<T, V, S>(pred: UnaryPredicateFn<T>, fn: (x: S) => V): (x: T | S) => V | T
-  declare function when<T, V, S>(pred: UnaryPredicateFn<T>, fn: (x: S) => V, x: T | S): T | V
+  declare function when<T, V, S>(pred: UnaryPredicateFn<T> | boolean, fn: (x: S) => V): (x: T | S) => V | T
+  declare function when<T, V, S>(pred: UnaryPredicateFn<T> | boolean, fn: (x: S) => V, x: T | S): T | V
 }
