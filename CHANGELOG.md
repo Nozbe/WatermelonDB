@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changes
 - [Database] You can now update the random id schema by importing `import { setGenerator } from '@nozbe/watermelondb/utils/common/randomId'` and then calling `setGenerator(newGenenerator)`. This allows WatermelonDB to create specific IDs for example if your backend uses UUIDs.
+- [Typescript] Type improvements to SQLiteAdapter and Database
 - [Tests] remove cleanup for react-hooks-testing-library@0.5.0 compatibility
 
 ## 0.12.2 - 2019-04-19
