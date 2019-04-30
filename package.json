@@ -117,7 +117,7 @@
     "fs-extra": "^7.0.0",
     "inquirer": "^6.2.0",
     "jest": "24.1.0",
-    "jsc-android": "^236355.0.0",
+    "jsc-android": "^241213.1.0",
     "json-stringify-pretty-compact": "^2.0.0",
     "klaw-sync": "^6.0.0",
     "listr": "^0.14.1",
