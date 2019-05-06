@@ -38,7 +38,7 @@ const {
 type LokiAdapterOptions = $Exact<{
   dbName?: ?string,
   schema: AppSchema,
-  migrationsExperimental?: SchemaMigrations,
+  migrations?: SchemaMigrations,
   _testLokiAdapter?: LokiMemoryAdapter,
 }>
 
@@ -52,7 +52,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   _dbName: ?string
 
   constructor(options: LokiAdapterOptions): void {
-    const { schema, migrationsExperimental: migrations, dbName } = options
+    const { schema, migrations, dbName } = options
     this.schema = schema
     this.migrations = migrations
     this._dbName = dbName
@@ -73,7 +73,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     return new LokiJSAdapter({
       dbName: this._dbName,
       schema: this.schema,
-      ...(this.migrations ? { migrationsExperimental: this.migrations } : {}),
+      ...(this.migrations ? { migrations: this.migrations } : {}),
       _testLokiAdapter: lokiAdapter,
       ...options,
     })
