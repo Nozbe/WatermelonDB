@@ -49,7 +49,7 @@ public func beAnInstanceOf(_ expectedClass: AnyClass) -> Predicate<NSObject> {
 extension NMBObjCMatcher {
     @objc public class func beAnInstanceOfMatcher(_ expected: AnyClass) -> NMBMatcher {
         return NMBPredicate { actualExpression in
-            return try! beAnInstanceOf(expected).satisfies(actualExpression).toObjectiveC()
+            return try beAnInstanceOf(expected).satisfies(actualExpression).toObjectiveC()
         }
     }
 }

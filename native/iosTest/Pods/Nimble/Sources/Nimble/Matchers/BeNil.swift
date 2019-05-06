@@ -12,7 +12,7 @@ public func beNil<T>() -> Predicate<T> {
 extension NMBObjCMatcher {
     @objc public class func beNilMatcher() -> NMBObjCMatcher {
         return NMBObjCMatcher { actualExpression, failureMessage in
-            return try! beNil().matches(actualExpression, failureMessage: failureMessage)
+            return try beNil().matches(actualExpression, failureMessage: failureMessage)
         }
     }
 }

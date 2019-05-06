@@ -8,33 +8,39 @@ import Foundation
 /// A Nimble matcher that succeeds when the actual Collection's count equals
 /// the expected value
 public func haveCount<T: Collection>(_ expectedValue: T.IndexDistance) -> Predicate<T> {
-    return Predicate.fromDeprecatedClosure { actualExpression, failureMessage in
+    return Predicate.define { actualExpression in
         if let actualValue = try actualExpression.evaluate() {
-            // swiftlint:disable:next line_length
-            failureMessage.postfixMessage = "have \(prettyCollectionType(actualValue)) with count \(stringify(expectedValue))"
+            let message = ExpectationMessage
+                .expectedCustomValueTo(
+                    "have \(prettyCollectionType(actualValue)) with count \(stringify(expectedValue))",
+                    "\(actualValue.count)"
+                )
+                .appended(details: "Actual Value: \(stringify(actualValue))")
+
             let result = expectedValue == actualValue.count
-            failureMessage.actualValue = "\(actualValue.count)"
-            failureMessage.extendedMessage = "Actual Value: \(stringify(actualValue))"
-            return result
+            return PredicateResult(bool: result, message: message)
         } else {
-            return false
+            return PredicateResult(status: .fail, message: .fail(""))
         }
-    }.requireNonNil
+    }
 }
 
 /// A Nimble matcher that succeeds when the actual collection's count equals
 /// the expected value
 public func haveCount(_ expectedValue: Int) -> Predicate<NMBCollection> {
-    return Predicate.fromDeprecatedClosure { actualExpression, failureMessage in
+    return Predicate { actualExpression in
         if let actualValue = try actualExpression.evaluate() {
-            // swiftlint:disable:next line_length
-            failureMessage.postfixMessage = "have \(prettyCollectionType(actualValue)) with count \(stringify(expectedValue))"
+            let message = ExpectationMessage
+                .expectedCustomValueTo(
+                    "have \(prettyCollectionType(actualValue)) with count \(stringify(expectedValue))",
+                    "\(actualValue.count)"
+                )
+                .appended(details: "Actual Value: \(stringify(actualValue))")
+
             let result = expectedValue == actualValue.count
-            failureMessage.actualValue = "\(actualValue.count)"
-            failureMessage.extendedMessage = "Actual Value: \(stringify(actualValue))"
-            return result
+            return PredicateResult(bool: result, message: message)
         } else {
-            return false
+            return PredicateResult(status: .fail, message: .fail(""))
         }
     }
 }
@@ -44,10 +50,10 @@ extension NMBObjCMatcher {
     @objc public class func haveCountMatcher(_ expected: NSNumber) -> NMBObjCMatcher {
         return NMBObjCMatcher(canMatchNil: false) { actualExpression, failureMessage in
             let location = actualExpression.location
-            let actualValue = try! actualExpression.evaluate()
+            let actualValue = try actualExpression.evaluate()
             if let value = actualValue as? NMBCollection {
                 let expr = Expression(expression: ({ value as NMBCollection}), location: location)
-                return try! haveCount(expected.intValue).matches(expr, failureMessage: failureMessage)
+                return try haveCount(expected.intValue).matches(expr, failureMessage: failureMessage)
             } else if let actualValue = actualValue {
                 failureMessage.postfixMessage = "get type of NSArray, NSSet, NSDictionary, or NSHashTable"
                 failureMessage.actualValue = "\(String(describing: type(of: actualValue)))"

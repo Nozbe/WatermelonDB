@@ -66,14 +66,14 @@ extension NMBObjCMatcher {
     @objc public class func beEmptyMatcher() -> NMBPredicate {
         return NMBPredicate { actualExpression in
             let location = actualExpression.location
-            let actualValue = try! actualExpression.evaluate()
+            let actualValue = try actualExpression.evaluate()
 
             if let value = actualValue as? NMBCollection {
                 let expr = Expression(expression: ({ value as NMBCollection }), location: location)
-                return try! beEmpty().satisfies(expr).toObjectiveC()
+                return try beEmpty().satisfies(expr).toObjectiveC()
             } else if let value = actualValue as? NSString {
                 let expr = Expression(expression: ({ value as String }), location: location)
-                return try! beEmpty().satisfies(expr).toObjectiveC()
+                return try beEmpty().satisfies(expr).toObjectiveC()
             } else if let actualValue = actualValue {
                 // swiftlint:disable:next line_length
                 let badTypeErrorMsg = "be empty (only works for NSArrays, NSSets, NSIndexSets, NSDictionaries, NSHashTables, and NSStrings)"

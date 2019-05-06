@@ -1077,7 +1077,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-WatermelonTesterTests/Pods-WatermelonTesterTests-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-WatermelonTesterTests/Pods-WatermelonTesterTests-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Nimble/Nimble.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
@@ -1086,7 +1086,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WatermelonTesterTests/Pods-WatermelonTesterTests-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WatermelonTesterTests/Pods-WatermelonTesterTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		6E0A6C1421661F7700195262 /* Run SwiftLint */ = {

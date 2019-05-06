@@ -49,7 +49,13 @@ public class NMBObjCBeCloseToMatcher: NSObject, NMBMatcher {
         })
         let expr = Expression(expression: actualBlock, location: location)
         let matcher = beCloseTo(self._expected, within: self._delta)
-        return try! matcher.matches(expr, failureMessage: failureMessage)
+
+        do {
+            return try matcher.matches(expr, failureMessage: failureMessage)
+        } catch let error {
+            failureMessage.stringValue = "unexpected error thrown: <\(error)>"
+            return false
+        }
     }
 
     @objc public func doesNotMatch(_ actualExpression: @escaping () -> NSObject?, failureMessage: FailureMessage, location: SourceLocation) -> Bool {
@@ -58,7 +64,13 @@ public class NMBObjCBeCloseToMatcher: NSObject, NMBMatcher {
         })
         let expr = Expression(expression: actualBlock, location: location)
         let matcher = beCloseTo(self._expected, within: self._delta)
-        return try! matcher.doesNotMatch(expr, failureMessage: failureMessage)
+
+        do {
+            return try matcher.doesNotMatch(expr, failureMessage: failureMessage)
+        } catch let error {
+            failureMessage.stringValue = "unexpected error thrown: <\(error)>"
+            return false
+        }
     }
 
     @objc public var within: (CDouble) -> NMBObjCBeCloseToMatcher {

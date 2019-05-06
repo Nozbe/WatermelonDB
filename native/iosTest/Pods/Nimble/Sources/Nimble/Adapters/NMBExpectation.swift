@@ -4,7 +4,7 @@ import Foundation
 
 private func from(objcPredicate: NMBPredicate) -> Predicate<NSObject> {
     return Predicate { actualExpression in
-        let result = objcPredicate.satisfies(({ try! actualExpression.evaluate() }),
+        let result = objcPredicate.satisfies(({ try actualExpression.evaluate() }),
                                              location: actualExpression.location)
         return result.toSwift()
     }

@@ -242,7 +242,7 @@ extension Predicate {
 }
 
 #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
-public typealias PredicateBlock = (_ actualExpression: Expression<NSObject>) -> NMBPredicateResult
+public typealias PredicateBlock = (_ actualExpression: Expression<NSObject>) throws -> NMBPredicateResult
 
 public class NMBPredicate: NSObject {
     private let predicate: PredicateBlock
@@ -251,9 +251,13 @@ public class NMBPredicate: NSObject {
         self.predicate = predicate
     }
 
-    func satisfies(_ expression: @escaping () -> NSObject?, location: SourceLocation) -> NMBPredicateResult {
+    func satisfies(_ expression: @escaping () throws -> NSObject?, location: SourceLocation) -> NMBPredicateResult {
         let expr = Expression(expression: expression, location: location)
-        return self.predicate(expr)
+        do {
+            return try self.predicate(expr)
+        } catch let error {
+            return PredicateResult(status: .fail, message: .fail("unexpected error thrown: <\(error)>")).toObjectiveC()
+        }
     }
 }
 
@@ -307,7 +311,7 @@ final public class NMBPredicateStatus: NSObject {
     public static let doesNotMatch: NMBPredicateStatus = NMBPredicateStatus(status: 1)
     public static let fail: NMBPredicateStatus = NMBPredicateStatus(status: 2)
 
-    public override var hashValue: Int { return self.status.hashValue }
+    public override var hash: Int { return self.status.hashValue }
 
     public override func isEqual(_ object: Any?) -> Bool {
         guard let otherPredicate = object as? NMBPredicateStatus else {

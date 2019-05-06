@@ -65,7 +65,7 @@ public func withAssertionHandler(_ tempAssertionHandler: AssertionHandler, closu
 ///                 assertion handler when this is true. Defaults to false.
 ///
 /// @see gatherFailingExpectations
-public func gatherExpectations(silently: Bool = false, closure: @escaping () -> Void) -> [AssertionRecord] {
+public func gatherExpectations(silently: Bool = false, closure: () -> Void) -> [AssertionRecord] {
     let previousRecorder = NimbleEnvironment.activeInstance.assertionHandler
     let recorder = AssertionRecorder()
     let handlers: [AssertionHandler]
@@ -92,7 +92,7 @@ public func gatherExpectations(silently: Bool = false, closure: @escaping () -> 
 ///
 /// @see gatherExpectations
 /// @see raiseException source for an example use case.
-public func gatherFailingExpectations(silently: Bool = false, closure: @escaping () -> Void) -> [AssertionRecord] {
+public func gatherFailingExpectations(silently: Bool = false, closure: () -> Void) -> [AssertionRecord] {
     let assertions = gatherExpectations(silently: silently, closure: closure)
     return assertions.filter { assertion in
         !assertion.success

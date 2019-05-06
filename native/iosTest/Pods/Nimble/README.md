@@ -1277,7 +1277,7 @@ public func equal<T: Equatable>(expectedValue: T?) -> Predicate<T> {
     //   Predicate { actual in  ... }
     //
     // But shown with types here for clarity.
-    return Predicate { (actual: Expression<T>) throws -> PredicateResult in
+    return Predicate { (actualExpression: Expression<T>) throws -> PredicateResult in
         let msg = ExpectationMessage.expectedActualValueTo("equal <\(expectedValue)>")
         if let actualValue = try actualExpression.evaluate() {
             return PredicateResult(

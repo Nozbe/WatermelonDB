@@ -35,8 +35,7 @@ public func beginWith(_ startingElement: Any) -> Predicate<NMBOrderedCollection>
 public func beginWith(_ startingSubstring: String) -> Predicate<String> {
     return Predicate.simple("begin with <\(startingSubstring)>") { actualExpression in
         if let actual = try actualExpression.evaluate() {
-            let range = actual.range(of: startingSubstring)
-            return PredicateStatus(bool: range != nil && range!.lowerBound == actual.startIndex)
+            return PredicateStatus(bool: actual.hasPrefix(startingSubstring))
         }
         return .fail
     }
@@ -46,13 +45,13 @@ public func beginWith(_ startingSubstring: String) -> Predicate<String> {
 extension NMBObjCMatcher {
     @objc public class func beginWithMatcher(_ expected: Any) -> NMBObjCMatcher {
         return NMBObjCMatcher(canMatchNil: false) { actualExpression, failureMessage in
-            let actual = try! actualExpression.evaluate()
+            let actual = try actualExpression.evaluate()
             if (actual as? String) != nil {
                 let expr = actualExpression.cast { $0 as? String }
-                return try! beginWith(expected as! String).matches(expr, failureMessage: failureMessage)
+                return try beginWith(expected as! String).matches(expr, failureMessage: failureMessage)
             } else {
                 let expr = actualExpression.cast { $0 as? NMBOrderedCollection }
-                return try! beginWith(expected).matches(expr, failureMessage: failureMessage)
+                return try beginWith(expected).matches(expr, failureMessage: failureMessage)
             }
         }
     }

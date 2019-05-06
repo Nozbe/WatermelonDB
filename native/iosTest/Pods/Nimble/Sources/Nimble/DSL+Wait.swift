@@ -89,11 +89,17 @@ internal class NMBWait: NSObject {
 
 #if (os(macOS) || os(iOS) || os(tvOS) || os(watchOS)) && !SWIFT_PACKAGE
     @objc(untilFile:line:action:)
-    internal class func until(_ file: FileString = #file, line: UInt = #line, action: @escaping (() -> Void) -> Void) {
+    internal class func until(
+        _ file: FileString = #file,
+        line: UInt = #line,
+        action: @escaping (@escaping () -> Void) -> Void) {
         until(timeout: 1, file: file, line: line, action: action)
     }
 #else
-    internal class func until(_ file: FileString = #file, line: UInt = #line, action: @escaping (() -> Void) -> Void) {
+    internal class func until(
+        _ file: FileString = #file,
+        line: UInt = #line,
+        action: @escaping (@escaping () -> Void) -> Void) {
         until(timeout: 1, file: file, line: line, action: action)
     }
 #endif
