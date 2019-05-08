@@ -121,7 +121,7 @@ _Does your company or app use 🍉? Open a pull request and add your logo/icon w
 
 ## Contributing
 
-<img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/istockphoto-480467939-612x612.jpg" alt="We need you" width="220" />
+<img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/needyou.jpg" alt="We need you" width="220" />
 
 **WatermelonDB is an open-source project and it needs your help to thrive!**
 
