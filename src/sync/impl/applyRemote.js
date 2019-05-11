@@ -9,7 +9,6 @@ import {
   pipe,
   filter,
   find,
-  // $FlowFixMe
   piped,
 } from 'rambdax'
 import { allPromises, unnest } from '../../utils/fp'
@@ -140,7 +139,7 @@ const getAllRecordsToApply = (
 ): AllRecordsToApply =>
   piped(
     remoteChanges,
-    map((changes, tableName) =>
+    map((changes, tableName: TableName<any>) =>
       recordsToApplyRemoteChangesTo(db.collections.get((tableName: any)), changes),
     ),
     promiseAllObject,
@@ -156,7 +155,7 @@ const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToAppl
   piped(
     recordsToApply,
     map(
-      ({ deletedRecordsToDestroy }, tableName) =>
+      ({ deletedRecordsToDestroy }, tableName: TableName<any>) =>
         deletedRecordsToDestroy.length &&
         db.adapter.destroyDeletedRecords((tableName: any), deletedRecordsToDestroy),
     ),
@@ -171,7 +170,7 @@ const prepareApplyAllRemoteChanges = (
 ): Model[] =>
   piped(
     recordsToApply,
-    map((records, tableName) =>
+    map((records, tableName: TableName<any>) =>
       prepareApplyRemoteChangesToCollection(
         db.collections.get((tableName: any)),
         records,
@@ -183,6 +182,27 @@ const prepareApplyAllRemoteChanges = (
     unnest,
   )
 
+const batchesForRecordChanges = (
+  db: Database,
+  recordsToApply: AllRecordsToApply,
+  sendCreatedAsUpdated: boolean,
+  log?: SyncLog,
+): Promise<void>[] =>
+  piped(
+    recordsToApply,
+    map((records, tableName: TableName<any>) =>
+      db.batch(
+        ...prepareApplyRemoteChangesToCollection(
+          db.collections.get((tableName: any)),
+          records,
+          sendCreatedAsUpdated,
+          log,
+        ),
+      ),
+    ),
+    values,
+  )
+
 const destroyPermanently = record => record.destroyPermanently()
 
 export default function applyRemoteChanges(
@@ -190,6 +210,7 @@ export default function applyRemoteChanges(
   remoteChanges: SyncDatabaseChangeSet,
   sendCreatedAsUpdated: boolean,
   log?: SyncLog,
+  _unsafeBatchPerCollection?: boolean,
 ): Promise<void> {
   ensureActionsEnabled(db)
   return db.action(async () => {
@@ -199,7 +220,13 @@ export default function applyRemoteChanges(
     await Promise.all([
       allPromises(destroyPermanently, getAllRecordsToDestroy(recordsToApply)),
       destroyAllDeletedRecords(db, recordsToApply),
-      db.batch(...prepareApplyAllRemoteChanges(db, recordsToApply, sendCreatedAsUpdated, log)),
+      ...(_unsafeBatchPerCollection
+        ? batchesForRecordChanges(db, recordsToApply, sendCreatedAsUpdated, log)
+        : [
+            db.batch(
+              ...prepareApplyAllRemoteChanges(db, recordsToApply, sendCreatedAsUpdated, log),
+            ),
+          ]),
     ])
   }, 'sync-applyRemoteChanges')
 }

@@ -16,7 +16,12 @@ declare module '@nozbe/watermelondb/Database' {
     public collections: CollectionMap
 
     // TODO: modelClasses: Array<ModelSubClass>
-    public constructor(options: { adapter: DatabaseAdapter; modelClasses: any[] })
+    public constructor(
+      options: {
+        adapter: DatabaseAdapter;
+        modelClasses: any[];
+        actionsEnabled?: boolean;
+      })
 
     public batch(...records: Model[]): Promise<void>
 

@@ -1,4 +1,4 @@
-import randomId from './index'
+import randomId, { setGenerator } from './index'
 
 describe('randomId', () => {
   it('generates a random string', () => {
@@ -7,5 +7,22 @@ describe('randomId', () => {
 
     const id2 = randomId()
     expect(id2).not.toBe(id1)
+  })
+
+  it('allows to override the generator function', () => {
+    const generator = () => {
+      return new Date()
+        .getTime()
+        .toString()
+        .substr(1, 4)
+    }
+
+    setGenerator(generator)
+
+    expect(randomId().length).toBe(4)
+
+    const invalidGenerator = () => 5
+
+    expect(() => setGenerator(invalidGenerator)).toThrow()
   })
 })

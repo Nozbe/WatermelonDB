@@ -1,6 +1,6 @@
 import React from 'react'
 import * as TestRenderer from 'react-test-renderer'
-import { renderHook, cleanup } from 'react-hooks-testing-library'
+import { renderHook } from 'react-hooks-testing-library'
 import { useDatabase } from './use-database'
 import DatabaseProvider from '../DatabaseProvider'
 import Database from '../Database'
@@ -20,8 +20,6 @@ describe('useDatabase hook', () => {
       modelClasses: [MockProject, MockTask, MockComment],
     })
   })
-
-  afterEach(cleanup)
 
   test('should use database', () => {
     const wrapper = ({ children }) => (
