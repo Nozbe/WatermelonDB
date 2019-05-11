@@ -114,7 +114,7 @@
     "execa": "^1.0.0",
     "fast-async": "^7.0",
     "flow-bin": "^0.98.0",
-    "fs-extra": "^7.0.0",
+    "fs-extra": "^8.0.0",
     "inquirer": "^6.2.0",
     "jest": "24.1.0",
     "jsc-android": "^241213.1.0",
