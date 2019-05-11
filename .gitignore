@@ -11,3 +11,5 @@ dev/
 
 *.tgz
 coverage/
+
+.vscode

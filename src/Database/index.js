@@ -7,8 +7,6 @@ import { values } from 'rambdax'
 
 import { invariant } from '../utils/common'
 
-import { CollectionChangeTypes } from '../Collection/common'
-
 import type { DatabaseAdapter, BatchOperation } from '../adapters/type'
 import type Model from '../Model'
 import type Collection, { CollectionChangeSet } from '../Collection'
@@ -16,6 +14,7 @@ import type { TableName, AppSchema } from '../Schema'
 
 import CollectionMap from './CollectionMap'
 import ActionQueue, { type ActionInterface } from './ActionQueue'
+import { operationTypeToCollectionChangeType } from './helpers'
 
 type DatabaseProps = $Exact<{
   adapter: DatabaseAdapter,
@@ -61,11 +60,9 @@ export default class Database {
 
       // Deletes take presedence over updates
       if (record._hasPendingDelete !== false) {
-        if (record._hasPendingDelete === 'destroy') {
-          return ops.concat([['destroyPermanently', record]])
-        }
-        
-        return ops.concat([['markAsDeleted', record]])
+        return record._hasPendingDelete === 'destroy'
+          ? ops.concat([['destroyPermanently', record]])
+          : ops.concat([['markAsDeleted', record]])
       } else if (record._hasPendingUpdate) {
         record._hasPendingUpdate = false // TODO: What if this fails?
         return ops.concat([['update', record]])
@@ -77,20 +74,6 @@ export default class Database {
 
     const sortedOperations: { collection: Collection<*>, operations: CollectionChangeSet<*> }[] = []
     operations.forEach(([type, record]) => {
-      const operationTypeToCollectionChangeType = input => {
-        switch(input) {
-          case 'create':
-            return CollectionChangeTypes.created
-          case 'update':
-            return CollectionChangeTypes.updated
-          case 'markAsDeleted':
-          case 'destroyPermanently':
-            return CollectionChangeTypes.destroyed
-          default:
-            throw new Error(`${type} is invalid operation type`)
-        }
-      }
-
       const operation = {
         record,
         type: operationTypeToCollectionChangeType(type),

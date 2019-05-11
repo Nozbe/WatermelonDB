@@ -157,8 +157,7 @@ export default class Model {
     this.collection.database._ensureInAction(
       `Model.markAsDeleted() can only be called from inside of an Action. See docs for more details.`,
     )
-    this.prepareMarkAsDeleted()
-    await this.collection.database.batch(this)
+    await this.collection.database.batch(this.prepareMarkAsDeleted())
   }
 
   // Pernamently removes this record from the database
@@ -167,8 +166,7 @@ export default class Model {
     this.collection.database._ensureInAction(
       `Model.destroyPermanently() can only be called from inside of an Action. See docs for more details.`,
     )
-    this.prepareDestroyPermanently()
-    await this.collection.database.batch(this)
+    await this.collection.database.batch(this.prepareDestroyPermanently())
   }
 
   // *** Observing changes ***
