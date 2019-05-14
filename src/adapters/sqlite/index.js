@@ -68,7 +68,7 @@ const Native: NativeBridgeType = NativeModules.DatabaseBridge
 export type SQLiteAdapterOptions = $Exact<{
   dbName?: string,
   schema: AppSchema,
-  migrationsExperimental?: SchemaMigrations,
+  migrations?: SchemaMigrations,
 }>
 
 export default class SQLiteAdapter implements DatabaseAdapter {
@@ -80,9 +80,9 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
   _dbName: string
 
-  constructor({ dbName, schema, migrationsExperimental }: SQLiteAdapterOptions): void {
+  constructor({ dbName, schema, migrations }: SQLiteAdapterOptions): void {
     this.schema = schema
-    this.migrations = migrationsExperimental
+    this.migrations = migrations
     this._dbName = this._getName(dbName)
     isDevelopment && validateAdapter(this)
 
@@ -93,7 +93,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     return new SQLiteAdapter({
       dbName: this._dbName,
       schema: this.schema,
-      ...(this.migrations ? { migrationsExperimental: this.migrations } : {}),
+      ...(this.migrations ? { migrations: this.migrations } : {}),
       ...options,
     })
   }

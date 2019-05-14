@@ -9,6 +9,7 @@ describe('Database', () => {
     const database = new Database({
       adapter: { schema: null },
       modelClasses: [MockProject, MockTask, MockComment],
+      actionsEnabled: true,
     })
     const projects = database.collections.get('mock_projects')
     const tasks = database.collections.get('mock_tasks')

@@ -20,7 +20,7 @@ import ActionQueue, { type ActionInterface } from './ActionQueue'
 type DatabaseProps = $Exact<{
   adapter: DatabaseAdapter,
   modelClasses: Array<Class<Model>>,
-  actionsEnabled?: boolean,
+  actionsEnabled: boolean,
 }>
 
 export default class Database {
@@ -34,10 +34,14 @@ export default class Database {
 
   #actionsEnabled: boolean
 
-  constructor({ adapter, modelClasses, actionsEnabled = false }: DatabaseProps): void {
+  constructor({ adapter, modelClasses, actionsEnabled }: DatabaseProps): void {
     this.adapter = adapter
     this.schema = adapter.schema
     this.collections = new CollectionMap(this, modelClasses)
+    invariant(
+      actionsEnabled === true || actionsEnabled === false,
+      'You must pass `actionsEnabled:` key to Database constructor. It is highly recommended you pass `actionsEnabled: true` (see documentation for more details), but can pass `actionsEnabled: false` for backwards compatibility.',
+    )
     this.#actionsEnabled = actionsEnabled
   }
 

@@ -1,5 +1,5 @@
 import { Model } from '@nozbe/watermelondb'
-import { field, relation, children } from '@nozbe/watermelondb/decorators'
+import { field, relation, children, action } from '@nozbe/watermelondb/decorators'
 
 export default class Post extends Model {
   static table = 'posts'
@@ -24,7 +24,7 @@ export default class Post extends Model {
   @children('comments')
   comments
 
-  async addComment(body) {
+  @action async addComment(body) {
     return this.collections.get('comments').create(comment => {
       comment.post.set(this)
       comment.body = body

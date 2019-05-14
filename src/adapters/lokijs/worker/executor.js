@@ -26,7 +26,7 @@ const SCHEMA_VERSION_KEY = '_loki_schema_version'
 type LokiExecutorOptions = $Exact<{
   dbName: ?string,
   schema: AppSchema,
-  migrationsExperimental: ?SchemaMigrations, // TODO: not optional
+  migrations: ?SchemaMigrations, // TODO: not optional
   _testLokiAdapter?: LokiMemoryAdapter,
 }>
 
@@ -44,10 +44,10 @@ export default class LokiExecutor {
   cachedRecords: Map<TableName<any>, Set<RecordId>> = new Map()
 
   constructor(options: LokiExecutorOptions): void {
-    const { dbName, schema, migrationsExperimental, _testLokiAdapter } = options
+    const { dbName, schema, migrations, _testLokiAdapter } = options
     this.dbName = dbName
     this.schema = schema
-    this.migrations = migrationsExperimental
+    this.migrations = migrations
     this._testLokiAdapter = _testLokiAdapter
   }
 

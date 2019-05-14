@@ -4,9 +4,25 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## ⚠️ Breaking
+
+- [Database] It is now mandatory to pass `actionsEnabled:` option to Database constructor.
+     It is recommended that you enable this option:
+
+     ```js
+     const database = new Database({
+       adapter: ...,
+       modelClasses: [...],
+       actionsEnabled: true
+     })
+     ```
+
+     See `docs/Actions.md` for more details about Actions. You can also pass `false` to maintain
+     backward compatibility, but this option **will be removed** in a later version
+- [Adapters] `migrationsExperimental` prop of `SQLiteAdapter` and `LokiJSAdapter` has been renamed
+    to `migrations`.
+
 ### Changes
-
-
 
 ## 0.12.3 - 2019-05-06
 

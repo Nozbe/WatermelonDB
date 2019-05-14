@@ -68,7 +68,7 @@ Notice a couple of things:
 1. We're starting with a simple non-reactive `Post` component
 2. Like before, we enhance it by observing the `Post`. If the post name or body changes, it will re-render.
 3. To access comments, we fetch them from the database and observe using `post.comments.observe()` and inject a new prop `comments`. (`post.comments` is a Query created using `@children`).
-   
+
    Note that we can skip `.observe()` and just pass `post.comments` for convenience — `withObservables` will call observe for us
 4. By **observing the Query**, the `<Post>` component will re-render if a comment is created or deleted
 5. However, observing the comments Query will not re-render `<Post>` if a comment is _updated_ — we render the `<EnhancedComment>` so that _it_ observes the comment and re-renders if necessary.
@@ -252,6 +252,7 @@ import DatabaseProvider from '@nozbe/watermelondb/DatabaseProvider'
 const database = new Database({
   adapter,
   modelClasses: [Blog, Post, Comment],
+  actionsEnabled: true,
 })
 
 render(

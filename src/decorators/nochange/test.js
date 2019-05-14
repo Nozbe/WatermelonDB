@@ -29,6 +29,7 @@ const makeDatabase = () =>
       }),
     },
     modelClasses: [MockModel],
+    actionsEnabled: true,
   })
 
 describe('decorators/nochange', () => {
@@ -36,16 +37,18 @@ describe('decorators/nochange', () => {
     const database = makeDatabase()
     database.adapter.batch = jest.fn()
 
-    const model = await database.collections.get('mock').create(mock => {
-      expect(mock.foo).toBe(null)
-      mock.foo = 't1'
-      expect(mock.foo).toBe('t1')
-      mock.foo = 't2'
-      expect(mock.foo).toBe('t2')
-      mock.foo = null
-      expect(mock.foo).toBe(null)
-      mock.foo = 't3'
-    })
+    const model = await database.action(() =>
+      database.collections.get('mock').create(mock => {
+        expect(mock.foo).toBe(null)
+        mock.foo = 't1'
+        expect(mock.foo).toBe('t1')
+        mock.foo = 't2'
+        expect(mock.foo).toBe('t2')
+        mock.foo = null
+        expect(mock.foo).toBe(null)
+        mock.foo = 't3'
+      }),
+    )
 
     expect(model.foo).toBe('t3')
   })
@@ -61,14 +64,18 @@ describe('decorators/nochange', () => {
     const database = makeDatabase()
     database.adapter.batch = jest.fn()
 
-    const model = await database.collections.get('mock').create(mock => {
-      mock.foo = 't1'
-    })
+    const model = await database.action(() =>
+      database.collections.get('mock').create(mock => {
+        mock.foo = 't1'
+      }),
+    )
 
     await expectToRejectWithMessage(
-      model.update(mock => {
-        mock.foo = 't2'
-      }),
+      database.action(() =>
+        model.update(mock => {
+          mock.foo = 't2'
+        }),
+      ),
       /set a new value/,
     )
     expect(model.foo).toBe('t1')

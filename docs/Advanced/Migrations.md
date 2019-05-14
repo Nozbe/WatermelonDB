@@ -30,12 +30,9 @@ Without migrations, if a user of your app upgrades from one version to another, 
 
    const adapter = new SQLiteAdapter({
      schema: mySchema,
-     migrationsExperimental: migrations
+     migrations,
    })
    ```
-
-   ⚠️ Migrations are currently marked as "experimental", which means that the exact API may change at any moment.
-   In a future version, the experimental marker will be removed, and using migrations will be mandatory.
 
 ## Migrations workflow
 

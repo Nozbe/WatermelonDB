@@ -18,6 +18,7 @@ const adapter = new SQLiteAdapter({
 const database = new Database({
   adapter,
   modelClasses: [Blog, Post, Comment],
+  actionsEnabled: true,
 })
 
 const appStartedLaunchingAt = NativeModules.PerformancePlugin.appInitTimestamp
