@@ -11,6 +11,7 @@ import { matchTests, joinTests } from '../../__tests__/databaseTests'
 import {
   testSchema,
   taskQuery,
+  taskRawQuery,
   makeMockTask,
   performMatchTest,
   performJoinTest,
@@ -225,6 +226,46 @@ export default () => [
       expectSortedEqual(await adapter.query(taskQuery(Q.where('text1', 'nope'))), [])
       expect(await adapter.count(taskQuery(Q.where('text1', 'nope')))).toBe(0)
       expect(await adapter.count(taskQuery(Q.where('order', 4)))).toBe(0)
+    },
+  ],
+  [
+    'can query records in raw query format',
+    async (adapter, AdapterClass) => {
+      if (AdapterClass.name === 'SQLiteAdapter') {
+        const record1 = makeMockTask({ id: 't1', text1: 'bar', bool1: false, order: 1 })
+        const record2 = makeMockTask({ id: 't2', text1: 'baz', bool1: true, order: 2 })
+        const record3 = makeMockTask({ id: 't3', text1: 'abc', bool1: false, order: 3 })
+
+        await adapter.batch([['create', record1], ['create', record2], ['create', record3]])
+
+        // all records
+        expectSortedEqual(await adapter.rawQuery(taskRawQuery(`SELECT * FROM tasks`)), [
+          't1',
+          't2',
+          't3',
+        ])
+
+        // some records
+        expectSortedEqual(
+          await adapter.rawQuery(taskRawQuery(`SELECT * FROM tasks WHERE bool1 = false`)),
+          ['t1', 't3'],
+        )
+
+        expectSortedEqual(
+          await adapter.rawQuery(taskRawQuery(`SELECT * FROM tasks WHERE id = 't2'`)),
+          ['t2'],
+        )
+
+        expectSortedEqual(
+          await adapter.rawQuery(taskRawQuery(`SELECT * FROM tasks WHERE \`order\` = 2`)),
+          ['t2'],
+        )
+
+        expectSortedEqual(
+          await adapter.rawQuery(taskRawQuery(`SELECT * FROM tasks WHERE text1 = 'nope'`)),
+          [],
+        )
+      }
     },
   ],
   [

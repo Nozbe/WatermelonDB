@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
+### New
+ - Raw Query
+<<<<<<< HEAD
 
 ## ⚠️ Breaking
 
@@ -125,6 +128,8 @@ All notable changes to this project will be documented in this file.
 - [Web] Add adaptive layout for demo example with smooth scrolling for iOS
 
 ## 0.10.0 - 2019-01-18
+=======
+>>>>>>> 31a0574f2f1713a8973f1888eff512eb90546a2f
 
 ### Breaking
 

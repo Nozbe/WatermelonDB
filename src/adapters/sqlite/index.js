@@ -12,6 +12,7 @@ import {
 
 import type Model, { RecordId } from '../../Model'
 import type Query from '../../Query'
+import type RawQuery from '../../Query/RawQuery'
 import type { TableName, AppSchema, SchemaVersion } from '../../Schema'
 import type { SchemaMigrations, MigrationStep } from '../../Schema/migrations'
 import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
@@ -177,6 +178,17 @@ export default class SQLiteAdapter implements DatabaseAdapter {
       async () =>
         sanitizeQueryResult(
           await Native.query(this._tag, query.table, encodeQuery(query)),
+          this.schema.tables[query.table],
+        ),
+      query,
+    )
+  }
+
+  async rawQuery<T: Model>(query: RawQuery<T>): Promise<CachedQueryResult> {
+    return devLogQuery(
+      async () =>
+        sanitizeQueryResult(
+          await Native.query(this._tag, query.table, query.sql),
           this.schema.tables[query.table],
         ),
       query,

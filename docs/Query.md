@@ -228,6 +228,14 @@ postsCollection.query(
 
 **`Q.weakGt` operator**: This is weakly typed version of `Q.gt` — one that allows null comparisons. So if you query `comments` with `Q.where('likes', Q.weakGt(Q.column('dislikes')))`, it WILL match comments with 5 likes and `null` dislikes. (For `weakGt`, unlike standard operators, any number is greater than `null`).
 
+### Raw Query
+
+```js
+const tableNameCollection = database.collections.get('table_name')
+tableNameCollection.rawQuery('select * from ...').fetch()
+```
+
+
 * * *
 
 ## Next steps

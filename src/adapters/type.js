@@ -1,6 +1,7 @@
 // @flow
 
 import type Query from '../Query'
+import type RawQuery from '../Query/RawQuery'
 import type { TableName, AppSchema } from '../Schema'
 import type { SchemaMigrations } from '../Schema/migrations'
 import type Model, { RecordId } from '../Model'
@@ -24,6 +25,9 @@ export interface DatabaseAdapter {
 
   // Fetches matching records. Should not send raw object if already cached in JS
   query<T: Model>(query: Query<T>): Promise<CachedQueryResult>;
+
+  // Fetches matching records in raw Format
+  rawQuery<T: Model>(query: RawQuery<T>): Promise<CachedQueryResult>;
 
   // Counts matching records
   count<T: Model>(query: Query<T>): Promise<number>;

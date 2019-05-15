@@ -4,6 +4,7 @@ import { allPromises, toPairs } from '../../utils/fp'
 
 import Model from '../../Model'
 import Query from '../../Query'
+import RawQuery from '../../Query/RawQuery'
 import { appSchema, tableSchema } from '../../Schema'
 import { sanitizedRaw } from '../../RawRecord'
 
@@ -84,7 +85,14 @@ export const modelQuery = (modelClass, ...conditions) => {
   return new Query(mockCollection, conditions)
 }
 
+export const modelRawQuery = (modelClass, sql) => {
+  const mockCollection = { modelClass }
+  return new RawQuery(mockCollection, sql)
+}
+
 export const taskQuery = (...conditions) => modelQuery(MockTask, ...conditions)
+
+export const taskRawQuery = sql => modelRawQuery(MockTask, sql)
 
 export const makeMockTask = raw =>
   new MockTask(

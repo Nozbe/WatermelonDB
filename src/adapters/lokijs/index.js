@@ -87,6 +87,11 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     return devLogQuery(() => this.workerBridge.send(QUERY, [query.serialize()]), query)
   }
 
+  // Not working but necessary for passing flow
+  async rawQuery<T: Model>(query: Query<T>): Promise<CachedQueryResult> {
+    return devLogQuery(() => this.workerBridge.send(QUERY, [query.serialize()]), query)
+  }
+
   async count<T: Model>(query: Query<T>): Promise<number> {
     return devLogCount(() => this.workerBridge.send(COUNT, [query.serialize()]), query)
   }

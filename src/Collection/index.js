@@ -8,6 +8,7 @@ import invariant from '../utils/common/invariant'
 import noop from '../utils/fp/noop'
 
 import Query from '../Query'
+import RawQuery from '../Query/RawQuery'
 import type Database from '../Database'
 import type Model, { RecordId } from '../Model'
 import type { Condition } from '../QueryDescription'
@@ -63,6 +64,10 @@ export default class Collection<Record: Model> {
     return new Query(this, conditions)
   }
 
+  rawQuery(sql: string): RawQuery<Record> {
+    return new RawQuery(this, sql)
+  }
+
   // Creates a new record in this collection
   // Pass a function to set attributes of the record.
   //
@@ -91,6 +96,12 @@ export default class Collection<Record: Model> {
   // See: Query.fetch
   async fetchQuery(query: Query<Record>): Promise<Record[]> {
     const rawRecords = await this.database.adapter.query(query)
+
+    return this.#cache.recordsFromQueryResult(rawRecords)
+  }
+
+  async fetchRawQuery(query: RawQuery<Record>): Promise<Record[]> {
+    const rawRecords = await this.database.adapter.rawQuery(query)
 
     return this.#cache.recordsFromQueryResult(rawRecords)
   }
