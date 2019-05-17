@@ -213,5 +213,4 @@ class DatabaseDriver(context: Context, dbName: String) {
                     SchemaCompatibility.NeedsSetup
                 }
             }
-
 }
