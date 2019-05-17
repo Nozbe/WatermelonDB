@@ -1,5 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.nozbe.watermelondb">
-    <application>
-    </application>
-</manifest>
+<manifest package="com.nozbe.watermelondb" />

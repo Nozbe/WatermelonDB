@@ -10,7 +10,9 @@ import java.util.logging.Logger
 class DatabaseDriver(context: Context, dbName: String) {
     sealed class Operation {
         class Execute(val table: TableName, val query: SQL, val args: QueryArgs) : Operation()
-        class Create(val table: TableName, val id: RecordID, val query: SQL, val args: QueryArgs) : Operation()
+        class Create(val table: TableName, val id: RecordID, val query: SQL, val args: QueryArgs) :
+                Operation()
+
         class MarkAsDeleted(val table: TableName, val id: RecordID) : Operation()
         class DestroyPermanently(val table: TableName, val id: RecordID) : Operation()
         // class SetLocal(val key: String, val value: String) : Operation()
@@ -20,10 +22,9 @@ class DatabaseDriver(context: Context, dbName: String) {
     class SchemaNeededError : Exception()
     data class MigrationNeededError(val databaseVersion: SchemaVersion) : Exception()
 
-    constructor(context: Context, dbName: String, schemaVersion: SchemaVersion)
-            : this(context, dbName) {
-        val compatibility = isCompatible(schemaVersion)
-        when (compatibility) {
+    constructor(context: Context, dbName: String, schemaVersion: SchemaVersion) :
+            this(context, dbName) {
+        when (val compatibility = isCompatible(schemaVersion)) {
             is SchemaCompatibility.NeedsSetup -> throw SchemaNeededError()
             is SchemaCompatibility.NeedsMigration ->
                 throw MigrationNeededError(compatibility.fromVersion)
@@ -184,7 +185,7 @@ class DatabaseDriver(context: Context, dbName: String) {
 
     private fun migrate(migrations: MigrationSet) {
         require(database.userVersion == migrations.from) {
-            "Incompatbile migration set applied. " +
+            "Incompatible migration set applied. " +
                     "DB: ${database.userVersion}, migration: ${migrations.from}"
         }
 
@@ -200,19 +201,17 @@ class DatabaseDriver(context: Context, dbName: String) {
         class NeedsMigration(val fromVersion: SchemaVersion) : SchemaCompatibility()
     }
 
-    private fun isCompatible(schemaVersion: SchemaVersion): SchemaCompatibility {
-        val databaseVersion = database.userVersion
-
-        return when (databaseVersion) {
-            schemaVersion -> SchemaCompatibility.Compatible
-            0 -> SchemaCompatibility.NeedsSetup
-            in 1..(schemaVersion - 1) ->
-                SchemaCompatibility.NeedsMigration(fromVersion = databaseVersion)
-            else -> {
-                log?.info("Database has newer version ($databaseVersion) than what the " +
-                        "app supports ($schemaVersion). Will reset database.")
-                SchemaCompatibility.NeedsSetup
+    private fun isCompatible(schemaVersion: SchemaVersion): SchemaCompatibility =
+            when (val databaseVersion = database.userVersion) {
+                schemaVersion -> SchemaCompatibility.Compatible
+                0 -> SchemaCompatibility.NeedsSetup
+                in 1 until schemaVersion ->
+                    SchemaCompatibility.NeedsMigration(fromVersion = databaseVersion)
+                else -> {
+                    log?.info("Database has newer version ($databaseVersion) than what the " +
+                            "app supports ($schemaVersion). Will reset database.")
+                    SchemaCompatibility.NeedsSetup
+                }
             }
-        }
-    }
+
 }

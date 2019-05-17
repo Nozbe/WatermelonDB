@@ -22,8 +22,8 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
 
         val queue: ArrayList<(() -> Unit)>
             get() = when (this) {
-                is Connection.Connected -> arrayListOf()
-                is Connection.Waiting -> this.queueInWaiting
+                is Connected -> arrayListOf()
+                is Waiting -> this.queueInWaiting
             }
     }
 
@@ -165,10 +165,9 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         function: (DatabaseDriver) -> Any?
     ) {
         try {
-            val connection =
+            when (val connection =
                     connections[tag] ?: promise.reject(
-                            Exception("No driver with tag $tag available"))
-            when (connection) {
+                            Exception("No driver with tag $tag available"))) {
                 is Connection.Connected -> {
                     val result = function(connection.driver)
                     promise.resolve(if (result === Unit) {
