@@ -21,27 +21,27 @@ class BridgeTestReporter(reactContext: ReactApplicationContext) :
         val testFinishedNotification = Object()
     }
 
-    @Suppress("CAST_NEVER_SUCCEEDS", "UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST")
     @ReactMethod
     fun testsFinished(report: ReadableMap) {
         Logger.getLogger(name).info(report.toString())
-        val tempResult = report.toHashMap()["results"] as ArrayList<HashMap<String, String>>
+        val tempResult = report.toHashMap()["results"] as ArrayList<HashMap<String, Any>>
         result = if (report.getInt("errorCount") > 0) {
             val messages = tempResult.map {
                 if (!(it["passed"] as Boolean)) {
-                    it["message"] ?: ""
+                    it["message"] as String? ?: ""
                 } else ""
             }
             Result.Failure(messages)
         } else {
             val messages = tempResult.map {
                 if (it["passed"] as Boolean) {
-                    it["message"] ?: ""
+                    it["message"] as String? ?: ""
                 } else ""
             }
             Result.Success(messages)
         }
-        synchronized(BridgeTestReporter.testFinishedNotification) {
+        synchronized(testFinishedNotification) {
             BridgeTestReporter.testFinishedNotification.notify()
         }
     }
