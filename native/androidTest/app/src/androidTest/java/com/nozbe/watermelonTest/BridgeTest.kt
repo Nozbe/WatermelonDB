@@ -17,8 +17,7 @@ class BridgeTest {
             BridgeTestReporter.testFinishedNotification.wait(500000)
         }
         try {
-            val result = BridgeTestReporter.result
-            when (result) {
+            when (val result = BridgeTestReporter.result) {
                 is BridgeTestReporter.Result.Success -> {
                     result.result.filter { it.isNotEmpty() }.forEach { Log.d("BridgeTest", it) }
                 }
