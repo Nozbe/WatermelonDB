@@ -8,7 +8,6 @@ import com.swmansion.gesturehandler.react.RNGestureHandlerEnabledRootView
 class MainActivity : ReactActivity() {
     override fun getMainComponentName(): String? = "App"
 
-
     override fun createReactActivityDelegate(): ReactActivityDelegate {
         return object : ReactActivityDelegate(this, mainComponentName) {
             override fun createRootView(): ReactRootView {
