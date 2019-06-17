@@ -25,7 +25,8 @@ describe('decorators/field', () => {
     class ModelProxy {
       asModel = model
 
-      @field('name') name
+      @field('name')
+      name
     }
     model._isEditing = true
     model.name = 'a'

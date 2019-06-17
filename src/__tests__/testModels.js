@@ -43,17 +43,23 @@ export class MockProject extends Model {
 export class MockTask extends Model {
   static table = 'mock_tasks'
 
-  @field('name') name
+  @field('name')
+  name
 
-  @field('position') position
+  @field('position')
+  position
 
-  @field('is_completed') isCompleted
+  @field('is_completed')
+  isCompleted
 
-  @field('description') description
+  @field('description')
+  description
 
-  @field('project_id') projectId
+  @field('project_id')
+  projectId
 
-  @relation('mock_projects', 'project_id') project
+  @relation('mock_projects', 'project_id')
+  project
 }
 
 export class MockComment extends Model {

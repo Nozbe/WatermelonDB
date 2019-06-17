@@ -16,8 +16,7 @@ import type Query from '../../Query'
 // Example: a Task has_many Comments, so it may define:
 //   @children('comment') comments: Query<Comment>
 
-const children = makeDecorator((childTable: TableName<any>) => () => {
-  return {
+const children = makeDecorator((childTable: TableName<any>) => () => ({
     get(): Query<Model> {
       // Use cached Query if possible
       this._childrenQueryCache = this._childrenQueryCache || {}
@@ -44,7 +43,6 @@ const children = makeDecorator((childTable: TableName<any>) => () => {
     set(): void {
       logError('Setter called on a @children-marked property')
     },
-  }
-})
+  }))
 
 export default children

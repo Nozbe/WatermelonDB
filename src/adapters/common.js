@@ -53,8 +53,9 @@ export function sanitizeQueryResult(
   dirtyRecords: DirtyQueryResult,
   tableSchema: TableSchema,
 ): CachedQueryResult {
-  return dirtyRecords.map(dirtyRecord =>
-    typeof dirtyRecord === 'string' ? dirtyRecord : sanitizedRaw(dirtyRecord, tableSchema),
+  return dirtyRecords.map(
+    dirtyRecord =>
+      typeof dirtyRecord === 'string' ? dirtyRecord : sanitizedRaw(dirtyRecord, tableSchema),
   )
 }
 

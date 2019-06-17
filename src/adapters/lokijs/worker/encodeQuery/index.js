@@ -121,9 +121,9 @@ const hackAlwaysTrueCondition: LokiRawQuery = { _fakeAlwaysTrue: { $eq: undefine
 const encodeWhereDescription: (WhereDescription | On) => LokiRawQuery = ({ left, comparison }) =>
   // HACK: If this is a column comparison condition, ignore it (assume it evaluates to true)
   // The column comparison will actually be performed during the refining pass with a matcher func
-  has('column', comparison.right) ?
-    hackAlwaysTrueCondition :
-    objOf(left, encodeComparison(comparison))
+  has('column', comparison.right)
+    ? hackAlwaysTrueCondition
+    : objOf(left, encodeComparison(comparison))
 
 const typeEq = propEq('type')
 

@@ -103,7 +103,7 @@ describe('Batch writes', () => {
           m2.body = 'baz1'
         }),
         m3.prepareMarkAsDeleted(),
-        m4.prepareDestroyPermanently()
+        m4.prepareDestroyPermanently(),
       ),
     )
 
@@ -125,16 +125,15 @@ describe('Batch writes', () => {
     expect(tasksCollectionObserver).toHaveBeenCalledTimes(1)
     expect(commentsCollectionObserver).toHaveBeenCalledTimes(1)
     expect(tasksCollectionObserver).toHaveBeenCalledWith([
-        { record: m1, type: CollectionChangeTypes.updated },
-        { record: m5, type: CollectionChangeTypes.created },
-        { record: m3, type: CollectionChangeTypes.destroyed },
+      { record: m1, type: CollectionChangeTypes.updated },
+      { record: m5, type: CollectionChangeTypes.created },
+      { record: m3, type: CollectionChangeTypes.destroyed },
     ])
     expect(commentsCollectionObserver).toHaveBeenCalledWith([
-        { record: m6, type: CollectionChangeTypes.created },
-        { record: m2, type: CollectionChangeTypes.updated },
-        { record: m4, type: CollectionChangeTypes.destroyed },
+      { record: m6, type: CollectionChangeTypes.created },
+      { record: m2, type: CollectionChangeTypes.updated },
+      { record: m4, type: CollectionChangeTypes.destroyed },
     ])
-
 
     const createdRecords = [m5, m6]
     createdRecords.forEach(record => {

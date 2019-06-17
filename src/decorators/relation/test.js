@@ -18,7 +18,8 @@ describe('decorators/relation', () => {
     class PrimaryProxy {
       asModel = primary
 
-      @relation('mock_projects', 'project_id') project
+      @relation('mock_projects', 'project_id')
+      project
     }
     const primaryProxy = new PrimaryProxy()
     expect(primaryProxy.project).toEqual(primary.project)

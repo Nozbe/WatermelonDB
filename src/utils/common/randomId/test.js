@@ -10,12 +10,10 @@ describe('randomId', () => {
   })
 
   it('allows to override the generator function', () => {
-    const generator = () => {
-      return new Date()
+    const generator = () => new Date()
         .getTime()
         .toString()
         .substr(1, 4)
-    }
 
     setGenerator(generator)
 
