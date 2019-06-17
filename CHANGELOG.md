@@ -23,6 +23,7 @@ All notable changes to this project will be documented in this file.
     to `migrations`.
 
 ### Changes
+- [Actions] You can now batch deletes by using `prepareMarkAsDeleted` or `prepareDestroyPermanently`
 
 ## 0.12.3 - 2019-05-06
 
