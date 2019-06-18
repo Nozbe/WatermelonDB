@@ -14,8 +14,7 @@ class MockParent extends Model {
     mock_child: { type: 'has_many', foreignKey: 'parent_id' },
   }
 
-  @children('mock_child')
-  children
+  @children('mock_child') children
 }
 
 class MockChild extends Model {
@@ -25,8 +24,7 @@ class MockChild extends Model {
     mock_parent: { type: 'belongs_to', key: 'parent_id' },
   }
 
-  @field('parent_id')
-  parentId
+  @field('parent_id') parentId
 }
 
 const makeDatabase = () =>
@@ -64,8 +62,7 @@ describe('decorators/children', () => {
     class ParentProxy {
       asModel = parent
 
-      @children('mock_child')
-      children
+      @children('mock_child') children
     }
     const parentProxy = new ParentProxy()
     expect(parentProxy.children).toEqual(parent.children)

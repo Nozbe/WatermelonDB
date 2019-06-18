@@ -38,8 +38,7 @@ describe('@action', () => {
     class TestClass {
       database
 
-      @action
-      async test() {
+      @action async test() {
         return 42
       }
     }

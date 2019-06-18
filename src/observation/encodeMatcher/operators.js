@@ -25,7 +25,7 @@ const noNullComparisons: OperatorFunction => OperatorFunction = operator => (lef
 // Same as `a > b`, but `5 > undefined` is also true
 const weakGt = (left, right) => left > right || (left != null && right == null)
 
-const handleLikeValue = (v, defaultV) => (typeof v === 'string' ? v : defaultV)
+const handleLikeValue = (v, defaultV) => typeof v === 'string' ? v : defaultV
 
 export const like: OperatorFunction = (left, right) => {
   const leftV = handleLikeValue(left, '')

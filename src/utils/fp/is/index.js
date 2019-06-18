@@ -1,4 +1,3 @@
-// @flow
 // inspired by rambda and ramda
 
 export default function is(Constructor, value) {

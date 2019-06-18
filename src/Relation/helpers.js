@@ -22,9 +22,9 @@ const getObservable = <T: ?Model>(relation: Relation<T>): Observable<T> =>
       distinctUntilChanged(),
       switchMap(
         id =>
-          id
-            ? relation._model.collections.get(relation._relationTableName).findAndObserve(id)
-            : of$(null),
+          id ?
+            relation._model.collections.get(relation._relationTableName).findAndObserve(id) :
+            of$(null),
       ),
     )
 

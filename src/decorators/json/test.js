@@ -9,9 +9,9 @@ const schema = tableSchema({
 })
 
 const mockSanitizer = storedValue =>
-  storedValue && Array.isArray(storedValue.elements)
-    ? { elements: storedValue.elements }
-    : { elements: [] }
+  storedValue && Array.isArray(storedValue.elements) ?
+    { elements: storedValue.elements } :
+    { elements: [] }
 
 class MockModel extends Model {
   static table = 'mock'
