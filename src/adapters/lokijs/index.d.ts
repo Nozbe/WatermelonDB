@@ -1,7 +1,7 @@
-import { SchemaMigrations } from '@nozbe/watermelondb/Schema/migrations';
-import { LokiMemoryAdapter } from 'lokijs';
-
 declare module '@nozbe/watermelondb/adapters/lokijs' {
+  import { SchemaMigrations } from '@nozbe/watermelondb/Schema/migrations';
+  import { LokiMemoryAdapter } from 'lokijs';
+
   import {
     AppSchema,
     DatabaseAdapter,
