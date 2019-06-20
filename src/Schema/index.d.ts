@@ -1,6 +1,8 @@
 declare module '@nozbe/watermelondb/Schema' {
   import { Model } from '@nozbe/watermelondb'
 
+  export type SchemaVersion = number;
+
   export type TableName<T extends Model | void> = string
   export type ColumnName = string
 

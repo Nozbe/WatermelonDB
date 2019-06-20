@@ -1,5 +1,5 @@
 declare module '@nozbe/watermelondb/Model' {
-  import { ColumnName, TableName, Collection } from '@nozbe/watermelondb'
+  import { ColumnName, TableName, Collection, RawRecord } from '@nozbe/watermelondb'
   import { Observable } from 'rxjs'
 
   export type RecordId = string
@@ -29,13 +29,15 @@ declare module '@nozbe/watermelondb/Model' {
 
     public static associations: Associations
 
+    public _raw: RawRecord
+
     public id: RecordId
 
     public syncStatus: SyncStatus
 
-    public update(recordUpdater?: (this: this) => void): Promise<void>
+    public update(recordUpdater?: (record: this) => void): Promise<void>
 
-    public prepareUpdate(recordUpdater?: (this: this) => void): this
+    public prepareUpdate(recordUpdater?: (record: this) => void): this
 
     public markAsDeleted(): Promise<void>
 

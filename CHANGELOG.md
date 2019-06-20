@@ -3,6 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
+- [Typescript] Improved types for SQLite and LokiJS adapters, migrations, models, the database and the logger.
 
 ## ⚠️ Breaking
 
