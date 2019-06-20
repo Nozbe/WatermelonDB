@@ -131,7 +131,7 @@
     "prettier-eslint-cli": "^4.7.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "react-hooks-testing-library": "^0.5.0",
+    "react-hooks-testing-library": "^0.6.0",
     "react-native": "^0.59.3",
     "react-test-renderer": "16.8.6",
     "rimraf": "^2.6.2",
