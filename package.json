@@ -44,10 +44,6 @@
     "rxjs-compat": "^6.3.2",
     "sql-escape-string": "^1.1.0"
   },
-  "peerDependencies": {
-    "react": "^16.6.0",
-    "react-native": "^0.57.0"
-  },
   "publishConfig": {
     "access": "public"
   },
