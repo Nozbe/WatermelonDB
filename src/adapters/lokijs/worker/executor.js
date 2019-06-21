@@ -5,7 +5,7 @@ import { prop, forEach, values } from 'rambdax'
 import { logger } from '../../../utils/common'
 
 import type { CachedQueryResult, CachedFindResult, BatchOperation } from '../../type'
-import type { TableName, AppSchema, SchemaVersion, TableSchema } from '../../../Schema'
+import type { TableName, AppSchema, SchemaVersion, TableSchema, ColumnSchema } from '../../../Schema'
 import type {
   SchemaMigrations,
   CreateTableMigrationStep,
@@ -276,6 +276,8 @@ export default class LokiExecutor {
       [],
     )
 
+    this._warnAboutLackingFTSSupport(values(columns))
+
     this.loki.addCollection(name, {
       unique: ['id'],
       indices: ['_status', ...indexedColumns],
@@ -380,6 +382,8 @@ export default class LokiExecutor {
         collection.ensureIndex(column.name)
       }
     })
+
+    this._warnAboutLackingFTSSupport(columns)
   }
 
   // Maps records to their IDs if the record is already cached on JS side
@@ -403,5 +407,15 @@ export default class LokiExecutor {
   _findLocal(key: string): ?{ value: string } {
     const localStorage = this._localStorage
     return localStorage && localStorage.by('key', key)
+  }
+
+  _warnAboutLackingFTSSupport(columns: Array<ColumnSchema>) {
+    const searchableColumns = columns.filter(column => column.isSearchable)
+    if (searchableColumns.length > 0) {
+      // Warn the user about missing FTS support for the LokiJS adapter
+      // Please contribute! Here are some pointers:
+      // https://github.com/LokiJS-Forge/LokiDB/blob/master/packages/full-text-search/spec/generic/full_text_search.spec.ts
+      logger.warn('[DB][Worker] LokiJS support for FTS is still to be implemented')
+    }
   }
 }

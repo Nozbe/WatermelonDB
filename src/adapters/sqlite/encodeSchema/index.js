@@ -9,6 +9,7 @@ import type {
   AddColumnsMigrationStep,
 } from '../../../Schema/migrations'
 import type { SQL } from '../index'
+import { logger } from '../../../utils/common'
 
 import encodeName from '../encodeName'
 import encodeValue from '../encodeValue'
@@ -35,8 +36,104 @@ const encodeTableIndicies: TableSchema => SQL = ({ name: tableName, columns }) =
     .concat([`create index ${tableName}__status on ${encodeName(tableName)} ("_status");`])
     .join('')
 
+const encodeFTSTrigger: ({
+  tableName: string,
+  ftsTableName: string,
+  event: 'delete' | 'insert' | 'update',
+  action: SQL,
+}) => SQL = ({ tableName, ftsTableName, event, action }) => {
+  const triggerName = `${ftsTableName}_${event}`
+  return `create trigger ${encodeName(triggerName)} after ${event} on ${encodeName(
+    tableName,
+  )} begin ${action} end;`
+}
+
+const encodeFTSDeleteTrigger: ({
+  tableName: string,
+  ftsTableName: string,
+}) => SQL = ({ tableName, ftsTableName }) =>
+  encodeFTSTrigger({
+    tableName,
+    ftsTableName,
+    event: 'delete',
+    action: `delete from ${encodeName(ftsTableName)} where "rowid" = "OLD.rowid";`,
+  })
+
+const encodeFTSInsertTrigger: ({
+  tableName: string,
+  ftsTableName: string,
+  ftsColumns: ColumnSchema[],
+}) => SQL = ({ tableName, ftsTableName, ftsColumns }) => {
+  const rawColumnNames = ['rowid', ...ftsColumns.map(column => column.name)]
+  const columns = rawColumnNames.map(encodeName)
+  const valueColumns = rawColumnNames.map(column => encodeName(`NEW.${column}`))
+
+  const columnsSQL = columns.join(', ')
+  const valueColumnsSQL = valueColumns.join(', ')
+
+  return encodeFTSTrigger({
+    tableName,
+    ftsTableName,
+    event: 'insert',
+    action: `insert into ${encodeName(ftsTableName)} (${columnsSQL}) values (${valueColumnsSQL});`,
+  })
+}
+
+const encodeFTSUpdateTrigger: ({
+  tableName: string,
+  ftsTableName: string,
+  ftsColumns: ColumnSchema[],
+}) => SQL = ({ tableName, ftsTableName, ftsColumns }) => {
+  const rawColumnNames = ftsColumns.map(column => column.name)
+  const assignments = rawColumnNames.map(
+    column => `${encodeName(column)}=${encodeName(`NEW.${column}`)}`,
+  )
+
+  const assignmentsSQL = assignments.join(', ')
+
+  return encodeFTSTrigger({
+    tableName,
+    ftsTableName,
+    event: 'update',
+    action: `update ${encodeName(ftsTableName)} set ${assignmentsSQL} where "rowid" = "NEW.rowid";`,
+  })
+}
+
+const encodeFTSTriggers: ({
+  tableName: string,
+  ftsTableName: string,
+  ftsColumns: ColumnSchema[],
+}) => SQL = ({ tableName, ftsTableName, ftsColumns }) => {
+  const updateTrigger = ''
+  return (
+    encodeFTSDeleteTrigger({ tableName, ftsTableName }) +
+    encodeFTSInsertTrigger({ tableName, ftsTableName, ftsColumns }) +
+    encodeFTSUpdateTrigger({ tableName, ftsTableName, ftsColumns })
+  )
+}
+
+const encodeFTSTable: ({
+  ftsTableName: string,
+  ftsColumns: ColumnSchema[],
+}) => SQL = ({ ftsTableName, ftsColumns }) => {
+  const columnsSQL = ftsColumns.map(column => encodeName(column.name)).join(', ')
+  return `create virtual table ${encodeName(`${ftsTableName}`)} using fts4(${columnsSQL});`
+}
+
+const encodeFTSSearch: TableSchema => SQL = ({ name: tableName, columns }) => {
+  const ftsColumns = values(columns).filter(c => c.isSearchable)
+  if (ftsColumns.length === 0) {
+    return ''
+  }
+  const ftsTableName = `${tableName}_fts`
+  return (
+    encodeFTSTable({ ftsTableName, ftsColumns }) +
+    encodeFTSTriggers({ tableName, ftsTableName, ftsColumns })
+  )
+}
+
 const encodeTable: TableSchema => SQL = table =>
-  encodeCreateTable(table) + encodeTableIndicies(table)
+  encodeCreateTable(table) + encodeTableIndicies(table) + encodeFTSSearch(table)
 
 export const encodeSchema: AppSchema => SQL = ({ tables }) =>
   values(tables)
@@ -54,6 +151,12 @@ const encodeAddColumnsMigrationStep: AddColumnsMigrationStep => SQL = ({ table, 
         column.name,
       )} = ${encodeValue(nullValue(column))};`
       const addIndex = encodeIndex(column, table)
+
+      if (column.isSearchable) {
+        logger.warn(
+          '[DB][Worker] Support for migrations and isSearchable is still to be implemented',
+        )
+      }
 
       return addColumn + setDefaultValue + addIndex
     })
