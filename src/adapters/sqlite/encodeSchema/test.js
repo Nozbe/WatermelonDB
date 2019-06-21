@@ -57,6 +57,34 @@ describe('encodeSchema', () => {
 
     expect(encodeSchema(testSchema)).toBe(expectedSchema)
   })
+  fit('encodes schema with FTS', () => {
+    const testSchema = appSchema({
+      version: 1,
+      tables: [
+        tableSchema({
+          name: 'tasks',
+          columns: [
+            { name: 'author_id', type: 'string', isIndexed: true },
+            { name: 'author_name', type: 'string', isSearchable: true },
+            { name: 'author_title', type: 'string', isSearchable: true },
+            { name: 'created_at', type: 'number' },
+          ],
+        }),
+      ],
+    })
+
+    const expectedSchema =
+      'create table "tasks" ("id" primary key, "_changed", "_status", "author_id", "author_name", "author_title", "created_at");' +
+      'create index tasks_author_id on "tasks" ("author_id");' +
+      'create index tasks__status on "tasks" ("_status");' +
+      'create virtual table "tasks_fts" using fts4("author_name", "author_title");' +
+      'create trigger "tasks_fts_delete" after delete on "tasks" begin delete from "tasks_fts" where "rowid" = "OLD.rowid"; end;' +
+      'create trigger "tasks_fts_insert" after insert on "tasks" begin insert into "tasks_fts" ("rowid", "author_name", "author_title") values ("NEW.rowid", "NEW.author_name", "NEW.author_title"); end;' +
+      'create trigger "tasks_fts_update" after update on "tasks" begin update "tasks_fts" set "author_name"="NEW.author_name", "author_title"="NEW.author_title" where "rowid" = "NEW.rowid"; end;' +
+      ''
+
+    expect(encodeSchema(testSchema)).toBe(expectedSchema)
+  })
   it('encodes migrations', () => {
     const migrationSteps = [
       addColumns({
