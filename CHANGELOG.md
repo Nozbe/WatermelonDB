@@ -3,9 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
-- [Typescript] Improved types for SQLite and LokiJS adapters, migrations, models, the database and the logger.
 
-## ⚠️ Breaking
+### ⚠️ Breaking
 
 - [Database] It is now mandatory to pass `actionsEnabled:` option to Database constructor.
      It is recommended that you enable this option:
@@ -23,8 +22,11 @@ All notable changes to this project will be documented in this file.
 - [Adapters] `migrationsExperimental` prop of `SQLiteAdapter` and `LokiJSAdapter` has been renamed
     to `migrations`.
 
-### Changes
+### New features
 - [Actions] You can now batch deletes by using `prepareMarkAsDeleted` or `prepareDestroyPermanently`
+
+### Improvements
+- [Typescript] Improved types for SQLite and LokiJS adapters, migrations, models, the database and the logger.
 
 ## 0.12.3 - 2019-05-06
 
