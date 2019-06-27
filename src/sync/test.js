@@ -1000,7 +1000,12 @@ describe('synchronize', () => {
     const pushChanges = jest.fn()
 
     // check
-    await synchronize({ database, pullChanges, pushChanges })
+    // TODO: Remove the flag -- temporarily taking over this test to test _unsafeBatchPerCollection
+    await synchronize({ database, pullChanges, pushChanges, _unsafeBatchPerCollection: true })
+
+    expect(await projects.query().fetchCount()).toBe(sample) // local
+    expect(await tasks.query().fetchCount()).toBe(sample + sample) // local + remote
+    expect(await comments.query().fetchCount()).toBe(0) // all deleted
 
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
     expect(await hasUnsyncedChanges({ database })).toBe(false)

@@ -10,6 +10,7 @@ import {
   filter,
   find,
   piped,
+  splitEvery,
 } from 'rambdax'
 import { allPromises, unnest } from '../../utils/fp'
 import { logError, invariant } from '../../utils/common'
@@ -184,7 +185,8 @@ const prepareApplyAllRemoteChanges = (
     unnest,
   )
 
-const batchesForRecordChanges = (
+// See _unsafeBatchPerCollection - temporary fix
+const unsafeBatchesWithRecordsToApply = (
   db: Database,
   recordsToApply: AllRecordsToApply,
   sendCreatedAsUpdated: boolean,
@@ -193,16 +195,19 @@ const batchesForRecordChanges = (
   piped(
     recordsToApply,
     map((records, tableName: TableName<any>) =>
-      db.batch(
-        ...prepareApplyRemoteChangesToCollection(
+      piped(
+        prepareApplyRemoteChangesToCollection(
           db.collections.get((tableName: any)),
           records,
           sendCreatedAsUpdated,
           log,
         ),
+        splitEvery(5000),
+        map(recordBatch => db.batch(...recordBatch)),
       ),
     ),
     values,
+    unnest,
   )
 
 const destroyPermanently = record => record.destroyPermanently()
@@ -223,7 +228,7 @@ export default function applyRemoteChanges(
       allPromises(destroyPermanently, getAllRecordsToDestroy(recordsToApply)),
       destroyAllDeletedRecords(db, recordsToApply),
       ...(_unsafeBatchPerCollection
-        ? batchesForRecordChanges(db, recordsToApply, sendCreatedAsUpdated, log)
+        ? unsafeBatchesWithRecordsToApply(db, recordsToApply, sendCreatedAsUpdated, log)
         : [
             db.batch(
               ...prepareApplyAllRemoteChanges(db, recordsToApply, sendCreatedAsUpdated, log),
