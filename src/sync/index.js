@@ -12,7 +12,7 @@ import {
   setLastPulledAt,
   hasUnsyncedChanges as hasUnsyncedChangesImpl,
 } from './impl'
-import { ensureActionsEnabled, ensureSameDatabase } from './impl/helpers'
+import { ensureActionsEnabled, ensureSameDatabase, isChangeSetEmpty } from './impl/helpers'
 
 export type Timestamp = number
 
@@ -91,7 +91,9 @@ export async function synchronize({
   const localChanges = await fetchLocalChanges(database)
 
   ensureSameDatabase(database, resetCount)
-  await pushChanges({ changes: localChanges.changes, lastPulledAt: newLastPulledAt })
+  if (!isChangeSetEmpty(localChanges.changes)) {
+    await pushChanges({ changes: localChanges.changes, lastPulledAt: newLastPulledAt })
+  }
 
   ensureSameDatabase(database, resetCount)
   await markLocalChangesAsSynced(database, localChanges)
