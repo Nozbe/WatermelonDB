@@ -37,7 +37,7 @@ export function associations(
   return (fromPairs(associationList): any)
 }
 
-let experimentalOnlyMarkAsChangedIfDiffers = false
+let experimentalOnlyMarkAsChangedIfDiffers = true
 
 export function experimentalSetOnlyMarkAsChangedIfDiffers(value: boolean): void {
   experimentalOnlyMarkAsChangedIfDiffers = value
