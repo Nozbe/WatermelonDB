@@ -1047,6 +1047,7 @@ describe('synchronize', () => {
   })
   it('aborts if database is cleared during sync — different case', async () => {
     const { database, projects } = makeDatabase()
+    await makeLocalChanges(database) // make changes so pushChanges is called
     await expectToRejectWithMessage(
       synchronize({
         database,
