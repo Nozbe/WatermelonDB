@@ -37,6 +37,10 @@ export default () => [
 
       // expect(() => makeAdapter({})).toThrowError(/missing migrations/)
 
+      expect(() => makeAdapter({ migrationsExperimental: [] })).toThrow(
+        /migrationsExperimental has been renamed/,
+      )
+
       expect(() => adapterWithMigrations({ migrations: [] })).toThrow(/use schemaMigrations()/)
 
       // OK migrations passed
