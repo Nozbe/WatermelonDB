@@ -6,13 +6,12 @@ import {
   map,
   contains,
   values,
-  pipe,
   filter,
   find,
   piped,
   splitEvery,
 } from 'rambdax'
-import { allPromises, unnest } from '../../utils/fp'
+import { unnest } from '../../utils/fp'
 import { logError, invariant } from '../../utils/common'
 import type { Database, RecordId, Collection, Model, TableName, DirtyRaw } from '../..'
 import * as Q from '../../QueryDescription'
