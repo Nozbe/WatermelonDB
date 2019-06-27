@@ -609,15 +609,20 @@ describe('synchronize', () => {
     const observer = observeDatabase(database)
 
     const pullChanges = jest.fn(emptyPull())
-    const pushChanges = jest.fn()
 
-    await synchronize({ database, pullChanges, pushChanges })
+    await synchronize({ database, pullChanges, pushChanges: jest.fn() })
 
     expect(observer).toHaveBeenCalledTimes(0)
     expect(pullChanges).toHaveBeenCalledTimes(1)
     expect(pullChanges).toHaveBeenCalledWith({ lastPulledAt: null })
-    expect(pushChanges).toHaveBeenCalledTimes(1)
-    expect(pushChanges).toHaveBeenCalledWith({ changes: emptyChangeSet, lastPulledAt: 1500 })
+  })
+  it(`doesn't push changes if nothing to push`, async () => {
+    const { database } = makeDatabase()
+
+    const pushChanges = jest.fn()
+    await synchronize({ database, pullChanges: jest.fn(emptyPull()), pushChanges })
+
+    expect(pushChanges).toHaveBeenCalledTimes(0)
   })
   it('can log basic information about a sync', async () => {
     const { database } = makeDatabase()
@@ -632,9 +637,7 @@ describe('synchronize', () => {
     expect(log.lastPulledAt).toBe(null)
     expect(log.newLastPulledAt).toBe(1500)
   })
-  it.skip(`doesn't push changes if nothing to push`, async () => {
-    // TODO: Future optimization
-  })
+
   it('can push changes', async () => {
     const { database } = makeDatabase()
 
@@ -663,12 +666,10 @@ describe('synchronize', () => {
       }),
       timestamp: 1500,
     }))
-    const pushChanges = jest.fn(async () => {})
 
-    await synchronize({ database, pullChanges, pushChanges })
+    await synchronize({ database, pullChanges, pushChanges: jest.fn() })
 
     expect(pullChanges).toHaveBeenCalledWith({ lastPulledAt: null })
-    expect(pushChanges).toHaveBeenCalledWith({ changes: emptyChangeSet, lastPulledAt: 1500 })
 
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
     await expectSyncedAndMatches(projects, 'new_project', { name: 'remote' })
@@ -704,7 +705,7 @@ describe('synchronize', () => {
       }),
       timestamp: 1500,
     })
-    const pushChanges = jest.fn(async () => {})
+    const pushChanges = jest.fn()
 
     const log = {}
     await synchronize({ database, pullChanges, pushChanges, log })
@@ -795,6 +796,8 @@ describe('synchronize', () => {
   })
   it('can recover from pull failure', async () => {
     const { database } = makeDatabase()
+    // make change to make sure pushChagnes isn't called because of pull failure and not lack of changes
+    await makeLocalChanges(database)
 
     const observer = observeDatabase(database)
     const pullChanges = jest.fn(() => Promise.reject(new Error('pull-fail')))
@@ -944,7 +947,7 @@ describe('synchronize', () => {
           }),
         ),
       )
-      await allPromises(comment => comment.markAsDeleted(), deletedComments)
+      await database.batch(...deletedComments.map(comment => comment.prepareMarkAsDeleted()))
     })
 
     // remote changes
