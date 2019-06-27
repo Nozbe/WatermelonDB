@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
-## ⚠️ Breaking
+### ⚠️ Breaking
 
 - [Database] It is now mandatory to pass `actionsEnabled:` option to Database constructor.
      It is recommended that you enable this option:
@@ -22,7 +22,7 @@ All notable changes to this project will be documented in this file.
 - [Adapters] `migrationsExperimental` prop of `SQLiteAdapter` and `LokiJSAdapter` has been renamed
     to `migrations`.
 
-### Changes
+### New features
 - [Actions] You can now batch deletes by using `prepareMarkAsDeleted` or `prepareDestroyPermanently`
 - [Sync] Performance: `synchronize()` no longer calls your `pushChanges()` function if there are no
     local changes to push. This is meant to save unnecessary network bandwidth. ⚠️ Note that this
@@ -34,6 +34,9 @@ All notable changes to this project will be documented in this file.
     `@nozbe/watermelondb/Model/index` and call if with `(false)` to bring the old behavior back, but
     this will be removed in the later version -- create a new issue explaining why you need this
 - [Sync] Small perf improvements
+
+### Improvements
+- [Typescript] Improved types for SQLite and LokiJS adapters, migrations, models, the database and the logger.
 
 ## 0.12.3 - 2019-05-06
 
