@@ -1,10 +1,12 @@
 // @flow
 
+import { all, values, pipe } from 'rambdax'
+
 import { logError, invariant } from '../../utils/common'
 
 import type { Model, Collection, Database } from '../..'
 import { type RawRecord, type DirtyRaw, sanitizedRaw } from '../../RawRecord'
-import type { SyncLog } from '../index'
+import type { SyncLog, SyncDatabaseChangeSet } from '../index'
 
 // Returns raw record with naive solution to a conflict based on local `_changed` field
 // This is a per-column resolution algorithm. All columns that were changed locally win
@@ -98,3 +100,8 @@ export function ensureSameDatabase(database: Database, initialResetCount: number
     `[Sync] Sync aborted because database was reset`,
   )
 }
+
+export const isChangeSetEmpty: SyncDatabaseChangeSet => boolean = pipe(
+  values,
+  all(({ created, updated, deleted }) => created.length + updated.length + deleted.length === 0),
+)

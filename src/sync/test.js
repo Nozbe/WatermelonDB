@@ -14,7 +14,7 @@ import {
   applyRemoteChanges,
   getLastPulledAt,
 } from './impl'
-import { resolveConflict } from './impl/helpers'
+import { resolveConflict, isChangeSetEmpty } from './impl/helpers'
 
 describe('Conflict resolution', () => {
   it('can resolve per-column conflicts', () => {
@@ -252,6 +252,36 @@ describe('hasUnsyncedChanges', () => {
     const { database } = mockDatabase({ actionsEnabled: false })
 
     await expectToRejectWithMessage(hasUnsyncedChanges({ database }), /actions must be enabled/i)
+  })
+})
+
+describe('isChangeSetEmpty', () => {
+  it('empty changeset is empty', () => {
+    expect(isChangeSetEmpty(emptyChangeSet)).toBe(true)
+    expect(isChangeSetEmpty({})).toBe(true)
+  })
+  it('just one change is enough to dirty the changeset', () => {
+    expect(
+      isChangeSetEmpty(
+        makeChangeSet({
+          mock_projects: { created: [{ id: 'foo' }] },
+        }),
+      ),
+    ).toBe(false)
+    expect(
+      isChangeSetEmpty(
+        makeChangeSet({
+          mock_tasks: { updated: [{ id: 'foo' }] },
+        }),
+      ),
+    ).toBe(false)
+    expect(
+      isChangeSetEmpty(
+        makeChangeSet({
+          mock_comments: { deleted: ['foo'] },
+        }),
+      ),
+    ).toBe(false)
   })
 })
 
