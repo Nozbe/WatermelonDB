@@ -73,7 +73,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   log?: SyncLog,
 ): T[] {
   const { database, table } = collection
-  const { created, updated, records, locallyDeletedIds } = recordsToApply
+  const { created, updated, recordsToDestroy: deleted, records, locallyDeletedIds } = recordsToApply
 
   // if `sendCreatedAsUpdated`, server should send all non-deleted records as `updated`
   // log error if it doesn't — but disable standard created vs updated errors
@@ -130,8 +130,10 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
     return prepareCreateFromRaw(collection, raw)
   }, updated)
 
+  const recordsToDestroy = piped(deleted, map(record => record.prepareDestroyPermanently()))
+
   // $FlowFixMe
-  return [...recordsToInsert, ...filter(Boolean, recordsToUpdate)]
+  return [...recordsToInsert, ...filter(Boolean, recordsToUpdate), ...recordsToDestroy]
 }
 
 type AllRecordsToApply = { [TableName<any>]: RecordsToApplyRemoteChangesTo<Model> }
@@ -147,12 +149,6 @@ const getAllRecordsToApply = (
     ),
     promiseAllObject,
   )
-
-const getAllRecordsToDestroy: AllRecordsToApply => Model[] = pipe(
-  values,
-  map(({ recordsToDestroy }) => recordsToDestroy),
-  unnest,
-)
 
 const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> =>
   piped(
@@ -210,8 +206,6 @@ const unsafeBatchesWithRecordsToApply = (
     unnest,
   )
 
-const destroyPermanently = record => record.destroyPermanently()
-
 export default function applyRemoteChanges(
   db: Database,
   remoteChanges: SyncDatabaseChangeSet,
@@ -225,7 +219,6 @@ export default function applyRemoteChanges(
 
     // Perform steps concurrently
     await Promise.all([
-      allPromises(destroyPermanently, getAllRecordsToDestroy(recordsToApply)),
       destroyAllDeletedRecords(db, recordsToApply),
       ...(_unsafeBatchPerCollection
         ? unsafeBatchesWithRecordsToApply(db, recordsToApply, sendCreatedAsUpdated, log)

@@ -33,6 +33,7 @@ All notable changes to this project will be documented in this file.
     behavior. For now you can import `experimentalSetOnlyMarkAsChangedIfDiffers` from
     `@nozbe/watermelondb/Model/index` and call if with `(false)` to bring the old behavior back, but
     this will be removed in the later version -- create a new issue explaining why you need this
+- [Sync] Small perf improvements
 
 ## 0.12.3 - 2019-05-06
 
