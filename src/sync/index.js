@@ -62,6 +62,8 @@ export async function synchronize({
   const resetCount = database._resetCount
   log && (log.startedAt = new Date())
 
+  // TODO: Wrap the three computionally intensive phases in `requestIdleCallback`
+
   // pull phase
   const lastPulledAt = await getLastPulledAt(database)
   log && (log.lastPulledAt = lastPulledAt)
