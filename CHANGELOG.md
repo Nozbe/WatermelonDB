@@ -24,6 +24,9 @@ All notable changes to this project will be documented in this file.
 
 ### Changes
 - [Actions] You can now batch deletes by using `prepareMarkAsDeleted` or `prepareDestroyPermanently`
+- [Sync] Performance: `synchronize()` no longer calls your `pushChanges()` function if there are no
+    local changes to push. This is meant to save unnecessary network bandwidth. ⚠️ Note that this
+    could be a breaking change if you rely on it always being called
 
 ## 0.12.3 - 2019-05-06
 
