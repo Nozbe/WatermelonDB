@@ -1,7 +1,7 @@
 import { change, times, map, length } from 'rambdax'
 import { skip as skip$ } from 'rxjs/operators'
 import clone from 'lodash.clonedeep'
-import { noop, allPromises } from '../utils/fp'
+import { noop } from '../utils/fp'
 import { randomId } from '../utils/common'
 import { mockDatabase } from '../__tests__/testModels'
 import { expectToRejectWithMessage } from '../__tests__/utils'
@@ -247,6 +247,11 @@ describe('hasUnsyncedChanges', () => {
     await database.action(() => record.markAsDeleted())
 
     expect(await hasUnsyncedChanges({ database })).toBe(true)
+  })
+  it('aborts if actions are not enabled', async () => {
+    const { database } = mockDatabase({ actionsEnabled: false })
+
+    await expectToRejectWithMessage(hasUnsyncedChanges({ database }), /actions must be enabled/i)
   })
 })
 

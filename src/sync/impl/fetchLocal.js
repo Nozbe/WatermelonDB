@@ -69,13 +69,17 @@ export default function fetchLocalChanges(db: Database): Promise<SyncLocalChange
   }, 'sync-fetchLocalChanges')
 }
 
-export async function hasUnsyncedChanges(db: Database): Promise<boolean> {
-  const collections = values(db.collections.map)
-  const hasUnsynced = async collection => {
-    const changes = await collection.query(notSyncedQuery).fetchCount()
-    const deleted = await db.adapter.getDeletedRecords(collection.table)
-    return changes + deleted.length > 0
-  }
-  const unsyncedFlags = await allPromises(hasUnsynced, collections)
-  return any(identity, unsyncedFlags)
+export function hasUnsyncedChanges(db: Database): Promise<boolean> {
+  ensureActionsEnabled(db)
+  // action is necessary to ensure other code doesn't make changes under our nose
+  return db.action(async () => {
+    const collections = values(db.collections.map)
+    const hasUnsynced = async collection => {
+      const changes = await collection.query(notSyncedQuery).fetchCount()
+      const deleted = await db.adapter.getDeletedRecords(collection.table)
+      return changes + deleted.length > 0
+    }
+    const unsyncedFlags = await allPromises(hasUnsynced, collections)
+    return any(identity, unsyncedFlags)
+  }, 'sync-hasUnsyncedChanges')
 }
