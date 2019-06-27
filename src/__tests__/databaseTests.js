@@ -314,6 +314,18 @@ export const matchTests = [
     ],
   },
   {
+    name: 'match notLike (string)',
+    query: [Q.where('text1', Q.notLike('%ipsum%'))],
+    nonMatching: [
+      { id: 'm1', text1: 'Lorem ipsum dolor sit amet,' },
+      { id: 'm2', text1: 'Lorem Ipsum dolor sit amet,' },
+    ],
+    matching: [
+      { id: 'n1', text1: 'consectetur adipiscing elit.' },
+      { id: 'n2', text1: null },
+    ],
+  },
+  {
     name: 'match like (value%)',
     query: [Q.where('text1', Q.like('Lorem%'))],
     matching: [
@@ -327,12 +339,39 @@ export const matchTests = [
     ],
   },
   {
+    name: 'match notLike (value%)',
+    query: [Q.where('text1', Q.notLike('Lorem%'))],
+    nonMatching: [
+      { id: 'm1', text1: 'Lorem Ipsum dolor sit amet,' },
+    ],
+    matching: [
+      { id: 'n1', text1: 'consectetur adipiscing elit.' },
+      { id: 'n2', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
+      { id: 'n3', text1: 'Integer accumsan tincidunt velit, eu fermentum lorem mollis at.' },
+      { id: 'n4', text1: null },
+    ],
+  },
+  {
     name: 'match like (%value)',
     query: [Q.where('text1', Q.like('%Lorem'))],
     matching: [
       { id: 'm1', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem' },
     ],
     nonMatching: [
+      { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },
+      { id: 'n2', text1: 'consectetur adipiscing elit.' },
+      { id: 'n3', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
+      { id: 'n4', text1: 'Integer accumsan tincidunt velit, eu fermentum lorem mollis at.' },
+      { id: 'n5', text1: null },
+    ],
+  },
+  {
+    name: 'match notLike (%value)',
+    query: [Q.where('text1', Q.notLike('%Lorem'))],
+    nonMatching: [
+      { id: 'm1', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem' },
+    ],
+    matching: [
       { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },
       { id: 'n2', text1: 'consectetur adipiscing elit.' },
       { id: 'n3', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
@@ -356,6 +395,21 @@ export const matchTests = [
     ],
   },
   {
+    name: 'match notLike (value%value)',
+    query: [Q.where('text1', Q.notLike('lorem%elit'))],
+    nonMatching: [
+      { id: 'm1', text1: 'Lorem Ipsum dolor sit amet, consectetur adipiscing elit' },
+    ],
+    matching: [
+      { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },
+      { id: 'n2', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem' },
+      { id: 'n3', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
+      { id: 'n4', text1: 'Integer accumsan tincidunt velit, eu fermentum lorem mollis at.' },
+      { id: 'n5', text1: 'consectetur adipiscing elit.' },
+      { id: 'n6', text1: null },
+    ],
+  },
+  {
     name: 'match like (value%value%)',
     query: [Q.where('text1', Q.like('lorem%elit%'))],
     matching: [
@@ -363,6 +417,22 @@ export const matchTests = [
       { id: 'm2', text1: 'Lorem Ipsum dolor sit amet, consectetur adipiscing elit.' },
     ],
     nonMatching: [
+      { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },
+      { id: 'n2', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem' },
+      { id: 'n3', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
+      { id: 'n4', text1: 'Integer accumsan tincidunt velit, eu fermentum lorem mollis at.' },
+      { id: 'n5', text1: 'consectetur adipiscing elit.' },
+      { id: 'n6', text1: null },
+    ],
+  },
+  {
+    name: 'match notLike (value%value%)',
+    query: [Q.where('text1', Q.notLike('lorem%elit%'))],
+    nonMatching: [
+      { id: 'm1', text1: 'Lorem Ipsum dolor sit amet, consectetur adipiscing elit' },
+      { id: 'm2', text1: 'Lorem Ipsum dolor sit amet, consectetur adipiscing elit.' },
+    ],
+    matching: [
       { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },
       { id: 'n2', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem' },
       { id: 'n3', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
@@ -389,6 +459,23 @@ export const matchTests = [
     ],
   },
   {
+    name: 'match notLike (v_lue%v_lue%)',
+    query: [Q.where('text1', Q.notLike('l_rem%e_it%'))],
+    nonMatching: [
+      { id: 'm1', text1: 'Lorem Ipsum dolor sit amet, consectetur adipiscing elit' },
+      { id: 'm2', text1: 'Lorem Ipsum dolor sit amet, consectetur adipiscing elit.' },
+      { id: 'm3', text1: 'Larem Ipsum dolor sit amet, consectetur adipiscing epit.' },
+    ],
+    matching: [
+      { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },
+      { id: 'n2', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem' },
+      { id: 'n3', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
+      { id: 'n4', text1: 'Integer accumsan tincidunt velit, eu fermentum lorem mollis at.' },
+      { id: 'n5', text1: 'consectetur adipiscing elit.' },
+      { id: 'n6', text1: null },
+    ],
+  },
+  {
     name: 'match like (_alu_)',
     query: [Q.where('text1', Q.like('_ore_'))],
     matching: [
@@ -396,6 +483,22 @@ export const matchTests = [
       { id: 'm2', text1: 'poret' },
     ],
     nonMatching: [
+      { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },
+      { id: 'n2', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem' },
+      { id: 'n3', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
+      { id: 'n4', text1: 'Integer accumsan tincidunt velit, eu fermentum lorem mollis at.' },
+      { id: 'n5', text1: 'consectetur adipiscing elit.' },
+      { id: 'n6', text1: null },
+    ],
+  },
+  {
+    name: 'match notLike (_alu_)',
+    query: [Q.where('text1', Q.notLike('_ore_'))],
+    nonMatching: [
+      { id: 'm1', text1: 'Lorem' },
+      { id: 'm2', text1: 'poret' },
+    ],
+    matching: [
       { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },
       { id: 'n2', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem' },
       { id: 'n3', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },

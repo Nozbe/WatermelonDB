@@ -102,4 +102,13 @@ describe('SQLite encodeQuery', () => {
       `select "tasks".* from "tasks" join "projects" on "projects"."id" = "tasks"."project_id" where "projects"."left_column" <= "projects"."right_column" and ("projects"."left2" > "projects"."right2" or ("projects"."left2" is not null and "projects"."right2" is null)) and "projects"."_status" is not 'deleted' and "tasks"."_status" is not 'deleted'`,
     )
   })
+  it('encodes like and notLike queries', () => {
+    const query = new Query(mockCollection, [
+      Q.where('col1', Q.like('%abc')),
+      Q.where('col2', Q.notLike('def%')),
+    ])
+    expect(encodeQuery(query)).toBe(
+      `select "tasks".* from "tasks" where "tasks"."col1" like '%abc' and "tasks"."col2" not like 'def%' and "tasks"."_status" is not 'deleted'`,
+    )
+  })
 })

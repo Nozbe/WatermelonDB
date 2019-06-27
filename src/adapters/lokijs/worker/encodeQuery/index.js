@@ -23,6 +23,7 @@ import zip from '../../../../utils/fp/zip'
 import cond from '../../../../utils/fp/cond'
 import invariant from '../../../../utils/common/invariant'
 import likeToRegexp from '../../../../utils/fp/likeToRegexp'
+import notLikeToRegexp from '../../../../utils/fp/notLikeToRegexp';
 
 import type { AssociationArgs, SerializedQuery } from '../../../../Query'
 import type {
@@ -98,6 +99,16 @@ const like: OperatorFunction = value => {
   return {}
 }
 
+const notLike: OperatorFunction = value => {
+  if (typeof value === 'string') {
+    return {
+      $regex: notLikeToRegexp(value),
+    }
+  }
+
+  return {}
+}
+
 const operators: { [Operator]: OperatorFunction } = {
   eq: objOf('$aeq'),
   notEq: weakNotEqual,
@@ -110,6 +121,7 @@ const operators: { [Operator]: OperatorFunction } = {
   notIn: noNullComparisons(objOf('$nin')),
   between: objOf('$between'),
   like,
+  notLike,
 }
 
 const encodeComparison: Comparison => LokiRawQuery = ({ operator, right }) =>
