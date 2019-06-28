@@ -38,7 +38,7 @@ export async function fetchChildren(model: Model): Promise<Model[]> {
   })
 
   const results = await Promise.all(promises)
-  let allChildren = []
-  results.forEach(res => {allChildren = allChildren.concat(res)})
-  return allChildren
+  let descendants = []
+  results.forEach(res => {descendants = [...descendants, ...res]})
+  return descendants
 }
