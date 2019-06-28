@@ -27,13 +27,14 @@ export async function fetchChildren(model: Model): Promise<Model[]> {
   const childrenKeys = Object.keys(associations).filter(key => associations[key].type === 'has_many')
   
   const promises = childrenKeys.map(async key => {
-    let children = await model[key].fetch()
+    const children = await model[key].fetch()
     const childrenPromises = children.map(async child => {
       return fetchChildren(child)
     })
-    const results = await Promise.all(childrenPromises)
-    results.forEach(res => {children = children.concat(res)})
-    return children
+    const grandchildren = await Promise.all(childrenPromises)
+    let result = []
+    grandchildren.forEach(elt => {result = [...result, ...elt]})
+    return [...result, ...children]
   })
 
   const results = await Promise.all(promises)
