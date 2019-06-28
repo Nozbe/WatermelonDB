@@ -169,11 +169,11 @@ export default class Model {
     await this.collection.database.batch(this.prepareDestroyPermanently())
   }
 
-  async experimental_markAsDeleted(): Promise<void> {
+  async experimentalMarkAsDeleted(): Promise<void> {
     this.collection.database._ensureInAction(
       `Model.experimental_markAsDeleted() can only be called from inside of an Action. See docs for more details.`,
     )
-    var toDelete = await fetchChildren(this)
+    const toDelete = await fetchChildren(this)
     toDelete.push(this)
     toDelete.forEach(model => {
       model.prepareMarkAsDeleted()
@@ -181,11 +181,11 @@ export default class Model {
     await this.collection.database.batch(toDelete)
   }
 
-  async experimental_destroyPermanently(): Promise<void> {
+  async experimentalDestroyPermanently(): Promise<void> {
     this.collection.database._ensureInAction(
       `Model.experimental_destroyPermanently() can only be called from inside of an Action. See docs for more details.`,
     )
-    var toDestroy = await fetchChildren(this)
+    const toDestroy = await fetchChildren(this)
     toDestroy.push(this)
     toDestroy.forEach(model => {
       model.prepareDestroyPermanently()
