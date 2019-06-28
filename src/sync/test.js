@@ -1,7 +1,7 @@
 import { change, times, map, length } from 'rambdax'
 import { skip as skip$ } from 'rxjs/operators'
 import clone from 'lodash.clonedeep'
-import { noop, allPromises } from '../utils/fp'
+import { noop } from '../utils/fp'
 import { randomId } from '../utils/common'
 import { mockDatabase } from '../__tests__/testModels'
 import { expectToRejectWithMessage } from '../__tests__/utils'
@@ -14,7 +14,7 @@ import {
   applyRemoteChanges,
   getLastPulledAt,
 } from './impl'
-import { resolveConflict } from './impl/helpers'
+import { resolveConflict, isChangeSetEmpty } from './impl/helpers'
 
 describe('Conflict resolution', () => {
   it('can resolve per-column conflicts', () => {
@@ -247,6 +247,41 @@ describe('hasUnsyncedChanges', () => {
     await database.action(() => record.markAsDeleted())
 
     expect(await hasUnsyncedChanges({ database })).toBe(true)
+  })
+  it('aborts if actions are not enabled', async () => {
+    const { database } = mockDatabase({ actionsEnabled: false })
+
+    await expectToRejectWithMessage(hasUnsyncedChanges({ database }), /actions must be enabled/i)
+  })
+})
+
+describe('isChangeSetEmpty', () => {
+  it('empty changeset is empty', () => {
+    expect(isChangeSetEmpty(emptyChangeSet)).toBe(true)
+    expect(isChangeSetEmpty({})).toBe(true)
+  })
+  it('just one change is enough to dirty the changeset', () => {
+    expect(
+      isChangeSetEmpty(
+        makeChangeSet({
+          mock_projects: { created: [{ id: 'foo' }] },
+        }),
+      ),
+    ).toBe(false)
+    expect(
+      isChangeSetEmpty(
+        makeChangeSet({
+          mock_tasks: { updated: [{ id: 'foo' }] },
+        }),
+      ),
+    ).toBe(false)
+    expect(
+      isChangeSetEmpty(
+        makeChangeSet({
+          mock_comments: { deleted: ['foo'] },
+        }),
+      ),
+    ).toBe(false)
   })
 })
 
@@ -609,15 +644,20 @@ describe('synchronize', () => {
     const observer = observeDatabase(database)
 
     const pullChanges = jest.fn(emptyPull())
-    const pushChanges = jest.fn()
 
-    await synchronize({ database, pullChanges, pushChanges })
+    await synchronize({ database, pullChanges, pushChanges: jest.fn() })
 
     expect(observer).toHaveBeenCalledTimes(0)
     expect(pullChanges).toHaveBeenCalledTimes(1)
     expect(pullChanges).toHaveBeenCalledWith({ lastPulledAt: null })
-    expect(pushChanges).toHaveBeenCalledTimes(1)
-    expect(pushChanges).toHaveBeenCalledWith({ changes: emptyChangeSet, lastPulledAt: 1500 })
+  })
+  it(`doesn't push changes if nothing to push`, async () => {
+    const { database } = makeDatabase()
+
+    const pushChanges = jest.fn()
+    await synchronize({ database, pullChanges: jest.fn(emptyPull()), pushChanges })
+
+    expect(pushChanges).toHaveBeenCalledTimes(0)
   })
   it('can log basic information about a sync', async () => {
     const { database } = makeDatabase()
@@ -632,9 +672,7 @@ describe('synchronize', () => {
     expect(log.lastPulledAt).toBe(null)
     expect(log.newLastPulledAt).toBe(1500)
   })
-  it.skip(`doesn't push changes if nothing to push`, async () => {
-    // TODO: Future optimization
-  })
+
   it('can push changes', async () => {
     const { database } = makeDatabase()
 
@@ -663,12 +701,10 @@ describe('synchronize', () => {
       }),
       timestamp: 1500,
     }))
-    const pushChanges = jest.fn(async () => {})
 
-    await synchronize({ database, pullChanges, pushChanges })
+    await synchronize({ database, pullChanges, pushChanges: jest.fn() })
 
     expect(pullChanges).toHaveBeenCalledWith({ lastPulledAt: null })
-    expect(pushChanges).toHaveBeenCalledWith({ changes: emptyChangeSet, lastPulledAt: 1500 })
 
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
     await expectSyncedAndMatches(projects, 'new_project', { name: 'remote' })
@@ -704,7 +740,7 @@ describe('synchronize', () => {
       }),
       timestamp: 1500,
     })
-    const pushChanges = jest.fn(async () => {})
+    const pushChanges = jest.fn()
 
     const log = {}
     await synchronize({ database, pullChanges, pushChanges, log })
@@ -795,6 +831,8 @@ describe('synchronize', () => {
   })
   it('can recover from pull failure', async () => {
     const { database } = makeDatabase()
+    // make change to make sure pushChagnes isn't called because of pull failure and not lack of changes
+    await makeLocalChanges(database)
 
     const observer = observeDatabase(database)
     const pullChanges = jest.fn(() => Promise.reject(new Error('pull-fail')))
@@ -944,7 +982,7 @@ describe('synchronize', () => {
           }),
         ),
       )
-      await allPromises(comment => comment.markAsDeleted(), deletedComments)
+      await database.batch(...deletedComments.map(comment => comment.prepareMarkAsDeleted()))
     })
 
     // remote changes
@@ -962,7 +1000,12 @@ describe('synchronize', () => {
     const pushChanges = jest.fn()
 
     // check
-    await synchronize({ database, pullChanges, pushChanges })
+    // TODO: Remove the flag -- temporarily taking over this test to test _unsafeBatchPerCollection
+    await synchronize({ database, pullChanges, pushChanges, _unsafeBatchPerCollection: true })
+
+    expect(await projects.query().fetchCount()).toBe(sample) // local
+    expect(await tasks.query().fetchCount()).toBe(sample + sample) // local + remote
+    expect(await comments.query().fetchCount()).toBe(0) // all deleted
 
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
     expect(await hasUnsyncedChanges({ database })).toBe(false)
@@ -1009,6 +1052,7 @@ describe('synchronize', () => {
   })
   it('aborts if database is cleared during sync — different case', async () => {
     const { database, projects } = makeDatabase()
+    await makeLocalChanges(database) // make changes so pushChanges is called
     await expectToRejectWithMessage(
       synchronize({
         database,
