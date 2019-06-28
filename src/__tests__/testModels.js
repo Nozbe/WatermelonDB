@@ -40,7 +40,7 @@ export class MockProject extends Model {
   name
 
   static associations = {
-    mock_tasks: { type: 'has_many', foreignKey: 'parent_id' },
+    mock_tasks: { type: 'has_many', foreignKey: 'project_id' },
   }
 
   @children('mock_tasks') mock_tasks
