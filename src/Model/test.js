@@ -1,6 +1,7 @@
 /* eslint no-multi-spaces: 0 */
 
 import { mergeMap } from 'rxjs/operators'
+import { mockDatabase } from '../__tests__/testModels'
 import { makeScheduler, expectToRejectWithMessage } from '../__tests__/utils'
 
 import Database from '../Database'
@@ -207,6 +208,38 @@ describe('CRUD', () => {
 
     expect(nextObserver).toHaveBeenCalledTimes(1)
     expect(completionObserver).toHaveBeenCalledTimes(1)
+  })
+  it.only('can destroy a record and its children permanently', async () => {
+    const { database, projects, tasks, comments } = mockDatabase()
+
+    const project = await projects.create(mock => {
+      mock.name = 'foo'
+    })
+
+    const task = await tasks.create(mock => {
+      mock.projectId = project.id
+    })
+  
+    console.log('project[mock_tasks]', await project.mock_tasks.fetch())
+
+    const comment = await comments.create(mock => {
+      mock.taskId = task.id
+    })
+
+    database.adapter.batch = jest.fn()
+    const spyBatchDB = jest.spyOn(database, 'batch')
+
+    const spyOnPrepareDestroyPermanentlyProject = jest.spyOn(project, 'prepareDestroyPermanently')
+    const spyOnPrepareDestroyPermanentlyTask = jest.spyOn(task, 'prepareDestroyPermanently')
+    const spyOnPrepareDestroyPermanentlyComment = jest.spyOn(comment, 'prepareDestroyPermanently')
+
+    await project.experimentalDestroyPermanently()
+
+    expect(spyOnPrepareDestroyPermanentlyProject).toHaveBeenCalledTimes(1)
+    expect(spyOnPrepareDestroyPermanentlyTask).toHaveBeenCalledTimes(1)
+    expect(spyOnPrepareDestroyPermanentlyComment).toHaveBeenCalledTimes(1)
+
+    expect(spyBatchDB).toHaveBeenCalledWith(project)
   })
 })
 

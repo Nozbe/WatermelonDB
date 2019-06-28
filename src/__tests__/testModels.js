@@ -1,5 +1,5 @@
 import { appSchema, tableSchema } from '../Schema'
-import { field, relation, immutableRelation, text, readonly, date } from '../decorators'
+import { field, relation, immutableRelation, text, readonly, date, children } from '../decorators'
 import Model from '../Model'
 import Database from '../Database'
 import LokiJSAdapter from '../adapters/lokijs'
@@ -38,6 +38,12 @@ export class MockProject extends Model {
 
   @field('name')
   name
+
+  static associations = {
+    mock_tasks: { type: 'has_many', foreignKey: 'parent_id' },
+  }
+
+  @children('mock_tasks') mock_tasks
 }
 
 export class MockTask extends Model {
@@ -54,10 +60,19 @@ export class MockTask extends Model {
   @field('project_id') projectId
 
   @relation('mock_projects', 'project_id') project
+
+  static associations = {
+    mock_projects: { type: 'belongs_to', key: 'project_id' },
+    mock_comments: { type: 'has_many', foreignKey: 'task_id' },
+  }
+
+  @children('mock_comments') mock_comments
 }
 
 export class MockComment extends Model {
   static table = 'mock_comments'
+
+  @field('task_id') taskId
 
   @immutableRelation('mock_tasks', 'task_id')
   task
@@ -72,6 +87,10 @@ export class MockComment extends Model {
   @readonly
   @date('updated_at')
   updatedAt
+
+  static associations = {
+    mock_tasks: { type: 'belongs_to', key: 'task_id' },
+  }
 }
 
 export const mockDatabase = ({ actionsEnabled = false } = {}) => {
