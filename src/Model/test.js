@@ -209,7 +209,7 @@ describe('CRUD', () => {
     expect(nextObserver).toHaveBeenCalledTimes(1)
     expect(completionObserver).toHaveBeenCalledTimes(1)
   })
-  it.only('can destroy a record and its children permanently', async () => {
+  it('can destroy a record and its children permanently', async () => {
     const { database, projects, tasks, comments } = mockDatabase()
 
     const project = await projects.create(mock => {
@@ -236,6 +236,36 @@ describe('CRUD', () => {
     expect(spyOnPrepareDestroyPermanentlyProject).toHaveBeenCalledTimes(1)
     expect(spyOnPrepareDestroyPermanentlyTask).toHaveBeenCalledTimes(1)
     expect(spyOnPrepareDestroyPermanentlyComment).toHaveBeenCalledTimes(1)
+
+    expect(spyBatchDB).toHaveBeenCalledWith(comment, task, project)
+  })
+  it('can mark as deleted record and its children permanently', async () => {
+    const { database, projects, tasks, comments } = mockDatabase()
+
+    const project = await projects.create(mock => {
+      mock.name = 'foo'
+    })
+
+    const task = await tasks.create(mock => {
+      mock.projectId = project.id
+    })
+
+    const comment = await comments.create(mock => {
+      mock.taskId = task.id
+    })
+
+    database.adapter.batch = jest.fn()
+    const spyBatchDB = jest.spyOn(database, 'batch')
+
+    const spyOnPrepareMarkAsDeletedProject = jest.spyOn(project, 'prepareMarkAsDeleted')
+    const spyOnPrepareMarkAsDeletedTask = jest.spyOn(task, 'prepareMarkAsDeleted')
+    const spyOnPrepareMarkAsDeletedComment = jest.spyOn(comment, 'prepareMarkAsDeleted')
+
+    await project.experimentalMarkAsDeleted()
+
+    expect(spyOnPrepareMarkAsDeletedProject).toHaveBeenCalledTimes(1)
+    expect(spyOnPrepareMarkAsDeletedTask).toHaveBeenCalledTimes(1)
+    expect(spyOnPrepareMarkAsDeletedComment).toHaveBeenCalledTimes(1)
 
     expect(spyBatchDB).toHaveBeenCalledWith(comment, task, project)
   })
