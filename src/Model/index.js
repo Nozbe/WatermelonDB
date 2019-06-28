@@ -173,24 +173,18 @@ export default class Model {
     this.collection.database._ensureInAction(
       `Model.experimental_markAsDeleted() can only be called from inside of an Action. See docs for more details.`,
     )
-    const toDelete = await fetchChildren(this)
-    toDelete.push(this)
-    toDelete.forEach(model => {
-      model.prepareMarkAsDeleted()
-    })
-    await this.collection.database.batch(toDelete)
+    const children = await fetchChildren(this)
+    children.forEach(model => model.prepareMarkAsDeleted())
+    await this.collection.database.batch(...children, this.prepareMarkAsDeleted())
   }
 
   async experimentalDestroyPermanently(): Promise<void> {
     this.collection.database._ensureInAction(
       `Model.experimental_destroyPermanently() can only be called from inside of an Action. See docs for more details.`,
     )
-    const toDestroy = await fetchChildren(this)
-    toDestroy.push(this)
-    toDestroy.forEach(model => {
-      model.prepareDestroyPermanently()
-    })
-    await this.collection.database.batch(toDestroy)
+    const children = await fetchChildren(this)
+    children.forEach(model => model.prepareDestroyPermanently())
+    await this.collection.database.batch(...children, this.prepareDestroyPermanently())
   }
 
   // *** Observing changes ***
