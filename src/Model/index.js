@@ -20,7 +20,7 @@ import type { Value } from '../QueryDescription'
 import { type RawRecord, sanitizedRaw, setRawSanitized } from '../RawRecord'
 import { setRawColumnChange } from '../sync/helpers'
 
-import { createTimestampsFor, hasUpdatedAt } from './helpers'
+import { createTimestampsFor, hasUpdatedAt, fetchChildren } from './helpers'
 
 export type RecordId = string
 
@@ -167,6 +167,30 @@ export default class Model {
       `Model.destroyPermanently() can only be called from inside of an Action. See docs for more details.`,
     )
     await this.collection.database.batch(this.prepareDestroyPermanently())
+  }
+
+  async experimental_markAsDeleted(): Promise<void> {
+    this.collection.database._ensureInAction(
+      `Model.experimental_markAsDeleted() can only be called from inside of an Action. See docs for more details.`,
+    )
+    var toDelete = await fetchChildren(this)
+    toDelete.push(this)
+    toDelete.forEach(model => {
+      model.prepareMarkAsDeleted()
+    })
+    await this.collection.database.batch(toDelete)
+  }
+
+  async experimental_destroyPermanently(): Promise<void> {
+    this.collection.database._ensureInAction(
+      `Model.experimental_destroyPermanently() can only be called from inside of an Action. See docs for more details.`,
+    )
+    var toDestroy = await fetchChildren(this)
+    toDestroy.push(this)
+    toDestroy.forEach(model => {
+      model.prepareDestroyPermanently()
+    })
+    await this.collection.database.batch(toDestroy)
   }
 
   // *** Observing changes ***
