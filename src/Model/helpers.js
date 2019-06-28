@@ -22,22 +22,22 @@ export const createTimestampsFor = (model: Model) => {
   return timestamps
 }
 
-export async function fetchChildren(model: Model) {
-  const associations = model.collection.modelClass.associations
+export async function fetchChildren(model: Model): Promise<Model[]> {
+  const { associations } = model.collection.modelClass
   const childrenKeys = Object.keys(associations).filter(key => associations[key].type === 'has_many')
   
   const promises = childrenKeys.map(async key => {
-    var children = await model[key].fetch()
-    const promises = children.map(async child => {
-      return await fetchChildren(child)
+    let children = await model[key].fetch()
+    const childrenPromises = children.map(async child => {
+      return fetchChildren(child)
     })
-    const results = await Promise.all(promises)
-    results.forEach(res => children = children.concat(res))
+    const results = await Promise.all(childrenPromises)
+    results.forEach(res => {children = children.concat(res)})
     return children
   })
 
   const results = await Promise.all(promises)
-  var allChildren = []
-  results.forEach(res => allChildren = allChildren.concat(res))
+  let allChildren = []
+  results.forEach(res => {allChildren = allChildren.concat(res)})
   return allChildren
 }
