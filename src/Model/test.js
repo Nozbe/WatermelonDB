@@ -219,8 +219,6 @@ describe('CRUD', () => {
     const task = await tasks.create(mock => {
       mock.projectId = project.id
     })
-  
-    console.log('project[mock_tasks]', await project.mock_tasks.fetch())
 
     const comment = await comments.create(mock => {
       mock.taskId = task.id
@@ -239,7 +237,7 @@ describe('CRUD', () => {
     expect(spyOnPrepareDestroyPermanentlyTask).toHaveBeenCalledTimes(1)
     expect(spyOnPrepareDestroyPermanentlyComment).toHaveBeenCalledTimes(1)
 
-    expect(spyBatchDB).toHaveBeenCalledWith(project)
+    expect(spyBatchDB).toHaveBeenCalledWith(comment, task, project)
   })
 })
 
