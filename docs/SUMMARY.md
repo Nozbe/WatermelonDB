@@ -39,3 +39,5 @@
 
 - [Other](./ch04-00-deeper.md)
     - [Roadmap](./Roadmap.md)
+    - [Contributing](./CONTRIBUTING.md)
+    - [Changelog](./CHANGELOG.md)
