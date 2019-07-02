@@ -4,6 +4,7 @@
 import { contains } from 'rambdax'
 import { gt, gte, lt, lte, complement } from '../../utils/fp'
 import likeToRegexp from '../../utils/fp/likeToRegexp'
+import notLikeToRegexp from '../../utils/fp/notLikeToRegexp'
 
 import type { Value, CompoundValue, Operator } from '../../QueryDescription'
 
@@ -33,6 +34,12 @@ export const like: OperatorFunction = (left, right) => {
   return likeToRegexp(right).test(leftV)
 }
 
+export const notLike: OperatorFunction = (left, right) => {
+  const leftV = handleLikeValue(left, '')
+
+  return notLikeToRegexp(right).test(leftV)
+}
+
 const operators: { [Operator]: OperatorFunction } = {
   eq: rawFieldEquals,
   notEq: complement(rawFieldEquals),
@@ -45,6 +52,7 @@ const operators: { [Operator]: OperatorFunction } = {
   notIn: noNullComparisons(complement(contains)),
   between,
   like,
+  notLike,
 }
 
 export default operators

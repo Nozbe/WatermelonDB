@@ -343,11 +343,11 @@ export const matchTests = [
     query: [Q.where('text1', Q.notLike('Lorem%'))],
     nonMatching: [
       { id: 'm1', text1: 'Lorem Ipsum dolor sit amet,' },
+      { id: 'n2', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
+      { id: 'n3', text1: 'Integer accumsan tincidunt velit, eu fermentum lorem mollis at.' },
     ],
     matching: [
       { id: 'n1', text1: 'consectetur adipiscing elit.' },
-      { id: 'n2', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
-      { id: 'n3', text1: 'Integer accumsan tincidunt velit, eu fermentum lorem mollis at.' },
       { id: 'n4', text1: null },
     ],
   },
@@ -370,12 +370,12 @@ export const matchTests = [
     query: [Q.where('text1', Q.notLike('%Lorem'))],
     nonMatching: [
       { id: 'm1', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem' },
-    ],
-    matching: [
       { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },
-      { id: 'n2', text1: 'consectetur adipiscing elit.' },
       { id: 'n3', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
       { id: 'n4', text1: 'Integer accumsan tincidunt velit, eu fermentum lorem mollis at.' },
+    ],
+    matching: [
+      { id: 'n2', text1: 'consectetur adipiscing elit.' },
       { id: 'n5', text1: null },
     ],
   },
@@ -483,22 +483,6 @@ export const matchTests = [
       { id: 'm2', text1: 'poret' },
     ],
     nonMatching: [
-      { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },
-      { id: 'n2', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem' },
-      { id: 'n3', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
-      { id: 'n4', text1: 'Integer accumsan tincidunt velit, eu fermentum lorem mollis at.' },
-      { id: 'n5', text1: 'consectetur adipiscing elit.' },
-      { id: 'n6', text1: null },
-    ],
-  },
-  {
-    name: 'match notLike (_alu_)',
-    query: [Q.where('text1', Q.notLike('_ore_'))],
-    nonMatching: [
-      { id: 'm1', text1: 'Lorem' },
-      { id: 'm2', text1: 'poret' },
-    ],
-    matching: [
       { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },
       { id: 'n2', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem' },
       { id: 'n3', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
