@@ -101,7 +101,7 @@
     "concurrently": "^4.0.1",
     "eslint": "^5.3.0",
     "eslint-config-airbnb": "^17.1.0",
-    "eslint-config-prettier": "^5.0.0",
+    "eslint-config-prettier": "^6.0.0",
     "eslint-plugin-flowtype": "^3.10.4",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jest": "^22.7.2",
