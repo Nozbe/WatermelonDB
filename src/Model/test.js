@@ -217,11 +217,11 @@ describe('CRUD', () => {
     })
 
     const task = await tasks.create(mock => {
-      mock.projectId = project.id
+      mock.project.set(project)
     })
 
     const comment = await comments.create(mock => {
-      mock.taskId = task.id
+      mock.task.set(task)
     })
 
     database.adapter.batch = jest.fn()
@@ -239,6 +239,28 @@ describe('CRUD', () => {
 
     expect(spyBatchDB).toHaveBeenCalledWith(comment, task, project)
   })
+  it('can mark a record as deleted', async () => {
+    const database = makeDatabase()
+    database.adapter.batch = jest.fn()
+    const spyBatchDB = jest.spyOn(database, 'batch')
+
+    const collection = database.collections.get('mock')
+
+    const m1 = await collection.create()
+
+    const spyOnMarkAsDeleted = jest.spyOn(m1, 'prepareMarkAsDeleted')
+    const nextObserver = jest.fn()
+    const completionObserver = jest.fn()
+    m1.observe().subscribe(nextObserver, null, completionObserver)
+
+    await m1.markAsDeleted()
+
+    expect(spyBatchDB).toHaveBeenCalledWith(m1)
+    expect(spyOnMarkAsDeleted).toHaveBeenCalledTimes(1)
+
+    expect(nextObserver).toHaveBeenCalledTimes(1)
+    expect(completionObserver).toHaveBeenCalledTimes(1)
+  })
   it('can mark as deleted record and its children permanently', async () => {
     const { database, projects, tasks, comments } = mockDatabase()
 
@@ -247,11 +269,11 @@ describe('CRUD', () => {
     })
 
     const task = await tasks.create(mock => {
-      mock.projectId = project.id
+      mock.project.set(project)
     })
 
     const comment = await comments.create(mock => {
-      mock.taskId = task.id
+      mock.task.set(task)
     })
 
     database.adapter.batch = jest.fn()
