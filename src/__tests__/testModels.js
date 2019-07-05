@@ -1,5 +1,5 @@
 import { appSchema, tableSchema } from '../Schema'
-import { field, relation, immutableRelation, text, readonly, date, children } from '../decorators'
+import { field, relation, immutableRelation, text, readonly, date } from '../decorators'
 import Model from '../Model'
 import Database from '../Database'
 import LokiJSAdapter from '../adapters/lokijs'
@@ -42,8 +42,6 @@ export class MockProject extends Model {
 
   @field('name')
   name
-
-  @children('mock_tasks') mock_tasks
 }
 
 export class MockTask extends Model {
@@ -65,8 +63,6 @@ export class MockTask extends Model {
   @field('project_id') projectId
 
   @relation('mock_projects', 'project_id') project
-
-  @children('mock_comments') mock_comments
 }
 
 export class MockComment extends Model {
