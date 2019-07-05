@@ -80,11 +80,21 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
   _dbName: string
 
-  constructor({ dbName, schema, migrations }: SQLiteAdapterOptions): void {
+  constructor(options: SQLiteAdapterOptions): void {
+    const { dbName, schema, migrations } = options
     this.schema = schema
     this.migrations = migrations
     this._dbName = this._getName(dbName)
     isDevelopment && validateAdapter(this)
+
+    if (process.env.NODE_ENV !== 'production') {
+      invariant(
+        // $FlowFixMe
+        options.migrationsExperimental === undefined,
+        'SQLiteAdapter migrationsExperimental has been renamed to migrations',
+      )
+      validateAdapter(this)
+    }
 
     devLogSetUp(() => this._init())
   }

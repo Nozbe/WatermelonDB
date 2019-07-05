@@ -6,12 +6,12 @@ import {
   map,
   contains,
   values,
-  pipe,
   filter,
   find,
   piped,
+  splitEvery,
 } from 'rambdax'
-import { allPromises, unnest } from '../../utils/fp'
+import { unnest } from '../../utils/fp'
 import { logError, invariant } from '../../utils/common'
 import type { Database, RecordId, Collection, Model, TableName, DirtyRaw } from '../..'
 import * as Q from '../../QueryDescription'
@@ -72,7 +72,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   log?: SyncLog,
 ): T[] {
   const { database, table } = collection
-  const { created, updated, records, locallyDeletedIds } = recordsToApply
+  const { created, updated, recordsToDestroy: deleted, records, locallyDeletedIds } = recordsToApply
 
   // if `sendCreatedAsUpdated`, server should send all non-deleted records as `updated`
   // log error if it doesn't — but disable standard created vs updated errors
@@ -129,8 +129,10 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
     return prepareCreateFromRaw(collection, raw)
   }, updated)
 
+  const recordsToDestroy = piped(deleted, map(record => record.prepareDestroyPermanently()))
+
   // $FlowFixMe
-  return [...recordsToInsert, ...filter(Boolean, recordsToUpdate)]
+  return [...recordsToInsert, ...filter(Boolean, recordsToUpdate), ...recordsToDestroy]
 }
 
 type AllRecordsToApply = { [TableName<any>]: RecordsToApplyRemoteChangesTo<Model> }
@@ -146,12 +148,6 @@ const getAllRecordsToApply = (
     ),
     promiseAllObject,
   )
-
-const getAllRecordsToDestroy: AllRecordsToApply => Model[] = pipe(
-  values,
-  map(({ recordsToDestroy }) => recordsToDestroy),
-  unnest,
-)
 
 const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> =>
   piped(
@@ -184,7 +180,8 @@ const prepareApplyAllRemoteChanges = (
     unnest,
   )
 
-const batchesForRecordChanges = (
+// See _unsafeBatchPerCollection - temporary fix
+const unsafeBatchesWithRecordsToApply = (
   db: Database,
   recordsToApply: AllRecordsToApply,
   sendCreatedAsUpdated: boolean,
@@ -193,19 +190,20 @@ const batchesForRecordChanges = (
   piped(
     recordsToApply,
     map((records, tableName: TableName<any>) =>
-      db.batch(
-        ...prepareApplyRemoteChangesToCollection(
+      piped(
+        prepareApplyRemoteChangesToCollection(
           db.collections.get((tableName: any)),
           records,
           sendCreatedAsUpdated,
           log,
         ),
+        splitEvery(5000),
+        map(recordBatch => db.batch(...recordBatch)),
       ),
     ),
     values,
+    unnest,
   )
-
-const destroyPermanently = record => record.destroyPermanently()
 
 export default function applyRemoteChanges(
   db: Database,
@@ -220,10 +218,9 @@ export default function applyRemoteChanges(
 
     // Perform steps concurrently
     await Promise.all([
-      allPromises(destroyPermanently, getAllRecordsToDestroy(recordsToApply)),
       destroyAllDeletedRecords(db, recordsToApply),
       ...(_unsafeBatchPerCollection
-        ? batchesForRecordChanges(db, recordsToApply, sendCreatedAsUpdated, log)
+        ? unsafeBatchesWithRecordsToApply(db, recordsToApply, sendCreatedAsUpdated, log)
         : [
             db.batch(
               ...prepareApplyAllRemoteChanges(db, recordsToApply, sendCreatedAsUpdated, log),

@@ -2,7 +2,7 @@
 
 import type { LokiMemoryAdapter } from 'lokijs'
 import { map } from 'rambdax'
-import { isDevelopment } from '../../utils/common'
+import { invariant } from '../../utils/common'
 
 import type Model, { RecordId } from '../../Model'
 import type { TableName, AppSchema } from '../../Schema'
@@ -56,7 +56,14 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     this.schema = schema
     this.migrations = migrations
     this._dbName = dbName
-    isDevelopment && validateAdapter(this)
+    if (process.env.NODE_ENV !== 'production') {
+      invariant(
+        // $FlowFixMe
+        options.migrationsExperimental === undefined,
+        'LokiJSAdapter migrationsExperimental has been renamed to migrations',
+      )
+      validateAdapter(this)
+    }
 
     devLogSetUp(() => this.workerBridge.send(SETUP, [options]))
   }

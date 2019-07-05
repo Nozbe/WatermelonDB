@@ -24,6 +24,16 @@ All notable changes to this project will be documented in this file.
 
 ### New features
 - [Actions] You can now batch deletes by using `prepareMarkAsDeleted` or `prepareDestroyPermanently`
+- [Sync] Performance: `synchronize()` no longer calls your `pushChanges()` function if there are no
+    local changes to push. This is meant to save unnecessary network bandwidth. ⚠️ Note that this
+    could be a breaking change if you rely on it always being called
+- [Sync] When setting new values to fields on a record, the field (and record) will no longer be
+    marked as changed if the field's value is the same. This is meant to improve performance and avoid
+    unnecessary code in the app. ⚠️ Note that this could be a breaking change if you rely on the old
+    behavior. For now you can import `experimentalSetOnlyMarkAsChangedIfDiffers` from
+    `@nozbe/watermelondb/Model/index` and call if with `(false)` to bring the old behavior back, but
+    this will be removed in the later version -- create a new issue explaining why you need this
+- [Sync] Small perf improvements
 
 ### Improvements
 - [Typescript] Improved types for SQLite and LokiJS adapters, migrations, models, the database and the logger.
@@ -32,7 +42,9 @@ All notable changes to this project will be documented in this file.
 
 ### Changes
 
-- [Database] You can now update the random id schema by importing `import { setGenerator } from '@nozbe/watermelondb/utils/common/randomId'` and then calling `setGenerator(newGenenerator)`. This allows WatermelonDB to create specific IDs for example if your backend uses UUIDs.
+- [Database] You can now update the random id schema by importing
+    `import { setGenerator } from '@nozbe/watermelondb/utils/common/randomId'` and then calling `setGenerator(newGenenerator)`.
+    This allows WatermelonDB to create specific IDs for example if your backend uses UUIDs.
 - [Typescript] Type improvements to SQLiteAdapter and Database
 - [Tests] remove cleanup for react-hooks-testing-library@0.5.0 compatibility
 
