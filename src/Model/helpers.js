@@ -24,7 +24,8 @@ export const createTimestampsFor = (model: Model) => {
 }
 
 export async function fetchChildren(model: Model): Promise<Model[]> {
-  const hasManyAssociations = Object.entries(model.constructor.associations).filter(([, value]) => value.type === 'has_many')
+  const associationsList: any = Object.entries(model.constructor.associations)
+  const hasManyAssociations = associationsList.filter(([, value]) => value.type === 'has_many')
   const childrenQueries = hasManyAssociations.map(([key, value]) => {
     const childCollection = model.collections.get(key)
     return childCollection.query(Q.where(value.foreignKey, model.id))
