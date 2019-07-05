@@ -1,6 +1,6 @@
 // @flow
 
-import hasIn from '../utils/fp/hasIn'
+import {hasIn, allPromises} from '../utils/fp'
 
 import type Model from './index'
 
@@ -23,22 +23,15 @@ export const createTimestampsFor = (model: Model) => {
 }
 
 export async function fetchChildren(model: Model): Promise<Model[]> {
-  const { associations } = model.collection.modelClass
+  const { associations } = model.constructor
   const childrenKeys = Object.keys(associations).filter(key => associations[key].type === 'has_many')
-  
-  const promises = childrenKeys.map(async key => {
-    const children = await model[key].fetch()
-    const childrenPromises = children.map(async child => {
-      return fetchChildren(child)
-    })
-    const grandchildren = await Promise.all(childrenPromises)
-    let result = []
-    grandchildren.forEach(elt => {result = [...result, ...elt]})
-    return [...result, ...children]
-  })
 
-  const results = await Promise.all(promises)
-  let descendants = []
-  results.forEach(res => {descendants = [...descendants, ...res]})
-  return descendants
+  const childPromise = async key => {
+    const children = await model[key].fetch()
+    const grandchildren = await allPromises(child => fetchChildren(child), children)
+    return Array.prototype.concat.apply([], grandchildren).concat(children)
+  }
+
+  const results = await allPromises(key => childPromise(key), childrenKeys)
+  return Array.prototype.concat.apply([], results)
 }
