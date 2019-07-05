@@ -2,6 +2,7 @@
 
 import {hasIn, allPromises} from '../utils/fp'
 
+import * as Q from '../QueryDescription'
 import type Model from './index'
 
 const hasCreatedAt = hasIn('createdAt')
@@ -23,15 +24,18 @@ export const createTimestampsFor = (model: Model) => {
 }
 
 export async function fetchChildren(model: Model): Promise<Model[]> {
-  const { associations } = model.constructor
-  const childrenKeys = Object.keys(associations).filter(key => associations[key].type === 'has_many')
+  const hasManyAssociations = Object.entries(model.constructor.associations).filter(([, value]) => value.type === 'has_many')
+  const childrenQueries = hasManyAssociations.map(([key, value]) => {
+    const childCollection = model.collections.get(key)
+    return childCollection.query(Q.where(value.foreignKey, model.id))
+  })
 
-  const childPromise = async key => {
-    const children = await model[key].fetch()
+  const childPromise = async query => {
+    const children = await query.fetch()
     const grandchildren = await allPromises(child => fetchChildren(child), children)
     return Array.prototype.concat.apply([], grandchildren).concat(children)
   }
 
-  const results = await allPromises(key => childPromise(key), childrenKeys)
+  const results = await allPromises(query => childPromise(query), childrenQueries)
   return Array.prototype.concat.apply([], results)
 }
