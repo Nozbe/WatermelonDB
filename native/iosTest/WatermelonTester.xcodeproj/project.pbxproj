@@ -682,6 +682,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -1069,7 +1070,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -d \"/Users/travis/\" ]; then\n  export NODE_BINARY=$TRAVIS_NODE_BINARY\n  FORCE_BUNDLING=1 ../../node_modules/react-native/scripts/react-native-xcode.sh \"src/index.integrationTests.native.js\"\nelse\n  export NODE_BINARY=node\n  ../../node_modules/react-native/scripts/react-native-xcode.sh \"src/index.integrationTests.native.js\"\nfi\n";
+			shellScript = "#if [ -d \"/Users/travis/\" ]; then\n#  export NODE_BINARY=$TRAVIS_NODE_BINARY\n#  FORCE_BUNDLING=1 ../../node_modules/react-native/scripts/react-native-xcode.sh \"src/index.integrationTests.native.js\"\n#else\n  export NODE_BINARY=node\n  ../../node_modules/react-native/scripts/react-native-xcode.sh \"src/index.integrationTests.native.js\"\n#fi\n";
 		};
 		06D343BB3954D17CF1201020 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
