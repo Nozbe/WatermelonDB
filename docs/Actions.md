@@ -53,7 +53,7 @@ await comment.markAsSpam()
 
 ## Batch updates
 
-Whenever you make more than one change (create or update records) in an action, you should **batch them**.
+Whenever you make more than one change (create, delete or update records) in an action, you should **batch them**.
 
 > It means that the app doesn't have to go back and forth with the database (sending one command, waiting for the response, then sending another), but instead sends multiple commands in one big batch. This is faster, safer, and can avoid subtle bugs in your app
 
@@ -99,6 +99,8 @@ class Post extends Model {
 - Pass the list of **prepared operations** as arguments:
   - Instead of calling `await record.update()`, pass `record.prepareUpdate()` — note lack of `await`
   - Instead of `await collection.create()`, use `collection.prepareCreate()`
+  - Instead of `await record.markAsDeleted()`, use `record.prepareMarkAsDeleted()`
+  - Instead of `await record.destroyPermanently()`, use `record.prepareDestroyPermanently()`
   - You can pass falsy values (null, undefined, false) to batch — they will simply be ignored.
 - Otherwise, the API is the same!
 

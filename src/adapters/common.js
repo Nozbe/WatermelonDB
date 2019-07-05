@@ -44,18 +44,17 @@ export function sanitizeFindResult(
   dirtyRecord: DirtyFindResult,
   tableSchema: TableSchema,
 ): CachedFindResult {
-  return dirtyRecord && typeof dirtyRecord === 'object' ?
-    sanitizedRaw(dirtyRecord, tableSchema) :
-    dirtyRecord
+  return dirtyRecord && typeof dirtyRecord === 'object'
+    ? sanitizedRaw(dirtyRecord, tableSchema)
+    : dirtyRecord
 }
 
 export function sanitizeQueryResult(
   dirtyRecords: DirtyQueryResult,
   tableSchema: TableSchema,
 ): CachedQueryResult {
-  return dirtyRecords.map(
-    dirtyRecord =>
-      typeof dirtyRecord === 'string' ? dirtyRecord : sanitizedRaw(dirtyRecord, tableSchema),
+  return dirtyRecords.map(dirtyRecord =>
+    typeof dirtyRecord === 'string' ? dirtyRecord : sanitizedRaw(dirtyRecord, tableSchema),
   )
 }
 

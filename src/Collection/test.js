@@ -206,24 +206,4 @@ describe('creating new records', () => {
     // no throw inside action
     await database.action(() => tasks.create(noop))
   })
-  it('can destroy records permanently', async () => {
-    // should this even be tested here? Shouldn't it be tested on Model, without mocks?
-    const { tasks: collection, adapter } = mockDatabase()
-    adapter.batch = jest.fn()
-
-    const observer = jest.fn()
-    collection.changes.subscribe(observer)
-
-    const m1 = new MockTask(collection, { id: 'm1' })
-    collection._cache.add(m1)
-
-    await collection._destroyPermanently(m1)
-
-    // Check database delete, cache delete, observers update
-    expect(adapter.batch).toHaveBeenCalledTimes(1)
-    expect(adapter.batch).toHaveBeenCalledWith([['destroyPermanently', m1]])
-    expect(collection._cache.get('m1')).toBe(undefined)
-    expect(observer).toHaveBeenCalledTimes(1)
-    expect(observer).toHaveBeenCalledWith([{ record: m1, type: CollectionChangeTypes.destroyed }])
-  })
 })

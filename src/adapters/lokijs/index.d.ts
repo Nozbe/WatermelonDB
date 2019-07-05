@@ -1,4 +1,7 @@
 declare module '@nozbe/watermelondb/adapters/lokijs' {
+  import { SchemaMigrations } from '@nozbe/watermelondb/Schema/migrations';
+  import { LokiMemoryAdapter } from 'lokijs';
+
   import {
     AppSchema,
     DatabaseAdapter,
@@ -14,8 +17,10 @@ declare module '@nozbe/watermelondb/adapters/lokijs' {
   } from '@nozbe/watermelondb/adapters/type'
 
   export interface LokiAdapterOptions {
-    dbName: string
+    dbName?: string
     schema: AppSchema
+    migrations?: SchemaMigrations
+    _testLokiAdapter?: LokiMemoryAdapter,
   }
 
   export default class LokiJSAdapter implements DatabaseAdapter {
@@ -33,7 +38,7 @@ declare module '@nozbe/watermelondb/adapters/lokijs' {
 
     getDeletedRecords(tableName: TableName<any>): Promise<RecordId[]>
 
-    getLocal(key: string): Promise<string | void>
+    getLocal(key: string): Promise<string | null>
 
     query<T extends Model>(query: Query<T>): Promise<CachedQueryResult>
 

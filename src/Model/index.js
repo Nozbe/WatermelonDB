@@ -37,7 +37,7 @@ export function associations(
   return (fromPairs(associationList): any)
 }
 
-let experimentalOnlyMarkAsChangedIfDiffers = false
+let experimentalOnlyMarkAsChangedIfDiffers = true
 
 export function experimentalSetOnlyMarkAsChangedIfDiffers(value: boolean): void {
   experimentalOnlyMarkAsChangedIfDiffers = value
@@ -61,6 +61,8 @@ export default class Model {
   // turns to `false` the moment the update is sent to be executed, even if database
   // did not respond yet
   _hasPendingUpdate: boolean = false
+
+  _hasPendingDelete: false | 'mark' | 'destroy' = false
 
   _changes = new BehaviorSubject(this)
 
@@ -125,15 +127,37 @@ export default class Model {
     return this
   }
 
+  prepareMarkAsDeleted(): this {
+    invariant(this._isCommitted, `Cannot mark an uncomitted record as deleted`)
+    invariant(!this._hasPendingUpdate, `Cannot mark an updated record as deleted`)
+
+    this._isEditing = true
+    this._raw._status = 'deleted'
+    this._hasPendingDelete = 'mark'
+    this._isEditing = false
+
+    return this
+  }
+
+  prepareDestroyPermanently(): this {
+    invariant(this._isCommitted, `Cannot mark an uncomitted record as deleted`)
+    invariant(!this._hasPendingUpdate, `Cannot mark an updated record as deleted`)
+
+    this._isEditing = true
+    this._raw._status = 'deleted'
+    this._hasPendingDelete = 'destroy'
+    this._isEditing = false
+
+    return this
+  }
+
   // Marks this record as deleted (will be permanently deleted after sync)
   // Note: Use this only with Sync
   async markAsDeleted(): Promise<void> {
     this.collection.database._ensureInAction(
       `Model.markAsDeleted() can only be called from inside of an Action. See docs for more details.`,
     )
-    invariant(this._isCommitted, `Cannot mark as deleted uncommitted record`)
-    this._raw._status = 'deleted'
-    await this.collection._markAsDeleted(this)
+    await this.collection.database.batch(this.prepareMarkAsDeleted())
   }
 
   // Pernamently removes this record from the database
@@ -142,8 +166,7 @@ export default class Model {
     this.collection.database._ensureInAction(
       `Model.destroyPermanently() can only be called from inside of an Action. See docs for more details.`,
     )
-    invariant(this._isCommitted, `Cannot destroy uncommitted record`)
-    await this.collection._destroyPermanently(this)
+    await this.collection.database.batch(this.prepareDestroyPermanently())
   }
 
   // *** Observing changes ***

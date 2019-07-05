@@ -7,8 +7,6 @@ import { values } from 'rambdax'
 
 import { invariant } from '../utils/common'
 
-import { CollectionChangeTypes } from '../Collection/common'
-
 import type { DatabaseAdapter, BatchOperation } from '../adapters/type'
 import type Model from '../Model'
 import type Collection, { CollectionChangeSet } from '../Collection'
@@ -16,6 +14,7 @@ import type { TableName, AppSchema } from '../Schema'
 
 import CollectionMap from './CollectionMap'
 import ActionQueue, { type ActionInterface } from './ActionQueue'
+import { operationTypeToCollectionChangeType } from './helpers'
 
 type DatabaseProps = $Exact<{
   adapter: DatabaseAdapter,
@@ -59,11 +58,16 @@ export default class Database {
       }
 
       invariant(
-        !record._isCommitted || record._hasPendingUpdate,
+        !record._isCommitted || record._hasPendingUpdate || record._hasPendingDelete,
         `Cannot batch a record that doesn't have a prepared create or prepared update`,
       )
 
-      if (record._hasPendingUpdate) {
+      // Deletes take presedence over updates
+      if (record._hasPendingDelete !== false) {
+        return record._hasPendingDelete === 'destroy'
+          ? ops.concat([['destroyPermanently', record]])
+          : ops.concat([['markAsDeleted', record]])
+      } else if (record._hasPendingUpdate) {
         record._hasPendingUpdate = false // TODO: What if this fails?
         return ops.concat([['update', record]])
       }
@@ -76,7 +80,7 @@ export default class Database {
     operations.forEach(([type, record]) => {
       const operation = {
         record,
-        type: type === 'create' ? CollectionChangeTypes.created : CollectionChangeTypes.updated,
+        type: operationTypeToCollectionChangeType(type),
       }
       const indexOfCollection = sortedOperations.findIndex(
         ({ collection }) => collection === record.collection,

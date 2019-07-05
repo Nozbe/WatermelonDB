@@ -117,21 +117,13 @@ export default class Collection<Record: Model> {
     return this.#cache.recordFromQueryResult(raw)
   }
 
-  async _markAsDeleted(record: Record): Promise<void> {
-    await this.database.adapter.batch([['markAsDeleted', record]])
-    this._onRecordDestroyed(record)
-  }
-
-  async _destroyPermanently(record: Record): Promise<void> {
-    await this.database.adapter.batch([['destroyPermanently', record]])
-    this._onRecordDestroyed(record)
-  }
-
   changeSet(operations: CollectionChangeSet<Record>): void {
     operations.forEach(({ record, type }) => {
       if (type === CollectionChangeTypes.created) {
         record._isCommitted = true
         this.#cache.add(record)
+      } else if (type === CollectionChangeTypes.destroyed) {
+        this.#cache.delete(record)
       }
     })
 
@@ -140,14 +132,10 @@ export default class Collection<Record: Model> {
     operations.forEach(({ record, type }) => {
       if (type === CollectionChangeTypes.updated) {
         record._notifyChanged()
+      } else if (type === CollectionChangeTypes.destroyed) {
+        record._notifyDestroyed()
       }
     })
-  }
-
-  _onRecordDestroyed(record: Record): void {
-    this.#cache.delete(record)
-    this.changes.next([{ record, type: CollectionChangeTypes.destroyed }])
-    record._notifyDestroyed()
   }
 
   // See: Database.unsafeClearCaches
