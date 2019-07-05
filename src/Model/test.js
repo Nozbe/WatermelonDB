@@ -391,7 +391,17 @@ describe('Safety features', () => {
     )
 
     await expectToRejectWithMessage(
-      model.markAsDeleted(),
+      model.destroyPermanently(),
+      /can only be called from inside of an Action/,
+    )
+
+    await expectToRejectWithMessage(
+      model.experimentalMarkAsDeleted(),
+      /can only be called from inside of an Action/,
+    )
+
+    await expectToRejectWithMessage(
+      model.experimentalDestroyPermanently(),
       /can only be called from inside of an Action/,
     )
 
@@ -400,6 +410,8 @@ describe('Safety features', () => {
       await model.update(noop)
       await model.markAsDeleted()
       await model.destroyPermanently()
+      await model.experimentalMarkAsDeleted()
+      await model.experimentalDestroyPermanently()
     })
   })
 })
