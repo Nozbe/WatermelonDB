@@ -8,11 +8,8 @@ import type { RawRecord } from '../RawRecord'
 
 export type CachedFindResult = RecordId | ?RawRecord
 export type CachedQueryResult = Array<RecordId | RawRecord>
-export type BatchOperation =
-  | ['create', Model]
-  | ['update', Model]
-  | ['markAsDeleted', Model]
-  | ['destroyPermanently', Model]
+export type BatchOperationType = 'create' | 'update' | 'markAsDeleted' | 'destroyPermanently'
+export type BatchOperation = [BatchOperationType, Model]
 
 export interface DatabaseAdapter {
   schema: AppSchema;

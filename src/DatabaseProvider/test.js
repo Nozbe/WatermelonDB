@@ -15,6 +15,7 @@ describe('DatabaseProvider', () => {
     database = new Database({
       adapter: { schema: null },
       modelClasses: [MockProject, MockTask, MockComment],
+      actionsEnabled: true,
     })
   })
   it('throws if no database or adapter supplied', () => {

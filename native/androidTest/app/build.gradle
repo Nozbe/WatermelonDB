@@ -163,7 +163,7 @@ configurations {
 }
 
 dependencies {
-    ktlint "com.github.shyiko:ktlint:0.30.0"
+    ktlint "com.github.shyiko:ktlint:0.31.0"
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation project(':watermelondb')
     implementation 'androidx.appcompat:appcompat:1.0.2'
@@ -195,7 +195,7 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
 
 configurations.all {
     resolutionStrategy {
-        force 'org.webkit:android-jsc:r236355'
+        force 'org.webkit:android-jsc:r241213'
     }
 }
 

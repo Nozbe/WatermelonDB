@@ -21,6 +21,7 @@ const adapter = new LokiJSAdapter({
 const database = new Database({
   adapter,
   modelClasses: [Blog, Post, Comment],
+  actionsEnabled: true,
 })
 
 render(<Root database={database} />, document.getElementById('application'))

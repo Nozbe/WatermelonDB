@@ -2,7 +2,7 @@
 
 import type { LokiMemoryAdapter } from 'lokijs'
 import { map } from 'rambdax'
-import { isDevelopment } from '../../utils/common'
+import { invariant } from '../../utils/common'
 
 import type Model, { RecordId } from '../../Model'
 import type { TableName, AppSchema } from '../../Schema'
@@ -38,7 +38,7 @@ const {
 type LokiAdapterOptions = $Exact<{
   dbName?: ?string,
   schema: AppSchema,
-  migrationsExperimental?: SchemaMigrations,
+  migrations?: SchemaMigrations,
   _testLokiAdapter?: LokiMemoryAdapter,
 }>
 
@@ -52,11 +52,18 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   _dbName: ?string
 
   constructor(options: LokiAdapterOptions): void {
-    const { schema, migrationsExperimental: migrations, dbName } = options
+    const { schema, migrations, dbName } = options
     this.schema = schema
     this.migrations = migrations
     this._dbName = dbName
-    isDevelopment && validateAdapter(this)
+    if (process.env.NODE_ENV !== 'production') {
+      invariant(
+        // $FlowFixMe
+        options.migrationsExperimental === undefined,
+        'LokiJSAdapter migrationsExperimental has been renamed to migrations',
+      )
+      validateAdapter(this)
+    }
 
     devLogSetUp(() => this.workerBridge.send(SETUP, [options]))
   }
@@ -73,7 +80,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     return new LokiJSAdapter({
       dbName: this._dbName,
       schema: this.schema,
-      ...(this.migrations ? { migrationsExperimental: this.migrations } : {}),
+      ...(this.migrations ? { migrations: this.migrations } : {}),
       _testLokiAdapter: lokiAdapter,
       ...options,
     })

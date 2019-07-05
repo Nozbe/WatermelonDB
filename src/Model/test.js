@@ -189,20 +189,22 @@ describe('CRUD', () => {
   it('can destroy a record permanently', async () => {
     const database = makeDatabase()
     database.adapter.batch = jest.fn()
+    const spyBatchDB = jest.spyOn(database, 'batch')
 
     const collection = database.collections.get('mock')
-    const storeDestroy = jest.spyOn(collection, '_destroyPermanently')
 
     const m1 = await collection.create()
 
+    const spyOnPrepareDestroyPermanently = jest.spyOn(m1, 'prepareDestroyPermanently')
     const nextObserver = jest.fn()
     const completionObserver = jest.fn()
     m1.observe().subscribe(nextObserver, null, completionObserver)
 
     await m1.destroyPermanently()
 
-    expect(database.adapter.batch).toHaveBeenCalledWith([['destroyPermanently', m1]])
-    expect(storeDestroy).toHaveBeenCalledWith(m1)
+    expect(spyBatchDB).toHaveBeenCalledWith(m1)
+    expect(spyOnPrepareDestroyPermanently).toHaveBeenCalledTimes(1)
+
     expect(nextObserver).toHaveBeenCalledTimes(1)
     expect(completionObserver).toHaveBeenCalledTimes(1)
   })
@@ -271,8 +273,8 @@ describe('Safety features', () => {
     expect(model._isCommitted).toBe(false)
 
     await expectToRejectWithMessage(model.update(() => {}), /uncommitted/)
-    await expectToRejectWithMessage(model.markAsDeleted(), /uncommitted/)
-    await expectToRejectWithMessage(model.destroyPermanently(), /uncommitted/)
+    await expectToRejectWithMessage(model.markAsDeleted(), /uncomitted record as deleted/)
+    await expectToRejectWithMessage(model.destroyPermanently(), /uncomitted record as deleted/)
     expect(() => model.observe()).toThrow(/uncommitted/)
   })
   it('disallows changes on records with pending updates', async () => {

@@ -34,17 +34,18 @@ const makeComment = (db, post, i) =>
 
 const makeComments = (db, post, count) => times(i => makeComment(db, post, i), count)
 
-const generate = async (db, blogCount, postsPerBlog, commentsPerPost) => {
-  await db.action(() => db.unsafeResetDatabase())
-  const blogs = times(i => makeBlog(db, i), blogCount)
-  const posts = flatMap(blog => makePosts(db, blog, fuzzCount(postsPerBlog)), blogs)
-  const comments = flatMap(post => makeComments(db, post, fuzzCount(commentsPerPost)), posts)
+const generate = (db, blogCount, postsPerBlog, commentsPerPost) =>
+  db.action(async action => {
+    await action.subAction(() => db.unsafeResetDatabase())
+    const blogs = times(i => makeBlog(db, i), blogCount)
+    const posts = flatMap(blog => makePosts(db, blog, fuzzCount(postsPerBlog)), blogs)
+    const comments = flatMap(post => makeComments(db, post, fuzzCount(commentsPerPost)), posts)
 
-  const allRecords = [...blogs, ...posts, ...comments]
-  await db.batch(...allRecords)
+    const allRecords = [...blogs, ...posts, ...comments]
+    await db.batch(...allRecords)
 
-  return allRecords.length
-}
+    return allRecords.length
+  })
 
 export async function generate100(database) {
   return generate(database, 2, 10, 5)
