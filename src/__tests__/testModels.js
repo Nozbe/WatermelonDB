@@ -36,18 +36,23 @@ export const testSchema = appSchema({
 export class MockProject extends Model {
   static table = 'mock_projects'
 
-  @field('name')
-  name
-
   static associations = {
     mock_tasks: { type: 'has_many', foreignKey: 'project_id' },
   }
+
+  @field('name')
+  name
 
   @children('mock_tasks') mock_tasks
 }
 
 export class MockTask extends Model {
   static table = 'mock_tasks'
+
+  static associations = {
+    mock_projects: { type: 'belongs_to', key: 'project_id' },
+    mock_comments: { type: 'has_many', foreignKey: 'task_id' },
+  }
 
   @field('name') name
 
@@ -61,18 +66,15 @@ export class MockTask extends Model {
 
   @relation('mock_projects', 'project_id') project
 
-  static associations = {
-    mock_projects: { type: 'belongs_to', key: 'project_id' },
-    mock_comments: { type: 'has_many', foreignKey: 'task_id' },
-  }
-
   @children('mock_comments') mock_comments
 }
 
 export class MockComment extends Model {
   static table = 'mock_comments'
 
-  @field('task_id') taskId
+  static associations = {
+    mock_tasks: { type: 'belongs_to', key: 'task_id' },
+  }
 
   @immutableRelation('mock_tasks', 'task_id')
   task
@@ -87,10 +89,6 @@ export class MockComment extends Model {
   @readonly
   @date('updated_at')
   updatedAt
-
-  static associations = {
-    mock_tasks: { type: 'belongs_to', key: 'task_id' },
-  }
 }
 
 export const mockDatabase = ({ actionsEnabled = false } = {}) => {
