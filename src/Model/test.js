@@ -7,10 +7,11 @@ import { makeScheduler, expectToRejectWithMessage } from '../__tests__/utils'
 import Database from '../Database'
 import { appSchema, tableSchema } from '../Schema'
 import { field, date, readonly } from '../decorators'
-import { noop } from '../utils/fp'
+import { noop, allPromises } from '../utils/fp'
 import { sanitizedRaw } from '../RawRecord'
 
 import Model, { experimentalSetOnlyMarkAsChangedIfDiffers } from './index'
+import { fetchChildren } from './helpers'
 
 const mockSchema = appSchema({
   version: 1,
@@ -655,5 +656,41 @@ describe('Model observation', () => {
     scheduler.expectObservable(b$).toBe(bExpected, { m: model })
     scheduler.expectObservable(c$).toBe(cExpected, { m: model })
     scheduler.flush()
+  })
+})
+
+describe('model helpers', () => {
+  it('checks if fetchChildren retrieves all the children', async () => {
+    const { projects, tasks, comments } = mockDatabase()
+
+    const projectFoo = await projects.create(mock => {
+      mock.name = 'foo'
+    })
+    const projectBar = await projects.create(mock => {
+      mock.name = 'bar'
+    })
+
+    const commentPromise = async task => {
+      const comment = await comments.create(mock => { mock.task.set(task) })
+      const commentChildren = await fetchChildren(comment)
+      expect(commentChildren).toHaveLength(0)
+    }
+
+    const taskPromise = async (project, commentsCount) => {
+      const task = await tasks.create(mock => {
+        mock.project.set(project)
+      })
+      await allPromises(commentPromise, Array(commentsCount).fill(task))
+      const taskChildren = await fetchChildren(task)
+      expect(taskChildren).toHaveLength(commentsCount)
+    }
+
+    await allPromises(project => taskPromise(project, 2), Array(2).fill(projectFoo))
+    await allPromises(project => taskPromise(project, 3), Array(3).fill(projectBar))
+
+    const fooChildren = await fetchChildren(projectFoo)
+    const barChildren = await fetchChildren(projectBar)
+    expect(fooChildren).toHaveLength(6) // 2 tasks + 4 comments
+    expect(barChildren).toHaveLength(12) // 3 tasks + 9 comments
   })
 })
