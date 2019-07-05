@@ -33,7 +33,7 @@ declare module '@nozbe/watermelondb/adapters/type' {
     unsafeResetDatabase(): Promise<void>
 
     // Fetches string value from local storage
-    getLocal(key: string): Promise<string | void>
+    getLocal(key: string): Promise<string | null>
 
     // Sets string value to a local storage key
     setLocal(key: string, value: string): Promise<void>

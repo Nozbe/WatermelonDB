@@ -18,6 +18,7 @@ describe('useDatabase hook', () => {
     database = new Database({
       adapter: { schema: null },
       modelClasses: [MockProject, MockTask, MockComment],
+      actionsEnabled: true,
     })
   })
 

@@ -1290,11 +1290,6 @@ declare module rambdax {
 
   declare function identity<T>(x: T): T
 
-  declare function invoker<A, B, C, D, O: { [k: string]: Function }>(
-    arity: number,
-    name: $Enum<O>,
-  ): CurriedFunction2<A, O, D> & CurriedFunction3<A, B, O, D> & CurriedFunction4<A, B, C, O, D>
-
   declare function juxt<T, S>(fns: Array<(...args: Array<S>) => T>): (...args: Array<S>) => Array<T>
 
   // TODO lift

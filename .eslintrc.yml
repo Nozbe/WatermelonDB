@@ -92,21 +92,22 @@ rules:
   import/prefer-default-export: 0
   import/named: 0 # doesn't seem to work with Flow
   import/no-extraneous-dependencies: 0
+  import/no-cycle: 0 # FIXME: broken with flow https://github.com/benmosher/eslint-plugin-import/issues/1343
   jest/no-large-snapshots: 1
   jest/no-disabled-tests: 0
 
 overrides:
-  files:
-    - "src/**/*.js"
-  excludedFiles:
-    - "*integrationTest.js"
-    - "*test.js"
-    - "**/__tests__/**"
-    - "*test.*.js"
-  rules:
-    flowtype/require-valid-file-annotation:
-      - 2
-      - always
+  - files:
+      - "src/**/*.js"
+    excludedFiles:
+      - "*integrationTest.js"
+      - "*test.js"
+      - "**/__tests__/**"
+      - "*test.*.js"
+    rules:
+      flowtype/require-valid-file-annotation:
+        - 2
+        - always
 
 globals:
   document: true

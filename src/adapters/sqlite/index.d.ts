@@ -12,6 +12,7 @@ declare module '@nozbe/watermelondb/adapters/sqlite' {
     CachedFindResult,
     CachedQueryResult,
   } from '@nozbe/watermelondb/adapters/type'
+  import { SchemaMigrations } from '@nozbe/watermelondb/Schema/migrations'
 
   export type SQL = string
 
@@ -21,6 +22,7 @@ declare module '@nozbe/watermelondb/adapters/sqlite' {
 
   export interface SQLiteAdapterOptions {
     dbName?: string
+    migrations?: SchemaMigrations
     schema: AppSchema
   }
 
@@ -39,7 +41,7 @@ declare module '@nozbe/watermelondb/adapters/sqlite' {
 
     getDeletedRecords(tableName: TableName<any>): Promise<RecordId[]>
 
-    getLocal(key: string): Promise<string | void>
+    getLocal(key: string): Promise<string | null>
 
     query<T extends Model>(query: Query<T>): Promise<CachedQueryResult>
 
