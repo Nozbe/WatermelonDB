@@ -5,7 +5,7 @@ import Nimble
 
 class BridgeTests: XCTestCase {
     func testBridge() {
-        waitUntil(timeout: 100) { done in
+        waitUntil(timeout: 150) { done in
             BridgeTestReporter.onFinished { result in
                 switch result {
                 case .success(let results):
