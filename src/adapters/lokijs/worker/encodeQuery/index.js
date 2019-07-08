@@ -23,7 +23,6 @@ import zip from '../../../../utils/fp/zip'
 import cond from '../../../../utils/fp/cond'
 import invariant from '../../../../utils/common/invariant'
 import likeToRegexp from '../../../../utils/fp/likeToRegexp'
-import notLikeToRegexp from '../../../../utils/fp/notLikeToRegexp'
 
 import type { AssociationArgs, SerializedQuery } from '../../../../Query'
 import type {
@@ -102,7 +101,7 @@ const like: OperatorFunction = value => {
 const notLike: OperatorFunction = value => {
   if (typeof value === 'string') {
     return {
-      $regex: notLikeToRegexp(value),
+      $not: { $regex: likeToRegexp(value) },
     }
   }
 

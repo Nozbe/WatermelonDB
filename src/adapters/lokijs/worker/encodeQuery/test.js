@@ -235,11 +235,11 @@ describe('LokiJS encodeQuery', () => {
   it('encodes like and notLike queries', () => {
     const query = new Query(mockCollection, [
       Q.where('col1', Q.like('%abc')),
-      Q.where('col2', Q.notLike('def%')),
+      Q.where('col2', Q.notLike('%abc')),
     ])
     const encodedQuery = testQuery(query)
 
     expect(encodedQuery.query.$and[0].col1.$regex.toString()).toEqual('/^.*abc$/i')
-    expect(encodedQuery.query.$and[1].col2.$regex.toString()).toEqual('/^((?!def.*).)*$/i')
+    expect(encodedQuery.query.$and[1].col2.$not.$regex.toString()).toEqual('/^.*abc$/i')
   })
 })
