@@ -28,7 +28,6 @@ public class FailureMessage: NSObject {
         }
     }
 
-    // swiftlint:disable:next identifier_name
     internal var _stringValueOverride: String?
     internal var hasOverriddenStringValue: Bool {
         return _stringValueOverride != nil

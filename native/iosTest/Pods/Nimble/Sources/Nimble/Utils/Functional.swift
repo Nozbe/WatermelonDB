@@ -1,14 +1,12 @@
 import Foundation
 
-#if !swift(>=4.2)
 extension Sequence {
-    internal func allSatisfy(_ predicate: (Element) throws -> Bool) rethrows -> Bool {
+    internal func all(_ fn: (Iterator.Element) -> Bool) -> Bool {
         for item in self {
-            if try !predicate(item) {
+            if !fn(item) {
                 return false
             }
         }
         return true
     }
 }
-#endif

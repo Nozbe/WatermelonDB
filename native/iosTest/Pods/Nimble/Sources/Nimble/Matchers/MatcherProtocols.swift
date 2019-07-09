@@ -1,6 +1,6 @@
 import Foundation
 // `CGFloat` is in Foundation (swift-corelibs-foundation) on Linux.
-#if canImport(Darwin)
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
     import CoreGraphics
 #endif
 
@@ -18,17 +18,17 @@ extension Matcher {
     }
 
     var toClosure: (Expression<ValueType>, FailureMessage, Bool) throws -> Bool {
-        return { expr, msg, expectedResult in
+        return ({ expr, msg, expectedResult in
             if expectedResult {
                 return try self.matches(expr, failureMessage: msg)
             } else {
                 return try self.doesNotMatch(expr, failureMessage: msg)
             }
-        }
+        })
     }
 }
 
-#if canImport(Darwin)
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
 /// Objective-C interface to the Swift variant of Matcher.
 @objc public protocol NMBMatcher {
     func matches(_ actualBlock: @escaping () -> NSObject?, failureMessage: FailureMessage, location: SourceLocation) -> Bool
@@ -41,8 +41,7 @@ public protocol NMBContainer {
     func contains(_ anObject: Any) -> Bool
 }
 
-#if canImport(Darwin)
-// swiftlint:disable:next todo
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
 // FIXME: NSHashTable can not conform to NMBContainer since swift-DEVELOPMENT-SNAPSHOT-2016-04-25-a
 //extension NSHashTable : NMBContainer {} // Corelibs Foundation does not include this class yet
 #endif
@@ -55,7 +54,7 @@ public protocol NMBCollection {
     var count: Int { get }
 }
 
-#if canImport(Darwin)
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
 extension NSHashTable: NMBCollection {} // Corelibs Foundation does not include these classes yet
 extension NSMapTable: NMBCollection {}
 #endif
@@ -132,28 +131,24 @@ extension NSDate: TestOutputStringConvertible {
 ///  beGreaterThan(), beGreaterThanOrEqualTo(), and equal() matchers.
 ///
 /// Types that conform to Swift's Comparable protocol will work implicitly too
-#if canImport(Darwin)
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
 @objc public protocol NMBComparable {
     func NMB_compare(_ otherObject: NMBComparable!) -> ComparisonResult
 }
-#elseif !compiler(>=5.1)
+#else
 // This should become obsolete once Corelibs Foundation adds Comparable conformance to NSNumber
 public protocol NMBComparable {
     func NMB_compare(_ otherObject: NMBComparable!) -> ComparisonResult
 }
 #endif
 
-#if canImport(Darwin) || !compiler(>=5.1)
 extension NSNumber: NMBComparable {
     public func NMB_compare(_ otherObject: NMBComparable!) -> ComparisonResult {
-        // swiftlint:disable:next force_cast
         return compare(otherObject as! NSNumber)
     }
 }
 extension NSString: NMBComparable {
     public func NMB_compare(_ otherObject: NMBComparable!) -> ComparisonResult {
-        // swiftlint:disable:next force_cast
         return compare(otherObject as! String)
     }
 }
-#endif

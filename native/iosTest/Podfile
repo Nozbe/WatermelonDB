@@ -8,6 +8,6 @@ target 'WatermelonTester' do
     inherit! :search_paths
     use_frameworks!
 
-    pod 'Nimble',                 '~> 8.0.2'
+    pod 'Nimble',                 '~> 7.0'
   end
 end

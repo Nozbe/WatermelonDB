@@ -12,19 +12,22 @@ import Foundation
 /// nil arguments indicates that the matcher should not attempt to match against
 /// that parameter.
 public func throwError() -> Predicate<Any> {
-    return Predicate { actualExpression in
+    return Predicate.fromDeprecatedClosure { actualExpression, failureMessage in
+
         var actualError: Error?
         do {
             _ = try actualExpression.evaluate()
-        } catch {
-            actualError = error
+        } catch let catchedError {
+            actualError = catchedError
         }
 
+        failureMessage.postfixMessage = "throw any error"
         if let actualError = actualError {
-            return PredicateResult(bool: true, message: .expectedCustomValueTo("throw any error", "<\(actualError)>"))
+            failureMessage.actualValue = "<\(actualError)>"
         } else {
-            return PredicateResult(bool: false, message: .expectedCustomValueTo("throw any error", "no error"))
+            failureMessage.actualValue = "no error"
         }
+        return actualError != nil
     }
 }
 
@@ -40,15 +43,15 @@ public func throwError() -> Predicate<Any> {
 /// nil arguments indicates that the matcher should not attempt to match against
 /// that parameter.
 public func throwError<T: Error>(_ error: T, closure: ((Error) -> Void)? = nil) -> Predicate<Any> {
-    return Predicate { actualExpression in
+    return Predicate.fromDeprecatedClosure { actualExpression, failureMessage in
+
         var actualError: Error?
         do {
             _ = try actualExpression.evaluate()
-        } catch {
-            actualError = error
+        } catch let catchedError {
+            actualError = catchedError
         }
 
-        let failureMessage = FailureMessage()
         setFailureMessageForError(
             failureMessage,
             actualError: actualError,
@@ -56,23 +59,20 @@ public func throwError<T: Error>(_ error: T, closure: ((Error) -> Void)? = nil) 
             errorType: nil,
             closure: closure
         )
-
         var matches = false
         if let actualError = actualError, errorMatchesExpectedError(actualError, expectedError: error) {
             matches = true
-
             if let closure = closure {
                 let assertions = gatherFailingExpectations {
                     closure(actualError)
                 }
                 let messages = assertions.map { $0.message }
-                if !messages.isEmpty {
+                if messages.count > 0 {
                     matches = false
                 }
             }
         }
-
-        return PredicateResult(bool: matches, message: failureMessage.toExpectationMessage())
+        return matches
     }
 }
 
@@ -88,15 +88,15 @@ public func throwError<T: Error>(_ error: T, closure: ((Error) -> Void)? = nil) 
 /// nil arguments indicates that the matcher should not attempt to match against
 /// that parameter.
 public func throwError<T: Error & Equatable>(_ error: T, closure: ((T) -> Void)? = nil) -> Predicate<Any> {
-    return Predicate { actualExpression in
+    return Predicate.fromDeprecatedClosure { actualExpression, failureMessage in
+
         var actualError: Error?
         do {
             _ = try actualExpression.evaluate()
-        } catch {
-            actualError = error
+        } catch let catchedError {
+            actualError = catchedError
         }
 
-        let failureMessage = FailureMessage()
         setFailureMessageForError(
             failureMessage,
             actualError: actualError,
@@ -104,7 +104,6 @@ public func throwError<T: Error & Equatable>(_ error: T, closure: ((T) -> Void)?
             errorType: nil,
             closure: closure
         )
-
         var matches = false
         if let actualError = actualError as? T, error == actualError {
             matches = true
@@ -114,13 +113,12 @@ public func throwError<T: Error & Equatable>(_ error: T, closure: ((T) -> Void)?
                     closure(actualError)
                 }
                 let messages = assertions.map { $0.message }
-                if !messages.isEmpty {
+                if messages.count > 0 {
                     matches = false
                 }
             }
         }
-
-        return PredicateResult(bool: matches, message: failureMessage.toExpectationMessage())
+        return matches
     }
 }
 
@@ -138,15 +136,15 @@ public func throwError<T: Error & Equatable>(_ error: T, closure: ((T) -> Void)?
 public func throwError<T: Error>(
     errorType: T.Type,
     closure: ((T) -> Void)? = nil) -> Predicate<Any> {
-    return Predicate { actualExpression in
+    return Predicate.fromDeprecatedClosure { actualExpression, failureMessage in
+
         var actualError: Error?
         do {
             _ = try actualExpression.evaluate()
-        } catch {
-            actualError = error
+        } catch let catchedError {
+            actualError = catchedError
         }
 
-        let failureMessage = FailureMessage()
         setFailureMessageForError(
             failureMessage,
             actualError: actualError,
@@ -154,18 +152,16 @@ public func throwError<T: Error>(
             errorType: errorType,
             closure: closure
         )
-
         var matches = false
         if let actualError = actualError {
             matches = true
-
             if let actualError = actualError as? T {
                 if let closure = closure {
                     let assertions = gatherFailingExpectations {
                         closure(actualError)
                     }
                     let messages = assertions.map { $0.message }
-                    if !messages.isEmpty {
+                    if messages.count > 0 {
                         matches = false
                     }
                 }
@@ -180,14 +176,14 @@ public func throwError<T: Error>(
                         }
                     }
                     let messages = assertions.map { $0.message }
-                    if !messages.isEmpty {
+                    if messages.count > 0 {
                         matches = false
                     }
                 }
             }
         }
 
-        return PredicateResult(bool: matches, message: failureMessage.toExpectationMessage())
+        return matches
     }
 }
 
@@ -199,15 +195,15 @@ public func throwError<T: Error>(
 ///
 /// The closure only gets called when an error was thrown.
 public func throwError(closure: @escaping ((Error) -> Void)) -> Predicate<Any> {
-    return Predicate { actualExpression in
+    return Predicate.fromDeprecatedClosure { actualExpression, failureMessage in
+
         var actualError: Error?
         do {
             _ = try actualExpression.evaluate()
-        } catch {
-            actualError = error
+        } catch let catchedError {
+            actualError = catchedError
         }
 
-        let failureMessage = FailureMessage()
         setFailureMessageForError(failureMessage, actualError: actualError, closure: closure)
 
         var matches = false
@@ -218,12 +214,11 @@ public func throwError(closure: @escaping ((Error) -> Void)) -> Predicate<Any> {
                 closure(actualError)
             }
             let messages = assertions.map { $0.message }
-            if !messages.isEmpty {
+            if messages.count > 0 {
                 matches = false
             }
         }
-
-        return PredicateResult(bool: matches, message: failureMessage.toExpectationMessage())
+        return matches
     }
 }
 
@@ -235,15 +230,15 @@ public func throwError(closure: @escaping ((Error) -> Void)) -> Predicate<Any> {
 ///
 /// The closure only gets called when an error was thrown.
 public func throwError<T: Error>(closure: @escaping ((T) -> Void)) -> Predicate<Any> {
-    return Predicate { actualExpression in
+    return Predicate.fromDeprecatedClosure { actualExpression, failureMessage in
+
         var actualError: Error?
         do {
             _ = try actualExpression.evaluate()
-        } catch {
-            actualError = error
+        } catch let catchedError {
+            actualError = catchedError
         }
 
-        let failureMessage = FailureMessage()
         setFailureMessageForError(failureMessage, actualError: actualError, closure: closure)
 
         var matches = false
@@ -254,11 +249,10 @@ public func throwError<T: Error>(closure: @escaping ((T) -> Void)) -> Predicate<
                 closure(actualError)
             }
             let messages = assertions.map { $0.message }
-            if !messages.isEmpty {
+            if messages.count > 0 {
                 matches = false
             }
         }
-
-        return PredicateResult(bool: matches, message: failureMessage.toExpectationMessage())
+        return matches
     }
 }
