@@ -196,6 +196,7 @@ describe('CRUD', () => {
     const collection = database.collections.get('mock')
 
     const m1 = await collection.create()
+    expect(spyBatchDB).toHaveBeenCalledWith(m1)
 
     const spyOnPrepareDestroyPermanently = jest.spyOn(m1, 'prepareDestroyPermanently')
     const nextObserver = jest.fn()
@@ -204,7 +205,6 @@ describe('CRUD', () => {
 
     await m1.destroyPermanently()
 
-    expect(spyBatchDB).toHaveBeenCalledWith(m1)
     expect(spyOnPrepareDestroyPermanently).toHaveBeenCalledTimes(1)
 
     expect(nextObserver).toHaveBeenCalledTimes(1)
@@ -248,6 +248,7 @@ describe('CRUD', () => {
     const collection = database.collections.get('mock')
 
     const m1 = await collection.create()
+    expect(spyBatchDB).toHaveBeenCalledWith(m1)
 
     const spyOnMarkAsDeleted = jest.spyOn(m1, 'prepareMarkAsDeleted')
     const nextObserver = jest.fn()
@@ -256,7 +257,6 @@ describe('CRUD', () => {
 
     await m1.markAsDeleted()
 
-    expect(spyBatchDB).toHaveBeenCalledWith(m1)
     expect(spyOnMarkAsDeleted).toHaveBeenCalledTimes(1)
 
     expect(nextObserver).toHaveBeenCalledTimes(1)
