@@ -7,8 +7,12 @@ if ! [ -x "$(command -v mdbook)" ]; then
   exit 1
 fi
 
-cp README.md ./docs/README.md
-cp CONTRIBUTING.md ./docs/CONTRIBUTING.md
-cp CHANGELOG.md ./docs/CHANGELOG.md
+rm -fr ./docs-build
+cp -r ./docs-master ./docs-build
 
-mdbook build ./docs
+cp README.md ./docs-build/README.md
+cp CONTRIBUTING.md ./docs-build/CONTRIBUTING.md
+cp CHANGELOG.md ./docs-build/CHANGELOG.md
+
+mdbook build ./docs-build
+mv ./docs-build/book ./docs
