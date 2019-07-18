@@ -24,8 +24,8 @@ const isVersionGreater = input => semver.gt(input, pkg.version)
 const getNewVersion = input => semver.inc(pkg.version, input)
 const isValidAndGreaterVersion = both(isValidVersion, isVersionGreater)
 
-const throwError = () => str => {
-  throw new Error(str)
+const throwError = str => info => {
+  throw new Error(str, JSON.stringify(info))
 }
 
 const questions = [
@@ -71,39 +71,48 @@ const buildTasks = options => {
       title: 'ping npm registry',
       task: () =>
         timeout(
-          execa.stdout('npm', ['ping']).catch(throwError('connection to npm registry failed')),
+          execa('npm', ['ping']).catch(throwError('connection to npm registry failed')),
           5000,
           'Connection to npm registry timed out',
         ),
     },
-    ...(isPrerelease ?
-      [
+    ...(isPrerelease
+      ? [
           {
             title: 'WARN: Skipping git checks',
             task: () => {},
           },
-        ] :
-      [
+        ]
+      : [
           {
             title: 'check current branch',
             task: () =>
-              execa
-                .stdout('git', ['symbolic-ref', '--short', 'HEAD'])
-                .then(when(branch => branch !== 'master', throwError('not on `master` branch'))),
+              execa('git', ['symbolic-ref', '--short', 'HEAD']).then(
+                when(
+                  ({ stdout: branch }) => branch !== 'master',
+                  throwError('not on `master` branch'),
+                ),
+              ),
           },
           {
             title: 'check local working tree',
             task: () =>
-              execa
-                .stdout('git', ['status', '--porcelain'])
-                .then(when(status => status !== '', throwError('commit or stash changes first'))),
+              execa('git', ['status', '--porcelain']).then(
+                when(
+                  ({ stdout: status }) => status !== '',
+                  throwError('commit or stash changes first'),
+                ),
+              ),
           },
           {
             title: 'check remote history',
             task: () =>
-              execa
-                .stdout('git', ['rev-list', '--count', '--left-only', '@{u}...HEAD'])
-                .then(when(result => result !== '0', throwError('please pull changes first'))),
+              execa('git', ['rev-list', '--count', '--left-only', '@{u}...HEAD']).then(
+                when(
+                  ({ stdout: result }) => result !== '0',
+                  throwError('please pull changes first'),
+                ),
+              ),
           },
         ]),
     {
