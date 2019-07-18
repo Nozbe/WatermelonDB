@@ -3,7 +3,7 @@
 </p>
 
 <h4 align="center">
-  High-performance reactive database framework
+  A reactive database framework
 </h4>
 
 <p align="center">
