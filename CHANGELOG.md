@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
-## 0.13.1 - 2019-07-18
+## 0.13.0 - 2019-07-18
 
 ### ⚠️ Breaking
 
