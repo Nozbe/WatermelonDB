@@ -146,15 +146,7 @@ const buildTasks = options => {
     },
     {
       title: 'pack tgz',
-      task: () =>
-        execa('yarn', ['pack'], { cwd: './dist' })
-          .then(() => fs.remove(`./nozbe-watermelondb-v${version}.tgz`))
-          .then(() => {
-            fs.move(
-              `./dist/nozbe-watermelondb-v${version}.tgz`,
-              `./nozbe-watermelondb-v${version}.tgz`,
-            )
-          }),
+      task: () => execa('yarn', ['pack'], { cwd: './dist' }),
     },
     {
       title: 'publish package',
@@ -164,7 +156,7 @@ const buildTasks = options => {
           done: otp =>
             execa('npm', [
               'publish',
-              `./nozbe-watermelondb-v${version}.tgz`,
+              `./dist/nozbe-watermelondb-v${version}.tgz`,
               `--otp=${otp}`,
               '--tag',
               tag,
