@@ -84,11 +84,3 @@ matrix:
         - cargo install-update -a
       script:
         - ./scripts/mdbook
-      deploy:
-        provider: pages
-        skip-cleanup: true
-        github-token: $GITHUB_TOKEN
-        local-dir: ./docs/book
-        keep-history: false
-        on:
-          branch: master
