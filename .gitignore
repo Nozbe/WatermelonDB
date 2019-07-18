@@ -13,3 +13,8 @@ dev/
 coverage/
 
 .vscode
+
+docs/book/
+docs/CONTRIBUTING.md
+docs/CHANGELOG.md
+docs/README.md

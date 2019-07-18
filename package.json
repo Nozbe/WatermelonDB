@@ -17,7 +17,8 @@
     "swiftlint": "cd native; swiftlint",
     "ktlint": "cd native/androidTest; ./gradlew ktlint",
     "ktlint:format": "cd native/androidTest; ./gradlew ktlintFormat",
-    "android:emulator": "./scripts/emulatorWithJavaCheck"
+    "android:emulator": "./scripts/emulatorWithJavaCheck",
+    "docs": "./scripts/mdbook"
   },
   "author": "@Nozbe",
   "homepage": "https://github.com/Nozbe/WatermelonDB#readme",
