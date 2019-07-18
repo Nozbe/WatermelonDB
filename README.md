@@ -51,7 +51,7 @@ But unlike using SQLite directly, Watermelon is **fully observable**. So wheneve
 
 | <a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw"><img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-talk-thumbnail.jpg" alt="React Native EU: Next-generation React Databases" width="300" /></a> | <a href="https://github.com/Nozbe/WatermelonDB/blob/master/docs/Demo.md"><img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-demo-thumbnail.png" alt="WatermelonDB Demo" width="300" /></a> |
 | ---- | --- |
-| <p align="center"><a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw">📺 <strong>Next-generation React databases</strong><br>(a talk about WatermelonDB)</a></p> | <p align="center"><a href="https://github.com/Nozbe/WatermelonDB/blob/master/docs/Demo.md">✨ <strong>Check out the Demo</strong></a></p> |
+| <p align="center"><a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw">📺 <strong>Next-generation React databases</strong><br>(a talk about WatermelonDB)</a></p> | <p align="center"><a href="https://nozbe.github.io/WatermelonDB/Demo.html">✨ <strong>Check out the Demo</strong></a></p> |
 
 ## Usage
 
@@ -109,7 +109,7 @@ const enhance = withObservables(['post'], ({ post }) => ({
 
 The result is fully reactive! Whenever a post or comment is added, changed, or removed, the right components **will automatically re-render** on screen. Doesn't matter if a change occurred in a totally different part of the app, it all just works out of the box!
 
-### ➡️ **Learn more:** [see full documentation](./docs)
+### ➡️ **Learn more:** [see full documentation](https://nozbe.github.io/WatermelonDB/)
 
 ## Who uses WatermelonDB
 
