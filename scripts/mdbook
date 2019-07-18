@@ -7,6 +7,7 @@ if ! [ -x "$(command -v mdbook)" ]; then
   exit 1
 fi
 
+rm -fr ./docs
 rm -fr ./docs-build
 cp -r ./docs-master ./docs-build
 
@@ -16,3 +17,4 @@ cp CHANGELOG.md ./docs-build/CHANGELOG.md
 
 mdbook build ./docs-build
 mv ./docs-build/book ./docs
+cp ./docs-master/README.md ./docs/README.md
