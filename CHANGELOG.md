@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 0.13.1 - 2019-07-18
+
 ### ⚠️ Breaking
 
 - [Database] It is now mandatory to pass `actionsEnabled:` option to Database constructor.
