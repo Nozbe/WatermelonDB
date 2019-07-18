@@ -172,8 +172,8 @@ const buildTasks = options => {
       task: () => execa('git', ['push', '--tags', '--follow-tags']),
     },
     {
-      title: 'cleanup',
-      task: () => fs.remove(`./nozbe-watermelondb-v${version}.tgz`),
+      title: 'update docs',
+      task: () => execa('yarn', ['docs']),
     },
   ]
 }
