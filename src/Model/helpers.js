@@ -25,7 +25,7 @@ export const createTimestampsFor = (model: Model) => {
 }
 
 function getChildrenQueries(model: Model): Query<Model>[] {
-  const associationsList: any = Object.entries(model.constructor.associations)
+  const associationsList: Array<[any, any]> = Object.entries(model.constructor.associations)
   const hasManyAssociations = associationsList.filter(([, value]) => value.type === 'has_many')
   const childrenQueries = hasManyAssociations.map(([key, value]) => {
     const childCollection = model.collections.get(key)
