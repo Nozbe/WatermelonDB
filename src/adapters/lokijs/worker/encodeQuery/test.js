@@ -240,6 +240,7 @@ describe('LokiJS encodeQuery', () => {
     const encodedQuery = testQuery(query)
 
     expect(encodedQuery.query.$and[0].col1.$regex.toString()).toEqual('/^.*abc$/i')
-    expect(encodedQuery.query.$and[1].col2.$not.$regex.toString()).toEqual('/^.*abc$/i')
+    expect(encodedQuery.query.$and[1].col2.$and[0].$not.$eq).toEqual(null)
+    expect(encodedQuery.query.$and[1].col2.$and[1].$not.$regex.toString()).toEqual('/^.*abc$/i')
   })
 })

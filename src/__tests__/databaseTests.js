@@ -319,6 +319,7 @@ export const matchTests = [
     nonMatching: [
       { id: 'm1', text1: 'Lorem ipsum dolor sit amet,' },
       { id: 'm2', text1: 'Lorem Ipsum dolor sit amet,' },
+      { id: 'm3', text1: null },
     ],
     matching: [
       { id: 'n1', text1: 'consectetur adipiscing elit.' },
@@ -342,6 +343,7 @@ export const matchTests = [
     query: [Q.where('text1', Q.notLike('Lorem%'))],
     nonMatching: [
       { id: 'm1', text1: 'Lorem Ipsum dolor sit amet,' },
+      { id: 'm2', text1: null },
     ],
     matching: [
       { id: 'n1', text1: 'consectetur adipiscing elit.' },
@@ -368,6 +370,7 @@ export const matchTests = [
     query: [Q.where('text1', Q.notLike('%Lorem'))],
     nonMatching: [
       { id: 'm1', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem' },
+      { id: 'm2', text1: null },
     ],
     matching: [
       { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },
@@ -396,6 +399,7 @@ export const matchTests = [
     query: [Q.where('text1', Q.notLike('lorem%elit'))],
     nonMatching: [
       { id: 'm1', text1: 'Lorem Ipsum dolor sit amet, consectetur adipiscing elit' },
+      { id: 'm2', text1: null },
     ],
     matching: [
       { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },
@@ -427,6 +431,7 @@ export const matchTests = [
     nonMatching: [
       { id: 'm1', text1: 'Lorem Ipsum dolor sit amet, consectetur adipiscing elit' },
       { id: 'm2', text1: 'Lorem Ipsum dolor sit amet, consectetur adipiscing elit.' },
+      { id: 'm3', text1: null },
     ],
     matching: [
       { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },
@@ -460,6 +465,7 @@ export const matchTests = [
       { id: 'm1', text1: 'Lorem Ipsum dolor sit amet, consectetur adipiscing elit' },
       { id: 'm2', text1: 'Lorem Ipsum dolor sit amet, consectetur adipiscing elit.' },
       { id: 'm3', text1: 'Larem Ipsum dolor sit amet, consectetur adipiscing epit.' },
+      { id: 'm4', text1: null },
     ],
     matching: [
       { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },

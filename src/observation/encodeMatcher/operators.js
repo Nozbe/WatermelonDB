@@ -34,6 +34,10 @@ export const like: OperatorFunction = (left, right) => {
 }
 
 export const notLike: OperatorFunction = (left, right) => {
+  // Mimic SQLite behaviour
+  if (left === null) {
+    return false
+  }
   const leftV = handleLikeValue(left, '')
 
   return !likeToRegexp(right).test(leftV)

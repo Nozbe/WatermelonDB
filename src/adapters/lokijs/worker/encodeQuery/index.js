@@ -101,7 +101,10 @@ const like: OperatorFunction = value => {
 const notLike: OperatorFunction = value => {
   if (typeof value === 'string') {
     return {
-      $not: { $regex: likeToRegexp(value) },
+      $and: [
+        { $not: { $eq: null } },
+        { $not: { $regex: likeToRegexp(value) } },
+      ],
     }
   }
 
