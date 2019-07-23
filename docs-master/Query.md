@@ -126,11 +126,13 @@ This queries all comments that are **both** verified **and** awesome.
 | `Q.where('likes', Q.between(10, 100))` | `likes >= 10 && likes <= 100` |
 | `Q.where('status', Q.oneOf(['published', 'draft']))` | `status === 'published' \|\| status === 'draft'` |
 | `Q.where('status', Q.notIn(['archived', 'deleted']))` | `status !== 'archived' && status !== 'deleted'` |
-| `Q.where('status', Q.like('%bl_sh%'))` | `/.*bl.sh.*/g` (See note below!) |
+| `Q.where('status', Q.like('%bl_sh%'))` | `/.*bl.sh.*/i` (See note below!) |
+| `Q.where('status', Q.notLike('%bl_sh%'))` | `/^((!?.*bl.sh.*).)*$/i` (Inverse regex match) (See note below!) |
 
-**Note:** It's NOT SAFE to use `Q.like` with user input directly, because special characters like `%` or `_` are not escaped. Always sanitize user input like so: 
+**Note:** It's NOT SAFE to use `Q.like` and `Q.notLike` with user input directly, because special characters like `%` or `_` are not escaped. Always sanitize user input like so: 
 ```js
 Q.like(`%${Q.sanitizeLikeString(userInput)}%`)
+Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
 ```
 
 You can use `Q.like` for search-related tasks. For example, to find all users whose username start with "jas" (case-insensitive) you can write

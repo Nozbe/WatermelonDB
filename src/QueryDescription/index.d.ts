@@ -70,6 +70,7 @@ declare module '@nozbe/watermelondb/QueryDescription' {
   export function and(...conditions: Where[]): And
   export function or(...conditions: Where[]): Or
   export function like(value: string): Comparison
+  export function notLike(value: string): Comparison
   export function sanitizeLikeString(value: string): string
 
   type _OnFunctionColumnValue = (table: TableName<any>, column: ColumnName, value: Value) => On
