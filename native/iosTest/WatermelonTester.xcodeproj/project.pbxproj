@@ -20,6 +20,7 @@
 		146834051AC3E58100842450 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		6E3CFDB822EAEF6700B843B8 /* libCavyNativeReporter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E3CFDB722EAEEF600B843B8 /* libCavyNativeReporter.a */; };
+		6E3CFDBA22EAF13400B843B8 /* DatabaseDriverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3CFDB922EAF13400B843B8 /* DatabaseDriverTests.swift */; };
 		6ECAF1762212B9D000D06219 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6ECAF1752212B9D000D06219 /* JavaScriptCore.framework */; };
 		6ED500DF2143DC420031A190 /* libWatermelonDB.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6ED500DE2143DC300031A190 /* libWatermelonDB.a */; };
 		6ED501392143FE770031A190 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED501362143FE760031A190 /* Tests.swift */; };
@@ -303,6 +304,7 @@
 		4AD1A2FF035C6D8230E674A2 /* Pods-WatermelonTesterTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WatermelonTesterTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-WatermelonTesterTests/Pods-WatermelonTesterTests.release.xcconfig"; sourceTree = "<group>"; };
 		5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTAnimation.xcodeproj; path = "../../node_modules/react-native/Libraries/NativeAnimation/RCTAnimation.xcodeproj"; sourceTree = "<group>"; };
 		6E3CFDB222EAEEF600B843B8 /* CavyNativeReporter.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CavyNativeReporter.xcodeproj; path = "../../node_modules/cavy-native-reporter/ios/CavyNativeReporter.xcodeproj"; sourceTree = "<group>"; };
+		6E3CFDB922EAF13400B843B8 /* DatabaseDriverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseDriverTests.swift; sourceTree = "<group>"; };
 		6ECAF1752212B9D000D06219 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		6ED500D92143DC300031A190 /* WatermelonDB.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WatermelonDB.xcodeproj; path = ../ios/WatermelonDB.xcodeproj; sourceTree = "<group>"; };
 		6ED500E02143DC690031A190 /* WatermelonTester-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WatermelonTester-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -382,6 +384,7 @@
 			isa = PBXGroup;
 			children = (
 				6ED501372143FE770031A190 /* BridgeTests.swift */,
+				6E3CFDB922EAF13400B843B8 /* DatabaseDriverTests.swift */,
 				6ED501362143FE760031A190 /* Tests.swift */,
 				00E356F01AD99517003FC87E /* Supporting Files */,
 				6ED500F22143FA1B0031A190 /* WatermelonTesterTests-Bridging-Header.h */,
@@ -1049,6 +1052,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E3CFDBA22EAF13400B843B8 /* DatabaseDriverTests.swift in Sources */,
 				6ED501392143FE770031A190 /* Tests.swift in Sources */,
 				6ED5013A2143FE770031A190 /* BridgeTests.swift in Sources */,
 			);
