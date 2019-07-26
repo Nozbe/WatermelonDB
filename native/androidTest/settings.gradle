@@ -1,4 +1,9 @@
 rootProject.name = 'watermelonTest'
 include ':watermelondb'
 project(':watermelondb').projectDir = new File(rootProject.projectDir, '../../native/android')
+
+include ':cavy-native-reporter'
+project(':cavy-native-reporter').projectDir =
+        new File(rootProject.projectDir, '../../node_modules/cavy-native-reporter/android')
+
 include ':app'
