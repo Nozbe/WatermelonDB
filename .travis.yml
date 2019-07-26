@@ -37,9 +37,9 @@ matrix:
       dist: trusty
       android:
         components:
-          - build-tools-28.0.3
-          - android-28
-          - android-24
+          - build-tools-29.0.0
+          - android-29
+          # - android-24
           - tools
           - platform-tools
           - tools
@@ -60,7 +60,7 @@ matrix:
         - export PATH=$HOME/.yarn/bin:$PATH
         - yarn -version
         - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
-        - echo no | android create avd --force -n test -t android-24 --abi armeabi-v7a
+        - echo no | android create avd --force -n test -t "android-25"
         - emulator -avd test -no-skin -no-window &
       install:
         - yarn
