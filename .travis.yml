@@ -37,8 +37,8 @@ matrix:
       dist: trusty
       android:
         components:
-          - build-tools-29.0.0
-          - android-29
+          - build-tools-28.0.3
+          - android-28
           - android-24
           - tools
           - platform-tools
