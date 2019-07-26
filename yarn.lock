@@ -1990,12 +1990,17 @@ caseless@~0.12.0:
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
 
-"cavy@git+https://github.com/Nozbe/cavy.git":
-  version "0.5.0"
-  resolved "git+https://github.com/Nozbe/cavy.git#710b8cb00f270a4495df213ffc95f16656b76063"
+cavy-native-reporter@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/cavy-native-reporter/-/cavy-native-reporter-0.1.0.tgz#8b3c29181269574ba773b0f1ab57a48407589899"
+  integrity sha512-dqbQSxqwV25xqetmjWYHRBsDyGspFZDTrBC5nv8uEIArYoVK+YRmL5mQmARxuQTPhzwByHItOqaVpjoNR+k4AQ==
+
+cavy@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/cavy/-/cavy-2.1.1.tgz#b3498ae71baf7c5580b73f894482cbd03cb6bc87"
+  integrity sha512-twAoxK0iGpk62isOIsDWT3NeG+c/2bkm1Sx1vAqOLEZWAuDA3T++7XLhj9XM1537oNe7/877XCdlh+au3Pxtew==
   dependencies:
     create-react-class "^15.6.0"
-    hoist-non-react-statics "^2.5.0"
     prop-types "^15.5.10"
 
 chalk@2.3.0:
@@ -3736,10 +3741,6 @@ has@^1.0.1, has@^1.0.3:
   integrity sha512-f2dvO0VU6Oej7RkWJGrehjbzMAjFp5/VKPp5tTpWIV4JHHZK1/BxbFRtf/siA2SWTe09caDmVtYYzWEIbBS4zw==
   dependencies:
     function-bind "^1.1.1"
-
-hoist-non-react-statics@^2.5.0:
-  version "2.5.5"
-  resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-2.5.5.tgz#c5903cf409c0dfd908f388e619d86b9c1174cb47"
 
 home-or-tmp@^3.0.0:
   version "3.0.0"

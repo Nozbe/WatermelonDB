@@ -1,26 +1,19 @@
-@testable import WatermelonTester
-@testable import WatermelonDB
 import XCTest
-import Nimble
 
 class BridgeTests: XCTestCase {
     func testBridge() {
-        waitUntil(timeout: 100) { done in
-            BridgeTestReporter.onFinished { result in
-                switch result {
-                case .success(let results):
-                    consoleLog("Bridge tests completed!")
-                    results.forEach { message in
-                        consoleLog(message)
-                    }
-                case .failure(let errors):
-                    errors.forEach { error in
-                        fail(error)
-                    }
-                }
+        let expectation = XCTestExpectation(description: "Cavy tests passed")
 
-                done()
+        CavyNativeReporter.onFinish { report in
+            NSLog("%@", report)
+
+            let errorCount = report["errorCount"] as? Int ?? 0
+            if errorCount > 0 {
+                XCTFail("Cavy tests had one or more errors")
             }
+            expectation.fulfill()
         }
+
+        wait(for: [expectation], timeout: 100)
     }
 }
