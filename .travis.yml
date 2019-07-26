@@ -61,7 +61,7 @@ matrix:
         - yarn -version
         - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
         - emulator -list-avds
-        - android list sdk --extended --no-ui --all
+        - $ANDROID_HOME/tools/bin/sdkmanager --list | grep "system-images/"
         - echo no | android create avd --force -n test -t "android-25"
         - emulator -avd test -no-skin -no-window &
       install:
