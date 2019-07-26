@@ -59,8 +59,8 @@ matrix:
         - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.9.4
         - export PATH=$HOME/.yarn/bin:$PATH
         - yarn -version
-        - echo y | sdkmanager tools
-        - echo y | sdkmanager "system-images;android-24;default;armeabi-v7a"
+        - yes | sdkmanager tools
+        - yes | sdkmanager "system-images;android-24;default;armeabi-v7a"
         - echo no | android create avd --force -n test -k "system-images;android-24;default;armeabi-v7a"
         - emulator -avd test -no-skin -no-window &
       install:
