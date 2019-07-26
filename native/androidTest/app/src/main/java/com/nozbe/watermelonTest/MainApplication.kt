@@ -6,7 +6,6 @@ import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
 import com.facebook.react.shell.MainReactPackage
 import com.nozbe.watermelondb.WatermelonDBPackage
-import java.util.Arrays
 
 class MainApplication : Application(), ReactApplication {
 
@@ -14,11 +13,7 @@ class MainApplication : Application(), ReactApplication {
         override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
 
         override fun getPackages(): List<ReactPackage> =
-                Arrays.asList<ReactPackage>(
-                        MainReactPackage(),
-                        NativeModulesPackage(),
-                        WatermelonDBPackage()
-                )
+                listOf(MainReactPackage(), NativeModulesPackage(), WatermelonDBPackage())
 
         override fun getJSMainModuleName(): String = "src/index.integrationTests.native"
     }
