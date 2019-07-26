@@ -2,12 +2,10 @@ source 'https://github.com/CocoaPods/Specs.git'
 workspace 'WatermelonTester.xcworkspace'
 
 target 'WatermelonTester' do
-  platform :ios, '12.2'
+  platform :ios, '11.3'
 
   target 'WatermelonTesterTests' do
     inherit! :search_paths
     use_frameworks!
-
-    pod 'Nimble',                 '~> 7.3.3'
   end
 end

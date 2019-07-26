@@ -574,7 +574,6 @@
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				06D343BB3954D17CF1201020 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -990,24 +989,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if [ -d \"/Users/travis/\" ]; then\n  export NODE_BINARY=$TRAVIS_NODE_BINARY\n  FORCE_BUNDLING=1 ../../node_modules/react-native/scripts/react-native-xcode.sh \"src/index.integrationTests.native.js\"\nelse\n  export NODE_BINARY=node\n  ../../node_modules/react-native/scripts/react-native-xcode.sh \"src/index.integrationTests.native.js\"\nfi\n";
-		};
-		06D343BB3954D17CF1201020 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-WatermelonTesterTests/Pods-WatermelonTesterTests-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/Nimble/Nimble.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Nimble.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WatermelonTesterTests/Pods-WatermelonTesterTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
 		};
 		6E0A6C1421661F7700195262 /* Run SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
