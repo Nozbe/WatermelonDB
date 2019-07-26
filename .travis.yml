@@ -35,10 +35,8 @@ matrix:
     - language: android
       android:
         components:
-          - build-tools-28.0.3
-          - android-28
-          - android-24
-          - sys-img-armeabi-v7a-android-24
+          - build-tools-29.0.0
+          - android-29
           - tools
           - platform-tools
           - tools
@@ -51,7 +49,7 @@ matrix:
           - $HOME/.gradle/wrapper/
           - $HOME/.android/build-cache
       before_install:
-        - nvm install 10
+        - nvm install 11
         - which node
         - node --version
         - export TRAVIS_NODE_BINARY=$(which node)
