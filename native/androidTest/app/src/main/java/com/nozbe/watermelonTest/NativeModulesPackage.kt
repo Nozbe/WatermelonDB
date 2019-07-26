@@ -11,5 +11,5 @@ class NativeModulesPackage : ReactPackage {
             List<ViewManager<*, *>> = emptyList()
 
     override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> =
-            listOf(BridgeTestReporter(reactContext))
+            listOf()
 }
