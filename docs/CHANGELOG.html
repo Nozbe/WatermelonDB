@@ -1,0 +1,442 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Changelog - WatermelonDB documentation</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li><a href="ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li><a href="index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li><a href="Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li><a href="ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li><a href="Installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li><a href="Schema.html"><strong aria-hidden="true">2.2.</strong> Schema</a></li><li><a href="Model.html"><strong aria-hidden="true">2.3.</strong> Defining Models</a></li><li><a href="CRUD.html"><strong aria-hidden="true">2.4.</strong> Create, Read, Update, Delete</a></li><li><a href="Components.html"><strong aria-hidden="true">2.5.</strong> Connecting to React Components</a></li><li><a href="Query.html"><strong aria-hidden="true">2.6.</strong> Querying</a></li><li><a href="Relation.html"><strong aria-hidden="true">2.7.</strong> Relations</a></li><li><a href="Actions.html"><strong aria-hidden="true">2.8.</strong> Custom Actions</a></li></ol></li><li><a href="ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li><a href="Advanced/Migrations.html"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li><a href="Advanced/Sync.html"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li><a href="Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li><a href="Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li><a href="Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li><a href="Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li><a href="Advanced/Performance.html"><strong aria-hidden="true">3.7.</strong> Performance tips</a></li></ol></li><li><a href="ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li><a href="Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li><a href="Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li></ol></li><li><a href="ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li><a href="Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li><a href="CONTRIBUTING.html"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li><a href="CHANGELOG.html" class="active"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">WatermelonDB documentation</h1>
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#changelog" id="changelog">Changelog</a></h1>
+<p>All notable changes to this project will be documented in this file.</p>
+<h2><a class="header" href="#unreleased" id="unreleased">Unreleased</a></h2>
+<h2><a class="header" href="#0130---2019-07-18" id="0130---2019-07-18">0.13.0 - 2019-07-18</a></h2>
+<h3><a class="header" href="#-breaking" id="-breaking">⚠️ Breaking</a></h3>
+<ul>
+<li>
+<p>[Database] It is now mandatory to pass <code>actionsEnabled:</code> option to Database constructor.
+It is recommended that you enable this option:</p>
+<pre><code class="language-js">const database = new Database({
+  adapter: ...,
+  modelClasses: [...],
+  actionsEnabled: true
+})
+</code></pre>
+<p>See <code>docs/Actions.md</code> for more details about Actions. You can also pass <code>false</code> to maintain
+backward compatibility, but this option <strong>will be removed</strong> in a later version</p>
+</li>
+<li>
+<p>[Adapters] <code>migrationsExperimental</code> prop of <code>SQLiteAdapter</code> and <code>LokiJSAdapter</code> has been renamed
+to <code>migrations</code>.</p>
+</li>
+</ul>
+<h3><a class="header" href="#new-features" id="new-features">New features</a></h3>
+<ul>
+<li>[Actions] You can now batch deletes by using <code>prepareMarkAsDeleted</code> or <code>prepareDestroyPermanently</code></li>
+<li>[Sync] Performance: <code>synchronize()</code> no longer calls your <code>pushChanges()</code> function if there are no
+local changes to push. This is meant to save unnecessary network bandwidth. ⚠️ Note that this
+could be a breaking change if you rely on it always being called</li>
+<li>[Sync] When setting new values to fields on a record, the field (and record) will no longer be
+marked as changed if the field's value is the same. This is meant to improve performance and avoid
+unnecessary code in the app. ⚠️ Note that this could be a breaking change if you rely on the old
+behavior. For now you can import <code>experimentalSetOnlyMarkAsChangedIfDiffers</code> from
+<code>@nozbe/watermelondb/Model/index</code> and call if with <code>(false)</code> to bring the old behavior back, but
+this will be removed in the later version -- create a new issue explaining why you need this</li>
+<li>[Sync] Small perf improvements</li>
+</ul>
+<h3><a class="header" href="#improvements" id="improvements">Improvements</a></h3>
+<ul>
+<li>[Typescript] Improved types for SQLite and LokiJS adapters, migrations, models, the database and the logger.</li>
+</ul>
+<h2><a class="header" href="#0123---2019-05-06" id="0123---2019-05-06">0.12.3 - 2019-05-06</a></h2>
+<h3><a class="header" href="#changes" id="changes">Changes</a></h3>
+<ul>
+<li>[Database] You can now update the random id schema by importing
+<code>import { setGenerator } from '@nozbe/watermelondb/utils/common/randomId'</code> and then calling <code>setGenerator(newGenenerator)</code>.
+This allows WatermelonDB to create specific IDs for example if your backend uses UUIDs.</li>
+<li>[Typescript] Type improvements to SQLiteAdapter and Database</li>
+<li>[Tests] remove cleanup for react-hooks-testing-library@0.5.0 compatibility</li>
+</ul>
+<h2><a class="header" href="#0122---2019-04-19" id="0122---2019-04-19">0.12.2 - 2019-04-19</a></h2>
+<h3><a class="header" href="#fixes" id="fixes">Fixes</a></h3>
+<ul>
+<li>[TypeScript] 'Cannot use 'in' operator to search for 'initializer'; decorator fix</li>
+</ul>
+<h3><a class="header" href="#changes-1" id="changes-1">Changes</a></h3>
+<ul>
+<li>[Database] You can now pass falsy values to <code>Database.batch(...)</code> (false, null, undefined). This is
+useful in keeping code clean when doing operations conditionally. (Also works with <code>model.batch(...)</code>)</li>
+<li>[Decorators]. You can now use <code>@action</code> on methods of any object that has a <code>database: Database</code>
+property, and <code>@field @children @date @relation @immutableRelation @json @text @nochange</code> decorators on
+any object with a <code>asModel: Model</code> property.</li>
+<li>[Sync] Adds a temporary/experimental <code>_unsafeBatchPerCollection: true</code> flag to <code>synchronize()</code>. This
+causes server changes to be committed to database in multiple batches, and not one. This is NOT preferred
+for reliability and performance reasons, but it works around a memory issue that might cause your app
+to crash on very large syncs (&gt;20,000 records). Use this only if necessary. Note that this option
+might be removed at any time if a better solution is found.</li>
+</ul>
+<h2><a class="header" href="#0121---2019-04-01" id="0121---2019-04-01">0.12.1 - 2019-04-01</a></h2>
+<h3><a class="header" href="#-hotfix" id="-hotfix">⚠️ Hotfix</a></h3>
+<ul>
+<li>
+<p>[iOS] Fix runtime crash when built with Xcode 10.2 (Swift 5 runtime).</p>
+<p><strong>⚠️ Note</strong>: You need to upgrade to React Native 0.59.3 for this to work. If you can't upgrade
+React Native yet, either stick to Xcode 10.1 or manually apply this patch:
+https://github.com/Nozbe/WatermelonDB/pull/302/commits/aa4e08ad0fa55f434da2a94407c51fc5ff18e506</p>
+</li>
+</ul>
+<h3><a class="header" href="#changes-2" id="changes-2">Changes</a></h3>
+<ul>
+<li>[Sync] Adds basic sync logging capability to Sync. Pass an empty object to <code>synchronize()</code> to populate it with diagnostic information:
+<pre><code class="language-js">const log = {}
+await synchronize({ database, log, ...})
+console.log(log.startedAt)
+</code></pre>
+See Sync documentation for more details.</li>
+</ul>
+<h2><a class="header" href="#0120---2019-03-18" id="0120---2019-03-18">0.12.0 - 2019-03-18</a></h2>
+<h3><a class="header" href="#added" id="added">Added</a></h3>
+<ul>
+<li>[Hooks] new <code>useDatabase</code> hook for consuming the Database Context:
+<pre><code class="language-js">import { useDatabase } from '@nozbe/watermelondb/hooks';
+const Component = () =&gt; {
+   const database = useDatabase();
+}
+</code></pre>
+</li>
+<li>[TypeScript] added <code>.d.ts</code> files. Please note: TypeScript definitions are currently incomplete and should be used as a guide only. <strong>PRs for improvements would be greatly appreciated!</strong></li>
+</ul>
+<h3><a class="header" href="#performance" id="performance">Performance</a></h3>
+<ul>
+<li>Improved UI performance by consolidating multiple observation emissions into a single per-collection batch emission when doing batch changes</li>
+</ul>
+<h2><a class="header" href="#0110---2019-03-12" id="0110---2019-03-12">0.11.0 - 2019-03-12</a></h2>
+<h3><a class="header" href="#breaking" id="breaking">Breaking</a></h3>
+<ul>
+<li>⚠️ Potentially BREAKING fix: a <code>@date</code> field now returns a Jan 1, 1970 date instead of <code>null</code> if the field's raw value is <code>0</code>.
+This is considered a bug fix, since it's unexpected to receive a <code>null</code> from a getter of a field whose column schema doesn't say <code>isOptional: true</code>.
+However, if you relied on this behavior, this might be a breaking change.</li>
+<li>⚠️ BREAKING: <code>Database.unsafeResetDatabase()</code> now requires that you run it inside an Action</li>
+</ul>
+<h3><a class="header" href="#bug-fixes" id="bug-fixes">Bug fixes</a></h3>
+<ul>
+<li>[Sync] Fixed an issue where synchronization would continue running despite <code>unsafeResetDatabase</code> being called</li>
+<li>[Android] fix compile error for kotlin 1.3+</li>
+</ul>
+<h3><a class="header" href="#other-changes" id="other-changes">Other changes</a></h3>
+<ul>
+<li>Actions are now aborted when <code>unsafeResetDatabase()</code> is called, making reseting database a little bit safer</li>
+<li>Updated demo dependencies</li>
+<li>LokiJS is now a dependency of WatermelonDB (although it's only required for use on the web)</li>
+<li>[Android] removed unused test class</li>
+<li>[Android] updated ktlint to <code>0.30.0</code></li>
+</ul>
+<h2><a class="header" href="#0101---2019-02-12" id="0101---2019-02-12">0.10.1 - 2019-02-12</a></h2>
+<h3><a class="header" href="#changes-3" id="changes-3">Changes</a></h3>
+<ul>
+<li>[Android] Changed <code>compile</code> to <code>implementation</code> in Library Gradle file
+<ul>
+<li>⚠️ might break build if you are using Android Gradle Plugin &lt;3.X</li>
+</ul>
+</li>
+<li>Updated <code>peerDependency</code> <code>react-native</code> to <code>0.57.0</code></li>
+<li>[Sync] Added <code>hasUnsyncedChanges()</code> helper method</li>
+<li>[Sync] Improved documentation for backends that can't distinguish between <code>created</code> and <code>updated</code> records</li>
+<li>[Sync] Improved diagnostics / protection against edge cases</li>
+<li>[iOS] Add missing <code>header search path</code> to support <strong>ejected</strong> expo project.</li>
+<li>[Android] Fix crash on android &lt; 5.0</li>
+<li>[iOS] <code>SQLiteAdapter</code>'s <code>dbName</code> path now allows you to pass an absolute path to a file, instead of a name</li>
+<li>[Web] Add adaptive layout for demo example with smooth scrolling for iOS</li>
+</ul>
+<h2><a class="header" href="#0100---2019-01-18" id="0100---2019-01-18">0.10.0 - 2019-01-18</a></h2>
+<h3><a class="header" href="#breaking-1" id="breaking-1">Breaking</a></h3>
+<ul>
+<li><strong>BREAKING:</strong> Table column <code>last_modified</code> is no longer automatically added to all database tables. If
+you don't use this column (e.g. in your custom sync code), you don't have to do anything.
+If you do, manually add this column to all table definitions in your Schema:
+<pre><code>{ name: 'last_modified', type: 'number', isOptional: true }
+</code></pre>
+<strong>Don't</strong> bump schema version or write a migration for this.</li>
+</ul>
+<h3><a class="header" href="#new" id="new">New</a></h3>
+<ul>
+<li>
+<p><strong>Actions API</strong>.</p>
+<p>This was actually released in 0.8.0 but is now documented in <a href="./docs/CRUD.html">CRUD.md</a> and <a href="./docs/Actions.html">Actions.md</a>.
+With Actions enabled, all create/update/delete/batch calls must be wrapped in an Action.</p>
+<p>To use Actions, call <code>await database.action(async () =&gt; { /* perform writes here */ }</code>, and in
+Model instance methods, you can just decorate the whole method with <code>@action</code>.</p>
+<p>This is necessary for Watermelon Sync, and also to enable greater safety and consistency.</p>
+<p>To enable actions, add <code>actionsEnabled: true</code> to <code>new Database({ ... })</code>. In a future release this
+will be enabled by default, and later, made mandatory.</p>
+<p>See documentation for more details.</p>
+</li>
+<li>
+<p><strong>Watermelon Sync Adapter</strong> (Experimental)</p>
+<p>Added <code>synchronize()</code> function that allows you to easily add full synchronization capabilities to
+your Watermelon app. You only need to provide two fetch calls to your remote server that conforms
+to Watermelon synchronization protocol, and all the client-side processing (applying remote changes,
+resolving conflicts, finding local changes, and marking them as synced) is done by Watermelon.</p>
+<p>See documentation for more details.</p>
+</li>
+<li>
+<p><strong>Support caching for non-global IDs at Native level</strong></p>
+</li>
+</ul>
+<h2><a class="header" href="#090---2018-11-23" id="090---2018-11-23">0.9.0 - 2018-11-23</a></h2>
+<h3><a class="header" href="#new-1" id="new-1">New</a></h3>
+<ul>
+<li>Added <code>Q.like</code> - you can now make queries similar to SQL <code>LIKE</code></li>
+</ul>
+<h2><a class="header" href="#080---2018-11-16" id="080---2018-11-16">0.8.0 - 2018-11-16</a></h2>
+<h3><a class="header" href="#new-2" id="new-2">New</a></h3>
+<ul>
+<li>Added <code>DatabaseProvider</code> and <code>withDatabase</code> Higher-Order Component to reduce prop drilling</li>
+<li>Added experimental Actions API. This will be documented in a future release.</li>
+</ul>
+<h3><a class="header" href="#fixes-1" id="fixes-1">Fixes</a></h3>
+<ul>
+<li>Fixes crash on older Android React Native targets without <code>jsc-android</code> installed</li>
+</ul>
+<h2><a class="header" href="#070---2018-10-31" id="070---2018-10-31">0.7.0 - 2018-10-31</a></h2>
+<h3><a class="header" href="#deprecations" id="deprecations">Deprecations</a></h3>
+<ul>
+<li>[Schema] Column type 'bool' is deprecated — change to 'boolean'</li>
+</ul>
+<h3><a class="header" href="#new-3" id="new-3">New</a></h3>
+<ul>
+<li>Added support for Schema Migrations. See documentation for more details.</li>
+<li>Added fundaments for integration of Danger with Jest</li>
+</ul>
+<h3><a class="header" href="#changes-4" id="changes-4">Changes</a></h3>
+<ul>
+<li>Fixed &quot;dependency cycle&quot; warning</li>
+<li>[SQLite] Fixed rare cases where database could be left in an unusable state (added missing transaction)</li>
+<li>[Flow] Fixes <code>oneOf()</code> typing and some other variance errors</li>
+<li>[React Native] App should launch a little faster, because schema is only compiled on demand now</li>
+<li>Fixed typos in README.md</li>
+<li>Updated Flow to 0.85</li>
+</ul>
+<h2><a class="header" href="#062---2018-10-04" id="062---2018-10-04">0.6.2 - 2018-10-04</a></h2>
+<h3><a class="header" href="#deprecations-1" id="deprecations-1">Deprecations</a></h3>
+<ul>
+<li>The <code>@nozbe/watermelondb/babel/cjs</code> / <code>@nozbe/watermelondb/babel/esm</code> Babel plugin that ships with Watermelon is deprecated and no longer necessary. Delete it from your Babel config as it will be removed in a future update</li>
+</ul>
+<h3><a class="header" href="#refactoring" id="refactoring">Refactoring</a></h3>
+<ul>
+<li>Removed dependency on <code>async</code> (Web Worker should be ~30KB smaller)</li>
+<li>Refactored <code>Collection</code> and <code>simpleObserver</code> for getting changes in an array and also adds CollectionChangeTypes for differentiation between different changes</li>
+<li>Updated dependencies</li>
+<li>Simplified build system by using relative imports</li>
+<li>Simplified build package by outputting CJS-only files</li>
+</ul>
+<h2><a class="header" href="#061---2018-09-20" id="061---2018-09-20">0.6.1 - 2018-09-20</a></h2>
+<h3><a class="header" href="#added-1" id="added-1">Added</a></h3>
+<ul>
+<li>Added iOS and Android integration tests and lint checks to TravisCI</li>
+</ul>
+<h3><a class="header" href="#changed" id="changed">Changed</a></h3>
+<ul>
+<li>Changed Flow setup for apps using Watermelon - see docs/Advanced/Flow.md</li>
+<li>Improved documentation, and demo code</li>
+<li>Updated dependencies</li>
+</ul>
+<h3><a class="header" href="#fixed" id="fixed">Fixed</a></h3>
+<ul>
+<li>Add quotes to all names in sql queries to allow keywords as table or column names</li>
+<li>Fixed running model tests in apps with Watermelon in the loop</li>
+<li>Fixed Flow when using Watermelon in apps</li>
+</ul>
+<h2><a class="header" href="#060---2018-09-05" id="060---2018-09-05">0.6.0 - 2018-09-05</a></h2>
+<p>Initial release of WatermelonDB</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="CONTRIBUTING.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a href="CONTRIBUTING.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

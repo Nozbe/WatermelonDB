@@ -33,6 +33,16 @@ export const like: OperatorFunction = (left, right) => {
   return likeToRegexp(right).test(leftV)
 }
 
+export const notLike: OperatorFunction = (left, right) => {
+  // Mimic SQLite behaviour
+  if (left === null) {
+    return false
+  }
+  const leftV = handleLikeValue(left, '')
+
+  return !likeToRegexp(right).test(leftV)
+}
+
 const operators: { [Operator]: OperatorFunction } = {
   eq: rawFieldEquals,
   notEq: complement(rawFieldEquals),
@@ -45,6 +55,7 @@ const operators: { [Operator]: OperatorFunction } = {
   notIn: noNullComparisons(complement(contains)),
   between,
   like,
+  notLike,
 }
 
 export default operators

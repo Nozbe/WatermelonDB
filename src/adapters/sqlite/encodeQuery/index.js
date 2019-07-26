@@ -58,6 +58,7 @@ const operators: { [Operator]: string } = {
   notIn: 'not in',
   between: 'between',
   like: 'like',
+  notLike: 'not like',
 }
 
 const encodeComparison = (table: TableName<any>, comparison: Comparison) => {

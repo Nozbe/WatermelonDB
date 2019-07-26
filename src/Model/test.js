@@ -1,15 +1,17 @@
 /* eslint no-multi-spaces: 0 */
 
 import { mergeMap } from 'rxjs/operators'
+import { mockDatabase } from '../__tests__/testModels'
 import { makeScheduler, expectToRejectWithMessage } from '../__tests__/utils'
 
 import Database from '../Database'
 import { appSchema, tableSchema } from '../Schema'
 import { field, date, readonly } from '../decorators'
-import { noop } from '../utils/fp'
+import { noop, allPromises } from '../utils/fp'
 import { sanitizedRaw } from '../RawRecord'
 
 import Model, { experimentalSetOnlyMarkAsChangedIfDiffers } from './index'
+import { fetchChildren } from './helpers'
 
 const mockSchema = appSchema({
   version: 1,
@@ -194,6 +196,7 @@ describe('CRUD', () => {
     const collection = database.collections.get('mock')
 
     const m1 = await collection.create()
+    expect(spyBatchDB).toHaveBeenCalledWith(m1)
 
     const spyOnPrepareDestroyPermanently = jest.spyOn(m1, 'prepareDestroyPermanently')
     const nextObserver = jest.fn()
@@ -202,11 +205,92 @@ describe('CRUD', () => {
 
     await m1.destroyPermanently()
 
-    expect(spyBatchDB).toHaveBeenCalledWith(m1)
     expect(spyOnPrepareDestroyPermanently).toHaveBeenCalledTimes(1)
 
     expect(nextObserver).toHaveBeenCalledTimes(1)
     expect(completionObserver).toHaveBeenCalledTimes(1)
+  })
+  it('can destroy a record and its children permanently', async () => {
+    const { database, projects, tasks, comments } = mockDatabase()
+
+    const project = await projects.create(mock => {
+      mock.name = 'foo'
+    })
+
+    const task = await tasks.create(mock => {
+      mock.project.set(project)
+    })
+
+    const comment = await comments.create(mock => {
+      mock.task.set(task)
+    })
+
+    database.adapter.batch = jest.fn()
+    const spyBatchDB = jest.spyOn(database, 'batch')
+
+    const spyOnPrepareDestroyPermanentlyProject = jest.spyOn(project, 'prepareDestroyPermanently')
+    const spyOnPrepareDestroyPermanentlyTask = jest.spyOn(task, 'prepareDestroyPermanently')
+    const spyOnPrepareDestroyPermanentlyComment = jest.spyOn(comment, 'prepareDestroyPermanently')
+
+    await project.experimentalDestroyPermanently()
+
+    expect(spyOnPrepareDestroyPermanentlyProject).toHaveBeenCalledTimes(1)
+    expect(spyOnPrepareDestroyPermanentlyTask).toHaveBeenCalledTimes(1)
+    expect(spyOnPrepareDestroyPermanentlyComment).toHaveBeenCalledTimes(1)
+
+    expect(spyBatchDB).toHaveBeenCalledWith(comment, task, project)
+  })
+  it('can mark a record as deleted', async () => {
+    const database = makeDatabase()
+    database.adapter.batch = jest.fn()
+    const spyBatchDB = jest.spyOn(database, 'batch')
+
+    const collection = database.collections.get('mock')
+
+    const m1 = await collection.create()
+    expect(spyBatchDB).toHaveBeenCalledWith(m1)
+
+    const spyOnMarkAsDeleted = jest.spyOn(m1, 'prepareMarkAsDeleted')
+    const nextObserver = jest.fn()
+    const completionObserver = jest.fn()
+    m1.observe().subscribe(nextObserver, null, completionObserver)
+
+    await m1.markAsDeleted()
+
+    expect(spyOnMarkAsDeleted).toHaveBeenCalledTimes(1)
+
+    expect(nextObserver).toHaveBeenCalledTimes(1)
+    expect(completionObserver).toHaveBeenCalledTimes(1)
+  })
+  it('can mark as deleted record and its children permanently', async () => {
+    const { database, projects, tasks, comments } = mockDatabase()
+
+    const project = await projects.create(mock => {
+      mock.name = 'foo'
+    })
+
+    const task = await tasks.create(mock => {
+      mock.project.set(project)
+    })
+
+    const comment = await comments.create(mock => {
+      mock.task.set(task)
+    })
+
+    database.adapter.batch = jest.fn()
+    const spyBatchDB = jest.spyOn(database, 'batch')
+
+    const spyOnPrepareMarkAsDeletedProject = jest.spyOn(project, 'prepareMarkAsDeleted')
+    const spyOnPrepareMarkAsDeletedTask = jest.spyOn(task, 'prepareMarkAsDeleted')
+    const spyOnPrepareMarkAsDeletedComment = jest.spyOn(comment, 'prepareMarkAsDeleted')
+
+    await project.experimentalMarkAsDeleted()
+
+    expect(spyOnPrepareMarkAsDeletedProject).toHaveBeenCalledTimes(1)
+    expect(spyOnPrepareMarkAsDeletedTask).toHaveBeenCalledTimes(1)
+    expect(spyOnPrepareMarkAsDeletedComment).toHaveBeenCalledTimes(1)
+
+    expect(spyBatchDB).toHaveBeenCalledWith(comment, task, project)
   })
 })
 
@@ -308,7 +392,17 @@ describe('Safety features', () => {
     )
 
     await expectToRejectWithMessage(
-      model.markAsDeleted(),
+      model.destroyPermanently(),
+      /can only be called from inside of an Action/,
+    )
+
+    await expectToRejectWithMessage(
+      model.experimentalMarkAsDeleted(),
+      /can only be called from inside of an Action/,
+    )
+
+    await expectToRejectWithMessage(
+      model.experimentalDestroyPermanently(),
       /can only be called from inside of an Action/,
     )
 
@@ -317,6 +411,8 @@ describe('Safety features', () => {
       await model.update(noop)
       await model.markAsDeleted()
       await model.destroyPermanently()
+      await model.experimentalMarkAsDeleted()
+      await model.experimentalDestroyPermanently()
     })
   })
 })
@@ -560,5 +656,41 @@ describe('Model observation', () => {
     scheduler.expectObservable(b$).toBe(bExpected, { m: model })
     scheduler.expectObservable(c$).toBe(cExpected, { m: model })
     scheduler.flush()
+  })
+})
+
+describe('model helpers', () => {
+  it('checks if fetchChildren retrieves all the children', async () => {
+    const { projects, tasks, comments } = mockDatabase()
+
+    const projectFoo = await projects.create(mock => {
+      mock.name = 'foo'
+    })
+    const projectBar = await projects.create(mock => {
+      mock.name = 'bar'
+    })
+
+    const commentPromise = async task => {
+      const comment = await comments.create(mock => { mock.task.set(task) })
+      const commentChildren = await fetchChildren(comment)
+      expect(commentChildren).toHaveLength(0)
+    }
+
+    const taskPromise = async (project, commentsCount) => {
+      const task = await tasks.create(mock => {
+        mock.project.set(project)
+      })
+      await allPromises(commentPromise, Array(commentsCount).fill(task))
+      const taskChildren = await fetchChildren(task)
+      expect(taskChildren).toHaveLength(commentsCount)
+    }
+
+    await allPromises(project => taskPromise(project, 2), Array(2).fill(projectFoo))
+    await allPromises(project => taskPromise(project, 3), Array(3).fill(projectBar))
+
+    const fooChildren = await fetchChildren(projectFoo)
+    const barChildren = await fetchChildren(projectBar)
+    expect(fooChildren).toHaveLength(6) // 2 tasks + 4 comments
+    expect(barChildren).toHaveLength(12) // 3 tasks + 9 comments
   })
 })
