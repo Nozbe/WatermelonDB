@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 0.14.0 - 2019-08-02
+
 ### New features
 - [Query] Added support for `notLike` queries 🎉
 - [Actions] You can now batch delete record with all descendants using experimental functions `experimentalMarkAsDeleted` or `experimentalDestroyPermanently`
