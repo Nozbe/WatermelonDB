@@ -148,6 +148,12 @@
                         <h1><a class="header" href="#changelog" id="changelog">Changelog</a></h1>
 <p>All notable changes to this project will be documented in this file.</p>
 <h2><a class="header" href="#unreleased" id="unreleased">Unreleased</a></h2>
+<h2><a class="header" href="#0140---2019-08-02" id="0140---2019-08-02">0.14.0 - 2019-08-02</a></h2>
+<h3><a class="header" href="#new-features" id="new-features">New features</a></h3>
+<ul>
+<li>[Query] Added support for <code>notLike</code> queries 🎉</li>
+<li>[Actions] You can now batch delete record with all descendants using experimental functions <code>experimentalMarkAsDeleted</code> or <code>experimentalDestroyPermanently</code></li>
+</ul>
 <h2><a class="header" href="#0130---2019-07-18" id="0130---2019-07-18">0.13.0 - 2019-07-18</a></h2>
 <h3><a class="header" href="#-breaking" id="-breaking">⚠️ Breaking</a></h3>
 <ul>
@@ -168,7 +174,7 @@ backward compatibility, but this option <strong>will be removed</strong> in a la
 to <code>migrations</code>.</p>
 </li>
 </ul>
-<h3><a class="header" href="#new-features" id="new-features">New features</a></h3>
+<h3><a class="header" href="#new-features-1" id="new-features-1">New features</a></h3>
 <ul>
 <li>[Actions] You can now batch deletes by using <code>prepareMarkAsDeleted</code> or <code>prepareDestroyPermanently</code></li>
 <li>[Sync] Performance: <code>synchronize()</code> no longer calls your <code>pushChanges()</code> function if there are no

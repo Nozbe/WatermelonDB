@@ -231,10 +231,12 @@ commentCollection.query(
 <tr><td><code>Q.where('likes', Q.between(10, 100))</code></td><td><code>likes &gt;= 10 &amp;&amp; likes &lt;= 100</code></td></tr>
 <tr><td><code>Q.where('status', Q.oneOf(['published', 'draft']))</code></td><td><code>status === 'published' \|\| status === 'draft'</code></td></tr>
 <tr><td><code>Q.where('status', Q.notIn(['archived', 'deleted']))</code></td><td><code>status !== 'archived' &amp;&amp; status !== 'deleted'</code></td></tr>
-<tr><td><code>Q.where('status', Q.like('%bl_sh%'))</code></td><td><code>/.*bl.sh.*/g</code> (See note below!)</td></tr>
+<tr><td><code>Q.where('status', Q.like('%bl_sh%'))</code></td><td><code>/.*bl.sh.*/i</code> (See note below!)</td></tr>
+<tr><td><code>Q.where('status', Q.notLike('%bl_sh%'))</code></td><td><code>/^((!?.*bl.sh.*).)*$/i</code> (Inverse regex match) (See note below!)</td></tr>
 </tbody></table>
-<p><strong>Note:</strong> It's NOT SAFE to use <code>Q.like</code> with user input directly, because special characters like <code>%</code> or <code>_</code> are not escaped. Always sanitize user input like so: </p>
+<p><strong>Note:</strong> It's NOT SAFE to use <code>Q.like</code> and <code>Q.notLike</code> with user input directly, because special characters like <code>%</code> or <code>_</code> are not escaped. Always sanitize user input like so: </p>
 <pre><code class="language-js">Q.like(`%${Q.sanitizeLikeString(userInput)}%`)
+Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
 </code></pre>
 <p>You can use <code>Q.like</code> for search-related tasks. For example, to find all users whose username start with &quot;jas&quot; (case-insensitive) you can write</p>
 <pre><code class="language-js">usersCollection.query(
