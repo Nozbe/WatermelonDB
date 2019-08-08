@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+- [withObservables] Added TypeScript support ([changelog](https://github.com/Nozbe/withObservables/blob/master/CHANGELOG.md))
+
 ## 0.14.0 - 2019-08-02
 
 ### New features
