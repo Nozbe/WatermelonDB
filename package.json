@@ -127,7 +127,7 @@
     "prettier": "^1.14.2",
     "prettier-eslint": "^9.0.0",
     "prettier-eslint-cli": "^4.7.1",
-    "react": "^16.8.6",
+    "react": "^16.9.0",
     "react-dom": "^16.8.6",
     "react-hooks-testing-library": "^0.6.0",
     "react-native": "^0.59.3",
