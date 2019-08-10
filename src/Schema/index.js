@@ -46,6 +46,11 @@ export function appSchema({
 }: $Exact<{ version: number, tables: TableSchema[] }>): AppSchema {
   isDevelopment && invariant(version > 0, `Schema version must be greater than 0`)
   const tables: TableMap = tableList.reduce((map, table) => {
+    isDevelopment && invariant(
+      typeof table === 'object' && table.name,
+      `Table schema must contain a name`
+    )
+
     map[table.name] = table
     return map
   }, {})
