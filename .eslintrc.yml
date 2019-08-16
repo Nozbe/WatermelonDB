@@ -6,6 +6,7 @@ env:
 
 plugins:
   - flowtype
+  - react
 
 extends:
   # https://github.com/airbnb/javascript
@@ -55,10 +56,12 @@ rules:
   no-else-return:
     - 2
     - allowElseIf: true
+  max-classes-per-file: 0
 
   # react
   react/prop-types: 0
   react/jsx-filename-extension: 0
+  react/jsx-props-no-spreading: 0
   react/jsx-no-bind:
     - 2
     - ignoreRefs: true
