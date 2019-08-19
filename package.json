@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "lokijs": "^1.5.5",
-    "rambdax": "^2.6.1",
+    "rambdax": "^2.13.0",
     "rxjs": "^6.2.2",
     "rxjs-compat": "^6.3.2",
     "sql-escape-string": "^1.1.0"
