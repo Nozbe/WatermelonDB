@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 - [Schema] Handle invalid table schema argument in appSchema
 - [withObservables] Added TypeScript support ([changelog](https://github.com/Nozbe/withObservables/blob/master/CHANGELOG.md))
+- [Electron] avoid `Uncaught ReferenceError: global is not defined` in electron runtime ([#453](https://github.com/Nozbe/WatermelonDB/issues/453))
 
 ## 0.14.0 - 2019-08-02
 
