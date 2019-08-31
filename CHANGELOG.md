@@ -4,9 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 0.14.1 - 2019-08-31
+
+Hotfix for rambdax crash
+
 - [Schema] Handle invalid table schema argument in appSchema
 - [withObservables] Added TypeScript support ([changelog](https://github.com/Nozbe/withObservables/blob/master/CHANGELOG.md))
 - [Electron] avoid `Uncaught ReferenceError: global is not defined` in electron runtime ([#453](https://github.com/Nozbe/WatermelonDB/issues/453))
+- [rambdax] Replaces `contains` with `includes` due to `contains` deprecation https://github.com/selfrefactor/rambda/commit/1dc1368f81e9f398664c9d95c2efbc48b5cdff9b#diff-04c6e90faac2675aa89e2176d2eec7d8R2209
 
 ## 0.14.0 - 2019-08-02
 

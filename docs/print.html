@@ -247,6 +247,10 @@ const enhance = withObservables(['post'], ({ post }) =&gt; ({
     <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/steady.png" alt="Steady">
   </a>
 <br>
+<a href="https://aerobotics.com">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/aerobotics.png" alt="Aerobotics" width="300" />
+  </a>
+<br>
 <p><em>Does your company or app use 🍉? Open a pull request and add your logo/icon with link here!</em></p>
 <h2><a class="header" href="#contributing" id="contributing">Contributing</a></h2>
 <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/needyou.jpg" alt="We need you" width="220" />
@@ -2287,6 +2291,14 @@ yarn ktlint
 <h1><a class="header" href="#changelog" id="changelog">Changelog</a></h1>
 <p>All notable changes to this project will be documented in this file.</p>
 <h2><a class="header" href="#unreleased" id="unreleased">Unreleased</a></h2>
+<h2><a class="header" href="#0141---2019-08-31" id="0141---2019-08-31">0.14.1 - 2019-08-31</a></h2>
+<p>Hotfix for rambdax crash</p>
+<ul>
+<li>[Schema] Handle invalid table schema argument in appSchema</li>
+<li>[withObservables] Added TypeScript support (<a href="https://github.com/Nozbe/withObservables/blob/master/CHANGELOG.md">changelog</a>)</li>
+<li>[Electron] avoid <code>Uncaught ReferenceError: global is not defined</code> in electron runtime (<a href="https://github.com/Nozbe/WatermelonDB/issues/453">#453</a>)</li>
+<li>[rambdax] Replaces <code>contains</code> with <code>includes</code> due to <code>contains</code> deprecation https://github.com/selfrefactor/rambda/commit/1dc1368f81e9f398664c9d95c2efbc48b5cdff9b#diff-04c6e90faac2675aa89e2176d2eec7d8R2209</li>
+</ul>
 <h2><a class="header" href="#0140---2019-08-02" id="0140---2019-08-02">0.14.0 - 2019-08-02</a></h2>
 <h3><a class="header" href="#new-features" id="new-features">New features</a></h3>
 <ul>
