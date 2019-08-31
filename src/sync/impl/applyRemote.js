@@ -4,7 +4,7 @@ import {
   // $FlowFixMe
   promiseAllObject,
   map,
-  contains,
+  includes,
   values,
   filter,
   find,
@@ -51,8 +51,8 @@ async function recordsToApplyRemoteChangesTo<T: Model>(
     ...changes,
     records,
     locallyDeletedIds,
-    recordsToDestroy: filter(record => contains(record.id, deletedIds), records),
-    deletedRecordsToDestroy: filter(id => contains(id, deletedIds), locallyDeletedIds),
+    recordsToDestroy: filter(record => includes(record.id, deletedIds), records),
+    deletedRecordsToDestroy: filter(id => includes(id, deletedIds), locallyDeletedIds),
   }
 }
 
@@ -93,7 +93,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
         }, but it already exists locally. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will update existing record instead.`,
       )
       return prepareUpdateFromRaw(currentRecord, raw, log)
-    } else if (contains(raw.id, locallyDeletedIds)) {
+    } else if (includes(raw.id, locallyDeletedIds)) {
       logError(
         `[Sync] Server wants client to create record ${table}#${
           raw.id
@@ -113,7 +113,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
 
     if (currentRecord) {
       return prepareUpdateFromRaw(currentRecord, raw, log)
-    } else if (contains(raw.id, locallyDeletedIds)) {
+    } else if (includes(raw.id, locallyDeletedIds)) {
       // Nothing to do, record was locally deleted, deletion will be pushed later
       return null
     }
