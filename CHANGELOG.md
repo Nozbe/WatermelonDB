@@ -3,6 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
+- [Typescript] Added 3 missing properties `collections`, `database` and `asModel` in Model type definition.  
+
 
 ## 0.14.1 - 2019-08-31
 
