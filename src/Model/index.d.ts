@@ -1,5 +1,5 @@
 declare module '@nozbe/watermelondb/Model' {
-  import { ColumnName, TableName, Collection, RawRecord } from '@nozbe/watermelondb'
+  import { Collection, CollectionMap, ColumnName, Database, RawRecord, TableName } from '@nozbe/watermelondb';
   import { Observable } from 'rxjs'
 
   export type RecordId = string
