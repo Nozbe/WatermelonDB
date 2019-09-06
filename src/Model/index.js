@@ -45,7 +45,7 @@ export function experimentalSetOnlyMarkAsChangedIfDiffers(value: boolean): void 
 
 export default class Model {
   // Set this in concrete Models to the name of the database table
-  static table: TableName<$FlowFixMe<this>>
+  static +table: TableName<this>
 
   // Set this in concrete Models to define relationships between different records
   static associations: Associations = {}
@@ -117,9 +117,7 @@ export default class Model {
       process.nextTick(() => {
         invariant(
           !this._hasPendingUpdate,
-          `record.prepareUpdate was called on ${this.table}#${
-            this.id
-          } but wasn't sent to batch() synchronously -- this is bad!`,
+          `record.prepareUpdate was called on ${this.table}#${this.id} but wasn't sent to batch() synchronously -- this is bad!`,
         )
       })
     }
