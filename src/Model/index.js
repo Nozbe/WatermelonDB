@@ -196,7 +196,7 @@ export default class Model {
 
   // *** Implementation details ***
 
-  collection: Collection<$FlowFixMe<this>>
+  +collection: Collection<this>
 
   // Collections of other Models in the same domain as this record
   get collections(): CollectionMap {
