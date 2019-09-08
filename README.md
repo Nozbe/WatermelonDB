@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="https://opensource.org/licenses/MIT">
+  <a href="https://github.com/Nozbe/WatermelonDB/blob/master/LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License">
   </a>
   
