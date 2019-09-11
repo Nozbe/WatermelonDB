@@ -18,7 +18,7 @@ declare module '@nozbe/watermelondb/Database' {
     public constructor(
       options: {
         adapter: DatabaseAdapter;
-        modelClasses: Model[];
+        modelClasses: Class<Model>[];
         actionsEnabled: boolean;
       })
 
