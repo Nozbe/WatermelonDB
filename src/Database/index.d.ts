@@ -19,7 +19,7 @@ declare module '@nozbe/watermelondb/Database' {
       options: {
         adapter: DatabaseAdapter;
         modelClasses: Model[];
-        actionsEnabled?: boolean;
+        actionsEnabled: boolean;
       })
 
     public batch(...records: Model[] | null[] | void[] | false[] | Promise<void>[]): Promise<void>
