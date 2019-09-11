@@ -1,4 +1,4 @@
 declare module '@nozbe/watermelondb/decorators/lazy' {
-  const lazy: MethodDecorator
+  const lazy: PropertyDecorator
   export default lazy
 }

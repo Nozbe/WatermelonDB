@@ -53,12 +53,12 @@ declare module '@nozbe/watermelondb/Model' {
 
     public subAction<T>(action: () => Promise<T>): Promise<T>
 
-    public collection: Collection<this>
+    public collection: Collection<Model>
                                  
-    public collections: CollectionMap;
+    public collections: CollectionMap
 
-    public database: Database;
+    public database: Database
 
-    public asModel: this;                             
+    public asModel: this                             
   }
 }
