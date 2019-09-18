@@ -69,7 +69,7 @@ import com.android.build.OutputFile
 project.ext.react = [
         entryFile: "src/index.integrationTests.native.js",
         cliPath  : "../node_modules/react-native/local-cli/cli.js",
-        bundleInDebug: true,
+//        bundleInDebug: true,
 ]
 
 apply from: "../../../node_modules/react-native/react.gradle"

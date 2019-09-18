@@ -16,6 +16,13 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
+    externalNativeBuild {
+        cmake {
+            version '3.7.0+'
+            path "src/main/cpp/CMakeLists.txt"
+        }
+    }
 }
 
 dependencies {
