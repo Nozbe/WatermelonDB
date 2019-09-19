@@ -38,6 +38,7 @@ public class HelloJni {
      */
     public native String  stringFromJNI();
     public native String  stringFromJNICpp();
+    public native void installBinding(long runtimePointer);
 
     /* This is another native method declaration that is *not*
      * implemented by 'hello-jni'. This is simply to show that

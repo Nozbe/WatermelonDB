@@ -4,8 +4,12 @@ import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import com.facebook.react.ReactActivity
 import com.example.hellojni.HelloJni
+import com.facebook.react.bridge.ReactContext
+import com.facebook.react.ReactInstanceManager
 
-class MainActivity : ReactActivity() {
+
+
+class MainActivity : ReactActivity(), ReactInstanceManager.ReactInstanceEventListener {
     override fun getMainComponentName(): String? = "watermelonTest"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,5 +29,19 @@ class MainActivity : ReactActivity() {
                 .setNegativeButton(android.R.string.no, null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show()
+    }
+
+    public override fun onResume() {
+        super.onResume()
+        reactInstanceManager.addReactInstanceEventListener(this)
+    }
+
+    public override fun onPause() {
+        super.onPause()
+        reactInstanceManager.removeReactInstanceEventListener(this)
+    }
+
+    override fun onReactContextInitialized(context: ReactContext) {
+        HelloJni().installBinding(context.javaScriptContextHolder.get())
     }
 }
