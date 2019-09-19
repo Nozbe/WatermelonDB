@@ -30,3 +30,4 @@ const TestRoot = () => (
   </Tester>
 )
 AppRegistry.registerComponent('watermelonTest', () => TestRoot)
+alert(global.wmelonJsiProof)
