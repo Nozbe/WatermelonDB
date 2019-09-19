@@ -1,4 +1,8 @@
 rootProject.name = 'watermelonTest'
 include ':watermelondb'
 project(':watermelondb').projectDir = new File(rootProject.projectDir, '../../native/android')
+
+include ':hello-jni'
+project(':hello-jni').projectDir = new File(rootProject.projectDir, '../../native/hello-jni/hello')
+
 include ':app'
