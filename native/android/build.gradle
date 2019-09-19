@@ -1,3 +1,18 @@
+buildscript {
+    ext.kotlin_version = '1.3.31'
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
@@ -15,12 +30,17 @@ android {
         targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"
-        externalNativeBuild {
-            cmake {
-                abiFilters "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
-                cppFlags "-std=c++14"
-            }
-        }
+        // externalNativeBuild {
+        //     cmake {
+        //         abiFilters "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
+        //         cppFlags "-std=c++14"
+        //     }
+        // }
+//        ndk {
+//            abiFilters "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
+//            moduleName "watermelondb"
+//            ldLibs "log"
+//        }
     }
 
     buildTypes {
@@ -30,12 +50,26 @@ android {
                     'proguard-rules.pro'
         }
     }
-    externalNativeBuild {
-        cmake {
-            version '3.10.2+'
-            path "src/main/cpp/CMakeLists.txt"
-        }
-    }
+    // externalNativeBuild {
+    //     cmake {
+    //         version '3.10.2+'
+    //         path "src/main/cpp/CMakeLists.txt"
+    //     }
+    // }
+//    sourceSets {
+//        main {
+//            // first our new Java code
+//            // java.srcDirs = ["../../djinni/java", "src/main/java"]
+//            // second our JNI classes
+////            jni.srcDirs = ["src/main/jni"]
+//        }
+//    }
+//    externalNativeBuild {
+//        // This points ndk-build at our Android.mk file
+//        ndkBuild {
+//            path file('src/main/jni/Android.mk')
+//        }
+//    }
 }
 
 dependencies {
@@ -44,6 +78,15 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 repositories {
-    mavenCentral()
+    google()
+    mavenLocal()
+    jcenter()
+    maven {
+        // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+        url "$rootDir/../../node_modules/react-native/android"
+    }
+    maven {
+        // Local Maven repo containing AARs with JSC library built for Android
+        url "$rootDir/../../node_modules/jsc-android/dist"
+    }
 }
-
