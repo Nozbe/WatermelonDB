@@ -101,9 +101,9 @@ android {
         targetSdkVersion rootProject.targetSdkVersion
         versionCode 1
         versionName "1.0"
-//        ndk {
-//            abiFilters "armeabi-v7a", "x86"
-//        }
+        ndk {
+            abiFilters "armeabi-v7a", "x86"
+        }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {

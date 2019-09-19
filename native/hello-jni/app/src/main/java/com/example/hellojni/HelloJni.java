@@ -15,23 +15,23 @@
  */
 package com.example.hellojni;
 
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.widget.TextView;
+//import android.support.v7.app.AppCompatActivity;
+//import android.os.Bundle;
+//import android.widget.TextView;
 
-public class HelloJni extends AppCompatActivity {
+public class HelloJni {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        /* Retrieve our TextView and set its content.
-         * the text is retrieved by calling a native
-         * function.
-         */
-        setContentView(R.layout.activity_hello_jni);
-        TextView tv = (TextView)findViewById(R.id.hello_textview);
-        tv.setText( stringFromJNI() );
-    }
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        /* Retrieve our TextView and set its content.
+//         * the text is retrieved by calling a native
+//         * function.
+//         */
+//        setContentView(R.layout.activity_hello_jni);
+//        TextView tv = (TextView)findViewById(R.id.hello_textview);
+//        tv.setText( stringFromJNI() );
+//    }
     /* A native method that is implemented by the
      * 'hello-jni' native library, which is packaged
      * with this application.
@@ -48,7 +48,7 @@ public class HelloJni extends AppCompatActivity {
      * Trying to call this function will result in a
      * java.lang.UnsatisfiedLinkError exception !
      */
-    public native String  unimplementedStringFromJNI();
+//    public native String  unimplementedStringFromJNI();
 
     /* this is used to load the 'hello-jni' library on application
      * startup. The library has already been unpacked into
