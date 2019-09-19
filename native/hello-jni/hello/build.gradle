@@ -3,7 +3,6 @@ apply plugin: 'com.android.library'
 android {
     compileSdkVersion 28
     defaultConfig {
-//        applicationId 'com.example.hellojni'
         minSdkVersion 23
         targetSdkVersion 28
         versionCode 1
@@ -22,39 +21,6 @@ android {
             path "src/main/cpp/CMakeLists.txt"
         }
     }
-//
-//    flavorDimensions 'cpuArch'
-//    productFlavors {
-//        arm7 {
-//            dimension 'cpuArch'
-//            ndk {
-//                abiFilter 'armeabi-v7a'
-//            }
-//        }
-//        arm8 {
-//            dimension 'cpuArch'
-//            ndk {
-//                abiFilters 'arm64-v8a'
-//            }
-//        }
-//        x86 {
-//            dimension 'cpuArch'
-//            ndk {
-//                abiFilter 'x86'
-//            }
-//        }
-//        x86_64 {
-//            dimension 'cpuArch'
-//            ndk {
-//                abiFilter 'x86_64'
-//            }
-//        }
-//        universal {
-//            dimension 'cpuArch'
-//            // include all default ABIs. with NDK-r16,  it is:
-//            //   armeabi-v7a, arm64-v8a, x86, x86_64
-//        }
-//    }
 }
 
 dependencies {

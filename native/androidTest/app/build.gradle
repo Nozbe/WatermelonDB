@@ -166,7 +166,7 @@ dependencies {
     ktlint "com.github.shyiko:ktlint:0.31.0"
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation project(':watermelondb')
-    implementation project(':hello-jni')
+    implementation project(':watermelondb-jsi')
     implementation 'androidx.appcompat:appcompat:1.0.2'
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules

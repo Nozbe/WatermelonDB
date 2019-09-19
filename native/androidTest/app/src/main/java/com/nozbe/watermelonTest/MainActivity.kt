@@ -1,9 +1,9 @@
 package com.nozbe.watermelonTest
 
 import com.facebook.react.ReactActivity
-import com.example.hellojni.HelloJni
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.ReactInstanceManager
+import com.nozbe.watermelondb.jsi.WatermelonJSIInstaller
 
 class MainActivity : ReactActivity(), ReactInstanceManager.ReactInstanceEventListener {
     override fun getMainComponentName(): String? = "watermelonTest"
@@ -19,6 +19,6 @@ class MainActivity : ReactActivity(), ReactInstanceManager.ReactInstanceEventLis
     }
 
     override fun onReactContextInitialized(context: ReactContext) {
-        HelloJni().installBinding(context.javaScriptContextHolder.get())
+        WatermelonJSIInstaller().installBinding(context.javaScriptContextHolder.get())
     }
 }

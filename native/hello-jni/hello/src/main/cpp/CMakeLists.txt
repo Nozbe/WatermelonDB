@@ -20,14 +20,14 @@ include_directories(
 #        -DFOLLY_HAVE_MEMRCHR=1
 #)
 
-add_library(hello-jni SHARED
+add_library(watermelondb-jsi SHARED
             # source files
-            HelloJniCpp.cpp
+            WatermelonJSIInstaller.cpp
             # this seems necessary to use almost any JSI API - otherwise we get linker errors
             # seems wrong to compile a file that's already getting compiled as part of the app, but ¯\_(ツ)_/¯
             ../../../../../../node_modules/react-native/ReactCommon/jsi/jsi.cpp)
 
-# Include libraries needed for hello-jni lib
-target_link_libraries(hello-jni
+target_link_libraries(watermelondb-jsi
+                      # link with these libraries:
                       android
                       log)
