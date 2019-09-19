@@ -11,9 +11,11 @@ class MainActivity : ReactActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val hello = HelloJni()
+
         AlertDialog.Builder(this)
                 .setTitle("I got a message from JNI for ya!")
-                .setMessage(HelloJni().stringFromJNI())
+                .setMessage(hello.stringFromJNI() + "; " + hello.stringFromJNICpp())
 
                 // Specifying a listener allows you to take an action before dismissing the dialog.
                 // The dialog is automatically dismissed when a dialog button is clicked.

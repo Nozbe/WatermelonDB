@@ -37,6 +37,7 @@ public class HelloJni {
      * with this application.
      */
     public native String  stringFromJNI();
+    public native String  stringFromJNICpp();
 
     /* This is another native method declaration that is *not*
      * implemented by 'hello-jni'. This is simply to show that
