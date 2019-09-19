@@ -2,6 +2,7 @@
 // Created by Radosław Pietruszewski on 2019-09-19.
 //
 
+#include <jsi/jsi.h>
 #include <jni.h>
 
 #include "HelloJniCpp.h"
