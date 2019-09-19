@@ -3,6 +3,6 @@ include ':watermelondb'
 project(':watermelondb').projectDir = new File(rootProject.projectDir, '../../native/android')
 
 include ':watermelondb-jsi'
-project(':watermelondb-jsi').projectDir = new File(rootProject.projectDir, '../../native/hello-jni/hello')
+project(':watermelondb-jsi').projectDir = new File(rootProject.projectDir, '../../native/android-jsi/watermelondb-jsi')
 
 include ':app'
