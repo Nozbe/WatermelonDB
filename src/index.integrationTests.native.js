@@ -30,4 +30,8 @@ const TestRoot = () => (
   </Tester>
 )
 AppRegistry.registerComponent('watermelonTest', () => TestRoot)
-alert(global.wmelonJsiProof)
+
+// WIP - JSI playground
+if (typeof global.wmelonJsiProof !== 'undefined') {
+  global.alert(global.wmelonJsiProof)
+}

@@ -63,6 +63,9 @@ matrix:
         - emulator -avd test -no-skin -no-window &
       install:
         - yarn
+        - echo y | sdkmanager 'ndk-bundle'
+        - echo y | sdkmanager --channel=3 --channel=1 "cmake;3.10.2.4988404"
+        - echo y | sdkmanager "lldb;3.1"
       script:
         - TERM=dumb yarn ktlint
         - android-wait-for-emulator
