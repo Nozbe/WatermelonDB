@@ -30,12 +30,12 @@ android {
         targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"
-        // externalNativeBuild {
-        //     cmake {
-        //         abiFilters "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
-        //         cppFlags "-std=c++14"
-        //     }
-        // }
+         externalNativeBuild {
+             cmake {
+                 abiFilters "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
+                 cppFlags "-std=c++14"
+             }
+         }
 //        ndk {
 //            abiFilters "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
 //            moduleName "watermelondb"
@@ -50,12 +50,12 @@ android {
                     'proguard-rules.pro'
         }
     }
-    // externalNativeBuild {
-    //     cmake {
-    //         version '3.10.2+'
-    //         path "src/main/cpp/CMakeLists.txt"
-    //     }
-    // }
+     externalNativeBuild {
+         cmake {
+             version '3.10.2+'
+             path "src/main/cpp/CMakeLists.txt"
+         }
+     }
 //    sourceSets {
 //        main {
 //            // first our new Java code
