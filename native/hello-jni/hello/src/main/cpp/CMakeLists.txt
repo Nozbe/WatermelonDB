@@ -22,7 +22,6 @@ include_directories(
 
 add_library(hello-jni SHARED
             # source files
-            hello-jni.c
             HelloJniCpp.cpp
             # this seems necessary to use almost any JSI API - otherwise we get linker errors
             # seems wrong to compile a file that's already getting compiled as part of the app, but ¯\_(ツ)_/¯
