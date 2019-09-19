@@ -7,5 +7,6 @@
 /build
 /captures
 .externalNativeBuild
+.cxx
 
 testPath*
