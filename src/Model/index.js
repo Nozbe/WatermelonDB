@@ -117,7 +117,9 @@ export default class Model {
       process.nextTick(() => {
         invariant(
           !this._hasPendingUpdate,
-          `record.prepareUpdate was called on ${this.table}#${this.id} but wasn't sent to batch() synchronously -- this is bad!`,
+          `record.prepareUpdate was called on ${this.table}#${
+            this.id
+          } but wasn't sent to batch() synchronously -- this is bad!`,
         )
       })
     }
@@ -196,7 +198,7 @@ export default class Model {
 
   // *** Implementation details ***
 
-  +collection: Collection<this>
+  +collection: Collection<$FlowFixMe<this>>
 
   // Collections of other Models in the same domain as this record
   get collections(): CollectionMap {
