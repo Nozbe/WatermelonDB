@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable eqeqeq */
 
-import { contains } from 'rambdax'
+import { includes } from 'rambdax'
 import { gt, gte, lt, lte, complement } from '../../utils/fp'
 import likeToRegexp from '../../utils/fp/likeToRegexp'
 
@@ -51,8 +51,8 @@ const operators: { [Operator]: OperatorFunction } = {
   weakGt,
   lt: noNullComparisons(lt),
   lte: noNullComparisons(lte),
-  oneOf: contains,
-  notIn: noNullComparisons(complement(contains)),
+  oneOf: includes,
+  notIn: noNullComparisons(complement(includes)),
   between,
   like,
   notLike,
