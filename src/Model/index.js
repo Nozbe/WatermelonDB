@@ -45,7 +45,7 @@ export function experimentalSetOnlyMarkAsChangedIfDiffers(value: boolean): void 
 
 export default class Model {
   // Set this in concrete Models to the name of the database table
-  static table: TableName<$FlowFixMe<this>>
+  static +table: TableName<this>
 
   // Set this in concrete Models to define relationships between different records
   static associations: Associations = {}
@@ -198,7 +198,7 @@ export default class Model {
 
   // *** Implementation details ***
 
-  collection: Collection<$FlowFixMe<this>>
+  +collection: Collection<$FlowFixMe<this>>
 
   // Collections of other Models in the same domain as this record
   get collections(): CollectionMap {
