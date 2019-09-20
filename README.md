@@ -114,7 +114,7 @@ The result is fully reactive! Whenever a post or comment is added, changed, or r
 ## Who uses WatermelonDB
 
   <a href="https://nozbe4.com">
-    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/nozbe4-hex.png" alt="Nozbe 4" width="300" />
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/nozbe4.png" alt="Nozbe 4" width="300" />
   </a>
 
   <br>
