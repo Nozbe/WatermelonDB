@@ -1,0 +1,361 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Querying - WatermelonDB documentation</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li><a href="ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li><a href="index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li><a href="Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li><a href="ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li><a href="Installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li><a href="Schema.html"><strong aria-hidden="true">2.2.</strong> Schema</a></li><li><a href="Model.html"><strong aria-hidden="true">2.3.</strong> Defining Models</a></li><li><a href="CRUD.html"><strong aria-hidden="true">2.4.</strong> Create, Read, Update, Delete</a></li><li><a href="Components.html"><strong aria-hidden="true">2.5.</strong> Connecting to React Components</a></li><li><a href="Query.html" class="active"><strong aria-hidden="true">2.6.</strong> Querying</a></li><li><a href="Relation.html"><strong aria-hidden="true">2.7.</strong> Relations</a></li><li><a href="Actions.html"><strong aria-hidden="true">2.8.</strong> Custom Actions</a></li></ol></li><li><a href="ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li><a href="Advanced/Migrations.html"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li><a href="Advanced/Sync.html"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li><a href="Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li><a href="Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li><a href="Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li><a href="Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li><a href="Advanced/Performance.html"><strong aria-hidden="true">3.7.</strong> Performance tips</a></li></ol></li><li><a href="ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li><a href="Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li><a href="Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li></ol></li><li><a href="ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li><a href="Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li><a href="CONTRIBUTING.html"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li><a href="CHANGELOG.html"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">WatermelonDB documentation</h1>
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#query-api" id="query-api">Query API</a></h1>
+<p><strong>Querying</strong> is how you find records that match certain conditions, for example:</p>
+<ul>
+<li>Find all comments that belong to a certain post</li>
+<li>Find all <em>verified</em> comments made by John</li>
+<li>Count all verified comments made by John or Lucy published under posts made in the last two weeks</li>
+</ul>
+<p>Because queries are executed on the database, and not in JavaScript, they're really fast. It's also how Watermelon can be fast even at large scales, because even with tens of thousands of records <em>total</em>, you rarely need to load more than a few dozen records at app launch.</p>
+<h2><a class="header" href="#defining-queries" id="defining-queries">Defining Queries</a></h2>
+<h3><a class="header" href="#children" id="children">@children</a></h3>
+<p>The simplest query is made using <code>@children</code>. This defines a <code>Query</code> for all comments that belong to a <code>Post</code>:</p>
+<pre><code class="language-js">class Post extends Model {
+  // ...
+  @children('comments') comments
+}
+</code></pre>
+<p><strong>➡️ Learn more:</strong> <a href="./Model.html">Defining Models</a></p>
+<h3><a class="header" href="#extended-query" id="extended-query">Extended Query</a></h3>
+<p>To <strong>narrow down</strong> a <code>Query</code> (add <a href="#query-conditions">extra conditions</a> to an existing Query), use <code>.extend()</code>:</p>
+<pre><code class="language-js">import { children, lazy } from '@nozbe/watermelondb/decorators'
+
+class Post extends Model {
+  // ...
+  @children('comments') comments
+  @lazy verifiedComments = this.comments.extend(Q.where('is_verified', true))
+  @lazy verifiedAwesomeComments = this.verifiedComments.extend(Q.where('is_awesome', true))
+}
+</code></pre>
+<p><strong>Note:</strong> Use the <code>@lazy</code> when extending or defining new Queries for performance</p>
+<h3><a class="header" href="#custom-queries" id="custom-queries">Custom Queries</a></h3>
+<p>You can query any table using <code>this.collections.get(tableName).query(conditions)</code>. Here, <code>post.comments</code> will query all users that made a comment under <code>post</code>.</p>
+<pre><code class="language-js">class Post extends Model {
+  // ...
+  @lazy commenters = this.collections.get('users').query(
+    Q.on('comments', 'post_id', this.id)
+  )
+}
+</code></pre>
+<h2><a class="header" href="#executing-queries" id="executing-queries">Executing Queries</a></h2>
+<p>Most of the time, you <a href="./Components.html">connect Queries to Components</a> by using <code>observe</code> or <code>observeCount</code>:</p>
+<pre><code class="language-js">withObservables(['post'], ({ post }) =&gt; ({
+  post: post.observe(),
+  comments: post.comments.observe(),
+  verifiedCommentCount: post.verifiedComments.observeCount(),
+}))
+</code></pre>
+<h4><a class="header" href="#fetch" id="fetch">Fetch</a></h4>
+<p>To simply get the current list or current count, use <code>fetch</code> / <code>fetchCount</code>. You might need it <a href="./Actions.html">in Actions</a>.</p>
+<pre><code class="language-js">const comments = await post.comments.fetch()
+const verifiedCommentCount = await post.verifiedComments.fetchCount()
+</code></pre>
+<h2><a class="header" href="#query-conditions" id="query-conditions">Query conditions</a></h2>
+<pre><code class="language-js">import { Q } from '@nozbe/watermelondb'
+// ...
+commentCollection.query(
+  Q.where('is_verified', true)
+)
+</code></pre>
+<p>This will query <strong>all</strong> comments that are verified (all comments with one condition: the <code>is_verified</code> column of a comment must be <code>true</code>).</p>
+<p>When making conditions, you refer to <a href="./Schema.html"><strong>column names</strong></a> of a table (i.e. <code>is_verified</code>, not <code>isVerified</code>). This is because queries are executed directly on the underlying database.</p>
+<p>The second argument is the value we want to query for. Note that the passed argument must be the same type as the column (<code>string</code>, <code>number</code>, or <code>boolean</code>; <code>null</code> is allowed only if the column is marked as <code>isOptional: true</code> in the schema).</p>
+<h4><a class="header" href="#empty-query" id="empty-query">Empty query</a></h4>
+<pre><code class="language-js">const allComments = await commentCollection.query().fetch()
+</code></pre>
+<p>A Query with no conditions will find <strong>all</strong> records in the collection.</p>
+<p><strong>Note:</strong> Don't do this unless necessary. It's generally more efficient to only query the exact records you need.</p>
+<h4><a class="header" href="#multiple-conditions" id="multiple-conditions">Multiple conditions</a></h4>
+<pre><code class="language-js">commentCollection.query(
+  Q.where('is_verified', true),
+  Q.where('is_awesome', true)
+)
+</code></pre>
+<p>This queries all comments that are <strong>both</strong> verified <strong>and</strong> awesome.</p>
+<h3><a class="header" href="#conditions-with-other-operators" id="conditions-with-other-operators">Conditions with other operators</a></h3>
+<table><thead><tr><th>Query</th><th>JavaScript equivalent</th></tr></thead><tbody>
+<tr><td><code>Q.where('is_verified', true)</code></td><td><code>is_verified === true</code> (shortcut syntax)</td></tr>
+<tr><td><code>Q.where('is_verified', Q.eq(true))</code></td><td><code>is_verified === true</code></td></tr>
+<tr><td><code>Q.where('archived_at', Q.notEq(null))</code></td><td><code>archived_at !== null</code></td></tr>
+<tr><td><code>Q.where('likes', Q.gt(0))</code></td><td><code>likes &gt; 0</code></td></tr>
+<tr><td><code>Q.where('likes', Q.weakGt(0))</code></td><td><code>likes &gt; 0</code> (slightly different semantics — <a href="#null-behavior">see &quot;null behavior&quot;</a> for details)</td></tr>
+<tr><td><code>Q.where('likes', Q.gte(100))</code></td><td><code>likes &gt;= 100</code></td></tr>
+<tr><td><code>Q.where('dislikes', Q.lt(100))</code></td><td><code>dislikes &lt; 100</code></td></tr>
+<tr><td><code>Q.where('dislikes', Q.lte(100))</code></td><td><code>dislikes &lt;= 100</code></td></tr>
+<tr><td><code>Q.where('likes', Q.between(10, 100))</code></td><td><code>likes &gt;= 10 &amp;&amp; likes &lt;= 100</code></td></tr>
+<tr><td><code>Q.where('status', Q.oneOf(['published', 'draft']))</code></td><td><code>status === 'published' \|\| status === 'draft'</code></td></tr>
+<tr><td><code>Q.where('status', Q.notIn(['archived', 'deleted']))</code></td><td><code>status !== 'archived' &amp;&amp; status !== 'deleted'</code></td></tr>
+<tr><td><code>Q.where('status', Q.like('%bl_sh%'))</code></td><td><code>/.*bl.sh.*/i</code> (See note below!)</td></tr>
+<tr><td><code>Q.where('status', Q.notLike('%bl_sh%'))</code></td><td><code>/^((!?.*bl.sh.*).)*$/i</code> (Inverse regex match) (See note below!)</td></tr>
+</tbody></table>
+<p><strong>Note:</strong> It's NOT SAFE to use <code>Q.like</code> and <code>Q.notLike</code> with user input directly, because special characters like <code>%</code> or <code>_</code> are not escaped. Always sanitize user input like so: </p>
+<pre><code class="language-js">Q.like(`%${Q.sanitizeLikeString(userInput)}%`)
+Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
+</code></pre>
+<p>You can use <code>Q.like</code> for search-related tasks. For example, to find all users whose username start with &quot;jas&quot; (case-insensitive) you can write</p>
+<pre><code class="language-js">usersCollection.query(
+  Q.where(&quot;username&quot;, Q.like(`${Q.sanitizeLikeString(&quot;jas&quot;)}%`)
+)
+</code></pre>
+<p>where <code>&quot;jas&quot;</code> can be changed dynamically with user input.</p>
+<h3><a class="header" href="#conditions-on-related-tables" id="conditions-on-related-tables">Conditions on related tables</a></h3>
+<p>For example: query all comments under posts published by John:</p>
+<pre><code class="language-js">commentCollection.query(
+  Q.on('posts', 'author_id', john.id),
+)
+</code></pre>
+<p>Normally you set conditions on the table you're querying. Here we're querying <strong>comments</strong>, but we have a condition on the <strong>post</strong> the comment belongs to.</p>
+<p>The first argument for <code>Q.on</code> is the table name you're making a condition on. The other two arguments are same as for <code>Q.where</code>.</p>
+<p><strong>Note:</strong> The two tables <a href="./Model.html">must be associated</a> before you can use <code>Q.on</code>.</p>
+<h2><a class="header" href="#advanced-queries" id="advanced-queries">Advanced Queries</a></h2>
+<h3><a class="header" href="#advanced-observing" id="advanced-observing">Advanced observing</a></h3>
+<p>Call <code>query.observeWithColumns(['foo', 'bar'])</code> to create an Observable that emits a value not only when the list of matching records changes (new records/deleted records), but also when any of the matched records changes its <code>foo</code> or <code>bar</code> column. <a href="./Components.html">Use this for observing sorted lists</a></p>
+<h4><a class="header" href="#count-throttling" id="count-throttling">Count throttling</a></h4>
+<p>By default, calling <code>query.observeCount()</code> returns an Observable that is throttled to emit at most once every 250ms. You can disable throttling using <code>query.observeCount(false)</code>.</p>
+<h3><a class="header" href="#andor-nesting" id="andor-nesting">AND/OR nesting</a></h3>
+<p>You can nest multiple conditions using <code>Q.and</code> and <code>Q.or</code>:</p>
+<pre><code class="language-js">commentCollection.query(
+  Q.where('archived_at', Q.notEq(null)),
+  Q.or(
+    Q.where('is_verified', true),
+    Q.and(
+      Q.where('likes', Q.gt(10)),
+      Q.where('dislikes', Q.lt(5))
+    )
+  )
+)
+</code></pre>
+<p>This is equivalent to <code>archivedAt !== null &amp;&amp; (isVerified || (likes &gt; 10 &amp;&amp; dislikes &lt; 5))</code>.</p>
+<h3><a class="header" href="#column-comparisons" id="column-comparisons">Column comparisons</a></h3>
+<p>This queries comments that have more likes than dislikes. Note that we're comparing <code>likes</code> column to another column instead of a value.</p>
+<pre><code class="language-js">commentCollection.query(
+  Q.where('likes', Q.gt(Q.column('dislikes')))
+)
+</code></pre>
+<h3><a class="header" href="#raw-queries" id="raw-queries">Raw queries</a></h3>
+<p>If this Query syntax is not enough for you, and you need to get your hands dirty on a raw SQL or Loki query, you need <strong>rawQueries</strong>. How to use them? Well, <strong>we need your help</strong> to finish this — <a href="https://github.com/Nozbe/WatermelonDB/pull/199">please contribute!</a> ❤️</p>
+<h3><a class="header" href="#null-behavior" id="null-behavior"><code>null</code> behavior</a></h3>
+<p>There are some gotchas you should be aware of. The <code>Q.gt</code>, <code>gte</code>, <code>lt</code>, <code>lte</code>, <code>oneOf</code>, <code>notIn</code>, <code>like</code> operators match the semantics of SQLite in terms of how they treat <code>null</code>. Those are different from JavaScript.</p>
+<p><strong>Rule of thumb:</strong> No null comparisons are allowed.</p>
+<p>For example, if you query <code>comments</code> for <code>Q.where('likes', Q.lt(10))</code>, a comment with 8 likes and 0 likes will be included, but a comment with <code>null</code> likes will not! In Watermelon queries, <code>null</code> is not less than any number. That's why you should avoid <a href="./Schema.html">making table columns optional</a> unless you actually need it.</p>
+<p>Similarly, if you query with a column comparison, like <code>Q.where('likes', Q.gt(Q.column('dislikes')))</code>, only comments where both <code>likes</code> and <code>dislikes</code> are not null will be compared. A comment with 5 likes and <code>null</code> dislikes will NOT be included. 5 is not greater than <code>null</code> here.</p>
+<p><strong><code>Q.oneOf</code> operator</strong>: It is not allowed to pass <code>null</code> as an argument to <code>Q.oneOf</code>. Instead of <code>Q.oneOf([null, 'published', 'draft'])</code> you need to explicitly allow <code>null</code> as a value like so:</p>
+<pre><code class="language-js">postsCollection.query(
+  Q.or(
+    Q.where('status', Q.oneOf(['published', 'draft'])),
+    Q.where('status', null)
+  )
+)
+</code></pre>
+<p><strong><code>Q.notIn</code> operator</strong>: If you query, say, posts with <code>Q.where('status', Q.notIn(['published', 'draft']))</code>, it will match posts with a status different than <code>published</code> or <code>draft</code>, however, it will NOT match posts with <code>status == null</code>. If you want to include such posts, query for that explicitly like with the example above.</p>
+<p><strong><code>Q.weakGt</code> operator</strong>: This is weakly typed version of <code>Q.gt</code> — one that allows null comparisons. So if you query <code>comments</code> with <code>Q.where('likes', Q.weakGt(Q.column('dislikes')))</code>, it WILL match comments with 5 likes and <code>null</code> dislikes. (For <code>weakGt</code>, unlike standard operators, any number is greater than <code>null</code>).</p>
+<hr />
+<h2><a class="header" href="#next-steps" id="next-steps">Next steps</a></h2>
+<p>➡️ Now that you've mastered Queries, <a href="./Relation.html"><strong>make more Relations</strong></a></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="Components.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="Relation.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a href="Components.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="Relation.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

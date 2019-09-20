@@ -90,6 +90,8 @@ describe('QueryDescription', () => {
       Q.where('col7', Q.oneOf([1, 2, 3])),
       Q.where('col8', Q.notIn(['a', 'b', 'c'])),
       Q.where('col9', Q.between(10, 11)),
+      Q.where('col10', Q.like('%abc')),
+      Q.where('col11', Q.notLike('def%')),
     ])
     expect(query).toEqual({
       where: [
@@ -171,6 +173,22 @@ describe('QueryDescription', () => {
           comparison: {
             operator: 'between',
             right: { values: [10, 11] },
+          },
+        },
+        {
+          type: 'where',
+          left: 'col10',
+          comparison: {
+            operator: 'like',
+            right: { value: '%abc' },
+          },
+        },
+        {
+          type: 'where',
+          left: 'col11',
+          comparison: {
+            operator: 'notLike',
+            right: { value: 'def%' },
           },
         },
       ],

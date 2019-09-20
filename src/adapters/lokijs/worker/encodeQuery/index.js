@@ -98,6 +98,19 @@ const like: OperatorFunction = value => {
   return {}
 }
 
+const notLike: OperatorFunction = value => {
+  if (typeof value === 'string') {
+    return {
+      $and: [
+        { $not: { $eq: null } },
+        { $not: { $regex: likeToRegexp(value) } },
+      ],
+    }
+  }
+
+  return {}
+}
+
 const operators: { [Operator]: OperatorFunction } = {
   eq: objOf('$aeq'),
   notEq: weakNotEqual,
@@ -110,6 +123,7 @@ const operators: { [Operator]: OperatorFunction } = {
   notIn: noNullComparisons(objOf('$nin')),
   between: objOf('$between'),
   like,
+  notLike,
 }
 
 const encodeComparison: Comparison => LokiRawQuery = ({ operator, right }) =>

@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable eqeqeq */
 
-import { contains } from 'rambdax'
+import { includes } from 'rambdax'
 import { gt, gte, lt, lte, complement } from '../../utils/fp'
 import likeToRegexp from '../../utils/fp/likeToRegexp'
 
@@ -33,6 +33,16 @@ export const like: OperatorFunction = (left, right) => {
   return likeToRegexp(right).test(leftV)
 }
 
+export const notLike: OperatorFunction = (left, right) => {
+  // Mimic SQLite behaviour
+  if (left === null) {
+    return false
+  }
+  const leftV = handleLikeValue(left, '')
+
+  return !likeToRegexp(right).test(leftV)
+}
+
 const operators: { [Operator]: OperatorFunction } = {
   eq: rawFieldEquals,
   notEq: complement(rawFieldEquals),
@@ -41,10 +51,11 @@ const operators: { [Operator]: OperatorFunction } = {
   weakGt,
   lt: noNullComparisons(lt),
   lte: noNullComparisons(lte),
-  oneOf: contains,
-  notIn: noNullComparisons(complement(contains)),
+  oneOf: includes,
+  notIn: noNullComparisons(complement(includes)),
   between,
   like,
+  notLike,
 }
 
 export default operators

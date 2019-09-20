@@ -41,6 +41,7 @@ export type Operator =
   | 'notIn'
   | 'between'
   | 'like'
+  | 'notLike'
 
 export type ColumnDescription = $RE<{ column: ColumnName }>
 export type ComparisonRight =
@@ -176,6 +177,10 @@ export function between(left: number, right: number): Comparison {
 
 export function like(value: string): Comparison {
   return { operator: 'like', right: { value } }
+}
+
+export function notLike(value: string): Comparison {
+  return { operator: 'notLike', right: { value } }
 }
 
 export function sanitizeLikeString(value: string): string {

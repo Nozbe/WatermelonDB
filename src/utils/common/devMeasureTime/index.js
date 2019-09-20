@@ -1,7 +1,7 @@
 // @flow
 
 const getPreciseTime: () => number = (() => {
-  if (global && global.nativePerformanceNow) {
+  if (typeof global !== 'undefined' && global.nativePerformanceNow) {
     return global.nativePerformanceNow
   } else if (typeof window !== 'undefined' && window.performance && window.performance.now) {
     return window.performance.now.bind(window.performance)

@@ -10,7 +10,7 @@ const inquirer = require('inquirer')
 const semver = require('semver')
 const fs = require('fs-extra')
 
-const { when, includes, flip, both, add, contains } = require('rambdax')
+const { when, includes, flip, both, add } = require('rambdax')
 
 const pkg = require('../package.json')
 
@@ -24,8 +24,8 @@ const isVersionGreater = input => semver.gt(input, pkg.version)
 const getNewVersion = input => semver.inc(pkg.version, input)
 const isValidAndGreaterVersion = both(isValidVersion, isVersionGreater)
 
-const throwError = () => str => {
-  throw new Error(str)
+const throwError = str => info => {
+  throw new Error(str, JSON.stringify(info))
 }
 
 const questions = [
@@ -60,7 +60,7 @@ const questions = [
 const buildTasks = options => {
   const { version } = options
 
-  const isPrerelease = contains('-', version)
+  const isPrerelease = includes('-', version)
   const tag = isPrerelease ? 'next' : 'latest'
 
   // eslint-disable-next-line
@@ -71,39 +71,48 @@ const buildTasks = options => {
       title: 'ping npm registry',
       task: () =>
         timeout(
-          execa.stdout('npm', ['ping']).catch(throwError('connection to npm registry failed')),
+          execa('npm', ['ping']).catch(throwError('connection to npm registry failed')),
           5000,
           'Connection to npm registry timed out',
         ),
     },
-    ...(isPrerelease ?
-      [
+    ...(isPrerelease
+      ? [
           {
             title: 'WARN: Skipping git checks',
             task: () => {},
           },
-        ] :
-      [
+        ]
+      : [
           {
             title: 'check current branch',
             task: () =>
-              execa
-                .stdout('git', ['symbolic-ref', '--short', 'HEAD'])
-                .then(when(branch => branch !== 'master', throwError('not on `master` branch'))),
+              execa('git', ['symbolic-ref', '--short', 'HEAD']).then(
+                when(
+                  ({ stdout: branch }) => branch !== 'master',
+                  throwError('not on `master` branch'),
+                ),
+              ),
           },
           {
             title: 'check local working tree',
             task: () =>
-              execa
-                .stdout('git', ['status', '--porcelain'])
-                .then(when(status => status !== '', throwError('commit or stash changes first'))),
+              execa('git', ['status', '--porcelain']).then(
+                when(
+                  ({ stdout: status }) => status !== '',
+                  throwError('commit or stash changes first'),
+                ),
+              ),
           },
           {
             title: 'check remote history',
             task: () =>
-              execa
-                .stdout('git', ['rev-list', '--count', '--left-only', '@{u}...HEAD'])
-                .then(when(result => result !== '0', throwError('please pull changes first'))),
+              execa('git', ['rev-list', '--count', '--left-only', '@{u}...HEAD']).then(
+                when(
+                  ({ stdout: result }) => result !== '0',
+                  throwError('please pull changes first'),
+                ),
+              ),
           },
         ]),
     {
@@ -137,15 +146,7 @@ const buildTasks = options => {
     },
     {
       title: 'pack tgz',
-      task: () =>
-        execa('yarn', ['pack'], { cwd: './dist' })
-          .then(() => fs.remove(`./nozbe-watermelondb-v${version}.tgz`))
-          .then(() => {
-            fs.move(
-              `./dist/nozbe-watermelondb-v${version}.tgz`,
-              `./nozbe-watermelondb-v${version}.tgz`,
-            )
-          }),
+      task: () => execa('yarn', ['pack'], { cwd: './dist' }),
     },
     {
       title: 'publish package',
@@ -155,7 +156,7 @@ const buildTasks = options => {
           done: otp =>
             execa('npm', [
               'publish',
-              `./nozbe-watermelondb-v${version}.tgz`,
+              `./dist/nozbe-watermelondb-v${version}.tgz`,
               `--otp=${otp}`,
               '--tag',
               tag,
@@ -170,10 +171,14 @@ const buildTasks = options => {
       title: 'push tags',
       task: () => execa('git', ['push', '--tags', '--follow-tags']),
     },
-    {
-      title: 'cleanup',
-      task: () => fs.remove(`./nozbe-watermelondb-v${version}.tgz`),
-    },
+    ...(isPrerelease
+      ? []
+      : [
+          {
+            title: 'update docs',
+            task: () => execa('yarn', ['docs']),
+          },
+        ]),
   ]
 }
 
