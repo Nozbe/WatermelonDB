@@ -13,7 +13,7 @@ const resolvePath = (...paths) => path.resolve(__dirname, ...paths)
 module.exports = merge(config, {
   mode: 'production',
   output: {
-    path: resolvePath('build'),
+    path: resolvePath('public'),
   },
   optimization: {
     minimizer: [
@@ -65,7 +65,7 @@ module.exports = merge(config, {
     runtimeChunk: true,
   },
   plugins: [
-    new WebpackClean([resolvePath('build')]),
+    new WebpackClean([resolvePath('public')]),
     new Webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('production'),
     }),

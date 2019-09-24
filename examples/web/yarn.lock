@@ -861,12 +861,13 @@
   resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.3.tgz#2b5a3ab3f918cca48a8c754c08168e3f03eba61b"
   integrity sha512-shAmDyaQC4H92APFoIaVDHCx5bStIocgvbwQyxPRrbUY20V1EYTbSDchWbuwlMG3V17cprZhA6+78JfB+3DTPw==
 
-"@nozbe/watermelondb@^0.10.1":
-  version "0.10.1"
-  resolved "https://registry.yarnpkg.com/@nozbe/watermelondb/-/watermelondb-0.10.1.tgz#3bd1fb1f1b5aa642997272fa35761fd89d0ed0e1"
-  integrity sha512-B6laxepsf9ShEJ8PKWMTJMJdqZ/qRvnfe1OFUVjHl5yTeR3S20X8CFaPsCLgSts0o1u8FtmnWJwVceou2j9ycQ==
+"@nozbe/watermelondb@latest":
+  version "0.14.1"
+  resolved "https://registry.yarnpkg.com/@nozbe/watermelondb/-/watermelondb-0.14.1.tgz#15184e711dc16b4f34e6d85ecef5bb84e718240b"
+  integrity sha512-4pYzgkG4yLJFqmViAVPvRAYydACS8aVVX7DyTJqdGnxDizpFwOWwR65Zqmm9LF39xehdOd4NcsK1o+WrPC9nwQ==
   dependencies:
-    rambdax "^1.5.6"
+    lokijs "^1.5.5"
+    rambdax "^2.13.0"
     rxjs "^6.2.2"
     rxjs-compat "^6.3.2"
     sql-escape-string "^1.1.0"
@@ -6317,10 +6318,10 @@ quick-lru@^1.0.0:
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-1.1.0.tgz#4360b17c61136ad38078397ff11416e186dcfbb8"
   integrity sha1-Q2CxfGETatOAeDl/8RQW4Ybc+7g=
 
-rambdax@^1.5.6:
-  version "1.7.1"
-  resolved "https://registry.yarnpkg.com/rambdax/-/rambdax-1.7.1.tgz#28c771d835952dc2f04c1eeb86dbb0cd6d05eca2"
-  integrity sha512-qQi0cXx1GqniSWREZKttHeXzboBYOb3RNHIoW/qeyyZZ8PehxN+wbwo2n7yqUvEBE1fkRDqEkbe8KCqH92PHZA==
+rambdax@^2.13.0:
+  version "2.14.1"
+  resolved "https://registry.yarnpkg.com/rambdax/-/rambdax-2.14.1.tgz#9ede5eebd3bb502ff584592e376abf67e7f8e107"
+  integrity sha512-VCXGhXzUdzt0m0clxjVflRZsUB+O1+RzZWWefh7CQg6aMvDIypvSphRApXpPGqBOzJnQw2YBkVZZiInYx3GPfw==
 
 randombytes@^2.0.0, randombytes@^2.0.1, randombytes@^2.0.5:
   version "2.0.6"
