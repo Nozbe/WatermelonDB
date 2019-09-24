@@ -84,7 +84,7 @@
     "@babel/plugin-transform-spread": "^7.6.2",
     "@babel/plugin-transform-sticky-regex": "^7.2.0",
     "@babel/plugin-transform-template-literals": "^7.4.4",
-    "@babel/plugin-transform-unicode-regex": "^7.4.4",
+    "@babel/plugin-transform-unicode-regex": "^7.6.2",
     "@types/react": "^16.8.6",
     "anymatch": "^3.0.0",
     "babel-core": "^7.0.0-0",
