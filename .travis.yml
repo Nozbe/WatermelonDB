@@ -34,6 +34,7 @@ matrix:
         - npm run swiftlint
 
     - language: android
+      sudo: required
       android:
         components:
           - build-tools-28.0.3
@@ -53,6 +54,7 @@ matrix:
           - $HOME/.android/build-cache
       before_install:
         - nvm install 11
+        - echo 'fs.inotify.max_user_watches=524288' | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
         - which node
         - node --version
         - export TRAVIS_NODE_BINARY=$(which node)
