@@ -79,7 +79,6 @@
   "now": {
     "type": "static",
     "name": "watermelondb",
-    "alias": "watermelondb",
     "public": true
   }
 }

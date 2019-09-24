@@ -1,5 +1,5 @@
 import { times } from 'rambdax'
-import { blogNames, postNames, postBody, commentBodies } from './randomData'
+import { blogNames, postNames, postBody, commentBodies, largeThing } from './randomData'
 
 const flatMap = (fn, arr) => arr.map(fn).reduce((a, b) => a.concat(b), [])
 
@@ -27,7 +27,7 @@ const makePosts = (db, blog, count) => times(i => makePost(db, blog, i), count)
 
 const makeComment = (db, post, i) =>
   db.collections.get('comments').prepareCreate(comment => {
-    comment.body = commentBodies[i] || `Comment#${comment.id}`
+    comment.body = largeThing || `Comment#${comment.id}`
     comment.post.set(post)
     comment.isNasty = Math.random() < 0.25 // People can be not nice on the internet
   })
@@ -52,5 +52,5 @@ export async function generate100(database) {
 }
 
 export async function generate10k(database) {
-  return generate(database, 20, 20, 25)
+  return generate(database, 50, 20, 25)
 }
