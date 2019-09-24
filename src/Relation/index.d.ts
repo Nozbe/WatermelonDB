@@ -11,7 +11,7 @@ declare module '@nozbe/watermelondb/Relation' {
     isImmutable: boolean
   }
 
-  export default class Relation<T extends Model | void> {
+  export default class Relation<T extends Model> {
     public constructor(
       model: Model,
       relationTableName: TableName<T>,

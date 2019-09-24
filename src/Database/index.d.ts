@@ -18,8 +18,8 @@ declare module '@nozbe/watermelondb/Database' {
     public constructor(
       options: {
         adapter: DatabaseAdapter;
-        modelClasses: Model[];
-        actionsEnabled?: boolean;
+        modelClasses: Class<Model>[];
+        actionsEnabled: boolean;
       })
 
     public batch(...records: Model[] | null[] | void[] | false[] | Promise<void>[]): Promise<void>
