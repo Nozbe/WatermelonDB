@@ -9,7 +9,7 @@
     "build": "webpack --config ./webpack.prod.js"
   },
   "dependencies": {
-    "@nozbe/watermelondb": "^0.10.1",
+    "@nozbe/watermelondb": "latest",
     "@nozbe/with-observables": "^1.0.0",
     "lokijs": "^1.5.5",
     "react": "16.8.1",
