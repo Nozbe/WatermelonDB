@@ -39,6 +39,12 @@ type LokiAdapterOptions = $Exact<{
   dbName?: ?string,
   schema: AppSchema,
   migrations?: SchemaMigrations,
+  // TODO: Document those props
+  useWebWorker?: boolean,
+  lokiAdapter?: 'auto' | 'indexeddb' | 'localstorage' | 'memory',
+  usePartitioning?: boolean,
+  pageSize?: number | null,
+  // internal
   _testLokiAdapter?: LokiMemoryAdapter,
 }>
 
