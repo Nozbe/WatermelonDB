@@ -15,7 +15,8 @@ All notable changes to this project will be documented in this file.
      - Added 3 missing properties `collections`, `database` and `asModel` in Model type definition.
      - Removed optional flag on `actionsEnabled` in the Database constructor options since its mandatory since 0.13.0.
      - fixed several further typing issues in Model, Relation and lazy decorator
-
+- Changed how async functions are transpiled in the library. This could break on really old Android phones
+  but shouldn't matter if you use latest version of React Native. Please report an issue if you see a problem.
 
 ## 0.14.1 - 2019-08-31
 
