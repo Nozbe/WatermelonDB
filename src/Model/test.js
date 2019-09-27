@@ -10,7 +10,7 @@ import { field, date, readonly } from '../decorators'
 import { noop, allPromises } from '../utils/fp'
 import { sanitizedRaw } from '../RawRecord'
 
-import Model, { experimentalSetOnlyMarkAsChangedIfDiffers } from './index'
+import Model from './index'
 import { fetchChildren } from './helpers'
 
 const mockSchema = appSchema({
@@ -532,8 +532,6 @@ describe('Sync status fields', () => {
       ),
     )
 
-    experimentalSetOnlyMarkAsChangedIfDiffers(true)
-
     model._isEditing = true
     model._raw.id = 'xxx'
     model._raw._status = 'updated'
@@ -556,8 +554,6 @@ describe('Sync status fields', () => {
       col4: null,
       number: 10,
     })
-
-    experimentalSetOnlyMarkAsChangedIfDiffers(false)
   })
   it('marks new records as status:created', async () => {
     const database = makeDatabase()
@@ -671,7 +667,9 @@ describe('model helpers', () => {
     })
 
     const commentPromise = async task => {
-      const comment = await comments.create(mock => { mock.task.set(task) })
+      const comment = await comments.create(mock => {
+        mock.task.set(task)
+      })
       const commentChildren = await fetchChildren(comment)
       expect(commentChildren).toHaveLength(0)
     }

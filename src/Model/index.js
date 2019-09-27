@@ -8,9 +8,6 @@ import fromPairs from '../utils/fp/fromPairs'
 import noop from '../utils/fp/noop'
 import type { $RE } from '../types'
 
-import field from '../decorators/field'
-import readonly from '../decorators/readonly'
-
 import type Database from '../Database'
 import type Collection from '../Collection'
 import type CollectionMap from '../Database/CollectionMap'
@@ -59,13 +56,13 @@ export default class Model {
 
   _changes = new BehaviorSubject(this)
 
-  @readonly
-  @field('id')
-  id: RecordId
+  get id(): RecordId {
+    return this._raw.id
+  }
 
-  @readonly
-  @field('_status')
-  syncStatus: SyncStatus
+  get syncStatus(): SyncStatus {
+    return this._raw._status
+  }
 
   // Modifies the model (using passed function) and saves it to the database.
   // Touches `updatedAt` if available.
