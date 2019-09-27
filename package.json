@@ -131,7 +131,7 @@
     "react-dom": "^16.10.0",
     "react-hooks-testing-library": "^0.6.0",
     "react-native": "^0.59.3",
-    "react-test-renderer": "16.9.0",
+    "react-test-renderer": "16.10.0",
     "rimraf": "^3.0.0",
     "semver": "^6.0.0",
     "tslint": "^5.11.0",
