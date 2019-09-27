@@ -170,7 +170,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     logger.log(`[DB] Schema set up successfully`)
   }
 
-  async find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {
+  find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {
     return devLogFind(
       async () =>
         sanitizeFindResult(await Native.find(this._tag, table, id), this.schema.tables[table]),
@@ -179,7 +179,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     )
   }
 
-  async query<T: Model>(query: Query<T>): Promise<CachedQueryResult> {
+  query<T: Model>(query: Query<T>): Promise<CachedQueryResult> {
     return devLogQuery(
       async () =>
         sanitizeQueryResult(
@@ -190,12 +190,12 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     )
   }
 
-  async count<T: Model>(query: Query<T>): Promise<number> {
+  count<T: Model>(query: Query<T>): Promise<number> {
     return devLogCount(() => Native.count(this._tag, encodeQuery(query, true)), query)
   }
 
-  async batch(operations: BatchOperation[]): Promise<void> {
-    await devLogBatch(async () => {
+  batch(operations: BatchOperation[]): Promise<void> {
+    return devLogBatch(async () => {
       await Native.batch(
         this._tag,
         operations.map(([type, record]) => {
