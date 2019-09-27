@@ -2,7 +2,6 @@
 
 import { includes } from 'rambdax'
 
-import logger from '../utils/common/logger'
 import invariant from '../utils/common/invariant'
 import type { $RE } from '../types'
 
@@ -88,18 +87,6 @@ export function tableSchema({ name, columns: columnList }: TableSchemaSpec): Tab
   }
 
   const columns: ColumnMap = columnList.reduce((map, column) => {
-    // TODO: `bool` is deprecated -- remove compat after a while
-    if (column.type === 'bool') {
-      column.type = 'boolean'
-      if (process.env.NODE_ENV !== 'production') {
-        logger.warn(
-          `[DEPRECATION] Column type 'bool' is deprecated — change to 'boolean' (in ${JSON.stringify(
-            column,
-          )})`,
-        )
-      }
-    }
-
     if (process.env.NODE_ENV !== 'production') {
       validateColumnSchema(column)
     }

@@ -36,12 +36,6 @@ export function associations(
   return (fromPairs(associationList): any)
 }
 
-let experimentalOnlyMarkAsChangedIfDiffers = true
-
-export function experimentalSetOnlyMarkAsChangedIfDiffers(value: boolean): void {
-  experimentalOnlyMarkAsChangedIfDiffers = value
-}
-
 export default class Model {
   // Set this in concrete Models to the name of the database table
   static +table: TableName<this>
@@ -274,10 +268,7 @@ export default class Model {
     const valueBefore = this._raw[(rawFieldName: string)]
     setRawSanitized(this._raw, rawFieldName, rawValue, this.collection.schema.columns[rawFieldName])
 
-    if (
-      !experimentalOnlyMarkAsChangedIfDiffers ||
-      valueBefore !== this._raw[(rawFieldName: string)]
-    ) {
+    if (valueBefore !== this._raw[(rawFieldName: string)]) {
       setRawColumnChange(this._raw, rawFieldName)
     }
   }
