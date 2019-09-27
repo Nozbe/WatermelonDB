@@ -85,13 +85,16 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     this.schema = schema
     this.migrations = migrations
     this._dbName = this._getName(dbName)
-    isDevelopment && validateAdapter(this)
 
     if (process.env.NODE_ENV !== 'production') {
       invariant(
         // $FlowFixMe
         options.migrationsExperimental === undefined,
         'SQLiteAdapter migrationsExperimental has been renamed to migrations',
+      )
+      invariant(
+        Native,
+        `NativeModules.DatabaseBridge is not defined! This means that you haven't properly linked WatermelonDB native module. Refer to docs for more details`,
       )
       validateAdapter(this)
     }
