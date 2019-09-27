@@ -2,13 +2,7 @@
 /* eslint-disable global-require */
 
 import { NativeModules } from 'react-native'
-import {
-  connectionTag,
-  type ConnectionTag,
-  logger,
-  isDevelopment,
-  invariant,
-} from '../../utils/common'
+import { connectionTag, type ConnectionTag, logger, invariant } from '../../utils/common'
 
 import type Model, { RecordId } from '../../Model'
 import type Query from '../../Query'

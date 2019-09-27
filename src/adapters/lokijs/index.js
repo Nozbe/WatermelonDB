@@ -56,6 +56,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     this.schema = schema
     this.migrations = migrations
     this._dbName = dbName
+
     if (process.env.NODE_ENV !== 'production') {
       invariant(
         // $FlowFixMe

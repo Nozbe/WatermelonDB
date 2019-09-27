@@ -2,7 +2,6 @@
 
 import type { Observable } from 'rxjs'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
-import isDevelopment from '../utils/common/isDevelopment'
 import invariant from '../utils/common/invariant'
 import ensureSync from '../utils/common/ensureSync'
 import fromPairs from '../utils/fp/fromPairs'
@@ -113,7 +112,7 @@ export default class Model {
     // TODO: `process.nextTick` doesn't work on React Native
     // We could polyfill with setImmediate, but it doesn't have the same effect — test and enseure
     // it would actually work for this purpose
-    if (isDevelopment && process && process.nextTick) {
+    if (process.env.NODE_ENV !== 'production' && process && process.nextTick) {
       process.nextTick(() => {
         invariant(
           !this._hasPendingUpdate,
