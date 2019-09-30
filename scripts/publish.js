@@ -8,7 +8,6 @@ const execa = require('execa')
 const timeout = require('p-timeout')
 const inquirer = require('inquirer')
 const semver = require('semver')
-const fs = require('fs-extra')
 
 const { when, includes, flip, both, add } = require('rambdax')
 

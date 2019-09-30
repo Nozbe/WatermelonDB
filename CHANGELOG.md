@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 ### ⚠️ Breaking
 
 - Deprecated `bool` schema column type is removed -- please change to `boolean`
-- `experimentalSetOnlyMarkAsChangedIfDiffers(false)` API is now removed
+- Experimental `experimentalSetOnlyMarkAsChangedIfDiffers(false)` API is now removed
 
 ### Improvements
 
