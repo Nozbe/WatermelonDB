@@ -2,8 +2,6 @@
 
 import { includes } from 'rambdax'
 
-import logger from '../utils/common/logger'
-import isDevelopment from '../utils/common/isDevelopment'
 import invariant from '../utils/common/invariant'
 import type { $RE } from '../types'
 
@@ -44,9 +42,10 @@ export function appSchema({
   version,
   tables: tableList,
 }: $Exact<{ version: number, tables: TableSchema[] }>): AppSchema {
-  isDevelopment && invariant(version > 0, `Schema version must be greater than 0`)
+  process.env.NODE_ENV !== 'production' &&
+    invariant(version > 0, `Schema version must be greater than 0`)
   const tables: TableMap = tableList.reduce((map, table) => {
-    isDevelopment &&
+    process.env.NODE_ENV !== 'production' &&
       invariant(typeof table === 'object' && table.name, `Table schema must contain a name`)
 
     map[table.name] = table
@@ -57,7 +56,7 @@ export function appSchema({
 }
 
 export function validateColumnSchema(column: ColumnSchema): void {
-  if (isDevelopment) {
+  if (process.env.NODE_ENV !== 'production') {
     invariant(column.name, `Missing column name`)
     invariant(
       includes(column.type, ['string', 'boolean', 'number']),
@@ -83,21 +82,12 @@ export function validateColumnSchema(column: ColumnSchema): void {
 }
 
 export function tableSchema({ name, columns: columnList }: TableSchemaSpec): TableSchema {
-  isDevelopment && invariant(name, `Missing table name in schema`)
-  const columns: ColumnMap = columnList.reduce((map, column) => {
-    // TODO: `bool` is deprecated -- remove compat after a while
-    if (column.type === 'bool') {
-      column.type = 'boolean'
-      if (isDevelopment) {
-        logger.warn(
-          `[DEPRECATION] Column type 'bool' is deprecated — change to 'boolean' (in ${JSON.stringify(
-            column,
-          )})`,
-        )
-      }
-    }
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(name, `Missing table name in schema`)
+  }
 
-    if (isDevelopment) {
+  const columns: ColumnMap = columnList.reduce((map, column) => {
+    if (process.env.NODE_ENV !== 'production') {
       validateColumnSchema(column)
     }
     map[column.name] = column
