@@ -1,6 +1,6 @@
 // @flow
 
-import LokiWorker from './worker/index.worker'
+import LokiWorker from './worker/workerMock'
 
 import {
   responseActions,

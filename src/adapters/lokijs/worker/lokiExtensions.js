@@ -1,11 +1,13 @@
 // @flow
 
-import Loki, { LokiMemoryAdapter } from 'lokijs'
+import Loki, { LokiMemoryAdapter, LokiPartitioningAdapter } from 'lokijs'
 import LokiIndexedAdapter from 'lokijs/src/loki-indexed-adapter'
 
 export function newLoki(name: ?string, peristenceAdapter?: LokiMemoryAdapter): Loki {
-  const newAdapter =
-    process.env.NODE_ENV === 'test' ? new LokiMemoryAdapter() : new LokiIndexedAdapter(name)
+  // const newAdapter =
+  //   process.env.NODE_ENV === 'test' ? new LokiMemoryAdapter() : new LokiIndexedAdapter(name)
+  const idbAdapter = new LokiIndexedAdapter(name)
+  const newAdapter = new LokiPartitioningAdapter(idbAdapter)
 
   return new Loki(name, {
     adapter: peristenceAdapter || newAdapter,
