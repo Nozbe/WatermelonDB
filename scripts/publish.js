@@ -114,18 +114,18 @@ const buildTasks = options => {
               ),
           },
         ]),
-    {
-      title: 'check tests',
-      task: () => execa('yarn', ['test']),
-    },
-    {
-      title: 'check flow',
-      task: () => execa('yarn', ['flow']),
-    },
-    {
-      title: 'check eslint',
-      task: () => execa('yarn', ['eslint']),
-    },
+    // {
+    //   title: 'check tests',
+    //   task: () => execa('yarn', ['test']),
+    // },
+    // {
+    //   title: 'check flow',
+    //   task: () => execa('yarn', ['flow']),
+    // },
+    // {
+    //   title: 'check eslint',
+    //   task: () => execa('yarn', ['eslint']),
+    // },
     // TODO: Bring those back when metro config is fixed
     // {
     //   title: 'check iOS tests',
