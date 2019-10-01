@@ -1,6 +1,6 @@
 // @flow
 
-import { devMeasureTimeAsync, logger, isDevelopment, invariant } from '../utils/common'
+import { devMeasureTimeAsync, logger, invariant } from '../utils/common'
 import type Model, { RecordId } from '../Model'
 import type Query from '../Query'
 import type { TableSchema } from '../Schema'
@@ -11,7 +11,7 @@ export type DirtyFindResult = RecordId | ?DirtyRaw
 export type DirtyQueryResult = Array<RecordId | DirtyRaw>
 
 export function validateAdapter(adapter: DatabaseAdapter): void {
-  if (isDevelopment) {
+  if (process.env.NODE_ENV !== 'production') {
     const { schema, migrations } = adapter
     // TODO: uncomment when full migrations are shipped
     // invariant(migrations, `Missing migrations`)

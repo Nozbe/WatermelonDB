@@ -13,7 +13,7 @@ describe('Schema', () => {
           name: 'bar',
           columns: [
             { name: 'col1', type: 'number' },
-            { name: 'col2', type: 'bool' }, // TODO: Deprecated (remove after a while)
+            { name: 'col2', type: 'boolean' },
             { name: 'col3', type: 'boolean' },
           ],
         }),

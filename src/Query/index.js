@@ -3,7 +3,6 @@
 import { type Observable } from 'rxjs/Observable'
 import { prepend } from 'rambdax'
 
-import invariant from '../utils/common/invariant'
 import cacheWhileConnected from '../utils/rx/cacheWhileConnected'
 import allPromises from '../utils/fp/allPromises'
 
@@ -33,7 +32,7 @@ export default class Query<Record: Model> {
 
   description: QueryDescription
 
-  #rawDescription: QueryDescription
+  _rawDescription: QueryDescription
 
   @lazy
   _cachedObservable: Observable<Record[]> = observeQuery(this).pipe(cacheWhileConnected)
@@ -46,26 +45,17 @@ export default class Query<Record: Model> {
     cacheWhileConnected,
   )
 
-  get _rawDescription(): QueryDescription {
-    invariant(
-      process.env.NODE_ENV === 'test',
-      '_rawDescription can be accessed only in test environment',
-    )
-
-    return this.#rawDescription
-  }
-
   // Note: Don't use this directly, use Collection.query(...)
   constructor(collection: Collection<Record>, conditions: Condition[]): void {
     this.collection = collection
-    this.#rawDescription = buildQueryDescription(conditions)
-    this.description = queryWithoutDeleted(this.#rawDescription)
+    this._rawDescription = buildQueryDescription(conditions)
+    this.description = queryWithoutDeleted(this._rawDescription)
   }
 
   // Creates a new Query that extends the conditions of this query
   extend(...conditions: Condition[]): Query<Record> {
     const { collection } = this
-    const { join, where } = this.#rawDescription
+    const { join, where } = this._rawDescription
 
     return new Query(collection, [...join, ...where, ...conditions])
   }

@@ -4,7 +4,7 @@ import { sortBy, prop, last, head } from 'rambdax'
 import type { ColumnSchema, TableName, ColumnMap, TableSchemaSpec, SchemaVersion } from '../index'
 import { tableSchema, validateColumnSchema } from '../index'
 
-import { isDevelopment, invariant } from '../../utils/common'
+import { invariant } from '../../utils/common'
 import { isObject } from '../../utils/fp'
 
 export type CreateTableMigrationStep = $Exact<{
@@ -80,7 +80,7 @@ const sortMigrations = sortBy(prop('toVersion'))
 export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMigrations {
   const { migrations } = migrationSpec
 
-  if (isDevelopment) {
+  if (process.env.NODE_ENV !== 'production') {
     // validate migrations spec object
     invariant(Array.isArray(migrations), 'Missing migrations array')
 
@@ -106,7 +106,7 @@ export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMig
   const minVersion = oldestMigration ? oldestMigration.toVersion - 1 : 1
   const maxVersion = newestMigration?.toVersion || 1
 
-  if (isDevelopment) {
+  if (process.env.NODE_ENV !== 'production') {
     // validate that migration spec is without gaps and duplicates
     sortedMigrations.reduce((maxCoveredVersion, migration) => {
       const { toVersion } = migration
@@ -139,7 +139,7 @@ export function addColumns({
   table,
   columns,
 }: $Exact<{ table: TableName<any>, columns: ColumnSchema[] }>): AddColumnsMigrationStep {
-  if (isDevelopment) {
+  if (process.env.NODE_ENV !== 'production') {
     invariant(table, `Missing table name in addColumn()`)
     invariant(columns && Array.isArray(columns), `Missing 'columns' or not an array in addColumn()`)
     columns.forEach(column => validateColumnSchema(column))

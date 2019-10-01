@@ -56,6 +56,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     this.schema = schema
     this.migrations = migrations
     this._dbName = dbName
+
     if (process.env.NODE_ENV !== 'production') {
       invariant(
         // $FlowFixMe
@@ -86,20 +87,20 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     })
   }
 
-  async find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {
+  find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {
     return devLogFind(() => this.workerBridge.send(FIND, [table, id]), table, id)
   }
 
-  async query<T: Model>(query: Query<T>): Promise<CachedQueryResult> {
+  query<T: Model>(query: Query<T>): Promise<CachedQueryResult> {
     return devLogQuery(() => this.workerBridge.send(QUERY, [query.serialize()]), query)
   }
 
-  async count<T: Model>(query: Query<T>): Promise<number> {
+  count<T: Model>(query: Query<T>): Promise<number> {
     return devLogCount(() => this.workerBridge.send(COUNT, [query.serialize()]), query)
   }
 
-  async batch(operations: BatchOperation[]): Promise<void> {
-    await devLogBatch(
+  batch(operations: BatchOperation[]): Promise<void> {
+    return devLogBatch(
       () =>
         this.workerBridge.send(BATCH, [
           map(([type, record]) => [type, record.table, record._raw], operations),

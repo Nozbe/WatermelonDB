@@ -2,15 +2,11 @@
 
 import type { Observable } from 'rxjs'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
-import isDevelopment from '../utils/common/isDevelopment'
 import invariant from '../utils/common/invariant'
 import ensureSync from '../utils/common/ensureSync'
 import fromPairs from '../utils/fp/fromPairs'
 import noop from '../utils/fp/noop'
 import type { $RE } from '../types'
-
-import field from '../decorators/field'
-import readonly from '../decorators/readonly'
 
 import type Database from '../Database'
 import type Collection from '../Collection'
@@ -37,12 +33,6 @@ export function associations(
   return (fromPairs(associationList): any)
 }
 
-let experimentalOnlyMarkAsChangedIfDiffers = true
-
-export function experimentalSetOnlyMarkAsChangedIfDiffers(value: boolean): void {
-  experimentalOnlyMarkAsChangedIfDiffers = value
-}
-
 export default class Model {
   // Set this in concrete Models to the name of the database table
   static +table: TableName<this>
@@ -66,13 +56,13 @@ export default class Model {
 
   _changes = new BehaviorSubject(this)
 
-  @readonly
-  @field('id')
-  id: RecordId
+  get id(): RecordId {
+    return this._raw.id
+  }
 
-  @readonly
-  @field('_status')
-  syncStatus: SyncStatus
+  get syncStatus(): SyncStatus {
+    return this._raw._status
+  }
 
   // Modifies the model (using passed function) and saves it to the database.
   // Touches `updatedAt` if available.
@@ -113,7 +103,7 @@ export default class Model {
     // TODO: `process.nextTick` doesn't work on React Native
     // We could polyfill with setImmediate, but it doesn't have the same effect — test and enseure
     // it would actually work for this purpose
-    if (isDevelopment && process && process.nextTick) {
+    if (process.env.NODE_ENV !== 'production' && process && process.nextTick) {
       process.nextTick(() => {
         invariant(
           !this._hasPendingUpdate,
@@ -275,10 +265,7 @@ export default class Model {
     const valueBefore = this._raw[(rawFieldName: string)]
     setRawSanitized(this._raw, rawFieldName, rawValue, this.collection.schema.columns[rawFieldName])
 
-    if (
-      !experimentalOnlyMarkAsChangedIfDiffers ||
-      valueBefore !== this._raw[(rawFieldName: string)]
-    ) {
+    if (valueBefore !== this._raw[(rawFieldName: string)]) {
       setRawColumnChange(this._raw, rawFieldName)
     }
   }

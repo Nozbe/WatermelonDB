@@ -31,17 +31,24 @@ export default class Database {
 
   _actionQueue = new ActionQueue()
 
-  #actionsEnabled: boolean
+  _actionsEnabled: boolean
 
   constructor({ adapter, modelClasses, actionsEnabled }: DatabaseProps): void {
+    if (process.env.NODE_ENV !== 'production') {
+      invariant(adapter, `Missing adapter parameter for new Database()`)
+      invariant(
+        modelClasses && Array.isArray(modelClasses),
+        `Missing modelClasses parameter for new Database()`,
+      )
+      invariant(
+        actionsEnabled === true || actionsEnabled === false,
+        'You must pass `actionsEnabled:` key to Database constructor. It is highly recommended you pass `actionsEnabled: true` (see documentation for more details), but can pass `actionsEnabled: false` for backwards compatibility.',
+      )
+    }
     this.adapter = adapter
     this.schema = adapter.schema
     this.collections = new CollectionMap(this, modelClasses)
-    invariant(
-      actionsEnabled === true || actionsEnabled === false,
-      'You must pass `actionsEnabled:` key to Database constructor. It is highly recommended you pass `actionsEnabled: true` (see documentation for more details), but can pass `actionsEnabled: false` for backwards compatibility.',
-    )
-    this.#actionsEnabled = actionsEnabled
+    this._actionsEnabled = actionsEnabled
   }
 
   // Executes multiple prepared operations
@@ -143,13 +150,6 @@ export default class Database {
   }
 
   _ensureInAction(error: string): void {
-    this.#actionsEnabled && invariant(this._actionQueue.isRunning, error)
-  }
-
-  _ensureActionsEnabled(): void {
-    invariant(
-      this.#actionsEnabled,
-      '[Sync] To use Sync, Actions must be enabled. Pass `{ actionsEnabled: true }` to Database constructor — see docs for more details',
-    )
+    this._actionsEnabled && invariant(this._actionQueue.isRunning, error)
   }
 }
