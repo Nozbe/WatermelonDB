@@ -2,12 +2,14 @@
 
 import Loki, { LokiMemoryAdapter, LokiPartitioningAdapter } from 'lokijs'
 import LokiIndexedAdapter from 'lokijs/src/loki-indexed-adapter'
+import IncrementalIDBAdapter from 'lokijs/src/incremental-indexeddb-adapter'
 
 export function newLoki(name: ?string, peristenceAdapter?: LokiMemoryAdapter): Loki {
   // const newAdapter =
   //   process.env.NODE_ENV === 'test' ? new LokiMemoryAdapter() : new LokiIndexedAdapter(name)
-  const idbAdapter = new LokiIndexedAdapter(name)
-  const newAdapter = new LokiPartitioningAdapter(idbAdapter)
+  // const idbAdapter = new LokiIndexedAdapter(name)
+  // const newAdapter = new LokiPartitioningAdapter(idbAdapter)
+  const newAdapter = new IncrementalIDBAdapter(name)
 
   return new Loki(name, {
     adapter: peristenceAdapter || newAdapter,
