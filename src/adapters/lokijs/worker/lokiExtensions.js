@@ -11,14 +11,15 @@ function getLokiAdapter(
     return adapter
   } else if (process.env.NODE_ENV === 'test') {
     return new LokiMemoryAdapter()
-  } else if (typeof window.indexedDB !== 'undefined') {
+    // $FlowFixMe
+  } else if (typeof indexedDB !== 'undefined') {
     if (useIncrementalIDB) {
       const IncrementalIDBAdapter = require('lokijs/src/incremental-indexeddb-adapter')
       return new IncrementalIDBAdapter()
     }
     const LokiIndexedAdapter = require('lokijs/src/loki-indexed-adapter')
     return new LokiIndexedAdapter(name)
-  } else if (typeof window.localStorage !== 'undefined') {
+  } else if (typeof localStorage !== 'undefined') {
     // use local storage if IDB is unavailable
     return new LokiLocalStorageAdapter()
   }

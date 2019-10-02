@@ -19,7 +19,7 @@ const { RESPONSE_SUCCESS, RESPONSE_ERROR } = responseActions
 
 function createWorker(useWebWorker: boolean): Worker {
   if (useWebWorker) {
-    const LokiWebWorker = (require('./worker/index.worker').default: any)
+    const LokiWebWorker = (require('./worker/index.worker'): any)
     return new LokiWebWorker()
   }
 
