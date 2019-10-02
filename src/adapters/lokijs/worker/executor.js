@@ -20,15 +20,9 @@ import { type RawRecord, sanitizedRaw, setRawSanitized, type DirtyRaw } from '..
 import { newLoki, loadDatabase, deleteDatabase } from './lokiExtensions'
 import executeQuery from './executeQuery'
 import type { WorkerBatchOperation } from '../common'
+import type { LokiAdapterOptions } from '../index'
 
 const SCHEMA_VERSION_KEY = '_loki_schema_version'
-
-type LokiExecutorOptions = $Exact<{
-  dbName: ?string,
-  schema: AppSchema,
-  migrations: ?SchemaMigrations, // TODO: not optional
-  _testLokiAdapter?: LokiMemoryAdapter,
-}>
 
 export default class LokiExecutor {
   dbName: ?string
@@ -39,20 +33,23 @@ export default class LokiExecutor {
 
   loki: Loki
 
+  experimentalUseIncrementalIndexedDB: boolean
+
   _testLokiAdapter: ?LokiMemoryAdapter
 
   cachedRecords: Map<TableName<any>, Set<RecordId>> = new Map()
 
-  constructor(options: LokiExecutorOptions): void {
+  constructor(options: LokiAdapterOptions): void {
     const { dbName, schema, migrations, _testLokiAdapter } = options
     this.dbName = dbName
     this.schema = schema
     this.migrations = migrations
+    this.experimentalUseIncrementalIndexedDB = options.experimentalUseIncrementalIndexedDB || false
     this._testLokiAdapter = _testLokiAdapter
   }
 
   async setUp(): Promise<void> {
-    await this._openDatabase(this._testLokiAdapter)
+    await this._openDatabase()
     await this._migrateIfNeeded()
   }
 
@@ -211,10 +208,14 @@ export default class LokiExecutor {
 
   // *** Internals ***
 
-  async _openDatabase(adapter?: LokiMemoryAdapter): Promise<void> {
+  async _openDatabase(): Promise<void> {
     logger.log('[DB][Worker] Initializing IndexedDB')
 
-    this.loki = newLoki(this.dbName, adapter)
+    this.loki = newLoki(
+      this.dbName,
+      this._testLokiAdapter,
+      this.experimentalUseIncrementalIndexedDB,
+    )
     await loadDatabase(this.loki) // Force database to load now
 
     logger.log('[DB][Worker] Database loaded')

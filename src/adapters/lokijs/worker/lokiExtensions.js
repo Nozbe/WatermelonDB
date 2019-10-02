@@ -1,22 +1,42 @@
 // @flow
 
-import Loki, { LokiMemoryAdapter, LokiPartitioningAdapter } from 'lokijs'
-import LokiIndexedAdapter from 'lokijs/src/loki-indexed-adapter'
-import IncrementalIDBAdapter from 'lokijs/src/incremental-indexeddb-adapter'
+import Loki, { LokiMemoryAdapter, LokiLocalStorageAdapter } from 'lokijs'
 
-export function newLoki(name: ?string, peristenceAdapter?: LokiMemoryAdapter): Loki {
-  // const newAdapter =
-  //   process.env.NODE_ENV === 'test' ? new LokiMemoryAdapter() : new LokiIndexedAdapter(name)
-  // const idbAdapter = new LokiIndexedAdapter(name)
-  // const newAdapter = new LokiPartitioningAdapter(idbAdapter)
-  const newAdapter = new IncrementalIDBAdapter(name)
+function getLokiAdapter(
+  name: ?string,
+  adapter: ?LokiMemoryAdapter,
+  useIncrementalIDB: boolean,
+): mixed {
+  if (adapter) {
+    return adapter
+  } else if (process.env.NODE_ENV === 'test') {
+    return new LokiMemoryAdapter()
+  } else if (typeof window.indexedDB !== 'undefined') {
+    if (useIncrementalIDB) {
+      const IncrementalIDBAdapter = require('lokijs/src/incremental-indexeddb-adapter')
+      return new IncrementalIDBAdapter()
+    }
+    const LokiIndexedAdapter = require('lokijs/src/loki-indexed-adapter')
+    return new LokiIndexedAdapter(name)
+  } else if (typeof window.localStorage !== 'undefined') {
+    // use local storage if IDB is unavailable
+    return new LokiLocalStorageAdapter()
+  }
 
+  // if both IDB and LocalStorage are unavailable, use memory adapter (happens in private mode)
+  return new LokiMemoryAdapter()
+}
+
+export function newLoki(
+  name: ?string,
+  adapter: ?LokiMemoryAdapter,
+  useIncrementalIDB: boolean,
+): Loki {
   return new Loki(name, {
-    adapter: peristenceAdapter || newAdapter,
+    adapter: getLokiAdapter(name, adapter, useIncrementalIDB),
     autosave: true,
-    autosaveInterval: 250, // TODO: Remove this and force database save when we have transactions
-    env: 'BROWSER', // TODO: ?
-    verbose: true, // TODO: remove later
+    autosaveInterval: 250,
+    verbose: true,
   })
 }
 

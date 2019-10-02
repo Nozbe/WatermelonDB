@@ -1,7 +1,5 @@
 // @flow
 
-import LokiWorker from './worker/workerMock'
-
 import {
   responseActions,
   type WorkerExecutorType,
@@ -19,15 +17,22 @@ type WorkerActions = WorkerAction[]
 
 const { RESPONSE_SUCCESS, RESPONSE_ERROR } = responseActions
 
+function createWorker(useWebWorker: boolean): Worker {
+  if (useWebWorker) {
+    return (require('./worker/index.worker').default: any)
+  }
+
+  return (require('./worker/workerMock').default: any)
+}
+
 class WorkerBridge {
-  _worker: Worker = this._createWorker()
+  _worker: Worker
 
   _pendingRequests: WorkerActions = []
 
-  _createWorker(): Worker {
-    const worker: Worker = (new LokiWorker(): any)
-
-    worker.onmessage = ({ data }) => {
+  constructor(useWebWorker: boolean): void {
+    this._worker = createWorker(useWebWorker)
+    this._worker.onmessage = ({ data }) => {
       const { type, payload }: WorkerResponseAction = (data: any)
       const { resolve, reject } = this._pendingRequests.shift()
 
@@ -37,8 +42,6 @@ class WorkerBridge {
         resolve(payload)
       }
     }
-
-    return worker
   }
 
   // TODO: `any` should be `WorkerResponsePayload` here
