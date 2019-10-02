@@ -211,12 +211,11 @@ export default class LokiExecutor {
   async _openDatabase(): Promise<void> {
     logger.log('[DB][Worker] Initializing IndexedDB')
 
-    this.loki = newLoki(
+    this.loki = await newLoki(
       this.dbName,
       this._testLokiAdapter,
       this.experimentalUseIncrementalIndexedDB,
     )
-    await loadDatabase(this.loki) // Force database to load now
 
     logger.log('[DB][Worker] Database loaded')
   }

@@ -33,8 +33,7 @@ All notable changes to this project will be documented in this file.
 ### Improvements
 
 - [LokiJS] Persistence adapter will now be automatically selected based on availability. By default,
-  IndexedDB is used. But now, if unavailable, WatermelonDB will fall back to `localStorage`, and if that
-  is unavailable (e.g. in private mode), ephemeral memory adapter will be used.
+  IndexedDB is used. But now, if unavailable (e.g. in private mode), ephemeral memory adapter will be used.
 - [Typescript] Typing improvements
      - Added 3 missing properties `collections`, `database` and `asModel` in Model type definition.
      - Removed optional flag on `actionsEnabled` in the Database constructor options since its mandatory since 0.13.0.

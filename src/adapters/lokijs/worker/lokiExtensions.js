@@ -1,52 +1,63 @@
 // @flow
 
-import Loki, { LokiMemoryAdapter, LokiLocalStorageAdapter } from 'lokijs'
+import Loki, { LokiMemoryAdapter } from 'lokijs'
 
-function getLokiAdapter(
+const isIDBAvailable = () => {
+  return new Promise(resolve => {
+    // $FlowFixMe
+    if (typeof indexedDB === 'undefined') {
+      resolve(false)
+    }
+
+    // in Firefox private mode, IDB will be available, but will fail to open
+    const db = window.indexedDB.open('WatermelonIDBChecker')
+    db.onsuccess = () => resolve(true)
+    db.onerror = () => resolve(false)
+  })
+}
+
+async function getLokiAdapter(
   name: ?string,
   adapter: ?LokiMemoryAdapter,
   useIncrementalIDB: boolean,
 ): mixed {
   if (adapter) {
     return adapter
-  } else if (process.env.NODE_ENV === 'test') {
-    return new LokiMemoryAdapter()
     // $FlowFixMe
-  } else if (typeof indexedDB !== 'undefined') {
+  } else if (await isIDBAvailable()) {
     if (useIncrementalIDB) {
       const IncrementalIDBAdapter = require('lokijs/src/incremental-indexeddb-adapter')
       return new IncrementalIDBAdapter()
     }
     const LokiIndexedAdapter = require('lokijs/src/loki-indexed-adapter')
     return new LokiIndexedAdapter(name)
-  } else if (typeof localStorage !== 'undefined') {
-    // use local storage if IDB is unavailable
-    return new LokiLocalStorageAdapter()
   }
 
-  // if both IDB and LocalStorage are unavailable, use memory adapter (happens in private mode)
+  // if IDB is unavailable (that happens in private mode), fall back to memory adapter
+  // we could also fall back to localstorage adapter, but it will fail in all but the smallest dbs
   return new LokiMemoryAdapter()
 }
 
-export function newLoki(
+export async function newLoki(
   name: ?string,
   adapter: ?LokiMemoryAdapter,
   useIncrementalIDB: boolean,
 ): Loki {
-  return new Loki(name, {
-    adapter: getLokiAdapter(name, adapter, useIncrementalIDB),
+  const loki = new Loki(name, {
+    adapter: await getLokiAdapter(name, adapter, useIncrementalIDB),
     autosave: true,
     autosaveInterval: 250,
     verbose: true,
   })
-}
 
-export async function loadDatabase(loki: Loki): Promise<void> {
+  // force load database now
   await new Promise((resolve, reject) => {
     loki.loadDatabase({}, error => {
       error ? reject(error) : resolve()
     })
   })
+
+  return loki
 }
 
 export async function deleteDatabase(loki: Loki): Promise<void> {
