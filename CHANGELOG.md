@@ -9,8 +9,33 @@ All notable changes to this project will be documented in this file.
 - Deprecated `bool` schema column type is removed -- please change to `boolean`
 - Experimental `experimentalSetOnlyMarkAsChangedIfDiffers(false)` API is now removed
 
+### New featuers
+
+- [LokiJS] Introduces new `new LokiJSAdapter({ ..., experimentalUseIncrementalIndexedDB: true })` option.
+  When enabled, database will be saved to browser's IndexedDB using a new adapter that only saves the
+  changed records, instead of the entire database.
+
+  **This works around a serious bug in Safari 13** (https://bugs.webkit.org/show_bug.cgi?id=202137) that causes large
+  databases to quickly balloon to gigabytes of temporary trash
+
+  This also improves performance of incremental saves, although initial page load or very, very large saves
+  might be slightly slower.
+
+  This is intended to become the new default option, but it's not backwards compatible (if enabled, old database
+  will be lost). **You're welcome to contribute an automatic migration code.**
+
+  Note that this option is still experimental, and might change in breaking ways at any time.
+
+- [LokiJS] Introduces new `new LokiJSAdapter({ ..., useWebWorker: false })` option. Before, web workers
+  were always used with `LokiJSAdapter`. Although web workers may have speed benefits, disabling them
+  may lead to lower memory consumption, lower latency, and easier debugging. Experiment in your app to see
+  which option works better for your app.
+
 ### Improvements
 
+- [LokiJS] Persistence adapter will now be automatically selected based on availability. By default,
+  IndexedDB is used. But now, if unavailable, WatermelonDB will fall back to `localStorage`, and if that
+  is unavailable (e.g. in private mode), ephemeral memory adapter will be used.
 - [Typescript] Typing improvements
      - Added 3 missing properties `collections`, `database` and `asModel` in Model type definition.
      - Removed optional flag on `actionsEnabled` in the Database constructor options since its mandatory since 0.13.0.
