@@ -43,6 +43,7 @@
     "rambdax": "^2.14.0",
     "rxjs": "^6.2.2",
     "rxjs-compat": "^6.3.2",
+    "lodash.clonedeep": "^4.5.0",
     "sql-escape-string": "^1.1.0"
   },
   "publishConfig": {
@@ -121,7 +122,6 @@
     "klaw-sync": "^6.0.0",
     "listr": "^0.14.1",
     "listr-input": "^0.2.0",
-    "lodash.clonedeep": "^4.5.0",
     "mkdirp": "^0.5.1",
     "p-timeout": "^3.0.0",
     "prettier": "^1.14.2",

@@ -27,9 +27,8 @@ All notable changes to this project will be documented in this file.
   Note that this option is still experimental, and might change in breaking ways at any time.
 
 - [LokiJS] Introduces new `new LokiJSAdapter({ ..., useWebWorker: false })` option. Before, web workers
-  were always used with `LokiJSAdapter`. Although web workers may have speed benefits, disabling them
-  may lead to lower memory consumption, lower latency, and easier debugging. Experiment in your app to see
-  which option works better for your app.
+  were always used with `LokiJSAdapter`. Although web workers may have some performance benefits, disabling them
+  may lead to lower memory consumption, lower latency, and easier debugging. YMMV.
 
 ### Improvements
 
