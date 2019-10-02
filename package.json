@@ -1,7 +1,7 @@
 {
   "name": "@nozbe/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
-  "version": "0.15.0-1",
+  "version": "0.15.0-2",
   "scripts": {
     "build": "NODE_ENV=production node ./scripts/make.js",
     "dev": "NODE_ENV=development node ./scripts/make.js",
@@ -39,11 +39,11 @@
     "url": "https://github.com/Nozbe/WatermelonDB.git"
   },
   "dependencies": {
+    "lodash.clonedeep": "^4.5.0",
     "lokijs": "git+https://github.com/Nozbe/LokiJS.git#8c100a4de4dd7c6cfaca261dec33775bfb2b177a",
     "rambdax": "^2.14.0",
     "rxjs": "^6.2.2",
     "rxjs-compat": "^6.3.2",
-    "lodash.clonedeep": "^4.5.0",
     "sql-escape-string": "^1.1.0"
   },
   "publishConfig": {
