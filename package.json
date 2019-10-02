@@ -39,7 +39,7 @@
     "url": "https://github.com/Nozbe/WatermelonDB.git"
   },
   "dependencies": {
-    "lokijs": "git+https://github.com/Nozbe/LokiJS.git#incremental-indexeddb",
+    "lokijs": "git+https://github.com/Nozbe/LokiJS.git#8c100a4de4dd7c6cfaca261dec33775bfb2b177a",
     "rambdax": "^2.14.0",
     "rxjs": "^6.2.2",
     "rxjs-compat": "^6.3.2",
@@ -121,7 +121,6 @@
     "klaw-sync": "^6.0.0",
     "listr": "^0.14.1",
     "listr-input": "^0.2.0",
-    "lodash.clonedeep": "^4.5.0",
     "mkdirp": "^0.5.1",
     "p-timeout": "^3.0.0",
     "prettier": "^1.14.2",

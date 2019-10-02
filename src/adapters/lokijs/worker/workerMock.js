@@ -1,7 +1,7 @@
 // @flow
-
-import clone from 'lodash.clonedeep'
 import LokiWorker from './lokiWorker'
+
+const clone = data => JSON.parse(JSON.stringify(data))
 
 // Simulates the web worker API for test env (while really just passing messages asynchronously
 // on main thread)

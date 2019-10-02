@@ -1,6 +1,5 @@
 import { change, times, map, length } from 'rambdax'
 import { skip as skip$ } from 'rxjs/operators'
-import clone from 'lodash.clonedeep'
 import { noop } from '../utils/fp'
 import { randomId } from '../utils/common'
 import { mockDatabase } from '../__tests__/testModels'
@@ -15,6 +14,8 @@ import {
   getLastPulledAt,
 } from './impl'
 import { resolveConflict, isChangeSetEmpty } from './impl/helpers'
+
+const clone = data => JSON.parse(JSON.stringify(data))
 
 describe('Conflict resolution', () => {
   it('can resolve per-column conflicts', () => {
