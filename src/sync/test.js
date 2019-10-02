@@ -1,3 +1,4 @@
+import clone from 'lodash.clonedeep'
 import { change, times, map, length } from 'rambdax'
 import { skip as skip$ } from 'rxjs/operators'
 import { noop } from '../utils/fp'
@@ -14,8 +15,6 @@ import {
   getLastPulledAt,
 } from './impl'
 import { resolveConflict, isChangeSetEmpty } from './impl/helpers'
-
-const clone = data => JSON.parse(JSON.stringify(data))
 
 describe('Conflict resolution', () => {
   it('can resolve per-column conflicts', () => {
@@ -152,6 +151,7 @@ describe('fetchLocalChanges', () => {
     expect(pCreated1._raw._status).toBe('created')
     expect(pUpdated._raw._status).toBe('updated')
     expect(pUpdated._raw._changed).toBe('name')
+
     expect(tDeleted._raw._status).toBe('deleted')
     const expectedChanges = clone({
       mock_projects: {

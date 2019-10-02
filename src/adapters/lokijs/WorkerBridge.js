@@ -19,10 +19,12 @@ const { RESPONSE_SUCCESS, RESPONSE_ERROR } = responseActions
 
 function createWorker(useWebWorker: boolean): Worker {
   if (useWebWorker) {
-    return (require('./worker/index.worker').default: any)
+    const LokiWebWorker = (require('./worker/index.worker').default: any)
+    return new LokiWebWorker()
   }
 
-  return (require('./worker/workerMock').default: any)
+  const WebWorkerMock = (require('./worker/workerMock').default: any)
+  return new WebWorkerMock()
 }
 
 class WorkerBridge {
