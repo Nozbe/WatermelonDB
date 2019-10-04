@@ -33,6 +33,12 @@ class Database {
         try fmdb.executeUpdate(query, values: args)
     }
 
+    func executeDict(_ query: SQL, _ args: [String: Any]) throws {
+        if !fmdb.executeUpdate(query, withParameterDictionary: args) {
+            throw fmdb.lastError()
+        }
+    }
+
     /// Executes multiple queries separated by `;`
     func executeStatements(_ queries: SQL) throws {
         guard fmdb.executeStatements(queries) else {

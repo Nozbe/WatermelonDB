@@ -121,15 +121,30 @@ class DatabaseDriver {
     }
 
     func batchInsertSync(json: String) throws {
-        let stuff = try JSONSerialization.jsonObject(with: json.data(using: .utf8)!, options: []) as! [String: [String: [AnyHashable: Any]]]
+        // swiftlint:disable all
+        let before = Date()
+        let stuff = try JSONSerialization.jsonObject(with: json.data(using: .utf8)!, options: []) as! NSDictionary
+//        var totalStringTime = 0
         try database.inTransaction {
-            for (tableName, changes) in stuff {
+            for (tableName, changes) in stuff["changes"]! as! NSDictionary {
                 consoleLog(tableName)
-                for record in changes["updated"]! {
-                    
+                for record in (changes as! NSDictionary)["updated"]! as! NSArray {
+//                    let start = DispatchTime.now()
+                    let recordDict = record as! NSDictionary
+                    let columnNames = recordDict.allKeys as! [String]
+
+                    let columnNamesList = columnNames.joined(separator: ",")
+                    let valuePlaceholders = columnNames.map { ":\($0)" }.joined(separator: ",")
+
+                    let query = "insert into \(tableName) (\(columnNamesList)) values (\(valuePlaceholders))"
+//                    let end = DispatchTime.now()
+//                    totalStringTime += Int((end.uptimeNanoseconds - start.uptimeNanoseconds) / 1000)
+                    try database.executeDict(query, recordDict as! [String : Any])
                 }
             }
         }
+//        consoleLog("[Sync] => strings: \(totalStringTime/1000)ms")
+        consoleLog("[Sync] => Native processing time: \(Date().timeIntervalSince(before))s")
     }
 
     func getDeletedRecords(table: Database.TableName) throws -> [RecordId] {
