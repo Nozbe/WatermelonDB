@@ -106,6 +106,16 @@ final public class DatabaseBridge: NSObject {
         }
     }
 
+    @objc(batchInsertSync:json:resolve:reject:)
+    func batchInsertSync(tag: ConnectionTag,
+                         json: String,
+                         resolve: @escaping RCTPromiseResolveBlock,
+                         reject: @escaping RCTPromiseRejectBlock) {
+        withDriver(tag, resolve, reject) {
+            try $0.batchInsertSync(json: json)
+        }
+    }
+
     @objc(batch:operations:resolve:reject:)
     func batch(tag: ConnectionTag,
                operations: [[Any]],

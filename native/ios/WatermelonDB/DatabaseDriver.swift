@@ -120,6 +120,18 @@ class DatabaseDriver {
         }
     }
 
+    func batchInsertSync(json: String) throws {
+        let stuff = try JSONSerialization.jsonObject(with: json.data(using: .utf8)!, options: []) as! [String: [String: [AnyHashable: Any]]]
+        try database.inTransaction {
+            for (tableName, changes) in stuff {
+                consoleLog(tableName)
+                for record in changes["updated"]! {
+                    
+                }
+            }
+        }
+    }
+
     func getDeletedRecords(table: Database.TableName) throws -> [RecordId] {
         return try database.queryRaw("select id from \(table) where _status='deleted'").map { row in
             row.string(forColumn: "id")!
