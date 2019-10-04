@@ -134,11 +134,14 @@ if (isDevelopment) {
   const buildSrcModule = buildModule(SRC_MODULES)
 
   const buildFile = file => {
-    if (file.match(/\.ts$/)) {
-      fs.copySync(file, path.join(DEV_PATH, replace(SOURCE_PATH, '', file)))
-    } else {
+    if (file.match(/\.js$/)) {
       buildSrcModule(file)
       buildCjsModule(file)
+    } else if (file.match(/\.js$/)) {
+      fs.copySync(file, path.join(DEV_PATH, replace(SOURCE_PATH, '', file)))
+    } else {
+      // native files
+      fs.copySync(file, path.join(DEV_PATH, replace(resolvePath(), '', file)))
     }
   }
 
@@ -147,7 +150,9 @@ if (isDevelopment) {
   copyNonJavaScriptFiles(DEV_PATH)
 
   chokidar
-    .watch(resolvePath('src'), { ignored: DO_NOT_BUILD_PATHS })
+    .watch([resolvePath('src'), resolvePath('native/ios/WatermelonDB')], {
+      ignored: DO_NOT_BUILD_PATHS,
+    })
     .on('all', (event, fileOrDir) => {
       // eslint-disable-next-line
       switch (event) {
