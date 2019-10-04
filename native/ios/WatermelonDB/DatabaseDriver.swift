@@ -1,6 +1,6 @@
 import Foundation
 
-class DatabaseDriver {
+public class DatabaseDriver {
     typealias SchemaVersion = Int
     typealias Schema = (version: SchemaVersion, sql: Database.SQL)
     typealias MigrationSet = (from: SchemaVersion, to: SchemaVersion, sql: Database.SQL)
@@ -120,31 +120,35 @@ class DatabaseDriver {
         }
     }
 
-    func batchInsertSync(json: String) throws {
+    public func batchInsertSync(jsonData: Data) throws {
         // swiftlint:disable all
         let before = Date()
-        let stuff = try JSONSerialization.jsonObject(with: json.data(using: .utf8)!, options: []) as! NSDictionary
+        let stuff = try JSONSerialization.jsonObject(with: jsonData, options: []) as! NSDictionary
 //        var totalStringTime = 0
         try database.inTransaction {
-            for (tableName, changes) in stuff["changes"]! as! NSDictionary {
-                consoleLog(tableName)
-                for record in (changes as! NSDictionary)["updated"]! as! NSArray {
-//                    let start = DispatchTime.now()
-                    let recordDict = record as! NSDictionary
-                    let columnNames = recordDict.allKeys as! [String]
+            for (tName, changes) in stuff["changes"]! as! NSDictionary {
+                let tableName = tName as! String
+                if tableName != "comments" && tableName != "task_events" {
+                    consoleLog(tableName)
+                    for record in (changes as! NSDictionary)["updated"]! as! NSArray {
+    //                    let start = DispatchTime.now()
+                        let recordDict = record as! NSDictionary
+                        let columnNames = recordDict.allKeys as! [String]
 
-                    let columnNamesList = columnNames.joined(separator: ",")
-                    let valuePlaceholders = columnNames.map { ":\($0)" }.joined(separator: ",")
+                        let columnNamesList = columnNames.joined(separator: ",")
+                        let valuePlaceholders = columnNames.map { ":\($0)" }.joined(separator: ",")
 
-                    let query = "insert into \(tableName) (\(columnNamesList)) values (\(valuePlaceholders))"
-//                    let end = DispatchTime.now()
-//                    totalStringTime += Int((end.uptimeNanoseconds - start.uptimeNanoseconds) / 1000)
-                    try database.executeDict(query, recordDict as! [String : Any])
+                        let query = "insert into \(tableName) (\(columnNamesList)) values (\(valuePlaceholders))"
+    //                    let end = DispatchTime.now()
+    //                    totalStringTime += Int((end.uptimeNanoseconds - start.uptimeNanoseconds) / 1000)
+                        try database.executeDict(query, recordDict as! [String : Any])
+                    }
                 }
             }
         }
 //        consoleLog("[Sync] => strings: \(totalStringTime/1000)ms")
-        consoleLog("[Sync] => Native processing time: \(Date().timeIntervalSince(before))s")
+//        consoleLog("[Sync] => Native processing time: \(Date().timeIntervalSince(before))s")
+        consoleLog("[Sync] => FMDB times. Prep: \(database.fmdb.value(forKey: "_prepTimes")! as! Int / 1000)ms, bind: \(database.fmdb.value(forKey: "_bindTimes")! as! Int / 1000)ms, exec: \(database.fmdb.value(forKey: "_execTimes")! as! Int / 1000)ms")
     }
 
     func getDeletedRecords(table: Database.TableName) throws -> [RecordId] {

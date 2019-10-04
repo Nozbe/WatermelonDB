@@ -988,7 +988,9 @@ static int FMDBDatabaseBusyHandler(void *f, int count) {
 #pragma mark Execute updates
 
 - (BOOL)executeUpdate:(NSString*)sql error:(NSError**)outErr withArgumentsInArray:(NSArray*)arrayArgs orDictionary:(NSDictionary *)dictionaryArgs orVAList:(va_list)args {
-    
+
+    NSTimeInterval t1 = [[NSProcessInfo processInfo] systemUptime];
+
     if (![self databaseExists]) {
         return NO;
     }
@@ -1039,6 +1041,8 @@ static int FMDBDatabaseBusyHandler(void *f, int count) {
             return NO;
         }
     }
+
+    NSTimeInterval t2 = [[NSProcessInfo processInfo] systemUptime];
     
     id obj;
     int idx = 0;
@@ -1127,8 +1131,12 @@ static int FMDBDatabaseBusyHandler(void *f, int count) {
     /* Call sqlite3_step() to run the virtual machine. Since the SQL being
      ** executed is not a SELECT statement, we assume no data will be returned.
      */
+
+    NSTimeInterval t3 = [[NSProcessInfo processInfo] systemUptime];
     
     rc      = sqlite3_step(pStmt);
+
+    NSTimeInterval t4 = [[NSProcessInfo processInfo] systemUptime];
     
     if (SQLITE_DONE == rc) {
         // all is well, let's return.

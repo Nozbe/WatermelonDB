@@ -2,9 +2,9 @@ import Foundation
 
 @objc(DatabaseBridge)
 final public class DatabaseBridge: NSObject {
-    typealias ConnectionTag = NSNumber
+    public typealias ConnectionTag = NSNumber
     @objc static let requiresMainQueueSetup: Bool = false
-    @objc let methodQueue = DispatchQueue(label: "com.nozbe.watermelondb.database", qos: .userInteractive)
+    @objc public let methodQueue = DispatchQueue(label: "com.nozbe.watermelondb.database", qos: .userInteractive)
 
     private enum Connection {
         case connected(driver: DatabaseDriver)
@@ -18,6 +18,14 @@ final public class DatabaseBridge: NSObject {
         }
     }
     private var connections: [Int: Connection] = [:]
+
+    public func getDriver(tag: ConnectionTag) -> DatabaseDriver? {
+        if let connection = connections[tag.intValue], case let .connected(driver) = connection {
+            return driver
+        } else {
+            return nil
+        }
+    }
 
     @objc(initialize:databaseName:schemaVersion:resolve:reject:)
     func initialize(tag: ConnectionTag,
@@ -112,7 +120,7 @@ final public class DatabaseBridge: NSObject {
                          resolve: @escaping RCTPromiseResolveBlock,
                          reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
-            try $0.batchInsertSync(json: json)
+            try $0.batchInsertSync(jsonData: json.data(using: .utf8)!)
         }
     }
 

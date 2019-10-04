@@ -23,11 +23,11 @@ const encodeCreateTable: TableSchema => SQL = ({ name, columns }) => {
 }
 
 const encodeIndex: (ColumnSchema, TableName<any>) => SQL = (column, tableName) =>
-  column.isIndexed ?
-    `create index ${tableName}_${column.name} on ${encodeName(tableName)} (${encodeName(
+  column.isIndexed
+    ? `create index ${tableName}_${column.name} on ${encodeName(tableName)} (${encodeName(
         column.name,
-      )});` :
-    ''
+      )});`
+    : ''
 
 const encodeTableIndicies: TableSchema => SQL = ({ name: tableName, columns }) =>
   values(columns)
@@ -35,8 +35,7 @@ const encodeTableIndicies: TableSchema => SQL = ({ name: tableName, columns }) =
     .concat([`create index ${tableName}__status on ${encodeName(tableName)} ("_status");`])
     .join('')
 
-const encodeTable: TableSchema => SQL = table =>
-  encodeCreateTable(table) + encodeTableIndicies(table)
+const encodeTable: TableSchema => SQL = table => encodeCreateTable(table) // + encodeTableIndicies(table)
 
 export const encodeSchema: AppSchema => SQL = ({ tables }) =>
   values(tables)

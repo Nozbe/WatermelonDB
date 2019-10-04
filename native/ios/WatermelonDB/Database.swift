@@ -5,7 +5,7 @@ class Database {
     typealias TableName = String
     typealias QueryArgs = [Any]
 
-    private let fmdb: FMDatabase
+     let fmdb: FMDatabase
 
     init(path: String) {
         fmdb = FMDatabase(path: path)
