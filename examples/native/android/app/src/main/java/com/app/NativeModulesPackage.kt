@@ -11,5 +11,5 @@ class NativeModulesPackage : ReactPackage {
             reactContext: ReactApplicationContext): List<ViewManager<*, *>> = emptyList()
 
     override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> =
-            arrayListOf<NativeModule>(PerformancePlugin(reactContext))
+            listOf<NativeModule>(PerformancePlugin(reactContext))
 }

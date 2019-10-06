@@ -15,7 +15,6 @@ import java.util.Date
 class MainApplication : Application(), ReactApplication {
 
     companion object {
-        private lateinit var singleton: MainApplication
         val initTime = Date()
     }
 
@@ -23,7 +22,7 @@ class MainApplication : Application(), ReactApplication {
         override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
 
         override fun getPackages(): List<ReactPackage> =
-                Arrays.asList<ReactPackage>(
+                listOf(
                         MainReactPackage(),
                         NativeModulesPackage(),
                         RNPromptPackage(),
@@ -36,9 +35,4 @@ class MainApplication : Application(), ReactApplication {
     }
 
     override fun getReactNativeHost(): ReactNativeHost = reactNativeHost
-
-    override fun onCreate() {
-        super.onCreate()
-        singleton = this
-    }
 }
