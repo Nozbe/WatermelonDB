@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "lodash.clonedeep": "^4.5.0",
-    "lokijs": "git+https://github.com/Nozbe/LokiJS.git#15727e4ec42b020c3404a55d6af5d5afef6c3683",
+    "lokijs": "git+https://github.com/Nozbe/LokiJS.git#2b2366b",
     "rambdax": "^2.14.0",
     "rxjs": "^6.2.2",
     "rxjs-compat": "^6.3.2",
