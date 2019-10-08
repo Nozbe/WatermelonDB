@@ -62,14 +62,18 @@ export async function newLoki(
 
 export async function deleteDatabase(loki: Loki): Promise<void> {
   await new Promise((resolve, reject) => {
-    loki.deleteDatabase({}, response => {
-      // LokiIndexedAdapter responds with `{ success: true }`, while
-      // LokiMemory adapter just calls it with no params
-      if ((response && response.success) || response === undefined) {
-        resolve()
-      } else {
-        reject(response)
-      }
+    // Works around a race condition - Loki doesn't disable autosave or drain save queue before
+    // deleting database, so it's possible to delete and then have the database be saved
+    loki.close(() => {
+      loki.deleteDatabase({}, response => {
+        // LokiIndexedAdapter responds with `{ success: true }`, while
+        // LokiMemory adapter just calls it with no params
+        if ((response && response.success) || response === undefined) {
+          resolve()
+        } else {
+          reject(response)
+        }
+      })
     })
   })
 }
