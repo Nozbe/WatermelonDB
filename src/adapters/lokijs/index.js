@@ -39,7 +39,8 @@ export type LokiAdapterOptions = $Exact<{
   dbName?: ?string,
   schema: AppSchema,
   migrations?: SchemaMigrations,
-  // TODO: Document those props
+  // (true by default) Although web workers may have some throughput benefits, disabling them
+  // may lead to lower memory consumption, lower latency, and easier debugging
   useWebWorker?: boolean,
   experimentalUseIncrementalIndexedDB?: boolean,
   // -- internal --
