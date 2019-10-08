@@ -1,4 +1,5 @@
 // @flow
+/* eslint-disable no-undef */
 
 import Loki, { LokiMemoryAdapter } from 'lokijs'
 
@@ -10,7 +11,7 @@ const isIDBAvailable = () => {
     }
 
     // in Firefox private mode, IDB will be available, but will fail to open
-    const db = window.indexedDB.open('WatermelonIDBChecker')
+    const db = indexedDB.open('WatermelonIDBChecker')
     db.onsuccess = () => resolve(true)
     db.onerror = () => resolve(false)
   })
@@ -23,7 +24,6 @@ async function getLokiAdapter(
 ): mixed {
   if (adapter) {
     return adapter
-    // $FlowFixMe
   } else if (await isIDBAvailable()) {
     if (useIncrementalIDB) {
       const IncrementalIDBAdapter = require('lokijs/src/incremental-indexeddb-adapter')

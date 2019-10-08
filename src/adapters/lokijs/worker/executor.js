@@ -17,7 +17,7 @@ import type { SerializedQuery } from '../../../Query'
 import type { RecordId } from '../../../Model'
 import { type RawRecord, sanitizedRaw, setRawSanitized, type DirtyRaw } from '../../../RawRecord'
 
-import { newLoki, loadDatabase, deleteDatabase } from './lokiExtensions'
+import { newLoki, deleteDatabase } from './lokiExtensions'
 import executeQuery from './executeQuery'
 import type { WorkerBatchOperation } from '../common'
 import type { LokiAdapterOptions } from '../index'
