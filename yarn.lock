@@ -3548,10 +3548,10 @@ flatted@^2.0.0:
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-2.0.1.tgz#69e57caa8f0eacbc281d2e2cb458d46fdb449e08"
   integrity sha512-a1hQMktqW9Nmqr5aktAux3JMNqaucxGcjtjWnZLHX7yyPCmlSV3M54nGYbqT8K+0GhF3NBgmJCc3ma+WOgX8Jg==
 
-flow-bin@^0.108.0:
-  version "0.108.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.108.0.tgz#6a42c85fd664d23dd937d925851e8e6ab5d71393"
-  integrity sha512-hPEyCP1J8rdhNDfCAA5w7bN6HUNBDcHVg/ABU5JVo0gUFMx+uRewpyEH8LlLBGjVQuIpbaPpaqpoaQhAVyaYww==
+flow-bin@^0.109.0:
+  version "0.109.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.109.0.tgz#dcdcb7402dd85b58200392d8716ccf14e5a8c24c"
+  integrity sha512-tpcMTpAGIRivYhFV3KJq+zHI2HzcXo8MoGe9pXS4G/UZuey2Faq/e8/gdph2WF0erRlML5hmwfwiq7v9c25c7w==
 
 for-in@^1.0.1, for-in@^1.0.2:
   version "1.0.2"
@@ -5277,9 +5277,9 @@ loglevel@^1.4.1:
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.6.1.tgz#e0fc95133b6ef276cdc8887cdaf24aa6f156f8fa"
 
-"lokijs@git+https://github.com/Nozbe/LokiJS.git#8c100a4de4dd7c6cfaca261dec33775bfb2b177a":
+"lokijs@git+https://github.com/Nozbe/LokiJS.git#15727e4ec42b020c3404a55d6af5d5afef6c3683":
   version "1.5.7"
-  resolved "git+https://github.com/Nozbe/LokiJS.git#8c100a4de4dd7c6cfaca261dec33775bfb2b177a"
+  resolved "git+https://github.com/Nozbe/LokiJS.git#15727e4ec42b020c3404a55d6af5d5afef6c3683"
 
 loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.3.1, loose-envify@^1.4.0:
   version "1.4.0"
@@ -6775,15 +6775,15 @@ react-devtools-core@^3.6.0:
     shell-quote "^1.6.1"
     ws "^3.3.1"
 
-react-dom@^16.10.1:
-  version "16.10.1"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.10.1.tgz#479a6511ba34a429273c213cbc2a9ac4d296dac1"
-  integrity sha512-SmM4ZW0uug0rn95U8uqr52I7UdNf6wdGLeXDmNLfg3y5q5H9eAbdjF5ubQc3bjDyRrvdAB2IKG7X0GzSpnn5Mg==
+react-dom@^16.10.2:
+  version "16.10.2"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.10.2.tgz#4840bce5409176bc3a1f2bd8cb10b92db452fda6"
+  integrity sha512-kWGDcH3ItJK4+6Pl9DZB16BXYAZyrYQItU4OMy0jAkv5aNqc+mAKb4TpFtAteI6TJZu+9ZlNhaeNQSVQDHJzkw==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
     prop-types "^15.6.2"
-    scheduler "^0.16.1"
+    scheduler "^0.16.2"
 
 react-is@^16.8.1:
   version "16.9.0"
@@ -6859,15 +6859,15 @@ react-proxy@^1.1.7:
     lodash "^4.6.1"
     react-deep-force-update "^1.0.0"
 
-react-test-renderer@16.10.1:
-  version "16.10.1"
-  resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-16.10.1.tgz#75b8e8ce152e00eadd303e9fa514a2ca917ee049"
-  integrity sha512-VT8nd7XrrUV7MQPxeIuH7WstfrK2A8kgcMwGUtVXa0ja+CiYkxdmLYNjwX1L7irRF7ydzJJWiSLsQf2xBj4Xaw==
+react-test-renderer@16.10.2:
+  version "16.10.2"
+  resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-16.10.2.tgz#4d8492f8678c9b43b721a7d79ed0840fdae7c518"
+  integrity sha512-k9Qzyev6cTIcIfrhgrFlYQAFxh5EEDO6ALNqYqmKsWVA7Q/rUMTay5nD3nthi6COmYsd4ghVYyi8U86aoeMqYQ==
   dependencies:
     object-assign "^4.1.1"
     prop-types "^15.6.2"
     react-is "^16.8.6"
-    scheduler "^0.16.1"
+    scheduler "^0.16.2"
 
 react-transform-hmr@^1.0.4:
   version "1.0.4"
@@ -6877,10 +6877,10 @@ react-transform-hmr@^1.0.4:
     global "^4.3.0"
     react-proxy "^1.1.7"
 
-react@^16.10.1:
-  version "16.10.1"
-  resolved "https://registry.yarnpkg.com/react/-/react-16.10.1.tgz#967c1e71a2767dfa699e6ba702a00483e3b0573f"
-  integrity sha512-2bisHwMhxQ3XQz4LiJJwG3360pY965pTl/MRrZYxIBKVj4fOHoDs5aZAkYXGxDRO1Li+SyjTAilQEbOmtQJHzA==
+react@^16.10.2:
+  version "16.10.2"
+  resolved "https://registry.yarnpkg.com/react/-/react-16.10.2.tgz#a5ede5cdd5c536f745173c8da47bda64797a4cf0"
+  integrity sha512-MFVIq0DpIhrHFyqLU0S3+4dIcBhhOvBE8bJ/5kHPVOVaGdo0KuiQzpcjCPsf585WvhypqtrMILyoE2th6dT+Lw==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
@@ -7332,10 +7332,10 @@ sax@~1.1.1:
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.1.6.tgz#5d616be8a5e607d54e114afae55b7eaf2fcc3240"
   integrity sha1-XWFr6KXmB9VOEUr65Vt+ry/MMkA=
 
-scheduler@^0.16.1:
-  version "0.16.1"
-  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.16.1.tgz#a6fb6ddec12dc2119176e6eb54ecfe69a9eba8df"
-  integrity sha512-MIuie7SgsqMYOdCXVFZa8SKoNorJZUWHW8dPgto7uEHn1lX3fg2Gu0TzgK8USj76uxV7vB5eRMnZs/cdEHg+cg==
+scheduler@^0.16.2:
+  version "0.16.2"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.16.2.tgz#f74cd9d33eff6fc554edfb79864868e4819132c1"
+  integrity sha512-BqYVWqwz6s1wZMhjFvLfVR5WXP7ZY32M/wYPo04CcuPM7XZEbV2TBNW7Z0UkguPTl0dWMA59VbNXxK6q+pHItg==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
