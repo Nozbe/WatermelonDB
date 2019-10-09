@@ -232,7 +232,7 @@ postsCollection.query(
 
 ```js
 const tableNameCollection = database.collections.get('table_name')
-tableNameCollection.rawQuery('select * from ...').fetch()
+tableNameCollection.unsafeFetchRecordsWithSQL('select * from ...').fetch()
 ```
 
 

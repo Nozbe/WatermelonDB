@@ -64,7 +64,7 @@ export default class Collection<Record: Model> {
     return new Query(this, conditions)
   }
 
-  rawQuery(sql: string): RawQuery<Record> {
+  unsafeFetchRecordsWithSQL(sql: string): RawQuery<Record> {
     return new RawQuery(this, sql)
   }
 

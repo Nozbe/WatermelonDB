@@ -239,7 +239,7 @@ export default () => [
         await adapter.batch([['create', record1], ['create', record2], ['create', record3]])
 
         // all records
-        expectSortedEqual(await adapter.rawQuery(taskRawQuery(`SELECT * FROM tasks`)), [
+        expectSortedEqual(await adapter.unsafeFetchRecordsWithSQL(taskRawQuery(`SELECT * FROM tasks`)), [
           't1',
           't2',
           't3',
@@ -247,22 +247,22 @@ export default () => [
 
         // some records
         expectSortedEqual(
-          await adapter.rawQuery(taskRawQuery(`SELECT * FROM tasks WHERE bool1 = false`)),
+          await adapter.unsafeFetchRecordsWithSQL(taskRawQuery(`SELECT * FROM tasks WHERE bool1 = false`)),
           ['t1', 't3'],
         )
 
         expectSortedEqual(
-          await adapter.rawQuery(taskRawQuery(`SELECT * FROM tasks WHERE id = 't2'`)),
+          await adapter.unsafeFetchRecordsWithSQL(taskRawQuery(`SELECT * FROM tasks WHERE id = 't2'`)),
           ['t2'],
         )
 
         expectSortedEqual(
-          await adapter.rawQuery(taskRawQuery(`SELECT * FROM tasks WHERE \`order\` = 2`)),
+          await adapter.unsafeFetchRecordsWithSQL(taskRawQuery(`SELECT * FROM tasks WHERE \`order\` = 2`)),
           ['t2'],
         )
 
         expectSortedEqual(
-          await adapter.rawQuery(taskRawQuery(`SELECT * FROM tasks WHERE text1 = 'nope'`)),
+          await adapter.unsafeFetchRecordsWithSQL(taskRawQuery(`SELECT * FROM tasks WHERE text1 = 'nope'`)),
           [],
         )
       }
