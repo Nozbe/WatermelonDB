@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### New 
+ - Avoid `database` prop drilling in the web demo
+
 ### ⚠️ Breaking
 
 - Deprecated `bool` schema column type is removed -- please change to `boolean`

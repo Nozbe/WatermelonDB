@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { HashRouter as Router, Route, Switch, Link } from 'react-router-dom'
 import { generate100, generate10k } from 'models/generate'
+import { withDatabase } from '@nozbe/watermelondb/DatabaseProvider'
 
 import Button from 'components/Button'
 import BlogList from 'components/BlogList'
@@ -52,7 +53,6 @@ class Root extends Component {
   hideMain = () => this.setState({isShowMain: false});
 
   render() {
-    const { database } = this.props
     const { isGenerating, search, isShowPostList, isShowMain } = this.state
 
     return (
@@ -77,7 +77,7 @@ class Root extends Component {
                 type="text"
                 defaultValue=""
                 onChange={this.handleTextChange} />
-              {!isGenerating && <BlogList search={search} database={database} showPostList={this.showPostList} />}
+              {!isGenerating && <BlogList search={search} showPostList={this.showPostList} />}
             </div>
 
               <Route path="/blog/:blogId"
@@ -85,7 +85,7 @@ class Root extends Component {
                   (!isGenerating && (isShowPostList || props.match.params.blogId)) && (
                       <div className={style.postList}>
                         <BackLink to="/blog" onClick={this.hidePostList}>&lt; Back</BackLink>
-                        <Blog key={props.match.params.blogId} database={database} {...props} showMain={this.showMain} />
+                        <Blog key={props.match.params.blogId} {...props} showMain={this.showMain} />
                       </div>
                   )
                 }
@@ -99,14 +99,14 @@ class Root extends Component {
                       <Route path="/blog/:blogId/nasty"
                         render={props => (isShowMain || props.match.params.blogId) && (
                           <div className={style.main}>
-                            <ModerationQueue database={database} hideMain={this.hideMain} {...props} />
+                            <ModerationQueue hideMain={this.hideMain} {...props} />
                           </div>
                         )}
                       />
                       <Route path="/blog/:blogId/post/:postId"
                         render={props => (isShowMain || props.match.params.postId) && (
                           <div className={style.main}>
-                            <Post database={database} hideMain={this.hideMain} {...props} />
+                            <Post hideMain={this.hideMain} {...props} />
                           </div>
                         )}
                       />
@@ -121,4 +121,4 @@ class Root extends Component {
   }
 }
 
-export default Root
+export default withDatabase(Root)

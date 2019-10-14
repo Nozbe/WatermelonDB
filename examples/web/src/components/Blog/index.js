@@ -1,6 +1,7 @@
 import React from 'react'
 import { compose, withPropsOnChange, withHandlers, withStateHandlers } from 'recompose'
 import withObservables from '@nozbe/with-observables'
+import { withDatabase } from '@nozbe/watermelondb/DatabaseProvider'
 
 import Button from 'components/Button'
 import ListItem from 'components/ListItem'
@@ -99,4 +100,4 @@ const enhance = compose(
   }),
 )
 
-export default enhance(Blog)
+export default withDatabase(enhance(Blog))
