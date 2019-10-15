@@ -1,6 +1,6 @@
+import clone from 'lodash.clonedeep'
 import { change, times, map, length } from 'rambdax'
 import { skip as skip$ } from 'rxjs/operators'
-import clone from 'lodash.clonedeep'
 import { noop } from '../utils/fp'
 import { randomId } from '../utils/common'
 import { mockDatabase } from '../__tests__/testModels'
@@ -151,6 +151,7 @@ describe('fetchLocalChanges', () => {
     expect(pCreated1._raw._status).toBe('created')
     expect(pUpdated._raw._status).toBe('updated')
     expect(pUpdated._raw._changed).toBe('name')
+
     expect(tDeleted._raw._status).toBe('deleted')
     const expectedChanges = clone({
       mock_projects: {
