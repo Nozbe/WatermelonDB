@@ -98,11 +98,6 @@ export default class LokiExecutor {
     return executeQuery(query, this.loki).count()
   }
 
-  create(table: TableName<any>, raw: RawRecord): void {
-    this.loki.getCollection(table).insert(raw)
-    this.markAsCached(table, raw.id)
-  }
-
   update(table: TableName<any>, rawRecord: RawRecord): void {
     const collection = this.loki.getCollection(table)
     // Loki identifies records using internal $loki ID so we must find the saved record first
@@ -130,13 +125,21 @@ export default class LokiExecutor {
   }
 
   batch(operations: WorkerBatchOperation[]): void {
+    console.time(`batch of ${operations.length}`)
     // TODO: Only add to cached records if all is successful
     // TODO: Transactionality
+
+    const recordsToCreate: { [string]: RawRecord[] } = {}
+
     operations.forEach(operation => {
       const [type, table, raw] = operation
       switch (type) {
         case 'create':
-          this.create(table, raw)
+          if (!recordsToCreate[table]) {
+            recordsToCreate[table] = []
+          }
+          recordsToCreate[table].push(raw)
+
           break
         case 'update':
           this.update(table, raw)
@@ -151,6 +154,18 @@ export default class LokiExecutor {
           break
       }
     })
+
+    // We're doing a second pass, because batch insert is much faster in Loki
+    Object.entries(recordsToCreate).forEach(([table, raws]: [TableName<any>, RawRecord[]]) => {
+      const shouldRebuildIndexAfterIndex = raws.length >= 1000 // only profitable for large inserts
+      this.loki.getCollection(table).insert(raws, shouldRebuildIndexAfterIndex)
+
+      raws.forEach(raw => {
+        this.markAsCached(table, raw.id)
+      })
+    })
+
+    console.timeEnd(`batch of ${operations.length}`)
   }
 
   getDeletedRecords(table: TableName<any>): RecordId[] {
