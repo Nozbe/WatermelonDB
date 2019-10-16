@@ -26,7 +26,12 @@ const notSyncedQuery = Q.where(columnName('_status'), Q.notEq('synced'))
 // TODO: It would probably also be good to only send to server locally changed fields, not full records
 const rawsForStatus = (status, records) =>
   reduce(
-    (raws, record) => (record._raw._status === status ? raws.concat({ ...record._raw }) : raws),
+    (raws, record) => {
+      if (record._raw._status === status) {
+        raws.push({ ...record._raw }) // perf-critical - using mutation
+      }
+      return raws
+    },
     [],
     records,
   )
@@ -34,9 +39,10 @@ const rawsForStatus = (status, records) =>
 async function fetchLocalChangesForCollection<T: Model>(
   collection: Collection<T>,
 ): Promise<[SyncTableChangeSet, T[]]> {
-  const changedPromise = collection.query(notSyncedQuery).fetch()
-  const deletedPromise = collection.database.adapter.getDeletedRecords(collection.table)
-  const [changedRecords, deletedRecords] = await Promise.all([changedPromise, deletedPromise])
+  const [changedRecords, deletedRecords] = await Promise.all([
+    collection.query(notSyncedQuery).fetch(),
+    collection.database.adapter.getDeletedRecords(collection.table),
+  ])
   const changeSet = {
     created: rawsForStatus('created', changedRecords),
     updated: rawsForStatus('updated', changedRecords),
