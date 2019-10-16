@@ -4,9 +4,6 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
-### New 
- - Avoid `database` prop drilling in the web demo
-
 ### ⚠️ Breaking
 
 - Deprecated `bool` schema column type is removed -- please change to `boolean`
@@ -35,6 +32,11 @@ All notable changes to this project will be documented in this file.
 
 ### Improvements
 
+- [Performance] Make large batches a lot faster (1.3s shaved off on a 65K insert sample)
+- [Performance][LokiJS] Make batch inserts faster (1.5s shaved off on a 65K insert sample)
+- [Performance][LokiJS] Various performance improvements
+- [Performance][Sync] Make Sync faster
+- [Performance] Make observation faster
 - [LokiJS] Persistence adapter will now be automatically selected based on availability. By default,
   IndexedDB is used. But now, if unavailable (e.g. in private mode), ephemeral memory adapter will be used.
 - [Typescript] Typing improvements
@@ -43,6 +45,7 @@ All notable changes to this project will be documented in this file.
      - fixed several further typing issues in Model, Relation and lazy decorator
 - Changed how async functions are transpiled in the library. This could break on really old Android phones
   but shouldn't matter if you use latest version of React Native. Please report an issue if you see a problem.
+- Avoid `database` prop drilling in the web demo
 
 ## 0.14.1 - 2019-08-31
 
