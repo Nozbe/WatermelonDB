@@ -129,7 +129,7 @@ export default class LokiExecutor {
     // TODO: Only add to cached records if all is successful
     // TODO: Transactionality
 
-    const recordsToCreate: { [string]: RawRecord[] } = {}
+    const recordsToCreate: { [TableName<any>]: RawRecord[] } = {}
 
     operations.forEach(operation => {
       const [type, table, raw] = operation
@@ -147,7 +147,7 @@ export default class LokiExecutor {
     })
 
     // We're doing a second pass, because batch insert is much faster in Loki
-    Object.entries(recordsToCreate).forEach(([table, raws]: [TableName<any>, RawRecord[]]) => {
+    Object.entries(recordsToCreate).forEach(([table, raws]) => {
       const shouldRebuildIndexAfterIndex = raws.length >= 1000 // only profitable for large inserts
       this.loki.getCollection(table).insert(raws, shouldRebuildIndexAfterIndex)
 

@@ -99,7 +99,7 @@ describe('fetching queries', () => {
 
     // check if query was passed correctly
     expect(adapter.query.mock.calls.length).toBe(1)
-    expect(adapter.query.mock.calls[0][0]).toBe(query)
+    expect(adapter.query.mock.calls[0][0]).toEqual(query.serialize())
   })
   it('fetches query records from cache if possible', async () => {
     const { tasks: collection, adapter } = mockDatabase()
@@ -151,8 +151,8 @@ describe('fetching queries', () => {
     expect(await collection.fetchCount(query)).toBe(10)
 
     expect(adapter.count.mock.calls.length).toBe(2)
-    expect(adapter.count.mock.calls[0][0]).toBe(query)
-    expect(adapter.count.mock.calls[1][0]).toBe(query)
+    expect(adapter.count.mock.calls[0][0]).toEqual(query.serialize())
+    expect(adapter.count.mock.calls[1][0]).toEqual(query.serialize())
   })
 })
 

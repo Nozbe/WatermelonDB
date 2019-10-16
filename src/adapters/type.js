@@ -1,6 +1,6 @@
 // @flow
 
-import type Query from '../Query'
+import type { SerializedQuery } from '../Query'
 import type { TableName, AppSchema } from '../Schema'
 import type { SchemaMigrations } from '../Schema/migrations'
 import type Model, { RecordId } from '../Model'
@@ -20,10 +20,10 @@ export interface DatabaseAdapter {
   find(table: TableName<any>, id: RecordId): Promise<CachedFindResult>;
 
   // Fetches matching records. Should not send raw object if already cached in JS
-  query<T: Model>(query: Query<T>): Promise<CachedQueryResult>;
+  query(query: SerializedQuery): Promise<CachedQueryResult>;
 
   // Counts matching records
-  count<T: Model>(query: Query<T>): Promise<number>;
+  count(query: SerializedQuery): Promise<number>;
 
   // Executes multiple prepared operations
   batch(operations: BatchOperation[]): Promise<void>;

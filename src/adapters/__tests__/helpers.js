@@ -84,7 +84,7 @@ export const modelQuery = (modelClass, ...conditions) => {
   return new Query(mockCollection, conditions)
 }
 
-export const taskQuery = (...conditions) => modelQuery(MockTask, ...conditions)
+export const taskQuery = (...conditions) => modelQuery(MockTask, ...conditions).serialize()
 
 export const makeMockTask = raw =>
   new MockTask(
@@ -92,7 +92,7 @@ export const makeMockTask = raw =>
     sanitizedRaw(raw, testSchema.tables.tasks),
   )
 
-export const projectQuery = (...conditions) => modelQuery(MockProject, ...conditions)
+export const projectQuery = (...conditions) => modelQuery(MockProject, ...conditions).serialize()
 
 export const makeMockProject = raw =>
   new MockProject(

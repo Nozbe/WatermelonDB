@@ -4,8 +4,8 @@
 import { NativeModules } from 'react-native'
 import { connectionTag, type ConnectionTag, logger, invariant } from '../../utils/common'
 
-import type Model, { RecordId } from '../../Model'
-import type Query from '../../Query'
+import type { RecordId } from '../../Model'
+import type { SerializedQuery } from '../../Query'
 import type { TableName, AppSchema, SchemaVersion } from '../../Schema'
 import type { SchemaMigrations, MigrationStep } from '../../Schema/migrations'
 import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
@@ -179,7 +179,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     )
   }
 
-  query<T: Model>(query: Query<T>): Promise<CachedQueryResult> {
+  query(query: SerializedQuery): Promise<CachedQueryResult> {
     return devLogQuery(
       async () =>
         sanitizeQueryResult(
@@ -190,7 +190,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     )
   }
 
-  count<T: Model>(query: Query<T>): Promise<number> {
+  count(query: SerializedQuery): Promise<number> {
     return devLogCount(() => Native.count(this._tag, encodeQuery(query, true)), query)
   }
 

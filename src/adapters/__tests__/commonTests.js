@@ -470,7 +470,7 @@ export default () => [
   [
     'fails on bad queries, creates, updates, deletes',
     async adapter => {
-      const badQuery = new Query({ modelClass: BadModel }, [])
+      const badQuery = new Query({ modelClass: BadModel }, []).serialize()
       await expect(adapter.query(badQuery)).rejects.toBeInstanceOf(Error)
       await expect(adapter.count(badQuery)).rejects.toBeInstanceOf(Error)
 

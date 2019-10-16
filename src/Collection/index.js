@@ -84,14 +84,14 @@ export default class Collection<Record: Model> {
 
   // See: Query.fetch
   async fetchQuery(query: Query<Record>): Promise<Record[]> {
-    const rawRecords = await this.database.adapter.query(query)
+    const rawRecords = await this.database.adapter.query(query.serialize())
 
     return this._cache.recordsFromQueryResult(rawRecords)
   }
 
   // See: Query.fetchCount
   fetchCount(query: Query<Record>): Promise<number> {
-    return this.database.adapter.count(query)
+    return this.database.adapter.count(query.serialize())
   }
 
   // *** Implementation details ***
