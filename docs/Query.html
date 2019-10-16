@@ -4,7 +4,7 @@
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Querying - WatermelonDB documentation</title>
-        
+
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
@@ -28,9 +28,9 @@
         <link rel="stylesheet" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
-        
 
-        
+
+
     </head>
     <body class="light">
         <!-- Provide site root to javascript -->
@@ -86,7 +86,7 @@
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                
+
                 <div id="menu-bar" class="menu-bar">
                     <div id="menu-bar-sticky-container">
                         <div class="left-buttons">
@@ -103,11 +103,11 @@
                                 <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
                                 <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                             </ul>
-                            
+
                             <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
                                 <i class="fa fa-search"></i>
                             </button>
-                            
+
                         </div>
 
                         <h1 class="menu-title">WatermelonDB documentation</h1>
@@ -116,12 +116,12 @@
                             <a href="print.html" title="Print this book" aria-label="Print this book">
                                 <i id="print-button" class="fa fa-print"></i>
                             </a>
-                            
+
                         </div>
                     </div>
                 </div>
 
-                
+
                 <div id="search-wrapper" class="hidden">
                     <form id="searchbar-outer" class="searchbar-outer">
                         <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
@@ -132,7 +132,7 @@
                         </ul>
                     </div>
                 </div>
-                
+
 
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
                 <script type="text/javascript">
@@ -279,7 +279,13 @@ Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
 )
 </code></pre>
 <h3><a class="header" href="#raw-queries" id="raw-queries">Raw queries</a></h3>
-<p>If this Query syntax is not enough for you, and you need to get your hands dirty on a raw SQL or Loki query, you need <strong>rawQueries</strong>. How to use them? Well, <strong>we need your help</strong> to finish this — <a href="https://github.com/Nozbe/WatermelonDB/pull/199">please contribute!</a> ❤️</p>
+<p><strong>Only working with SQLite</strong></p>
+<pre><code class="language-js">
+  const tableNameCollection = database.collections.get('table_name')
+  tableNameCollection.unsafeFetchRecordsWithSQL('select * from ...')
+
+  database.adapter.unsafeSqlQuery('select * from ...', 'table_name')
+</code></pre>
 <h3><a class="header" href="#null-behavior" id="null-behavior"><code>null</code> behavior</a></h3>
 <p>There are some gotchas you should be aware of. The <code>Q.gt</code>, <code>gte</code>, <code>lt</code>, <code>lte</code>, <code>oneOf</code>, <code>notIn</code>, <code>like</code> operators match the semantics of SQLite in terms of how they treat <code>null</code>. Those are different from JavaScript.</p>
 <p><strong>Rule of thumb:</strong> No null comparisons are allowed.</p>
@@ -303,17 +309,17 @@ Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                        
+
                             <a rel="prev" href="Components.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
-                        
 
-                        
+
+
                             <a rel="next" href="Relation.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
-                        
+
 
                         <div style="clear: both"></div>
                     </nav>
@@ -321,41 +327,41 @@ Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                
+
                     <a href="Components.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
-                
 
-                
+
+
                     <a href="Relation.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
-                
+
             </nav>
 
         </div>
 
-        
 
-        
 
-        
 
-        
+
+
+
+
         <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
-        
+
 
         <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
         <script src="book.js" type="text/javascript" charset="utf-8"></script>
 
         <!-- Custom JS scripts -->
-        
 
-        
+
+
 
     </body>
 </html>

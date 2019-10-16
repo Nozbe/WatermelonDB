@@ -15,6 +15,7 @@ import { type TableName, type TableSchema } from '../Schema'
 
 import RecordCache from './RecordCache'
 import { CollectionChangeTypes } from './common'
+import type { SQLiteDatabaseAdapter } from '../adapters/type'
 
 type CollectionChangeType = 'created' | 'updated' | 'destroyed'
 export type CollectionChange<Record: Model> = { record: Record, type: CollectionChangeType }
@@ -87,6 +88,16 @@ export default class Collection<Record: Model> {
     const rawRecords = await this.database.adapter.query(query)
 
     return this._cache.recordsFromQueryResult(rawRecords)
+  }
+
+  async unsafeFetchRecordsWithSQL(sql: string): Promise<Record[]> {
+    if(this.database.adapter.constructor.name === 'SQLiteAdapter'){
+      const sqliteAdapter: SQLiteDatabaseAdapter  = (this.database.adapter: any)
+      const rawRecords = await sqliteAdapter.unsafeSqlQuery(sql, this.modelClass.table)
+
+      return this._cache.recordsFromQueryResult(rawRecords)
+    }
+    return new Promise(resolve => resolve([]))
   }
 
   // See: Query.fetchCount

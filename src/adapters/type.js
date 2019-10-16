@@ -46,3 +46,7 @@ export interface DatabaseAdapter {
   // Removes key from local storage
   removeLocal(key: string): Promise<void>;
 }
+
+export interface SQLiteDatabaseAdapter{
+  unsafeSqlQuery<T: Model>(sql: string, tableName: TableName<any>): Promise<CachedQueryResult>;
+}
