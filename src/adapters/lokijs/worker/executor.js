@@ -141,15 +141,6 @@ export default class LokiExecutor {
           recordsToCreate[table].push(raw)
 
           break
-        case 'update':
-          this.update(table, raw)
-          break
-        case 'markAsDeleted':
-          this.markAsDeleted(table, raw.id)
-          break
-        case 'destroyPermanently':
-          this.destroyPermanently(table, raw.id)
-          break
         default:
           break
       }
@@ -163,6 +154,23 @@ export default class LokiExecutor {
       raws.forEach(raw => {
         this.markAsCached(table, raw.id)
       })
+    })
+
+    operations.forEach(operation => {
+      const [type, table, raw] = operation
+      switch (type) {
+        case 'update':
+          this.update(table, raw)
+          break
+        case 'markAsDeleted':
+          this.markAsDeleted(table, raw.id)
+          break
+        case 'destroyPermanently':
+          this.destroyPermanently(table, raw.id)
+          break
+        default:
+          break
+      }
     })
 
     console.timeEnd(`batch of ${operations.length}`)
