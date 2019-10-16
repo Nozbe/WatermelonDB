@@ -59,9 +59,11 @@ export default class Database {
       `Database.batch() can only be called from inside of an Action. See docs for more details.`,
     )
 
-    const operations: BatchOperation[] = records.reduce((ops, record) => {
+    // performance critical - using mutations
+    const operations: BatchOperation[] = []
+    records.forEach(record => {
       if (!record) {
-        return ops
+        return
       }
 
       invariant(
@@ -70,17 +72,20 @@ export default class Database {
       )
 
       // Deletes take presedence over updates
-      if (record._hasPendingDelete !== false) {
-        return record._hasPendingDelete === 'destroy'
-          ? ops.concat([['destroyPermanently', record]])
-          : ops.concat([['markAsDeleted', record]])
+      if (record._hasPendingDelete) {
+        if (record._hasPendingDelete === 'destroy') {
+          operations.push(['destroyPermanently', record])
+        } else {
+          operations.push(['markAsDeleted', record])
+        }
       } else if (record._hasPendingUpdate) {
         record._hasPendingUpdate = false // TODO: What if this fails?
-        return ops.concat([['update', record]])
+        operations.push(['update', record])
+      } else {
+        operations.push(['create', record])
       }
+    })
 
-      return ops.concat([['create', record]])
-    }, [])
     await this.adapter.batch(operations)
 
     const sortedOperations: { collection: Collection<*>, operations: CollectionChangeSet<*> }[] = []
