@@ -269,4 +269,16 @@ export default class Model {
       setRawColumnChange(this._raw, rawFieldName)
     }
   }
+
+  // Please don't use this unless you really understand how Watermelon Sync works, and thought long and
+  // hard about risks of inconsistency after sync
+  _dangerouslySetRawWithoutMarkingColumnChange(rawFieldName: ColumnName, rawValue: Value): void {
+    invariant(this._isEditing, 'Not allowed to change record outside of create/update()')
+    invariant(
+      !this._changes.isStopped && this._raw._status !== 'deleted',
+      'Not allowed to change deleted records',
+    )
+
+    setRawSanitized(this._raw, rawFieldName, rawValue, this.collection.schema.columns[rawFieldName])
+  }
 }
