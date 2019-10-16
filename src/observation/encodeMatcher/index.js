@@ -15,7 +15,7 @@ import operators from './operators'
 export type Matcher<Element: Model> = RawRecord => boolean
 
 const encodeWhereDescription: WhereDescription => Matcher<*> = description => rawRecord => {
-  const left = rawRecord[description.left]
+  const left = (rawRecord: Object)[description.left]
   const { comparison } = description
   const operator = operators[comparison.operator]
 
@@ -28,7 +28,7 @@ const encodeWhereDescription: WhereDescription => Matcher<*> = description => ra
   } else if (compRight.values) {
     right = compRight.values
   } else if (compRight.column) {
-    right = rawRecord[compRight.column]
+    right = (rawRecord: Object)[compRight.column]
   } else {
     throw new Error('Invalid comparisonRight')
   }
