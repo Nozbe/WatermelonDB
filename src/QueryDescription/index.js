@@ -1,24 +1,9 @@
 // @flow
 
-import {
-  propEq,
-  is,
-  has,
-  any,
-  values as getValues,
-  complement,
-  T,
-  F,
-  pipe,
-  prop,
-  uniq,
-  map,
-} from 'rambdax'
+import { propEq, pipe, prop, uniq, map } from 'rambdax'
 
 // don't import whole `utils` to keep worker size small
-import cond from '../utils/fp/cond'
 import partition from '../utils/fp/partition'
-import isObject from '../utils/fp/isObject'
 import invariant from '../utils/common/invariant'
 import type { $RE } from '../types'
 
@@ -267,21 +252,37 @@ export function queryWithoutDeleted(query: QueryDescription): QueryDescription {
   }
 }
 
-const isNotObject = complement(isObject)
+const searchForColumnComparisons: any => boolean = value => {
+  // Performance critical (100ms on login in previous rambdax-based implementation)
 
-const searchForColumnComparisons: any => boolean = cond([
-  [is(Array), any(value => searchForColumnComparisons(value))], // dig deeper into arrays
-  [isNotObject, F], // bail if primitive value
-  [has('column'), T], // bingo!
-  [
-    T,
-    pipe(
-      // dig deeper into objects
-      getValues,
-      any(value => searchForColumnComparisons(value)),
-    ),
-  ],
-])
+  if (value && typeof value === 'object') {
+    if (value.column) {
+      return true // bingo!
+    }
+    // drill deeper into the object
+    // eslint-disable-next-line no-restricted-syntax
+    for (const key in value) {
+      // NOTE: To be safe against JS edge cases, there should be hasOwnProperty check
+      // but this is performance critical so we trust that this is only called with
+      // QueryDescription which doesn't need that
+      if (searchForColumnComparisons(value[key])) {
+        return true
+      }
+    }
+    return false
+  } else if (Array.isArray(value)) {
+    // dig deeper into the array
+    for (let i = 0; i < value.length; i += 1) {
+      if (searchForColumnComparisons(value[i])) {
+        return true
+      }
+    }
+    return false
+  }
+
+  // primitive value
+  return false
+}
 
 export function hasColumnComparisons(conditions: Where[]): boolean {
   return searchForColumnComparisons(conditions)
