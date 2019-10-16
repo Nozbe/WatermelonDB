@@ -35,15 +35,20 @@ const {
   DESTROY_DELETED_RECORDS,
 } = actions
 
-type LokiAdapterOptions = $Exact<{
+export type LokiAdapterOptions = $Exact<{
   dbName?: ?string,
   schema: AppSchema,
   migrations?: SchemaMigrations,
+  // (true by default) Although web workers may have some throughput benefits, disabling them
+  // may lead to lower memory consumption, lower latency, and easier debugging
+  useWebWorker?: boolean,
+  experimentalUseIncrementalIndexedDB?: boolean,
+  // -- internal --
   _testLokiAdapter?: LokiMemoryAdapter,
 }>
 
 export default class LokiJSAdapter implements DatabaseAdapter {
-  workerBridge: WorkerBridge = new WorkerBridge()
+  workerBridge: WorkerBridge
 
   schema: AppSchema
 
@@ -53,6 +58,10 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
   constructor(options: LokiAdapterOptions): void {
     const { schema, migrations, dbName } = options
+
+    const useWebWorker = options.useWebWorker ?? process.env.NODE_ENV !== 'test'
+    this.workerBridge = new WorkerBridge(useWebWorker)
+
     this.schema = schema
     this.migrations = migrations
     this._dbName = dbName

@@ -95,6 +95,7 @@ rules:
   import/no-cycle: 0 # FIXME: broken with flow https://github.com/benmosher/eslint-plugin-import/issues/1343
   jest/no-large-snapshots: 1
   jest/no-disabled-tests: 0
+  global-require: 0
 
 overrides:
   - files:
