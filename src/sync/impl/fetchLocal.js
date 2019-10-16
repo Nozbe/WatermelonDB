@@ -34,11 +34,13 @@ const rawsForStatus = (status, records) =>
 async function fetchLocalChangesForCollection<T: Model>(
   collection: Collection<T>,
 ): Promise<[SyncTableChangeSet, T[]]> {
-  const changedRecords = await collection.query(notSyncedQuery).fetch()
+  const changedPromise = collection.query(notSyncedQuery).fetch()
+  const deletedPromise = collection.database.adapter.getDeletedRecords(collection.table)
+  const [changedRecords, deletedRecords] = await Promise.all([changedPromise, deletedPromise])
   const changeSet = {
     created: rawsForStatus('created', changedRecords),
     updated: rawsForStatus('updated', changedRecords),
-    deleted: await collection.database.adapter.getDeletedRecords(collection.table),
+    deleted: deletedRecords,
   }
   return [changeSet, changedRecords]
 }

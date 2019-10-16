@@ -26,7 +26,18 @@ const idsForChanges = ({ created, updated, deleted }: SyncTableChangeSet): Recor
   ...getIds(updated),
   ...deleted,
 ]
-const queryForChanges = changes => Q.where(columnName('id'), Q.oneOf(idsForChanges(changes)))
+const fetchRecordsForChanges = <T: Model>(
+  collection: Collection<T>,
+  changes: SyncTableChangeSet,
+): Promise<T[]> => {
+  const ids = idsForChanges(changes)
+
+  if (ids.length) {
+    return collection.query(Q.where(columnName('id'), Q.oneOf(ids))).fetch()
+  }
+
+  return Promise.resolve([])
+}
 
 const findRecord = <T: Model>(id: RecordId, list: T[]) => find(record => record.id === id, list)
 
@@ -44,8 +55,10 @@ async function recordsToApplyRemoteChangesTo<T: Model>(
   const { database, table } = collection
   const { deleted: deletedIds } = changes
 
-  const records = await collection.query(queryForChanges(changes)).fetch()
-  const locallyDeletedIds = await database.adapter.getDeletedRecords(table)
+  const [records, locallyDeletedIds] = await Promise.all([
+    fetchRecordsForChanges(collection, changes),
+    database.adapter.getDeletedRecords(table),
+  ])
 
   return {
     ...changes,
@@ -88,16 +101,12 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
     const currentRecord = findRecord(raw.id, records)
     if (currentRecord) {
       logError(
-        `[Sync] Server wants client to create record ${table}#${
-          raw.id
-        }, but it already exists locally. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will update existing record instead.`,
+        `[Sync] Server wants client to create record ${table}#${raw.id}, but it already exists locally. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will update existing record instead.`,
       )
       return prepareUpdateFromRaw(currentRecord, raw, log)
     } else if (includes(raw.id, locallyDeletedIds)) {
       logError(
-        `[Sync] Server wants client to create record ${table}#${
-          raw.id
-        }, but it already exists locally and is marked as deleted. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will delete local record and recreate it instead.`,
+        `[Sync] Server wants client to create record ${table}#${raw.id}, but it already exists locally and is marked as deleted. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will delete local record and recreate it instead.`,
       )
       // Note: we're not awaiting the async operation (but it will always complete before the batch)
       database.adapter.destroyDeletedRecords(table, [raw.id])
@@ -121,9 +130,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
     // Record doesn't exist (but should) — just create it
     !sendCreatedAsUpdated &&
       logError(
-        `[Sync] Server wants client to update record ${table}#${
-          raw.id
-        }, but it doesn't exist locally. This could be a serious bug. Will create record instead.`,
+        `[Sync] Server wants client to update record ${table}#${raw.id}, but it doesn't exist locally. This could be a serious bug. Will create record instead.`,
       )
 
     return prepareCreateFromRaw(collection, raw)
