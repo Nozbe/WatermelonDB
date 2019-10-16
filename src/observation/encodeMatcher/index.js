@@ -1,66 +1,53 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { pipe, map, prop, allPass, anyPass, has, propEq } from 'rambdax'
+import { pipe, map, allPass, anyPass } from 'rambdax'
 
-// don't import whole `utils` to keep worker size small
-import cond from '../../utils/fp/cond'
 import invariant from '../../utils/common/invariant'
 
-import type {
-  QueryDescription,
-  CompoundValue,
-  WhereDescription,
-  And,
-  Or,
-  Where,
-  ComparisonRight,
-} from '../../QueryDescription'
+import type { QueryDescription, WhereDescription, Where } from '../../QueryDescription'
+import type { RawRecord } from '../../RawRecord'
 import type Model from '../../Model'
 
 import operators from './operators'
 
-export type Matcher<Element: Model> = Element => boolean
+// eslint-disable-next-line no-unused-vars
+export type Matcher<Element: Model> = RawRecord => boolean
 
-const getComparisonRightFor: Model => (
-  $FlowFixMe<ComparisonRight>,
-) => $FlowFixMe<CompoundValue> = element =>
-  cond([
-    [has('value'), prop('value')],
-    [has('values'), prop('values')],
-    [has('column'), arg => element._raw[arg.column]],
-  ])
-
-const encodeWhereDescription: WhereDescription => Matcher<*> = description => element => {
-  const left = element._raw[description.left]
+const encodeWhereDescription: WhereDescription => Matcher<*> = description => rawRecord => {
+  const left = rawRecord[description.left]
   const { comparison } = description
   const operator = operators[comparison.operator]
-  const getRight = getComparisonRightFor(element)
-  const right = getRight(comparison.right)
+
+  const compRight = comparison.right
+  let right
+
+  // TODO: What about `undefined`s ?
+  if (compRight.value !== undefined) {
+    right = compRight.value
+  } else if (compRight.values) {
+    right = compRight.values
+  } else if (compRight.column) {
+    right = rawRecord[compRight.column]
+  } else {
+    throw new Error('Invalid comparisonRight')
+  }
 
   return operator(left, right)
 }
 
-const typeEq = propEq('type')
-
-const encodeWhere: Where => Matcher<*> = where =>
-  (cond([
-    [typeEq('and'), encodeAnd],
-    [typeEq('or'), encodeOr],
-    [typeEq('where'), encodeWhereDescription],
-  ]): any)(where)
-
-const encodeAnd: And => Matcher<*> = pipe(
-  prop('conditions'),
-  map(encodeWhere),
-  allPass,
-)
-
-const encodeOr: Or => Matcher<*> = pipe(
-  prop('conditions'),
-  map(encodeWhere),
-  anyPass,
-)
+const encodeWhere: Where => Matcher<*> = where => {
+  switch (where.type) {
+    case 'where':
+      return encodeWhereDescription(where)
+    case 'and':
+      return allPass(where.conditions.map(encodeWhere))
+    case 'or':
+      return anyPass(where.conditions.map(encodeWhere))
+    default:
+      throw new Error('Invalid Where')
+  }
+}
 
 const encodeConditions: (Where[]) => Matcher<*> = pipe(
   map(encodeWhere),
