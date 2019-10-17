@@ -42,9 +42,3 @@ export type WorkerResponseAction = {
   type: WorkerResponseType,
   payload: WorkerResponsePayload,
 }
-
-export type WorkerBatchOperation =
-  | ['create', TableName<any>, RawRecord]
-  | ['update', TableName<any>, RawRecord]
-  | ['markAsDeleted', TableName<any>, RawRecord]
-  | ['destroyPermanently', TableName<any>, RawRecord]

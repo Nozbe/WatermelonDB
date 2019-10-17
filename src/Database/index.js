@@ -9,12 +9,12 @@ import { invariant } from '../utils/common'
 
 import type { DatabaseAdapter, BatchOperation } from '../adapters/type'
 import type Model from '../Model'
-import type Collection, { CollectionChangeSet } from '../Collection'
+import { type CollectionChangeSet } from '../Collection'
+import { CollectionChangeTypes } from '../Collection/common'
 import type { TableName, AppSchema } from '../Schema'
 
 import CollectionMap from './CollectionMap'
 import ActionQueue, { type ActionInterface } from './ActionQueue'
-import { operationTypeToCollectionChangeType } from './helpers'
 
 type DatabaseProps = $Exact<{
   adapter: DatabaseAdapter,
@@ -60,7 +60,8 @@ export default class Database {
     )
 
     // performance critical - using mutations
-    const operations: BatchOperation[] = []
+    const batchOperations: BatchOperation[] = []
+    const changeNotifications: { [collectionName: TableName<any>]: CollectionChangeSet<*> } = {}
     records.forEach(record => {
       if (!record) {
         return
@@ -71,41 +72,38 @@ export default class Database {
         `Cannot batch a record that doesn't have a prepared create or prepared update`,
       )
 
+      const { table, id, _raw: raw } = record
+
+      let changeType
+
       // Deletes take presedence over updates
       if (record._hasPendingDelete) {
         if (record._hasPendingDelete === 'destroy') {
-          operations.push(['destroyPermanently', record])
+          batchOperations.push(['destroyPermanently', table, id])
         } else {
-          operations.push(['markAsDeleted', record])
+          batchOperations.push(['markAsDeleted', table, id])
         }
+        changeType = CollectionChangeTypes.destroyed
       } else if (record._hasPendingUpdate) {
         record._hasPendingUpdate = false // TODO: What if this fails?
-        operations.push(['update', record])
+        batchOperations.push(['update', table, raw])
+        changeType = CollectionChangeTypes.updated
       } else {
-        operations.push(['create', record])
+        batchOperations.push(['create', table, raw])
+        changeType = CollectionChangeTypes.created
       }
+
+      if (!changeNotifications[table]) {
+        changeNotifications[table] = []
+      }
+      changeNotifications[table].push({ record, type: changeType })
     })
 
-    await this.adapter.batch(operations)
+    await this.adapter.batch(batchOperations)
 
-    const sortedOperations: { collection: Collection<*>, operations: CollectionChangeSet<*> }[] = []
-    operations.forEach(([type, record]) => {
-      const operation = {
-        record,
-        type: operationTypeToCollectionChangeType(type),
-      }
-      const indexOfCollection = sortedOperations.findIndex(
-        ({ collection }) => collection === record.collection,
-      )
-      if (indexOfCollection !== -1) {
-        sortedOperations[indexOfCollection].operations.push(operation)
-      } else {
-        const { collection } = record
-        sortedOperations.push({ collection, operations: [operation] })
-      }
-    })
-    sortedOperations.forEach(({ collection, operations: operationz }) => {
-      collection.changeSet(operationz)
+    Object.entries(changeNotifications).forEach(notification => {
+      const [table, changeSet]: [TableName<any>, CollectionChangeSet<*>] = (notification: any)
+      this.collections.get(table).changeSet(changeSet)
     })
   }
 

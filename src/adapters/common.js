@@ -1,7 +1,7 @@
 // @flow
 
 import { devMeasureTimeAsync, logger, invariant } from '../utils/common'
-import type Model, { RecordId } from '../Model'
+import type { RecordId } from '../Model'
 import type { SerializedQuery } from '../Query'
 import type { TableSchema } from '../Schema'
 import type { BatchOperation, CachedQueryResult, CachedFindResult, DatabaseAdapter } from './type'
@@ -99,7 +99,7 @@ export async function devLogBatch<T>(
     return
   }
   const [, time] = await devMeasureTimeAsync(executeBlock)
-  const [type, { table }] = operations[0]
+  const [type, table] = operations[0]
   logger.log(
     `[DB] Executed batch of ${operations.length} operations (first: ${type} on ${table}) in ${time}ms`,
   )

@@ -1,7 +1,6 @@
 // @flow
 
 import type { LokiMemoryAdapter } from 'lokijs'
-import { map } from 'rambdax'
 import { invariant } from '../../utils/common'
 
 import type { RecordId } from '../../Model'
@@ -109,13 +108,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   }
 
   batch(operations: BatchOperation[]): Promise<void> {
-    return devLogBatch(
-      () =>
-        this.workerBridge.send(BATCH, [
-          map(([type, record]) => [type, record.table, record._raw], operations),
-        ]),
-      operations,
-    )
+    return devLogBatch(() => this.workerBridge.send(BATCH, [operations]), operations)
   }
 
   getDeletedRecords(tableName: TableName<any>): Promise<RecordId[]> {

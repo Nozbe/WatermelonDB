@@ -39,6 +39,7 @@ All notable changes to this project will be documented in this file.
 - [Performance] Make observation faster
 - [LokiJS] Persistence adapter will now be automatically selected based on availability. By default,
   IndexedDB is used. But now, if unavailable (e.g. in private mode), ephemeral memory adapter will be used.
+- [adapters] The adapters interface has changed. `query()` and `count()` methods now receive a `SerializedQuery`, and `batch()` now takes `TableName<any>` and `RawRecord` or `RecordId` instead of `Model`.
 - [Typescript] Typing improvements
      - Added 3 missing properties `collections`, `database` and `asModel` in Model type definition.
      - Removed optional flag on `actionsEnabled` in the Database constructor options since its mandatory since 0.13.0.

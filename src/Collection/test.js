@@ -173,7 +173,7 @@ describe('creating new records', () => {
     expect(m1._isCommitted).toBe(true)
     expect(newModelSpy).toHaveBeenCalledTimes(1)
     expect(dbBatchSpy).toHaveBeenCalledTimes(1)
-    expect(dbBatchSpy).toHaveBeenCalledWith([['create', m1]])
+    expect(dbBatchSpy).toHaveBeenCalledWith([['create', 'mock_tasks', m1._raw]])
     expect(observer).toHaveBeenCalledTimes(1)
     expect(observer).toHaveBeenCalledWith([{ record: m1, type: CollectionChangeTypes.created }])
     expect(collection._cache.get(m1.id)).toBe(m1)

@@ -4,7 +4,7 @@ import Loki, { LokiCollection, type LokiMemoryAdapter } from 'lokijs'
 import { prop, forEach, values } from 'rambdax'
 import { logger } from '../../../utils/common'
 
-import type { CachedQueryResult, CachedFindResult } from '../../type'
+import type { CachedQueryResult, CachedFindResult, BatchOperation } from '../../type'
 import type { TableName, AppSchema, SchemaVersion, TableSchema } from '../../../Schema'
 import type {
   SchemaMigrations,
@@ -19,7 +19,7 @@ import { type RawRecord, sanitizedRaw, setRawSanitized, type DirtyRaw } from '..
 
 import { newLoki, deleteDatabase } from './lokiExtensions'
 import executeQuery from './executeQuery'
-import type { WorkerBatchOperation } from '../common'
+
 import type { LokiAdapterOptions } from '../index'
 
 const SCHEMA_VERSION_KEY = '_loki_schema_version'
@@ -124,7 +124,7 @@ export default class LokiExecutor {
     }
   }
 
-  batch(operations: WorkerBatchOperation[]): void {
+  batch(operations: BatchOperation[]): void {
     console.time(`batch of ${operations.length}`)
     // TODO: Only add to cached records if all is successful
     // TODO: Transactionality
@@ -138,7 +138,7 @@ export default class LokiExecutor {
           if (!recordsToCreate[table]) {
             recordsToCreate[table] = []
           }
-          recordsToCreate[table].push(raw)
+          recordsToCreate[table].push((raw: $FlowFixMe<RawRecord>))
 
           break
         default:
@@ -147,7 +147,8 @@ export default class LokiExecutor {
     })
 
     // We're doing a second pass, because batch insert is much faster in Loki
-    Object.entries(recordsToCreate).forEach(([table, raws]) => {
+    Object.entries(recordsToCreate).forEach((args: any) => {
+      const [table, raws]: [TableName<any>, RawRecord[]] = args
       const shouldRebuildIndexAfterIndex = raws.length >= 1000 // only profitable for large inserts
       this.loki.getCollection(table).insert(raws, shouldRebuildIndexAfterIndex)
 
@@ -157,16 +158,16 @@ export default class LokiExecutor {
     })
 
     operations.forEach(operation => {
-      const [type, table, raw] = operation
+      const [type, table, rawOrId] = operation
       switch (type) {
         case 'update':
-          this.update(table, raw)
+          this.update(table, (rawOrId: $FlowFixMe<RawRecord>))
           break
         case 'markAsDeleted':
-          this.markAsDeleted(table, raw.id)
+          this.markAsDeleted(table, (rawOrId: $FlowFixMe<RecordId>))
           break
         case 'destroyPermanently':
-          this.destroyPermanently(table, raw.id)
+          this.destroyPermanently(table, (rawOrId: $FlowFixMe<RecordId>))
           break
         default:
           break

@@ -3,13 +3,17 @@
 import type { SerializedQuery } from '../Query'
 import type { TableName, AppSchema } from '../Schema'
 import type { SchemaMigrations } from '../Schema/migrations'
-import type Model, { RecordId } from '../Model'
+import type { RecordId } from '../Model'
 import type { RawRecord } from '../RawRecord'
 
 export type CachedFindResult = RecordId | ?RawRecord
 export type CachedQueryResult = Array<RecordId | RawRecord>
 export type BatchOperationType = 'create' | 'update' | 'markAsDeleted' | 'destroyPermanently'
-export type BatchOperation = [BatchOperationType, Model]
+export type BatchOperation =
+  | ['create', TableName<any>, RawRecord]
+  | ['update', TableName<any>, RawRecord]
+  | ['markAsDeleted', TableName<any>, RecordId]
+  | ['destroyPermanently', TableName<any>, RecordId]
 
 export interface DatabaseAdapter {
   schema: AppSchema;

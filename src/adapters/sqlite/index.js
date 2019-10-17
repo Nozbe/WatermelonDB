@@ -198,17 +198,25 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     return devLogBatch(async () => {
       await Native.batch(
         this._tag,
-        operations.map(([type, record]) => {
+        operations.map(operation => {
+          const [type, table, rawOrId] = operation
           switch (type) {
-            case 'create':
-              return ['create', record.table, record.id, ...encodeInsert(record)]
+            case 'create': {
+              // $FlowFixMe
+              const raw: RawRecord = rawOrId
+              return ['create', table, raw.id, ...encodeInsert(table, raw)]
+            }
+            case 'update': {
+              // $FlowFixMe
+              const raw: RawRecord = rawOrId
+              return ['execute', table, ...encodeUpdate(table, raw)]
+            }
             case 'markAsDeleted':
-              return ['markAsDeleted', record.table, record.id]
             case 'destroyPermanently':
-              return ['destroyPermanently', record.table, record.id]
+              // $FlowFixMe
+              return operation // same format, no need to repack
             default:
-              // case 'update':
-              return ['execute', record.table, ...encodeUpdate(record)]
+              throw new Error('unknown batch operation type')
           }
         }),
       )

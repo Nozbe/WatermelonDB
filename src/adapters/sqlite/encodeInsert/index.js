@@ -2,7 +2,8 @@
 
 import { pipe, join, keys, values, always, map } from 'rambdax'
 
-import type Model from '../../../Model'
+import type { TableName } from '../../../Schema'
+import type { RawRecord } from '../../../RawRecord'
 import type { SQLiteQuery } from '../index'
 
 import encodeName from '../encodeName'
@@ -19,8 +20,7 @@ const valuePlaceholders = pipe(
   join(', '),
 )
 
-export default function encodeInsert(model: Model): SQLiteQuery {
-  const { _raw: raw, table } = model
+export default function encodeInsert(table: TableName<any>, raw: RawRecord): SQLiteQuery {
   const sql = `insert into ${table} (${columnNames(raw)}) values (${valuePlaceholders(raw)})`
   const args = values(raw)
 
