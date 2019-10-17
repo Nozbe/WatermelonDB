@@ -348,8 +348,8 @@ export default class LokiExecutor {
     logger.log(`[DB][Worker] Migration successful`)
   }
 
-  _executeCreateTableMigration({ name, columns }: CreateTableMigrationStep): void {
-    this._addCollection({ name, columns })
+  _executeCreateTableMigration({ schema }: CreateTableMigrationStep): void {
+    this._addCollection(schema)
   }
 
   _executeAddColumnsMigration({ table, columns }: AddColumnsMigrationStep): void {

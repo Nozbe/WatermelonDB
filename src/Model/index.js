@@ -58,6 +58,7 @@ export default class Model {
 
   _getChanges(): BehaviorSubject<$FlowFixMe<this>> {
     if (!this.__changes) {
+      // initializing lazily - it has non-trivial perf impact on very large collections
       this.__changes = new BehaviorSubject(this)
     }
     return this.__changes

@@ -6,7 +6,6 @@ import {
   map,
   values,
   filter,
-  find,
   piped,
   splitEvery,
 } from 'rambdax'

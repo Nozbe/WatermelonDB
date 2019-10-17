@@ -30,12 +30,6 @@ export class MockTagAssignment extends Model {
   }
 }
 
-const Models = {
-  tasks: MockTask,
-  projects: MockProject,
-  tag_assignments: MockTagAssignment,
-}
-
 export const testSchema = appSchema({
   version: 1,
   tables: [

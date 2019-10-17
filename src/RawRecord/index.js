@@ -2,7 +2,6 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable no-self-compare */
 
-import { values } from 'rambdax'
 import { type ColumnName, type ColumnSchema, type TableSchema } from '../Schema'
 import { type RecordId, type SyncStatus } from '../Model'
 
