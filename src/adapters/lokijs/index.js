@@ -100,11 +100,29 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   }
 
   query(query: SerializedQuery): Promise<CachedQueryResult> {
-    return devLogQuery(() => this.workerBridge.send(QUERY, [query]), query)
+    return devLogQuery(
+      () =>
+        this.workerBridge.send(
+          QUERY,
+          [query],
+          // SerializedQueries are immutable, so we need no copy
+          'immutable',
+        ),
+      query,
+    )
   }
 
   count(query: SerializedQuery): Promise<number> {
-    return devLogCount(() => this.workerBridge.send(COUNT, [query]), query)
+    return devLogCount(
+      () =>
+        this.workerBridge.send(
+          COUNT,
+          [query],
+          // SerializedQueries are immutable, so we need no copy
+          'immutable',
+        ),
+      query,
+    )
   }
 
   batch(operations: BatchOperation[]): Promise<void> {
@@ -113,8 +131,8 @@ export default class LokiJSAdapter implements DatabaseAdapter {
         this.workerBridge.send(
           BATCH,
           [operations],
-          // batches are only strings + raws which only have JSON-compatible values - enable fast clone
-          true,
+          // batches are only strings + raws which only have JSON-compatible values, rest is immutable
+          'shallowCloneDeepObjects',
         ),
       operations,
     )

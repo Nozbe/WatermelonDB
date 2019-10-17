@@ -4,9 +4,13 @@ import clone from 'lodash.clonedeep'
 import LokiWorker from './lokiWorker'
 
 // shallow-clones objects (without checking their contents), but copies arrays
-function shallowCloneDeepObjects(value: any): any {
+export function shallowCloneDeepObjects(value: any): any {
   if (Array.isArray(value)) {
-    return value.map(shallowCloneDeepObjects)
+    const returned = new Array(value.length)
+    for (let i = 0, len = value.length; i < len; i += 1) {
+      returned[i] = shallowCloneDeepObjects(value[i])
+    }
+    return returned
   } else if (value && typeof value === 'object') {
     return Object.assign({}, value)
   }
@@ -44,9 +48,12 @@ export default class LokiWorkerMock {
     // there some crashes when using alternatives… find those edge cases and fix them…
     // TODO: Even better, it would be great if we had zero-copy architecture (COW RawRecords?) and we didn't have to clone
     let clonedData
-    if (data.fastClone) {
+    if (data.cloneMethod === 'shallowCloneDeepObjects') {
       clonedData = data
       clonedData.payload = shallowCloneDeepObjects(clonedData.payload)
+    } else if (data.cloneMethod === 'immutable') {
+      // we got a promise that the payload is immutable so we don't need to copy
+      clonedData = data
     } else {
       clonedData = clone(data)
     }

@@ -50,7 +50,7 @@ class WorkerBridge {
   send(
     type: WorkerExecutorType,
     payload: WorkerExecutorPayload = [],
-    fastClone: boolean = false, // Use when you know the data is JSON-compatible
+    cloneMethod: 'shallowCloneDeepObjects' | 'immutable' | 'deep' = 'deep',
   ): Promise<any> {
     return new Promise((resolve, reject) => {
       this._pendingRequests.push({ resolve, reject })
@@ -58,7 +58,7 @@ class WorkerBridge {
       this._worker.postMessage({
         type,
         payload,
-        fastClone,
+        cloneMethod,
       })
     })
   }

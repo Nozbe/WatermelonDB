@@ -168,8 +168,10 @@ export function notLike(value: string): Comparison {
   return { operator: 'notLike', right: { value } }
 }
 
+const nonLikeSafeRegexp = /[^a-zA-Z0-9]/g
+
 export function sanitizeLikeString(value: string): string {
-  return value.replace(/[^a-zA-Z0-9]/g, '_')
+  return value.replace(nonLikeSafeRegexp, '_')
 }
 
 export function column(name: ColumnName): ColumnDescription {
@@ -240,16 +242,24 @@ const joinsWithoutDeleted = pipe(
 export function buildQueryDescription(conditions: Condition[]): QueryDescription {
   const [join, whereConditions] = getJoins(conditions)
 
-  return { join, where: whereConditions }
+  const query = { join, where: whereConditions }
+  if (process.env.NODE_ENV !== 'production') {
+    Object.freeze(query)
+  }
+  return query
 }
 
 export function queryWithoutDeleted(query: QueryDescription): QueryDescription {
   const { join, where: whereConditions } = query
 
-  return {
+  const newQuery = {
     join: [...join, ...joinsWithoutDeleted(join)],
     where: [...whereConditions, whereNotDeleted],
   }
+  if (process.env.NODE_ENV !== 'production') {
+    Object.freeze(newQuery)
+  }
+  return newQuery
 }
 
 const searchForColumnComparisons: any => boolean = value => {
