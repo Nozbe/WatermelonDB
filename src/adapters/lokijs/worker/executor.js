@@ -125,7 +125,6 @@ export default class LokiExecutor {
   }
 
   batch(operations: BatchOperation[]): void {
-    console.time(`batch of ${operations.length}`)
     // TODO: Only add to cached records if all is successful
     // TODO: Transactionality
 
@@ -173,8 +172,6 @@ export default class LokiExecutor {
           break
       }
     })
-
-    console.timeEnd(`batch of ${operations.length}`)
   }
 
   getDeletedRecords(table: TableName<any>): RecordId[] {
