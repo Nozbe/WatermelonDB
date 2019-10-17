@@ -14,12 +14,13 @@ class Database {
             fatalError("Failed to open the database. \(fmdb.lastErrorMessage())")
         }
 
-        do {
-            // must be queryRaw - returns value
-            _ = try queryRaw("pragma journal_mode=wal")
-        } catch {
-            fatalError("Failed to set database to WAL mode \(error)")
-        }
+        // TODO: Experiment with WAL
+        // do {
+        //     // must be queryRaw - returns value
+        //     _ = try queryRaw("pragma journal_mode=wal")
+        // } catch {
+        //     fatalError("Failed to set database to WAL mode \(error)")
+        // }
 
         consoleLog("Opened database at: \(path)")
     }
