@@ -255,7 +255,15 @@ export function queryWithoutDeleted(query: QueryDescription): QueryDescription {
 const searchForColumnComparisons: any => boolean = value => {
   // Performance critical (100ms on login in previous rambdax-based implementation)
 
-  if (value && typeof value === 'object') {
+  if (Array.isArray(value)) {
+    // dig deeper into the array
+    for (let i = 0; i < value.length; i += 1) {
+      if (searchForColumnComparisons(value[i])) {
+        return true
+      }
+    }
+    return false
+  } else if (value && typeof value === 'object') {
     if (value.column) {
       return true // bingo!
     }
@@ -266,14 +274,6 @@ const searchForColumnComparisons: any => boolean = value => {
       // but this is performance critical so we trust that this is only called with
       // QueryDescription which doesn't need that
       if (searchForColumnComparisons(value[key])) {
-        return true
-      }
-    }
-    return false
-  } else if (Array.isArray(value)) {
-    // dig deeper into the array
-    for (let i = 0; i < value.length; i += 1) {
-      if (searchForColumnComparisons(value[i])) {
         return true
       }
     }
