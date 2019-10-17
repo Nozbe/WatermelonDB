@@ -43,7 +43,15 @@ const fetchRecordsForChanges = <T: Model>(
   return Promise.resolve([])
 }
 
-const findRecord = <T: Model>(id: RecordId, list: T[]) => find(record => record.id === id, list)
+const findRecord = <T: Model>(id: RecordId, list: T[]) => {
+  // perf-critical
+  for (let i = 0, len = list.length; i < len; i += 1) {
+    if (list[i]._raw.id === id) {
+      return list[i]
+    }
+  }
+  return null
+}
 
 type RecordsToApplyRemoteChangesTo<T: Model> = {
   ...SyncTableChangeSet,

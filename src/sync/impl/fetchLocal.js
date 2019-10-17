@@ -11,6 +11,7 @@ import {
   identity,
 } from 'rambdax'
 import { unnest, allPromises } from '../../utils/fp'
+import { invariant } from '../../utils/common'
 import type { Database, Collection, Model } from '../..'
 import * as Q from '../../QueryDescription'
 import { columnName } from '../../Schema'
@@ -21,20 +22,6 @@ import { ensureActionsEnabled } from './helpers'
 export type SyncLocalChanges = $Exact<{ changes: SyncDatabaseChangeSet, affectedRecords: Model[] }>
 
 const notSyncedQuery = Q.where(columnName('_status'), Q.notEq('synced'))
-// TODO: It would be best to omit _status, _changed fields, since they're not necessary for the server
-// but this complicates markLocalChangesAsDone, since we don't have the exact copy to compare if record changed
-// TODO: It would probably also be good to only send to server locally changed fields, not full records
-const rawsForStatus = (status, records) =>
-  reduce(
-    (raws, record) => {
-      if (record._raw._status === status) {
-        raws.push({ ...record._raw }) // perf-critical - using mutation
-      }
-      return raws
-    },
-    [],
-    records,
-  )
 
 async function fetchLocalChangesForCollection<T: Model>(
   collection: Collection<T>,
@@ -44,10 +31,20 @@ async function fetchLocalChangesForCollection<T: Model>(
     collection.database.adapter.getDeletedRecords(collection.table),
   ])
   const changeSet = {
-    created: rawsForStatus('created', changedRecords),
-    updated: rawsForStatus('updated', changedRecords),
+    created: [],
+    updated: [],
     deleted: deletedRecords,
   }
+  // perf-critical - using mutation
+  changedRecords.forEach(record => {
+    const status = record._raw._status
+    invariant(status === 'created' || status === 'updated', `Invalid changed record status`)
+    // TODO: It would be best to omit _status, _changed fields, since they're not necessary for the server
+    // but this complicates markLocalChangesAsDone, since we don't have the exact copy to compare if record changed
+    // TODO: It would probably also be good to only send to server locally changed fields, not full records
+    changeSet[status].push(Object.assign({}, record._raw))
+  })
+
   return [changeSet, changedRecords]
 }
 
