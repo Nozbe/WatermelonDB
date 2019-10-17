@@ -39,10 +39,10 @@ export const jsonDecorator = makeDecorator(
         const rawValue = this.asModel._getRaw(rawFieldName)
         const parsedValue = parseJSON(rawValue)
 
-        return sanitizer(parsedValue)
+        return sanitizer.call(this, parsedValue)
       },
       set(json: any): void {
-        const sanitizedValue = sanitizer(json)
+        const sanitizedValue = sanitizer.call(this, json)
         const stringifiedValue = sanitizedValue != null ? JSON.stringify(sanitizedValue) : null
 
         this.asModel._setRaw(rawFieldName, stringifiedValue)
