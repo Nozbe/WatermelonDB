@@ -3,7 +3,12 @@ const plugins = [
   ['@babel/plugin-proposal-decorators', { legacy: true }],
   '@babel/plugin-transform-flow-strip-types',
   ['@babel/plugin-proposal-class-properties', { loose: true }],
-  '@babel/plugin-transform-classes',
+  [
+    '@babel/plugin-transform-classes',
+    {
+      loose: true, // spits out cleaner and faster output
+    },
+  ],
   '@babel/plugin-syntax-dynamic-import',
   '@babel/plugin-transform-block-scoping',
   '@babel/plugin-proposal-json-strings',
