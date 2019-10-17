@@ -54,7 +54,14 @@ export default class Model {
 
   _hasPendingDelete: false | 'mark' | 'destroy' = false
 
-  _changes = new BehaviorSubject(this)
+  __changes: ?BehaviorSubject<$FlowFixMe<this>> = null
+
+  _getChanges(): BehaviorSubject<$FlowFixMe<this>> {
+    if (!this.__changes) {
+      this.__changes = new BehaviorSubject(this)
+    }
+    return this.__changes
+  }
 
   get id(): RecordId {
     return this._raw.id
@@ -181,7 +188,7 @@ export default class Model {
   // Emits `complete` if this record is destroyed
   observe(): Observable<this> {
     invariant(this._isCommitted, `Cannot observe uncommitted record`)
-    return this._changes
+    return this._getChanges()
   }
 
   // *** Implementation details ***
@@ -251,11 +258,11 @@ export default class Model {
   }
 
   _notifyChanged(): void {
-    this._changes.next(this)
+    this._getChanges().next(this)
   }
 
   _notifyDestroyed(): void {
-    this._changes.complete()
+    this._getChanges().complete()
   }
 
   _getRaw(rawFieldName: ColumnName): Value {
@@ -265,7 +272,8 @@ export default class Model {
   _setRaw(rawFieldName: ColumnName, rawValue: Value): void {
     invariant(this._isEditing, 'Not allowed to change record outside of create/update()')
     invariant(
-      !this._changes.isStopped && this._raw._status !== 'deleted',
+      !(this._getChanges(): $FlowFixMe<BehaviorSubject<any>>).isStopped &&
+        this._raw._status !== 'deleted',
       'Not allowed to change deleted records',
     )
 
@@ -282,7 +290,8 @@ export default class Model {
   _dangerouslySetRawWithoutMarkingColumnChange(rawFieldName: ColumnName, rawValue: Value): void {
     invariant(this._isEditing, 'Not allowed to change record outside of create/update()')
     invariant(
-      !this._changes.isStopped && this._raw._status !== 'deleted',
+      !(this._getChanges(): $FlowFixMe<BehaviorSubject<any>>).isStopped &&
+        this._raw._status !== 'deleted',
       'Not allowed to change deleted records',
     )
 
