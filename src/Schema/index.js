@@ -22,7 +22,12 @@ export type ColumnMap = { [name: ColumnName]: ColumnSchema }
 
 export type TableSchemaSpec = $Exact<{ name: TableName<any>, columns: ColumnSchema[] }>
 
-export type TableSchema = $RE<{ name: TableName<any>, columns: ColumnMap }>
+export type TableSchema = $RE<{
+  name: TableName<any>,
+  // depending on operation, it's faster to use map or array
+  columns: ColumnMap,
+  columnArray: ColumnSchema[],
+}>
 
 type TableMap = { [name: TableName<any>]: TableSchema }
 
@@ -38,6 +43,8 @@ export function columnName(name: string): ColumnName {
   return name
 }
 
+const safeNameCharacters = /^[a-zA-Z_]\w*$/
+
 export function appSchema({
   version,
   tables: tableList,
@@ -45,8 +52,15 @@ export function appSchema({
   process.env.NODE_ENV !== 'production' &&
     invariant(version > 0, `Schema version must be greater than 0`)
   const tables: TableMap = tableList.reduce((map, table) => {
-    process.env.NODE_ENV !== 'production' &&
+    if (process.env.NODE_ENV !== 'production') {
       invariant(typeof table === 'object' && table.name, `Table schema must contain a name`)
+      invariant(
+        safeNameCharacters.test(table.name),
+        `Table name ${
+          table.name
+        } must contain only safe characters ${safeNameCharacters.toString()}`,
+      )
+    }
 
     map[table.name] = table
     return map
@@ -63,8 +77,14 @@ export function validateColumnSchema(column: ColumnSchema): void {
       `Invalid type ${column.type} for column ${column.name} (valid: string, boolean, number)`,
     )
     invariant(
-      !includes(column.name, ['id', '_changed', '_status']),
+      !includes(column.name, ['id', '_changed', '_status', '$loki']),
       `You must not define a column with name ${column.name}`,
+    )
+    invariant(
+      safeNameCharacters.test(column.name),
+      `Column name (${
+        column.name
+      }) must contain only safe characters ${safeNameCharacters.toString()}`,
     )
     if (column.name === 'created_at' || column.name === 'updated_at') {
       invariant(
@@ -81,12 +101,12 @@ export function validateColumnSchema(column: ColumnSchema): void {
   }
 }
 
-export function tableSchema({ name, columns: columnList }: TableSchemaSpec): TableSchema {
+export function tableSchema({ name, columns: columnArray }: TableSchemaSpec): TableSchema {
   if (process.env.NODE_ENV !== 'production') {
     invariant(name, `Missing table name in schema`)
   }
 
-  const columns: ColumnMap = columnList.reduce((map, column) => {
+  const columns: ColumnMap = columnArray.reduce((map, column) => {
     if (process.env.NODE_ENV !== 'production') {
       validateColumnSchema(column)
     }
@@ -94,5 +114,5 @@ export function tableSchema({ name, columns: columnList }: TableSchemaSpec): Tab
     return map
   }, {})
 
-  return { name, columns }
+  return { name, columns, columnArray }
 }

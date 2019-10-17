@@ -580,7 +580,7 @@ export default () => [
             name: 'projects',
             columns: [...projectColumnsV3, ...projectColumnsV5],
           }),
-          tagAssignmentSchema,
+          tableSchema(tagAssignmentSchema),
         ],
       })
       const migrationsV5 = schemaMigrations({

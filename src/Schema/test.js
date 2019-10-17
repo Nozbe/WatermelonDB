@@ -29,6 +29,7 @@ describe('Schema', () => {
             col1: { name: 'col1', type: 'string' },
             col2: { name: 'col2', type: 'number' },
           },
+          columnArray: [{ name: 'col1', type: 'string' }, { name: 'col2', type: 'number' }],
         },
         bar: {
           name: 'bar',
@@ -37,6 +38,11 @@ describe('Schema', () => {
             col2: { name: 'col2', type: 'boolean' },
             col3: { name: 'col3', type: 'boolean' },
           },
+          columnArray: [
+            { name: 'col1', type: 'number' },
+            { name: 'col2', type: 'boolean' },
+            { name: 'col3', type: 'boolean' },
+          ],
         },
       },
     })
