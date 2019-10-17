@@ -349,6 +349,9 @@ describe('Safety features', () => {
     expect(() => {
       model._setRaw('name', 'new')
     }).toThrow()
+    expect(() => {
+      model._dangerouslySetRawWithoutMarkingColumnChange('name', 'new')
+    }).toThrow()
   })
   it('disallows changes to just-deleted records', async () => {
     const database = makeDatabase()
@@ -507,17 +510,25 @@ describe('RawRecord manipulation', () => {
   it('allows raw writes via _setRaw', () => {
     const model = new MockModel(
       { schema: mockSchema.tables.mock },
-      sanitizedRaw(
-        {
-          name: 'val1',
-        },
-        mockSchema.tables.mock,
-      ),
+      sanitizedRaw({ name: 'val1' }, mockSchema.tables.mock),
     )
 
     model._isEditing = true
     model._setRaw('name', 'val2')
     model._setRaw('otherfield', 'val3')
+
+    expect(model._raw.name).toBe('val2')
+    expect(model._raw.otherfield).toBe('val3')
+  })
+  it('allows raw writes via _dangerouslySetRawWithoutMarkingColumnChange', () => {
+    const model = new MockModel(
+      { schema: mockSchema.tables.mock },
+      sanitizedRaw({ name: 'val1' }, mockSchema.tables.mock),
+    )
+
+    model._isEditing = true
+    model._dangerouslySetRawWithoutMarkingColumnChange('name', 'val2')
+    model._dangerouslySetRawWithoutMarkingColumnChange('otherfield', 'val3')
 
     expect(model._raw.name).toBe('val2')
     expect(model._raw.otherfield).toBe('val3')
@@ -561,13 +572,7 @@ describe('Sync status fields', () => {
   it('adds to changes on _setRaw (new behavior)', async () => {
     const model = new MockModel(
       { schema: mockSchema.tables.mock },
-      sanitizedRaw(
-        {
-          col3: '',
-          number: 0,
-        },
-        mockSchema.tables.mock,
-      ),
+      sanitizedRaw({ col3: '', number: 0 }, mockSchema.tables.mock),
     )
 
     model._isEditing = true
@@ -592,6 +597,26 @@ describe('Sync status fields', () => {
       col4: null,
       number: 10,
     })
+  })
+  it('does not change _changed fields when using _dangerouslySetRawWithoutMarkingColumnChange', () => {
+    const model = new MockModel(
+      { schema: mockSchema.tables.mock },
+      sanitizedRaw({}, mockSchema.tables.mock),
+    )
+
+    model._isEditing = true
+    model._raw._status = 'updated'
+
+    model._dangerouslySetRawWithoutMarkingColumnChange('col3', 'foo')
+
+    expect(model._raw.col3).toBe('foo')
+    expect(model._raw._status).toBe('updated')
+    expect(model._raw._changed).toBe('')
+
+    model._setRaw('otherfield', 'heh')
+    model._dangerouslySetRawWithoutMarkingColumnChange('number', 10)
+
+    expect(model._raw._changed).toBe('otherfield')
   })
   it('marks new records as status:created', async () => {
     const database = makeDatabase()
