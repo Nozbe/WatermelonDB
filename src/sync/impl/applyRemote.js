@@ -4,7 +4,6 @@ import {
   // $FlowFixMe
   promiseAllObject,
   map,
-  includes,
   values,
   filter,
   find,
@@ -20,12 +19,17 @@ import { columnName } from '../../Schema'
 import type { SyncTableChangeSet, SyncDatabaseChangeSet, SyncLog } from '../index'
 import { prepareCreateFromRaw, prepareUpdateFromRaw, ensureActionsEnabled } from './helpers'
 
-const getIds = map(({ id }) => id)
-const idsForChanges = ({ created, updated, deleted }: SyncTableChangeSet): RecordId[] => [
-  ...getIds(created),
-  ...getIds(updated),
-  ...deleted,
-]
+const idsForChanges = ({ created, updated, deleted }: SyncTableChangeSet): RecordId[] => {
+  const ids = []
+  created.forEach(record => {
+    ids.push(record.id)
+  })
+  updated.forEach(record => {
+    ids.push(record.id)
+  })
+  return ids.concat(deleted)
+}
+
 const fetchRecordsForChanges = <T: Model>(
   collection: Collection<T>,
   changes: SyncTableChangeSet,
@@ -64,8 +68,8 @@ async function recordsToApplyRemoteChangesTo<T: Model>(
     ...changes,
     records,
     locallyDeletedIds,
-    recordsToDestroy: filter(record => includes(record.id, deletedIds), records),
-    deletedRecordsToDestroy: filter(id => includes(id, deletedIds), locallyDeletedIds),
+    recordsToDestroy: filter(record => deletedIds.includes(record.id), records),
+    deletedRecordsToDestroy: filter(id => deletedIds.includes(id), locallyDeletedIds),
   }
 }
 
@@ -104,7 +108,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
         `[Sync] Server wants client to create record ${table}#${raw.id}, but it already exists locally. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will update existing record instead.`,
       )
       return prepareUpdateFromRaw(currentRecord, raw, log)
-    } else if (includes(raw.id, locallyDeletedIds)) {
+    } else if (locallyDeletedIds.includes(raw.id)) {
       logError(
         `[Sync] Server wants client to create record ${table}#${raw.id}, but it already exists locally and is marked as deleted. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will delete local record and recreate it instead.`,
       )
@@ -122,7 +126,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
 
     if (currentRecord) {
       return prepareUpdateFromRaw(currentRecord, raw, log)
-    } else if (includes(raw.id, locallyDeletedIds)) {
+    } else if (locallyDeletedIds.includes(raw.id)) {
       // Nothing to do, record was locally deleted, deletion will be pushed later
       return null
     }

@@ -1,8 +1,7 @@
 // @flow
 /* eslint-disable eqeqeq */
 
-import { includes } from 'rambdax'
-import { gt, gte, lt, lte, complement } from '../../utils/fp'
+import { gt, gte, lt, lte } from '../../utils/fp'
 import likeToRegexp from '../../utils/fp/likeToRegexp'
 
 import type { Value, CompoundValue, Operator } from '../../QueryDescription'
@@ -12,6 +11,8 @@ type OperatorFunction = $FlowFixMe<(Value, CompoundValue) => boolean>
 const between: OperatorFunction = (left, [lower, upper]) => left >= lower && left <= upper
 
 export const rawFieldEquals: OperatorFunction = (left, right) => left == right
+
+const rawFieldNotEquals: OperatorFunction = (left, right) => !(left == right)
 
 const noNullComparisons: OperatorFunction => OperatorFunction = operator => (left, right) => {
   // return false if any operand is null/undefined
@@ -43,16 +44,19 @@ export const notLike: OperatorFunction = (left, right) => {
   return !likeToRegexp(right).test(leftV)
 }
 
+const oneOf: OperatorFunction = (value, values) => values.includes(value)
+const notOneOf: OperatorFunction = (value, values) => !values.includes(value)
+
 const operators: { [Operator]: OperatorFunction } = {
   eq: rawFieldEquals,
-  notEq: complement(rawFieldEquals),
+  notEq: rawFieldNotEquals,
   gt: noNullComparisons(gt),
   gte: noNullComparisons(gte),
   weakGt,
   lt: noNullComparisons(lt),
   lte: noNullComparisons(lte),
-  oneOf: includes,
-  notIn: noNullComparisons(complement(includes)),
+  oneOf,
+  notIn: noNullComparisons(notOneOf),
   between,
   like,
   notLike,

@@ -1,7 +1,5 @@
 // @flow
 
-import { includes } from 'rambdax'
-
 import invariant from '../utils/common/invariant'
 import type { $RE } from '../types'
 
@@ -73,11 +71,11 @@ export function validateColumnSchema(column: ColumnSchema): void {
   if (process.env.NODE_ENV !== 'production') {
     invariant(column.name, `Missing column name`)
     invariant(
-      includes(column.type, ['string', 'boolean', 'number']),
+      ['string', 'boolean', 'number'].includes(column.type),
       `Invalid type ${column.type} for column ${column.name} (valid: string, boolean, number)`,
     )
     invariant(
-      !includes(column.name, ['id', '_changed', '_status', '$loki']),
+      !['id', '_changed', '_status', '$loki'].includes(column.name),
       `You must not define a column with name ${column.name}`,
     )
     invariant(
