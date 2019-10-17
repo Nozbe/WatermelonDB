@@ -108,7 +108,16 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   }
 
   batch(operations: BatchOperation[]): Promise<void> {
-    return devLogBatch(() => this.workerBridge.send(BATCH, [operations]), operations)
+    return devLogBatch(
+      () =>
+        this.workerBridge.send(
+          BATCH,
+          [operations],
+          // batches are only strings + raws which only have JSON-compatible values - enable fast clone
+          true,
+        ),
+      operations,
+    )
   }
 
   getDeletedRecords(tableName: TableName<any>): Promise<RecordId[]> {

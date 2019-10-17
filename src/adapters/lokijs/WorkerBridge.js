@@ -47,13 +47,18 @@ class WorkerBridge {
   }
 
   // TODO: `any` should be `WorkerResponsePayload` here
-  send(type: WorkerExecutorType, payload: WorkerExecutorPayload = []): Promise<any> {
+  send(
+    type: WorkerExecutorType,
+    payload: WorkerExecutorPayload = [],
+    fastClone: boolean = false, // Use when you know the data is JSON-compatible
+  ): Promise<any> {
     return new Promise((resolve, reject) => {
       this._pendingRequests.push({ resolve, reject })
 
       this._worker.postMessage({
         type,
         payload,
+        fastClone,
       })
     })
   }
