@@ -41,6 +41,7 @@ class MockModel3 extends Model {
   static table = 'mock'
 
   @field('kind') kind
+
   @json('extras', mockSanitizer2)
   extras
 }
