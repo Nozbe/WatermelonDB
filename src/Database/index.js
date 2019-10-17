@@ -72,7 +72,9 @@ export default class Database {
         `Cannot batch a record that doesn't have a prepared create or prepared update`,
       )
 
-      const { table, id, _raw: raw } = record
+      const raw = record._raw
+      const { id } = raw // faster than Model.id
+      const { table } = record.constructor // faster than Model.table
 
       let changeType
 
