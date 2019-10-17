@@ -195,6 +195,15 @@ describe('creating new records', () => {
     expect(observer).toHaveBeenCalledTimes(0)
     await expect(collection.find(m1.id)).rejects.toBeInstanceOf(Error)
   })
+  it('can prepare records from raw', async () => {
+    const { tasks: collection } = mockDatabase()
+
+    const newModelSpy = jest.spyOn(MockTask, '_prepareCreateFromDirtyRaw')
+
+    const m1 = collection.prepareCreateFromDirtyRaw({ col3: 'hello' })
+    expect(m1._isCommitted).toBe(false)
+    expect(newModelSpy).toHaveBeenCalledTimes(1)
+  })
   it('disallows record creating outside of an action', async () => {
     const { database, tasks } = mockDatabase({ actionsEnabled: true })
 

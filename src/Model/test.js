@@ -122,6 +122,44 @@ describe('CRUD', () => {
       number: 0,
     })
   })
+  it('_prepareCreateFromDirtyRaw: can instantiate new records', () => {
+    const database = makeDatabase()
+    const collection = database.collections.get('mock')
+    const m1 = MockModel._prepareCreateFromDirtyRaw(collection, { name: 'Some name' })
+
+    expect(m1.collection).toBe(collection)
+    expect(m1._isEditing).toBe(false)
+    expect(m1._isCommitted).toBe(false)
+    expect(m1.id.length).toBe(16)
+    expect(m1.createdAt).toBe(undefined)
+    expect(m1.updatedAt).toBe(undefined)
+    expect(m1.name).toBe('Some name')
+    expect(m1._raw).toEqual({
+      id: m1.id,
+      _status: 'created',
+      _changed: '',
+      name: 'Some name',
+      otherfield: '',
+      col3: '',
+      col4: null,
+      number: 0,
+    })
+
+    // can take the entire raw record without changing if it's valid
+    const raw = Object.freeze({
+      id: 'abcde67890123456',
+      _status: 'synced',
+      _changed: '',
+      name: 'Hey',
+      otherfield: 'foo',
+      col3: '',
+      col4: null,
+      number: 100,
+    })
+    const m2 = MockModel._prepareCreateFromDirtyRaw(collection, raw)
+    expect(m2._raw).toEqual(raw)
+    expect(m2._raw).not.toBe(raw)
+  })
   it('can update a record', async () => {
     const database = makeDatabase()
     database.adapter.batch = jest.fn()

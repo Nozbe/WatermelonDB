@@ -81,6 +81,9 @@ export default class Collection<Record: Model> {
     return this.modelClass._prepareCreate(this, recordBuilder)
   }
 
+  // Prepares a new record in this collection based on a raw object
+  // e.g. `{ foo: 'bar' }`. Don't use this unless you know how RawRecords work in WatermelonDB
+  // this is useful as a performance optimization or if you're implementing your own sync mechanism
   prepareCreateFromDirtyRaw(dirtyRaw: DirtyRaw): Record {
     return this.modelClass._prepareCreateFromDirtyRaw(this, dirtyRaw)
   }
