@@ -13,7 +13,7 @@ import type Collection from '../Collection'
 import type CollectionMap from '../Database/CollectionMap'
 import { type TableName, type ColumnName, columnName } from '../Schema'
 import type { Value } from '../QueryDescription'
-import { type RawRecord, sanitizedRaw, setRawSanitized } from '../RawRecord'
+import { type RawRecord, type DirtyRaw, sanitizedRaw, setRawSanitized } from '../RawRecord'
 import { setRawColumnChange } from '../sync/helpers'
 
 import { createTimestampsFor, hasUpdatedAt, fetchChildren } from './helpers'
@@ -107,9 +107,7 @@ export default class Model {
       process.nextTick(() => {
         invariant(
           !this._hasPendingUpdate,
-          `record.prepareUpdate was called on ${this.table}#${
-            this.id
-          } but wasn't sent to batch() synchronously -- this is bad!`,
+          `record.prepareUpdate was called on ${this.table}#${this.id} but wasn't sent to batch() synchronously -- this is bad!`,
         )
       })
     }
@@ -240,6 +238,15 @@ export default class Model {
     ensureSync(recordBuilder(record))
     record._isEditing = false
 
+    return record
+  }
+
+  static _prepareCreateFromDirtyRaw(
+    collection: Collection<$FlowFixMe<this>>,
+    dirtyRaw: DirtyRaw,
+  ): this {
+    const record = new this(collection, sanitizedRaw(dirtyRaw, collection.schema))
+    record._isCommitted = false
     return record
   }
 

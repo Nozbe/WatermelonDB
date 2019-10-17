@@ -12,6 +12,7 @@ import type Database from '../Database'
 import type Model, { RecordId } from '../Model'
 import type { Condition } from '../QueryDescription'
 import { type TableName, type TableSchema } from '../Schema'
+import { type DirtyRaw } from '../RawRecord'
 
 import RecordCache from './RecordCache'
 import { CollectionChangeTypes } from './common'
@@ -78,6 +79,10 @@ export default class Collection<Record: Model> {
   // Use this to batch-create multiple records
   prepareCreate(recordBuilder: Record => void = noop): Record {
     return this.modelClass._prepareCreate(this, recordBuilder)
+  }
+
+  prepareCreateFromDirtyRaw(dirtyRaw: DirtyRaw): Record {
+    return this.modelClass._prepareCreateFromDirtyRaw(this, dirtyRaw)
   }
 
   // *** Implementation of Query APIs ***
