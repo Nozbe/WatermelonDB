@@ -67,4 +67,18 @@ describe('Schema', () => {
       }),
     ).toThrow(/last_modified must be.*number/)
   })
+  it('does not allow unsafe characters', () => {
+    expect(() =>
+      tableSchema({
+        name: 'foo',
+        columns: [{ name: '"hey"', type: 'string' }],
+      }),
+    ).toThrow(/must contain only safe characters/)
+    expect(() =>
+      tableSchema({
+        name: 'foo\' and delete * from users --',
+        columns: [{ name: 'hey', type: 'string' }],
+      }),
+    ).toThrow(/must contain only safe characters/)
+  })
 })

@@ -52,12 +52,6 @@ export function appSchema({
   const tables: TableMap = tableList.reduce((map, table) => {
     if (process.env.NODE_ENV !== 'production') {
       invariant(typeof table === 'object' && table.name, `Table schema must contain a name`)
-      invariant(
-        safeNameCharacters.test(table.name),
-        `Table name ${
-          table.name
-        } must contain only safe characters ${safeNameCharacters.toString()}`,
-      )
     }
 
     map[table.name] = table
@@ -102,6 +96,10 @@ export function validateColumnSchema(column: ColumnSchema): void {
 export function tableSchema({ name, columns: columnArray }: TableSchemaSpec): TableSchema {
   if (process.env.NODE_ENV !== 'production') {
     invariant(name, `Missing table name in schema`)
+    invariant(
+      safeNameCharacters.test(name),
+      `Table name ${name} must contain only safe characters ${safeNameCharacters.toString()}`,
+    )
   }
 
   const columns: ColumnMap = columnArray.reduce((map, column) => {
