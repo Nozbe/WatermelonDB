@@ -42,6 +42,11 @@ This is a **massive** new update to WatermelonDB! 🍉
   were always used with `LokiJSAdapter`. Although web workers may have some performance benefits, disabling them
   may lead to lower memory consumption, lower latency, and easier debugging. YMMV.
 
+- [Model] Add `Model._dangerouslySetRawWithoutMarkingColumnChange()` method. You probably shouldn't use it,
+  but if you know what you're doing and want to live-update records from server without marking record as updated,
+  this is useful
+- [Collection] Add `Collection.prepareCreateFromDirtyRaw()`
+
 ### Improvements
 
 - [Performance] Make large batches a lot faster (1.3s shaved off on a 65K insert sample)
