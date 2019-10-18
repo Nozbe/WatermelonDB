@@ -8,8 +8,8 @@ All notable changes to this project will be documented in this file.
 
 This is a **massive** new update to WatermelonDB! 🍉
 
-- **3x faster sync**. We've made big improvements to performance. In our tests, a massive sync
-  (first login, 65K records / 45MB of data) sped up from ~4s to 1.2s on web. Most of what's left is
+- **5x faster sync**. We've made big improvements to performance. In our tests, a massive sync
+  (first login, 65K records / 45MB of data) sped up from 5.7s to 1.2s on web. Most of what's left is
   native IndexedDB and LokiJS indexing overhead and will be more difficult to overcome… but we think
   a few hundred miliseconds more is possible!
 - **Improved LokiJS adapter**. Option to disable web workers, important Safari 13 fix, better performance,
