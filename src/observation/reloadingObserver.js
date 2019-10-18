@@ -1,7 +1,8 @@
 // @flow
 
 import type { Observable } from 'rxjs/Observable'
-import { switchMap, distinctUntilChanged } from 'rxjs/operators'
+import { switchMap, distinctUntilChanged, startWith, filter as filter$ } from 'rxjs/operators'
+import { from } from 'rxjs/observable/from'
 
 import identicalArrays from '../utils/fp/identicalArrays'
 
@@ -12,13 +13,23 @@ import type Model from '../Model'
 // when any change occurs in any of the relevant Stores.
 // This is inefficient for simple queries, but necessary for complex queries
 
-export default function reloadingObserver<Record: Model>(
+export function reloadingObserverWithStatus<Record: Model>(
   query: Query<Record>,
-): Observable<Record[]> {
+): Observable<Record[] | false> {
   const { database } = query.collection
 
   return database
     .withChangesForTables(query.allTables)
-    .pipe(switchMap(() => query.collection.fetchQuery(query)))
+    .pipe(switchMap(() => from(query.collection.fetchQuery(query)).pipe(startWith(false))))
+}
+
+export default function reloadingObserver<Record: Model>(
+  query: Query<Record>,
+): Observable<Record[]> {
+  return reloadingObserverWithStatus(query)
+    .pipe(
+      (filter$(value => value !== false): $FlowFixMe<
+        (Observable<Record[] | false>) => Observable<Record[]>,>),
+    )
     .pipe(distinctUntilChanged(identicalArrays))
 }

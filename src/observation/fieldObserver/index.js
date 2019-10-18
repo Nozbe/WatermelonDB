@@ -49,6 +49,7 @@ export default function fieldObserver<Record: Model>(
 ): Observable<Record[]> {
   return Observable.create(observer => {
     // State kept for comparison between emissions
+    let sourceIsFetching = true
     let observedRecords: Record[] = []
     const recordStates: RecordStates = {}
     const subscriptions: Subscriptions = {}
@@ -56,7 +57,13 @@ export default function fieldObserver<Record: Model>(
     const emitCopy = records => observer.next(records.slice(0))
 
     // Observe the list of records matching the record
-    const sourceSubscription = sourceRecords.subscribe(records => {
+    const sourceSubscription = sourceRecords.subscribe(recordsOrStatus => {
+      if (recordsOrStatus === false) {
+        sourceIsFetching = true
+        return
+      }
+      sourceIsFetching = false
+      const records: Record[] = recordsOrStatus
       // Re-emit changes to the list
       emitCopy(records)
 
@@ -81,6 +88,9 @@ export default function fieldObserver<Record: Model>(
           .observe()
           .pipe(skip$(1))
           .subscribe(record => {
+            if (sourceIsFetching) {
+              return
+            }
             // Check if there are any relevant changes to the record
             const previousState = recordStates[record.id]
             const newState = getRecordState(record, rawFields)

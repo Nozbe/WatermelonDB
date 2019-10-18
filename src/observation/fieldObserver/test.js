@@ -3,7 +3,7 @@ import { mockDatabase } from '../../__tests__/testModels'
 import * as Q from '../../QueryDescription'
 import fieldObserver from './index'
 import simpleObserver from '../simpleObserver'
-import reloadingObserver from '../reloadingObserver'
+import { reloadingObserverWithStatus } from '../reloadingObserver'
 
 const prepareTask = (tasks, name, isCompleted, position) =>
   tasks.prepareCreate(mock => {
@@ -147,7 +147,8 @@ describe('fieldObserver', () => {
   it('observes changes correctly - test with reloading observer', async () => {
     const mockDb = mockDatabase({ actionsEnabled: true })
     const query = mockDb.tasks.query(Q.where('is_completed', true))
-    const source = reloadingObserver(query)
+    const source = reloadingObserverWithStatus(query)
     await fullObservationTest(mockDb, source, true)
+    // TODO: Move these to Collection, test for distinctUntilChanged
   })
 })
