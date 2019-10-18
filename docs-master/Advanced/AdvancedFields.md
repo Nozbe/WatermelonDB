@@ -67,7 +67,7 @@ If you don't want to sanitize JSON, pass an identity function:
 const sanitizeReactions = json => json
 ```
 
-You can reference other fields on your model via `this.<field_name>`. Note that this only works with standard `function` syntax, and not with ES6 arrow functions.
+The sanitizer function takes an optional second argument, which is a reference to the model. This is useful is your sanitization logic depends on the other fields in the model.
 
 **Warning about JSON fields**:
 

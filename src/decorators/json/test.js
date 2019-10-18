@@ -19,9 +19,8 @@ const mockSanitizer = storedValue =>
     ? { elements: storedValue.elements }
     : { elements: [] }
 
-function mockSanitizer2(storedValue) {
-  return this.kind === 'A' ? { dataA: storedValue.dataA } : { dataB: storedValue.dataB }
-}
+const mockSanitizer2 = (storedValue, model) =>
+  model.kind === 'A' ? { dataA: storedValue.dataA } : { dataB: storedValue.dataB }
 
 class MockModel extends Model {
   static table = 'mock'
