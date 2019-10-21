@@ -49,7 +49,7 @@ export default function fieldObserver<Record: Model>(
 ): Observable<Record[]> {
   return Observable.create(observer => {
     // State kept for comparison between emissions
-    let sourceIsFetching = true
+    let sourceIsFetching = true // do not emit record-level changes while source is fetching new data
     let observedRecords: Record[] = []
     const recordStates: RecordStates = {}
     const subscriptions: Subscriptions = {}
@@ -63,8 +63,9 @@ export default function fieldObserver<Record: Model>(
         return
       }
       sourceIsFetching = false
-      const records: Record[] = recordsOrStatus
+
       // Re-emit changes to the list
+      const records: Record[] = recordsOrStatus
       emitCopy(records)
 
       // Find changes, and save current list for comparison on next emission
@@ -91,15 +92,13 @@ export default function fieldObserver<Record: Model>(
             if (sourceIsFetching) {
               return
             }
+
             // Check if there are any relevant changes to the record
             const previousState = recordStates[record.id]
             const newState = getRecordState(record, rawFields)
 
-            // Save current state even if there are no relevant changes
-            // (because there might be irrelevant diffs like false->0 that obscure debugging)
-            recordStates[record.id] = newState
-
             if (!recordStatesEqual(previousState, newState)) {
+              recordStates[record.id] = newState
               emitCopy(observedRecords)
             }
           })

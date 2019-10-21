@@ -37,13 +37,13 @@ describe('fieldObserver', () => {
       m2 = await createTask(tasks, 'name2', false, 20)
     })
     source.next([m1, m2])
-    expect(observer).toHaveBeenCalledWith([m1, m2])
+    expect(observer).toHaveBeenLastCalledWith([m1, m2])
     expect(observer).toHaveBeenCalledTimes(1)
 
     // add matches, remove matches
     const m3 = await database.action(() => createTask(tasks, 'name3', false, 30))
     source.next([m2, m3])
-    expect(observer).toHaveBeenCalledWith([m2, m3])
+    expect(observer).toHaveBeenLastCalledWith([m2, m3])
     expect(observer).toHaveBeenCalledTimes(2)
 
     // make some irrelevant changes (no emission)
@@ -56,7 +56,7 @@ describe('fieldObserver', () => {
     await updateTask(m3, mock => {
       mock.position += 1
     })
-    expect(observer).toHaveBeenCalledWith([m2, m3])
+    expect(observer).toHaveBeenLastCalledWith([m2, m3])
     expect(observer).toHaveBeenCalledTimes(3)
 
     // change another relevant field
@@ -64,7 +64,7 @@ describe('fieldObserver', () => {
       mock.isCompleted = true
     })
 
-    expect(observer).toHaveBeenCalledWith([m2, m3])
+    expect(observer).toHaveBeenLastCalledWith([m2, m3])
     expect(observer).toHaveBeenCalledTimes(4)
 
     // change a relevant field in a previously-observed record (no emission)
@@ -95,34 +95,46 @@ describe('fieldObserver', () => {
     await waitForNextQuery() // wait for initial query to go through
 
     expect(observer).toHaveBeenCalledTimes(1)
-    expect(observer).toHaveBeenCalledWith([])
+    expect(observer).toHaveBeenLastCalledWith([])
 
     // make some models
     let m1
     let m2
+    let m3
     await database.action(async () => {
       m1 = prepareTask(tasks, 'name1', true, 10)
       m2 = prepareTask(tasks, 'name2', true, 20)
-      await database.batch(m1, prepareTask(tasks, 'name_irrelevant', false, 30), m2)
+      m3 = prepareTask(tasks, 'name3', false, 30)
+      await database.batch(m1, prepareTask(tasks, 'name_irrelevant', false, 30), m2, m3)
     })
 
     asyncObserver && (await waitForNextQuery())
     expect(observer).toHaveBeenCalledTimes(2)
-    expect(observer).toHaveBeenCalledWith([m1, m2])
+    expect(observer).toHaveBeenLastCalledWith([m1, m2])
 
     // add matching model
-    const m3 = await database.action(() => createTask(tasks, 'name3', true, 30))
+    const m4 = await database.action(() => createTask(tasks, 'name4', true, 40))
 
     asyncObserver && (await waitForNextQuery())
     expect(observer).toHaveBeenCalledTimes(3)
-    expect(observer).toHaveBeenCalledWith([m1, m2, m3])
+    expect(observer).toHaveBeenLastCalledWith([m1, m2, m4])
 
     // remove matching model
     await database.action(() => m1.markAsDeleted())
 
     asyncObserver && (await waitForNextQuery())
     expect(observer).toHaveBeenCalledTimes(4)
-    expect(observer).toHaveBeenCalledWith([m2, m3])
+    expect(observer).toHaveBeenLastCalledWith([m2, m4])
+
+    // change model to start matching
+    await updateTask(m3, task => {
+      task.isCompleted = true
+    })
+
+    asyncObserver && (await waitForNextQuery())
+    expect(observer).toHaveBeenCalledTimes(5)
+    expect(observer.mock.calls[4][0]).toHaveLength(3)
+    expect(observer.mock.calls[4][0]).toEqual(expect.arrayContaining([m2, m3, m4]))
 
     // change model to no longer match
     // make sure changed model isn't re-emitted before source query removes it
@@ -131,12 +143,13 @@ describe('fieldObserver', () => {
     })
 
     asyncObserver && (await waitForNextQuery())
-    expect(observer).toHaveBeenCalledTimes(5)
-    expect(observer).toHaveBeenCalledWith([m3])
+    expect(observer).toHaveBeenCalledTimes(6)
+    expect(observer.mock.calls[5][0]).toHaveLength(2)
+    expect(observer.mock.calls[5][0]).toEqual(expect.arrayContaining([m3, m4]))
 
     subscription.unsubscribe()
 
-    expect(observer).toHaveBeenCalledTimes(5)
+    expect(observer).toHaveBeenCalledTimes(6)
   }
   it('observes changes correctly - test with simple observer', async () => {
     const mockDb = mockDatabase({ actionsEnabled: true })
