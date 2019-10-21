@@ -1,14 +1,13 @@
 import { mockDatabase } from '../../__tests__/testModels'
 import * as Q from '../../QueryDescription'
 import fieldObserver from './index'
-import simpleObserver from '../simpleObserver'
-import { reloadingObserverWithStatus } from '../reloadingObserver'
 
 const prepareTask = (tasks, name, isCompleted, position) =>
   tasks.prepareCreate(mock => {
     mock.name = name
     mock.isCompleted = isCompleted
     mock.position = position
+    mock.project.id = 'MOCK_PROJECT'
   })
 
 const createTask = async (tasks, name, isCompleted, position) => {
@@ -20,17 +19,17 @@ const createTask = async (tasks, name, isCompleted, position) => {
 const updateTask = (task, updater) => task.collection.database.action(() => task.update(updater))
 
 describe('fieldObserver', () => {
-  async function fullObservationTest(mockDb, source, asyncSource) {
-    const { database, tasks } = mockDb
+  async function fullObservationTest(mockDb, query, asyncSource) {
+    const { database, tasks, projects } = mockDb
+
+    // preparation - create mock project
+    await database.action(() =>
+      database.batch(projects.prepareCreateFromDirtyRaw({ id: 'MOCK_PROJECT' })),
+    )
 
     // start observing
     const observer = jest.fn()
-    const subscription = fieldObserver(
-      source,
-      ['is_completed', 'position'],
-      tasks,
-      asyncSource,
-    ).subscribe(observer)
+    const subscription = fieldObserver(query, [('is_completed', 'position')]).subscribe(observer)
 
     const waitForNextQuery = () => tasks.query().fetch()
     await waitForNextQuery() // wait for initial query to go through
@@ -131,6 +130,15 @@ describe('fieldObserver', () => {
     asyncSource && (await waitForNextQuery())
     expect(observer).toHaveBeenCalledTimes(7)
 
+    // make irrelevant changes to secondary table (async join query)
+    if (asyncSource) {
+      await database.action(() =>
+        database.batch(projects.prepareCreate(), projects.prepareCreate()),
+      )
+      await waitForNextQuery()
+      expect(observer).toHaveBeenCalledTimes(7)
+    }
+
     // ensure record subscriptions are disposed properly
     subscription.unsubscribe()
     await updateTask(m3, mock => {
@@ -141,14 +149,15 @@ describe('fieldObserver', () => {
   it('observes changes correctly - test with simple observer', async () => {
     const mockDb = mockDatabase({ actionsEnabled: true })
     const query = mockDb.tasks.query(Q.where('is_completed', true))
-    const source = simpleObserver(query, true)
-    await fullObservationTest(mockDb, source, false)
+    await fullObservationTest(mockDb, query, false)
   })
   it('observes changes correctly - test with reloading observer', async () => {
     const mockDb = mockDatabase({ actionsEnabled: true })
-    const query = mockDb.tasks.query(Q.where('is_completed', true))
-    const source = reloadingObserverWithStatus(query)
-    await fullObservationTest(mockDb, source, true)
-    // TODO: Move these to Collection, test for distinctUntilChanged
+    const query = mockDb.tasks.query(
+      Q.where('is_completed', true),
+      // fake query to force to use reloading observer
+      Q.on('mock_projects', Q.where('id', Q.notEq(null))),
+    )
+    await fullObservationTest(mockDb, query, true)
   })
 })

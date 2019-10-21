@@ -8,16 +8,18 @@ import arrayDifference from '../../utils/fp/arrayDifference'
 
 import { type Value } from '../../QueryDescription'
 import { type ColumnName } from '../../Schema'
-import type Collection from '../../Collection'
+import type Query from '../../Query'
 
 import type Model, { RecordId } from '../../Model'
+import simpleObserver from '../simpleObserver'
+import reloadingObserver from '../reloadingObserver'
 
 type RecordState = { [field: ColumnName]: Value }
 
-const getRecordState: (Model, ColumnName[]) => RecordState = (record, rawFields) =>
+const getRecordState: (Model, ColumnName[]) => RecordState = (record, columnNames) =>
   // `pickAll` guarantees same length and order of keys!
   // $FlowFixMe
-  pickAll(rawFields, record._raw)
+  pickAll(columnNames, record._raw)
 
 // Invariant: same length and order of keys!
 const recordStatesEqual = (left: RecordState, right: RecordState): boolean =>
@@ -35,11 +37,9 @@ const recordStatesEqual = (left: RecordState, right: RecordState): boolean =>
 //   re-deriving the same thing. For reloadingObserver, a Rx adapter could be fitted
 // - multiple levels of array copying could probably be omitted
 
-export default function fieldObserver<Record: Model>(
-  sourceRecords: Observable<Record[]>,
-  rawFields: ColumnName[],
-  collection: Collection<Record>,
-  asyncSource: boolean,
+export default function observeQueryWithColumns<Record: Model>(
+  query: Query<Record>,
+  columnNames: ColumnName[],
 ): Observable<Record[]> {
   return Observable.create(observer => {
     // State kept for comparison between emissions
@@ -51,13 +51,21 @@ export default function fieldObserver<Record: Model>(
 
     const emitCopy = records => observer.next(records.slice(0))
 
+    // prepare source observable
+    // TODO: On one hand it would be nice to bring in the source logic to this function to optimize
+    // on the other, it would be good to have source provided as Observable, not Query
+    // so that we can reuse cached responses -- but they don't have compatible format
+    const [sourceRecords, asyncSource] = query.hasJoins
+      ? [reloadingObserver(query, true), true]
+      : [simpleObserver(query, true), false]
+
     // NOTE:
     // Observing both the source subscription and changes to columns is very tricky
     // if we want to avoid unnecessary emissions (we do, because that triggers wasted app renders).
     // The compounding factor is that we have two methods of observation: simpleObserver which is
     // synchronous, and reloadingObserver, which is asynchronous.
     //
-    // For reloadingObserver, we use `rawReloadingObserver` to be notified that an async DB query
+    // For reloadingObserver, we use `reloadingObserverWithStatus` to be notified that an async DB query
     // has begun. If it did, we will not emit column-only changes until query has come back.
     //
     // For simpleObserver, we need to configure it to always emit on collection changes. This is a
@@ -93,12 +101,12 @@ export default function fieldObserver<Record: Model>(
 
       // Save current record state for later comparison
       added.forEach(newRecord => {
-        recordStates.set(newRecord.id, getRecordState(newRecord, rawFields))
+        recordStates.set(newRecord.id, getRecordState(newRecord, columnNames))
       })
     })
 
     // Observe changes to records we have on the list
-    const collectionSubscription = collection.changes.subscribe(changeSet => {
+    const collectionSubscription = query.collection.changes.subscribe(changeSet => {
       let hasColumnChanges = false
       // Can't use `Array.some`, because then we'd skip saving record state for relevant records
       changeSet.forEach(({ record, type }) => {
@@ -113,7 +121,7 @@ export default function fieldObserver<Record: Model>(
         }
 
         // Check if record changed one of its observed fields
-        const newState = getRecordState(record, rawFields)
+        const newState = getRecordState(record, columnNames)
         if (!recordStatesEqual(previousState, newState)) {
           recordStates.set(record.id, newState)
           hasColumnChanges = true

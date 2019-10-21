@@ -54,7 +54,7 @@ export function processChangeSet<Record: Model>(
 
 function observeChanges<Record: Model>(
   query: Query<Record>,
-  alwaysEmit,
+  alwaysEmit: boolean,
 ): (Record[]) => Observable<Record[]> {
   const matcher: Matcher<Record> = encodeMatcher(query.description)
 
@@ -77,6 +77,8 @@ function observeChanges<Record: Model>(
 
 export default function simpleObserver<Record: Model>(
   query: Query<Record>,
+  // if true, emissions will always be made on collection change -- this is an internal hack needed by
+  // observeQueryWithColumns
   alwaysEmit: boolean = false,
 ): Observable<Record[]> {
   return defer(() => query.collection.fetchQuery(query)).pipe(
