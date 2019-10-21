@@ -27,7 +27,9 @@ describe('fieldObserver', () => {
     // start observing
     const source = new Subject()
     const observer = jest.fn()
-    const subscription = fieldObserver(source, ['is_completed', 'position']).subscribe(observer)
+    const subscription = fieldObserver(source, ['is_completed', 'position'], tasks).subscribe(
+      observer,
+    )
 
     // start with a few matching models
     let m1
@@ -89,7 +91,9 @@ describe('fieldObserver', () => {
 
     // start observing
     const observer = jest.fn()
-    const subscription = fieldObserver(source, ['is_completed', 'position']).subscribe(observer)
+    const subscription = fieldObserver(source, ['is_completed', 'position'], tasks).subscribe(
+      observer,
+    )
 
     const waitForNextQuery = () => tasks.query().fetch()
     await waitForNextQuery() // wait for initial query to go through

@@ -10,6 +10,7 @@ import arrayDifference from '../../utils/fp/arrayDifference'
 
 import { type Value } from '../../QueryDescription'
 import { type ColumnName } from '../../Schema'
+import type Collection from '../../Collection'
 
 import type Model, { RecordId } from '../../Model'
 
@@ -26,10 +27,10 @@ const getRecordState: (Model, ColumnName[]) => RecordState = (record, rawFields)
 const recordStatesEqual = (left: RecordState, right: RecordState): boolean =>
   identicalArrays(values(left), values(right))
 
-const unsubscribeAll: Subscriptions => * = pipe(
-  values,
-  forEach(subscription => subscription.unsubscribe()),
-)
+// const unsubscribeAll: Subscriptions => * = pipe(
+//   values,
+//   forEach(subscription => subscription.unsubscribe()),
+// )
 
 // Observes the given observable list of records, and in those records,
 // changes to given `rawFields`
@@ -46,17 +47,20 @@ const unsubscribeAll: Subscriptions => * = pipe(
 export default function fieldObserver<Record: Model>(
   sourceRecords: Observable<Record[]>,
   rawFields: ColumnName[],
+  collection: Collection<Record>,
 ): Observable<Record[]> {
   return Observable.create(observer => {
     // State kept for comparison between emissions
     let sourceIsFetching = true // do not emit record-level changes while source is fetching new data
+    let hasPendingColumnChanges = false
+    let firstEmission = true
     let observedRecords: Record[] = []
     const recordStates: RecordStates = {}
-    const subscriptions: Subscriptions = {}
+    // const subscriptions: Subscriptions = {}
 
     const emitCopy = records => observer.next(records.slice(0))
 
-    // Observe the list of records matching the record
+    // Observe the source records list (list of records matching a query)
     const sourceSubscription = sourceRecords.subscribe(recordsOrStatus => {
       if (recordsOrStatus === false) {
         sourceIsFetching = true
@@ -66,7 +70,14 @@ export default function fieldObserver<Record: Model>(
 
       // Re-emit changes to the list
       const records: Record[] = recordsOrStatus
-      emitCopy(records)
+
+      // identicalArrays check is not needed with simpleObserver, as it won't emit if no changes
+      // but it is necessary for rawReloadingObserver, that will
+      if (firstEmission || hasPendingColumnChanges || !identicalArrays(records, observedRecords)) {
+        emitCopy(records)
+      }
+      hasPendingColumnChanges = false
+      firstEmission = false
 
       // Find changes, and save current list for comparison on next emission
       const { added, removed } = arrayDifference(observedRecords, records)
@@ -74,8 +85,8 @@ export default function fieldObserver<Record: Model>(
 
       // Unsubscribe from records removed from list
       removed.forEach(record => {
-        subscriptions[record.id].unsubscribe()
-        delete subscriptions[record.id]
+        // subscriptions[record.id].unsubscribe()
+        // delete subscriptions[record.id]
         delete recordStates[record.id]
       })
 
@@ -85,29 +96,62 @@ export default function fieldObserver<Record: Model>(
         recordStates[newRecord.id] = getRecordState(newRecord, rawFields)
 
         // Skip the initial emission (only check for changes)
-        subscriptions[newRecord.id] = newRecord
-          .observe()
-          .pipe(skip$(1))
-          .subscribe(record => {
-            if (sourceIsFetching) {
-              return
-            }
+        // subscriptions[newRecord.id] = newRecord
+        //   .observe()
+        //   .pipe(skip$(1))
+        //   .subscribe(record => {
+        //     if (sourceIsFetching) {
+        //       return
+        //     }
 
-            // Check if there are any relevant changes to the record
-            const previousState = recordStates[record.id]
-            const newState = getRecordState(record, rawFields)
+        //     // Check if there are any relevant changes to the record
+        //     const previousState = recordStates[record.id]
+        //     const newState = getRecordState(record, rawFields)
 
-            if (!recordStatesEqual(previousState, newState)) {
-              recordStates[record.id] = newState
-              emitCopy(observedRecords)
-            }
-          })
+        //     if (!recordStatesEqual(previousState, newState)) {
+        //       recordStates[record.id] = newState
+        //       emitCopy(observedRecords)
+        //     }
+        //   })
       })
+    })
+
+    // Observe changes to records we have on the list
+    const collectionSubscription = collection.changes.subscribe(changeSet => {
+      const needsToEmit = changeSet.some(({ record, type }) => {
+        // See if change is relevant to our query
+        if (type !== 'updated') {
+          return false
+        }
+
+        const previousState = recordStates[record.id]
+        if (!previousState) {
+          return false
+        }
+
+        // Check if record changed one of its observed fields
+        const newState = getRecordState(record, rawFields)
+        if (!recordStatesEqual(previousState, newState)) {
+          recordStates[record.id] = newState
+          return true
+        }
+
+        return false
+      })
+
+      if (needsToEmit) {
+        if (sourceIsFetching) {
+          hasPendingColumnChanges = true
+        } else {
+          emitCopy(observedRecords)
+        }
+      }
     })
 
     // Dispose of record subscriptions on disposal of this observable
     return sourceSubscription.add(() => {
-      unsubscribeAll(subscriptions)
+      collectionSubscription.unsubscribe()
+      // unsubscribeAll(subscriptions)
     })
   })
 }
