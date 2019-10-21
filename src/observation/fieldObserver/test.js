@@ -147,6 +147,14 @@ describe('fieldObserver', () => {
     expect(observer.mock.calls[5][0]).toHaveLength(2)
     expect(observer.mock.calls[5][0]).toEqual(expect.arrayContaining([m3, m4]))
 
+    // make an irrelevant change to observed records - expect no change
+    await updateTask(m2, task => {
+      task.position = 50
+    })
+
+    asyncObserver && (await waitForNextQuery())
+    expect(observer).toHaveBeenCalledTimes(6)
+
     // make multiple simultaneous changes to observed records - expect only one emission
     await database.action(() =>
       database.batch(
