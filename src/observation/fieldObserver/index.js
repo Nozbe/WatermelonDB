@@ -1,9 +1,7 @@
 // @flow
 
-import type { Subscription } from 'rxjs'
 import { Observable } from 'rxjs/Observable'
-import { skip as skip$ } from 'rxjs/operators'
-import { pipe, pickAll, values, forEach } from 'rambdax'
+import { pickAll, values } from 'rambdax'
 
 import identicalArrays from '../../utils/fp/identicalArrays'
 import arrayDifference from '../../utils/fp/arrayDifference'
@@ -16,7 +14,6 @@ import type Model, { RecordId } from '../../Model'
 
 type RecordState = { [field: ColumnName]: Value }
 type RecordStates = { [id: RecordId]: RecordState }
-type Subscriptions = { [id: RecordId]: Subscription }
 
 const getRecordState: (Model, ColumnName[]) => RecordState = (record, rawFields) =>
   // `pickAll` guarantees same length and order of keys!
@@ -26,11 +23,6 @@ const getRecordState: (Model, ColumnName[]) => RecordState = (record, rawFields)
 // Invariant: same length and order of keys!
 const recordStatesEqual = (left: RecordState, right: RecordState): boolean =>
   identicalArrays(values(left), values(right))
-
-// const unsubscribeAll: Subscriptions => * = pipe(
-//   values,
-//   forEach(subscription => subscription.unsubscribe()),
-// )
 
 // Observes the given observable list of records, and in those records,
 // changes to given `rawFields`
@@ -56,7 +48,6 @@ export default function fieldObserver<Record: Model>(
     let firstEmission = true
     let observedRecords: Record[] = []
     const recordStates: RecordStates = {}
-    // const subscriptions: Subscriptions = {}
 
     const emitCopy = records => observer.next(records.slice(0))
 
@@ -85,34 +76,12 @@ export default function fieldObserver<Record: Model>(
 
       // Unsubscribe from records removed from list
       removed.forEach(record => {
-        // subscriptions[record.id].unsubscribe()
-        // delete subscriptions[record.id]
-        delete recordStates[record.id]
+        recordStates[record.id] = undefined
       })
 
-      // Subscribe to newly added records
+      // Save current record state for later comparison
       added.forEach(newRecord => {
-        // Save current record state for later comparison
         recordStates[newRecord.id] = getRecordState(newRecord, rawFields)
-
-        // Skip the initial emission (only check for changes)
-        // subscriptions[newRecord.id] = newRecord
-        //   .observe()
-        //   .pipe(skip$(1))
-        //   .subscribe(record => {
-        //     if (sourceIsFetching) {
-        //       return
-        //     }
-
-        //     // Check if there are any relevant changes to the record
-        //     const previousState = recordStates[record.id]
-        //     const newState = getRecordState(record, rawFields)
-
-        //     if (!recordStatesEqual(previousState, newState)) {
-        //       recordStates[record.id] = newState
-        //       emitCopy(observedRecords)
-        //     }
-        //   })
       })
     })
 
@@ -149,9 +118,6 @@ export default function fieldObserver<Record: Model>(
     })
 
     // Dispose of record subscriptions on disposal of this observable
-    return sourceSubscription.add(() => {
-      collectionSubscription.unsubscribe()
-      // unsubscribeAll(subscriptions)
-    })
+    return sourceSubscription.add(collectionSubscription)
   })
 }
