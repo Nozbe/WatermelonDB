@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### New 
  - Avoid `database` prop drilling in the web demo
+ - Sanitizer functions take an optional second argument, with a reference to the model
 
 ### ⚠️ Breaking
 
