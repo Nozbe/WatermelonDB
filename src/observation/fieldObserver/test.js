@@ -89,7 +89,7 @@ describe('fieldObserver', () => {
 
     // start observing
     const observer = jest.fn()
-    const subscription = fieldObserver(source, ['is_completed']).subscribe(observer)
+    const subscription = fieldObserver(source, ['is_completed', 'position']).subscribe(observer)
 
     const waitForNextQuery = () => tasks.query().fetch()
     await waitForNextQuery() // wait for initial query to go through
@@ -147,9 +147,29 @@ describe('fieldObserver', () => {
     expect(observer.mock.calls[5][0]).toHaveLength(2)
     expect(observer.mock.calls[5][0]).toEqual(expect.arrayContaining([m3, m4]))
 
+    // make multiple simultaneous changes to observed records - expect only one emission
+    await database.action(() =>
+      database.batch(
+        m2.prepareUpdate(() => {
+          // not observed anymore - irrelevant
+          m2.position = 100
+        }),
+        m3.prepareUpdate(() => {
+          m3.position = 100
+        }),
+        m4.prepareUpdate(() => {
+          m4.position = 100
+        }),
+      ),
+    )
+
+    asyncObserver && (await waitForNextQuery())
+    expect(observer).toHaveBeenCalledTimes(7)
+    expect(observer.mock.calls[6][0]).toEqual(observer.mock.calls[5][0])
+
     subscription.unsubscribe()
 
-    expect(observer).toHaveBeenCalledTimes(6)
+    expect(observer).toHaveBeenCalledTimes(7)
   }
   it('observes changes correctly - test with simple observer', async () => {
     const mockDb = mockDatabase({ actionsEnabled: true })
