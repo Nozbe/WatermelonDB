@@ -51,6 +51,20 @@ export default function fieldObserver<Record: Model>(
 
     const emitCopy = records => observer.next(records.slice(0))
 
+    // NOTE:
+    // Observing both the source subscription and changes to columns is very tricky
+    // if we want to avoid unnecessary emissions (we do, because that triggers wasted app renders).
+    // The compounding factor is that we have two methods of observation: simpleObserver which is
+    // synchronous, and reloadingObserver, which is asynchronous.
+    //
+    // For reloadingObserver, we use `rawReloadingObserver` to be notified that an async DB query
+    // has begun. If it did, we will not emit column-only changes until query has come back.
+    //
+    // For simpleObserver, we need to configure it to always emit on collection changes. This is a
+    // workaround to solve a race condition - collection observation for column check will always
+    // emit first, but we don't know if the list of observed records isn't about to change, so we
+    // flag, and wait for source response.
+
     // Observe the source records list (list of records matching a query)
     const sourceSubscription = sourceRecords.subscribe(recordsOrStatus => {
       if (recordsOrStatus === false) {
@@ -59,11 +73,9 @@ export default function fieldObserver<Record: Model>(
       }
       sourceIsFetching = false
 
-      // Re-emit changes to the list
+      // Emit changes if one of observed columns changed OR list of matching records changed
       const records: Record[] = recordsOrStatus
 
-      // identicalArrays check is not needed with simpleObserver, as it won't emit if no changes
-      // but it is necessary for rawReloadingObserver, that will
       if (firstEmission || hasPendingColumnChanges || !identicalArrays(records, observedRecords)) {
         emitCopy(records)
       }
@@ -110,6 +122,7 @@ export default function fieldObserver<Record: Model>(
 
       if (hasColumnChanges) {
         if (sourceIsFetching || !asyncSource) {
+          // Mark change; will emit on source emission to avoid duplicate emissions
           hasPendingColumnChanges = true
         } else {
           emitCopy(observedRecords)
