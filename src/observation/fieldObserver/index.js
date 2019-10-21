@@ -13,7 +13,6 @@ import type Collection from '../../Collection'
 import type Model, { RecordId } from '../../Model'
 
 type RecordState = { [field: ColumnName]: Value }
-type RecordStates = { [id: RecordId]: RecordState }
 
 const getRecordState: (Model, ColumnName[]) => RecordState = (record, rawFields) =>
   // `pickAll` guarantees same length and order of keys!
@@ -40,6 +39,7 @@ export default function fieldObserver<Record: Model>(
   sourceRecords: Observable<Record[]>,
   rawFields: ColumnName[],
   collection: Collection<Record>,
+  asyncSource: boolean,
 ): Observable<Record[]> {
   return Observable.create(observer => {
     // State kept for comparison between emissions
@@ -47,7 +47,7 @@ export default function fieldObserver<Record: Model>(
     let hasPendingColumnChanges = false
     let firstEmission = true
     let observedRecords: Record[] = []
-    const recordStates: RecordStates = {}
+    const recordStates = new Map<RecordId, RecordState>()
 
     const emitCopy = records => observer.next(records.slice(0))
 
@@ -76,40 +76,40 @@ export default function fieldObserver<Record: Model>(
 
       // Unsubscribe from records removed from list
       removed.forEach(record => {
-        recordStates[record.id] = undefined
+        recordStates.delete(record.id)
       })
 
       // Save current record state for later comparison
       added.forEach(newRecord => {
-        recordStates[newRecord.id] = getRecordState(newRecord, rawFields)
+        recordStates.set(newRecord.id, getRecordState(newRecord, rawFields))
       })
     })
 
     // Observe changes to records we have on the list
     const collectionSubscription = collection.changes.subscribe(changeSet => {
-      const needsToEmit = changeSet.some(({ record, type }) => {
+      let hasColumnChanges = false
+      // Can't use `Array.some`, because then we'd skip saving record state for relevant records
+      changeSet.forEach(({ record, type }) => {
         // See if change is relevant to our query
         if (type !== 'updated') {
-          return false
+          return
         }
 
-        const previousState = recordStates[record.id]
+        const previousState = recordStates.get(record.id)
         if (!previousState) {
-          return false
+          return
         }
 
         // Check if record changed one of its observed fields
         const newState = getRecordState(record, rawFields)
         if (!recordStatesEqual(previousState, newState)) {
-          recordStates[record.id] = newState
-          return true
+          recordStates.set(record.id, newState)
+          hasColumnChanges = true
         }
-
-        return false
       })
 
-      if (needsToEmit) {
-        if (sourceIsFetching) {
+      if (hasColumnChanges) {
+        if (sourceIsFetching || !asyncSource) {
           hasPendingColumnChanges = true
         } else {
           emitCopy(observedRecords)
@@ -117,7 +117,6 @@ export default function fieldObserver<Record: Model>(
       }
     })
 
-    // Dispose of record subscriptions on disposal of this observable
     return sourceSubscription.add(collectionSubscription)
   })
 }
