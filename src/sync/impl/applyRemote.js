@@ -42,7 +42,7 @@ const fetchRecordsForChanges = <T: Model>(
   return Promise.resolve([])
 }
 
-const findRecord = <T: Model>(id: RecordId, list: T[]) => {
+const findRecord = <T: Model>(id: RecordId, list: T[]): T | null => {
   // perf-critical
   for (let i = 0, len = list.length; i < len; i += 1) {
     if (list[i]._raw.id === id) {
@@ -106,51 +106,53 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
     )
   }
 
+  const recordsToBatch: T[] = [] // mutating - perf critical
+
   // Insert and update records
-  const recordsToInsert = map(raw => {
+  created.forEach(raw => {
     validateRemoteRaw(raw)
     const currentRecord = findRecord(raw.id, records)
     if (currentRecord) {
       logError(
         `[Sync] Server wants client to create record ${table}#${raw.id}, but it already exists locally. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will update existing record instead.`,
       )
-      return prepareUpdateFromRaw(currentRecord, raw, log)
+      recordsToBatch.push(prepareUpdateFromRaw(currentRecord, raw, log))
     } else if (locallyDeletedIds.includes(raw.id)) {
       logError(
         `[Sync] Server wants client to create record ${table}#${raw.id}, but it already exists locally and is marked as deleted. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will delete local record and recreate it instead.`,
       )
       // Note: we're not awaiting the async operation (but it will always complete before the batch)
       database.adapter.destroyDeletedRecords(table, [raw.id])
-      return prepareCreateFromRaw(collection, raw)
+      recordsToBatch.push(prepareCreateFromRaw(collection, raw))
+    } else {
+      recordsToBatch.push(prepareCreateFromRaw(collection, raw))
     }
+  })
 
-    return prepareCreateFromRaw(collection, raw)
-  }, created)
-
-  const recordsToUpdate = map(raw => {
+  updated.forEach(raw => {
     validateRemoteRaw(raw)
     const currentRecord = findRecord(raw.id, records)
 
     if (currentRecord) {
-      return prepareUpdateFromRaw(currentRecord, raw, log)
+      recordsToBatch.push(prepareUpdateFromRaw(currentRecord, raw, log))
     } else if (locallyDeletedIds.includes(raw.id)) {
       // Nothing to do, record was locally deleted, deletion will be pushed later
-      return null
+    } else {
+      // Record doesn't exist (but should) — just create it
+      !sendCreatedAsUpdated &&
+        logError(
+          `[Sync] Server wants client to update record ${table}#${raw.id}, but it doesn't exist locally. This could be a serious bug. Will create record instead.`,
+        )
+
+      recordsToBatch.push(prepareCreateFromRaw(collection, raw))
     }
+  })
 
-    // Record doesn't exist (but should) — just create it
-    !sendCreatedAsUpdated &&
-      logError(
-        `[Sync] Server wants client to update record ${table}#${raw.id}, but it doesn't exist locally. This could be a serious bug. Will create record instead.`,
-      )
+  deleted.forEach(record => {
+    recordsToBatch.push(record.prepareDestroyPermanently())
+  })
 
-    return prepareCreateFromRaw(collection, raw)
-  }, updated)
-
-  const recordsToDestroy = piped(deleted, map(record => record.prepareDestroyPermanently()))
-
-  // $FlowFixMe
-  return [...recordsToInsert, ...filter(Boolean, recordsToUpdate), ...recordsToDestroy]
+  return recordsToBatch
 }
 
 type AllRecordsToApply = { [TableName<any>]: RecordsToApplyRemoteChangesTo<Model> }
