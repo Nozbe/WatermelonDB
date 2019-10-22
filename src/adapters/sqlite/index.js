@@ -197,18 +197,16 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
   batch(operations: BatchOperation[]): Promise<void> {
     return devLogBatch(async () => {
-      const batchOperations = operations.map(operation => {
+      const batchOperations: NativeBridgeBatchOperation[] = operations.map(operation => {
         const [type, table, rawOrId] = operation
         switch (type) {
           case 'create': {
             // $FlowFixMe
-            const raw: RawRecord = rawOrId
-            return ['create', table, raw.id, ...encodeInsert(table, raw)]
+            return ['create', table, rawOrId.id].concat(encodeInsert(table, rawOrId))
           }
           case 'update': {
             // $FlowFixMe
-            const raw: RawRecord = rawOrId
-            return ['execute', table, ...encodeUpdate(table, raw)]
+            return ['execute', table].concat(encodeUpdate(table, rawOrId))
           }
           case 'markAsDeleted':
           case 'destroyPermanently':
