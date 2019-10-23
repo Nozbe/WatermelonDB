@@ -10,6 +10,9 @@ import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.Arguments
 import com.nozbe.watermelondb.DatabaseDriver.Operation
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         ReactContextBaseJavaModule(reactContext) {
@@ -126,8 +129,22 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun batch(tag: ConnectionTag, operations: ReadableArray, promise: Promise) =
-            withDriver(tag, promise) { it.batch(operations.toOperationsArray()) }
+            withDriver(tag, promise) {
+                val dateFormat = SimpleDateFormat("dd_MM_yyyy_hh_mm_ss", Locale.getDefault())
+                val logDate = dateFormat.format(Date())
+                val shouldTrace = operations.size() >= 2000
 
+                if (shouldTrace) {
+                    Debug.startMethodTracingSampling("sample-$logDate", 10*1024*1024, 500)
+                }
+
+                val ret = it.batchOptimized(operations)
+
+                if (shouldTrace) {
+                    Debug.stopMethodTracing()
+                }
+                return@withDriver ret
+            }
     @ReactMethod
     fun getDeletedRecords(tag: ConnectionTag, table: TableName, promise: Promise) =
             withDriver(tag, promise) { it.getDeletedRecords(table) }
@@ -138,7 +155,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         table: TableName,
         records: ReadableArray,
         promise: Promise
-    ) = withDriver(tag, promise) { it.destroyDeletedRecords(table, records.toArrayList()) }
+    ) = withDriver(tag, promise) { it.destroyDeletedRecords(table, records.toArrayList().toArray()) }
 
     @ReactMethod
     fun unsafeResetDatabase(
@@ -191,57 +208,6 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         } finally {
             Trace.endSection()
         }
-    }
-
-    private fun ReadableArray.toOperationsArray(): ArrayList<Operation> {
-        Trace.beginSection("ReadableArray.toOperationsArray()")
-        val preparedOperations = arrayListOf<Operation>()
-        try {
-            for (i in 0 until this.size()) {
-                val operation = this.getArray(i)
-                val type = operation?.getString(0)
-                when (type) {
-                    "execute" -> {
-                        val table = operation.getString(1) as TableName
-                        val query = operation.getString(2) as SQL
-                        val args = operation.getArray(3)?.toArrayList() as QueryArgs
-                        preparedOperations.add(Operation.Execute(table, query, args))
-                    }
-                    "create" -> {
-                        val table = operation.getString(1) as TableName
-                        val id = operation.getString(2) as RecordID
-                        val query = operation.getString(3) as SQL
-                        val args = operation.getArray(4)?.toArrayList() as QueryArgs
-                        preparedOperations.add(Operation.Create(table, id, query, args))
-                    }
-                    "markAsDeleted" -> {
-                        val table = operation.getString(1) as TableName
-                        val id = operation.getString(2) as RecordID
-                        preparedOperations.add(Operation.MarkAsDeleted(table, id))
-                    }
-                    "destroyPermanently" -> {
-                        val table = operation.getString(1) as TableName
-                        val id = operation.getString(2) as RecordID
-                        preparedOperations.add(Operation.DestroyPermanently(table, id))
-                    }
-                    // "setLocal" -> {
-                    //     val key = operation.getString(1)
-                    //     val value = operation.getString(2)
-                    //     preparedOperations.add(Operation.SetLocal(key, value))
-                    // }
-                    // "removeLocal" -> {
-                    //     val key = operation.getString(1)
-                    //     preparedOperations.add(Operation.RemoveLoacl(key))
-                    // }
-                    else -> throw (Throwable("Bad operation name in batch"))
-                }
-            }
-        } catch (e: Exception) {
-            throw (Throwable("Bad batch parameters"))
-        } finally {
-            Trace.endSection()
-        }
-        return preparedOperations
     }
 
     private fun connectDriver(
