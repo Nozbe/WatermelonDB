@@ -8,10 +8,11 @@ All notable changes to this project will be documented in this file.
 
 This is a **massive** new update to WatermelonDB! 🍉
 
-- **5x faster sync**. We've made big improvements to performance. In our tests, a massive sync
-  (first login, 65K records / 45MB of data) sped up from 5.7s to 1.2s on web. Most of what's left is
-  native IndexedDB and LokiJS indexing overhead and will be more difficult to overcome… but we think
-  a few hundred miliseconds more is possible!
+- **Up to 23x faster sync**. You heard that right. We've made big improvements to performance.
+  In our tests, with a massive sync (first login, 45MB of data / 65K records) we got a speed up of:
+  - 5.7s -> 1.2s on web (5x)
+  - 142s -> 6s on iOS (23x)
+  Expect more improvements in the coming releases!
 - **Improved LokiJS adapter**. Option to disable web workers, important Safari 13 fix, better performance,
   and now works in Private Modes
 - **Improved TypeScript support** — thanks to the community
@@ -50,9 +51,11 @@ This is a **massive** new update to WatermelonDB! 🍉
 ### Improvements
 
 - [Performance] Make large batches a lot faster (1.3s shaved off on a 65K insert sample)
-- [Performance][LokiJS] Make batch inserts faster (1.5s shaved off on a 65K insert sample)
-- [Performance][LokiJS] Various performance improvements
-- [Performance][Sync] Make Sync faster
+- [Performance] [iOS] Make large batch inserts an order of magnitude faster
+- [Performance] [iOS] Make encoding very large queries (with thousands of parameters) 20x faster
+- [Performance] [LokiJS] Make batch inserts faster (1.5s shaved off on a 65K insert sample)
+- [Performance] [LokiJS] Various performance improvements
+- [Performance] [Sync] Make Sync faster
 - [Performance] Make observation faster
 - Fix app glitches and performance issues caused by race conditions in `Query.observeWithColumns()`
 - [LokiJS] Persistence adapter will now be automatically selected based on availability. By default,
