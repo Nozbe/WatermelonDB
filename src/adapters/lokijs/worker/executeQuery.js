@@ -20,10 +20,7 @@ function refineResultsForColumnComparisons(
     const queryWithoutJoins = { where: conditions, join: [] }
     const matcher = encodeMatcher(queryWithoutJoins)
 
-    // Workaround: encodeMatcher expects a Model so we wrap the raw in an { _raw:... } object
-    const lokiMatcher = raw => matcher(({ _raw: raw }: any))
-
-    return roughResults.where(lokiMatcher)
+    return roughResults.where(matcher)
   }
 
   return roughResults

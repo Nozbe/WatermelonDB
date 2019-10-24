@@ -1,7 +1,7 @@
 // @flow
 
 import { sortBy, prop, last, head } from 'rambdax'
-import type { ColumnSchema, TableName, ColumnMap, TableSchemaSpec, SchemaVersion } from '../index'
+import type { ColumnSchema, TableName, TableSchema, TableSchemaSpec, SchemaVersion } from '../index'
 import { tableSchema, validateColumnSchema } from '../index'
 
 import { invariant } from '../../utils/common'
@@ -9,8 +9,7 @@ import { isObject } from '../../utils/fp'
 
 export type CreateTableMigrationStep = $Exact<{
   +type: 'create_table',
-  +name: TableName<any>,
-  +columns: ColumnMap,
+  +schema: TableSchema,
 }>
 
 export type AddColumnsMigrationStep = $Exact<{
@@ -131,8 +130,8 @@ export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMig
 }
 
 export function createTable(tableSchemaSpec: TableSchemaSpec): CreateTableMigrationStep {
-  const { name, columns } = tableSchema(tableSchemaSpec)
-  return { type: 'create_table', name, columns }
+  const schema = tableSchema(tableSchemaSpec)
+  return { type: 'create_table', schema }
 }
 
 export function addColumns({

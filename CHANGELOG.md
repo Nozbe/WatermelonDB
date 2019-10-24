@@ -4,9 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
-### New 
- - Avoid `database` prop drilling in the web demo
- - Sanitizer functions take an optional second argument, with a reference to the model
+### Highlights
+
+This is a **massive** new update to WatermelonDB! 🍉
+
+- **3x faster sync**. We've made big improvements to performance. In our tests, a massive sync
+  (first login, 65K records / 45MB of data) sped up from ~4s to 1.2s on web. Most of what's left is
+  native IndexedDB and LokiJS indexing overhead and will be more difficult to overcome… but we think
+  a few hundred miliseconds more is possible!
+- **Improved LokiJS adapter**. Option to disable web workers, important Safari 13 fix, better performance,
+  and now works in Private Modes
+- **Improved TypeScript support** — thanks to the community
 
 ### ⚠️ Breaking
 
@@ -34,16 +42,29 @@ All notable changes to this project will be documented in this file.
   were always used with `LokiJSAdapter`. Although web workers may have some performance benefits, disabling them
   may lead to lower memory consumption, lower latency, and easier debugging. YMMV.
 
+- [Model] Add `Model._dangerouslySetRawWithoutMarkingColumnChange()` method. You probably shouldn't use it,
+  but if you know what you're doing and want to live-update records from server without marking record as updated,
+  this is useful
+- [Collection] Add `Collection.prepareCreateFromDirtyRaw()`
+- @json decorator sanitizer functions take an optional second argument, with a reference to the model
+
 ### Improvements
 
+- [Performance] Make large batches a lot faster (1.3s shaved off on a 65K insert sample)
+- [Performance][LokiJS] Make batch inserts faster (1.5s shaved off on a 65K insert sample)
+- [Performance][LokiJS] Various performance improvements
+- [Performance][Sync] Make Sync faster
+- [Performance] Make observation faster
 - [LokiJS] Persistence adapter will now be automatically selected based on availability. By default,
   IndexedDB is used. But now, if unavailable (e.g. in private mode), ephemeral memory adapter will be used.
+- [adapters] The adapters interface has changed. `query()` and `count()` methods now receive a `SerializedQuery`, and `batch()` now takes `TableName<any>` and `RawRecord` or `RecordId` instead of `Model`.
 - [Typescript] Typing improvements
      - Added 3 missing properties `collections`, `database` and `asModel` in Model type definition.
      - Removed optional flag on `actionsEnabled` in the Database constructor options since its mandatory since 0.13.0.
      - fixed several further typing issues in Model, Relation and lazy decorator
 - Changed how async functions are transpiled in the library. This could break on really old Android phones
   but shouldn't matter if you use latest version of React Native. Please report an issue if you see a problem.
+- Avoid `database` prop drilling in the web demo
 
 ## 0.14.1 - 2019-08-31
 

@@ -14,6 +14,14 @@ class Database {
             fatalError("Failed to open the database. \(fmdb.lastErrorMessage())")
         }
 
+        // TODO: Experiment with WAL
+        // do {
+        //     // must be queryRaw - returns value
+        //     _ = try queryRaw("pragma journal_mode=wal")
+        // } catch {
+        //     fatalError("Failed to set database to WAL mode \(error)")
+        // }
+
         consoleLog("Opened database at: \(path)")
     }
 
@@ -84,7 +92,7 @@ class Database {
 
     /// Drops all tables, indexes, and resets user version to 0
     func unsafeDestroyEverything() throws {
-        // TODO: Shouldn't this simply destroy the database file?
+        // TODO: Shouldn't this simply destroy the database file? - if so remember about wal/shl files too
         consoleLog("Clearing database")
 
         try inTransaction {

@@ -1,8 +1,6 @@
 // @flow
 
 import type { CachedQueryResult, CachedFindResult } from '../type'
-import type { TableName } from '../../Schema'
-import type { RawRecord } from '../../RawRecord'
 import type { RecordId } from '../../Model'
 
 export const actions = {
@@ -11,10 +9,6 @@ export const actions = {
   QUERY: 'QUERY',
   COUNT: 'COUNT',
   BATCH: 'BATCH',
-  CREATE: 'CREATE',
-  UPDATE: 'UPDATE',
-  DESTROY_PERMANENTLY: 'DESTROY_PERMANENTLY',
-  MARK_AS_DELETED: 'MARK_AS_DELETED',
   GET_DELETED_RECORDS: 'GET_DELETED_RECORDS',
   DESTROY_DELETED_RECORDS: 'DESTROY_DELETED_RECORDS',
   UNSAFE_RESET_DATABASE: 'UNSAFE_RESET_DATABASE',
@@ -46,9 +40,3 @@ export type WorkerResponseAction = {
   type: WorkerResponseType,
   payload: WorkerResponsePayload,
 }
-
-export type WorkerBatchOperation =
-  | ['create', TableName<any>, RawRecord]
-  | ['update', TableName<any>, RawRecord]
-  | ['markAsDeleted', TableName<any>, RawRecord]
-  | ['destroyPermanently', TableName<any>, RawRecord]

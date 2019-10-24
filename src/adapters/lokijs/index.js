@@ -1,13 +1,12 @@
 // @flow
 
 import type { LokiMemoryAdapter } from 'lokijs'
-import { map } from 'rambdax'
 import { invariant } from '../../utils/common'
 
-import type Model, { RecordId } from '../../Model'
+import type { RecordId } from '../../Model'
 import type { TableName, AppSchema } from '../../Schema'
 import type { SchemaMigrations } from '../../Schema/migrations'
-import type Query from '../../Query'
+import type { SerializedQuery } from '../../Query'
 import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
 import {
   devLogFind,
@@ -100,20 +99,41 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     return devLogFind(() => this.workerBridge.send(FIND, [table, id]), table, id)
   }
 
-  query<T: Model>(query: Query<T>): Promise<CachedQueryResult> {
-    return devLogQuery(() => this.workerBridge.send(QUERY, [query.serialize()]), query)
+  query(query: SerializedQuery): Promise<CachedQueryResult> {
+    return devLogQuery(
+      () =>
+        this.workerBridge.send(
+          QUERY,
+          [query],
+          // SerializedQueries are immutable, so we need no copy
+          'immutable',
+        ),
+      query,
+    )
   }
 
-  count<T: Model>(query: Query<T>): Promise<number> {
-    return devLogCount(() => this.workerBridge.send(COUNT, [query.serialize()]), query)
+  count(query: SerializedQuery): Promise<number> {
+    return devLogCount(
+      () =>
+        this.workerBridge.send(
+          COUNT,
+          [query],
+          // SerializedQueries are immutable, so we need no copy
+          'immutable',
+        ),
+      query,
+    )
   }
 
   batch(operations: BatchOperation[]): Promise<void> {
     return devLogBatch(
       () =>
-        this.workerBridge.send(BATCH, [
-          map(([type, record]) => [type, record.table, record._raw], operations),
-        ]),
+        this.workerBridge.send(
+          BATCH,
+          [operations],
+          // batches are only strings + raws which only have JSON-compatible values, rest is immutable
+          'shallowCloneDeepObjects',
+        ),
       operations,
     )
   }

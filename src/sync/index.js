@@ -95,10 +95,10 @@ export async function synchronize({
   ensureSameDatabase(database, resetCount)
   if (!isChangeSetEmpty(localChanges.changes)) {
     await pushChanges({ changes: localChanges.changes, lastPulledAt: newLastPulledAt })
-  }
 
-  ensureSameDatabase(database, resetCount)
-  await markLocalChangesAsSynced(database, localChanges)
+    ensureSameDatabase(database, resetCount)
+    await markLocalChangesAsSynced(database, localChanges)
+  }
 
   log && (log.finishedAt = new Date())
 }

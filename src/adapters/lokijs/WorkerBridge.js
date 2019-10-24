@@ -47,13 +47,18 @@ class WorkerBridge {
   }
 
   // TODO: `any` should be `WorkerResponsePayload` here
-  send(type: WorkerExecutorType, payload: WorkerExecutorPayload = []): Promise<any> {
+  send(
+    type: WorkerExecutorType,
+    payload: WorkerExecutorPayload = [],
+    cloneMethod: 'shallowCloneDeepObjects' | 'immutable' | 'deep' = 'deep',
+  ): Promise<any> {
     return new Promise((resolve, reject) => {
       this._pendingRequests.push({ resolve, reject })
 
       this._worker.postMessage({
         type,
         payload,
+        cloneMethod,
       })
     })
   }

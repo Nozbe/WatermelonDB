@@ -122,6 +122,44 @@ describe('CRUD', () => {
       number: 0,
     })
   })
+  it('_prepareCreateFromDirtyRaw: can instantiate new records', () => {
+    const database = makeDatabase()
+    const collection = database.collections.get('mock')
+    const m1 = MockModel._prepareCreateFromDirtyRaw(collection, { name: 'Some name' })
+
+    expect(m1.collection).toBe(collection)
+    expect(m1._isEditing).toBe(false)
+    expect(m1._isCommitted).toBe(false)
+    expect(m1.id.length).toBe(16)
+    expect(m1.createdAt).toBe(undefined)
+    expect(m1.updatedAt).toBe(undefined)
+    expect(m1.name).toBe('Some name')
+    expect(m1._raw).toEqual({
+      id: m1.id,
+      _status: 'created',
+      _changed: '',
+      name: 'Some name',
+      otherfield: '',
+      col3: '',
+      col4: null,
+      number: 0,
+    })
+
+    // can take the entire raw record without changing if it's valid
+    const raw = Object.freeze({
+      id: 'abcde67890123456',
+      _status: 'synced',
+      _changed: '',
+      name: 'Hey',
+      otherfield: 'foo',
+      col3: '',
+      col4: null,
+      number: 100,
+    })
+    const m2 = MockModel._prepareCreateFromDirtyRaw(collection, raw)
+    expect(m2._raw).toEqual(raw)
+    expect(m2._raw).not.toBe(raw)
+  })
   it('can update a record', async () => {
     const database = makeDatabase()
     database.adapter.batch = jest.fn()
@@ -311,6 +349,9 @@ describe('Safety features', () => {
     expect(() => {
       model._setRaw('name', 'new')
     }).toThrow()
+    expect(() => {
+      model._dangerouslySetRawWithoutMarkingColumnChange('name', 'new')
+    }).toThrow()
   })
   it('disallows changes to just-deleted records', async () => {
     const database = makeDatabase()
@@ -469,17 +510,25 @@ describe('RawRecord manipulation', () => {
   it('allows raw writes via _setRaw', () => {
     const model = new MockModel(
       { schema: mockSchema.tables.mock },
-      sanitizedRaw(
-        {
-          name: 'val1',
-        },
-        mockSchema.tables.mock,
-      ),
+      sanitizedRaw({ name: 'val1' }, mockSchema.tables.mock),
     )
 
     model._isEditing = true
     model._setRaw('name', 'val2')
     model._setRaw('otherfield', 'val3')
+
+    expect(model._raw.name).toBe('val2')
+    expect(model._raw.otherfield).toBe('val3')
+  })
+  it('allows raw writes via _dangerouslySetRawWithoutMarkingColumnChange', () => {
+    const model = new MockModel(
+      { schema: mockSchema.tables.mock },
+      sanitizedRaw({ name: 'val1' }, mockSchema.tables.mock),
+    )
+
+    model._isEditing = true
+    model._dangerouslySetRawWithoutMarkingColumnChange('name', 'val2')
+    model._dangerouslySetRawWithoutMarkingColumnChange('otherfield', 'val3')
 
     expect(model._raw.name).toBe('val2')
     expect(model._raw.otherfield).toBe('val3')
@@ -523,13 +572,7 @@ describe('Sync status fields', () => {
   it('adds to changes on _setRaw (new behavior)', async () => {
     const model = new MockModel(
       { schema: mockSchema.tables.mock },
-      sanitizedRaw(
-        {
-          col3: '',
-          number: 0,
-        },
-        mockSchema.tables.mock,
-      ),
+      sanitizedRaw({ col3: '', number: 0 }, mockSchema.tables.mock),
     )
 
     model._isEditing = true
@@ -554,6 +597,26 @@ describe('Sync status fields', () => {
       col4: null,
       number: 10,
     })
+  })
+  it('does not change _changed fields when using _dangerouslySetRawWithoutMarkingColumnChange', () => {
+    const model = new MockModel(
+      { schema: mockSchema.tables.mock },
+      sanitizedRaw({}, mockSchema.tables.mock),
+    )
+
+    model._isEditing = true
+    model._raw._status = 'updated'
+
+    model._dangerouslySetRawWithoutMarkingColumnChange('col3', 'foo')
+
+    expect(model._raw.col3).toBe('foo')
+    expect(model._raw._status).toBe('updated')
+    expect(model._raw._changed).toBe('')
+
+    model._setRaw('otherfield', 'heh')
+    model._dangerouslySetRawWithoutMarkingColumnChange('number', 10)
+
+    expect(model._raw._changed).toBe('otherfield')
   })
   it('marks new records as status:created', async () => {
     const database = makeDatabase()

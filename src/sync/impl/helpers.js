@@ -37,9 +37,7 @@ export function resolveConflict(local: RawRecord, remote: DirtyRaw): DirtyRaw {
   // Handle edge case
   if (local._status === 'created') {
     logError(
-      `[Sync] Server wants client to update record ${
-        local.id
-      }, but it's marked as locally created. This is most likely either a server error or a Watermelon bug (please file an issue if it is!). Will assume it should have been 'synced', and just replace the raw`,
+      `[Sync] Server wants client to update record ${local.id}, but it's marked as locally created. This is most likely either a server error or a Watermelon bug (please file an issue if it is!). Will assume it should have been 'synced', and just replace the raw`,
     )
     resolved._status = 'synced'
   }
@@ -52,9 +50,8 @@ function replaceRaw(record: Model, dirtyRaw: DirtyRaw): void {
 }
 
 export function prepareCreateFromRaw<T: Model>(collection: Collection<T>, dirtyRaw: DirtyRaw): T {
-  return collection.prepareCreate(record => {
-    replaceRaw(record, { ...dirtyRaw, _status: 'synced', _changed: '' })
-  })
+  const raw = Object.assign({}, dirtyRaw, { _status: 'synced', _changed: '' }) // faster than object spread
+  return collection.prepareCreateFromDirtyRaw(raw)
 }
 
 export function prepareUpdateFromRaw<T: Model>(
@@ -84,7 +81,7 @@ export function prepareUpdateFromRaw<T: Model>(
 }
 
 export function prepareMarkAsSynced<T: Model>(record: T): T {
-  const newRaw = { ...record._raw, _status: 'synced', _changed: '' }
+  const newRaw = Object.assign({}, record._raw, { _status: 'synced', _changed: '' }) // faster than object spread
   return record.prepareUpdate(() => {
     replaceRaw(record, newRaw)
   })

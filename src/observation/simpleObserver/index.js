@@ -40,7 +40,7 @@ function observeChanges<Record: Model>(query: Query<Record>): (Record[]) => Obse
             return
           }
 
-          const matches = matcher(record)
+          const matches = matcher(record._raw)
 
           if (currentlyMatching && !matches) {
             // Remove if doesn't match anymore

@@ -12,6 +12,7 @@ import type Database from '../Database'
 import type Model, { RecordId } from '../Model'
 import type { Condition } from '../QueryDescription'
 import { type TableName, type TableSchema } from '../Schema'
+import { type DirtyRaw } from '../RawRecord'
 
 import RecordCache from './RecordCache'
 import { CollectionChangeTypes } from './common'
@@ -80,18 +81,25 @@ export default class Collection<Record: Model> {
     return this.modelClass._prepareCreate(this, recordBuilder)
   }
 
+  // Prepares a new record in this collection based on a raw object
+  // e.g. `{ foo: 'bar' }`. Don't use this unless you know how RawRecords work in WatermelonDB
+  // this is useful as a performance optimization or if you're implementing your own sync mechanism
+  prepareCreateFromDirtyRaw(dirtyRaw: DirtyRaw): Record {
+    return this.modelClass._prepareCreateFromDirtyRaw(this, dirtyRaw)
+  }
+
   // *** Implementation of Query APIs ***
 
   // See: Query.fetch
   async fetchQuery(query: Query<Record>): Promise<Record[]> {
-    const rawRecords = await this.database.adapter.query(query)
+    const rawRecords = await this.database.adapter.query(query.serialize())
 
     return this._cache.recordsFromQueryResult(rawRecords)
   }
 
   // See: Query.fetchCount
   fetchCount(query: Query<Record>): Promise<number> {
-    return this.database.adapter.count(query)
+    return this.database.adapter.count(query.serialize())
   }
 
   // *** Implementation details ***

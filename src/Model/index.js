@@ -13,7 +13,7 @@ import type Collection from '../Collection'
 import type CollectionMap from '../Database/CollectionMap'
 import { type TableName, type ColumnName, columnName } from '../Schema'
 import type { Value } from '../QueryDescription'
-import { type RawRecord, sanitizedRaw, setRawSanitized } from '../RawRecord'
+import { type RawRecord, type DirtyRaw, sanitizedRaw, setRawSanitized } from '../RawRecord'
 import { setRawColumnChange } from '../sync/helpers'
 
 import { createTimestampsFor, hasUpdatedAt, fetchChildren } from './helpers'
@@ -54,7 +54,15 @@ export default class Model {
 
   _hasPendingDelete: false | 'mark' | 'destroy' = false
 
-  _changes = new BehaviorSubject(this)
+  __changes: ?BehaviorSubject<$FlowFixMe<this>> = null
+
+  _getChanges(): BehaviorSubject<$FlowFixMe<this>> {
+    if (!this.__changes) {
+      // initializing lazily - it has non-trivial perf impact on very large collections
+      this.__changes = new BehaviorSubject(this)
+    }
+    return this.__changes
+  }
 
   get id(): RecordId {
     return this._raw.id
@@ -107,9 +115,7 @@ export default class Model {
       process.nextTick(() => {
         invariant(
           !this._hasPendingUpdate,
-          `record.prepareUpdate was called on ${this.table}#${
-            this.id
-          } but wasn't sent to batch() synchronously -- this is bad!`,
+          `record.prepareUpdate was called on ${this.table}#${this.id} but wasn't sent to batch() synchronously -- this is bad!`,
         )
       })
     }
@@ -183,7 +189,7 @@ export default class Model {
   // Emits `complete` if this record is destroyed
   observe(): Observable<this> {
     invariant(this._isCommitted, `Cannot observe uncommitted record`)
-    return this._changes
+    return this._getChanges()
   }
 
   // *** Implementation details ***
@@ -243,12 +249,21 @@ export default class Model {
     return record
   }
 
+  static _prepareCreateFromDirtyRaw(
+    collection: Collection<$FlowFixMe<this>>,
+    dirtyRaw: DirtyRaw,
+  ): this {
+    const record = new this(collection, sanitizedRaw(dirtyRaw, collection.schema))
+    record._isCommitted = false
+    return record
+  }
+
   _notifyChanged(): void {
-    this._changes.next(this)
+    this._getChanges().next(this)
   }
 
   _notifyDestroyed(): void {
-    this._changes.complete()
+    this._getChanges().complete()
   }
 
   _getRaw(rawFieldName: ColumnName): Value {
@@ -258,7 +273,8 @@ export default class Model {
   _setRaw(rawFieldName: ColumnName, rawValue: Value): void {
     invariant(this._isEditing, 'Not allowed to change record outside of create/update()')
     invariant(
-      !this._changes.isStopped && this._raw._status !== 'deleted',
+      !(this._getChanges(): $FlowFixMe<BehaviorSubject<any>>).isStopped &&
+        this._raw._status !== 'deleted',
       'Not allowed to change deleted records',
     )
 
@@ -268,5 +284,18 @@ export default class Model {
     if (valueBefore !== this._raw[(rawFieldName: string)]) {
       setRawColumnChange(this._raw, rawFieldName)
     }
+  }
+
+  // Please don't use this unless you really understand how Watermelon Sync works, and thought long and
+  // hard about risks of inconsistency after sync
+  _dangerouslySetRawWithoutMarkingColumnChange(rawFieldName: ColumnName, rawValue: Value): void {
+    invariant(this._isEditing, 'Not allowed to change record outside of create/update()')
+    invariant(
+      !(this._getChanges(): $FlowFixMe<BehaviorSubject<any>>).isStopped &&
+        this._raw._status !== 'deleted',
+      'Not allowed to change deleted records',
+    )
+
+    setRawSanitized(this._raw, rawFieldName, rawValue, this.collection.schema.columns[rawFieldName])
   }
 }

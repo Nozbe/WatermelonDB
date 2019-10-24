@@ -4,8 +4,8 @@
 import { NativeModules } from 'react-native'
 import { connectionTag, type ConnectionTag, logger, invariant } from '../../utils/common'
 
-import type Model, { RecordId } from '../../Model'
-import type Query from '../../Query'
+import type { RecordId } from '../../Model'
+import type { SerializedQuery } from '../../Query'
 import type { TableName, AppSchema, SchemaVersion } from '../../Schema'
 import type { SchemaMigrations, MigrationStep } from '../../Schema/migrations'
 import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
@@ -179,7 +179,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     )
   }
 
-  query<T: Model>(query: Query<T>): Promise<CachedQueryResult> {
+  query(query: SerializedQuery): Promise<CachedQueryResult> {
     return devLogQuery(
       async () =>
         sanitizeQueryResult(
@@ -190,7 +190,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     )
   }
 
-  count<T: Model>(query: Query<T>): Promise<number> {
+  count(query: SerializedQuery): Promise<number> {
     return devLogCount(() => Native.count(this._tag, encodeQuery(query, true)), query)
   }
 
@@ -198,17 +198,25 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     return devLogBatch(async () => {
       await Native.batch(
         this._tag,
-        operations.map(([type, record]) => {
+        operations.map(operation => {
+          const [type, table, rawOrId] = operation
           switch (type) {
-            case 'create':
-              return ['create', record.table, record.id, ...encodeInsert(record)]
+            case 'create': {
+              // $FlowFixMe
+              const raw: RawRecord = rawOrId
+              return ['create', table, raw.id, ...encodeInsert(table, raw)]
+            }
+            case 'update': {
+              // $FlowFixMe
+              const raw: RawRecord = rawOrId
+              return ['execute', table, ...encodeUpdate(table, raw)]
+            }
             case 'markAsDeleted':
-              return ['markAsDeleted', record.table, record.id]
             case 'destroyPermanently':
-              return ['destroyPermanently', record.table, record.id]
+              // $FlowFixMe
+              return operation // same format, no need to repack
             default:
-              // case 'update':
-              return ['execute', record.table, ...encodeUpdate(record)]
+              throw new Error('unknown batch operation type')
           }
         }),
       )
