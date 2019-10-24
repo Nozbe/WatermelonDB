@@ -1,7 +1,6 @@
 package com.nozbe.watermelondb
 
 import android.database.SQLException
-import android.os.Debug
 import android.os.Trace
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
@@ -9,10 +8,6 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.Arguments
-import com.nozbe.watermelondb.DatabaseDriver.Operation
-import java.text.SimpleDateFormat
-import java.util.*
-import java.util.logging.Logger
 import kotlin.collections.ArrayList
 
 class DatabaseBridge(private val reactContext: ReactApplicationContext) :

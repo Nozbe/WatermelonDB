@@ -57,6 +57,7 @@ This is a **massive** new update to WatermelonDB! 🍉
 - [Performance] [LokiJS] Various performance improvements
 - [Performance] [Sync] Make Sync faster
 - [Performance] Make observation faster
+- [Performance] [Android] Make batches faster
 - Fix app glitches and performance issues caused by race conditions in `Query.observeWithColumns()`
 - [LokiJS] Persistence adapter will now be automatically selected based on availability. By default,
   IndexedDB is used. But now, if unavailable (e.g. in private mode), ephemeral memory adapter will be used.
