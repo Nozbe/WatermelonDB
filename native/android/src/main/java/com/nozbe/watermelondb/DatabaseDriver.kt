@@ -131,7 +131,7 @@ class DatabaseDriver(context: Context, dbName: String) {
         database.execute(query, args)
     }
 
-    fun batchOptimized(operations: ReadableArray) {
+    fun batch(operations: ReadableArray) {
         log?.info("Batch of ${operations.size()}")
         val newIds = arrayListOf<Pair<TableName, RecordID>>()
         val removedIds = arrayListOf<Pair<TableName, RecordID>>()

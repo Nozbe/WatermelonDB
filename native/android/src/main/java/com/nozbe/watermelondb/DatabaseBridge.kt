@@ -12,6 +12,7 @@ import com.facebook.react.bridge.Arguments
 import com.nozbe.watermelondb.DatabaseDriver.Operation
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.logging.Logger
 import kotlin.collections.ArrayList
 
 class DatabaseBridge(private val reactContext: ReactApplicationContext) :
@@ -129,22 +130,8 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun batch(tag: ConnectionTag, operations: ReadableArray, promise: Promise) =
-            withDriver(tag, promise) {
-                val dateFormat = SimpleDateFormat("dd_MM_yyyy_hh_mm_ss", Locale.getDefault())
-                val logDate = dateFormat.format(Date())
-                val shouldTrace = operations.size() >= 2000
+            withDriver(tag, promise) { it.batch(operations) }
 
-                if (shouldTrace) {
-                    Debug.startMethodTracingSampling("sample-$logDate", 10*1024*1024, 500)
-                }
-
-                val ret = it.batchOptimized(operations)
-
-                if (shouldTrace) {
-                    Debug.stopMethodTracing()
-                }
-                return@withDriver ret
-            }
     @ReactMethod
     fun getDeletedRecords(tag: ConnectionTag, table: TableName, promise: Promise) =
             withDriver(tag, promise) { it.getDeletedRecords(table) }
