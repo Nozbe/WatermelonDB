@@ -52,6 +52,12 @@ RCT_EXTERN_METHOD(batch:(nonnull NSNumber *)connectionTag
   reject:(RCTPromiseRejectBlock)reject
 )
 
+RCT_EXTERN_METHOD(batchJSON:(nonnull NSNumber *)connectionTag
+  operations:(NSString *)serializedOperations
+  resolve:(RCTPromiseResolveBlock)resolve
+  reject:(RCTPromiseRejectBlock)reject
+)
+
 RCT_EXTERN_METHOD(getDeletedRecords:(nonnull NSNumber *)connectionTag
   table:(nonnull NSString *)table
   resolve:(RCTPromiseResolveBlock)resolve

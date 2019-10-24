@@ -106,6 +106,21 @@ final public class DatabaseBridge: NSObject {
         }
     }
 
+    @objc(batchJSON:operations:resolve:reject:)
+    func batchJSON(tag: ConnectionTag,
+              operations serializedOperations: NSString,
+              resolve: @escaping RCTPromiseResolveBlock,
+              reject: @escaping RCTPromiseRejectBlock) {
+       guard let data = serializedOperations.data(using: String.Encoding.utf8.rawValue),
+           let operations = (try? JSONSerialization.jsonObject(with: data)) as? [[Any]]
+       else {
+           let error = "Invalid serialized operations".asError()
+           return reject("db.\(#function).error", error.localizedDescription, error)
+       }
+
+       batch(tag: tag, operations: operations, resolve: resolve, reject: reject)
+    }
+
     @objc(batch:operations:resolve:reject:)
     func batch(tag: ConnectionTag,
                operations: [[Any]],

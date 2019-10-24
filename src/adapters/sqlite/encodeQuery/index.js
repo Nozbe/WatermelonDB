@@ -20,14 +20,9 @@ import encodeValue from '../encodeValue'
 import encodeName from '../encodeName'
 
 function mapJoin<T>(array: T[], mapper: T => string, joiner: string): string {
-  return array.reduce(
-    (string, value) => (string === '' ? mapper(value) : `${string}${joiner}${mapper(value)}`),
-    '',
-  )
-}
-
-function mapConcat<T>(array: T[], mapper: T => string): string {
-  return array.reduce((string, value) => `${string}${mapper(value)}`, '')
+  // NOTE: DO NOT try to optimize this by concatenating strings together. In non-JIT JSC,
+  // concatenating strings is extremely slow (5000ms vs 120ms on 65K sample)
+  return array.map(mapper).join(joiner)
 }
 
 const encodeValues: NonNullValues => string = values =>
@@ -154,7 +149,7 @@ const encodeAssociation: (TableName<any>) => AssociationArgs => string = mainTab
       )} = ${encodeName(mainTable)}."id"`
 
 const encodeJoin = (table: TableName<any>, associations: AssociationArgs[]): string =>
-  associations.length ? mapConcat(associations, encodeAssociation(table)) : ''
+  associations.length ? associations.map(encodeAssociation(table)).join('') : ''
 
 const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string => {
   const { table, description } = query

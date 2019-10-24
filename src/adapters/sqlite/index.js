@@ -50,6 +50,7 @@ type NativeBridgeType = {
   query: (ConnectionTag, TableName<any>, SQL) => Promise<DirtyQueryResult>,
   count: (ConnectionTag, SQL) => Promise<number>,
   batch: (ConnectionTag, NativeBridgeBatchOperation[]) => Promise<void>,
+  batchJSON?: (ConnectionTag, string) => Promise<void>,
   getDeletedRecords: (ConnectionTag, TableName<any>) => Promise<RecordId[]>,
   destroyDeletedRecords: (ConnectionTag, TableName<any>, RecordId[]) => Promise<void>,
   unsafeResetDatabase: (ConnectionTag, SQL, SchemaVersion) => Promise<void>,
@@ -196,30 +197,31 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
   batch(operations: BatchOperation[]): Promise<void> {
     return devLogBatch(async () => {
-      await Native.batch(
-        this._tag,
-        operations.map(operation => {
-          const [type, table, rawOrId] = operation
-          switch (type) {
-            case 'create': {
-              // $FlowFixMe
-              const raw: RawRecord = rawOrId
-              return ['create', table, raw.id, ...encodeInsert(table, raw)]
-            }
-            case 'update': {
-              // $FlowFixMe
-              const raw: RawRecord = rawOrId
-              return ['execute', table, ...encodeUpdate(table, raw)]
-            }
-            case 'markAsDeleted':
-            case 'destroyPermanently':
-              // $FlowFixMe
-              return operation // same format, no need to repack
-            default:
-              throw new Error('unknown batch operation type')
+      const batchOperations: NativeBridgeBatchOperation[] = operations.map(operation => {
+        const [type, table, rawOrId] = operation
+        switch (type) {
+          case 'create': {
+            // $FlowFixMe
+            return ['create', table, rawOrId.id].concat(encodeInsert(table, rawOrId))
           }
-        }),
-      )
+          case 'update': {
+            // $FlowFixMe
+            return ['execute', table].concat(encodeUpdate(table, rawOrId))
+          }
+          case 'markAsDeleted':
+          case 'destroyPermanently':
+            // $FlowFixMe
+            return operation // same format, no need to repack
+          default:
+            throw new Error('unknown batch operation type')
+        }
+      })
+      const { batchJSON } = Native
+      if (batchJSON) {
+        await batchJSON(this._tag, JSON.stringify(batchOperations))
+      } else {
+        await Native.batch(this._tag, batchOperations)
+      }
     }, operations)
   }
 
