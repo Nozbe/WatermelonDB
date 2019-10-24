@@ -11,7 +11,7 @@ import lazy from '../decorators/lazy' // import from decorarators break the app 
 
 import observeCount from '../observation/observeCount'
 import observeQuery from '../observation/observeQuery'
-import fieldObserver from '../observation/fieldObserver'
+import observeQueryWithColumns from '../observation/observeQueryWithColumns'
 import { buildQueryDescription, queryWithoutDeleted } from '../QueryDescription'
 import type { Condition, QueryDescription } from '../QueryDescription'
 import type Model, { AssociationInfo } from '../Model'
@@ -75,9 +75,10 @@ export default class Query<Record: Model> {
   }
 
   // Same as `observe()` but also emits the list when any of the records
-  // on the list has one of `rawFields` chaged
-  observeWithColumns(rawFields: ColumnName[]): Observable<Record[]> {
-    return fieldObserver(this.observe(), rawFields)
+  // on the list has one of `columnNames` chaged
+  observeWithColumns(columnNames: ColumnName[]): Observable<Record[]> {
+    // TODO: Would be nice to cache this
+    return observeQueryWithColumns(this, columnNames)
   }
 
   // Returns the number of matching records

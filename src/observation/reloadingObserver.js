@@ -1,7 +1,8 @@
 // @flow
 
 import type { Observable } from 'rxjs/Observable'
-import { switchMap, distinctUntilChanged } from 'rxjs/operators'
+import { switchMap, distinctUntilChanged, startWith } from 'rxjs/operators'
+import { from } from 'rxjs/observable/from'
 
 import identicalArrays from '../utils/fp/identicalArrays'
 
@@ -14,11 +15,18 @@ import type Model from '../Model'
 
 export default function reloadingObserver<Record: Model>(
   query: Query<Record>,
+  // Emits `false` when query fetch begins + always emits even if no change - internal trick needed
+  // by observeWithColumns
+  shouldEmitStatus: boolean = false,
 ): Observable<Record[]> {
-  const { database } = query.collection
+  const reloadingQuery = query.collection.database.withChangesForTables(query.allTables).pipe(
+    switchMap(() => {
+      const queryPromise = query.collection.fetchQuery(query)
+      return shouldEmitStatus ? from(queryPromise).pipe(startWith((false: any))) : queryPromise
+    }),
+  )
 
-  return database
-    .withChangesForTables(query.allTables)
-    .pipe(switchMap(() => query.collection.fetchQuery(query)))
-    .pipe(distinctUntilChanged(identicalArrays))
+  return shouldEmitStatus
+    ? reloadingQuery
+    : reloadingQuery.pipe(distinctUntilChanged(identicalArrays))
 }
