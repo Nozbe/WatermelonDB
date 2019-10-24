@@ -6,6 +6,7 @@ import makeDecorator from '../../utils/common/makeDecorator'
 import tryCatch from '../../utils/fp/tryCatch'
 
 import { type ColumnName } from '../../Schema'
+import type Model from '../../Model'
 
 import { ensureDecoratorUsedProperly } from '../common'
 
@@ -25,7 +26,7 @@ import { ensureDecoratorUsedProperly } from '../common'
 const parseJSON = tryCatch(JSON.parse, always(undefined))
 
 export const jsonDecorator = makeDecorator(
-  (rawFieldName: ColumnName, sanitizer: any => any) => (
+  (rawFieldName: ColumnName, sanitizer: (json: any, model?: Model) => any) => (
     target: Object,
     key: string,
     descriptor: Object,
@@ -39,10 +40,10 @@ export const jsonDecorator = makeDecorator(
         const rawValue = this.asModel._getRaw(rawFieldName)
         const parsedValue = parseJSON(rawValue)
 
-        return sanitizer(parsedValue)
+        return sanitizer(parsedValue, this)
       },
       set(json: any): void {
-        const sanitizedValue = sanitizer(json)
+        const sanitizedValue = sanitizer(json, this)
         const stringifiedValue = sanitizedValue != null ? JSON.stringify(sanitizedValue) : null
 
         this.asModel._setRaw(rawFieldName, stringifiedValue)

@@ -67,6 +67,8 @@ If you don't want to sanitize JSON, pass an identity function:
 const sanitizeReactions = json => json
 ```
 
+The sanitizer function takes an optional second argument, which is a reference to the model. This is useful is your sanitization logic depends on the other fields in the model.
+
 **Warning about JSON fields**:
 
 JSON fields go against relational, lazy nature of Watermelon, because **you can't query or count by the contents of JSON fields**. If you need or might need in the future to query records by some piece of data, don't use JSON.
