@@ -50,11 +50,18 @@ Database::~Database() {
 }
 
 void Database::executeUpdate(jsi::Runtime& rt, jsi::String&& sql, jsi::Array&& arguments) {
-    sqlite3_stmt *statement = nullptr;
-    int resultPrepare = sqlite3_prepare_v2(db_, sql.utf8(rt).c_str(), -1, &statement, nullptr);
+    std::string sqlString = sql.utf8(rt);
 
-    if (resultPrepare != SQLITE_OK) {
-        std::abort(); // Unimplemented
+    sqlite3_stmt *statement = cachedStatements_[sqlString];
+
+    if (statement == nullptr) {
+        int resultPrepare = sqlite3_prepare_v2(db_, sql.utf8(rt).c_str(), -1, &statement, nullptr);
+
+        if (resultPrepare != SQLITE_OK) {
+            std::abort(); // Unimplemented
+        }
+    } else {
+
     }
 
     int argsCount = sqlite3_bind_parameter_count(statement);
@@ -90,7 +97,7 @@ void Database::executeUpdate(jsi::Runtime& rt, jsi::String&& sql, jsi::Array&& a
         std::abort(); // Unimplemented
     }
 
-    int resultFinalize = sqlite3_finalize(statement);
+    int resultFinalize = sqlite3_reset(statement);
 
     if (resultFinalize != SQLITE_OK) {
         std::abort(); // Unimplemented

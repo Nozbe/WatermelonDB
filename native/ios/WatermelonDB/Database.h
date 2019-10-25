@@ -2,6 +2,7 @@
 
 #import <jsi/jsi.h>
 #import <sqlite3.h>
+#import <unordered_map>
 
 using namespace facebook;
 
@@ -16,6 +17,7 @@ public:
 private:
     jsi::Runtime *runtime_; // TODO: std::shared_ptr would be better, but I don't know how to make it from void* in RCTCxxBridge
     sqlite3 *db_;
+    std::unordered_map<std::string, sqlite3_stmt*> cachedStatements_;
 
     void executeUpdate(jsi::Runtime& rt, jsi::String&& sql, jsi::Array&& arguments);
     void batch(jsi::Runtime& runtime, jsi::Array& operations);

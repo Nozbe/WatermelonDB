@@ -24,7 +24,7 @@ const { encodeSchema } = require('./adapters/sqlite/encodeSchema')
 
 const encodedSchema = encodeSchema(schema)
 
-const dataToBatch = [...Array(5000).keys()].map(x => [
+const dataToBatch = [...Array(30000).keys()].map(x => [
   'create',
   'test',
   `id${x}`,
@@ -46,9 +46,28 @@ async function runTests() {
   await NativeModules.DatabaseBridge.initialize(0, dbname, 1)
   await NativeModules.DatabaseBridge.setUpWithSchema(0, dbname, encodedSchema, 1)
   console.log(`Hello!`)
+  const before = Date.now()
   global.nativeWatermelonBatch(dataToBatch)
+  console.log(`NEw method - added ${dataToBatch.length} in ${Date.now() - before}ms`)
   console.log(
-    `Added: ${await NativeModules.DatabaseBridge.count(0, 'select count(*) as count from test')}`,
+    `Cross-check: ${await NativeModules.DatabaseBridge.count(
+      0,
+      'select count(*) as count from test',
+    )}`,
+  )
+  // Compare performance with old method
+  const dbname2 = 'file:jsitests2?mode=memory&cache=shared'
+  await NativeModules.DatabaseBridge.initialize(1, dbname2, 1)
+  await NativeModules.DatabaseBridge.setUpWithSchema(1, dbname2, encodedSchema, 1)
+
+  const beforeOld = Date.now()
+  await NativeModules.DatabaseBridge.batch(1, dataToBatch)
+  console.log(`Old method - added ${dataToBatch.length} in ${Date.now() - beforeOld}ms`)
+  console.log(
+    `Cross-check: ${await NativeModules.DatabaseBridge.count(
+      1,
+      'select count(*) as count from test',
+    )}`,
   )
 }
 
