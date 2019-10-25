@@ -5,6 +5,18 @@ namespace watermelondb {
 Database::Database(jsi::Runtime *runtime) : runtime_(runtime) {
     jsi::Runtime& rt = *runtime;
 
+    /* set up database */
+
+    assert(sqlite3_threadsafe());
+
+    int resultOpen = sqlite3_open("file:jsitests?mode=memory&cache=shared", &db_);
+
+    if (resultOpen != SQLITE_OK) {
+        std::abort(); // Unimplemented
+    }
+
+    /* set up jsi bindings */
+
     const char *name = "nativeWatermelonBatch";
     jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
     jsi::Function function = jsi::Function::createFromHostFunction(rt, propName, 1, [this](
@@ -56,13 +68,13 @@ void Database::executeUpdate(jsi::Runtime& rt, jsi::String&& sql, jsi::Array&& a
 
         int bindResult;
         if (value.isNull()) {
-            bindResult = sqlite3_bind_null(statement, i);
+            bindResult = sqlite3_bind_null(statement, i + 1);
         } else if (value.isString()) {
             // TODO: Check SQLITE_STATIC
-            bindResult = sqlite3_bind_text(statement, i, value.getString(rt).utf8(rt).c_str(), -1, SQLITE_STATIC);
+            bindResult = sqlite3_bind_text(statement, i + 1, value.getString(rt).utf8(rt).c_str(), -1, SQLITE_TRANSIENT);
         } else if (value.isNumber()) {
             // TODO: Ints?
-            bindResult = sqlite3_bind_double(statement, i, value.getNumber());
+            bindResult = sqlite3_bind_double(statement, i + 1, value.getNumber());
         } else {
             std::abort(); // Unimplemented
         }
@@ -74,7 +86,7 @@ void Database::executeUpdate(jsi::Runtime& rt, jsi::String&& sql, jsi::Array&& a
 
     int resultStep = sqlite3_step(statement);
 
-    if (resultStep != SQLITE_OK) {
+    if (resultStep != SQLITE_DONE) {
         std::abort(); // Unimplemented
     }
 
