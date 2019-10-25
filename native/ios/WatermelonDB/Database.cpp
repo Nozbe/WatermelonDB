@@ -2,6 +2,41 @@
 
 namespace watermelondb {
 
+Database::Database(jsi::Runtime *runtime) : runtime_(runtime) {
+    jsi::Runtime& rt = *runtime;
+
+    const char *name = "nativeWatermelonBatch";
+    jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+    jsi::Function function = jsi::Function::createFromHostFunction(rt, propName, 1, [this](
+        jsi::Runtime &runtime,
+        const jsi::Value &,
+        const jsi::Value *args,
+        size_t count
+    ) {
+        if (count != 1) {
+          throw std::invalid_argument("nativeWatermelonBatch takes 1 argument");
+        }
+
+        jsi::Runtime &rt = *runtime_;
+        jsi::Array operations = args[0].asObject(rt).asArray(rt);
+        batch(rt, operations);
+
+        return jsi::Value::undefined();
+    });
+    rt.global().setProperty(rt, name, function);
+}
+
+void Database::install(jsi::Runtime *runtime) {
+    jsi::Runtime& rt = *runtime;
+
+    std::shared_ptr<Database> database = std::make_shared<Database>(runtime);
+    rt.global().setProperty(*runtime, "nativeWatermelonDatabase", std::move(jsi::Object::createFromHostObject(rt, database)));
+}
+
+Database::~Database() {
+
+}
+
 void Database::executeUpdate(jsi::Runtime& rt, jsi::String&& sql, jsi::Array&& arguments) {
     sqlite3_stmt *statement = nullptr;
     int resultPrepare = sqlite3_prepare_v2(db_, sql.utf8(rt).c_str(), -1, &statement, nullptr);

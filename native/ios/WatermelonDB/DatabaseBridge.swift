@@ -3,6 +3,8 @@ import Foundation
 @objc(DatabaseBridge)
 final public class DatabaseBridge: NSObject {
     typealias ConnectionTag = NSNumber
+
+    @objc var bridge: RCTBridge?
     @objc static let requiresMainQueueSetup: Bool = false
     @objc let methodQueue = DispatchQueue(label: "com.nozbe.watermelondb.database", qos: .userInteractive)
 
@@ -26,6 +28,9 @@ final public class DatabaseBridge: NSObject {
                     resolve: RCTPromiseResolveBlock,
                     reject: RCTPromiseRejectBlock) {
         assert(connections[tag.intValue] == nil, "A driver with tag \(tag) already set up")
+
+        // swiftlint:disable all
+        installWatermelonJSI(bridge as? RCTCxxBridge)
 
         do {
             let driver = try DatabaseDriver(dbName: databaseName, schemaVersion: schemaVersion.intValue)

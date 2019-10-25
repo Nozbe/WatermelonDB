@@ -19,6 +19,7 @@
 		6E9477F4213BDF8A0077EDFB /* std_ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477ED213BDF8A0077EDFB /* std_ext.swift */; };
 		6E9477F6213BDF8A0077EDFB /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477EF213BDF8A0077EDFB /* Database.swift */; };
 		6EF7F8602362E9100041E1F6 /* Database.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6EF7F85E2362E9100041E1F6 /* Database.cpp */; };
+		6EF7F86223630D6D0041E1F6 /* JSIInstaller.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6EF7F86123630D6D0041E1F6 /* JSIInstaller.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -58,6 +59,8 @@
 		6E9477EF213BDF8A0077EDFB /* Database.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Database.swift; path = WatermelonDB/Database.swift; sourceTree = SOURCE_ROOT; };
 		6EF7F85E2362E9100041E1F6 /* Database.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Database.cpp; sourceTree = "<group>"; };
 		6EF7F85F2362E9100041E1F6 /* Database.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Database.h; sourceTree = "<group>"; };
+		6EF7F86123630D6D0041E1F6 /* JSIInstaller.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = JSIInstaller.mm; sourceTree = "<group>"; };
+		6EF7F86323630D790041E1F6 /* JSIInstaller.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSIInstaller.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +99,8 @@
 				6E9477E8213BDF8A0077EDFB /* DatabaseDriver.swift */,
 				6EF7F85E2362E9100041E1F6 /* Database.cpp */,
 				6EF7F85F2362E9100041E1F6 /* Database.h */,
+				6EF7F86323630D790041E1F6 /* JSIInstaller.h */,
+				6EF7F86123630D6D0041E1F6 /* JSIInstaller.mm */,
 				6E9477ED213BDF8A0077EDFB /* std_ext.swift */,
 				6E660D92213BD74F00189354 /* SupportingFiles */,
 				6E9477C4213BDE220077EDFB /* FMDB */,
@@ -227,6 +232,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6E9477F0213BDF8A0077EDFB /* DatabaseDriver.swift in Sources */,
+				6EF7F86223630D6D0041E1F6 /* JSIInstaller.mm in Sources */,
 				6E9477F1213BDF8A0077EDFB /* DatabaseBridge.swift in Sources */,
 				6E9477D8213BDE2E0077EDFB /* FMResultSet.m in Sources */,
 				6E9477D7213BDE2E0077EDFB /* FMDatabasePool.m in Sources */,
