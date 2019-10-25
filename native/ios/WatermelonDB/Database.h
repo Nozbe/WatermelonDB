@@ -12,7 +12,7 @@ class Database : public jsi::HostObject {
 private:
     sqlite3 *db_;
 
-    void executeUpdate(jsi::Runtime& rt, jsi::String sql, jsi::Array arguments);
+    void executeUpdate(jsi::Runtime& rt, jsi::String&& sql, jsi::Array&& arguments);
     void batch(jsi::Runtime& runtime, jsi::Array& operations);
 };
 

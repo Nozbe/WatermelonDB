@@ -2,7 +2,7 @@
 
 namespace watermelondb {
 
-void Database::executeUpdate(jsi::Runtime& rt, jsi::String sql, jsi::Array arguments) {
+void Database::executeUpdate(jsi::Runtime& rt, jsi::String&& sql, jsi::Array&& arguments) {
     sqlite3_stmt *statement = nullptr;
     int resultPrepare = sqlite3_prepare_v2(db_, sql.utf8(rt).c_str(), -1, &statement, nullptr);
 
@@ -59,11 +59,10 @@ void Database::batch(jsi::Runtime& rt, jsi::Array& operations) {
         if (type == "create") {
             std::string table = operation.getValueAtIndex(rt, 1).asString(rt).utf8(rt);
             std::string id = operation.getValueAtIndex(rt, 2).asString(rt).utf8(rt);
-            std::string sql = operation.getValueAtIndex(rt, 3).asString(rt).utf8(rt);
+            jsi::String sql = operation.getValueAtIndex(rt, 3).asString(rt);
             jsi::Array arguments = operation.getValueAtIndex(rt, 4).asObject(rt).asArray(rt);
 
-
-
+            executeUpdate(rt, std::move(sql), std::move(arguments));
         } else if (type == "execute") {
             throw jsi::JSError(rt, "Unimplemented");
         } else if (type == "markAsDeleted") {
