@@ -24,7 +24,8 @@ const { encodeSchema } = require('./adapters/sqlite/encodeSchema')
 
 const encodedSchema = encodeSchema(schema)
 
-const dataToBatch = [...Array(30000).keys()].map(x => [
+const size = 30000
+const dataToBatch = [...Array(size).keys()].map(x => [
   'create',
   'test',
   `id${x}`,
@@ -45,30 +46,56 @@ async function runTests() {
   const dbname = 'file:jsitests?mode=memory&cache=shared'
   await NativeModules.DatabaseBridge.initialize(0, dbname, 1)
   await NativeModules.DatabaseBridge.setUpWithSchema(0, dbname, encodedSchema, 1)
+
+  await new Promise(resolve => setTimeout(resolve, 500))
+
   console.log(`Hello!`)
   const before = Date.now()
   global.nativeWatermelonBatch(dataToBatch)
-  console.log(`NEw method - added ${dataToBatch.length} in ${Date.now() - before}ms`)
-  console.log(
-    `Cross-check: ${await NativeModules.DatabaseBridge.count(
-      0,
-      'select count(*) as count from test',
-    )}`,
-  )
+  console.log(`NEw method - added ${size} in ${Date.now() - before}ms`)
+
+  await new Promise(resolve => setTimeout(resolve, 500))
+  if (
+    (await NativeModules.DatabaseBridge.count(0, 'select count(*) as count from test')) !== size
+  ) {
+    throw new Error('bad module!')
+  }
+
   // Compare performance with old method
   const dbname2 = 'file:jsitests2?mode=memory&cache=shared'
   await NativeModules.DatabaseBridge.initialize(1, dbname2, 1)
   await NativeModules.DatabaseBridge.setUpWithSchema(1, dbname2, encodedSchema, 1)
 
+  await new Promise(resolve => setTimeout(resolve, 500))
+
   const beforeOld = Date.now()
   await NativeModules.DatabaseBridge.batch(1, dataToBatch)
-  console.log(`Old method - added ${dataToBatch.length} in ${Date.now() - beforeOld}ms`)
-  console.log(
-    `Cross-check: ${await NativeModules.DatabaseBridge.count(
-      1,
-      'select count(*) as count from test',
-    )}`,
-  )
+  console.log(`Old method - added ${size} in ${Date.now() - beforeOld}ms`)
+
+  await new Promise(resolve => setTimeout(resolve, 500))
+  if (
+    (await NativeModules.DatabaseBridge.count(1, 'select count(*) as count from test')) !== size
+  ) {
+    throw new Error('bad module!')
+  }
+
+  // Old method + JSON
+  const dbname3 = 'file:jsitests2?mode=memory&cache=shared'
+  await NativeModules.DatabaseBridge.initialize(2, dbname3, 2)
+  await NativeModules.DatabaseBridge.setUpWithSchema(2, dbname3, encodedSchema, 2)
+
+  await new Promise(resolve => setTimeout(resolve, 500))
+
+  const beforeOld3 = Date.now()
+  await NativeModules.DatabaseBridge.batchJSON(2, JSON.stringify(dataToBatch))
+  console.log(`Old method JSON - added ${size} in ${Date.now() - beforeOld3}ms`)
+
+  await new Promise(resolve => setTimeout(resolve, 500))
+  if (
+    (await NativeModules.DatabaseBridge.count(2, 'select count(*) as count from test')) !== size
+  ) {
+    throw new Error('bad module!')
+  }
 }
 
 runTests()
