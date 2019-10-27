@@ -35,8 +35,7 @@ const encodeTableIndicies: TableSchema => SQL = ({ name: tableName, columns }) =
     .concat([`create index ${tableName}__status on ${encodeName(tableName)} ("_status");`])
     .join('')
 
-const encodeTable: TableSchema => SQL = table =>
-  encodeCreateTable(table) + encodeTableIndicies(table)
+const encodeTable: TableSchema => SQL = table => encodeCreateTable(table) // + encodeTableIndicies(table)
 
 export const encodeSchema: AppSchema => SQL = ({ tables }) =>
   values(tables)

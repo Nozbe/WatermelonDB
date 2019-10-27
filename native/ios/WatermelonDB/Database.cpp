@@ -107,7 +107,7 @@ void Database::executeUpdate(jsi::Runtime& rt, jsi::String& sql, jsi::Array& arg
         }
     }
 
-    int resultStep = sqlite3_step(statement);
+    int resultStep = sqlite3_step(statement); // todo: step_v2
 
     if (resultStep != SQLITE_DONE) {
         std::abort(); // Unimplemented
@@ -121,6 +121,8 @@ void Database::executeUpdate(jsi::Runtime& rt, jsi::String& sql, jsi::Array& arg
 }
 
 void Database::batch(jsi::Runtime& rt, jsi::Array& operations) {
+    sqlite3_exec(db_->sqlite, "begin exclusive transaction", nullptr, nullptr, nullptr); // TODO: clean up
+
     size_t operationsCount = operations.length(rt);
     for (size_t i = 0; i < operationsCount; i++) {
         jsi::Array operation = operations.getValueAtIndex(rt, i).asObject(rt).getArray(rt);
@@ -143,6 +145,8 @@ void Database::batch(jsi::Runtime& rt, jsi::Array& operations) {
             throw jsi::JSError(rt, "Invalid operation type");
         }
     }
+
+    sqlite3_exec(db_->sqlite, "commit transaction", nullptr, nullptr, nullptr); // TODO: clean up
 }
 
 } // namespace watermelondb

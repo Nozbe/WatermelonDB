@@ -47,6 +47,8 @@ async function runTests() {
   await NativeModules.DatabaseBridge.initialize(0, dbname, 1)
   await NativeModules.DatabaseBridge.setUpWithSchema(0, dbname, encodedSchema, 1)
 
+  console.log(encodedSchema)
+
   await new Promise(resolve => setTimeout(resolve, 500))
 
   console.log(`Hello!`)
