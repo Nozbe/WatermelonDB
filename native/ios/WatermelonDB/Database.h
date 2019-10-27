@@ -26,13 +26,14 @@ public:
     Database(jsi::Runtime *runtime);
     ~Database();
 
+    void batch(jsi::Runtime& runtime, jsi::Array& operations);
+
 private:
     jsi::Runtime *runtime_; // TODO: std::shared_ptr would be better, but I don't know how to make it from void* in RCTCxxBridge
     std::unique_ptr<SqliteDb> db_;
     std::map<std::string, sqlite3_stmt*> cachedStatements_;
 
     void executeUpdate(jsi::Runtime& rt, jsi::String& sql, jsi::Array& arguments);
-    void batch(jsi::Runtime& runtime, jsi::Array& operations);
 };
 
 } // namespace watermelondb

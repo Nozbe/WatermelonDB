@@ -1,4 +1,5 @@
 #include "Database.h"
+#include "Trampoline.h"
 
 namespace watermelondb {
 
@@ -47,7 +48,7 @@ Database::Database(jsi::Runtime *runtime) : runtime_(runtime) {
 
         jsi::Runtime &rt = *runtime_;
         jsi::Array operations = args[0].asObject(rt).asArray(rt);
-        batch(rt, operations);
+        jumpToDatabaseBatch(this, rt, operations);
 
         return jsi::Value::undefined();
     });
