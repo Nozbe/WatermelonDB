@@ -2,18 +2,34 @@
 
 namespace watermelondb {
 
+SqliteDb::SqliteDb(std::string path) {
+    assert(sqlite3_threadsafe());
+
+    int resultOpen = sqlite3_open(path.c_str(), &sqlite);
+
+    if (resultOpen != SQLITE_OK) {
+        std::abort(); // Unimplemented
+    }
+    assert(sqlite != nullptr);
+}
+
+SqliteDb::~SqliteDb() {
+    // TODO: finalize prepared statements
+    // TODO: https://github.com/ccgus/fmdb/blob/master/src/fmdb/FMDatabase.m#L246 - error handling
+
+    int resultClose = sqlite3_close(sqlite);
+
+    if (resultClose != SQLITE_OK) {
+//        std::abort(); // Unimplemented
+    }
+}
+
 Database::Database(jsi::Runtime *runtime) : runtime_(runtime) {
     jsi::Runtime& rt = *runtime;
 
     /* set up database */
 
-    assert(sqlite3_threadsafe());
-
-    int resultOpen = sqlite3_open("file:jsitests?mode=memory&cache=shared", &db_);
-
-    if (resultOpen != SQLITE_OK) {
-        std::abort(); // Unimplemented
-    }
+    db_ = std::make_unique<SqliteDb>("file:jsitests?mode=memory&cache=shared");
 
     /* set up jsi bindings */
 
@@ -49,13 +65,13 @@ Database::~Database() {
 
 }
 
-void Database::executeUpdate(jsi::Runtime& rt, jsi::String&& sql, jsi::Array&& arguments) {
+void Database::executeUpdate(jsi::Runtime& rt, jsi::String& sql, jsi::Array& arguments) {
     std::string sqlString = sql.utf8(rt);
 
     sqlite3_stmt *statement = cachedStatements_[sqlString];
 
     if (statement == nullptr) {
-        int resultPrepare = sqlite3_prepare_v2(db_, sql.utf8(rt).c_str(), -1, &statement, nullptr);
+        int resultPrepare = sqlite3_prepare_v2(db_->sqlite, sql.utf8(rt).c_str(), -1, &statement, nullptr);
 
         if (resultPrepare != SQLITE_OK) {
             std::abort(); // Unimplemented
@@ -116,7 +132,7 @@ void Database::batch(jsi::Runtime& rt, jsi::Array& operations) {
             jsi::String sql = operation.getValueAtIndex(rt, 3).asString(rt);
             jsi::Array arguments = operation.getValueAtIndex(rt, 4).asObject(rt).asArray(rt);
 
-            executeUpdate(rt, std::move(sql), std::move(arguments));
+            executeUpdate(rt, sql, arguments);
         } else if (type == "execute") {
             throw jsi::JSError(rt, "Unimplemented");
         } else if (type == "markAsDeleted") {
