@@ -71,14 +71,14 @@ void Database::executeUpdate(jsi::Runtime& rt, jsi::String& sql, jsi::Array& arg
     sqlite3_stmt *statement = cachedStatements_[sqlString];
 
     if (statement == nullptr) {
-        int resultPrepare = sqlite3_prepare_v2(db_->sqlite, sql.utf8(rt).c_str(), -1, &statement, nullptr);
+        int resultPrepare = sqlite3_prepare_v2(db_->sqlite, sqlString.c_str(), -1, &statement, nullptr);
 
         if (resultPrepare != SQLITE_OK) {
             std::abort(); // Unimplemented
         }
-    } else {
-
+        cachedStatements_[sqlString] = statement;
     }
+    assert(statement != nullptr);
 
     int argsCount = sqlite3_bind_parameter_count(statement);
 
@@ -123,14 +123,14 @@ void Database::executeUpdate(jsi::Runtime& rt, jsi::String& sql, jsi::Array& arg
 void Database::batch(jsi::Runtime& rt, jsi::Array& operations) {
     size_t operationsCount = operations.length(rt);
     for (size_t i = 0; i < operationsCount; i++) {
-        jsi::Array operation = operations.getValueAtIndex(rt, i).asObject(rt).asArray(rt);
+        jsi::Array operation = operations.getValueAtIndex(rt, i).asObject(rt).getArray(rt);
         std::string type = operation.getValueAtIndex(rt, 0).asString(rt).utf8(rt);
 
         if (type == "create") {
             std::string table = operation.getValueAtIndex(rt, 1).asString(rt).utf8(rt);
             std::string id = operation.getValueAtIndex(rt, 2).asString(rt).utf8(rt);
             jsi::String sql = operation.getValueAtIndex(rt, 3).asString(rt);
-            jsi::Array arguments = operation.getValueAtIndex(rt, 4).asObject(rt).asArray(rt);
+            jsi::Array arguments = operation.getValueAtIndex(rt, 4).asObject(rt).getArray(rt);
 
             executeUpdate(rt, sql, arguments);
         } else if (type == "execute") {
