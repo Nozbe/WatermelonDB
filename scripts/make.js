@@ -149,9 +149,16 @@ if (isDevelopment) {
   copyNonJavaScriptFiles(DEV_PATH)
 
   chokidar
-    .watch([resolvePath('src'), resolvePath('native/ios/WatermelonDB')], {
-      ignored: DO_NOT_BUILD_PATHS,
-    })
+    .watch(
+      [
+        resolvePath('src'),
+        resolvePath('native/ios/WatermelonDB'),
+        resolvePath('native/android/src/main'),
+      ],
+      {
+        ignored: DO_NOT_BUILD_PATHS,
+      },
+    )
     .on('all', (event, fileOrDir) => {
       // eslint-disable-next-line
       switch (event) {
