@@ -49,6 +49,10 @@ This is a **massive** new update to WatermelonDB! 🍉
 - [Collection] Add `Collection.prepareCreateFromDirtyRaw()`
 - @json decorator sanitizer functions take an optional second argument, with a reference to the model
 
+### Fixes
+
+- Pinned required `rambdax` version to 2.15.0 to avoid console logging bug. In a future release we will switch to our own fork of `rambdax` to avoid future breakages like this.
+
 ### Improvements
 
 - [Performance] Make large batches a lot faster (1.3s shaved off on a 65K insert sample)
