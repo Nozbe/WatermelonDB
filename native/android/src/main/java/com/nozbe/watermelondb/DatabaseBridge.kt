@@ -1,13 +1,14 @@
 package com.nozbe.watermelondb
 
 import android.database.SQLException
+import android.os.Trace
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.Arguments
-import com.nozbe.watermelondb.DatabaseDriver.Operation
+import kotlin.collections.ArrayList
 
 class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         ReactContextBaseJavaModule(reactContext) {
@@ -124,7 +125,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun batch(tag: ConnectionTag, operations: ReadableArray, promise: Promise) =
-            withDriver(tag, promise) { it.batch(operations.toOperationsArray()) }
+            withDriver(tag, promise) { it.batch(operations) }
 
     @ReactMethod
     fun getDeletedRecords(tag: ConnectionTag, table: TableName, promise: Promise) =
@@ -136,7 +137,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         table: TableName,
         records: ReadableArray,
         promise: Promise
-    ) = withDriver(tag, promise) { it.destroyDeletedRecords(table, records.toArrayList()) }
+    ) = withDriver(tag, promise) { it.destroyDeletedRecords(table, records.toArrayList().toArray()) }
 
     @ReactMethod
     fun unsafeResetDatabase(
@@ -164,7 +165,9 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         promise: Promise,
         function: (DatabaseDriver) -> Any?
     ) {
+        val functionName = function.javaClass.enclosingMethod?.name
         try {
+            Trace.beginSection("DatabaseBridge.$functionName")
             when (val connection =
                     connections[tag] ?: promise.reject(
                             Exception("No driver with tag $tag available"))) {
@@ -183,60 +186,10 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
                 }
             }
         } catch (e: SQLException) {
-            promise.reject(function.javaClass.enclosingMethod?.name, e)
+            promise.reject(functionName, e)
+        } finally {
+            Trace.endSection()
         }
-    }
-
-    private fun ReadableArray.toOperationsArray(): ArrayList<Operation> {
-        val preparedOperations = arrayListOf<Operation>()
-        for (i in 0 until this.size()) {
-            try {
-                val operation = this.getArray(i)
-                val type = operation?.getString(0)
-                try {
-                    when (type) {
-                        "execute" -> {
-                            val table = operation.getString(1) as TableName
-                            val query = operation.getString(2) as SQL
-                            val args = operation.getArray(3)?.toArrayList() as QueryArgs
-                            preparedOperations.add(Operation.Execute(table, query, args))
-                        }
-                        "create" -> {
-                            val table = operation.getString(1) as TableName
-                            val id = operation.getString(2) as RecordID
-                            val query = operation.getString(3) as SQL
-                            val args = operation.getArray(4)?.toArrayList() as QueryArgs
-                            preparedOperations.add(Operation.Create(table, id, query, args))
-                        }
-                        "markAsDeleted" -> {
-                            val table = operation.getString(1) as TableName
-                            val id = operation.getString(2) as RecordID
-                            preparedOperations.add(Operation.MarkAsDeleted(table, id))
-                        }
-                        "destroyPermanently" -> {
-                            val table = operation.getString(1) as TableName
-                            val id = operation.getString(2) as RecordID
-                            preparedOperations.add(Operation.DestroyPermanently(table, id))
-                        }
-                        // "setLocal" -> {
-                        //     val key = operation.getString(1)
-                        //     val value = operation.getString(2)
-                        //     preparedOperations.add(Operation.SetLocal(key, value))
-                        // }
-                        // "removeLocal" -> {
-                        //     val key = operation.getString(1)
-                        //     preparedOperations.add(Operation.RemoveLoacl(key))
-                        // }
-                        else -> throw (Throwable("Bad operation name in batch"))
-                    }
-                } catch (e: ClassCastException) {
-                    throw (Throwable("Bad $type arguments", e))
-                }
-            } catch (e: Exception) {
-                throw (Throwable("Operations should be in Array"))
-            }
-        }
-        return preparedOperations
     }
 
     private fun connectDriver(

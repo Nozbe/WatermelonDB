@@ -49,6 +49,10 @@ This is a **massive** new update to WatermelonDB! 🍉
 - [Collection] Add `Collection.prepareCreateFromDirtyRaw()`
 - @json decorator sanitizer functions take an optional second argument, with a reference to the model
 
+### Fixes
+
+- Pinned required `rambdax` version to 2.15.0 to avoid console logging bug. In a future release we will switch to our own fork of `rambdax` to avoid future breakages like this.
+
 ### Improvements
 
 - [Performance] Make large batches a lot faster (1.3s shaved off on a 65K insert sample)
@@ -58,6 +62,7 @@ This is a **massive** new update to WatermelonDB! 🍉
 - [Performance] [LokiJS] Various performance improvements
 - [Performance] [Sync] Make Sync faster
 - [Performance] Make observation faster
+- [Performance] [Android] Make batches faster
 - Fix app glitches and performance issues caused by race conditions in `Query.observeWithColumns()`
 - [LokiJS] Persistence adapter will now be automatically selected based on availability. By default,
   IndexedDB is used. But now, if unavailable (e.g. in private mode), ephemeral memory adapter will be used.
