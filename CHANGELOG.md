@@ -47,6 +47,7 @@ This is a **massive** new update to WatermelonDB! 🍉
   but if you know what you're doing and want to live-update records from server without marking record as updated,
   this is useful
 - [Collection] Add `Collection.prepareCreateFromDirtyRaw()`
+- @json decorator sanitizer functions take an optional second argument, with a reference to the model
 
 ### Improvements
 

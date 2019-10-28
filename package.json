@@ -1,7 +1,7 @@
 {
   "name": "@nozbe/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
-  "version": "0.15.0-5",
+  "version": "0.15.0-6",
   "scripts": {
     "build": "NODE_ENV=production node ./scripts/make.js",
     "dev": "NODE_ENV=development node ./scripts/make.js",
@@ -86,7 +86,7 @@
     "@babel/plugin-transform-sticky-regex": "^7.2.0",
     "@babel/plugin-transform-template-literals": "^7.4.4",
     "@babel/plugin-transform-unicode-regex": "^7.4.4",
-    "@testing-library/react-hooks": "^1.1.0",
+    "@testing-library/react-hooks": "^3.1.0",
     "@types/react": "^16.8.6",
     "anymatch": "^3.0.0",
     "babel-core": "^7.0.0-0",

@@ -1,8 +1,8 @@
 declare module '@nozbe/watermelondb/decorators/json' {
-  import { ColumnName } from '@nozbe/watermelondb'
+  import { ColumnName, Model } from '@nozbe/watermelondb'
   import { Decorator, RawDecorator } from '@nozbe/watermelondb/utils/common/makeDecorator'
 
-  type Sanitizer = (source: any) => any
+  type Sanitizer = (source: any, model?: Model) => any
 
   const json: Decorator<
     [ColumnName, Sanitizer],

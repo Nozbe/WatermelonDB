@@ -104,7 +104,7 @@ export default class Database {
     await this.adapter.batch(batchOperations)
 
     Object.entries(changeNotifications).forEach(notification => {
-      const [table, changeSet]: [TableName<any>, CollectionChangeSet<*>] = (notification: any)
+      const [table, changeSet]: [TableName<any>, CollectionChangeSet<any>] = (notification: any)
       this.collections.get(table).changeSet(changeSet)
     })
   }

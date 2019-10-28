@@ -1,6 +1,6 @@
 import { mockDatabase } from '../../__tests__/testModels'
 import * as Q from '../../QueryDescription'
-import fieldObserver from './index'
+import observeQueryWithColumns from './index'
 
 const prepareTask = (tasks, name, isCompleted, position) =>
   tasks.prepareCreate(mock => {
@@ -18,7 +18,7 @@ const createTask = async (tasks, name, isCompleted, position) => {
 
 const updateTask = (task, updater) => task.collection.database.action(() => task.update(updater))
 
-describe('fieldObserver', () => {
+describe('observeQueryWithColumns', () => {
   async function fullObservationTest(mockDb, query, asyncSource) {
     const { database, tasks, projects } = mockDb
 
@@ -29,7 +29,7 @@ describe('fieldObserver', () => {
 
     // start observing
     const observer = jest.fn()
-    const subscription = fieldObserver(query, [('is_completed', 'position')]).subscribe(observer)
+    const subscription = observeQueryWithColumns(query, [('is_completed', 'position')]).subscribe(observer)
 
     const waitForNextQuery = () => tasks.query().fetch()
     await waitForNextQuery() // wait for initial query to go through
