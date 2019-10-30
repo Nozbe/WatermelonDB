@@ -59,7 +59,7 @@ function observeChanges<Record: Model>(
   const matcher: Matcher<Record> = encodeMatcher(query.description)
 
   return initialRecords =>
-    Observable.create(observer => {
+    Observable.create(function observeQueryInitialEmission(observer): void {
       // Send initial matching records
       const matchingRecords: Record[] = initialRecords
       const emitCopy = () => observer.next(matchingRecords.slice(0))
