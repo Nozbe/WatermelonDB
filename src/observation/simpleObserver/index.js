@@ -66,7 +66,9 @@ function observeChanges<Record: Model>(
       emitCopy()
 
       // Observe changes to the collection
-      return query.collection.changes.subscribe(changeSet => {
+      return query.collection.changes.subscribe(function observeQueryCollectionChanged(
+        changeSet,
+      ): void {
         const shouldEmit = processChangeSet(changeSet, matcher, matchingRecords)
         if (shouldEmit || alwaysEmit) {
           emitCopy()

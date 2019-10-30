@@ -74,7 +74,9 @@ export default function observeQueryWithColumns<Record: Model>(
     // flag, and wait for source response.
 
     // Observe the source records list (list of records matching a query)
-    const sourceSubscription = sourceRecords.subscribe(recordsOrStatus => {
+    const sourceSubscription = sourceRecords.subscribe(function observeWithColumnsSourceChanged(
+      recordsOrStatus,
+    ): void {
       if (recordsOrStatus === false) {
         sourceIsFetching = true
         return
@@ -106,37 +108,39 @@ export default function observeQueryWithColumns<Record: Model>(
     })
 
     // Observe changes to records we have on the list
-    const collectionSubscription = query.collection.changes.subscribe(changeSet => {
-      let hasColumnChanges = false
-      // Can't use `Array.some`, because then we'd skip saving record state for relevant records
-      changeSet.forEach(({ record, type }) => {
-        // See if change is relevant to our query
-        if (type !== 'updated') {
-          return
-        }
+    const collectionSubscription = query.collection.changes.subscribe(
+      function observeWithColumnsCollectionChanged(changeSet): void {
+        let hasColumnChanges = false
+        // Can't use `Array.some`, because then we'd skip saving record state for relevant records
+        changeSet.forEach(({ record, type }) => {
+          // See if change is relevant to our query
+          if (type !== 'updated') {
+            return
+          }
 
-        const previousState = recordStates.get(record.id)
-        if (!previousState) {
-          return
-        }
+          const previousState = recordStates.get(record.id)
+          if (!previousState) {
+            return
+          }
 
-        // Check if record changed one of its observed fields
-        const newState = getRecordState(record, columnNames)
-        if (!recordStatesEqual(previousState, newState)) {
-          recordStates.set(record.id, newState)
-          hasColumnChanges = true
-        }
-      })
+          // Check if record changed one of its observed fields
+          const newState = getRecordState(record, columnNames)
+          if (!recordStatesEqual(previousState, newState)) {
+            recordStates.set(record.id, newState)
+            hasColumnChanges = true
+          }
+        })
 
-      if (hasColumnChanges) {
-        if (sourceIsFetching || !asyncSource) {
-          // Mark change; will emit on source emission to avoid duplicate emissions
-          hasPendingColumnChanges = true
-        } else {
-          emitCopy(observedRecords)
+        if (hasColumnChanges) {
+          if (sourceIsFetching || !asyncSource) {
+            // Mark change; will emit on source emission to avoid duplicate emissions
+            hasPendingColumnChanges = true
+          } else {
+            emitCopy(observedRecords)
+          }
         }
-      }
-    })
+      },
+    )
 
     return sourceSubscription.add(collectionSubscription)
   })
