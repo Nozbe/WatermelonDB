@@ -1,7 +1,16 @@
 // @flow
 
 // bottleneck function without dependencies to optimize performance
-const identicalArrays = <T, V: T[]>(arrayA: V, arrayB: V): boolean =>
-  arrayA.length === arrayB.length && arrayA.every((el, index) => el === arrayB[index])
+export default function identicalArrays<T, V: T[]>(left: V, right: V): boolean {
+  if (left.length !== right.length) {
+    return false
+  }
 
-export default identicalArrays
+  for (let i = 0, len = left.length; i < len; i += 1) {
+    if (left[i] !== right[i]) {
+      return false
+    }
+  }
+
+  return true
+}
