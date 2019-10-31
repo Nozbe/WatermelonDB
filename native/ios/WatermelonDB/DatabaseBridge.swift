@@ -97,6 +97,15 @@ final public class DatabaseBridge: NSObject {
         }
     }
 
+    @objc(querySync:table:query:)
+    func querySync(tag: ConnectionTag,
+                   table: Database.TableName,
+                   query: Database.SQL) -> NSDictionary {
+        withDriverSync(tag) {
+            try $0.cachedQuery(table: table, query: query)
+        }
+    }
+
     @objc(count:query:resolve:reject:)
     func count(tag: ConnectionTag,
                query: Database.SQL,
@@ -108,9 +117,9 @@ final public class DatabaseBridge: NSObject {
 
     @objc(batchJSON:operations:resolve:reject:)
     func batchJSON(tag: ConnectionTag,
-              operations serializedOperations: NSString,
-              resolve: @escaping RCTPromiseResolveBlock,
-              reject: @escaping RCTPromiseRejectBlock) {
+                   operations serializedOperations: NSString,
+                   resolve: @escaping RCTPromiseResolveBlock,
+                   reject: @escaping RCTPromiseRejectBlock) {
        guard let data = serializedOperations.data(using: String.Encoding.utf8.rawValue),
            let operations = (try? JSONSerialization.jsonObject(with: data)) as? [[Any]]
        else {
@@ -258,6 +267,24 @@ final public class DatabaseBridge: NSObject {
             }
         } catch {
             sendReject(reject, error, functionName: functionName)
+        }
+    }
+
+    private func withDriverSync(_ connectionTag: ConnectionTag,
+                                functionName: String = #function,
+                                action: (DatabaseDriver) throws -> Any) -> NSDictionary {
+        methodQueue.sync {
+            do {
+                guard let connection = connections[connectionTag.intValue],
+                case let .connected(driver) = connection else {
+                    return ["status": "waiting"]
+                }
+
+                let result = try action(driver)
+                return ["status": "success", "result": result]
+            } catch {
+                return ["status": "error", "code": "db.\(functionName).error", "message": error.localizedDescription]
+            }
         }
     }
 

@@ -40,6 +40,11 @@ RCT_EXTERN_METHOD(query:(nonnull NSNumber *)connectionTag
   reject:(RCTPromiseRejectBlock)reject
 )
 
+RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(querySync:(nonnull NSNumber *)connectionTag
+  table:(nonnull NSString *)table
+  query:(nonnull NSString *)query
+)
+
 RCT_EXTERN_METHOD(count:(nonnull NSNumber *)connectionTag
   query:(nonnull NSString *)query
   resolve:(RCTPromiseResolveBlock)resolve

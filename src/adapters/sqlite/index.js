@@ -42,12 +42,18 @@ type InitializeStatus =
   | { code: 'ok' | 'schema_needed' }
   | { code: 'migrations_needed', databaseVersion: SchemaVersion }
 
+type SyncReturn<Result> =
+  | { status: 'success', result: Result }
+  | { status: 'waiting' }
+  | { status: 'error', code: string, message: string }
+
 type NativeBridgeType = {
   initialize: (ConnectionTag, string, SchemaVersion) => Promise<InitializeStatus>,
   setUpWithSchema: (ConnectionTag, string, SQL, SchemaVersion) => Promise<void>,
   setUpWithMigrations: (ConnectionTag, string, SQL, SchemaVersion, SchemaVersion) => Promise<void>,
   find: (ConnectionTag, TableName<any>, RecordId) => Promise<DirtyFindResult>,
   query: (ConnectionTag, TableName<any>, SQL) => Promise<DirtyQueryResult>,
+  querySync?: (ConnectionTag, TableName<any>, SQL) => SyncReturn<DirtyQueryResult>,
   count: (ConnectionTag, SQL) => Promise<number>,
   batch: (ConnectionTag, NativeBridgeBatchOperation[]) => Promise<void>,
   batchJSON?: (ConnectionTag, string) => Promise<void>,
@@ -181,14 +187,27 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   query(query: SerializedQuery): Promise<CachedQueryResult> {
-    return devLogQuery(
-      async () =>
-        sanitizeQueryResult(
-          await Native.query(this._tag, query.table, encodeQuery(query)),
-          this.schema.tables[query.table],
-        ),
-      query,
-    )
+    return devLogQuery(async () => {
+      const sql = encodeQuery(query)
+      const tableSchema = this.schema.tables[query.table]
+
+      if (Native.querySync) {
+        const syncResult = Native.querySync(this._tag, query.table, sql)
+
+        if (syncResult.status === 'success') {
+          return sanitizeQueryResult(syncResult.result, tableSchema)
+        } else if (syncResult.status === 'error') {
+          const error = new Error(syncResult.message)
+          // $FlowFixMem
+          error.code = syncResult.code
+          throw error
+        } else {
+          // waiting - fall through to async version
+        }
+      }
+
+      return sanitizeQueryResult(await Native.query(this._tag, query.table, sql), tableSchema)
+    }, query)
   }
 
   count(query: SerializedQuery): Promise<number> {
