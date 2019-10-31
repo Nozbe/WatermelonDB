@@ -1,13 +1,8 @@
 // @flow
 
 import { Observable } from 'rxjs/Observable'
-import { defer } from 'rxjs/observable/defer'
-import { switchMap } from 'rxjs/operators'
 
-import doOnDispose from '../../utils/rx/doOnDispose'
-import doOnSubscribe from '../../utils/rx/doOnSubscribe'
-
-import logger from '../../utils/common/logger'
+// import logger from '../../utils/common/logger'
 import type { CollectionChangeSet } from '../../Collection'
 import { CollectionChangeTypes } from '../../Collection/common'
 
