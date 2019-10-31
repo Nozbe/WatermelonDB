@@ -115,6 +115,14 @@ final public class DatabaseBridge: NSObject {
         }
     }
 
+    @objc(countSync:query:)
+    func countSync(tag: ConnectionTag,
+                   query: Database.SQL) -> NSDictionary {
+        withDriverSync(tag) {
+            try $0.count(query)
+        }
+    }
+
     @objc(batchJSON:operations:resolve:reject:)
     func batchJSON(tag: ConnectionTag,
                    operations serializedOperations: NSString,

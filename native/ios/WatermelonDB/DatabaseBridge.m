@@ -51,6 +51,10 @@ RCT_EXTERN_METHOD(count:(nonnull NSNumber *)connectionTag
   reject:(RCTPromiseRejectBlock)reject
 )
 
+RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(countSync:(nonnull NSNumber *)connectionTag
+  query:(nonnull NSString *)query
+)
+
 RCT_EXTERN_METHOD(batch:(nonnull NSNumber *)connectionTag
   operations:(NSArray *)operations
   resolve:(RCTPromiseResolveBlock)resolve

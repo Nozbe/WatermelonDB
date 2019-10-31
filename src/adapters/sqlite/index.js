@@ -47,6 +47,20 @@ type SyncReturn<Result> =
   | { status: 'waiting' }
   | { status: 'error', code: string, message: string }
 
+function getSyncResult<Result>(syncReturn: SyncReturn<Result>): Result | null {
+  if (syncReturn.status === 'success') {
+    return syncReturn.result
+  } else if (syncReturn.status === 'error') {
+    const error = new Error(syncReturn.message)
+    // $FlowFixMem
+    error.code = syncReturn.code
+    throw error
+  } else {
+    // waiting - fall through to async version
+    return null
+  }
+}
+
 type NativeBridgeType = {
   initialize: (ConnectionTag, string, SchemaVersion) => Promise<InitializeStatus>,
   setUpWithSchema: (ConnectionTag, string, SQL, SchemaVersion) => Promise<void>,
@@ -55,6 +69,7 @@ type NativeBridgeType = {
   query: (ConnectionTag, TableName<any>, SQL) => Promise<DirtyQueryResult>,
   querySync?: (ConnectionTag, TableName<any>, SQL) => SyncReturn<DirtyQueryResult>,
   count: (ConnectionTag, SQL) => Promise<number>,
+  countSync: (ConnectionTag, SQL) => SyncReturn<number>,
   batch: (ConnectionTag, NativeBridgeBatchOperation[]) => Promise<void>,
   batchJSON?: (ConnectionTag, string) => Promise<void>,
   getDeletedRecords: (ConnectionTag, TableName<any>) => Promise<RecordId[]>,
@@ -192,17 +207,10 @@ export default class SQLiteAdapter implements DatabaseAdapter {
       const tableSchema = this.schema.tables[query.table]
 
       if (Native.querySync) {
-        const syncResult = Native.querySync(this._tag, query.table, sql)
+        const result = getSyncResult(Native.querySync(this._tag, query.table, sql))
 
-        if (syncResult.status === 'success') {
-          return sanitizeQueryResult(syncResult.result, tableSchema)
-        } else if (syncResult.status === 'error') {
-          const error = new Error(syncResult.message)
-          // $FlowFixMem
-          error.code = syncResult.code
-          throw error
-        } else {
-          // waiting - fall through to async version
+        if (result !== null) {
+          return result
         }
       }
 
@@ -211,7 +219,19 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   count(query: SerializedQuery): Promise<number> {
-    return devLogCount(() => Native.count(this._tag, encodeQuery(query, true)), query)
+    return devLogCount(async () => {
+      const sql = encodeQuery(query, true)
+
+      if (Native.countSync) {
+        const result = getSyncResult(Native.countSync(this._tag, sql))
+
+        if (result !== null) {
+          return result
+        }
+      }
+
+      return Native.count(this._tag, sql)
+    }, query)
   }
 
   batch(operations: BatchOperation[]): Promise<void> {
