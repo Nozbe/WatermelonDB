@@ -61,6 +61,11 @@ This is a **massive** new update to WatermelonDB! 🍉
 - Fix app glitches and performance issues caused by race conditions in `Query.observeWithColumns()`
 - [LokiJS] Persistence adapter will now be automatically selected based on availability. By default,
   IndexedDB is used. But now, if unavailable (e.g. in private mode), ephemeral memory adapter will be used.
+- Disabled console logs regarding new observations (it never actually counted all observations) and
+  time to query/count/batch (the measures were wildly inaccurate because of asynchronicity - actual
+  times are much lower)
+- Improved debuggability of Watermelon -- shortened Rx stacks and added function names to aid in understanding
+  call stacks and profiles
 - [adapters] The adapters interface has changed. `query()` and `count()` methods now receive a `SerializedQuery`, and `batch()` now takes `TableName<any>` and `RawRecord` or `RecordId` instead of `Model`.
 - [Typescript] Typing improvements
      - Added 3 missing properties `collections`, `database` and `asModel` in Model type definition.
