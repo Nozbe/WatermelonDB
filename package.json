@@ -1,7 +1,7 @@
 {
   "name": "@nozbe/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
-  "version": "0.15.0-5",
+  "version": "0.15.0-7",
   "scripts": {
     "build": "NODE_ENV=production node ./scripts/make.js",
     "dev": "NODE_ENV=development node ./scripts/make.js",
@@ -41,7 +41,7 @@
   "dependencies": {
     "lodash.clonedeep": "^4.5.0",
     "lokijs": "git+https://github.com/Nozbe/LokiJS.git#f9f6f73c4bfe1d6df27c99d7a5e18f730754e904",
-    "rambdax": "^2.14.0",
+    "rambdax": "2.15.0",
     "rxjs": "^6.2.2",
     "rxjs-compat": "^6.3.2",
     "sql-escape-string": "^1.1.0"
@@ -86,7 +86,7 @@
     "@babel/plugin-transform-sticky-regex": "^7.2.0",
     "@babel/plugin-transform-template-literals": "^7.4.4",
     "@babel/plugin-transform-unicode-regex": "^7.4.4",
-    "@testing-library/react-hooks": "^1.1.0",
+    "@testing-library/react-hooks": "^3.1.0",
     "@types/react": "^16.8.6",
     "anymatch": "^3.0.0",
     "babel-core": "^7.0.0-0",
@@ -127,10 +127,10 @@
     "prettier": "^1.14.2",
     "prettier-eslint": "^9.0.0",
     "prettier-eslint-cli": "^4.7.1",
-    "react": "^16.10.2",
-    "react-dom": "^16.10.2",
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0",
     "react-native": "^0.59.3",
-    "react-test-renderer": "16.10.2",
+    "react-test-renderer": "16.11.0",
     "rimraf": "^3.0.0",
     "semver": "^6.0.0",
     "tslint": "^5.11.0",
