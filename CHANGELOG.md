@@ -64,6 +64,7 @@ This is a **massive** new update to WatermelonDB! 🍉
 - Disabled console logs regarding new observations (it never actually counted all observations) and
   time to query/count/batch (the measures were wildly inaccurate because of asynchronicity - actual
   times are much lower)
+- [withObservables] Improved performance and debuggability (update withObservables package separately)
 - Improved debuggability of Watermelon -- shortened Rx stacks and added function names to aid in understanding
   call stacks and profiles
 - [adapters] The adapters interface has changed. `query()` and `count()` methods now receive a `SerializedQuery`, and `batch()` now takes `TableName<any>` and `RawRecord` or `RecordId` instead of `Model`.
