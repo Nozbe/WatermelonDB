@@ -2,7 +2,6 @@
 
 import { Observable } from 'rxjs/Observable'
 
-// import logger from '../../utils/common/logger'
 import type { CollectionChangeSet } from '../../Collection'
 import { CollectionChangeTypes } from '../../Collection/common'
 
@@ -56,8 +55,6 @@ export default function simpleObserver<Record: Model>(
   // Note: it would be cleaner to do defer->switchMap, but that makes profiles really hard to read
   // hence the mutability
   return Observable.create(observer => {
-    // logger.log(`Subscribing to changes in a ${query.table} query`)
-
     const matcher: Matcher<Record> = encodeMatcher(query.description)
     let unsubscribed = false
     let subscription = null
@@ -88,7 +85,6 @@ export default function simpleObserver<Record: Model>(
     return () => {
       unsubscribed = true
       subscription && subscription.unsubscribe()
-      // logger.log(`Unsubscribed from changes in a ${query.table} query`)
     }
   })
 }
