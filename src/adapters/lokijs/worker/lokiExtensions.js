@@ -11,14 +11,18 @@ const isIDBAvailable = () => {
     }
 
     // in Firefox private mode, IDB will be available, but will fail to open
-    const db = indexedDB.open('WatermelonIDBChecker')
-    db.onsuccess = () => {
+    const checkRequest: IDBOpenDBRequest = indexedDB.open('WatermelonIDBChecker')
+    checkRequest.onsuccess = e => {
+      const db: IDBDatabase = e.target.result
       db.close()
       resolve(true)
     }
-    db.onerror = () => {
-      db.close()
+    checkRequest.onerror = () => {
       resolve(false)
+    }
+    checkRequest.onblocked = () => {
+      // eslint-disable-next-line no-console
+      console.error('WatermelonIDBChecker call is blocked')
     }
   })
 }
