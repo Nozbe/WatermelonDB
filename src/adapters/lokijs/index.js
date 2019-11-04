@@ -42,6 +42,10 @@ export type LokiAdapterOptions = $Exact<{
   // may lead to lower memory consumption, lower latency, and easier debugging
   useWebWorker?: boolean,
   experimentalUseIncrementalIndexedDB?: boolean,
+  // Called when internal IDB version changed (most likely the database was deleted in another browser tab)
+  // Pass a callback to force log out in this copy of the app as well
+  // Note that this only works when using incrementalIDB and not using web workers
+  onIndexedDBVersionChange?: () => void,
   // -- internal --
   _testLokiAdapter?: LokiMemoryAdapter,
 }>
