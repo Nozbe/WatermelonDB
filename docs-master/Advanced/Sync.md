@@ -182,6 +182,13 @@ Synchronization is serious business! It's very easy to make mistakes that will c
     console.log(log.finishedAt)
     ```
   - ⚠️ Remember to act responsibly with logs, since they might contain your user's private information. Don't display, save, or send the log unless you censor the log. [Example logger and censor code you can use](https://gist.github.com/radex/a0a27761ac348f4a5552ecaf227d500c).
+  
+### Existing backend implementations for WatermelonDB
+
+Note that those are not maintained by WatermelonDB, and we make no endorsements about quality of these projects:
+
+- https://github.com/AliAllaf/firemelon
+- Did you make one? Please contribute a link!
 
 ### Current limitations
 
