@@ -32,7 +32,9 @@ export default class LokiWorkerMock {
     this._workerContext = {
       postMessage: data => {
         const clonedData = clone(data)
-        setImmediate(() => {
+
+        // Schedule on the microtask queue to be able to achieve synchronous, glitch-free rendering
+        Promise.resolve().then(() => {
           this.onmessage({ data: clonedData })
         })
       },
@@ -58,7 +60,7 @@ export default class LokiWorkerMock {
       clonedData = clone(data)
     }
 
-    setImmediate(() => {
+    Promise.resolve().then(() => {
       // $FlowFixMe
       this._workerContext.onmessage({ data: clonedData })
     })
