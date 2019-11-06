@@ -42,7 +42,10 @@ This is a **massive** new update to WatermelonDB! 🍉
 - [LokiJS] Introduces new `new LokiJSAdapter({ ..., useWebWorker: false })` option. Before, web workers
   were always used with `LokiJSAdapter`. Although web workers may have some performance benefits, disabling them
   may lead to lower memory consumption, lower latency, and easier debugging. YMMV.
-
+- [LokiJS] Added `onIndexedDBVersionChange` option to `LokiJSAdapter`. This is a callback that's called
+  when internal IDB version changed (most likely the database was deleted in another browser tab).
+  Pass a callback to force log out in this copy of the app as well. Note that this only works when
+  using incrementalIDB and not using web workers
 - [Model] Add `Model._dangerouslySetRawWithoutMarkingColumnChange()` method. You probably shouldn't use it,
   but if you know what you're doing and want to live-update records from server without marking record as updated,
   this is useful

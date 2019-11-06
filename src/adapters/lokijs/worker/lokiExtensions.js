@@ -11,9 +11,19 @@ const isIDBAvailable = () => {
     }
 
     // in Firefox private mode, IDB will be available, but will fail to open
-    const db = indexedDB.open('WatermelonIDBChecker')
-    db.onsuccess = () => resolve(true)
-    db.onerror = () => resolve(false)
+    const checkRequest: IDBOpenDBRequest = indexedDB.open('WatermelonIDBChecker')
+    checkRequest.onsuccess = e => {
+      const db: IDBDatabase = e.target.result
+      db.close()
+      resolve(true)
+    }
+    checkRequest.onerror = () => {
+      resolve(false)
+    }
+    checkRequest.onblocked = () => {
+      // eslint-disable-next-line no-console
+      console.error('WatermelonIDBChecker call is blocked')
+    }
   })
 }
 
@@ -21,13 +31,16 @@ async function getLokiAdapter(
   name: ?string,
   adapter: ?LokiMemoryAdapter,
   useIncrementalIDB: boolean,
+  onIndexedDBVersionChange: ?(() => void),
 ): mixed {
   if (adapter) {
     return adapter
   } else if (await isIDBAvailable()) {
     if (useIncrementalIDB) {
       const IncrementalIDBAdapter = require('lokijs/src/incremental-indexeddb-adapter')
-      return new IncrementalIDBAdapter()
+      return new IncrementalIDBAdapter({
+        onversionchange: onIndexedDBVersionChange,
+      })
     }
     const LokiIndexedAdapter = require('lokijs/src/loki-indexed-adapter')
     return new LokiIndexedAdapter(name)
@@ -42,9 +55,10 @@ export async function newLoki(
   name: ?string,
   adapter: ?LokiMemoryAdapter,
   useIncrementalIDB: boolean,
+  onIndexedDBVersionChange: ?(() => void),
 ): Loki {
   const loki = new Loki(name, {
-    adapter: await getLokiAdapter(name, adapter, useIncrementalIDB),
+    adapter: await getLokiAdapter(name, adapter, useIncrementalIDB, onIndexedDBVersionChange),
     autosave: true,
     autosaveInterval: 250,
     verbose: true,
