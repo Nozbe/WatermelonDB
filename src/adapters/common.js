@@ -3,7 +3,7 @@
 import { devMeasureTimeAsync, logger, invariant } from '../utils/common'
 import type { RecordId } from '../Model'
 import type { SerializedQuery } from '../Query'
-import type { TableSchema } from '../Schema'
+import type { TableSchema, TableName } from '../Schema'
 import type { BatchOperation, CachedQueryResult, CachedFindResult, DatabaseAdapter } from './type'
 import { sanitizedRaw, type DirtyRaw } from '../RawRecord'
 
@@ -82,6 +82,15 @@ export async function devLogQuery(
   const [dirtyRecords, time] = await devMeasureTimeAsync(executeBlock)
   shouldLogAdapterTimes &&
     logger.log(`[DB] Loaded ${dirtyRecords.length} ${query.table} in ${time}ms`)
+  return dirtyRecords
+}
+
+export async function devLogSQLQuery(
+  executeBlock: () => Promise<CachedQueryResult>,
+  table: TableName<any>,
+): Promise<CachedQueryResult> {
+  const [dirtyRecords, time] = await devMeasureTimeAsync(executeBlock)
+  shouldLogAdapterTimes && logger.log(`[DB] Loaded ${dirtyRecords.length} ${table} in ${time}ms`)
   return dirtyRecords
 }
 
