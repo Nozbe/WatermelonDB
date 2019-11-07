@@ -129,6 +129,7 @@ export default class Collection<Record: Model> {
       }
     })
 
+    this.database._changes.next({ table: this.table, changes: operations })
     this.changes.next(operations)
 
     operations.forEach(({ record, type }) => {

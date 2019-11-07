@@ -18,7 +18,8 @@ export default function observeCount<Record: Model>(
 ): Observable<number> {
   const { database } = query.collection
   const changes = database.withChangesForTables(query.allTables)
-  const throttledChanges = isThrottled ? changes.pipe(throttleTime(250)) : changes
+  const a = false
+  const throttledChanges = a ? changes.pipe(throttleTime(250)) : changes
 
   return throttledChanges.pipe(
     switchMap(() => query.collection.fetchCount(query)),
