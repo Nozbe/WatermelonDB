@@ -8,7 +8,13 @@ import type { RecordId } from '../../Model'
 import type { SerializedQuery } from '../../Query'
 import type { TableName, AppSchema, SchemaVersion } from '../../Schema'
 import type { SchemaMigrations, MigrationStep } from '../../Schema/migrations'
-import type { DatabaseAdapter, SQLiteDatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
+import type {
+  DatabaseAdapter,
+  SQLDatabaseAdapter,
+  CachedQueryResult,
+  CachedFindResult,
+  BatchOperation,
+} from '../type'
 import {
   type DirtyFindResult,
   type DirtyQueryResult,
@@ -67,7 +73,7 @@ export type SQLiteAdapterOptions = $Exact<{
   migrations?: SchemaMigrations,
 }>
 
-export default class SQLiteAdapter implements DatabaseAdapter, SQLiteDatabaseAdapter {
+export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapter {
   schema: AppSchema
 
   migrations: ?SchemaMigrations
@@ -192,7 +198,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLiteDatabaseAda
     )
   }
 
-  unsafeSqlQuery<T: Model>(sql: string, tableName: TableName<T>): Promise<CachedQueryResult> {
+  unsafeSqlQuery(tableName: TableName<any>, sql: string): Promise<CachedQueryResult> {
     return devLogSQLQuery(
       async () =>
         sanitizeQueryResult(

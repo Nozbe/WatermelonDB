@@ -51,6 +51,6 @@ export interface DatabaseAdapter {
   removeLocal(key: string): Promise<void>;
 }
 
-export interface SQLiteDatabaseAdapter{
-  unsafeSqlQuery<T: Model>(sql: string, tableName: TableName<any>): Promise<CachedQueryResult>;
+export interface SQLDatabaseAdapter {
+  unsafeSqlQuery(tableName: TableName<any>, sql: string): Promise<CachedQueryResult>;
 }

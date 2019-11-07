@@ -16,7 +16,7 @@ import { type DirtyRaw } from '../RawRecord'
 
 import RecordCache from './RecordCache'
 import { CollectionChangeTypes } from './common'
-import type { SQLiteDatabaseAdapter } from '../adapters/type'
+import type { SQLDatabaseAdapter } from '../adapters/type'
 
 type CollectionChangeType = 'created' | 'updated' | 'destroyed'
 export type CollectionChange<Record: Model> = { record: Record, type: CollectionChangeType }
@@ -99,13 +99,15 @@ export default class Collection<Record: Model> {
   }
 
   async unsafeFetchRecordsWithSQL(sql: string): Promise<Record[]> {
-    if(this.database.adapter.constructor.name === 'SQLiteAdapter'){
-      const sqliteAdapter: SQLiteDatabaseAdapter  = (this.database.adapter: any)
-      const rawRecords = await sqliteAdapter.unsafeSqlQuery(sql, this.modelClass.table)
+    const { adapter } = this.database
+    invariant(
+      typeof (adapter: any).unsafeSqlQuery === 'function',
+      'unsafeFetchRecordsWithSQL called on database that does not support SQL',
+    )
+    const sqlAdapter: SQLDatabaseAdapter = (adapter: any)
+    const rawRecords = await sqlAdapter.unsafeSqlQuery(this.modelClass.table, sql)
 
-      return this._cache.recordsFromQueryResult(rawRecords)
-    }
-    return new Promise(resolve => resolve([]))
+    return this._cache.recordsFromQueryResult(rawRecords)
   }
 
   // See: Query.fetchCount

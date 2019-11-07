@@ -3,7 +3,6 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
-- Raw Query
 
 ### Highlights
 
@@ -16,6 +15,7 @@ This is a **massive** new update to WatermelonDB! 🍉
   Expect more improvements in the coming releases!
 - **Improved LokiJS adapter**. Option to disable web workers, important Safari 13 fix, better performance,
   and now works in Private Modes
+- **Raw SQL queries** now available on iOS and Android thanks to the community
 - **Improved TypeScript support** — thanks to the community
 
 ### ⚠️ Breaking
@@ -25,6 +25,9 @@ This is a **massive** new update to WatermelonDB! 🍉
 
 ### New featuers
 
+- [Collection] Add `Collection.unsafeFetchRecordsWithSQL()` method. You can use it to fetch record using
+  raw SQL queries on iOS and Android. Please be careful to avoid SQL injection and other pitfalls of
+  raw queries
 - [LokiJS] Introduces new `new LokiJSAdapter({ ..., experimentalUseIncrementalIndexedDB: true })` option.
   When enabled, database will be saved to browser's IndexedDB using a new adapter that only saves the
   changed records, instead of the entire database.
