@@ -121,6 +121,19 @@ void Database::executeUpdate(jsi::Runtime& rt, jsi::String& sql, jsi::Array& arg
     }
 }
 
+
+jsi::Value Database::find(jsi::Runtime& rt, jsi::String& tableName, jsi::String& id) {
+    throw jsi::JSError(rt, "Unimplemented");
+}
+
+jsi::Value Database::query(jsi::Runtime& rt, jsi::String& tableName, jsi::String& sql, jsi::Array& arguments) {
+    throw jsi::JSError(rt, "Unimplemented");
+}
+
+jsi::Value Database::count(jsi::Runtime& rt, jsi::String& sql, jsi::Array& arguments) {
+    throw jsi::JSError(rt, "Unimplemented");
+}
+
 void Database::batch(jsi::Runtime& rt, jsi::Array& operations) {
     sqlite3_exec(db_->sqlite, "begin exclusive transaction", nullptr, nullptr, nullptr); // TODO: clean up
 
@@ -128,9 +141,9 @@ void Database::batch(jsi::Runtime& rt, jsi::Array& operations) {
     for (size_t i = 0; i < operationsCount; i++) {
         jsi::Array operation = operations.getValueAtIndex(rt, i).asObject(rt).getArray(rt);
         std::string type = operation.getValueAtIndex(rt, 0).asString(rt).utf8(rt);
+        std::string table = operation.getValueAtIndex(rt, 1).asString(rt).utf8(rt);
 
         if (type == "create") {
-            std::string table = operation.getValueAtIndex(rt, 1).asString(rt).utf8(rt);
             std::string id = operation.getValueAtIndex(rt, 2).asString(rt).utf8(rt);
             jsi::String sql = operation.getValueAtIndex(rt, 3).asString(rt);
             jsi::Array arguments = operation.getValueAtIndex(rt, 4).asObject(rt).getArray(rt);
@@ -138,16 +151,47 @@ void Database::batch(jsi::Runtime& rt, jsi::Array& operations) {
             executeUpdate(rt, sql, arguments);
         } else if (type == "execute") {
             throw jsi::JSError(rt, "Unimplemented");
+
+            jsi::String sql = operation.getValueAtIndex(rt, 2).asString(rt);
+            jsi::Array arguments = operation.getValueAtIndex(rt, 3).asObject(rt).getArray(rt);
         } else if (type == "markAsDeleted") {
             throw jsi::JSError(rt, "Unimplemented");
+
+            std::string id = operation.getValueAtIndex(rt, 2).asString(rt).utf8(rt);
         } else if (type == "destroyPermanently") {
             throw jsi::JSError(rt, "Unimplemented");
+
+            std::string id = operation.getValueAtIndex(rt, 2).asString(rt).utf8(rt);
         } else {
             throw jsi::JSError(rt, "Invalid operation type");
         }
     }
 
     sqlite3_exec(db_->sqlite, "commit transaction", nullptr, nullptr, nullptr); // TODO: clean up
+}
+
+jsi::Array Database::getDeletedRecords(jsi::Runtime& rt, jsi::String& tableName) {
+    throw jsi::JSError(rt, "Unimplemented");
+}
+
+void Database::destroyDeletedRecords(jsi::Runtime& rt, jsi::String& tableName, jsi::Array& recordIds) {
+    throw jsi::JSError(rt, "Unimplemented");
+}
+
+void Database::unsafeResetDatabase(jsi::Runtime& rt, jsi::String& schema, jsi::Value& schemaVersion) {
+    throw jsi::JSError(rt, "Unimplemented");
+}
+
+jsi::String Database::getLocal(jsi::Runtime& rt, jsi::String& key) {
+    throw jsi::JSError(rt, "Unimplemented");
+}
+
+void Database::setValue(jsi::Runtime& rt, jsi::String& key, jsi::String& value) {
+    throw jsi::JSError(rt, "Unimplemented");
+}
+
+void Database::removeLocal(jsi::Runtime& rt, jsi::String& key) {
+    throw jsi::JSError(rt, "Unimplemented");
 }
 
 } // namespace watermelondb
