@@ -251,7 +251,7 @@ export default () => [
         ])
 
         expectSortedEqual(
-          await adapter.unsafeSqlQuery('tasks', `SELECT * FROM tasks WHERE bool1 = false`),
+          await adapter.unsafeSqlQuery('tasks', `SELECT * FROM tasks WHERE bool1 = 0`),
           ['t1', 't3'],
         )
 
