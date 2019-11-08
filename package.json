@@ -1,7 +1,7 @@
 {
   "name": "@nozbe/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
-  "version": "0.15.0-7",
+  "version": "0.15.0",
   "scripts": {
     "build": "NODE_ENV=production node ./scripts/make.js",
     "dev": "NODE_ENV=development node ./scripts/make.js",
@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "lodash.clonedeep": "^4.5.0",
-    "lokijs": "git+https://github.com/Nozbe/LokiJS.git#f9f6f73c4bfe1d6df27c99d7a5e18f730754e904",
+    "lokijs": "git+https://github.com/Nozbe/LokiJS.git#384b80f",
     "rambdax": "2.15.0",
     "rxjs": "^6.2.2",
     "rxjs-compat": "^6.3.2",
@@ -127,10 +127,10 @@
     "prettier": "^1.14.2",
     "prettier-eslint": "^9.0.0",
     "prettier-eslint-cli": "^4.7.1",
-    "react": "^16.10.2",
-    "react-dom": "^16.10.2",
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0",
     "react-native": "^0.59.3",
-    "react-test-renderer": "16.10.2",
+    "react-test-renderer": "16.11.0",
     "rimraf": "^3.0.0",
     "semver": "^6.0.0",
     "tslint": "^5.11.0",

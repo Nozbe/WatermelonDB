@@ -3,12 +3,14 @@
 import { devMeasureTimeAsync, logger, invariant } from '../utils/common'
 import type { RecordId } from '../Model'
 import type { SerializedQuery } from '../Query'
-import type { TableSchema } from '../Schema'
+import type { TableSchema, TableName } from '../Schema'
 import type { BatchOperation, CachedQueryResult, CachedFindResult, DatabaseAdapter } from './type'
 import { sanitizedRaw, type DirtyRaw } from '../RawRecord'
 
 export type DirtyFindResult = RecordId | ?DirtyRaw
 export type DirtyQueryResult = Array<RecordId | DirtyRaw>
+
+const shouldLogAdapterTimes = false
 
 export function validateAdapter(adapter: DatabaseAdapter): void {
   if (process.env.NODE_ENV !== 'production') {
@@ -69,7 +71,7 @@ export async function devLogFind(
   table: string,
 ): Promise<CachedFindResult> {
   const [data, time] = await devMeasureTimeAsync(executeBlock)
-  logger.log(`[DB] Found ${table}#${id} in ${time}ms`)
+  shouldLogAdapterTimes && logger.log(`[DB] Found ${table}#${id} in ${time}ms`)
   return data
 }
 
@@ -78,7 +80,17 @@ export async function devLogQuery(
   query: SerializedQuery,
 ): Promise<CachedQueryResult> {
   const [dirtyRecords, time] = await devMeasureTimeAsync(executeBlock)
-  logger.log(`[DB] Loaded ${dirtyRecords.length} ${query.table} in ${time}ms`)
+  shouldLogAdapterTimes &&
+    logger.log(`[DB] Loaded ${dirtyRecords.length} ${query.table} in ${time}ms`)
+  return dirtyRecords
+}
+
+export async function devLogSQLQuery(
+  executeBlock: () => Promise<CachedQueryResult>,
+  table: TableName<any>,
+): Promise<CachedQueryResult> {
+  const [dirtyRecords, time] = await devMeasureTimeAsync(executeBlock)
+  shouldLogAdapterTimes && logger.log(`[DB] Loaded ${dirtyRecords.length} ${table} in ${time}ms`)
   return dirtyRecords
 }
 
@@ -87,7 +99,7 @@ export async function devLogCount(
   query: SerializedQuery,
 ): Promise<number> {
   const [count, time] = await devMeasureTimeAsync(executeBlock)
-  logger.log(`[DB] Counted ${count} ${query.table} in ${time}ms`)
+  shouldLogAdapterTimes && logger.log(`[DB] Counted ${count} ${query.table} in ${time}ms`)
   return count
 }
 
@@ -100,7 +112,8 @@ export async function devLogBatch<T>(
   }
   const [, time] = await devMeasureTimeAsync(executeBlock)
   const [type, table] = operations[0]
-  logger.log(
-    `[DB] Executed batch of ${operations.length} operations (first: ${type} on ${table}) in ${time}ms`,
-  )
+  shouldLogAdapterTimes &&
+    logger.log(
+      `[DB] Executed batch of ${operations.length} operations (first: ${type} on ${table}) in ${time}ms`,
+    )
 }

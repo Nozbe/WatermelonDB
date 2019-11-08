@@ -129,7 +129,7 @@ This queries all comments that are **both** verified **and** awesome.
 | `Q.where('status', Q.like('%bl_sh%'))` | `/.*bl.sh.*/i` (See note below!) |
 | `Q.where('status', Q.notLike('%bl_sh%'))` | `/^((!?.*bl.sh.*).)*$/i` (Inverse regex match) (See note below!) |
 
-**Note:** It's NOT SAFE to use `Q.like` and `Q.notLike` with user input directly, because special characters like `%` or `_` are not escaped. Always sanitize user input like so: 
+**Note:** It's NOT SAFE to use `Q.like` and `Q.notLike` with user input directly, because special characters like `%` or `_` are not escaped. Always sanitize user input like so:
 ```js
 Q.like(`%${Q.sanitizeLikeString(userInput)}%`)
 Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
@@ -201,9 +201,15 @@ commentCollection.query(
 )
 ```
 
-### Raw queries
+### Raw Queries
 
-If this Query syntax is not enough for you, and you need to get your hands dirty on a raw SQL or Loki query, you need **rawQueries**. How to use them? Well, **we need your help** to finish this — [please contribute!](https://github.com/Nozbe/WatermelonDB/pull/199) ❤️
+If this Query syntax is not enough for you, and you need to get your hands dirty on a raw SQL or Loki query, you need **rawQueries**. For now, only record SQL queries are available. If you need other SQL queries or LokiJS raw queries, please contribute!
+
+```js
+const records = commentCollection.unsafeFetchRecordsWithSQL('select * from comments where ...')
+```
+
+Please don't use this if you don't know what you're doing. The method name is called `unsafe` for a reason. You need to be sure to properly sanitize user values to avoid SQL injection, and filter out deleted records using `where _status is not 'deleted'` clause
 
 ### `null` behavior
 
