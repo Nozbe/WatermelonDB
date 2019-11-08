@@ -50,3 +50,7 @@ export interface DatabaseAdapter {
   // Removes key from local storage
   removeLocal(key: string): Promise<void>;
 }
+
+export interface SQLDatabaseAdapter {
+  unsafeSqlQuery(tableName: TableName<any>, sql: string): Promise<CachedQueryResult>;
+}
