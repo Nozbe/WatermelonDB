@@ -12,9 +12,10 @@ This is a **massive** new update to WatermelonDB! 🍉
   In our tests, with a massive sync (first login, 45MB of data / 65K records) we got a speed up of:
   - 5.7s -> 1.2s on web (5x)
   - 142s -> 6s on iOS (23x)
+  
   Expect more improvements in the coming releases!
 - **Improved LokiJS adapter**. Option to disable web workers, important Safari 13 fix, better performance,
-  and now works in Private Modes
+  and now works in Private Modes. We recommend adding `useWebWorker: false, experimentalUseIncrementalIndexedDB: true` options to the `LokiJSAdapter` constructor to take advantage of the improvements, but please read further changelog to understand the implications of this.
 - **Raw SQL queries** now available on iOS and Android thanks to the community
 - **Improved TypeScript support** — thanks to the community
 
