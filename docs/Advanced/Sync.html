@@ -327,6 +327,12 @@ console.log(log.finishedAt)
 </ul>
 </li>
 </ul>
+<h3><a class="header" href="#existing-backend-implementations-for-watermelondb" id="existing-backend-implementations-for-watermelondb">Existing backend implementations for WatermelonDB</a></h3>
+<p>Note that those are not maintained by WatermelonDB, and we make no endorsements about quality of these projects:</p>
+<ul>
+<li>https://github.com/AliAllaf/firemelon</li>
+<li>Did you make one? Please contribute a link!</li>
+</ul>
 <h3><a class="header" href="#current-limitations" id="current-limitations">Current limitations</a></h3>
 <ol>
 <li>If a record being pushed changes between pull and push, push will just fail. It would be better if it failed with a list of conflicts, so that <code>synchronize()</code> can automatically respond. Alternatively, sync could only send changed fields and server could automatically always just apply those changed fields to the server version (since that's what per-column client-wins resolver will do anyway)</li>
