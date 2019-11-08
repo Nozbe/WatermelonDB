@@ -29,23 +29,23 @@ public:
     Database(jsi::Runtime *runtime);
     ~Database();
 
-    void batch(jsi::Runtime &runtime, jsi::Array &operations);
-
-private:
-    jsi::Runtime *runtime_; // TODO: std::shared_ptr would be better, but I don't know how to make it from void* in RCTCxxBridge
-    std::unique_ptr<SqliteDb> db_;
-    std::map<std::string, sqlite3_stmt *> cachedStatements_;
-
     jsi::Value find(jsi::Runtime &rt, jsi::String &tableName, jsi::String &id);
     jsi::Value query(jsi::Runtime &rt, jsi::String &tableName, jsi::String &sql, jsi::Array &arguments);
     jsi::Value count(jsi::Runtime &rt, jsi::String &sql, jsi::Array &arguments);
-    void executeUpdate(jsi::Runtime &rt, jsi::String &sql, jsi::Array &arguments);
+    void batch(jsi::Runtime &runtime, jsi::Array &operations);
     jsi::Array getDeletedRecords(jsi::Runtime &rt, jsi::String &tableName);
     void destroyDeletedRecords(jsi::Runtime &rt, jsi::String &tableName, jsi::Array &recordIds);
     void unsafeResetDatabase(jsi::Runtime &rt, jsi::String &schema, jsi::Value &schemaVersion);
     jsi::String getLocal(jsi::Runtime &rt, jsi::String &key);
     void setValue(jsi::Runtime &rt, jsi::String &key, jsi::String &value);
     void removeLocal(jsi::Runtime &rt, jsi::String &key);
+
+private:
+    jsi::Runtime *runtime_; // TODO: std::shared_ptr would be better, but I don't know how to make it from void* in RCTCxxBridge
+    std::unique_ptr<SqliteDb> db_;
+    std::map<std::string, sqlite3_stmt *> cachedStatements_;
+
+    void executeUpdate(jsi::Runtime &rt, std::string sql, jsi::Array &arguments);
 };
 
 } // namespace watermelondb

@@ -66,18 +66,16 @@ Database::~Database() {
 
 }
 
-void Database::executeUpdate(jsi::Runtime& rt, jsi::String& sql, jsi::Array& arguments) {
-    std::string sqlString = sql.utf8(rt);
-
-    sqlite3_stmt *statement = cachedStatements_[sqlString];
+void Database::executeUpdate(jsi::Runtime& rt, std::string sql, jsi::Array& arguments) {
+    sqlite3_stmt *statement = cachedStatements_[sql];
 
     if (statement == nullptr) {
-        int resultPrepare = sqlite3_prepare_v2(db_->sqlite, sqlString.c_str(), -1, &statement, nullptr);
+        int resultPrepare = sqlite3_prepare_v2(db_->sqlite, sql.c_str(), -1, &statement, nullptr);
 
         if (resultPrepare != SQLITE_OK) {
             std::abort(); // Unimplemented
         }
-        cachedStatements_[sqlString] = statement;
+        cachedStatements_[sql] = statement;
     }
     assert(statement != nullptr);
 
@@ -140,28 +138,38 @@ void Database::batch(jsi::Runtime& rt, jsi::Array& operations) {
     size_t operationsCount = operations.length(rt);
     for (size_t i = 0; i < operationsCount; i++) {
         jsi::Array operation = operations.getValueAtIndex(rt, i).asObject(rt).getArray(rt);
-        std::string type = operation.getValueAtIndex(rt, 0).asString(rt).utf8(rt);
-        std::string table = operation.getValueAtIndex(rt, 1).asString(rt).utf8(rt);
+        std::string type = operation.getValueAtIndex(rt, 0).getString(rt).utf8(rt);
+        const jsi::String table = operation.getValueAtIndex(rt, 1).getString(rt);
 
         if (type == "create") {
-            std::string id = operation.getValueAtIndex(rt, 2).asString(rt).utf8(rt);
-            jsi::String sql = operation.getValueAtIndex(rt, 3).asString(rt);
+//            TODO: Record caching
+//            std::string id = operation.getValueAtIndex(rt, 2).getString(rt).utf8(rt);
+            jsi::String sql = operation.getValueAtIndex(rt, 3).getString(rt);
             jsi::Array arguments = operation.getValueAtIndex(rt, 4).asObject(rt).getArray(rt);
 
-            executeUpdate(rt, sql, arguments);
+            executeUpdate(rt, sql.utf8(rt), arguments);
         } else if (type == "execute") {
-            throw jsi::JSError(rt, "Unimplemented");
-
-            jsi::String sql = operation.getValueAtIndex(rt, 2).asString(rt);
+            jsi::String sql = operation.getValueAtIndex(rt, 2).getString(rt);
             jsi::Array arguments = operation.getValueAtIndex(rt, 3).asObject(rt).getArray(rt);
+
+            executeUpdate(rt, sql.utf8(rt), arguments);
         } else if (type == "markAsDeleted") {
-            throw jsi::JSError(rt, "Unimplemented");
+//            TODO: Record caching
+            const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
+            jsi::Array args(rt, 2);
+            args.setValueAtIndex(rt, 0, table);
+            args.setValueAtIndex(rt, 1, id);
+            executeUpdate(rt, "update ? set _status='deleted' where id == ?", args);
 
-            std::string id = operation.getValueAtIndex(rt, 2).asString(rt).utf8(rt);
         } else if (type == "destroyPermanently") {
-            throw jsi::JSError(rt, "Unimplemented");
+//            TODO: Record caching
+            const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
+            jsi::Array args(rt, 2);
+            args.setValueAtIndex(rt, 0, table);
+            args.setValueAtIndex(rt, 1, id);
 
-            std::string id = operation.getValueAtIndex(rt, 2).asString(rt).utf8(rt);
+            // TODO: What's the behavior if nothing got deleted?
+            executeUpdate(rt, "delete from ? where id == ?", args);
         } else {
             throw jsi::JSError(rt, "Invalid operation type");
         }
@@ -172,10 +180,16 @@ void Database::batch(jsi::Runtime& rt, jsi::Array& operations) {
 
 jsi::Array Database::getDeletedRecords(jsi::Runtime& rt, jsi::String& tableName) {
     throw jsi::JSError(rt, "Unimplemented");
+//    return try database.queryRaw("select id from \(table) where _status='deleted'").map { row in
+//        row.string(forColumn: "id")!
+//    }
 }
 
 void Database::destroyDeletedRecords(jsi::Runtime& rt, jsi::String& tableName, jsi::Array& recordIds) {
     throw jsi::JSError(rt, "Unimplemented");
+//    // TODO: What's the behavior if record doesn't exist or isn't actually deleted?
+//    let recordIds = records.map { id in "'\(id)'" }.joined(separator: ",")
+//    try database.execute("delete from \(table) where id in (\(recordIds))")
 }
 
 void Database::unsafeResetDatabase(jsi::Runtime& rt, jsi::String& schema, jsi::Value& schemaVersion) {
@@ -184,14 +198,23 @@ void Database::unsafeResetDatabase(jsi::Runtime& rt, jsi::String& schema, jsi::V
 
 jsi::String Database::getLocal(jsi::Runtime& rt, jsi::String& key) {
     throw jsi::JSError(rt, "Unimplemented");
+//    let results = try database.queryRaw("select value from local_storage where key = ?", [key])
+//
+//    guard let record = results.next() else {
+//        return nil
+//    }
+//
+//    return record.string(forColumn: "value")!
 }
 
 void Database::setValue(jsi::Runtime& rt, jsi::String& key, jsi::String& value) {
     throw jsi::JSError(rt, "Unimplemented");
+//    return try database.execute("insert or replace into local_storage (key, value) values (?, ?)", [key, value])
 }
 
 void Database::removeLocal(jsi::Runtime& rt, jsi::String& key) {
     throw jsi::JSError(rt, "Unimplemented");
+//    return try database.execute("delete from local_storage where key == ?", [key])
 }
 
 } // namespace watermelondb
