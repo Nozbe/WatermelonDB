@@ -47,7 +47,7 @@ Database::Database(jsi::Runtime *runtime) : runtime_(runtime) {
         }
 
         jsi::Runtime &rt = *runtime_;
-        jsi::Array operations = args[0].asObject(rt).asArray(rt);
+        jsi::Array operations = args[0].getObject(rt).getArray(rt);
         jumpToDatabaseBatch(this, rt, operations);
 
         return jsi::Value::undefined();
@@ -122,10 +122,34 @@ void Database::executeUpdate(jsi::Runtime& rt, std::string sql, jsi::Array& argu
 
 jsi::Value Database::find(jsi::Runtime& rt, jsi::String& tableName, jsi::String& id) {
     throw jsi::JSError(rt, "Unimplemented");
+
+//    guard !isCached(table, id) else {
+//        return id
+//    }
+//
+//    let results = try database.queryRaw("select * from \(table) where id == ? limit 1", [id])
+//
+//    guard let record = results.next() else {
+//        return nil
+//    }
+//
+//    markAsCached(table, id)
+//    return record.resultDictionary!
 }
 
 jsi::Value Database::query(jsi::Runtime& rt, jsi::String& tableName, jsi::String& sql, jsi::Array& arguments) {
     throw jsi::JSError(rt, "Unimplemented");
+
+//    return try database.queryRaw(query).map { row in
+//        let id = row.string(forColumn: "id")!
+//
+//        if isCached(table, id) {
+//            return id
+//        } else {
+//            markAsCached(table, id)
+//            return row.resultDictionary!
+//        }
+//    }
 }
 
 jsi::Value Database::count(jsi::Runtime& rt, jsi::String& sql, jsi::Array& arguments) {
@@ -137,7 +161,7 @@ void Database::batch(jsi::Runtime& rt, jsi::Array& operations) {
 
     size_t operationsCount = operations.length(rt);
     for (size_t i = 0; i < operationsCount; i++) {
-        jsi::Array operation = operations.getValueAtIndex(rt, i).asObject(rt).getArray(rt);
+        jsi::Array operation = operations.getValueAtIndex(rt, i).getObject(rt).getArray(rt);
         std::string type = operation.getValueAtIndex(rt, 0).getString(rt).utf8(rt);
         const jsi::String table = operation.getValueAtIndex(rt, 1).getString(rt);
 
@@ -145,28 +169,24 @@ void Database::batch(jsi::Runtime& rt, jsi::Array& operations) {
 //            TODO: Record caching
 //            std::string id = operation.getValueAtIndex(rt, 2).getString(rt).utf8(rt);
             jsi::String sql = operation.getValueAtIndex(rt, 3).getString(rt);
-            jsi::Array arguments = operation.getValueAtIndex(rt, 4).asObject(rt).getArray(rt);
+            jsi::Array arguments = operation.getValueAtIndex(rt, 4).getObject(rt).getArray(rt);
 
             executeUpdate(rt, sql.utf8(rt), arguments);
         } else if (type == "execute") {
             jsi::String sql = operation.getValueAtIndex(rt, 2).getString(rt);
-            jsi::Array arguments = operation.getValueAtIndex(rt, 3).asObject(rt).getArray(rt);
+            jsi::Array arguments = operation.getValueAtIndex(rt, 3).getObject(rt).getArray(rt);
 
             executeUpdate(rt, sql.utf8(rt), arguments);
         } else if (type == "markAsDeleted") {
 //            TODO: Record caching
             const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
-            jsi::Array args(rt, 2);
-            args.setValueAtIndex(rt, 0, table);
-            args.setValueAtIndex(rt, 1, id);
+            auto args = jsi::Array::createWithElements(rt, table, id);
             executeUpdate(rt, "update ? set _status='deleted' where id == ?", args);
 
         } else if (type == "destroyPermanently") {
 //            TODO: Record caching
             const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
-            jsi::Array args(rt, 2);
-            args.setValueAtIndex(rt, 0, table);
-            args.setValueAtIndex(rt, 1, id);
+            auto args = jsi::Array::createWithElements(rt, table, id);
 
             // TODO: What's the behavior if nothing got deleted?
             executeUpdate(rt, "delete from ? where id == ?", args);
@@ -208,13 +228,13 @@ jsi::String Database::getLocal(jsi::Runtime& rt, jsi::String& key) {
 }
 
 void Database::setValue(jsi::Runtime& rt, jsi::String& key, jsi::String& value) {
-    throw jsi::JSError(rt, "Unimplemented");
-//    return try database.execute("insert or replace into local_storage (key, value) values (?, ?)", [key, value])
+    auto args = jsi::Array::createWithElements(rt, key, value);
+    executeUpdate(rt, "insert or replace into local_storage (key, value) values (?, ?)", args);
 }
 
 void Database::removeLocal(jsi::Runtime& rt, jsi::String& key) {
-    throw jsi::JSError(rt, "Unimplemented");
-//    return try database.execute("delete from local_storage where key == ?", [key])
+    auto args = jsi::Array::createWithElements(rt, key);
+    executeUpdate(rt, "delete from local_storage where key == ?", args);
 }
 
 } // namespace watermelondb
