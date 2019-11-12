@@ -8,14 +8,7 @@ import type { TableName, AppSchema } from '../../Schema'
 import type { SchemaMigrations } from '../../Schema/migrations'
 import type { SerializedQuery } from '../../Query'
 import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
-import {
-  devLogFind,
-  devLogQuery,
-  devLogCount,
-  devLogBatch,
-  devLogSetUp,
-  validateAdapter,
-} from '../common'
+import { devLogSetUp, validateAdapter } from '../common'
 
 import WorkerBridge from './WorkerBridge'
 import { actions } from './common'
@@ -96,46 +89,22 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   }
 
   find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {
-    return devLogFind(() => this.workerBridge.send(FIND, [table, id]), table, id)
+    return this.workerBridge.send(FIND, [table, id])
   }
 
   query(query: SerializedQuery): Promise<CachedQueryResult> {
-    return devLogQuery(
-      () =>
-        this.workerBridge.send(
-          QUERY,
-          [query],
-          // SerializedQueries are immutable, so we need no copy
-          'immutable',
-        ),
-      query,
-    )
+    // SerializedQueries are immutable, so we need no copy
+    return this.workerBridge.send(QUERY, [query], 'immutable')
   }
 
   count(query: SerializedQuery): Promise<number> {
-    return devLogCount(
-      () =>
-        this.workerBridge.send(
-          COUNT,
-          [query],
-          // SerializedQueries are immutable, so we need no copy
-          'immutable',
-        ),
-      query,
-    )
+    // SerializedQueries are immutable, so we need no copy
+    return this.workerBridge.send(COUNT, [query], 'immutable')
   }
 
   batch(operations: BatchOperation[]): Promise<void> {
-    return devLogBatch(
-      () =>
-        this.workerBridge.send(
-          BATCH,
-          [operations],
-          // batches are only strings + raws which only have JSON-compatible values, rest is immutable
-          'shallowCloneDeepObjects',
-        ),
-      operations,
-    )
+    // batches are only strings + raws which only have JSON-compatible values, rest is immutable
+    return this.workerBridge.send(BATCH, [operations], 'shallowCloneDeepObjects')
   }
 
   getDeletedRecords(tableName: TableName<any>): Promise<RecordId[]> {

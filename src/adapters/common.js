@@ -1,6 +1,6 @@
 // @flow
 
-import { devMeasureTimeAsync, logger, invariant } from '../utils/common'
+import { logger, invariant } from '../utils/common'
 import type { RecordId } from '../Model'
 import type { TableSchema } from '../Schema'
 import type { CachedQueryResult, CachedFindResult, DatabaseAdapter } from './type'
@@ -55,9 +55,11 @@ export function sanitizeQueryResult(
 
 export async function devLogSetUp<T>(executeBlock: () => Promise<T>): Promise<void> {
   try {
-    const [, time] = await devMeasureTimeAsync(executeBlock)
-    logger.log(`[DB] All set up in ${time}ms`)
+    executeBlock()
   } catch (error) {
-    logger.error(`[DB] Uh-oh. Database failed to load, we're in big trouble`, error)
+    logger.error(
+      `[DB] Uh-oh. Database failed to load, we're in big trouble. This might happen if you didn't set up native code correctly (iOS, Android), or if you didn't recompile native app after WatermelonDB update. It might also mean that IndexedDB or SQLite refused to open.`,
+      error,
+    )
   }
 }
