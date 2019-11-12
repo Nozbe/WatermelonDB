@@ -7,7 +7,7 @@ final public class DatabaseBridge: NSObject {
     @objc let methodQueue = DispatchQueue(label: "com.nozbe.watermelondb.database", qos: .userInteractive)
 
     private enum Connection {
-        case connected(driver: DatabaseDriver)
+        case connected(driver: DatabaseDriver, synchronous: Bool)
         case waiting(queue: [() -> Void])
 
         var queue: [() -> Void] {
@@ -18,18 +18,21 @@ final public class DatabaseBridge: NSObject {
         }
     }
     private var connections: [Int: Connection] = [:]
+}
 
+// MARK: - Asynchronous connections
+
+extension DatabaseBridge {
     @objc(initialize:databaseName:schemaVersion:resolve:reject:)
     func initialize(tag: ConnectionTag,
                     databaseName: String,
                     schemaVersion: NSNumber,
                     resolve: RCTPromiseResolveBlock,
                     reject: RCTPromiseRejectBlock) {
-        assert(connections[tag.intValue] == nil, "A driver with tag \(tag) already set up")
-
         do {
+            try assertNoConnection(tag)
             let driver = try DatabaseDriver(dbName: databaseName, schemaVersion: schemaVersion.intValue)
-            connections[tag.intValue] = .connected(driver: driver)
+            connections[tag.intValue] = .connected(driver: driver, synchronous: false)
             resolve(["code": "ok"])
         } catch _ as DatabaseDriver.SchemaNeededError {
             connections[tag.intValue] = .waiting(queue: [])
@@ -52,7 +55,7 @@ final public class DatabaseBridge: NSObject {
                          reject: RCTPromiseRejectBlock) {
         let driver = DatabaseDriver(dbName: databaseName,
                                     setUpWithSchema: (version: schemaVersion.intValue, sql: schema))
-        connectDriver(connectionTag: tag, driver: driver)
+        connectDriverAsync(connectionTag: tag, driver: driver)
         resolve(true)
     }
 
@@ -69,14 +72,72 @@ final public class DatabaseBridge: NSObject {
                 dbName: databaseName,
                 setUpWithMigrations: (from: fromVersion.intValue, to: toVersion.intValue, sql: migrations)
             )
-            connectDriver(connectionTag: tag, driver: driver)
+            connectDriverAsync(connectionTag: tag, driver: driver)
             resolve(true)
         } catch {
             disconnectDriver(tag)
             sendReject(reject, error)
         }
     }
+}
 
+// MARK: - Synchronous connections
+
+extension DatabaseBridge {
+    @objc(initializeSync:databaseName:schemaVersion:)
+    func initializeSync(tag: ConnectionTag, databaseName: String, schemaVersion: NSNumber) -> NSDictionary {
+        return synchronously {
+            do {
+                try assertNoConnection(tag)
+                let driver = try DatabaseDriver(dbName: databaseName, schemaVersion: schemaVersion.intValue)
+                connections[tag.intValue] = .connected(driver: driver, synchronous: true)
+                return ["code": "ok"]
+            } catch _ as DatabaseDriver.SchemaNeededError {
+                return ["code": "schema_needed"]
+            } catch let error as DatabaseDriver.MigrationNeededError {
+                return ["code": "migrations_needed", "databaseVersion": error.databaseVersion]
+            } catch {
+                assertionFailure("Unknown error thrown in DatabaseDriver.init")
+                throw error // rethrow
+            }
+        }
+    }
+
+    @objc(setUpWithSchemaSync:databaseName:schema:schemaVersion:)
+    func setUpWithSchemaSync(tag: ConnectionTag,
+                             databaseName: String,
+                             schema: Database.SQL,
+                             schemaVersion: NSNumber) -> NSDictionary {
+        return synchronously {
+            try assertNoConnection(tag)
+            let driver = DatabaseDriver(dbName: databaseName,
+                                        setUpWithSchema: (version: schemaVersion.intValue, sql: schema))
+            connections[tag.intValue] = .connected(driver: driver, synchronous: true)
+            return true
+        }
+    }
+
+    @objc(setUpWithMigrationsSync:databaseName:migrations:fromVersion:toVersion:)
+    func setUpWithMigrationsSync(tag: ConnectionTag,
+                                 databaseName: String,
+                                 migrations: Database.SQL,
+                                 fromVersion: NSNumber,
+                                 toVersion: NSNumber) -> NSDictionary {
+        return synchronously {
+            try assertNoConnection(tag)
+            let driver = try DatabaseDriver(
+                dbName: databaseName,
+                setUpWithMigrations: (from: fromVersion.intValue, to: toVersion.intValue, sql: migrations)
+            )
+            connections[tag.intValue] = .connected(driver: driver, synchronous: true)
+            return true
+        }
+    }
+}
+
+// MARK: - Asynchronous actions
+
+extension DatabaseBridge {
     @objc(find:table:id:resolve:reject:)
     func find(tag: ConnectionTag,
               table: Database.TableName,
@@ -97,15 +158,6 @@ final public class DatabaseBridge: NSObject {
         }
     }
 
-    @objc(querySync:table:query:)
-    func querySync(tag: ConnectionTag,
-                   table: Database.TableName,
-                   query: Database.SQL) -> NSDictionary {
-        withDriverSync(tag) {
-            try $0.cachedQuery(table: table, query: query)
-        }
-    }
-
     @objc(count:query:resolve:reject:)
     func count(tag: ConnectionTag,
                query: Database.SQL,
@@ -115,27 +167,14 @@ final public class DatabaseBridge: NSObject {
         }
     }
 
-    @objc(countSync:query:)
-    func countSync(tag: ConnectionTag,
-                   query: Database.SQL) -> NSDictionary {
-        withDriverSync(tag) {
-            try $0.count(query)
-        }
-    }
-
     @objc(batchJSON:operations:resolve:reject:)
     func batchJSON(tag: ConnectionTag,
                    operations serializedOperations: NSString,
                    resolve: @escaping RCTPromiseResolveBlock,
                    reject: @escaping RCTPromiseRejectBlock) {
-       guard let data = serializedOperations.data(using: String.Encoding.utf8.rawValue),
-           let operations = (try? JSONSerialization.jsonObject(with: data)) as? [[Any]]
-       else {
-           let error = "Invalid serialized operations".asError()
-           return reject("db.\(#function).error", error.localizedDescription, error)
-       }
-
-       batch(tag: tag, operations: operations, resolve: resolve, reject: reject)
+        withDriver(tag, resolve, reject) {
+            try $0.batch(self.toBatchOperations(serializedOperations))
+        }
     }
 
     @objc(batch:operations:resolve:reject:)
@@ -144,50 +183,7 @@ final public class DatabaseBridge: NSObject {
                resolve: @escaping RCTPromiseResolveBlock,
                reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
-            try $0.batch(operations.map { operation in
-                switch operation[safe: 0] as? String {
-                case "execute":
-                    guard let table = operation[safe: 1] as? Database.TableName,
-                    let query = operation[safe: 2] as? Database.SQL,
-                    let args = operation[safe: 3] as? Database.QueryArgs
-                    else {
-                        throw "Bad execute arguments".asError()
-                    }
-
-                    return .execute(table: table, query: query, args: args)
-
-                case "create":
-                    guard let table = operation[safe: 1] as? Database.TableName,
-                    let id = operation[safe: 2] as? DatabaseDriver.RecordId,
-                    let query = operation[safe: 3] as? Database.SQL,
-                    let args = operation[safe: 4] as? Database.QueryArgs
-                    else {
-                        throw "Bad create arguments".asError()
-                    }
-
-                    return .create(table: table, id: id, query: query, args: args)
-
-                case "markAsDeleted":
-                    guard let table = operation[safe: 1] as? Database.SQL,
-                    let id = operation[safe: 2] as? DatabaseDriver.RecordId
-                    else {
-                        throw "Bad markAsDeleted arguments".asError()
-                    }
-
-                    return .markAsDeleted(table: table, id: id)
-
-                case "destroyPermanently":
-                    guard let table = operation[safe: 1] as? Database.TableName,
-                    let id = operation[safe: 2] as? DatabaseDriver.RecordId
-                    else {
-                        throw "Bad destroyPermanently arguments".asError()
-                    }
-
-                    return .destroyPermanently(table: table, id: id)
-                default:
-                    throw "Bad operation name".asError()
-                }
-            })
+            try $0.batch(self.toBatchOperations(operations))
         }
     }
 
@@ -249,6 +245,150 @@ final public class DatabaseBridge: NSObject {
             try $0.removeLocal(key: key)
         }
     }
+}
+
+// MARK: - Synchronous methods
+
+extension DatabaseBridge {
+    @objc(findSync:table:id:)
+    func findSync(tag: ConnectionTag, table: Database.TableName, id: DatabaseDriver.RecordId) -> NSDictionary {
+        return withDriverSync(tag) {
+            try $0.find(table: table, id: id) as Any
+        }
+    }
+
+    @objc(querySync:table:query:)
+    func querySync(tag: ConnectionTag, table: Database.TableName, query: Database.SQL) -> NSDictionary {
+        return withDriverSync(tag) {
+            try $0.cachedQuery(table: table, query: query)
+        }
+    }
+
+    @objc(countSync:query:)
+    func countSync(tag: ConnectionTag, query: Database.SQL) -> NSDictionary {
+        return withDriverSync(tag) {
+            try $0.count(query)
+        }
+    }
+
+    @objc(batchJSONSync:operations:)
+    func batchJSONSync(tag: ConnectionTag, operations serializedOperations: NSString) -> NSDictionary {
+        return withDriverSync(tag) {
+            try $0.batch(self.toBatchOperations(serializedOperations))
+        }
+    }
+
+    @objc(batchSync:operations:)
+    func batchSync(tag: ConnectionTag, operations: [[Any]]) -> NSDictionary {
+        return withDriverSync(tag) {
+            try $0.batch(self.toBatchOperations(operations))
+        }
+    }
+
+    @objc(getDeletedRecordsSync:table:)
+    func getDeletedRecordsSync(tag: ConnectionTag, table: Database.TableName) -> NSDictionary {
+        return withDriverSync(tag) {
+            try $0.getDeletedRecords(table: table)
+        }
+    }
+
+    @objc(destroyDeletedRecordsSync:table:records:)
+    func destroyDeletedRecordsSync(tag: ConnectionTag,
+                                   table: Database.TableName,
+                                   records: [DatabaseDriver.RecordId]) -> NSDictionary {
+        return withDriverSync(tag) {
+            try $0.destroyDeletedRecords(table: table, records: records)
+        }
+    }
+
+    @objc(unsafeResetDatabaseSync:schema:schemaVersion:)
+    func unsafeResetDatabaseSync(tag: ConnectionTag, schema: Database.SQL, schemaVersion: NSNumber) -> NSDictionary {
+        return withDriverSync(tag) {
+            try $0.unsafeResetDatabase(schema: (version: schemaVersion.intValue, sql: schema))
+        }
+    }
+
+    @objc(getLocalSync:key:)
+    func getLocalSync(tag: ConnectionTag, key: String) -> NSDictionary {
+        return withDriverSync(tag) {
+            try $0.getLocal(key: key) as Any
+        }
+    }
+
+    @objc(setLocalSync:key:value:)
+    func setLocalSync(tag: ConnectionTag, key: String, value: String) -> NSDictionary {
+        return withDriverSync(tag) {
+            try $0.setLocal(key: key, value: value)
+        }
+    }
+
+    @objc(removeLocalSync:key:)
+    func removeLocalSync(tag: ConnectionTag, key: String) -> NSDictionary {
+        return withDriverSync(tag) {
+            try $0.removeLocal(key: key)
+        }
+    }
+}
+
+// MARK: - Helpers
+
+extension DatabaseBridge {
+    private func toBatchOperations(_ serializedOperations: NSString) throws -> [DatabaseDriver.Operation] {
+        guard let data = serializedOperations.data(using: String.Encoding.utf8.rawValue),
+        let operations = (try? JSONSerialization.jsonObject(with: data)) as? [[Any]]
+        else {
+            throw "Invalid serialized operations".asError()
+        }
+
+        return try toBatchOperations(operations)
+    }
+
+    private func toBatchOperations(_ operations: [[Any]]) throws -> [DatabaseDriver.Operation] {
+        return try operations.map { operation in
+            switch operation[safe: 0] as? String {
+            case "execute":
+                guard let table = operation[safe: 1] as? Database.TableName,
+                let query = operation[safe: 2] as? Database.SQL,
+                let args = operation[safe: 3] as? Database.QueryArgs
+                else {
+                    throw "Bad execute arguments".asError()
+                }
+
+                return .execute(table: table, query: query, args: args)
+
+            case "create":
+                guard let table = operation[safe: 1] as? Database.TableName,
+                let id = operation[safe: 2] as? DatabaseDriver.RecordId,
+                let query = operation[safe: 3] as? Database.SQL,
+                let args = operation[safe: 4] as? Database.QueryArgs
+                else {
+                    throw "Bad create arguments".asError()
+                }
+
+                return .create(table: table, id: id, query: query, args: args)
+
+            case "markAsDeleted":
+                guard let table = operation[safe: 1] as? Database.SQL,
+                let id = operation[safe: 2] as? DatabaseDriver.RecordId
+                else {
+                    throw "Bad markAsDeleted arguments".asError()
+                }
+
+                return .markAsDeleted(table: table, id: id)
+
+            case "destroyPermanently":
+                guard let table = operation[safe: 1] as? Database.TableName,
+                let id = operation[safe: 2] as? DatabaseDriver.RecordId
+                else {
+                    throw "Bad destroyPermanently arguments".asError()
+                }
+
+                return .destroyPermanently(table: table, id: id)
+            default:
+                throw "Bad operation name".asError()
+            }
+        }
+    }
 
     private func withDriver(_ connectionTag: ConnectionTag,
                             _ resolve: @escaping RCTPromiseResolveBlock,
@@ -262,7 +402,10 @@ final public class DatabaseBridge: NSObject {
             }
 
             switch connection {
-            case .connected(let driver):
+            case .connected(let driver, let synchronous):
+                guard !synchronous else {
+                    throw "Can't perform async action on synchronous connection \(tagID)".asError()
+                }
                 let result = try action(driver)
                 resolve(result)
             case .waiting(var queue):
@@ -278,28 +421,34 @@ final public class DatabaseBridge: NSObject {
         }
     }
 
-    private func withDriverSync(_ connectionTag: ConnectionTag,
-                                functionName: String = #function,
-                                action: (DatabaseDriver) throws -> Any) -> NSDictionary {
-        methodQueue.sync {
+    private func synchronously(functionName: String = #function, action: () throws -> Any) -> NSDictionary {
+        return methodQueue.sync {
             do {
-                guard let connection = connections[connectionTag.intValue],
-                case let .connected(driver) = connection else {
-                    return ["status": "waiting"]
-                }
-
-                let result = try action(driver)
+                let result = try action()
                 return ["status": "success", "result": result]
             } catch {
-                return ["status": "error", "code": "db.\(functionName).error", "message": error.localizedDescription]
+                return syncError(error, functionName: functionName)
             }
         }
     }
 
-    private func connectDriver(connectionTag: ConnectionTag, driver: DatabaseDriver) {
+    private func withDriverSync(_ connectionTag: ConnectionTag,
+                                functionName: String = #function,
+                                action: (DatabaseDriver) throws -> Any) -> NSDictionary {
+        return synchronously {
+            guard let connection = connections[connectionTag.intValue],
+            case let .connected(driver, synchronous: true) = connection else {
+                throw "No or invalid connection for tag \(connectionTag)".asError()
+            }
+
+            return try action(driver)
+        }
+    }
+
+    private func connectDriverAsync(connectionTag: ConnectionTag, driver: DatabaseDriver) {
         let tagID = connectionTag.intValue
         let queue = connections[tagID]?.queue ?? []
-        connections[tagID] = .connected(driver: driver)
+        connections[tagID] = .connected(driver: driver, synchronous: false)
 
         for operation in queue {
             operation()
@@ -314,6 +463,16 @@ final public class DatabaseBridge: NSObject {
         for operation in queue {
             operation()
         }
+    }
+
+    private func assertNoConnection(_ tag: NSNumber) throws {
+        guard connections[tag.intValue] == nil else {
+            throw "A driver with tag \(tag) already set up".asError()
+        }
+    }
+
+    private func syncError(_ error: Error, functionName: String = #function) -> NSDictionary {
+        return ["status": "error", "code": "db.\(functionName).error", "message": error.localizedDescription]
     }
 
     private func sendReject(_ reject: RCTPromiseRejectBlock,
