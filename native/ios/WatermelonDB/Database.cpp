@@ -1,5 +1,6 @@
 #include "Database.h"
 #include "Trampoline.h"
+#include <pmmintrin.h>
 
 namespace watermelondb {
 
@@ -67,8 +68,10 @@ Database::~Database() {
 }
 
 void Database::executeUpdate(jsi::Runtime& rt, std::string sql, jsi::Array& arguments) {
-    sqlite3_stmt *statement = cachedStatements_[sql];
+    // TODO: Can we use templates or make jsi::Array iterable so we can avoid _creating_ jsi::Array in C++?
 
+    sqlite3_stmt *statement = cachedStatements_[sql];
+    // TODO: Do we need to reset cached statement before use?
     if (statement == nullptr) {
         int resultPrepare = sqlite3_prepare_v2(db_->sqlite, sql.c_str(), -1, &statement, nullptr);
 
@@ -119,6 +122,47 @@ void Database::executeUpdate(jsi::Runtime& rt, std::string sql, jsi::Array& argu
     }
 }
 
+void Database::executeQuery(jsi::Runtime& rt, std::string sql, jsi::Array& arguments) {
+    sqlite3_stmt *statement = cachedStatements_[sql];
+    // TODO: Do we need to reset cached statement before use?
+
+    if (statement == nullptr) {
+        int resultPrepare = sqlite3_prepare_v2(db_->sqlite, sql.c_str(), -1, &statement, nullptr);
+
+        if (resultPrepare != SQLITE_OK) {
+            std::abort(); // Unimplemented
+        }
+        cachedStatements_[sql] = statement;
+    }
+    assert(statement != nullptr);
+
+    int argsCount = sqlite3_bind_parameter_count(statement);
+
+    if (argsCount != arguments.length(rt)) {
+        std::abort(); // Unimplemented
+    }
+
+    for (int i = 0; i < argsCount; i++) {
+        jsi::Value value = arguments.getValueAtIndex(rt, i);
+
+        int bindResult;
+        if (value.isNull()) {
+            bindResult = sqlite3_bind_null(statement, i + 1);
+        } else if (value.isString()) {
+            // TODO: Check SQLITE_STATIC
+            bindResult = sqlite3_bind_text(statement, i + 1, value.getString(rt).utf8(rt).c_str(), -1, SQLITE_TRANSIENT);
+        } else if (value.isNumber()) {
+            // TODO: Ints?
+            bindResult = sqlite3_bind_double(statement, i + 1, value.getNumber());
+        } else {
+            std::abort(); // Unimplemented
+        }
+
+        if (bindResult != SQLITE_OK) {
+            std::abort(); // Unimplemented
+        }
+    }
+}
 
 jsi::Value Database::find(jsi::Runtime& rt, jsi::String& tableName, jsi::String& id) {
     throw jsi::JSError(rt, "Unimplemented");

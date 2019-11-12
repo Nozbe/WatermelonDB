@@ -46,6 +46,7 @@ private:
     std::map<std::string, sqlite3_stmt *> cachedStatements_;
 
     void executeUpdate(jsi::Runtime &rt, std::string sql, jsi::Array &arguments);
+    void executeQuery(jsi::Runtime& rt, std::string sql, jsi::Array& arguments);
 };
 
 } // namespace watermelondb
