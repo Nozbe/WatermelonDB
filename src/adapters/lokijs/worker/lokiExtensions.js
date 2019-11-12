@@ -31,7 +31,7 @@ async function getLokiAdapter(
   name: ?string,
   adapter: ?LokiMemoryAdapter,
   useIncrementalIDB: boolean,
-  onIndexedDBVersionChange: ?(() => void),
+  onIndexedDBVersionChange: ?() => void,
 ): mixed {
   if (adapter) {
     return adapter
@@ -55,7 +55,7 @@ export async function newLoki(
   name: ?string,
   adapter: ?LokiMemoryAdapter,
   useIncrementalIDB: boolean,
-  onIndexedDBVersionChange: ?(() => void),
+  onIndexedDBVersionChange: ?() => void,
 ): Loki {
   const loki = new Loki(name, {
     adapter: await getLokiAdapter(name, adapter, useIncrementalIDB, onIndexedDBVersionChange),
@@ -78,16 +78,15 @@ export async function deleteDatabase(loki: Loki): Promise<void> {
   await new Promise((resolve, reject) => {
     // Works around a race condition - Loki doesn't disable autosave or drain save queue before
     // deleting database, so it's possible to delete and then have the database be saved
-    loki.close(() => {
-      loki.deleteDatabase({}, response => {
-        // LokiIndexedAdapter responds with `{ success: true }`, while
-        // LokiMemory adapter just calls it with no params
-        if ((response && response.success) || response === undefined) {
-          resolve()
-        } else {
-          reject(response)
-        }
-      })
+    loki.close()
+    loki.deleteDatabase({}, response => {
+      // LokiIndexedAdapter responds with `{ success: true }`, while
+      // LokiMemory adapter just calls it with no params
+      if ((response && response.success) || response === undefined) {
+        resolve()
+      } else {
+        reject(response)
+      }
     })
   })
 }
