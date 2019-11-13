@@ -13,6 +13,8 @@ const SQLiteAdapterTest = spec => {
           throw new Error('test setup bug')
         }
         if (isSynchronous) {
+          // Temporary workaround for the race condition - wait until next macrotask to ensure that
+          // database has set up
           await new Promise(resolve => setTimeout(resolve, 0))
         }
         await test(adapter, SQLiteAdapter)

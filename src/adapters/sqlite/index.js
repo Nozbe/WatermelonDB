@@ -133,6 +133,11 @@ const makeDispatcher = (isSynchronous: boolean): NativeDispatcher => {
   // Hacky-ish way to create a NativeModule-like object which looks like the old DatabaseBridge
   // but dispatches to synchronous methods, while maintaining Flow typecheck at callsite
   const methods = dispatcherMethods.map(methodName => {
+    // batchJSON is missing on Android
+    if (!NativeDatabaseBridge[methodName]) {
+      return [methodName, undefined]
+    }
+
     if (isSynchronous) {
       const syncName = `${methodName}Sync`
       return [methodName, (...args) => syncReturnToPromise(NativeDatabaseBridge[syncName](...args))]
