@@ -215,6 +215,8 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     // migration logic inside native code
     const status = await this._dispatcher.initialize(this._tag, this._dbName, this.schema.version)
 
+    // NOTE: Race condition - logic here is asynchronous, but synchronous-mode adapter does not allow
+    // for queueing operations. will fail if you start making actions immediately
     if (status.code === 'schema_needed') {
       await this._setUpWithSchema()
     } else if (status.code === 'migrations_needed') {
