@@ -198,7 +198,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   }
 
   _isSynchonous(synchronous: ?boolean): boolean {
-    if (synchronous && !NativeDatabaseBridge.initializeSync) {
+    if (synchronous && !NativeDatabaseBridge.initializeSynchronous) {
       logger.warn(
         `Synchronous SQLiteAdapter not available… falling back to asynchronous operation. This will happen if you're using remote debugger, and may happen if you forgot to recompile native app after WatermelonDB update`,
       )
