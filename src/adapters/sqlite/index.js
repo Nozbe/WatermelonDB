@@ -9,7 +9,13 @@ import type { RecordId } from '../../Model'
 import type { SerializedQuery } from '../../Query'
 import type { TableName, AppSchema, SchemaVersion } from '../../Schema'
 import type { SchemaMigrations, MigrationStep } from '../../Schema/migrations'
-import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
+import type {
+  DatabaseAdapter,
+  SQLDatabaseAdapter,
+  CachedQueryResult,
+  CachedFindResult,
+  BatchOperation,
+} from '../type'
 import {
   type DirtyFindResult,
   type DirtyQueryResult,
@@ -143,7 +149,7 @@ export type SQLiteAdapterOptions = $Exact<{
   synchronous?: boolean,
 }>
 
-export default class SQLiteAdapter implements DatabaseAdapter {
+export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapter {
   schema: AppSchema
 
   migrations: ?SchemaMigrations

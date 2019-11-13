@@ -20,10 +20,10 @@ npm install @nozbe/with-observables
     yarn add --dev @babel/plugin-proposal-decorators
     ```
     or
-    
+
     ```bash
     npm install -D @babel/plugin-proposal-decorators
-    
+
 2. Add ES6 decorators support to your `.babelrc` file:
     ```json
     {
@@ -38,9 +38,9 @@ npm install @nozbe/with-observables
 ### iOS (React Native)
 
 1. **Set up Babel config in your project**
-   
+
    See instructions above ⬆️
-   
+
 2. **Add Swift support to your Xcode project**:
    - Open `ios/YourAppName.xcodeproj` in Xcode
    - Right-click on **Your App Name** in the Project Navigator on the left, and click **New File…**
@@ -59,11 +59,11 @@ npm install @nozbe/with-observables
 
     1. Open your project in Xcode, right click on **Libraries** in the Project Navigator on the left and click **Add Files to "Your Project Name"**. Look under `node_modules/@nozbe/watermelondb/native/ios` and select `WatermelonDB.xcodeproj`
     2. Go to Project settings (top item in the Project navigator on the left), select your app name under **Targets** → **Build Phases** → **Link Binary With Libraries**, and add `libWatermelonDB.a`
-    
+
     For more information about linking libraries manually, [see React Native documentation](https://facebook.github.io/react-native/docs/linking-libraries-ios).
-    
+
     **Using CocoaPods**
-    
+
     [Please contribute!](https://github.com/Nozbe/WatermelonDB/issues/279)
 
 Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (although Xcode 10 and iOS 11.0 are recommended).
@@ -71,9 +71,9 @@ Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (alt
 ### Android (React Native)
 
 1. **Set up Babel config in your project**
-   
+
    See instructions above ⬆️
-   
+
 1. In `android/settings.gradle`, add:
 
    ```gradle
@@ -141,11 +141,11 @@ This guide assumes you use Webpack as your bundler.
     yarn add --dev worker-loader
     ```
     or
-    
+
     ```bash
     npm install -D worker-loader
     ```
-    
+
 2. And add this to Webpack configuration:
     ```js
     // webpack.config.js
@@ -241,6 +241,12 @@ import LokiJSAdapter from '@nozbe/watermelondb/adapters/lokijs'
 
 const adapter = new LokiJSAdapter({
   schema,
+  // useWebWorker: false,
+  // experimentalUseIncrementalIndexedDB: true,
+  // onIndexedDBVersionChange: () => {
+  //   // database was deleted in another browser tab
+  //   services.forceLogOut()
+  // },
 })
 
 // The rest is the same!

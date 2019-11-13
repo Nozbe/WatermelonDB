@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 0.15 - 2019-11-08
+
 ### Highlights
 
 This is a **massive** new update to WatermelonDB! 🍉
@@ -12,9 +14,11 @@ This is a **massive** new update to WatermelonDB! 🍉
   In our tests, with a massive sync (first login, 45MB of data / 65K records) we got a speed up of:
   - 5.7s -> 1.2s on web (5x)
   - 142s -> 6s on iOS (23x)
+
   Expect more improvements in the coming releases!
 - **Improved LokiJS adapter**. Option to disable web workers, important Safari 13 fix, better performance,
-  and now works in Private Modes
+  and now works in Private Modes. We recommend adding `useWebWorker: false, experimentalUseIncrementalIndexedDB: true` options to the `LokiJSAdapter` constructor to take advantage of the improvements, but please read further changelog to understand the implications of this.
+- **Raw SQL queries** now available on iOS and Android thanks to the community
 - **Improved TypeScript support** — thanks to the community
 
 ### ⚠️ Breaking
@@ -24,6 +28,9 @@ This is a **massive** new update to WatermelonDB! 🍉
 
 ### New featuers
 
+- [Collection] Add `Collection.unsafeFetchRecordsWithSQL()` method. You can use it to fetch record using
+  raw SQL queries on iOS and Android. Please be careful to avoid SQL injection and other pitfalls of
+  raw queries
 - [LokiJS] Introduces new `new LokiJSAdapter({ ..., experimentalUseIncrementalIndexedDB: true })` option.
   When enabled, database will be saved to browser's IndexedDB using a new adapter that only saves the
   changed records, instead of the entire database.
@@ -42,7 +49,10 @@ This is a **massive** new update to WatermelonDB! 🍉
 - [LokiJS] Introduces new `new LokiJSAdapter({ ..., useWebWorker: false })` option. Before, web workers
   were always used with `LokiJSAdapter`. Although web workers may have some performance benefits, disabling them
   may lead to lower memory consumption, lower latency, and easier debugging. YMMV.
-
+- [LokiJS] Added `onIndexedDBVersionChange` option to `LokiJSAdapter`. This is a callback that's called
+  when internal IDB version changed (most likely the database was deleted in another browser tab).
+  Pass a callback to force log out in this copy of the app as well. Note that this only works when
+  using incrementalIDB and not using web workers
 - [Model] Add `Model._dangerouslySetRawWithoutMarkingColumnChange()` method. You probably shouldn't use it,
   but if you know what you're doing and want to live-update records from server without marking record as updated,
   this is useful

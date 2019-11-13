@@ -148,6 +148,112 @@
                         <h1><a class="header" href="#changelog" id="changelog">Changelog</a></h1>
 <p>All notable changes to this project will be documented in this file.</p>
 <h2><a class="header" href="#unreleased" id="unreleased">Unreleased</a></h2>
+<h2><a class="header" href="#015---2019-11-08" id="015---2019-11-08">0.15 - 2019-11-08</a></h2>
+<h3><a class="header" href="#highlights" id="highlights">Highlights</a></h3>
+<p>This is a <strong>massive</strong> new update to WatermelonDB! 🍉</p>
+<ul>
+<li>
+<p><strong>Up to 23x faster sync</strong>. You heard that right. We've made big improvements to performance.
+In our tests, with a massive sync (first login, 45MB of data / 65K records) we got a speed up of:</p>
+<ul>
+<li>5.7s -&gt; 1.2s on web (5x)</li>
+<li>142s -&gt; 6s on iOS (23x)</li>
+</ul>
+<p>Expect more improvements in the coming releases!</p>
+</li>
+<li>
+<p><strong>Improved LokiJS adapter</strong>. Option to disable web workers, important Safari 13 fix, better performance,
+and now works in Private Modes. We recommend adding <code>useWebWorker: false, experimentalUseIncrementalIndexedDB: true</code> options to the <code>LokiJSAdapter</code> constructor to take advantage of the improvements, but please read further changelog to understand the implications of this.</p>
+</li>
+<li>
+<p><strong>Raw SQL queries</strong> now available on iOS and Android thanks to the community</p>
+</li>
+<li>
+<p><strong>Improved TypeScript support</strong> — thanks to the community</p>
+</li>
+</ul>
+<h3><a class="header" href="#-breaking" id="-breaking">⚠️ Breaking</a></h3>
+<ul>
+<li>Deprecated <code>bool</code> schema column type is removed -- please change to <code>boolean</code></li>
+<li>Experimental <code>experimentalSetOnlyMarkAsChangedIfDiffers(false)</code> API is now removed</li>
+</ul>
+<h3><a class="header" href="#new-featuers" id="new-featuers">New featuers</a></h3>
+<ul>
+<li>
+<p>[Collection] Add <code>Collection.unsafeFetchRecordsWithSQL()</code> method. You can use it to fetch record using
+raw SQL queries on iOS and Android. Please be careful to avoid SQL injection and other pitfalls of
+raw queries</p>
+</li>
+<li>
+<p>[LokiJS] Introduces new <code>new LokiJSAdapter({ ..., experimentalUseIncrementalIndexedDB: true })</code> option.
+When enabled, database will be saved to browser's IndexedDB using a new adapter that only saves the
+changed records, instead of the entire database.</p>
+<p><strong>This works around a serious bug in Safari 13</strong> (https://bugs.webkit.org/show_bug.cgi?id=202137) that causes large
+databases to quickly balloon to gigabytes of temporary trash</p>
+<p>This also improves performance of incremental saves, although initial page load or very, very large saves
+might be slightly slower.</p>
+<p>This is intended to become the new default option, but it's not backwards compatible (if enabled, old database
+will be lost). <strong>You're welcome to contribute an automatic migration code.</strong></p>
+<p>Note that this option is still experimental, and might change in breaking ways at any time.</p>
+</li>
+<li>
+<p>[LokiJS] Introduces new <code>new LokiJSAdapter({ ..., useWebWorker: false })</code> option. Before, web workers
+were always used with <code>LokiJSAdapter</code>. Although web workers may have some performance benefits, disabling them
+may lead to lower memory consumption, lower latency, and easier debugging. YMMV.</p>
+</li>
+<li>
+<p>[LokiJS] Added <code>onIndexedDBVersionChange</code> option to <code>LokiJSAdapter</code>. This is a callback that's called
+when internal IDB version changed (most likely the database was deleted in another browser tab).
+Pass a callback to force log out in this copy of the app as well. Note that this only works when
+using incrementalIDB and not using web workers</p>
+</li>
+<li>
+<p>[Model] Add <code>Model._dangerouslySetRawWithoutMarkingColumnChange()</code> method. You probably shouldn't use it,
+but if you know what you're doing and want to live-update records from server without marking record as updated,
+this is useful</p>
+</li>
+<li>
+<p>[Collection] Add <code>Collection.prepareCreateFromDirtyRaw()</code></p>
+</li>
+<li>
+<p>@json decorator sanitizer functions take an optional second argument, with a reference to the model</p>
+</li>
+</ul>
+<h3><a class="header" href="#fixes" id="fixes">Fixes</a></h3>
+<ul>
+<li>Pinned required <code>rambdax</code> version to 2.15.0 to avoid console logging bug. In a future release we will switch to our own fork of <code>rambdax</code> to avoid future breakages like this.</li>
+</ul>
+<h3><a class="header" href="#improvements" id="improvements">Improvements</a></h3>
+<ul>
+<li>[Performance] Make large batches a lot faster (1.3s shaved off on a 65K insert sample)</li>
+<li>[Performance] [iOS] Make large batch inserts an order of magnitude faster</li>
+<li>[Performance] [iOS] Make encoding very large queries (with thousands of parameters) 20x faster</li>
+<li>[Performance] [LokiJS] Make batch inserts faster (1.5s shaved off on a 65K insert sample)</li>
+<li>[Performance] [LokiJS] Various performance improvements</li>
+<li>[Performance] [Sync] Make Sync faster</li>
+<li>[Performance] Make observation faster</li>
+<li>[Performance] [Android] Make batches faster</li>
+<li>Fix app glitches and performance issues caused by race conditions in <code>Query.observeWithColumns()</code></li>
+<li>[LokiJS] Persistence adapter will now be automatically selected based on availability. By default,
+IndexedDB is used. But now, if unavailable (e.g. in private mode), ephemeral memory adapter will be used.</li>
+<li>Disabled console logs regarding new observations (it never actually counted all observations) and
+time to query/count/batch (the measures were wildly inaccurate because of asynchronicity - actual
+times are much lower)</li>
+<li>[withObservables] Improved performance and debuggability (update withObservables package separately)</li>
+<li>Improved debuggability of Watermelon -- shortened Rx stacks and added function names to aid in understanding
+call stacks and profiles</li>
+<li>[adapters] The adapters interface has changed. <code>query()</code> and <code>count()</code> methods now receive a <code>SerializedQuery</code>, and <code>batch()</code> now takes <code>TableName&lt;any&gt;</code> and <code>RawRecord</code> or <code>RecordId</code> instead of <code>Model</code>.</li>
+<li>[Typescript] Typing improvements
+<ul>
+<li>Added 3 missing properties <code>collections</code>, <code>database</code> and <code>asModel</code> in Model type definition.</li>
+<li>Removed optional flag on <code>actionsEnabled</code> in the Database constructor options since its mandatory since 0.13.0.</li>
+<li>fixed several further typing issues in Model, Relation and lazy decorator</li>
+</ul>
+</li>
+<li>Changed how async functions are transpiled in the library. This could break on really old Android phones
+but shouldn't matter if you use latest version of React Native. Please report an issue if you see a problem.</li>
+<li>Avoid <code>database</code> prop drilling in the web demo</li>
+</ul>
 <h2><a class="header" href="#0141---2019-08-31" id="0141---2019-08-31">0.14.1 - 2019-08-31</a></h2>
 <p>Hotfix for rambdax crash</p>
 <ul>
@@ -163,7 +269,7 @@
 <li>[Actions] You can now batch delete record with all descendants using experimental functions <code>experimentalMarkAsDeleted</code> or <code>experimentalDestroyPermanently</code></li>
 </ul>
 <h2><a class="header" href="#0130---2019-07-18" id="0130---2019-07-18">0.13.0 - 2019-07-18</a></h2>
-<h3><a class="header" href="#-breaking" id="-breaking">⚠️ Breaking</a></h3>
+<h3><a class="header" href="#-breaking-1" id="-breaking-1">⚠️ Breaking</a></h3>
 <ul>
 <li>
 <p>[Database] It is now mandatory to pass <code>actionsEnabled:</code> option to Database constructor.
@@ -196,7 +302,7 @@ behavior. For now you can import <code>experimentalSetOnlyMarkAsChangedIfDiffers
 this will be removed in the later version -- create a new issue explaining why you need this</li>
 <li>[Sync] Small perf improvements</li>
 </ul>
-<h3><a class="header" href="#improvements" id="improvements">Improvements</a></h3>
+<h3><a class="header" href="#improvements-1" id="improvements-1">Improvements</a></h3>
 <ul>
 <li>[Typescript] Improved types for SQLite and LokiJS adapters, migrations, models, the database and the logger.</li>
 </ul>
@@ -210,7 +316,7 @@ This allows WatermelonDB to create specific IDs for example if your backend uses
 <li>[Tests] remove cleanup for react-hooks-testing-library@0.5.0 compatibility</li>
 </ul>
 <h2><a class="header" href="#0122---2019-04-19" id="0122---2019-04-19">0.12.2 - 2019-04-19</a></h2>
-<h3><a class="header" href="#fixes" id="fixes">Fixes</a></h3>
+<h3><a class="header" href="#fixes-1" id="fixes-1">Fixes</a></h3>
 <ul>
 <li>[TypeScript] 'Cannot use 'in' operator to search for 'initializer'; decorator fix</li>
 </ul>
@@ -346,7 +452,7 @@ resolving conflicts, finding local changes, and marking them as synced) is done 
 <li>Added <code>DatabaseProvider</code> and <code>withDatabase</code> Higher-Order Component to reduce prop drilling</li>
 <li>Added experimental Actions API. This will be documented in a future release.</li>
 </ul>
-<h3><a class="header" href="#fixes-1" id="fixes-1">Fixes</a></h3>
+<h3><a class="header" href="#fixes-2" id="fixes-2">Fixes</a></h3>
 <ul>
 <li>Fixes crash on older Android React Native targets without <code>jsc-android</code> installed</li>
 </ul>

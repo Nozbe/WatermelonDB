@@ -35,6 +35,8 @@ export default class LokiExecutor {
 
   experimentalUseIncrementalIndexedDB: boolean
 
+  onIndexedDBVersionChange: ?(() => void)
+
   _testLokiAdapter: ?LokiMemoryAdapter
 
   cachedRecords: Map<TableName<any>, Set<RecordId>> = new Map()
@@ -45,6 +47,7 @@ export default class LokiExecutor {
     this.schema = schema
     this.migrations = migrations
     this.experimentalUseIncrementalIndexedDB = options.experimentalUseIncrementalIndexedDB || false
+    this.onIndexedDBVersionChange = options.onIndexedDBVersionChange
     this._testLokiAdapter = _testLokiAdapter
   }
 
@@ -236,6 +239,7 @@ export default class LokiExecutor {
       this.dbName,
       this._testLokiAdapter,
       this.experimentalUseIncrementalIndexedDB,
+      this.onIndexedDBVersionChange,
     )
 
     logger.log('[DB][Worker] Database loaded')

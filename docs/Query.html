@@ -234,7 +234,7 @@ commentCollection.query(
 <tr><td><code>Q.where('status', Q.like('%bl_sh%'))</code></td><td><code>/.*bl.sh.*/i</code> (See note below!)</td></tr>
 <tr><td><code>Q.where('status', Q.notLike('%bl_sh%'))</code></td><td><code>/^((!?.*bl.sh.*).)*$/i</code> (Inverse regex match) (See note below!)</td></tr>
 </tbody></table>
-<p><strong>Note:</strong> It's NOT SAFE to use <code>Q.like</code> and <code>Q.notLike</code> with user input directly, because special characters like <code>%</code> or <code>_</code> are not escaped. Always sanitize user input like so: </p>
+<p><strong>Note:</strong> It's NOT SAFE to use <code>Q.like</code> and <code>Q.notLike</code> with user input directly, because special characters like <code>%</code> or <code>_</code> are not escaped. Always sanitize user input like so:</p>
 <pre><code class="language-js">Q.like(`%${Q.sanitizeLikeString(userInput)}%`)
 Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
 </code></pre>
@@ -278,8 +278,11 @@ Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
   Q.where('likes', Q.gt(Q.column('dislikes')))
 )
 </code></pre>
-<h3><a class="header" href="#raw-queries" id="raw-queries">Raw queries</a></h3>
-<p>If this Query syntax is not enough for you, and you need to get your hands dirty on a raw SQL or Loki query, you need <strong>rawQueries</strong>. How to use them? Well, <strong>we need your help</strong> to finish this — <a href="https://github.com/Nozbe/WatermelonDB/pull/199">please contribute!</a> ❤️</p>
+<h3><a class="header" href="#raw-queries" id="raw-queries">Raw Queries</a></h3>
+<p>If this Query syntax is not enough for you, and you need to get your hands dirty on a raw SQL or Loki query, you need <strong>rawQueries</strong>. For now, only record SQL queries are available. If you need other SQL queries or LokiJS raw queries, please contribute!</p>
+<pre><code class="language-js">const records = commentCollection.unsafeFetchRecordsWithSQL('select * from comments where ...')
+</code></pre>
+<p>Please don't use this if you don't know what you're doing. The method name is called <code>unsafe</code> for a reason. You need to be sure to properly sanitize user values to avoid SQL injection, and filter out deleted records using <code>where _status is not 'deleted'</code> clause</p>
 <h3><a class="header" href="#null-behavior" id="null-behavior"><code>null</code> behavior</a></h3>
 <p>There are some gotchas you should be aware of. The <code>Q.gt</code>, <code>gte</code>, <code>lt</code>, <code>lte</code>, <code>oneOf</code>, <code>notIn</code>, <code>like</code> operators match the semantics of SQLite in terms of how they treat <code>null</code>. Those are different from JavaScript.</p>
 <p><strong>Rule of thumb:</strong> No null comparisons are allowed.</p>

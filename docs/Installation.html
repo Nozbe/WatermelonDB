@@ -373,6 +373,12 @@ const database = new Database({
 
 const adapter = new LokiJSAdapter({
   schema,
+  // useWebWorker: false,
+  // experimentalUseIncrementalIndexedDB: true,
+  // onIndexedDBVersionChange: () =&gt; {
+  //   // database was deleted in another browser tab
+  //   services.forceLogOut()
+  // },
 })
 
 // The rest is the same!
