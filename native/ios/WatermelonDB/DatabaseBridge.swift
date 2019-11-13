@@ -427,7 +427,7 @@ extension DatabaseBridge {
                 let result = try action()
                 return ["status": "success", "result": result]
             } catch {
-                return syncError(error, functionName: functionName)
+                return ["status": "error", "code": "db.\(functionName).error", "message": error.localizedDescription]
             }
         }
     }
@@ -469,10 +469,6 @@ extension DatabaseBridge {
         guard connections[tag.intValue] == nil else {
             throw "A driver with tag \(tag) already set up".asError()
         }
-    }
-
-    private func syncError(_ error: Error, functionName: String = #function) -> NSDictionary {
-        return ["status": "error", "code": "db.\(functionName).error", "message": error.localizedDescription]
     }
 
     private func sendReject(_ reject: RCTPromiseRejectBlock,
