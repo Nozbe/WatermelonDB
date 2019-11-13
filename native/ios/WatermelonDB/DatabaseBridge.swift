@@ -84,8 +84,10 @@ extension DatabaseBridge {
 // MARK: - Synchronous connections
 
 extension DatabaseBridge {
-    @objc(initializeSync:databaseName:schemaVersion:)
-    func initializeSync(tag: ConnectionTag, databaseName: String, schemaVersion: NSNumber) -> NSDictionary {
+    @objc(initializeSynchronous:databaseName:schemaVersion:)
+    func initializeSynchronous(tag: ConnectionTag,
+                               databaseName: String,
+                               schemaVersion: NSNumber) -> NSDictionary {
         return synchronously {
             do {
                 try assertNoConnection(tag)
@@ -103,11 +105,11 @@ extension DatabaseBridge {
         }
     }
 
-    @objc(setUpWithSchemaSync:databaseName:schema:schemaVersion:)
-    func setUpWithSchemaSync(tag: ConnectionTag,
-                             databaseName: String,
-                             schema: Database.SQL,
-                             schemaVersion: NSNumber) -> NSDictionary {
+    @objc(setUpWithSchemaSynchronous:databaseName:schema:schemaVersion:)
+    func setUpWithSchemaSynchronous(tag: ConnectionTag,
+                                    databaseName: String,
+                                    schema: Database.SQL,
+                                    schemaVersion: NSNumber) -> NSDictionary {
         return synchronously {
             try assertNoConnection(tag)
             let driver = DatabaseDriver(dbName: databaseName,
@@ -117,12 +119,12 @@ extension DatabaseBridge {
         }
     }
 
-    @objc(setUpWithMigrationsSync:databaseName:migrations:fromVersion:toVersion:)
-    func setUpWithMigrationsSync(tag: ConnectionTag,
-                                 databaseName: String,
-                                 migrations: Database.SQL,
-                                 fromVersion: NSNumber,
-                                 toVersion: NSNumber) -> NSDictionary {
+    @objc(setUpWithMigrationsSynchronous:databaseName:migrations:fromVersion:toVersion:)
+    func setUpWithMigrationsSynchronous(tag: ConnectionTag,
+                                        databaseName: String,
+                                        migrations: Database.SQL,
+                                        fromVersion: NSNumber,
+                                        toVersion: NSNumber) -> NSDictionary {
         return synchronously {
             try assertNoConnection(tag)
             let driver = try DatabaseDriver(
@@ -250,81 +252,81 @@ extension DatabaseBridge {
 // MARK: - Synchronous methods
 
 extension DatabaseBridge {
-    @objc(findSync:table:id:)
-    func findSync(tag: ConnectionTag, table: Database.TableName, id: DatabaseDriver.RecordId) -> NSDictionary {
-        return withDriverSync(tag) {
+    @objc(findSynchronous:table:id:)
+    func findSynchronous(tag: ConnectionTag, table: Database.TableName, id: DatabaseDriver.RecordId) -> NSDictionary {
+        return withDriverSynchronous(tag) {
             try $0.find(table: table, id: id) as Any
         }
     }
 
-    @objc(querySync:table:query:)
-    func querySync(tag: ConnectionTag, table: Database.TableName, query: Database.SQL) -> NSDictionary {
-        return withDriverSync(tag) {
+    @objc(querySynchronous:table:query:)
+    func querySynchronous(tag: ConnectionTag, table: Database.TableName, query: Database.SQL) -> NSDictionary {
+        return withDriverSynchronous(tag) {
             try $0.cachedQuery(table: table, query: query)
         }
     }
 
-    @objc(countSync:query:)
-    func countSync(tag: ConnectionTag, query: Database.SQL) -> NSDictionary {
-        return withDriverSync(tag) {
+    @objc(countSynchronous:query:)
+    func countSynchronous(tag: ConnectionTag, query: Database.SQL) -> NSDictionary {
+        return withDriverSynchronous(tag) {
             try $0.count(query)
         }
     }
 
-    @objc(batchJSONSync:operations:)
-    func batchJSONSync(tag: ConnectionTag, operations serializedOperations: NSString) -> NSDictionary {
-        return withDriverSync(tag) {
+    @objc(batchJSONSynchronous:operations:)
+    func batchJSONSynchronous(tag: ConnectionTag, operations serializedOperations: NSString) -> NSDictionary {
+        return withDriverSynchronous(tag) {
             try $0.batch(self.toBatchOperations(serializedOperations))
         }
     }
 
-    @objc(batchSync:operations:)
-    func batchSync(tag: ConnectionTag, operations: [[Any]]) -> NSDictionary {
-        return withDriverSync(tag) {
+    @objc(batchSynchronous:operations:)
+    func batchSynchronous(tag: ConnectionTag, operations: [[Any]]) -> NSDictionary {
+        return withDriverSynchronous(tag) {
             try $0.batch(self.toBatchOperations(operations))
         }
     }
 
-    @objc(getDeletedRecordsSync:table:)
-    func getDeletedRecordsSync(tag: ConnectionTag, table: Database.TableName) -> NSDictionary {
-        return withDriverSync(tag) {
+    @objc(getDeletedRecordsSynchronous:table:)
+    func getDeletedRecordsSynchronous(tag: ConnectionTag, table: Database.TableName) -> NSDictionary {
+        return withDriverSynchronous(tag) {
             try $0.getDeletedRecords(table: table)
         }
     }
 
-    @objc(destroyDeletedRecordsSync:table:records:)
-    func destroyDeletedRecordsSync(tag: ConnectionTag,
-                                   table: Database.TableName,
-                                   records: [DatabaseDriver.RecordId]) -> NSDictionary {
-        return withDriverSync(tag) {
+    @objc(destroyDeletedRecordsSynchronous:table:records:)
+    func destroyDeletedRecordsSynchronous(tag: ConnectionTag,
+                                          table: Database.TableName,
+                                          records: [DatabaseDriver.RecordId]) -> NSDictionary {
+        return withDriverSynchronous(tag) {
             try $0.destroyDeletedRecords(table: table, records: records)
         }
     }
 
-    @objc(unsafeResetDatabaseSync:schema:schemaVersion:)
-    func unsafeResetDatabaseSync(tag: ConnectionTag, schema: Database.SQL, schemaVersion: NSNumber) -> NSDictionary {
-        return withDriverSync(tag) {
+    @objc(unsafeResetDatabaseSynchronous:schema:schemaVersion:)
+    func unsafeResetDatabaseSynchronous(tag: ConnectionTag, schema: Database.SQL, schemaVersion: NSNumber) -> NSDictionary {
+        return withDriverSynchronous(tag) {
             try $0.unsafeResetDatabase(schema: (version: schemaVersion.intValue, sql: schema))
         }
     }
 
-    @objc(getLocalSync:key:)
-    func getLocalSync(tag: ConnectionTag, key: String) -> NSDictionary {
-        return withDriverSync(tag) {
+    @objc(getLocalSynchronous:key:)
+    func getLocalSynchronous(tag: ConnectionTag, key: String) -> NSDictionary {
+        return withDriverSynchronous(tag) {
             try $0.getLocal(key: key) as Any
         }
     }
 
-    @objc(setLocalSync:key:value:)
-    func setLocalSync(tag: ConnectionTag, key: String, value: String) -> NSDictionary {
-        return withDriverSync(tag) {
+    @objc(setLocalSynchronous:key:value:)
+    func setLocalSynchronous(tag: ConnectionTag, key: String, value: String) -> NSDictionary {
+        return withDriverSynchronous(tag) {
             try $0.setLocal(key: key, value: value)
         }
     }
 
-    @objc(removeLocalSync:key:)
-    func removeLocalSync(tag: ConnectionTag, key: String) -> NSDictionary {
-        return withDriverSync(tag) {
+    @objc(removeLocalSynchronous:key:)
+    func removeLocalSynchronous(tag: ConnectionTag, key: String) -> NSDictionary {
+        return withDriverSynchronous(tag) {
             try $0.removeLocal(key: key)
         }
     }
@@ -432,9 +434,9 @@ extension DatabaseBridge {
         }
     }
 
-    private func withDriverSync(_ connectionTag: ConnectionTag,
-                                functionName: String = #function,
-                                action: (DatabaseDriver) throws -> Any) -> NSDictionary {
+    private func withDriverSynchronous(_ connectionTag: ConnectionTag,
+                                       functionName: String = #function,
+                                       action: (DatabaseDriver) throws -> Any) -> NSDictionary {
         return synchronously {
             guard let connection = connections[connectionTag.intValue],
             case let .connected(driver, synchronous: true) = connection else {

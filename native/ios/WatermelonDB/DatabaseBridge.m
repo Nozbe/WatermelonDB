@@ -9,7 +9,7 @@
     resolve:(RCTPromiseResolveBlock)resolve \
     reject:(RCTPromiseRejectBlock)reject \
   ) \
-  RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(WMELON_CONCAT(name, Sync):(nonnull NSNumber *)connectionTag \
+  RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(WMELON_CONCAT(name, Synchronous):(nonnull NSNumber *)connectionTag \
     args \
   )
 

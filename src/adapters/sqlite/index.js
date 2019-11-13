@@ -105,26 +105,30 @@ type NativeBridgeType = {
   ...NativeDispatcher,
 
   // Synchronous methods
-  initializeSync?: (ConnectionTag, string, SchemaVersion) => SyncReturn<InitializeStatus>,
-  setUpWithSchemaSync?: (ConnectionTag, string, SQL, SchemaVersion) => SyncReturn<void>,
-  setUpWithMigrationsSync?: (
+  initializeSynchronous?: (ConnectionTag, string, SchemaVersion) => SyncReturn<InitializeStatus>,
+  setUpWithSchemaSynchronous?: (ConnectionTag, string, SQL, SchemaVersion) => SyncReturn<void>,
+  setUpWithMigrationsSynchronous?: (
     ConnectionTag,
     string,
     SQL,
     SchemaVersion,
     SchemaVersion,
   ) => SyncReturn<void>,
-  findSync?: (ConnectionTag, TableName<any>, RecordId) => SyncReturn<DirtyFindResult>,
-  querySync?: (ConnectionTag, TableName<any>, SQL) => SyncReturn<DirtyQueryResult>,
-  countSync?: (ConnectionTag, SQL) => SyncReturn<number>,
-  batchSync?: (ConnectionTag, NativeBridgeBatchOperation[]) => SyncReturn<void>,
-  batchJSONSync?: (ConnectionTag, string) => SyncReturn<void>,
-  getDeletedRecordsSync?: (ConnectionTag, TableName<any>) => SyncReturn<RecordId[]>,
-  destroyDeletedRecordsSync?: (ConnectionTag, TableName<any>, RecordId[]) => SyncReturn<void>,
-  unsafeResetDatabaseSync?: (ConnectionTag, SQL, SchemaVersion) => SyncReturn<void>,
-  getLocalSync?: (ConnectionTag, string) => SyncReturn<?string>,
-  setLocalSync?: (ConnectionTag, string, string) => SyncReturn<void>,
-  removeLocalSync?: (ConnectionTag, string) => SyncReturn<void>,
+  findSynchronous?: (ConnectionTag, TableName<any>, RecordId) => SyncReturn<DirtyFindResult>,
+  querySynchronous?: (ConnectionTag, TableName<any>, SQL) => SyncReturn<DirtyQueryResult>,
+  countSynchronous?: (ConnectionTag, SQL) => SyncReturn<number>,
+  batchSynchronous?: (ConnectionTag, NativeBridgeBatchOperation[]) => SyncReturn<void>,
+  batchJSONSynchronous?: (ConnectionTag, string) => SyncReturn<void>,
+  getDeletedRecordsSynchronous?: (ConnectionTag, TableName<any>) => SyncReturn<RecordId[]>,
+  destroyDeletedRecordsSynchronous?: (
+    ConnectionTag,
+    TableName<any>,
+    RecordId[],
+  ) => SyncReturn<void>,
+  unsafeResetDatabaseSynchronous?: (ConnectionTag, SQL, SchemaVersion) => SyncReturn<void>,
+  getLocalSynchronous?: (ConnectionTag, string) => SyncReturn<?string>,
+  setLocalSynchronous?: (ConnectionTag, string, string) => SyncReturn<void>,
+  removeLocalSynchronous?: (ConnectionTag, string) => SyncReturn<void>,
 }
 
 const NativeDatabaseBridge: NativeBridgeType = NativeModules.DatabaseBridge
@@ -139,7 +143,7 @@ const makeDispatcher = (isSynchronous: boolean): NativeDispatcher => {
     }
 
     if (isSynchronous) {
-      const syncName = `${methodName}Sync`
+      const syncName = `${methodName}Synchronous`
       return [methodName, (...args) => syncReturnToPromise(NativeDatabaseBridge[syncName](...args))]
     }
     return [methodName, NativeDatabaseBridge[methodName]]
