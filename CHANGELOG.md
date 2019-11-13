@@ -8,7 +8,8 @@ All notable changes to this project will be documented in this file.
 
 - [SQLiteAdapter][iOS] Add new `synchronous` option to adapter: `new SQLiteAdapter({ ..., synchronous: true })`.
   When enabled, database operations will block JavaScript thread. Adapter actions will resolve in the
-  next microtask, which simplifies building flicker-free interfaces
+  next microtask, which simplifies building flicker-free interfaces. Adapter will fall back to async
+  operation when synchronous adapter is not available (e.g. when doing remote debugging)
 
 ## 0.15 - 2019-11-08
 
