@@ -135,7 +135,7 @@ const makeDispatcher = (isSynchronous: boolean): NativeDispatcher => {
   const methods = dispatcherMethods.map(methodName => {
     if (isSynchronous) {
       const syncName = `${methodName}Sync`
-      return [methodName, () => syncReturnToPromise(NativeDatabaseBridge[syncName]())]
+      return [methodName, (...args) => syncReturnToPromise(NativeDatabaseBridge[syncName](...args))]
     }
     return [methodName, NativeDatabaseBridge[methodName]]
   })

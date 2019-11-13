@@ -427,7 +427,7 @@ extension DatabaseBridge {
                 let result = try action()
                 return ["status": "success", "result": result]
             } catch {
-                return ["status": "error", "code": "db.\(functionName).error", "message": error.localizedDescription]
+                return ["status": "error", "code": "db.\(functionName).error", "message": "\(error)"]
             }
         }
     }
@@ -474,6 +474,6 @@ extension DatabaseBridge {
     private func sendReject(_ reject: RCTPromiseRejectBlock,
                             _ error: Error,
                             functionName: String = #function) {
-        reject("db.\(functionName).error", error.localizedDescription, error)
+        reject("db.\(functionName).error", "\(error)", error)
     }
 }

@@ -12,6 +12,9 @@ const SQLiteAdapterTest = spec => {
         if (adapter._synchronous !== isSynchronous) {
           throw new Error('test setup bug')
         }
+        if (isSynchronous) {
+          await new Promise(resolve => setTimeout(resolve, 0))
+        }
         await test(adapter, SQLiteAdapter)
       })
     })

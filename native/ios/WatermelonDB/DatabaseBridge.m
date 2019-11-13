@@ -78,8 +78,6 @@ WMELON_BRIDGE_METHOD(setLocal,
 
 WMELON_BRIDGE_METHOD(removeLocal,
   key:(nonnull NSString *)key
-  resolve:(RCTPromiseResolveBlock)resolve
-  reject:(RCTPromiseRejectBlock)reject
 )
 
 @end
