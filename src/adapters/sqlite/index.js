@@ -130,6 +130,8 @@ type NativeBridgeType = {
 const NativeDatabaseBridge: NativeBridgeType = NativeModules.DatabaseBridge
 
 const makeDispatcher = (isSynchronous: boolean): NativeDispatcher => {
+  // Hacky-ish way to create a NativeModule-like object which looks like the old DatabaseBridge
+  // but dispatches to synchronous methods, while maintaining Flow typecheck at callsite
   const methods = dispatcherMethods.map(methodName => {
     if (isSynchronous) {
       const syncName = `${methodName}Sync`
@@ -280,12 +282,14 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     )
   }
 
-  async query(query: SerializedQuery): Promise<CachedQueryResult> {
-    const sql = encodeQuery(query)
-    const tableSchema = this.schema.tables[query.table]
+  query(query: SerializedQuery): Promise<CachedQueryResult> {
+    return this.unsafeSqlQuery(query.table, encodeQuery(query))
+  }
+
+  async unsafeSqlQuery(tableName: TableName<any>, sql: string): Promise<CachedQueryResult> {
     return sanitizeQueryResult(
-      await this._dispatcher.query(this._tag, query.table, sql),
-      tableSchema,
+      await this._dispatcher.query(this._tag, tableName, sql),
+      this.schema.tables[tableName],
     )
   }
 
