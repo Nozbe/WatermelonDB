@@ -17,7 +17,7 @@ const SQLiteAdapterTest = spec => {
             invariant(adapter._synchronous === true, 'this should be synchronous')
           } else {
             invariant(
-              adapter._synchronous === true,
+              adapter._synchronous === false,
               'this should be asynchronous - android does not support synchronous adaoter',
             )
           }
