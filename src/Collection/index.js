@@ -16,6 +16,7 @@ import { type DirtyRaw } from '../RawRecord'
 
 import RecordCache from './RecordCache'
 import { CollectionChangeTypes } from './common'
+import type { SQLDatabaseAdapter } from '../adapters/type'
 
 type CollectionChangeType = 'created' | 'updated' | 'destroyed'
 export type CollectionChange<Record: Model> = { record: Record, type: CollectionChangeType }
@@ -97,6 +98,18 @@ export default class Collection<Record: Model> {
     return this._cache.recordsFromQueryResult(rawRecords)
   }
 
+  async unsafeFetchRecordsWithSQL(sql: string): Promise<Record[]> {
+    const { adapter } = this.database
+    invariant(
+      typeof (adapter: any).unsafeSqlQuery === 'function',
+      'unsafeFetchRecordsWithSQL called on database that does not support SQL',
+    )
+    const sqlAdapter: SQLDatabaseAdapter = (adapter: any)
+    const rawRecords = await sqlAdapter.unsafeSqlQuery(this.modelClass.table, sql)
+
+    return this._cache.recordsFromQueryResult(rawRecords)
+  }
+
   // See: Query.fetchCount
   fetchCount(query: Query<Record>): Promise<number> {
     return this.database.adapter.count(query.serialize())
@@ -129,7 +142,6 @@ export default class Collection<Record: Model> {
       }
     })
 
-    this.database._changes.next({ table: this.table, changes: operations })
     this.changes.next(operations)
 
     operations.forEach(({ record, type }) => {

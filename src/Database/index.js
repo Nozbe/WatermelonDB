@@ -1,6 +1,5 @@
 // @flow
 
-import { Subject } from 'rxjs/Subject'
 import type { Observable } from 'rxjs/Observable'
 import { merge as merge$ } from 'rxjs/observable/merge'
 import { startWith } from 'rxjs/operators'
@@ -22,8 +21,6 @@ type DatabaseProps = $Exact<{
   modelClasses: Array<Class<Model>>,
   actionsEnabled: boolean,
 }>
-
-type DatabaseChangeSet = $Exact<{ table: TableName<any>, changes: CollectionChangeSet<any> }>
 
 export default class Database {
   adapter: DatabaseAdapter
@@ -124,17 +121,10 @@ export default class Database {
 
   // Emits a signal immediately, and on change in any of the passed tables
   withChangesForTables(tables: TableName<any>[]): Observable<CollectionChangeSet<any> | null> {
-    if (tables.length === 1) {
-      const [table] = tables
-      return this.collections.get(table).changes.pipe(startWith(null))
-    }
-
     const changesSignals = tables.map(table => this.collections.get(table).changes)
 
     return merge$(...changesSignals).pipe(startWith(null))
   }
-
-  _changes: Subject<DatabaseChangeSet> = new Subject()
 
   _resetCount: number = 0
 
