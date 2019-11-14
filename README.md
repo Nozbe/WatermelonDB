@@ -113,8 +113,8 @@ The result is fully reactive! Whenever a post or comment is added, changed, or r
 
 ## Who uses WatermelonDB
 
-  <a href="https://nozbe4.com">
-    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/nozbe4.png" alt="Nozbe 4" width="300" />
+  <a href="https://nozbe.com/teams/">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/nozbe-teams.png" alt="Nozbe Teams" width="300" />
   </a>
 
   <br>
