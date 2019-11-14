@@ -1,16 +1,13 @@
 // @flow
 
-import { devMeasureTimeAsync, logger, invariant } from '../utils/common'
+import { logger, invariant } from '../utils/common'
 import type { RecordId } from '../Model'
-import type { SerializedQuery } from '../Query'
-import type { TableSchema, TableName } from '../Schema'
-import type { BatchOperation, CachedQueryResult, CachedFindResult, DatabaseAdapter } from './type'
+import type { TableSchema } from '../Schema'
+import type { CachedQueryResult, CachedFindResult, DatabaseAdapter } from './type'
 import { sanitizedRaw, type DirtyRaw } from '../RawRecord'
 
 export type DirtyFindResult = RecordId | ?DirtyRaw
 export type DirtyQueryResult = Array<RecordId | DirtyRaw>
-
-const shouldLogAdapterTimes = false
 
 export function validateAdapter(adapter: DatabaseAdapter): void {
   if (process.env.NODE_ENV !== 'production') {
@@ -58,62 +55,11 @@ export function sanitizeQueryResult(
 
 export async function devLogSetUp<T>(executeBlock: () => Promise<T>): Promise<void> {
   try {
-    const [, time] = await devMeasureTimeAsync(executeBlock)
-    logger.log(`[DB] All set up in ${time}ms`)
+    executeBlock()
   } catch (error) {
-    logger.error(`[DB] Uh-oh. Database failed to load, we're in big trouble`, error)
-  }
-}
-
-export async function devLogFind(
-  executeBlock: () => Promise<CachedFindResult>,
-  id: string,
-  table: string,
-): Promise<CachedFindResult> {
-  const [data, time] = await devMeasureTimeAsync(executeBlock)
-  shouldLogAdapterTimes && logger.log(`[DB] Found ${table}#${id} in ${time}ms`)
-  return data
-}
-
-export async function devLogQuery(
-  executeBlock: () => Promise<CachedQueryResult>,
-  query: SerializedQuery,
-): Promise<CachedQueryResult> {
-  const [dirtyRecords, time] = await devMeasureTimeAsync(executeBlock)
-  shouldLogAdapterTimes &&
-    logger.log(`[DB] Loaded ${dirtyRecords.length} ${query.table} in ${time}ms`)
-  return dirtyRecords
-}
-
-export async function devLogSQLQuery(
-  executeBlock: () => Promise<CachedQueryResult>,
-  table: TableName<any>,
-): Promise<CachedQueryResult> {
-  const [dirtyRecords, time] = await devMeasureTimeAsync(executeBlock)
-  shouldLogAdapterTimes && logger.log(`[DB] Loaded ${dirtyRecords.length} ${table} in ${time}ms`)
-  return dirtyRecords
-}
-
-export async function devLogCount(
-  executeBlock: () => Promise<number>,
-  query: SerializedQuery,
-): Promise<number> {
-  const [count, time] = await devMeasureTimeAsync(executeBlock)
-  shouldLogAdapterTimes && logger.log(`[DB] Counted ${count} ${query.table} in ${time}ms`)
-  return count
-}
-
-export async function devLogBatch<T>(
-  executeBlock: () => Promise<T>,
-  operations: BatchOperation[],
-): Promise<void> {
-  if (!operations.length) {
-    return
-  }
-  const [, time] = await devMeasureTimeAsync(executeBlock)
-  const [type, table] = operations[0]
-  shouldLogAdapterTimes &&
-    logger.log(
-      `[DB] Executed batch of ${operations.length} operations (first: ${type} on ${table}) in ${time}ms`,
+    logger.error(
+      `[DB] Uh-oh. Database failed to load, we're in big trouble. This might happen if you didn't set up native code correctly (iOS, Android), or if you didn't recompile native app after WatermelonDB update. It might also mean that IndexedDB or SQLite refused to open.`,
+      error,
     )
+  }
 }
