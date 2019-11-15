@@ -41,7 +41,7 @@
   "dependencies": {
     "lodash.clonedeep": "^4.5.0",
     "lokijs": "git+https://github.com/Nozbe/LokiJS.git#384b80f",
-    "rambdax": "2.15.0",
+    "rambdax": "3.2.0",
     "rxjs": "^6.2.2",
     "rxjs-compat": "^6.3.2",
     "sql-escape-string": "^1.1.0"
