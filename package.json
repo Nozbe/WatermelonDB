@@ -128,7 +128,7 @@
     "prettier-eslint": "^9.0.0",
     "prettier-eslint-cli": "^4.7.1",
     "react": "^16.12.0",
-    "react-dom": "^16.11.0",
+    "react-dom": "^16.12.0",
     "react-native": "^0.59.3",
     "react-test-renderer": "16.11.0",
     "rimraf": "^3.0.0",
