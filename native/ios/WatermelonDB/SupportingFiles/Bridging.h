@@ -1,2 +1,2 @@
-#import "../FMDB/src/fmdb/FMDB.h"
+#import "FMDB.h"
 #import <React/RCTBridgeModule.h>
