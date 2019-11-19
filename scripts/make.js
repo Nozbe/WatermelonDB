@@ -120,6 +120,7 @@ const copyNonJavaScriptFiles = buildPath => {
     'LICENSE',
     'README.md',
     'yarn.lock',
+    'WatermelonDB.podspec',
     'docs',
     'native/ios',
     'native/android',
