@@ -209,7 +209,12 @@ const starredPosts = await postsCollection.query(Q.where('is_starred', true)).fe
 <li><code>Collection.findAndObserve(id)</code> — same as using <code>.find(id)</code> and then calling <code>record.observe()</code></li>
 <li><code>Model.prepareUpdate()</code>, <code>Collection.prepareCreate</code>, <code>Database.batch</code> — used for <a href="./Actions.html">batch updates</a></li>
 <li><code>Database.unsafeResetDatabase()</code> destroys the whole database - <a href="https://github.com/Nozbe/WatermelonDB/blob/master/src/Database/index.js#L116">be sure to see this comment before using it</a></li>
+<li>To override the <code>record.id</code> during the creation, e.g. to sync with a remote database, you can do it by <code>record._raw</code> property</li>
 </ul>
+<pre><code class="language-js">await postsCollection.create(post =&gt; {
+  post._raw.id = serverId
+})
+</code></pre>
 <hr />
 <h2><a class="header" href="#next-steps" id="next-steps">Next steps</a></h2>
 <p>➡️ Now that you can create and update records, <a href="./Components.html"><strong>connect them to React components</strong></a></p>
