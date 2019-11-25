@@ -101,6 +101,12 @@ await database.action(async () => {
 - `Collection.findAndObserve(id)` — same as using `.find(id)` and then calling `record.observe()`
 - `Model.prepareUpdate()`, `Collection.prepareCreate`, `Database.batch` — used for [batch updates](./Actions.md)
 - `Database.unsafeResetDatabase()` destroys the whole database - [be sure to see this comment before using it](https://github.com/Nozbe/WatermelonDB/blob/master/src/Database/index.js#L116)
+- To override the `record.id` during the creation, e.g. to sync with a remote database, you can do it by `record._raw` property
+```js 
+await postsCollection.create(post => {
+  post._raw.id = serverId
+})
+```
 
 * * *
 
