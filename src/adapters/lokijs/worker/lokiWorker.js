@@ -47,9 +47,10 @@ export default class LokiWorker {
     // PR: https://github.com/facebook/flow/pull/6100
     const context = (this.workerContext: any)
     context.onmessage = (e: MessageEvent) => {
+      // console.log('Pushing task onto queue')
       this.asyncQueue.push((e.data: any), (action: WorkerResponseAction) => {
         const { type, payload } = action
-
+        // console.log('Posting message from worker')
         this.workerContext.postMessage({
           type,
           payload,
@@ -59,7 +60,7 @@ export default class LokiWorker {
   }
 
   _setUpQueue(): void {
-    this.asyncQueue = queue(async (action: WorkerExecutorAction, callback) => {
+    const standardQueueWorker = async (action: WorkerExecutorAction, callback) => {
       try {
         const { type, payload } = action
         invariant(type in actions, `Unknown worker action ${type}`)
@@ -83,6 +84,34 @@ export default class LokiWorker {
           const response = await runExecutorAction(...payload)
 
           callback({ type: RESPONSE_SUCCESS, payload: response })
+        }
+      } catch (error) {
+        // Main process only receives error message — this logError is to retain call stack
+        logError(error)
+        callback({ type: RESPONSE_ERROR, payload: error })
+      }
+    }
+    this.asyncQueue = queue((action: WorkerExecutorAction, callback) => {
+      try {
+        const { type, payload } = action
+        invariant(type in actions, `Unknown worker action ${type}`)
+
+        if (
+          (type === actions.FIND ||
+            type === actions.QUERY ||
+            type === actions.COUNT ||
+            type === actions.GET_LOCAL ||
+            type === actions.SET_LOCAL) &&
+          this.executor
+        ) {
+          // console.log('synchro')
+          const runExecutorAction = executorMethods[type].bind(this.executor)
+          const response = runExecutorAction(...payload)
+
+          callback({ type: RESPONSE_SUCCESS, payload: response })
+        } else {
+          // console.log('fallback worker')
+          standardQueueWorker(action, callback)
         }
       } catch (error) {
         // Main process only receives error message — this logError is to retain call stack

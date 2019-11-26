@@ -96,14 +96,27 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     return this.workerBridge.send(FIND, [table, id])
   }
 
+  findBisync(table: TableName<any>, id: RecordId, callback): Promise<CachedFindResult> {
+    this.workerBridge.sendBisync(FIND, [table, id], 'deep', callback)
+  }
+
   query(query: SerializedQuery): Promise<CachedQueryResult> {
     // SerializedQueries are immutable, so we need no copy
     return this.workerBridge.send(QUERY, [query], 'immutable')
   }
 
+  queryBisync(query: SerializedQuery, callback: (Result<CachedQueryResult>) => void): void {
+    this.workerBridge.sendBisync(QUERY, [query], 'immutable', callback)
+  }
+
   count(query: SerializedQuery): Promise<number> {
     // SerializedQueries are immutable, so we need no copy
     return this.workerBridge.send(COUNT, [query], 'immutable')
+  }
+
+  countBisync(query: SerializedQuery, callback): Promise<number> {
+    // SerializedQueries are immutable, so we need no copy
+    this.workerBridge.sendBisync(COUNT, [query], 'immutable', callback)
   }
 
   batch(operations: BatchOperation[]): Promise<void> {

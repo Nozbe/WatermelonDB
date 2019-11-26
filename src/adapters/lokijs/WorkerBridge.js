@@ -52,6 +52,7 @@ class WorkerBridge {
     payload: WorkerExecutorPayload = [],
     cloneMethod: 'shallowCloneDeepObjects' | 'immutable' | 'deep' = 'deep',
   ): Promise<any> {
+    // console.warn('Non-bisync send:', type, payload)
     return new Promise((resolve, reject) => {
       this._pendingRequests.push({ resolve, reject })
 
@@ -61,6 +62,31 @@ class WorkerBridge {
         cloneMethod,
       })
     })
+  }
+
+  sendBisync(
+    type: WorkerExecutorType,
+    payload: WorkerExecutorPayload = [],
+    cloneMethod: 'shallowCloneDeepObjects' | 'immutable' | 'deep' = 'deep',
+    callback,
+  ): void {
+    // console.log('sendBisync')
+    let calledBack = false
+    this._pendingRequests.push({
+      resolve: value => {
+        calledBack = true
+        callback({ value })
+      },
+      reject: error => callback({ error }),
+    })
+
+    this._worker.postMessage({
+      type,
+      payload,
+      cloneMethod,
+    })
+
+    // console[calledBack ? 'log' : 'error'](`Did call back synchronously:`, calledBack, type, payload)
   }
 }
 

@@ -19,7 +19,9 @@ function createQueueTask<Input, Output>(
   callback: QueueWorkerCallback<Output>,
 ): Observable<any> {
   return Observable.create(observer => {
+    // console.log('Executing queue task...')
     worker(data, function lokiWorkerQueueReaction(result): void {
+      // console.log('Got back queue result')
       observer.next(data)
       callback(result)
       observer.complete()
@@ -36,6 +38,7 @@ function makeQueue<Input, Output>(worker: QueueWorker<Input, Output>): QueueObje
 
   return {
     push(data, callback): void {
+      // console.log('Pushing onto queue...')
       subject.next(createQueueTask(worker, data, callback))
     },
   }
