@@ -45,11 +45,13 @@ type InitializeStatus =
   | { code: 'ok' | 'schema_needed' }
   | { code: 'migrations_needed', databaseVersion: SchemaVersion }
 
-type SyncReturn<Result> =
-  | { status: 'success', result: Result }
+type Result<Type> = $Exact<{ value: Type }> | $Exact<{ error: Error }>
+
+type SyncReturn<Type> =
+  | { status: 'success', result: Type }
   | { status: 'error', code: string, message: string }
 
-function getSyncReturn<Result>(syncReturn: SyncReturn<Result>): Result {
+function getSyncReturn<Type>(syncReturn: SyncReturn<Type>): Type {
   if (syncReturn.status === 'success') {
     return syncReturn.result
   } else if (syncReturn.status === 'error') {
@@ -62,7 +64,19 @@ function getSyncReturn<Result>(syncReturn: SyncReturn<Result>): Result {
   }
 }
 
-async function syncReturnToPromise<Result>(syncReturn: SyncReturn<Result>): Promise<Result> {
+function syncReturnToResult<Type>(syncReturn: SyncReturn<Type>): Result<Type> {
+  if (syncReturn.status === 'success') {
+    return { value: syncReturn.result }
+  } else if (syncReturn.status === 'error') {
+    const error = new Error(syncReturn.message)
+    // $FlowFixMem
+    error.code = syncReturn.code
+    return { error }
+  }
+  return { error: new Error('Unknown native bridge response') }
+}
+
+async function syncReturnToPromise<Type>(syncReturn: SyncReturn<Type>): Promise<Type> {
   return getSyncReturn(syncReturn)
 }
 
@@ -291,8 +305,32 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     )
   }
 
+  findBisync(
+    table: TableName<any>,
+    id: RecordId,
+    callback: (Result<CachedFindResult>) => void,
+  ): void {
+    invariant(this._synchronous)
+    const result = syncReturnToResult(NativeDatabaseBridge.findSynchronous(this._tag, table, id))
+    const sanitized = result.value
+      ? { value: sanitizeFindResult(result.value, this.schema.tables[table]) }
+      : result
+    callback(sanitized)
+  }
+
   query(query: SerializedQuery): Promise<CachedQueryResult> {
     return this.unsafeSqlQuery(query.table, encodeQuery(query))
+  }
+
+  queryBisync(query: SerializedQuery, callback: (Result<CachedQueryResult>) => void): void {
+    invariant(this._synchronous)
+    const result = syncReturnToResult(
+      NativeDatabaseBridge.querySynchronous(this._tag, query.table, encodeQuery(query)),
+    )
+    const sanitized = result.value
+      ? { value: sanitizeQueryResult(result.value, this.schema.tables[query.table]) }
+      : result
+    callback(sanitized)
   }
 
   async unsafeSqlQuery(tableName: TableName<any>, sql: string): Promise<CachedQueryResult> {
@@ -305,6 +343,14 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   async count(query: SerializedQuery): Promise<number> {
     const sql = encodeQuery(query, true)
     return this._dispatcher.count(this._tag, sql)
+  }
+
+  countBisync(query: SerializedQuery, callback: (Result<number>) => void): void {
+    invariant(this._synchronous)
+    const result = syncReturnToResult(
+      NativeDatabaseBridge.countSynchronous(this._tag, encodeQuery(query, true)),
+    )
+    callback(result)
   }
 
   async batch(operations: BatchOperation[]): Promise<void> {

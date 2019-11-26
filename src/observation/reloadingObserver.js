@@ -1,6 +1,6 @@
 // @flow
 
-import type { Observable } from 'rxjs/Observable'
+import { Observable } from 'rxjs/Observable'
 import { switchMap, distinctUntilChanged, startWith } from 'rxjs/operators'
 import { from } from 'rxjs/observable/from'
 
@@ -19,12 +19,30 @@ export default function reloadingObserver<Record: Model>(
   // by observeWithColumns
   shouldEmitStatus: boolean = false,
 ): Observable<Record[]> {
-  const reloadingQuery = query.collection.database.withChangesForTables(query.allTables).pipe(
-    switchMap(() => {
-      const queryPromise = query.collection.fetchQuery(query)
-      return shouldEmitStatus ? from(queryPromise).pipe(startWith((false: any))) : queryPromise
-    }),
-  )
+  // const reloadingQuery = query.collection.database.withChangesForTables(query.allTables).pipe(
+  //   switchMap(() => {
+  //     const queryPromise = query.collection.fetchQuery(query)
+  //     return shouldEmitStatus ? from(queryPromise).pipe(startWith((false: any))) : queryPromise
+  //   }),
+  // )
+
+  const reloadingQuery = Observable.create(observer => {
+    const subscription = query.collection.database
+      .withChangesForTables(query.allTables)
+      .subscribe(() => {
+        if (shouldEmitStatus) {
+          observer.next(false)
+        }
+
+        query.collection.fetchQueryBisync(query, result => {
+          observer.next(result.value)
+        })
+      })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  })
 
   return shouldEmitStatus
     ? reloadingQuery

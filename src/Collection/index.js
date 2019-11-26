@@ -1,6 +1,7 @@
 // @flow
 
-import type { Observable } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
+
 import { Subject } from 'rxjs/Subject'
 import { defer } from 'rxjs/observable/defer'
 import { switchMap } from 'rxjs/operators'
@@ -48,10 +49,34 @@ export default class Collection<Record: Model> {
     return cachedRecord || this._fetchRecord(id)
   }
 
+  findBisync(id: RecordId, callback: any => void) {
+    if (!id) {
+      callback({ error: new Error(`Invalid record ID ${this.table}#${id}`) })
+      return
+    }
+
+    const cachedRecord = this._cache.get(id)
+    if (cachedRecord) {
+      callback({ value: cachedRecord })
+      return
+    }
+
+    this._fetchRecordBisync(id, callback)
+  }
+
   // Finds the given record and starts observing it
   // (with the same semantics as when calling `model.observe()`)
   findAndObserve(id: RecordId): Observable<Record> {
-    return defer(() => this.find(id)).pipe(switchMap(model => model.observe()))
+    // return defer(() => this.find(id)).pipe(switchMap(model => model.observe()))
+    return Observable.create(observer => {
+      this.findBisync(id, result => {
+        if (result.value) {
+          observer.next(result.value)
+        } else {
+          observer.error(result.error)
+        }
+      })
+    }).pipe(switchMap(model => model.observe()))
   }
 
   // Query records of this type
@@ -98,6 +123,19 @@ export default class Collection<Record: Model> {
     return this._cache.recordsFromQueryResult(rawRecords)
   }
 
+  fetchQueryBisync(query: Query<Record>, callback: any => void): void {
+    this.database.adapter.queryBisync(query.serialize(), result => {
+      if (result.value) {
+        const rawRecords = result.value
+        const records = this._cache.recordsFromQueryResult(rawRecords)
+        // console.log('fetchQueryBisync', records.map(x => x._raw || x))
+        callback({ value: records })
+      } else {
+        callback(result)
+      }
+    })
+  }
+
   async unsafeFetchRecordsWithSQL(sql: string): Promise<Record[]> {
     const { adapter } = this.database
     invariant(
@@ -115,6 +153,10 @@ export default class Collection<Record: Model> {
     return this.database.adapter.count(query.serialize())
   }
 
+  fetchCountBisync(query: Query<Record>, callback: any => void): void {
+    this.database.adapter.countBisync(query.serialize(), callback)
+  }
+
   // *** Implementation details ***
 
   get table(): TableName<Record> {
@@ -130,6 +172,21 @@ export default class Collection<Record: Model> {
     const raw = await this.database.adapter.find(this.table, id)
     invariant(raw, `Record ${this.table}#${id} not found`)
     return this._cache.recordFromQueryResult(raw)
+  }
+
+  _fetchRecordBisync(id: RecordId, callback: any => void): void {
+    this.database.adapter.findBisync(this.table, id, result => {
+      if (result.value) {
+        const raw = result.value
+        if (raw) {
+          callback({ value: this._cache.recordFromQueryResult(raw) })
+        } else {
+          callback({ error: new Error(`Record ${this.table}#${id} not found`) })
+        }
+      } else {
+        callback(result)
+      }
+    })
   }
 
   changeSet(operations: CollectionChangeSet<Record>): void {

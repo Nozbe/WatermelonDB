@@ -69,6 +69,10 @@ export default class Query<Record: Model> {
     return this.collection.fetchQuery(this)
   }
 
+  fetchBisync(callback: any => void): void {
+    this.collection.fetchQueryBisync(this, callback)
+  }
+
   // Emits an array of matching records, then emits a new array every time it changes
   observe(): Observable<Record[]> {
     return this._cachedObservable

@@ -59,28 +59,32 @@ export default function simpleObserver<Record: Model>(
     let unsubscribed = false
     let subscription = null
 
-    query.collection
-      .fetchQuery(query)
-      .then(function observeQueryInitialEmission(initialRecords): void {
-        if (unsubscribed) {
-          return
+    query.collection.fetchQueryBisync(query, function observeQueryInitialEmission(result): void {
+      if (unsubscribed) {
+        return
+      }
+
+      if (!result.value) {
+        throw new Error('wtf value')
+      }
+      const initialRecords = result.value
+      // console.log('simpleObserver', initialRecords.map(x => x._raw || x))
+      //
+      // Send initial matching records
+      const matchingRecords: Record[] = initialRecords
+      const emitCopy = () => observer.next(matchingRecords.slice(0))
+      emitCopy()
+
+      // Observe changes to the collection
+      subscription = query.collection.changes.subscribe(function observeQueryCollectionChanged(
+        changeSet,
+      ): void {
+        const shouldEmit = processChangeSet(changeSet, matcher, matchingRecords)
+        if (shouldEmit || alwaysEmit) {
+          emitCopy()
         }
-
-        // Send initial matching records
-        const matchingRecords: Record[] = initialRecords
-        const emitCopy = () => observer.next(matchingRecords.slice(0))
-        emitCopy()
-
-        // Observe changes to the collection
-        subscription = query.collection.changes.subscribe(function observeQueryCollectionChanged(
-          changeSet,
-        ): void {
-          const shouldEmit = processChangeSet(changeSet, matcher, matchingRecords)
-          if (shouldEmit || alwaysEmit) {
-            emitCopy()
-          }
-        })
       })
+    })
 
     return () => {
       unsubscribed = true

@@ -1,6 +1,6 @@
 // @flow
+import { Observable } from 'rxjs/Observable'
 
-import type { Observable } from 'rxjs/Observable'
 import { switchMap, distinctUntilChanged, throttleTime } from 'rxjs/operators'
 
 import type Query from '../Query'
@@ -18,10 +18,22 @@ export default function observeCount<Record: Model>(
 ): Observable<number> {
   const { database } = query.collection
   const changes = database.withChangesForTables(query.allTables)
-  const throttledChanges = isThrottled ? changes.pipe(throttleTime(250)) : changes
+  const throttledChanges = changes // isThrottled ? changes.pipe(throttleTime(250)) : changes
 
-  return throttledChanges.pipe(
-    switchMap(() => query.collection.fetchCount(query)),
-    distinctUntilChanged(),
-  )
+  // return throttledChanges.pipe(
+  //   switchMap(() => query.collection.fetchCount(query)),
+  //   distinctUntilChanged(),
+  // )
+
+  return Observable.create(observer => {
+    const subscription = changes.subscribe(() => {
+      query.collection.fetchCountBisync(query, result => {
+        observer.next(result.value)
+      })
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  })
 }
