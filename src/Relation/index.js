@@ -31,8 +31,8 @@ export default class Relation<T: ?Model> {
 
   @lazy
   _cachedObservable: Observable<T> = createObservable(this)
-    .pipe(publishReplayLatestWhileConnected)
-    .refCount()
+  // .pipe(publishReplayLatestWhileConnected)
+  // .refCount()
 
   constructor(
     model: Model,

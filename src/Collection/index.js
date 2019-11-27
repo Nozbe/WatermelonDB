@@ -79,6 +79,24 @@ export default class Collection<Record: Model> {
     }).pipe(switchMap(model => model.observe()))
   }
 
+  findAndSubscribe(id: any, subscriber: any): any {
+    this.findBisync(id, result => {
+      if (result.value) {
+        const model = result.value
+        subscriber(model)
+        const subscription = model.subscribeToChanges(() => {
+          subscriber(model)
+        })
+      } else {
+        // ??
+      }
+    })
+
+    return () => {
+      // ??
+    }
+  }
+
   // Query records of this type
   query(...conditions: Condition[]): Query<Record> {
     return new Query(this, conditions)

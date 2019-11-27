@@ -35,15 +35,15 @@ export default class Query<Record: Model> {
   _rawDescription: QueryDescription
 
   @lazy
-  _cachedObservable: Observable<Record[]> = observeQuery(this).pipe(cacheWhileConnected)
+  _cachedObservable: Observable<Record[]> = observeQuery(this) //.pipe(cacheWhileConnected)
 
   @lazy
-  _cachedCountObservable: Observable<number> = observeCount(this, false).pipe(cacheWhileConnected)
+  _cachedCountObservable: Observable<number> = observeCount(this, false) //.pipe(cacheWhileConnected)
 
   @lazy
-  _cachedCountThrottledObservable: Observable<number> = observeCount(this, true).pipe(
-    cacheWhileConnected,
-  )
+  _cachedCountThrottledObservable: Observable<number> = observeCount(this, true) //.pipe(
+  //   cacheWhileConnected,
+  // )
 
   // Note: Don't use this directly, use Collection.query(...)
   constructor(collection: Collection<Record>, conditions: Condition[]): void {

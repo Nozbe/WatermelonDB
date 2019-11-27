@@ -260,10 +260,24 @@ export default class Model {
 
   _notifyChanged(): void {
     this._getChanges().next(this)
+
+    this._subscribers.forEach(subscriber => {
+      subscriber()
+    })
   }
 
   _notifyDestroyed(): void {
     this._getChanges().complete()
+  }
+
+  _subscribers: any[] = []
+
+  subscribeToChanges(subscriber: Function): any {
+    this._subscribers.push(subscriber)
+
+    return () => {
+      // todo
+    }
   }
 
   _getRaw(rawFieldName: ColumnName): Value {
