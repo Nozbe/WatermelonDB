@@ -107,6 +107,8 @@ export default class Database {
       const [table, changeSet]: [TableName<any>, CollectionChangeSet<any>] = (notification: any)
       this.collections.get(table).changeSet(changeSet)
     })
+
+    this._emitChanges(changeNotifications)
   }
 
   // Enqueues an Action -- a block of code that, when its ran, has a guarantee that no other Action
@@ -124,6 +126,25 @@ export default class Database {
     const changesSignals = tables.map(table => this.collections.get(table).changes)
 
     return merge$(...changesSignals).pipe(startWith(null))
+  }
+
+  _subscribers: any[] = []
+
+  subscribeToChanges(tables: any, subscriber: Function): any {
+    this._subscribers.push({ tables, subscriber })
+
+    return () => {
+      // todo
+    }
+  }
+
+  _emitChanges(changes: { [TableName<any>]: CollectionChangeSet<any> }): void {
+    const changedTables = Object.keys(changes)
+    this._subscribers.forEach(({ tables, subscriber }) => {
+      if (changedTables.some(t => tables.includes(t))) {
+        subscriber()
+      }
+    })
   }
 
   _resetCount: number = 0

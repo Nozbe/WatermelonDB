@@ -76,7 +76,8 @@ export default function simpleObserver<Record: Model>(
       emitCopy()
 
       // Observe changes to the collection
-      subscription = query.collection.changes.subscribe(function observeQueryCollectionChanged(
+      // subscription = query.collection.changes.subscribe(
+      subscription = query.collection.subscribeToChanges(function observeQueryCollectionChanged(
         changeSet,
       ): void {
         const shouldEmit = processChangeSet(changeSet, matcher, matchingRecords)
@@ -88,7 +89,7 @@ export default function simpleObserver<Record: Model>(
 
     return () => {
       unsubscribed = true
-      subscription && subscription.unsubscribe()
+      subscription && subscription()
     }
   })
 }

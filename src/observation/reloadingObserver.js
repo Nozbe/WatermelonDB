@@ -27,24 +27,41 @@ export default function reloadingObserver<Record: Model>(
   // )
 
   const reloadingQuery = Observable.create(observer => {
-    const subscription = query.collection.database
-      .withChangesForTables(query.allTables)
-      .subscribe(() => {
-        if (shouldEmitStatus) {
-          observer.next(false)
-        }
+    // const subscription = query.collection.database
+    //   .withChangesForTables(query.allTables)
+    //   .subscribe(() => {
+    //     if (shouldEmitStatus) {
+    //       observer.next(false)
+    //     }
 
-        query.collection.fetchQueryBisync(query, result => {
-          observer.next(result.value)
-        })
+    //     query.collection.fetchQueryBisync(query, result => {
+    //       observer.next(result.value)
+    //     })
+    //   })
+
+    let previousValue = []
+    const reloadingObserverFetch = () => {
+      if (shouldEmitStatus) {
+        observer.next(false)
+      }
+
+      query.collection.fetchQueryBisync(query, ({ value }) => {
+        const shouldEmit = shouldEmitStatus || !identicalArrays(value, previousValue)
+        previousValue = value
+        shouldEmit && observer.next(value)
       })
+    }
+
+    const unsubscribe = query.collection.database.subscribeToChanges(
+      query.allTables,
+      reloadingObserverFetch,
+    )
+    reloadingObserverFetch()
 
     return () => {
-      subscription.unsubscribe()
+      unsubscribe()
     }
   })
 
-  return shouldEmitStatus
-    ? reloadingQuery
-    : reloadingQuery.pipe(distinctUntilChanged(identicalArrays))
+  return reloadingQuery
 }

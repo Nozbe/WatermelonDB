@@ -17,8 +17,8 @@ export default function observeCount<Record: Model>(
   isThrottled: boolean,
 ): Observable<number> {
   const { database } = query.collection
-  const changes = database.withChangesForTables(query.allTables)
-  const throttledChanges = changes // isThrottled ? changes.pipe(throttleTime(250)) : changes
+  // const changes = database.withChangesForTables(query.allTables)
+  // const throttledChanges = changes // isThrottled ? changes.pipe(throttleTime(250)) : changes
 
   // return throttledChanges.pipe(
   //   switchMap(() => query.collection.fetchCount(query)),
@@ -26,14 +26,19 @@ export default function observeCount<Record: Model>(
   // )
 
   return Observable.create(observer => {
-    const subscription = changes.subscribe(() => {
-      query.collection.fetchCountBisync(query, result => {
-        observer.next(result.value)
+    let previousValue = null
+    const countObserverFetch = () => {
+      query.collection.fetchCountBisync(query, ({ value }) => {
+        const shouldEmit = value !== previousValue
+        previousValue = value
+        shouldEmit && observer.next(value)
       })
-    })
+    }
+    const unsubscribe = database.subscribeToChanges(query.allTables, countObserverFetch)
+    countObserverFetch()
 
     return () => {
-      subscription.unsubscribe()
+      unsubscribe()
     }
   })
 }

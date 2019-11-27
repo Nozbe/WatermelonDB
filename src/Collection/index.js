@@ -201,6 +201,10 @@ export default class Collection<Record: Model> {
 
     this.changes.next(operations)
 
+    this._subscribers.forEach(subscriber => {
+      subscriber(operations)
+    })
+
     operations.forEach(({ record, type }) => {
       if (type === CollectionChangeTypes.updated) {
         record._notifyChanged()
@@ -208,6 +212,16 @@ export default class Collection<Record: Model> {
         record._notifyDestroyed()
       }
     })
+  }
+
+  _subscribers: any[] = []
+
+  subscribeToChanges(subscriber: Function): any {
+    this._subscribers.push(subscriber)
+
+    return () => {
+      // todo
+    }
   }
 
   // See: Database.unsafeClearCaches
