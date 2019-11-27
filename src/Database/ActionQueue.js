@@ -84,6 +84,7 @@ export default class ActionQueue implements ActionInterface {
     this._queue.shift()
 
     if (this._queue.length) {
+      // TODO: Race condition between this and enqueue() ?
       setTimeout(() => this._executeNext(), 0)
     }
   }

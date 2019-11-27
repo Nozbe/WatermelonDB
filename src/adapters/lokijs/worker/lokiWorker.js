@@ -5,7 +5,7 @@ import logError from '../../../utils/common/logError'
 import invariant from '../../../utils/common/invariant'
 
 import LokiExecutor from './executor'
-import queue, { type QueueObject } from './queue'
+// import queue, { type QueueObject } from './queue'
 import {
   actions,
   responseActions,
@@ -35,11 +35,11 @@ export default class LokiWorker {
 
   executor: ?LokiExecutor
 
-  asyncQueue: QueueObject<WorkerExecutorAction, WorkerResponseAction>
+  // asyncQueue: QueueObject<WorkerExecutorAction, WorkerResponseAction>
 
   constructor(workerContext: DedicatedWorkerGlobalScope): void {
     this.workerContext = workerContext
-    this._setUpQueue()
+    // this._setUpQueue()
     // listen for messages
 
     // https://github.com/facebook/flow/blob/master/lib/bom.js#L504
@@ -48,76 +48,109 @@ export default class LokiWorker {
     const context = (this.workerContext: any)
     context.onmessage = (e: MessageEvent) => {
       // console.log('Pushing task onto queue')
-      this.asyncQueue.push((e.data: any), (action: WorkerResponseAction) => {
-        const { type, payload } = action
-        // console.log('Posting message from worker')
-        this.workerContext.postMessage({
-          type,
-          payload,
-        })
-      })
+      const action: WorkerExecutorAction = (e.data: any)
+      this.enqueue(action)
     }
   }
 
-  _setUpQueue(): void {
-    const standardQueueWorker = async (action: WorkerExecutorAction, callback) => {
-      try {
-        const { type, payload } = action
-        invariant(type in actions, `Unknown worker action ${type}`)
+  // _setUpQueue(): void {
+  //   this.asyncQueue = queue((action: WorkerExecutorAction, callback) => {
+  //     this.processWork(action, callback)
+  //   })
+  // }
 
-        if (type === actions.SETUP) {
-          // app just launched, set up executor with options sent
-          invariant(!this.executor, `Loki executor already set up - cannot set up again`)
-          const [options] = payload
-          const executor = new LokiExecutor(options)
+  _queue: WorkerExecutorAction[] = []
 
-          // set up, make this.executor available only if successful
-          await executor.setUp()
-          this.executor = executor
+  enqueue(action: WorkerExecutorAction): void {
+    const queue = this._queue
+    queue.push(action)
 
-          callback({ type: RESPONSE_SUCCESS, payload: null })
-        } else {
-          // run action
-          invariant(this.executor, `Cannot run actions because executor is not set up`)
+    if (queue.length === 1) {
+      this.executeNext()
+    }
+  }
 
-          const runExecutorAction = executorMethods[type].bind(this.executor)
-          const response = await runExecutorAction(...payload)
+  executeNext(): void {
+    const queue = this._queue
+    const work = queue[0]
+    const onWorkDone = (response: WorkerResponseAction): void => {
+      queue.shift()
+      this.sendResponse(response)
 
-          callback({ type: RESPONSE_SUCCESS, payload: response })
-        }
-      } catch (error) {
-        // Main process only receives error message — this logError is to retain call stack
-        logError(error)
-        callback({ type: RESPONSE_ERROR, payload: error })
+      if (queue.length) {
+        this.executeNext()
       }
     }
-    this.asyncQueue = queue((action: WorkerExecutorAction, callback) => {
-      try {
-        const { type, payload } = action
-        invariant(type in actions, `Unknown worker action ${type}`)
+    this.processWork(work, onWorkDone)
+  }
 
-        if (
-          (type === actions.FIND ||
-            type === actions.QUERY ||
-            type === actions.COUNT ||
-            type === actions.GET_LOCAL ||
-            type === actions.SET_LOCAL) &&
-          this.executor
-        ) {
-          // console.log('synchro')
-          const runExecutorAction = executorMethods[type].bind(this.executor)
-          const response = runExecutorAction(...payload)
+  sendResponse(response: WorkerResponseAction): void {
+    const { type, payload } = response
+    // console.log('Posting message from worker')
+    this.workerContext.postMessage({ type, payload })
+  }
 
-          callback({ type: RESPONSE_SUCCESS, payload: response })
-        } else {
-          // console.log('fallback worker')
-          standardQueueWorker(action, callback)
-        }
-      } catch (error) {
-        // Main process only receives error message — this logError is to retain call stack
-        logError(error)
-        callback({ type: RESPONSE_ERROR, payload: error })
+  async processWorkAsync(
+    action: WorkerExecutorAction,
+    callback: WorkerResponseAction => void,
+  ): Promise<void> {
+    try {
+      const { type, payload } = action
+      invariant(type in actions, `Unknown worker action ${type}`)
+
+      if (type === actions.SETUP) {
+        // app just launched, set up executor with options sent
+        invariant(!this.executor, `Loki executor already set up - cannot set up again`)
+        const [options] = payload
+        const executor = new LokiExecutor(options)
+
+        // set up, make this.executor available only if successful
+        await executor.setUp()
+        this.executor = executor
+
+        callback({ type: RESPONSE_SUCCESS, payload: null })
+      } else {
+        // run action
+        invariant(this.executor, `Cannot run actions because executor is not set up`)
+
+        const runExecutorAction = executorMethods[type].bind(this.executor)
+        const response = await runExecutorAction(...payload)
+
+        callback({ type: RESPONSE_SUCCESS, payload: response })
       }
-    })
+    } catch (error) {
+      // Main process only receives error message — this logError is to retain call stack
+      logError(error)
+      callback({ type: RESPONSE_ERROR, payload: error })
+    }
+  }
+
+  processWork(action: WorkerExecutorAction, callback: WorkerResponseAction => void): void {
+    try {
+      const { type, payload } = action
+      invariant(type in actions, `Unknown worker action ${type}`)
+
+      if (
+        (type === actions.FIND ||
+          type === actions.QUERY ||
+          type === actions.COUNT ||
+          type === actions.GET_LOCAL ||
+          type === actions.SET_LOCAL) &&
+        this.executor
+      ) {
+        // console.log('synchro')
+        const runExecutorAction = executorMethods[type].bind(this.executor)
+        const response = runExecutorAction(...payload)
+
+        callback({ type: RESPONSE_SUCCESS, payload: response })
+      } else {
+        // console.log('fallback worker')
+        this.processWorkAsync(action, callback)
+      }
+    } catch (error) {
+      // Main process only receives error message — this logError is to retain call stack
+      logError(error)
+      callback({ type: RESPONSE_ERROR, payload: error })
+    }
   }
 }
