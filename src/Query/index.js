@@ -3,7 +3,6 @@
 import { Observable } from 'rxjs/Observable'
 import { prepend } from 'rambdax'
 
-import cacheWhileConnected from '../utils/rx/cacheWhileConnected'
 import allPromises from '../utils/fp/allPromises'
 
 // TODO: ?
@@ -27,39 +26,38 @@ export type SerializedQuery = $Exact<{
   associations: AssociationArgs[],
 }>
 
-function observeCount<Record: Model>(
-  // eslint-disable-next-line no-use-before-define
-  query: Query<Record>,
-  isThrottled: boolean,
-): Observable<number> {
-  return Observable.create(observer => {
-    return subscribeToCount(query, isThrottled, count => {
-      observer.next(count)
-    })
-  })
-}
+class SharedSubscribable<T> {
+  _source: (subscriber: (T) => void) => () => void
 
-function observeQuery<Record: Model>(
-  // eslint-disable-next-line no-use-before-define
-  query: Query<Record>,
-): Observable<Record[]> {
-  return Observable.create(observer => {
-    return subscribeToQuery(query, records => {
-      observer.next(records)
-    })
-  })
-}
+  _unsubscribe: ?() => void
 
-function observeQueryWithColumns<Record: Model>(
-  // eslint-disable-next-line no-use-before-define
-  query: Query<Record>,
-  columnNames: ColumnName[],
-): Observable<Record[]> {
-  return Observable.create(observer => {
-    return subscribeToQueryWithColumns(query, columnNames, records => {
-      observer.next(records)
+  _subscribers: Array<(T) => void> = []
+
+  constructor(source: (subscriber: (T) => void) => () => void): void {
+    this._source = source
+  }
+
+  subscribe(subscriber: T => void): () => void {
+    this._subscribers.push(subscriber)
+
+    if (this._subscribers.length === 1) {
+      this._unsubscribe = this._source(value => this._notify(value))
+    }
+
+    return () => {
+      const idx = this._subscribers.indexOf(subscriber)
+      this._subscribers.splice(idx, 1)
+      if (!this._subscribers.length) {
+        this._unsubscribe && this._unsubscribe()
+      }
+    }
+  }
+
+  _notify(value: T): void {
+    this._subscribers.forEach(subscriber => {
+      subscriber(value)
     })
-  })
+  }
 }
 
 export default class Query<Record: Model> {
@@ -70,14 +68,18 @@ export default class Query<Record: Model> {
   _rawDescription: QueryDescription
 
   @lazy
-  _cachedObservable: Observable<Record[]> = observeQuery(this).pipe(cacheWhileConnected)
+  _cachedSubscribable: SharedSubscribable<Record[]> = new SharedSubscribable(subscriber =>
+    subscribeToQuery(this, subscriber),
+  )
 
   @lazy
-  _cachedCountObservable: Observable<number> = observeCount(this, false).pipe(cacheWhileConnected)
+  _cachedCountSubscribable: SharedSubscribable<number> = new SharedSubscribable(subscriber =>
+    subscribeToCount(this, false, subscriber),
+  )
 
   @lazy
-  _cachedCountThrottledObservable: Observable<number> = observeCount(this, true).pipe(
-    cacheWhileConnected,
+  _cachedCountThrottledSubscribable: SharedSubscribable<number> = new SharedSubscribable(
+    subscriber => subscribeToCount(this, true, subscriber),
   )
 
   // Note: Don't use this directly, use Collection.query(...)
@@ -106,14 +108,21 @@ export default class Query<Record: Model> {
 
   // Emits an array of matching records, then emits a new array every time it changes
   observe(): Observable<Record[]> {
-    return this._cachedObservable
+    return Observable.create(observer =>
+      this._cachedSubscribable.subscribe(records => {
+        observer.next(records)
+      }),
+    )
   }
 
   // Same as `observe()` but also emits the list when any of the records
   // on the list has one of `columnNames` chaged
   observeWithColumns(columnNames: ColumnName[]): Observable<Record[]> {
-    // TODO: Would be nice to cache this
-    return observeQueryWithColumns(this, columnNames)
+    return Observable.create(observer =>
+      this.experimentalSubscribeWithColumns(columnNames, records => {
+        observer.next(records)
+      }),
+    )
   }
 
   // Returns the number of matching records
@@ -124,25 +133,29 @@ export default class Query<Record: Model> {
   // Emits the number of matching records, then emits a new count every time it changes
   // Note: By default, the Observable is throttled!
   observeCount(isThrottled: boolean = true): Observable<number> {
-    return isThrottled ? this._cachedCountThrottledObservable : this._cachedCountObservable
+    return Observable.create(observer => {
+      const subscribable = isThrottled
+        ? this._cachedCountThrottledSubscribable
+        : this._cachedCountSubscribable
+      return subscribable.subscribe(count => {
+        observer.next(count)
+      })
+    })
   }
 
   experimentalSubscribe(subscriber: (Record[]) => void): () => void {
-    // TODO: share underlying subscription
-    return subscribeToQuery(this, subscriber)
+    return this._cachedSubscribable.subscribe(subscriber)
   }
 
   experimentalSubscribeWithColumns(
     columnNames: ColumnName[],
     subscriber: (Record[]) => void,
   ): () => void {
-    // TODO: share underlying subscription
     return subscribeToQueryWithColumns(this, columnNames, subscriber)
   }
 
   experimentalSubscribeToCount(subscriber: number => void): () => void {
-    // TODO: share underlying subscription
-    return subscribeToCount(this, false, subscriber)
+    return this._cachedCountSubscribable.subscribe(subscriber)
   }
 
   // Marks as deleted all records matching the query
