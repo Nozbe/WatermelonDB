@@ -664,7 +664,13 @@ describe('synchronize', () => {
     const { database } = makeDatabase()
 
     const log = {}
-    await synchronize({ database, pullChanges: jest.fn(emptyPull()), pushChanges: jest.fn(), log })
+    await synchronize({
+      database,
+      pullChanges: jest.fn(emptyPull()),
+      // ensure we take more than 1ms for the log test
+      pushChanges: () => new Promise(resolve => setTimeout(resolve, 2)),
+      log,
+    })
 
     expect(log.startedAt).toBeInstanceOf(Date)
     expect(log.finishedAt).toBeInstanceOf(Date)
