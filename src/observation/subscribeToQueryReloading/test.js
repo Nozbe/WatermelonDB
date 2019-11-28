@@ -1,6 +1,6 @@
 import { mockDatabase } from '../../__tests__/testModels'
 import * as Q from '../../QueryDescription'
-import reloadingObserver from './index'
+import subscribeToQueryReloading from './index'
 
 const prepareTask = (tasks, name, isCompleted) =>
   tasks.prepareCreate(mock => {
@@ -17,7 +17,7 @@ const createTask = async (tasks, name, isCompleted) => {
 
 const updateTask = (task, updater) => task.collection.database.action(() => task.update(updater))
 
-describe('reloadingObserver', () => {
+describe('subscribeToQueryReloading', () => {
   it('observes changes to query', async () => {
     const { database, tasks, projects } = mockDatabase({ actionsEnabled: true })
 
@@ -41,7 +41,7 @@ describe('reloadingObserver', () => {
 
     // start observing
     const observer = jest.fn()
-    const subscription = reloadingObserver(query).subscribe(observer)
+    const unsubscribe = subscribeToQueryReloading(query, observer)
 
     const waitForNextQuery = () => tasks.query().fetch()
     await waitForNextQuery() // wait for initial query to go through
@@ -81,7 +81,7 @@ describe('reloadingObserver', () => {
     expect(observer).toHaveBeenLastCalledWith([])
 
     // ensure record subscriptions are disposed properly
-    subscription.unsubscribe()
+    unsubscribe()
     await database.action(() =>
       project.update(() => {
         project.name = 'hello'
@@ -93,13 +93,13 @@ describe('reloadingObserver', () => {
     const { tasks } = mockDatabase({ actionsEnabled: true })
 
     const observer = jest.fn()
-    const subscription = reloadingObserver(tasks.query()).subscribe(observer)
+    const unsubscribe = subscribeToQueryReloading(tasks.query(), observer)
 
     const waitForNextQuery = () => tasks.query().fetch()
     await waitForNextQuery() // wait for initial query to go through
 
     expect(observer).toHaveBeenCalledTimes(1)
     expect(observer).toHaveBeenLastCalledWith([])
-    subscription.unsubscribe()
+    unsubscribe()
   })
 })

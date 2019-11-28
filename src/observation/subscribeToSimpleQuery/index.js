@@ -1,6 +1,6 @@
 // @flow
 
-import { Observable } from 'rxjs/Observable'
+import { invariant } from '../../utils/common'
 
 import type { CollectionChangeSet } from '../../Collection'
 import { CollectionChangeTypes } from '../../Collection/common'
@@ -46,45 +46,44 @@ export function processChangeSet<Record: Model>(
   return shouldEmit
 }
 
-export default function simpleObserver<Record: Model>(
+export default function subscribeToSimpleQuery<Record: Model>(
   query: Query<Record>,
+  subscriber: (Record[]) => void,
   // if true, emissions will always be made on collection change -- this is an internal hack needed by
   // observeQueryWithColumns
   alwaysEmit: boolean = false,
-): Observable<Record[]> {
-  // Note: it would be cleaner to do defer->switchMap, but that makes profiles really hard to read
-  // hence the mutability
-  return Observable.create(observer => {
-    const matcher: Matcher<Record> = encodeMatcher(query.description)
-    let unsubscribed = false
-    let unsubscribe = null
+): () => void {
+  invariant(!query.hasJoins, 'subscribeToSimpleQuery only supports simple queries!')
 
-    query.collection
-      .fetchQuery(query)
-      .then(function observeQueryInitialEmission(initialRecords): void {
-        if (unsubscribed) {
-          return
+  const matcher: Matcher<Record> = encodeMatcher(query.description)
+  let unsubscribed = false
+  let unsubscribe = null
+
+  query.collection
+    .fetchQuery(query)
+    .then(function observeQueryInitialEmission(initialRecords): void {
+      if (unsubscribed) {
+        return
+      }
+
+      // Send initial matching records
+      const matchingRecords: Record[] = initialRecords
+      const emitCopy = () => subscriber(matchingRecords.slice(0))
+      emitCopy()
+
+      // Observe changes to the collection
+      unsubscribe = query.collection.experimentalSubscribe(function observeQueryCollectionChanged(
+        changeSet,
+      ): void {
+        const shouldEmit = processChangeSet(changeSet, matcher, matchingRecords)
+        if (shouldEmit || alwaysEmit) {
+          emitCopy()
         }
-
-        // Send initial matching records
-        const matchingRecords: Record[] = initialRecords
-        const emitCopy = () => observer.next(matchingRecords.slice(0))
-        emitCopy()
-
-        // Observe changes to the collection
-        unsubscribe = query.collection.experimentalSubscribe(function observeQueryCollectionChanged(
-          changeSet,
-        ): void {
-          const shouldEmit = processChangeSet(changeSet, matcher, matchingRecords)
-          if (shouldEmit || alwaysEmit) {
-            emitCopy()
-          }
-        })
       })
+    })
 
-    return () => {
-      unsubscribed = true
-      unsubscribe && unsubscribe()
-    }
-  })
+  return () => {
+    unsubscribed = true
+    unsubscribe && unsubscribe()
+  }
 }

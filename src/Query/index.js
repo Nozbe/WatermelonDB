@@ -10,8 +10,8 @@ import allPromises from '../utils/fp/allPromises'
 import lazy from '../decorators/lazy' // import from decorarators break the app on web production WTF ¯\_(ツ)_/¯
 
 import subscribeToCount from '../observation/subscribeToCount'
-import observeQuery from '../observation/observeQuery'
-import observeQueryWithColumns from '../observation/observeQueryWithColumns'
+import subscribeToQuery from '../observation/subscribeToQuery'
+import subscribeToQueryWithColumns from '../observation/subscribeToQueryWithColumns'
 import { buildQueryDescription, queryWithoutDeleted } from '../QueryDescription'
 import type { Condition, QueryDescription } from '../QueryDescription'
 import type Model, { AssociationInfo } from '../Model'
@@ -35,6 +35,29 @@ function observeCount<Record: Model>(
   return Observable.create(observer => {
     return subscribeToCount(query, isThrottled, count => {
       observer.next(count)
+    })
+  })
+}
+
+function observeQuery<Record: Model>(
+  // eslint-disable-next-line no-use-before-define
+  query: Query<Record>,
+): Observable<Record[]> {
+  return Observable.create(observer => {
+    return subscribeToQuery(query, records => {
+      observer.next(records)
+    })
+  })
+}
+
+function observeQueryWithColumns<Record: Model>(
+  // eslint-disable-next-line no-use-before-define
+  query: Query<Record>,
+  columnNames: ColumnName[],
+): Observable<Record[]> {
+  return Observable.create(observer => {
+    return subscribeToQueryWithColumns(query, columnNames, records => {
+      observer.next(records)
     })
   })
 }
