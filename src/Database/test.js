@@ -237,6 +237,56 @@ describe('Observation', () => {
       { record: m2, type: CollectionChangeTypes.destroyed },
     ])
   })
+  it('can subscribe to change signals for particular tables', async () => {
+    const { database, projects, tasks, comments } = mockDatabase({ actionsEnabled: true })
+
+    const subscriber1 = jest.fn()
+    const unsubscribe1 = database.experimentalSubscribe([], subscriber1)
+
+    await database.action(() => tasks.create())
+
+    const subscriber2 = jest.fn()
+    const unsubscribe2 = database.experimentalSubscribe(['mock_tasks'], subscriber2)
+
+    const subscriber3 = jest.fn()
+    const unsubscribe3 = database.experimentalSubscribe(
+      ['mock_tasks', 'mock_projects'],
+      subscriber3,
+    )
+
+    const p1 = await database.action(() => projects.create())
+    await database.action(() => tasks.create())
+    await database.action(() => comments.create())
+
+    expect(subscriber1).toHaveBeenCalledTimes(0)
+    expect(subscriber2).toHaveBeenCalledTimes(1)
+    expect(subscriber3).toHaveBeenCalledTimes(2)
+    expect(subscriber2).toHaveBeenLastCalledWith()
+
+    await database.action(() =>
+      database.batch(projects.prepareCreate(), projects.prepareCreate(), tasks.prepareCreate()),
+    )
+
+    expect(subscriber2).toHaveBeenCalledTimes(2)
+    expect(subscriber3).toHaveBeenCalledTimes(3)
+
+    await database.action(() => p1.update())
+
+    expect(subscriber2).toHaveBeenCalledTimes(2)
+    expect(subscriber3).toHaveBeenCalledTimes(4)
+
+    unsubscribe1()
+    unsubscribe2()
+
+    await database.action(() =>
+      database.batch(tasks.prepareCreate(), p1.prepareDestroyPermanently()),
+    )
+
+    expect(subscriber1).toHaveBeenCalledTimes(0)
+    expect(subscriber2).toHaveBeenCalledTimes(2)
+    expect(subscriber3).toHaveBeenCalledTimes(5)
+    unsubscribe3()
+  })
 })
 
 const delayPromise = () => new Promise(resolve => setTimeout(resolve, 100))
