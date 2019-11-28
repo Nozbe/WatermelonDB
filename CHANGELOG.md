@@ -6,10 +6,16 @@ All notable changes to this project will be documented in this file.
 
 ### New features
 
-- [SQLiteAdapter][iOS] Add new `synchronous` option to adapter: `new SQLiteAdapter({ ..., synchronous: true })`.
+- [SQLiteAdapter] [iOS] Add new `synchronous` option to adapter: `new SQLiteAdapter({ ..., synchronous: true })`.
   When enabled, database operations will block JavaScript thread. Adapter actions will resolve in the
   next microtask, which simplifies building flicker-free interfaces. Adapter will fall back to async
   operation when synchronous adapter is not available (e.g. when doing remote debugging)
+- [Model] Added `model.experimentalSubscribe((isDeleted) => { ... })` method as a vanilla JS alternative to Rx based `model.observe()`.
+- [Collection] Added internal `collection.experimentalSubscribe((changeSet) => { ... })` method as a vanilla JS alternative to Rx based `collection.changes` (you probably shouldn't be using this API anyway)
+
+### Changes
+
+- [LokiJS] [Performance] Improved worker queue implementation for performance
 
 ## 0.15 - 2019-11-08
 
