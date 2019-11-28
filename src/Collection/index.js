@@ -142,10 +142,10 @@ export default class Collection<Record: Model> {
       }
     })
 
-    this.changes.next(operations)
     this._subscribers.forEach(subscriber => {
       subscriber(operations)
     })
+    this.changes.next(operations)
 
     operations.forEach(({ record, type }) => {
       if (type === CollectionChangeTypes.updated) {
