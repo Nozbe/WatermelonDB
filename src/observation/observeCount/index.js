@@ -3,8 +3,8 @@
 import { Observable } from 'rxjs/Observable'
 import { switchMap, distinctUntilChanged, throttleTime } from 'rxjs/operators'
 
-import type Query from '../Query'
-import type Model from '../Model'
+import type Query from '../../Query'
+import type Model from '../../Model'
 
 let isThrottlingDisabled = false
 
