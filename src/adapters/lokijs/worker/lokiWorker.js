@@ -5,12 +5,7 @@ import logError from '../../../utils/common/logError'
 import invariant from '../../../utils/common/invariant'
 
 import LokiExecutor from './executor'
-import {
-  actions,
-  responseActions,
-  type WorkerExecutorAction,
-  type WorkerResponseAction,
-} from '../common'
+import { actions, responseActions, type WorkerAction, type WorkerResponse } from '../common'
 
 const ExecutorProto = LokiExecutor.prototype
 const executorMethods = {
@@ -34,24 +29,23 @@ export default class LokiWorker {
 
   executor: ?LokiExecutor
 
-  queue: WorkerExecutorAction[] = []
+  queue: WorkerAction[] = []
 
   _actionsExecuting: number = 0
 
   constructor(workerContext: DedicatedWorkerGlobalScope): void {
     this.workerContext = workerContext
     this.workerContext.onmessage = (e: MessageEvent) => {
-      const action: WorkerExecutorAction = (e.data: any)
+      const action: WorkerAction = (e.data: any)
       this.enqueue(action)
     }
   }
 
-  sendResponse(response: WorkerResponseAction): void {
-    const { type, payload } = response
-    this.workerContext.postMessage({ type, payload })
+  sendResponse(response: WorkerResponse): void {
+    this.workerContext.postMessage(response)
   }
 
-  enqueue(action: WorkerExecutorAction): void {
+  enqueue(action: WorkerAction): void {
     this.queue.push(action)
 
     if (this.queue.length === 1) {
@@ -61,7 +55,7 @@ export default class LokiWorker {
 
   executeNext(): void {
     const action = this.queue[0]
-    const onActionDone = (response: WorkerResponseAction): void => {
+    const onActionDone = (response: WorkerResponse): void => {
       invariant(this._actionsExecuting === 1, 'worker queue should have 1 item')
       this._actionsExecuting = 0
       this.queue.shift()
@@ -77,14 +71,11 @@ export default class LokiWorker {
     this.processAction(action, onActionDone)
   }
 
-  async processAction(
-    action: WorkerExecutorAction,
-    callback: WorkerResponseAction => void,
-  ): Promise<void> {
+  async processAction(action: WorkerAction, callback: WorkerResponse => void): Promise<void> {
     try {
       this._actionsExecuting += 1
 
-      const { type, payload } = action
+      const { type, payload, id } = action
       invariant(type in actions, `Unknown worker action ${type}`)
 
       if (type === actions.SETUP) {
@@ -97,7 +88,7 @@ export default class LokiWorker {
         await executor.setUp()
         this.executor = executor
 
-        callback({ type: RESPONSE_SUCCESS, payload: null })
+        callback({ id, type: RESPONSE_SUCCESS, payload: null })
       } else {
         // run action
         invariant(this.executor, `Cannot run actions because executor is not set up`)
@@ -105,12 +96,12 @@ export default class LokiWorker {
         const runExecutorAction = executorMethods[type].bind(this.executor)
         const response = await runExecutorAction(...payload)
 
-        callback({ type: RESPONSE_SUCCESS, payload: response })
+        callback({ id, type: RESPONSE_SUCCESS, payload: response })
       }
     } catch (error) {
       // Main process only receives error message — this logError is to retain call stack
       logError(error)
-      callback({ type: RESPONSE_ERROR, payload: error })
+      callback({ id: action.id, type: RESPONSE_ERROR, payload: error })
     }
   }
 }

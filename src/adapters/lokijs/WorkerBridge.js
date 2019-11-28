@@ -3,13 +3,14 @@
 import {
   responseActions,
   type WorkerExecutorType,
-  type WorkerResponseAction,
+  type WorkerResponse,
   type WorkerExecutorPayload,
   type WorkerResponsePayload,
 } from './common'
 
 type PromiseResponse = WorkerResponsePayload => void
 type WorkerAction = {
+  id: number,
   resolve: PromiseResponse,
   reject: PromiseResponse,
 }
@@ -27,16 +28,28 @@ function createWorker(useWebWorker: boolean): Worker {
   return new WebWorkerMock()
 }
 
+let _actionId = 0
+
+function nextActionId(): number {
+  _actionId += 1
+  return _actionId
+}
+
 class WorkerBridge {
   _worker: Worker
 
-  _pendingRequests: WorkerActions = []
+  _pendingActions: WorkerActions = []
 
   constructor(useWebWorker: boolean): void {
     this._worker = createWorker(useWebWorker)
     this._worker.onmessage = ({ data }) => {
-      const { type, payload }: WorkerResponseAction = (data: any)
-      const { resolve, reject } = this._pendingRequests.shift()
+      const { type, payload, id: responseId }: WorkerResponse = (data: any)
+      const { resolve, reject, id } = this._pendingActions.shift()
+
+      if (id !== responseId) {
+        // sanity check failed
+        reject((new Error('Loki worker responses are out of order'): any))
+      }
 
       if (type === RESPONSE_ERROR) {
         reject(payload)
@@ -46,20 +59,16 @@ class WorkerBridge {
     }
   }
 
-  // TODO: `any` should be `WorkerResponsePayload` here
+  // TODO: `any` return should be `WorkerResponsePayload`
   send(
     type: WorkerExecutorType,
     payload: WorkerExecutorPayload = [],
     cloneMethod: 'shallowCloneDeepObjects' | 'immutable' | 'deep' = 'deep',
   ): Promise<any> {
     return new Promise((resolve, reject) => {
-      this._pendingRequests.push({ resolve, reject })
-
-      this._worker.postMessage({
-        type,
-        payload,
-        cloneMethod,
-      })
+      const id = nextActionId()
+      this._pendingActions.push({ resolve, reject, id })
+      this._worker.postMessage({ id, type, payload, cloneMethod })
     })
   }
 }
