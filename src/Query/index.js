@@ -1,6 +1,6 @@
 // @flow
 
-import { type Observable } from 'rxjs/Observable'
+import { Observable } from 'rxjs/Observable'
 import { prepend } from 'rambdax'
 
 import cacheWhileConnected from '../utils/rx/cacheWhileConnected'
@@ -9,7 +9,7 @@ import allPromises from '../utils/fp/allPromises'
 // TODO: ?
 import lazy from '../decorators/lazy' // import from decorarators break the app on web production WTF ¯\_(ツ)_/¯
 
-import observeCount from '../observation/observeCount'
+import subscribeToCount from '../observation/subscribeToCount'
 import observeQuery from '../observation/observeQuery'
 import observeQueryWithColumns from '../observation/observeQueryWithColumns'
 import { buildQueryDescription, queryWithoutDeleted } from '../QueryDescription'
@@ -26,6 +26,18 @@ export type SerializedQuery = $Exact<{
   description: QueryDescription,
   associations: AssociationArgs[],
 }>
+
+function observeCount<Record: Model>(
+  // eslint-disable-next-line no-use-before-define
+  query: Query<Record>,
+  isThrottled: boolean,
+): Observable<number> {
+  return Observable.create(observer => {
+    return subscribeToCount(query, isThrottled, count => {
+      observer.next(count)
+    })
+  })
+}
 
 export default class Query<Record: Model> {
   collection: Collection<Record>
@@ -90,6 +102,11 @@ export default class Query<Record: Model> {
   // Note: By default, the Observable is throttled!
   observeCount(isThrottled: boolean = true): Observable<number> {
     return isThrottled ? this._cachedCountThrottledObservable : this._cachedCountObservable
+  }
+
+  experimentalSubscribeToCount(subscriber: number => void): () => void {
+    // TODO: share underlying subscription
+    return subscribeToCount(this, false, subscriber)
   }
 
   // Marks as deleted all records matching the query
