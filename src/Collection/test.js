@@ -216,3 +216,43 @@ describe('creating new records', () => {
     await database.action(() => tasks.create(noop))
   })
 })
+
+describe('Collection observation', () => {
+  it('can subscribe to collection changes', async () => {
+    const { database, tasks } = mockDatabase({ actionsEnabled: true })
+
+    await database.action(() => tasks.create())
+
+    const subscriber1 = jest.fn()
+    const unsubscribe1 = tasks.experimentalSubscribe(subscriber1)
+
+    expect(subscriber1).toHaveBeenCalledTimes(0)
+
+    const t1 = await database.action(() => tasks.create())
+
+    expect(subscriber1).toHaveBeenCalledTimes(1)
+    expect(subscriber1).toHaveBeenLastCalledWith([{ record: t1, type: 'created' }])
+
+    const subscriber2 = jest.fn()
+    const unsubscribe2 = tasks.experimentalSubscribe(subscriber2)
+
+    await database.action(() => t1.update())
+
+    expect(subscriber1).toHaveBeenCalledTimes(2)
+    expect(subscriber2).toHaveBeenCalledTimes(1)
+    expect(subscriber2).toHaveBeenLastCalledWith([{ record: t1, type: 'updated' }])
+
+    unsubscribe1()
+
+    await database.action(() => t1.markAsDeleted())
+
+    expect(subscriber1).toHaveBeenCalledTimes(2)
+    expect(subscriber2).toHaveBeenCalledTimes(2)
+    expect(subscriber2).toHaveBeenLastCalledWith([{ record: t1, type: 'destroyed' }])
+
+    unsubscribe2()
+
+    await database.action(() => tasks.create())
+    expect(subscriber2).toHaveBeenCalledTimes(2)
+  })
+})
