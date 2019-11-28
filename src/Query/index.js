@@ -127,6 +127,19 @@ export default class Query<Record: Model> {
     return isThrottled ? this._cachedCountThrottledObservable : this._cachedCountObservable
   }
 
+  experimentalSubscribe(subscriber: (Record[]) => void): () => void {
+    // TODO: share underlying subscription
+    return subscribeToQuery(this, subscriber)
+  }
+
+  experimentalSubscribeWithColumns(
+    columnNames: ColumnName[],
+    subscriber: (Record[]) => void,
+  ): () => void {
+    // TODO: share underlying subscription
+    return subscribeToQueryWithColumns(this, columnNames, subscriber)
+  }
+
   experimentalSubscribeToCount(subscriber: number => void): () => void {
     // TODO: share underlying subscription
     return subscribeToCount(this, false, subscriber)
