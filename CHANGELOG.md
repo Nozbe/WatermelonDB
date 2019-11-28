@@ -10,12 +10,14 @@ All notable changes to this project will be documented in this file.
   When enabled, database operations will block JavaScript thread. Adapter actions will resolve in the
   next microtask, which simplifies building flicker-free interfaces. Adapter will fall back to async
   operation when synchronous adapter is not available (e.g. when doing remote debugging)
-- [Model] Added `model.experimentalSubscribe((isDeleted) => { ... })` method as a vanilla JS alternative to Rx based `model.observe()`.
+- [Model] Added experimental `model.experimentalSubscribe((isDeleted) => { ... })` method as a vanilla JS alternative to Rx based `model.observe()`. Unlike the latter, it does not notify the subscriber immediately upon subscription.
 - [Collection] Added internal `collection.experimentalSubscribe((changeSet) => { ... })` method as a vanilla JS alternative to Rx based `collection.changes` (you probably shouldn't be using this API anyway)
+- [Database] Added experimental `database.experimentalSubscribe(['table1', 'table2'], () => { ... })` method as a vanilla JS alternative to Rx-based `database.withChangesForTables()`. Unlike the latter, `experimentalSubscribe` only emits notifies the subscriber once after a batch that makes a change in multiple collections subscribed to. It also doesn't notify the subscriber immediately upon subscription, and doesn't send details about the changes, only a signal.
 
 ### Changes
 
 - [LokiJS] [Performance] Improved worker queue implementation for performance
+- [observation] Refactored observer implementations for performance
 
 ## 0.15 - 2019-11-08
 
