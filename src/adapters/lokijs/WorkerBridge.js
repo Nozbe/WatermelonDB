@@ -46,8 +46,8 @@ class WorkerBridge {
       const { type, payload, id: responseId }: WorkerResponse = (data: any)
       const { resolve, reject, id } = this._pendingActions.shift()
 
+      // sanity check
       if (id !== responseId) {
-        // sanity check failed
         reject((new Error('Loki worker responses are out of order'): any))
       }
 

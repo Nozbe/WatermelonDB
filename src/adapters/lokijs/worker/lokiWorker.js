@@ -41,10 +41,6 @@ export default class LokiWorker {
     }
   }
 
-  sendResponse(response: WorkerResponse): void {
-    this.workerContext.postMessage(response)
-  }
-
   enqueue(action: WorkerAction): void {
     this.queue.push(action)
 
@@ -60,7 +56,7 @@ export default class LokiWorker {
       this._actionsExecuting = 0
       this.queue.shift()
 
-      this.sendResponse(response)
+      this.workerContext.postMessage(response)
 
       if (this.queue.length) {
         this.executeNext()
