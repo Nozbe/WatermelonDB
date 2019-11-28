@@ -691,7 +691,7 @@ describe('Sync status fields', () => {
 })
 
 describe('Model observation', () => {
-  it('notifies observers of changes and deletion', () => {
+  it('notifies Rx observers of changes and deletion', () => {
     const model = new MockModel(null, {})
     const scheduler = makeScheduler()
 
@@ -715,6 +715,51 @@ describe('Model observation', () => {
     scheduler.expectObservable(b$).toBe(bExpected, { m: model })
     scheduler.expectObservable(c$).toBe(cExpected, { m: model })
     scheduler.flush()
+  })
+  it('notifies subscribers of changes and deletion', async () => {
+    const { tasks } = mockDatabase()
+    const task = await tasks.create()
+
+    const observer1 = jest.fn()
+    const unsubscribe1 = task.experimentalSubscribe(observer1)
+    expect(observer1).toHaveBeenCalledTimes(0)
+
+    await task.update()
+    expect(observer1).toHaveBeenCalledTimes(1)
+    expect(observer1).toHaveBeenLastCalledWith(false)
+
+    const observer2 = jest.fn()
+    const unsubscribe2 = task.experimentalSubscribe(observer2)
+    expect(observer2).toHaveBeenCalledTimes(0)
+
+    unsubscribe1()
+
+    const observer3 = jest.fn()
+    const unsubscribe3 = task.experimentalSubscribe(observer3)
+
+    await task.update()
+
+    expect(observer2).toHaveBeenCalledTimes(1)
+    expect(observer3).toHaveBeenCalledTimes(1)
+
+    unsubscribe2()
+
+    await task.update()
+
+    expect(observer3).toHaveBeenCalledTimes(2)
+    expect(observer3).toHaveBeenLastCalledWith(false)
+
+    await task.markAsDeleted()
+
+    expect(observer3).toHaveBeenCalledTimes(3)
+    expect(observer3).toHaveBeenLastCalledWith(true)
+
+    unsubscribe3()
+    unsubscribe3()
+
+    expect(observer1).toHaveBeenCalledTimes(1)
+    expect(observer2).toHaveBeenCalledTimes(1)
+    expect(observer3).toHaveBeenCalledTimes(3)
   })
 })
 

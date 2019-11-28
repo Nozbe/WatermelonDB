@@ -258,12 +258,29 @@ export default class Model {
     return record
   }
 
+  _subscribers: Array<(isDeleted: boolean) => void> = []
+
+  experimentalSubscribe(subscriber: (isDeleted: boolean) => void): () => void {
+    this._subscribers.push(subscriber)
+
+    return () => {
+      const idx = this._subscribers.indexOf(subscriber)
+      this._subscribers.splice(idx, 1)
+    }
+  }
+
   _notifyChanged(): void {
     this._getChanges().next(this)
+    this._subscribers.forEach(subscriber => {
+      subscriber(false)
+    })
   }
 
   _notifyDestroyed(): void {
     this._getChanges().complete()
+    this._subscribers.forEach(subscriber => {
+      subscriber(true)
+    })
   }
 
   _getRaw(rawFieldName: ColumnName): Value {
