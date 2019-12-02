@@ -90,24 +90,23 @@ class Database {
         }
     }
 
-    /// Drops all tables, indexes, and resets user version to 0
     func unsafeDestroyEverything() throws {
-        // TODO: Shouldn't this simply destroy the database file? - if so remember about wal/shl files too
-        consoleLog("Clearing database")
-
-        try inTransaction {
-            let tables = try queryRaw("select * from sqlite_master where type='table'").map { table in
-                table.string(forColumn: "name")!
-            }
-
-            for table in tables {
-                try execute("drop table if exists \(table)")
-            }
-
-            try execute("pragma writable_schema=1")
-            try execute("delete from sqlite_master")
-            try execute("pragma user_version=0")
-            try execute("pragma writable_schema=0")
+        guard fmdb.close() else {
+            throw "Could not close database".asError()
         }
+
+        let manager = FileManager.default
+        try manager.removeItem(atPath: path)
+
+        func removeIfExists(_ path: String) throws {
+            if manager.fileExists(atPath: path) {
+                try manager.removeItem(atPath: path)
+            }
+        }
+
+        try removeIfExists("\(path)-wal")
+        try removeIfExists("\(path)-shm")
+
+        open()
     }
 }

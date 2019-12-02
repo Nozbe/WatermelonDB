@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 
 - [LokiJS] Fixed an issue preventing database from saving when using `experimentalUseIncrementalIndexedDB`
 - Fixed a potential issue when using `database.unsafeResetDatabase()`
+- [iOS] Fixed issue with clearing database under experimental synchronous mode
 
 ## 0.15 - 2019-11-08
 
