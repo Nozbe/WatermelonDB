@@ -6,10 +6,15 @@ class Database {
     typealias QueryArgs = [Any]
 
     private let fmdb: FMDatabase
+    private let path: String
 
     init(path: String) {
+        self.path = path
         fmdb = FMDatabase(path: path)
+        open()
+    }
 
+    private func open() {
         guard fmdb.open() else {
             fatalError("Failed to open the database. \(fmdb.lastErrorMessage())")
         }
