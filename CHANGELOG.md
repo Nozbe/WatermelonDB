@@ -11,6 +11,11 @@ All notable changes to this project will be documented in this file.
   next microtask, which simplifies building flicker-free interfaces. Adapter will fall back to async
   operation when synchronous adapter is not available (e.g. when doing remote debugging)
 
+### Fixes
+
+- [LokiJS] Fixed an issue preventing database from saving when uding `experimentalUseIncrementalIndexedDB`
+- Fixed a potential issue when using `database.unsafeResetDatabase()`
+
 ## 0.15 - 2019-11-08
 
 ### Highlights
