@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixes
 
-- [LokiJS] Fixed an issue preventing database from saving when uding `experimentalUseIncrementalIndexedDB`
+- [LokiJS] Fixed an issue preventing database from saving when using `experimentalUseIncrementalIndexedDB`
 - Fixed a potential issue when using `database.unsafeResetDatabase()`
 
 ## 0.15 - 2019-11-08
