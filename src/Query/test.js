@@ -125,7 +125,7 @@ describe('Query description properties', () => {
   })
 })
 
-describe.only('Query observation', () => {
+describe('Query observation', () => {
   // NOTE: Sanity checks only. Concrete tests: observation/
   const waitFor = database => {
     // make sure we wait until end of DB queue without triggering query for
