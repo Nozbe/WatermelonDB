@@ -263,7 +263,7 @@ describe('Query actions', () => {
     expect(await query.fetchCount()).toBe(3)
     await database.action(() => query[methodName]())
     expect(await queryAll.fetchCount()).toBe(2)
-    expect(await query.fetchCount()).toBe()
+    expect(await query.fetchCount()).toBe(0)
   }
   it('can mark all as deleted', async () => {
     await testMassDelete('markAllAsDeleted')
