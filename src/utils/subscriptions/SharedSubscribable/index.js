@@ -1,6 +1,7 @@
 // @flow
 
 import { type Unsubscribe } from '../type'
+import invariant from '../../common/invariant'
 
 // A subscribable that implements the equivalent of:
 // multicast(() => new ReplaySubject(1)) |> refCount Rx operation
@@ -13,6 +14,8 @@ import { type Unsubscribe } from '../type'
 // - Upon subscription, the subscriber receives last value sent by source (if any)
 export default class SharedSubscribable<T> {
   _source: (subscriber: (T) => void) => Unsubscribe
+
+  _isSubscribed: boolean = false
 
   _unsubscribe: ?Unsubscribe = null
 
@@ -34,6 +37,8 @@ export default class SharedSubscribable<T> {
     }
 
     if (this._subscribers.length === 1) {
+      this._isSubscribed = true
+      // TODO: What if this throws?
       this._unsubscribe = this._source(value => this._notify(value))
     }
 
@@ -45,12 +50,17 @@ export default class SharedSubscribable<T> {
         const unsubscribe = this._unsubscribe
         this._unsubscribe = null
         this._didEmit = false
+        this._isSubscribed = false
         unsubscribe && unsubscribe()
       }
     }
   }
 
   _notify(value: T): void {
+    invariant(
+      this._isSubscribed,
+      `SharedSubscribable's source emitted a value after it was unsubscribed from`,
+    )
     this._didEmit = true
     this._lastValue = value
     this._subscribers.forEach(subscriber => {
