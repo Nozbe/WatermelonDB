@@ -55,6 +55,6 @@ export default class LokiWorkerMock {
       clonedData = clone(data)
     }
 
-    this._workerContext.onmessage({ data: clonedData })
+    this._workerContext.onmessage(({ data: clonedData }: any))
   }
 }
