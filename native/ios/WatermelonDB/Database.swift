@@ -96,22 +96,48 @@ class Database {
     }
 
     func unsafeDestroyEverything() throws {
-        guard fmdb.close() else {
-            throw "Could not close database".asError()
-        }
+        // Deleting files by default because it seems simpler, more reliable
+        // And we have a weird problem with sqlite code 6 (database busy) in sync mode
+        // But sadly this won't work for in-memory (shared) databases, so in those cases,
+        // drop all tables, indexes, and reset user version to 0
+        if isInMemoryDatabase {
+            try inTransaction {
+                let tables = try queryRaw("select * from sqlite_master where type='table'").map { table in
+                    table.string(forColumn: "name")!
+                }
 
-        let manager = FileManager.default
-        try manager.removeItem(atPath: path)
+                for table in tables {
+                    try execute("drop table if exists \(table)")
+                }
 
-        func removeIfExists(_ path: String) throws {
-            if manager.fileExists(atPath: path) {
-                try manager.removeItem(atPath: path)
+                try execute("pragma writable_schema=1")
+                try execute("delete from sqlite_master")
+                try execute("pragma user_version=0")
+                try execute("pragma writable_schema=0")
             }
+        } else {
+            guard fmdb.close() else {
+                throw "Could not close database".asError()
+            }
+
+            let manager = FileManager.default
+
+            try manager.removeItem(atPath: path)
+
+            func removeIfExists(_ path: String) throws {
+                if manager.fileExists(atPath: path) {
+                    try manager.removeItem(atPath: path)
+                }
+            }
+
+            try removeIfExists("\(path)-wal")
+            try removeIfExists("\(path)-shm")
+
+            open()
         }
+    }
 
-        try removeIfExists("\(path)-wal")
-        try removeIfExists("\(path)-shm")
-
-        open()
+    private var isInMemoryDatabase: Bool {
+        return path == ":memory:" || path == "file::memory:" || path.contains("?mode=memory")
     }
 }
