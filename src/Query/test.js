@@ -238,4 +238,37 @@ describe.only('Query observation', () => {
   })
 })
 
-describe('Query actions', () => {})
+describe('Query actions', () => {
+  const testMassDelete = async methodName => {
+    const { database, tasks } = mockDatabase({ actionsEnabled: true })
+    const query = new Query(tasks, [Q.where('name', 'foo')])
+    const queryAll = new Query(tasks, [])
+
+    await database.action(() =>
+      database.batch(
+        tasks.prepareCreate(t => {
+          t.name = 'foo'
+        }),
+        tasks.prepareCreate(t => {
+          t.name = 'foo'
+        }),
+        tasks.prepareCreate(t => {
+          t.name = 'foo'
+        }),
+        tasks.prepareCreate(),
+        tasks.prepareCreate(),
+      ),
+    )
+    expect(await queryAll.fetchCount()).toBe(5)
+    expect(await query.fetchCount()).toBe(3)
+    await database.action(() => query[methodName]())
+    expect(await queryAll.fetchCount()).toBe(2)
+    expect(await query.fetchCount()).toBe()
+  }
+  it('can mark all as deleted', async () => {
+    await testMassDelete('markAllAsDeleted')
+  })
+  it('can destroy all permanently', async () => {
+    await testMassDelete('destroyAllPermanently')
+  })
+})
