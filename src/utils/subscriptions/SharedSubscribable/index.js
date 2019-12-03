@@ -17,7 +17,7 @@ export default class SharedSubscribable<T> {
 
   _isSubscribed: boolean = false
 
-  _unsubscribe: ?Unsubscribe = null
+  _unsubscribeSource: ?Unsubscribe = null
 
   _subscribers: Array<(T) => void> = []
 
@@ -39,21 +39,10 @@ export default class SharedSubscribable<T> {
     if (this._subscribers.length === 1) {
       this._isSubscribed = true
       // TODO: What if this throws?
-      this._unsubscribe = this._source(value => this._notify(value))
+      this._unsubscribeSource = this._source(value => this._notify(value))
     }
 
-    return () => {
-      const idx = this._subscribers.indexOf(subscriber)
-      this._subscribers.splice(idx, 1)
-
-      if (!this._subscribers.length) {
-        const unsubscribe = this._unsubscribe
-        this._unsubscribe = null
-        this._didEmit = false
-        this._isSubscribed = false
-        unsubscribe && unsubscribe()
-      }
-    }
+    return () => this._unsubscribe(subscriber)
   }
 
   _notify(value: T): void {
@@ -66,5 +55,18 @@ export default class SharedSubscribable<T> {
     this._subscribers.forEach(subscriber => {
       subscriber(value)
     })
+  }
+
+  _unsubscribe(subscriber: T => void): void {
+    const idx = this._subscribers.indexOf(subscriber)
+    this._subscribers.splice(idx, 1)
+
+    if (!this._subscribers.length) {
+      const unsubscribe = this._unsubscribeSource
+      this._unsubscribeSource = null
+      this._didEmit = false
+      this._isSubscribed = false
+      unsubscribe && unsubscribe()
+    }
   }
 }

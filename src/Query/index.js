@@ -4,7 +4,7 @@ import { Observable } from 'rxjs/Observable'
 import { prepend } from 'rambdax'
 
 import allPromises from '../utils/fp/allPromises'
-import { type Unsubscribe } from '../utils/subscriptions'
+import { type Unsubscribe, SharedSubscribable } from '../utils/subscriptions'
 
 // TODO: ?
 import lazy from '../decorators/lazy' // import from decorarators break the app on web production WTF ¯\_(ツ)_/¯
