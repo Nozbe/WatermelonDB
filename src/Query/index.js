@@ -27,40 +27,6 @@ export type SerializedQuery = $Exact<{
   associations: AssociationArgs[],
 }>
 
-class SharedSubscribable<T> {
-  _source: (subscriber: (T) => void) => Unsubscribe
-
-  _unsubscribe: ?Unsubscribe
-
-  _subscribers: Array<(T) => void> = []
-
-  constructor(source: (subscriber: (T) => void) => Unsubscribe): void {
-    this._source = source
-  }
-
-  subscribe(subscriber: T => void): Unsubscribe {
-    this._subscribers.push(subscriber)
-
-    if (this._subscribers.length === 1) {
-      this._unsubscribe = this._source(value => this._notify(value))
-    }
-
-    return () => {
-      const idx = this._subscribers.indexOf(subscriber)
-      this._subscribers.splice(idx, 1)
-      if (!this._subscribers.length) {
-        this._unsubscribe && this._unsubscribe()
-      }
-    }
-  }
-
-  _notify(value: T): void {
-    this._subscribers.forEach(subscriber => {
-      subscriber(value)
-    })
-  }
-}
-
 export default class Query<Record: Model> {
   collection: Collection<Record>
 
