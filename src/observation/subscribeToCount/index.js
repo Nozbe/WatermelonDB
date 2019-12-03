@@ -23,7 +23,7 @@ export function experimentalDisableObserveCountThrottling(): void {
 function observeCountThrottled<Record: Model>(query: Query<Record>): Observable<number> {
   const { collection } = query
   return collection.database.withChangesForTables(query.allTables).pipe(
-    throttleTime(250),
+    throttleTime(250), // Note: this has a bug, but we'll delete it anyway
     switchMap(() => collection.fetchCount(query)),
     distinctUntilChanged(),
   )
