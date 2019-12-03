@@ -89,10 +89,9 @@ export default function subscribeToQueryWithColumns<Record: Model>(
 
     // Emit changes if one of observed columns changed OR list of matching records changed
     const records: Record[] = recordsOrStatus
+    const shouldEmit =
+      firstEmission || hasPendingColumnChanges || !identicalArrays(records, observedRecords)
 
-    if (firstEmission || hasPendingColumnChanges || !identicalArrays(records, observedRecords)) {
-      emitCopy(records)
-    }
     hasPendingColumnChanges = false
     firstEmission = false
 
@@ -109,6 +108,9 @@ export default function subscribeToQueryWithColumns<Record: Model>(
     added.forEach(newRecord => {
       recordStates.set(newRecord.id, getRecordState(newRecord, columnNames))
     })
+
+    // Emit
+    shouldEmit && emitCopy(records)
   })
 
   // Observe changes to records we have on the list
