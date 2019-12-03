@@ -1,6 +1,7 @@
 // @flow
 
 import { invariant } from '../../utils/common'
+import { type Unsubscribe } from '../../utils/subscriptions'
 
 import type { CollectionChangeSet } from '../../Collection'
 import { CollectionChangeTypes } from '../../Collection/common'
@@ -52,7 +53,7 @@ export default function subscribeToSimpleQuery<Record: Model>(
   // if true, emissions will always be made on collection change -- this is an internal hack needed by
   // observeQueryWithColumns
   alwaysEmit: boolean = false,
-): () => void {
+): Unsubscribe {
   invariant(!query.hasJoins, 'subscribeToSimpleQuery only supports simple queries!')
 
   const matcher: Matcher<Record> = encodeMatcher(query.description)

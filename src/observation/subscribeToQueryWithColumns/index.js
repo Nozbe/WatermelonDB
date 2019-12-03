@@ -4,6 +4,7 @@ import { pickAll, values } from 'rambdax'
 
 import identicalArrays from '../../utils/fp/identicalArrays'
 import arrayDifference from '../../utils/fp/arrayDifference'
+import { type Unsubscribe } from '../../utils/subscriptions'
 
 import { type Value } from '../../QueryDescription'
 import { type ColumnName } from '../../Schema'
@@ -41,7 +42,7 @@ export default function subscribeToQueryWithColumns<Record: Model>(
   query: Query<Record>,
   columnNames: ColumnName[],
   subscriber: (Record[]) => void,
-): () => void {
+): Unsubscribe {
   // State kept for comparison between emissions
   let unsubscribed = false
   let sourceIsFetching = true // do not emit record-level changes while source is fetching new data

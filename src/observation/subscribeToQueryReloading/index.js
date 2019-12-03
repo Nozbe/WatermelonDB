@@ -1,6 +1,7 @@
 // @flow
 
 import identicalArrays from '../../utils/fp/identicalArrays'
+import { type Unsubscribe } from '../../utils/subscriptions'
 
 import type Query from '../../Query'
 import type Model from '../../Model'
@@ -15,7 +16,7 @@ export default function subscribeToQueryReloading<Record: Model>(
   // Emits `false` when query fetch begins + always emits even if no change - internal trick needed
   // by observeWithColumns
   shouldEmitStatus: boolean = false,
-): () => void {
+): Unsubscribe {
   const { collection } = query
   let previousRecords: ?(Record[]) = null
   let unsubscribed = false

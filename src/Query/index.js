@@ -4,6 +4,7 @@ import { Observable } from 'rxjs/Observable'
 import { prepend } from 'rambdax'
 
 import allPromises from '../utils/fp/allPromises'
+import { type Unsubscribe } from '../utils/subscriptions'
 
 // TODO: ?
 import lazy from '../decorators/lazy' // import from decorarators break the app on web production WTF ¯\_(ツ)_/¯
@@ -27,17 +28,17 @@ export type SerializedQuery = $Exact<{
 }>
 
 class SharedSubscribable<T> {
-  _source: (subscriber: (T) => void) => () => void
+  _source: (subscriber: (T) => void) => Unsubscribe
 
-  _unsubscribe: ?() => void
+  _unsubscribe: ?Unsubscribe
 
   _subscribers: Array<(T) => void> = []
 
-  constructor(source: (subscriber: (T) => void) => () => void): void {
+  constructor(source: (subscriber: (T) => void) => Unsubscribe): void {
     this._source = source
   }
 
-  subscribe(subscriber: T => void): () => void {
+  subscribe(subscriber: T => void): Unsubscribe {
     this._subscribers.push(subscriber)
 
     if (this._subscribers.length === 1) {
@@ -143,18 +144,18 @@ export default class Query<Record: Model> {
     })
   }
 
-  experimentalSubscribe(subscriber: (Record[]) => void): () => void {
+  experimentalSubscribe(subscriber: (Record[]) => void): Unsubscribe {
     return this._cachedSubscribable.subscribe(subscriber)
   }
 
   experimentalSubscribeWithColumns(
     columnNames: ColumnName[],
     subscriber: (Record[]) => void,
-  ): () => void {
+  ): Unsubscribe {
     return subscribeToQueryWithColumns(this, columnNames, subscriber)
   }
 
-  experimentalSubscribeToCount(subscriber: number => void): () => void {
+  experimentalSubscribeToCount(subscriber: number => void): Unsubscribe {
     return this._cachedCountSubscribable.subscribe(subscriber)
   }
 

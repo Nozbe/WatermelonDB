@@ -3,6 +3,8 @@
 import { Observable } from 'rxjs/Observable'
 import { switchMap, distinctUntilChanged, throttleTime } from 'rxjs/operators'
 
+import { type Unsubscribe } from '../../utils/subscriptions'
+
 import type Query from '../../Query'
 import type Model from '../../Model'
 
@@ -31,7 +33,7 @@ export default function subscribeToCount<Record: Model>(
   query: Query<Record>,
   isThrottled: boolean,
   subscriber: number => void,
-): () => void {
+): Unsubscribe {
   if (isThrottled && !isThrottlingDisabled) {
     const observable = observeCountThrottled(query)
     const subscription = observable.subscribe(count => subscriber(count))

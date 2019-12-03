@@ -5,6 +5,7 @@ import { merge as merge$ } from 'rxjs/observable/merge'
 import { startWith } from 'rxjs/operators'
 import { values } from 'rambdax'
 
+import { type Unsubscribe } from '../utils/subscriptions'
 import { invariant } from '../utils/common'
 import { noop } from '../utils/fp'
 
@@ -137,7 +138,7 @@ export default class Database {
   _subscribers: Array<[TableName<any>[], () => void]> = []
 
   // Notifies `subscriber` on change in any of passed tables (only a signal, no change set)
-  experimentalSubscribe(tables: TableName<any>[], subscriber: () => void): () => void {
+  experimentalSubscribe(tables: TableName<any>[], subscriber: () => void): Unsubscribe {
     if (!tables.length) {
       return noop
     }
