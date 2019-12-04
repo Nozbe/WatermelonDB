@@ -18,7 +18,7 @@
 		6E9477F2213BDF8A0077EDFB /* DatabaseBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477EA213BDF8A0077EDFB /* DatabaseBridge.m */; };
 		6E9477F4213BDF8A0077EDFB /* std_ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477ED213BDF8A0077EDFB /* std_ext.swift */; };
 		6E9477F6213BDF8A0077EDFB /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477EF213BDF8A0077EDFB /* Database.swift */; };
-		6ED8793123665D7800F45881 /* Trampoline.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6ED8793023665D7800F45881 /* Trampoline.mm */; };
+		6ED8793123665D7800F45881 /* JSLockPerfHack.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6ED8793023665D7800F45881 /* JSLockPerfHack.mm */; };
 		6EF7F8602362E9100041E1F6 /* Database.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6EF7F85E2362E9100041E1F6 /* Database.cpp */; };
 		6EF7F86223630D6D0041E1F6 /* JSIInstaller.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6EF7F86123630D6D0041E1F6 /* JSIInstaller.mm */; };
 /* End PBXBuildFile section */
@@ -58,8 +58,8 @@
 		6E9477EA213BDF8A0077EDFB /* DatabaseBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DatabaseBridge.m; path = WatermelonDB/DatabaseBridge.m; sourceTree = SOURCE_ROOT; };
 		6E9477ED213BDF8A0077EDFB /* std_ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = std_ext.swift; sourceTree = "<group>"; };
 		6E9477EF213BDF8A0077EDFB /* Database.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Database.swift; path = WatermelonDB/Database.swift; sourceTree = SOURCE_ROOT; };
-		6ED8793023665D7800F45881 /* Trampoline.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Trampoline.mm; sourceTree = "<group>"; };
-		6ED8793223665D8800F45881 /* Trampoline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Trampoline.h; sourceTree = "<group>"; };
+		6ED8793023665D7800F45881 /* JSLockPerfHack.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = JSLockPerfHack.mm; sourceTree = "<group>"; };
+		6ED8793223665D8800F45881 /* JSLockPerfHack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSLockPerfHack.h; sourceTree = "<group>"; };
 		6EF7F85E2362E9100041E1F6 /* Database.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Database.cpp; sourceTree = "<group>"; };
 		6EF7F85F2362E9100041E1F6 /* Database.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Database.h; sourceTree = "<group>"; };
 		6EF7F86123630D6D0041E1F6 /* JSIInstaller.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = JSIInstaller.mm; sourceTree = "<group>"; };
@@ -107,8 +107,8 @@
 				6E9477ED213BDF8A0077EDFB /* std_ext.swift */,
 				6E660D92213BD74F00189354 /* SupportingFiles */,
 				6E9477C4213BDE220077EDFB /* FMDB */,
-				6ED8793023665D7800F45881 /* Trampoline.mm */,
-				6ED8793223665D8800F45881 /* Trampoline.h */,
+				6ED8793023665D7800F45881 /* JSLockPerfHack.mm */,
+				6ED8793223665D8800F45881 /* JSLockPerfHack.h */,
 			);
 			path = WatermelonDB;
 			sourceTree = "<group>";
@@ -243,7 +243,7 @@
 				6E9477D7213BDE2E0077EDFB /* FMDatabasePool.m in Sources */,
 				6E9477F2213BDF8A0077EDFB /* DatabaseBridge.m in Sources */,
 				6E9477F4213BDF8A0077EDFB /* std_ext.swift in Sources */,
-				6ED8793123665D7800F45881 /* Trampoline.mm in Sources */,
+				6ED8793123665D7800F45881 /* JSLockPerfHack.mm in Sources */,
 				6E9477F6213BDF8A0077EDFB /* Database.swift in Sources */,
 				6E9477D5213BDE2E0077EDFB /* FMDatabaseAdditions.m in Sources */,
 				6E9477D4213BDE2E0077EDFB /* FMDatabaseQueue.m in Sources */,

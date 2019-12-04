@@ -1,4 +1,4 @@
-#import "Trampoline.h"
+#import "JSLockPerfHack.h"
 #import <UIKit/UIKit.h>
 #import <JavaScriptCore/JavaScriptCore.h>
 #import <jsi/JSCRuntime.h>
@@ -40,7 +40,7 @@ bool didBlockExecuteUsingHack = false;
 
 @implementation NSObject (JSValueHacks)
 
-+ (void) watermelonSwizzledValueWithJSValueRef:(JSValueRef)ref inContext:(JSContext*)ctx {
++ (id) watermelonSwizzledValueWithJSValueRef:(JSValueRef)ref inContext:(JSContext*)ctx {
     if (didBlockExecuteUsingHack) {
         NSLog(@"WatermelonDB JSLock perfhack assertion failure - swizzled method called but block has already executed");
     }
@@ -53,7 +53,7 @@ bool didBlockExecuteUsingHack = false;
     }
 
     // Proceed with original implementation
-    [self watermelonSwizzledValueWithJSValueRef:ref inContext:ctx];
+    return [self watermelonSwizzledValueWithJSValueRef:ref inContext:ctx];
 }
 
 @end
@@ -77,8 +77,6 @@ void callWithJSCLockHolder(jsi::Runtime& rt, std::function<void (void)> block) {
         return;
     }
 
-    JSContext *context = [JSContext contextWithJSGlobalContextRef:globalContext];
-
     // Swizzling path:
     // + [JSManagedValue managedValueWithValue:]
     //   https://github.com/WebKit/webkit/blob/64dc0d1354d65e0cb3e42294429275a0d3b7209d/Source/JavaScriptCore/API/JSManagedValue.mm#L63
@@ -86,18 +84,24 @@ void callWithJSCLockHolder(jsi::Runtime& rt, std::function<void (void)> block) {
     //   https://github.com/WebKit/webkit/blob/64dc0d1354d65e0cb3e42294429275a0d3b7209d/Source/JavaScriptCore/API/JSManagedValue.mm#L147
     // + [JSValue valueWithJSValueRef:inContext:]
     //   this is the method we're swizzling to call our block of code
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        Method origMethod = class_getClassMethod([JSValue class], @selector(valueWithJSValueRef:inContext:));
+        Method newMethod = class_getClassMethod([NSObject class], @selector(watermelonSwizzledValueWithJSValueRef:inContext:));
+
+        if (!origMethod || !newMethod) {
+            NSLog(@"WatermelonDB JSLock perfhack failed - missing methods to swizzle. Falling back...");
+            return;
+        }
+
+        // Note: it would seem slightly safer to swizzle before dummy call and then unswizzle - in case someone else
+        // also wants to do this swizzle. But for many small calls, this triggers so many objc cache flushes, it overwhelms
+        // the performance win completely
+        method_exchangeImplementations(origMethod, newMethod);
+    });
+
+    JSContext *context = [JSContext contextWithJSGlobalContextRef:globalContext];
     JSManagedValue *dummyValue = [JSManagedValue managedValueWithValue:[JSValue valueWithUndefinedInContext:context]];
-
-    Method origMethod = class_getClassMethod([JSValue class], @selector(valueWithJSValueRef:inContext:));
-    Method newMethod = class_getClassMethod([NSObject class], @selector(watermelonSwizzledValueWithJSValueRef:inContext:));
-
-    if (!origMethod || !newMethod) {
-        NSLog(@"WatermelonDB JSLock perfhack failed - missing methods to swizzle. Falling back...");
-        block();
-        return;
-    }
-
-    method_exchangeImplementations(origMethod, newMethod);
 
     // trigger the swizzled version
     blockToExecute = &block;
@@ -109,9 +113,6 @@ void callWithJSCLockHolder(jsi::Runtime& rt, std::function<void (void)> block) {
         blockToExecute = nullptr;
         block();
     }
-
-    // restore original implementation just in case
-    method_exchangeImplementations(newMethod, origMethod);
 }
 
 #else

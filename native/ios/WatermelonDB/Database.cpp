@@ -1,5 +1,5 @@
 #include "Database.h"
-#include "Trampoline.h"
+#include "JSLockPerfHack.h"
 #include <pmmintrin.h>
 
 namespace watermelondb {
