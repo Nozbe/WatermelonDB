@@ -49,7 +49,10 @@ Database::Database(jsi::Runtime *runtime) : runtime_(runtime) {
 
         jsi::Runtime &rt = *runtime_;
         jsi::Array operations = args[0].getObject(rt).getArray(rt);
-        jumpToDatabaseBatch(this, rt, operations);
+
+        callWithJSCLockHolder(rt, [&]() {
+            batch(rt, operations);
+        });
 
         return jsi::Value::undefined();
     });
