@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### New features
+
+- [SQLiteAdapter][iOS] Add new `synchronous` option to adapter: `new SQLiteAdapter({ ..., synchronous: true })`.
+  When enabled, database operations will block JavaScript thread. Adapter actions will resolve in the
+  next microtask, which simplifies building flicker-free interfaces. Adapter will fall back to async
+  operation when synchronous adapter is not available (e.g. when doing remote debugging)
+
+### Fixes
+
+- [LokiJS] Fixed an issue preventing database from saving when using `experimentalUseIncrementalIndexedDB`
+- Fixed a potential issue when using `database.unsafeResetDatabase()`
+- [iOS] Fixed issue with clearing database under experimental synchronous mode
+
 ## 0.15 - 2019-11-08
 
 ### Highlights
