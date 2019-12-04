@@ -304,7 +304,9 @@ extension DatabaseBridge {
     }
 
     @objc(unsafeResetDatabaseSynchronous:schema:schemaVersion:)
-    func unsafeResetDatabaseSynchronous(tag: ConnectionTag, schema: Database.SQL, schemaVersion: NSNumber) -> NSDictionary {
+    func unsafeResetDatabaseSynchronous(tag: ConnectionTag,
+                                        schema: Database.SQL,
+                                        schemaVersion: NSNumber) -> NSDictionary {
         return withDriverSynchronous(tag) {
             try $0.unsafeResetDatabase(schema: (version: schemaVersion.intValue, sql: schema))
         }
