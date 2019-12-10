@@ -9,6 +9,7 @@ import arrayDifference from '../../utils/fp/arrayDifference'
 import { type Value } from '../../QueryDescription'
 import { type ColumnName } from '../../Schema'
 import type Query from '../../Query'
+import type { CollectionChangeSet } from '../../Collection'
 
 import type Model, { RecordId } from '../../Model'
 import simpleObserver from '../simpleObserver'
@@ -108,8 +109,8 @@ export default function observeQueryWithColumns<Record: Model>(
     })
 
     // Observe changes to records we have on the list
-    const collectionSubscription = query.collection.changes.subscribe(
-      function observeWithColumnsCollectionChanged(changeSet): void {
+    const collectionUnsubscribe = query.collection.experimentalSubscribe(
+      function observeWithColumnsCollectionChanged(changeSet: CollectionChangeSet<Record>): void {
         let hasColumnChanges = false
         // Can't use `Array.some`, because then we'd skip saving record state for relevant records
         changeSet.forEach(({ record, type }) => {
@@ -142,6 +143,6 @@ export default function observeQueryWithColumns<Record: Model>(
       },
     )
 
-    return sourceSubscription.add(collectionSubscription)
+    return sourceSubscription.add(collectionUnsubscribe)
   })
 }

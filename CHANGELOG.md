@@ -6,10 +6,19 @@ All notable changes to this project will be documented in this file.
 
 ### New features
 
-- [SQLiteAdapter][iOS] Add new `synchronous` option to adapter: `new SQLiteAdapter({ ..., synchronous: true })`.
+- [SQLiteAdapter] [iOS] Add new `synchronous` option to adapter: `new SQLiteAdapter({ ..., synchronous: true })`.
   When enabled, database operations will block JavaScript thread. Adapter actions will resolve in the
   next microtask, which simplifies building flicker-free interfaces. Adapter will fall back to async
   operation when synchronous adapter is not available (e.g. when doing remote debugging)
+- [Model] Added experimental `model.experimentalSubscribe((isDeleted) => { ... })` method as a vanilla JS alternative to Rx based `model.observe()`. Unlike the latter, it does not notify the subscriber immediately upon subscription.
+- [Collection] Added internal `collection.experimentalSubscribe((changeSet) => { ... })` method as a vanilla JS alternative to Rx based `collection.changes` (you probably shouldn't be using this API anyway)
+- [Database] Added experimental `database.experimentalSubscribe(['table1', 'table2'], () => { ... })` method as a vanilla JS alternative to Rx-based `database.withChangesForTables()`. Unlike the latter, `experimentalSubscribe` notifies the subscriber only once after a batch that makes a change in multiple collections subscribed to. It also doesn't notify the subscriber immediately upon subscription, and doesn't send details about the changes, only a signal.
+- Added `experimentalDisableObserveCountThrottling()` to `@nozbe/watermelondb/observation/observeCount` that globally disables count observation throttling. We think that throttling on WatermelonDB level is not a good feature and will be removed in a future release - and will be better implemented on app level if necessary
+
+### Changes
+
+- [LokiJS] [Performance] Improved worker queue implementation for performance
+- [observation] Refactored observer implementations for performance
 
 ### Fixes
 

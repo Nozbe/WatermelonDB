@@ -6,6 +6,7 @@ import { startWith } from 'rxjs/operators'
 import { values } from 'rambdax'
 
 import { invariant } from '../utils/common'
+import { noop } from '../utils/fp'
 
 import type { DatabaseAdapter, BatchOperation } from '../adapters/type'
 import type Model from '../Model'
@@ -103,6 +104,13 @@ export default class Database {
 
     await this.adapter.batch(batchOperations)
 
+    const affectedTables = Object.keys(changeNotifications)
+    this._subscribers.forEach(([tables, subscriber]) => {
+      if (tables.some(table => affectedTables.includes(table))) {
+        subscriber()
+      }
+    })
+
     Object.entries(changeNotifications).forEach(notification => {
       const [table, changeSet]: [TableName<any>, CollectionChangeSet<any>] = (notification: any)
       this.collections.get(table).changeSet(changeSet)
@@ -124,6 +132,23 @@ export default class Database {
     const changesSignals = tables.map(table => this.collections.get(table).changes)
 
     return merge$(...changesSignals).pipe(startWith(null))
+  }
+
+  _subscribers: Array<[TableName<any>[], () => void]> = []
+
+  // Notifies `subscriber` on change in any of passed tables (only a signal, no change set)
+  experimentalSubscribe(tables: TableName<any>[], subscriber: () => void): () => void {
+    if (!tables.length) {
+      return noop
+    }
+
+    const subscriberEntry = [tables, subscriber]
+    this._subscribers.push(subscriberEntry)
+
+    return () => {
+      const idx = this._subscribers.indexOf(subscriberEntry)
+      idx !== -1 && this._subscribers.splice(idx, 1)
+    }
   }
 
   _resetCount: number = 0

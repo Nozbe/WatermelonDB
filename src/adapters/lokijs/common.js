@@ -31,12 +31,14 @@ export type WorkerResponseData = CachedQueryResult | CachedFindResult | number |
 export type WorkerResponseError = string
 export type WorkerResponsePayload = WorkerResponseData | WorkerResponseError
 
-export type WorkerExecutorAction = {
+export type WorkerAction = $Exact<{
+  id: number,
   type: WorkerExecutorType,
   payload: WorkerExecutorPayload,
-}
+}>
 
-export type WorkerResponseAction = {
+export type WorkerResponse = $Exact<{
+  id: number,
   type: WorkerResponseType,
   payload: WorkerResponsePayload,
-}
+}>

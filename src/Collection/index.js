@@ -142,6 +142,9 @@ export default class Collection<Record: Model> {
       }
     })
 
+    this._subscribers.forEach(subscriber => {
+      subscriber(operations)
+    })
     this.changes.next(operations)
 
     operations.forEach(({ record, type }) => {
@@ -151,6 +154,17 @@ export default class Collection<Record: Model> {
         record._notifyDestroyed()
       }
     })
+  }
+
+  _subscribers: Array<(CollectionChangeSet<Record>) => void> = []
+
+  experimentalSubscribe(subscriber: (CollectionChangeSet<Record>) => void): () => void {
+    this._subscribers.push(subscriber)
+
+    return () => {
+      const idx = this._subscribers.indexOf(subscriber)
+      idx !== -1 && this._subscribers.splice(idx, 1)
+    }
   }
 
   // See: Database.unsafeClearCaches

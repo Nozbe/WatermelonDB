@@ -514,6 +514,55 @@ export default () => [
     },
   ],
   [
+    'queues actions correctly',
+    async adapter => {
+      function queryable(promise) {
+        let isSettled = false
+        const result = promise.then(
+          value => {
+            isSettled = true
+            return value
+          },
+          e => {
+            isSettled = true
+            throw e
+          },
+        )
+        result.isSettled = () => isSettled
+        return result
+      }
+
+      adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1', text1: 'foo', order: 1 })]])
+      const find1Promise = queryable(adapter.find('tasks', 't1'))
+      const find2Promise = queryable(adapter.find('tasks', 't2'))
+      adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't2', text1: 'bar', order: 2 })]])
+      const queryPromise = queryable(adapter.query(taskQuery()))
+      const find2Promise2 = queryable(adapter.find('tasks', 't2'))
+
+      await find2Promise2
+
+      expect(find1Promise.isSettled()).toBe(true)
+      expect(find2Promise.isSettled()).toBe(true)
+      expect(queryPromise.isSettled()).toBe(true)
+      expect(find2Promise2.isSettled()).toBe(true)
+      expect(await find1Promise).toBe('t1')
+      expect(await find2Promise).toBe(null)
+      expect(await queryPromise).toEqual(['t1', 't2'])
+      expect(await find2Promise2).toBe('t2')
+
+      // unsafeResetDatabase is the only action in loki that's necessarily asynchronous even in sync mode
+      const batchPromise = queryable(
+        adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't3', text1: 'bar', order: 2 })]]),
+      )
+      adapter.unsafeResetDatabase()
+      adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1', text1: 'bar', order: 2 })]])
+      const queryPromise2 = adapter.query(taskQuery())
+
+      expect(await queryPromise2).toEqual(['t1'])
+      expect(batchPromise.isSettled()).toBe(true)
+    },
+  ],
+  [
     'fails on bad queries, creates, updates, deletes',
     async adapter => {
       const badQuery = new Query({ modelClass: BadModel }, []).serialize()
