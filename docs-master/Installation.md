@@ -136,6 +136,37 @@ Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (alt
 
 This guide assumes you use Webpack as your bundler.
 
+3. If you haven't already, install Babel plugins for decorators, static class properties, and async/await to get the most out of Watermelon. This assumes you use Babel 7 and already support ES6 syntax.
+    ```bash
+    yarn add --dev @babel/plugin-proposal-decorators
+    yarn add --dev @babel/plugin-proposal-class-properties
+    yarn add --dev @babel/plugin-transform-runtime
+    ```
+    or
+    ```bash
+    npm install -D @babel/plugin-proposal-decorators
+    npm install -D @babel/plugin-proposal-class-properties
+    npm install -D @babel/plugin-transform-runtime
+    ```
+4. Add ES7 support to your `.babelrc` file:
+    ```json
+    {
+      "plugins": [
+        ["@babel/plugin-proposal-decorators", { "legacy": true }],
+        ["@babel/plugin-proposal-class-properties", { "loose": true }],
+        [
+          "@babel/plugin-transform-runtime",
+           {
+             "helpers": true,
+             "regenerator": true
+           }
+        ]
+      ]
+    }
+    ```
+
+If you want to use Web Worker for WatermelonDB (this has pros and cons, we recommend you start without Web Workers, and evaluate later if it makes sense for your app to use them):
+
 1. Install [worker-loader](https://github.com/webpack-contrib/worker-loader) Webpack plugin to add support for Web Workers to your app:
     ```sh
     yarn add --dev worker-loader
@@ -164,34 +195,6 @@ This guide assumes you use Webpack as your bundler.
         // ...
         globalObject: 'this', // ⬅️ And this
       }
-    }
-    ```
-3. If you haven't already, install Babel plugins for decorators, static class properties, and async/await to get the most out of Watermelon. This assumes you use Babel 7 and already support ES6 syntax.
-    ```bash
-    yarn add --dev @babel/plugin-proposal-decorators
-    yarn add --dev @babel/plugin-proposal-class-properties
-    yarn add --dev @babel/plugin-transform-runtime
-    ```
-    or
-    ```bash
-    npm install -D @babel/plugin-proposal-decorators
-    npm install -D @babel/plugin-proposal-class-properties
-    npm install -D @babel/plugin-transform-runtime
-    ```
-4. Add ES7 support to your `.babelrc` file:
-    ```json
-    {
-      "plugins": [
-        ["@babel/plugin-proposal-decorators", { "legacy": true }],
-        ["@babel/plugin-proposal-class-properties", { "loose": true }],
-        [
-          "@babel/plugin-transform-runtime",
-           {
-             "helpers": true,
-             "regenerator": true
-           }
-        ]
-      ]
     }
     ```
 
@@ -241,11 +244,16 @@ import LokiJSAdapter from '@nozbe/watermelondb/adapters/lokijs'
 
 const adapter = new LokiJSAdapter({
   schema,
-  // useWebWorker: false,
-  // experimentalUseIncrementalIndexedDB: true,
+  // These two options are recommended for new projects:
+  useWebWorker: false,
+  experimentalUseIncrementalIndexedDB: true,
+  // It's recommended you implement this method:
   // onIndexedDBVersionChange: () => {
-  //   // database was deleted in another browser tab
-  //   services.forceLogOut()
+  //   // database was deleted in another browser tab (user logged out), so we must make sure we delete
+  //   // it in this tab as well
+  //   if (checkIfUserIsLoggedIn()) {
+  //     window.location.reload()
+  //   }
   // },
 })
 
