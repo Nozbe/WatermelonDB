@@ -147,7 +147,7 @@ export default class Database {
 
     return () => {
       const idx = this._subscribers.indexOf(subscriberEntry)
-      this._subscribers.splice(idx, 1)
+      idx !== -1 && this._subscribers.splice(idx, 1)
     }
   }
 

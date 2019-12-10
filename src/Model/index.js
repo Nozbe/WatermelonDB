@@ -265,7 +265,7 @@ export default class Model {
 
     return () => {
       const idx = this._subscribers.indexOf(subscriber)
-      this._subscribers.splice(idx, 1)
+      idx !== -1 && this._subscribers.splice(idx, 1)
     }
   }
 

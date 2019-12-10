@@ -287,6 +287,22 @@ describe('Observation', () => {
     expect(subscriber3).toHaveBeenCalledTimes(5)
     unsubscribe3()
   })
+  it('unsubscribe can safely be called more than once', async () => {
+    const { database, tasks } = mockDatabase({ actionsEnabled: true })
+
+    const subscriber1 = jest.fn()
+    const unsubscribe1 = database.experimentalSubscribe(['mock_tasks'], subscriber1)
+    expect(subscriber1).toHaveBeenCalledTimes(0)
+
+    const unsubscribe2 = database.experimentalSubscribe(['mock_tasks'], () => {})
+    unsubscribe2()
+    unsubscribe2()
+
+    await database.action(() => tasks.create())
+
+    expect(subscriber1).toHaveBeenCalledTimes(1)
+    unsubscribe1()
+  })
 })
 
 const delayPromise = () => new Promise(resolve => setTimeout(resolve, 100))

@@ -255,4 +255,20 @@ describe('Collection observation', () => {
     await database.action(() => tasks.create())
     expect(subscriber2).toHaveBeenCalledTimes(2)
   })
+  it('unsubscribe can safely be called more than once', async () => {
+    const { database, tasks } = mockDatabase({ actionsEnabled: true })
+
+    const subscriber1 = jest.fn()
+    const unsubscribe1 = tasks.experimentalSubscribe(subscriber1)
+    expect(subscriber1).toHaveBeenCalledTimes(0)
+
+    const unsubscribe2 = tasks.experimentalSubscribe(() => {})
+    unsubscribe2()
+    unsubscribe2()
+
+    await database.action(() => tasks.create())
+    expect(subscriber1).toHaveBeenCalledTimes(1)
+
+    unsubscribe1()
+  })
 })

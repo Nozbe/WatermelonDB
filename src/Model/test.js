@@ -761,6 +761,24 @@ describe('Model observation', () => {
     expect(observer2).toHaveBeenCalledTimes(1)
     expect(observer3).toHaveBeenCalledTimes(3)
   })
+  it('unsubscribe can safely be called more than once', async () => {
+    const { tasks } = mockDatabase()
+    const task = await tasks.create()
+
+    const observer1 = jest.fn()
+    const unsubscribe1 = task.experimentalSubscribe(observer1)
+    expect(observer1).toHaveBeenCalledTimes(0)
+
+    const unsubscribe2 = task.experimentalSubscribe(() => {})
+    unsubscribe2()
+    unsubscribe2()
+
+    await task.update()
+
+    expect(observer1).toHaveBeenCalledTimes(1)
+
+    unsubscribe1()
+  })
 })
 
 describe('model helpers', () => {
