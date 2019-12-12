@@ -148,7 +148,7 @@ export default class Database {
 
     return () => {
       const idx = this._subscribers.indexOf(subscriberEntry)
-      this._subscribers.splice(idx, 1)
+      idx !== -1 && this._subscribers.splice(idx, 1)
     }
   }
 
@@ -168,9 +168,13 @@ export default class Database {
     this._ensureInAction(
       `Database.unsafeResetDatabase() can only be called from inside of an Action. See docs for more details.`,
     )
+    // Doing this in very specific order:
+    // First kill actions, to ensure no more traffic to adapter happens
+    // then clear the database
+    // and only then clear caches, since might have had queued fetches from DB still bringing in items to cache
     this._actionQueue._abortPendingActions()
-    this._unsafeClearCaches()
     await this.adapter.unsafeResetDatabase()
+    this._unsafeClearCaches()
     this._resetCount += 1
   }
 
