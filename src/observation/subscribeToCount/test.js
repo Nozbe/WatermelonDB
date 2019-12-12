@@ -1,6 +1,6 @@
 import { mockDatabase } from '../../__tests__/testModels'
 import * as Q from '../../QueryDescription'
-import observeCount from './index'
+import subscribeToCount from './index'
 
 const prepareTask = (tasks, isCompleted) =>
   tasks.prepareCreate(mock => {
@@ -15,7 +15,7 @@ const createTask = async (tasks, isCompleted) => {
 
 const updateTask = (task, updater) => task.collection.database.action(() => task.update(updater))
 
-describe('observeCount', () => {
+describe('subscribeToCount', () => {
   it('observes changes to count', async () => {
     const { database, tasks } = mockDatabase({ actionsEnabled: true })
 
@@ -23,7 +23,7 @@ describe('observeCount', () => {
 
     // start observing
     const observer = jest.fn()
-    const subscription = observeCount(query, false).subscribe(observer)
+    const unsubscribe = subscribeToCount(query, false, observer)
 
     const waitForNextQuery = () => tasks.query().fetch()
     await waitForNextQuery() // wait for initial query to go through
@@ -76,7 +76,7 @@ describe('observeCount', () => {
     expect(observer).toHaveBeenLastCalledWith(1)
 
     // ensure record subscriptions are disposed properly
-    subscription.unsubscribe()
+    unsubscribe()
     await updateTask(t3, () => {
       t3.isCompleted = false
     })

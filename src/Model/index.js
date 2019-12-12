@@ -2,6 +2,7 @@
 
 import type { Observable } from 'rxjs'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
+import { type Unsubscribe } from '../utils/subscriptions'
 import invariant from '../utils/common/invariant'
 import ensureSync from '../utils/common/ensureSync'
 import fromPairs from '../utils/fp/fromPairs'
@@ -260,7 +261,7 @@ export default class Model {
 
   _subscribers: Array<(isDeleted: boolean) => void> = []
 
-  experimentalSubscribe(subscriber: (isDeleted: boolean) => void): () => void {
+  experimentalSubscribe(subscriber: (isDeleted: boolean) => void): Unsubscribe {
     this._subscribers.push(subscriber)
 
     return () => {

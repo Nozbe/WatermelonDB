@@ -3,7 +3,7 @@ import { mockDatabase } from '../../__tests__/testModels'
 import Query from '../../Query'
 import * as Q from '../../QueryDescription'
 
-import simpleObserver from './index'
+import subscribeToSimpleQuery from './index'
 
 const makeDatabase = () => {
   // TODO: Change test to actually go through the DB
@@ -21,7 +21,7 @@ const makeMock = (database, name) =>
     mock.name = name
   })
 
-describe('simpleObserver', () => {
+describe('subscribeToSimpleQuery', () => {
   it('observes changes correctly', async () => {
     const database = makeDatabase()
 
@@ -35,7 +35,7 @@ describe('simpleObserver', () => {
     // start observing
     const query = new Query(database.collections.get('mock_tasks'), [Q.where('name', 'foo')])
     const observer = jest.fn()
-    const subscription = simpleObserver(query).subscribe(observer)
+    const unsubscribe = subscribeToSimpleQuery(query, observer)
 
     // check initial matches
     await new Promise(process.nextTick) // give time to propagate
@@ -72,7 +72,7 @@ describe('simpleObserver', () => {
     expect(observer).toHaveBeenCalledWith([m3])
 
     // ensure no extra emissions
-    subscription.unsubscribe()
+    unsubscribe()
     expect(observer).toHaveBeenCalledTimes(5)
   })
 })

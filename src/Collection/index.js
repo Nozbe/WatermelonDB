@@ -6,6 +6,7 @@ import { defer } from 'rxjs/observable/defer'
 import { switchMap } from 'rxjs/operators'
 import invariant from '../utils/common/invariant'
 import noop from '../utils/fp/noop'
+import { type Unsubscribe } from '../utils/subscriptions'
 
 import Query from '../Query'
 import type Database from '../Database'
@@ -158,7 +159,7 @@ export default class Collection<Record: Model> {
 
   _subscribers: Array<(CollectionChangeSet<Record>) => void> = []
 
-  experimentalSubscribe(subscriber: (CollectionChangeSet<Record>) => void): () => void {
+  experimentalSubscribe(subscriber: (CollectionChangeSet<Record>) => void): Unsubscribe {
     this._subscribers.push(subscriber)
 
     return () => {

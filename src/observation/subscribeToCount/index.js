@@ -3,6 +3,8 @@
 import { Observable } from 'rxjs/Observable'
 import { switchMap, distinctUntilChanged, throttleTime } from 'rxjs/operators'
 
+import { type Unsubscribe } from '../../utils/subscriptions'
+
 import type Query from '../../Query'
 import type Model from '../../Model'
 
@@ -21,37 +23,40 @@ export function experimentalDisableObserveCountThrottling(): void {
 function observeCountThrottled<Record: Model>(query: Query<Record>): Observable<number> {
   const { collection } = query
   return collection.database.withChangesForTables(query.allTables).pipe(
-    throttleTime(250),
+    throttleTime(250), // Note: this has a bug, but we'll delete it anyway
     switchMap(() => collection.fetchCount(query)),
     distinctUntilChanged(),
   )
 }
 
-export default function observeCount<Record: Model>(
+export default function subscribeToCount<Record: Model>(
   query: Query<Record>,
   isThrottled: boolean,
-): Observable<number> {
+  subscriber: number => void,
+): Unsubscribe {
   if (isThrottled && !isThrottlingDisabled) {
-    return observeCountThrottled(query)
+    const observable = observeCountThrottled(query)
+    const subscription = observable.subscribe(subscriber)
+    return () => subscription.unsubscribe()
   }
 
   const { collection } = query
-  return Observable.create(observer => {
-    let previousCount = -1
-    function observeCountFetch(): void {
-      collection.fetchCount(query).then(count => {
-        const shouldEmit = count !== previousCount
-        previousCount = count
-        shouldEmit && observer.next(count)
-      })
-    }
+  let unsubscribed = false
 
-    const unsubscribe = collection.database.experimentalSubscribe(
-      query.allTables,
-      observeCountFetch,
-    )
-    observeCountFetch()
+  let previousCount = -1
+  const observeCountFetch = () => {
+    collection.fetchCount(query).then(count => {
+      const shouldEmit = count !== previousCount && !unsubscribed
+      previousCount = count
+      shouldEmit && subscriber(count)
+    })
+  }
 
-    return unsubscribe
-  })
+  const unsubscribe = collection.database.experimentalSubscribe(query.allTables, observeCountFetch)
+  observeCountFetch()
+
+  return () => {
+    unsubscribed = true
+    unsubscribe()
+  }
 }

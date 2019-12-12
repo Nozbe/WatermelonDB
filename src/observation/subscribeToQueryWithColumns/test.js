@@ -1,6 +1,6 @@
 import { mockDatabase } from '../../__tests__/testModels'
 import * as Q from '../../QueryDescription'
-import observeQueryWithColumns from './index'
+import subscribeToQueryWithColumns from './index'
 
 const prepareTask = (tasks, name, isCompleted, position) =>
   tasks.prepareCreate(mock => {
@@ -18,7 +18,7 @@ const createTask = async (tasks, name, isCompleted, position) => {
 
 const updateTask = (task, updater) => task.collection.database.action(() => task.update(updater))
 
-describe('observeQueryWithColumns', () => {
+describe('subscribeToQueryWithColumns', () => {
   async function fullObservationTest(mockDb, query, asyncSource) {
     const { database, tasks, projects } = mockDb
 
@@ -29,7 +29,7 @@ describe('observeQueryWithColumns', () => {
 
     // start observing
     const observer = jest.fn()
-    const subscription = observeQueryWithColumns(query, [('is_completed', 'position')]).subscribe(observer)
+    const unsubscribe = subscribeToQueryWithColumns(query, [('is_completed', 'position')], observer)
 
     const waitForNextQuery = () => tasks.query().fetch()
     await waitForNextQuery() // wait for initial query to go through
@@ -140,7 +140,7 @@ describe('observeQueryWithColumns', () => {
     }
 
     // ensure record subscriptions are disposed properly
-    subscription.unsubscribe()
+    unsubscribe()
     await updateTask(m3, mock => {
       mock.position += 1
     })
