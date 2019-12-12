@@ -36,7 +36,7 @@ export default function subscribeToCount<Record: Model>(
 ): Unsubscribe {
   if (isThrottled && !isThrottlingDisabled) {
     const observable = observeCountThrottled(query)
-    const subscription = observable.subscribe(count => subscriber(count))
+    const subscription = observable.subscribe(subscriber)
     return () => subscription.unsubscribe()
   }
 
