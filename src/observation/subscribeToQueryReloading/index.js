@@ -28,8 +28,8 @@ export default function subscribeToQueryReloading<Record: Model>(
 
     collection.fetchQuery(query).then(records => {
       const shouldEmit =
-        (shouldEmitStatus || !previousRecords || !identicalArrays(records, previousRecords)) &&
-        !unsubscribed
+        !unsubscribed &&
+        (shouldEmitStatus || !previousRecords || !identicalArrays(records, previousRecords))
       previousRecords = records
       shouldEmit && subscriber(records)
     })
