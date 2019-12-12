@@ -59,7 +59,7 @@ export default class SharedSubscribable<T> {
 
   _unsubscribe(subscriber: T => void): void {
     const idx = this._subscribers.indexOf(subscriber)
-    this._subscribers.splice(idx, 1)
+    idx !== -1 && this._subscribers.splice(idx, 1)
 
     if (!this._subscribers.length) {
       const unsubscribe = this._unsubscribeSource

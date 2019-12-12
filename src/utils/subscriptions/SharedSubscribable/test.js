@@ -187,18 +187,32 @@ describe('SharedSubscribable', () => {
     expect(sourceUnsubscribe).toHaveBeenCalledTimes(2)
   })
   it('too many calls to unsubscribe are safe', () => {
+    let emitValue = null
     const sourceUnsubscribe = jest.fn()
-    const source = jest.fn(_subscriber => {
+    const source = jest.fn(subscriber => {
+      emitValue = subscriber
       return sourceUnsubscribe
     })
 
     const shared = new SharedSubscribable(source)
-    const unsubscribe = shared.subscribe(() => {})
+    const unsubscribe1 = shared.subscribe(() => {})
+
+    const subscriber2 = jest.fn()
+    const unsubscribe2 = shared.subscribe(subscriber2)
+    expect(subscriber2).toHaveBeenCalledTimes(0)
+
+    unsubscribe1()
+    unsubscribe1()
+    expect(sourceUnsubscribe).toHaveBeenCalledTimes(0)
+
+    emitValue('r u der')
+    expect(subscriber2).toHaveBeenCalledTimes(1)
+    expect(subscriber2).toHaveBeenLastCalledWith('r u der')
 
     expect(sourceUnsubscribe).toHaveBeenCalledTimes(0)
-    unsubscribe()
+    unsubscribe2()
     expect(sourceUnsubscribe).toHaveBeenCalledTimes(1)
-    unsubscribe()
+    unsubscribe2()
     expect(sourceUnsubscribe).toHaveBeenCalledTimes(1)
   })
   it('proteccs from rogue sources notifying after being unsubscribed from', () => {
