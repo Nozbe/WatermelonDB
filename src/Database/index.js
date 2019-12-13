@@ -53,6 +53,10 @@ export default class Database {
     this._actionsEnabled = actionsEnabled
   }
 
+  get(query = ''): Array<T> {
+    return this.collections.get(query)
+  }
+
   // Executes multiple prepared operations
   // (made with `collection.prepareCreate` and `record.prepareUpdate`)
   // Note: falsy values (null, undefined, false) passed to batch are just ignored
