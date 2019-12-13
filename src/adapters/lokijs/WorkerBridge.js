@@ -1,5 +1,6 @@
 // @flow
 
+import type { Result } from '../../utils/fp/Result'
 import {
   responseActions,
   type WorkerExecutorType,
@@ -8,11 +9,9 @@ import {
   type WorkerResponsePayload,
 } from './common'
 
-type PromiseResponse = WorkerResponsePayload => void
 type WorkerAction = {
   id: number,
-  resolve: PromiseResponse,
-  reject: PromiseResponse,
+  callback: (Result<WorkerResponsePayload>) => void,
 }
 type WorkerActions = WorkerAction[]
 
@@ -44,32 +43,34 @@ class WorkerBridge {
     this._worker = createWorker(useWebWorker)
     this._worker.onmessage = ({ data }) => {
       const { type, payload, id: responseId }: WorkerResponse = (data: any)
-      const { resolve, reject, id } = this._pendingActions.shift()
+      const { callback, id } = this._pendingActions.shift()
 
       // sanity check
       if (id !== responseId) {
-        reject((new Error('Loki worker responses are out of order'): any))
+        callback({ error: (new Error('Loki worker responses are out of order'): any) })
       }
 
       if (type === RESPONSE_ERROR) {
-        reject(payload)
+        callback({ error: (payload: any) })
       } else if (type === RESPONSE_SUCCESS) {
-        resolve(payload)
+        callback({ value: payload })
       }
     }
   }
 
   // TODO: `any` return should be `WorkerResponsePayload`
-  send(
+  send<T>(
     type: WorkerExecutorType,
     payload: WorkerExecutorPayload = [],
+    callback: (Result<T>) => void,
     cloneMethod: 'shallowCloneDeepObjects' | 'immutable' | 'deep' = 'deep',
-  ): Promise<any> {
-    return new Promise((resolve, reject) => {
-      const id = nextActionId()
-      this._pendingActions.push({ resolve, reject, id })
-      this._worker.postMessage({ id, type, payload, cloneMethod })
+  ): void {
+    const id = nextActionId()
+    this._pendingActions.push({
+      callback: (callback: any),
+      id,
     })
+    this._worker.postMessage({ id, type, payload, cloneMethod })
   }
 }
 

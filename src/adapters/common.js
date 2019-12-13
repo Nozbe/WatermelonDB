@@ -1,6 +1,7 @@
 // @flow
 
 import { logger, invariant } from '../utils/common'
+import { type Result } from '../utils/fp/Result'
 import type { RecordId } from '../Model'
 import type { TableSchema } from '../Schema'
 import type { CachedQueryResult, CachedFindResult, DatabaseAdapter } from './type'
@@ -53,13 +54,11 @@ export function sanitizeQueryResult(
   )
 }
 
-export async function devLogSetUp<T>(executeBlock: () => Promise<T>): Promise<void> {
-  try {
-    executeBlock()
-  } catch (error) {
+export function devSetupCallback(result: Result<any>): void {
+  if (result.error) {
     logger.error(
       `[DB] Uh-oh. Database failed to load, we're in big trouble. This might happen if you didn't set up native code correctly (iOS, Android), or if you didn't recompile native app after WatermelonDB update. It might also mean that IndexedDB or SQLite refused to open.`,
-      error,
+      result.error,
     )
   }
 }
