@@ -6,7 +6,7 @@ import { defer } from 'rxjs/observable/defer'
 import { switchMap } from 'rxjs/operators'
 import invariant from '../utils/common/invariant'
 import noop from '../utils/fp/noop'
-import { type Result } from '../utils/fp/Result'
+import { type Result, toPromise } from '../utils/fp/Result'
 import { type Unsubscribe } from '../utils/subscriptions'
 
 import Query from '../Query'
@@ -47,7 +47,7 @@ export default class Collection<Record: Model> {
     invariant(id, `Invalid record ID ${this.table}#${id}`)
 
     const cachedRecord = this._cache.get(id)
-    return cachedRecord || this._fetchRecord(id)
+    return cachedRecord || toPromise(callback => this._fetchRecord(id, callback))
   }
 
   // Finds the given record and starts observing it
@@ -117,7 +117,7 @@ export default class Collection<Record: Model> {
 
   // See: Query.fetch
   _fetchQuery(query: Query<Record>, callback: (Result<Record[]>) => void): void {
-    this.database.adapter.query(query.serialize(), result => {
+    this.database.adapter.underlyingAdapter.query(query.serialize(), result => {
       if (result.value) {
         callback({ value: this._cache.recordsFromQueryResult(result.value) })
       } else {
@@ -128,12 +128,12 @@ export default class Collection<Record: Model> {
 
   // See: Query.fetchCount
   _fetchCount(query: Query<Record>, callback: (Result<number>) => void): void {
-    this.database.adapter.count(query.serialize(), callback)
+    this.database.adapter.underlyingAdapter.count(query.serialize(), callback)
   }
 
   // Fetches exactly one record (See: Collection.find)
   _fetchRecord(id: RecordId, callback: (Result<Record>) => void): void {
-    this.database.adapter.find(this.table, id, result => {
+    this.database.adapter.underlyingAdapter.find(this.table, id, result => {
       if (result.value) {
         callback({ value: this._cache.recordFromQueryResult(result.value) })
       } else {

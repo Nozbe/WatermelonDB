@@ -8,6 +8,7 @@ import { appSchema, tableSchema } from '../../Schema'
 import { schemaMigrations, createTable, addColumns } from '../../Schema/migrations'
 
 import { matchTests, joinTests } from '../../__tests__/databaseTests'
+import DatabaseAdapterCompat from '../compat'
 import {
   testSchema,
   taskQuery,
@@ -632,10 +633,12 @@ export default () => [
         ],
       })
 
-      let adapter = new AdapterClass({
-        schema: testSchemaV3,
-        migrations: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
-      })
+      let adapter = new DatabaseAdapterCompat(
+        new AdapterClass({
+          schema: testSchemaV3,
+          migrations: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
+        }),
+      )
 
       // add data
       await adapter.batch([
@@ -754,10 +757,12 @@ export default () => [
   [
     `can perform empty migrations (regression test)`,
     async (_adapter, AdapterClass) => {
-      let adapter = new AdapterClass({
-        schema: { ...testSchema, version: 1 },
-        migrations: schemaMigrations({ migrations: [] }),
-      })
+      let adapter = new DatabaseAdapterCompat(
+        new AdapterClass({
+          schema: { ...testSchema, version: 1 },
+          migrations: schemaMigrations({ migrations: [] }),
+        }),
+      )
 
       await adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1', text1: 'foo' })]])
       expect(await adapter.count(taskQuery())).toBe(1)
@@ -777,10 +782,12 @@ export default () => [
     `resets database when it's newer than app schema`,
     async (_adapter, AdapterClass) => {
       // launch newer version of the app
-      let adapter = new AdapterClass({
-        schema: { ...testSchema, version: 3 },
-        migrations: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
-      })
+      let adapter = new DatabaseAdapterCompat(
+        new AdapterClass({
+          schema: { ...testSchema, version: 3 },
+          migrations: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
+        }),
+      )
 
       await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
       expect(await adapter.count(taskQuery())).toBe(1)
@@ -800,10 +807,12 @@ export default () => [
     'resets database when there are no available migrations',
     async (_adapter, AdapterClass) => {
       // launch older version of the app
-      let adapter = new AdapterClass({
-        schema: { ...testSchema, version: 1 },
-        migrations: schemaMigrations({ migrations: [] }),
-      })
+      let adapter = new DatabaseAdapterCompat(
+        new AdapterClass({
+          schema: { ...testSchema, version: 1 },
+          migrations: schemaMigrations({ migrations: [] }),
+        }),
+      )
 
       await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
       expect(await adapter.count(taskQuery())).toBe(1)
@@ -823,10 +832,12 @@ export default () => [
     'errors when migration fails',
     async (_adapter, AdapterClass) => {
       // launch older version of the app
-      let adapter = new AdapterClass({
-        schema: { ...testSchema, version: 1 },
-        migrations: schemaMigrations({ migrations: [] }),
-      })
+      let adapter = new DatabaseAdapterCompat(
+        new AdapterClass({
+          schema: { ...testSchema, version: 1 },
+          migrations: schemaMigrations({ migrations: [] }),
+        }),
+      )
 
       await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
       expect(await adapter.count(taskQuery())).toBe(1)

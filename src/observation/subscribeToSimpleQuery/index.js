@@ -1,6 +1,6 @@
 // @flow
 
-import { invariant } from '../../utils/common'
+import { invariant, logError } from '../../utils/common'
 import { type Unsubscribe } from '../../utils/subscriptions'
 
 import type { CollectionChangeSet } from '../../Collection'
@@ -60,28 +60,33 @@ export default function subscribeToSimpleQuery<Record: Model>(
   let unsubscribed = false
   let unsubscribe = null
 
-  query.collection
-    .fetchQuery(query)
-    .then(function observeQueryInitialEmission(initialRecords): void {
-      if (unsubscribed) {
-        return
+  query.collection._fetchQuery(query, function observeQueryInitialEmission(result): void {
+    if (unsubscribed) {
+      return
+    }
+
+    if (!result.value) {
+      logError(result.error.toString())
+      return
+    }
+
+    const initialRecords = result.value
+
+    // Send initial matching records
+    const matchingRecords: Record[] = initialRecords
+    const emitCopy = () => subscriber(matchingRecords.slice(0))
+    emitCopy()
+
+    // Observe changes to the collection
+    unsubscribe = query.collection.experimentalSubscribe(function observeQueryCollectionChanged(
+      changeSet,
+    ): void {
+      const shouldEmit = processChangeSet(changeSet, matcher, matchingRecords)
+      if (shouldEmit || alwaysEmit) {
+        emitCopy()
       }
-
-      // Send initial matching records
-      const matchingRecords: Record[] = initialRecords
-      const emitCopy = () => subscriber(matchingRecords.slice(0))
-      emitCopy()
-
-      // Observe changes to the collection
-      unsubscribe = query.collection.experimentalSubscribe(function observeQueryCollectionChanged(
-        changeSet,
-      ): void {
-        const shouldEmit = processChangeSet(changeSet, matcher, matchingRecords)
-        if (shouldEmit || alwaysEmit) {
-          emitCopy()
-        }
-      })
     })
+  })
 
   return () => {
     unsubscribed = true

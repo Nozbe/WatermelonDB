@@ -10,6 +10,7 @@ import { invariant } from '../utils/common'
 import { noop } from '../utils/fp'
 
 import type { DatabaseAdapter, BatchOperation } from '../adapters/type'
+import DatabaseAdapterCompat from '../adapters/compat'
 import type Model from '../Model'
 import { type CollectionChangeSet } from '../Collection'
 import { CollectionChangeTypes } from '../Collection/common'
@@ -25,7 +26,7 @@ type DatabaseProps = $Exact<{
 }>
 
 export default class Database {
-  adapter: DatabaseAdapter
+  adapter: DatabaseAdapterCompat
 
   schema: AppSchema
 
@@ -47,7 +48,7 @@ export default class Database {
         'You must pass `actionsEnabled:` key to Database constructor. It is highly recommended you pass `actionsEnabled: true` (see documentation for more details), but can pass `actionsEnabled: false` for backwards compatibility.',
       )
     }
-    this.adapter = adapter
+    this.adapter = new DatabaseAdapterCompat(adapter)
     this.schema = adapter.schema
     this.collections = new CollectionMap(this, modelClasses)
     this._actionsEnabled = actionsEnabled

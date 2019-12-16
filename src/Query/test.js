@@ -134,7 +134,7 @@ describe('Query observation', () => {
   }
   const testQueryObservation = async (makeSubscribe, withColumns) => {
     const { database, tasks } = mockDatabase({ actionsEnabled: true })
-    const adapterSpy = jest.spyOn(database.adapter, 'query')
+    const adapterSpy = jest.spyOn(database.adapter.underlyingAdapter, 'query')
     const query = new Query(tasks, [])
     const observer = jest.fn()
 
@@ -187,7 +187,7 @@ describe('Query observation', () => {
 
   const testCountObservation = async (makeSubscribe, isThrottled) => {
     const { database, tasks } = mockDatabase({ actionsEnabled: true })
-    const adapterSpy = jest.spyOn(database.adapter, 'count')
+    const adapterSpy = jest.spyOn(database.adapter.underlyingAdapter, 'count')
     const query = new Query(tasks, [])
     const observer = jest.fn()
 

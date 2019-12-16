@@ -52,7 +52,7 @@ export default class LokiWorker {
   executeNext(): void {
     const action = this.queue[0]
     const onActionDone = (response: WorkerResponse): void => {
-      invariant(this._actionsExecuting === 1, 'worker queue should have 1 item')
+      invariant(this._actionsExecuting === 1, 'worker should be executing 1 action')
       this._actionsExecuting = 0
       this.queue.shift()
 
@@ -63,7 +63,7 @@ export default class LokiWorker {
       }
     }
 
-    invariant(this._actionsExecuting === 0, 'worker queue should be empty') // sanity check
+    invariant(this._actionsExecuting === 0, 'worker should not have ongoing actions') // sanity check
     this.processAction(action, onActionDone)
   }
 
