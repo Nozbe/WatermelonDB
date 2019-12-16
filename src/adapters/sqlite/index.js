@@ -4,6 +4,7 @@
 import { NativeModules } from 'react-native'
 import { fromPairs } from 'rambdax'
 import { connectionTag, type ConnectionTag, logger, invariant } from '../../utils/common'
+import { testPassword } from '../__tests__/helpers'
 
 import type { RecordId } from '../../Model'
 import type { SerializedQuery } from '../../Query'
@@ -67,9 +68,9 @@ async function syncReturnToPromise<Result>(syncReturn: SyncReturn<Result>): Prom
 }
 
 type NativeDispatcher = $Exact<{
-  initialize: (ConnectionTag, string, SchemaVersion) => Promise<InitializeStatus>,
-  setUpWithSchema: (ConnectionTag, string, SQL, SchemaVersion) => Promise<void>,
-  setUpWithMigrations: (ConnectionTag, string, SQL, SchemaVersion, SchemaVersion) => Promise<void>,
+  initialize: (ConnectionTag, string, string, SchemaVersion) => Promise<InitializeStatus>,
+  setUpWithSchema: (ConnectionTag, string, string,  SQL, SchemaVersion) => Promise<void>,
+  setUpWithMigrations: (ConnectionTag, string, string, SQL, SchemaVersion, SchemaVersion) => Promise<void>,
   find: (ConnectionTag, TableName<any>, RecordId) => Promise<DirtyFindResult>,
   query: (ConnectionTag, TableName<any>, SQL) => Promise<DirtyQueryResult>,
   count: (ConnectionTag, SQL) => Promise<number>,
@@ -105,10 +106,22 @@ type NativeBridgeType = {
   ...NativeDispatcher,
 
   // Synchronous methods
-  initializeSynchronous?: (ConnectionTag, string, SchemaVersion) => SyncReturn<InitializeStatus>,
-  setUpWithSchemaSynchronous?: (ConnectionTag, string, SQL, SchemaVersion) => SyncReturn<void>,
+  initializeSynchronous?: (
+    ConnectionTag,
+    string,
+    string,
+    SchemaVersion,
+  ) => SyncReturn<InitializeStatus>,
+  setUpWithSchemaSynchronous?: (
+    ConnectionTag,
+    string,
+    string,
+    SQL,
+    SchemaVersion,
+  ) => SyncReturn<void>,
   setUpWithMigrationsSynchronous?: (
     ConnectionTag,
+    string,
     string,
     SQL,
     SchemaVersion,
@@ -155,6 +168,7 @@ const makeDispatcher = (isSynchronous: boolean): NativeDispatcher => {
 
 export type SQLiteAdapterOptions = $Exact<{
   dbName?: string,
+  password?: string,
   schema: AppSchema,
   migrations?: SchemaMigrations,
   synchronous?: boolean,
@@ -169,15 +183,18 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   _dbName: string
 
+  _password: string
+
   _synchronous: boolean
 
   _dispatcher: NativeDispatcher
 
   constructor(options: SQLiteAdapterOptions): void {
-    const { dbName, schema, migrations } = options
+    const { dbName, password, schema, migrations } = options
     this.schema = schema
     this.migrations = migrations
     this._dbName = this._getName(dbName)
+    this._password = password || testPassword
     this._synchronous = this._isSynchonous(options.synchronous)
     this._dispatcher = makeDispatcher(this._synchronous)
 
@@ -210,6 +227,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   testClone(options?: $Shape<SQLiteAdapterOptions> = {}): SQLiteAdapter {
     return new SQLiteAdapter({
       dbName: this._dbName,
+      password: this._password,
       schema: this.schema,
       synchronous: this._synchronous,
       ...(this.migrations ? { migrations: this.migrations } : {}),
@@ -230,7 +248,12 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     // we're good. If not, we try again, this time sending the compiled schema or a migration set
     // This is to speed up the launch (less to do and pass through bridge), and avoid repeating
     // migration logic inside native code
-    const status = await this._dispatcher.initialize(this._tag, this._dbName, this.schema.version)
+    const status = await this._dispatcher.initialize(
+      this._tag,
+      this._dbName,
+      this._password,
+      this.schema.version,
+    )
 
     // NOTE: Race condition - logic here is asynchronous, but synchronous-mode adapter does not allow
     // for queueing operations. will fail if you start making actions immediately
@@ -256,6 +279,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
         await this._dispatcher.setUpWithMigrations(
           this._tag,
           this._dbName,
+          this._password,
           this._encodeMigrations(migrationSteps),
           databaseVersion,
           this.schema.version,
@@ -278,6 +302,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     await this._dispatcher.setUpWithSchema(
       this._tag,
       this._dbName,
+      this._password,
       this._encodedSchema(),
       this.schema.version,
     )
