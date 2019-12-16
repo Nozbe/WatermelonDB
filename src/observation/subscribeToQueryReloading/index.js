@@ -42,10 +42,9 @@ export default function subscribeToQueryReloading<Record: Model>(
     })
   }
 
-  const unsubscribe = collection.database.experimentalSubscribe(
-    query.allTables,
-    reloadingObserverFetch,
-  )
+  const unsubscribe = collection.database.experimentalSubscribe(query.allTables, () => {
+    reloadingObserverFetch()
+  })
   reloadingObserverFetch()
 
   return () => {

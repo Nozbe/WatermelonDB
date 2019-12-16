@@ -60,7 +60,7 @@ export default function subscribeToQueryWithColumns<Record: Model>(
   // on the other, it would be good to have source provided as Observable, not Query
   // so that we can reuse cached responses -- but they don't have compatible format
   const [subscribeToSource, asyncSource] = query.hasJoins
-    ? [observer => subscribeToQueryReloading(query, observer, true), true]
+    ? [observer => subscribeToQueryReloading(query, observer, true), false]
     : [observer => subscribeToSimpleQuery(query, observer, true), false]
 
   // NOTE:
@@ -76,6 +76,41 @@ export default function subscribeToQueryWithColumns<Record: Model>(
   // workaround to solve a race condition - collection observation for column check will always
   // emit first, but we don't know if the list of observed records isn't about to change, so we
   // flag, and wait for source response.
+
+  // Observe changes to records we have on the list
+  const collectionUnsubscribe = query.collection.experimentalSubscribe(
+    function observeWithColumnsCollectionChanged(changeSet: CollectionChangeSet<Record>): void {
+      let hasColumnChanges = false
+      // Can't use `Array.some`, because then we'd skip saving record state for relevant records
+      changeSet.forEach(({ record, type }) => {
+        // See if change is relevant to our query
+        if (type !== 'updated') {
+          return
+        }
+
+        const previousState = recordStates.get(record.id)
+        if (!previousState) {
+          return
+        }
+
+        // Check if record changed one of its observed fields
+        const newState = getRecordState(record, columnNames)
+        if (!recordStatesEqual(previousState, newState)) {
+          recordStates.set(record.id, newState)
+          hasColumnChanges = true
+        }
+      })
+
+      if (hasColumnChanges) {
+        if (sourceIsFetching || !asyncSource) {
+          // Mark change; will emit on source emission to avoid duplicate emissions
+          hasPendingColumnChanges = true
+        } else {
+          emitCopy(observedRecords)
+        }
+      }
+    },
+  )
 
   // Observe the source records list (list of records matching a query)
   const sourceUnsubscribe = subscribeToSource(function observeWithColumnsSourceChanged(
@@ -112,41 +147,6 @@ export default function subscribeToQueryWithColumns<Record: Model>(
     // Emit
     shouldEmit && emitCopy(records)
   })
-
-  // Observe changes to records we have on the list
-  const collectionUnsubscribe = query.collection.experimentalSubscribe(
-    function observeWithColumnsCollectionChanged(changeSet: CollectionChangeSet<Record>): void {
-      let hasColumnChanges = false
-      // Can't use `Array.some`, because then we'd skip saving record state for relevant records
-      changeSet.forEach(({ record, type }) => {
-        // See if change is relevant to our query
-        if (type !== 'updated') {
-          return
-        }
-
-        const previousState = recordStates.get(record.id)
-        if (!previousState) {
-          return
-        }
-
-        // Check if record changed one of its observed fields
-        const newState = getRecordState(record, columnNames)
-        if (!recordStatesEqual(previousState, newState)) {
-          recordStates.set(record.id, newState)
-          hasColumnChanges = true
-        }
-      })
-
-      if (hasColumnChanges) {
-        if (sourceIsFetching || !asyncSource) {
-          // Mark change; will emit on source emission to avoid duplicate emissions
-          hasPendingColumnChanges = true
-        } else {
-          emitCopy(observedRecords)
-        }
-      }
-    },
-  )
 
   return () => {
     unsubscribed = true

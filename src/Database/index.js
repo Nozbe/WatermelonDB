@@ -106,16 +106,18 @@ export default class Database {
 
     await this.adapter.batch(batchOperations)
 
+    // NOTE: Collections must be notified first to ensure that batched
+    // elements are marked as cached
+    Object.entries(changeNotifications).forEach(notification => {
+      const [table, changeSet]: [TableName<any>, CollectionChangeSet<any>] = (notification: any)
+      this.collections.get(table).changeSet(changeSet)
+    })
+
     const affectedTables = Object.keys(changeNotifications)
     this._subscribers.forEach(([tables, subscriber]) => {
       if (tables.some(table => affectedTables.includes(table))) {
         subscriber()
       }
-    })
-
-    Object.entries(changeNotifications).forEach(notification => {
-      const [table, changeSet]: [TableName<any>, CollectionChangeSet<any>] = (notification: any)
-      this.collections.get(table).changeSet(changeSet)
     })
   }
 

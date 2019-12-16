@@ -119,7 +119,12 @@ export default class Collection<Record: Model> {
   _fetchQuery(query: Query<Record>, callback: (Result<Record[]>) => void): void {
     this.database.adapter.underlyingAdapter.query(query.serialize(), result => {
       if (result.value) {
-        callback({ value: this._cache.recordsFromQueryResult(result.value) })
+        try {
+          const value = this._cache.recordsFromQueryResult(result.value)
+          callback({ value })
+        } catch (error) {
+          callback({ error })
+        }
       } else {
         callback(result)
       }
@@ -135,7 +140,12 @@ export default class Collection<Record: Model> {
   _fetchRecord(id: RecordId, callback: (Result<Record>) => void): void {
     this.database.adapter.underlyingAdapter.find(this.table, id, result => {
       if (result.value) {
-        callback({ value: this._cache.recordFromQueryResult(result.value) })
+        try {
+          const value = this._cache.recordFromQueryResult(result.value)
+          callback({ value })
+        } catch (error) {
+          callback({ error })
+        }
       } else {
         callback({ error: new Error(`Record ${this.table}#${id} not found`) })
       }
