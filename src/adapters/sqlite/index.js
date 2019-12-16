@@ -168,7 +168,7 @@ const makeDispatcher = (isSynchronous: boolean): NativeDispatcher => {
     const name = isSynchronous ? `${methodName}Synchronous` : methodName
 
     return [
-      name,
+      methodName,
       (...args) => {
         const callback = args[args.length - 1]
         const otherArgs = args.slice(0, -1)
