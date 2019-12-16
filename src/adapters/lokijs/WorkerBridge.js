@@ -48,6 +48,7 @@ class WorkerBridge {
       // sanity check
       if (id !== responseId) {
         callback({ error: (new Error('Loki worker responses are out of order'): any) })
+        return
       }
 
       if (type === RESPONSE_ERROR) {
