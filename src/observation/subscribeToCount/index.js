@@ -45,7 +45,7 @@ export default function subscribeToCount<Record: Model>(
 
   let previousCount = -1
   const observeCountFetch = () => {
-    collection.fetchCount(query).then(count => {
+    collection._fetchCount(query).then(count => {
       const shouldEmit = count !== previousCount && !unsubscribed
       previousCount = count
       shouldEmit && subscriber(count)

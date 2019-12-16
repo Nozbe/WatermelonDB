@@ -6,6 +6,7 @@ import { defer } from 'rxjs/observable/defer'
 import { switchMap } from 'rxjs/operators'
 import invariant from '../utils/common/invariant'
 import noop from '../utils/fp/noop'
+import { type Result } from '../utils/fp/Result'
 import { type Unsubscribe } from '../utils/subscriptions'
 
 import Query from '../Query'
@@ -92,13 +93,6 @@ export default class Collection<Record: Model> {
 
   // *** Implementation of Query APIs ***
 
-  // See: Query.fetch
-  async fetchQuery(query: Query<Record>): Promise<Record[]> {
-    const rawRecords = await this.database.adapter.query(query.serialize())
-
-    return this._cache.recordsFromQueryResult(rawRecords)
-  }
-
   async unsafeFetchRecordsWithSQL(sql: string): Promise<Record[]> {
     const { adapter } = this.database
     invariant(
@@ -111,11 +105,6 @@ export default class Collection<Record: Model> {
     return this._cache.recordsFromQueryResult(rawRecords)
   }
 
-  // See: Query.fetchCount
-  fetchCount(query: Query<Record>): Promise<number> {
-    return this.database.adapter.count(query.serialize())
-  }
-
   // *** Implementation details ***
 
   get table(): TableName<Record> {
@@ -126,11 +115,31 @@ export default class Collection<Record: Model> {
     return this.database.schema.tables[this.table]
   }
 
+  // See: Query.fetch
+  _fetchQuery(query: Query<Record>, callback: (Result<Record[]>) => void): void {
+    this.database.adapter.query(query.serialize(), result => {
+      if (result.value) {
+        callback({ value: this._cache.recordsFromQueryResult(result.value) })
+      } else {
+        callback(result)
+      }
+    })
+  }
+
+  // See: Query.fetchCount
+  _fetchCount(query: Query<Record>, callback: (Result<number>) => void): void {
+    this.database.adapter.count(query.serialize(), callback)
+  }
+
   // Fetches exactly one record (See: Collection.find)
-  async _fetchRecord(id: RecordId): Promise<Record> {
-    const raw = await this.database.adapter.find(this.table, id)
-    invariant(raw, `Record ${this.table}#${id} not found`)
-    return this._cache.recordFromQueryResult(raw)
+  _fetchRecord(id: RecordId, callback: (Result<Record>) => void): void {
+    this.database.adapter.find(this.table, id, result => {
+      if (result.value) {
+        callback({ value: this._cache.recordFromQueryResult(result.value) })
+      } else {
+        callback({ error: new Error(`Record ${this.table}#${id} not found`) })
+      }
+    })
   }
 
   changeSet(operations: CollectionChangeSet<Record>): void {
