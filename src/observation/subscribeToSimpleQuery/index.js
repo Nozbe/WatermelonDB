@@ -74,7 +74,7 @@ export default function subscribeToSimpleQuery<Record: Model>(
 
     // Send initial matching records
     const matchingRecords: Record[] = initialRecords
-    const emitCopy = () => subscriber(matchingRecords.slice(0))
+    const emitCopy = () => !unsubscribed && subscriber(matchingRecords.slice(0))
     emitCopy()
 
     // Observe changes to the collection

@@ -24,7 +24,7 @@ export default function subscribeToQueryReloading<Record: Model>(
 
   function reloadingObserverFetch(): void {
     if (shouldEmitStatus) {
-      subscriber((false: any))
+      !unsubscribed && subscriber((false: any))
     }
 
     collection._fetchQuery(query, result => {
