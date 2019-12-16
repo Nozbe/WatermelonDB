@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file.
 (Low breakage risk)
 
 - [adapters] Adapter API has changed from returning Promise to taking callbacks as the last argument. This won't affect you unless you call on adapter methods directly. `database.adapter` returns a new `DatabaseAdapterCompat` which has the same shape as old adapter API. You can use `database.adapter.underlyingAdapter` to get back `SQLiteAdapter` / `LokiJSAdapter`
-- [Collection]
+- [Collection] `Collection.fetchQuery` and `Collection.fetchCount` are removed. Please use `Query.fetch()` and `Query.fetchCount()`.
 
 ### New features
 
@@ -25,7 +25,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changes
 
-- [Adapters]
+- [Performance] Watermelon internals have been rewritten not to rely on Promises and allow some fetch/observe calls to resolve synchronously. Do not rely on this -- external API is still based on Rx and Promises and may resolve either asynchronously or synchronously depending on capabilities. This is meant as a internal performance optimization only for the time being.
 - [LokiJS] [Performance] Improved worker queue implementation for performance
 - [observation] Refactored observer implementations for performance
 
