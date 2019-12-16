@@ -2,7 +2,7 @@
 
 import type { LokiMemoryAdapter } from 'lokijs'
 import { invariant } from '../../utils/common'
-import type { Result } from '../../utils/fp/Result'
+import type { ResultCallback } from '../../utils/fp/Result'
 
 import type { RecordId } from '../../Model'
 import type { TableName, AppSchema } from '../../Schema'
@@ -93,50 +93,50 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     })
   }
 
-  find(table: TableName<any>, id: RecordId, callback: (Result<CachedFindResult>) => void): void {
+  find(table: TableName<any>, id: RecordId, callback: ResultCallback<CachedFindResult>): void {
     this.workerBridge.send(FIND, [table, id], callback)
   }
 
-  query(query: SerializedQuery, callback: (Result<CachedQueryResult>) => void): void {
+  query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void {
     // SerializedQueries are immutable, so we need no copy
     this.workerBridge.send(QUERY, [query], callback, 'immutable')
   }
 
-  count(query: SerializedQuery, callback: (Result<number>) => void): void {
+  count(query: SerializedQuery, callback: ResultCallback<number>): void {
     // SerializedQueries are immutable, so we need no copy
     this.workerBridge.send(COUNT, [query], callback, 'immutable')
   }
 
-  batch(operations: BatchOperation[], callback: (Result<void>) => void): void {
+  batch(operations: BatchOperation[], callback: ResultCallback<void>): void {
     // batches are only strings + raws which only have JSON-compatible values, rest is immutable
     this.workerBridge.send(BATCH, [operations], callback, 'shallowCloneDeepObjects')
   }
 
-  getDeletedRecords(tableName: TableName<any>, callback: (Result<RecordId[]>) => void): void {
+  getDeletedRecords(tableName: TableName<any>, callback: ResultCallback<RecordId[]>): void {
     this.workerBridge.send(GET_DELETED_RECORDS, [tableName], callback)
   }
 
   destroyDeletedRecords(
     tableName: TableName<any>,
     recordIds: RecordId[],
-    callback: (Result<void>) => void,
+    callback: ResultCallback<void>,
   ): void {
     this.workerBridge.send(DESTROY_DELETED_RECORDS, [tableName, recordIds], callback)
   }
 
-  unsafeResetDatabase(callback: (Result<void>) => void): void {
+  unsafeResetDatabase(callback: ResultCallback<void>): void {
     this.workerBridge.send(UNSAFE_RESET_DATABASE, [], callback)
   }
 
-  getLocal(key: string, callback: (Result<?string>) => void): void {
+  getLocal(key: string, callback: ResultCallback<?string>): void {
     this.workerBridge.send(GET_LOCAL, [key], callback)
   }
 
-  setLocal(key: string, value: string, callback: (Result<void>) => void): void {
+  setLocal(key: string, value: string, callback: ResultCallback<void>): void {
     this.workerBridge.send(SET_LOCAL, [key, value], callback)
   }
 
-  removeLocal(key: string, callback: (Result<void>) => void): void {
+  removeLocal(key: string, callback: ResultCallback<void>): void {
     this.workerBridge.send(REMOVE_LOCAL, [key], callback)
   }
 }

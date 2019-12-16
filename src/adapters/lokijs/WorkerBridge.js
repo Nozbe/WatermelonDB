@@ -1,6 +1,6 @@
 // @flow
 
-import type { Result } from '../../utils/fp/Result'
+import type { ResultCallback } from '../../utils/fp/Result'
 import {
   responseActions,
   type WorkerExecutorType,
@@ -11,7 +11,7 @@ import {
 
 type WorkerAction = {
   id: number,
-  callback: (Result<WorkerResponsePayload>) => void,
+  callback: ResultCallback<WorkerResponsePayload>,
 }
 type WorkerActions = WorkerAction[]
 
@@ -63,7 +63,7 @@ class WorkerBridge {
   send<T>(
     type: WorkerExecutorType,
     payload: WorkerExecutorPayload = [],
-    callback: (Result<T>) => void,
+    callback: ResultCallback<T>,
     cloneMethod: 'shallowCloneDeepObjects' | 'immutable' | 'deep' = 'deep',
   ): void {
     const id = nextActionId()

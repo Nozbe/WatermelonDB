@@ -6,7 +6,7 @@ import { defer } from 'rxjs/observable/defer'
 import { switchMap } from 'rxjs/operators'
 import invariant from '../utils/common/invariant'
 import noop from '../utils/fp/noop'
-import { type Result, toPromise } from '../utils/fp/Result'
+import { type ResultCallback, toPromise, mapValue } from '../utils/fp/Result'
 import { type Unsubscribe } from '../utils/subscriptions'
 
 import Query from '../Query'
@@ -18,7 +18,6 @@ import { type DirtyRaw } from '../RawRecord'
 
 import RecordCache from './RecordCache'
 import { CollectionChangeTypes } from './common'
-import type { SQLDatabaseAdapter } from '../adapters/type'
 
 type CollectionChangeType = 'created' | 'updated' | 'destroyed'
 export type CollectionChange<Record: Model> = { record: Record, type: CollectionChangeType }
@@ -96,11 +95,10 @@ export default class Collection<Record: Model> {
   async unsafeFetchRecordsWithSQL(sql: string): Promise<Record[]> {
     const { adapter } = this.database
     invariant(
-      typeof (adapter: any).unsafeSqlQuery === 'function',
+      typeof adapter.unsafeSqlQuery === 'function',
       'unsafeFetchRecordsWithSQL called on database that does not support SQL',
     )
-    const sqlAdapter: SQLDatabaseAdapter = (adapter: any)
-    const rawRecords = await sqlAdapter.unsafeSqlQuery(this.modelClass.table, sql)
+    const rawRecords = await adapter.unsafeSqlQuery(this.modelClass.table, sql)
 
     return this._cache.recordsFromQueryResult(rawRecords)
   }
@@ -116,40 +114,27 @@ export default class Collection<Record: Model> {
   }
 
   // See: Query.fetch
-  _fetchQuery(query: Query<Record>, callback: (Result<Record[]>) => void): void {
-    this.database.adapter.underlyingAdapter.query(query.serialize(), result => {
-      if (result.value) {
-        try {
-          const value = this._cache.recordsFromQueryResult(result.value)
-          callback({ value })
-        } catch (error) {
-          callback({ error })
-        }
-      } else {
-        callback(result)
-      }
-    })
+  _fetchQuery(query: Query<Record>, callback: ResultCallback<Record[]>): void {
+    this.database.adapter.underlyingAdapter.query(query.serialize(), result =>
+      callback(mapValue(rawRecords => this._cache.recordsFromQueryResult(rawRecords), result)),
+    )
   }
 
   // See: Query.fetchCount
-  _fetchCount(query: Query<Record>, callback: (Result<number>) => void): void {
+  _fetchCount(query: Query<Record>, callback: ResultCallback<number>): void {
     this.database.adapter.underlyingAdapter.count(query.serialize(), callback)
   }
 
   // Fetches exactly one record (See: Collection.find)
-  _fetchRecord(id: RecordId, callback: (Result<Record>) => void): void {
-    this.database.adapter.underlyingAdapter.find(this.table, id, result => {
-      if (result.value) {
-        try {
-          const value = this._cache.recordFromQueryResult(result.value)
-          callback({ value })
-        } catch (error) {
-          callback({ error })
-        }
-      } else {
-        callback({ error: new Error(`Record ${this.table}#${id} not found`) })
-      }
-    })
+  _fetchRecord(id: RecordId, callback: ResultCallback<Record>): void {
+    this.database.adapter.underlyingAdapter.find(this.table, id, result =>
+      callback(
+        mapValue(rawRecord => {
+          invariant(rawRecord, `Record ${this.table}#${id} not found`)
+          return this._cache.recordFromQueryResult(rawRecord)
+        }, result),
+      ),
+    )
   }
 
   changeSet(operations: CollectionChangeSet<Record>): void {
