@@ -5,7 +5,7 @@ import logError from '../../../utils/common/logError'
 import invariant from '../../../utils/common/invariant'
 
 import LokiExecutor from './executor'
-import { actions, responseActions, type WorkerAction, type WorkerResponse } from '../common'
+import { actions, type WorkerAction, type WorkerResponse } from '../common'
 
 const ExecutorProto = LokiExecutor.prototype
 const executorMethods = {
@@ -21,8 +21,6 @@ const executorMethods = {
   [actions.GET_DELETED_RECORDS]: ExecutorProto.getDeletedRecords,
   [actions.DESTROY_DELETED_RECORDS]: ExecutorProto.destroyDeletedRecords,
 }
-
-const { RESPONSE_SUCCESS, RESPONSE_ERROR } = responseActions
 
 export default class LokiWorker {
   workerContext: DedicatedWorkerGlobalScope
@@ -87,12 +85,12 @@ export default class LokiWorker {
         const runExecutorAction = executorMethods[type].bind(this.executor)
         const response = runExecutorAction(...payload)
 
-        this.onActionDone({ id, type: RESPONSE_SUCCESS, payload: response })
+        this.onActionDone({ id, result: { value: response } })
       }
     } catch (error) {
       // Main process only receives error message — this logError is to retain call stack
       logError(error)
-      this.onActionDone({ id: action.id, type: RESPONSE_ERROR, payload: error })
+      this.onActionDone({ id: action.id, result: { error } })
     }
   }
 
@@ -110,7 +108,7 @@ export default class LokiWorker {
         await executor.setUp()
         this.executor = executor
 
-        this.onActionDone({ id, type: RESPONSE_SUCCESS, payload: null })
+        this.onActionDone({ id, result: { value: null } })
       } else {
         // run action
         invariant(this.executor, `Cannot run actions because executor is not set up`)
@@ -118,12 +116,12 @@ export default class LokiWorker {
         const runExecutorAction = executorMethods[type].bind(this.executor)
         const response = await runExecutorAction(...payload)
 
-        this.onActionDone({ id, type: RESPONSE_SUCCESS, payload: response })
+        this.onActionDone({ id, result: { value: response } })
       }
     } catch (error) {
       // Main process only receives error message — this logError is to retain call stack
       logError(error)
-      this.onActionDone({ id: action.id, type: RESPONSE_ERROR, payload: error })
+      this.onActionDone({ id: action.id, result: { error } })
     }
   }
 }

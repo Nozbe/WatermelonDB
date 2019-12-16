@@ -2,20 +2,17 @@
 
 import type { ResultCallback } from '../../utils/fp/Result'
 import {
-  responseActions,
   type WorkerExecutorType,
   type WorkerResponse,
   type WorkerExecutorPayload,
-  type WorkerResponsePayload,
+  type WorkerResponseData,
 } from './common'
 
 type WorkerAction = {
   id: number,
-  callback: ResultCallback<WorkerResponsePayload>,
+  callback: ResultCallback<WorkerResponseData>,
 }
 type WorkerActions = WorkerAction[]
-
-const { RESPONSE_SUCCESS, RESPONSE_ERROR } = responseActions
 
 function createWorker(useWebWorker: boolean): Worker {
   if (useWebWorker) {
@@ -42,7 +39,7 @@ class WorkerBridge {
   constructor(useWebWorker: boolean): void {
     this._worker = createWorker(useWebWorker)
     this._worker.onmessage = ({ data }) => {
-      const { type, payload, id: responseId }: WorkerResponse = (data: any)
+      const { result, id: responseId }: WorkerResponse = (data: any)
       const { callback, id } = this._pendingActions.shift()
 
       // sanity check
@@ -51,11 +48,7 @@ class WorkerBridge {
         return
       }
 
-      if (type === RESPONSE_ERROR) {
-        callback({ error: (payload: any) })
-      } else if (type === RESPONSE_SUCCESS) {
-        callback({ value: payload })
-      }
+      callback(result)
     }
   }
 
