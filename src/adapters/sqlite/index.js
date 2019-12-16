@@ -156,12 +156,6 @@ type NativeBridgeType = {
 
 const NativeDatabaseBridge: NativeBridgeType = NativeModules.DatabaseBridge
 
-const getArgsAndCallback = (...args) => {
-  const [callback] = args.slice(-1)
-  const otherArgs = args.slice(0, -1)
-  return [otherArgs, callback]
-}
-
 const makeDispatcher = (isSynchronous: boolean): NativeDispatcher => {
   // Hacky-ish way to create a NativeModule-like object which looks like the old DatabaseBridge
   // but dispatches to synchronous methods, while maintaining Flow typecheck at callsite
@@ -171,26 +165,22 @@ const makeDispatcher = (isSynchronous: boolean): NativeDispatcher => {
       return [methodName, undefined]
     }
 
-    if (isSynchronous) {
-      const syncName = `${methodName}Synchronous`
-      return [
-        methodName,
-        (...args) => {
-          const [otherArgs, callback] = getArgsAndCallback(args)
-          const result = syncReturnToResult(NativeDatabaseBridge[syncName](...otherArgs))
-          callback(result)
-        },
-      ]
-    }
+    const name = isSynchronous ? `${methodName}Synchronous` : methodName
+
     return [
-      methodName,
+      name,
       (...args) => {
-        const [otherArgs, callback] = getArgsAndCallback(args)
+        const callback = args[args.length - 1]
+        const otherArgs = args.slice(0, -1)
+
         // $FlowFixMe
-        NativeDatabaseBridge[methodName](...otherArgs).then(
-          value => callback({ value }),
-          error => callback({ error }),
-        )
+        const returnValue = NativeDatabaseBridge[name](...otherArgs)
+
+        if (isSynchronous) {
+          callback(syncReturnToResult((returnValue: any)))
+        } else {
+          fromPromise(returnValue, callback)
+        }
       },
     ]
   })
