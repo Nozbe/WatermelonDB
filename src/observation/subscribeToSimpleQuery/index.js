@@ -65,7 +65,7 @@ export default function subscribeToSimpleQuery<Record: Model>(
       return
     }
 
-    if (!result.value) {
+    if (result.error) {
       logError(result.error.toString())
       return
     }
