@@ -107,7 +107,7 @@ export const mockDatabase = ({ actionsEnabled = false } = {}) => {
     cloneDatabase: () =>
       // simulate reload
       new Database({
-        adapter: database.adapter.testClone(),
+        adapter: database.adapter.underlyingAdapter.testClone(),
         schema: testSchema,
         modelClasses: [MockProject, MockTask, MockComment],
         actionsEnabled,

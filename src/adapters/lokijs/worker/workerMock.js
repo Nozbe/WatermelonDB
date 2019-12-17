@@ -18,8 +18,7 @@ export function shallowCloneDeepObjects(value: any): any {
   return value
 }
 
-// Simulates the web worker API for test env (while really just passing messages asynchronously
-// on main thread)
+// Simulates the web worker API
 export default class LokiWorkerMock {
   _worker: LokiWorker
 

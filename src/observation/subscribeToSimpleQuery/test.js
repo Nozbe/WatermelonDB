@@ -5,17 +5,6 @@ import * as Q from '../../QueryDescription'
 
 import subscribeToSimpleQuery from './index'
 
-const makeDatabase = () => {
-  // TODO: Change test to actually go through the DB
-  const { database } = mockDatabase()
-
-  database.adapter = {
-    batch: jest.fn(),
-  }
-
-  return database
-}
-
 const makeMock = (database, name) =>
   database.collections.get('mock_tasks').create(mock => {
     mock.name = name
@@ -23,14 +12,11 @@ const makeMock = (database, name) =>
 
 describe('subscribeToSimpleQuery', () => {
   it('observes changes correctly', async () => {
-    const database = makeDatabase()
+    const { database } = mockDatabase()
 
     // insert a few models
     const m1 = await makeMock(database, 'bad_name')
     const m2 = await makeMock(database, 'foo')
-
-    // mock query
-    database.adapter.query = jest.fn().mockImplementationOnce(() => [m2.id])
 
     // start observing
     const query = new Query(database.collections.get('mock_tasks'), [Q.where('name', 'foo')])

@@ -3,6 +3,8 @@
 import { Observable } from 'rxjs/Observable'
 import { switchMap, distinctUntilChanged, throttleTime } from 'rxjs/operators'
 
+import { logError } from '../../utils/common'
+import { toPromise } from '../../utils/fp/Result'
 import { type Unsubscribe } from '../../utils/subscriptions'
 
 import type Query from '../../Query'
@@ -24,7 +26,7 @@ function observeCountThrottled<Record: Model>(query: Query<Record>): Observable<
   const { collection } = query
   return collection.database.withChangesForTables(query.allTables).pipe(
     throttleTime(250), // Note: this has a bug, but we'll delete it anyway
-    switchMap(() => collection.fetchCount(query)),
+    switchMap(() => toPromise(callback => collection._fetchCount(query, callback))),
     distinctUntilChanged(),
   )
 }
@@ -45,7 +47,13 @@ export default function subscribeToCount<Record: Model>(
 
   let previousCount = -1
   const observeCountFetch = () => {
-    collection.fetchCount(query).then(count => {
+    collection._fetchCount(query, result => {
+      if (result.error) {
+        logError(result.error.toString())
+        return
+      }
+
+      const count = result.value
       const shouldEmit = count !== previousCount && !unsubscribed
       previousCount = count
       shouldEmit && subscriber(count)

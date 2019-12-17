@@ -4,6 +4,7 @@ import { Observable } from 'rxjs/Observable'
 import { prepend } from 'rambdax'
 
 import allPromises from '../utils/fp/allPromises'
+import { toPromise } from '../utils/fp/Result'
 import { type Unsubscribe, SharedSubscribable } from '../utils/subscriptions'
 
 // TODO: ?
@@ -70,7 +71,7 @@ export default class Query<Record: Model> {
 
   // Queries database and returns an array of matching records
   fetch(): Promise<Record[]> {
-    return this.collection.fetchQuery(this)
+    return toPromise(callback => this.collection._fetchQuery(this, callback))
   }
 
   // Emits an array of matching records, then emits a new array every time it changes
@@ -94,7 +95,7 @@ export default class Query<Record: Model> {
 
   // Returns the number of matching records
   fetchCount(): Promise<number> {
-    return this.collection.fetchCount(this)
+    return toPromise(callback => this.collection._fetchCount(this, callback))
   }
 
   // Emits the number of matching records, then emits a new count every time it changes

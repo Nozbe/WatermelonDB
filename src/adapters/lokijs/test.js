@@ -2,6 +2,7 @@ import { testSchema } from '../__tests__/helpers'
 import commonTests from '../__tests__/commonTests'
 
 import LokiJSAdapter from './index'
+import DatabaseAdapterCompat from '../compat'
 
 // require('fake-indexeddb/auto')
 
@@ -15,7 +16,7 @@ describe('LokiJSAdapter (Synchronous / Memory persistence)', () => {
         schema: testSchema,
         useWebWorker: false,
       })
-      await test(adapter, LokiJSAdapter)
+      await test(new DatabaseAdapterCompat(adapter), LokiJSAdapter)
     })
   })
 })

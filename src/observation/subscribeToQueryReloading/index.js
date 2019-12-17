@@ -1,5 +1,6 @@
 // @flow
 
+import { logError } from '../../utils/common'
 import identicalArrays from '../../utils/fp/identicalArrays'
 import { type Unsubscribe } from '../../utils/subscriptions'
 
@@ -26,7 +27,13 @@ export default function subscribeToQueryReloading<Record: Model>(
       subscriber((false: any))
     }
 
-    collection.fetchQuery(query).then(records => {
+    collection._fetchQuery(query, result => {
+      if (!result.value) {
+        logError(result.error.toString())
+        return
+      }
+
+      const records = result.value
       const shouldEmit =
         !unsubscribed &&
         (shouldEmitStatus || !previousRecords || !identicalArrays(records, previousRecords))

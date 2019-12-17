@@ -1,5 +1,6 @@
 // @flow
 
+import { type Result } from '../../utils/fp/Result'
 import type { CachedQueryResult, CachedFindResult } from '../type'
 import type { RecordId } from '../../Model'
 
@@ -17,19 +18,10 @@ export const actions = {
   REMOVE_LOCAL: 'REMOVE_LOCAL',
 }
 
-export const responseActions = {
-  RESPONSE_SUCCESS: 'RESPONSE_SUCCESS',
-  RESPONSE_ERROR: 'RESPONSE_ERROR',
-}
-
 export type WorkerExecutorType = $Values<typeof actions>
 export type WorkerExecutorPayload = any[]
 
-export type WorkerResponseType = $Values<typeof responseActions>
-
 export type WorkerResponseData = CachedQueryResult | CachedFindResult | number | RecordId[]
-export type WorkerResponseError = string
-export type WorkerResponsePayload = WorkerResponseData | WorkerResponseError
 
 export type WorkerAction = $Exact<{
   id: number,
@@ -39,6 +31,5 @@ export type WorkerAction = $Exact<{
 
 export type WorkerResponse = $Exact<{
   id: number,
-  type: WorkerResponseType,
-  payload: WorkerResponsePayload,
+  result: Result<WorkerResponseData>,
 }>

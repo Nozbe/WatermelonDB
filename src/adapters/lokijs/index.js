@@ -2,13 +2,14 @@
 
 import type { LokiMemoryAdapter } from 'lokijs'
 import { invariant } from '../../utils/common'
+import type { ResultCallback } from '../../utils/fp/Result'
 
 import type { RecordId } from '../../Model'
 import type { TableName, AppSchema } from '../../Schema'
 import type { SchemaMigrations } from '../../Schema/migrations'
 import type { SerializedQuery } from '../../Query'
 import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
-import { devLogSetUp, validateAdapter } from '../common'
+import { devSetupCallback, validateAdapter } from '../common'
 
 import WorkerBridge from './WorkerBridge'
 import { actions } from './common'
@@ -71,7 +72,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
       validateAdapter(this)
     }
 
-    devLogSetUp(() => this.workerBridge.send(SETUP, [options]))
+    this.workerBridge.send(SETUP, [options], devSetupCallback)
   }
 
   testClone(options?: $Shape<LokiAdapterOptions> = {}): LokiJSAdapter {
@@ -92,46 +93,50 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     })
   }
 
-  find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {
-    return this.workerBridge.send(FIND, [table, id])
+  find(table: TableName<any>, id: RecordId, callback: ResultCallback<CachedFindResult>): void {
+    this.workerBridge.send(FIND, [table, id], callback)
   }
 
-  query(query: SerializedQuery): Promise<CachedQueryResult> {
+  query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void {
     // SerializedQueries are immutable, so we need no copy
-    return this.workerBridge.send(QUERY, [query], 'immutable')
+    this.workerBridge.send(QUERY, [query], callback, 'immutable')
   }
 
-  count(query: SerializedQuery): Promise<number> {
+  count(query: SerializedQuery, callback: ResultCallback<number>): void {
     // SerializedQueries are immutable, so we need no copy
-    return this.workerBridge.send(COUNT, [query], 'immutable')
+    this.workerBridge.send(COUNT, [query], callback, 'immutable')
   }
 
-  batch(operations: BatchOperation[]): Promise<void> {
+  batch(operations: BatchOperation[], callback: ResultCallback<void>): void {
     // batches are only strings + raws which only have JSON-compatible values, rest is immutable
-    return this.workerBridge.send(BATCH, [operations], 'shallowCloneDeepObjects')
+    this.workerBridge.send(BATCH, [operations], callback, 'shallowCloneDeepObjects')
   }
 
-  getDeletedRecords(tableName: TableName<any>): Promise<RecordId[]> {
-    return this.workerBridge.send(GET_DELETED_RECORDS, [tableName])
+  getDeletedRecords(tableName: TableName<any>, callback: ResultCallback<RecordId[]>): void {
+    this.workerBridge.send(GET_DELETED_RECORDS, [tableName], callback)
   }
 
-  destroyDeletedRecords(tableName: TableName<any>, recordIds: RecordId[]): Promise<void> {
-    return this.workerBridge.send(DESTROY_DELETED_RECORDS, [tableName, recordIds])
+  destroyDeletedRecords(
+    tableName: TableName<any>,
+    recordIds: RecordId[],
+    callback: ResultCallback<void>,
+  ): void {
+    this.workerBridge.send(DESTROY_DELETED_RECORDS, [tableName, recordIds], callback)
   }
 
-  unsafeResetDatabase(): Promise<void> {
-    return this.workerBridge.send(UNSAFE_RESET_DATABASE)
+  unsafeResetDatabase(callback: ResultCallback<void>): void {
+    this.workerBridge.send(UNSAFE_RESET_DATABASE, [], callback)
   }
 
-  getLocal(key: string): Promise<string> {
-    return this.workerBridge.send(GET_LOCAL, [key])
+  getLocal(key: string, callback: ResultCallback<?string>): void {
+    this.workerBridge.send(GET_LOCAL, [key], callback)
   }
 
-  setLocal(key: string, value: string): Promise<void> {
-    return this.workerBridge.send(SET_LOCAL, [key, value])
+  setLocal(key: string, value: string, callback: ResultCallback<void>): void {
+    this.workerBridge.send(SET_LOCAL, [key, value], callback)
   }
 
-  removeLocal(key: string): Promise<void> {
-    return this.workerBridge.send(REMOVE_LOCAL, [key])
+  removeLocal(key: string, callback: ResultCallback<void>): void {
+    this.workerBridge.send(REMOVE_LOCAL, [key], callback)
   }
 }
