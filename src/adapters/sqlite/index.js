@@ -4,7 +4,6 @@
 import { NativeModules } from 'react-native'
 import { fromPairs } from 'rambdax'
 import { connectionTag, type ConnectionTag, logger, invariant } from '../../utils/common'
-import { testPassword } from '../__tests__/helpers'
 
 import type { RecordId } from '../../Model'
 import type { SerializedQuery } from '../../Query'
@@ -194,7 +193,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     this.schema = schema
     this.migrations = migrations
     this._dbName = this._getName(dbName)
-    this._password = password || testPassword
+    this._password = password || 'ABC123!'
     this._synchronous = this._isSynchonous(options.synchronous)
     this._dispatcher = makeDispatcher(this._synchronous)
 

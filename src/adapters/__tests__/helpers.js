@@ -73,8 +73,6 @@ export const testSchema = appSchema({
   ],
 })
 
-export const testPassword = 'ABC123!'
-
 export const modelQuery = (modelClass, ...conditions) => {
   const mockCollection = { modelClass }
   return new Query(mockCollection, conditions)
