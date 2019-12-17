@@ -127,7 +127,7 @@ extension DatabaseBridge {
     @objc(setUpWithMigrationsSynchronous:databaseName:password:migrations:fromVersion:toVersion:)
     func setUpWithMigrationsSynchronous(tag: ConnectionTag,
                                         databaseName: String,
-                                        password: password,
+                                        password: String,
                                         migrations: Database.SQL,
                                         fromVersion: NSNumber,
                                         toVersion: NSNumber) -> NSDictionary {
