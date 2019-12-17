@@ -23,7 +23,7 @@ final public class DatabaseBridge: NSObject {
 // MARK: - Asynchronous connections
 
 extension DatabaseBridge {
-    @objc(initialize:databaseName:schemaVersion:resolve:reject:)
+    @objc(initialize:databaseName:password:schemaVersion:resolve:reject:)
     func initialize(tag: ConnectionTag,
                     databaseName: String,
                     password: String,
@@ -47,7 +47,7 @@ extension DatabaseBridge {
         }
     }
 
-    @objc(setUpWithSchema:databaseName:schema:schemaVersion:resolve:reject:)
+    @objc(setUpWithSchema:databaseName:password:schema:schemaVersion:resolve:reject:)
     func setUpWithSchema(tag: ConnectionTag,
                          databaseName: String,
                          password: String,
@@ -61,7 +61,7 @@ extension DatabaseBridge {
         resolve(true)
     }
 
-    @objc(setUpWithMigrations:databaseName:migrations:fromVersion:toVersion:resolve:reject:)
+    @objc(setUpWithMigrations:databaseName:password:migrations:fromVersion:toVersion:resolve:reject:)
     func setUpWithMigrations(tag: ConnectionTag, // swiftlint:disable:this function_parameter_count
                              databaseName: String,
                              password: String,
@@ -87,7 +87,7 @@ extension DatabaseBridge {
 // MARK: - Synchronous connections
 
 extension DatabaseBridge {
-    @objc(initializeSynchronous:databaseName:schemaVersion:)
+    @objc(initializeSynchronous:databaseName:password:schemaVersion:)
     func initializeSynchronous(tag: ConnectionTag,
                                databaseName: String,
                                password: String,
@@ -109,7 +109,7 @@ extension DatabaseBridge {
         }
     }
 
-    @objc(setUpWithSchemaSynchronous:databaseName:schema:schemaVersion:)
+    @objc(setUpWithSchemaSynchronous:databaseName:password:schema:schemaVersion:)
     func setUpWithSchemaSynchronous(tag: ConnectionTag,
                                     databaseName: String,
                                     password: String,
@@ -124,9 +124,10 @@ extension DatabaseBridge {
         }
     }
 
-    @objc(setUpWithMigrationsSynchronous:databaseName:migrations:fromVersion:toVersion:)
+    @objc(setUpWithMigrationsSynchronous:databaseName:password:migrations:fromVersion:toVersion:)
     func setUpWithMigrationsSynchronous(tag: ConnectionTag,
                                         databaseName: String,
+                                        password: password,
                                         migrations: Database.SQL,
                                         fromVersion: NSNumber,
                                         toVersion: NSNumber) -> NSDictionary {
