@@ -5,9 +5,13 @@ import android.database.Cursor
 import net.sqlcipher.database.SQLiteDatabase
 import java.io.File
 
-class Database(private val name: String, private val password: String, private val context: Context) {
+class Database(private val name: String, private var password: String?, private val context: Context) {
 
     private val db: SQLiteDatabase by lazy {
+        if (password.equals("")) {
+            password = null
+        }
+
         SQLiteDatabase.loadLibs(context)
         SQLiteDatabase.openOrCreateDatabase(
                 // TODO: This SUCKS. Seems like Android doesn't like sqlite `?mode=memory&cache=shared` mode. To avoid random breakages, save the file to /tmp, but this is slow.

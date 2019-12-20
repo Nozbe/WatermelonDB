@@ -193,7 +193,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     this.schema = schema
     this.migrations = migrations
     this._dbName = this._getName(dbName)
-    this._password = password || 'ABC123!'
+    this._password = password || ''
     this._synchronous = this._isSynchonous(options.synchronous)
     this._dispatcher = makeDispatcher(this._synchronous)
 
