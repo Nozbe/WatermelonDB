@@ -77,6 +77,11 @@ export default function subscribeToSimpleQuery<Record: Model>(
     const emitCopy = () => !unsubscribed && subscriber(matchingRecords.slice(0))
     emitCopy()
 
+    // Check if emitCopy haven't completed source observable to avoid memory leaks
+    if (unsubscribed) {
+      return
+    }
+
     // Observe changes to the collection
     unsubscribe = query.collection.experimentalSubscribe(function observeQueryCollectionChanged(
       changeSet,
