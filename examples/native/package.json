@@ -13,7 +13,7 @@
     "@nozbe/with-observables": "^1.0.0",
     "jsc-android": "^236355.0.0",
     "react": "^16.6.3",
-    "react-native": "^0.58.4",
+    "react-native": "^0.59.5",
     "react-native-gesture-handler": "^1.0.15",
     "react-native-prompt-android": "^0.3.3",
     "react-native-screens": "^1.0.0-alpha.22",
