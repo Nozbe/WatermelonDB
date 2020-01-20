@@ -30,6 +30,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixes
 
+- Fixed a possible cause for "Record ID xxx#yyy was sent over the bridge, but it's not cached" error
 - [LokiJS] Fixed an issue preventing database from saving when using `experimentalUseIncrementalIndexedDB`
 - Fixed a potential issue when using `database.unsafeResetDatabase()`
 - [iOS] Fixed issue with clearing database under experimental synchronous mode
