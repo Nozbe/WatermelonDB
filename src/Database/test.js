@@ -303,7 +303,7 @@ describe('Observation', () => {
     expect(subscriber1).toHaveBeenCalledTimes(1)
     unsubscribe1()
   })
-  it.only('has new objects cached before calling subscribers (regression test)', async () => {
+  it('has new objects cached before calling subscribers (regression test)', async () => {
     const { database, projects, tasks } = mockDatabase({ actionsEnabled: true })
 
     const project = projects.prepareCreate()
@@ -317,8 +317,8 @@ describe('Observation', () => {
       observerCalled += 1
       if (observerCalled === 1) {
         // nothing happens
-      } else {
-        taskPromise = projects.find(task.id)
+      } else if (observerCalled === 2) {
+        taskPromise = tasks.find(task.id)
       }
     })
     database.withChangesForTables(['mock_projects']).subscribe(observer)
