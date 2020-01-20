@@ -111,4 +111,12 @@ describe('SQLite encodeQuery', () => {
       `select "tasks".* from "tasks" where "tasks"."col1" like '%abc' and "tasks"."col2" not like 'def%' and "tasks"."_status" is not 'deleted'`,
     )
   })
+  it('encodes simple select queries', () => {
+    const query = new Query(mockCollection, [
+      Q.select(['col1', 'col2']),
+    ])
+    expect(encodeQuery(query)).toBe(
+      `select "tasks"."col1", "tasks"."col2" from "tasks" where "tasks"."_status" is not 'deleted'`,
+    )
+  })
 })

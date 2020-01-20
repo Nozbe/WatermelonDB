@@ -4,6 +4,7 @@ describe('QueryDescription', () => {
   it('builds empty query', () => {
     const query = Q.buildQueryDescription([])
     expect(query).toEqual({
+      select: [],
       where: [],
       join: [],
     })
@@ -11,6 +12,7 @@ describe('QueryDescription', () => {
   it('builds simple query', () => {
     const query = Q.buildQueryDescription([Q.where('left_column', 'right_value')])
     expect(query).toEqual({
+      select: [],
       where: [
         {
           type: 'where',
@@ -33,6 +35,7 @@ describe('QueryDescription', () => {
       Q.where('col5', null),
     ])
     expect(query).toEqual({
+      select: [],
       where: [
         {
           type: 'where',
@@ -94,6 +97,7 @@ describe('QueryDescription', () => {
       Q.where('col11', Q.notLike('def%')),
     ])
     expect(query).toEqual({
+      select: [],
       where: [
         {
           type: 'where',
@@ -198,6 +202,7 @@ describe('QueryDescription', () => {
   it('supports column comparisons', () => {
     const query = Q.buildQueryDescription([Q.where('left_column', Q.gte(Q.column('right_column')))])
     expect(query).toEqual({
+      select: [],
       where: [
         {
           type: 'where',
@@ -221,6 +226,7 @@ describe('QueryDescription', () => {
       ),
     ])
     expect(query).toEqual({
+      select: [],
       where: [
         {
           type: 'where',
@@ -283,6 +289,7 @@ describe('QueryDescription', () => {
       Q.on('foreign_table2', 'foreign_column2', Q.gt(Q.column('foreign_column3'))),
     ])
     expect(query).toEqual({
+      select: [],
       where: [
         {
           type: 'where',
@@ -365,6 +372,7 @@ describe('QueryDescription', () => {
   it('builds empty query without deleted', () => {
     const query = Q.queryWithoutDeleted(Q.buildQueryDescription([]))
     expect(query).toEqual({
+      select: [],
       where: [
         {
           type: 'where',
@@ -383,6 +391,7 @@ describe('QueryDescription', () => {
       Q.buildQueryDescription([Q.where('left_column', 'right_value')]),
     )
     expect(query).toEqual({
+      select: [],
       where: [
         {
           type: 'where',
@@ -414,6 +423,7 @@ describe('QueryDescription', () => {
       ]),
     )
     expect(query).toEqual({
+      select: [],
       where: [
         {
           type: 'where',
