@@ -19,11 +19,15 @@ const isIDBAvailable = () => {
       resolve(true)
     }
     checkRequest.onerror = event => {
+      const error: ?Error = event?.target?.error
+      // this is what Firefox in Private Mode returns:
+      // DOMException: "A mutation operation was attempted on a database that did not allow mutations."
+      // code: 11, name: InvalidStateError
       logger.error(
         '[WatermelonDB][Loki] IndexedDB checker failed to open. Most likely, user is in Private Mode. It could also be a quota exceeded error. Will fall back to in-memory database.',
         event,
+        error,
       )
-      const error: ?Error = event?.target?.error
       if (error && error.name === 'QuotaExceededError') {
         logger.log('[WatermelonDB][Loki] Looks like disk quota was exceeded: ', error)
       }
