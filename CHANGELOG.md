@@ -6,7 +6,9 @@ All notable changes to this project will be documented in this file.
 
 ### ⚠️ Breaking
 
-(Low breakage risk)
+- `experimentalUseIncrementalIndexedDB` has been renamed to `useIncrementalIndexedDB`
+
+#### Low breakage risk
 
 - [adapters] Adapter API has changed from returning Promise to taking callbacks as the last argument. This won't affect you unless you call on adapter methods directly. `database.adapter` returns a new `DatabaseAdapterCompat` which has the same shape as old adapter API. You can use `database.adapter.underlyingAdapter` to get back `SQLiteAdapter` / `LokiJSAdapter`
 - [Collection] `Collection.fetchQuery` and `Collection.fetchCount` are removed. Please use `Query.fetch()` and `Query.fetchCount()`.

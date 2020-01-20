@@ -35,7 +35,7 @@ export type LokiAdapterOptions = $Exact<{
   // (true by default) Although web workers may have some throughput benefits, disabling them
   // may lead to lower memory consumption, lower latency, and easier debugging
   useWebWorker?: boolean,
-  experimentalUseIncrementalIndexedDB?: boolean,
+  useIncrementalIndexedDB?: boolean,
   // Called when internal IndexedDB version changed (most likely the database was deleted in another browser tab)
   // Pass a callback to force log out in this copy of the app as well
   // Note that this only works when using incrementalIDB and not using web workers
@@ -71,7 +71,12 @@ export default class LokiJSAdapter implements DatabaseAdapter {
       invariant(
         // $FlowFixMe
         options.migrationsExperimental === undefined,
-        'LokiJSAdapter migrationsExperimental has been renamed to migrations',
+        'LokiJSAdapter `migrationsExperimental` option has been renamed to `migrations`',
+      )
+      invariant(
+        // $FlowFixMe
+        options.experimentalUseIncrementalIndexedDB === undefined,
+        'LokiJSAdapter `experimentalUseIncrementalIndexedDB` option has been renamed to `useIncrementalIndexedDB`',
       )
       validateAdapter(this)
     }

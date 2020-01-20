@@ -33,7 +33,7 @@ export default class LokiExecutor {
 
   loki: Loki
 
-  experimentalUseIncrementalIndexedDB: boolean
+  useIncrementalIndexedDB: boolean
 
   onIndexedDBVersionChange: ?() => void
 
@@ -48,7 +48,7 @@ export default class LokiExecutor {
     this.dbName = dbName
     this.schema = schema
     this.migrations = migrations
-    this.experimentalUseIncrementalIndexedDB = options.experimentalUseIncrementalIndexedDB || false
+    this.useIncrementalIndexedDB = options.useIncrementalIndexedDB || false
     this.onIndexedDBVersionChange = options.onIndexedDBVersionChange
     this.onQuotaExceededError = options.onQuotaExceededError
     this._testLokiAdapter = _testLokiAdapter
@@ -241,7 +241,7 @@ export default class LokiExecutor {
     this.loki = await newLoki(
       this.dbName,
       this._testLokiAdapter,
-      this.experimentalUseIncrementalIndexedDB,
+      this.useIncrementalIndexedDB,
       this.onIndexedDBVersionChange,
       this.onQuotaExceededError,
     )
