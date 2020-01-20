@@ -2,6 +2,7 @@
 /* eslint-disable no-undef */
 
 import Loki, { LokiMemoryAdapter } from 'lokijs'
+import { logger } from '../../../utils/common'
 
 const isIDBAvailable = () => {
   return new Promise(resolve => {
@@ -17,12 +18,15 @@ const isIDBAvailable = () => {
       db.close()
       resolve(true)
     }
-    checkRequest.onerror = () => {
+    checkRequest.onerror = e => {
+      logger.error(
+        '[WatermelonDB] IndexedDB checker failed to open. Most likely, user is in Private Mode. It could also be a quota exceeded error. Will fall back to in-memory database.',
+        e,
+      )
       resolve(false)
     }
     checkRequest.onblocked = () => {
-      // eslint-disable-next-line no-console
-      console.error('WatermelonIDBChecker call is blocked')
+      logger.error('[WatermelonDB] IndexedDB checker call is blocked')
     }
   })
 }
@@ -31,7 +35,7 @@ async function getLokiAdapter(
   name: ?string,
   adapter: ?LokiMemoryAdapter,
   useIncrementalIDB: boolean,
-  onIndexedDBVersionChange: ?(() => void),
+  onIndexedDBVersionChange: ?() => void,
 ): mixed {
   if (adapter) {
     return adapter
@@ -55,7 +59,7 @@ export async function newLoki(
   name: ?string,
   adapter: ?LokiMemoryAdapter,
   useIncrementalIDB: boolean,
-  onIndexedDBVersionChange: ?(() => void),
+  onIndexedDBVersionChange: ?() => void,
 ): Loki {
   const loki = new Loki(name, {
     adapter: await getLokiAdapter(name, adapter, useIncrementalIDB, onIndexedDBVersionChange),
