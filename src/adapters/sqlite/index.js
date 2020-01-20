@@ -221,7 +221,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
       invariant(
         // $FlowFixMe
         options.migrationsExperimental === undefined,
-        'SQLiteAdapter migrationsExperimental has been renamed to migrations',
+        'SQLiteAdapter `migrationsExperimental` option has been renamed to `migrations`',
       )
       invariant(
         NativeDatabaseBridge,
