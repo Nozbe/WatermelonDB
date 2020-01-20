@@ -1,7 +1,7 @@
 // @flow
 
 import type { LokiMemoryAdapter } from 'lokijs'
-import { invariant } from '../../utils/common'
+import { invariant, logger } from '../../utils/common'
 import type { ResultCallback } from '../../utils/fp/Result'
 
 import type { RecordId } from '../../Model'
@@ -68,6 +68,16 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     this._dbName = dbName
 
     if (process.env.NODE_ENV !== 'production') {
+      if (options.useWebWorker === undefined) {
+        logger.warn(
+          'LokiJSAdapter `useWebWorker` option will become required in a future version of WatermelonDB. Pass `{ useWebWorker: false }` to adopt the new behavior, or `{ useWebWorker: true }` to supress this warning with no changes',
+        )
+      }
+      if (options.useIncrementalIndexedDB === undefined) {
+        logger.warn(
+          'LokiJSAdapter `useIncrementalIndexedDB` option will become required in a future version of WatermelonDB. Pass `{ useIncrementalIndexedDB: true }` to adopt the new behavior, or `{ useIncrementalIndexedDB: false }` to supress this warning with no changes',
+        )
+      }
       invariant(
         // $FlowFixMe
         options.migrationsExperimental === undefined,
