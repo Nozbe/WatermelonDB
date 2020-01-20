@@ -17,11 +17,10 @@ All notable changes to this project will be documented in this file.
   When enabled, database operations will block JavaScript thread. Adapter actions will resolve in the
   next microtask, which simplifies building flicker-free interfaces. Adapter will fall back to async
   operation when synchronous adapter is not available (e.g. when doing remote debugging)
-- [Model] Added experimental `model.experimentalSubscribe((isDeleted) => { ... })` method as a vanilla JS alternative to Rx based `model.observe()`. Unlike the latter, it does not notify the subscriber immediately upon subscription.
-- [Collection] Added internal `collection.experimentalSubscribe((changeSet) => { ... })` method as a vanilla JS alternative to Rx based `collection.changes` (you probably shouldn't be using this API anyway)
-- [Database] Added experimental `database.experimentalSubscribe(['table1', 'table2'], () => { ... })` method as a vanilla JS alternative to Rx-based `database.withChangesForTables()`. Unlike the latter, `experimentalSubscribe` notifies the subscriber only once after a batch that makes a change in multiple collections subscribed to. It also doesn't notify the subscriber immediately upon subscription, and doesn't send details about the changes, only a signal.
-- Added `experimentalDisableObserveCountThrottling()` to `@nozbe/watermelondb/observation/observeCount` that globally disables count observation throttling. We think that throttling on WatermelonDB level is not a good feature and will be removed in a future release - and will be better implemented on app level if necessary
-- [Query] Added experimental `query.experimentalSubscribe(records => { ... })`, `query.experimentalSubscribeWithColumns(['col1', 'col2'], records => { ... })`, and `query.experimentalSubscribeToCount(count => { ... })` methods
+- [LokiJS] Added new `onQuotaExceededError?: (error: Error) => void` option to `LokiJSAdapter` constructor.
+  This is called when underlying IndexedDB encountered a quota exceeded error (ran out of allotted disk space for app)
+  This means that app can't save more data or that it will fall back to using in-memory database only
+  Note that this only works when `useWebWorker: false`
 
 ### Changes
 
@@ -34,6 +33,14 @@ All notable changes to this project will be documented in this file.
 - [LokiJS] Fixed an issue preventing database from saving when using `experimentalUseIncrementalIndexedDB`
 - Fixed a potential issue when using `database.unsafeResetDatabase()`
 - [iOS] Fixed issue with clearing database under experimental synchronous mode
+
+### New features (Experimental)
+
+- [Model] Added experimental `model.experimentalSubscribe((isDeleted) => { ... })` method as a vanilla JS alternative to Rx based `model.observe()`. Unlike the latter, it does not notify the subscriber immediately upon subscription.
+- [Collection] Added internal `collection.experimentalSubscribe((changeSet) => { ... })` method as a vanilla JS alternative to Rx based `collection.changes` (you probably shouldn't be using this API anyway)
+- [Database] Added experimental `database.experimentalSubscribe(['table1', 'table2'], () => { ... })` method as a vanilla JS alternative to Rx-based `database.withChangesForTables()`. Unlike the latter, `experimentalSubscribe` notifies the subscriber only once after a batch that makes a change in multiple collections subscribed to. It also doesn't notify the subscriber immediately upon subscription, and doesn't send details about the changes, only a signal.
+- Added `experimentalDisableObserveCountThrottling()` to `@nozbe/watermelondb/observation/observeCount` that globally disables count observation throttling. We think that throttling on WatermelonDB level is not a good feature and will be removed in a future release - and will be better implemented on app level if necessary
+- [Query] Added experimental `query.experimentalSubscribe(records => { ... })`, `query.experimentalSubscribeWithColumns(['col1', 'col2'], records => { ... })`, and `query.experimentalSubscribeToCount(count => { ... })` methods
 
 ## 0.15 - 2019-11-08
 

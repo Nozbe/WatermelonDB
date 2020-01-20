@@ -4,7 +4,7 @@
 import Loki, { LokiMemoryAdapter } from 'lokijs'
 import { logger } from '../../../utils/common'
 
-const isIDBAvailable = () => {
+const isIDBAvailable = (onQuotaExceededError: ?(error: Error) => void) => {
   return new Promise(resolve => {
     // $FlowFixMe
     if (typeof indexedDB === 'undefined') {
@@ -30,6 +30,7 @@ const isIDBAvailable = () => {
       )
       if (error && error.name === 'QuotaExceededError') {
         logger.log('[WatermelonDB][Loki] Looks like disk quota was exceeded: ', error)
+        onQuotaExceededError && onQuotaExceededError(error)
       }
       resolve(false)
     }
@@ -44,10 +45,11 @@ async function getLokiAdapter(
   adapter: ?LokiMemoryAdapter,
   useIncrementalIDB: boolean,
   onIndexedDBVersionChange: ?() => void,
+  onQuotaExceededError: ?(error: Error) => void,
 ): mixed {
   if (adapter) {
     return adapter
-  } else if (await isIDBAvailable()) {
+  } else if (await isIDBAvailable(onQuotaExceededError)) {
     if (useIncrementalIDB) {
       const IncrementalIDBAdapter = require('lokijs/src/incremental-indexeddb-adapter')
       return new IncrementalIDBAdapter({
@@ -68,9 +70,16 @@ export async function newLoki(
   adapter: ?LokiMemoryAdapter,
   useIncrementalIDB: boolean,
   onIndexedDBVersionChange: ?() => void,
+  onQuotaExceededError: ?(error: Error) => void,
 ): Loki {
   const loki = new Loki(name, {
-    adapter: await getLokiAdapter(name, adapter, useIncrementalIDB, onIndexedDBVersionChange),
+    adapter: await getLokiAdapter(
+      name,
+      adapter,
+      useIncrementalIDB,
+      onIndexedDBVersionChange,
+      onQuotaExceededError,
+    ),
     autosave: true,
     autosaveInterval: 250,
     verbose: true,

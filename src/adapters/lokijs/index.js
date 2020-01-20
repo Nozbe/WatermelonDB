@@ -36,10 +36,14 @@ export type LokiAdapterOptions = $Exact<{
   // may lead to lower memory consumption, lower latency, and easier debugging
   useWebWorker?: boolean,
   experimentalUseIncrementalIndexedDB?: boolean,
-  // Called when internal IDB version changed (most likely the database was deleted in another browser tab)
+  // Called when internal IndexedDB version changed (most likely the database was deleted in another browser tab)
   // Pass a callback to force log out in this copy of the app as well
   // Note that this only works when using incrementalIDB and not using web workers
   onIndexedDBVersionChange?: () => void,
+  // Called when underlying IndexedDB encountered a quota exceeded error (ran out of allotted disk space for app)
+  // This means that app can't save more data or that it will fall back to using in-memory database only
+  // Note that this only works when `useWebWorker: false`
+  onQuotaExceededError?: (error: Error) => void,
   // -- internal --
   _testLokiAdapter?: LokiMemoryAdapter,
 }>
