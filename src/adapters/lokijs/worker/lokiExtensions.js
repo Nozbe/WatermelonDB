@@ -18,11 +18,15 @@ const isIDBAvailable = () => {
       db.close()
       resolve(true)
     }
-    checkRequest.onerror = e => {
+    checkRequest.onerror = event => {
       logger.error(
-        '[WatermelonDB] IndexedDB checker failed to open. Most likely, user is in Private Mode. It could also be a quota exceeded error. Will fall back to in-memory database.',
-        e,
+        '[WatermelonDB][Loki] IndexedDB checker failed to open. Most likely, user is in Private Mode. It could also be a quota exceeded error. Will fall back to in-memory database.',
+        event,
       )
+      const error: ?Error = event?.target?.error
+      if (error && error.name === 'QuotaExceededError') {
+        logger.log('[WatermelonDB][Loki] Looks like disk quota was exceeded: ', error)
+      }
       resolve(false)
     }
     checkRequest.onblocked = () => {
