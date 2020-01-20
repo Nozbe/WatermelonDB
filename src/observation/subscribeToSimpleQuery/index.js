@@ -1,5 +1,6 @@
 // @flow
 
+import {pipe, pick, uniq, flatten, pluck} from 'rambdax'
 import { invariant, logError } from '../../utils/common'
 import { type Unsubscribe } from '../../utils/subscriptions'
 
@@ -14,6 +15,7 @@ import encodeMatcher, { type Matcher } from '../encodeMatcher'
 // WARN: Mutates arguments
 export function processChangeSet<Record: Model>(
   changeSet: CollectionChangeSet<Record>,
+  selections: ColumnName[],
   matcher: Matcher<Record>,
   mutableMatchingRecords: Record[],
 ): boolean {
@@ -40,7 +42,8 @@ export function processChangeSet<Record: Model>(
       shouldEmit = true
     } else if (matches && !currentlyMatching) {
       // Add if should be included but isn't
-      mutableMatchingRecords.push(record)
+      const _record = selections.length ? pick(selections, record._raw) : record
+      mutableMatchingRecords.push(_record)
       shouldEmit = true
     }
   })
@@ -86,7 +89,12 @@ export default function subscribeToSimpleQuery<Record: Model>(
     unsubscribe = query.collection.experimentalSubscribe(function observeQueryCollectionChanged(
       changeSet,
     ): void {
-      const shouldEmit = processChangeSet(changeSet, matcher, matchingRecords)
+      const selections = pipe(
+          pluck('columns'),
+          flatten,
+          uniq,
+        )(query.description.select)
+      const shouldEmit = processChangeSet(changeSet, selections, matcher, matchingRecords)
       if (shouldEmit || alwaysEmit) {
         emitCopy()
       }

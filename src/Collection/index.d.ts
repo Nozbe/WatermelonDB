@@ -1,5 +1,5 @@
 declare module '@nozbe/watermelondb/Collection' {
-  import { Database, Model, Query, RecordId, TableName, TableSchema } from '@nozbe/watermelondb'
+  import { Database, Model, Query, RecordId, TableName, TableSchema, RawRecord } from '@nozbe/watermelondb'
   import { Condition } from '@nozbe/watermelondb/QueryDescription'
   import { Class } from '@nozbe/watermelondb/utils/common'
   import { Observable, Subject } from 'rxjs'

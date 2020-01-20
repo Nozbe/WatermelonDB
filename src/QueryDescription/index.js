@@ -1,9 +1,8 @@
 // @flow
 
-import { propEq, pipe, prop, uniq, map } from 'rambdax'
+import { pipe, prop, uniq, map, groupBy } from 'rambdax'
 
 // don't import whole `utils` to keep worker size small
-import partition from '../utils/fp/partition'
 import invariant from '../utils/common/invariant'
 import type { $RE } from '../types'
 
@@ -41,6 +40,11 @@ export type WhereDescription = $RE<{
   comparison: Comparison,
 }>
 
+export type Select = $RE<{
+  type: 'select',
+  columns: ColumnName[],
+}>
+
 /* eslint-disable-next-line */
 export type Where = WhereDescription | And | Or
 export type And = $RE<{ type: 'and', conditions: Where[] }>
@@ -51,8 +55,8 @@ export type On = $RE<{
   left: ColumnName,
   comparison: Comparison,
 }>
-export type Condition = Where | On
-export type QueryDescription = $RE<{ where: Where[], join: On[] }>
+export type Condition = Select | Where | On
+export type QueryDescription = $RE<{ select: Select[], where: Where[], join: On[] }>
 
 // Note: These operators are designed to match SQLite semantics
 // to ensure that iOS, Android, web, and Query observation yield exactly the same results
@@ -186,6 +190,11 @@ function _valueOrComparison(arg: Value | Comparison): Comparison {
   return eq(arg)
 }
 
+// Select
+export function select(columns: ColumnName[]): Select {
+  return { type: 'select', columns }
+}
+
 export function where(left: ColumnName, valueOrComparison: Value | Comparison): WhereDescription {
   return { type: 'where', left, comparison: _valueOrComparison(valueOrComparison) }
 }
@@ -231,8 +240,10 @@ export const on: OnFunction = (table, leftOrWhereDescription, valueOrComparison)
 }
 
 const syncStatusColumn = columnName('_status')
-const getJoins: (Condition[]) => [On[], Where[]] = (partition(propEq('type', 'on')): any)
 const whereNotDeleted = where(syncStatusColumn, notEq('deleted'))
+const getGroupedConditions = groupBy<Condition>(
+  condition => ['select', 'on'].includes(condition.type) ? condition.type : 'where'
+)
 const joinsWithoutDeleted = pipe(
   map(prop('table')),
   uniq,
@@ -240,9 +251,9 @@ const joinsWithoutDeleted = pipe(
 )
 
 export function buildQueryDescription(conditions: Condition[]): QueryDescription {
-  const [join, whereConditions] = getJoins(conditions)
+  const {select: selections = [], on: join = [], where: whereConditions = [] }: QueryDescription = getGroupedConditions(conditions)
 
-  const query = { join, where: whereConditions }
+  const query = { select: selections, join, where: whereConditions }
   if (process.env.NODE_ENV !== 'production') {
     Object.freeze(query)
   }
@@ -250,9 +261,10 @@ export function buildQueryDescription(conditions: Condition[]): QueryDescription
 }
 
 export function queryWithoutDeleted(query: QueryDescription): QueryDescription {
-  const { join, where: whereConditions } = query
+  const { select: selections, join, where: whereConditions } = query
 
   const newQuery = {
+    select: selections,
     join: [...join, ...joinsWithoutDeleted(join)],
     where: [...whereConditions, whereNotDeleted],
   }

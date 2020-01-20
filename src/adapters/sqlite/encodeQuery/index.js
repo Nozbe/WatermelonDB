@@ -1,6 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
+import {pipe, pluck, flatten, uniq} from "rambdax"
 import type { SerializedQuery, AssociationArgs } from '../../../Query'
 import type {
   NonNullValues,
@@ -122,6 +123,7 @@ const encodeConditions: (TableName<any>, QueryDescription) => string = (table, d
 // relation, then we need to add `distinct` on the query to ensure there are no duplicates
 const encodeMethod = (
   table: TableName<any>,
+  selections: ColumnName[],
   countMode: boolean,
   needsDistinct: boolean,
 ): string => {
@@ -131,9 +133,16 @@ const encodeMethod = (
       : `select count(*) as "count" from ${encodeName(table)}`
   }
 
+  const getSelectionQueryString = () => {
+    if(!selections.length) {
+      return `${encodeName(table)}.*`
+    }
+    return selections.map(column => `${encodeName(table)}.${encodeName(column)}`).join(', ')
+  }
+
   return needsDistinct
-    ? `select distinct ${encodeName(table)}.* from ${encodeName(table)}`
-    : `select ${encodeName(table)}.* from ${encodeName(table)}`
+    ? `select distinct ${getSelectionQueryString()} from ${encodeName(table)}`
+    : `select ${getSelectionQueryString()} from ${encodeName(table)}`
 }
 
 const encodeAssociation: (TableName<any>) => AssociationArgs => string = mainTable => ([
@@ -156,11 +165,19 @@ const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string
 
   const hasJoins = !!query.description.join.length
   const associations = hasJoins ? query.associations : []
+  const hasSelections = !!query.description.select.length
+  const selections = hasSelections
+    ? pipe(
+        pluck('columns'),
+        flatten,
+        uniq,
+      )(query.description.select)
+    : []
 
   const hasToManyJoins = associations.some(([, association]) => association.type === 'has_many')
 
   const sql =
-    encodeMethod(table, countMode, hasToManyJoins) +
+    encodeMethod(table, selections, countMode, hasToManyJoins) +
     encodeJoin(table, associations) +
     encodeConditions(table, description)
 

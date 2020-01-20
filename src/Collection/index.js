@@ -6,7 +6,7 @@ import { defer } from 'rxjs/observable/defer'
 import { switchMap } from 'rxjs/operators'
 import invariant from '../utils/common/invariant'
 import noop from '../utils/fp/noop'
-import { type ResultCallback, toPromise, mapValue } from '../utils/fp/Result'
+import { type ResultCallback, type Result, type CachedQueryResult, toPromise, mapValue } from '../utils/fp/Result'
 import { type Unsubscribe } from '../utils/subscriptions'
 
 import Query from '../Query'
@@ -114,10 +114,14 @@ export default class Collection<Record: Model> {
   }
 
   // See: Query.fetch
-  _fetchQuery(query: Query<Record>, callback: ResultCallback<Record[]>): void {
-    this.database.adapter.underlyingAdapter.query(query.serialize(), result =>
-      callback(mapValue(rawRecords => this._cache.recordsFromQueryResult(rawRecords), result)),
-    )
+  _fetchQuery(query: Query<Record>, callback: ResultCallback<Record[] | Result<CachedQueryResult>[]>): void {
+    this.database.adapter.underlyingAdapter.query(query.serialize(), result => {
+      if(query.description.select.length) {
+        callback(result)
+        return
+      }
+      callback(mapValue(rawRecords => this._cache.recordsFromQueryResult(rawRecords), result))
+    })
   }
 
   // See: Query.fetchCount
