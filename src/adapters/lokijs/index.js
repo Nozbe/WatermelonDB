@@ -1,7 +1,7 @@
 // @flow
 
 import type { LokiMemoryAdapter } from 'lokijs'
-import { invariant } from '../../utils/common'
+import { invariant, logger } from '../../utils/common'
 import type { ResultCallback } from '../../utils/fp/Result'
 
 import type { RecordId } from '../../Model'
@@ -35,11 +35,15 @@ export type LokiAdapterOptions = $Exact<{
   // (true by default) Although web workers may have some throughput benefits, disabling them
   // may lead to lower memory consumption, lower latency, and easier debugging
   useWebWorker?: boolean,
-  experimentalUseIncrementalIndexedDB?: boolean,
-  // Called when internal IDB version changed (most likely the database was deleted in another browser tab)
+  useIncrementalIndexedDB?: boolean,
+  // Called when internal IndexedDB version changed (most likely the database was deleted in another browser tab)
   // Pass a callback to force log out in this copy of the app as well
   // Note that this only works when using incrementalIDB and not using web workers
   onIndexedDBVersionChange?: () => void,
+  // Called when underlying IndexedDB encountered a quota exceeded error (ran out of allotted disk space for app)
+  // This means that app can't save more data or that it will fall back to using in-memory database only
+  // Note that this only works when `useWebWorker: false`
+  onQuotaExceededError?: (error: Error) => void,
   // -- internal --
   _testLokiAdapter?: LokiMemoryAdapter,
 }>
@@ -64,10 +68,23 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     this._dbName = dbName
 
     if (process.env.NODE_ENV !== 'production') {
+      if (!('useWebWorker' in options)) {
+        logger.warn(
+          'LokiJSAdapter `useWebWorker` option will become required in a future version of WatermelonDB. Pass `{ useWebWorker: false }` to adopt the new behavior, or `{ useWebWorker: true }` to supress this warning with no changes',
+        )
+      }
+      if (!('useIncrementalIndexedDB' in options)) {
+        logger.warn(
+          'LokiJSAdapter `useIncrementalIndexedDB` option will become required in a future version of WatermelonDB. Pass `{ useIncrementalIndexedDB: true }` to adopt the new behavior, or `{ useIncrementalIndexedDB: false }` to supress this warning with no changes',
+        )
+      }
       invariant(
-        // $FlowFixMe
-        options.migrationsExperimental === undefined,
-        'LokiJSAdapter migrationsExperimental has been renamed to migrations',
+        !('migrationsExperimental' in options),
+        'LokiJSAdapter `migrationsExperimental` option has been renamed to `migrations`',
+      )
+      invariant(
+        !('experimentalUseIncrementalIndexedDB' in options),
+        'LokiJSAdapter `experimentalUseIncrementalIndexedDB` option has been renamed to `useIncrementalIndexedDB`',
       )
       validateAdapter(this)
     }

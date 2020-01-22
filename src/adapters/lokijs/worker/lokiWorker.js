@@ -5,7 +5,14 @@ import logError from '../../../utils/common/logError'
 import invariant from '../../../utils/common/invariant'
 
 import LokiExecutor from './executor'
-import { actions, type WorkerAction, type WorkerResponse } from '../common'
+import {
+  actions,
+  type WorkerAction,
+  type WorkerResponse,
+  type WorkerExecutorType,
+  type WorkerExecutorPayload,
+  type WorkerResponseData,
+} from '../common'
 
 const ExecutorProto = LokiExecutor.prototype
 const executorMethods = {
@@ -79,18 +86,11 @@ export default class LokiWorker {
       if (type === actions.SETUP || type === actions.UNSAFE_RESET_DATABASE) {
         this.processActionAsync(action)
       } else {
-        // run action
-        invariant(this.executor, `Cannot run actions because executor is not set up`)
-
-        const runExecutorAction = executorMethods[type].bind(this.executor)
-        const response = runExecutorAction(...payload)
-
+        const response = this._runExecutorAction(type, payload)
         this.onActionDone({ id, result: { value: response } })
       }
     } catch (error) {
-      // Main process only receives error message — this logError is to retain call stack
-      logError(error)
-      this.onActionDone({ id: action.id, result: { error } })
+      this._onError(action, error)
     }
   }
 
@@ -110,18 +110,25 @@ export default class LokiWorker {
 
         this.onActionDone({ id, result: { value: null } })
       } else {
-        // run action
-        invariant(this.executor, `Cannot run actions because executor is not set up`)
-
-        const runExecutorAction = executorMethods[type].bind(this.executor)
-        const response = await runExecutorAction(...payload)
-
+        const response = await this._runExecutorAction(type, payload)
         this.onActionDone({ id, result: { value: response } })
       }
     } catch (error) {
-      // Main process only receives error message — this logError is to retain call stack
-      logError(error)
-      this.onActionDone({ id: action.id, result: { error } })
+      this._onError(action, error)
     }
+  }
+
+  _runExecutorAction(type: WorkerExecutorType, payload: WorkerExecutorPayload): WorkerResponseData {
+    // run action
+    invariant(this.executor, `Cannot run actions because executor is not set up`)
+
+    const runExecutorAction = executorMethods[type].bind(this.executor)
+    return runExecutorAction(...payload)
+  }
+
+  _onError(action: WorkerAction, error: any): void {
+    // Main process only receives error message (when using web workers) — this logError is to retain call stack
+    logError(error)
+    this.onActionDone({ id: action.id, result: { error } })
   }
 }

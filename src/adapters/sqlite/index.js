@@ -219,9 +219,8 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
     if (process.env.NODE_ENV !== 'production') {
       invariant(
-        // $FlowFixMe
-        options.migrationsExperimental === undefined,
-        'SQLiteAdapter migrationsExperimental has been renamed to migrations',
+        !('migrationsExperimental' in options),
+        'SQLiteAdapter `migrationsExperimental` option has been renamed to `migrations`',
       )
       invariant(
         NativeDatabaseBridge,
@@ -282,13 +281,15 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   }
 
   async _setUpWithMigrations(databaseVersion: SchemaVersion): Promise<void> {
-    logger.log('[DB] Database needs migrations')
+    logger.log('[WatermelonDB][SQLite] Database needs migrations')
     invariant(databaseVersion > 0, 'Invalid database schema version')
 
     const migrationSteps = this._migrationSteps(databaseVersion)
 
     if (migrationSteps) {
-      logger.log(`[DB] Migrating from version ${databaseVersion} to ${this.schema.version}...`)
+      logger.log(
+        `[WatermelonDB][SQLite] Migrating from version ${databaseVersion} to ${this.schema.version}...`,
+      )
 
       try {
         await toPromise(callback =>
@@ -301,21 +302,23 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
             callback,
           ),
         )
-        logger.log('[DB] Migration successful')
+        logger.log('[WatermelonDB][SQLite] Migration successful')
       } catch (error) {
-        logger.error('[DB] Migration failed', error)
+        logger.error('[WatermelonDB][SQLite] Migration failed', error)
         throw error
       }
     } else {
       logger.warn(
-        '[DB] Migrations not available for this version range, resetting database instead',
+        '[WatermelonDB][SQLite] Migrations not available for this version range, resetting database instead',
       )
       await this._setUpWithSchema()
     }
   }
 
   async _setUpWithSchema(): Promise<void> {
-    logger.log(`[DB] Setting up database with schema version ${this.schema.version}`)
+    logger.log(
+      `[WatermelonDB][SQLite] Setting up database with schema version ${this.schema.version}`,
+    )
     await toPromise(callback =>
       this._dispatcher.setUpWithSchema(
         this._tag,
@@ -325,7 +328,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
         callback,
       ),
     )
-    logger.log(`[DB] Schema set up successfully`)
+    logger.log(`[WatermelonDB][SQLite] Schema set up successfully`)
   }
 
   find(table: TableName<any>, id: RecordId, callback: ResultCallback<CachedFindResult>): void {
@@ -407,7 +410,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
       this.schema.version,
       result => {
         if (result.value) {
-          logger.log('[DB] Database is now reset')
+          logger.log('[WatermelonDB][SQLite] Database is now reset')
         }
         callback(result)
       },
