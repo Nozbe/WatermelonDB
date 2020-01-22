@@ -219,8 +219,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
     if (process.env.NODE_ENV !== 'production') {
       invariant(
-        // $FlowFixMe
-        options.migrationsExperimental === undefined,
+        !('migrationsExperimental' in options),
         'SQLiteAdapter `migrationsExperimental` option has been renamed to `migrations`',
       )
       invariant(

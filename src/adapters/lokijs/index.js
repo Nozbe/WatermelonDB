@@ -68,24 +68,22 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     this._dbName = dbName
 
     if (process.env.NODE_ENV !== 'production') {
-      if (options.useWebWorker === undefined) {
+      if (!('useWebWorker' in options)) {
         logger.warn(
           'LokiJSAdapter `useWebWorker` option will become required in a future version of WatermelonDB. Pass `{ useWebWorker: false }` to adopt the new behavior, or `{ useWebWorker: true }` to supress this warning with no changes',
         )
       }
-      if (options.useIncrementalIndexedDB === undefined) {
+      if (!('useIncrementalIndexedDB' in options)) {
         logger.warn(
           'LokiJSAdapter `useIncrementalIndexedDB` option will become required in a future version of WatermelonDB. Pass `{ useIncrementalIndexedDB: true }` to adopt the new behavior, or `{ useIncrementalIndexedDB: false }` to supress this warning with no changes',
         )
       }
       invariant(
-        // $FlowFixMe
-        options.migrationsExperimental === undefined,
+        !('migrationsExperimental' in options),
         'LokiJSAdapter `migrationsExperimental` option has been renamed to `migrations`',
       )
       invariant(
-        // $FlowFixMe
-        options.experimentalUseIncrementalIndexedDB === undefined,
+        !('experimentalUseIncrementalIndexedDB' in options),
         'LokiJSAdapter `experimentalUseIncrementalIndexedDB` option has been renamed to `useIncrementalIndexedDB`',
       )
       validateAdapter(this)
