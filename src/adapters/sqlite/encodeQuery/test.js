@@ -113,10 +113,10 @@ describe('SQLite encodeQuery', () => {
   })
   it('encodes simple select queries', () => {
     const query = new Query(mockCollection, [
-      Q.select(['col1', 'col2']),
+      Q.experimentalSelect(['col1', 'col2']),
     ])
     expect(encodeQuery(query)).toBe(
-      `select "tasks"."col1", "tasks"."col2" from "tasks" where "tasks"."_status" is not 'deleted'`,
+      `select "tasks"."id", "tasks"."col1", "tasks"."col2" from "tasks" where "tasks"."_status" is not 'deleted'`,
     )
   })
 })

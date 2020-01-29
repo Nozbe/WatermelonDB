@@ -13,7 +13,8 @@ import lazy from '../decorators/lazy' // import from decorarators break the app 
 import subscribeToCount from '../observation/subscribeToCount'
 import subscribeToQuery from '../observation/subscribeToQuery'
 import subscribeToQueryWithColumns from '../observation/subscribeToQueryWithColumns'
-import { buildQueryDescription, queryWithoutDeleted } from '../QueryDescription'
+import subscribeToQueryWithSelect from '../observation/subscribeToQueryWithSelect'
+import { experimentalSelect, buildQueryDescription, queryWithoutDeleted } from '../QueryDescription'
 import type { Condition, QueryDescription } from '../QueryDescription'
 import type Model, { AssociationInfo } from '../Model'
 import type Collection from '../Collection'
@@ -74,6 +75,11 @@ export default class Query<Record: Model> {
     return toPromise(callback => this.collection._fetchQuery(this, callback))
   }
 
+  fetchSelected(columnNames: ColumnName[]): Promise<RawRecord[]> {
+    const queryWithSelect = this.extend(experimentalSelect(columnNames))
+    return toPromise(callback => this.collection._fetchQuerySelect(queryWithSelect, callback))
+  }
+
   // Emits an array of matching records, then emits a new array every time it changes
   observe(): Observable<Record[]> {
     return Observable.create(observer =>
@@ -90,6 +96,18 @@ export default class Query<Record: Model> {
       this.experimentalSubscribeWithColumns(columnNames, records => {
         observer.next(records)
       }),
+    )
+  }
+
+  // Same as `observeWithColumns(columnNames)` but emits raw records with only the
+  // selected `columnNames` (and `id` property added implicitly).
+  // Note: This is an experimental feature and this API might change in future versions.
+  experimentalObserveColumns(columnNames: columnName[]): Observable<RawRecord[]> {
+    const queryWithSelect = this.extend(experimentalSelect(columnNames))
+    return Observable.create(observer =>
+      subscribeToQueryWithSelect(queryWithSelect, records => {
+        observer.next(records)
+      })
     )
   }
 

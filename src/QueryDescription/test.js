@@ -491,4 +491,64 @@ describe('QueryDescription', () => {
       ],
     })
   })
+  it('supports selected columns in query', () => {
+    const query = Q.buildQueryDescription([
+      Q.experimentalSelect(['col1', 'col2']),
+    ])
+    expect(query).toEqual({
+      select: [
+        {
+          type: 'select',
+          columns: ['id', 'col1', 'col2'],
+        },
+      ],
+      where: [],
+      join: [],
+    })
+  })
+  it('supports multiple select queries', () => {
+    const query = Q.buildQueryDescription([
+      Q.experimentalSelect(['col1', 'col2']),
+      Q.experimentalSelect(['col2', 'col3']),
+    ])
+    expect(query).toEqual({
+      select: [
+        {
+          type: 'select',
+          columns: ['id', 'col1', 'col2'],
+        },
+        {
+          type: 'select',
+          columns: ['id', 'col2', 'col3'],
+        },
+      ],
+      where: [],
+      join: [],
+    })
+  })
+  it('supports select with where conditions', () => {
+    const query = Q.buildQueryDescription([
+      Q.experimentalSelect(['col1', 'col2']),
+      Q.where('col', 'val'),
+    ])
+    expect(query).toEqual({
+      select: [
+        {
+          type: 'select',
+          columns: ['id', 'col1', 'col2'],
+        },
+      ],
+      where: [
+        {
+          type: 'where',
+          left: 'col',
+          comparison: {
+            operator: 'eq',
+            right: { value: 'val' },
+          },
+        },
+      ],
+      join: [],
+    })
+  })
 })

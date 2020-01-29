@@ -6,7 +6,7 @@ import { defer } from 'rxjs/observable/defer'
 import { switchMap } from 'rxjs/operators'
 import invariant from '../utils/common/invariant'
 import noop from '../utils/fp/noop'
-import { type ResultCallback, type Result, type CachedQueryResult, toPromise, mapValue } from '../utils/fp/Result'
+import { type ResultCallback, type Result, toPromise, mapValue } from '../utils/fp/Result'
 import { type Unsubscribe } from '../utils/subscriptions'
 
 import Query from '../Query'
@@ -14,7 +14,7 @@ import type Database from '../Database'
 import type Model, { RecordId } from '../Model'
 import type { Condition } from '../QueryDescription'
 import { type TableName, type TableSchema } from '../Schema'
-import { type DirtyRaw } from '../RawRecord'
+import { type DirtyRaw, type RawRecord } from '../RawRecord'
 
 import RecordCache from './RecordCache'
 import { CollectionChangeTypes } from './common'
@@ -114,13 +114,22 @@ export default class Collection<Record: Model> {
   }
 
   // See: Query.fetch
-  _fetchQuery(query: Query<Record>, callback: ResultCallback<Record[] | Result<CachedQueryResult>[]>): void {
+  _fetchQuery(query: Query<Record>, callback: ResultCallback<Record[]>): void {
     this.database.adapter.underlyingAdapter.query(query.serialize(), result => {
-      if(query.description.select.length) {
-        callback(result)
-        return
-      }
       callback(mapValue(rawRecords => this._cache.recordsFromQueryResult(rawRecords), result))
+    })
+  }
+
+  _fetchQuerySelect(query: Query<Record>, callback: ResultCallback<Result<RawRecord>[]>): void {
+    this.database.adapter.underlyingAdapter.query(query.serialize(), result => {
+      callback(mapValue(rawRecords => {
+        return rawRecords.map(rawRecordOrId => {
+          if (typeof rawRecordOrId === 'string') {
+            return this._cache._cachedModelForId(rawRecordOrId)._raw
+          }
+          return rawRecordOrId
+        })
+      }, result))
     })
   }
 

@@ -190,9 +190,13 @@ function _valueOrComparison(arg: Value | Comparison): Comparison {
   return eq(arg)
 }
 
-// Select
-export function select(columns: ColumnName[]): Select {
-  return { type: 'select', columns }
+// Do not use this directly. Select columns using `experimentalObserveColumns` only.
+export function experimentalSelect(columns: ColumnName[]): Select {
+  const _columns = columns.slice(0)
+  if(!columns.includes('id')) {
+    _columns.unshift('id')
+  }
+  return { type: 'select', columns: _columns }
 }
 
 export function where(left: ColumnName, valueOrComparison: Value | Comparison): WhereDescription {

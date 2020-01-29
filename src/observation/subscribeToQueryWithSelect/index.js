@@ -1,5 +1,6 @@
 // @flow
 
+import {pipe, pickAll, propEq, uniq, flatten, pluck} from 'rambdax'
 import { invariant, logError } from '../../utils/common'
 import { type Unsubscribe } from '../../utils/subscriptions'
 
@@ -8,19 +9,21 @@ import { CollectionChangeTypes } from '../../Collection/common'
 
 import type Query from '../../Query'
 import type Model from '../../Model'
+import { type RawRecord } from '../../RawRecord'
 
 import encodeMatcher, { type Matcher } from '../encodeMatcher'
 
 // WARN: Mutates arguments
 export function processChangeSet<Record: Model>(
   changeSet: CollectionChangeSet<Record>,
+  sanitizeRaw: (RawRecord[]) => RawRecord[],
   matcher: Matcher<Record>,
-  mutableMatchingRecords: Record[],
+  mutableMatchingRecords: RawRecord[],
 ): boolean {
   let shouldEmit = false
   changeSet.forEach(change => {
     const { record, type } = change
-    const index = mutableMatchingRecords.indexOf(record)
+    const index = mutableMatchingRecords.findIndex(propEq('id', record.id))
     const currentlyMatching = index > -1
 
     if (type === CollectionChangeTypes.destroyed) {
@@ -40,27 +43,31 @@ export function processChangeSet<Record: Model>(
       shouldEmit = true
     } else if (matches && !currentlyMatching) {
       // Add if should be included but isn't
-      mutableMatchingRecords.push(record)
+      const _record = sanitizeRaw(record._raw)
+      mutableMatchingRecords.push(_record)
       shouldEmit = true
     }
   })
   return shouldEmit
 }
 
-export default function subscribeToSimpleQuery<Record: Model>(
+export default function subscribeToQueryWithSelect<Record: Model>(
   query: Query<Record>,
-  subscriber: (Record[]) => void,
-  // if true, emissions will always be made on collection change -- this is an internal hack needed by
-  // observeQueryWithColumns
-  alwaysEmit: boolean = false,
+  subscriber: (RawRecord[]) => void
 ): Unsubscribe {
-  invariant(!query.hasJoins, 'subscribeToSimpleQuery only supports simple queries!')
+  invariant(!query.hasJoins, 'subscribeToQueryWithSelect only supports simple queries!')
 
   const matcher: Matcher<Record> = encodeMatcher(query.description)
+  const columnNames: ColumnName[] = pipe(
+    pluck('columns'),
+    flatten,
+    uniq,
+  )(query.description.select)
+  const sanitizeRaw = pickAll(columnNames)
   let unsubscribed = false
   let unsubscribe = null
 
-  query.collection._fetchQuery(query, function observeQueryInitialEmission(result): void {
+  query.collection._fetchQuerySelect(query, function observeQueryInitialEmission(result): void {
     if (unsubscribed) {
       return
     }
@@ -73,7 +80,7 @@ export default function subscribeToSimpleQuery<Record: Model>(
     const initialRecords = result.value
 
     // Send initial matching records
-    const matchingRecords: Record[] = initialRecords
+    const matchingRecords: RawRecord[] = initialRecords.map(sanitizeRaw)
     const emitCopy = () => subscriber(matchingRecords.slice(0))
     emitCopy()
 
@@ -86,8 +93,8 @@ export default function subscribeToSimpleQuery<Record: Model>(
     unsubscribe = query.collection.experimentalSubscribe(function observeQueryCollectionChanged(
       changeSet,
     ): void {
-      const shouldEmit = processChangeSet(changeSet, matcher, matchingRecords)
-      if (shouldEmit || alwaysEmit) {
+      const shouldEmit = processChangeSet(changeSet, sanitizeRaw, matcher, matchingRecords)
+      if (shouldEmit) {
         emitCopy()
       }
     })

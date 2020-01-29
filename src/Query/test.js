@@ -185,6 +185,33 @@ describe('Query observation', () => {
     )
   })
 
+  const testQueryWithSelectObservation = async makeSubscribe => {
+    const { database, tasks } = mockDatabase({ actionsEnabled: true })
+    const adapterSpy = jest.spyOn(database.adapter.underlyingAdapter, 'query')
+    const query = new Query(tasks, [])
+    const observer = jest.fn()
+
+    const unsubscribe = makeSubscribe(query, observer)
+    await waitFor(database)
+    expect(adapterSpy).toHaveBeenCalledTimes(1)
+    expect(observer).toHaveBeenCalledTimes(1)
+    expect(observer).toHaveBeenLastCalledWith([])
+
+    const t1 = await database.action(() => tasks.create(t => {t.name = 'foo'}))
+    await waitFor(database)
+    expect(observer).toHaveBeenCalledTimes(2)
+    expect(observer).toHaveBeenLastCalledWith([{id: t1.id, name: t1.name}])
+
+    unsubscribe()
+  }
+
+  it('can observe to columns raw values', async () => {
+    await testQueryWithSelectObservation((query, subscriber) => {
+      const subscription =  query.experimentalObserveColumns(['name']).subscribe(subscriber)
+      return () => subscription.unsubscribe()
+    })
+  })
+
   const testCountObservation = async (makeSubscribe, isThrottled) => {
     const { database, tasks } = mockDatabase({ actionsEnabled: true })
     const adapterSpy = jest.spyOn(database.adapter.underlyingAdapter, 'count')
