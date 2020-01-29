@@ -115,21 +115,23 @@ export default class Collection<Record: Model> {
 
   // See: Query.fetch
   _fetchQuery(query: Query<Record>, callback: ResultCallback<Record[]>): void {
-    this.database.adapter.underlyingAdapter.query(query.serialize(), result => {
-      callback(mapValue(rawRecords => this._cache.recordsFromQueryResult(rawRecords), result))
-    })
+    this.database.adapter.underlyingAdapter.query(query.serialize(), result =>
+      callback(mapValue(rawRecords => this._cache.recordsFromQueryResult(rawRecords), result)),
+    )
   }
 
-  _fetchQuerySelect(query: Query<Record>, callback: ResultCallback<Result<RawRecord>[]>): void {
+  _fetchQuerySelect(query: Query<Record>, callback: ResultCallback<RawRecord[]>): void {
     this.database.adapter.underlyingAdapter.query(query.serialize(), result => {
-      callback(mapValue(rawRecords => {
-        return rawRecords.map(rawRecordOrId => {
-          if (typeof rawRecordOrId === 'string') {
-            return this._cache._cachedModelForId(rawRecordOrId)._raw
-          }
-          return rawRecordOrId
-        })
-      }, result))
+      callback(
+        mapValue(rawRecords => {
+          return rawRecords.map(rawRecordOrId => {
+            if (typeof rawRecordOrId === 'string') {
+              return this._cache._cachedModelForId(rawRecordOrId)._raw
+            }
+            return rawRecordOrId
+          })
+        }, result),
+      )
     })
   }
 
