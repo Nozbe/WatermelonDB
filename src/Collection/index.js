@@ -6,7 +6,7 @@ import { defer } from 'rxjs/observable/defer'
 import { switchMap } from 'rxjs/operators'
 import invariant from '../utils/common/invariant'
 import noop from '../utils/fp/noop'
-import { type ResultCallback, type Result, toPromise, mapValue } from '../utils/fp/Result'
+import { type ResultCallback, toPromise, mapValue } from '../utils/fp/Result'
 import { type Unsubscribe } from '../utils/subscriptions'
 
 import Query from '../Query'

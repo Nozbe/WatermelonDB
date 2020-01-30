@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { uniq } from 'rambdax'
+import { pipe, pluck, flatten, uniq } from 'rambdax'
 import type { SerializedQuery, AssociationArgs } from '../../../Query'
 import type {
   NonNullValues,
@@ -167,7 +167,11 @@ const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string
   const associations = hasJoins ? query.associations : []
   const hasSelections = !!query.description.select.length
   const selections: ColumnName[] = hasSelections
-    ? uniq([].concat(...query.description.select.map(s => s.columns)))
+    ? (pipe(
+          pluck('columns'),
+          flatten,
+          uniq
+      ): any)(query.description.select)
     : []
 
   const hasToManyJoins = associations.some(([, association]) => association.type === 'has_many')

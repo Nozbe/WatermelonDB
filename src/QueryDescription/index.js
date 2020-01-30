@@ -245,8 +245,7 @@ export const on: OnFunction = (table, leftOrWhereDescription, valueOrComparison)
 
 const syncStatusColumn = columnName('_status')
 const whereNotDeleted = where(syncStatusColumn, notEq('deleted'))
-// $FlowFixMe
-const getGroupedConditions: (Condition[]) => QueryDescription = groupBy<Condition>(condition =>
+const getGroupedConditions = groupBy<any>(condition =>
   ['select', 'on'].includes(condition.type) ? condition.type : 'where',
 )
 const joinsWithoutDeleted = pipe(
@@ -260,7 +259,7 @@ export function buildQueryDescription(conditions: Condition[]): QueryDescription
     select: selections = [],
     on: join = [],
     where: whereConditions = [],
-  }: QueryDescription = getGroupedConditions(conditions)
+  } = getGroupedConditions(conditions)
 
   const query = { select: selections, join, where: whereConditions }
   if (process.env.NODE_ENV !== 'production') {

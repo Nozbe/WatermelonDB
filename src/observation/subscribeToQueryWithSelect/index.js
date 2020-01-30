@@ -1,6 +1,6 @@
 // @flow
 
-import { pipe, pick, propEq, uniq, flatten, pluck } from 'rambdax'
+import { pipe, pickAll, propEq, uniq, flatten, pluck } from 'rambdax'
 import { invariant, logError } from '../../utils/common'
 import { type Unsubscribe } from '../../utils/subscriptions'
 
@@ -12,7 +12,6 @@ import type Model from '../../Model'
 import { type RawRecord } from '../../RawRecord'
 
 import encodeMatcher, { type Matcher } from '../encodeMatcher'
-import { type ColumnName } from '../../Schema'
 
 // WARN: Mutates arguments
 export function processChangeSet<Record: Model>(
@@ -59,9 +58,12 @@ export default function subscribeToQueryWithSelect<Record: Model>(
   invariant(!query.hasJoins, 'subscribeToQueryWithSelect only supports simple queries!')
 
   const matcher: Matcher<Record> = encodeMatcher(query.description)
-  const columnNames: ColumnName[] = uniq([].concat(...query.description.select.map(s => s.columns)))
-  // $FlowFixMe
-  const sanitizeRaw: RawRecord => RawRecord = pick(columnNames.map(c => c.toString()))
+  const columnNames: string[] = (pipe(
+    pluck('columns'),
+    flatten,
+    uniq
+  ): any)(query.description.select)
+  const sanitizeRaw: RawRecord => RawRecord = (pickAll(columnNames): any)
   let unsubscribed = false
   let unsubscribe = null
 
