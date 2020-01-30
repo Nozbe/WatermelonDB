@@ -19,8 +19,7 @@ import type { Condition, QueryDescription } from '../QueryDescription'
 import type Model, { AssociationInfo } from '../Model'
 import type Collection from '../Collection'
 import type { TableName, ColumnName } from '../Schema'
-import { columnName } from '../Schema'
-import { type RawRecord } from '../RawRecord'
+import type { RawRecord } from '../RawRecord'
 
 import { getSecondaryTables, getAssociations } from './helpers'
 
@@ -77,7 +76,7 @@ export default class Query<Record: Model> {
     return toPromise(callback => this.collection._fetchQuery(this, callback))
   }
 
-  fetchSelected(columnNames: ColumnName[]): Promise<RawRecord[]> {
+  experimentalFetchColumns(columnNames: ColumnName[]): Promise<RawRecord[]> {
     const queryWithSelect = this.extend(experimentalSelect(columnNames))
     return toPromise(callback => this.collection._fetchQuerySelect(queryWithSelect, callback))
   }
