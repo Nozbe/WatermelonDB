@@ -65,7 +65,7 @@ export default function subscribeToSimpleQuery<Record: Model>(
       return
     }
 
-    if (!result.value) {
+    if (result.error) {
       logError(result.error.toString())
       return
     }
@@ -74,7 +74,7 @@ export default function subscribeToSimpleQuery<Record: Model>(
 
     // Send initial matching records
     const matchingRecords: Record[] = initialRecords
-    const emitCopy = () => subscriber(matchingRecords.slice(0))
+    const emitCopy = () => !unsubscribed && subscriber(matchingRecords.slice(0))
     emitCopy()
 
     // Check if emitCopy haven't completed source observable to avoid memory leaks

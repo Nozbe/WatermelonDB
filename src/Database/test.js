@@ -303,6 +303,33 @@ describe('Observation', () => {
     expect(subscriber1).toHaveBeenCalledTimes(1)
     unsubscribe1()
   })
+  it('has new objects cached before calling subscribers (regression test)', async () => {
+    const { database, projects, tasks } = mockDatabase({ actionsEnabled: true })
+
+    const project = projects.prepareCreate()
+    const task = tasks.prepareCreate(t => {
+      t.project.set(project)
+    })
+
+    let observerCalled = 0
+    let taskPromise = null
+    const observer = jest.fn(() => {
+      observerCalled += 1
+      if (observerCalled === 1) {
+        // nothing happens
+      } else if (observerCalled === 2) {
+        taskPromise = tasks.find(task.id)
+      }
+    })
+    database.withChangesForTables(['mock_projects']).subscribe(observer)
+    expect(observer).toHaveBeenCalledTimes(1)
+
+    await database.action(() => database.batch(project, task))
+    expect(observer).toHaveBeenCalledTimes(2)
+
+    // check if task is already cached
+    expect(await taskPromise).toBe(task)
+  })
 })
 
 const delayPromise = () => new Promise(resolve => setTimeout(resolve, 100))

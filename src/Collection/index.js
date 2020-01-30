@@ -153,7 +153,7 @@ export default class Collection<Record: Model> {
     )
   }
 
-  changeSet(operations: CollectionChangeSet<Record>): void {
+  _applyChangesToCache(operations: CollectionChangeSet<Record>): void {
     operations.forEach(({ record, type }) => {
       if (type === CollectionChangeTypes.created) {
         record._isCommitted = true
@@ -162,7 +162,9 @@ export default class Collection<Record: Model> {
         this._cache.delete(record)
       }
     })
+  }
 
+  _notify(operations: CollectionChangeSet<Record>): void {
     this._subscribers.forEach(subscriber => {
       subscriber(operations)
     })
