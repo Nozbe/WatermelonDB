@@ -49,8 +49,13 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     left: ColumnName
     comparison: Comparison
   }
-  export type Condition = Where | On
+  export interface Select {
+    type: 'select'
+    columns: ColumnName[]
+  }
+  export type Condition = Select | Where | On
   export interface QueryDescription {
+    select: Select[]
     where: Where[]
     join: On[]
   }
