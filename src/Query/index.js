@@ -108,7 +108,7 @@ export default class Query<Record: Model> {
     return Observable.create(observer =>
       subscribeToQueryWithSelect(queryWithSelect, records => {
         observer.next(records)
-      })
+      }),
     )
   }
 

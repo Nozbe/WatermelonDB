@@ -193,8 +193,8 @@ function _valueOrComparison(arg: Value | Comparison): Comparison {
 // Do not use this directly. Select columns using `experimentalObserveColumns` only.
 export function experimentalSelect(columns: ColumnName[]): Select {
   const _columns = columns.slice(0)
-  if(!columns.includes('id')) {
-    _columns.unshift('id')
+  if (!columns.includes('id')) {
+    _columns.unshift(columnName('id'))
   }
   return { type: 'select', columns: _columns }
 }
@@ -245,8 +245,9 @@ export const on: OnFunction = (table, leftOrWhereDescription, valueOrComparison)
 
 const syncStatusColumn = columnName('_status')
 const whereNotDeleted = where(syncStatusColumn, notEq('deleted'))
-const getGroupedConditions = groupBy<Condition>(
-  condition => ['select', 'on'].includes(condition.type) ? condition.type : 'where'
+// $FlowFixMe
+const getGroupedConditions: (Condition[]) => QueryDescription = groupBy<Condition>(condition =>
+  ['select', 'on'].includes(condition.type) ? condition.type : 'where',
 )
 const joinsWithoutDeleted = pipe(
   map(prop('table')),
@@ -255,7 +256,11 @@ const joinsWithoutDeleted = pipe(
 )
 
 export function buildQueryDescription(conditions: Condition[]): QueryDescription {
-  const {select: selections = [], on: join = [], where: whereConditions = [] }: QueryDescription = getGroupedConditions(conditions)
+  const {
+    select: selections = [],
+    on: join = [],
+    where: whereConditions = [],
+  }: QueryDescription = getGroupedConditions(conditions)
 
   const query = { select: selections, join, where: whereConditions }
   if (process.env.NODE_ENV !== 'production') {
