@@ -1,5 +1,5 @@
 declare module '@nozbe/watermelondb/Query' {
-  import { Collection, ColumnName, Model, TableName, RawRecord } from '@nozbe/watermelondb'
+  import { Collection, ColumnName, Model, TableName, RecordState } from '@nozbe/watermelondb'
   import { AssociationInfo } from '@nozbe/watermelondb/Model'
   import { Condition, QueryDescription } from '@nozbe/watermelondb/QueryDescription'
   import { Observable } from 'rxjs'
@@ -22,13 +22,13 @@ declare module '@nozbe/watermelondb/Query' {
 
     public fetch(): Promise<Record[]>
 
-    public experimentalFetchColumns(rawFields: ColumnName[]): Promise<RawRecord[]>
+    public experimentalFetchColumns(rawFields: ColumnName[]): Promise<RecordState[]>
 
     public observe(): Observable<Record[]>
 
     public observeWithColumns(rawFields: ColumnName[]): Observable<Record[]>
 
-    public experimentalObserveColumns(rawFields: ColumnName[]): Observable<RawRecord[]>
+    public experimentalObserveColumns(rawFields: ColumnName[]): Observable<RecordState[]>
 
     public fetchCount(): Promise<number>
 

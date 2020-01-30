@@ -11,7 +11,7 @@ declare module '@nozbe/watermelondb' {
   export { tableName, columnName, appSchema, tableSchema } from '@nozbe/watermelondb/Schema'
 
   export { DatabaseAdapter } from '@nozbe/watermelondb/adapters/type'
-  export { RawRecord, DirtyRaw } from '@nozbe/watermelondb/RawRecord'
+  export { RawRecord, DirtyRaw, RecordState } from '@nozbe/watermelondb/RawRecord'
   export { RecordId } from '@nozbe/watermelondb/Model'
   export {
     TableName,
