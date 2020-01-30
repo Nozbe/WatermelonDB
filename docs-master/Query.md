@@ -198,7 +198,7 @@ This is same as
 
 ```js
 query.observe().pipe(
-  mergeMap(records =>
+  map(records =>
     records.map(
       record => ({
         id: record._raw.id,
