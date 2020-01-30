@@ -2,10 +2,13 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable no-self-compare */
 
+import {pickAll, values} from 'rambdax'
 import { type ColumnName, type ColumnSchema, type TableSchema } from '../Schema'
 import { type RecordId, type SyncStatus } from '../Model'
+import { type Value } from '../QueryDescription'
 
 import randomId from '../utils/common/randomId'
+import identicalArrays from '../utils/fp/identicalArrays'
 
 // Raw object representing a model record, coming from an untrusted source
 // (disk, sync, user data). Before it can be used to create a Model instance
@@ -25,6 +28,11 @@ type _RawRecord = {
 // - every field is exactly the type described by ColumnSchema (string, number, or boolean)
 // - … and the same optionality (will not be null unless isOptional: true)
 export opaque type RawRecord: _RawRecord = _RawRecord
+
+export type RecordState = {
+  id: RecordId,
+  [field: ColumnName]: Value,
+}
 
 // a number, but not NaN (NaN !== NaN) or Infinity
 function isValidNumber(value: any): boolean {
@@ -123,4 +131,15 @@ export function nullValue(columnSchema: ColumnSchema): NullValue {
   }
 
   throw new Error(`Unknown type for column schema ${JSON.stringify(columnSchema)}`)
+}
+
+export function getRecordState(rawRecord: RawRecord, columnNames: ColumnName[]): RecordState {
+  // `pickAll` guarantees same length and order of keys!
+  // $FlowFixMe
+  return pickAll(columnNames, rawRecord)
+}
+
+// Invariant: same length and order of keys!
+export function recordStatesEqual(left: RecordState, right: RecordState): boolean {
+  return identicalArrays(values(left), values(right))
 }

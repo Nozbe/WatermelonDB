@@ -1,6 +1,6 @@
 // @flow
 
-import { pipe, prop, uniq, map, groupBy } from 'rambdax'
+import { pipe, prop, pluck, uniq, map, groupBy, flatten } from 'rambdax'
 
 // don't import whole `utils` to keep worker size small
 import invariant from '../utils/common/invariant'
@@ -316,4 +316,12 @@ const searchForColumnComparisons: any => boolean = value => {
 
 export function hasColumnComparisons(conditions: Where[]): boolean {
   return searchForColumnComparisons(conditions)
+}
+
+export function getSelectedColumns(query: QueryDescription): ColumnName[] {
+  return (pipe(
+    pluck('columns'),
+    flatten,
+    uniq
+  ): any)(query.select)
 }

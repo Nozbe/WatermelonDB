@@ -167,11 +167,7 @@ const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string
   const associations = hasJoins ? query.associations : []
   const hasSelections = !!query.description.select.length
   const selections: ColumnName[] = hasSelections
-    ? (pipe(
-          pluck('columns'),
-          flatten,
-          uniq
-      ): any)(query.description.select)
+    ? Q.getSelectedColumns(query.description)
     : []
 
   const hasToManyJoins = associations.some(([, association]) => association.type === 'has_many')

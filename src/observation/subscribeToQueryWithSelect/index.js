@@ -1,6 +1,6 @@
 // @flow
 
-import { pipe, pickAll, propEq, uniq, flatten, pluck } from 'rambdax'
+import { propEq } from 'rambdax'
 import { invariant, logError } from '../../utils/common'
 import { type Unsubscribe } from '../../utils/subscriptions'
 
@@ -9,16 +9,18 @@ import { CollectionChangeTypes } from '../../Collection/common'
 
 import type Query from '../../Query'
 import type Model from '../../Model'
-import { type RawRecord } from '../../RawRecord'
+import { type RecordState, getRecordState, recordStatesEqual } from '../../RawRecord'
+import { type ColumnName } from '../../Schema'
 
 import encodeMatcher, { type Matcher } from '../encodeMatcher'
+import { getSelectedColumns } from '../../QueryDescription'
 
 // WARN: Mutates arguments
 export function processChangeSet<Record: Model>(
   changeSet: CollectionChangeSet<Record>,
-  sanitizeRaw: RawRecord => RawRecord,
+  columnNames: ColumnName[],
   matcher: Matcher<Record>,
-  mutableMatchingRecords: RawRecord[],
+  mutableMatchingRecords: RecordState[],
 ): boolean {
   let shouldEmit = false
   changeSet.forEach(change => {
@@ -35,6 +37,18 @@ export function processChangeSet<Record: Model>(
       return
     }
 
+    if(type === CollectionChangeTypes.updated) {
+      if(currentlyMatching) {
+        const prevState = mutableMatchingRecords[index]
+        const newState = getRecordState(record._raw, columnNames)
+        if(!recordStatesEqual(prevState, newState)) {
+          mutableMatchingRecords[index] = newState
+          shouldEmit = true
+          return
+        }
+      }
+    }
+
     const matches = matcher(record._raw)
 
     if (currentlyMatching && !matches) {
@@ -43,7 +57,7 @@ export function processChangeSet<Record: Model>(
       shouldEmit = true
     } else if (matches && !currentlyMatching) {
       // Add if should be included but isn't
-      const _record = sanitizeRaw(record._raw)
+      const _record = getRecordState(record._raw, columnNames)
       mutableMatchingRecords.push(_record)
       shouldEmit = true
     }
@@ -53,19 +67,15 @@ export function processChangeSet<Record: Model>(
 
 export default function subscribeToQueryWithSelect<Record: Model>(
   query: Query<Record>,
-  subscriber: (RawRecord[]) => void,
+  subscriber: (RecordState[]) => void,
 ): Unsubscribe {
   invariant(!query.hasJoins, 'subscribeToQueryWithSelect only supports simple queries!')
 
   const matcher: Matcher<Record> = encodeMatcher(query.description)
-  const columnNames: string[] = (pipe(
-    pluck('columns'),
-    flatten,
-    uniq
-  ): any)(query.description.select)
-  const sanitizeRaw: RawRecord => RawRecord = (pickAll(columnNames): any)
   let unsubscribed = false
   let unsubscribe = null
+
+  const columnNames = getSelectedColumns(query.description)
 
   query.collection._fetchQuerySelect(query, function observeQueryInitialEmission(result): void {
     if (unsubscribed) {
@@ -80,7 +90,7 @@ export default function subscribeToQueryWithSelect<Record: Model>(
     const initialRecords = result.value
 
     // Send initial matching records
-    const matchingRecords: RawRecord[] = initialRecords.map(sanitizeRaw)
+    const matchingRecords: RecordState[] = initialRecords
     const emitCopy = () => subscriber(matchingRecords.slice(0))
     emitCopy()
 
@@ -93,7 +103,7 @@ export default function subscribeToQueryWithSelect<Record: Model>(
     unsubscribe = query.collection.experimentalSubscribe(function observeQueryCollectionChanged(
       changeSet,
     ): void {
-      const shouldEmit = processChangeSet(changeSet, sanitizeRaw, matcher, matchingRecords)
+      const shouldEmit = processChangeSet(changeSet, columnNames, matcher, matchingRecords)
       if (shouldEmit) {
         emitCopy()
       }

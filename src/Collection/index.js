@@ -14,7 +14,7 @@ import type Database from '../Database'
 import type Model, { RecordId } from '../Model'
 import type { Condition } from '../QueryDescription'
 import { type TableName, type TableSchema } from '../Schema'
-import { type DirtyRaw, type RawRecord } from '../RawRecord'
+import { type DirtyRaw, type RecordState } from '../RawRecord'
 
 import RecordCache from './RecordCache'
 import { CollectionChangeTypes } from './common'
@@ -120,15 +120,16 @@ export default class Collection<Record: Model> {
     )
   }
 
-  _fetchQuerySelect(query: Query<Record>, callback: ResultCallback<RawRecord[]>): void {
+  _fetchQuerySelect(query: Query<Record>, callback: ResultCallback<RecordState[]>): void {
     this.database.adapter.underlyingAdapter.query(query.serialize(), result => {
       callback(
         mapValue(rawRecords => {
           return rawRecords.map(rawRecordOrId => {
             if (typeof rawRecordOrId === 'string') {
-              return this._cache._cachedModelForId(rawRecordOrId)._raw
+              const rawRecord = this._cache._cachedModelForId(rawRecordOrId)._raw
+              return query._getRecordState(rawRecord)
             }
-            return rawRecordOrId
+            return query._getRecordState(rawRecordOrId)
           })
         }, result),
       )

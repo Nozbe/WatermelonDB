@@ -1,30 +1,17 @@
 // @flow
 
-import { pickAll, values } from 'rambdax'
-
 import identicalArrays from '../../utils/fp/identicalArrays'
 import arrayDifference from '../../utils/fp/arrayDifference'
 import { type Unsubscribe } from '../../utils/subscriptions'
 
-import { type Value } from '../../QueryDescription'
 import { type ColumnName } from '../../Schema'
 import type Query from '../../Query'
 import type { CollectionChangeSet } from '../../Collection'
 
 import type Model, { RecordId } from '../../Model'
+import { type RecordState, getRecordState, recordStatesEqual } from '../../RawRecord'
 import subscribeToSimpleQuery from '../subscribeToSimpleQuery'
 import subscribeToQueryReloading from '../subscribeToQueryReloading'
-
-type RecordState = { [field: ColumnName]: Value }
-
-const getRecordState: (Model, ColumnName[]) => RecordState = (record, columnNames) =>
-  // `pickAll` guarantees same length and order of keys!
-  // $FlowFixMe
-  pickAll(columnNames, record._raw)
-
-// Invariant: same length and order of keys!
-const recordStatesEqual = (left: RecordState, right: RecordState): boolean =>
-  identicalArrays(values(left), values(right))
 
 // Observes the given observable list of records, and in those records,
 // changes to given `rawFields`
@@ -94,7 +81,7 @@ export default function subscribeToQueryWithColumns<Record: Model>(
         }
 
         // Check if record changed one of its observed fields
-        const newState = getRecordState(record, columnNames)
+        const newState = getRecordState(record._raw, columnNames)
         if (!recordStatesEqual(previousState, newState)) {
           recordStates.set(record.id, newState)
           hasColumnChanges = true
@@ -141,7 +128,7 @@ export default function subscribeToQueryWithColumns<Record: Model>(
 
     // Save current record state for later comparison
     added.forEach(newRecord => {
-      recordStates.set(newRecord.id, getRecordState(newRecord, columnNames))
+      recordStates.set(newRecord.id, getRecordState(newRecord._raw, columnNames))
     })
 
     // Emit
