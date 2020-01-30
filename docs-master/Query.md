@@ -74,6 +74,28 @@ const comments = await post.comments.fetch()
 const verifiedCommentCount = await post.verifiedComments.fetchCount()
 ```
 
+To fetch record states with selected columns only, use `experimentalFetchColumns(['col1', 'col2'])`.
+
+```js
+const commentStates = await post.comments.experimentalFetchColumns(['created_at', 'is_verified'])
+/**
+ * commentStates = [{
+ *  id: "abcd",
+ *  created_at: 1580384390117,
+ *  is_verified: true
+ * },
+ * {
+ *  id: "efgh",
+ *  created_at: 1580388020008,
+ *  is_verified: true
+ *  }]
+ **/
+const sortedComments = commentStates.sort((comment1, comment2) => comment1.created_at - comment2.created_at)
+const isLastCommentVerified = !!sortedComments.length && sortedComments[0].is_verified
+```
+
+This will query **all** comments of the post and fetch comment states with only `id`, `created_at` and `is_verified` columns.
+
 ## Query conditions
 
 ```js
@@ -167,6 +189,26 @@ The first argument for `Q.on` is the table name you're making a condition on. Th
 ### Advanced observing
 
 Call `query.observeWithColumns(['foo', 'bar'])` to create an Observable that emits a value not only when the list of matching records changes (new records/deleted records), but also when any of the matched records changes its `foo` or `bar` column. [Use this for observing sorted lists](./Components.md)
+
+### Observing on columns
+
+Call `query.experimentalObserveColumns(['col1', 'col2'])` to create an Observable that emits matching records' states with only the selected columns populated (`id` is included implicitly). The observable will emit not only when a matching record is added or deleted but also when any of the matched records changes its observed columns (any of 'col1' or 'col2' in this case)
+
+This is same as
+
+```js
+query.observe().pipe(
+  mergeMap(records =>
+    records.map(
+      record => ({
+        id: record._raw.id,
+        col1: record._raw.col1,
+        col2: record._raw.col2
+      })
+    )
+  )
+)
+```
 
 #### Count throttling
 
