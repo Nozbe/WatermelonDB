@@ -19,6 +19,7 @@ import type { Condition, QueryDescription } from '../QueryDescription'
 import type Model, { AssociationInfo } from '../Model'
 import type Collection from '../Collection'
 import type { TableName, ColumnName } from '../Schema'
+import type { RawRecord } from '../RawRecord'
 
 import { getSecondaryTables, getAssociations } from './helpers'
 
@@ -75,7 +76,7 @@ export default class Query<Record: Model> {
     return toPromise(callback => this.collection._fetchQuery(this, callback))
   }
 
-  fetchSelected(columnNames: ColumnName[]): Promise<RawRecord[]> {
+  experimentalFetchColumns(columnNames: ColumnName[]): Promise<RawRecord[]> {
     const queryWithSelect = this.extend(experimentalSelect(columnNames))
     return toPromise(callback => this.collection._fetchQuerySelect(queryWithSelect, callback))
   }
@@ -102,7 +103,7 @@ export default class Query<Record: Model> {
   // Same as `observeWithColumns(columnNames)` but emits raw records with only the
   // selected `columnNames` (and `id` property added implicitly).
   // Note: This is an experimental feature and this API might change in future versions.
-  experimentalObserveColumns(columnNames: columnName[]): Observable<RawRecord[]> {
+  experimentalObserveColumns(columnNames: ColumnName[]): Observable<RawRecord[]> {
     const queryWithSelect = this.extend(experimentalSelect(columnNames))
     return Observable.create(observer =>
       subscribeToQueryWithSelect(queryWithSelect, records => {
