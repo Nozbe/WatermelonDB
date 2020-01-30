@@ -1,7 +1,6 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { pipe, pluck, flatten, uniq } from 'rambdax'
 import type { SerializedQuery, AssociationArgs } from '../../../Query'
 import type {
   NonNullValues,
