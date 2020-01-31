@@ -17,6 +17,7 @@
     - [Querying](./Query.md)
     - [Relations](./Relation.md)
     - [Custom Actions](./Actions.md)
+    - [Common Mistakes](./CommonMistakes.md)
 
 ### Advanced guides
 
