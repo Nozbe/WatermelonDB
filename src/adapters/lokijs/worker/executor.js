@@ -97,7 +97,12 @@ export default class LokiExecutor {
 
   query(query: SerializedQuery): CachedQueryResult {
     const records = executeQuery(query, this.loki).data()
-    return this._compactQueryResults(records, query.table)
+    return this._compactQueryResults(records, query.table, false)
+  }
+
+  cachedQuery(query: SerializedQuery): CachedQueryResult {
+    const records = executeQuery(query, this.loki).data()
+    return this._compactQueryResults(records, query.table, true)
   }
 
   count(query: SerializedQuery): number {
@@ -383,7 +388,7 @@ export default class LokiExecutor {
   }
 
   // Maps records to their IDs if the record is already cached on JS side
-  _compactQueryResults(records: DirtyRaw[], table: TableName<any>): CachedQueryResult {
+  _compactQueryResults(records: DirtyRaw[], table: TableName<any>, willCache: boolean): CachedQueryResult {
     return records.map(raw => {
       const { id } = raw
 
@@ -391,7 +396,9 @@ export default class LokiExecutor {
         return id
       }
 
-      this.markAsCached(table, id)
+      if(willCache) {
+        this.markAsCached(table, id)
+      }
       return sanitizedRaw(raw, this.schema.tables[table])
     })
   }

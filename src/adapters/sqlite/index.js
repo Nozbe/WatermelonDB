@@ -82,6 +82,7 @@ type NativeDispatcher = $Exact<{
   ) => void,
   find: (ConnectionTag, TableName<any>, RecordId, ResultCallback<DirtyFindResult>) => void,
   query: (ConnectionTag, TableName<any>, SQL, ResultCallback<DirtyQueryResult>) => void,
+  cachedQuery: (ConnectionTag, TableName<any>, SQL, ResultCallback<DirtyQueryResult>) => void,
   count: (ConnectionTag, SQL, ResultCallback<number>) => void,
   batch: (ConnectionTag, NativeBridgeBatchOperation[], ResultCallback<void>) => void,
   batchJSON?: (ConnectionTag, string, ResultCallback<void>) => void,
@@ -99,6 +100,7 @@ const dispatcherMethods = [
   'setUpWithMigrations',
   'find',
   'query',
+  'cachedQuery',
   'count',
   'batch',
   'batchJSON',
@@ -117,6 +119,7 @@ type NativeBridgeType = {
   setUpWithMigrations: (ConnectionTag, string, SQL, SchemaVersion, SchemaVersion) => Promise<void>,
   find: (ConnectionTag, TableName<any>, RecordId) => Promise<DirtyFindResult>,
   query: (ConnectionTag, TableName<any>, SQL) => Promise<DirtyQueryResult>,
+  cachedQuery: (ConnectionTag, TableName<any>, SQL) => Promise<DirtyQueryResult>,
   count: (ConnectionTag, SQL) => Promise<number>,
   batch: (ConnectionTag, NativeBridgeBatchOperation[]) => Promise<void>,
   batchJSON?: (ConnectionTag, string) => Promise<void>,
@@ -139,6 +142,7 @@ type NativeBridgeType = {
   ) => SyncReturn<void>,
   findSynchronous?: (ConnectionTag, TableName<any>, RecordId) => SyncReturn<DirtyFindResult>,
   querySynchronous?: (ConnectionTag, TableName<any>, SQL) => SyncReturn<DirtyQueryResult>,
+  cachedQuerySynchronous?: (ConnectionTag, TableName<any>, SQL) => SyncReturn<DirtyQueryResult>,
   countSynchronous?: (ConnectionTag, SQL) => SyncReturn<number>,
   batchSynchronous?: (ConnectionTag, NativeBridgeBatchOperation[]) => SyncReturn<void>,
   batchJSONSynchronous?: (ConnectionTag, string) => SyncReturn<void>,
@@ -340,15 +344,21 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   }
 
   query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void {
-    this.unsafeSqlQuery(query.table, encodeQuery(query), callback)
+    this.unsafeSqlQuery(query.table, encodeQuery(query), false, callback)
+  }
+
+  cachedQuery(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void {
+    this.unsafeSqlQuery(query.table, encodeQuery(query), true, callback)
   }
 
   unsafeSqlQuery(
     tableName: TableName<any>,
     sql: string,
+    willCache: boolean,
     callback: ResultCallback<CachedQueryResult>,
   ): void {
-    this._dispatcher.query(this._tag, tableName, sql, result =>
+    const dispatch = willCache ? this._dispatcher.cachedQuery : this._dispatcher.query
+    dispatch(this._tag, tableName, sql, result =>
       callback(
         mapValue(
           rawRecords => sanitizeQueryResult(rawRecords, this.schema.tables[tableName]),

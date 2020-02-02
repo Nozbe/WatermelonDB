@@ -134,7 +134,7 @@ describe('Query observation', () => {
   }
   const testQueryObservation = async (makeSubscribe, withColumns) => {
     const { database, tasks } = mockDatabase({ actionsEnabled: true })
-    const adapterSpy = jest.spyOn(database.adapter.underlyingAdapter, 'query')
+    const adapterSpy = jest.spyOn(database.adapter.underlyingAdapter, 'cachedQuery')
     const query = new Query(tasks, [])
     const observer = jest.fn()
 

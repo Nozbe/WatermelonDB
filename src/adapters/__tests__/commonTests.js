@@ -167,13 +167,13 @@ export default () => [
       await adapter.batch([['create', 'tasks', s1]])
 
       // returns empty array
-      expectSortedEqual(await adapter.query(projectQuery()), [])
+      expectSortedEqual(await adapter.cachedQuery(projectQuery()), [])
 
       const p1 = mockProjectRaw({ id: 'id1', num1: 1, text1: 'foo' })
       await adapter.batch([['create', 'projects', p1]])
 
       // returns cached ID after create
-      expectSortedEqual(await adapter.query(projectQuery()), ['id1'])
+      expectSortedEqual(await adapter.cachedQuery(projectQuery()), ['id1'])
 
       // add more project, restart app
       const p2 = mockProjectRaw({ id: 'id2', num1: 1, text1: 'foo' })
@@ -184,12 +184,12 @@ export default () => [
       await adapter.batch([['create', 'tasks', s2]])
 
       // returns cached IDs after create
-      expectSortedEqual(await adapter.query(taskQuery()), [s1, 'id2'])
+      expectSortedEqual(await adapter.cachedQuery(taskQuery()), [s1, 'id2'])
 
       // returns raw if not cached for a different table
-      expectSortedEqual(await adapter.query(projectQuery()), [p1, p2])
+      expectSortedEqual(await adapter.cachedQuery(projectQuery()), [p1, p2])
       // returns cached IDs after previous query
-      expectSortedEqual(await adapter.query(taskQuery()), ['id1', 'id2'])
+      expectSortedEqual(await adapter.cachedQuery(taskQuery()), ['id1', 'id2'])
     },
   ],
   [
@@ -285,7 +285,7 @@ export default () => [
     'compacts query results',
     async _adapter => {
       let adapter = _adapter
-      const queryAll = () => adapter.query(taskQuery())
+      const queryAll = () => adapter.cachedQuery(taskQuery())
 
       // add records, restart app
       const s1 = mockTaskRaw({ id: 's1', order: 1 })

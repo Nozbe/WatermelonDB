@@ -5,8 +5,9 @@ import invariant from '../utils/common/invariant'
 
 import type Model, { RecordId } from '../Model'
 import type { CachedQueryResult } from '../adapters/type'
-import type { TableName } from '../Schema'
-import type { RawRecord } from '../RawRecord'
+import type { TableName, ColumnName } from '../Schema'
+import type { RawRecord, RecordState } from '../RawRecord'
+import { getRecordState } from '../RawRecord'
 
 type Instantiator<T> = RawRecord => T
 
@@ -48,6 +49,18 @@ export default class RecordCache<Record: Model> {
     }
 
     return this._modelForRaw(result)
+  }
+
+  recordStatesFromQueryResult(result: CachedQueryResult, columns: ColumnName[]): RecordState[] {
+    return result.map(res => this.recordStateFromQueryResult(res, columns))
+  }
+
+  recordStateFromQueryResult(result: RecordId | RawRecord, columns: ColumnName[]): RecordState {
+    let rawRecord = result
+    if (typeof rawRecord === 'string') {
+      rawRecord = this._cachedModelForId(rawRecord)._raw
+    }
+    return getRecordState(rawRecord, columns)
   }
 
   _cachedModelForId(id: RecordId): Record {

@@ -133,10 +133,10 @@ export function nullValue(columnSchema: ColumnSchema): NullValue {
   throw new Error(`Unknown type for column schema ${JSON.stringify(columnSchema)}`)
 }
 
-export function getRecordState(rawRecord: RawRecord, columnNames: ColumnName[]): RecordState {
+export function getRecordState(rawRecord: RawRecord, columns: ColumnName[]): RecordState {
   // `pickAll` guarantees same length and order of keys!
   // $FlowFixMe
-  return pickAll(columnNames, rawRecord)
+  return pickAll(columns, rawRecord)
 }
 
 // Invariant: same length and order of keys!

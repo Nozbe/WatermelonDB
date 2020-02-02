@@ -22,7 +22,6 @@ import type { TableName, ColumnName } from '../Schema'
 import type { RecordState } from '../RawRecord'
 
 import { getSecondaryTables, getAssociations } from './helpers'
-import { getRecordState, type RawRecord } from '../RawRecord'
 
 export type AssociationArgs = [TableName<any>, AssociationInfo]
 export type SerializedQuery = $Exact<{
@@ -146,9 +145,8 @@ export default class Query<Record: Model> {
     return this._cachedCountSubscribable.subscribe(subscriber)
   }
 
-  _getRecordState(rawRecord: RawRecord): RecordState {
-    const columns = getSelectedColumns(this.description)
-    return getRecordState(rawRecord, columns)
+  getSelectedColumns(): ColumnName[] {
+    return getSelectedColumns(this.description)
   }
 
   // Marks as deleted all records matching the query

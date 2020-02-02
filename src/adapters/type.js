@@ -27,6 +27,8 @@ export interface DatabaseAdapter {
   // Fetches matching records. Should not send raw object if already cached in JS
   query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void;
 
+  cachedQuery(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void;
+
   // Counts matching records
   count(query: SerializedQuery, callback: ResultCallback<number>): void;
 
@@ -60,6 +62,7 @@ export interface SQLDatabaseAdapter {
   unsafeSqlQuery(
     tableName: TableName<any>,
     sql: string,
+    willCache: boolean,
     callback: ResultCallback<CachedQueryResult>,
   ): void;
 }

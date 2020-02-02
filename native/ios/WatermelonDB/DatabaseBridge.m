@@ -41,6 +41,11 @@ WMELON_BRIDGE_METHOD(query,
   query:(nonnull NSString *)query
 )
 
+WMELON_BRIDGE_METHOD(cachedQuery,
+  table:(nonnull NSString *)table
+  query:(nonnull NSString *)query
+)
+
 WMELON_BRIDGE_METHOD(count,
  query:(nonnull NSString *)query
 )

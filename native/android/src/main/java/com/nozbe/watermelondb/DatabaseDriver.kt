@@ -64,8 +64,16 @@ class DatabaseDriver(context: Context, dbName: String) {
         }
     }
 
+    fun query(table: TableName, query: SQL): WritableArray {
+        return query(table, query, false)
+    }
+
     fun cachedQuery(table: TableName, query: SQL): WritableArray {
         // log?.info("Cached Query: $query")
+        return query(table, query, true)
+    }
+
+    private fun query(table: TableName, query: SQL, willCache: Boolean): WritableArray {
         val resultArray = Arguments.createArray()
         database.rawQuery(query).use {
             if (it.count > 0 && it.columnNames.contains("id")) {
@@ -74,7 +82,9 @@ class DatabaseDriver(context: Context, dbName: String) {
                     if (isCached(table, id)) {
                         resultArray.pushString(id)
                     } else {
-                        markAsCached(table, id)
+                        if(willCache) {
+                            markAsCached(table, item.id)
+                        }
                         resultArray.pushMapFromCursor(it)
                     }
                 }

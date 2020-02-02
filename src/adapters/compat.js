@@ -23,7 +23,7 @@ export default class DatabaseAdapterCompat {
     const sqlAdapter: SQLDatabaseAdapter = (adapter: any)
     if (sqlAdapter.unsafeSqlQuery) {
       this.unsafeSqlQuery = (tableName, sql) =>
-        toPromise(callback => sqlAdapter.unsafeSqlQuery(tableName, sql, callback))
+        toPromise(callback => sqlAdapter.unsafeSqlQuery(tableName, sql, true, callback))
     }
   }
 
@@ -41,6 +41,10 @@ export default class DatabaseAdapterCompat {
 
   query(query: SerializedQuery): Promise<CachedQueryResult> {
     return toPromise(callback => this.underlyingAdapter.query(query, callback))
+  }
+
+  cachedQuery(query: SerializedQuery): Promise<CachedQueryResult> {
+    return toPromise(callback => this.underlyingAdapter.cachedQuery(query, callback))
   }
 
   count(query: SerializedQuery): Promise<number> {

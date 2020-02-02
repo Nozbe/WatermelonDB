@@ -19,6 +19,7 @@ const executorMethods = {
   [actions.SETUP]: ExecutorProto.setUp,
   [actions.FIND]: ExecutorProto.find,
   [actions.QUERY]: ExecutorProto.query,
+  [actions.CACHED_QUERY]: ExecutorProto.cachedQuery,
   [actions.COUNT]: ExecutorProto.count,
   [actions.BATCH]: ExecutorProto.batch,
   [actions.UNSAFE_RESET_DATABASE]: ExecutorProto.unsafeResetDatabase,

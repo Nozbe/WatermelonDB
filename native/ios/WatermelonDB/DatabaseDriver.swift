@@ -58,14 +58,24 @@ class DatabaseDriver {
         return record.resultDictionary!
     }
 
+    func query(table: Database.TableName, query: Database.SQL) throws -> [Any] {
+        return query(table, query, false)
+    }
+
     func cachedQuery(table: Database.TableName, query: Database.SQL) throws -> [Any] {
+        return query(table, query, true)
+    }
+
+    private func query(table: Database.TableName, query: Database.SQL, willCache: Bool) throws -> [Any] {
         return try database.queryRaw(query).map { row in
             let id = row.string(forColumn: "id")!
 
             if isCached(table, id) {
                 return id
             } else {
-                markAsCached(table, id)
+                if willCache {
+                    markAsCached(table, id)
+                }
                 return row.resultDictionary!
             }
         }
