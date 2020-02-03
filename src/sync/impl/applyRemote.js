@@ -167,7 +167,7 @@ const getAllRecordsToApply = (
       const collection = db.collections.get((tableName: any))
 
       if (!collection) {
-        Promise.reject(`You are trying to sync a collection named ${tableName}, but currently this collection does not exist.` + 
+        return Promise.reject(`You are trying to sync a collection named ${tableName}, but currently this collection does not exist.` + 
         `Have you remembered to add it to your Database constructor\'s modelClasses property?`)
       }
       
