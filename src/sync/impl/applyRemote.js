@@ -163,9 +163,16 @@ const getAllRecordsToApply = (
 ): AllRecordsToApply =>
   piped(
     remoteChanges,
-    map((changes, tableName: TableName<any>) =>
-      recordsToApplyRemoteChangesTo(db.collections.get((tableName: any)), changes),
-    ),
+    map((changes, tableName: TableName<any>) => {
+      const collection = db.collections.get((tableName: any))
+
+      if (!collection) {
+        return Promise.reject(`You are trying to sync a collection named ${tableName}, but currently this collection does not exist.` + 
+        `Have you remembered to add it to your Database constructor\'s modelClasses property?`)
+      }
+      
+      return recordsToApplyRemoteChangesTo(collection, changes)
+    }),
     promiseAllObject,
   )
 
