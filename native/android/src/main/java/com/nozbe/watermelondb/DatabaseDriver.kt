@@ -83,7 +83,7 @@ class DatabaseDriver(context: Context, dbName: String) {
                         resultArray.pushString(id)
                     } else {
                         if(willCache) {
-                            markAsCached(table, item.id)
+                            markAsCached(table, id)
                         }
                         resultArray.pushMapFromCursor(it)
                     }
