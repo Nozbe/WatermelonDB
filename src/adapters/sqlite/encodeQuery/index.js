@@ -151,6 +151,28 @@ const encodeAssociation: (TableName<any>) => AssociationArgs => string = mainTab
 const encodeJoin = (table: TableName<any>, associations: AssociationArgs[]): string =>
   associations.length ? associations.map(encodeAssociation(table)).join('') : ''
 
+const encodeOrderBy = (table: TableName<any>, sortBys) => {
+  if (sortBys.length === 0) {
+    return ''
+  }
+  const orderBys = sortBys.map(sortBy =>
+    `${encodeName(table)}.${encodeName(sortBy.sortColumn)} ${sortBy.sortOrder}`
+  ).join(', ')
+  return ` order by ${orderBys}`
+}
+
+const encodeLimitOffset = (take, skip) => {
+  const limit = take?.count
+  const offset = skip?.count
+
+  if (!limit) {
+    return ''
+  }
+  const optionalOffsetStmt = offset ? ` offset ${offset}` : ''
+
+  return ` limit ${limit}${optionalOffsetStmt}`
+}
+
 const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string => {
   const { table, description } = query
 
@@ -162,7 +184,9 @@ const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string
   const sql =
     encodeMethod(table, countMode, hasToManyJoins) +
     encodeJoin(table, associations) +
-    encodeConditions(table, description)
+    encodeConditions(table, description) +
+    encodeOrderBy(table, description.sortBy) +
+    encodeLimitOffset(description.take, description.skip)
 
   return sql
 }

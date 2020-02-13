@@ -21,7 +21,7 @@ describe('SQLite encodeQuery', () => {
       `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted'`,
     )
   })
-  it('encodes multiple onditions and value types', () => {
+  it('encodes multiple conditions and value types', () => {
     const query = new Query(mockCollection, [
       Q.where('col1', `value "'with'" quotes`),
       Q.where('col2', 2),
@@ -109,6 +109,41 @@ describe('SQLite encodeQuery', () => {
     ])
     expect(encodeQuery(query)).toBe(
       `select "tasks".* from "tasks" where "tasks"."col1" like '%abc' and "tasks"."col2" not like 'def%' and "tasks"."_status" is not 'deleted'`,
+    )
+  })
+  it('encodes order by clause', () => {
+    const query = new Query(mockCollection, [
+      Q.sortBy('sortable_column', 'desc'),
+    ])
+    expect(encodeQuery(query)).toBe(
+      `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' order by "tasks"."sortable_column" desc`,
+    )
+  })
+  it('encodes limit clause', () => {
+    const query = new Query(mockCollection, [
+      Q.take(100),
+    ])
+    expect(encodeQuery(query)).toBe(
+      `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' limit 100`,
+    )
+  })
+  it('encodes limit with offset clause', () => {
+    const query = new Query(mockCollection, [
+      Q.take(100),
+      Q.skip(200),
+    ])
+    expect(encodeQuery(query)).toBe(
+      `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' limit 100 offset 200`,
+    )
+  })
+  it('encodes order by together with limit and offset clause', () => {
+    const query = new Query(mockCollection, [
+      Q.sortBy('sortable_column', 'desc'),
+      Q.take(100),
+      Q.skip(200),
+    ])
+    expect(encodeQuery(query)).toBe(
+      `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' order by "tasks"."sortable_column" desc limit 100 offset 200`,
     )
   })
 })
