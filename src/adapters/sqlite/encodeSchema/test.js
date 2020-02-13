@@ -78,9 +78,9 @@ describe('encodeSchema', () => {
       'create index tasks_author_id on "tasks" ("author_id");' +
       'create index tasks__status on "tasks" ("_status");' +
       'create virtual table "tasks_fts" using fts4("author_name", "author_title");' +
-      'create trigger "tasks_fts_delete" after delete on "tasks" begin delete from "tasks_fts" where "rowid" = "OLD.rowid"; end;' +
-      'create trigger "tasks_fts_insert" after insert on "tasks" begin insert into "tasks_fts" ("rowid", "author_name", "author_title") values ("NEW.rowid", "NEW.author_name", "NEW.author_title"); end;' +
-      'create trigger "tasks_fts_update" after update on "tasks" begin update "tasks_fts" set "author_name"="NEW.author_name", "author_title"="NEW.author_title" where "rowid" = "NEW.rowid"; end;' +
+      'create trigger "tasks_fts_delete" after delete on "tasks" begin delete from "tasks_fts" where "rowid" = OLD.rowid; end;' +
+      'create trigger "tasks_fts_insert" after insert on "tasks" begin insert into "tasks_fts" ("rowid", "author_name", "author_title") values (NEW."rowid", NEW."author_name", NEW."author_title"); end;' +
+      'create trigger "tasks_fts_update" after update on "tasks" begin update "tasks_fts" set "author_name" = NEW."author_name", "author_title" = NEW."author_title" where "rowid" = NEW."rowid"; end;' +
       ''
 
     expect(encodeSchema(testSchema)).toBe(expectedSchema)
