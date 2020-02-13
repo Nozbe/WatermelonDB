@@ -57,7 +57,7 @@ describe('encodeSchema', () => {
 
     expect(encodeSchema(testSchema)).toBe(expectedSchema)
   })
-  fit('encodes schema with FTS', () => {
+  it('encodes schema with FTS', () => {
     const testSchema = appSchema({
       version: 1,
       tables: [

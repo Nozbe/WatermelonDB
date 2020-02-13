@@ -270,4 +270,16 @@ describe('SQLite encodeQuery', () => {
     expect(() => encoded([Q.unsafeLokiExpr({ hi: true })])).toThrow('Unknown clause')
     expect(() => encoded([Q.unsafeLokiTransform(() => {})])).toThrow('not supported')
   })
+  it('encodes JOIN over FTS table', () => {
+    const query = new Query(mockCollection, [
+      Q.where('searchable', Q.textMatches('hello world')),
+    ])
+    expect(encodeQuery(query)).toBe(
+      `select "tasks".* from "tasks" ` +
+      `where "tasks"."rowid" in (` +
+      `select "tasks_fts"."rowid" from "tasks_fts" ` +
+      `where "tasks_fts"."searchable" match 'hello world'` +
+      `) and "tasks"."_status" is not 'deleted'`
+    )
+  })
 })
