@@ -56,7 +56,7 @@ const encodeFTSDeleteTrigger: ({
     tableName,
     ftsTableName,
     event: 'delete',
-    action: `delete from ${encodeName(ftsTableName)} where "rowid" = "OLD.rowid";`,
+    action: `delete from ${encodeName(ftsTableName)} where "rowid" = OLD.rowid;`,
   })
 
 const encodeFTSInsertTrigger: ({
@@ -66,7 +66,7 @@ const encodeFTSInsertTrigger: ({
 }) => SQL = ({ tableName, ftsTableName, ftsColumns }) => {
   const rawColumnNames = ['rowid', ...ftsColumns.map(column => column.name)]
   const columns = rawColumnNames.map(encodeName)
-  const valueColumns = rawColumnNames.map(column => encodeName(`NEW.${column}`))
+  const valueColumns = rawColumnNames.map(column => `NEW.${encodeName(column)}`)
 
   const columnsSQL = columns.join(', ')
   const valueColumnsSQL = valueColumns.join(', ')
@@ -86,7 +86,7 @@ const encodeFTSUpdateTrigger: ({
 }) => SQL = ({ tableName, ftsTableName, ftsColumns }) => {
   const rawColumnNames = ftsColumns.map(column => column.name)
   const assignments = rawColumnNames.map(
-    column => `${encodeName(column)}=${encodeName(`NEW.${column}`)}`,
+    column => `${encodeName(column)} = NEW.${encodeName(column)}`,
   )
 
   const assignmentsSQL = assignments.join(', ')
@@ -95,7 +95,7 @@ const encodeFTSUpdateTrigger: ({
     tableName,
     ftsTableName,
     event: 'update',
-    action: `update ${encodeName(ftsTableName)} set ${assignmentsSQL} where "rowid" = "NEW.rowid";`,
+    action: `update ${encodeName(ftsTableName)} set ${assignmentsSQL} where "rowid" = NEW."rowid";`,
   })
 }
 
