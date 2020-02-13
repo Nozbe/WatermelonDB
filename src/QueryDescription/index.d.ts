@@ -49,10 +49,29 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     left: ColumnName
     comparison: Comparison
   }
-  export type Condition = Where | On
+  export interface SortBy {
+    type: 'sortBy'
+    sortColumn: ColumnName
+    sortOrder: SortOrder
+  }
+  export type SortOrder =
+    | 'asc'
+    | 'desc'
+  export interface Take {
+    type: 'take'
+    count: number
+  }
+  export interface Skip = {
+    type: 'skip'
+    count: number
+  }
+  export type Condition = Where | On | SortBy | Take | Skip
   export interface QueryDescription {
     where: Where[]
     join: On[]
+    sortBy: SortBy[]
+    take?: Take
+    skip?: Skip
   }
 
   export function eq(valueOrColumn: Value | ColumnDescription): Comparison
@@ -71,6 +90,9 @@ declare module '@nozbe/watermelondb/QueryDescription' {
   export function or(...conditions: Where[]): Or
   export function like(value: string): Comparison
   export function notLike(value: string): Comparison
+  export function sortBy(sortColumn: ColumnName, sortOrder?: SortOrder): SortBy
+  export function take(count: number): Take
+  export function skip(count: number): Skip
   export function sanitizeLikeString(value: string): string
 
   type _OnFunctionColumnValue = (table: TableName<any>, column: ColumnName, value: Value) => On
