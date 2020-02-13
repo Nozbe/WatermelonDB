@@ -481,4 +481,21 @@ describe('QueryDescription', () => {
       ],
     })
   })
+
+  it('supports textMatches as fts join', () => {
+    const query = Q.buildQueryDescription([
+      Q.textMatches('searchable', 'hello world'),
+    ])
+    expect(query).toEqual({
+      'where': [
+        {
+          'operator': 'match',
+          'right': {
+            'value': 'searchable',
+          },
+        },
+      ],
+      'join': [],
+    })
+  })
 })

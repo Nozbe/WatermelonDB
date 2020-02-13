@@ -53,6 +53,7 @@ const operators: { [Operator]: string } = {
   between: 'between',
   like: 'like',
   notLike: 'not like',
+  match: 'match',
 }
 
 const encodeComparison = (table: TableName<any>, comparison: Comparison) => {
@@ -89,6 +90,20 @@ const encodeWhereCondition = (
         Q.where(left, Q.gt(comparison.right)),
         Q.and(Q.where(left, Q.notEq(null)), Q.where((comparison.right: any).column, null)),
       ),
+    )
+  }
+
+  if (comparison.operator === 'match') {
+    const srcTable = encodeName(table)
+    const ftsTable = encodeName(`${table}_fts`)
+    const rowid = encodeName('rowid')
+    const ftsColumn = encodeName(left)
+    const matchValue = getComparisonRight(table, comparison.right)
+    return (
+      `${srcTable}.${rowid} in (` +
+      `select ${ftsTable}.${rowid} from ${ftsTable} ` +
+      `where ${ftsTable}.${ftsColumn} match ${matchValue}` +
+      `)`
     )
   }
 

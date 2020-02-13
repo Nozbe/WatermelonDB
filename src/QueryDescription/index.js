@@ -27,6 +27,7 @@ export type Operator =
   | 'between'
   | 'like'
   | 'notLike'
+  | 'match'
 
 export type ColumnDescription = $RE<{ column: ColumnName }>
 export type ComparisonRight =
@@ -172,6 +173,10 @@ const nonLikeSafeRegexp = /[^a-zA-Z0-9]/g
 
 export function sanitizeLikeString(value: string): string {
   return value.replace(nonLikeSafeRegexp, '_')
+}
+
+export function textMatches(value: string): Comparison {
+  return { operator: 'match', right: { value } }
 }
 
 export function column(name: ColumnName): ColumnDescription {
