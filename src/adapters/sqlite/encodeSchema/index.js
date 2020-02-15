@@ -104,7 +104,6 @@ const encodeFTSTriggers: ({
   ftsTableName: string,
   ftsColumns: ColumnSchema[],
 }) => SQL = ({ tableName, ftsTableName, ftsColumns }) => {
-  const updateTrigger = ''
   return (
     encodeFTSDeleteTrigger({ tableName, ftsTableName }) +
     encodeFTSInsertTrigger({ tableName, ftsTableName, ftsColumns }) +

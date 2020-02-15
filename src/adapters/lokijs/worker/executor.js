@@ -409,7 +409,7 @@ export default class LokiExecutor {
     return localStorage && localStorage.by('key', key)
   }
 
-  _warnAboutLackingFTSSupport(columns: Array<ColumnSchema>) {
+  _warnAboutLackingFTSSupport(columns: Array<ColumnSchema>): void {
     const searchableColumns = columns.filter(column => column.isSearchable)
     if (searchableColumns.length > 0) {
       // Warn the user about missing FTS support for the LokiJS adapter
