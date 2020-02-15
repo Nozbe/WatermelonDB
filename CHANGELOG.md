@@ -23,6 +23,9 @@ All notable changes to this project will be documented in this file.
   This is called when underlying IndexedDB encountered a quota exceeded error (ran out of allotted disk space for app)
   This means that app can't save more data or that it will fall back to using in-memory database only
   Note that this only works when `useWebWorker: false`
+- [SQLiteAdapter] Added support for Full Text Search for SQLite adapter:
+  Add `isSearchable` boolean flag to schema column descriptor for creating Full Text Search-able columns
+  Add `Q.textMatches(value)` that compiles to `match 'value'` SQL for performing Full Text Search using SQLite adpater
 
 ### Changes
 
