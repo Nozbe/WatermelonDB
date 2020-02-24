@@ -1,7 +1,8 @@
 declare module '@nozbe/watermelondb/decorators/nochange' {
-  import { Decorator, RawDecorator } from '@nozbe/watermelondb/utils/common/makeDecorator'
 
-  const nochange: Decorator<[], () => RawDecorator>
+  // Copied from lib.es5.d.ts, PropertyDecorator
+  function nochange(target: Object, propertyKey: string | symbol): void;
+  function nochange(): PropertyDecorator;
 
   export default nochange
 }

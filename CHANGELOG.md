@@ -36,6 +36,7 @@ All notable changes to this project will be documented in this file.
 - [LokiJS] Fixed an issue preventing database from saving when using `experimentalUseIncrementalIndexedDB`
 - Fixed a potential issue when using `database.unsafeResetDatabase()`
 - [iOS] Fixed issue with clearing database under experimental synchronous mode
+- [Typescript] Fixed types of decorators.
 
 ### New features (Experimental)
 
