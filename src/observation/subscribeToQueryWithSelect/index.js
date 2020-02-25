@@ -44,7 +44,6 @@ export function processChangeSet<Record: Model>(
         if(!recordStatesEqual(prevState, newState)) {
           mutableMatchingRecords[index] = newState
           shouldEmit = true
-          return
         }
       }
     }
