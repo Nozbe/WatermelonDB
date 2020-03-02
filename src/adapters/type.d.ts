@@ -44,8 +44,9 @@ declare module '@nozbe/watermelondb/adapters/type' {
     // Do not use — only for testing purposes
     unsafeClearCachedRecords(): Promise<void>
   }
+
+  export interface SQLiteDatabaseAdapter {
+    unsafeSqlQuery<T extends Model>(sql: string, tableName: TableName<any>): Promise<CachedQueryResult>
+  }
 }
 
-export interface SQLiteDatabaseAdapter {
-  unsafeSqlQuery<T extends Model>(sql: string, tableName: TableName<any>): Promise<CachedQueryResult>
-}
