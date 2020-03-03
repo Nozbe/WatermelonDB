@@ -37,6 +37,7 @@ All notable changes to this project will be documented in this file.
 - Fixed a potential issue when using `database.unsafeResetDatabase()`
 - [iOS] Fixed issue with clearing database under experimental synchronous mode
 - [Typescript] Fixed types of decorators.
+- [Typescript] Add Tests to test Types.
 
 ### New features (Experimental)
 

@@ -1,0 +1,12 @@
+{
+  "name": "typescript-example",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "test": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/lokijs": "^1.5.3",
+    "typescript": "^3.8.3"
+  }
+}
