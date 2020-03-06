@@ -276,6 +276,36 @@ protected List&lt;ReactPackage&gt; getPackages() {
 </ol>
 <h2><a class="header" href="#web-setup" id="web-setup">Web setup</a></h2>
 <p>This guide assumes you use Webpack as your bundler.</p>
+<ol start="3">
+<li>If you haven't already, install Babel plugins for decorators, static class properties, and async/await to get the most out of Watermelon. This assumes you use Babel 7 and already support ES6 syntax.
+<pre><code class="language-bash">yarn add --dev @babel/plugin-proposal-decorators
+yarn add --dev @babel/plugin-proposal-class-properties
+yarn add --dev @babel/plugin-transform-runtime
+</code></pre>
+or
+<pre><code class="language-bash">npm install -D @babel/plugin-proposal-decorators
+npm install -D @babel/plugin-proposal-class-properties
+npm install -D @babel/plugin-transform-runtime
+</code></pre>
+</li>
+<li>Add ES7 support to your <code>.babelrc</code> file:
+<pre><code class="language-json">{
+  &quot;plugins&quot;: [
+    [&quot;@babel/plugin-proposal-decorators&quot;, { &quot;legacy&quot;: true }],
+    [&quot;@babel/plugin-proposal-class-properties&quot;, { &quot;loose&quot;: true }],
+    [
+      &quot;@babel/plugin-transform-runtime&quot;,
+       {
+         &quot;helpers&quot;: true,
+         &quot;regenerator&quot;: true
+       }
+    ]
+  ]
+}
+</code></pre>
+</li>
+</ol>
+<p>If you want to use Web Worker for WatermelonDB (this has pros and cons, we recommend you start without Web Workers, and evaluate later if it makes sense for your app to use them):</p>
 <ol>
 <li>
 <p>Install <a href="https://github.com/webpack-contrib/worker-loader">worker-loader</a> Webpack plugin to add support for Web Workers to your app:</p>
@@ -303,35 +333,6 @@ protected List&lt;ReactPackage&gt; getPackages() {
     // ...
     globalObject: 'this', // ⬅️ And this
   }
-}
-</code></pre>
-</li>
-<li>
-<p>If you haven't already, install Babel plugins for decorators, static class properties, and async/await to get the most out of Watermelon. This assumes you use Babel 7 and already support ES6 syntax.</p>
-<pre><code class="language-bash">yarn add --dev @babel/plugin-proposal-decorators
-yarn add --dev @babel/plugin-proposal-class-properties
-yarn add --dev @babel/plugin-transform-runtime
-</code></pre>
-<p>or</p>
-<pre><code class="language-bash">npm install -D @babel/plugin-proposal-decorators
-npm install -D @babel/plugin-proposal-class-properties
-npm install -D @babel/plugin-transform-runtime
-</code></pre>
-</li>
-<li>
-<p>Add ES7 support to your <code>.babelrc</code> file:</p>
-<pre><code class="language-json">{
-  &quot;plugins&quot;: [
-    [&quot;@babel/plugin-proposal-decorators&quot;, { &quot;legacy&quot;: true }],
-    [&quot;@babel/plugin-proposal-class-properties&quot;, { &quot;loose&quot;: true }],
-    [
-      &quot;@babel/plugin-transform-runtime&quot;,
-       {
-         &quot;helpers&quot;: true,
-         &quot;regenerator&quot;: true
-       }
-    ]
-  ]
 }
 </code></pre>
 </li>
@@ -373,11 +374,16 @@ const database = new Database({
 
 const adapter = new LokiJSAdapter({
   schema,
-  // useWebWorker: false,
-  // experimentalUseIncrementalIndexedDB: true,
+  // These two options are recommended for new projects:
+  useWebWorker: false,
+  useIncrementalIndexedDB: true,
+  // It's recommended you implement this method:
   // onIndexedDBVersionChange: () =&gt; {
-  //   // database was deleted in another browser tab
-  //   services.forceLogOut()
+  //   // database was deleted in another browser tab (user logged out), so we must make sure we delete
+  //   // it in this tab as well
+  //   if (checkIfUserIsLoggedIn()) {
+  //     window.location.reload()
+  //   }
   // },
 })
 
