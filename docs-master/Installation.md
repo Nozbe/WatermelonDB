@@ -246,7 +246,7 @@ const adapter = new LokiJSAdapter({
   schema,
   // These two options are recommended for new projects:
   useWebWorker: false,
-  experimentalUseIncrementalIndexedDB: true,
+  useIncrementalIndexedDB: true,
   // It's recommended you implement this method:
   // onIndexedDBVersionChange: () => {
   //   // database was deleted in another browser tab (user logged out), so we must make sure we delete

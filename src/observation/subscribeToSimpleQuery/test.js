@@ -3,39 +3,25 @@ import { mockDatabase } from '../../__tests__/testModels'
 import Query from '../../Query'
 import * as Q from '../../QueryDescription'
 
-import simpleObserver from './index'
-
-const makeDatabase = () => {
-  // TODO: Change test to actually go through the DB
-  const { database } = mockDatabase()
-
-  database.adapter = {
-    batch: jest.fn(),
-  }
-
-  return database
-}
+import subscribeToSimpleQuery from './index'
 
 const makeMock = (database, name) =>
   database.collections.get('mock_tasks').create(mock => {
     mock.name = name
   })
 
-describe('simpleObserver', () => {
+describe('subscribeToSimpleQuery', () => {
   it('observes changes correctly', async () => {
-    const database = makeDatabase()
+    const { database } = mockDatabase()
 
     // insert a few models
     const m1 = await makeMock(database, 'bad_name')
     const m2 = await makeMock(database, 'foo')
 
-    // mock query
-    database.adapter.query = jest.fn().mockImplementationOnce(() => [m2.id])
-
     // start observing
     const query = new Query(database.collections.get('mock_tasks'), [Q.where('name', 'foo')])
     const observer = jest.fn()
-    const subscription = simpleObserver(query).subscribe(observer)
+    const unsubscribe = subscribeToSimpleQuery(query, observer)
 
     // check initial matches
     await new Promise(process.nextTick) // give time to propagate
@@ -72,7 +58,7 @@ describe('simpleObserver', () => {
     expect(observer).toHaveBeenCalledWith([m3])
 
     // ensure no extra emissions
-    subscription.unsubscribe()
+    unsubscribe()
     expect(observer).toHaveBeenCalledTimes(5)
   })
 })

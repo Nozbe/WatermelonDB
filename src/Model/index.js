@@ -2,6 +2,7 @@
 
 import type { Observable } from 'rxjs'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
+import { type Unsubscribe } from '../utils/subscriptions'
 import invariant from '../utils/common/invariant'
 import ensureSync from '../utils/common/ensureSync'
 import fromPairs from '../utils/fp/fromPairs'
@@ -258,12 +259,29 @@ export default class Model {
     return record
   }
 
+  _subscribers: Array<(isDeleted: boolean) => void> = []
+
+  experimentalSubscribe(subscriber: (isDeleted: boolean) => void): Unsubscribe {
+    this._subscribers.push(subscriber)
+
+    return () => {
+      const idx = this._subscribers.indexOf(subscriber)
+      idx !== -1 && this._subscribers.splice(idx, 1)
+    }
+  }
+
   _notifyChanged(): void {
     this._getChanges().next(this)
+    this._subscribers.forEach(subscriber => {
+      subscriber(false)
+    })
   }
 
   _notifyDestroyed(): void {
     this._getChanges().complete()
+    this._subscribers.forEach(subscriber => {
+      subscriber(true)
+    })
   }
 
   _getRaw(rawFieldName: ColumnName): Value {

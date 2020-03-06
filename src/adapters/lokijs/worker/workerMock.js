@@ -18,8 +18,7 @@ export function shallowCloneDeepObjects(value: any): any {
   return value
 }
 
-// Simulates the web worker API for test env (while really just passing messages asynchronously
-// on main thread)
+// Simulates the web worker API
 export default class LokiWorkerMock {
   _worker: LokiWorker
 
@@ -31,12 +30,7 @@ export default class LokiWorkerMock {
     // $FlowFixMe
     this._workerContext = {
       postMessage: data => {
-        const clonedData = clone(data)
-
-        // Schedule on the microtask queue to be able to achieve synchronous, glitch-free rendering
-        Promise.resolve().then(() => {
-          this.onmessage({ data: clonedData })
-        })
+        this.onmessage({ data: clone(data) })
       },
       onmessage: () => {},
     }
@@ -60,9 +54,6 @@ export default class LokiWorkerMock {
       clonedData = clone(data)
     }
 
-    Promise.resolve().then(() => {
-      // $FlowFixMe
-      this._workerContext.onmessage({ data: clonedData })
-    })
+    this._workerContext.onmessage(({ data: clonedData }: any))
   }
 }

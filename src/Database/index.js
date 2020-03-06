@@ -5,9 +5,12 @@ import { merge as merge$ } from 'rxjs/observable/merge'
 import { startWith } from 'rxjs/operators'
 import { values } from 'rambdax'
 
+import { type Unsubscribe } from '../utils/subscriptions'
 import { invariant } from '../utils/common'
+import { noop } from '../utils/fp'
 
 import type { DatabaseAdapter, BatchOperation } from '../adapters/type'
+import DatabaseAdapterCompat from '../adapters/compat'
 import type Model from '../Model'
 import { type CollectionChangeSet } from '../Collection'
 import { CollectionChangeTypes } from '../Collection/common'
@@ -23,7 +26,7 @@ type DatabaseProps = $Exact<{
 }>
 
 export default class Database {
-  adapter: DatabaseAdapter
+  adapter: DatabaseAdapterCompat
 
   schema: AppSchema
 
@@ -45,7 +48,7 @@ export default class Database {
         'You must pass `actionsEnabled:` key to Database constructor. It is highly recommended you pass `actionsEnabled: true` (see documentation for more details), but can pass `actionsEnabled: false` for backwards compatibility.',
       )
     }
-    this.adapter = adapter
+    this.adapter = new DatabaseAdapterCompat(adapter)
     this.schema = adapter.schema
     this.collections = new CollectionMap(this, modelClasses)
     this._actionsEnabled = actionsEnabled
@@ -103,9 +106,22 @@ export default class Database {
 
     await this.adapter.batch(batchOperations)
 
+    // NOTE: We must make two passes to ensure all changes to caches are applied before subscribers are called
     Object.entries(changeNotifications).forEach(notification => {
       const [table, changeSet]: [TableName<any>, CollectionChangeSet<any>] = (notification: any)
-      this.collections.get(table).changeSet(changeSet)
+      this.collections.get(table)._applyChangesToCache(changeSet)
+    })
+
+    Object.entries(changeNotifications).forEach(notification => {
+      const [table, changeSet]: [TableName<any>, CollectionChangeSet<any>] = (notification: any)
+      this.collections.get(table)._notify(changeSet)
+    })
+
+    const affectedTables = Object.keys(changeNotifications)
+    this._subscribers.forEach(([tables, subscriber]) => {
+      if (tables.some(table => affectedTables.includes(table))) {
+        subscriber()
+      }
     })
   }
 
@@ -124,6 +140,23 @@ export default class Database {
     const changesSignals = tables.map(table => this.collections.get(table).changes)
 
     return merge$(...changesSignals).pipe(startWith(null))
+  }
+
+  _subscribers: Array<[TableName<any>[], () => void]> = []
+
+  // Notifies `subscriber` on change in any of passed tables (only a signal, no change set)
+  experimentalSubscribe(tables: TableName<any>[], subscriber: () => void): Unsubscribe {
+    if (!tables.length) {
+      return noop
+    }
+
+    const subscriberEntry = [tables, subscriber]
+    this._subscribers.push(subscriberEntry)
+
+    return () => {
+      const idx = this._subscribers.indexOf(subscriberEntry)
+      idx !== -1 && this._subscribers.splice(idx, 1)
+    }
   }
 
   _resetCount: number = 0

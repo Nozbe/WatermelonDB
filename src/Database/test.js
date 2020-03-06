@@ -237,6 +237,99 @@ describe('Observation', () => {
       { record: m2, type: CollectionChangeTypes.destroyed },
     ])
   })
+  it('can subscribe to change signals for particular tables', async () => {
+    const { database, projects, tasks, comments } = mockDatabase({ actionsEnabled: true })
+
+    const subscriber1 = jest.fn()
+    const unsubscribe1 = database.experimentalSubscribe([], subscriber1)
+
+    await database.action(() => tasks.create())
+
+    const subscriber2 = jest.fn()
+    const unsubscribe2 = database.experimentalSubscribe(['mock_tasks'], subscriber2)
+
+    const subscriber3 = jest.fn()
+    const unsubscribe3 = database.experimentalSubscribe(
+      ['mock_tasks', 'mock_projects'],
+      subscriber3,
+    )
+
+    const p1 = await database.action(() => projects.create())
+    await database.action(() => tasks.create())
+    await database.action(() => comments.create())
+
+    expect(subscriber1).toHaveBeenCalledTimes(0)
+    expect(subscriber2).toHaveBeenCalledTimes(1)
+    expect(subscriber3).toHaveBeenCalledTimes(2)
+    expect(subscriber2).toHaveBeenLastCalledWith()
+
+    await database.action(() =>
+      database.batch(projects.prepareCreate(), projects.prepareCreate(), tasks.prepareCreate()),
+    )
+
+    expect(subscriber2).toHaveBeenCalledTimes(2)
+    expect(subscriber3).toHaveBeenCalledTimes(3)
+
+    await database.action(() => p1.update())
+
+    expect(subscriber2).toHaveBeenCalledTimes(2)
+    expect(subscriber3).toHaveBeenCalledTimes(4)
+
+    unsubscribe1()
+    unsubscribe2()
+
+    await database.action(() =>
+      database.batch(tasks.prepareCreate(), p1.prepareDestroyPermanently()),
+    )
+
+    expect(subscriber1).toHaveBeenCalledTimes(0)
+    expect(subscriber2).toHaveBeenCalledTimes(2)
+    expect(subscriber3).toHaveBeenCalledTimes(5)
+    unsubscribe3()
+  })
+  it('unsubscribe can safely be called more than once', async () => {
+    const { database, tasks } = mockDatabase({ actionsEnabled: true })
+
+    const subscriber1 = jest.fn()
+    const unsubscribe1 = database.experimentalSubscribe(['mock_tasks'], subscriber1)
+    expect(subscriber1).toHaveBeenCalledTimes(0)
+
+    const unsubscribe2 = database.experimentalSubscribe(['mock_tasks'], () => {})
+    unsubscribe2()
+    unsubscribe2()
+
+    await database.action(() => tasks.create())
+
+    expect(subscriber1).toHaveBeenCalledTimes(1)
+    unsubscribe1()
+  })
+  it('has new objects cached before calling subscribers (regression test)', async () => {
+    const { database, projects, tasks } = mockDatabase({ actionsEnabled: true })
+
+    const project = projects.prepareCreate()
+    const task = tasks.prepareCreate(t => {
+      t.project.set(project)
+    })
+
+    let observerCalled = 0
+    let taskPromise = null
+    const observer = jest.fn(() => {
+      observerCalled += 1
+      if (observerCalled === 1) {
+        // nothing happens
+      } else if (observerCalled === 2) {
+        taskPromise = tasks.find(task.id)
+      }
+    })
+    database.withChangesForTables(['mock_projects']).subscribe(observer)
+    expect(observer).toHaveBeenCalledTimes(1)
+
+    await database.action(() => database.batch(project, task))
+    expect(observer).toHaveBeenCalledTimes(2)
+
+    // check if task is already cached
+    expect(await taskPromise).toBe(task)
+  })
 })
 
 const delayPromise = () => new Promise(resolve => setTimeout(resolve, 100))

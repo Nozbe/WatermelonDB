@@ -4,6 +4,7 @@ import SQLiteAdapter from './index'
 import { testSchema } from '../__tests__/helpers'
 import commonTests from '../__tests__/commonTests'
 import { invariant } from '../../utils/common'
+import DatabaseAdapterCompat from '../compat'
 
 const SQLiteAdapterTest = spec => {
   const runTests = isSynchronous => {
@@ -28,7 +29,7 @@ const SQLiteAdapterTest = spec => {
         } else {
           invariant(adapter._synchronous === false, 'this should be asynchronous')
         }
-        await test(adapter, SQLiteAdapter)
+        await test(new DatabaseAdapterCompat(adapter), SQLiteAdapter)
       })
     })
   }

@@ -2,8 +2,9 @@
 /* eslint-disable no-undef */
 
 import Loki, { LokiMemoryAdapter } from 'lokijs'
+import { logger } from '../../../utils/common'
 
-const isIDBAvailable = () => {
+const isIDBAvailable = (onQuotaExceededError: ?(error: Error) => void) => {
   return new Promise(resolve => {
     // $FlowFixMe
     if (typeof indexedDB === 'undefined') {
@@ -17,12 +18,24 @@ const isIDBAvailable = () => {
       db.close()
       resolve(true)
     }
-    checkRequest.onerror = () => {
+    checkRequest.onerror = event => {
+      const error: ?Error = event?.target?.error
+      // this is what Firefox in Private Mode returns:
+      // DOMException: "A mutation operation was attempted on a database that did not allow mutations."
+      // code: 11, name: InvalidStateError
+      logger.error(
+        '[WatermelonDB][Loki] IndexedDB checker failed to open. Most likely, user is in Private Mode. It could also be a quota exceeded error. Will fall back to in-memory database.',
+        event,
+        error,
+      )
+      if (error && error.name === 'QuotaExceededError') {
+        logger.log('[WatermelonDB][Loki] Looks like disk quota was exceeded: ', error)
+        onQuotaExceededError && onQuotaExceededError(error)
+      }
       resolve(false)
     }
     checkRequest.onblocked = () => {
-      // eslint-disable-next-line no-console
-      console.error('WatermelonIDBChecker call is blocked')
+      logger.error('[WatermelonDB] IndexedDB checker call is blocked')
     }
   })
 }
@@ -31,11 +44,12 @@ async function getLokiAdapter(
   name: ?string,
   adapter: ?LokiMemoryAdapter,
   useIncrementalIDB: boolean,
-  onIndexedDBVersionChange: ?(() => void),
+  onIndexedDBVersionChange: ?() => void,
+  onQuotaExceededError: ?(error: Error) => void,
 ): mixed {
   if (adapter) {
     return adapter
-  } else if (await isIDBAvailable()) {
+  } else if (await isIDBAvailable(onQuotaExceededError)) {
     if (useIncrementalIDB) {
       const IncrementalIDBAdapter = require('lokijs/src/incremental-indexeddb-adapter')
       return new IncrementalIDBAdapter({
@@ -55,10 +69,17 @@ export async function newLoki(
   name: ?string,
   adapter: ?LokiMemoryAdapter,
   useIncrementalIDB: boolean,
-  onIndexedDBVersionChange: ?(() => void),
+  onIndexedDBVersionChange: ?() => void,
+  onQuotaExceededError: ?(error: Error) => void,
 ): Loki {
   const loki = new Loki(name, {
-    adapter: await getLokiAdapter(name, adapter, useIncrementalIDB, onIndexedDBVersionChange),
+    adapter: await getLokiAdapter(
+      name,
+      adapter,
+      useIncrementalIDB,
+      onIndexedDBVersionChange,
+      onQuotaExceededError,
+    ),
     autosave: true,
     autosaveInterval: 250,
     verbose: true,
