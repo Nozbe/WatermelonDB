@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### New features
+
+### Changes
+
+### Fixes
+
+- [Typescript] Fixed types of decorators.
+- [Typescript] Add Tests to test Types.
+
 ## 0.16 - 2020-03-06
 
 ### ⚠️ Breaking
@@ -38,8 +47,6 @@ All notable changes to this project will be documented in this file.
 - [LokiJS] Fixed an issue preventing database from saving when using `experimentalUseIncrementalIndexedDB`
 - Fixed a potential issue when using `database.unsafeResetDatabase()`
 - [iOS] Fixed issue with clearing database under experimental synchronous mode
-- [Typescript] Fixed types of decorators.
-- [Typescript] Add Tests to test Types.
 
 ### New features (Experimental)
 
