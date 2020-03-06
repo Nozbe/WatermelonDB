@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 0.16 - 2020-03-06
+
 ### ⚠️ Breaking
 
 - `experimentalUseIncrementalIndexedDB` has been renamed to `useIncrementalIndexedDB`
