@@ -41,9 +41,10 @@ bool didBlockExecuteUsingHack = false;
 @implementation NSObject (JSValueHacks)
 
 + (id) watermelonSwizzledValueWithJSValueRef:(JSValueRef)ref inContext:(JSContext*)ctx {
-    if (didBlockExecuteUsingHack) {
-        NSLog(@"WatermelonDB JSLock perfhack assertion failure - swizzled method called but block has already executed");
-    }
+    //  NOTE: bring this back if we can unswizzle after the hack
+    //    if (didBlockExecuteUsingHack) {
+    //        NSLog(@"WatermelonDB JSLock perfhack assertion failure - swizzled method called but block has already executed");
+    //    }
 
     if (blockToExecute && !didBlockExecuteUsingHack) {
         // Call our block from within a JSLockHolding context, yay!
@@ -106,6 +107,8 @@ void callWithJSCLockHolder(jsi::Runtime& rt, std::function<void (void)> block) {
     // trigger the swizzled version
     blockToExecute = &block;
     didBlockExecuteUsingHack = false;
+    // NOTE: https://sentry.nozbe.tv/organizations/sentry/issues/139/?project=2&query=is%3Aunresolved
+    // There's a single instance of a crash here. Could be a fluke?
     [dummyValue value];
 
     if (!didBlockExecuteUsingHack) {
