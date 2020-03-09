@@ -1,4 +1,4 @@
-import { NativeModules } from 'react-native'
+import { NativeModules, ClippingRectangle } from 'react-native'
 
 const { appSchema, tableSchema } = require('./Schema')
 
@@ -13,7 +13,7 @@ const schema = appSchema({
         { name: 'string3', type: 'string' },
         { name: 'string4', type: 'string', isOptional: true },
         { name: 'string5', type: 'string' },
-        { name: 'number', type: 'number' },
+        { name: 'number', type: 'number', isIndexed: true },
         { name: 'boolean', type: 'boolean' },
       ],
     }),
@@ -49,6 +49,8 @@ async function runTests() {
 
   console.log(encodedSchema)
 
+  console.log(global.nativeWatermelonDatabase)
+
   await new Promise(resolve => setTimeout(resolve, 500))
 
   console.log(`Hello!`)
@@ -56,12 +58,44 @@ async function runTests() {
   global.nativeWatermelonBatch(dataToBatch)
   console.log(`NEw method - added ${size} in ${Date.now() - before}ms`)
 
+  console.log(global.nativeWatermelonCount('select count(*) as count from test', []))
+
   await new Promise(resolve => setTimeout(resolve, 500))
   if (
     (await NativeModules.DatabaseBridge.count(0, 'select count(*) as count from test')) !== size
   ) {
     throw new Error('bad module!')
   }
+
+  // Count tests
+  console.log(`Gonna count`)
+  await new Promise(resolve => setTimeout(resolve, 500))
+  const beforeCount = Date.now()
+  for (let i = 0; i < 100; i += 1) {
+    if (
+      global.nativeWatermelonCount(
+        'select count(*) as count from test where number > 2 and number < 4',
+        [],
+      ) !== size
+    ) {
+      throw new Error('bad count')
+    }
+  }
+  console.log(`new count - counted in ${(Date.now() - beforeCount) / 100}ms`)
+
+  await new Promise(resolve => setTimeout(resolve, 500))
+  const beforeCountOld = Date.now()
+  for (let i = 0; i < 100; i += 1) {
+    if (
+      (await NativeModules.DatabaseBridge.count(
+        0,
+        'select count(*) as count from test where number > 2 and number < 4',
+      )) !== size
+    ) {
+      throw new Error('bad count')
+    }
+  }
+  console.log(`old count - counted in ${(Date.now() - beforeCountOld) / 100}ms`)
 
   // Compare performance with old method
   const dbname2 = 'file:jsitests2?mode=memory&cache=shared'

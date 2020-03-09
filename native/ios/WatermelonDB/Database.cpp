@@ -1,6 +1,5 @@
 #include "Database.h"
 #include "JSLockPerfHack.h"
-#include <pmmintrin.h>
 
 namespace watermelondb {
 
@@ -35,6 +34,7 @@ Database::Database(jsi::Runtime *runtime) : runtime_(runtime) {
 
     /* set up jsi bindings */
 
+    {
     const char *name = "nativeWatermelonBatch";
     jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
     jsi::Function function = jsi::Function::createFromHostFunction(rt, propName, 1, [this](
@@ -57,6 +57,33 @@ Database::Database(jsi::Runtime *runtime) : runtime_(runtime) {
         return jsi::Value::undefined();
     });
     rt.global().setProperty(rt, name, function);
+    }
+    {
+    const char *name = "nativeWatermelonCount";
+    jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+    jsi::Function function = jsi::Function::createFromHostFunction(rt, propName, 2, [this](
+                                                                                           jsi::Runtime &runtime,
+                                                                                           const jsi::Value &,
+                                                                                           const jsi::Value *args,
+                                                                                           size_t count
+                                                                                           ) {
+        if (count != 2) {
+            throw std::invalid_argument("nativeWatermelonCount takes 2 arguments");
+        }
+
+        jsi::Runtime &rt = *runtime_;
+        jsi::String sql = args[0].getString(rt);
+        jsi::Array arguments = args[1].getObject(rt).getArray(rt);
+
+        jsi::Value retValue;
+        callWithJSCLockHolder(rt, [&]() {
+            retValue = this->count(rt, sql, arguments);
+        });
+
+        return retValue;
+    });
+    rt.global().setProperty(rt, name, function);
+    }
 }
 
 void Database::install(jsi::Runtime *runtime) {
@@ -125,7 +152,7 @@ void Database::executeUpdate(jsi::Runtime& rt, std::string sql, jsi::Array& argu
     }
 }
 
-void Database::executeQuery(jsi::Runtime& rt, std::string sql, jsi::Array& arguments) {
+sqlite3_stmt* Database::executeQuery(jsi::Runtime& rt, std::string sql, jsi::Array& arguments) {
     sqlite3_stmt *statement = cachedStatements_[sql];
     // TODO: Do we need to reset cached statement before use?
 
@@ -136,6 +163,8 @@ void Database::executeQuery(jsi::Runtime& rt, std::string sql, jsi::Array& argum
             std::abort(); // Unimplemented
         }
         cachedStatements_[sql] = statement;
+    } else {
+        sqlite3_reset(statement);
     }
     assert(statement != nullptr);
 
@@ -165,6 +194,8 @@ void Database::executeQuery(jsi::Runtime& rt, std::string sql, jsi::Array& argum
             std::abort(); // Unimplemented
         }
     }
+
+    return statement;
 }
 
 jsi::Value Database::find(jsi::Runtime& rt, jsi::String& tableName, jsi::String& id) {
@@ -187,6 +218,8 @@ jsi::Value Database::find(jsi::Runtime& rt, jsi::String& tableName, jsi::String&
 jsi::Value Database::query(jsi::Runtime& rt, jsi::String& tableName, jsi::String& sql, jsi::Array& arguments) {
     throw jsi::JSError(rt, "Unimplemented");
 
+    sqlite3_stmt *statement = executeQuery(rt, sql.utf8(rt), arguments);
+
 //    return try database.queryRaw(query).map { row in
 //        let id = row.string(forColumn: "id")!
 //
@@ -200,7 +233,21 @@ jsi::Value Database::query(jsi::Runtime& rt, jsi::String& tableName, jsi::String
 }
 
 jsi::Value Database::count(jsi::Runtime& rt, jsi::String& sql, jsi::Array& arguments) {
-    throw jsi::JSError(rt, "Unimplemented");
+    sqlite3_stmt *statement = executeQuery(rt, sql.utf8(rt), arguments);
+
+    int resultStep = sqlite3_step(statement); // todo: step_v2
+
+    if (resultStep != SQLITE_ROW) {
+        std::abort(); // Unimplemented
+    }
+
+    // sanity check - do we even need it? maybe debug only?
+    if (sqlite3_data_count(statement) != 1) {
+        std::abort();
+    }
+
+    int count = sqlite3_column_int(statement, 0);
+    return jsi::Value(count);
 }
 
 void Database::batch(jsi::Runtime& rt, jsi::Array& operations) {
