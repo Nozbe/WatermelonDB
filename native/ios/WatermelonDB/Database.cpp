@@ -310,8 +310,7 @@ void Database::unsafeResetDatabase(jsi::Runtime& rt, jsi::String& schema, jsi::V
     throw jsi::JSError(rt, "Unimplemented");
 }
 
-jsi::String Database::getLocal(jsi::Runtime& rt, jsi::String& key) {
-    throw jsi::JSError(rt, "Unimplemented");
+jsi::Value Database::getLocal(jsi::Runtime& rt, jsi::String& key) {
 //    let results = try database.queryRaw("select value from local_storage where key = ?", [key])
 //
 //    guard let record = results.next() else {
@@ -319,6 +318,31 @@ jsi::String Database::getLocal(jsi::Runtime& rt, jsi::String& key) {
 //    }
 //
 //    return record.string(forColumn: "value")!
+    auto args = jsi::Array::createWithElements(rt, key);
+    sqlite3_stmt *statement = executeQuery(rt, "select value from local_storage where key = ?", args);
+
+    int resultStep = sqlite3_step(statement); // todo: step_v2
+
+    if (resultStep == SQLITE_DONE) {
+        return jsi::Value::null();
+    }
+
+    if (resultStep != SQLITE_ROW) {
+        std::abort(); // Unimplemented
+    }
+
+    // sanity check - do we even need it? maybe debug only?
+    if (sqlite3_data_count(statement) != 1) {
+        std::abort();
+    }
+
+    const char *text = (const char *) sqlite3_column_text(statement, 0);
+
+    if (!text) {
+        return jsi::Value::null();
+    }
+
+    return std::move(jsi::String::createFromAscii(rt, text));
 }
 
 void Database::setValue(jsi::Runtime& rt, jsi::String& key, jsi::String& value) {
