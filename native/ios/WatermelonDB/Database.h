@@ -47,6 +47,7 @@ private:
 
     void executeUpdate(jsi::Runtime &rt, std::string sql, jsi::Array &arguments);
     sqlite3_stmt* executeQuery(jsi::Runtime& rt, std::string sql, jsi::Array& arguments);
+    jsi::Object resultDictionary(jsi::Runtime &rt, sqlite3_stmt *statement);
 };
 
 } // namespace watermelondb

@@ -35,6 +35,32 @@ Database::Database(jsi::Runtime *runtime) : runtime_(runtime) {
     /* set up jsi bindings */
 
     {
+        const char *name = "nativeWatermelonFind";
+        jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+        jsi::Function function = jsi::Function::createFromHostFunction(rt, propName, 2, [this](
+                                                                                               jsi::Runtime &runtime,
+                                                                                               const jsi::Value &,
+                                                                                               const jsi::Value *args,
+                                                                                               size_t count
+                                                                                               ) {
+            if (count != 2) {
+                throw std::invalid_argument("nativeWatermelonFind takes 2 arguments");
+            }
+
+            jsi::Runtime &rt = *runtime_;
+            jsi::String tableName = args[0].getString(rt);
+            jsi::String id = args[1].getString(rt);
+
+            jsi::Value retValue;
+            callWithJSCLockHolder(rt, [&]() {
+                retValue = find(rt, tableName, id);
+            });
+
+            return retValue;
+        });
+        rt.global().setProperty(rt, name, function);
+    }
+    {
         const char *name = "nativeWatermelonBatch";
         jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
         jsi::Function function = jsi::Function::createFromHostFunction(rt, propName, 1, [this](
@@ -322,21 +348,59 @@ sqlite3_stmt* Database::executeQuery(jsi::Runtime& rt, std::string sql, jsi::Arr
     return statement;
 }
 
-jsi::Value Database::find(jsi::Runtime& rt, jsi::String& tableName, jsi::String& id) {
-    throw jsi::JSError(rt, "Unimplemented");
+jsi::Object Database::resultDictionary(jsi::Runtime &rt, sqlite3_stmt *statement) {
+    jsi::Object dictionary(rt);
 
-//    guard !isCached(table, id) else {
-//        return id
-//    }
-//
-//    let results = try database.queryRaw("select * from \(table) where id == ? limit 1", [id])
-//
-//    guard let record = results.next() else {
-//        return nil
-//    }
-//
+    for (int i = 0, len = sqlite3_column_count(statement); i < len; i++) {
+        const char *column = sqlite3_column_name(statement, i);
+        int valueType = sqlite3_column_type(statement, i);
+
+        if (valueType == SQLITE_INTEGER) {
+            dictionary.setProperty(rt, column, jsi::Value(sqlite3_column_int(statement, i)));
+        } else if (valueType == SQLITE_FLOAT) {
+            dictionary.setProperty(rt, column, jsi::Value(sqlite3_column_double(statement, i)));
+        } else if (valueType == SQLITE_TEXT) {
+            const char *text = (const char *) sqlite3_column_text(statement, i);
+
+            if (!text) {
+                dictionary.setProperty(rt, column, jsi::Value::null());
+            }
+
+            dictionary.setProperty(rt, column, jsi::String::createFromAscii(rt, text));
+        } else if (valueType == SQLITE_NULL) {
+            dictionary.setProperty(rt, column, jsi::Value::null());
+        } else {
+            // SQLITE_BLOB, ??? future/extension types?
+            std::abort(); // Unimplemented
+        }
+    }
+
+    return dictionary;
+}
+
+jsi::Value Database::find(jsi::Runtime& rt, jsi::String& tableName, jsi::String& id) {
+    // TODO: caching
+    //    guard !isCached(table, id) else {
+    //        return id
+    //    }
+
+    auto args = jsi::Array::createWithElements(rt, id);
+    sqlite3_stmt *statement = executeQuery(rt, "select * from " + tableName.utf8(rt) + " where id == ? limit 1", args);
+
+    int resultStep = sqlite3_step(statement); // todo: step_v2
+
+    if (resultStep == SQLITE_DONE) {
+        return jsi::Value::null();
+    }
+
+    if (resultStep != SQLITE_ROW) {
+        std::abort(); // Unimplemented
+    }
+
+    return resultDictionary(rt, statement);
+
+    // TODO: caching
 //    markAsCached(table, id)
-//    return record.resultDictionary!
 }
 
 jsi::Value Database::query(jsi::Runtime& rt, jsi::String& tableName, jsi::String& sql, jsi::Array& arguments) {
