@@ -35,54 +35,178 @@ Database::Database(jsi::Runtime *runtime) : runtime_(runtime) {
     /* set up jsi bindings */
 
     {
-    const char *name = "nativeWatermelonBatch";
-    jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
-    jsi::Function function = jsi::Function::createFromHostFunction(rt, propName, 1, [this](
-        jsi::Runtime &runtime,
-        const jsi::Value &,
-        const jsi::Value *args,
-        size_t count
-    ) {
-        if (count != 1) {
-          throw std::invalid_argument("nativeWatermelonBatch takes 1 argument");
-        }
+        const char *name = "nativeWatermelonBatch";
+        jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+        jsi::Function function = jsi::Function::createFromHostFunction(rt, propName, 1, [this](
+            jsi::Runtime &runtime,
+            const jsi::Value &,
+            const jsi::Value *args,
+            size_t count
+        ) {
+            if (count != 1) {
+              throw std::invalid_argument("nativeWatermelonBatch takes 1 argument");
+            }
 
-        jsi::Runtime &rt = *runtime_;
-        jsi::Array operations = args[0].getObject(rt).getArray(rt);
+            jsi::Runtime &rt = *runtime_;
+            jsi::Array operations = args[0].getObject(rt).getArray(rt);
 
-        callWithJSCLockHolder(rt, [&]() {
-            batch(rt, operations);
+            callWithJSCLockHolder(rt, [&]() {
+                batch(rt, operations);
+            });
+
+            return jsi::Value::undefined();
         });
-
-        return jsi::Value::undefined();
-    });
-    rt.global().setProperty(rt, name, function);
+        rt.global().setProperty(rt, name, function);
     }
     {
-    const char *name = "nativeWatermelonCount";
-    jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
-    jsi::Function function = jsi::Function::createFromHostFunction(rt, propName, 2, [this](
-                                                                                           jsi::Runtime &runtime,
-                                                                                           const jsi::Value &,
-                                                                                           const jsi::Value *args,
-                                                                                           size_t count
-                                                                                           ) {
-        if (count != 2) {
-            throw std::invalid_argument("nativeWatermelonCount takes 2 arguments");
-        }
+        const char *name = "nativeWatermelonCount";
+        jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+        jsi::Function function = jsi::Function::createFromHostFunction(rt, propName, 2, [this](
+                                                                                               jsi::Runtime &runtime,
+                                                                                               const jsi::Value &,
+                                                                                               const jsi::Value *args,
+                                                                                               size_t count
+                                                                                               ) {
+            if (count != 2) {
+                throw std::invalid_argument("nativeWatermelonCount takes 2 arguments");
+            }
 
-        jsi::Runtime &rt = *runtime_;
-        jsi::String sql = args[0].getString(rt);
-        jsi::Array arguments = args[1].getObject(rt).getArray(rt);
+            jsi::Runtime &rt = *runtime_;
+            jsi::String sql = args[0].getString(rt);
+            jsi::Array arguments = args[1].getObject(rt).getArray(rt);
 
-        jsi::Value retValue;
-        callWithJSCLockHolder(rt, [&]() {
-            retValue = this->count(rt, sql, arguments);
+            jsi::Value retValue;
+            callWithJSCLockHolder(rt, [&]() {
+                retValue = this->count(rt, sql, arguments);
+            });
+
+            return retValue;
         });
+        rt.global().setProperty(rt, name, function);
+    }
+    {
+        const char *name = "nativeWatermelonGetLocal";
+        jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+        jsi::Function function = jsi::Function::createFromHostFunction(rt, propName, 1, [this](
+                                                                                               jsi::Runtime &runtime,
+                                                                                               const jsi::Value &,
+                                                                                               const jsi::Value *args,
+                                                                                               size_t count
+                                                                                               ) {
+            if (count != 1) {
+                throw std::invalid_argument("nativeWatermelonGetLocal takes 1 arguments");
+            }
 
-        return retValue;
-    });
-    rt.global().setProperty(rt, name, function);
+            jsi::Runtime &rt = *runtime_;
+            jsi::String key = args[0].getString(rt);
+
+            jsi::Value retValue;
+            callWithJSCLockHolder(rt, [&]() {
+                retValue = getLocal(rt, key);
+            });
+
+            return retValue;
+        });
+        rt.global().setProperty(rt, name, function);
+    }
+    {
+        const char *name = "nativeWatermelonSetLocal";
+        jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+        jsi::Function function = jsi::Function::createFromHostFunction(rt, propName, 2, [this](
+                                                                                               jsi::Runtime &runtime,
+                                                                                               const jsi::Value &,
+                                                                                               const jsi::Value *args,
+                                                                                               size_t count
+                                                                                               ) {
+            if (count != 2) {
+                throw std::invalid_argument("nativeWatermelonSetLocal takes 2 arguments");
+            }
+
+            jsi::Runtime &rt = *runtime_;
+            jsi::String key = args[0].getString(rt);
+            jsi::String value = args[1].getString(rt);
+
+            callWithJSCLockHolder(rt, [&]() {
+                setLocal(rt, key, value);
+            });
+
+            return jsi::Value::undefined();
+        });
+        rt.global().setProperty(rt, name, function);
+    }
+    {
+        const char *name = "nativeWatermelonRemoveLocal";
+        jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+        jsi::Function function = jsi::Function::createFromHostFunction(rt, propName, 1, [this](
+                                                                                               jsi::Runtime &runtime,
+                                                                                               const jsi::Value &,
+                                                                                               const jsi::Value *args,
+                                                                                               size_t count
+                                                                                               ) {
+            if (count != 1) {
+                throw std::invalid_argument("nativeWatermelonRemoveLocal takes 1 arguments");
+            }
+
+            jsi::Runtime &rt = *runtime_;
+            jsi::String key = args[0].getString(rt);
+
+            callWithJSCLockHolder(rt, [&]() {
+                removeLocal(rt, key);
+            });
+
+            return jsi::Value::undefined();
+        });
+        rt.global().setProperty(rt, name, function);
+    }
+    {
+        const char *name = "nativeWatermelonGetDeletedRecords";
+        jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+        jsi::Function function = jsi::Function::createFromHostFunction(rt, propName, 1, [this](
+                                                                                               jsi::Runtime &runtime,
+                                                                                               const jsi::Value &,
+                                                                                               const jsi::Value *args,
+                                                                                               size_t count
+                                                                                               ) {
+            if (count != 1) {
+                throw std::invalid_argument("nativeWatermelonGetDeletedRecords takes 1 arguments");
+            }
+
+            jsi::Runtime &rt = *runtime_;
+            jsi::String tableName = args[0].getString(rt);
+
+            jsi::Value retValue;
+            callWithJSCLockHolder(rt, [&]() {
+                retValue = getDeletedRecords(rt, tableName);
+            });
+
+            return retValue;
+        });
+        rt.global().setProperty(rt, name, function);
+    }
+    {
+        const char *name = "nativeWatermelonDestroyDeletedRecords";
+        jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+        jsi::Function function = jsi::Function::createFromHostFunction(rt, propName, 2, [this](
+                                                                                               jsi::Runtime &runtime,
+                                                                                               const jsi::Value &,
+                                                                                               const jsi::Value *args,
+                                                                                               size_t count
+                                                                                               ) {
+            if (count != 2) {
+                throw std::invalid_argument("nativeWatermelonDestroyDeletedRecords takes 2 arguments");
+            }
+
+            jsi::Runtime &rt = *runtime_;
+            jsi::String tableName = args[0].getString(rt);
+            jsi::Array recordIds = args[1].getObject(rt).getArray(rt);
+
+            callWithJSCLockHolder(rt, [&]() {
+                destroyDeletedRecords(rt, tableName, recordIds);
+            });
+
+            return jsi::Value::undefined();
+        });
+        rt.global().setProperty(rt, name, function);
     }
 }
 
@@ -274,16 +398,16 @@ void Database::batch(jsi::Runtime& rt, jsi::Array& operations) {
         } else if (type == "markAsDeleted") {
 //            TODO: Record caching
             const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
-            auto args = jsi::Array::createWithElements(rt, table, id);
-            executeUpdate(rt, "update ? set _status='deleted' where id == ?", args);
+            auto args = jsi::Array::createWithElements(rt, id);
+            executeUpdate(rt, "update " + table.utf8(rt) + " set _status='deleted' where id == ?", args);
 
         } else if (type == "destroyPermanently") {
 //            TODO: Record caching
             const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
-            auto args = jsi::Array::createWithElements(rt, table, id);
+            auto args = jsi::Array::createWithElements(rt, id);
 
             // TODO: What's the behavior if nothing got deleted?
-            executeUpdate(rt, "delete from ? where id == ?", args);
+            executeUpdate(rt, "delete from " + table.utf8(rt) + " where id == ?", args);
         } else {
             throw jsi::JSError(rt, "Invalid operation type");
         }
@@ -293,17 +417,54 @@ void Database::batch(jsi::Runtime& rt, jsi::Array& operations) {
 }
 
 jsi::Array Database::getDeletedRecords(jsi::Runtime& rt, jsi::String& tableName) {
-    throw jsi::JSError(rt, "Unimplemented");
-//    return try database.queryRaw("select id from \(table) where _status='deleted'").map { row in
-//        row.string(forColumn: "id")!
-//    }
+    auto args = jsi::Array::createWithElements(rt);
+    sqlite3_stmt *statement = executeQuery(rt, "select id from " + tableName.utf8(rt) + " where _status='deleted'", args);
+
+    jsi::Array records(rt, 0);
+
+    for (size_t i = 0; true; i++) {
+        int resultStep = sqlite3_step(statement); // todo: step_v2
+
+        if (resultStep == SQLITE_DONE) {
+            break;
+        }
+
+        if (resultStep != SQLITE_ROW) {
+            std::abort(); // Unimplemented
+        }
+
+        // sanity check - do we even need it? maybe debug only?
+        if (sqlite3_data_count(statement) != 1) {
+            std::abort();
+        }
+
+        const char *text = (const char *) sqlite3_column_text(statement, 0);
+
+        if (!text) {
+            std::abort(); // Unimplemented
+        }
+
+        jsi::String id = jsi::String::createFromAscii(rt, text);
+        records.setValueAtIndex(rt, i, id);
+    }
+
+    return records;
 }
 
 void Database::destroyDeletedRecords(jsi::Runtime& rt, jsi::String& tableName, jsi::Array& recordIds) {
-    throw jsi::JSError(rt, "Unimplemented");
-//    // TODO: What's the behavior if record doesn't exist or isn't actually deleted?
-//    let recordIds = records.map { id in "'\(id)'" }.joined(separator: ",")
-//    try database.execute("delete from \(table) where id in (\(recordIds))")
+    sqlite3_exec(db_->sqlite, "begin exclusive transaction", nullptr, nullptr, nullptr); // TODO: clean up
+
+    // TODO: Maybe it's faster & easier to do it in one query?
+    std::string sql = "delete from " + tableName.utf8(rt) + " where id == ?";
+
+    for (size_t i = 0, len = recordIds.size(rt); i < len; i++) {
+        // TODO: What's the behavior if record doesn't exist or isn't actually deleted?
+        jsi::String id = recordIds.getValueAtIndex(rt, i).getString(rt);
+        auto args = jsi::Array::createWithElements(rt, id);
+        executeUpdate(rt, sql, args);
+    }
+
+    sqlite3_exec(db_->sqlite, "commit transaction", nullptr, nullptr, nullptr); // TODO: clean up
 }
 
 void Database::unsafeResetDatabase(jsi::Runtime& rt, jsi::String& schema, jsi::Value& schemaVersion) {
@@ -311,13 +472,6 @@ void Database::unsafeResetDatabase(jsi::Runtime& rt, jsi::String& schema, jsi::V
 }
 
 jsi::Value Database::getLocal(jsi::Runtime& rt, jsi::String& key) {
-//    let results = try database.queryRaw("select value from local_storage where key = ?", [key])
-//
-//    guard let record = results.next() else {
-//        return nil
-//    }
-//
-//    return record.string(forColumn: "value")!
     auto args = jsi::Array::createWithElements(rt, key);
     sqlite3_stmt *statement = executeQuery(rt, "select value from local_storage where key = ?", args);
 
@@ -345,7 +499,7 @@ jsi::Value Database::getLocal(jsi::Runtime& rt, jsi::String& key) {
     return std::move(jsi::String::createFromAscii(rt, text));
 }
 
-void Database::setValue(jsi::Runtime& rt, jsi::String& key, jsi::String& value) {
+void Database::setLocal(jsi::Runtime& rt, jsi::String& key, jsi::String& value) {
     auto args = jsi::Array::createWithElements(rt, key, value);
     executeUpdate(rt, "insert or replace into local_storage (key, value) values (?, ?)", args);
 }

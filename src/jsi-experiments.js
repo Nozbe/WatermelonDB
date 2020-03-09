@@ -42,6 +42,12 @@ const dataToBatch = [...Array(size).keys()].map(x => [
   ],
 ])
 
+function invariant(condition, msg) {
+  if (!condition) {
+    throw new Error(msg)
+  }
+}
+
 async function runTests() {
   const dbname = 'file:jsitests?mode=memory&cache=shared'
   await NativeModules.DatabaseBridge.initialize(0, dbname, 1)
@@ -50,6 +56,26 @@ async function runTests() {
   console.log(encodedSchema)
 
   console.log(global.nativeWatermelonDatabase)
+
+  // Sanity checks
+  if (global.nativeWatermelonGetLocal('foo') !== null) {
+    throw new Error('bad get local')
+  }
+  global.nativeWatermelonSetLocal('foo', 'hello')
+  if (global.nativeWatermelonGetLocal('foo') !== 'hello') {
+    throw new Error('bad get local')
+  }
+  global.nativeWatermelonSetLocal('foo', 'blahblah')
+  if (global.nativeWatermelonGetLocal('foo') !== 'blahblah') {
+    throw new Error('bad get local')
+  }
+  global.nativeWatermelonRemoveLocal('foo')
+  if (global.nativeWatermelonGetLocal('foo') !== null) {
+    throw new Error('bad get local')
+  }
+  console.log('local ok')
+
+  // New method
 
   await new Promise(resolve => setTimeout(resolve, 500))
 
@@ -96,6 +122,55 @@ async function runTests() {
     }
   }
   console.log(`old count - counted in ${(Date.now() - beforeCountOld) / 100}ms`)
+
+  // Add and delete some stuff
+  global.nativeWatermelonBatch([
+    [
+      'create',
+      'test',
+      `id_test_1`,
+      'insert into test (id, string) values (?, ?)',
+      [`id_test_1`, 'foozz'],
+    ],
+    [
+      'create',
+      'test',
+      `id_test_2`,
+      'insert into test (id, string) values (?, ?)',
+      [`id_test_2`, 'foozz'],
+    ],
+    [
+      'create',
+      'test',
+      `id_test_3`,
+      'insert into test (id, string) values (?, ?)',
+      [`id_test_3`, 'foozz'],
+    ],
+  ])
+
+  invariant(global.nativeWatermelonCount('select count(*) as count from test', []) === size + 3)
+  invariant(
+    global.nativeWatermelonCount('select count(*) as count from test where string == ?', [
+      'foozz',
+    ]) === 3,
+  )
+
+  global.nativeWatermelonBatch([
+    ['markAsDeleted', 'test', `id_test_1`],
+    ['markAsDeleted', 'test', `id_test_2`],
+    ['destroyPermanently', 'test', `id_test_3`],
+  ])
+  invariant(global.nativeWatermelonCount('select count(*) as count from test', []) === size + 2)
+  const deletedRecords = global.nativeWatermelonGetDeletedRecords('test')
+  invariant(
+    deletedRecords.length === 2 &&
+      deletedRecords[0] === 'id_test_1' &&
+      deletedRecords[1] === 'id_test_2',
+  )
+  global.nativeWatermelonDestroyDeletedRecords('test', ['id_test_1', 'id_test_2', 'id_nonexistent'])
+  invariant(global.nativeWatermelonCount('select count(*) as count from test', []) === size)
+
+  console.log(`some tests ok`)
 
   // Compare performance with old method
   const dbname2 = 'file:jsitests2?mode=memory&cache=shared'
