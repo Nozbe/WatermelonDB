@@ -93,7 +93,7 @@ async function runTests() {
   global.nativeWatermelonBatch(dataToBatch)
   console.log(`NEw method - added ${size} in ${Date.now() - before}ms`)
 
-  console.log(global.nativeWatermelonCount('select count(*) as count from test', []))
+  // console.log(global.nativeWatermelonCount('select count(*) as count from test', []))
 
   await new Promise(resolve => setTimeout(resolve, 500))
   if (
@@ -194,14 +194,26 @@ async function runTests() {
     boolean: 1,
   }
   const find5 = global.nativeWatermelonFind('test', 'id5')
-  console.log(find5, expectedFind)
+  // console.log(find5, expectedFind)
   invariant(deepEqual(find5, expectedFind))
 
   const queryres = global.nativeWatermelonQuery('test', 'select * from test where id == ?', ['id5'])
-  console.log(queryres[0])
+  // console.log(queryres[0])
   invariant(deepEqual(queryres[0], expectedFind))
 
   console.log(`some tests ok`)
+
+  // new query
+
+  await new Promise(resolve => setTimeout(resolve, 1000))
+
+  console.log(`New query`)
+  const beforeq = Date.now()
+  const newq = global.nativeWatermelonQuery('test', 'select * from test', [])
+  invariant(newq.length === size, 'bad size')
+  console.log(`NEw method - queried ${newq.length} in ${Date.now() - beforeq}ms`)
+
+  await new Promise(resolve => setTimeout(resolve, 500))
 
   // Compare performance with old method
   const dbname2 = 'file:jsitests2?mode=memory&cache=shared'
@@ -220,6 +232,18 @@ async function runTests() {
   ) {
     throw new Error('bad module!')
   }
+
+  // Old Query
+
+  await new Promise(resolve => setTimeout(resolve, 500))
+
+  console.log(`old query`)
+  const beforeoldq = Date.now()
+  const oldq = await NativeModules.DatabaseBridge.query(1, 'test', 'select * from test')
+  invariant(oldq.length === size, 'bad size')
+  console.log(`Old method - queried ${newq.length} in ${Date.now() - beforeoldq}ms`)
+
+  await new Promise(resolve => setTimeout(resolve, 500))
 
   // Old method + JSON
   const dbname3 = 'file:jsitests2?mode=memory&cache=shared'
