@@ -64,38 +64,43 @@ async function runTests() {
 
   console.log(encodedSchema)
 
-  console.log(global.nativeWatermelonDatabase)
+  // console.log(global.nativeWatermelonDatabase)
+  console.log(global.nativeWatermelonCreateAdapter)
+  const newDb = global.nativeWatermelonCreateAdapter()
+  console.log(newDb)
+
+  // await new Promise(resolve => setTimeout(resolve, 1000))
 
   // Sanity checks
-  if (global.nativeWatermelonGetLocal('foo') !== null) {
+  if (newDb.getLocal('foo') !== null) {
     throw new Error('bad get local')
   }
-  global.nativeWatermelonSetLocal('foo', 'hello')
-  if (global.nativeWatermelonGetLocal('foo') !== 'hello') {
+  newDb.setLocal('foo', 'hello')
+  if (newDb.getLocal('foo') !== 'hello') {
     throw new Error('bad get local')
   }
-  global.nativeWatermelonSetLocal('foo', 'blahblah')
-  if (global.nativeWatermelonGetLocal('foo') !== 'blahblah') {
+  newDb.setLocal('foo', 'blahblah')
+  if (newDb.getLocal('foo') !== 'blahblah') {
     throw new Error('bad get local')
   }
-  global.nativeWatermelonRemoveLocal('foo')
-  if (global.nativeWatermelonGetLocal('foo') !== null) {
+  newDb.removeLocal('foo')
+  if (newDb.getLocal('foo') !== null) {
     throw new Error('bad get local')
   }
   console.log('local ok')
 
   // New method
 
-  await new Promise(resolve => setTimeout(resolve, 500))
+  await new Promise(resolve => setTimeout(resolve, 250))
 
   console.log(`Hello!`)
   const before = Date.now()
-  global.nativeWatermelonBatch(dataToBatch)
+  newDb.batch(dataToBatch)
   console.log(`NEw method - added ${size} in ${Date.now() - before}ms`)
 
-  // console.log(global.nativeWatermelonCount('select count(*) as count from test', []))
+  // console.log(newDb.count('select count(*) as count from test', []))
 
-  await new Promise(resolve => setTimeout(resolve, 500))
+  await new Promise(resolve => setTimeout(resolve, 250))
   if (
     (await NativeModules.DatabaseBridge.count(0, 'select count(*) as count from test')) !== size
   ) {
@@ -104,21 +109,18 @@ async function runTests() {
 
   // Count tests
   console.log(`Gonna count`)
-  await new Promise(resolve => setTimeout(resolve, 500))
+  await new Promise(resolve => setTimeout(resolve, 250))
   const beforeCount = Date.now()
   for (let i = 0; i < 100; i += 1) {
     if (
-      global.nativeWatermelonCount(
-        'select count(*) as count from test where number > 2 and number < 4',
-        [],
-      ) !== size
+      newDb.count('select count(*) as count from test where number > 2 and number < 4', []) !== size
     ) {
       throw new Error('bad count')
     }
   }
   console.log(`new count - counted in ${(Date.now() - beforeCount) / 100}ms`)
 
-  await new Promise(resolve => setTimeout(resolve, 500))
+  await new Promise(resolve => setTimeout(resolve, 250))
   const beforeCountOld = Date.now()
   for (let i = 0; i < 100; i += 1) {
     if (
@@ -133,7 +135,7 @@ async function runTests() {
   console.log(`old count - counted in ${(Date.now() - beforeCountOld) / 100}ms`)
 
   // Add and delete some stuff
-  global.nativeWatermelonBatch([
+  newDb.batch([
     [
       'create',
       'test',
@@ -157,29 +159,25 @@ async function runTests() {
     ],
   ])
 
-  invariant(global.nativeWatermelonCount('select count(*) as count from test', []) === size + 3)
-  invariant(
-    global.nativeWatermelonCount('select count(*) as count from test where string == ?', [
-      'foozz',
-    ]) === 3,
-  )
+  invariant(newDb.count('select count(*) as count from test', []) === size + 3)
+  invariant(newDb.count('select count(*) as count from test where string == ?', ['foozz']) === 3)
 
-  global.nativeWatermelonBatch([
+  newDb.batch([
     ['markAsDeleted', 'test', `id_test_1`],
     ['markAsDeleted', 'test', `id_test_2`],
     ['destroyPermanently', 'test', `id_test_3`],
   ])
-  invariant(global.nativeWatermelonCount('select count(*) as count from test', []) === size + 2)
-  const deletedRecords = global.nativeWatermelonGetDeletedRecords('test')
+  invariant(newDb.count('select count(*) as count from test', []) === size + 2)
+  const deletedRecords = newDb.getDeletedRecords('test')
   invariant(
     deletedRecords.length === 2 &&
       deletedRecords[0] === 'id_test_1' &&
       deletedRecords[1] === 'id_test_2',
   )
-  global.nativeWatermelonDestroyDeletedRecords('test', ['id_test_1', 'id_test_2', 'id_nonexistent'])
-  invariant(global.nativeWatermelonCount('select count(*) as count from test', []) === size)
+  newDb.destroyDeletedRecords('test', ['id_test_1', 'id_test_2', 'id_nonexistent'])
+  invariant(newDb.count('select count(*) as count from test', []) === size)
 
-  invariant(global.nativeWatermelonFind('test', 'hello') === null, 'expected null on find')
+  invariant(newDb.find('test', 'hello') === null, 'expected null on find')
   const expectedFind = {
     _changed: null,
     _status: null,
@@ -193,11 +191,11 @@ async function runTests() {
     number: 3.14,
     boolean: 1,
   }
-  const find5 = global.nativeWatermelonFind('test', 'id5')
+  const find5 = newDb.find('test', 'id5')
   // console.log(find5, expectedFind)
   invariant(deepEqual(find5, expectedFind))
 
-  const queryres = global.nativeWatermelonQuery('test', 'select * from test where id == ?', ['id5'])
+  const queryres = newDb.query('test', 'select * from test where id == ?', ['id5'])
   // console.log(queryres[0])
   invariant(deepEqual(queryres[0], expectedFind))
 
@@ -205,28 +203,28 @@ async function runTests() {
 
   // new query
 
-  await new Promise(resolve => setTimeout(resolve, 1000))
+  await new Promise(resolve => setTimeout(resolve, 500))
 
   console.log(`New query`)
   const beforeq = Date.now()
-  const newq = global.nativeWatermelonQuery('test', 'select * from test', [])
+  const newq = newDb.query('test', 'select * from test', [])
   invariant(newq.length === size, 'bad size')
   console.log(`NEw method - queried ${newq.length} in ${Date.now() - beforeq}ms`)
 
-  await new Promise(resolve => setTimeout(resolve, 500))
+  await new Promise(resolve => setTimeout(resolve, 250))
 
   // Compare performance with old method
   const dbname2 = 'file:jsitests2?mode=memory&cache=shared'
   await NativeModules.DatabaseBridge.initialize(1, dbname2, 1)
   await NativeModules.DatabaseBridge.setUpWithSchema(1, dbname2, encodedSchema, 1)
 
-  await new Promise(resolve => setTimeout(resolve, 500))
+  await new Promise(resolve => setTimeout(resolve, 250))
 
   const beforeOld = Date.now()
   await NativeModules.DatabaseBridge.batch(1, dataToBatch)
   console.log(`Old method - added ${size} in ${Date.now() - beforeOld}ms`)
 
-  await new Promise(resolve => setTimeout(resolve, 500))
+  await new Promise(resolve => setTimeout(resolve, 250))
   if (
     (await NativeModules.DatabaseBridge.count(1, 'select count(*) as count from test')) !== size
   ) {
@@ -235,7 +233,7 @@ async function runTests() {
 
   // Old Query
 
-  await new Promise(resolve => setTimeout(resolve, 500))
+  await new Promise(resolve => setTimeout(resolve, 250))
 
   console.log(`old query`)
   const beforeoldq = Date.now()
