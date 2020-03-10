@@ -22,7 +22,7 @@ SqliteDb::~SqliteDb() {
     int resultClose = sqlite3_close(sqlite);
 
     if (resultClose != SQLITE_OK) {
-        //        std::abort(); // Unimplemented
+        // std::abort(); // Unimplemented
     }
 }
 
@@ -41,16 +41,16 @@ void Database::install(jsi::Runtime *runtime) {
         jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
         jsi::Function function = jsi::Function::createFromHostFunction(
         rt, propName, 2, [runtime](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
-            //            if (count != 2) {
-            //                throw std::invalid_argument("nativeWatermelonCreateAdapter takes 2 arguments");
-            //            }
+            //    if (count != 2) {
+            //        throw std::invalid_argument("nativeWatermelonCreateAdapter takes 2 arguments");
+            //    }
 
-            //            jsi::String tableName = args[0].getString(rt);
-            //            jsi::Array recordIds = args[1].getObject(rt).getArray(rt);
+            //    jsi::String tableName = args[0].getString(rt);
+            //    jsi::Array recordIds = args[1].getObject(rt).getArray(rt);
             //
-            //            callWithJSCLockHolder(rt, [&]() {
-            //                destroyDeletedRecords(rt, tableName, recordIds);
-            //            });
+            //    callWithJSCLockHolder(rt, [&]() {
+            //        destroyDeletedRecords(rt, tableName, recordIds);
+            //    });
 
             jsi::Object adapter(rt);
 
@@ -371,7 +371,7 @@ jsi::Object Database::resultDictionary(jsi::Runtime &rt, sqlite3_stmt *statement
 jsi::Value Database::find(jsi::Runtime &rt, jsi::String &tableName, jsi::String &id) {
     // TODO: caching
     //    guard !isCached(table, id) else {
-    //        return id
+    // return id
     //    }
 
     auto args = jsi::Array::createWithElements(rt, id);
@@ -446,8 +446,8 @@ void Database::batch(jsi::Runtime &rt, jsi::Array &operations) {
         const jsi::String table = operation.getValueAtIndex(rt, 1).getString(rt);
 
         if (type == "create") {
-            //            TODO: Record caching
-            //            std::string id = operation.getValueAtIndex(rt, 2).getString(rt).utf8(rt);
+            //    TODO: Record caching
+            //    std::string id = operation.getValueAtIndex(rt, 2).getString(rt).utf8(rt);
             jsi::String sql = operation.getValueAtIndex(rt, 3).getString(rt);
             jsi::Array arguments = operation.getValueAtIndex(rt, 4).getObject(rt).getArray(rt);
 
@@ -458,12 +458,12 @@ void Database::batch(jsi::Runtime &rt, jsi::Array &operations) {
 
             executeUpdate(rt, sql.utf8(rt), arguments);
         } else if (type == "markAsDeleted") {
-            //            TODO: Record caching
+            //    TODO: Record caching
             const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
             auto args = jsi::Array::createWithElements(rt, id);
             executeUpdate(rt, "update " + table.utf8(rt) + " set _status='deleted' where id == ?", args);
         } else if (type == "destroyPermanently") {
-            //            TODO: Record caching
+            //    TODO: Record caching
             const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
             auto args = jsi::Array::createWithElements(rt, id);
 
