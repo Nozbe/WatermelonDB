@@ -1,6 +1,5 @@
 import Query from '../../Query'
 import * as Q from '../../QueryDescription'
-import Model from '../../Model'
 import encodeMatcher from './index'
 import { matchTests } from '../../__tests__/databaseTests'
 
@@ -9,9 +8,8 @@ const mockCollection = { modelClass: mockModelClass }
 
 const makeMatcher = conditions => encodeMatcher(new Query(mockCollection, conditions).description)
 
-const expectModel = (matcher, raw) => expect(matcher(new Model(null, raw)))
-const expectTrue = (matcher, raw) => expectModel(matcher, raw).toBe(true)
-const expectFalse = (matcher, raw) => expectModel(matcher, raw).toBe(false)
+const expectTrue = (matcher, raw) => expect(matcher(raw)).toBe(true)
+const expectFalse = (matcher, raw) => expect(matcher(raw)).toBe(false)
 
 describe('SQLite encodeMatcher', () => {
   matchTests.forEach(testCase => {

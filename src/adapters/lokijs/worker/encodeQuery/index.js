@@ -98,6 +98,16 @@ const like: OperatorFunction = value => {
   return {}
 }
 
+const notLike: OperatorFunction = value => {
+  if (typeof value === 'string') {
+    return {
+      $and: [{ $not: { $eq: null } }, { $not: { $regex: likeToRegexp(value) } }],
+    }
+  }
+
+  return {}
+}
+
 const operators: { [Operator]: OperatorFunction } = {
   eq: objOf('$aeq'),
   notEq: weakNotEqual,
@@ -110,10 +120,22 @@ const operators: { [Operator]: OperatorFunction } = {
   notIn: noNullComparisons(objOf('$nin')),
   between: objOf('$between'),
   like,
+  notLike,
 }
 
-const encodeComparison: Comparison => LokiRawQuery = ({ operator, right }) =>
-  operators[operator](getComparisonRight(right))
+const encodeComparison: Comparison => LokiRawQuery = ({ operator, right }) => {
+  const comparisonRight = getComparisonRight(right)
+
+  if (typeof comparisonRight === 'string') {
+    // we can do fast path as we know that eq and aeq do the same thing for strings
+    if (operator === 'eq') {
+      return { $eq: comparisonRight }
+    } else if (operator === 'notEq') {
+      return { $ne: comparisonRight }
+    }
+  }
+  return operators[operator](comparisonRight)
+}
 
 // HACK: Can't be `{}` or `undefined`, because that doesn't work with `or` conditions
 const hackAlwaysTrueCondition: LokiRawQuery = { _fakeAlwaysTrue: { $eq: undefined } }
@@ -121,9 +143,9 @@ const hackAlwaysTrueCondition: LokiRawQuery = { _fakeAlwaysTrue: { $eq: undefine
 const encodeWhereDescription: (WhereDescription | On) => LokiRawQuery = ({ left, comparison }) =>
   // HACK: If this is a column comparison condition, ignore it (assume it evaluates to true)
   // The column comparison will actually be performed during the refining pass with a matcher func
-  has('column', comparison.right) ?
-    hackAlwaysTrueCondition :
-    objOf(left, encodeComparison(comparison))
+  has('column', comparison.right)
+    ? hackAlwaysTrueCondition
+    : objOf(left, encodeComparison(comparison))
 
 const typeEq = propEq('type')
 

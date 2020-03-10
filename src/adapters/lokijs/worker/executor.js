@@ -4,7 +4,7 @@ import Loki, { LokiCollection, type LokiMemoryAdapter } from 'lokijs'
 import { prop, forEach, values } from 'rambdax'
 import { logger } from '../../../utils/common'
 
-import type { CachedQueryResult, CachedFindResult } from '../../type'
+import type { CachedQueryResult, CachedFindResult, BatchOperation } from '../../type'
 import type { TableName, AppSchema, SchemaVersion, TableSchema } from '../../../Schema'
 import type {
   SchemaMigrations,
@@ -17,18 +17,12 @@ import type { SerializedQuery } from '../../../Query'
 import type { RecordId } from '../../../Model'
 import { type RawRecord, sanitizedRaw, setRawSanitized, type DirtyRaw } from '../../../RawRecord'
 
-import { newLoki, loadDatabase, deleteDatabase } from './lokiExtensions'
+import { newLoki, deleteDatabase } from './lokiExtensions'
 import executeQuery from './executeQuery'
-import type { WorkerBatchOperation } from '../common'
+
+import type { LokiAdapterOptions } from '../index'
 
 const SCHEMA_VERSION_KEY = '_loki_schema_version'
-
-type LokiExecutorOptions = $Exact<{
-  dbName: ?string,
-  schema: AppSchema,
-  migrations: ?SchemaMigrations, // TODO: not optional
-  _testLokiAdapter?: LokiMemoryAdapter,
-}>
 
 export default class LokiExecutor {
   dbName: ?string
@@ -39,20 +33,29 @@ export default class LokiExecutor {
 
   loki: Loki
 
+  useIncrementalIndexedDB: boolean
+
+  onIndexedDBVersionChange: ?() => void
+
+  onQuotaExceededError: ?(error: Error) => void
+
   _testLokiAdapter: ?LokiMemoryAdapter
 
   cachedRecords: Map<TableName<any>, Set<RecordId>> = new Map()
 
-  constructor(options: LokiExecutorOptions): void {
+  constructor(options: LokiAdapterOptions): void {
     const { dbName, schema, migrations, _testLokiAdapter } = options
     this.dbName = dbName
     this.schema = schema
     this.migrations = migrations
+    this.useIncrementalIndexedDB = options.useIncrementalIndexedDB || false
+    this.onIndexedDBVersionChange = options.onIndexedDBVersionChange
+    this.onQuotaExceededError = options.onQuotaExceededError
     this._testLokiAdapter = _testLokiAdapter
   }
 
   async setUp(): Promise<void> {
-    await this._openDatabase(this._testLokiAdapter)
+    await this._openDatabase()
     await this._migrateIfNeeded()
   }
 
@@ -101,11 +104,6 @@ export default class LokiExecutor {
     return executeQuery(query, this.loki).count()
   }
 
-  create(table: TableName<any>, raw: RawRecord): void {
-    this.loki.getCollection(table).insert(raw)
-    this.markAsCached(table, raw.id)
-  }
-
   update(table: TableName<any>, rawRecord: RawRecord): void {
     const collection = this.loki.getCollection(table)
     // Loki identifies records using internal $loki ID so we must find the saved record first
@@ -132,23 +130,49 @@ export default class LokiExecutor {
     }
   }
 
-  batch(operations: WorkerBatchOperation[]): void {
+  batch(operations: BatchOperation[]): void {
     // TODO: Only add to cached records if all is successful
     // TODO: Transactionality
+
+    const recordsToCreate: { [TableName<any>]: RawRecord[] } = {}
+
     operations.forEach(operation => {
       const [type, table, raw] = operation
       switch (type) {
         case 'create':
-          this.create(table, raw)
+          if (!recordsToCreate[table]) {
+            recordsToCreate[table] = []
+          }
+          recordsToCreate[table].push((raw: $FlowFixMe<RawRecord>))
+
           break
+        default:
+          break
+      }
+    })
+
+    // We're doing a second pass, because batch insert is much faster in Loki
+    Object.entries(recordsToCreate).forEach((args: any) => {
+      const [table, raws]: [TableName<any>, RawRecord[]] = args
+      const shouldRebuildIndexAfterIndex = raws.length >= 1000 // only profitable for large inserts
+      this.loki.getCollection(table).insert(raws, shouldRebuildIndexAfterIndex)
+
+      raws.forEach(raw => {
+        this.markAsCached(table, raw.id)
+      })
+    })
+
+    operations.forEach(operation => {
+      const [type, table, rawOrId] = operation
+      switch (type) {
         case 'update':
-          this.update(table, raw)
+          this.update(table, (rawOrId: $FlowFixMe<RawRecord>))
           break
         case 'markAsDeleted':
-          this.markAsDeleted(table, raw.id)
+          this.markAsDeleted(table, (rawOrId: $FlowFixMe<RecordId>))
           break
         case 'destroyPermanently':
-          this.destroyPermanently(table, raw.id)
+          this.destroyPermanently(table, (rawOrId: $FlowFixMe<RecordId>))
           break
         default:
           break
@@ -176,7 +200,7 @@ export default class LokiExecutor {
     await deleteDatabase(this.loki)
 
     this.cachedRecords.clear()
-    logger.log('[DB][Worker] Database is now reset')
+    logger.log('[WatermelonDB][Loki] Database is now reset')
 
     await this._openDatabase()
     this._setUpSchema()
@@ -211,17 +235,22 @@ export default class LokiExecutor {
 
   // *** Internals ***
 
-  async _openDatabase(adapter?: LokiMemoryAdapter): Promise<void> {
-    logger.log('[DB][Worker] Initializing IndexedDB')
+  async _openDatabase(): Promise<void> {
+    logger.log('[WatermelonDB][Loki] Initializing IndexedDB')
 
-    this.loki = newLoki(this.dbName, adapter)
-    await loadDatabase(this.loki) // Force database to load now
+    this.loki = await newLoki(
+      this.dbName,
+      this._testLokiAdapter,
+      this.useIncrementalIndexedDB,
+      this.onIndexedDBVersionChange,
+      this.onQuotaExceededError,
+    )
 
-    logger.log('[DB][Worker] Database loaded')
+    logger.log('[WatermelonDB][Loki] Database loaded')
   }
 
   _setUpSchema(): void {
-    logger.log('[DB][Worker] Setting up schema')
+    logger.log('[WatermelonDB][Loki] Setting up schema')
 
     // Add collections
     values(this.schema.tables).forEach(tableSchema => {
@@ -237,7 +266,7 @@ export default class LokiExecutor {
     // Set database version
     this._databaseVersion = this.schema.version
 
-    logger.log('[DB][Worker] Database collections set up')
+    logger.log('[WatermelonDB][Loki] Database collections set up')
   }
 
   _addCollection(tableSchema: TableSchema): void {
@@ -270,28 +299,32 @@ export default class LokiExecutor {
     if (dbVersion === schemaVersion) {
       // All good!
     } else if (dbVersion === 0) {
-      logger.log('[DB][Worker] Empty database, setting up')
+      logger.log('[WatermelonDB][Loki] Empty database, setting up')
       await this.unsafeResetDatabase()
     } else if (dbVersion > 0 && dbVersion < schemaVersion) {
-      logger.log('[DB][Worker] Database has old schema version. Migration is required.')
+      logger.log('[WatermelonDB][Loki] Database has old schema version. Migration is required.')
       const migrationSteps = this._getMigrationSteps(dbVersion)
 
       if (migrationSteps) {
-        logger.log(`[DB][Worker] Migrating from version ${dbVersion} to ${this.schema.version}...`)
+        logger.log(
+          `[WatermelonDB][Loki] Migrating from version ${dbVersion} to ${this.schema.version}...`,
+        )
         try {
           await this._migrate(migrationSteps)
         } catch (error) {
-          logger.error('[DB][Worker] Migration failed', error)
+          logger.error('[WatermelonDB][Loki] Migration failed', error)
           throw error
         }
       } else {
         logger.warn(
-          '[DB][Worker] Migrations not available for this version range, resetting database instead',
+          '[WatermelonDB][Loki] Migrations not available for this version range, resetting database instead',
         )
         await this.unsafeResetDatabase()
       }
     } else {
-      logger.warn('[DB][Worker] Database has newer version than app schema. Resetting database.')
+      logger.warn(
+        '[WatermelonDB][Loki] Database has newer version than app schema. Resetting database.',
+      )
       await this.unsafeResetDatabase()
     }
   }
@@ -324,11 +357,11 @@ export default class LokiExecutor {
     // Set database version
     this._databaseVersion = this.schema.version
 
-    logger.log(`[DB][Worker] Migration successful`)
+    logger.log(`[WatermelonDB][Loki] Migration successful`)
   }
 
-  _executeCreateTableMigration({ name, columns }: CreateTableMigrationStep): void {
-    this._addCollection({ name, columns })
+  _executeCreateTableMigration({ schema }: CreateTableMigrationStep): void {
+    this._addCollection(schema)
   }
 
   _executeAddColumnsMigration({ table, columns }: AddColumnsMigrationStep): void {

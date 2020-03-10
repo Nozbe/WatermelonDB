@@ -36,12 +36,21 @@ export const testSchema = appSchema({
 export class MockProject extends Model {
   static table = 'mock_projects'
 
+  static associations = {
+    mock_tasks: { type: 'has_many', foreignKey: 'project_id' },
+  }
+
   @field('name')
   name
 }
 
 export class MockTask extends Model {
   static table = 'mock_tasks'
+
+  static associations = {
+    mock_projects: { type: 'belongs_to', key: 'project_id' },
+    mock_comments: { type: 'has_many', foreignKey: 'task_id' },
+  }
 
   @field('name') name
 
@@ -58,6 +67,10 @@ export class MockTask extends Model {
 
 export class MockComment extends Model {
   static table = 'mock_comments'
+
+  static associations = {
+    mock_tasks: { type: 'belongs_to', key: 'task_id' },
+  }
 
   @immutableRelation('mock_tasks', 'task_id')
   task
@@ -94,7 +107,7 @@ export const mockDatabase = ({ actionsEnabled = false } = {}) => {
     cloneDatabase: () =>
       // simulate reload
       new Database({
-        adapter: database.adapter.testClone(),
+        adapter: database.adapter.underlyingAdapter.testClone(),
         schema: testSchema,
         modelClasses: [MockProject, MockTask, MockComment],
         actionsEnabled,

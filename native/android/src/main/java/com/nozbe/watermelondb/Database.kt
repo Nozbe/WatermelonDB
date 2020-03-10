@@ -32,12 +32,18 @@ class Database(private val name: String, private val context: Context) {
                 }
             }
 
-    fun execute(query: SQL, values: QueryArgs = arrayListOf()) =
-            db.execSQL(query, values.toArray())
+    fun execute(query: SQL, args: QueryArgs = emptyArray()) =
+            db.execSQL(query, args)
 
-    fun delete(query: SQL, queryArgs: QueryArgs) = db.execSQL(query, queryArgs.toArray())
+    fun delete(query: SQL, args: QueryArgs) = db.execSQL(query, args)
 
-    fun rawQuery(query: SQL, key: RawQueryArgs = emptyArray()): Cursor = db.rawQuery(query, key)
+    fun rawQuery(query: SQL, args: RawQueryArgs = emptyArray()): Cursor = db.rawQuery(query, args)
+
+    fun count(query: SQL, args: RawQueryArgs = emptyArray()): Int =
+            rawQuery(query, args).use {
+                it.moveToFirst()
+                return it.getInt(it.getColumnIndex("count"))
+            }
 
     fun getFromLocalStorage(key: String): String? =
             rawQuery(Queries.select_local_storage, arrayOf(key)).use {
@@ -50,16 +56,10 @@ class Database(private val name: String, private val context: Context) {
             }
 
     fun insertToLocalStorage(key: String, value: String) =
-            execute(Queries.insert_local_storage, arrayListOf(key, value))
+            execute(Queries.insert_local_storage, arrayOf(key, value))
 
     fun deleteFromLocalStorage(key: String) =
-            execute(Queries.delete_local_storage, arrayListOf(key))
-
-    fun count(query: SQL, values: RawQueryArgs = emptyArray()): Int =
-            rawQuery(query, values).use {
-                it.moveToFirst()
-                return it.getInt(it.getColumnIndex("count"))
-            }
+            execute(Queries.delete_local_storage, arrayOf(key))
 
 //    fun unsafeResetDatabase() = context.deleteDatabase("$name.db")
 

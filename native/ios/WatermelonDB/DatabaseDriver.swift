@@ -156,20 +156,32 @@ class DatabaseDriver {
 
     typealias RecordId = String
 
-    private var cachedRecords: [Database.TableName: Set<RecordId>] = [:]
+    // Rewritten to use good ol' mutable Objective C for performance
+    // The swifty implementation in debug took >100s to execute on a 65K batch. This: 6ms. Yes. Really.
+    private var cachedRecords: NSMutableDictionary /* [TableName: Set<RecordId>] */ = NSMutableDictionary()
 
     func isCached(_ table: Database.TableName, _ id: RecordId) -> Bool {
-        return cachedRecords[table]?.contains(id) ?? false
+        if let set = cachedRecords[table] as? NSSet {
+            return set.contains(id)
+        }
+        return false
     }
 
     private func markAsCached(_ table: Database.TableName, _ id: RecordId) {
-        var cachedSet = cachedRecords[table] ?? []
-        cachedSet.insert(id)
-        cachedRecords[table] = cachedSet
+        var cachedSet: NSMutableSet
+        if let set = cachedRecords[table] as? NSMutableSet {
+            cachedSet = set
+        } else {
+            cachedSet = NSMutableSet()
+            cachedRecords[table] = cachedSet
+        }
+        cachedSet.add(id)
     }
 
     private func removeFromCache(_ table: Database.TableName, _ id: RecordId) {
-        cachedRecords[table]?.remove(id)
+        if let set = cachedRecords[table] as? NSMutableSet {
+            set.remove(id)
+        }
     }
 
 // MARK: - Other private details

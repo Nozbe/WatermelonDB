@@ -1,8 +1,7 @@
 // @flow
 
+import { type Result } from '../../utils/fp/Result'
 import type { CachedQueryResult, CachedFindResult } from '../type'
-import type { TableName } from '../../Schema'
-import type { RawRecord } from '../../RawRecord'
 import type { RecordId } from '../../Model'
 
 export const actions = {
@@ -11,10 +10,6 @@ export const actions = {
   QUERY: 'QUERY',
   COUNT: 'COUNT',
   BATCH: 'BATCH',
-  CREATE: 'CREATE',
-  UPDATE: 'UPDATE',
-  DESTROY_PERMANENTLY: 'DESTROY_PERMANENTLY',
-  MARK_AS_DELETED: 'MARK_AS_DELETED',
   GET_DELETED_RECORDS: 'GET_DELETED_RECORDS',
   DESTROY_DELETED_RECORDS: 'DESTROY_DELETED_RECORDS',
   UNSAFE_RESET_DATABASE: 'UNSAFE_RESET_DATABASE',
@@ -23,32 +18,18 @@ export const actions = {
   REMOVE_LOCAL: 'REMOVE_LOCAL',
 }
 
-export const responseActions = {
-  RESPONSE_SUCCESS: 'RESPONSE_SUCCESS',
-  RESPONSE_ERROR: 'RESPONSE_ERROR',
-}
-
 export type WorkerExecutorType = $Values<typeof actions>
 export type WorkerExecutorPayload = any[]
 
-export type WorkerResponseType = $Values<typeof responseActions>
-
 export type WorkerResponseData = CachedQueryResult | CachedFindResult | number | RecordId[]
-export type WorkerResponseError = string
-export type WorkerResponsePayload = WorkerResponseData | WorkerResponseError
 
-export type WorkerExecutorAction = {
+export type WorkerAction = $Exact<{
+  id: number,
   type: WorkerExecutorType,
   payload: WorkerExecutorPayload,
-}
+}>
 
-export type WorkerResponseAction = {
-  type: WorkerResponseType,
-  payload: WorkerResponsePayload,
-}
-
-export type WorkerBatchOperation =
-  | ['create', TableName<any>, RawRecord]
-  | ['update', TableName<any>, RawRecord]
-  | ['markAsDeleted', TableName<any>, RawRecord]
-  | ['destroyPermanently', TableName<any>, RawRecord]
+export type WorkerResponse = $Exact<{
+  id: number,
+  result: Result<WorkerResponseData>,
+}>

@@ -1,0 +1,2782 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>WatermelonDB documentation</title>
+        
+        <meta name="robots" content="noindex" />
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li><a href="ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li><a href="index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li><a href="Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li><a href="ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li><a href="Installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li><a href="Schema.html"><strong aria-hidden="true">2.2.</strong> Schema</a></li><li><a href="Model.html"><strong aria-hidden="true">2.3.</strong> Defining Models</a></li><li><a href="CRUD.html"><strong aria-hidden="true">2.4.</strong> Create, Read, Update, Delete</a></li><li><a href="Components.html"><strong aria-hidden="true">2.5.</strong> Connecting to React Components</a></li><li><a href="Query.html"><strong aria-hidden="true">2.6.</strong> Querying</a></li><li><a href="Relation.html"><strong aria-hidden="true">2.7.</strong> Relations</a></li><li><a href="Actions.html"><strong aria-hidden="true">2.8.</strong> Custom Actions</a></li></ol></li><li><a href="ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li><a href="Advanced/Migrations.html"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li><a href="Advanced/Sync.html"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li><a href="Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li><a href="Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li><a href="Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li><a href="Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li><a href="Advanced/Performance.html"><strong aria-hidden="true">3.7.</strong> Performance tips</a></li></ol></li><li><a href="ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li><a href="Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li><a href="Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li></ol></li><li><a href="ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li><a href="Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li><a href="CONTRIBUTING.html"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li><a href="CHANGELOG.html"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">WatermelonDB documentation</h1>
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h3><a class="header" href="#get-excited" id="get-excited">Get excited</a></h3>
+<p align="center">
+  <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/logo-horizontal2.png" alt="WatermelonDB" width="539" />
+</p>
+<h4 align="center">
+  A reactive database framework
+</h4>
+<p align="center">
+  Build powerful React and React Native apps that scale from hundreds to tens of thousands of records and remain <em>fast</em> ⚡️
+</p>
+<p align="center">
+  <a href="https://github.com/Nozbe/WatermelonDB/blob/master/LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License">
+  </a>
+<a href="https://travis-ci.com/Nozbe/WatermelonDB">
+    <img src="https://api.travis-ci.com/Nozbe/WatermelonDB.svg?branch=master" alt="CI Status">
+  </a>
+<a href="https://www.npmjs.com/package/@nozbe/watermelondb">
+    <img src="https://img.shields.io/npm/v/@nozbe/watermelondb.svg" alt="npm">
+  </a>
+</p>
+<table><thead><tr><th></th><th>WatermelonDB</th></tr></thead><tbody>
+<tr><td>⚡️</td><td><strong>Launch your app instantly</strong> no matter how much data you have</td></tr>
+<tr><td>📈</td><td><strong>Highly scalable</strong> from hundreds to tens of thousands of records</td></tr>
+<tr><td>😎</td><td><strong>Lazy loaded</strong>. Only load data when you need it</td></tr>
+<tr><td>✨</td><td><strong>Reactive</strong> API with <a href="https://github.com/ReactiveX/rxjs">RxJS</a></td></tr>
+<tr><td>📱</td><td><strong>Multiplatform</strong>. iOS, Android, and the web</td></tr>
+<tr><td>⚛️</td><td><strong>Made for React.</strong> Easily plug data into components</td></tr>
+<tr><td>⏱</td><td>Fast. Async. Multi-threaded. Highly cached.</td></tr>
+<tr><td>🔗</td><td>Relational. Built on rock-solid <a href="https://www.sqlite.org">SQLite</a> foundation</td></tr>
+<tr><td>⚠️</td><td><strong>Static typing</strong> with <a href="https://flow.org">Flow</a> or <a href="https://typescriptlang.org">TypeScript</a></td></tr>
+<tr><td>🔄</td><td><strong>Offline-first.</strong> <a href="https://nozbe.github.io/WatermelonDB/Advanced/Sync.html">Sync</a> with your own backend</td></tr>
+</tbody></table>
+<h2><a class="header" href="#why-watermelon" id="why-watermelon">Why Watermelon?</a></h2>
+<p><strong>WatermelonDB</strong> is a new way of dealing with user data in React Native and React web apps.</p>
+<p>It's optimized for building <strong>complex applications</strong> in React Native, and the number one goal is <strong>real-world performance</strong>. In simple words, <em>your app must launch fast</em>.</p>
+<p>For simple apps, using Redux or MobX with a persistence adapter is the easiest way to go. But when you start scaling to thousands or tens of thousands of database records, your app will now be slow to launch (especially on slower Android devices). Loading a full database into JavaScript is expensive!</p>
+<p>Watermelon fixes it <strong>by being lazy</strong>. Nothing is loaded unless requested. And since all querying is performed directly on the rock-solid <a href="https://www.sqlite.org/index.html">SQLite database</a> on a separate native thread, most queries resolve in an instant.</p>
+<p>But unlike using SQLite directly, Watermelon is <strong>fully observable</strong>. So whenever you change a record, all UI that depends on it will automatically re-render. For example, completing a task in a to-do app will re-render the task component, the list (to reorder), and all relevant task counters. <a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw"><strong>Learn more</strong></a>.</p>
+<table><thead><tr><th><a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw"><img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-talk-thumbnail.jpg" alt="React Native EU: Next-generation React Databases" width="300" /></a></th><th><a href="https://github.com/Nozbe/WatermelonDB/blob/master/docs/Demo.md"><img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-demo-thumbnail.png" alt="WatermelonDB Demo" width="300" /></a></th></tr></thead><tbody>
+<tr><td><p align="center"><a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw">📺 <strong>Next-generation React databases</strong><br>(a talk about WatermelonDB)</a></p></td><td><p align="center"><a href="https://nozbe.github.io/WatermelonDB/Demo.html">✨ <strong>Check out the Demo</strong></a></p></td></tr>
+</tbody></table>
+<h2><a class="header" href="#usage" id="usage">Usage</a></h2>
+<p><strong>Quick (over-simplified) example:</strong> an app with posts and comments.</p>
+<p>First, you define Models:</p>
+<pre><code class="language-js">class Post extends Model {
+  @field('name') name
+  @field('body') body
+  @children('comments') comments
+}
+
+class Comment extends Model {
+  @field('body') body
+  @field('author') author
+}
+</code></pre>
+<p>Then, you connect components to the data:</p>
+<pre><code class="language-js">const Comment = ({ comment }) =&gt; (
+  &lt;View style={styles.commentBox}&gt;
+    &lt;Text&gt;{comment.body} — by {comment.author}&lt;/Text&gt;
+  &lt;/View&gt;
+)
+
+// This is how you make your app reactive! ✨
+const enhance = withObservables(['comment'], ({ comment }) =&gt; ({
+  comment: comment.observe()
+}))
+const EnhancedComment = enhance(Comment)
+</code></pre>
+<p>And now you can render the whole Post:</p>
+<pre><code class="language-js">const Post = ({ post, comments }) =&gt; (
+  &lt;View&gt;
+    &lt;Text&gt;{post.name}&lt;/Text&gt;
+    &lt;Text&gt;Comments:&lt;/Text&gt;
+    {comments.map(comment =&gt;
+      &lt;Comment key={comment.id} comment={comment} /&gt;
+    )}
+  &lt;/View&gt;
+)
+
+const enhance = withObservables(['post'], ({ post }) =&gt; ({
+  post,
+  comments: post.comments
+}))
+</code></pre>
+<p>The result is fully reactive! Whenever a post or comment is added, changed, or removed, the right components <strong>will automatically re-render</strong> on screen. Doesn't matter if a change occurred in a totally different part of the app, it all just works out of the box!</p>
+<h3><a class="header" href="#-learn-more-a-hrefhttpsnozbegithubiowatermelondbsee-full-documentationa" id="-learn-more-a-hrefhttpsnozbegithubiowatermelondbsee-full-documentationa">➡️ <strong>Learn more:</strong> <a href="https://nozbe.github.io/WatermelonDB/">see full documentation</a></a></h3>
+<h2><a class="header" href="#who-uses-watermelondb" id="who-uses-watermelondb">Who uses WatermelonDB</a></h2>
+<a href="https://nozbe.com/teams/">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/nozbe-teams.png" alt="Nozbe Teams" width="300" />
+  </a>
+<br>
+<a href="https://capmo.de">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/capmo.png" alt="CAPMO" width="300" />
+  </a>
+<br>
+<a href="https://steady.health">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/steady.png" alt="Steady" width="150">
+  </a>
+<br>
+<a href="https://aerobotics.com">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/aerobotics.png" alt="Aerobotics" width="300" />
+  </a>
+<br>
+<a href="https://smashappz.com">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/smashappz.jpg" alt="Smash Appz" width="300" />
+  </a>
+<br>
+<a href="https://rocket.chat/">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/rocketchat.png" alt="Rocket Chat" width="300" />
+  </a>
+<br>
+<p><em>Does your company or app use 🍉? Open a pull request and add your logo/icon with link here!</em></p>
+<h2><a class="header" href="#contributing" id="contributing">Contributing</a></h2>
+<img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/needyou.jpg" alt="We need you" width="220" />
+<p><strong>WatermelonDB is an open-source project and it needs your help to thrive!</strong></p>
+<p>If there's a missing feature, a bug, or other improvement you'd like, we encourage you to contribute! Feel free to open an issue to get some guidance and see <a href="./CONTRIBUTING.html">Contributing guide</a> for details about project setup, testing, etc.</p>
+<p>If you're just getting started, see <a href="https://github.com/Nozbe/WatermelonDB/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22">good first issues</a> that are easy to contribute to. If you make a non-trivial contribution, email me, and I'll send you a nice 🍉 sticker!</p>
+<p>If you make or are considering making an app using WatermelonDB, please let us know!</p>
+<h2><a class="header" href="#author-and-license" id="author-and-license">Author and license</a></h2>
+<p><strong>WatermelonDB</strong> was created by <a href="https://github.com/Nozbe">@Nozbe</a>. Main author and maintainer is <a href="https://github.com/radex">Radek Pietruszewski</a>.</p>
+<p><strong>Contributors:</strong> <a href="https://github.com/mobily">@mobily</a>, <a href="https://github.com/kokusGr">@kokusGr</a>, <a href="https://github.com/rozPierog">@rozPierog</a>, <a href="https://github.com/rkrajewski">@rkrajewski</a>, <a href="https://github.com/domeknn">@domeknn</a>, <a href="https://github.com/Tereszkiewicz">@Tereszkiewicz</a> and <a href="https://github.com/Nozbe/WatermelonDB/graphs/contributors">more</a>.</p>
+<p>WatermelonDB is available under the MIT license. See the <a href="./LICENSE">LICENSE file</a> for more info.</p>
+<h1><a class="header" href="#demo" id="demo">Demo</a></h1>
+<p>See how WatermelonDB performs at large scales in the demo app.</p>
+<h2><a class="header" href="#online-demo" id="online-demo">Online demo</a></h2>
+<h3>
+<a href="https://watermelondb.now.sh">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-demo-medium.png" alt="WatermelonDB Demo" width="600" /><br>
+    Check out WatermelonDB demo online
+</a>
+</h3>
+<p>Note that where Watermelon really shines is in React Native apps — see instructions below ⬇️</p>
+<h2><a class="header" href="#running-react-native-demo" id="running-react-native-demo">Running React Native demo</a></h2>
+<p>To compile the WatermelonDB demo on your own machine:</p>
+<ol>
+<li>Install <a href="https://facebook.github.io/react-native/docs/getting-started.html">React Native toolkit</a> if you haven't already</li>
+<li>Download this project
+<pre><code class="language-bash">git clone https://github.com/Nozbe/WatermelonDB.git
+cd WatermelonDB/examples/native
+yarn
+</code></pre>
+</li>
+<li>Run the React Native packager:
+<pre><code class="language-bash">yarn dev
+</code></pre>
+</li>
+<li>Run the app on iOS or Android:
+<pre><code class="language-bash">yarn start:ios # or:
+yarn start:android
+</code></pre>
+</li>
+</ol>
+<p>⚠️ Note that for accurate measurement of performance, you need to compile the demo app in Release mode and run it on a real device, not the simulator.</p>
+<p>⚠️ If iOS app doesn't compile, try running it from Xcode instead of the terminal first</p>
+<p>⚠️  You might want to <code>git checkout</code> the <a href="https://github.com/Nozbe/WatermelonDB/releases">latest stable tag</a> if the demo app doesn't work</p>
+<h2><a class="header" href="#running-web-demo" id="running-web-demo">Running web demo</a></h2>
+<p>To compile the WatermelonDB demo on your own machine:</p>
+<ol>
+<li>Download this project
+<pre><code class="language-bash">git clone https://github.com/Nozbe/WatermelonDB.git
+cd WatermelonDB/examples/web
+yarn
+</code></pre>
+</li>
+<li>Run the server:
+<pre><code class="language-bash">yarn dev
+</code></pre>
+</li>
+<li>Webpack will point you to the right URL to open in the browser</li>
+</ol>
+<p>You can also <a href="https://zeit.co/now">use Now</a> to deploy the demo app (requires a Zeit account):</p>
+<pre><code class="language-bash">now
+</code></pre>
+<p>⚠️  You might want to <code>git checkout</code> the <a href="https://github.com/Nozbe/WatermelonDB/releases">latest stable tag</a> if the demo app doesn't work</p>
+<h3><a class="header" href="#learn-to-use-watermelon" id="learn-to-use-watermelon">Learn to use Watermelon</a></h3>
+<p>Learn the bascis of how to use WatermelonDB</p>
+<h1><a class="header" href="#installation" id="installation">Installation</a></h1>
+<p>First, add Watermelon to your project:</p>
+<pre><code class="language-bash">yarn add @nozbe/watermelondb
+yarn add @nozbe/with-observables
+</code></pre>
+<p>or alternatively if you prefer npm:</p>
+<pre><code class="language-npm">npm install @nozbe/watermelondb
+npm install @nozbe/with-observables
+</code></pre>
+<h2><a class="header" href="#react-native-setup" id="react-native-setup">React Native setup</a></h2>
+<ol>
+<li>
+<p>Install the Babel plugin for decorators if you haven't already:</p>
+<pre><code class="language-bash">yarn add --dev @babel/plugin-proposal-decorators
+</code></pre>
+<p>or</p>
+<pre><code class="language-bash">npm install -D @babel/plugin-proposal-decorators
+
+</code></pre>
+</li>
+<li>
+<p>Add ES6 decorators support to your <code>.babelrc</code> file:</p>
+<pre><code class="language-json">{
+  &quot;presets&quot;: [&quot;module:metro-react-native-babel-preset&quot;],
+  &quot;plugins&quot;: [
+    [&quot;@babel/plugin-proposal-decorators&quot;, { &quot;legacy&quot;: true }]
+  ]
+}
+</code></pre>
+</li>
+<li>
+<p>Set up your iOS or Android project — see instructions below</p>
+</li>
+</ol>
+<h3><a class="header" href="#ios-react-native" id="ios-react-native">iOS (React Native)</a></h3>
+<ol>
+<li>
+<p><strong>Set up Babel config in your project</strong></p>
+<p>See instructions above ⬆️</p>
+</li>
+<li>
+<p><strong>Add Swift support to your Xcode project</strong>:</p>
+<ul>
+<li>Open <code>ios/YourAppName.xcodeproj</code> in Xcode</li>
+<li>Right-click on <strong>Your App Name</strong> in the Project Navigator on the left, and click <strong>New File…</strong></li>
+<li>Create a single empty <code>Swift</code> file to the project (make sure that <strong>Your App Name</strong> target is selected when adding), and when Xcode asks, press <strong>Create Bridging Header</strong> and <strong>do not remove <code>Swift</code></strong> file then.</li>
+</ul>
+</li>
+<li>
+<p><strong>Link WatermelonDB's native library with the Xcode project</strong>:</p>
+<p><strong>Automatically</strong></p>
+<pre><code class="language-bash">react-native link @nozbe/watermelondb
+</code></pre>
+<p><strong>Or manually</strong></p>
+<p>If you don't want to use <code>react-native link</code>, you can link the library manually:</p>
+<ol>
+<li>Open your project in Xcode, right click on <strong>Libraries</strong> in the Project Navigator on the left and click <strong>Add Files to &quot;Your Project Name&quot;</strong>. Look under <code>node_modules/@nozbe/watermelondb/native/ios</code> and select <code>WatermelonDB.xcodeproj</code></li>
+<li>Go to Project settings (top item in the Project navigator on the left), select your app name under <strong>Targets</strong> → <strong>Build Phases</strong> → <strong>Link Binary With Libraries</strong>, and add <code>libWatermelonDB.a</code></li>
+</ol>
+<p>For more information about linking libraries manually, <a href="https://facebook.github.io/react-native/docs/linking-libraries-ios">see React Native documentation</a>.</p>
+<p><strong>Using CocoaPods</strong></p>
+<p><a href="https://github.com/Nozbe/WatermelonDB/issues/279">Please contribute!</a></p>
+</li>
+</ol>
+<p>Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (although Xcode 10 and iOS 11.0 are recommended).</p>
+<h3><a class="header" href="#android-react-native" id="android-react-native">Android (React Native)</a></h3>
+<ol>
+<li>
+<p><strong>Set up Babel config in your project</strong></p>
+<p>See instructions above ⬆️</p>
+</li>
+<li>
+<p>In <code>android/settings.gradle</code>, add:</p>
+<pre><code class="language-gradle">include ':watermelondb'
+project(':watermelondb').projectDir =
+    new File(rootProject.projectDir, '../node_modules/@nozbe/watermelondb/native/android')
+</code></pre>
+</li>
+<li>
+<p>In <code>android/app/build.gradle</code>, add:</p>
+<pre><code class="language-gradle">apply plugin: &quot;com.android.application&quot;
+apply plugin: 'kotlin-android'  // ⬅️ This!
+// ...
+dependencies {
+    // ...
+    implementation project(':watermelondb')  // ⬅️ This!
+}
+</code></pre>
+</li>
+<li>
+<p>In <code>android/build.gradle</code>, add Kotlin support to the project:</p>
+<pre><code class="language-gradle">buildscript {
+    ext.kotlin_version = '1.3.21'
+    // ...
+    dependencies {
+        // ...
+        classpath &quot;org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version&quot;
+    }
+}
+</code></pre>
+</li>
+<li>
+<p>And finally, in <code>android/app/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.java</code>, add:</p>
+<pre><code class="language-java">// ...
+import com.nozbe.watermelondb.WatermelonDBPackage; // ⬅️ This!
+// ...
+@Override
+protected List&lt;ReactPackage&gt; getPackages() {
+  return Arrays.&lt;ReactPackage&gt;asList(
+    new MainReactPackage(),
+    new WatermelonDBPackage() // ⬅️ Here!
+  );
+}
+</code></pre>
+</li>
+<li>
+<p><strong>Troubleshooting</strong>. If you get this error:</p>
+<blockquote>
+<p><code>Can't find variable: Symbol</code></p>
+</blockquote>
+<p>You might need a polyfill for ES6 Symbol:</p>
+<pre><code class="language-bash">yarn add es6-symbol
+</code></pre>
+<p>And in your <code>index.js</code>:</p>
+<pre><code class="language-bash">import 'es6-symbol/implement'
+</code></pre>
+<p>Alternatively, we also recommend <a href="https://github.com/react-community/jsc-android-buildscripts"><code>jsc-android</code></a>, with which you don't need this polyfill, and it also makes your app faster.</p>
+</li>
+</ol>
+<h2><a class="header" href="#web-setup" id="web-setup">Web setup</a></h2>
+<p>This guide assumes you use Webpack as your bundler.</p>
+<ol start="3">
+<li>If you haven't already, install Babel plugins for decorators, static class properties, and async/await to get the most out of Watermelon. This assumes you use Babel 7 and already support ES6 syntax.
+<pre><code class="language-bash">yarn add --dev @babel/plugin-proposal-decorators
+yarn add --dev @babel/plugin-proposal-class-properties
+yarn add --dev @babel/plugin-transform-runtime
+</code></pre>
+or
+<pre><code class="language-bash">npm install -D @babel/plugin-proposal-decorators
+npm install -D @babel/plugin-proposal-class-properties
+npm install -D @babel/plugin-transform-runtime
+</code></pre>
+</li>
+<li>Add ES7 support to your <code>.babelrc</code> file:
+<pre><code class="language-json">{
+  &quot;plugins&quot;: [
+    [&quot;@babel/plugin-proposal-decorators&quot;, { &quot;legacy&quot;: true }],
+    [&quot;@babel/plugin-proposal-class-properties&quot;, { &quot;loose&quot;: true }],
+    [
+      &quot;@babel/plugin-transform-runtime&quot;,
+       {
+         &quot;helpers&quot;: true,
+         &quot;regenerator&quot;: true
+       }
+    ]
+  ]
+}
+</code></pre>
+</li>
+</ol>
+<p>If you want to use Web Worker for WatermelonDB (this has pros and cons, we recommend you start without Web Workers, and evaluate later if it makes sense for your app to use them):</p>
+<ol>
+<li>
+<p>Install <a href="https://github.com/webpack-contrib/worker-loader">worker-loader</a> Webpack plugin to add support for Web Workers to your app:</p>
+<pre><code class="language-sh">yarn add --dev worker-loader
+</code></pre>
+<p>or</p>
+<pre><code class="language-bash">npm install -D worker-loader
+</code></pre>
+</li>
+<li>
+<p>And add this to Webpack configuration:</p>
+<pre><code class="language-js">// webpack.config.js
+{
+  module: {
+    rules: [
+      // ⬇️ Add this:
+      {
+        test: /\.worker\.js$/,
+        use: { loader: 'worker-loader' }
+      }
+    ]
+  },
+  // ...
+  output: {
+    // ...
+    globalObject: 'this', // ⬅️ And this
+  }
+}
+</code></pre>
+</li>
+</ol>
+<h2><a class="header" href="#set-up-database" id="set-up-database">Set up <code>Database</code></a></h2>
+<p>Create <code>model/schema.js</code> in your project:</p>
+<pre><code class="language-js">import { appSchema, tableSchema } from '@nozbe/watermelondb'
+
+export default appSchema({
+  version: 1,
+  tables: [
+    // tableSchemas go here...
+  ]
+})
+</code></pre>
+<p>You'll need it for <a href="./Schema.html">the next step</a>. Now, in your <code>index.js</code>:</p>
+<pre><code class="language-js">import { Database } from '@nozbe/watermelondb'
+import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite'
+
+import schema from './model/schema'
+// import Post from './model/Post' // ⬅️ You'll import your Models here
+
+// First, create the adapter to the underlying database:
+const adapter = new SQLiteAdapter({
+  schema,
+})
+
+// Then, make a Watermelon database from it!
+const database = new Database({
+  adapter,
+  modelClasses: [
+    // Post, // ⬅️ You'll add Models to Watermelon here
+  ],
+  actionsEnabled: true,
+})
+</code></pre>
+<p>The above will work on iOS and Android (React Native). For the web, instead of <code>SQLiteAdapter</code> use <code>LokiJSAdapter</code>:</p>
+<pre><code class="language-js">import LokiJSAdapter from '@nozbe/watermelondb/adapters/lokijs'
+
+const adapter = new LokiJSAdapter({
+  schema,
+  // These two options are recommended for new projects:
+  useWebWorker: false,
+  useIncrementalIndexedDB: true,
+  // It's recommended you implement this method:
+  // onIndexedDBVersionChange: () =&gt; {
+  //   // database was deleted in another browser tab (user logged out), so we must make sure we delete
+  //   // it in this tab as well
+  //   if (checkIfUserIsLoggedIn()) {
+  //     window.location.reload()
+  //   }
+  // },
+})
+
+// The rest is the same!
+</code></pre>
+<hr />
+<h2><a class="header" href="#next-steps" id="next-steps">Next steps</a></h2>
+<p>➡️ After Watermelon is installed, <a href="./Schema.html"><strong>define your app's schema</strong></a></p>
+<h1><a class="header" href="#schema" id="schema">Schema</a></h1>
+<p>When using WatermelonDB, you're dealing with <strong>Models</strong> and <strong>Collections</strong>. However, underneath Watermelon sits an <strong>underlying database</strong> (SQLite or LokiJS) which speaks a different language: <strong>tables and columns</strong>. Together, those are called a <strong>database schema</strong> and we must define it first.</p>
+<h2><a class="header" href="#defining-a-schema" id="defining-a-schema">Defining a Schema</a></h2>
+<p>Say you want Models <code>Post</code>, <code>Comment</code> in your app. For each of those Models, you define a table. And for every field of a Model (e.g. name of the blog post, author of the comment) you define a column. For example:</p>
+<pre><code class="language-js">// model/schema.js
+import { appSchema, tableSchema } from '@nozbe/watermelondb'
+
+export const mySchema = appSchema({
+  version: 1,
+  tables: [
+    tableSchema({
+      name: 'posts',
+      columns: [
+        { name: 'title', type: 'string' },
+        { name: 'subtitle', type: 'string', isOptional: true },
+        { name: 'body', type: 'string' },
+        { name: 'is_pinned', type: 'boolean' },
+      ]
+    }),
+    tableSchema({
+      name: 'comments',
+      columns: [
+        { name: 'body', type: 'string' },
+        { name: 'post_id', type: 'string', isIndexed: true },
+      ]
+    }),
+  ]
+})
+</code></pre>
+<p><strong>Note:</strong> It is database convention to use plural and snake_case names for table names. Column names are also snake_case. So <code>Post</code> become <code>posts</code> and <code>createdAt</code> becomes <code>created_at</code>.</p>
+<h3><a class="header" href="#column-types" id="column-types">Column types</a></h3>
+<p>Columns have one of three types: <code>string</code>, <code>number</code>, or <code>boolean</code>.</p>
+<p>Fields of those types will default to <code>''</code>, <code>0</code>, or <code>false</code> respectively, if you create a record with a missing field.</p>
+<p>To allow fields to be <code>null</code>, mark the column as <code>isOptional: true</code>.</p>
+<h3><a class="header" href="#naming-conventions" id="naming-conventions">Naming conventions</a></h3>
+<p>To add a relation to a table (e.g. <code>Post</code> where a <code>Comment</code> was published, or author of a comment), add a string column ending with <code>_id</code>:</p>
+<pre><code class="language-js">{ name: 'post_id', type: 'string' },
+{ name: 'author_id', type: 'string' },
+</code></pre>
+<p>Boolean columns should have names starting with <code>is_</code>:</p>
+<pre><code class="language-js">{ name: 'is_pinned', type: 'boolean' }
+</code></pre>
+<p>Date fields should be <code>number</code> (dates are stored as Unix timestamps) and have names ending with <code>_at</code>:</p>
+<pre><code class="language-js">{ name: 'last_seen_at', type: 'number', isOptional: true }
+</code></pre>
+<h3><a class="header" href="#special-columns" id="special-columns">Special columns</a></h3>
+<p>All tables automatically have a string column <code>id</code> to uniquely identify records. (Also two special columns for <a href="./Advanced/Sync.html">sync purposes</a>). You can add special <code>created_at</code> / <code>updated_at</code> columns to enable <a href="./Advanced/CreateUpdateTracking.html">automatic create/update tracking</a>.</p>
+<h3><a class="header" href="#modifying-schema" id="modifying-schema">Modifying Schema</a></h3>
+<p>Whenever you change the Schema, you must increment the version number. During development, this will cause the database to clear completely on next launch.</p>
+<p>To seamlessly change the schema (without deleting data), use <a href="./Advanced/Migrations.html">Migrations</a>.</p>
+<p>⚠️ Always use Migrations if you already shipped your app.</p>
+<h3><a class="header" href="#indexing" id="indexing">Indexing</a></h3>
+<p>To enable database indexing, add <code>isIndexed: true</code> to a column.</p>
+<p>Indexing makes querying by a column faster, at the slight expense of create/update speed and database size.</p>
+<p>For example, you will often want to query all comments belonging to a post (that is, query comments by its <code>post_id</code> column), and so you should mark the <code>post_id</code> column as indexed.</p>
+<p>However, if you rarely query all comments by its author, indexing <code>author_id</code> is probably not worth it.</p>
+<p>In general, most <code>_id</code> fields are indexed. Sometimes, <code>boolean</code> fields are worth indexing if you often use it for queries. However, you should almost never index date (<code>_at</code>) columns or <code>string</code> columns.</p>
+<hr />
+<h2><a class="header" href="#next-steps-1" id="next-steps-1">Next steps</a></h2>
+<p>➡️ After you define your schema, go ahead and <a href="./Model.html"><strong>define your Models</strong></a></p>
+<h1><a class="header" href="#defining-models" id="defining-models">Defining Models</a></h1>
+<p>A <strong>Model</strong> class represents a type of thing in your app. For example, <code>Post</code>, <code>Comment</code>, <code>User</code>.</p>
+<p>Before defining a Model, you first need to <a href="./Schema.html">define its schema</a>.</p>
+<h2><a class="header" href="#create-a-model" id="create-a-model">Create a Model</a></h2>
+<p>Let's define the <code>Post</code> model:</p>
+<pre><code class="language-js">// model/Post.js
+import { Model } from '@nozbe/watermelondb'
+
+export default class Post extends Model {
+  static table = 'posts'
+}
+</code></pre>
+<p>Mark the table name for this Model — the same you defined <a href="./Schema.html">in the schema</a>.</p>
+<p>Now add the new Model to <code>Database</code>:</p>
+<pre><code class="language-js">// index.js
+import Post from 'model/Post'
+
+const database = new Database({
+  // ...
+  modelClasses: [Post],
+})
+</code></pre>
+<h3><a class="header" href="#associations" id="associations">Associations</a></h3>
+<p>Your models almost surely relate to one another. A <code>Post</code> has many <code>Comment</code>s. And every <code>Comment</code> belongs to a <code>Post</code>. (Every relation is double-sided). Define those associations like so:</p>
+<pre><code class="language-js">class Post extends Model {
+  static table = 'posts'
+  static associations = {
+    comments: { type: 'has_many', foreignKey: 'post_id' },
+  }
+}
+
+class Comment extends Model {
+  static table = 'comments'
+  static associations = {
+    posts: { type: 'belongs_to', key: 'post_id' },
+  }
+}
+</code></pre>
+<p>On the &quot;child&quot; side (<code>comments</code>) you define a <code>belongs_to</code> association, and pass a column name (key) that points to the parent (<code>post_id</code> is the ID of the post the comment belongs to).</p>
+<p>On the &quot;parent&quot; side (<code>posts</code>) you define an equivalent <code>has_many</code> association and pass the same column name (here named <code>foreignKey</code>).</p>
+<h2><a class="header" href="#add-fields" id="add-fields">Add fields</a></h2>
+<p>Next, define the Model's <em>fields</em> (properties). Those correspond to <a href="./Schema.html">table columns</a> defined earlier in the schema.</p>
+<pre><code class="language-js">import { field } from '@nozbe/watermelondb/decorators'
+
+class Post extends Model {
+  static table = 'posts'
+  static associations = {
+    comments: { type: 'has_many', foreignKey: 'post_id' },
+  }
+
+  @field('title') title
+  @field('body') body
+  @field('is_pinned') isPinned
+}
+</code></pre>
+<p>Fields are defined using ES6 decorators. Pass <strong>column name</strong> you defined in Schema as the argument to <code>@field</code>.</p>
+<p><strong>Field types</strong>. Fields are guaranteed to be the same type (string/number/boolean) as the column type defined in Schema. If column is marked <code>isOptional: true</code>, fields may also be null.</p>
+<p><strong>Note:</strong> Why do I have to type the field/column name twice? The database convention is to use <code>snake_case</code> for names, and the JavaScript convention is to use camelCase. So for any multi-word name, the two differ. Also, for resiliency, we believe it's better to be explicit, because over time, you might want to refactor how you name your JavaScript field names, but column names must stay the same for backward compatibility.</p>
+<h3><a class="header" href="#date-fields" id="date-fields">Date fields</a></h3>
+<p>For date fields, use <code>@date</code> instead of <code>@field</code>. This will return a JavaScript <code>Date</code> object (instead of Unix timestamp integer).</p>
+<pre><code class="language-js">import { date } from '@nozbe/watermelondb/decorators'
+
+class Post extends Model {
+  // ...
+  @date('last_event_at') lastEventAt
+}
+</code></pre>
+<h2><a class="header" href="#relation-fields" id="relation-fields">Relation fields</a></h2>
+<h3><a class="header" href="#to-one-relation" id="to-one-relation">To-one relation</a></h3>
+<p>To point to a related record, e.g. <code>Post</code> a <code>Comment</code> belongs to, or author (<code>User</code>) of a <code>Comment</code>, use <code>@relation</code>:</p>
+<pre><code class="language-js">import { relation } from '@nozbe/watermelondb/decorators'
+
+class Comment extends Model {
+  // ...
+  @relation('posts', 'post_id') post
+  @relation('users', 'author_id') author
+}
+</code></pre>
+<p><strong>➡️ Learn more:</strong> <a href="./Relation.html">Relation API</a></p>
+<h3><a class="header" href="#children-to-many-relation" id="children-to-many-relation">Children (To-Many relation)</a></h3>
+<p>To point to a list of records that belong to this Model, e.g. all <code>Comment</code>s that belong to a <code>Post</code>, you can define a simple <code>Query</code> using <code>@children</code>:</p>
+<pre><code class="language-js">import { children } from '@nozbe/watermelondb/decorators'
+
+class Post extends Model {
+  static table = 'posts'
+  static associations = {
+    comments: { type: 'has_many', foreignKey: 'post_id' },
+  }
+
+  @children('comments') comments
+}
+</code></pre>
+<p>Pass the <em>table name</em> of the related records as an argument to <code>@children</code>. The resulting property will be a <code>Query</code> you can fetch, observe, or count.</p>
+<p><strong>Note:</strong> You must define a <code>has_many</code> association in <code>static associations</code> for this to work</p>
+<p><strong>➡️ Learn more:</strong> <a href="./Query.html">Queries</a></p>
+<h2><a class="header" href="#advanced" id="advanced">Advanced</a></h2>
+<h4><a class="header" href="#actions" id="actions">Actions</a></h4>
+<p>Define <strong>actions</strong> to simplify creating and updating records.</p>
+<p><strong>➡️ Learn more:</strong> <a href="./Actions.html">Actions</a></p>
+<h4><a class="header" href="#queries" id="queries">Queries</a></h4>
+<p>In addition to <code>@children</code>, you can define custom Queries or extend existing ones.</p>
+<p><strong>➡️ Learn more:</strong> <a href="./Query.html">Queries</a></p>
+<h4><a class="header" href="#advanced-fields" id="advanced-fields">Advanced fields</a></h4>
+<p>You can also use these decorators:</p>
+<ul>
+<li><code>@text</code> trims whitespace from user-input text</li>
+<li><code>@json</code> for complex serialized data</li>
+<li><code>@readonly</code> to make the field read-only</li>
+<li><code>@nochange</code> to disallow changes to the field <em>after the first creation</em></li>
+</ul>
+<p><strong>➡️ Learn more:</strong> <a href="./Advanced/AdvancedFields.html">Advanced fields</a></p>
+<hr />
+<h2><a class="header" href="#next-steps-2" id="next-steps-2">Next steps</a></h2>
+<p>➡️ After you define some Models, learn the <a href="./CRUD.html"><strong>Create / Read / Update / Delete API</strong></a></p>
+<h1><a class="header" href="#create-read-update-delete" id="create-read-update-delete">Create, Read, Update, Delete</a></h1>
+<p>When you have your <a href="./Schema.html">Schema</a> and <a href="./Model.html">Models</a> defined, learn how to manipulate them!</p>
+<h2><a class="header" href="#collections" id="collections">Collections</a></h2>
+<p>The <code>Collection</code> object is how you find, query, and create new records of a given type.</p>
+<h4><a class="header" href="#get-a-collection" id="get-a-collection">Get a collection</a></h4>
+<pre><code class="language-js">const postsCollection = database.collections.get('posts')
+</code></pre>
+<p>Pass the <a href="./Schema.html">table name</a> as the argument.</p>
+<h4><a class="header" href="#find-a-record-by-id" id="find-a-record-by-id">Find a record (by ID)</a></h4>
+<pre><code class="language-js">const post = await postsCollection.find('abcdef')
+</code></pre>
+<p><code>find()</code> returns a Promise. If the record cannot be found, the Promise will be rejected.</p>
+<h4><a class="header" href="#query-records" id="query-records">Query records</a></h4>
+<p>Find a list of records matching given conditions using <code>.query()</code>:</p>
+<pre><code class="language-js">const allPosts = await postsCollection.query().fetch()
+const starredPosts = await postsCollection.query(Q.where('is_starred', true)).fetch()
+</code></pre>
+<p><strong>➡️ Learn more:</strong> <a href="./Query.html">Queries</a></p>
+<h2><a class="header" href="#modifying-the-database" id="modifying-the-database">Modifying the database</a></h2>
+<p>To create, update, or delete records, use the respective operations <strong>wrapped in an Action</strong>:</p>
+<pre><code class="language-js">await database.action(async () =&gt; {
+  const post = await postsCollection.find('abcdef')
+  await post.update( /* update the post */ )
+  await post.markAsDeleted()
+})
+</code></pre>
+<p><strong>➡️ Learn more:</strong> <a href="./Actions.html">Actions</a></p>
+<h3><a class="header" href="#create-a-new-record" id="create-a-new-record">Create a new record</a></h3>
+<pre><code class="language-js">await database.action(async () =&gt; {
+  const newPost = await postsCollection.create(post =&gt; {
+    post.title = 'New post'
+    post.body = 'Lorem ipsum...'
+  })
+})
+</code></pre>
+<p><code>.create()</code> takes a &quot;builder function&quot;. In the example above, the builder will get a <code>Post</code> object as an argument. Use this object to set values for <a href="./Model.html">fields you defined</a>.</p>
+<p><strong>Note:</strong> Always <code>await</code> the Promise returned by <code>create</code> before you access the created record.</p>
+<p><strong>Note:</strong> You can only use field setters in <code>create()</code> or <code>update()</code> builder functions.</p>
+<h3><a class="header" href="#update-a-record" id="update-a-record">Update a record</a></h3>
+<pre><code class="language-js">await database.action(async () =&gt; {
+  await somePost.update(post =&gt; {
+    post.title = 'Updated title'
+  })
+})
+</code></pre>
+<p>Like creating, updating takes a builder function, where you can use field setters.</p>
+<p><strong>Note:</strong> Always <code>await</code> the Promise returned by <code>update</code> before you access the modified record.</p>
+<h3><a class="header" href="#delete-a-record" id="delete-a-record">Delete a record</a></h3>
+<p>There are two ways of deleting records: syncable (mark as deleted), and permanent.</p>
+<p>If you only use Watermelon as a local database, destroy records permanently, if you <a href="./Advanced/Sync.html">synchronize</a>, mark as deleted instead.</p>
+<pre><code class="language-js">await database.action(async () =&gt; {
+  await somePost.markAsDeleted() // syncable
+  await somePost.destroyPermanently() // permanent
+})
+</code></pre>
+<p><strong>Note:</strong> Don't access, update, or observe records after they're destroyed.</p>
+<h2><a class="header" href="#advanced-1" id="advanced-1">Advanced</a></h2>
+<ul>
+<li><code>Model.observe()</code> - usually you only use this <a href="./Components.html">when connecting records to components</a>, but you can manually observe a record outside of React components. The returned <a href="https://github.com/reactivex/rxjs">RxJS</a> <code>Observable</code> will emit the record immediately upon subscription, and then every time the record is updated. If the record is deleted, the Observable will complete.</li>
+<li><code>Query.observe()</code>, <code>Relation.observe()</code> — analagous to the above, but for <a href="./Query.html">Queries</a> and <a href="./Relation.html">Relations</a></li>
+<li><code>Query.observeWithColumns()</code> - used for <a href="./Components.html">sorted lists</a></li>
+<li><code>Collection.findAndObserve(id)</code> — same as using <code>.find(id)</code> and then calling <code>record.observe()</code></li>
+<li><code>Model.prepareUpdate()</code>, <code>Collection.prepareCreate</code>, <code>Database.batch</code> — used for <a href="./Actions.html">batch updates</a></li>
+<li><code>Database.unsafeResetDatabase()</code> destroys the whole database - <a href="https://github.com/Nozbe/WatermelonDB/blob/22188ee5b6e3af08e48e8af52d14e0d90db72925/src/Database/index.js#L131">be sure to see this comment before using it</a></li>
+<li>To override the <code>record.id</code> during the creation, e.g. to sync with a remote database, you can do it by <code>record._raw</code> property. Be aware that the <code>id</code> must be of type <code>string</code>.</li>
+</ul>
+<pre><code class="language-js">await postsCollection.create(post =&gt; {
+  post._raw.id = serverId
+})
+</code></pre>
+<hr />
+<h2><a class="header" href="#next-steps-3" id="next-steps-3">Next steps</a></h2>
+<p>➡️ Now that you can create and update records, <a href="./Components.html"><strong>connect them to React components</strong></a></p>
+<h1><a class="header" href="#connecting-to-components" id="connecting-to-components">Connecting to Components</a></h1>
+<p>After you <a href="./Model.html">define some Models</a>, it's time to connect Watermelon to your app's interface. We're using React in this guide.</p>
+<h3><a class="header" href="#install-withobservables" id="install-withobservables">Install <code>withObservables</code></a></h3>
+<p>The recommended way to use Watermelon with React is with <code>withObservables</code> HOC (higher-order component). It doesn't come pre-packaged with Watermelon, but you can install it with:</p>
+<pre><code class="language-bash">yarn add @nozbe/with-observables
+</code></pre>
+<p><strong>Note:</strong> If you're not familiar with higher-order components, read <a href="https://reactjs.org/docs/higher-order-components.html">React documentation</a>, check out <a href="https://github.com/acdlite/recompose"><code>recompose</code></a>… or just read the examples below to see it in practice!</p>
+<h2><a class="header" href="#reactive-components" id="reactive-components">Reactive components</a></h2>
+<p>Here's a very simple React component rendering a <code>Comment</code> record:</p>
+<pre><code class="language-jsx">const Comment = ({ comment }) =&gt; (
+  &lt;div&gt;
+    &lt;p&gt;{comment.body}&lt;/p&gt;
+  &lt;/div&gt;
+)
+</code></pre>
+<p>Now we can fetch a comment: <code>const comment = await commentsCollection.find(id)</code> and then render it: <code>&lt;Comment comment={comment} /&gt;</code>. The only problem is that this is <strong>not reactive</strong>. If the Comment is updated or deleted, the component will not re-render to reflect the changes. (Unless an update is forced manually or the parent component re-renders).</p>
+<p>Let's enhance the component to make it <em>observe</em> the <code>Comment</code> automatically:</p>
+<pre><code class="language-jsx">const enhance = withObservables(['comment'], ({ comment }) =&gt; ({
+  comment // shortcut syntax for `comment: comment.observe()`
+}))
+const EnhancedComment = enhance(Comment)
+</code></pre>
+<p>Now, if we render <code>&lt;EnhancedComment comment={comment} /&gt;</code>, it <strong>will</strong> update every time the comment changes.</p>
+<h3><a class="header" href="#reactive-lists" id="reactive-lists">Reactive lists</a></h3>
+<p>Let's render the whole <code>Post</code> with comments:</p>
+<pre><code class="language-jsx">import withObservables from '@nozbe/with-observables'
+
+const Post = ({ post, comments }) =&gt; (
+  &lt;article&gt;
+    &lt;h1&gt;{post.name}&lt;/h1&gt;
+    &lt;p&gt;{post.body}&lt;/p&gt;
+    &lt;h2&gt;Comments&lt;/h2&gt;
+    {comments.map(comment =&gt;
+      &lt;EnhancedComment key={comment.id} comment={comment} /&gt;
+    )}
+  &lt;/article&gt;
+)
+
+const enhance = withObservables(['post'], ({ post }) =&gt; ({
+  post,
+  comments: post.comments, // Shortcut syntax for `post.comments.observe()`
+}))
+
+const EnhancedPost = enhance(Post)
+</code></pre>
+<p>Notice a couple of things:</p>
+<ol>
+<li>
+<p>We're starting with a simple non-reactive <code>Post</code> component</p>
+</li>
+<li>
+<p>Like before, we enhance it by observing the <code>Post</code>. If the post name or body changes, it will re-render.</p>
+</li>
+<li>
+<p>To access comments, we fetch them from the database and observe using <code>post.comments.observe()</code> and inject a new prop <code>comments</code>. (<code>post.comments</code> is a Query created using <code>@children</code>).</p>
+<p>Note that we can skip <code>.observe()</code> and just pass <code>post.comments</code> for convenience — <code>withObservables</code> will call observe for us</p>
+</li>
+<li>
+<p>By <strong>observing the Query</strong>, the <code>&lt;Post&gt;</code> component will re-render if a comment is created or deleted</p>
+</li>
+<li>
+<p>However, observing the comments Query will not re-render <code>&lt;Post&gt;</code> if a comment is <em>updated</em> — we render the <code>&lt;EnhancedComment&gt;</code> so that <em>it</em> observes the comment and re-renders if necessary.</p>
+</li>
+</ol>
+<h3><a class="header" href="#reactive-relations" id="reactive-relations">Reactive relations</a></h3>
+<p>The <code>&lt;Comment&gt;</code> component we made previously only renders the body of the comment but doesn't say who posted it.</p>
+<p>Assume the <code>Comment</code> model has a <code>@relation('users', 'author_id') author</code> field. Let's render it:</p>
+<pre><code class="language-jsx">const Comment = ({ comment, author }) =&gt; (
+  &lt;div&gt;
+    &lt;p&gt;{comment.body} — by {author.name}&lt;/p&gt;
+  &lt;/div&gt;
+)
+
+const enhance = withObservables(['comment'], ({ comment }) =&gt; ({
+  comment,
+  author: comment.author, // shortcut syntax for `comment.author.observe()`
+}))
+const EnhancedComment = enhance(Comment)
+</code></pre>
+<p><code>comment.author</code> is a <a href="./Relation.html">Relation object</a>, and we can call <code>.observe()</code> on it to fetch the <code>User</code> and then observe changes to it. If author's name changes, the component will re-render.</p>
+<p><strong>Note</strong> again that we can also pass <code>Relation</code> objects directly for convenience, skipping <code>.observe()</code></p>
+<h3><a class="header" href="#reactive-counters" id="reactive-counters">Reactive counters</a></h3>
+<p>Let's make a <code>&lt;PostExcerpt&gt;</code> component to display on a <em>list</em> of Posts, with only a brief summary of the contents and only the number of comments it has:</p>
+<pre><code class="language-jsx">const PostExcerpt = ({ post, commentCount }) =&gt; (
+  &lt;div&gt;
+    &lt;h1&gt;{post.name}&lt;/h1&gt;
+    &lt;p&gt;{getExcerpt(post.body)}&lt;/p&gt;
+    &lt;span&gt;{commentCount} comments&lt;/span&gt;
+  &lt;/div&gt;
+)
+
+const enhance = withObservables(['post'], ({ post }) =&gt; ({
+  post: post.observe(),
+  commentCount: post.comments.observeCount()
+}))
+
+const EnhancedPostExcerpt = enhance(PostExcerpt)
+</code></pre>
+<p>This is very similar to normal <code>&lt;Post&gt;</code>. We take the <code>Query</code> for post's comments, but instead of observing the <em>list</em> of comments, we call <code>observeCount()</code>. This is far more efficient. And as always, if a new comment is posted, or one is deleted, the component will re-render with the updated count.</p>
+<h2><a class="header" href="#hey-what-about-react-hooks" id="hey-what-about-react-hooks">Hey, what about React Hooks?</a></h2>
+<p>We get it — HOCs are so 2017, and Hooks are the future! And we agree.</p>
+<p>Instead of using <code>withObservables</code> HOC you can use an alternative open-source Hook for Rx Observables. But be warned that they are probably not as optimized for performance and WatermelonDB use as <code>withObservables</code>.</p>
+<p><strong>If you'd like to see official <code>useObservables</code> Hook - <a href="https://github.com/Nozbe/withObservables/issues/16">please contribute</a> ❤️</strong></p>
+<h2><a class="header" href="#understanding-withobservables" id="understanding-withobservables">Understanding <code>withObservables</code></a></h2>
+<p>Let's unpack this:</p>
+<pre><code class="language-js">withObservables(['post'], ({ post }) =&gt; ({
+  post: post.observe(),
+  commentCount: post.comments.observeCount()
+}))
+</code></pre>
+<ol>
+<li>Starting from the second argument, <code>({ post })</code> are the input props for the component. Here, we receive <code>post</code> prop with a <code>Post</code> object.</li>
+<li>These:
+<pre><code class="language-js">({
+  post: post.observe(),
+  commentCount: post.comments.observeCount()
+})
+</code></pre>
+are the enhanced props we inject. The keys are props' names, and values are <code>Observable</code> objects. Here, we override the <code>post</code> prop with an observable version, and create a new <code>commentCount</code> prop.</li>
+<li>The first argument: <code>['post']</code> is a list of props that trigger observation restart. So if a different <code>post</code> is passed, that new post will be observed. If you pass <code>[]</code>, the rendered Post will not change. You can pass multiple prop names if any of them should cause observation to re-start.</li>
+<li><strong>Rule of thumb</strong>: If you want to use a prop in the second arg function, pass its name in the first arg array</li>
+</ol>
+<h2><a class="header" href="#advanced-2" id="advanced-2">Advanced</a></h2>
+<ol>
+<li><strong>findAndObserve</strong>. If you have, say, a post ID from your Router (URL in the browser), you can use:
+<pre><code class="language-js">withObservables(['postId'], ({ postId, database }) =&gt; ({
+  post: database.collections.get('posts').findAndObserve(postId)
+}))
+</code></pre>
+</li>
+<li><strong>RxJS transformations</strong>. The values returned by <code>Model.observe()</code>, <code>Query.observe()</code>, <code>Relation.observe()</code> are <a href="https://github.com/ReactiveX/rxjs">RxJS Observables</a>. You can use standard transforms like mapping, filtering, throttling, startWith to change when and how the component is re-rendered.</li>
+<li><strong>Custom Observables</strong>. <code>withObservables</code> is a general-purpose HOC for Observables, not just Watermelon. You can create new props from any <code>Observable</code>.</li>
+</ol>
+<h3><a class="header" href="#advanced-observing-sorted-lists" id="advanced-observing-sorted-lists">Advanced: observing sorted lists</a></h3>
+<p>If you have a list that's dynamically sorted (e.g. sort comments by number of likes), use <code>Query.observeWithColumns</code> to ensure the list is re-rendered when its order changes:</p>
+<pre><code class="language-jsx">// This is a function that sorts an array of comments according to its `likes` field
+// I'm using `ramda` functions for this example, but you can do sorting however you like
+const sortComments = sortWith([
+  descend(prop('likes'))
+])
+
+const CommentList = ({ comments }) =&gt; (
+  &lt;div&gt;
+    {sortComments(comments).map(comment =&gt;
+      &lt;EnhancedComment key={comment.id} comment={comment} /&gt;
+    )}
+  &lt;/div&gt;
+)
+
+const enhance = withObservables(['post'], ({ post }) =&gt; ({
+  comments: post.comments.observeWithColumns(['likes'])
+}))
+
+const EnhancedCommentList = enhance(CommentList)
+</code></pre>
+<p>If you inject <code>post.comments.observe()</code> into the component, the list will not re-render to change its order, only if comments are added or removed. Instead, use <code>query.observeWithColumns()</code> with an array of <a href="./Schema.html"><strong>column names</strong></a> you use for sorting to re-render whenever a record on the list has any of those fields changed.</p>
+<h3><a class="header" href="#advanced-observing-2nd-level-relations" id="advanced-observing-2nd-level-relations">Advanced: observing 2nd level relations</a></h3>
+<p>If you have 2nd level relations, like author's <code>Contact</code> info, and want to connect it to a component as well, you cannot simply use <code>post.author.contact.observe()</code> in <code>withComponents</code>. Before accessing and observing the <code>Contact</code> relation, you need to resolve the <code>author</code> itself. Here is the simplest way to do it:</p>
+<pre><code class="language-js">const enhancePostAndAuthor = withObservables(['post'], ({post}) =&gt; ({
+  post,
+  author: post.author,
+}));
+
+const enhanceAuthorContact = withObservables(['author'], ({author}) =&gt; ({
+  contact: author.contact,
+}));
+
+const EnhancedPost = enhancePostAndAuthor(enhanceAuthorContact(PostComponent));
+</code></pre>
+<p>If you are familiar with <code>rxjs</code>, another way to achieve the same result is using <code>switchMap</code> operator:</p>
+<pre><code class="language-js">import { switchMap } from 'rxjs/operators'
+
+const enhancePost = withObservables(['post'], ({post}) =&gt; ({
+  post: post,
+  author: post.author,
+  contact: post.author.observe().pipe(switchMap(author =&gt; author.contact.observe()))
+}));
+
+const EnhancedPost = enhancePost(PostComponent);
+</code></pre>
+<p>Now <code>PostComponent</code> will have <code>Post</code>, <code>Author</code> and <code>Contact</code> props.</p>
+<p><strong>Note:</strong> If you have an optional relation between <code>Post</code> and <code>Author</code>, the <code>enhanceAuthorContact</code> might receive <code>null</code> as <code>author</code> prop. For this case, as you must always return an observable for the <code>contact</code> prop, you can use <code>rxjs</code> <code>of</code> function to create a default or empty <code>Contact</code> prop:</p>
+<pre><code class="language-js">import { of as of$ } from 'rxjs';
+
+
+const enhanceAuthorContact = withObservables(['author'], ({author}) =&gt; ({
+  contact: author ? author.contact.observe() : of$(null)
+}));
+</code></pre>
+<p>With the <code>switchMap</code> approach, you can obtain the same result by doing:</p>
+<pre><code class="language-js">contact: post.autor.observe().pipe(switchMap(author =&gt; author ? autor.contact : of$(null)))
+</code></pre>
+<h2><a class="header" href="#database-provider" id="database-provider">Database Provider</a></h2>
+<p>To prevent prop drilling you can utilise the Database Provider and the <code>withDatabase</code> Higher-Order Component.</p>
+<pre><code class="language-jsx">import DatabaseProvider from '@nozbe/watermelondb/DatabaseProvider'
+
+// ...
+
+const database = new Database({
+  adapter,
+  modelClasses: [Blog, Post, Comment],
+  actionsEnabled: true,
+})
+
+render(
+  &lt;DatabaseProvider database={database}&gt;
+    &lt;Root /&gt;
+  &lt;/DatabaseProvider&gt;, document.getElementById('application')
+)
+
+</code></pre>
+<p>To consume the database in your components you just wrap your component like so:</p>
+<pre><code class="language-jsx">import { withDatabase } from '@nozbe/watermelondb/DatabaseProvider'
+
+// ...
+
+export default withDatabase(withObservables([], ({ database }) =&gt; ({
+  blogs: database.collections.get('blogs').query().observe(),
+}))(BlogList))
+
+</code></pre>
+<p>The database prop in the <code>withObservables</code> Higher-Order Component is provided by the database provider.</p>
+<h3><a class="header" href="#usedatabase" id="usedatabase"><code>useDatabase</code></a></h3>
+<p>You can also consume <code>Database</code> object using React Hooks syntax:</p>
+<pre><code class="language-js">import { useDatabase } from '@nozbe/watermelondb/hooks'
+
+const Component = () =&gt; {
+   const database = useDatabase()
+}
+</code></pre>
+<hr />
+<h2><a class="header" href="#next-steps-4" id="next-steps-4">Next steps</a></h2>
+<p>➡️ Next, learn more about <a href="./Query.html"><strong>custom Queries</strong></a></p>
+<h1><a class="header" href="#query-api" id="query-api">Query API</a></h1>
+<p><strong>Querying</strong> is how you find records that match certain conditions, for example:</p>
+<ul>
+<li>Find all comments that belong to a certain post</li>
+<li>Find all <em>verified</em> comments made by John</li>
+<li>Count all verified comments made by John or Lucy published under posts made in the last two weeks</li>
+</ul>
+<p>Because queries are executed on the database, and not in JavaScript, they're really fast. It's also how Watermelon can be fast even at large scales, because even with tens of thousands of records <em>total</em>, you rarely need to load more than a few dozen records at app launch.</p>
+<h2><a class="header" href="#defining-queries" id="defining-queries">Defining Queries</a></h2>
+<h3><a class="header" href="#children" id="children">@children</a></h3>
+<p>The simplest query is made using <code>@children</code>. This defines a <code>Query</code> for all comments that belong to a <code>Post</code>:</p>
+<pre><code class="language-js">class Post extends Model {
+  // ...
+  @children('comments') comments
+}
+</code></pre>
+<p><strong>➡️ Learn more:</strong> <a href="./Model.html">Defining Models</a></p>
+<h3><a class="header" href="#extended-query" id="extended-query">Extended Query</a></h3>
+<p>To <strong>narrow down</strong> a <code>Query</code> (add <a href="#query-conditions">extra conditions</a> to an existing Query), use <code>.extend()</code>:</p>
+<pre><code class="language-js">import { children, lazy } from '@nozbe/watermelondb/decorators'
+
+class Post extends Model {
+  // ...
+  @children('comments') comments
+  @lazy verifiedComments = this.comments.extend(Q.where('is_verified', true))
+  @lazy verifiedAwesomeComments = this.verifiedComments.extend(Q.where('is_awesome', true))
+}
+</code></pre>
+<p><strong>Note:</strong> Use the <code>@lazy</code> when extending or defining new Queries for performance</p>
+<h3><a class="header" href="#custom-queries" id="custom-queries">Custom Queries</a></h3>
+<p>You can query any table using <code>this.collections.get(tableName).query(conditions)</code>. Here, <code>post.comments</code> will query all users that made a comment under <code>post</code>.</p>
+<pre><code class="language-js">class Post extends Model {
+  // ...
+  @lazy commenters = this.collections.get('users').query(
+    Q.on('comments', 'post_id', this.id)
+  )
+}
+</code></pre>
+<h2><a class="header" href="#executing-queries" id="executing-queries">Executing Queries</a></h2>
+<p>Most of the time, you <a href="./Components.html">connect Queries to Components</a> by using <code>observe</code> or <code>observeCount</code>:</p>
+<pre><code class="language-js">withObservables(['post'], ({ post }) =&gt; ({
+  post: post.observe(),
+  comments: post.comments.observe(),
+  verifiedCommentCount: post.verifiedComments.observeCount(),
+}))
+</code></pre>
+<h4><a class="header" href="#fetch" id="fetch">Fetch</a></h4>
+<p>To simply get the current list or current count, use <code>fetch</code> / <code>fetchCount</code>. You might need it <a href="./Actions.html">in Actions</a>.</p>
+<pre><code class="language-js">const comments = await post.comments.fetch()
+const verifiedCommentCount = await post.verifiedComments.fetchCount()
+</code></pre>
+<h2><a class="header" href="#query-conditions" id="query-conditions">Query conditions</a></h2>
+<pre><code class="language-js">import { Q } from '@nozbe/watermelondb'
+// ...
+commentCollection.query(
+  Q.where('is_verified', true)
+)
+</code></pre>
+<p>This will query <strong>all</strong> comments that are verified (all comments with one condition: the <code>is_verified</code> column of a comment must be <code>true</code>).</p>
+<p>When making conditions, you refer to <a href="./Schema.html"><strong>column names</strong></a> of a table (i.e. <code>is_verified</code>, not <code>isVerified</code>). This is because queries are executed directly on the underlying database.</p>
+<p>The second argument is the value we want to query for. Note that the passed argument must be the same type as the column (<code>string</code>, <code>number</code>, or <code>boolean</code>; <code>null</code> is allowed only if the column is marked as <code>isOptional: true</code> in the schema).</p>
+<h4><a class="header" href="#empty-query" id="empty-query">Empty query</a></h4>
+<pre><code class="language-js">const allComments = await commentCollection.query().fetch()
+</code></pre>
+<p>A Query with no conditions will find <strong>all</strong> records in the collection.</p>
+<p><strong>Note:</strong> Don't do this unless necessary. It's generally more efficient to only query the exact records you need.</p>
+<h4><a class="header" href="#multiple-conditions" id="multiple-conditions">Multiple conditions</a></h4>
+<pre><code class="language-js">commentCollection.query(
+  Q.where('is_verified', true),
+  Q.where('is_awesome', true)
+)
+</code></pre>
+<p>This queries all comments that are <strong>both</strong> verified <strong>and</strong> awesome.</p>
+<h3><a class="header" href="#conditions-with-other-operators" id="conditions-with-other-operators">Conditions with other operators</a></h3>
+<table><thead><tr><th>Query</th><th>JavaScript equivalent</th></tr></thead><tbody>
+<tr><td><code>Q.where('is_verified', true)</code></td><td><code>is_verified === true</code> (shortcut syntax)</td></tr>
+<tr><td><code>Q.where('is_verified', Q.eq(true))</code></td><td><code>is_verified === true</code></td></tr>
+<tr><td><code>Q.where('archived_at', Q.notEq(null))</code></td><td><code>archived_at !== null</code></td></tr>
+<tr><td><code>Q.where('likes', Q.gt(0))</code></td><td><code>likes &gt; 0</code></td></tr>
+<tr><td><code>Q.where('likes', Q.weakGt(0))</code></td><td><code>likes &gt; 0</code> (slightly different semantics — <a href="#null-behavior">see &quot;null behavior&quot;</a> for details)</td></tr>
+<tr><td><code>Q.where('likes', Q.gte(100))</code></td><td><code>likes &gt;= 100</code></td></tr>
+<tr><td><code>Q.where('dislikes', Q.lt(100))</code></td><td><code>dislikes &lt; 100</code></td></tr>
+<tr><td><code>Q.where('dislikes', Q.lte(100))</code></td><td><code>dislikes &lt;= 100</code></td></tr>
+<tr><td><code>Q.where('likes', Q.between(10, 100))</code></td><td><code>likes &gt;= 10 &amp;&amp; likes &lt;= 100</code></td></tr>
+<tr><td><code>Q.where('status', Q.oneOf(['published', 'draft']))</code></td><td><code>status === 'published' \|\| status === 'draft'</code></td></tr>
+<tr><td><code>Q.where('status', Q.notIn(['archived', 'deleted']))</code></td><td><code>status !== 'archived' &amp;&amp; status !== 'deleted'</code></td></tr>
+<tr><td><code>Q.where('status', Q.like('%bl_sh%'))</code></td><td><code>/.*bl.sh.*/i</code> (See note below!)</td></tr>
+<tr><td><code>Q.where('status', Q.notLike('%bl_sh%'))</code></td><td><code>/^((!?.*bl.sh.*).)*$/i</code> (Inverse regex match) (See note below!)</td></tr>
+</tbody></table>
+<p><strong>Note:</strong> It's NOT SAFE to use <code>Q.like</code> and <code>Q.notLike</code> with user input directly, because special characters like <code>%</code> or <code>_</code> are not escaped. Always sanitize user input like so:</p>
+<pre><code class="language-js">Q.like(`%${Q.sanitizeLikeString(userInput)}%`)
+Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
+</code></pre>
+<p>You can use <code>Q.like</code> for search-related tasks. For example, to find all users whose username start with &quot;jas&quot; (case-insensitive) you can write</p>
+<pre><code class="language-js">usersCollection.query(
+  Q.where(&quot;username&quot;, Q.like(`${Q.sanitizeLikeString(&quot;jas&quot;)}%`)
+)
+</code></pre>
+<p>where <code>&quot;jas&quot;</code> can be changed dynamically with user input.</p>
+<h3><a class="header" href="#conditions-on-related-tables" id="conditions-on-related-tables">Conditions on related tables</a></h3>
+<p>For example: query all comments under posts published by John:</p>
+<pre><code class="language-js">commentCollection.query(
+  Q.on('posts', 'author_id', john.id),
+)
+</code></pre>
+<p>Normally you set conditions on the table you're querying. Here we're querying <strong>comments</strong>, but we have a condition on the <strong>post</strong> the comment belongs to.</p>
+<p>The first argument for <code>Q.on</code> is the table name you're making a condition on. The other two arguments are same as for <code>Q.where</code>.</p>
+<p><strong>Note:</strong> The two tables <a href="./Model.html">must be associated</a> before you can use <code>Q.on</code>.</p>
+<h2><a class="header" href="#advanced-queries" id="advanced-queries">Advanced Queries</a></h2>
+<h3><a class="header" href="#advanced-observing" id="advanced-observing">Advanced observing</a></h3>
+<p>Call <code>query.observeWithColumns(['foo', 'bar'])</code> to create an Observable that emits a value not only when the list of matching records changes (new records/deleted records), but also when any of the matched records changes its <code>foo</code> or <code>bar</code> column. <a href="./Components.html">Use this for observing sorted lists</a></p>
+<h4><a class="header" href="#count-throttling" id="count-throttling">Count throttling</a></h4>
+<p>By default, calling <code>query.observeCount()</code> returns an Observable that is throttled to emit at most once every 250ms. You can disable throttling using <code>query.observeCount(false)</code>.</p>
+<h3><a class="header" href="#andor-nesting" id="andor-nesting">AND/OR nesting</a></h3>
+<p>You can nest multiple conditions using <code>Q.and</code> and <code>Q.or</code>:</p>
+<pre><code class="language-js">commentCollection.query(
+  Q.where('archived_at', Q.notEq(null)),
+  Q.or(
+    Q.where('is_verified', true),
+    Q.and(
+      Q.where('likes', Q.gt(10)),
+      Q.where('dislikes', Q.lt(5))
+    )
+  )
+)
+</code></pre>
+<p>This is equivalent to <code>archivedAt !== null &amp;&amp; (isVerified || (likes &gt; 10 &amp;&amp; dislikes &lt; 5))</code>.</p>
+<h3><a class="header" href="#column-comparisons" id="column-comparisons">Column comparisons</a></h3>
+<p>This queries comments that have more likes than dislikes. Note that we're comparing <code>likes</code> column to another column instead of a value.</p>
+<pre><code class="language-js">commentCollection.query(
+  Q.where('likes', Q.gt(Q.column('dislikes')))
+)
+</code></pre>
+<h3><a class="header" href="#raw-queries" id="raw-queries">Raw Queries</a></h3>
+<p>If this Query syntax is not enough for you, and you need to get your hands dirty on a raw SQL or Loki query, you need <strong>rawQueries</strong>. For now, only record SQL queries are available. If you need other SQL queries or LokiJS raw queries, please contribute!</p>
+<pre><code class="language-js">const records = commentCollection.unsafeFetchRecordsWithSQL('select * from comments where ...')
+</code></pre>
+<p>Please don't use this if you don't know what you're doing. The method name is called <code>unsafe</code> for a reason. You need to be sure to properly sanitize user values to avoid SQL injection, and filter out deleted records using <code>where _status is not 'deleted'</code> clause</p>
+<h3><a class="header" href="#null-behavior" id="null-behavior"><code>null</code> behavior</a></h3>
+<p>There are some gotchas you should be aware of. The <code>Q.gt</code>, <code>gte</code>, <code>lt</code>, <code>lte</code>, <code>oneOf</code>, <code>notIn</code>, <code>like</code> operators match the semantics of SQLite in terms of how they treat <code>null</code>. Those are different from JavaScript.</p>
+<p><strong>Rule of thumb:</strong> No null comparisons are allowed.</p>
+<p>For example, if you query <code>comments</code> for <code>Q.where('likes', Q.lt(10))</code>, a comment with 8 likes and 0 likes will be included, but a comment with <code>null</code> likes will not! In Watermelon queries, <code>null</code> is not less than any number. That's why you should avoid <a href="./Schema.html">making table columns optional</a> unless you actually need it.</p>
+<p>Similarly, if you query with a column comparison, like <code>Q.where('likes', Q.gt(Q.column('dislikes')))</code>, only comments where both <code>likes</code> and <code>dislikes</code> are not null will be compared. A comment with 5 likes and <code>null</code> dislikes will NOT be included. 5 is not greater than <code>null</code> here.</p>
+<p><strong><code>Q.oneOf</code> operator</strong>: It is not allowed to pass <code>null</code> as an argument to <code>Q.oneOf</code>. Instead of <code>Q.oneOf([null, 'published', 'draft'])</code> you need to explicitly allow <code>null</code> as a value like so:</p>
+<pre><code class="language-js">postsCollection.query(
+  Q.or(
+    Q.where('status', Q.oneOf(['published', 'draft'])),
+    Q.where('status', null)
+  )
+)
+</code></pre>
+<p><strong><code>Q.notIn</code> operator</strong>: If you query, say, posts with <code>Q.where('status', Q.notIn(['published', 'draft']))</code>, it will match posts with a status different than <code>published</code> or <code>draft</code>, however, it will NOT match posts with <code>status == null</code>. If you want to include such posts, query for that explicitly like with the example above.</p>
+<p><strong><code>Q.weakGt</code> operator</strong>: This is weakly typed version of <code>Q.gt</code> — one that allows null comparisons. So if you query <code>comments</code> with <code>Q.where('likes', Q.weakGt(Q.column('dislikes')))</code>, it WILL match comments with 5 likes and <code>null</code> dislikes. (For <code>weakGt</code>, unlike standard operators, any number is greater than <code>null</code>).</p>
+<hr />
+<h2><a class="header" href="#next-steps-5" id="next-steps-5">Next steps</a></h2>
+<p>➡️ Now that you've mastered Queries, <a href="./Relation.html"><strong>make more Relations</strong></a></p>
+<h1><a class="header" href="#relations" id="relations">Relations</a></h1>
+<p>A <code>Relation</code> object represents one record pointing to another — such as the author (<code>User</code>) of a <code>Comment</code>, or the <code>Post</code> the comment belongs to.</p>
+<h3><a class="header" href="#defining-relations" id="defining-relations">Defining Relations</a></h3>
+<p>There's two steps to defining a relation:</p>
+<ol>
+<li>
+<p>A <a href="./Schema.html"><strong>table column</strong></a> for the related record's ID</p>
+<pre><code class="language-js">tableSchema({
+  name: 'comments',
+  columns: [
+    // ...
+    { name: 'author_id', type: 'string' },
+  ]
+}),
+</code></pre>
+</li>
+<li>
+<p>A <code>@relation</code> field <a href="./Model.html">defined on a <code>Model</code></a> class:</p>
+<pre><code class="language-js">import { relation } from '@nozbe/watermelondb/decorators'
+
+class Comment extends Model {
+  // ...
+  @relation('users', 'author_id') author
+}
+</code></pre>
+<p>The first argument is the <em>table name</em> of the related record, and the second is the <em>column name</em> with an ID for the related record.</p>
+</li>
+</ol>
+<h2><a class="header" href="#relation-api" id="relation-api">Relation API</a></h2>
+<p>In the example above, <code>comment.author</code> returns a <code>Relation</code> object.</p>
+<blockquote>
+<p>Remember, WatermelonDB is a lazily-loaded database, so you don't get the related <code>User</code> record immediately, only when you explicitly fetch it</p>
+</blockquote>
+<h3><a class="header" href="#observing" id="observing">Observing</a></h3>
+<p>Most of the time, you <a href="./Components.html">connect Relations to Components</a> by using <code>observe()</code> (the same <a href="./Query.html">as with Queries</a>):</p>
+<pre><code class="language-js">withObservables(['comment'], ({ comment }) =&gt; ({
+  comment: comment.observe(),
+  author: comment.author.observe(),
+}))
+</code></pre>
+<p>The component will now have an <code>author</code> prop containing a <code>User</code>, and will re-render both when the user changes (e.g. comment's author changes its name), but also when a new author is assigned to the comment (if that was possible).</p>
+<h3><a class="header" href="#fetching" id="fetching">Fetching</a></h3>
+<p>To simply get the related record, use <code>fetch</code>. You might need it <a href="./Actions.html">in Actions</a></p>
+<pre><code class="language-js">const author = await comment.author.fetch()
+</code></pre>
+<p><strong>Note</strong>: If the relation column (in this example, <code>author_id</code>) is marked as <code>isOptional: true</code>, <code>fetch()</code> might return <code>null</code>.</p>
+<h3><a class="header" href="#id" id="id">ID</a></h3>
+<p>If you only need the ID of a related record (e.g. to use in an URL or for the <code>key=</code> React prop), use <code>id</code>.</p>
+<pre><code class="language-js">const authorId = comment.author.id
+</code></pre>
+<h3><a class="header" href="#assigning" id="assigning">Assigning</a></h3>
+<p>Use <code>set()</code> to assign a new record to the relation</p>
+<pre><code class="language-js">await commentsCollection.create(comment =&gt; {
+  comment.author.set(someUser)
+  // ...
+})
+</code></pre>
+<p><strong>Note</strong>: you can only do this in the <code>.create()</code> or <code>.update()</code> block.</p>
+<p>You can also use <code>set id</code> if you only have the ID for the record to assign</p>
+<pre><code class="language-js">await comment.update(() =&gt; {
+  comment.author.id = userId
+})
+</code></pre>
+<h2><a class="header" href="#advanced-relations" id="advanced-relations">Advanced relations</a></h2>
+<h3><a class="header" href="#immutablerelation" id="immutablerelation">immutableRelation</a></h3>
+<p>If you have a relation that cannot change (for example, a comment can't change its author), you can use <code>@immutableRelation</code> for extra protection and performance:</p>
+<pre><code class="language-js">import { immutableRelation } from '@nozbe/watermelondb/decorators'
+
+class Comment extends Model {
+  // ...
+  @immutableRelation('posts', 'post_id') post
+  @immutableRelation('users', 'author_id') author
+}
+</code></pre>
+<h3><a class="header" href="#many-to-many-relation" id="many-to-many-relation">Many-To-Many Relation</a></h3>
+<p>If for instance, our app <code>Post</code>s can be authored by many <code>User</code>s and a user can author many <code>Post</code>s. We would create such a relation following these steps:- </p>
+<ol>
+<li>Create a pivot schema and model that both the <code>User</code> model and <code>Post</code> model has association to; say <code>PostAuthor</code></li>
+<li>Create has_many association on both <code>User</code> and <code>Post</code> pointing to <code>PostAuthor</code> Model </li>
+<li>Create belongs_to association on <code>PostAuthor</code> pointing to both <code>User</code> and <code>Post</code></li>
+<li>Retrieve all <code>Posts</code> for a user by defining a query that uses the pivot <code>PostAuthor</code> to infer the <code>Post</code>s that were authored by the User.</li>
+</ol>
+<pre><code class="language-js">import {lazy } from '@nozbe/watermelondb/decorators'
+
+class Post extends Model {
+  static table = 'posts'
+  static associations = {
+    post_authors: { type: 'has_many', foreignKey: 'post_id' },
+  }
+
+  @lazy
+  authors = this.collections
+    .get('users')
+    .query(Q.on('post_authors', 'post_id', this.id));
+}
+</code></pre>
+<pre><code class="language-js">import { field } from '@nozbe/watermelondb/decorators'
+
+class PostAuthor extends Model {
+  static table = 'post_authors'
+  static associations = {
+    posts: { type: 'belongs_to', key: 'post_id' },
+    users: { type: 'belongs_to', key: 'user_id' },
+  }
+  @field('post_id') postId
+  @field('user_id') userId
+}
+
+</code></pre>
+<pre><code class="language-js">import {lazy } from '@nozbe/watermelondb/decorators'
+
+class User extends Model {
+  static table = 'users'
+  static associations = {
+    post_authors: { type: 'has_many', foreignKey: 'user_id' },
+  }
+
+  @lazy
+  posts = this.collections
+    .get('posts')
+    .query(Q.on('post_authors', 'user_id', this.id));
+
+}
+</code></pre>
+<pre><code class="language-js">withObservables(['post'], ({ post }) =&gt; ({
+  authors: post.authors.observe(),
+}))
+</code></pre>
+<hr />
+<h2><a class="header" href="#next-steps-6" id="next-steps-6">Next steps</a></h2>
+<p>➡️ Now the last step of this guide: <a href="./Actions.html"><strong>define custom Actions</strong></a></p>
+<h1><a class="header" href="#actions-1" id="actions-1">Actions</a></h1>
+<p>Although you can <a href="./CRUD.html"><code>.create()</code> and <code>.update()</code> records</a> anywhere in your app, we recommend <strong>defining explicit Actions</strong> to encapsulate all ways to make changes.</p>
+<h2><a class="header" href="#defining-explicit-actions" id="defining-explicit-actions">Defining explicit Actions</a></h2>
+<p>An <strong>Action</strong> is a function that can modify the database (create, update, and delete records).</p>
+<p>To define it, just add a method to a <code>Model</code> class marked with the <code>@action</code> decorator</p>
+<pre><code class="language-js">import { action } from '@nozbe/watermelondb/decorators'
+
+class Post extends Model {
+  // ...
+
+  @action async addComment(body, author) {
+    return await this.collections.get('comments').create(comment =&gt; {
+      comment.post.set(this)
+      comment.author.set(author)
+      comment.body = body
+    })
+  }
+}
+</code></pre>
+<p><strong>Note:</strong></p>
+<ul>
+<li>Always mark actions as <code>async</code> and remember to <code>await</code> on <code>.create()</code> and <code>.update()</code></li>
+<li>You can use <code>this.collections</code> to access <code>Database.collections</code></li>
+</ul>
+<p><strong>Another example</strong>: updater action on <code>Comment</code>:</p>
+<pre><code class="language-js">class Comment extends Model {
+  // ...
+  @field('is_spam') isSpam
+
+  @action async markAsSpam() {
+    await this.update(comment =&gt; {
+      comment.isSpam = true
+    })
+  }
+}
+</code></pre>
+<p>Now we can create a comment and immediately mark it as spam:</p>
+<pre><code class="language-js">const comment = await post.addComment('Lorem ipsum', someUser)
+await comment.markAsSpam()
+</code></pre>
+<h2><a class="header" href="#batch-updates" id="batch-updates">Batch updates</a></h2>
+<p>Whenever you make more than one change (create, delete or update records) in an action, you should <strong>batch them</strong>.</p>
+<blockquote>
+<p>It means that the app doesn't have to go back and forth with the database (sending one command, waiting for the response, then sending another), but instead sends multiple commands in one big batch. This is faster, safer, and can avoid subtle bugs in your app</p>
+</blockquote>
+<p>Take an action that changes a <code>Post</code> into spam:</p>
+<pre><code class="language-js">class Post extends Model {
+  // ...
+  @action async createSpam() {
+    await this.update(post =&gt; {
+      post.title = `7 ways to lose weight`
+    })
+    await this.collections.get('comments').create(comment =&gt; {
+      comment.post.set(this)
+      comment.body = &quot;Don't forget to comment, like, and subscribe!&quot;
+    })
+  }
+}
+</code></pre>
+<p>Let's modify it to use batching:</p>
+<pre><code class="language-js">class Post extends Model {
+  // ...
+  @action async createSpam() {
+    await this.batch(
+      this.prepareUpdate(post =&gt; {
+        post.title = `7 ways to lose weight`
+      }),
+      this.collections.get('comments').prepareCreate(comment =&gt; {
+        comment.post.set(this)
+        comment.body = &quot;Don't forget to comment, like, and subscribe!&quot;
+      })
+    )
+  }
+}
+</code></pre>
+<p><strong>Note</strong>:</p>
+<ul>
+<li>Call <code>await this.batch</code> in the Action (outside of actions, you can also call <code>.batch()</code> <a href="./CRUD.html">on the <code>Database</code> object</a>)</li>
+<li>Pass the list of <strong>prepared operations</strong> as arguments:
+<ul>
+<li>Instead of calling <code>await record.update()</code>, pass <code>record.prepareUpdate()</code> — note lack of <code>await</code></li>
+<li>Instead of <code>await collection.create()</code>, use <code>collection.prepareCreate()</code></li>
+<li>Instead of <code>await record.markAsDeleted()</code>, use <code>record.prepareMarkAsDeleted()</code></li>
+<li>Instead of <code>await record.destroyPermanently()</code>, use <code>record.prepareDestroyPermanently()</code></li>
+<li>You can pass falsy values (null, undefined, false) to batch — they will simply be ignored.</li>
+</ul>
+</li>
+<li>Otherwise, the API is the same!</li>
+</ul>
+<h2><a class="header" href="#calling-actions-from-actions" id="calling-actions-from-actions">Calling Actions from Actions</a></h2>
+<p>If you try to call an Action from another Action, you'll notice that it won't work. This is because while Action is running, no other Action can run simultaneously. To override this behavior, wrap the Action call in <code>this.subAction</code>:</p>
+<pre><code class="language-js">class Comment extends Model {
+  // ...
+
+  @action async appendToPost() {
+    const post = await this.post.fetch()
+    // `appendToBody` is an `@action` on `Post`, so we call subAction to allow it
+    await this.subAction(() =&gt; post.appendToBody(this.body))
+  }
+}
+</code></pre>
+<h2><a class="header" href="#delete-action" id="delete-action">Delete action</a></h2>
+<p>When you delete, say, a <code>Post</code>, you generally want all <code>Comment</code>s that belong to it to be deleted as well.</p>
+<p>To do this, override <code>markAsDeleted()</code> (or <code>destroyPermanently()</code> if you don't sync) to explicitly delete all children as well.</p>
+<pre><code class="language-js">class Post extends Model {
+  static table = 'posts'
+  static associations = {
+    comments: { type: 'has_many', foreignKey: 'post_id' },
+  }
+
+  @children('comments') comments
+
+  async markAsDeleted() {
+    await this.comments.destroyAllPermanently()
+    await super.markAsDeleted()
+  }
+}
+</code></pre>
+<p>Then to actually delete the post:</p>
+<pre><code class="language-js">database.action(async () =&gt; {
+  await post.markAsDeleted()
+})
+</code></pre>
+<p><strong>Note:</strong></p>
+<ul>
+<li>Use <code>Query.destroyAllPermanently()</code> on all dependent <code>@children</code> you want to delete</li>
+<li>Remember to call <code>super.markAsDeleted</code> — at the end of the method!</li>
+</ul>
+<h2><a class="header" href="#inline-actions" id="inline-actions">Inline actions</a></h2>
+<p>If you want to call a number of write operations outside of a Model action, do it like so:</p>
+<pre><code class="language-js">const newPost = await database.action(async action =&gt; {
+  // Note: function passed to `database.action()` MUST be asynchronous
+  const posts = database.collections.get('posts')
+  const post = await posts.create( /* configure Post here */ )
+
+  // Note: to call an action from an inline action, call `action.subAction`:
+  await action.subAction(() =&gt; post.markAsPromoted())
+
+  // Note: Value returned from the wrapped function will be returned to `database.action` caller
+  return post
+})
+</code></pre>
+<h2><a class="header" href="#advanced-why-actions-are-necessary" id="advanced-why-actions-are-necessary">Advanced: Why actions are necessary?</a></h2>
+<p>WatermelonDB is highly asynchronous, which is a BIG challange in terms of achieving consistent data. Read this only if you are curious:</p>
+<blockquote>
+<p>Consider a function <code>markCommentsAsSpam</code> that fetches a list of comments on a post, and then marks them all as spam. The two operations (fetching, and then updating) are asynchronous, and some other operation that modifies the database could run in between. And it could just happen to be a function that adds a new comment on this post. Even though the function completes <em>successfully</em>, it wasn't <em>actually</em> successful at its job.</p>
+<p>This example is trivial. But others may be far more dangerous. If a function fetches a record to perform an update on, this very record could be deleted midway through, making the action fail (and potentially causing the app to crash, if not handled properly). Or a function could have invariants determining whether the user is allowed to perform an action, that would be invalidated during action's execution. Or, in a collaborative app where access permissions are represented by another object, parallel execution of different actions could cause those access relations to be left in an inconsistent state.</p>
+<p>The worst part is that analyzing all <em>possible</em> interactions for dangers is very hard, and having sync that runs automatically makes them very likely.</p>
+<p>Solution? Group together related reads and writes together in an Action, enforce that writes MUST occur in an Action, and only allow one Action to run at the time. This way, it's guaranteed that in an action, you're looking at a consistent view of the world. On the other hand, most reads are safe to perform without grouping them. If you suspect they're not, you can also wrap them in an Action.</p>
+</blockquote>
+<hr />
+<h2><a class="header" href="#next-steps-7" id="next-steps-7">Next steps</a></h2>
+<p>➡️ Now that you've mastered all basics of Watermelon, go create some powerful apps — or keep reading <a href="./README.html"><strong>advanced guides</strong></a></p>
+<h3><a class="header" href="#advanced-guides" id="advanced-guides">Advanced guides</a></h3>
+<p>Advanced guides for using WatermelonDB</p>
+<h1><a class="header" href="#migrations" id="migrations">Migrations</a></h1>
+<p><strong>Schema migrations</strong> is the mechanism by which you can add new tables and columns to the database in a backward-compatible way.</p>
+<p>Without migrations, if a user of your app upgrades from one version to another, their local database will be cleared at launch, and they will lose all their data.</p>
+<p>⚠️ Always use migrations!</p>
+<h2><a class="header" href="#migrations-setup" id="migrations-setup">Migrations setup</a></h2>
+<ol>
+<li>
+<p>Add a new file for migrations:</p>
+<pre><code class="language-js">// app/model/migrations.js
+
+import { schemaMigrations } from '@nozbe/watermelondb/Schema/migrations'
+
+export default schemaMigrations({
+  migrations: [
+    // We'll add migration definitions here later
+  ],
+})
+</code></pre>
+</li>
+<li>
+<p>Hook up migrations to the Database adapter setup:</p>
+<pre><code class="language-js">// index.js
+import migrations from 'model/migrations'
+
+const adapter = new SQLiteAdapter({
+  schema: mySchema,
+  migrations,
+})
+</code></pre>
+</li>
+</ol>
+<h2><a class="header" href="#migrations-workflow" id="migrations-workflow">Migrations workflow</a></h2>
+<p>When you make schema changes when you use migrations, be sure to do this in this specific order, to minimize the likelihood of making an error.</p>
+<h3><a class="header" href="#step-1-add-a-new-migration" id="step-1-add-a-new-migration">Step 1: Add a new migration</a></h3>
+<p>First, define the migration - that is, define the <strong>change</strong> that occurs between two versions of schema (such as adding a new table, or a new table column).</p>
+<p>Don't change the schema file yet!</p>
+<pre><code class="language-js">// app/model/migrations.js
+
+import { schemaMigrations, createTable } from '@nozbe/watermelondb/Schema/migrations'
+
+export default schemaMigrations({
+  migrations: [
+    {
+      // ⚠️ Set this to a number one larger than the current schema version
+      toVersion: 2,
+      steps: [
+        // See &quot;Migrations API&quot; for more details
+        createTable({
+          name: 'comments',
+          columns: [
+            { name: 'post_id', type: 'string', isIndexed: true },
+            { name: 'body', type: 'string' },
+          ],
+        }),
+      ],
+    },
+  ],
+})
+</code></pre>
+<p>Refresh your simulator/browser. You should see this error:</p>
+<blockquote>
+<p>Migrations can't be newer than schema. Schema is version 1 and migrations cover range from 1 to 2</p>
+</blockquote>
+<p>If so, good, move to the next step!</p>
+<p>But you might also see an error like &quot;Missing table name in schema&quot;, which means you made an error in defining migrations. See <a href="Advanced/#migrations-api">&quot;Migrations API&quot; below</a> for details.</p>
+<h3><a class="header" href="#step-2-make-matching-changes-in-schema" id="step-2-make-matching-changes-in-schema">Step 2: Make matching changes in schema</a></h3>
+<p>Now it's time to make the actual changes to the schema file — add the same tables or columns as in your migration definition</p>
+<p>⚠️ Please double and triple check that your changes to schema match exactly the change you defined in the migration. Otherwise you risk that the app will work when the user migrates, but will fail if it's a fresh install — or vice versa.</p>
+<p>⚠️ Don't change the schema version yet</p>
+<pre><code class="language-js">// model/schema.js
+
+export default appSchema({
+  version: 1,
+  tables: [
+    // This is our new table!
+    tableSchema({
+      name: 'comments',
+      columns: [
+        { name: 'post_id', type: 'string', isIndexed: true },
+        { name: 'body', type: 'string' },
+      ],
+    }),
+    // ...
+  ]
+})
+</code></pre>
+<p>Refresh the simulator. You should again see the same &quot;Migrations can't be newer than schema&quot; error. If you see a different error, you made a syntax error.</p>
+<h3><a class="header" href="#step-3-bump-schema-version" id="step-3-bump-schema-version">Step 3: Bump schema version</a></h3>
+<p>Now that we made matching changes in the schema (source of truth about tables and columns) and migrations (the change in tables and columns), it's time to commit the change by bumping the version:</p>
+<pre><code class="language-js">// model/schema.js
+
+export default appSchema({
+  version: 2,
+  tables: [
+    // ...
+  ]
+})
+</code></pre>
+<p>If you refresh again, your app should show up without issues — but now you can use the new tables/columns</p>
+<h3><a class="header" href="#step-4-test-your-migrations" id="step-4-test-your-migrations">Step 4: Test your migrations</a></h3>
+<p>Before shipping a new version of the app, please check that your database changes are all compatible:</p>
+<ol>
+<li>Migrations test: Install the previous version of your app, then update to the version you're about to ship, and make sure it still works</li>
+<li>Fresh schema install test: Remove the app, and then install the <em>new</em> version of the app, and make sure it works</li>
+</ol>
+<h3><a class="header" href="#why-is-this-order-important" id="why-is-this-order-important">Why is this order important</a></h3>
+<p>It's simply because React Native simulator (and often React web projects) are configured to automatically refresh when you save a file. You don't want to database to accidentally migrate (upgrade) with changes that have a mistake, or changes you haven't yet completed making. By making migrations first, and bumping version last, you can double check you haven't made a mistake.</p>
+<h2><a class="header" href="#migrations-api" id="migrations-api">Migrations API</a></h2>
+<p>Each migration must migrate to a version one above the previous migration, and have multiple <em>steps</em> (such as adding a new table, or new columns). Larger example:</p>
+<pre><code class="language-js">schemaMigrations({
+  migrations: [
+    {
+      toVersion: 3,
+      steps: [
+        createTable({
+          name: 'comments',
+          columns: [
+            { name: 'post_id', type: 'string', isIndexed: true },
+            { name: 'body', type: 'string' },
+          ],
+        }),
+        addColumns({
+          table: 'posts',
+          columns: [
+            { name: 'subtitle', type: 'string', isOptional: true },
+            { name: 'is_pinned', type: 'boolean' },
+          ],
+        }),
+      ],
+    },
+    {
+      toVersion: 2,
+      steps: [
+        // ...
+      ],
+    },
+  ],
+})
+</code></pre>
+<h3><a class="header" href="#migration-steps" id="migration-steps">Migration steps:</a></h3>
+<ul>
+<li><code>createTable({ name: 'table_name', columns: [ ... ] })</code> - same API as <code>tableSchema()</code></li>
+<li><code>addColumns({ table: 'table_name', columns: [ ... ] })</code> - you can add one or multiple columns to an existing table. The columns table has the same format as in schema definitions</li>
+<li>Other types of migrations (e.g. deleting or renaming tables and columns) are not yet implemented. See <a href="https://github.com/Nozbe/WatermelonDB/blob/master/src/Schema/migrations/index.js"><code>migrations/index.js</code></a>. Please contribute!</li>
+</ul>
+<h2><a class="header" href="#database-reseting-and-other-edge-cases" id="database-reseting-and-other-edge-cases">Database reseting and other edge cases</a></h2>
+<ol>
+<li>When you're <strong>not</strong> using migrations, the database will reset (delete all its contents) whenever you change the schema version.</li>
+<li>If the migration fails, the database will fail to initialize, and will roll back to previous version. This is unlikely, but could happen if you, for example, create a migration that tries to create the same table twice. The reason why the database will fail instead of reset is to avoid losing user data (also it's less confusing in development). You can notice the problem, fix the migration, and ship it again without data loss.</li>
+<li>When database in the running app has <em>newer</em> database version than the schema version defined in code, the database will reset (clear its contents). This is useful in development</li>
+<li>If there's no available migrations path (e.g. user has app with database version 4, but oldest migration is from version 10 to 11), the database will reset.</li>
+</ol>
+<h3><a class="header" href="#rolling-back-changes" id="rolling-back-changes">Rolling back changes</a></h3>
+<p>There's no automatic &quot;rollback&quot; feature in Watermelon. If you make a mistake in migrations during development, roll back in this order:</p>
+<ol>
+<li>Comment out any changes made to schema.js</li>
+<li>Comment out any changes made to migrations.js</li>
+<li>Decrement schema version number (bring back the original number)</li>
+</ol>
+<p>After refreshing app, the database should reset to previous state. Now you can correct your mistake and apply changes again (please do it in order described in &quot;Migrations workflow&quot;).</p>
+<h1><a class="header" href="#synchronization" id="synchronization">Synchronization</a></h1>
+<p>WatermelonDB has been designed from scratch to be able to seamlessly synchronize with a remote database (and, therefore, keep multiple copies of data synced with each other).</p>
+<p>Note that Watermelon is only a local database — you need to <strong>bring your own backend</strong>. What Watermelon provides are:</p>
+<ul>
+<li><strong>Synchronization primitives</strong> — information about which records were created, updated, or deleted locally since the last sync — and which columns exactly were modified. You can build your own custom sync engine using those primitives</li>
+<li><strong>Built-in sync adapter</strong> — You can use the sync engine Watermelon provides out of the box, and you only need to provide two API endpoints on your backend that conform to Watermelon sync protocol</li>
+</ul>
+<h2><a class="header" href="#using-synchronize" id="using-synchronize">Using <code>synchronize()</code></a></h2>
+<p>Using Watermelon sync looks roughly like this:</p>
+<pre><code class="language-js">import { synchronize } from '@nozbe/watermelondb/sync'
+
+async function mySync() {
+  await synchronize({
+    database,
+    pullChanges: async ({ lastPulledAt }) =&gt; {
+      const response = await fetch(`https://my.backend/sync?last_pulled_at=${lastPulledAt}`)
+      if (!response.ok) {
+        throw new Error(await response.text())
+      }
+
+      const { changes, timestamp } = await response.json()
+      return { changes, timestamp }
+    },
+    pushChanges: async ({ changes, lastPulledAt }) =&gt; {
+      const response = await fetch(`https://my.backend/sync?last_pulled_at=${lastPulledAt}`, {
+        method: 'POST',
+        body: JSON.stringify(changes)
+      })
+      if (!response.ok) {
+        throw new Error(await response.text())
+      }
+    },
+  })
+}
+
+</code></pre>
+<p>You need to pass two functions, <code>pullChanges</code> and <code>pushChanges</code> that can talk to your backend in a compatible way (explained later).</p>
+<p><strong>⚠️ Note about a React Native / UglifyES bug</strong>. When you import Watermelon Sync, your app might fail to compile in release mode. To fix this, configure Metro bundler to use Terser instead of UglifyES. Run:</p>
+<pre><code class="language-bash">yarn add metro-minify-terser
+</code></pre>
+<p>Then, update <code>metro.config.js</code>:</p>
+<pre><code class="language-js">module.exports = {
+  // ...
+  transformer: {
+    // ...
+    minifierPath: 'metro-minify-terser',
+  },
+}
+</code></pre>
+<p>You might also need to switch to Terser in Webpack if you use Watermelon for web.</p>
+<h3><a class="header" href="#changes-objects" id="changes-objects"><code>changes</code> objects</a></h3>
+<p>Changes (received from <code>pullChanges</code> and sent to <code>pushChanges</code>) are represented as an object with <em>raw records</em>. Those only use raw table and column names, and raw values (strings/numbers/booleans) — the same as in <a href="Advanced/../Schema.html">Schema</a>.</p>
+<p>Deleted objects are always only represented by their IDs.</p>
+<p>Example:</p>
+<pre><code class="language-js">{
+  projects: {
+    created: [
+      { id: 'aaaa', name: 'Foo', is_favorite: true },
+      { id: 'bbbb', name: 'Bar', is_favorite: false },
+    ],
+    updated: [
+      { id: 'ccc', name: 'Baz', is_favorite: true },
+    ],
+    deleted: ['ddd'],
+  },
+  tasks: {
+    created: [],
+    updated: [
+      { id: 'tttt', name: 'Buy eggs' },
+    ],
+    deleted: [],
+  },
+  ...
+}
+</code></pre>
+<h3><a class="header" href="#pullchanges" id="pullchanges"><code>pullChanges()</code></a></h3>
+<p>Arguments: <code>{ lastPulledAt }</code>:</p>
+<ul>
+<li><code>lastPulledAt</code> is a timestamp for the last time client pulled changes from server (or <code>null</code> if first sync)</li>
+</ul>
+<p>This function should fetch from the server the list of ALL changes in all collections since <code>lastPulledAt</code>:</p>
+<ul>
+<li>records that were created on the server</li>
+<li>records that were updated on the server</li>
+<li>IDs of records that were deleted on the server</li>
+</ul>
+<p>Return a Promise resolving to an object like this:</p>
+<pre><code>{
+  changes: { ... },
+  timestamp: 100000, // Return *server's* current time
+}
+</code></pre>
+<p>Raw records passed must match your app <a href="Advanced/../Schema.html">Schema</a>, and must not contain special <code>_status</code>, <code>_changed</code> fields.</p>
+<p>The timestamp returned by the server must be a value that, if passed again to <code>pullChanges()</code> as <code>lastPulledAt</code>, will return all changes that happened since this moment.</p>
+<h3><a class="header" href="#pushchanges" id="pushchanges"><code>pushChanges()</code></a></h3>
+<p>This function will be called to push local (app) changes to the server</p>
+<p>Arguments:</p>
+<pre><code>{
+  changes: { ... },
+  // the timestamp of the last successful pull (timestamp returned in pullChanges)
+  lastSyncedAt: 10000,
+}
+</code></pre>
+<p><strong>Note:</strong> Records sent to pushChanges might contain special <code>_status</code>, <code>_changed</code> fields. You must ignore them. You must not mutate passed changes object.</p>
+<p><code>pushChanges</code> should call the server with the changes, and apply them remotely (create/update/delete on the server records that were created/updated/deleted locally).</p>
+<p>If successful, <code>pushChanges</code> should resolve. If there's a problem, server should revert all changes, and <code>pushChanges</code> should reject.</p>
+<p>If a record that's being pushed to the server has been changed on the server AFTER the time specified by <code>lastSyncedAt</code> (which means someone modified what we're pushing between pullChanges and pushChanges), we have a conflict, and push should be aborted. (<code>pushChanges</code> should reject). The local changes will sync during next sync.</p>
+<h3><a class="header" href="#implementation-tips" id="implementation-tips">Implementation tips</a></h3>
+<p>Synchronization is serious business! It's very easy to make mistakes that will cause data loss. If you're not experienced at this, stick to these rules and suggestions:</p>
+<ul>
+<li><strong>Using <code>synchronize()</code></strong>
+<ul>
+<li>Ensure you never call <code>synchronize()</code> while synchronization is already in progress</li>
+<li>We recommend wrapping <code>synchronize()</code> in a &quot;retry once&quot; block - if sync fails, try again once.</li>
+<li>You can use <code>database.withChangesForTables</code> to detect when local changes occured to call sync</li>
+</ul>
+</li>
+<li><strong>Implementing server-side changes tracking</strong>
+<ul>
+<li>Add a <code>last_modified</code> field to all your server database tables, and bump it to <code>NOW()</code> every time you create or update a record.</li>
+<li>This way, when you want to get all changes since <code>lastPulledAt</code>, you query records whose <code>last_modified &gt; lastPulledAt</code>.</li>
+<li>For extra safety, we recommend adding a MySQL/PostgreSQL procedure that will ensure <code>last_modified</code> uniqueness and monotonicity (will increment it by one if a record with this <code>last_modified</code> or greater already exists in the database).
+<blockquote>
+<p>This protects against weird edge cases related to server clock time changes (NTP time sync, leap seconds, etc.)
+(Alternatively, instead of using timestamps, you could use auto-incrementing couters, but you'd have to ensure they are consistent across the whole database, not just one table)</p>
+</blockquote>
+</li>
+<li>You do need to implement a mechanism to track when records were deleted on the server, otherwise you wouldn't know to push them</li>
+<li>To distinguish between <code>created</code> and <code>updated</code> records, you can also store server-side <code>server_created_at</code> timestamp (if it's greater than <code>last_pulled_at</code> supplied to sync, then record is to be <code>created</code> on client, if less than — client already has it and it is to be <code>updated</code> on client). Note that this timestamp must be consistent with last_modified — and you must not use client-created <code>created_at</code> field, since you can never trust local timestamps.
+<ul>
+<li>Alternatively, you can send all non-deleted records as all <code>updated</code> and Watermelon will do the right thing in 99% of cases (you will be slightly less protected against weird edge cases — treatment of locally deleted records is different). If you do this, pass <code>sendCreatedAsUpdated: true</code> to <code>synchronize()</code> to supress warnings about records to be updated not existing locally.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Implementing <code>GET changes</code> API endpoint</strong>
+<ul>
+<li>Make sure you perform all queries (and checking for current timestamp) synchronously
+<blockquote>
+<p>This is to ensure that no changes are made to the database while you're fetching changes (otherwise you could never sync some records)</p>
+</blockquote>
+<ul>
+<li>if it's not possible to do so (you have to query each collection separately), be sure to mark <code>NOW()</code> to respond with at the <em>beginning</em> of the process. You still risk inconsistent responses, but the next pull will fetch whatever changes occured during previous pull.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Implementing <code>POST changes</code> API endpoint</strong>
+<ul>
+<li>Make sure you perform all changes on all tables in a transaction! If push fails, you don't want partially applied changes.</li>
+<li>Compare db record's <code>last_modified</code> time with <code>lastPulledAt</code>. If it's greater, we have a conflict, and you must abort transaction and return error status.</li>
+<li>If client wants to:
+<ul>
+<li>… delete a record that don't exist — just ignore it</li>
+<li>… update a record that doesn't exist, create it</li>
+<li>… create a record that does exist, update it</li>
+</ul>
+</li>
+<li>If there's something wrong with the data format, prefer to &quot;fix&quot; the data if possible instead of failing sync. You don't want the user to have an unsyncable app because of a mistake caused by a bug 5 versions ago.</li>
+<li>As with any API, remember to check permissions to create/modify records, make sure you version your API together with local Schema versioning, and all other standard stuff!</li>
+</ul>
+</li>
+<li><strong>Adding logging to your sync</strong>
+<ul>
+<li>
+<p>You can add basic sync logs to the sync process by passing an empty object to <code>synchronize()</code>. Sync will then mutate the object, populating it with diagnostic information (start/finish time, resolved conflicts, and more):</p>
+<pre><code class="language-js">const log = {}
+await synchronize({
+  database,
+  log,
+  ...
+})
+console.log(log.startedAt)
+console.log(log.finishedAt)
+</code></pre>
+</li>
+<li>
+<p>⚠️ Remember to act responsibly with logs, since they might contain your user's private information. Don't display, save, or send the log unless you censor the log. <a href="https://gist.github.com/radex/a0a27761ac348f4a5552ecaf227d500c">Example logger and censor code you can use</a>.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3><a class="header" href="#existing-backend-implementations-for-watermelondb" id="existing-backend-implementations-for-watermelondb">Existing backend implementations for WatermelonDB</a></h3>
+<p>Note that those are not maintained by WatermelonDB, and we make no endorsements about quality of these projects:</p>
+<ul>
+<li>https://github.com/AliAllaf/firemelon</li>
+<li>Did you make one? Please contribute a link!</li>
+</ul>
+<h3><a class="header" href="#current-limitations" id="current-limitations">Current limitations</a></h3>
+<ol>
+<li>If a record being pushed changes between pull and push, push will just fail. It would be better if it failed with a list of conflicts, so that <code>synchronize()</code> can automatically respond. Alternatively, sync could only send changed fields and server could automatically always just apply those changed fields to the server version (since that's what per-column client-wins resolver will do anyway)</li>
+<li>During next sync pull, changes we've just pushed will be pulled again, which is unnecessary. It would be better if server, during push, also pulled local changes since <code>lastPulledAt</code> and responded with NEW timestamp to be treated as <code>lastPulledAt</code>.</li>
+<li>It shouldn't be necessary to push the whole updated record — just changed fields + ID should be enough</li>
+</ol>
+<blockquote>
+<p>Note: That might conflict with &quot;If client wants to update a record that doesn’t exist, create it&quot;</p>
+</blockquote>
+<ol start="4">
+<li>The performance of <code>synchronize()</code> has not yet been optimized</li>
+</ol>
+<h3><a class="header" href="#contributing-1" id="contributing-1">Contributing</a></h3>
+<ol>
+<li>If you implement Watermelon sync but found this guide confusing, please contribute improvements!</li>
+<li>Please help out with solving the current limitations!</li>
+<li>If you write server-side code made to be compatible with Watermelon, especially for popular platforms (Node, Ruby on Rails, Kinto, etc.) - please open source it and let us know! This would dramatically simplify implementing sync for people</li>
+<li>If you find Watermelon sync bugs, please report the issue! And if possible, write regression tests to make sure it never happens again</li>
+</ol>
+<h2><a class="header" href="#sync-primitives-and-implementing-your-own-sync" id="sync-primitives-and-implementing-your-own-sync">Sync primitives and implementing your own sync</a></h2>
+<p>For basic details about how changes tracking works, see: <a href="https://www.youtube.com/watch?v=uFvHURTRLxQ">📺 Digging deeper into WatermelonDB</a></p>
+<p>Why you might want to implement a custom sync engine? If you have an existing remote server architecture that's difficult to adapt to Watermelon sync protocol, or you specifically want a different architecture (e.g. single HTTP request -- server resolves conflicts). Be warned, however, that implementing sync that works correctly is very hard.</p>
+<p>For details about how Watermelon sync works, see design documentation in <code>sync/index.js</code>. You can use that as a blueprint for your own implementation.</p>
+<p>If possible, please use sync implementation helpers from <code>sync/*.js</code> to keep your custom sync implementation have as much commonality as possible with the standard implementation. If the helpers are <em>almost</em> what you need, but not quite, please send pull requests with improvements!</p>
+<h1><a class="header" href="#createupdate-tracking" id="createupdate-tracking">Create/Update tracking</a></h1>
+<p>You can add per-table support for create/update tracking. When you do this, the Model will have information about when it was created, and when it was last updated.</p>
+<h3><a class="header" href="#when-to-use-this" id="when-to-use-this">When to use this</a></h3>
+<p><strong>Use create tracking</strong>:</p>
+<ul>
+<li>When you display to the user when a thing (e.g. a Post, Comment, Task) was created</li>
+<li>If you sort created items chronologically (Note that Record IDs are random strings, not auto-incrementing integers, so you need create tracking to sort chronologically)</li>
+</ul>
+<p><strong>Use update tracking</strong>:</p>
+<ul>
+<li>When you display to the user when a thing (e.g. a Post) was modified</li>
+</ul>
+<p><strong>Note</strong>: you <em>don't have to</em> enable both create and update tracking. You can do either, both, or none.</p>
+<h3><a class="header" href="#how-to-do-this" id="how-to-do-this">How to do this</a></h3>
+<p><strong>Step 1:</strong> Add to the <a href="Advanced/../Schema.html">schema</a>:</p>
+<pre><code class="language-js">tableSchema({
+  name: 'posts',
+  columns: [
+    // other columns
+    { name: 'created_at', type: 'number' },
+    { name: 'updated_at', type: 'number' },
+  ]
+}),
+</code></pre>
+<p><strong>Step 2:</strong> Add this to the Model definition:</p>
+<pre><code class="language-js">import { date, readonly } from '@nozbe/watermelondb/decorators'
+
+class Post extends Model {
+  // ...
+  @readonly @date('created_at') createdAt
+  @readonly @date('updated_at') updatedAt
+}
+</code></pre>
+<p>Again, you can add just <code>created_at</code> column and field if you don't need update tracking.</p>
+<h3><a class="header" href="#how-this-behaves" id="how-this-behaves">How this behaves</a></h3>
+<p>If you have the magic <code>createdAt</code> field defined on the Model, the current timestamp will be set when you first call <code>collection.create()</code> or <code>collection.prepareCreate()</code>. It will never be modified again.</p>
+<p>If the magic <code>updatedAt</code> field is also defined, then after creation, <code>model.updatedAt</code> will have the same value as <code>model.createdAt</code>. Then every time you call <code>model.update()</code> or <code>model.prepareUpdate()</code>, <code>updatedAt</code> will be changed to the current timestamp.</p>
+<h1><a class="header" href="#advanced-fields-1" id="advanced-fields-1">Advanced Fields</a></h1>
+<h2><a class="header" href="#text" id="text"><code>@text</code></a></h2>
+<p>You can use <code>@text</code> instead of <code>@field</code> to enable user text sanitization. When setting a new value on a <code>@text</code> field, excess whitespace will be trimmed from both ends from the string.</p>
+<pre><code class="language-js">import { text } from '@nozbe/watermelondb/decorators'
+
+class Post extends Model {
+  // ...
+  @text('body') body
+}
+</code></pre>
+<h2><a class="header" href="#json" id="json"><code>@json</code></a></h2>
+<p>If you have a lot of metadata about a record (say, an object with many keys, or an array of values), you can use a <code>@json</code> field to contain that information in a single string column (serialized to JSON) instead of adding multiple columns or a relation to another table.</p>
+<p>⚠️ This is an advanced feature that comes with downsides — make sure you really need it</p>
+<p>First, add a string column to <a href="Advanced/../Schema.html">the schema</a>:</p>
+<pre><code class="language-js">tableSchema({
+  name: 'comments',
+  columns: [
+    { name: 'reactions', type: 'string' }, // You can add isOptional: true, if appropriate
+  ],
+})
+</code></pre>
+<p>Then in the Model definition:</p>
+<pre><code class="language-js">import { json } from '@nozbe/watermelondb/decorators'
+
+class Comment extends Model {
+  // ...
+  @json('reactions', sanitizeReactions) reactions
+}
+</code></pre>
+<p>Now you can set complex JSON values to a field:</p>
+<pre><code class="language-js">comment.update(() =&gt; {
+  comment.reactions = ['up', 'down', 'down']
+})
+</code></pre>
+<p>As the second argument, pass a <strong>sanitizer function</strong>. This is a function that receives whatever <code>JSON.parse()</code> returns for the serialized JSON, and returns whatever type you expect in your app. In other words, it turns raw, dirty, untrusted data (that might be missing, or malformed by a bug in previous version of the app) into trusted format.</p>
+<p>The sanitizer might also receive <code>null</code> if the column is nullable, or <code>undefined</code> if the field doesn't contain valid JSON.</p>
+<p>For example, if you need the field to be an array of strings, you can ensure it like so:</p>
+<pre><code class="language-js">const sanitizeReactions = rawReactions =&gt; {
+  return Array.isArray(rawReactions) ? rawReactions.map(String) : []
+}
+</code></pre>
+<p>If you don't want to sanitize JSON, pass an identity function:</p>
+<pre><code class="language-js">const sanitizeReactions = json =&gt; json
+</code></pre>
+<p>The sanitizer function takes an optional second argument, which is a reference to the model. This is useful is your sanitization logic depends on the other fields in the model.</p>
+<p><strong>Warning about JSON fields</strong>:</p>
+<p>JSON fields go against relational, lazy nature of Watermelon, because <strong>you can't query or count by the contents of JSON fields</strong>. If you need or might need in the future to query records by some piece of data, don't use JSON.</p>
+<p>Only use JSON fields when you need the flexibility of complex freeform data, or the speed of having metadata without querying another table, and you are sure that you won't need to query by those metadata.</p>
+<h2><a class="header" href="#nochange" id="nochange"><code>@nochange</code></a></h2>
+<p>For extra protection, you can mark fields as <code>@nochange</code> to ensure they can't be modified. Always put <code>@nochange</code> before <code>@field</code> / <code>@date</code> / <code>@text</code></p>
+<pre><code class="language-js">import { field, nochange } from '@nozbe/watermelondb/decorators'
+
+class User extends Model {
+  // ...
+  @nochange @field('is_owner') isOwner
+}
+</code></pre>
+<p><code>user.isOwner</code> can only be set in the <code>collection.create()</code> block, but will throw an error if you try to set a new value in <code>user.update()</code> block.</p>
+<h3><a class="header" href="#readonly" id="readonly"><code>@readonly</code></a></h3>
+<p>Similar to <code>@nochange</code>, you can use the <code>@readonly</code> decorator to ensure a field cannot be set at all. Use this for <a href="Advanced/./CreateUpdateTracking.html">create/update tracking</a>, but it might also be useful if you use Watermelon with a <a href="Advanced/../Advanced/Sync.html">Sync engine</a> and a field can only be set by the server.</p>
+<h2><a class="header" href="#custom-observable-fields" id="custom-observable-fields">Custom observable fields</a></h2>
+<p>You're in advanced <a href="https://github.com/ReactiveX/rxjs">RxJS</a> territory now! You have been warned.</p>
+<p>Say, you have a Post model that has many Comments. And a Post is considered to be &quot;popular&quot; if it has more than 10 comments.</p>
+<p>You can add a &quot;popular&quot; badge to a Post component in two ways.</p>
+<p>One is to simply observe how many comments there are <a href="Advanced/../Components.html">in the component</a>:</p>
+<pre><code class="language-js">const enhance = withObservables(['post'], ({ post }) =&gt; ({
+  post: post.observe(),
+  commentCount: post.comments.observeCount()
+}))
+</code></pre>
+<p>And in the <code>render</code> method, if <code>props.commentCount &gt; 10</code>, show the badge.</p>
+<p>Another way is to define an observable property on the Model layer, like so:</p>
+<pre><code class="language-js">import { distinctUntilChanged, map as map$ } from 'rxjs/operators'
+import { lazy } from '@nozbe/watermelondb/decorators'
+
+class Post extends Model {
+  @lazy isPopular = this.comments.observeCount().pipe(
+    map$(comments =&gt; comments &gt; 10),
+    distinctUntilChanged()
+  )
+}
+</code></pre>
+<p>And then you can directly connect this to the component:</p>
+<pre><code class="language-js">const enhance = withObservables(['post'], ({ post }) =&gt; ({
+  isPopular: post.isPopular,
+}))
+</code></pre>
+<p><code>props.isPopular</code> will reflect whether or not the Post is popular. Note that this is fully observable, i.e. if the number of comments rises above/falls below the popularity threshold, the component will re-render. Let's break it down:</p>
+<ul>
+<li><code>this.comments.observeCount()</code> - take the Observable number of comments</li>
+<li><code>map$(comments =&gt; comments &gt; 10)</code> - transform this into an Observable of boolean (popular or not)</li>
+<li><code>distinctUntilChanged()</code> - this is so that if the comment count changes, but the popularity doesn't (it's still below/above 10), components won't be unnecessarily re-rendered</li>
+<li><code>@lazy</code> - also for performance (we only define this Observable once, so we can re-use it for free)</li>
+</ul>
+<p>Let's make this example more complicated. Say the post is <strong>always</strong> popular if it's marked as starred. So if <code>post.isStarred</code>, then we don't have to do unnecessary work of fetching comment count:</p>
+<pre><code class="language-js">import { of as of$ } from 'rxjs/observable/of'
+import { distinctUntilChanged, map as map$ } from 'rxjs/operators'
+import { lazy } from '@nozbe/watermelondb/decorators'
+
+class Post extends Model {
+  @lazy isPopular = this.observe().pipe(
+    distinctUntilKeyChanged('isStarred'),
+    switchMap(post =&gt;
+      post.isStarred ?
+        of$(true) :
+        this.comments.observeCount().pipe(map$(comments =&gt; comments &gt; 10))
+    ),
+    distinctUntilChanged(),
+  )
+}
+</code></pre>
+<ul>
+<li><code>this.observe()</code> - if the Post changes, it might change its popularity status, so we observe it</li>
+<li><code>this.comments.observeCount().pipe(map$(comments =&gt; comments &gt; 10))</code> - this part is the same, but we only observe it if the post is starred</li>
+<li><code>switchMap(post =&gt; post.isStarred ? of$(true) : ...)</code> - if the post is starred, we just return an Observable that emits <code>true</code> and never changes.</li>
+<li><code>distinctUntilKeyChanged('isStarred')</code> - for performance, so that we don't re-subscribe to comment count Observable if the post changes (only if the <code>isStarred</code> field changes)</li>
+<li><code>distinctUntilChanged()</code> - again, don't emit new values, if popularity doesn't change</li>
+</ul>
+<h1><a class="header" href="#watermelon--flow" id="watermelon--flow">Watermelon ❤️ Flow</a></h1>
+<p>Watermelon was developed with <a href="https://flow.org">Flow</a> in mind.</p>
+<p>If you're a Flow user yourself (and we highly recommend it!), here's some things you need to keep in mind:</p>
+<h2><a class="header" href="#setup" id="setup">Setup</a></h2>
+<p>Add this to your <code>.flowconfig</code> file so that Flow can see Watermelon's types.</p>
+<pre><code class="language-ini">[options]
+
+module.name_mapper='^@nozbe/watermelondb\(.*\)$' -&gt; '&lt;PROJECT_ROOT&gt;/node_modules/@nozbe/watermelondb/src\1'
+</code></pre>
+<p>Note that this won't work if you put the entire <code>node_modules/</code> folder under the <code>[ignore]</code> section. In that case, change it to only ignore the specific node modules that throw errors in your app, so that Flow can scan Watermelon files.</p>
+<h2><a class="header" href="#tables-and-columns" id="tables-and-columns">Tables and columns</a></h2>
+<p>Table and column names are <strong>opaque types</strong> in Flow.</p>
+<p>So if you try to use simple strings, like so:</p>
+<pre><code class="language-js">class Comment extends Model {
+  static table = 'comments'
+
+  @text('body') body
+}
+</code></pre>
+<p>You'll get errors, because you're passing <code>'comments'</code> (a <code>string</code>) where <code>TableName&lt;Comment&gt;</code> is expected, and <code>'body'</code> (again, a <code>string</code>) where <code>ColumnName</code> is expected.</p>
+<p>When using Watermelon with Flow, you must pre-define all your table and column names in one place, then only use those symbols (and not strings) in all other places.</p>
+<p>We recommend defining symbols like this:</p>
+<pre><code class="language-js">// File: model/schema.js
+// @flow
+
+import { tableName, columnName, type TableName, appSchema, tableSchema } from '@nozbe/watermelondb'
+import type Comment from './Comment.js'
+
+export const Tables = {
+  comments: (tableName('comments'): TableName&lt;Comment&gt;),
+  // ...
+}
+
+export const Columns = {
+  comments: {
+    body: columnName('body'),
+    // ...
+  }
+}
+
+export const appSchema = appSchema({
+  version: 1,
+  tables: [
+    tableSchema({
+      name: Tables.comments,
+      columns: [
+        { name: Columns.comments.body, type: 'string' },
+      ],
+    }),
+    // ...
+  ]
+})
+</code></pre>
+<p>And then using them like so:</p>
+<pre><code class="language-js">// File: model/Comment.js
+// @flow
+
+import { Model } from '@nozbe/watermelondb'
+import { text } from '@nozbe/watermelondb/decorators'
+
+import { Tables, Columns } from './schema.js'
+
+const Column = Columns.comments
+
+export default class Comment extends Model {
+  static table = Tables.comments
+
+  @text(Column.body) body: string
+}
+</code></pre>
+<h3><a class="header" href="#but-isnt-that-a-lot-of-boilerplate" id="but-isnt-that-a-lot-of-boilerplate">But isn't that a lot of boilerplate?</a></h3>
+<p>Yes, it looks more boilerplate'y than the non-Flow examples, however:</p>
+<ul>
+<li>you're protected from typos — strings are defined once</li>
+<li>easier refactoring — you only change column name in one place</li>
+<li>no orphan columns or tables — no way to accidentally refer to a column or table that was removed from the schema</li>
+<li><code>TableName</code> is typed with the model class it refers to, which allows Flow to find other mistakes in your code</li>
+</ul>
+<p>In general, we find that untyped string constants lead to bugs, and defining typed constants is a good practice.</p>
+<h3><a class="header" href="#associations-1" id="associations-1">associations</a></h3>
+<p>When using Flow, you define model associations like this:</p>
+<pre><code class="language-js">import { Model, associations } from '@nozbe/watermelondb'
+import { Tables, Columns } from './schema.js'
+
+const Column = Columns.posts
+
+class Post extends Model {
+  static table = Tables.posts
+  static associations = associations(
+    [Tables.comments, { type: 'has_many', foreignKey: Columns.comments.postId }],
+    [Tables.users, { type: 'belongs_to', key: Column.authorId }],
+  )
+}
+</code></pre>
+<h2><a class="header" href="#common-types" id="common-types">Common types</a></h2>
+<p>Many types are tagged with the model class the type refers to:</p>
+<pre><code class="language-js">TableName&lt;Post&gt; // a table name referring to posts
+Collection&lt;Post&gt; // the Collection for posts
+Relation&lt;Comment&gt; // a relation that can fetch a Comment
+Relation&lt;?Comment&gt; // a relation that can fetch a Comment or `null`
+Query&lt;Comment&gt; // a query that can fetch many Comments
+</code></pre>
+<p>Always mark the type of model fields. Remember to include <code>?</code> if the underlying table column is optional. Flow can't check if model fields match the schema or if they match the decorator's signature.</p>
+<pre><code class="language-js">@text(Column.body) body: string
+@date(Column.createdAt) createdAt: Date
+@date(Column.archivedAt) archivedAt: ?Date
+</code></pre>
+<p>If you need to refer to an ID of a record, always use the <code>RecordId</code> type alias, not <code>string</code> (they're the same, but the former is self-documenting).</p>
+<p>If you ever access the record's raw data (DON'T do that unless you <em>really</em> know what you're doing), use <code>DirtyRaw</code> to refer to raw data from external sources (database, server), and <code>RawRecord</code> after it was passed through <code>sanitizedRaw</code>.</p>
+<h1><a class="header" href="#local-storage" id="local-storage">Local storage</a></h1>
+<p>WatermelonDB has a simple key/value store, similar to <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage">localStorage</a>:</p>
+<pre><code class="language-js">// setting a value
+await database.adapter.setLocal(&quot;user_id&quot;, &quot;abcdef&quot;)
+
+// retrieving a value
+const userId = await database.adapter.getLocal(&quot;user_id&quot;) // string or null if no value for this key
+
+// removing a value
+await database.adapter.removeLocal(&quot;user_id&quot;)
+</code></pre>
+<p><strong>When to use it</strong>. For things like the ID of the logged-in user, or the route to the last-viewed screen in the app. You should generally avoid it and stick to standard Watermelon records.</p>
+<p><strong>This is a low-level API</strong>. You can't do things like observe changes of a value over time. If you need that, just use standard WatermelonDB records. Also, you can only store strings. You can build your own abstraction that (de)serializes those values to/from JSON.</p>
+<p><strong>Why not use localStorage/AsyncStorage?</strong> Because this way, you have only one source of truth — one database that, say, stores the logged-in user ID and the information about all users. So there's a lower risk that the two sets of values get out of sync.</p>
+<h1><a class="header" href="#performance" id="performance">Performance</a></h1>
+<p>Performance tips — TODO</p>
+<h2><a class="header" href="#dig-deeper-into-watermelondb" id="dig-deeper-into-watermelondb">Dig deeper into WatermelonDB</a></h2>
+<p>Details about how Watermelon works, how to hack and contribute</p>
+<p><a href="https://www.youtube.com/watch?v=uFvHURTRLxQ">📺 Digging deeper into WatermelonDB</a> — more architectural info about caching, observation, and sync</p>
+<h1><a class="header" href="#architecture" id="architecture">Architecture</a></h1>
+<h2><a class="header" href="#base-objects" id="base-objects">Base objects</a></h2>
+<p><code>Database</code> is the root object of Watermelon. It owns:</p>
+<ul>
+<li>a <code>DatabaseAdapter</code></li>
+<li>a map of <code>Collection</code>s</li>
+</ul>
+<p><code>DatabaseAdapter</code> connects Watermelon's reactive world to low-level imperative world of databases. See <a href="Implementation/./Adapters.html">Adapters</a>.</p>
+<p><code>Collection</code> manages all records of a given kind:</p>
+<ul>
+<li>it has a cache of records already fetched from the database (<code>RecordCache</code>)</li>
+<li>it has the public API to <code>find</code>, <code>query</code> and <code>create</code> existing records</li>
+<li>it implements fetch/update/delete operations on records</li>
+</ul>
+<p><code>Model</code> is an instance of a collection record. A model <em>class</em> describes a <em>kind</em> of a record. <code>Model</code> is the base class for your concrete models (e.g. <code>Post</code>, <code>Comment</code>, <code>Task</code>):</p>
+<ul>
+<li>it describes the specific instance - <code>id</code> + all custom fields and actions</li>
+<li>it has public API to <code>update</code>, <code>markAsDeleted</code> and <code>destroyPermanently</code></li>
+<li>implements record-level observation <code>observe()</code></li>
+<li>static fields describe base information about a model (<code>table</code>, <code>associations</code>) - See <a href="Implementation/../Model.html">Defining models</a></li>
+</ul>
+<p>As a general rule, <code>Model</code> manages the state of a specific instance, and <code>Collection</code> of the entire collection of records. So for example, <code>model.markAsDeleted()</code> changes the local state of called record, but then delegates to its collection to notify collection observers and actually remove from the database</p>
+<p><code>Query</code> is a helper object that gives us a nice API to perform queries (<code>query.observe()</code>, <code>query.fetchCount()</code>):</p>
+<ul>
+<li>created via <code>collection.query()</code></li>
+<li>encapsulates a <code>QueryDescription</code> structure which actually describes the query conditions</li>
+<li>fetch/observe methods actually delegate to <code>Collection</code> to perform database operations</li>
+<li>caches <code>Observable</code>s created by <code>observe/observeCount</code> methods so they can be reused and shared</li>
+</ul>
+<h2><a class="header" href="#helper-functions" id="helper-functions">Helper functions</a></h2>
+<p>Watermelon's objects and classes are meant to be as minimal as possible — only manage their own state and be an API for your app. Most logic should be stateless, and implemented as pure functions:</p>
+<p><code>QueryDescription</code> is a structure (object) describing the query, built using <code>Q.*</code> helper functions</p>
+<p><code>encodeMatcher()</code>, <code>simpleObserver()</code>, <code>reloadingObserver()</code>, <code>fieldObserver()</code> implement query observation logic (See <a href="Implementation/./Observation.html">Observation</a>.)</p>
+<p>Model decorators transform simple class properties into Watermelon-aware record fields.</p>
+<p>Much of Adapters' logic is implemented as pure functions too. See <a href="Implementation/./Adapters.html">Adapters</a>.</p>
+<h1><a class="header" href="#database-adapters" id="database-adapters">Database adapters</a></h1>
+<p>The idea for the <a href="Implementation/./Architecture.html">Watermelon architecture</a> is to be database-agnostic. <code>Watermelon</code> is a cross-platform high-level layer for dealing with data, but can be plugged in to any underlying database, depending on platform needs.</p>
+<p>Think of it this way:</p>
+<ul>
+<li>Collection/Model/Query is the <strong>reactive</strong> layer</li>
+<li><code>DatabaseAdapter</code> is the <strong>imperative</strong> layer</li>
+</ul>
+<p>The adapter merely performs simple CRUD (create/read/update/delete) operations.</p>
+<p><code>DatabaseAdapter</code> is a Flow <em>interface</em>. Watermelon comes with two concrete implementations:</p>
+<h2><a class="header" href="#react-native" id="react-native">React Native</a></h2>
+<p><code>SQLiteAdapter</code> is an adapter for React Native, based on SQLite:</p>
+<ul>
+<li>Queries are converted to SQL on app thread using <code>adapters/sqlite/encodeQuery</code></li>
+<li>Communication happens over <code>NativeModules</code> with a native-side bridge</li>
+<li>Native database handling happens on a separate thread</li>
+<li><code>DatabaseBridge</code> is the React Native bridge stub</li>
+<li><code>DatabaseDriver</code> implements Watermelon-specific logic (caching, etc.)</li>
+<li><code>Database</code> is a simple SQLite abstraction layer (over <a href="https://github.com/ccgus/fmdb">FMDB</a> on iOS and built-in <code>sqlite.SQLiteDatabase</code> on Android)</li>
+</ul>
+<h2><a class="header" href="#web" id="web">Web</a></h2>
+<p><code>LokiJSAdapter</code> is an adapter for the web, based around <a href="http://techfort.github.io/LokiJS/">LokiJS</a>:</p>
+<ul>
+<li>Why LokiJS? WebSQL would be a perfect fit for Watermelon, but sadly is a dead API, so we must use IndexedDB, but it's too low-level. LokiJS implements a fast querying API on top of IndexedDB.</li>
+<li><code>LokiJSAdapter</code> delegates everything to a separate thread over <code>WorkerBridge</code></li>
+<li><code>WorkerBridge</code> spins up a worker thread running <code>LokiWorker</code></li>
+<li><code>LokiWorker</code> maintains a queue of operations and executes them on <code>LokiExecutor</code></li>
+<li><code>LokiExecutor</code> actually implements the Adapter operations</li>
+<li><code>encodeQuery</code> translates <code>QueryDescription</code> objects to Loki query objects</li>
+<li><code>executeQuery</code> implements join queries (<code>Q.on</code>), which Loki does not support</li>
+</ul>
+<h2><a class="header" href="#writing-your-own-adapter" id="writing-your-own-adapter">Writing your own adapter</a></h2>
+<p>If you want to write a new adapter, please contact <a href="https://github.com/radex">@radex</a> for more information.</p>
+<p>⚠️ TODO: This section needs more concrete tips</p>
+<h2><a class="header" href="#dig-deeper-into-watermelondb-1" id="dig-deeper-into-watermelondb-1">Dig deeper into WatermelonDB</a></h2>
+<p>Details about how Watermelon works, how to hack and contribute</p>
+<p><a href="https://www.youtube.com/watch?v=uFvHURTRLxQ">📺 Digging deeper into WatermelonDB</a> — more architectural info about caching, observation, and sync</p>
+<h1><a class="header" href="#watermelondb-roadmap" id="watermelondb-roadmap">WatermelonDB Roadmap</a></h1>
+<h2><a class="header" href="#from-today-to-10" id="from-today-to-10">From today to 1.0</a></h2>
+<p>WatermelonDB is currently in active development at <a href="https://nozbe.com">Nozbe</a> for use in advanced projects. It's mostly feature-complete. However, there are a few features left before we can call it 1.0.</p>
+<h3><a class="header" href="#v0xxx" id="v0xxx">v0.xxx</a></h3>
+<ul>
+<li>Full transactionality (atomicity) support ???</li>
+<li>Field sanitizers</li>
+<li>Optimized tree deleting</li>
+<li>API improvements</li>
+</ul>
+<h3><a class="header" href="#v10" id="v10">v1.0</a></h3>
+<p>Everything above plus having at least one non-trivial app using WatermelonDB in production to verify its concepts</p>
+<h3><a class="header" href="#beyond-10" id="beyond-10">Beyond 1.0</a></h3>
+<ul>
+<li>Replace <code>withObservables</code> HOC and Prefetching with a solution based on React 17 Suspense feature</li>
+<li>Query templates</li>
+</ul>
+<h1><a class="header" href="#contributing-guidelines" id="contributing-guidelines">Contributing guidelines</a></h1>
+<h2><a class="header" href="#before-you-send-a-pull-request" id="before-you-send-a-pull-request">Before you send a pull request</a></h2>
+<ol>
+<li>
+<p><strong>Did you add or changed some functionality?</strong></p>
+<p>Add (or modify) tests!</p>
+</li>
+<li>
+<p><strong>Check if the automated tests pass</strong></p>
+<pre><code class="language-bash">yarn ci:check
+</code></pre>
+</li>
+<li>
+<p><strong>Format the files you changed</strong></p>
+<pre><code class="language-bash">yarn prettier
+</code></pre>
+</li>
+<li>
+<p><strong>Mark your changes in CHANGELOG</strong></p>
+<p>Put a one-line description of your change under Added/Changed section. See <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>.</p>
+</li>
+</ol>
+<h2><a class="header" href="#running-watermelon-in-development" id="running-watermelon-in-development">Running Watermelon in development</a></h2>
+<h3><a class="header" href="#download-source-and-dependencies" id="download-source-and-dependencies">Download source and dependencies</a></h3>
+<pre><code class="language-bash">git clone https://github.com/Nozbe/WatermelonDB.git
+cd WatermelonDB
+yarn
+</code></pre>
+<h3><a class="header" href="#developing-watermelon-alongside-your-app" id="developing-watermelon-alongside-your-app">Developing Watermelon alongside your app</a></h3>
+<p>To work on Watermelon code in the sandbox of your app:</p>
+<pre><code class="language-bash">yarn dev
+</code></pre>
+<p>This will create a <code>dev/</code> folder in Watermelon and observe changes to source files (only JavaScript files) and recompile them as needed.</p>
+<p>Then in your app:</p>
+<pre><code class="language-bash">cd node_modules/@nozbe
+rm -fr watermelondb
+ln -s path-to-watermelondb/dev watermelondb
+</code></pre>
+<p><strong>This will work in Webpack but not in Metro</strong> (React Native). Metro doesn't follow symlinks. Instead, you can compile WatermelonDB directly to your project:</p>
+<pre><code class="language-bash">DEV_PATH=&quot;/path/to/your/app/node_modules/@nozbe/watermelondb&quot; yarn dev
+</code></pre>
+<h3><a class="header" href="#running-tests" id="running-tests">Running tests</a></h3>
+<p>This runs Jest, ESLint and Flow:</p>
+<pre><code class="language-bash">yarn ci:check
+</code></pre>
+<p>You can also run them separately:</p>
+<pre><code class="language-bash">yarn test
+yarn eslint
+yarn flow
+</code></pre>
+<h3><a class="header" href="#editing-files" id="editing-files">Editing files</a></h3>
+<p>We recommend VS Code with ESLint, Flow, and Prettier (with prettier-eslint enabled) plugins for best development experience. (To see lint/type issues inline + have automatic reformatting of code)</p>
+<h2><a class="header" href="#editing-native-code" id="editing-native-code">Editing native code</a></h2>
+<p>In <code>native/ios</code> and <code>native/android</code> you'll find the native bridge code for React Native.</p>
+<p>It's recommended to use the latest stable version of Xcode / Android Studio to work on that code.</p>
+<h3><a class="header" href="#integration-tests" id="integration-tests">Integration tests</a></h3>
+<p>If you change native bridge code or <code>adapter/sqlite</code> code, it's recommended to run integration tests that run the entire Watermelon code with SQLite and React Native in the loop:</p>
+<pre><code class="language-bash">yarn test:ios
+yarn test:android
+</code></pre>
+<h3><a class="header" href="#running-tests-manualy" id="running-tests-manualy">Running tests manualy</a></h3>
+<ul>
+<li>For iOS open the <code>native/iosTest/WatermelonTester.xcworkspace</code> project and hit Cmd+U.</li>
+<li>For Android open <code>native/androidTest</code> in AndroidStudio navigate to <code>app/src/androidTest/java/com.nozbe.watermelonTest/BridgeTest</code> and click green arrow near <code>class BridgeTest</code></li>
+</ul>
+<h3><a class="header" href="#native-linting" id="native-linting">Native linting</a></h3>
+<p>Make sure the native code you're editing conforms to Watermelon standards:</p>
+<pre><code class="language-bash">yarn swiftlint
+yarn ktlint
+</code></pre>
+<h3><a class="header" href="#native-code-troubleshooting" id="native-code-troubleshooting">Native code troubleshooting</a></h3>
+<ol>
+<li>If <code>test:ios</code> fails in terminal:</li>
+</ol>
+<ul>
+<li>Run tests in Xcode first before running from terminal</li>
+<li>Make sure you have the right version of Xcode CLI tools set in Preferences -&gt; Locations</li>
+</ul>
+<ol>
+<li>Make sure you're on the most recent stable version of Xcode / Android Studio</li>
+<li>Remove native caches:</li>
+</ol>
+<ul>
+<li>Xcode: <code>~/Library/Developer/Xcode/DerivedData</code>:</li>
+<li>Android: <code>.gradle</code> and <code>build</code> folders in <code>native/android</code> and <code>native/androidTest</code></li>
+<li><code>node_modules</code> (because of React Native precompiled third party libraries)</li>
+</ul>
+<h1><a class="header" href="#changelog" id="changelog">Changelog</a></h1>
+<p>All notable changes to this project will be documented in this file.</p>
+<h2><a class="header" href="#unreleased" id="unreleased">Unreleased</a></h2>
+<h2><a class="header" href="#016---2020-03-06" id="016---2020-03-06">0.16 - 2020-03-06</a></h2>
+<h3><a class="header" href="#-breaking" id="-breaking">⚠️ Breaking</a></h3>
+<ul>
+<li><code>experimentalUseIncrementalIndexedDB</code> has been renamed to <code>useIncrementalIndexedDB</code></li>
+</ul>
+<h4><a class="header" href="#low-breakage-risk" id="low-breakage-risk">Low breakage risk</a></h4>
+<ul>
+<li>[adapters] Adapter API has changed from returning Promise to taking callbacks as the last argument. This won't affect you unless you call on adapter methods directly. <code>database.adapter</code> returns a new <code>DatabaseAdapterCompat</code> which has the same shape as old adapter API. You can use <code>database.adapter.underlyingAdapter</code> to get back <code>SQLiteAdapter</code> / <code>LokiJSAdapter</code></li>
+<li>[Collection] <code>Collection.fetchQuery</code> and <code>Collection.fetchCount</code> are removed. Please use <code>Query.fetch()</code> and <code>Query.fetchCount()</code>.</li>
+</ul>
+<h3><a class="header" href="#new-features" id="new-features">New features</a></h3>
+<ul>
+<li>[SQLiteAdapter] [iOS] Add new <code>synchronous</code> option to adapter: <code>new SQLiteAdapter({ ..., synchronous: true })</code>.
+When enabled, database operations will block JavaScript thread. Adapter actions will resolve in the
+next microtask, which simplifies building flicker-free interfaces. Adapter will fall back to async
+operation when synchronous adapter is not available (e.g. when doing remote debugging)</li>
+<li>[LokiJS] Added new <code>onQuotaExceededError?: (error: Error) =&gt; void</code> option to <code>LokiJSAdapter</code> constructor.
+This is called when underlying IndexedDB encountered a quota exceeded error (ran out of allotted disk space for app)
+This means that app can't save more data or that it will fall back to using in-memory database only
+Note that this only works when <code>useWebWorker: false</code></li>
+</ul>
+<h3><a class="header" href="#changes" id="changes">Changes</a></h3>
+<ul>
+<li>[Performance] Watermelon internals have been rewritten not to rely on Promises and allow some fetch/observe calls to resolve synchronously. Do not rely on this -- external API is still based on Rx and Promises and may resolve either asynchronously or synchronously depending on capabilities. This is meant as a internal performance optimization only for the time being.</li>
+<li>[LokiJS] [Performance] Improved worker queue implementation for performance</li>
+<li>[observation] Refactored observer implementations for performance</li>
+</ul>
+<h3><a class="header" href="#fixes" id="fixes">Fixes</a></h3>
+<ul>
+<li>Fixed a possible cause for &quot;Record ID xxx#yyy was sent over the bridge, but it's not cached&quot; error</li>
+<li>[LokiJS] Fixed an issue preventing database from saving when using <code>experimentalUseIncrementalIndexedDB</code></li>
+<li>Fixed a potential issue when using <code>database.unsafeResetDatabase()</code></li>
+<li>[iOS] Fixed issue with clearing database under experimental synchronous mode</li>
+</ul>
+<h3><a class="header" href="#new-features-experimental" id="new-features-experimental">New features (Experimental)</a></h3>
+<ul>
+<li>[Model] Added experimental <code>model.experimentalSubscribe((isDeleted) =&gt; { ... })</code> method as a vanilla JS alternative to Rx based <code>model.observe()</code>. Unlike the latter, it does not notify the subscriber immediately upon subscription.</li>
+<li>[Collection] Added internal <code>collection.experimentalSubscribe((changeSet) =&gt; { ... })</code> method as a vanilla JS alternative to Rx based <code>collection.changes</code> (you probably shouldn't be using this API anyway)</li>
+<li>[Database] Added experimental <code>database.experimentalSubscribe(['table1', 'table2'], () =&gt; { ... })</code> method as a vanilla JS alternative to Rx-based <code>database.withChangesForTables()</code>. Unlike the latter, <code>experimentalSubscribe</code> notifies the subscriber only once after a batch that makes a change in multiple collections subscribed to. It also doesn't notify the subscriber immediately upon subscription, and doesn't send details about the changes, only a signal.</li>
+<li>Added <code>experimentalDisableObserveCountThrottling()</code> to <code>@nozbe/watermelondb/observation/observeCount</code> that globally disables count observation throttling. We think that throttling on WatermelonDB level is not a good feature and will be removed in a future release - and will be better implemented on app level if necessary</li>
+<li>[Query] Added experimental <code>query.experimentalSubscribe(records =&gt; { ... })</code>, <code>query.experimentalSubscribeWithColumns(['col1', 'col2'], records =&gt; { ... })</code>, and <code>query.experimentalSubscribeToCount(count =&gt; { ... })</code> methods</li>
+</ul>
+<h2><a class="header" href="#015---2019-11-08" id="015---2019-11-08">0.15 - 2019-11-08</a></h2>
+<h3><a class="header" href="#highlights" id="highlights">Highlights</a></h3>
+<p>This is a <strong>massive</strong> new update to WatermelonDB! 🍉</p>
+<ul>
+<li>
+<p><strong>Up to 23x faster sync</strong>. You heard that right. We've made big improvements to performance.
+In our tests, with a massive sync (first login, 45MB of data / 65K records) we got a speed up of:</p>
+<ul>
+<li>5.7s -&gt; 1.2s on web (5x)</li>
+<li>142s -&gt; 6s on iOS (23x)</li>
+</ul>
+<p>Expect more improvements in the coming releases!</p>
+</li>
+<li>
+<p><strong>Improved LokiJS adapter</strong>. Option to disable web workers, important Safari 13 fix, better performance,
+and now works in Private Modes. We recommend adding <code>useWebWorker: false, experimentalUseIncrementalIndexedDB: true</code> options to the <code>LokiJSAdapter</code> constructor to take advantage of the improvements, but please read further changelog to understand the implications of this.</p>
+</li>
+<li>
+<p><strong>Raw SQL queries</strong> now available on iOS and Android thanks to the community</p>
+</li>
+<li>
+<p><strong>Improved TypeScript support</strong> — thanks to the community</p>
+</li>
+</ul>
+<h3><a class="header" href="#-breaking-1" id="-breaking-1">⚠️ Breaking</a></h3>
+<ul>
+<li>Deprecated <code>bool</code> schema column type is removed -- please change to <code>boolean</code></li>
+<li>Experimental <code>experimentalSetOnlyMarkAsChangedIfDiffers(false)</code> API is now removed</li>
+</ul>
+<h3><a class="header" href="#new-featuers" id="new-featuers">New featuers</a></h3>
+<ul>
+<li>
+<p>[Collection] Add <code>Collection.unsafeFetchRecordsWithSQL()</code> method. You can use it to fetch record using
+raw SQL queries on iOS and Android. Please be careful to avoid SQL injection and other pitfalls of
+raw queries</p>
+</li>
+<li>
+<p>[LokiJS] Introduces new <code>new LokiJSAdapter({ ..., experimentalUseIncrementalIndexedDB: true })</code> option.
+When enabled, database will be saved to browser's IndexedDB using a new adapter that only saves the
+changed records, instead of the entire database.</p>
+<p><strong>This works around a serious bug in Safari 13</strong> (https://bugs.webkit.org/show_bug.cgi?id=202137) that causes large
+databases to quickly balloon to gigabytes of temporary trash</p>
+<p>This also improves performance of incremental saves, although initial page load or very, very large saves
+might be slightly slower.</p>
+<p>This is intended to become the new default option, but it's not backwards compatible (if enabled, old database
+will be lost). <strong>You're welcome to contribute an automatic migration code.</strong></p>
+<p>Note that this option is still experimental, and might change in breaking ways at any time.</p>
+</li>
+<li>
+<p>[LokiJS] Introduces new <code>new LokiJSAdapter({ ..., useWebWorker: false })</code> option. Before, web workers
+were always used with <code>LokiJSAdapter</code>. Although web workers may have some performance benefits, disabling them
+may lead to lower memory consumption, lower latency, and easier debugging. YMMV.</p>
+</li>
+<li>
+<p>[LokiJS] Added <code>onIndexedDBVersionChange</code> option to <code>LokiJSAdapter</code>. This is a callback that's called
+when internal IDB version changed (most likely the database was deleted in another browser tab).
+Pass a callback to force log out in this copy of the app as well. Note that this only works when
+using incrementalIDB and not using web workers</p>
+</li>
+<li>
+<p>[Model] Add <code>Model._dangerouslySetRawWithoutMarkingColumnChange()</code> method. You probably shouldn't use it,
+but if you know what you're doing and want to live-update records from server without marking record as updated,
+this is useful</p>
+</li>
+<li>
+<p>[Collection] Add <code>Collection.prepareCreateFromDirtyRaw()</code></p>
+</li>
+<li>
+<p>@json decorator sanitizer functions take an optional second argument, with a reference to the model</p>
+</li>
+</ul>
+<h3><a class="header" href="#fixes-1" id="fixes-1">Fixes</a></h3>
+<ul>
+<li>Pinned required <code>rambdax</code> version to 2.15.0 to avoid console logging bug. In a future release we will switch to our own fork of <code>rambdax</code> to avoid future breakages like this.</li>
+</ul>
+<h3><a class="header" href="#improvements" id="improvements">Improvements</a></h3>
+<ul>
+<li>[Performance] Make large batches a lot faster (1.3s shaved off on a 65K insert sample)</li>
+<li>[Performance] [iOS] Make large batch inserts an order of magnitude faster</li>
+<li>[Performance] [iOS] Make encoding very large queries (with thousands of parameters) 20x faster</li>
+<li>[Performance] [LokiJS] Make batch inserts faster (1.5s shaved off on a 65K insert sample)</li>
+<li>[Performance] [LokiJS] Various performance improvements</li>
+<li>[Performance] [Sync] Make Sync faster</li>
+<li>[Performance] Make observation faster</li>
+<li>[Performance] [Android] Make batches faster</li>
+<li>Fix app glitches and performance issues caused by race conditions in <code>Query.observeWithColumns()</code></li>
+<li>[LokiJS] Persistence adapter will now be automatically selected based on availability. By default,
+IndexedDB is used. But now, if unavailable (e.g. in private mode), ephemeral memory adapter will be used.</li>
+<li>Disabled console logs regarding new observations (it never actually counted all observations) and
+time to query/count/batch (the measures were wildly inaccurate because of asynchronicity - actual
+times are much lower)</li>
+<li>[withObservables] Improved performance and debuggability (update withObservables package separately)</li>
+<li>Improved debuggability of Watermelon -- shortened Rx stacks and added function names to aid in understanding
+call stacks and profiles</li>
+<li>[adapters] The adapters interface has changed. <code>query()</code> and <code>count()</code> methods now receive a <code>SerializedQuery</code>, and <code>batch()</code> now takes <code>TableName&lt;any&gt;</code> and <code>RawRecord</code> or <code>RecordId</code> instead of <code>Model</code>.</li>
+<li>[Typescript] Typing improvements
+<ul>
+<li>Added 3 missing properties <code>collections</code>, <code>database</code> and <code>asModel</code> in Model type definition.</li>
+<li>Removed optional flag on <code>actionsEnabled</code> in the Database constructor options since its mandatory since 0.13.0.</li>
+<li>fixed several further typing issues in Model, Relation and lazy decorator</li>
+</ul>
+</li>
+<li>Changed how async functions are transpiled in the library. This could break on really old Android phones
+but shouldn't matter if you use latest version of React Native. Please report an issue if you see a problem.</li>
+<li>Avoid <code>database</code> prop drilling in the web demo</li>
+</ul>
+<h2><a class="header" href="#0141---2019-08-31" id="0141---2019-08-31">0.14.1 - 2019-08-31</a></h2>
+<p>Hotfix for rambdax crash</p>
+<ul>
+<li>[Schema] Handle invalid table schema argument in appSchema</li>
+<li>[withObservables] Added TypeScript support (<a href="https://github.com/Nozbe/withObservables/blob/master/CHANGELOG.md">changelog</a>)</li>
+<li>[Electron] avoid <code>Uncaught ReferenceError: global is not defined</code> in electron runtime (<a href="https://github.com/Nozbe/WatermelonDB/issues/453">#453</a>)</li>
+<li>[rambdax] Replaces <code>contains</code> with <code>includes</code> due to <code>contains</code> deprecation https://github.com/selfrefactor/rambda/commit/1dc1368f81e9f398664c9d95c2efbc48b5cdff9b#diff-04c6e90faac2675aa89e2176d2eec7d8R2209</li>
+</ul>
+<h2><a class="header" href="#0140---2019-08-02" id="0140---2019-08-02">0.14.0 - 2019-08-02</a></h2>
+<h3><a class="header" href="#new-features-1" id="new-features-1">New features</a></h3>
+<ul>
+<li>[Query] Added support for <code>notLike</code> queries 🎉</li>
+<li>[Actions] You can now batch delete record with all descendants using experimental functions <code>experimentalMarkAsDeleted</code> or <code>experimentalDestroyPermanently</code></li>
+</ul>
+<h2><a class="header" href="#0130---2019-07-18" id="0130---2019-07-18">0.13.0 - 2019-07-18</a></h2>
+<h3><a class="header" href="#-breaking-2" id="-breaking-2">⚠️ Breaking</a></h3>
+<ul>
+<li>
+<p>[Database] It is now mandatory to pass <code>actionsEnabled:</code> option to Database constructor.
+It is recommended that you enable this option:</p>
+<pre><code class="language-js">const database = new Database({
+  adapter: ...,
+  modelClasses: [...],
+  actionsEnabled: true
+})
+</code></pre>
+<p>See <code>docs/Actions.md</code> for more details about Actions. You can also pass <code>false</code> to maintain
+backward compatibility, but this option <strong>will be removed</strong> in a later version</p>
+</li>
+<li>
+<p>[Adapters] <code>migrationsExperimental</code> prop of <code>SQLiteAdapter</code> and <code>LokiJSAdapter</code> has been renamed
+to <code>migrations</code>.</p>
+</li>
+</ul>
+<h3><a class="header" href="#new-features-2" id="new-features-2">New features</a></h3>
+<ul>
+<li>[Actions] You can now batch deletes by using <code>prepareMarkAsDeleted</code> or <code>prepareDestroyPermanently</code></li>
+<li>[Sync] Performance: <code>synchronize()</code> no longer calls your <code>pushChanges()</code> function if there are no
+local changes to push. This is meant to save unnecessary network bandwidth. ⚠️ Note that this
+could be a breaking change if you rely on it always being called</li>
+<li>[Sync] When setting new values to fields on a record, the field (and record) will no longer be
+marked as changed if the field's value is the same. This is meant to improve performance and avoid
+unnecessary code in the app. ⚠️ Note that this could be a breaking change if you rely on the old
+behavior. For now you can import <code>experimentalSetOnlyMarkAsChangedIfDiffers</code> from
+<code>@nozbe/watermelondb/Model/index</code> and call if with <code>(false)</code> to bring the old behavior back, but
+this will be removed in the later version -- create a new issue explaining why you need this</li>
+<li>[Sync] Small perf improvements</li>
+</ul>
+<h3><a class="header" href="#improvements-1" id="improvements-1">Improvements</a></h3>
+<ul>
+<li>[Typescript] Improved types for SQLite and LokiJS adapters, migrations, models, the database and the logger.</li>
+</ul>
+<h2><a class="header" href="#0123---2019-05-06" id="0123---2019-05-06">0.12.3 - 2019-05-06</a></h2>
+<h3><a class="header" href="#changes-1" id="changes-1">Changes</a></h3>
+<ul>
+<li>[Database] You can now update the random id schema by importing
+<code>import { setGenerator } from '@nozbe/watermelondb/utils/common/randomId'</code> and then calling <code>setGenerator(newGenenerator)</code>.
+This allows WatermelonDB to create specific IDs for example if your backend uses UUIDs.</li>
+<li>[Typescript] Type improvements to SQLiteAdapter and Database</li>
+<li>[Tests] remove cleanup for react-hooks-testing-library@0.5.0 compatibility</li>
+</ul>
+<h2><a class="header" href="#0122---2019-04-19" id="0122---2019-04-19">0.12.2 - 2019-04-19</a></h2>
+<h3><a class="header" href="#fixes-2" id="fixes-2">Fixes</a></h3>
+<ul>
+<li>[TypeScript] 'Cannot use 'in' operator to search for 'initializer'; decorator fix</li>
+</ul>
+<h3><a class="header" href="#changes-2" id="changes-2">Changes</a></h3>
+<ul>
+<li>[Database] You can now pass falsy values to <code>Database.batch(...)</code> (false, null, undefined). This is
+useful in keeping code clean when doing operations conditionally. (Also works with <code>model.batch(...)</code>)</li>
+<li>[Decorators]. You can now use <code>@action</code> on methods of any object that has a <code>database: Database</code>
+property, and <code>@field @children @date @relation @immutableRelation @json @text @nochange</code> decorators on
+any object with a <code>asModel: Model</code> property.</li>
+<li>[Sync] Adds a temporary/experimental <code>_unsafeBatchPerCollection: true</code> flag to <code>synchronize()</code>. This
+causes server changes to be committed to database in multiple batches, and not one. This is NOT preferred
+for reliability and performance reasons, but it works around a memory issue that might cause your app
+to crash on very large syncs (&gt;20,000 records). Use this only if necessary. Note that this option
+might be removed at any time if a better solution is found.</li>
+</ul>
+<h2><a class="header" href="#0121---2019-04-01" id="0121---2019-04-01">0.12.1 - 2019-04-01</a></h2>
+<h3><a class="header" href="#-hotfix" id="-hotfix">⚠️ Hotfix</a></h3>
+<ul>
+<li>
+<p>[iOS] Fix runtime crash when built with Xcode 10.2 (Swift 5 runtime).</p>
+<p><strong>⚠️ Note</strong>: You need to upgrade to React Native 0.59.3 for this to work. If you can't upgrade
+React Native yet, either stick to Xcode 10.1 or manually apply this patch:
+https://github.com/Nozbe/WatermelonDB/pull/302/commits/aa4e08ad0fa55f434da2a94407c51fc5ff18e506</p>
+</li>
+</ul>
+<h3><a class="header" href="#changes-3" id="changes-3">Changes</a></h3>
+<ul>
+<li>[Sync] Adds basic sync logging capability to Sync. Pass an empty object to <code>synchronize()</code> to populate it with diagnostic information:
+<pre><code class="language-js">const log = {}
+await synchronize({ database, log, ...})
+console.log(log.startedAt)
+</code></pre>
+See Sync documentation for more details.</li>
+</ul>
+<h2><a class="header" href="#0120---2019-03-18" id="0120---2019-03-18">0.12.0 - 2019-03-18</a></h2>
+<h3><a class="header" href="#added" id="added">Added</a></h3>
+<ul>
+<li>[Hooks] new <code>useDatabase</code> hook for consuming the Database Context:
+<pre><code class="language-js">import { useDatabase } from '@nozbe/watermelondb/hooks';
+const Component = () =&gt; {
+   const database = useDatabase();
+}
+</code></pre>
+</li>
+<li>[TypeScript] added <code>.d.ts</code> files. Please note: TypeScript definitions are currently incomplete and should be used as a guide only. <strong>PRs for improvements would be greatly appreciated!</strong></li>
+</ul>
+<h3><a class="header" href="#performance-1" id="performance-1">Performance</a></h3>
+<ul>
+<li>Improved UI performance by consolidating multiple observation emissions into a single per-collection batch emission when doing batch changes</li>
+</ul>
+<h2><a class="header" href="#0110---2019-03-12" id="0110---2019-03-12">0.11.0 - 2019-03-12</a></h2>
+<h3><a class="header" href="#breaking" id="breaking">Breaking</a></h3>
+<ul>
+<li>⚠️ Potentially BREAKING fix: a <code>@date</code> field now returns a Jan 1, 1970 date instead of <code>null</code> if the field's raw value is <code>0</code>.
+This is considered a bug fix, since it's unexpected to receive a <code>null</code> from a getter of a field whose column schema doesn't say <code>isOptional: true</code>.
+However, if you relied on this behavior, this might be a breaking change.</li>
+<li>⚠️ BREAKING: <code>Database.unsafeResetDatabase()</code> now requires that you run it inside an Action</li>
+</ul>
+<h3><a class="header" href="#bug-fixes" id="bug-fixes">Bug fixes</a></h3>
+<ul>
+<li>[Sync] Fixed an issue where synchronization would continue running despite <code>unsafeResetDatabase</code> being called</li>
+<li>[Android] fix compile error for kotlin 1.3+</li>
+</ul>
+<h3><a class="header" href="#other-changes" id="other-changes">Other changes</a></h3>
+<ul>
+<li>Actions are now aborted when <code>unsafeResetDatabase()</code> is called, making reseting database a little bit safer</li>
+<li>Updated demo dependencies</li>
+<li>LokiJS is now a dependency of WatermelonDB (although it's only required for use on the web)</li>
+<li>[Android] removed unused test class</li>
+<li>[Android] updated ktlint to <code>0.30.0</code></li>
+</ul>
+<h2><a class="header" href="#0101---2019-02-12" id="0101---2019-02-12">0.10.1 - 2019-02-12</a></h2>
+<h3><a class="header" href="#changes-4" id="changes-4">Changes</a></h3>
+<ul>
+<li>[Android] Changed <code>compile</code> to <code>implementation</code> in Library Gradle file
+<ul>
+<li>⚠️ might break build if you are using Android Gradle Plugin &lt;3.X</li>
+</ul>
+</li>
+<li>Updated <code>peerDependency</code> <code>react-native</code> to <code>0.57.0</code></li>
+<li>[Sync] Added <code>hasUnsyncedChanges()</code> helper method</li>
+<li>[Sync] Improved documentation for backends that can't distinguish between <code>created</code> and <code>updated</code> records</li>
+<li>[Sync] Improved diagnostics / protection against edge cases</li>
+<li>[iOS] Add missing <code>header search path</code> to support <strong>ejected</strong> expo project.</li>
+<li>[Android] Fix crash on android &lt; 5.0</li>
+<li>[iOS] <code>SQLiteAdapter</code>'s <code>dbName</code> path now allows you to pass an absolute path to a file, instead of a name</li>
+<li>[Web] Add adaptive layout for demo example with smooth scrolling for iOS</li>
+</ul>
+<h2><a class="header" href="#0100---2019-01-18" id="0100---2019-01-18">0.10.0 - 2019-01-18</a></h2>
+<h3><a class="header" href="#breaking-1" id="breaking-1">Breaking</a></h3>
+<ul>
+<li><strong>BREAKING:</strong> Table column <code>last_modified</code> is no longer automatically added to all database tables. If
+you don't use this column (e.g. in your custom sync code), you don't have to do anything.
+If you do, manually add this column to all table definitions in your Schema:
+<pre><code>{ name: 'last_modified', type: 'number', isOptional: true }
+</code></pre>
+<strong>Don't</strong> bump schema version or write a migration for this.</li>
+</ul>
+<h3><a class="header" href="#new" id="new">New</a></h3>
+<ul>
+<li>
+<p><strong>Actions API</strong>.</p>
+<p>This was actually released in 0.8.0 but is now documented in <a href="./docs/CRUD.html">CRUD.md</a> and <a href="./docs/Actions.html">Actions.md</a>.
+With Actions enabled, all create/update/delete/batch calls must be wrapped in an Action.</p>
+<p>To use Actions, call <code>await database.action(async () =&gt; { /* perform writes here */ }</code>, and in
+Model instance methods, you can just decorate the whole method with <code>@action</code>.</p>
+<p>This is necessary for Watermelon Sync, and also to enable greater safety and consistency.</p>
+<p>To enable actions, add <code>actionsEnabled: true</code> to <code>new Database({ ... })</code>. In a future release this
+will be enabled by default, and later, made mandatory.</p>
+<p>See documentation for more details.</p>
+</li>
+<li>
+<p><strong>Watermelon Sync Adapter</strong> (Experimental)</p>
+<p>Added <code>synchronize()</code> function that allows you to easily add full synchronization capabilities to
+your Watermelon app. You only need to provide two fetch calls to your remote server that conforms
+to Watermelon synchronization protocol, and all the client-side processing (applying remote changes,
+resolving conflicts, finding local changes, and marking them as synced) is done by Watermelon.</p>
+<p>See documentation for more details.</p>
+</li>
+<li>
+<p><strong>Support caching for non-global IDs at Native level</strong></p>
+</li>
+</ul>
+<h2><a class="header" href="#090---2018-11-23" id="090---2018-11-23">0.9.0 - 2018-11-23</a></h2>
+<h3><a class="header" href="#new-1" id="new-1">New</a></h3>
+<ul>
+<li>Added <code>Q.like</code> - you can now make queries similar to SQL <code>LIKE</code></li>
+</ul>
+<h2><a class="header" href="#080---2018-11-16" id="080---2018-11-16">0.8.0 - 2018-11-16</a></h2>
+<h3><a class="header" href="#new-2" id="new-2">New</a></h3>
+<ul>
+<li>Added <code>DatabaseProvider</code> and <code>withDatabase</code> Higher-Order Component to reduce prop drilling</li>
+<li>Added experimental Actions API. This will be documented in a future release.</li>
+</ul>
+<h3><a class="header" href="#fixes-3" id="fixes-3">Fixes</a></h3>
+<ul>
+<li>Fixes crash on older Android React Native targets without <code>jsc-android</code> installed</li>
+</ul>
+<h2><a class="header" href="#070---2018-10-31" id="070---2018-10-31">0.7.0 - 2018-10-31</a></h2>
+<h3><a class="header" href="#deprecations" id="deprecations">Deprecations</a></h3>
+<ul>
+<li>[Schema] Column type 'bool' is deprecated — change to 'boolean'</li>
+</ul>
+<h3><a class="header" href="#new-3" id="new-3">New</a></h3>
+<ul>
+<li>Added support for Schema Migrations. See documentation for more details.</li>
+<li>Added fundaments for integration of Danger with Jest</li>
+</ul>
+<h3><a class="header" href="#changes-5" id="changes-5">Changes</a></h3>
+<ul>
+<li>Fixed &quot;dependency cycle&quot; warning</li>
+<li>[SQLite] Fixed rare cases where database could be left in an unusable state (added missing transaction)</li>
+<li>[Flow] Fixes <code>oneOf()</code> typing and some other variance errors</li>
+<li>[React Native] App should launch a little faster, because schema is only compiled on demand now</li>
+<li>Fixed typos in README.md</li>
+<li>Updated Flow to 0.85</li>
+</ul>
+<h2><a class="header" href="#062---2018-10-04" id="062---2018-10-04">0.6.2 - 2018-10-04</a></h2>
+<h3><a class="header" href="#deprecations-1" id="deprecations-1">Deprecations</a></h3>
+<ul>
+<li>The <code>@nozbe/watermelondb/babel/cjs</code> / <code>@nozbe/watermelondb/babel/esm</code> Babel plugin that ships with Watermelon is deprecated and no longer necessary. Delete it from your Babel config as it will be removed in a future update</li>
+</ul>
+<h3><a class="header" href="#refactoring" id="refactoring">Refactoring</a></h3>
+<ul>
+<li>Removed dependency on <code>async</code> (Web Worker should be ~30KB smaller)</li>
+<li>Refactored <code>Collection</code> and <code>simpleObserver</code> for getting changes in an array and also adds CollectionChangeTypes for differentiation between different changes</li>
+<li>Updated dependencies</li>
+<li>Simplified build system by using relative imports</li>
+<li>Simplified build package by outputting CJS-only files</li>
+</ul>
+<h2><a class="header" href="#061---2018-09-20" id="061---2018-09-20">0.6.1 - 2018-09-20</a></h2>
+<h3><a class="header" href="#added-1" id="added-1">Added</a></h3>
+<ul>
+<li>Added iOS and Android integration tests and lint checks to TravisCI</li>
+</ul>
+<h3><a class="header" href="#changed" id="changed">Changed</a></h3>
+<ul>
+<li>Changed Flow setup for apps using Watermelon - see docs/Advanced/Flow.md</li>
+<li>Improved documentation, and demo code</li>
+<li>Updated dependencies</li>
+</ul>
+<h3><a class="header" href="#fixed" id="fixed">Fixed</a></h3>
+<ul>
+<li>Add quotes to all names in sql queries to allow keywords as table or column names</li>
+<li>Fixed running model tests in apps with Watermelon in the loop</li>
+<li>Fixed Flow when using Watermelon in apps</li>
+</ul>
+<h2><a class="header" href="#060---2018-09-05" id="060---2018-09-05">0.6.0 - 2018-09-05</a></h2>
+<p>Initial release of WatermelonDB</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+        
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+        
+        
+
+    </body>
+</html>

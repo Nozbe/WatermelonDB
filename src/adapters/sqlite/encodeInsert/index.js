@@ -1,28 +1,31 @@
 // @flow
 
-import { pipe, join, keys, values, always, map } from 'rambdax'
+import type { TableName } from '../../../Schema'
+import type { RawRecord } from '../../../RawRecord'
+import type { SQLiteQuery, SQLiteArg } from '../index'
 
-import type Model from '../../../Model'
-import type { SQLiteQuery } from '../index'
+const memoizedPlaceholders = {}
+const generatePlaceholders = count => {
+  const memoized = memoizedPlaceholders[count]
+  if (memoized) {
+    return memoized
+  }
 
-import encodeName from '../encodeName'
+  const placeholders = Array(count)
+    .fill('?')
+    .join(', ')
+  memoizedPlaceholders[count] = placeholders
+  return placeholders
+}
 
-const columnNames = pipe(
-  keys,
-  map(encodeName),
-  join(', '),
-)
+export default function encodeInsert(table: TableName<any>, raw: RawRecord): SQLiteQuery {
+  const keys = Object.keys(raw)
 
-const valuePlaceholders = pipe(
-  values,
-  map(always('?')),
-  join(', '),
-)
-
-export default function encodeInsert(model: Model): SQLiteQuery {
-  const { _raw: raw, table } = model
-  const sql = `insert into ${table} (${columnNames(raw)}) values (${valuePlaceholders(raw)})`
-  const args = values(raw)
+  // skipping encodeName because performance
+  const sql = `insert into ${table} ("${keys.join('", "')}") values (${generatePlaceholders(
+    keys.length,
+  )})`
+  const args: SQLiteArg[] = (Object.values(raw): any)
 
   return [sql, args]
 }

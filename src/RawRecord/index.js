@@ -2,7 +2,6 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable no-self-compare */
 
-import { values } from 'rambdax'
 import { type ColumnName, type ColumnSchema, type TableSchema } from '../Schema'
 import { type RecordId, type SyncStatus } from '../Model'
 
@@ -86,11 +85,14 @@ export function sanitizedRaw(dirtyRaw: DirtyRaw, tableSchema: TableSchema): RawR
     raw._changed = ''
   }
 
-  values(tableSchema.columns).forEach(columnSchema => {
+  // faster than Object.values on a map
+  const columns = tableSchema.columnArray
+  for (let i = 0, len = columns.length; i < len; i += 1) {
+    const columnSchema = columns[i]
     const key = (columnSchema.name: string)
     const value = dirtyRaw[key]
     _setRaw(raw, key, value, columnSchema)
-  })
+  }
 
   return raw
 }

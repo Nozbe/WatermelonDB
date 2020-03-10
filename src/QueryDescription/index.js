@@ -1,24 +1,9 @@
 // @flow
 
-import {
-  propEq,
-  is,
-  has,
-  any,
-  values as getValues,
-  complement,
-  T,
-  F,
-  pipe,
-  prop,
-  uniq,
-  map,
-} from 'rambdax'
+import { propEq, pipe, prop, uniq, map } from 'rambdax'
 
 // don't import whole `utils` to keep worker size small
-import cond from '../utils/fp/cond'
 import partition from '../utils/fp/partition'
-import isObject from '../utils/fp/isObject'
 import invariant from '../utils/common/invariant'
 import type { $RE } from '../types'
 
@@ -41,6 +26,7 @@ export type Operator =
   | 'notIn'
   | 'between'
   | 'like'
+  | 'notLike'
 
 export type ColumnDescription = $RE<{ column: ColumnName }>
 export type ComparisonRight =
@@ -178,8 +164,14 @@ export function like(value: string): Comparison {
   return { operator: 'like', right: { value } }
 }
 
+export function notLike(value: string): Comparison {
+  return { operator: 'notLike', right: { value } }
+}
+
+const nonLikeSafeRegexp = /[^a-zA-Z0-9]/g
+
 export function sanitizeLikeString(value: string): string {
-  return value.replace(/[^a-zA-Z0-9]/g, '_')
+  return value.replace(nonLikeSafeRegexp, '_')
 }
 
 export function column(name: ColumnName): ColumnDescription {
@@ -250,33 +242,57 @@ const joinsWithoutDeleted = pipe(
 export function buildQueryDescription(conditions: Condition[]): QueryDescription {
   const [join, whereConditions] = getJoins(conditions)
 
-  return { join, where: whereConditions }
+  const query = { join, where: whereConditions }
+  if (process.env.NODE_ENV !== 'production') {
+    Object.freeze(query)
+  }
+  return query
 }
 
 export function queryWithoutDeleted(query: QueryDescription): QueryDescription {
   const { join, where: whereConditions } = query
 
-  return {
+  const newQuery = {
     join: [...join, ...joinsWithoutDeleted(join)],
     where: [...whereConditions, whereNotDeleted],
   }
+  if (process.env.NODE_ENV !== 'production') {
+    Object.freeze(newQuery)
+  }
+  return newQuery
 }
 
-const isNotObject = complement(isObject)
+const searchForColumnComparisons: any => boolean = value => {
+  // Performance critical (100ms on login in previous rambdax-based implementation)
 
-const searchForColumnComparisons: any => boolean = cond([
-  [is(Array), any(value => searchForColumnComparisons(value))], // dig deeper into arrays
-  [isNotObject, F], // bail if primitive value
-  [has('column'), T], // bingo!
-  [
-    T,
-    pipe(
-      // dig deeper into objects
-      getValues,
-      any(value => searchForColumnComparisons(value)),
-    ),
-  ],
-])
+  if (Array.isArray(value)) {
+    // dig deeper into the array
+    for (let i = 0; i < value.length; i += 1) {
+      if (searchForColumnComparisons(value[i])) {
+        return true
+      }
+    }
+    return false
+  } else if (value && typeof value === 'object') {
+    if (value.column) {
+      return true // bingo!
+    }
+    // drill deeper into the object
+    // eslint-disable-next-line no-restricted-syntax
+    for (const key in value) {
+      // NOTE: To be safe against JS edge cases, there should be hasOwnProperty check
+      // but this is performance critical so we trust that this is only called with
+      // QueryDescription which doesn't need that
+      if (searchForColumnComparisons(value[key])) {
+        return true
+      }
+    }
+    return false
+  }
+
+  // primitive value
+  return false
+}
 
 export function hasColumnComparisons(conditions: Where[]): boolean {
   return searchForColumnComparisons(conditions)

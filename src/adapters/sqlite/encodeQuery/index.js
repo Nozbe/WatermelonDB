@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import type Query, { AssociationArgs } from '../../../Query'
+import type { SerializedQuery, AssociationArgs } from '../../../Query'
 import type {
   NonNullValues,
   Operator,
@@ -15,20 +15,14 @@ import type {
 } from '../../../QueryDescription'
 import * as Q from '../../../QueryDescription'
 import { type TableName, type ColumnName } from '../../../Schema'
-import type Model from '../../../Model'
 
 import encodeValue from '../encodeValue'
 import encodeName from '../encodeName'
 
 function mapJoin<T>(array: T[], mapper: T => string, joiner: string): string {
-  return array.reduce(
-    (string, value) => (string === '' ? mapper(value) : `${string}${joiner}${mapper(value)}`),
-    '',
-  )
-}
-
-function mapConcat<T>(array: T[], mapper: T => string): string {
-  return array.reduce((string, value) => `${string}${mapper(value)}`, '')
+  // NOTE: DO NOT try to optimize this by concatenating strings together. In non-JIT JSC,
+  // concatenating strings is extremely slow (5000ms vs 120ms on 65K sample)
+  return array.map(mapper).join(joiner)
 }
 
 const encodeValues: NonNullValues => string = values =>
@@ -58,14 +52,15 @@ const operators: { [Operator]: string } = {
   notIn: 'not in',
   between: 'between',
   like: 'like',
+  notLike: 'not like',
 }
 
 const encodeComparison = (table: TableName<any>, comparison: Comparison) => {
   if (comparison.operator === 'between') {
     const { right } = comparison
-    return right.values ?
-      `between ${encodeValue(right.values[0])} and ${encodeValue(right.values[1])}` :
-      ''
+    return right.values
+      ? `between ${encodeValue(right.values[0])} and ${encodeValue(right.values[1])}`
+      : ''
   }
 
   return `${operators[comparison.operator]} ${getComparisonRight(table, comparison.right)}`
@@ -131,32 +126,32 @@ const encodeMethod = (
   needsDistinct: boolean,
 ): string => {
   if (countMode) {
-    return needsDistinct ?
-      `select count(distinct ${encodeName(table)}."id") as "count" from ${encodeName(table)}` :
-      `select count(*) as "count" from ${encodeName(table)}`
+    return needsDistinct
+      ? `select count(distinct ${encodeName(table)}."id") as "count" from ${encodeName(table)}`
+      : `select count(*) as "count" from ${encodeName(table)}`
   }
 
-  return needsDistinct ?
-    `select distinct ${encodeName(table)}.* from ${encodeName(table)}` :
-    `select ${encodeName(table)}.* from ${encodeName(table)}`
+  return needsDistinct
+    ? `select distinct ${encodeName(table)}.* from ${encodeName(table)}`
+    : `select ${encodeName(table)}.* from ${encodeName(table)}`
 }
 
 const encodeAssociation: (TableName<any>) => AssociationArgs => string = mainTable => ([
   joinedTable,
   association,
 ]) =>
-  association.type === 'belongs_to' ?
-    ` join ${encodeName(joinedTable)} on ${encodeName(joinedTable)}."id" = ${encodeName(
+  association.type === 'belongs_to'
+    ? ` join ${encodeName(joinedTable)} on ${encodeName(joinedTable)}."id" = ${encodeName(
         mainTable,
-      )}.${encodeName(association.key)}` :
-    ` join ${encodeName(joinedTable)} on ${encodeName(joinedTable)}.${encodeName(
+      )}.${encodeName(association.key)}`
+    : ` join ${encodeName(joinedTable)} on ${encodeName(joinedTable)}.${encodeName(
         association.foreignKey,
       )} = ${encodeName(mainTable)}."id"`
 
 const encodeJoin = (table: TableName<any>, associations: AssociationArgs[]): string =>
-  associations.length ? mapConcat(associations, encodeAssociation(table)) : ''
+  associations.length ? associations.map(encodeAssociation(table)).join('') : ''
 
-const encodeQuery = <T: Model>(query: Query<T>, countMode: boolean = false): string => {
+const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string => {
   const { table, description } = query
 
   const hasJoins = !!query.description.join.length

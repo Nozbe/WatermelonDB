@@ -1,6 +1,6 @@
+import clone from 'lodash.clonedeep'
 import { change, times, map, length } from 'rambdax'
 import { skip as skip$ } from 'rxjs/operators'
-import clone from 'lodash.clonedeep'
 import { noop } from '../utils/fp'
 import { randomId } from '../utils/common'
 import { mockDatabase } from '../__tests__/testModels'
@@ -151,6 +151,7 @@ describe('fetchLocalChanges', () => {
     expect(pCreated1._raw._status).toBe('created')
     expect(pUpdated._raw._status).toBe('updated')
     expect(pUpdated._raw._changed).toBe('name')
+
     expect(tDeleted._raw._status).toBe('deleted')
     const expectedChanges = clone({
       mock_projects: {
@@ -298,7 +299,7 @@ describe('markLocalChangesAsSynced', () => {
     expect(localChanges1).toEqual(localChanges2)
   })
   it('marks local changes as synced', async () => {
-    const { database, adapter, projects, tasks } = makeDatabase()
+    const { database, projects, tasks } = makeDatabase()
 
     await makeLocalChanges(database)
 
@@ -321,9 +322,9 @@ describe('markLocalChangesAsSynced', () => {
     expect(taskList.every(record => record.syncStatus === 'synced')).toBe(true)
 
     // no objects marked as deleted
-    expect(await adapter.getDeletedRecords('mock_projects')).toEqual([])
-    expect(await adapter.getDeletedRecords('mock_tasks')).toEqual([])
-    expect(await adapter.getDeletedRecords('mock_comments')).toEqual([])
+    expect(await database.adapter.getDeletedRecords('mock_projects')).toEqual([])
+    expect(await database.adapter.getDeletedRecords('mock_tasks')).toEqual([])
+    expect(await database.adapter.getDeletedRecords('mock_comments')).toEqual([])
   })
   it(`doesn't modify updated_at timestamps`, async () => {
     const { database, comments } = makeDatabase()
@@ -663,7 +664,13 @@ describe('synchronize', () => {
     const { database } = makeDatabase()
 
     const log = {}
-    await synchronize({ database, pullChanges: jest.fn(emptyPull()), pushChanges: jest.fn(), log })
+    await synchronize({
+      database,
+      pullChanges: jest.fn(emptyPull()),
+      // ensure we take more than 1ms for the log test
+      pushChanges: () => new Promise(resolve => setTimeout(resolve, 10)),
+      log,
+    })
 
     expect(log.startedAt).toBeInstanceOf(Date)
     expect(log.finishedAt).toBeInstanceOf(Date)

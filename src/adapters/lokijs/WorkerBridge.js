@@ -1,56 +1,70 @@
 // @flow
 
-import LokiWorker from './worker/index.worker'
-
+import type { ResultCallback } from '../../utils/fp/Result'
 import {
-  responseActions,
   type WorkerExecutorType,
-  type WorkerResponseAction,
+  type WorkerResponse,
   type WorkerExecutorPayload,
-  type WorkerResponsePayload,
+  type WorkerResponseData,
 } from './common'
 
-type PromiseResponse = WorkerResponsePayload => void
 type WorkerAction = {
-  resolve: PromiseResponse,
-  reject: PromiseResponse,
+  id: number,
+  callback: ResultCallback<WorkerResponseData>,
 }
 type WorkerActions = WorkerAction[]
 
-const { RESPONSE_SUCCESS, RESPONSE_ERROR } = responseActions
-
-class WorkerBridge {
-  _worker: Worker = this._createWorker()
-
-  _pendingRequests: WorkerActions = []
-
-  _createWorker(): Worker {
-    const worker: Worker = (new LokiWorker(): any)
-
-    worker.onmessage = ({ data }) => {
-      const { type, payload }: WorkerResponseAction = (data: any)
-      const { resolve, reject } = this._pendingRequests.shift()
-
-      if (type === RESPONSE_ERROR) {
-        reject(payload)
-      } else if (type === RESPONSE_SUCCESS) {
-        resolve(payload)
-      }
-    }
-
-    return worker
+function createWorker(useWebWorker: boolean): Worker {
+  if (useWebWorker) {
+    const LokiWebWorker = (require('./worker/index.worker'): any)
+    return new LokiWebWorker()
   }
 
-  // TODO: `any` should be `WorkerResponsePayload` here
-  send(type: WorkerExecutorType, payload: WorkerExecutorPayload = []): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this._pendingRequests.push({ resolve, reject })
+  const WebWorkerMock = (require('./worker/workerMock').default: any)
+  return new WebWorkerMock()
+}
 
-      this._worker.postMessage({
-        type,
-        payload,
-      })
+let _actionId = 0
+
+function nextActionId(): number {
+  _actionId += 1
+  return _actionId
+}
+
+class WorkerBridge {
+  _worker: Worker
+
+  _pendingActions: WorkerActions = []
+
+  constructor(useWebWorker: boolean): void {
+    this._worker = createWorker(useWebWorker)
+    this._worker.onmessage = ({ data }) => {
+      const { result, id: responseId }: WorkerResponse = (data: any)
+      const { callback, id } = this._pendingActions.shift()
+
+      // sanity check
+      if (id !== responseId) {
+        callback({ error: (new Error('Loki worker responses are out of order'): any) })
+        return
+      }
+
+      callback(result)
+    }
+  }
+
+  // TODO: `any` return should be `WorkerResponsePayload`
+  send<T>(
+    type: WorkerExecutorType,
+    payload: WorkerExecutorPayload = [],
+    callback: ResultCallback<T>,
+    cloneMethod: 'shallowCloneDeepObjects' | 'immutable' | 'deep' = 'deep',
+  ): void {
+    const id = nextActionId()
+    this._pendingActions.push({
+      callback: (callback: any),
+      id,
     })
+    this._worker.postMessage({ id, type, payload, cloneMethod })
   }
 }
 

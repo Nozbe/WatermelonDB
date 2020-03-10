@@ -34,14 +34,14 @@ export default class ActionQueue implements ActionInterface {
         const queue = this._queue
         const current = queue[0]
         logger.warn(
-          `The action you're trying to perform (${description ||
+          `[WatermelonDB] The action you're trying to perform (${description ||
             'unnamed'}) can't be performed yet, because there are ${
             queue.length
           } actions in the queue. Current action: ${current.description ||
             'unnamed'}. Ignore this message if everything is working fine. But if your actions are not running, it's because the current action is stuck. Remember that if you're calling an action from an action, you must use subAction(). See docs for more details.`,
         )
-        logger.log(`Enqueued action:`, work)
-        logger.log(`Running action:`, current.work)
+        logger.log(`[WatermelonDB] Enqueued action:`, work)
+        logger.log(`[WatermelonDB] Running action:`, current.work)
       }
 
       this._queue.push({ work, resolve, reject, description })

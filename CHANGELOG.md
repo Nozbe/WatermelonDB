@@ -4,6 +4,162 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### New features
+
+### Changes
+
+### Fixes
+
+- [Typescript] Fixed types of decorators.
+- [Typescript] Add Tests to test Types.
+
+## 0.16 - 2020-03-06
+
+### ⚠️ Breaking
+
+- `experimentalUseIncrementalIndexedDB` has been renamed to `useIncrementalIndexedDB`
+
+#### Low breakage risk
+
+- [adapters] Adapter API has changed from returning Promise to taking callbacks as the last argument. This won't affect you unless you call on adapter methods directly. `database.adapter` returns a new `DatabaseAdapterCompat` which has the same shape as old adapter API. You can use `database.adapter.underlyingAdapter` to get back `SQLiteAdapter` / `LokiJSAdapter`
+- [Collection] `Collection.fetchQuery` and `Collection.fetchCount` are removed. Please use `Query.fetch()` and `Query.fetchCount()`.
+
+### New features
+
+- [SQLiteAdapter] [iOS] Add new `synchronous` option to adapter: `new SQLiteAdapter({ ..., synchronous: true })`.
+  When enabled, database operations will block JavaScript thread. Adapter actions will resolve in the
+  next microtask, which simplifies building flicker-free interfaces. Adapter will fall back to async
+  operation when synchronous adapter is not available (e.g. when doing remote debugging)
+- [LokiJS] Added new `onQuotaExceededError?: (error: Error) => void` option to `LokiJSAdapter` constructor.
+  This is called when underlying IndexedDB encountered a quota exceeded error (ran out of allotted disk space for app)
+  This means that app can't save more data or that it will fall back to using in-memory database only
+  Note that this only works when `useWebWorker: false`
+
+### Changes
+
+- [Performance] Watermelon internals have been rewritten not to rely on Promises and allow some fetch/observe calls to resolve synchronously. Do not rely on this -- external API is still based on Rx and Promises and may resolve either asynchronously or synchronously depending on capabilities. This is meant as a internal performance optimization only for the time being.
+- [LokiJS] [Performance] Improved worker queue implementation for performance
+- [observation] Refactored observer implementations for performance
+
+### Fixes
+
+- Fixed a possible cause for "Record ID xxx#yyy was sent over the bridge, but it's not cached" error
+- [LokiJS] Fixed an issue preventing database from saving when using `experimentalUseIncrementalIndexedDB`
+- Fixed a potential issue when using `database.unsafeResetDatabase()`
+- [iOS] Fixed issue with clearing database under experimental synchronous mode
+
+### New features (Experimental)
+
+- [Model] Added experimental `model.experimentalSubscribe((isDeleted) => { ... })` method as a vanilla JS alternative to Rx based `model.observe()`. Unlike the latter, it does not notify the subscriber immediately upon subscription.
+- [Collection] Added internal `collection.experimentalSubscribe((changeSet) => { ... })` method as a vanilla JS alternative to Rx based `collection.changes` (you probably shouldn't be using this API anyway)
+- [Database] Added experimental `database.experimentalSubscribe(['table1', 'table2'], () => { ... })` method as a vanilla JS alternative to Rx-based `database.withChangesForTables()`. Unlike the latter, `experimentalSubscribe` notifies the subscriber only once after a batch that makes a change in multiple collections subscribed to. It also doesn't notify the subscriber immediately upon subscription, and doesn't send details about the changes, only a signal.
+- Added `experimentalDisableObserveCountThrottling()` to `@nozbe/watermelondb/observation/observeCount` that globally disables count observation throttling. We think that throttling on WatermelonDB level is not a good feature and will be removed in a future release - and will be better implemented on app level if necessary
+- [Query] Added experimental `query.experimentalSubscribe(records => { ... })`, `query.experimentalSubscribeWithColumns(['col1', 'col2'], records => { ... })`, and `query.experimentalSubscribeToCount(count => { ... })` methods
+
+## 0.15 - 2019-11-08
+
+### Highlights
+
+This is a **massive** new update to WatermelonDB! 🍉
+
+- **Up to 23x faster sync**. You heard that right. We've made big improvements to performance.
+  In our tests, with a massive sync (first login, 45MB of data / 65K records) we got a speed up of:
+  - 5.7s -> 1.2s on web (5x)
+  - 142s -> 6s on iOS (23x)
+
+  Expect more improvements in the coming releases!
+- **Improved LokiJS adapter**. Option to disable web workers, important Safari 13 fix, better performance,
+  and now works in Private Modes. We recommend adding `useWebWorker: false, experimentalUseIncrementalIndexedDB: true` options to the `LokiJSAdapter` constructor to take advantage of the improvements, but please read further changelog to understand the implications of this.
+- **Raw SQL queries** now available on iOS and Android thanks to the community
+- **Improved TypeScript support** — thanks to the community
+
+### ⚠️ Breaking
+
+- Deprecated `bool` schema column type is removed -- please change to `boolean`
+- Experimental `experimentalSetOnlyMarkAsChangedIfDiffers(false)` API is now removed
+
+### New featuers
+
+- [Collection] Add `Collection.unsafeFetchRecordsWithSQL()` method. You can use it to fetch record using
+  raw SQL queries on iOS and Android. Please be careful to avoid SQL injection and other pitfalls of
+  raw queries
+- [LokiJS] Introduces new `new LokiJSAdapter({ ..., experimentalUseIncrementalIndexedDB: true })` option.
+  When enabled, database will be saved to browser's IndexedDB using a new adapter that only saves the
+  changed records, instead of the entire database.
+
+  **This works around a serious bug in Safari 13** (https://bugs.webkit.org/show_bug.cgi?id=202137) that causes large
+  databases to quickly balloon to gigabytes of temporary trash
+
+  This also improves performance of incremental saves, although initial page load or very, very large saves
+  might be slightly slower.
+
+  This is intended to become the new default option, but it's not backwards compatible (if enabled, old database
+  will be lost). **You're welcome to contribute an automatic migration code.**
+
+  Note that this option is still experimental, and might change in breaking ways at any time.
+
+- [LokiJS] Introduces new `new LokiJSAdapter({ ..., useWebWorker: false })` option. Before, web workers
+  were always used with `LokiJSAdapter`. Although web workers may have some performance benefits, disabling them
+  may lead to lower memory consumption, lower latency, and easier debugging. YMMV.
+- [LokiJS] Added `onIndexedDBVersionChange` option to `LokiJSAdapter`. This is a callback that's called
+  when internal IDB version changed (most likely the database was deleted in another browser tab).
+  Pass a callback to force log out in this copy of the app as well. Note that this only works when
+  using incrementalIDB and not using web workers
+- [Model] Add `Model._dangerouslySetRawWithoutMarkingColumnChange()` method. You probably shouldn't use it,
+  but if you know what you're doing and want to live-update records from server without marking record as updated,
+  this is useful
+- [Collection] Add `Collection.prepareCreateFromDirtyRaw()`
+- @json decorator sanitizer functions take an optional second argument, with a reference to the model
+
+### Fixes
+
+- Pinned required `rambdax` version to 2.15.0 to avoid console logging bug. In a future release we will switch to our own fork of `rambdax` to avoid future breakages like this.
+
+### Improvements
+
+- [Performance] Make large batches a lot faster (1.3s shaved off on a 65K insert sample)
+- [Performance] [iOS] Make large batch inserts an order of magnitude faster
+- [Performance] [iOS] Make encoding very large queries (with thousands of parameters) 20x faster
+- [Performance] [LokiJS] Make batch inserts faster (1.5s shaved off on a 65K insert sample)
+- [Performance] [LokiJS] Various performance improvements
+- [Performance] [Sync] Make Sync faster
+- [Performance] Make observation faster
+- [Performance] [Android] Make batches faster
+- Fix app glitches and performance issues caused by race conditions in `Query.observeWithColumns()`
+- [LokiJS] Persistence adapter will now be automatically selected based on availability. By default,
+  IndexedDB is used. But now, if unavailable (e.g. in private mode), ephemeral memory adapter will be used.
+- Disabled console logs regarding new observations (it never actually counted all observations) and
+  time to query/count/batch (the measures were wildly inaccurate because of asynchronicity - actual
+  times are much lower)
+- [withObservables] Improved performance and debuggability (update withObservables package separately)
+- Improved debuggability of Watermelon -- shortened Rx stacks and added function names to aid in understanding
+  call stacks and profiles
+- [adapters] The adapters interface has changed. `query()` and `count()` methods now receive a `SerializedQuery`, and `batch()` now takes `TableName<any>` and `RawRecord` or `RecordId` instead of `Model`.
+- [Typescript] Typing improvements
+     - Added 3 missing properties `collections`, `database` and `asModel` in Model type definition.
+     - Removed optional flag on `actionsEnabled` in the Database constructor options since its mandatory since 0.13.0.
+     - fixed several further typing issues in Model, Relation and lazy decorator
+- Changed how async functions are transpiled in the library. This could break on really old Android phones
+  but shouldn't matter if you use latest version of React Native. Please report an issue if you see a problem.
+- Avoid `database` prop drilling in the web demo
+
+## 0.14.1 - 2019-08-31
+
+Hotfix for rambdax crash
+
+- [Schema] Handle invalid table schema argument in appSchema
+- [withObservables] Added TypeScript support ([changelog](https://github.com/Nozbe/withObservables/blob/master/CHANGELOG.md))
+- [Electron] avoid `Uncaught ReferenceError: global is not defined` in electron runtime ([#453](https://github.com/Nozbe/WatermelonDB/issues/453))
+- [rambdax] Replaces `contains` with `includes` due to `contains` deprecation https://github.com/selfrefactor/rambda/commit/1dc1368f81e9f398664c9d95c2efbc48b5cdff9b#diff-04c6e90faac2675aa89e2176d2eec7d8R2209
+
+## 0.14.0 - 2019-08-02
+
+### New features
+- [Query] Added support for `notLike` queries 🎉
+- [Actions] You can now batch delete record with all descendants using experimental functions `experimentalMarkAsDeleted` or `experimentalDestroyPermanently`
+
+## 0.13.0 - 2019-07-18
+
 ### ⚠️ Breaking
 
 - [Database] It is now mandatory to pass `actionsEnabled:` option to Database constructor.

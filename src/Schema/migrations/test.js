@@ -84,10 +84,16 @@ describe('schemaMigrations()', () => {
           steps: [
             {
               type: 'create_table',
-              name: 'comments',
-              columns: {
-                post_id: { name: 'post_id', type: 'string', isIndexed: true },
-                body: { name: 'body', type: 'string' },
+              schema: {
+                name: 'comments',
+                columns: {
+                  post_id: { name: 'post_id', type: 'string', isIndexed: true },
+                  body: { name: 'body', type: 'string' },
+                },
+                columnArray: [
+                  { name: 'post_id', type: 'string', isIndexed: true },
+                  { name: 'body', type: 'string' },
+                ],
               },
             },
             {

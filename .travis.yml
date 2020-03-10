@@ -33,6 +33,7 @@ matrix:
         - npm run swiftlint
 
     - language: android
+      sudo: required
       android:
         components:
           - build-tools-28.0.3
@@ -51,6 +52,7 @@ matrix:
           - $HOME/.gradle/wrapper/
           - $HOME/.android/build-cache
       before_install:
+        - echo 'fs.inotify.max_user_watches=524288' | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
         - nvm install 10
         - which node
         - node --version
@@ -71,3 +73,16 @@ matrix:
       after_failure:
         - adb logcat -d > logcat.txt
         - echo "$(cat logcat.txt)"
+
+    - language: rust
+      sudo: false
+      cache:
+        - cargo
+      rust:
+        - stable
+      before_script:
+        - (test -x $HOME/.cargo/bin/cargo-install-update || cargo install cargo-update)
+        - (test -x $HOME/.cargo/bin/mdbook || cargo install --vers "^0.3" mdbook)
+        - cargo install-update -a
+      script:
+        - ./scripts/mdbook

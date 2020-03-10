@@ -8,17 +8,16 @@ import { appSchema, tableSchema } from '../../Schema'
 import { schemaMigrations, createTable, addColumns } from '../../Schema/migrations'
 
 import { matchTests, joinTests } from '../../__tests__/databaseTests'
+import DatabaseAdapterCompat from '../compat'
 import {
   testSchema,
   taskQuery,
-  makeMockTask,
+  mockTaskRaw,
   performMatchTest,
   performJoinTest,
   expectSortedEqual,
   MockTask,
-  MockProject,
-  MockTagAssignment,
-  makeMockProject,
+  mockProjectRaw,
   projectQuery,
 } from './helpers'
 
@@ -38,8 +37,14 @@ export default () => [
       // expect(() => makeAdapter({})).toThrowError(/missing migrations/)
 
       expect(() => makeAdapter({ migrationsExperimental: [] })).toThrow(
-        /migrationsExperimental has been renamed/,
+        /`migrationsExperimental` option has been renamed to `migrations`/,
       )
+
+      if (AdapterClass.name === 'LokiJSAdapter') {
+        expect(() => makeAdapter({ experimentalUseIncrementalIndexedDB: false })).toThrow(
+          /LokiJSAdapter `experimentalUseIncrementalIndexedDB` option has been renamed/,
+        )
+      }
 
       expect(() => adapterWithMigrations({ migrations: [] })).toThrow(/use schemaMigrations()/)
 
@@ -83,8 +88,8 @@ export default () => [
   [
     'can create and find records (sanity test)',
     async adapter => {
-      const record = makeMockTask({ id: 'abc', text1: 'bar', order: 1 })
-      await adapter.batch([['create', record]])
+      const record = mockTaskRaw({ id: 'abc', text1: 'bar', order: 1 })
+      await adapter.batch([['create', 'tasks', record]])
       expect(await adapter.find('tasks', 'abc')).toBe('abc')
     },
   ],
@@ -94,21 +99,21 @@ export default () => [
       let adapter = _adapter
 
       // add a record
-      const s1 = makeMockTask({ id: 's1', text1: 'bar', order: 1 })
-      await adapter.batch([['create', s1]])
+      const s1 = mockTaskRaw({ id: 's1', text1: 'bar', order: 1 })
+      await adapter.batch([['create', 'tasks', s1]])
 
       // returns cached ID after create
       expect(await adapter.find('tasks', 's1')).toBe('s1')
 
       // add more, restart app
-      const s2 = makeMockTask({ id: 's2', bool1: true, order: 2 })
-      const s3 = makeMockTask({ id: 's3', text1: 'baz' })
-      await adapter.batch([['create', s2], ['create', s3]])
+      const s2 = mockTaskRaw({ id: 's2', bool1: true, order: 2 })
+      const s3 = mockTaskRaw({ id: 's3', text1: 'baz' })
+      await adapter.batch([['create', 'tasks', s2], ['create', 'tasks', s3]])
       adapter = adapter.testClone()
 
       // returns raw if not cached
-      expect(await adapter.find('tasks', 's2')).toEqual(s2._raw)
-      expect(await adapter.find('tasks', 's3')).toEqual(s3._raw)
+      expect(await adapter.find('tasks', 's2')).toEqual(s2)
+      expect(await adapter.find('tasks', 's3')).toEqual(s3)
 
       // caches records after first find
       expect(await adapter.find('tasks', 's2')).toBe('s2')
@@ -123,31 +128,31 @@ export default () => [
       let adapter = _adapter
 
       // add a record
-      const s1 = makeMockTask({ id: 'id1', text1: 'bar', order: 1 })
-      await adapter.batch([['create', s1]])
+      const s1 = mockTaskRaw({ id: 'id1', text1: 'bar', order: 1 })
+      await adapter.batch([['create', 'tasks', s1]])
 
       // returns null if not found in a different table
       expect(await adapter.find('projects', 'id1')).toBe(null)
 
-      const p1 = makeMockProject({ id: 'id1', num1: 1, text1: 'foo' })
-      await adapter.batch([['create', p1]])
+      const p1 = mockProjectRaw({ id: 'id1', num1: 1, text1: 'foo' })
+      await adapter.batch([['create', 'projects', p1]])
 
       // returns cached ID after create
       expect(await adapter.find('projects', 'id1')).toBe('id1')
 
       // add more project, restart app
-      const p2 = makeMockProject({ id: 'id2', num1: 1, text1: 'foo' })
-      await adapter.batch([['create', p2]])
+      const p2 = mockProjectRaw({ id: 'id2', num1: 1, text1: 'foo' })
+      await adapter.batch([['create', 'projects', p2]])
       adapter = adapter.testClone()
 
-      const s2 = makeMockTask({ id: 'id2', text1: 'baz', order: 2 })
-      await adapter.batch([['create', s2]])
+      const s2 = mockTaskRaw({ id: 'id2', text1: 'baz', order: 2 })
+      await adapter.batch([['create', 'tasks', s2]])
 
       // returns cached ID after create
       expect(await adapter.find('tasks', 'id2')).toBe('id2')
 
       // returns raw if not cached for a different table
-      expect(await adapter.find('projects', 'id2')).toEqual(p2._raw)
+      expect(await adapter.find('projects', 'id2')).toEqual(p2)
       // returns cached ID after previous find
       expect(await adapter.find('projects', 'id2')).toBe('id2')
     },
@@ -158,31 +163,31 @@ export default () => [
       let adapter = _adapter
 
       // add a record
-      const s1 = makeMockTask({ id: 'id1', text1: 'bar', order: 1 })
-      await adapter.batch([['create', s1]])
+      const s1 = mockTaskRaw({ id: 'id1', text1: 'bar', order: 1 })
+      await adapter.batch([['create', 'tasks', s1]])
 
       // returns empty array
       expectSortedEqual(await adapter.query(projectQuery()), [])
 
-      const p1 = makeMockProject({ id: 'id1', num1: 1, text1: 'foo' })
-      await adapter.batch([['create', p1]])
+      const p1 = mockProjectRaw({ id: 'id1', num1: 1, text1: 'foo' })
+      await adapter.batch([['create', 'projects', p1]])
 
       // returns cached ID after create
       expectSortedEqual(await adapter.query(projectQuery()), ['id1'])
 
       // add more project, restart app
-      const p2 = makeMockProject({ id: 'id2', num1: 1, text1: 'foo' })
-      await adapter.batch([['create', p2]])
+      const p2 = mockProjectRaw({ id: 'id2', num1: 1, text1: 'foo' })
+      await adapter.batch([['create', 'projects', p2]])
       adapter = adapter.testClone()
 
-      const s2 = makeMockTask({ id: 'id2', text1: 'baz', order: 2 })
-      await adapter.batch([['create', s2]])
+      const s2 = mockTaskRaw({ id: 'id2', text1: 'baz', order: 2 })
+      await adapter.batch([['create', 'tasks', s2]])
 
       // returns cached IDs after create
-      expectSortedEqual(await adapter.query(taskQuery()), [s1._raw, 'id2'])
+      expectSortedEqual(await adapter.query(taskQuery()), [s1, 'id2'])
 
       // returns raw if not cached for a different table
-      expectSortedEqual(await adapter.query(projectQuery()), [p1._raw, p2._raw])
+      expectSortedEqual(await adapter.query(projectQuery()), [p1, p2])
       // returns cached IDs after previous query
       expectSortedEqual(await adapter.query(taskQuery()), ['id1', 'id2'])
     },
@@ -191,28 +196,28 @@ export default () => [
     'sanitizes records on find',
     async _adapter => {
       let adapter = _adapter
-      const tt1 = new MockTagAssignment(
-        { table: 'tag_assignments' },
-        { id: 'tt1', task_id: 'abcdef' }, // Unsanitized raw!
-      )
-      expect(tt1._raw._status).toBeUndefined()
+      const tt1 = { id: 'tt1', task_id: 'abcdef' } // Unsanitized raw!
 
-      await adapter.batch([['create', tt1]])
+      await adapter.batch([['create', 'tag_assignments', tt1]])
       adapter = adapter.testClone()
 
       expect(await adapter.find('tag_assignments', 'tt1')).toEqual(
-        sanitizedRaw(tt1._raw, testSchema.tables.tag_assignments),
+        sanitizedRaw(tt1, testSchema.tables.tag_assignments),
       )
     },
   ],
   [
     'can query and count records',
     async adapter => {
-      const record1 = makeMockTask({ id: 't1', text1: 'bar', bool1: false, order: 1 })
-      const record2 = makeMockTask({ id: 't2', text1: 'baz', bool1: true, order: 2 })
-      const record3 = makeMockTask({ id: 't3', text1: 'abc', bool1: false, order: 3 })
+      const record1 = mockTaskRaw({ id: 't1', text1: 'bar', bool1: false, order: 1 })
+      const record2 = mockTaskRaw({ id: 't2', text1: 'baz', bool1: true, order: 2 })
+      const record3 = mockTaskRaw({ id: 't3', text1: 'abc', bool1: false, order: 3 })
 
-      await adapter.batch([['create', record1], ['create', record2], ['create', record3]])
+      await adapter.batch([
+        ['create', 'tasks', record1],
+        ['create', 'tasks', record2],
+        ['create', 'tasks', record3],
+      ])
 
       // all records
       expectSortedEqual(await adapter.query(taskQuery()), ['t1', 't2', 't3'])
@@ -232,43 +237,88 @@ export default () => [
     },
   ],
   [
+    'can query records in raw query format',
+    async (adapter, AdapterClass) => {
+      if (AdapterClass.name === 'SQLiteAdapter') {
+        const record1 = mockTaskRaw({ id: 't1', text1: 'bar', bool1: false, order: 1 })
+        const record2 = mockTaskRaw({ id: 't2', text1: 'baz', bool1: true, order: 2 })
+        const record3 = mockTaskRaw({ id: 't3', text1: 'abc', bool1: false, order: 3 })
+
+        await adapter.batch([
+          ['create', 'tasks', record1],
+          ['create', 'tasks', record2],
+          ['create', 'tasks', record3],
+        ])
+
+        // all records
+        expectSortedEqual(await adapter.unsafeSqlQuery('tasks', `SELECT * FROM tasks`), [
+          't1',
+          't2',
+          't3',
+        ])
+
+        expectSortedEqual(
+          await adapter.unsafeSqlQuery('tasks', `SELECT * FROM tasks WHERE bool1 = 0`),
+          ['t1', 't3'],
+        )
+
+        expectSortedEqual(
+          await adapter.unsafeSqlQuery('tasks', `SELECT * FROM tasks WHERE id = 't2'`),
+          ['t2'],
+        )
+
+        expectSortedEqual(
+          await adapter.unsafeSqlQuery('tasks', `SELECT * FROM tasks WHERE \`order\` = 2`),
+          ['t2'],
+        )
+
+        expectSortedEqual(
+          await adapter.unsafeSqlQuery('tasks', `SELECT * FROM tasks WHERE text1 = 'nope'`),
+          [],
+        )
+      } else {
+        expect(adapter.unsafeSqlQuery).toBe(undefined)
+      }
+    },
+  ],
+  [
     'compacts query results',
     async _adapter => {
       let adapter = _adapter
       const queryAll = () => adapter.query(taskQuery())
 
       // add records, restart app
-      const s1 = makeMockTask({ id: 's1', order: 1 })
-      const s2 = makeMockTask({ id: 's2', order: 2 })
-      await adapter.batch([['create', s1], ['create', s2]])
+      const s1 = mockTaskRaw({ id: 's1', order: 1 })
+      const s2 = mockTaskRaw({ id: 's2', order: 2 })
+      await adapter.batch([['create', 'tasks', s1], ['create', 'tasks', s2]])
       adapter = adapter.testClone()
 
       // first time we see it, get full object
-      expectSortedEqual(await queryAll(), [s1._raw, s2._raw])
+      expectSortedEqual(await queryAll(), [s1, s2])
 
       // cached next time
       expect(await queryAll()).toEqual(['s1', 's2'])
 
       // updating doesn't change anything
-      await adapter.batch([['update', s2]])
+      await adapter.batch([['update', 'tasks', s2]])
       expect(await queryAll()).toEqual(['s1', 's2'])
 
       // records added via adapter get cached automatically
-      const s3 = makeMockTask({ id: 's3' })
-      await adapter.batch([['create', s3]])
+      const s3 = mockTaskRaw({ id: 's3' })
+      await adapter.batch([['create', 'tasks', s3]])
       expect(await queryAll()).toEqual(['s1', 's2', 's3'])
 
       // remove and re-add and it appears again
-      await adapter.batch([['destroyPermanently', s3]])
+      await adapter.batch([['destroyPermanently', 'tasks', s3.id]])
       expect(await queryAll()).toEqual(['s1', 's2'])
 
-      const s3New = makeMockTask({ id: 's3', bool1: true })
-      await adapter.batch([['create', s3New]])
+      const s3New = mockTaskRaw({ id: 's3', bool1: true })
+      await adapter.batch([['create', 'tasks', s3New]])
       expect(await queryAll()).toEqual(['s1', 's2', 's3'])
 
       // restart app, doesn't have the records
       adapter = adapter.testClone()
-      expectSortedEqual(await queryAll(), [s1._raw, s2._raw, s3New._raw])
+      expectSortedEqual(await queryAll(), [s1, s2, s3New])
     },
   ],
   [
@@ -276,17 +326,15 @@ export default () => [
     async _adapter => {
       let adapter = _adapter
       // Unsanitized raw!
-      const t1 = new MockTask({ table: 'tasks' }, { id: 't1', text1: 'foo', order: 1 })
-      const t2 = new MockTask({ table: 'tasks' }, { id: 't2', text2: 'bar', order: 2 })
-      expect(t1._raw._status).toBeUndefined()
-      expect(t2._raw._status).toBeUndefined()
+      const t1 = { id: 't1', text1: 'foo', order: 1 }
+      const t2 = { id: 't2', text2: 'bar', order: 2 }
 
-      await adapter.batch([['create', t1], ['create', t2]])
+      await adapter.batch([['create', 'tasks', t1], ['create', 'tasks', t2]])
       adapter = adapter.testClone()
 
       expectSortedEqual(await adapter.query(taskQuery()), [
-        sanitizedRaw(t1._raw, testSchema.tables.tasks),
-        sanitizedRaw(t2._raw, testSchema.tables.tasks),
+        sanitizedRaw(t1, testSchema.tables.tasks),
+        sanitizedRaw(t2, testSchema.tables.tasks),
       ])
     },
   ],
@@ -294,35 +342,34 @@ export default () => [
     'returns a COPY of the data',
     async _adapter => {
       let adapter = _adapter
-      const record = makeMockTask({ id: 't1', text1: 'bar' })
-      const originalRaw = { ...record._raw }
-      await adapter.batch([['create', record]])
+      const raw = mockTaskRaw({ id: 't1', text1: 'bar' })
+      const originalRaw = { ...raw }
+      await adapter.batch([['create', 'tasks', raw]])
 
       adapter = adapter.testClone()
       const fetchedRaw = await adapter.find('tasks', 't1')
 
       // data is equal but not the same reference
       expect(fetchedRaw).toEqual(originalRaw)
-      expect(fetchedRaw).toEqual(record._raw)
-      expect(fetchedRaw).not.toBe(record._raw)
+      expect(fetchedRaw).toEqual(raw)
+      expect(fetchedRaw).not.toBe(raw)
 
       // make sure same is true for query
       adapter = adapter.testClone()
       const [queriedRaw] = await adapter.query(taskQuery())
       expect(queriedRaw).toEqual(originalRaw)
-      expect(queriedRaw).not.toBe(record._raw)
+      expect(queriedRaw).not.toBe(raw)
     },
   ],
   [
     'can update records',
     async _adapter => {
       let adapter = _adapter
-      const record = makeMockTask({ id: 't1', text1: 'bar' })
-      await adapter.batch([['create', record]])
-      record._isEditing = true
-      record._setRaw('bool1', true)
-      record._setRaw('order', 2)
-      await adapter.batch([['update', record]])
+      const raw = mockTaskRaw({ id: 't1', text1: 'bar' })
+      await adapter.batch([['create', 'tasks', raw]])
+      raw.bool1 = true
+      raw.order = 2
+      await adapter.batch([['update', 'tasks', raw]])
 
       adapter = adapter.testClone()
       const fetchedUpdatedRaw = await adapter.find('tasks', 't1')
@@ -330,38 +377,38 @@ export default () => [
       // check raws are equal (but a copy)
       expect(fetchedUpdatedRaw.bool1).toBe(true)
       expect(fetchedUpdatedRaw.order).toBe(2)
-      expect(fetchedUpdatedRaw).toEqual(record._raw)
-      expect(fetchedUpdatedRaw).not.toBe(record._raw)
+      expect(fetchedUpdatedRaw).toEqual(raw)
+      expect(fetchedUpdatedRaw).not.toBe(raw)
     },
   ],
   [
     'can mark records as deleted',
     async adapter => {
-      const m1 = makeMockTask({ id: 't1', text1: 'bar1' })
-      await adapter.batch([['create', m1]])
+      const m1 = mockTaskRaw({ id: 't1', text1: 'bar1' })
+      await adapter.batch([['create', 'tasks', m1]])
       expect(await adapter.query(taskQuery())).toEqual(['t1'])
 
-      await adapter.batch([['markAsDeleted', m1]])
+      await adapter.batch([['markAsDeleted', 'tasks', m1.id]])
       expect(await adapter.query(taskQuery())).toEqual([])
 
       // Check that the record is removed from cache
       // HACK: Set _status to reveal the record in query (if record was cached, there would only be ID)
       m1._status = 'synced'
-      await adapter.batch([['update', m1]])
-      expectSortedEqual(await adapter.query(taskQuery()), [m1._raw])
+      await adapter.batch([['update', 'tasks', m1]])
+      expectSortedEqual(await adapter.query(taskQuery()), [m1])
     },
   ],
   [
     'can get deleted record ids',
     async adapter => {
-      const m1 = makeMockTask({ id: 't1', text1: 'bar1', order: 1 })
-      const m2 = makeMockTask({ id: 't2', text1: 'bar2', order: 2 })
+      const m1 = mockTaskRaw({ id: 't1', text1: 'bar1', order: 1 })
+      const m2 = mockTaskRaw({ id: 't2', text1: 'bar2', order: 2 })
       await adapter.batch([
-        ['create', m1],
-        ['markAsDeleted', m1],
-        ['create', m2],
-        ['create', makeMockTask({ id: 't3', text1: 'bar3' })],
-        ['markAsDeleted', m2],
+        ['create', 'tasks', m1],
+        ['markAsDeleted', 'tasks', m1.id],
+        ['create', 'tasks', m2],
+        ['create', 'tasks', mockTaskRaw({ id: 't3', text1: 'bar3' })],
+        ['markAsDeleted', 'tasks', m2.id],
       ])
       expectSortedEqual(await adapter.getDeletedRecords('tasks'), ['t2', 't1'])
     },
@@ -369,16 +416,20 @@ export default () => [
   [
     'can destroy deleted records',
     async adapter => {
-      const m1 = makeMockTask({ id: 't1', text1: 'bar1', order: 1 })
-      const m2 = makeMockTask({ id: 't2', text1: 'bar2', order: 2 })
-      const m3 = makeMockTask({ id: 't3', text1: 'bar3', order: 3 })
+      const m1 = mockTaskRaw({ id: 't1', text1: 'bar1', order: 1 })
+      const m2 = mockTaskRaw({ id: 't2', text1: 'bar2', order: 2 })
+      const m3 = mockTaskRaw({ id: 't3', text1: 'bar3', order: 3 })
       await adapter.batch([
-        ['create', m1],
-        ['create', m2],
-        ['create', m3],
-        ['create', makeMockTask({ id: 't4', text1: 'bar4' })],
+        ['create', 'tasks', m1],
+        ['create', 'tasks', m2],
+        ['create', 'tasks', m3],
+        ['create', 'tasks', mockTaskRaw({ id: 't4', text1: 'bar4' })],
       ])
-      await adapter.batch([['markAsDeleted', m1], ['markAsDeleted', m2], ['markAsDeleted', m3]])
+      await adapter.batch([
+        ['markAsDeleted', 'tasks', m1.id],
+        ['markAsDeleted', 'tasks', m2.id],
+        ['markAsDeleted', 'tasks', m3.id],
+      ])
 
       await adapter.destroyDeletedRecords('tasks', ['t1', 't2'])
       expectSortedEqual(await adapter.getDeletedRecords('tasks'), ['t3'])
@@ -391,29 +442,28 @@ export default () => [
     'can run mixed batches',
     async _adapter => {
       let adapter = _adapter
-      const m1 = makeMockTask({ id: 't1', text1: 'bar' })
-      const m3 = makeMockTask({ id: 't3' })
-      const m4 = makeMockTask({ id: 't4' })
+      const m1 = mockTaskRaw({ id: 't1', text1: 'bar' })
+      const m3 = mockTaskRaw({ id: 't3' })
+      const m4 = mockTaskRaw({ id: 't4' })
 
-      await adapter.batch([['create', m1]])
+      await adapter.batch([['create', 'tasks', m1]])
 
-      m1._isEditing = true
-      m1._setRaw('bool1', true)
-      const m2 = makeMockTask({ id: 't2', text1: 'bar', bool2: true, order: 2 })
+      m1.bool1 = true
+      const m2 = mockTaskRaw({ id: 't2', text1: 'bar', bool2: true, order: 2 })
 
       await adapter.batch([
-        ['create', m3],
-        ['create', m4],
-        ['destroyPermanently', m3],
-        ['update', m1],
-        ['create', m2],
-        ['markAsDeleted', m4],
+        ['create', 'tasks', m3],
+        ['create', 'tasks', m4],
+        ['destroyPermanently', 'tasks', m3.id],
+        ['update', 'tasks', m1],
+        ['create', 'tasks', m2],
+        ['markAsDeleted', 'tasks', m4.id],
       ])
 
       adapter = adapter.testClone()
       const fetched1 = await adapter.find('tasks', 't1')
       expect(fetched1.bool1).toBe(true)
-      expect(fetched1).toEqual(m1._raw)
+      expect(fetched1).toEqual(m1)
 
       const fetched2 = await adapter.find('tasks', 't2')
       expect(fetched2.bool2).toBe(true)
@@ -429,21 +479,24 @@ export default () => [
     async adapter => {
       const queryAll = () => adapter.query(taskQuery())
 
-      const m1 = makeMockTask({ id: 't1', text1: 'bar1', order: 1 })
-      const m2 = makeMockTask({ id: 't2', text1: 'bar2', order: 2 })
-      const m3 = makeMockTask({ id: 't3', text1: 'bar3', order: 3 })
+      const m1 = mockTaskRaw({ id: 't1', text1: 'bar1', order: 1 })
+      const m2 = mockTaskRaw({ id: 't2', text1: 'bar2', order: 2 })
+      const m3 = mockTaskRaw({ id: 't3', text1: 'bar3', order: 3 })
 
       await adapter.batch([
-        ['create', m1],
-        ['create', m2],
-        ['create', m3],
-        ['create', makeMockTask({ id: 't4', text1: 'bar4' })],
-        ['markAsDeleted', m1],
-        ['markAsDeleted', m3],
+        ['create', 'tasks', m1],
+        ['create', 'tasks', m2],
+        ['create', 'tasks', m3],
+        ['create', 'tasks', mockTaskRaw({ id: 't4', text1: 'bar4' })],
+        ['markAsDeleted', 'tasks', m1.id],
+        ['markAsDeleted', 'tasks', m3.id],
       ])
 
       // pull server changes - server wants us to delete some records
-      await adapter.batch([['destroyPermanently', m1], ['destroyPermanently', m2]])
+      await adapter.batch([
+        ['destroyPermanently', 'tasks', m1.id],
+        ['destroyPermanently', 'tasks', m2.id],
+      ])
       expect(await queryAll()).toHaveLength(1)
 
       // push local changes
@@ -458,19 +511,68 @@ export default () => [
   [
     'can unsafely reset database',
     async adapter => {
-      await adapter.batch([['create', makeMockTask({ id: 't1', text1: 'bar', order: 1 })]])
+      await adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1', text1: 'bar', order: 1 })]])
       await adapter.unsafeResetDatabase()
       await expect(await adapter.count(taskQuery())).toBe(0)
 
       // check that reset database still works
-      await adapter.batch([['create', makeMockTask({ id: 't2', text1: 'baz', order: 2 })]])
+      await adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't2', text1: 'baz', order: 2 })]])
       expect(await adapter.count(taskQuery())).toBe(1)
+    },
+  ],
+  [
+    'queues actions correctly',
+    async adapter => {
+      function queryable(promise) {
+        let isSettled = false
+        const result = promise.then(
+          value => {
+            isSettled = true
+            return value
+          },
+          e => {
+            isSettled = true
+            throw e
+          },
+        )
+        result.isSettled = () => isSettled
+        return result
+      }
+
+      adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1', text1: 'foo', order: 1 })]])
+      const find1Promise = queryable(adapter.find('tasks', 't1'))
+      const find2Promise = queryable(adapter.find('tasks', 't2'))
+      adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't2', text1: 'bar', order: 2 })]])
+      const queryPromise = queryable(adapter.query(taskQuery()))
+      const find2Promise2 = queryable(adapter.find('tasks', 't2'))
+
+      await find2Promise2
+
+      expect(find1Promise.isSettled()).toBe(true)
+      expect(find2Promise.isSettled()).toBe(true)
+      expect(queryPromise.isSettled()).toBe(true)
+      expect(find2Promise2.isSettled()).toBe(true)
+      expect(await find1Promise).toBe('t1')
+      expect(await find2Promise).toBe(null)
+      expect(await queryPromise).toEqual(['t1', 't2'])
+      expect(await find2Promise2).toBe('t2')
+
+      // unsafeResetDatabase is the only action in loki that's necessarily asynchronous even in sync mode
+      const batchPromise = queryable(
+        adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't3', text1: 'bar', order: 2 })]]),
+      )
+      adapter.unsafeResetDatabase()
+      adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1', text1: 'bar', order: 2 })]])
+      const queryPromise2 = adapter.query(taskQuery())
+
+      expect(await queryPromise2).toEqual(['t1'])
+      expect(batchPromise.isSettled()).toBe(true)
     },
   ],
   [
     'fails on bad queries, creates, updates, deletes',
     async adapter => {
-      const badQuery = new Query({ modelClass: BadModel }, [])
+      const badQuery = new Query({ modelClass: BadModel }, []).serialize()
       await expect(adapter.query(badQuery)).rejects.toBeInstanceOf(Error)
       await expect(adapter.count(badQuery)).rejects.toBeInstanceOf(Error)
 
@@ -482,12 +584,12 @@ export default () => [
       // TODO: Fix slight inconsistencies between loki & sqlite
       // if (platform.isWeb) {
       // await expect(
-      //   adapter.batch([['update', makeMockTask({ id: 'nonexists' })]]),
+      //   adapter.batch([['update', 'tasks', mockTaskRaw({ id: 'nonexists' })]]),
       // ).rejects.toBeInstanceOf(Error)
 
       // TODO: Mark as deleted?
 
-      // const record = makeMockTask({ id: '1' })
+      // const record = 'tasks', mockTaskRaw({ id: '1' })
       // await expect(adapter.batch([['destroyPermanently', record]])).rejects.toBeInstanceOf(Error)
       // }
     },
@@ -537,20 +639,22 @@ export default () => [
         ],
       })
 
-      let adapter = new AdapterClass({
-        schema: testSchemaV3,
-        migrations: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
-      })
+      let adapter = new DatabaseAdapterCompat(
+        new AdapterClass({
+          schema: testSchemaV3,
+          migrations: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
+        }),
+      )
 
       // add data
       await adapter.batch([
-        ['create', new MockTask({}, { id: 't1', num1: 10 })],
-        ['create', new MockTask({}, { id: 't2', num1: 20 })],
+        ['create', 'tasks', { id: 't1', num1: 10 }],
+        ['create', 'tasks', { id: 't2', num1: 20 }],
       ])
 
       // can't add to tables that don't exist yet
       await expect(
-        adapter.batch([['create', new MockTagAssignment({}, { id: 'tt1', text1: 'hello' })]]),
+        adapter.batch([['create', 'tag_assignments', { id: 'tt1', text1: 'hello' }]]),
       ).rejects.toBeInstanceOf(Error)
 
       // migrate to new version
@@ -579,7 +683,7 @@ export default () => [
             name: 'projects',
             columns: [...projectColumnsV3, ...projectColumnsV5],
           }),
-          tagAssignmentSchema,
+          tableSchema(tagAssignmentSchema),
         ],
       })
       const migrationsV5 = schemaMigrations({
@@ -616,7 +720,7 @@ export default () => [
 
       // check if new columns were populated with appropriate default values
       const checkTaskColumn = (columnName, expectedValue) =>
-        new Query({ modelClass: MockTask }, [Q.where(columnName, expectedValue)])
+        new Query({ modelClass: MockTask }, [Q.where(columnName, expectedValue)]).serialize()
 
       expect(await adapter.count(checkTaskColumn('test_string', ''))).toBe(2)
       expect(await adapter.count(checkTaskColumn('test_string_optional', null))).toBe(2)
@@ -627,23 +731,18 @@ export default () => [
 
       // check I can use new table and columns
       await adapter.batch([
-        ['create', new MockTagAssignment({}, { id: 'tt2', text1: 'hello' })],
-        ['create', new MockProject({}, { id: 'p1', text1: 'hey', text2: 'foo' })],
+        ['create', 'tag_assignments', { id: 'tt2', text1: 'hello' }],
+        ['create', 'projects', { id: 'p1', text1: 'hey', text2: 'foo' }],
         [
           'create',
-          new MockTask(
-            {},
-            { id: 't3', test_string: 'hey', test_number: 2, test_boolean_optional: true },
-          ),
+          'tasks',
+          { id: 't3', test_string: 'hey', test_number: 2, test_boolean_optional: true },
         ],
       ])
 
       // check that out-of-range migration was not executed
-      class WillNotBeCreated extends Model {
-        static table = 'will_not_be_created'
-      }
       await expect(
-        adapter.batch([['create', new WillNotBeCreated({}, { id: 'w1', text1: 'hello' })]]),
+        adapter.batch([['create', 'will_not_be_created', { id: 'w1', text1: 'hello' }]]),
       ).rejects.toBeInstanceOf(Error)
 
       // make sure new fields actually work and that migrations won't be applied again
@@ -664,12 +763,14 @@ export default () => [
   [
     `can perform empty migrations (regression test)`,
     async (_adapter, AdapterClass) => {
-      let adapter = new AdapterClass({
-        schema: { ...testSchema, version: 1 },
-        migrations: schemaMigrations({ migrations: [] }),
-      })
+      let adapter = new DatabaseAdapterCompat(
+        new AdapterClass({
+          schema: { ...testSchema, version: 1 },
+          migrations: schemaMigrations({ migrations: [] }),
+        }),
+      )
 
-      await adapter.batch([['create', makeMockTask({ id: 't1', text1: 'foo' })]])
+      await adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1', text1: 'foo' })]])
       expect(await adapter.count(taskQuery())).toBe(1)
 
       // Perform an empty migration (no steps, just version bump)
@@ -687,12 +788,14 @@ export default () => [
     `resets database when it's newer than app schema`,
     async (_adapter, AdapterClass) => {
       // launch newer version of the app
-      let adapter = new AdapterClass({
-        schema: { ...testSchema, version: 3 },
-        migrations: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
-      })
+      let adapter = new DatabaseAdapterCompat(
+        new AdapterClass({
+          schema: { ...testSchema, version: 3 },
+          migrations: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
+        }),
+      )
 
-      await adapter.batch([['create', makeMockTask({})]])
+      await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
       expect(await adapter.count(taskQuery())).toBe(1)
 
       // launch older version of the app
@@ -702,7 +805,7 @@ export default () => [
       })
 
       expect(await adapter.count(taskQuery())).toBe(0)
-      await adapter.batch([['create', makeMockTask({})]])
+      await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
       expect(await adapter.count(taskQuery())).toBe(1)
     },
   ],
@@ -710,12 +813,14 @@ export default () => [
     'resets database when there are no available migrations',
     async (_adapter, AdapterClass) => {
       // launch older version of the app
-      let adapter = new AdapterClass({
-        schema: { ...testSchema, version: 1 },
-        migrations: schemaMigrations({ migrations: [] }),
-      })
+      let adapter = new DatabaseAdapterCompat(
+        new AdapterClass({
+          schema: { ...testSchema, version: 1 },
+          migrations: schemaMigrations({ migrations: [] }),
+        }),
+      )
 
-      await adapter.batch([['create', makeMockTask({})]])
+      await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
       expect(await adapter.count(taskQuery())).toBe(1)
 
       // launch newer version of the app, without migrations available
@@ -725,7 +830,7 @@ export default () => [
       })
 
       expect(await adapter.count(taskQuery())).toBe(0)
-      await adapter.batch([['create', makeMockTask({})]])
+      await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
       expect(await adapter.count(taskQuery())).toBe(1)
     },
   ],
@@ -733,12 +838,14 @@ export default () => [
     'errors when migration fails',
     async (_adapter, AdapterClass) => {
       // launch older version of the app
-      let adapter = new AdapterClass({
-        schema: { ...testSchema, version: 1 },
-        migrations: schemaMigrations({ migrations: [] }),
-      })
+      let adapter = new DatabaseAdapterCompat(
+        new AdapterClass({
+          schema: { ...testSchema, version: 1 },
+          migrations: schemaMigrations({ migrations: [] }),
+        }),
+      )
 
-      await adapter.batch([['create', makeMockTask({})]])
+      await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
       expect(await adapter.count(taskQuery())).toBe(1)
 
       // launch newer version of the app with a migration that will fail
@@ -761,7 +868,9 @@ export default () => [
       })
 
       await expect(adapter.count(taskQuery())).rejects.toBeInstanceOf(Error)
-      await expect(adapter.batch([['create', makeMockTask({})]])).rejects.toBeInstanceOf(Error)
+      await expect(adapter.batch([['create', 'tasks', mockTaskRaw({})]])).rejects.toBeInstanceOf(
+        Error,
+      )
     },
   ],
   ...matchTests.map(testCase => [

@@ -6,13 +6,26 @@ class Database {
     typealias QueryArgs = [Any]
 
     private let fmdb: FMDatabase
+    private let path: String
 
     init(path: String) {
+        self.path = path
         fmdb = FMDatabase(path: path)
+        open()
+    }
 
+    private func open() {
         guard fmdb.open() else {
             fatalError("Failed to open the database. \(fmdb.lastErrorMessage())")
         }
+
+        // TODO: Experiment with WAL
+        // do {
+        //     // must be queryRaw - returns value
+        //     _ = try queryRaw("pragma journal_mode=wal")
+        // } catch {
+        //     fatalError("Failed to set database to WAL mode \(error)")
+        // }
 
         consoleLog("Opened database at: \(path)")
     }
@@ -82,24 +95,49 @@ class Database {
         }
     }
 
-    /// Drops all tables, indexes, and resets user version to 0
     func unsafeDestroyEverything() throws {
-        // TODO: Shouldn't this simply destroy the database file?
-        consoleLog("Clearing database")
+        // Deleting files by default because it seems simpler, more reliable
+        // And we have a weird problem with sqlite code 6 (database busy) in sync mode
+        // But sadly this won't work for in-memory (shared) databases, so in those cases,
+        // drop all tables, indexes, and reset user version to 0
+        if isInMemoryDatabase {
+            try inTransaction {
+                let tables = try queryRaw("select * from sqlite_master where type='table'").map { table in
+                    table.string(forColumn: "name")!
+                }
 
-        try inTransaction {
-            let tables = try queryRaw("select * from sqlite_master where type='table'").map { table in
-                table.string(forColumn: "name")!
+                for table in tables {
+                    try execute("drop table if exists \(table)")
+                }
+
+                try execute("pragma writable_schema=1")
+                try execute("delete from sqlite_master")
+                try execute("pragma user_version=0")
+                try execute("pragma writable_schema=0")
+            }
+        } else {
+            guard fmdb.close() else {
+                throw "Could not close database".asError()
             }
 
-            for table in tables {
-                try execute("drop table if exists \(table)")
+            let manager = FileManager.default
+
+            try manager.removeItem(atPath: path)
+
+            func removeIfExists(_ path: String) throws {
+                if manager.fileExists(atPath: path) {
+                    try manager.removeItem(atPath: path)
+                }
             }
 
-            try execute("pragma writable_schema=1")
-            try execute("delete from sqlite_master")
-            try execute("pragma user_version=0")
-            try execute("pragma writable_schema=0")
+            try removeIfExists("\(path)-wal")
+            try removeIfExists("\(path)-shm")
+
+            open()
         }
+    }
+
+    private var isInMemoryDatabase: Bool {
+        return path == ":memory:" || path == "file::memory:" || path.contains("?mode=memory")
     }
 }

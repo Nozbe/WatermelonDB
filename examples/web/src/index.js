@@ -5,6 +5,7 @@ import { render } from 'react-dom'
 
 import { Database } from '@nozbe/watermelondb'
 import LokiJSAdapter from '@nozbe/watermelondb/adapters/lokijs'
+import DatabaseProvider from '@nozbe/watermelondb/DatabaseProvider'
 
 import { mySchema } from 'models/schema'
 import Blog from 'models/Blog'
@@ -24,4 +25,8 @@ const database = new Database({
   actionsEnabled: true,
 })
 
-render(<Root database={database} />, document.getElementById('application'))
+render(
+  <DatabaseProvider database={database}>
+    <Root />
+  </DatabaseProvider>, document.getElementById('application')
+)

@@ -1,22 +1,15 @@
 // @flow
 
 import type { LokiMemoryAdapter } from 'lokijs'
-import { map } from 'rambdax'
-import { invariant } from '../../utils/common'
+import { invariant, logger } from '../../utils/common'
+import type { ResultCallback } from '../../utils/fp/Result'
 
-import type Model, { RecordId } from '../../Model'
+import type { RecordId } from '../../Model'
 import type { TableName, AppSchema } from '../../Schema'
 import type { SchemaMigrations } from '../../Schema/migrations'
-import type Query from '../../Query'
+import type { SerializedQuery } from '../../Query'
 import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
-import {
-  devLogFind,
-  devLogQuery,
-  devLogCount,
-  devLogBatch,
-  devLogSetUp,
-  validateAdapter,
-} from '../common'
+import { devSetupCallback, validateAdapter } from '../common'
 
 import WorkerBridge from './WorkerBridge'
 import { actions } from './common'
@@ -35,15 +28,28 @@ const {
   DESTROY_DELETED_RECORDS,
 } = actions
 
-type LokiAdapterOptions = $Exact<{
+export type LokiAdapterOptions = $Exact<{
   dbName?: ?string,
   schema: AppSchema,
   migrations?: SchemaMigrations,
+  // (true by default) Although web workers may have some throughput benefits, disabling them
+  // may lead to lower memory consumption, lower latency, and easier debugging
+  useWebWorker?: boolean,
+  useIncrementalIndexedDB?: boolean,
+  // Called when internal IndexedDB version changed (most likely the database was deleted in another browser tab)
+  // Pass a callback to force log out in this copy of the app as well
+  // Note that this only works when using incrementalIDB and not using web workers
+  onIndexedDBVersionChange?: () => void,
+  // Called when underlying IndexedDB encountered a quota exceeded error (ran out of allotted disk space for app)
+  // This means that app can't save more data or that it will fall back to using in-memory database only
+  // Note that this only works when `useWebWorker: false`
+  onQuotaExceededError?: (error: Error) => void,
+  // -- internal --
   _testLokiAdapter?: LokiMemoryAdapter,
 }>
 
 export default class LokiJSAdapter implements DatabaseAdapter {
-  workerBridge: WorkerBridge = new WorkerBridge()
+  workerBridge: WorkerBridge
 
   schema: AppSchema
 
@@ -53,19 +59,37 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
   constructor(options: LokiAdapterOptions): void {
     const { schema, migrations, dbName } = options
+
+    const useWebWorker = options.useWebWorker ?? process.env.NODE_ENV !== 'test'
+    this.workerBridge = new WorkerBridge(useWebWorker)
+
     this.schema = schema
     this.migrations = migrations
     this._dbName = dbName
+
     if (process.env.NODE_ENV !== 'production') {
+      if (!('useWebWorker' in options)) {
+        logger.warn(
+          'LokiJSAdapter `useWebWorker` option will become required in a future version of WatermelonDB. Pass `{ useWebWorker: false }` to adopt the new behavior, or `{ useWebWorker: true }` to supress this warning with no changes',
+        )
+      }
+      if (!('useIncrementalIndexedDB' in options)) {
+        logger.warn(
+          'LokiJSAdapter `useIncrementalIndexedDB` option will become required in a future version of WatermelonDB. Pass `{ useIncrementalIndexedDB: true }` to adopt the new behavior, or `{ useIncrementalIndexedDB: false }` to supress this warning with no changes',
+        )
+      }
       invariant(
-        // $FlowFixMe
-        options.migrationsExperimental === undefined,
-        'LokiJSAdapter migrationsExperimental has been renamed to migrations',
+        !('migrationsExperimental' in options),
+        'LokiJSAdapter `migrationsExperimental` option has been renamed to `migrations`',
+      )
+      invariant(
+        !('experimentalUseIncrementalIndexedDB' in options),
+        'LokiJSAdapter `experimentalUseIncrementalIndexedDB` option has been renamed to `useIncrementalIndexedDB`',
       )
       validateAdapter(this)
     }
 
-    devLogSetUp(() => this.workerBridge.send(SETUP, [options]))
+    this.workerBridge.send(SETUP, [options], devSetupCallback)
   }
 
   testClone(options?: $Shape<LokiAdapterOptions> = {}): LokiJSAdapter {
@@ -86,49 +110,50 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     })
   }
 
-  async find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {
-    return devLogFind(() => this.workerBridge.send(FIND, [table, id]), table, id)
+  find(table: TableName<any>, id: RecordId, callback: ResultCallback<CachedFindResult>): void {
+    this.workerBridge.send(FIND, [table, id], callback)
   }
 
-  async query<T: Model>(query: Query<T>): Promise<CachedQueryResult> {
-    return devLogQuery(() => this.workerBridge.send(QUERY, [query.serialize()]), query)
+  query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void {
+    // SerializedQueries are immutable, so we need no copy
+    this.workerBridge.send(QUERY, [query], callback, 'immutable')
   }
 
-  async count<T: Model>(query: Query<T>): Promise<number> {
-    return devLogCount(() => this.workerBridge.send(COUNT, [query.serialize()]), query)
+  count(query: SerializedQuery, callback: ResultCallback<number>): void {
+    // SerializedQueries are immutable, so we need no copy
+    this.workerBridge.send(COUNT, [query], callback, 'immutable')
   }
 
-  async batch(operations: BatchOperation[]): Promise<void> {
-    await devLogBatch(
-      () =>
-        this.workerBridge.send(BATCH, [
-          map(([type, record]) => [type, record.table, record._raw], operations),
-        ]),
-      operations,
-    )
+  batch(operations: BatchOperation[], callback: ResultCallback<void>): void {
+    // batches are only strings + raws which only have JSON-compatible values, rest is immutable
+    this.workerBridge.send(BATCH, [operations], callback, 'shallowCloneDeepObjects')
   }
 
-  getDeletedRecords(tableName: TableName<any>): Promise<RecordId[]> {
-    return this.workerBridge.send(GET_DELETED_RECORDS, [tableName])
+  getDeletedRecords(tableName: TableName<any>, callback: ResultCallback<RecordId[]>): void {
+    this.workerBridge.send(GET_DELETED_RECORDS, [tableName], callback)
   }
 
-  destroyDeletedRecords(tableName: TableName<any>, recordIds: RecordId[]): Promise<void> {
-    return this.workerBridge.send(DESTROY_DELETED_RECORDS, [tableName, recordIds])
+  destroyDeletedRecords(
+    tableName: TableName<any>,
+    recordIds: RecordId[],
+    callback: ResultCallback<void>,
+  ): void {
+    this.workerBridge.send(DESTROY_DELETED_RECORDS, [tableName, recordIds], callback)
   }
 
-  unsafeResetDatabase(): Promise<void> {
-    return this.workerBridge.send(UNSAFE_RESET_DATABASE)
+  unsafeResetDatabase(callback: ResultCallback<void>): void {
+    this.workerBridge.send(UNSAFE_RESET_DATABASE, [], callback)
   }
 
-  getLocal(key: string): Promise<string> {
-    return this.workerBridge.send(GET_LOCAL, [key])
+  getLocal(key: string, callback: ResultCallback<?string>): void {
+    this.workerBridge.send(GET_LOCAL, [key], callback)
   }
 
-  setLocal(key: string, value: string): Promise<void> {
-    return this.workerBridge.send(SET_LOCAL, [key, value])
+  setLocal(key: string, value: string, callback: ResultCallback<void>): void {
+    this.workerBridge.send(SET_LOCAL, [key, value], callback)
   }
 
-  removeLocal(key: string): Promise<void> {
-    return this.workerBridge.send(REMOVE_LOCAL, [key])
+  removeLocal(key: string, callback: ResultCallback<void>): void {
+    this.workerBridge.send(REMOVE_LOCAL, [key], callback)
   }
 }

@@ -3,7 +3,12 @@ const plugins = [
   ['@babel/plugin-proposal-decorators', { legacy: true }],
   '@babel/plugin-transform-flow-strip-types',
   ['@babel/plugin-proposal-class-properties', { loose: true }],
-  '@babel/plugin-transform-classes',
+  [
+    '@babel/plugin-transform-classes',
+    {
+      loose: true, // spits out cleaner and faster output
+    },
+  ],
   '@babel/plugin-syntax-dynamic-import',
   '@babel/plugin-transform-block-scoping',
   '@babel/plugin-proposal-json-strings',
@@ -29,14 +34,14 @@ const plugins = [
   '@babel/plugin-transform-sticky-regex',
   '@babel/plugin-transform-unicode-regex',
   // TODO: fast-async is faster and cleaner, but causes a weird issue on older Android RN targets without jsc-android
-  '@babel/plugin-transform-async-to-generator',
-  // [
-  //   // TODO: We can get this faster by tweaking with options, but have to test thoroughly...
-  //   'module:fast-async',
-  //   {
-  //     spec: true,
-  //   },
-  // ],
+  // '@babel/plugin-transform-async-to-generator',
+  [
+    // TODO: We can get this faster by tweaking with options, but have to test thoroughly...
+    'module:fast-async',
+    {
+      spec: true,
+    },
+  ],
 ]
 
 module.exports = {
