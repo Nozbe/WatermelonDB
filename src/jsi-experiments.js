@@ -22,8 +22,8 @@ const schema = appSchema({
 
 function deepEqual(x, y) {
   const ok = Object.keys
-    const tx = typeof x
-    const ty = typeof y
+  const tx = typeof x
+  const ty = typeof y
   return x && y && tx === 'object' && tx === ty
     ? ok(x).length === ok(y).length && ok(x).every(key => deepEqual(x[key], y[key]))
     : x === y
@@ -196,6 +196,10 @@ async function runTests() {
   const find5 = global.nativeWatermelonFind('test', 'id5')
   console.log(find5, expectedFind)
   invariant(deepEqual(find5, expectedFind))
+
+  const queryres = global.nativeWatermelonQuery('test', 'select * from test where id == ?', ['id5'])
+  console.log(queryres[0])
+  invariant(deepEqual(queryres[0], expectedFind))
 
   console.log(`some tests ok`)
 

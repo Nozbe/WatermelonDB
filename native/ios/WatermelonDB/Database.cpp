@@ -61,26 +61,29 @@ Database::Database(jsi::Runtime *runtime) : runtime_(runtime) {
         rt.global().setProperty(rt, name, function);
     }
     {
-        const char *name = "nativeWatermelonBatch";
+        const char *name = "nativeWatermelonQuery";
         jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
-        jsi::Function function = jsi::Function::createFromHostFunction(rt, propName, 1, [this](
-            jsi::Runtime &runtime,
-            const jsi::Value &,
-            const jsi::Value *args,
-            size_t count
-        ) {
-            if (count != 1) {
-              throw std::invalid_argument("nativeWatermelonBatch takes 1 argument");
+        jsi::Function function = jsi::Function::createFromHostFunction(rt, propName, 3, [this](
+                                                                                               jsi::Runtime &runtime,
+                                                                                               const jsi::Value &,
+                                                                                               const jsi::Value *args,
+                                                                                               size_t count
+                                                                                               ) {
+            if (count != 3) {
+                throw std::invalid_argument("nativeWatermelonQuery takes 3 arguments");
             }
 
             jsi::Runtime &rt = *runtime_;
-            jsi::Array operations = args[0].getObject(rt).getArray(rt);
+            jsi::String tableName = args[0].getString(rt);
+            jsi::String sql = args[1].getString(rt);
+            jsi::Array arguments = args[2].getObject(rt).getArray(rt);
 
+            jsi::Value retValue;
             callWithJSCLockHolder(rt, [&]() {
-                batch(rt, operations);
+                retValue = query(rt, tableName, sql, arguments);
             });
 
-            return jsi::Value::undefined();
+            return retValue;
         });
         rt.global().setProperty(rt, name, function);
     }
@@ -107,6 +110,30 @@ Database::Database(jsi::Runtime *runtime) : runtime_(runtime) {
             });
 
             return retValue;
+        });
+        rt.global().setProperty(rt, name, function);
+    }
+    {
+        const char *name = "nativeWatermelonBatch";
+        jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+        jsi::Function function = jsi::Function::createFromHostFunction(rt, propName, 1, [this](
+            jsi::Runtime &runtime,
+            const jsi::Value &,
+            const jsi::Value *args,
+            size_t count
+        ) {
+            if (count != 1) {
+              throw std::invalid_argument("nativeWatermelonBatch takes 1 argument");
+            }
+
+            jsi::Runtime &rt = *runtime_;
+            jsi::Array operations = args[0].getObject(rt).getArray(rt);
+
+            callWithJSCLockHolder(rt, [&]() {
+                batch(rt, operations);
+            });
+
+            return jsi::Value::undefined();
         });
         rt.global().setProperty(rt, name, function);
     }
@@ -404,20 +431,28 @@ jsi::Value Database::find(jsi::Runtime& rt, jsi::String& tableName, jsi::String&
 }
 
 jsi::Value Database::query(jsi::Runtime& rt, jsi::String& tableName, jsi::String& sql, jsi::Array& arguments) {
-    throw jsi::JSError(rt, "Unimplemented");
-
     sqlite3_stmt *statement = executeQuery(rt, sql.utf8(rt), arguments);
 
-//    return try database.queryRaw(query).map { row in
-//        let id = row.string(forColumn: "id")!
-//
-//        if isCached(table, id) {
-//            return id
-//        } else {
-//            markAsCached(table, id)
-//            return row.resultDictionary!
-//        }
-//    }
+    jsi::Array records(rt, 0);
+
+    for (size_t i = 0; true; i++) {
+        int resultStep = sqlite3_step(statement); // todo: step_v2
+
+        if (resultStep == SQLITE_DONE) {
+            break;
+        }
+
+        if (resultStep != SQLITE_ROW) {
+            std::abort(); // Unimplemented
+        }
+
+        // TODO: Caching
+        jsi::Object record = resultDictionary(rt, statement);
+
+        records.setValueAtIndex(rt, i, record);
+    }
+
+    return records;
 }
 
 jsi::Value Database::count(jsi::Runtime& rt, jsi::String& sql, jsi::Array& arguments) {
