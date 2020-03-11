@@ -323,16 +323,12 @@ jsi::Object Database::resultDictionary(jsi::Runtime &rt, sqlite3_stmt *statement
         } else if (valueType == SQLITE_FLOAT) {
             double value = sqlite3_column_double(statement, i);
             dictionary.setProperty(rt, column, std::move(jsi::Value(value)));
-        }
-
-        else if (valueType == SQLITE_TEXT) {
+        } else if (valueType == SQLITE_TEXT) {
             const char *text = (const char *)sqlite3_column_text(statement, i);
 
             if (!text) {
-
                 dictionary.setProperty(rt, column, std::move(jsi::Value::null()));
             }
-
 
             dictionary.setProperty(rt, column, std::move(jsi::String::createFromAscii(rt, text)));
         } else if (valueType == SQLITE_NULL) {
