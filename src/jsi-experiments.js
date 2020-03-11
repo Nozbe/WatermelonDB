@@ -73,6 +73,9 @@ async function runTests() {
   newDb.setUpWithSchema(dbname, encodedSchema, 1)
   console.log(newDb)
 
+  // copy
+  await NativeModules.DatabaseBridge.initialize(10, dbname, 1)
+
   // await new Promise(resolve => setTimeout(resolve, 1000))
 
   // Sanity checks
@@ -106,7 +109,7 @@ async function runTests() {
 
   await new Promise(resolve => setTimeout(resolve, 250))
   if (
-    (await NativeModules.DatabaseBridge.count(0, 'select count(*) as count from test')) !== size
+    (await NativeModules.DatabaseBridge.count(10, 'select count(*) as count from test')) !== size
   ) {
     throw new Error('bad module!')
   }
@@ -129,7 +132,7 @@ async function runTests() {
   for (let i = 0; i < 100; i += 1) {
     if (
       (await NativeModules.DatabaseBridge.count(
-        0,
+        10,
         'select count(*) as count from test where number > 2 and number < 4',
       )) !== size
     ) {
