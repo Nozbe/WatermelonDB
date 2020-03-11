@@ -26,12 +26,15 @@ SqliteDb::~SqliteDb() {
     }
 }
 
-Database::Database(jsi::Runtime *runtime) : runtime_(runtime) {
-    jsi::Runtime &rt = *runtime;
+Database::Database(jsi::Runtime *runtime, std::string path) : runtime_(runtime) {
+    db_ = std::make_unique<SqliteDb>(path);
+}
 
-    /* set up database */
-
-    db_ = std::make_unique<SqliteDb>("file:jsitests?mode=memory&cache=shared");
+void assertCount(size_t count, size_t expected, const char *name) {
+    if (count != expected) {
+        std::string error = std::string(name) + " takes " + std::to_string(expected) + " arguments";
+        throw std::invalid_argument(error);
+    }
 }
 
 void Database::install(jsi::Runtime *runtime) {
@@ -40,21 +43,14 @@ void Database::install(jsi::Runtime *runtime) {
         const char *name = "nativeWatermelonCreateAdapter";
         jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
         jsi::Function function = jsi::Function::createFromHostFunction(
-        rt, propName, 2, [runtime](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
-            //    if (count != 2) {
-            //        throw std::invalid_argument("nativeWatermelonCreateAdapter takes 2 arguments");
-            //    }
+        rt, propName, 1, [runtime](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
+            assertCount(count, 1, "nativeWatermelonCreateAdapter");
 
-            //    jsi::String tableName = args[0].getString(rt);
-            //    jsi::Array recordIds = args[1].getObject(rt).getArray(rt);
-            //
-            //    callWithJSCLockHolder(rt, [&]() {
-            //        destroyDeletedRecords(rt, tableName, recordIds);
-            //    });
+            std::string dbPath = args[0].getString(rt).utf8(rt);
 
             jsi::Object adapter(rt);
 
-            std::shared_ptr<Database> database = std::make_shared<Database>(runtime);
+            std::shared_ptr<Database> database = std::make_shared<Database>(runtime, dbPath);
             adapter.setProperty(rt, "database", std::move(jsi::Object::createFromHostObject(rt, database)));
 
             {
@@ -62,9 +58,7 @@ void Database::install(jsi::Runtime *runtime) {
                 jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
                 jsi::Function function = jsi::Function::createFromHostFunction(
                 rt, propName, 2, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
-                    if (count != 2) {
-                        throw std::invalid_argument("find takes 2 arguments");
-                    }
+                    assertCount(count, 2, "find");
 
                     jsi::String tableName = args[0].getString(rt);
                     jsi::String id = args[1].getString(rt);
@@ -81,9 +75,7 @@ void Database::install(jsi::Runtime *runtime) {
                 jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
                 jsi::Function function = jsi::Function::createFromHostFunction(
                 rt, propName, 3, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
-                    if (count != 3) {
-                        throw std::invalid_argument("query takes 3 arguments");
-                    }
+                    assertCount(count, 3, "query");
 
                     jsi::String tableName = args[0].getString(rt);
                     jsi::String sql = args[1].getString(rt);
@@ -101,9 +93,7 @@ void Database::install(jsi::Runtime *runtime) {
                 jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
                 jsi::Function function = jsi::Function::createFromHostFunction(
                 rt, propName, 2, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
-                    if (count != 2) {
-                        throw std::invalid_argument("count takes 2 arguments");
-                    }
+                    assertCount(count, 2, "count");
 
                     jsi::String sql = args[0].getString(rt);
                     jsi::Array arguments = args[1].getObject(rt).getArray(rt);
@@ -120,9 +110,7 @@ void Database::install(jsi::Runtime *runtime) {
                 jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
                 jsi::Function function = jsi::Function::createFromHostFunction(
                 rt, propName, 1, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
-                    if (count != 1) {
-                        throw std::invalid_argument("batch takes 1 argument");
-                    }
+                    assertCount(count, 1, "batch");
 
                     jsi::Array operations = args[0].getObject(rt).getArray(rt);
 
@@ -137,9 +125,7 @@ void Database::install(jsi::Runtime *runtime) {
                 jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
                 jsi::Function function = jsi::Function::createFromHostFunction(
                 rt, propName, 1, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
-                    if (count != 1) {
-                        throw std::invalid_argument("getLocal takes 1 arguments");
-                    }
+                    assertCount(count, 1, "getLocal");
 
                     jsi::String key = args[0].getString(rt);
 
@@ -155,9 +141,7 @@ void Database::install(jsi::Runtime *runtime) {
                 jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
                 jsi::Function function = jsi::Function::createFromHostFunction(
                 rt, propName, 2, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
-                    if (count != 2) {
-                        throw std::invalid_argument("setLocal takes 2 arguments");
-                    }
+                    assertCount(count, 2, "setLocal");
 
                     jsi::String key = args[0].getString(rt);
                     jsi::String value = args[1].getString(rt);
@@ -173,9 +157,7 @@ void Database::install(jsi::Runtime *runtime) {
                 jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
                 jsi::Function function = jsi::Function::createFromHostFunction(
                 rt, propName, 1, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
-                    if (count != 1) {
-                        throw std::invalid_argument("removeLocal takes 1 arguments");
-                    }
+                    assertCount(count, 1, "removeLocal");
 
                     jsi::String key = args[0].getString(rt);
 
@@ -190,9 +172,7 @@ void Database::install(jsi::Runtime *runtime) {
                 jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
                 jsi::Function function = jsi::Function::createFromHostFunction(
                 rt, propName, 1, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
-                    if (count != 1) {
-                        throw std::invalid_argument("getDeletedRecords takes 1 arguments");
-                    }
+                    assertCount(count, 1, "getDeletedRecords");
 
                     jsi::String tableName = args[0].getString(rt);
 
@@ -208,9 +188,7 @@ void Database::install(jsi::Runtime *runtime) {
                 jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
                 jsi::Function function = jsi::Function::createFromHostFunction(
                 rt, propName, 2, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
-                    if (count != 2) {
-                        throw std::invalid_argument("destroyDeletedRecords takes 2 arguments");
-                    }
+                    assertCount(count, 2, "destroyDeletedRecords");
 
                     jsi::String tableName = args[0].getString(rt);
                     jsi::Array recordIds = args[1].getObject(rt).getArray(rt);

@@ -26,7 +26,7 @@ class Database : public jsi::HostObject
 {
 public:
     static void install(jsi::Runtime *runtime);
-    Database(jsi::Runtime *runtime);
+    Database(jsi::Runtime *runtime, std::string path);
     ~Database();
 
     jsi::Value find(jsi::Runtime &rt, jsi::String &tableName, jsi::String &id);

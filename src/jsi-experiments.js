@@ -1,4 +1,4 @@
-import { NativeModules, ClippingRectangle } from 'react-native'
+import { NativeModules } from 'react-native'
 
 const { appSchema, tableSchema } = require('./Schema')
 
@@ -66,7 +66,7 @@ async function runTests() {
 
   // console.log(global.nativeWatermelonDatabase)
   console.log(global.nativeWatermelonCreateAdapter)
-  const newDb = global.nativeWatermelonCreateAdapter()
+  const newDb = global.nativeWatermelonCreateAdapter('file:jsitests?mode=memory&cache=shared')
   console.log(newDb)
 
   // await new Promise(resolve => setTimeout(resolve, 1000))
