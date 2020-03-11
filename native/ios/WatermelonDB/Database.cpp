@@ -8,7 +8,6 @@ SqliteDb::SqliteDb(std::string path) {
 
     int resultOpen = sqlite3_open(path.c_str(), &sqlite);
 
-
     if (resultOpen != SQLITE_OK) {
         std::abort(); // Unimplemented
     }
@@ -37,13 +36,20 @@ void assertCount(size_t count, size_t expected, const char *name) {
     }
 }
 
+jsi::Value withJSCLockHolder(facebook::jsi::Runtime& rt, std::function<jsi::Value (void)> block) {
+    jsi::Value retValue;
+    watermelonCallWithJSCLockHolder(rt, [&]() {
+        retValue = block();
+    });
+    return retValue;
+}
+
 void Database::install(jsi::Runtime *runtime) {
     jsi::Runtime &rt = *runtime;
     {
-        const char *name = "nativeWatermelonCreateAdapter";
-        jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+        jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "nativeWatermelonCreateAdapter");
         jsi::Function function = jsi::Function::createFromHostFunction(
-        rt, propName, 1, [runtime](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
+        rt, name, 1, [runtime](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
             assertCount(count, 1, "nativeWatermelonCreateAdapter");
 
             std::string dbPath = args[0].getString(rt).utf8(rt);
@@ -54,62 +60,50 @@ void Database::install(jsi::Runtime *runtime) {
             adapter.setProperty(rt, "database", std::move(jsi::Object::createFromHostObject(rt, database)));
 
             {
-                const char *name = "find";
-                jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "find");
                 jsi::Function function = jsi::Function::createFromHostFunction(
-                rt, propName, 2, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
+                rt, name, 2, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
                     assertCount(count, 2, "find");
 
                     jsi::String tableName = args[0].getString(rt);
                     jsi::String id = args[1].getString(rt);
 
-                    jsi::Value retValue;
-                    watermelonCallWithJSCLockHolder(rt, [&]() { retValue = database->find(rt, tableName, id); });
-
-                    return retValue;
+                    return withJSCLockHolder(rt, [&]() { return database->find(rt, tableName, id); });
                 });
                 adapter.setProperty(rt, name, function);
             }
             {
-                const char *name = "query";
-                jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "query");
                 jsi::Function function = jsi::Function::createFromHostFunction(
-                rt, propName, 3, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
+                rt, name, 3, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
                     assertCount(count, 3, "query");
 
                     jsi::String tableName = args[0].getString(rt);
                     jsi::String sql = args[1].getString(rt);
                     jsi::Array arguments = args[2].getObject(rt).getArray(rt);
 
-                    jsi::Value retValue;
-                    watermelonCallWithJSCLockHolder(rt, [&]() { retValue = database->query(rt, tableName, sql, arguments); });
-
-                    return retValue;
+                    return withJSCLockHolder(rt,
+                                                    [&]() { return database->query(rt, tableName, sql, arguments); });
                 });
                 adapter.setProperty(rt, name, function);
             }
             {
-                const char *name = "count";
-                jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "count");
                 jsi::Function function = jsi::Function::createFromHostFunction(
-                rt, propName, 2, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
+                rt, name, 2, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
                     assertCount(count, 2, "count");
 
                     jsi::String sql = args[0].getString(rt);
                     jsi::Array arguments = args[1].getObject(rt).getArray(rt);
 
-                    jsi::Value retValue;
-                    watermelonCallWithJSCLockHolder(rt, [&]() { retValue = database->count(rt, sql, arguments); });
-
-                    return retValue;
+                    return withJSCLockHolder(rt, [&]() { return database->count(rt, sql, arguments); });
                 });
                 adapter.setProperty(rt, name, function);
             }
             {
-                const char *name = "batch";
-                jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "batch");
                 jsi::Function function = jsi::Function::createFromHostFunction(
-                rt, propName, 1, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
+                rt, name, 1, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
                     assertCount(count, 1, "batch");
 
                     jsi::Array operations = args[0].getObject(rt).getArray(rt);
@@ -121,26 +115,21 @@ void Database::install(jsi::Runtime *runtime) {
                 adapter.setProperty(rt, name, function);
             }
             {
-                const char *name = "getLocal";
-                jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "getLocal");
                 jsi::Function function = jsi::Function::createFromHostFunction(
-                rt, propName, 1, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
+                rt, name, 1, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
                     assertCount(count, 1, "getLocal");
 
                     jsi::String key = args[0].getString(rt);
 
-                    jsi::Value retValue;
-                    watermelonCallWithJSCLockHolder(rt, [&]() { retValue = database->getLocal(rt, key); });
-
-                    return retValue;
+                    return withJSCLockHolder(rt, [&]() { return database->getLocal(rt, key); });
                 });
                 adapter.setProperty(rt, name, function);
             }
             {
-                const char *name = "setLocal";
-                jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "setLocal");
                 jsi::Function function = jsi::Function::createFromHostFunction(
-                rt, propName, 2, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
+                rt, name, 2, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
                     assertCount(count, 2, "setLocal");
 
                     jsi::String key = args[0].getString(rt);
@@ -153,10 +142,9 @@ void Database::install(jsi::Runtime *runtime) {
                 adapter.setProperty(rt, name, function);
             }
             {
-                const char *name = "removeLocal";
-                jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "removeLocal");
                 jsi::Function function = jsi::Function::createFromHostFunction(
-                rt, propName, 1, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
+                rt, name, 1, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
                     assertCount(count, 1, "removeLocal");
 
                     jsi::String key = args[0].getString(rt);
@@ -168,32 +156,28 @@ void Database::install(jsi::Runtime *runtime) {
                 adapter.setProperty(rt, name, function);
             }
             {
-                const char *name = "getDeletedRecords";
-                jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "getDeletedRecords");
                 jsi::Function function = jsi::Function::createFromHostFunction(
-                rt, propName, 1, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
+                rt, name, 1, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
                     assertCount(count, 1, "getDeletedRecords");
 
                     jsi::String tableName = args[0].getString(rt);
 
-                    jsi::Value retValue;
-                    watermelonCallWithJSCLockHolder(rt, [&]() { retValue = database->getDeletedRecords(rt, tableName); });
-
-                    return retValue;
+                    return withJSCLockHolder(rt, [&]() { return database->getDeletedRecords(rt, tableName); });
                 });
                 adapter.setProperty(rt, name, function);
             }
             {
-                const char *name = "destroyDeletedRecords";
-                jsi::PropNameID propName = jsi::PropNameID::forAscii(rt, name);
+                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "destroyDeletedRecords");
                 jsi::Function function = jsi::Function::createFromHostFunction(
-                rt, propName, 2, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
+                rt, name, 2, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
                     assertCount(count, 2, "destroyDeletedRecords");
 
                     jsi::String tableName = args[0].getString(rt);
                     jsi::Array recordIds = args[1].getObject(rt).getArray(rt);
 
-                    watermelonCallWithJSCLockHolder(rt, [&]() { database->destroyDeletedRecords(rt, tableName, recordIds); });
+                    watermelonCallWithJSCLockHolder(rt,
+                                                    [&]() { database->destroyDeletedRecords(rt, tableName, recordIds); });
 
                     return jsi::Value::undefined();
                 });
