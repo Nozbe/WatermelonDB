@@ -215,7 +215,6 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
       try {
         await toPromise(callback =>
           this._dispatcher.setUpWithMigrations(
-            this._tag,
             this._dbName,
             this._encodeMigrations(migrationSteps),
             databaseVersion,
@@ -242,7 +241,6 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     )
     await toPromise(callback =>
       this._dispatcher.setUpWithSchema(
-        this._tag,
         this._dbName,
         this._encodedSchema(),
         this.schema.version,
