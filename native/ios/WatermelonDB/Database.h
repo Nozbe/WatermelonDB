@@ -35,7 +35,7 @@ public:
     void batch(jsi::Runtime &runtime, jsi::Array &operations);
     jsi::Array getDeletedRecords(jsi::Runtime &rt, jsi::String &tableName);
     void destroyDeletedRecords(jsi::Runtime &rt, jsi::String &tableName, jsi::Array &recordIds);
-    void unsafeResetDatabase(jsi::Runtime &rt, jsi::String &schema, jsi::Value &schemaVersion);
+    void unsafeResetDatabase(jsi::Runtime &rt, jsi::String &schema, int schemaVersion);
     jsi::Value getLocal(jsi::Runtime &rt, jsi::String &key);
     void setLocal(jsi::Runtime &rt, jsi::String &key, jsi::String &value);
     void removeLocal(jsi::Runtime &rt, jsi::String &key);

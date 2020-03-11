@@ -78,8 +78,8 @@ void Database::install(jsi::Runtime *runtime) {
                         response.setProperty(rt, "code", "migrations_needed");
                         response.setProperty(rt, "databaseVersion", databaseVersion);
                     } else {
-//                        consoleLog("Database has newer version (\(databaseVersion)) than what the " +
-//                                   "app supports (\(schemaVersion)). Will reset database.")
+                        //                        consoleLog("Database has newer version (\(databaseVersion)) than what the " +
+                        //                                   "app supports (\(schemaVersion)). Will reset database.")
                         response.setProperty(rt, "code", "schema_needed");
                     }
 
@@ -95,9 +95,9 @@ void Database::install(jsi::Runtime *runtime) {
 
                     jsi::String dbName = args[0].getString(rt); // TODO: Check if dbName is ok
                     jsi::String schema = args[1].getString(rt);
-                    int version = (int)args[2].getNumber();
+                    int schemaVersion = (int)args[2].getNumber();
 
-                    throw jsi::JSError(rt, "Unimplemented");
+                    database->unsafeResetDatabase(rt, schema, schemaVersion);
                     return jsi::Value::undefined();
                 });
                 adapter.setProperty(rt, name, function);
@@ -567,8 +567,41 @@ void Database::destroyDeletedRecords(jsi::Runtime &rt, jsi::String &tableName, j
     sqlite3_exec(db_->sqlite, "commit transaction", nullptr, nullptr, nullptr); // TODO: clean up
 }
 
-void Database::unsafeResetDatabase(jsi::Runtime &rt, jsi::String &schema, jsi::Value &schemaVersion) {
+const std::string localStorageSchema = R"(
+create table local_storage (
+key varchar(16) primary key not null,
+value text not null
+);
+
+create index local_storage_key_index on local_storage (key);
+)";
+
+void Database::unsafeResetDatabase(jsi::Runtime &rt, jsi::String &schema, int schemaVersion) {
     throw jsi::JSError(rt, "Unimplemented");
+
+    //    try database.unsafeDestroyEverything()
+    //    cachedRecords = [:]
+    //
+    sqlite3_exec(db_->sqlite, "begin exclusive transaction", nullptr, nullptr, nullptr); // TODO: clean up
+
+    std::string sql = schema.utf8(rt) + localStorageSchema;
+
+    char *errmsg = nullptr;
+    int resultExec = sqlite3_exec(db_->sqlite, sql.c_str(), nullptr, nullptr, &errmsg);
+
+    if (errmsg) {
+        std::string message(errmsg);
+        sqlite3_free(errmsg);
+        throw jsi::JSError(rt, message); // abort?
+    }
+
+    if (resultExec != SQLITE_OK) {
+        std::abort(); // Unimplemented
+    }
+
+    setUserVersion(rt, schemaVersion);
+
+    sqlite3_exec(db_->sqlite, "commit transaction", nullptr, nullptr, nullptr); // TODO: clean up
 }
 
 jsi::Value Database::getLocal(jsi::Runtime &rt, jsi::String &key) {
