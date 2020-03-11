@@ -36,11 +36,9 @@ void assertCount(size_t count, size_t expected, const char *name) {
     }
 }
 
-jsi::Value withJSCLockHolder(facebook::jsi::Runtime& rt, std::function<jsi::Value (void)> block) {
+jsi::Value withJSCLockHolder(facebook::jsi::Runtime &rt, std::function<jsi::Value(void)> block) {
     jsi::Value retValue;
-    watermelonCallWithJSCLockHolder(rt, [&]() {
-        retValue = block();
-    });
+    watermelonCallWithJSCLockHolder(rt, [&]() { retValue = block(); });
     return retValue;
 }
 
@@ -48,8 +46,8 @@ void Database::install(jsi::Runtime *runtime) {
     jsi::Runtime &rt = *runtime;
     {
         jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "nativeWatermelonCreateAdapter");
-        jsi::Function function = jsi::Function::createFromHostFunction(
-        rt, name, 1, [runtime](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
+        jsi::Function function =
+        jsi::Function::createFromHostFunction(rt, name, 1, [runtime](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
             assertCount(count, 1, "nativeWatermelonCreateAdapter");
 
             std::string dbPath = args[0].getString(rt).utf8(rt);
@@ -59,6 +57,51 @@ void Database::install(jsi::Runtime *runtime) {
             std::shared_ptr<Database> database = std::make_shared<Database>(runtime, dbPath);
             adapter.setProperty(rt, "database", std::move(jsi::Object::createFromHostObject(rt, database)));
 
+            {
+                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "initialize");
+                jsi::Function function = jsi::Function::createFromHostFunction(
+                rt, name, 2, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
+                    assertCount(count, 2, "initialize");
+
+                    jsi::String dbName = args[0].getString(rt);
+                    int version = (int)args[1].getNumber();
+
+                    throw jsi::JSError(rt, "Unimplemented");
+                    return jsi::Value::undefined();
+                });
+                adapter.setProperty(rt, name, function);
+            }
+            {
+                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "setUpWithSchema");
+                jsi::Function function = jsi::Function::createFromHostFunction(
+                rt, name, 3, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
+                    assertCount(count, 3, "setUpWithSchema");
+
+                    jsi::String dbName = args[0].getString(rt);
+                    jsi::String schema = args[1].getString(rt);
+                    int version = (int)args[2].getNumber();
+
+                    throw jsi::JSError(rt, "Unimplemented");
+                    return jsi::Value::undefined();
+                });
+                adapter.setProperty(rt, name, function);
+            }
+            {
+                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "setUpWithMigrations");
+                jsi::Function function = jsi::Function::createFromHostFunction(
+                rt, name, 4, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
+                    assertCount(count, 4, "setUpWithMigrations");
+
+                    jsi::String dbName = args[0].getString(rt);
+                    jsi::String migrationSchema = args[1].getString(rt);
+                    int fromVersion = (int)args[2].getNumber();
+                    int toVersion = (int)args[4].getNumber();
+
+                    throw jsi::JSError(rt, "Unimplemented");
+                    return jsi::Value::undefined();
+                });
+                adapter.setProperty(rt, name, function);
+            }
             {
                 jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "find");
                 jsi::Function function = jsi::Function::createFromHostFunction(
@@ -82,8 +125,7 @@ void Database::install(jsi::Runtime *runtime) {
                     jsi::String sql = args[1].getString(rt);
                     jsi::Array arguments = args[2].getObject(rt).getArray(rt);
 
-                    return withJSCLockHolder(rt,
-                                                    [&]() { return database->query(rt, tableName, sql, arguments); });
+                    return withJSCLockHolder(rt, [&]() { return database->query(rt, tableName, sql, arguments); });
                 });
                 adapter.setProperty(rt, name, function);
             }

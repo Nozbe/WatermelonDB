@@ -67,6 +67,7 @@ async function runTests() {
   // console.log(global.nativeWatermelonDatabase)
   console.log(global.nativeWatermelonCreateAdapter)
   const newDb = global.nativeWatermelonCreateAdapter('file:jsitests?mode=memory&cache=shared')
+  newDb.initialize(dbname, 1)
   console.log(newDb)
 
   // await new Promise(resolve => setTimeout(resolve, 1000))
