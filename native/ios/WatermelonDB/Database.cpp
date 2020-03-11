@@ -63,11 +63,27 @@ void Database::install(jsi::Runtime *runtime) {
                 rt, name, 2, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
                     assertCount(count, 2, "initialize");
 
-                    jsi::String dbName = args[0].getString(rt);
-                    int version = (int)args[1].getNumber();
+                    jsi::String dbName = args[0].getString(rt); // TODO: Check if dbName is ok
+                    int expectedVersion = (int)args[1].getNumber();
 
-                    throw jsi::JSError(rt, "Unimplemented");
-                    return jsi::Value::undefined();
+                    int databaseVersion = database->getUserVersion(rt);
+
+                    jsi::Object response(rt);
+
+                    if (databaseVersion == expectedVersion) {
+                        response.setProperty(rt, "code", "ok");
+                    } else if (databaseVersion == 0) {
+                        response.setProperty(rt, "code", "schema_needed");
+                    } else if (databaseVersion < expectedVersion) {
+                        response.setProperty(rt, "code", "migrations_needed");
+                        response.setProperty(rt, "databaseVersion", databaseVersion);
+                    } else {
+//                        consoleLog("Database has newer version (\(databaseVersion)) than what the " +
+//                                   "app supports (\(schemaVersion)). Will reset database.")
+                        response.setProperty(rt, "code", "schema_needed");
+                    }
+
+                    return response;
                 });
                 adapter.setProperty(rt, name, function);
             }
@@ -77,7 +93,7 @@ void Database::install(jsi::Runtime *runtime) {
                 rt, name, 3, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
                     assertCount(count, 3, "setUpWithSchema");
 
-                    jsi::String dbName = args[0].getString(rt);
+                    jsi::String dbName = args[0].getString(rt); // TODO: Check if dbName is ok
                     jsi::String schema = args[1].getString(rt);
                     int version = (int)args[2].getNumber();
 
@@ -92,7 +108,7 @@ void Database::install(jsi::Runtime *runtime) {
                 rt, name, 4, [database](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
                     assertCount(count, 4, "setUpWithMigrations");
 
-                    jsi::String dbName = args[0].getString(rt);
+                    jsi::String dbName = args[0].getString(rt); // TODO: Check if dbName is ok
                     jsi::String migrationSchema = args[1].getString(rt);
                     int fromVersion = (int)args[2].getNumber();
                     int toVersion = (int)args[4].getNumber();
