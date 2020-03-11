@@ -2,4 +2,4 @@
 
 #include <jsi/jsi.h>
 
-void callWithJSCLockHolder(facebook::jsi::Runtime& rt, std::function<void (void)> block);
+void watermelonCallWithJSCLockHolder(facebook::jsi::Runtime& rt, std::function<void (void)> block);

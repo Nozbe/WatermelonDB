@@ -64,7 +64,7 @@ void Database::install(jsi::Runtime *runtime) {
                     jsi::String id = args[1].getString(rt);
 
                     jsi::Value retValue;
-                    callWithJSCLockHolder(rt, [&]() { retValue = database->find(rt, tableName, id); });
+                    watermelonCallWithJSCLockHolder(rt, [&]() { retValue = database->find(rt, tableName, id); });
 
                     return retValue;
                 });
@@ -82,7 +82,7 @@ void Database::install(jsi::Runtime *runtime) {
                     jsi::Array arguments = args[2].getObject(rt).getArray(rt);
 
                     jsi::Value retValue;
-                    callWithJSCLockHolder(rt, [&]() { retValue = database->query(rt, tableName, sql, arguments); });
+                    watermelonCallWithJSCLockHolder(rt, [&]() { retValue = database->query(rt, tableName, sql, arguments); });
 
                     return retValue;
                 });
@@ -99,7 +99,7 @@ void Database::install(jsi::Runtime *runtime) {
                     jsi::Array arguments = args[1].getObject(rt).getArray(rt);
 
                     jsi::Value retValue;
-                    callWithJSCLockHolder(rt, [&]() { retValue = database->count(rt, sql, arguments); });
+                    watermelonCallWithJSCLockHolder(rt, [&]() { retValue = database->count(rt, sql, arguments); });
 
                     return retValue;
                 });
@@ -114,7 +114,7 @@ void Database::install(jsi::Runtime *runtime) {
 
                     jsi::Array operations = args[0].getObject(rt).getArray(rt);
 
-                    callWithJSCLockHolder(rt, [&]() { database->batch(rt, operations); });
+                    watermelonCallWithJSCLockHolder(rt, [&]() { database->batch(rt, operations); });
 
                     return jsi::Value::undefined();
                 });
@@ -130,7 +130,7 @@ void Database::install(jsi::Runtime *runtime) {
                     jsi::String key = args[0].getString(rt);
 
                     jsi::Value retValue;
-                    callWithJSCLockHolder(rt, [&]() { retValue = database->getLocal(rt, key); });
+                    watermelonCallWithJSCLockHolder(rt, [&]() { retValue = database->getLocal(rt, key); });
 
                     return retValue;
                 });
@@ -146,7 +146,7 @@ void Database::install(jsi::Runtime *runtime) {
                     jsi::String key = args[0].getString(rt);
                     jsi::String value = args[1].getString(rt);
 
-                    callWithJSCLockHolder(rt, [&]() { database->setLocal(rt, key, value); });
+                    watermelonCallWithJSCLockHolder(rt, [&]() { database->setLocal(rt, key, value); });
 
                     return jsi::Value::undefined();
                 });
@@ -161,7 +161,7 @@ void Database::install(jsi::Runtime *runtime) {
 
                     jsi::String key = args[0].getString(rt);
 
-                    callWithJSCLockHolder(rt, [&]() { database->removeLocal(rt, key); });
+                    watermelonCallWithJSCLockHolder(rt, [&]() { database->removeLocal(rt, key); });
 
                     return jsi::Value::undefined();
                 });
@@ -177,7 +177,7 @@ void Database::install(jsi::Runtime *runtime) {
                     jsi::String tableName = args[0].getString(rt);
 
                     jsi::Value retValue;
-                    callWithJSCLockHolder(rt, [&]() { retValue = database->getDeletedRecords(rt, tableName); });
+                    watermelonCallWithJSCLockHolder(rt, [&]() { retValue = database->getDeletedRecords(rt, tableName); });
 
                     return retValue;
                 });
@@ -193,7 +193,7 @@ void Database::install(jsi::Runtime *runtime) {
                     jsi::String tableName = args[0].getString(rt);
                     jsi::Array recordIds = args[1].getObject(rt).getArray(rt);
 
-                    callWithJSCLockHolder(rt, [&]() { database->destroyDeletedRecords(rt, tableName, recordIds); });
+                    watermelonCallWithJSCLockHolder(rt, [&]() { database->destroyDeletedRecords(rt, tableName, recordIds); });
 
                     return jsi::Value::undefined();
                 });

@@ -59,7 +59,7 @@ bool didBlockExecuteUsingHack = false;
 
 @end
 
-void callWithJSCLockHolder(jsi::Runtime& rt, std::function<void (void)> block) {
+void watermelonCallWithJSCLockHolder(jsi::Runtime& rt, std::function<void (void)> block) {
     float systemVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
 
     if (systemVersion < 13 || systemVersion >= 14) {
@@ -121,7 +121,7 @@ void callWithJSCLockHolder(jsi::Runtime& rt, std::function<void (void)> block) {
 #else
 
 // Used as fallback if hack is not compiled
-void callWithJSCLockHolder(jsi::Runtime& rt, std::function<void (void)> block) {
+void watermelonCallWithJSCLockHolder(jsi::Runtime& rt, std::function<void (void)> block) {
     block();
 }
 
