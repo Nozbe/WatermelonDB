@@ -403,8 +403,10 @@ int Database::getUserVersion(jsi::Runtime &rt) {
 }
 
 void Database::setUserVersion(jsi::Runtime &rt, int newVersion) {
-    auto args = jsi::Array::createWithElements(rt, newVersion);
-    executeUpdate(rt, "pragma user_version = ?", args);
+    // NOTE: placeholders don't work, and ints are safe
+    std::string sql = "pragma user_version = " + std::to_string(newVersion);
+    auto args = jsi::Array::createWithElements(rt);
+    executeUpdate(rt, sql, args);
 }
 
 jsi::Value Database::find(jsi::Runtime &rt, jsi::String &tableName, jsi::String &id) {
@@ -577,8 +579,6 @@ create index local_storage_key_index on local_storage (key);
 )";
 
 void Database::unsafeResetDatabase(jsi::Runtime &rt, jsi::String &schema, int schemaVersion) {
-    throw jsi::JSError(rt, "Unimplemented");
-
     //    try database.unsafeDestroyEverything()
     //    cachedRecords = [:]
     //

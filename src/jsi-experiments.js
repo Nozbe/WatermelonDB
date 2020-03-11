@@ -59,15 +59,18 @@ function invariant(condition, msg) {
 
 async function runTests() {
   const dbname = 'file:jsitests?mode=memory&cache=shared'
+
   await NativeModules.DatabaseBridge.initialize(0, dbname, 1)
-  await NativeModules.DatabaseBridge.setUpWithSchema(0, dbname, encodedSchema, 1)
+  // await NativeModules.DatabaseBridge.setUpWithSchema(0, dbname, encodedSchema, 1)
 
   console.log(encodedSchema)
 
   // console.log(global.nativeWatermelonDatabase)
-  console.log(global.nativeWatermelonCreateAdapter)
+  // console.log(global.nativeWatermelonCreateAdapter)
   const newDb = global.nativeWatermelonCreateAdapter('file:jsitests?mode=memory&cache=shared')
-  newDb.initialize(dbname, 1)
+  const initret = newDb.initialize(dbname, 1)
+  invariant(initret.code === 'schema_needed', 'bad init')
+  newDb.setUpWithSchema(dbname, encodedSchema, 1)
   console.log(newDb)
 
   // await new Promise(resolve => setTimeout(resolve, 1000))
