@@ -77,7 +77,7 @@ const dispatcherMethods = [
 
 const NativeDatabaseBridge: NativeBridgeType = NativeModules.DatabaseBridge
 
-const makeDispatcher = (isSynchronous: boolean): NativeDispatcher => {
+const makeDispatcher = (tag: ConnectionTag, isSynchronous: boolean): NativeDispatcher => {
   // Hacky-ish way to create a NativeModule-like object which looks like the old DatabaseBridge
   // but dispatches to synchronous methods, while maintaining Flow typecheck at callsite
   const methods = dispatcherMethods.map(methodName => {
@@ -95,7 +95,7 @@ const makeDispatcher = (isSynchronous: boolean): NativeDispatcher => {
         const otherArgs = args.slice(0, -1)
 
         // $FlowFixMe
-        const returnValue = NativeDatabaseBridge[name](...otherArgs)
+        const returnValue = NativeDatabaseBridge[name](tag, ...otherArgs)
 
         if (isSynchronous) {
           callback(syncReturnToResult((returnValue: any)))
@@ -136,7 +136,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     this.migrations = migrations
     this._dbName = this._getName(dbName)
     this._synchronous = this._isSynchonous(options.synchronous)
-    this._dispatcher = makeDispatcher(this._synchronous)
+    this._dispatcher = makeDispatcher(this._tag, this._synchronous)
 
     if (process.env.NODE_ENV !== 'production') {
       invariant(
@@ -187,7 +187,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     // This is to speed up the launch (less to do and pass through bridge), and avoid repeating
     // migration logic inside native code
     const status = await toPromise(callback =>
-      this._dispatcher.initialize(this._tag, this._dbName, this.schema.version, callback),
+      this._dispatcher.initialize(this._dbName, this.schema.version, callback),
     )
 
     // NOTE: Race condition - logic here is asynchronous, but synchronous-mode adapter does not allow
@@ -253,7 +253,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   }
 
   find(table: TableName<any>, id: RecordId, callback: ResultCallback<CachedFindResult>): void {
-    this._dispatcher.find(this._tag, table, id, result =>
+    this._dispatcher.find(table, id, result =>
       callback(
         mapValue(rawRecord => sanitizeFindResult(rawRecord, this.schema.tables[table]), result),
       ),
@@ -269,7 +269,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     sql: string,
     callback: ResultCallback<CachedQueryResult>,
   ): void {
-    this._dispatcher.query(this._tag, tableName, sql, result =>
+    this._dispatcher.query(tableName, sql, result =>
       callback(
         mapValue(
           rawRecords => sanitizeQueryResult(rawRecords, this.schema.tables[tableName]),
@@ -281,7 +281,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   count(query: SerializedQuery, callback: ResultCallback<number>): void {
     const sql = encodeQuery(query, true)
-    this._dispatcher.count(this._tag, sql, callback)
+    this._dispatcher.count(sql, callback)
   }
 
   batch(operations: BatchOperation[], callback: ResultCallback<void>): void {
@@ -306,14 +306,14 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     })
     const { batchJSON } = this._dispatcher
     if (batchJSON) {
-      batchJSON(this._tag, JSON.stringify(batchOperations), callback)
+      batchJSON(JSON.stringify(batchOperations), callback)
     } else {
-      this._dispatcher.batch(this._tag, batchOperations, callback)
+      this._dispatcher.batch(batchOperations, callback)
     }
   }
 
   getDeletedRecords(table: TableName<any>, callback: ResultCallback<RecordId[]>): void {
-    this._dispatcher.getDeletedRecords(this._tag, table, callback)
+    this._dispatcher.getDeletedRecords(table, callback)
   }
 
   destroyDeletedRecords(
@@ -321,33 +321,28 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     recordIds: RecordId[],
     callback: ResultCallback<void>,
   ): void {
-    this._dispatcher.destroyDeletedRecords(this._tag, table, recordIds, callback)
+    this._dispatcher.destroyDeletedRecords(table, recordIds, callback)
   }
 
   unsafeResetDatabase(callback: ResultCallback<void>): void {
-    this._dispatcher.unsafeResetDatabase(
-      this._tag,
-      this._encodedSchema(),
-      this.schema.version,
-      result => {
-        if (result.value) {
-          logger.log('[WatermelonDB][SQLite] Database is now reset')
-        }
-        callback(result)
-      },
-    )
+    this._dispatcher.unsafeResetDatabase(this._encodedSchema(), this.schema.version, result => {
+      if (result.value) {
+        logger.log('[WatermelonDB][SQLite] Database is now reset')
+      }
+      callback(result)
+    })
   }
 
   getLocal(key: string, callback: ResultCallback<?string>): void {
-    this._dispatcher.getLocal(this._tag, key, callback)
+    this._dispatcher.getLocal(key, callback)
   }
 
   setLocal(key: string, value: string, callback: ResultCallback<void>): void {
-    this._dispatcher.setLocal(this._tag, key, value, callback)
+    this._dispatcher.setLocal(key, value, callback)
   }
 
   removeLocal(key: string, callback: ResultCallback<void>): void {
-    this._dispatcher.removeLocal(this._tag, key, callback)
+    this._dispatcher.removeLocal(key, callback)
   }
 
   _encodedSchema(): SQL {

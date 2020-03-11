@@ -29,27 +29,20 @@ export type SyncReturn<T> =
   | { status: 'error', code: string, message: string }
 
 export type NativeDispatcher = $Exact<{
-  initialize: (ConnectionTag, string, SchemaVersion, ResultCallback<InitializeStatus>) => void,
-  setUpWithSchema: (ConnectionTag, string, SQL, SchemaVersion, ResultCallback<void>) => void,
-  setUpWithMigrations: (
-    ConnectionTag,
-    string,
-    SQL,
-    SchemaVersion,
-    SchemaVersion,
-    ResultCallback<void>,
-  ) => void,
-  find: (ConnectionTag, TableName<any>, RecordId, ResultCallback<DirtyFindResult>) => void,
-  query: (ConnectionTag, TableName<any>, SQL, ResultCallback<DirtyQueryResult>) => void,
-  count: (ConnectionTag, SQL, ResultCallback<number>) => void,
-  batch: (ConnectionTag, NativeBridgeBatchOperation[], ResultCallback<void>) => void,
-  batchJSON?: (ConnectionTag, string, ResultCallback<void>) => void,
-  getDeletedRecords: (ConnectionTag, TableName<any>, ResultCallback<RecordId[]>) => void,
-  destroyDeletedRecords: (ConnectionTag, TableName<any>, RecordId[], ResultCallback<void>) => void,
-  unsafeResetDatabase: (ConnectionTag, SQL, SchemaVersion, ResultCallback<void>) => void,
-  getLocal: (ConnectionTag, string, ResultCallback<?string>) => void,
-  setLocal: (ConnectionTag, string, string, ResultCallback<void>) => void,
-  removeLocal: (ConnectionTag, string, ResultCallback<void>) => void,
+  initialize: (string, SchemaVersion, ResultCallback<InitializeStatus>) => void,
+  setUpWithSchema: (string, SQL, SchemaVersion, ResultCallback<void>) => void,
+  setUpWithMigrations: (string, SQL, SchemaVersion, SchemaVersion, ResultCallback<void>) => void,
+  find: (TableName<any>, RecordId, ResultCallback<DirtyFindResult>) => void,
+  query: (TableName<any>, SQL, ResultCallback<DirtyQueryResult>) => void,
+  count: (SQL, ResultCallback<number>) => void,
+  batch: (NativeBridgeBatchOperation[], ResultCallback<void>) => void,
+  batchJSON?: (string, ResultCallback<void>) => void,
+  getDeletedRecords: (TableName<any>, ResultCallback<RecordId[]>) => void,
+  destroyDeletedRecords: (TableName<any>, RecordId[], ResultCallback<void>) => void,
+  unsafeResetDatabase: (SQL, SchemaVersion, ResultCallback<void>) => void,
+  getLocal: (string, ResultCallback<?string>) => void,
+  setLocal: (string, string, ResultCallback<void>) => void,
+  removeLocal: (string, ResultCallback<void>) => void,
 }>
 
 export type NativeBridgeType = {
