@@ -97,6 +97,7 @@ void Database::install(jsi::Runtime *runtime) {
                     jsi::String schema = args[1].getString(rt);
                     int schemaVersion = (int)args[2].getNumber();
 
+                    // TODO: exceptions should kill app
                     database->unsafeResetDatabase(rt, schema, schemaVersion);
                     return jsi::Value::undefined();
                 });
@@ -113,7 +114,8 @@ void Database::install(jsi::Runtime *runtime) {
                     int fromVersion = (int)args[2].getNumber();
                     int toVersion = (int)args[4].getNumber();
 
-                    throw jsi::JSError(rt, "Unimplemented");
+                    // TODO: exceptions should kill app
+                    database->migrate(rt, migrationSchema, fromVersion, toVersion);
                     return jsi::Value::undefined();
                 });
                 adapter.setProperty(rt, name, function);
@@ -600,6 +602,33 @@ void Database::unsafeResetDatabase(jsi::Runtime &rt, jsi::String &schema, int sc
     }
 
     setUserVersion(rt, schemaVersion);
+
+    sqlite3_exec(db_->sqlite, "commit transaction", nullptr, nullptr, nullptr); // TODO: clean up
+}
+
+void Database::migrate(jsi::Runtime &rt, jsi::String &migrationSql, int fromVersion, int toVersion) {
+    assert(getUserVersion(rt) == fromVersion && "Incompatible migration set");
+
+    sqlite3_exec(db_->sqlite, "begin exclusive transaction", nullptr, nullptr, nullptr); // TODO: clean up
+
+//        try database.executeStatements(migrations.sql)
+//        database.userVersion = migrations.to
+
+    std::string sql = migrationSql.utf8(rt);
+
+    // TODO: deduplicate
+    char *errmsg = nullptr;
+    int resultExec = sqlite3_exec(db_->sqlite, sql.c_str(), nullptr, nullptr, &errmsg);
+
+    if (errmsg) {
+        std::string message(errmsg);
+        sqlite3_free(errmsg);
+        throw jsi::JSError(rt, message); // abort?
+    }
+
+    if (resultExec != SQLITE_OK) {
+        std::abort(); // Unimplemented
+    }
 
     sqlite3_exec(db_->sqlite, "commit transaction", nullptr, nullptr, nullptr); // TODO: clean up
 }

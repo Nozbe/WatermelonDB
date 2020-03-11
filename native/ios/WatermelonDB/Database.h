@@ -50,6 +50,7 @@ private:
     jsi::Object resultDictionary(jsi::Runtime &rt, sqlite3_stmt *statement);
     int getUserVersion(jsi::Runtime &rt);
     void setUserVersion(jsi::Runtime &rt, int newVersion);
+    void migrate(jsi::Runtime &rt, jsi::String &migrationSql, int fromVersion, int toVersion);
 };
 
 } // namespace watermelondb
