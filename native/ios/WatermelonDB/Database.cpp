@@ -368,6 +368,29 @@ jsi::Object Database::resultDictionary(jsi::Runtime &rt, sqlite3_stmt *statement
     return dictionary;
 }
 
+int Database::getUserVersion(jsi::Runtime &rt) {
+    auto args = jsi::Array::createWithElements(rt);
+    sqlite3_stmt *statement = executeQuery(rt, "pragma user_version", args);
+
+    int resultStep = sqlite3_step(statement); // todo: step_v2
+
+    if (resultStep != SQLITE_ROW) {
+        std::abort(); // Unimplemented
+    }
+
+    // sanity check - do we even need it? maybe debug only?
+    if (sqlite3_data_count(statement) != 1) {
+        std::abort();
+    }
+
+    return sqlite3_column_int(statement, 0);
+}
+
+void Database::setUserVersion(jsi::Runtime &rt, int newVersion) {
+    auto args = jsi::Array::createWithElements(rt, newVersion);
+    executeUpdate(rt, "pragma user_version = ?", args);
+}
+
 jsi::Value Database::find(jsi::Runtime &rt, jsi::String &tableName, jsi::String &id) {
     // TODO: caching
     //    guard !isCached(table, id) else {
