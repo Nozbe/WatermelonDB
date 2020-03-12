@@ -262,6 +262,8 @@ void Database::executeUpdate(jsi::Runtime &rt, std::string sql, jsi::Array &argu
         } else if (value.isNumber()) {
             // TODO: Ints?
             bindResult = sqlite3_bind_double(statement, i + 1, value.getNumber());
+        } else if (value.isBool()) {
+            bindResult = sqlite3_bind_int(statement, i + 1, value.getBool());
         } else {
             std::abort(); // Unimplemented
         }

@@ -90,7 +90,7 @@ const makeDispatcher = (
 
   const methods = dispatcherMethods.map(methodName => {
     // batchJSON is missing on Android
-    if (!NativeDatabaseBridge[methodName]) {
+    if (!NativeDatabaseBridge[methodName] || (methodName === 'batchJSON' && jsiDb)) {
       return [methodName, undefined]
     }
 
@@ -104,7 +104,10 @@ const makeDispatcher = (
 
         if (jsiDb) {
           try {
-            const value = jsiDb[methodName](...otherArgs)
+            const value =
+              methodName === 'query' || methodName === 'count'
+                ? jsiDb[methodName](...otherArgs, []) // FIXME: temp workaround
+                : jsiDb[methodName](...otherArgs)
             callback({ value })
           } catch (error) {
             callback({ error })
