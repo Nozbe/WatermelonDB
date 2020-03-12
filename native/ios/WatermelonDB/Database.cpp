@@ -446,10 +446,23 @@ jsi::Value Database::query(jsi::Runtime &rt, jsi::String &tableName, jsi::String
             std::abort(); // Unimplemented
         }
 
-        // TODO: Caching
-        jsi::Object record = resultDictionary(rt, statement);
+        // sanity check
+        if (std::string(sqlite3_column_name(statement, 0)) != "id") {
+            std::abort(); // Unimplemented
+        }
 
-        records.setValueAtIndex(rt, i, std::move(record));
+        const char *id = (const char *)sqlite3_column_text(statement, 0);
+        if (!id) {
+            std::abort(); // Unimplemented
+        }
+
+        if (isCached(tableName.utf8(rt), std::string(id))) {
+            jsi::String jsiId = jsi::String::createFromAscii(rt, id);
+            records.setValueAtIndex(rt, i, std::move(jsiId));
+        } else {
+            jsi::Object record = resultDictionary(rt, statement);
+            records.setValueAtIndex(rt, i, std::move(record));
+        }
     }
 
     return records;
