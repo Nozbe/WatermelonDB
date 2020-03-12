@@ -79,9 +79,15 @@ const NativeDatabaseBridge: NativeBridgeType = NativeModules.DatabaseBridge
 
 type DispatcherType = 'asynchronous' | 'synchronous' | 'jsi'
 
-const makeDispatcher = (tag: ConnectionTag, type: DispatcherType): NativeDispatcher => {
-  // Hacky-ish way to create a NativeModule-like object which looks like the old DatabaseBridge
-  // but dispatches to synchronous methods, while maintaining Flow typecheck at callsite
+// Hacky-ish way to create an object with NativeModule-like shape, but that can dispatch method
+// calls to async, synch NativeModule, or JSI implementation w/ type safety in rest of the impl
+const makeDispatcher = (
+  type: DispatcherType,
+  tag: ConnectionTag,
+  dbName: string,
+): NativeDispatcher => {
+  const jsiDb = type === 'jsi' && global.nativeWatermelonCreateAdapter(dbName)
+
   const methods = dispatcherMethods.map(methodName => {
     // batchJSON is missing on Android
     if (!NativeDatabaseBridge[methodName]) {
@@ -95,6 +101,16 @@ const makeDispatcher = (tag: ConnectionTag, type: DispatcherType): NativeDispatc
       (...args) => {
         const callback = args[args.length - 1]
         const otherArgs = args.slice(0, -1)
+
+        if (jsiDb) {
+          try {
+            const value = jsiDb[methodName](...otherArgs)
+            callback({ value })
+          } catch (error) {
+            callback({ error })
+          }
+          return
+        }
 
         // $FlowFixMe
         const returnValue = NativeDatabaseBridge[name](tag, ...otherArgs)
@@ -139,7 +155,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     this.migrations = migrations
     this._dbName = this._getName(dbName)
     this._dispatcherType = this._getDispatcherType(options)
-    this._dispatcher = makeDispatcher(this._tag, this._dispatcherType)
+    this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName)
 
     if (process.env.NODE_ENV !== 'production') {
       invariant(
