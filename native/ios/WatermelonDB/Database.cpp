@@ -44,7 +44,8 @@ jsi::Function createFunction(jsi::Runtime &runtime,
 ) {
     std::string stdName = name.utf8(runtime);
     return jsi::Function::createFromHostFunction(runtime, name, argCount,
-                                                 [stdName, argCount, func](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
+                                                 [stdName, argCount, func](jsi::Runtime &rt, const jsi::Value &,
+                                                                           const jsi::Value *args, size_t count) {
                                                      assertCount(count, argCount, stdName);
 
                                                      return func(rt, args);
@@ -229,6 +230,19 @@ void Database::install(jsi::Runtime *runtime) {
 Database::~Database() {
 }
 
+bool Database::isCached(std::string tableName, std::string recordId) {
+    auto recordSet = cachedRecords_[tableName];
+    return recordSet.find(recordId) != recordSet.end();
+}
+void Database::markAsCached(std::string tableName, std::string recordId) {
+    // TODO: what about duplicates?
+    cachedRecords_[tableName].insert(recordId);
+}
+void Database::removeFromCache(std::string tableName, std::string recordId) {
+    // TODO: will it remove all duplicates, if needed?
+    cachedRecords_[tableName].erase(recordId);
+}
+
 void Database::executeUpdate(jsi::Runtime &rt, std::string sql, jsi::Array &arguments) {
     // TODO: Can we use templates or make jsi::Array iterable so we can avoid _creating_ jsi::Array in C++?
 
@@ -254,7 +268,7 @@ void Database::executeUpdate(jsi::Runtime &rt, std::string sql, jsi::Array &argu
         jsi::Value value = arguments.getValueAtIndex(rt, i);
 
         int bindResult;
-        if (value.isNull()) {
+        if (value.isNull() || value.isUndefined()) {
             bindResult = sqlite3_bind_null(statement, i + 1);
         } else if (value.isString()) {
             // TODO: Check SQLITE_STATIC
@@ -294,7 +308,8 @@ sqlite3_stmt *Database::executeQuery(jsi::Runtime &rt, std::string sql, jsi::Arr
         int resultPrepare = sqlite3_prepare_v2(db_->sqlite, sql.c_str(), -1, &statement, nullptr);
 
         if (resultPrepare != SQLITE_OK) {
-            std::abort(); // Unimplemented
+            // TODO: actual handling
+            throw jsi::JSError(rt, "prepare not ok");
         }
         cachedStatements_[sql] = statement;
     } else {
@@ -312,7 +327,7 @@ sqlite3_stmt *Database::executeQuery(jsi::Runtime &rt, std::string sql, jsi::Arr
         jsi::Value value = arguments.getValueAtIndex(rt, i);
 
         int bindResult;
-        if (value.isNull()) {
+        if (value.isNull() || value.isUndefined()) {
             bindResult = sqlite3_bind_null(statement, i + 1);
         } else if (value.isString()) {
             // TODO: Check SQLITE_STATIC
@@ -320,6 +335,8 @@ sqlite3_stmt *Database::executeQuery(jsi::Runtime &rt, std::string sql, jsi::Arr
         } else if (value.isNumber()) {
             // TODO: Ints?
             bindResult = sqlite3_bind_double(statement, i + 1, value.getNumber());
+        } else if (value.isBool()) {
+            bindResult = sqlite3_bind_int(statement, i + 1, value.getBool());
         } else {
             std::abort(); // Unimplemented
         }
@@ -390,10 +407,10 @@ void Database::setUserVersion(jsi::Runtime &rt, int newVersion) {
 }
 
 jsi::Value Database::find(jsi::Runtime &rt, jsi::String &tableName, jsi::String &id) {
-    // TODO: caching
-    //    guard !isCached(table, id) else {
-    // return id
-    //    }
+    if (isCached(tableName.utf8(rt), id.utf8(rt))) {
+        // TODO: how do I return `id`?
+        return jsi::String::createFromUtf8(rt, id.utf8(rt));
+    }
 
     auto args = jsi::Array::createWithElements(rt, id);
     sqlite3_stmt *statement = executeQuery(rt, "select * from " + tableName.utf8(rt) + " where id == ? limit 1", args);
@@ -408,10 +425,9 @@ jsi::Value Database::find(jsi::Runtime &rt, jsi::String &tableName, jsi::String 
         std::abort(); // Unimplemented
     }
 
-    return resultDictionary(rt, statement);
+    markAsCached(tableName.utf8(rt), id.utf8(rt));
 
-    // TODO: caching
-    //    markAsCached(table, id)
+    return resultDictionary(rt, statement);
 }
 
 jsi::Value Database::query(jsi::Runtime &rt, jsi::String &tableName, jsi::String &sql, jsi::Array &arguments) {
@@ -461,35 +477,36 @@ void Database::batch(jsi::Runtime &rt, jsi::Array &operations) {
     sqlite3_exec(db_->sqlite, "begin exclusive transaction", nullptr, nullptr, nullptr); // TODO: clean up
 
     size_t operationsCount = operations.length(rt);
+    // TODO: modify caches at the end of transaction
     for (size_t i = 0; i < operationsCount; i++) {
         jsi::Array operation = operations.getValueAtIndex(rt, i).getObject(rt).getArray(rt);
         std::string type = operation.getValueAtIndex(rt, 0).getString(rt).utf8(rt);
         const jsi::String table = operation.getValueAtIndex(rt, 1).getString(rt);
 
         if (type == "create") {
-            //    TODO: Record caching
-            //    std::string id = operation.getValueAtIndex(rt, 2).getString(rt).utf8(rt);
+            std::string id = operation.getValueAtIndex(rt, 2).getString(rt).utf8(rt);
             jsi::String sql = operation.getValueAtIndex(rt, 3).getString(rt);
             jsi::Array arguments = operation.getValueAtIndex(rt, 4).getObject(rt).getArray(rt);
 
             executeUpdate(rt, sql.utf8(rt), arguments);
+            markAsCached(table.utf8(rt), id);
         } else if (type == "execute") {
             jsi::String sql = operation.getValueAtIndex(rt, 2).getString(rt);
             jsi::Array arguments = operation.getValueAtIndex(rt, 3).getObject(rt).getArray(rt);
 
             executeUpdate(rt, sql.utf8(rt), arguments);
         } else if (type == "markAsDeleted") {
-            //    TODO: Record caching
             const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
             auto args = jsi::Array::createWithElements(rt, id);
             executeUpdate(rt, "update " + table.utf8(rt) + " set _status='deleted' where id == ?", args);
+            removeFromCache(table.utf8(rt), id.utf8(rt));
         } else if (type == "destroyPermanently") {
-            //    TODO: Record caching
             const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
             auto args = jsi::Array::createWithElements(rt, id);
 
             // TODO: What's the behavior if nothing got deleted?
             executeUpdate(rt, "delete from " + table.utf8(rt) + " where id == ?", args);
+            removeFromCache(table.utf8(rt), id.utf8(rt));
         } else {
             throw jsi::JSError(rt, "Invalid operation type");
         }

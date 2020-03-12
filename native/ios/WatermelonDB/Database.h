@@ -3,6 +3,7 @@
 #import <jsi/jsi.h>
 #import <sqlite3.h>
 #import <map>
+#import <set>
 
 using namespace facebook;
 
@@ -44,6 +45,7 @@ private:
     jsi::Runtime *runtime_; // TODO: std::shared_ptr would be better, but I don't know how to make it from void* in RCTCxxBridge
     std::unique_ptr<SqliteDb> db_;
     std::map<std::string, sqlite3_stmt *> cachedStatements_;
+    std::map<std::string, std::set<std::string> > cachedRecords_;
 
     void executeUpdate(jsi::Runtime &rt, std::string sql, jsi::Array &arguments);
     sqlite3_stmt* executeQuery(jsi::Runtime& rt, std::string sql, jsi::Array& arguments);
@@ -51,6 +53,9 @@ private:
     int getUserVersion(jsi::Runtime &rt);
     void setUserVersion(jsi::Runtime &rt, int newVersion);
     void migrate(jsi::Runtime &rt, jsi::String &migrationSql, int fromVersion, int toVersion);
+    bool isCached(std::string tableName, std::string recordId);
+    void markAsCached(std::string tableName, std::string recordId);
+    void removeFromCache(std::string tableName, std::string recordId);
 };
 
 } // namespace watermelondb
