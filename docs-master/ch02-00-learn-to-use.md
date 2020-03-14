@@ -1,3 +1,3 @@
 ### Learn to use Watermelon
 
-Learn the bascis of how to use WatermelonDB
+Learn the basics of how to use WatermelonDB
