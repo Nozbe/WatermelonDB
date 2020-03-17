@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - [Typescript] Added type definition for `setGenerator`.
 - [Typescript] Fixed types of decorators.
 - [Typescript] Add Tests to test Types.
+- Fixed typo in learn-to-use docs.
 
 ## 0.16 - 2020-03-06
 
