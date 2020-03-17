@@ -24,37 +24,26 @@ import type {
   BatchOperation,
 } from '../type'
 import {
-  type DirtyFindResult,
-  type DirtyQueryResult,
   sanitizeFindResult,
   sanitizeQueryResult,
   devSetupCallback,
   validateAdapter,
 } from '../common'
+import type {
+  SQL,
+  SQLiteArg,
+  SQLiteQuery,
+  NativeBridgeBatchOperation,
+  NativeDispatcher,
+  NativeBridgeType,
+  SyncReturn,
+} from './type'
 
 import encodeQuery from './encodeQuery'
 import encodeUpdate from './encodeUpdate'
 import encodeInsert from './encodeInsert'
 
-export type SQL = string
-export type SQLiteArg = string | boolean | number | null
-export type SQLiteQuery = [SQL, SQLiteArg[]]
-
-type NativeBridgeBatchOperation =
-  | ['execute', TableName<any>, SQL, SQLiteArg[]]
-  | ['create', TableName<any>, RecordId, SQL, SQLiteArg[]]
-  | ['markAsDeleted', TableName<any>, RecordId]
-  | ['destroyPermanently', TableName<any>, RecordId]
-// | ['setLocal', string, string]
-// | ['removeLocal', string]
-
-type InitializeStatus =
-  | { code: 'ok' | 'schema_needed' }
-  | { code: 'migrations_needed', databaseVersion: SchemaVersion }
-
-type SyncReturn<T> =
-  | { status: 'success', result: T }
-  | { status: 'error', code: string, message: string }
+export type { SQL, SQLiteArg, SQLiteQuery }
 
 function syncReturnToResult<T>(syncReturn: SyncReturn<T>): Result<T> {
   if (syncReturn.status === 'success') {
@@ -68,30 +57,6 @@ function syncReturnToResult<T>(syncReturn: SyncReturn<T>): Result<T> {
 
   return { error: new Error('Unknown native bridge response') }
 }
-
-type NativeDispatcher = $Exact<{
-  initialize: (ConnectionTag, string, SchemaVersion, ResultCallback<InitializeStatus>) => void,
-  setUpWithSchema: (ConnectionTag, string, SQL, SchemaVersion, ResultCallback<void>) => void,
-  setUpWithMigrations: (
-    ConnectionTag,
-    string,
-    SQL,
-    SchemaVersion,
-    SchemaVersion,
-    ResultCallback<void>,
-  ) => void,
-  find: (ConnectionTag, TableName<any>, RecordId, ResultCallback<DirtyFindResult>) => void,
-  query: (ConnectionTag, TableName<any>, SQL, ResultCallback<DirtyQueryResult>) => void,
-  count: (ConnectionTag, SQL, ResultCallback<number>) => void,
-  batch: (ConnectionTag, NativeBridgeBatchOperation[], ResultCallback<void>) => void,
-  batchJSON?: (ConnectionTag, string, ResultCallback<void>) => void,
-  getDeletedRecords: (ConnectionTag, TableName<any>, ResultCallback<RecordId[]>) => void,
-  destroyDeletedRecords: (ConnectionTag, TableName<any>, RecordId[], ResultCallback<void>) => void,
-  unsafeResetDatabase: (ConnectionTag, SQL, SchemaVersion, ResultCallback<void>) => void,
-  getLocal: (ConnectionTag, string, ResultCallback<?string>) => void,
-  setLocal: (ConnectionTag, string, string, ResultCallback<void>) => void,
-  removeLocal: (ConnectionTag, string, ResultCallback<void>) => void,
-}>
 
 const dispatcherMethods = [
   'initialize',
@@ -110,53 +75,9 @@ const dispatcherMethods = [
   'removeLocal',
 ]
 
-type NativeBridgeType = {
-  // Async methods
-  initialize: (ConnectionTag, string, SchemaVersion) => Promise<InitializeStatus>,
-  setUpWithSchema: (ConnectionTag, string, SQL, SchemaVersion) => Promise<void>,
-  setUpWithMigrations: (ConnectionTag, string, SQL, SchemaVersion, SchemaVersion) => Promise<void>,
-  find: (ConnectionTag, TableName<any>, RecordId) => Promise<DirtyFindResult>,
-  query: (ConnectionTag, TableName<any>, SQL) => Promise<DirtyQueryResult>,
-  count: (ConnectionTag, SQL) => Promise<number>,
-  batch: (ConnectionTag, NativeBridgeBatchOperation[]) => Promise<void>,
-  batchJSON?: (ConnectionTag, string) => Promise<void>,
-  getDeletedRecords: (ConnectionTag, TableName<any>) => Promise<RecordId[]>,
-  destroyDeletedRecords: (ConnectionTag, TableName<any>, RecordId[]) => Promise<void>,
-  unsafeResetDatabase: (ConnectionTag, SQL, SchemaVersion) => Promise<void>,
-  getLocal: (ConnectionTag, string) => Promise<?string>,
-  setLocal: (ConnectionTag, string, string) => Promise<void>,
-  removeLocal: (ConnectionTag, string) => Promise<void>,
-
-  // Synchronous methods
-  initializeSynchronous?: (ConnectionTag, string, SchemaVersion) => SyncReturn<InitializeStatus>,
-  setUpWithSchemaSynchronous?: (ConnectionTag, string, SQL, SchemaVersion) => SyncReturn<void>,
-  setUpWithMigrationsSynchronous?: (
-    ConnectionTag,
-    string,
-    SQL,
-    SchemaVersion,
-    SchemaVersion,
-  ) => SyncReturn<void>,
-  findSynchronous?: (ConnectionTag, TableName<any>, RecordId) => SyncReturn<DirtyFindResult>,
-  querySynchronous?: (ConnectionTag, TableName<any>, SQL) => SyncReturn<DirtyQueryResult>,
-  countSynchronous?: (ConnectionTag, SQL) => SyncReturn<number>,
-  batchSynchronous?: (ConnectionTag, NativeBridgeBatchOperation[]) => SyncReturn<void>,
-  batchJSONSynchronous?: (ConnectionTag, string) => SyncReturn<void>,
-  getDeletedRecordsSynchronous?: (ConnectionTag, TableName<any>) => SyncReturn<RecordId[]>,
-  destroyDeletedRecordsSynchronous?: (
-    ConnectionTag,
-    TableName<any>,
-    RecordId[],
-  ) => SyncReturn<void>,
-  unsafeResetDatabaseSynchronous?: (ConnectionTag, SQL, SchemaVersion) => SyncReturn<void>,
-  getLocalSynchronous?: (ConnectionTag, string) => SyncReturn<?string>,
-  setLocalSynchronous?: (ConnectionTag, string, string) => SyncReturn<void>,
-  removeLocalSynchronous?: (ConnectionTag, string) => SyncReturn<void>,
-}
-
 const NativeDatabaseBridge: NativeBridgeType = NativeModules.DatabaseBridge
 
-const makeDispatcher = (isSynchronous: boolean): NativeDispatcher => {
+const makeDispatcher = (tag: ConnectionTag, isSynchronous: boolean): NativeDispatcher => {
   // Hacky-ish way to create a NativeModule-like object which looks like the old DatabaseBridge
   // but dispatches to synchronous methods, while maintaining Flow typecheck at callsite
   const methods = dispatcherMethods.map(methodName => {
@@ -174,7 +95,7 @@ const makeDispatcher = (isSynchronous: boolean): NativeDispatcher => {
         const otherArgs = args.slice(0, -1)
 
         // $FlowFixMe
-        const returnValue = NativeDatabaseBridge[name](...otherArgs)
+        const returnValue = NativeDatabaseBridge[name](tag, ...otherArgs)
 
         if (isSynchronous) {
           callback(syncReturnToResult((returnValue: any)))
@@ -215,7 +136,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     this.migrations = migrations
     this._dbName = this._getName(dbName)
     this._synchronous = this._isSynchonous(options.synchronous)
-    this._dispatcher = makeDispatcher(this._synchronous)
+    this._dispatcher = makeDispatcher(this._tag, this._synchronous)
 
     if (process.env.NODE_ENV !== 'production') {
       invariant(
@@ -266,7 +187,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     // This is to speed up the launch (less to do and pass through bridge), and avoid repeating
     // migration logic inside native code
     const status = await toPromise(callback =>
-      this._dispatcher.initialize(this._tag, this._dbName, this.schema.version, callback),
+      this._dispatcher.initialize(this._dbName, this.schema.version, callback),
     )
 
     // NOTE: Race condition - logic here is asynchronous, but synchronous-mode adapter does not allow
@@ -294,7 +215,6 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
       try {
         await toPromise(callback =>
           this._dispatcher.setUpWithMigrations(
-            this._tag,
             this._dbName,
             this._encodeMigrations(migrationSteps),
             databaseVersion,
@@ -321,7 +241,6 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     )
     await toPromise(callback =>
       this._dispatcher.setUpWithSchema(
-        this._tag,
         this._dbName,
         this._encodedSchema(),
         this.schema.version,
@@ -332,7 +251,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   }
 
   find(table: TableName<any>, id: RecordId, callback: ResultCallback<CachedFindResult>): void {
-    this._dispatcher.find(this._tag, table, id, result =>
+    this._dispatcher.find(table, id, result =>
       callback(
         mapValue(rawRecord => sanitizeFindResult(rawRecord, this.schema.tables[table]), result),
       ),
@@ -348,7 +267,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     sql: string,
     callback: ResultCallback<CachedQueryResult>,
   ): void {
-    this._dispatcher.query(this._tag, tableName, sql, result =>
+    this._dispatcher.query(tableName, sql, result =>
       callback(
         mapValue(
           rawRecords => sanitizeQueryResult(rawRecords, this.schema.tables[tableName]),
@@ -360,7 +279,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   count(query: SerializedQuery, callback: ResultCallback<number>): void {
     const sql = encodeQuery(query, true)
-    this._dispatcher.count(this._tag, sql, callback)
+    this._dispatcher.count(sql, callback)
   }
 
   batch(operations: BatchOperation[], callback: ResultCallback<void>): void {
@@ -385,14 +304,14 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     })
     const { batchJSON } = this._dispatcher
     if (batchJSON) {
-      batchJSON(this._tag, JSON.stringify(batchOperations), callback)
+      batchJSON(JSON.stringify(batchOperations), callback)
     } else {
-      this._dispatcher.batch(this._tag, batchOperations, callback)
+      this._dispatcher.batch(batchOperations, callback)
     }
   }
 
   getDeletedRecords(table: TableName<any>, callback: ResultCallback<RecordId[]>): void {
-    this._dispatcher.getDeletedRecords(this._tag, table, callback)
+    this._dispatcher.getDeletedRecords(table, callback)
   }
 
   destroyDeletedRecords(
@@ -400,33 +319,28 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     recordIds: RecordId[],
     callback: ResultCallback<void>,
   ): void {
-    this._dispatcher.destroyDeletedRecords(this._tag, table, recordIds, callback)
+    this._dispatcher.destroyDeletedRecords(table, recordIds, callback)
   }
 
   unsafeResetDatabase(callback: ResultCallback<void>): void {
-    this._dispatcher.unsafeResetDatabase(
-      this._tag,
-      this._encodedSchema(),
-      this.schema.version,
-      result => {
-        if (result.value) {
-          logger.log('[WatermelonDB][SQLite] Database is now reset')
-        }
-        callback(result)
-      },
-    )
+    this._dispatcher.unsafeResetDatabase(this._encodedSchema(), this.schema.version, result => {
+      if (result.value) {
+        logger.log('[WatermelonDB][SQLite] Database is now reset')
+      }
+      callback(result)
+    })
   }
 
   getLocal(key: string, callback: ResultCallback<?string>): void {
-    this._dispatcher.getLocal(this._tag, key, callback)
+    this._dispatcher.getLocal(key, callback)
   }
 
   setLocal(key: string, value: string, callback: ResultCallback<void>): void {
-    this._dispatcher.setLocal(this._tag, key, value, callback)
+    this._dispatcher.setLocal(key, value, callback)
   }
 
   removeLocal(key: string, callback: ResultCallback<void>): void {
-    this._dispatcher.removeLocal(this._tag, key, callback)
+    this._dispatcher.removeLocal(key, callback)
   }
 
   _encodedSchema(): SQL {
