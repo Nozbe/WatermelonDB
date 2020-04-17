@@ -353,7 +353,7 @@
 					"$(SRCROOT)/../../../react-native/React/**",
 					"$(SRCROOT)/../../node_modules/react-native/Libraries/**",
 					"$(SRCROOT)/../../../../node_modules/react-native/Libraries/**",
-					"$(SRCROOT)/../../../../../ios/Pods/Headers/Public/**",
+					"$(SRCROOT)/../../../../../ios/Pods/Headers/Public/React-Core/**",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
