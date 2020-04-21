@@ -3,6 +3,7 @@ package com.nozbe.watermelondb
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import org.xelven.sqlparser.SQLParser
 import java.io.File
 
 class Database(private val name: String, private val context: Context) {
@@ -27,8 +28,11 @@ class Database(private val name: String, private val context: Context) {
 
     fun executeStatements(statements: SQL) =
             transaction {
-                statements.split(";").forEach {
-                    if (it.isNotBlank()) execute(it)
+                var parser = SQLParser()
+                parser.setUseScriptDetecting(true)
+                parser.parseScript(statements)
+                parser.getStatements().forEach {
+                    if (it.sql.isNotBlank()) execute(it.sql)
                 }
             }
 
