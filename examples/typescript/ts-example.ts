@@ -1,7 +1,8 @@
 // tslint:disable: max-classes-per-file
-import { Model, Q, Query, Relation } from '@nozbe/watermelondb'
-import { action, children, field, lazy, relation } from '@nozbe/watermelondb/decorators'
+import { Model, Q, Query, Relation } from '@nozbe/watermelondb';
+import { action, children, field, lazy, relation } from '@nozbe/watermelondb/decorators';
 import { Associations } from '@nozbe/watermelondb/Model';
+import { setGenerator } from '@nozbe/watermelondb/utils/common/randomId';
 
 // Create an enum for all Table Names.
 // This will help in documenting where all exact table names need to be passed.
@@ -41,3 +42,13 @@ class Post extends Model {
 
   @relation(TableName.BLOGS, 'blog_id') blog!: Relation<Blog>;
 }
+
+// Define a custom ID generator.
+function randomString(): string {
+  return 'RANDOM STRING';
+}
+
+setGenerator(randomString);
+
+// or as anonymous function:
+setGenerator(() => 'RANDOM STRING');
