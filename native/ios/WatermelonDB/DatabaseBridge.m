@@ -80,4 +80,6 @@ WMELON_BRIDGE_METHOD(removeLocal,
   key:(nonnull NSString *)key
 )
 
+RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(initializeJSI)
+
 @end

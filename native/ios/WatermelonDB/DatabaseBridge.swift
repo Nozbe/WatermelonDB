@@ -33,10 +33,6 @@ extension DatabaseBridge {
                     reject: RCTPromiseRejectBlock) {
         do {
             try assertNoConnection(tag)
-
-            // swiftlint:disable all
-            installWatermelonJSI(bridge as? RCTCxxBridge)
-
             let driver = try DatabaseDriver(dbName: databaseName, schemaVersion: schemaVersion.intValue)
             connections[tag.intValue] = .connected(driver: driver, synchronous: false)
             resolve(["code": "ok"])
@@ -90,6 +86,14 @@ extension DatabaseBridge {
 // MARK: - Synchronous connections
 
 extension DatabaseBridge {
+    @objc(initializeJSI)
+    func initializeJSI() -> NSDictionary {
+        return synchronously {
+            // swiftlint:disable all
+            installWatermelonJSI(bridge as? RCTCxxBridge)
+        }
+    }
+
     @objc(initializeSynchronous:databaseName:schemaVersion:)
     func initializeSynchronous(tag: ConnectionTag,
                                databaseName: String,

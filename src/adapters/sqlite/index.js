@@ -77,6 +77,24 @@ const dispatcherMethods = [
 
 const NativeDatabaseBridge: NativeBridgeType = NativeModules.DatabaseBridge
 
+const initializeJSI = () => {
+  if (global.nativeWatermelonCreateAdapter) {
+    return true
+  }
+
+  if (NativeDatabaseBridge.initializeJSI) {
+    try {
+      NativeDatabaseBridge.initializeJSI()
+      return true
+    } catch (e) {
+      logger.error('[WatermelonDB][SQLite] Failed to initialize JSI')
+      logger.error(e)
+    }
+  }
+
+  return false
+}
+
 type DispatcherType = 'asynchronous' | 'synchronous' | 'jsi'
 
 // Hacky-ish way to create an object with NativeModule-like shape, but that can dispatch method
@@ -190,7 +208,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
         `Synchronous SQLiteAdapter not available… falling back to asynchronous operation. This will happen if you're using remote debugger, and may happen if you forgot to recompile native app after WatermelonDB update`,
       )
     } else if (options.experimentalUseJSI) {
-      if (global.nativeWatermelonCreateAdapter) {
+      if (initializeJSI()) {
         return 'jsi'
       }
 

@@ -50,7 +50,7 @@ const SQLiteAdapterTest = spec => {
         const adapter = new SQLiteAdapter({ schema: testSchema, experimentalUseJSI: true })
 
         if (Platform.OS === 'ios') {
-          invariant(adapter._dispatcherType === 'jsi', 'ios shoudl support jsi')
+          invariant(adapter._dispatcherType === 'jsi', 'ios should support jsi')
         } else {
           invariant(
             adapter._dispatcherType === 'asynchronous',
