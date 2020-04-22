@@ -494,6 +494,7 @@ jsi::Value Database::query(jsi::Runtime &rt, jsi::String &tableName, jsi::String
             jsi::String jsiId = jsi::String::createFromAscii(rt, id);
             records.setValueAtIndex(rt, i, std::move(jsiId));
         } else {
+            markAsCached(tableName.utf8(rt), std::string(id));
             jsi::Object record = resultDictionary(rt, statement);
             records.setValueAtIndex(rt, i, std::move(record));
         }
