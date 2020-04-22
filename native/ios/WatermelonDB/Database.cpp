@@ -220,6 +220,19 @@ void Database::install(jsi::Runtime *runtime) {
                 });
                 adapter.setProperty(rt, name, function);
             }
+            {
+                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "unsafeResetDatabase");
+                jsi::Function function = createFunction(rt, name, 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
+                    jsi::String schema = args[0].getString(rt);
+                    int schemaVersion = (int)args[1].getNumber();
+
+                    watermelonCallWithJSCLockHolder(rt,
+                                                    [&]() { database->unsafeResetDatabase(rt, schema, schemaVersion); });
+
+                    return jsi::Value::undefined();
+                });
+                adapter.setProperty(rt, name, function);
+            }
 
             return adapter;
         });
@@ -396,7 +409,9 @@ int Database::getUserVersion(jsi::Runtime &rt) {
         std::abort();
     }
 
-    return sqlite3_column_int(statement, 0);
+    int version = sqlite3_column_int(statement, 0);
+    sqlite3_reset(statement);
+    return version;
 }
 
 void Database::setUserVersion(jsi::Runtime &rt, int newVersion) {
@@ -424,6 +439,8 @@ jsi::Value Database::find(jsi::Runtime &rt, jsi::String &tableName, jsi::String 
     if (resultStep != SQLITE_ROW) {
         std::abort(); // Unimplemented
     }
+
+    sqlite3_reset(statement);
 
     markAsCached(tableName.utf8(rt), id.utf8(rt));
 
@@ -465,6 +482,8 @@ jsi::Value Database::query(jsi::Runtime &rt, jsi::String &tableName, jsi::String
         }
     }
 
+    sqlite3_reset(statement);
+
     return records;
 }
 
@@ -483,6 +502,9 @@ jsi::Value Database::count(jsi::Runtime &rt, jsi::String &sql, jsi::Array &argum
     }
 
     int count = sqlite3_column_int(statement, 0);
+
+    sqlite3_reset(statement);
+
     return jsi::Value(count);
 }
 
@@ -560,6 +582,8 @@ jsi::Array Database::getDeletedRecords(jsi::Runtime &rt, jsi::String &tableName)
         records.setValueAtIndex(rt, i, id);
     }
 
+    sqlite3_reset(statement);
+
     return records;
 }
 
@@ -589,11 +613,61 @@ create index local_storage_key_index on local_storage (key);
 )";
 
 void Database::unsafeResetDatabase(jsi::Runtime &rt, jsi::String &schema, int schemaVersion) {
-    //    try database.unsafeDestroyEverything()
-    //    cachedRecords = [:]
-    //
     sqlite3_exec(db_->sqlite, "begin exclusive transaction", nullptr, nullptr, nullptr); // TODO: clean up
 
+    // TODO: delete file in non-test?
+
+    // Destroy everything
+    auto args = jsi::Array::createWithElements(rt);
+    sqlite3_stmt *statement = executeQuery(rt, "select name from sqlite_master where type='table'", args);
+
+    std::vector<std::string> tables = {};
+
+    for (size_t i = 0; true; i++) {
+        int resultStep = sqlite3_step(statement); // todo: step_v2
+
+        if (resultStep == SQLITE_DONE) {
+            break;
+        }
+
+        if (resultStep != SQLITE_ROW) {
+            std::abort(); // Unimplemented
+        }
+
+        // sanity check - do we even need it? maybe debug only?
+        if (sqlite3_data_count(statement) != 1) {
+            std::abort();
+        }
+
+        const char *tableName = (const char *)sqlite3_column_text(statement, 0);
+
+        if (!tableName) {
+            std::abort(); // Unimplemented
+        }
+
+        tables.push_back(std::string(tableName));
+    }
+
+    sqlite3_reset(statement); // TODO: check status?
+
+    for (auto const &table: tables) {
+        std::string sql = "drop table if exists " + table;
+
+        char *errmsg = nullptr;
+        sqlite3_exec(db_->sqlite, sql.c_str(), nullptr, nullptr, &errmsg); // TODO: clean up
+
+        if (errmsg) {
+            std::string message(errmsg);
+            sqlite3_free(errmsg);
+            throw jsi::JSError(rt, message); // abort?
+        }
+    }
+
+//    sqlite3_exec(db_->sqlite, "pragma writable_schema=1; delete from sqlite_master; pragma user_version=0; pragma writable_schema=0", nullptr, nullptr, nullptr); // TODO: clean up
+
+    cachedRecords_ = {};
+
+    // Reinitialize schema
     std::string sql = schema.utf8(rt) + localStorageSchema;
 
     char *errmsg = nullptr;
@@ -661,6 +735,8 @@ jsi::Value Database::getLocal(jsi::Runtime &rt, jsi::String &key) {
     }
 
     const char *text = (const char *)sqlite3_column_text(statement, 0);
+
+    sqlite3_reset(statement);
 
     if (!text) {
         return jsi::Value::null();
