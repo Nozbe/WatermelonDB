@@ -81,6 +81,7 @@ void Database::install(jsi::Runtime *runtime) {
                     jsi::Object response(rt);
 
                     if (databaseVersion == expectedVersion) {
+                        database->initialized_ = true;
                         response.setProperty(rt, "code", "ok");
                     } else if (databaseVersion == 0) {
                         response.setProperty(rt, "code", "schema_needed");
@@ -106,6 +107,8 @@ void Database::install(jsi::Runtime *runtime) {
 
                     // TODO: exceptions should kill app
                     database->unsafeResetDatabase(rt, schema, schemaVersion);
+
+                    database->initialized_ = true;
                     return jsi::Value::undefined();
                 });
                 adapter.setProperty(rt, name, function);
@@ -120,6 +123,8 @@ void Database::install(jsi::Runtime *runtime) {
 
                     // TODO: exceptions should kill app
                     database->migrate(rt, migrationSchema, fromVersion, toVersion);
+
+                    database->initialized_ = true;
                     return jsi::Value::undefined();
                 });
                 adapter.setProperty(rt, name, function);
@@ -127,6 +132,7 @@ void Database::install(jsi::Runtime *runtime) {
             {
                 jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "find");
                 jsi::Function function = createFunction(rt, name, 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
+                    assert(database->initialized_);
                     jsi::String tableName = args[0].getString(rt);
                     jsi::String id = args[1].getString(rt);
 
@@ -137,6 +143,7 @@ void Database::install(jsi::Runtime *runtime) {
             {
                 jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "query");
                 jsi::Function function = createFunction(rt, name, 3, [database](jsi::Runtime &rt, const jsi::Value *args) {
+                    assert(database->initialized_);
                     jsi::String tableName = args[0].getString(rt);
                     jsi::String sql = args[1].getString(rt);
                     jsi::Array arguments = args[2].getObject(rt).getArray(rt);
@@ -148,6 +155,7 @@ void Database::install(jsi::Runtime *runtime) {
             {
                 jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "count");
                 jsi::Function function = createFunction(rt, name, 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
+                    assert(database->initialized_);
                     jsi::String sql = args[0].getString(rt);
                     jsi::Array arguments = args[1].getObject(rt).getArray(rt);
 
@@ -158,6 +166,7 @@ void Database::install(jsi::Runtime *runtime) {
             {
                 jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "batch");
                 jsi::Function function = createFunction(rt, name, 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
+                    assert(database->initialized_);
                     jsi::Array operations = args[0].getObject(rt).getArray(rt);
 
                     watermelonCallWithJSCLockHolder(rt, [&]() { database->batch(rt, operations); });
@@ -169,6 +178,7 @@ void Database::install(jsi::Runtime *runtime) {
             {
                 jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "getLocal");
                 jsi::Function function = createFunction(rt, name, 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
+                    assert(database->initialized_);
                     jsi::String key = args[0].getString(rt);
 
                     return withJSCLockHolder(rt, [&]() { return database->getLocal(rt, key); });
@@ -178,6 +188,7 @@ void Database::install(jsi::Runtime *runtime) {
             {
                 jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "setLocal");
                 jsi::Function function = createFunction(rt, name, 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
+                    assert(database->initialized_);
                     jsi::String key = args[0].getString(rt);
                     jsi::String value = args[1].getString(rt);
 
@@ -190,6 +201,7 @@ void Database::install(jsi::Runtime *runtime) {
             {
                 jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "removeLocal");
                 jsi::Function function = createFunction(rt, name, 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
+                    assert(database->initialized_);
                     jsi::String key = args[0].getString(rt);
 
                     watermelonCallWithJSCLockHolder(rt, [&]() { database->removeLocal(rt, key); });
@@ -201,6 +213,7 @@ void Database::install(jsi::Runtime *runtime) {
             {
                 jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "getDeletedRecords");
                 jsi::Function function = createFunction(rt, name, 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
+                    assert(database->initialized_);
                     jsi::String tableName = args[0].getString(rt);
 
                     return withJSCLockHolder(rt, [&]() { return database->getDeletedRecords(rt, tableName); });
@@ -210,6 +223,7 @@ void Database::install(jsi::Runtime *runtime) {
             {
                 jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "destroyDeletedRecords");
                 jsi::Function function = createFunction(rt, name, 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
+                    assert(database->initialized_);
                     jsi::String tableName = args[0].getString(rt);
                     jsi::Array recordIds = args[1].getObject(rt).getArray(rt);
 
@@ -223,6 +237,7 @@ void Database::install(jsi::Runtime *runtime) {
             {
                 jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "unsafeResetDatabase");
                 jsi::Function function = createFunction(rt, name, 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
+                    assert(database->initialized_);
                     jsi::String schema = args[0].getString(rt);
                     int schemaVersion = (int)args[1].getNumber();
 
@@ -440,11 +455,13 @@ jsi::Value Database::find(jsi::Runtime &rt, jsi::String &tableName, jsi::String 
         std::abort(); // Unimplemented
     }
 
+    auto record = resultDictionary(rt, statement);
+
     sqlite3_reset(statement);
 
     markAsCached(tableName.utf8(rt), id.utf8(rt));
 
-    return resultDictionary(rt, statement);
+    return record;
 }
 
 jsi::Value Database::query(jsi::Runtime &rt, jsi::String &tableName, jsi::String &sql, jsi::Array &arguments) {
@@ -663,7 +680,7 @@ void Database::unsafeResetDatabase(jsi::Runtime &rt, jsi::String &schema, int sc
         }
     }
 
-//    sqlite3_exec(db_->sqlite, "pragma writable_schema=1; delete from sqlite_master; pragma user_version=0; pragma writable_schema=0", nullptr, nullptr, nullptr); // TODO: clean up
+    sqlite3_exec(db_->sqlite, "pragma writable_schema=1; delete from sqlite_master; pragma user_version=0; pragma writable_schema=0", nullptr, nullptr, nullptr); // TODO: clean up
 
     cachedRecords_ = {};
 
@@ -736,13 +753,15 @@ jsi::Value Database::getLocal(jsi::Runtime &rt, jsi::String &key) {
 
     const char *text = (const char *)sqlite3_column_text(statement, 0);
 
-    sqlite3_reset(statement);
-
     if (!text) {
+        sqlite3_reset(statement);
         return jsi::Value::null();
     }
 
-    return std::move(jsi::String::createFromAscii(rt, text));
+    jsi::Value returnValue = jsi::String::createFromAscii(rt, text);
+    sqlite3_reset(statement);
+
+    return std::move(returnValue);
 }
 
 void Database::setLocal(jsi::Runtime &rt, jsi::String &key, jsi::String &value) {
