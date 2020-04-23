@@ -29,7 +29,7 @@ Database::Database(jsi::Runtime *runtime, std::string path) : runtime_(runtime) 
     db_ = std::make_unique<SqliteDb>(path);
 }
 
-jsi::Runtime& Database::getRt() {
+jsi::Runtime &Database::getRt() {
     return *runtime_;
 }
 
@@ -38,6 +38,15 @@ void assertCount(size_t count, size_t expected, std::string name) {
         std::string error = name + " takes " + std::to_string(expected) + " arguments";
         throw std::invalid_argument(error);
     }
+}
+
+jsi::JSError Database::dbError(std::string description) {
+    // TODO: In serialized threading mode, those may be incorrect - probably smarter to pass result codes around?
+    auto sqliteMessage = std::string(sqlite3_errmsg(db_->sqlite));
+    auto code = sqlite3_extended_errcode(db_->sqlite);
+    auto message = description + " - sqlite error " + std::to_string(code) + " (" + sqliteMessage + ")";
+    auto &rt = getRt();
+    return jsi::JSError(rt, message);
 }
 
 jsi::Function createFunction(jsi::Runtime &runtime,
@@ -231,8 +240,7 @@ void Database::install(jsi::Runtime *runtime) {
                     jsi::String tableName = args[0].getString(rt);
                     jsi::Array recordIds = args[1].getObject(rt).getArray(rt);
 
-                    watermelonCallWithJSCLockHolder(rt,
-                                                    [&]() { database->destroyDeletedRecords(tableName, recordIds); });
+                    watermelonCallWithJSCLockHolder(rt, [&]() { database->destroyDeletedRecords(tableName, recordIds); });
 
                     return jsi::Value::undefined();
                 });
@@ -245,8 +253,7 @@ void Database::install(jsi::Runtime *runtime) {
                     jsi::String schema = args[0].getString(rt);
                     int schemaVersion = (int)args[1].getNumber();
 
-                    watermelonCallWithJSCLockHolder(rt,
-                                                    [&]() { database->unsafeResetDatabase(schema, schemaVersion); });
+                    watermelonCallWithJSCLockHolder(rt, [&]() { database->unsafeResetDatabase(schema, schemaVersion); });
 
                     return jsi::Value::undefined();
                 });
@@ -300,8 +307,9 @@ sqlite3_stmt *Database::executeQuery(std::string sql, jsi::Array &arguments) {
         int resultPrepare = sqlite3_prepare_v2(db_->sqlite, sql.c_str(), -1, &statement, nullptr);
 
         if (resultPrepare != SQLITE_OK) {
+            // TODO: Finalize
             // TODO: actual handling
-            throw jsi::JSError(rt, "prepare not ok");
+            throw dbError("Failed to prepare query statement");
         }
         cachedStatements_[sql] = statement;
     } else {
@@ -327,16 +335,17 @@ sqlite3_stmt *Database::executeQuery(std::string sql, jsi::Array &arguments) {
             // TODO: Check SQLITE_STATIC
             bindResult = sqlite3_bind_text(statement, i + 1, value.getString(rt).utf8(rt).c_str(), -1, SQLITE_TRANSIENT);
         } else if (value.isNumber()) {
-            // TODO: Ints?
             bindResult = sqlite3_bind_double(statement, i + 1, value.getNumber());
         } else if (value.isBool()) {
             bindResult = sqlite3_bind_int(statement, i + 1, value.getBool());
         } else {
-            std::abort(); // Unimplemented
+            // TODO: Finalize
+            throw jsi::JSError(rt, "Invalid argument type for query");
         }
 
         if (bindResult != SQLITE_OK) {
-            std::abort(); // Unimplemented
+            // TODO: Finalize
+            throw dbError("Failed to bind arguments for query");
         }
     }
 
@@ -350,35 +359,35 @@ jsi::Object Database::resultDictionary(sqlite3_stmt *statement) {
     for (int i = 0, len = sqlite3_column_count(statement); i < len; i++) {
         const char *column = sqlite3_column_name(statement, i);
         switch (sqlite3_column_type(statement, i)) {
-            case SQLITE_INTEGER: {
-                int value = sqlite3_column_int(statement, i);
-                dictionary.setProperty(rt, column, std::move(jsi::Value(value)));
-                break;
-            }
-            case SQLITE_FLOAT: {
-                double value = sqlite3_column_double(statement, i);
-                dictionary.setProperty(rt, column, std::move(jsi::Value(value)));
-                break;
-            }
-            case SQLITE_TEXT: {
-                const char *text = (const char *)sqlite3_column_text(statement, i);
+        case SQLITE_INTEGER: {
+            int value = sqlite3_column_int(statement, i);
+            dictionary.setProperty(rt, column, std::move(jsi::Value(value)));
+            break;
+        }
+        case SQLITE_FLOAT: {
+            double value = sqlite3_column_double(statement, i);
+            dictionary.setProperty(rt, column, std::move(jsi::Value(value)));
+            break;
+        }
+        case SQLITE_TEXT: {
+            const char *text = (const char *)sqlite3_column_text(statement, i);
 
-                if (text) {
-                    dictionary.setProperty(rt, column, std::move(jsi::String::createFromAscii(rt, text)));
-                } else {
-                    dictionary.setProperty(rt, column, std::move(jsi::Value::null()));
-                }
-
-                break;
-            }
-            case SQLITE_NULL: {
+            if (text) {
+                dictionary.setProperty(rt, column, std::move(jsi::String::createFromAscii(rt, text)));
+            } else {
                 dictionary.setProperty(rt, column, std::move(jsi::Value::null()));
-                break;
             }
-            default: {
-                // SQLITE_BLOB, ??? future/extension types?
-                std::abort(); // Unimplemented
-            }
+
+            break;
+        }
+        case SQLITE_NULL: {
+            dictionary.setProperty(rt, column, std::move(jsi::Value::null()));
+            break;
+        }
+        default: {
+            throw jsi::JSError(rt, "Unable to fetch record from database - unknown column type (WatermelonDB does not "
+                                   "support blobs or custom sqlite types currently)");
+        }
         }
     }
 
@@ -396,10 +405,7 @@ int Database::getUserVersion() {
         std::abort(); // Unimplemented
     }
 
-    // sanity check - do we even need it? maybe debug only?
-    if (sqlite3_data_count(statement) != 1) {
-        std::abort();
-    }
+    assert(sqlite3_data_count(statement) == 1);
 
     int version = sqlite3_column_int(statement, 0);
     sqlite3_reset(statement);
