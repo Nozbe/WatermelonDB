@@ -85,7 +85,7 @@ const initializeJSI = () => {
   if (NativeDatabaseBridge.initializeJSI) {
     try {
       NativeDatabaseBridge.initializeJSI()
-      return true
+      return !!global.nativeWatermelonCreateAdapter
     } catch (e) {
       logger.error('[WatermelonDB][SQLite] Failed to initialize JSI')
       logger.error(e)

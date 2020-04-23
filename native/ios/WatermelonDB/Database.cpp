@@ -668,7 +668,7 @@ void Database::unsafeResetDatabase(jsi::Runtime &rt, jsi::String &schema, int sc
 
     sqlite3_reset(statement); // TODO: check status?
 
-    for (auto const &table: tables) {
+    for (auto const &table : tables) {
         std::string sql = "drop table if exists " + table;
 
         char *errmsg = nullptr;
@@ -681,7 +681,8 @@ void Database::unsafeResetDatabase(jsi::Runtime &rt, jsi::String &schema, int sc
         }
     }
 
-    sqlite3_exec(db_->sqlite, "pragma writable_schema=1; delete from sqlite_master; pragma user_version=0; pragma writable_schema=0", nullptr, nullptr, nullptr); // TODO: clean up
+    sqlite3_exec(db_->sqlite, "pragma writable_schema=1; delete from sqlite_master; pragma user_version=0; pragma writable_schema=0",
+                 nullptr, nullptr, nullptr); // TODO: clean up
 
     cachedRecords_ = {};
 
