@@ -275,50 +275,8 @@ void Database::removeFromCache(std::string tableName, std::string recordId) {
     cachedRecords_[tableName].erase(recordId);
 }
 
-void Database::executeUpdate(std::string sql, jsi::Array &arguments) {
-    auto &rt = getRt();
-    // TODO: Can we use templates or make jsi::Array iterable so we can avoid _creating_ jsi::Array in C++?
-
-    sqlite3_stmt *statement = cachedStatements_[sql];
-    // TODO: Do we need to reset cached statement before use?
-    if (statement == nullptr) {
-        int resultPrepare = sqlite3_prepare_v2(db_->sqlite, sql.c_str(), -1, &statement, nullptr);
-
-        if (resultPrepare != SQLITE_OK) {
-            std::abort(); // Unimplemented
-        }
-        cachedStatements_[sql] = statement;
-    }
-    assert(statement != nullptr);
-
-    int argsCount = sqlite3_bind_parameter_count(statement);
-
-    if (argsCount != arguments.length(rt)) {
-        std::abort(); // Unimplemented
-    }
-
-    for (int i = 0; i < argsCount; i++) {
-        jsi::Value value = arguments.getValueAtIndex(rt, i);
-
-        int bindResult;
-        if (value.isNull() || value.isUndefined()) {
-            bindResult = sqlite3_bind_null(statement, i + 1);
-        } else if (value.isString()) {
-            // TODO: Check SQLITE_STATIC
-            bindResult = sqlite3_bind_text(statement, i + 1, value.getString(rt).utf8(rt).c_str(), -1, SQLITE_TRANSIENT);
-        } else if (value.isNumber()) {
-            // TODO: Ints?
-            bindResult = sqlite3_bind_double(statement, i + 1, value.getNumber());
-        } else if (value.isBool()) {
-            bindResult = sqlite3_bind_int(statement, i + 1, value.getBool());
-        } else {
-            std::abort(); // Unimplemented
-        }
-
-        if (bindResult != SQLITE_OK) {
-            std::abort(); // Unimplemented
-        }
-    }
+void Database::executeUpdate(std::string sql, jsi::Array &args) {
+    sqlite3_stmt *statement = executeQuery(sql, args);
 
     int resultStep = sqlite3_step(statement); // todo: step_v2
 
@@ -333,10 +291,10 @@ void Database::executeUpdate(std::string sql, jsi::Array &arguments) {
     }
 }
 
+// TODO: Can we use templates or make jsi::Array iterable so we can avoid _creating_ jsi::Array in C++?
 sqlite3_stmt *Database::executeQuery(std::string sql, jsi::Array &arguments) {
     auto &rt = getRt();
     sqlite3_stmt *statement = cachedStatements_[sql];
-    // TODO: Do we need to reset cached statement before use?
 
     if (statement == nullptr) {
         int resultPrepare = sqlite3_prepare_v2(db_->sqlite, sql.c_str(), -1, &statement, nullptr);
@@ -347,6 +305,8 @@ sqlite3_stmt *Database::executeQuery(std::string sql, jsi::Array &arguments) {
         }
         cachedStatements_[sql] = statement;
     } else {
+        // in theory, this shouldn't be necessary, since staatements ought to be reset *after* use, not before use
+        // but still this might prevent some crashes if this is not done right
         sqlite3_reset(statement);
     }
     assert(statement != nullptr);
