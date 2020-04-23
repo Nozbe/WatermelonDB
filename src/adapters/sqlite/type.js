@@ -87,4 +87,7 @@ export type NativeBridgeType = {
   getLocalSynchronous?: (ConnectionTag, string) => SyncReturn<?string>,
   setLocalSynchronous?: (ConnectionTag, string, string) => SyncReturn<void>,
   removeLocalSynchronous?: (ConnectionTag, string) => SyncReturn<void>,
+
+  // Special methods
+  initializeJSI?: () => void,
 }
