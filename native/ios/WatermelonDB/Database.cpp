@@ -29,6 +29,10 @@ Database::Database(jsi::Runtime *runtime, std::string path) : runtime_(runtime) 
     db_ = std::make_unique<SqliteDb>(path);
 }
 
+jsi::Runtime& Database::getRt() {
+    return *runtime_;
+}
+
 void assertCount(size_t count, size_t expected, std::string name) {
     if (count != expected) {
         std::string error = name + " takes " + std::to_string(expected) + " arguments";
@@ -76,7 +80,7 @@ void Database::install(jsi::Runtime *runtime) {
                     jsi::String dbName = args[0].getString(rt); // TODO: Check if dbName is ok
                     int expectedVersion = (int)args[1].getNumber();
 
-                    int databaseVersion = database->getUserVersion(rt);
+                    int databaseVersion = database->getUserVersion();
 
                     jsi::Object response(rt);
 
@@ -106,7 +110,7 @@ void Database::install(jsi::Runtime *runtime) {
                     int schemaVersion = (int)args[2].getNumber();
 
                     // TODO: exceptions should kill app
-                    database->unsafeResetDatabase(rt, schema, schemaVersion);
+                    database->unsafeResetDatabase(schema, schemaVersion);
 
                     database->initialized_ = true;
                     return jsi::Value::undefined();
@@ -122,7 +126,7 @@ void Database::install(jsi::Runtime *runtime) {
                     int toVersion = (int)args[4].getNumber();
 
                     // TODO: exceptions should kill app
-                    database->migrate(rt, migrationSchema, fromVersion, toVersion);
+                    database->migrate(migrationSchema, fromVersion, toVersion);
 
                     database->initialized_ = true;
                     return jsi::Value::undefined();
@@ -136,7 +140,7 @@ void Database::install(jsi::Runtime *runtime) {
                     jsi::String tableName = args[0].getString(rt);
                     jsi::String id = args[1].getString(rt);
 
-                    return withJSCLockHolder(rt, [&]() { return database->find(rt, tableName, id); });
+                    return withJSCLockHolder(rt, [&]() { return database->find(tableName, id); });
                 });
                 adapter.setProperty(rt, name, function);
             }
@@ -148,7 +152,7 @@ void Database::install(jsi::Runtime *runtime) {
                     jsi::String sql = args[1].getString(rt);
                     jsi::Array arguments = args[2].getObject(rt).getArray(rt);
 
-                    return withJSCLockHolder(rt, [&]() { return database->query(rt, tableName, sql, arguments); });
+                    return withJSCLockHolder(rt, [&]() { return database->query(tableName, sql, arguments); });
                 });
                 adapter.setProperty(rt, name, function);
             }
@@ -159,7 +163,7 @@ void Database::install(jsi::Runtime *runtime) {
                     jsi::String sql = args[0].getString(rt);
                     jsi::Array arguments = args[1].getObject(rt).getArray(rt);
 
-                    return withJSCLockHolder(rt, [&]() { return database->count(rt, sql, arguments); });
+                    return withJSCLockHolder(rt, [&]() { return database->count(sql, arguments); });
                 });
                 adapter.setProperty(rt, name, function);
             }
@@ -169,7 +173,7 @@ void Database::install(jsi::Runtime *runtime) {
                     assert(database->initialized_);
                     jsi::Array operations = args[0].getObject(rt).getArray(rt);
 
-                    watermelonCallWithJSCLockHolder(rt, [&]() { database->batch(rt, operations); });
+                    watermelonCallWithJSCLockHolder(rt, [&]() { database->batch(operations); });
 
                     return jsi::Value::undefined();
                 });
@@ -181,7 +185,7 @@ void Database::install(jsi::Runtime *runtime) {
                     assert(database->initialized_);
                     jsi::String key = args[0].getString(rt);
 
-                    return withJSCLockHolder(rt, [&]() { return database->getLocal(rt, key); });
+                    return withJSCLockHolder(rt, [&]() { return database->getLocal(key); });
                 });
                 adapter.setProperty(rt, name, function);
             }
@@ -192,7 +196,7 @@ void Database::install(jsi::Runtime *runtime) {
                     jsi::String key = args[0].getString(rt);
                     jsi::String value = args[1].getString(rt);
 
-                    watermelonCallWithJSCLockHolder(rt, [&]() { database->setLocal(rt, key, value); });
+                    watermelonCallWithJSCLockHolder(rt, [&]() { database->setLocal(key, value); });
 
                     return jsi::Value::undefined();
                 });
@@ -204,7 +208,7 @@ void Database::install(jsi::Runtime *runtime) {
                     assert(database->initialized_);
                     jsi::String key = args[0].getString(rt);
 
-                    watermelonCallWithJSCLockHolder(rt, [&]() { database->removeLocal(rt, key); });
+                    watermelonCallWithJSCLockHolder(rt, [&]() { database->removeLocal(key); });
 
                     return jsi::Value::undefined();
                 });
@@ -216,7 +220,7 @@ void Database::install(jsi::Runtime *runtime) {
                     assert(database->initialized_);
                     jsi::String tableName = args[0].getString(rt);
 
-                    return withJSCLockHolder(rt, [&]() { return database->getDeletedRecords(rt, tableName); });
+                    return withJSCLockHolder(rt, [&]() { return database->getDeletedRecords(tableName); });
                 });
                 adapter.setProperty(rt, name, function);
             }
@@ -228,7 +232,7 @@ void Database::install(jsi::Runtime *runtime) {
                     jsi::Array recordIds = args[1].getObject(rt).getArray(rt);
 
                     watermelonCallWithJSCLockHolder(rt,
-                                                    [&]() { database->destroyDeletedRecords(rt, tableName, recordIds); });
+                                                    [&]() { database->destroyDeletedRecords(tableName, recordIds); });
 
                     return jsi::Value::undefined();
                 });
@@ -242,7 +246,7 @@ void Database::install(jsi::Runtime *runtime) {
                     int schemaVersion = (int)args[1].getNumber();
 
                     watermelonCallWithJSCLockHolder(rt,
-                                                    [&]() { database->unsafeResetDatabase(rt, schema, schemaVersion); });
+                                                    [&]() { database->unsafeResetDatabase(schema, schemaVersion); });
 
                     return jsi::Value::undefined();
                 });
@@ -271,7 +275,8 @@ void Database::removeFromCache(std::string tableName, std::string recordId) {
     cachedRecords_[tableName].erase(recordId);
 }
 
-void Database::executeUpdate(jsi::Runtime &rt, std::string sql, jsi::Array &arguments) {
+void Database::executeUpdate(std::string sql, jsi::Array &arguments) {
+    auto &rt = getRt();
     // TODO: Can we use templates or make jsi::Array iterable so we can avoid _creating_ jsi::Array in C++?
 
     sqlite3_stmt *statement = cachedStatements_[sql];
@@ -328,7 +333,8 @@ void Database::executeUpdate(jsi::Runtime &rt, std::string sql, jsi::Array &argu
     }
 }
 
-sqlite3_stmt *Database::executeQuery(jsi::Runtime &rt, std::string sql, jsi::Array &arguments) {
+sqlite3_stmt *Database::executeQuery(std::string sql, jsi::Array &arguments) {
+    auto &rt = getRt();
     sqlite3_stmt *statement = cachedStatements_[sql];
     // TODO: Do we need to reset cached statement before use?
 
@@ -377,41 +383,52 @@ sqlite3_stmt *Database::executeQuery(jsi::Runtime &rt, std::string sql, jsi::Arr
     return statement;
 }
 
-jsi::Object Database::resultDictionary(jsi::Runtime &rt, sqlite3_stmt *statement) {
+jsi::Object Database::resultDictionary(sqlite3_stmt *statement) {
+    auto &rt = getRt();
     jsi::Object dictionary(rt);
 
     for (int i = 0, len = sqlite3_column_count(statement); i < len; i++) {
         const char *column = sqlite3_column_name(statement, i);
-        int valueType = sqlite3_column_type(statement, i);
-
-        if (valueType == SQLITE_INTEGER) {
-            int value = sqlite3_column_int(statement, i);
-            dictionary.setProperty(rt, column, std::move(jsi::Value(value)));
-        } else if (valueType == SQLITE_FLOAT) {
-            double value = sqlite3_column_double(statement, i);
-            dictionary.setProperty(rt, column, std::move(jsi::Value(value)));
-        } else if (valueType == SQLITE_TEXT) {
-            const char *text = (const char *)sqlite3_column_text(statement, i);
-
-            if (!text) {
-                dictionary.setProperty(rt, column, std::move(jsi::Value::null()));
+        switch (sqlite3_column_type(statement, i)) {
+            case SQLITE_INTEGER: {
+                int value = sqlite3_column_int(statement, i);
+                dictionary.setProperty(rt, column, std::move(jsi::Value(value)));
+                break;
             }
+            case SQLITE_FLOAT: {
+                double value = sqlite3_column_double(statement, i);
+                dictionary.setProperty(rt, column, std::move(jsi::Value(value)));
+                break;
+            }
+            case SQLITE_TEXT: {
+                const char *text = (const char *)sqlite3_column_text(statement, i);
 
-            dictionary.setProperty(rt, column, std::move(jsi::String::createFromAscii(rt, text)));
-        } else if (valueType == SQLITE_NULL) {
-            dictionary.setProperty(rt, column, std::move(jsi::Value::null()));
-        } else {
-            // SQLITE_BLOB, ??? future/extension types?
-            std::abort(); // Unimplemented
+                if (text) {
+                    dictionary.setProperty(rt, column, std::move(jsi::String::createFromAscii(rt, text)));
+                } else {
+                    dictionary.setProperty(rt, column, std::move(jsi::Value::null()));
+                }
+
+                break;
+            }
+            case SQLITE_NULL: {
+                dictionary.setProperty(rt, column, std::move(jsi::Value::null()));
+                break;
+            }
+            default: {
+                // SQLITE_BLOB, ??? future/extension types?
+                std::abort(); // Unimplemented
+            }
         }
     }
 
     return dictionary;
 }
 
-int Database::getUserVersion(jsi::Runtime &rt) {
+int Database::getUserVersion() {
+    auto &rt = getRt();
     auto args = jsi::Array::createWithElements(rt);
-    sqlite3_stmt *statement = executeQuery(rt, "pragma user_version", args);
+    sqlite3_stmt *statement = executeQuery("pragma user_version", args);
 
     int resultStep = sqlite3_step(statement); // todo: step_v2
 
@@ -429,21 +446,22 @@ int Database::getUserVersion(jsi::Runtime &rt) {
     return version;
 }
 
-void Database::setUserVersion(jsi::Runtime &rt, int newVersion) {
+void Database::setUserVersion(int newVersion) {
+    auto &rt = getRt();
     // NOTE: placeholders don't work, and ints are safe
     std::string sql = "pragma user_version = " + std::to_string(newVersion);
     auto args = jsi::Array::createWithElements(rt);
-    executeUpdate(rt, sql, args);
+    executeUpdate(sql, args);
 }
 
-jsi::Value Database::find(jsi::Runtime &rt, jsi::String &tableName, jsi::String &id) {
+jsi::Value Database::find(jsi::String &tableName, jsi::String &id) {
+    auto &rt = getRt();
     if (isCached(tableName.utf8(rt), id.utf8(rt))) {
-        // TODO: how do I return `id`?
-        return jsi::String::createFromUtf8(rt, id.utf8(rt));
+        return jsi::String::createFromUtf8(rt, id.utf8(rt)); // TODO: why can't I return jsi::String?
     }
 
     auto args = jsi::Array::createWithElements(rt, id);
-    sqlite3_stmt *statement = executeQuery(rt, "select * from " + tableName.utf8(rt) + " where id == ? limit 1", args);
+    sqlite3_stmt *statement = executeQuery("select * from " + tableName.utf8(rt) + " where id == ? limit 1", args);
 
     int resultStep = sqlite3_step(statement); // todo: step_v2
 
@@ -455,7 +473,7 @@ jsi::Value Database::find(jsi::Runtime &rt, jsi::String &tableName, jsi::String 
         std::abort(); // Unimplemented
     }
 
-    auto record = resultDictionary(rt, statement);
+    auto record = resultDictionary(statement);
 
     sqlite3_reset(statement);
 
@@ -464,8 +482,9 @@ jsi::Value Database::find(jsi::Runtime &rt, jsi::String &tableName, jsi::String 
     return record;
 }
 
-jsi::Value Database::query(jsi::Runtime &rt, jsi::String &tableName, jsi::String &sql, jsi::Array &arguments) {
-    sqlite3_stmt *statement = executeQuery(rt, sql.utf8(rt), arguments);
+jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array &arguments) {
+    auto &rt = getRt();
+    sqlite3_stmt *statement = executeQuery(sql.utf8(rt), arguments);
 
     jsi::Array records(rt, 0);
 
@@ -495,7 +514,7 @@ jsi::Value Database::query(jsi::Runtime &rt, jsi::String &tableName, jsi::String
             records.setValueAtIndex(rt, i, std::move(jsiId));
         } else {
             markAsCached(tableName.utf8(rt), std::string(id));
-            jsi::Object record = resultDictionary(rt, statement);
+            jsi::Object record = resultDictionary(statement);
             records.setValueAtIndex(rt, i, std::move(record));
         }
     }
@@ -505,8 +524,9 @@ jsi::Value Database::query(jsi::Runtime &rt, jsi::String &tableName, jsi::String
     return records;
 }
 
-jsi::Value Database::count(jsi::Runtime &rt, jsi::String &sql, jsi::Array &arguments) {
-    sqlite3_stmt *statement = executeQuery(rt, sql.utf8(rt), arguments);
+jsi::Value Database::count(jsi::String &sql, jsi::Array &arguments) {
+    auto &rt = getRt();
+    sqlite3_stmt *statement = executeQuery(sql.utf8(rt), arguments);
 
     int resultStep = sqlite3_step(statement); // todo: step_v2
 
@@ -526,7 +546,8 @@ jsi::Value Database::count(jsi::Runtime &rt, jsi::String &sql, jsi::Array &argum
     return jsi::Value(count);
 }
 
-void Database::batch(jsi::Runtime &rt, jsi::Array &operations) {
+void Database::batch(jsi::Array &operations) {
+    auto &rt = getRt();
     sqlite3_exec(db_->sqlite, "begin exclusive transaction", nullptr, nullptr, nullptr); // TODO: clean up
 
     size_t operationsCount = operations.length(rt);
@@ -541,24 +562,24 @@ void Database::batch(jsi::Runtime &rt, jsi::Array &operations) {
             jsi::String sql = operation.getValueAtIndex(rt, 3).getString(rt);
             jsi::Array arguments = operation.getValueAtIndex(rt, 4).getObject(rt).getArray(rt);
 
-            executeUpdate(rt, sql.utf8(rt), arguments);
+            executeUpdate(sql.utf8(rt), arguments);
             markAsCached(table.utf8(rt), id);
         } else if (type == "execute") {
             jsi::String sql = operation.getValueAtIndex(rt, 2).getString(rt);
             jsi::Array arguments = operation.getValueAtIndex(rt, 3).getObject(rt).getArray(rt);
 
-            executeUpdate(rt, sql.utf8(rt), arguments);
+            executeUpdate(sql.utf8(rt), arguments);
         } else if (type == "markAsDeleted") {
             const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
             auto args = jsi::Array::createWithElements(rt, id);
-            executeUpdate(rt, "update " + table.utf8(rt) + " set _status='deleted' where id == ?", args);
+            executeUpdate("update " + table.utf8(rt) + " set _status='deleted' where id == ?", args);
             removeFromCache(table.utf8(rt), id.utf8(rt));
         } else if (type == "destroyPermanently") {
             const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
             auto args = jsi::Array::createWithElements(rt, id);
 
             // TODO: What's the behavior if nothing got deleted?
-            executeUpdate(rt, "delete from " + table.utf8(rt) + " where id == ?", args);
+            executeUpdate("delete from " + table.utf8(rt) + " where id == ?", args);
             removeFromCache(table.utf8(rt), id.utf8(rt));
         } else {
             throw jsi::JSError(rt, "Invalid operation type");
@@ -568,9 +589,10 @@ void Database::batch(jsi::Runtime &rt, jsi::Array &operations) {
     sqlite3_exec(db_->sqlite, "commit transaction", nullptr, nullptr, nullptr); // TODO: clean up
 }
 
-jsi::Array Database::getDeletedRecords(jsi::Runtime &rt, jsi::String &tableName) {
-    auto args = jsi::Array::createWithElements(rt);
-    sqlite3_stmt *statement = executeQuery(rt, "select id from " + tableName.utf8(rt) + " where _status='deleted'", args);
+jsi::Array Database::getDeletedRecords(jsi::String &tableName) {
+    auto &rt = getRt();
+    auto args = jsi::Array::createWithElements(*runtime_);
+    sqlite3_stmt *statement = executeQuery("select id from " + tableName.utf8(rt) + " where _status='deleted'", args);
 
     jsi::Array records(rt, 0);
 
@@ -605,7 +627,8 @@ jsi::Array Database::getDeletedRecords(jsi::Runtime &rt, jsi::String &tableName)
     return records;
 }
 
-void Database::destroyDeletedRecords(jsi::Runtime &rt, jsi::String &tableName, jsi::Array &recordIds) {
+void Database::destroyDeletedRecords(jsi::String &tableName, jsi::Array &recordIds) {
+    auto &rt = getRt();
     sqlite3_exec(db_->sqlite, "begin exclusive transaction", nullptr, nullptr, nullptr); // TODO: clean up
 
     // TODO: Maybe it's faster & easier to do it in one query?
@@ -615,7 +638,7 @@ void Database::destroyDeletedRecords(jsi::Runtime &rt, jsi::String &tableName, j
         // TODO: What's the behavior if record doesn't exist or isn't actually deleted?
         jsi::String id = recordIds.getValueAtIndex(rt, i).getString(rt);
         auto args = jsi::Array::createWithElements(rt, id);
-        executeUpdate(rt, sql, args);
+        executeUpdate(sql, args);
     }
 
     sqlite3_exec(db_->sqlite, "commit transaction", nullptr, nullptr, nullptr); // TODO: clean up
@@ -630,14 +653,15 @@ value text not null
 create index local_storage_key_index on local_storage (key);
 )";
 
-void Database::unsafeResetDatabase(jsi::Runtime &rt, jsi::String &schema, int schemaVersion) {
+void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
+    auto &rt = getRt();
     sqlite3_exec(db_->sqlite, "begin exclusive transaction", nullptr, nullptr, nullptr); // TODO: clean up
 
     // TODO: delete file in non-test?
 
     // Destroy everything
     auto args = jsi::Array::createWithElements(rt);
-    sqlite3_stmt *statement = executeQuery(rt, "select name from sqlite_master where type='table'", args);
+    sqlite3_stmt *statement = executeQuery("select name from sqlite_master where type='table'", args);
 
     std::vector<std::string> tables = {};
 
@@ -702,13 +726,14 @@ void Database::unsafeResetDatabase(jsi::Runtime &rt, jsi::String &schema, int sc
         std::abort(); // Unimplemented
     }
 
-    setUserVersion(rt, schemaVersion);
+    setUserVersion(schemaVersion);
 
     sqlite3_exec(db_->sqlite, "commit transaction", nullptr, nullptr, nullptr); // TODO: clean up
 }
 
-void Database::migrate(jsi::Runtime &rt, jsi::String &migrationSql, int fromVersion, int toVersion) {
-    assert(getUserVersion(rt) == fromVersion && "Incompatible migration set");
+void Database::migrate(jsi::String &migrationSql, int fromVersion, int toVersion) {
+    auto &rt = getRt();
+    assert(getUserVersion() == fromVersion && "Incompatible migration set");
 
     sqlite3_exec(db_->sqlite, "begin exclusive transaction", nullptr, nullptr, nullptr); // TODO: clean up
 
@@ -734,9 +759,10 @@ void Database::migrate(jsi::Runtime &rt, jsi::String &migrationSql, int fromVers
     sqlite3_exec(db_->sqlite, "commit transaction", nullptr, nullptr, nullptr); // TODO: clean up
 }
 
-jsi::Value Database::getLocal(jsi::Runtime &rt, jsi::String &key) {
+jsi::Value Database::getLocal(jsi::String &key) {
+    auto &rt = getRt();
     auto args = jsi::Array::createWithElements(rt, key);
-    sqlite3_stmt *statement = executeQuery(rt, "select value from local_storage where key = ?", args);
+    sqlite3_stmt *statement = executeQuery("select value from local_storage where key = ?", args);
 
     int resultStep = sqlite3_step(statement); // todo: step_v2
 
@@ -766,14 +792,16 @@ jsi::Value Database::getLocal(jsi::Runtime &rt, jsi::String &key) {
     return std::move(returnValue);
 }
 
-void Database::setLocal(jsi::Runtime &rt, jsi::String &key, jsi::String &value) {
+void Database::setLocal(jsi::String &key, jsi::String &value) {
+    auto &rt = getRt();
     auto args = jsi::Array::createWithElements(rt, key, value);
-    executeUpdate(rt, "insert or replace into local_storage (key, value) values (?, ?)", args);
+    executeUpdate("insert or replace into local_storage (key, value) values (?, ?)", args);
 }
 
-void Database::removeLocal(jsi::Runtime &rt, jsi::String &key) {
+void Database::removeLocal(jsi::String &key) {
+    auto &rt = getRt();
     auto args = jsi::Array::createWithElements(rt, key);
-    executeUpdate(rt, "delete from local_storage where key == ?", args);
+    executeUpdate("delete from local_storage where key == ?", args);
 }
 
 } // namespace watermelondb
