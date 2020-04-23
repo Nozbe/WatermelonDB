@@ -3,6 +3,8 @@ import Foundation
 @objc(DatabaseBridge)
 final public class DatabaseBridge: NSObject {
     typealias ConnectionTag = NSNumber
+
+    @objc var bridge: RCTBridge?
     @objc static let requiresMainQueueSetup: Bool = false
     @objc let methodQueue = DispatchQueue(label: "com.nozbe.watermelondb.database", qos: .userInteractive)
 
@@ -84,6 +86,14 @@ extension DatabaseBridge {
 // MARK: - Synchronous connections
 
 extension DatabaseBridge {
+    @objc(initializeJSI)
+    func initializeJSI() -> NSDictionary {
+        return synchronously {
+            // swiftlint:disable all
+            installWatermelonJSI(bridge as? RCTCxxBridge)
+        }
+    }
+
     @objc(initializeSynchronous:databaseName:schemaVersion:)
     func initializeSynchronous(tag: ConnectionTag,
                                databaseName: String,
