@@ -6,6 +6,6 @@ extern "C" void installWatermelonJSI(RCTCxxBridge *bridge) {
         return;
     }
 
-    jsi::Runtime *runtime = (jsi::Runtime*) bridge.runtime;
+//    jsi::Runtime *runtime = (jsi::Runtime*) bridge.runtime;
     // watermelondb::Database::install(runtime);
 }
