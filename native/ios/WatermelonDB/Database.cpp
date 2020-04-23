@@ -285,16 +285,17 @@ void Database::removeFromCache(std::string tableName, std::string recordId) {
 void Database::executeUpdate(std::string sql, jsi::Array &args) {
     sqlite3_stmt *statement = executeQuery(sql, args);
 
-    int resultStep = sqlite3_step(statement); // todo: step_v2
+    int stepResult = sqlite3_step(statement);
 
-    if (resultStep != SQLITE_DONE) {
-        std::abort(); // Unimplemented
+    if (stepResult != SQLITE_DONE) {
+        sqlite3_reset(statement);
+        throw dbError("Failed to execute db update");
     }
 
-    int resultFinalize = sqlite3_reset(statement);
+    int resetResult = sqlite3_reset(statement);
 
-    if (resultFinalize != SQLITE_OK) {
-        std::abort(); // Unimplemented
+    if (resetResult != SQLITE_OK) {
+        throw dbError("Failed to reset statement after executeUpdate");
     }
 }
 
@@ -402,7 +403,8 @@ int Database::getUserVersion() {
     int resultStep = sqlite3_step(statement); // todo: step_v2
 
     if (resultStep != SQLITE_ROW) {
-        std::abort(); // Unimplemented
+        // TODO: Reset
+        throw dbError("Failed to obtain database user_version");
     }
 
     assert(sqlite3_data_count(statement) == 1);
@@ -429,14 +431,14 @@ jsi::Value Database::find(jsi::String &tableName, jsi::String &id) {
     auto args = jsi::Array::createWithElements(rt, id);
     sqlite3_stmt *statement = executeQuery("select * from " + tableName.utf8(rt) + " where id == ? limit 1", args);
 
-    int resultStep = sqlite3_step(statement); // todo: step_v2
+    int stepResult = sqlite3_step(statement); // todo: step_v2
 
-    if (resultStep == SQLITE_DONE) {
+    if (stepResult == SQLITE_DONE) {
         return jsi::Value::null();
     }
 
-    if (resultStep != SQLITE_ROW) {
-        std::abort(); // Unimplemented
+    if (stepResult != SQLITE_ROW) {
+        throw dbError("Failed to find a record in the database");
     }
 
     auto record = resultDictionary(statement);
@@ -455,24 +457,21 @@ jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array 
     jsi::Array records(rt, 0);
 
     for (size_t i = 0; true; i++) {
-        int resultStep = sqlite3_step(statement); // todo: step_v2
+        int stepResult = sqlite3_step(statement); // todo: step_v2
 
-        if (resultStep == SQLITE_DONE) {
+        if (stepResult == SQLITE_DONE) {
             break;
         }
 
-        if (resultStep != SQLITE_ROW) {
-            std::abort(); // Unimplemented
+        if (stepResult != SQLITE_ROW) {
+            throw dbError("Failed to query the database");
         }
 
-        // sanity check
-        if (std::string(sqlite3_column_name(statement, 0)) != "id") {
-            std::abort(); // Unimplemented
-        }
+        assert(std::string(sqlite3_column_name(statement, 0)) == "id");
 
         const char *id = (const char *)sqlite3_column_text(statement, 0);
         if (!id) {
-            std::abort(); // Unimplemented
+            throw jsi::JSError(rt, "Failed to get ID of a record");
         }
 
         if (isCached(tableName.utf8(rt), std::string(id))) {
@@ -494,16 +493,13 @@ jsi::Value Database::count(jsi::String &sql, jsi::Array &arguments) {
     auto &rt = getRt();
     sqlite3_stmt *statement = executeQuery(sql.utf8(rt), arguments);
 
-    int resultStep = sqlite3_step(statement); // todo: step_v2
+    int stepResult = sqlite3_step(statement);
 
-    if (resultStep != SQLITE_ROW) {
-        std::abort(); // Unimplemented
+    if (stepResult != SQLITE_ROW) {
+        throw dbError("Failed to query a count");
     }
 
-    // sanity check - do we even need it? maybe debug only?
-    if (sqlite3_data_count(statement) != 1) {
-        std::abort();
-    }
+    assert(sqlite3_data_count(statement) == 1);
 
     int count = sqlite3_column_int(statement, 0);
 
@@ -563,28 +559,24 @@ jsi::Array Database::getDeletedRecords(jsi::String &tableName) {
     jsi::Array records(rt, 0);
 
     for (size_t i = 0; true; i++) {
-        int resultStep = sqlite3_step(statement); // todo: step_v2
+        int stepResult = sqlite3_step(statement); // todo: step_v2
 
-        if (resultStep == SQLITE_DONE) {
+        if (stepResult == SQLITE_DONE) {
             break;
         }
 
-        if (resultStep != SQLITE_ROW) {
-            std::abort(); // Unimplemented
+        if (stepResult != SQLITE_ROW) {
+            throw dbError("Failed to get deleted records");
         }
 
-        // sanity check - do we even need it? maybe debug only?
-        if (sqlite3_data_count(statement) != 1) {
-            std::abort();
+        assert(sqlite3_data_count(statement) == 1);
+
+        const char *idText = (const char *)sqlite3_column_text(statement, 0);
+        if (!idText) {
+            throw jsi::JSError(rt, "Failed to get ID of a record");
         }
 
-        const char *text = (const char *)sqlite3_column_text(statement, 0);
-
-        if (!text) {
-            std::abort(); // Unimplemented
-        }
-
-        jsi::String id = jsi::String::createFromAscii(rt, text);
+        jsi::String id = jsi::String::createFromAscii(rt, idText);
         records.setValueAtIndex(rt, i, id);
     }
 
@@ -642,10 +634,7 @@ void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
             std::abort(); // Unimplemented
         }
 
-        // sanity check - do we even need it? maybe debug only?
-        if (sqlite3_data_count(statement) != 1) {
-            std::abort();
-        }
+        assert(sqlite3_data_count(statement) == 1);
 
         const char *tableName = (const char *)sqlite3_column_text(statement, 0);
 
