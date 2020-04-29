@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### New features
 
+- [iOS] Added CocoaPods support.
+
 ### Changes
 
 ### Fixes
