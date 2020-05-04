@@ -308,13 +308,12 @@ sqlite3_stmt *Database::executeQuery(std::string sql, jsi::Array &arguments) {
         int resultPrepare = sqlite3_prepare_v2(db_->sqlite, sql.c_str(), -1, &statement, nullptr);
 
         if (resultPrepare != SQLITE_OK) {
-            // TODO: Finalize
-            // TODO: actual handling
+            sqlite3_finalize(statement);
             throw dbError("Failed to prepare query statement");
         }
         cachedStatements_[sql] = statement;
     } else {
-        // in theory, this shouldn't be necessary, since staatements ought to be reset *after* use, not before use
+        // in theory, this shouldn't be necessary, since statements ought to be reset *after* use, not before use
         // but still this might prevent some crashes if this is not done right
         sqlite3_reset(statement);
     }
@@ -323,7 +322,8 @@ sqlite3_stmt *Database::executeQuery(std::string sql, jsi::Array &arguments) {
     int argsCount = sqlite3_bind_parameter_count(statement);
 
     if (argsCount != arguments.length(rt)) {
-        std::abort(); // Unimplemented
+        sqlite3_reset(statement);
+        throw jsi::JSError(rt, "Number of args passed to query doesn't match number of arg placeholders");
     }
 
     for (int i = 0; i < argsCount; i++) {
@@ -340,12 +340,12 @@ sqlite3_stmt *Database::executeQuery(std::string sql, jsi::Array &arguments) {
         } else if (value.isBool()) {
             bindResult = sqlite3_bind_int(statement, i + 1, value.getBool());
         } else {
-            // TODO: Finalize
+            sqlite3_reset(statement);
             throw jsi::JSError(rt, "Invalid argument type for query");
         }
 
         if (bindResult != SQLITE_OK) {
-            // TODO: Finalize
+            sqlite3_reset(statement);
             throw dbError("Failed to bind arguments for query");
         }
     }
@@ -400,10 +400,10 @@ int Database::getUserVersion() {
     auto args = jsi::Array::createWithElements(rt);
     sqlite3_stmt *statement = executeQuery("pragma user_version", args);
 
-    int resultStep = sqlite3_step(statement); // todo: step_v2
+    int stepResult = sqlite3_step(statement);
 
-    if (resultStep != SQLITE_ROW) {
-        // TODO: Reset
+    if (stepResult  != SQLITE_ROW) {
+        sqlite3_reset(statement);
         throw dbError("Failed to obtain database user_version");
     }
 
@@ -431,13 +431,11 @@ jsi::Value Database::find(jsi::String &tableName, jsi::String &id) {
     auto args = jsi::Array::createWithElements(rt, id);
     sqlite3_stmt *statement = executeQuery("select * from " + tableName.utf8(rt) + " where id == ? limit 1", args);
 
-    int stepResult = sqlite3_step(statement); // todo: step_v2
+    int stepResult = sqlite3_step(statement);
 
     if (stepResult == SQLITE_DONE) {
         return jsi::Value::null();
-    }
-
-    if (stepResult != SQLITE_ROW) {
+    } else if (stepResult != SQLITE_ROW) {
         throw dbError("Failed to find a record in the database");
     }
 
@@ -461,9 +459,7 @@ jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array 
 
         if (stepResult == SQLITE_DONE) {
             break;
-        }
-
-        if (stepResult != SQLITE_ROW) {
+        } else if (stepResult != SQLITE_ROW) {
             throw dbError("Failed to query the database");
         }
 
@@ -500,9 +496,7 @@ jsi::Value Database::count(jsi::String &sql, jsi::Array &arguments) {
     }
 
     assert(sqlite3_data_count(statement) == 1);
-
     int count = sqlite3_column_int(statement, 0);
-
     sqlite3_reset(statement);
 
     return jsi::Value(count);
@@ -559,13 +553,11 @@ jsi::Array Database::getDeletedRecords(jsi::String &tableName) {
     jsi::Array records(rt, 0);
 
     for (size_t i = 0; true; i++) {
-        int stepResult = sqlite3_step(statement); // todo: step_v2
+        int stepResult = sqlite3_step(statement);
 
         if (stepResult == SQLITE_DONE) {
             break;
-        }
-
-        if (stepResult != SQLITE_ROW) {
+        } else if (stepResult != SQLITE_ROW) {
             throw dbError("Failed to get deleted records");
         }
 
@@ -624,13 +616,11 @@ void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
     std::vector<std::string> tables = {};
 
     for (size_t i = 0; true; i++) {
-        int resultStep = sqlite3_step(statement); // todo: step_v2
+        int stepResult = sqlite3_step(statement);
 
-        if (resultStep == SQLITE_DONE) {
+        if (stepResult == SQLITE_DONE) {
             break;
-        }
-
-        if (resultStep != SQLITE_ROW) {
+        } else if (stepResult != SQLITE_ROW) {
             std::abort(); // Unimplemented
         }
 
@@ -719,21 +709,15 @@ jsi::Value Database::getLocal(jsi::String &key) {
     auto args = jsi::Array::createWithElements(rt, key);
     sqlite3_stmt *statement = executeQuery("select value from local_storage where key = ?", args);
 
-    int resultStep = sqlite3_step(statement); // todo: step_v2
+    int stepResult = sqlite3_step(statement);
 
-    if (resultStep == SQLITE_DONE) {
+    if (stepResult == SQLITE_DONE) {
         return jsi::Value::null();
+    } else if (stepResult != SQLITE_ROW) {
+        throw dbError("Failed to get a value from local storage");
     }
 
-    if (resultStep != SQLITE_ROW) {
-        std::abort(); // Unimplemented
-    }
-
-    // sanity check - do we even need it? maybe debug only?
-    if (sqlite3_data_count(statement) != 1) {
-        std::abort();
-    }
-
+    assert(sqlite3_data_count(statement) == 1);
     const char *text = (const char *)sqlite3_column_text(statement, 0);
 
     if (!text) {
