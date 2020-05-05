@@ -175,14 +175,24 @@ export default class Database {
     this._ensureInAction(
       `Database.unsafeResetDatabase() can only be called from inside of an Action. See docs for more details.`,
     )
-    // Doing this in very specific order:
     // First kill actions, to ensure no more traffic to adapter happens
-    // then clear the database
-    // and only then clear caches, since might have had queued fetches from DB still bringing in items to cache
     this._actionQueue._abortPendingActions()
-    await this.adapter.unsafeResetDatabase()
+
+    // Kill ability to call adapter methods during reset to catch
+    // bugs if someone does this
+    const { adapter } = this
+    const ErrorAdapter = require('../adapters/error').default
+    this.adapter = (new ErrorAdapter(): any)
+
+    // Clear the database
+    await adapter.unsafeResetDatabase()
+
+    // Only now clear caches, since there may have been queued fetches from DB still bringing in items to cache
     this._unsafeClearCaches()
+
+    // Restore working Database
     this._resetCount += 1
+    this.adapter = adapter
   }
 
   _unsafeClearCaches(): void {

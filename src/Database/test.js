@@ -58,6 +58,32 @@ describe('unsafeResetDatabase', () => {
     await database.action(() => database.unsafeResetDatabase())
     expect(database._resetCount).toBe(2)
   })
+  it('prevents Adapter from being called during reset db', async () => {
+    const { database } = mockDatabase({ actionsEnabled: true })
+
+    const checkAdapter = async () => {
+      expect(await database.adapter.getLocal('test')).toBe(null)
+      expect(database.adapter.underlyingAdapter).not.toBeFalsy()
+      expect(database.adapter.schema).not.toBeFalsy()
+    }
+    await checkAdapter()
+
+    const resetPromise = database.action(() => database.unsafeResetDatabase())
+
+    expect(() => database.adapter.underlyingAdapter).toThrow(
+      /Cannot call database.adapter.underlyingAdapter while the database is being reset/,
+    )
+    expect(() => database.adapter.schema).toThrow(/Cannot call database.adapter.schema/)
+    expect(() => database.adapter.migrations).toThrow(/Cannot call database.adapter.migrations/)
+    expect(() => database.adapter.getLocal('test')).toThrow(/Cannot call database.adapter.getLocal/)
+    expect(() => database.adapter.setLocal('test', 'trap')).toThrow(
+      /Cannot call database.adapter.setLocal/,
+    )
+
+    await resetPromise
+    await checkAdapter()
+  })
+  // TODO: Write a regression test for https://github.com/Nozbe/WatermelonDB/commit/237e041d0d8aa4b3529fbf522f8d29c776fd4c0e
 })
 
 describe('Batch writes', () => {
