@@ -113,6 +113,24 @@ describe('unsafeResetDatabase', () => {
     await database.action(() => tasks.create())
     expect(subscriber2).toHaveBeenCalledTimes(0)
   })
+  it('Signals internally when database is being reset', async () => {
+    const { database } = mockDatabase({ actionsEnabled: true })
+
+    expect(database._isBeingReset).toBe(false)
+    const promise = database.action(() => database.unsafeResetDatabase())
+    expect(database._isBeingReset).toBe(true)
+    await promise
+    expect(database._isBeingReset).toBe(false)
+
+    // force reset to fail
+    database.adapter.unsafeResetDatabase = async () => {
+      throw new Error('forced')
+    }
+    const promise2 = database.action(() => database.unsafeResetDatabase())
+    expect(database._isBeingReset).toBe(true)
+    await expectToRejectWithMessage(promise2, /forced/)
+    expect(database._isBeingReset).toBe(false)
+  })
   // TODO: Write a regression test for https://github.com/Nozbe/WatermelonDB/commit/237e041d0d8aa4b3529fbf522f8d29c776fd4c0e
 })
 
