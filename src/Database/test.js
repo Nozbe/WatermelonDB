@@ -83,6 +83,36 @@ describe('unsafeResetDatabase', () => {
     await resetPromise
     await checkAdapter()
   })
+  it('Does not allow Database subscribers staying around during reset', async () => {
+    const { database, tasks } = mockDatabase({ actionsEnabled: true })
+
+    // sanity check first
+    const subscriber1 = jest.fn()
+    const unsubscribe1 = database.experimentalSubscribe(['mock_tasks'], subscriber1)
+    await database.action(() => tasks.create())
+    expect(subscriber1).toHaveBeenCalledTimes(1)
+    unsubscribe1()
+    await database.action(() => database.unsafeResetDatabase())
+    await database.action(() => tasks.create())
+    expect(subscriber1).toHaveBeenCalledTimes(1)
+
+    // keep subscriber during reset
+    const subscriber2 = jest.fn()
+    database.experimentalSubscribe(['mock_tasks'], subscriber2)
+    const consoleErrorSpy = jest.spyOn(console, 'error')
+
+    await database.action(() => database.unsafeResetDatabase())
+
+    // check that error was logged
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Application error! 1 Database subscriber was detected during database.unsafeResetDatabase() call. App should not hold onto subscriptions or Watermelon objects while resetting database.',
+    )
+
+    // check that subscriber was killed
+    await database.action(() => tasks.create())
+    expect(subscriber2).toHaveBeenCalledTimes(0)
+  })
   // TODO: Write a regression test for https://github.com/Nozbe/WatermelonDB/commit/237e041d0d8aa4b3529fbf522f8d29c776fd4c0e
 })
 

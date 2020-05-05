@@ -6,7 +6,7 @@ import { startWith } from 'rxjs/operators'
 import { values } from 'rambdax'
 
 import { type Unsubscribe } from '../utils/subscriptions'
-import { invariant } from '../utils/common'
+import { invariant, logger } from '../utils/common'
 import { noop } from '../utils/fp'
 
 import type { DatabaseAdapter, BatchOperation } from '../adapters/type'
@@ -178,11 +178,19 @@ export default class Database {
     // First kill actions, to ensure no more traffic to adapter happens
     this._actionQueue._abortPendingActions()
 
-    // Kill ability to call adapter methods during reset to catch
-    // bugs if someone does this
+    // Kill ability to call adapter methods during reset (to catch bugs if someone does this)
     const { adapter } = this
     const ErrorAdapter = require('../adapters/error').default
     this.adapter = (new ErrorAdapter(): any)
+
+    // Check for illegal subscribers
+    if (this._subscribers.length) {
+      // eslint-disable-next-line no-console
+      console.error(
+        'Application error! 1 Database subscriber was detected during database.unsafeResetDatabase() call. App should not hold onto subscriptions or Watermelon objects while resetting database.',
+      )
+      this._subscribers = []
+    }
 
     // Clear the database
     await adapter.unsafeResetDatabase()
