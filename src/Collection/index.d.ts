@@ -9,12 +9,14 @@ declare module '@nozbe/watermelondb/Collection' {
     isDestroyed: boolean
   }
 
+  export type CollectionChangeSet<Record extends Model> = CollectionChange<Record>[]
+
   export default class Collection<Record extends Model> {
     public database: Database
 
     public modelClass: Class<Record>
 
-    public changes: Subject<CollectionChange<Record>>
+    public changes: Subject<CollectionChangeSet<Record>>
 
     public table: TableName<Record>
 
