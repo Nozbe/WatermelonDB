@@ -191,7 +191,7 @@ export default class Database {
       if (this._subscribers.length) {
         // eslint-disable-next-line no-console
         console.error(
-          'Application error! 1 Database subscriber was detected during database.unsafeResetDatabase() call. App should not hold onto subscriptions or Watermelon objects while resetting database.',
+          `Application error! ${this._subscribers.length} Database subscriber was detected during database.unsafeResetDatabase() call. App should not hold onto subscriptions or Watermelon objects while resetting database.`,
         )
         this._subscribers = []
       }
