@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixes
 
+- [iOS] Fix build in apps using Flipper
 - [Typescript] Added type definition for `setGenerator`.
 - [Typescript] Fixed types of decorators.
 - [Typescript] Add Tests to test Types.
