@@ -186,6 +186,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 39DF4FDE1E00394E00F5B4B2;
@@ -211,7 +212,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "target_dir=${BUILT_PRODUCTS_DIR}/include/${PRODUCT_MODULE_NAME}/\n\n# Ensure the target include path exists\nmkdir -p ${target_dir}\n\n# Copy any file that looks like a Swift generated header to the include path\ncp ${DERIVED_SOURCES_DIR}/*-Swift.h ${target_dir}";
+			shellScript = "target_dir=${BUILT_PRODUCTS_DIR}/include/${PRODUCT_MODULE_NAME}/\n\n# Ensure the target include path exists\nmkdir -p ${target_dir}\n\n# Copy any file that looks like a Swift generated header to the include path\ncp ${DERIVED_SOURCES_DIR}/*-Swift.h ${target_dir}\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -354,6 +355,7 @@
 					"$(SRCROOT)/../../node_modules/react-native/Libraries/**",
 					"$(SRCROOT)/../../../../node_modules/react-native/Libraries/**",
 					"$(SRCROOT)/../../../../../ios/Pods/Headers/Public/React-Core/**",
+					"$(SRCROOT)/../../../../../../native/ios/Pods/Headers/Public/React-Core",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -405,6 +407,7 @@
 					"$(SRCROOT)/../../node_modules/react-native/Libraries/**",
 					"$(SRCROOT)/../../../../node_modules/react-native/Libraries/**",
 					"$(SRCROOT)/../../../../../ios/Pods/Headers/Public/React-Core/**",
+					"$(SRCROOT)/../../../../../../native/ios/Pods/Headers/Public/React-Core",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
