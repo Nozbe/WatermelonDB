@@ -77,16 +77,42 @@ const dispatcherMethods = [
 
 const NativeDatabaseBridge: NativeBridgeType = NativeModules.DatabaseBridge
 
-const makeDispatcher = (tag: ConnectionTag, isSynchronous: boolean): NativeDispatcher => {
-  // Hacky-ish way to create a NativeModule-like object which looks like the old DatabaseBridge
-  // but dispatches to synchronous methods, while maintaining Flow typecheck at callsite
+const initializeJSI = () => {
+  if (global.nativeWatermelonCreateAdapter) {
+    return true
+  }
+
+  if (NativeDatabaseBridge.initializeJSI) {
+    try {
+      NativeDatabaseBridge.initializeJSI()
+      return !!global.nativeWatermelonCreateAdapter
+    } catch (e) {
+      logger.error('[WatermelonDB][SQLite] Failed to initialize JSI')
+      logger.error(e)
+    }
+  }
+
+  return false
+}
+
+type DispatcherType = 'asynchronous' | 'synchronous' | 'jsi'
+
+// Hacky-ish way to create an object with NativeModule-like shape, but that can dispatch method
+// calls to async, synch NativeModule, or JSI implementation w/ type safety in rest of the impl
+const makeDispatcher = (
+  type: DispatcherType,
+  tag: ConnectionTag,
+  dbName: string,
+): NativeDispatcher => {
+  const jsiDb = type === 'jsi' && global.nativeWatermelonCreateAdapter(dbName)
+
   const methods = dispatcherMethods.map(methodName => {
     // batchJSON is missing on Android
-    if (!NativeDatabaseBridge[methodName]) {
+    if (!NativeDatabaseBridge[methodName] || (methodName === 'batchJSON' && jsiDb)) {
       return [methodName, undefined]
     }
 
-    const name = isSynchronous ? `${methodName}Synchronous` : methodName
+    const name = type === 'synchronous' ? `${methodName}Synchronous` : methodName
 
     return [
       methodName,
@@ -94,10 +120,23 @@ const makeDispatcher = (tag: ConnectionTag, isSynchronous: boolean): NativeDispa
         const callback = args[args.length - 1]
         const otherArgs = args.slice(0, -1)
 
+        if (jsiDb) {
+          try {
+            const value =
+              methodName === 'query' || methodName === 'count'
+                ? jsiDb[methodName](...otherArgs, []) // FIXME: temp workaround
+                : jsiDb[methodName](...otherArgs)
+            callback({ value })
+          } catch (error) {
+            callback({ error })
+          }
+          return
+        }
+
         // $FlowFixMe
         const returnValue = NativeDatabaseBridge[name](tag, ...otherArgs)
 
-        if (isSynchronous) {
+        if (type === 'synchronous') {
           callback(syncReturnToResult((returnValue: any)))
         } else {
           fromPromise(returnValue, callback)
@@ -115,6 +154,7 @@ export type SQLiteAdapterOptions = $Exact<{
   schema: AppSchema,
   migrations?: SchemaMigrations,
   synchronous?: boolean,
+  experimentalUseJSI?: boolean,
 }>
 
 export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapter {
@@ -126,7 +166,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   _dbName: string
 
-  _synchronous: boolean
+  _dispatcherType: DispatcherType
 
   _dispatcher: NativeDispatcher
 
@@ -135,8 +175,8 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     this.schema = schema
     this.migrations = migrations
     this._dbName = this._getName(dbName)
-    this._synchronous = this._isSynchonous(options.synchronous)
-    this._dispatcher = makeDispatcher(this._tag, this._synchronous)
+    this._dispatcherType = this._getDispatcherType(options)
+    this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName)
 
     if (process.env.NODE_ENV !== 'production') {
       invariant(
@@ -153,21 +193,39 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     fromPromise(this._init(), devSetupCallback)
   }
 
-  _isSynchonous(synchronous: ?boolean): boolean {
-    if (synchronous && !NativeDatabaseBridge.initializeSynchronous) {
+  _getDispatcherType(options: SQLiteAdapterOptions): DispatcherType {
+    invariant(
+      !(options.synchronous && options.experimentalUseJSI),
+      '`synchronous` and `experimentalUseJSI` SQLiteAdapter options are mutually exclusive',
+    )
+
+    if (options.synchronous) {
+      if (NativeDatabaseBridge.initializeSynchronous) {
+        return 'synchronous'
+      }
+
       logger.warn(
         `Synchronous SQLiteAdapter not available… falling back to asynchronous operation. This will happen if you're using remote debugger, and may happen if you forgot to recompile native app after WatermelonDB update`,
       )
-      return false
+    } else if (options.experimentalUseJSI) {
+      if (initializeJSI()) {
+        return 'jsi'
+      }
+
+      logger.warn(
+        `JSI SQLiteAdapter not available… falling back to asynchronous operation. This will happen if you're using remote debugger, and may happen if you forgot to recompile native app after WatermelonDB update`,
+      )
     }
-    return synchronous || false
+
+    return 'asynchronous'
   }
 
   testClone(options?: $Shape<SQLiteAdapterOptions> = {}): SQLiteAdapter {
     return new SQLiteAdapter({
       dbName: this._dbName,
       schema: this.schema,
-      synchronous: this._synchronous,
+      synchronous: this._dispatcherType === 'synchronous',
+      experimentalUseJSI: this._dispatcherType === 'jsi',
       ...(this.migrations ? { migrations: this.migrations } : {}),
       ...options,
     })
