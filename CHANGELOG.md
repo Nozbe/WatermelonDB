@@ -8,12 +8,16 @@ All notable changes to this project will be documented in this file.
 
 ### Changes
 
+- `Database.unsafeResetDatabase()` is now less unsafe — more application bugs are being caught
+
 ### Fixes
 
+- [iOS] Fix build in apps using Flipper
 - [Typescript] Added type definition for `setGenerator`.
 - [Typescript] Fixed types of decorators.
 - [Typescript] Add Tests to test Types.
 - Fixed typo in learn-to-use docs.
+- [Typescript] Fixed types of changes.
 
 ## 0.16 - 2020-03-06
 

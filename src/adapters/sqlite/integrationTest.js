@@ -32,7 +32,7 @@ const SQLiteAdapterTest = spec => {
         } else {
           invariant(
             adapter._dispatcherType === 'asynchronous',
-            'this should be asynchronous - android does not support synchronous adaoter',
+            'this should be asynchronous - android does not support synchronous adapter',
           )
         }
 
@@ -54,7 +54,7 @@ const SQLiteAdapterTest = spec => {
         } else {
           invariant(
             adapter._dispatcherType === 'asynchronous',
-            'this should be asynchronous - android does not support jsi adaoter yet',
+            'this should be asynchronous - android does not support jsi adapter yet',
           )
         }
 
