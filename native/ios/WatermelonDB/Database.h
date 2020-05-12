@@ -26,7 +26,7 @@ public:
     SqliteStatement(sqlite3_stmt *statement);
     ~SqliteStatement();
 
-    sqlite3_stmt *statement;
+    sqlite3_stmt *stmt;
 
     void reset();
 };
@@ -58,8 +58,7 @@ class Database : public jsi::HostObject {
     jsi::Runtime &getRt();
     jsi::JSError dbError(std::string description);
 
-    sqlite3_stmt *executeQuery(std::string sql, jsi::Array &arguments);
-    SqliteStatement executeQuery2(std::string sql, jsi::Array &arguments);
+    SqliteStatement executeQuery(std::string sql, jsi::Array &arguments);
     void executeUpdate(std::string sql, jsi::Array &arguments);
     jsi::Object resultDictionary(sqlite3_stmt *statement);
     int getUserVersion();
