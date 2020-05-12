@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changes
 
+- `Database.unsafeResetDatabase()` is now less unsafe — more application bugs are being caught
+
 ### Fixes
 
 - [iOS] Fix build in apps using Flipper

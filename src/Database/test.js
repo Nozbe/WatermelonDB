@@ -58,6 +58,93 @@ describe('unsafeResetDatabase', () => {
     await database.action(() => database.unsafeResetDatabase())
     expect(database._resetCount).toBe(2)
   })
+  it('prevents Adapter from being called during reset db', async () => {
+    const { database } = mockDatabase({ actionsEnabled: true })
+
+    const checkAdapter = async () => {
+      expect(await database.adapter.getLocal('test')).toBe(null)
+      expect(database.adapter.underlyingAdapter).not.toBeFalsy()
+      expect(database.adapter.schema).not.toBeFalsy()
+    }
+    await checkAdapter()
+
+    const resetPromise = database.action(() => database.unsafeResetDatabase())
+
+    expect(() => database.adapter.underlyingAdapter).toThrow(
+      /Cannot call database.adapter.underlyingAdapter while the database is being reset/,
+    )
+    expect(() => database.adapter.schema).toThrow(/Cannot call database.adapter.schema/)
+    expect(() => database.adapter.migrations).toThrow(/Cannot call database.adapter.migrations/)
+    expect(() => database.adapter.getLocal('test')).toThrow(/Cannot call database.adapter.getLocal/)
+    expect(() => database.adapter.setLocal('test', 'trap')).toThrow(
+      /Cannot call database.adapter.setLocal/,
+    )
+
+    await resetPromise
+    await checkAdapter()
+  })
+  it('Cancels Database experimental subscribers during reset', async () => {
+    const { database, tasks } = mockDatabase({ actionsEnabled: true })
+
+    // sanity check first
+    const subscriber1 = jest.fn()
+    const unsubscribe1 = database.experimentalSubscribe(['mock_tasks'], subscriber1)
+    await database.action(() => tasks.create())
+    expect(subscriber1).toHaveBeenCalledTimes(1)
+    unsubscribe1()
+    await database.action(() => database.unsafeResetDatabase())
+    await database.action(() => tasks.create())
+    expect(subscriber1).toHaveBeenCalledTimes(1)
+
+    // keep subscriber during reset
+    const subscriber2 = jest.fn()
+    database.experimentalSubscribe(['mock_tasks'], subscriber2)
+    const consoleErrorSpy = jest.spyOn(console, 'error')
+
+    await database.action(() => database.unsafeResetDatabase())
+
+    // check that error was logged
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Application error! 1 Database subscriber was detected during database.unsafeResetDatabase() call. App should not hold onto subscriptions or Watermelon objects while resetting database.',
+    )
+
+    // check that subscriber was killed
+    await database.action(() => tasks.create())
+    expect(subscriber2).toHaveBeenCalledTimes(0)
+  })
+  it.skip('Cancels withChangesForTables observation during reset', async () => {})
+  it.skip('Cancels Collection change observation during reset', async () => {})
+  it.skip('Cancels Collection experimental subscribers during reset', async () => {})
+  it.skip('Cancels Model change observation during reset', async () => {})
+  it.skip('Cancels Model experimental subscribers during reset', async () => {})
+  it.skip('Cancels Query observation during reset', async () => {})
+  it.skip('Cancels Query experimental subscribers during reset', async () => {})
+  it.skip('Cancels Relation observation during reset', async () => {})
+  it.skip('Cancels Relation experimental subscribers during reset', async () => {})
+  it('Signals internally when database is being reset', async () => {
+    const { database } = mockDatabase({ actionsEnabled: true })
+
+    expect(database._isBeingReset).toBe(false)
+    const promise = database.action(() => database.unsafeResetDatabase())
+    expect(database._isBeingReset).toBe(true)
+    await promise
+    expect(database._isBeingReset).toBe(false)
+
+    // force reset to fail
+    database.adapter.unsafeResetDatabase = async () => {
+      throw new Error('forced')
+    }
+    const promise2 = database.action(() => database.unsafeResetDatabase())
+    expect(database._isBeingReset).toBe(true)
+    await expectToRejectWithMessage(promise2, /forced/)
+    expect(database._isBeingReset).toBe(false)
+  })
+  it.skip('Disallows <many methods> calls during reset', async () => {})
+  it.skip('Makes old Model objects unsable after reset', async () => {})
+  it.skip('Makes old Query objects unsable after reset', async () => {})
+  it.skip('Makes old Relation objects unsable after reset', async () => {})
+  // TODO: Write a regression test for https://github.com/Nozbe/WatermelonDB/commit/237e041d0d8aa4b3529fbf522f8d29c776fd4c0e
 })
 
 describe('Batch writes', () => {
