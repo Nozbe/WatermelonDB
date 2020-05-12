@@ -21,6 +21,16 @@ class SqliteDb {
     SqliteDb(const SqliteDb &) = delete;
 };
 
+class SqliteStatement {
+public:
+    SqliteStatement(sqlite3_stmt *statement);
+    ~SqliteStatement();
+
+    sqlite3_stmt *statement;
+
+    void reset();
+};
+
 class Database : public jsi::HostObject {
     public:
     static void install(jsi::Runtime *runtime);
@@ -48,8 +58,9 @@ class Database : public jsi::HostObject {
     jsi::Runtime &getRt();
     jsi::JSError dbError(std::string description);
 
-    void executeUpdate(std::string sql, jsi::Array &arguments);
     sqlite3_stmt *executeQuery(std::string sql, jsi::Array &arguments);
+    SqliteStatement executeQuery2(std::string sql, jsi::Array &arguments);
+    void executeUpdate(std::string sql, jsi::Array &arguments);
     jsi::Object resultDictionary(sqlite3_stmt *statement);
     int getUserVersion();
     void setUserVersion(int newVersion);

@@ -1,6 +1,8 @@
 #include "Database.h"
 #include "JSLockPerfHack.h"
 
+#include <iostream>
+
 namespace watermelondb {
 
 SqliteDb::SqliteDb(std::string path) {
@@ -23,6 +25,24 @@ SqliteDb::~SqliteDb() {
     if (resultClose != SQLITE_OK) {
         // std::abort(); // Unimplemented
     }
+}
+
+SqliteStatement::SqliteStatement(sqlite3_stmt *statement) : statement(statement) {
+    std::cout << "init statement" << std::endl;
+}
+
+SqliteStatement::~SqliteStatement() {
+    reset();
+    std::cout << "deinitialize statement" << std::endl;
+}
+
+void SqliteStatement::reset() {
+    // TODO: I'm confused by whether or not the return value of reset is relevant:
+    // If the most recent call to sqlite3_step(S) for the prepared statement S indicated an error, then sqlite3_reset(S) returns an appropriate error code.
+    // https://sqlite.org/c3ref/reset.html
+    sqlite3_reset(statement);
+    sqlite3_clear_bindings(statement); // might matter if storing a huge string/blob
+    std::cout << "statement has been reset!" << std::endl;
 }
 
 Database::Database(jsi::Runtime *runtime, std::string path) : runtime_(runtime) {
@@ -282,23 +302,6 @@ void Database::removeFromCache(std::string tableName, std::string recordId) {
     cachedRecords_[tableName].erase(recordId);
 }
 
-void Database::executeUpdate(std::string sql, jsi::Array &args) {
-    sqlite3_stmt *statement = executeQuery(sql, args);
-
-    int stepResult = sqlite3_step(statement);
-
-    if (stepResult != SQLITE_DONE) {
-        sqlite3_reset(statement);
-        throw dbError("Failed to execute db update");
-    }
-
-    int resetResult = sqlite3_reset(statement);
-
-    if (resetResult != SQLITE_OK) {
-        throw dbError("Failed to reset statement after executeUpdate");
-    }
-}
-
 // TODO: Can we use templates or make jsi::Array iterable so we can avoid _creating_ jsi::Array in C++?
 sqlite3_stmt *Database::executeQuery(std::string sql, jsi::Array &arguments) {
     auto &rt = getRt();
@@ -351,6 +354,20 @@ sqlite3_stmt *Database::executeQuery(std::string sql, jsi::Array &arguments) {
     }
 
     return statement;
+}
+
+SqliteStatement Database::executeQuery2(std::string sql, jsi::Array &arguments) {
+    return SqliteStatement(executeQuery(sql, arguments));
+}
+
+void Database::executeUpdate(std::string sql, jsi::Array &args) {
+    SqliteStatement statement = executeQuery2(sql, args);
+
+    int stepResult = sqlite3_step(statement.statement);
+
+    if (stepResult != SQLITE_DONE) {
+        throw dbError("Failed to execute db update");
+    }
 }
 
 jsi::Object Database::resultDictionary(sqlite3_stmt *statement) {
@@ -429,9 +446,9 @@ jsi::Value Database::find(jsi::String &tableName, jsi::String &id) {
     }
 
     auto args = jsi::Array::createWithElements(rt, id);
-    sqlite3_stmt *statement = executeQuery("select * from " + tableName.utf8(rt) + " where id == ? limit 1", args);
+    SqliteStatement statement = executeQuery2("select * from " + tableName.utf8(rt) + " where id == ? limit 1", args);
 
-    int stepResult = sqlite3_step(statement);
+    int stepResult = sqlite3_step(statement.statement);
 
     if (stepResult == SQLITE_DONE) {
         return jsi::Value::null();
@@ -439,9 +456,7 @@ jsi::Value Database::find(jsi::String &tableName, jsi::String &id) {
         throw dbError("Failed to find a record in the database");
     }
 
-    auto record = resultDictionary(statement);
-
-    sqlite3_reset(statement);
+    auto record = resultDictionary(statement.statement);
 
     markAsCached(tableName.utf8(rt), id.utf8(rt));
 
@@ -450,12 +465,12 @@ jsi::Value Database::find(jsi::String &tableName, jsi::String &id) {
 
 jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array &arguments) {
     auto &rt = getRt();
-    sqlite3_stmt *statement = executeQuery(sql.utf8(rt), arguments);
+    SqliteStatement statement = executeQuery(sql.utf8(rt), arguments);
 
     jsi::Array records(rt, 0);
 
     for (size_t i = 0; true; i++) {
-        int stepResult = sqlite3_step(statement); // todo: step_v2
+        int stepResult = sqlite3_step(statement.statement); // todo: step_v2
 
         if (stepResult == SQLITE_DONE) {
             break;
@@ -463,9 +478,9 @@ jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array 
             throw dbError("Failed to query the database");
         }
 
-        assert(std::string(sqlite3_column_name(statement, 0)) == "id");
+        assert(std::string(sqlite3_column_name(statement.statement, 0)) == "id");
 
-        const char *id = (const char *)sqlite3_column_text(statement, 0);
+        const char *id = (const char *)sqlite3_column_text(statement.statement, 0);
         if (!id) {
             throw jsi::JSError(rt, "Failed to get ID of a record");
         }
@@ -475,29 +490,26 @@ jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array 
             records.setValueAtIndex(rt, i, std::move(jsiId));
         } else {
             markAsCached(tableName.utf8(rt), std::string(id));
-            jsi::Object record = resultDictionary(statement);
+            jsi::Object record = resultDictionary(statement.statement);
             records.setValueAtIndex(rt, i, std::move(record));
         }
     }
-
-    sqlite3_reset(statement);
 
     return records;
 }
 
 jsi::Value Database::count(jsi::String &sql, jsi::Array &arguments) {
     auto &rt = getRt();
-    sqlite3_stmt *statement = executeQuery(sql.utf8(rt), arguments);
+    SqliteStatement statement = executeQuery2(sql.utf8(rt), arguments);
 
-    int stepResult = sqlite3_step(statement);
+    int stepResult = sqlite3_step(statement.statement);
 
     if (stepResult != SQLITE_ROW) {
         throw dbError("Failed to query a count");
     }
 
-    assert(sqlite3_data_count(statement) == 1);
-    int count = sqlite3_column_int(statement, 0);
-    sqlite3_reset(statement);
+    assert(sqlite3_data_count(statement.statement) == 1);
+    int count = sqlite3_column_int(statement.statement, 0);
 
     return jsi::Value(count);
 }
@@ -548,12 +560,12 @@ void Database::batch(jsi::Array &operations) {
 jsi::Array Database::getDeletedRecords(jsi::String &tableName) {
     auto &rt = getRt();
     auto args = jsi::Array::createWithElements(*runtime_);
-    sqlite3_stmt *statement = executeQuery("select id from " + tableName.utf8(rt) + " where _status='deleted'", args);
+    SqliteStatement statement = executeQuery("select id from " + tableName.utf8(rt) + " where _status='deleted'", args);
 
     jsi::Array records(rt, 0);
 
     for (size_t i = 0; true; i++) {
-        int stepResult = sqlite3_step(statement);
+        int stepResult = sqlite3_step(statement.statement);
 
         if (stepResult == SQLITE_DONE) {
             break;
@@ -561,9 +573,9 @@ jsi::Array Database::getDeletedRecords(jsi::String &tableName) {
             throw dbError("Failed to get deleted records");
         }
 
-        assert(sqlite3_data_count(statement) == 1);
+        assert(sqlite3_data_count(statement.statement) == 1);
 
-        const char *idText = (const char *)sqlite3_column_text(statement, 0);
+        const char *idText = (const char *)sqlite3_column_text(statement.statement, 0);
         if (!idText) {
             throw jsi::JSError(rt, "Failed to get ID of a record");
         }
@@ -571,8 +583,6 @@ jsi::Array Database::getDeletedRecords(jsi::String &tableName) {
         jsi::String id = jsi::String::createFromAscii(rt, idText);
         records.setValueAtIndex(rt, i, id);
     }
-
-    sqlite3_reset(statement);
 
     return records;
 }
@@ -609,34 +619,35 @@ void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
 
     // TODO: delete file in non-test?
 
-    // Destroy everything
-    auto args = jsi::Array::createWithElements(rt);
-    sqlite3_stmt *statement = executeQuery("select name from sqlite_master where type='table'", args);
-
     std::vector<std::string> tables = {};
 
-    for (size_t i = 0; true; i++) {
-        int stepResult = sqlite3_step(statement);
+    // Find all tables (scope to reset SqliteStatement)
+    {
+        auto args = jsi::Array::createWithElements(rt);
+        SqliteStatement statement = executeQuery("select name from sqlite_master where type='table'", args);
 
-        if (stepResult == SQLITE_DONE) {
-            break;
-        } else if (stepResult != SQLITE_ROW) {
-            std::abort(); // Unimplemented
+        for (size_t i = 0; true; i++) {
+            int stepResult = sqlite3_step(statement.statement);
+
+            if (stepResult == SQLITE_DONE) {
+                break;
+            } else if (stepResult != SQLITE_ROW) {
+                std::abort(); // Unimplemented
+            }
+
+            assert(sqlite3_data_count(statement.statement) == 1);
+
+            const char *tableName = (const char *)sqlite3_column_text(statement.statement, 0);
+
+            if (!tableName) {
+                std::abort(); // Unimplemented
+            }
+
+            tables.push_back(std::string(tableName));
         }
-
-        assert(sqlite3_data_count(statement) == 1);
-
-        const char *tableName = (const char *)sqlite3_column_text(statement, 0);
-
-        if (!tableName) {
-            std::abort(); // Unimplemented
-        }
-
-        tables.push_back(std::string(tableName));
     }
 
-    sqlite3_reset(statement); // TODO: check status?
-
+    // Destroy everything
     for (auto const &table : tables) {
         std::string sql = "drop table if exists " + table;
 
@@ -707,9 +718,9 @@ void Database::migrate(jsi::String &migrationSql, int fromVersion, int toVersion
 jsi::Value Database::getLocal(jsi::String &key) {
     auto &rt = getRt();
     auto args = jsi::Array::createWithElements(rt, key);
-    sqlite3_stmt *statement = executeQuery("select value from local_storage where key = ?", args);
+    SqliteStatement statement = executeQuery("select value from local_storage where key = ?", args);
 
-    int stepResult = sqlite3_step(statement);
+    int stepResult = sqlite3_step(statement.statement);
 
     if (stepResult == SQLITE_DONE) {
         return jsi::Value::null();
@@ -717,18 +728,16 @@ jsi::Value Database::getLocal(jsi::String &key) {
         throw dbError("Failed to get a value from local storage");
     }
 
-    assert(sqlite3_data_count(statement) == 1);
-    const char *text = (const char *)sqlite3_column_text(statement, 0);
+    assert(sqlite3_data_count(statement.statement) == 1);
+    const char *text = (const char *)sqlite3_column_text(statement.statement, 0);
 
     if (!text) {
-        sqlite3_reset(statement);
         return jsi::Value::null();
     }
 
     jsi::Value returnValue = jsi::String::createFromAscii(rt, text);
-    sqlite3_reset(statement);
 
-    return std::move(returnValue);
+    return returnValue;
 }
 
 void Database::setLocal(jsi::String &key, jsi::String &value) {
