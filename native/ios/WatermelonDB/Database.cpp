@@ -36,6 +36,13 @@ SqliteStatement::~SqliteStatement() {
     std::cout << "deinitialize statement" << std::endl;
 }
 
+SqliteStatement::SqliteStatement(const SqliteStatement&) {
+    std::cout << "copy c'tor" << std::endl;
+}
+SqliteStatement::SqliteStatement(SqliteStatement&&) {
+    std::cout << "move c'tor" << std::endl;
+}
+
 void SqliteStatement::reset() {
     if (stmt) {
         // TODO: I'm confused by whether or not the return value of reset is relevant:
@@ -344,17 +351,22 @@ SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
             bindResult = sqlite3_bind_double(statement, i + 1, value.getNumber());
         } else if (value.isBool()) {
             bindResult = sqlite3_bind_int(statement, i + 1, value.getBool());
+        } else if (value.isObject()) {
+            sqlite3_reset(statement);
+            throw jsi::JSError(rt, "Invalid argument type (object) for query");
         } else {
             sqlite3_reset(statement);
-            throw jsi::JSError(rt, "Invalid argument type for query");
+            throw jsi::JSError(rt, "Invalid argument type (unknown) for query");
         }
 
         if (bindResult != SQLITE_OK) {
             sqlite3_reset(statement);
-            throw dbError("Failed to bind arguments for query");
+            throw dbError("Failed to bind an argument for query");
         }
     }
 
+    // TODO: We may move this initialization earlier to avoid having to care about sqlite3_reset, but I think we'll
+    // have to implement a move constructor for it to be correct
     return SqliteStatement(statement);
 }
 
@@ -374,6 +386,7 @@ jsi::Object Database::resultDictionary(sqlite3_stmt *statement) {
 
     for (int i = 0, len = sqlite3_column_count(statement); i < len; i++) {
         const char *column = sqlite3_column_name(statement, i);
+
         switch (sqlite3_column_type(statement, i)) {
         case SQLITE_INTEGER: {
             int value = sqlite3_column_int(statement, i);
@@ -400,9 +413,12 @@ jsi::Object Database::resultDictionary(sqlite3_stmt *statement) {
             dictionary.setProperty(rt, column, std::move(jsi::Value::null()));
             break;
         }
+        case SQLITE_BLOB: {
+            throw jsi::JSError(rt, "Unable to fetch record from database because WatermelonDB does not support blobs");
+        }
         default: {
             throw jsi::JSError(rt, "Unable to fetch record from database - unknown column type (WatermelonDB does not "
-                                   "support blobs or custom sqlite types currently)");
+                                   "support custom sqlite types currently)");
         }
         }
     }
