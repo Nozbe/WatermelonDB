@@ -67,6 +67,7 @@ async function runTests() {
 
   // console.log(global.nativeWatermelonDatabase)
   // console.log(global.nativeWatermelonCreateAdapter)
+  NativeModules.DatabaseBridge.initializeJSI()
   const newDb = global.nativeWatermelonCreateAdapter('file:jsitests?mode=memory&cache=shared')
   const initret = newDb.initialize(dbname, 1)
   invariant(initret.code === 'schema_needed', 'bad init')
@@ -96,6 +97,17 @@ async function runTests() {
   }
   console.log('local ok')
 
+  // Check bad initialization
+  let caughtBadDb = false
+  try {
+    const badDb = global.nativeWatermelonCreateAdapter('/bin/x') // TODO: Add proper test for that
+  } catch (error) {
+    caughtBadDb = true
+    console.log('caught bad db')
+  }
+  if (!caughtBadDb) {
+    throw new Error('You should have thrown!')
+  }
   // New method
 
   await new Promise(resolve => setTimeout(resolve, 250))

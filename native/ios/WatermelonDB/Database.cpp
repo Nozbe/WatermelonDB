@@ -128,7 +128,7 @@ void Database::install(jsi::Runtime *runtime) {
 
             jsi::Object adapter(rt);
 
-            std::shared_ptr<Database> database = std::make_shared<Database>(runtime, dbPath); // TODO: Handle exceptions
+            std::shared_ptr<Database> database = std::make_shared<Database>(runtime, dbPath);
             adapter.setProperty(rt, "database", std::move(jsi::Object::createFromHostObject(rt, database)));
 
             {
