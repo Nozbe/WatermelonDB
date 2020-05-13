@@ -134,7 +134,7 @@ void Database::install(jsi::Runtime *runtime) {
             {
                 jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "initialize");
                 jsi::Function function = createFunction(rt, name, 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
-                    jsi::String dbName = args[0].getString(rt); // TODO: Check if dbName is ok
+                    jsi::String dbName = args[0].getString(rt);
                     int expectedVersion = (int)args[1].getNumber();
 
                     int databaseVersion = database->getUserVersion();
@@ -150,8 +150,7 @@ void Database::install(jsi::Runtime *runtime) {
                         response.setProperty(rt, "code", "migrations_needed");
                         response.setProperty(rt, "databaseVersion", databaseVersion);
                     } else {
-                        //                        consoleLog("Database has newer version (\(databaseVersion)) than what the " +
-                        //                                   "app supports (\(schemaVersion)). Will reset database.")
+                        std::cout << "Database has newer version (" << databaseVersion << ") than what the app supports (" << expectedVersion << "). Will reset database." << std::endl;
                         response.setProperty(rt, "code", "schema_needed");
                     }
 
@@ -162,12 +161,16 @@ void Database::install(jsi::Runtime *runtime) {
             {
                 jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "setUpWithSchema");
                 jsi::Function function = createFunction(rt, name, 3, [database](jsi::Runtime &rt, const jsi::Value *args) {
-                    jsi::String dbName = args[0].getString(rt); // TODO: Check if dbName is ok
+                    jsi::String dbName = args[0].getString(rt);
                     jsi::String schema = args[1].getString(rt);
                     int schemaVersion = (int)args[2].getNumber();
 
-                    // TODO: exceptions should kill app
-                    database->unsafeResetDatabase(schema, schemaVersion);
+                    try {
+                        database->unsafeResetDatabase(schema, schemaVersion);
+                    } catch (const std::exception &ex) {
+                        std::cerr << "Failed to set up the database correctly - " << ex.what() << std::endl;
+                        std::abort();
+                    }
 
                     database->initialized_ = true;
                     return jsi::Value::undefined();
@@ -177,13 +180,17 @@ void Database::install(jsi::Runtime *runtime) {
             {
                 jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "setUpWithMigrations");
                 jsi::Function function = createFunction(rt, name, 4, [database](jsi::Runtime &rt, const jsi::Value *args) {
-                    jsi::String dbName = args[0].getString(rt); // TODO: Check if dbName is ok
+                    jsi::String dbName = args[0].getString(rt);
                     jsi::String migrationSchema = args[1].getString(rt);
                     int fromVersion = (int)args[2].getNumber();
                     int toVersion = (int)args[4].getNumber();
 
-                    // TODO: exceptions should kill app
-                    database->migrate(migrationSchema, fromVersion, toVersion);
+                    try {
+                        database->migrate(migrationSchema, fromVersion, toVersion);
+                    } catch (const std::exception &ex) {
+                        std::cerr << "Failed to migrate the database correctly - " << ex.what() << std::endl;
+                        std::abort();
+                    }
 
                     database->initialized_ = true;
                     return jsi::Value::undefined();
