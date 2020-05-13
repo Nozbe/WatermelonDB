@@ -279,6 +279,8 @@ void Database::install(jsi::Runtime *runtime) {
 
         return adapter;
     });
+
+    // TODO: Use the onMemoryAlert hook!
 }
 
 Database::~Database() {
