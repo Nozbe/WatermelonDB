@@ -62,10 +62,17 @@ class Database : public jsi::HostObject {
 
     SqliteStatement executeQuery(std::string sql, jsi::Array &arguments);
     void executeUpdate(std::string sql, jsi::Array &arguments);
+    void executeUpdate(std::string sql);
     jsi::Object resultDictionary(sqlite3_stmt *statement);
+
+    void beginTransaction();
+    void commit();
+    void rollback();
+
     int getUserVersion();
     void setUserVersion(int newVersion);
     void migrate(jsi::String &migrationSql, int fromVersion, int toVersion);
+
     bool isCached(std::string tableName, std::string recordId);
     void markAsCached(std::string tableName, std::string recordId);
     void removeFromCache(std::string tableName, std::string recordId);

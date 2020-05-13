@@ -365,6 +365,12 @@ void Database::executeUpdate(std::string sql, jsi::Array &args) {
     }
 }
 
+void Database::executeUpdate(std::string sql) {
+    auto &rt = getRt();
+    auto args = jsi::Array::createWithElements(rt);
+    executeUpdate(sql, args);
+}
+
 jsi::Object Database::resultDictionary(sqlite3_stmt *statement) {
     auto &rt = getRt();
     jsi::Object dictionary(rt);
@@ -412,6 +418,22 @@ jsi::Object Database::resultDictionary(sqlite3_stmt *statement) {
     return dictionary; // TODO: Make sure this value is moved, not copied
 }
 
+void Database::beginTransaction() {
+    // NOTE: using exclusive transaction, because that's what FMDB does
+    // In theory, `deferred` seems better, since it's less likely to get locked
+    // OTOH, we don't really do multithreaded access, and when we *do*, we'd either
+    // use a serial queue (easiest) or have to do a lot more work to avoid locking
+    executeUpdate("begin exclusive transaction");
+}
+
+void Database::commit() {
+    executeUpdate("commit transaction");
+}
+
+void Database::rollback() {
+    executeUpdate("rollback transaction");
+}
+
 int Database::getUserVersion() {
     auto &rt = getRt();
     auto args = jsi::Array::createWithElements(rt);
@@ -433,8 +455,7 @@ void Database::setUserVersion(int newVersion) {
     auto &rt = getRt();
     // NOTE: placeholders don't work, and ints are safe
     std::string sql = "pragma user_version = " + std::to_string(newVersion);
-    auto args = jsi::Array::createWithElements(rt);
-    executeUpdate(sql, args);
+    executeUpdate(sql);
 }
 
 jsi::Value Database::find(jsi::String &tableName, jsi::String &id) {
