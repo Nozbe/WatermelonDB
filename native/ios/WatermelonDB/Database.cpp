@@ -105,10 +105,7 @@ jsi::Value withJSCLockHolder(facebook::jsi::Runtime &rt, std::function<jsi::Valu
 
 using jsiFunction = std::function<jsi::Value(jsi::Runtime &rt, const jsi::Value *args)>;
 
-jsi::Function createFunction(jsi::Runtime &runtime,
-                             const jsi::PropNameID &name,
-                             unsigned int argCount,
-                             jsiFunction func
+jsi::Function createFunction(jsi::Runtime &runtime, const jsi::PropNameID &name, unsigned int argCount, jsiFunction func
 
 ) {
     std::string stdName = name.utf8(runtime);
@@ -121,11 +118,7 @@ jsi::Function createFunction(jsi::Runtime &runtime,
                                                  });
 }
 
-void createMethod(jsi::Runtime &rt,
-                  jsi::Object &object,
-                  const char *methodName,
-                  unsigned int argCount,
-                  jsiFunction func) {
+void createMethod(jsi::Runtime &rt, jsi::Object &object, const char *methodName, unsigned int argCount, jsiFunction func) {
     jsi::PropNameID name = jsi::PropNameID::forAscii(rt, methodName);
     jsi::Function function = createFunction(rt, name, argCount, func);
     object.setProperty(rt, name, function);
@@ -271,7 +264,15 @@ void Database::install(jsi::Runtime *runtime) {
             jsi::String schema = args[0].getString(rt);
             int schemaVersion = (int)args[1].getNumber();
 
-            watermelonCallWithJSCLockHolder(rt, [&]() { database->unsafeResetDatabase(schema, schemaVersion); });
+            watermelonCallWithJSCLockHolder(rt, [&]() {
+                try {
+                    database->unsafeResetDatabase(schema, schemaVersion);
+                } catch (const std::exception &ex) {
+                    std::cerr << "Failed to reset database correctly - " << ex.what() << std::endl;
+                    // Partially reset database is likely corrupted, so it's probably less bad to crash
+                    std::abort();
+                }
+            });
 
             return jsi::Value::undefined();
         });
@@ -356,8 +357,7 @@ SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
 }
 
 void Database::executeUpdate(std::string sql, jsi::Array &args) {
-    SqliteStatement statement = executeQuery(sql, args);
-
+    auto statement = executeQuery(sql, args);
     int stepResult = sqlite3_step(statement.stmt);
 
     if (stepResult != SQLITE_DONE) {
@@ -371,6 +371,7 @@ jsi::Object Database::resultDictionary(sqlite3_stmt *statement) {
 
     for (int i = 0, len = sqlite3_column_count(statement); i < len; i++) {
         const char *column = sqlite3_column_name(statement, i);
+        assert(column);
 
         switch (sqlite3_column_type(statement, i)) {
         case SQLITE_INTEGER: {
@@ -408,13 +409,13 @@ jsi::Object Database::resultDictionary(sqlite3_stmt *statement) {
         }
     }
 
-    return dictionary;
+    return dictionary; // TODO: Make sure this value is moved, not copied
 }
 
 int Database::getUserVersion() {
     auto &rt = getRt();
     auto args = jsi::Array::createWithElements(rt);
-    SqliteStatement statement = executeQuery("pragma user_version", args);
+    auto statement = executeQuery("pragma user_version", args);
 
     int stepResult = sqlite3_step(statement.stmt);
 
@@ -439,11 +440,11 @@ void Database::setUserVersion(int newVersion) {
 jsi::Value Database::find(jsi::String &tableName, jsi::String &id) {
     auto &rt = getRt();
     if (isCached(tableName.utf8(rt), id.utf8(rt))) {
-        return jsi::String::createFromUtf8(rt, id.utf8(rt)); // TODO: why can't I return jsi::String?
+        return std::move(id);
     }
 
     auto args = jsi::Array::createWithElements(rt, id);
-    SqliteStatement statement = executeQuery("select * from " + tableName.utf8(rt) + " where id == ? limit 1", args);
+    auto statement = executeQuery("select * from " + tableName.utf8(rt) + " where id == ? limit 1", args);
 
     int stepResult = sqlite3_step(statement.stmt);
 
@@ -462,12 +463,12 @@ jsi::Value Database::find(jsi::String &tableName, jsi::String &id) {
 
 jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array &arguments) {
     auto &rt = getRt();
-    SqliteStatement statement = executeQuery(sql.utf8(rt), arguments);
+    auto statement = executeQuery(sql.utf8(rt), arguments);
 
     jsi::Array records(rt, 0);
 
     for (size_t i = 0; true; i++) {
-        int stepResult = sqlite3_step(statement.stmt); // todo: step_v2
+        int stepResult = sqlite3_step(statement.stmt);
 
         if (stepResult == SQLITE_DONE) {
             break;
@@ -497,7 +498,7 @@ jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array 
 
 jsi::Value Database::count(jsi::String &sql, jsi::Array &arguments) {
     auto &rt = getRt();
-    SqliteStatement statement = executeQuery(sql.utf8(rt), arguments);
+    auto statement = executeQuery(sql.utf8(rt), arguments);
 
     int stepResult = sqlite3_step(statement.stmt);
 
@@ -556,8 +557,8 @@ void Database::batch(jsi::Array &operations) {
 
 jsi::Array Database::getDeletedRecords(jsi::String &tableName) {
     auto &rt = getRt();
-    auto args = jsi::Array::createWithElements(*runtime_);
-    SqliteStatement statement = executeQuery("select id from " + tableName.utf8(rt) + " where _status='deleted'", args);
+    auto args = jsi::Array::createWithElements(rt);
+    auto statement = executeQuery("select id from " + tableName.utf8(rt) + " where _status='deleted'", args);
 
     jsi::Array records(rt, 0);
 
@@ -621,7 +622,7 @@ void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
     // Find all tables (scope to reset SqliteStatement)
     {
         auto args = jsi::Array::createWithElements(rt);
-        SqliteStatement statement = executeQuery("select name from sqlite_master where type='table'", args);
+        auto statement = executeQuery("select name from sqlite_master where type='table'", args);
 
         for (size_t i = 0; true; i++) {
             int stepResult = sqlite3_step(statement.stmt);
@@ -629,15 +630,13 @@ void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
             if (stepResult == SQLITE_DONE) {
                 break;
             } else if (stepResult != SQLITE_ROW) {
-                std::abort(); // Unimplemented
+                throw dbError("Failed to get table names to delete");
             }
 
             assert(sqlite3_data_count(statement.stmt) == 1);
-
             const char *tableName = (const char *)sqlite3_column_text(statement.stmt, 0);
-
             if (!tableName) {
-                std::abort(); // Unimplemented
+                throw jsi::JSError(rt, "Failed to get table name to delete");
             }
 
             tables.push_back(std::string(tableName));
@@ -654,12 +653,13 @@ void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
         if (errmsg) {
             std::string message(errmsg);
             sqlite3_free(errmsg);
-            throw jsi::JSError(rt, message); // abort?
+            throw jsi::JSError(rt, message);
         }
     }
 
-    sqlite3_exec(db_->sqlite, "pragma writable_schema=1; delete from sqlite_master; pragma user_version=0; pragma writable_schema=0",
-                 nullptr, nullptr, nullptr); // TODO: clean up
+    const char *sqliteResetSql =
+    "pragma writable_schema=1; delete from sqlite_master; pragma user_version=0; pragma writable_schema=0";
+    sqlite3_exec(db_->sqlite, sqliteResetSql, nullptr, nullptr, nullptr); // TODO: clean up
 
     cachedRecords_ = {};
 
@@ -672,11 +672,11 @@ void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
     if (errmsg) {
         std::string message(errmsg);
         sqlite3_free(errmsg);
-        throw jsi::JSError(rt, message); // abort?
+        throw jsi::JSError(rt, message);
     }
 
     if (resultExec != SQLITE_OK) {
-        std::abort(); // Unimplemented
+        throw dbError("Failed to execute schema setup queries");
     }
 
     setUserVersion(schemaVersion);
@@ -695,18 +695,17 @@ void Database::migrate(jsi::String &migrationSql, int fromVersion, int toVersion
 
     std::string sql = migrationSql.utf8(rt);
 
-    // TODO: deduplicate
     char *errmsg = nullptr;
     int resultExec = sqlite3_exec(db_->sqlite, sql.c_str(), nullptr, nullptr, &errmsg);
 
     if (errmsg) {
         std::string message(errmsg);
         sqlite3_free(errmsg);
-        throw jsi::JSError(rt, message); // abort?
+        throw jsi::JSError(rt, message);
     }
 
     if (resultExec != SQLITE_OK) {
-        std::abort(); // Unimplemented
+        throw dbError("Failed to execute schema migration queries");
     }
 
     sqlite3_exec(db_->sqlite, "commit transaction", nullptr, nullptr, nullptr); // TODO: clean up
@@ -715,10 +714,9 @@ void Database::migrate(jsi::String &migrationSql, int fromVersion, int toVersion
 jsi::Value Database::getLocal(jsi::String &key) {
     auto &rt = getRt();
     auto args = jsi::Array::createWithElements(rt, key);
-    SqliteStatement statement = executeQuery("select value from local_storage where key = ?", args);
+    auto statement = executeQuery("select value from local_storage where key = ?", args);
 
     int stepResult = sqlite3_step(statement.stmt);
-
     if (stepResult == SQLITE_DONE) {
         return jsi::Value::null();
     } else if (stepResult != SQLITE_ROW) {
@@ -732,9 +730,7 @@ jsi::Value Database::getLocal(jsi::String &key) {
         return jsi::Value::null();
     }
 
-    jsi::Value returnValue = jsi::String::createFromAscii(rt, text);
-
-    return returnValue;
+    return jsi::String::createFromAscii(rt, text);
 }
 
 void Database::setLocal(jsi::String &key, jsi::String &value) {
