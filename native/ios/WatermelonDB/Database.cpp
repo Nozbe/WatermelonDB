@@ -28,7 +28,6 @@ SqliteDb::~SqliteDb() {
     // Find and finalize all prepared statements
     sqlite3_stmt *stmt;
     int stmtCount = 0;
-
     while (stmt = sqlite3_next_stmt(sqlite, nullptr)) {
         sqlite3_finalize(stmt);
         stmtCount++;
@@ -56,18 +55,18 @@ SqliteStatement::~SqliteStatement() {
     std::cout << "deinitialize statement" << std::endl;
 }
 
-SqliteStatement::SqliteStatement(const SqliteStatement&) {
+SqliteStatement::SqliteStatement(const SqliteStatement &) {
     std::cout << "copy c'tor" << std::endl;
 }
-SqliteStatement::SqliteStatement(SqliteStatement&&) {
+SqliteStatement::SqliteStatement(SqliteStatement &&) {
     std::cout << "move c'tor" << std::endl;
 }
 
 void SqliteStatement::reset() {
     if (stmt) {
         // TODO: I'm confused by whether or not the return value of reset is relevant:
-        // If the most recent call to sqlite3_step(S) for the prepared statement S indicated an error, then sqlite3_reset(S) returns an appropriate error code.
-        // https://sqlite.org/c3ref/reset.html
+        // If the most recent call to sqlite3_step(S) for the prepared statement S indicated an error, then
+        // sqlite3_reset(S) returns an appropriate error code. https://sqlite.org/c3ref/reset.html
         sqlite3_reset(stmt);
         sqlite3_clear_bindings(stmt); // might matter if storing a huge string/blob
         std::cout << "statement has been reset!" << std::endl;
