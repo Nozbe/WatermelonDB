@@ -97,10 +97,18 @@ jsi::JSError Database::dbError(std::string description) {
     return jsi::JSError(rt, message);
 }
 
+jsi::Value withJSCLockHolder(facebook::jsi::Runtime &rt, std::function<jsi::Value(void)> block) {
+    jsi::Value retValue;
+    watermelonCallWithJSCLockHolder(rt, [&]() { retValue = block(); });
+    return retValue;
+}
+
+using jsiFunction = std::function<jsi::Value(jsi::Runtime &rt, const jsi::Value *args)>;
+
 jsi::Function createFunction(jsi::Runtime &runtime,
                              const jsi::PropNameID &name,
                              unsigned int argCount,
-                             std::function<jsi::Value(jsi::Runtime &rt, const jsi::Value *args)> func
+                             jsiFunction func
 
 ) {
     std::string stdName = name.utf8(runtime);
@@ -113,212 +121,163 @@ jsi::Function createFunction(jsi::Runtime &runtime,
                                                  });
 }
 
-jsi::Value withJSCLockHolder(facebook::jsi::Runtime &rt, std::function<jsi::Value(void)> block) {
-    jsi::Value retValue;
-    watermelonCallWithJSCLockHolder(rt, [&]() { retValue = block(); });
-    return retValue;
+void createMethod(jsi::Runtime &rt,
+                  jsi::Object &object,
+                  const char *methodName,
+                  unsigned int argCount,
+                  jsiFunction func) {
+    jsi::PropNameID name = jsi::PropNameID::forAscii(rt, methodName);
+    jsi::Function function = createFunction(rt, name, argCount, func);
+    object.setProperty(rt, name, function);
 }
 
 void Database::install(jsi::Runtime *runtime) {
     jsi::Runtime &rt = *runtime;
-    {
-        jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "nativeWatermelonCreateAdapter");
-        jsi::Function function = createFunction(rt, name, 1, [runtime](jsi::Runtime &rt, const jsi::Value *args) {
-            std::string dbPath = args[0].getString(rt).utf8(rt);
+    auto globalObject = rt.global();
+    createMethod(rt, globalObject, "nativeWatermelonCreateAdapter", 1, [runtime](jsi::Runtime &rt, const jsi::Value *args) {
+        std::string dbPath = args[0].getString(rt).utf8(rt);
 
-            jsi::Object adapter(rt);
+        jsi::Object adapter(rt);
 
-            std::shared_ptr<Database> database = std::make_shared<Database>(runtime, dbPath);
-            adapter.setProperty(rt, "database", std::move(jsi::Object::createFromHostObject(rt, database)));
+        std::shared_ptr<Database> database = std::make_shared<Database>(runtime, dbPath);
+        adapter.setProperty(rt, "database", jsi::Object::createFromHostObject(rt, database));
 
-            {
-                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "initialize");
-                jsi::Function function = createFunction(rt, name, 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
-                    jsi::String dbName = args[0].getString(rt);
-                    int expectedVersion = (int)args[1].getNumber();
+        createMethod(rt, adapter, "initialize", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            jsi::String dbName = args[0].getString(rt);
+            int expectedVersion = (int)args[1].getNumber();
 
-                    int databaseVersion = database->getUserVersion();
+            int databaseVersion = database->getUserVersion();
 
-                    jsi::Object response(rt);
+            jsi::Object response(rt);
 
-                    if (databaseVersion == expectedVersion) {
-                        database->initialized_ = true;
-                        response.setProperty(rt, "code", "ok");
-                    } else if (databaseVersion == 0) {
-                        response.setProperty(rt, "code", "schema_needed");
-                    } else if (databaseVersion < expectedVersion) {
-                        response.setProperty(rt, "code", "migrations_needed");
-                        response.setProperty(rt, "databaseVersion", databaseVersion);
-                    } else {
-                        std::cout << "Database has newer version (" << databaseVersion << ") than what the app supports (" << expectedVersion << "). Will reset database." << std::endl;
-                        response.setProperty(rt, "code", "schema_needed");
-                    }
-
-                    return response;
-                });
-                adapter.setProperty(rt, name, function);
-            }
-            {
-                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "setUpWithSchema");
-                jsi::Function function = createFunction(rt, name, 3, [database](jsi::Runtime &rt, const jsi::Value *args) {
-                    jsi::String dbName = args[0].getString(rt);
-                    jsi::String schema = args[1].getString(rt);
-                    int schemaVersion = (int)args[2].getNumber();
-
-                    try {
-                        database->unsafeResetDatabase(schema, schemaVersion);
-                    } catch (const std::exception &ex) {
-                        std::cerr << "Failed to set up the database correctly - " << ex.what() << std::endl;
-                        std::abort();
-                    }
-
-                    database->initialized_ = true;
-                    return jsi::Value::undefined();
-                });
-                adapter.setProperty(rt, name, function);
-            }
-            {
-                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "setUpWithMigrations");
-                jsi::Function function = createFunction(rt, name, 4, [database](jsi::Runtime &rt, const jsi::Value *args) {
-                    jsi::String dbName = args[0].getString(rt);
-                    jsi::String migrationSchema = args[1].getString(rt);
-                    int fromVersion = (int)args[2].getNumber();
-                    int toVersion = (int)args[4].getNumber();
-
-                    try {
-                        database->migrate(migrationSchema, fromVersion, toVersion);
-                    } catch (const std::exception &ex) {
-                        std::cerr << "Failed to migrate the database correctly - " << ex.what() << std::endl;
-                        std::abort();
-                    }
-
-                    database->initialized_ = true;
-                    return jsi::Value::undefined();
-                });
-                adapter.setProperty(rt, name, function);
-            }
-            {
-                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "find");
-                jsi::Function function = createFunction(rt, name, 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
-                    assert(database->initialized_);
-                    jsi::String tableName = args[0].getString(rt);
-                    jsi::String id = args[1].getString(rt);
-
-                    return withJSCLockHolder(rt, [&]() { return database->find(tableName, id); });
-                });
-                adapter.setProperty(rt, name, function);
-            }
-            {
-                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "query");
-                jsi::Function function = createFunction(rt, name, 3, [database](jsi::Runtime &rt, const jsi::Value *args) {
-                    assert(database->initialized_);
-                    jsi::String tableName = args[0].getString(rt);
-                    jsi::String sql = args[1].getString(rt);
-                    jsi::Array arguments = args[2].getObject(rt).getArray(rt);
-
-                    return withJSCLockHolder(rt, [&]() { return database->query(tableName, sql, arguments); });
-                });
-                adapter.setProperty(rt, name, function);
-            }
-            {
-                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "count");
-                jsi::Function function = createFunction(rt, name, 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
-                    assert(database->initialized_);
-                    jsi::String sql = args[0].getString(rt);
-                    jsi::Array arguments = args[1].getObject(rt).getArray(rt);
-
-                    return withJSCLockHolder(rt, [&]() { return database->count(sql, arguments); });
-                });
-                adapter.setProperty(rt, name, function);
-            }
-            {
-                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "batch");
-                jsi::Function function = createFunction(rt, name, 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
-                    assert(database->initialized_);
-                    jsi::Array operations = args[0].getObject(rt).getArray(rt);
-
-                    watermelonCallWithJSCLockHolder(rt, [&]() { database->batch(operations); });
-
-                    return jsi::Value::undefined();
-                });
-                adapter.setProperty(rt, name, function);
-            }
-            {
-                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "getLocal");
-                jsi::Function function = createFunction(rt, name, 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
-                    assert(database->initialized_);
-                    jsi::String key = args[0].getString(rt);
-
-                    return withJSCLockHolder(rt, [&]() { return database->getLocal(key); });
-                });
-                adapter.setProperty(rt, name, function);
-            }
-            {
-                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "setLocal");
-                jsi::Function function = createFunction(rt, name, 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
-                    assert(database->initialized_);
-                    jsi::String key = args[0].getString(rt);
-                    jsi::String value = args[1].getString(rt);
-
-                    watermelonCallWithJSCLockHolder(rt, [&]() { database->setLocal(key, value); });
-
-                    return jsi::Value::undefined();
-                });
-                adapter.setProperty(rt, name, function);
-            }
-            {
-                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "removeLocal");
-                jsi::Function function = createFunction(rt, name, 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
-                    assert(database->initialized_);
-                    jsi::String key = args[0].getString(rt);
-
-                    watermelonCallWithJSCLockHolder(rt, [&]() { database->removeLocal(key); });
-
-                    return jsi::Value::undefined();
-                });
-                adapter.setProperty(rt, name, function);
-            }
-            {
-                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "getDeletedRecords");
-                jsi::Function function = createFunction(rt, name, 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
-                    assert(database->initialized_);
-                    jsi::String tableName = args[0].getString(rt);
-
-                    return withJSCLockHolder(rt, [&]() { return database->getDeletedRecords(tableName); });
-                });
-                adapter.setProperty(rt, name, function);
-            }
-            {
-                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "destroyDeletedRecords");
-                jsi::Function function = createFunction(rt, name, 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
-                    assert(database->initialized_);
-                    jsi::String tableName = args[0].getString(rt);
-                    jsi::Array recordIds = args[1].getObject(rt).getArray(rt);
-
-                    watermelonCallWithJSCLockHolder(rt, [&]() { database->destroyDeletedRecords(tableName, recordIds); });
-
-                    return jsi::Value::undefined();
-                });
-                adapter.setProperty(rt, name, function);
-            }
-            {
-                jsi::PropNameID name = jsi::PropNameID::forAscii(rt, "unsafeResetDatabase");
-                jsi::Function function = createFunction(rt, name, 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
-                    assert(database->initialized_);
-                    jsi::String schema = args[0].getString(rt);
-                    int schemaVersion = (int)args[1].getNumber();
-
-                    watermelonCallWithJSCLockHolder(rt, [&]() { database->unsafeResetDatabase(schema, schemaVersion); });
-
-                    return jsi::Value::undefined();
-                });
-                adapter.setProperty(rt, name, function);
+            if (databaseVersion == expectedVersion) {
+                database->initialized_ = true;
+                response.setProperty(rt, "code", "ok");
+            } else if (databaseVersion == 0) {
+                response.setProperty(rt, "code", "schema_needed");
+            } else if (databaseVersion < expectedVersion) {
+                response.setProperty(rt, "code", "migrations_needed");
+                response.setProperty(rt, "databaseVersion", databaseVersion);
+            } else {
+                std::cout << "Database has newer version (" << databaseVersion << ") than what the app supports ("
+                          << expectedVersion << "). Will reset database." << std::endl;
+                response.setProperty(rt, "code", "schema_needed");
             }
 
-            return adapter;
+            return response;
         });
-        rt.global().setProperty(rt, name, function);
-    }
+        createMethod(rt, adapter, "setUpWithSchema", 3, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            jsi::String dbName = args[0].getString(rt);
+            jsi::String schema = args[1].getString(rt);
+            int schemaVersion = (int)args[2].getNumber();
+
+            try {
+                database->unsafeResetDatabase(schema, schemaVersion);
+            } catch (const std::exception &ex) {
+                std::cerr << "Failed to set up the database correctly - " << ex.what() << std::endl;
+                std::abort();
+            }
+
+            database->initialized_ = true;
+            return jsi::Value::undefined();
+        });
+        createMethod(rt, adapter, "setUpWithMigrations", 4, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            jsi::String dbName = args[0].getString(rt);
+            jsi::String migrationSchema = args[1].getString(rt);
+            int fromVersion = (int)args[2].getNumber();
+            int toVersion = (int)args[4].getNumber();
+
+            try {
+                database->migrate(migrationSchema, fromVersion, toVersion);
+            } catch (const std::exception &ex) {
+                std::cerr << "Failed to migrate the database correctly - " << ex.what() << std::endl;
+                std::abort();
+            }
+
+            database->initialized_ = true;
+            return jsi::Value::undefined();
+        });
+        createMethod(rt, adapter, "find", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            assert(database->initialized_);
+            jsi::String tableName = args[0].getString(rt);
+            jsi::String id = args[1].getString(rt);
+
+            return withJSCLockHolder(rt, [&]() { return database->find(tableName, id); });
+        });
+        createMethod(rt, adapter, "query", 3, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            assert(database->initialized_);
+            jsi::String tableName = args[0].getString(rt);
+            jsi::String sql = args[1].getString(rt);
+            jsi::Array arguments = args[2].getObject(rt).getArray(rt);
+
+            return withJSCLockHolder(rt, [&]() { return database->query(tableName, sql, arguments); });
+        });
+        createMethod(rt, adapter, "count", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            assert(database->initialized_);
+            jsi::String sql = args[0].getString(rt);
+            jsi::Array arguments = args[1].getObject(rt).getArray(rt);
+
+            return withJSCLockHolder(rt, [&]() { return database->count(sql, arguments); });
+        });
+        createMethod(rt, adapter, "batch", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            assert(database->initialized_);
+            jsi::Array operations = args[0].getObject(rt).getArray(rt);
+
+            watermelonCallWithJSCLockHolder(rt, [&]() { database->batch(operations); });
+
+            return jsi::Value::undefined();
+        });
+        createMethod(rt, adapter, "getLocal", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            assert(database->initialized_);
+            jsi::String key = args[0].getString(rt);
+
+            return withJSCLockHolder(rt, [&]() { return database->getLocal(key); });
+        });
+        createMethod(rt, adapter, "setLocal", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            assert(database->initialized_);
+            jsi::String key = args[0].getString(rt);
+            jsi::String value = args[1].getString(rt);
+
+            return withJSCLockHolder(rt, [&]() {
+                database->setLocal(key, value);
+                return jsi::Value::undefined();
+            });
+        });
+        createMethod(rt, adapter, "removeLocal", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            assert(database->initialized_);
+            jsi::String key = args[0].getString(rt);
+
+            watermelonCallWithJSCLockHolder(rt, [&]() { database->removeLocal(key); });
+
+            return jsi::Value::undefined();
+        });
+        createMethod(rt, adapter, "getDeletedRecords", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            assert(database->initialized_);
+            jsi::String tableName = args[0].getString(rt);
+
+            return withJSCLockHolder(rt, [&]() { return database->getDeletedRecords(tableName); });
+        });
+        createMethod(rt, adapter, "destroyDeletedRecords", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            assert(database->initialized_);
+            jsi::String tableName = args[0].getString(rt);
+            jsi::Array recordIds = args[1].getObject(rt).getArray(rt);
+
+            watermelonCallWithJSCLockHolder(rt, [&]() { database->destroyDeletedRecords(tableName, recordIds); });
+
+            return jsi::Value::undefined();
+        });
+        createMethod(rt, adapter, "unsafeResetDatabase", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            assert(database->initialized_);
+            jsi::String schema = args[0].getString(rt);
+            int schemaVersion = (int)args[1].getNumber();
+
+            watermelonCallWithJSCLockHolder(rt, [&]() { database->unsafeResetDatabase(schema, schemaVersion); });
+
+            return jsi::Value::undefined();
+        });
+
+        return adapter;
+    });
 }
 
 Database::~Database() {
