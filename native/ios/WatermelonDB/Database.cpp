@@ -535,45 +535,48 @@ jsi::Value Database::count(jsi::String &sql, jsi::Array &arguments) {
 
 void Database::batch(jsi::Array &operations) {
     auto &rt = getRt();
-    sqlite3_exec(db_->sqlite, "begin exclusive transaction", nullptr, nullptr, nullptr); // TODO: clean up
+    beginTransaction();
+    try {
+        size_t operationsCount = operations.length(rt);
+        // TODO: modify caches at the end of transaction
+        for (size_t i = 0; i < operationsCount; i++) {
+            jsi::Array operation = operations.getValueAtIndex(rt, i).getObject(rt).getArray(rt);
+            std::string type = operation.getValueAtIndex(rt, 0).getString(rt).utf8(rt);
+            const jsi::String table = operation.getValueAtIndex(rt, 1).getString(rt);
 
-    size_t operationsCount = operations.length(rt);
-    // TODO: modify caches at the end of transaction
-    for (size_t i = 0; i < operationsCount; i++) {
-        jsi::Array operation = operations.getValueAtIndex(rt, i).getObject(rt).getArray(rt);
-        std::string type = operation.getValueAtIndex(rt, 0).getString(rt).utf8(rt);
-        const jsi::String table = operation.getValueAtIndex(rt, 1).getString(rt);
+            if (type == "create") {
+                std::string id = operation.getValueAtIndex(rt, 2).getString(rt).utf8(rt);
+                jsi::String sql = operation.getValueAtIndex(rt, 3).getString(rt);
+                jsi::Array arguments = operation.getValueAtIndex(rt, 4).getObject(rt).getArray(rt);
 
-        if (type == "create") {
-            std::string id = operation.getValueAtIndex(rt, 2).getString(rt).utf8(rt);
-            jsi::String sql = operation.getValueAtIndex(rt, 3).getString(rt);
-            jsi::Array arguments = operation.getValueAtIndex(rt, 4).getObject(rt).getArray(rt);
+                executeUpdate(sql.utf8(rt), arguments);
+                markAsCached(table.utf8(rt), id);
+            } else if (type == "execute") {
+                jsi::String sql = operation.getValueAtIndex(rt, 2).getString(rt);
+                jsi::Array arguments = operation.getValueAtIndex(rt, 3).getObject(rt).getArray(rt);
 
-            executeUpdate(sql.utf8(rt), arguments);
-            markAsCached(table.utf8(rt), id);
-        } else if (type == "execute") {
-            jsi::String sql = operation.getValueAtIndex(rt, 2).getString(rt);
-            jsi::Array arguments = operation.getValueAtIndex(rt, 3).getObject(rt).getArray(rt);
+                executeUpdate(sql.utf8(rt), arguments);
+            } else if (type == "markAsDeleted") {
+                const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
+                auto args = jsi::Array::createWithElements(rt, id);
+                executeUpdate("update " + table.utf8(rt) + " set _status='deleted' where id == ?", args);
+                removeFromCache(table.utf8(rt), id.utf8(rt));
+            } else if (type == "destroyPermanently") {
+                const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
+                auto args = jsi::Array::createWithElements(rt, id);
 
-            executeUpdate(sql.utf8(rt), arguments);
-        } else if (type == "markAsDeleted") {
-            const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
-            auto args = jsi::Array::createWithElements(rt, id);
-            executeUpdate("update " + table.utf8(rt) + " set _status='deleted' where id == ?", args);
-            removeFromCache(table.utf8(rt), id.utf8(rt));
-        } else if (type == "destroyPermanently") {
-            const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
-            auto args = jsi::Array::createWithElements(rt, id);
-
-            // TODO: What's the behavior if nothing got deleted?
-            executeUpdate("delete from " + table.utf8(rt) + " where id == ?", args);
-            removeFromCache(table.utf8(rt), id.utf8(rt));
-        } else {
-            throw jsi::JSError(rt, "Invalid operation type");
+                // TODO: What's the behavior if nothing got deleted?
+                executeUpdate("delete from " + table.utf8(rt) + " where id == ?", args);
+                removeFromCache(table.utf8(rt), id.utf8(rt));
+            } else {
+                throw jsi::JSError(rt, "Invalid operation type");
+            }
         }
+        commit();
+    } catch (const std::exception &ex) {
+        rollback();
+        throw ex;
     }
-
-    sqlite3_exec(db_->sqlite, "commit transaction", nullptr, nullptr, nullptr); // TODO: clean up
 }
 
 jsi::Array Database::getDeletedRecords(jsi::String &tableName) {
@@ -608,19 +611,22 @@ jsi::Array Database::getDeletedRecords(jsi::String &tableName) {
 
 void Database::destroyDeletedRecords(jsi::String &tableName, jsi::Array &recordIds) {
     auto &rt = getRt();
-    sqlite3_exec(db_->sqlite, "begin exclusive transaction", nullptr, nullptr, nullptr); // TODO: clean up
+    beginTransaction();
+    try {
+        // TODO: Maybe it's faster & easier to do it in one query?
+        std::string sql = "delete from " + tableName.utf8(rt) + " where id == ?";
 
-    // TODO: Maybe it's faster & easier to do it in one query?
-    std::string sql = "delete from " + tableName.utf8(rt) + " where id == ?";
-
-    for (size_t i = 0, len = recordIds.size(rt); i < len; i++) {
-        // TODO: What's the behavior if record doesn't exist or isn't actually deleted?
-        jsi::String id = recordIds.getValueAtIndex(rt, i).getString(rt);
-        auto args = jsi::Array::createWithElements(rt, id);
-        executeUpdate(sql, args);
+        for (size_t i = 0, len = recordIds.size(rt); i < len; i++) {
+            // TODO: What's the behavior if record doesn't exist or isn't actually deleted?
+            jsi::String id = recordIds.getValueAtIndex(rt, i).getString(rt);
+            auto args = jsi::Array::createWithElements(rt, id);
+            executeUpdate(sql, args);
+        }
+        commit();
+    } catch (const std::exception &ex) {
+        rollback();
+        throw ex;
     }
-
-    sqlite3_exec(db_->sqlite, "commit transaction", nullptr, nullptr, nullptr); // TODO: clean up
 }
 
 const std::string localStorageSchema = R"(
@@ -634,102 +640,107 @@ create index local_storage_key_index on local_storage (key);
 
 void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
     auto &rt = getRt();
-    sqlite3_exec(db_->sqlite, "begin exclusive transaction", nullptr, nullptr, nullptr); // TODO: clean up
+    beginTransaction();
+    try {
+        // TODO: delete file in non-test?
 
-    // TODO: delete file in non-test?
+        std::vector<std::string> tables = {};
 
-    std::vector<std::string> tables = {};
+        // Find all tables (scope to reset SqliteStatement)
+        {
+            auto args = jsi::Array::createWithElements(rt);
+            auto statement = executeQuery("select name from sqlite_master where type='table'", args);
 
-    // Find all tables (scope to reset SqliteStatement)
-    {
-        auto args = jsi::Array::createWithElements(rt);
-        auto statement = executeQuery("select name from sqlite_master where type='table'", args);
+            for (size_t i = 0; true; i++) {
+                int stepResult = sqlite3_step(statement.stmt);
 
-        for (size_t i = 0; true; i++) {
-            int stepResult = sqlite3_step(statement.stmt);
+                if (stepResult == SQLITE_DONE) {
+                    break;
+                } else if (stepResult != SQLITE_ROW) {
+                    throw dbError("Failed to get table names to delete");
+                }
 
-            if (stepResult == SQLITE_DONE) {
-                break;
-            } else if (stepResult != SQLITE_ROW) {
-                throw dbError("Failed to get table names to delete");
+                assert(sqlite3_data_count(statement.stmt) == 1);
+                const char *tableName = (const char *)sqlite3_column_text(statement.stmt, 0);
+                if (!tableName) {
+                    throw jsi::JSError(rt, "Failed to get table name to delete");
+                }
+
+                tables.push_back(std::string(tableName));
             }
-
-            assert(sqlite3_data_count(statement.stmt) == 1);
-            const char *tableName = (const char *)sqlite3_column_text(statement.stmt, 0);
-            if (!tableName) {
-                throw jsi::JSError(rt, "Failed to get table name to delete");
-            }
-
-            tables.push_back(std::string(tableName));
         }
-    }
 
-    // Destroy everything
-    for (auto const &table : tables) {
-        std::string sql = "drop table if exists " + table;
+        // Destroy everything
+        for (auto const &table : tables) {
+            std::string sql = "drop table if exists " + table;
+
+            char *errmsg = nullptr;
+            sqlite3_exec(db_->sqlite, sql.c_str(), nullptr, nullptr, &errmsg); // TODO: clean up
+
+            if (errmsg) {
+                std::string message(errmsg);
+                sqlite3_free(errmsg);
+                throw jsi::JSError(rt, message);
+            }
+        }
+
+        const char *sqliteResetSql =
+        "pragma writable_schema=1; delete from sqlite_master; pragma user_version=0; pragma writable_schema=0";
+        sqlite3_exec(db_->sqlite, sqliteResetSql, nullptr, nullptr, nullptr); // TODO: clean up
+
+        cachedRecords_ = {};
+
+        // Reinitialize schema
+        std::string sql = schema.utf8(rt) + localStorageSchema;
 
         char *errmsg = nullptr;
-        sqlite3_exec(db_->sqlite, sql.c_str(), nullptr, nullptr, &errmsg); // TODO: clean up
+        int resultExec = sqlite3_exec(db_->sqlite, sql.c_str(), nullptr, nullptr, &errmsg);
 
         if (errmsg) {
             std::string message(errmsg);
             sqlite3_free(errmsg);
             throw jsi::JSError(rt, message);
         }
+
+        if (resultExec != SQLITE_OK) {
+            throw dbError("Failed to execute schema setup queries");
+        }
+
+        setUserVersion(schemaVersion);
+        commit();
+    } catch (const std::exception &ex) {
+        rollback();
+        throw ex;
     }
-
-    const char *sqliteResetSql =
-    "pragma writable_schema=1; delete from sqlite_master; pragma user_version=0; pragma writable_schema=0";
-    sqlite3_exec(db_->sqlite, sqliteResetSql, nullptr, nullptr, nullptr); // TODO: clean up
-
-    cachedRecords_ = {};
-
-    // Reinitialize schema
-    std::string sql = schema.utf8(rt) + localStorageSchema;
-
-    char *errmsg = nullptr;
-    int resultExec = sqlite3_exec(db_->sqlite, sql.c_str(), nullptr, nullptr, &errmsg);
-
-    if (errmsg) {
-        std::string message(errmsg);
-        sqlite3_free(errmsg);
-        throw jsi::JSError(rt, message);
-    }
-
-    if (resultExec != SQLITE_OK) {
-        throw dbError("Failed to execute schema setup queries");
-    }
-
-    setUserVersion(schemaVersion);
-
-    sqlite3_exec(db_->sqlite, "commit transaction", nullptr, nullptr, nullptr); // TODO: clean up
 }
 
 void Database::migrate(jsi::String &migrationSql, int fromVersion, int toVersion) {
     auto &rt = getRt();
-    assert(getUserVersion() == fromVersion && "Incompatible migration set");
+    beginTransaction();
+    try {
+        assert(getUserVersion() == fromVersion && "Incompatible migration set");
+        //        try database.executeStatements(migrations.sql)
+        //        database.userVersion = migrations.to
 
-    sqlite3_exec(db_->sqlite, "begin exclusive transaction", nullptr, nullptr, nullptr); // TODO: clean up
+        std::string sql = migrationSql.utf8(rt);
 
-    //        try database.executeStatements(migrations.sql)
-    //        database.userVersion = migrations.to
+        char *errmsg = nullptr;
+        int resultExec = sqlite3_exec(db_->sqlite, sql.c_str(), nullptr, nullptr, &errmsg);
 
-    std::string sql = migrationSql.utf8(rt);
+        if (errmsg) {
+            std::string message(errmsg);
+            sqlite3_free(errmsg);
+            throw jsi::JSError(rt, message);
+        }
 
-    char *errmsg = nullptr;
-    int resultExec = sqlite3_exec(db_->sqlite, sql.c_str(), nullptr, nullptr, &errmsg);
-
-    if (errmsg) {
-        std::string message(errmsg);
-        sqlite3_free(errmsg);
-        throw jsi::JSError(rt, message);
+        if (resultExec != SQLITE_OK) {
+            throw dbError("Failed to execute schema migration queries");
+        }
+        commit();
+    } catch (const std::exception &ex) {
+        rollback();
+        throw ex;
     }
-
-    if (resultExec != SQLITE_OK) {
-        throw dbError("Failed to execute schema migration queries");
-    }
-
-    sqlite3_exec(db_->sqlite, "commit transaction", nullptr, nullptr, nullptr); // TODO: clean up
 }
 
 jsi::Value Database::getLocal(jsi::String &key) {
