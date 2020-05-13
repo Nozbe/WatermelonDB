@@ -8,22 +8,42 @@ namespace watermelondb {
 SqliteDb::SqliteDb(std::string path) {
     assert(sqlite3_threadsafe());
 
-    int resultOpen = sqlite3_open(path.c_str(), &sqlite);
+    int openResult = sqlite3_open(path.c_str(), &sqlite);
 
-    if (resultOpen != SQLITE_OK) {
-        std::abort(); // Unimplemented
+    if (openResult != SQLITE_OK) {
+        if (sqlite) {
+            auto error = std::string(sqlite3_errmsg(sqlite));
+            throw new std::runtime_error("Error while trying to open database - " + error);
+        } else {
+            // whoa, sqlite couldn't allocate memory
+            throw new std::runtime_error("Error while trying to open database, sqlite is null - " + std::to_string(openResult));
+        }
     }
     assert(sqlite != nullptr);
 }
 
 SqliteDb::~SqliteDb() {
-    // TODO: finalize prepared statements
-    // TODO: https://github.com/ccgus/fmdb/blob/master/src/fmdb/FMDatabase.m#L246 - error handling
+    assert(sqlite != nullptr);
 
-    int resultClose = sqlite3_close(sqlite);
+    // Find and finalize all prepared statements
+    sqlite3_stmt *stmt;
+    int stmtCount = 0;
 
-    if (resultClose != SQLITE_OK) {
-        // std::abort(); // Unimplemented
+    while (stmt = sqlite3_next_stmt(sqlite, nullptr)) {
+        sqlite3_finalize(stmt);
+        stmtCount++;
+    }
+    std::cout << "Finalized " + std::to_string(stmtCount) + " statements" << std::endl;
+
+    // Close connection
+    int closeResult = sqlite3_close(sqlite);
+
+    if (closeResult != SQLITE_OK) {
+        // NOTE: Applications should finalize all prepared statements, close all BLOB handles, and finish all sqlite3_backup objects
+        assert(sqlite != nullptr && sqlite3_next_stmt(sqlite, nullptr) == nullptr);
+        // NOTE: We're just gonna log an error. We can't throw an exception here. We could crash, but most likely we're
+        // only leaking memory/resources
+        std::cerr << "Failed to close sqlite database - " + std::string(sqlite3_errmsg(sqlite)) << std::endl;
     }
 }
 
@@ -109,7 +129,7 @@ void Database::install(jsi::Runtime *runtime) {
 
             jsi::Object adapter(rt);
 
-            std::shared_ptr<Database> database = std::make_shared<Database>(runtime, dbPath);
+            std::shared_ptr<Database> database = std::make_shared<Database>(runtime, dbPath); // TODO: Handle exceptions
             adapter.setProperty(rt, "database", std::move(jsi::Object::createFromHostObject(rt, database)));
 
             {
