@@ -63,6 +63,7 @@ class Database : public jsi::HostObject {
     SqliteStatement executeQuery(std::string sql, jsi::Array &arguments);
     void executeUpdate(std::string sql, jsi::Array &arguments);
     void executeUpdate(std::string sql);
+    void executeMultiple(std::string sql);
     jsi::Object resultDictionary(sqlite3_stmt *statement);
 
     void beginTransaction();

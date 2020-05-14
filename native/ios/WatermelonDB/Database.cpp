@@ -388,6 +388,24 @@ void Database::executeUpdate(std::string sql) {
     executeUpdate(sql, args);
 }
 
+void Database::executeMultiple(std::string sql) {
+    auto &rt = getRt();
+    char *errmsg = nullptr;
+    int resultExec = sqlite3_exec(db_->sqlite, sql.c_str(), nullptr, nullptr, &errmsg);
+
+    if (errmsg) {
+        // sqlite docs are unclear on whether I need to use this argument or if I can just check result and use
+        // sqlite3_errmsg if needed...
+        std::string message(errmsg);
+        sqlite3_free(errmsg);
+        throw jsi::JSError(rt, message);
+    }
+
+    if (resultExec != SQLITE_OK) {
+        throw dbError("Failed to execute statements");
+    }
+}
+
 jsi::Object Database::resultDictionary(sqlite3_stmt *statement) {
     auto &rt = getRt();
     jsi::Object dictionary(rt);
@@ -689,41 +707,20 @@ void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
 
         // Destroy everything
         for (auto const &table : tables) {
-            std::string sql = "drop table if exists " + table;
-
-            char *errmsg = nullptr;
-            sqlite3_exec(db_->sqlite, sql.c_str(), nullptr, nullptr, &errmsg); // TODO: clean up
-
-            if (errmsg) {
-                std::string message(errmsg);
-                sqlite3_free(errmsg);
-                throw jsi::JSError(rt, message);
-            }
+            executeUpdate("drop table if exists " + table);
         }
 
-        const char *sqliteResetSql =
-        "pragma writable_schema=1; delete from sqlite_master; pragma user_version=0; pragma writable_schema=0";
-        sqlite3_exec(db_->sqlite, sqliteResetSql, nullptr, nullptr, nullptr); // TODO: clean up
+        executeUpdate("pragma writable_schema=1");
+        executeUpdate("delete from sqlite_master");
+        executeUpdate("pragma user_version=0");
+        executeUpdate("pragma writable_schema=0");
 
         cachedRecords_ = {};
 
         // Reinitialize schema
-        std::string sql = schema.utf8(rt) + localStorageSchema;
-
-        char *errmsg = nullptr;
-        int resultExec = sqlite3_exec(db_->sqlite, sql.c_str(), nullptr, nullptr, &errmsg);
-
-        if (errmsg) {
-            std::string message(errmsg);
-            sqlite3_free(errmsg);
-            throw jsi::JSError(rt, message);
-        }
-
-        if (resultExec != SQLITE_OK) {
-            throw dbError("Failed to execute schema setup queries");
-        }
-
+        executeMultiple(schema.utf8(rt) + localStorageSchema);
         setUserVersion(schemaVersion);
+
         commit();
     } catch (const std::exception &ex) {
         rollback();
@@ -739,20 +736,8 @@ void Database::migrate(jsi::String &migrationSql, int fromVersion, int toVersion
         //        try database.executeStatements(migrations.sql)
         //        database.userVersion = migrations.to
 
-        std::string sql = migrationSql.utf8(rt);
+        executeMultiple(migrationSql.utf8(rt));
 
-        char *errmsg = nullptr;
-        int resultExec = sqlite3_exec(db_->sqlite, sql.c_str(), nullptr, nullptr, &errmsg);
-
-        if (errmsg) {
-            std::string message(errmsg);
-            sqlite3_free(errmsg);
-            throw jsi::JSError(rt, message);
-        }
-
-        if (resultExec != SQLITE_OK) {
-            throw dbError("Failed to execute schema migration queries");
-        }
         commit();
     } catch (const std::exception &ex) {
         rollback();
