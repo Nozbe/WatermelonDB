@@ -15,6 +15,10 @@ void consoleError(std::string message);
 // e.g. /Users/foo.app/<name>.db
 std::string resolveDatabasePath(std::string path);
 
+// Removes database file located at `path`.
+// Throws an exception if it's not possible to delete this file
+void deleteDatabaseFile(std::string path, bool warnIfDoesNotExist);
+
 // Calls function when device memory is getting low
 void onMemoryAlert(std::function<void(void)> callback);
 

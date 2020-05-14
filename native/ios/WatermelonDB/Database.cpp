@@ -7,10 +7,21 @@ namespace watermelondb {
 using platform::consoleError;
 using platform::consoleLog;
 
+std::string resolveDatabasePath(std::string path) {
+    if (path == "" || path == ":memory:" || path.rfind("file:", 0) == 0 || path.rfind("/", 0) == 0) {
+        // These seem like paths/sqlite path-like strings
+        return path;
+    } else {
+        // path is a name to be resolved based on platform preferences
+        return platform::resolveDatabasePath(path);
+    }
+}
+
 SqliteDb::SqliteDb(std::string path) {
     assert(sqlite3_threadsafe());
 
-    int openResult = sqlite3_open(path.c_str(), &sqlite);
+    auto resolvedPath = resolveDatabasePath(path);
+    int openResult = sqlite3_open(resolvedPath.c_str(), &sqlite);
 
     if (openResult != SQLITE_OK) {
         if (sqlite) {
@@ -22,6 +33,8 @@ SqliteDb::SqliteDb(std::string path) {
         }
     }
     assert(sqlite != nullptr);
+
+    consoleLog("Opened database at " + resolvedPath);
 }
 
 SqliteDb::~SqliteDb() {

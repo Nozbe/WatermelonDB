@@ -108,6 +108,11 @@ async function runTests() {
   if (!caughtBadDb) {
     throw new Error('You should have thrown!')
   }
+
+  global.nativeWatermelonCreateAdapter('')
+  global.nativeWatermelonCreateAdapter('testPersistentDb')
+  global.nativeWatermelonCreateAdapter(':memory:')
+  global.nativeWatermelonCreateAdapter('/tmp/hello121212')
   // New method
 
   await new Promise(resolve => setTimeout(resolve, 250))
