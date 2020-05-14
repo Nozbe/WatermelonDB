@@ -1,14 +1,15 @@
 #include "DatabasePlatform.h"
+#import <Foundation/Foundation.h>
 
 namespace watermelondb {
 namespace platform {
 
 void consoleLog(std::string message) {
-    // TODO: Unimplemented
+    NSLog(@"%s", message.c_str());
 }
 
 void consoleError(std::string message) {
-    // TODO: Unimplemented
+    NSLog(@"Error: %s", message.c_str());
 }
 
 std::string resolveDatabasePath(std::string path) {

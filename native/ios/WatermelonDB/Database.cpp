@@ -1,9 +1,11 @@
 #include "Database.h"
+#include "DatabasePlatform.h"
 #include "JSLockPerfHack.h"
 
-#include <iostream>
-
 namespace watermelondb {
+
+using platform::consoleError;
+using platform::consoleLog;
 
 SqliteDb::SqliteDb(std::string path) {
     assert(sqlite3_threadsafe());
@@ -32,7 +34,7 @@ SqliteDb::~SqliteDb() {
         sqlite3_finalize(stmt);
         stmtCount++;
     }
-    std::cout << "Finalized " + std::to_string(stmtCount) + " statements" << std::endl;
+    consoleLog("Finalized " + std::to_string(stmtCount) + " statements"); // TODO: Remove dev
 
     // Close connection
     int closeResult = sqlite3_close(sqlite);
@@ -42,24 +44,24 @@ SqliteDb::~SqliteDb() {
         assert(sqlite != nullptr && sqlite3_next_stmt(sqlite, nullptr) == nullptr);
         // NOTE: We're just gonna log an error. We can't throw an exception here. We could crash, but most likely we're
         // only leaking memory/resources
-        std::cerr << "Failed to close sqlite database - " + std::string(sqlite3_errmsg(sqlite)) << std::endl;
+        consoleError("Failed to close sqlite database - " + std::string(sqlite3_errmsg(sqlite)));
     }
 }
 
 SqliteStatement::SqliteStatement(sqlite3_stmt *statement) : stmt(statement) {
-    std::cout << "init statement" << std::endl;
+    consoleLog("init statement"); // TODO: Remove dev
 }
 
 SqliteStatement::~SqliteStatement() {
     reset();
-    std::cout << "deinitialize statement" << std::endl;
+    consoleLog("deinitialize statement"); // TODO: Remove dev
 }
 
 SqliteStatement::SqliteStatement(const SqliteStatement &) {
-    std::cout << "copy c'tor" << std::endl;
+    consoleLog("copy c'tor"); // TODO: Remove dev
 }
 SqliteStatement::SqliteStatement(SqliteStatement &&) {
-    std::cout << "move c'tor" << std::endl;
+    consoleLog("move c'tor"); // TODO: Remove dev
 }
 
 void SqliteStatement::reset() {
@@ -69,7 +71,7 @@ void SqliteStatement::reset() {
         // sqlite3_reset(S) returns an appropriate error code. https://sqlite.org/c3ref/reset.html
         sqlite3_reset(stmt);
         sqlite3_clear_bindings(stmt); // might matter if storing a huge string/blob
-        std::cout << "statement has been reset!" << std::endl;
+        consoleLog("statement has been reset!");
     }
 }
 
@@ -152,8 +154,8 @@ void Database::install(jsi::Runtime *runtime) {
                 response.setProperty(rt, "code", "migrations_needed");
                 response.setProperty(rt, "databaseVersion", databaseVersion);
             } else {
-                std::cout << "Database has newer version (" << databaseVersion << ") than what the app supports ("
-                          << expectedVersion << "). Will reset database." << std::endl;
+                consoleLog("Database has newer version (" + std::to_string(databaseVersion) +
+                           ") than what the app supports (" + std::to_string(expectedVersion) + "). Will reset database.");
                 response.setProperty(rt, "code", "schema_needed");
             }
 
@@ -167,7 +169,7 @@ void Database::install(jsi::Runtime *runtime) {
             try {
                 database->unsafeResetDatabase(schema, schemaVersion);
             } catch (const std::exception &ex) {
-                std::cerr << "Failed to set up the database correctly - " << ex.what() << std::endl;
+                consoleError("Failed to set up the database correctly - " + std::string(ex.what()));
                 std::abort();
             }
 
@@ -183,7 +185,7 @@ void Database::install(jsi::Runtime *runtime) {
             try {
                 database->migrate(migrationSchema, fromVersion, toVersion);
             } catch (const std::exception &ex) {
-                std::cerr << "Failed to migrate the database correctly - " << ex.what() << std::endl;
+                consoleError("Failed to migrate the database correctly - " + std::string(ex.what()));
                 std::abort();
             }
 
@@ -268,7 +270,7 @@ void Database::install(jsi::Runtime *runtime) {
                 try {
                     database->unsafeResetDatabase(schema, schemaVersion);
                 } catch (const std::exception &ex) {
-                    std::cerr << "Failed to reset database correctly - " << ex.what() << std::endl;
+                    consoleError("Failed to reset database correctly - " + std::string(ex.what()));
                     // Partially reset database is likely corrupted, so it's probably less bad to crash
                     std::abort();
                 }
