@@ -187,8 +187,8 @@ Synchronization is serious business! It's very easy to make mistakes that will c
 
 Note that those are not maintained by WatermelonDB, and we make no endorsements about quality of these projects:
 
+- [How to Build WatermelonDB Sync Backend in Elixir](https://fahri.id/posts/how-to-build-watermelondb-sync-backend-in-elixir/)
 - https://github.com/AliAllaf/firemelon
-- https://fahri.id/posts/how-to-build-watermelondb-sync-backend-in-elixir/ (tutorial)
 - Did you make one? Please contribute a link!
 
 ### Current limitations
