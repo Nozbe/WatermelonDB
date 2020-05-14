@@ -62,19 +62,10 @@ SqliteDb::~SqliteDb() {
 }
 
 SqliteStatement::SqliteStatement(sqlite3_stmt *statement) : stmt(statement) {
-    consoleLog("init statement"); // TODO: Remove dev
 }
 
 SqliteStatement::~SqliteStatement() {
     reset();
-    consoleLog("deinitialize statement"); // TODO: Remove dev
-}
-
-SqliteStatement::SqliteStatement(const SqliteStatement &) {
-    consoleLog("copy c'tor"); // TODO: Remove dev
-}
-SqliteStatement::SqliteStatement(SqliteStatement &&) {
-    consoleLog("move c'tor"); // TODO: Remove dev
 }
 
 void SqliteStatement::reset() {

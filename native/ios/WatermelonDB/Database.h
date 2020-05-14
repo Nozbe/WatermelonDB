@@ -25,8 +25,6 @@ class SqliteStatement {
 public:
     SqliteStatement(sqlite3_stmt *statement);
     ~SqliteStatement();
-    SqliteStatement(const SqliteStatement&);
-    SqliteStatement(SqliteStatement&&);
 
     sqlite3_stmt *stmt;
 
