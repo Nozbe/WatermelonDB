@@ -42,12 +42,10 @@ SqliteDb::~SqliteDb() {
 
     // Find and finalize all prepared statements
     sqlite3_stmt *stmt;
-    int stmtCount = 0;
     while (stmt = sqlite3_next_stmt(sqlite, nullptr)) {
+        consoleError("Leak detected! Finalized a statement when closing database - this means that there were dangling statements not held by cachedStatements, or handling of cachedStatements is broken. Please collect as much information as possible and file an issue with WatermelonDB repository!");
         sqlite3_finalize(stmt);
-        stmtCount++;
     }
-    consoleLog("Finalized " + std::to_string(stmtCount) + " statements"); // TODO: Remove dev
 
     // Close connection
     int closeResult = sqlite3_close(sqlite);
@@ -75,7 +73,7 @@ void SqliteStatement::reset() {
         // sqlite3_reset(S) returns an appropriate error code. https://sqlite.org/c3ref/reset.html
         sqlite3_reset(stmt);
         sqlite3_clear_bindings(stmt); // might matter if storing a huge string/blob
-        consoleLog("statement has been reset!");
+//        consoleLog("statement has been reset!");
     }
 }
 
@@ -290,6 +288,11 @@ void Database::install(jsi::Runtime *runtime) {
 }
 
 Database::~Database() {
+    for (auto const &cachedStatement: cachedStatements_ ) {
+        sqlite3_stmt *statement = cachedStatement.second;
+        sqlite3_finalize(statement);
+    }
+    cachedStatements_ = {};
 }
 
 bool Database::isCached(std::string tableName, std::string recordId) {
@@ -317,6 +320,8 @@ SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
             sqlite3_finalize(statement);
             throw dbError("Failed to prepare query statement");
         }
+
+        assert(statement != nullptr);
         cachedStatements_[sql] = statement;
     } else {
         // in theory, this shouldn't be necessary, since statements ought to be reset *after* use, not before use

@@ -52,7 +52,7 @@ class Database : public jsi::HostObject {
     bool initialized_;
     jsi::Runtime *runtime_; // TODO: std::shared_ptr would be better, but I don't know how to make it from void* in RCTCxxBridge
     std::unique_ptr<SqliteDb> db_;
-    std::map<std::string, sqlite3_stmt *> cachedStatements_;
+    std::map<std::string, sqlite3_stmt *> cachedStatements_; // NOTE: may contain null pointers!
     std::map<std::string, std::set<std::string>> cachedRecords_;
 
     jsi::Runtime &getRt();
