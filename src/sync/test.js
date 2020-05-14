@@ -180,7 +180,7 @@ describe('fetchLocalChanges', () => {
     expect(result.affectedRecords).toEqual(expectedAffectedRecords)
 
     // simulate reload
-    database = cloneDatabase()
+    database = await cloneDatabase()
     const result2 = await fetchLocalChanges(database)
     expect(result2.changes).toEqual(expectedChanges)
     expect(result2.affectedRecords.map(r => r._raw)).toEqual(
