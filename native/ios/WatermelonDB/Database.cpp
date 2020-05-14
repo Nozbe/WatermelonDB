@@ -568,6 +568,11 @@ jsi::Value Database::count(jsi::String &sql, jsi::Array &arguments) {
 void Database::batch(jsi::Array &operations) {
     auto &rt = getRt();
     beginTransaction();
+
+    using CacheUpdateQueue = std::vector<std::pair<std::string, std::string>>;
+    CacheUpdateQueue addedIds = {};
+    CacheUpdateQueue removedIds = {};
+
     try {
         size_t operationsCount = operations.length(rt);
         // TODO: modify caches at the end of transaction
@@ -582,7 +587,7 @@ void Database::batch(jsi::Array &operations) {
                 jsi::Array arguments = operation.getValueAtIndex(rt, 4).getObject(rt).getArray(rt);
 
                 executeUpdate(sql.utf8(rt), arguments);
-                markAsCached(table.utf8(rt), id);
+                addedIds.push_back(std::make_pair(table.utf8(rt), id));
             } else if (type == "execute") {
                 jsi::String sql = operation.getValueAtIndex(rt, 2).getString(rt);
                 jsi::Array arguments = operation.getValueAtIndex(rt, 3).getObject(rt).getArray(rt);
@@ -592,14 +597,15 @@ void Database::batch(jsi::Array &operations) {
                 const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
                 auto args = jsi::Array::createWithElements(rt, id);
                 executeUpdate("update " + table.utf8(rt) + " set _status='deleted' where id == ?", args);
-                removeFromCache(table.utf8(rt), id.utf8(rt));
+
+                removedIds.push_back(std::make_pair(table.utf8(rt), id.utf8(rt)));
             } else if (type == "destroyPermanently") {
                 const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
                 auto args = jsi::Array::createWithElements(rt, id);
 
                 // TODO: What's the behavior if nothing got deleted?
                 executeUpdate("delete from " + table.utf8(rt) + " where id == ?", args);
-                removeFromCache(table.utf8(rt), id.utf8(rt));
+                removedIds.push_back(std::make_pair(table.utf8(rt), id.utf8(rt)));
             } else {
                 throw jsi::JSError(rt, "Invalid operation type");
             }
@@ -608,6 +614,14 @@ void Database::batch(jsi::Array &operations) {
     } catch (const std::exception &ex) {
         rollback();
         throw;
+    }
+
+    for (auto const &[tableName, id] : addedIds) {
+        markAsCached(tableName, id);
+    }
+
+    for (auto const &[tableName, id] : removedIds) {
+        removeFromCache(tableName, id);
     }
 }
 
