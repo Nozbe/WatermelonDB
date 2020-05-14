@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import { NativeModules } from 'react-native'
 
 const { appSchema, tableSchema } = require('./Schema')
