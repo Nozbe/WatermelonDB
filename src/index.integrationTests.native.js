@@ -20,15 +20,21 @@ const sendReport = report => {
   console.log(report)
   NativeModules.BridgeTestReporter.testsFinished(report)
 }
-const TestRoot = () => (
-  <Tester specs={integrationTests}
-    store={testHookStore}
-    waitTime={4000}
-    sendReport={true}
-    customReporter={sendReport}>
-    <Text style={{ paddingTop: 100 }}>The tests are running. Please remain calm.</Text>
-  </Tester>
-)
-AppRegistry.registerComponent('watermelonTest', () => TestRoot)
 
-// import './jsi-experiments'
+const openPlayground = false
+
+if (openPlayground) {
+  AppRegistry.registerComponent('watermelonTest', () => null)
+  require('./jsi-experiments')
+} else {
+  const TestRoot = () => (
+    <Tester specs={integrationTests}
+      store={testHookStore}
+      waitTime={4000}
+      sendReport={true}
+      customReporter={sendReport}>
+      <Text style={{ paddingTop: 100 }}>The tests are running. Please remain calm.</Text>
+    </Tester>
+  )
+  AppRegistry.registerComponent('watermelonTest', () => TestRoot)
+}
