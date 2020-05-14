@@ -7,6 +7,11 @@ declare module '@nozbe/watermelondb/Relation' {
   type ExtractRecordIdOptional<T extends Model> = (value: T | void) => RecordId | void
   type ExtractRecordId<T extends Model> = ExtractRecordIdNonOptional<T> & ExtractRecordIdOptional<T>
 
+
+  type RecordNonOptional<T extends Model> =  T
+  type RecordOptional<T extends Model> =  T | null
+  type Record<T extends Model> = RecordNonOptional<T> | RecordOptional<T>
+
   export interface Options {
     isImmutable: boolean
   }
@@ -21,10 +26,10 @@ declare module '@nozbe/watermelondb/Relation' {
 
     public id: $Call<ExtractRecordId<T>>
 
-    public fetch(): Promise<T|null>
+    public fetch(): Promise<Record<T>>
 
-    public set(record: T): void
+    public set(record: Record<T>): void
 
-    public observe(): Observable<T | null>
+    public observe(): Observable<Record<T>>
   }
 }
