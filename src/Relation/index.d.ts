@@ -21,10 +21,10 @@ declare module '@nozbe/watermelondb/Relation' {
 
     public id: $Call<ExtractRecordId<T>>
 
-    public fetch(): Promise<T>
+    public fetch(): Promise<T|null>
 
     public set(record: T): void
 
-    public observe(): Observable<T>
+    public observe(): Observable<T | null>
   }
 }
