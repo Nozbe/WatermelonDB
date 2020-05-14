@@ -188,7 +188,7 @@ void Database::install(jsi::Runtime *runtime) {
                 database->migrate(migrationSchema, fromVersion, toVersion);
             } catch (const std::exception &ex) {
                 consoleError("Failed to migrate the database correctly - " + std::string(ex.what()));
-                throw ex;
+                throw;
             }
 
             database->initialized_ = true;
@@ -462,7 +462,8 @@ void Database::commit() {
 }
 
 void Database::rollback() {
-    executeUpdate("rollback transaction");
+    consoleError("WatermelonDB sqlite transaction is being rolled back! This is BAD - it means that there's either a WatermelonDB bug or a user issue (e.g. no empty disk space) that Watermelon may be unable to recover from safely... Do investigate!");
+    executeUpdate("rollback transaction"); // TODO: Use RAII to rollback automatically!
 }
 
 int Database::getUserVersion() {
@@ -606,7 +607,7 @@ void Database::batch(jsi::Array &operations) {
         commit();
     } catch (const std::exception &ex) {
         rollback();
-        throw ex;
+        throw;
     }
 }
 
@@ -656,7 +657,7 @@ void Database::destroyDeletedRecords(jsi::String &tableName, jsi::Array &recordI
         commit();
     } catch (const std::exception &ex) {
         rollback();
-        throw ex;
+        throw;
     }
 }
 
@@ -720,7 +721,7 @@ void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
         commit();
     } catch (const std::exception &ex) {
         rollback();
-        throw ex;
+        throw;
     }
 }
 
@@ -736,7 +737,7 @@ void Database::migrate(jsi::String &migrationSql, int fromVersion, int toVersion
         commit();
     } catch (const std::exception &ex) {
         rollback();
-        throw ex;
+        throw;
     }
 }
 

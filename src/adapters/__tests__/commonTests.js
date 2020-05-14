@@ -475,6 +475,27 @@ export default () => [
     },
   ],
   [
+    'batches are transactional',
+    async (adapter, AdapterClass) => {
+      // sanity check
+      await adapter.batch([
+        ['create', 'tasks', mockTaskRaw({ id: 't1' })],
+      ])
+      expect(await adapter.query(taskQuery())).toEqual(['t1'])
+
+      await expect(adapter.batch([
+        ['create', 'tasks', mockTaskRaw({ id: 't2' })],
+        ['create', 'does_not_exist', mockTaskRaw({ id: 't3' })],
+      ])).rejects.toMatchObject({
+        message: expect.stringMatching(AdapterClass.name === 'SQLiteAdapter' ? /no such table: does_not_exist/ : /Cannot read property 'insert' of null/),
+      })
+      if (AdapterClass.name !== 'LokiJSAdapter') {
+        // Regrettably, Loki is not transactional
+        expect(await adapter.query(taskQuery())).toEqual(['t1'])
+      }
+    },
+  ],
+  [
     'can run sync-like flow',
     async adapter => {
       const queryAll = () => adapter.query(taskQuery())
@@ -889,7 +910,7 @@ export default () => [
       } else {
         await expect(adapterPromise).rejects.toBeInstanceOf(Error)
       }
-    }
+    },
   ],
   ...matchTests.map(testCase => [
     `[shared match test] ${testCase.name}`,
