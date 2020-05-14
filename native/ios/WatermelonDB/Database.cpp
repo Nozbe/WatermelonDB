@@ -193,13 +193,13 @@ void Database::install(jsi::Runtime *runtime) {
             jsi::String dbName = args[0].getString(rt);
             jsi::String migrationSchema = args[1].getString(rt);
             int fromVersion = (int)args[2].getNumber();
-            int toVersion = (int)args[4].getNumber();
+            int toVersion = (int)args[3].getNumber();
 
             try {
                 database->migrate(migrationSchema, fromVersion, toVersion);
             } catch (const std::exception &ex) {
                 consoleError("Failed to migrate the database correctly - " + std::string(ex.what()));
-                std::abort();
+                throw ex;
             }
 
             database->initialized_ = true;
@@ -733,10 +733,9 @@ void Database::migrate(jsi::String &migrationSql, int fromVersion, int toVersion
     beginTransaction();
     try {
         assert(getUserVersion() == fromVersion && "Incompatible migration set");
-        //        try database.executeStatements(migrations.sql)
-        //        database.userVersion = migrations.to
 
         executeMultiple(migrationSql.utf8(rt));
+        setUserVersion(toVersion);
 
         commit();
     } catch (const std::exception &ex) {
