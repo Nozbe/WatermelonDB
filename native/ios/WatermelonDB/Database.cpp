@@ -295,17 +295,20 @@ Database::~Database() {
     cachedStatements_ = {};
 }
 
+std::string cacheKey(std::string tableName, std::string recordId) {
+    return tableName + "." + recordId; // NOTE: safe as long as neither table names nor record ids can contain dots
+}
+
 bool Database::isCached(std::string tableName, std::string recordId) {
-    auto recordSet = cachedRecords_[tableName];
-    return recordSet.find(recordId) != recordSet.end();
+    return cachedRecords_.find(cacheKey(tableName, recordId)) != cachedRecords_.end();
 }
 void Database::markAsCached(std::string tableName, std::string recordId) {
     // TODO: what about duplicates?
-    cachedRecords_[tableName].insert(recordId);
+    cachedRecords_.insert(cacheKey(tableName, recordId));
 }
 void Database::removeFromCache(std::string tableName, std::string recordId) {
     // TODO: will it remove all duplicates, if needed?
-    cachedRecords_[tableName].erase(recordId);
+    cachedRecords_.erase(cacheKey(tableName, recordId));
 }
 
 // TODO: Can we use templates or make jsi::Array iterable so we can avoid _creating_ jsi::Array in C++?
