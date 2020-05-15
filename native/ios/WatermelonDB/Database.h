@@ -2,7 +2,7 @@
 
 #import <jsi/jsi.h>
 #import <map>
-#import <set>
+#import <unordered_set>
 #import <sqlite3.h>
 
 using namespace facebook;
@@ -53,7 +53,7 @@ class Database : public jsi::HostObject {
     jsi::Runtime *runtime_; // TODO: std::shared_ptr would be better, but I don't know how to make it from void* in RCTCxxBridge
     std::unique_ptr<SqliteDb> db_;
     std::map<std::string, sqlite3_stmt *> cachedStatements_; // NOTE: may contain null pointers!
-    std::set<std::string> cachedRecords_;
+    std::unordered_set<std::string> cachedRecords_;
 
     jsi::Runtime &getRt();
     jsi::JSError dbError(std::string description);
@@ -72,9 +72,9 @@ class Database : public jsi::HostObject {
     void setUserVersion(int newVersion);
     void migrate(jsi::String &migrationSql, int fromVersion, int toVersion);
 
-    bool isCached(std::string tableName, std::string recordId);
-    void markAsCached(std::string tableName, std::string recordId);
-    void removeFromCache(std::string tableName, std::string recordId);
+    bool isCached(std::string cacheKey);
+    void markAsCached(std::string cacheKey);
+    void removeFromCache(std::string cacheKey);
 };
 
 } // namespace watermelondb

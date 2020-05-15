@@ -299,16 +299,16 @@ std::string cacheKey(std::string tableName, std::string recordId) {
     return tableName + "." + recordId; // NOTE: safe as long as neither table names nor record ids can contain dots
 }
 
-bool Database::isCached(std::string tableName, std::string recordId) {
-    return cachedRecords_.find(cacheKey(tableName, recordId)) != cachedRecords_.end();
+bool Database::isCached(std::string cacheKey) {
+    return cachedRecords_.find(cacheKey) != cachedRecords_.end();
 }
-void Database::markAsCached(std::string tableName, std::string recordId) {
+void Database::markAsCached(std::string cacheKey) {
     // TODO: what about duplicates?
-    cachedRecords_.insert(cacheKey(tableName, recordId));
+    cachedRecords_.insert(cacheKey);
 }
-void Database::removeFromCache(std::string tableName, std::string recordId) {
+void Database::removeFromCache(std::string cacheKey) {
     // TODO: will it remove all duplicates, if needed?
-    cachedRecords_.erase(cacheKey(tableName, recordId));
+    cachedRecords_.erase(cacheKey);
 }
 
 // TODO: Can we use templates or make jsi::Array iterable so we can avoid _creating_ jsi::Array in C++?
@@ -495,7 +495,7 @@ void Database::setUserVersion(int newVersion) {
 
 jsi::Value Database::find(jsi::String &tableName, jsi::String &id) {
     auto &rt = getRt();
-    if (isCached(tableName.utf8(rt), id.utf8(rt))) {
+    if (isCached(cacheKey(tableName.utf8(rt), id.utf8(rt)))) {
         return std::move(id);
     }
 
@@ -512,7 +512,7 @@ jsi::Value Database::find(jsi::String &tableName, jsi::String &id) {
 
     auto record = resultDictionary(statement.stmt);
 
-    markAsCached(tableName.utf8(rt), id.utf8(rt));
+    markAsCached(cacheKey(tableName.utf8(rt), id.utf8(rt)));
 
     return record;
 }
@@ -539,11 +539,11 @@ jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array 
             throw jsi::JSError(rt, "Failed to get ID of a record");
         }
 
-        if (isCached(tableName.utf8(rt), std::string(id))) {
+        if (isCached(cacheKey(tableName.utf8(rt), std::string(id)))) {
             jsi::String jsiId = jsi::String::createFromAscii(rt, id);
             records.setValueAtIndex(rt, i, std::move(jsiId));
         } else {
-            markAsCached(tableName.utf8(rt), std::string(id));
+            markAsCached(cacheKey(tableName.utf8(rt), std::string(id)));
             jsi::Object record = resultDictionary(statement.stmt);
             records.setValueAtIndex(rt, i, std::move(record));
         }
@@ -572,9 +572,8 @@ void Database::batch(jsi::Array &operations) {
     auto &rt = getRt();
     beginTransaction();
 
-    using CacheUpdateQueue = std::vector<std::pair<std::string, std::string>>;
-    CacheUpdateQueue addedIds = {};
-    CacheUpdateQueue removedIds = {};
+    std::vector<std::string> addedIds = {};
+    std::vector<std::string> removedIds = {};
 
     try {
         size_t operationsCount = operations.length(rt);
@@ -590,7 +589,7 @@ void Database::batch(jsi::Array &operations) {
                 jsi::Array arguments = operation.getValueAtIndex(rt, 4).getObject(rt).getArray(rt);
 
                 executeUpdate(sql.utf8(rt), arguments);
-                addedIds.push_back(std::make_pair(table.utf8(rt), id));
+                addedIds.push_back(cacheKey(table.utf8(rt), id));
             } else if (type == "execute") {
                 jsi::String sql = operation.getValueAtIndex(rt, 2).getString(rt);
                 jsi::Array arguments = operation.getValueAtIndex(rt, 3).getObject(rt).getArray(rt);
@@ -601,14 +600,14 @@ void Database::batch(jsi::Array &operations) {
                 auto args = jsi::Array::createWithElements(rt, id);
                 executeUpdate("update " + table.utf8(rt) + " set _status='deleted' where id == ?", args);
 
-                removedIds.push_back(std::make_pair(table.utf8(rt), id.utf8(rt)));
+                removedIds.push_back(cacheKey(table.utf8(rt), id.utf8(rt)));
             } else if (type == "destroyPermanently") {
                 const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
                 auto args = jsi::Array::createWithElements(rt, id);
 
                 // TODO: What's the behavior if nothing got deleted?
                 executeUpdate("delete from " + table.utf8(rt) + " where id == ?", args);
-                removedIds.push_back(std::make_pair(table.utf8(rt), id.utf8(rt)));
+                removedIds.push_back(cacheKey(table.utf8(rt), id.utf8(rt)));
             } else {
                 throw jsi::JSError(rt, "Invalid operation type");
             }
@@ -619,12 +618,12 @@ void Database::batch(jsi::Array &operations) {
         throw;
     }
 
-    for (auto const &[tableName, id] : addedIds) {
-        markAsCached(tableName, id);
+    for (auto const &key : addedIds) {
+        markAsCached(key);
     }
 
-    for (auto const &[tableName, id] : removedIds) {
-        removeFromCache(tableName, id);
+    for (auto const &key : removedIds) {
+        removeFromCache(key);
     }
 }
 
