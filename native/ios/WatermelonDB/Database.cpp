@@ -329,6 +329,7 @@ SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
     } else {
         // in theory, this shouldn't be necessary, since statements ought to be reset *after* use, not before use
         // but still this might prevent some crashes if this is not done right
+        // TODO: Remove this later - should not be necessary, and it wastes time
         sqlite3_reset(statement);
     }
     assert(statement != nullptr);
@@ -585,10 +586,10 @@ void Database::batch(jsi::Array &operations) {
 
             if (type == "create") {
                 std::string id = operation.getValueAtIndex(rt, 2).getString(rt).utf8(rt);
-                jsi::String sql = operation.getValueAtIndex(rt, 3).getString(rt);
+                std::string sql = operation.getValueAtIndex(rt, 3).getString(rt).utf8(rt);
                 jsi::Array arguments = operation.getValueAtIndex(rt, 4).getObject(rt).getArray(rt);
 
-                executeUpdate(sql.utf8(rt), arguments);
+                executeUpdate(sql, arguments);
                 addedIds.push_back(cacheKey(table.utf8(rt), id));
             } else if (type == "execute") {
                 jsi::String sql = operation.getValueAtIndex(rt, 2).getString(rt);
