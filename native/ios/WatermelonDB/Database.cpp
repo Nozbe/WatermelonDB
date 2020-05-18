@@ -226,7 +226,7 @@ Database::~Database() {
 }
 
 std::string cacheKey(std::string tableName, std::string recordId) {
-    return tableName + "." + recordId; // NOTE: safe as long as neither table names nor record ids can contain dots
+    return tableName + "$" + recordId; // NOTE: safe as long as neither table names nor record ids can contain $ sign
 }
 
 bool Database::isCached(std::string cacheKey) {
