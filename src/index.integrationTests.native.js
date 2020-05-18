@@ -20,13 +20,24 @@ const sendReport = report => {
   console.log(report)
   NativeModules.BridgeTestReporter.testsFinished(report)
 }
-const TestRoot = () => (
-  <Tester specs={integrationTests}
-    store={testHookStore}
-    waitTime={4000}
-    sendReport={true}
-    customReporter={sendReport}>
-    <Text style={{ paddingTop: 100 }}>The tests are running. Please remain calm.</Text>
-  </Tester>
-)
-AppRegistry.registerComponent('watermelonTest', () => TestRoot)
+
+// NOTE: Set to `true` to run src/__playground__/index.js
+// WARN: DO NOT commit this change!
+const openPlayground = false
+
+if (openPlayground) {
+  const PlaygroundPlaceholder = () => <Text style={{ paddingTop: 100 }}>Playground is running</Text>
+  AppRegistry.registerComponent('watermelonTest', () => PlaygroundPlaceholder)
+  require('./__playground__')
+} else {
+  const TestRoot = () => (
+    <Tester specs={integrationTests}
+      store={testHookStore}
+      waitTime={4000}
+      sendReport={true}
+      customReporter={sendReport}>
+      <Text style={{ paddingTop: 100 }}>The tests are running. Please remain calm.</Text>
+    </Tester>
+  )
+  AppRegistry.registerComponent('watermelonTest', () => TestRoot)
+}
