@@ -69,6 +69,7 @@ class Database {
     /// Use `select count(*) as count`
     func count(_ query: SQL, _ args: QueryArgs = []) throws -> Int {
         let result = try fmdb.executeQuery(query, values: args)
+        defer { result.close() }
 
         guard result.next() else {
             throw "Invalid count query, can't find next() on the result".asError()
