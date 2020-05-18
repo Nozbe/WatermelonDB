@@ -21,11 +21,14 @@ const sendReport = report => {
   NativeModules.BridgeTestReporter.testsFinished(report)
 }
 
+// NOTE: Set to `true` to run src/__playground__/index.js
+// WARN: DO NOT commit this change!
 const openPlayground = false
 
 if (openPlayground) {
-  AppRegistry.registerComponent('watermelonTest', () => null)
-  require('./jsi-experiments')
+  const PlaygroundPlaceholder = () => <Text style={{ paddingTop: 100 }}>Playground is running</Text>
+  AppRegistry.registerComponent('watermelonTest', () => PlaygroundPlaceholder)
+  require('./__playground__')
 } else {
   const TestRoot = () => (
     <Tester specs={integrationTests}
