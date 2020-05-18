@@ -6,6 +6,15 @@ All notable changes to this project will be documented in this file.
 
 ### New features
 
+- [iOS] Introducing a new native SQLite database integration, rewritten from scratch in C++, based
+       on React Native's JSI (JavaScript Interface). It is to be considered experimental, however
+       we intend to make it the default (and eventually, the only) implementation. In a later release,
+       Android version will be introduced.
+
+       The new adapter is up to 3x faster than the previously fastest `synchronous: true` option,
+       however this speedup is only achieved with some unpublished React Native patches.
+
+       To try out JSI, add `experimentalUseJSI: true` to `SQLiteAdapter` constructor.
 
 ### Changes
 
