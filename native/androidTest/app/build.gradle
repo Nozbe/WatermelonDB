@@ -69,7 +69,7 @@ import com.android.build.OutputFile
 project.ext.react = [
         entryFile: "src/index.integrationTests.native.js",
         cliPath  : "../node_modules/react-native/local-cli/cli.js",
-        bundleInDebug: true,
+//        bundleInDebug: true,
 ]
 
 apply from: "../../../node_modules/react-native/react.gradle"
@@ -166,6 +166,7 @@ dependencies {
     ktlint "com.github.shyiko:ktlint:0.31.0"
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation project(':watermelondb')
+    implementation project(':watermelondb-jsi')
     implementation 'androidx.appcompat:appcompat:1.0.2'
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
