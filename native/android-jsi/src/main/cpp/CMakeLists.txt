@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 3.4.1)
 # execute_process (COMMAND ln "-s" "src" "../../../../../node_modules/react-native/third-party/double-conversion-1.1.6/double-conversion")
 
 include_directories(
+        ../../../libs/sqlite3
+        ../../../../shared
         ../../../../../node_modules/react-native/React
         ../../../../../node_modules/react-native/React/Base
         ../../../../../node_modules/react-native/ReactCommon
@@ -21,8 +23,16 @@ include_directories(
 #)
 
 add_library(watermelondb-jsi SHARED
+            # sqlite3
+            ../../../libs/sqlite3/sqlite3.c
             # source files
             JSIInstaller.cpp
+            DatabasePlatformAndroid.cpp
+            JSLockPerfHack.cpp
+            # shared sources
+            ../../../../shared/Sqlite.cpp
+            ../../../../shared/Database.cpp
+            ../../../../shared/DatabaseInstallation.cpp
             # this seems necessary to use almost any JSI API - otherwise we get linker errors
             # seems wrong to compile a file that's already getting compiled as part of the app, but ¯\_(ツ)_/¯
             ../../../../../node_modules/react-native/ReactCommon/jsi/jsi.cpp)
