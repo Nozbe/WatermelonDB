@@ -11,7 +11,7 @@ Java_com_nozbe_watermelondb_jsi_WatermelonJSIInstaller_installBinding(JNIEnv *en
 {
     jsi::Runtime &runtime = *(jsi::Runtime *)runtimePtr;
 
-    jsi::String proofString = jsi::String::createFromAscii(runtime, "Hello! This is a string from C++ (7)");
+    jsi::String proofString = jsi::String::createFromAscii(runtime, "Hello! This is a string from C++ (8)");
 
     runtime.global().setProperty(runtime, "wmelonJsiProof", std::move(proofString));
 }
