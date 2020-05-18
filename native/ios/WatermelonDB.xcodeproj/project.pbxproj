@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6E5E6259246C1F61003DBEF4 /* DatabasePlatformIOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E6257246C1F61003DBEF4 /* DatabasePlatformIOS.mm */; };
 		6E660D95213BD75D00189354 /* WatermelonDB.modulemap in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6E660D94213BD74F00189354 /* WatermelonDB.modulemap */; };
 		6E9477D4213BDE2E0077EDFB /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477CA213BDE220077EDFB /* FMDatabaseQueue.m */; };
 		6E9477D5213BDE2E0077EDFB /* FMDatabaseAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477CD213BDE220077EDFB /* FMDatabaseAdditions.m */; };
@@ -37,6 +38,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		6E5E6257246C1F61003DBEF4 /* DatabasePlatformIOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DatabasePlatformIOS.mm; sourceTree = "<group>"; };
+		6E5E6258246C1F61003DBEF4 /* DatabasePlatform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DatabasePlatform.h; sourceTree = "<group>"; };
 		6E660D5E213BCCD300189354 /* libWatermelonDB.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWatermelonDB.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E660D93213BD74F00189354 /* Bridging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Bridging.h; sourceTree = "<group>"; };
 		6E660D94213BD74F00189354 /* WatermelonDB.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = WatermelonDB.modulemap; sourceTree = "<group>"; };
@@ -102,6 +105,8 @@
 				6E9477E8213BDF8A0077EDFB /* DatabaseDriver.swift */,
 				6EF7F85E2362E9100041E1F6 /* Database.cpp */,
 				6EF7F85F2362E9100041E1F6 /* Database.h */,
+				6E5E6257246C1F61003DBEF4 /* DatabasePlatformIOS.mm */,
+				6E5E6258246C1F61003DBEF4 /* DatabasePlatform.h */,
 				6EF7F86323630D790041E1F6 /* JSIInstaller.h */,
 				6EF7F86123630D6D0041E1F6 /* JSIInstaller.mm */,
 				6E9477ED213BDF8A0077EDFB /* std_ext.swift */,
@@ -245,6 +250,7 @@
 				6E9477F4213BDF8A0077EDFB /* std_ext.swift in Sources */,
 				6ED8793123665D7800F45881 /* JSLockPerfHack.mm in Sources */,
 				6E9477F6213BDF8A0077EDFB /* Database.swift in Sources */,
+				6E5E6259246C1F61003DBEF4 /* DatabasePlatformIOS.mm in Sources */,
 				6E9477D5213BDE2E0077EDFB /* FMDatabaseAdditions.m in Sources */,
 				6E9477D4213BDE2E0077EDFB /* FMDatabaseQueue.m in Sources */,
 				6E9477D6213BDE2E0077EDFB /* FMDatabase.m in Sources */,
