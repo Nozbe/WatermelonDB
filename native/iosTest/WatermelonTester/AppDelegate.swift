@@ -10,7 +10,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]? = nil
         ) -> Bool {
-//        assert(NSClassFromString("XCTest") != nil, "WatermelonTester has to be run in Test mode, not ran directly")
+        if NSClassFromString("XCTest") != nil {
+            NSLog("%@", "WARN: WatermelonTester should be ran in Test mode, not ran directly to work in CI")
+        }
 
         let jsLocation = RCTBundleURLProvider.sharedSettings()
             .jsBundleURL(forBundleRoot: "src/index.integrationTests.native", fallbackResource: nil)
