@@ -92,7 +92,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     this.workerBridge.send(SETUP, [options], devSetupCallback)
   }
 
-  testClone(options?: $Shape<LokiAdapterOptions> = {}): LokiJSAdapter {
+  async testClone(options?: $Shape<LokiAdapterOptions> = {}): Promise<LokiJSAdapter> {
     // Ensure data is saved to memory
     // $FlowFixMe
     const { executor } = this.workerBridge._worker._worker

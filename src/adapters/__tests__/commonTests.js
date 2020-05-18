@@ -109,7 +109,7 @@ export default () => [
       const s2 = mockTaskRaw({ id: 's2', bool1: true, order: 2 })
       const s3 = mockTaskRaw({ id: 's3', text1: 'baz' })
       await adapter.batch([['create', 'tasks', s2], ['create', 'tasks', s3]])
-      adapter = adapter.testClone()
+      adapter = await adapter.testClone()
 
       // returns raw if not cached
       expect(await adapter.find('tasks', 's2')).toEqual(s2)
@@ -143,7 +143,7 @@ export default () => [
       // add more project, restart app
       const p2 = mockProjectRaw({ id: 'id2', num1: 1, text1: 'foo' })
       await adapter.batch([['create', 'projects', p2]])
-      adapter = adapter.testClone()
+      adapter = await adapter.testClone()
 
       const s2 = mockTaskRaw({ id: 'id2', text1: 'baz', order: 2 })
       await adapter.batch([['create', 'tasks', s2]])
@@ -178,7 +178,7 @@ export default () => [
       // add more project, restart app
       const p2 = mockProjectRaw({ id: 'id2', num1: 1, text1: 'foo' })
       await adapter.batch([['create', 'projects', p2]])
-      adapter = adapter.testClone()
+      adapter = await adapter.testClone()
 
       const s2 = mockTaskRaw({ id: 'id2', text1: 'baz', order: 2 })
       await adapter.batch([['create', 'tasks', s2]])
@@ -199,7 +199,7 @@ export default () => [
       const tt1 = { id: 'tt1', task_id: 'abcdef' } // Unsanitized raw!
 
       await adapter.batch([['create', 'tag_assignments', tt1]])
-      adapter = adapter.testClone()
+      adapter = await adapter.testClone()
 
       expect(await adapter.find('tag_assignments', 'tt1')).toEqual(
         sanitizedRaw(tt1, testSchema.tables.tag_assignments),
@@ -291,7 +291,7 @@ export default () => [
       const s1 = mockTaskRaw({ id: 's1', order: 1 })
       const s2 = mockTaskRaw({ id: 's2', order: 2 })
       await adapter.batch([['create', 'tasks', s1], ['create', 'tasks', s2]])
-      adapter = adapter.testClone()
+      adapter = await adapter.testClone()
 
       // first time we see it, get full object
       expectSortedEqual(await queryAll(), [s1, s2])
@@ -317,7 +317,7 @@ export default () => [
       expect(await queryAll()).toEqual(['s1', 's2', 's3'])
 
       // restart app, doesn't have the records
-      adapter = adapter.testClone()
+      adapter = await adapter.testClone()
       expectSortedEqual(await queryAll(), [s1, s2, s3New])
     },
   ],
@@ -330,7 +330,7 @@ export default () => [
       const t2 = { id: 't2', text2: 'bar', order: 2 }
 
       await adapter.batch([['create', 'tasks', t1], ['create', 'tasks', t2]])
-      adapter = adapter.testClone()
+      adapter = await adapter.testClone()
 
       expectSortedEqual(await adapter.query(taskQuery()), [
         sanitizedRaw(t1, testSchema.tables.tasks),
@@ -346,7 +346,7 @@ export default () => [
       const originalRaw = { ...raw }
       await adapter.batch([['create', 'tasks', raw]])
 
-      adapter = adapter.testClone()
+      adapter = await adapter.testClone()
       const fetchedRaw = await adapter.find('tasks', 't1')
 
       // data is equal but not the same reference
@@ -355,7 +355,7 @@ export default () => [
       expect(fetchedRaw).not.toBe(raw)
 
       // make sure same is true for query
-      adapter = adapter.testClone()
+      adapter = await adapter.testClone()
       const [queriedRaw] = await adapter.query(taskQuery())
       expect(queriedRaw).toEqual(originalRaw)
       expect(queriedRaw).not.toBe(raw)
@@ -371,7 +371,7 @@ export default () => [
       raw.order = 2
       await adapter.batch([['update', 'tasks', raw]])
 
-      adapter = adapter.testClone()
+      adapter = await adapter.testClone()
       const fetchedUpdatedRaw = await adapter.find('tasks', 't1')
 
       // check raws are equal (but a copy)
@@ -460,7 +460,7 @@ export default () => [
         ['markAsDeleted', 'tasks', m4.id],
       ])
 
-      adapter = adapter.testClone()
+      adapter = await adapter.testClone()
       const fetched1 = await adapter.find('tasks', 't1')
       expect(fetched1.bool1).toBe(true)
       expect(fetched1).toEqual(m1)
@@ -472,6 +472,27 @@ export default () => [
       expect(await adapter.query(taskQuery())).toEqual(['t1', 't2'])
 
       expect(await adapter.getDeletedRecords('tasks')).toEqual(['t4'])
+    },
+  ],
+  [
+    'batches are transactional',
+    async (adapter, AdapterClass) => {
+      // sanity check
+      await adapter.batch([
+        ['create', 'tasks', mockTaskRaw({ id: 't1' })],
+      ])
+      expect(await adapter.query(taskQuery())).toEqual(['t1'])
+
+      await expect(adapter.batch([
+        ['create', 'tasks', mockTaskRaw({ id: 't2' })],
+        ['create', 'does_not_exist', mockTaskRaw({ id: 't3' })],
+      ])).rejects.toMatchObject({
+        message: expect.stringMatching(AdapterClass.name === 'SQLiteAdapter' ? /no such table: does_not_exist/ : /Cannot read property 'insert' of null/),
+      })
+      if (AdapterClass.name !== 'LokiJSAdapter') {
+        // Regrettably, Loki is not transactional
+        expect(await adapter.query(taskQuery())).toEqual(['t1'])
+      }
     },
   ],
   [
@@ -627,7 +648,7 @@ export default () => [
   ],
   [
     'migrates database between versions',
-    async (_adapter, AdapterClass) => {
+    async (_adapter, AdapterClass, extraAdapterOptions) => {
       // launch app in one version
       const taskColumnsV3 = [{ name: 'num1', type: 'number' }]
       const projectColumnsV3 = [{ name: 'text1', type: 'string' }]
@@ -643,9 +664,11 @@ export default () => [
         new AdapterClass({
           schema: testSchemaV3,
           migrations: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
+          ...extraAdapterOptions,
         }),
       )
-
+      // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
+      await new Promise(resolve => setTimeout(resolve, 0))
       // add data
       await adapter.batch([
         ['create', 'tasks', { id: 't1', num1: 10 }],
@@ -710,7 +733,7 @@ export default () => [
           },
         ],
       })
-      adapter = adapter.testClone({
+      adapter = await adapter.testClone({
         schema: testSchemaV5,
         migrations: migrationsV5,
       })
@@ -746,7 +769,7 @@ export default () => [
       ).rejects.toBeInstanceOf(Error)
 
       // make sure new fields actually work and that migrations won't be applied again
-      adapter = adapter.testClone()
+      adapter = await adapter.testClone()
 
       const p1 = await adapter.find('projects', 'p1')
       expect(p1.text2).toBe('foo')
@@ -762,19 +785,21 @@ export default () => [
   ],
   [
     `can perform empty migrations (regression test)`,
-    async (_adapter, AdapterClass) => {
+    async (_adapter, AdapterClass, extraAdapterOptions) => {
       let adapter = new DatabaseAdapterCompat(
         new AdapterClass({
           schema: { ...testSchema, version: 1 },
           migrations: schemaMigrations({ migrations: [] }),
+          ...extraAdapterOptions,
         }),
       )
-
+      // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
+      await new Promise(resolve => setTimeout(resolve, 0))
       await adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1', text1: 'foo' })]])
       expect(await adapter.count(taskQuery())).toBe(1)
 
       // Perform an empty migration (no steps, just version bump)
-      adapter = adapter.testClone({
+      adapter = await adapter.testClone({
         schema: { ...testSchema, version: 2 },
         migrations: schemaMigrations({ migrations: [{ toVersion: 2, steps: [] }] }),
       })
@@ -786,20 +811,23 @@ export default () => [
   ],
   [
     `resets database when it's newer than app schema`,
-    async (_adapter, AdapterClass) => {
+    async (_adapter, AdapterClass, extraAdapterOptions) => {
       // launch newer version of the app
       let adapter = new DatabaseAdapterCompat(
         new AdapterClass({
           schema: { ...testSchema, version: 3 },
           migrations: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
+          ...extraAdapterOptions,
         }),
       )
+      // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
+      await new Promise(resolve => setTimeout(resolve, 0))
 
       await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
       expect(await adapter.count(taskQuery())).toBe(1)
 
       // launch older version of the app
-      adapter = adapter.testClone({
+      adapter = await adapter.testClone({
         schema: { ...testSchema, version: 1 },
         migrations: schemaMigrations({ migrations: [] }),
       })
@@ -811,20 +839,23 @@ export default () => [
   ],
   [
     'resets database when there are no available migrations',
-    async (_adapter, AdapterClass) => {
+    async (_adapter, AdapterClass, extraAdapterOptions) => {
       // launch older version of the app
       let adapter = new DatabaseAdapterCompat(
         new AdapterClass({
           schema: { ...testSchema, version: 1 },
           migrations: schemaMigrations({ migrations: [] }),
+          ...extraAdapterOptions,
         }),
       )
+      // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
+      await new Promise(resolve => setTimeout(resolve, 0))
 
       await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
       expect(await adapter.count(taskQuery())).toBe(1)
 
       // launch newer version of the app, without migrations available
-      adapter = adapter.testClone({
+      adapter = await adapter.testClone({
         schema: { ...testSchema, version: 3 },
         migrations: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
       })
@@ -836,20 +867,22 @@ export default () => [
   ],
   [
     'errors when migration fails',
-    async (_adapter, AdapterClass) => {
+    async (_adapter, AdapterClass, extraAdapterOptions) => {
       // launch older version of the app
       let adapter = new DatabaseAdapterCompat(
         new AdapterClass({
           schema: { ...testSchema, version: 1 },
           migrations: schemaMigrations({ migrations: [] }),
+          ...extraAdapterOptions,
         }),
       )
+      // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
+      await new Promise(resolve => setTimeout(resolve, 0))
 
       await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
       expect(await adapter.count(taskQuery())).toBe(1)
-
       // launch newer version of the app with a migration that will fail
-      adapter = adapter.testClone({
+      const adapterPromise = adapter.testClone({
         schema: { ...testSchema, version: 2 },
         migrations: schemaMigrations({
           migrations: [
@@ -867,10 +900,16 @@ export default () => [
         }),
       })
 
-      await expect(adapter.count(taskQuery())).rejects.toBeInstanceOf(Error)
-      await expect(adapter.batch([['create', 'tasks', mockTaskRaw({})]])).rejects.toBeInstanceOf(
-        Error,
-      )
+      // TODO: Make the SQLite, LokiJS adapter behavior consistent
+      if (AdapterClass.name === 'LokiJSAdapter') {
+        adapter = await adapterPromise
+        await expect(adapter.count(taskQuery())).rejects.toBeInstanceOf(Error)
+        await expect(adapter.batch([['create', 'tasks', mockTaskRaw({})]])).rejects.toBeInstanceOf(
+          Error,
+        )
+      } else {
+        await expect(adapterPromise).rejects.toBeInstanceOf(Error)
+      }
     },
   ],
   ...matchTests.map(testCase => [

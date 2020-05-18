@@ -231,7 +231,7 @@ describe('Batch writes', () => {
     expect(recordObserver).toHaveBeenCalledTimes(2)
 
     // simulate reload -- check if changes actually got saved
-    database = cloneDatabase()
+    database = await cloneDatabase()
     tasksCollection = database.collections.get('mock_tasks')
     commentsCollection = database.collections.get('mock_comments')
 
