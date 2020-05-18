@@ -148,6 +148,27 @@
                         <h1><a class="header" href="#changelog" id="changelog">Changelog</a></h1>
 <p>All notable changes to this project will be documented in this file.</p>
 <h2><a class="header" href="#unreleased" id="unreleased">Unreleased</a></h2>
+<h3><a class="header" href="#new-features" id="new-features">New features</a></h3>
+<h3><a class="header" href="#changes" id="changes">Changes</a></h3>
+<h3><a class="header" href="#fixes" id="fixes">Fixes</a></h3>
+<h2><a class="header" href="#0161---2020-05-18" id="0161---2020-05-18">0.16.1 - 2020-05-18</a></h2>
+<h3><a class="header" href="#changes-1" id="changes-1">Changes</a></h3>
+<ul>
+<li><code>Database.unsafeResetDatabase()</code> is now less unsafe — more application bugs are being caught</li>
+</ul>
+<h3><a class="header" href="#fixes-1" id="fixes-1">Fixes</a></h3>
+<ul>
+<li>[iOS] Fix build in apps using Flipper</li>
+<li>[Typescript] Added type definition for <code>setGenerator</code>.</li>
+<li>[Typescript] Fixed types of decorators.</li>
+<li>[Typescript] Add Tests to test Types.</li>
+<li>Fixed typo in learn-to-use docs.</li>
+<li>[Typescript] Fixed types of changes.</li>
+</ul>
+<h3><a class="header" href="#internal" id="internal">Internal</a></h3>
+<ul>
+<li>[SQLite] Infrastruture for a future JSI adapter has been added</li>
+</ul>
 <h2><a class="header" href="#016---2020-03-06" id="016---2020-03-06">0.16 - 2020-03-06</a></h2>
 <h3><a class="header" href="#-breaking" id="-breaking">⚠️ Breaking</a></h3>
 <ul>
@@ -158,7 +179,7 @@
 <li>[adapters] Adapter API has changed from returning Promise to taking callbacks as the last argument. This won't affect you unless you call on adapter methods directly. <code>database.adapter</code> returns a new <code>DatabaseAdapterCompat</code> which has the same shape as old adapter API. You can use <code>database.adapter.underlyingAdapter</code> to get back <code>SQLiteAdapter</code> / <code>LokiJSAdapter</code></li>
 <li>[Collection] <code>Collection.fetchQuery</code> and <code>Collection.fetchCount</code> are removed. Please use <code>Query.fetch()</code> and <code>Query.fetchCount()</code>.</li>
 </ul>
-<h3><a class="header" href="#new-features" id="new-features">New features</a></h3>
+<h3><a class="header" href="#new-features-1" id="new-features-1">New features</a></h3>
 <ul>
 <li>[SQLiteAdapter] [iOS] Add new <code>synchronous</code> option to adapter: <code>new SQLiteAdapter({ ..., synchronous: true })</code>.
 When enabled, database operations will block JavaScript thread. Adapter actions will resolve in the
@@ -169,13 +190,13 @@ This is called when underlying IndexedDB encountered a quota exceeded error (ran
 This means that app can't save more data or that it will fall back to using in-memory database only
 Note that this only works when <code>useWebWorker: false</code></li>
 </ul>
-<h3><a class="header" href="#changes" id="changes">Changes</a></h3>
+<h3><a class="header" href="#changes-2" id="changes-2">Changes</a></h3>
 <ul>
 <li>[Performance] Watermelon internals have been rewritten not to rely on Promises and allow some fetch/observe calls to resolve synchronously. Do not rely on this -- external API is still based on Rx and Promises and may resolve either asynchronously or synchronously depending on capabilities. This is meant as a internal performance optimization only for the time being.</li>
 <li>[LokiJS] [Performance] Improved worker queue implementation for performance</li>
 <li>[observation] Refactored observer implementations for performance</li>
 </ul>
-<h3><a class="header" href="#fixes" id="fixes">Fixes</a></h3>
+<h3><a class="header" href="#fixes-2" id="fixes-2">Fixes</a></h3>
 <ul>
 <li>Fixed a possible cause for &quot;Record ID xxx#yyy was sent over the bridge, but it's not cached&quot; error</li>
 <li>[LokiJS] Fixed an issue preventing database from saving when using <code>experimentalUseIncrementalIndexedDB</code></li>
@@ -261,7 +282,7 @@ this is useful</p>
 <p>@json decorator sanitizer functions take an optional second argument, with a reference to the model</p>
 </li>
 </ul>
-<h3><a class="header" href="#fixes-1" id="fixes-1">Fixes</a></h3>
+<h3><a class="header" href="#fixes-3" id="fixes-3">Fixes</a></h3>
 <ul>
 <li>Pinned required <code>rambdax</code> version to 2.15.0 to avoid console logging bug. In a future release we will switch to our own fork of <code>rambdax</code> to avoid future breakages like this.</li>
 </ul>
@@ -305,7 +326,7 @@ but shouldn't matter if you use latest version of React Native. Please report an
 <li>[rambdax] Replaces <code>contains</code> with <code>includes</code> due to <code>contains</code> deprecation https://github.com/selfrefactor/rambda/commit/1dc1368f81e9f398664c9d95c2efbc48b5cdff9b#diff-04c6e90faac2675aa89e2176d2eec7d8R2209</li>
 </ul>
 <h2><a class="header" href="#0140---2019-08-02" id="0140---2019-08-02">0.14.0 - 2019-08-02</a></h2>
-<h3><a class="header" href="#new-features-1" id="new-features-1">New features</a></h3>
+<h3><a class="header" href="#new-features-2" id="new-features-2">New features</a></h3>
 <ul>
 <li>[Query] Added support for <code>notLike</code> queries 🎉</li>
 <li>[Actions] You can now batch delete record with all descendants using experimental functions <code>experimentalMarkAsDeleted</code> or <code>experimentalDestroyPermanently</code></li>
@@ -330,7 +351,7 @@ backward compatibility, but this option <strong>will be removed</strong> in a la
 to <code>migrations</code>.</p>
 </li>
 </ul>
-<h3><a class="header" href="#new-features-2" id="new-features-2">New features</a></h3>
+<h3><a class="header" href="#new-features-3" id="new-features-3">New features</a></h3>
 <ul>
 <li>[Actions] You can now batch deletes by using <code>prepareMarkAsDeleted</code> or <code>prepareDestroyPermanently</code></li>
 <li>[Sync] Performance: <code>synchronize()</code> no longer calls your <code>pushChanges()</code> function if there are no
@@ -349,7 +370,7 @@ this will be removed in the later version -- create a new issue explaining why y
 <li>[Typescript] Improved types for SQLite and LokiJS adapters, migrations, models, the database and the logger.</li>
 </ul>
 <h2><a class="header" href="#0123---2019-05-06" id="0123---2019-05-06">0.12.3 - 2019-05-06</a></h2>
-<h3><a class="header" href="#changes-1" id="changes-1">Changes</a></h3>
+<h3><a class="header" href="#changes-3" id="changes-3">Changes</a></h3>
 <ul>
 <li>[Database] You can now update the random id schema by importing
 <code>import { setGenerator } from '@nozbe/watermelondb/utils/common/randomId'</code> and then calling <code>setGenerator(newGenenerator)</code>.
@@ -358,11 +379,11 @@ This allows WatermelonDB to create specific IDs for example if your backend uses
 <li>[Tests] remove cleanup for react-hooks-testing-library@0.5.0 compatibility</li>
 </ul>
 <h2><a class="header" href="#0122---2019-04-19" id="0122---2019-04-19">0.12.2 - 2019-04-19</a></h2>
-<h3><a class="header" href="#fixes-2" id="fixes-2">Fixes</a></h3>
+<h3><a class="header" href="#fixes-4" id="fixes-4">Fixes</a></h3>
 <ul>
 <li>[TypeScript] 'Cannot use 'in' operator to search for 'initializer'; decorator fix</li>
 </ul>
-<h3><a class="header" href="#changes-2" id="changes-2">Changes</a></h3>
+<h3><a class="header" href="#changes-4" id="changes-4">Changes</a></h3>
 <ul>
 <li>[Database] You can now pass falsy values to <code>Database.batch(...)</code> (false, null, undefined). This is
 useful in keeping code clean when doing operations conditionally. (Also works with <code>model.batch(...)</code>)</li>
@@ -385,7 +406,7 @@ React Native yet, either stick to Xcode 10.1 or manually apply this patch:
 https://github.com/Nozbe/WatermelonDB/pull/302/commits/aa4e08ad0fa55f434da2a94407c51fc5ff18e506</p>
 </li>
 </ul>
-<h3><a class="header" href="#changes-3" id="changes-3">Changes</a></h3>
+<h3><a class="header" href="#changes-5" id="changes-5">Changes</a></h3>
 <ul>
 <li>[Sync] Adds basic sync logging capability to Sync. Pass an empty object to <code>synchronize()</code> to populate it with diagnostic information:
 <pre><code class="language-js">const log = {}
@@ -432,7 +453,7 @@ However, if you relied on this behavior, this might be a breaking change.</li>
 <li>[Android] updated ktlint to <code>0.30.0</code></li>
 </ul>
 <h2><a class="header" href="#0101---2019-02-12" id="0101---2019-02-12">0.10.1 - 2019-02-12</a></h2>
-<h3><a class="header" href="#changes-4" id="changes-4">Changes</a></h3>
+<h3><a class="header" href="#changes-6" id="changes-6">Changes</a></h3>
 <ul>
 <li>[Android] Changed <code>compile</code> to <code>implementation</code> in Library Gradle file
 <ul>
@@ -494,7 +515,7 @@ resolving conflicts, finding local changes, and marking them as synced) is done 
 <li>Added <code>DatabaseProvider</code> and <code>withDatabase</code> Higher-Order Component to reduce prop drilling</li>
 <li>Added experimental Actions API. This will be documented in a future release.</li>
 </ul>
-<h3><a class="header" href="#fixes-3" id="fixes-3">Fixes</a></h3>
+<h3><a class="header" href="#fixes-5" id="fixes-5">Fixes</a></h3>
 <ul>
 <li>Fixes crash on older Android React Native targets without <code>jsc-android</code> installed</li>
 </ul>
@@ -508,7 +529,7 @@ resolving conflicts, finding local changes, and marking them as synced) is done 
 <li>Added support for Schema Migrations. See documentation for more details.</li>
 <li>Added fundaments for integration of Danger with Jest</li>
 </ul>
-<h3><a class="header" href="#changes-5" id="changes-5">Changes</a></h3>
+<h3><a class="header" href="#changes-7" id="changes-7">Changes</a></h3>
 <ul>
 <li>Fixed &quot;dependency cycle&quot; warning</li>
 <li>[SQLite] Fixed rare cases where database could be left in an unusable state (added missing transaction)</li>

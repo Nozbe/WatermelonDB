@@ -99,14 +99,14 @@ describe('unsafeResetDatabase', () => {
     // keep subscriber during reset
     const subscriber2 = jest.fn()
     database.experimentalSubscribe(['mock_tasks'], subscriber2)
-    const consoleErrorSpy = jest.spyOn(console, 'error')
+    const consoleErrorSpy = jest.spyOn(console, 'log')
 
     await database.action(() => database.unsafeResetDatabase())
 
     // check that error was logged
     expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Application error! 1 Database subscriber was detected during database.unsafeResetDatabase() call. App should not hold onto subscriptions or Watermelon objects while resetting database.',
+      'Application error! Unexpected 1 Database subscribers were detected during database.unsafeResetDatabase() call. App should not hold onto subscriptions or Watermelon objects while resetting database.',
     )
 
     // check that subscriber was killed

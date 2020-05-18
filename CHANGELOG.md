@@ -8,6 +8,12 @@ All notable changes to this project will be documented in this file.
 
 ### Changes
 
+### Fixes
+
+## 0.16.1 - 2020-05-18
+
+### Changes
+
 - `Database.unsafeResetDatabase()` is now less unsafe — more application bugs are being caught
 
 ### Fixes
@@ -18,6 +24,10 @@ All notable changes to this project will be documented in this file.
 - [Typescript] Add Tests to test Types.
 - Fixed typo in learn-to-use docs.
 - [Typescript] Fixed types of changes.
+
+### Internal
+
+- [SQLite] Infrastruture for a future JSI adapter has been added
 
 ## 0.16 - 2020-03-06
 
