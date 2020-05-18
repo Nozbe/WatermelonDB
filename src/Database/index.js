@@ -189,9 +189,10 @@ export default class Database {
 
       // Check for illegal subscribers
       if (this._subscribers.length) {
+        // TODO: This should be an error, not a console.log, but actually useful diagnostics are necessary for this to work, otherwise people will be confused
         // eslint-disable-next-line no-console
-        console.error(
-          `Application error! ${this._subscribers.length} Database subscriber was detected during database.unsafeResetDatabase() call. App should not hold onto subscriptions or Watermelon objects while resetting database.`,
+        console.log(
+          `Application error! Unexpected ${this._subscribers.length} Database subscribers were detected during database.unsafeResetDatabase() call. App should not hold onto subscriptions or Watermelon objects while resetting database.`,
         )
         this._subscribers = []
       }
