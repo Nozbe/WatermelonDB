@@ -35,12 +35,16 @@ using namespace facebook;
 #define ENABLE_JSLOCK_PERFORMANCE_HACK 0
 
 #if ENABLE_JSLOCK_PERFORMANCE_HACK
+
+namespace watermelondb {
 std::function<void (void)> *blockToExecute = nullptr;
 bool didBlockExecuteUsingHack = false;
+}
 
 @implementation NSObject (JSValueHacks)
 
 + (id) watermelonSwizzledValueWithJSValueRef:(JSValueRef)ref inContext:(JSContext*)ctx {
+    using namespace watermelondb;
     //  NOTE: bring this back if we can unswizzle after the hack
     //    if (didBlockExecuteUsingHack) {
     //        NSLog(@"WatermelonDB JSLock perfhack assertion failure - swizzled method called but block has already executed");
@@ -60,6 +64,7 @@ bool didBlockExecuteUsingHack = false;
 @end
 
 void watermelonCallWithJSCLockHolder(jsi::Runtime& rt, std::function<void (void)> block) {
+    using namespace watermelondb;
     float systemVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
 
     if (systemVersion < 13 || systemVersion >= 14) {
