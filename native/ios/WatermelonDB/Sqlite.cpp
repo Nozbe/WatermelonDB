@@ -42,16 +42,19 @@ SqliteDb::~SqliteDb() {
     // Find and finalize all prepared statements
     sqlite3_stmt *stmt;
     while (stmt = sqlite3_next_stmt(sqlite, nullptr)) {
-        consoleError("Leak detected! Finalized a statement when closing database - this means that there were dangling statements not held by cachedStatements, or handling of cachedStatements is broken. Please collect as much information as possible and file an issue with WatermelonDB repository!");
+        consoleError("Leak detected! Finalized a statement when closing database - this means that there were dangling "
+                     "statements not held by cachedStatements, or handling of cachedStatements is broken. Please "
+                     "collect as much information as possible and file an issue with WatermelonDB repository!");
         sqlite3_finalize(stmt);
     }
 
     // Close connection
     int closeResult = sqlite3_close(sqlite);
 
+    // NOTE: Applications should finalize all prepared statements, close all BLOB handles, and finish all sqlite3_backup objects
+    assert(sqlite != nullptr && sqlite3_next_stmt(sqlite, nullptr) == nullptr);
+
     if (closeResult != SQLITE_OK) {
-        // NOTE: Applications should finalize all prepared statements, close all BLOB handles, and finish all sqlite3_backup objects
-        assert(sqlite != nullptr && sqlite3_next_stmt(sqlite, nullptr) == nullptr);
         // NOTE: We're just gonna log an error. We can't throw an exception here. We could crash, but most likely we're
         // only leaking memory/resources
         consoleError("Failed to close sqlite database - " + std::string(sqlite3_errmsg(sqlite)));

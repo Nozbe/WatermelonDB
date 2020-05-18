@@ -218,7 +218,7 @@ void Database::install(jsi::Runtime *runtime) {
 }
 
 Database::~Database() {
-    for (auto const &cachedStatement: cachedStatements_ ) {
+    for (auto const &cachedStatement : cachedStatements_) {
         sqlite3_stmt *statement = cachedStatement.second;
         sqlite3_finalize(statement);
     }
@@ -396,7 +396,9 @@ void Database::commit() {
 }
 
 void Database::rollback() {
-    consoleError("WatermelonDB sqlite transaction is being rolled back! This is BAD - it means that there's either a WatermelonDB bug or a user issue (e.g. no empty disk space) that Watermelon may be unable to recover from safely... Do investigate!");
+    consoleError("WatermelonDB sqlite transaction is being rolled back! This is BAD - it means that there's either a "
+                 "WatermelonDB bug or a user issue (e.g. no empty disk space) that Watermelon may be unable to recover "
+                 "from safely... Do investigate!");
     executeUpdate("rollback transaction"); // TODO: Use RAII to rollback automatically!
 }
 
@@ -508,7 +510,6 @@ void Database::batch(jsi::Array &operations) {
 
     try {
         size_t operationsCount = operations.length(rt);
-        // TODO: modify caches at the end of transaction
         for (size_t i = 0; i < operationsCount; i++) {
             jsi::Array operation = operations.getValueAtIndex(rt, i).getObject(rt).getArray(rt);
             std::string type = operation.getValueAtIndex(rt, 0).getString(rt).utf8(rt);
