@@ -32,7 +32,7 @@ using namespace facebook;
 //
 // Change value of this macro to 0 to disable this hack if you're not comfortable with that:
 
-#define ENABLE_JSLOCK_PERFORMANCE_HACK 1
+#define ENABLE_JSLOCK_PERFORMANCE_HACK 0
 
 #if ENABLE_JSLOCK_PERFORMANCE_HACK
 std::function<void (void)> *blockToExecute = nullptr;
