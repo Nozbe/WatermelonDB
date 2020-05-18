@@ -5,31 +5,11 @@
 #import <unordered_set>
 #import <sqlite3.h>
 
+#import "Sqlite.h"
+
 using namespace facebook;
 
 namespace watermelondb {
-
-// Lightweight wrapper for handling sqlite3 lifetime
-class SqliteDb {
-    public:
-    SqliteDb(std::string path);
-    ~SqliteDb();
-
-    sqlite3 *sqlite;
-
-    SqliteDb &operator=(const SqliteDb &) = delete;
-    SqliteDb(const SqliteDb &) = delete;
-};
-
-class SqliteStatement {
-public:
-    SqliteStatement(sqlite3_stmt *statement);
-    ~SqliteStatement();
-
-    sqlite3_stmt *stmt;
-
-    void reset();
-};
 
 class Database : public jsi::HostObject {
     public:
