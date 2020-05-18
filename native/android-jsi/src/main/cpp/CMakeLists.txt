@@ -22,7 +22,7 @@ include_directories(
 
 add_library(watermelondb-jsi SHARED
             # source files
-            WatermelonJSIInstaller.cpp
+            JSIInstaller.cpp
             # this seems necessary to use almost any JSI API - otherwise we get linker errors
             # seems wrong to compile a file that's already getting compiled as part of the app, but ¯\_(ツ)_/¯
             ../../../../../node_modules/react-native/ReactCommon/jsi/jsi.cpp)

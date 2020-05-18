@@ -1,6 +1,6 @@
 package com.nozbe.watermelondb.jsi;
 
-public class WatermelonJSIInstaller {
+public class JSIInstaller {
     public native void installBinding(long javaScriptContextHolder);
 
     static {
