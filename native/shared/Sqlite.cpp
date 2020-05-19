@@ -17,6 +17,7 @@ std::string resolveDatabasePath(std::string path) {
 }
 
 SqliteDb::SqliteDb(std::string path) {
+    platform::initializeSqlite();
     assert(sqlite3_threadsafe());
 
     auto resolvedPath = resolveDatabasePath(path);
