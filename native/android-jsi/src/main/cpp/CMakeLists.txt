@@ -22,6 +22,9 @@ include_directories(
 #        -DFOLLY_HAVE_MEMRCHR=1
 #)
 
+# TODO: Configure sqlite with compile-time options
+# https://www.sqlite.org/compile.html
+
 add_library(watermelondb-jsi SHARED
             # sqlite3
             ../../../libs/sqlite3/sqlite3.c
