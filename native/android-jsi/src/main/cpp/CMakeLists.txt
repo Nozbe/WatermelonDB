@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.4.1)
 # execute_process (COMMAND ln "-s" "src" "../../../../../node_modules/react-native/third-party/double-conversion-1.1.6/double-conversion")
 
 include_directories(
-        ../../../libs/sqlite3
+        ../../../../../node_modules/@nozbe/sqlite/sqlite-amalgamation-3310100/
         ../../../../shared
         ../../../../../node_modules/react-native/React
         ../../../../../node_modules/react-native/React/Base
@@ -24,7 +24,7 @@ include_directories(
 
 add_library(watermelondb-jsi SHARED
             # sqlite3
-            ../../../libs/sqlite3/sqlite3.c
+            ../../../../../node_modules/@nozbe/sqlite/sqlite-amalgamation-3310100/sqlite3.c
             # source files
             JSIInstaller.cpp
             DatabasePlatformAndroid.cpp
