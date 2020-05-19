@@ -11,6 +11,10 @@ void consoleLog(std::string message);
 // Logs error to console
 void consoleError(std::string message);
 
+// Called before a Sqlite object is constructed
+// Use to initialize sqlite, if necessary
+void initializeSqlite();
+
 // Given a database name, returns a fully-qualified default database path
 // e.g. /Users/foo.app/<name>.db
 std::string resolveDatabasePath(std::string path);
