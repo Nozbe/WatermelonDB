@@ -46,12 +46,21 @@ std::once_flag sqliteInitialization;
 void initializeSqlite() {
     std::call_once(sqliteInitialization, []() {
         // Redirect sqlite messages to Android log
-        sqlite3_config(SQLITE_CONFIG_LOG, &sqliteLogCallback, isVerboseLogEnabled(SQLITE_LOG_TAG));
+        if (sqlite3_config(SQLITE_CONFIG_LOG, &sqliteLogCallback, isVerboseLogEnabled(SQLITE_LOG_TAG)) != SQLITE_OK) {
+            consoleError("Failed to configure SQLite to redirect messages to Android log");
+        }
 
         // Enable file URI syntax https://www.sqlite.org/uri.html (e.g. ?mode=memory&cache=shared)
-        sqlite3_config(SQLITE_CONFIG_URI, 1);
+        if (sqlite3_config(SQLITE_CONFIG_URI, 1) != SQLITE_OK) {
+            consoleError("Failed to configure SQLite to support file URI syntax - shared cache will not work");
+        }
 
-        sqlite3_initialize();
+        // TODO: Soft heap limit
+        // https://github.com/aosp-mirror/platform_frameworks_base/blob/6bebb8418ceecf44d2af40033870f3aabacfe36e/core/jni/android_database_SQLiteGlobal.cpp#L68
+
+        if (sqlite3_initialize() != SQLITE_OK) {
+            consoleError("Failed to initialize sqlite - this probably means sqlite was already initialized");
+        }
     });
 }
 
