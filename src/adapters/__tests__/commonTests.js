@@ -917,6 +917,56 @@ export default () => [
       }
     },
   ],
+  [
+    'can actually save and read from file system',
+    async (_adapter, AdapterClass, extraAdapterOptions) => {
+      const fileName = `testDatabase-${Math.random()}`
+
+      const adapter = new DatabaseAdapterCompat(
+        new AdapterClass({
+          dbName: fileName,
+          schema: { ...testSchema, version: 1 },
+          ...extraAdapterOptions,
+        }),
+      )
+      // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
+      await new Promise(resolve => setTimeout(resolve, 0))
+
+      // sanity check
+      expect(await adapter.count(taskQuery())).toBe(0)
+      await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
+      expect(await adapter.count(taskQuery())).toBe(1)
+
+      // open second db
+      const adapter2 = new DatabaseAdapterCompat(
+        new AdapterClass({
+          dbName: fileName,
+          schema: { ...testSchema, version: 1 },
+          ...extraAdapterOptions,
+        }),
+      )
+      // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
+      await new Promise(resolve => setTimeout(resolve, 0))
+      expect(await adapter2.count(taskQuery())).toBe(1)
+
+      // reset
+      await adapter2.unsafeResetDatabase()
+      expect(await adapter2.count(taskQuery())).toBe(0)
+
+      // open third db
+      const adapter3 = new DatabaseAdapterCompat(
+        new AdapterClass({
+          dbName: fileName,
+          schema: { ...testSchema, version: 1 },
+          ...extraAdapterOptions,
+        }),
+      )
+      // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
+      await new Promise(resolve => setTimeout(resolve, 0))
+
+      expect(await adapter3.count(taskQuery())).toBe(0)
+    },
+  ],
   ...matchTests.map(testCase => [
     `[shared match test] ${testCase.name}`,
     async adapter => {

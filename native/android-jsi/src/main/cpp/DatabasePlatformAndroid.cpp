@@ -80,31 +80,34 @@ void configureJNI(JNIEnv *env, jobject helpersObject) {
 }
 
 std::string resolveDatabasePath(std::string path) {
+    consoleError("-----> resolveDatabasePath for " + path);
     // TODO: Error handling
     JNIEnv *env;
     assert(jvm);
     if (jvm->AttachCurrentThread(&env, NULL) != JNI_OK) {
-        std::abort();
+        throw std::runtime_error("Unable to resolve db path - JVM thread attach failed");
     }
     assert(env);
     assert(javaHelpers);
 
     jclass clazz = env->FindClass("com/nozbe/watermelondb/jsi/JSIInstaller");
     if (clazz == NULL) {
-        std::abort();
+        throw std::runtime_error("Unable to resolve db path - missing JSIInstaller class");
     }
     jmethodID mid = env->GetStaticMethodID(clazz, "_resolveDatabasePath", "(Ljava/lang/String;)Ljava/lang/String;");
     if (mid == NULL) {
-        std::abort();
+        throw std::runtime_error("Unable to resolve db path - missing Java _resolveDatabasePath method");
     }
     jobject jniPath = env->NewStringUTF(path.c_str());
     jstring jniResolvedPath = (jstring)env->CallStaticObjectMethod(clazz, mid, jniPath);
     const char *cResolvedPath = env->GetStringUTFChars(jniResolvedPath, 0);
     if (cResolvedPath == NULL) {
-        std::abort();
+        throw std::runtime_error("Unable to resolve db path - failed to get path string");
     }
     std::string resolvedPath(cResolvedPath);
+    consoleError("-----> resolveDatabasePath DONE: " + resolvedPath);
     env->ReleaseStringUTFChars(jniResolvedPath, cResolvedPath);
+    return resolvedPath;
 }
 
 void deleteDatabaseFile(std::string path, bool warnIfDoesNotExist) {
