@@ -80,8 +80,8 @@ export default class DatabaseAdapterCompat {
   unsafeSqlQuery: ?(tableName: TableName<any>, sql: string) => Promise<CachedQueryResult>
 
   // untyped - test-only code
-  testClone(options: any): any {
+  async testClone(options: any): Promise<any> {
     // $FlowFixMe
-    return new DatabaseAdapterCompat(this.underlyingAdapter.testClone(options))
+    return new DatabaseAdapterCompat(await this.underlyingAdapter.testClone(options))
   }
 }

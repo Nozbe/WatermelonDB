@@ -17,7 +17,7 @@ const SQLiteAdapterTest = spec => {
       spec.it(name, async () => {
         const adapter = new SQLiteAdapter({ schema: testSchema, synchronous: false })
         invariant(adapter._dispatcherType === 'asynchronous', 'this should be asynchronous')
-        await test(new DatabaseAdapterCompat(adapter), SQLiteAdapter)
+        await test(new DatabaseAdapterCompat(adapter), SQLiteAdapter, {})
       })
     })
   })
@@ -36,10 +36,9 @@ const SQLiteAdapterTest = spec => {
           )
         }
 
-        // Temporary workaround for the race condition - wait until next macrotask to ensure that
-        // database has set up
+        // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
         await new Promise(resolve => setTimeout(resolve, 0))
-        await test(new DatabaseAdapterCompat(adapter), SQLiteAdapter)
+        await test(new DatabaseAdapterCompat(adapter), SQLiteAdapter, { synchronous: true })
       })
     })
   })
@@ -59,10 +58,9 @@ const SQLiteAdapterTest = spec => {
           )
         }
 
-        // Temporary workaround for the race condition - wait until next macrotask to ensure that
-        // database has set up
+        // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
         await new Promise(resolve => setTimeout(resolve, 0))
-        await test(new DatabaseAdapterCompat(adapter), SQLiteAdapter)
+        await test(new DatabaseAdapterCompat(adapter), SQLiteAdapter, {experimentalUseJSI: true})
       })
     })
   })

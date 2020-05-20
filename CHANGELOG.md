@@ -11,6 +11,12 @@ All notable changes to this project will be documented in this file.
 
 ### Fixes
 
+- [iOS] Fixed a bug that could cause a database operation to fail with an (6) SQLITE_LOCKED error
+
+### Internal
+
+- Fixed broken adapter tests
+
 ## 0.16.1 - 2020-05-18
 
 ### Changes

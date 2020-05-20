@@ -170,7 +170,10 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   _dispatcher: NativeDispatcher
 
+  _initPromise: Promise<void>
+
   constructor(options: SQLiteAdapterOptions): void {
+    // console.log(`---> Initializing new adapter (${this._tag})`)
     const { dbName, schema, migrations } = options
     this.schema = schema
     this.migrations = migrations
@@ -190,7 +193,8 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
       validateAdapter(this)
     }
 
-    fromPromise(this._init(), devSetupCallback)
+    this._initPromise = this._init()
+    fromPromise(this._initPromise, devSetupCallback)
   }
 
   _getDispatcherType(options: SQLiteAdapterOptions): DispatcherType {
@@ -220,8 +224,8 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     return 'asynchronous'
   }
 
-  testClone(options?: $Shape<SQLiteAdapterOptions> = {}): SQLiteAdapter {
-    return new SQLiteAdapter({
+  async testClone(options?: $Shape<SQLiteAdapterOptions> = {}): Promise<SQLiteAdapter> {
+    const clone = new SQLiteAdapter({
       dbName: this._dbName,
       schema: this.schema,
       synchronous: this._dispatcherType === 'synchronous',
@@ -229,6 +233,9 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
       ...(this.migrations ? { migrations: this.migrations } : {}),
       ...options,
     })
+    invariant(clone._dispatcherType === this._dispatcherType, 'testCloned adapter has bad dispatcher type')
+    await clone._initPromise
+    return clone
   }
 
   _getName(name: ?string): string {
@@ -257,6 +264,8 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     } else {
       invariant(status.code === 'ok', 'Invalid database initialization status')
     }
+
+    // console.log(`---> Done initializing (${this._tag})`)
   }
 
   async _setUpWithMigrations(databaseVersion: SchemaVersion): Promise<void> {

@@ -104,10 +104,10 @@ export const mockDatabase = ({ actionsEnabled = false } = {}) => {
     projects: database.collections.get('mock_projects'),
     tasks: database.collections.get('mock_tasks'),
     comments: database.collections.get('mock_comments'),
-    cloneDatabase: () =>
+    cloneDatabase: async () =>
       // simulate reload
       new Database({
-        adapter: database.adapter.underlyingAdapter.testClone(),
+        adapter: await database.adapter.underlyingAdapter.testClone(),
         schema: testSchema,
         modelClasses: [MockProject, MockTask, MockComment],
         actionsEnabled,
