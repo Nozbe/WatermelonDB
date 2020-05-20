@@ -19,6 +19,6 @@ class MainActivity : ReactActivity(), ReactInstanceManager.ReactInstanceEventLis
     }
 
     override fun onReactContextInitialized(context: ReactContext) {
-        JSIInstaller().installBinding(context.javaScriptContextHolder.get())
+        JSIInstaller.install(this.application, context.javaScriptContextHolder.get())
     }
 }

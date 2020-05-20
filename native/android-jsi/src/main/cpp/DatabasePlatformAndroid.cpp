@@ -3,6 +3,7 @@
 #include <sqlite3.h>
 
 #include "DatabasePlatform.h"
+#include "DatabasePlatformAndroid.h"
 
 #define LOG_TAG "watermelondb.jsi"
 #define SQLITE_LOG_TAG "watermelondb.sqlite"
@@ -64,8 +65,46 @@ void initializeSqlite() {
     });
 }
 
+static JavaVM *jvm;
+jobject javaHelpers;
+
+void configureJNI(JNIEnv *env, jobject helpersObject) {
+    assert(env);
+    assert(helpersObject);
+    if (env->GetJavaVM(&jvm) != JNI_OK) {
+        std::abort();
+    }
+    assert(jvm);
+    javaHelpers = reinterpret_cast<jclass>(env->NewGlobalRef(helpersObject));
+    assert(javaHelpers);
+}
+
 std::string resolveDatabasePath(std::string path) {
-    // TODO: Unimplemented
+    // TODO: Error handling
+    JNIEnv *env;
+    assert(jvm);
+    if (jvm->AttachCurrentThread(&env, NULL) != JNI_OK) {
+        std::abort();
+    }
+    assert(env);
+    assert(javaHelpers);
+
+    jclass clazz = env->FindClass("com/nozbe/watermelondb/jsi/JSIInstaller");
+    if (clazz == NULL) {
+        std::abort();
+    }
+    jmethodID mid = env->GetStaticMethodID(clazz, "_resolveDatabasePath", "(Ljava/lang/String;)Ljava/lang/String;");
+    if (mid == NULL) {
+        std::abort();
+    }
+    jobject jniPath = env->NewStringUTF(path.c_str());
+    jstring jniResolvedPath = (jstring)env->CallStaticObjectMethod(clazz, mid, jniPath);
+    const char *cResolvedPath = env->GetStringUTFChars(jniResolvedPath, 0);
+    if (cResolvedPath == NULL) {
+        std::abort();
+    }
+    std::string resolvedPath(cResolvedPath);
+    env->ReleaseStringUTFChars(jniResolvedPath, cResolvedPath);
 }
 
 void deleteDatabaseFile(std::string path, bool warnIfDoesNotExist) {
