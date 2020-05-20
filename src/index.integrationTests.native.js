@@ -23,7 +23,7 @@ const sendReport = report => {
 
 // NOTE: Set to `true` to run src/__playground__/index.js
 // WARN: DO NOT commit this change!
-const openPlayground = true
+const openPlayground = false
 
 if (openPlayground) {
   const PlaygroundPlaceholder = () => <Text style={{ paddingTop: 100 }}>Playground is running</Text>
