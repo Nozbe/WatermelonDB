@@ -118,6 +118,7 @@ void deleteDatabaseFile(std::string path, bool warnIfDoesNotExist) {
 
 void onMemoryAlert(std::function<void(void)> callback) {
     // TODO: Unimplemented
+    // NOTE: https://developer.android.com/reference/android/app/Application#onTrimMemory(int)
 }
 
 } // namespace platform
