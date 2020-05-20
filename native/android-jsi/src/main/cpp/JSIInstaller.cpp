@@ -10,6 +10,6 @@ using namespace facebook;
 extern "C" JNIEXPORT void JNICALL Java_com_nozbe_watermelondb_jsi_JSIInstaller_installBinding(JNIEnv *env, jobject thiz, jlong runtimePtr) {
     jsi::Runtime *runtime = (jsi::Runtime *)runtimePtr;
     assert(runtime != nullptr);
-    watermelondb::platform::configureJNI(env, thiz);
+    watermelondb::platform::configureJNI(env);
     watermelondb::Database::install(runtime);
 }

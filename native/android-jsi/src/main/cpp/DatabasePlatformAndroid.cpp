@@ -66,29 +66,24 @@ void initializeSqlite() {
 }
 
 static JavaVM *jvm;
-jobject javaHelpers;
 
-void configureJNI(JNIEnv *env, jobject helpersObject) {
+void configureJNI(JNIEnv *env) {
     assert(env);
-    assert(helpersObject);
     if (env->GetJavaVM(&jvm) != JNI_OK) {
+        consoleError("Could not initialize WatermelonDB JSI - cannot get JavaVM");
         std::abort();
     }
     assert(jvm);
-    javaHelpers = reinterpret_cast<jclass>(env->NewGlobalRef(helpersObject));
-    assert(javaHelpers);
 }
 
 std::string resolveDatabasePath(std::string path) {
     consoleLog("-----> resolveDatabasePath for " + path);
-    // TODO: Error handling
     JNIEnv *env;
     assert(jvm);
     if (jvm->AttachCurrentThread(&env, NULL) != JNI_OK) {
         throw std::runtime_error("Unable to resolve db path - JVM thread attach failed");
     }
     assert(env);
-    assert(javaHelpers);
 
     jclass clazz = env->FindClass("com/nozbe/watermelondb/jsi/JSIInstaller");
     if (clazz == NULL) {
@@ -98,8 +93,15 @@ std::string resolveDatabasePath(std::string path) {
     if (mid == NULL) {
         throw std::runtime_error("Unable to resolve db path - missing Java _resolveDatabasePath method");
     }
+
     jobject jniPath = env->NewStringUTF(path.c_str());
+    if (jniPath == NULL) {
+        throw std::runtime_error("Unable to resolve db path - could not construct a Java string");
+    }
     jstring jniResolvedPath = (jstring)env->CallStaticObjectMethod(clazz, mid, jniPath);
+    if (env->ExceptionCheck()) {
+        throw std::runtime_error("Unable to resolve db path - exception occured while resolving path");
+    }
     const char *cResolvedPath = env->GetStringUTFChars(jniResolvedPath, 0);
     if (cResolvedPath == NULL) {
         throw std::runtime_error("Unable to resolve db path - failed to get path string");
