@@ -23,7 +23,7 @@ bool isVerboseLogEnabled(const char *tag) {
     // TODO: Need to use JNI to integrate with the system logging
     // https://github.com/aosp-mirror/platform_frameworks_base/blob/6bebb8418ceecf44d2af40033870f3aabacfe36e/core/jni/android_util_Log.cpp#L68
     // return __android_log_is_loggable(levels.verbose, tag, ANDROID_LOG_INFO)
-    return true;
+    return false;
 }
 
 // Based on https://github.com/aosp-mirror/platform_frameworks_base/blob/6bebb8418ceecf44d2af40033870f3aabacfe36e/core/jni/android_database_SQLiteGlobal.cpp#L38
