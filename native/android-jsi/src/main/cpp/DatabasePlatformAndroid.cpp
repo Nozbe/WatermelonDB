@@ -12,7 +12,7 @@ namespace watermelondb {
 namespace platform {
 
 void consoleLog(std::string message) {
-    __android_log_print(ANDROID_LOG_DEFAULT, LOG_TAG, "%s\n", message.c_str());
+    __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "%s\n", message.c_str());
 }
 
 void consoleError(std::string message) {
@@ -80,7 +80,7 @@ void configureJNI(JNIEnv *env, jobject helpersObject) {
 }
 
 std::string resolveDatabasePath(std::string path) {
-    consoleError("-----> resolveDatabasePath for " + path);
+    consoleLog("-----> resolveDatabasePath for " + path);
     // TODO: Error handling
     JNIEnv *env;
     assert(jvm);
@@ -105,7 +105,7 @@ std::string resolveDatabasePath(std::string path) {
         throw std::runtime_error("Unable to resolve db path - failed to get path string");
     }
     std::string resolvedPath(cResolvedPath);
-    consoleError("-----> resolveDatabasePath DONE: " + resolvedPath);
+    consoleLog("-----> resolveDatabasePath DONE: " + resolvedPath);
     env->ReleaseStringUTFChars(jniResolvedPath, cResolvedPath);
     return resolvedPath;
 }
