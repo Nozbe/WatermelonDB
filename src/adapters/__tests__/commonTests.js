@@ -966,6 +966,7 @@ export default () => [
 
       expect(await adapter3.count(taskQuery())).toBe(0)
     },
+    true,
   ],
   ...matchTests.map(testCase => [
     `[shared match test] ${testCase.name}`,
