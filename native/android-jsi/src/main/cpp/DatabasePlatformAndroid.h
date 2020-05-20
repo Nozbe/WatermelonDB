@@ -5,7 +5,7 @@
 namespace watermelondb {
 namespace platform {
 
-void configureJNI(JNIEnv *env, jobject helpersObject);
+void configureJNI(JNIEnv *env);
 
 } // namespace platform
 } // namespace watermelondb
