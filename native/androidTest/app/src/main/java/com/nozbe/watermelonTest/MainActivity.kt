@@ -3,7 +3,7 @@ package com.nozbe.watermelonTest
 import com.facebook.react.ReactActivity
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.ReactInstanceManager
-import com.nozbe.watermelondb.jsi.JSIInstaller
+import com.nozbe.watermelondb.jsi.WatermelonJSI
 
 class MainActivity : ReactActivity(), ReactInstanceManager.ReactInstanceEventListener {
     override fun getMainComponentName(): String? = "watermelonTest"
@@ -19,6 +19,11 @@ class MainActivity : ReactActivity(), ReactInstanceManager.ReactInstanceEventLis
     }
 
     override fun onReactContextInitialized(context: ReactContext) {
-        JSIInstaller.install(this.application, context.javaScriptContextHolder.get())
+        WatermelonJSI.install(this.application, context.javaScriptContextHolder.get())
+    }
+
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        WatermelonJSI.onTrimMemory(level)
     }
 }
