@@ -8,15 +8,17 @@ import java.io.File
 class Database(private val name: String, private val context: Context) {
 
     private val db: SQLiteDatabase by lazy {
-        SQLiteDatabase.openOrCreateDatabase(
-                // TODO: This SUCKS. Seems like Android doesn't like sqlite `?mode=memory&cache=shared` mode. To avoid random breakages, save the file to /tmp, but this is slow.
-                if (name == ":memory:" || name.contains("mode=memory")) {
-                    context.cacheDir.delete()
-                    File(context.cacheDir, name).path
-                } else
-                    // On some systems there is some kind of lock on `/databases` folder ¯\_(ツ)_/¯
-                    context.getDatabasePath("$name.db").path.replace("/databases", ""),
-                null)
+        if (name == ":memory:" || name.contains("mode=memory")) {
+            // TODO: This SUCKS. Seems like Android doesn't like sqlite `?mode=memory&cache=shared` mode. To avoid random breakages, save the file to /tmp, but this is slow.
+            context.cacheDir.delete()
+            SQLiteDatabase.openOrCreateDatabase(
+                File(context.cacheDir, name).path,
+                null
+            )
+        } else
+            context.openOrCreateDatabase(
+                "$name.db", Context.MODE_PRIVATE, null
+            )
     }
 
     var userVersion: Int
