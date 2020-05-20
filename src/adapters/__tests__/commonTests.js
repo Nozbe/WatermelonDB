@@ -920,6 +920,10 @@ export default () => [
   [
     'can actually save and read from file system',
     async (_adapter, AdapterClass, extraAdapterOptions) => {
+      if (AdapterClass.name === 'LokiJSAdapter') {
+        // Loki is tested differently
+        return
+      }
       const fileName = `testDatabase-${Math.random()}`
 
       const adapter = new DatabaseAdapterCompat(
