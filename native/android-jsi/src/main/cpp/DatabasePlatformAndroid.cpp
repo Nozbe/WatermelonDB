@@ -77,7 +77,6 @@ void configureJNI(JNIEnv *env) {
 }
 
 std::string resolveDatabasePath(std::string path) {
-    consoleLog("-----> resolveDatabasePath for " + path);
     JNIEnv *env;
     assert(jvm);
     if (jvm->AttachCurrentThread(&env, NULL) != JNI_OK) {
@@ -107,7 +106,6 @@ std::string resolveDatabasePath(std::string path) {
         throw std::runtime_error("Unable to resolve db path - failed to get path string");
     }
     std::string resolvedPath(cResolvedPath);
-    consoleLog("-----> resolveDatabasePath DONE: " + resolvedPath);
     env->ReleaseStringUTFChars(jniResolvedPath, cResolvedPath);
     return resolvedPath;
 }
