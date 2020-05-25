@@ -116,6 +116,8 @@ Raw records passed must match your app [Schema](../Schema.md), and must not cont
 
 The timestamp returned by the server must be a value that, if passed again to `pullChanges()` as `lastPulledAt`, will return all changes that happened since this moment.
 
+Note that Watermelon assumes that the pullChanges is a friendly and correct endpoint - bad things could happen if the pullChanges endpoint returns malformed data.
+
 ### `pushChanges()`
 
 This function will be called to push local (app) changes to the server
@@ -156,6 +158,7 @@ Synchronization is serious business! It's very easy to make mistakes that will c
   - To distinguish between `created` and `updated` records, you can also store server-side `server_created_at` timestamp (if it's greater than `last_pulled_at` supplied to sync, then record is to be `created` on client, if less than — client already has it and it is to be `updated` on client). Note that this timestamp must be consistent with last_modified — and you must not use client-created `created_at` field, since you can never trust local timestamps.
     - Alternatively, you can send all non-deleted records as all `updated` and Watermelon will do the right thing in 99% of cases (you will be slightly less protected against weird edge cases — treatment of locally deleted records is different). If you do this, pass `sendCreatedAsUpdated: true` to `synchronize()` to supress warnings about records to be updated not existing locally.
 - **Implementing `GET changes` API endpoint**
+  - You MUST NOT return tables (collections) or columns (properties) that the app doesn't know about. In particular, do not allow a column named `__proto__` or `constructor` to exist.
   - Make sure you perform all queries (and checking for current timestamp) synchronously
     > This is to ensure that no changes are made to the database while you're fetching changes (otherwise you could never sync some records)
     - if it's not possible to do so (you have to query each collection separately), be sure to mark `NOW()` to respond with at the *beginning* of the process. You still risk inconsistent responses, but the next pull will fetch whatever changes occured during previous pull.
@@ -182,7 +185,7 @@ Synchronization is serious business! It's very easy to make mistakes that will c
     console.log(log.finishedAt)
     ```
   - ⚠️ Remember to act responsibly with logs, since they might contain your user's private information. Don't display, save, or send the log unless you censor the log. [Example logger and censor code you can use](https://gist.github.com/radex/a0a27761ac348f4a5552ecaf227d500c).
-  
+
 ### Existing backend implementations for WatermelonDB
 
 Note that those are not maintained by WatermelonDB, and we make no endorsements about quality of these projects:
