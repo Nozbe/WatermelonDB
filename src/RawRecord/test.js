@@ -18,6 +18,8 @@ const expectedSanitizations = [
   { value: 'NaN', string: ['NaN', 'NaN'], boolean: booleanNull, number: numberNull },
   { value: 1, string: stringNull, boolean: [true, true], number: [1, 1] },
   { value: 0, string: stringNull, boolean: [false, false], number: [0, 0] },
+  { value: +0.0, string: stringNull, boolean: [false, false], number: [0, 0] },
+  { value: -0.0, string: stringNull, boolean: [false, false], number: [0, 0] },
   { value: 3.14, string: stringNull, boolean: booleanNull, number: [3.14, 3.14] },
   { value: -3.14, string: stringNull, boolean: booleanNull, number: [-3.14, -3.14] },
   {
@@ -34,6 +36,18 @@ const expectedSanitizations = [
   { value: null, string: stringNull, boolean: booleanNull, number: numberNull },
   { value: undefined, string: stringNull, boolean: booleanNull, number: numberNull },
   { value: {}, string: stringNull, boolean: booleanNull, number: numberNull },
+  {
+    value: { __proto__: { value: 'Hello' } },
+    string: stringNull,
+    boolean: booleanNull,
+    number: numberNull,
+  },
+  {
+    value: { __proto__: { valueOf: () => 10 } },
+    string: stringNull,
+    boolean: booleanNull,
+    number: numberNull,
+  },
   { value: [], string: stringNull, boolean: booleanNull, number: numberNull },
 ]
 
@@ -153,6 +167,35 @@ describe('sanitizedRaw()', () => {
 
     const raw4 = sanitizedRaw({ id: 'i2', _status: 'deleted', _changed: true }, schema2)
     expect(raw4).toEqual({ id: 'i2', _status: 'deleted', _changed: '' })
+  })
+  it('is safe against __proto__ tricks', async () => {
+    // TODO: It's unclear to me if this is actually dangerous/exploitable...
+    const expected = {
+      _status: 'created',
+      _changed: '',
+      name: '',
+      responsible_id: 'abcdef',
+      created_at: 0,
+      ended_at: null,
+      priority_position: null,
+      project_position: 0,
+      is_abandonned: false,
+      is_all_day: null,
+    }
+    const json = JSON.parse(`{"__proto__":{"name":"pwned"},"responsible_id":"abcdef"}`)
+    const protoJson = sanitizedRaw(json, mockTaskSchema)
+    expect({}.name).toBe(undefined)
+    expect(Object.prototype.hasOwnProperty.call(protoJson, '__proto__')).toBe(false)
+    // eslint-disable-next-line no-proto
+    expect(protoJson.__proto__).toBe(undefined)
+    expect(omit(['id'], protoJson)).toEqual(expected)
+
+    const protoObj = sanitizedRaw(Object.assign({}, json), mockTaskSchema)
+    expect({}.name).toBe(undefined)
+    expect(Object.prototype.hasOwnProperty.call(protoObj, '__proto__')).toBe(false)
+    // eslint-disable-next-line no-proto
+    expect(protoObj.__proto__).toBe(undefined)
+    expect(omit(['id'], protoObj)).toEqual(expected)
   })
 })
 
