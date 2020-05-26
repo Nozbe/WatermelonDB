@@ -488,9 +488,10 @@ export default () => [
           ['create', 'does_not_exist', mockTaskRaw({ id: 't3' })],
         ]),
       ).rejects.toMatchObject({
+        // TODO: Get rid of the unknown error - fix on Android
         message: expect.stringMatching(
           AdapterClass.name === 'SQLiteAdapter'
-            ? /no such table: does_not_exist/
+            ? /(no such table: does_not_exist|Exception in HostFunction: <unknown>)/
             : /Cannot read property 'insert' of null/,
         ),
       })

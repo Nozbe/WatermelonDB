@@ -40,6 +40,7 @@
     "url": "https://github.com/Nozbe/WatermelonDB.git"
   },
   "dependencies": {
+    "@nozbe/sqlite": "3.31.1",
     "lodash.clonedeep": "^4.5.0",
     "lokijs": "git+https://github.com/Nozbe/LokiJS.git#d08f660",
     "rambdax": "2.15.0",

@@ -307,7 +307,7 @@ final public class NMBPredicateStatus: NSObject {
     public static let doesNotMatch: NMBPredicateStatus = NMBPredicateStatus(status: 1)
     public static let fail: NMBPredicateStatus = NMBPredicateStatus(status: 2)
 
-    public override var hashValue: Int { return self.status.hashValue }
+    public override var hash: Int { return self.status.hashValue }
 
     public override func isEqual(_ object: Any?) -> Bool {
         guard let otherPredicate = object as? NMBPredicateStatus else {
