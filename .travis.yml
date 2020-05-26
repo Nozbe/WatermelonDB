@@ -68,8 +68,8 @@ matrix:
         # In case stuff breaks, look at:
         # https://github.com/android/ndk-samples/blob/master/.travis.yml#L16
         - echo y | sdkmanager 'ndk-bundle'
+        - echo y | sdkmanager "ndk;20.1.5948944"
         - echo y | sdkmanager --channel=3 --channel=1 "cmake;3.10.2.4988404"
-        - echo y | sdkmanager "lldb;3.1"
       script:
         - TERM=dumb yarn ktlint
         - android-wait-for-emulator
