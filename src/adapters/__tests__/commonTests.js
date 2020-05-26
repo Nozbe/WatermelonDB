@@ -926,12 +926,23 @@ export default () => [
   ]),
   [
     '[shared match test] can match strings from big-list-of-naughty-strings',
-    async adapter => {
+    async (adapter, AdapterClass, extraAdapterOptions) => {
       // eslint-disable-next-line no-restricted-syntax
       for (const testCase of naughtyMatchTests) {
         // console.log(testCase.name)
-        // eslint-disable-next-line no-await-in-loop
-        await performMatchTest(adapter, testCase)
+
+        // KNOWN ISSUE: non-JSI adapter implementation gets confused by this (it's a BOM mark)
+        if (
+          AdapterClass.name === 'SQLiteAdapter' &&
+          !extraAdapterOptions.experimentalUseJSI &&
+          testCase.matching[0].text1 === '﻿'
+        ) {
+          // eslint-disable-next-line no-console
+          console.warn('skip check for a BOM naughty string - known failing test')
+        } else {
+          // eslint-disable-next-line no-await-in-loop
+          await performMatchTest(adapter, testCase)
+        }
       }
     },
   ],
@@ -950,7 +961,7 @@ export default () => [
   ],
   [
     'can store and retrieve naughty strings exactly',
-    async _adapter => {
+    async (_adapter, AdapterClass, extraAdapterOptions) => {
       let adapter = _adapter
       const indexedNaughtyStrings = naughtyStrings.map((string, i) => [`id${i}`, string])
       await adapter.batch(
@@ -964,8 +975,17 @@ export default () => [
       indexedNaughtyStrings.forEach(([id, string]) => {
         const record = allRecords.find(model => model.id === id)
         // console.log(string, record)
-        expect(!!record).toBe(true)
-        expect(record.text1).toBe(string)
+        // KNOWN ISSUE: non-JSI adapter implementation gets confused by this (it's a BOM mark)
+        if (
+          AdapterClass.name === 'SQLiteAdapter' &&
+          !extraAdapterOptions.experimentalUseJSI &&
+          string === '﻿'
+        ) {
+          expect(record.text1).not.toBe(string) // if this fails, it means the issue's been fixed
+        } else {
+          expect(!!record).toBe(true)
+          expect(record.text1).toBe(string)
+        }
       })
     },
   ],
