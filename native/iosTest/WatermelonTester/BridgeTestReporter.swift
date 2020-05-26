@@ -41,8 +41,12 @@ public final class BridgeTestReporter: NSObject {
 
     @objc(testsFinished:)
     func testsFinished(report: [String: Any]) {
-        guard BridgeTestReporter.result == nil else {
-            fatalError("Must only run bridge tests once")
+        if BridgeTestReporter.result != nil {
+            if NSClassFromString("XCTest") != nil {
+                fatalError("Must only run bridge tests once")
+            } else {
+                NSLog("%@", "WARN: Bridge tests are being run more than once")
+            }
         }
 
         let result = Result(report: report)
