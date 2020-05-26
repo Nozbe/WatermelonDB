@@ -1,4 +1,5 @@
 import expect from 'expect'
+import naughtyStrings from 'big-list-of-naughty-strings'
 
 import Model from '../../Model'
 import Query from '../../Query'
@@ -478,16 +479,20 @@ export default () => [
     'batches are transactional',
     async (adapter, AdapterClass) => {
       // sanity check
-      await adapter.batch([
-        ['create', 'tasks', mockTaskRaw({ id: 't1' })],
-      ])
+      await adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1' })]])
       expect(await adapter.query(taskQuery())).toEqual(['t1'])
 
-      await expect(adapter.batch([
-        ['create', 'tasks', mockTaskRaw({ id: 't2' })],
-        ['create', 'does_not_exist', mockTaskRaw({ id: 't3' })],
-      ])).rejects.toMatchObject({
-        message: expect.stringMatching(AdapterClass.name === 'SQLiteAdapter' ? /no such table: does_not_exist/ : /Cannot read property 'insert' of null/),
+      await expect(
+        adapter.batch([
+          ['create', 'tasks', mockTaskRaw({ id: 't2' })],
+          ['create', 'does_not_exist', mockTaskRaw({ id: 't3' })],
+        ]),
+      ).rejects.toMatchObject({
+        message: expect.stringMatching(
+          AdapterClass.name === 'SQLiteAdapter'
+            ? /no such table: does_not_exist/
+            : /Cannot read property 'insert' of null/,
+        ),
       })
       if (AdapterClass.name !== 'LokiJSAdapter') {
         // Regrettably, Loki is not transactional
@@ -927,6 +932,27 @@ export default () => [
         // eslint-disable-next-line no-await-in-loop
         await performMatchTest(adapter, testCase)
       }
+    },
+  ],
+  [
+    'can store and retrieve exactly naughty strings',
+    async _adapter => {
+      let adapter = _adapter
+      const indexedNaughtyStrings = naughtyStrings.map((string, i) => [`id${i}`, string])
+      await adapter.batch(
+        indexedNaughtyStrings.map(([id, string]) => ['create', 'tasks', { id, text1: string }]),
+      )
+
+      // launch app again
+      adapter = await adapter.testClone()
+      const allRecords = await adapter.query(taskQuery())
+
+      indexedNaughtyStrings.forEach(([id, string]) => {
+        const record = allRecords.find(model => model.id === id)
+        // console.log(string, record)
+        expect(!!record).toBe(true)
+        expect(record.text1).toBe(string)
+      })
     },
   ],
   ...joinTests.map(testCase => [
