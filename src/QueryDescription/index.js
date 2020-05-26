@@ -295,5 +295,15 @@ const searchForColumnComparisons: any => boolean = value => {
 }
 
 export function hasColumnComparisons(conditions: Where[]): boolean {
+  // since we don't do hasOwnProperty check, let's make sure Object prototype isn't broken
+  let isBroken = false
+  // eslint-disable-next-line
+  for (const _ in {}) {
+    isBroken = true
+  }
+  invariant(
+    !isBroken,
+    'Broken Object prototype! You must not have properties defined on Object prototype',
+  )
   return searchForColumnComparisons(conditions)
 }
