@@ -936,7 +936,20 @@ export default () => [
     },
   ],
   [
-    'can store and retrieve exactly naughty strings',
+    'can store and retrieve large numbers (regression test)',
+    async _adapter => {
+      // NOTE: matcher test didn't catch it because both insert and query has the same bug
+      let adapter = _adapter
+      const number = 1590485104033
+      await adapter.batch([['create', 'tasks', { id: 'm1', num1: number }]])
+      // launch app again
+      adapter = await adapter.testClone()
+      const record = await adapter.find('tasks', 'm1')
+      expect(record.num1).toBe(number)
+    },
+  ],
+  [
+    'can store and retrieve naughty strings exactly',
     async _adapter => {
       let adapter = _adapter
       const indexedNaughtyStrings = naughtyStrings.map((string, i) => [`id${i}`, string])

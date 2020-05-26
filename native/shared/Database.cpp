@@ -153,8 +153,8 @@ jsi::Object Database::resultDictionary(sqlite3_stmt *statement) {
 
         switch (sqlite3_column_type(statement, i)) {
         case SQLITE_INTEGER: {
-            int value = sqlite3_column_int(statement, i);
-            dictionary.setProperty(rt, column, std::move(jsi::Value(value)));
+            sqlite3_int64 value = sqlite3_column_int64(statement, i);
+            dictionary.setProperty(rt, column, std::move(jsi::Value((double) value)));
             break;
         }
         case SQLITE_FLOAT: {
