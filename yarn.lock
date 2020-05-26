@@ -1174,6 +1174,11 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
+"@nozbe/sqlite@3.31.1":
+  version "3.31.1"
+  resolved "https://registry.yarnpkg.com/@nozbe/sqlite/-/sqlite-3.31.1.tgz#ffd394ad7c188c6b73f89fd6e1ccb849a1b96dba"
+  integrity sha512-z5+GdcHZl9OQ1g0pnygORAnwCYUlYw/gQxdW/8rS0HxD2Gnn/k3DBQOvqQIH4Z3Z3KWVMbGUYhcH1v4SqTAdwg==
+
 "@react-native-community/cli@^1.2.1":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@react-native-community/cli/-/cli-1.4.0.tgz#9bae620c52b237647981c9c8a463f4773ff170fd"

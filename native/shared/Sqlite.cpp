@@ -17,6 +17,7 @@ std::string resolveDatabasePath(std::string path) {
 }
 
 SqliteDb::SqliteDb(std::string path) {
+    platform::initializeSqlite();
     assert(sqlite3_threadsafe());
 
     auto resolvedPath = resolveDatabasePath(path);
@@ -41,7 +42,7 @@ SqliteDb::~SqliteDb() {
 
     // Find and finalize all prepared statements
     sqlite3_stmt *stmt;
-    while (stmt = sqlite3_next_stmt(sqlite, nullptr)) {
+    while ((stmt = sqlite3_next_stmt(sqlite, nullptr))) {
         consoleError("Leak detected! Finalized a statement when closing database - this means that there were dangling "
                      "statements not held by cachedStatements, or handling of cachedStatements is broken. Please "
                      "collect as much information as possible and file an issue with WatermelonDB repository!");

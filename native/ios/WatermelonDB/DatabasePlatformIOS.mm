@@ -12,6 +12,10 @@ void consoleError(std::string message) {
     NSLog(@"Error: %s", message.c_str());
 }
 
+void initializeSqlite() {
+    // Nothing to do
+}
+
 std::string resolveDatabasePath(std::string path) {
     // Default: app documents/<name>.db
     NSError *err = nil;
