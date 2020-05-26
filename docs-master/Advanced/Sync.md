@@ -116,7 +116,9 @@ Raw records passed must match your app [Schema](../Schema.md), and must not cont
 
 The timestamp returned by the server must be a value that, if passed again to `pullChanges()` as `lastPulledAt`, will return all changes that happened since this moment.
 
-Note that Watermelon assumes that the pullChanges is a friendly and correct endpoint - bad things could happen if the pullChanges endpoint returns malformed data.
+Note: Watermelon assumes that the pullChanges is a friendly and correct endpoint - bad things could happen if the pullChanges endpoint returns malformed data.
+
+Note: DO NOT store the object returned in `pullChanges()`. If you need to do any processing on it, do it before returning the object. Watermelon treats this object as "consumable" and can mutate it (for performance reasons)
 
 ### `pushChanges()`
 
