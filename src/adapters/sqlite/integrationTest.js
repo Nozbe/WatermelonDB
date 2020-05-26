@@ -42,7 +42,6 @@ const SQLiteAdapterTest = spec => {
       })
     })
   })
-  /*
   spec.describe('SQLiteAdapter (JSI mode)', () => {
     commonTests().forEach(testCase => {
       const [name, test] = testCase
@@ -64,7 +63,6 @@ const SQLiteAdapterTest = spec => {
       })
     })
   })
-  */
 }
 
 export default SQLiteAdapterTest
