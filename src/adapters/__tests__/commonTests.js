@@ -7,7 +7,7 @@ import * as Q from '../../QueryDescription'
 import { appSchema, tableSchema } from '../../Schema'
 import { schemaMigrations, createTable, addColumns } from '../../Schema/migrations'
 
-import { matchTests, joinTests } from '../../__tests__/databaseTests'
+import { matchTests, naughtyMatchTests, joinTests } from '../../__tests__/databaseTests'
 import DatabaseAdapterCompat from '../compat'
 import {
   testSchema,
@@ -918,6 +918,17 @@ export default () => [
       await performMatchTest(adapter, testCase)
     },
   ]),
+  [
+    '[shared match test] can match strings from big-list-of-naughty-strings',
+    async adapter => {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const testCase of naughtyMatchTests) {
+        // console.log(testCase.name)
+        // eslint-disable-next-line no-await-in-loop
+        await performMatchTest(adapter, testCase)
+      }
+    },
+  ],
   ...joinTests.map(testCase => [
     `[shared join test] ${testCase.name}`,
     async adapter => {

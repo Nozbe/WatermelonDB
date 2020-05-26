@@ -1,3 +1,4 @@
+import naughtyStrings from 'big-list-of-naughty-strings'
 import * as Q from '../QueryDescription'
 
 export const matchTests = [
@@ -530,6 +531,13 @@ export const matchTests = [
     ],
   },
 ]
+
+export const naughtyMatchTests = naughtyStrings.map(naughtyString => ({
+  name: naughtyString,
+  query: [Q.where('text1', naughtyString)],
+  matching: [{ id: 'm1', text1: naughtyString }],
+  nonMatching: [{ id: 'n1', text1: null }, { id: 'n2', text1: 'not-a-naughty-string' }],
+}))
 
 export const joinTests = [
   {
