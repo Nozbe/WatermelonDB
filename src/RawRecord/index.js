@@ -73,7 +73,10 @@ export function sanitizedRaw(dirtyRaw: DirtyRaw, tableSchema: TableSchema): RawR
   // This is called with `{}` when making a new record, so we need to set a new ID, status
   // Also: If an existing has one of those fields broken, we're screwed. Safest to treat it as a
   // new record (so that it gets synced)
-  const raw = Object.create(null) // create a prototypeless object
+
+  // TODO: Think about whether prototypeless objects are a useful mitigation
+  // const raw = Object.create(null) // create a prototypeless object
+  const raw = {}
 
   if (typeof id === 'string') {
     raw.id = id

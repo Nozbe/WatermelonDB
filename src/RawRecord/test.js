@@ -187,14 +187,14 @@ describe('sanitizedRaw()', () => {
     expect({}.name).toBe(undefined)
     expect(Object.prototype.hasOwnProperty.call(protoJson, '__proto__')).toBe(false)
     // eslint-disable-next-line no-proto
-    expect(protoJson.__proto__).toBe(undefined)
+    expect(protoJson.__proto__.name).toBe(undefined)
     expect(omit(['id'], protoJson)).toEqual(expected)
 
     const protoObj = sanitizedRaw(Object.assign({}, json), mockTaskSchema)
     expect({}.name).toBe(undefined)
     expect(Object.prototype.hasOwnProperty.call(protoObj, '__proto__')).toBe(false)
     // eslint-disable-next-line no-proto
-    expect(protoObj.__proto__).toBe(undefined)
+    expect(protoObj.__proto__.name).toBe(undefined)
     expect(omit(['id'], protoObj)).toEqual(expected)
   })
 })
