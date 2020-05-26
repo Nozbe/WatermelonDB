@@ -71,6 +71,12 @@ export const matchTests = [
     nonMatching: [{ id: 'n1', float1: null }, { id: 'n2', float1: 1.0 }],
   },
   {
+    name: 'matches big numbers (e.g. JS timestamps)',
+    query: [Q.where('float1', 1590485104033)],
+    matching: [{ id: 'm1', float1: 1590485104033 }],
+    nonMatching: [{ id: 'n1', float1: null }, { id: 'n2', float1: 159048510 }],
+  },
+  {
     name: 'matches multiple conditions',
     query: [
       Q.where('text1', `value1`),
