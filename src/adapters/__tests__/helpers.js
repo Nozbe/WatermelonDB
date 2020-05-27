@@ -70,6 +70,12 @@ export const testSchema = appSchema({
         { name: 'text1', type: 'string' },
       ],
     }),
+    // weird names that are SQLite keywords
+    tableSchema({ name: 'where', columns: [] }),
+    tableSchema({ name: 'values', columns: [] }),
+    tableSchema({ name: 'set', columns: [] }),
+    tableSchema({ name: 'drop', columns: [] }),
+    tableSchema({ name: 'update', columns: [] }),
   ],
 })
 

@@ -52,7 +52,7 @@ class DatabaseDriver(context: Context, dbName: String) {
         if (isCached(table, id)) {
             return id
         }
-        database.rawQuery("select * from $table where id == ? limit 1", arrayOf(id)).use {
+        database.rawQuery("select * from `$table` where id == ? limit 1", arrayOf(id)).use {
             if (it.count <= 0) {
                 return null
             }

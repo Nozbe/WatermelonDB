@@ -48,7 +48,7 @@ class DatabaseDriver {
             return id
         }
 
-        let results = try database.queryRaw("select * from \(table) where id == ? limit 1", [id])
+        let results = try database.queryRaw("select * from `\(table)` where id == ? limit 1", [id])
 
         guard let record = results.next() else {
             return nil
@@ -100,12 +100,12 @@ class DatabaseDriver {
                     newIds.append((table, id))
 
                 case .markAsDeleted(table: let table, id: let id):
-                    try database.execute("update \(table) set _status='deleted' where id == ?", [id])
+                    try database.execute("update `\(table)` set _status='deleted' where id == ?", [id])
                     removedIds.append((table, id))
 
                 case .destroyPermanently(table: let table, id: let id):
                     // TODO: What's the behavior if nothing got deleted?
-                    try database.execute("delete from \(table) where id == ?", [id])
+                    try database.execute("delete from `\(table)` where id == ?", [id])
                     removedIds.append((table, id))
                 }
             }
@@ -121,7 +121,7 @@ class DatabaseDriver {
     }
 
     func getDeletedRecords(table: Database.TableName) throws -> [RecordId] {
-        return try database.queryRaw("select id from \(table) where _status='deleted'").map { row in
+        return try database.queryRaw("select id from `\(table)` where _status='deleted'").map { row in
             row.string(forColumn: "id")!
         }
     }
@@ -129,13 +129,13 @@ class DatabaseDriver {
     func destroyDeletedRecords(table: Database.TableName, records: [RecordId]) throws {
         // TODO: What's the behavior if record doesn't exist or isn't actually deleted?
         let recordIds = records.map { id in "'\(id)'" }.joined(separator: ",")
-        try database.execute("delete from \(table) where id in (\(recordIds))")
+        try database.execute("delete from `\(table)` where id in (\(recordIds))")
     }
 
 // MARK: - LocalStorage
 
     func getLocal(key: String) throws -> String? {
-        let results = try database.queryRaw("select value from local_storage where key = ?", [key])
+        let results = try database.queryRaw("select `value` from `local_storage` where `key` = ?", [key])
 
         guard let record = results.next() else {
             return nil
@@ -145,11 +145,11 @@ class DatabaseDriver {
     }
 
     func setLocal(key: String, value: String) throws {
-        return try database.execute("insert or replace into local_storage (key, value) values (?, ?)", [key, value])
+        return try database.execute("insert or replace into `local_storage` (key, value) values (?, ?)", [key, value])
     }
 
     func removeLocal(key: String) throws {
-        return try database.execute("delete from local_storage where key == ?", [key])
+        return try database.execute("delete from `local_storage` where `key` == ?", [key])
     }
 
 // MARK: - Record caching

@@ -622,6 +622,21 @@ export default () => [
     },
   ],
   [
+    'does not fail on (weirdly named) table named that are SQLite keywords',
+    async adapter => {
+      await Promise.all(
+        ['where', 'values', 'set', 'drop', 'update'].map(async tableName => {
+          await adapter.batch([['create', tableName, { id: 'i1' }]])
+          await adapter.batch([['update', tableName, { id: 'i1' }]])
+          await adapter.batch([['markAsDeleted', tableName, 'i1']])
+          await adapter.batch([['create', tableName, { id: 'i2' }]])
+          await adapter.find(tableName, 'i2')
+          await adapter.batch([['destroyPermanently', tableName, 'i2']])
+        }),
+      )
+    },
+  ],
+  [
     'supports LocalStorage',
     async adapter => {
       // non-existent fields return undefined
