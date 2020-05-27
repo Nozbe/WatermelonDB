@@ -64,7 +64,7 @@ export function appSchema({
 const validateName = (name: string) => {
   if (process.env.NODE_ENV !== 'production') {
     invariant(
-      !['id', '_changed', '_status', '$loki'].includes(name),
+      !['id', '_changed', '_status'].includes(name.toLowerCase()),
       `Invalid column or table name '${name}' - reserved by WatermelonDB`,
     )
     invariant(
@@ -77,6 +77,14 @@ const validateName = (name: string) => {
         'valueOf',
       ].includes(name),
       `Invalid column or table name '${name}' - property names of Object are forbidden`,
+    )
+    invariant(
+      name.toLowerCase() !== '$loki',
+      `Invalid column or table name '${name}' - reserved for LokiJS compatibility`,
+    )
+    invariant(
+      !['rowid', 'oid', '_rowid_'].includes(name.toLowerCase()),
+      `Invalid column or table name '${name}' - reserved for SQLite compatibility`,
     )
     invariant(
       !name.startsWith('__'),

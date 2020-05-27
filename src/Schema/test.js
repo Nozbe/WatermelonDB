@@ -70,6 +70,8 @@ describe('Schema', () => {
   it('does not allow unsafe names', () => {
     ;[
       '"hey"',
+      '\'hey\'',
+      '`hey`',
       'foo\' and delete * from users --',
       'id',
       '_changed',
@@ -80,7 +82,12 @@ describe('Schema', () => {
       'toString',
       'valueOf',
       'constructor',
+      'rowid',
+      'oid',
+      '_rowid_',
+      'ROWID',
     ].forEach(name => {
+      // console.log(name)
       expect(() => tableSchema({ name: 'foo', columns: [{ name, type: 'string' }] })).toThrow(
         /Invalid column or table name/,
       )
