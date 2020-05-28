@@ -201,6 +201,16 @@ commentCollection.query(
 )
 ```
 
+### Security
+
+Remember that Queries are a sensitive subject, security-wise. Never trust user input and pass it directly into queries. In particular:
+
+- Never pass into queries values you don't know for sure are the right type (e.g. value passed to `Q.eq()` should be a string, number, boolean, or null -- but not an Object. If the value comes from JSON, you must validate it before passing it!)
+- Never pass column names (without whitelisting) from user input
+- Values passed to `oneOf`, `notIn` should be arrays of simple types - be careful they don't contain objects
+- Do not use `Q.like` / `Q.notLike` without `Q.sanitizeLikeString`
+- Do not use `unsafe raw queries` without knowing what you're doing and sanitizing all user input
+
 ### Raw Queries
 
 If this Query syntax is not enough for you, and you need to get your hands dirty on a raw SQL or Loki query, you need **rawQueries**. For now, only record SQL queries are available. If you need other SQL queries or LokiJS raw queries, please contribute!
