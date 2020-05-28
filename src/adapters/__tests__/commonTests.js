@@ -654,6 +654,38 @@ export default () => [
     },
   ],
   [
+    'supports naughty strings in LocalStorage',
+    async (adapter, AdapterClass, extraAdapterOptions) => {
+      const usePartialTestBecauseBuggyLoki = AdapterClass.name === 'LokiJSAdapter'
+      if (usePartialTestBecauseBuggyLoki) {
+        // FIXME: https://github.com/techfort/LokiJS/issues/839
+        console.warn('buggy skipping LocalStorage tests') // eslint-disable-line no-console
+      }
+
+      // eslint-disable-next-line no-restricted-syntax
+      for (const string of naughtyStrings) {
+        const key = usePartialTestBecauseBuggyLoki ? `key${Math.random()}` : string
+        // console.log(string)
+        // KNOWN ISSUE: non-JSI adapter implementation gets confused by this (it's a BOM mark)
+        if (
+          AdapterClass.name === 'SQLiteAdapter' &&
+          !extraAdapterOptions.experimentalUseJSI &&
+          string === '﻿'
+        ) {
+          // eslint-disable-next-line no-await-in-loop
+          await adapter.setLocal(key, string)
+          // eslint-disable-next-line no-await-in-loop
+          expect(await adapter.getLocal(key)).not.toBe(string) // if this fails, it means the issue's been fixed
+        } else {
+          // eslint-disable-next-line no-await-in-loop
+          await adapter.setLocal(key, string)
+          // eslint-disable-next-line no-await-in-loop
+          expect(await adapter.getLocal(key)).toBe(string)
+        }
+      }
+    },
+  ],
+  [
     'does not fail on (weirdly named) table named that are SQLite keywords',
     async adapter => {
       await Promise.all(
