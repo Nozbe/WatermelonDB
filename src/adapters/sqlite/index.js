@@ -28,6 +28,7 @@ import {
   sanitizeQueryResult,
   devSetupCallback,
   validateAdapter,
+  validateTable,
 } from '../common'
 import type {
   SQL,
@@ -233,7 +234,10 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
       ...(this.migrations ? { migrations: this.migrations } : {}),
       ...options,
     })
-    invariant(clone._dispatcherType === this._dispatcherType, 'testCloned adapter has bad dispatcher type')
+    invariant(
+      clone._dispatcherType === this._dispatcherType,
+      'testCloned adapter has bad dispatcher type',
+    )
     await clone._initPromise
     return clone
   }
@@ -318,6 +322,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   }
 
   find(table: TableName<any>, id: RecordId, callback: ResultCallback<CachedFindResult>): void {
+    validateTable(table, this.schema)
     this._dispatcher.find(table, id, result =>
       callback(
         mapValue(rawRecord => sanitizeFindResult(rawRecord, this.schema.tables[table]), result),
@@ -326,25 +331,25 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   }
 
   query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void {
+    validateTable(query.table, this.schema)
     this.unsafeSqlQuery(query.table, encodeQuery(query), callback)
   }
 
   unsafeSqlQuery(
-    tableName: TableName<any>,
+    table: TableName<any>,
     sql: string,
     callback: ResultCallback<CachedQueryResult>,
   ): void {
-    this._dispatcher.query(tableName, sql, result =>
+    validateTable(table, this.schema)
+    this._dispatcher.query(table, sql, result =>
       callback(
-        mapValue(
-          rawRecords => sanitizeQueryResult(rawRecords, this.schema.tables[tableName]),
-          result,
-        ),
+        mapValue(rawRecords => sanitizeQueryResult(rawRecords, this.schema.tables[table]), result),
       ),
     )
   }
 
   count(query: SerializedQuery, callback: ResultCallback<number>): void {
+    validateTable(query.table, this.schema)
     const sql = encodeQuery(query, true)
     this._dispatcher.count(sql, callback)
   }
@@ -352,6 +357,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   batch(operations: BatchOperation[], callback: ResultCallback<void>): void {
     const batchOperations: NativeBridgeBatchOperation[] = operations.map(operation => {
       const [type, table, rawOrId] = operation
+      validateTable(table, this.schema)
       switch (type) {
         case 'create': {
           // $FlowFixMe
@@ -378,6 +384,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   }
 
   getDeletedRecords(table: TableName<any>, callback: ResultCallback<RecordId[]>): void {
+    validateTable(table, this.schema)
     this._dispatcher.getDeletedRecords(table, callback)
   }
 
@@ -386,6 +393,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     recordIds: RecordId[],
     callback: ResultCallback<void>,
   ): void {
+    validateTable(table, this.schema)
     this._dispatcher.destroyDeletedRecords(table, recordIds, callback)
   }
 

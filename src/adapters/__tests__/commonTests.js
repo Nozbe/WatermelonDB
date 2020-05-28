@@ -1,6 +1,7 @@
 import expect from 'expect'
 import naughtyStrings from 'big-list-of-naughty-strings'
 
+import expectToRejectWithMessage from '../../__tests__/utils/expectToRejectWithMessage'
 import Model from '../../Model'
 import Query from '../../Query'
 import { sanitizedRaw } from '../../RawRecord'
@@ -483,19 +484,16 @@ export default () => [
       await adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1' })]])
       expect(await adapter.query(taskQuery())).toEqual(['t1'])
 
-      await expect(
+      await expectToRejectWithMessage(
         adapter.batch([
           ['create', 'tasks', mockTaskRaw({ id: 't2' })],
-          ['create', 'does_not_exist', mockTaskRaw({ id: 't3' })],
+          ['create', 'tasks', mockTaskRaw({ id: 't2' })], // duplicate
         ]),
-      ).rejects.toMatchObject({
         // TODO: Get rid of the unknown error - fix on Android
-        message: expect.stringMatching(
-          AdapterClass.name === 'SQLiteAdapter'
-            ? /(no such table: does_not_exist|Exception in HostFunction: <unknown>)/
-            : /Cannot read property 'insert' of null/,
-        ),
-      })
+        AdapterClass.name === 'SQLiteAdapter'
+          ? /(UNIQUE constraint failed: tasks.id|Exception in HostFunction: <unknown>)/
+          : /Duplicate key for property id: t2/,
+      )
       if (AdapterClass.name !== 'LokiJSAdapter') {
         // Regrettably, Loki is not transactional
         expect(await adapter.query(taskQuery())).toEqual(['t1'])
@@ -698,12 +696,32 @@ export default () => [
           await adapter.query(modelQuery({ table: tableName }))
           await adapter.count(modelQuery({ table: tableName }))
           await adapter.getDeletedRecords(tableName)
+          await adapter.destroyDeletedRecords(tableName, ['i1'])
           await adapter.batch([['destroyPermanently', tableName, 'i2']])
           await adapter.getLocal(tableName)
           await adapter.setLocal(tableName, tableName)
           await adapter.removeLocal(tableName)
         }),
       )
+    },
+  ],
+  [
+    'fails quickly on non-existing table names',
+    async (adapter, AdapterClass) => {
+      const table = 'does-not-exist'
+      const msg = /table name '.*' does not exist/
+      await expectToRejectWithMessage(adapter.find(table, 'i'), msg)
+      await expectToRejectWithMessage(adapter.query(modelQuery({ table })), msg)
+      if (AdapterClass.name === 'SQLiteAdapter') {
+        await expectToRejectWithMessage(adapter.unsafeSqlQuery(table, 'xxx'), msg)
+      }
+      await expectToRejectWithMessage(adapter.count(modelQuery({ table })), msg)
+      await expectToRejectWithMessage(adapter.batch([['create', table, { id: 'i1' }]]), msg)
+      await expectToRejectWithMessage(adapter.batch([['update', table, { id: 'i1' }]]), msg)
+      await expectToRejectWithMessage(adapter.batch([['markAsDeleted', table, 'i1']]), msg)
+      await expectToRejectWithMessage(adapter.batch([['destroyPermanently', table, 'i2']]), msg)
+      await expectToRejectWithMessage(adapter.getDeletedRecords(table), msg)
+      await expectToRejectWithMessage(adapter.destroyDeletedRecords(table, []), msg)
     },
   ],
   [
