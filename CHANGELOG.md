@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file.
 ### Fixes
 
 - [iOS] Fixed a bug that could cause a database operation to fail with an (6) SQLITE_LOCKED error
+- [iOS] Fixed 'jsi/jsi.h' file not found when building at the consumer level. (issue #691)
 
 ### Internal
 
