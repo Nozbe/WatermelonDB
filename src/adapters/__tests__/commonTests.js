@@ -20,6 +20,7 @@ import {
   MockTask,
   mockProjectRaw,
   projectQuery,
+  modelQuery,
 } from './helpers'
 
 class BadModel extends Model {
@@ -622,21 +623,6 @@ export default () => [
     },
   ],
   [
-    'does not fail on (weirdly named) table named that are SQLite keywords',
-    async adapter => {
-      await Promise.all(
-        ['where', 'values', 'set', 'drop', 'update'].map(async tableName => {
-          await adapter.batch([['create', tableName, { id: 'i1' }]])
-          await adapter.batch([['update', tableName, { id: 'i1' }]])
-          await adapter.batch([['markAsDeleted', tableName, 'i1']])
-          await adapter.batch([['create', tableName, { id: 'i2' }]])
-          await adapter.find(tableName, 'i2')
-          await adapter.batch([['destroyPermanently', tableName, 'i2']])
-        }),
-      )
-    },
-  ],
-  [
     'supports LocalStorage',
     async adapter => {
       // non-existent fields return undefined
@@ -665,6 +651,27 @@ export default () => [
 
       // deleting already undefined is safe
       await adapter.removeLocal('nonexisting')
+    },
+  ],
+  [
+    'does not fail on (weirdly named) table named that are SQLite keywords',
+    async adapter => {
+      await Promise.all(
+        ['where', 'values', 'set', 'drop', 'update'].map(async tableName => {
+          await adapter.batch([['create', tableName, { id: 'i1' }]])
+          await adapter.batch([['update', tableName, { id: 'i1' }]])
+          await adapter.batch([['markAsDeleted', tableName, 'i1']])
+          await adapter.batch([['create', tableName, { id: 'i2' }]])
+          await adapter.find(tableName, 'i2')
+          await adapter.query(modelQuery({ table: tableName }))
+          await adapter.count(modelQuery({ table: tableName }))
+          await adapter.getDeletedRecords(tableName)
+          await adapter.batch([['destroyPermanently', tableName, 'i2']])
+          await adapter.getLocal(tableName)
+          await adapter.setLocal(tableName, tableName)
+          await adapter.removeLocal(tableName)
+        }),
+      )
     },
   ],
   [
