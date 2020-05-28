@@ -76,24 +76,19 @@ describe('Schema', () => {
       'id',
       '_changed',
       '_status',
+      'local_storage',
       '$loki',
       '__foo',
       '__proto__',
       'toString',
       'valueOf',
-      'constructor',
-      'rowid',
       'oid',
       '_rowid_',
       'ROWID',
     ].forEach(name => {
       // console.log(name)
-      expect(() => tableSchema({ name: 'foo', columns: [{ name, type: 'string' }] })).toThrow(
-        /Invalid column or table name/,
-      )
-      expect(() => tableSchema({ name, columns: [{ name: 'hey', type: 'string' }] })).toThrow(
-        /Invalid column or table name/,
-      )
+      expect(() => tableSchema({ name: 'foo', columns: [{ name, type: 'string' }] })).toThrow()
+      expect(() => tableSchema({ name, columns: [{ name: 'hey', type: 'string' }] })).toThrow()
     })
   })
 })

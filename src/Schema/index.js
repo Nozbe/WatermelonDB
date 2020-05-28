@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from '../utils/common/invariant'
+import checkName from '../utils/fp/checkName'
 import type { $RE } from '../types'
 
 import type Model from '../Model'
@@ -41,8 +42,6 @@ export function columnName(name: string): ColumnName {
   return name
 }
 
-const safeNameCharacters = /^[a-zA-Z_]\w*$/
-
 export function appSchema({
   version,
   tables: tableList,
@@ -64,36 +63,10 @@ export function appSchema({
 const validateName = (name: string) => {
   if (process.env.NODE_ENV !== 'production') {
     invariant(
-      !['id', '_changed', '_status'].includes(name.toLowerCase()),
+      !['id', '_changed', '_status', 'local_storage'].includes(name.toLowerCase()),
       `Invalid column or table name '${name}' - reserved by WatermelonDB`,
     )
-    invariant(
-      ![
-        '__proto__',
-        'constructor',
-        'hasOwnProperty',
-        'isPrototypeOf',
-        'toString',
-        'valueOf',
-      ].includes(name),
-      `Invalid column or table name '${name}' - property names of Object are forbidden`,
-    )
-    invariant(
-      name.toLowerCase() !== '$loki',
-      `Invalid column or table name '${name}' - reserved for LokiJS compatibility`,
-    )
-    invariant(
-      !['rowid', 'oid', '_rowid_'].includes(name.toLowerCase()),
-      `Invalid column or table name '${name}' - reserved for SQLite compatibility`,
-    )
-    invariant(
-      !name.startsWith('__'),
-      `Invalid column or table name '${name}' - names starting with '__' are reserved for internal purposes`,
-    )
-    invariant(
-      safeNameCharacters.test(name),
-      `Invalid column or table name '${name}' - names must contain only safe characters ${safeNameCharacters.toString()}`,
-    )
+    checkName(name)
   }
 }
 
