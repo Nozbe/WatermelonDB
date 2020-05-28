@@ -43,7 +43,7 @@ export default class Collection<Record: Model> {
   // Finds a record with the given ID
   // Promise will reject if not found
   async find(id: RecordId): Promise<Record> {
-    invariant(id, `Invalid record ID ${this.table}#${id}`)
+    invariant(typeof id === 'string', `Invalid record ID ${this.table}#${id}`)
 
     const cachedRecord = this._cache.get(id)
     return cachedRecord || toPromise(callback => this._fetchRecord(id, callback))

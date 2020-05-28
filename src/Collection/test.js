@@ -76,6 +76,12 @@ describe('finding records', () => {
 
     expect(findSpy.mock.calls.length).toBe(2)
   })
+  it('quickly rejects for invalid IDs', async () => {
+    const { tasks } = mockDatabase()
+    await expectToRejectWithMessage(tasks.find(), /Invalid record ID/)
+    await expectToRejectWithMessage(tasks.find(null), /Invalid record ID/)
+    await expectToRejectWithMessage(tasks.find({}), /Invalid record ID/)
+  })
 })
 
 describe('fetching queries', () => {
