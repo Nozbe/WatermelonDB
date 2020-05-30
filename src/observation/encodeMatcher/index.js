@@ -30,7 +30,7 @@ const encodeWhereDescription: WhereDescription => Matcher<*> = description => ra
   } else if (compRight.column) {
     right = (rawRecord: Object)[compRight.column]
   } else {
-    throw new Error('Invalid comparisonRight')
+    right = undefined
   }
 
   return operator(left, right)
