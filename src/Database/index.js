@@ -58,6 +58,9 @@ export default class Database {
   // (made with `collection.prepareCreate` and `record.prepareUpdate`)
   // Note: falsy values (null, undefined, false) passed to batch are just ignored
   async batch(...records: $ReadOnlyArray<Model | null | void | false>): Promise<void> {
+    return this.batchArray(records);
+  }
+  async batchArray(records: $ReadOnlyArray<Model | null | void | false>): Promise<void> {
     this._ensureInAction(
       `Database.batch() can only be called from inside of an Action. See docs for more details.`,
     )
