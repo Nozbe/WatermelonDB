@@ -439,6 +439,31 @@ export default () => [
     },
   ],
   [
+    'destroyDeletedRecords can handle unsafe strings',
+    async adapter => {
+      const m1 = mockTaskRaw({ id: 't1', text1: 'bar1', order: 1 })
+      const m2 = mockTaskRaw({ id: 't2', text1: 'bar2', order: 2 })
+      const m3 = mockTaskRaw({ id: 't3', text1: 'bar3', order: 3 })
+      await adapter.batch([
+        ['create', 'tasks', m1],
+        ['create', 'tasks', m2],
+        ['create', 'tasks', m3],
+      ])
+      await adapter.batch([
+        ['markAsDeleted', 'tasks', m1.id],
+        ['markAsDeleted', 'tasks', m2.id],
+        ['markAsDeleted', 'tasks', m3.id],
+      ])
+
+      await adapter.destroyDeletedRecords('tasks', ['\') or 1=1 --'])
+      expectSortedEqual(await adapter.getDeletedRecords('tasks'), ['t1', 't2', 't3'])
+      expectSortedEqual(await adapter.query(taskQuery()), [])
+
+      await adapter.destroyDeletedRecords('tasks', ['\'); insert into tasks (id) values (\'t4\') --'])
+      expectSortedEqual(await adapter.query(taskQuery()), [])
+    },
+  ],
+  [
     'can run mixed batches',
     async _adapter => {
       let adapter = _adapter
