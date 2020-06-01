@@ -1,4 +1,5 @@
 import expect from 'expect'
+import naughtyStrings from 'big-list-of-naughty-strings'
 
 import Model from '../../Model'
 import Query from '../../Query'
@@ -7,7 +8,7 @@ import * as Q from '../../QueryDescription'
 import { appSchema, tableSchema } from '../../Schema'
 import { schemaMigrations, createTable, addColumns } from '../../Schema/migrations'
 
-import { matchTests, joinTests } from '../../__tests__/databaseTests'
+import { matchTests, naughtyMatchTests, joinTests } from '../../__tests__/databaseTests'
 import DatabaseAdapterCompat from '../compat'
 import {
   testSchema,
@@ -923,6 +924,71 @@ export default () => [
       await performMatchTest(adapter, testCase)
     },
   ]),
+  [
+    '[shared match test] can match strings from big-list-of-naughty-strings',
+    async (adapter, AdapterClass, extraAdapterOptions) => {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const testCase of naughtyMatchTests) {
+        // console.log(testCase.name)
+
+        // KNOWN ISSUE: non-JSI adapter implementation gets confused by this (it's a BOM mark)
+        if (
+          AdapterClass.name === 'SQLiteAdapter' &&
+          !extraAdapterOptions.experimentalUseJSI &&
+          testCase.matching[0].text1 === '﻿'
+        ) {
+          // eslint-disable-next-line no-console
+          console.warn('skip check for a BOM naughty string - known failing test')
+        } else {
+          // eslint-disable-next-line no-await-in-loop
+          await performMatchTest(adapter, testCase)
+        }
+      }
+    },
+  ],
+  [
+    'can store and retrieve large numbers (regression test)',
+    async _adapter => {
+      // NOTE: matcher test didn't catch it because both insert and query has the same bug
+      let adapter = _adapter
+      const number = 1590485104033
+      await adapter.batch([['create', 'tasks', { id: 'm1', num1: number }]])
+      // launch app again
+      adapter = await adapter.testClone()
+      const record = await adapter.find('tasks', 'm1')
+      expect(record.num1).toBe(number)
+    },
+  ],
+  [
+    'can store and retrieve naughty strings exactly',
+    async (_adapter, AdapterClass, extraAdapterOptions) => {
+      let adapter = _adapter
+      const indexedNaughtyStrings = naughtyStrings.map((string, i) => [`id${i}`, string])
+      await adapter.batch(
+        indexedNaughtyStrings.map(([id, string]) => ['create', 'tasks', { id, text1: string }]),
+      )
+
+      // launch app again
+      adapter = await adapter.testClone()
+      const allRecords = await adapter.query(taskQuery())
+
+      indexedNaughtyStrings.forEach(([id, string]) => {
+        const record = allRecords.find(model => model.id === id)
+        // console.log(string, record)
+        // KNOWN ISSUE: non-JSI adapter implementation gets confused by this (it's a BOM mark)
+        if (
+          AdapterClass.name === 'SQLiteAdapter' &&
+          !extraAdapterOptions.experimentalUseJSI &&
+          string === '﻿'
+        ) {
+          expect(record.text1).not.toBe(string) // if this fails, it means the issue's been fixed
+        } else {
+          expect(!!record).toBe(true)
+          expect(record.text1).toBe(string)
+        }
+      })
+    },
+  ],
   ...joinTests.map(testCase => [
     `[shared join test] ${testCase.name}`,
     async adapter => {

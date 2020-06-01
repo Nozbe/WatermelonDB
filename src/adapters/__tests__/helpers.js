@@ -117,6 +117,11 @@ export const performMatchTest = async (adapter, testCase) => {
   // also test if counting works correctly
   const count = await adapter.count(query)
   expect(count).toBe(results.length)
+
+  // delete
+  await adapter.batch(
+    [...matching, ...nonMatching].map(({ id }) => ['destroyPermanently', 'tasks', id]),
+  )
 }
 
 export const performJoinTest = async (adapter, testCase) => {

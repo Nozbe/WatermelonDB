@@ -67,18 +67,26 @@ describe('Schema', () => {
       }),
     ).toThrow(/last_modified must be.*number/)
   })
-  it('does not allow unsafe characters', () => {
-    expect(() =>
-      tableSchema({
-        name: 'foo',
-        columns: [{ name: '"hey"', type: 'string' }],
-      }),
-    ).toThrow(/must contain only safe characters/)
-    expect(() =>
-      tableSchema({
-        name: 'foo\' and delete * from users --',
-        columns: [{ name: 'hey', type: 'string' }],
-      }),
-    ).toThrow(/must contain only safe characters/)
+  it('does not allow unsafe names', () => {
+    ;[
+      '"hey"',
+      'foo\' and delete * from users --',
+      'id',
+      '_changed',
+      '_status',
+      '$loki',
+      '__foo',
+      '__proto__',
+      'toString',
+      'valueOf',
+      'constructor',
+    ].forEach(name => {
+      expect(() => tableSchema({ name: 'foo', columns: [{ name, type: 'string' }] })).toThrow(
+        /Invalid column or table name/,
+      )
+      expect(() => tableSchema({ name, columns: [{ name: 'hey', type: 'string' }] })).toThrow(
+        /Invalid column or table name/,
+      )
+    })
   })
 })

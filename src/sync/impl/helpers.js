@@ -50,6 +50,12 @@ function replaceRaw(record: Model, dirtyRaw: DirtyRaw): void {
 }
 
 export function prepareCreateFromRaw<T: Model>(collection: Collection<T>, dirtyRaw: DirtyRaw): T {
+  // TODO: Think more deeply about this - it's probably unnecessary to do this check, since it would
+  // mean malicious sync server, which is a bigger problem
+  invariant(
+    !Object.prototype.hasOwnProperty.call(dirtyRaw, '__proto__'),
+    'Malicious dirtyRaw detected - contains a __proto__ key',
+  )
   const raw = Object.assign({}, dirtyRaw, { _status: 'synced', _changed: '' }) // faster than object spread
   return collection.prepareCreateFromDirtyRaw(raw)
 }

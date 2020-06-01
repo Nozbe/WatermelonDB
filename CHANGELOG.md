@@ -18,6 +18,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changes
 
+- Column and table names starting with `__` and Object property names (e.g. `constructor`) are now forbidden
+
 ### Fixes
 
 - [iOS] Fixed a bug that could cause a database operation to fail with an (6) SQLITE_LOCKED error

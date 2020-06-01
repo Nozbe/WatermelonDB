@@ -5,6 +5,7 @@
   "scripts": {
     "build": "NODE_ENV=production node ./scripts/make.js",
     "dev": "NODE_ENV=development node ./scripts/make.js",
+    "dev:native": "react-native start",
     "release": "node ./scripts/publish.js",
     "prettier": "prettier-eslint --config ./.prettierrc --write \"./src/**/*.js\"",
     "flow": "flow check",
@@ -138,6 +139,7 @@
     "semver": "^6.0.0",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.15.0",
+    "big-list-of-naughty-strings": "https://github.com/radex/big-list-of-naughty-strings#8346238a82f1e3a6f62389def1e668d80e4023fb",
     "typescript": "^3.0.3"
   }
 }

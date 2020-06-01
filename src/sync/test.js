@@ -666,9 +666,12 @@ describe('synchronize', () => {
     const log = {}
     await synchronize({
       database,
-      pullChanges: jest.fn(emptyPull()),
-      // ensure we take more than 1ms for the log test
-      pushChanges: () => new Promise(resolve => setTimeout(resolve, 10)),
+      pullChanges: async () => {
+        // ensure we take more than 1ms for the log test
+        await new Promise(resolve => setTimeout(resolve, 10))
+        return emptyPull()()
+      },
+      pushChanges: () => {},
       log,
     })
 
