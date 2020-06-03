@@ -172,7 +172,8 @@ Procedure:
         (user could have made new changes that need syncing)
 
 Notes:
-- This procedure is designed such that if sync fails at any moment, and even leaves local app in inconsistent (not fully synced) state, we should still achieve consistency with the next sync:
+- This procedure is designed such that if sync fails at any moment, and even leaves local app in
+  inconsistent (not fully synced) state, we should still achieve consistency with the next sync:
   - applyRemoteChanges is designed such that if all changes are applied, but `lastPulledAt` doesn't get
     saved — so during next pull server will serve us the same changes, second applyRemoteChanges will
     arrive at the same result

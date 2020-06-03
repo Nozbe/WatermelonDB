@@ -1,5 +1,5 @@
 import CollectionMap from './index'
-import { mockDatabase, MockProject, MockTask, MockComment } from '../../__tests__/testModels'
+import { mockDatabase, MockProject, MockTask } from '../../__tests__/testModels'
 import Model from '../../Model'
 
 describe('CollectionMap', () => {

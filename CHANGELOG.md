@@ -18,7 +18,10 @@ All notable changes to this project will be documented in this file.
 
 ### Changes
 
-- Column and table names starting with `__` and Object property names (e.g. `constructor`) are now forbidden
+- [Hardening] Column and table names starting with `__`, Object property names (e.g. `constructor`), and some reserved keywords are now forbidden
+- [DX] Intializing Database with invalid model classes will now show a helpful error
+- [Sync] Sync no longer fails if pullChanges returns collections that don't exist on the frontend - shows a warning instead. This is to make building backwards-compatible backends less error-prone
+- [Hardening] database.collections.get() better validates passed value
 
 ### Fixes
 
