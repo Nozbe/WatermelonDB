@@ -128,8 +128,8 @@ class DatabaseDriver {
 
     func destroyDeletedRecords(table: Database.TableName, records: [RecordId]) throws {
         // TODO: What's the behavior if record doesn't exist or isn't actually deleted?
-        let recordIds = records.map { id in "'\(id)'" }.joined(separator: ",")
-        try database.execute("delete from `\(table)` where id in (\(recordIds))")
+        let recordPlaceholders = records.map { _ in "?" }.joined(separator: ",")
+        try database.execute("delete from `\(table)` where id in (\(recordPlaceholders))", records)
     }
 
 // MARK: - LocalStorage

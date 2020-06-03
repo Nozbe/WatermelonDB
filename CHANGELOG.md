@@ -23,10 +23,16 @@ All notable changes to this project will be documented in this file.
 ### Fixes
 
 - [iOS] Fixed a bug that could cause a database operation to fail with an (6) SQLITE_LOCKED error
+- [iOS] Fixed 'jsi/jsi.h' file not found when building at the consumer level. Added path `$(SRCROOT)/../../../../../ios/Pods/Headers/Public/React-jsi` to Header Search Paths (issue #691)
 
 ### Internal
 
 - Fixed broken adapter tests
+
+## 0.15.1, 0.16.0-fix, 0.16.2 - 2020-06-03
+
+This is a security patch for a vulnerability that could cause maliciously crafted record IDs to
+cause all or some of user's data to be deleted. More information available via GitHub security advisory
 
 ## 0.16.1 - 2020-05-18
 
