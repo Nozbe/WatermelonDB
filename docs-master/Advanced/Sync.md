@@ -9,7 +9,7 @@ Note that Watermelon is only a local database — you need to **bring your own b
 
 ## Using `synchronize()`
 
-Using Watermelon sync looks roughly like this:
+To synchronize, you need to pass two functions, `pullChanges` and `pushChanges` that talk to your backend and are compatible with Watermelon Sync Protocol. The frontend code will look something like this:
 
 ```js
 import { synchronize } from '@nozbe/watermelondb/sync'
@@ -40,7 +40,7 @@ async function mySync() {
 
 ```
 
-You need to pass two functions, `pullChanges` and `pushChanges` that can talk to your backend in a compatible way (explained later).
+### Troubleshooting
 
 **⚠️ Note about a React Native / UglifyES bug**. When you import Watermelon Sync, your app might fail to compile in release mode. To fix this, configure Metro bundler to use Terser instead of UglifyES. Run:
 
@@ -62,9 +62,11 @@ module.exports = {
 
 You might also need to switch to Terser in Webpack if you use Watermelon for web.
 
-### `changes` objects
+## Implementing your Sync backend
 
-Changes (received from `pullChanges` and sent to `pushChanges`) are represented as an object with *raw records*. Those only use raw table and column names, and raw values (strings/numbers/booleans) — the same as in [Schema](../Schema.md).
+### Understanding `changes` objects
+
+Synchronized changes (received by the app in `pullChanges` and sent to the backend in `pushChanges`) are represented as an object with *raw records*. Those only use raw table and column names, and raw values (strings/numbers/booleans) — the same as in [Schema](../Schema.md).
 
 Deleted objects are always only represented by their IDs.
 
@@ -93,7 +95,7 @@ Example:
 }
 ```
 
-### `pullChanges()`
+### Implementing `pullChanges()`
 
 Arguments: `{ lastPulledAt }`:
 - `lastPulledAt` is a timestamp for the last time client pulled changes from server (or `null` if first sync)
@@ -112,9 +114,11 @@ Return a Promise resolving to an object like this:
 }
 ```
 
-Raw records passed must match your app [Schema](../Schema.md), and must not contain special `_status`, `_changed` fields.
-
-The timestamp returned by the server must be a value that, if passed again to `pullChanges()` as `lastPulledAt`, will return all changes that happened since this moment.
+1. Raw records returned in `pullChanges()` must match your app's [Schema](../Schema.md)
+2. Raw records returned MUST NOT not contain special `_status`, `_changed` fields.
+3. Raw records returned MAY contain fields (columns) that are not yet present in the local app (at the current schema version -- but added in a later version). They will be safely ignored.
+4. Raw records returned SHOULD NOT contain collections that are not yet present in the local app (at the current schema version). They will, however, be safely ignored.
+5. The timestamp returned by the server MUST be a value that, if passed again to `pullChanges()` as `lastPulledAt`, will return all changes that happened since this moment.
 
 Note: Watermelon assumes that the pullChanges is a friendly and correct endpoint - bad things could happen if the pullChanges endpoint returns malformed data.
 
@@ -188,30 +192,31 @@ Synchronization is serious business! It's very easy to make mistakes that will c
     ```
   - ⚠️ Remember to act responsibly with logs, since they might contain your user's private information. Don't display, save, or send the log unless you censor the log. [Example logger and censor code you can use](https://gist.github.com/radex/a0a27761ac348f4a5552ecaf227d500c).
 
-### Existing backend implementations for WatermelonDB
+## Existing backend implementations for WatermelonDB
 
 Note that those are not maintained by WatermelonDB, and we make no endorsements about quality of these projects:
 
 - [How to Build WatermelonDB Sync Backend in Elixir](https://fahri.id/posts/how-to-build-watermelondb-sync-backend-in-elixir/)
-- https://github.com/AliAllaf/firemelon
+- [Firemelon](https://github.com/AliAllaf/firemelon)
 - Did you make one? Please contribute a link!
 
-### Current limitations
+## Current Sync limitations
 
 1. If a record being pushed changes between pull and push, push will just fail. It would be better if it failed with a list of conflicts, so that `synchronize()` can automatically respond. Alternatively, sync could only send changed fields and server could automatically always just apply those changed fields to the server version (since that's what per-column client-wins resolver will do anyway)
 2. During next sync pull, changes we've just pushed will be pulled again, which is unnecessary. It would be better if server, during push, also pulled local changes since `lastPulledAt` and responded with NEW timestamp to be treated as `lastPulledAt`.
 3. It shouldn't be necessary to push the whole updated record — just changed fields + ID should be enough
   > Note: That might conflict with "If client wants to update a record that doesn’t exist, create it"
-4. The performance of `synchronize()` has not yet been optimized
 
-### Contributing
+You don't like these limitations? Good, neither do we! Please contribute - we'll give you guidance.
+
+## Contributing
 
 1. If you implement Watermelon sync but found this guide confusing, please contribute improvements!
 2. Please help out with solving the current limitations!
 3. If you write server-side code made to be compatible with Watermelon, especially for popular platforms (Node, Ruby on Rails, Kinto, etc.) - please open source it and let us know! This would dramatically simplify implementing sync for people
 4. If you find Watermelon sync bugs, please report the issue! And if possible, write regression tests to make sure it never happens again
 
-## Sync primitives and implementing your own sync
+## Sync primitives and implementing your own sync entirely from scratch
 
 For basic details about how changes tracking works, see: [📺 Digging deeper into WatermelonDB](https://www.youtube.com/watch?v=uFvHURTRLxQ)
 
