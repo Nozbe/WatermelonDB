@@ -29,6 +29,11 @@ All notable changes to this project will be documented in this file.
 
 - Fixed broken adapter tests
 
+## 0.15.1, 0.16.0-fix, 0.16.2 - 2020-06-03
+
+This is a security patch for a vulnerability that could cause maliciously crafted record IDs to
+cause all or some of user's data to be deleted. More information available via GitHub security advisory
+
 ## 0.16.1 - 2020-05-18
 
 ### Changes
