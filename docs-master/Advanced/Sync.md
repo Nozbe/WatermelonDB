@@ -114,16 +114,16 @@ Arguments passed:
 
 You can add basic sync logs to the sync process by passing an empty object to `synchronize()`. Sync will then mutate the object, populating it with diagnostic information (start/finish time, resolved conflicts, and more):
 
-    ```js
-    const log = {}
-    await synchronize({
-      database,
-      log,
-      ...
-    })
-    console.log(log.startedAt)
-    console.log(log.finishedAt)
-    ```
+```js
+const log = {}
+await synchronize({
+database,
+log,
+...
+})
+console.log(log.startedAt)
+console.log(log.finishedAt)
+```
 
 ⚠️ Remember to act responsibly with logs, since they might contain your user's private information. Don't display, save, or send the log unless you censor the log. [Example logger and censor code you can use](https://gist.github.com/radex/a0a27761ac348f4a5552ecaf227d500c).
 
