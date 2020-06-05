@@ -106,7 +106,7 @@ Arguments passed:
 
 1. You MUST NOT connect to backend endpoints you don't control using `synchronize()`. WatermelonDB assumes pullChanges/pushChanges are friendly and correct and does not guarantee secure behavior if data returned is malformed.
 2. You SHOULD NOT call `synchronize()` while synchronization is already in progress (it will safely abort)
-3. You MUST NOT reset local database while synchronization is in progress (push to server will be safely aborted, but state of the local database may be compromised)
+3. You MUST NOT reset local database while synchronization is in progress (push to server will be safely aborted, but consistency of the local database may be compromised)
 4. You SHOULD wrap `synchronize()` in a "retry once" block - if sync fails, try again once. This will resolve push failures due to server-side conflicts by pulling once again before pushing.
 5. You can use `database.withChangesForTables` to detect when local changes occured to call sync. If you do this, you should debounce (or throttle) this signal to avoid calling `synchronize()` too often.
 
@@ -183,10 +183,10 @@ Changes = {
    - all records that were created on the server since `lastPulledAt`
    - all records that were updated on the server since `lastPulledAt`
    - IDs of all records that were deleted on the server since `lastPulledAt`
-2. If `lastPulledAt` is null, 0, or otherwise invalid, you MUST return all accessible records (first sync)
+2. If `lastPulledAt` is null or 0, you MUST return all accessible records (first sync)
 3. The pull endpoint SHOULD return an object conforming to:
     ```js
-    { changes: Changes, lastPulledAt: Timestamp }
+    { changes: Changes, timestamp: Timestamp }
     ```
     The shape may be different, however, the frontend-side `pullChanges()` MUST conform to this.
 4. The timestamp returned by the server MUST be a value that, if passed again to `pullChanges()` as `lastPulledAt`, will return all changes that happened since this moment.
@@ -204,6 +204,7 @@ Changes = {
     - Default WatermelonDB IDs conform to `/^[a-zA-Z0-9]{16}$/`
     - `_-.` are also allowed if you override default ID generator, but `'"\/$` are unsafe
 11. Changes SHOULD NOT contain collections that are not yet present in the local app (at the current schema version). They will, however, be safely ignored.
+    - NOTE: This is true for WatermelonDB v0.17 and above. If you support clients using earlier versions, you MUST NOT return collections not known by them.
 12. Changes MUST NOT contain collections with arbitrary names, as they may be unsafe. You should whitelist acceptable collection names.
 
 ### Implementing push endpoint
@@ -260,6 +261,8 @@ WatermelonDB has been designed with the assumption that there is no difference b
 We highly recommend that you adopt this practice.
 
 Some people are skeptical about this approach due to conflicts, since backend can guarantee unique IDs, and the local app can't. However, in practice, a standard Watermelon ID has 8,000,000,000,000,000,000,000,000 possible combinations. That's enough entropy to make conflicts extremely unlikely. At [Nozbe](https://nozbe.com), we've done it this way at scale for more than a decade, and not once did we encounter a genuine ID conflict or had other issues due to this approach.
+
+> Using the birthday problem, we can calculate that for 36^16 possible IDs, if your system grows to a billion records, the probability of a single conflict is 6e-8. At 100B records, the probability grows to 0.06%. But if you grow to that many records, you're probably a very rich company and can start worrying about things like this _then_.
 
 If you absolutely can't adopt this practice, there's a number of production apps using WatermelonDB that keep local and remote IDs separate — however, more work is required this way. Search Issues to find discussions about this topic — and consider contributing to WatermelonDB to make managing separate local IDs easier for everyone!
 
