@@ -292,10 +292,4 @@ You don't like these limitations? Good, neither do we! Please contribute - we'll
 
 ## Sync primitives and implementing your own sync entirely from scratch
 
-For basic details about how changes tracking works, see: [📺 Digging deeper into WatermelonDB](https://www.youtube.com/watch?v=uFvHURTRLxQ)
-
-Why you might want to implement a custom sync engine? If you have an existing remote server architecture that's difficult to adapt to Watermelon sync protocol, or you specifically want a different architecture (e.g. single HTTP request -- server resolves conflicts). Be warned, however, that implementing sync that works correctly is very hard.
-
-For details about how Watermelon sync works, see design documentation in `sync/index.js`. You can use that as a blueprint for your own implementation.
-
-If possible, please use sync implementation helpers from `sync/*.js` to keep your custom sync implementation have as much commonality as possible with the standard implementation. If the helpers are _almost_ what you need, but not quite, please send pull requests with improvements!
+See: [Sync implementation details](../Implementation/SyncImpl.md)
