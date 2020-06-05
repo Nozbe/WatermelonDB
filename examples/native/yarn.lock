@@ -663,12 +663,14 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@nozbe/watermelondb@^0.10.1":
-  version "0.10.1"
-  resolved "https://registry.yarnpkg.com/@nozbe/watermelondb/-/watermelondb-0.10.1.tgz#3bd1fb1f1b5aa642997272fa35761fd89d0ed0e1"
-  integrity sha512-B6laxepsf9ShEJ8PKWMTJMJdqZ/qRvnfe1OFUVjHl5yTeR3S20X8CFaPsCLgSts0o1u8FtmnWJwVceou2j9ycQ==
+"@nozbe/watermelondb@^0.15.1":
+  version "0.15.1"
+  resolved "https://registry.yarnpkg.com/@nozbe/watermelondb/-/watermelondb-0.15.1.tgz#5129976bae4dc0ccf57d5534c76f3f4eb5ce9245"
+  integrity sha512-Fot258CCgwfBPkczliA//B+U/objd0PmEo2yT3H4fKWtorhYAr8FsgOSElw+c+ua6MSOfvgLg3Nz4RvIcgVcdA==
   dependencies:
-    rambdax "^1.5.6"
+    lodash.clonedeep "^4.5.0"
+    lokijs "git+https://github.com/Nozbe/LokiJS.git#384b80f"
+    rambdax "2.15.0"
     rxjs "^6.2.2"
     rxjs-compat "^6.3.2"
     sql-escape-string "^1.1.0"
@@ -4020,6 +4022,11 @@ locate-path@^3.0.0:
     p-locate "^3.0.0"
     path-exists "^3.0.0"
 
+lodash.clonedeep@^4.5.0:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/lodash.clonedeep/-/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
+  integrity sha1-4j8/nE+Pvd6HJSnBBxhXoIblzO8=
+
 lodash.memoize@^4.1.2:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/lodash.memoize/-/lodash.memoize-4.1.2.tgz#bcc6c49a42a2840ed997f323eada5ecd182e0bfe"
@@ -4077,6 +4084,11 @@ loglevel@^1.4.1:
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.6.1.tgz#e0fc95133b6ef276cdc8887cdaf24aa6f156f8fa"
   integrity sha1-4PyVEztu8nbNyIh82vJKpvFW+Po=
+
+"lokijs@git+https://github.com/Nozbe/LokiJS.git#384b80f":
+  version "1.5.7"
+  uid "384b80f26edbf123c277a9cee02437a43467f9ac"
+  resolved "git+https://github.com/Nozbe/LokiJS.git#384b80f26edbf123c277a9cee02437a43467f9ac"
 
 loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.3.1:
   version "1.4.0"
@@ -5386,10 +5398,10 @@ quick-lru@^1.0.0:
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-1.1.0.tgz#4360b17c61136ad38078397ff11416e186dcfbb8"
   integrity sha1-Q2CxfGETatOAeDl/8RQW4Ybc+7g=
 
-rambdax@^1.5.6:
-  version "1.7.1"
-  resolved "https://registry.yarnpkg.com/rambdax/-/rambdax-1.7.1.tgz#28c771d835952dc2f04c1eeb86dbb0cd6d05eca2"
-  integrity sha512-qQi0cXx1GqniSWREZKttHeXzboBYOb3RNHIoW/qeyyZZ8PehxN+wbwo2n7yqUvEBE1fkRDqEkbe8KCqH92PHZA==
+rambdax@2.15.0:
+  version "2.15.0"
+  resolved "https://registry.yarnpkg.com/rambdax/-/rambdax-2.15.0.tgz#34fb481cea1a88e64a25e3a25e34a258fa18ca12"
+  integrity sha512-9ScXRMAcLaiist63yYDeDTRSIbL9DFY5yaIkoWyodaHS94PUL1ECQxQkxPP+h76oXG6bLo9b/ML+yvIRd78qeg==
 
 randomatic@^3.0.0:
   version "3.1.1"
