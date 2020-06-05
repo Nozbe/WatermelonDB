@@ -146,7 +146,12 @@ The result is fully reactive! Whenever a post or comment is added, changed, or r
   <a href="https://rocket.chat/">
     <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/rocketchat.png" alt="Rocket Chat" width="300" />
   </a>
+  
+  <br>
 
+  <a href="https://halogo.com.au/">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/halogo_logo.png" alt="HaloGo" width="300" />
+  </a>
   <br>
 
 _Does your company or app use 🍉? Open a pull request and add your logo/icon with link here!_
