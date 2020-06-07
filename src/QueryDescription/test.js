@@ -513,7 +513,7 @@ describe('QueryDescription', () => {
   })
   it('supports sorting query', () => {
     const query = Q.buildQueryDescription([
-      Q.sortBy('sortable_column', 'desc'),
+      Q.sortBy('sortable_column', Q.desc),
     ])
     expect(query).toEqual({
       where: [],

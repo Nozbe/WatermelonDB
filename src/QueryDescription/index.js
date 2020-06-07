@@ -53,6 +53,8 @@ export type On = $RE<{
 export type SortOrder =
   | 'asc'
   | 'desc'
+export const asc: SortOrder = 'asc'
+export const desc: SortOrder = 'desc'
 export type SortBy = $RE<{
   type: 'sortBy',
   sortColumn: ColumnName,

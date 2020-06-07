@@ -113,7 +113,7 @@ describe('SQLite encodeQuery', () => {
   })
   it('encodes order by clause', () => {
     const query = new Query(mockCollection, [
-      Q.sortBy('sortable_column', 'desc'),
+      Q.sortBy('sortable_column', Q.desc),
     ])
     expect(encodeQuery(query)).toBe(
       `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' order by "tasks"."sortable_column" desc`,

@@ -57,11 +57,13 @@ declare module '@nozbe/watermelondb/QueryDescription' {
   export type SortOrder =
     | 'asc'
     | 'desc'
+  export const asc: SortOrder
+  export const desc: SortOrder
   export interface Take {
     type: 'take'
     count: number
   }
-  export interface Skip = {
+  export interface Skip {
     type: 'skip'
     count: number
   }
