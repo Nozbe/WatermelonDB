@@ -92,9 +92,9 @@ declare module '@nozbe/watermelondb/QueryDescription' {
   export function or(...conditions: Where[]): Or
   export function like(value: string): Comparison
   export function notLike(value: string): Comparison
-  export function sortBy(sortColumn: ColumnName, sortOrder?: SortOrder): SortBy
-  export function take(count: number): Take
-  export function skip(count: number): Skip
+  export function experimentalSortBy(sortColumn: ColumnName, sortOrder?: SortOrder): SortBy
+  export function experimentalTake(count: number): Take
+  export function experimentalSkip(count: number): Skip
   export function sanitizeLikeString(value: string): string
 
   type _OnFunctionColumnValue = (table: TableName<any>, column: ColumnName, value: Value) => On

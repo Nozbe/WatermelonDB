@@ -513,7 +513,7 @@ describe('QueryDescription', () => {
   })
   it('supports sorting query', () => {
     const query = Q.buildQueryDescription([
-      Q.sortBy('sortable_column', Q.desc),
+      Q.experimentalSortBy('sortable_column', Q.desc),
     ])
     expect(query).toEqual({
       where: [],
@@ -531,7 +531,7 @@ describe('QueryDescription', () => {
   })
   it('supports take operator', () => {
     const query = Q.buildQueryDescription([
-      Q.take(100),
+      Q.experimentalTake(100),
     ])
     expect(query).toEqual({
       where: [],
@@ -547,15 +547,15 @@ describe('QueryDescription', () => {
   it('does not support skip operator without take operator', () => {
     expect(() => {
       Q.buildQueryDescription([
-        Q.skip(100),
+        Q.experimentalSkip(100),
       ])
     }).toThrow('cannot skip without take')
   })
   it('supports multiple take operators and take the last', () => {
     const query = Q.buildQueryDescription([
-      Q.take(100),
-      Q.take(200),
-      Q.take(400),
+      Q.experimentalTake(100),
+      Q.experimentalTake(200),
+      Q.experimentalTake(400),
     ])
     expect(query).toEqual({
       where: [],
@@ -570,10 +570,10 @@ describe('QueryDescription', () => {
   })
   it('support multiple skip operators but only take the last', () => {
     const query = Q.buildQueryDescription([
-      Q.take(100),
-      Q.skip(200),
-      Q.skip(400),
-      Q.skip(800),
+      Q.experimentalTake(100),
+      Q.experimentalSkip(200),
+      Q.experimentalSkip(400),
+      Q.experimentalSkip(800),
     ])
     expect(query).toEqual({
       where: [],

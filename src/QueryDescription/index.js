@@ -221,17 +221,19 @@ export function or(...conditions: Where[]): Or {
   return { type: 'or', conditions }
 }
 
-export function sortBy(sortColumn: ColumnName, sortOrder: SortOrder = asc): SortBy {
+function sortBy(sortColumn: ColumnName, sortOrder: SortOrder = asc): SortBy {
   return { type: 'sortBy', sortColumn, sortOrder }
 }
 
-export function take(count: number): Take {
+function take(count: number): Take {
   return { type: 'take', count }
 }
 
-export function skip(count: number): Skip {
+function skip(count: number): Skip {
   return { type: 'skip', count }
 }
+
+export { sortBy as experimentalSortBy, take as experimentalTake, skip as experimentalSkip }
 
 // Note: we have to write out three separate meanings of OnFunction because of a Babel bug
 // (it will remove the parentheses, changing the meaning of the flow type)

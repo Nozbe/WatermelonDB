@@ -113,7 +113,7 @@ describe('SQLite encodeQuery', () => {
   })
   it('encodes order by clause', () => {
     const query = new Query(mockCollection, [
-      Q.sortBy('sortable_column', Q.desc),
+      Q.experimentalSortBy('sortable_column', Q.desc),
     ])
     expect(encodeQuery(query)).toBe(
       `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' order by "tasks"."sortable_column" desc`,
@@ -121,22 +121,22 @@ describe('SQLite encodeQuery', () => {
   })
   it('encodes multiple order by clauses', () => {
     const query = new Query(mockCollection, [
-      Q.sortBy('sortable_column', Q.desc),
-      Q.sortBy('sortable_column2', Q.asc),
+      Q.experimentalSortBy('sortable_column', Q.desc),
+      Q.experimentalSortBy('sortable_column2', Q.asc),
     ])
     expect(encodeQuery(query)).toBe(
       `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' order by "tasks"."sortable_column" desc, "tasks"."sortable_column2" asc`,
     )
   })
-  it('throws an error if sortOrder received by sortBy is invalid', () => {
+  it('throws an error if sortOrder received sortBy is invalid', () => {
     const query = new Query(mockCollection, [
-      Q.sortBy('sortable_column', 'aesc'),
+      Q.experimentalSortBy('sortable_column', 'aesc'),
     ])
     expect(() => encodeQuery(query)).toThrow('Invalid sortOrder argument "aesc" received for Q.sortBy (valid: asc, desc)')
   })
   it('encodes limit clause', () => {
     const query = new Query(mockCollection, [
-      Q.take(100),
+      Q.experimentalTake(100),
     ])
     expect(encodeQuery(query)).toBe(
       `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' limit 100`,
@@ -144,8 +144,8 @@ describe('SQLite encodeQuery', () => {
   })
   it('encodes limit with offset clause', () => {
     const query = new Query(mockCollection, [
-      Q.take(100),
-      Q.skip(200),
+      Q.experimentalTake(100),
+      Q.experimentalSkip(200),
     ])
     expect(encodeQuery(query)).toBe(
       `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' limit 100 offset 200`,
@@ -153,9 +153,9 @@ describe('SQLite encodeQuery', () => {
   })
   it('encodes order by together with limit and offset clause', () => {
     const query = new Query(mockCollection, [
-      Q.sortBy('sortable_column', 'desc'),
-      Q.take(100),
-      Q.skip(200),
+      Q.experimentalSortBy('sortable_column', 'desc'),
+      Q.experimentalTake(100),
+      Q.experimentalSkip(200),
     ])
     expect(encodeQuery(query)).toBe(
       `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' order by "tasks"."sortable_column" desc limit 100 offset 200`,
