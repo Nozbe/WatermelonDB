@@ -119,6 +119,15 @@ describe('SQLite encodeQuery', () => {
       `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' order by "tasks"."sortable_column" desc`,
     )
   })
+  it('encodes multiple order by clauses', () => {
+    const query = new Query(mockCollection, [
+      Q.sortBy('sortable_column', Q.desc),
+      Q.sortBy('sortable_column2', Q.asc),
+    ])
+    expect(encodeQuery(query)).toBe(
+      `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' order by "tasks"."sortable_column" desc, "tasks"."sortable_column2" asc`,
+    )
+  })
   it('encodes limit clause', () => {
     const query = new Query(mockCollection, [
       Q.take(100),
