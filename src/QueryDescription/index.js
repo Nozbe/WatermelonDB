@@ -66,7 +66,7 @@ export type Skip = $RE<{
   type: 'skip',
   count: number,
 }>
-export type Condition = Where | On | SortBy | Take | Skip
+export type Clause = Where | On | SortBy | Take | Skip
 export type QueryDescription = $RE<{
   where: Where[],
   join: On[],
@@ -219,7 +219,7 @@ export function or(...conditions: Where[]): Or {
   return { type: 'or', conditions }
 }
 
-export function sortBy(sortColumn: ColumnName, sortOrder: SortOrder = 'asc'): SortBy {
+export function sortBy(sortColumn: ColumnName, sortOrder: SortOrder = asc): SortBy {
   return { type: 'sortBy', sortColumn, sortOrder }
 }
 
@@ -264,9 +264,9 @@ export const on: OnFunction = (table, leftOrWhereDescription, valueOrComparison)
 }
 
 const syncStatusColumn = columnName('_status')
-const extractClauses: (Condition[]) => QueryDescription = conditions => {
-  const clauses = { join: [], sortBy: [], where: [], take: null, skip: null }
-  conditions.forEach(cond => {
+const extractClauses: (Clause[]) => QueryDescription = clauses => {
+  const clauseMap = { join: [], sortBy: [], where: [], take: null, skip: null }
+  clauses.forEach(cond => {
     let { type } = cond
     switch (type) {
       case 'on':
@@ -274,21 +274,21 @@ const extractClauses: (Condition[]) => QueryDescription = conditions => {
         // fallthrough
       case 'sortBy':
         // $FlowFixMe: Flow is too dumb to realize that it is valid
-        clauses[type].push(cond)
+        clauseMap[type].push(cond)
         break
       case 'take':
       case 'skip':
         // $FlowFixMe: Flow is too dumb to realize that it is valid
-        clauses[type] = cond
+        clauseMap[type] = cond
         break
       default:
       case 'where':
-        clauses.where.push(cond)
+        clauseMap.where.push(cond)
         break
     }
   })
   // $FlowFixMe: Flow is too dumb to realize that it is valid
-  return clauses
+  return clauseMap
 }
 const whereNotDeleted = where(syncStatusColumn, notEq('deleted'))
 const joinsWithoutDeleted = pipe(
@@ -297,12 +297,12 @@ const joinsWithoutDeleted = pipe(
   map(table => on(table, syncStatusColumn, notEq('deleted'))),
 )
 
-export function buildQueryDescription(conditions: Condition[]): QueryDescription {
-  const clauses = extractClauses(conditions)
+export function buildQueryDescription(clauses: Clause[]): QueryDescription {
+  const clauseMap = extractClauses(clauses)
 
-  invariant(!(clauses.skip && !clauses.take), 'cannot skip without take')
+  invariant(!(clauseMap.skip && !clauseMap.take), 'cannot skip without take')
 
-  const query = clauses
+  const query = clauseMap
   if (process.env.NODE_ENV !== 'production') {
     Object.freeze(query)
   }

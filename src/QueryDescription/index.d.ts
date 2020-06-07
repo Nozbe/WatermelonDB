@@ -65,7 +65,7 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     type: 'skip'
     count: number
   }
-  export type Condition = Where | On | SortBy | Take | Skip
+  export type Clause = Where | On | SortBy | Take | Skip
   export interface QueryDescription {
     where: Where[]
     join: On[]
@@ -109,7 +109,7 @@ declare module '@nozbe/watermelondb/QueryDescription' {
 
   export const on: OnFunction
 
-  export function buildQueryDescription(conditions: Condition[]): QueryDescription
+  export function buildQueryDescription(conditions: Clause[]): QueryDescription
   export function queryWithoutDeleted(query: QueryDescription): QueryDescription
   export function hasColumnComparisons(conditions: Where[]): boolean
 }

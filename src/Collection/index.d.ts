@@ -1,6 +1,6 @@
 declare module '@nozbe/watermelondb/Collection' {
   import { Database, Model, Query, RecordId, TableName, TableSchema } from '@nozbe/watermelondb'
-  import { Condition } from '@nozbe/watermelondb/QueryDescription'
+  import { Clause } from '@nozbe/watermelondb/QueryDescription'
   import { Class } from '@nozbe/watermelondb/utils/common'
   import { Observable, Subject } from 'rxjs'
 
@@ -26,7 +26,7 @@ declare module '@nozbe/watermelondb/Collection' {
 
     public findAndObserve(id: RecordId): Observable<Record>
 
-    public query(...conditions: Condition[]): Query<Record>
+    public query(...conditions: Clause[]): Query<Record>
 
     public unsafeFetchRecordsWithSQL(sql: string): Promise<Record[]>
 
