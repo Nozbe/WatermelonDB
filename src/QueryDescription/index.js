@@ -271,13 +271,6 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
   clauses.forEach(cond => {
     let { type } = cond
     switch (type) {
-      case 'on':
-        type = 'join'
-        // fallthrough
-      case 'sortBy':
-        // $FlowFixMe: Flow is too dumb to realize that it is valid
-        clauseMap[type].push(cond)
-        break
       case 'take':
       case 'skip':
         // $FlowFixMe: Flow is too dumb to realize that it is valid
@@ -285,7 +278,13 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
         break
       default:
       case 'where':
-        clauseMap.where.push(cond)
+        type = 'where'
+        // fallthrough
+      case 'on':
+        if (type === 'on') type = 'join'
+        // fallthrough
+      case 'sortBy':
+        clauseMap[type].push(cond)
         break
     }
   })
