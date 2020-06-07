@@ -1,6 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
+import invariant from '../../../utils/common/invariant'
 import type { SerializedQuery, AssociationArgs } from '../../../Query'
 import type {
   NonNullValues,
@@ -158,9 +159,13 @@ const encodeOrderBy = (table: TableName<any>, sortBys: SortBy[]) => {
   if (sortBys.length === 0) {
     return ''
   }
-  const orderBys = sortBys.map(sortBy =>
-    `${encodeName(table)}.${encodeName(sortBy.sortColumn)} ${sortBy.sortOrder}`
-  ).join(', ')
+  const orderBys = sortBys.map(sortBy => {
+    invariant(
+      ['asc', 'desc'].includes(sortBy.sortOrder),
+      `Invalid sortOrder argument "${sortBy.sortOrder}" received for Q.sortBy (valid: asc, desc)`,
+    )
+    return `${encodeName(table)}.${encodeName(sortBy.sortColumn)} ${sortBy.sortOrder}`
+  }).join(', ')
   return ` order by ${orderBys}`
 }
 

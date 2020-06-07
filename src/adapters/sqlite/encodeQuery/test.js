@@ -128,6 +128,12 @@ describe('SQLite encodeQuery', () => {
       `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' order by "tasks"."sortable_column" desc, "tasks"."sortable_column2" asc`,
     )
   })
+  it('throws an error if sortOrder received by sortBy is invalid', () => {
+    const query = new Query(mockCollection, [
+      Q.sortBy('sortable_column', 'aesc'),
+    ])
+    expect(() => encodeQuery(query)).toThrow('Invalid sortOrder argument "aesc" received for Q.sortBy (valid: asc, desc)')
+  })
   it('encodes limit clause', () => {
     const query = new Query(mockCollection, [
       Q.take(100),
