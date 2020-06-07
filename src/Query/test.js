@@ -81,6 +81,54 @@ describe('Query description properties', () => {
     expect(extendedQuery.hasJoins).toBe(expectedQuery.hasJoins)
     expect(extendedQuery._rawDescription).toEqual(expectedQuery._rawDescription)
   })
+  it('can return extended query for sortBy, take and skip', () => {
+    const query = new Query(mockCollection, [
+      Q.sortBy('sortable', Q.desc),
+      Q.skip(60),
+      Q.take(20),
+    ])
+    const extendedQuery = query.extend(
+      Q.sortBy('sortable2'),
+      Q.skip(40),
+      Q.take(10),
+    )
+    const expectedQuery = new Query(mockCollection, [
+      Q.sortBy('sortable', Q.desc),
+      Q.sortBy('sortable2', Q.asc),
+      Q.skip(40),
+      Q.take(10),
+    ])
+    expect(extendedQuery.collection).toBe(expectedQuery.collection)
+    expect(extendedQuery.modelClass).toBe(expectedQuery.modelClass)
+    expect(extendedQuery.description).toEqual(expectedQuery.description)
+    expect(extendedQuery.secondaryTables).toEqual(expectedQuery.secondaryTables)
+    expect(extendedQuery.associations).toEqual(expectedQuery.associations)
+    expect(extendedQuery.hasJoins).toBe(expectedQuery.hasJoins)
+    expect(extendedQuery._rawDescription).toEqual(expectedQuery._rawDescription)
+  })
+  it('can return extended query and leave take and skip clauses intact', () => {
+    const query = new Query(mockCollection, [
+      Q.sortBy('sortable', Q.desc),
+      Q.skip(60),
+      Q.take(20),
+    ])
+    const extendedQuery = query.extend(
+      Q.sortBy('sortable2'),
+    )
+    const expectedQuery = new Query(mockCollection, [
+      Q.sortBy('sortable', Q.desc),
+      Q.sortBy('sortable2', Q.asc),
+      Q.skip(60),
+      Q.take(20),
+    ])
+    expect(extendedQuery.collection).toBe(expectedQuery.collection)
+    expect(extendedQuery.modelClass).toBe(expectedQuery.modelClass)
+    expect(extendedQuery.description).toEqual(expectedQuery.description)
+    expect(extendedQuery.secondaryTables).toEqual(expectedQuery.secondaryTables)
+    expect(extendedQuery.associations).toEqual(expectedQuery.associations)
+    expect(extendedQuery.hasJoins).toBe(expectedQuery.hasJoins)
+    expect(extendedQuery._rawDescription).toEqual(expectedQuery._rawDescription)
+  })
   it('returns serializable version of Query', () => {
     const query = new Query(mockCollection, [
       Q.on('projects', 'team_id', 'abcdef'),

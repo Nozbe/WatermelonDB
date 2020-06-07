@@ -60,9 +60,14 @@ export default class Query<Record: Model> {
   // Creates a new Query that extends the clauses of this query
   extend(...clauses: Clause[]): Query<Record> {
     const { collection } = this
-    const { join, where } = this._rawDescription
+    const { join, where, sortBy, take, skip } = this._rawDescription
 
-    return new Query(collection, [...join, ...where, ...clauses])
+    return new Query(collection, [
+      ...join, ...where, ...sortBy,
+      ...(take ? [take] : []),
+      ...(skip ? [skip] : []),
+      ...clauses
+    ])
   }
 
   pipe<T>(transform: this => T): T {
