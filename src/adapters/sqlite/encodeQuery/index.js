@@ -11,6 +11,9 @@ import type {
   On,
   And,
   Or,
+  SortBy,
+  Take,
+  Skip,
   QueryDescription,
 } from '../../../QueryDescription'
 import * as Q from '../../../QueryDescription'
@@ -151,7 +154,7 @@ const encodeAssociation: (TableName<any>) => AssociationArgs => string = mainTab
 const encodeJoin = (table: TableName<any>, associations: AssociationArgs[]): string =>
   associations.length ? associations.map(encodeAssociation(table)).join('') : ''
 
-const encodeOrderBy = (table: TableName<any>, sortBys) => {
+const encodeOrderBy = (table: TableName<any>, sortBys: SortBy[]) => {
   if (sortBys.length === 0) {
     return ''
   }
@@ -161,7 +164,7 @@ const encodeOrderBy = (table: TableName<any>, sortBys) => {
   return ` order by ${orderBys}`
 }
 
-const encodeLimitOffset = (take, skip) => {
+const encodeLimitOffset = (take: ?Take, skip: ?Skip) => {
   const limit = take?.count
   const offset = skip?.count
 
