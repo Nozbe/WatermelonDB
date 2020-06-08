@@ -624,6 +624,12 @@ describe('applyRemoteChanges', () => {
 
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
   })
+  it(`safely skips collections that don't exist`, async () => {
+    const { database } = makeDatabase()
+
+    await testApplyRemoteChanges(database, { invalid_project: { created: [{ id: 'foo' }] } })
+    await testApplyRemoteChanges(database, { __proto__: { created: [{ id: 'foo' }] } }) // oof, naughty
+  })
 })
 
 const observeDatabase = database => {

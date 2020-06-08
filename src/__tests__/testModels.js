@@ -100,6 +100,7 @@ export const mockDatabase = ({ actionsEnabled = false } = {}) => {
   })
   return {
     database,
+    db: database,
     adapter,
     projects: database.collections.get('mock_projects'),
     tasks: database.collections.get('mock_tasks'),
