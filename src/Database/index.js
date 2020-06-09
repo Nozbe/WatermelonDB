@@ -142,15 +142,19 @@ export default class Database {
     return merge$(...changesSignals).pipe(startWith(null))
   }
 
-  _subscribers: Array<[TableName<any>[], () => void]> = []
+  _subscribers: Array<[TableName<any>[], () => void, any]> = []
 
   // Notifies `subscriber` on change in any of passed tables (only a signal, no change set)
-  experimentalSubscribe(tables: TableName<any>[], subscriber: () => void): Unsubscribe {
+  experimentalSubscribe(
+    tables: TableName<any>[],
+    subscriber: () => void,
+    debugInfo?: any,
+  ): Unsubscribe {
     if (!tables.length) {
       return noop
     }
 
-    const subscriberEntry = [tables, subscriber]
+    const subscriberEntry = [tables, subscriber, debugInfo]
     this._subscribers.push(subscriberEntry)
 
     return () => {
