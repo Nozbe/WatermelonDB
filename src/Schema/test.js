@@ -70,23 +70,25 @@ describe('Schema', () => {
   it('does not allow unsafe names', () => {
     ;[
       '"hey"',
+      '\'hey\'',
+      '`hey`',
       'foo\' and delete * from users --',
       'id',
       '_changed',
       '_status',
+      'local_storage',
       '$loki',
       '__foo',
       '__proto__',
       'toString',
       'valueOf',
-      'constructor',
+      'oid',
+      '_rowid_',
+      'ROWID',
     ].forEach(name => {
-      expect(() => tableSchema({ name: 'foo', columns: [{ name, type: 'string' }] })).toThrow(
-        /Invalid column or table name/,
-      )
-      expect(() => tableSchema({ name, columns: [{ name: 'hey', type: 'string' }] })).toThrow(
-        /Invalid column or table name/,
-      )
+      // console.log(name)
+      expect(() => tableSchema({ name: 'foo', columns: [{ name, type: 'string' }] })).toThrow()
+      expect(() => tableSchema({ name, columns: [{ name: 'hey', type: 'string' }] })).toThrow()
     })
   })
 })

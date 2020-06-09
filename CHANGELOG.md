@@ -19,6 +19,10 @@ All notable changes to this project will be documented in this file.
 ### Changes
 
 - [Hardening] Column and table names starting with `__`, Object property names (e.g. `constructor`), and some reserved keywords are now forbidden
+- [DX] [Hardening] QueryDescription builder methods do tighter type checks, catching more bugs, and
+  preventing users from unwisely passing unsanitized user data into Query builder methods
+- [DX] [Hardening] Adapters check early if table names are valid
+- [DX] Collection.find reports an error more quickly if an obviously invalid ID is passed
 - [DX] Intializing Database with invalid model classes will now show a helpful error
 - [DX] DatabaseProvider shows a more helpful error if used improperly
 - [Sync] Sync no longer fails if pullChanges returns collections that don't exist on the frontend - shows a warning instead. This is to make building backwards-compatible backends less error-prone
@@ -29,12 +33,13 @@ All notable changes to this project will be documented in this file.
 
 - [iOS] Fixed a bug that could cause a database operation to fail with an (6) SQLITE_LOCKED error
 - [iOS] Fixed 'jsi/jsi.h' file not found when building at the consumer level. Added path `$(SRCROOT)/../../../../../ios/Pods/Headers/Public/React-jsi` to Header Search Paths (issue #691)
+- [Native] SQLite keywords used as table or column names no longer crash
 
 ### Internal
 
 - Fixed broken adapter tests
 
-## 0.15.1, 0.16.0-fix, 0.16.2 - 2020-06-03
+## 0.15.1, 0.16.1-fix, 0.16.2 - 2020-06-03
 
 This is a security patch for a vulnerability that could cause maliciously crafted record IDs to
 cause all or some of user's data to be deleted. More information available via GitHub security advisory

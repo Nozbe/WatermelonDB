@@ -3,7 +3,7 @@
 import { logger, invariant } from '../utils/common'
 import { type Result } from '../utils/fp/Result'
 import type { RecordId } from '../Model'
-import type { TableSchema } from '../Schema'
+import type { TableSchema, AppSchema, TableName } from '../Schema'
 import type { CachedQueryResult, CachedFindResult, DatabaseAdapter } from './type'
 import { sanitizedRaw, type DirtyRaw } from '../RawRecord'
 
@@ -34,6 +34,13 @@ export function validateAdapter(adapter: DatabaseAdapter): void {
       )
     }
   }
+}
+
+export function validateTable(tableName: TableName<any>, schema: AppSchema): void {
+  invariant(
+    Object.prototype.hasOwnProperty.call(schema.tables, tableName),
+    `Could not invoke Adapter method because table name '${tableName}' does not exist in the schema. Most likely, it's a sync bug, and you're sending tables that don't exist in the current version of the app. Or, you made a mistake in migrations. Reminder: it's a serious programming error to pass non-whitelisted table names to Adapter.`,
+  )
 }
 
 export function sanitizeFindResult(
