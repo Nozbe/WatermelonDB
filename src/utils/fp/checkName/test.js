@@ -6,6 +6,10 @@ describe('checkName', () => {
     expect(checkName('tag_assignments')).toBe('tag_assignments')
     expect(checkName('a')).toBe('a')
   })
+  it(`keeps returning a safe name as is`, () => {
+    expect(checkName('tasks')).toBe('tasks')
+    expect(checkName('tasks')).toBe('tasks')
+  })
   it('does not allow unsafe names', () => {
     const unsafeNames = [
       '"hey"',
