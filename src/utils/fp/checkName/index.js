@@ -42,7 +42,7 @@ export default function checkName(name: string): string {
     `Unsafe name '${name}' not allowed (reserved for LokiJS compatibility)`,
   )
   invariant(
-    !['rowid', 'oid', '_rowid_'].includes(name.toLowerCase()),
+    !['rowid', 'oid', '_rowid_', 'sqlite_master'].includes(name.toLowerCase()),
     `Unsafe name '${name}' not allowed (reserved for SQLite compatibility)`,
   )
   invariant(

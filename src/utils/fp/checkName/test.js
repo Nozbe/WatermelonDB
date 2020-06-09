@@ -40,6 +40,9 @@ describe('checkName', () => {
       'foo_русском',
       '❤️',
       'hey\nhey',
+      'whatsup\n',
+      '\nwhatsup',
+      'sqlite_master',
     ]
     unsafeNames.forEach(name => {
       // console.log(name)
