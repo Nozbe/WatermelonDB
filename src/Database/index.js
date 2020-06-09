@@ -198,6 +198,8 @@ export default class Database {
         console.log(
           `Application error! Unexpected ${this._subscribers.length} Database subscribers were detected during database.unsafeResetDatabase() call. App should not hold onto subscriptions or Watermelon objects while resetting database.`,
         )
+        // eslint-disable-next-line no-console
+        console.log(this._subscribers)
         this._subscribers = []
       }
 

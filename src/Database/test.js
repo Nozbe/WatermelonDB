@@ -87,7 +87,7 @@ describe('unsafeResetDatabase', () => {
     await database.action(() => database.unsafeResetDatabase())
 
     // check that error was logged
-    expect(consoleErrorSpy).toHaveBeenCalledTimes(1)
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(2)
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       'Application error! Unexpected 1 Database subscribers were detected during database.unsafeResetDatabase() call. App should not hold onto subscriptions or Watermelon objects while resetting database.',
     )
