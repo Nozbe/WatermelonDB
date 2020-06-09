@@ -1,25 +1,8 @@
 import { expectToRejectWithMessage } from '../__tests__/utils'
-import { mockDatabase, MockProject, MockTask, MockComment } from '../__tests__/testModels'
+import { mockDatabase } from '../__tests__/testModels'
 import { noop } from '../utils/fp'
 import { CollectionChangeTypes } from '../Collection/common'
-import Database from './index'
 import * as Q from '../QueryDescription'
-
-describe('Database', () => {
-  it('implements collectionMap', () => {
-    const database = new Database({
-      adapter: { schema: null },
-      modelClasses: [MockProject, MockTask, MockComment],
-      actionsEnabled: true,
-    })
-    const projects = database.collections.get('mock_projects')
-    const tasks = database.collections.get('mock_tasks')
-    expect(projects.modelClass).toBe(MockProject)
-    expect(projects.table).toBe('mock_projects')
-    expect(tasks.modelClass).toBe(MockTask)
-    expect(database.collections.get('non_existent')).toBeUndefined()
-  })
-})
 
 describe('unsafeResetDatabase', () => {
   it('can reset database', async () => {

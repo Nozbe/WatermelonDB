@@ -18,11 +18,16 @@ All notable changes to this project will be documented in this file.
 
 ### Changes
 
-- Column and table names starting with `__` and Object property names (e.g. `constructor`) are now forbidden
+- [Hardening] Column and table names starting with `__`, Object property names (e.g. `constructor`), and some reserved keywords are now forbidden
 - [DX] [Hardening] QueryDescription builder methods do tighter type checks, catching more bugs, and
   preventing users from unwisely passing unsanitized user data into Query builder methods
 - [DX] [Hardening] Adapters check early if table names are valid
 - [DX] Collection.find reports an error more quickly if an obviously invalid ID is passed
+- [DX] Intializing Database with invalid model classes will now show a helpful error
+- [DX] DatabaseProvider shows a more helpful error if used improperly
+- [Sync] Sync no longer fails if pullChanges returns collections that don't exist on the frontend - shows a warning instead. This is to make building backwards-compatible backends less error-prone
+- [Sync] [Docs] Sync documentation has been rewritten, and is now closer in detail to a formal specification
+- [Hardening] database.collections.get() better validates passed value
 
 ### Fixes
 

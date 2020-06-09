@@ -15,8 +15,8 @@ export type Props = {
  * to allow child components to consume the database without prop drilling
  */
 function DatabaseProvider({ children, database }: Props): React$Element<typeof Provider> {
-  if (!database) {
-    throw new Error('You must supply a database prop to the DatabaseProvider')
+  if (!(database instanceof Database)) {
+    throw new Error('You must supply a valid database prop to the DatabaseProvider')
   }
   return <Provider value={database}>{children}</Provider>
 }
