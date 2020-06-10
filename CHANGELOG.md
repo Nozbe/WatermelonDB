@@ -28,12 +28,14 @@ All notable changes to this project will be documented in this file.
 - [Sync] Sync no longer fails if pullChanges returns collections that don't exist on the frontend - shows a warning instead. This is to make building backwards-compatible backends less error-prone
 - [Sync] [Docs] Sync documentation has been rewritten, and is now closer in detail to a formal specification
 - [Hardening] database.collections.get() better validates passed value
+- [Hardening] Prevents unsafe strings from being passed as column name/table name arguments in QueryDescription
 
 ### Fixes
 
 - [iOS] Fixed a bug that could cause a database operation to fail with an (6) SQLITE_LOCKED error
 - [iOS] Fixed 'jsi/jsi.h' file not found when building at the consumer level. Added path `$(SRCROOT)/../../../../../ios/Pods/Headers/Public/React-jsi` to Header Search Paths (issue #691)
 - [Native] SQLite keywords used as table or column names no longer crash
+- Fixed potential issues when subscribing to database, collection, model, queries passing a subscriber function with the same identity more than once
 
 ### Internal
 
