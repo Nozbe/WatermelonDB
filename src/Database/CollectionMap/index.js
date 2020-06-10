@@ -11,7 +11,7 @@ export default class CollectionMap {
   map: { [TableName<any>]: Collection<any> }
 
   constructor(db: Database, modelClasses: Class<Model>[]): void {
-    this.map = Object.create(null)
+    this.map = (Object.create(null): any)
     modelClasses.forEach(modelClass => {
       const { table } = modelClass
       if (process.env.NODE_ENV !== 'production') {
@@ -25,12 +25,12 @@ export default class CollectionMap {
           `Model class ${modelClass.name} has static table defined that is missing in schema known by this database`,
         )
       }
-      this.map[(table: string)] = new Collection(db, modelClass)
+      this.map[table] = new Collection(db, modelClass)
     })
     Object.freeze(this.map)
   }
 
   get<T: Model>(tableName: TableName<T>): Collection<T> {
-    return this.map[tableName] || null
+    return (this.map[tableName] || null: any)
   }
 }

@@ -78,6 +78,7 @@ export default function subscribeToQueryWithColumns<Record: Model>(
   // flag, and wait for source response.
 
   // Observe changes to records we have on the list
+  const debugInfo = { name: 'subscribeToQueryWithColumns', query, columnNames }
   const collectionUnsubscribe = query.collection.experimentalSubscribe(
     function observeWithColumnsCollectionChanged(changeSet: CollectionChangeSet<Record>): void {
       let hasColumnChanges = false
@@ -110,6 +111,7 @@ export default function subscribeToQueryWithColumns<Record: Model>(
         }
       }
     },
+    debugInfo,
   )
 
   // Observe the source records list (list of records matching a query)

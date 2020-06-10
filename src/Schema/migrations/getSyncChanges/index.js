@@ -1,8 +1,9 @@
 // @flow
 
 import { uniq, groupBy, toPairs, piped } from 'rambdax'
-import type { MigrationStep } from '../index'
+import type { MigrationStep, CreateTableMigrationStep, AddColumnsMigrationStep } from '../index'
 import type { TableName, ColumnName } from '../../index'
+import { tableName } from '../../index'
 
 import { invariant } from '../../../utils/common'
 import { unnest } from '../../../utils/fp'
@@ -25,17 +26,23 @@ export default function getSyncChanges(steps: MigrationStep[]): MigrationSyncCha
     )
   })
 
-  const createdTables = steps
-    .filter(step => step.type === 'create_table')
-    .map(step => step.schema.name)
+  // $FlowFixMe
+  const createTableSteps: CreateTableMigrationStep[] = steps.filter(
+    step => step.type === 'create_table',
+  )
+  const createdTables = createTableSteps.map(step => step.schema.name)
 
-  const allAddedColumns = steps
-    .filter(step => step.type === 'add_columns' && !createdTables.includes(step.table))
+  // $FlowFixMe
+  const addColumnSteps: AddColumnsMigrationStep[] = steps.filter(
+    step => step.type === 'add_columns',
+  )
+  const allAddedColumns = addColumnSteps
+    .filter(step => !createdTables.includes(step.table))
     .map(({ table, columns }) => columns.map(({ name }) => ({ table, name })))
 
   const columnsByTable = piped(allAddedColumns, unnest, groupBy(({ table }) => table), toPairs)
   const addedColumns = columnsByTable.map(([table, columnDefs]) => ({
-    table,
+    table: tableName(table),
     columns: uniq(columnDefs.map(({ name }) => name)),
   }))
 

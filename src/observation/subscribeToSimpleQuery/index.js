@@ -83,6 +83,7 @@ export default function subscribeToSimpleQuery<Record: Model>(
     }
 
     // Observe changes to the collection
+    const debugInfo = { name: 'subscribeToSimpleQuery', query, subscriber }
     unsubscribe = query.collection.experimentalSubscribe(function observeQueryCollectionChanged(
       changeSet,
     ): void {
@@ -90,7 +91,8 @@ export default function subscribeToSimpleQuery<Record: Model>(
       if (shouldEmit || alwaysEmit) {
         emitCopy()
       }
-    })
+    },
+    debugInfo)
   })
 
   return () => {

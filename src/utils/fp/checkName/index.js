@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from '../../common/invariant'
+import type { TableName, ColumnName } from '../../../Schema'
 
 // Asserts that `name` (table or column name) should be safe for inclusion in SQL queries
 // and Loki queries (JS objects)
@@ -22,8 +23,13 @@ import invariant from '../../common/invariant'
 // Note that this doesn't throw for Watermelon builtins (id, _changed, _status...)
 
 const safeNameCharacters = /^[a-zA-Z_]\w*$/
+const knownSafeNames = new Set()
 
-export default function checkName(name: string): string {
+export default function checkName<T: string | TableName<any> | ColumnName>(name: T): T {
+  if (knownSafeNames.has(name)) {
+    return name
+  }
+
   invariant(
     ![
       '__proto__',
@@ -42,7 +48,7 @@ export default function checkName(name: string): string {
     `Unsafe name '${name}' not allowed (reserved for LokiJS compatibility)`,
   )
   invariant(
-    !['rowid', 'oid', '_rowid_'].includes(name.toLowerCase()),
+    !['rowid', 'oid', '_rowid_', 'sqlite_master'].includes(name.toLowerCase()),
     `Unsafe name '${name}' not allowed (reserved for SQLite compatibility)`,
   )
   invariant(
@@ -53,5 +59,7 @@ export default function checkName(name: string): string {
     safeNameCharacters.test(name),
     `Unsafe name '${name}' not allowed (names must contain only safe characters ${safeNameCharacters.toString()})`,
   )
+
+  knownSafeNames.add(name)
   return name
 }
