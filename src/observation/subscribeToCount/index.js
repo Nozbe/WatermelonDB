@@ -63,11 +63,7 @@ export default function subscribeToCount<Record: Model>(
   const unsubscribe = collection.database.experimentalSubscribe(
     query.allTables,
     observeCountFetch,
-    {
-      name: 'subscribeToCount observation',
-      query,
-      subscriber,
-    },
+    { name: 'subscribeToCount', query, subscriber },
   )
   observeCountFetch()
 
