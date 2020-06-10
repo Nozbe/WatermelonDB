@@ -357,27 +357,6 @@ describe('Observation', () => {
     expect(subscriber3).toHaveBeenCalledTimes(5)
     unsubscribe3()
   })
-  it(`can subscribe with the same subscriber multiple times`, async () => {
-    const { database, tasks } = mockDatabase({ actionsEnabled: true })
-
-    const subscriber = jest.fn()
-    const unsubscribe1 = database.experimentalSubscribe(['mock_tasks'], subscriber)
-
-    await database.action(() => tasks.create())
-    expect(subscriber).toHaveBeenCalledTimes(1)
-
-    const unsubscribe2 = database.experimentalSubscribe(['mock_tasks'], subscriber)
-
-    await database.action(() => tasks.create())
-    expect(subscriber).toHaveBeenCalledTimes(3)
-
-    unsubscribe2()
-    await database.action(() => tasks.create())
-    expect(subscriber).toHaveBeenCalledTimes(4)
-    unsubscribe1()
-    await database.action(() => tasks.create())
-    expect(subscriber).toHaveBeenCalledTimes(4)
-  })
   it('unsubscribe can safely be called more than once', async () => {
     const { database, tasks } = mockDatabase({ actionsEnabled: true })
 
@@ -393,6 +372,27 @@ describe('Observation', () => {
 
     expect(subscriber1).toHaveBeenCalledTimes(1)
     unsubscribe1()
+  })
+  it(`can subscribe with the same subscriber multiple times`, async () => {
+    const { database, tasks } = mockDatabase({ actionsEnabled: true })
+
+    const subscriber = jest.fn()
+    const unsubscribe1 = database.experimentalSubscribe(['mock_tasks'], subscriber)
+
+    await database.action(() => tasks.create())
+    expect(subscriber).toHaveBeenCalledTimes(1)
+
+    const unsubscribe2 = database.experimentalSubscribe(['mock_tasks'], subscriber)
+
+    await database.action(() => tasks.create())
+    expect(subscriber).toHaveBeenCalledTimes(3)
+    unsubscribe2()
+    unsubscribe2() // noop
+    await database.action(() => tasks.create())
+    expect(subscriber).toHaveBeenCalledTimes(4)
+    unsubscribe1()
+    await database.action(() => tasks.create())
+    expect(subscriber).toHaveBeenCalledTimes(4)
   })
   it('has new objects cached before calling subscribers (regression test)', async () => {
     const { database, projects, tasks } = mockDatabase({ actionsEnabled: true })
