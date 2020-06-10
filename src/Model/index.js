@@ -259,27 +259,28 @@ export default class Model {
     return record
   }
 
-  _subscribers: Array<(isDeleted: boolean) => void> = []
+  _subscribers: [(isDeleted: boolean) => void, any][] = []
 
-  experimentalSubscribe(subscriber: (isDeleted: boolean) => void): Unsubscribe {
-    this._subscribers.push(subscriber)
+  experimentalSubscribe(subscriber: (isDeleted: boolean) => void, debugInfo?: any): Unsubscribe {
+    const entry = [subscriber, debugInfo]
+    this._subscribers.push(entry)
 
     return () => {
-      const idx = this._subscribers.indexOf(subscriber)
+      const idx = this._subscribers.indexOf(entry)
       idx !== -1 && this._subscribers.splice(idx, 1)
     }
   }
 
   _notifyChanged(): void {
     this._getChanges().next(this)
-    this._subscribers.forEach(subscriber => {
+    this._subscribers.forEach(([subscriber]) => {
       subscriber(false)
     })
   }
 
   _notifyDestroyed(): void {
     this._getChanges().complete()
-    this._subscribers.forEach(subscriber => {
+    this._subscribers.forEach(([subscriber]) => {
       subscriber(true)
     })
   }

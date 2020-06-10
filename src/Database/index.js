@@ -142,7 +142,7 @@ export default class Database {
     return merge$(...changesSignals).pipe(startWith(null))
   }
 
-  _subscribers: Array<[TableName<any>[], () => void, any]> = []
+  _subscribers: [TableName<any>[], () => void, any][] = []
 
   // Notifies `subscriber` on change in any of passed tables (only a signal, no change set)
   experimentalSubscribe(
@@ -154,11 +154,11 @@ export default class Database {
       return noop
     }
 
-    const subscriberEntry = [tables, subscriber, debugInfo]
-    this._subscribers.push(subscriberEntry)
+    const entry = [tables, subscriber, debugInfo]
+    this._subscribers.push(entry)
 
     return () => {
-      const idx = this._subscribers.indexOf(subscriberEntry)
+      const idx = this._subscribers.indexOf(entry)
       idx !== -1 && this._subscribers.splice(idx, 1)
     }
   }

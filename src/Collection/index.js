@@ -149,7 +149,7 @@ export default class Collection<Record: Model> {
   }
 
   _notify(operations: CollectionChangeSet<Record>): void {
-    this._subscribers.forEach(subscriber => {
+    this._subscribers.forEach(([subscriber]) => {
       subscriber(operations)
     })
     this.changes.next(operations)
@@ -163,13 +163,17 @@ export default class Collection<Record: Model> {
     })
   }
 
-  _subscribers: Array<(CollectionChangeSet<Record>) => void> = []
+  _subscribers: [(CollectionChangeSet<Record>) => void, any][] = []
 
-  experimentalSubscribe(subscriber: (CollectionChangeSet<Record>) => void): Unsubscribe {
-    this._subscribers.push(subscriber)
+  experimentalSubscribe(
+    subscriber: (CollectionChangeSet<Record>) => void,
+    debugInfo?: any,
+  ): Unsubscribe {
+    const entry = [subscriber, debugInfo]
+    this._subscribers.push(entry)
 
     return () => {
-      const idx = this._subscribers.indexOf(subscriber)
+      const idx = this._subscribers.indexOf(entry)
       idx !== -1 && this._subscribers.splice(idx, 1)
     }
   }
