@@ -624,6 +624,12 @@ describe('applyRemoteChanges', () => {
 
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
   })
+  it(`safely skips collections that don't exist`, async () => {
+    const { database } = makeDatabase()
+
+    await testApplyRemoteChanges(database, { invalid_project: { created: [{ id: 'foo' }] } })
+    await testApplyRemoteChanges(database, { __proto__: { created: [{ id: 'foo' }] } }) // oof, naughty
+  })
 })
 
 const observeDatabase = database => {
@@ -666,9 +672,12 @@ describe('synchronize', () => {
     const log = {}
     await synchronize({
       database,
-      pullChanges: jest.fn(emptyPull()),
-      // ensure we take more than 1ms for the log test
-      pushChanges: () => new Promise(resolve => setTimeout(resolve, 10)),
+      pullChanges: async () => {
+        // ensure we take more than 1ms for the log test
+        await new Promise(resolve => setTimeout(resolve, 10))
+        return emptyPull()()
+      },
+      pushChanges: () => {},
       log,
     })
 

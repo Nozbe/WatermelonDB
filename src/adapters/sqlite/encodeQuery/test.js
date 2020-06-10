@@ -111,4 +111,14 @@ describe('SQLite encodeQuery', () => {
       `select "tasks".* from "tasks" where "tasks"."col1" like '%abc' and "tasks"."col2" not like 'def%' and "tasks"."_status" is not 'deleted'`,
     )
   })
+  it('fails to encode bad oneOf/notIn values', () => {
+    {
+      const query = new Query(mockCollection, [Q.where('col7', Q.oneOf([{}]))])
+      expect(() => encodeQuery(query)).toThrow(/Invalid value to encode into query/)
+    }
+    {
+      const query = new Query(mockCollection, [Q.where('col7', Q.notIn([{}]))])
+      expect(() => encodeQuery(query)).toThrow(/Invalid value to encode into query/)
+    }
+  })
 })

@@ -70,6 +70,12 @@ export const testSchema = appSchema({
         { name: 'text1', type: 'string' },
       ],
     }),
+    // weird names that are SQLite keywords
+    tableSchema({ name: 'where', columns: [] }),
+    tableSchema({ name: 'values', columns: [] }),
+    tableSchema({ name: 'set', columns: [] }),
+    tableSchema({ name: 'drop', columns: [] }),
+    tableSchema({ name: 'update', columns: [] }),
   ],
 })
 
@@ -117,6 +123,11 @@ export const performMatchTest = async (adapter, testCase) => {
   // also test if counting works correctly
   const count = await adapter.count(query)
   expect(count).toBe(results.length)
+
+  // delete
+  await adapter.batch(
+    [...matching, ...nonMatching].map(({ id }) => ['destroyPermanently', 'tasks', id]),
+  )
 }
 
 export const performJoinTest = async (adapter, testCase) => {

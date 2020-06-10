@@ -361,6 +361,11 @@ describe('QueryDescription', () => {
       ),
     ])
     expect(Q.hasColumnComparisons(query5)).toBe(true)
+
+    // we don't validate elements of arrays passed to Q.oneOf/Q.notIn
+    // because they may be large, so make sure even if someone passes a bad object, it doesn't break this logic
+    const query6 = Q.buildQueryDescription([Q.notIn([6, { column: 'heh' }])])
+    expect(Q.hasColumnComparisons(query6)).toBe(false)
   })
   it('builds empty query without deleted', () => {
     const query = Q.queryWithoutDeleted(Q.buildQueryDescription([]))
@@ -480,5 +485,56 @@ describe('QueryDescription', () => {
         },
       ],
     })
+  })
+  it('deep freezes the query in dev', () => {
+    const make = () => Q.buildQueryDescription([Q.where('left_column', 'right_value')])
+    const query = make()
+    expect(() => {
+      query.foo = []
+    }).toThrow()
+    expect(() => {
+      query.where[0].comparison.right = {}
+    }).toThrow()
+    expect(query).toEqual(make())
+  })
+  it('freezes oneOf/notIn, even in production', () => {
+    const env = process.env.NODE_ENV
+    try {
+      process.env.NODE_ENV = 'production'
+      const ohJustAnArray = [1, 2, 3]
+      const anotherArray = ['a', 'b', 'c']
+      Q.buildQueryDescription([
+        Q.where('col7', Q.oneOf(ohJustAnArray)),
+        Q.where('col8', Q.notIn(anotherArray)),
+      ])
+      expect(() => ohJustAnArray.push(4)).toThrow()
+      expect(() => anotherArray.push('d')).toThrow()
+      expect(ohJustAnArray.length).toBe(3)
+      expect(anotherArray.length).toBe(3)
+    } finally {
+      process.env.NODE_ENV = env
+    }
+  })
+  it('catches bad types', () => {
+    expect(() => Q.eq({})).toThrow(/Invalid value passed to query/)
+    // TODO: oneOf/notIn values?
+    expect(() => Q.oneOf({})).toThrow(/not an array/)
+    expect(() => Q.notIn({})).toThrow(/not an array/)
+    expect(() => Q.like(null)).toThrow(/not string/)
+    expect(() => Q.like({})).toThrow(/not string/)
+    expect(() => Q.notLike(null)).toThrow(/not string/)
+    expect(() => Q.notLike({})).toThrow(/not string/)
+    expect(() => Q.sanitizeLikeString(null)).toThrow(/not string/)
+    expect(() => Q.column({})).toThrow(/not string/)
+  })
+  it('protect against passing Watermelon look-alike objects', () => {
+    // protect against passing something that could be a user-input Object (risk is when Watermelon users pass stuff from JSON without validation), but is unintended or even malicious in some way
+    expect(() => Q.eq({ column: 'foo' })).toThrow(/Invalid { column: }/)
+    expect(() => Q.where('foo', { operator: 'eq', right: { value: 'foo' } })).toThrow(
+      /Invalid Comparison/,
+    )
+    expect(() => Q.where('foo', {})).toThrow(/Invalid Comparison/)
+    expect(() => Q.on('table', 'foo', {})).toThrow(/Invalid Comparison/)
+    expect(() => Q.on('table', 'foo', Q.eq({ column: 'foo' }))).toThrow(/Invalid { column: }/)
   })
 })

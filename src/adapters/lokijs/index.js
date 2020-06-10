@@ -9,7 +9,7 @@ import type { TableName, AppSchema } from '../../Schema'
 import type { SchemaMigrations } from '../../Schema/migrations'
 import type { SerializedQuery } from '../../Query'
 import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
-import { devSetupCallback, validateAdapter } from '../common'
+import { devSetupCallback, validateAdapter, validateTable } from '../common'
 
 import WorkerBridge from './WorkerBridge'
 import { actions } from './common'
@@ -111,34 +111,40 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   }
 
   find(table: TableName<any>, id: RecordId, callback: ResultCallback<CachedFindResult>): void {
+    validateTable(table, this.schema)
     this.workerBridge.send(FIND, [table, id], callback)
   }
 
   query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void {
+    validateTable(query.table, this.schema)
     // SerializedQueries are immutable, so we need no copy
     this.workerBridge.send(QUERY, [query], callback, 'immutable')
   }
 
   count(query: SerializedQuery, callback: ResultCallback<number>): void {
+    validateTable(query.table, this.schema)
     // SerializedQueries are immutable, so we need no copy
     this.workerBridge.send(COUNT, [query], callback, 'immutable')
   }
 
   batch(operations: BatchOperation[], callback: ResultCallback<void>): void {
+    operations.forEach(([, table]) => validateTable(table, this.schema))
     // batches are only strings + raws which only have JSON-compatible values, rest is immutable
     this.workerBridge.send(BATCH, [operations], callback, 'shallowCloneDeepObjects')
   }
 
-  getDeletedRecords(tableName: TableName<any>, callback: ResultCallback<RecordId[]>): void {
-    this.workerBridge.send(GET_DELETED_RECORDS, [tableName], callback)
+  getDeletedRecords(table: TableName<any>, callback: ResultCallback<RecordId[]>): void {
+    validateTable(table, this.schema)
+    this.workerBridge.send(GET_DELETED_RECORDS, [table], callback)
   }
 
   destroyDeletedRecords(
-    tableName: TableName<any>,
+    table: TableName<any>,
     recordIds: RecordId[],
     callback: ResultCallback<void>,
   ): void {
-    this.workerBridge.send(DESTROY_DELETED_RECORDS, [tableName, recordIds], callback)
+    validateTable(table, this.schema)
+    this.workerBridge.send(DESTROY_DELETED_RECORDS, [table, recordIds], callback)
   }
 
   unsafeResetDatabase(callback: ResultCallback<void>): void {

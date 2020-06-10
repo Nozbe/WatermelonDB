@@ -1,7 +1,7 @@
 import Query from '../../Query'
 import * as Q from '../../QueryDescription'
 import encodeMatcher from './index'
-import { matchTests } from '../../__tests__/databaseTests'
+import { matchTests, naughtyMatchTests } from '../../__tests__/databaseTests'
 
 const mockModelClass = { table: 'tasks' }
 const mockCollection = { modelClass: mockModelClass }
@@ -14,6 +14,20 @@ const expectFalse = (matcher, raw) => expect(matcher(raw)).toBe(false)
 describe('SQLite encodeMatcher', () => {
   matchTests.forEach(testCase => {
     it(`passes db test: ${testCase.name}`, () => {
+      const matcher = makeMatcher(testCase.query)
+
+      testCase.matching.forEach(matchingRaw => {
+        expectTrue(matcher, matchingRaw)
+      })
+
+      testCase.nonMatching.forEach(nonMatchingRaw => {
+        expectFalse(matcher, nonMatchingRaw)
+      })
+    })
+  })
+  it('passes big-list-of-naughty-string matches', () => {
+    naughtyMatchTests.forEach(testCase => {
+      // console.log(testCase.name)
       const matcher = makeMatcher(testCase.query)
 
       testCase.matching.forEach(matchingRaw => {

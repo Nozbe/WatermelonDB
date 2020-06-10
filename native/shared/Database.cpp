@@ -33,7 +33,7 @@ Database::~Database() {
 }
 
 std::string cacheKey(std::string tableName, std::string recordId) {
-    return tableName + "$" + recordId; // NOTE: safe as long as neither table names nor record ids can contain $ sign
+    return tableName + "$" + recordId; // NOTE: safe as long as table names cannot contain $ sign
 }
 
 bool Database::isCached(std::string cacheKey) {
@@ -153,8 +153,8 @@ jsi::Object Database::resultDictionary(sqlite3_stmt *statement) {
 
         switch (sqlite3_column_type(statement, i)) {
         case SQLITE_INTEGER: {
-            int value = sqlite3_column_int(statement, i);
-            dictionary.setProperty(rt, column, std::move(jsi::Value(value)));
+            sqlite3_int64 value = sqlite3_column_int64(statement, i);
+            dictionary.setProperty(rt, column, std::move(jsi::Value((double)value)));
             break;
         }
         case SQLITE_FLOAT: {
@@ -240,7 +240,7 @@ jsi::Value Database::find(jsi::String &tableName, jsi::String &id) {
     }
 
     auto args = jsi::Array::createWithElements(rt, id);
-    auto statement = executeQuery("select * from " + tableName.utf8(rt) + " where id == ? limit 1", args);
+    auto statement = executeQuery("select * from `" + tableName.utf8(rt) + "` where id == ? limit 1", args);
 
     int stepResult = sqlite3_step(statement.stmt);
 
@@ -337,7 +337,7 @@ void Database::batch(jsi::Array &operations) {
             } else if (type == "markAsDeleted") {
                 const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
                 auto args = jsi::Array::createWithElements(rt, id);
-                executeUpdate("update " + table.utf8(rt) + " set _status='deleted' where id == ?", args);
+                executeUpdate("update `" + table.utf8(rt) + "` set _status='deleted' where id == ?", args);
 
                 removedIds.push_back(cacheKey(table.utf8(rt), id.utf8(rt)));
             } else if (type == "destroyPermanently") {
@@ -345,7 +345,7 @@ void Database::batch(jsi::Array &operations) {
                 auto args = jsi::Array::createWithElements(rt, id);
 
                 // TODO: What's the behavior if nothing got deleted?
-                executeUpdate("delete from " + table.utf8(rt) + " where id == ?", args);
+                executeUpdate("delete from `" + table.utf8(rt) + "` where id == ?", args);
                 removedIds.push_back(cacheKey(table.utf8(rt), id.utf8(rt)));
             } else {
                 throw jsi::JSError(rt, "Invalid operation type");
@@ -369,7 +369,7 @@ void Database::batch(jsi::Array &operations) {
 jsi::Array Database::getDeletedRecords(jsi::String &tableName) {
     auto &rt = getRt();
     auto args = jsi::Array::createWithElements(rt);
-    auto statement = executeQuery("select id from " + tableName.utf8(rt) + " where _status='deleted'", args);
+    auto statement = executeQuery("select id from `" + tableName.utf8(rt) + "` where _status='deleted'", args);
 
     jsi::Array records(rt, 0);
 
@@ -401,7 +401,7 @@ void Database::destroyDeletedRecords(jsi::String &tableName, jsi::Array &recordI
     beginTransaction();
     try {
         // TODO: Maybe it's faster & easier to do it in one query?
-        std::string sql = "delete from " + tableName.utf8(rt) + " where id == ?";
+        std::string sql = "delete from `" + tableName.utf8(rt) + "` where id == ?";
 
         for (size_t i = 0, len = recordIds.size(rt); i < len; i++) {
             // TODO: What's the behavior if record doesn't exist or isn't actually deleted?
@@ -459,7 +459,7 @@ void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
 
         // Destroy everything
         for (auto const &table : tables) {
-            executeUpdate("drop table if exists " + table);
+            executeUpdate("drop table if exists `" + table + "`");
         }
 
         executeUpdate("pragma writable_schema=1");

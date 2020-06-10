@@ -1,3 +1,4 @@
+import naughtyStrings from 'big-list-of-naughty-strings'
 import * as Q from '../QueryDescription'
 
 export const matchTests = [
@@ -68,6 +69,12 @@ export const matchTests = [
     query: [Q.where('float1', 3.14)],
     matching: [{ id: 'm1', float1: 3.14 }],
     nonMatching: [{ id: 'n1', float1: null }, { id: 'n2', float1: 1.0 }],
+  },
+  {
+    name: 'matches big numbers (e.g. JS timestamps)',
+    query: [Q.where('float1', 1590485104033)],
+    matching: [{ id: 'm1', float1: 1590485104033 }],
+    nonMatching: [{ id: 'n1', float1: null }, { id: 'n2', float1: 159048510 }],
   },
   {
     name: 'matches multiple conditions',
@@ -530,6 +537,13 @@ export const matchTests = [
     ],
   },
 ]
+
+export const naughtyMatchTests = naughtyStrings.map(naughtyString => ({
+  name: naughtyString,
+  query: [Q.where('text1', naughtyString)],
+  matching: [{ id: 'm1', text1: naughtyString }],
+  nonMatching: [{ id: 'n1', text1: null }, { id: 'n2', text1: 'not-a-naughty-string' }],
+}))
 
 export const joinTests = [
   {

@@ -1,5 +1,7 @@
 import expect from 'expect'
+import naughtyStrings from 'big-list-of-naughty-strings'
 
+import expectToRejectWithMessage from '../../__tests__/utils/expectToRejectWithMessage'
 import Model from '../../Model'
 import Query from '../../Query'
 import { sanitizedRaw } from '../../RawRecord'
@@ -7,7 +9,7 @@ import * as Q from '../../QueryDescription'
 import { appSchema, tableSchema } from '../../Schema'
 import { schemaMigrations, createTable, addColumns } from '../../Schema/migrations'
 
-import { matchTests, joinTests } from '../../__tests__/databaseTests'
+import { matchTests, naughtyMatchTests, joinTests } from '../../__tests__/databaseTests'
 import DatabaseAdapterCompat from '../compat'
 import {
   testSchema,
@@ -19,6 +21,7 @@ import {
   MockTask,
   mockProjectRaw,
   projectQuery,
+  modelQuery,
 } from './helpers'
 
 class BadModel extends Model {
@@ -439,6 +442,31 @@ export default () => [
     },
   ],
   [
+    'destroyDeletedRecords can handle unsafe strings',
+    async adapter => {
+      const m1 = mockTaskRaw({ id: 't1', text1: 'bar1', order: 1 })
+      const m2 = mockTaskRaw({ id: 't2', text1: 'bar2', order: 2 })
+      const m3 = mockTaskRaw({ id: 't3', text1: 'bar3', order: 3 })
+      await adapter.batch([
+        ['create', 'tasks', m1],
+        ['create', 'tasks', m2],
+        ['create', 'tasks', m3],
+      ])
+      await adapter.batch([
+        ['markAsDeleted', 'tasks', m1.id],
+        ['markAsDeleted', 'tasks', m2.id],
+        ['markAsDeleted', 'tasks', m3.id],
+      ])
+
+      await adapter.destroyDeletedRecords('tasks', ['\') or 1=1 --'])
+      expectSortedEqual(await adapter.getDeletedRecords('tasks'), ['t1', 't2', 't3'])
+      expectSortedEqual(await adapter.query(taskQuery()), [])
+
+      await adapter.destroyDeletedRecords('tasks', ['\'); insert into tasks (id) values (\'t4\') --'])
+      expectSortedEqual(await adapter.query(taskQuery()), [])
+    },
+  ],
+  [
     'can run mixed batches',
     async _adapter => {
       let adapter = _adapter
@@ -481,19 +509,16 @@ export default () => [
       await adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1' })]])
       expect(await adapter.query(taskQuery())).toEqual(['t1'])
 
-      await expect(
+      await expectToRejectWithMessage(
         adapter.batch([
           ['create', 'tasks', mockTaskRaw({ id: 't2' })],
-          ['create', 'does_not_exist', mockTaskRaw({ id: 't3' })],
+          ['create', 'tasks', mockTaskRaw({ id: 't2' })], // duplicate
         ]),
-      ).rejects.toMatchObject({
         // TODO: Get rid of the unknown error - fix on Android
-        message: expect.stringMatching(
-          AdapterClass.name === 'SQLiteAdapter'
-            ? /(no such table: does_not_exist|Exception in HostFunction: <unknown>)/
-            : /Cannot read property 'insert' of null/,
-        ),
-      })
+        AdapterClass.name === 'SQLiteAdapter'
+          ? /(UNIQUE constraint failed: tasks.id|Exception in HostFunction: <unknown>)/
+          : /Duplicate key for property id: t2/,
+      )
       if (AdapterClass.name !== 'LokiJSAdapter') {
         // Regrettably, Loki is not transactional
         expect(await adapter.query(taskQuery())).toEqual(['t1'])
@@ -649,6 +674,79 @@ export default () => [
 
       // deleting already undefined is safe
       await adapter.removeLocal('nonexisting')
+    },
+  ],
+  [
+    'supports naughty strings in LocalStorage',
+    async (adapter, AdapterClass, extraAdapterOptions) => {
+      const usePartialTestBecauseBuggyLoki = AdapterClass.name === 'LokiJSAdapter'
+      if (usePartialTestBecauseBuggyLoki) {
+        // FIXME: https://github.com/techfort/LokiJS/issues/839
+        console.warn('buggy skipping LocalStorage tests') // eslint-disable-line no-console
+      }
+
+      // eslint-disable-next-line no-restricted-syntax
+      for (const string of naughtyStrings) {
+        const key = usePartialTestBecauseBuggyLoki ? `key${Math.random()}` : string
+        // console.log(string)
+        // KNOWN ISSUE: non-JSI adapter implementation gets confused by this (it's a BOM mark)
+        if (
+          AdapterClass.name === 'SQLiteAdapter' &&
+          !extraAdapterOptions.experimentalUseJSI &&
+          string === '﻿'
+        ) {
+          // eslint-disable-next-line no-await-in-loop
+          await adapter.setLocal(key, string)
+          // eslint-disable-next-line no-await-in-loop
+          expect(await adapter.getLocal(key)).not.toBe(string) // if this fails, it means the issue's been fixed
+        } else {
+          // eslint-disable-next-line no-await-in-loop
+          await adapter.setLocal(key, string)
+          // eslint-disable-next-line no-await-in-loop
+          expect(await adapter.getLocal(key)).toBe(string)
+        }
+      }
+    },
+  ],
+  [
+    'does not fail on (weirdly named) table named that are SQLite keywords',
+    async adapter => {
+      await Promise.all(
+        ['where', 'values', 'set', 'drop', 'update'].map(async tableName => {
+          await adapter.batch([['create', tableName, { id: 'i1' }]])
+          await adapter.batch([['update', tableName, { id: 'i1' }]])
+          await adapter.batch([['markAsDeleted', tableName, 'i1']])
+          await adapter.batch([['create', tableName, { id: 'i2' }]])
+          await adapter.find(tableName, 'i2')
+          await adapter.query(modelQuery({ table: tableName }))
+          await adapter.count(modelQuery({ table: tableName }))
+          await adapter.getDeletedRecords(tableName)
+          await adapter.destroyDeletedRecords(tableName, ['i1'])
+          await adapter.batch([['destroyPermanently', tableName, 'i2']])
+          await adapter.getLocal(tableName)
+          await adapter.setLocal(tableName, tableName)
+          await adapter.removeLocal(tableName)
+        }),
+      )
+    },
+  ],
+  [
+    'fails quickly on non-existing table names',
+    async (adapter, AdapterClass) => {
+      const table = 'does-not-exist'
+      const msg = /table name '.*' does not exist/
+      await expectToRejectWithMessage(adapter.find(table, 'i'), msg)
+      await expectToRejectWithMessage(adapter.query(modelQuery({ table })), msg)
+      if (AdapterClass.name === 'SQLiteAdapter') {
+        await expectToRejectWithMessage(adapter.unsafeSqlQuery(table, 'xxx'), msg)
+      }
+      await expectToRejectWithMessage(adapter.count(modelQuery({ table })), msg)
+      await expectToRejectWithMessage(adapter.batch([['create', table, { id: 'i1' }]]), msg)
+      await expectToRejectWithMessage(adapter.batch([['update', table, { id: 'i1' }]]), msg)
+      await expectToRejectWithMessage(adapter.batch([['markAsDeleted', table, 'i1']]), msg)
+      await expectToRejectWithMessage(adapter.batch([['destroyPermanently', table, 'i2']]), msg)
+      await expectToRejectWithMessage(adapter.getDeletedRecords(table), msg)
+      await expectToRejectWithMessage(adapter.destroyDeletedRecords(table, []), msg)
     },
   ],
   [
@@ -977,6 +1075,71 @@ export default () => [
       await performMatchTest(adapter, testCase)
     },
   ]),
+  [
+    '[shared match test] can match strings from big-list-of-naughty-strings',
+    async (adapter, AdapterClass, extraAdapterOptions) => {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const testCase of naughtyMatchTests) {
+        // console.log(testCase.name)
+
+        // KNOWN ISSUE: non-JSI adapter implementation gets confused by this (it's a BOM mark)
+        if (
+          AdapterClass.name === 'SQLiteAdapter' &&
+          !extraAdapterOptions.experimentalUseJSI &&
+          testCase.matching[0].text1 === '﻿'
+        ) {
+          // eslint-disable-next-line no-console
+          console.warn('skip check for a BOM naughty string - known failing test')
+        } else {
+          // eslint-disable-next-line no-await-in-loop
+          await performMatchTest(adapter, testCase)
+        }
+      }
+    },
+  ],
+  [
+    'can store and retrieve large numbers (regression test)',
+    async _adapter => {
+      // NOTE: matcher test didn't catch it because both insert and query has the same bug
+      let adapter = _adapter
+      const number = 1590485104033
+      await adapter.batch([['create', 'tasks', { id: 'm1', num1: number }]])
+      // launch app again
+      adapter = await adapter.testClone()
+      const record = await adapter.find('tasks', 'm1')
+      expect(record.num1).toBe(number)
+    },
+  ],
+  [
+    'can store and retrieve naughty strings exactly',
+    async (_adapter, AdapterClass, extraAdapterOptions) => {
+      let adapter = _adapter
+      const indexedNaughtyStrings = naughtyStrings.map((string, i) => [`id${i}`, string])
+      await adapter.batch(
+        indexedNaughtyStrings.map(([id, string]) => ['create', 'tasks', { id, text1: string }]),
+      )
+
+      // launch app again
+      adapter = await adapter.testClone()
+      const allRecords = await adapter.query(taskQuery())
+
+      indexedNaughtyStrings.forEach(([id, string]) => {
+        const record = allRecords.find(model => model.id === id)
+        // console.log(string, record)
+        // KNOWN ISSUE: non-JSI adapter implementation gets confused by this (it's a BOM mark)
+        if (
+          AdapterClass.name === 'SQLiteAdapter' &&
+          !extraAdapterOptions.experimentalUseJSI &&
+          string === '﻿'
+        ) {
+          expect(record.text1).not.toBe(string) // if this fails, it means the issue's been fixed
+        } else {
+          expect(!!record).toBe(true)
+          expect(record.text1).toBe(string)
+        }
+      })
+    },
+  ],
   ...joinTests.map(testCase => [
     `[shared join test] ${testCase.name}`,
     async adapter => {

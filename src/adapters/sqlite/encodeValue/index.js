@@ -24,8 +24,9 @@ export default function encodeValue(value: Value): string {
     return 'null'
   } else if (typeof value === 'number') {
     return `${value}`
+  } else if (typeof value === 'string') {
+    // TODO: We shouldn't ever encode SQL values directly — use placeholders
+    return escapeString(value)
   }
-
-  // TODO: We shouldn't ever encode SQL values directly — use placeholders
-  return escapeString(value)
+  throw new Error('Invalid value to encode into query')
 }

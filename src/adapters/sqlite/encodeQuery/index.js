@@ -86,7 +86,7 @@ const encodeWhereCondition = (
   if (comparison.operator === 'weakGt' && comparison.right.column) {
     return encodeWhere(table)(
       Q.or(
-        Q.where(left, Q.gt(comparison.right)),
+        Q.where(left, Q.gt(Q.column(comparison.right.column))),
         Q.and(Q.where(left, Q.notEq(null)), Q.where((comparison.right: any).column, null)),
       ),
     )
