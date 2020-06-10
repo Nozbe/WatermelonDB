@@ -17,7 +17,7 @@ export default class SharedSubscribable<T> {
 
   _unsubscribeSource: ?Unsubscribe = null
 
-  _subscribers: Array<[(T) => void, any]> = []
+  _subscribers: [(T) => void, any][] = []
 
   _didEmit: boolean = false
 
@@ -55,7 +55,7 @@ export default class SharedSubscribable<T> {
     })
   }
 
-  _unsubscribe(entry: [(T) => void]): void {
+  _unsubscribe(entry: [(T) => void, any]): void {
     const idx = this._subscribers.indexOf(entry)
     idx !== -1 && this._subscribers.splice(idx, 1)
 

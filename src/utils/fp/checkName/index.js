@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from '../../common/invariant'
+import type { TableName, ColumnName } from '../../../Schema'
 
 // Asserts that `name` (table or column name) should be safe for inclusion in SQL queries
 // and Loki queries (JS objects)
@@ -24,7 +25,7 @@ import invariant from '../../common/invariant'
 const safeNameCharacters = /^[a-zA-Z_]\w*$/
 const knownSafeNames = new Set()
 
-export default function checkName(name: string): string {
+export default function checkName<T: string | TableName<any> | ColumnName>(name: T): T {
   if (knownSafeNames.has(name)) {
     return name
   }
