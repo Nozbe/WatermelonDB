@@ -36,18 +36,21 @@ export default class Query<Record: Model> {
   _rawDescription: QueryDescription
 
   @lazy
-  _cachedSubscribable: SharedSubscribable<Record[]> = new SharedSubscribable(subscriber =>
-    subscribeToQuery(this, subscriber),
+  _cachedSubscribable: SharedSubscribable<Record[]> = new SharedSubscribable(
+    subscriber => subscribeToQuery(this, subscriber),
+    { name: `Query(${this.table}).cachedSubscribable`, query: this },
   )
 
   @lazy
-  _cachedCountSubscribable: SharedSubscribable<number> = new SharedSubscribable(subscriber =>
-    subscribeToCount(this, false, subscriber),
+  _cachedCountSubscribable: SharedSubscribable<number> = new SharedSubscribable(
+    subscriber => subscribeToCount(this, false, subscriber),
+    { name: `Query(${this.table}).cachedCountSubscribable`, query: this },
   )
 
   @lazy
   _cachedCountThrottledSubscribable: SharedSubscribable<number> = new SharedSubscribable(
     subscriber => subscribeToCount(this, true, subscriber),
+    { name: `Query(${this.table}).cachedCountThrottledSubscribable`, query: this },
   )
 
   // Note: Don't use this directly, use Collection.query(...)

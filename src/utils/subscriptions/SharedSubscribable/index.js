@@ -17,7 +17,7 @@ export default class SharedSubscribable<T> {
 
   _unsubscribeSource: ?Unsubscribe = null
 
-  _subscribers: Array<[(T) => void]> = []
+  _subscribers: Array<[(T) => void, any]> = []
 
   _didEmit: boolean = false
 
@@ -27,8 +27,8 @@ export default class SharedSubscribable<T> {
     this._source = source
   }
 
-  subscribe(subscriber: T => void): Unsubscribe {
-    const entry = [subscriber]
+  subscribe(subscriber: T => void, debugInfo?: any): Unsubscribe {
+    const entry = [subscriber, debugInfo]
     this._subscribers.push(entry)
 
     if (this._didEmit) {
