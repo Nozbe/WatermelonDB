@@ -35,6 +35,7 @@ async function mySync() {
         throw new Error(await response.text())
       }
     },
+    migrationsEnabledAtVersion: 1,
   })
 }
 
@@ -66,21 +67,23 @@ You might also need to switch to Terser in Webpack if you use Watermelon for web
 
 Watermelon will call this function to ask for changes that happened on the server since the last pull.
 
-Arguments: `{ lastPulledAt }`:
+Arguments:
 - `lastPulledAt` is a timestamp for the last time client pulled changes from server (or `null` if first sync)
+- `schemaVersion` is the current schema version of the local database
+- `migration` is an object representing schema changes since last sync (or `null` if up to date or not supported)
 
 This function should fetch from the server the list of ALL changes in all collections since `lastPulledAt`.
 
 1. You MUST pass an async function or return a Promise that eventually resolves or rejects
-1. You MUST pass `lastPulledAt` to an endpoint that conforms to Watermelon Sync Protocol
-2. You MUST return a promise resolving to an object of this shape (your backend SHOULD return this shape already):
+2. You MUST pass `lastPulledAt`, `schemaVersion`, and `migration` to an endpoint that conforms to Watermelon Sync Protocol
+3. You MUST return a promise resolving to an object of this shape (your backend SHOULD return this shape already):
     ```js
     {
       changes: { ... }, // valid changes object
       timestamp: 100000, // integer with *server's* current time
     }
     ```
-3. You MUST NOT store the object returned in `pullChanges()`. If you need to do any processing on it, do it before returning the object. Watermelon treats this object as "consumable" and can mutate it (for performance reasons)
+4. You MUST NOT store the object returned in `pullChanges()`. If you need to do any processing on it, do it before returning the object. Watermelon treats this object as "consumable" and can mutate it (for performance reasons)
 
 ### Implementing `pushChanges()`
 
@@ -109,6 +112,17 @@ Arguments passed:
 3. You MUST NOT reset local database while synchronization is in progress (push to server will be safely aborted, but consistency of the local database may be compromised)
 4. You SHOULD wrap `synchronize()` in a "retry once" block - if sync fails, try again once. This will resolve push failures due to server-side conflicts by pulling once again before pushing.
 5. You can use `database.withChangesForTables` to detect when local changes occured to call sync. If you do this, you should debounce (or throttle) this signal to avoid calling `synchronize()` too often.
+
+### Adopting Migration Syncs
+
+For Watermelon Sync to maintain consistency after [migrations](./Migrations.md), you must support Migration Syncs (introduced in WatermelonDB v0.17). This allows Watermelon to request from backend the tables and columns it needs to have all the data.
+
+1. For new apps, pass `{migrationsEnabledAtVersion: 1}` to `synchronize()` (or the first schema version that shipped / the oldest schema version from which it's possible to migrate to the current version)
+2. To enable migration syncs, the database MUST be configured with [migrations spec](./Migrations.md) (even if it's empty)
+3. For existing apps, set `migrationsEnabledAtVersion` to the current schema version before making any schema changes. In other words, this version should be the last schema version BEFORE the first migration that should support migration syncs.
+4. Note that for apps that shipped before WatermelonDB v0.17, it's not possible to determine what was the last schema version at which the sync happened. `migrationsEnabledAtVersion` is used as a placeholder in this case. It's not possible to guarantee that all necessary tables and columns will be requested. (If user logged in when schema version was lower than `migrationsEnabledAtVersion`, tables or columns were later added, and new records in those tables/changes in those columns occured on the server before user updated to an app version that has them, those records won't sync). To work around this, you may specify `migrationsEnabledAtVersion` to be the oldest schema version from which it's possible to migrate to the current version. However, this means that users, after updating to an app version that supports Migration Syncs, will request from the server all the records in new tables. This may be unacceptably inefficient.
+5. WatermelonDB >=0.17 will note the schema version at which the user logged in, even if migrations are not enabled, so it's possible for app to request from backend changes from schema version lower than `migrationsEnabledAtVersion`
+6. You MUST NOT delete old [migrations](./Migrations.md), otherwise it's possible that the app is permanently unable to sync.
 
 ### Adding logging to your sync
 
@@ -179,16 +193,29 @@ Changes = {
 
 ### Implementing pull endpoint
 
-1. The pull endpoint MUST return all record changes in all collections since `lastPulledAt`, specifically:
+Expected parameters:
+
+```js
+{
+  lastPulledAt: Timestamp,
+  schemaVersion: int,
+  migration: null | { from: int, tables: string[], columns: { table: string, columns: string[] }[] }
+}
+```
+
+Expected response:
+
+```js
+{ changes: Changes, timestamp: Timestamp }
+```
+
+1. The pull endpoint SHOULD take parameters and return a response matching the shape specified above.
+    This shape MAY be different if negotiated with the frontend (however, frontend-side `pullChanges()` MUST conform to this)
+2. The pull endpoint MUST return all record changes in all collections since `lastPulledAt`, specifically:
    - all records that were created on the server since `lastPulledAt`
    - all records that were updated on the server since `lastPulledAt`
    - IDs of all records that were deleted on the server since `lastPulledAt`
-2. If `lastPulledAt` is null or 0, you MUST return all accessible records (first sync)
-3. The pull endpoint SHOULD return an object conforming to:
-    ```js
-    { changes: Changes, timestamp: Timestamp }
-    ```
-    The shape may be different, however, the frontend-side `pullChanges()` MUST conform to this.
+3. If `lastPulledAt` is null or 0, you MUST return all accessible records (first sync)
 4. The timestamp returned by the server MUST be a value that, if passed again to `pullChanges()` as `lastPulledAt`, will return all changes that happened since this moment.
 5. The pull endpoint MUST provide a consistent view of changes since `lastPulledAt`
    - You should perform all queries synchronously or in a write lock to ensure that returned changes are consistent
@@ -196,16 +223,23 @@ Changes = {
    - This is to ensure that no changes are made to the database while you're fetching changes (otherwise some records would never be returned in a pull query)
    - If it's absolutely not possible to do so, and you have to query each collection separately, be sure to return a `lastPulledAt` timestamp marked BEFORE querying starts. You still risk inconsistent responses (that may break app's consistency assumptions), but the next pull will fetch whatever changes occured during previous pull.
    - An alternative solution is to check for the newest change before and after all queries are made, and if there's been a change during the pull, return an error code, or retry.
-6. Returned raw records MUST match your app's [Schema](../Schema.md)
-7. Returned raw records MUST NOT not contain special `_status`, `_changed` fields.
-8. Returned raw records MAY contain fields (columns) that are not yet present in the local app (at the current schema version -- but added in a later version). They will be safely ignored.
-9. Returned raw records MUST NOT contain arbitrary column names, as they may be unsafe (e.g. `__proto__` or `constructor`). You should whitelist acceptable column names.
-10. Returned record IDs MUST only contain safe characters
+6. If `migration` is not null, you MUST include records needed to get a consistent view after a local database migration
+   - Specifically, you MUST include all records in tables that were added to the local database between the last user sync and `schemaVersion`
+   - For all columns that were added to the local app database between the last sync and `schemaVersion`, you MUST include all records for which the added column has a value other than the default value (`0`, `''`, `false`, or `null` depending on column type and nullability)
+   - You can determine what schema changes were made to the local app in two ways:
+     - You can compare `migration.from` (local schema version at the time of the last sync) and `schemaVersion` (current local schema version). This requires you to negotiate with the frontend what schema changes are made at which schema versions, but gives you more control
+     - Or you can ignore `migration.from` and only look at `migration.tables` (which indicates which tables were added to the local database since the last sync) and `migration.columns` (which indicates which columns were added to the local database to which tables since last sync).
+     - If you use `migration.tables` and `migration.columns`, you MUST whitelist values a client can request. Take care not to leak any internal fields to the client.
+7. Returned raw records MUST match your app's [Schema](../Schema.md)
+8. Returned raw records MUST NOT not contain special `_status`, `_changed` fields.
+9.  Returned raw records MAY contain fields (columns) that are not yet present in the local app (at `schemaVersion` -- but added in a later version). They will be safely ignored.
+10. Returned raw records MUST NOT contain arbitrary column names, as they may be unsafe (e.g. `__proto__` or `constructor`). You should whitelist acceptable column names.
+11. Returned record IDs MUST only contain safe characters
     - Default WatermelonDB IDs conform to `/^[a-zA-Z0-9]{16}$/`
     - `_-.` are also allowed if you override default ID generator, but `'"\/$` are unsafe
-11. Changes SHOULD NOT contain collections that are not yet present in the local app (at the current schema version). They will, however, be safely ignored.
+12. Changes SHOULD NOT contain collections that are not yet present in the local app (at `schemaVersion`). They will, however, be safely ignored.
     - NOTE: This is true for WatermelonDB v0.17 and above. If you support clients using earlier versions, you MUST NOT return collections not known by them.
-12. Changes MUST NOT contain collections with arbitrary names, as they may be unsafe. You should whitelist acceptable collection names.
+13. Changes MUST NOT contain collections with arbitrary names, as they may be unsafe. You should whitelist acceptable collection names.
 
 ### Implementing push endpoint
 
