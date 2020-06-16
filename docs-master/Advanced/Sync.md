@@ -17,8 +17,10 @@ import { synchronize } from '@nozbe/watermelondb/sync'
 async function mySync() {
   await synchronize({
     database,
-    pullChanges: async ({ lastPulledAt }) => {
-      const response = await fetch(`https://my.backend/sync?last_pulled_at=${lastPulledAt}`)
+    pullChanges: async ({ lastPulledAt, schemaVersion, migration }) => {
+      const response = await fetch(`https://my.backend/sync`, {
+        body: JSON.stringify({ lastPulledAt, schemaVersion, migration })
+      })
       if (!response.ok) {
         throw new Error(await response.text())
       }
