@@ -1142,6 +1142,7 @@ describe('synchronize', () => {
             }),
           ],
         },
+        { toVersion: 8, steps: [] },
       ],
     })
     it(`remembers synced schema version on first sync`, async () => {
@@ -1279,6 +1280,10 @@ describe('synchronize', () => {
           migrationsEnabledAtVersion: 9,
         }),
         'Migration syncs cannot be enabled on a database that does not support migrations',
+      )
+      await expectToRejectWithMessage(
+        synchronize({ database, migrationsEnabledAtVersion: 6 }),
+        `migrationsEnabledAtVersion is too low - not possible to migrate from schema version 6`,
       )
     })
     it(`fails on last synced schema version > current schema version`, async () => {

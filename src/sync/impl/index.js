@@ -78,6 +78,10 @@ export async function getMigrationInfo(
       migrations,
       '[Sync] Migration syncs cannot be enabled on a database that does not support migrations',
     )
+    invariant(
+      migrationsEnabledAtVersion >= migrations.minVersion,
+      `[Sync] migrationsEnabledAtVersion is too low - not possible to migrate from schema version ${migrationsEnabledAtVersion}`,
+    )
     lastPulledSchemaVersion &&
       invariant(
         lastPulledSchemaVersion <= schemaVersion,
