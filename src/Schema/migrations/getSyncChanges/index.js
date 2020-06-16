@@ -1,9 +1,15 @@
 // @flow
 
 import { uniq, groupBy, toPairs, piped } from 'rambdax'
-import type { MigrationStep, CreateTableMigrationStep, AddColumnsMigrationStep } from '../index'
-import type { TableName, ColumnName } from '../../index'
+import type {
+  MigrationStep,
+  CreateTableMigrationStep,
+  AddColumnsMigrationStep,
+  SchemaMigrations,
+} from '../index'
+import type { TableName, ColumnName, SchemaVersion } from '../../index'
 import { tableName } from '../../index'
+import { stepsForMigration } from '../stepsForMigration'
 
 import { invariant } from '../../../utils/common'
 import { unnest } from '../../../utils/fp'
@@ -18,7 +24,13 @@ export type MigrationSyncChanges = $Exact<{
 
 // TODO: if we have more than these two step types, it's safer if we take SchemaMigrations and from/to
 // to ensure we process steps in order
-export default function getSyncChanges(steps: MigrationStep[]): MigrationSyncChanges {
+export default function getSyncChanges(
+  migrations: SchemaMigrations,
+  fromVersion: SchemaVersion,
+  toVersion: SchemaVersion,
+): MigrationSyncChanges {
+  const steps = stepsForMigration({ migrations, fromVersion, toVersion })
+  invariant(steps, 'Necessary range of migrations for sync is not available')
   steps.forEach(step => {
     invariant(
       ['create_table', 'add_columns'].includes(step.type),
