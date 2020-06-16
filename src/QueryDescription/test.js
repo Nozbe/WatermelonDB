@@ -537,4 +537,11 @@ describe('QueryDescription', () => {
     expect(() => Q.on('table', 'foo', {})).toThrow(/Invalid Comparison/)
     expect(() => Q.on('table', 'foo', Q.eq({ column: 'foo' }))).toThrow(/Invalid { column: }/)
   })
+  it(`protects against unsafe column and table names passed`, () => {
+    expect(() => Q.column('sqlite_master')).toThrow(/Unsafe name/)
+    expect(() => Q.column('hey` or --')).toThrow(/Unsafe name/)
+    expect(() => Q.where('rowid', 10)).toThrow(/Unsafe name/)
+    expect(() => Q.on('sqlite_master', 'foo', 'bar')).toThrow(/Unsafe name/)
+    expect(() => Q.on('sqlite_master', Q.where('foo', 'bar'))).toThrow(/Unsafe name/)
+  })
 })

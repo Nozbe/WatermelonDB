@@ -5,6 +5,7 @@ import { propEq, pipe, prop, uniq, map } from 'rambdax'
 // don't import whole `utils` to keep worker size small
 import partition from '../utils/fp/partition'
 import invariant from '../utils/common/invariant'
+import checkName from '../utils/fp/checkName'
 import deepFreeze from '../utils/common/deepFreeze'
 import type { $RE } from '../types'
 
@@ -193,7 +194,7 @@ export function sanitizeLikeString(value: string): string {
 
 export function column(name: ColumnName): ColumnDescription {
   invariant(typeof name === 'string', 'Name passed to Q.column() is not string')
-  return { column: name, type: columnSymbol }
+  return { column: checkName(name), type: columnSymbol }
 }
 
 function _valueOrComparison(arg: Value | Comparison): Comparison {
@@ -210,7 +211,7 @@ function _valueOrComparison(arg: Value | Comparison): Comparison {
 }
 
 export function where(left: ColumnName, valueOrComparison: Value | Comparison): WhereDescription {
-  return { type: 'where', left, comparison: _valueOrComparison(valueOrComparison) }
+  return { type: 'where', left: checkName(left), comparison: _valueOrComparison(valueOrComparison) }
 }
 
 export function and(...conditions: Where[]): And {
@@ -237,7 +238,7 @@ export const on: OnFunction = (table, leftOrWhereDescription, valueOrComparison)
     invariant(valueOrComparison !== undefined, 'illegal `undefined` passed to Q.on')
     return {
       type: 'on',
-      table,
+      table: checkName(table),
       left: leftOrWhereDescription,
       comparison: _valueOrComparison(valueOrComparison),
     }
@@ -247,7 +248,7 @@ export const on: OnFunction = (table, leftOrWhereDescription, valueOrComparison)
 
   return {
     type: 'on',
-    table,
+    table: checkName(table),
     left: whereDescription.left,
     comparison: whereDescription.comparison,
   }

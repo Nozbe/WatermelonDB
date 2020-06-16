@@ -779,6 +779,28 @@ describe('Model observation', () => {
 
     unsubscribe1()
   })
+  it(`can subscribe with the same subscriber multiple times`, async () => {
+    const { database, tasks } = mockDatabase({ actionsEnabled: true })
+    const task = await database.action(() => tasks.create())
+    const trigger = () => database.action(() => task.update())
+    const subscriber = jest.fn()
+
+    const unsubscribe1 = task.experimentalSubscribe(subscriber)
+    expect(subscriber).toHaveBeenCalledTimes(0)
+    await trigger()
+    expect(subscriber).toHaveBeenCalledTimes(1)
+    const unsubscribe2 = task.experimentalSubscribe(subscriber)
+    expect(subscriber).toHaveBeenCalledTimes(1)
+    await trigger()
+    expect(subscriber).toHaveBeenCalledTimes(3)
+    unsubscribe2()
+    unsubscribe2() // noop
+    await trigger()
+    expect(subscriber).toHaveBeenCalledTimes(4)
+    unsubscribe1()
+    await trigger()
+    expect(subscriber).toHaveBeenCalledTimes(4)
+  })
 })
 
 describe('model helpers', () => {
