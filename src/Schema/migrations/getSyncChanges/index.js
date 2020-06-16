@@ -1,12 +1,7 @@
 // @flow
 
 import { uniq, groupBy, toPairs, piped } from 'rambdax'
-import type {
-  MigrationStep,
-  CreateTableMigrationStep,
-  AddColumnsMigrationStep,
-  SchemaMigrations,
-} from '../index'
+import type { CreateTableMigrationStep, AddColumnsMigrationStep, SchemaMigrations } from '../index'
 import type { TableName, ColumnName, SchemaVersion } from '../../index'
 import { tableName } from '../../index'
 import { stepsForMigration } from '../stepsForMigration'
@@ -15,15 +10,14 @@ import { invariant } from '../../../utils/common'
 import { unnest } from '../../../utils/fp'
 
 export type MigrationSyncChanges = $Exact<{
+  +from: SchemaVersion,
   +tables: TableName<any>[],
   +columns: $Exact<{
     table: TableName<any>,
     columns: ColumnName[],
   }>[],
-}>
+}> | null
 
-// TODO: if we have more than these two step types, it's safer if we take SchemaMigrations and from/to
-// to ensure we process steps in order
 export default function getSyncChanges(
   migrations: SchemaMigrations,
   fromVersion: SchemaVersion,
@@ -31,6 +25,14 @@ export default function getSyncChanges(
 ): MigrationSyncChanges {
   const steps = stepsForMigration({ migrations, fromVersion, toVersion })
   invariant(steps, 'Necessary range of migrations for sync is not available')
+  invariant(
+    toVersion === migrations.maxVersion,
+    'getSyncChanges toVersion should be equal to maxVersion of migrations',
+  )
+  if (fromVersion === toVersion) {
+    return null
+  }
+
   steps.forEach(step => {
     invariant(
       ['create_table', 'add_columns'].includes(step.type),
@@ -59,6 +61,7 @@ export default function getSyncChanges(
   }))
 
   return {
+    from: fromVersion,
     tables: uniq(createdTables),
     columns: addedColumns,
   }
