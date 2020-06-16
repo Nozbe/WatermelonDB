@@ -10,9 +10,13 @@ import {
   markLocalChangesAsSynced,
   getLastPulledAt,
   setLastPulledAt,
+  setLastPulledSchemaVersion,
   hasUnsyncedChanges as hasUnsyncedChangesImpl,
+  getMigrationInfo,
 } from './impl'
 import { ensureActionsEnabled, ensureSameDatabase, isChangeSetEmpty } from './impl/helpers'
+import type { SchemaVersion } from '../Schema'
+import { type MigrationSyncChanges } from '../Schema/migrations/getSyncChanges'
 
 export type Timestamp = number
 
@@ -25,7 +29,11 @@ export type SyncDatabaseChangeSet = $Exact<{ [TableName<any>]: SyncTableChangeSe
 
 export type SyncLocalChanges = $Exact<{ changes: SyncDatabaseChangeSet, affectedRecords: Model[] }>
 
-export type SyncPullArgs = $Exact<{ lastPulledAt: ?Timestamp }>
+export type SyncPullArgs = $Exact<{
+  lastPulledAt: ?Timestamp,
+  schemaVersion: SchemaVersion,
+  migration: MigrationSyncChanges,
+}>
 export type SyncPullResult = $Exact<{ changes: SyncDatabaseChangeSet, timestamp: Timestamp }>
 
 export type SyncPushArgs = $Exact<{ changes: SyncDatabaseChangeSet, lastPulledAt: Timestamp }>
@@ -34,6 +42,8 @@ type SyncConflict = $Exact<{ local: DirtyRaw, remote: DirtyRaw, resolved: DirtyR
 export type SyncLog = {
   startedAt?: Date,
   lastPulledAt?: ?number,
+  lastPulledSchemaVersion?: ?SchemaVersion,
+  migration?: ?MigrationSyncChanges,
   newLastPulledAt?: number,
   resolvedConflicts?: SyncConflict[],
   finishedAt?: Date,
@@ -43,9 +53,12 @@ export type SyncArgs = $Exact<{
   database: Database,
   pullChanges: SyncPullArgs => Promise<SyncPullResult>,
   pushChanges: SyncPushArgs => Promise<void>,
+  // version at which support for migration syncs was added - the version BEFORE first syncable migration
+  migrationsEnabledAtVersion?: SchemaVersion,
   sendCreatedAsUpdated?: boolean,
   log?: SyncLog,
-  _unsafeBatchPerCollection?: boolean, // commits changes in multiple batches, and not one - temporary workaround for memory issue
+  // commits changes in multiple batches, and not one - temporary workaround for memory issue
+  _unsafeBatchPerCollection?: boolean,
 }>
 
 // See Sync docs for usage details
@@ -55,6 +68,7 @@ export async function synchronize({
   pullChanges,
   pushChanges,
   sendCreatedAsUpdated = false,
+  migrationsEnabledAtVersion,
   log,
   _unsafeBatchPerCollection,
 }: SyncArgs): Promise<void> {
@@ -68,7 +82,18 @@ export async function synchronize({
   const lastPulledAt = await getLastPulledAt(database)
   log && (log.lastPulledAt = lastPulledAt)
 
-  const { changes: remoteChanges, timestamp: newLastPulledAt } = await pullChanges({ lastPulledAt })
+  const { schemaVersion, migration, shouldSaveSchemaVersion } = await getMigrationInfo(
+    database,
+    log,
+    lastPulledAt,
+    migrationsEnabledAtVersion,
+  )
+
+  const { changes: remoteChanges, timestamp: newLastPulledAt } = await pullChanges({
+    lastPulledAt,
+    schemaVersion,
+    migration,
+  })
   log && (log.newLastPulledAt = newLastPulledAt)
 
   await database.action(async action => {
@@ -87,6 +112,10 @@ export async function synchronize({
       ),
     )
     await setLastPulledAt(database, newLastPulledAt)
+
+    if (shouldSaveSchemaVersion) {
+      await setLastPulledSchemaVersion(database, schemaVersion)
+    }
   }, 'sync-synchronize-apply')
 
   // push phase

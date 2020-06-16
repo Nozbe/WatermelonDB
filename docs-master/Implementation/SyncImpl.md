@@ -120,8 +120,6 @@ null    X       X       10      null        YES          first sync. regardless 
                                                          necessary migrations, since we can't know for sure
                                                          that user logged in at then-current-version==MEA
 
-100     9       8       10      {8-10}      YES          WARN about MEA > LS (likely programmer error)
-
 100     9       11      10      ERROR       NO           LS > CV indicates programmer error
 100     11      X       10      ERROR       NO           MEA > CV indicates programmer error
 ```
