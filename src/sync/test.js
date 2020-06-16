@@ -846,6 +846,13 @@ describe('synchronize', () => {
     // check underlying database since it's an implicit API
     expect(await database.adapter.getLocal('__watermelon_last_pulled_at')).toBe('2500')
   })
+  it(`validates timestamp returned from pullChanges`, async () => {
+    const { database } = makeDatabase()
+    await expectToRejectWithMessage(
+      synchronize({ database, pullChanges: jest.fn(emptyPull(0)), pushChanges: jest.fn() }),
+      /pullChanges\(\) returned invalid timestamp/,
+    )
+  })
   it('prevents concurrent syncs', async () => {
     const { database } = makeDatabase()
 

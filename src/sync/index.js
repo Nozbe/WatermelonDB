@@ -95,6 +95,10 @@ export async function synchronize({
     migration,
   })
   log && (log.newLastPulledAt = newLastPulledAt)
+  invariant(
+    typeof newLastPulledAt === 'number' && newLastPulledAt > 0,
+    `pullChanges() returned invalid timestamp ${newLastPulledAt}. timestamp must be a non-zero number`,
+  )
 
   await database.action(async action => {
     ensureSameDatabase(database, resetCount)
