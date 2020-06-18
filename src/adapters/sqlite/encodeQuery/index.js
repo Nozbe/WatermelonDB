@@ -1,6 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
+import invariant from '../../../utils/common/invariant'
 import type { SerializedQuery, AssociationArgs } from '../../../Query'
 import type {
   NonNullValues,
@@ -11,6 +12,9 @@ import type {
   On,
   And,
   Or,
+  SortBy,
+  Take,
+  Skip,
   QueryDescription,
 } from '../../../QueryDescription'
 import * as Q from '../../../QueryDescription'
@@ -151,6 +155,32 @@ const encodeAssociation: (TableName<any>) => AssociationArgs => string = mainTab
 const encodeJoin = (table: TableName<any>, associations: AssociationArgs[]): string =>
   associations.length ? associations.map(encodeAssociation(table)).join('') : ''
 
+const encodeOrderBy = (table: TableName<any>, sortBys: SortBy[]) => {
+  if (sortBys.length === 0) {
+    return ''
+  }
+  const orderBys = sortBys.map(sortBy => {
+    invariant(
+      ['asc', 'desc'].includes(sortBy.sortOrder),
+      `Invalid sortOrder argument "${sortBy.sortOrder}" received for Q.sortBy (valid: asc, desc)`,
+    )
+    return `${encodeName(table)}.${encodeName(sortBy.sortColumn)} ${sortBy.sortOrder}`
+  }).join(', ')
+  return ` order by ${orderBys}`
+}
+
+const encodeLimitOffset = (take: ?Take, skip: ?Skip) => {
+  const limit = take?.count
+  const offset = skip?.count
+
+  if (!limit) {
+    return ''
+  }
+  const optionalOffsetStmt = offset ? ` offset ${offset}` : ''
+
+  return ` limit ${limit}${optionalOffsetStmt}`
+}
+
 const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string => {
   const { table, description } = query
 
@@ -162,7 +192,9 @@ const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string
   const sql =
     encodeMethod(table, countMode, hasToManyJoins) +
     encodeJoin(table, associations) +
-    encodeConditions(table, description)
+    encodeConditions(table, description) +
+    encodeOrderBy(table, description.sortBy) +
+    encodeLimitOffset(description.take, description.skip)
 
   return sql
 }

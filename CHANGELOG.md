@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
        however this speedup is only achieved with some unpublished React Native patches.
 
        To try out JSI, add `experimentalUseJSI: true` to `SQLiteAdapter` constructor.
+- [Query] Added `Q.experimentalSortBy(sortColumn, sortOrder)`, `Q.experimentalTake(count)`, `Q.experimentalSkip(count)` methods - @Kenneth-KT
 
 ### Changes
 

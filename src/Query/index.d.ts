@@ -1,7 +1,7 @@
 declare module '@nozbe/watermelondb/Query' {
   import { Collection, ColumnName, Model, TableName } from '@nozbe/watermelondb'
   import { AssociationInfo } from '@nozbe/watermelondb/Model'
-  import { Condition, QueryDescription } from '@nozbe/watermelondb/QueryDescription'
+  import { Clause, QueryDescription } from '@nozbe/watermelondb/QueryDescription'
   import { Observable } from 'rxjs'
 
   export type AssociationArgs = [TableName<any>, AssociationInfo]
@@ -16,7 +16,7 @@ declare module '@nozbe/watermelondb/Query' {
 
     public description: QueryDescription
 
-    public extend(...conditions: Condition[]): Query<Record>
+    public extend(...conditions: Clause[]): Query<Record>
 
     public pipe<T>(transform: (this: this) => T): T
 
