@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file.
 
        To try out JSI, add `experimentalUseJSI: true` to `SQLiteAdapter` constructor.
 - [Query] Added `Q.experimentalSortBy(sortColumn, sortOrder)`, `Q.experimentalTake(count)`, `Q.experimentalSkip(count)` methods - @Kenneth-KT
+- [iOS] Added CocoaPods support - @leninlin
 - `Database.batch()` can now be called with a single array of models
 - [DX] `Database.get(tableName)` is now a shortcut for `Database.collections.get(tableName)`
 - [DX] Query is now thenable - you can now use `await query` and `await query.count` instead of `await query.fetch()` and `await query.fetchCount()`
