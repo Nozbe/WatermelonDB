@@ -9,6 +9,9 @@ The `Collection` object is how you find, query, and create new records of a give
 #### Get a collection
 
 ```js
+const postsCollection = database.collections.get('posts')
+
+// Shortcut syntax:
 const postsCollection = database.get('posts')
 ```
 
