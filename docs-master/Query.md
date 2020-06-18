@@ -73,7 +73,7 @@ To simply get the current list or current count, use `fetch` / `fetchCount`. You
 const comments = await post.comments.fetch()
 const verifiedCommentCount = await post.verifiedComments.fetchCount()
 
-// Alternative syntax:
+// Shortcut syntax:
 const comments = await post.comments
 const verifiedCommentCount = await post.verifiedComments.count
 ```

@@ -126,6 +126,10 @@ describe('Relation', () => {
 
     currentRecord = await relation.fetch()
     expect(currentRecord).toBe(newSecondary)
+
+    // test thenable syntax
+    expect(await relation).toBe(currentRecord)
+    expect(await relation.then(model => [model])).toEqual([currentRecord])
   })
   it('caches observable', () => {
     const { tasks } = mockDatabase()
