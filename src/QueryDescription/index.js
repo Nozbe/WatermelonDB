@@ -235,12 +235,23 @@ export function where(left: ColumnName, valueOrComparison: Value | Comparison): 
   return { type: 'where', left: checkName(left), comparison: _valueOrComparison(valueOrComparison) }
 }
 
-export function and(...conditions: Where[]): And {
-  return { type: 'and', conditions }
+const acceptableClauses = ['where', 'and', 'or']
+const isAcceptableClause = (clause: Where) => acceptableClauses.includes(clause.type)
+
+export function and(...clauses: Where[]): And {
+  invariant(
+    clauses.every(isAcceptableClause),
+    'Q.and() can only contain Q.where, Q.and, Q.or clauses',
+  )
+  return { type: 'and', conditions: clauses }
 }
 
-export function or(...conditions: Where[]): Or {
-  return { type: 'or', conditions }
+export function or(...clauses: Where[]): Or {
+  invariant(
+    clauses.every(isAcceptableClause),
+    'Q.and() can only contain Q.where, Q.and, Q.or clauses',
+  )
+  return { type: 'or', conditions: clauses }
 }
 
 function sortBy(sortColumn: ColumnName, sortOrder: SortOrder = asc): SortBy {
@@ -306,8 +317,9 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
         // $FlowFixMe: Flow is too dumb to realize that it is valid
         clauseMap[type] = cond
         break
-      default:
       case 'where':
+      case 'and':
+      case 'or':
         clauseMap.where.push(cond)
         break
       case 'on':
@@ -316,6 +328,8 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
       case 'sortBy':
         clauseMap.sortBy.push(cond)
         break
+      default:
+        throw new Error('Invalid Query clause passed')
     }
   })
   // $FlowFixMe: Flow is too dumb to realize that it is valid

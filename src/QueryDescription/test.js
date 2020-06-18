@@ -385,7 +385,7 @@ describe('QueryDescription', () => {
 
     // we don't validate elements of arrays passed to Q.oneOf/Q.notIn
     // because they may be large, so make sure even if someone passes a bad object, it doesn't break this logic
-    const query6 = Q.buildQueryDescription([Q.notIn([6, { column: 'heh' }])])
+    const query6 = Q.buildQueryDescription([Q.where('heh', Q.notIn([6, { column: 'heh' }]))])
     expect(Q.hasColumnComparisons(query6)).toBe(false)
   })
   it('builds empty query without deleted', () => {
@@ -630,7 +630,12 @@ describe('QueryDescription', () => {
     expect(() => Q.column({})).toThrow(/not string/)
     expect(() => Q.experimentalTake('0')).toThrow(/not a number/)
     expect(() => Q.experimentalSkip('0')).toThrow(/not a number/)
+  })
+  it(`catches bad argument values`, () => {
     expect(() => Q.experimentalSortBy('foo', 'ascasc')).toThrow(/Invalid sortOrder/)
+    expect(() => Q.and(Q.like('foo'))).toThrow(/and\(\) can only contain/)
+    expect(() => Q.or(Q.like('foo'))).toThrow(/and\(\) can only contain/)
+    expect(() => Q.buildQueryDescription([Q.like('foo')])).toThrow('Invalid Query clause passed')
   })
   it('protect against passing Watermelon look-alike objects', () => {
     // protect against passing something that could be a user-input Object (risk is when Watermelon users pass stuff from JSON without validation), but is unintended or even malicious in some way
