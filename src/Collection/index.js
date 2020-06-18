@@ -40,6 +40,10 @@ export default class Collection<Record: Model> {
     this._cache = new RecordCache(ModelClass.table, raw => new ModelClass(this, raw))
   }
 
+  get db(): Database {
+    return this.database
+  }
+
   // Finds a record with the given ID
   // Promise will reject if not found
   async find(id: RecordId): Promise<Record> {

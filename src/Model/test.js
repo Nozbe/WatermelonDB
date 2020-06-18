@@ -87,6 +87,12 @@ const makeDatabase = ({ actionsEnabled = false } = {}) =>
   })
 
 describe('Model', () => {
+  it(`exposes database`, () => {
+    const database = makeDatabase()
+    const model = new MockModel(database.get('mock'), {})
+    expect(model.database).toBe(database)
+    expect(model.db).toBe(database)
+  })
   it('exposes collections', () => {
     const database = makeDatabase()
     const model = new MockModel(database.get('mock'), {})
