@@ -15,4 +15,5 @@ Pod::Spec.new do |s|
   s.source_files = "native/ios/**/*.{h,m,mm,swift,c,cpp}", "native/shared/*.{h,c,cpp}"
   s.requires_arc = true
   s.dependency "React"
+  s.dependency "React-jsi"
 end
