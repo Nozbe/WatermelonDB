@@ -52,9 +52,7 @@ export type On = $RE<{
   left: ColumnName,
   comparison: Comparison,
 }>
-export type SortOrder =
-  | 'asc'
-  | 'desc'
+export type SortOrder = 'asc' | 'desc'
 export const asc: SortOrder = 'asc'
 export const desc: SortOrder = 'desc'
 export type SortBy = $RE<{
@@ -246,14 +244,20 @@ export function or(...conditions: Where[]): Or {
 }
 
 function sortBy(sortColumn: ColumnName, sortOrder: SortOrder = asc): SortBy {
-  return { type: 'sortBy', sortColumn, sortOrder }
+  invariant(
+    sortOrder === 'asc' || sortOrder === 'desc',
+    `Invalid sortOrder argument received in Q.sortBy (valid: asc, desc)`,
+  )
+  return { type: 'sortBy', sortColumn: checkName(sortColumn), sortOrder }
 }
 
 function take(count: number): Take {
+  invariant(typeof count === 'number', 'Value passed to Q.take() is not a number')
   return { type: 'take', count }
 }
 
 function skip(count: number): Skip {
+  invariant(typeof count === 'number', 'Value passed to Q.take() is not a number')
   return { type: 'skip', count }
 }
 
@@ -305,10 +309,12 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
       default:
       case 'where':
         type = 'where'
-        // fallthrough
+      // fallthrough
       case 'on':
-        if (type === 'on') type = 'join'
-        // fallthrough
+        if (type === 'on') {
+          type = 'join'
+        }
+      // fallthrough
       case 'sortBy':
         clauseMap[type].push(cond)
         break

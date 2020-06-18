@@ -517,9 +517,7 @@ describe('QueryDescription', () => {
     })
   })
   it('supports sorting query', () => {
-    const query = Q.buildQueryDescription([
-      Q.experimentalSortBy('sortable_column', Q.desc),
-    ])
+    const query = Q.buildQueryDescription([Q.experimentalSortBy('sortable_column', Q.desc)])
     expect(query).toEqual({
       where: [],
       join: [],
@@ -535,9 +533,7 @@ describe('QueryDescription', () => {
     })
   })
   it('supports take operator', () => {
-    const query = Q.buildQueryDescription([
-      Q.experimentalTake(100),
-    ])
+    const query = Q.buildQueryDescription([Q.experimentalTake(100)])
     expect(query).toEqual({
       where: [],
       join: [],
@@ -551,9 +547,7 @@ describe('QueryDescription', () => {
   })
   it('does not support skip operator without take operator', () => {
     expect(() => {
-      Q.buildQueryDescription([
-        Q.experimentalSkip(100),
-      ])
+      Q.buildQueryDescription([Q.experimentalSkip(100)])
     }).toThrow('cannot skip without take')
   })
   it('supports multiple take operators and take the last', () => {
@@ -634,6 +628,9 @@ describe('QueryDescription', () => {
     expect(() => Q.notLike({})).toThrow(/not string/)
     expect(() => Q.sanitizeLikeString(null)).toThrow(/not string/)
     expect(() => Q.column({})).toThrow(/not string/)
+    expect(() => Q.experimentalTake('0')).toThrow(/not a number/)
+    expect(() => Q.experimentalSkip('0')).toThrow(/not a number/)
+    expect(() => Q.experimentalSortBy('foo', 'ascasc')).toThrow(/Invalid sortOrder/)
   })
   it('protect against passing Watermelon look-alike objects', () => {
     // protect against passing something that could be a user-input Object (risk is when Watermelon users pass stuff from JSON without validation), but is unintended or even malicious in some way
@@ -649,6 +646,7 @@ describe('QueryDescription', () => {
     expect(() => Q.column('sqlite_master')).toThrow(/Unsafe name/)
     expect(() => Q.column('hey` or --')).toThrow(/Unsafe name/)
     expect(() => Q.where('rowid', 10)).toThrow(/Unsafe name/)
+    expect(() => Q.experimentalSortBy('sqlite_master', 'asc')).toThrow(/Unsafe name/)
     expect(() => Q.on('sqlite_master', 'foo', 'bar')).toThrow(/Unsafe name/)
     expect(() => Q.on('sqlite_master', Q.where('foo', 'bar'))).toThrow(/Unsafe name/)
   })
