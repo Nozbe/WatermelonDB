@@ -238,6 +238,16 @@ describe('Batch writes', () => {
     expect(adapterBatchSpy).toHaveBeenCalledTimes(1)
     expect(adapterBatchSpy).toHaveBeenLastCalledWith([['create', 'mock_tasks', model._raw]])
   })
+  it(`can batch with an array passed as argument`, async () => {
+    const { database, tasks: tasksCollection } = mockDatabase({ actionsEnabled: true })
+    const adapterBatchSpy = jest.spyOn(database.adapter, 'batch')
+
+    const model = tasksCollection.prepareCreate()
+    await database.action(() => database.batch([null, model, false, undefined]))
+
+    expect(adapterBatchSpy).toHaveBeenCalledTimes(1)
+    expect(adapterBatchSpy).toHaveBeenLastCalledWith([['create', 'mock_tasks', model._raw]])
+  })
   it('throws error if attempting to batch records without a pending operation', async () => {
     const { database, tasks } = mockDatabase({ actionsEnabled: true })
     const m1 = await database.action(() => tasks.create())
@@ -265,6 +275,10 @@ describe('Batch writes', () => {
     )
     const [task] = await tasks.query().fetch()
     expect(task.name).toBe('foo1')
+  })
+  it(`throws an error if invalid arguments`, async () => {
+    const { database } = mockDatabase({ actionsEnabled: true })
+    await expectToRejectWithMessage(database.batch([], null), /batch should be called with a list/)
   })
 })
 

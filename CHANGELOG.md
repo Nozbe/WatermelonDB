@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file.
        however this speedup is only achieved with some unpublished React Native patches.
 
        To try out JSI, add `experimentalUseJSI: true` to `SQLiteAdapter` constructor.
+- `Database.batch()` can now be called with a single array of models
 
 ### Changes
 
@@ -37,8 +38,9 @@ All notable changes to this project will be documented in this file.
 
 ### Fixes
 
+- [Sync] Fixed `RangeError: Maximum call stack size exceeded` when syncing large amounts of data - @leninlin
 - [iOS] Fixed a bug that could cause a database operation to fail with an (6) SQLITE_LOCKED error
-- [iOS] Fixed 'jsi/jsi.h' file not found when building at the consumer level. Added path `$(SRCROOT)/../../../../../ios/Pods/Headers/Public/React-jsi` to Header Search Paths (issue #691)
+- [iOS] Fixed 'jsi/jsi.h' file not found when building at the consumer level. Added path `$(SRCROOT)/../../../../../ios/Pods/Headers/Public/React-jsi` to Header Search Paths (issue #691) - @victorbutler
 - [Native] SQLite keywords used as table or column names no longer crash
 - Fixed potential issues when subscribing to database, collection, model, queries passing a subscriber function with the same identity more than once
 

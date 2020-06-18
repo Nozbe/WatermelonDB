@@ -253,11 +253,8 @@ export default function applyRemoteChanges(
       destroyAllDeletedRecords(db, recordsToApply),
       ...(_unsafeBatchPerCollection
         ? unsafeBatchesWithRecordsToApply(db, recordsToApply, sendCreatedAsUpdated, log)
-        : [
-            db.batchArray(
-              prepareApplyAllRemoteChanges(db, recordsToApply, sendCreatedAsUpdated, log),
-            ),
-          ]),
+        : // $FlowFixMe
+          [db.batch(prepareApplyAllRemoteChanges(db, recordsToApply, sendCreatedAsUpdated, log))]),
     ])
   }, 'sync-applyRemoteChanges')
 }

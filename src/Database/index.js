@@ -58,9 +58,16 @@ export default class Database {
   // (made with `collection.prepareCreate` and `record.prepareUpdate`)
   // Note: falsy values (null, undefined, false) passed to batch are just ignored
   async batch(...records: $ReadOnlyArray<Model | null | void | false>): Promise<void> {
-    return this.batchArray(records);
-  }
-  async batchArray(records: $ReadOnlyArray<Model | null | void | false>): Promise<void> {
+    if (!Array.isArray(records[0])) {
+      // $FlowFixMe
+      return this.batch(records)
+    }
+    invariant(
+      records.length === 1,
+      'batch should be called with a list of models or a single array',
+    )
+    const actualRecords = records[0]
+
     this._ensureInAction(
       `Database.batch() can only be called from inside of an Action. See docs for more details.`,
     )
@@ -68,7 +75,7 @@ export default class Database {
     // performance critical - using mutations
     const batchOperations: BatchOperation[] = []
     const changeNotifications: { [collectionName: TableName<any>]: CollectionChangeSet<*> } = {}
-    records.forEach(record => {
+    actualRecords.forEach(record => {
       if (!record) {
         return
       }
@@ -126,6 +133,7 @@ export default class Database {
         subscriber()
       }
     })
+    return undefined // shuts up flow
   }
 
   // Enqueues an Action -- a block of code that, when its ran, has a guarantee that no other Action
