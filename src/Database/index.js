@@ -12,7 +12,7 @@ import { noop } from '../utils/fp'
 import type { DatabaseAdapter, BatchOperation } from '../adapters/type'
 import DatabaseAdapterCompat from '../adapters/compat'
 import type Model from '../Model'
-import { type CollectionChangeSet } from '../Collection'
+import type Collection, { CollectionChangeSet } from '../Collection'
 import { CollectionChangeTypes } from '../Collection/common'
 import type { TableName, AppSchema } from '../Schema'
 
@@ -54,10 +54,24 @@ export default class Database {
     this._actionsEnabled = actionsEnabled
   }
 
+  get<T: Model>(tableName: TableName<T>): Collection<T> {
+    return this.collections.get(tableName)
+  }
+
   // Executes multiple prepared operations
   // (made with `collection.prepareCreate` and `record.prepareUpdate`)
   // Note: falsy values (null, undefined, false) passed to batch are just ignored
   async batch(...records: $ReadOnlyArray<Model | null | void | false>): Promise<void> {
+    if (!Array.isArray(records[0])) {
+      // $FlowFixMe
+      return this.batch(records)
+    }
+    invariant(
+      records.length === 1,
+      'batch should be called with a list of models or a single array',
+    )
+    const actualRecords = records[0]
+
     this._ensureInAction(
       `Database.batch() can only be called from inside of an Action. See docs for more details.`,
     )
@@ -65,7 +79,7 @@ export default class Database {
     // performance critical - using mutations
     const batchOperations: BatchOperation[] = []
     const changeNotifications: { [collectionName: TableName<any>]: CollectionChangeSet<*> } = {}
-    records.forEach(record => {
+    actualRecords.forEach(record => {
       if (!record) {
         return
       }
@@ -123,6 +137,7 @@ export default class Database {
         subscriber()
       }
     })
+    return undefined // shuts up flow
   }
 
   // Enqueues an Action -- a block of code that, when its ran, has a guarantee that no other Action

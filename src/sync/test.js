@@ -75,9 +75,9 @@ const testApplyRemoteChanges = (db, set) => applyRemoteChanges(db, makeChangeSet
 
 const makeLocalChanges = database =>
   database.action(async () => {
-    const projects = database.collections.get('mock_projects')
-    const tasks = database.collections.get('mock_tasks')
-    const comments = database.collections.get('mock_comments')
+    const projects = database.get('mock_projects')
+    const tasks = database.get('mock_tasks')
+    const comments = database.get('mock_comments')
 
     // create records
     const created = obj => ({ _status: 'created', ...obj })
@@ -221,7 +221,7 @@ describe('hasUnsyncedChanges', () => {
   })
   it('just one update is enough', async () => {
     const { database } = makeDatabase()
-    const collection = database.collections.get('mock_comments')
+    const collection = database.get('mock_comments')
     const record = await database.action(() =>
       collection.create(rec => {
         rec._raw._status = 'synced'
@@ -240,7 +240,7 @@ describe('hasUnsyncedChanges', () => {
   })
   it('just one delete is enough', async () => {
     const { database } = makeDatabase()
-    const collection = database.collections.get('mock_comments')
+    const collection = database.get('mock_comments')
     const record = await database.action(() =>
       collection.create(rec => {
         rec._raw._status = 'synced'

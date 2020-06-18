@@ -72,6 +72,14 @@ export default class Relation<T: ?Model> {
     return Promise.resolve((null: any))
   }
 
+  then<U>(
+    onFulfill?: (value: T) => Promise<U> | U,
+    onReject?: (error: any) => Promise<U> | U,
+  ): Promise<U> {
+    // $FlowFixMe
+    return this.fetch().then(onFulfill, onReject)
+  }
+
   set(record: T): void {
     this.id = record?.id
   }
