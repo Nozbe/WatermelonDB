@@ -1,7 +1,6 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import invariant from '../../../utils/common/invariant'
 import type { SerializedQuery, AssociationArgs } from '../../../Query'
 import type {
   NonNullValues,
