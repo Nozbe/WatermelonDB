@@ -24,12 +24,6 @@ describe('Query', () => {
       expect(query.secondaryTables).toEqual([])
       expect(query.allTables).toEqual(['mock_tasks'])
     })
-    it('fetches tables correctly for simple queries', () => {
-      const query = new Query(mockCollection, [Q.where('id', 'abcdef')])
-      expect(query.table).toBe('mock_tasks')
-      expect(query.secondaryTables).toEqual([])
-      expect(query.allTables).toEqual(['mock_tasks'])
-    })
     it('fetches tables correctly for complex queries', () => {
       const query = new Query(mockCollection, [
         Q.where('id', 'abcdef'),
