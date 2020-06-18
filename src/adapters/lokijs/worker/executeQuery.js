@@ -4,6 +4,7 @@ import Loki from 'lokijs'
 import type { LokiResultset } from 'lokijs'
 
 import type { SerializedQuery } from '../../../Query'
+import invariant from '../../../utils/common/invariant'
 
 import encodeMatcher from '../../../observation/encodeMatcher'
 import { hasColumnComparisons, type Where } from '../../../QueryDescription'
@@ -17,7 +18,7 @@ function refineResultsForColumnComparisons(
 ): LokiResultset {
   if (hasColumnComparisons(conditions)) {
     // ignore JOINs (already checked and encodeMatcher can't check it)
-    const queryWithoutJoins = { where: conditions, join: [] }
+    const queryWithoutJoins = { where: conditions, join: [], sortBy: [], take: null, skip: null }
     const matcher = encodeMatcher(queryWithoutJoins)
 
     return roughResults.where(matcher)
@@ -55,6 +56,10 @@ function performJoinsGetQuery(lokiQuery: LokiQuery, loki: Loki): LokiRawQuery {
 // that need them, we filter records with a matcher function.
 // This is far less efficient, so should be considered a temporary hack/workaround
 export default function executeQuery(query: SerializedQuery, loki: Loki): LokiResultset {
+  // TODO: implement support for Q.sortBy(), Q.take(), Q.skip() for Loki adapter
+  invariant(!query.description.sortBy.length, '[WatermelonDB][Loki] Q.sortBy() not yet supported')
+  invariant(!query.description.take, '[WatermelonDB][Loki] Q.take() not yet supported')
+
   const collection = loki.getCollection(query.table).chain()
 
   // Step one: fetch all records matching query (and consider `on` conditions)

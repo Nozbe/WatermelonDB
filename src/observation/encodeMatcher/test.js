@@ -39,13 +39,17 @@ describe('SQLite encodeMatcher', () => {
       })
     })
   })
-  it('does not encode JOIN queries', () => {
+  it('throws on queries it cannot encode', () => {
     expect(() =>
       makeMatcher([
         Q.on('projects', 'team_id', 'abcdef'),
         Q.where('left_column', 'right_value'),
         Q.on('tag_assignments', 'tag_id', Q.oneOf(['a', 'b', 'c'])),
       ]),
-    ).toThrow()
+    ).toThrow(/can't be encoded into a matcher/)
+    expect(() => makeMatcher([Q.experimentalSortBy('left_column', 'asc')])).toThrow(
+      /can't be encoded into a matcher/,
+    )
+    expect(() => makeMatcher([Q.experimentalTake(100)])).toThrow(/can't be encoded into a matcher/)
   })
 })
