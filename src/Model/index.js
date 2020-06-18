@@ -206,6 +206,10 @@ export default class Model {
     return this.collection.database
   }
 
+  get db(): Database {
+    return this.collection.database
+  }
+
   get asModel(): this {
     return this
   }

@@ -21,6 +21,11 @@ All notable changes to this project will be documented in this file.
 
        To try out JSI, add `experimentalUseJSI: true` to `SQLiteAdapter` constructor.
 - [Query] Added `Q.experimentalSortBy(sortColumn, sortOrder)`, `Q.experimentalTake(count)`, `Q.experimentalSkip(count)` methods - @Kenneth-KT
+- `Database.batch()` can now be called with a single array of models
+- [DX] `Database.get(tableName)` is now a shortcut for `Database.collections.get(tableName)`
+- [DX] Query is now thenable - you can now use `await query` and `await query.count` instead of `await query.fetch()` and `await query.fetchCount()`
+- [DX] Relation is now thenable - you can now use `await relation` instead of `await relation.fetch()`
+- [DX] Exposed `collection.db` and `model.db` as shortcuts to get to their Database object
 
 ### Changes
 
@@ -38,8 +43,9 @@ All notable changes to this project will be documented in this file.
 
 ### Fixes
 
+- [Sync] Fixed `RangeError: Maximum call stack size exceeded` when syncing large amounts of data - @leninlin
 - [iOS] Fixed a bug that could cause a database operation to fail with an (6) SQLITE_LOCKED error
-- [iOS] Fixed 'jsi/jsi.h' file not found when building at the consumer level. Added path `$(SRCROOT)/../../../../../ios/Pods/Headers/Public/React-jsi` to Header Search Paths (issue #691)
+- [iOS] Fixed 'jsi/jsi.h' file not found when building at the consumer level. Added path `$(SRCROOT)/../../../../../ios/Pods/Headers/Public/React-jsi` to Header Search Paths (issue #691) - @victorbutler
 - [Native] SQLite keywords used as table or column names no longer crash
 - Fixed potential issues when subscribing to database, collection, model, queries passing a subscriber function with the same identity more than once
 

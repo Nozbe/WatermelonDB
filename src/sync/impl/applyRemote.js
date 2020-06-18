@@ -165,7 +165,7 @@ const getAllRecordsToApply = (
     remoteChanges,
     // $FlowFixMe
     filter((_changes, tableName: TableName<any>) => {
-      const collection = db.collections.get((tableName: any))
+      const collection = db.get((tableName: any))
 
       if (!collection) {
         logger.warn(
@@ -176,7 +176,7 @@ const getAllRecordsToApply = (
       return !!collection
     }),
     map((changes, tableName: TableName<any>) => {
-      return recordsToApplyRemoteChangesTo(db.collections.get((tableName: any)), changes)
+      return recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes)
     }),
     promiseAllObject,
   )
@@ -202,7 +202,7 @@ const prepareApplyAllRemoteChanges = (
     recordsToApply,
     map((records, tableName: TableName<any>) =>
       prepareApplyRemoteChangesToCollection(
-        db.collections.get((tableName: any)),
+        db.get((tableName: any)),
         records,
         sendCreatedAsUpdated,
         log,
@@ -253,11 +253,8 @@ export default function applyRemoteChanges(
       destroyAllDeletedRecords(db, recordsToApply),
       ...(_unsafeBatchPerCollection
         ? unsafeBatchesWithRecordsToApply(db, recordsToApply, sendCreatedAsUpdated, log)
-        : [
-            db.batch(
-              ...prepareApplyAllRemoteChanges(db, recordsToApply, sendCreatedAsUpdated, log),
-            ),
-          ]),
+        : // $FlowFixMe
+          [db.batch(prepareApplyAllRemoteChanges(db, recordsToApply, sendCreatedAsUpdated, log))]),
     ])
   }, 'sync-applyRemoteChanges')
 }

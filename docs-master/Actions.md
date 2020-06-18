@@ -102,6 +102,7 @@ class Post extends Model {
   - Instead of `await record.markAsDeleted()`, use `record.prepareMarkAsDeleted()`
   - Instead of `await record.destroyPermanently()`, use `record.prepareDestroyPermanently()`
   - You can pass falsy values (null, undefined, false) to batch — they will simply be ignored.
+  - You can also pass a single array argument instead of a list of arguments
 - Otherwise, the API is the same!
 
 ## Calling Actions from Actions

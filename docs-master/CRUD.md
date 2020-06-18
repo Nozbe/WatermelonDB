@@ -10,6 +10,9 @@ The `Collection` object is how you find, query, and create new records of a give
 
 ```js
 const postsCollection = database.collections.get('posts')
+
+// Shortcut syntax:
+const postsCollection = database.get('posts')
 ```
 
 Pass the [table name](./Schema.md) as the argument.
@@ -102,7 +105,7 @@ await database.action(async () => {
 - `Model.prepareUpdate()`, `Collection.prepareCreate`, `Database.batch` — used for [batch updates](./Actions.md)
 - `Database.unsafeResetDatabase()` destroys the whole database - [be sure to see this comment before using it](https://github.com/Nozbe/WatermelonDB/blob/22188ee5b6e3af08e48e8af52d14e0d90db72925/src/Database/index.js#L131)
 - To override the `record.id` during the creation, e.g. to sync with a remote database, you can do it by `record._raw` property. Be aware that the `id` must be of type `string`.
-```js 
+```js
 await postsCollection.create(post => {
   post._raw.id = serverId
 })
