@@ -1,11 +1,12 @@
 import * as Q from './index'
 
-describe('QueryDescription', () => {
+describe('buildQueryDescription', () => {
   it('builds empty query', () => {
     const query = Q.buildQueryDescription([])
     expect(query).toEqual({
       where: [],
       join: [],
+      joinTables: null,
       sortBy: [],
       skip: null,
       take: null,
@@ -25,6 +26,7 @@ describe('QueryDescription', () => {
         },
       ],
       join: [],
+      joinTables: null,
       sortBy: [],
       skip: null,
       take: null,
@@ -82,6 +84,7 @@ describe('QueryDescription', () => {
         },
       ],
       join: [],
+      joinTables: null,
       sortBy: [],
       skip: null,
       take: null,
@@ -202,6 +205,7 @@ describe('QueryDescription', () => {
         },
       ],
       join: [],
+      joinTables: null,
       sortBy: [],
       skip: null,
       take: null,
@@ -221,6 +225,7 @@ describe('QueryDescription', () => {
         },
       ],
       join: [],
+      joinTables: null,
       sortBy: [],
       skip: null,
       take: null,
@@ -289,6 +294,7 @@ describe('QueryDescription', () => {
         },
       ],
       join: [],
+      joinTables: null,
       sortBy: [],
       skip: null,
       take: null,
@@ -331,6 +337,7 @@ describe('QueryDescription', () => {
           },
         },
       ],
+      joinTables: null,
       sortBy: [],
       skip: null,
       take: null,
@@ -349,6 +356,66 @@ describe('QueryDescription', () => {
       ]),
     )
   })
+  it(`supports nesting Q.on inside and/or`, () => {
+    const query = Q.buildQueryDescription([
+      Q.experimentalJoinTables(['projects', 'foreign_table2']),
+      Q.and(
+        Q.or(
+          Q.where('is_followed', true),
+          Q.on('projects', 'is_followed', true),
+          Q.on('foreign_table2', 'foo', 'bar'),
+        ),
+      ),
+    ])
+    expect(query).toEqual({
+      where: [
+        {
+          type: 'and',
+          conditions: [
+            {
+              type: 'or',
+              conditions: [
+                {
+                  type: 'where',
+                  left: 'is_followed',
+                  comparison: {
+                    operator: 'eq',
+                    right: { value: true },
+                  },
+                },
+                {
+                  type: 'on',
+                  table: 'projects',
+                  left: 'is_followed',
+                  comparison: {
+                    operator: 'eq',
+                    right: { value: true },
+                  },
+                },
+                {
+                  type: 'on',
+                  table: 'foreign_table2',
+                  left: 'foo',
+                  comparison: {
+                    operator: 'eq',
+                    right: { value: 'bar' },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      join: [],
+      joinTables: { type: 'joinTables', tables: ['projects', 'foreign_table2'] },
+      sortBy: [],
+      take: null,
+      skip: null,
+    })
+  })
+})
+
+describe('hasColumnComparisons', () => {
   it('can recognize whether a query has column comparisons or not', () => {
     const query1 = Q.buildQueryDescription([])
     expect(Q.hasColumnComparisons(query1)).toBe(false)
@@ -388,6 +455,9 @@ describe('QueryDescription', () => {
     const query6 = Q.buildQueryDescription([Q.where('heh', Q.notIn([6, { column: 'heh' }]))])
     expect(Q.hasColumnComparisons(query6)).toBe(false)
   })
+})
+
+describe('queryWithoutDeleted', () => {
   it('builds empty query without deleted', () => {
     const query = Q.queryWithoutDeleted(Q.buildQueryDescription([]))
     expect(query).toEqual({
@@ -402,6 +472,7 @@ describe('QueryDescription', () => {
         },
       ],
       join: [],
+      joinTables: null,
       sortBy: [],
       take: null,
       skip: null,
@@ -431,6 +502,7 @@ describe('QueryDescription', () => {
         },
       ],
       join: [],
+      joinTables: null,
       sortBy: [],
       skip: null,
       take: null,
@@ -511,16 +583,21 @@ describe('QueryDescription', () => {
           },
         },
       ],
+      joinTables: null,
       sortBy: [],
       skip: null,
       take: null,
     })
   })
+})
+
+describe('buildQueryDescription - contd', () => {
   it('supports sorting query', () => {
     const query = Q.buildQueryDescription([Q.experimentalSortBy('sortable_column', Q.desc)])
     expect(query).toEqual({
       where: [],
       join: [],
+      joinTables: null,
       sortBy: [
         {
           type: 'sortBy',
@@ -537,6 +614,7 @@ describe('QueryDescription', () => {
     expect(query).toEqual({
       where: [],
       join: [],
+      joinTables: null,
       sortBy: [],
       take: {
         type: 'take',
@@ -559,6 +637,7 @@ describe('QueryDescription', () => {
     expect(query).toEqual({
       where: [],
       join: [],
+      joinTables: null,
       sortBy: [],
       take: {
         type: 'take',
@@ -577,6 +656,7 @@ describe('QueryDescription', () => {
     expect(query).toEqual({
       where: [],
       join: [],
+      joinTables: null,
       sortBy: [],
       take: {
         type: 'take',

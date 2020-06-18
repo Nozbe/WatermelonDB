@@ -74,9 +74,12 @@ const encodeWhere: (TableName<any>) => Where => string = table => where => {
     return `(${encodeAndOr('and', table, where)})`
   } else if (where.type === 'or') {
     return `(${encodeAndOr('or', table, where)})`
+  } else if (where.type === 'on') {
+    return encodeWhereCondition(where.table, where.left, where.comparison)
+  } else if (where.type === 'where') {
+    return encodeWhereCondition(table, where.left, where.comparison)
   }
-
-  return encodeWhereCondition(table, where.left, where.comparison)
+  throw new Error('Unknown clause')
 }
 
 const encodeWhereCondition = (
@@ -105,14 +108,11 @@ const encodeAndOr = (op: string, table: TableName<any>, andOr: And | Or) => {
   return ''
 }
 
-const encodeOn: On => string = ({ table, left, comparison }) =>
-  encodeWhereCondition(table, left, comparison)
-
 const andJoiner = ' and '
 
 const encodeConditions: (TableName<any>, QueryDescription) => string = (table, description) => {
   const wheres = mapJoin(description.where, encodeWhere(table), andJoiner)
-  const joins = mapJoin(description.join, encodeOn, andJoiner)
+  const joins = mapJoin(description.join, encodeWhere(table), andJoiner)
 
   if (joins.length || wheres.length) {
     const joiner = wheres.length && joins.length ? andJoiner : ''
@@ -179,10 +179,7 @@ const encodeLimitOffset = (take: ?Take, skip: ?Skip) => {
 }
 
 const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string => {
-  const { table, description } = query
-
-  const hasJoins = !!query.description.join.length
-  const associations = hasJoins ? query.associations : []
+  const { table, description, associations } = query
 
   const hasToManyJoins = associations.some(([, association]) => association.type === 'has_many')
 

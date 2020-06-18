@@ -68,10 +68,15 @@ export type Skip = $RE<{
   type: 'skip',
   count: number,
 }>
+export type JoinTables = $RE<{
+  type: 'joinTables',
+  tables: TableName<any>[],
+}>
 export type Clause = Where | On | SortBy | Take | Skip
 export type QueryDescription = $RE<{
   where: Where[],
   join: On[],
+  joinTables: ?JoinTables,
   sortBy: SortBy[],
   take: ?Take,
   skip: ?Skip,
@@ -235,13 +240,13 @@ export function where(left: ColumnName, valueOrComparison: Value | Comparison): 
   return { type: 'where', left: checkName(left), comparison: _valueOrComparison(valueOrComparison) }
 }
 
-const acceptableClauses = ['where', 'and', 'or']
+const acceptableClauses = ['where', 'and', 'or', 'on']
 const isAcceptableClause = (clause: Where) => acceptableClauses.includes(clause.type)
 
 export function and(...clauses: Where[]): And {
   invariant(
     clauses.every(isAcceptableClause),
-    'Q.and() can only contain Q.where, Q.and, Q.or clauses',
+    'Q.and() can only contain Q.where, Q.and, Q.or, Q.on clauses',
   )
   return { type: 'and', conditions: clauses }
 }
@@ -249,7 +254,7 @@ export function and(...clauses: Where[]): And {
 export function or(...clauses: Where[]): Or {
   invariant(
     clauses.every(isAcceptableClause),
-    'Q.and() can only contain Q.where, Q.and, Q.or clauses',
+    'Q.and() can only contain Q.where, Q.and, Q.or, Q.on clauses',
   )
   return { type: 'or', conditions: clauses }
 }
@@ -306,27 +311,39 @@ export const on: OnFunction = (table, leftOrWhereDescription, valueOrComparison)
   }
 }
 
+export function experimentalJoinTables(tables: TableName<any>[]): JoinTables {
+  // TODO: validation
+  return { type: 'joinTables', tables }
+}
+
 const syncStatusColumn = columnName('_status')
 const extractClauses: (Clause[]) => QueryDescription = clauses => {
-  const clauseMap = { join: [], sortBy: [], where: [], take: null, skip: null }
-  clauses.forEach(cond => {
-    const { type } = cond
+  const clauseMap = { join: [], sortBy: [], where: [], take: null, skip: null, joinTables: null }
+  clauses.forEach(clause => {
+    const { type } = clause
     switch (type) {
       case 'take':
+        // $FlowFixMe
+        clauseMap.take = clause
+        break
       case 'skip':
-        // $FlowFixMe: Flow is too dumb to realize that it is valid
-        clauseMap[type] = cond
+        // $FlowFixMe
+        clauseMap.skip = clause
+        break
+      case 'joinTables':
+        // $FlowFixMe
+        clauseMap.joinTables = clause
         break
       case 'where':
       case 'and':
       case 'or':
-        clauseMap.where.push(cond)
+        clauseMap.where.push(clause)
         break
       case 'on':
-        clauseMap.join.push(cond)
+        clauseMap.join.push(clause)
         break
       case 'sortBy':
-        clauseMap.sortBy.push(cond)
+        clauseMap.sortBy.push(clause)
         break
       default:
         throw new Error('Invalid Query clause passed')
@@ -336,6 +353,10 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
   return clauseMap
 }
 const whereNotDeleted = where(syncStatusColumn, notEq('deleted'))
+const joinTablesWithoutDeleted = pipe(
+  uniq,
+  map(table => on(table, syncStatusColumn, notEq('deleted'))),
+)
 const joinsWithoutDeleted = pipe(
   map(prop('table')),
   uniq,
@@ -355,12 +376,16 @@ export function buildQueryDescription(clauses: Clause[]): QueryDescription {
 }
 
 export function queryWithoutDeleted(query: QueryDescription): QueryDescription {
-  const { join, where: whereConditions } = query
+  const { join, joinTables, where: whereConditions } = query
 
   const newQuery = {
     ...query,
     join: [...join, ...joinsWithoutDeleted(join)],
-    where: [...whereConditions, whereNotDeleted],
+    where: [
+      ...whereConditions,
+      ...joinTablesWithoutDeleted(joinTables ? joinTables.tables : []),
+      whereNotDeleted,
+    ],
   }
   if (process.env.NODE_ENV !== 'production') {
     deepFreeze(newQuery)

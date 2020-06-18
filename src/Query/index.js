@@ -197,7 +197,7 @@ export default class Query<Record: Model> {
 
   // `true` if query contains join clauses on foreign tables
   get hasJoins(): boolean {
-    return !!this.description.join.length
+    return !!this.description.join.length || !!this.description.joinTables
   }
 
   // Serialized version of Query (e.g. for sending to web worker)
