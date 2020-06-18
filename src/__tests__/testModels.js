@@ -109,9 +109,9 @@ export const mockDatabase = ({
     database,
     db: database,
     adapter,
-    projects: database.collections.get('mock_projects'),
-    tasks: database.collections.get('mock_tasks'),
-    comments: database.collections.get('mock_comments'),
+    projects: database.get('mock_projects'),
+    tasks: database.get('mock_tasks'),
+    comments: database.get('mock_comments'),
     cloneDatabase: async (clonedSchema = schema) =>
       // simulate reload
       new Database({

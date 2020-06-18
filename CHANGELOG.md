@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file.
 
        To try out JSI, add `experimentalUseJSI: true` to `SQLiteAdapter` constructor.
 - `Database.batch()` can now be called with a single array of models
+- [DX] `Database.get(tableName)` is now a shortcut for `Database.collections.get(tableName)`
 
 ### Changes
 

@@ -12,7 +12,7 @@ import { noop } from '../utils/fp'
 import type { DatabaseAdapter, BatchOperation } from '../adapters/type'
 import DatabaseAdapterCompat from '../adapters/compat'
 import type Model from '../Model'
-import { type CollectionChangeSet } from '../Collection'
+import type Collection, { CollectionChangeSet } from '../Collection'
 import { CollectionChangeTypes } from '../Collection/common'
 import type { TableName, AppSchema } from '../Schema'
 
@@ -52,6 +52,10 @@ export default class Database {
     this.schema = adapter.schema
     this.collections = new CollectionMap(this, modelClasses)
     this._actionsEnabled = actionsEnabled
+  }
+
+  get<T: Model>(tableName: TableName<T>): Collection<T> {
+    return this.collections.get(tableName)
   }
 
   // Executes multiple prepared operations
