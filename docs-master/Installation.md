@@ -45,28 +45,30 @@ npm install @nozbe/with-observables
    - Open `ios/YourAppName.xcodeproj` in Xcode
    - Right-click on **Your App Name** in the Project Navigator on the left, and click **New File…**
    - Create a single empty `Swift` file to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header** and **do not remove `Swift`** file then.
-3. **Link WatermelonDB's native library with the Xcode project**:
-
-    **Automatically**
-
-    ```bash
-    react-native link @nozbe/watermelondb
-    ```
-
-    **Or manually**
-
-    If you don't want to use `react-native link`, you can link the library manually:
+3. **Link WatermelonDB's native library with the Xcode project -- manually**:
 
     1. Open your project in Xcode, right click on **Libraries** in the Project Navigator on the left and click **Add Files to "Your Project Name"**. Look under `node_modules/@nozbe/watermelondb/native/ios` and select `WatermelonDB.xcodeproj`
     2. Go to Project settings (top item in the Project navigator on the left), select your app name under **Targets** → **Build Phases** → **Link Binary With Libraries**, and add `libWatermelonDB.a`
 
     For more information about linking libraries manually, [see React Native documentation](https://facebook.github.io/react-native/docs/linking-libraries-ios).
 
-    **Using CocoaPods**
+4. **Link WatermelonDB's native library with the Xcode project -- using CocoaPods**:
 
-    [Please contribute!](https://github.com/Nozbe/WatermelonDB/issues/279)
+    1. Add this to your CocoaPods (might not be needed if you're using autolinking):
 
-Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (although Xcode 10 and iOS 11.0 are recommended).
+        ```ruby
+        pod 'WatermelonDB', :path => '../node_modules/@nozbe/watermelondb'
+        ```
+    2. Unfortunately, the build will fail due to an issue with React Native's Pods, so you need to modify this line:
+
+        ```ruby
+        # Before:
+        pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi'
+        # Change to:
+        pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi', :modular_headers => true
+        ```
+
+Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (although Xcode 13.3+ and iOS 12.0+ are recommended).
 
 ### Android (React Native)
 
@@ -74,14 +76,14 @@ Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (alt
 
    See instructions above ⬆️
 
-1. In `android/settings.gradle`, add:
+2. In `android/settings.gradle`, add:
 
    ```gradle
    include ':watermelondb'
    project(':watermelondb').projectDir =
        new File(rootProject.projectDir, '../node_modules/@nozbe/watermelondb/native/android')
    ```
-2. In `android/app/build.gradle`, add:
+3. In `android/app/build.gradle`, add:
    ```gradle
    apply plugin: "com.android.application"
    apply plugin: 'kotlin-android'  // ⬅️ This!
@@ -91,7 +93,7 @@ Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (alt
        implementation project(':watermelondb')  // ⬅️ This!
    }
    ```
-3. In `android/build.gradle`, add Kotlin support to the project:
+4. In `android/build.gradle`, add Kotlin support to the project:
    ```gradle
    buildscript {
        ext.kotlin_version = '1.3.21'
@@ -102,7 +104,7 @@ Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (alt
        }
    }
    ```
-4. And finally, in `android/app/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.java`, add:
+5. And finally, in `android/app/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.java`, add:
    ```java
    // ...
    import com.nozbe.watermelondb.WatermelonDBPackage; // ⬅️ This!
@@ -115,7 +117,7 @@ Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (alt
      );
    }
    ```
-5. **Troubleshooting**. If you get this error:
+6. **Troubleshooting**. If you get this error:
     > `Can't find variable: Symbol`
 
     You might need a polyfill for ES6 Symbol:
