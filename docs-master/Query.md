@@ -205,6 +205,20 @@ commentCollection.query(
 )
 ```
 
+### sortBy, take, skip
+
+When using SQLite adapter, you can use these *experimental* clauses to sort the result of the query and to limit the number of results
+
+```js
+commentCollection.query(
+  Q.experimentalSortBy('likes', Q.asc), // sorts ascending by `likes`
+  Q.experimentalSkip(100),
+  Q.experimentalTake(100),
+)
+```
+
+**NOTE**: This does not currently work on web/LokiJS (please contribute!), and causes query observation to fall back to a less efficient method. We recommend using sortBy only when you absolutely need to limit queries, otherwise, it may be better to sort in JavaScript.
+
 ### Security
 
 Remember that Queries are a sensitive subject, security-wise. Never trust user input and pass it directly into queries. In particular:

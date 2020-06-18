@@ -12,7 +12,7 @@ import { type Unsubscribe } from '../utils/subscriptions'
 import Query from '../Query'
 import type Database from '../Database'
 import type Model, { RecordId } from '../Model'
-import type { Condition } from '../QueryDescription'
+import type { Clause } from '../QueryDescription'
 import { type TableName, type TableSchema } from '../Schema'
 import { type DirtyRaw } from '../RawRecord'
 
@@ -60,8 +60,8 @@ export default class Collection<Record: Model> {
   }
 
   // Query records of this type
-  query(...conditions: Condition[]): Query<Record> {
-    return new Query(this, conditions)
+  query(...clauses: Clause[]): Query<Record> {
+    return new Query(this, clauses)
   }
 
   // Creates a new record in this collection
