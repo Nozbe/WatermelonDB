@@ -225,6 +225,10 @@ import schema from './model/schema'
 // First, create the adapter to the underlying database:
 const adapter = new SQLiteAdapter({
   schema,
+  // dbName: 'myapp', // optional database name or file system path
+  // migrations, // optional migrations
+  synchronous: true, // synchronous mode only works on iOS. improves performance and reduces glitches in most cases, but also has some downsides - test with and without it
+  // experimentalUseJSI: true, // experimental JSI mode, use only if you're brave
 })
 
 // Then, make a Watermelon database from it!
@@ -244,9 +248,10 @@ import LokiJSAdapter from '@nozbe/watermelondb/adapters/lokijs'
 
 const adapter = new LokiJSAdapter({
   schema,
-  // These two options are recommended for new projects:
-  useWebWorker: false,
-  useIncrementalIndexedDB: true,
+  // migrations, // optional migrations
+  useWebWorker: false, // recommended for new projects. tends to improve performance and reduce glitches in most cases, but also has downsides - test with and without it
+  useIncrementalIndexedDB: true, // recommended for new projects. improves performance (but incompatible with early Watermelon databases)
+  // dbName: 'myapp', // optional db name
   // It's recommended you implement this method:
   // onIndexedDBVersionChange: () => {
   //   // database was deleted in another browser tab (user logged out), so we must make sure we delete
@@ -255,6 +260,8 @@ const adapter = new LokiJSAdapter({
   //     window.location.reload()
   //   }
   // },
+  // Optional:
+  // onQuotaExceededError: (error) => { /* do something when user runs out of disk space */ },
 })
 
 // The rest is the same!
