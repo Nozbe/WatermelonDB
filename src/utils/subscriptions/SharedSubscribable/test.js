@@ -215,6 +215,27 @@ describe('SharedSubscribable', () => {
     unsubscribe2()
     expect(sourceUnsubscribe).toHaveBeenCalledTimes(1)
   })
+  it(`can subscribe with the same subscriber multiple times`, () => {
+    let emitValue = null
+    const source = jest.fn(subscriber => {
+      emitValue = subscriber
+      return () => {}
+    })
+    const shared = new SharedSubscribable(source)
+    const subscriber = jest.fn()
+    const unsubscribe1 = shared.subscribe(subscriber)
+    emitValue()
+    expect(subscriber).toHaveBeenCalledTimes(1)
+    const unsubscribe2 = shared.subscribe(subscriber)
+    expect(subscriber).toHaveBeenCalledTimes(2)
+    emitValue()
+    expect(subscriber).toHaveBeenCalledTimes(4)
+    unsubscribe2()
+    unsubscribe2() // noop
+    emitValue()
+    expect(subscriber).toHaveBeenCalledTimes(5)
+    unsubscribe1()
+  })
   it('proteccs from rogue sources notifying after being unsubscribed from', () => {
     let emitValue = null
     const sourceUnsubscribe = jest.fn()

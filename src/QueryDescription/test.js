@@ -6,6 +6,9 @@ describe('QueryDescription', () => {
     expect(query).toEqual({
       where: [],
       join: [],
+      sortBy: [],
+      skip: null,
+      take: null,
     })
   })
   it('builds simple query', () => {
@@ -22,6 +25,9 @@ describe('QueryDescription', () => {
         },
       ],
       join: [],
+      sortBy: [],
+      skip: null,
+      take: null,
     })
   })
   it('accepts multiple conditions and value types', () => {
@@ -76,6 +82,9 @@ describe('QueryDescription', () => {
         },
       ],
       join: [],
+      sortBy: [],
+      skip: null,
+      take: null,
     })
   })
   it('supports multiple operators', () => {
@@ -193,6 +202,9 @@ describe('QueryDescription', () => {
         },
       ],
       join: [],
+      sortBy: [],
+      skip: null,
+      take: null,
     })
   })
   it('supports column comparisons', () => {
@@ -209,6 +221,9 @@ describe('QueryDescription', () => {
         },
       ],
       join: [],
+      sortBy: [],
+      skip: null,
+      take: null,
     })
   })
   it('supports AND/OR nesting', () => {
@@ -274,6 +289,9 @@ describe('QueryDescription', () => {
         },
       ],
       join: [],
+      sortBy: [],
+      skip: null,
+      take: null,
     })
   })
   it('supports simple JOIN queries', () => {
@@ -313,6 +331,9 @@ describe('QueryDescription', () => {
           },
         },
       ],
+      sortBy: [],
+      skip: null,
+      take: null,
     })
   })
   it('supports alternative `on` syntax', () => {
@@ -381,6 +402,9 @@ describe('QueryDescription', () => {
         },
       ],
       join: [],
+      sortBy: [],
+      take: null,
+      skip: null,
     })
   })
   it('builds simple query without deleted', () => {
@@ -407,6 +431,9 @@ describe('QueryDescription', () => {
         },
       ],
       join: [],
+      sortBy: [],
+      skip: null,
+      take: null,
     })
   })
   it('supports simple 2 JOIN queries on one table and JOIN query on another without deleted', () => {
@@ -484,6 +511,81 @@ describe('QueryDescription', () => {
           },
         },
       ],
+      sortBy: [],
+      skip: null,
+      take: null,
+    })
+  })
+  it('supports sorting query', () => {
+    const query = Q.buildQueryDescription([Q.experimentalSortBy('sortable_column', Q.desc)])
+    expect(query).toEqual({
+      where: [],
+      join: [],
+      sortBy: [
+        {
+          type: 'sortBy',
+          sortColumn: 'sortable_column',
+          sortOrder: 'desc',
+        },
+      ],
+      skip: null,
+      take: null,
+    })
+  })
+  it('supports take operator', () => {
+    const query = Q.buildQueryDescription([Q.experimentalTake(100)])
+    expect(query).toEqual({
+      where: [],
+      join: [],
+      sortBy: [],
+      take: {
+        type: 'take',
+        count: 100,
+      },
+      skip: null,
+    })
+  })
+  it('does not support skip operator without take operator', () => {
+    expect(() => {
+      Q.buildQueryDescription([Q.experimentalSkip(100)])
+    }).toThrow('cannot skip without take')
+  })
+  it('supports multiple take operators and take the last', () => {
+    const query = Q.buildQueryDescription([
+      Q.experimentalTake(100),
+      Q.experimentalTake(200),
+      Q.experimentalTake(400),
+    ])
+    expect(query).toEqual({
+      where: [],
+      join: [],
+      sortBy: [],
+      take: {
+        type: 'take',
+        count: 400,
+      },
+      skip: null,
+    })
+  })
+  it('support multiple skip operators but only take the last', () => {
+    const query = Q.buildQueryDescription([
+      Q.experimentalTake(100),
+      Q.experimentalSkip(200),
+      Q.experimentalSkip(400),
+      Q.experimentalSkip(800),
+    ])
+    expect(query).toEqual({
+      where: [],
+      join: [],
+      sortBy: [],
+      take: {
+        type: 'take',
+        count: 100,
+      },
+      skip: {
+        type: 'skip',
+        count: 800,
+      },
     })
   })
   it('deep freezes the query in dev', () => {
@@ -526,6 +628,9 @@ describe('QueryDescription', () => {
     expect(() => Q.notLike({})).toThrow(/not string/)
     expect(() => Q.sanitizeLikeString(null)).toThrow(/not string/)
     expect(() => Q.column({})).toThrow(/not string/)
+    expect(() => Q.experimentalTake('0')).toThrow(/not a number/)
+    expect(() => Q.experimentalSkip('0')).toThrow(/not a number/)
+    expect(() => Q.experimentalSortBy('foo', 'ascasc')).toThrow(/Invalid sortOrder/)
   })
   it('protect against passing Watermelon look-alike objects', () => {
     // protect against passing something that could be a user-input Object (risk is when Watermelon users pass stuff from JSON without validation), but is unintended or even malicious in some way
@@ -536,5 +641,13 @@ describe('QueryDescription', () => {
     expect(() => Q.where('foo', {})).toThrow(/Invalid Comparison/)
     expect(() => Q.on('table', 'foo', {})).toThrow(/Invalid Comparison/)
     expect(() => Q.on('table', 'foo', Q.eq({ column: 'foo' }))).toThrow(/Invalid { column: }/)
+  })
+  it(`protects against unsafe column and table names passed`, () => {
+    expect(() => Q.column('sqlite_master')).toThrow(/Unsafe name/)
+    expect(() => Q.column('hey` or --')).toThrow(/Unsafe name/)
+    expect(() => Q.where('rowid', 10)).toThrow(/Unsafe name/)
+    expect(() => Q.experimentalSortBy('sqlite_master', 'asc')).toThrow(/Unsafe name/)
+    expect(() => Q.on('sqlite_master', 'foo', 'bar')).toThrow(/Unsafe name/)
+    expect(() => Q.on('sqlite_master', Q.where('foo', 'bar'))).toThrow(/Unsafe name/)
   })
 })

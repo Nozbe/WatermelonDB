@@ -81,6 +81,42 @@ describe('Query description properties', () => {
     expect(extendedQuery.hasJoins).toBe(expectedQuery.hasJoins)
     expect(extendedQuery._rawDescription).toEqual(expectedQuery._rawDescription)
   })
+  it('can return extended query for sortBy, take and skip', () => {
+    const query = new Query(mockCollection, [
+      Q.experimentalSortBy('sortable', Q.desc),
+      Q.experimentalSkip(60),
+      Q.experimentalTake(20),
+    ])
+    const extendedQuery = query.extend(
+      Q.experimentalSortBy('sortable2'),
+      Q.experimentalSkip(40),
+      Q.experimentalTake(10),
+    )
+    const expectedQuery = new Query(mockCollection, [
+      Q.experimentalSortBy('sortable', Q.desc),
+      Q.experimentalSortBy('sortable2', Q.asc),
+      Q.experimentalSkip(40),
+      Q.experimentalTake(10),
+    ])
+    expect(extendedQuery.serialize()).toEqual(expectedQuery.serialize())
+    expect(extendedQuery._rawDescription).toEqual(expectedQuery._rawDescription)
+  })
+  it('can return extended query and leave take and skip clauses intact', () => {
+    const query = new Query(mockCollection, [
+      Q.experimentalSortBy('sortable', Q.desc),
+      Q.experimentalSkip(60),
+      Q.experimentalTake(20),
+    ])
+    const extendedQuery = query.extend(Q.experimentalSortBy('sortable2'))
+    const expectedQuery = new Query(mockCollection, [
+      Q.experimentalSortBy('sortable', Q.desc),
+      Q.experimentalSortBy('sortable2', Q.asc),
+      Q.experimentalSkip(60),
+      Q.experimentalTake(20),
+    ])
+    expect(extendedQuery.serialize()).toEqual(expectedQuery.serialize())
+    expect(extendedQuery._rawDescription).toEqual(expectedQuery._rawDescription)
+  })
   it('returns serializable version of Query', () => {
     const query = new Query(mockCollection, [
       Q.on('projects', 'team_id', 'abcdef'),

@@ -15,11 +15,9 @@ import invariant from '../../common/invariant'
 export default class SharedSubscribable<T> {
   _source: (subscriber: (T) => void) => Unsubscribe
 
-  _isSubscribed: boolean = false
-
   _unsubscribeSource: ?Unsubscribe = null
 
-  _subscribers: Array<(T) => void> = []
+  _subscribers: [(T) => void, any][] = []
 
   _didEmit: boolean = false
 
@@ -29,43 +27,42 @@ export default class SharedSubscribable<T> {
     this._source = source
   }
 
-  subscribe(subscriber: T => void): Unsubscribe {
-    this._subscribers.push(subscriber)
+  subscribe(subscriber: T => void, debugInfo?: any): Unsubscribe {
+    const entry = [subscriber, debugInfo]
+    this._subscribers.push(entry)
 
     if (this._didEmit) {
       subscriber(this._lastValue)
     }
 
     if (this._subscribers.length === 1) {
-      this._isSubscribed = true
       // TODO: What if this throws?
       this._unsubscribeSource = this._source(value => this._notify(value))
     }
 
-    return () => this._unsubscribe(subscriber)
+    return () => this._unsubscribe(entry)
   }
 
   _notify(value: T): void {
     invariant(
-      this._isSubscribed,
+      this._subscribers.length,
       `SharedSubscribable's source emitted a value after it was unsubscribed from`,
     )
     this._didEmit = true
     this._lastValue = value
-    this._subscribers.forEach(subscriber => {
+    this._subscribers.forEach(([subscriber]) => {
       subscriber(value)
     })
   }
 
-  _unsubscribe(subscriber: T => void): void {
-    const idx = this._subscribers.indexOf(subscriber)
+  _unsubscribe(entry: [(T) => void, any]): void {
+    const idx = this._subscribers.indexOf(entry)
     idx !== -1 && this._subscribers.splice(idx, 1)
 
     if (!this._subscribers.length) {
       const unsubscribe = this._unsubscribeSource
       this._unsubscribeSource = null
       this._didEmit = false
-      this._isSubscribed = false
       unsubscribe && unsubscribe()
     }
   }

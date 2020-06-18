@@ -142,19 +142,23 @@ export default class Database {
     return merge$(...changesSignals).pipe(startWith(null))
   }
 
-  _subscribers: Array<[TableName<any>[], () => void]> = []
+  _subscribers: [TableName<any>[], () => void, any][] = []
 
   // Notifies `subscriber` on change in any of passed tables (only a signal, no change set)
-  experimentalSubscribe(tables: TableName<any>[], subscriber: () => void): Unsubscribe {
+  experimentalSubscribe(
+    tables: TableName<any>[],
+    subscriber: () => void,
+    debugInfo?: any,
+  ): Unsubscribe {
     if (!tables.length) {
       return noop
     }
 
-    const subscriberEntry = [tables, subscriber]
-    this._subscribers.push(subscriberEntry)
+    const entry = [tables, subscriber, debugInfo]
+    this._subscribers.push(entry)
 
     return () => {
-      const idx = this._subscribers.indexOf(subscriberEntry)
+      const idx = this._subscribers.indexOf(entry)
       idx !== -1 && this._subscribers.splice(idx, 1)
     }
   }
@@ -194,6 +198,8 @@ export default class Database {
         console.log(
           `Application error! Unexpected ${this._subscribers.length} Database subscribers were detected during database.unsafeResetDatabase() call. App should not hold onto subscriptions or Watermelon objects while resetting database.`,
         )
+        // eslint-disable-next-line no-console
+        console.log(this._subscribers)
         this._subscribers = []
       }
 

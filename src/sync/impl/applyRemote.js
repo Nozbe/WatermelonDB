@@ -163,6 +163,7 @@ const getAllRecordsToApply = (
 ): AllRecordsToApply =>
   piped(
     remoteChanges,
+    // $FlowFixMe
     filter((_changes, tableName: TableName<any>) => {
       const collection = db.collections.get((tableName: any))
 

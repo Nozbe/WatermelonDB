@@ -1,10 +1,10 @@
 // @flow
 
-import { propEq, pipe, prop, uniq, map } from 'rambdax'
+import { pipe, prop, uniq, map } from 'rambdax'
 
 // don't import whole `utils` to keep worker size small
-import partition from '../utils/fp/partition'
 import invariant from '../utils/common/invariant'
+import checkName from '../utils/fp/checkName'
 import deepFreeze from '../utils/common/deepFreeze'
 import type { $RE } from '../types'
 
@@ -52,8 +52,30 @@ export type On = $RE<{
   left: ColumnName,
   comparison: Comparison,
 }>
-export type Condition = Where | On
-export type QueryDescription = $RE<{ where: Where[], join: On[] }>
+export type SortOrder = 'asc' | 'desc'
+export const asc: SortOrder = 'asc'
+export const desc: SortOrder = 'desc'
+export type SortBy = $RE<{
+  type: 'sortBy',
+  sortColumn: ColumnName,
+  sortOrder: SortOrder,
+}>
+export type Take = $RE<{
+  type: 'take',
+  count: number,
+}>
+export type Skip = $RE<{
+  type: 'skip',
+  count: number,
+}>
+export type Clause = Where | On | SortBy | Take | Skip
+export type QueryDescription = $RE<{
+  where: Where[],
+  join: On[],
+  sortBy: SortBy[],
+  take: ?Take,
+  skip: ?Skip,
+}>
 
 const columnSymbol = Symbol('Q.column')
 const comparisonSymbol = Symbol('QueryComparison')
@@ -193,7 +215,7 @@ export function sanitizeLikeString(value: string): string {
 
 export function column(name: ColumnName): ColumnDescription {
   invariant(typeof name === 'string', 'Name passed to Q.column() is not string')
-  return { column: name, type: columnSymbol }
+  return { column: checkName(name), type: columnSymbol }
 }
 
 function _valueOrComparison(arg: Value | Comparison): Comparison {
@@ -210,7 +232,7 @@ function _valueOrComparison(arg: Value | Comparison): Comparison {
 }
 
 export function where(left: ColumnName, valueOrComparison: Value | Comparison): WhereDescription {
-  return { type: 'where', left, comparison: _valueOrComparison(valueOrComparison) }
+  return { type: 'where', left: checkName(left), comparison: _valueOrComparison(valueOrComparison) }
 }
 
 export function and(...conditions: Where[]): And {
@@ -220,6 +242,26 @@ export function and(...conditions: Where[]): And {
 export function or(...conditions: Where[]): Or {
   return { type: 'or', conditions }
 }
+
+function sortBy(sortColumn: ColumnName, sortOrder: SortOrder = asc): SortBy {
+  invariant(
+    sortOrder === 'asc' || sortOrder === 'desc',
+    `Invalid sortOrder argument received in Q.sortBy (valid: asc, desc)`,
+  )
+  return { type: 'sortBy', sortColumn: checkName(sortColumn), sortOrder }
+}
+
+function take(count: number): Take {
+  invariant(typeof count === 'number', 'Value passed to Q.take() is not a number')
+  return { type: 'take', count }
+}
+
+function skip(count: number): Skip {
+  invariant(typeof count === 'number', 'Value passed to Q.take() is not a number')
+  return { type: 'skip', count }
+}
+
+export { sortBy as experimentalSortBy, take as experimentalTake, skip as experimentalSkip }
 
 // Note: we have to write out three separate meanings of OnFunction because of a Babel bug
 // (it will remove the parentheses, changing the meaning of the flow type)
@@ -237,7 +279,7 @@ export const on: OnFunction = (table, leftOrWhereDescription, valueOrComparison)
     invariant(valueOrComparison !== undefined, 'illegal `undefined` passed to Q.on')
     return {
       type: 'on',
-      table,
+      table: checkName(table),
       left: leftOrWhereDescription,
       comparison: _valueOrComparison(valueOrComparison),
     }
@@ -247,14 +289,38 @@ export const on: OnFunction = (table, leftOrWhereDescription, valueOrComparison)
 
   return {
     type: 'on',
-    table,
+    table: checkName(table),
     left: whereDescription.left,
     comparison: whereDescription.comparison,
   }
 }
 
 const syncStatusColumn = columnName('_status')
-const getJoins: (Condition[]) => [On[], Where[]] = (partition(propEq('type', 'on')): any)
+const extractClauses: (Clause[]) => QueryDescription = clauses => {
+  const clauseMap = { join: [], sortBy: [], where: [], take: null, skip: null }
+  clauses.forEach(cond => {
+    const { type } = cond
+    switch (type) {
+      case 'take':
+      case 'skip':
+        // $FlowFixMe: Flow is too dumb to realize that it is valid
+        clauseMap[type] = cond
+        break
+      default:
+      case 'where':
+        clauseMap.where.push(cond)
+        break
+      case 'on':
+        clauseMap.join.push(cond)
+        break
+      case 'sortBy':
+        clauseMap.sortBy.push(cond)
+        break
+    }
+  })
+  // $FlowFixMe: Flow is too dumb to realize that it is valid
+  return clauseMap
+}
 const whereNotDeleted = where(syncStatusColumn, notEq('deleted'))
 const joinsWithoutDeleted = pipe(
   map(prop('table')),
@@ -262,10 +328,12 @@ const joinsWithoutDeleted = pipe(
   map(table => on(table, syncStatusColumn, notEq('deleted'))),
 )
 
-export function buildQueryDescription(conditions: Condition[]): QueryDescription {
-  const [join, whereConditions] = getJoins(conditions)
+export function buildQueryDescription(clauses: Clause[]): QueryDescription {
+  const clauseMap = extractClauses(clauses)
 
-  const query = { join, where: whereConditions }
+  invariant(!(clauseMap.skip && !clauseMap.take), 'cannot skip without take')
+
+  const query = clauseMap
   if (process.env.NODE_ENV !== 'production') {
     deepFreeze(query)
   }
@@ -276,6 +344,7 @@ export function queryWithoutDeleted(query: QueryDescription): QueryDescription {
   const { join, where: whereConditions } = query
 
   const newQuery = {
+    ...query,
     join: [...join, ...joinsWithoutDeleted(join)],
     where: [...whereConditions, whereNotDeleted],
   }
