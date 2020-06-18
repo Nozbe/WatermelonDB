@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 
 ### New features
 
+- [Sync] Introducing Migration Syncs - this allows fully consistent synchronization when migrating
+      between schema versions. Previously, there was no mechanism to incrementally fetch all remote changes in
+      new tables and columns after a migration - so local copy was likely inconsistent, requiring a re-login.
+      After adopting migration syncs, Watermelon Sync will request from backend all missing information.
+      See Sync docs for more details.
 - [iOS] Introducing a new native SQLite database integration, rewritten from scratch in C++, based
        on React Native's JSI (JavaScript Interface). It is to be considered experimental, however
        we intend to make it the default (and eventually, the only) implementation. In a later release,

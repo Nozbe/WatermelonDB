@@ -3,9 +3,10 @@ import { change, times, map, length } from 'rambdax'
 import { skip as skip$ } from 'rxjs/operators'
 import { noop } from '../utils/fp'
 import { randomId } from '../utils/common'
-import { mockDatabase } from '../__tests__/testModels'
+import { mockDatabase, testSchema } from '../__tests__/testModels'
 import { expectToRejectWithMessage } from '../__tests__/utils'
 import { sanitizedRaw } from '../RawRecord'
+import { schemaMigrations, createTable, addColumns } from '../Schema/migrations'
 
 import { synchronize, hasUnsyncedChanges } from './index'
 import {
@@ -13,6 +14,9 @@ import {
   markLocalChangesAsSynced,
   applyRemoteChanges,
   getLastPulledAt,
+  getLastPulledSchemaVersion,
+  setLastPulledAt,
+  setLastPulledSchemaVersion,
 } from './impl'
 import { resolveConflict, isChangeSetEmpty } from './impl/helpers'
 
@@ -656,7 +660,11 @@ describe('synchronize', () => {
 
     expect(observer).toHaveBeenCalledTimes(0)
     expect(pullChanges).toHaveBeenCalledTimes(1)
-    expect(pullChanges).toHaveBeenCalledWith({ lastPulledAt: null })
+    expect(pullChanges).toHaveBeenCalledWith({
+      lastPulledAt: null,
+      schemaVersion: 1,
+      migration: null,
+    })
   })
   it(`doesn't push changes if nothing to push`, async () => {
     const { database } = makeDatabase()
@@ -688,7 +696,6 @@ describe('synchronize', () => {
     expect(log.lastPulledAt).toBe(null)
     expect(log.newLastPulledAt).toBe(1500)
   })
-
   it('can push changes', async () => {
     const { database } = makeDatabase()
 
@@ -720,7 +727,11 @@ describe('synchronize', () => {
 
     await synchronize({ database, pullChanges, pushChanges: jest.fn() })
 
-    expect(pullChanges).toHaveBeenCalledWith({ lastPulledAt: null })
+    expect(pullChanges).toHaveBeenCalledWith({
+      lastPulledAt: null,
+      schemaVersion: 1,
+      migration: null,
+    })
 
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
     await expectSyncedAndMatches(projects, 'new_project', { name: 'remote' })
@@ -813,19 +824,34 @@ describe('synchronize', () => {
     let pullChanges = jest.fn(emptyPull(1500))
     await synchronize({ database, pullChanges, pushChanges: jest.fn() })
 
-    expect(pullChanges).toHaveBeenCalledWith({ lastPulledAt: null })
+    expect(pullChanges).toHaveBeenCalledWith({
+      lastPulledAt: null,
+      schemaVersion: 1,
+      migration: null,
+    })
 
     pullChanges = jest.fn(emptyPull(2500))
     const log = {}
     await synchronize({ database, pullChanges, pushChanges: jest.fn(), log })
 
     expect(pullChanges).toHaveBeenCalledTimes(1)
-    expect(pullChanges).toHaveBeenCalledWith({ lastPulledAt: 1500 })
+    expect(pullChanges).toHaveBeenCalledWith({
+      lastPulledAt: 1500,
+      schemaVersion: 1,
+      migration: null,
+    })
     expect(await getLastPulledAt(database)).toBe(2500)
     expect(log.lastPulledAt).toBe(1500)
     expect(log.newLastPulledAt).toBe(2500)
     // check underlying database since it's an implicit API
     expect(await database.adapter.getLocal('__watermelon_last_pulled_at')).toBe('2500')
+  })
+  it(`validates timestamp returned from pullChanges`, async () => {
+    const { database } = makeDatabase()
+    await expectToRejectWithMessage(
+      synchronize({ database, pullChanges: jest.fn(emptyPull(0)), pushChanges: jest.fn() }),
+      /pullChanges\(\) returned invalid timestamp/,
+    )
   })
   it('prevents concurrent syncs', async () => {
     const { database } = makeDatabase()
@@ -1093,5 +1119,181 @@ describe('synchronize', () => {
       synchronize({ database, pullChanges: jest.fn(), pushChanges: jest.fn() }),
       /actions must be enabled/i,
     )
+  })
+  describe('migration syncs', () => {
+    const testSchema10 = { ...testSchema, version: 10 }
+    const migrations = schemaMigrations({
+      migrations: [
+        {
+          toVersion: 10,
+          steps: [
+            addColumns({
+              table: 'attachment_versions',
+              columns: [{ name: 'reactions', type: 'string' }],
+            }),
+          ],
+        },
+        {
+          toVersion: 9,
+          steps: [
+            createTable({
+              name: 'attachments',
+              columns: [{ name: 'parent_id', type: 'string', isIndexed: true }],
+            }),
+          ],
+        },
+        { toVersion: 8, steps: [] },
+      ],
+    })
+    it(`remembers synced schema version on first sync`, async () => {
+      const { database } = mockDatabase({ actionsEnabled: true, schema: testSchema10, migrations })
+      const pullChanges = jest.fn(emptyPull())
+
+      await synchronize({
+        database,
+        pullChanges,
+        pushChanges: jest.fn(),
+        migrationsEnabledAtVersion: 7,
+      })
+      expect(pullChanges).toHaveBeenCalledWith({
+        lastPulledAt: null,
+        schemaVersion: 10,
+        migration: null,
+      })
+      expect(await getLastPulledSchemaVersion(database)).toBe(10)
+      // check underlying database since it's an implicit API
+      expect(await database.adapter.getLocal('__watermelon_last_pulled_schema_version')).toBe('10')
+    })
+    it(`remembers synced schema version on first sync, even if migrations are not enabled`, async () => {
+      const { database } = mockDatabase({ actionsEnabled: true, schema: testSchema10 })
+      const pullChanges = jest.fn(emptyPull())
+
+      await synchronize({ database, pullChanges, pushChanges: jest.fn() })
+      expect(pullChanges).toHaveBeenCalledWith({
+        lastPulledAt: null,
+        schemaVersion: 10,
+        migration: null,
+      })
+      expect(await getLastPulledSchemaVersion(database)).toBe(10)
+    })
+    it(`does not remember schema version if migration syncs are not enabled`, async () => {
+      const { database } = mockDatabase({ actionsEnabled: true, schema: testSchema10 })
+      await setLastPulledAt(database, 100)
+      const pullChanges = jest.fn(emptyPull())
+
+      await synchronize({ database, pullChanges, pushChanges: jest.fn() })
+      expect(pullChanges).toHaveBeenCalledWith({
+        lastPulledAt: 100,
+        schemaVersion: 10,
+        migration: null,
+      })
+      expect(await getLastPulledSchemaVersion(database)).toBe(null)
+    })
+    it(`performs no migration if up to date`, async () => {
+      const { database } = mockDatabase({ actionsEnabled: true, schema: testSchema10, migrations })
+      await setLastPulledAt(database, 1500)
+      await setLastPulledSchemaVersion(database, 10)
+
+      const pullChanges = jest.fn(emptyPull(2500))
+      await synchronize({
+        database,
+        pullChanges,
+        pushChanges: jest.fn(),
+        migrationsEnabledAtVersion: 7,
+      })
+      expect(pullChanges).toHaveBeenCalledWith({
+        lastPulledAt: 1500,
+        schemaVersion: 10,
+        migration: null,
+      })
+      expect(await getLastPulledSchemaVersion(database)).toBe(10)
+    })
+    it(`performs migration sync on schema version bump`, async () => {
+      const { database } = mockDatabase({ actionsEnabled: true, schema: testSchema10, migrations })
+      await setLastPulledAt(database, 1500)
+      await setLastPulledSchemaVersion(database, 9)
+
+      const pullChanges = jest.fn(emptyPull(2500))
+      await synchronize({
+        database,
+        pullChanges,
+        pushChanges: jest.fn(),
+        migrationsEnabledAtVersion: 7,
+      })
+      expect(pullChanges).toHaveBeenCalledWith({
+        lastPulledAt: 1500,
+        schemaVersion: 10,
+        migration: {
+          from: 9,
+          tables: [],
+          columns: [{ table: 'attachment_versions', columns: ['reactions'] }],
+        },
+      })
+      expect(await getLastPulledSchemaVersion(database)).toBe(10)
+    })
+    it(`performs fallback migration sync`, async () => {
+      const { database } = mockDatabase({ actionsEnabled: true, schema: testSchema10, migrations })
+      await setLastPulledAt(database, 1500)
+
+      const pullChanges = jest.fn(emptyPull(2500))
+      await synchronize({
+        database,
+        pullChanges,
+        pushChanges: jest.fn(),
+        migrationsEnabledAtVersion: 8,
+      })
+      expect(pullChanges).toHaveBeenCalledWith({
+        lastPulledAt: 1500,
+        schemaVersion: 10,
+        migration: {
+          from: 8,
+          tables: ['attachments'],
+          columns: [{ table: 'attachment_versions', columns: ['reactions'] }],
+        },
+      })
+      expect(await getLastPulledSchemaVersion(database)).toBe(10)
+    })
+    it(`does not remember schema version if pull fails`, async () => {
+      const { database } = mockDatabase({ actionsEnabled: true, schema: testSchema10, migrations })
+      await synchronize({
+        database,
+        pullChanges: jest.fn(() => Promise.reject(new Error('pull-fail'))),
+        pushChanges: jest.fn(),
+        migrationsEnabledAtVersion: 8,
+      }).catch(e => e)
+      expect(await getLastPulledSchemaVersion(database)).toBe(null)
+    })
+    it(`fails on programmer errors`, async () => {
+      const { database } = mockDatabase({ actionsEnabled: true, schema: testSchema10, migrations })
+
+      await expectToRejectWithMessage(
+        synchronize({ database, migrationsEnabledAtVersion: '9' }),
+        'Invalid migrationsEnabledAtVersion',
+      )
+      await expectToRejectWithMessage(
+        synchronize({ database, migrationsEnabledAtVersion: 11 }),
+        /migrationsEnabledAtVersion must not be greater than current schema version/,
+      )
+      await expectToRejectWithMessage(
+        synchronize({
+          database: mockDatabase({ actionsEnabled: true, schema: testSchema10 }).db,
+          migrationsEnabledAtVersion: 9,
+        }),
+        'Migration syncs cannot be enabled on a database that does not support migrations',
+      )
+      await expectToRejectWithMessage(
+        synchronize({ database, migrationsEnabledAtVersion: 6 }),
+        `migrationsEnabledAtVersion is too low - not possible to migrate from schema version 6`,
+      )
+    })
+    it(`fails on last synced schema version > current schema version`, async () => {
+      const { database } = mockDatabase({ actionsEnabled: true, schema: testSchema10, migrations })
+      await setLastPulledAt(database, 1500)
+      await setLastPulledSchemaVersion(database, 11)
+      await expectToRejectWithMessage(
+        synchronize({ database, migrationsEnabledAtVersion: 10 }),
+        /Last synced schema version \(11\) is greater than current schema version \(10\)/,
+      )
+    })
   })
 })

@@ -89,6 +89,41 @@ If possible, please use sync implementation helpers from `sync/*.js` to keep you
   - remote changes between pull and push phase will be locally ignored (will be pulled next sync)
     unless there's a per-record conflict (then push fails, but next sync resolves both pull and push)
 
+### Migration Syncs
+
+Schema versioning and migrations complicate sync, because a client might not be able to sync some tables and columns, but after upgrade to the newest version, it should be able to get consistent sync. To be able
+to do that, we need to know what's the schema version at which the last sync occured. Unfortunately,
+Watermelon Sync didn't track that from the first version, so backwards-compat is required.
+
+```
+synchronize({ migrationsEnabledAtVersion: XXX })
+
+. . . .
+
+LPA = last pulled at
+MEA = migrationsEnabledAtVersion, schema version at which future migration support was introduced
+LS = last synced schema version (may be null due to backwards compat)
+CV = current schema version
+
+LPA     MEA     LS      CV      migration   set LS=CV?   comment
+
+null    X       X       10      null        YES          first sync. regardless of whether the app
+                                                         is migration sync aware, we can note LS=CV
+                                                         to fetch all migrations once available
+
+100     null    X       X       null        NO           indicates app is not migration sync aware so
+                                                         we're not setting LS to allow future migration sync
+
+100     X       10      10      null        NO           up to date, no migration
+100     9       9       10      {9-10}      YES          correct migration sync
+100     9       null    10      {9-10}      YES          fallback migration. might not contain all
+                                                         necessary migrations, since we can't know for sure
+                                                         that user logged in at then-current-version==MEA
+
+100     9       11      10      ERROR       NO           LS > CV indicates programmer error
+100     11      X       10      ERROR       NO           MEA > CV indicates programmer error
+```
+
 ### Reference
 
 This design has been informed by:

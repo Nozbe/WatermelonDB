@@ -1,5 +1,5 @@
 import { createTable, addColumns, schemaMigrations } from './index'
-import { stepsForMigration } from './helpers'
+import { stepsForMigration } from './stepsForMigration'
 
 describe('schemaMigrations()', () => {
   it('returns a basic schema migrations spec', () => {
@@ -178,7 +178,7 @@ describe('migration step functions', () => {
   })
 })
 
-describe('migration execution helpers', () => {
+describe('stepsForMigration', () => {
   it('finds the right migration steps', () => {
     const step1 = addColumns({
       table: 'posts',

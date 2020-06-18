@@ -424,7 +424,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   }
 
   _migrationSteps(fromVersion: SchemaVersion): ?(MigrationStep[]) {
-    const { stepsForMigration } = require('../../Schema/migrations/helpers')
+    const { stepsForMigration } = require('../../Schema/migrations/stepsForMigration')
     const { migrations } = this
     // TODO: Remove this after migrations are shipped
     if (!migrations) {
