@@ -98,12 +98,7 @@ describe('Query description properties', () => {
       Q.experimentalSkip(40),
       Q.experimentalTake(10),
     ])
-    expect(extendedQuery.collection).toBe(expectedQuery.collection)
-    expect(extendedQuery.modelClass).toBe(expectedQuery.modelClass)
-    expect(extendedQuery.description).toEqual(expectedQuery.description)
-    expect(extendedQuery.secondaryTables).toEqual(expectedQuery.secondaryTables)
-    expect(extendedQuery.associations).toEqual(expectedQuery.associations)
-    expect(extendedQuery.hasJoins).toBe(expectedQuery.hasJoins)
+    expect(extendedQuery.serialize()).toEqual(expectedQuery.serialize())
     expect(extendedQuery._rawDescription).toEqual(expectedQuery._rawDescription)
   })
   it('can return extended query and leave take and skip clauses intact', () => {
@@ -112,21 +107,14 @@ describe('Query description properties', () => {
       Q.experimentalSkip(60),
       Q.experimentalTake(20),
     ])
-    const extendedQuery = query.extend(
-      Q.experimentalSortBy('sortable2'),
-    )
+    const extendedQuery = query.extend(Q.experimentalSortBy('sortable2'))
     const expectedQuery = new Query(mockCollection, [
       Q.experimentalSortBy('sortable', Q.desc),
       Q.experimentalSortBy('sortable2', Q.asc),
       Q.experimentalSkip(60),
       Q.experimentalTake(20),
     ])
-    expect(extendedQuery.collection).toBe(expectedQuery.collection)
-    expect(extendedQuery.modelClass).toBe(expectedQuery.modelClass)
-    expect(extendedQuery.description).toEqual(expectedQuery.description)
-    expect(extendedQuery.secondaryTables).toEqual(expectedQuery.secondaryTables)
-    expect(extendedQuery.associations).toEqual(expectedQuery.associations)
-    expect(extendedQuery.hasJoins).toBe(expectedQuery.hasJoins)
+    expect(extendedQuery.serialize()).toEqual(expectedQuery.serialize())
     expect(extendedQuery._rawDescription).toEqual(expectedQuery._rawDescription)
   })
   it('returns serializable version of Query', () => {

@@ -63,10 +63,12 @@ export default class Query<Record: Model> {
     const { join, where, sortBy, take, skip } = this._rawDescription
 
     return new Query(collection, [
-      ...join, ...where, ...sortBy,
+      ...join,
+      ...where,
+      ...sortBy,
       ...(take ? [take] : []),
       ...(skip ? [skip] : []),
-      ...clauses
+      ...clauses,
     ])
   }
 

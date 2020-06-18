@@ -536,6 +536,7 @@ export const matchTests = [
       { id: 'n4', text1: null },
     ],
   },
+  // TODO: Add sortBy, take, skip tests (once supported by more than just SQLite)
 ]
 
 export const naughtyMatchTests = naughtyStrings.map(naughtyString => ({

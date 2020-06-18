@@ -299,7 +299,7 @@ const syncStatusColumn = columnName('_status')
 const extractClauses: (Clause[]) => QueryDescription = clauses => {
   const clauseMap = { join: [], sortBy: [], where: [], take: null, skip: null }
   clauses.forEach(cond => {
-    let { type } = cond
+    const { type } = cond
     switch (type) {
       case 'take':
       case 'skip':
@@ -308,15 +308,13 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
         break
       default:
       case 'where':
-        type = 'where'
-      // fallthrough
+        clauseMap.where.push(cond)
+        break
       case 'on':
-        if (type === 'on') {
-          type = 'join'
-        }
-      // fallthrough
+        clauseMap.join.push(cond)
+        break
       case 'sortBy':
-        clauseMap[type].push(cond)
+        clauseMap.sortBy.push(cond)
         break
     }
   })
