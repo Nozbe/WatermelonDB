@@ -30,11 +30,9 @@ using namespace facebook;
 // disable itself with every major iOS release to avoid breakage - must be manually reenabled, and has fallbacks for every
 // broken assumption I could think of.
 //
-// Change value of this macro to 0 to disable this hack if you're not comfortable with that:
+// To enable this hack, pass -DENABLE_JSLOCK_PERFORMANCE_HACK compiler flag
 
-#define ENABLE_JSLOCK_PERFORMANCE_HACK 0
-
-#if ENABLE_JSLOCK_PERFORMANCE_HACK
+#ifdef ENABLE_JSLOCK_PERFORMANCE_HACK
 
 namespace watermelondb {
 std::function<void (void)> *blockToExecute = nullptr;
