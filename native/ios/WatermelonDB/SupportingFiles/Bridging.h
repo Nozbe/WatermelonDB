@@ -3,5 +3,11 @@
 #else
 #import "../FMDB/src/fmdb/FMDB.h"
 #endif
+
 #import <React/RCTBridgeModule.h>
+
+#if __has_include("JSIInstaller.h")
+#import "JSIInstaller.h"
+#else
 #import "../JSIInstaller.h"
+#endif
