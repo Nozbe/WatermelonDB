@@ -28,6 +28,13 @@ export type SerializedQuery = $Exact<{
   associations: AssociationArgs[],
 }>
 
+interface QueryCountProxy {
+  then<U>(
+    onFulfill?: (value: number) => Promise<U> | U,
+    onReject?: (error: any) => Promise<U> | U,
+  ): Promise<U>;
+}
+
 export default class Query<Record: Model> {
   collection: Collection<Record>
 
@@ -74,6 +81,14 @@ export default class Query<Record: Model> {
     return toPromise(callback => this.collection._fetchQuery(this, callback))
   }
 
+  then<U>(
+    onFulfill?: (value: Record[]) => Promise<U> | U,
+    onReject?: (error: any) => Promise<U> | U,
+  ): Promise<U> {
+    // $FlowFixMe
+    return this.fetch().then(onFulfill, onReject)
+  }
+
   // Emits an array of matching records, then emits a new array every time it changes
   observe(): Observable<Record[]> {
     return Observable.create(observer =>
@@ -96,6 +111,19 @@ export default class Query<Record: Model> {
   // Returns the number of matching records
   fetchCount(): Promise<number> {
     return toPromise(callback => this.collection._fetchCount(this, callback))
+  }
+
+  get count(): QueryCountProxy {
+    const model = this
+    return {
+      then<U>(
+        onFulfill?: (value: number) => Promise<U> | U,
+        onReject?: (error: any) => Promise<U> | U,
+      ): Promise<U> {
+        // $FlowFixMe
+        return model.fetchCount().then(onFulfill, onReject)
+      },
+    }
   }
 
   // Emits the number of matching records, then emits a new count every time it changes
