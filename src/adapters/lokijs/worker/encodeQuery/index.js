@@ -34,7 +34,7 @@ import type {
   Where,
   ComparisonRight,
   Comparison,
-  Condition,
+  Clause,
   CompoundValue,
 } from '../../../../QueryDescription'
 import { type TableName, type ColumnName, columnName } from '../../../../Schema'
@@ -149,13 +149,13 @@ const encodeWhereDescription: (WhereDescription | On) => LokiRawQuery = ({ left,
 
 const typeEq = propEq('type')
 
-const encodeCondition: Condition => LokiRawQuery = condition =>
+const encodeCondition: Clause => LokiRawQuery = clause =>
   (cond([
     [typeEq('and'), encodeAnd],
     [typeEq('or'), encodeOr],
     [typeEq('where'), encodeWhereDescription],
     [typeEq('on'), encodeWhereDescription],
-  ]): any)(condition)
+  ]): any)(clause)
 
 const encodeAndOr: LokiKeyword => (And | Or) => LokiRawQuery = op =>
   pipe(

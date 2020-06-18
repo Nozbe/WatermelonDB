@@ -16,7 +16,7 @@ describe('LokiJSAdapter (Synchronous / Memory persistence)', () => {
         schema: testSchema,
         useWebWorker: false,
       })
-      await test(new DatabaseAdapterCompat(adapter), LokiJSAdapter)
+      await test(new DatabaseAdapterCompat(adapter), LokiJSAdapter, { useWebWorker: false })
     })
   })
 })

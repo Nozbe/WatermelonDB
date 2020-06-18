@@ -87,29 +87,37 @@ export class MockComment extends Model {
   updatedAt
 }
 
-export const mockDatabase = ({ actionsEnabled = false } = {}) => {
+export const modelClasses = [MockProject, MockTask, MockComment]
+
+export const mockDatabase = ({
+  actionsEnabled = false,
+  schema = testSchema,
+  migrations = undefined,
+} = {}) => {
   const adapter = new LokiJSAdapter({
     dbName: 'test',
-    schema: testSchema,
+    schema,
+    migrations,
   })
   const database = new Database({
     adapter,
-    schema: testSchema,
-    modelClasses: [MockProject, MockTask, MockComment],
+    schema,
+    modelClasses,
     actionsEnabled,
   })
   return {
     database,
+    db: database,
     adapter,
     projects: database.collections.get('mock_projects'),
     tasks: database.collections.get('mock_tasks'),
     comments: database.collections.get('mock_comments'),
-    cloneDatabase: () =>
+    cloneDatabase: async (clonedSchema = schema) =>
       // simulate reload
       new Database({
-        adapter: database.adapter.underlyingAdapter.testClone(),
-        schema: testSchema,
-        modelClasses: [MockProject, MockTask, MockComment],
+        adapter: await database.adapter.underlyingAdapter.testClone({ schema: clonedSchema }),
+        schema: clonedSchema,
+        modelClasses,
         actionsEnabled,
       }),
   }

@@ -10,7 +10,7 @@ import {
   splitEvery,
 } from 'rambdax'
 import { unnest } from '../../utils/fp'
-import { logError, invariant } from '../../utils/common'
+import { logError, invariant, logger } from '../../utils/common'
 import type { Database, RecordId, Collection, Model, TableName, DirtyRaw } from '../..'
 import * as Q from '../../QueryDescription'
 import { columnName } from '../../Schema'
@@ -163,15 +163,20 @@ const getAllRecordsToApply = (
 ): AllRecordsToApply =>
   piped(
     remoteChanges,
-    map((changes, tableName: TableName<any>) => {
+    // $FlowFixMe
+    filter((_changes, tableName: TableName<any>) => {
       const collection = db.collections.get((tableName: any))
 
       if (!collection) {
-        return Promise.reject(new Error(`You are trying to sync a collection named ${tableName}, but currently this collection does not exist.` + 
-        `Have you remembered to add it to your Database constructor\'s modelClasses property?`))
+        logger.warn(
+          `You are trying to sync a collection named ${tableName}, but it does not exist. Will skip it (for forward-compatibility). If this is unexpected, perhaps you forgot to add it to your Database constructor's modelClasses property?`,
+        )
       }
-      
-      return recordsToApplyRemoteChangesTo(collection, changes)
+
+      return !!collection
+    }),
+    map((changes, tableName: TableName<any>) => {
+      return recordsToApplyRemoteChangesTo(db.collections.get((tableName: any)), changes)
     }),
     promiseAllObject,
   )

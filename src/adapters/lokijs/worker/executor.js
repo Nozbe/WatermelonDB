@@ -12,7 +12,7 @@ import type {
   AddColumnsMigrationStep,
   MigrationStep,
 } from '../../../Schema/migrations'
-import { stepsForMigration } from '../../../Schema/migrations/helpers'
+import { stepsForMigration } from '../../../Schema/migrations/stepsForMigration'
 import type { SerializedQuery } from '../../../Query'
 import type { RecordId } from '../../../Model'
 import { type RawRecord, sanitizedRaw, setRawSanitized, type DirtyRaw } from '../../../RawRecord'

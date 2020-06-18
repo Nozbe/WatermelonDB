@@ -142,24 +142,30 @@ export default class Database {
     return merge$(...changesSignals).pipe(startWith(null))
   }
 
-  _subscribers: Array<[TableName<any>[], () => void]> = []
+  _subscribers: [TableName<any>[], () => void, any][] = []
 
   // Notifies `subscriber` on change in any of passed tables (only a signal, no change set)
-  experimentalSubscribe(tables: TableName<any>[], subscriber: () => void): Unsubscribe {
+  experimentalSubscribe(
+    tables: TableName<any>[],
+    subscriber: () => void,
+    debugInfo?: any,
+  ): Unsubscribe {
     if (!tables.length) {
       return noop
     }
 
-    const subscriberEntry = [tables, subscriber]
-    this._subscribers.push(subscriberEntry)
+    const entry = [tables, subscriber, debugInfo]
+    this._subscribers.push(entry)
 
     return () => {
-      const idx = this._subscribers.indexOf(subscriberEntry)
+      const idx = this._subscribers.indexOf(entry)
       idx !== -1 && this._subscribers.splice(idx, 1)
     }
   }
 
   _resetCount: number = 0
+
+  _isBeingReset: boolean = false
 
   // Resets database - permanently destroys ALL records stored in the database, and sets up empty database
   //
@@ -175,14 +181,40 @@ export default class Database {
     this._ensureInAction(
       `Database.unsafeResetDatabase() can only be called from inside of an Action. See docs for more details.`,
     )
-    // Doing this in very specific order:
-    // First kill actions, to ensure no more traffic to adapter happens
-    // then clear the database
-    // and only then clear caches, since might have had queued fetches from DB still bringing in items to cache
-    this._actionQueue._abortPendingActions()
-    await this.adapter.unsafeResetDatabase()
-    this._unsafeClearCaches()
-    this._resetCount += 1
+    try {
+      this._isBeingReset = true
+      // First kill actions, to ensure no more traffic to adapter happens
+      this._actionQueue._abortPendingActions()
+
+      // Kill ability to call adapter methods during reset (to catch bugs if someone does this)
+      const { adapter } = this
+      const ErrorAdapter = require('../adapters/error').default
+      this.adapter = (new ErrorAdapter(): any)
+
+      // Check for illegal subscribers
+      if (this._subscribers.length) {
+        // TODO: This should be an error, not a console.log, but actually useful diagnostics are necessary for this to work, otherwise people will be confused
+        // eslint-disable-next-line no-console
+        console.log(
+          `Application error! Unexpected ${this._subscribers.length} Database subscribers were detected during database.unsafeResetDatabase() call. App should not hold onto subscriptions or Watermelon objects while resetting database.`,
+        )
+        // eslint-disable-next-line no-console
+        console.log(this._subscribers)
+        this._subscribers = []
+      }
+
+      // Clear the database
+      await adapter.unsafeResetDatabase()
+
+      // Only now clear caches, since there may have been queued fetches from DB still bringing in items to cache
+      this._unsafeClearCaches()
+
+      // Restore working Database
+      this._resetCount += 1
+      this.adapter = adapter
+    } finally {
+      this._isBeingReset = false
+    }
   }
 
   _unsafeClearCaches(): void {

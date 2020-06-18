@@ -1,7 +1,8 @@
 declare module '@nozbe/watermelondb/decorators/readonly' {
-  import { Decorator, RawDecorator } from '@nozbe/watermelondb/utils/common/makeDecorator'
 
-  const readonly: Decorator<[], () => RawDecorator>
+  // Copied from lib.es5.d.ts, PropertyDecorator
+  function readonly(target: Object, propertyKey: string | symbol): void;
+  function readonly(): PropertyDecorator;
 
   export default readonly
 }

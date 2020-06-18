@@ -1,7 +1,7 @@
 import Query from '../../Query'
 import * as Q from '../../QueryDescription'
 import encodeMatcher from './index'
-import { matchTests } from '../../__tests__/databaseTests'
+import { matchTests, naughtyMatchTests } from '../../__tests__/databaseTests'
 
 const mockModelClass = { table: 'tasks' }
 const mockCollection = { modelClass: mockModelClass }
@@ -25,13 +25,31 @@ describe('SQLite encodeMatcher', () => {
       })
     })
   })
-  it('does not encode JOIN queries', () => {
+  it('passes big-list-of-naughty-string matches', () => {
+    naughtyMatchTests.forEach(testCase => {
+      // console.log(testCase.name)
+      const matcher = makeMatcher(testCase.query)
+
+      testCase.matching.forEach(matchingRaw => {
+        expectTrue(matcher, matchingRaw)
+      })
+
+      testCase.nonMatching.forEach(nonMatchingRaw => {
+        expectFalse(matcher, nonMatchingRaw)
+      })
+    })
+  })
+  it('throws on queries it cannot encode', () => {
     expect(() =>
       makeMatcher([
         Q.on('projects', 'team_id', 'abcdef'),
         Q.where('left_column', 'right_value'),
         Q.on('tag_assignments', 'tag_id', Q.oneOf(['a', 'b', 'c'])),
       ]),
-    ).toThrow()
+    ).toThrow(/can't be encoded into a matcher/)
+    expect(() => makeMatcher([Q.experimentalSortBy('left_column', 'asc')])).toThrow(
+      /can't be encoded into a matcher/,
+    )
+    expect(() => makeMatcher([Q.experimentalTake(100)])).toThrow(/can't be encoded into a matcher/)
   })
 })

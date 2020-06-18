@@ -14,7 +14,7 @@ import subscribeToCount from '../observation/subscribeToCount'
 import subscribeToQuery from '../observation/subscribeToQuery'
 import subscribeToQueryWithColumns from '../observation/subscribeToQueryWithColumns'
 import { buildQueryDescription, queryWithoutDeleted } from '../QueryDescription'
-import type { Condition, QueryDescription } from '../QueryDescription'
+import type { Clause, QueryDescription } from '../QueryDescription'
 import type Model, { AssociationInfo } from '../Model'
 import type Collection from '../Collection'
 import type { TableName, ColumnName } from '../Schema'
@@ -51,18 +51,25 @@ export default class Query<Record: Model> {
   )
 
   // Note: Don't use this directly, use Collection.query(...)
-  constructor(collection: Collection<Record>, conditions: Condition[]): void {
+  constructor(collection: Collection<Record>, clauses: Clause[]): void {
     this.collection = collection
-    this._rawDescription = buildQueryDescription(conditions)
+    this._rawDescription = buildQueryDescription(clauses)
     this.description = queryWithoutDeleted(this._rawDescription)
   }
 
-  // Creates a new Query that extends the conditions of this query
-  extend(...conditions: Condition[]): Query<Record> {
+  // Creates a new Query that extends the clauses of this query
+  extend(...clauses: Clause[]): Query<Record> {
     const { collection } = this
-    const { join, where } = this._rawDescription
+    const { join, where, sortBy, take, skip } = this._rawDescription
 
-    return new Query(collection, [...join, ...where, ...conditions])
+    return new Query(collection, [
+      ...join,
+      ...where,
+      ...sortBy,
+      ...(take ? [take] : []),
+      ...(skip ? [skip] : []),
+      ...clauses,
+    ])
   }
 
   pipe<T>(transform: this => T): T {
@@ -160,7 +167,7 @@ export default class Query<Record: Model> {
     return getAssociations(this.secondaryTables, this.modelClass.associations)
   }
 
-  // `true` if query contains conditions on foreign tables
+  // `true` if query contains join clauses on foreign tables
   get hasJoins(): boolean {
     return !!this.description.join.length
   }

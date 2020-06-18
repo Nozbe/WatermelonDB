@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from '../utils/common/invariant'
+import checkName from '../utils/fp/checkName'
 import type { $RE } from '../types'
 
 import type Model from '../Model'
@@ -42,8 +43,6 @@ export function columnName(name: string): ColumnName {
   return name
 }
 
-const safeNameCharacters = /^[a-zA-Z_]\w*$/
-
 export function appSchema({
   version,
   tables: tableList,
@@ -62,22 +61,23 @@ export function appSchema({
   return { version, tables }
 }
 
+const validateName = (name: string) => {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(
+      !['id', '_changed', '_status', 'local_storage'].includes(name.toLowerCase()),
+      `Invalid column or table name '${name}' - reserved by WatermelonDB`,
+    )
+    checkName(name)
+  }
+}
+
 export function validateColumnSchema(column: ColumnSchema): void {
   if (process.env.NODE_ENV !== 'production') {
     invariant(column.name, `Missing column name`)
+    validateName(column.name)
     invariant(
       ['string', 'boolean', 'number'].includes(column.type),
-      `Invalid type ${column.type} for column ${column.name} (valid: string, boolean, number)`,
-    )
-    invariant(
-      !['id', '_changed', '_status', '$loki'].includes(column.name),
-      `You must not define a column with name ${column.name}`,
-    )
-    invariant(
-      safeNameCharacters.test(column.name),
-      `Column name (${
-        column.name
-      }) must contain only safe characters ${safeNameCharacters.toString()}`,
+      `Invalid type ${column.type} for column '${column.name}' (valid: string, boolean, number)`,
     )
     if (column.name === 'created_at' || column.name === 'updated_at') {
       invariant(
@@ -97,10 +97,7 @@ export function validateColumnSchema(column: ColumnSchema): void {
 export function tableSchema({ name, columns: columnArray }: TableSchemaSpec): TableSchema {
   if (process.env.NODE_ENV !== 'production') {
     invariant(name, `Missing table name in schema`)
-    invariant(
-      safeNameCharacters.test(name),
-      `Table name ${name} must contain only safe characters ${safeNameCharacters.toString()}`,
-    )
+    validateName(name)
   }
 
   const columns: ColumnMap = columnArray.reduce((map, column) => {

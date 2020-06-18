@@ -34,6 +34,7 @@
 - [Dig deeper into WatermelonDB](./ch04-00-deeper.md)
     - [Architecture](./Implementation/Architecture.md)
     - [Adapters](./Implementation/Adapters.md)
+    - [Sync implementation](./Implementation/SyncImpl.md)
 
 ## Other
 

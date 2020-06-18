@@ -49,16 +49,16 @@ declare module '@nozbe/watermelondb/Model' {
 
     public observe(): Observable<this>
 
-    public batch(...records: Readonly<[Model]>): Promise<void>
+    public batch(...records: Readonly<Model[]>): Promise<void>
 
     public subAction<T>(action: () => Promise<T>): Promise<T>
 
     public collection: Collection<Model>
-                                 
+
     public collections: CollectionMap
 
     public database: Database
 
-    public asModel: this                             
+    public asModel: this
   }
 }

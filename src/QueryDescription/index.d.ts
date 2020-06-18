@@ -50,10 +50,31 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     left: ColumnName
     comparison: Comparison
   }
-  export type Condition = Where | On
+  export interface SortBy {
+    type: 'sortBy'
+    sortColumn: ColumnName
+    sortOrder: SortOrder
+  }
+  export type SortOrder =
+    | 'asc'
+    | 'desc'
+  export const asc: SortOrder
+  export const desc: SortOrder
+  export interface Take {
+    type: 'take'
+    count: number
+  }
+  export interface Skip {
+    type: 'skip'
+    count: number
+  }
+  export type Clause = Where | On | SortBy | Take | Skip
   export interface QueryDescription {
     where: Where[]
     join: On[]
+    sortBy: SortBy[]
+    take?: Take
+    skip?: Skip
   }
 
   export function eq(valueOrColumn: Value | ColumnDescription): Comparison
@@ -73,6 +94,9 @@ declare module '@nozbe/watermelondb/QueryDescription' {
   export function textMatches(value: string): Comparison
   export function like(value: string): Comparison
   export function notLike(value: string): Comparison
+  export function experimentalSortBy(sortColumn: ColumnName, sortOrder?: SortOrder): SortBy
+  export function experimentalTake(count: number): Take
+  export function experimentalSkip(count: number): Skip
   export function sanitizeLikeString(value: string): string
 
   type _OnFunctionColumnValue = (table: TableName<any>, column: ColumnName, value: Value) => On
@@ -89,7 +113,7 @@ declare module '@nozbe/watermelondb/QueryDescription' {
 
   export const on: OnFunction
 
-  export function buildQueryDescription(conditions: Condition[]): QueryDescription
+  export function buildQueryDescription(conditions: Clause[]): QueryDescription
   export function queryWithoutDeleted(query: QueryDescription): QueryDescription
   export function hasColumnComparisons(conditions: Where[]): boolean
 }

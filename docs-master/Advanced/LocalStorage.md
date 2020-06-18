@@ -17,4 +17,6 @@ await database.adapter.removeLocal("user_id")
 
 **This is a low-level API**. You can't do things like observe changes of a value over time. If you need that, just use standard WatermelonDB records. Also, you can only store strings. You can build your own abstraction that (de)serializes those values to/from JSON.
 
+**What to be aware of**. DO NOT let the local storage key be a user-supplied value. Only allow predefined/whitelisted keys.
+
 **Why not use localStorage/AsyncStorage?** Because this way, you have only one source of truth — one database that, say, stores the logged-in user ID and the information about all users. So there's a lower risk that the two sets of values get out of sync.

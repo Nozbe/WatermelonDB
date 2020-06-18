@@ -1,6 +1,6 @@
 declare module '@nozbe/watermelondb/Database' {
   import { AppSchema, CollectionMap, DatabaseAdapter, Model, TableName } from '@nozbe/watermelondb'
-  import { CollectionChange } from '@nozbe/watermelondb/Collection'
+  import { CollectionChangeSet } from '@nozbe/watermelondb/Collection'
   import { Class } from '@nozbe/watermelondb/utils/common'
   import { Observable } from 'rxjs'
 
@@ -29,7 +29,7 @@ declare module '@nozbe/watermelondb/Database' {
 
     public withChangesForTables(
       tables: Array<TableName<any>>,
-    ): Observable<CollectionChange<any> | null>
+    ): Observable<CollectionChangeSet<any> | null>
 
     public unsafeResetDatabase(): Promise<void>
   }

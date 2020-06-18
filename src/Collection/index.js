@@ -12,7 +12,7 @@ import { type Unsubscribe } from '../utils/subscriptions'
 import Query from '../Query'
 import type Database from '../Database'
 import type Model, { RecordId } from '../Model'
-import type { Condition } from '../QueryDescription'
+import type { Clause } from '../QueryDescription'
 import { type TableName, type TableSchema } from '../Schema'
 import { type DirtyRaw } from '../RawRecord'
 
@@ -43,7 +43,7 @@ export default class Collection<Record: Model> {
   // Finds a record with the given ID
   // Promise will reject if not found
   async find(id: RecordId): Promise<Record> {
-    invariant(id, `Invalid record ID ${this.table}#${id}`)
+    invariant(typeof id === 'string', `Invalid record ID ${this.table}#${id}`)
 
     const cachedRecord = this._cache.get(id)
     return cachedRecord || toPromise(callback => this._fetchRecord(id, callback))
@@ -56,8 +56,8 @@ export default class Collection<Record: Model> {
   }
 
   // Query records of this type
-  query(...conditions: Condition[]): Query<Record> {
-    return new Query(this, conditions)
+  query(...clauses: Clause[]): Query<Record> {
+    return new Query(this, clauses)
   }
 
   // Creates a new record in this collection
@@ -149,7 +149,7 @@ export default class Collection<Record: Model> {
   }
 
   _notify(operations: CollectionChangeSet<Record>): void {
-    this._subscribers.forEach(subscriber => {
+    this._subscribers.forEach(([subscriber]) => {
       subscriber(operations)
     })
     this.changes.next(operations)
@@ -163,13 +163,17 @@ export default class Collection<Record: Model> {
     })
   }
 
-  _subscribers: Array<(CollectionChangeSet<Record>) => void> = []
+  _subscribers: [(CollectionChangeSet<Record>) => void, any][] = []
 
-  experimentalSubscribe(subscriber: (CollectionChangeSet<Record>) => void): Unsubscribe {
-    this._subscribers.push(subscriber)
+  experimentalSubscribe(
+    subscriber: (CollectionChangeSet<Record>) => void,
+    debugInfo?: any,
+  ): Unsubscribe {
+    const entry = [subscriber, debugInfo]
+    this._subscribers.push(entry)
 
     return () => {
-      const idx = this._subscribers.indexOf(subscriber)
+      const idx = this._subscribers.indexOf(entry)
       idx !== -1 && this._subscribers.splice(idx, 1)
     }
   }

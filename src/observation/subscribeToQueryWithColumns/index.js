@@ -14,6 +14,7 @@ import type { CollectionChangeSet } from '../../Collection'
 import type Model, { RecordId } from '../../Model'
 import subscribeToSimpleQuery from '../subscribeToSimpleQuery'
 import subscribeToQueryReloading from '../subscribeToQueryReloading'
+import { queryNeedsReloading } from '../helpers'
 
 type RecordState = { [field: ColumnName]: Value }
 
@@ -59,7 +60,7 @@ export default function subscribeToQueryWithColumns<Record: Model>(
   // TODO: On one hand it would be nice to bring in the source logic to this function to optimize
   // on the other, it would be good to have source provided as Observable, not Query
   // so that we can reuse cached responses -- but they don't have compatible format
-  const [subscribeToSource, asyncSource] = query.hasJoins
+  const [subscribeToSource, asyncSource] = queryNeedsReloading(query)
     ? [observer => subscribeToQueryReloading(query, observer, true), false]
     : [observer => subscribeToSimpleQuery(query, observer, true), false]
 
@@ -78,6 +79,7 @@ export default function subscribeToQueryWithColumns<Record: Model>(
   // flag, and wait for source response.
 
   // Observe changes to records we have on the list
+  const debugInfo = { name: 'subscribeToQueryWithColumns', query, columnNames }
   const collectionUnsubscribe = query.collection.experimentalSubscribe(
     function observeWithColumnsCollectionChanged(changeSet: CollectionChangeSet<Record>): void {
       let hasColumnChanges = false
@@ -110,6 +112,7 @@ export default function subscribeToQueryWithColumns<Record: Model>(
         }
       }
     },
+    debugInfo,
   )
 
   // Observe the source records list (list of records matching a query)

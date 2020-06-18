@@ -1,10 +1,11 @@
 // @flow
 
-import { propEq, pipe, prop, uniq, map } from 'rambdax'
+import { pipe, prop, uniq, map } from 'rambdax'
 
 // don't import whole `utils` to keep worker size small
-import partition from '../utils/fp/partition'
 import invariant from '../utils/common/invariant'
+import checkName from '../utils/fp/checkName'
+import deepFreeze from '../utils/common/deepFreeze'
 import type { $RE } from '../types'
 
 import { type TableName, type ColumnName, columnName } from '../Schema'
@@ -29,12 +30,12 @@ export type Operator =
   | 'notLike'
   | 'match'
 
-export type ColumnDescription = $RE<{ column: ColumnName }>
+export type ColumnDescription = $RE<{ column: ColumnName, type?: Symbol }>
 export type ComparisonRight =
   | $RE<{ value: Value }>
   | $RE<{ values: NonNullValues }>
   | ColumnDescription
-export type Comparison = $RE<{ operator: Operator, right: ComparisonRight }>
+export type Comparison = $RE<{ operator: Operator, right: ComparisonRight, type?: Symbol }>
 
 export type WhereDescription = $RE<{
   type: 'where',
@@ -52,8 +53,33 @@ export type On = $RE<{
   left: ColumnName,
   comparison: Comparison,
 }>
-export type Condition = Where | On
-export type QueryDescription = $RE<{ where: Where[], join: On[] }>
+export type SortOrder = 'asc' | 'desc'
+export const asc: SortOrder = 'asc'
+export const desc: SortOrder = 'desc'
+export type SortBy = $RE<{
+  type: 'sortBy',
+  sortColumn: ColumnName,
+  sortOrder: SortOrder,
+}>
+export type Take = $RE<{
+  type: 'take',
+  count: number,
+}>
+export type Skip = $RE<{
+  type: 'skip',
+  count: number,
+}>
+export type Clause = Where | On | SortBy | Take | Skip
+export type QueryDescription = $RE<{
+  where: Where[],
+  join: On[],
+  sortBy: SortBy[],
+  take: ?Take,
+  skip: ?Skip,
+}>
+
+const columnSymbol = Symbol('Q.column')
+const comparisonSymbol = Symbol('QueryComparison')
 
 // Note: These operators are designed to match SQLite semantics
 // to ensure that iOS, Android, web, and Query observation yield exactly the same results
@@ -72,11 +98,19 @@ export type QueryDescription = $RE<{ where: Where[], join: On[] }>
 //   e.g. `null NOT IN (1, 2, 3) == false`
 
 function _valueOrColumn(arg: Value | ColumnDescription): ComparisonRight {
-  if (arg !== null && typeof arg === 'object') {
-    return arg
+  if (arg === null || typeof arg !== 'object') {
+    return { value: arg }
   }
 
-  return { value: arg }
+  if (typeof arg.column === 'string') {
+    invariant(
+      arg.type === columnSymbol,
+      'Invalid { column: } object passed to Watermelon query. You seem to be passing unsanitized user data to Query builder!',
+    )
+    return { column: arg.column }
+  }
+
+  throw new Error(`Invalid value passed to query`)
 }
 
 // Equals (weakly)
@@ -85,7 +119,7 @@ function _valueOrColumn(arg: Value | ColumnDescription): ComparisonRight {
 // - (1 == true) == true
 // - (0 == false) == true
 export function eq(valueOrColumn: Value | ColumnDescription): Comparison {
-  return { operator: 'eq', right: _valueOrColumn(valueOrColumn) }
+  return { operator: 'eq', right: _valueOrColumn(valueOrColumn), type: comparisonSymbol }
 }
 
 // Not equal (weakly)
@@ -94,53 +128,52 @@ export function eq(valueOrColumn: Value | ColumnDescription): Comparison {
 // - (1 != true) == false
 // - (0 != false) == false
 export function notEq(valueOrColumn: Value | ColumnDescription): Comparison {
-  return { operator: 'notEq', right: _valueOrColumn(valueOrColumn) }
+  return { operator: 'notEq', right: _valueOrColumn(valueOrColumn), type: comparisonSymbol }
 }
 
 // Greater than (SQLite semantics)
 // Note:
 // - (5 > null) == false
 export function gt(valueOrColumn: NonNullValue | ColumnDescription): Comparison {
-  return { operator: 'gt', right: _valueOrColumn(valueOrColumn) }
+  return { operator: 'gt', right: _valueOrColumn(valueOrColumn), type: comparisonSymbol }
 }
 
 // Greater than or equal (SQLite semantics)
 // Note:
 // - (5 >= null) == false
 export function gte(valueOrColumn: NonNullValue | ColumnDescription): Comparison {
-  return { operator: 'gte', right: _valueOrColumn(valueOrColumn) }
+  return { operator: 'gte', right: _valueOrColumn(valueOrColumn), type: comparisonSymbol }
 }
 
 // Greater than (JavaScript semantics)
 // Note:
 // - (5 > null) == true
 export function weakGt(valueOrColumn: NonNullValue | ColumnDescription): Comparison {
-  return { operator: 'weakGt', right: _valueOrColumn(valueOrColumn) }
+  return { operator: 'weakGt', right: _valueOrColumn(valueOrColumn), type: comparisonSymbol }
 }
 
 // Less than (SQLite semantics)
 // Note:
 // - (null < 5) == false
 export function lt(valueOrColumn: NonNullValue | ColumnDescription): Comparison {
-  return { operator: 'lt', right: _valueOrColumn(valueOrColumn) }
+  return { operator: 'lt', right: _valueOrColumn(valueOrColumn), type: comparisonSymbol }
 }
 
 // Less than or equal (SQLite semantics)
 // Note:
 // - (null <= 5) == false
 export function lte(valueOrColumn: NonNullValue | ColumnDescription): Comparison {
-  return { operator: 'lte', right: _valueOrColumn(valueOrColumn) }
+  return { operator: 'lte', right: _valueOrColumn(valueOrColumn), type: comparisonSymbol }
 }
 
 // Value in a set (SQLite IN semantics)
 // Note:
 // - `null` in `values` is not allowed!
 export function oneOf(values: NonNullValues): Comparison {
-  if (process.env.NODE_ENV !== 'production') {
-    invariant(Array.isArray(values), `argument passed to oneOf() is not an array`)
-  }
+  invariant(Array.isArray(values), `argument passed to oneOf() is not an array`)
+  Object.freeze(values) // even in production, because it's an easy mistake to make
 
-  return { operator: 'oneOf', right: { values } }
+  return { operator: 'oneOf', right: { values }, type: comparisonSymbol }
 }
 
 // Value not in a set (SQLite NOT IN semantics)
@@ -148,30 +181,36 @@ export function oneOf(values: NonNullValues): Comparison {
 // - `null` in `values` is not allowed!
 // - (null NOT IN (1, 2, 3)) == false
 export function notIn(values: NonNullValues): Comparison {
-  if (process.env.NODE_ENV !== 'production') {
-    invariant(Array.isArray(values), `argument passed to notIn() is not an array`)
-  }
+  invariant(Array.isArray(values), `argument passed to notIn() is not an array`)
+  Object.freeze(values) // even in production, because it's an easy mistake to make
 
-  return { operator: 'notIn', right: { values } }
+  return { operator: 'notIn', right: { values }, type: comparisonSymbol }
 }
 
 // Number is between two numbers (greater than or equal left, and less than or equal right)
 export function between(left: number, right: number): Comparison {
+  invariant(
+    typeof left === 'number' && typeof right === 'number',
+    'Values passed to Q.between() are not numbers',
+  )
   const values: number[] = [left, right]
-  return { operator: 'between', right: { values } }
+  return { operator: 'between', right: { values }, type: comparisonSymbol }
 }
 
 export function like(value: string): Comparison {
-  return { operator: 'like', right: { value } }
+  invariant(typeof value === 'string', 'Value passed to Q.like() is not string')
+  return { operator: 'like', right: { value }, type: comparisonSymbol }
 }
 
 export function notLike(value: string): Comparison {
-  return { operator: 'notLike', right: { value } }
+  invariant(typeof value === 'string', 'Value passed to Q.notLike() is not string')
+  return { operator: 'notLike', right: { value }, type: comparisonSymbol }
 }
 
 const nonLikeSafeRegexp = /[^a-zA-Z0-9]/g
 
 export function sanitizeLikeString(value: string): string {
+  invariant(typeof value === 'string', 'Value passed to Q.sanitizeLikeString() is not string')
   return value.replace(nonLikeSafeRegexp, '_')
 }
 
@@ -180,19 +219,25 @@ export function textMatches(value: string): Comparison {
 }
 
 export function column(name: ColumnName): ColumnDescription {
-  return { column: name }
+  invariant(typeof name === 'string', 'Name passed to Q.column() is not string')
+  return { column: checkName(name), type: columnSymbol }
 }
 
 function _valueOrComparison(arg: Value | Comparison): Comparison {
-  if (arg !== null && typeof arg === 'object') {
-    return arg
+  if (arg === null || typeof arg !== 'object') {
+    return _valueOrComparison(eq(arg))
   }
 
-  return eq(arg)
+  invariant(
+    arg.type === comparisonSymbol,
+    'Invalid Comparison passed to Query builder. You seem to be passing unsanitized user data to Query builder!',
+  )
+  const { operator, right } = arg
+  return { operator, right }
 }
 
 export function where(left: ColumnName, valueOrComparison: Value | Comparison): WhereDescription {
-  return { type: 'where', left, comparison: _valueOrComparison(valueOrComparison) }
+  return { type: 'where', left: checkName(left), comparison: _valueOrComparison(valueOrComparison) }
 }
 
 export function and(...conditions: Where[]): And {
@@ -202,6 +247,26 @@ export function and(...conditions: Where[]): And {
 export function or(...conditions: Where[]): Or {
   return { type: 'or', conditions }
 }
+
+function sortBy(sortColumn: ColumnName, sortOrder: SortOrder = asc): SortBy {
+  invariant(
+    sortOrder === 'asc' || sortOrder === 'desc',
+    `Invalid sortOrder argument received in Q.sortBy (valid: asc, desc)`,
+  )
+  return { type: 'sortBy', sortColumn: checkName(sortColumn), sortOrder }
+}
+
+function take(count: number): Take {
+  invariant(typeof count === 'number', 'Value passed to Q.take() is not a number')
+  return { type: 'take', count }
+}
+
+function skip(count: number): Skip {
+  invariant(typeof count === 'number', 'Value passed to Q.take() is not a number')
+  return { type: 'skip', count }
+}
+
+export { sortBy as experimentalSortBy, take as experimentalTake, skip as experimentalSkip }
 
 // Note: we have to write out three separate meanings of OnFunction because of a Babel bug
 // (it will remove the parentheses, changing the meaning of the flow type)
@@ -219,7 +284,7 @@ export const on: OnFunction = (table, leftOrWhereDescription, valueOrComparison)
     invariant(valueOrComparison !== undefined, 'illegal `undefined` passed to Q.on')
     return {
       type: 'on',
-      table,
+      table: checkName(table),
       left: leftOrWhereDescription,
       comparison: _valueOrComparison(valueOrComparison),
     }
@@ -229,14 +294,38 @@ export const on: OnFunction = (table, leftOrWhereDescription, valueOrComparison)
 
   return {
     type: 'on',
-    table,
+    table: checkName(table),
     left: whereDescription.left,
     comparison: whereDescription.comparison,
   }
 }
 
 const syncStatusColumn = columnName('_status')
-const getJoins: (Condition[]) => [On[], Where[]] = (partition(propEq('type', 'on')): any)
+const extractClauses: (Clause[]) => QueryDescription = clauses => {
+  const clauseMap = { join: [], sortBy: [], where: [], take: null, skip: null }
+  clauses.forEach(cond => {
+    const { type } = cond
+    switch (type) {
+      case 'take':
+      case 'skip':
+        // $FlowFixMe: Flow is too dumb to realize that it is valid
+        clauseMap[type] = cond
+        break
+      default:
+      case 'where':
+        clauseMap.where.push(cond)
+        break
+      case 'on':
+        clauseMap.join.push(cond)
+        break
+      case 'sortBy':
+        clauseMap.sortBy.push(cond)
+        break
+    }
+  })
+  // $FlowFixMe: Flow is too dumb to realize that it is valid
+  return clauseMap
+}
 const whereNotDeleted = where(syncStatusColumn, notEq('deleted'))
 const joinsWithoutDeleted = pipe(
   map(prop('table')),
@@ -244,12 +333,14 @@ const joinsWithoutDeleted = pipe(
   map(table => on(table, syncStatusColumn, notEq('deleted'))),
 )
 
-export function buildQueryDescription(conditions: Condition[]): QueryDescription {
-  const [join, whereConditions] = getJoins(conditions)
+export function buildQueryDescription(clauses: Clause[]): QueryDescription {
+  const clauseMap = extractClauses(clauses)
 
-  const query = { join, where: whereConditions }
+  invariant(!(clauseMap.skip && !clauseMap.take), 'cannot skip without take')
+
+  const query = clauseMap
   if (process.env.NODE_ENV !== 'production') {
-    Object.freeze(query)
+    deepFreeze(query)
   }
   return query
 }
@@ -258,11 +349,12 @@ export function queryWithoutDeleted(query: QueryDescription): QueryDescription {
   const { join, where: whereConditions } = query
 
   const newQuery = {
+    ...query,
     join: [...join, ...joinsWithoutDeleted(join)],
     where: [...whereConditions, whereNotDeleted],
   }
   if (process.env.NODE_ENV !== 'production') {
-    Object.freeze(newQuery)
+    deepFreeze(newQuery)
   }
   return newQuery
 }
@@ -288,7 +380,7 @@ const searchForColumnComparisons: any => boolean = value => {
       // NOTE: To be safe against JS edge cases, there should be hasOwnProperty check
       // but this is performance critical so we trust that this is only called with
       // QueryDescription which doesn't need that
-      if (searchForColumnComparisons(value[key])) {
+      if (key !== 'values' && searchForColumnComparisons(value[key])) {
         return true
       }
     }
@@ -300,5 +392,15 @@ const searchForColumnComparisons: any => boolean = value => {
 }
 
 export function hasColumnComparisons(conditions: Where[]): boolean {
+  // since we don't do hasOwnProperty check, let's make sure Object prototype isn't broken
+  let isBroken = false
+  // eslint-disable-next-line
+  for (const _ in {}) {
+    isBroken = true
+  }
+  invariant(
+    !isBroken,
+    'Broken Object prototype! You must not have properties defined on Object prototype',
+  )
   return searchForColumnComparisons(conditions)
 }
