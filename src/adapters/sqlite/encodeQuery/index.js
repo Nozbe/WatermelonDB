@@ -148,20 +148,38 @@ const encodeMethod = (
     : `select ${encodeName(table)}.* from ${encodeName(table)}`
 }
 
-const encodeAssociation: (TableName<any>) => AssociationArgs => string = mainTable => ([
+const encodeAssociation = (description: QueryDescription, mainTable: TableName<any>) => ([
   joinedTable,
   association,
-]) =>
-  association.type === 'belongs_to'
-    ? ` left join ${encodeName(joinedTable)} on ${encodeName(joinedTable)}."id" = ${encodeName(
-        mainTable,
-      )}.${encodeName(association.key)}`
-    : ` left join ${encodeName(joinedTable)} on ${encodeName(joinedTable)}.${encodeName(
-        association.foreignKey,
-      )} = ${encodeName(mainTable)}."id"`
+]: AssociationArgs): string => {
+  // TODO: We have a problem here. For all of eternity, WatermelonDB Q.ons were encoded using JOIN
+  // However, this precludes many legitimate use cases for Q.ons once you start nesting them
+  // (e.g. get tasks where X or has a tag assignment that Y -- if there is no tag assignment, this will
+  // fail to join)
+  // LEFT JOIN needs to be used to address this… BUT technically that's a breaking change. I never
+  // considered a possiblity of making a query like `Q.on(relation_id, x != 'bla')`. Before this would
+  // only match if there IS a relation, but with LEFT JOIN it would also match if record does not have
+  // this relation. I don't know if there are legitimate use cases where this would change anything
+  // so I need more time to think about whether this breaking change is OK to make or if we need to
+  // do something more clever/add option/whatever.
+  // so for now, i'm making an extreeeeemelyyyy bad hack to make sure that there's no breaking change
+  // for existing code and code with nested Q.ons probably works (with caveats)
+  const usesOldJoinStyle = description.where.some(
+    clause => clause.type === 'on' && clause.table === joinedTable,
+  )
+  const joinKeyword = usesOldJoinStyle ? ' join ' : ' left join '
+  const joinBeginning = `${joinKeyword}${encodeName(joinedTable)} on ${encodeName(joinedTable)}.`
+  return association.type === 'belongs_to'
+    ? `${joinBeginning}"id" = ${encodeName(mainTable)}.${encodeName(association.key)}`
+    : `${joinBeginning}${encodeName(association.foreignKey)} = ${encodeName(mainTable)}."id"`
+}
 
-const encodeJoin = (table: TableName<any>, associations: AssociationArgs[]): string =>
-  associations.length ? associations.map(encodeAssociation(table)).join('') : ''
+const encodeJoin = (
+  table: TableName<any>,
+  description: QueryDescription,
+  associations: AssociationArgs[],
+): string =>
+  associations.length ? associations.map(encodeAssociation(description, table)).join('') : ''
 
 const encodeOrderBy = (table: TableName<any>, sortBys: SortBy[]) => {
   if (sortBys.length === 0) {
@@ -191,7 +209,7 @@ const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string
 
   const sql =
     encodeMethod(table, countMode, hasToManyJoins) +
-    encodeJoin(table, associations) +
+    encodeJoin(table, description, associations) +
     encodeConditions(table, description, associations) +
     encodeOrderBy(table, description.sortBy) +
     encodeLimitOffset(description.take, description.skip)
