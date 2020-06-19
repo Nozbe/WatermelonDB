@@ -4,7 +4,6 @@ import Loki from 'lokijs'
 import type { LokiResultset } from 'lokijs'
 
 import type { SerializedQuery } from '../../../Query'
-import invariant from '../../../utils/common/invariant'
 
 import encodeMatcher from '../../../observation/encodeMatcher'
 import { hasColumnComparisons, type Where } from '../../../QueryDescription'

@@ -21,7 +21,6 @@ import {
 // don't import whole `utils` to keep worker size small
 import identical from '../../../../utils/fp/identical'
 import objOf from '../../../../utils/fp/objOf'
-import zip from '../../../../utils/fp/zip'
 import cond from '../../../../utils/fp/cond'
 import invariant from '../../../../utils/common/invariant'
 import likeToRegexp from '../../../../utils/fp/likeToRegexp'
