@@ -118,6 +118,12 @@ describe('Query', () => {
       expect(extendedQuery.serialize()).toEqual(expectedQuery.serialize())
       expect(extendedQuery._rawDescription).toEqual(expectedQuery._rawDescription)
     })
+    it(`can extend query for join tables`, () => {
+      const query = new Query(mockCollection, [Q.experimentalJoinTables(['a', 'b'])])
+      const extendedQuery = query.extend(Q.experimentalJoinTables(['a', 'c']))
+      const expectedQuery = new Query(mockCollection, [Q.experimentalJoinTables(['a', 'b', 'c'])])
+      expect(extendedQuery.serialize()).toEqual(expectedQuery.serialize())
+    })
     it('returns serializable version of Query', () => {
       const query = new Query(mockCollection, [
         Q.on('projects', 'team_id', 'abcdef'),

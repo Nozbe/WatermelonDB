@@ -5,8 +5,7 @@ describe('buildQueryDescription', () => {
     const query = Q.buildQueryDescription([])
     expect(query).toEqual({
       where: [],
-      join: [],
-      joinTables: null,
+      joinTables: [],
       sortBy: [],
       skip: null,
       take: null,
@@ -22,8 +21,7 @@ describe('buildQueryDescription', () => {
           comparison: { operator: 'eq', right: { value: 'right_value' } },
         },
       ],
-      join: [],
-      joinTables: null,
+      joinTables: [],
       sortBy: [],
       skip: null,
       take: null,
@@ -45,8 +43,7 @@ describe('buildQueryDescription', () => {
         { type: 'where', left: 'col4', comparison: { operator: 'eq', right: { value: false } } },
         { type: 'where', left: 'col5', comparison: { operator: 'eq', right: { value: null } } },
       ],
-      join: [],
-      joinTables: null,
+      joinTables: [],
       sortBy: [],
       skip: null,
       take: null,
@@ -106,8 +103,7 @@ describe('buildQueryDescription', () => {
           comparison: { operator: 'notLike', right: { value: 'def%' } },
         },
       ],
-      join: [],
-      joinTables: null,
+      joinTables: [],
       sortBy: [],
       skip: null,
       take: null,
@@ -126,8 +122,7 @@ describe('buildQueryDescription', () => {
           },
         },
       ],
-      join: [],
-      joinTables: null,
+      joinTables: [],
       sortBy: [],
       skip: null,
       take: null,
@@ -168,8 +163,7 @@ describe('buildQueryDescription', () => {
           ],
         },
       ],
-      join: [],
-      joinTables: null,
+      joinTables: [],
       sortBy: [],
       skip: null,
       take: null,
@@ -184,17 +178,15 @@ describe('buildQueryDescription', () => {
     expect(query).toEqual({
       where: [
         {
-          type: 'where',
-          left: 'left_column',
-          comparison: { operator: 'eq', right: { value: 'right_value' } },
-        },
-      ],
-      join: [
-        {
           type: 'on',
           table: 'foreign_table',
           left: 'foreign_column',
           comparison: { operator: 'eq', right: { value: 'value' } },
+        },
+        {
+          type: 'where',
+          left: 'left_column',
+          comparison: { operator: 'eq', right: { value: 'right_value' } },
         },
         {
           type: 'on',
@@ -203,7 +195,7 @@ describe('buildQueryDescription', () => {
           comparison: { operator: 'gt', right: { column: 'foreign_column3' } },
         },
       ],
-      joinTables: null,
+      joinTables: ['foreign_table', 'foreign_table2'],
       sortBy: [],
       skip: null,
       take: null,
@@ -261,8 +253,7 @@ describe('buildQueryDescription', () => {
           ],
         },
       ],
-      join: [],
-      joinTables: { type: 'joinTables', tables: ['projects', 'foreign_table2'] },
+      joinTables: ['projects', 'foreign_table2'],
       sortBy: [],
       take: null,
       skip: null,
@@ -325,8 +316,7 @@ describe('queryWithoutDeleted', () => {
           comparison: { operator: 'notEq', right: { value: 'deleted' } },
         },
       ],
-      join: [],
-      joinTables: null,
+      joinTables: [],
       sortBy: [],
       take: null,
       skip: null,
@@ -349,8 +339,7 @@ describe('queryWithoutDeleted', () => {
           comparison: { operator: 'notEq', right: { value: 'deleted' } },
         },
       ],
-      join: [],
-      joinTables: null,
+      joinTables: [],
       sortBy: [],
       skip: null,
       take: null,
@@ -368,18 +357,6 @@ describe('queryWithoutDeleted', () => {
     expect(query).toEqual({
       where: [
         {
-          type: 'where',
-          left: 'left_column',
-          comparison: { operator: 'eq', right: { value: 'right_value' } },
-        },
-        {
-          type: 'where',
-          left: '_status',
-          comparison: { operator: 'notEq', right: { value: 'deleted' } },
-        },
-      ],
-      join: [
-        {
           type: 'on',
           table: 'foreign_table',
           left: 'foreign_column',
@@ -390,6 +367,11 @@ describe('queryWithoutDeleted', () => {
           table: 'foreign_table',
           left: 'foreign_column4',
           comparison: { operator: 'eq', right: { value: 'value' } },
+        },
+        {
+          type: 'where',
+          left: 'left_column',
+          comparison: { operator: 'eq', right: { value: 'right_value' } },
         },
         {
           type: 'on',
@@ -409,8 +391,13 @@ describe('queryWithoutDeleted', () => {
           left: '_status',
           comparison: { operator: 'notEq', right: { value: 'deleted' } },
         },
+        {
+          type: 'where',
+          left: '_status',
+          comparison: { operator: 'notEq', right: { value: 'deleted' } },
+        },
       ],
-      joinTables: null,
+      joinTables: ['foreign_table', 'foreign_table2'],
       sortBy: [],
       skip: null,
       take: null,
@@ -423,8 +410,7 @@ describe('buildQueryDescription - contd', () => {
     const query = Q.buildQueryDescription([Q.experimentalSortBy('sortable_column', Q.desc)])
     expect(query).toEqual({
       where: [],
-      join: [],
-      joinTables: null,
+      joinTables: [],
       sortBy: [{ type: 'sortBy', sortColumn: 'sortable_column', sortOrder: 'desc' }],
       skip: null,
       take: null,
@@ -434,10 +420,9 @@ describe('buildQueryDescription - contd', () => {
     const query = Q.buildQueryDescription([Q.experimentalTake(100)])
     expect(query).toEqual({
       where: [],
-      join: [],
-      joinTables: null,
+      joinTables: [],
       sortBy: [],
-      take: { type: 'take', count: 100 },
+      take: 100,
       skip: null,
     })
   })
@@ -454,10 +439,9 @@ describe('buildQueryDescription - contd', () => {
     ])
     expect(query).toEqual({
       where: [],
-      join: [],
-      joinTables: null,
+      joinTables: [],
       sortBy: [],
-      take: { type: 'take', count: 400 },
+      take: 400,
       skip: null,
     })
   })
@@ -470,11 +454,10 @@ describe('buildQueryDescription - contd', () => {
     ])
     expect(query).toEqual({
       where: [],
-      join: [],
-      joinTables: null,
+      joinTables: [],
       sortBy: [],
-      take: { type: 'take', count: 100 },
-      skip: { type: 'skip', count: 800 },
+      take: 100,
+      skip: 800,
     })
   })
   it('deep freezes the query in dev', () => {

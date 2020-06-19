@@ -115,10 +115,10 @@ describe('SQLite encodeQuery', () => {
       ` join "tag_assignments" on "tag_assignments"."task_id" = "tasks"."id"` +
       ` where "projects"."team_id" is 'abcdef'` +
       ` and "projects"."is_active" is 1` +
+      ` and "tasks"."left_column" is 'right_value'` +
       ` and "tag_assignments"."tag_id" in ('a', 'b', 'c')` +
       ` and "projects"."_status" is not 'deleted'` +
       ` and "tag_assignments"."_status" is not 'deleted'` +
-      ` and "tasks"."left_column" is 'right_value'` +
       ` and "tasks"."_status" is not 'deleted'`
 
     expect(encodeQuery(query)).toBe(`select distinct "tasks".* from "tasks" ${expectedQuery}`)
@@ -141,7 +141,7 @@ describe('SQLite encodeQuery', () => {
         ` and "tasks"."_status" is not 'deleted'`,
     )
   })
-  it(`encodes or(join)`, () => {
+  it(`encodes on nested in and/or`, () => {
     const query = new Query(mockCollection, [
       Q.experimentalJoinTables(['projects', 'tag_assignments']),
       Q.or(
@@ -171,6 +171,10 @@ describe('SQLite encodeQuery', () => {
       const query = new Query(mockCollection, [Q.where('col7', Q.notIn([{}]))])
       expect(() => encodeQuery(query)).toThrow(/Invalid value to encode into query/)
     }
+  })
+  it(`fails to encode nested on without explicit joinTables`, () => {
+    const query = new Query(mockCollection, [Q.or(Q.on('projects', 'is_followed', true))])
+    expect(() => encodeQuery(query)).toThrow(/explicitly declare Q.experimentalJoinTables/)
   })
   it('encodes order by clause', () => {
     const query = new Query(mockCollection, [Q.experimentalSortBy('sortable_column', Q.desc)])

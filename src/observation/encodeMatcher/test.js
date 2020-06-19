@@ -51,5 +51,6 @@ describe('SQLite encodeMatcher', () => {
       /can't be encoded into a matcher/,
     )
     expect(() => makeMatcher([Q.experimentalTake(100)])).toThrow(/can't be encoded into a matcher/)
+    expect(() => makeMatcher([Q.or(Q.on('projects', 'team_id', 'abcdef'))])).toThrow(/Illegal Q.on/)
   })
 })

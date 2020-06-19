@@ -1,6 +1,6 @@
 // @flow
 
-import { pipe, prop, uniq, map } from 'rambdax'
+import { uniq, map } from 'rambdax'
 
 // don't import whole `utils` to keep worker size small
 import invariant from '../utils/common/invariant'
@@ -43,7 +43,7 @@ export type WhereDescription = $RE<{
 }>
 
 /* eslint-disable-next-line */
-export type Where = WhereDescription | And | Or
+export type Where = WhereDescription | And | Or | On
 export type And = $RE<{ type: 'and', conditions: Where[] }>
 export type Or = $RE<{ type: 'or', conditions: Where[] }>
 export type On = $RE<{
@@ -72,14 +72,13 @@ export type JoinTables = $RE<{
   type: 'joinTables',
   tables: TableName<any>[],
 }>
-export type Clause = Where | On | SortBy | Take | Skip
+export type Clause = Where | SortBy | Take | Skip | JoinTables
 export type QueryDescription = $RE<{
   where: Where[],
-  join: On[],
-  joinTables: ?JoinTables,
+  joinTables: TableName<any>[],
   sortBy: SortBy[],
-  take: ?Take,
-  skip: ?Skip,
+  take: ?number,
+  skip: ?number,
 }>
 
 const columnSymbol = Symbol('Q.column')
@@ -259,7 +258,7 @@ export function or(...clauses: Where[]): Or {
   return { type: 'or', conditions: clauses }
 }
 
-function sortBy(sortColumn: ColumnName, sortOrder: SortOrder = asc): SortBy {
+export function experimentalSortBy(sortColumn: ColumnName, sortOrder: SortOrder = asc): SortBy {
   invariant(
     sortOrder === 'asc' || sortOrder === 'desc',
     `Invalid sortOrder argument received in Q.sortBy (valid: asc, desc)`,
@@ -267,17 +266,15 @@ function sortBy(sortColumn: ColumnName, sortOrder: SortOrder = asc): SortBy {
   return { type: 'sortBy', sortColumn: checkName(sortColumn), sortOrder }
 }
 
-function take(count: number): Take {
+export function experimentalTake(count: number): Take {
   invariant(typeof count === 'number', 'Value passed to Q.take() is not a number')
   return { type: 'take', count }
 }
 
-function skip(count: number): Skip {
+export function experimentalSkip(count: number): Skip {
   invariant(typeof count === 'number', 'Value passed to Q.take() is not a number')
   return { type: 'skip', count }
 }
-
-export { sortBy as experimentalSortBy, take as experimentalTake, skip as experimentalSkip }
 
 // Note: we have to write out three separate meanings of OnFunction because of a Babel bug
 // (it will remove the parentheses, changing the meaning of the flow type)
@@ -318,50 +315,45 @@ export function experimentalJoinTables(tables: TableName<any>[]): JoinTables {
 
 const syncStatusColumn = columnName('_status')
 const extractClauses: (Clause[]) => QueryDescription = clauses => {
-  const clauseMap = { join: [], sortBy: [], where: [], take: null, skip: null, joinTables: null }
+  const clauseMap = { where: [], joinTables: [], sortBy: [], take: null, skip: null }
   clauses.forEach(clause => {
     const { type } = clause
     switch (type) {
-      case 'take':
-        // $FlowFixMe
-        clauseMap.take = clause
-        break
-      case 'skip':
-        // $FlowFixMe
-        clauseMap.skip = clause
-        break
-      case 'joinTables':
-        // $FlowFixMe
-        clauseMap.joinTables = clause
-        break
       case 'where':
       case 'and':
       case 'or':
         clauseMap.where.push(clause)
         break
       case 'on':
-        clauseMap.join.push(clause)
+        // $FlowFixMe
+        clauseMap.joinTables.push(clause.table)
+        clauseMap.where.push(clause)
         break
       case 'sortBy':
         clauseMap.sortBy.push(clause)
+        break
+      case 'take':
+        // $FlowFixMe
+        clauseMap.take = clause.count
+        break
+      case 'skip':
+        // $FlowFixMe
+        clauseMap.skip = clause.count
+        break
+      case 'joinTables':
+        // $FlowFixMe
+        clauseMap.joinTables.push(...clause.tables)
         break
       default:
         throw new Error('Invalid Query clause passed')
     }
   })
+  clauseMap.joinTables = uniq(clauseMap.joinTables)
   // $FlowFixMe: Flow is too dumb to realize that it is valid
   return clauseMap
 }
 const whereNotDeleted = where(syncStatusColumn, notEq('deleted'))
-const joinTablesWithoutDeleted = pipe(
-  uniq,
-  map(table => on(table, syncStatusColumn, notEq('deleted'))),
-)
-const joinsWithoutDeleted = pipe(
-  map(prop('table')),
-  uniq,
-  map(table => on(table, syncStatusColumn, notEq('deleted'))),
-)
+const joinTablesWithoutDeleted = map(table => on(table, syncStatusColumn, notEq('deleted')))
 
 export function buildQueryDescription(clauses: Clause[]): QueryDescription {
   const clauseMap = extractClauses(clauses)
@@ -376,16 +368,11 @@ export function buildQueryDescription(clauses: Clause[]): QueryDescription {
 }
 
 export function queryWithoutDeleted(query: QueryDescription): QueryDescription {
-  const { join, joinTables, where: whereConditions } = query
+  const { joinTables, where: whereConditions } = query
 
   const newQuery = {
     ...query,
-    join: [...join, ...joinsWithoutDeleted(join)],
-    where: [
-      ...whereConditions,
-      ...joinTablesWithoutDeleted(joinTables ? joinTables.tables : []),
-      whereNotDeleted,
-    ],
+    where: [...whereConditions, ...joinTablesWithoutDeleted(joinTables), whereNotDeleted],
   }
   if (process.env.NODE_ENV !== 'production') {
     deepFreeze(newQuery)
