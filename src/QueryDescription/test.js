@@ -508,6 +508,7 @@ describe('buildQueryDescription - contd', () => {
     expect(() => Q.and(Q.like('foo'))).toThrow(/and\(\) can only contain/)
     expect(() => Q.or(Q.like('foo'))).toThrow(/and\(\) can only contain/)
     expect(() => Q.buildQueryDescription([Q.like('foo')])).toThrow('Invalid Query clause passed')
+    expect(() => Q.experimentalJoinTables('foo', 'bar')).toThrow('expected an array')
   })
   it('protect against passing Watermelon look-alike objects', () => {
     // protect against passing something that could be a user-input Object (risk is when Watermelon users pass stuff from JSON without validation), but is unintended or even malicious in some way
@@ -526,5 +527,6 @@ describe('buildQueryDescription - contd', () => {
     expect(() => Q.experimentalSortBy('sqlite_master', 'asc')).toThrow(/Unsafe name/)
     expect(() => Q.on('sqlite_master', 'foo', 'bar')).toThrow(/Unsafe name/)
     expect(() => Q.on('sqlite_master', Q.where('foo', 'bar'))).toThrow(/Unsafe name/)
+    expect(() => Q.experimentalJoinTables(['foo', 'sqlite_master'])).toThrow(/Unsafe name/)
   })
 })

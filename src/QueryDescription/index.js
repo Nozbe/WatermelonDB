@@ -309,8 +309,8 @@ export const on: OnFunction = (table, leftOrWhereDescription, valueOrComparison)
 }
 
 export function experimentalJoinTables(tables: TableName<any>[]): JoinTables {
-  // TODO: validation
-  return { type: 'joinTables', tables }
+  invariant(Array.isArray(tables), 'experimentalJoinTables expected an array')
+  return { type: 'joinTables', tables: tables.map(checkName) }
 }
 
 const syncStatusColumn = columnName('_status')
