@@ -362,7 +362,6 @@ class DatabaseBridge {
 
   sendReject = (reject: string => void, error: Error, functionName: string) => {
     if (reject) {
-      // reject(`db.${functionName}.error", "${error.message}", error`)
       reject(`db.${functionName}.error`, error.message, error)
     } else {
       throw new Error(`db.${functionName} missing reject (${error.message})`)

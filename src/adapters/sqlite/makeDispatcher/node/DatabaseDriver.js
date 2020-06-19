@@ -85,7 +85,7 @@ class DatabaseDriver {
       return id
     }
 
-    const query = `SELECT * FROM ${table} WHERE id == ? LIMIT 1`
+    const query = `SELECT * FROM '${table}' WHERE id == ? LIMIT 1`
     const results = this.database.queryRaw(query, [id])
 
     if (results.length === 0) {
