@@ -551,14 +551,24 @@ export const joinTests = [
     name: 'can perform simple JOIN queries',
     query: [Q.on('projects', 'text1', 't1')],
     extraRecords: {
-      projects: [{ id: 'p1', text1: 't1' }, { id: 'p2', text1: 't1' }, { id: 'p3', text1: 't2' }],
+      projects: [
+        { id: 'p1', text1: 't1' },
+        { id: 'p2', text1: 't1' },
+        // bad:
+        { id: 'p3', text1: 't2' },
+        { id: 'p4', text1: 't1', _status: 'deleted' },
+      ],
     },
     matching: [
       { id: 'm1', project_id: 'p1' },
       { id: 'm2', project_id: 'p1' },
       { id: 'm3', project_id: 'p2' },
     ],
-    nonMatching: [{ id: 'm4', project_id: 'p3' }],
+    nonMatching: [
+      { id: 'm4', project_id: 'p3' },
+      { id: 'm5', project_id: 'p4' },
+      { id: 'm6', project_id: 'p1', _status: 'deleted' },
+    ],
   },
   {
     name: 'can perform complex JOIN queries',
@@ -575,6 +585,7 @@ export const joinTests = [
         // bad:
         { id: 'p1', text1: 'abcdef', bool1: false },
         { id: 'p4', text1: 'other', bool1: true },
+        { id: 'p5', text1: 'abcdef', bool1: true, _status: 'deleted' },
       ],
       tag_assignments: [
         { id: 'tt1', text1: 'a', task_id: 'm1' },
@@ -587,6 +598,7 @@ export const joinTests = [
         // bad:
         { id: 'tt8', text1: 'd', task_id: 'm4' },
         { id: 'tt9', text1: 'd', task_id: 'n4' },
+        { id: 'tt10', text1: 'c', task_id: 'n7', _status: 'deleted' },
       ],
     },
     matching: [
@@ -601,6 +613,50 @@ export const joinTests = [
       { id: 'n3', text1: 'val1', project_id: 'p4' }, // bad project
       { id: 'n4', text1: 'val1', project_id: 'p2' }, // bad task_assignment
       { id: 'n5', text1: 'val1', project_id: 'p3' }, // no task_assignment
+      { id: 'n6', text1: 'val1', project_id: 'p5' }, // bad project
+      { id: 'n7', text1: 'val1', project_id: 'p2' }, // bad task_assignment
+    ],
+  },
+  {
+    name: `can perform Q.on's nested in Q.or and Q.and`,
+    query: [
+      Q.experimentalJoinTables(['projects', 'tag_assignments']),
+      Q.or(
+        Q.where('bool1', true),
+        Q.on('projects', 'bool1', true),
+        Q.and(Q.on('tag_assignments', 'text1', 'foo')),
+      ),
+    ],
+    extraRecords: {
+      projects: [
+        { id: 'p1', bool1: true },
+        // bad:
+        { id: 'badp1', bool1: false },
+        { id: 'badp2', bool1: true, _status: 'deleted' },
+      ],
+      tag_assignments: [
+        { id: 'tt1', text1: 'foo', task_id: 'm6' },
+        { id: 'badtt1', text1: 'foo', task_id: 'm7', _status: 'deleted' },
+        { id: 'badtt2', text1: 'foo', task_id: 'n5', _status: 'deleted' },
+        { id: 'badtt3', text1: 'blah', task_id: 'n6' },
+      ],
+    },
+    matching: [
+      { id: 'm1', bool1: true },
+      { id: 'm2', bool1: true, project_id: 'p1' },
+      { id: 'm3', bool1: true, project_id: 'badp1' },
+      { id: 'm4', bool1: true, project_id: 'badp2' },
+      { id: 'm5', bool1: false, project_id: 'p1' },
+      { id: 'm6', bool1: false }, // via TT
+      { id: 'm7', bool1: true }, // has TT
+    ],
+    nonMatching: [
+      { id: 'n1' },
+      { id: 'n2', bool1: false },
+      { id: 'n3', project_id: 'badp1' },
+      { id: 'n4', project_id: 'badp2' },
+      { id: 'n5' }, // bad TT
+      { id: 'n6' }, // bad TT
     ],
   },
   {
@@ -634,9 +690,11 @@ export const joinTests = [
         { id: 'p1', text1: 'val2', text2: 'a', text3: 'a' },
         { id: 'p2', text1: 'val2', text2: null },
         { id: 'p3', text1: 'val2' },
+        // bad:
         { id: 'badp1' },
         { id: 'badp2', text2: 'a', text3: 'b' },
         { id: 'badp3', text1: 'val2', text2: 'a', text3: 'b' },
+        { id: 'badp4', text1: 'val2', text2: 'a', text3: 'a', _status: 'deleted' },
       ],
     },
     matching: [
@@ -651,6 +709,7 @@ export const joinTests = [
       { id: 'n4', project_id: 'badp2', text1: 'val1' },
       { id: 'n5', project_id: 'badp3', text1: 'val1' },
       { id: 'n6', project_id: 'badp3' },
+      { id: 'n7', project_id: 'badp4', text1: 'val1' },
     ],
   },
   {
@@ -705,6 +764,7 @@ export const joinTests = [
         { id: 'badtt2', task_id: 'n4' },
         { id: 'badtt3', task_id: 'n5', num1: 10, num2: 10 },
         { id: 'badtt4', task_id: 'n6', num1: 0, num2: 15 },
+        { id: 'badtt5', task_id: 'n9', num1: 10, num2: 5, _status: 'deleted' },
       ],
     },
     matching: [{ id: 'm1', text1: 'val1' }, { id: 'm2', text1: 'val1' }],
@@ -717,6 +777,7 @@ export const joinTests = [
       { id: 'n6', text1: 'val1' },
       { id: 'n7', text1: 'val1' }, // no TT
       { id: 'n8' }, // no TT
+      { id: 'n9', text1: 'val1' }, // bad TT
     ],
   },
 ]

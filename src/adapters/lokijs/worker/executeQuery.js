@@ -11,16 +11,17 @@ import type { DirtyRaw } from '../../../RawRecord'
 
 import encodeQuery from './encodeQuery'
 import performJoins from './performJoins'
-import type { LokiQuery, LokiJoin, LokiRawQuery } from './encodeQuery'
+import type { LokiJoin } from './encodeQuery'
 
 function refineResultsForColumnComparisons(
   roughResults: LokiResultset,
   conditions: Where[],
 ): LokiResultset {
   if (hasColumnComparisons(conditions)) {
-    // ignore JOINs (already checked and encodeMatcher can't check it)
     const queryWithoutJoins = {
-      where: conditions,
+      // ignore JOINs (already checked and encodeMatcher can't check it)
+      // TODO: This won't work on Q.ons that are nested
+      where: conditions.filter(clause => clause.type !== 'on'),
       joinTables: [],
       sortBy: [],
       take: null,
@@ -66,7 +67,5 @@ export default function executeQuery(query: SerializedQuery, loki: Loki): LokiRe
 
   // Step three: if query makes column comparison conditions, we (inefficiently) refine
   // the rough results using a matcher function
-  const result = refineResultsForColumnComparisons(roughResults, query.description.where)
-
-  return result
+  return refineResultsForColumnComparisons(roughResults, query.description.where)
 }
