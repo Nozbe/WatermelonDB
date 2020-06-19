@@ -7,8 +7,6 @@ class Database {
 
   path: string
 
-  cachedRecords = []
-
   constructor(path: string = ':memory:'): void {
     this.path = path
     // this.instance = new SQliteDatabase(path);
@@ -20,7 +18,13 @@ class Database {
     if (path === 'file::memory:' || path.indexOf('?mode=memory') >= 0) {
       path = ':memory:'
     }
-    this.instance = new SQliteDatabase(path, { verboze: console.log })
+
+    try {
+      // eslint-disable-next-line no-console
+      this.instance = new SQliteDatabase(path, { verboze: console.log })
+    } catch (error) {
+      throw new Error(`Failed to open the database. - ${error.message}`)
+    }
 
     if (!this.instance || !this.instance.open) {
       throw new Error('Failed to open the database.')
@@ -29,29 +33,17 @@ class Database {
 
   inTransaction = (executeBlock: () => void) => this.instance.transaction(executeBlock)()
 
-  execute = (query: string, args: any[] = []) => {
-    this.instance.prepare(query).run(args)
-  }
+  execute = (query: string, args: any[] = []) => this.instance.prepare(query).run(args)
 
   executeStatements = (queries: string) => this.instance.exec(queries)
 
   queryRaw = (query: string, args: any[] = []) => {
     let results = []
-    try {
-      // console.log(`>>> queryRaw 1`, query, args)
-      const stmt = this.instance.prepare(query)
-      // console.log(`>>> queryRaw 2`, stmt)
-      // console.log(`>>> queryRaw 3`, stmt.get(args))
-      if (stmt.get(args)) {
-        // console.log(`stmt.get 2`)
-        results = stmt.all(args)
-      }
-      // console.log(`stmt.get 3`)
-    } catch (e) {
-      // console.log(`queryRaw e`, e.code, e.message)
+    const stmt = this.instance.prepare(query)
+    if (stmt.get(args)) {
+      results = stmt.all(args)
     }
     return results
-    // return this.instance.prepare(query).all(args)
   }
 
   count = (query: string, args: any[] = []) => {
@@ -95,11 +87,9 @@ class Database {
       const results = this.queryRaw(`SELECT * FROM sqlite_master WHERE type = 'table'`)
       this.inTransaction(() => {
         const tables = results.map(table => table.name)
-        // console.log(`tables`, tables, typeof tables, Array.isArray(tables))
 
         tables.forEach(table => {
-          // console.log(`delete table ${table}`)
-          this.instance.execute(`DROP TABLE IF EXISTS ${table}`)
+          this.execute(`DROP TABLE IF EXISTS '${table}'`)
         })
 
         this.execute('PRAGMA writable_schema=1')

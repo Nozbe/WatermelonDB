@@ -14,6 +14,14 @@ class DatabaseBridge {
 
   // MARK: - Asynchronous connections
 
+  connected = (tag, driver, synchronous = false) => {
+    this.connections[tag] = { driver, synchronous, queue: [], status: 'connected' }
+  }
+
+  waiting = (tag, driver, synchronous = false) => {
+    this.connections[tag] = { driver, synchronous, queue: [], status: 'waiting' }
+  }
+
   initialize = (
     tag: number,
     databaseName: string,
@@ -26,15 +34,15 @@ class DatabaseBridge {
       this.assertNoConnection(tag)
       driver = new DatabaseDriver()
       driver.initialize(databaseName, schemaVersion)
-      this.connections[tag] = { driver, synchronous: false, queue: [], status: 'connected' }
+      this.connected(tag, driver)
 
       resolve({ code: 'ok' })
     } catch (error) {
       if (driver && error.type === 'SchemaNeededError') {
-        this.connections[tag] = { driver, synchronous: false, queue: [], status: 'waiting' }
+        this.waiting(tag, driver)
         resolve({ code: 'schema_needed' })
       } else if (driver && error.type === 'MigrationNeededError') {
-        this.connections[tag] = { driver, synchronous: false, queue: [], status: 'waiting' }
+        this.waiting(tag, driver)
         resolve({ code: 'migrations_needed', databaseVersion: error.databaseVersion })
       } else {
         this.sendReject(reject, error, 'initialize')
@@ -97,14 +105,14 @@ class DatabaseBridge {
         this.assertNoConnection(tag)
         driver = new DatabaseDriver()
         driver.initialize(databaseName, schemaVersion)
-        this.connections[tag] = { driver, synchronous: true, queue: [], status: 'connected' }
+        this.connected(tag, driver, true)
         return { code: 'ok' }
       } catch (error) {
         if (driver && error.type === 'SchemaNeededError') {
-          this.connections[tag] = { driver, synchronous: true, queue: [], status: 'waiting' }
+          this.waiting(tag, driver, true)
           return { code: 'schema_needed' }
         } else if (driver && error.type === 'MigrationNeededError') {
-          this.connections[tag] = { driver, synchronous: true, queue: [], status: 'waiting' }
+          this.waiting(tag, driver, true)
           return { code: 'migrations_needed', databaseVersion: error.databaseVersion }
         }
         throw error
@@ -152,9 +160,8 @@ class DatabaseBridge {
 
   // MARK: - Asynchronous actions
 
-  find = (tag: number, table: string, id: string, resolve: any => void, reject: string => void) => {
+  find = (tag: number, table: string, id: string, resolve: any => void, reject: string => void) =>
     this.withDriver(tag, resolve, reject, 'find', driver => driver.find(table, id))
-  }
 
   query = (
     tag: number,
@@ -169,12 +176,12 @@ class DatabaseBridge {
 
   batchJSON = (tag: number, operations: string, resolve: any => void, reject: string => void) =>
     this.withDriver(tag, resolve, reject, 'batchJSON', driver =>
-      driver.batch(this.toBatchOperationsString(operations)),
+      driver.batch(this.toBatchOperations(operations)),
     )
 
   batch = (tag: number, operations: any[][], resolve: any => void, reject: string => void) =>
     this.withDriver(tag, resolve, reject, 'batch', driver =>
-      driver.batch(this.toBatchOperationsArray(operations)),
+      driver.batch(this.toBatchOperations(operations)),
     )
 
   getDeletedRecords = (tag: number, table: string, resolve: any => void, reject: string => void) =>
@@ -234,12 +241,12 @@ class DatabaseBridge {
 
   batchJSONSynchronous = (tag: number, operations: string): any =>
     this.withDriverSynchronous(tag, 'batchJSONSynchronous', driver =>
-      driver.batch(this.toBatchOperationsString(operations)),
+      driver.batch(this.toBatchOperations(operations)),
     )
 
   batchSynchronous = (tag: number, operations: any[][]): any =>
     this.withDriverSynchronous(tag, 'batchSynchronous', driver =>
-      driver.batch(this.toBatchOperationsArray(operations)),
+      driver.batch(this.toBatchOperations(operations)),
     )
 
   getDeletedRecordsSynchronous = (tag: number, table: string): any =>
@@ -270,62 +277,13 @@ class DatabaseBridge {
 
   toBatchOperations = (operations: any) => {
     if (typeof operations === 'string') {
-      this.toBatchOperationsString(operations)
+      try {
+        return JSON.parse(operations)
+      } catch (error) {
+        //
+      }
     }
-    this.toBatchOperationsArray(operations)
-  }
-
-  toBatchOperationsString = (_serializedOperations: string): any[] => {
-    // guard let data = serializedOperations.data(using: String.Encoding.utf8.rawValue),
-    // let operations = (try? JSONSerialization.jsonObject(with: data)) as? [[Any]]
-    // else {
-    //     throw "Invalid serialized operations".asError()
-    // }
-
-    const operations: any[][] = [[]]
-
-    return this.toBatchOperationsArray(operations)
-  }
-
-  toBatchOperationsArray = (_operations: any[][]): any[] => {
-    // return try operations.map { operation in
-    //     switch operation[safe: 0] as? String {
-    //     case "execute":
-    //         guard let table = operation[safe: 1] as? Database.TableName,
-    //         let query = operation[safe: 2] as? Database.SQL,
-    //         let args = operation[safe: 3] as? Database.QueryArgs
-    //         else {
-    //             throw "Bad execute arguments".asError()
-    //         }
-    //         return .execute(table: table, query: query, args: args)
-    //     case "create":
-    //         guard let table = operation[safe: 1] as? Database.TableName,
-    //         let id = operation[safe: 2] as? DatabaseDriver.RecordId,
-    //         let query = operation[safe: 3] as? Database.SQL,
-    //         let args = operation[safe: 4] as? Database.QueryArgs
-    //         else {
-    //             throw "Bad create arguments".asError()
-    //         }
-    //         return .create(table: table, id: id, query: query, args: args)
-    //     case "markAsDeleted":
-    //         guard let table = operation[safe: 1] as? Database.SQL,
-    //         let id = operation[safe: 2] as? DatabaseDriver.RecordId
-    //         else {
-    //             throw "Bad markAsDeleted arguments".asError()
-    //         }
-    //         return .markAsDeleted(table: table, id: id)
-    //     case "destroyPermanently":
-    //         guard let table = operation[safe: 1] as? Database.TableName,
-    //         let id = operation[safe: 2] as? DatabaseDriver.RecordId
-    //         else {
-    //             throw "Bad destroyPermanently arguments".asError()
-    //         }
-    //         return .destroyPermanently(table: table, id: id)
-    //     default:
-    //         throw "Bad operation name".asError()
-    //     }
-    // }
-    return []
+    return operations
   }
 
   withDriver = (
@@ -341,7 +299,7 @@ class DatabaseBridge {
         throw new Error(`No driver for with tag ${tag} available`)
       }
       if (connection.status === 'connected') {
-        if (!connection.synchronous) {
+        if (connection.synchronous) {
           throw new Error(`Can't perform async action on synchronous connection ${tag}`)
         }
         const result = action(connection.driver)
@@ -362,8 +320,8 @@ class DatabaseBridge {
     try {
       const result = action()
       return { status: 'success', result }
-    } catch {
-      return { status: 'error', code: `db.${functionName}.error`, message: '(error)' }
+    } catch (error) {
+      return { status: 'error', code: `db.${functionName}.error`, message: error.message }
     }
   }
 
@@ -404,7 +362,8 @@ class DatabaseBridge {
 
   sendReject = (reject: string => void, error: Error, functionName: string) => {
     if (reject) {
-      reject(`db.${functionName}.error", "${error.message}", error`)
+      // reject(`db.${functionName}.error", "${error.message}", error`)
+      reject(`db.${functionName}.error`, error.message, error)
     } else {
       throw new Error(`db.${functionName} missing reject (${error.message})`)
     }

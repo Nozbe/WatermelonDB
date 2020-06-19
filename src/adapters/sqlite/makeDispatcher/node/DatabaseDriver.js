@@ -2,6 +2,15 @@
 
 import Database from './Database'
 
+function fixArgs(args: any): any {
+  return Object.keys(args).reduce((acc, argName) => {
+    if (typeof acc[argName] === 'boolean') {
+      acc[argName] = acc[argName] ? 1 : 0
+    }
+    return acc
+  }, args)
+}
+
 type Migrations = { from: number, to: number, sql: string }
 
 class MigrationNeededError extends Error {
@@ -29,14 +38,14 @@ class SchemaNeededError extends Error {
 
 function getPath(dbName): string {
   // If starts with `file:` or contains `/`, it's a path!
-  if (dbName === ':memory:' || dbName.indexOf('file:') === 0 || dbName.indexOf('/') > 0) {
+  if (dbName === ':memory:' || dbName.indexOf('file:') === 0 || dbName.indexOf('/') >= 0) {
     return dbName
   }
-  return `${__dirname}/${dbName}`
+  return `${process.cwd()}/${dbName}`
 }
 
 class DatabaseDriver {
-  static connections = {}
+  static sharedMemoryConnections = {}
 
   database: Database
 
@@ -50,15 +59,25 @@ class DatabaseDriver {
   setUpWithSchema = (dbName: string, schema: string, schemaVersion: number) => {
     this.init(dbName)
     this.unsafeResetDatabase({ version: schemaVersion, sql: schema })
+    this.isCompatible(schemaVersion)
   }
 
   setUpWithMigrations = (dbName: string, migrations: Migrations) => {
     this.init(dbName)
     this.migrate(migrations)
+    this.isCompatible(migrations.to)
   }
 
   init = (dbName: string) => {
     this.database = new Database(getPath(dbName))
+
+    const isSharedMemory = dbName.indexOf('mode=memory') > 0 && dbName.indexOf('cache=shared') > 0
+    if (isSharedMemory) {
+      if (!DatabaseDriver.sharedMemoryConnections[dbName]) {
+        DatabaseDriver.sharedMemoryConnections[dbName] = this.database
+      }
+      this.database = DatabaseDriver.sharedMemoryConnections[dbName]
+    }
   }
 
   find = (table: string, id: string) => {
@@ -66,7 +85,8 @@ class DatabaseDriver {
       return id
     }
 
-    const results = this.database.queryRaw(`select * from ${table} where id == ? limit 1`, [id])
+    const query = `SELECT * FROM ${table} WHERE id == ? LIMIT 1`
+    const results = this.database.queryRaw(query, [id])
 
     if (results.length === 0) {
       return null
@@ -102,28 +122,29 @@ class DatabaseDriver {
         switch (type) {
           case 'execute': {
             const [query, args] = rest
-            this.database.execute(query, args)
+            this.database.execute(query, fixArgs(args))
             break
           }
 
           case 'create': {
             const [id, query, args] = rest
-            this.database.execute(query, args)
+            this.database.execute(query, fixArgs(args))
             newIds.push([table, id])
             break
           }
 
           case 'markAsDeleted': {
             const [id] = rest
-            this.database.execute(`UPDATE ${table} SET _status='deleted' WHERE id == ?`, [id])
-            removedIds.push([id])
+            const query = `UPDATE '${table}' SET _status='deleted' WHERE id == ?`
+            this.database.execute(query, [id])
+            removedIds.push([table, id])
             break
           }
 
           case 'destroyPermanently': {
             const [id] = rest
             // TODO: What's the behavior if nothing got deleted?
-            this.database.execute(`DELETE FROM ${table} WHERE id == ?`, [id])
+            this.database.execute(`DELETE FROM '${table}' WHERE id == ?`, [id])
             removedIds.push([table, id])
             break
           }
@@ -146,13 +167,13 @@ class DatabaseDriver {
 
   getDeletedRecords = (table: string): string[] => {
     return this.database
-      .queryRaw(`select id from ${table} where _status='deleted'`)
+      .queryRaw(`SELECT ID FROM '${table}' WHERE _status='deleted'`)
       .map(row => `${row.id}`)
   }
 
   destroyDeletedRecords = (table: string, records: string[]) => {
     const recordPlaceholders = records.map(() => '?').join(',')
-    this.database.execute(`DELETE FROM ${table} WHERE id IN (${recordPlaceholders})`, records)
+    this.database.execute(`DELETE FROM '${table}' WHERE id IN (${recordPlaceholders})`, records)
   }
 
   // MARK: - LocalStorage
@@ -182,22 +203,25 @@ class DatabaseDriver {
 
   // MARK: - Record caching
 
+  hasCachedTable = (table: string) =>
+    Object.prototype.hasOwnProperty.call(this.cachedRecords, table)
+
   isCached = (table: string, id: string) => {
-    if (this.cachedRecords[table]) {
+    if (this.hasCachedTable(table)) {
       return this.cachedRecords[table].has(id)
     }
     return false
   }
 
   markAsCached = (table: string, id: string) => {
-    if (!this.cachedRecords[table]) {
+    if (!this.hasCachedTable(table)) {
       this.cachedRecords[table] = new Set()
     }
     this.cachedRecords[table].add(id)
   }
 
   removeFromCache = (table: string, id: string) => {
-    if (this.cachedRecords[table] && this.cachedRecords[table][id]) {
+    if (this.cachedRecords[table] && this.cachedRecords[table].has(id)) {
       this.cachedRecords[table].delete(id)
     }
   }
@@ -206,7 +230,6 @@ class DatabaseDriver {
 
   isCompatible = (schemaVersion: number) => {
     const databaseVersion = this.database.userVersion
-
     if (schemaVersion !== databaseVersion) {
       if (databaseVersion > 0 && databaseVersion < schemaVersion) {
         throw new MigrationNeededError(databaseVersion)
@@ -218,7 +241,7 @@ class DatabaseDriver {
 
   unsafeResetDatabase = (schema: { sql: string, version: number }) => {
     this.database.unsafeDestroyEverything()
-    this.cachedRecords = []
+    this.cachedRecords = {}
 
     this.setUpSchema(schema)
   }

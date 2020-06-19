@@ -1,7 +1,6 @@
 // @flow
 /* eslint-disable global-require */
 
-// import { NativeModules } from 'react-native'
 import { fromPairs } from 'rambdax'
 
 import DatabaseBridge from './node/DatabaseBridge'
@@ -10,16 +9,9 @@ import { type ConnectionTag, logger, invariant } from '../../../utils/common'
 
 import { fromPromise } from '../../../utils/fp/Result'
 
-import type {
-  DispatcherType,
-  SQLiteAdapterOptions,
-  NativeDispatcher,
-  // NativeBridgeType,
-} from '../type'
+import type { DispatcherType, SQLiteAdapterOptions, NativeDispatcher } from '../type'
 
 import { syncReturnToResult } from '../common'
-
-// const { DatabaseBridge }: { DatabaseBridge: NativeBridgeType } = NativeModules
 
 export { DatabaseBridge }
 
@@ -42,7 +34,7 @@ const dispatcherMethods = [
 
 export const makeDispatcher = (
   type: DispatcherType,
-  _tag: ConnectionTag,
+  tag: ConnectionTag,
   _dbName: string,
 ): NativeDispatcher => {
   // const jsiDb = false // type === 'jsi' && global.nativeWatermelonCreateAdapter(dbName)
@@ -76,17 +68,22 @@ export const makeDispatcher = (
         // }
 
         // $FlowFixMe
-        const returnValue = DatabaseBridge[name](_tag, ...otherArgs)
-        if (!returnValue) {
-          console.log(`name`, name)
-          console.log(`_tag`, _tag)
-          console.log(`otherArgs`, otherArgs)
-        }
+        // const returnValue = DatabaseBridge[name](_tag, ...otherArgs)
 
+        // if (type === 'synchronous') {
+        //   callback(syncReturnToResult(returnValue))
+        // } else {
+        //   fromPromise(returnValue, callback)
+        // }
         if (type === 'synchronous') {
-          callback(syncReturnToResult(returnValue))
+          callback(syncReturnToResult(DatabaseBridge[name](tag, ...otherArgs)))
         } else {
-          fromPromise(returnValue, callback)
+          const promise = new Promise((resolve, reject) => {
+            DatabaseBridge[name](tag, ...otherArgs, resolve, (code, message, error) => {
+              reject(error)
+            })
+          })
+          fromPromise(promise, callback)
         }
       },
     ]

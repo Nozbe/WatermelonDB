@@ -84,6 +84,10 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     fromPromise(this._initPromise, devSetupCallback)
   }
 
+  get initializingPromise(): Promise<void> {
+    return this._initPromise
+  }
+
   async testClone(options?: $Shape<SQLiteAdapterOptions> = {}): Promise<SQLiteAdapter> {
     const clone = new SQLiteAdapter({
       dbName: this._dbName,
