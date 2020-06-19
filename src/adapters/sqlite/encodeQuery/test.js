@@ -143,14 +143,22 @@ describe('SQLite encodeQuery', () => {
   })
   it(`encodes or(join)`, () => {
     const query = new Query(mockCollection, [
-      Q.experimentalJoinTables(['projects']),
-      Q.or(Q.where('is_followed', true), Q.on('projects', 'is_followed', true)),
+      Q.experimentalJoinTables(['projects', 'tag_assignments']),
+      Q.or(
+        Q.where('is_followed', true),
+        Q.on('projects', 'is_followed', true),
+        Q.and(Q.on('tag_assignments', 'foo', 'bar')),
+      ),
     ])
     expect(encodeQuery(query)).toBe(
-      `select "tasks".* from "tasks"` +
+      `select distinct "tasks".* from "tasks"` +
         ` join "projects" on "projects"."id" = "tasks"."project_id"` +
-        ` where ("tasks"."is_followed" is 1 or "projects"."is_followed" is 1)` +
+        ` join "tag_assignments" on "tag_assignments"."task_id" = "tasks"."id"` +
+        ` where ("tasks"."is_followed" is 1` +
+        ` or "projects"."is_followed" is 1` +
+        ` or ("tag_assignments"."foo" is 'bar'))` +
         ` and "projects"."_status" is not 'deleted'` +
+        ` and "tag_assignments"."_status" is not 'deleted'` +
         ` and "tasks"."_status" is not 'deleted'`,
     )
   })

@@ -225,33 +225,31 @@ describe('buildQueryDescription', () => {
   it(`supports nesting Q.on inside and/or`, () => {
     const query = Q.buildQueryDescription([
       Q.experimentalJoinTables(['projects', 'foreign_table2']),
-      Q.and(
-        Q.or(
-          Q.where('is_followed', true),
-          Q.on('projects', 'is_followed', true),
-          Q.on('foreign_table2', 'foo', 'bar'),
-        ),
+      Q.or(
+        Q.where('is_followed', true),
+        Q.on('projects', 'is_followed', true),
+        Q.and(Q.on('foreign_table2', 'foo', 'bar')),
       ),
     ])
     expect(query).toEqual({
       where: [
         {
-          type: 'and',
+          type: 'or',
           conditions: [
             {
-              type: 'or',
+              type: 'where',
+              left: 'is_followed',
+              comparison: { operator: 'eq', right: { value: true } },
+            },
+            {
+              type: 'on',
+              table: 'projects',
+              left: 'is_followed',
+              comparison: { operator: 'eq', right: { value: true } },
+            },
+            {
+              type: 'and',
               conditions: [
-                {
-                  type: 'where',
-                  left: 'is_followed',
-                  comparison: { operator: 'eq', right: { value: true } },
-                },
-                {
-                  type: 'on',
-                  table: 'projects',
-                  left: 'is_followed',
-                  comparison: { operator: 'eq', right: { value: true } },
-                },
                 {
                   type: 'on',
                   table: 'foreign_table2',
