@@ -150,13 +150,18 @@ usersCollection.query(
 where `"jas"` can be changed dynamically with user input.
 
 
-### Conditions on related tables
+### Conditions on related tables ("JOIN queries")
 
 For example: query all comments under posts published by John:
 
 ```js
 commentCollection.query(
   Q.on('posts', 'author_id', john.id),
+)
+
+// Alternative syntax:
+commentCollection.query(
+  Q.on('posts', Q.where('author_id', john.id)),
 )
 ```
 
@@ -165,6 +170,18 @@ Normally you set conditions on the table you're querying. Here we're querying **
 The first argument for `Q.on` is the table name you're making a condition on. The other two arguments are same as for `Q.where`.
 
 **Note:** The two tables [must be associated](./Model.md) before you can use `Q.on`.
+
+You can also nest `Q.on` within `Q.and` and `Q.or`, however, you must explicitly define all tables you're joining on. (Known limitation: column comparisons do not work within nested `Q.on`s on LokiJSAdapter)
+
+```js
+tasksCollection.query(
+  Q.experimentalJoinTables(['projects']),
+  Q.or(
+    Q.where('is_followed', true),
+    Q.on('projects', 'is_followed', true),
+  ),
+)
+```
 
 ## Advanced Queries
 

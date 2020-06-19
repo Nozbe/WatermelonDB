@@ -780,4 +780,5 @@ export const joinTests = [
       { id: 'n9', text1: 'val1' }, // bad TT
     ],
   },
+  // TODO: Perform a nested JOIN query with column comparisons (currently broken on LokiJS)
 ]
