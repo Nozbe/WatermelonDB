@@ -308,42 +308,18 @@ describe('hasColumnComparisons', () => {
 describe('queryWithoutDeleted', () => {
   it('builds empty query without deleted', () => {
     const query = Q.queryWithoutDeleted(Q.buildQueryDescription([]))
-    expect(query).toEqual({
-      where: [
-        {
-          type: 'where',
-          left: '_status',
-          comparison: { operator: 'notEq', right: { value: 'deleted' } },
-        },
-      ],
-      joinTables: [],
-      sortBy: [],
-      take: null,
-      skip: null,
-    })
+    expect(query).toEqual(Q.buildQueryDescription([Q.where('_status', Q.notEq('deleted'))]))
   })
   it('builds simple query without deleted', () => {
     const query = Q.queryWithoutDeleted(
       Q.buildQueryDescription([Q.where('left_column', 'right_value')]),
     )
-    expect(query).toEqual({
-      where: [
-        {
-          type: 'where',
-          left: 'left_column',
-          comparison: { operator: 'eq', right: { value: 'right_value' } },
-        },
-        {
-          type: 'where',
-          left: '_status',
-          comparison: { operator: 'notEq', right: { value: 'deleted' } },
-        },
-      ],
-      joinTables: [],
-      sortBy: [],
-      skip: null,
-      take: null,
-    })
+    expect(query).toEqual(
+      Q.buildQueryDescription([
+        Q.where('left_column', 'right_value'),
+        Q.where('_status', Q.notEq('deleted')),
+      ]),
+    )
   })
   it('supports simple 2 JOIN queries on one table and JOIN query on another without deleted', () => {
     const query = Q.queryWithoutDeleted(
@@ -354,54 +330,56 @@ describe('queryWithoutDeleted', () => {
         Q.on('foreign_table2', 'foreign_column2', Q.gt(Q.column('foreign_column3'))),
       ]),
     )
-    expect(query).toEqual({
-      where: [
-        {
-          type: 'on',
-          table: 'foreign_table',
-          left: 'foreign_column',
-          comparison: { operator: 'eq', right: { value: 'value' } },
-        },
-        {
-          type: 'on',
-          table: 'foreign_table',
-          left: 'foreign_column4',
-          comparison: { operator: 'eq', right: { value: 'value' } },
-        },
-        {
-          type: 'where',
-          left: 'left_column',
-          comparison: { operator: 'eq', right: { value: 'right_value' } },
-        },
-        {
-          type: 'on',
-          table: 'foreign_table2',
-          left: 'foreign_column2',
-          comparison: { operator: 'gt', right: { column: 'foreign_column3' } },
-        },
-        {
-          type: 'on',
-          table: 'foreign_table',
-          left: '_status',
-          comparison: { operator: 'notEq', right: { value: 'deleted' } },
-        },
-        {
-          type: 'on',
-          table: 'foreign_table2',
-          left: '_status',
-          comparison: { operator: 'notEq', right: { value: 'deleted' } },
-        },
-        {
-          type: 'where',
-          left: '_status',
-          comparison: { operator: 'notEq', right: { value: 'deleted' } },
-        },
-      ],
-      joinTables: ['foreign_table', 'foreign_table2'],
-      sortBy: [],
-      skip: null,
-      take: null,
-    })
+    expect(query).toEqual(
+      Q.buildQueryDescription([
+        Q.on('foreign_table', 'foreign_column', 'value'),
+        Q.on('foreign_table', 'foreign_column4', 'value'),
+        Q.where('left_column', 'right_value'),
+        Q.on('foreign_table2', 'foreign_column2', Q.gt(Q.column('foreign_column3'))),
+        Q.on('foreign_table', '_status', Q.notEq('deleted')),
+        Q.on('foreign_table2', '_status', Q.notEq('deleted')),
+        Q.where('_status', Q.notEq('deleted')),
+      ]),
+    )
+  })
+  it(`supports nested Q.ons`, () => {
+    const query = Q.queryWithoutDeleted(
+      Q.buildQueryDescription([
+        Q.experimentalJoinTables(['projects', 'tag_assignments']),
+        Q.or(
+          Q.where('is_followed', true),
+          Q.on('projects', 'is_followed', true),
+          Q.on('projects', 'foo', 'bar'),
+          Q.and(
+            Q.on('tag_assignments', 'foo', 'bar'),
+            Q.and(Q.on('tag_assignments', 'foo', 'baz'), Q.on('tag_assignments', 'foo', 'bazz')),
+          ),
+        ),
+      ]),
+    )
+    expect(query).toEqual(
+      Q.buildQueryDescription([
+        Q.experimentalJoinTables(['projects', 'tag_assignments']),
+        Q.or(
+          Q.where('is_followed', true),
+          Q.and(
+            Q.on('projects', 'is_followed', true),
+            Q.on('projects', '_status', Q.notEq('deleted')),
+          ),
+          Q.and(Q.on('projects', 'foo', 'bar'), Q.on('projects', '_status', Q.notEq('deleted'))),
+          Q.and(
+            Q.on('tag_assignments', 'foo', 'bar'),
+            Q.and(
+              Q.on('tag_assignments', 'foo', 'baz'),
+              Q.on('tag_assignments', 'foo', 'bazz'),
+              Q.on('tag_assignments', '_status', Q.notEq('deleted')),
+            ),
+            Q.on('tag_assignments', '_status', Q.notEq('deleted')),
+          ),
+        ),
+        Q.where('_status', Q.notEq('deleted')),
+      ]),
+    )
   })
 })
 

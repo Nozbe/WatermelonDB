@@ -1,4 +1,5 @@
 // @flow
+/* eslint-disable no-use-before-define */
 
 import { uniq, map } from 'rambdax'
 
@@ -42,7 +43,6 @@ export type WhereDescription = $RE<{
   comparison: Comparison,
 }>
 
-/* eslint-disable-next-line */
 export type Where = WhereDescription | And | Or | On
 export type And = $RE<{ type: 'and', conditions: Where[] }>
 export type Or = $RE<{ type: 'or', conditions: Where[] }>
@@ -352,8 +352,6 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
   // $FlowFixMe: Flow is too dumb to realize that it is valid
   return clauseMap
 }
-const whereNotDeleted = where(syncStatusColumn, notEq('deleted'))
-const joinTablesWithoutDeleted = map(table => on(table, syncStatusColumn, notEq('deleted')))
 
 export function buildQueryDescription(clauses: Clause[]): QueryDescription {
   const clauseMap = extractClauses(clauses)
@@ -367,12 +365,51 @@ export function buildQueryDescription(clauses: Clause[]): QueryDescription {
   return query
 }
 
+const whereNotDeleted = where(syncStatusColumn, notEq('deleted'))
+const whereNotDeletedJoin: (TableName<any>) => On = table =>
+  on(table, syncStatusColumn, notEq('deleted'))
+
+function conditionsAndJoinTablesWithoutDeleted(wheres: Where[]): Where[] {
+  const conditions: Where[] = wheres.map(queryWithoutDeletedImpl)
+  // $FlowFixMe
+  const ons: On[] = conditions.filter(clause => clause.type === 'on')
+  const onTables = uniq(ons.map(clause => clause.table))
+  return conditions.concat(onTables.map(whereNotDeletedJoin))
+}
+
+function conditionWithoutDeleted(clause: Where): Where {
+  if (clause.type === 'on') {
+    const onClause: On = clause
+    return {
+      type: 'and',
+      conditions: [clause, whereNotDeletedJoin(onClause.table)],
+    }
+  }
+  return queryWithoutDeletedImpl(clause)
+}
+
+function queryWithoutDeletedImpl(clause: Where): Where {
+  if (clause.type === 'and') {
+    return {
+      type: 'and',
+      conditions: conditionsAndJoinTablesWithoutDeleted(clause.conditions),
+    }
+  } else if (clause.type === 'or') {
+    return {
+      type: 'or',
+      conditions: clause.conditions.map(conditionWithoutDeleted),
+    }
+  }
+
+  return clause
+}
+
 export function queryWithoutDeleted(query: QueryDescription): QueryDescription {
-  const { joinTables, where: whereConditions } = query
+  const { where: whereConditions } = query
 
   const newQuery = {
     ...query,
-    where: [...whereConditions, ...joinTablesWithoutDeleted(joinTables), whereNotDeleted],
+    where: [...conditionsAndJoinTablesWithoutDeleted(whereConditions), whereNotDeleted],
   }
   if (process.env.NODE_ENV !== 'production') {
     deepFreeze(newQuery)

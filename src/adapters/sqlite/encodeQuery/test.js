@@ -155,10 +155,8 @@ describe('SQLite encodeQuery', () => {
         ` join "projects" on "projects"."id" = "tasks"."project_id"` +
         ` join "tag_assignments" on "tag_assignments"."task_id" = "tasks"."id"` +
         ` where ("tasks"."is_followed" is 1` +
-        ` or "projects"."is_followed" is 1` +
-        ` or ("tag_assignments"."foo" is 'bar'))` +
-        ` and "projects"."_status" is not 'deleted'` +
-        ` and "tag_assignments"."_status" is not 'deleted'` +
+        ` or ("projects"."is_followed" is 1 and "projects"."_status" is not 'deleted')` +
+        ` or ("tag_assignments"."foo" is 'bar' and "tag_assignments"."_status" is not 'deleted'))` +
         ` and "tasks"."_status" is not 'deleted'`,
     )
   })
