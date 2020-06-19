@@ -96,9 +96,9 @@ describe('performJoins', () => {
       $and: [
         {
           $or: [
-            { project_id: { $in: ['p1', 'p2', 'p3'] } },
             { is_followed: { $aeq: true } },
-            { $and: [{ id: { $in: ['t1', 't2'] } }] },
+            { project_id: { $in: ['p1', 'p2', 'p3'] } },
+            { id: { $in: ['t1', 't2'] } },
           ],
         },
         { _status: { $ne: 'deleted' } },

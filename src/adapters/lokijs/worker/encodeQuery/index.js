@@ -169,12 +169,11 @@ const encodeConditions: (
 
 const encodeAndOr: LokiKeyword => (
   AssociationArgs[],
-) => (And | Or) => LokiRawQuery = op => associations =>
-  pipe(
-    prop('conditions'),
-    encodeConditions(associations),
-    objOf(op),
-  )
+) => (And | Or) => LokiRawQuery = op => associations => clause => {
+  const conditions = encodeConditions(associations)(clause.conditions)
+  // flatten
+  return conditions.length === 1 ? conditions[0] : { [op]: conditions }
+}
 
 const encodeAnd: (AssociationArgs[]) => And => LokiRawQuery = encodeAndOr('$and')
 const encodeOr: (AssociationArgs[]) => Or => LokiRawQuery = encodeAndOr('$or')
@@ -195,18 +194,6 @@ const concatRawQueries: (LokiRawQuery[]) => LokiRawQuery = (cond([
 
 const encodeRootConditions: (AssociationArgs[]) => (Where[]) => LokiRawQuery = associations =>
   pipe(
-    filter(clause => {
-      // TODO: This is wrong! it's the query builder that's broken
-      const whereClause: On = (clause: any)
-      const isOnStatusNotDeleted =
-        whereClause.type === 'on' &&
-        // $FlowFixMe
-        whereClause.left === '_status' &&
-        whereClause.comparison.operator === 'notEq' &&
-        // $FlowFixMe
-        whereClause.comparison.right.value === 'deleted'
-      return !isOnStatusNotDeleted
-    }),
     encodeConditions(associations),
     concatRawQueries,
   )
@@ -240,18 +227,11 @@ const encodeJoin: (AssociationArgs[], AssociationArgs, On[]) => LokiRawQuery = (
   [table, associationInfo],
   conditions,
 ) => {
-  // TODO: This is wrong! it's the query builder that's broken
-  const conditionsWithNotDeleted: On[] = conditions.concat({
-    type: 'on',
-    table,
-    left: ('_status': any),
-    comparison: { operator: 'notEq', right: { value: 'deleted' } },
-  })
   return {
     $join: {
       table,
-      query: encodeJoinConditions(associations)((conditionsWithNotDeleted: any)),
-      originalConditions: encodeOriginalConditions(conditionsWithNotDeleted),
+      query: encodeJoinConditions(associations)((conditions: any)),
+      originalConditions: encodeOriginalConditions(conditions),
       mapKey: encodeMapKey(associationInfo),
       joinKey: encodeJoinKey(associationInfo),
     },

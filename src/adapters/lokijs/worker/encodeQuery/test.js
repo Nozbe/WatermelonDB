@@ -206,6 +206,7 @@ describe('LokiJS encodeQuery', () => {
         $and: [
           {
             $or: [
+              { is_followed: { $aeq: true } },
               {
                 $join: {
                   table: 'projects',
@@ -220,24 +221,19 @@ describe('LokiJS encodeQuery', () => {
                   joinKey: 'project_id',
                 },
               },
-              { is_followed: { $aeq: true } },
               {
-                $and: [
-                  {
-                    $join: {
-                      table: 'tag_assignments',
-                      query: {
-                        $and: [{ foo: { $eq: 'bar' } }, { _status: { $ne: 'deleted' } }],
-                      },
-                      originalConditions: [
-                        Q.where('foo', 'bar'),
-                        Q.where('_status', Q.notEq('deleted')),
-                      ],
-                      mapKey: 'task_id',
-                      joinKey: 'id',
-                    },
+                $join: {
+                  table: 'tag_assignments',
+                  query: {
+                    $and: [{ foo: { $eq: 'bar' } }, { _status: { $ne: 'deleted' } }],
                   },
-                ],
+                  originalConditions: [
+                    Q.where('foo', 'bar'),
+                    Q.where('_status', Q.notEq('deleted')),
+                  ],
+                  mapKey: 'task_id',
+                  joinKey: 'id',
+                },
               },
             ],
           },
