@@ -14,11 +14,11 @@ class DatabaseBridge {
 
   // MARK: - Asynchronous connections
 
-  connected = (tag, driver, synchronous = false) => {
+  connected = (tag: number, driver: DatabaseDriver, synchronous: boolean = false) => {
     this.connections[tag] = { driver, synchronous, queue: [], status: 'connected' }
   }
 
-  waiting = (tag, driver, synchronous = false) => {
+  waiting = (tag: number, driver: DatabaseDriver, synchronous: boolean = false) => {
     this.connections[tag] = { driver, synchronous, queue: [], status: 'waiting' }
   }
 
@@ -360,7 +360,7 @@ class DatabaseBridge {
     }
   }
 
-  sendReject = (reject: string => void, error: Error, functionName: string) => {
+  sendReject = (reject: (string, string, Error) => void, error: Error, functionName: string) => {
     if (reject) {
       reject(`db.${functionName}.error`, error.message, error)
     } else {

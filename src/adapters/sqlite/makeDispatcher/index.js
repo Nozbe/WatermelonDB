@@ -48,9 +48,11 @@ export const makeDispatcher = (
         const otherArgs = args.slice(0, -1)
 
         if (type === 'synchronous') {
+          // $FlowFixMe
           callback(syncReturnToResult(DatabaseBridge[name](tag, ...otherArgs)))
         } else {
           const promise = new Promise((resolve, reject) => {
+            // $FlowFixMe
             DatabaseBridge[name](tag, ...otherArgs, resolve, (code, message, error) => {
               reject(error)
             })
