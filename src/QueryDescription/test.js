@@ -19,10 +19,7 @@ describe('buildQueryDescription', () => {
         {
           type: 'where',
           left: 'left_column',
-          comparison: {
-            operator: 'eq',
-            right: { value: 'right_value' },
-          },
+          comparison: { operator: 'eq', right: { value: 'right_value' } },
         },
       ],
       join: [],
@@ -42,46 +39,11 @@ describe('buildQueryDescription', () => {
     ])
     expect(query).toEqual({
       where: [
-        {
-          type: 'where',
-          left: 'col1',
-          comparison: {
-            operator: 'eq',
-            right: { value: 'val1' },
-          },
-        },
-        {
-          type: 'where',
-          left: 'col2',
-          comparison: {
-            operator: 'eq',
-            right: { value: 2 },
-          },
-        },
-        {
-          type: 'where',
-          left: 'col3',
-          comparison: {
-            operator: 'eq',
-            right: { value: true },
-          },
-        },
-        {
-          type: 'where',
-          left: 'col4',
-          comparison: {
-            operator: 'eq',
-            right: { value: false },
-          },
-        },
-        {
-          type: 'where',
-          left: 'col5',
-          comparison: {
-            operator: 'eq',
-            right: { value: null },
-          },
-        },
+        { type: 'where', left: 'col1', comparison: { operator: 'eq', right: { value: 'val1' } } },
+        { type: 'where', left: 'col2', comparison: { operator: 'eq', right: { value: 2 } } },
+        { type: 'where', left: 'col3', comparison: { operator: 'eq', right: { value: true } } },
+        { type: 'where', left: 'col4', comparison: { operator: 'eq', right: { value: false } } },
+        { type: 'where', left: 'col5', comparison: { operator: 'eq', right: { value: null } } },
       ],
       join: [],
       joinTables: null,
@@ -107,101 +69,41 @@ describe('buildQueryDescription', () => {
     ])
     expect(query).toEqual({
       where: [
-        {
-          type: 'where',
-          left: 'col1',
-          comparison: {
-            operator: 'eq',
-            right: { value: 'val1' },
-          },
-        },
-        {
-          type: 'where',
-          left: 'col2',
-          comparison: {
-            operator: 'gt',
-            right: { value: 2 },
-          },
-        },
-        {
-          type: 'where',
-          left: 'col3',
-          comparison: {
-            operator: 'gte',
-            right: { value: 3 },
-          },
-        },
+        { type: 'where', left: 'col1', comparison: { operator: 'eq', right: { value: 'val1' } } },
+        { type: 'where', left: 'col2', comparison: { operator: 'gt', right: { value: 2 } } },
+        { type: 'where', left: 'col3', comparison: { operator: 'gte', right: { value: 3 } } },
         {
           type: 'where',
           left: 'col3_5',
-          comparison: {
-            operator: 'weakGt',
-            right: { value: 3.5 },
-          },
+          comparison: { operator: 'weakGt', right: { value: 3.5 } },
         },
-        {
-          type: 'where',
-          left: 'col4',
-          comparison: {
-            operator: 'lt',
-            right: { value: 4 },
-          },
-        },
-        {
-          type: 'where',
-          left: 'col5',
-          comparison: {
-            operator: 'lte',
-            right: { value: 5 },
-          },
-        },
-        {
-          type: 'where',
-          left: 'col6',
-          comparison: {
-            operator: 'notEq',
-            right: { value: null },
-          },
-        },
+        { type: 'where', left: 'col4', comparison: { operator: 'lt', right: { value: 4 } } },
+        { type: 'where', left: 'col5', comparison: { operator: 'lte', right: { value: 5 } } },
+        { type: 'where', left: 'col6', comparison: { operator: 'notEq', right: { value: null } } },
         {
           type: 'where',
           left: 'col7',
-          comparison: {
-            operator: 'oneOf',
-            right: { values: [1, 2, 3] },
-          },
+          comparison: { operator: 'oneOf', right: { values: [1, 2, 3] } },
         },
         {
           type: 'where',
           left: 'col8',
-          comparison: {
-            operator: 'notIn',
-            right: { values: ['a', 'b', 'c'] },
-          },
+          comparison: { operator: 'notIn', right: { values: ['a', 'b', 'c'] } },
         },
         {
           type: 'where',
           left: 'col9',
-          comparison: {
-            operator: 'between',
-            right: { values: [10, 11] },
-          },
+          comparison: { operator: 'between', right: { values: [10, 11] } },
         },
         {
           type: 'where',
           left: 'col10',
-          comparison: {
-            operator: 'like',
-            right: { value: '%abc' },
-          },
+          comparison: { operator: 'like', right: { value: '%abc' } },
         },
         {
           type: 'where',
           left: 'col11',
-          comparison: {
-            operator: 'notLike',
-            right: { value: 'def%' },
-          },
+          comparison: { operator: 'notLike', right: { value: 'def%' } },
         },
       ],
       join: [],
@@ -242,51 +144,24 @@ describe('buildQueryDescription', () => {
     ])
     expect(query).toEqual({
       where: [
-        {
-          type: 'where',
-          left: 'col1',
-          comparison: {
-            operator: 'eq',
-            right: { value: 'value' },
-          },
-        },
+        { type: 'where', left: 'col1', comparison: { operator: 'eq', right: { value: 'value' } } },
         {
           type: 'or',
           conditions: [
-            {
-              type: 'where',
-              left: 'col2',
-              comparison: {
-                operator: 'eq',
-                right: { value: true },
-              },
-            },
-            {
-              type: 'where',
-              left: 'col3',
-              comparison: {
-                operator: 'eq',
-                right: { value: null },
-              },
-            },
+            { type: 'where', left: 'col2', comparison: { operator: 'eq', right: { value: true } } },
+            { type: 'where', left: 'col3', comparison: { operator: 'eq', right: { value: null } } },
             {
               type: 'and',
               conditions: [
                 {
                   type: 'where',
                   left: 'col4',
-                  comparison: {
-                    operator: 'gt',
-                    right: { value: 5 },
-                  },
+                  comparison: { operator: 'gt', right: { value: 5 } },
                 },
                 {
                   type: 'where',
                   left: 'col5',
-                  comparison: {
-                    operator: 'notIn',
-                    right: { values: [6, 7] },
-                  },
+                  comparison: { operator: 'notIn', right: { values: [6, 7] } },
                 },
               ],
             },
@@ -311,10 +186,7 @@ describe('buildQueryDescription', () => {
         {
           type: 'where',
           left: 'left_column',
-          comparison: {
-            operator: 'eq',
-            right: { value: 'right_value' },
-          },
+          comparison: { operator: 'eq', right: { value: 'right_value' } },
         },
       ],
       join: [
@@ -322,19 +194,13 @@ describe('buildQueryDescription', () => {
           type: 'on',
           table: 'foreign_table',
           left: 'foreign_column',
-          comparison: {
-            operator: 'eq',
-            right: { value: 'value' },
-          },
+          comparison: { operator: 'eq', right: { value: 'value' } },
         },
         {
           type: 'on',
           table: 'foreign_table2',
           left: 'foreign_column2',
-          comparison: {
-            operator: 'gt',
-            right: { column: 'foreign_column3' },
-          },
+          comparison: { operator: 'gt', right: { column: 'foreign_column3' } },
         },
       ],
       joinTables: null,
@@ -378,28 +244,19 @@ describe('buildQueryDescription', () => {
                 {
                   type: 'where',
                   left: 'is_followed',
-                  comparison: {
-                    operator: 'eq',
-                    right: { value: true },
-                  },
+                  comparison: { operator: 'eq', right: { value: true } },
                 },
                 {
                   type: 'on',
                   table: 'projects',
                   left: 'is_followed',
-                  comparison: {
-                    operator: 'eq',
-                    right: { value: true },
-                  },
+                  comparison: { operator: 'eq', right: { value: true } },
                 },
                 {
                   type: 'on',
                   table: 'foreign_table2',
                   left: 'foo',
-                  comparison: {
-                    operator: 'eq',
-                    right: { value: 'bar' },
-                  },
+                  comparison: { operator: 'eq', right: { value: 'bar' } },
                 },
               ],
             },
@@ -435,7 +292,8 @@ describe('hasColumnComparisons', () => {
       Q.where('left_column', Q.gte(Q.column('right_column'))),
     ])
     expect(Q.hasColumnComparisons(query3)).toBe(true)
-
+  })
+  it(`can find deeply neested column comparisons`, () => {
     const query4 = Q.buildQueryDescription([
       Q.on('foreign_table2', 'foreign_column2', Q.gt(Q.column('foreign_column3'))),
     ])
@@ -449,7 +307,8 @@ describe('hasColumnComparisons', () => {
       ),
     ])
     expect(Q.hasColumnComparisons(query5)).toBe(true)
-
+  })
+  it(`doesn't get foolwed by broken oneOf/notIn`, () => {
     // we don't validate elements of arrays passed to Q.oneOf/Q.notIn
     // because they may be large, so make sure even if someone passes a bad object, it doesn't break this logic
     const query6 = Q.buildQueryDescription([Q.where('heh', Q.notIn([6, { column: 'heh' }]))])
@@ -465,10 +324,7 @@ describe('queryWithoutDeleted', () => {
         {
           type: 'where',
           left: '_status',
-          comparison: {
-            operator: 'notEq',
-            right: { value: 'deleted' },
-          },
+          comparison: { operator: 'notEq', right: { value: 'deleted' } },
         },
       ],
       join: [],
@@ -487,18 +343,12 @@ describe('queryWithoutDeleted', () => {
         {
           type: 'where',
           left: 'left_column',
-          comparison: {
-            operator: 'eq',
-            right: { value: 'right_value' },
-          },
+          comparison: { operator: 'eq', right: { value: 'right_value' } },
         },
         {
           type: 'where',
           left: '_status',
-          comparison: {
-            operator: 'notEq',
-            right: { value: 'deleted' },
-          },
+          comparison: { operator: 'notEq', right: { value: 'deleted' } },
         },
       ],
       join: [],
@@ -522,18 +372,12 @@ describe('queryWithoutDeleted', () => {
         {
           type: 'where',
           left: 'left_column',
-          comparison: {
-            operator: 'eq',
-            right: { value: 'right_value' },
-          },
+          comparison: { operator: 'eq', right: { value: 'right_value' } },
         },
         {
           type: 'where',
           left: '_status',
-          comparison: {
-            operator: 'notEq',
-            right: { value: 'deleted' },
-          },
+          comparison: { operator: 'notEq', right: { value: 'deleted' } },
         },
       ],
       join: [
@@ -541,46 +385,31 @@ describe('queryWithoutDeleted', () => {
           type: 'on',
           table: 'foreign_table',
           left: 'foreign_column',
-          comparison: {
-            operator: 'eq',
-            right: { value: 'value' },
-          },
+          comparison: { operator: 'eq', right: { value: 'value' } },
         },
         {
           type: 'on',
           table: 'foreign_table',
           left: 'foreign_column4',
-          comparison: {
-            operator: 'eq',
-            right: { value: 'value' },
-          },
+          comparison: { operator: 'eq', right: { value: 'value' } },
         },
         {
           type: 'on',
           table: 'foreign_table2',
           left: 'foreign_column2',
-          comparison: {
-            operator: 'gt',
-            right: { column: 'foreign_column3' },
-          },
+          comparison: { operator: 'gt', right: { column: 'foreign_column3' } },
         },
         {
           type: 'on',
           table: 'foreign_table',
           left: '_status',
-          comparison: {
-            operator: 'notEq',
-            right: { value: 'deleted' },
-          },
+          comparison: { operator: 'notEq', right: { value: 'deleted' } },
         },
         {
           type: 'on',
           table: 'foreign_table2',
           left: '_status',
-          comparison: {
-            operator: 'notEq',
-            right: { value: 'deleted' },
-          },
+          comparison: { operator: 'notEq', right: { value: 'deleted' } },
         },
       ],
       joinTables: null,
@@ -598,13 +427,7 @@ describe('buildQueryDescription - contd', () => {
       where: [],
       join: [],
       joinTables: null,
-      sortBy: [
-        {
-          type: 'sortBy',
-          sortColumn: 'sortable_column',
-          sortOrder: 'desc',
-        },
-      ],
+      sortBy: [{ type: 'sortBy', sortColumn: 'sortable_column', sortOrder: 'desc' }],
       skip: null,
       take: null,
     })
@@ -616,10 +439,7 @@ describe('buildQueryDescription - contd', () => {
       join: [],
       joinTables: null,
       sortBy: [],
-      take: {
-        type: 'take',
-        count: 100,
-      },
+      take: { type: 'take', count: 100 },
       skip: null,
     })
   })
@@ -639,10 +459,7 @@ describe('buildQueryDescription - contd', () => {
       join: [],
       joinTables: null,
       sortBy: [],
-      take: {
-        type: 'take',
-        count: 400,
-      },
+      take: { type: 'take', count: 400 },
       skip: null,
     })
   })
@@ -658,14 +475,8 @@ describe('buildQueryDescription - contd', () => {
       join: [],
       joinTables: null,
       sortBy: [],
-      take: {
-        type: 'take',
-        count: 100,
-      },
-      skip: {
-        type: 'skip',
-        count: 800,
-      },
+      take: { type: 'take', count: 100 },
+      skip: { type: 'skip', count: 800 },
     })
   })
   it('deep freezes the query in dev', () => {
