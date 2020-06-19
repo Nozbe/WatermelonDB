@@ -636,6 +636,7 @@ export const joinTests = [
       ],
       tag_assignments: [
         { id: 'tt1', text1: 'foo', task_id: 'm6' },
+        { id: 'tt2', text1: 'foo', task_id: 'm8' },
         { id: 'badtt1', text1: 'foo', task_id: 'm7', _status: 'deleted' },
         { id: 'badtt2', text1: 'foo', task_id: 'n5', _status: 'deleted' },
         { id: 'badtt3', text1: 'blah', task_id: 'n6' },
@@ -649,6 +650,7 @@ export const joinTests = [
       { id: 'm5', bool1: false, project_id: 'p1' },
       { id: 'm6', bool1: false }, // via TT
       { id: 'm7', bool1: true }, // has TT
+      { id: 'm8', bool1: true, project_id: 'p1' }, // has TT
     ],
     nonMatching: [
       { id: 'n1' },

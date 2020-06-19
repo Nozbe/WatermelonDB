@@ -153,10 +153,10 @@ const encodeAssociation: (TableName<any>) => AssociationArgs => string = mainTab
   association,
 ]) =>
   association.type === 'belongs_to'
-    ? ` join ${encodeName(joinedTable)} on ${encodeName(joinedTable)}."id" = ${encodeName(
+    ? ` left join ${encodeName(joinedTable)} on ${encodeName(joinedTable)}."id" = ${encodeName(
         mainTable,
       )}.${encodeName(association.key)}`
-    : ` join ${encodeName(joinedTable)} on ${encodeName(joinedTable)}.${encodeName(
+    : ` left join ${encodeName(joinedTable)} on ${encodeName(joinedTable)}.${encodeName(
         association.foreignKey,
       )} = ${encodeName(mainTable)}."id"`
 

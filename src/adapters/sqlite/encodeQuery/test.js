@@ -111,8 +111,8 @@ describe('SQLite encodeQuery', () => {
       Q.on('tag_assignments', 'tag_id', Q.oneOf(['a', 'b', 'c'])),
     ])
     const expectedQuery =
-      `join "projects" on "projects"."id" = "tasks"."project_id"` +
-      ` join "tag_assignments" on "tag_assignments"."task_id" = "tasks"."id"` +
+      `left join "projects" on "projects"."id" = "tasks"."project_id"` +
+      ` left join "tag_assignments" on "tag_assignments"."task_id" = "tasks"."id"` +
       ` where "projects"."team_id" is 'abcdef'` +
       ` and "projects"."is_active" is 1` +
       ` and "tasks"."left_column" is 'right_value'` +
@@ -133,7 +133,7 @@ describe('SQLite encodeQuery', () => {
     ])
     expect(encodeQuery(query)).toBe(
       `select "tasks".* from "tasks"` +
-        ` join "projects" on "projects"."id" = "tasks"."project_id" where "projects"."left_column" <= "projects"."right_column"` +
+        ` left join "projects" on "projects"."id" = "tasks"."project_id" where "projects"."left_column" <= "projects"."right_column"` +
         ` and ("projects"."left2" > "projects"."right2"` +
         ` or ("projects"."left2" is not null` +
         ` and "projects"."right2" is null))` +
@@ -152,8 +152,8 @@ describe('SQLite encodeQuery', () => {
     ])
     expect(encodeQuery(query)).toBe(
       `select distinct "tasks".* from "tasks"` +
-        ` join "projects" on "projects"."id" = "tasks"."project_id"` +
-        ` join "tag_assignments" on "tag_assignments"."task_id" = "tasks"."id"` +
+        ` left join "projects" on "projects"."id" = "tasks"."project_id"` +
+        ` left join "tag_assignments" on "tag_assignments"."task_id" = "tasks"."id"` +
         ` where ("tasks"."is_followed" is 1` +
         ` or ("projects"."is_followed" is 1 and "projects"."_status" is not 'deleted')` +
         ` or ("tag_assignments"."foo" is 'bar' and "tag_assignments"."_status" is not 'deleted'))` +
