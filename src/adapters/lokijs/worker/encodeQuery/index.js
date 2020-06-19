@@ -5,7 +5,6 @@ import {
   pipe,
   map,
   always,
-  filter,
   prop,
   has,
   propEq,

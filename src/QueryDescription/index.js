@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { uniq, map } from 'rambdax'
+import { uniq } from 'rambdax'
 
 // don't import whole `utils` to keep worker size small
 import invariant from '../utils/common/invariant'
@@ -253,7 +253,7 @@ export function and(...clauses: Where[]): And {
 export function or(...clauses: Where[]): Or {
   invariant(
     clauses.every(isAcceptableClause),
-    'Q.and() can only contain Q.where, Q.and, Q.or, Q.on clauses',
+    'Q.or() can only contain Q.where, Q.and, Q.or, Q.on clauses',
   )
   return { type: 'or', conditions: clauses }
 }

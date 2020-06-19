@@ -484,7 +484,7 @@ describe('buildQueryDescription - contd', () => {
   it(`catches bad argument values`, () => {
     expect(() => Q.experimentalSortBy('foo', 'ascasc')).toThrow(/Invalid sortOrder/)
     expect(() => Q.and(Q.like('foo'))).toThrow(/and\(\) can only contain/)
-    expect(() => Q.or(Q.like('foo'))).toThrow(/and\(\) can only contain/)
+    expect(() => Q.or(Q.like('foo'))).toThrow(/or\(\) can only contain/)
     expect(() => Q.buildQueryDescription([Q.like('foo')])).toThrow('Invalid Query clause passed')
     expect(() => Q.experimentalJoinTables('foo', 'bar')).toThrow('expected an array')
   })
