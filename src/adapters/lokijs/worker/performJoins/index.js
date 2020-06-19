@@ -2,16 +2,15 @@
 
 import type { LokiQuery, LokiJoin, LokiRawQuery } from '../encodeQuery'
 import type { DirtyRaw } from '../../../../RawRecord'
-import type { TableName } from '../../../../Schema'
 
-type QueryPerformer = (table: TableName<any>, query: LokiRawQuery) => DirtyRaw[]
+type QueryPerformer = (join: LokiJoin) => DirtyRaw[]
 
 function performJoinsImpl(query: LokiRawQuery, performer: QueryPerformer): LokiRawQuery {
   if (!query) {
     return query
   } else if (query.$join) {
     const join: LokiJoin = query.$join
-    const records = performer(join.table, join.query)
+    const records = performer(join)
     const matchingIds = records.map(record => record[join.mapKey])
     return { [(join.joinKey: string)]: { $in: matchingIds } }
   } else if (query.$and) {

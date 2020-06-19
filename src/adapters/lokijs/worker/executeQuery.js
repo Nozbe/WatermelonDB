@@ -7,8 +7,10 @@ import type { SerializedQuery } from '../../../Query'
 
 import encodeMatcher from '../../../observation/encodeMatcher'
 import { hasColumnComparisons, type Where } from '../../../QueryDescription'
+import type { DirtyRaw } from '../../../RawRecord'
 
 import encodeQuery from './encodeQuery'
+import performJoins from './performJoins'
 import type { LokiQuery, LokiJoin, LokiRawQuery } from './encodeQuery'
 
 function refineResultsForColumnComparisons(
@@ -33,8 +35,8 @@ function refineResultsForColumnComparisons(
 }
 
 // Finds IDs of matching records on foreign table
-function performJoin(join: LokiJoin, loki: Loki): LokiRawQuery {
-  const { table, query, originalConditions, mapKey, joinKey } = join
+function performJoin(join: LokiJoin, loki: Loki): DirtyRaw[] {
+  const { table, query, originalConditions } = join
 
   // for queries on `belongs_to` tables, matchingIds will be IDs of the parent table records
   //   (e.g. task: { project_id in ids })
@@ -45,16 +47,7 @@ function performJoin(join: LokiJoin, loki: Loki): LokiRawQuery {
 
   // See executeQuery for explanation of column comparison workaround
   const refinedRecords = refineResultsForColumnComparisons(roughRecords, originalConditions)
-  const matchingIds = refinedRecords.data().map(record => record[mapKey])
-
-  return { [(joinKey: string)]: { $in: matchingIds } }
-}
-
-function performJoinsGetQuery(lokiQuery: LokiQuery, loki: Loki): LokiRawQuery {
-  const { query, joins } = lokiQuery
-  const joinConditions = joins.map(join => performJoin(join, loki))
-
-  return joinConditions.length ? { $and: [...joinConditions, query] } : query
+  return refinedRecords.data()
 }
 
 // Note: Loki currently doesn't support column comparisons in its query syntax, so for queries
@@ -63,12 +56,15 @@ function performJoinsGetQuery(lokiQuery: LokiQuery, loki: Loki): LokiRawQuery {
 export default function executeQuery(query: SerializedQuery, loki: Loki): LokiResultset {
   const collection = loki.getCollection(query.table).chain()
 
-  // Step one: fetch all records matching query (and consider `on` conditions)
-  // Ignore column comparison conditions (assume condition is true)
+  // Step one: perform all inner queries (JOINs) to get the single table query
   const lokiQuery = encodeQuery(query)
-  const roughResults = collection.find(performJoinsGetQuery(lokiQuery, loki))
+  const mainQuery = performJoins(lokiQuery, join => performJoin(join, loki))
 
-  // Step two: if query makes column comparison conditions, we (inefficiently) refine
+  // Step two: fetch all records matching query
+  // Ignore column comparison conditions (assume condition is true)
+  const roughResults = collection.find(mainQuery)
+
+  // Step three: if query makes column comparison conditions, we (inefficiently) refine
   // the rough results using a matcher function
   const result = refineResultsForColumnComparisons(roughResults, query.description.where)
 

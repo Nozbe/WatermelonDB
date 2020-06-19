@@ -27,7 +27,7 @@ describe('performJoins', () => {
     expect(performer).toHaveBeenCalledTimes(0)
   })
   const makePerformer = () =>
-    jest.fn(table => {
+    jest.fn(({ table }) => {
       if (table === 'projects') {
         return [{ id: 'p1' }, { id: 'p2' }, { id: 'p3' }]
       } else if (table === 'tag_assignments') {
@@ -52,15 +52,34 @@ describe('performJoins', () => {
       ],
     })
     expect(performer).toHaveBeenCalledTimes(2)
-    expect(performer).toHaveBeenCalledWith('projects', {
-      $and: [
-        { team_id: { $eq: 'abcdef' } },
-        { is_active: { $aeq: true } },
-        { _status: { $ne: 'deleted' } },
+    expect(performer).toHaveBeenCalledWith({
+      table: 'projects',
+      query: {
+        $and: [
+          { team_id: { $eq: 'abcdef' } },
+          { is_active: { $aeq: true } },
+          { _status: { $ne: 'deleted' } },
+        ],
+      },
+      originalConditions: [
+        Q.where('team_id', 'abcdef'),
+        Q.where('is_active', true),
+        Q.where('_status', Q.notEq('deleted')),
       ],
+      mapKey: 'id',
+      joinKey: 'project_id',
     })
-    expect(performer).toHaveBeenCalledWith('tag_assignments', {
-      $and: [{ tag_id: { $in: ['a', 'b', 'c'] } }, { _status: { $ne: 'deleted' } }],
+    expect(performer).toHaveBeenCalledWith({
+      table: 'tag_assignments',
+      query: {
+        $and: [{ tag_id: { $in: ['a', 'b', 'c'] } }, { _status: { $ne: 'deleted' } }],
+      },
+      originalConditions: [
+        Q.where('tag_id', Q.oneOf(['a', 'b', 'c'])),
+        Q.where('_status', Q.notEq('deleted')),
+      ],
+      mapKey: 'task_id',
+      joinKey: 'id',
     })
   })
   it(`performs on()s nested inside AND/ORs`, () => {
@@ -86,11 +105,23 @@ describe('performJoins', () => {
       ],
     })
     expect(performer).toHaveBeenCalledTimes(2)
-    expect(performer).toHaveBeenCalledWith('projects', {
-      $and: [{ is_followed: { $aeq: true } }, { _status: { $ne: 'deleted' } }],
+    expect(performer).toHaveBeenCalledWith({
+      table: 'projects',
+      query: {
+        $and: [{ is_followed: { $aeq: true } }, { _status: { $ne: 'deleted' } }],
+      },
+      originalConditions: [Q.where('is_followed', true), Q.where('_status', Q.notEq('deleted'))],
+      mapKey: 'id',
+      joinKey: 'project_id',
     })
-    expect(performer).toHaveBeenCalledWith('tag_assignments', {
-      $and: [{ foo: { $eq: 'bar' } }, { _status: { $ne: 'deleted' } }],
+    expect(performer).toHaveBeenCalledWith({
+      table: 'tag_assignments',
+      query: {
+        $and: [{ foo: { $eq: 'bar' } }, { _status: { $ne: 'deleted' } }],
+      },
+      originalConditions: [Q.where('foo', 'bar'), Q.where('_status', Q.notEq('deleted'))],
+      mapKey: 'task_id',
+      joinKey: 'id',
     })
   })
 })
