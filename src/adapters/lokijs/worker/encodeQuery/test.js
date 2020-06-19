@@ -191,6 +191,62 @@ describe('LokiJS encodeQuery', () => {
       hasJoins: true,
     })
   })
+  it(`encodes on()s nested inside AND/ORs`, () => {
+    const query = new Query(mockCollection, [
+      Q.experimentalJoinTables(['projects', 'tag_assignments']),
+      Q.or(
+        Q.where('is_followed', true),
+        Q.on('projects', 'is_followed', true),
+        Q.and(Q.on('tag_assignments', 'foo', 'bar')),
+      ),
+    ])
+    expect(testQuery(query)).toEqual({
+      table: 'tasks',
+      query: {
+        $and: [
+          {
+            $or: [
+              {
+                $join: {
+                  table: 'projects',
+                  query: {
+                    $and: [{ is_followed: { $aeq: true } }, { _status: { $ne: 'deleted' } }],
+                  },
+                  originalConditions: [
+                    Q.where('is_followed', true),
+                    Q.where('_status', Q.notEq('deleted')),
+                  ],
+                  mapKey: 'id',
+                  joinKey: 'project_id',
+                },
+              },
+              { is_followed: { $aeq: true } },
+              {
+                $and: [
+                  {
+                    $join: {
+                      table: 'tag_assignments',
+                      query: {
+                        $and: [{ foo: { $eq: 'bar' } }, { _status: { $ne: 'deleted' } }],
+                      },
+                      originalConditions: [
+                        Q.where('foo', 'bar'),
+                        Q.where('_status', Q.notEq('deleted')),
+                      ],
+                      mapKey: 'task_id',
+                      joinKey: 'id',
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+          { _status: { $ne: 'deleted' } },
+        ],
+      },
+      hasJoins: true,
+    })
+  })
   it('encodes column comparisons on JOIN queries', () => {
     const query = new Query(mockCollection, [
       Q.on('projects', 'left_column', Q.lte(Q.column('right_column'))),
@@ -219,5 +275,9 @@ describe('LokiJS encodeQuery', () => {
       },
       hasJoins: true,
     })
+  })
+  it(`fails to encode nested on without explicit joinTables`, () => {
+    const query = new Query(mockCollection, [Q.or(Q.on('projects', 'is_followed', true))])
+    expect(() => encodeQuery(query)).toThrow(/explicitly declare Q.experimentalJoinTables/)
   })
 })
