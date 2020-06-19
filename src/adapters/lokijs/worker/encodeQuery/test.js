@@ -22,7 +22,7 @@ describe('LokiJS encodeQuery', () => {
     expect(testQuery(query)).toEqual({
       table: 'tasks',
       query: { _status: { $ne: 'deleted' } },
-      joins: [],
+      hasJoins: false,
     })
   })
   it('encodes a single condition', () => {
@@ -32,10 +32,10 @@ describe('LokiJS encodeQuery', () => {
       query: {
         $and: [{ col: { $eq: 'hello' } }, { _status: { $ne: 'deleted' } }],
       },
-      joins: [],
+      hasJoins: false,
     })
   })
-  it('encodes multiple onditions and value types', () => {
+  it('encodes multiple conditions and value types', () => {
     const query = new Query(mockCollection, [
       Q.where('col1', `value "'with'" quotes`),
       Q.where('col2', 2),
@@ -55,7 +55,7 @@ describe('LokiJS encodeQuery', () => {
           { _status: { $ne: 'deleted' } },
         ],
       },
-      joins: [],
+      hasJoins: false,
     })
   })
   it('encodes multiple operators', () => {
@@ -70,6 +70,8 @@ describe('LokiJS encodeQuery', () => {
       Q.where('col7', Q.oneOf([1, 2, 3])),
       Q.where('col8', Q.notIn(['"a"', 'b', 'c'])),
       Q.where('col9', Q.between(10, 11)),
+      Q.where('col10', Q.like('%abc')),
+      Q.where('col11', Q.notLike('%abc')),
     ])
     expect(testQuery(query)).toEqual({
       table: 'tasks',
@@ -79,28 +81,18 @@ describe('LokiJS encodeQuery', () => {
           { col2: { $gt: 2 } },
           { col3: { $gte: 3 } },
           { col3_5: { $gt: 3.5 } },
-          {
-            col4: {
-              $and: [{ $lt: 4 }, { $not: { $aeq: null } }],
-            },
-          },
-          {
-            col5: {
-              $and: [{ $lte: 5 }, { $not: { $aeq: null } }],
-            },
-          },
+          { col4: { $and: [{ $lt: 4 }, { $not: { $aeq: null } }] } },
+          { col5: { $and: [{ $lte: 5 }, { $not: { $aeq: null } }] } },
           { col6: { $not: { $aeq: null } } },
           { col7: { $in: [1, 2, 3] } },
-          {
-            col8: {
-              $and: [{ $nin: ['"a"', 'b', 'c'] }, { $not: { $aeq: null } }],
-            },
-          },
+          { col8: { $and: [{ $nin: ['"a"', 'b', 'c'] }, { $not: { $aeq: null } }] } },
           { col9: { $between: [10, 11] } },
+          { col10: { $regex: /^.*abc$/i } },
+          { col11: { $and: [{ $not: { $eq: null } }, { $not: { $regex: /^.*abc$/i } }] } },
           { _status: { $ne: 'deleted' } },
         ],
       },
-      joins: [],
+      hasJoins: false,
     })
   })
   it('encodes column comparisons', () => {
@@ -113,7 +105,7 @@ describe('LokiJS encodeQuery', () => {
       query: {
         $and: [{ _fakeAlwaysTrue: { $eq: undefined } }, { _status: { $ne: 'deleted' } }],
       },
-      joins: [],
+      hasJoins: false,
     })
   })
   it('encodes AND/OR nesting', () => {
@@ -137,11 +129,7 @@ describe('LokiJS encodeQuery', () => {
               {
                 $and: [
                   { col4: { $gt: 5 } },
-                  {
-                    col5: {
-                      $and: [{ $nin: [6, 7] }, { $not: { $aeq: null } }],
-                    },
-                  },
+                  { col5: { $and: [{ $nin: [6, 7] }, { $not: { $aeq: null } }] } },
                 ],
               },
             ],
@@ -149,7 +137,7 @@ describe('LokiJS encodeQuery', () => {
           { _status: { $ne: 'deleted' } },
         ],
       },
-      joins: [],
+      hasJoins: false,
     })
   })
   it('encodes JOIN queries', () => {
@@ -162,39 +150,45 @@ describe('LokiJS encodeQuery', () => {
     expect(testQuery(query)).toEqual({
       table: 'tasks',
       query: {
-        $and: [{ left_column: { $eq: 'right_value' } }, { _status: { $ne: 'deleted' } }],
+        $and: [
+          {
+            $join: {
+              table: 'projects',
+              query: {
+                $and: [
+                  { team_id: { $eq: 'abcdef' } },
+                  { is_active: { $aeq: true } },
+                  { _status: { $ne: 'deleted' } },
+                ],
+              },
+              originalConditions: [
+                Q.where('team_id', 'abcdef'),
+                Q.where('is_active', true),
+                Q.where('_status', Q.notEq('deleted')),
+              ],
+              mapKey: 'id',
+              joinKey: 'project_id',
+            },
+          },
+          {
+            $join: {
+              table: 'tag_assignments',
+              query: {
+                $and: [{ tag_id: { $in: ['a', 'b', 'c'] } }, { _status: { $ne: 'deleted' } }],
+              },
+              originalConditions: [
+                Q.where('tag_id', Q.oneOf(['a', 'b', 'c'])),
+                Q.where('_status', Q.notEq('deleted')),
+              ],
+              mapKey: 'task_id',
+              joinKey: 'id',
+            },
+          },
+          { left_column: { $eq: 'right_value' } },
+          { _status: { $ne: 'deleted' } },
+        ],
       },
-      joins: [
-        {
-          table: 'projects',
-          query: {
-            $and: [
-              { team_id: { $eq: 'abcdef' } },
-              { is_active: { $aeq: true } },
-              { _status: { $ne: 'deleted' } },
-            ],
-          },
-          originalConditions: [
-            Q.where('team_id', 'abcdef'),
-            Q.where('is_active', true),
-            Q.where('_status', Q.notEq('deleted')),
-          ],
-          mapKey: 'id',
-          joinKey: 'project_id',
-        },
-        {
-          table: 'tag_assignments',
-          query: {
-            $and: [{ tag_id: { $in: ['a', 'b', 'c'] } }, { _status: { $ne: 'deleted' } }],
-          },
-          originalConditions: [
-            Q.where('tag_id', Q.oneOf(['a', 'b', 'c'])),
-            Q.where('_status', Q.notEq('deleted')),
-          ],
-          mapKey: 'task_id',
-          joinKey: 'id',
-        },
-      ],
+      hasJoins: true,
     })
   })
   it('encodes column comparisons on JOIN queries', () => {
@@ -205,33 +199,25 @@ describe('LokiJS encodeQuery', () => {
     expect(encodeQuery(query)).toEqual({
       table: 'tasks',
       query: {
-        _status: { $ne: 'deleted' },
-      },
-      joins: [
-        {
-          table: 'projects',
-          query: {
-            $and: [{ _fakeAlwaysTrue: { $eq: undefined } }, { _status: { $ne: 'deleted' } }],
+        $and: [
+          {
+            $join: {
+              table: 'projects',
+              query: {
+                $and: [{ _fakeAlwaysTrue: { $eq: undefined } }, { _status: { $ne: 'deleted' } }],
+              },
+              originalConditions: [
+                Q.where('left_column', Q.lte(Q.column('right_column'))),
+                Q.where('_status', Q.notEq('deleted')),
+              ],
+              mapKey: 'id',
+              joinKey: 'project_id',
+            },
           },
-          originalConditions: [
-            Q.where('left_column', Q.lte(Q.column('right_column'))),
-            Q.where('_status', Q.notEq('deleted')),
-          ],
-          mapKey: 'id',
-          joinKey: 'project_id',
-        },
-      ],
+          { _status: { $ne: 'deleted' } },
+        ],
+      },
+      hasJoins: true,
     })
-  })
-  it('encodes like and notLike queries', () => {
-    const query = new Query(mockCollection, [
-      Q.where('col1', Q.like('%abc')),
-      Q.where('col2', Q.notLike('%abc')),
-    ])
-    const encodedQuery = testQuery(query)
-
-    expect(encodedQuery.query.$and[0].col1.$regex.toString()).toEqual('/^.*abc$/i')
-    expect(encodedQuery.query.$and[1].col2.$and[0].$not.$eq).toEqual(null)
-    expect(encodedQuery.query.$and[1].col2.$and[1].$not.$regex.toString()).toEqual('/^.*abc$/i')
   })
 })

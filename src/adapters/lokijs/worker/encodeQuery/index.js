@@ -14,6 +14,7 @@ import {
   ifElse,
   groupBy,
   values,
+  partition,
 } from 'rambdax'
 
 // don't import whole `utils` to keep worker size small
@@ -66,7 +67,7 @@ export type LokiJoin = $Exact<{
 export type LokiQuery = $Exact<{
   table: TableName<any>,
   query: LokiRawQuery,
-  joins: LokiJoin[],
+  hasJoins: boolean,
 }>
 
 const getComparisonRight: ComparisonRight => CompoundValue = (cond([
@@ -149,23 +150,25 @@ const encodeWhereDescription: (WhereDescription | On) => LokiRawQuery = ({ left,
 
 const typeEq = propEq('type')
 
-const encodeCondition: Clause => LokiRawQuery = clause =>
+const encodeCondition: (AssociationArgs[]) => Clause => LokiRawQuery = associations => clause =>
   (cond([
-    [typeEq('and'), encodeAnd],
-    [typeEq('or'), encodeOr],
+    [typeEq('and'), encodeAnd(associations)],
+    [typeEq('or'), encodeOr(associations)],
     [typeEq('where'), encodeWhereDescription],
     [typeEq('on'), encodeWhereDescription],
   ]): any)(clause)
 
-const encodeAndOr: LokiKeyword => (And | Or) => LokiRawQuery = op =>
+const encodeAndOr: LokiKeyword => (
+  AssociationArgs[],
+) => (And | Or) => LokiRawQuery = op => associations =>
   pipe(
     prop('conditions'),
-    map(encodeCondition),
+    map(encodeCondition(associations)),
     objOf(op),
   )
 
-const encodeAnd: And => LokiRawQuery = encodeAndOr('$and')
-const encodeOr: Or => LokiRawQuery = encodeAndOr('$or')
+const encodeAnd: (AssociationArgs[]) => And => LokiRawQuery = encodeAndOr('$and')
+const encodeOr: (AssociationArgs[]) => Or => LokiRawQuery = encodeAndOr('$or')
 
 const lengthEq = n =>
   pipe(
@@ -181,10 +184,22 @@ const concatRawQueries: (LokiRawQuery[]) => LokiRawQuery = (cond([
   [T, objOf('$and')],
 ]): any)
 
-const encodeConditions: (Where[] | On[]) => LokiRawQuery = pipe(
-  conditions => map(encodeCondition, conditions),
-  concatRawQueries,
-)
+const encodeConditions: (AssociationArgs[]) => (Where[]) => LokiRawQuery = associations =>
+  pipe(
+    conditions => {
+      const [joins, wheres] = partition(clause => clause.type === 'on', conditions)
+      const encodedJoins = encodeJoins(associations, (joins: any))
+      const encodedWheres = wheres.map(encodeCondition(associations))
+      return encodedJoins.concat(encodedWheres)
+    },
+    concatRawQueries,
+  )
+
+const encodeJoinConditions: (AssociationArgs[]) => (On[]) => LokiRawQuery = associations =>
+  pipe(
+    map(encodeCondition(associations)),
+    concatRawQueries,
+  )
 
 const encodeMapKey: AssociationInfo => ColumnName = ifElse(
   propEq('type', 'belongs_to'),
@@ -204,12 +219,18 @@ const encodeOriginalConditions: (On[]) => Where[] = map(({ left, comparison }) =
   comparison,
 }))
 
-const encodeJoin: (AssociationArgs, On[]) => LokiJoin = ([table, associationInfo], conditions) => ({
-  table,
-  query: encodeConditions(conditions),
-  originalConditions: encodeOriginalConditions(conditions),
-  mapKey: encodeMapKey(associationInfo),
-  joinKey: encodeJoinKey(associationInfo),
+const encodeJoin: (AssociationArgs[], AssociationArgs, On[]) => LokiRawQuery = (
+  associations,
+  [table, associationInfo],
+  conditions,
+) => ({
+  $join: {
+    table,
+    query: encodeJoinConditions(associations)((conditions: any)),
+    originalConditions: encodeOriginalConditions(conditions),
+    mapKey: encodeMapKey(associationInfo),
+    joinKey: encodeJoinKey(associationInfo),
+  },
 })
 
 const groupByTable: (On[]) => On[][] = pipe(
@@ -222,20 +243,25 @@ const zipAssociationsConditions: (AssociationArgs[], On[]) => [AssociationArgs, 
   conditions,
 ) => zip(associations, groupByTable(conditions))
 
-const encodeJoins: (AssociationArgs[], On[]) => LokiJoin[] = (associations, on) => {
+const encodeJoins: (AssociationArgs[], On[]) => LokiRawQuery[] = (associations, on) => {
   const conditions = zipAssociationsConditions(associations, on)
-  return map(([association, _on]) => encodeJoin(association, _on), conditions)
+  return map(([association, _on]) => encodeJoin(associations, association, _on), conditions)
 }
 
 export default function encodeQuery(query: SerializedQuery): LokiQuery {
   const {
     table,
-    description: { where, join },
+    description: { where, joinTables, sortBy, take },
     associations,
   } = query
+
+  // TODO: implement support for Q.sortBy(), Q.take(), Q.skip() for Loki adapter
+  invariant(!sortBy.length, '[WatermelonDB][Loki] Q.sortBy() not yet supported')
+  invariant(!take, '[WatermelonDB][Loki] Q.take() not yet supported')
+
   return {
     table,
-    query: encodeConditions(where),
-    joins: encodeJoins(associations, join),
+    query: encodeConditions(associations)(where),
+    hasJoins: !!joinTables.length,
   }
 }

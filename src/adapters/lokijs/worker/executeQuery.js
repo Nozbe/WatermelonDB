@@ -18,7 +18,13 @@ function refineResultsForColumnComparisons(
 ): LokiResultset {
   if (hasColumnComparisons(conditions)) {
     // ignore JOINs (already checked and encodeMatcher can't check it)
-    const queryWithoutJoins = { where: conditions, join: [], sortBy: [], take: null, skip: null }
+    const queryWithoutJoins = {
+      where: conditions,
+      joinTables: [],
+      sortBy: [],
+      take: null,
+      skip: null,
+    }
     const matcher = encodeMatcher(queryWithoutJoins)
 
     return roughResults.where(matcher)
@@ -56,10 +62,6 @@ function performJoinsGetQuery(lokiQuery: LokiQuery, loki: Loki): LokiRawQuery {
 // that need them, we filter records with a matcher function.
 // This is far less efficient, so should be considered a temporary hack/workaround
 export default function executeQuery(query: SerializedQuery, loki: Loki): LokiResultset {
-  // TODO: implement support for Q.sortBy(), Q.take(), Q.skip() for Loki adapter
-  invariant(!query.description.sortBy.length, '[WatermelonDB][Loki] Q.sortBy() not yet supported')
-  invariant(!query.description.take, '[WatermelonDB][Loki] Q.take() not yet supported')
-
   const collection = loki.getCollection(query.table).chain()
 
   // Step one: fetch all records matching query (and consider `on` conditions)
@@ -69,7 +71,6 @@ export default function executeQuery(query: SerializedQuery, loki: Loki): LokiRe
 
   // Step two: if query makes column comparison conditions, we (inefficiently) refine
   // the rough results using a matcher function
-  // Matcher ignores `on` conditions, so it's not possible to use column comparison in an `on`
   const result = refineResultsForColumnComparisons(roughResults, query.description.where)
 
   return result
