@@ -297,7 +297,7 @@ describe('hasColumnComparisons', () => {
     ])
     expect(Q.hasColumnComparisons(query5)).toBe(true)
   })
-  it(`doesn't get foolwed by broken oneOf/notIn`, () => {
+  it(`doesn't get fooled by broken oneOf/notIn`, () => {
     // we don't validate elements of arrays passed to Q.oneOf/Q.notIn
     // because they may be large, so make sure even if someone passes a bad object, it doesn't break this logic
     const query6 = Q.buildQueryDescription([Q.where('heh', Q.notIn([6, { column: 'heh' }]))])
