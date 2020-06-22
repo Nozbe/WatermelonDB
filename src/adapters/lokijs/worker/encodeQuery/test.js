@@ -273,9 +273,7 @@ describe('LokiJS encodeQuery', () => {
                   {
                     $join: {
                       table: 'teams',
-                      query: {
-                        $and: [{ foo: { $eq: 'bar' } }, { _status: { $ne: 'deleted' } }],
-                      },
+                      query: { $and: [{ foo: { $eq: 'bar' } }, { _status: { $ne: 'deleted' } }] },
                       originalConditions: [
                         Q.where('foo', 'bar'),
                         Q.where('_status', Q.notEq('deleted')),

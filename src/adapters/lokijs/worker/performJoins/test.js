@@ -4,6 +4,8 @@ import Query from '../../../../Query'
 import Model from '../../../../Model'
 import * as Q from '../../../../QueryDescription'
 
+// TODO: Standardize these mocks (same as in sqlite encodeQuery, query test)
+
 class MockTask extends Model {
   static table = 'tasks'
 
@@ -13,7 +15,18 @@ class MockTask extends Model {
   }
 }
 
-const mockCollection = Object.freeze({ modelClass: MockTask })
+class MockProject extends Model {
+  static table = 'projects'
+
+  static associations = {
+    teams: { type: 'belongs_to', key: 'team_id' },
+  }
+}
+
+const mockCollection = Object.freeze({
+  modelClass: MockTask,
+  db: { get: table => (table === 'projects' ? { modelClass: MockProject } : {}) },
+})
 
 const testQuery = (query, performer) => performJoins(encodeQuery(query.serialize()), performer)
 
@@ -32,6 +45,8 @@ describe('performJoins', () => {
         return [{ id: 'p1' }, { id: 'p2' }, { id: 'p3' }]
       } else if (table === 'tag_assignments') {
         return [{ task_id: 't1' }, { task_id: 't2' }]
+      } else if (table === 'teams') {
+        return [{ id: 't1' }, { id: 't2' }]
       }
       return []
     })
@@ -122,6 +137,35 @@ describe('performJoins', () => {
       originalConditions: [Q.where('foo', 'bar'), Q.where('_status', Q.notEq('deleted'))],
       mapKey: 'task_id',
       joinKey: 'id',
+    })
+  })
+  it(`performs Q.on nested inside Q.on`, () => {
+    const query = new Query(mockCollection, [
+      Q.experimentalJoinTables(['projects', ['projects', 'teams']]),
+      Q.on('projects', Q.on('teams', 'foo', 'bar')),
+    ])
+    const performer = makePerformer()
+    expect(testQuery(query, performer)).toEqual({
+      $and: [{ project_id: { $in: ['p1', 'p2', 'p3'] } }, { _status: { $ne: 'deleted' } }],
+    })
+    expect(performer).toHaveBeenCalledTimes(2)
+    expect(performer).toHaveBeenCalledWith({
+      table: 'teams',
+      query: { $and: [{ foo: { $eq: 'bar' } }, { _status: { $ne: 'deleted' } }] },
+      originalConditions: [Q.where('foo', 'bar'), Q.where('_status', Q.notEq('deleted'))],
+      mapKey: 'id',
+      joinKey: 'team_id',
+    })
+    expect(performer).toHaveBeenCalledWith({
+      table: 'projects',
+      query: { $and: [{ team_id: { $in: ['t1', 't2'] } }, { _status: { $ne: 'deleted' } }] },
+      originalConditions: [
+        Q.on('teams', 'foo', 'bar'),
+        Q.on('teams', '_status', Q.notEq('deleted')),
+        Q.where('_status', Q.notEq('deleted')),
+      ],
+      mapKey: 'id',
+      joinKey: 'project_id',
     })
   })
 })
