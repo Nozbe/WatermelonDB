@@ -2,7 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+Contributors: Please add your changes to CHANGELOG-Unreleased.md
+
+## 0.17 - 2020-06-22
 
 ### New features
 
@@ -22,12 +24,6 @@ All notable changes to this project will be documented in this file.
        To try out JSI, add `experimentalUseJSI: true` to `SQLiteAdapter` constructor.
 - [Query] Added `Q.experimentalSortBy(sortColumn, sortOrder)`, `Q.experimentalTake(count)`,
      `Q.experimentalSkip(count)` methods (only availble with SQLiteAdapter) - @Kenneth-KT
-- [Query] Added the ability to nest `Q.on` conditions inside `Q.and()` and `Q.or()`. To do so, it's
-     required to pass `Q.experimentalJoinTables(['join_table1', 'join_table2'])` at the beginning of
-     a query. Known limitation: column comparisons don't work within nested `Q.ons` with LokiJSAdapter
-- [Query] Added the ability to nest `Q.on` conditions inside `Q.on`, e.g. to make a condition on a grandchild.
-     To do so, it's required to pass `Q.experimentalNestedJoin('parent_table', 'grandparent_table')` at the beginning
-     of a query. Known limitations: only one level of nesting is currently allowed.
 - `Database.batch()` can now be called with a single array of models
 - [DX] `Database.get(tableName)` is now a shortcut for `Database.collections.get(tableName)`
 - [DX] Query is now thenable - you can now use `await query` and `await query.count` instead of `await query.fetch()` and `await query.fetchCount()`

@@ -282,7 +282,7 @@ export function experimentalTake(count: number): Take {
 }
 
 export function experimentalSkip(count: number): Skip {
-  invariant(typeof count === 'number', 'Value passed to Q.take() is not a number')
+  invariant(typeof count === 'number', 'Value passed to Q.skip() is not a number')
   return { type: 'skip', count }
 }
 
