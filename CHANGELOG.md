@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 0.17 - 2020-06-22
+
 ### New features
 
 - [Sync] Introducing Migration Syncs - this allows fully consistent synchronization when migrating
