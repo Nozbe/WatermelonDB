@@ -3,6 +3,8 @@ import Model from '../../../../Model'
 import * as Q from '../../../../QueryDescription'
 import encodeQuery from './index'
 
+// TODO: Standardize these mocks (same as in sqlite encodeQuery, query test)
+
 class MockTask extends Model {
   static table = 'tasks'
 
@@ -12,7 +14,18 @@ class MockTask extends Model {
   }
 }
 
-const mockCollection = Object.freeze({ modelClass: MockTask })
+class MockProject extends Model {
+  static table = 'projects'
+
+  static associations = {
+    teams: { type: 'belongs_to', key: 'team_id' },
+  }
+}
+
+const mockCollection = Object.freeze({
+  modelClass: MockTask,
+  db: { get: table => (table === 'projects' ? { modelClass: MockProject } : {}) },
+})
 
 const testQuery = query => encodeQuery(query.serialize())
 
@@ -236,6 +249,52 @@ describe('LokiJS encodeQuery', () => {
                 },
               },
             ],
+          },
+          { _status: { $ne: 'deleted' } },
+        ],
+      },
+      hasJoins: true,
+    })
+  })
+  it(`encodes Q.on nested inside Q.on`, () => {
+    const query = new Query(mockCollection, [
+      Q.experimentalJoinTables(['projects', ['projects', 'teams']]),
+      Q.on('projects', Q.on('teams', 'foo', 'bar')),
+    ])
+    expect(encodeQuery(query)).toEqual({
+      table: 'tasks',
+      query: {
+        $and: [
+          {
+            $join: {
+              table: 'projects',
+              query: {
+                $and: [
+                  {
+                    $join: {
+                      table: 'teams',
+                      query: {
+                        $and: [{ foo: { $eq: 'bar' } }, { _status: { $ne: 'deleted' } }],
+                      },
+                      originalConditions: [
+                        Q.where('foo', 'bar'),
+                        Q.where('_status', Q.notEq('deleted')),
+                      ],
+                      mapKey: 'id',
+                      joinKey: 'team_id',
+                    },
+                  },
+                  { _status: { $ne: 'deleted' } },
+                ],
+              },
+              originalConditions: [
+                Q.on('teams', 'foo', 'bar'),
+                Q.on('teams', '_status', Q.notEq('deleted')),
+                Q.where('_status', Q.notEq('deleted')),
+              ],
+              mapKey: 'id',
+              joinKey: 'project_id',
+            },
           },
           { _status: { $ne: 'deleted' } },
         ],

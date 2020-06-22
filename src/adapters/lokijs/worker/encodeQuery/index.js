@@ -154,7 +154,6 @@ const encodeCondition: (AssociationArgs[]) => Clause => LokiRawQuery = associati
     [typeEq('and'), encodeAnd(associations)],
     [typeEq('or'), encodeOr(associations)],
     [typeEq('where'), encodeWhereDescription],
-    [typeEq('on'), encodeWhereDescription],
   ]): any)(clause)
 
 const encodeConditions: (
@@ -197,11 +196,12 @@ const encodeRootConditions: (AssociationArgs[]) => (Where[]) => LokiRawQuery = a
     concatRawQueries,
   )
 
-const encodeJoinConditions: (AssociationArgs[]) => (On[]) => LokiRawQuery = associations =>
-  pipe(
-    map(encodeCondition(associations)),
-    concatRawQueries,
-  )
+const reencodeJoinConditions: (On[]) => Where[] = map(clause => {
+  // TODO: Temporary hack because Q.on is not (yet) encoded as having multiple Wheres
+  return clause.nested
+    ? clause.nested
+    : { type: 'where', left: clause.left, comparison: clause.comparison }
+})
 
 const encodeMapKey: AssociationInfo => ColumnName = ifElse(
   propEq('type', 'belongs_to'),
@@ -215,22 +215,17 @@ const encodeJoinKey: AssociationInfo => ColumnName = ifElse(
   always(columnName('id')),
 )
 
-const encodeOriginalConditions: (On[]) => Where[] = map(({ left, comparison }) => ({
-  type: 'where',
-  left,
-  comparison,
-}))
-
 const encodeJoin: (AssociationArgs[], AssociationArgs, On[]) => LokiRawQuery = (
   associations,
   [, table, associationInfo],
   conditions,
 ) => {
+  const innerConditions = reencodeJoinConditions(conditions)
   return {
     $join: {
       table,
-      query: encodeJoinConditions(associations)((conditions: any)),
-      originalConditions: encodeOriginalConditions(conditions),
+      query: encodeRootConditions(associations)((innerConditions: any)),
+      originalConditions: innerConditions,
       mapKey: encodeMapKey(associationInfo),
       joinKey: encodeJoinKey(associationInfo),
     },
