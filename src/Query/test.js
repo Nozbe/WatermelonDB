@@ -47,8 +47,12 @@ describe('Query', () => {
       expect(query.hasJoins).toBe(true)
       expect(query.secondaryTables).toEqual(['projects', 'tag_assignments'])
       expect(query.associations).toEqual([
-        ['mock_tasks', 'projects', { type: 'belongs_to', key: 'project_id' }],
-        ['mock_tasks', 'tag_assignments', { type: 'has_many', foreignKey: 'task_id' }],
+        { from: 'mock_tasks', to: 'projects', info: { type: 'belongs_to', key: 'project_id' } },
+        {
+          from: 'mock_tasks',
+          to: 'tag_assignments',
+          info: { type: 'has_many', foreignKey: 'task_id' },
+        },
       ])
     })
     it('fetches associations correctly for explicit joins', () => {
@@ -60,8 +64,12 @@ describe('Query', () => {
       expect(query.hasJoins).toBe(true)
       expect(query.secondaryTables).toEqual(['mock_tasks', 'mock_projects'])
       expect(query.associations).toEqual([
-        ['mock_comments', 'mock_tasks', { type: 'belongs_to', key: 'task_id' }],
-        ['mock_tasks', 'mock_projects', { type: 'belongs_to', key: 'project_id' }],
+        { from: 'mock_comments', to: 'mock_tasks', info: { type: 'belongs_to', key: 'task_id' } },
+        {
+          from: 'mock_tasks',
+          to: 'mock_projects',
+          info: { type: 'belongs_to', key: 'project_id' },
+        },
       ])
     })
     it('can return extended query', () => {

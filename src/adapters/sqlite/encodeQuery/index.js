@@ -2,7 +2,7 @@
 /* eslint-disable no-use-before-define */
 
 import { invariant } from '../../../utils/common'
-import type { SerializedQuery, AssociationArgs } from '../../../Query'
+import type { SerializedQuery, QueryAssociation } from '../../../Query'
 import type {
   NonNullValues,
   Operator,
@@ -67,7 +67,7 @@ const encodeComparison = (table: TableName<any>, comparison: Comparison) => {
   return `${operators[comparison.operator]} ${getComparisonRight(table, comparison.right)}`
 }
 
-const encodeWhere = (table: TableName<any>, associations: AssociationArgs[]) => (
+const encodeWhere = (table: TableName<any>, associations: QueryAssociation[]) => (
   where: Where,
 ): string => {
   if (where.type === 'and') {
@@ -76,7 +76,7 @@ const encodeWhere = (table: TableName<any>, associations: AssociationArgs[]) => 
     return `(${encodeAndOr(associations, 'or', table, where)})`
   } else if (where.type === 'on') {
     invariant(
-      associations.some(([, associationTable]) => associationTable === where.table),
+      associations.some(({ to }) => to === where.table),
       'To nest Q.on inside Q.and/Q.or you must explicitly declare Q.experimentalJoinTables at the beginning of the query',
     )
     if (where.nested) {
@@ -95,7 +95,7 @@ const encodeWhere = (table: TableName<any>, associations: AssociationArgs[]) => 
 }
 
 const encodeWhereCondition = (
-  associations: AssociationArgs[],
+  associations: QueryAssociation[],
   table: TableName<any>,
   left: ColumnName,
   comparison: Comparison,
@@ -115,7 +115,7 @@ const encodeWhereCondition = (
 }
 
 const encodeAndOr = (
-  associations: AssociationArgs[],
+  associations: QueryAssociation[],
   op: string,
   table: TableName<any>,
   andOr: And | Or,
@@ -131,7 +131,7 @@ const andJoiner = ' and '
 const encodeConditions = (
   table: TableName<any>,
   description: QueryDescription,
-  associations: AssociationArgs[],
+  associations: QueryAssociation[],
 ): string => {
   const clauses = mapJoin(description.where, encodeWhere(table, associations), andJoiner)
 
@@ -156,11 +156,11 @@ const encodeMethod = (
     : `select ${encodeName(table)}.* from ${encodeName(table)}`
 }
 
-const encodeAssociation = (description: QueryDescription) => ([
-  mainTable,
-  joinedTable,
-  association,
-]: AssociationArgs): string => {
+const encodeAssociation = (description: QueryDescription) => ({
+  from: mainTable,
+  to: joinedTable,
+  info: association,
+}: QueryAssociation): string => {
   // TODO: We have a problem here. For all of eternity, WatermelonDB Q.ons were encoded using JOIN
   // However, this precludes many legitimate use cases for Q.ons once you start nesting them
   // (e.g. get tasks where X or has a tag assignment that Y -- if there is no tag assignment, this will
@@ -183,7 +183,7 @@ const encodeAssociation = (description: QueryDescription) => ([
     : `${joinBeginning}${encodeName(association.foreignKey)} = ${encodeName(mainTable)}."id"`
 }
 
-const encodeJoin = (description: QueryDescription, associations: AssociationArgs[]): string =>
+const encodeJoin = (description: QueryDescription, associations: QueryAssociation[]): string =>
   associations.length ? associations.map(encodeAssociation(description)).join('') : ''
 
 const encodeOrderBy = (table: TableName<any>, sortBys: SortBy[]) => {
@@ -210,7 +210,7 @@ const encodeLimitOffset = (limit: ?number, offset: ?number) => {
 const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string => {
   const { table, description, associations } = query
 
-  const hasToManyJoins = associations.some(([, , association]) => association.type === 'has_many')
+  const hasToManyJoins = associations.some(({ info }) => info.type === 'has_many')
 
   const sql =
     encodeMethod(table, countMode, hasToManyJoins) +

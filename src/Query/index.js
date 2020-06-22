@@ -21,15 +21,16 @@ import type { TableName, ColumnName } from '../Schema'
 
 import { getAssociations } from './helpers'
 
-export type AssociationArgs = [
-  /* from table */ TableName<any>,
-  /* to table */ TableName<any>,
-  AssociationInfo,
-]
+export type QueryAssociation = $Exact<{
+  from: TableName<any>,
+  to: TableName<any>,
+  info: AssociationInfo,
+}>
+
 export type SerializedQuery = $Exact<{
   table: TableName<any>,
   description: QueryDescription,
-  associations: AssociationArgs[],
+  associations: QueryAssociation[],
 }>
 
 interface QueryCountProxy {
@@ -195,7 +196,7 @@ export default class Query<Record: Model> {
     return prepend(this.table, this.secondaryTables)
   }
 
-  get associations(): AssociationArgs[] {
+  get associations(): QueryAssociation[] {
     return getAssociations(this.description.joinTables, this.modelClass, this.collection.db)
   }
 

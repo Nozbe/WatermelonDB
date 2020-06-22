@@ -399,26 +399,26 @@ function conditionsAndJoinTablesWithoutDeleted(wheres: Where[]): Where[] {
 function conditionWithoutDeleted(clause: Where): Where {
   if (clause.type === 'on') {
     const onClause: On = clause
-    const nested = whereNotDeletedNested(onClause)
-    return {
+    const nested: ?On = whereNotDeletedNested(onClause)
+    return ({
       type: 'and',
       conditions: [clause, ...(nested ? [nested] : []), whereNotDeletedJoin(onClause.table)],
-    }
+    }: And)
   }
   return queryWithoutDeletedImpl(clause)
 }
 
 function queryWithoutDeletedImpl(clause: Where): Where {
   if (clause.type === 'and') {
-    return {
+    return ({
       type: 'and',
       conditions: conditionsAndJoinTablesWithoutDeleted(clause.conditions),
-    }
+    }: And)
   } else if (clause.type === 'or') {
-    return {
+    return ({
       type: 'or',
       conditions: clause.conditions.map(conditionWithoutDeleted),
-    }
+    }: Or)
   }
 
   return clause

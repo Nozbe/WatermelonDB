@@ -1,17 +1,25 @@
 // @flow
 
-import zip from '../utils/fp/zip'
-
-import type { Associations, AssociationInfo } from '../Model'
+import type Model from '../Model'
 import type { TableName } from '../Schema'
+import type Database from '../Database'
 
-export const getAssociations: (
-  TableName<any>[],
-  Associations,
-) => [TableName<any>, AssociationInfo][] = (tables, modelClass, db) =>
+import type { QueryAssociation } from './index'
+
+export const getAssociations = (
+  tables: TableName<any>[],
+  modelClass: Class<Model>,
+  db: Database,
+): QueryAssociation[] =>
   tables.map(tableSpec =>
     typeof tableSpec === 'string'
-      ? [modelClass.table, tableSpec, modelClass.associations[tableSpec]]
-      : [tableSpec[0], tableSpec[1], db.get(tableSpec[0]).modelClass.associations[tableSpec[1]]],
+      ? { from: modelClass.table, to: tableSpec, info: modelClass.associations[tableSpec] }
+      : {
+          // $FlowFixMe
+          from: tableSpec[0],
+          // $FlowFixMe
+          to: tableSpec[1],
+          // $FlowFixMe
+          info: db.get(tableSpec[0]).modelClass.associations[tableSpec[1]],
+        },
   )
-// zip(tables, tables.map(table => associations[table]))
