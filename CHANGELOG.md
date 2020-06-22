@@ -2,7 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+Contributors: Please add your changes to CHANGELOG-Unreleased.md
+
+## 0.17 - 2020-06-22
 
 ### New features
 
