@@ -321,8 +321,8 @@ export const on: OnFunction = (table, leftOrClause, valueOrComparison) => {
 }
 
 export function experimentalJoinTables(tables: TableName<any>[]): JoinTables {
-  invariant(Array.isArray(tables), 'experimentalJoinTables expected an array')
-  return { type: 'joinTables', tables: tables.map(checkName) }
+  // invariant(Array.isArray(tables), 'experimentalJoinTables expected an array')
+  return { type: 'joinTables', tables }
 }
 
 const syncStatusColumn = columnName('_status')

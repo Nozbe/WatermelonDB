@@ -21,7 +21,11 @@ import type { TableName, ColumnName } from '../Schema'
 
 import { getAssociations } from './helpers'
 
-export type AssociationArgs = [TableName<any>, AssociationInfo]
+export type AssociationArgs = [
+  /* from table */ TableName<any>,
+  /* to table */ TableName<any>,
+  AssociationInfo,
+]
 export type SerializedQuery = $Exact<{
   table: TableName<any>,
   description: QueryDescription,
@@ -184,7 +188,7 @@ export default class Query<Record: Model> {
   }
 
   get secondaryTables(): TableName<any>[] {
-    return this.description.joinTables
+    return this.description.joinTables.map(x => (typeof x === 'string' ? x : x[1]))
   }
 
   get allTables(): TableName<any>[] {
@@ -192,7 +196,7 @@ export default class Query<Record: Model> {
   }
 
   get associations(): AssociationArgs[] {
-    return getAssociations(this.secondaryTables, this.modelClass.associations)
+    return getAssociations(this.description.joinTables, this.modelClass, this.collection.db)
   }
 
   // `true` if query contains join clauses on foreign tables

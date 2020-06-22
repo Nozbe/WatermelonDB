@@ -38,14 +38,6 @@ describe('Query', () => {
       expect(query.hasJoins).toBe(false)
       expect(query.associations).toEqual([])
     })
-    it('fetches associations correctly for complex queries', () => {
-      const query = new Query(mockCollection, [
-        Q.where('id', 'abcdef'),
-        Q.on('projects', 'team_id', 'abcdef'),
-      ])
-      expect(query.hasJoins).toBe(true)
-      expect(query.associations).toEqual([['projects', { type: 'belongs_to', key: 'project_id' }]])
-    })
     it('fetches associations correctly for more complex queries', () => {
       const query = new Query(mockCollection, [
         Q.on('projects', 'team_id', 'abcdef'),
@@ -55,8 +47,21 @@ describe('Query', () => {
       expect(query.hasJoins).toBe(true)
       expect(query.secondaryTables).toEqual(['projects', 'tag_assignments'])
       expect(query.associations).toEqual([
-        ['projects', { type: 'belongs_to', key: 'project_id' }],
-        ['tag_assignments', { type: 'has_many', foreignKey: 'task_id' }],
+        ['mock_tasks', 'projects', { type: 'belongs_to', key: 'project_id' }],
+        ['mock_tasks', 'tag_assignments', { type: 'has_many', foreignKey: 'task_id' }],
+      ])
+    })
+    it('fetches associations correctly for explicit joins', () => {
+      const { comments } = mockDatabase({ actionsEnabled: true })
+      const query = new Query(comments, [
+        Q.experimentalJoinTables(['mock_tasks', ['mock_tasks', 'mock_projects']]),
+        Q.on('mock_tasks', Q.on('mock_projects', 'foo', 'bar')),
+      ])
+      expect(query.hasJoins).toBe(true)
+      expect(query.secondaryTables).toEqual(['mock_tasks', 'mock_projects'])
+      expect(query.associations).toEqual([
+        ['mock_comments', 'mock_tasks', { type: 'belongs_to', key: 'task_id' }],
+        ['mock_tasks', 'mock_projects', { type: 'belongs_to', key: 'project_id' }],
       ])
     })
     it('can return extended query', () => {

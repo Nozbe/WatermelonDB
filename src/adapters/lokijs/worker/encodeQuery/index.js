@@ -223,7 +223,7 @@ const encodeOriginalConditions: (On[]) => Where[] = map(({ left, comparison }) =
 
 const encodeJoin: (AssociationArgs[], AssociationArgs, On[]) => LokiRawQuery = (
   associations,
-  [table, associationInfo],
+  [, table, associationInfo],
   conditions,
 ) => {
   return {
@@ -244,7 +244,7 @@ const groupByTable: (On[]) => On[][] = pipe(
 
 const encodeJoins: (AssociationArgs[], On[]) => LokiRawQuery[] = (associations, joins) => {
   return groupByTable(joins).map(join => {
-    const association = associations.find(([table]) => join[0].table === table)
+    const association = associations.find(([, table]) => join[0].table === table)
     invariant(
       association,
       'To nest Q.on inside Q.and/Q.or you must explicitly declare Q.experimentalJoinTables at the beginning of the query',

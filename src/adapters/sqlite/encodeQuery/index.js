@@ -76,7 +76,7 @@ const encodeWhere = (table: TableName<any>, associations: AssociationArgs[]) => 
     return `(${encodeAndOr(associations, 'or', table, where)})`
   } else if (where.type === 'on') {
     invariant(
-      associations.some(([associationTable]) => associationTable === where.table),
+      associations.some(([, associationTable]) => associationTable === where.table),
       'To nest Q.on inside Q.and/Q.or you must explicitly declare Q.experimentalJoinTables at the beginning of the query',
     )
     return encodeWhereCondition(associations, where.table, where.left, where.comparison)
@@ -148,7 +148,8 @@ const encodeMethod = (
     : `select ${encodeName(table)}.* from ${encodeName(table)}`
 }
 
-const encodeAssociation = (description: QueryDescription, mainTable: TableName<any>) => ([
+const encodeAssociation = (description: QueryDescription) => ([
+  mainTable,
   joinedTable,
   association,
 ]: AssociationArgs): string => {
@@ -174,12 +175,8 @@ const encodeAssociation = (description: QueryDescription, mainTable: TableName<a
     : `${joinBeginning}${encodeName(association.foreignKey)} = ${encodeName(mainTable)}."id"`
 }
 
-const encodeJoin = (
-  table: TableName<any>,
-  description: QueryDescription,
-  associations: AssociationArgs[],
-): string =>
-  associations.length ? associations.map(encodeAssociation(description, table)).join('') : ''
+const encodeJoin = (description: QueryDescription, associations: AssociationArgs[]): string =>
+  associations.length ? associations.map(encodeAssociation(description)).join('') : ''
 
 const encodeOrderBy = (table: TableName<any>, sortBys: SortBy[]) => {
   if (sortBys.length === 0) {
@@ -205,11 +202,11 @@ const encodeLimitOffset = (limit: ?number, offset: ?number) => {
 const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string => {
   const { table, description, associations } = query
 
-  const hasToManyJoins = associations.some(([, association]) => association.type === 'has_many')
+  const hasToManyJoins = associations.some(([, , association]) => association.type === 'has_many')
 
   const sql =
     encodeMethod(table, countMode, hasToManyJoins) +
-    encodeJoin(table, description, associations) +
+    encodeJoin(description, associations) +
     encodeConditions(table, description, associations) +
     encodeOrderBy(table, description.sortBy) +
     encodeLimitOffset(description.take, description.skip)
