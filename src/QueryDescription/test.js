@@ -259,6 +259,30 @@ describe('buildQueryDescription', () => {
       skip: null,
     })
   })
+  it(`supports nesting Q.on inside Q.on`, () => {
+    const query = Q.buildQueryDescription([
+      Q.experimentalJoinTables(['projects', 'teams']),
+      Q.on('projects', Q.on('teams', 'foo', 'bar')),
+    ])
+    expect(query).toEqual({
+      where: [
+        {
+          type: 'on',
+          table: 'projects',
+          nested: {
+            type: 'on',
+            table: 'teams',
+            left: 'foo',
+            comparison: { operator: 'eq', right: { value: 'bar' } },
+          },
+        },
+      ],
+      joinTables: ['projects', 'teams'],
+      sortBy: [],
+      take: null,
+      skip: null,
+    })
+  })
 })
 
 describe('hasColumnComparisons', () => {
@@ -381,6 +405,32 @@ describe('queryWithoutDeleted', () => {
       ]),
     )
   })
+  it(`supports Q.ons on Q.on`, () => {
+    const query = Q.queryWithoutDeleted(
+      Q.buildQueryDescription([
+        // TODO: Test deeper nestings
+        Q.experimentalJoinTables(['projects', 'teams']),
+        Q.on('projects', Q.on('teams', 'foo', 'bar')),
+        Q.or(Q.on('projects', Q.on('teams', 'foo', 'bar'))),
+      ]),
+    )
+    expect(query).toEqual(
+      Q.buildQueryDescription([
+        Q.experimentalJoinTables(['projects', 'teams']),
+        Q.on('projects', Q.on('teams', 'foo', 'bar')),
+        Q.or(
+          Q.and(
+            Q.on('projects', Q.on('teams', 'foo', 'bar')),
+            Q.on('projects', Q.on('teams', '_status', Q.notEq('deleted'))),
+            Q.on('projects', '_status', Q.notEq('deleted')),
+          ),
+        ),
+        Q.on('projects', Q.on('teams', '_status', Q.notEq('deleted'))),
+        Q.on('projects', '_status', Q.notEq('deleted')),
+        Q.where('_status', Q.notEq('deleted')),
+      ]),
+    )
+  })
 })
 
 describe('buildQueryDescription - contd', () => {
@@ -487,6 +537,7 @@ describe('buildQueryDescription - contd', () => {
     expect(() => Q.or(Q.like('foo'))).toThrow(/or\(\) can only contain/)
     expect(() => Q.buildQueryDescription([Q.like('foo')])).toThrow('Invalid Query clause passed')
     expect(() => Q.experimentalJoinTables('foo', 'bar')).toThrow('expected an array')
+    expect(() => Q.on('foo', Q.column('foo'))).toThrow('can only be passed Q.where, Q.on clauses')
   })
   it('protect against passing Watermelon look-alike objects', () => {
     // protect against passing something that could be a user-input Object (risk is when Watermelon users pass stuff from JSON without validation), but is unintended or even malicious in some way

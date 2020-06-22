@@ -49,6 +49,8 @@ export type Or = $RE<{ type: 'or', conditions: Where[] }>
 export type On = $RE<{
   type: 'on',
   table: TableName<any>,
+  // TODO: Temporary - plan is to allow conditions: Where[] here
+  nested?: On,
   left: ColumnName,
   comparison: Comparison,
 }>
@@ -280,32 +282,42 @@ export function experimentalSkip(count: number): Skip {
 // (it will remove the parentheses, changing the meaning of the flow type)
 type _OnFunctionColumnValue = (TableName<any>, ColumnName, Value) => On
 type _OnFunctionColumnComparison = (TableName<any>, ColumnName, Comparison) => On
-type _OnFunctionWhereDescription = (TableName<any>, WhereDescription) => On
+type _OnFunctionWhereDescription = (TableName<any>, WhereDescription | On) => On
 
 type OnFunction = _OnFunctionColumnValue & _OnFunctionColumnComparison & _OnFunctionWhereDescription
 
 // Use: on('tableName', 'left_column', 'right_value')
 // or: on('tableName', 'left_column', gte(10))
 // or: on('tableName', where('left_column', 'value')))
-export const on: OnFunction = (table, leftOrWhereDescription, valueOrComparison) => {
-  if (typeof leftOrWhereDescription === 'string') {
+export const on: OnFunction = (table, leftOrClause, valueOrComparison) => {
+  if (typeof leftOrClause === 'string') {
     invariant(valueOrComparison !== undefined, 'illegal `undefined` passed to Q.on')
     return {
       type: 'on',
       table: checkName(table),
-      left: leftOrWhereDescription,
+      left: leftOrClause,
       comparison: _valueOrComparison(valueOrComparison),
     }
   }
 
-  const whereDescription: WhereDescription = (leftOrWhereDescription: any)
+  const clause: WhereDescription | On = (leftOrClause: any)
 
-  return {
-    type: 'on',
-    table: checkName(table),
-    left: whereDescription.left,
-    comparison: whereDescription.comparison,
+  if (clause.type === 'where') {
+    return {
+      type: 'on',
+      table: checkName(table),
+      left: clause.left,
+      comparison: clause.comparison,
+    }
+  } else if (clause.type === 'on') {
+    // $FlowFixMe
+    return {
+      type: 'on',
+      table: checkName(table),
+      nested: clause,
+    }
   }
+  throw new Error('Q.on() can only be passed Q.where, Q.on clauses')
 }
 
 export function experimentalJoinTables(tables: TableName<any>[]): JoinTables {
@@ -368,21 +380,29 @@ export function buildQueryDescription(clauses: Clause[]): QueryDescription {
 const whereNotDeleted = where(syncStatusColumn, notEq('deleted'))
 const whereNotDeletedJoin: (TableName<any>) => On = table =>
   on(table, syncStatusColumn, notEq('deleted'))
+const whereNotDeletedNested: On => ?On = clause =>
+  clause.nested
+    ? on(clause.table, on(clause.nested.table, syncStatusColumn, notEq('deleted')))
+    : null
 
 function conditionsAndJoinTablesWithoutDeleted(wheres: Where[]): Where[] {
+  // TODO: Handling nested ons is a huge hack - fix it
   const conditions: Where[] = wheres.map(queryWithoutDeletedImpl)
   // $FlowFixMe
   const ons: On[] = conditions.filter(clause => clause.type === 'on')
+  // $FlowFixMe
+  const nestedOns: On[] = ons.map(whereNotDeletedNested).filter(clause => clause)
   const onTables = uniq(ons.map(clause => clause.table))
-  return conditions.concat(onTables.map(whereNotDeletedJoin))
+  return conditions.concat(nestedOns).concat(onTables.map(whereNotDeletedJoin))
 }
 
 function conditionWithoutDeleted(clause: Where): Where {
   if (clause.type === 'on') {
     const onClause: On = clause
+    const nested = whereNotDeletedNested(onClause)
     return {
       type: 'and',
-      conditions: [clause, whereNotDeletedJoin(onClause.table)],
+      conditions: [clause, ...(nested ? [nested] : []), whereNotDeletedJoin(onClause.table)],
     }
   }
   return queryWithoutDeletedImpl(clause)
