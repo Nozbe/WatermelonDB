@@ -215,6 +215,8 @@ tasksCollection.query(
 )
 ```
 
+Known limitations: only one level of nesting is currently allowed.
+
 ## Advanced Queries
 
 ### Advanced observing
