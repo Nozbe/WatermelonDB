@@ -664,7 +664,8 @@ export const joinTests = [
   {
     name: `can perform Q.on's nested in Q.on`,
     query: [
-      Q.experimentalJoinTables(['projects', ['projects', 'teams']]),
+      Q.experimentalJoinTables(['projects']),
+      Q.experimentalNestedJoin('projects', 'teams'),
       Q.on('projects', Q.on('teams', 'text1', 'bingo')),
     ],
     extraRecords: {

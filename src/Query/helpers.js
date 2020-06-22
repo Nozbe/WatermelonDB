@@ -1,25 +1,22 @@
 // @flow
 
 import type Model from '../Model'
-import type { TableName } from '../Schema'
 import type Database from '../Database'
+import type { QueryDescription } from '../QueryDescription'
 
 import type { QueryAssociation } from './index'
 
 export const getAssociations = (
-  tables: TableName<any>[],
+  description: QueryDescription,
   modelClass: Class<Model>,
   db: Database,
 ): QueryAssociation[] =>
-  tables.map(tableSpec =>
-    typeof tableSpec === 'string'
-      ? { from: modelClass.table, to: tableSpec, info: modelClass.associations[tableSpec] }
-      : {
-          // $FlowFixMe
-          from: tableSpec[0],
-          // $FlowFixMe
-          to: tableSpec[1],
-          // $FlowFixMe
-          info: db.get(tableSpec[0]).modelClass.associations[tableSpec[1]],
-        },
-  )
+  description.joinTables
+    .map(table => ({ from: modelClass.table, to: table, info: modelClass.associations[table] }))
+    .concat(
+      description.nestedJoinTables.map(({ from, to }) => ({
+        from,
+        to,
+        info: db.get(from).modelClass.associations[to],
+      })),
+    )

@@ -5,7 +5,9 @@ import * as Q from '../QueryDescription'
 
 import Query from './index'
 
-class MockTaskModel extends Model {
+// TODO: Standardize these mocks (same as in sqlite encodeQuery, query test)
+
+class MockTask extends Model {
   static table = 'mock_tasks'
 
   static associations = {
@@ -14,7 +16,18 @@ class MockTaskModel extends Model {
   }
 }
 
-const mockCollection = Object.freeze({ modelClass: MockTaskModel })
+class MockProject extends Model {
+  static table = 'projects'
+
+  static associations = {
+    teams: { type: 'belongs_to', key: 'team_id' },
+  }
+}
+
+const mockCollection = Object.freeze({
+  modelClass: MockTask,
+  db: { get: table => (table === 'projects' ? { modelClass: MockProject } : {}) },
+})
 
 describe('Query', () => {
   describe('description properties', () => {
@@ -56,20 +69,16 @@ describe('Query', () => {
       ])
     })
     it('fetches associations correctly for explicit joins', () => {
-      const { comments } = mockDatabase({ actionsEnabled: true })
-      const query = new Query(comments, [
-        Q.experimentalJoinTables(['mock_tasks', ['mock_tasks', 'mock_projects']]),
-        Q.on('mock_tasks', Q.on('mock_projects', 'foo', 'bar')),
+      const query = new Query(mockCollection, [
+        Q.experimentalJoinTables(['projects']),
+        Q.experimentalNestedJoin('projects', 'teams'),
+        Q.on('projects', Q.on('teams', 'foo', 'bar')),
       ])
       expect(query.hasJoins).toBe(true)
-      expect(query.secondaryTables).toEqual(['mock_tasks', 'mock_projects'])
+      expect(query.secondaryTables).toEqual(['projects', 'teams'])
       expect(query.associations).toEqual([
-        { from: 'mock_comments', to: 'mock_tasks', info: { type: 'belongs_to', key: 'task_id' } },
-        {
-          from: 'mock_tasks',
-          to: 'mock_projects',
-          info: { type: 'belongs_to', key: 'project_id' },
-        },
+        { from: 'mock_tasks', to: 'projects', info: { type: 'belongs_to', key: 'project_id' } },
+        { from: 'projects', to: 'teams', info: { type: 'belongs_to', key: 'team_id' } },
       ])
     })
     it('can return extended query', () => {

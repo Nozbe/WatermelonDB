@@ -4,6 +4,8 @@ import Model from '../../../Model'
 import * as Q from '../../../QueryDescription'
 import encodeQuery from './index'
 
+// TODO: Standardize these mocks (same as in sqlite encodeQuery, query test)
+
 class MockTask extends Model {
   static table = 'tasks'
 
@@ -173,7 +175,8 @@ describe('SQLite encodeQuery', () => {
   })
   it(`encodes Q.on nested inside Q.on`, () => {
     const query = new Query(mockCollection, [
-      Q.experimentalJoinTables(['projects', ['projects', 'teams']]),
+      Q.experimentalJoinTables(['projects']),
+      Q.experimentalNestedJoin('projects', 'teams'),
       Q.on('projects', Q.on('teams', 'foo', 'bar')),
     ])
     expect(encodeQuery(query)).toBe(

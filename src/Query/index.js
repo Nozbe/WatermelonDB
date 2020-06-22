@@ -189,7 +189,7 @@ export default class Query<Record: Model> {
   }
 
   get secondaryTables(): TableName<any>[] {
-    return this.description.joinTables.map(x => (typeof x === 'string' ? x : x[1]))
+    return this.description.joinTables.concat(this.description.nestedJoinTables.map(({ to }) => to))
   }
 
   get allTables(): TableName<any>[] {
@@ -197,7 +197,7 @@ export default class Query<Record: Model> {
   }
 
   get associations(): QueryAssociation[] {
-    return getAssociations(this.description.joinTables, this.modelClass, this.collection.db)
+    return getAssociations(this.description, this.modelClass, this.collection.db)
   }
 
   // `true` if query contains join clauses on foreign tables

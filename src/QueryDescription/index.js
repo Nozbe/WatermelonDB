@@ -74,10 +74,18 @@ export type JoinTables = $RE<{
   type: 'joinTables',
   tables: TableName<any>[],
 }>
+export type NestedJoinTable = $RE<{
+  type: 'nestedJoinTable',
+  from: TableName<any>,
+  to: TableName<any>,
+}>
 export type Clause = Where | SortBy | Take | Skip | JoinTables
+
+type NestedJoinTableDef = $RE<{ from: TableName<any>, to: TableName<any> }>
 export type QueryDescription = $RE<{
   where: Where[],
   joinTables: TableName<any>[],
+  nestedJoinTables: NestedJoinTableDef[],
   sortBy: SortBy[],
   take: ?number,
   skip: ?number,
@@ -321,13 +329,24 @@ export const on: OnFunction = (table, leftOrClause, valueOrComparison) => {
 }
 
 export function experimentalJoinTables(tables: TableName<any>[]): JoinTables {
-  // invariant(Array.isArray(tables), 'experimentalJoinTables expected an array')
-  return { type: 'joinTables', tables }
+  invariant(Array.isArray(tables), 'experimentalJoinTables expected an array')
+  return { type: 'joinTables', tables: tables.map(checkName) }
+}
+
+export function experimentalNestedJoin(from: TableName<any>, to: TableName<any>): NestedJoinTable {
+  return { type: 'nestedJoinTable', from: checkName(from), to: checkName(to) }
 }
 
 const syncStatusColumn = columnName('_status')
 const extractClauses: (Clause[]) => QueryDescription = clauses => {
-  const clauseMap = { where: [], joinTables: [], sortBy: [], take: null, skip: null }
+  const clauseMap = {
+    where: [],
+    joinTables: [],
+    nestedJoinTables: [],
+    sortBy: [],
+    take: null,
+    skip: null,
+  }
   clauses.forEach(clause => {
     const { type } = clause
     switch (type) {
@@ -355,6 +374,10 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
       case 'joinTables':
         // $FlowFixMe
         clauseMap.joinTables.push(...clause.tables)
+        break
+      case 'nestedJoinTable':
+        // $FlowFixMe
+        clauseMap.nestedJoinTables.push({ from: clause.from, to: clause.to })
         break
       default:
         throw new Error('Invalid Query clause passed')

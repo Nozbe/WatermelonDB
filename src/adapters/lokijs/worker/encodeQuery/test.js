@@ -258,7 +258,8 @@ describe('LokiJS encodeQuery', () => {
   })
   it(`encodes Q.on nested inside Q.on`, () => {
     const query = new Query(mockCollection, [
-      Q.experimentalJoinTables(['projects', ['projects', 'teams']]),
+      Q.experimentalJoinTables(['projects']),
+      Q.experimentalNestedJoin('projects', 'teams'),
       Q.on('projects', Q.on('teams', 'foo', 'bar')),
     ])
     expect(encodeQuery(query)).toEqual({
