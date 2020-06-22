@@ -79,6 +79,14 @@ const encodeWhere = (table: TableName<any>, associations: AssociationArgs[]) => 
       associations.some(([, associationTable]) => associationTable === where.table),
       'To nest Q.on inside Q.and/Q.or you must explicitly declare Q.experimentalJoinTables at the beginning of the query',
     )
+    if (where.nested) {
+      return encodeWhereCondition(
+        associations,
+        where.nested.table,
+        where.nested.left,
+        where.nested.comparison,
+      )
+    }
     return encodeWhereCondition(associations, where.table, where.left, where.comparison)
   } else if (where.type === 'where') {
     return encodeWhereCondition(associations, table, where.left, where.comparison)
