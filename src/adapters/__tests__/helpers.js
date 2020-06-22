@@ -53,11 +53,21 @@ export const testSchema = appSchema({
     tableSchema({
       name: 'projects',
       columns: [
+        { name: 'team_id', type: 'string' },
         { name: 'num1', type: 'number' },
         { name: 'num2', type: 'number' },
         { name: 'text1', type: 'string' },
         { name: 'text2', type: 'string' },
         { name: 'text3', type: 'string' },
+        { name: 'bool1', type: 'boolean' },
+      ],
+    }),
+    tableSchema({
+      name: 'teams',
+      columns: [
+        { name: 'num1', type: 'number' },
+        { name: 'text1', type: 'string' },
+
         { name: 'bool1', type: 'boolean' },
       ],
     }),

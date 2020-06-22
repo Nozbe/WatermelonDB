@@ -662,6 +662,38 @@ export const joinTests = [
     ],
   },
   {
+    name: `can perform Q.on's nested in Q.on`,
+    query: [
+      Q.experimentalJoinTables(['projects', 'tag_assignments']),
+      Q.on('projects', Q.on('teams', 'text1', 'bingo')),
+    ],
+    extraRecords: {
+      projects: [
+        { id: 'p1', team_id: 't1' },
+        { id: 'p2', team_id: 't2' },
+        { id: 'badp1', team_id: 'badt1' },
+        { id: 'badp2', team_id: 'badt2' },
+        { id: 'badp3', team_id: 't2', _status: 'deleted' },
+      ],
+      teams: [
+        { id: 't1', text1: 'bingo' },
+        { id: 't2', text1: 'bingo' },
+        { id: 'badt1' },
+        { id: 'badt2', text1: 'bingo', _status: 'deleted' },
+      ],
+    },
+    matching: [
+      { id: 'm1', project_id: 'p1' },
+      { id: 'm2', project_id: 'p2' },
+    ],
+    nonMatching: [
+      { id: 'n1', project_id: 'badp1' },
+      { id: 'n2', project_id: 'badp2' },
+      { id: 'n3', project_id: 'badp3' },
+      { id: 'n4', project_id: 'p1', _status: 'deleted' },
+    ],
+  },
+  {
     name: 'can perform both JOIN queries and column comparisons',
     query: [Q.on('projects', 'text1', 't1'), Q.where('text1', Q.eq(Q.column('text2')))],
     extraRecords: {
