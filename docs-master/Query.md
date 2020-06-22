@@ -203,6 +203,18 @@ tasksCollection.query(
 )
 ```
 
+### Deep `Q.on`s
+
+You can also nest `Q.on` within `Q.on`, e.g. to make a condition on a grandparent. You must explicitly define the tables you're joining on. This is an experimental featuers, and the API is subject to change.
+
+```js
+// this queries tasks that are inside projects that are inside teams where team.foo == 'bar'
+tasksCollection.query(
+  Q.experimentalNestedJoin('projects', 'teams'),
+  Q.on('projects', Q.on('teams', 'foo', 'bar')),
+)
+```
+
 ## Advanced Queries
 
 ### Advanced observing
