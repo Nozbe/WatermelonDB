@@ -13,6 +13,7 @@ class MockTask extends Model {
   static associations = {
     projects: { type: 'belongs_to', key: 'project_id' },
     tag_assignments: { type: 'has_many', foreignKey: 'task_id' },
+    fake1: { type: 'has_many', foreignKey: 'task_id' },
   }
 }
 
@@ -21,6 +22,7 @@ class MockProject extends Model {
 
   static associations = {
     teams: { type: 'belongs_to', key: 'team_id' },
+    fake1: { type: 'belongs_to', key: 'team_id' },
   }
 }
 
@@ -162,17 +164,17 @@ describe('Query', () => {
     })
     it(`can extend query for join tables`, () => {
       const query = new Query(mockCollection, [
-        Q.experimentalJoinTables(['a', 'b']),
-        Q.experimentalNestedJoin('x', 'y'),
+        Q.experimentalJoinTables(['projects', 'tag_assignments']),
+        Q.experimentalNestedJoin('projects', 'teams'),
       ])
       const extendedQuery = query.extend(
-        Q.experimentalJoinTables(['a', 'c']),
-        Q.experimentalNestedJoin('y', 'z'),
+        Q.experimentalJoinTables(['projects', 'fake1']),
+        Q.experimentalNestedJoin('projects', 'fake1'),
       )
       const expectedQuery = new Query(mockCollection, [
-        Q.experimentalJoinTables(['a', 'b', 'c']),
-        Q.experimentalNestedJoin('x', 'y'),
-        Q.experimentalNestedJoin('y', 'z'),
+        Q.experimentalJoinTables(['projects', 'tag_assignments', 'fake1']),
+        Q.experimentalNestedJoin('projects', 'teams'),
+        Q.experimentalNestedJoin('projects', 'fake1'),
       ])
       expect(extendedQuery.serialize()).toEqual(expectedQuery.serialize())
     })

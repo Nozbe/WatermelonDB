@@ -79,7 +79,7 @@ export type NestedJoinTable = $RE<{
   from: TableName<any>,
   to: TableName<any>,
 }>
-export type Clause = Where | SortBy | Take | Skip | JoinTables
+export type Clause = Where | SortBy | Take | Skip | JoinTables | NestedJoinTable
 
 type NestedJoinTableDef = $RE<{ from: TableName<any>, to: TableName<any> }>
 export type QueryDescription = $RE<{

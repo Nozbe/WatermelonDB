@@ -72,10 +72,11 @@ export default class Query<Record: Model> {
   // Creates a new Query that extends the clauses of this query
   extend(...clauses: Clause[]): Query<Record> {
     const { collection } = this
-    const { where, sortBy, take, skip, joinTables } = this._rawDescription
+    const { where, sortBy, take, skip, joinTables, nestedJoinTables } = this._rawDescription
 
     return new Query(collection, [
       Q.experimentalJoinTables(joinTables),
+      ...nestedJoinTables.map(({ from, to }) => Q.experimentalNestedJoin(from, to)),
       ...where,
       ...sortBy,
       ...(take ? [Q.experimentalTake(take)] : []),

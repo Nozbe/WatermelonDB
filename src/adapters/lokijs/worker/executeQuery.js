@@ -23,6 +23,7 @@ function refineResultsForColumnComparisons(
       // TODO: This won't work on Q.ons that are nested
       where: conditions.filter(clause => clause.type !== 'on'),
       joinTables: [],
+      nestedJoinTables: [],
       sortBy: [],
       take: null,
       skip: null,
