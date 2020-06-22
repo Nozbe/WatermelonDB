@@ -1,6 +1,7 @@
 // @flow
 
 import type Model from '../Model'
+import invariant from '../utils/common/invariant'
 import type Database from '../Database'
 import type { QueryDescription } from '../QueryDescription'
 
@@ -12,11 +13,30 @@ export const getAssociations = (
   db: Database,
 ): QueryAssociation[] =>
   description.joinTables
-    .map(table => ({ from: modelClass.table, to: table, info: modelClass.associations[table] }))
+    .map(table => {
+      const info = modelClass.associations[table]
+      invariant(
+        info,
+        `Query on '${modelClass.table}' joins with '${table}', but ${modelClass.name} does not have associations={} defined for '${table}'`,
+      )
+      return { from: modelClass.table, to: table, info }
+    })
     .concat(
-      description.nestedJoinTables.map(({ from, to }) => ({
-        from,
-        to,
-        info: db.get(from).modelClass.associations[to],
-      })),
+      description.nestedJoinTables.map(({ from, to }) => {
+        const collection = db.get(from)
+        invariant(
+          collection,
+          `Query on '${modelClass.table}' has a nested join with '${from}', but collection for '${from}' cannot be found`,
+        )
+        const info = collection.modelClass.associations[to]
+        invariant(
+          info,
+          `Query on '${modelClass.table}' has a nested join from '${from}' to '${to}', but ${collection.modelClass.name} does not have associations={} defined for '${to}'`,
+        )
+        return {
+          from,
+          to,
+          info,
+        }
+      }),
     )
