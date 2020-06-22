@@ -664,7 +664,7 @@ export const joinTests = [
   {
     name: `can perform Q.on's nested in Q.on`,
     query: [
-      Q.experimentalJoinTables(['projects', 'tag_assignments']),
+      Q.experimentalJoinTables(['projects', ['projects', 'teams']]),
       Q.on('projects', Q.on('teams', 'text1', 'bingo')),
     ],
     extraRecords: {
@@ -682,10 +682,7 @@ export const joinTests = [
         { id: 'badt2', text1: 'bingo', _status: 'deleted' },
       ],
     },
-    matching: [
-      { id: 'm1', project_id: 'p1' },
-      { id: 'm2', project_id: 'p2' },
-    ],
+    matching: [{ id: 'm1', project_id: 'p1' }, { id: 'm2', project_id: 'p2' }],
     nonMatching: [
       { id: 'n1', project_id: 'badp1' },
       { id: 'n2', project_id: 'badp2' },
