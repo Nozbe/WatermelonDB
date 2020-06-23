@@ -1,6 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
+import { invariant } from '../../../utils/common'
 import type { SerializedQuery, AssociationArgs } from '../../../Query'
 import type {
   NonNullValues,
@@ -8,12 +9,9 @@ import type {
   Where,
   ComparisonRight,
   Comparison,
-  On,
   And,
   Or,
   SortBy,
-  Take,
-  Skip,
   QueryDescription,
 } from '../../../QueryDescription'
 import * as Q from '../../../QueryDescription'
@@ -69,17 +67,27 @@ const encodeComparison = (table: TableName<any>, comparison: Comparison) => {
   return `${operators[comparison.operator]} ${getComparisonRight(table, comparison.right)}`
 }
 
-const encodeWhere: (TableName<any>) => Where => string = table => where => {
+const encodeWhere = (table: TableName<any>, associations: AssociationArgs[]) => (
+  where: Where,
+): string => {
   if (where.type === 'and') {
-    return `(${encodeAndOr('and', table, where)})`
+    return `(${encodeAndOr(associations, 'and', table, where)})`
   } else if (where.type === 'or') {
-    return `(${encodeAndOr('or', table, where)})`
+    return `(${encodeAndOr(associations, 'or', table, where)})`
+  } else if (where.type === 'on') {
+    invariant(
+      associations.some(([associationTable]) => associationTable === where.table),
+      'To nest Q.on inside Q.and/Q.or you must explicitly declare Q.experimentalJoinTables at the beginning of the query',
+    )
+    return encodeWhereCondition(associations, where.table, where.left, where.comparison)
+  } else if (where.type === 'where') {
+    return encodeWhereCondition(associations, table, where.left, where.comparison)
   }
-
-  return encodeWhereCondition(table, where.left, where.comparison)
+  throw new Error('Unknown clause')
 }
 
 const encodeWhereCondition = (
+  associations: AssociationArgs[],
   table: TableName<any>,
   left: ColumnName,
   comparison: Comparison,
@@ -87,7 +95,7 @@ const encodeWhereCondition = (
   // if right operand is a value, we can use simple comparison
   // if a column, we must check for `not null > null`
   if (comparison.operator === 'weakGt' && comparison.right.column) {
-    return encodeWhere(table)(
+    return encodeWhere(table, associations)(
       Q.or(
         Q.where(left, Q.gt(Q.column(comparison.right.column))),
         Q.and(Q.where(left, Q.notEq(null)), Q.where((comparison.right: any).column, null)),
@@ -98,27 +106,28 @@ const encodeWhereCondition = (
   return `${encodeName(table)}.${encodeName(left)} ${encodeComparison(table, comparison)}`
 }
 
-const encodeAndOr = (op: string, table: TableName<any>, andOr: And | Or) => {
+const encodeAndOr = (
+  associations: AssociationArgs[],
+  op: string,
+  table: TableName<any>,
+  andOr: And | Or,
+) => {
   if (andOr.conditions.length) {
-    return mapJoin(andOr.conditions, encodeWhere(table), ` ${op} `)
+    return mapJoin(andOr.conditions, encodeWhere(table, associations), ` ${op} `)
   }
   return ''
 }
 
-const encodeOn: On => string = ({ table, left, comparison }) =>
-  encodeWhereCondition(table, left, comparison)
-
 const andJoiner = ' and '
 
-const encodeConditions: (TableName<any>, QueryDescription) => string = (table, description) => {
-  const wheres = mapJoin(description.where, encodeWhere(table), andJoiner)
-  const joins = mapJoin(description.join, encodeOn, andJoiner)
+const encodeConditions = (
+  table: TableName<any>,
+  description: QueryDescription,
+  associations: AssociationArgs[],
+): string => {
+  const clauses = mapJoin(description.where, encodeWhere(table, associations), andJoiner)
 
-  if (joins.length || wheres.length) {
-    const joiner = wheres.length && joins.length ? andJoiner : ''
-    return ` where ${joins}${joiner}${wheres}`
-  }
-  return ''
+  return clauses.length ? ` where ${clauses}` : ''
 }
 
 // If query contains `on()` conditions on tables with which the primary table has a has-many
@@ -139,20 +148,38 @@ const encodeMethod = (
     : `select ${encodeName(table)}.* from ${encodeName(table)}`
 }
 
-const encodeAssociation: (TableName<any>) => AssociationArgs => string = mainTable => ([
+const encodeAssociation = (description: QueryDescription, mainTable: TableName<any>) => ([
   joinedTable,
   association,
-]) =>
-  association.type === 'belongs_to'
-    ? ` join ${encodeName(joinedTable)} on ${encodeName(joinedTable)}."id" = ${encodeName(
-        mainTable,
-      )}.${encodeName(association.key)}`
-    : ` join ${encodeName(joinedTable)} on ${encodeName(joinedTable)}.${encodeName(
-        association.foreignKey,
-      )} = ${encodeName(mainTable)}."id"`
+]: AssociationArgs): string => {
+  // TODO: We have a problem here. For all of eternity, WatermelonDB Q.ons were encoded using JOIN
+  // However, this precludes many legitimate use cases for Q.ons once you start nesting them
+  // (e.g. get tasks where X or has a tag assignment that Y -- if there is no tag assignment, this will
+  // fail to join)
+  // LEFT JOIN needs to be used to address this… BUT technically that's a breaking change. I never
+  // considered a possiblity of making a query like `Q.on(relation_id, x != 'bla')`. Before this would
+  // only match if there IS a relation, but with LEFT JOIN it would also match if record does not have
+  // this relation. I don't know if there are legitimate use cases where this would change anything
+  // so I need more time to think about whether this breaking change is OK to make or if we need to
+  // do something more clever/add option/whatever.
+  // so for now, i'm making an extreeeeemelyyyy bad hack to make sure that there's no breaking change
+  // for existing code and code with nested Q.ons probably works (with caveats)
+  const usesOldJoinStyle = description.where.some(
+    clause => clause.type === 'on' && clause.table === joinedTable,
+  )
+  const joinKeyword = usesOldJoinStyle ? ' join ' : ' left join '
+  const joinBeginning = `${joinKeyword}${encodeName(joinedTable)} on ${encodeName(joinedTable)}.`
+  return association.type === 'belongs_to'
+    ? `${joinBeginning}"id" = ${encodeName(mainTable)}.${encodeName(association.key)}`
+    : `${joinBeginning}${encodeName(association.foreignKey)} = ${encodeName(mainTable)}."id"`
+}
 
-const encodeJoin = (table: TableName<any>, associations: AssociationArgs[]): string =>
-  associations.length ? associations.map(encodeAssociation(table)).join('') : ''
+const encodeJoin = (
+  table: TableName<any>,
+  description: QueryDescription,
+  associations: AssociationArgs[],
+): string =>
+  associations.length ? associations.map(encodeAssociation(description, table)).join('') : ''
 
 const encodeOrderBy = (table: TableName<any>, sortBys: SortBy[]) => {
   if (sortBys.length === 0) {
@@ -166,10 +193,7 @@ const encodeOrderBy = (table: TableName<any>, sortBys: SortBy[]) => {
   return ` order by ${orderBys}`
 }
 
-const encodeLimitOffset = (take: ?Take, skip: ?Skip) => {
-  const limit = take?.count
-  const offset = skip?.count
-
+const encodeLimitOffset = (limit: ?number, offset: ?number) => {
   if (!limit) {
     return ''
   }
@@ -179,17 +203,14 @@ const encodeLimitOffset = (take: ?Take, skip: ?Skip) => {
 }
 
 const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string => {
-  const { table, description } = query
-
-  const hasJoins = !!query.description.join.length
-  const associations = hasJoins ? query.associations : []
+  const { table, description, associations } = query
 
   const hasToManyJoins = associations.some(([, association]) => association.type === 'has_many')
 
   const sql =
     encodeMethod(table, countMode, hasToManyJoins) +
-    encodeJoin(table, associations) +
-    encodeConditions(table, description) +
+    encodeJoin(table, description, associations) +
+    encodeConditions(table, description, associations) +
     encodeOrderBy(table, description.sortBy) +
     encodeLimitOffset(description.take, description.skip)
 

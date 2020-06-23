@@ -44,6 +44,10 @@ const encodeWhere: Where => Matcher<*> = where => {
       return allPass(where.conditions.map(encodeWhere))
     case 'or':
       return anyPass(where.conditions.map(encodeWhere))
+    case 'on':
+      throw new Error(
+        'Illegal Q.on found -- nested Q.ons require explicit Q.experimentalJoinTables declaration',
+      )
     default:
       throw new Error('Invalid Where')
   }
@@ -55,10 +59,10 @@ const encodeConditions: (Where[]) => Matcher<*> = pipe(
 )
 
 export default function encodeMatcher<Element: Model>(query: QueryDescription): Matcher<Element> {
-  const { join, sortBy, take, skip, where } = query
+  const { joinTables, sortBy, take, skip, where } = query
 
   invariant(
-    !join.length && !sortBy.length && !take && !skip,
+    !joinTables.length && !sortBy.length && !take && !skip,
     `Queries with joins, sortBy, take, or skip can't be encoded into a matcher`,
   )
 

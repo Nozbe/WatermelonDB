@@ -96,7 +96,7 @@ const insertAll = async (adapter, table, records) =>
       // TODO: Are we sure we want to test this by inserting non-sanitized records?
       // On one hand, this _shouldn't_ happen, on the other, through error or malice
       // (changing DB directly, outside of Wmelon), it _might_ happen
-      return ['create', table, { ...raw, _status: '' }]
+      return ['create', table, { _status: '', ...raw }]
     }),
   )
 

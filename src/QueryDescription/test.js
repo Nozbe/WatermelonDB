@@ -1,11 +1,11 @@
 import * as Q from './index'
 
-describe('QueryDescription', () => {
+describe('buildQueryDescription', () => {
   it('builds empty query', () => {
     const query = Q.buildQueryDescription([])
     expect(query).toEqual({
       where: [],
-      join: [],
+      joinTables: [],
       sortBy: [],
       skip: null,
       take: null,
@@ -18,13 +18,10 @@ describe('QueryDescription', () => {
         {
           type: 'where',
           left: 'left_column',
-          comparison: {
-            operator: 'eq',
-            right: { value: 'right_value' },
-          },
+          comparison: { operator: 'eq', right: { value: 'right_value' } },
         },
       ],
-      join: [],
+      joinTables: [],
       sortBy: [],
       skip: null,
       take: null,
@@ -40,48 +37,13 @@ describe('QueryDescription', () => {
     ])
     expect(query).toEqual({
       where: [
-        {
-          type: 'where',
-          left: 'col1',
-          comparison: {
-            operator: 'eq',
-            right: { value: 'val1' },
-          },
-        },
-        {
-          type: 'where',
-          left: 'col2',
-          comparison: {
-            operator: 'eq',
-            right: { value: 2 },
-          },
-        },
-        {
-          type: 'where',
-          left: 'col3',
-          comparison: {
-            operator: 'eq',
-            right: { value: true },
-          },
-        },
-        {
-          type: 'where',
-          left: 'col4',
-          comparison: {
-            operator: 'eq',
-            right: { value: false },
-          },
-        },
-        {
-          type: 'where',
-          left: 'col5',
-          comparison: {
-            operator: 'eq',
-            right: { value: null },
-          },
-        },
+        { type: 'where', left: 'col1', comparison: { operator: 'eq', right: { value: 'val1' } } },
+        { type: 'where', left: 'col2', comparison: { operator: 'eq', right: { value: 2 } } },
+        { type: 'where', left: 'col3', comparison: { operator: 'eq', right: { value: true } } },
+        { type: 'where', left: 'col4', comparison: { operator: 'eq', right: { value: false } } },
+        { type: 'where', left: 'col5', comparison: { operator: 'eq', right: { value: null } } },
       ],
-      join: [],
+      joinTables: [],
       sortBy: [],
       skip: null,
       take: null,
@@ -104,104 +66,44 @@ describe('QueryDescription', () => {
     ])
     expect(query).toEqual({
       where: [
-        {
-          type: 'where',
-          left: 'col1',
-          comparison: {
-            operator: 'eq',
-            right: { value: 'val1' },
-          },
-        },
-        {
-          type: 'where',
-          left: 'col2',
-          comparison: {
-            operator: 'gt',
-            right: { value: 2 },
-          },
-        },
-        {
-          type: 'where',
-          left: 'col3',
-          comparison: {
-            operator: 'gte',
-            right: { value: 3 },
-          },
-        },
+        { type: 'where', left: 'col1', comparison: { operator: 'eq', right: { value: 'val1' } } },
+        { type: 'where', left: 'col2', comparison: { operator: 'gt', right: { value: 2 } } },
+        { type: 'where', left: 'col3', comparison: { operator: 'gte', right: { value: 3 } } },
         {
           type: 'where',
           left: 'col3_5',
-          comparison: {
-            operator: 'weakGt',
-            right: { value: 3.5 },
-          },
+          comparison: { operator: 'weakGt', right: { value: 3.5 } },
         },
-        {
-          type: 'where',
-          left: 'col4',
-          comparison: {
-            operator: 'lt',
-            right: { value: 4 },
-          },
-        },
-        {
-          type: 'where',
-          left: 'col5',
-          comparison: {
-            operator: 'lte',
-            right: { value: 5 },
-          },
-        },
-        {
-          type: 'where',
-          left: 'col6',
-          comparison: {
-            operator: 'notEq',
-            right: { value: null },
-          },
-        },
+        { type: 'where', left: 'col4', comparison: { operator: 'lt', right: { value: 4 } } },
+        { type: 'where', left: 'col5', comparison: { operator: 'lte', right: { value: 5 } } },
+        { type: 'where', left: 'col6', comparison: { operator: 'notEq', right: { value: null } } },
         {
           type: 'where',
           left: 'col7',
-          comparison: {
-            operator: 'oneOf',
-            right: { values: [1, 2, 3] },
-          },
+          comparison: { operator: 'oneOf', right: { values: [1, 2, 3] } },
         },
         {
           type: 'where',
           left: 'col8',
-          comparison: {
-            operator: 'notIn',
-            right: { values: ['a', 'b', 'c'] },
-          },
+          comparison: { operator: 'notIn', right: { values: ['a', 'b', 'c'] } },
         },
         {
           type: 'where',
           left: 'col9',
-          comparison: {
-            operator: 'between',
-            right: { values: [10, 11] },
-          },
+          comparison: { operator: 'between', right: { values: [10, 11] } },
         },
         {
           type: 'where',
           left: 'col10',
-          comparison: {
-            operator: 'like',
-            right: { value: '%abc' },
-          },
+          comparison: { operator: 'like', right: { value: '%abc' } },
         },
         {
           type: 'where',
           left: 'col11',
-          comparison: {
-            operator: 'notLike',
-            right: { value: 'def%' },
-          },
+          comparison: { operator: 'notLike', right: { value: 'def%' } },
         },
       ],
-      join: [],
+      joinTables: [],
       sortBy: [],
       skip: null,
       take: null,
@@ -220,7 +122,7 @@ describe('QueryDescription', () => {
           },
         },
       ],
-      join: [],
+      joinTables: [],
       sortBy: [],
       skip: null,
       take: null,
@@ -237,58 +139,31 @@ describe('QueryDescription', () => {
     ])
     expect(query).toEqual({
       where: [
-        {
-          type: 'where',
-          left: 'col1',
-          comparison: {
-            operator: 'eq',
-            right: { value: 'value' },
-          },
-        },
+        { type: 'where', left: 'col1', comparison: { operator: 'eq', right: { value: 'value' } } },
         {
           type: 'or',
           conditions: [
-            {
-              type: 'where',
-              left: 'col2',
-              comparison: {
-                operator: 'eq',
-                right: { value: true },
-              },
-            },
-            {
-              type: 'where',
-              left: 'col3',
-              comparison: {
-                operator: 'eq',
-                right: { value: null },
-              },
-            },
+            { type: 'where', left: 'col2', comparison: { operator: 'eq', right: { value: true } } },
+            { type: 'where', left: 'col3', comparison: { operator: 'eq', right: { value: null } } },
             {
               type: 'and',
               conditions: [
                 {
                   type: 'where',
                   left: 'col4',
-                  comparison: {
-                    operator: 'gt',
-                    right: { value: 5 },
-                  },
+                  comparison: { operator: 'gt', right: { value: 5 } },
                 },
                 {
                   type: 'where',
                   left: 'col5',
-                  comparison: {
-                    operator: 'notIn',
-                    right: { values: [6, 7] },
-                  },
+                  comparison: { operator: 'notIn', right: { values: [6, 7] } },
                 },
               ],
             },
           ],
         },
       ],
-      join: [],
+      joinTables: [],
       sortBy: [],
       skip: null,
       take: null,
@@ -303,34 +178,24 @@ describe('QueryDescription', () => {
     expect(query).toEqual({
       where: [
         {
-          type: 'where',
-          left: 'left_column',
-          comparison: {
-            operator: 'eq',
-            right: { value: 'right_value' },
-          },
-        },
-      ],
-      join: [
-        {
           type: 'on',
           table: 'foreign_table',
           left: 'foreign_column',
-          comparison: {
-            operator: 'eq',
-            right: { value: 'value' },
-          },
+          comparison: { operator: 'eq', right: { value: 'value' } },
+        },
+        {
+          type: 'where',
+          left: 'left_column',
+          comparison: { operator: 'eq', right: { value: 'right_value' } },
         },
         {
           type: 'on',
           table: 'foreign_table2',
           left: 'foreign_column2',
-          comparison: {
-            operator: 'gt',
-            right: { column: 'foreign_column3' },
-          },
+          comparison: { operator: 'gt', right: { column: 'foreign_column3' } },
         },
       ],
+      joinTables: ['foreign_table', 'foreign_table2'],
       sortBy: [],
       skip: null,
       take: null,
@@ -349,6 +214,54 @@ describe('QueryDescription', () => {
       ]),
     )
   })
+  it(`supports nesting Q.on inside and/or`, () => {
+    const query = Q.buildQueryDescription([
+      Q.experimentalJoinTables(['projects', 'foreign_table2']),
+      Q.or(
+        Q.where('is_followed', true),
+        Q.on('projects', 'is_followed', true),
+        Q.and(Q.on('foreign_table2', 'foo', 'bar')),
+      ),
+    ])
+    expect(query).toEqual({
+      where: [
+        {
+          type: 'or',
+          conditions: [
+            {
+              type: 'where',
+              left: 'is_followed',
+              comparison: { operator: 'eq', right: { value: true } },
+            },
+            {
+              type: 'on',
+              table: 'projects',
+              left: 'is_followed',
+              comparison: { operator: 'eq', right: { value: true } },
+            },
+            {
+              type: 'and',
+              conditions: [
+                {
+                  type: 'on',
+                  table: 'foreign_table2',
+                  left: 'foo',
+                  comparison: { operator: 'eq', right: { value: 'bar' } },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      joinTables: ['projects', 'foreign_table2'],
+      sortBy: [],
+      take: null,
+      skip: null,
+    })
+  })
+})
+
+describe('hasColumnComparisons', () => {
   it('can recognize whether a query has column comparisons or not', () => {
     const query1 = Q.buildQueryDescription([])
     expect(Q.hasColumnComparisons(query1)).toBe(false)
@@ -368,7 +281,8 @@ describe('QueryDescription', () => {
       Q.where('left_column', Q.gte(Q.column('right_column'))),
     ])
     expect(Q.hasColumnComparisons(query3)).toBe(true)
-
+  })
+  it(`can find deeply neested column comparisons`, () => {
     const query4 = Q.buildQueryDescription([
       Q.on('foreign_table2', 'foreign_column2', Q.gt(Q.column('foreign_column3'))),
     ])
@@ -382,59 +296,30 @@ describe('QueryDescription', () => {
       ),
     ])
     expect(Q.hasColumnComparisons(query5)).toBe(true)
-
+  })
+  it(`doesn't get fooled by broken oneOf/notIn`, () => {
     // we don't validate elements of arrays passed to Q.oneOf/Q.notIn
     // because they may be large, so make sure even if someone passes a bad object, it doesn't break this logic
-    const query6 = Q.buildQueryDescription([Q.notIn([6, { column: 'heh' }])])
+    const query6 = Q.buildQueryDescription([Q.where('heh', Q.notIn([6, { column: 'heh' }]))])
     expect(Q.hasColumnComparisons(query6)).toBe(false)
   })
+})
+
+describe('queryWithoutDeleted', () => {
   it('builds empty query without deleted', () => {
     const query = Q.queryWithoutDeleted(Q.buildQueryDescription([]))
-    expect(query).toEqual({
-      where: [
-        {
-          type: 'where',
-          left: '_status',
-          comparison: {
-            operator: 'notEq',
-            right: { value: 'deleted' },
-          },
-        },
-      ],
-      join: [],
-      sortBy: [],
-      take: null,
-      skip: null,
-    })
+    expect(query).toEqual(Q.buildQueryDescription([Q.where('_status', Q.notEq('deleted'))]))
   })
   it('builds simple query without deleted', () => {
     const query = Q.queryWithoutDeleted(
       Q.buildQueryDescription([Q.where('left_column', 'right_value')]),
     )
-    expect(query).toEqual({
-      where: [
-        {
-          type: 'where',
-          left: 'left_column',
-          comparison: {
-            operator: 'eq',
-            right: { value: 'right_value' },
-          },
-        },
-        {
-          type: 'where',
-          left: '_status',
-          comparison: {
-            operator: 'notEq',
-            right: { value: 'deleted' },
-          },
-        },
-      ],
-      join: [],
-      sortBy: [],
-      skip: null,
-      take: null,
-    })
+    expect(query).toEqual(
+      Q.buildQueryDescription([
+        Q.where('left_column', 'right_value'),
+        Q.where('_status', Q.notEq('deleted')),
+      ]),
+    )
   })
   it('supports simple 2 JOIN queries on one table and JOIN query on another without deleted', () => {
     const query = Q.queryWithoutDeleted(
@@ -445,89 +330,66 @@ describe('QueryDescription', () => {
         Q.on('foreign_table2', 'foreign_column2', Q.gt(Q.column('foreign_column3'))),
       ]),
     )
-    expect(query).toEqual({
-      where: [
-        {
-          type: 'where',
-          left: 'left_column',
-          comparison: {
-            operator: 'eq',
-            right: { value: 'right_value' },
-          },
-        },
-        {
-          type: 'where',
-          left: '_status',
-          comparison: {
-            operator: 'notEq',
-            right: { value: 'deleted' },
-          },
-        },
-      ],
-      join: [
-        {
-          type: 'on',
-          table: 'foreign_table',
-          left: 'foreign_column',
-          comparison: {
-            operator: 'eq',
-            right: { value: 'value' },
-          },
-        },
-        {
-          type: 'on',
-          table: 'foreign_table',
-          left: 'foreign_column4',
-          comparison: {
-            operator: 'eq',
-            right: { value: 'value' },
-          },
-        },
-        {
-          type: 'on',
-          table: 'foreign_table2',
-          left: 'foreign_column2',
-          comparison: {
-            operator: 'gt',
-            right: { column: 'foreign_column3' },
-          },
-        },
-        {
-          type: 'on',
-          table: 'foreign_table',
-          left: '_status',
-          comparison: {
-            operator: 'notEq',
-            right: { value: 'deleted' },
-          },
-        },
-        {
-          type: 'on',
-          table: 'foreign_table2',
-          left: '_status',
-          comparison: {
-            operator: 'notEq',
-            right: { value: 'deleted' },
-          },
-        },
-      ],
-      sortBy: [],
-      skip: null,
-      take: null,
-    })
+    expect(query).toEqual(
+      Q.buildQueryDescription([
+        Q.on('foreign_table', 'foreign_column', 'value'),
+        Q.on('foreign_table', 'foreign_column4', 'value'),
+        Q.where('left_column', 'right_value'),
+        Q.on('foreign_table2', 'foreign_column2', Q.gt(Q.column('foreign_column3'))),
+        Q.on('foreign_table', '_status', Q.notEq('deleted')),
+        Q.on('foreign_table2', '_status', Q.notEq('deleted')),
+        Q.where('_status', Q.notEq('deleted')),
+      ]),
+    )
   })
+  it(`supports nested Q.ons`, () => {
+    const query = Q.queryWithoutDeleted(
+      Q.buildQueryDescription([
+        Q.experimentalJoinTables(['projects', 'tag_assignments']),
+        Q.or(
+          Q.where('is_followed', true),
+          Q.on('projects', 'is_followed', true),
+          Q.on('projects', 'foo', 'bar'),
+          Q.and(
+            Q.on('tag_assignments', 'foo', 'bar'),
+            Q.and(Q.on('tag_assignments', 'foo', 'baz'), Q.on('tag_assignments', 'foo', 'bazz')),
+          ),
+        ),
+      ]),
+    )
+    expect(query).toEqual(
+      Q.buildQueryDescription([
+        Q.experimentalJoinTables(['projects', 'tag_assignments']),
+        Q.or(
+          Q.where('is_followed', true),
+          Q.and(
+            Q.on('projects', 'is_followed', true),
+            Q.on('projects', '_status', Q.notEq('deleted')),
+          ),
+          Q.and(Q.on('projects', 'foo', 'bar'), Q.on('projects', '_status', Q.notEq('deleted'))),
+          Q.and(
+            Q.on('tag_assignments', 'foo', 'bar'),
+            Q.and(
+              Q.on('tag_assignments', 'foo', 'baz'),
+              Q.on('tag_assignments', 'foo', 'bazz'),
+              Q.on('tag_assignments', '_status', Q.notEq('deleted')),
+            ),
+            Q.on('tag_assignments', '_status', Q.notEq('deleted')),
+          ),
+        ),
+        Q.where('_status', Q.notEq('deleted')),
+      ]),
+    )
+  })
+})
+
+describe('buildQueryDescription - contd', () => {
   it('supports sorting query', () => {
     const query = Q.buildQueryDescription([Q.experimentalSortBy('sortable_column', Q.desc)])
     expect(query).toEqual({
       where: [],
-      join: [],
-      sortBy: [
-        {
-          type: 'sortBy',
-          sortColumn: 'sortable_column',
-          sortOrder: 'desc',
-        },
-      ],
+      joinTables: [],
+      sortBy: [{ type: 'sortBy', sortColumn: 'sortable_column', sortOrder: 'desc' }],
       skip: null,
       take: null,
     })
@@ -536,12 +398,9 @@ describe('QueryDescription', () => {
     const query = Q.buildQueryDescription([Q.experimentalTake(100)])
     expect(query).toEqual({
       where: [],
-      join: [],
+      joinTables: [],
       sortBy: [],
-      take: {
-        type: 'take',
-        count: 100,
-      },
+      take: 100,
       skip: null,
     })
   })
@@ -558,12 +417,9 @@ describe('QueryDescription', () => {
     ])
     expect(query).toEqual({
       where: [],
-      join: [],
+      joinTables: [],
       sortBy: [],
-      take: {
-        type: 'take',
-        count: 400,
-      },
+      take: 400,
       skip: null,
     })
   })
@@ -576,16 +432,10 @@ describe('QueryDescription', () => {
     ])
     expect(query).toEqual({
       where: [],
-      join: [],
+      joinTables: [],
       sortBy: [],
-      take: {
-        type: 'take',
-        count: 100,
-      },
-      skip: {
-        type: 'skip',
-        count: 800,
-      },
+      take: 100,
+      skip: 800,
     })
   })
   it('deep freezes the query in dev', () => {
@@ -630,7 +480,13 @@ describe('QueryDescription', () => {
     expect(() => Q.column({})).toThrow(/not string/)
     expect(() => Q.experimentalTake('0')).toThrow(/not a number/)
     expect(() => Q.experimentalSkip('0')).toThrow(/not a number/)
+  })
+  it(`catches bad argument values`, () => {
     expect(() => Q.experimentalSortBy('foo', 'ascasc')).toThrow(/Invalid sortOrder/)
+    expect(() => Q.and(Q.like('foo'))).toThrow(/and\(\) can only contain/)
+    expect(() => Q.or(Q.like('foo'))).toThrow(/or\(\) can only contain/)
+    expect(() => Q.buildQueryDescription([Q.like('foo')])).toThrow('Invalid Query clause passed')
+    expect(() => Q.experimentalJoinTables('foo', 'bar')).toThrow('expected an array')
   })
   it('protect against passing Watermelon look-alike objects', () => {
     // protect against passing something that could be a user-input Object (risk is when Watermelon users pass stuff from JSON without validation), but is unintended or even malicious in some way
@@ -649,5 +505,6 @@ describe('QueryDescription', () => {
     expect(() => Q.experimentalSortBy('sqlite_master', 'asc')).toThrow(/Unsafe name/)
     expect(() => Q.on('sqlite_master', 'foo', 'bar')).toThrow(/Unsafe name/)
     expect(() => Q.on('sqlite_master', Q.where('foo', 'bar'))).toThrow(/Unsafe name/)
+    expect(() => Q.experimentalJoinTables(['foo', 'sqlite_master'])).toThrow(/Unsafe name/)
   })
 })

@@ -13,13 +13,13 @@ import lazy from '../decorators/lazy' // import from decorarators break the app 
 import subscribeToCount from '../observation/subscribeToCount'
 import subscribeToQuery from '../observation/subscribeToQuery'
 import subscribeToQueryWithColumns from '../observation/subscribeToQueryWithColumns'
-import { buildQueryDescription, queryWithoutDeleted } from '../QueryDescription'
+import * as Q from '../QueryDescription'
 import type { Clause, QueryDescription } from '../QueryDescription'
 import type Model, { AssociationInfo } from '../Model'
 import type Collection from '../Collection'
 import type { TableName, ColumnName } from '../Schema'
 
-import { getSecondaryTables, getAssociations } from './helpers'
+import { getAssociations } from './helpers'
 
 export type AssociationArgs = [TableName<any>, AssociationInfo]
 export type SerializedQuery = $Exact<{
@@ -60,21 +60,21 @@ export default class Query<Record: Model> {
   // Note: Don't use this directly, use Collection.query(...)
   constructor(collection: Collection<Record>, clauses: Clause[]): void {
     this.collection = collection
-    this._rawDescription = buildQueryDescription(clauses)
-    this.description = queryWithoutDeleted(this._rawDescription)
+    this._rawDescription = Q.buildQueryDescription(clauses)
+    this.description = Q.queryWithoutDeleted(this._rawDescription)
   }
 
   // Creates a new Query that extends the clauses of this query
   extend(...clauses: Clause[]): Query<Record> {
     const { collection } = this
-    const { join, where, sortBy, take, skip } = this._rawDescription
+    const { where, sortBy, take, skip, joinTables } = this._rawDescription
 
     return new Query(collection, [
-      ...join,
+      Q.experimentalJoinTables(joinTables),
       ...where,
       ...sortBy,
-      ...(take ? [take] : []),
-      ...(skip ? [skip] : []),
+      ...(take ? [Q.experimentalTake(take)] : []),
+      ...(skip ? [Q.experimentalSkip(skip)] : []),
       ...clauses,
     ])
   }
@@ -184,7 +184,7 @@ export default class Query<Record: Model> {
   }
 
   get secondaryTables(): TableName<any>[] {
-    return getSecondaryTables(this.description)
+    return this.description.joinTables
   }
 
   get allTables(): TableName<any>[] {
@@ -197,7 +197,7 @@ export default class Query<Record: Model> {
 
   // `true` if query contains join clauses on foreign tables
   get hasJoins(): boolean {
-    return !!this.description.join.length
+    return !!this.secondaryTables.length
   }
 
   // Serialized version of Query (e.g. for sending to web worker)
