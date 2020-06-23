@@ -4,6 +4,8 @@ import Model from '../../../Model'
 import * as Q from '../../../QueryDescription'
 import encodeQuery from './index'
 
+// TODO: Standardize these mocks (same as in sqlite encodeQuery, query test)
+
 class MockTask extends Model {
   static table = 'tasks'
 
@@ -13,7 +15,18 @@ class MockTask extends Model {
   }
 }
 
-const mockCollection = Object.freeze({ modelClass: MockTask })
+class MockProject extends Model {
+  static table = 'projects'
+
+  static associations = {
+    teams: { type: 'belongs_to', key: 'team_id' },
+  }
+}
+
+const mockCollection = Object.freeze({
+  modelClass: MockTask,
+  db: { get: table => (table === 'projects' ? { modelClass: MockProject } : {}) },
+})
 
 describe('SQLite encodeQuery', () => {
   it('encodes simple queries', () => {
@@ -157,6 +170,22 @@ describe('SQLite encodeQuery', () => {
         ` where ("tasks"."is_followed" is 1` +
         ` or ("projects"."is_followed" is 1 and "projects"."_status" is not 'deleted')` +
         ` or ("tag_assignments"."foo" is 'bar' and "tag_assignments"."_status" is not 'deleted'))` +
+        ` and "tasks"."_status" is not 'deleted'`,
+    )
+  })
+  it(`encodes Q.on nested inside Q.on`, () => {
+    const query = new Query(mockCollection, [
+      Q.experimentalJoinTables(['projects']),
+      Q.experimentalNestedJoin('projects', 'teams'),
+      Q.on('projects', Q.on('teams', 'foo', 'bar')),
+    ])
+    expect(encodeQuery(query)).toBe(
+      `select "tasks".* from "tasks"` +
+        ` join "projects" on "projects"."id" = "tasks"."project_id"` +
+        ` left join "teams" on "teams"."id" = "projects"."team_id"` +
+        ` where "teams"."foo" is 'bar'` +
+        ` and "teams"."_status" is not 'deleted'` +
+        ` and "projects"."_status" is not 'deleted'` +
         ` and "tasks"."_status" is not 'deleted'`,
     )
   })

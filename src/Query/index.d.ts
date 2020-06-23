@@ -4,11 +4,11 @@ declare module '@nozbe/watermelondb/Query' {
   import { Clause, QueryDescription } from '@nozbe/watermelondb/QueryDescription'
   import { Observable } from 'rxjs'
 
-  export type AssociationArgs = [TableName<any>, AssociationInfo]
+  export type QueryAssociation = { from: TableName<any>, to: TableName<any>, info: AssociationInfo }
   export interface SerializedQuery {
     table: TableName<any>
     description: QueryDescription
-    associations: AssociationArgs[]
+    associations: QueryAssociation[]
   }
 
   export default class Query<Record extends Model> {

@@ -10,7 +10,8 @@ function performJoinsImpl(query: LokiRawQuery, performer: QueryPerformer): LokiR
     return query
   } else if (query.$join) {
     const join: LokiJoin = query.$join
-    const records = performer(join)
+    const joinQuery = performJoinsImpl(join.query, performer)
+    const records = performer({ ...join, query: joinQuery })
     const matchingIds = records.map(record => record[join.mapKey])
     return { [(join.joinKey: string)]: { $in: matchingIds } }
   } else if (query.$and) {

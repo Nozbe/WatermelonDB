@@ -149,6 +149,24 @@ usersCollection.query(
 
 where `"jas"` can be changed dynamically with user input.
 
+### AND/OR nesting
+
+You can nest multiple conditions using `Q.and` and `Q.or`:
+
+```js
+commentCollection.query(
+  Q.where('archived_at', Q.notEq(null)),
+  Q.or(
+    Q.where('is_verified', true),
+    Q.and(
+      Q.where('likes', Q.gt(10)),
+      Q.where('dislikes', Q.lt(5))
+    )
+  )
+)
+```
+
+This is equivalent to `archivedAt !== null && (isVerified || (likes > 10 && dislikes < 5))`.
 
 ### Conditions on related tables ("JOIN queries")
 
@@ -171,7 +189,9 @@ The first argument for `Q.on` is the table name you're making a condition on. Th
 
 **Note:** The two tables [must be associated](./Model.md) before you can use `Q.on`.
 
-You can also nest `Q.on` within `Q.and` and `Q.or`, however, you must explicitly define all tables you're joining on. (Known limitation: column comparisons do not work within nested `Q.on`s on LokiJSAdapter)
+### Nesting `Q.on` within AND/OR
+
+You can nest `Q.on` within `Q.and` and `Q.or`, however, you must explicitly define all tables you're joining on. This is an experimental feature, and the API is subject to change. (Known limitation: column comparisons do not work within nested `Q.on`s on LokiJSAdapter)
 
 ```js
 tasksCollection.query(
@@ -183,6 +203,20 @@ tasksCollection.query(
 )
 ```
 
+### Deep `Q.on`s
+
+You can also nest `Q.on` within `Q.on`, e.g. to make a condition on a grandparent. You must explicitly define the tables you're joining on. This is an experimental featuers, and the API is subject to change.
+
+```js
+// this queries tasks that are inside projects that are inside teams where team.foo == 'bar'
+tasksCollection.query(
+  Q.experimentalNestedJoin('projects', 'teams'),
+  Q.on('projects', Q.on('teams', 'foo', 'bar')),
+)
+```
+
+Known limitations: only one level of nesting is currently allowed.
+
 ## Advanced Queries
 
 ### Advanced observing
@@ -192,25 +226,6 @@ Call `query.observeWithColumns(['foo', 'bar'])` to create an Observable that emi
 #### Count throttling
 
 By default, calling `query.observeCount()` returns an Observable that is throttled to emit at most once every 250ms. You can disable throttling using `query.observeCount(false)`.
-
-### AND/OR nesting
-
-You can nest multiple conditions using `Q.and` and `Q.or`:
-
-```js
-commentCollection.query(
-  Q.where('archived_at', Q.notEq(null)),
-  Q.or(
-    Q.where('is_verified', true),
-    Q.and(
-      Q.where('likes', Q.gt(10)),
-      Q.where('dislikes', Q.lt(5))
-    )
-  )
-)
-```
-
-This is equivalent to `archivedAt !== null && (isVerified || (likes > 10 && dislikes < 5))`.
 
 ### Column comparisons
 

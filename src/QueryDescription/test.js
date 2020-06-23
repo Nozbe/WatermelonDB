@@ -6,6 +6,7 @@ describe('buildQueryDescription', () => {
     expect(query).toEqual({
       where: [],
       joinTables: [],
+      nestedJoinTables: [],
       sortBy: [],
       skip: null,
       take: null,
@@ -22,6 +23,7 @@ describe('buildQueryDescription', () => {
         },
       ],
       joinTables: [],
+      nestedJoinTables: [],
       sortBy: [],
       skip: null,
       take: null,
@@ -44,6 +46,7 @@ describe('buildQueryDescription', () => {
         { type: 'where', left: 'col5', comparison: { operator: 'eq', right: { value: null } } },
       ],
       joinTables: [],
+      nestedJoinTables: [],
       sortBy: [],
       skip: null,
       take: null,
@@ -104,6 +107,7 @@ describe('buildQueryDescription', () => {
         },
       ],
       joinTables: [],
+      nestedJoinTables: [],
       sortBy: [],
       skip: null,
       take: null,
@@ -123,6 +127,7 @@ describe('buildQueryDescription', () => {
         },
       ],
       joinTables: [],
+      nestedJoinTables: [],
       sortBy: [],
       skip: null,
       take: null,
@@ -164,6 +169,7 @@ describe('buildQueryDescription', () => {
         },
       ],
       joinTables: [],
+      nestedJoinTables: [],
       sortBy: [],
       skip: null,
       take: null,
@@ -196,6 +202,7 @@ describe('buildQueryDescription', () => {
         },
       ],
       joinTables: ['foreign_table', 'foreign_table2'],
+      nestedJoinTables: [],
       sortBy: [],
       skip: null,
       take: null,
@@ -254,6 +261,33 @@ describe('buildQueryDescription', () => {
         },
       ],
       joinTables: ['projects', 'foreign_table2'],
+      nestedJoinTables: [],
+      sortBy: [],
+      take: null,
+      skip: null,
+    })
+  })
+  it(`supports nesting Q.on inside Q.on`, () => {
+    const query = Q.buildQueryDescription([
+      Q.experimentalJoinTables(['projects']),
+      Q.experimentalNestedJoin('projects', 'teams'),
+      Q.on('projects', Q.on('teams', 'foo', 'bar')),
+    ])
+    expect(query).toEqual({
+      where: [
+        {
+          type: 'on',
+          table: 'projects',
+          nested: {
+            type: 'on',
+            table: 'teams',
+            left: 'foo',
+            comparison: { operator: 'eq', right: { value: 'bar' } },
+          },
+        },
+      ],
+      joinTables: ['projects'],
+      nestedJoinTables: [{ from: 'projects', to: 'teams' }],
       sortBy: [],
       take: null,
       skip: null,
@@ -381,6 +415,34 @@ describe('queryWithoutDeleted', () => {
       ]),
     )
   })
+  it(`supports Q.ons on Q.on`, () => {
+    const query = Q.queryWithoutDeleted(
+      Q.buildQueryDescription([
+        // TODO: Test deeper nestings
+        Q.experimentalJoinTables(['projects']),
+        Q.experimentalNestedJoin('projects', 'teams'),
+        Q.on('projects', Q.on('teams', 'foo', 'bar')),
+        Q.or(Q.on('projects', Q.on('teams', 'foo', 'bar'))),
+      ]),
+    )
+    expect(query).toEqual(
+      Q.buildQueryDescription([
+        Q.experimentalJoinTables(['projects']),
+        Q.experimentalNestedJoin('projects', 'teams'),
+        Q.on('projects', Q.on('teams', 'foo', 'bar')),
+        Q.or(
+          Q.and(
+            Q.on('projects', Q.on('teams', 'foo', 'bar')),
+            Q.on('projects', Q.on('teams', '_status', Q.notEq('deleted'))),
+            Q.on('projects', '_status', Q.notEq('deleted')),
+          ),
+        ),
+        Q.on('projects', Q.on('teams', '_status', Q.notEq('deleted'))),
+        Q.on('projects', '_status', Q.notEq('deleted')),
+        Q.where('_status', Q.notEq('deleted')),
+      ]),
+    )
+  })
 })
 
 describe('buildQueryDescription - contd', () => {
@@ -389,6 +451,7 @@ describe('buildQueryDescription - contd', () => {
     expect(query).toEqual({
       where: [],
       joinTables: [],
+      nestedJoinTables: [],
       sortBy: [{ type: 'sortBy', sortColumn: 'sortable_column', sortOrder: 'desc' }],
       skip: null,
       take: null,
@@ -399,6 +462,7 @@ describe('buildQueryDescription - contd', () => {
     expect(query).toEqual({
       where: [],
       joinTables: [],
+      nestedJoinTables: [],
       sortBy: [],
       take: 100,
       skip: null,
@@ -418,6 +482,7 @@ describe('buildQueryDescription - contd', () => {
     expect(query).toEqual({
       where: [],
       joinTables: [],
+      nestedJoinTables: [],
       sortBy: [],
       take: 400,
       skip: null,
@@ -433,6 +498,7 @@ describe('buildQueryDescription - contd', () => {
     expect(query).toEqual({
       where: [],
       joinTables: [],
+      nestedJoinTables: [],
       sortBy: [],
       take: 100,
       skip: 800,
@@ -487,6 +553,7 @@ describe('buildQueryDescription - contd', () => {
     expect(() => Q.or(Q.like('foo'))).toThrow(/or\(\) can only contain/)
     expect(() => Q.buildQueryDescription([Q.like('foo')])).toThrow('Invalid Query clause passed')
     expect(() => Q.experimentalJoinTables('foo', 'bar')).toThrow('expected an array')
+    expect(() => Q.on('foo', Q.column('foo'))).toThrow('can only be passed Q.where, Q.on clauses')
   })
   it('protect against passing Watermelon look-alike objects', () => {
     // protect against passing something that could be a user-input Object (risk is when Watermelon users pass stuff from JSON without validation), but is unintended or even malicious in some way
@@ -506,5 +573,7 @@ describe('buildQueryDescription - contd', () => {
     expect(() => Q.on('sqlite_master', 'foo', 'bar')).toThrow(/Unsafe name/)
     expect(() => Q.on('sqlite_master', Q.where('foo', 'bar'))).toThrow(/Unsafe name/)
     expect(() => Q.experimentalJoinTables(['foo', 'sqlite_master'])).toThrow(/Unsafe name/)
+    expect(() => Q.experimentalNestedJoin('sqlite_master', 'foo')).toThrow(/Unsafe name/)
+    expect(() => Q.experimentalNestedJoin('foo', 'sqlite_master')).toThrow(/Unsafe name/)
   })
 })

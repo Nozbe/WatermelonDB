@@ -24,7 +24,7 @@ import cond from '../../../../utils/fp/cond'
 import invariant from '../../../../utils/common/invariant'
 import likeToRegexp from '../../../../utils/fp/likeToRegexp'
 
-import type { AssociationArgs, SerializedQuery } from '../../../../Query'
+import type { QueryAssociation, SerializedQuery } from '../../../../Query'
 import type {
   Operator,
   WhereDescription,
@@ -149,16 +149,15 @@ const encodeWhereDescription: (WhereDescription | On) => LokiRawQuery = ({ left,
 
 const typeEq = propEq('type')
 
-const encodeCondition: (AssociationArgs[]) => Clause => LokiRawQuery = associations => clause =>
+const encodeCondition: (QueryAssociation[]) => Clause => LokiRawQuery = associations => clause =>
   (cond([
     [typeEq('and'), encodeAnd(associations)],
     [typeEq('or'), encodeOr(associations)],
     [typeEq('where'), encodeWhereDescription],
-    [typeEq('on'), encodeWhereDescription],
   ]): any)(clause)
 
 const encodeConditions: (
-  AssociationArgs[],
+  QueryAssociation[],
 ) => (Where[]) => LokiRawQuery[] = associations => conditions => {
   const [joins, wheres] = partition(clause => clause.type === 'on', conditions)
   const encodedJoins = encodeJoins(associations, (joins: any))
@@ -167,15 +166,15 @@ const encodeConditions: (
 }
 
 const encodeAndOr: LokiKeyword => (
-  AssociationArgs[],
+  QueryAssociation[],
 ) => (And | Or) => LokiRawQuery = op => associations => clause => {
   const conditions = encodeConditions(associations)(clause.conditions)
   // flatten
   return conditions.length === 1 ? conditions[0] : { [op]: conditions }
 }
 
-const encodeAnd: (AssociationArgs[]) => And => LokiRawQuery = encodeAndOr('$and')
-const encodeOr: (AssociationArgs[]) => Or => LokiRawQuery = encodeAndOr('$or')
+const encodeAnd: (QueryAssociation[]) => And => LokiRawQuery = encodeAndOr('$and')
+const encodeOr: (QueryAssociation[]) => Or => LokiRawQuery = encodeAndOr('$or')
 
 const lengthEq = n =>
   pipe(
@@ -191,17 +190,18 @@ const concatRawQueries: (LokiRawQuery[]) => LokiRawQuery = (cond([
   [T, objOf('$and')],
 ]): any)
 
-const encodeRootConditions: (AssociationArgs[]) => (Where[]) => LokiRawQuery = associations =>
+const encodeRootConditions: (QueryAssociation[]) => (Where[]) => LokiRawQuery = associations =>
   pipe(
     encodeConditions(associations),
     concatRawQueries,
   )
 
-const encodeJoinConditions: (AssociationArgs[]) => (On[]) => LokiRawQuery = associations =>
-  pipe(
-    map(encodeCondition(associations)),
-    concatRawQueries,
-  )
+const reencodeJoinConditions: (On[]) => Where[] = map(clause => {
+  // TODO: Temporary hack because Q.on is not (yet) encoded as having multiple Wheres
+  return clause.nested
+    ? clause.nested
+    : { type: 'where', left: clause.left, comparison: clause.comparison }
+})
 
 const encodeMapKey: AssociationInfo => ColumnName = ifElse(
   propEq('type', 'belongs_to'),
@@ -215,24 +215,19 @@ const encodeJoinKey: AssociationInfo => ColumnName = ifElse(
   always(columnName('id')),
 )
 
-const encodeOriginalConditions: (On[]) => Where[] = map(({ left, comparison }) => ({
-  type: 'where',
-  left,
-  comparison,
-}))
-
-const encodeJoin: (AssociationArgs[], AssociationArgs, On[]) => LokiRawQuery = (
+const encodeJoin: (QueryAssociation[], QueryAssociation, On[]) => LokiRawQuery = (
   associations,
-  [table, associationInfo],
+  { to, info },
   conditions,
 ) => {
+  const innerConditions = reencodeJoinConditions(conditions)
   return {
     $join: {
-      table,
-      query: encodeJoinConditions(associations)((conditions: any)),
-      originalConditions: encodeOriginalConditions(conditions),
-      mapKey: encodeMapKey(associationInfo),
-      joinKey: encodeJoinKey(associationInfo),
+      table: to,
+      query: encodeRootConditions(associations)((innerConditions: any)),
+      originalConditions: innerConditions,
+      mapKey: encodeMapKey(info),
+      joinKey: encodeJoinKey(info),
     },
   }
 }
@@ -242,9 +237,9 @@ const groupByTable: (On[]) => On[][] = pipe(
   values,
 )
 
-const encodeJoins: (AssociationArgs[], On[]) => LokiRawQuery[] = (associations, joins) => {
+const encodeJoins: (QueryAssociation[], On[]) => LokiRawQuery[] = (associations, joins) => {
   return groupByTable(joins).map(join => {
-    const association = associations.find(([table]) => join[0].table === table)
+    const association = associations.find(({ to }) => join[0].table === to)
     invariant(
       association,
       'To nest Q.on inside Q.and/Q.or you must explicitly declare Q.experimentalJoinTables at the beginning of the query',

@@ -20,6 +20,14 @@ export class MockProject extends Model {
 
   static associations = {
     tasks: { type: 'has_many', foreignKey: 'project_id' },
+    teams: { type: 'belongs_to', key: 'team_id' },
+  }
+}
+export class MockTeam extends Model {
+  static table = 'teams'
+
+  static associations = {
+    projects: { type: 'has_many', foreignKey: 'team_id' },
   }
 }
 export class MockTagAssignment extends Model {
@@ -53,11 +61,21 @@ export const testSchema = appSchema({
     tableSchema({
       name: 'projects',
       columns: [
+        { name: 'team_id', type: 'string' },
         { name: 'num1', type: 'number' },
         { name: 'num2', type: 'number' },
         { name: 'text1', type: 'string' },
         { name: 'text2', type: 'string' },
         { name: 'text3', type: 'string' },
+        { name: 'bool1', type: 'boolean' },
+      ],
+    }),
+    tableSchema({
+      name: 'teams',
+      columns: [
+        { name: 'num1', type: 'number' },
+        { name: 'text1', type: 'string' },
+
         { name: 'bool1', type: 'boolean' },
       ],
     }),
@@ -79,8 +97,18 @@ export const testSchema = appSchema({
   ],
 })
 
+const mockCollections = {
+  tasks: MockTask,
+  projects: MockProject,
+  teams: MockTeam,
+  tag_assignments: MockTagAssignment,
+}
+
 export const modelQuery = (modelClass, ...conditions) => {
-  const mockCollection = { modelClass }
+  const mockCollection = {
+    modelClass,
+    db: { get: table => ({ modelClass: mockCollections[table] }) },
+  }
   return new Query(mockCollection, conditions)
 }
 

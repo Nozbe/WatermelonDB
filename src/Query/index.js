@@ -21,11 +21,16 @@ import type { TableName, ColumnName } from '../Schema'
 
 import { getAssociations } from './helpers'
 
-export type AssociationArgs = [TableName<any>, AssociationInfo]
+export type QueryAssociation = $Exact<{
+  from: TableName<any>,
+  to: TableName<any>,
+  info: AssociationInfo,
+}>
+
 export type SerializedQuery = $Exact<{
   table: TableName<any>,
   description: QueryDescription,
-  associations: AssociationArgs[],
+  associations: QueryAssociation[],
 }>
 
 interface QueryCountProxy {
@@ -67,10 +72,11 @@ export default class Query<Record: Model> {
   // Creates a new Query that extends the clauses of this query
   extend(...clauses: Clause[]): Query<Record> {
     const { collection } = this
-    const { where, sortBy, take, skip, joinTables } = this._rawDescription
+    const { where, sortBy, take, skip, joinTables, nestedJoinTables } = this._rawDescription
 
     return new Query(collection, [
       Q.experimentalJoinTables(joinTables),
+      ...nestedJoinTables.map(({ from, to }) => Q.experimentalNestedJoin(from, to)),
       ...where,
       ...sortBy,
       ...(take ? [Q.experimentalTake(take)] : []),
@@ -184,15 +190,15 @@ export default class Query<Record: Model> {
   }
 
   get secondaryTables(): TableName<any>[] {
-    return this.description.joinTables
+    return this.description.joinTables.concat(this.description.nestedJoinTables.map(({ to }) => to))
   }
 
   get allTables(): TableName<any>[] {
     return prepend(this.table, this.secondaryTables)
   }
 
-  get associations(): AssociationArgs[] {
-    return getAssociations(this.secondaryTables, this.modelClass.associations)
+  get associations(): QueryAssociation[] {
+    return getAssociations(this.description, this.modelClass, this.collection.db)
   }
 
   // `true` if query contains join clauses on foreign tables
