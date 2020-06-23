@@ -186,8 +186,13 @@ describe('buildQueryDescription', () => {
         {
           type: 'on',
           table: 'foreign_table',
-          left: 'foreign_column',
-          comparison: { operator: 'eq', right: { value: 'value' } },
+          conditions: [
+            {
+              type: 'where',
+              left: 'foreign_column',
+              comparison: { operator: 'eq', right: { value: 'value' } },
+            },
+          ],
         },
         {
           type: 'where',
@@ -197,8 +202,13 @@ describe('buildQueryDescription', () => {
         {
           type: 'on',
           table: 'foreign_table2',
-          left: 'foreign_column2',
-          comparison: { operator: 'gt', right: { column: 'foreign_column3' } },
+          conditions: [
+            {
+              type: 'where',
+              left: 'foreign_column2',
+              comparison: { operator: 'gt', right: { column: 'foreign_column3' } },
+            },
+          ],
         },
       ],
       joinTables: ['foreign_table', 'foreign_table2'],
@@ -207,19 +217,6 @@ describe('buildQueryDescription', () => {
       skip: null,
       take: null,
     })
-  })
-  it('supports alternative `on` syntax', () => {
-    const query = Q.buildQueryDescription([
-      Q.on('foreign_table', Q.where('foreign_column', 'value')),
-      Q.on('foreign_table2', Q.where('foreign_column2', Q.gt(Q.column('foreign_column3')))),
-    ])
-
-    expect(query).toEqual(
-      Q.buildQueryDescription([
-        Q.on('foreign_table', 'foreign_column', 'value'),
-        Q.on('foreign_table2', 'foreign_column2', Q.gt(Q.column('foreign_column3'))),
-      ]),
-    )
   })
   it(`supports nesting Q.on inside and/or`, () => {
     const query = Q.buildQueryDescription([
@@ -243,8 +240,13 @@ describe('buildQueryDescription', () => {
             {
               type: 'on',
               table: 'projects',
-              left: 'is_followed',
-              comparison: { operator: 'eq', right: { value: true } },
+              conditions: [
+                {
+                  type: 'where',
+                  left: 'is_followed',
+                  comparison: { operator: 'eq', right: { value: true } },
+                },
+              ],
             },
             {
               type: 'and',
@@ -252,8 +254,13 @@ describe('buildQueryDescription', () => {
                 {
                   type: 'on',
                   table: 'foreign_table2',
-                  left: 'foo',
-                  comparison: { operator: 'eq', right: { value: 'bar' } },
+                  conditions: [
+                    {
+                      type: 'where',
+                      left: 'foo',
+                      comparison: { operator: 'eq', right: { value: 'bar' } },
+                    },
+                  ],
                 },
               ],
             },
@@ -267,23 +274,37 @@ describe('buildQueryDescription', () => {
       skip: null,
     })
   })
-  it(`supports nesting Q.on inside Q.on`, () => {
+  it(`supports multiple conditions on Q.on`, () => {
     const query = Q.buildQueryDescription([
-      Q.experimentalJoinTables(['projects']),
       Q.experimentalNestedJoin('projects', 'teams'),
-      Q.on('projects', Q.on('teams', 'foo', 'bar')),
+      Q.on('projects', [
+        Q.where('foo', 'bar'),
+        Q.or(Q.where('bar', 'baz'), Q.where('bla', 'boop')),
+      ]),
     ])
     expect(query).toEqual({
       where: [
         {
           type: 'on',
           table: 'projects',
-          nested: {
-            type: 'on',
-            table: 'teams',
-            left: 'foo',
-            comparison: { operator: 'eq', right: { value: 'bar' } },
-          },
+          conditions: [
+            { type: 'where', left: 'foo', comparison: { operator: 'eq', right: { value: 'bar' } } },
+            {
+              type: 'or',
+              conditions: [
+                {
+                  type: 'where',
+                  left: 'bar',
+                  comparison: { operator: 'eq', right: { value: 'baz' } },
+                },
+                {
+                  type: 'where',
+                  left: 'bla',
+                  comparison: { operator: 'eq', right: { value: 'boop' } },
+                },
+              ],
+            },
+          ],
         },
       ],
       joinTables: ['projects'],
@@ -292,6 +313,72 @@ describe('buildQueryDescription', () => {
       take: null,
       skip: null,
     })
+  })
+  it(`supports deep nesting Q.on inside Q.on`, () => {
+    const query = Q.buildQueryDescription([
+      Q.experimentalNestedJoin('projects', 'teams'),
+      Q.experimentalNestedJoin('teams', 'organizations'),
+      Q.on('projects', Q.on('teams', Q.on('organizations', 'foo', 'bar'))),
+    ])
+    expect(query).toEqual({
+      where: [
+        {
+          type: 'on',
+          table: 'projects',
+          conditions: [
+            {
+              type: 'on',
+              table: 'teams',
+              conditions: [
+                {
+                  type: 'on',
+                  table: 'organizations',
+                  conditions: [
+                    {
+                      type: 'where',
+                      left: 'foo',
+                      comparison: { operator: 'eq', right: { value: 'bar' } },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      joinTables: ['projects'],
+      nestedJoinTables: [{ from: 'projects', to: 'teams' }, { from: 'teams', to: 'organizations' }],
+      sortBy: [],
+      take: null,
+      skip: null,
+    })
+  })
+  it(`supports Q.on shortcut syntaxes`, () => {
+    const expected = Q.on('projects', [Q.where('foo', Q.eq('bar'))])
+    expect(Q.on('projects', 'foo', 'bar')).toEqual(expected)
+    expect(Q.on('projects', 'foo', Q.eq('bar'))).toEqual(expected)
+    expect(Q.on('projects', Q.where('foo', 'bar'))).toEqual(expected)
+    expect(Q.on('projects', Q.and(Q.where('foo', 'bar'), Q.where('bar', 'baz')))).toEqual(
+      Q.on('projects', [Q.where('foo', 'bar'), Q.where('bar', 'baz')]),
+    )
+  })
+  it(`compresses top-level Q.ons into a single nested Q.on`, () => {
+    // Multiple separate Q.ons is a legacy syntax producing suboptimal query code unless
+    // special cases are used. Here, we're special casing only top-level Q.ons to avoid regressions
+    // but it's not recommended for new code
+    expect(
+      Q.buildQueryDescription([
+        Q.on('projects', 'p1', 'v1'),
+        Q.on('projects', 'p2', 'v2'),
+        Q.on('teams', 't1', 'v1'),
+        Q.on('projects', 'p3', 'v3'),
+      ]),
+    ).toEqual(
+      Q.buildQueryDescription([
+        Q.on('projects', [Q.where('p1', 'v1'), Q.where('p2', 'v2'), Q.where('p3', 'v3')]),
+        Q.on('teams', 't1', 'v1'),
+      ]),
+    )
   })
 })
 

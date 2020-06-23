@@ -49,10 +49,7 @@ export type Or = $RE<{ type: 'or', conditions: Where[] }>
 export type On = $RE<{
   type: 'on',
   table: TableName<any>,
-  // TODO: Temporary - plan is to allow conditions: Where[] here
-  nested?: On,
-  left: ColumnName,
-  comparison: Comparison,
+  conditions: Where[],
 }>
 export type SortOrder = 'asc' | 'desc'
 export const asc: SortOrder = 'asc'
@@ -290,42 +287,43 @@ export function experimentalSkip(count: number): Skip {
 // (it will remove the parentheses, changing the meaning of the flow type)
 type _OnFunctionColumnValue = (TableName<any>, ColumnName, Value) => On
 type _OnFunctionColumnComparison = (TableName<any>, ColumnName, Comparison) => On
-type _OnFunctionWhereDescription = (TableName<any>, WhereDescription | On) => On
+type _OnFunctionWhere = (TableName<any>, Where) => On
+type _OnFunctionWhereList = (TableName<any>, Where[]) => On
 
-type OnFunction = _OnFunctionColumnValue & _OnFunctionColumnComparison & _OnFunctionWhereDescription
+type OnFunction = _OnFunctionColumnValue &
+  _OnFunctionColumnComparison &
+  _OnFunctionWhere &
+  _OnFunctionWhereList
 
 // Use: on('tableName', 'left_column', 'right_value')
 // or: on('tableName', 'left_column', gte(10))
 // or: on('tableName', where('left_column', 'value')))
-export const on: OnFunction = (table, leftOrClause, valueOrComparison) => {
-  if (typeof leftOrClause === 'string') {
+// or: on('tableName', or(...))
+// or: on('tableName', [where(...), where(...)])
+export const on: OnFunction = (table, leftOrClauseOrList, valueOrComparison) => {
+  if (typeof leftOrClauseOrList === 'string') {
     invariant(valueOrComparison !== undefined, 'illegal `undefined` passed to Q.on')
-    return {
-      type: 'on',
-      table: checkName(table),
-      left: leftOrClause,
-      comparison: _valueOrComparison(valueOrComparison),
-    }
+    return on(table, [where(leftOrClauseOrList, valueOrComparison)])
   }
 
-  const clause: WhereDescription | On = (leftOrClause: any)
+  const clauseOrList: Where | Where[] = (leftOrClauseOrList: any)
 
-  if (clause.type === 'where') {
+  if (Array.isArray(clauseOrList)) {
+    const conditions: Where[] = clauseOrList
+    invariant(
+      conditions.every(isAcceptableClause),
+      'Q.on() can only contain Q.where, Q.and, Q.or, Q.on clauses',
+    )
     return {
       type: 'on',
       table: checkName(table),
-      left: clause.left,
-      comparison: clause.comparison,
+      conditions,
     }
-  } else if (clause.type === 'on') {
-    // $FlowFixMe
-    return {
-      type: 'on',
-      table: checkName(table),
-      nested: clause,
-    }
+  } else if (clauseOrList && clauseOrList.type === 'and') {
+    return on(table, clauseOrList.conditions)
   }
-  throw new Error('Q.on() can only be passed Q.where, Q.on clauses')
+
+  return on(table, [clauseOrList])
 }
 
 export function experimentalJoinTables(tables: TableName<any>[]): JoinTables {
