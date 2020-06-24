@@ -184,11 +184,6 @@ describe('buildQueryDescription', () => {
     expect(query).toEqual({
       where: [
         {
-          type: 'where',
-          left: 'left_column',
-          comparison: { operator: 'eq', right: { value: 'right_value' } },
-        },
-        {
           type: 'on',
           table: 'foreign_table',
           conditions: [
@@ -209,6 +204,11 @@ describe('buildQueryDescription', () => {
               comparison: { operator: 'gt', right: { column: 'foreign_column3' } },
             },
           ],
+        },
+        {
+          type: 'where',
+          left: 'left_column',
+          comparison: { operator: 'eq', right: { value: 'right_value' } },
         },
       ],
       joinTables: ['foreign_table', 'foreign_table2'],

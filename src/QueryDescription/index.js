@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { uniq, partition, piped, map, groupBy, values } from 'rambdax'
+import { uniq, partition, piped, map, groupBy } from 'rambdax'
 import { unnest } from '../utils/fp'
 
 // don't import whole `utils` to keep worker size small
@@ -345,14 +345,14 @@ const compressTopLevelOns = (conditions: Where[]): Where[] => {
   const grouppedOns: On[] = piped(
     ons,
     groupBy(clause => clause.table),
-    values,
+    Object.values,
     map((clauses: On[]) => {
       const { table } = clauses[0]
       const onConditions: Where[] = unnest(clauses.map(clause => clause.conditions))
       return on(table, onConditions)
     }),
   )
-  return wheres.concat(grouppedOns)
+  return grouppedOns.concat(wheres)
 }
 
 const syncStatusColumn = columnName('_status')
@@ -402,7 +402,7 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
     }
   })
   clauseMap.joinTables = uniq(clauseMap.joinTables)
-  clauseMap.where = compressTopLevelOns(clauseMap.where)
+  clauseMap.where = compressTopLevelOns((clauseMap.where: any))
   // $FlowFixMe: Flow is too dumb to realize that it is valid
   return clauseMap
 }
