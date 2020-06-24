@@ -30,6 +30,7 @@ export default function checkName<T: string | TableName<any> | ColumnName>(name:
     return name
   }
 
+  invariant(typeof name === 'string', `Unsafe name '${name}' not allowed (not a string)`)
   invariant(
     ![
       '__proto__',
@@ -49,6 +50,10 @@ export default function checkName<T: string | TableName<any> | ColumnName>(name:
   )
   invariant(
     !['rowid', 'oid', '_rowid_', 'sqlite_master'].includes(name.toLowerCase()),
+    `Unsafe name '${name}' not allowed (reserved for SQLite compatibility)`,
+  )
+  invariant(
+    !name.toLowerCase().startsWith('sqlite_stat'),
     `Unsafe name '${name}' not allowed (reserved for SQLite compatibility)`,
   )
   invariant(

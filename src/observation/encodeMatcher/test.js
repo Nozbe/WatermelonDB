@@ -40,16 +40,19 @@ describe('SQLite encodeMatcher', () => {
     })
   })
   it('throws on queries it cannot encode', () => {
-    expect(() =>
-      makeMatcher([
-        Q.on('projects', 'team_id', 'abcdef'),
-        Q.where('left_column', 'right_value'),
-        Q.on('tag_assignments', 'tag_id', Q.oneOf(['a', 'b', 'c'])),
-      ]),
-    ).toThrow(/can't be encoded into a matcher/)
+    expect(() => makeMatcher([Q.on('projects', 'team_id', 'abcdef')])).toThrow(
+      /can't be encoded into a matcher/,
+    )
+    expect(() => makeMatcher([Q.experimentalJoinTables(['foo'])])).toThrow(
+      /can't be encoded into a matcher/,
+    )
+    expect(() => makeMatcher([Q.experimentalNestedJoin('foo', 'bar')])).toThrow(
+      /can't be encoded into a matcher/,
+    )
     expect(() => makeMatcher([Q.experimentalSortBy('left_column', 'asc')])).toThrow(
       /can't be encoded into a matcher/,
     )
     expect(() => makeMatcher([Q.experimentalTake(100)])).toThrow(/can't be encoded into a matcher/)
+    expect(() => makeMatcher([Q.or(Q.on('projects', 'team_id', 'abcdef'))])).toThrow(/Illegal Q.on/)
   })
 })
