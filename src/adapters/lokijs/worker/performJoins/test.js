@@ -161,8 +161,7 @@ describe('performJoins', () => {
       table: 'projects',
       query: { $and: [{ team_id: { $in: ['t1', 't2'] } }, { _status: { $ne: 'deleted' } }] },
       originalConditions: [
-        Q.on('teams', 'foo', 'bar'),
-        Q.on('teams', '_status', Q.notEq('deleted')),
+        Q.on('teams', [Q.where('foo', 'bar'), Q.where('_status', Q.notEq('deleted'))]),
         Q.where('_status', Q.notEq('deleted')),
       ],
       mapKey: 'id',
