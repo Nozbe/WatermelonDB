@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## 0.17.1 - 2020-06-24
+
+- Fixed broken iOS build - @mlecoq
+
 ## 0.17 - 2020-06-22
 
 ### New features
