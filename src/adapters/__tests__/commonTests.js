@@ -1017,8 +1017,30 @@ export default () => [
   ],
   ...matchTests.map(testCase => [
     `[shared match test] ${testCase.name}`,
-    async adapter => {
-      await performMatchTest(adapter, testCase)
+    async (adapter, AdapterClass) => {
+      const perform = () => performMatchTest(adapter, testCase)
+      const shouldSkip =
+        (AdapterClass.name === 'LokiJSAdapter' && testCase.skipLoki) ||
+        (AdapterClass.name === 'SQLiteAdapter' && testCase.skipSqlite)
+      if (shouldSkip) {
+        await expect(perform()).rejects.toBeInstanceOf(Error)
+      } else {
+        await perform()
+      }
+    },
+  ]),
+  ...joinTests.map(testCase => [
+    `[shared join test] ${testCase.name}`,
+    async (adapter, AdapterClass) => {
+      const perform = () => performJoinTest(adapter, testCase)
+      const shouldSkip =
+        (AdapterClass.name === 'LokiJSAdapter' && testCase.skipLoki) ||
+        (AdapterClass.name === 'SQLiteAdapter' && testCase.skipSqlite)
+      if (shouldSkip) {
+        await expect(perform()).rejects.toBeInstanceOf(Error)
+      } else {
+        await perform()
+      }
     },
   ]),
   [
@@ -1086,10 +1108,4 @@ export default () => [
       })
     },
   ],
-  ...joinTests.map(testCase => [
-    `[shared join test] ${testCase.name}`,
-    async adapter => {
-      await performJoinTest(adapter, testCase)
-    },
-  ]),
 ]

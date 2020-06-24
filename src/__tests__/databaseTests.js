@@ -536,7 +536,47 @@ export const matchTests = [
       { id: 'n4', text1: null },
     ],
   },
-  // TODO: Add sortBy, take, skip tests (once supported by more than just SQLite)
+  {
+    name: 'match unsafe SQL expression',
+    query: [Q.unsafeSqlExpr('tasks.num1 not between 1 and 5')],
+    matching: [
+      { id: 'm1', num1: 0 },
+      { id: 'm2', num1: -1 },
+      { id: 'm3', num1: 6 },
+      { id: 'm4', num1: 10 },
+    ],
+    nonMatching: [{ id: 'n1', num1: 1 }, { id: 'n2', num1: 3 }, { id: 'n3', num1: 5 }],
+    skipLoki: true,
+  },
+  {
+    name: 'match unsafe Loki expression',
+    query: [Q.unsafeLokiExpr({ text1: { $contains: 'hey' } })],
+    matching: [{ id: 'm1', text1: 'hey' }, { id: 'm2', text1: 'aeheyea' }],
+    nonMatching: [{ id: 'n1' }, { id: 'n2', text1: 'he' }],
+    skipSqlite: true,
+  },
+  {
+    name: 'match with sortBy, take & skip',
+    query: [
+      Q.experimentalSortBy('text1', 'asc'),
+      Q.experimentalSortBy('num1', 'desc'),
+      Q.experimentalSkip(2),
+      Q.experimentalTake(2),
+    ],
+    matching: [
+      // TODO: null handling?
+      { id: 'm1', text1: 'b', num1: 10 },
+      { id: 'm1', text1: 'b', num1: 2 },
+    ],
+    nonMatching: [
+      { id: 'm1', text1: 'a', num1: 2 },
+      { id: 'm1', text1: 'a', num1: 1 },
+      { id: 'm1', text1: 'c', num1: 4 },
+      { id: 'm1', text1: 'c', num1: 3 },
+    ],
+    skipLoki: true,
+  },
+  // TODO: Order, not match tests for sortBy, take, skip
 ]
 
 export const naughtyMatchTests = naughtyStrings.map(naughtyString => ({
