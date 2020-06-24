@@ -280,15 +280,37 @@ Remember that Queries are a sensitive subject, security-wise. Never trust user i
 - Do not use `Q.like` / `Q.notLike` without `Q.sanitizeLikeString`
 - Do not use `unsafe raw queries` without knowing what you're doing and sanitizing all user input
 
-### Raw Queries
+### Unsafe raw queries
 
-If this Query syntax is not enough for you, and you need to get your hands dirty on a raw SQL or Loki query, you need **rawQueries**. For now, only record SQL queries are available. If you need other SQL queries or LokiJS raw queries, please contribute!
+If this Query syntax is not enough for you, and you need to get your hands dirty on a raw SQL or Loki query, you need **rawQueries**.
+
+Please don't use this if you don't know what you're doing. The method name is called `unsafe` for a reason.
+
+#### SQL queries
+
+For now, only record SQL queries are available. If you need other SQL queries or LokiJS raw queries, please contribute!
 
 ```js
 const records = commentCollection.unsafeFetchRecordsWithSQL('select * from comments where ...')
 ```
 
-Please don't use this if you don't know what you're doing. The method name is called `unsafe` for a reason. You need to be sure to properly sanitize user values to avoid SQL injection, and filter out deleted records using `where _status is not 'deleted'` clause
+You need to be sure to properly sanitize user values to avoid SQL injection, and filter out deleted records using `where _status is not 'deleted'` clause
+
+#### SQL/Loki expressions
+
+You can also include smaller bits of SQL and Loki expressions so that you can still use as much of Watermelon query builder as possible:
+
+```js
+postsCollection.query(
+  Q.where('is_published', true),
+  // SQL:
+  Q.unsafeSqlExpr('tasks.num1 not between 1 and 5')
+  // LokiJS:
+  Q.unsafeLokiExpr({ text1: { $contains: 'hey' } })
+)
+```
+
+For SQL, be sure to prefix column names with table name when joining with other tables.
 
 ### `null` behavior
 
