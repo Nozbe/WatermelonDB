@@ -59,10 +59,10 @@ const encodeConditions: (Where[]) => Matcher<*> = pipe(
 )
 
 export default function encodeMatcher<Element: Model>(query: QueryDescription): Matcher<Element> {
-  const { joinTables, sortBy, take, skip, where } = query
+  const { joinTables, nestedJoinTables, sortBy, take, skip, where } = query
 
   invariant(
-    !joinTables.length && !sortBy.length && !take && !skip,
+    !joinTables.length && !nestedJoinTables.length && !sortBy.length && !take && !skip,
     `Queries with joins, sortBy, take, or skip can't be encoded into a matcher`,
   )
 

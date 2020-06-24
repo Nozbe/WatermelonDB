@@ -402,7 +402,8 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
     }
   })
   clauseMap.joinTables = uniq(clauseMap.joinTables)
-  clauseMap.where = compressTopLevelOns((clauseMap.where: any))
+  // $FlowFixMe
+  clauseMap.where = compressTopLevelOns(clauseMap.where)
   // $FlowFixMe: Flow is too dumb to realize that it is valid
   return clauseMap
 }
