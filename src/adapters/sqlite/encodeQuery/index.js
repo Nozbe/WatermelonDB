@@ -9,8 +9,6 @@ import type {
   Where,
   ComparisonRight,
   Comparison,
-  And,
-  Or,
   SortBy,
   QueryDescription,
 } from '../../../QueryDescription'
@@ -71,23 +69,15 @@ const encodeWhere = (table: TableName<any>, associations: QueryAssociation[]) =>
   where: Where,
 ): string => {
   if (where.type === 'and') {
-    return `(${encodeAndOr(associations, 'and', table, where)})`
+    return `(${encodeAndOr(associations, 'and', table, where.conditions)})`
   } else if (where.type === 'or') {
-    return `(${encodeAndOr(associations, 'or', table, where)})`
+    return `(${encodeAndOr(associations, 'or', table, where.conditions)})`
   } else if (where.type === 'on') {
     invariant(
       associations.some(({ to }) => to === where.table),
       'To nest Q.on inside Q.and/Q.or you must explicitly declare Q.experimentalJoinTables at the beginning of the query',
     )
-    if (where.nested) {
-      return encodeWhereCondition(
-        associations,
-        where.nested.table,
-        where.nested.left,
-        where.nested.comparison,
-      )
-    }
-    return encodeWhereCondition(associations, where.table, where.left, where.comparison)
+    return `(${encodeAndOr(associations, 'and', where.table, where.conditions)})`
   } else if (where.type === 'where') {
     return encodeWhereCondition(associations, table, where.left, where.comparison)
   }
@@ -118,10 +108,10 @@ const encodeAndOr = (
   associations: QueryAssociation[],
   op: string,
   table: TableName<any>,
-  andOr: And | Or,
+  conditions: Where[],
 ) => {
-  if (andOr.conditions.length) {
-    return mapJoin(andOr.conditions, encodeWhere(table, associations), ` ${op} `)
+  if (conditions.length) {
+    return mapJoin(conditions, encodeWhere(table, associations), ` ${op} `)
   }
   return ''
 }

@@ -126,12 +126,12 @@ describe('SQLite encodeQuery', () => {
     const expectedQuery =
       `join "projects" on "projects"."id" = "tasks"."project_id"` +
       ` join "tag_assignments" on "tag_assignments"."task_id" = "tasks"."id"` +
-      ` where "projects"."team_id" is 'abcdef'` +
+      ` where ("projects"."team_id" is 'abcdef'` +
       ` and "projects"."is_active" is 1` +
+      ` and "projects"."_status" is not 'deleted')` +
+      ` and ("tag_assignments"."tag_id" in ('a', 'b', 'c')` +
+      ` and "tag_assignments"."_status" is not 'deleted')` +
       ` and "tasks"."left_column" is 'right_value'` +
-      ` and "tag_assignments"."tag_id" in ('a', 'b', 'c')` +
-      ` and "projects"."_status" is not 'deleted'` +
-      ` and "tag_assignments"."_status" is not 'deleted'` +
       ` and "tasks"."_status" is not 'deleted'`
 
     expect(encodeQuery(query)).toBe(`select distinct "tasks".* from "tasks" ${expectedQuery}`)
@@ -146,11 +146,12 @@ describe('SQLite encodeQuery', () => {
     ])
     expect(encodeQuery(query)).toBe(
       `select "tasks".* from "tasks"` +
-        ` join "projects" on "projects"."id" = "tasks"."project_id" where "projects"."left_column" <= "projects"."right_column"` +
+        ` join "projects" on "projects"."id" = "tasks"."project_id"` +
+        ` where ("projects"."left_column" <= "projects"."right_column"` +
         ` and ("projects"."left2" > "projects"."right2"` +
         ` or ("projects"."left2" is not null` +
         ` and "projects"."right2" is null))` +
-        ` and "projects"."_status" is not 'deleted'` +
+        ` and "projects"."_status" is not 'deleted')` +
         ` and "tasks"."_status" is not 'deleted'`,
     )
   })
@@ -169,13 +170,12 @@ describe('SQLite encodeQuery', () => {
         ` left join "tag_assignments" on "tag_assignments"."task_id" = "tasks"."id"` +
         ` where ("tasks"."is_followed" is 1` +
         ` or ("projects"."is_followed" is 1 and "projects"."_status" is not 'deleted')` +
-        ` or ("tag_assignments"."foo" is 'bar' and "tag_assignments"."_status" is not 'deleted'))` +
+        ` or (("tag_assignments"."foo" is 'bar' and "tag_assignments"."_status" is not 'deleted')))` +
         ` and "tasks"."_status" is not 'deleted'`,
     )
   })
   it(`encodes Q.on nested inside Q.on`, () => {
     const query = new Query(mockCollection, [
-      Q.experimentalJoinTables(['projects']),
       Q.experimentalNestedJoin('projects', 'teams'),
       Q.on('projects', Q.on('teams', 'foo', 'bar')),
     ])
@@ -183,9 +183,26 @@ describe('SQLite encodeQuery', () => {
       `select "tasks".* from "tasks"` +
         ` join "projects" on "projects"."id" = "tasks"."project_id"` +
         ` left join "teams" on "teams"."id" = "projects"."team_id"` +
-        ` where "teams"."foo" is 'bar'` +
-        ` and "teams"."_status" is not 'deleted'` +
-        ` and "projects"."_status" is not 'deleted'` +
+        ` where (("teams"."foo" is 'bar'` +
+        ` and "teams"."_status" is not 'deleted')` +
+        ` and "projects"."_status" is not 'deleted')` +
+        ` and "tasks"."_status" is not 'deleted'`,
+    )
+  })
+  it(`encodes multiple conditions on Q.on`, () => {
+    const query = new Query(mockCollection, [
+      Q.on('projects', [
+        Q.where('foo', 'bar'),
+        Q.or(Q.where('bar', 'baz'), Q.where('bla', 'boop')),
+      ]),
+    ])
+    expect(encodeQuery(query)).toBe(
+      `select "tasks".* from "tasks"` +
+        ` join "projects" on "projects"."id" = "tasks"."project_id"` +
+        ` where ("projects"."foo" is 'bar'` +
+        ` and ("projects"."bar" is 'baz'` +
+        ` or "projects"."bla" is 'boop')` +
+        ` and "projects"."_status" is not 'deleted')` +
         ` and "tasks"."_status" is not 'deleted'`,
     )
   })

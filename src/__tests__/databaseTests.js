@@ -618,6 +618,36 @@ export const joinTests = [
     ],
   },
   {
+    name: `can perform Q.on with subexpressions`,
+    query: [
+      Q.on('projects', [
+        Q.where('text1', 'foo'),
+        Q.or(Q.where('num1', 2137), Q.where('bool1', true)),
+      ]),
+    ],
+    extraRecords: {
+      projects: [
+        { id: 'p1', text1: 'foo', num1: 2137 },
+        { id: 'p2', text1: 'foo', bool1: true },
+        { id: 'p3', text1: 'foo', num1: 2137, bool1: true },
+        { id: 'badp1', text1: 'foo' },
+        { id: 'badp2', num1: 2137 },
+        { id: 'badp3', text1: 'foo', num1: 2137, _status: 'deleted' },
+      ],
+    },
+    matching: [
+      { id: 'm1', project_id: 'p1' },
+      { id: 'm2', project_id: 'p2' },
+      { id: 'm3', project_id: 'p3' },
+    ],
+    nonMatching: [
+      { id: 'n1', project_id: 'badp1' },
+      { id: 'n2', project_id: 'badp2' },
+      { id: 'n3', project_id: 'badp3' },
+      { id: 'n4', project_id: 'p1', _status: 'deleted' },
+    ],
+  },
+  {
     name: `can perform Q.on's nested in Q.or and Q.and`,
     query: [
       Q.experimentalJoinTables(['projects', 'tag_assignments']),
@@ -664,7 +694,6 @@ export const joinTests = [
   {
     name: `can perform Q.on's nested in Q.on`,
     query: [
-      Q.experimentalJoinTables(['projects']),
       Q.experimentalNestedJoin('projects', 'teams'),
       Q.on('projects', Q.on('teams', 'text1', 'bingo')),
     ],
@@ -689,6 +718,65 @@ export const joinTests = [
       { id: 'n2', project_id: 'badp2' },
       { id: 'n3', project_id: 'badp3' },
       { id: 'n4', project_id: 'p1', _status: 'deleted' },
+    ],
+  },
+  {
+    name: `can perform deeply nested Q.ons`,
+    query: [
+      Q.experimentalJoinTables(['projects']),
+      Q.experimentalNestedJoin('projects', 'teams'),
+      Q.experimentalNestedJoin('teams', 'organizations'),
+      Q.or(
+        Q.where('text1', 'BINGO'),
+        Q.on(
+          'projects',
+          Q.on('teams', [
+            Q.where('bool1', true),
+            Q.or(Q.where('text1', 'GUDTIM'), Q.on('organizations', 'num1', 2137)),
+          ]),
+        ),
+      ),
+    ],
+    extraRecords: {
+      projects: [
+        { id: 'p1', team_id: 't1' },
+        { id: 'p2', team_id: 't2' },
+        { id: 'badp1', team_id: 'badt1' },
+        { id: 'badp2', team_id: 'badt2' },
+        { id: 'badp3', team_id: 'badt3' },
+        { id: 'badp4', team_id: 'badt4' },
+        { id: 'badp5', team_id: 'badt5' },
+        { id: 'badp6', team_id: 't2', _status: 'deleted' },
+      ],
+      teams: [
+        { id: 't1', bool1: true, text1: 'GUDTIM' },
+        { id: 't2', bool1: true, organization_id: 'o1' },
+        { id: 'badt1', bool1: true },
+        { id: 'badt2', text1: 'GUDTIM' },
+        { id: 'badt3', bool1: true, organization_id: 'o1', _status: 'deleted' },
+        { id: 'badt4', bool1: true, organization_id: 'bado1' },
+        { id: 'badt5', bool1: true, organization_id: 'bado2' },
+      ],
+      organizations: [
+        { id: 'o1', num1: 2137 },
+        { id: 'bado1' },
+        { id: 'bado2', num1: 2137, _status: 'deleted' },
+      ],
+    },
+    matching: [
+      { id: 'm1', project_id: 'p1' },
+      { id: 'm2', project_id: 'p2' },
+      { id: 'm3', text1: 'BINGO' },
+      { id: 'm4', text1: 'BINGO', project_id: 'badp1' },
+    ],
+    nonMatching: [
+      { id: 'n1', project_id: 'badp1' },
+      { id: 'n2', project_id: 'badp2' },
+      { id: 'n3', project_id: 'badp3' },
+      { id: 'n4', project_id: 'badp4' },
+      { id: 'n5', project_id: 'badp5' },
+      { id: 'n6', project_id: 'badp6' },
+      { id: 'n9', text1: 'BINGO', project_id: 'p1', _status: 'deleted' },
     ],
   },
   {

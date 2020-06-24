@@ -258,7 +258,6 @@ describe('LokiJS encodeQuery', () => {
   })
   it(`encodes Q.on nested inside Q.on`, () => {
     const query = new Query(mockCollection, [
-      Q.experimentalJoinTables(['projects']),
       Q.experimentalNestedJoin('projects', 'teams'),
       Q.on('projects', Q.on('teams', 'foo', 'bar')),
     ])
@@ -287,8 +286,43 @@ describe('LokiJS encodeQuery', () => {
                 ],
               },
               originalConditions: [
-                Q.on('teams', 'foo', 'bar'),
-                Q.on('teams', '_status', Q.notEq('deleted')),
+                Q.on('teams', [Q.where('foo', 'bar'), Q.where('_status', Q.notEq('deleted'))]),
+                Q.where('_status', Q.notEq('deleted')),
+              ],
+              mapKey: 'id',
+              joinKey: 'project_id',
+            },
+          },
+          { _status: { $ne: 'deleted' } },
+        ],
+      },
+      hasJoins: true,
+    })
+  })
+  it(`encodes multiple conditions on Q.on`, () => {
+    const query = new Query(mockCollection, [
+      Q.on('projects', [
+        Q.where('foo', 'bar'),
+        Q.or(Q.where('bar', 'baz'), Q.where('bla', 'boop')),
+      ]),
+    ])
+    expect(encodeQuery(query)).toEqual({
+      table: 'tasks',
+      query: {
+        $and: [
+          {
+            $join: {
+              table: 'projects',
+              query: {
+                $and: [
+                  { foo: { $eq: 'bar' } },
+                  { $or: [{ bar: { $eq: 'baz' } }, { bla: { $eq: 'boop' } }] },
+                  { _status: { $ne: 'deleted' } },
+                ],
+              },
+              originalConditions: [
+                Q.where('foo', 'bar'),
+                Q.or(Q.where('bar', 'baz'), Q.where('bla', 'boop')),
                 Q.where('_status', Q.notEq('deleted')),
               ],
               mapKey: 'id',

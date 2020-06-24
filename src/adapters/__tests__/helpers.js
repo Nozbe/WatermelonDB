@@ -28,7 +28,13 @@ export class MockTeam extends Model {
 
   static associations = {
     projects: { type: 'has_many', foreignKey: 'team_id' },
+    organizations: { type: 'belongs_to', key: 'organization_id' },
   }
+}
+export class MockOrganization extends Model {
+  static table = 'organizations'
+
+  static associations = {}
 }
 export class MockTagAssignment extends Model {
   static table = 'tag_assignments'
@@ -73,9 +79,17 @@ export const testSchema = appSchema({
     tableSchema({
       name: 'teams',
       columns: [
+        { name: 'organization_id', type: 'string' },
         { name: 'num1', type: 'number' },
         { name: 'text1', type: 'string' },
-
+        { name: 'bool1', type: 'boolean' },
+      ],
+    }),
+    tableSchema({
+      name: 'organizations',
+      columns: [
+        { name: 'num1', type: 'number' },
+        { name: 'text1', type: 'string' },
         { name: 'bool1', type: 'boolean' },
       ],
     }),
