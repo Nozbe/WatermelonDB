@@ -276,7 +276,6 @@ describe('buildQueryDescription', () => {
   })
   it(`supports multiple conditions on Q.on`, () => {
     const query = Q.buildQueryDescription([
-      Q.experimentalNestedJoin('projects', 'teams'),
       Q.on('projects', [
         Q.where('foo', 'bar'),
         Q.or(Q.where('bar', 'baz'), Q.where('bla', 'boop')),
@@ -308,7 +307,7 @@ describe('buildQueryDescription', () => {
         },
       ],
       joinTables: ['projects'],
-      nestedJoinTables: [{ from: 'projects', to: 'teams' }],
+      nestedJoinTables: [],
       sortBy: [],
       take: null,
       skip: null,
