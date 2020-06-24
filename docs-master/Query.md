@@ -173,11 +173,12 @@ This is equivalent to `archivedAt !== null && (isVerified || (likes > 10 && disl
 For example: query all comments under posts published by John:
 
 ```js
+// Shortcut syntax:
 commentCollection.query(
   Q.on('posts', 'author_id', john.id),
 )
 
-// Alternative syntax:
+// Full syntax:
 commentCollection.query(
   Q.on('posts', Q.where('author_id', john.id)),
 )
@@ -189,9 +190,27 @@ The first argument for `Q.on` is the table name you're making a condition on. Th
 
 **Note:** The two tables [must be associated](./Model.md) before you can use `Q.on`.
 
-### Nesting `Q.on` within AND/OR
+#### Multiple conditions on a related table
 
-You can nest `Q.on` within `Q.and` and `Q.or`, however, you must explicitly define all tables you're joining on. This is an experimental feature, and the API is subject to change. (Known limitation: column comparisons do not work within nested `Q.on`s on LokiJSAdapter)
+For example: query all comments under posts that are written by John *and* are either published or belong to `draftBlog`
+
+```js
+commentCollection.query(
+  Q.on('posts', [
+    Q.where('author_id', john.id)
+    Q.or(
+      Q.where('published', true),
+      Q.where('blog_id', draftBlog.id),
+    )
+  ]),
+)
+```
+
+Instead of an array of conditions, you can also pass `Q.and`, `Q.or`, `Q.where`, or `Q.on` as the second argument to `Q.on`.
+
+#### Nesting `Q.on` within AND/OR
+
+If you want to place `Q.on` nested within `Q.and` and `Q.or`, you must explicitly define all tables you're joining on. (NOTE: The `Q.experimentalJoinTables` API is subject to change)
 
 ```js
 tasksCollection.query(
@@ -203,9 +222,11 @@ tasksCollection.query(
 )
 ```
 
-### Deep `Q.on`s
+Known limitation: column comparisons do not work within nested `Q.on`s on LokiJSAdapter
 
-You can also nest `Q.on` within `Q.on`, e.g. to make a condition on a grandparent. You must explicitly define the tables you're joining on. This is an experimental featuers, and the API is subject to change.
+#### Deep `Q.on`s
+
+You can also nest `Q.on` within `Q.on`, e.g. to make a condition on a grandparent. You must explicitly define the tables you're joining on. (NOTE: The `Q.experimentalNestedJoin` API is subject to change). Multiple levels of nesting are allowed.
 
 ```js
 // this queries tasks that are inside projects that are inside teams where team.foo == 'bar'
@@ -214,8 +235,6 @@ tasksCollection.query(
   Q.on('projects', Q.on('teams', 'foo', 'bar')),
 )
 ```
-
-Known limitations: only one level of nesting is currently allowed.
 
 ## Advanced Queries
 
