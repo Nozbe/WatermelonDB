@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 Contributors: Please add your changes to CHANGELOG-Unreleased.md
 
+## 0.17.1 - 2020-06-24
+
+- Fixed broken iOS build - @mlecoq
+
 ## 0.17 - 2020-06-22
 
 ### New features
@@ -22,7 +26,8 @@ Contributors: Please add your changes to CHANGELOG-Unreleased.md
        however this speedup is only achieved with some unpublished React Native patches.
 
        To try out JSI, add `experimentalUseJSI: true` to `SQLiteAdapter` constructor.
-- [Query] Added `Q.experimentalSortBy(sortColumn, sortOrder)`, `Q.experimentalTake(count)`, `Q.experimentalSkip(count)` methods - @Kenneth-KT
+- [Query] Added `Q.experimentalSortBy(sortColumn, sortOrder)`, `Q.experimentalTake(count)`,
+     `Q.experimentalSkip(count)` methods (only availble with SQLiteAdapter) - @Kenneth-KT
 - `Database.batch()` can now be called with a single array of models
 - [DX] `Database.get(tableName)` is now a shortcut for `Database.collections.get(tableName)`
 - [DX] Query is now thenable - you can now use `await query` and `await query.count` instead of `await query.fetch()` and `await query.fetchCount()`

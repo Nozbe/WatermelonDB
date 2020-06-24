@@ -47,6 +47,15 @@ describe('checkName', () => {
       'whatsup\n',
       '\nwhatsup',
       'sqlite_master',
+      'sqlite_stat',
+      'sqlite_stat1',
+      'sqlite_stat3',
+      0,
+      undefined,
+      null,
+      [],
+      {},
+      NaN,
     ]
     unsafeNames.forEach(name => {
       // console.log(name)

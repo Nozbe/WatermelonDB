@@ -13,19 +13,24 @@ import lazy from '../decorators/lazy' // import from decorarators break the app 
 import subscribeToCount from '../observation/subscribeToCount'
 import subscribeToQuery from '../observation/subscribeToQuery'
 import subscribeToQueryWithColumns from '../observation/subscribeToQueryWithColumns'
-import { buildQueryDescription, queryWithoutDeleted } from '../QueryDescription'
+import * as Q from '../QueryDescription'
 import type { Clause, QueryDescription } from '../QueryDescription'
 import type Model, { AssociationInfo } from '../Model'
 import type Collection from '../Collection'
 import type { TableName, ColumnName } from '../Schema'
 
-import { getSecondaryTables, getAssociations } from './helpers'
+import { getAssociations } from './helpers'
 
-export type AssociationArgs = [TableName<any>, AssociationInfo]
+export type QueryAssociation = $Exact<{
+  from: TableName<any>,
+  to: TableName<any>,
+  info: AssociationInfo,
+}>
+
 export type SerializedQuery = $Exact<{
   table: TableName<any>,
   description: QueryDescription,
-  associations: AssociationArgs[],
+  associations: QueryAssociation[],
 }>
 
 interface QueryCountProxy {
@@ -60,21 +65,22 @@ export default class Query<Record: Model> {
   // Note: Don't use this directly, use Collection.query(...)
   constructor(collection: Collection<Record>, clauses: Clause[]): void {
     this.collection = collection
-    this._rawDescription = buildQueryDescription(clauses)
-    this.description = queryWithoutDeleted(this._rawDescription)
+    this._rawDescription = Q.buildQueryDescription(clauses)
+    this.description = Q.queryWithoutDeleted(this._rawDescription)
   }
 
   // Creates a new Query that extends the clauses of this query
   extend(...clauses: Clause[]): Query<Record> {
     const { collection } = this
-    const { join, where, sortBy, take, skip } = this._rawDescription
+    const { where, sortBy, take, skip, joinTables, nestedJoinTables } = this._rawDescription
 
     return new Query(collection, [
-      ...join,
+      Q.experimentalJoinTables(joinTables),
+      ...nestedJoinTables.map(({ from, to }) => Q.experimentalNestedJoin(from, to)),
       ...where,
       ...sortBy,
-      ...(take ? [take] : []),
-      ...(skip ? [skip] : []),
+      ...(take ? [Q.experimentalTake(take)] : []),
+      ...(skip ? [Q.experimentalSkip(skip)] : []),
       ...clauses,
     ])
   }
@@ -184,20 +190,20 @@ export default class Query<Record: Model> {
   }
 
   get secondaryTables(): TableName<any>[] {
-    return getSecondaryTables(this.description)
+    return this.description.joinTables.concat(this.description.nestedJoinTables.map(({ to }) => to))
   }
 
   get allTables(): TableName<any>[] {
     return prepend(this.table, this.secondaryTables)
   }
 
-  get associations(): AssociationArgs[] {
-    return getAssociations(this.secondaryTables, this.modelClass.associations)
+  get associations(): QueryAssociation[] {
+    return getAssociations(this.description, this.modelClass, this.collection.db)
   }
 
   // `true` if query contains join clauses on foreign tables
   get hasJoins(): boolean {
-    return !!this.description.join.length
+    return !!this.secondaryTables.length
   }
 
   // Serialized version of Query (e.g. for sending to web worker)

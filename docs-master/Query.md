@@ -149,33 +149,6 @@ usersCollection.query(
 
 where `"jas"` can be changed dynamically with user input.
 
-
-### Conditions on related tables
-
-For example: query all comments under posts published by John:
-
-```js
-commentCollection.query(
-  Q.on('posts', 'author_id', john.id),
-)
-```
-
-Normally you set conditions on the table you're querying. Here we're querying **comments**, but we have a condition on the **post** the comment belongs to.
-
-The first argument for `Q.on` is the table name you're making a condition on. The other two arguments are same as for `Q.where`.
-
-**Note:** The two tables [must be associated](./Model.md) before you can use `Q.on`.
-
-## Advanced Queries
-
-### Advanced observing
-
-Call `query.observeWithColumns(['foo', 'bar'])` to create an Observable that emits a value not only when the list of matching records changes (new records/deleted records), but also when any of the matched records changes its `foo` or `bar` column. [Use this for observing sorted lists](./Components.md)
-
-#### Count throttling
-
-By default, calling `query.observeCount()` returns an Observable that is throttled to emit at most once every 250ms. You can disable throttling using `query.observeCount(false)`.
-
 ### AND/OR nesting
 
 You can nest multiple conditions using `Q.and` and `Q.or`:
@@ -194,6 +167,84 @@ commentCollection.query(
 ```
 
 This is equivalent to `archivedAt !== null && (isVerified || (likes > 10 && dislikes < 5))`.
+
+### Conditions on related tables ("JOIN queries")
+
+For example: query all comments under posts published by John:
+
+```js
+// Shortcut syntax:
+commentCollection.query(
+  Q.on('posts', 'author_id', john.id),
+)
+
+// Full syntax:
+commentCollection.query(
+  Q.on('posts', Q.where('author_id', john.id)),
+)
+```
+
+Normally you set conditions on the table you're querying. Here we're querying **comments**, but we have a condition on the **post** the comment belongs to.
+
+The first argument for `Q.on` is the table name you're making a condition on. The other two arguments are same as for `Q.where`.
+
+**Note:** The two tables [must be associated](./Model.md) before you can use `Q.on`.
+
+#### Multiple conditions on a related table
+
+For example: query all comments under posts that are written by John *and* are either published or belong to `draftBlog`
+
+```js
+commentCollection.query(
+  Q.on('posts', [
+    Q.where('author_id', john.id)
+    Q.or(
+      Q.where('published', true),
+      Q.where('blog_id', draftBlog.id),
+    )
+  ]),
+)
+```
+
+Instead of an array of conditions, you can also pass `Q.and`, `Q.or`, `Q.where`, or `Q.on` as the second argument to `Q.on`.
+
+#### Nesting `Q.on` within AND/OR
+
+If you want to place `Q.on` nested within `Q.and` and `Q.or`, you must explicitly define all tables you're joining on. (NOTE: The `Q.experimentalJoinTables` API is subject to change)
+
+```js
+tasksCollection.query(
+  Q.experimentalJoinTables(['projects']),
+  Q.or(
+    Q.where('is_followed', true),
+    Q.on('projects', 'is_followed', true),
+  ),
+)
+```
+
+Known limitation: column comparisons do not work within nested `Q.on`s on LokiJSAdapter
+
+#### Deep `Q.on`s
+
+You can also nest `Q.on` within `Q.on`, e.g. to make a condition on a grandparent. You must explicitly define the tables you're joining on. (NOTE: The `Q.experimentalNestedJoin` API is subject to change). Multiple levels of nesting are allowed.
+
+```js
+// this queries tasks that are inside projects that are inside teams where team.foo == 'bar'
+tasksCollection.query(
+  Q.experimentalNestedJoin('projects', 'teams'),
+  Q.on('projects', Q.on('teams', 'foo', 'bar')),
+)
+```
+
+## Advanced Queries
+
+### Advanced observing
+
+Call `query.observeWithColumns(['foo', 'bar'])` to create an Observable that emits a value not only when the list of matching records changes (new records/deleted records), but also when any of the matched records changes its `foo` or `bar` column. [Use this for observing sorted lists](./Components.md)
+
+#### Count throttling
+
+By default, calling `query.observeCount()` returns an Observable that is throttled to emit at most once every 250ms. You can disable throttling using `query.observeCount(false)`.
 
 ### Column comparisons
 

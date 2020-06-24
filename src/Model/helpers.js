@@ -1,6 +1,6 @@
 // @flow
 
-import {allPromises, hasIn, unnest} from '../utils/fp'
+import { allPromises, hasIn, unnest } from '../utils/fp'
 
 import * as Q from '../QueryDescription'
 import type Model from './index'

@@ -5,16 +5,31 @@ import * as Q from '../QueryDescription'
 
 import Query from './index'
 
-class MockTaskModel extends Model {
+// TODO: Standardize these mocks (same as in sqlite encodeQuery, query test)
+
+class MockTask extends Model {
   static table = 'mock_tasks'
 
   static associations = {
     projects: { type: 'belongs_to', key: 'project_id' },
     tag_assignments: { type: 'has_many', foreignKey: 'task_id' },
+    fake1: { type: 'has_many', foreignKey: 'task_id' },
   }
 }
 
-const mockCollection = Object.freeze({ modelClass: MockTaskModel })
+class MockProject extends Model {
+  static table = 'projects'
+
+  static associations = {
+    teams: { type: 'belongs_to', key: 'team_id' },
+    fake1: { type: 'belongs_to', key: 'team_id' },
+  }
+}
+
+const mockCollection = Object.freeze({
+  modelClass: MockTask,
+  db: { get: table => (table === 'projects' ? { modelClass: MockProject } : undefined) },
+})
 
 describe('Query', () => {
   describe('description properties', () => {
@@ -38,14 +53,6 @@ describe('Query', () => {
       expect(query.hasJoins).toBe(false)
       expect(query.associations).toEqual([])
     })
-    it('fetches associations correctly for complex queries', () => {
-      const query = new Query(mockCollection, [
-        Q.where('id', 'abcdef'),
-        Q.on('projects', 'team_id', 'abcdef'),
-      ])
-      expect(query.hasJoins).toBe(true)
-      expect(query.associations).toEqual([['projects', { type: 'belongs_to', key: 'project_id' }]])
-    })
     it('fetches associations correctly for more complex queries', () => {
       const query = new Query(mockCollection, [
         Q.on('projects', 'team_id', 'abcdef'),
@@ -55,9 +62,46 @@ describe('Query', () => {
       expect(query.hasJoins).toBe(true)
       expect(query.secondaryTables).toEqual(['projects', 'tag_assignments'])
       expect(query.associations).toEqual([
-        ['projects', { type: 'belongs_to', key: 'project_id' }],
-        ['tag_assignments', { type: 'has_many', foreignKey: 'task_id' }],
+        { from: 'mock_tasks', to: 'projects', info: { type: 'belongs_to', key: 'project_id' } },
+        {
+          from: 'mock_tasks',
+          to: 'tag_assignments',
+          info: { type: 'has_many', foreignKey: 'task_id' },
+        },
       ])
+    })
+    it('fetches associations correctly for explicit joins', () => {
+      const query = new Query(mockCollection, [
+        Q.experimentalJoinTables(['projects']),
+        Q.experimentalNestedJoin('projects', 'teams'),
+        Q.on('projects', Q.on('teams', 'foo', 'bar')),
+      ])
+      expect(query.hasJoins).toBe(true)
+      expect(query.secondaryTables).toEqual(['projects', 'teams'])
+      expect(query.associations).toEqual([
+        { from: 'mock_tasks', to: 'projects', info: { type: 'belongs_to', key: 'project_id' } },
+        { from: 'projects', to: 'teams', info: { type: 'belongs_to', key: 'team_id' } },
+      ])
+    })
+    it(`throws an error on incorrect associations`, () => {
+      expect(
+        () => new Query(mockCollection, [Q.experimentalJoinTables(['blaublams'])]).associations,
+      ).toThrow(
+        `Query on 'mock_tasks' joins with 'blaublams', but MockTask does not have associations={} defined for 'blaublams'`,
+      )
+      expect(
+        () =>
+          new Query(mockCollection, [Q.experimentalNestedJoin('blaublams', 'flaflas')])
+            .associations,
+      ).toThrow(
+        `Query on 'mock_tasks' has a nested join with 'blaublams', but collection for 'blaublams' cannot be found`,
+      )
+      expect(
+        () =>
+          new Query(mockCollection, [Q.experimentalNestedJoin('projects', 'flaflas')]).associations,
+      ).toThrow(
+        `Query on 'mock_tasks' has a nested join from 'projects' to 'flaflas', but MockProject does not have associations={} defined for 'flaflas'`,
+      )
     })
     it('can return extended query', () => {
       const query = new Query(mockCollection, [
@@ -117,6 +161,22 @@ describe('Query', () => {
       ])
       expect(extendedQuery.serialize()).toEqual(expectedQuery.serialize())
       expect(extendedQuery._rawDescription).toEqual(expectedQuery._rawDescription)
+    })
+    it(`can extend query for join tables`, () => {
+      const query = new Query(mockCollection, [
+        Q.experimentalJoinTables(['projects', 'tag_assignments']),
+        Q.experimentalNestedJoin('projects', 'teams'),
+      ])
+      const extendedQuery = query.extend(
+        Q.experimentalJoinTables(['projects', 'fake1']),
+        Q.experimentalNestedJoin('projects', 'fake1'),
+      )
+      const expectedQuery = new Query(mockCollection, [
+        Q.experimentalJoinTables(['projects', 'tag_assignments', 'fake1']),
+        Q.experimentalNestedJoin('projects', 'teams'),
+        Q.experimentalNestedJoin('projects', 'fake1'),
+      ])
+      expect(extendedQuery.serialize()).toEqual(expectedQuery.serialize())
     })
     it('returns serializable version of Query', () => {
       const query = new Query(mockCollection, [
