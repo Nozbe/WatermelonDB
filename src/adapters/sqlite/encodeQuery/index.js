@@ -206,6 +206,12 @@ const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string
 
   const hasToManyJoins = associations.some(({ info }) => info.type === 'has_many')
 
+  if (description.take && countMode) {
+    throw new Error(
+      'take/skip is not currently supported with counting. Please contribute to fix this!',
+    )
+  }
+
   const sql =
     encodeMethod(table, countMode, hasToManyJoins) +
     encodeJoin(description, associations) +

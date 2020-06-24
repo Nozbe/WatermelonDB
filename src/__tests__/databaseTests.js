@@ -556,6 +556,27 @@ export const matchTests = [
     skipSqlite: true,
   },
   {
+    name: 'match with sortBy & take',
+    query: [
+      Q.experimentalSortBy('text1', 'asc'),
+      Q.experimentalSortBy('num1', 'desc'),
+      Q.experimentalTake(2),
+    ],
+    matching: [
+      // TODO: null handling?
+      { id: 'n2', text1: 'a', num1: 1 },
+      { id: 'n1', text1: 'a', num1: 2 },
+    ],
+    nonMatching: [
+      { id: 'n3', text1: 'c', num1: 4 },
+      { id: 'm2', text1: 'b', num1: 2 },
+      { id: 'm1', text1: 'b', num1: 10 },
+      { id: 'n4', text1: 'c', num1: 3 },
+    ],
+    skipLoki: true,
+    skipCount: true, // count is broken
+  },
+  {
     name: 'match with sortBy, take & skip',
     query: [
       Q.experimentalSortBy('text1', 'asc'),
@@ -565,16 +586,17 @@ export const matchTests = [
     ],
     matching: [
       // TODO: null handling?
+      { id: 'm2', text1: 'b', num1: 2 },
       { id: 'm1', text1: 'b', num1: 10 },
-      { id: 'm1', text1: 'b', num1: 2 },
     ],
     nonMatching: [
-      { id: 'm1', text1: 'a', num1: 2 },
-      { id: 'm1', text1: 'a', num1: 1 },
-      { id: 'm1', text1: 'c', num1: 4 },
-      { id: 'm1', text1: 'c', num1: 3 },
+      { id: 'n3', text1: 'c', num1: 4 },
+      { id: 'n4', text1: 'c', num1: 3 },
+      { id: 'n1', text1: 'a', num1: 2 },
+      { id: 'n2', text1: 'a', num1: 1 },
     ],
     skipLoki: true,
+    skipCount: true, // count is broken
   },
   // TODO: Order, not match tests for sortBy, take, skip
 ]
