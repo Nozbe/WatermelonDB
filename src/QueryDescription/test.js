@@ -645,6 +645,8 @@ describe('buildQueryDescription - contd', () => {
   })
   it(`catches bad argument values`, () => {
     expect(() => Q.experimentalSortBy('foo', 'ascasc')).toThrow('Invalid sortOrder')
+    expect(() => Q.where('foo', Q.unsafeSqlExpr('is RANDOM()'))).toThrow()
+    expect(() => Q.where('foo', Q.unsafeLokiExpr('is RANDOM()'))).toThrow()
     expect(() => Q.and(Q.like('foo'))).toThrow('can only contain')
     expect(() => Q.or(Q.like('foo'))).toThrow('can only contain')
     expect(() => Q.on('foo', Q.column('foo'))).toThrow('can only contain')
