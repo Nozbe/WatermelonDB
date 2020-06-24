@@ -92,6 +92,12 @@ describe('SQLite encodeQuery', () => {
       `select "tasks".* from "tasks" where "tasks"."left1" >= "tasks"."right1" and ("tasks"."left2" > "tasks"."right2" or ("tasks"."left2" is not null and "tasks"."right2" is null)) and "tasks"."_status" is not 'deleted'`,
     )
   })
+  it(`encodes raw SQL expressions`, () => {
+    const query = new Query(mockCollection, [Q.unsafeSqlExpr('tasks.left1 >= projects.right1')])
+    expect(encodeQuery(query)).toBe(
+      `select "tasks".* from "tasks" where tasks.left1 >= projects.right1 and "tasks"."_status" is not 'deleted'`,
+    )
+  })
   it('encodes AND/OR nesting', () => {
     const query = new Query(mockCollection, [
       Q.where('col1', 'value'),
@@ -256,5 +262,9 @@ describe('SQLite encodeQuery', () => {
     expect(encodeQuery(query)).toBe(
       `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' order by "tasks"."sortable_column" desc limit 100 offset 200`,
     )
+  })
+  it(`does not encode loki subexprs`, () => {
+    const query = new Query(mockCollection, [Q.unsafeLokiExpr({ hi: true })])
+    expect(() => encodeQuery(query)).toThrow('Unknown clause')
   })
 })

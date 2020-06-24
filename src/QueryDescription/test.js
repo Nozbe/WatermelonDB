@@ -175,6 +175,27 @@ describe('buildQueryDescription', () => {
       take: null,
     })
   })
+  it(`supports unsafe SQL and Loki expressions`, () => {
+    const query = Q.buildQueryDescription([
+      Q.unsafeSqlExpr(`some sql`),
+      Q.unsafeLokiExpr({ column: { $jgt: 5 } }),
+      Q.and(Q.unsafeSqlExpr(`some sql`)),
+      Q.or(Q.unsafeLokiExpr({ column: { $jgt: 5 } })),
+    ])
+    expect(query).toEqual({
+      where: [
+        { type: 'sql', expr: `some sql` },
+        { type: 'loki', expr: { column: { $jgt: 5 } } },
+        { type: 'and', conditions: [{ type: 'sql', expr: `some sql` }] },
+        { type: 'or', conditions: [{ type: 'loki', expr: { column: { $jgt: 5 } } }] },
+      ],
+      joinTables: [],
+      nestedJoinTables: [],
+      sortBy: [],
+      skip: null,
+      take: null,
+    })
+  })
   it('supports simple JOIN queries', () => {
     const query = Q.buildQueryDescription([
       Q.on('foreign_table', 'foreign_column', 'value'),
@@ -608,24 +629,29 @@ describe('buildQueryDescription - contd', () => {
   it('catches bad types', () => {
     expect(() => Q.eq({})).toThrow(/Invalid value passed to query/)
     // TODO: oneOf/notIn values?
-    expect(() => Q.oneOf({})).toThrow(/not an array/)
-    expect(() => Q.notIn({})).toThrow(/not an array/)
-    expect(() => Q.like(null)).toThrow(/not string/)
-    expect(() => Q.like({})).toThrow(/not string/)
-    expect(() => Q.notLike(null)).toThrow(/not string/)
-    expect(() => Q.notLike({})).toThrow(/not string/)
-    expect(() => Q.sanitizeLikeString(null)).toThrow(/not string/)
-    expect(() => Q.column({})).toThrow(/not string/)
-    expect(() => Q.experimentalTake('0')).toThrow(/not a number/)
-    expect(() => Q.experimentalSkip('0')).toThrow(/not a number/)
+    expect(() => Q.oneOf({})).toThrow('not an array')
+    expect(() => Q.notIn({})).toThrow('not an array')
+    expect(() => Q.like(null)).toThrow('not a string')
+    expect(() => Q.like({})).toThrow('not a string')
+    expect(() => Q.notLike(null)).toThrow('not a string')
+    expect(() => Q.notLike({})).toThrow('not a string')
+    expect(() => Q.sanitizeLikeString(null)).toThrow('not a string')
+    expect(() => Q.column({})).toThrow('not a string')
+    expect(() => Q.experimentalTake('0')).toThrow('not a number')
+    expect(() => Q.experimentalSkip('0')).toThrow('not a number')
+    expect(() => Q.unsafeSqlExpr({})).toThrow('not a string')
+    expect(() => Q.unsafeLokiExpr()).toThrow('not an object')
+    expect(() => Q.unsafeLokiExpr('hey')).toThrow('not an object')
   })
   it(`catches bad argument values`, () => {
-    expect(() => Q.experimentalSortBy('foo', 'ascasc')).toThrow(/Invalid sortOrder/)
-    expect(() => Q.and(Q.like('foo'))).toThrow(/and\(\) can only contain/)
-    expect(() => Q.or(Q.like('foo'))).toThrow(/or\(\) can only contain/)
+    expect(() => Q.experimentalSortBy('foo', 'ascasc')).toThrow('Invalid sortOrder')
+    expect(() => Q.where('foo', Q.unsafeSqlExpr('is RANDOM()'))).toThrow()
+    expect(() => Q.where('foo', Q.unsafeLokiExpr('is RANDOM()'))).toThrow()
+    expect(() => Q.and(Q.like('foo'))).toThrow('can only contain')
+    expect(() => Q.or(Q.like('foo'))).toThrow('can only contain')
+    expect(() => Q.on('foo', Q.column('foo'))).toThrow('can only contain')
     expect(() => Q.buildQueryDescription([Q.like('foo')])).toThrow('Invalid Query clause passed')
     expect(() => Q.experimentalJoinTables('foo', 'bar')).toThrow('expected an array')
-    expect(() => Q.on('foo', Q.column('foo'))).toThrow('can only contain')
   })
   it('protect against passing Watermelon look-alike objects', () => {
     // protect against passing something that could be a user-input Object (risk is when Watermelon users pass stuff from JSON without validation), but is unintended or even malicious in some way

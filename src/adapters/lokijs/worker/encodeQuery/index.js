@@ -133,31 +133,39 @@ const encodeWhereDescription: WhereDescription => LokiRawQuery = ({ left, compar
     ? hackAlwaysTrueCondition
     : objOf(left, encodeComparison(comparison))
 
-const typeEq = propEq('type')
-
-const encodeCondition: (QueryAssociation[]) => Clause => LokiRawQuery = associations => clause =>
-  (cond([
-    [typeEq('and'), encodeAnd(associations)],
-    [typeEq('or'), encodeOr(associations)],
-    [typeEq('where'), encodeWhereDescription],
-    [typeEq('on'), encodeJoin(associations)],
-  ]): any)(clause)
+const encodeCondition: (QueryAssociation[]) => Clause => LokiRawQuery = associations => clause => {
+  switch (clause.type) {
+    case 'and':
+      return encodeAnd(associations, clause)
+    case 'or':
+      return encodeOr(associations, clause)
+    case 'where':
+      return encodeWhereDescription(clause)
+    case 'on':
+      return encodeJoin(associations, clause)
+    case 'loki':
+      return clause.expr
+    default:
+      throw new Error(`Unknown clause ${clause.type}`)
+  }
+}
 
 const encodeConditions: (
   QueryAssociation[],
 ) => (Where[]) => LokiRawQuery[] = associations => conditions =>
   conditions.map(encodeCondition(associations))
 
-const encodeAndOr: LokiKeyword => (
-  QueryAssociation[],
-) => (And | Or) => LokiRawQuery = op => associations => clause => {
+const encodeAndOr = (op: LokiKeyword) => (
+  associations: QueryAssociation[],
+  clause: And | Or,
+): LokiRawQuery => {
   const conditions = encodeConditions(associations)(clause.conditions)
   // flatten
   return conditions.length === 1 ? conditions[0] : { [op]: conditions }
 }
 
-const encodeAnd: (QueryAssociation[]) => And => LokiRawQuery = encodeAndOr('$and')
-const encodeOr: (QueryAssociation[]) => Or => LokiRawQuery = encodeAndOr('$or')
+const encodeAnd: (QueryAssociation[], And) => LokiRawQuery = encodeAndOr('$and')
+const encodeOr: (QueryAssociation[], Or) => LokiRawQuery = encodeAndOr('$or')
 
 const lengthEq = n =>
   pipe(
@@ -191,7 +199,7 @@ const encodeJoinKey: AssociationInfo => ColumnName = ifElse(
   always(columnName('id')),
 )
 
-const encodeJoin = (associations: QueryAssociation[]) => (on: On): LokiRawQuery => {
+const encodeJoin = (associations: QueryAssociation[], on: On): LokiRawQuery => {
   const { table, conditions } = on
   const association = associations.find(({ to }) => table === to)
   invariant(

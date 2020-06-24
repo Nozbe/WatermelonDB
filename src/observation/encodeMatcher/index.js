@@ -49,7 +49,7 @@ const encodeWhere: Where => Matcher<*> = where => {
         'Illegal Q.on found -- nested Q.ons require explicit Q.experimentalJoinTables declaration',
       )
     default:
-      throw new Error('Invalid Where')
+      throw new Error(`Illegal clause ${where.type}`)
   }
 }
 

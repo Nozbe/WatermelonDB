@@ -14,6 +14,9 @@ const expectFalse = (matcher, raw) => expect(matcher(raw)).toBe(false)
 describe('SQLite encodeMatcher', () => {
   matchTests.forEach(testCase => {
     it(`passes db test: ${testCase.name}`, () => {
+      if (testCase.skipMatcher) {
+        return
+      }
       const matcher = makeMatcher(testCase.query)
 
       testCase.matching.forEach(matchingRaw => {
@@ -40,19 +43,15 @@ describe('SQLite encodeMatcher', () => {
     })
   })
   it('throws on queries it cannot encode', () => {
-    expect(() => makeMatcher([Q.on('projects', 'team_id', 'abcdef')])).toThrow(
-      /can't be encoded into a matcher/,
-    )
-    expect(() => makeMatcher([Q.experimentalJoinTables(['foo'])])).toThrow(
-      /can't be encoded into a matcher/,
-    )
-    expect(() => makeMatcher([Q.experimentalNestedJoin('foo', 'bar')])).toThrow(
-      /can't be encoded into a matcher/,
-    )
-    expect(() => makeMatcher([Q.experimentalSortBy('left_column', 'asc')])).toThrow(
-      /can't be encoded into a matcher/,
-    )
-    expect(() => makeMatcher([Q.experimentalTake(100)])).toThrow(/can't be encoded into a matcher/)
-    expect(() => makeMatcher([Q.or(Q.on('projects', 'team_id', 'abcdef'))])).toThrow(/Illegal Q.on/)
+    const error = `can't be encoded into a matcher`
+    expect(() => makeMatcher([Q.on('projects', 'team_id', 'abcdef')])).toThrow(error)
+    expect(() => makeMatcher([Q.experimentalJoinTables(['foo'])])).toThrow(error)
+    expect(() => makeMatcher([Q.experimentalNestedJoin('foo', 'bar')])).toThrow(error)
+    expect(() => makeMatcher([Q.experimentalSortBy('left_column', 'asc')])).toThrow(error)
+    expect(() => makeMatcher([Q.experimentalTake(100)])).toThrow(error)
+    expect(() => makeMatcher([Q.experimentalTake(100)])).toThrow(error)
+    expect(() => makeMatcher([Q.or(Q.on('projects', 'team_id', 'abcdef'))])).toThrow('Illegal Q.on')
+    expect(() => makeMatcher([Q.or(Q.unsafeSqlExpr(''))])).toThrow('Illegal')
+    expect(() => makeMatcher([Q.or(Q.unsafeLokiExpr({}))])).toThrow('Illegal')
   })
 })
