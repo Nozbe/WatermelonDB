@@ -184,6 +184,11 @@ describe('buildQueryDescription', () => {
     expect(query).toEqual({
       where: [
         {
+          type: 'where',
+          left: 'left_column',
+          comparison: { operator: 'eq', right: { value: 'right_value' } },
+        },
+        {
           type: 'on',
           table: 'foreign_table',
           conditions: [
@@ -193,11 +198,6 @@ describe('buildQueryDescription', () => {
               comparison: { operator: 'eq', right: { value: 'value' } },
             },
           ],
-        },
-        {
-          type: 'where',
-          left: 'left_column',
-          comparison: { operator: 'eq', right: { value: 'right_value' } },
         },
         {
           type: 'on',
@@ -363,9 +363,6 @@ describe('buildQueryDescription', () => {
     )
   })
   it(`compresses top-level Q.ons into a single nested Q.on`, () => {
-    // Multiple separate Q.ons is a legacy syntax producing suboptimal query code unless
-    // special cases are used. Here, we're special casing only top-level Q.ons to avoid regressions
-    // but it's not recommended for new code
     expect(
       Q.buildQueryDescription([
         Q.on('projects', 'p1', 'v1'),
@@ -427,19 +424,17 @@ describe('hasColumnComparisons', () => {
 })
 
 describe('queryWithoutDeleted', () => {
+  const whereNotDeleted = Q.where('_status', Q.notEq('deleted'))
   it('builds empty query without deleted', () => {
     const query = Q.queryWithoutDeleted(Q.buildQueryDescription([]))
-    expect(query).toEqual(Q.buildQueryDescription([Q.where('_status', Q.notEq('deleted'))]))
+    expect(query).toEqual(Q.buildQueryDescription([whereNotDeleted]))
   })
   it('builds simple query without deleted', () => {
     const query = Q.queryWithoutDeleted(
       Q.buildQueryDescription([Q.where('left_column', 'right_value')]),
     )
     expect(query).toEqual(
-      Q.buildQueryDescription([
-        Q.where('left_column', 'right_value'),
-        Q.where('_status', Q.notEq('deleted')),
-      ]),
+      Q.buildQueryDescription([Q.where('left_column', 'right_value'), whereNotDeleted]),
     )
   })
   it('supports simple 2 JOIN queries on one table and JOIN query on another without deleted', () => {
@@ -453,13 +448,17 @@ describe('queryWithoutDeleted', () => {
     )
     expect(query).toEqual(
       Q.buildQueryDescription([
-        Q.on('foreign_table', 'foreign_column', 'value'),
-        Q.on('foreign_table', 'foreign_column4', 'value'),
         Q.where('left_column', 'right_value'),
-        Q.on('foreign_table2', 'foreign_column2', Q.gt(Q.column('foreign_column3'))),
-        Q.on('foreign_table', '_status', Q.notEq('deleted')),
-        Q.on('foreign_table2', '_status', Q.notEq('deleted')),
-        Q.where('_status', Q.notEq('deleted')),
+        Q.on('foreign_table', [
+          Q.where('foreign_column', 'value'),
+          Q.where('foreign_column4', 'value'),
+          whereNotDeleted,
+        ]),
+        Q.on('foreign_table2', [
+          Q.where('foreign_column2', Q.gt(Q.column('foreign_column3'))),
+          whereNotDeleted,
+        ]),
+        whereNotDeleted,
       ]),
     )
   })
@@ -469,12 +468,8 @@ describe('queryWithoutDeleted', () => {
         Q.experimentalJoinTables(['projects', 'tag_assignments']),
         Q.or(
           Q.where('is_followed', true),
-          Q.on('projects', 'is_followed', true),
-          Q.on('projects', 'foo', 'bar'),
-          Q.and(
-            Q.on('tag_assignments', 'foo', 'bar'),
-            Q.and(Q.on('tag_assignments', 'foo', 'baz'), Q.on('tag_assignments', 'foo', 'bazz')),
-          ),
+          Q.on('projects', [Q.where('is_followed', true), Q.where('foo', 'bar')]),
+          Q.and(Q.on('tag_assignments', 'foo', 'bar')),
         ),
       ]),
     )
@@ -483,22 +478,10 @@ describe('queryWithoutDeleted', () => {
         Q.experimentalJoinTables(['projects', 'tag_assignments']),
         Q.or(
           Q.where('is_followed', true),
-          Q.and(
-            Q.on('projects', 'is_followed', true),
-            Q.on('projects', '_status', Q.notEq('deleted')),
-          ),
-          Q.and(Q.on('projects', 'foo', 'bar'), Q.on('projects', '_status', Q.notEq('deleted'))),
-          Q.and(
-            Q.on('tag_assignments', 'foo', 'bar'),
-            Q.and(
-              Q.on('tag_assignments', 'foo', 'baz'),
-              Q.on('tag_assignments', 'foo', 'bazz'),
-              Q.on('tag_assignments', '_status', Q.notEq('deleted')),
-            ),
-            Q.on('tag_assignments', '_status', Q.notEq('deleted')),
-          ),
+          Q.on('projects', [Q.where('is_followed', true), Q.where('foo', 'bar'), whereNotDeleted]),
+          Q.and(Q.on('tag_assignments', [Q.where('foo', 'bar'), whereNotDeleted])),
         ),
-        Q.where('_status', Q.notEq('deleted')),
+        whereNotDeleted,
       ]),
     )
   })
@@ -509,24 +492,27 @@ describe('queryWithoutDeleted', () => {
         Q.experimentalJoinTables(['projects']),
         Q.experimentalNestedJoin('projects', 'teams'),
         Q.on('projects', Q.on('teams', 'foo', 'bar')),
-        Q.or(Q.on('projects', Q.on('teams', 'foo', 'bar'))),
+        Q.or(Q.on('projects', Q.on('teams', Q.on('organizations', 'foo', 'bar')))),
       ]),
     )
     expect(query).toEqual(
       Q.buildQueryDescription([
         Q.experimentalJoinTables(['projects']),
         Q.experimentalNestedJoin('projects', 'teams'),
-        Q.on('projects', Q.on('teams', 'foo', 'bar')),
+        Q.on('projects', [
+          Q.on('teams', [Q.where('foo', 'bar'), whereNotDeleted]),
+          whereNotDeleted,
+        ]),
         Q.or(
-          Q.and(
-            Q.on('projects', Q.on('teams', 'foo', 'bar')),
-            Q.on('projects', Q.on('teams', '_status', Q.notEq('deleted'))),
-            Q.on('projects', '_status', Q.notEq('deleted')),
-          ),
+          Q.on('projects', [
+            Q.on('teams', [
+              Q.on('organizations', [Q.where('foo', 'bar'), whereNotDeleted]),
+              whereNotDeleted,
+            ]),
+            whereNotDeleted,
+          ]),
         ),
-        Q.on('projects', Q.on('teams', '_status', Q.notEq('deleted'))),
-        Q.on('projects', '_status', Q.notEq('deleted')),
-        Q.where('_status', Q.notEq('deleted')),
+        whereNotDeleted,
       ]),
     )
   })
@@ -640,7 +626,7 @@ describe('buildQueryDescription - contd', () => {
     expect(() => Q.or(Q.like('foo'))).toThrow(/or\(\) can only contain/)
     expect(() => Q.buildQueryDescription([Q.like('foo')])).toThrow('Invalid Query clause passed')
     expect(() => Q.experimentalJoinTables('foo', 'bar')).toThrow('expected an array')
-    expect(() => Q.on('foo', Q.column('foo'))).toThrow('can only be passed Q.where, Q.on clauses')
+    expect(() => Q.on('foo', Q.column('foo'))).toThrow('can only contain')
   })
   it('protect against passing Watermelon look-alike objects', () => {
     // protect against passing something that could be a user-input Object (risk is when Watermelon users pass stuff from JSON without validation), but is unintended or even malicious in some way

@@ -1,7 +1,8 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { uniq } from 'rambdax'
+import { uniq, partition, piped, map, groupBy, values } from 'rambdax'
+import { unnest } from '../utils/fp'
 
 // don't import whole `utils` to keep worker size small
 import invariant from '../utils/common/invariant'
@@ -335,6 +336,25 @@ export function experimentalNestedJoin(from: TableName<any>, to: TableName<any>)
   return { type: 'nestedJoinTable', from: checkName(from), to: checkName(to) }
 }
 
+const compressTopLevelOns = (conditions: Where[]): Where[] => {
+  // Multiple separate Q.ons is a legacy syntax producing suboptimal query code unless
+  // special cases are used. Here, we're special casing only top-level Q.ons to avoid regressions
+  // but it's not recommended for new code
+  // TODO: Remove this special case
+  const [ons, wheres] = partition(clause => clause.type === 'on', conditions)
+  const grouppedOns: On[] = piped(
+    ons,
+    groupBy(clause => clause.table),
+    values,
+    map((clauses: On[]) => {
+      const { table } = clauses[0]
+      const onConditions: Where[] = unnest(clauses.map(clause => clause.conditions))
+      return on(table, onConditions)
+    }),
+  )
+  return wheres.concat(grouppedOns)
+}
+
 const syncStatusColumn = columnName('_status')
 const extractClauses: (Clause[]) => QueryDescription = clauses => {
   const clauseMap = {
@@ -382,6 +402,7 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
     }
   })
   clauseMap.joinTables = uniq(clauseMap.joinTables)
+  clauseMap.where = compressTopLevelOns(clauseMap.where)
   // $FlowFixMe: Flow is too dumb to realize that it is valid
   return clauseMap
 }
@@ -399,47 +420,23 @@ export function buildQueryDescription(clauses: Clause[]): QueryDescription {
 }
 
 const whereNotDeleted = where(syncStatusColumn, notEq('deleted'))
-const whereNotDeletedJoin: (TableName<any>) => On = table =>
-  on(table, syncStatusColumn, notEq('deleted'))
-const whereNotDeletedNested: On => ?On = clause =>
-  clause.nested
-    ? on(clause.table, on(clause.nested.table, syncStatusColumn, notEq('deleted')))
-    : null
 
-function conditionsAndJoinTablesWithoutDeleted(wheres: Where[]): Where[] {
-  // TODO: Handling nested ons is a huge hack - fix it
-  const conditions: Where[] = wheres.map(queryWithoutDeletedImpl)
-  // $FlowFixMe
-  const ons: On[] = conditions.filter(clause => clause.type === 'on')
-  // $FlowFixMe
-  const nestedOns: On[] = ons.map(whereNotDeletedNested).filter(clause => clause)
-  const onTables = uniq(ons.map(clause => clause.table))
-  return conditions.concat(nestedOns).concat(onTables.map(whereNotDeletedJoin))
-}
-
-function conditionWithoutDeleted(clause: Where): Where {
-  if (clause.type === 'on') {
-    const onClause: On = clause
-    const nested: ?On = whereNotDeletedNested(onClause)
-    return ({
-      type: 'and',
-      conditions: [clause, ...(nested ? [nested] : []), whereNotDeletedJoin(onClause.table)],
-    }: And)
-  }
-  return queryWithoutDeletedImpl(clause)
+function conditionsWithoutDeleted(conditions: Where[]): Where[] {
+  return conditions.map(queryWithoutDeletedImpl)
 }
 
 function queryWithoutDeletedImpl(clause: Where): Where {
   if (clause.type === 'and') {
-    return ({
-      type: 'and',
-      conditions: conditionsAndJoinTablesWithoutDeleted(clause.conditions),
-    }: And)
+    return { type: 'and', conditions: conditionsWithoutDeleted(clause.conditions) }
   } else if (clause.type === 'or') {
-    return ({
-      type: 'or',
-      conditions: clause.conditions.map(conditionWithoutDeleted),
-    }: Or)
+    return { type: 'or', conditions: conditionsWithoutDeleted(clause.conditions) }
+  } else if (clause.type === 'on') {
+    const onClause: On = clause
+    return {
+      type: 'on',
+      table: onClause.table,
+      conditions: conditionsWithoutDeleted(onClause.conditions).concat(whereNotDeleted),
+    }
   }
 
   return clause
@@ -450,7 +447,7 @@ export function queryWithoutDeleted(query: QueryDescription): QueryDescription {
 
   const newQuery = {
     ...query,
-    where: [...conditionsAndJoinTablesWithoutDeleted(whereConditions), whereNotDeleted],
+    where: conditionsWithoutDeleted(whereConditions).concat(whereNotDeleted),
   }
   if (process.env.NODE_ENV !== 'production') {
     deepFreeze(newQuery)
