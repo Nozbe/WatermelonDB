@@ -547,6 +547,7 @@ export const matchTests = [
     ],
     nonMatching: [{ id: 'n1', num1: 1 }, { id: 'n2', num1: 3 }, { id: 'n3', num1: 5 }],
     skipLoki: true,
+    skipMatcher: true,
   },
   {
     name: 'match unsafe Loki expression',
@@ -554,6 +555,7 @@ export const matchTests = [
     matching: [{ id: 'm1', text1: 'hey' }, { id: 'm2', text1: 'aeheyea' }],
     nonMatching: [{ id: 'n1' }, { id: 'n2', text1: 'he' }],
     skipSqlite: true,
+    skipMatcher: true,
   },
   {
     name: 'match with sortBy & take',
@@ -575,6 +577,7 @@ export const matchTests = [
     ],
     skipLoki: true,
     skipCount: true, // count is broken
+    skipMatcher: true,
   },
   {
     name: 'match with sortBy, take & skip',
@@ -597,6 +600,7 @@ export const matchTests = [
     ],
     skipLoki: true,
     skipCount: true, // count is broken
+    skipMatcher: true,
   },
   // TODO: Order, not match tests for sortBy, take, skip
 ]
