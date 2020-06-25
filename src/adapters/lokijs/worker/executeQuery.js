@@ -68,5 +68,12 @@ export default function executeQuery(query: SerializedQuery, loki: Loki): LokiRe
 
   // Step three: if query makes column comparison conditions, we (inefficiently) refine
   // the rough results using a matcher function
-  return refineResultsForColumnComparisons(roughResults, query.description.where)
+  const refinedResults = refineResultsForColumnComparisons(roughResults, query.description.where)
+
+  // Step four: execute extra filter, if passed in query
+  if (lokiQuery.filter) {
+    const filterFn = lokiQuery.filter
+    return refinedResults.where(rawRecord => filterFn(rawRecord, loki))
+  }
+  return refinedResults
 }
