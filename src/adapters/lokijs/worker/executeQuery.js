@@ -25,8 +25,6 @@ function refineResultsForColumnComparisons(
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
-      take: null,
-      skip: null,
     }
     const matcher = encodeMatcher(queryWithoutJoins)
 

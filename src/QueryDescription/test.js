@@ -8,8 +8,6 @@ describe('buildQueryDescription', () => {
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
-      skip: null,
-      take: null,
     })
   })
   it('builds simple query', () => {
@@ -25,8 +23,6 @@ describe('buildQueryDescription', () => {
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
-      skip: null,
-      take: null,
     })
   })
   it('accepts multiple conditions and value types', () => {
@@ -48,8 +44,6 @@ describe('buildQueryDescription', () => {
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
-      skip: null,
-      take: null,
     })
   })
   it('supports multiple operators', () => {
@@ -109,8 +103,6 @@ describe('buildQueryDescription', () => {
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
-      skip: null,
-      take: null,
     })
   })
   it('supports column comparisons', () => {
@@ -129,8 +121,6 @@ describe('buildQueryDescription', () => {
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
-      skip: null,
-      take: null,
     })
   })
   it('supports AND/OR nesting', () => {
@@ -171,8 +161,6 @@ describe('buildQueryDescription', () => {
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
-      skip: null,
-      take: null,
     })
   })
   it(`supports unsafe SQL and Loki expressions`, () => {
@@ -192,8 +180,6 @@ describe('buildQueryDescription', () => {
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
-      skip: null,
-      take: null,
     })
   })
   it(`supports unsafe Loki filter`, () => {
@@ -204,8 +190,7 @@ describe('buildQueryDescription', () => {
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
-      skip: null,
-      take: null,
+
       lokiFilter: filter,
     })
   })
@@ -248,8 +233,6 @@ describe('buildQueryDescription', () => {
       joinTables: ['foreign_table', 'foreign_table2'],
       nestedJoinTables: [],
       sortBy: [],
-      skip: null,
-      take: null,
     })
   })
   it(`supports nesting Q.on inside and/or`, () => {
@@ -304,8 +287,6 @@ describe('buildQueryDescription', () => {
       joinTables: ['projects', 'foreign_table2'],
       nestedJoinTables: [],
       sortBy: [],
-      take: null,
-      skip: null,
     })
   })
   it(`supports multiple conditions on Q.on`, () => {
@@ -343,8 +324,6 @@ describe('buildQueryDescription', () => {
       joinTables: ['projects'],
       nestedJoinTables: [],
       sortBy: [],
-      take: null,
-      skip: null,
     })
   })
   it(`supports deep nesting Q.on inside Q.on`, () => {
@@ -382,8 +361,6 @@ describe('buildQueryDescription', () => {
       joinTables: ['projects'],
       nestedJoinTables: [{ from: 'projects', to: 'teams' }, { from: 'teams', to: 'organizations' }],
       sortBy: [],
-      take: null,
-      skip: null,
     })
   })
   it(`supports Q.on shortcut syntaxes`, () => {
@@ -409,6 +386,113 @@ describe('buildQueryDescription', () => {
         Q.on('teams', 't1', 'v1'),
       ]),
     )
+  })
+  it('supports sorting query', () => {
+    const query = Q.buildQueryDescription([Q.experimentalSortBy('sortable_column', Q.desc)])
+    expect(query).toEqual({
+      where: [],
+      joinTables: [],
+      nestedJoinTables: [],
+      sortBy: [{ type: 'sortBy', sortColumn: 'sortable_column', sortOrder: 'desc' }],
+    })
+  })
+  it('does not support skip operator without take operator', () => {
+    expect(() => {
+      Q.buildQueryDescription([Q.experimentalSkip(100)])
+    }).toThrow('cannot skip without take')
+  })
+  it('support multiple skip operators but only take the last', () => {
+    const query = Q.buildQueryDescription([
+      Q.experimentalTake(100),
+      Q.experimentalSkip(200),
+      Q.experimentalSkip(400),
+      Q.experimentalSkip(800),
+    ])
+    expect(query).toEqual({
+      where: [],
+      joinTables: [],
+      nestedJoinTables: [],
+      sortBy: [],
+      take: 100,
+      skip: 800,
+    })
+  })
+  it('deep freezes the query in dev', () => {
+    const make = () => Q.buildQueryDescription([Q.where('left_column', 'right_value')])
+    const query = make()
+    expect(() => {
+      query.foo = []
+    }).toThrow()
+    expect(() => {
+      query.where[0].comparison.right = {}
+    }).toThrow()
+    expect(query).toEqual(make())
+  })
+  it('freezes oneOf/notIn, even in production', () => {
+    const env = process.env.NODE_ENV
+    try {
+      process.env.NODE_ENV = 'production'
+      const ohJustAnArray = [1, 2, 3]
+      const anotherArray = ['a', 'b', 'c']
+      Q.buildQueryDescription([
+        Q.where('col7', Q.oneOf(ohJustAnArray)),
+        Q.where('col8', Q.notIn(anotherArray)),
+      ])
+      expect(() => ohJustAnArray.push(4)).toThrow()
+      expect(() => anotherArray.push('d')).toThrow()
+      expect(ohJustAnArray.length).toBe(3)
+      expect(anotherArray.length).toBe(3)
+    } finally {
+      process.env.NODE_ENV = env
+    }
+  })
+  it('catches bad types', () => {
+    expect(() => Q.eq({})).toThrow(/Invalid value passed to query/)
+    // TODO: oneOf/notIn values?
+    expect(() => Q.oneOf({})).toThrow('not an array')
+    expect(() => Q.notIn({})).toThrow('not an array')
+    expect(() => Q.like(null)).toThrow('not a string')
+    expect(() => Q.like({})).toThrow('not a string')
+    expect(() => Q.notLike(null)).toThrow('not a string')
+    expect(() => Q.notLike({})).toThrow('not a string')
+    expect(() => Q.sanitizeLikeString(null)).toThrow('not a string')
+    expect(() => Q.column({})).toThrow('not a string')
+    expect(() => Q.experimentalTake('0')).toThrow('not a number')
+    expect(() => Q.experimentalSkip('0')).toThrow('not a number')
+    expect(() => Q.unsafeSqlExpr({})).toThrow('not a string')
+    expect(() => Q.unsafeLokiExpr()).toThrow('not an object')
+    expect(() => Q.unsafeLokiExpr('hey')).toThrow('not an object')
+  })
+  it(`catches bad argument values`, () => {
+    expect(() => Q.experimentalSortBy('foo', 'ascasc')).toThrow('Invalid sortOrder')
+    expect(() => Q.where('foo', Q.unsafeSqlExpr('is RANDOM()'))).toThrow()
+    expect(() => Q.where('foo', Q.unsafeLokiExpr('is RANDOM()'))).toThrow()
+    expect(() => Q.and(Q.like('foo'))).toThrow('can only contain')
+    expect(() => Q.or(Q.like('foo'))).toThrow('can only contain')
+    expect(() => Q.on('foo', Q.column('foo'))).toThrow('can only contain')
+    expect(() => Q.buildQueryDescription([Q.like('foo')])).toThrow('Invalid Query clause passed')
+    expect(() => Q.experimentalJoinTables('foo', 'bar')).toThrow('expected an array')
+  })
+  it('protect against passing Watermelon look-alike objects', () => {
+    // protect against passing something that could be a user-input Object (risk is when Watermelon users pass stuff from JSON without validation), but is unintended or even malicious in some way
+    expect(() => Q.eq({ column: 'foo' })).toThrow(/Invalid { column: }/)
+    expect(() => Q.where('foo', { operator: 'eq', right: { value: 'foo' } })).toThrow(
+      /Invalid Comparison/,
+    )
+    expect(() => Q.where('foo', {})).toThrow(/Invalid Comparison/)
+    expect(() => Q.on('table', 'foo', {})).toThrow(/Invalid Comparison/)
+    expect(() => Q.on('table', 'foo', Q.eq({ column: 'foo' }))).toThrow(/Invalid { column: }/)
+  })
+  it(`protects against unsafe column and table names passed`, () => {
+    expect(() => Q.column('sqlite_master')).toThrow(/Unsafe name/)
+    expect(() => Q.column('hey` or --')).toThrow(/Unsafe name/)
+    expect(() => Q.where('rowid', 10)).toThrow(/Unsafe name/)
+    expect(() => Q.experimentalSortBy('sqlite_master', 'asc')).toThrow(/Unsafe name/)
+    expect(() => Q.on('sqlite_master', 'foo', 'bar')).toThrow(/Unsafe name/)
+    expect(() => Q.on('sqlite_master', Q.where('foo', 'bar'))).toThrow(/Unsafe name/)
+    expect(() => Q.experimentalJoinTables(['foo', 'sqlite_master'])).toThrow(/Unsafe name/)
+    expect(() => Q.experimentalNestedJoin('sqlite_master', 'foo')).toThrow(/Unsafe name/)
+    expect(() => Q.experimentalNestedJoin('foo', 'sqlite_master')).toThrow(/Unsafe name/)
   })
 })
 
@@ -548,117 +632,5 @@ describe('queryWithoutDeleted', () => {
         whereNotDeleted,
       ]),
     )
-  })
-})
-
-describe('buildQueryDescription - contd', () => {
-  it('supports sorting query', () => {
-    const query = Q.buildQueryDescription([Q.experimentalSortBy('sortable_column', Q.desc)])
-    expect(query).toEqual({
-      where: [],
-      joinTables: [],
-      nestedJoinTables: [],
-      sortBy: [{ type: 'sortBy', sortColumn: 'sortable_column', sortOrder: 'desc' }],
-      skip: null,
-      take: null,
-    })
-  })
-  it('does not support skip operator without take operator', () => {
-    expect(() => {
-      Q.buildQueryDescription([Q.experimentalSkip(100)])
-    }).toThrow('cannot skip without take')
-  })
-  it('support multiple skip operators but only take the last', () => {
-    const query = Q.buildQueryDescription([
-      Q.experimentalTake(100),
-      Q.experimentalSkip(200),
-      Q.experimentalSkip(400),
-      Q.experimentalSkip(800),
-    ])
-    expect(query).toEqual({
-      where: [],
-      joinTables: [],
-      nestedJoinTables: [],
-      sortBy: [],
-      take: 100,
-      skip: 800,
-    })
-  })
-  it('deep freezes the query in dev', () => {
-    const make = () => Q.buildQueryDescription([Q.where('left_column', 'right_value')])
-    const query = make()
-    expect(() => {
-      query.foo = []
-    }).toThrow()
-    expect(() => {
-      query.where[0].comparison.right = {}
-    }).toThrow()
-    expect(query).toEqual(make())
-  })
-  it('freezes oneOf/notIn, even in production', () => {
-    const env = process.env.NODE_ENV
-    try {
-      process.env.NODE_ENV = 'production'
-      const ohJustAnArray = [1, 2, 3]
-      const anotherArray = ['a', 'b', 'c']
-      Q.buildQueryDescription([
-        Q.where('col7', Q.oneOf(ohJustAnArray)),
-        Q.where('col8', Q.notIn(anotherArray)),
-      ])
-      expect(() => ohJustAnArray.push(4)).toThrow()
-      expect(() => anotherArray.push('d')).toThrow()
-      expect(ohJustAnArray.length).toBe(3)
-      expect(anotherArray.length).toBe(3)
-    } finally {
-      process.env.NODE_ENV = env
-    }
-  })
-  it('catches bad types', () => {
-    expect(() => Q.eq({})).toThrow(/Invalid value passed to query/)
-    // TODO: oneOf/notIn values?
-    expect(() => Q.oneOf({})).toThrow('not an array')
-    expect(() => Q.notIn({})).toThrow('not an array')
-    expect(() => Q.like(null)).toThrow('not a string')
-    expect(() => Q.like({})).toThrow('not a string')
-    expect(() => Q.notLike(null)).toThrow('not a string')
-    expect(() => Q.notLike({})).toThrow('not a string')
-    expect(() => Q.sanitizeLikeString(null)).toThrow('not a string')
-    expect(() => Q.column({})).toThrow('not a string')
-    expect(() => Q.experimentalTake('0')).toThrow('not a number')
-    expect(() => Q.experimentalSkip('0')).toThrow('not a number')
-    expect(() => Q.unsafeSqlExpr({})).toThrow('not a string')
-    expect(() => Q.unsafeLokiExpr()).toThrow('not an object')
-    expect(() => Q.unsafeLokiExpr('hey')).toThrow('not an object')
-  })
-  it(`catches bad argument values`, () => {
-    expect(() => Q.experimentalSortBy('foo', 'ascasc')).toThrow('Invalid sortOrder')
-    expect(() => Q.where('foo', Q.unsafeSqlExpr('is RANDOM()'))).toThrow()
-    expect(() => Q.where('foo', Q.unsafeLokiExpr('is RANDOM()'))).toThrow()
-    expect(() => Q.and(Q.like('foo'))).toThrow('can only contain')
-    expect(() => Q.or(Q.like('foo'))).toThrow('can only contain')
-    expect(() => Q.on('foo', Q.column('foo'))).toThrow('can only contain')
-    expect(() => Q.buildQueryDescription([Q.like('foo')])).toThrow('Invalid Query clause passed')
-    expect(() => Q.experimentalJoinTables('foo', 'bar')).toThrow('expected an array')
-  })
-  it('protect against passing Watermelon look-alike objects', () => {
-    // protect against passing something that could be a user-input Object (risk is when Watermelon users pass stuff from JSON without validation), but is unintended or even malicious in some way
-    expect(() => Q.eq({ column: 'foo' })).toThrow(/Invalid { column: }/)
-    expect(() => Q.where('foo', { operator: 'eq', right: { value: 'foo' } })).toThrow(
-      /Invalid Comparison/,
-    )
-    expect(() => Q.where('foo', {})).toThrow(/Invalid Comparison/)
-    expect(() => Q.on('table', 'foo', {})).toThrow(/Invalid Comparison/)
-    expect(() => Q.on('table', 'foo', Q.eq({ column: 'foo' }))).toThrow(/Invalid { column: }/)
-  })
-  it(`protects against unsafe column and table names passed`, () => {
-    expect(() => Q.column('sqlite_master')).toThrow(/Unsafe name/)
-    expect(() => Q.column('hey` or --')).toThrow(/Unsafe name/)
-    expect(() => Q.where('rowid', 10)).toThrow(/Unsafe name/)
-    expect(() => Q.experimentalSortBy('sqlite_master', 'asc')).toThrow(/Unsafe name/)
-    expect(() => Q.on('sqlite_master', 'foo', 'bar')).toThrow(/Unsafe name/)
-    expect(() => Q.on('sqlite_master', Q.where('foo', 'bar'))).toThrow(/Unsafe name/)
-    expect(() => Q.experimentalJoinTables(['foo', 'sqlite_master'])).toThrow(/Unsafe name/)
-    expect(() => Q.experimentalNestedJoin('sqlite_master', 'foo')).toThrow(/Unsafe name/)
-    expect(() => Q.experimentalNestedJoin('foo', 'sqlite_master')).toThrow(/Unsafe name/)
   })
 })
