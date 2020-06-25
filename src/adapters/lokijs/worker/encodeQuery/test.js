@@ -393,21 +393,11 @@ describe('LokiJS encodeQuery', () => {
       hasJoins: true,
     })
   })
-  it(`encodes loki filters`, () => {
-    const fn = () => {}
-    expect(encoded([Q.unsafeLokiFilter(fn)])).toEqual({
-      table: 'tasks',
-      query: { _status: { $ne: 'deleted' } },
-      hasJoins: false,
-      filter: fn,
-    })
-  })
   it(`fails to encode nested on without explicit joinTables`, () => {
     const query = new Query(mockCollection, [Q.or(Q.on('projects', 'is_followed', true))])
     expect(() => testQuery(query)).toThrow(/explicitly declare Q.experimentalJoinTables/)
   })
   it(`does not encode sql subexprs`, () => {
-    const query = new Query(mockCollection, [Q.unsafeSqlExpr('haha sql goes brrr')])
-    expect(() => testQuery(query)).toThrow('Unknown clause')
+    expect(() => encoded([Q.unsafeSqlExpr('haha sql goes brrr')])).toThrow('Unknown clause')
   })
 })

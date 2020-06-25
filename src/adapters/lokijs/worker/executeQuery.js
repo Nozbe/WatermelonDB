@@ -56,7 +56,7 @@ function performJoin(join: LokiJoin, loki: Loki): DirtyRaw[] {
 // that need them, we filter records with a matcher function.
 // This is far less efficient, so should be considered a temporary hack/workaround
 export default function executeQuery(query: SerializedQuery, loki: Loki): LokiResultset {
-  const collection = loki.getCollection(query.table).chain()
+  const { lokiFilter, where } = query.description
 
   // Step one: perform all inner queries (JOINs) to get the single table query
   const lokiQuery = encodeQuery(query)
@@ -64,16 +64,16 @@ export default function executeQuery(query: SerializedQuery, loki: Loki): LokiRe
 
   // Step two: fetch all records matching query
   // Ignore column comparison conditions (assume condition is true)
+  const collection = loki.getCollection(query.table).chain()
   const roughResults = collection.find(mainQuery)
 
   // Step three: if query makes column comparison conditions, we (inefficiently) refine
   // the rough results using a matcher function
-  const refinedResults = refineResultsForColumnComparisons(roughResults, query.description.where)
+  const refinedResults = refineResultsForColumnComparisons(roughResults, where)
 
   // Step four: execute extra filter, if passed in query
-  if (lokiQuery.filter) {
-    const filterFn = lokiQuery.filter
-    return refinedResults.where(rawRecord => filterFn(rawRecord, loki))
+  if (lokiFilter) {
+    return refinedResults.where(rawRecord => lokiFilter(rawRecord, loki))
   }
   return refinedResults
 }

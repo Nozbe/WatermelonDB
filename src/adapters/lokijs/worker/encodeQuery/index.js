@@ -22,7 +22,6 @@ import type {
   Comparison,
   Clause,
   CompoundValue,
-  LokiFilterFunction,
 } from '../../../../QueryDescription'
 import { type TableName, type ColumnName, columnName } from '../../../../Schema'
 import type { AssociationInfo } from '../../../../Model'
@@ -54,7 +53,6 @@ export type LokiQuery = $Exact<{
   table: TableName<any>,
   query: LokiRawQuery,
   hasJoins: boolean,
-  filter?: LokiFilterFunction,
 }>
 
 const getComparisonRight: ComparisonRight => CompoundValue = (cond([
@@ -222,7 +220,7 @@ const encodeJoin = (associations: QueryAssociation[], on: On): LokiRawQuery => {
 export default function encodeQuery(query: SerializedQuery): LokiQuery {
   const {
     table,
-    description: { where, joinTables, sortBy, take, lokiFilter },
+    description: { where, joinTables, sortBy, take },
     associations,
   } = query
 
@@ -234,6 +232,5 @@ export default function encodeQuery(query: SerializedQuery): LokiQuery {
     table,
     query: encodeRootConditions(associations)(where),
     hasJoins: !!joinTables.length,
-    filter: lokiFilter,
   }
 }
