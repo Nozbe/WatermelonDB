@@ -316,6 +316,27 @@ postsCollection.query(
 
 For SQL, be sure to prefix column names with table name when joining with other tables.
 
+### Multi-table column comparisons and `Q.unsafeLokiFilter`
+
+Example: we want to query comments posted more than 14 days after the post it belongs to was published.
+
+```js
+// SQL example:
+commentsCollection.query(
+  Q.on('posts', 'published_at', Q.notEq(null)),
+  Q.unsafeSqlExpr(`comments.createad_at > posts.published_at + ${14 * 24 * 3600 * 1000}`)
+)
+
+// LokiJS example:
+commentsCollection.query(
+  Q.on('posts', 'published_at', Q.notEq(null)),
+  Q.unsafeLokiFilter((record, loki) => {
+    const post = loki.getCollection('posts').by('id', record.post_id)
+    return post && record.created_at > post.published_at + 14 * 24 * 3600 * 1000
+  }),
+)
+```
+
 ### `null` behavior
 
 There are some gotchas you should be aware of. The `Q.gt`, `gte`, `lt`, `lte`, `oneOf`, `notIn`, `like` operators match the semantics of SQLite in terms of how they treat `null`. Those are different from JavaScript.

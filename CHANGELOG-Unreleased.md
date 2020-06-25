@@ -28,6 +28,9 @@
 - [Query] `Q.unsafeSqlExpr()` and `Q.unsafeLokiExpr()` are introduced to allow adding bits of queries
     that are not supported by the WatermelonDB query language without having to use `unsafeFetchRecordsWithSQL()`.
     See docs for more details
+- [Query] `Q.unsafeLokiFilter((rawRecord, loki) => boolean)` can now be used as an escape hatch to make
+    queries with LokiJSAdapter that are not otherwise possible (e.g. multi-table column comparisons).
+    See docs for more details
 
 ### Changes
 
