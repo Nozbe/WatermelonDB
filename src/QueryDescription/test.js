@@ -8,8 +8,6 @@ describe('buildQueryDescription', () => {
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
-      skip: null,
-      take: null,
     })
   })
   it('builds simple query', () => {
@@ -25,8 +23,6 @@ describe('buildQueryDescription', () => {
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
-      skip: null,
-      take: null,
     })
   })
   it('accepts multiple conditions and value types', () => {
@@ -48,8 +44,6 @@ describe('buildQueryDescription', () => {
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
-      skip: null,
-      take: null,
     })
   })
   it('supports multiple operators', () => {
@@ -109,8 +103,6 @@ describe('buildQueryDescription', () => {
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
-      skip: null,
-      take: null,
     })
   })
   it('supports column comparisons', () => {
@@ -129,8 +121,6 @@ describe('buildQueryDescription', () => {
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
-      skip: null,
-      take: null,
     })
   })
   it('supports AND/OR nesting', () => {
@@ -171,8 +161,6 @@ describe('buildQueryDescription', () => {
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
-      skip: null,
-      take: null,
     })
   })
   it(`supports unsafe SQL and Loki expressions`, () => {
@@ -192,8 +180,6 @@ describe('buildQueryDescription', () => {
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
-      skip: null,
-      take: null,
     })
   })
   it(`supports unsafe Loki filter`, () => {
@@ -204,8 +190,7 @@ describe('buildQueryDescription', () => {
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
-      skip: null,
-      take: null,
+
       lokiFilter: filter,
     })
   })
@@ -248,8 +233,6 @@ describe('buildQueryDescription', () => {
       joinTables: ['foreign_table', 'foreign_table2'],
       nestedJoinTables: [],
       sortBy: [],
-      skip: null,
-      take: null,
     })
   })
   it(`supports nesting Q.on inside and/or`, () => {
@@ -304,8 +287,6 @@ describe('buildQueryDescription', () => {
       joinTables: ['projects', 'foreign_table2'],
       nestedJoinTables: [],
       sortBy: [],
-      take: null,
-      skip: null,
     })
   })
   it(`supports multiple conditions on Q.on`, () => {
@@ -343,8 +324,6 @@ describe('buildQueryDescription', () => {
       joinTables: ['projects'],
       nestedJoinTables: [],
       sortBy: [],
-      take: null,
-      skip: null,
     })
   })
   it(`supports deep nesting Q.on inside Q.on`, () => {
@@ -382,8 +361,6 @@ describe('buildQueryDescription', () => {
       joinTables: ['projects'],
       nestedJoinTables: [{ from: 'projects', to: 'teams' }, { from: 'teams', to: 'organizations' }],
       sortBy: [],
-      take: null,
-      skip: null,
     })
   })
   it(`supports Q.on shortcut syntaxes`, () => {
@@ -417,8 +394,6 @@ describe('buildQueryDescription', () => {
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [{ type: 'sortBy', sortColumn: 'sortable_column', sortOrder: 'desc' }],
-      skip: null,
-      take: null,
     })
   })
   it('does not support skip operator without take operator', () => {

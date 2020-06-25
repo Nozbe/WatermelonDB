@@ -10,6 +10,7 @@ import type { RawRecord } from '../../RawRecord'
 import type Model from '../../Model'
 
 import operators from './operators'
+import canEncodeMatcher from './canEncode'
 
 // eslint-disable-next-line no-unused-vars
 export type Matcher<Element: Model> = RawRecord => boolean
@@ -59,17 +60,10 @@ const encodeConditions: (Where[]) => Matcher<*> = pipe(
 )
 
 export default function encodeMatcher<Element: Model>(query: QueryDescription): Matcher<Element> {
-  const { joinTables, nestedJoinTables, sortBy, take, skip, lokiFilter, where } = query
-
   invariant(
-    !joinTables.length &&
-      !nestedJoinTables.length &&
-      !sortBy.length &&
-      !take &&
-      !skip &&
-      !lokiFilter,
+    canEncodeMatcher(query),
     `Queries with joins, sortBy, take, or skip can't be encoded into a matcher`,
   )
 
-  return (encodeConditions(where): any)
+  return (encodeConditions(query.where): any)
 }

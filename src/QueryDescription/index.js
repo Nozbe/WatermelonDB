@@ -93,8 +93,8 @@ export type QueryDescription = $RE<{
   joinTables: TableName<any>[],
   nestedJoinTables: NestedJoinTableDef[],
   sortBy: SortBy[],
-  take: ?number,
-  skip: ?number,
+  take?: number,
+  skip?: number,
   lokiFilter?: LokiFilterFunction,
 }>
 
@@ -380,14 +380,7 @@ const compressTopLevelOns = (conditions: Where[]): Where[] => {
 
 const syncStatusColumn = columnName('_status')
 const extractClauses: (Clause[]) => QueryDescription = clauses => {
-  const clauseMap = {
-    where: [],
-    joinTables: [],
-    nestedJoinTables: [],
-    sortBy: [],
-    take: null,
-    skip: null,
-  }
+  const clauseMap = { where: [], joinTables: [], nestedJoinTables: [], sortBy: [] }
   clauses.forEach(clause => {
     const { type } = clause
     switch (type) {
