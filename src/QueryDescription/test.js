@@ -196,6 +196,19 @@ describe('buildQueryDescription', () => {
       take: null,
     })
   })
+  it(`supports unsafe Loki filter`, () => {
+    const filter = (_record, _loki) => true
+    const query = Q.buildQueryDescription([Q.unsafeLokiFilter(filter)])
+    expect(query).toEqual({
+      where: [],
+      joinTables: [],
+      nestedJoinTables: [],
+      sortBy: [],
+      skip: null,
+      take: null,
+      lokiFilter: filter,
+    })
+  })
   it('supports simple JOIN queries', () => {
     const query = Q.buildQueryDescription([
       Q.on('foreign_table', 'foreign_column', 'value'),
@@ -550,36 +563,10 @@ describe('buildQueryDescription - contd', () => {
       take: null,
     })
   })
-  it('supports take operator', () => {
-    const query = Q.buildQueryDescription([Q.experimentalTake(100)])
-    expect(query).toEqual({
-      where: [],
-      joinTables: [],
-      nestedJoinTables: [],
-      sortBy: [],
-      take: 100,
-      skip: null,
-    })
-  })
   it('does not support skip operator without take operator', () => {
     expect(() => {
       Q.buildQueryDescription([Q.experimentalSkip(100)])
     }).toThrow('cannot skip without take')
-  })
-  it('supports multiple take operators and take the last', () => {
-    const query = Q.buildQueryDescription([
-      Q.experimentalTake(100),
-      Q.experimentalTake(200),
-      Q.experimentalTake(400),
-    ])
-    expect(query).toEqual({
-      where: [],
-      joinTables: [],
-      nestedJoinTables: [],
-      sortBy: [],
-      take: 400,
-      skip: null,
-    })
   })
   it('support multiple skip operators but only take the last', () => {
     const query = Q.buildQueryDescription([
