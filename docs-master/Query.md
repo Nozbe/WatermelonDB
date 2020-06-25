@@ -320,6 +320,8 @@ For SQL, be sure to prefix column names with table name when joining with other 
 
 Example: we want to query comments posted more than 14 days after the post it belongs to was published.
 
+There's sadly no built-in syntax for this, but can be worked around using unsafe expressions like so:
+
 ```js
 // SQL example:
 commentsCollection.query(
@@ -336,6 +338,8 @@ commentsCollection.query(
   }),
 )
 ```
+
+For LokiJS, remember that `record` is an unsanitized object and must not be mutated. `Q.unsafeLokiFilter` only works when using `LokiJSAdapter` with `useWebWorkers: false`
 
 ### `null` behavior
 
