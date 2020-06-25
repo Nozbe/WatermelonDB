@@ -163,8 +163,10 @@ export const performMatchTest = async (adapter, testCase) => {
   expect(sort(results)).toEqual(getExpectedResults(matching))
 
   // also test if counting works correctly
-  const count = await adapter.count(query)
-  expect(count).toBe(results.length)
+  if (!testCase.skipCount) {
+    const count = await adapter.count(query)
+    expect(count).toBe(results.length)
+  }
 
   // delete
   await adapter.batch(

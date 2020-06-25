@@ -335,6 +335,34 @@ describe('LokiJS encodeQuery', () => {
       hasJoins: true,
     })
   })
+  it('encodes unsafe loki subexpressions', () => {
+    const query = new Query(mockCollection, [
+      Q.unsafeLokiExpr({ foo: { $jgt: 10 } }),
+      Q.on('projects', Q.unsafeLokiExpr({ bar: { $jbetween: [1, 2] } })),
+    ])
+    expect(testQuery(query)).toEqual({
+      table: 'tasks',
+      query: {
+        $and: [
+          {
+            $join: {
+              table: 'projects',
+              query: { $and: [{ bar: { $jbetween: [1, 2] } }, { _status: { $ne: 'deleted' } }] },
+              originalConditions: [
+                Q.unsafeLokiExpr({ bar: { $jbetween: [1, 2] } }),
+                Q.where('_status', Q.notEq('deleted')),
+              ],
+              mapKey: 'id',
+              joinKey: 'project_id',
+            },
+          },
+          { foo: { $jgt: 10 } },
+          { _status: { $ne: 'deleted' } },
+        ],
+      },
+      hasJoins: true,
+    })
+  })
   it('encodes column comparisons on JOIN queries', () => {
     const query = new Query(mockCollection, [
       Q.on('projects', 'left_column', Q.lte(Q.column('right_column'))),
@@ -367,5 +395,9 @@ describe('LokiJS encodeQuery', () => {
   it(`fails to encode nested on without explicit joinTables`, () => {
     const query = new Query(mockCollection, [Q.or(Q.on('projects', 'is_followed', true))])
     expect(() => encodeQuery(query)).toThrow(/explicitly declare Q.experimentalJoinTables/)
+  })
+  it(`does not encode sql subexprs`, () => {
+    const query = new Query(mockCollection, [Q.unsafeSqlExpr('haha sql goes brrr')])
+    expect(() => encodeQuery(query)).toThrow('Unknown clause')
   })
 })
