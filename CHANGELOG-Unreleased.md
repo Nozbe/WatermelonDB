@@ -32,6 +32,8 @@
 
 ### Fixes
 
+- [Typescript] Fixed types of Relation
+
 ### Internal
 
 - `QueryDescription` structure has been changed.

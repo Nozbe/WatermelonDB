@@ -79,7 +79,6 @@ cause all or some of user's data to be deleted. More information available via G
 - [Typescript] Add Tests to test Types.
 - Fixed typo in learn-to-use docs.
 - [Typescript] Fixed types of changes.
-- [Typescript] Fixed types of Relation
 
 ### Internal
 
