@@ -50,6 +50,7 @@ describe('SQLite encodeMatcher', () => {
     expect(() => makeMatcher([Q.experimentalSortBy('left_column', 'asc')])).toThrow(error)
     expect(() => makeMatcher([Q.experimentalTake(100)])).toThrow(error)
     expect(() => makeMatcher([Q.experimentalTake(100)])).toThrow(error)
+    expect(() => makeMatcher([Q.unsafeLokiFilter(() => {})])).toThrow(error)
     expect(() => makeMatcher([Q.or(Q.on('projects', 'team_id', 'abcdef'))])).toThrow('Illegal Q.on')
     expect(() => makeMatcher([Q.or(Q.unsafeSqlExpr(''))])).toThrow('Illegal')
     expect(() => makeMatcher([Q.or(Q.unsafeLokiExpr({}))])).toThrow('Illegal')

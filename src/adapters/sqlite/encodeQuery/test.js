@@ -28,6 +28,8 @@ const mockCollection = Object.freeze({
   db: { get: table => (table === 'projects' ? { modelClass: MockProject } : {}) },
 })
 
+const encoded = clauses => encodeQuery(new Query(mockCollection, clauses))
+
 describe('SQLite encodeQuery', () => {
   it('encodes simple queries', () => {
     const query = new Query(mockCollection, [])
@@ -263,8 +265,9 @@ describe('SQLite encodeQuery', () => {
       `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' order by "tasks"."sortable_column" desc limit 100 offset 200`,
     )
   })
-  it(`does not encode loki subexprs`, () => {
+  it(`does not encode loki-specific syntax`, () => {
     const query = new Query(mockCollection, [Q.unsafeLokiExpr({ hi: true })])
     expect(() => encodeQuery(query)).toThrow('Unknown clause')
+    expect(() => encoded([Q.unsafeLokiFilter(() => {})])).toThrow('not supported')
   })
 })
