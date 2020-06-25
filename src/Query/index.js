@@ -72,7 +72,15 @@ export default class Query<Record: Model> {
   // Creates a new Query that extends the clauses of this query
   extend(...clauses: Clause[]): Query<Record> {
     const { collection } = this
-    const { where, sortBy, take, skip, joinTables, nestedJoinTables } = this._rawDescription
+    const {
+      where,
+      sortBy,
+      take,
+      skip,
+      joinTables,
+      nestedJoinTables,
+      lokiFilter,
+    } = this._rawDescription
 
     return new Query(collection, [
       Q.experimentalJoinTables(joinTables),
@@ -81,6 +89,7 @@ export default class Query<Record: Model> {
       ...sortBy,
       ...(take ? [Q.experimentalTake(take)] : []),
       ...(skip ? [Q.experimentalSkip(skip)] : []),
+      ...(lokiFilter ? [Q.unsafeLokiFilter(lokiFilter)] : []),
       ...clauses,
     ])
   }

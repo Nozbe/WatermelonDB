@@ -1,7 +1,7 @@
 import Query from '../../../../Query'
 import Model from '../../../../Model'
 import * as Q from '../../../../QueryDescription'
-import encodeQuery from './index'
+import encodeQueryRaw from './index'
 
 // TODO: Standardize these mocks (same as in sqlite encodeQuery, query test)
 
@@ -27,7 +27,8 @@ const mockCollection = Object.freeze({
   db: { get: table => (table === 'projects' ? { modelClass: MockProject } : {}) },
 })
 
-const testQuery = query => encodeQuery(query.serialize())
+const testQuery = query => encodeQueryRaw(query.serialize())
+const encoded = clauses => encodeQueryRaw(new Query(mockCollection, clauses).serialize())
 
 describe('LokiJS encodeQuery', () => {
   it('encodes simple queries', () => {
@@ -261,7 +262,7 @@ describe('LokiJS encodeQuery', () => {
       Q.experimentalNestedJoin('projects', 'teams'),
       Q.on('projects', Q.on('teams', 'foo', 'bar')),
     ])
-    expect(encodeQuery(query)).toEqual({
+    expect(testQuery(query)).toEqual({
       table: 'tasks',
       query: {
         $and: [
@@ -306,7 +307,7 @@ describe('LokiJS encodeQuery', () => {
         Q.or(Q.where('bar', 'baz'), Q.where('bla', 'boop')),
       ]),
     ])
-    expect(encodeQuery(query)).toEqual({
+    expect(testQuery(query)).toEqual({
       table: 'tasks',
       query: {
         $and: [
@@ -368,7 +369,7 @@ describe('LokiJS encodeQuery', () => {
       Q.on('projects', 'left_column', Q.lte(Q.column('right_column'))),
     ])
     // TODO: The actual comparison is (currently) done in executor
-    expect(encodeQuery(query)).toEqual({
+    expect(testQuery(query)).toEqual({
       table: 'tasks',
       query: {
         $and: [
@@ -394,10 +395,9 @@ describe('LokiJS encodeQuery', () => {
   })
   it(`fails to encode nested on without explicit joinTables`, () => {
     const query = new Query(mockCollection, [Q.or(Q.on('projects', 'is_followed', true))])
-    expect(() => encodeQuery(query)).toThrow(/explicitly declare Q.experimentalJoinTables/)
+    expect(() => testQuery(query)).toThrow(/explicitly declare Q.experimentalJoinTables/)
   })
   it(`does not encode sql subexprs`, () => {
-    const query = new Query(mockCollection, [Q.unsafeSqlExpr('haha sql goes brrr')])
-    expect(() => encodeQuery(query)).toThrow('Unknown clause')
+    expect(() => encoded([Q.unsafeSqlExpr('haha sql goes brrr')])).toThrow('Unknown clause')
   })
 })

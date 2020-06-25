@@ -80,7 +80,12 @@ export type NestedJoinTable = $RE<{
   from: TableName<any>,
   to: TableName<any>,
 }>
-export type Clause = Where | SortBy | Take | Skip | JoinTables | NestedJoinTable
+export type LokiFilterFunction = (rawLokiRecord: any, loki: any) => boolean
+export type LokiFilter = $RE<{
+  type: 'lokiFilter',
+  function: LokiFilterFunction,
+}>
+export type Clause = Where | SortBy | Take | Skip | JoinTables | NestedJoinTable | LokiFilter
 
 type NestedJoinTableDef = $RE<{ from: TableName<any>, to: TableName<any> }>
 export type QueryDescription = $RE<{
@@ -90,6 +95,7 @@ export type QueryDescription = $RE<{
   sortBy: SortBy[],
   take: ?number,
   skip: ?number,
+  lokiFilter?: LokiFilterFunction,
 }>
 
 const columnSymbol = Symbol('Q.column')
@@ -256,8 +262,15 @@ export function unsafeSqlExpr(sql: string): SqlExpr {
 }
 
 export function unsafeLokiExpr(expr: any): LokiExpr {
-  invariant(expr && typeof expr === 'object' && !Array.isArray(expr), 'Value passed to Q.unsafeLokiExpr is not an object')
+  invariant(
+    expr && typeof expr === 'object' && !Array.isArray(expr),
+    'Value passed to Q.unsafeLokiExpr is not an object',
+  )
   return { type: 'loki', expr }
+}
+
+export function unsafeLokiFilter(fn: LokiFilterFunction): LokiFilter {
+  return { type: 'lokiFilter', function: fn }
 }
 
 const acceptableClauses = ['where', 'and', 'or', 'on', 'sql', 'loki']
@@ -409,6 +422,10 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
         // $FlowFixMe
         clauseMap.nestedJoinTables.push({ from: clause.from, to: clause.to })
         break
+      case 'lokiFilter':
+        // $FlowFixMe
+        clauseMap.lokiFilter = clause.function
+        break
       default:
         throw new Error('Invalid Query clause passed')
     }
@@ -421,11 +438,8 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
 }
 
 export function buildQueryDescription(clauses: Clause[]): QueryDescription {
-  const clauseMap = extractClauses(clauses)
-
-  invariant(!(clauseMap.skip && !clauseMap.take), 'cannot skip without take')
-
-  const query = clauseMap
+  const query = extractClauses(clauses)
+  invariant(!(query.skip && !query.take), 'cannot skip without take')
   if (process.env.NODE_ENV !== 'production') {
     deepFreeze(query)
   }
