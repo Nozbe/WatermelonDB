@@ -301,11 +301,15 @@ You need to be sure to properly sanitize user values to avoid SQL injection, and
 You can also include smaller bits of SQL and Loki expressions so that you can still use as much of Watermelon query builder as possible:
 
 ```js
+// SQL example:
 postsCollection.query(
   Q.where('is_published', true),
-  // SQL:
-  Q.unsafeSqlExpr('tasks.num1 not between 1 and 5')
-  // LokiJS:
+  Q.unsafeSqlExpr('tasks.num1 not between 1 and 5'),
+)
+
+// LokiJS example:
+postsCollection.query(
+  Q.where('is_published', true),
   Q.unsafeLokiExpr({ text1: { $contains: 'hey' } })
 )
 ```

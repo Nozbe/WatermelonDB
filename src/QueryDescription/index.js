@@ -256,7 +256,7 @@ export function unsafeSqlExpr(sql: string): SqlExpr {
 }
 
 export function unsafeLokiExpr(expr: any): LokiExpr {
-  invariant(expr && typeof expr === 'object', 'Value passed to Q.unsafeLokiExpr is not an object')
+  invariant(expr && typeof expr === 'object' && !Array.isArray(expr), 'Value passed to Q.unsafeLokiExpr is not an object')
   return { type: 'loki', expr }
 }
 
