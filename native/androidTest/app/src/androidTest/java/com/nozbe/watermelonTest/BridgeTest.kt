@@ -15,7 +15,7 @@ class BridgeTest {
     fun testBridge() {
         synchronized(BridgeTestReporter.testFinishedNotification) {
             // the timeout shouldn't be this huge, but currently something's wrong with the tests
-            BridgeTestReporter.testFinishedNotification.wait(2000000)
+            BridgeTestReporter.testFinishedNotification.wait(500000)
         }
         try {
             when (val result = BridgeTestReporter.result) {
