@@ -34,6 +34,7 @@
 
 ### Changes
 
+- [Deprecation] `Query.hasJoins` is deprecated
 - [DX] Queries with bad associations now show more helpful error message
 - [Query] Counting queries that contain `Q.experimentalTake` / `Q.experimentalSkip` is currently broken - previously it would return incorrect results, but
     now it will throw an error to avoid confusion. Please contribute to fix the root cause!
