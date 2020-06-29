@@ -6,6 +6,7 @@ import { prepend } from 'rambdax'
 import allPromises from '../utils/fp/allPromises'
 import { toPromise } from '../utils/fp/Result'
 import { type Unsubscribe, SharedSubscribable } from '../utils/subscriptions'
+import { logger } from '../utils/common'
 
 // TODO: ?
 import lazy from '../decorators/lazy' // import from decorarators break the app on web production WTF ¯\_(ツ)_/¯
@@ -212,6 +213,7 @@ export default class Query<Record: Model> {
 
   // `true` if query contains join clauses on foreign tables
   get hasJoins(): boolean {
+    logger.warn('DEPRECATION: Query.hasJoins is deprecated')
     return !!this.secondaryTables.length
   }
 

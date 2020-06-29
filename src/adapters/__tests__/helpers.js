@@ -81,6 +81,7 @@ export const testSchema = appSchema({
       columns: [
         { name: 'organization_id', type: 'string' },
         { name: 'num1', type: 'number' },
+        { name: 'num2', type: 'number' },
         { name: 'text1', type: 'string' },
         { name: 'bool1', type: 'boolean' },
       ],

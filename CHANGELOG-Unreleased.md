@@ -34,6 +34,9 @@
 
 ### Changes
 
+- [Performance] [LokiJS] Improved performance of queries containing query comparisons on LokiJSAdapter
+- [Docs] Added Contributing guide for Query language improvements
+- [Deprecation] `Query.hasJoins` is deprecated
 - [DX] Queries with bad associations now show more helpful error message
 - [Query] Counting queries that contain `Q.experimentalTake` / `Q.experimentalSkip` is currently broken - previously it would return incorrect results, but
     now it will throw an error to avoid confusion. Please contribute to fix the root cause!

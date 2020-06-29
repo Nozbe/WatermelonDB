@@ -43,7 +43,7 @@
   "dependencies": {
     "@nozbe/sqlite": "3.31.1",
     "lodash.clonedeep": "^4.5.0",
-    "lokijs": "git+https://github.com/Nozbe/LokiJS.git#d08f660",
+    "lokijs": "git+https://github.com/Nozbe/LokiJS.git#fabe503",
     "rambdax": "2.15.0",
     "rxjs": "^6.2.2",
     "rxjs-compat": "^6.3.2",
