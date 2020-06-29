@@ -222,8 +222,6 @@ tasksCollection.query(
 )
 ```
 
-Known limitation: column comparisons do not work within nested `Q.on`s on LokiJSAdapter
-
 #### Deep `Q.on`s
 
 You can also nest `Q.on` within `Q.on`, e.g. to make a condition on a grandparent. You must explicitly define the tables you're joining on. (NOTE: The `Q.experimentalNestedJoin` API is subject to change). Multiple levels of nesting are allowed.

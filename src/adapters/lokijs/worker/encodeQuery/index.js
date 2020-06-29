@@ -19,7 +19,6 @@ import type {
   Or,
   Where,
   ComparisonRight,
-  Comparison,
   Clause,
   CompoundValue,
 } from '../../../../QueryDescription'
@@ -44,7 +43,6 @@ type LokiKeyword = LokiOperator | '$and' | '$or'
 export type LokiJoin = $Exact<{
   table: TableName<any>,
   query: LokiRawQuery,
-  originalConditions: Where[], // Needed for column comparisons
   mapKey: ColumnName,
   joinKey: ColumnName,
 }>
@@ -58,7 +56,7 @@ export type LokiQuery = $Exact<{
 const getComparisonRight: ComparisonRight => CompoundValue = (cond([
   [has('value'), prop('value')],
   [has('values'), prop('values')],
-  [has('column'), () => invariant(false, 'Column comparisons unimplemented!')], // TODO: !!
+  [has('column'), prop('column')],
 ]): any)
 
 // TODO: It's probably possible to improve performance of those operators by making them
@@ -99,7 +97,7 @@ const operators: { [Operator]: OperatorFunction } = {
   notEq: weakNotEqual,
   gt: objOf('$gt'),
   gte: objOf('$gte'),
-  weakGt: objOf('$gt'), // Note: this is correct (at least for as long as column comparisons happens via matchers)
+  weakGt: objOf('$gt'), // Note: yup, this is correct (for non-column comparisons)
   lt: noNullComparisons(objOf('$lt')),
   lte: noNullComparisons(objOf('$lte')),
   oneOf: objOf('$in'),
@@ -109,29 +107,45 @@ const operators: { [Operator]: OperatorFunction } = {
   notLike,
 }
 
-const encodeComparison: Comparison => LokiRawQuery = ({ operator, right }) => {
-  const comparisonRight = getComparisonRight(right)
-
-  if (typeof comparisonRight === 'string') {
-    // we can do fast path as we know that eq and aeq do the same thing for strings
-    if (operator === 'eq') {
-      return { $eq: comparisonRight }
-    } else if (operator === 'notEq') {
-      return { $ne: comparisonRight }
-    }
-  }
-  return operators[operator](comparisonRight)
+const operatorsColumnComparison: { [$FlowFixMe<Operator>]: OperatorFunction } = {
+  eq: objOf('$$aeq'),
+  notEq: value => ({ $not: { $$aeq: value } }),
+  gt: objOf('$$gt'),
+  gte: objOf('$$gte'),
+  weakGt: objOf('$$gt'),
+  lt: noNullComparisons(objOf('$$lt')),
+  lte: noNullComparisons(objOf('$$lte')),
+}
+const columnCompRequiresColumnNotNull: { [$FlowFixMe<Operator>]: boolean } = {
+  gt: true,
+  gte: true,
+  lt: true,
+  lte: true,
 }
 
-// HACK: Can't be `{}` or `undefined`, because that doesn't work with `or` conditions
-const hackAlwaysTrueCondition: LokiRawQuery = { _fakeAlwaysTrue: { $eq: undefined } }
+const encodeWhereDescription: WhereDescription => LokiRawQuery = ({
+  left,
+  comparison: { operator, right },
+}) => {
+  const comparisonRight = getComparisonRight(right)
 
-const encodeWhereDescription: WhereDescription => LokiRawQuery = ({ left, comparison }) =>
-  // HACK: If this is a column comparison condition, ignore it (assume it evaluates to true)
-  // The column comparison will actually be performed during the refining pass with a matcher func
-  has('column', comparison.right)
-    ? hackAlwaysTrueCondition
-    : objOf(left, encodeComparison(comparison))
+  if (typeof right.value === 'string') {
+    // we can do fast path as we know that eq and aeq do the same thing for strings
+    if (operator === 'eq') {
+      return objOf(left, { $eq: comparisonRight })
+    } else if (operator === 'notEq') {
+      return objOf(left, { $ne: comparisonRight })
+    }
+  }
+  const colName: ?string = (right: any).column
+  const opFn = colName ? operatorsColumnComparison[operator] : operators[operator]
+  const comparison = opFn(comparisonRight)
+
+  if (colName && columnCompRequiresColumnNotNull[operator]) {
+    return { $and: [objOf(left, comparison), objOf(colName, weakNotEqual(null))] }
+  }
+  return objOf(left, comparison)
+}
 
 const encodeCondition: (QueryAssociation[]) => Clause => LokiRawQuery = associations => clause => {
   switch (clause.type) {
@@ -210,7 +224,6 @@ const encodeJoin = (associations: QueryAssociation[], on: On): LokiRawQuery => {
     $join: {
       table,
       query: encodeRootConditions(associations)((conditions: any)),
-      originalConditions: conditions,
       mapKey: encodeMapKey(association.info),
       joinKey: encodeJoinKey(association.info),
     },

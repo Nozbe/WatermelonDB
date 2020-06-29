@@ -109,11 +109,39 @@ describe('LokiJS encodeQuery', () => {
     })
   })
   it('encodes column comparisons', () => {
-    expect(encoded([Q.where('left_column', Q.gte(Q.column('right_column')))])).toEqual({
+    expect(
+      encoded([
+        Q.where('col1', Q.eq(Q.column('right'))),
+        Q.where('col2', Q.gt(Q.column('right'))),
+        Q.where('col3', Q.gte(Q.column('right'))),
+        Q.where('col3_5', Q.weakGt(Q.column('right'))),
+        Q.where('col4', Q.lt(Q.column('right'))),
+        Q.where('col5', Q.lte(Q.column('right'))),
+        Q.where('col6', Q.notEq(Q.column('right'))),
+      ]),
+    ).toEqual({
       table: 'tasks',
       query: {
-        // TODO: The actual comparison is (currently) done in executor
-        $and: [{ _fakeAlwaysTrue: { $eq: undefined } }, { _status: { $ne: 'deleted' } }],
+        $and: [
+          { col1: { $$aeq: 'right' } },
+          { $and: [{ col2: { $$gt: 'right' } }, { right: { $not: { $aeq: null } } }] },
+          { $and: [{ col3: { $$gte: 'right' } }, { right: { $not: { $aeq: null } } }] },
+          { col3_5: { $$gt: 'right' } },
+          {
+            $and: [
+              { col4: { $and: [{ $$lt: 'right' }, { $not: { $aeq: null } }] } },
+              { right: { $not: { $aeq: null } } },
+            ],
+          },
+          {
+            $and: [
+              { col5: { $and: [{ $$lte: 'right' }, { $not: { $aeq: null } }] } },
+              { right: { $not: { $aeq: null } } },
+            ],
+          },
+          { col6: { $not: { $$aeq: 'right' } } },
+          { _status: { $ne: 'deleted' } },
+        ],
       },
       hasJoins: false,
     })
@@ -173,11 +201,6 @@ describe('LokiJS encodeQuery', () => {
                   { _status: { $ne: 'deleted' } },
                 ],
               },
-              originalConditions: [
-                Q.where('team_id', 'abcdef'),
-                Q.where('is_active', true),
-                Q.where('_status', Q.notEq('deleted')),
-              ],
               mapKey: 'id',
               joinKey: 'project_id',
             },
@@ -188,10 +211,6 @@ describe('LokiJS encodeQuery', () => {
               query: {
                 $and: [{ tag_id: { $in: ['a', 'b', 'c'] } }, { _status: { $ne: 'deleted' } }],
               },
-              originalConditions: [
-                Q.where('tag_id', Q.oneOf(['a', 'b', 'c'])),
-                Q.where('_status', Q.notEq('deleted')),
-              ],
               mapKey: 'task_id',
               joinKey: 'id',
             },
@@ -226,10 +245,6 @@ describe('LokiJS encodeQuery', () => {
                   query: {
                     $and: [{ is_followed: { $aeq: true } }, { _status: { $ne: 'deleted' } }],
                   },
-                  originalConditions: [
-                    Q.where('is_followed', true),
-                    Q.where('_status', Q.notEq('deleted')),
-                  ],
                   mapKey: 'id',
                   joinKey: 'project_id',
                 },
@@ -240,10 +255,6 @@ describe('LokiJS encodeQuery', () => {
                   query: {
                     $and: [{ foo: { $eq: 'bar' } }, { _status: { $ne: 'deleted' } }],
                   },
-                  originalConditions: [
-                    Q.where('foo', 'bar'),
-                    Q.where('_status', Q.notEq('deleted')),
-                  ],
                   mapKey: 'task_id',
                   joinKey: 'id',
                 },
@@ -275,10 +286,6 @@ describe('LokiJS encodeQuery', () => {
                     $join: {
                       table: 'teams',
                       query: { $and: [{ foo: { $eq: 'bar' } }, { _status: { $ne: 'deleted' } }] },
-                      originalConditions: [
-                        Q.where('foo', 'bar'),
-                        Q.where('_status', Q.notEq('deleted')),
-                      ],
                       mapKey: 'id',
                       joinKey: 'team_id',
                     },
@@ -286,10 +293,6 @@ describe('LokiJS encodeQuery', () => {
                   { _status: { $ne: 'deleted' } },
                 ],
               },
-              originalConditions: [
-                Q.on('teams', [Q.where('foo', 'bar'), Q.where('_status', Q.notEq('deleted'))]),
-                Q.where('_status', Q.notEq('deleted')),
-              ],
               mapKey: 'id',
               joinKey: 'project_id',
             },
@@ -305,7 +308,7 @@ describe('LokiJS encodeQuery', () => {
       encoded([
         Q.on('projects', [
           Q.where('foo', 'bar'),
-          Q.or(Q.where('bar', 'baz'), Q.where('bla', 'boop')),
+          Q.or(Q.where('bar', 'baz'), Q.where('bla', Q.gt(Q.column('boop')))),
         ]),
       ]),
     ).toEqual({
@@ -318,15 +321,15 @@ describe('LokiJS encodeQuery', () => {
               query: {
                 $and: [
                   { foo: { $eq: 'bar' } },
-                  { $or: [{ bar: { $eq: 'baz' } }, { bla: { $eq: 'boop' } }] },
+                  {
+                    $or: [
+                      { bar: { $eq: 'baz' } },
+                      { $and: [{ bla: { $$gt: 'boop' } }, { boop: { $not: { $aeq: null } } }] },
+                    ],
+                  },
                   { _status: { $ne: 'deleted' } },
                 ],
               },
-              originalConditions: [
-                Q.where('foo', 'bar'),
-                Q.or(Q.where('bar', 'baz'), Q.where('bla', 'boop')),
-                Q.where('_status', Q.notEq('deleted')),
-              ],
               mapKey: 'id',
               joinKey: 'project_id',
             },
@@ -351,41 +354,11 @@ describe('LokiJS encodeQuery', () => {
             $join: {
               table: 'projects',
               query: { $and: [{ bar: { $jbetween: [1, 2] } }, { _status: { $ne: 'deleted' } }] },
-              originalConditions: [
-                Q.unsafeLokiExpr({ bar: { $jbetween: [1, 2] } }),
-                Q.where('_status', Q.notEq('deleted')),
-              ],
               mapKey: 'id',
               joinKey: 'project_id',
             },
           },
           { foo: { $jgt: 10 } },
-          { _status: { $ne: 'deleted' } },
-        ],
-      },
-      hasJoins: true,
-    })
-  })
-  it('encodes column comparisons on JOIN queries', () => {
-    expect(encoded([Q.on('projects', 'left_column', Q.lte(Q.column('right_column')))])).toEqual({
-      table: 'tasks',
-      query: {
-        $and: [
-          {
-            $join: {
-              table: 'projects',
-              query: {
-                // TODO: The actual comparison is (currently) done in executor
-                $and: [{ _fakeAlwaysTrue: { $eq: undefined } }, { _status: { $ne: 'deleted' } }],
-              },
-              originalConditions: [
-                Q.where('left_column', Q.lte(Q.column('right_column'))),
-                Q.where('_status', Q.notEq('deleted')),
-              ],
-              mapKey: 'id',
-              joinKey: 'project_id',
-            },
-          },
           { _status: { $ne: 'deleted' } },
         ],
       },
