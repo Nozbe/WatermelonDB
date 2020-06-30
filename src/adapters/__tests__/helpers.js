@@ -81,6 +81,7 @@ export const testSchema = appSchema({
       columns: [
         { name: 'organization_id', type: 'string' },
         { name: 'num1', type: 'number' },
+        { name: 'num2', type: 'number' },
         { name: 'text1', type: 'string' },
         { name: 'bool1', type: 'boolean' },
       ],
@@ -163,8 +164,10 @@ export const performMatchTest = async (adapter, testCase) => {
   expect(sort(results)).toEqual(getExpectedResults(matching))
 
   // also test if counting works correctly
-  const count = await adapter.count(query)
-  expect(count).toBe(results.length)
+  if (!testCase.skipCount) {
+    const count = await adapter.count(query)
+    expect(count).toBe(results.length)
+  }
 
   // delete
   await adapter.batch(

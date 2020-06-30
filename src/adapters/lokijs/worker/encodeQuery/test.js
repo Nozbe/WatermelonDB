@@ -1,7 +1,7 @@
 import Query from '../../../../Query'
 import Model from '../../../../Model'
 import * as Q from '../../../../QueryDescription'
-import encodeQuery from './index'
+import encodeQueryRaw from './index'
 
 // TODO: Standardize these mocks (same as in sqlite encodeQuery, query test)
 
@@ -27,20 +27,18 @@ const mockCollection = Object.freeze({
   db: { get: table => (table === 'projects' ? { modelClass: MockProject } : {}) },
 })
 
-const testQuery = query => encodeQuery(query.serialize())
+const encoded = clauses => encodeQueryRaw(new Query(mockCollection, clauses).serialize())
 
 describe('LokiJS encodeQuery', () => {
   it('encodes simple queries', () => {
-    const query = new Query(mockCollection, [])
-    expect(testQuery(query)).toEqual({
+    expect(encoded([])).toEqual({
       table: 'tasks',
       query: { _status: { $ne: 'deleted' } },
       hasJoins: false,
     })
   })
   it('encodes a single condition', () => {
-    const query = new Query(mockCollection, [Q.where('col', 'hello')])
-    expect(testQuery(query)).toEqual({
+    expect(encoded([Q.where('col', 'hello')])).toEqual({
       table: 'tasks',
       query: {
         $and: [{ col: { $eq: 'hello' } }, { _status: { $ne: 'deleted' } }],
@@ -49,14 +47,15 @@ describe('LokiJS encodeQuery', () => {
     })
   })
   it('encodes multiple conditions and value types', () => {
-    const query = new Query(mockCollection, [
-      Q.where('col1', `value "'with'" quotes`),
-      Q.where('col2', 2),
-      Q.where('col3', true),
-      Q.where('col4', false),
-      Q.where('col5', null),
-    ])
-    expect(testQuery(query)).toEqual({
+    expect(
+      encoded([
+        Q.where('col1', `value "'with'" quotes`),
+        Q.where('col2', 2),
+        Q.where('col3', true),
+        Q.where('col4', false),
+        Q.where('col5', null),
+      ]),
+    ).toEqual({
       table: 'tasks',
       query: {
         $and: [
@@ -72,21 +71,22 @@ describe('LokiJS encodeQuery', () => {
     })
   })
   it('encodes multiple operators', () => {
-    const query = new Query(mockCollection, [
-      Q.where('col1', Q.eq('val1')),
-      Q.where('col2', Q.gt(2)),
-      Q.where('col3', Q.gte(3)),
-      Q.where('col3_5', Q.weakGt(3.5)),
-      Q.where('col4', Q.lt(4)),
-      Q.where('col5', Q.lte(5)),
-      Q.where('col6', Q.notEq(null)),
-      Q.where('col7', Q.oneOf([1, 2, 3])),
-      Q.where('col8', Q.notIn(['"a"', 'b', 'c'])),
-      Q.where('col9', Q.between(10, 11)),
-      Q.where('col10', Q.like('%abc')),
-      Q.where('col11', Q.notLike('%abc')),
-    ])
-    expect(testQuery(query)).toEqual({
+    expect(
+      encoded([
+        Q.where('col1', Q.eq('val1')),
+        Q.where('col2', Q.gt(2)),
+        Q.where('col3', Q.gte(3)),
+        Q.where('col3_5', Q.weakGt(3.5)),
+        Q.where('col4', Q.lt(4)),
+        Q.where('col5', Q.lte(5)),
+        Q.where('col6', Q.notEq(null)),
+        Q.where('col7', Q.oneOf([1, 2, 3])),
+        Q.where('col8', Q.notIn(['"a"', 'b', 'c'])),
+        Q.where('col9', Q.between(10, 11)),
+        Q.where('col10', Q.like('%abc')),
+        Q.where('col11', Q.notLike('%abc')),
+      ]),
+    ).toEqual({
       table: 'tasks',
       query: {
         $and: [
@@ -109,28 +109,54 @@ describe('LokiJS encodeQuery', () => {
     })
   })
   it('encodes column comparisons', () => {
-    const query = new Query(mockCollection, [
-      Q.where('left_column', Q.gte(Q.column('right_column'))),
-    ])
-    // TODO: The actual comparison is (currently) done in executor
-    expect(testQuery(query)).toEqual({
+    expect(
+      encoded([
+        Q.where('col1', Q.eq(Q.column('right'))),
+        Q.where('col2', Q.gt(Q.column('right'))),
+        Q.where('col3', Q.gte(Q.column('right'))),
+        Q.where('col3_5', Q.weakGt(Q.column('right'))),
+        Q.where('col4', Q.lt(Q.column('right'))),
+        Q.where('col5', Q.lte(Q.column('right'))),
+        Q.where('col6', Q.notEq(Q.column('right'))),
+      ]),
+    ).toEqual({
       table: 'tasks',
       query: {
-        $and: [{ _fakeAlwaysTrue: { $eq: undefined } }, { _status: { $ne: 'deleted' } }],
+        $and: [
+          { col1: { $$aeq: 'right' } },
+          { $and: [{ col2: { $$gt: 'right' } }, { right: { $not: { $aeq: null } } }] },
+          { $and: [{ col3: { $$gte: 'right' } }, { right: { $not: { $aeq: null } } }] },
+          { col3_5: { $$gt: 'right' } },
+          {
+            $and: [
+              { col4: { $and: [{ $$lt: 'right' }, { $not: { $aeq: null } }] } },
+              { right: { $not: { $aeq: null } } },
+            ],
+          },
+          {
+            $and: [
+              { col5: { $and: [{ $$lte: 'right' }, { $not: { $aeq: null } }] } },
+              { right: { $not: { $aeq: null } } },
+            ],
+          },
+          { col6: { $not: { $$aeq: 'right' } } },
+          { _status: { $ne: 'deleted' } },
+        ],
       },
       hasJoins: false,
     })
   })
   it('encodes AND/OR nesting', () => {
-    const query = new Query(mockCollection, [
-      Q.where('col1', 'value'),
-      Q.or(
-        Q.where('col2', true),
-        Q.where('col3', null),
-        Q.and(Q.where('col4', Q.gt(5)), Q.where('col5', Q.notIn([6, 7]))),
-      ),
-    ])
-    expect(testQuery(query)).toEqual({
+    expect(
+      encoded([
+        Q.where('col1', 'value'),
+        Q.or(
+          Q.where('col2', true),
+          Q.where('col3', null),
+          Q.and(Q.where('col4', Q.gt(5)), Q.where('col5', Q.notIn([6, 7]))),
+        ),
+      ]),
+    ).toEqual({
       table: 'tasks',
       query: {
         $and: [
@@ -154,13 +180,14 @@ describe('LokiJS encodeQuery', () => {
     })
   })
   it('encodes JOIN queries', () => {
-    const query = new Query(mockCollection, [
-      Q.on('projects', 'team_id', 'abcdef'),
-      Q.where('left_column', 'right_value'),
-      Q.on('tag_assignments', 'tag_id', Q.oneOf(['a', 'b', 'c'])),
-      Q.on('projects', 'is_active', true),
-    ])
-    expect(testQuery(query)).toEqual({
+    expect(
+      encoded([
+        Q.on('projects', 'team_id', 'abcdef'),
+        Q.where('left_column', 'right_value'),
+        Q.on('tag_assignments', 'tag_id', Q.oneOf(['a', 'b', 'c'])),
+        Q.on('projects', 'is_active', true),
+      ]),
+    ).toEqual({
       table: 'tasks',
       query: {
         $and: [
@@ -174,11 +201,6 @@ describe('LokiJS encodeQuery', () => {
                   { _status: { $ne: 'deleted' } },
                 ],
               },
-              originalConditions: [
-                Q.where('team_id', 'abcdef'),
-                Q.where('is_active', true),
-                Q.where('_status', Q.notEq('deleted')),
-              ],
               mapKey: 'id',
               joinKey: 'project_id',
             },
@@ -189,10 +211,6 @@ describe('LokiJS encodeQuery', () => {
               query: {
                 $and: [{ tag_id: { $in: ['a', 'b', 'c'] } }, { _status: { $ne: 'deleted' } }],
               },
-              originalConditions: [
-                Q.where('tag_id', Q.oneOf(['a', 'b', 'c'])),
-                Q.where('_status', Q.notEq('deleted')),
-              ],
               mapKey: 'task_id',
               joinKey: 'id',
             },
@@ -205,15 +223,16 @@ describe('LokiJS encodeQuery', () => {
     })
   })
   it(`encodes on()s nested inside AND/ORs`, () => {
-    const query = new Query(mockCollection, [
-      Q.experimentalJoinTables(['projects', 'tag_assignments']),
-      Q.or(
-        Q.where('is_followed', true),
-        Q.on('projects', 'is_followed', true),
-        Q.and(Q.on('tag_assignments', 'foo', 'bar')),
-      ),
-    ])
-    expect(testQuery(query)).toEqual({
+    expect(
+      encoded([
+        Q.experimentalJoinTables(['projects', 'tag_assignments']),
+        Q.or(
+          Q.where('is_followed', true),
+          Q.on('projects', 'is_followed', true),
+          Q.and(Q.on('tag_assignments', 'foo', 'bar')),
+        ),
+      ]),
+    ).toEqual({
       table: 'tasks',
       query: {
         $and: [
@@ -226,10 +245,6 @@ describe('LokiJS encodeQuery', () => {
                   query: {
                     $and: [{ is_followed: { $aeq: true } }, { _status: { $ne: 'deleted' } }],
                   },
-                  originalConditions: [
-                    Q.where('is_followed', true),
-                    Q.where('_status', Q.notEq('deleted')),
-                  ],
                   mapKey: 'id',
                   joinKey: 'project_id',
                 },
@@ -240,10 +255,6 @@ describe('LokiJS encodeQuery', () => {
                   query: {
                     $and: [{ foo: { $eq: 'bar' } }, { _status: { $ne: 'deleted' } }],
                   },
-                  originalConditions: [
-                    Q.where('foo', 'bar'),
-                    Q.where('_status', Q.notEq('deleted')),
-                  ],
                   mapKey: 'task_id',
                   joinKey: 'id',
                 },
@@ -257,11 +268,12 @@ describe('LokiJS encodeQuery', () => {
     })
   })
   it(`encodes Q.on nested inside Q.on`, () => {
-    const query = new Query(mockCollection, [
-      Q.experimentalNestedJoin('projects', 'teams'),
-      Q.on('projects', Q.on('teams', 'foo', 'bar')),
-    ])
-    expect(encodeQuery(query)).toEqual({
+    expect(
+      encoded([
+        Q.experimentalNestedJoin('projects', 'teams'),
+        Q.on('projects', Q.on('teams', 'foo', 'bar')),
+      ]),
+    ).toEqual({
       table: 'tasks',
       query: {
         $and: [
@@ -274,10 +286,6 @@ describe('LokiJS encodeQuery', () => {
                     $join: {
                       table: 'teams',
                       query: { $and: [{ foo: { $eq: 'bar' } }, { _status: { $ne: 'deleted' } }] },
-                      originalConditions: [
-                        Q.where('foo', 'bar'),
-                        Q.where('_status', Q.notEq('deleted')),
-                      ],
                       mapKey: 'id',
                       joinKey: 'team_id',
                     },
@@ -285,10 +293,6 @@ describe('LokiJS encodeQuery', () => {
                   { _status: { $ne: 'deleted' } },
                 ],
               },
-              originalConditions: [
-                Q.on('teams', [Q.where('foo', 'bar'), Q.where('_status', Q.notEq('deleted'))]),
-                Q.where('_status', Q.notEq('deleted')),
-              ],
               mapKey: 'id',
               joinKey: 'project_id',
             },
@@ -300,13 +304,14 @@ describe('LokiJS encodeQuery', () => {
     })
   })
   it(`encodes multiple conditions on Q.on`, () => {
-    const query = new Query(mockCollection, [
-      Q.on('projects', [
-        Q.where('foo', 'bar'),
-        Q.or(Q.where('bar', 'baz'), Q.where('bla', 'boop')),
+    expect(
+      encoded([
+        Q.on('projects', [
+          Q.where('foo', 'bar'),
+          Q.or(Q.where('bar', 'baz'), Q.where('bla', Q.gt(Q.column('boop')))),
+        ]),
       ]),
-    ])
-    expect(encodeQuery(query)).toEqual({
+    ).toEqual({
       table: 'tasks',
       query: {
         $and: [
@@ -316,15 +321,15 @@ describe('LokiJS encodeQuery', () => {
               query: {
                 $and: [
                   { foo: { $eq: 'bar' } },
-                  { $or: [{ bar: { $eq: 'baz' } }, { bla: { $eq: 'boop' } }] },
+                  {
+                    $or: [
+                      { bar: { $eq: 'baz' } },
+                      { $and: [{ bla: { $$gt: 'boop' } }, { boop: { $not: { $aeq: null } } }] },
+                    ],
+                  },
                   { _status: { $ne: 'deleted' } },
                 ],
               },
-              originalConditions: [
-                Q.where('foo', 'bar'),
-                Q.or(Q.where('bar', 'baz'), Q.where('bla', 'boop')),
-                Q.where('_status', Q.notEq('deleted')),
-              ],
               mapKey: 'id',
               joinKey: 'project_id',
             },
@@ -335,29 +340,25 @@ describe('LokiJS encodeQuery', () => {
       hasJoins: true,
     })
   })
-  it('encodes column comparisons on JOIN queries', () => {
-    const query = new Query(mockCollection, [
-      Q.on('projects', 'left_column', Q.lte(Q.column('right_column'))),
-    ])
-    // TODO: The actual comparison is (currently) done in executor
-    expect(encodeQuery(query)).toEqual({
+  it('encodes unsafe loki subexpressions', () => {
+    expect(
+      encoded([
+        Q.unsafeLokiExpr({ foo: { $jgt: 10 } }),
+        Q.on('projects', Q.unsafeLokiExpr({ bar: { $jbetween: [1, 2] } })),
+      ]),
+    ).toEqual({
       table: 'tasks',
       query: {
         $and: [
           {
             $join: {
               table: 'projects',
-              query: {
-                $and: [{ _fakeAlwaysTrue: { $eq: undefined } }, { _status: { $ne: 'deleted' } }],
-              },
-              originalConditions: [
-                Q.where('left_column', Q.lte(Q.column('right_column'))),
-                Q.where('_status', Q.notEq('deleted')),
-              ],
+              query: { $and: [{ bar: { $jbetween: [1, 2] } }, { _status: { $ne: 'deleted' } }] },
               mapKey: 'id',
               joinKey: 'project_id',
             },
           },
+          { foo: { $jgt: 10 } },
           { _status: { $ne: 'deleted' } },
         ],
       },
@@ -365,7 +366,11 @@ describe('LokiJS encodeQuery', () => {
     })
   })
   it(`fails to encode nested on without explicit joinTables`, () => {
-    const query = new Query(mockCollection, [Q.or(Q.on('projects', 'is_followed', true))])
-    expect(() => encodeQuery(query)).toThrow(/explicitly declare Q.experimentalJoinTables/)
+    expect(() => encoded([Q.or(Q.on('projects', 'is_followed', true))])).toThrow(
+      'explicitly declare Q.experimentalJoinTables',
+    )
+  })
+  it(`does not encode sql subexprs`, () => {
+    expect(() => encoded([Q.unsafeSqlExpr('haha sql goes brrr')])).toThrow('Unknown clause')
   })
 })

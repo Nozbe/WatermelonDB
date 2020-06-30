@@ -76,11 +76,6 @@ describe('performJoins', () => {
           { _status: { $ne: 'deleted' } },
         ],
       },
-      originalConditions: [
-        Q.where('team_id', 'abcdef'),
-        Q.where('is_active', true),
-        Q.where('_status', Q.notEq('deleted')),
-      ],
       mapKey: 'id',
       joinKey: 'project_id',
     })
@@ -89,10 +84,6 @@ describe('performJoins', () => {
       query: {
         $and: [{ tag_id: { $in: ['a', 'b', 'c'] } }, { _status: { $ne: 'deleted' } }],
       },
-      originalConditions: [
-        Q.where('tag_id', Q.oneOf(['a', 'b', 'c'])),
-        Q.where('_status', Q.notEq('deleted')),
-      ],
       mapKey: 'task_id',
       joinKey: 'id',
     })
@@ -125,7 +116,6 @@ describe('performJoins', () => {
       query: {
         $and: [{ is_followed: { $aeq: true } }, { _status: { $ne: 'deleted' } }],
       },
-      originalConditions: [Q.where('is_followed', true), Q.where('_status', Q.notEq('deleted'))],
       mapKey: 'id',
       joinKey: 'project_id',
     })
@@ -134,7 +124,6 @@ describe('performJoins', () => {
       query: {
         $and: [{ foo: { $eq: 'bar' } }, { _status: { $ne: 'deleted' } }],
       },
-      originalConditions: [Q.where('foo', 'bar'), Q.where('_status', Q.notEq('deleted'))],
       mapKey: 'task_id',
       joinKey: 'id',
     })
@@ -153,17 +142,12 @@ describe('performJoins', () => {
     expect(performer).toHaveBeenCalledWith({
       table: 'teams',
       query: { $and: [{ foo: { $eq: 'bar' } }, { _status: { $ne: 'deleted' } }] },
-      originalConditions: [Q.where('foo', 'bar'), Q.where('_status', Q.notEq('deleted'))],
       mapKey: 'id',
       joinKey: 'team_id',
     })
     expect(performer).toHaveBeenCalledWith({
       table: 'projects',
       query: { $and: [{ team_id: { $in: ['t1', 't2'] } }, { _status: { $ne: 'deleted' } }] },
-      originalConditions: [
-        Q.on('teams', [Q.where('foo', 'bar'), Q.where('_status', Q.notEq('deleted'))]),
-        Q.where('_status', Q.notEq('deleted')),
-      ],
       mapKey: 'id',
       joinKey: 'project_id',
     })

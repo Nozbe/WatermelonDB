@@ -68,20 +68,24 @@ const encodeComparison = (table: TableName<any>, comparison: Comparison) => {
 const encodeWhere = (table: TableName<any>, associations: QueryAssociation[]) => (
   where: Where,
 ): string => {
-  if (where.type === 'and') {
-    return `(${encodeAndOr(associations, 'and', table, where.conditions)})`
-  } else if (where.type === 'or') {
-    return `(${encodeAndOr(associations, 'or', table, where.conditions)})`
-  } else if (where.type === 'on') {
-    invariant(
-      associations.some(({ to }) => to === where.table),
-      'To nest Q.on inside Q.and/Q.or you must explicitly declare Q.experimentalJoinTables at the beginning of the query',
-    )
-    return `(${encodeAndOr(associations, 'and', where.table, where.conditions)})`
-  } else if (where.type === 'where') {
-    return encodeWhereCondition(associations, table, where.left, where.comparison)
+  switch (where.type) {
+    case 'and':
+      return `(${encodeAndOr(associations, 'and', table, where.conditions)})`
+    case 'or':
+      return `(${encodeAndOr(associations, 'or', table, where.conditions)})`
+    case 'where':
+      return encodeWhereCondition(associations, table, where.left, where.comparison)
+    case 'on':
+      invariant(
+        associations.some(({ to }) => to === where.table),
+        'To nest Q.on inside Q.and/Q.or you must explicitly declare Q.experimentalJoinTables at the beginning of the query',
+      )
+      return `(${encodeAndOr(associations, 'and', where.table, where.conditions)})`
+    case 'sql':
+      return where.expr
+    default:
+      throw new Error(`Unknown clause ${where.type}`)
   }
-  throw new Error('Unknown clause')
 }
 
 const encodeWhereCondition = (
@@ -201,6 +205,13 @@ const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string
   const { table, description, associations } = query
 
   const hasToManyJoins = associations.some(({ info }) => info.type === 'has_many')
+
+  description.take &&
+    invariant(
+      !countMode,
+      'take/skip is not currently supported with counting. Please contribute to fix this!',
+    )
+  invariant(!description.lokiFilter, 'unsafeLokiFilter not supported with SQLite')
 
   const sql =
     encodeMethod(table, countMode, hasToManyJoins) +

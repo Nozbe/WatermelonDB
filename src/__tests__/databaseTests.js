@@ -198,6 +198,91 @@ export const matchTests = [
     ],
   },
   {
+    name: 'can compare columns (eq)',
+    query: [Q.where('num1', Q.eq(Q.column('num2')))],
+    matching: [
+      { id: 'm1', num1: 'foo', num2: 'foo' },
+      { id: 'm2', num1: 5, num2: 5 },
+      { id: 'm4', num1: true, num2: true },
+      { id: 'm5', num1: true, num2: 1 },
+      { id: 'm6', num1: false, num2: false },
+      { id: 'm7', num1: false, num2: 0 },
+      { id: 'm8', num1: null },
+      { id: 'm9', num2: null },
+      { id: 'm0', num1: undefined, num2: null },
+      { id: 'ma', num1: 3.14, num2: 3.14 },
+      { id: 'mb' },
+    ],
+    nonMatching: [
+      { id: 'n1', num1: 'foo', num2: 'bar' },
+      { id: 'n2', num1: 5, num2: 6 },
+      { id: 'n3', num1: 5.14, num2: 5.1399 },
+      { id: 'n4', num1: true, num2: false },
+      { id: 'n5', num1: null, num2: false },
+      { id: 'n6', num1: undefined, num2: false },
+      { id: 'n7', num2: false },
+    ],
+  },
+  {
+    name: 'can compare columns (notEq)',
+    query: [Q.where('num1', Q.notEq(Q.column('num2')))],
+    matching: [
+      { id: 'n1', num1: 'foo', num2: 'bar' },
+      { id: 'n2', num1: 5, num2: 6 },
+      { id: 'n3', num1: 5.14, num2: 5.1399 },
+      { id: 'n4', num1: true, num2: false },
+      { id: 'n5', num1: null, num2: false },
+      { id: 'n6', num1: undefined, num2: false },
+      { id: 'n7', num2: false },
+    ],
+    nonMatching: [
+      { id: 'm1', num1: 'foo', num2: 'foo' },
+      { id: 'm2', num1: 5, num2: 5 },
+      { id: 'm4', num1: true, num2: true },
+      { id: 'm5', num1: true, num2: 1 },
+      { id: 'm6', num1: false, num2: false },
+      { id: 'm7', num1: false, num2: 0 },
+      { id: 'm8', num1: null },
+      { id: 'm9', num2: null },
+      { id: 'm0', num1: undefined, num2: null },
+      { id: 'ma', num1: 3.14, num2: 3.14 },
+      { id: 'mb' },
+    ],
+  },
+  {
+    name: 'can compare columns (less-than)',
+    query: [Q.where('num2', Q.lt(Q.column('num1')))],
+    matching: [{ id: 'm1', num1: 10, num2: 5 }, { id: 'm2', num1: 5.1, num2: 5.09 }],
+    nonMatching: [
+      { id: 'n1' },
+      { id: 'n2', num1: null },
+      { id: 'n3', num2: null },
+      { id: 'n4', num1: null, num2: null },
+      { id: 'n5', num1: 5, num2: 10 },
+      { id: 'n6', num1: 5 },
+      { id: 'n7', num1: 5, num2: null },
+      { id: 'n8', num2: 10 },
+      { id: 'n9', num1: null, num2: 10 },
+      { id: 'n10', num1: 4.5, num2: 4.6 },
+    ],
+  },
+  {
+    name: 'can compare columns (less-than-or-equal)',
+    query: [Q.where('num2', Q.lte(Q.column('num1')))],
+    matching: [{ id: 'm1', num1: 10, num2: 5 }, { id: 'm2', num1: 5, num2: 5 }],
+    nonMatching: [
+      { id: 'n1' },
+      { id: 'n2', num1: null },
+      { id: 'n3', num2: null },
+      { id: 'n4', num1: null, num2: null },
+      { id: 'n5', num1: 5, num2: 10 },
+      { id: 'n6', num1: 5 },
+      { id: 'n7', num1: 5, num2: null },
+      { id: 'n8', num2: 10 },
+      { id: 'n9', num1: null, num2: 10 },
+    ],
+  },
+  {
     name: 'can compare columns (greater-than/float)',
     query: [Q.where('float1', Q.gt(Q.column('float2')))],
     matching: [{ id: 'm1', float1: 10, float2: 5 }, { id: 'm2', float1: 5.1, float2: 5.09 }],
@@ -536,7 +621,73 @@ export const matchTests = [
       { id: 'n4', text1: null },
     ],
   },
-  // TODO: Add sortBy, take, skip tests (once supported by more than just SQLite)
+  {
+    name: 'match unsafe SQL expression',
+    query: [Q.unsafeSqlExpr('tasks.num1 not between 1 and 5')],
+    matching: [
+      { id: 'm1', num1: 0 },
+      { id: 'm2', num1: -1 },
+      { id: 'm3', num1: 6 },
+      { id: 'm4', num1: 10 },
+    ],
+    nonMatching: [{ id: 'n1', num1: 1 }, { id: 'n2', num1: 3 }, { id: 'n3', num1: 5 }],
+    skipLoki: true,
+    skipMatcher: true,
+  },
+  {
+    name: 'match unsafe Loki expression',
+    query: [Q.unsafeLokiExpr({ text1: { $contains: 'hey' } })],
+    matching: [{ id: 'm1', text1: 'hey' }, { id: 'm2', text1: 'aeheyea' }],
+    nonMatching: [{ id: 'n1' }, { id: 'n2', text1: 'he' }],
+    skipSqlite: true,
+    skipMatcher: true,
+  },
+  {
+    name: 'match with sortBy & take',
+    query: [
+      Q.experimentalSortBy('text1', 'asc'),
+      Q.experimentalSortBy('num1', 'desc'),
+      Q.experimentalTake(2),
+    ],
+    matching: [
+      // TODO: null handling?
+      { id: 'n2', text1: 'a', num1: 1 },
+      { id: 'n1', text1: 'a', num1: 2 },
+    ],
+    nonMatching: [
+      { id: 'n3', text1: 'c', num1: 4 },
+      { id: 'm2', text1: 'b', num1: 2 },
+      { id: 'm1', text1: 'b', num1: 10 },
+      { id: 'n4', text1: 'c', num1: 3 },
+    ],
+    skipLoki: true,
+    skipCount: true, // count is broken
+    skipMatcher: true,
+  },
+  {
+    name: 'match with sortBy, take & skip',
+    query: [
+      Q.experimentalSortBy('text1', 'asc'),
+      Q.experimentalSortBy('num1', 'desc'),
+      Q.experimentalSkip(2),
+      Q.experimentalTake(2),
+    ],
+    matching: [
+      // TODO: null handling?
+      { id: 'm2', text1: 'b', num1: 2 },
+      { id: 'm1', text1: 'b', num1: 10 },
+    ],
+    nonMatching: [
+      { id: 'n3', text1: 'c', num1: 4 },
+      { id: 'n4', text1: 'c', num1: 3 },
+      { id: 'n1', text1: 'a', num1: 2 },
+      { id: 'n2', text1: 'a', num1: 1 },
+    ],
+    skipLoki: true,
+    skipCount: true, // count is broken
+    skipMatcher: true,
+  },
+  // TODO: Order, not match tests for sortBy, take, skip
 ]
 
 export const naughtyMatchTests = naughtyStrings.map(naughtyString => ({
@@ -900,5 +1051,98 @@ export const joinTests = [
       { id: 'n9', text1: 'val1' }, // bad TT
     ],
   },
-  // TODO: Perform a nested JOIN query with column comparisons (currently broken on LokiJS)
+  {
+    name: `can perform deeply nested JOIN query with a column comparison`,
+    query: [
+      Q.experimentalJoinTables(['projects']),
+      Q.experimentalNestedJoin('projects', 'teams'),
+      Q.or(Q.on('projects', Q.on('teams', [Q.where('num1', Q.gt(Q.column('num2')))]))),
+    ],
+    extraRecords: {
+      teams: [
+        { id: 't1', num1: 10, num2: 5 },
+        { id: 't2', num1: 5, num2: -5 },
+        { id: 'badt1', num1: 5, num2: 10 },
+        { id: 'badt2', num1: 5, num2: null },
+        { id: 'badt3', num1: null, num2: null },
+      ],
+      projects: [
+        { id: 'p1', team_id: 't1' },
+        { id: 'p2', team_id: 't2' },
+        { id: 'badp1', team_id: 'badt1' },
+        { id: 'badp2', team_id: 'badt2' },
+        { id: 'badp3', team_id: 'badt3' },
+      ],
+    },
+    matching: [{ id: 'm1', project_id: 'p1' }, { id: 'm2', project_id: 'p2' }],
+    nonMatching: [
+      { id: 'n1', project_id: 'badp1' },
+      { id: 'n2', project_id: 'badp2' },
+      { id: 'n3', project_id: 'badp3' },
+    ],
+  },
+  {
+    name: 'can compare columns between tables using unsafe SQL expressions',
+    query: [Q.on('projects', 'num1', Q.notEq(null)), Q.unsafeSqlExpr('tasks.num1 > projects.num1')],
+    extraRecords: {
+      projects: [
+        { id: 'p1', num1: 5 },
+        { id: 'p2', num1: 10 },
+        { id: 'badp1' },
+        { id: 'badp2', num1: 5, _status: 'deleted' },
+      ],
+    },
+    matching: [
+      { id: 'm1', project_id: 'p1', num1: 5.01 },
+      { id: 'm2', project_id: 'p1', num1: 100 },
+      { id: 'm3', project_id: 'p2', num1: 11 },
+      { id: 'm4', project_id: 'p2', num1: 10e12 },
+    ],
+    nonMatching: [
+      { id: 'n1', project_id: 'p1', num1: 0 },
+      { id: 'n2', project_id: 'p1', num1: -10 },
+      { id: 'n3', project_id: 'p1', num1: 4.99 },
+      { id: 'n4', project_id: 'p2', num1: 9 },
+      { id: 'n5', project_id: 'badp2', num1: 100 },
+      { id: 'n6', project_id: 'badp1', num1: 100 },
+      { id: 'n7', project_id: 'p1', num1: 100, _status: 'deleted' },
+      { id: 'n8', project_id: 'p1' },
+    ],
+    skipLoki: true,
+  },
+  {
+    name: 'can compare columns between tables using unsafe Loki filter',
+    query: [
+      Q.on('projects', 'num1', Q.notEq(null)),
+      Q.unsafeLokiFilter((record, loki) => {
+        const project = loki.getCollection('projects').by('id', record.project_id)
+        return project && typeof record.num1 === 'number' && record.num1 > project.num1
+      }),
+    ],
+    extraRecords: {
+      projects: [
+        { id: 'p1', num1: 5 },
+        { id: 'p2', num1: 10 },
+        { id: 'badp1' },
+        { id: 'badp2', num1: 5, _status: 'deleted' },
+      ],
+    },
+    matching: [
+      { id: 'm1', project_id: 'p1', num1: 5.01 },
+      { id: 'm2', project_id: 'p1', num1: 100 },
+      { id: 'm3', project_id: 'p2', num1: 11 },
+      { id: 'm4', project_id: 'p2', num1: 10e12 },
+    ],
+    nonMatching: [
+      { id: 'n1', project_id: 'p1', num1: 0 },
+      { id: 'n2', project_id: 'p1', num1: -10 },
+      { id: 'n3', project_id: 'p1', num1: 4.99 },
+      { id: 'n4', project_id: 'p2', num1: 9 },
+      { id: 'n5', project_id: 'badp2', num1: 100 },
+      { id: 'n6', project_id: 'badp1', num1: 100 },
+      { id: 'n7', project_id: 'p1', num1: 100, _status: 'deleted' },
+      { id: 'n8', project_id: 'p1' },
+    ],
+    skipSqlite: true,
+  },
 ]
