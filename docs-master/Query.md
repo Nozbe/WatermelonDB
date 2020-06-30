@@ -222,8 +222,6 @@ tasksCollection.query(
 )
 ```
 
-Known limitation: column comparisons do not work within nested `Q.on`s on LokiJSAdapter
-
 #### Deep `Q.on`s
 
 You can also nest `Q.on` within `Q.on`, e.g. to make a condition on a grandparent. You must explicitly define the tables you're joining on. (NOTE: The `Q.experimentalNestedJoin` API is subject to change). Multiple levels of nesting are allowed.
@@ -280,15 +278,66 @@ Remember that Queries are a sensitive subject, security-wise. Never trust user i
 - Do not use `Q.like` / `Q.notLike` without `Q.sanitizeLikeString`
 - Do not use `unsafe raw queries` without knowing what you're doing and sanitizing all user input
 
-### Raw Queries
+### Unsafe raw queries
 
-If this Query syntax is not enough for you, and you need to get your hands dirty on a raw SQL or Loki query, you need **rawQueries**. For now, only record SQL queries are available. If you need other SQL queries or LokiJS raw queries, please contribute!
+If this Query syntax is not enough for you, and you need to get your hands dirty on a raw SQL or Loki query, you need **rawQueries**.
+
+Please don't use this if you don't know what you're doing. The method name is called `unsafe` for a reason.
+
+#### SQL queries
+
+For now, only record SQL queries are available. If you need other SQL queries or LokiJS raw queries, please contribute!
 
 ```js
 const records = commentCollection.unsafeFetchRecordsWithSQL('select * from comments where ...')
 ```
 
-Please don't use this if you don't know what you're doing. The method name is called `unsafe` for a reason. You need to be sure to properly sanitize user values to avoid SQL injection, and filter out deleted records using `where _status is not 'deleted'` clause
+You need to be sure to properly sanitize user values to avoid SQL injection, and filter out deleted records using `where _status is not 'deleted'` clause
+
+#### SQL/Loki expressions
+
+You can also include smaller bits of SQL and Loki expressions so that you can still use as much of Watermelon query builder as possible:
+
+```js
+// SQL example:
+postsCollection.query(
+  Q.where('is_published', true),
+  Q.unsafeSqlExpr('tasks.num1 not between 1 and 5'),
+)
+
+// LokiJS example:
+postsCollection.query(
+  Q.where('is_published', true),
+  Q.unsafeLokiExpr({ text1: { $contains: 'hey' } })
+)
+```
+
+For SQL, be sure to prefix column names with table name when joining with other tables.
+
+### Multi-table column comparisons and `Q.unsafeLokiFilter`
+
+Example: we want to query comments posted more than 14 days after the post it belongs to was published.
+
+There's sadly no built-in syntax for this, but can be worked around using unsafe expressions like so:
+
+```js
+// SQL example:
+commentsCollection.query(
+  Q.on('posts', 'published_at', Q.notEq(null)),
+  Q.unsafeSqlExpr(`comments.createad_at > posts.published_at + ${14 * 24 * 3600 * 1000}`)
+)
+
+// LokiJS example:
+commentsCollection.query(
+  Q.on('posts', 'published_at', Q.notEq(null)),
+  Q.unsafeLokiFilter((record, loki) => {
+    const post = loki.getCollection('posts').by('id', record.post_id)
+    return post && record.created_at > post.published_at + 14 * 24 * 3600 * 1000
+  }),
+)
+```
+
+For LokiJS, remember that `record` is an unsanitized object and must not be mutated. `Q.unsafeLokiFilter` only works when using `LokiJSAdapter` with `useWebWorkers: false`. There can only be one `Q.unsafeLokiFilter` clause per query.
 
 ### `null` behavior
 
@@ -314,6 +363,22 @@ postsCollection.query(
 **`Q.notIn` operator**: If you query, say, posts with `Q.where('status', Q.notIn(['published', 'draft']))`, it will match posts with a status different than `published` or `draft`, however, it will NOT match posts with `status == null`. If you want to include such posts, query for that explicitly like with the example above.
 
 **`Q.weakGt` operator**: This is weakly typed version of `Q.gt` — one that allows null comparisons. So if you query `comments` with `Q.where('likes', Q.weakGt(Q.column('dislikes')))`, it WILL match comments with 5 likes and `null` dislikes. (For `weakGt`, unlike standard operators, any number is greater than `null`).
+
+## Contributing improvements to Watermelon query language
+
+Here are files that are relevant. This list may look daunting, but adding new matchers is actually quite simple and multiple first-time contributors made these improvements (including like, sort, take, skip). The implementation is just split into multiple files (and their test files), but when you look at them, it'll be easy to add matchers by analogy.
+
+We recommend starting from writing tests first to check expected behavior, then implement the actual behavior.
+
+- `src/QueryDescription/test.js` - Test clause builder (`Q.myThing`) output and test that it rejects bad/unsafe parameters
+- `src/QueryDescription/index.js` - Add clause builder and type definition
+- `src/__tests__/databaseTests.js` - Add test ("join" if it requires conditions on related tables; "match" otherwise) that checks that the new clause matches expected records. From this, tests running against SQLite, LokiJS, and Matcher are generated. (If one of those is not supported, add `skip{Loki,Sql,Count,Matcher}: true` to your test)
+- `src/adapters/sqlite/encodeQuery/test.js` - Test that your query generates SQL you expect. (If your clause is Loki-only, test that error is thrown)
+- `src/adapters/sqlite/encodeQuery/index.js` - Generate SQL
+- `src/adapters/lokijs/worker/encodeQuery/test.js` - Test that your query generates the Loki query you expect (If your clause is SQLite-only, test that an error is thrown)
+- `src/adapters/lokijs/worker/encodeQuery/index.js` - Generate Loki query
+- `src/adapters/lokijs/worker/{performJoins/*.js,executeQuery.js}` - May be relevant for some Loki queries, but most likely you don't need to look here.
+- `src/observation/encodeMatcher/` - If your query can be checked against a record in JavaScript (e.g. you're adding new "by regex" matcher), implement this behavior here (`index.js`, `operators.js`). This is used for efficient "simple observation". You don't need to write tests - `databaseTests` are used automatically. If you can't or won't implement encodeMatcher for your query, add a check to `canEncode.js` so that it returns `false` for your query (Less efficient "reloading observation" will be used then). Add your query to `test.js`'s "unencodable queries" then.
 
 * * *
 

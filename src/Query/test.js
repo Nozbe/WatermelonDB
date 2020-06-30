@@ -178,6 +178,16 @@ describe('Query', () => {
       ])
       expect(extendedQuery.serialize()).toEqual(expectedQuery.serialize())
     })
+    it(`can extend query with unsafeLokiFilter`, () => {
+      const fn = () => {}
+      const query = new Query(mockCollection, [Q.unsafeLokiFilter(fn)])
+      const extendedQuery = query.extend(Q.where('foo', 'bar'))
+      const expectedQuery = new Query(mockCollection, [
+        Q.unsafeLokiFilter(fn),
+        Q.where('foo', 'bar'),
+      ])
+      expect(extendedQuery.serialize()).toEqual(expectedQuery.serialize())
+    })
     it('returns serializable version of Query', () => {
       const query = new Query(mockCollection, [
         Q.on('projects', 'team_id', 'abcdef'),

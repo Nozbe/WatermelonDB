@@ -44,7 +44,10 @@ export type WhereDescription = $RE<{
   comparison: Comparison,
 }>
 
-export type Where = WhereDescription | And | Or | On
+export type SqlExpr = $RE<{ type: 'sql', expr: string }>
+export type LokiExpr = $RE<{ type: 'loki', expr: any }>
+
+export type Where = WhereDescription | And | Or | On | SqlExpr | LokiExpr
 export type And = $RE<{ type: 'and', conditions: Where[] }>
 export type Or = $RE<{ type: 'or', conditions: Where[] }>
 export type On = $RE<{
@@ -77,7 +80,12 @@ export type NestedJoinTable = $RE<{
   from: TableName<any>,
   to: TableName<any>,
 }>
-export type Clause = Where | SortBy | Take | Skip | JoinTables | NestedJoinTable
+export type LokiFilterFunction = (rawLokiRecord: any, loki: any) => boolean
+export type LokiFilter = $RE<{
+  type: 'lokiFilter',
+  function: LokiFilterFunction,
+}>
+export type Clause = Where | SortBy | Take | Skip | JoinTables | NestedJoinTable | LokiFilter
 
 type NestedJoinTableDef = $RE<{ from: TableName<any>, to: TableName<any> }>
 export type QueryDescription = $RE<{
@@ -85,8 +93,9 @@ export type QueryDescription = $RE<{
   joinTables: TableName<any>[],
   nestedJoinTables: NestedJoinTableDef[],
   sortBy: SortBy[],
-  take: ?number,
-  skip: ?number,
+  take?: number,
+  skip?: number,
+  lokiFilter?: LokiFilterFunction,
 }>
 
 const columnSymbol = Symbol('Q.column')
@@ -209,24 +218,24 @@ export function between(left: number, right: number): Comparison {
 }
 
 export function like(value: string): Comparison {
-  invariant(typeof value === 'string', 'Value passed to Q.like() is not string')
+  invariant(typeof value === 'string', 'Value passed to Q.like() is not a string')
   return { operator: 'like', right: { value }, type: comparisonSymbol }
 }
 
 export function notLike(value: string): Comparison {
-  invariant(typeof value === 'string', 'Value passed to Q.notLike() is not string')
+  invariant(typeof value === 'string', 'Value passed to Q.notLike() is not a string')
   return { operator: 'notLike', right: { value }, type: comparisonSymbol }
 }
 
 const nonLikeSafeRegexp = /[^a-zA-Z0-9]/g
 
 export function sanitizeLikeString(value: string): string {
-  invariant(typeof value === 'string', 'Value passed to Q.sanitizeLikeString() is not string')
+  invariant(typeof value === 'string', 'Value passed to Q.sanitizeLikeString() is not a string')
   return value.replace(nonLikeSafeRegexp, '_')
 }
 
 export function column(name: ColumnName): ColumnDescription {
-  invariant(typeof name === 'string', 'Name passed to Q.column() is not string')
+  invariant(typeof name === 'string', 'Name passed to Q.column() is not a string')
   return { column: checkName(name), type: columnSymbol }
 }
 
@@ -247,22 +256,39 @@ export function where(left: ColumnName, valueOrComparison: Value | Comparison): 
   return { type: 'where', left: checkName(left), comparison: _valueOrComparison(valueOrComparison) }
 }
 
-const acceptableClauses = ['where', 'and', 'or', 'on']
-const isAcceptableClause = (clause: Where) => acceptableClauses.includes(clause.type)
+export function unsafeSqlExpr(sql: string): SqlExpr {
+  invariant(typeof sql === 'string', 'Value passed to Q.unsafeSqlExpr is not a string')
+  return { type: 'sql', expr: sql }
+}
 
-export function and(...clauses: Where[]): And {
+export function unsafeLokiExpr(expr: any): LokiExpr {
+  invariant(
+    expr && typeof expr === 'object' && !Array.isArray(expr),
+    'Value passed to Q.unsafeLokiExpr is not an object',
+  )
+  return { type: 'loki', expr }
+}
+
+export function unsafeLokiFilter(fn: LokiFilterFunction): LokiFilter {
+  return { type: 'lokiFilter', function: fn }
+}
+
+const acceptableClauses = ['where', 'and', 'or', 'on', 'sql', 'loki']
+const isAcceptableClause = (clause: Where) => acceptableClauses.includes(clause.type)
+const validateConditions = (clauses: Where[]) => {
   invariant(
     clauses.every(isAcceptableClause),
-    'Q.and() can only contain Q.where, Q.and, Q.or, Q.on clauses',
+    'Q.and(), Q.or(), Q.on() can only contain: Q.where, Q.and, Q.or, Q.on, Q.unsafeSqlExpr, Q.unsafeLokiExpr clauses',
   )
+}
+
+export function and(...clauses: Where[]): And {
+  validateConditions(clauses)
   return { type: 'and', conditions: clauses }
 }
 
 export function or(...clauses: Where[]): Or {
-  invariant(
-    clauses.every(isAcceptableClause),
-    'Q.or() can only contain Q.where, Q.and, Q.or, Q.on clauses',
-  )
+  validateConditions(clauses)
   return { type: 'or', conditions: clauses }
 }
 
@@ -311,10 +337,7 @@ export const on: OnFunction = (table, leftOrClauseOrList, valueOrComparison) => 
 
   if (Array.isArray(clauseOrList)) {
     const conditions: Where[] = clauseOrList
-    invariant(
-      conditions.every(isAcceptableClause),
-      'Q.on() can only contain Q.where, Q.and, Q.or, Q.on clauses',
-    )
+    validateConditions(conditions)
     return {
       type: 'on',
       table: checkName(table),
@@ -357,20 +380,15 @@ const compressTopLevelOns = (conditions: Where[]): Where[] => {
 
 const syncStatusColumn = columnName('_status')
 const extractClauses: (Clause[]) => QueryDescription = clauses => {
-  const clauseMap = {
-    where: [],
-    joinTables: [],
-    nestedJoinTables: [],
-    sortBy: [],
-    take: null,
-    skip: null,
-  }
+  const clauseMap = { where: [], joinTables: [], nestedJoinTables: [], sortBy: [] }
   clauses.forEach(clause => {
     const { type } = clause
     switch (type) {
       case 'where':
       case 'and':
       case 'or':
+      case 'sql':
+      case 'loki':
         clauseMap.where.push(clause)
         break
       case 'on':
@@ -397,6 +415,10 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
         // $FlowFixMe
         clauseMap.nestedJoinTables.push({ from: clause.from, to: clause.to })
         break
+      case 'lokiFilter':
+        // $FlowFixMe
+        clauseMap.lokiFilter = clause.function
+        break
       default:
         throw new Error('Invalid Query clause passed')
     }
@@ -409,11 +431,8 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
 }
 
 export function buildQueryDescription(clauses: Clause[]): QueryDescription {
-  const clauseMap = extractClauses(clauses)
-
-  invariant(!(clauseMap.skip && !clauseMap.take), 'cannot skip without take')
-
-  const query = clauseMap
+  const query = extractClauses(clauses)
+  invariant(!(query.skip && !query.take), 'cannot skip without take')
   if (process.env.NODE_ENV !== 'production') {
     deepFreeze(query)
   }
