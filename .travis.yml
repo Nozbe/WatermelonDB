@@ -1,58 +1,19 @@
 matrix:
   include:
-    # - language: objective-c
-    #   osx_image: xcode9.4
-    #   cache:
-    #     timeout: 600
-    #     directories:
-    #       - $HOME/.cache/yarn
-    #       - node_modules
-
-    #   env:
-    #     global:
-    #     - LC_CTYPE=en_US.UTF-8
-    #     - LANG=en_US.UTF-8
-
-    #   before_install:
-    #     - nvm install 10
-    #     - which node
-    #     - node --version
-    #     - export TRAVIS_NODE_BINARY=$(which node)
-    #     - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.9.4
-    #     - export PATH=$HOME/.yarn/bin:$PATH
-    #     - yarn -version
-    #     - sudo gem install xcpretty
-
-    #   install:
-    #     - yarn
-
-    #   script:
-    #     - set -o pipefail
-    #     - npm run ci:check
-    #     - npm run test:ios | xcpretty
-    #     - npm run swiftlint
-
-    - language: android
-      sudo: required
-      android:
-        components:
-          - build-tools-28.0.3
-          - android-28
-          - android-24
-          - sys-img-armeabi-v7a-android-24
-          - tools
-          - platform-tools
-          - tools
-      before_cache:
-        - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-        - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+    - language: objective-c
+      osx_image: xcode11.4
       cache:
+        timeout: 600
         directories:
-          - $HOME/.gradle/caches/
-          - $HOME/.gradle/wrapper/
-          - $HOME/.android/build-cache
+          - $HOME/.cache/yarn
+          - node_modules
+
+      env:
+        global:
+        - LC_CTYPE=en_US.UTF-8
+        - LANG=en_US.UTF-8
+
       before_install:
-        - echo 'fs.inotify.max_user_watches=524288' | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
         - nvm install 10
         - which node
         - node --version
@@ -60,25 +21,64 @@ matrix:
         - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.9.4
         - export PATH=$HOME/.yarn/bin:$PATH
         - yarn -version
-        - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
-        - echo no | android create avd --force -n test -t android-24 --abi armeabi-v7a
-        - emulator -avd test -no-skin -no-window &
+        # - sudo gem install xcpretty
+
       install:
         - yarn
-        # In case stuff breaks, look at:
-        # https://github.com/android/ndk-samples/blob/master/.travis.yml#L16
-        - echo y | sdkmanager 'ndk-bundle'
-        - echo y | sdkmanager "ndk;20.1.5948944"
-        - echo y | sdkmanager --channel=3 --channel=1 "cmake;3.10.2.4988404"
+
       script:
-        - TERM=dumb yarn ktlint
-        - android-wait-for-emulator
-        - adb shell input keyevent 82 &
-        # the timeout shouldn't be this huge, but currently something's wrong with the tests
-        - travis_wait 20 ./scripts/retryEmuAndTest
-      after_failure:
-        - adb logcat -d > logcat.txt
-        - echo "$(cat logcat.txt)"
+        - set -o pipefail
+        - npm run ci:check
+        # - npm run test:ios | xcpretty
+        # - npm run swiftlint
+
+    # - language: android
+    #   sudo: required
+    #   android:
+    #     components:
+    #       - build-tools-28.0.3
+    #       - android-28
+    #       - android-24
+    #       - sys-img-armeabi-v7a-android-24
+    #       - tools
+    #       - platform-tools
+    #       - tools
+    #   before_cache:
+    #     - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+    #     - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+    #   cache:
+    #     directories:
+    #       - $HOME/.gradle/caches/
+    #       - $HOME/.gradle/wrapper/
+    #       - $HOME/.android/build-cache
+    #   before_install:
+    #     - echo 'fs.inotify.max_user_watches=524288' | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+    #     - nvm install 10
+    #     - which node
+    #     - node --version
+    #     - export TRAVIS_NODE_BINARY=$(which node)
+    #     - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.9.4
+    #     - export PATH=$HOME/.yarn/bin:$PATH
+    #     - yarn -version
+    #     - android list targets | grep -E '^id:' | awk -F '"' '{$1=""; print $2}' # list all targets
+    #     - echo no | android create avd --force -n test -t android-24 --abi armeabi-v7a
+    #     - emulator -avd test -no-skin -no-window &
+    #   install:
+    #     - yarn
+    #     # In case stuff breaks, look at:
+    #     # https://github.com/android/ndk-samples/blob/master/.travis.yml#L16
+    #     - echo y | sdkmanager 'ndk-bundle'
+    #     - echo y | sdkmanager "ndk;20.1.5948944"
+    #     - echo y | sdkmanager --channel=3 --channel=1 "cmake;3.10.2.4988404"
+    #   script:
+    #     - TERM=dumb yarn ktlint
+    #     - android-wait-for-emulator
+    #     - adb shell input keyevent 82 &
+    #     # the timeout shouldn't be this huge, but currently something's wrong with the tests
+    #     - travis_wait 20 ./scripts/retryEmuAndTest
+    #   after_failure:
+    #     - adb logcat -d > logcat.txt
+    #     - echo "$(cat logcat.txt)"
 
     - language: rust
       sudo: false

@@ -7,7 +7,6 @@ import { invariant } from '../../utils/common'
 import DatabaseAdapterCompat from '../compat'
 
 const SQLiteAdapterTest = spec => {
-  /*
   spec.describe('SQLiteAdapter (async mode)', () => {
     spec.it('configures adapter correctly', () => {
       const adapter = new SQLiteAdapter({ schema: testSchema })
@@ -48,7 +47,7 @@ const SQLiteAdapterTest = spec => {
         )
       })
     })
-  })*/
+  })
   spec.describe('SQLiteAdapter (JSI mode)', () => {
     commonTests().forEach(testCase => {
       const [name, test] = testCase
