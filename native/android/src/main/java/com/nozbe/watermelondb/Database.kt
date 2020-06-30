@@ -27,8 +27,10 @@ class Database(private val name: String, private val context: Context) {
             db.version = value
         }
 
-    fun executeStatements(statements: SQL) =
+    fun unsafeExecuteStatements(statements: SQL) =
             transaction {
+                // NOTE: This must NEVER be allowed to take user input - split by `;` is not grammer-aware
+                // and so is unsafe. Only works with Watermelon-generated strings known to be safe
                 statements.split(";").forEach {
                     if (it.isNotBlank()) execute(it)
                 }

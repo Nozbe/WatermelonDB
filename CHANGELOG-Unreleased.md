@@ -6,6 +6,8 @@
 
 ### New features
 
+- [Android] `exerimentalUseJSI` option has been enabled on Android
+-
 ### Changes
 
 ### Fixes
