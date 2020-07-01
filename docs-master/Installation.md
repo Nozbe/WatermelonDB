@@ -45,30 +45,35 @@ npm install @nozbe/with-observables
    - Open `ios/YourAppName.xcodeproj` in Xcode
    - Right-click on **Your App Name** in the Project Navigator on the left, and click **New File…**
    - Create a single empty `Swift` file to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header** and **do not remove `Swift`** file then.
-3. **Link WatermelonDB's native library with the Xcode project -- manually**:
 
-    1. Open your project in Xcode, right click on **Libraries** in the Project Navigator on the left and click **Add Files to "Your Project Name"**. Look under `node_modules/@nozbe/watermelondb/native/ios` and select `WatermelonDB.xcodeproj`
-    2. Go to Project settings (top item in the Project navigator on the left), select your app name under **Targets** → **Build Phases** → **Link Binary With Libraries**, and add `libWatermelonDB.a`
+3. **Link WatermelonDB's native library with the Xcode project**:
 
-    For more information about linking libraries manually, [see React Native documentation](https://facebook.github.io/react-native/docs/linking-libraries-ios).
+    You can link WatermelonDB manually or using CocoaPods:
 
-4. **Link WatermelonDB's native library with the Xcode project -- using CocoaPods**:
+      - **Manually**
 
-    1. Add this to your CocoaPods (might not be needed if you're using autolinking):
+         1. Open your project in Xcode, right click on **Libraries** in the Project Navigator on the left and click **Add Files to "Your Project Name"**. Look under `node_modules/@nozbe/watermelondb/native/ios` and select `WatermelonDB.xcodeproj`
+         2. Go to Project settings (top item in the Project navigator on the left), select your app name under **Targets** → **Build Phases** → **Link Binary With Libraries**, and add `libWatermelonDB.a`
 
-        ```ruby
-        pod 'WatermelonDB', :path => '../node_modules/@nozbe/watermelondb'
-        ```
-    2. Unfortunately, the build will fail due to an issue with React Native's Pods, so you need to modify this line:
+         For more information about linking libraries manually, [see React Native documentation](https://facebook.github.io/react-native/docs/linking-libraries-ios).
 
-        ```ruby
-        # Before:
-        pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi'
-        # Change to:
-        pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi', :modular_headers => true
-        ```
+      - **Link WatermelonDB's native library with the Xcode project -- using CocoaPods**:
 
-Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (although Xcode 13.3+ and iOS 12.0+ are recommended).
+          1. Add this to your CocoaPods (might not be needed if you're using autolinking):
+
+              ```ruby
+              pod 'WatermelonDB', :path => '../node_modules/@nozbe/watermelondb'
+              ```
+          2. Unfortunately, the build will fail due to an issue with React Native's Pods, so you need to modify this line:
+
+              ```ruby
+              # Before:
+              pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi'
+              # Change to:
+              pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi', :modular_headers => true
+              ```
+
+      Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (although Xcode 13.3+ and iOS 12.0+ are recommended).
 
 ### Android (React Native)
 
