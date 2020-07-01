@@ -154,27 +154,27 @@ jsi::Object Database::resultDictionary(sqlite3_stmt *statement) {
         switch (sqlite3_column_type(statement, i)) {
         case SQLITE_INTEGER: {
             sqlite3_int64 value = sqlite3_column_int64(statement, i);
-            dictionary.setProperty(rt, column, std::move(jsi::Value((double)value)));
+            dictionary.setProperty(rt, column, jsi::Value((double)value));
             break;
         }
         case SQLITE_FLOAT: {
             double value = sqlite3_column_double(statement, i);
-            dictionary.setProperty(rt, column, std::move(jsi::Value(value)));
+            dictionary.setProperty(rt, column, jsi::Value(value));
             break;
         }
         case SQLITE_TEXT: {
             const char *text = (const char *)sqlite3_column_text(statement, i);
 
             if (text) {
-                dictionary.setProperty(rt, column, std::move(jsi::String::createFromAscii(rt, text)));
+                dictionary.setProperty(rt, column, jsi::String::createFromAscii(rt, text));
             } else {
-                dictionary.setProperty(rt, column, std::move(jsi::Value::null()));
+                dictionary.setProperty(rt, column, jsi::Value::null());
             }
 
             break;
         }
         case SQLITE_NULL: {
-            dictionary.setProperty(rt, column, std::move(jsi::Value::null()));
+            dictionary.setProperty(rt, column, jsi::Value::null());
             break;
         }
         case SQLITE_BLOB: {
@@ -227,7 +227,6 @@ int Database::getUserVersion() {
 }
 
 void Database::setUserVersion(int newVersion) {
-    auto &rt = getRt();
     // NOTE: placeholders don't work, and ints are safe
     std::string sql = "pragma user_version = " + std::to_string(newVersion);
     executeUpdate(sql);

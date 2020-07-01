@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 
 // inspired by `np` – https://github.com/sindresorhus/np
 
@@ -149,8 +150,9 @@ const buildTasks = options => {
     },
     {
       title: 'publish package',
-      task: () =>
-        listrInput('2-Factor Authentication code', {
+      task: () => {
+        console.log('\u0007')
+        return listrInput('2-Factor Authentication code', {
           validate: otp => otp.length > 0,
           done: otp =>
             execa('npm', [
@@ -160,7 +162,8 @@ const buildTasks = options => {
               '--tag',
               tag,
             ]),
-        }),
+        })
+      },
     },
     {
       title: 'git push',
