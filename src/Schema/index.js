@@ -19,20 +19,35 @@ export type ColumnSchema = $RE<{
 
 export type ColumnMap = { [name: ColumnName]: ColumnSchema }
 
-export type TableSchemaSpec = $Exact<{ name: TableName<any>, columns: ColumnSchema[] }>
+export type TableSchemaSpec = $Exact<{
+  name: TableName<any>,
+  columns: ColumnSchema[],
+  unsafeSql?: string => string,
+}>
 
 export type TableSchema = $RE<{
   name: TableName<any>,
   // depending on operation, it's faster to use map or array
   columns: ColumnMap,
   columnArray: ColumnSchema[],
+  unsafeSql?: string => string,
 }>
 
 type TableMap = { [name: TableName<any>]: TableSchema }
 
 export type SchemaVersion = number
 
-export type AppSchema = $RE<{ version: SchemaVersion, tables: TableMap }>
+export type AppSchemaSpec = $Exact<{
+  version: number,
+  tables: TableSchema[],
+  unsafeSql?: string => string,
+}>
+
+export type AppSchema = $RE<{
+  version: SchemaVersion,
+  tables: TableMap,
+  unsafeSql?: string => string,
+}>
 
 export function tableName<T: Model>(name: string): TableName<T> {
   return name
@@ -42,12 +57,10 @@ export function columnName(name: string): ColumnName {
   return name
 }
 
-export function appSchema({
-  version,
-  tables: tableList,
-}: $Exact<{ version: number, tables: TableSchema[] }>): AppSchema {
-  process.env.NODE_ENV !== 'production' &&
+export function appSchema({ version, tables: tableList, unsafeSql }: AppSchemaSpec): AppSchema {
+  if (process.env.NODE_ENV !== 'production') {
     invariant(version > 0, `Schema version must be greater than 0`)
+  }
   const tables: TableMap = tableList.reduce((map, table) => {
     if (process.env.NODE_ENV !== 'production') {
       invariant(typeof table === 'object' && table.name, `Table schema must contain a name`)
@@ -57,7 +70,7 @@ export function appSchema({
     return map
   }, {})
 
-  return { version, tables }
+  return { version, tables, unsafeSql }
 }
 
 const validateName = (name: string) => {
@@ -93,7 +106,11 @@ export function validateColumnSchema(column: ColumnSchema): void {
   }
 }
 
-export function tableSchema({ name, columns: columnArray }: TableSchemaSpec): TableSchema {
+export function tableSchema({
+  name,
+  columns: columnArray,
+  unsafeSql,
+}: TableSchemaSpec): TableSchema {
   if (process.env.NODE_ENV !== 'production') {
     invariant(name, `Missing table name in schema`)
     validateName(name)
@@ -107,5 +124,5 @@ export function tableSchema({ name, columns: columnArray }: TableSchemaSpec): Ta
     return map
   }, {})
 
-  return { name, columns, columnArray }
+  return { name, columns, columnArray, unsafeSql }
 }

@@ -13,13 +13,13 @@ declare module '@nozbe/watermelondb/Schema/migrations' {
     name: TableName<any>,
     columns: ColumnMap,
   }
-  
+
   export interface AddColumnsMigrationStep {
     type: 'add_columns',
     table: TableName<any>,
     columns: ColumnSchema[],
   }
-  
+
   export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep
 
   export interface Migration {

@@ -1,39 +1,46 @@
 // @flow
 
 import { sortBy, prop, last, head } from 'rambdax'
+import type { $RE } from '../../types'
 import type { ColumnSchema, TableName, TableSchema, TableSchemaSpec, SchemaVersion } from '../index'
 import { tableSchema, validateColumnSchema } from '../index'
 
 import { invariant } from '../../utils/common'
 import { isObject } from '../../utils/fp'
 
-export type CreateTableMigrationStep = $Exact<{
-  +type: 'create_table',
-  +schema: TableSchema,
+export type CreateTableMigrationStep = $RE<{
+  type: 'create_table',
+  schema: TableSchema,
 }>
 
-export type AddColumnsMigrationStep = $Exact<{
-  +type: 'add_columns',
-  +table: TableName<any>,
-  +columns: ColumnSchema[],
+export type AddColumnsMigrationStep = $RE<{
+  type: 'add_columns',
+  table: TableName<any>,
+  columns: ColumnSchema[],
+  unsafeSql?: string => string,
 }>
 
-export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep
-
-type Migration = $Exact<{
-  +toVersion: SchemaVersion,
-  +steps: MigrationStep[],
+export type SqlMigrationStep = $RE<{
+  type: 'sql',
+  sql: string,
 }>
 
-type SchemaMigrationsSpec = $Exact<{
-  +migrations: Migration[],
+export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep | SqlMigrationStep
+
+type Migration = $RE<{
+  toVersion: SchemaVersion,
+  steps: MigrationStep[],
 }>
 
-export type SchemaMigrations = $Exact<{
-  +validated: true,
-  +minVersion: SchemaVersion,
-  +maxVersion: SchemaVersion,
-  +sortedMigrations: Migration[],
+type SchemaMigrationsSpec = $RE<{
+  migrations: Migration[],
+}>
+
+export type SchemaMigrations = $RE<{
+  validated: true,
+  minVersion: SchemaVersion,
+  maxVersion: SchemaVersion,
+  sortedMigrations: Migration[],
 }>
 
 const sortMigrations = sortBy(prop('toVersion'))
@@ -137,14 +144,26 @@ export function createTable(tableSchemaSpec: TableSchemaSpec): CreateTableMigrat
 export function addColumns({
   table,
   columns,
-}: $Exact<{ table: TableName<any>, columns: ColumnSchema[] }>): AddColumnsMigrationStep {
+  unsafeSql,
+}: $Exact<{
+  table: TableName<any>,
+  columns: ColumnSchema[],
+  unsafeSql?: string => string,
+}>): AddColumnsMigrationStep {
   if (process.env.NODE_ENV !== 'production') {
     invariant(table, `Missing table name in addColumn()`)
     invariant(columns && Array.isArray(columns), `Missing 'columns' or not an array in addColumn()`)
     columns.forEach(column => validateColumnSchema(column))
   }
 
-  return { type: 'add_columns', table, columns }
+  return { type: 'add_columns', table, columns, unsafeSql }
+}
+
+export function unsafeExecuteSql(sql: string): SqlMigrationStep {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(typeof sql === 'string', `SQL passed to unsafeExecuteSql is not a string`)
+  }
+  return { type: 'sql', sql }
 }
 
 /*
