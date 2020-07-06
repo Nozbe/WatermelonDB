@@ -36,12 +36,23 @@ class SchemaNeededError extends Error {
   }
 }
 
-function getPath(dbName): string {
-  // If starts with `file:` or contains `/`, it's a path!
-  if (dbName === ':memory:' || dbName.indexOf('file:') === 0 || dbName.indexOf('/') >= 0) {
+export function getPath(dbName: string): string {
+  if (dbName === ':memory:' || dbName === 'file::memory:') {
     return dbName
   }
-  return `${process.cwd()}/${dbName}`
+
+  let path =
+    dbName.startsWith('/') && dbName.startsWith('file:') ? dbName : `${process.cwd()}/${dbName}`
+  if (path.indexOf('.sqlite') === -1) {
+    if (path.indexOf('?') >= 0) {
+      const index = path.indexOf('?')
+      path = `${path.substring(0, index)}.sqlite${path.substring(index)}`
+    } else {
+      path = `${path}.sqlite`
+    }
+  }
+
+  return path
 }
 
 class DatabaseDriver {
