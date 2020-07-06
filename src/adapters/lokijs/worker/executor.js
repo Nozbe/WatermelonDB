@@ -349,6 +349,8 @@ export default class LokiExecutor {
         this._executeCreateTableMigration(step)
       } else if (step.type === 'add_columns') {
         this._executeAddColumnsMigration(step)
+      } else if (step.type === 'sql') {
+        // ignore
       } else {
         throw new Error(`Unsupported migration step ${step.type}`)
       }
