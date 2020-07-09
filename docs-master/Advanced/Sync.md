@@ -259,7 +259,7 @@ Expected response:
 5. If the `changes` object contains a record that has been modified on the server after `lastPulledAt`, you MUST abort push and return an error code
     - This scenario means that there's a conflict, and record was updated remotely between user's pull and push calls. Returning an error forces frontend to call pull endpoint again to resolve the conflict
 6. If application of all local changes succeeds, the endpoint MUST return a success status code.
-7. The push endpoint MUST be fully transactional. If there is an error, all local changes MUST be reverted, and en error code MUST be returned.
+7. The push endpoint MUST be fully transactional. If there is an error, all local changes MUST be reverted on the server, and en error code MUST be returned.
 8. You MUST ignore `_status` and `_changed` fields contained in records in `changes` object
 9.  You SHOULD validate data passed to the endpoint. In particular, collection and column names ought to be whitelisted, as well as ID format — and of course any application-specific invariants, such as permissions to access and modify records
 10. You SHOULD sanitize record fields passed to the endpoint. If there's something slightly wrong with the contents (but not shape) of the data (e.g. `user.role` should be `owner`, `admin`, or `member`, but user sent empty string or `abcdef`), you SHOULD NOT send an error code. Instead, prefer to "fix" errors (sanitize to correct format).
