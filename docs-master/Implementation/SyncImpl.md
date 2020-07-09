@@ -36,8 +36,8 @@ If possible, please use sync implementation helpers from `sync/*.js` to keep you
 ### Sync procedure
 
 1. Pull phase
-  - get `last pulled at` timestamp locally (null if first sync)
-  - call push changes function, passing `lastPulledAt`
+  - get `lastPulledAt` timestamp locally (null if first sync)
+  - call `pullChanges` function, passing `lastPulledAt`
     - server responds with all changes (create/update/delete) that occured since `lastPulledAt`
     - server serves us with its current timestamp
   - IN ACTION (lock local writes):
@@ -63,7 +63,7 @@ If possible, please use sync implementation helpers from `sync/*.js` to keep you
   - Fetch local changes
     - Find all locally changed records (created/updated record + deleted IDs) for all collections
     - Strip _status, _changed
-  - Call push changes function, passing local changes object, and the new `lastPulledAt` timestamp
+  - Call `pushChanges` function, passing local changes object, and the new `lastPulledAt` timestamp
     - Server applies local changes to database, and sends OK
     - If one of the pushed records has changed *on the server* since `lastPulledAt`, push is aborted,
       all changes reverted, and server responds with an error
