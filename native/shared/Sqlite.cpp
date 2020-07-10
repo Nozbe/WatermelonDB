@@ -1,5 +1,6 @@
 #include "Sqlite.h"
 #include "DatabasePlatform.h"
+#include <cassert>
 
 namespace watermelondb {
 
