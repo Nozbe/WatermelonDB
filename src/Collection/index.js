@@ -1,8 +1,7 @@
 // @flow
 
-import type { Observable } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
 import { Subject } from 'rxjs/Subject'
-import { defer } from 'rxjs/observable/defer'
 import { switchMap } from 'rxjs/operators'
 import invariant from '../utils/common/invariant'
 import noop from '../utils/fp/noop'
@@ -47,16 +46,22 @@ export default class Collection<Record: Model> {
   // Finds a record with the given ID
   // Promise will reject if not found
   async find(id: RecordId): Promise<Record> {
-    invariant(typeof id === 'string', `Invalid record ID ${this.table}#${id}`)
-
-    const cachedRecord = this._cache.get(id)
-    return cachedRecord || toPromise(callback => this._fetchRecord(id, callback))
+    return toPromise(callback => this._fetchRecord(id, callback))
   }
 
   // Finds the given record and starts observing it
   // (with the same semantics as when calling `model.observe()`)
   findAndObserve(id: RecordId): Observable<Record> {
-    return defer(() => this.find(id)).pipe(switchMap(model => model.observe()))
+    return Observable.create(observer => {
+      this._fetchRecord(id, result => {
+        if (result.value) {
+          observer.next(result.value)
+          observer.complete()
+        } else {
+          observer.error(result.error)
+        }
+      })
+    }).pipe(switchMap(model => model.observe()))
   }
 
   // Query records of this type
@@ -131,6 +136,18 @@ export default class Collection<Record: Model> {
 
   // Fetches exactly one record (See: Collection.find)
   _fetchRecord(id: RecordId, callback: ResultCallback<Record>): void {
+    if (typeof id !== 'string') {
+      callback({ error: new Error(`Invalid record ID ${this.table}#${id}`) })
+      return
+    }
+
+    const cachedRecord = this._cache.get(id)
+
+    if (cachedRecord) {
+      callback({ value: cachedRecord })
+      return
+    }
+
     this.database.adapter.underlyingAdapter.find(this.table, id, result =>
       callback(
         mapValue(rawRecord => {
