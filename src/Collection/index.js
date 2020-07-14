@@ -53,15 +53,26 @@ export default class Collection<Record: Model> {
   // (with the same semantics as when calling `model.observe()`)
   findAndObserve(id: RecordId): Observable<Record> {
     return Observable.create(observer => {
+      let unsubscribe = null
+      let unsubscribed = false
       this._fetchRecord(id, result => {
         if (result.value) {
-          observer.next(result.value)
-          observer.complete()
+          const record = result.value
+          observer.next(record)
+          unsubscribe = record.experimentalSubscribe(isDeleted => {
+            if (!unsubscribed) {
+              isDeleted ? observer.complete() : observer.next(record)
+            }
+          })
         } else {
           observer.error(result.error)
         }
       })
-    }).pipe(switchMap(model => model.observe()))
+      return () => {
+        unsubscribed = true
+        unsubscribe && unsubscribe()
+      }
+    })
   }
 
   // Query records of this type
