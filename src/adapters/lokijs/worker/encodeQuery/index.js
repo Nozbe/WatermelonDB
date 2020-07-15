@@ -1,12 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { pipe, always, prop, has, propEq, T, head, length, ifElse } from 'rambdax'
-
 // don't import whole `utils` to keep worker size small
-import identical from '../../../../utils/fp/identical'
-import objOf from '../../../../utils/fp/objOf'
-import cond from '../../../../utils/fp/cond'
 import invariant from '../../../../utils/common/invariant'
 import likeToRegexp from '../../../../utils/fp/likeToRegexp'
 
@@ -18,12 +13,10 @@ import type {
   And,
   Or,
   Where,
-  ComparisonRight,
   Clause,
-  CompoundValue,
+  Comparison,
 } from '../../../../QueryDescription'
-import { type TableName, type ColumnName, columnName } from '../../../../Schema'
-import type { AssociationInfo } from '../../../../Model'
+import { type TableName, type ColumnName } from '../../../../Schema'
 
 export type LokiRawQuery = Object | typeof undefined
 type LokiOperator =
@@ -53,69 +46,72 @@ export type LokiQuery = $Exact<{
   hasJoins: boolean,
 }>
 
-const getComparisonRight: ComparisonRight => CompoundValue = (cond([
-  [has('value'), prop('value')],
-  [has('values'), prop('values')],
-  [has('column'), prop('column')],
-]): any)
+const weakNotNull = { $not: { $aeq: null } }
 
-// TODO: It's probably possible to improve performance of those operators by making them
-// binary-search compatible (i.e. don't use $and, $not)
-// TODO: We might be able to use $jgt, $jbetween, etc. — but ensure the semantics are right
-// and it won't break indexing
+const encodeComparison = (comparison: Comparison, value: any): LokiRawQuery => {
+  // TODO: It's probably possible to improve performance of those operators by making them
+  // binary-search compatible (i.e. don't use $and, $not)
+  // TODO: We might be able to use $jgt, $jbetween, etc. — but ensure the semantics are right
+  // and it won't break indexing
 
-type OperatorFunction = CompoundValue => LokiRawQuery
+  const { operator } = comparison
 
-const weakNotEqual: OperatorFunction = value => ({ $not: { $aeq: value } })
-
-const noNullComparisons: OperatorFunction => OperatorFunction = operator => value => ({
-  $and: [operator(value), weakNotEqual(null)],
-})
-
-const like: OperatorFunction = value => {
-  if (typeof value === 'string') {
-    return {
-      $regex: likeToRegexp(value),
+  if (comparison.right.column) {
+    // Encode for column comparisons
+    switch (operator) {
+      case 'eq':
+        return { $$aeq: value }
+      case 'notEq':
+        return { $not: { $$aeq: value } }
+      case 'gt':
+        return { $$gt: value }
+      case 'gte':
+        return { $$gte: value }
+      case 'weakGt':
+        return { $$gt: value }
+      case 'lt':
+        return { $and: [{ $$lt: value }, weakNotNull] }
+      case 'lte':
+        return { $and: [{ $$lte: value }, weakNotNull] }
+      default:
+        throw new Error(`Illegal operator ${operator} for column comparisons`)
+    }
+  } else {
+    switch (operator) {
+      case 'eq':
+        return { $aeq: value }
+      case 'notEq':
+        return { $not: { $aeq: value } }
+      case 'gt':
+        return { $gt: value }
+      case 'gte':
+        return { $gte: value }
+      case 'weakGt':
+        return { $gt: value } // Note: yup, this is correct (for non-column comparisons)
+      case 'lt':
+        return { $and: [{ $lt: value }, weakNotNull] }
+      case 'lte':
+        return { $and: [{ $lte: value }, weakNotNull] }
+      case 'oneOf':
+        return { $in: value }
+      case 'notIn':
+        return { $and: [{ $nin: value }, weakNotNull] }
+      case 'between':
+        return { $between: value }
+      case 'like':
+        return {
+          $regex: likeToRegexp(value),
+        }
+      case 'notLike':
+        return {
+          $and: [{ $not: { $eq: null } }, { $not: { $regex: likeToRegexp(value) } }],
+        }
+      default:
+        throw new Error(`Unknown operator ${operator}`)
     }
   }
-
-  return {}
 }
 
-const notLike: OperatorFunction = value => {
-  if (typeof value === 'string') {
-    return {
-      $and: [{ $not: { $eq: null } }, { $not: { $regex: likeToRegexp(value) } }],
-    }
-  }
-
-  return {}
-}
-
-const operators: { [Operator]: OperatorFunction } = {
-  eq: objOf('$aeq'),
-  notEq: weakNotEqual,
-  gt: objOf('$gt'),
-  gte: objOf('$gte'),
-  weakGt: objOf('$gt'), // Note: yup, this is correct (for non-column comparisons)
-  lt: noNullComparisons(objOf('$lt')),
-  lte: noNullComparisons(objOf('$lte')),
-  oneOf: objOf('$in'),
-  notIn: noNullComparisons(objOf('$nin')),
-  between: objOf('$between'),
-  like,
-  notLike,
-}
-
-const operatorsColumnComparison: { [$FlowFixMe<Operator>]: OperatorFunction } = {
-  eq: objOf('$$aeq'),
-  notEq: value => ({ $not: { $$aeq: value } }),
-  gt: objOf('$$gt'),
-  gte: objOf('$$gte'),
-  weakGt: objOf('$$gt'),
-  lt: noNullComparisons(objOf('$$lt')),
-  lte: noNullComparisons(objOf('$$lte')),
-}
 const columnCompRequiresColumnNotNull: { [$FlowFixMe<Operator>]: boolean } = {
   gt: true,
   gte: true,
@@ -123,28 +119,27 @@ const columnCompRequiresColumnNotNull: { [$FlowFixMe<Operator>]: boolean } = {
   lte: true,
 }
 
-const encodeWhereDescription: WhereDescription => LokiRawQuery = ({
-  left,
-  comparison: { operator, right },
-}) => {
-  const comparisonRight = getComparisonRight(right)
+const encodeWhereDescription: WhereDescription => LokiRawQuery = ({ left, comparison }) => {
+  const { operator, right } = comparison
+  const col: string = left
+  // $FlowFixMe - NOTE: order of ||s is important here, since .value can be falsy, but .column and .values are either truthy or are undefined
+  const comparisonRight: any = right.column || right.values || right.value
 
   if (typeof right.value === 'string') {
     // we can do fast path as we know that eq and aeq do the same thing for strings
     if (operator === 'eq') {
-      return objOf(left, { $eq: comparisonRight })
+      return { [col]: { $eq: comparisonRight } }
     } else if (operator === 'notEq') {
-      return objOf(left, { $ne: comparisonRight })
+      return { [col]: { $ne: comparisonRight } }
     }
   }
   const colName: ?string = (right: any).column
-  const opFn = colName ? operatorsColumnComparison[operator] : operators[operator]
-  const comparison = opFn(comparisonRight)
+  const encodedComparison = encodeComparison(comparison, comparisonRight)
 
   if (colName && columnCompRequiresColumnNotNull[operator]) {
-    return { $and: [objOf(left, comparison), objOf(colName, weakNotEqual(null))] }
+    return { $and: [{ [col]: encodedComparison }, { [colName]: weakNotNull }] }
   }
-  return objOf(left, comparison)
+  return { [col]: encodedComparison }
 }
 
 const encodeCondition: (QueryAssociation[]) => Clause => LokiRawQuery = associations => clause => {
@@ -164,16 +159,16 @@ const encodeCondition: (QueryAssociation[]) => Clause => LokiRawQuery = associat
   }
 }
 
-const encodeConditions: (
-  QueryAssociation[],
-) => (Where[]) => LokiRawQuery[] = associations => conditions =>
-  conditions.map(encodeCondition(associations))
+const encodeConditions: (QueryAssociation[], Where[]) => LokiRawQuery[] = (
+  associations,
+  conditions,
+) => conditions.map(encodeCondition(associations))
 
 const encodeAndOr = (op: LokiKeyword) => (
   associations: QueryAssociation[],
   clause: And | Or,
 ): LokiRawQuery => {
-  const conditions = encodeConditions(associations)(clause.conditions)
+  const conditions = encodeConditions(associations, clause.conditions)
   // flatten
   return conditions.length === 1 ? conditions[0] : { [op]: conditions }
 }
@@ -181,37 +176,23 @@ const encodeAndOr = (op: LokiKeyword) => (
 const encodeAnd: (QueryAssociation[], And) => LokiRawQuery = encodeAndOr('$and')
 const encodeOr: (QueryAssociation[], Or) => LokiRawQuery = encodeAndOr('$or')
 
-const lengthEq = n =>
-  pipe(
-    length,
-    identical(n),
-  )
-
 // Note: empty query returns `undefined` because
 // Loki's Collection.count() works but count({}) doesn't
-const concatRawQueries: (LokiRawQuery[]) => LokiRawQuery = (cond([
-  [lengthEq(0), always(undefined)],
-  [lengthEq(1), head],
-  [T, objOf('$and')],
-]): any)
+const concatRawQueries = (queries: LokiRawQuery[]): LokiRawQuery => {
+  switch (queries.length) {
+    case 0:
+      return undefined
+    case 1:
+      return queries[0]
+    default:
+      return { $and: queries }
+  }
+}
 
-const encodeRootConditions: (QueryAssociation[]) => (Where[]) => LokiRawQuery = associations =>
-  pipe(
-    encodeConditions(associations),
-    concatRawQueries,
-  )
-
-const encodeMapKey: AssociationInfo => ColumnName = ifElse(
-  propEq('type', 'belongs_to'),
-  always(columnName('id')),
-  prop('foreignKey'),
-)
-
-const encodeJoinKey: AssociationInfo => ColumnName = ifElse(
-  propEq('type', 'belongs_to'),
-  prop('key'),
-  always(columnName('id')),
-)
+const encodeRootConditions: (QueryAssociation[], Where[]) => LokiRawQuery = (
+  associations,
+  conditions,
+) => concatRawQueries(encodeConditions(associations, conditions))
 
 const encodeJoin = (associations: QueryAssociation[], on: On): LokiRawQuery => {
   const { table, conditions } = on
@@ -220,12 +201,13 @@ const encodeJoin = (associations: QueryAssociation[], on: On): LokiRawQuery => {
     association,
     'To nest Q.on inside Q.and/Q.or you must explicitly declare Q.experimentalJoinTables at the beginning of the query',
   )
+  const { info } = association
   return {
     $join: {
       table,
-      query: encodeRootConditions(associations)((conditions: any)),
-      mapKey: encodeMapKey(association.info),
-      joinKey: encodeJoinKey(association.info),
+      query: encodeRootConditions(associations, (conditions: any)),
+      mapKey: info.type === 'belongs_to' ? 'id' : info.foreignKey,
+      joinKey: info.type === 'belongs_to' ? info.key : 'id',
     },
   }
 }
@@ -243,7 +225,7 @@ export default function encodeQuery(query: SerializedQuery): LokiQuery {
 
   return {
     table,
-    query: encodeRootConditions(associations)(where),
+    query: encodeRootConditions(associations, where),
     hasJoins: !!joinTables.length,
   }
 }
