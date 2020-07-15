@@ -6,6 +6,7 @@ import {
   type WorkerResponse,
   type WorkerExecutorPayload,
   type WorkerResponseData,
+  type CloneMethod,
 } from './common'
 
 type WorkerAction = {
@@ -57,14 +58,16 @@ class WorkerBridge {
     type: WorkerExecutorType,
     payload: WorkerExecutorPayload = [],
     callback: ResultCallback<T>,
-    cloneMethod: 'shallowCloneDeepObjects' | 'immutable' | 'deep' = 'deep',
+    // NOTE: This are used when not using web workers (otherwise, the data naturally is just copied)
+    cloneMethod: CloneMethod,
+    returnCloneMethod: CloneMethod,
   ): void {
     const id = nextActionId()
     this._pendingActions.push({
       callback: (callback: any),
       id,
     })
-    this._worker.postMessage({ id, type, payload, cloneMethod })
+    this._worker.postMessage({ id, type, payload, cloneMethod, returnCloneMethod })
   }
 }
 
