@@ -80,6 +80,17 @@ export default class LokiExecutor {
     }
   }
 
+  getCache(table: TableName<any>): Set<RecordId> {
+    const cache = this.cachedRecords.get(table)
+    if (cache) {
+      return cache
+    }
+
+    const newCache = new Set([])
+    this.cachedRecords.set(table, newCache)
+    return newCache
+  }
+
   find(table: TableName<any>, id: RecordId): CachedFindResult {
     if (this.isCached(table, id)) {
       return id
@@ -157,8 +168,9 @@ export default class LokiExecutor {
       const shouldRebuildIndexAfterIndex = raws.length >= 1000 // only profitable for large inserts
       this.loki.getCollection(table).insert(raws, shouldRebuildIndexAfterIndex)
 
+      const cache = this.getCache(table)
       raws.forEach(raw => {
-        this.markAsCached(table, raw.id)
+        cache.add(raw.id)
       })
     })
 
@@ -384,14 +396,15 @@ export default class LokiExecutor {
 
   // Maps records to their IDs if the record is already cached on JS side
   _compactQueryResults(records: DirtyRaw[], table: TableName<any>): CachedQueryResult {
+    const cache = this.getCache(table)
     return records.map(raw => {
       const { id } = raw
 
-      if (this.isCached(table, id)) {
+      if (cache.has(id)) {
         return id
       }
 
-      this.markAsCached(table, id)
+      cache.add(id)
       return sanitizedRaw(raw, this.schema.tables[table])
     })
   }
