@@ -42,7 +42,7 @@ export function getPath(dbName: string): string {
   }
 
   let path =
-    dbName.startsWith('/') && dbName.startsWith('file:') ? dbName : `${process.cwd()}/${dbName}`
+    dbName.startsWith('/') || dbName.startsWith('file:') ? dbName : `${process.cwd()}/${dbName}`
   if (path.indexOf('.db') === -1) {
     if (path.indexOf('?') >= 0) {
       const index = path.indexOf('?')
