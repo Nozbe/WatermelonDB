@@ -43,12 +43,12 @@ export function getPath(dbName: string): string {
 
   let path =
     dbName.startsWith('/') && dbName.startsWith('file:') ? dbName : `${process.cwd()}/${dbName}`
-  if (path.indexOf('.sqlite') === -1) {
+  if (path.indexOf('.db') === -1) {
     if (path.indexOf('?') >= 0) {
       const index = path.indexOf('?')
-      path = `${path.substring(0, index)}.sqlite${path.substring(index)}`
+      path = `${path.substring(0, index)}.db${path.substring(index)}`
     } else {
-      path = `${path}.sqlite`
+      path = `${path}.db`
     }
   }
 
