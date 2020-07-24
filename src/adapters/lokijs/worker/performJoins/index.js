@@ -11,7 +11,8 @@ function performJoinsImpl(query: LokiRawQuery, performer: QueryPerformer): LokiR
   } else if (query.$join) {
     const join: LokiJoin = query.$join
     const joinQuery = performJoinsImpl(join.query, performer)
-    const records = performer({ ...join, query: joinQuery })
+    join.query = joinQuery
+    const records = performer(join)
 
     // for queries on `belongs_to` tables, matchingIds will be IDs of the parent table records
     //   (e.g. task: { project_id in ids })
