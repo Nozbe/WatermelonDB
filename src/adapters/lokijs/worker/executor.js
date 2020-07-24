@@ -142,6 +142,9 @@ export default class LokiExecutor {
   }
 
   batch(operations: BatchOperation[]): void {
+    console.log(
+      `--> batch of ${operations.length}, first: ${operations.length ? operations[0][1] : null}`,
+    )
     // TODO: Only add to cached records if all is successful
     // TODO: Transactionality
 
@@ -200,6 +203,7 @@ export default class LokiExecutor {
   }
 
   destroyDeletedRecords(table: TableName<any>, records: RecordId[]): void {
+    console.log(`--> destroyDeletedRecords`)
     const collection = this.loki.getCollection(table)
     forEach(recordId => {
       const record = collection.by('id', recordId)
@@ -226,6 +230,7 @@ export default class LokiExecutor {
   }
 
   setLocal(key: string, value: string): void {
+    console.log(`--> setLocal`)
     const record = this._findLocal(key)
 
     if (record) {
@@ -238,6 +243,7 @@ export default class LokiExecutor {
   }
 
   removeLocal(key: string): void {
+    console.log(`--> removeLocal`)
     const record = this._findLocal(key)
 
     if (record) {
