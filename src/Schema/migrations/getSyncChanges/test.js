@@ -1,5 +1,5 @@
 import getSyncChanges from './index'
-import { schemaMigrations, createTable, addColumns } from '../index'
+import { schemaMigrations, createTable, addColumns, unsafeExecuteSql } from '../index'
 
 const createCommentsTable = createTable({
   name: 'comments',
@@ -147,7 +147,9 @@ describe('getSyncChanges', () => {
             { name: 'author_id', type: 'string' },
             { name: 'created_at', type: 'number' },
           ],
+          unsafeSql: sql => sql,
         }),
+        unsafeExecuteSql(''),
       ],
     },
     {
