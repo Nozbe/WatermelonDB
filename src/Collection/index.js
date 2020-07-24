@@ -2,7 +2,6 @@
 
 import { Observable } from 'rxjs/Observable'
 import { Subject } from 'rxjs/Subject'
-import { switchMap } from 'rxjs/operators'
 import invariant from '../utils/common/invariant'
 import noop from '../utils/fp/noop'
 import { type ResultCallback, toPromise, mapValue } from '../utils/fp/Result'
@@ -181,18 +180,20 @@ export default class Collection<Record: Model> {
   }
 
   _notify(operations: CollectionChangeSet<Record>): void {
-    this._subscribers.forEach(function collectionChangeNotifySubscribers([subscriber]): void {
+    const collectionChangeNotifySubscribers = ([subscriber]): void => {
       subscriber(operations)
-    })
+    }
+    this._subscribers.forEach(collectionChangeNotifySubscribers)
     this.changes.next(operations)
 
-    operations.forEach(function collectionChangeNotifyModels({ record, type }): void {
+    const collectionChangeNotifyModels = ({ record, type }): void => {
       if (type === CollectionChangeTypes.updated) {
         record._notifyChanged()
       } else if (type === CollectionChangeTypes.destroyed) {
         record._notifyDestroyed()
       }
-    })
+    }
+    operations.forEach(collectionChangeNotifyModels)
   }
 
   _subscribers: [(CollectionChangeSet<Record>) => void, any][] = []

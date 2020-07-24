@@ -132,11 +132,12 @@ export default class Database {
     })
 
     const affectedTables = Object.keys(changeNotifications)
-    this._subscribers.forEach(function databaseChangeNotifySubscribers([tables, subscriber]): void {
+    const databaseChangeNotifySubscribers = ([tables, subscriber]): void => {
       if (tables.some(table => affectedTables.includes(table))) {
         subscriber()
       }
-    })
+    }
+    this._subscribers.forEach(databaseChangeNotifySubscribers)
     return undefined // shuts up flow
   }
 

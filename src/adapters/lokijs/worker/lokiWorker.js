@@ -73,7 +73,7 @@ export default class LokiWorker {
 
   async processActionAsync(action: WorkerAction): Promise<void> {
     try {
-      const { type, payload, id } = action
+      const { type, payload } = action
 
       if (type === actions.SETUP) {
         // app just launched, set up executor with options sent
