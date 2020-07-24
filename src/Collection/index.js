@@ -181,12 +181,12 @@ export default class Collection<Record: Model> {
   }
 
   _notify(operations: CollectionChangeSet<Record>): void {
-    this._subscribers.forEach(([subscriber]) => {
+    this._subscribers.forEach(function collectionChangeNotifySubscribers([subscriber]): void {
       subscriber(operations)
     })
     this.changes.next(operations)
 
-    operations.forEach(({ record, type }) => {
+    operations.forEach(function collectionChangeNotifyModels({ record, type }): void {
       if (type === CollectionChangeTypes.updated) {
         record._notifyChanged()
       } else if (type === CollectionChangeTypes.destroyed) {
