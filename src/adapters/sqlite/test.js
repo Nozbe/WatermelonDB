@@ -45,8 +45,3 @@ describe.each([
     })
   })
 })
-
-// TODO: Run tests with:
-// - mocked/polyfilled web worker
-// - legacy indexeddb adapter (fake-indexeddb polyfill)
-// - modern indexeddb adapter
