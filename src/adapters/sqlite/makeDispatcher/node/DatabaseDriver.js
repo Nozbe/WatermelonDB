@@ -161,7 +161,7 @@ class DatabaseDriver {
           }
 
           default: {
-            break
+            throw new Error('unreachable')
           }
         }
       })
