@@ -75,9 +75,6 @@ Another WatermelonDB release after just a week? Yup! And it's jam-packed full of
        however this speedup is only achieved with some unpublished React Native patches.
 
        To try out JSI, add `experimentalUseJSI: true` to `SQLiteAdapter` constructor.
-- [NodeJS] Introducing a new SQLite Adapter based integration to NodeJS. This requires a 
-      peer dependency on [better-sqlite3](https://github.com/JoshuaWise/better-sqlite3) 
-      and should work with the same configuration as iOS/Android - @sidferreira
 - [Query] Added `Q.experimentalSortBy(sortColumn, sortOrder)`, `Q.experimentalTake(count)`,
      `Q.experimentalSkip(count)` methods (only availble with SQLiteAdapter) - @Kenneth-KT
 - `Database.batch()` can now be called with a single array of models

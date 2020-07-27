@@ -84,8 +84,8 @@ class Database {
     // drop all tables, indexes, and reset user version to 0
 
     if (this.isInMemoryDatabase()) {
-      const results = this.queryRaw(`SELECT * FROM sqlite_master WHERE type = 'table'`)
       this.inTransaction(() => {
+        const results = this.queryRaw(`SELECT * FROM sqlite_master WHERE type = 'table'`)
         const tables = results.map(table => table.name)
 
         tables.forEach(table => {

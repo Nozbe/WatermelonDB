@@ -22,7 +22,7 @@ describe.each([
     it(name, async () => {
       const synchronous = synchronousString.toLowerCase() === 'synchronous'
       const file = fileString.toLowerCase() === 'file'
-      const dbName = `${process.cwd()}/test${Math.random()}.sqlite${
+      const dbName = `${process.cwd()}/test${Math.random()}.db${
         file ? '' : '?mode=memory&cache=shared'
       }`
       const extraAdapterOptions = {
@@ -38,7 +38,7 @@ describe.each([
 
       try {
         await adapter.initializingPromise
-        await test(new DatabaseAdapterCompat(adapter), SqliteAdapter, extraAdapterOptions)
+        await test(new DatabaseAdapterCompat(adapter), SqliteAdapter, extraAdapterOptions, 'node')
       } finally {
         removeIfExists(file, dbName)
       }

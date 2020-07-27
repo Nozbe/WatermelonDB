@@ -693,7 +693,8 @@ export default () => [
         if (
           AdapterClass.name === 'SQLiteAdapter' &&
           !extraAdapterOptions.experimentalUseJSI &&
-          (string === '﻿' || (string === '￾' && platform === 'android'))
+          (string === '﻿' || (string === '￾' && platform === 'android')) &&
+          platform !== 'node'
         ) {
           // eslint-disable-next-line no-await-in-loop
           await adapter.setLocal(key, string)
@@ -1153,7 +1154,8 @@ export default () => [
         if (
           AdapterClass.name === 'SQLiteAdapter' &&
           !extraAdapterOptions.experimentalUseJSI &&
-          (string === '﻿' || (string === '￾' && platform === 'android'))
+          (string === '﻿' || (string === '￾' && platform === 'android')) &&
+          platform !== 'node'
         ) {
           expect(record.text1).not.toBe(string) // if this fails, it means the issue's been fixed
         } else {
