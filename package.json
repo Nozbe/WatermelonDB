@@ -42,7 +42,6 @@
   },
   "dependencies": {
     "@nozbe/sqlite": "3.31.1",
-    "lodash.clonedeep": "^4.5.0",
     "lokijs": "git+https://github.com/Nozbe/LokiJS.git#fabe503",
     "rambdax": "2.15.0",
     "rxjs": "^6.2.2",
@@ -53,6 +52,7 @@
     "access": "public"
   },
   "devDependencies": {
+    "lodash.clonedeep": "^4.5.0",
     "@babel/cli": "^7.6.0",
     "@babel/core": "^7.6.0",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
