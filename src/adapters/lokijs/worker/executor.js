@@ -39,6 +39,8 @@ export default class LokiExecutor {
 
   onQuotaExceededError: ?(error: Error) => void
 
+  onIndexedDBFetchStart: ?() => void
+
   _testLokiAdapter: ?LokiMemoryAdapter
 
   cachedRecords: Map<TableName<any>, Set<RecordId>> = new Map()
@@ -51,6 +53,7 @@ export default class LokiExecutor {
     this.useIncrementalIndexedDB = options.useIncrementalIndexedDB || false
     this.onIndexedDBVersionChange = options.onIndexedDBVersionChange
     this.onQuotaExceededError = options.onQuotaExceededError
+    this.onIndexedDBFetchStart = options.onIndexedDBFetchStart
     this._testLokiAdapter = _testLokiAdapter
   }
 
@@ -256,6 +259,7 @@ export default class LokiExecutor {
       this.useIncrementalIndexedDB,
       this.onIndexedDBVersionChange,
       this.onQuotaExceededError,
+      this.onIndexedDBFetchStart,
     )
 
     logger.log('[WatermelonDB][Loki] Database loaded')

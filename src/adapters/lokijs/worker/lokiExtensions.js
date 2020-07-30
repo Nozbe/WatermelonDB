@@ -46,6 +46,7 @@ async function getLokiAdapter(
   useIncrementalIDB: boolean,
   onIndexedDBVersionChange: ?() => void,
   onQuotaExceededError: ?(error: Error) => void,
+  onIndexedDBFetchStart: ?() => void,
 ): mixed {
   if (adapter) {
     return adapter
@@ -54,6 +55,7 @@ async function getLokiAdapter(
       const IncrementalIDBAdapter = require('lokijs/src/incremental-indexeddb-adapter')
       return new IncrementalIDBAdapter({
         onversionchange: onIndexedDBVersionChange,
+        onFetchStart: onIndexedDBFetchStart,
       })
     }
     const LokiIndexedAdapter = require('lokijs/src/loki-indexed-adapter')
@@ -71,6 +73,7 @@ export async function newLoki(
   useIncrementalIDB: boolean,
   onIndexedDBVersionChange: ?() => void,
   onQuotaExceededError: ?(error: Error) => void,
+  onIndexedDBFetchStart: ?() => void,
 ): Loki {
   const loki = new Loki(name, {
     adapter: await getLokiAdapter(
@@ -79,6 +82,7 @@ export async function newLoki(
       useIncrementalIDB,
       onIndexedDBVersionChange,
       onQuotaExceededError,
+      onIndexedDBFetchStart,
     ),
     autosave: true,
     autosaveInterval: 250,

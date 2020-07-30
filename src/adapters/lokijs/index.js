@@ -44,6 +44,10 @@ export type LokiAdapterOptions = $Exact<{
   // This means that app can't save more data or that it will fall back to using in-memory database only
   // Note that this only works when `useWebWorker: false`
   onQuotaExceededError?: (error: Error) => void,
+  // Called when IndexedDB fetch has begun. Use this as an opportunity to execute code concurrently
+  // while IDB does work on a separate thread.
+  // Note that this only works when using incrementalIDB and not using web workers
+  onIndexedDBFetchStart?: () => void,
   // -- internal --
   _testLokiAdapter?: LokiMemoryAdapter,
 }>
