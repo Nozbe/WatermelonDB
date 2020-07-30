@@ -49,6 +49,7 @@ async function getLokiAdapter(options: LokiAdapterOptions): mixed {
     onIndexedDBVersionChange,
     onIndexedDBFetchStart,
     dbName,
+    indexedDBSerializer: serializer,
   } = options
   if (adapter) {
     return adapter
@@ -58,6 +59,8 @@ async function getLokiAdapter(options: LokiAdapterOptions): mixed {
       return new IncrementalIDBAdapter({
         onversionchange: onIndexedDBVersionChange,
         onFetchStart: onIndexedDBFetchStart,
+        serializeChunk: serializer?.serializeChunk,
+        deserializeChunk: serializer?.deserializeChunk,
       })
     }
     const LokiIndexedAdapter = require('lokijs/src/loki-indexed-adapter')
