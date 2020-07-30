@@ -3,6 +3,7 @@
 
 import Loki, { LokiMemoryAdapter } from 'lokijs'
 import { logger } from '../../../utils/common'
+import type { LokiAdapterOptions } from '../index'
 
 const isIDBAvailable = (onQuotaExceededError: ?(error: Error) => void) => {
   return new Promise(resolve => {
@@ -40,18 +41,19 @@ const isIDBAvailable = (onQuotaExceededError: ?(error: Error) => void) => {
   })
 }
 
-async function getLokiAdapter(
-  name: ?string,
-  adapter: ?LokiMemoryAdapter,
-  useIncrementalIDB: boolean,
-  onIndexedDBVersionChange: ?() => void,
-  onQuotaExceededError: ?(error: Error) => void,
-  onIndexedDBFetchStart: ?() => void,
-): mixed {
+async function getLokiAdapter(options: LokiAdapterOptions): mixed {
+  const {
+    useIncrementalIndexedDB,
+    _testLokiAdapter: adapter,
+    onQuotaExceededError,
+    onIndexedDBVersionChange,
+    onIndexedDBFetchStart,
+    dbName,
+  } = options
   if (adapter) {
     return adapter
   } else if (await isIDBAvailable(onQuotaExceededError)) {
-    if (useIncrementalIDB) {
+    if (useIncrementalIndexedDB) {
       const IncrementalIDBAdapter = require('lokijs/src/incremental-indexeddb-adapter')
       return new IncrementalIDBAdapter({
         onversionchange: onIndexedDBVersionChange,
@@ -59,7 +61,7 @@ async function getLokiAdapter(
       })
     }
     const LokiIndexedAdapter = require('lokijs/src/loki-indexed-adapter')
-    return new LokiIndexedAdapter(name)
+    return new LokiIndexedAdapter(dbName)
   }
 
   // if IDB is unavailable (that happens in private mode), fall back to memory adapter
@@ -67,23 +69,9 @@ async function getLokiAdapter(
   return new LokiMemoryAdapter()
 }
 
-export async function newLoki(
-  name: ?string,
-  adapter: ?LokiMemoryAdapter,
-  useIncrementalIDB: boolean,
-  onIndexedDBVersionChange: ?() => void,
-  onQuotaExceededError: ?(error: Error) => void,
-  onIndexedDBFetchStart: ?() => void,
-): Loki {
-  const loki = new Loki(name, {
-    adapter: await getLokiAdapter(
-      name,
-      adapter,
-      useIncrementalIDB,
-      onIndexedDBVersionChange,
-      onQuotaExceededError,
-      onIndexedDBFetchStart,
-    ),
+export async function newLoki(options: LokiAdapterOptions): Loki {
+  const loki = new Loki(options.dbName, {
+    adapter: await getLokiAdapter(options),
     autosave: true,
     autosaveInterval: 250,
     verbose: true,
