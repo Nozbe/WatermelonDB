@@ -139,6 +139,19 @@ npm install @nozbe/with-observables
 
     Alternatively, we also recommend [`jsc-android`](https://github.com/react-community/jsc-android-buildscripts), with which you don't need this polyfill, and it also makes your app faster.
 
+
+## NodeJS setup
+
+1. Install [better-sqlite3](https://github.com/JoshuaWise/better-sqlite3) peer dependency
+    ```sh
+    yarn add --dev better-sqlite3
+    ```
+    or
+
+    ```bash
+    npm install -D better-sqlite3
+    ```
+
 ## Web setup
 
 This guide assumes you use Webpack as your bundler.
@@ -248,7 +261,7 @@ const database = new Database({
 })
 ```
 
-The above will work on iOS and Android (React Native). For the web, instead of `SQLiteAdapter` use `LokiJSAdapter`:
+The above will work on React Native (iOS/Android) and NodeJS. For the web, instead of `SQLiteAdapter` use `LokiJSAdapter`:
 
 ```js
 import LokiJSAdapter from '@nozbe/watermelondb/adapters/lokijs'
