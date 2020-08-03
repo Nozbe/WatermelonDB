@@ -1,6 +1,6 @@
 // @flow
 
-import Loki, { LokiCollection, type LokiMemoryAdapter } from 'lokijs'
+import Loki, { LokiCollection } from 'lokijs'
 import { prop, forEach, values } from 'rambdax'
 import { logger } from '../../../utils/common'
 
