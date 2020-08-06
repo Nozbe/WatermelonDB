@@ -73,6 +73,19 @@ const emptyLocalChanges = Object.freeze({ changes: emptyChangeSet, affectedRecor
 const makeChangeSet = set => change(emptyChangeSet, '', set)
 const testApplyRemoteChanges = (db, set) => applyRemoteChanges(db, makeChangeSet(set))
 
+const sorted = models => {
+  const copy = models.slice()
+  copy.sort((a, b) => {
+    if (a.id < b.id) {
+      return -1
+    } else if (a.id > b.id) {
+      return 1
+    }
+    return 0
+  })
+  return copy
+}
+
 const makeLocalChanges = database =>
   database.action(async () => {
     const projects = database.get('mock_projects')
@@ -159,7 +172,7 @@ describe('fetchLocalChanges', () => {
     expect(tDeleted._raw._status).toBe('deleted')
     const expectedChanges = clone({
       mock_projects: {
-        created: [pCreated1._raw, pCreated2._raw],
+        created: [pCreated2._raw, pCreated1._raw],
         updated: [pUpdated._raw],
         deleted: ['pDeleted'],
       },
@@ -171,8 +184,8 @@ describe('fetchLocalChanges', () => {
       },
     })
     const expectedAffectedRecords = [
-      pCreated1,
       pCreated2,
+      pCreated1,
       pUpdated,
       tCreated,
       tUpdated,
@@ -389,7 +402,9 @@ describe('markLocalChangesAsSynced', () => {
       mock_tasks: { created: [tCreated._raw], updated: [tUpdated._raw], deleted: ['tSynced'] },
       mock_comments: { created: [], updated: [], deleted: ['cUpdated', 'cCreated'] },
     })
-    expect(localChanges2.affectedRecords).toEqual([pSynced, newProject, tCreated, tUpdated])
+    expect(sorted(localChanges2.affectedRecords)).toEqual(
+      sorted([newProject, tCreated, pSynced, tUpdated]),
+    )
 
     await expectSyncedAndMatches(tasks, 'tUpdated', {
       _status: 'updated',
@@ -986,7 +1001,11 @@ describe('synchronize', () => {
     const pushedChanges = pushChanges.mock.calls[0][0].changes
     expect(pushedChanges).not.toEqual(localChanges.changes)
     const expectedPushedChanges = clone(localChanges.changes)
-    expectedPushedChanges.mock_projects.created.push(project1, project2)
+    expectedPushedChanges.mock_projects.created = [
+      project2,
+      project1,
+      ...expectedPushedChanges.mock_projects.created,
+    ]
     expect(pushedChanges).toEqual(expectedPushedChanges)
 
     // Expect project3 to still need pushing
