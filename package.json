@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@nozbe/sqlite": "3.31.1",
-    "lokijs": "https://github.com/Nozbe/LokiJS#ac81b101622435ca678bb8bf94795aefc9bcfc7c",
+    "lokijs": "npm:@nozbe/lokijs@1.5.10-wmelon0",
     "rambdax": "2.15.0",
     "rxjs": "^6.2.2",
     "rxjs-compat": "^6.3.2",
