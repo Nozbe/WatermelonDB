@@ -6,7 +6,7 @@ import { logError, invariant } from '../../utils/common'
 
 import type { Model, Collection, Database } from '../..'
 import { type RawRecord, type DirtyRaw, sanitizedRaw } from '../../RawRecord'
-import type { SyncLog, SyncDatabaseChangeSet } from '../index'
+import type { SyncLog, SyncDatabaseChangeSet, SyncConflictResolver } from '../index'
 
 // Returns raw record with naive solution to a conflict based on local `_changed` field
 // This is a per-column resolution algorithm. All columns that were changed locally win
@@ -64,13 +64,19 @@ export function prepareUpdateFromRaw<T: Model>(
   record: T,
   updatedDirtyRaw: DirtyRaw,
   log: ?SyncLog,
+  conflictResolver?: SyncConflictResolver,
 ): T {
   // Note COPY for log - only if needed
   const logConflict = log && !!record._raw._changed
   const logLocal = logConflict ? { ...record._raw } : {}
   const logRemote = logConflict ? { ...updatedDirtyRaw } : {}
 
-  const newRaw = resolveConflict(record._raw, updatedDirtyRaw)
+  let newRaw = resolveConflict(record._raw, updatedDirtyRaw)
+
+  if (conflictResolver) {
+    newRaw = conflictResolver(record.table, record._raw, updatedDirtyRaw, newRaw)
+  }
+
   return record.prepareUpdate(() => {
     replaceRaw(record, newRaw)
 

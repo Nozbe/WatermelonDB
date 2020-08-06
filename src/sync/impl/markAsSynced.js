@@ -22,9 +22,7 @@ const unchangedRecordsForRaws = (raws, recordCache) =>
       const record = recordCache.find(model => model.id === raw.id)
       if (!record) {
         logError(
-          `[Sync] Looking for record ${
-            raw.id
-          } to mark it as synced, but I can't find it. Will ignore it (it should get synced next time). This is probably a Watermelon bug — please file an issue!`,
+          `[Sync] Looking for record ${raw.id} to mark it as synced, but I can't find it. Will ignore it (it should get synced next time). This is probably a Watermelon bug — please file an issue!`,
         )
         return records
       }
@@ -48,11 +46,7 @@ const recordsToMarkAsSynced = ({ changes, affectedRecords }: SyncLocalChanges): 
 
 const destroyDeletedRecords = (db: Database, { changes }: SyncLocalChanges): Promise<*> =>
   promiseAllObject(
-    map(
-      ({ deleted }, tableName) => db.adapter.destroyDeletedRecords(tableName, deleted),
-      // $FlowFixMe
-      changes,
-    ),
+    map(({ deleted }, tableName) => db.adapter.destroyDeletedRecords(tableName, deleted), changes),
   )
 
 export default function markLocalChangesAsSynced(

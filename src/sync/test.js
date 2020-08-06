@@ -833,6 +833,74 @@ describe('synchronize', () => {
       },
     ])
   })
+  it(`allows conflict resolution to be customized`, async () => {
+    const { database, projects, tasks } = makeDatabase()
+
+    await database.action(async () => {
+      await database.batch(
+        prepareCreateFromRaw(projects, { id: 'p1', _status: 'synced', name: 'local' }),
+        prepareCreateFromRaw(projects, { id: 'p2', _status: 'created', name: 'local' }),
+        prepareCreateFromRaw(tasks, { id: 't1', _status: 'synced' }),
+        prepareCreateFromRaw(tasks, { id: 't2', _status: 'created' }),
+        prepareCreateFromRaw(tasks, {
+          id: 't3',
+          _status: 'updated',
+          name: 'local',
+          _changd: 'name',
+        }),
+      )
+    })
+
+    const conflictResolver = jest.fn((table, local, remote, resolved) => {
+      if (table === 'mock_tasks') {
+        resolved.name = 'GOTCHA'
+      }
+      return resolved
+    })
+
+    const pullChanges = async () => ({
+      changes: makeChangeSet({
+        mock_projects: {
+          created: [{ id: 'p2', name: 'remote' }], // error - update, stay synced
+          updated: [{ id: 'p1', name: 'change' }], // update
+        },
+        mock_tasks: {
+          updated: [
+            { id: 't1', name: 'remote' }, // update
+            { id: 't3', name: 'remote' }, // conflict
+          ],
+        },
+      }),
+      timestamp: 1500,
+    })
+    await synchronize({ database, pullChanges, pushChanges: jest.fn(), conflictResolver })
+
+    expect(conflictResolver).toHaveBeenCalledTimes(4)
+    expect(conflictResolver.mock.calls[0]).toMatchObject([
+      'mock_projects',
+      { id: 'p2', _status: 'created', name: 'local' },
+      { name: 'remote' },
+      { name: 'remote' },
+    ])
+    expect(conflictResolver.mock.calls[1]).toMatchObject([
+      'mock_projects',
+      { id: 'p1', _status: 'synced' },
+      { name: 'change' },
+      { _status: 'synced' },
+    ])
+    expect(conflictResolver.mock.results[1].value).toBe(conflictResolver.mock.calls[1][3])
+    expect(conflictResolver.mock.calls[2]).toMatchObject([
+      'mock_tasks',
+      { id: 't1', _status: 'synced', name: '' },
+      { name: 'remote' },
+      { name: 'GOTCHA' }, // we're mutating this arg in function, that's why
+    ])
+
+    await expectSyncedAndMatches(tasks, 't1', { name: 'GOTCHA' })
+    await expectSyncedAndMatches(tasks, 't3', { name: 'GOTCHA' })
+
+    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+  })
   it('remembers last_synced_at timestamp', async () => {
     const { database } = makeDatabase()
 
