@@ -29,13 +29,14 @@
 | ⚡️ | **Launch your app instantly** no matter how much data you have |
 | 📈 | **Highly scalable** from hundreds to tens of thousands of records |
 | 😎 | **Lazy loaded**. Only load data when you need it |
-| ✨ | **Reactive** API with [RxJS](https://github.com/ReactiveX/rxjs) |
+| 🔄 | **Offline-first.** [Sync](https://nozbe.github.io/WatermelonDB/Advanced/Sync.html) with your own backend |
 | 📱 | **Multiplatform**. iOS, Android, and the web |
-| ⚛️ | **Made for React.** Easily plug data into components |
+| ⚛️ | **Works with React.** Easily plug data into components |
+| ✅ | **Proven.** Powers [Nozbe Teams](https://nozbe.com/teams) since 2017 |
+| ✨ | **Reactive** API with [RxJS](https://github.com/ReactiveX/rxjs) |
 | ⏱ | Fast. Async. Multi-threaded. Highly cached. |
 | 🔗 | Relational. Built on rock-solid [SQLite](https://www.sqlite.org) foundation |
 | ⚠️ | **Static typing** with [Flow](https://flow.org) or [TypeScript](https://typescriptlang.org) |
-| 🔄 | **Offline-first.** [Sync](https://nozbe.github.io/WatermelonDB/Advanced/Sync.html) with your own backend |
 
 ## Why Watermelon?
 
