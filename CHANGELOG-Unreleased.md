@@ -18,6 +18,7 @@ and should work with the same configuration as iOS/Android - @sidferreira
 
 - [Performance] findAndObserve is now able to emit a value synchronously. By extension, this makes Relations put into withObservables able to render the child component in one shot. Avoiding the extra unnecessary render cycles avoids a lot of DOM and React commit-phase work, which can speed up loading some views by 30%
 - [Performance] LokiJS is now faster (refactored encodeQuery, skipped unnecessary clone operations)
+- [Performance] LokiJS-based apps will now take up to 30% less time to load the database (id and unique indicies are generated lazily)
 
 ### Fixes
 
