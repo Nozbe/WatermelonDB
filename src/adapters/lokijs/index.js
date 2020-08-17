@@ -6,6 +6,7 @@ import type { ResultCallback } from '../../utils/fp/Result'
 
 import type { RecordId } from '../../Model'
 import type { TableName, AppSchema } from '../../Schema'
+import type { DirtyRaw } from '../../RawRecord'
 import type { SchemaMigrations } from '../../Schema/migrations'
 import type { SerializedQuery } from '../../Query'
 import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
@@ -28,6 +29,11 @@ const {
   DESTROY_DELETED_RECORDS,
 } = actions
 
+type LokiIDBSerializer = $Exact<{
+  serializeChunk: (TableName<any>, DirtyRaw[]) => any,
+  deserializeChunk: (TableName<any>, any) => DirtyRaw[],
+}>
+
 export type LokiAdapterOptions = $Exact<{
   dbName?: ?string,
   schema: AppSchema,
@@ -44,6 +50,15 @@ export type LokiAdapterOptions = $Exact<{
   // This means that app can't save more data or that it will fall back to using in-memory database only
   // Note that this only works when `useWebWorker: false`
   onQuotaExceededError?: (error: Error) => void,
+  // Called when IndexedDB fetch has begun. Use this as an opportunity to execute code concurrently
+  // while IDB does work on a separate thread.
+  // Note that this only works when using incrementalIDB and not using web workers
+  onIndexedDBFetchStart?: () => void,
+  // Called with a chunk (array of Loki documents) before it's saved to IndexedDB/loaded from IDB. You can use it to
+  // manually compress on-disk representation for faster database loads.
+  // Hint: Hand-written conversion of objects to arrays is very profitable for performance.
+  // Note that this only works when using incrementalIDB and not using web workers
+  indexedDBSerializer?: LokiIDBSerializer,
   // -- internal --
   _testLokiAdapter?: LokiMemoryAdapter,
 }>

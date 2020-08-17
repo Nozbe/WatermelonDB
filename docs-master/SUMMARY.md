@@ -27,6 +27,7 @@
     - [Advanced fields](./Advanced/AdvancedFields.md)
     - [Flow](./Advanced/Flow.md)
     - [LocalStorage](./Advanced/LocalStorage.md)
+    - [Pro tips](./Advanced/ProTips.md)
     - [Performance tips](./Advanced/Performance.md)
 
 ## Dig deeper into WatermelonDB

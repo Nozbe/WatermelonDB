@@ -5491,9 +5491,10 @@ loglevel@^1.4.1:
   resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.6.1.tgz#e0fc95133b6ef276cdc8887cdaf24aa6f156f8fa"
   integrity sha1-4PyVEztu8nbNyIh82vJKpvFW+Po=
 
-"lokijs@git+https://github.com/Nozbe/LokiJS.git#fabe503":
-  version "1.5.9"
-  resolved "git+https://github.com/Nozbe/LokiJS.git#fabe503e4fc7887b76b0e4892b28fbd0753da27d"
+"lokijs@npm:@nozbe/lokijs@1.5.10-wmelon0":
+  version "1.5.10-wmelon0"
+  resolved "https://registry.yarnpkg.com/@nozbe/lokijs/-/lokijs-1.5.10-wmelon0.tgz#dcad682083b85c238d14cdcd1f016125fff54336"
+  integrity sha512-GSLyRUTxCPwWLLKxMxA8/Pujm2xAgPGSehze9ICHZDG9yyMMfuWYae+qY+fQctgA1HuKiwoRUEvrrKBCQj9jzA==
 
 loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.3.1, loose-envify@^1.4.0:
   version "1.4.0"

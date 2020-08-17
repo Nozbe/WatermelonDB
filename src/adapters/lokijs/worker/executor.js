@@ -1,6 +1,6 @@
 // @flow
 
-import Loki, { LokiCollection, type LokiMemoryAdapter } from 'lokijs'
+import Loki, { LokiCollection } from 'lokijs'
 import { prop, forEach, values } from 'rambdax'
 import { logger } from '../../../utils/common'
 
@@ -25,7 +25,7 @@ import type { LokiAdapterOptions } from '../index'
 const SCHEMA_VERSION_KEY = '_loki_schema_version'
 
 export default class LokiExecutor {
-  dbName: ?string
+  options: LokiAdapterOptions
 
   schema: AppSchema
 
@@ -33,25 +33,13 @@ export default class LokiExecutor {
 
   loki: Loki
 
-  useIncrementalIndexedDB: boolean
-
-  onIndexedDBVersionChange: ?() => void
-
-  onQuotaExceededError: ?(error: Error) => void
-
-  _testLokiAdapter: ?LokiMemoryAdapter
-
   cachedRecords: Map<TableName<any>, Set<RecordId>> = new Map()
 
   constructor(options: LokiAdapterOptions): void {
-    const { dbName, schema, migrations, _testLokiAdapter } = options
-    this.dbName = dbName
+    const { schema, migrations } = options
+    this.options = options
     this.schema = schema
     this.migrations = migrations
-    this.useIncrementalIndexedDB = options.useIncrementalIndexedDB || false
-    this.onIndexedDBVersionChange = options.onIndexedDBVersionChange
-    this.onQuotaExceededError = options.onQuotaExceededError
-    this._testLokiAdapter = _testLokiAdapter
   }
 
   async setUp(): Promise<void> {
@@ -250,13 +238,7 @@ export default class LokiExecutor {
   async _openDatabase(): Promise<void> {
     logger.log('[WatermelonDB][Loki] Initializing IndexedDB')
 
-    this.loki = await newLoki(
-      this.dbName,
-      this._testLokiAdapter,
-      this.useIncrementalIndexedDB,
-      this.onIndexedDBVersionChange,
-      this.onQuotaExceededError,
-    )
+    this.loki = await newLoki(this.options)
 
     logger.log('[WatermelonDB][Loki] Database loaded')
   }
