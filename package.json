@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@nozbe/sqlite": "3.31.1",
-    "lokijs": "npm:@nozbe/lokijs@1.5.10-wmelon2",
+    "lokijs": "npm:@nozbe/lokijs@1.5.10-wmelon3",
     "rambdax": "2.15.0",
     "rxjs": "^6.2.2",
     "rxjs-compat": "^6.3.2",
