@@ -1,5 +1,12 @@
 const plugins = [
   [
+    '@babel/plugin-transform-runtime',
+    {
+      helpers: true,
+      // regenerator: true,
+    },
+  ],
+  [
     '@babel/plugin-transform-modules-commonjs',
     {
       loose: true, // improves speed & code size; unlikely to be a problem

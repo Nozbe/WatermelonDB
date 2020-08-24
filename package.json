@@ -41,6 +41,7 @@
     "url": "https://github.com/Nozbe/WatermelonDB.git"
   },
   "dependencies": {
+    "@babel/runtime": "^7.11.2",
     "@nozbe/sqlite": "3.31.1",
     "lokijs": "npm:@nozbe/lokijs@1.5.10-wmelon3",
     "rambdax": "2.15.0",
