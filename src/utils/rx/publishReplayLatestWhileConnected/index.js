@@ -1,9 +1,6 @@
 // @flow
 
-import type { ConnectableObservable } from 'rxjs'
-import { type Observable } from 'rxjs/Observable'
-import { ReplaySubject } from 'rxjs/ReplaySubject'
-import { multicast } from 'rxjs/operators'
+import { type ConnectableObservable, type Observable, ReplaySubject, multicast } from '../rx'
 
 // Creates a Connectable observable, that, while connected, replays the latest emission
 // upon subscription. When disconnected, the replay cache is cleared.

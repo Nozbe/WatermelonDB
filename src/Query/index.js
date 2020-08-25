@@ -1,9 +1,9 @@
 // @flow
 
-import { Observable } from 'rxjs/Observable'
 import { prepend } from 'rambdax'
 
 import allPromises from '../utils/fp/allPromises'
+import { Observable } from '../utils/rx'
 import { toPromise } from '../utils/fp/Result'
 import { type Unsubscribe, SharedSubscribable } from '../utils/subscriptions'
 import { logger } from '../utils/common'

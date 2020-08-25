@@ -2,7 +2,7 @@
 
 // $FlowFixMe
 // eslint-disable-next-line
-import { TestScheduler } from 'rxjs/testing/TestScheduler'
+import { TestScheduler } from 'rxjs/internal/testing/TestScheduler'
 import type { /* ColdObservable, HotObservable */ Observable } from 'rxjs'
 
 type HotObservable<+T> = Observable<T>
