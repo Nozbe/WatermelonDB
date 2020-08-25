@@ -29,13 +29,14 @@
 | ⚡️ | **Launch your app instantly** no matter how much data you have |
 | 📈 | **Highly scalable** from hundreds to tens of thousands of records |
 | 😎 | **Lazy loaded**. Only load data when you need it |
-| ✨ | **Reactive** API with [RxJS](https://github.com/ReactiveX/rxjs) |
-| 📱 | **Multiplatform**. iOS, Android, and the web |
-| ⚛️ | **Made for React.** Easily plug data into components |
-| ⏱ | Fast. Async. Multi-threaded. Highly cached. |
-| 🔗 | Relational. Built on rock-solid [SQLite](https://www.sqlite.org) foundation |
-| ⚠️ | **Static typing** with [Flow](https://flow.org) or [TypeScript](https://typescriptlang.org) |
 | 🔄 | **Offline-first.** [Sync](https://nozbe.github.io/WatermelonDB/Advanced/Sync.html) with your own backend |
+| 📱 | **Multiplatform**. iOS, Android, and the web |
+| ⚛️ | **Works with React.** Easily plug data into components |
+| ⏱ | **Fast.** And getting faster with every release! |
+| ✅ | **Proven.** Powers [Nozbe Teams](https://nozbe.com/teams) since 2017 (and [many others](#who-uses-watermelondb)) |
+| ✨ | **Reactive.** (Optional) [RxJS](https://github.com/ReactiveX/rxjs) API |
+| 🔗 | **Relational.** Built on rock-solid [SQLite](https://www.sqlite.org) foundation |
+| ⚠️ | **Static typing** with [Flow](https://flow.org) or [TypeScript](https://typescriptlang.org) |
 
 ## Why Watermelon?
 
@@ -45,13 +46,13 @@ It's optimized for building **complex applications** in React Native, and the nu
 
 For simple apps, using Redux or MobX with a persistence adapter is the easiest way to go. But when you start scaling to thousands or tens of thousands of database records, your app will now be slow to launch (especially on slower Android devices). Loading a full database into JavaScript is expensive!
 
-Watermelon fixes it **by being lazy**. Nothing is loaded unless requested. And since all querying is performed directly on the rock-solid [SQLite database](https://www.sqlite.org/index.html) on a separate native thread, most queries resolve in an instant.
+Watermelon fixes it **by being lazy**. Nothing is loaded until it's requested. And since all querying is performed directly on the rock-solid [SQLite database](https://www.sqlite.org/index.html) on a separate native thread, most queries resolve in an instant.
 
 But unlike using SQLite directly, Watermelon is **fully observable**. So whenever you change a record, all UI that depends on it will automatically re-render. For example, completing a task in a to-do app will re-render the task component, the list (to reorder), and all relevant task counters. [**Learn more**](https://www.youtube.com/watch?v=UlZ1QnFF4Cw).
 
 | <a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw"><img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-talk-thumbnail.jpg" alt="React Native EU: Next-generation React Databases" width="300" /></a> | <a href="https://watermelondb.now.sh/"><img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-demo-thumbnail.png" alt="WatermelonDB Demo" width="300" /></a> |
 | ---- | --- |
-| <p align="center"><a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw">📺 <strong>Next-generation React databases</strong><br>(a talk about WatermelonDB)</a></p> | <p align="center"><a href="https://watermelondb.now.sh/">✨ <strong>Check out the Demo</strong></a></p> |
+| <p align="center"><a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw">📺 <strong>Next-generation React databases</strong><br>(a talk about WatermelonDB)</a></p> | <p align="center"><a href="https://watermelondb.now.sh/">✨ <strong>Check out web Demo</strong></a></p> |
 
 ## Usage
 
@@ -83,7 +84,7 @@ const Comment = ({ comment }) => (
 
 // This is how you make your app reactive! ✨
 const enhance = withObservables(['comment'], ({ comment }) => ({
-  comment: comment.observe()
+  comment,
 }))
 const EnhancedComment = enhance(Comment)
 ```
