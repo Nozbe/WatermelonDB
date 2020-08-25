@@ -76,9 +76,6 @@ module.exports = {
     production: {
       plugins: [
         ...plugins,
-        // console.log is expensive for performance on native
-        // we don't want it on web either, but it's useful for development
-        ['transform-remove-console', { exclude: ['error', 'warn'] }],
         'minify-flip-comparisons',
         'minify-guarded-expressions',
         'minify-dead-code-elimination',
