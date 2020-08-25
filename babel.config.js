@@ -11,7 +11,7 @@ const plugins = [
     {
       loose: true, // improves speed & code size; unlikely to be a problem
       strict: false,
-      strictMode: false,
+      strictMode: true,
       allowTopLevelThis: true,
       // this would improve speed&code size but breaks 3rd party code. can we apply it to our paths only?
       // (same with struct: true)
