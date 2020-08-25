@@ -22,5 +22,5 @@ export {
   switchMap,
   throttleTime,
   startWith,
-} from './rx'
-export type { ConnectableObservable } from './rx'
+} from './__wmelonRxShim'
+export type { ConnectableObservable } from './__wmelonRxShim'

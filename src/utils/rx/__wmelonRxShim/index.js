@@ -1,16 +1,9 @@
 // @flow
 
-import { Observable, Subject, ReplaySubject, BehaviorSubject, of, merge, defer } from 'rxjs'
-
-import {
-  map,
-  multicast,
-  distinctUntilChanged,
-  switchMap,
-  throttleTime,
-  startWith,
-} from 'rxjs/operators'
-import type { ConnectableObservable } from 'rxjs'
+// NOTE: All Rx imports in WatermelonDB MUST go through this file
+// this is a magic shim that can be replaced via babel onto another shim that imports Rx files
+// from different locations
+// This allows manual tree shaking on React Native
 
 export {
   // classes
@@ -22,6 +15,8 @@ export {
   of,
   merge,
   defer,
+} from 'rxjs'
+export {
   // operators
   multicast,
   distinctUntilChanged,
@@ -29,5 +24,5 @@ export {
   switchMap,
   throttleTime,
   startWith,
-}
-export type { ConnectableObservable }
+} from 'rxjs/operators'
+export type { ConnectableObservable } from 'rxjs'
