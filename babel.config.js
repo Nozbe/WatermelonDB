@@ -1,9 +1,37 @@
+const path = require('path')
+const fs = require('fs-extra')
+
+const readNodeModulesDir = (...paths) =>
+  fs.readdirSync(path.resolve(__dirname, 'node_modules', ...paths))
+const rambdaxModules = readNodeModulesDir('rambdax', 'src')
+const rambdaModules = readNodeModulesDir('rambdax', 'src', 'rambda')
+
+const getRambdaPath = ({ importName }) => {
+  if (rambdaModules.includes(`${importName}.js`)) {
+    return `rambdax/src/rambda/${importName}`
+  } else if (rambdaxModules.includes(`${importName}.js`)) {
+    return `rambdax/src/${importName}`
+  }
+
+  throw new Error(`Unknown import of ${importName} from rambdax`)
+}
+
 const plugins = [
   [
     '@babel/plugin-transform-runtime',
     {
       helpers: true,
       // regenerator: true,
+    },
+  ],
+  [
+    'transform-imports',
+    {
+      rambdax: {
+        transform: importName => getRambdaPath({ importName }),
+        preventFullImport: true,
+        skipDefaultConversion: true,
+      },
     },
   ],
   [
