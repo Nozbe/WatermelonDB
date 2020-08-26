@@ -54,9 +54,7 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     sortColumn: ColumnName
     sortOrder: SortOrder
   }
-  export type SortOrder =
-    | 'asc'
-    | 'desc'
+  export type SortOrder = 'asc' | 'desc'
   export const asc: SortOrder
   export const desc: SortOrder
   export interface Take {
@@ -67,13 +65,18 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     type: 'skip'
     count: number
   }
-  export type Clause = Where | On | SortBy | Take | Skip
+  export interface Join {
+    type: 'joinTables'
+    tables: TableName<any>[]
+  }
+  export type Clause = Where | On | SortBy | Take | Skip | Join
   export interface QueryDescription {
     where: Where[]
     join: On[]
     sortBy: SortBy[]
     take?: Take
     skip?: Skip
+    joinTables?: Join
   }
 
   export function eq(valueOrColumn: Value | ColumnDescription): Comparison
@@ -95,6 +98,7 @@ declare module '@nozbe/watermelondb/QueryDescription' {
   export function experimentalSortBy(sortColumn: ColumnName, sortOrder?: SortOrder): SortBy
   export function experimentalTake(count: number): Take
   export function experimentalSkip(count: number): Skip
+  export function experimentalJoinTables(tables: TableName<any>[]): Join
   export function sanitizeLikeString(value: string): string
 
   type _OnFunctionColumnValue = (table: TableName<any>, column: ColumnName, value: Value) => On
