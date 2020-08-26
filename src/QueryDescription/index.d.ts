@@ -78,6 +78,7 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     skip?: Skip
     joinTables?: Join
   }
+  export type Condition = Where | On
 
   export function eq(valueOrColumn: Value | ColumnDescription): Comparison
   export function notEq(valueOrColumn: Value | ColumnDescription): Comparison
@@ -91,8 +92,8 @@ declare module '@nozbe/watermelondb/QueryDescription' {
   export function between(left: number, right: number): Comparison
   export function column(name: ColumnName): ColumnDescription
   export function where(left: ColumnName, valueOrComparison: Value | Comparison): WhereDescription
-  export function and(...conditions: Where[]): And
-  export function or(...conditions: Where[]): Or
+  export function and(...conditions: Condition[]): And
+  export function or(...conditions: Condition[]): Or
   export function like(value: string): Comparison
   export function notLike(value: string): Comparison
   export function experimentalSortBy(sortColumn: ColumnName, sortOrder?: SortOrder): SortBy
