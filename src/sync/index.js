@@ -49,6 +49,13 @@ export type SyncLog = {
   finishedAt?: Date,
 }
 
+export type SyncConflictResolver = (
+  table: TableName<any>,
+  local: DirtyRaw,
+  remote: DirtyRaw,
+  resolved: DirtyRaw,
+) => DirtyRaw
+
 export type SyncArgs = $Exact<{
   database: Database,
   pullChanges: SyncPullArgs => Promise<SyncPullResult>,
@@ -57,6 +64,12 @@ export type SyncArgs = $Exact<{
   migrationsEnabledAtVersion?: SchemaVersion,
   sendCreatedAsUpdated?: boolean,
   log?: SyncLog,
+  // Advanced (unsafe) customization point. Useful when you have subtle invariants between multiple
+  // columns and want to have them updated consistently, or to implement partial sync
+  // It's called for every record being updated locally, so be sure that this function is FAST.
+  // If you don't want to change default behavior for a given record, return `resolved` as is
+  // Note that it's safe to mutate `resolved` object, so you can skip copying it for performance.
+  conflictResolver?: SyncConflictResolver,
   // commits changes in multiple batches, and not one - temporary workaround for memory issue
   _unsafeBatchPerCollection?: boolean,
 }>
@@ -70,6 +83,7 @@ export async function synchronize({
   sendCreatedAsUpdated = false,
   migrationsEnabledAtVersion,
   log,
+  conflictResolver,
   _unsafeBatchPerCollection,
 }: SyncArgs): Promise<void> {
   ensureActionsEnabled(database)
@@ -112,6 +126,7 @@ export async function synchronize({
         remoteChanges,
         sendCreatedAsUpdated,
         log,
+        conflictResolver,
         _unsafeBatchPerCollection,
       ),
     )
