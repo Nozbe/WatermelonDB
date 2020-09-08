@@ -54,9 +54,7 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     sortColumn: ColumnName
     sortOrder: SortOrder
   }
-  export type SortOrder =
-    | 'asc'
-    | 'desc'
+  export type SortOrder = 'asc' | 'desc'
   export const asc: SortOrder
   export const desc: SortOrder
   export interface Take {
@@ -67,14 +65,20 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     type: 'skip'
     count: number
   }
-  export type Clause = Where | On | SortBy | Take | Skip
+  export interface Join {
+    type: 'joinTables'
+    tables: TableName<any>[]
+  }
+  export type Clause = Where | On | SortBy | Take | Skip | Join
   export interface QueryDescription {
     where: Where[]
     join: On[]
     sortBy: SortBy[]
     take?: Take
     skip?: Skip
+    joinTables?: Join
   }
+  export type Condition = Where | On
 
   export function eq(valueOrColumn: Value | ColumnDescription): Comparison
   export function notEq(valueOrColumn: Value | ColumnDescription): Comparison
@@ -88,13 +92,14 @@ declare module '@nozbe/watermelondb/QueryDescription' {
   export function between(left: number, right: number): Comparison
   export function column(name: ColumnName): ColumnDescription
   export function where(left: ColumnName, valueOrComparison: Value | Comparison): WhereDescription
-  export function and(...conditions: Where[]): And
-  export function or(...conditions: Where[]): Or
+  export function and(...conditions: Condition[]): And
+  export function or(...conditions: Condition[]): Or
   export function like(value: string): Comparison
   export function notLike(value: string): Comparison
   export function experimentalSortBy(sortColumn: ColumnName, sortOrder?: SortOrder): SortBy
   export function experimentalTake(count: number): Take
   export function experimentalSkip(count: number): Skip
+  export function experimentalJoinTables(tables: TableName<any>[]): Join
   export function sanitizeLikeString(value: string): string
 
   type _OnFunctionColumnValue = (table: TableName<any>, column: ColumnName, value: Value) => On
