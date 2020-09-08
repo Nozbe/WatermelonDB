@@ -25,7 +25,7 @@ This tells iOS to share storage directories between your targets, and in this ca
 
 **Option A**: Via JS
 
-> Note: althought this method is simpler, it has the disadvantage of breaking Chrome remote debugging
+> Note: although this method is simpler, it has the disadvantage of breaking Chrome remote debugging
 
 1. Install [rn-fetch-blob](https://github.com/joltup/rn-fetch-blob#installation)
 
