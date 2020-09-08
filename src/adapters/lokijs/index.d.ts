@@ -18,6 +18,7 @@ declare module '@nozbe/watermelondb/adapters/lokijs' {
 
   export interface LokiAdapterOptions {
     dbName?: string
+    autosave?: boolean
     schema: AppSchema
     migrations?: SchemaMigrations
     _testLokiAdapter?: LokiMemoryAdapter,
