@@ -36,6 +36,7 @@ type LokiIDBSerializer = $Exact<{
 
 export type LokiAdapterOptions = $Exact<{
   dbName?: ?string,
+  autosave?: boolean,
   schema: AppSchema,
   migrations?: SchemaMigrations,
   // (true by default) Although web workers may have some throughput benefits, disabling them
