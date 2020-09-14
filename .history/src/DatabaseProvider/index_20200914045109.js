@@ -20,5 +20,5 @@ function DatabaseProvider({ children, database }: Props): React$Element<typeof P
 }
 
 export { default as withDatabase } from './withDatabase'
-export { default as DatabaseContext, DatabaseConsumer } from './DatabaseContext'
+export { default as DatabaseContext, DatabaseConsumer, Provider } from './DatabaseContext'
 export default DatabaseProvider
