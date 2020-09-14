@@ -5,7 +5,7 @@ const { Provider, Consumer } = DatabaseContext
 
 export {
   Consumer as DatabaseConsumer,
-  Provider
+  Provider, 
 }
 
 export default DatabaseContext
