@@ -1,6 +1,6 @@
 // @flow
 import React from 'react'
-import DatabaseContext from '../DatabaseProvider/DatabaseContext'
+import { DatabaseContext } from '../DatabaseProvider'
 import invariant from '../utils/common/invariant'
 
 import type Database from '../Database'

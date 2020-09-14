@@ -2,9 +2,7 @@ import React from 'react'
 import * as TestRenderer from 'react-test-renderer'
 import Database from '../Database'
 import { mockDatabase } from '../__tests__/testModels'
-import DatabaseProvider from '.'
-import { DatabaseConsumer } from './DatabaseContext'
-import withDatabase from './withDatabase'
+import DatabaseProvider, { DatabaseConsumer, withDatabase } from '.'
 
 // Simple mock component
 function MockComponent() {
