@@ -1,7 +1,7 @@
 // @flow
 import React from 'react'
 import type Database from '../Database'
-import { DatabaseConsumer } from '.'
+import { DatabaseConsumer } from './DatabaseContext'
 
 type WithDatabaseProps<T> = {
   ...$Exact<T>,
