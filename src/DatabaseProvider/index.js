@@ -1,9 +1,7 @@
 // @flow
 import React from 'react'
 import Database from '../Database'
-
-export const DatabaseContext = (React.createContext(): any)
-const { Provider, Consumer } = DatabaseContext
+import { Provider } from './DatabaseContext'
 
 export type Props = {
   database: Database,
@@ -21,6 +19,6 @@ function DatabaseProvider({ children, database }: Props): React$Element<typeof P
   return <Provider value={database}>{children}</Provider>
 }
 
-export { Consumer as DatabaseConsumer }
 export { default as withDatabase } from './withDatabase'
+export { default as DatabaseContext, DatabaseConsumer } from './DatabaseContext'
 export default DatabaseProvider

@@ -14,5 +14,6 @@
 - [LokiJS] Adapter autosave option is now configurable
 
 ### Fixes
+- Fixed warn "import cycle" from DialogProvider (#786) by @gmonte.
 
 ### Internal
