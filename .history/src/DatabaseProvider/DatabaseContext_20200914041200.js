@@ -1,4 +1,3 @@
-// @flow
 import React from 'react'
 
 const DatabaseContext = (React.createContext(): any)
