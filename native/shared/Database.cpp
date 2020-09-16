@@ -426,6 +426,35 @@ create index local_storage_key_index on local_storage (key);
 
 void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
     auto &rt = getRt();
+
+    if (sqlite3_db_config(db_->sqlite, SQLITE_DBCONFIG_RESET_DATABASE, 1, 0) != SQLITE_OK) {
+        throw jsi::JSError(rt, "Failed to enable reset database mode");
+    }
+    executeMultiple("vacuum");
+
+    if (sqlite3_db_config(db_->sqlite, SQLITE_DBCONFIG_RESET_DATABASE, 0, 0) != SQLITE_OK) {
+        throw jsi::JSError(rt, "Failed to disable reset database mode");
+    }
+
+
+    beginTransaction();
+    try {
+        cachedRecords_ = {};
+
+        // Reinitialize schema
+        executeMultiple(schema.utf8(rt) + localStorageSchema);
+        setUserVersion(schemaVersion);
+
+        commit();
+    } catch (const std::exception &ex) {
+        rollback();
+        throw;
+    }
+
+
+    return;
+
+
     beginTransaction();
     try {
         // TODO: delete file in non-test?
@@ -461,10 +490,24 @@ void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
             executeUpdate("drop table if exists `" + table + "`");
         }
 
-        executeUpdate("pragma writable_schema=1");
-        executeUpdate("delete from sqlite_master");
-        executeUpdate("pragma user_version=0");
-        executeUpdate("pragma writable_schema=0");
+        // https://www.sqlite.org/c3ref/c_dbconfig_defensive.html#sqlitedbconfigresetdatabase
+
+        if (sqlite3_db_config(db_->sqlite, SQLITE_DBCONFIG_WRITABLE_SCHEMA, 1, NULL) != SQLITE_OK) {
+            throw jsi::JSError(rt, "Failed to enable writable schema");
+        }
+
+        if (sqlite3_db_config(db_->sqlite, SQLITE_DBCONFIG_DEFENSIVE, 0) != SQLITE_OK) {
+            throw jsi::JSError(rt, "Failed to disable defensive mode");
+        }
+
+        executeMultiple("delete from sqlite_master where type in ('table', 'index', 'trigger');"
+                        "pragma user_version=0;"
+                        "vacuum;"
+                        "pragma integrity_check;");
+
+        if (sqlite3_db_config(db_->sqlite, SQLITE_DBCONFIG_WRITABLE_SCHEMA, 0, NULL) != SQLITE_OK) {
+            consoleError("Failed to disable writable schema... This is not fatal, but is unsafe.");
+        }
 
         cachedRecords_ = {};
 
