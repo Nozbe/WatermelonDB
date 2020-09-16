@@ -17,6 +17,10 @@
 - [LokiJS] Adapter autosave option is now configurable
 
 ### Fixes
+
+- [LokiJS] Fix `Q.like` being broken for multi-line strings on web
 - Fixed warn "import cycle" from DialogProvider (#786) by @gmonte.
 
 ### Internal
+
+- Fix Metro packager when dist/, dev/ directories are present
