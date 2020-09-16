@@ -158,6 +158,7 @@ if (isDevelopment) {
       [
         resolvePath('src'),
         resolvePath('native/ios/WatermelonDB'),
+        resolvePath('native/shared'),
         resolvePath('native/android/src/main'),
         resolvePath('native/android-jsi/src/main'),
       ],
