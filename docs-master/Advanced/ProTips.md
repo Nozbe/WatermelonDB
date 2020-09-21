@@ -2,7 +2,7 @@
 
 ## Database viewer
 
-**Android** - you can use the new database inspector which comes with the Android Studio Beta. https://medium.com/androiddevelopers/database-inspector-9e91aa265316
+**Android** - you can use the new database inspector which comes with the Android Studio Beta. https://medium.com/androiddevelopers/database-inspector-9e91aa265316  . You can also use Facebook Flipper with this plugin: https://github.com/panz3r/react-native-flipper-databases#readme
 
 **iOS** - check open database path in iOS System Log (via Console for plugged-in device, or Xcode logs), then open it via `sqlite3` in the console, or an external tool like https://sqlitebrowser.org
 
