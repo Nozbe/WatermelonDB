@@ -60,9 +60,9 @@ describe('decorators/timestamp', () => {
   })
   it('returns a instance of date if cached', () => {
     const model = new MockModel({ schema }, { date: 0 })
-    // No cached
     expect(model.date).toBeInstanceOf(Date)
-    // Cached
+    model._isEditing = true
+    model.date = '2011-10-05T14:48:00.000Z'
     expect(model.date).toBeInstanceOf(Date)
   })
 })
