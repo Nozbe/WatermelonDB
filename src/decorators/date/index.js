@@ -42,7 +42,7 @@ const dateDecorator = makeDecorator(
       set(date: ?Date): void {
         const rawValue = date ? +new Date(date) : null
         if (rawValue && date) {
-          cache.set(rawValue, date)
+          cache.set(rawValue, new Date(date))
         }
         this.asModel._setRaw(columnName, rawValue)
       },
