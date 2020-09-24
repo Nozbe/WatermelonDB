@@ -15,5 +15,6 @@
 
 ### Fixes
 - Fixed warn "import cycle" from DialogProvider (#786) by @gmonte.
+- Fixed cache date as instance of Date (#828) by @djorkaeffalexandre.
 
 ### Internal
