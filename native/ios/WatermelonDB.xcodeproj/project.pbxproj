@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6E41F87D251C9183001C250B /* DatabaseDeleteHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E41F87C251C9183001C250B /* DatabaseDeleteHelper.m */; };
 		6E5E6259246C1F61003DBEF4 /* DatabasePlatformIOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E6257246C1F61003DBEF4 /* DatabasePlatformIOS.mm */; };
 		6E660D95213BD75D00189354 /* WatermelonDB.modulemap in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6E660D94213BD74F00189354 /* WatermelonDB.modulemap */; };
 		6E9477D4213BDE2E0077EDFB /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477CA213BDE220077EDFB /* FMDatabaseQueue.m */; };
@@ -40,6 +41,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		6E41F87C251C9183001C250B /* DatabaseDeleteHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseDeleteHelper.m; sourceTree = "<group>"; };
+		6E41F87E251C93D1001C250B /* DatabaseDeleteHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DatabaseDeleteHelper.h; sourceTree = "<group>"; };
 		6E5E6257246C1F61003DBEF4 /* DatabasePlatformIOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DatabasePlatformIOS.mm; sourceTree = "<group>"; };
 		6E5E6258246C1F61003DBEF4 /* DatabasePlatform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DatabasePlatform.h; path = ../../shared/DatabasePlatform.h; sourceTree = "<group>"; };
 		6E660D5E213BCCD300189354 /* libWatermelonDB.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWatermelonDB.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -105,6 +108,8 @@
 			isa = PBXGroup;
 			children = (
 				6E9477EF213BDF8A0077EDFB /* Database.swift */,
+				6E41F87C251C9183001C250B /* DatabaseDeleteHelper.m */,
+				6E41F87E251C93D1001C250B /* DatabaseDeleteHelper.h */,
 				6E9477EA213BDF8A0077EDFB /* DatabaseBridge.m */,
 				6E9477E9213BDF8A0077EDFB /* DatabaseBridge.swift */,
 				6E9477E8213BDF8A0077EDFB /* DatabaseDriver.swift */,
@@ -263,6 +268,7 @@
 				6E5E6259246C1F61003DBEF4 /* DatabasePlatformIOS.mm in Sources */,
 				6E9477D5213BDE2E0077EDFB /* FMDatabaseAdditions.m in Sources */,
 				6E9477D4213BDE2E0077EDFB /* FMDatabaseQueue.m in Sources */,
+				6E41F87D251C9183001C250B /* DatabaseDeleteHelper.m in Sources */,
 				6E9477D6213BDE2E0077EDFB /* FMDatabase.m in Sources */,
 				6EF7F8602362E9100041E1F6 /* Database.cpp in Sources */,
 			);
