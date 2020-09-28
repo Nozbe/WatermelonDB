@@ -1,7 +1,6 @@
 // @flow
 
-import type { Observable } from 'rxjs'
-import { BehaviorSubject } from 'rxjs/BehaviorSubject'
+import { type Observable, BehaviorSubject } from '../utils/rx'
 import { type Unsubscribe } from '../utils/subscriptions'
 import invariant from '../utils/common/invariant'
 import ensureSync from '../utils/common/ensureSync'

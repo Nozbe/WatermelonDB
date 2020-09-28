@@ -1,4 +1,5 @@
 import Foundation
+import SQLite3
 
 class Database {
     typealias SQL = String
@@ -97,24 +98,21 @@ class Database {
     }
 
     func unsafeDestroyEverything() throws {
-        // Deleting files by default because it seems simpler, more reliable
-        // And we have a weird problem with sqlite code 6 (database busy) in sync mode
-        // But sadly this won't work for in-memory (shared) databases, so in those cases,
-        // drop all tables, indexes, and reset user version to 0
+        // NOTE: Deleting files by default because it seems simpler, more reliable
+        // But sadly this won't work for in-memory (shared) databases
         if isInMemoryDatabase {
-            try inTransaction {
-                let tables = try queryRaw("select * from sqlite_master where type='table'").map { table in
-                    table.string(forColumn: "name")!
-                }
+            // NOTE: As of iOS 14, selecting tables from sqlite_master and deleting them does not work
+            // They seem to be enabling "defensive" config. So we use another obscure method to clear the database
+            // https://www.sqlite.org/c3ref/c_dbconfig_defensive.html#sqlitedbconfigresetdatabase
 
-                for table in tables {
-                    try execute("drop table if exists `\(table)`")
-                }
+            guard watermelondb_sqlite_dbconfig_reset_database(OpaquePointer(fmdb.sqliteHandle), true) else {
+                throw "Failed to enable reset database mode".asError()
+            }
 
-                try execute("pragma writable_schema=1")
-                try execute("delete from sqlite_master")
-                try execute("pragma user_version=0")
-                try execute("pragma writable_schema=0")
+            try executeStatements("vacuum")
+
+            guard watermelondb_sqlite_dbconfig_reset_database(OpaquePointer(fmdb.sqliteHandle), false) else {
+                throw "Failed to disable reset database mode".asError()
             }
         } else {
             guard fmdb.close() else {

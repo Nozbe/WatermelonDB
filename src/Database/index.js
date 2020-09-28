@@ -1,10 +1,8 @@
 // @flow
 
-import type { Observable } from 'rxjs/Observable'
-import { merge as merge$ } from 'rxjs/observable/merge'
-import { startWith } from 'rxjs/operators'
 import { values } from 'rambdax'
 
+import { type Observable, startWith, merge as merge$ } from '../utils/rx'
 import { type Unsubscribe } from '../utils/subscriptions'
 import { invariant } from '../utils/common'
 import { noop } from '../utils/fp'
