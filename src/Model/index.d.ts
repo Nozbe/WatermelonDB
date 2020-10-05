@@ -43,6 +43,10 @@ declare module '@nozbe/watermelondb/Model' {
 
     public destroyPermanently(): Promise<void>
 
+    public experimentalMarkAsDeleted(): Promise<void>
+
+    public experimentalDestroyPermanently(): Promise<void>
+
     public prepareMarkAsDeleted(): this
 
     public prepareDestroyPermanently(): this
