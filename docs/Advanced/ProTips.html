@@ -147,7 +147,7 @@
                     <main>
                         <h1><a class="header" href="#various-pro-tips" id="various-pro-tips">Various Pro Tips</a></h1>
 <h2><a class="header" href="#database-viewer" id="database-viewer">Database viewer</a></h2>
-<p><strong>Android</strong> - you can use the new database inspector which comes with the Android Studio Beta. https://medium.com/androiddevelopers/database-inspector-9e91aa265316</p>
+<p><strong>Android</strong> - you can use the new database inspector which comes with the Android Studio Beta. https://medium.com/androiddevelopers/database-inspector-9e91aa265316  . You can also use Facebook Flipper with this plugin: https://github.com/panz3r/react-native-flipper-databases#readme</p>
 <p><strong>iOS</strong> - check open database path in iOS System Log (via Console for plugged-in device, or Xcode logs), then open it via <code>sqlite3</code> in the console, or an external tool like https://sqlitebrowser.org</p>
 <h2><a class="header" href="#prepopulating-database-on-native" id="prepopulating-database-on-native">Prepopulating database on native</a></h2>
 <p>There's no built-in support for this. One way is to generate a SQLite DB (you can use the the Node SQLite support in 0.19.0-2 pre-release or extract it from an ios/android app), bundle it with the app, and then use a bit of code to check if the DB you're expecting it available, and if not, making a copy of the default DB — before you attempt loading DB from JS side. See this thread: https://github.com/Nozbe/WatermelonDB/issues/774#issuecomment-667981361</p>

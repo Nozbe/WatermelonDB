@@ -269,6 +269,7 @@ console.log(log.finishedAt)
 <ul>
 <li><code>_unsafeBatchPerCollection: boolean</code> - if true, changes will be saved to the database in multiple batches. This is unsafe and breaks transactionality, however may be required for very large syncs due to memory issues</li>
 <li><code>sendCreatedAsUpdated: boolean</code> - if your backend can't differentiate between created and updated records, set this to <code>true</code> to supress warnings. Sync will still work well, however error reporting, and some edge cases will not be handled as well.</li>
+<li><code>conflictResolver: (TableName, local: DirtyRaw, remote: DirtyRaw, resolved: DirtyRaw) =&gt; DirtyRaw</code> - can be passed to customize how records are updated when they change during sync. See <code>src/sync/index.js</code> for details.</li>
 </ul>
 <h2><a class="header" href="#implementing-your-sync-backend" id="implementing-your-sync-backend">Implementing your Sync backend</a></h2>
 <h3><a class="header" href="#understanding-changes-objects" id="understanding-changes-objects">Understanding <code>changes</code> objects</a></h3>
