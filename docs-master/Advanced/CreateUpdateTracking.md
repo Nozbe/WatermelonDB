@@ -13,7 +13,9 @@ You can add per-table support for create/update tracking. When you do this, the 
 
 - When you display to the user when a thing (e.g. a Post) was modified
 
-**Note**: you _don't have to_ enable both create and update tracking. You can do either, both, or none.
+**Notes**:
+ - you _don't have to_ enable both create and update tracking. You can do either, both, or none.
+ - In your model, you cannot name the columns created_at and updated_at with a 'created_at' and 'updated_at' respectively. this causes problem with date creation and update.
 
 ### How to do this
 
