@@ -13,7 +13,9 @@ You can add per-table support for create/update tracking. When you do this, the 
 
 - When you display to the user when a thing (e.g. a Post) was modified
 
-**Note**: you _don't have to_ enable both create and update tracking. You can do either, both, or none.
+**Notes**:
+ - you _don't have to_ enable both create and update tracking. You can do either, both, or none.
+ - In your model, these fields need to be called createdAt and updatedAt respectively.
 
 ### How to do this
 
