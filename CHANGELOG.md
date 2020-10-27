@@ -6,6 +6,10 @@ Contributors: Please add your changes to CHANGELOG-Unreleased.md
 
 ## 0.20 - 2020-10-05
 
+### BREAKING CHANGES
+
+This release has unintentionally broken RxJS for some apps using `with-observables`. If you have this issue, please update `@nozbe/with-observables` to the latest version.
+
 ### New features
 
 - [Sync] Conflict resolution can now be customized. See docs for more details
