@@ -83,8 +83,9 @@ export default class Model {
     this.collection.database._ensureInAction(
       `Model.update() can only be called from inside of an Action. See docs for more details.`,
     )
-    this.prepareUpdate(recordUpdater)
+    const record = this.prepareUpdate(recordUpdater)
     await this.collection.database.batch(this)
+    return record
   }
 
   // Prepares an update to the database (using passed function).
