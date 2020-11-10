@@ -5,6 +5,7 @@
 ### BREAKING CHANGES
 
 ### New features
+- [Model] `Model.update` method now returns updated record
 
 ### Performance
 
