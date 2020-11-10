@@ -79,7 +79,7 @@ export default class Model {
   // someTask.update(task => {
   //   task.name = 'New name'
   // })
-  async update(recordUpdater: this => void = noop): Promise<void> {
+  async update(recordUpdater: this => void = noop): Promise<this> {
     this.collection.database._ensureInAction(
       `Model.update() can only be called from inside of an Action. See docs for more details.`,
     )
