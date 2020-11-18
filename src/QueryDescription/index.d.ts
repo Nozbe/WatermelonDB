@@ -108,7 +108,7 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     column: ColumnName,
     comparison: Comparison,
   ) => On
-  type _OnFunctionWhereDescription = (table: TableName<any>, where: WhereDescription) => On
+  type _OnFunctionWhereDescription = (table: TableName<any>, where: Where) => On
 
   type OnFunction = _OnFunctionColumnValue &
     _OnFunctionColumnComparison &

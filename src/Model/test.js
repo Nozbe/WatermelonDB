@@ -182,7 +182,7 @@ describe('CRUD', () => {
 
     expect(m1._isEditing).toBe(false)
 
-    await m1.update(record => {
+    const update = await m1.update(record => {
       expect(m1._isEditing).toBe(true)
       record.name = 'New name'
     })
@@ -190,6 +190,7 @@ describe('CRUD', () => {
     expect(spyBatchDB).toHaveBeenCalledWith(m1)
     expect(spyOnPrepareUpdate).toHaveBeenCalledTimes(1)
     expect(observer).toHaveBeenCalledTimes(2)
+    expect(update).toBe(m1)
 
     expect(m1.name).toBe('New name')
     expect(m1.updatedAt).toBe(undefined)
