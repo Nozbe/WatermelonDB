@@ -11,7 +11,7 @@ import {
   setLastPulledSchemaVersion,
   getMigrationInfo,
 } from './index'
-import { ensureActionsEnabled, ensureSameDatabase, isChangeSetEmpty } from './helpers'
+import { ensureActionsEnabled, ensureSameDatabase, isChangeSetEmpty, changeSetCount } from './helpers'
 import { type SyncArgs } from '../index'
 
 export default async function synchronize({
@@ -49,6 +49,7 @@ export default async function synchronize({
     migration,
   })
   log && (log.newLastPulledAt = newLastPulledAt)
+  log && (log.remoteChangeCount = changeSetCount(remoteChanges))
   log && (log.phase = 'pulled')
   invariant(
     typeof newLastPulledAt === 'number' && newLastPulledAt > 0,
@@ -82,6 +83,7 @@ export default async function synchronize({
   // push phase
   log && (log.phase = 'ready to fetch local changes')
   const localChanges = await fetchLocalChanges(database)
+  log && (log.localChangeCount = changeSetCount(localChanges.changes))
   log && (log.phase = 'fetched local changes')
 
   ensureSameDatabase(database, resetCount)

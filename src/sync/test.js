@@ -711,6 +711,11 @@ describe('synchronize', () => {
 
     expect(log.lastPulledAt).toBe(null)
     expect(log.newLastPulledAt).toBe(1500)
+
+    expect(log.error).toBe(undefined)
+
+    expect(log.remoteChangeCount).toBe(0)
+    expect(log.localChangeCount).toBe(0)
   })
   it('can push changes', async () => {
     const { database } = makeDatabase()
@@ -720,10 +725,12 @@ describe('synchronize', () => {
 
     const pullChanges = jest.fn(emptyPull())
     const pushChanges = jest.fn()
-    await synchronize({ database, pullChanges, pushChanges })
+    const log = {}
+    await synchronize({ database, pullChanges, pushChanges, log })
 
     expect(pushChanges).toHaveBeenCalledWith({ changes: localChanges.changes, lastPulledAt: 1500 })
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+    expect(log.localChangeCount).toBe(10)
   })
   it('can pull changes', async () => {
     const { database, projects, tasks } = makeDatabase()
@@ -821,6 +828,7 @@ describe('synchronize', () => {
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
 
     // check that log is good
+    expect(log.remoteChangeCount).toBe(7)
     expect(log.resolvedConflicts).toEqual([
       {
         local: tUpdatedInitial,

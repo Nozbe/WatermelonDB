@@ -10,6 +10,8 @@
 
 ### Changes
 
+- [Sync] Optional `log` passed to sync now has more helpful diagnostic information
+
 ### Fixes
 
 ### Internal

@@ -1,6 +1,6 @@
 // @flow
 
-import { all, values, pipe } from 'rambdax'
+import { all, values, pipe, map, reduce } from 'rambdax'
 
 import { logError, invariant } from '../../utils/common'
 
@@ -116,4 +116,11 @@ export function ensureSameDatabase(database: Database, initialResetCount: number
 export const isChangeSetEmpty: SyncDatabaseChangeSet => boolean = pipe(
   values,
   all(({ created, updated, deleted }) => created.length + updated.length + deleted.length === 0),
+)
+
+const sum: number[] => number = reduce((a, b) => a + b, 0)
+export const changeSetCount: SyncDatabaseChangeSet => number = pipe(
+  values,
+  map(({ created, updated, deleted }) => created.length + updated.length + deleted.length),
+  sum,
 )

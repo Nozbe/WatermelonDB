@@ -38,6 +38,8 @@ export type SyncLog = {
   newLastPulledAt?: number,
   resolvedConflicts?: SyncConflict[],
   finishedAt?: Date,
+  remoteChangeCount?: number,
+  localChangeCount?: number,
   phase?: string, // NOTE: an textual information, not a stable API!
   error?: Error,
 }
