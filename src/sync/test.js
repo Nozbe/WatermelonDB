@@ -707,6 +707,7 @@ describe('synchronize', () => {
     expect(log.startedAt).toBeInstanceOf(Date)
     expect(log.finishedAt).toBeInstanceOf(Date)
     expect(log.finishedAt.getTime()).toBeGreaterThan(log.startedAt.getTime())
+    expect(log.phase).toBe('done')
 
     expect(log.lastPulledAt).toBe(null)
     expect(log.newLastPulledAt).toBe(1500)
@@ -960,15 +961,19 @@ describe('synchronize', () => {
     await makeLocalChanges(database)
 
     const observer = observeDatabase(database)
-    const pullChanges = jest.fn(() => Promise.reject(new Error('pull-fail')))
+    const error = new Error('pull-fail')
+    const pullChanges = jest.fn(() => Promise.reject(error))
     const pushChanges = jest.fn()
-    const sync = await synchronize({ database, pullChanges, pushChanges }).catch(e => e)
+    const log = {}
+    const sync = await synchronize({ database, pullChanges, pushChanges, log }).catch(e => e)
 
     expect(observer).toHaveBeenCalledTimes(0)
     expect(pullChanges).toHaveBeenCalledTimes(1)
     expect(pushChanges).toHaveBeenCalledTimes(0)
     expect(sync).toMatchObject({ message: 'pull-fail' })
     expect(await getLastPulledAt(database)).toBe(null)
+    expect(log.phase).toBe('ready to pull')
+    expect(log.error).toBe(error)
   })
   it('can recover from push failure', async () => {
     const { database, projects } = makeDatabase()
