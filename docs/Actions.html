@@ -226,7 +226,7 @@ await comment.markAsSpam()
 <li>Pass the list of <strong>prepared operations</strong> as arguments:
 <ul>
 <li>Instead of calling <code>await record.update()</code>, pass <code>record.prepareUpdate()</code> — note lack of <code>await</code></li>
-<li>Instead of <code>await collection.create()</code>, use <code>collection.prepareCreate()</code></li>
+<li>Instead of <code>await collection.create()</code>, use <code>collection.prepareCreate()</code> or <code>collection.prepareCreateFromDirtyRaw({ put your JSON here })</code></li>
 <li>Instead of <code>await record.markAsDeleted()</code>, use <code>record.prepareMarkAsDeleted()</code></li>
 <li>Instead of <code>await record.destroyPermanently()</code>, use <code>record.prepareDestroyPermanently()</code></li>
 <li>You can pass falsy values (null, undefined, false) to batch — they will simply be ignored.</li>
