@@ -21,7 +21,9 @@ declare module '@nozbe/watermelondb/adapters/lokijs' {
     autosave?: boolean
     schema: AppSchema
     migrations?: SchemaMigrations
-    _testLokiAdapter?: LokiMemoryAdapter,
+    useWebWorker?: boolean
+    useIncrementalIndexedDB?: boolean
+    _testLokiAdapter?: LokiMemoryAdapter
   }
 
   export default class LokiJSAdapter implements DatabaseAdapter {
