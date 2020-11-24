@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### BREAKING CHANGES
+- [LokiJS] `useWebWorker` and `useIncrementalIndexedDB` options are now required (previously, skipping them would only trigger a warning)
 
 ### New features
 - [Model] `Model.update` method now returns updated record
@@ -16,6 +17,6 @@
 
 ### Fixes
 
-- [Typescript] Fixed type on OnFunction to accept `and` in join 
+- [Typescript] Fixed type on OnFunction to accept `and` in join
 
 ### Internal

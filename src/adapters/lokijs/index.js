@@ -73,7 +73,10 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
   _dbName: ?string
 
+  _options: LokiAdapterOptions
+
   constructor(options: LokiAdapterOptions): void {
+    this._options = options
     const { schema, migrations, dbName } = options
 
     const useWebWorker = options.useWebWorker ?? process.env.NODE_ENV !== 'test'
@@ -84,20 +87,18 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     this._dbName = dbName
 
     if (process.env.NODE_ENV !== 'production') {
-      if (!('useWebWorker' in options)) {
-        logger.warn(
+      invariant('useWebWorker' in options,
           'LokiJSAdapter `useWebWorker` option will become required in a future version of WatermelonDB. Pass `{ useWebWorker: false }` to adopt the new behavior, or `{ useWebWorker: true }` to supress this warning with no changes',
         )
-      }
-      if (!('useIncrementalIndexedDB' in options)) {
-        logger.warn(
+      invariant('useIncrementalIndexedDB' in options,
           'LokiJSAdapter `useIncrementalIndexedDB` option will become required in a future version of WatermelonDB. Pass `{ useIncrementalIndexedDB: true }` to adopt the new behavior, or `{ useIncrementalIndexedDB: false }` to supress this warning with no changes',
         )
-      }
+      // TODO(2021-05): Remove this
       invariant(
         !('migrationsExperimental' in options),
         'LokiJSAdapter `migrationsExperimental` option has been renamed to `migrations`',
       )
+      // TODO(2021-05): Remove this
       invariant(
         !('experimentalUseIncrementalIndexedDB' in options),
         'LokiJSAdapter `experimentalUseIncrementalIndexedDB` option has been renamed to `useIncrementalIndexedDB`',
@@ -183,5 +184,11 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
   removeLocal(key: string, callback: ResultCallback<void>): void {
     this.workerBridge.send(REMOVE_LOCAL, [key], callback, 'immutable', 'immutable')
+  }
+
+  // dev/debug utility
+  get _executor(): any {
+    // $FlowFixMe
+    return this.workerBridge._worker._worker.executor
   }
 }
