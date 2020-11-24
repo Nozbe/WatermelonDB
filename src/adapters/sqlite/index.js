@@ -88,7 +88,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     }
 
     this._initPromise = this._init()
-    fromPromise(this._initPromise, devSetupCallback)
+    fromPromise(this._initPromise, result => devSetupCallback(result, options.onSetUpError))
   }
 
   get initializingPromise(): Promise<void> {

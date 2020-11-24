@@ -7,6 +7,7 @@
 
 ### New features
 - [Model] `Model.update` method now returns updated record
+- [adapters] `onSetUpError: Error => void` option is added to both `SQLiteAdapter` and `LokiJSAdapter`. Supply this option to catch initialization errors and offer the user to reload or log out
 
 ### Performance
 

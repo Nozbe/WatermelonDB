@@ -21,6 +21,11 @@ export type SQLiteAdapterOptions = $Exact<{
   synchronous?: boolean,
   // The new way to run the database in synchronous mode. iOS-only at the moment
   experimentalUseJSI?: boolean,
+  // Called when database failed to set up (initialize) correctly. It's possible that
+  // it's some transient error that will be solved by a reload, but it's
+  // very likely that the error is persistent (e.g. a corrupted database).
+  // Pass a callback to offer to the user to reload the app or log out
+  onSetUpError?: (error: Error) => void,
 }>
 
 export type DispatcherType = 'asynchronous' | 'synchronous' | 'jsi'

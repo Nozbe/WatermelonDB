@@ -44,8 +44,14 @@ export type LokiAdapterOptions = $Exact<{
   // may lead to lower memory consumption, lower latency, and easier debugging
   useWebWorker?: boolean,
   useIncrementalIndexedDB?: boolean,
+  // Called when database failed to set up (initialize) correctly. It's possible that
+  // it's some transient IndexedDB error that will be solved by a reload, but it's
+  // very likely that the error is persistent (e.g. a corrupted database).
+  // Pass a callback to offer to the user to reload the app or log out
+  onSetUpError?: (error: Error) => void,
   // Called when internal IndexedDB version changed (most likely the database was deleted in another browser tab)
   // Pass a callback to force log out in this copy of the app as well
+  // (Due to a race condition, it's usually best to just reload the web app)
   // Note that this only works when using incrementalIDB and not using web workers
   onIndexedDBVersionChange?: () => void,
   // Called when underlying IndexedDB encountered a quota exceeded error (ran out of allotted disk space for app)
@@ -107,8 +113,8 @@ export default class LokiJSAdapter implements DatabaseAdapter {
       )
       validateAdapter(this)
     }
-
-    this.workerBridge.send(SETUP, [options], devSetupCallback, 'immutable', 'immutable')
+    const callback = result => devSetupCallback(result, options.onSetUpError)
+    this.workerBridge.send(SETUP, [options], callback, 'immutable', 'immutable')
   }
 
   async testClone(options?: $Shape<LokiAdapterOptions> = {}): Promise<LokiJSAdapter> {
