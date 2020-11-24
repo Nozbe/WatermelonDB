@@ -98,7 +98,7 @@ class Post extends Model {
 - Call `await this.batch` in the Action (outside of actions, you can also call `.batch()` [on the `Database` object](./CRUD.md))
 - Pass the list of **prepared operations** as arguments:
   - Instead of calling `await record.update()`, pass `record.prepareUpdate()` — note lack of `await`
-  - Instead of `await collection.create()`, use `collection.prepareCreate()`
+  - Instead of `await collection.create()`, use `collection.prepareCreate()` or `collection.prepareCreateFromDirtyRaw({ put your JSON here })`
   - Instead of `await record.markAsDeleted()`, use `record.prepareMarkAsDeleted()`
   - Instead of `await record.destroyPermanently()`, use `record.prepareDestroyPermanently()`
   - You can pass falsy values (null, undefined, false) to batch — they will simply be ignored.
