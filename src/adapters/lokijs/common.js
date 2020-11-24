@@ -16,6 +16,7 @@ export const actions = {
   GET_LOCAL: 'GET_LOCAL',
   SET_LOCAL: 'SET_LOCAL',
   REMOVE_LOCAL: 'REMOVE_LOCAL',
+  EXPERIMENTAL_BREAK: 'EXPERIMENTAL_BREAK',
 }
 
 export type WorkerExecutorType = $Values<typeof actions>

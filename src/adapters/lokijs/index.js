@@ -1,7 +1,7 @@
 // @flow
 
 import type { LokiMemoryAdapter } from 'lokijs'
-import { invariant, logger } from '../../utils/common'
+import { invariant } from '../../utils/common'
 import type { ResultCallback } from '../../utils/fp/Result'
 
 import type { RecordId } from '../../Model'
@@ -27,6 +27,7 @@ const {
   REMOVE_LOCAL,
   GET_DELETED_RECORDS,
   DESTROY_DELETED_RECORDS,
+  EXPERIMENTAL_BREAK,
 } = actions
 
 type LokiIDBSerializer = $Exact<{
@@ -191,5 +192,10 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   get _executor(): any {
     // $FlowFixMe
     return this.workerBridge._worker._worker.executor
+  }
+
+  // (experimental)
+  _break(error: Error): void {
+    this.workerBridge.send(EXPERIMENTAL_BREAK, [error], () => {}, 'immutable', 'immutable')
   }
 }

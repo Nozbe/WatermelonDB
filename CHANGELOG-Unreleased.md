@@ -20,3 +20,5 @@
 - [Typescript] Fixed type on OnFunction to accept `and` in join
 
 ### Internal
+
+- Added an experimental mode where a broken database state is detected, further mutations prevented, and the user notified
