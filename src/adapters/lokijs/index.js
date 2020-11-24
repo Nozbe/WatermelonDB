@@ -96,10 +96,10 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
     if (process.env.NODE_ENV !== 'production') {
       invariant('useWebWorker' in options,
-          'LokiJSAdapter `useWebWorker` option will become required in a future version of WatermelonDB. Pass `{ useWebWorker: false }` to adopt the new behavior, or `{ useWebWorker: true }` to supress this warning with no changes',
+          'LokiJSAdapter `useWebWorker` option is required. Pass `{ useWebWorker: false }` to adopt the new behavior, or `{ useWebWorker: true }` to supress this warning with no changes',
         )
       invariant('useIncrementalIndexedDB' in options,
-          'LokiJSAdapter `useIncrementalIndexedDB` option will become required in a future version of WatermelonDB. Pass `{ useIncrementalIndexedDB: true }` to adopt the new behavior, or `{ useIncrementalIndexedDB: false }` to supress this warning with no changes',
+          'LokiJSAdapter `useIncrementalIndexedDB` option is required. Pass `{ useIncrementalIndexedDB: true }` to adopt the new behavior, or `{ useIncrementalIndexedDB: false }` to supress this warning with no changes',
         )
       // TODO(2021-05): Remove this
       invariant(
@@ -127,6 +127,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     const lokiAdapter = executor.loki.persistenceAdapter
 
     return new LokiJSAdapter({
+      ...this._options,
       dbName: this._dbName,
       schema: this.schema,
       ...(this.migrations ? { migrations: this.migrations } : {}),
