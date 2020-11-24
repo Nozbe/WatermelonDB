@@ -1,7 +1,6 @@
 // @flow
 
 import Loki, { LokiCollection } from 'lokijs'
-import { prop, forEach, values } from 'rambdax'
 import { logger } from '../../../utils/common'
 
 import type { CachedQueryResult, CachedFindResult, BatchOperation } from '../../type'
@@ -24,6 +23,12 @@ import type { LokiAdapterOptions } from '../index'
 
 const SCHEMA_VERSION_KEY = '_loki_schema_version'
 
+let experimentalAllowsBrokenDb = false
+
+export function setExperimentalAllowsBrokenDb(): void {
+  experimentalAllowsBrokenDb = true
+}
+
 export default class LokiExecutor {
   options: LokiAdapterOptions
 
@@ -34,6 +39,9 @@ export default class LokiExecutor {
   loki: Loki
 
   cachedRecords: Map<TableName<any>, Set<RecordId>> = new Map()
+
+  // (experimental) if true, Executor is in a broken state and should not be used anymore
+  _isBroken: boolean = false
 
   constructor(options: LokiAdapterOptions): void {
     const { schema, migrations } = options
@@ -103,7 +111,7 @@ export default class LokiExecutor {
     return executeQuery(query, this.loki).count()
   }
 
-  update(table: TableName<any>, rawRecord: RawRecord): void {
+  _update(table: TableName<any>, rawRecord: RawRecord): void {
     const collection = this.loki.getCollection(table)
     // Loki identifies records using internal $loki ID so we must find the saved record first
     const lokiId = collection.by('id', rawRecord.id).$loki
@@ -112,14 +120,14 @@ export default class LokiExecutor {
     collection.update(raw)
   }
 
-  destroyPermanently(table: TableName<any>, id: RecordId): void {
+  _destroyPermanently(table: TableName<any>, id: RecordId): void {
     const collection = this.loki.getCollection(table)
     const record = collection.by('id', id)
     collection.remove(record)
     this.removeFromCache(table, id)
   }
 
-  markAsDeleted(table: TableName<any>, id: RecordId): void {
+  _markAsDeleted(table: TableName<any>, id: RecordId): void {
     const collection = this.loki.getCollection(table)
     const record = collection.by('id', id)
     if (record) {
@@ -130,70 +138,88 @@ export default class LokiExecutor {
   }
 
   batch(operations: BatchOperation[]): void {
-    // TODO: Only add to cached records if all is successful
-    // TODO: Transactionality
+    // NOTE: Mutations to LokiJS db are *not* transactional!
+    // This is terrible and lame for a database, but there's just no simple and good solution to this
+    // Loki transactions rely on making a full copy of the data, and reverting to it if something breaks.
+    // This is just unbearable for production-sized databases (too much memory required)
+    // It could be done with some sort of advanced journaling/CoW structure scheme, but that would
+    // be very complicated (in itself a source of bugs), and possibly quite expensive cpu-wise
+    //
+    // So instead, we assume that writes MUST succeed. If they don't, we put LokiExecutor in a "broken"
+    // state, refuse to persist or further mutate the DB, and notify the app (and user) about it.
+    //
+    // It can be assumed that Loki-level mutations that fail are WatermelonDB bugs that must be fixed
+    this._assertNotBroken()
+    try {
+      const recordsToCreate: { [TableName<any>]: RawRecord[] } = {}
 
-    const recordsToCreate: { [TableName<any>]: RawRecord[] } = {}
+      operations.forEach(operation => {
+        const [type, table, raw] = operation
+        switch (type) {
+          case 'create':
+            if (!recordsToCreate[table]) {
+              recordsToCreate[table] = []
+            }
+            recordsToCreate[table].push((raw: $FlowFixMe<RawRecord>))
 
-    operations.forEach(operation => {
-      const [type, table, raw] = operation
-      switch (type) {
-        case 'create':
-          if (!recordsToCreate[table]) {
-            recordsToCreate[table] = []
-          }
-          recordsToCreate[table].push((raw: $FlowFixMe<RawRecord>))
-
-          break
-        default:
-          break
-      }
-    })
-
-    // We're doing a second pass, because batch insert is much faster in Loki
-    Object.entries(recordsToCreate).forEach((args: any) => {
-      const [table, raws]: [TableName<any>, RawRecord[]] = args
-      const shouldRebuildIndexAfterIndex = raws.length >= 1000 // only profitable for large inserts
-      this.loki.getCollection(table).insert(raws, shouldRebuildIndexAfterIndex)
-
-      const cache = this.getCache(table)
-      raws.forEach(raw => {
-        cache.add(raw.id)
+            break
+          default:
+            break
+        }
       })
-    })
 
-    operations.forEach(operation => {
-      const [type, table, rawOrId] = operation
-      switch (type) {
-        case 'update':
-          this.update(table, (rawOrId: $FlowFixMe<RawRecord>))
-          break
-        case 'markAsDeleted':
-          this.markAsDeleted(table, (rawOrId: $FlowFixMe<RecordId>))
-          break
-        case 'destroyPermanently':
-          this.destroyPermanently(table, (rawOrId: $FlowFixMe<RecordId>))
-          break
-        default:
-          break
-      }
-    })
+      // We're doing a second pass, because batch insert is much faster in Loki
+      Object.entries(recordsToCreate).forEach((args: any) => {
+        const [table, raws]: [TableName<any>, RawRecord[]] = args
+        const shouldRebuildIndexAfterInsert = raws.length >= 1000 // only profitable for large inserts
+        this.loki.getCollection(table).insert(raws, shouldRebuildIndexAfterInsert)
+
+        const cache = this.getCache(table)
+        raws.forEach(raw => {
+          cache.add(raw.id)
+        })
+      })
+
+      operations.forEach(operation => {
+        const [type, table, rawOrId] = operation
+        switch (type) {
+          case 'update':
+            this._update(table, (rawOrId: $FlowFixMe<RawRecord>))
+            break
+          case 'markAsDeleted':
+            this._markAsDeleted(table, (rawOrId: $FlowFixMe<RecordId>))
+            break
+          case 'destroyPermanently':
+            this._destroyPermanently(table, (rawOrId: $FlowFixMe<RecordId>))
+            break
+          default:
+            break
+        }
+      })
+    } catch (error) {
+      this._break(error)
+    }
   }
 
   getDeletedRecords(table: TableName<any>): RecordId[] {
     return this.loki
       .getCollection(table)
       .find({ _status: { $eq: 'deleted' } })
-      .map(prop('id'))
+      .map(record => record.id)
   }
 
   destroyDeletedRecords(table: TableName<any>, records: RecordId[]): void {
-    const collection = this.loki.getCollection(table)
-    forEach(recordId => {
-      const record = collection.by('id', recordId)
+    this._assertNotBroken()
+    try {
+      const collection = this.loki.getCollection(table)
+      records.forEach(recordId => {
+        const record = collection.by('id', recordId)
 
-      record && collection.remove(record)
-    }, records)
+        record && collection.remove(record)
+      })
+    } catch (error) {
+      this._break(error)
+    }
   }
 
   async unsafeResetDatabase(): Promise<void> {
@@ -214,22 +240,32 @@ export default class LokiExecutor {
   }
 
   setLocal(key: string, value: string): void {
-    const record = this._findLocal(key)
+    this._assertNotBroken()
+    try {
+      const record = this._findLocal(key)
 
-    if (record) {
-      record.value = value
-      this._localStorage.update(record)
-    } else {
-      const newRecord = { key, value }
-      this._localStorage.insert(newRecord)
+      if (record) {
+        record.value = value
+        this._localStorage.update(record)
+      } else {
+        const newRecord = { key, value }
+        this._localStorage.insert(newRecord)
+      }
+    } catch (error) {
+      this._break(error)
     }
   }
 
   removeLocal(key: string): void {
-    const record = this._findLocal(key)
+    this._assertNotBroken()
+    try {
+      const record = this._findLocal(key)
 
-    if (record) {
-      this._localStorage.remove(record)
+      if (record) {
+        this._localStorage.remove(record)
+      }
+    } catch (error) {
+      this._break(error)
     }
   }
 
@@ -247,7 +283,7 @@ export default class LokiExecutor {
     logger.log('[WatermelonDB][Loki] Setting up schema')
 
     // Add collections
-    values(this.schema.tables).forEach(tableSchema => {
+    Object.values(this.schema.tables).forEach(tableSchema => {
       this._addCollection(tableSchema)
     })
 
@@ -265,7 +301,7 @@ export default class LokiExecutor {
 
   _addCollection(tableSchema: TableSchema): void {
     const { name, columns } = tableSchema
-    const indexedColumns = values(columns).reduce(
+    const indexedColumns = Object.values(columns).reduce(
       (indexes, column) => (column.isIndexed ? indexes.concat([(column.name: string)]) : indexes),
       [],
     )
@@ -400,5 +436,26 @@ export default class LokiExecutor {
   _findLocal(key: string): ?{ value: string } {
     const localStorage = this._localStorage
     return localStorage && localStorage.by('key', key)
+  }
+
+  _assertNotBroken(): void {
+    if (this._isBroken) {
+      throw new Error('Loki executor is in a broken state, bailing...')
+    }
+  }
+
+  // (experimental)
+  // TODO: Setup, migrations, delete database should also break executor
+  _break(error: Error): void {
+    if (!experimentalAllowsBrokenDb) {
+      logger.warn('LokiExecutor appears to have been broken, but experimentalAllowsBrokenDb has not been enabled to do anything about it...')
+      throw error
+    }
+    // TODO: Stop further mutations
+    // TODO: Disable Loki autosave
+    // TODO: Notify handler
+
+    // rethrow
+    throw error
   }
 }
