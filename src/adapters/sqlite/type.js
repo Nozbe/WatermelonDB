@@ -17,7 +17,9 @@ export type SQLiteAdapterOptions = $Exact<{
   dbName?: string,
   schema: AppSchema,
   migrations?: SchemaMigrations,
+  // (deprecated) use JSI instead
   synchronous?: boolean,
+  // The new way to run the database in synchronous mode. iOS-only at the moment
   experimentalUseJSI?: boolean,
 }>
 
