@@ -62,6 +62,7 @@ export type LokiAdapterOptions = $Exact<{
   indexedDBSerializer?: LokiIDBSerializer,
   // -- internal --
   _testLokiAdapter?: LokiMemoryAdapter,
+  _experimentalOnDidBreak?: (error: Error) => void,
 }>
 
 export default class LokiJSAdapter implements DatabaseAdapter {

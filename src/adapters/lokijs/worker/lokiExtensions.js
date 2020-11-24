@@ -108,3 +108,27 @@ export async function deleteDatabase(loki: Loki): Promise<void> {
     })
   })
 }
+
+// In case of a fatal error, break Loki so that it cannot save its contents to disk anymore
+// This might result in a loss of data in recent changes, but we assume that whatever caused the
+// fatal error has corrupted the database, so we want to prevent it from being persisted
+// There's no recovery from this, app must be restarted with a fresh LokiJSAdapter.
+export function lokiFatalError(loki: Loki): void {
+  try {
+    // below is some very ugly defensive coding, but we're fatal and don't trust anyone anymore
+    const fatalHandler = () => {
+      throw new Error('Illegal attempt to save Loki database after a fatal error')
+    }
+    loki.save = fatalHandler
+    loki.saveDatabase = fatalHandler
+    loki.saveDatabaseInternal = fatalHandler
+    // disable autosave
+    loki.autosave = false
+    loki.autosaveDisable()
+    // close db
+    loki.close()
+  } catch (error) {
+    logger.error('Failed to perform loki fatal error')
+    logger.error(error)
+  }
+}

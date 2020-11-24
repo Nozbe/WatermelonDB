@@ -16,7 +16,7 @@ import type { SerializedQuery } from '../../../Query'
 import type { RecordId } from '../../../Model'
 import { type RawRecord, sanitizedRaw, setRawSanitized, type DirtyRaw } from '../../../RawRecord'
 
-import { newLoki, deleteDatabase } from './lokiExtensions'
+import { newLoki, deleteDatabase, lokiFatalError } from './lokiExtensions'
 import executeQuery from './executeQuery'
 
 import type { LokiAdapterOptions } from '../index'
@@ -451,11 +451,21 @@ export default class LokiExecutor {
       logger.warn('LokiExecutor appears to have been broken, but experimentalAllowsBrokenDb has not been enabled to do anything about it...')
       throw error
     }
-    // TODO: Stop further mutations
-    // TODO: Disable Loki autosave
-    // TODO: Notify handler
+    // Stop further mutations
+    this._isBroken = true
 
-    // rethrow
+    // Disable Loki autosave
+    lokiFatalError(this.loki)
+
+    // Notify handler
+    const handler = this.options._experimentalOnDidBreak
+    if (handler) {
+      handler(error)
+    } else {
+      logger.error('LokiExecutor has been broken. App must be reloaded before continuing.')
+    }
+
+    // Rethrow error
     throw error
   }
 }
