@@ -4,7 +4,7 @@ import { values } from 'rambdax'
 
 import { type Observable, startWith, merge as merge$ } from '../utils/rx'
 import { type Unsubscribe } from '../utils/subscriptions'
-import { invariant } from '../utils/common'
+import { invariant, logger } from '../utils/common'
 import { noop } from '../utils/fp'
 
 import type { DatabaseAdapter, BatchOperation } from '../adapters/type'
@@ -23,6 +23,12 @@ type DatabaseProps = $Exact<{
   actionsEnabled: boolean,
 }>
 
+let experimentalAllowsBrokenDb = false
+
+export function setExperimentalAllowsBrokenDb(): void {
+  experimentalAllowsBrokenDb = true
+}
+
 export default class Database {
   adapter: DatabaseAdapterCompat
 
@@ -33,6 +39,9 @@ export default class Database {
   _actionQueue = new ActionQueue()
 
   _actionsEnabled: boolean
+
+  // (experimental) if true, Database is in a broken state and should not be used anymore
+  _isBroken: boolean = false
 
   constructor({ adapter, modelClasses, actionsEnabled }: DatabaseProps): void {
     if (process.env.NODE_ENV !== 'production') {
@@ -252,5 +261,24 @@ export default class Database {
 
   _ensureInAction(error: string): void {
     this._actionsEnabled && invariant(this._actionQueue.isRunning, error)
+  }
+
+  // (experimental) puts Database in a broken state
+  // TODO: Not used anywhere yet
+  _break(error: Error): void {
+    if (!experimentalAllowsBrokenDb) {
+      logger.warn('Database appears to have been broken, but experimentalAllowsBrokenDb has not been enabled to do anything about it...')
+      return
+    }
+
+    this._isBroken = true
+    logger.error('Database has been broken. App must be reloaded before continuing.')
+
+    // TODO: Passing this to an adapter feels wrong, but it's tricky.
+    // $FlowFixMe
+    if (this.adapter.underlyingAdapter._break) {
+      // $FlowFixMe
+      this.adapter.underlyingAdapter._break(error)
+    }
   }
 }
