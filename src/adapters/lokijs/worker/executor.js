@@ -283,7 +283,8 @@ export default class LokiExecutor {
     logger.log('[WatermelonDB][Loki] Setting up schema')
 
     // Add collections
-    Object.values(this.schema.tables).forEach(tableSchema => {
+    const tables: TableSchema[] = (Object.values(this.schema.tables): any)
+    tables.forEach(tableSchema => {
       this._addCollection(tableSchema)
     })
 
@@ -300,9 +301,11 @@ export default class LokiExecutor {
   }
 
   _addCollection(tableSchema: TableSchema): void {
-    const { name, columns } = tableSchema
-    const indexedColumns = Object.values(columns).reduce(
-      (indexes, column) => (column.isIndexed ? indexes.concat([(column.name: string)]) : indexes),
+    const { name, columnArray } = tableSchema
+    const indexedColumns: string[] = columnArray.reduce(
+      (indexes: string[], column) => (
+        column.isIndexed ? indexes.concat([(column.name: string)]) : indexes
+      ),
       [],
     )
 
