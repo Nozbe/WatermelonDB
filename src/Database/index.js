@@ -167,10 +167,6 @@ export default class Database {
     return this._actionQueue.enqueue(work, description)
   }
 
-  _together<T>(work: ActionInterface => Promise<T>, description?: string): Promise<T> {
-    return this._actionQueue.enqueue(work, description)
-  }
-
   // Emits a signal immediately, and on change in any of the passed tables
   withChangesForTables(tables: TableName<any>[]): Observable<CollectionChangeSet<any> | null> {
     const changesSignals = tables.map(table => this.collections.get(table).changes)
