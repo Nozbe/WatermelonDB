@@ -23,10 +23,10 @@ type DatabaseProps = $Exact<{
   actionsEnabled: boolean,
 }>
 
-let experimentalAllowsBrokenDb = false
+let experimentalAllowsFatalError = false
 
-export function setExperimentalAllowsBrokenDb(): void {
-  experimentalAllowsBrokenDb = true
+export function setExperimentalAllowsFatalError(): void {
+  experimentalAllowsFatalError = true
 }
 
 export default class Database {
@@ -265,20 +265,20 @@ export default class Database {
 
   // (experimental) puts Database in a broken state
   // TODO: Not used anywhere yet
-  _break(error: Error): void {
-    if (!experimentalAllowsBrokenDb) {
-      logger.warn('Database appears to have been broken, but experimentalAllowsBrokenDb has not been enabled to do anything about it...')
+  _fatalError(error: Error): void {
+    if (!experimentalAllowsFatalError) {
+      logger.warn('Database is now broken, but experimentalAllowsFatalError has not been enabled to do anything about it...')
       return
     }
 
     this._isBroken = true
-    logger.error('Database has been broken. App must be reloaded before continuing.')
+    logger.error('Database is broken. App must be reloaded before continuing.')
 
     // TODO: Passing this to an adapter feels wrong, but it's tricky.
     // $FlowFixMe
-    if (this.adapter.underlyingAdapter._break) {
+    if (this.adapter.underlyingAdapter._fatalError) {
       // $FlowFixMe
-      this.adapter.underlyingAdapter._break(error)
+      this.adapter.underlyingAdapter._fatalError(error)
     }
   }
 }

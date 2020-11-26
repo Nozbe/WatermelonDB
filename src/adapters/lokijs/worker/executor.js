@@ -23,10 +23,10 @@ import type { LokiAdapterOptions } from '../index'
 
 const SCHEMA_VERSION_KEY = '_loki_schema_version'
 
-let experimentalAllowsBrokenDb = false
+let experimentalAllowsFatalError = false
 
-export function setExperimentalAllowsBrokenDb(): void {
-  experimentalAllowsBrokenDb = true
+export function setExperimentalAllowsFatalError(): void {
+  experimentalAllowsFatalError = true
 }
 
 export default class LokiExecutor {
@@ -201,7 +201,7 @@ export default class LokiExecutor {
         }
       })
     } catch (error) {
-      this._break(error)
+      this._fatalError(error)
     }
   }
 
@@ -222,7 +222,7 @@ export default class LokiExecutor {
         record && collection.remove(record)
       })
     } catch (error) {
-      this._break(error)
+      this._fatalError(error)
     }
   }
 
@@ -256,7 +256,7 @@ export default class LokiExecutor {
         this._localStorage.insert(newRecord)
       }
     } catch (error) {
-      this._break(error)
+      this._fatalError(error)
     }
   }
 
@@ -269,7 +269,7 @@ export default class LokiExecutor {
         this._localStorage.remove(record)
       }
     } catch (error) {
-      this._break(error)
+      this._fatalError(error)
     }
   }
 
@@ -453,9 +453,9 @@ export default class LokiExecutor {
 
   // (experimental)
   // TODO: Setup, migrations, delete database should also break executor
-  _break(error: Error): void {
-    if (!experimentalAllowsBrokenDb) {
-      logger.warn('LokiExecutor appears to have been broken, but experimentalAllowsBrokenDb has not been enabled to do anything about it...')
+  _fatalError(error: Error): void {
+    if (!experimentalAllowsFatalError) {
+      logger.warn('LokiExecutor is broken, but experimentalAllowsFatalError has not been enabled to do anything about it...')
       throw error
     }
     // Stop further mutations
@@ -465,11 +465,11 @@ export default class LokiExecutor {
     lokiFatalError(this.loki)
 
     // Notify handler
-    const handler = this.options._experimentalOnDidBreak
+    const handler = this.options._onFatalError
     if (handler) {
       handler(error)
     } else {
-      logger.error('LokiExecutor has been broken. App must be reloaded before continuing.')
+      logger.error('LokiExecutor is broken. App must be reloaded before continuing.')
     }
 
     // Rethrow error

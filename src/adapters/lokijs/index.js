@@ -28,7 +28,7 @@ const {
   REMOVE_LOCAL,
   GET_DELETED_RECORDS,
   DESTROY_DELETED_RECORDS,
-  EXPERIMENTAL_BREAK,
+  EXPERIMENTAL_FATAL_ERROR,
   CLEAR_CACHED_RECORDS,
 } = actions
 
@@ -71,7 +71,7 @@ export type LokiAdapterOptions = $Exact<{
   indexedDBSerializer?: LokiIDBSerializer,
   // -- internal --
   _testLokiAdapter?: LokiMemoryAdapter,
-  _experimentalOnDidBreak?: (error: Error) => void,
+  _onFatalError?: (error: Error) => void,
 }>
 
 export default class LokiJSAdapter implements DatabaseAdapter {
@@ -204,8 +204,8 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   }
 
   // (experimental)
-  _break(error: Error): void {
-    this.workerBridge.send(EXPERIMENTAL_BREAK, [error], () => {}, 'immutable', 'immutable')
+  _fatalError(error: Error): void {
+    this.workerBridge.send(EXPERIMENTAL_FATAL_ERROR, [error], () => {}, 'immutable', 'immutable')
   }
 
   // (experimental)
