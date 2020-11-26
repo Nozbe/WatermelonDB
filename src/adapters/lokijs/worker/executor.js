@@ -76,6 +76,10 @@ export default class LokiExecutor {
     }
   }
 
+  clearCachedRecords(): void {
+    this.cachedRecords = new Map()
+  }
+
   getCache(table: TableName<any>): Set<RecordId> {
     const cache = this.cachedRecords.get(table)
     if (cache) {

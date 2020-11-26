@@ -19,6 +19,7 @@
 
 ### Fixes
 
+- [Resilience] Added extra diagnostics for when you encounter the `Record ID aa#bb was sent over the bridge, but it's not cached` error and a recovery path (LokiJSAdapter-only). Please file an issue if you encounter this issue!
 - [Typescript] Fixed type on OnFunction to accept `and` in join
 
 ### Internal

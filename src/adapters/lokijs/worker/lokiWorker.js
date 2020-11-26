@@ -28,6 +28,7 @@ const executorMethods = {
   [actions.GET_DELETED_RECORDS]: ExecutorProto.getDeletedRecords,
   [actions.DESTROY_DELETED_RECORDS]: ExecutorProto.destroyDeletedRecords,
   [actions.EXPERIMENTAL_BREAK]: ExecutorProto._break,
+  [actions.CLEAR_CACHED_RECORDS]: ExecutorProto.clearCachedRecords,
 }
 
 export default class LokiWorker {

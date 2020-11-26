@@ -3,6 +3,7 @@
 import type { LokiMemoryAdapter } from 'lokijs'
 import { invariant } from '../../utils/common'
 import type { ResultCallback } from '../../utils/fp/Result'
+import logger from '../../utils/common/logger'
 
 import type { RecordId } from '../../Model'
 import type { TableName, AppSchema } from '../../Schema'
@@ -28,6 +29,7 @@ const {
   GET_DELETED_RECORDS,
   DESTROY_DELETED_RECORDS,
   EXPERIMENTAL_BREAK,
+  CLEAR_CACHED_RECORDS,
 } = actions
 
 type LokiIDBSerializer = $Exact<{
@@ -204,5 +206,24 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   // (experimental)
   _break(error: Error): void {
     this.workerBridge.send(EXPERIMENTAL_BREAK, [error], () => {}, 'immutable', 'immutable')
+  }
+
+  // (experimental)
+  _clearCachedRecords(): void {
+    this.workerBridge.send(CLEAR_CACHED_RECORDS, [], () => {}, 'immutable', 'immutable')
+  }
+
+  _debugDignoseMissingRecord(table: TableName<any>, id: RecordId): void {
+    const lokiExecutor = this._executor
+    if (lokiExecutor) {
+      const lokiCollection = lokiExecutor.loki.getCollection(table)
+      // if we can find the record by ID, it just means that the record cache ID was corrupted
+      const didFindById = !!lokiCollection.by('id', id)
+      logger.log(`Did find ${table}#${id} in Loki collection by ID? ${didFindById}`)
+
+      // if we can't, but can filter to it, it means that Loki indices are corrupted
+      const didFindByFilter = !!lokiCollection.data.filter(doc => doc.id === id)
+      logger.log(`Did find ${table}#${id} in Loki collection by filtering the collection? ${didFindByFilter}`)
+    }
   }
 }
