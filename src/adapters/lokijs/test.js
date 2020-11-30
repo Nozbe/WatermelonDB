@@ -15,9 +15,8 @@ describe('LokiJSAdapter (Synchronous / Memory persistence)', () => {
         dbName: `test${Math.random()}`,
         schema: testSchema,
         useWebWorker: false,
-        useIncrementalIndexedDB: false,
       })
-      await test(new DatabaseAdapterCompat(adapter), LokiJSAdapter, { useWebWorker: false, useIncrementalIndexedDB: false })
+      await test(new DatabaseAdapterCompat(adapter), LokiJSAdapter, { useWebWorker: false })
     })
   })
 })
