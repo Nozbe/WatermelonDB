@@ -1,9 +1,8 @@
 // @flow
 
 import type { LokiMemoryAdapter } from 'lokijs'
-import { invariant } from '../../utils/common'
+import { invariant, logger } from '../../utils/common'
 import type { ResultCallback } from '../../utils/fp/Result'
-import logger from '../../utils/common/logger'
 
 import type { RecordId } from '../../Model'
 import type { TableName, AppSchema } from '../../Schema'
@@ -28,8 +27,6 @@ const {
   REMOVE_LOCAL,
   GET_DELETED_RECORDS,
   DESTROY_DELETED_RECORDS,
-  EXPERIMENTAL_FATAL_ERROR,
-  CLEAR_CACHED_RECORDS,
 } = actions
 
 type LokiIDBSerializer = $Exact<{
@@ -46,14 +43,8 @@ export type LokiAdapterOptions = $Exact<{
   // may lead to lower memory consumption, lower latency, and easier debugging
   useWebWorker?: boolean,
   useIncrementalIndexedDB?: boolean,
-  // Called when database failed to set up (initialize) correctly. It's possible that
-  // it's some transient IndexedDB error that will be solved by a reload, but it's
-  // very likely that the error is persistent (e.g. a corrupted database).
-  // Pass a callback to offer to the user to reload the app or log out
-  onSetUpError?: (error: Error) => void,
   // Called when internal IndexedDB version changed (most likely the database was deleted in another browser tab)
   // Pass a callback to force log out in this copy of the app as well
-  // (Due to a race condition, it's usually best to just reload the web app)
   // Note that this only works when using incrementalIDB and not using web workers
   onIndexedDBVersionChange?: () => void,
   // Called when underlying IndexedDB encountered a quota exceeded error (ran out of allotted disk space for app)
@@ -71,7 +62,6 @@ export type LokiAdapterOptions = $Exact<{
   indexedDBSerializer?: LokiIDBSerializer,
   // -- internal --
   _testLokiAdapter?: LokiMemoryAdapter,
-  _onFatalError?: (error: Error) => void,
 }>
 
 export default class LokiJSAdapter implements DatabaseAdapter {
@@ -83,10 +73,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
   _dbName: ?string
 
-  _options: LokiAdapterOptions
-
   constructor(options: LokiAdapterOptions): void {
-    this._options = options
     const { schema, migrations, dbName } = options
 
     const useWebWorker = options.useWebWorker ?? process.env.NODE_ENV !== 'test'
@@ -97,26 +84,28 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     this._dbName = dbName
 
     if (process.env.NODE_ENV !== 'production') {
-      invariant('useWebWorker' in options,
-          'LokiJSAdapter `useWebWorker` option is required. Pass `{ useWebWorker: false }` to adopt the new behavior, or `{ useWebWorker: true }` to supress this warning with no changes',
+      if (!('useWebWorker' in options)) {
+        logger.warn(
+          'LokiJSAdapter `useWebWorker` option will become required in a future version of WatermelonDB. Pass `{ useWebWorker: false }` to adopt the new behavior, or `{ useWebWorker: true }` to supress this warning with no changes',
         )
-      invariant('useIncrementalIndexedDB' in options,
-          'LokiJSAdapter `useIncrementalIndexedDB` option is required. Pass `{ useIncrementalIndexedDB: true }` to adopt the new behavior, or `{ useIncrementalIndexedDB: false }` to supress this warning with no changes',
+      }
+      if (!('useIncrementalIndexedDB' in options)) {
+        logger.warn(
+          'LokiJSAdapter `useIncrementalIndexedDB` option will become required in a future version of WatermelonDB. Pass `{ useIncrementalIndexedDB: true }` to adopt the new behavior, or `{ useIncrementalIndexedDB: false }` to supress this warning with no changes',
         )
-      // TODO(2021-05): Remove this
+      }
       invariant(
         !('migrationsExperimental' in options),
         'LokiJSAdapter `migrationsExperimental` option has been renamed to `migrations`',
       )
-      // TODO(2021-05): Remove this
       invariant(
         !('experimentalUseIncrementalIndexedDB' in options),
         'LokiJSAdapter `experimentalUseIncrementalIndexedDB` option has been renamed to `useIncrementalIndexedDB`',
       )
       validateAdapter(this)
     }
-    const callback = result => devSetupCallback(result, options.onSetUpError)
-    this.workerBridge.send(SETUP, [options], callback, 'immutable', 'immutable')
+
+    this.workerBridge.send(SETUP, [options], devSetupCallback, 'immutable', 'immutable')
   }
 
   async testClone(options?: $Shape<LokiAdapterOptions> = {}): Promise<LokiJSAdapter> {
@@ -129,7 +118,6 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     const lokiAdapter = executor.loki.persistenceAdapter
 
     return new LokiJSAdapter({
-      ...this._options,
       dbName: this._dbName,
       schema: this.schema,
       ...(this.migrations ? { migrations: this.migrations } : {}),
@@ -195,35 +183,5 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
   removeLocal(key: string, callback: ResultCallback<void>): void {
     this.workerBridge.send(REMOVE_LOCAL, [key], callback, 'immutable', 'immutable')
-  }
-
-  // dev/debug utility
-  get _executor(): any {
-    // $FlowFixMe
-    return this.workerBridge._worker._worker.executor
-  }
-
-  // (experimental)
-  _fatalError(error: Error): void {
-    this.workerBridge.send(EXPERIMENTAL_FATAL_ERROR, [error], () => {}, 'immutable', 'immutable')
-  }
-
-  // (experimental)
-  _clearCachedRecords(): void {
-    this.workerBridge.send(CLEAR_CACHED_RECORDS, [], () => {}, 'immutable', 'immutable')
-  }
-
-  _debugDignoseMissingRecord(table: TableName<any>, id: RecordId): void {
-    const lokiExecutor = this._executor
-    if (lokiExecutor) {
-      const lokiCollection = lokiExecutor.loki.getCollection(table)
-      // if we can find the record by ID, it just means that the record cache ID was corrupted
-      const didFindById = !!lokiCollection.by('id', id)
-      logger.log(`Did find ${table}#${id} in Loki collection by ID? ${didFindById}`)
-
-      // if we can't, but can filter to it, it means that Loki indices are corrupted
-      const didFindByFilter = !!lokiCollection.data.filter(doc => doc.id === id)
-      logger.log(`Did find ${table}#${id} in Loki collection by filtering the collection? ${didFindByFilter}`)
-    }
   }
 }

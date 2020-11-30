@@ -34,7 +34,7 @@ export default class Collection<Record: Model> {
   constructor(database: Database, ModelClass: Class<Record>): void {
     this.database = database
     this.modelClass = ModelClass
-    this._cache = new RecordCache(ModelClass.table, raw => new ModelClass(this, raw), this)
+    this._cache = new RecordCache(ModelClass.table, raw => new ModelClass(this, raw))
   }
 
   get db(): Database {
