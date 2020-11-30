@@ -13,3 +13,25 @@ export default function action(target: Object, key: string, descriptor: Descript
     },
   }
 }
+
+// (experimental rename)
+export function _reader(target: Object, key: string, descriptor: Descriptor): Descriptor {
+  const actionName = `${target.table}.${key} (reader)`
+  return {
+    ...descriptor,
+    value(...args): Promise<any> {
+      return this.database._read(() => descriptor.value.apply(this, args), actionName)
+    },
+  }
+}
+
+// (experimental rename)
+export function _writer(target: Object, key: string, descriptor: Descriptor): Descriptor {
+  const actionName = `${target.table}.${key} (writer)`
+  return {
+    ...descriptor,
+    value(...args): Promise<any> {
+      return this.database._write(() => descriptor.value.apply(this, args), actionName)
+    },
+  }
+}

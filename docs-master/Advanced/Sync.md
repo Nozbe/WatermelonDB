@@ -225,6 +225,7 @@ Expected response:
    - all records that were created on the server since `lastPulledAt`
    - all records that were updated on the server since `lastPulledAt`
    - IDs of all records that were deleted on the server since `lastPulledAt`
+   - record IDs MUST NOT be duplicated
 3. If `lastPulledAt` is null or 0, you MUST return all accessible records (first sync)
 4. The timestamp returned by the server MUST be a value that, if passed again to `pullChanges()` as `lastPulledAt`, will return all changes that happened since this moment.
 5. The pull endpoint MUST provide a consistent view of changes since `lastPulledAt`

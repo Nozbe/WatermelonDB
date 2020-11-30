@@ -61,11 +61,12 @@ export function sanitizeQueryResult(
   )
 }
 
-export function devSetupCallback(result: Result<any>): void {
+export function devSetupCallback(result: Result<any>, onSetUpError: ?(error: Error) => void): void {
   if (result.error) {
     logger.error(
       `[WatermelonDB] Uh-oh. Database failed to load, we're in big trouble. This might happen if you didn't set up native code correctly (iOS, Android), or if you didn't recompile native app after WatermelonDB update. It might also mean that IndexedDB or SQLite refused to open.`,
       result.error,
     )
+    onSetUpError && onSetUpError(result.error)
   }
 }
