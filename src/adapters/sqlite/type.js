@@ -14,9 +14,9 @@ export type SQLiteArg = string | boolean | number | null
 export type SQLiteQuery = [SQL, SQLiteArg[]]
 
 export type MigrationEvents = {
-  onSuccess?: () => void,
-  onStarted?: () => void,
-  onFailure?: (error: string) => void,
+  onSuccess: () => void,
+  onStarted: () => void,
+  onFailure: (error: string) => void,
 }
 
 export type SQLiteAdapterOptions = $Exact<{
