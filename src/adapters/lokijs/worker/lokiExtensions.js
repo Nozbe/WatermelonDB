@@ -55,7 +55,9 @@ async function getLokiAdapter(options: LokiAdapterOptions): mixed {
     return adapter
   } else if (await isIDBAvailable(onQuotaExceededError)) {
     if (useIncrementalIndexedDB) {
-      const IncrementalIDBAdapter = require('lokijs/src/incremental-indexeddb-adapter')
+      const IncrementalIDBAdapter = options._concurrentIdb ?
+        require('lokijs-concurrent-idb/src/incremental-indexeddb-adapter') :
+        require('lokijs/src/incremental-indexeddb-adapter')
       return new IncrementalIDBAdapter({
         onversionchange: onIndexedDBVersionChange,
         onFetchStart: onIndexedDBFetchStart,
@@ -69,13 +71,13 @@ async function getLokiAdapter(options: LokiAdapterOptions): mixed {
 
   // if IDB is unavailable (that happens in private mode), fall back to memory adapter
   // we could also fall back to localstorage adapter, but it will fail in all but the smallest dbs
-  const { LokiMemoryAdapter } = require('lokijs')
+  const { LokiMemoryAdapter } = options._concurrentIdb ? require('lokijs-concurrent-idb') : require('lokijs')
   return new LokiMemoryAdapter()
 }
 
 export async function newLoki(options: LokiAdapterOptions): Loki {
   const { autosave = true } = options
-  const LokiDb = require('lokijs')
+  const LokiDb = options._concurrentIdb ? require('lokijs-concurrent-idb') : require('lokijs')
   const loki: Loki = new LokiDb(options.dbName, {
     adapter: await getLokiAdapter(options),
     autosave,
