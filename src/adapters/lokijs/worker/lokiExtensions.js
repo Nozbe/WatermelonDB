@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable no-undef */
 
-import Loki, { LokiMemoryAdapter } from 'lokijs'
+import type Loki from 'lokijs'
 import { logger } from '../../../utils/common'
 import type { LokiAdapterOptions } from '../index'
 
@@ -69,12 +69,14 @@ async function getLokiAdapter(options: LokiAdapterOptions): mixed {
 
   // if IDB is unavailable (that happens in private mode), fall back to memory adapter
   // we could also fall back to localstorage adapter, but it will fail in all but the smallest dbs
+  const { LokiMemoryAdapter } = require('lokijs')
   return new LokiMemoryAdapter()
 }
 
 export async function newLoki(options: LokiAdapterOptions): Loki {
   const { autosave = true } = options
-  const loki = new Loki(options.dbName, {
+  const LokiDb = require('lokijs')
+  const loki: Loki = new LokiDb(options.dbName, {
     adapter: await getLokiAdapter(options),
     autosave,
     autosaveInterval: 250,

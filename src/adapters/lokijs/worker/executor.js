@@ -1,6 +1,6 @@
 // @flow
 
-import Loki, { LokiCollection } from 'lokijs'
+import type Loki, { LokiCollection } from 'lokijs'
 import { logger } from '../../../utils/common'
 
 import type { CachedQueryResult, CachedFindResult, BatchOperation } from '../../type'
