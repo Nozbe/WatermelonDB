@@ -465,12 +465,9 @@ export default class LokiExecutor {
     lokiFatalError(this.loki)
 
     // Notify handler
+    logger.error('LokiExecutor is broken. App must be reloaded before continuing.')
     const handler = this.options._onFatalError
-    if (handler) {
-      handler(error)
-    } else {
-      logger.error('LokiExecutor is broken. App must be reloaded before continuing.')
-    }
+    handler && handler(error)
 
     // Rethrow error
     throw error
