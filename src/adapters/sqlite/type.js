@@ -13,12 +13,19 @@ export type SQL = string
 export type SQLiteArg = string | boolean | number | null
 export type SQLiteQuery = [SQL, SQLiteArg[]]
 
+export type MigrationEvents = {
+  onSuccess?: () => void,
+  onStarted?: () => void,
+  onFailure?: (error: string) => void,
+}
+
 export type SQLiteAdapterOptions = $Exact<{
   dbName?: string,
   schema: AppSchema,
   migrations?: SchemaMigrations,
   synchronous?: boolean,
   experimentalUseJSI?: boolean,
+  migrationEvents?: MigrationEvents,
 }>
 
 export type DispatcherType = 'asynchronous' | 'synchronous' | 'jsi'

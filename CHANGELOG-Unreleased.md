@@ -13,6 +13,7 @@
 
 ### Fixes
 
-- [Typescript] Fixed type on OnFunction to accept `and` in join 
+- [Typescript] Fixed type on OnFunction to accept `and` in join
+- [Sqlite] Allowed callbacks (within the migrationEvents object) to be passed so as to track the migration events status ( onStarted, onFailure, onSuccess )
 
 ### Internal
