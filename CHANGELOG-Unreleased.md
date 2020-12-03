@@ -8,6 +8,7 @@
 ### New features
 - [Model] `Model.update` method now returns updated record
 - [adapters] `onSetUpError: Error => void` option is added to both `SQLiteAdapter` and `LokiJSAdapter`. Supply this option to catch initialization errors and offer the user to reload or log out
+- [LokiJS] new `extraLokiOptions` and `extraIncrementalIDBOptions` options
 
 ### Performance
 
@@ -25,3 +26,4 @@
 ### Internal
 
 - Added an experimental mode where a broken database state is detected, further mutations prevented, and the user notified
+- Added an experimental mode that attempts to fix IndexedDB corruption issue

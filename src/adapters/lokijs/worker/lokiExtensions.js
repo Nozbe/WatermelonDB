@@ -2,7 +2,7 @@
 /* eslint-disable no-undef */
 
 import type Loki from 'lokijs'
-import { logger } from '../../../utils/common'
+import logger from '../../../utils/common/logger'
 import type { LokiAdapterOptions } from '../index'
 
 const isIDBAvailable = (onQuotaExceededError: ?(error: Error) => void) => {
@@ -63,6 +63,7 @@ async function getLokiAdapter(options: LokiAdapterOptions): mixed {
         onFetchStart: onIndexedDBFetchStart,
         serializeChunk: serializer?.serializeChunk,
         deserializeChunk: serializer?.deserializeChunk,
+        ...(options.extraIncrementalIDBOptions || {}),
       })
     }
     const LokiIndexedAdapter = require('lokijs/src/loki-indexed-adapter')
@@ -83,6 +84,7 @@ export async function newLoki(options: LokiAdapterOptions): Loki {
     autosave,
     autosaveInterval: 250,
     verbose: true,
+    ...(options.extraLokiOptions || {}),
   })
 
   // force load database now

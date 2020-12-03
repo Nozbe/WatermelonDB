@@ -1,7 +1,7 @@
 // @flow
 
 import type Loki, { LokiCollection } from 'lokijs'
-import { logger } from '../../../utils/common'
+import logger from '../../../utils/common/logger'
 
 import type { CachedQueryResult, CachedFindResult, BatchOperation } from '../../type'
 import type { TableName, AppSchema, SchemaVersion, TableSchema } from '../../../Schema'
@@ -11,7 +11,6 @@ import type {
   AddColumnsMigrationStep,
   MigrationStep,
 } from '../../../Schema/migrations'
-import { stepsForMigration } from '../../../Schema/migrations/stepsForMigration'
 import type { SerializedQuery } from '../../../Query'
 import type { RecordId } from '../../../Model'
 import { type RawRecord, sanitizedRaw, setRawSanitized, type DirtyRaw } from '../../../RawRecord'
@@ -373,6 +372,7 @@ export default class LokiExecutor {
       return null
     }
 
+    const { stepsForMigration } = require('../../../Schema/migrations/stepsForMigration')
     return stepsForMigration({
       migrations,
       fromVersion,

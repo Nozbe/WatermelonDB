@@ -1,7 +1,7 @@
 // @flow
 
 import type { LokiMemoryAdapter } from 'lokijs'
-import { invariant } from '../../utils/common'
+import invariant from '../../utils/common/invariant'
 import type { ResultCallback } from '../../utils/fp/Result'
 import logger from '../../utils/common/logger'
 
@@ -69,6 +69,16 @@ export type LokiAdapterOptions = $Exact<{
   // Hint: Hand-written conversion of objects to arrays is very profitable for performance.
   // Note that this only works when using incrementalIDB and not using web workers
   indexedDBSerializer?: LokiIDBSerializer,
+  // extra options passed to Loki constructor
+  extraLokiOptions?: { autosave?: boolean, autosaveInterval?: number, ... },
+  // extra options passed to IncrementalIDBAdapter constructor
+  extraIncrementalIDBOptions?: {
+    // Called when this adapter is forced to overwrite contents of IndexedDB.
+    // This happens if there's another open tab of the same app that's making changes.
+    // You might use it as an opportunity to alert user to the potential loss of data
+    onDidOverwrite?: () => void,
+    ...,
+  },
   // -- internal --
   _testLokiAdapter?: LokiMemoryAdapter,
   _onFatalError?: (error: Error) => void, // (experimental)
