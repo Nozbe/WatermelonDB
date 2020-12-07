@@ -5498,10 +5498,10 @@ loglevel@^1.4.1:
   resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.6.1.tgz#e0fc95133b6ef276cdc8887cdaf24aa6f156f8fa"
   integrity sha1-4PyVEztu8nbNyIh82vJKpvFW+Po=
 
-"lokijs-concurrent-idb@npm:@nozbe/lokijs@1.5.11-wmelon-idb-fix":
-  version "1.5.11-wmelon-idb-fix"
-  resolved "https://registry.yarnpkg.com/@nozbe/lokijs/-/lokijs-1.5.11-wmelon-idb-fix.tgz#7e59f73c3235d4c389da800faf6bb1e6e5931325"
-  integrity sha512-8l7BVgeRV/EDLHCxeoVsFwSc6m3o6cGJocr8oYKwQ57AP0YwKiEBtADh0rTel62QE4QDvXz5uUwPqt+3ENrkbw==
+"lokijs-concurrent-idb@npm:@nozbe/lokijs@1.5.11-wmelon-idb-fix2":
+  version "1.5.11-wmelon-idb-fix2"
+  resolved "https://registry.yarnpkg.com/@nozbe/lokijs/-/lokijs-1.5.11-wmelon-idb-fix2.tgz#91e15e25c02abdaabfef1d4a8f190ed91d3f9c4f"
+  integrity sha512-3mMa9JQZGpHVI2MDSO35pVjGIVttZ/kFBLJy7uFTaJ5Whw33FMovE2+ehPbQM6EYhjXqJuFhsRnTQCfo/Ea2Ow==
 
 "lokijs@npm:@nozbe/lokijs@1.5.10-wmelon3":
   version "1.5.10-wmelon3"
