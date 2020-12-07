@@ -6,6 +6,7 @@
 
 ### New features
 - [Model] `Model.update` method now returns updated record
+- [Android] Autolinking is now supported (v0.20 is insufficient)
 
 ### Performance
 
