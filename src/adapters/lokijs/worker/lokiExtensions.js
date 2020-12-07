@@ -82,7 +82,7 @@ export async function newLoki(options: LokiAdapterOptions): Loki {
   const loki: Loki = new LokiDb(options.dbName, {
     adapter: await getLokiAdapter(options),
     autosave,
-    autosaveInterval: 250,
+    autosaveInterval: 500,
     verbose: true,
     ...(options.extraLokiOptions || {}),
   })
