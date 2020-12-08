@@ -98,6 +98,8 @@ export const mockDatabase = ({
     dbName: 'test',
     schema,
     migrations,
+    useWebWorker: false,
+    useIncrementalIndexedDB: false,
   })
   const database = new Database({
     adapter,

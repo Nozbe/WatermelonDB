@@ -73,6 +73,13 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
         !('migrationsExperimental' in options),
         'SQLiteAdapter `migrationsExperimental` option has been renamed to `migrations`',
       )
+      if (options.synchronous) {
+        // Docs semi-recommend synchronous: true, but it adds a lot of junk and I want to get rid
+        // of this mode completely to simplify code. Ideally, we'd ONLY have JSI, but until RN goes
+        // all-in on JSI everywhere, this might be a little too risky. I'm adding this warning to
+        // get feedback via GH if JSI on iOS is ready to be considered stable or not yet.
+        logger.warn(`SQLiteAdapter's synchronous:true option is deprecated and will be replaced with experimentalUseJSI: true in the future. Please test if your app compiles and works well with experimentalUseJSI: true, and if not - file an issue!`)
+      }
       invariant(
         DatabaseBridge,
         `NativeModules.DatabaseBridge is not defined! This means that you haven't properly linked WatermelonDB native module. Refer to docs for more details`,
@@ -81,7 +88,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     }
 
     this._initPromise = this._init()
-    fromPromise(this._initPromise, devSetupCallback)
+    fromPromise(this._initPromise, result => devSetupCallback(result, options.onSetUpError))
   }
 
   get initializingPromise(): Promise<void> {
