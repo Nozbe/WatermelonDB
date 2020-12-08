@@ -8,6 +8,7 @@
 ### New features
 - [Model] `Model.update` method now returns updated record
 - [adapters] `onSetUpError: Error => void` option is added to both `SQLiteAdapter` and `LokiJSAdapter`. Supply this option to catch initialization errors and offer the user to reload or log out
+- [Android] Autolinking is now supported (v0.20 is insufficient)
 
 ### Performance
 
@@ -21,6 +22,7 @@
 
 - [Resilience] Added extra diagnostics for when you encounter the `Record ID aa#bb was sent over the bridge, but it's not cached` error and a recovery path (LokiJSAdapter-only). Please file an issue if you encounter this issue!
 - [Typescript] Fixed type on OnFunction to accept `and` in join
+- [Typescript] Fixed type `database#batch(records)`'s argument `records` to accept mixed types
 
 ### Internal
 
