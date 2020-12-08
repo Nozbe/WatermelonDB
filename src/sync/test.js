@@ -707,9 +707,15 @@ describe('synchronize', () => {
     expect(log.startedAt).toBeInstanceOf(Date)
     expect(log.finishedAt).toBeInstanceOf(Date)
     expect(log.finishedAt.getTime()).toBeGreaterThan(log.startedAt.getTime())
+    expect(log.phase).toBe('done')
 
     expect(log.lastPulledAt).toBe(null)
     expect(log.newLastPulledAt).toBe(1500)
+
+    expect(log.error).toBe(undefined)
+
+    expect(log.remoteChangeCount).toBe(0)
+    expect(log.localChangeCount).toBe(0)
   })
   it('can push changes', async () => {
     const { database } = makeDatabase()
@@ -719,10 +725,12 @@ describe('synchronize', () => {
 
     const pullChanges = jest.fn(emptyPull())
     const pushChanges = jest.fn()
-    await synchronize({ database, pullChanges, pushChanges })
+    const log = {}
+    await synchronize({ database, pullChanges, pushChanges, log })
 
     expect(pushChanges).toHaveBeenCalledWith({ changes: localChanges.changes, lastPulledAt: 1500 })
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+    expect(log.localChangeCount).toBe(10)
   })
   it('can pull changes', async () => {
     const { database, projects, tasks } = makeDatabase()
@@ -820,6 +828,7 @@ describe('synchronize', () => {
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
 
     // check that log is good
+    expect(log.remoteChangeCount).toBe(7)
     expect(log.resolvedConflicts).toEqual([
       {
         local: tUpdatedInitial,
@@ -960,15 +969,19 @@ describe('synchronize', () => {
     await makeLocalChanges(database)
 
     const observer = observeDatabase(database)
-    const pullChanges = jest.fn(() => Promise.reject(new Error('pull-fail')))
+    const error = new Error('pull-fail')
+    const pullChanges = jest.fn(() => Promise.reject(error))
     const pushChanges = jest.fn()
-    const sync = await synchronize({ database, pullChanges, pushChanges }).catch(e => e)
+    const log = {}
+    const sync = await synchronize({ database, pullChanges, pushChanges, log }).catch(e => e)
 
     expect(observer).toHaveBeenCalledTimes(0)
     expect(pullChanges).toHaveBeenCalledTimes(1)
     expect(pushChanges).toHaveBeenCalledTimes(0)
     expect(sync).toMatchObject({ message: 'pull-fail' })
     expect(await getLastPulledAt(database)).toBe(null)
+    expect(log.phase).toBe('ready to pull')
+    expect(log.error).toBe(error)
   })
   it('can recover from push failure', async () => {
     const { database, projects } = makeDatabase()
