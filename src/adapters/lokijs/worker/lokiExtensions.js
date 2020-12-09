@@ -1,6 +1,7 @@
 // @flow
 /* eslint-disable no-undef */
 
+// don't import the whole utils/ here!
 import type Loki from 'lokijs'
 import logger from '../../../utils/common/logger'
 import type { LokiAdapterOptions } from '../index'

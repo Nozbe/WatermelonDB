@@ -1,9 +1,10 @@
 // @flow
 
+// don't import the whole utils/ here!
 import type { LokiMemoryAdapter } from 'lokijs'
 import invariant from '../../utils/common/invariant'
-import type { ResultCallback } from '../../utils/fp/Result'
 import logger from '../../utils/common/logger'
+import type { ResultCallback } from '../../utils/fp/Result'
 
 import type { RecordId } from '../../Model'
 import type { TableName, AppSchema } from '../../Schema'

@@ -1,5 +1,6 @@
 // @flow
 
+// don't import the whole utils/ here!
 import type Loki, { LokiCollection } from 'lokijs'
 import logger from '../../../utils/common/logger'
 
