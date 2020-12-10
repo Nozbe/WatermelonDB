@@ -44,7 +44,7 @@
     "@babel/runtime": "^7.11.2",
     "@nozbe/sqlite": "3.31.1",
     "lokijs": "npm:@nozbe/lokijs@1.5.10-wmelon3",
-    "lokijs-concurrent-idb": "npm:@nozbe/lokijs@1.5.11-wmelon-idb-fix2",
+    "lokijs-concurrent-idb": "npm:@nozbe/lokijs@1.5.12-wmelon",
     "rambdax": "2.15.0",
     "rxjs": "^6.5.3",
     "sql-escape-string": "^1.1.0"

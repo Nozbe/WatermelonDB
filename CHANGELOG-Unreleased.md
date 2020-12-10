@@ -29,4 +29,4 @@
 ### Internal
 
 - Added an experimental mode where a broken database state is detected, further mutations prevented, and the user notified
-- Added an experimental mode that attempts to fix IndexedDB corruption issue
+- Added an experimental mode that attempts to fix IndexedDB corruption issue & improves launch performance
