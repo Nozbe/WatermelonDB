@@ -1,7 +1,6 @@
 // @flow
 
-import Loki from 'lokijs'
-import type { LokiResultset } from 'lokijs'
+import type Loki, { LokiResultset } from 'lokijs'
 
 import type { SerializedQuery } from '../../../Query'
 

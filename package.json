@@ -1,7 +1,7 @@
 {
   "name": "@nozbe/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
-  "version": "0.21.0-1",
+  "version": "0.21.0-5",
   "scripts": {
     "build": "NODE_ENV=production node ./scripts/make.js",
     "dev": "NODE_ENV=development node ./scripts/make.js",
@@ -44,6 +44,7 @@
     "@babel/runtime": "^7.11.2",
     "@nozbe/sqlite": "3.31.1",
     "lokijs": "npm:@nozbe/lokijs@1.5.10-wmelon3",
+    "lokijs-concurrent-idb": "npm:@nozbe/lokijs@1.5.11-wmelon-idb-fix2",
     "rambdax": "2.15.0",
     "rxjs": "^6.5.3",
     "sql-escape-string": "^1.1.0"

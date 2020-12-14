@@ -1,6 +1,8 @@
 // @flow
 
-import { logger, invariant } from '../utils/common'
+// don't import the whole utils/ here!
+import invariant from '../utils/common/invariant'
+import logger from '../utils/common/logger'
 import { type Result } from '../utils/fp/Result'
 import type { RecordId } from '../Model'
 import type { TableSchema, AppSchema, TableName } from '../Schema'
