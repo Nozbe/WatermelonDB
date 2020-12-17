@@ -2,8 +2,10 @@
 const fs = require(`fs`)
 const SQliteDatabase = require('better-sqlite3')
 
+type SQLiteDatabaseType = any
+
 class Database {
-  instance: SQliteDatabase = undefined
+  instance: $FlowFixMe<SQLiteDatabaseType> = undefined
 
   path: string
 

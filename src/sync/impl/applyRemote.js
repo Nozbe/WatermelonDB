@@ -257,6 +257,7 @@ export default function applyRemoteChanges(
 ): Promise<void> {
   ensureActionsEnabled(db)
   return db.action(async () => {
+    // $FlowFixMe
     const recordsToApply = await getAllRecordsToApply(db, remoteChanges)
 
     // Perform steps concurrently

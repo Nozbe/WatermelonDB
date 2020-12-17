@@ -43,6 +43,7 @@ export default async function synchronize({
   )
   log && (log.phase = 'ready to pull')
 
+  // $FlowFixMe
   const { changes: remoteChanges, timestamp: newLastPulledAt } = await pullChanges({
     lastPulledAt,
     schemaVersion,
@@ -82,6 +83,7 @@ export default async function synchronize({
 
   // push phase
   log && (log.phase = 'ready to fetch local changes')
+  // $FlowFixMe
   const localChanges = await fetchLocalChanges(database)
   log && (log.localChangeCount = changeSetCount(localChanges.changes))
   log && (log.phase = 'fetched local changes')

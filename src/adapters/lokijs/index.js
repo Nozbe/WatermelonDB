@@ -1,7 +1,7 @@
 // @flow
 
 // don't import the whole utils/ here!
-import type { LokiMemoryAdapter } from 'lokijs'
+import type { LokiMemoryAdapter } from './type'
 import invariant from '../../utils/common/invariant'
 import logger from '../../utils/common/logger'
 import type { ResultCallback } from '../../utils/fp/Result'
@@ -140,6 +140,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     // Copy
     const lokiAdapter = executor.loki.persistenceAdapter
 
+    // $FlowFixMe
     return new LokiJSAdapter({
       ...this._options,
       dbName: this._dbName,

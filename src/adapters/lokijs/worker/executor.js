@@ -1,7 +1,6 @@
 // @flow
 
 // don't import the whole utils/ here!
-import type Loki, { LokiCollection } from 'lokijs'
 import logger from '../../../utils/common/logger'
 
 import type { CachedQueryResult, CachedFindResult, BatchOperation } from '../../type'
@@ -15,6 +14,7 @@ import type {
 import type { SerializedQuery } from '../../../Query'
 import type { RecordId } from '../../../Model'
 import { type RawRecord, sanitizedRaw, setRawSanitized, type DirtyRaw } from '../../../RawRecord'
+import type { Loki, LokiCollection } from '../type'
 
 import { newLoki, deleteDatabase, lokiFatalError } from './lokiExtensions'
 import executeQuery from './executeQuery'

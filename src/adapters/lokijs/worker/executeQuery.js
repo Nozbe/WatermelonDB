@@ -1,13 +1,12 @@
 // @flow
 
-import type Loki, { LokiResultset } from 'lokijs'
-
 import type { SerializedQuery } from '../../../Query'
 
 import type { DirtyRaw } from '../../../RawRecord'
 
 import encodeQuery from './encodeQuery'
 import performJoins from './performJoins'
+import type { Loki, LokiResultset } from '../type'
 import type { LokiJoin } from './encodeQuery'
 
 // Finds IDs of matching records on foreign table
