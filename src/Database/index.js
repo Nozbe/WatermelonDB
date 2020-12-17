@@ -36,7 +36,7 @@ export default class Database {
 
   collections: CollectionMap
 
-  _actionQueue = new ActionQueue()
+  _actionQueue: ActionQueue = new ActionQueue()
 
   _actionsEnabled: boolean
 
