@@ -1,5 +1,5 @@
 declare module '@nozbe/watermelondb/Database' {
-  import { AppSchema, CollectionMap, DatabaseAdapter, Model, TableName } from '@nozbe/watermelondb'
+  import { AppSchema, CollectionMap, DatabaseAdapter, Model, TableName, Collection } from '@nozbe/watermelondb'
   import { CollectionChangeSet } from '@nozbe/watermelondb/Collection'
   import { Class } from '@nozbe/watermelondb/utils/common'
   import { Observable } from 'rxjs'
@@ -32,5 +32,7 @@ declare module '@nozbe/watermelondb/Database' {
     ): Observable<CollectionChangeSet<any> | null>
 
     public unsafeResetDatabase(): Promise<void>
+      
+    public get<T extends Model>(tableName: TableName<T>): Collection<T>
   }
 }
