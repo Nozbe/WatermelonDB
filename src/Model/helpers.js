@@ -7,9 +7,9 @@ import type Model from './index'
 import type Query from '../Query/index'
 
 const hasCreatedAt = hasIn('createdAt')
-export const hasUpdatedAt = hasIn('updatedAt')
+export const hasUpdatedAt: any = hasIn('updatedAt')
 
-export const createTimestampsFor = (model: Model) => {
+export const createTimestampsFor = (model: Model): {|created_at: number, updated_at: number|} => {
   const date = Date.now()
   const timestamps = {}
 
