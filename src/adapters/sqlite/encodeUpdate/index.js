@@ -16,6 +16,7 @@ const encodeSetPlaceholders: RawRecord => SQL = pipe(
 )
 
 const getArgs: RawRecord => SQLiteArg[] = raw =>
+  // $FlowFixMe
   pipe(
     values,
     append(raw.id), // for `where id is ?`
