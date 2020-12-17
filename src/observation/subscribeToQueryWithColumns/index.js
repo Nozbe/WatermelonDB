@@ -119,6 +119,7 @@ export default function subscribeToQueryWithColumns<Record: Model>(
   const sourceUnsubscribe = subscribeToSource(function observeWithColumnsSourceChanged(
     recordsOrStatus,
   ): void {
+    // $FlowFixMe
     if (recordsOrStatus === false) {
       sourceIsFetching = true
       return

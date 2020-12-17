@@ -68,7 +68,10 @@ export function prepareUpdateFromRaw<T: Model>(
 ): T {
   // Note COPY for log - only if needed
   const logConflict = log && !!record._raw._changed
-  const logLocal = logConflict ? { ...record._raw } : {}
+  const logLocal = logConflict ? {
+    // $FlowFixMe
+    ...record._raw,
+  } : {}
   const logRemote = logConflict ? { ...updatedDirtyRaw } : {}
 
   let newRaw = resolveConflict(record._raw, updatedDirtyRaw)
@@ -86,6 +89,7 @@ export function prepareUpdateFromRaw<T: Model>(
       log.resolvedConflicts.push({
         local: logLocal,
         remote: logRemote,
+        // $FlowFixMe
         resolved: { ...record._raw },
       })
     }

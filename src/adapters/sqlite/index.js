@@ -102,6 +102,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
       synchronous: this._dispatcherType === 'synchronous',
       experimentalUseJSI: this._dispatcherType === 'jsi',
       ...(this.migrations ? { migrations: this.migrations } : {}),
+      // $FlowFixMe
       ...options,
     })
     invariant(
