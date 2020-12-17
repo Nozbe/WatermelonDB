@@ -80,6 +80,7 @@ export function prepareUpdateFromRaw<T: Model>(
     newRaw = conflictResolver(record.table, record._raw, updatedDirtyRaw, newRaw)
   }
 
+  // $FlowFixMe
   return record.prepareUpdate(() => {
     replaceRaw(record, newRaw)
 
@@ -98,6 +99,7 @@ export function prepareUpdateFromRaw<T: Model>(
 
 export function prepareMarkAsSynced<T: Model>(record: T): T {
   const newRaw = Object.assign({}, record._raw, { _status: 'synced', _changed: '' }) // faster than object spread
+  // $FlowFixMe
   return record.prepareUpdate(() => {
     replaceRaw(record, newRaw)
   })

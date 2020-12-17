@@ -196,6 +196,7 @@ export default class Query<Record: Model> {
   }
 
   get table(): TableName<Record> {
+    // $FlowFixMe
     return this.modelClass.table
   }
 

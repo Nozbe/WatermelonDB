@@ -18,8 +18,8 @@ esproposal.optional_chaining=enable
 emoji=true
 module.ignore_non_literal_requires=true
 module.file_ext=.js
-types_first=false
+types_first=true
 well_formed_exports=true
 
 [version]
->=0.108.0
+>=0.140.0

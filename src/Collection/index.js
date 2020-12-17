@@ -34,7 +34,7 @@ export default class Collection<Record: Model> {
   constructor(database: Database, ModelClass: Class<Record>): void {
     this.database = database
     this.modelClass = ModelClass
-    this._cache = new RecordCache(ModelClass.table, raw => new ModelClass(this, raw), this)
+    this._cache = new RecordCache<Record>((ModelClass.table: $FlowFixMe), raw => new ModelClass((this: $FlowFixMe), raw), this)
   }
 
   get db(): Database {
@@ -63,6 +63,7 @@ export default class Collection<Record: Model> {
             }
           })
         } else {
+          // $FlowFixMe
           observer.error(result.error)
         }
       })
@@ -98,6 +99,7 @@ export default class Collection<Record: Model> {
   // Prepares a new record in this collection
   // Use this to batch-create multiple records
   prepareCreate(recordBuilder: Record => void = noop): Record {
+    // $FlowFixMe
     return this.modelClass._prepareCreate(this, recordBuilder)
   }
 
@@ -105,6 +107,7 @@ export default class Collection<Record: Model> {
   // e.g. `{ foo: 'bar' }`. Don't use this unless you know how RawRecords work in WatermelonDB
   // this is useful as a performance optimization or if you're implementing your own sync mechanism
   prepareCreateFromDirtyRaw(dirtyRaw: DirtyRaw): Record {
+    // $FlowFixMe
     return this.modelClass._prepareCreateFromDirtyRaw(this, dirtyRaw)
   }
 
@@ -124,6 +127,7 @@ export default class Collection<Record: Model> {
   // *** Implementation details ***
 
   get table(): TableName<Record> {
+    // $FlowFixMe
     return this.modelClass.table
   }
 

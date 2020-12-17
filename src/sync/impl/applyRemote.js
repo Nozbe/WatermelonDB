@@ -155,6 +155,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   })
 
   deleted.forEach(record => {
+    // $FlowFixMe
     recordsToBatch.push(record.prepareDestroyPermanently())
   })
 
