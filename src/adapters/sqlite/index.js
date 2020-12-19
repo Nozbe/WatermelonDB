@@ -52,6 +52,8 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   _dbName: string
 
+  _password: string
+
   _dispatcherType: DispatcherType
 
   _dispatcher: NativeDispatcher
@@ -67,7 +69,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     this._password = password || ''
 
     this._dispatcherType = getDispatcherType(options)
-    this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName)
+    this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName, this._password)
 
     if (process.env.NODE_ENV !== 'production') {
       invariant(
@@ -130,7 +132,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     // This is to speed up the launch (less to do and pass through bridge), and avoid repeating
     // migration logic inside native code
     const status = await toPromise(callback =>
-      this._dispatcher.initialize(this._dbName, this.schema.version, callback),
+      this._dispatcher.initialize(this._dbName, this._password, this.schema.version, callback),
     )
 
     // NOTE: Race condition - logic here is asynchronous, but synchronous-mode adapter does not allow
