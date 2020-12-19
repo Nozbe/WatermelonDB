@@ -22,7 +22,8 @@ declare module '@nozbe/watermelondb/adapters/sqlite' {
 
   export interface SQLiteAdapterOptions {
     dbName?: string
-    migrations?: SchemaMigrations
+    password?: string,
+    migrations?: SchemaMigrations,
     schema: AppSchema
     synchronous?: boolean
     experimentalUseJSI?: boolean

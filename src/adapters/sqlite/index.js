@@ -60,10 +60,11 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   constructor(options: SQLiteAdapterOptions): void {
     // console.log(`---> Initializing new adapter (${this._tag})`)
-    const { dbName, schema, migrations } = options
+    const { dbName, password, schema, migrations } = options
     this.schema = schema
     this.migrations = migrations
     this._dbName = this._getName(dbName)
+    this._password = password || ''
 
     this._dispatcherType = getDispatcherType(options)
     this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName)
@@ -78,7 +79,9 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
         // of this mode completely to simplify code. Ideally, we'd ONLY have JSI, but until RN goes
         // all-in on JSI everywhere, this might be a little too risky. I'm adding this warning to
         // get feedback via GH if JSI on iOS is ready to be considered stable or not yet.
-        logger.warn(`SQLiteAdapter's synchronous:true option is deprecated and will be replaced with experimentalUseJSI: true in the future. Please test if your app compiles and works well with experimentalUseJSI: true, and if not - file an issue!`)
+        logger.warn(
+          `SQLiteAdapter's synchronous:true option is deprecated and will be replaced with experimentalUseJSI: true in the future. Please test if your app compiles and works well with experimentalUseJSI: true, and if not - file an issue!`,
+        )
       }
       invariant(
         DatabaseBridge,
@@ -98,6 +101,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   async testClone(options?: $Shape<SQLiteAdapterOptions> = {}): Promise<SQLiteAdapter> {
     const clone = new SQLiteAdapter({
       dbName: this._dbName,
+      password: this._password,
       schema: this.schema,
       synchronous: this._dispatcherType === 'synchronous',
       experimentalUseJSI: this._dispatcherType === 'jsi',
@@ -157,6 +161,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
         await toPromise(callback =>
           this._dispatcher.setUpWithMigrations(
             this._dbName,
+            this._password,
             this._encodeMigrations(migrationSteps),
             databaseVersion,
             this.schema.version,
@@ -183,6 +188,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     await toPromise(callback =>
       this._dispatcher.setUpWithSchema(
         this._dbName,
+        this._password,
         this._encodedSchema(),
         this.schema.version,
         callback,

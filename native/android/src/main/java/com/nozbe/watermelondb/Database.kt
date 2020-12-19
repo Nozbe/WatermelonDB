@@ -2,12 +2,17 @@ package com.nozbe.watermelondb
 
 import android.content.Context
 import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase
+import net.sqlcipher.database.SQLiteDatabase
 import java.io.File
 
-class Database(private val name: String, private val context: Context) {
+class Database(private val name: String, private var password: String?, private val context: Context) {
 
     private val db: SQLiteDatabase by lazy {
+        if (password.equals("")) {
+            password = null
+        }
+
+        SQLiteDatabase.loadLibs(context)
         SQLiteDatabase.openOrCreateDatabase(
                 // TODO: This SUCKS. Seems like Android doesn't like sqlite `?mode=memory&cache=shared` mode. To avoid random breakages, save the file to /tmp, but this is slow.
                 // NOTE: This is because Android system SQLite is not compiled with SQLITE_USE_URI=1
@@ -18,6 +23,7 @@ class Database(private val name: String, private val context: Context) {
                 } else
                     // On some systems there is some kind of lock on `/databases` folder ¯\_(ツ)_/¯
                     context.getDatabasePath("$name.db").path.replace("/databases", ""),
+                password,
                 null)
     }
 
@@ -79,12 +85,14 @@ class Database(private val name: String, private val context: Context) {
     private fun getAllTables(): ArrayList<String> {
         val allTables: ArrayList<String> = arrayListOf()
         rawQuery(Queries.select_tables).use {
-            it.moveToFirst()
-            val index = it.getColumnIndex("name")
-            if (index > -1) {
-                do {
-                    allTables.add(it.getString(index))
-                } while (it.moveToNext())
+            if (it.count > 0) {
+                it.moveToFirst()
+                val index = it.getColumnIndex("name")
+                if (index > -1) {
+                    do {
+                        allTables.add(it.getString(index))
+                    } while (it.moveToNext())
+                }
             }
         }
         return allTables
