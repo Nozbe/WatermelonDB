@@ -73,6 +73,12 @@ npm install @nozbe/with-observables
               pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi', :modular_headers => true
               ```
 
+          3. Finally, add this line:
+
+             ```ruby
+             pod 'FMDB/SQLCipher', :modular_headers => true
+             ```
+
       Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (although Xcode 11.5+ and iOS 12.0+ are recommended).
 
 ### Android (React Native)
