@@ -162,6 +162,7 @@ if (isDevelopment) {
         resolvePath('native/shared'),
         resolvePath('native/android/src/main'),
         resolvePath('native/android-jsi/src/main'),
+        'src/**/*.d.ts',
       ],
       {
         ignored: DO_NOT_BUILD_PATHS,
