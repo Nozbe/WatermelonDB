@@ -27,7 +27,7 @@ let testSchema = """
     """
 
 func newDatabase() -> DatabaseDriver {
-    return DatabaseDriver(dbName: ":memory:", setUpWithSchema: (version: 1, sql: testSchema))
+    return DatabaseDriver(dbName: ":memory:", password: "password", setUpWithSchema: (version: 1, sql: testSchema))
 }
 
 class DatabaseDriverTests: XCTestCase {

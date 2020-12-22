@@ -10,9 +10,9 @@ class Database {
     private let path: String
     private let password: String
 
-    init(path: String) {
+    init(path: String, password: String) {
         self.path = path
-        self.password = "work in progress"
+        self.password = password
         fmdb = FMDatabase(path: path)
         open()
     }

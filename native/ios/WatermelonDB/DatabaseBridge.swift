@@ -34,7 +34,7 @@ extension DatabaseBridge {
                     reject: RCTPromiseRejectBlock) {
         do {
             try assertNoConnection(tag)
-            let driver = try DatabaseDriver(dbName: databaseName, schemaVersion: schemaVersion.intValue)
+            let driver = try DatabaseDriver(dbName: databaseName, password: password, schemaVersion: schemaVersion.intValue)
             connections[tag.intValue] = .connected(driver: driver, synchronous: false)
             resolve(["code": "ok"])
         } catch _ as DatabaseDriver.SchemaNeededError {
@@ -57,7 +57,7 @@ extension DatabaseBridge {
                          schemaVersion: NSNumber,
                          resolve: RCTPromiseResolveBlock,
                          reject: RCTPromiseRejectBlock) {
-        let driver = DatabaseDriver(dbName: databaseName,
+        let driver = DatabaseDriver(dbName: databaseName, password: password,
                                     setUpWithSchema: (version: schemaVersion.intValue, sql: schema))
         connectDriverAsync(connectionTag: tag, driver: driver)
         resolve(true)
@@ -75,6 +75,7 @@ extension DatabaseBridge {
         do {
             let driver = try DatabaseDriver(
                 dbName: databaseName,
+                password: password,
                 setUpWithMigrations: (from: fromVersion.intValue, to: toVersion.intValue, sql: migrations)
             )
             connectDriverAsync(connectionTag: tag, driver: driver)
@@ -105,7 +106,7 @@ extension DatabaseBridge {
         return synchronously {
             do {
                 try assertNoConnection(tag)
-                let driver = try DatabaseDriver(dbName: databaseName, schemaVersion: schemaVersion.intValue)
+                let driver = try DatabaseDriver(dbName: databaseName, password: password, schemaVersion: schemaVersion.intValue)
                 connections[tag.intValue] = .connected(driver: driver, synchronous: true)
                 return ["code": "ok"]
             } catch _ as DatabaseDriver.SchemaNeededError {
@@ -128,6 +129,7 @@ extension DatabaseBridge {
         return synchronously {
             try assertNoConnection(tag)
             let driver = DatabaseDriver(dbName: databaseName,
+                                        password: password,
                                         setUpWithSchema: (version: schemaVersion.intValue, sql: schema))
             connections[tag.intValue] = .connected(driver: driver, synchronous: true)
             return true
@@ -145,6 +147,7 @@ extension DatabaseBridge {
             try assertNoConnection(tag)
             let driver = try DatabaseDriver(
                 dbName: databaseName,
+                password: password,
                 setUpWithMigrations: (from: fromVersion.intValue, to: toVersion.intValue, sql: migrations)
             )
             connections[tag.intValue] = .connected(driver: driver, synchronous: true)
