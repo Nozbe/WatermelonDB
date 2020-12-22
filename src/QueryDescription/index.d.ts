@@ -69,7 +69,12 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     type: 'joinTables'
     tables: TableName<any>[]
   }
-  export type Clause = Where | On | SortBy | Take | Skip | Join
+  export interface NestedJoin {
+    type: 'nestedJoinTable'
+    from: TableName<any>
+    to: TableName<any>
+  }
+  export type Clause = Where | On | SortBy | Take | Skip | Join | NestedJoin
   export interface QueryDescription {
     where: Where[]
     join: On[]
@@ -77,6 +82,7 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     take?: Take
     skip?: Skip
     joinTables?: Join
+    nestedJoinTables?: NestedJoin
   }
   export type Condition = Where | On
 
@@ -100,6 +106,7 @@ declare module '@nozbe/watermelondb/QueryDescription' {
   export function experimentalTake(count: number): Take
   export function experimentalSkip(count: number): Skip
   export function experimentalJoinTables(tables: TableName<any>[]): Join
+  export function experimentalNestedJoin(from: TableName<any>, to: TableName<any>): NestedJoin
   export function sanitizeLikeString(value: string): string
 
   type _OnFunctionColumnValue = (table: TableName<any>, column: ColumnName, value: Value) => On
@@ -109,10 +116,12 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     comparison: Comparison,
   ) => On
   type _OnFunctionWhereDescription = (table: TableName<any>, where: Where) => On
+  type _OnFunctionNested = (table: TableName<any>, on: On) => On
 
   type OnFunction = _OnFunctionColumnValue &
     _OnFunctionColumnComparison &
-    _OnFunctionWhereDescription
+    _OnFunctionWhereDescription &
+    _OnFunctionNested
 
   export const on: OnFunction
 
