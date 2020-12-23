@@ -5,7 +5,7 @@ import android.database.Cursor
 import net.sqlcipher.database.SQLiteDatabase
 import java.io.File
 
-class Database(private val name: String, private val password: String?, private val context: Context) {
+class Database(private val name: String, private var password: String?, private val context: Context) {
 
     private val db: SQLiteDatabase by lazy {
         if (password.equals("")) {
