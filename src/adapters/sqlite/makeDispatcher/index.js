@@ -5,7 +5,7 @@ import { fromPairs } from 'rambdax'
 
 import DatabaseBridge from './node/DatabaseBridge'
 
-import { type ConnectionTag, logger } from '../../../utils/common'
+import { type ConnectionTag, logger, invariant } from '../../../utils/common'
 
 import { fromPromise } from '../../../utils/fp/Result'
 
@@ -36,10 +36,17 @@ export const makeDispatcher = (
   type: DispatcherType,
   tag: ConnectionTag,
   _dbName: string,
-  _password: string,
+  password: string,
 ): NativeDispatcher => {
   const methods = dispatcherMethods.map(methodName => {
     const name = type === 'synchronous' ? `${methodName}Synchronous` : methodName
+
+    if (process.env.NODE_ENV !== 'production') {
+      invariant(
+        !password,
+        'SQLiteAdapter `password` option not supported. Encryption is only supported on mobile`',
+      )
+    }
 
     return [
       methodName,

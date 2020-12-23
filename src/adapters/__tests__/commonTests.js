@@ -50,6 +50,18 @@ export default () => [
         )
       }
 
+      if (AdapterClass.name === 'LokiJSAdapter') {
+        expect(() => makeAdapter({ password: 'password' })).toThrow(
+          /LokiJSAdapter `password` option not supported. Encryption is only supported on mobile/,
+        )
+      }
+
+      if (AdapterClass.name === 'SQLiteAdapter') {
+        expect(() => makeAdapter({ password: 'password' })).toThrow(
+          /SQLiteAdapter `password` option not supported. Encryption is only supported on mobile`/,
+        )
+      }
+
       expect(() => adapterWithMigrations({ migrations: [] })).toThrow(/use schemaMigrations()/)
 
       // OK migrations passed

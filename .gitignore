@@ -19,3 +19,5 @@ coverage/
 # docs/CHANGELOG.md
 # docs/README.md
 docs-build/
+
+test*.db

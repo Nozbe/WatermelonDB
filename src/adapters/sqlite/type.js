@@ -15,6 +15,7 @@ export type SQLiteQuery = [SQL, SQLiteArg[]]
 
 export type SQLiteAdapterOptions = $Exact<{
   dbName?: string,
+  // Only supported on iOS and Android if SQLCipher is configured
   password?: string,
   schema: AppSchema,
   migrations?: SchemaMigrations,

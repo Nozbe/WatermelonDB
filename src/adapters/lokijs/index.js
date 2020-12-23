@@ -109,7 +109,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     this._dbName = dbName
 
     if (process.env.NODE_ENV !== 'production') {
-      invariant('password' in options,
+      invariant(!('password' in options),
           'LokiJSAdapter `password` option not supported. Encryption is only supported on mobile.',
         )
       invariant('useWebWorker' in options,

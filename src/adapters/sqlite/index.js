@@ -67,13 +67,14 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     this.migrations = migrations
     this._dbName = this._getName(dbName)
 
+    // Password is not supported in web/Node but we pass it through in order to keep the API
+    // consistent and we throw an error if a password has been provided in order to prevent mistakes.
+    this._password = password || ''
+
     this._dispatcherType = getDispatcherType(options)
     this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName, this._password)
 
     if (process.env.NODE_ENV !== 'production') {
-      if (process.env.NODE_ENV !== 'test') {
-        invariant(!!password, 'Encryption is not supported for Node.')
-      }
       invariant(
         !('migrationsExperimental' in options),
         'SQLiteAdapter `migrationsExperimental` option has been renamed to `migrations`',
