@@ -66,12 +66,14 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     this.schema = schema
     this.migrations = migrations
     this._dbName = this._getName(dbName)
-    this._password = password || ''
 
     this._dispatcherType = getDispatcherType(options)
     this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName, this._password)
 
     if (process.env.NODE_ENV !== 'production') {
+      if (process.env.NODE_ENV !== 'test') {
+        invariant(!!password, 'Encryption is not supported for Node.')
+      }
       invariant(
         !('migrationsExperimental' in options),
         'SQLiteAdapter `migrationsExperimental` option has been renamed to `migrations`',
