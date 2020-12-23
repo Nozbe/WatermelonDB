@@ -36,8 +36,6 @@ export const makeDispatcher = (
   type: DispatcherType,
   tag: ConnectionTag,
   _dbName: string,
-  // eslint-disable-next-line
-  password: string,
 ): NativeDispatcher => {
   const methods = dispatcherMethods.map(methodName => {
     const name = type === 'synchronous' ? `${methodName}Synchronous` : methodName
