@@ -36,6 +36,7 @@ export const makeDispatcher = (
   type: DispatcherType,
   tag: ConnectionTag,
   _dbName: string,
+  // eslint-disable-next-line
   password: string,
 ): NativeDispatcher => {
   const methods = dispatcherMethods.map(methodName => {

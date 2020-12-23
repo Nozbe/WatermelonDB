@@ -42,6 +42,7 @@ export const makeDispatcher = (
   type: DispatcherType,
   tag: ConnectionTag,
   dbName: string,
+  // eslint-disable-next-line
   password: string,
 ): NativeDispatcher => {
   const jsiDb = type === 'jsi' && global.nativeWatermelonCreateAdapter(dbName)
