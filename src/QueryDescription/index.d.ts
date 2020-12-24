@@ -74,7 +74,12 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     from: TableName<any>
     to: TableName<any>
   }
-  export type Clause = Where | On | SortBy | Take | Skip | Join | NestedJoin
+  export interface Sql {
+    type: 'sql'
+    expr: string
+  }
+
+  export type Clause = Where | On | SortBy | Take | Skip | Join | NestedJoin | Sql
   export interface QueryDescription {
     where: Where[]
     join: On[]
@@ -108,6 +113,7 @@ declare module '@nozbe/watermelondb/QueryDescription' {
   export function experimentalJoinTables(tables: TableName<any>[]): Join
   export function experimentalNestedJoin(from: TableName<any>, to: TableName<any>): NestedJoin
   export function sanitizeLikeString(value: string): string
+  export function unsafeSqlExpr(sql: string): Sql
 
   type _OnFunctionColumnValue = (table: TableName<any>, column: ColumnName, value: Value) => On
   type _OnFunctionColumnComparison = (

@@ -19,7 +19,7 @@
 - [Sync] Open-sourced a simple SyncLogger you can optionally use. See docs for more info.
 - [SQLiteAdapter] `synchronous:true` option is now deprecated and will be replaced with `experimentalUseJSI: true` in the future. Please test if your app compiles and works well with `experimentalUseJSI: true`, and if not - file an issue!
 - [LokiJS] Changed default autosave interval from 250 to 500ms
-- [Typescript] Add `experimentalNestedJoin` definition
+- [Typescript] Add `experimentalNestedJoin` definition and `unsafeSqlExpr` clause
 
 ### Fixes
 
