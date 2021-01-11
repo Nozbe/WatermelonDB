@@ -1,8 +1,4 @@
-#if __has_include("FMDB.h")
-#import "FMDB.h"
-#else
-#import "../FMDB/src/fmdb/FMDB.h"
-#endif
+#import "FMDB/FMDB.h"
 
 #import <React/RCTBridgeModule.h>
 

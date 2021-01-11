@@ -53,6 +53,7 @@ declare module '@nozbe/watermelondb/Model' {
 
     public observe(): Observable<this>
 
+    // @ts-ignore
     public batch(...records: Readonly<Model[]>): Promise<void>
 
     public subAction<T>(action: () => Promise<T>): Promise<T>

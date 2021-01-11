@@ -25,6 +25,7 @@ class DatabaseBridge {
   initialize = (
     tag: number,
     databaseName: string,
+    _password: string,
     schemaVersion: number,
     resolve: (status: { code: string, databaseVersion?: number }) => void,
     reject: () => void,
@@ -53,6 +54,7 @@ class DatabaseBridge {
   setUpWithSchema = (
     tag: number,
     databaseName: string,
+    _password: string,
     schema: string,
     schemaVersion: number,
     resolve: boolean => void,
@@ -67,6 +69,7 @@ class DatabaseBridge {
   setUpWithMigrations = (
     tag: number,
     databaseName: string,
+    _password: string,
     migrations: string,
     fromVersion: number,
     toVersion: number,
@@ -98,7 +101,12 @@ class DatabaseBridge {
     throw new Error('No JSI here')
   }
 
-  initializeSynchronous = (tag: number, databaseName: string, schemaVersion: number): any => {
+  initializeSynchronous = (
+    tag: number,
+    databaseName: string,
+    _password: string,
+    schemaVersion: number,
+  ): any => {
     return this.synchronously('initializeSynchronous', () => {
       let driver
       try {
@@ -123,6 +131,7 @@ class DatabaseBridge {
   setUpWithSchemaSynchronous = (
     tag: number,
     databaseName: string,
+    _password: string,
     schema: string,
     schemaVersion: number,
   ): any => {
@@ -137,6 +146,7 @@ class DatabaseBridge {
   setUpWithMigrationsSynchronous = (
     tag: number,
     databaseName: string,
+    _password: string,
     migrations: string,
     fromVersion: number,
     toVersion: number,

@@ -8,9 +8,11 @@ class Database {
 
     private let fmdb: FMDatabase
     private let path: String
+    private let password: String
 
-    init(path: String) {
+    init(path: String, password: String) {
         self.path = path
+        self.password = password
         fmdb = FMDatabase(path: path)
         open()
     }
@@ -32,6 +34,7 @@ class Database {
     }
 
     func inTransaction(_ executeBlock: () throws -> Void) throws {
+        fmdb.setKey(self.password)
         guard fmdb.beginTransaction() else { throw fmdb.lastError() }
 
         do {
@@ -44,17 +47,20 @@ class Database {
     }
 
     func execute(_ query: SQL, _ args: QueryArgs = []) throws {
+        fmdb.setKey(self.password)
         try fmdb.executeUpdate(query, values: args)
     }
 
     /// Executes multiple queries separated by `;`
     func executeStatements(_ queries: SQL) throws {
+        fmdb.setKey(self.password)
         guard fmdb.executeStatements(queries) else {
             throw fmdb.lastError()
         }
     }
 
     func queryRaw(_ query: SQL, _ args: QueryArgs = []) throws -> AnyIterator<FMResultSet> {
+        fmdb.setKey(self.password)
         let resultSet = try fmdb.executeQuery(query, values: args)
 
         return AnyIterator {
@@ -69,6 +75,7 @@ class Database {
 
     /// Use `select count(*) as count`
     func count(_ query: SQL, _ args: QueryArgs = []) throws -> Int {
+        fmdb.setKey(self.password)
         let result = try fmdb.executeQuery(query, values: args)
         defer { result.close() }
 
@@ -86,18 +93,21 @@ class Database {
     var userVersion: Int {
         get {
             // swiftlint:disable:next force_try
+            fmdb.setKey(self.password)
             let result = try! fmdb.executeQuery("pragma user_version", values: [])
             result.next()
             defer { result.close() }
             return result.long(forColumnIndex: 0)
         }
         set {
+            fmdb.setKey(self.password)
             // swiftlint:disable:next force_try
             try! execute("pragma user_version = \(newValue)")
         }
     }
 
     func unsafeDestroyEverything() throws {
+        fmdb.setKey(self.password)
         // NOTE: Deleting files by default because it seems simpler, more reliable
         // But sadly this won't work for in-memory (shared) databases
         if isInMemoryDatabase {

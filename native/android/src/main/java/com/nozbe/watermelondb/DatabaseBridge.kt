@@ -32,6 +32,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     fun initialize(
         tag: ConnectionTag,
         databaseName: String,
+        password: String,
         schemaVersion: Int,
         promise: Promise
     ) {
@@ -43,6 +44,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
                     driver = DatabaseDriver(
                             context = reactContext,
                             dbName = databaseName,
+                            password = password,
                             schemaVersion = schemaVersion
                     )
             )
@@ -66,6 +68,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     fun setUpWithSchema(
         tag: ConnectionTag,
         databaseName: String,
+        password: String,
         schema: SQL,
         schemaVersion: SchemaVersion,
         promise: Promise
@@ -74,6 +77,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             driver = DatabaseDriver(
                     context = reactContext,
                     dbName = databaseName,
+                    password = password,
                     schema = Schema(
                             version = schemaVersion,
                             sql = schema
@@ -86,6 +90,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     fun setUpWithMigrations(
         tag: ConnectionTag,
         databaseName: String,
+        password: String,
         migrations: SQL,
         fromVersion: SchemaVersion,
         toVersion: SchemaVersion,
@@ -101,7 +106,8 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
                                     from = fromVersion,
                                     to = toVersion,
                                     sql = migrations
-                            )
+                            ),
+                            password = password
                     ),
                     promise = promise
             )

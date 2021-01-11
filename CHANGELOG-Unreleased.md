@@ -10,6 +10,7 @@
 - [adapters] `onSetUpError: Error => void` option is added to both `SQLiteAdapter` and `LokiJSAdapter`. Supply this option to catch initialization errors and offer the user to reload or log out
 - [LokiJS] new `extraLokiOptions` and `extraIncrementalIDBOptions` options
 - [Android] Autolinking is now supported (v0.20 is insufficient)
+- [adapters] Add optional `password` parameter to `SQLiteAdapter` to support SQLCipher on iOS and Android (must be separately configured in native settings)
 
 ### Performance
 
