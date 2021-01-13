@@ -106,6 +106,20 @@ Arguments passed:
 5. You MUST NOT resolve sync prematurely or in case of backend failure
 6. You MUST NOT mutate or store arguments passed to `pushChanges()`. If you need to do any processing on it, do it before returning the object. Watermelon treats this object as "consumable" and can mutate it (for performance reasons)
 
+### Checking unsynced changes
+
+WatermelonDB has a built in function to check whether there are any unsynced changes. The frontend code will look something like this
+
+```js
+import { hasUnsyncedChanges } from '@nozbe/watermelondb/sync'
+
+async function checkUnsyncedChanges() {
+  await hasUnsyncedChanges({
+    database
+  })
+}
+```
+
 ### General information and tips
 
 1. You MUST NOT connect to backend endpoints you don't control using `synchronize()`. WatermelonDB assumes pullChanges/pushChanges are friendly and correct and does not guarantee secure behavior if data returned is malformed.
