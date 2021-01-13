@@ -1,6 +1,5 @@
 // @flow
 
-const isObject: <T>(T) => boolean = maybeObject =>
-  maybeObject !== null && typeof maybeObject === 'object' && !Array.isArray(maybeObject)
-
-export default isObject
+export default function isObject<T>(maybeObject: T): boolean {
+  return maybeObject !== null && typeof maybeObject === 'object' && !Array.isArray(maybeObject)
+}

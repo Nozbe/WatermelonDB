@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 
 class Logger {
-  silent = false
+  silent: boolean = false
 
   log(...messages: any[]): void {
     !this.silent && console.log(...messages)
@@ -21,4 +21,4 @@ class Logger {
   }
 }
 
-export default new Logger()
+export default (new Logger(): Logger)

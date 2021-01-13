@@ -7,9 +7,10 @@ import type Model from './index'
 import type Query from '../Query/index'
 
 const hasCreatedAt = hasIn('createdAt')
-export const hasUpdatedAt = hasIn('updatedAt')
+export const hasUpdatedAt: any = hasIn('updatedAt')
 
-export const createTimestampsFor = (model: Model) => {
+type TimestampsObj = $Exact<{ created_at?: number, updated_at?: number }>
+export const createTimestampsFor = (model: Model): TimestampsObj => {
   const date = Date.now()
   const timestamps = {}
 
@@ -21,7 +22,7 @@ export const createTimestampsFor = (model: Model) => {
     timestamps.updated_at = date
   }
 
-  return timestamps
+  return (timestamps: any)
 }
 
 function getChildrenQueries(model: Model): Query<Model>[] {

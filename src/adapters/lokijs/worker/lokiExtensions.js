@@ -2,9 +2,9 @@
 /* eslint-disable no-undef */
 
 // don't import the whole utils/ here!
-import type Loki from 'lokijs'
 import logger from '../../../utils/common/logger'
 import type { LokiAdapterOptions } from '../index'
+import type { Loki } from '../type'
 
 const isIDBAvailable = (onQuotaExceededError: ?(error: Error) => void) => {
   return new Promise(resolve => {
@@ -59,6 +59,7 @@ async function getLokiAdapter(options: LokiAdapterOptions): mixed {
       const IncrementalIDBAdapter = options._concurrentIdb ?
         require('lokijs-concurrent-idb/src/incremental-indexeddb-adapter') :
         require('lokijs/src/incremental-indexeddb-adapter')
+      // $FlowFixMe
       return new IncrementalIDBAdapter({
         onversionchange: onIndexedDBVersionChange,
         onFetchStart: onIndexedDBFetchStart,
@@ -80,6 +81,7 @@ async function getLokiAdapter(options: LokiAdapterOptions): mixed {
 export async function newLoki(options: LokiAdapterOptions): Loki {
   const { autosave = true } = options
   const LokiDb = options._concurrentIdb ? require('lokijs-concurrent-idb') : require('lokijs')
+  // $FlowFixMe
   const loki: Loki = new LokiDb(options.dbName, {
     adapter: await getLokiAdapter(options),
     autosave,

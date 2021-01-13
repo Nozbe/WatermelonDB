@@ -23,10 +23,10 @@ import type { TableName, ColumnName } from '../../../Schema'
 // Note that this doesn't throw for Watermelon builtins (id, _changed, _status...)
 
 const safeNameCharacters = /^[a-zA-Z_]\w*$/
-const knownSafeNames = new Set()
+const knownSafeNames: Set<string> = new Set()
 
 export default function checkName<T: string | TableName<any> | ColumnName>(name: T): T {
-  if (knownSafeNames.has(name)) {
+  if (knownSafeNames.has((name: string))) {
     return name
   }
 

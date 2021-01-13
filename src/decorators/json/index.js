@@ -2,7 +2,7 @@
 
 import { always } from 'rambdax'
 
-import makeDecorator from '../../utils/common/makeDecorator'
+import makeDecorator, { type Decorator } from '../../utils/common/makeDecorator'
 import tryCatch from '../../utils/fp/tryCatch'
 
 import { type ColumnName } from '../../Schema'
@@ -25,7 +25,7 @@ import { ensureDecoratorUsedProperly } from '../common'
 
 const parseJSON = tryCatch(JSON.parse, always(undefined))
 
-export const jsonDecorator = makeDecorator(
+export const jsonDecorator: Decorator = makeDecorator(
   (rawFieldName: ColumnName, sanitizer: (json: any, model?: Model) => any) => (
     target: Object,
     key: string,

@@ -68,7 +68,10 @@ export function prepareUpdateFromRaw<T: Model>(
 ): T {
   // Note COPY for log - only if needed
   const logConflict = log && !!record._raw._changed
-  const logLocal = logConflict ? { ...record._raw } : {}
+  const logLocal = logConflict ? {
+    // $FlowFixMe
+    ...record._raw,
+  } : {}
   const logRemote = logConflict ? { ...updatedDirtyRaw } : {}
 
   let newRaw = resolveConflict(record._raw, updatedDirtyRaw)
@@ -77,6 +80,7 @@ export function prepareUpdateFromRaw<T: Model>(
     newRaw = conflictResolver(record.table, record._raw, updatedDirtyRaw, newRaw)
   }
 
+  // $FlowFixMe
   return record.prepareUpdate(() => {
     replaceRaw(record, newRaw)
 
@@ -86,6 +90,7 @@ export function prepareUpdateFromRaw<T: Model>(
       log.resolvedConflicts.push({
         local: logLocal,
         remote: logRemote,
+        // $FlowFixMe
         resolved: { ...record._raw },
       })
     }
@@ -94,6 +99,7 @@ export function prepareUpdateFromRaw<T: Model>(
 
 export function prepareMarkAsSynced<T: Model>(record: T): T {
   const newRaw = Object.assign({}, record._raw, { _status: 'synced', _changed: '' }) // faster than object spread
+  // $FlowFixMe
   return record.prepareUpdate(() => {
     replaceRaw(record, newRaw)
   })

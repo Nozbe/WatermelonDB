@@ -42,7 +42,7 @@ export default class Model {
 
   _raw: RawRecord
 
-  _isEditing = false
+  _isEditing: boolean = false
 
   // `false` when instantiated but not yet in the database
   _isCommitted: boolean = true

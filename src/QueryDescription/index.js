@@ -31,12 +31,12 @@ export type Operator =
   | 'like'
   | 'notLike'
 
-export type ColumnDescription = $RE<{ column: ColumnName, type?: Symbol }>
+export type ColumnDescription = $RE<{ column: ColumnName, type?: symbol }>
 export type ComparisonRight =
   | $RE<{ value: Value }>
   | $RE<{ values: NonNullValues }>
   | ColumnDescription
-export type Comparison = $RE<{ operator: Operator, right: ComparisonRight, type?: Symbol }>
+export type Comparison = $RE<{ operator: Operator, right: ComparisonRight, type?: symbol }>
 
 export type WhereDescription = $RE<{
   type: 'where',

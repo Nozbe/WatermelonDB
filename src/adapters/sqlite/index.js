@@ -96,6 +96,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   }
 
   async testClone(options?: $Shape<SQLiteAdapterOptions> = {}): Promise<SQLiteAdapter> {
+    // $FlowFixMe
     const clone = new SQLiteAdapter({
       dbName: this._dbName,
       schema: this.schema,

@@ -28,6 +28,8 @@ const throwError = str => info => {
   throw new Error(str, JSON.stringify(info))
 }
 
+const skipChecks = process.argv.includes('--skip-checks')
+
 const questions = [
   {
     type: 'list',
@@ -115,18 +117,23 @@ const buildTasks = options => {
               ),
           },
         ]),
-    {
-      title: 'check tests',
-      task: () => execa('yarn', ['test']),
-    },
-    {
-      title: 'check flow',
-      task: () => execa('yarn', ['flow']),
-    },
-    {
-      title: 'check eslint',
-      task: () => execa('yarn', ['eslint']),
-    },
+    ...(!skipChecks ? [
+      {
+        title: 'check tests',
+        task: () => execa('yarn', ['test']),
+      },
+      {
+        title: 'check flow',
+        task: () => execa('yarn', ['flow']),
+      },
+      {
+        title: 'check eslint',
+        task: () => execa('yarn', ['eslint']),
+      },
+    ] : [{
+      title: 'WARN: Skipping test/flow/lint checks',
+      task: () => {},
+    }]),
     // TODO: Bring those back when metro config is fixed
     // {
     //   title: 'check iOS tests',
