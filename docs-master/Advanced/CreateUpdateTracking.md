@@ -2,6 +2,8 @@
 
 You can add per-table support for create/update tracking. When you do this, the Model will have information about when it was created, and when it was last updated.
 
+:warning: **Note:** WatermelonDB automatically sets and persists the `created_at`/`updated_at` fields if they are present as _millisecond_ epoch's. If you intend to interact with these properties in any way you should always treat them as such.
+
 ### When to use this
 
 **Use create tracking**:
