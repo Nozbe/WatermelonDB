@@ -1,5 +1,5 @@
 // @flow
-
+import type { SQLDatabaseAdapter } from '../adapters/type'
 import { Observable, Subject } from '../utils/rx'
 import invariant from '../utils/common/invariant'
 import noop from '../utils/fp/noop'
@@ -119,9 +119,14 @@ export default class Collection<Record: Model> {
       typeof adapter.unsafeSqlQuery === 'function',
       'unsafeFetchRecordsWithSQL called on database that does not support SQL',
     )
-    const rawRecords = await adapter.unsafeSqlQuery(this.modelClass.table, sql)
 
-    return this._cache.recordsFromQueryResult(rawRecords)
+    // if no error was thrown then we must be dealing with a SQLDatabaseAdapter
+    const sqlAdapter: SQLDatabaseAdapter = (adapter.underlyingAdapter: any)
+    return toPromise(callback => {
+      sqlAdapter.unsafeSqlQuery(this.modelClass.table, sql, result =>
+        callback(mapValue(rawRecords => this._cache.recordsFromQueryResult(rawRecords), result)),
+      )
+    })
   }
 
   // *** Implementation details ***

@@ -6,7 +6,7 @@ import * as Q from '../QueryDescription'
 import { logger } from '../utils/common'
 import { toPromise } from '../utils/fp/Result'
 
-import { mockDatabase, MockTask, testSchema } from '../__tests__/testModels'
+import { mockDatabase, mockDatabaseSQLite, MockTask, testSchema } from '../__tests__/testModels'
 
 import { CollectionChangeTypes } from './common'
 
@@ -86,6 +86,23 @@ describe('finding records', () => {
     await expectToRejectWithMessage(tasks.find(), /Invalid record ID/)
     await expectToRejectWithMessage(tasks.find(null), /Invalid record ID/)
     await expectToRejectWithMessage(tasks.find({}), /Invalid record ID/)
+  })
+  it('successfully executes unsafe SQL fetches', async () => {
+    const { tasks: collection, adapter } = mockDatabaseSQLite()
+
+    adapter.unsafeSqlQuery = jest
+      .fn()
+      .mockImplementation((table, sql, cb) => cb({ value: [{ id: 'm1' }, { id: 'm2' }] }))
+
+    const id = 'm1'
+    const sql = `
+      SELECT t.*
+      FROM mock_tasks AS t
+      WHERE t.id = '${id}'
+    `
+
+    const m1 = await collection.unsafeFetchRecordsWithSQL(sql)
+    expect(m1[0]._raw).toEqual({ id })
   })
 })
 
