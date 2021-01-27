@@ -6,6 +6,7 @@ import { unnest } from '../utils/fp'
 
 // don't import whole `utils` to keep worker size small
 import invariant from '../utils/common/invariant'
+import logger from '../utils/common/logger'
 import checkName from '../utils/fp/checkName'
 import deepFreeze from '../utils/common/deepFreeze'
 import type { $RE } from '../types'
@@ -80,12 +81,12 @@ export type NestedJoinTable = $RE<{
   from: TableName<any>,
   to: TableName<any>,
 }>
-export type LokiFilterFunction = (rawLokiRecord: any, loki: any) => boolean
-export type LokiFilter = $RE<{
-  type: 'lokiFilter',
-  function: LokiFilterFunction,
+export type LokiTransformFunction = (rawLokiRecords: any[], loki: any) => any[]
+export type LokiTransform = $RE<{
+  type: 'lokiTransform',
+  function: LokiTransformFunction,
 }>
-export type Clause = Where | SortBy | Take | Skip | JoinTables | NestedJoinTable | LokiFilter
+export type Clause = Where | SortBy | Take | Skip | JoinTables | NestedJoinTable | LokiTransform
 
 type NestedJoinTableDef = $RE<{ from: TableName<any>, to: TableName<any> }>
 export type QueryDescription = $RE<{
@@ -95,7 +96,7 @@ export type QueryDescription = $RE<{
   sortBy: SortBy[],
   take?: number,
   skip?: number,
-  lokiFilter?: LokiFilterFunction,
+  lokiTransform?: LokiTransformFunction,
 }>
 
 const columnSymbol = Symbol('Q.column')
@@ -269,8 +270,19 @@ export function unsafeLokiExpr(expr: any): LokiExpr {
   return { type: 'loki', expr }
 }
 
-export function unsafeLokiFilter(fn: LokiFilterFunction): LokiFilter {
-  return { type: 'lokiFilter', function: fn }
+let warnedLokiFilterDeprecation = false
+
+export function unsafeLokiFilter(fn: (rawLokiRecord: any, loki: any) => boolean): LokiTransform {
+  // TODO: Remove after 2021-04-26
+  if (!warnedLokiFilterDeprecation) {
+    logger.warn('Q.unsafeLokiFilter is deprecated - use `Q.unsafeLokiTransform((raws, loki) => raws.filter(...))` instead')
+    warnedLokiFilterDeprecation = true
+  }
+  return { type: 'lokiTransform', function: (raws, loki) => raws.filter(raw => fn(raw, loki)) }
+}
+
+export function unsafeLokiTransform(fn: LokiTransformFunction): LokiTransform {
+  return { type: 'lokiTransform', function: fn }
 }
 
 const acceptableClauses = ['where', 'and', 'or', 'on', 'sql', 'loki']
@@ -415,9 +427,9 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
         // $FlowFixMe
         clauseMap.nestedJoinTables.push({ from: clause.from, to: clause.to })
         break
-      case 'lokiFilter':
+      case 'lokiTransform':
         // $FlowFixMe
-        clauseMap.lokiFilter = clause.function
+        clauseMap.lokiTransform = clause.function
         break
       default:
         throw new Error('Invalid Query clause passed')

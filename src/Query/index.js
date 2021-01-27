@@ -80,7 +80,7 @@ export default class Query<Record: Model> {
       skip,
       joinTables,
       nestedJoinTables,
-      lokiFilter,
+      lokiTransform,
     } = this._rawDescription
 
     return new Query(collection, [
@@ -90,7 +90,7 @@ export default class Query<Record: Model> {
       ...sortBy,
       ...(take ? [Q.experimentalTake(take)] : []),
       ...(skip ? [Q.experimentalSkip(skip)] : []),
-      ...(lokiFilter ? [Q.unsafeLokiFilter(lokiFilter)] : []),
+      ...(lokiTransform ? [Q.unsafeLokiTransform(lokiTransform)] : []),
       ...clauses,
     ])
   }

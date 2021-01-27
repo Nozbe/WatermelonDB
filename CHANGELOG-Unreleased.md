@@ -5,9 +5,14 @@
 ### BREAKING CHANGES
 - [LokiJS] `useWebWorker` and `useIncrementalIndexedDB` options are now required (previously, skipping them would only trigger a warning)
 
+### Deprecations
+- [LokiJS] `Q.unsafeLokiFilter` is now deprecated and will be removed in a future version.
+    Use `Q.unsafeLokiTransform((raws, loki) => raws.filter(raw => ...))` instead.
+
 ### New features
 - [Model] `Model.update` method now returns updated record
 - [adapters] `onSetUpError: Error => void` option is added to both `SQLiteAdapter` and `LokiJSAdapter`. Supply this option to catch initialization errors and offer the user to reload or log out
+- [LokiJS] New `Q.unsafeLokiTransform` operation. It's an enhanced version of `Q.unsafeLokiFilter` which also allows full-array operations, such as sorting, or passing to a library that expects a full array (e.g. fuzzy search libraries)
 - [LokiJS] new `extraLokiOptions` and `extraIncrementalIDBOptions` options
 - [Android] Autolinking is now supported (v0.20 is insufficient)
 

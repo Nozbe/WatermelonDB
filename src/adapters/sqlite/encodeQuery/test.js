@@ -268,6 +268,6 @@ describe('SQLite encodeQuery', () => {
   })
   it(`does not encode loki-specific syntax`, () => {
     expect(() => encoded([Q.unsafeLokiExpr({ hi: true })])).toThrow('Unknown clause')
-    expect(() => encoded([Q.unsafeLokiFilter(() => {})])).toThrow('not supported')
+    expect(() => encoded([Q.unsafeLokiTransform(() => {})])).toThrow('not supported')
   })
 })

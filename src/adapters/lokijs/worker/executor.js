@@ -17,7 +17,7 @@ import { type RawRecord, sanitizedRaw, setRawSanitized, type DirtyRaw } from '..
 import type { Loki, LokiCollection } from '../type'
 
 import { newLoki, deleteDatabase, lokiFatalError } from './lokiExtensions'
-import executeQuery from './executeQuery'
+import { executeQuery, executeCount } from './executeQuery'
 
 import type { LokiAdapterOptions } from '../index'
 
@@ -107,12 +107,12 @@ export default class LokiExecutor {
   }
 
   query(query: SerializedQuery): CachedQueryResult {
-    const records = executeQuery(query, this.loki).data()
+    const records = executeQuery(query, this.loki)
     return this._compactQueryResults(records, query.table)
   }
 
   count(query: SerializedQuery): number {
-    return executeQuery(query, this.loki).count()
+    return executeCount(query, this.loki)
   }
 
   _update(table: TableName<any>, rawRecord: RawRecord): void {
