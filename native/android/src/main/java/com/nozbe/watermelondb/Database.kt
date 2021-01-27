@@ -15,10 +15,10 @@ class Database(private val name: String, private val context: Context) {
                 if (name == ":memory:" || name.contains("mode=memory")) {
                     context.cacheDir.delete()
                     File(context.cacheDir, name).path
-                } else if (name.contains("/") || name.contains("file")) {
+                } else if (name.startsWith("/") || name.startsWith("file")) {
                     // Extracts the database name from the path
                     val dbName = name.substringAfterLast("/")
-
+                    
                     // Extracts the real path where the *.db file will be created
                     val truePath = name.substringAfterLast("file://").substringBeforeLast("/")
 
