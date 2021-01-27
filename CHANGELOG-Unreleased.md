@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
-
+- [Android] Provides the user with the ability to pass in a file path instead of the database name only and creates the *.db file under a 'databases' sub-folder under the provided path.  Pattern for file path is *file:///data/user/0/com.mattermost.rnbeta/files/xxx.db*
 ### BREAKING CHANGES
 - [LokiJS] `useWebWorker` and `useIncrementalIndexedDB` options are now required (previously, skipping them would only trigger a warning)
 
