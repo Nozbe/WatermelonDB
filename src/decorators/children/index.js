@@ -1,6 +1,6 @@
 // @flow
 
-import makeDecorator from '../../utils/common/makeDecorator'
+import makeDecorator, { type Decorator } from '../../utils/common/makeDecorator'
 import logError from '../../utils/common/logError'
 import invariant from '../../utils/common/invariant'
 
@@ -16,7 +16,7 @@ import type Query from '../../Query'
 // Example: a Task has_many Comments, so it may define:
 //   @children('comment') comments: Query<Comment>
 
-const children = makeDecorator((childTable: TableName<any>) => () => {
+const children: Decorator = makeDecorator((childTable: TableName<any>) => () => {
   return {
     get(): Query<Model> {
       // Use cached Query if possible

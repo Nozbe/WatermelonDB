@@ -23,13 +23,14 @@ import type { TableName, ColumnName } from '../../../Schema'
 // Note that this doesn't throw for Watermelon builtins (id, _changed, _status...)
 
 const safeNameCharacters = /^[a-zA-Z_]\w*$/
-const knownSafeNames = new Set()
+const knownSafeNames: Set<string> = new Set()
 
 export default function checkName<T: string | TableName<any> | ColumnName>(name: T): T {
-  if (knownSafeNames.has(name)) {
+  if (knownSafeNames.has((name: string))) {
     return name
   }
 
+  invariant(typeof name === 'string', `Unsafe name '${name}' not allowed (not a string)`)
   invariant(
     ![
       '__proto__',
@@ -49,6 +50,10 @@ export default function checkName<T: string | TableName<any> | ColumnName>(name:
   )
   invariant(
     !['rowid', 'oid', '_rowid_', 'sqlite_master'].includes(name.toLowerCase()),
+    `Unsafe name '${name}' not allowed (reserved for SQLite compatibility)`,
+  )
+  invariant(
+    !name.toLowerCase().startsWith('sqlite_stat'),
     `Unsafe name '${name}' not allowed (reserved for SQLite compatibility)`,
   )
   invariant(

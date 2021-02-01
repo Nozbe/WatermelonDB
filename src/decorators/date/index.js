@@ -1,6 +1,7 @@
 // @flow
 
-import makeDecorator from '../../utils/common/makeDecorator'
+import makeDecorator, { type Decorator } from '../../utils/common/makeDecorator'
+import { onLowMemory } from '../../utils/common/memory'
 import { type ColumnName } from '../../Schema'
 
 import { ensureDecoratorUsedProperly } from '../common'
@@ -15,7 +16,10 @@ import { ensureDecoratorUsedProperly } from '../common'
 // Examples:
 //   @date('reacted_at') reactedAt: Date
 
-const dateDecorator = makeDecorator(
+const cache = new Map<number, Date>()
+onLowMemory(() => cache.clear())
+
+const dateDecorator: Decorator = makeDecorator(
   (columnName: ColumnName) => (target: Object, key: string, descriptor: Object) => {
     ensureDecoratorUsedProperly(columnName, target, key, descriptor)
 
@@ -24,10 +28,22 @@ const dateDecorator = makeDecorator(
       enumerable: true,
       get(): ?Date {
         const rawValue = this.asModel._getRaw(columnName)
-        return typeof rawValue === 'number' ? new Date(rawValue) : null
+        if (typeof rawValue === 'number') {
+          const cached = cache.get(rawValue)
+          if (cached) {
+            return cached
+          }
+          const date = new Date(rawValue)
+          cache.set(rawValue, date)
+          return date
+        }
+        return null
       },
       set(date: ?Date): void {
         const rawValue = date ? +new Date(date) : null
+        if (rawValue && date) {
+          cache.set(rawValue, new Date(date))
+        }
         this.asModel._setRaw(columnName, rawValue)
       },
     }

@@ -14,7 +14,7 @@ import type { CollectionChangeSet } from '../../Collection'
 import type Model, { RecordId } from '../../Model'
 import subscribeToSimpleQuery from '../subscribeToSimpleQuery'
 import subscribeToQueryReloading from '../subscribeToQueryReloading'
-import { queryNeedsReloading } from '../helpers'
+import canEncodeMatcher from '../encodeMatcher/canEncode'
 
 type RecordState = { [field: ColumnName]: Value }
 
@@ -60,9 +60,9 @@ export default function subscribeToQueryWithColumns<Record: Model>(
   // TODO: On one hand it would be nice to bring in the source logic to this function to optimize
   // on the other, it would be good to have source provided as Observable, not Query
   // so that we can reuse cached responses -- but they don't have compatible format
-  const [subscribeToSource, asyncSource] = queryNeedsReloading(query)
-    ? [observer => subscribeToQueryReloading(query, observer, true), false]
-    : [observer => subscribeToSimpleQuery(query, observer, true), false]
+  const [subscribeToSource, asyncSource] = canEncodeMatcher(query.description)
+    ? [observer => subscribeToSimpleQuery(query, observer, true), false]
+    : [observer => subscribeToQueryReloading(query, observer, true), false]
 
   // NOTE:
   // Observing both the source subscription and changes to columns is very tricky
@@ -119,6 +119,7 @@ export default function subscribeToQueryWithColumns<Record: Model>(
   const sourceUnsubscribe = subscribeToSource(function observeWithColumnsSourceChanged(
     recordsOrStatus,
   ): void {
+    // $FlowFixMe
     if (recordsOrStatus === false) {
       sourceIsFetching = true
       return

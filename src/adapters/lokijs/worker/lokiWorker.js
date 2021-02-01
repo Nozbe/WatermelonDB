@@ -1,6 +1,7 @@
 // @flow
 
 // don't import whole `utils` to keep worker size small
+import type { Result } from '../../../utils/fp/Result'
 import logError from '../../../utils/common/logError'
 import invariant from '../../../utils/common/invariant'
 
@@ -8,7 +9,6 @@ import LokiExecutor from './executor'
 import {
   actions,
   type WorkerAction,
-  type WorkerResponse,
   type WorkerExecutorType,
   type WorkerExecutorPayload,
   type WorkerResponseData,
@@ -27,6 +27,8 @@ const executorMethods = {
   [actions.REMOVE_LOCAL]: ExecutorProto.removeLocal,
   [actions.GET_DELETED_RECORDS]: ExecutorProto.getDeletedRecords,
   [actions.DESTROY_DELETED_RECORDS]: ExecutorProto.destroyDeletedRecords,
+  [actions.EXPERIMENTAL_FATAL_ERROR]: ExecutorProto._fatalError,
+  [actions.CLEAR_CACHED_RECORDS]: ExecutorProto.clearCachedRecords,
 }
 
 export default class LokiWorker {
@@ -42,52 +44,29 @@ export default class LokiWorker {
     this.workerContext = workerContext
     this.workerContext.onmessage = (e: MessageEvent) => {
       const action: WorkerAction = (e.data: any)
-      this.enqueue(action)
-    }
-  }
+      // enqueue action
+      this.queue.push(action)
 
-  enqueue(action: WorkerAction): void {
-    this.queue.push(action)
-
-    if (this.queue.length === 1) {
-      this.executeNext()
+      if (this.queue.length === 1) {
+        this.executeNext()
+      }
     }
   }
 
   executeNext(): void {
     const action = this.queue[0]
-    invariant(this._actionsExecuting === 0, 'worker should not have ongoing actions') // sanity check
-    this.processAction(action)
-  }
-
-  onActionDone(response: WorkerResponse): void {
-    invariant(this._actionsExecuting === 1, 'worker should be executing 1 action') // sanity check
-    this._actionsExecuting = 0
-    this.queue.shift()
-
     try {
-      this.workerContext.postMessage(response)
-    } catch (error) {
-      logError(error)
-    }
-
-    if (this.queue.length) {
-      this.executeNext()
-    }
-  }
-
-  processAction(action: WorkerAction): void {
-    try {
+      invariant(this._actionsExecuting === 0, 'worker should not have ongoing actions') // sanity check
       this._actionsExecuting += 1
 
-      const { type, payload, id } = action
+      const { type, payload } = action
       invariant(type in actions, `Unknown worker action ${type}`)
 
       if (type === actions.SETUP || type === actions.UNSAFE_RESET_DATABASE) {
         this.processActionAsync(action)
       } else {
-        const response = this._runExecutorAction(type, payload)
-        this.onActionDone({ id, result: { value: response } })
+        const response = this._executorAction(type)(...payload)
+        this.onActionDone(action, { value: response })
       }
     } catch (error) {
       this._onError(action, error)
@@ -96,7 +75,7 @@ export default class LokiWorker {
 
   async processActionAsync(action: WorkerAction): Promise<void> {
     try {
-      const { type, payload, id } = action
+      const { type, payload } = action
 
       if (type === actions.SETUP) {
         // app just launched, set up executor with options sent
@@ -108,27 +87,41 @@ export default class LokiWorker {
         await executor.setUp()
         this.executor = executor
 
-        this.onActionDone({ id, result: { value: null } })
+        this.onActionDone(action, { value: null })
       } else {
-        const response = await this._runExecutorAction(type, payload)
-        this.onActionDone({ id, result: { value: response } })
+        const response = await this._executorAction(type)(...payload)
+        this.onActionDone(action, { value: response })
       }
     } catch (error) {
       this._onError(action, error)
     }
   }
 
-  _runExecutorAction(type: WorkerExecutorType, payload: WorkerExecutorPayload): WorkerResponseData {
-    // run action
-    invariant(this.executor, `Cannot run actions because executor is not set up`)
+  onActionDone(action: WorkerAction, result: Result<WorkerResponseData>): void {
+    invariant(this._actionsExecuting === 1, 'worker should be executing 1 action') // sanity check
+    this._actionsExecuting = 0
+    this.queue.shift()
 
-    const runExecutorAction = executorMethods[type].bind(this.executor)
-    return runExecutorAction(...payload)
+    try {
+      const response = { id: action.id, result, cloneMethod: action.returnCloneMethod }
+      this.workerContext.postMessage(response)
+    } catch (error) {
+      logError(error)
+    }
+
+    if (this.queue.length) {
+      this.executeNext()
+    }
+  }
+
+  _executorAction(type: WorkerExecutorType): WorkerExecutorPayload => WorkerResponseData {
+    invariant(this.executor, `Cannot run actions because executor is not set up`)
+    return executorMethods[type].bind(this.executor)
   }
 
   _onError(action: WorkerAction, error: any): void {
     // Main process only receives error message (when using web workers) — this logError is to retain call stack
     logError(error)
-    this.onActionDone({ id: action.id, result: { error } })
+    this.onActionDone(action, { error })
   }
 }

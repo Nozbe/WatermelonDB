@@ -1,6 +1,6 @@
 // @flow
 
-import makeDecorator from '../../utils/common/makeDecorator'
+import makeDecorator, { type Decorator } from '../../utils/common/makeDecorator'
 
 import { type Value } from '../../QueryDescription'
 import { type ColumnName } from '../../Schema'
@@ -17,7 +17,7 @@ import { ensureDecoratorUsedProperly } from '../common'
 // Example:
 //   @field('some_field') someField
 
-const field = makeDecorator(
+const field: Decorator = makeDecorator(
   (columnName: ColumnName) => (target: Object, key: string, descriptor: Object) => {
     ensureDecoratorUsedProperly(columnName, target, key, descriptor)
 

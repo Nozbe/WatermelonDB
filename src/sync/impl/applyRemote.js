@@ -15,7 +15,12 @@ import type { Database, RecordId, Collection, Model, TableName, DirtyRaw } from 
 import * as Q from '../../QueryDescription'
 import { columnName } from '../../Schema'
 
-import type { SyncTableChangeSet, SyncDatabaseChangeSet, SyncLog } from '../index'
+import type {
+  SyncTableChangeSet,
+  SyncDatabaseChangeSet,
+  SyncLog,
+  SyncConflictResolver,
+} from '../index'
 import { prepareCreateFromRaw, prepareUpdateFromRaw, ensureActionsEnabled } from './helpers'
 
 const idsForChanges = ({ created, updated, deleted }: SyncTableChangeSet): RecordId[] => {
@@ -94,6 +99,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   recordsToApply: RecordsToApplyRemoteChangesTo<T>,
   sendCreatedAsUpdated: boolean,
   log?: SyncLog,
+  conflictResolver?: SyncConflictResolver,
 ): T[] {
   const { database, table } = collection
   const { created, updated, recordsToDestroy: deleted, records, locallyDeletedIds } = recordsToApply
@@ -116,7 +122,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
       logError(
         `[Sync] Server wants client to create record ${table}#${raw.id}, but it already exists locally. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will update existing record instead.`,
       )
-      recordsToBatch.push(prepareUpdateFromRaw(currentRecord, raw, log))
+      recordsToBatch.push(prepareUpdateFromRaw(currentRecord, raw, log, conflictResolver))
     } else if (locallyDeletedIds.includes(raw.id)) {
       logError(
         `[Sync] Server wants client to create record ${table}#${raw.id}, but it already exists locally and is marked as deleted. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will delete local record and recreate it instead.`,
@@ -134,7 +140,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
     const currentRecord = findRecord(raw.id, records)
 
     if (currentRecord) {
-      recordsToBatch.push(prepareUpdateFromRaw(currentRecord, raw, log))
+      recordsToBatch.push(prepareUpdateFromRaw(currentRecord, raw, log, conflictResolver))
     } else if (locallyDeletedIds.includes(raw.id)) {
       // Nothing to do, record was locally deleted, deletion will be pushed later
     } else {
@@ -149,6 +155,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   })
 
   deleted.forEach(record => {
+    // $FlowFixMe
     recordsToBatch.push(record.prepareDestroyPermanently())
   })
 
@@ -165,7 +172,7 @@ const getAllRecordsToApply = (
     remoteChanges,
     // $FlowFixMe
     filter((_changes, tableName: TableName<any>) => {
-      const collection = db.collections.get((tableName: any))
+      const collection = db.get((tableName: any))
 
       if (!collection) {
         logger.warn(
@@ -176,7 +183,7 @@ const getAllRecordsToApply = (
       return !!collection
     }),
     map((changes, tableName: TableName<any>) => {
-      return recordsToApplyRemoteChangesTo(db.collections.get((tableName: any)), changes)
+      return recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes)
     }),
     promiseAllObject,
   )
@@ -197,15 +204,17 @@ const prepareApplyAllRemoteChanges = (
   recordsToApply: AllRecordsToApply,
   sendCreatedAsUpdated: boolean,
   log?: SyncLog,
+  conflictResolver?: SyncConflictResolver,
 ): Model[] =>
   piped(
     recordsToApply,
     map((records, tableName: TableName<any>) =>
       prepareApplyRemoteChangesToCollection(
-        db.collections.get((tableName: any)),
+        db.get((tableName: any)),
         records,
         sendCreatedAsUpdated,
         log,
+        conflictResolver,
       ),
     ),
     values,
@@ -218,6 +227,7 @@ const unsafeBatchesWithRecordsToApply = (
   recordsToApply: AllRecordsToApply,
   sendCreatedAsUpdated: boolean,
   log?: SyncLog,
+  conflictResolver?: SyncConflictResolver,
 ): Promise<void>[] =>
   piped(
     recordsToApply,
@@ -228,6 +238,7 @@ const unsafeBatchesWithRecordsToApply = (
           records,
           sendCreatedAsUpdated,
           log,
+          conflictResolver,
         ),
         splitEvery(5000),
         map(recordBatch => db.batch(...recordBatch)),
@@ -242,20 +253,35 @@ export default function applyRemoteChanges(
   remoteChanges: SyncDatabaseChangeSet,
   sendCreatedAsUpdated: boolean,
   log?: SyncLog,
+  conflictResolver?: SyncConflictResolver,
   _unsafeBatchPerCollection?: boolean,
 ): Promise<void> {
   ensureActionsEnabled(db)
   return db.action(async () => {
+    // $FlowFixMe
     const recordsToApply = await getAllRecordsToApply(db, remoteChanges)
 
     // Perform steps concurrently
     await Promise.all([
       destroyAllDeletedRecords(db, recordsToApply),
       ...(_unsafeBatchPerCollection
-        ? unsafeBatchesWithRecordsToApply(db, recordsToApply, sendCreatedAsUpdated, log)
+        ? unsafeBatchesWithRecordsToApply(
+            db,
+            recordsToApply,
+            sendCreatedAsUpdated,
+            log,
+            conflictResolver,
+          )
         : [
             db.batch(
-              ...prepareApplyAllRemoteChanges(db, recordsToApply, sendCreatedAsUpdated, log),
+              // $FlowFixMe
+              prepareApplyAllRemoteChanges(
+                db,
+                recordsToApply,
+                sendCreatedAsUpdated,
+                log,
+                conflictResolver,
+              ),
             ),
           ]),
     ])

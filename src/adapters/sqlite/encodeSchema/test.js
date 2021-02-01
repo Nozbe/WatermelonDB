@@ -1,5 +1,5 @@
 import { appSchema, tableSchema } from '../../../Schema'
-import { addColumns, createTable } from '../../../Schema/migrations'
+import { addColumns, createTable, unsafeExecuteSql } from '../../../Schema/migrations'
 
 import { encodeSchema, encodeMigrationSteps } from './index'
 
@@ -33,6 +33,7 @@ describe('encodeSchema', () => {
 
     expect(encodeSchema(testSchema)).toBe(expectedSchema)
   })
+
   it('encodes schema with FTS', () => {
     const testSchema = appSchema({
       version: 1,
@@ -58,6 +59,27 @@ describe('encodeSchema', () => {
       'create trigger "tasks_fts_insert" after insert on "tasks" begin insert into "tasks_fts" ("rowid", "author_name", "author_title") values (NEW."rowid", NEW."author_name", NEW."author_title"); end;' +
       'create trigger "tasks_fts_update" after update on "tasks" begin update "tasks_fts" set "author_name" = NEW."author_name", "author_title" = NEW."author_title" where "rowid" = NEW."rowid"; end;' +
       ''
+    expect(encodeSchema(testSchema)).toBe(expectedSchema)
+  })
+
+  it(`encodes schema with unsafe SQL`, () => {
+     const testSchema = appSchema({
+      version: 1,
+      tables: [
+        tableSchema({
+          name: 'tasks'
+          columns: [{ name: 'author_id', type: 'string', isIndexed: true }],
+          unsafeSql: sql => sql.replace(/create table "tasks" [^)]+\)/, '$& without rowid'),
+        }),
+      ],
+      unsafeSql: sql => `create blabla;${sql}`,
+    })
+
+    const expectedSchema =
+      'create blabla;' +
+      'create table "tasks" ("id" primary key, "_changed", "_status", "author_id") without rowid;' +
+      'create index "tasks_author_id" on "tasks" ("author_id");' +
+      'create index "tasks__status" on "tasks" ("_status");'
 
     expect(encodeSchema(testSchema)).toBe(expectedSchema)
   })
@@ -95,6 +117,31 @@ describe('encodeSchema', () => {
       `alter table "posts" add "is_pinned";` +
       `update "posts" set "is_pinned" = 0;` +
       `create index "posts_is_pinned" on "posts" ("is_pinned");`
+
+    expect(encodeMigrationSteps(migrationSteps)).toBe(expectedSQL)
+  })
+  it(`encodes migrations with unsafe SQL`, () => {
+    const migrationSteps = [
+      addColumns({
+        table: 'posts',
+        columns: [{ name: 'subtitle', type: 'string', isOptional: true }],
+        unsafeSql: sql => `${sql}bla;`,
+      }),
+      createTable({
+        name: 'comments',
+        columns: [{ name: 'body', type: 'string' }],
+        unsafeSql: sql => sql.replace(/create table [^)]+\)/, '$& without rowid'),
+      }),
+      unsafeExecuteSql('boop;'),
+    ]
+
+    const expectedSQL =
+      `alter table "posts" add "subtitle";` +
+      `update "posts" set "subtitle" = null;` +
+      'bla;' +
+      `create table "comments" ("id" primary key, "_changed", "_status", "body") without rowid;` +
+      `create index "comments__status" on "comments" ("_status");` +
+      'boop;'
 
     expect(encodeMigrationSteps(migrationSteps)).toBe(expectedSQL)
   })

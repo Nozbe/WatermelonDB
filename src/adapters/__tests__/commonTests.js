@@ -31,10 +31,11 @@ class BadModel extends Model {
 export default () => [
   [
     'validates adapter options',
-    async (_adapter, AdapterClass) => {
+    async (_adapter, AdapterClass, extraAdapterOptions) => {
       const schema = { ...testSchema, version: 10 }
 
-      const makeAdapter = options => new AdapterClass({ schema, ...options })
+      const makeAdapter = options =>
+        new AdapterClass({ schema, ...options, ...extraAdapterOptions })
       const adapterWithMigrations = migrations => makeAdapter({ migrations })
 
       // expect(() => makeAdapter({})).toThrowError(/missing migrations/)
@@ -66,6 +67,7 @@ export default () => [
           new AdapterClass({
             schema: { ...testSchema, version: 1 },
             migrations: schemaMigrations({ migrations: [] }),
+            ...extraAdapterOptions,
           }),
       ).not.toThrow()
       expect(() => adapterWithRealMigrations([])).toThrow(/Missing migration/)
@@ -678,7 +680,7 @@ export default () => [
   ],
   [
     'supports naughty strings in LocalStorage',
-    async (adapter, AdapterClass, extraAdapterOptions) => {
+    async (adapter, AdapterClass, extraAdapterOptions, platform) => {
       const usePartialTestBecauseBuggyLoki = AdapterClass.name === 'LokiJSAdapter'
       if (usePartialTestBecauseBuggyLoki) {
         // FIXME: https://github.com/techfort/LokiJS/issues/839
@@ -693,7 +695,8 @@ export default () => [
         if (
           AdapterClass.name === 'SQLiteAdapter' &&
           !extraAdapterOptions.experimentalUseJSI &&
-          string === '﻿'
+          (string === '﻿' || (string === '￾' && platform === 'android')) &&
+          platform !== 'node'
         ) {
           // eslint-disable-next-line no-await-in-loop
           await adapter.setLocal(key, string)
@@ -1015,24 +1018,101 @@ export default () => [
       }
     },
   ],
+  [
+    'can actually save and read from file system',
+    async (_adapter, AdapterClass, extraAdapterOptions) => {
+      if (AdapterClass.name === 'LokiJSAdapter') {
+        // Loki is tested differently
+        return
+      }
+      const fileName = `testDatabase-${Math.random()}`
+
+      const adapter = new DatabaseAdapterCompat(
+        new AdapterClass({
+          dbName: fileName,
+          schema: { ...testSchema, version: 1 },
+          ...extraAdapterOptions,
+        }),
+      )
+      // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
+      await new Promise(resolve => setTimeout(resolve, 0))
+
+      // sanity check
+      expect(await adapter.count(taskQuery())).toBe(0)
+      await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
+      expect(await adapter.count(taskQuery())).toBe(1)
+
+      // open second db
+      const adapter2 = new DatabaseAdapterCompat(
+        new AdapterClass({
+          dbName: fileName,
+          schema: { ...testSchema, version: 1 },
+          ...extraAdapterOptions,
+        }),
+      )
+      // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
+      await new Promise(resolve => setTimeout(resolve, 0))
+      expect(await adapter2.count(taskQuery())).toBe(1)
+
+      // reset
+      await adapter2.unsafeResetDatabase()
+      expect(await adapter2.count(taskQuery())).toBe(0)
+
+      // open third db
+      const adapter3 = new DatabaseAdapterCompat(
+        new AdapterClass({
+          dbName: fileName,
+          schema: { ...testSchema, version: 1 },
+          ...extraAdapterOptions,
+        }),
+      )
+      // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
+      await new Promise(resolve => setTimeout(resolve, 0))
+
+      expect(await adapter3.count(taskQuery())).toBe(0)
+    },
+  ],
   ...matchTests.map(testCase => [
     `[shared match test] ${testCase.name}`,
-    async adapter => {
-      await performMatchTest(adapter, testCase)
+    async (adapter, AdapterClass) => {
+      const perform = () => performMatchTest(adapter, testCase)
+      const shouldSkip =
+        (AdapterClass.name === 'LokiJSAdapter' && testCase.skipLoki) ||
+        (AdapterClass.name === 'SQLiteAdapter' && testCase.skipSqlite)
+      if (shouldSkip) {
+        await expect(perform()).rejects.toBeInstanceOf(Error)
+      } else {
+        await perform()
+      }
+    },
+  ]),
+  ...joinTests.map(testCase => [
+    `[shared join test] ${testCase.name}`,
+    async (adapter, AdapterClass) => {
+      const perform = () => performJoinTest(adapter, testCase)
+      const shouldSkip =
+        (AdapterClass.name === 'LokiJSAdapter' && testCase.skipLoki) ||
+        (AdapterClass.name === 'SQLiteAdapter' && testCase.skipSqlite)
+      if (shouldSkip) {
+        await expect(perform()).rejects.toBeInstanceOf(Error)
+      } else {
+        await perform()
+      }
     },
   ]),
   [
     '[shared match test] can match strings from big-list-of-naughty-strings',
-    async (adapter, AdapterClass, extraAdapterOptions) => {
+    async (adapter, AdapterClass, extraAdapterOptions, platform) => {
       // eslint-disable-next-line no-restricted-syntax
       for (const testCase of naughtyMatchTests) {
         // console.log(testCase.name)
 
         // KNOWN ISSUE: non-JSI adapter implementation gets confused by this (it's a BOM mark)
+        const naughtyString = testCase.matching[0].text1
         if (
           AdapterClass.name === 'SQLiteAdapter' &&
           !extraAdapterOptions.experimentalUseJSI &&
-          testCase.matching[0].text1 === '﻿'
+          (naughtyString === '﻿' || (naughtyString === '￾' && platform === 'android'))
         ) {
           // eslint-disable-next-line no-console
           console.warn('skip check for a BOM naughty string - known failing test')
@@ -1058,7 +1138,7 @@ export default () => [
   ],
   [
     'can store and retrieve naughty strings exactly',
-    async (_adapter, AdapterClass, extraAdapterOptions) => {
+    async (_adapter, AdapterClass, extraAdapterOptions, platform) => {
       let adapter = _adapter
       const indexedNaughtyStrings = naughtyStrings.map((string, i) => [`id${i}`, string])
       await adapter.batch(
@@ -1076,7 +1156,8 @@ export default () => [
         if (
           AdapterClass.name === 'SQLiteAdapter' &&
           !extraAdapterOptions.experimentalUseJSI &&
-          string === '﻿'
+          (string === '﻿' || (string === '￾' && platform === 'android')) &&
+          platform !== 'node'
         ) {
           expect(record.text1).not.toBe(string) // if this fails, it means the issue's been fixed
         } else {
@@ -1086,10 +1167,4 @@ export default () => [
       })
     },
   ],
-  ...joinTests.map(testCase => [
-    `[shared join test] ${testCase.name}`,
-    async adapter => {
-      await performJoinTest(adapter, testCase)
-    },
-  ]),
 ]

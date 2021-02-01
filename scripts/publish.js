@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 
 // inspired by `np` – https://github.com/sindresorhus/np
 
@@ -26,6 +27,8 @@ const isValidAndGreaterVersion = both(isValidVersion, isVersionGreater)
 const throwError = str => info => {
   throw new Error(str, JSON.stringify(info))
 }
+
+const skipChecks = process.argv.includes('--skip-checks')
 
 const questions = [
   {
@@ -114,18 +117,23 @@ const buildTasks = options => {
               ),
           },
         ]),
-    {
-      title: 'check tests',
-      task: () => execa('yarn', ['test']),
-    },
-    {
-      title: 'check flow',
-      task: () => execa('yarn', ['flow']),
-    },
-    {
-      title: 'check eslint',
-      task: () => execa('yarn', ['eslint']),
-    },
+    ...(!skipChecks ? [
+      {
+        title: 'check tests',
+        task: () => execa('yarn', ['test']),
+      },
+      {
+        title: 'check flow',
+        task: () => execa('yarn', ['flow']),
+      },
+      {
+        title: 'check eslint',
+        task: () => execa('yarn', ['eslint']),
+      },
+    ] : [{
+      title: 'WARN: Skipping test/flow/lint checks',
+      task: () => {},
+    }]),
     // TODO: Bring those back when metro config is fixed
     // {
     //   title: 'check iOS tests',
@@ -149,8 +157,9 @@ const buildTasks = options => {
     },
     {
       title: 'publish package',
-      task: () =>
-        listrInput('2-Factor Authentication code', {
+      task: () => {
+        console.log('\u0007')
+        return listrInput('2-Factor Authentication code', {
           validate: otp => otp.length > 0,
           done: otp =>
             execa('npm', [
@@ -160,7 +169,8 @@ const buildTasks = options => {
               '--tag',
               tag,
             ]),
-        }),
+        })
+      },
     },
     {
       title: 'git push',

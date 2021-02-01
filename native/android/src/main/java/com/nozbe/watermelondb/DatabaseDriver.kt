@@ -112,7 +112,7 @@ class DatabaseDriver(context: Context, dbName: String) {
     }
 
     fun getLocal(key: String): String? {
-        log?.info("Get Local: $key")
+        // log?.info("Get Local: $key")
         return database.getFromLocalStorage(key)
     }
 
@@ -132,7 +132,7 @@ class DatabaseDriver(context: Context, dbName: String) {
     }
 
     fun batch(operations: ReadableArray) {
-        log?.info("Batch of ${operations.size()}")
+        // log?.info("Batch of ${operations.size()}")
         val newIds = arrayListOf<Pair<TableName, RecordID>>()
         val removedIds = arrayListOf<Pair<TableName, RecordID>>()
 
@@ -214,7 +214,7 @@ class DatabaseDriver(context: Context, dbName: String) {
 
     private fun setUpSchema(schema: Schema) {
         database.transaction {
-            database.executeStatements(schema.sql + Queries.localStorageSchema)
+            database.unsafeExecuteStatements(schema.sql + Queries.localStorageSchema)
             database.userVersion = schema.version
         }
     }
@@ -226,7 +226,7 @@ class DatabaseDriver(context: Context, dbName: String) {
         }
 
         database.transaction {
-            database.executeStatements(migrations.sql)
+            database.unsafeExecuteStatements(migrations.sql)
             database.userVersion = migrations.to
         }
     }

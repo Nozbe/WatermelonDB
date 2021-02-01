@@ -4,13 +4,31 @@ import { type ConnectionTag } from '../../utils/common'
 import { type ResultCallback } from '../../utils/fp/Result'
 
 import type { RecordId } from '../../Model'
-import type { TableName, SchemaVersion } from '../../Schema'
+import type { AppSchema, TableName, SchemaVersion } from '../../Schema'
+import type { SchemaMigrations } from '../../Schema/migrations'
 
 import { type DirtyFindResult, type DirtyQueryResult } from '../common'
 
 export type SQL = string
 export type SQLiteArg = string | boolean | number | null
 export type SQLiteQuery = [SQL, SQLiteArg[]]
+
+export type SQLiteAdapterOptions = $Exact<{
+  dbName?: string,
+  schema: AppSchema,
+  migrations?: SchemaMigrations,
+  // (deprecated) use JSI instead
+  synchronous?: boolean,
+  // The new way to run the database in synchronous mode. iOS-only at the moment
+  experimentalUseJSI?: boolean,
+  // Called when database failed to set up (initialize) correctly. It's possible that
+  // it's some transient error that will be solved by a reload, but it's
+  // very likely that the error is persistent (e.g. a corrupted database).
+  // Pass a callback to offer to the user to reload the app or log out
+  onSetUpError?: (error: Error) => void,
+}>
+
+export type DispatcherType = 'asynchronous' | 'synchronous' | 'jsi'
 
 export type NativeBridgeBatchOperation =
   | ['execute', TableName<any>, SQL, SQLiteArg[]]

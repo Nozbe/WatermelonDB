@@ -2,6 +2,7 @@ import { appSchema, tableSchema } from './index'
 
 describe('Schema', () => {
   it('can prepare schema', () => {
+    const unsafeSql = () => {}
     const testSchema = appSchema({
       version: 1,
       tables: [
@@ -16,8 +17,10 @@ describe('Schema', () => {
             { name: 'col2', type: 'boolean' },
             { name: 'col3', type: 'boolean' },
           ],
+          unsafeSql,
         }),
       ],
+      unsafeSql,
     })
 
     expect(testSchema).toEqual({
@@ -43,8 +46,10 @@ describe('Schema', () => {
             { name: 'col2', type: 'boolean' },
             { name: 'col3', type: 'boolean' },
           ],
+          unsafeSql,
         },
       },
+      unsafeSql,
     })
   })
   it('can define last_modified in user land', () => {

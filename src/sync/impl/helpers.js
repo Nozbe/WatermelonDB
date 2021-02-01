@@ -1,12 +1,12 @@
 // @flow
 
-import { all, values, pipe } from 'rambdax'
+import { all, values, pipe, map, reduce } from 'rambdax'
 
 import { logError, invariant } from '../../utils/common'
 
 import type { Model, Collection, Database } from '../..'
 import { type RawRecord, type DirtyRaw, sanitizedRaw } from '../../RawRecord'
-import type { SyncLog, SyncDatabaseChangeSet } from '../index'
+import type { SyncLog, SyncDatabaseChangeSet, SyncConflictResolver } from '../index'
 
 // Returns raw record with naive solution to a conflict based on local `_changed` field
 // This is a per-column resolution algorithm. All columns that were changed locally win
@@ -64,13 +64,23 @@ export function prepareUpdateFromRaw<T: Model>(
   record: T,
   updatedDirtyRaw: DirtyRaw,
   log: ?SyncLog,
+  conflictResolver?: SyncConflictResolver,
 ): T {
   // Note COPY for log - only if needed
   const logConflict = log && !!record._raw._changed
-  const logLocal = logConflict ? { ...record._raw } : {}
+  const logLocal = logConflict ? {
+    // $FlowFixMe
+    ...record._raw,
+  } : {}
   const logRemote = logConflict ? { ...updatedDirtyRaw } : {}
 
-  const newRaw = resolveConflict(record._raw, updatedDirtyRaw)
+  let newRaw = resolveConflict(record._raw, updatedDirtyRaw)
+
+  if (conflictResolver) {
+    newRaw = conflictResolver(record.table, record._raw, updatedDirtyRaw, newRaw)
+  }
+
+  // $FlowFixMe
   return record.prepareUpdate(() => {
     replaceRaw(record, newRaw)
 
@@ -80,6 +90,7 @@ export function prepareUpdateFromRaw<T: Model>(
       log.resolvedConflicts.push({
         local: logLocal,
         remote: logRemote,
+        // $FlowFixMe
         resolved: { ...record._raw },
       })
     }
@@ -88,6 +99,7 @@ export function prepareUpdateFromRaw<T: Model>(
 
 export function prepareMarkAsSynced<T: Model>(record: T): T {
   const newRaw = Object.assign({}, record._raw, { _status: 'synced', _changed: '' }) // faster than object spread
+  // $FlowFixMe
   return record.prepareUpdate(() => {
     replaceRaw(record, newRaw)
   })
@@ -110,4 +122,11 @@ export function ensureSameDatabase(database: Database, initialResetCount: number
 export const isChangeSetEmpty: SyncDatabaseChangeSet => boolean = pipe(
   values,
   all(({ created, updated, deleted }) => created.length + updated.length + deleted.length === 0),
+)
+
+const sum: number[] => number = reduce((a, b) => a + b, 0)
+export const changeSetCount: SyncDatabaseChangeSet => number = pipe(
+  values,
+  map(({ created, updated, deleted }) => created.length + updated.length + deleted.length),
+  sum,
 )

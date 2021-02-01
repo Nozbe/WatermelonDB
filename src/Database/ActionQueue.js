@@ -16,7 +16,7 @@ type ActionQueueItem<T> = $Exact<{
 export default class ActionQueue implements ActionInterface {
   _queue: ActionQueueItem<any>[] = []
 
-  _subActionIncoming = false
+  _subActionIncoming: boolean = false
 
   get isRunning(): boolean {
     return this._queue.length > 0

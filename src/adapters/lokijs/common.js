@@ -16,6 +16,8 @@ export const actions = {
   GET_LOCAL: 'GET_LOCAL',
   SET_LOCAL: 'SET_LOCAL',
   REMOVE_LOCAL: 'REMOVE_LOCAL',
+  EXPERIMENTAL_FATAL_ERROR: 'EXPERIMENTAL_FATAL_ERROR',
+  CLEAR_CACHED_RECORDS: 'CLEAR_CACHED_RECORDS',
 }
 
 export type WorkerExecutorType = $Values<typeof actions>
@@ -23,10 +25,14 @@ export type WorkerExecutorPayload = any[]
 
 export type WorkerResponseData = CachedQueryResult | CachedFindResult | number | RecordId[]
 
+export type CloneMethod = 'shallowCloneDeepObjects' | 'immutable' | 'deep'
+
 export type WorkerAction = $Exact<{
   id: number,
   type: WorkerExecutorType,
   payload: WorkerExecutorPayload,
+  cloneMethod: CloneMethod,
+  returnCloneMethod: CloneMethod,
 }>
 
 export type WorkerResponse = $Exact<{

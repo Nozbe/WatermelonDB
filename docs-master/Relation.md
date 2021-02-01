@@ -55,6 +55,9 @@ To simply get the related record, use `fetch`. You might need it [in Actions](./
 
 ```js
 const author = await comment.author.fetch()
+
+// Shortcut syntax:
+const author = await comment.author
 ```
 
 **Note**: If the relation column (in this example, `author_id`) is marked as `isOptional: true`, `fetch()` might return `null`.
@@ -106,10 +109,10 @@ class Comment extends Model {
 
 ### Many-To-Many Relation
 
-If for instance, our app `Post`s can be authored by many `User`s and a user can author many `Post`s. We would create such a relation following these steps:- 
+If for instance, our app `Post`s can be authored by many `User`s and a user can author many `Post`s. We would create such a relation following these steps:-
 
 1. Create a pivot schema and model that both the `User` model and `Post` model has association to; say `PostAuthor`
-2. Create has_many association on both `User` and `Post` pointing to `PostAuthor` Model 
+2. Create has_many association on both `User` and `Post` pointing to `PostAuthor` Model
 3. Create belongs_to association on `PostAuthor` pointing to both `User` and `Post`
 4. Retrieve all `Posts` for a user by defining a query that uses the pivot `PostAuthor` to infer the `Post`s that were authored by the User.
 

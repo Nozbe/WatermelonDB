@@ -36,6 +36,7 @@ const encodeTableIndicies: TableSchema => SQL = ({ name: tableName, columns }) =
     .concat([`create index "${tableName}__status" on ${encodeName(tableName)} ("_status");`])
     .join('')
 
+
 const encodeFTSTrigger: ({
   tableName: string,
   ftsTableName: string,
@@ -134,15 +135,27 @@ const encodeFTSSearch: TableSchema => SQL = ({ name: tableName, columns }) => {
 const encodeTable: TableSchema => SQL = table =>
   encodeCreateTable(table) + encodeTableIndicies(table) + encodeFTSSearch(table)
 
-export const encodeSchema: AppSchema => SQL = ({ tables }) =>
-  values(tables)
+const transform = (sql: string, transformer: ?(string) => string) =>
+  transformer ? transformer(sql) : sql
+
+const encodeTable: TableSchema => SQL = table =>
+  transform(encodeCreateTable(table) + encodeTableIndicies(table), table.unsafeSql)
+
+export const encodeSchema: AppSchema => SQL = ({ tables, unsafeSql }) => {
+  const sql = values(tables)
     .map(encodeTable)
     .join('')
+  return transform(sql, unsafeSql)
+}
 
 const encodeCreateTableMigrationStep: CreateTableMigrationStep => SQL = ({ schema }) =>
   encodeTable(schema)
 
-const encodeAddColumnsMigrationStep: AddColumnsMigrationStep => SQL = ({ table, columns }) =>
+const encodeAddColumnsMigrationStep: AddColumnsMigrationStep => SQL = ({
+  table,
+  columns,
+  unsafeSql,
+}) =>
   columns
     .map(column => {
       const addColumn = `alter table ${encodeName(table)} add ${encodeName(column.name)};`
@@ -151,13 +164,14 @@ const encodeAddColumnsMigrationStep: AddColumnsMigrationStep => SQL = ({ table, 
       )} = ${encodeValue(nullValue(column))};`
       const addIndex = encodeIndex(column, table)
 
+
       if (column.isSearchable) {
         logger.warn(
           '[DB][Worker] Support for migrations and isSearchable is still to be implemented',
         )
       }
 
-      return addColumn + setDefaultValue + addIndex
+      return transform(addColumn + setDefaultValue + addIndex, unsafeSql)
     })
     .join('')
 
@@ -168,6 +182,8 @@ export const encodeMigrationSteps: (MigrationStep[]) => SQL = steps =>
         return encodeCreateTableMigrationStep(step)
       } else if (step.type === 'add_columns') {
         return encodeAddColumnsMigrationStep(step)
+      } else if (step.type === 'sql') {
+        return step.sql
       }
 
       throw new Error(`Unsupported migration step ${step.type}`)

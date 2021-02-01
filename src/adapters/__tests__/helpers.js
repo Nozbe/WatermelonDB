@@ -20,7 +20,21 @@ export class MockProject extends Model {
 
   static associations = {
     tasks: { type: 'has_many', foreignKey: 'project_id' },
+    teams: { type: 'belongs_to', key: 'team_id' },
   }
+}
+export class MockTeam extends Model {
+  static table = 'teams'
+
+  static associations = {
+    projects: { type: 'has_many', foreignKey: 'team_id' },
+    organizations: { type: 'belongs_to', key: 'organization_id' },
+  }
+}
+export class MockOrganization extends Model {
+  static table = 'organizations'
+
+  static associations = {}
 }
 export class MockTagAssignment extends Model {
   static table = 'tag_assignments'
@@ -53,11 +67,30 @@ export const testSchema = appSchema({
     tableSchema({
       name: 'projects',
       columns: [
+        { name: 'team_id', type: 'string' },
         { name: 'num1', type: 'number' },
         { name: 'num2', type: 'number' },
         { name: 'text1', type: 'string' },
         { name: 'text2', type: 'string' },
         { name: 'text3', type: 'string' },
+        { name: 'bool1', type: 'boolean' },
+      ],
+    }),
+    tableSchema({
+      name: 'teams',
+      columns: [
+        { name: 'organization_id', type: 'string' },
+        { name: 'num1', type: 'number' },
+        { name: 'num2', type: 'number' },
+        { name: 'text1', type: 'string' },
+        { name: 'bool1', type: 'boolean' },
+      ],
+    }),
+    tableSchema({
+      name: 'organizations',
+      columns: [
+        { name: 'num1', type: 'number' },
+        { name: 'text1', type: 'string' },
         { name: 'bool1', type: 'boolean' },
       ],
     }),
@@ -79,8 +112,18 @@ export const testSchema = appSchema({
   ],
 })
 
+const mockCollections = {
+  tasks: MockTask,
+  projects: MockProject,
+  teams: MockTeam,
+  tag_assignments: MockTagAssignment,
+}
+
 export const modelQuery = (modelClass, ...conditions) => {
-  const mockCollection = { modelClass }
+  const mockCollection = {
+    modelClass,
+    db: { get: table => ({ modelClass: mockCollections[table] }) },
+  }
   return new Query(mockCollection, conditions)
 }
 
@@ -96,7 +139,7 @@ const insertAll = async (adapter, table, records) =>
       // TODO: Are we sure we want to test this by inserting non-sanitized records?
       // On one hand, this _shouldn't_ happen, on the other, through error or malice
       // (changing DB directly, outside of Wmelon), it _might_ happen
-      return ['create', table, { ...raw, _status: '' }]
+      return ['create', table, { _status: '', ...raw }]
     }),
   )
 
@@ -121,8 +164,10 @@ export const performMatchTest = async (adapter, testCase) => {
   expect(sort(results)).toEqual(getExpectedResults(matching))
 
   // also test if counting works correctly
-  const count = await adapter.count(query)
-  expect(count).toBe(results.length)
+  if (!testCase.skipCount) {
+    const count = await adapter.count(query)
+    expect(count).toBe(results.length)
+  }
 
   // delete
   await adapter.batch(

@@ -55,9 +55,7 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     sortColumn: ColumnName
     sortOrder: SortOrder
   }
-  export type SortOrder =
-    | 'asc'
-    | 'desc'
+  export type SortOrder = 'asc' | 'desc'
   export const asc: SortOrder
   export const desc: SortOrder
   export interface Take {
@@ -68,14 +66,31 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     type: 'skip'
     count: number
   }
-  export type Clause = Where | On | SortBy | Take | Skip
+  export interface Join {
+    type: 'joinTables'
+    tables: TableName<any>[]
+  }
+  export interface NestedJoin {
+    type: 'nestedJoinTable'
+    from: TableName<any>
+    to: TableName<any>
+  }
+  export interface Sql {
+    type: 'sql'
+    expr: string
+  }
+
+  export type Clause = Where | On | SortBy | Take | Skip | Join | NestedJoin | Sql
   export interface QueryDescription {
     where: Where[]
     join: On[]
     sortBy: SortBy[]
     take?: Take
     skip?: Skip
+    joinTables?: Join
+    nestedJoinTables?: NestedJoin
   }
+  export type Condition = Where | On
 
   export function eq(valueOrColumn: Value | ColumnDescription): Comparison
   export function notEq(valueOrColumn: Value | ColumnDescription): Comparison
@@ -92,12 +107,17 @@ declare module '@nozbe/watermelondb/QueryDescription' {
   export function and(...conditions: Where[]): And
   export function or(...conditions: Where[]): Or
   export function textMatches(value: string): Comparison
+  export function and(...conditions: Condition[]): And
+  export function or(...conditions: Condition[]): Or
   export function like(value: string): Comparison
   export function notLike(value: string): Comparison
   export function experimentalSortBy(sortColumn: ColumnName, sortOrder?: SortOrder): SortBy
   export function experimentalTake(count: number): Take
   export function experimentalSkip(count: number): Skip
+  export function experimentalJoinTables(tables: TableName<any>[]): Join
+  export function experimentalNestedJoin(from: TableName<any>, to: TableName<any>): NestedJoin
   export function sanitizeLikeString(value: string): string
+  export function unsafeSqlExpr(sql: string): Sql
 
   type _OnFunctionColumnValue = (table: TableName<any>, column: ColumnName, value: Value) => On
   type _OnFunctionColumnComparison = (
@@ -105,11 +125,13 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     column: ColumnName,
     comparison: Comparison,
   ) => On
-  type _OnFunctionWhereDescription = (table: TableName<any>, where: WhereDescription) => On
+  type _OnFunctionWhereDescription = (table: TableName<any>, where: Where) => On
+  type _OnFunctionNested = (table: TableName<any>, on: On) => On
 
   type OnFunction = _OnFunctionColumnValue &
     _OnFunctionColumnComparison &
-    _OnFunctionWhereDescription
+    _OnFunctionWhereDescription &
+    _OnFunctionNested
 
   export const on: OnFunction
 

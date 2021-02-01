@@ -3,6 +3,7 @@
 #include <sqlite3.h>
 
 #include "DatabasePlatform.h"
+#include "DatabasePlatformAndroid.h"
 
 #define LOG_TAG "watermelondb.jsi"
 #define SQLITE_LOG_TAG "watermelondb.sqlite"
@@ -11,7 +12,7 @@ namespace watermelondb {
 namespace platform {
 
 void consoleLog(std::string message) {
-    __android_log_print(ANDROID_LOG_DEFAULT, LOG_TAG, "%s\n", message.c_str());
+    __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "%s\n", message.c_str());
 }
 
 void consoleError(std::string message) {
@@ -64,8 +65,49 @@ void initializeSqlite() {
     });
 }
 
+static JavaVM *jvm;
+
+void configureJNI(JNIEnv *env) {
+    assert(env);
+    if (env->GetJavaVM(&jvm) != JNI_OK) {
+        consoleError("Could not initialize WatermelonDB JSI - cannot get JavaVM");
+        std::abort();
+    }
+    assert(jvm);
+}
+
 std::string resolveDatabasePath(std::string path) {
-    // TODO: Unimplemented
+    JNIEnv *env;
+    assert(jvm);
+    if (jvm->AttachCurrentThread(&env, NULL) != JNI_OK) {
+        throw std::runtime_error("Unable to resolve db path - JVM thread attach failed");
+    }
+    assert(env);
+
+    jclass clazz = env->FindClass("com/nozbe/watermelondb/jsi/JSIInstaller");
+    if (clazz == NULL) {
+        throw std::runtime_error("Unable to resolve db path - missing JSIInstaller class");
+    }
+    jmethodID mid = env->GetStaticMethodID(clazz, "_resolveDatabasePath", "(Ljava/lang/String;)Ljava/lang/String;");
+    if (mid == NULL) {
+        throw std::runtime_error("Unable to resolve db path - missing Java _resolveDatabasePath method");
+    }
+
+    jobject jniPath = env->NewStringUTF(path.c_str());
+    if (jniPath == NULL) {
+        throw std::runtime_error("Unable to resolve db path - could not construct a Java string");
+    }
+    jstring jniResolvedPath = (jstring)env->CallStaticObjectMethod(clazz, mid, jniPath);
+    if (env->ExceptionCheck()) {
+        throw std::runtime_error("Unable to resolve db path - exception occured while resolving path");
+    }
+    const char *cResolvedPath = env->GetStringUTFChars(jniResolvedPath, 0);
+    if (cResolvedPath == NULL) {
+        throw std::runtime_error("Unable to resolve db path - failed to get path string");
+    }
+    std::string resolvedPath(cResolvedPath);
+    env->ReleaseStringUTFChars(jniResolvedPath, cResolvedPath);
+    return resolvedPath;
 }
 
 void deleteDatabaseFile(std::string path, bool warnIfDoesNotExist) {
@@ -74,6 +116,7 @@ void deleteDatabaseFile(std::string path, bool warnIfDoesNotExist) {
 
 void onMemoryAlert(std::function<void(void)> callback) {
     // TODO: Unimplemented
+    // NOTE: https://developer.android.com/reference/android/app/Application#onTrimMemory(int)
 }
 
 } // namespace platform

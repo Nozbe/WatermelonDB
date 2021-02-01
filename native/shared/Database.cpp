@@ -154,27 +154,27 @@ jsi::Object Database::resultDictionary(sqlite3_stmt *statement) {
         switch (sqlite3_column_type(statement, i)) {
         case SQLITE_INTEGER: {
             sqlite3_int64 value = sqlite3_column_int64(statement, i);
-            dictionary.setProperty(rt, column, std::move(jsi::Value((double)value)));
+            dictionary.setProperty(rt, column, jsi::Value((double)value));
             break;
         }
         case SQLITE_FLOAT: {
             double value = sqlite3_column_double(statement, i);
-            dictionary.setProperty(rt, column, std::move(jsi::Value(value)));
+            dictionary.setProperty(rt, column, jsi::Value(value));
             break;
         }
         case SQLITE_TEXT: {
             const char *text = (const char *)sqlite3_column_text(statement, i);
 
             if (text) {
-                dictionary.setProperty(rt, column, std::move(jsi::String::createFromAscii(rt, text)));
+                dictionary.setProperty(rt, column, jsi::String::createFromAscii(rt, text));
             } else {
-                dictionary.setProperty(rt, column, std::move(jsi::Value::null()));
+                dictionary.setProperty(rt, column, jsi::Value::null());
             }
 
             break;
         }
         case SQLITE_NULL: {
-            dictionary.setProperty(rt, column, std::move(jsi::Value::null()));
+            dictionary.setProperty(rt, column, jsi::Value::null());
             break;
         }
         case SQLITE_BLOB: {
@@ -227,7 +227,6 @@ int Database::getUserVersion() {
 }
 
 void Database::setUserVersion(int newVersion) {
-    auto &rt = getRt();
     // NOTE: placeholders don't work, and ints are safe
     std::string sql = "pragma user_version = " + std::to_string(newVersion);
     executeUpdate(sql);
@@ -427,46 +426,24 @@ create index local_storage_key_index on local_storage (key);
 
 void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
     auto &rt = getRt();
+
+    // TODO: in non-memory mode, just delete the DB files
+    // NOTE: As of iOS 14, selecting tables from sqlite_master and deleting them does not work
+    // They seem to be enabling "defensive" config. So we use another obscure method to clear the database
+    // https://www.sqlite.org/c3ref/c_dbconfig_defensive.html#sqlitedbconfigresetdatabase
+
+    if (sqlite3_db_config(db_->sqlite, SQLITE_DBCONFIG_RESET_DATABASE, 1, 0) != SQLITE_OK) {
+        throw jsi::JSError(rt, "Failed to enable reset database mode");
+    }
+    // NOTE: We can't VACUUM in a transaction
+    executeMultiple("vacuum");
+
+    if (sqlite3_db_config(db_->sqlite, SQLITE_DBCONFIG_RESET_DATABASE, 0, 0) != SQLITE_OK) {
+        throw jsi::JSError(rt, "Failed to disable reset database mode");
+    }
+
     beginTransaction();
     try {
-        // TODO: delete file in non-test?
-
-        std::vector<std::string> tables = {};
-
-        // Find all tables (scope to reset SqliteStatement)
-        {
-            auto args = jsi::Array::createWithElements(rt);
-            auto statement = executeQuery("select name from sqlite_master where type='table'", args);
-
-            for (size_t i = 0; true; i++) {
-                int stepResult = sqlite3_step(statement.stmt);
-
-                if (stepResult == SQLITE_DONE) {
-                    break;
-                } else if (stepResult != SQLITE_ROW) {
-                    throw dbError("Failed to get table names to delete");
-                }
-
-                assert(sqlite3_data_count(statement.stmt) == 1);
-                const char *tableName = (const char *)sqlite3_column_text(statement.stmt, 0);
-                if (!tableName) {
-                    throw jsi::JSError(rt, "Failed to get table name to delete");
-                }
-
-                tables.push_back(std::string(tableName));
-            }
-        }
-
-        // Destroy everything
-        for (auto const &table : tables) {
-            executeUpdate("drop table if exists `" + table + "`");
-        }
-
-        executeUpdate("pragma writable_schema=1");
-        executeUpdate("delete from sqlite_master");
-        executeUpdate("pragma user_version=0");
-        executeUpdate("pragma writable_schema=0");
-
         cachedRecords_ = {};
 
         // Reinitialize schema

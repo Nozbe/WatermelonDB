@@ -13,6 +13,11 @@ import { CollectionChangeTypes } from './common'
 const mockQuery = collection => new Query(collection, [Q.where('a', 'b')])
 
 describe('Collection', () => {
+  it(`exposes database`, () => {
+    const { db, projects } = mockDatabase()
+    expect(projects.database).toBe(db)
+    expect(projects.db).toBe(db)
+  })
   it('exposes schema', () => {
     const { tasks, projects } = mockDatabase()
 
@@ -140,7 +145,7 @@ describe('fetching queries', () => {
     collection._cache.add(m1)
 
     // fetch, check if error occured
-    const spy = jest.spyOn(logger, 'error').mockImplementation(() => {})
+    const spy = jest.spyOn(logger, 'warn').mockImplementation(() => {})
     const models = await toPromise(cb => collection._fetchQuery(mockQuery(collection), cb))
     expect(spy).toHaveBeenCalledTimes(1)
     spy.mockRestore()

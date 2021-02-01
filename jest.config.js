@@ -3,7 +3,7 @@ module.exports = {
   bail: true,
   testURL: 'http://localhost/',
   moduleNameMapper: {
-    '^rxjs(.*)$': '<rootDir>/node_modules/rxjs/internal$1',
+    // '^rxjs(.*)$': '<rootDir>/node_modules/rxjs/internal$1',
   },
   setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.js'],
   rootDir: __dirname,
