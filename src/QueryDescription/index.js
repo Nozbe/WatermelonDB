@@ -236,7 +236,7 @@ export function sanitizeLikeString(value: string): string {
 }
 
 export function textMatches(value: string): Comparison {
-  return { operator: 'match', right: { value } }
+  return { operator: 'match', right: { value }, type: comparisonSymbol }
 }
 
 export function column(name: ColumnName): ColumnDescription {
