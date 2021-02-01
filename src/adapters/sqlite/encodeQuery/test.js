@@ -217,6 +217,17 @@ describe('SQLite encodeQuery', () => {
         ` and "tasks"."_status" is not 'deleted'`,
     )
   })
+  it('encodes JOIN over FTS table', () => {
+    const query = new Query(mockCollection, [
+      Q.where('searchable', Q.textMatches('hello world')),
+    ])
+    expect(encodeQuery(query)).toBe(
+      `select "tasks".* from "tasks" ` +
+      `where "tasks"."rowid" in (` +
+      `select "tasks_fts"."rowid" from "tasks_fts" ` +
+      `where "tasks_fts"."searchable" match 'hello world'` +
+      `) and "tasks"."_status" is not 'deleted'`
+  })
   it('fails to encode bad oneOf/notIn values', () => {
     expect(() => encoded([Q.where('col7', Q.oneOf([{}]))])).toThrow(
       'Invalid value to encode into query',

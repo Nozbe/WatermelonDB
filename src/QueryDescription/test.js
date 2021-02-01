@@ -417,6 +417,21 @@ describe('buildQueryDescription', () => {
       skip: 800,
     })
   })
+  it('supports textMatches', () => {
+    const query = Q.buildQueryDescription([
+      Q.where('searchable', Q.textMatches('hello world')),
+    ])
+    expect(query).toEqual({
+      'where': [
+        {
+          'operator': 'match',
+          'right': {
+            'value': 'searchable',
+          },
+        },
+      ],
+      'join': [],
+    })
   it('deep freezes the query in dev', () => {
     const make = () => Q.buildQueryDescription([Q.where('left_column', 'right_value')])
     const query = make()
