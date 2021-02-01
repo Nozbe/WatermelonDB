@@ -132,14 +132,11 @@ const encodeFTSSearch: TableSchema => SQL = ({ name: tableName, columns }) => {
   )
 }
 
-const encodeTable: TableSchema => SQL = table =>
-  encodeCreateTable(table) + encodeTableIndicies(table) + encodeFTSSearch(table)
-
 const transform = (sql: string, transformer: ?(string) => string) =>
   transformer ? transformer(sql) : sql
 
 const encodeTable: TableSchema => SQL = table =>
-  transform(encodeCreateTable(table) + encodeTableIndicies(table), table.unsafeSql)
+  transform(encodeCreateTable(table) + encodeTableIndicies(table) + encodeFTSSearch(table), table.unsafeSql)
 
 export const encodeSchema: AppSchema => SQL = ({ tables, unsafeSql }) => {
   const sql = values(tables)
