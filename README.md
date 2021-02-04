@@ -157,7 +157,7 @@ The result is fully reactive! Whenever a post or comment is added, changed, or r
   <br>
 
   <a href="https://sportsrecruits.com/">
-    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/sportsrecruits-logo.png" alt="SportsRecruits" width="300" />
+    <img src="https://raw.githubusercontent.com/johnanthonyeletto/WatermelonDB/sportsrecruits-logo/assets/apps/sportsrecruits-logo.png" alt="SportsRecruits" width="300" />
   </a>
   <br>
 
