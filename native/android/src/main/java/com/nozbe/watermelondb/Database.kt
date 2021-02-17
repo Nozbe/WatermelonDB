@@ -31,7 +31,12 @@ class Database(private val name: String, private val context: Context) {
             transaction {
                 // NOTE: This must NEVER be allowed to take user input - split by `;` is not grammer-aware
                 // and so is unsafe. Only works with Watermelon-generated strings known to be safe
-                statements.split(";").forEach {
+
+                // NOTE: We do not want to split if the ';' is followed by 'END;' as that leads to an
+                // incomplete statement. Triggers need BEGIN...statement;...END; syntax.
+                val regex = ";(?!\\s*END\\s*;)".toRegex(RegexOption.IGNORE_CASE)
+
+                statements.split(regex).forEach {
                     if (it.isNotBlank()) execute(it)
                 }
             }
