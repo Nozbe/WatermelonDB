@@ -5,7 +5,7 @@ import {
   promiseAllObject,
   map,
   values,
-  piped,
+  pipe,
   unnest,
 } from '../../utils/fp'
 import splitEvery from '../../utils/fp/splitEvery'
@@ -187,15 +187,14 @@ const getAllRecordsToApply = (
   )
 
 const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> =>
-  piped(
-    recordsToApply,
+  pipe(
     map(
       ({ deletedRecordsToDestroy }, tableName: TableName<any>) =>
         deletedRecordsToDestroy.length &&
         db.adapter.destroyDeletedRecords((tableName: any), deletedRecordsToDestroy),
     ),
     promiseAllObject,
-  )
+  )(recordsToApply)
 
 const prepareApplyAllRemoteChanges = (
   db: Database,
@@ -204,8 +203,7 @@ const prepareApplyAllRemoteChanges = (
   log?: SyncLog,
   conflictResolver?: SyncConflictResolver,
 ): Model[] =>
-  piped(
-    recordsToApply,
+  pipe(
     map((records, tableName: TableName<any>) =>
       prepareApplyRemoteChangesToCollection(
         db.get((tableName: any)),
@@ -217,7 +215,7 @@ const prepareApplyAllRemoteChanges = (
     ),
     values,
     unnest,
-  )
+  )(recordsToApply)
 
 // See _unsafeBatchPerCollection - temporary fix
 const unsafeBatchesWithRecordsToApply = (
@@ -227,24 +225,24 @@ const unsafeBatchesWithRecordsToApply = (
   log?: SyncLog,
   conflictResolver?: SyncConflictResolver,
 ): Promise<void>[] =>
-  piped(
-    recordsToApply,
-    map((records, tableName: TableName<any>) =>
-      piped(
-        prepareApplyRemoteChangesToCollection(
-          db.collections.get((tableName: any)),
-          records,
-          sendCreatedAsUpdated,
-          log,
-          conflictResolver,
-        ),
+  pipe(
+    map((records, tableName: TableName<any>) => {
+      const preparedModels = prepareApplyRemoteChangesToCollection(
+        db.collections.get((tableName: any)),
+        records,
+        sendCreatedAsUpdated,
+        log,
+        conflictResolver,
+      )
+      return pipe(
         records => splitEvery(5000, records),
         map(recordBatch => db.batch(...recordBatch)),
-      ),
+      )(preparedModels)
+    }
     ),
     values,
     unnest,
-  )
+  )(recordsToApply)
 
 export default function applyRemoteChanges(
   db: Database,

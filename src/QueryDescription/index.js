@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { unique, piped, map, groupBy, unnest } from '../utils/fp'
+import { unique, map, groupBy, unnest, pipe } from '../utils/fp'
 
 // don't import whole `utils` to keep worker size small
 import invariant from '../utils/common/invariant'
@@ -385,8 +385,7 @@ const compressTopLevelOns = (conditions: Where[]): Where[] => {
     }
   })
 
-  const grouppedOns: On[] = piped(
-    ons,
+  const grouppedOns: On[] = pipe(
     groupBy(clause => clause.table),
     Object.values,
     map((clauses: On[]) => {
@@ -394,7 +393,7 @@ const compressTopLevelOns = (conditions: Where[]): Where[] => {
       const onConditions: Where[] = unnest(clauses.map(clause => clause.conditions))
       return on(table, onConditions)
     }),
-  )
+  )(ons)
   return grouppedOns.concat(wheres)
 }
 

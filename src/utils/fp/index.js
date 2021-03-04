@@ -5,15 +5,11 @@
 // TODO: Remove or merge into our codebase all of these
 import equals_SLOW from 'rambdax/src/rambda/equals.js'
 import map from 'rambdax/src/rambda/map.js'
-import pipe from 'rambdax/src/rambda/pipe.js'
-import piped from 'rambdax/src/piped.js'
 import promiseAllObject from 'rambdax/src/promiseAllObject.js'
 
 export {
   equals_SLOW,
   map,
-  pipe,
-  piped,
   promiseAllObject,
 }
 
