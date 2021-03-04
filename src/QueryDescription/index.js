@@ -1,8 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { uniq_SLOW, partition, piped, map, groupBy } from '../utils/fp'
-import { unnest } from '../utils/fp'
+import { unique, piped, map, groupBy, unnest } from '../utils/fp'
 
 // don't import whole `utils` to keep worker size small
 import invariant from '../utils/common/invariant'
@@ -376,7 +375,16 @@ const compressTopLevelOns = (conditions: Where[]): Where[] => {
   // special cases are used. Here, we're special casing only top-level Q.ons to avoid regressions
   // but it's not recommended for new code
   // TODO: Remove this special case
-  const [ons, wheres] = partition(clause => clause.type === 'on', conditions)
+  const ons = []
+  const wheres = []
+  conditions.forEach(clause => {
+    if (clause.type === 'on') {
+      ons.push(clause)
+    } else {
+      wheres.push(clause)
+    }
+  })
+
   const grouppedOns: On[] = piped(
     ons,
     groupBy(clause => clause.table),
@@ -435,7 +443,7 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
         throw new Error('Invalid Query clause passed')
     }
   })
-  clauseMap.joinTables = uniq_SLOW(clauseMap.joinTables)
+  clauseMap.joinTables = unique(clauseMap.joinTables)
   // $FlowFixMe
   clauseMap.where = compressTopLevelOns(clauseMap.where)
   // $FlowFixMe: Flow is too dumb to realize that it is valid

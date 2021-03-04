@@ -1,6 +1,5 @@
 // @flow
 
-import is from '../utils/fp/is'
 import invariant from '../utils/common/invariant'
 
 import type { ColumnName } from '../Schema'
@@ -26,7 +25,7 @@ export function ensureDecoratorUsedProperly(
       }.prototype.${key} given.`,
     )
     invariant(
-      !is(Function, descriptor.initializer),
+      typeof descriptor.initializer !== 'function',
       `Model field decorators must not be used on properties with a default value - error in "${
         target.constructor.name
       }.prototype.${key}".`,
