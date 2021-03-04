@@ -1,7 +1,7 @@
 // @flow
 
 import {
-  map,
+  mapObj,
   values,
   pipe,
   unnest,
@@ -31,19 +31,21 @@ const unchangedRecordsForRaws = (raws, recordCache) =>
     [],
   )
 
-const recordsToMarkAsSynced = ({ changes, affectedRecords }: SyncLocalChanges): Model[] =>
+const recordsToMarkAsSynced = ({ changes, affectedRecords }: SyncLocalChanges): Model[] => {
   // $FlowFixMe
-  pipe(
-    values,
-    map(({ created, updated }) =>
-      unchangedRecordsForRaws([...created, ...updated], affectedRecords),
-    ),
-    unnest,
-  )(changes)
+  const changesTables = values(changes)
+  return unnest(
+    // $FlowFixMe
+    changesTables.map(({ created, updated }) =>
+      unchangedRecordsForRaws(created.concat(updated), affectedRecords),
+    )
+  )
+}
 
 const destroyDeletedRecords = (db: Database, { changes }: SyncLocalChanges): Promise<*> =>
   allPromisesObj(
-    map(({ deleted }, tableName) => db.adapter.destroyDeletedRecords(tableName, deleted), changes),
+    // $FlowFixMe
+    mapObj(({ deleted }, tableName) => db.adapter.destroyDeletedRecords(tableName, deleted), changes),
   )
 
 export default function markLocalChangesAsSynced(
@@ -54,7 +56,8 @@ export default function markLocalChangesAsSynced(
   return db.action(async () => {
     // update and destroy records concurrently
     await Promise.all([
-      db.batch(...map(prepareMarkAsSynced, recordsToMarkAsSynced(syncedLocalChanges))),
+      // $FlowFixMe
+      db.batch(recordsToMarkAsSynced(syncedLocalChanges).map(prepareMarkAsSynced)),
       destroyDeletedRecords(db, syncedLocalChanges),
     ])
   }, 'sync-markLocalChangesAsSynced')

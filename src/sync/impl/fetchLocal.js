@@ -2,7 +2,6 @@
 
 import {
   // $FlowFixMe
-  map,
   values,
   pipe,
   identity,
@@ -50,13 +49,6 @@ async function fetchLocalChangesForCollection<T: Model>(
   return [changeSet, changedRecords]
 }
 
-const extractChanges = map(([changeSet]) => changeSet)
-const extractAllAffectedRecords = pipe(
-  values,
-  map(([, records]) => records),
-  unnest,
-)
-
 export default function fetchLocalChanges(db: Database): Promise<SyncLocalChanges> {
   ensureActionsEnabled(db)
   return db.action(async () => {
@@ -64,8 +56,8 @@ export default function fetchLocalChanges(db: Database): Promise<SyncLocalChange
     // TODO: deep-freeze changes object (in dev mode only) to detect mutations (user bug)
     return {
       // $FlowFixMe
-      changes: extractChanges(changes),
-      affectedRecords: extractAllAffectedRecords(changes),
+      changes: changes.map(([changeSet]) => changeSet),
+      affectedRecords: unnest(values(changes).map(([, records]) => records)),
     }
   }, 'sync-fetchLocalChanges')
 }
@@ -74,6 +66,7 @@ export function hasUnsyncedChanges(db: Database): Promise<boolean> {
   ensureActionsEnabled(db)
   // action is necessary to ensure other code doesn't make changes under our nose
   return db.action(async () => {
+    // $FlowFixMe
     const collections = values(db.collections.map)
     const hasUnsynced = async collection => {
       const created = await collection.query(createdQuery).fetchCount()
@@ -81,6 +74,7 @@ export function hasUnsyncedChanges(db: Database): Promise<boolean> {
       const deleted = await db.adapter.getDeletedRecords(collection.table)
       return created + updated + deleted.length > 0
     }
+    // $FlowFixMe
     const unsyncedFlags = await allPromises(hasUnsynced, collections)
     return unsyncedFlags.some(identity)
   }, 'sync-hasUnsyncedChanges')

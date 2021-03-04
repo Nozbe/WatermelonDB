@@ -1,8 +1,7 @@
 // @flow
 
 import {
-  // $FlowFixMe
-  map,
+  mapObj,
   values,
   pipe,
   unnest,
@@ -189,7 +188,7 @@ const getAllRecordsToApply = (
 
 const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> =>
   pipe(
-    map(
+    mapObj(
       ({ deletedRecordsToDestroy }, tableName: TableName<any>) =>
         deletedRecordsToDestroy.length &&
         db.adapter.destroyDeletedRecords((tableName: any), deletedRecordsToDestroy),
@@ -205,7 +204,7 @@ const prepareApplyAllRemoteChanges = (
   conflictResolver?: SyncConflictResolver,
 ): Model[] =>
   pipe(
-    map((records, tableName: TableName<any>) =>
+    mapObj((records, tableName: TableName<any>) =>
       prepareApplyRemoteChangesToCollection(
         db.get((tableName: any)),
         records,
@@ -227,7 +226,7 @@ const unsafeBatchesWithRecordsToApply = (
   conflictResolver?: SyncConflictResolver,
 ): Promise<void>[] =>
   pipe(
-    map((records, tableName: TableName<any>) => {
+    mapObj((records, tableName: TableName<any>) => {
       const preparedModels = prepareApplyRemoteChangesToCollection(
         db.collections.get((tableName: any)),
         records,
@@ -235,10 +234,8 @@ const unsafeBatchesWithRecordsToApply = (
         log,
         conflictResolver,
       )
-      return pipe(
-        records => splitEvery(5000, records),
-        map(recordBatch => db.batch(...recordBatch)),
-      )(preparedModels)
+      // $FlowFixMe
+      return splitEvery(5000, preparedModels).map(recordBatch => db.batch(recordBatch))
     }
     ),
     values,

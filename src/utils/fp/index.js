@@ -1,14 +1,5 @@
 // @flow
 
-// reexport from rambdax
-
-// TODO: Remove or merge into our codebase all of these
-import map from 'rambdax/src/rambda/map.js'
-
-export {
-  map,
-}
-
 export { default as groupBy } from './groupBy'
 export { default as allPromises } from './allPromises'
 export { default as identicalArrays } from './identicalArrays'
@@ -23,3 +14,4 @@ export { default as unique } from './unique'
 export { default as keys } from './keys'
 export { default as values } from './values'
 export { default as pipe } from './pipe'
+export { default as mapObj } from './mapObj'

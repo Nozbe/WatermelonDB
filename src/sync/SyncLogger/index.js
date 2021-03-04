@@ -1,6 +1,6 @@
 // @flow
 
-import { map } from '../../utils/fp'
+import { mapObj } from '../../utils/fp'
 import type { DirtyRaw } from '../../RawRecord'
 import type { SyncLog } from '../index'
 
@@ -11,14 +11,16 @@ const shouldCensorKey = (key: string): boolean =>
   key !== 'id' && !key.endsWith('_id') && key !== '_status' && key !== '_changed'
 
 // $FlowFixMe
-const censorRaw: DirtyRaw => DirtyRaw = map((value, key) =>
+const censorRaw: DirtyRaw => DirtyRaw = mapObj((value, key) =>
   shouldCensorKey(key) && typeof value === 'string' ? censorValue(value) : value,
 )
-const censorConflicts = map(map(censorRaw))
 const censorLog = (log: SyncLog): SyncLog => ({
   ...log,
   // $FlowFixMe
-  ...(log.resolvedConflicts ? { resolvedConflicts: censorConflicts(log.resolvedConflicts) } : {}),
+  ...(log.resolvedConflicts ? {
+    // $FlowFixMe
+    resolvedConflicts: log.resolvedConflicts.map(conflict => mapObj(censorRaw)(conflict))
+  } : {}),
 })
 const censorLogs = logs => logs.map(censorLog)
 
