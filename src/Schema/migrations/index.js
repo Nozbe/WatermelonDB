@@ -1,6 +1,6 @@
 // @flow
 
-import { sortBy } from '../../utils/fp'
+import sortBy from '../../utils/fp/sortBy'
 import type { $RE } from '../../types'
 import type { ColumnSchema, TableName, TableSchema, TableSchemaSpec, SchemaVersion } from '../index'
 import { tableSchema, validateColumnSchema } from '../index'
@@ -42,8 +42,6 @@ export type SchemaMigrations = $RE<{
   maxVersion: SchemaVersion,
   sortedMigrations: Migration[],
 }>
-
-const sortMigrations = sortBy(migration => migration.toVersion)
 
 // Creates a specification of how to migrate between different versions of
 // database schema. Every time you change the database schema, you must
@@ -106,7 +104,7 @@ export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMig
     })
   }
 
-  const sortedMigrations = sortMigrations(migrations)
+  const sortedMigrations = sortBy(migration => migration.toVersion, migrations)
   const oldestMigration = sortedMigrations[0]
   const newestMigration = sortedMigrations[sortedMigrations.length - 1]
   const minVersion = oldestMigration ? oldestMigration.toVersion - 1 : 1

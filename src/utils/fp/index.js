@@ -8,7 +8,6 @@ import map from 'rambdax/src/rambda/map.js'
 import pipe from 'rambdax/src/rambda/pipe.js'
 import piped from 'rambdax/src/piped.js'
 import promiseAllObject from 'rambdax/src/promiseAllObject.js'
-import sortBy from 'rambdax/src/rambda/sortBy.js'
 
 export {
   equals_SLOW,
@@ -16,7 +15,6 @@ export {
   pipe,
   piped,
   promiseAllObject,
-  sortBy,
 }
 
 export { default as groupBy } from './groupBy'
