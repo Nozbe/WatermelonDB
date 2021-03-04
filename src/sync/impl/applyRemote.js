@@ -2,13 +2,13 @@
 
 import {
   // $FlowFixMe
-  promiseAllObject,
   map,
   values,
   pipe,
   unnest,
 } from '../../utils/fp'
 import splitEvery from '../../utils/fp/splitEvery'
+import allPromisesObj from '../../utils/fp/allPromisesObj'
 import { logError, invariant, logger } from '../../utils/common'
 import type { Database, RecordId, Collection, Model, TableName, DirtyRaw } from '../..'
 import * as Q from '../../QueryDescription'
@@ -167,9 +167,10 @@ const getAllRecordsToApply = (
   db: Database,
   remoteChanges: SyncDatabaseChangeSet,
 ): AllRecordsToApply =>
-  promiseAllObject(
+  allPromisesObj(
     // $FlowFixMe
     remoteChanges
+    // $FlowFixMe
     .filter((_changes, tableName: TableName<any>) => {
       const collection = db.get((tableName: any))
 
@@ -193,7 +194,7 @@ const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToAppl
         deletedRecordsToDestroy.length &&
         db.adapter.destroyDeletedRecords((tableName: any), deletedRecordsToDestroy),
     ),
-    promiseAllObject,
+    allPromisesObj,
   )(recordsToApply)
 
 const prepareApplyAllRemoteChanges = (

@@ -4,11 +4,9 @@
 
 // TODO: Remove or merge into our codebase all of these
 import map from 'rambdax/src/rambda/map.js'
-import promiseAllObject from 'rambdax/src/promiseAllObject.js'
 
 export {
   map,
-  promiseAllObject,
 }
 
 export { default as groupBy } from './groupBy'

@@ -1,14 +1,13 @@
 // @flow
 
 import {
-  // $FlowFixMe
-  promiseAllObject,
   map,
   values,
   pipe,
   unnest,
 } from '../../utils/fp'
 import areRecordsEqual from '../../utils/fp/areRecordsEqual'
+import allPromisesObj from '../../utils/fp/allPromisesObj'
 import { logError } from '../../utils/common'
 import type { Database, Model } from '../..'
 
@@ -43,7 +42,7 @@ const recordsToMarkAsSynced = ({ changes, affectedRecords }: SyncLocalChanges): 
   )(changes)
 
 const destroyDeletedRecords = (db: Database, { changes }: SyncLocalChanges): Promise<*> =>
-  promiseAllObject(
+  allPromisesObj(
     map(({ deleted }, tableName) => db.adapter.destroyDeletedRecords(tableName, deleted), changes),
   )
 
