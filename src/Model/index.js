@@ -100,7 +100,7 @@ export default class Model {
     this._isEditing = true
 
     // Touch updatedAt (if available)
-    if (hasUpdatedAt(this)) {
+    if ('updatedAt' in this) {
       this._setRaw(columnName('updated_at'), Date.now())
     }
 

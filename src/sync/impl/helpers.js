@@ -1,6 +1,6 @@
 // @flow
 
-import { all, values, pipe, map, reduce } from '../../utils/fp'
+import { values, pipe, map } from '../../utils/fp'
 
 import { logError, invariant } from '../../utils/common'
 
@@ -119,14 +119,9 @@ export function ensureSameDatabase(database: Database, initialResetCount: number
   )
 }
 
-export const isChangeSetEmpty: SyncDatabaseChangeSet => boolean = pipe(
-  values,
-  all(({ created, updated, deleted }) => created.length + updated.length + deleted.length === 0),
-)
+export const isChangeSetEmpty: SyncDatabaseChangeSet => boolean = changeset =>
+  values(changeset).every(({ created, updated, deleted }) => created.length + updated.length + deleted.length === 0)
 
-const sum: number[] => number = reduce((a, b) => a + b, 0)
-export const changeSetCount: SyncDatabaseChangeSet => number = pipe(
-  values,
-  map(({ created, updated, deleted }) => created.length + updated.length + deleted.length),
-  sum,
-)
+const sum: number[] => number = xs => xs.reduce((a, b) => a + b, 0)
+export const changeSetCount: SyncDatabaseChangeSet => number = changeset =>
+  sum(values(changeset).map(({ created, updated, deleted }) => created.length + updated.length + deleted.length))

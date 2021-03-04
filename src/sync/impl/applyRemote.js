@@ -5,7 +5,6 @@ import {
   promiseAllObject,
   map,
   values,
-  filter,
   piped,
   splitEvery,
 } from '../../utils/fp'
@@ -80,8 +79,8 @@ async function recordsToApplyRemoteChangesTo<T: Model>(
     ...changes,
     records,
     locallyDeletedIds,
-    recordsToDestroy: filter(record => deletedIds.includes(record.id), records),
-    deletedRecordsToDestroy: filter(id => deletedIds.includes(id), locallyDeletedIds),
+    recordsToDestroy: records.filter(record => deletedIds.includes(record.id)),
+    deletedRecordsToDestroy: locallyDeletedIds.filter(id => deletedIds.includes(id)),
   }
 }
 
@@ -168,10 +167,10 @@ const getAllRecordsToApply = (
   db: Database,
   remoteChanges: SyncDatabaseChangeSet,
 ): AllRecordsToApply =>
-  piped(
-    remoteChanges,
+  promiseAllObject(
     // $FlowFixMe
-    filter((_changes, tableName: TableName<any>) => {
+    remoteChanges
+    .filter((_changes, tableName: TableName<any>) => {
       const collection = db.get((tableName: any))
 
       if (!collection) {
@@ -181,11 +180,10 @@ const getAllRecordsToApply = (
       }
 
       return !!collection
-    }),
-    map((changes, tableName: TableName<any>) => {
+    })
+    .map((changes, tableName: TableName<any>) => {
       return recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes)
     }),
-    promiseAllObject,
   )
 
 const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> =>

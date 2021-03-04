@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { uniq, partition, piped, map, groupBy } from '../utils/fp'
+import { uniq_SLOW, partition, piped, map, groupBy } from '../utils/fp'
 import { unnest } from '../utils/fp'
 
 // don't import whole `utils` to keep worker size small
@@ -435,7 +435,7 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
         throw new Error('Invalid Query clause passed')
     }
   })
-  clauseMap.joinTables = uniq(clauseMap.joinTables)
+  clauseMap.joinTables = uniq_SLOW(clauseMap.joinTables)
   // $FlowFixMe
   clauseMap.where = compressTopLevelOns(clauseMap.where)
   // $FlowFixMe: Flow is too dumb to realize that it is valid

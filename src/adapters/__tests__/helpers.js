@@ -1,4 +1,4 @@
-import { sortBy, identity, pipe, pluck } from '../../utils/fp'
+import { sortBy, identity, pipe, pluck } from 'rambdax'
 import expect from 'expect'
 import { allPromises, toPairs } from '../../utils/fp'
 

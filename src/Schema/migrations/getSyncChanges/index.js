@@ -1,6 +1,6 @@
 // @flow
 
-import { uniq, groupBy, toPairs, piped } from '../../../utils/fp'
+import { uniq_SLOW, groupBy, toPairs, piped } from '../../../utils/fp'
 import type { CreateTableMigrationStep, AddColumnsMigrationStep, SchemaMigrations } from '../index'
 import type { TableName, ColumnName, SchemaVersion } from '../../index'
 import { tableName } from '../../index'
@@ -57,12 +57,12 @@ export default function getSyncChanges(
   const columnsByTable = piped(allAddedColumns, unnest, groupBy(({ table }) => table), toPairs)
   const addedColumns = columnsByTable.map(([table, columnDefs]) => ({
     table: tableName(table),
-    columns: uniq(columnDefs.map(({ name }) => name)),
+    columns: uniq_SLOW(columnDefs.map(({ name }) => name)),
   }))
 
   return {
     from: fromVersion,
-    tables: uniq(createdTables),
+    tables: uniq_SLOW(createdTables),
     columns: addedColumns,
   }
 }

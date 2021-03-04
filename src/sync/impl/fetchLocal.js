@@ -6,7 +6,6 @@ import {
   map,
   values,
   pipe,
-  any,
   identity,
 } from '../../utils/fp'
 import { unnest, allPromises } from '../../utils/fp'
@@ -83,6 +82,6 @@ export function hasUnsyncedChanges(db: Database): Promise<boolean> {
       return created + updated + deleted.length > 0
     }
     const unsyncedFlags = await allPromises(hasUnsynced, collections)
-    return any(identity, unsyncedFlags)
+    return unsyncedFlags.some(identity)
   }, 'sync-hasUnsyncedChanges')
 }

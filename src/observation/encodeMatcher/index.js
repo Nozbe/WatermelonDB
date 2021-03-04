@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { pipe, map, allPass, anyPass } from '../../utils/fp'
+import { allPass, anyPass } from '../../utils/fp'
 
 import invariant from '../../utils/common/invariant'
 
@@ -54,10 +54,7 @@ const encodeWhere: Where => Matcher<*> = where => {
   }
 }
 
-const encodeConditions: (Where[]) => Matcher<*> = pipe(
-  map(encodeWhere),
-  allPass,
-)
+const encodeConditions: (Where[]) => Matcher<*> = conditions => allPass(conditions.map(encodeWhere))
 
 export default function encodeMatcher<Element: Model>(query: QueryDescription): Matcher<Element> {
   invariant(canEncodeMatcher(query), forbiddenError)
