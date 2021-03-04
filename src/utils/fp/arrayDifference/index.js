@@ -2,29 +2,25 @@
 
 export type ArrayDiff<T> = $Exact<{ added: T[], removed: T[] }>
 
-const arrayDifference = <A, T: A>(previousList: T[], newList: T[]): ArrayDiff<T> => {
-  // TODO: Use Set to avoid n^2 complexity
+const arrayDifference = <A, T: A>(previousList: T[], nextList: T[]): ArrayDiff<T> => {
+  const previous = new Set(previousList)
+  const next = new Set(nextList)
   const added = []
   const removed = []
 
-  outerPrevious: for (let i = 0, len = previousList.length; i < len; i++) {
-    const previousItem = previousList[i]
-    for (let j = 0, len2 = newList.length; j < len2; j++) {
-      if (previousItem === newList[j]) {
-        continue outerPrevious
-      }
+  let item
+  for (let i = 0, len = previousList.length; i < len; i++) {
+    item = previousList[i]
+    if (!next.has(item)) {
+      removed.push(item)
     }
-    removed.push(previousItem)
   }
 
-  outerNew: for (let i = 0, len = newList.length; i < len; i++) {
-    const newItem = newList[i]
-    for (let j = 0, len2 = previousList.length; j < len2; j++) {
-      if (newItem === previousList[j]) {
-        continue outerNew;
-      }
+  for (let i = 0, len = nextList.length; i < len; i++) {
+    item = nextList[i]
+    if (!previous.has(item)) {
+      added.push(item)
     }
-    added.push(newItem)
   }
 
   return { added, removed }
