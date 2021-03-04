@@ -1,4 +1,4 @@
-import { omit } from 'rambdax'
+import { omit } from '../utils/fp'
 
 import { tableSchema } from '../Schema'
 import { setRawSanitized, sanitizedRaw, nullValue } from './index'

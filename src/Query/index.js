@@ -1,7 +1,5 @@
 // @flow
 
-import { prepend } from 'rambdax'
-
 import allPromises from '../utils/fp/allPromises'
 import { Observable } from '../utils/rx'
 import { toPromise } from '../utils/fp/Result'
@@ -205,7 +203,7 @@ export default class Query<Record: Model> {
   }
 
   get allTables(): TableName<any>[] {
-    return prepend(this.table, this.secondaryTables)
+    return [this.table].concat(this.secondaryTables)
   }
 
   get associations(): QueryAssociation[] {

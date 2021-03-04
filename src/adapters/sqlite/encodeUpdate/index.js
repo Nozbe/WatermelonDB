@@ -1,6 +1,6 @@
 // @flow
 
-import { pipe, map, join, keys, values, append } from 'rambdax'
+import { pipe, map, join, keys, values, append } from '../../../utils/fp'
 
 import type { TableName } from '../../../Schema'
 import type { RawRecord } from '../../../RawRecord'

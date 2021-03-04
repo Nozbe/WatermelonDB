@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { uniq, partition, piped, map, groupBy } from 'rambdax'
+import { uniq, partition, piped, map, groupBy } from '../utils/fp'
 import { unnest } from '../utils/fp'
 
 // don't import whole `utils` to keep worker size small

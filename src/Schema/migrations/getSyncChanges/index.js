@@ -1,6 +1,6 @@
 // @flow
 
-import { uniq, groupBy, toPairs, piped } from 'rambdax'
+import { uniq, groupBy, toPairs, piped } from '../../../utils/fp'
 import type { CreateTableMigrationStep, AddColumnsMigrationStep, SchemaMigrations } from '../index'
 import type { TableName, ColumnName, SchemaVersion } from '../../index'
 import { tableName } from '../../index'

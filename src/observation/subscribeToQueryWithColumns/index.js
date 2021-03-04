@@ -1,6 +1,6 @@
 // @flow
 
-import { pickAll, values } from 'rambdax'
+import { pickAll } from '../../utils/fp'
 
 import identicalArrays from '../../utils/fp/identicalArrays'
 import arrayDifference from '../../utils/fp/arrayDifference'
@@ -25,7 +25,7 @@ const getRecordState: (Model, ColumnName[]) => RecordState = (record, columnName
 
 // Invariant: same length and order of keys!
 const recordStatesEqual = (left: RecordState, right: RecordState): boolean =>
-  identicalArrays(values(left), values(right))
+  identicalArrays(Object.values(left), Object.values(right))
 
 // Observes the given observable list of records, and in those records,
 // changes to given `rawFields`

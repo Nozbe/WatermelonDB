@@ -8,7 +8,7 @@ import {
   pipe,
   any,
   identity,
-} from 'rambdax'
+} from '../../utils/fp'
 import { unnest, allPromises } from '../../utils/fp'
 import type { Database, Collection, Model } from '../..'
 import * as Q from '../../QueryDescription'

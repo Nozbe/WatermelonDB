@@ -1,6 +1,6 @@
 // @flow
 
-import { all, values, pipe, map, reduce } from 'rambdax'
+import { all, values, pipe, map, reduce } from '../../utils/fp'
 
 import { logError, invariant } from '../../utils/common'
 

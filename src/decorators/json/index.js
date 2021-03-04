@@ -1,9 +1,6 @@
 // @flow
 
-import { always } from 'rambdax'
-
 import makeDecorator, { type Decorator } from '../../utils/common/makeDecorator'
-import tryCatch from '../../utils/fp/tryCatch'
 
 import { type ColumnName } from '../../Schema'
 import type Model from '../../Model'
@@ -23,7 +20,13 @@ import { ensureDecoratorUsedProperly } from '../common'
 // Examples:
 //   @json('contact_info', jsonValue => jasonValue || {}) contactInfo: ContactInfo
 
-const parseJSON = tryCatch(JSON.parse, always(undefined))
+const parseJSON = value => {
+  try {
+    return JSON.parse(value)
+  } catch (_) {
+    return undefined
+  }
+}
 
 export const jsonDecorator: Decorator = makeDecorator(
   (rawFieldName: ColumnName, sanitizer: (json: any, model?: Model) => any) => (

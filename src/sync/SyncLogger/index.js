@@ -1,6 +1,6 @@
 // @flow
 
-import { map, is } from 'rambdax'
+import { map, is } from '../../utils/fp'
 import type { DirtyRaw } from '../../RawRecord'
 import type { SyncLog } from '../index'
 
@@ -20,7 +20,7 @@ const censorLog = (log: SyncLog): SyncLog => ({
   // $FlowFixMe
   ...(log.resolvedConflicts ? { resolvedConflicts: censorConflicts(log.resolvedConflicts) } : {}),
 })
-const censorLogs = map(censorLog)
+const censorLogs = logs => logs.map(censorLog)
 
 export default class SyncLogger {
   _limit: number

@@ -8,7 +8,7 @@ import {
   filter,
   piped,
   splitEvery,
-} from 'rambdax'
+} from '../../utils/fp'
 import { unnest } from '../../utils/fp'
 import { logError, invariant, logger } from '../../utils/common'
 import type { Database, RecordId, Collection, Model, TableName, DirtyRaw } from '../..'

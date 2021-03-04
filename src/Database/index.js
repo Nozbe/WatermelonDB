@@ -1,7 +1,5 @@
 // @flow
 
-import { values } from 'rambdax'
-
 import { type Observable, startWith, merge as merge$ } from '../utils/rx'
 import { type Unsubscribe } from '../utils/subscriptions'
 import { invariant, logger } from '../utils/common'
@@ -250,7 +248,8 @@ export default class Database {
   }
 
   _unsafeClearCaches(): void {
-    values(this.collections.map).forEach(collection => {
+    Object.values(this.collections.map).forEach(collection => {
+      // $FlowFixMe
       collection.unsafeClearCache()
     })
   }

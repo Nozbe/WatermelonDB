@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { pipe, map, allPass, anyPass } from 'rambdax'
+import { pipe, map, allPass, anyPass } from '../../utils/fp'
 
 import invariant from '../../utils/common/invariant'
 

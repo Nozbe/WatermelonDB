@@ -1,6 +1,6 @@
 // @flow
 
-import { prop, pipe, map } from 'rambdax'
+import { prop, pipe, map } from '../../utils/fp'
 import { unnest } from '../../utils/fp'
 
 import { type SchemaMigrations, type MigrationStep } from './index'

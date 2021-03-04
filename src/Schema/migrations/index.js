@@ -1,6 +1,6 @@
 // @flow
 
-import { sortBy, prop, last, head } from 'rambdax'
+import { sortBy, prop, last, head } from '../../utils/fp'
 import type { $RE } from '../../types'
 import type { ColumnSchema, TableName, TableSchema, TableSchemaSpec, SchemaVersion } from '../index'
 import { tableSchema, validateColumnSchema } from '../index'

@@ -8,7 +8,7 @@ import {
   values,
   pipe,
   equals,
-} from 'rambdax'
+} from '../../utils/fp'
 import { unnest } from '../../utils/fp'
 import { logError } from '../../utils/common'
 import type { Database, Model } from '../..'
