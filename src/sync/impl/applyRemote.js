@@ -6,9 +6,9 @@ import {
   map,
   values,
   piped,
-  splitEvery,
+  unnest,
 } from '../../utils/fp'
-import { unnest } from '../../utils/fp'
+import splitEvery from '../../utils/fp/splitEvery'
 import { logError, invariant, logger } from '../../utils/common'
 import type { Database, RecordId, Collection, Model, TableName, DirtyRaw } from '../..'
 import * as Q from '../../QueryDescription'
@@ -238,7 +238,7 @@ const unsafeBatchesWithRecordsToApply = (
           log,
           conflictResolver,
         ),
-        splitEvery(5000),
+        records => splitEvery(5000, records),
         map(recordBatch => db.batch(...recordBatch)),
       ),
     ),

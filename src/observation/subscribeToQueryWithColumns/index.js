@@ -1,7 +1,5 @@
 // @flow
 
-import { pickAll } from '../../utils/fp'
-
 import identicalArrays from '../../utils/fp/identicalArrays'
 import arrayDifference from '../../utils/fp/arrayDifference'
 import { type Unsubscribe } from '../../utils/subscriptions'
@@ -16,16 +14,20 @@ import subscribeToSimpleQuery from '../subscribeToSimpleQuery'
 import subscribeToQueryReloading from '../subscribeToQueryReloading'
 import canEncodeMatcher from '../encodeMatcher/canEncode'
 
-type RecordState = { [field: ColumnName]: Value }
+type RecordState = Value[]
 
-const getRecordState: (Model, ColumnName[]) => RecordState = (record, columnNames) =>
-  // `pickAll` guarantees same length and order of keys!
-  // $FlowFixMe
-  pickAll(columnNames, record._raw)
+const getRecordState: (Model, ColumnName[]) => RecordState = (record, columnNames) => {
+  const state = []
+  const raw = record._raw
+  for (let i = 0, len = columnNames.length; i < len; i++) {
+    // $FlowFixMe
+    state.push(raw[columnNames[i]])
+  }
+  return state
+}
 
 // Invariant: same length and order of keys!
-const recordStatesEqual = (left: RecordState, right: RecordState): boolean =>
-  identicalArrays(Object.values(left), Object.values(right))
+const recordStatesEqual: (left: RecordState, right: RecordState) => boolean = identicalArrays
 
 // Observes the given observable list of records, and in those records,
 // changes to given `rawFields`

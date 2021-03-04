@@ -1,7 +1,8 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { allPass, anyPass } from '../../utils/fp'
+import allPass from '../../utils/fp/allPass'
+import anyPass from '../../utils/fp/anyPass'
 
 import invariant from '../../utils/common/invariant'
 
