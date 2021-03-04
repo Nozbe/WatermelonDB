@@ -1,7 +1,6 @@
 // @flow
 
 import identicalArrays from '../../utils/fp/identicalArrays'
-import arrayDifference from '../../utils/fp/arrayDifference'
 import { type Unsubscribe } from '../../utils/subscriptions'
 
 import { type Value } from '../../QueryDescription'
@@ -137,6 +136,7 @@ export default function subscribeToQueryWithColumns<Record: Model>(
     firstEmission = false
 
     // Find changes, and save current list for comparison on next emission
+    const arrayDifference = require('../../utils/fp/arrayDifference').default
     const { added, removed } = arrayDifference(observedRecords, records)
     observedRecords = records
 
