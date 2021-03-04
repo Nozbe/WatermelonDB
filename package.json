@@ -46,7 +46,6 @@
     "@nozbe/sqlite": "3.31.1",
     "lokijs": "npm:@nozbe/lokijs@1.5.10-wmelon3",
     "lokijs-concurrent-idb": "npm:@nozbe/lokijs@1.5.12-wmelon",
-    "rambdax": "2.15.0",
     "rxjs": "^6.5.3",
     "sql-escape-string": "^1.1.0"
   },
@@ -142,6 +141,7 @@
     "rimraf": "^3.0.0",
     "semver": "^6.0.0",
     "tslint": "^5.11.0",
+    "rambdax": "2.15.0",
     "tslint-config-prettier": "^1.15.0",
     "typescript": "^3.0.3"
   }

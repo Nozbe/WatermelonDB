@@ -495,8 +495,6 @@ export function queryWithoutDeleted(query: QueryDescription): QueryDescription {
 }
 
 const searchForColumnComparisons: any => boolean = value => {
-  // Performance critical (100ms on login in previous rambdax-based implementation)
-
   if (Array.isArray(value)) {
     // dig deeper into the array
     for (let i = 0; i < value.length; i += 1) {

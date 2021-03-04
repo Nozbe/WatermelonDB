@@ -17,5 +17,4 @@ module.exports = {
   collectCoverageFrom: ['!**/node_modules/**', 'src/**'],
   coverageDirectory: 'coverage',
   coverageReporters: ['html', 'json'],
-  transformIgnorePatterns: ['node_modules/(?!(rambdax|rxjs/_esm2015)/)'],
 }
