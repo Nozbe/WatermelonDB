@@ -8,14 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* native63Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* native63Tests.m */; };
-		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2864C6601B6AE68A0C4560D1 /* libPods-native63.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D6062028ABE807D28E3C62A /* libPods-native63.a */; };
-		2D02E4BC1E0B4A80006451C7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2DCD954D1E0B4F2C00145EB5 /* native63Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* native63Tests.m */; };
+		56C1A2FF25F0876E0093CFDD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56C1A2FE25F0876E0093CFDD /* AppDelegate.swift */; };
+		56C1A34125F0881C0093CFDD /* PerfomancePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 56C1A34025F0881C0093CFDD /* PerfomancePlugin.m */; };
+		56C1A34D25F088510093CFDD /* PerformancePlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56C1A34C25F088510093CFDD /* PerformancePlugin.swift */; };
 		56E246A825F07AA0008728EF /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E246A725F07AA0008728EF /* File.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		83164AAF0B30EA6D9CE03052 /* libPods-native63-native63Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 723853129648C44B18315D3D /* libPods-native63-native63Tests.a */; };
@@ -46,17 +45,17 @@
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* native63Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = native63Tests.m; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* native63.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = native63.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = native63/AppDelegate.h; sourceTree = "<group>"; };
-		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = native63/AppDelegate.m; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = native63/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = native63/Info.plist; sourceTree = "<group>"; };
-		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = native63/main.m; sourceTree = "<group>"; };
 		1571D7E40B7798E3C8670E69 /* Pods-native63-native63Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-native63-native63Tests.release.xcconfig"; path = "Target Support Files/Pods-native63-native63Tests/Pods-native63-native63Tests.release.xcconfig"; sourceTree = "<group>"; };
 		2D02E47B1E0B4A5D006451C7 /* native63-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "native63-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E4901E0B4A5D006451C7 /* native63-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "native63-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2EA17523EB9B25810BBE40B7 /* Pods-native63-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-native63-tvOSTests.release.xcconfig"; path = "Target Support Files/Pods-native63-tvOSTests/Pods-native63-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
 		3595618FE57A95E1BBF66712 /* libPods-native63-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-native63-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D6062028ABE807D28E3C62A /* libPods-native63.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-native63.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		56C1A2FE25F0876E0093CFDD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = native63/AppDelegate.swift; sourceTree = "<group>"; };
+		56C1A34025F0881C0093CFDD /* PerfomancePlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PerfomancePlugin.m; path = native63/PerfomancePlugin.m; sourceTree = "<group>"; };
+		56C1A34C25F088510093CFDD /* PerformancePlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PerformancePlugin.swift; path = native63/PerformancePlugin.swift; sourceTree = "<group>"; };
 		56E246A625F07AA0008728EF /* native63-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "native63-Bridging-Header.h"; sourceTree = "<group>"; };
 		56E246A725F07AA0008728EF /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
 		6D91138595A9483D27E37DAE /* Pods-native63-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-native63-tvOS.release.xcconfig"; path = "Target Support Files/Pods-native63-tvOS/Pods-native63-tvOS.release.xcconfig"; sourceTree = "<group>"; };
@@ -129,12 +128,12 @@
 			isa = PBXGroup;
 			children = (
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
-				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
-				13B07FB01A68108700A75B9A /* AppDelegate.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
-				13B07FB71A68108700A75B9A /* main.m */,
+				56C1A2FE25F0876E0093CFDD /* AppDelegate.swift */,
+				56C1A34025F0881C0093CFDD /* PerfomancePlugin.m */,
+				56C1A34C25F088510093CFDD /* PerformancePlugin.swift */,
 			);
 			name = native63;
 			sourceTree = "<group>";
@@ -572,9 +571,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
+				56C1A2FF25F0876E0093CFDD /* AppDelegate.swift in Sources */,
 				56E246A825F07AA0008728EF /* File.swift in Sources */,
-				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				56C1A34125F0881C0093CFDD /* PerfomancePlugin.m in Sources */,
+				56C1A34D25F088510093CFDD /* PerformancePlugin.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -582,8 +582,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */,
-				2D02E4BC1E0B4A80006451C7 /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

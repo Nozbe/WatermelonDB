@@ -7,6 +7,7 @@ target 'native63' do
   config = use_native_modules!
 
   use_react_native!(:path => config["reactNativePath"])
+  pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi', :modular_headers => true
 
   target 'native63Tests' do
     inherit! :complete
