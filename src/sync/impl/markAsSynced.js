@@ -6,9 +6,9 @@ import {
   map,
   values,
   pipe,
-  equals_SLOW,
   unnest,
 } from '../../utils/fp'
+import areRecordsEqual from '../../utils/fp/areRecordsEqual'
 import { logError } from '../../utils/common'
 import type { Database, Model } from '../..'
 
@@ -27,13 +27,13 @@ const unchangedRecordsForRaws = (raws, recordCache) =>
       }
 
       // only include if it didn't change since fetch
-      // TODO: get rid of `equals_SLOW`
-      return equals_SLOW(record._raw, raw) ? records.concat(record) : records
+      return areRecordsEqual(record._raw, raw) ? records.concat(record) : records
     },
     [],
   )
 
 const recordsToMarkAsSynced = ({ changes, affectedRecords }: SyncLocalChanges): Model[] =>
+  // $FlowFixMe
   pipe(
     values,
     map(({ created, updated }) =>

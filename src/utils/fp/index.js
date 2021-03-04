@@ -3,12 +3,10 @@
 // reexport from rambdax
 
 // TODO: Remove or merge into our codebase all of these
-import equals_SLOW from 'rambdax/src/rambda/equals.js'
 import map from 'rambdax/src/rambda/map.js'
 import promiseAllObject from 'rambdax/src/promiseAllObject.js'
 
 export {
-  equals_SLOW,
   map,
   promiseAllObject,
 }
@@ -26,3 +24,4 @@ export { default as identity } from './identity'
 export { default as unique } from './unique'
 export { default as keys } from './keys'
 export { default as values } from './values'
+export { default as pipe } from './pipe'
