@@ -2,6 +2,7 @@
 
 import {
   mapObj,
+  filterObj,
   values,
   pipe,
   unnest,
@@ -167,10 +168,8 @@ const getAllRecordsToApply = (
   remoteChanges: SyncDatabaseChangeSet,
 ): AllRecordsToApply =>
   allPromisesObj(
-    // $FlowFixMe
-    remoteChanges
-    // $FlowFixMe
-    .filter((_changes, tableName: TableName<any>) => {
+    pipe(
+    filterObj((_changes, tableName: TableName<any>) => {
       const collection = db.get((tableName: any))
 
       if (!collection) {
@@ -180,10 +179,10 @@ const getAllRecordsToApply = (
       }
 
       return !!collection
-    })
-    .map((changes, tableName: TableName<any>) => {
-      return recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes)
     }),
+    mapObj((changes, tableName: TableName<any>) => {
+      return recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes)
+    }))(remoteChanges)
   )
 
 const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> =>

@@ -5,7 +5,8 @@ import {
   values,
   pipe,
   identity,
-  unnest, allPromises
+  unnest, allPromises,
+  mapObj,
 } from '../../utils/fp'
 import allPromisesObj from '../../utils/fp/allPromisesObj'
 import type { Database, Collection, Model } from '../..'
@@ -52,11 +53,11 @@ async function fetchLocalChangesForCollection<T: Model>(
 export default function fetchLocalChanges(db: Database): Promise<SyncLocalChanges> {
   ensureActionsEnabled(db)
   return db.action(async () => {
-    const changes = await allPromisesObj(map(fetchLocalChangesForCollection, db.collections.map))
+    const changes = await allPromisesObj(mapObj(fetchLocalChangesForCollection, db.collections.map))
     // TODO: deep-freeze changes object (in dev mode only) to detect mutations (user bug)
     return {
       // $FlowFixMe
-      changes: changes.map(([changeSet]) => changeSet),
+      changes: mapObj(([changeSet]) => changeSet)(changes),
       affectedRecords: unnest(values(changes).map(([, records]) => records)),
     }
   }, 'sync-fetchLocalChanges')
