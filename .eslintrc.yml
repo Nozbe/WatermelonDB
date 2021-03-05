@@ -96,6 +96,7 @@ rules:
   jest/no-large-snapshots: 1
   jest/no-disabled-tests: 0
   global-require: 0
+  no-plusplus: 0
 
 overrides:
   - files:

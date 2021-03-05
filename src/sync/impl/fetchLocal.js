@@ -3,7 +3,6 @@
 import {
   // $FlowFixMe
   values,
-  pipe,
   identity,
   unnest, allPromises,
   mapObj,

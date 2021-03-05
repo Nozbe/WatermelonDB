@@ -1,13 +1,13 @@
 // @flow
 
-import { unique, groupBy, toPairs, pipe } from '../../../utils/fp'
+import { unique, groupBy, toPairs, pipe , unnest } from '../../../utils/fp'
 import type { CreateTableMigrationStep, AddColumnsMigrationStep, SchemaMigrations } from '../index'
 import type { TableName, ColumnName, SchemaVersion } from '../../index'
 import { tableName } from '../../index'
 import { stepsForMigration } from '../stepsForMigration'
 
 import { invariant } from '../../../utils/common'
-import { unnest } from '../../../utils/fp'
+
 
 export type MigrationSyncChanges = $Exact<{
   +from: SchemaVersion,

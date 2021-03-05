@@ -3,7 +3,6 @@
 import {
   mapObj,
   values,
-  pipe,
   unnest,
 } from '../../utils/fp'
 import areRecordsEqual from '../../utils/fp/areRecordsEqual'

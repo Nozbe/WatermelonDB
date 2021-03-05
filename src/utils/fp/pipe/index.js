@@ -28,7 +28,7 @@ type Pipe = (<A, B, C, D, E, F, G>(
 function pipe(...fns: (any => any)[]): (any => any) {
   const fnsLen = fns.length
   return (...args) => {
-    let result = undefined
+    let result
 
     if (fnsLen) {
       result = fns[0](...args)

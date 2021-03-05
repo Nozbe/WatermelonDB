@@ -16,7 +16,7 @@ import type { Value } from '../QueryDescription'
 import { type RawRecord, type DirtyRaw, sanitizedRaw, setRawSanitized } from '../RawRecord'
 import { setRawColumnChange } from '../sync/helpers'
 
-import { createTimestampsFor, hasUpdatedAt, fetchChildren } from './helpers'
+import { createTimestampsFor, fetchChildren } from './helpers'
 
 export type RecordId = string
 

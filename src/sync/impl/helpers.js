@@ -1,6 +1,6 @@
 // @flow
 
-import { values, pipe } from '../../utils/fp'
+import { values } from '../../utils/fp'
 
 import { logError, invariant } from '../../utils/common'
 

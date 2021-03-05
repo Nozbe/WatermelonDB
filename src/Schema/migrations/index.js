@@ -1,12 +1,13 @@
 // @flow
 
+// NOTE: Only require files needed (critical path on web)
 import sortBy from '../../utils/fp/sortBy'
+import invariant from '../../utils/common/invariant'
+import isObj from '../../utils/fp/isObj'
+
 import type { $RE } from '../../types'
 import type { ColumnSchema, TableName, TableSchema, TableSchemaSpec, SchemaVersion } from '../index'
 import { tableSchema, validateColumnSchema } from '../index'
-
-import { invariant } from '../../utils/common'
-import { isObj } from '../../utils/fp'
 
 export type CreateTableMigrationStep = $RE<{
   type: 'create_table',
@@ -104,6 +105,7 @@ export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMig
     })
   }
 
+  // TODO: Force order of migrations?
   const sortedMigrations = sortBy(migration => migration.toVersion, migrations)
   const oldestMigration = sortedMigrations[0]
   const newestMigration = sortedMigrations[sortedMigrations.length - 1]
