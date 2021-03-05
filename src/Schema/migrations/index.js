@@ -6,7 +6,7 @@ import type { ColumnSchema, TableName, TableSchema, TableSchemaSpec, SchemaVersi
 import { tableSchema, validateColumnSchema } from '../index'
 
 import { invariant } from '../../utils/common'
-import { isObject } from '../../utils/fp'
+import { isObj } from '../../utils/fp'
 
 export type CreateTableMigrationStep = $RE<{
   type: 'create_table',
@@ -90,7 +90,7 @@ export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMig
 
     // validate migrations format
     migrations.forEach(migration => {
-      invariant(isObject(migration), `Invalid migration (not an object) in schema migrations`)
+      invariant(isObj(migration), `Invalid migration (not an object) in schema migrations`)
       const { toVersion, steps } = migration
       invariant(typeof toVersion === 'number', 'Invalid migration - `toVersion` must be a number')
       invariant(

@@ -3,7 +3,7 @@
 export { default as groupBy } from './groupBy'
 export { default as allPromises } from './allPromises'
 export { default as identicalArrays } from './identicalArrays'
-export { default as isObject } from './isObject'
+export { default as isObj } from './isObj'
 export { default as noop } from './noop'
 export type { ArrayDiff } from './arrayDifference'
 export { default as fromPairs } from './fromPairs'
