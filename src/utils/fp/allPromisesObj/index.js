@@ -3,7 +3,7 @@
 
 type UnpackPromise = <T>(promise: Promise<T>) => T
 
-export default function allPromisesObj<T, Spec: { [string]: Promise<T> }>
+export default function allPromisesObj<T, Key, Spec: { [Key]: Promise<T> }>
 (promisesObj: Spec): Promise<$ObjMap<Spec, UnpackPromise>> {
   return new Promise((resolve, reject) => {
     const keys = Object.keys(promisesObj)

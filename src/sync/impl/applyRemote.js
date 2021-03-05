@@ -3,9 +3,8 @@
 import {
   mapObj,
   filterObj,
-  values,
   pipe,
-  unnest,
+  toPairs,
 } from '../../utils/fp'
 import splitEvery from '../../utils/fp/splitEvery'
 import allPromisesObj from '../../utils/fp/allPromisesObj'
@@ -185,61 +184,57 @@ const getAllRecordsToApply = (
     }))(remoteChanges)
   )
 
-const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> =>
-  pipe(
-    mapObj(
-      ({ deletedRecordsToDestroy }, tableName: TableName<any>) =>
-        deletedRecordsToDestroy.length &&
-        db.adapter.destroyDeletedRecords((tableName: any), deletedRecordsToDestroy),
-    ),
-    allPromisesObj,
-  )(recordsToApply)
+const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> => {
+  const promises = toPairs(recordsToApply).map(([tableName, { deletedRecordsToDestroy }]) => {
+    return deletedRecordsToDestroy.length ?
+      db.adapter.destroyDeletedRecords((tableName: any), deletedRecordsToDestroy) :
+      null
+  })
+  return Promise.all(promises)
+}
 
-const prepareApplyAllRemoteChanges = (
+const applyAllRemoteChanges = (
   db: Database,
   recordsToApply: AllRecordsToApply,
   sendCreatedAsUpdated: boolean,
   log?: SyncLog,
   conflictResolver?: SyncConflictResolver,
-): Model[] =>
-  pipe(
-    mapObj((records, tableName: TableName<any>) =>
-      prepareApplyRemoteChangesToCollection(
-        db.get((tableName: any)),
-        records,
-        sendCreatedAsUpdated,
-        log,
-        conflictResolver,
-      ),
-    ),
-    values,
-    unnest,
-  )(recordsToApply)
+): Promise<void> => {
+  const allRecords = []
+  toPairs(recordsToApply).forEach(([tableName, records]) => {
+    allRecords.push(...prepareApplyRemoteChangesToCollection(
+      db.get((tableName: any)),
+      records,
+      sendCreatedAsUpdated,
+      log,
+      conflictResolver,
+    ))
+  })
+  return db.batch(allRecords)
+}
 
 // See _unsafeBatchPerCollection - temporary fix
-const unsafeBatchesWithRecordsToApply = (
+const unsafeApplyAllRemoteChangesByBatches = (
   db: Database,
   recordsToApply: AllRecordsToApply,
   sendCreatedAsUpdated: boolean,
   log?: SyncLog,
   conflictResolver?: SyncConflictResolver,
-): Promise<void>[] =>
-  pipe(
-    mapObj((records, tableName: TableName<any>) => {
-      const preparedModels = prepareApplyRemoteChangesToCollection(
-        db.collections.get((tableName: any)),
-        records,
-        sendCreatedAsUpdated,
-        log,
-        conflictResolver,
-      )
-      // $FlowFixMe
-      return splitEvery(5000, preparedModels).map(recordBatch => db.batch(recordBatch))
-    }
-    ),
-    values,
-    unnest,
-  )(recordsToApply)
+): Promise<*> => {
+  const promises = []
+  toPairs(recordsToApply).forEach(([tableName, records]) => {
+    const preparedModels: Model[] = prepareApplyRemoteChangesToCollection(
+      db.collections.get((tableName: any)),
+      records,
+      sendCreatedAsUpdated,
+      log,
+      conflictResolver,
+    )
+    const batches = splitEvery(5000, preparedModels).map(recordBatch => db.batch(recordBatch))
+    promises.push(...batches)
+  })
+  return Promise.all(promises)
+}
 
 export default function applyRemoteChanges(
   db: Database,
@@ -257,26 +252,21 @@ export default function applyRemoteChanges(
     // Perform steps concurrently
     await Promise.all([
       destroyAllDeletedRecords(db, recordsToApply),
-      ...(_unsafeBatchPerCollection
-        ? unsafeBatchesWithRecordsToApply(
-            db,
-            recordsToApply,
-            sendCreatedAsUpdated,
-            log,
-            conflictResolver,
-          )
-        : [
-            db.batch(
-              // $FlowFixMe
-              prepareApplyAllRemoteChanges(
-                db,
-                recordsToApply,
-                sendCreatedAsUpdated,
-                log,
-                conflictResolver,
-              ),
-            ),
-          ]),
+      _unsafeBatchPerCollection ?
+        unsafeApplyAllRemoteChangesByBatches(
+          db,
+          recordsToApply,
+          sendCreatedAsUpdated,
+          log,
+          conflictResolver,
+        ) :
+        applyAllRemoteChanges(
+          db,
+          recordsToApply,
+          sendCreatedAsUpdated,
+          log,
+          conflictResolver,
+        ),
     ])
   }, 'sync-applyRemoteChanges')
 }

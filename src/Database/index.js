@@ -66,7 +66,7 @@ export default class Database {
   // Executes multiple prepared operations
   // (made with `collection.prepareCreate` and `record.prepareUpdate`)
   // Note: falsy values (null, undefined, false) passed to batch are just ignored
-  async batch(...records: $ReadOnlyArray<Model | null | void | false>): Promise<void> {
+  async batch(...records: $ReadOnlyArray<Model | Model[] | null | void | false>): Promise<void> {
     if (!Array.isArray(records[0])) {
       // $FlowFixMe
       return this.batch(records)
