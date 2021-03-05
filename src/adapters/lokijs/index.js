@@ -83,7 +83,7 @@ export type LokiAdapterOptions = $Exact<{
   // -- internal --
   _testLokiAdapter?: LokiMemoryAdapter,
   _onFatalError?: (error: Error) => void, // (experimental)
-  _concurrentIdb?: boolean, // (experimental)
+  _betaLoki?: boolean, // (experimental)
 }>
 
 export default class LokiJSAdapter implements DatabaseAdapter {
