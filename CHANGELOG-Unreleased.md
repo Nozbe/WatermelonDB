@@ -17,6 +17,8 @@
 - [Android] Autolinking is now supported (v0.20 is insufficient)
 
 ### Performance
+- [LokiJS] Improved performance of launching the app
+- Removed dependency on rambdax and made the util library smaller to keep
 
 ### Changes
 
@@ -27,7 +29,7 @@
 - [Typescript] Add `experimentalNestedJoin` definition and `unsafeSqlExpr` clause
 
 ### Fixes
-
+- [LokiJS] Fixed a case where IndexedDB could get corrupted over time
 - [Resilience] Added extra diagnostics for when you encounter the `Record ID aa#bb was sent over the bridge, but it's not cached` error and a recovery path (LokiJSAdapter-only). Please file an issue if you encounter this issue!
 - [Typescript] Fixed type on OnFunction to accept `and` in join
 - [Typescript] Fixed type `database#batch(records)`'s argument `records` to accept mixed types
@@ -35,4 +37,4 @@
 ### Internal
 
 - Added an experimental mode where a broken database state is detected, further mutations prevented, and the user notified
-- Added an experimental mode that attempts to fix IndexedDB corruption issue & improves launch performance
+-
