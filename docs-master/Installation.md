@@ -81,24 +81,13 @@ npm install @nozbe/with-observables
 
    See instructions above ⬆️
 
-2. In `android/settings.gradle`, add:
-
-   ```gradle
-   include ':watermelondb'
-   project(':watermelondb').projectDir =
-       new File(rootProject.projectDir, '../node_modules/@nozbe/watermelondb/native/android')
-   ```
-3. In `android/app/build.gradle`, add:
+2. In `android/app/build.gradle`, add:
    ```gradle
    apply plugin: "com.android.application"
    apply plugin: 'kotlin-android'  // ⬅️ This!
    // ...
-   dependencies {
-       // ...
-       implementation project(':watermelondb')  // ⬅️ This!
-   }
    ```
-4. In `android/build.gradle`, add Kotlin support to the project:
+3. In `android/build.gradle`, add Kotlin support to the project:
    ```gradle
    buildscript {
        ext.kotlin_version = '1.3.21'
@@ -109,20 +98,7 @@ npm install @nozbe/with-observables
        }
    }
    ```
-5. And finally, in `android/app/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.java`, add:
-   ```java
-   // ...
-   import com.nozbe.watermelondb.WatermelonDBPackage; // ⬅️ This!
-   // ...
-   @Override
-   protected List<ReactPackage> getPackages() {
-     return Arrays.<ReactPackage>asList(
-       new MainReactPackage(),
-       new WatermelonDBPackage() // ⬅️ Here!
-     );
-   }
-   ```
-6. **Troubleshooting**. If you get this error:
+4. **Troubleshooting**. If you get this error:
     > `Can't find variable: Symbol`
 
     You might need a polyfill for ES6 Symbol:
@@ -139,6 +115,39 @@ npm install @nozbe/with-observables
 
     Alternatively, we also recommend [`jsc-android`](https://github.com/react-community/jsc-android-buildscripts), with which you don't need this polyfill, and it also makes your app faster.
 
+##### Manual Install ONLY
+
+Users on React Native 0.60+ automatically have access to "autolinking", requiring no further manual installation steps. If you are on React Native 0.60+ please skip to the next section. If you are on React Native < 0.60 please do the following in **addition** to the previous steps:
+
+1. In `android/settings.gradle`, add:
+
+   ```gradle
+   include ':watermelondb'
+   project(':watermelondb').projectDir =
+       new File(rootProject.projectDir, '../node_modules/@nozbe/watermelondb/native/android')
+   ```
+
+2. In `android/app/build.gradle`, add:
+  ```gradle
+  // ...
+  dependencies {
+      // ...
+      implementation project(':watermelondb')  // ⬅️ This!
+  }
+  ```
+3. And finally, in `android/app/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.java`, add:
+   ```java
+   // ...
+   import com.nozbe.watermelondb.WatermelonDBPackage; // ⬅️ This!
+   // ...
+   @Override
+   protected List<ReactPackage> getPackages() {
+     return Arrays.<ReactPackage>asList(
+       new MainReactPackage(),
+       new WatermelonDBPackage() // ⬅️ Here!
+     );
+   }
+   ```
 
 ## NodeJS setup
 
