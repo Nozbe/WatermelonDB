@@ -12,10 +12,8 @@ import type { Database, Collection, Model } from '../..'
 import * as Q from '../../QueryDescription'
 import { columnName } from '../../Schema'
 
-import type { SyncTableChangeSet, SyncDatabaseChangeSet } from '../index'
+import type { SyncTableChangeSet, SyncLocalChanges } from '../index'
 import { ensureActionsEnabled } from './helpers'
-
-export type SyncLocalChanges = $Exact<{ changes: SyncDatabaseChangeSet, affectedRecords: Model[] }>
 
 // NOTE: Two separate queries are faster than notEq(synced) on LokiJS
 const createdQuery = Q.where(columnName('_status'), 'created')

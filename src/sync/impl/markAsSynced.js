@@ -11,7 +11,7 @@ import { logError } from '../../utils/common'
 import type { Database, Model } from '../..'
 
 import { prepareMarkAsSynced, ensureActionsEnabled } from './helpers'
-import type { SyncLocalChanges } from './fetchLocal'
+import type { SyncLocalChanges } from '../index'
 
 const unchangedRecordsForRaws = (raws, recordCache) =>
   raws.reduce(
