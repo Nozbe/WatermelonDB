@@ -3716,10 +3716,10 @@ flatted@^2.0.0:
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-2.0.1.tgz#69e57caa8f0eacbc281d2e2cb458d46fdb449e08"
   integrity sha512-a1hQMktqW9Nmqr5aktAux3JMNqaucxGcjtjWnZLHX7yyPCmlSV3M54nGYbqT8K+0GhF3NBgmJCc3ma+WOgX8Jg==
 
-flow-bin@^0.140.0:
-  version "0.140.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.140.0.tgz#bf1a2984a0e5604daa0d1e0432138d9897af65bb"
-  integrity sha512-9P/VciKACXocClhLiDg/p1ntYmgCEEc9QrNOoTqTi2SEdEZDTiAmJLONRJfw4uglPVRZ1p/esWF9KlbZiuxqVw==
+"flow-bin@npm:@nozbe/flow-bin@0.146":
+  version "0.146.0"
+  resolved "https://registry.yarnpkg.com/@nozbe/flow-bin/-/flow-bin-0.146.0.tgz#e5a0b404368411e53f121b2d1a7e8d91ba277dbb"
+  integrity sha512-3qORgtfTLCfYuPfkxGpRlPmajZkBhoJhy1WDsKussKchHR91OXQTTldVwddfDqoQG/ysPxNN40ZoaU7lquDFNQ==
 
 for-in@^1.0.1, for-in@^1.0.2:
   version "1.0.2"
