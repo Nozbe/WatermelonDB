@@ -1,7 +1,7 @@
 {
   "name": "@nozbe/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
-  "version": "0.21.0-11",
+  "version": "0.21.0-12",
   "scripts": {
     "build": "NODE_ENV=production node ./scripts/make.js",
     "dev": "NODE_ENV=development node ./scripts/make.js",
@@ -133,6 +133,7 @@
     "prettier": "^1.14.2",
     "prettier-eslint": "^9.0.0",
     "prettier-eslint-cli": "^4.7.1",
+    "rambdax": "2.15.0",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-native": "^0.59.3",
@@ -140,7 +141,6 @@
     "rimraf": "^3.0.0",
     "semver": "^6.0.0",
     "tslint": "^5.11.0",
-    "rambdax": "2.15.0",
     "tslint-config-prettier": "^1.15.0",
     "typescript": "^3.0.3"
   }
