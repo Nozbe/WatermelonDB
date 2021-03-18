@@ -5498,10 +5498,10 @@ loglevel@^1.4.1:
   resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.6.1.tgz#e0fc95133b6ef276cdc8887cdaf24aa6f156f8fa"
   integrity sha1-4PyVEztu8nbNyIh82vJKpvFW+Po=
 
-"lokijs@npm:@nozbe/lokijs@1.5.12-wmelon":
-  version "1.5.12-wmelon"
-  resolved "https://registry.yarnpkg.com/@nozbe/lokijs/-/lokijs-1.5.12-wmelon.tgz#a3bd2d90f24f7968e80404e609f1fadeab24f0c9"
-  integrity sha512-7xQUn80pzPBB9VcwvB/W2V9/60xIfuk+3IDIvS9cU7W29jJx4QBXe5dBWTaARmxD9hXozPCcPWh2wfd7m4dbTA==
+"lokijs@npm:@nozbe/lokijs@1.5.12-wmelon2":
+  version "1.5.12-wmelon2"
+  resolved "https://registry.yarnpkg.com/@nozbe/lokijs/-/lokijs-1.5.12-wmelon2.tgz#31bc7b2d0c62edc1ccabd50ba795635d40e3e8c9"
+  integrity sha512-/YkZghPWKmyXgVpZ2MaIe3y/t/IYm/wQxXyEoi0G8JrjTrO9tlrAs2uiHUhbdY/2ZSPMLKbw1q9EqXZxA8ZqnQ==
 
 loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.3.1, loose-envify@^1.4.0:
   version "1.4.0"
