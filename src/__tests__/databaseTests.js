@@ -1125,12 +1125,54 @@ export const joinTests = [
     skipLoki: true,
   },
   {
+    // DEPRECATED
     name: 'can compare columns between tables using unsafe Loki filter',
     query: [
       Q.on('projects', 'num1', Q.notEq(null)),
       Q.unsafeLokiFilter((record, loki) => {
         const project = loki.getCollection('projects').by('id', record.project_id)
         return project && typeof record.num1 === 'number' && record.num1 > project.num1
+      }),
+    ],
+    extraRecords: {
+      projects: [
+        { id: 'p1', num1: 5 },
+        { id: 'p2', num1: 10 },
+        { id: 'badp1' },
+        { id: 'badp2', num1: 5, _status: 'deleted' },
+      ],
+    },
+    matching: [
+      { id: 'm1', project_id: 'p1', num1: 5.01 },
+      { id: 'm2', project_id: 'p1', num1: 100 },
+      { id: 'm3', project_id: 'p2', num1: 11 },
+      { id: 'm4', project_id: 'p2', num1: 10e12 },
+    ],
+    nonMatching: [
+      { id: 'n1', project_id: 'p1', num1: 0 },
+      { id: 'n2', project_id: 'p1', num1: -10 },
+      { id: 'n3', project_id: 'p1', num1: 4.99 },
+      { id: 'n4', project_id: 'p2', num1: 9 },
+      { id: 'n5', project_id: 'badp2', num1: 100 },
+      { id: 'n6', project_id: 'badp1', num1: 100 },
+      { id: 'n7', project_id: 'p1', num1: 100, _status: 'deleted' },
+      { id: 'n8', project_id: 'p1' },
+    ],
+    skipSqlite: true,
+  },
+  {
+    name: 'can compare columns between tables using unsafe Loki transform',
+    query: [
+      Q.on('projects', 'num1', Q.notEq(null)),
+      Q.unsafeLokiTransform((raws, loki) => {
+        const newRaws = []
+        raws.forEach(raw => {
+          const project = loki.getCollection('projects').by('id', raw.project_id)
+          if (project && typeof raw.num1 === 'number' && raw.num1 > project.num1) {
+            newRaws.push(raw)
+          }
+        })
+        return newRaws
       }),
     ],
     extraRecords: {

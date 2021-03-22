@@ -212,7 +212,7 @@ const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string
       !countMode,
       'take/skip is not currently supported with counting. Please contribute to fix this!',
     )
-  invariant(!description.lokiFilter, 'unsafeLokiFilter not supported with SQLite')
+  invariant(!description.lokiTransform, 'unsafeLokiTransform not supported with SQLite')
 
   const sql =
     encodeMethod(table, countMode, hasToManyJoins) +

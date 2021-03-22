@@ -182,16 +182,27 @@ describe('buildQueryDescription', () => {
       sortBy: [],
     })
   })
-  it(`supports unsafe Loki filter`, () => {
+  it(`supports unsafe Loki filter (DEPRECATED)`, () => {
     const filter = (_record, _loki) => true
-    const query = Q.buildQueryDescription([Q.unsafeLokiFilter(filter)])
+    const filterClause = Q.unsafeLokiFilter(filter)
+    const query = Q.buildQueryDescription([filterClause])
     expect(query).toEqual({
       where: [],
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
-
-      lokiFilter: filter,
+      lokiTransform: filterClause.function,
+    })
+  })
+  it(`supports unsafe Loki transform`, () => {
+    const transform = (records, _loki) => records
+    const query = Q.buildQueryDescription([Q.unsafeLokiTransform(transform)])
+    expect(query).toEqual({
+      where: [],
+      joinTables: [],
+      nestedJoinTables: [],
+      sortBy: [],
+      lokiTransform: transform,
     })
   })
   it('supports simple JOIN queries', () => {

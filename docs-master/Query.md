@@ -314,7 +314,7 @@ postsCollection.query(
 
 For SQL, be sure to prefix column names with table name when joining with other tables.
 
-### Multi-table column comparisons and `Q.unsafeLokiFilter`
+### Multi-table column comparisons and `Q.unsafeLokiTransform`
 
 Example: we want to query comments posted more than 14 days after the post it belongs to was published.
 
@@ -330,14 +330,18 @@ commentsCollection.query(
 // LokiJS example:
 commentsCollection.query(
   Q.on('posts', 'published_at', Q.notEq(null)),
-  Q.unsafeLokiFilter((record, loki) => {
-    const post = loki.getCollection('posts').by('id', record.post_id)
-    return post && record.created_at > post.published_at + 14 * 24 * 3600 * 1000
+  Q.unsafeLokiTransform((rawRecords, loki) => {
+    return rawRecords.filter(rawRecord => {
+      const post = loki.getCollection('posts').by('id', rawRecord.post_id)
+      return post && rawRecord.created_at > post.published_at + 14 * 24 * 3600 * 1000
+    })
   }),
 )
 ```
 
-For LokiJS, remember that `record` is an unsanitized object and must not be mutated. `Q.unsafeLokiFilter` only works when using `LokiJSAdapter` with `useWebWorkers: false`. There can only be one `Q.unsafeLokiFilter` clause per query.
+For LokiJS, remember that `rawRecord` is an unsanitized, unsafe object and must not be mutated. `Q.unsafeLokiTransform` only works when using `LokiJSAdapter` with `useWebWorkers: false`. There can only be one `Q.unsafeLokiTransform` clause per query.
+
+> **NOTE:** In an earlier version of WatermelonDB, `Q.unsafeLokiFilter` was recommended. Change `Q.unsafeLokiFilter((raw, loki) => condition)` to `Q.unsafeLokiTransform((raws, loki) => raws.filter(raw => condition))`
 
 ### `null` behavior
 
