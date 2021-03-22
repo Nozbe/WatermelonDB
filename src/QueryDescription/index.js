@@ -1,8 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { uniq, partition, piped, map, groupBy } from 'rambdax'
-import { unnest } from '../utils/fp'
+import { unique, values as getValues, groupBy, unnest, pipe } from '../utils/fp'
 
 // don't import whole `utils` to keep worker size small
 import invariant from '../utils/common/invariant'
@@ -376,17 +375,25 @@ const compressTopLevelOns = (conditions: Where[]): Where[] => {
   // special cases are used. Here, we're special casing only top-level Q.ons to avoid regressions
   // but it's not recommended for new code
   // TODO: Remove this special case
-  const [ons, wheres] = partition(clause => clause.type === 'on', conditions)
-  const grouppedOns: On[] = piped(
-    ons,
+  const ons = []
+  const wheres = []
+  conditions.forEach(clause => {
+    if (clause.type === 'on') {
+      ons.push(clause)
+    } else {
+      wheres.push(clause)
+    }
+  })
+
+  const onsByTable: On[][] = pipe(
     groupBy(clause => clause.table),
-    Object.values,
-    map((clauses: On[]) => {
-      const { table } = clauses[0]
-      const onConditions: Where[] = unnest(clauses.map(clause => clause.conditions))
-      return on(table, onConditions)
-    }),
-  )
+    getValues,
+  )(ons)
+  const grouppedOns: On[] = onsByTable.map((clauses: On[]) => {
+    const { table } = clauses[0]
+    const onConditions: Where[] = unnest(clauses.map(clause => clause.conditions))
+    return on(table, onConditions)
+  })
   return grouppedOns.concat(wheres)
 }
 
@@ -435,7 +442,7 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
         throw new Error('Invalid Query clause passed')
     }
   })
-  clauseMap.joinTables = uniq(clauseMap.joinTables)
+  clauseMap.joinTables = unique(clauseMap.joinTables)
   // $FlowFixMe
   clauseMap.where = compressTopLevelOns(clauseMap.where)
   // $FlowFixMe: Flow is too dumb to realize that it is valid
@@ -488,8 +495,6 @@ export function queryWithoutDeleted(query: QueryDescription): QueryDescription {
 }
 
 const searchForColumnComparisons: any => boolean = value => {
-  // Performance critical (100ms on login in previous rambdax-based implementation)
-
   if (Array.isArray(value)) {
     // dig deeper into the array
     for (let i = 0; i < value.length; i += 1) {

@@ -1,9 +1,6 @@
 // @flow
 
-import { pickAll, values } from 'rambdax'
-
 import identicalArrays from '../../utils/fp/identicalArrays'
-import arrayDifference from '../../utils/fp/arrayDifference'
 import { type Unsubscribe } from '../../utils/subscriptions'
 
 import { type Value } from '../../QueryDescription'
@@ -16,16 +13,20 @@ import subscribeToSimpleQuery from '../subscribeToSimpleQuery'
 import subscribeToQueryReloading from '../subscribeToQueryReloading'
 import canEncodeMatcher from '../encodeMatcher/canEncode'
 
-type RecordState = { [field: ColumnName]: Value }
+type RecordState = Value[]
 
-const getRecordState: (Model, ColumnName[]) => RecordState = (record, columnNames) =>
-  // `pickAll` guarantees same length and order of keys!
-  // $FlowFixMe
-  pickAll(columnNames, record._raw)
+const getRecordState: (Model, ColumnName[]) => RecordState = (record, columnNames) => {
+  const state = []
+  const raw = record._raw
+  for (let i = 0, len = columnNames.length; i < len; i++) {
+    // $FlowFixMe
+    state.push(raw[columnNames[i]])
+  }
+  return state
+}
 
 // Invariant: same length and order of keys!
-const recordStatesEqual = (left: RecordState, right: RecordState): boolean =>
-  identicalArrays(values(left), values(right))
+const recordStatesEqual: (left: RecordState, right: RecordState) => boolean = identicalArrays
 
 // Observes the given observable list of records, and in those records,
 // changes to given `rawFields`
@@ -135,6 +136,7 @@ export default function subscribeToQueryWithColumns<Record: Model>(
     firstEmission = false
 
     // Find changes, and save current list for comparison on next emission
+    const arrayDifference = require('../../utils/fp/arrayDifference').default
     const { added, removed } = arrayDifference(observedRecords, records)
     observedRecords = records
 

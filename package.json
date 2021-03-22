@@ -1,7 +1,7 @@
 {
   "name": "@nozbe/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
-  "version": "0.21.0-11",
+  "version": "0.21.0-12",
   "scripts": {
     "build": "NODE_ENV=production node ./scripts/make.js",
     "dev": "NODE_ENV=development node ./scripts/make.js",
@@ -44,9 +44,7 @@
   "dependencies": {
     "@babel/runtime": "^7.11.2",
     "@nozbe/sqlite": "3.31.1",
-    "lokijs": "npm:@nozbe/lokijs@1.5.10-wmelon3",
-    "lokijs-concurrent-idb": "npm:@nozbe/lokijs@1.5.12-wmelon",
-    "rambdax": "2.15.0",
+    "lokijs": "npm:@nozbe/lokijs@1.5.12-wmelon2",
     "rxjs": "^6.5.3",
     "sql-escape-string": "^1.1.0"
   },
@@ -119,7 +117,7 @@
     "execa": "^2.0.0",
     "fake-indexeddb": "^3.0.0",
     "fast-async": "^7.0",
-    "flow-bin": "^0.140.0",
+    "flow-bin": "npm:@nozbe/flow-bin@0.146",
     "fs-extra": "^8.0.0",
     "glob-to-regexp": "^0.4.1",
     "inquirer": "^7.0.0",
@@ -135,6 +133,7 @@
     "prettier": "^1.14.2",
     "prettier-eslint": "^9.0.0",
     "prettier-eslint-cli": "^4.7.1",
+    "rambdax": "2.15.0",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-native": "^0.59.3",

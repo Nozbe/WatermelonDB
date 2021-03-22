@@ -1,7 +1,7 @@
 // @flow
 
+// NOTE: Only require files needed (critical path on web)
 import invariant from '../utils/common/invariant'
-import checkName from '../utils/fp/checkName'
 import type { $RE } from '../types'
 
 import type Model from '../Model'
@@ -79,6 +79,7 @@ const validateName = (name: string) => {
       !['id', '_changed', '_status', 'local_storage'].includes(name.toLowerCase()),
       `Invalid column or table name '${name}' - reserved by WatermelonDB`,
     )
+    const checkName = require('../utils/fp/checkName').default
     checkName(name)
   }
 }
