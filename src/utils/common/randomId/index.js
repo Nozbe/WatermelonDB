@@ -29,4 +29,4 @@ export const setGenerator = (newGenerator: void => string) => {
   generator = newGenerator
 }
 
-export default () => generator()
+export default (): string => generator()

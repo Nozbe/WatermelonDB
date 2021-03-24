@@ -1,12 +1,13 @@
 // @flow
 
-import { sortBy, prop, last, head } from 'rambdax'
+// NOTE: Only require files needed (critical path on web)
+import sortBy from '../../utils/fp/sortBy'
+import invariant from '../../utils/common/invariant'
+import isObj from '../../utils/fp/isObj'
+
 import type { $RE } from '../../types'
 import type { ColumnSchema, TableName, TableSchema, TableSchemaSpec, SchemaVersion } from '../index'
 import { tableSchema, validateColumnSchema } from '../index'
-
-import { invariant } from '../../utils/common'
-import { isObject } from '../../utils/fp'
 
 export type CreateTableMigrationStep = $RE<{
   type: 'create_table',
@@ -42,8 +43,6 @@ export type SchemaMigrations = $RE<{
   maxVersion: SchemaVersion,
   sortedMigrations: Migration[],
 }>
-
-const sortMigrations = sortBy(prop('toVersion'))
 
 // Creates a specification of how to migrate between different versions of
 // database schema. Every time you change the database schema, you must
@@ -92,7 +91,7 @@ export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMig
 
     // validate migrations format
     migrations.forEach(migration => {
-      invariant(isObject(migration), `Invalid migration (not an object) in schema migrations`)
+      invariant(isObj(migration), `Invalid migration (not an object) in schema migrations`)
       const { toVersion, steps } = migration
       invariant(typeof toVersion === 'number', 'Invalid migration - `toVersion` must be a number')
       invariant(
@@ -106,9 +105,10 @@ export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMig
     })
   }
 
-  const sortedMigrations = sortMigrations(migrations)
-  const oldestMigration = head(sortedMigrations)
-  const newestMigration = last(sortedMigrations)
+  // TODO: Force order of migrations?
+  const sortedMigrations = sortBy(migration => migration.toVersion, migrations)
+  const oldestMigration = sortedMigrations[0]
+  const newestMigration = sortedMigrations[sortedMigrations.length - 1]
   const minVersion = oldestMigration ? oldestMigration.toVersion - 1 : 1
   const maxVersion = newestMigration?.toVersion || 1
 

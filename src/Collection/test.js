@@ -145,7 +145,7 @@ describe('fetching queries', () => {
     collection._cache.add(m1)
 
     // fetch, check if error occured
-    const spy = jest.spyOn(logger, 'error').mockImplementation(() => {})
+    const spy = jest.spyOn(logger, 'warn').mockImplementation(() => {})
     const models = await toPromise(cb => collection._fetchQuery(mockQuery(collection), cb))
     expect(spy).toHaveBeenCalledTimes(1)
     spy.mockRestore()

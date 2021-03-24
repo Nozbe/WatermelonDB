@@ -14,15 +14,21 @@ class DatabaseBridge {
 
   // MARK: - Asynchronous connections
 
-  connected = (tag: number, driver: DatabaseDriver, synchronous: boolean = false) => {
+  connected: ((tag: number, driver: DatabaseDriver, synchronous?: boolean) => void) = (tag: number, driver: DatabaseDriver, synchronous: boolean = false) => {
     this.connections[tag] = { driver, synchronous, queue: [], status: 'connected' }
   }
 
-  waiting = (tag: number, driver: DatabaseDriver, synchronous: boolean = false) => {
+  waiting: ((tag: number, driver: DatabaseDriver, synchronous?: boolean) => void) = (tag: number, driver: DatabaseDriver, synchronous: boolean = false) => {
     this.connections[tag] = { driver, synchronous, queue: [], status: 'waiting' }
   }
 
-  initialize = (
+  initialize: ((
+  tag: number,
+  databaseName: string,
+  schemaVersion: number,
+  resolve: (status: {code: string, databaseVersion?: number,...}) => void,
+  reject: () => void
+) => void) = (
     tag: number,
     databaseName: string,
     schemaVersion: number,
@@ -50,7 +56,14 @@ class DatabaseBridge {
     }
   }
 
-  setUpWithSchema = (
+  setUpWithSchema: ((
+  tag: number,
+  databaseName: string,
+  schema: string,
+  schemaVersion: number,
+  resolve: (boolean) => void,
+  _reject: () => void
+) => void) = (
     tag: number,
     databaseName: string,
     schema: string,
@@ -64,7 +77,15 @@ class DatabaseBridge {
     resolve(true)
   }
 
-  setUpWithMigrations = (
+  setUpWithMigrations: ((
+  tag: number,
+  databaseName: string,
+  migrations: string,
+  fromVersion: number,
+  toVersion: number,
+  resolve: (boolean) => void,
+  reject: () => void
+) => void) = (
     tag: number,
     databaseName: string,
     migrations: string,
@@ -90,7 +111,7 @@ class DatabaseBridge {
 
   // MARK: - Synchronous connections
 
-  initializeJSI = (): any => {
+  initializeJSI: (() => any) = (): any => {
     // return this.synchronously('initializeJSI', bridge => {
     //   // swiftlint:disable all
     //   installWatermelonJSI(bridge) //  as? RCTCxxBridge
@@ -98,7 +119,7 @@ class DatabaseBridge {
     throw new Error('No JSI here')
   }
 
-  initializeSynchronous = (tag: number, databaseName: string, schemaVersion: number): any => {
+  initializeSynchronous: ((tag: number, databaseName: string, schemaVersion: number) => any) = (tag: number, databaseName: string, schemaVersion: number): any => {
     return this.synchronously('initializeSynchronous', () => {
       let driver
       try {
@@ -120,7 +141,12 @@ class DatabaseBridge {
     })
   }
 
-  setUpWithSchemaSynchronous = (
+  setUpWithSchemaSynchronous: ((
+  tag: number,
+  databaseName: string,
+  schema: string,
+  schemaVersion: number
+) => any) = (
     tag: number,
     databaseName: string,
     schema: string,
@@ -134,7 +160,13 @@ class DatabaseBridge {
     })
   }
 
-  setUpWithMigrationsSynchronous = (
+  setUpWithMigrationsSynchronous: ((
+  tag: number,
+  databaseName: string,
+  migrations: string,
+  fromVersion: number,
+  toVersion: number
+) => any) = (
     tag: number,
     databaseName: string,
     migrations: string,
@@ -160,10 +192,22 @@ class DatabaseBridge {
 
   // MARK: - Asynchronous actions
 
-  find = (tag: number, table: string, id: string, resolve: any => void, reject: string => void) =>
+  find: ((
+  tag: number,
+  table: string,
+  id: string,
+  resolve: (any) => void,
+  reject: (string) => void
+) => void) = (tag: number, table: string, id: string, resolve: any => void, reject: string => void) =>
     this.withDriver(tag, resolve, reject, 'find', driver => driver.find(table, id))
 
-  query = (
+  query: ((
+  tag: number,
+  table: string,
+  query: string,
+  resolve: (any) => void,
+  reject: (string) => void
+) => void) = (
     tag: number,
     table: string,
     query: string,
@@ -171,25 +215,51 @@ class DatabaseBridge {
     reject: string => void,
   ) => this.withDriver(tag, resolve, reject, 'query', driver => driver.cachedQuery(table, query))
 
-  count = (tag: number, query: string, resolve: any => void, reject: string => void) =>
+  count: ((
+  tag: number,
+  query: string,
+  resolve: (any) => void,
+  reject: (string) => void
+) => void) = (tag: number, query: string, resolve: any => void, reject: string => void) =>
     this.withDriver(tag, resolve, reject, 'count', driver => driver.count(query))
 
-  batchJSON = (tag: number, operations: string, resolve: any => void, reject: string => void) =>
+  batchJSON: ((
+  tag: number,
+  operations: string,
+  resolve: (any) => void,
+  reject: (string) => void
+) => void) = (tag: number, operations: string, resolve: any => void, reject: string => void) =>
     this.withDriver(tag, resolve, reject, 'batchJSON', driver =>
       driver.batch(this.toBatchOperations(operations)),
     )
 
-  batch = (tag: number, operations: any[][], resolve: any => void, reject: string => void) =>
+  batch: ((
+  tag: number,
+  operations: Array<Array<any>>,
+  resolve: (any) => void,
+  reject: (string) => void
+) => void) = (tag: number, operations: any[][], resolve: any => void, reject: string => void) =>
     this.withDriver(tag, resolve, reject, 'batch', driver =>
       driver.batch(this.toBatchOperations(operations)),
     )
 
-  getDeletedRecords = (tag: number, table: string, resolve: any => void, reject: string => void) =>
+  getDeletedRecords: ((
+  tag: number,
+  table: string,
+  resolve: (any) => void,
+  reject: (string) => void
+) => void) = (tag: number, table: string, resolve: any => void, reject: string => void) =>
     this.withDriver(tag, resolve, reject, 'getDeletedRecords', driver =>
       driver.getDeletedRecords(table),
     )
 
-  destroyDeletedRecords = (
+  destroyDeletedRecords: ((
+  tag: number,
+  table: string,
+  records: Array<string>,
+  resolve: (any) => void,
+  reject: (string) => void
+) => void) = (
     tag: number,
     table: string,
     records: string[],
@@ -200,7 +270,13 @@ class DatabaseBridge {
       driver.destroyDeletedRecords(table, records),
     )
 
-  unsafeResetDatabase = (
+  unsafeResetDatabase: ((
+  tag: number,
+  schema: string,
+  schemaVersion: number,
+  resolve: (any) => void,
+  reject: (string) => void
+) => void) = (
     tag: number,
     schema: string,
     schemaVersion: number,
@@ -211,10 +287,21 @@ class DatabaseBridge {
       driver.unsafeResetDatabase({ version: schemaVersion, sql: schema }),
     )
 
-  getLocal = (tag: number, key: string, resolve: any => void, reject: string => void) =>
+  getLocal: ((
+  tag: number,
+  key: string,
+  resolve: (any) => void,
+  reject: (string) => void
+) => void) = (tag: number, key: string, resolve: any => void, reject: string => void) =>
     this.withDriver(tag, resolve, reject, 'getLocal', driver => driver.getLocal(key))
 
-  setLocal = (
+  setLocal: ((
+  tag: number,
+  key: string,
+  value: string,
+  resolve: (any) => void,
+  reject: (string) => void
+) => void) = (
     tag: number,
     key: string,
     value: string,
@@ -222,60 +309,65 @@ class DatabaseBridge {
     reject: string => void,
   ) => this.withDriver(tag, resolve, reject, 'setLocal', driver => driver.setLocal(key, value))
 
-  removeLocal = (tag: number, key: string, resolve: any => void, reject: string => void) =>
+  removeLocal: ((
+  tag: number,
+  key: string,
+  resolve: (any) => void,
+  reject: (string) => void
+) => void) = (tag: number, key: string, resolve: any => void, reject: string => void) =>
     this.withDriver(tag, resolve, reject, 'removeLocal', driver => driver.removeLocal(key))
 
   // MARK: - Synchronous methods
 
-  findSynchronous = (tag: number, table: string, id: string): any =>
+  findSynchronous: ((tag: number, table: string, id: string) => any) = (tag: number, table: string, id: string): any =>
     this.withDriverSynchronous(tag, 'findSynchronous', driver => driver.find(table, id))
 
-  querySynchronous = (tag: number, table: string, query: string): any =>
+  querySynchronous: ((tag: number, table: string, query: string) => any) = (tag: number, table: string, query: string): any =>
     this.withDriverSynchronous(tag, 'querySynchronous', driver => {
       const results = driver.cachedQuery(table, query)
       return results
     })
 
-  countSynchronous = (tag: number, query: string): any =>
+  countSynchronous: ((tag: number, query: string) => any) = (tag: number, query: string): any =>
     this.withDriverSynchronous(tag, 'countSynchronous', driver => driver.count(query))
 
-  batchJSONSynchronous = (tag: number, operations: string): any =>
+  batchJSONSynchronous: ((tag: number, operations: string) => any) = (tag: number, operations: string): any =>
     this.withDriverSynchronous(tag, 'batchJSONSynchronous', driver =>
       driver.batch(this.toBatchOperations(operations)),
     )
 
-  batchSynchronous = (tag: number, operations: any[][]): any =>
+  batchSynchronous: ((tag: number, operations: Array<Array<any>>) => any) = (tag: number, operations: any[][]): any =>
     this.withDriverSynchronous(tag, 'batchSynchronous', driver =>
       driver.batch(this.toBatchOperations(operations)),
     )
 
-  getDeletedRecordsSynchronous = (tag: number, table: string): any =>
+  getDeletedRecordsSynchronous: ((tag: number, table: string) => any) = (tag: number, table: string): any =>
     this.withDriverSynchronous(tag, 'getDeletedRecordsSynchronous', driver =>
       driver.getDeletedRecords(table),
     )
 
-  destroyDeletedRecordsSynchronous = (tag: number, table: string, records: string[]): any =>
+  destroyDeletedRecordsSynchronous: ((tag: number, table: string, records: Array<string>) => any) = (tag: number, table: string, records: string[]): any =>
     this.withDriverSynchronous(tag, 'destroyDeletedRecordsSynchronous', driver =>
       driver.destroyDeletedRecords(table, records),
     )
 
-  unsafeResetDatabaseSynchronous = (tag: number, schema: string, schemaVersion: number): any =>
+  unsafeResetDatabaseSynchronous: ((tag: number, schema: string, schemaVersion: number) => any) = (tag: number, schema: string, schemaVersion: number): any =>
     this.withDriverSynchronous(tag, 'unsafeResetDatabaseSynchronous', driver =>
       driver.unsafeResetDatabase({ version: schemaVersion, sql: schema }),
     )
 
-  getLocalSynchronous = (tag: number, key: string): any =>
+  getLocalSynchronous: ((tag: number, key: string) => any) = (tag: number, key: string): any =>
     this.withDriverSynchronous(tag, 'getLocalSynchronous', driver => driver.getLocal(key))
 
-  setLocalSynchronous = (tag: number, key: string, value: string): any =>
+  setLocalSynchronous: ((tag: number, key: string, value: string) => any) = (tag: number, key: string, value: string): any =>
     this.withDriverSynchronous(tag, 'setLocalSynchronous', driver => driver.setLocal(key, value))
 
-  removeLocalSynchronous = (tag: number, key: string): any =>
+  removeLocalSynchronous: ((tag: number, key: string) => any) = (tag: number, key: string): any =>
     this.withDriverSynchronous(tag, 'removeLocalSynchronous', driver => driver.removeLocal(key))
 
   // MARK: - Helpers
 
-  toBatchOperations = (operations: any) => {
+  toBatchOperations: ((operations: any) => any) = (operations: any) => {
     if (typeof operations === 'string') {
       try {
         return JSON.parse(operations)
@@ -286,7 +378,13 @@ class DatabaseBridge {
     return operations
   }
 
-  withDriver = (
+  withDriver: ((
+  tag: number,
+  resolve: (any) => void,
+  reject: (any) => void,
+  functionName: string,
+  action: (driver: DatabaseDriver) => any
+) => void) = (
     tag: number,
     resolve: any => void,
     reject: any => void,
@@ -316,7 +414,12 @@ class DatabaseBridge {
     }
   }
 
-  synchronously = (functionName: string, action: () => any) => {
+  synchronously: ((
+  functionName: string,
+  action: () => any
+) => 
+  | {|code: string, message: any, status: string|}
+  | {|result: any, status: string|}) = (functionName: string, action: () => any) => {
     try {
       const result = action()
       return { status: 'success', result }
@@ -325,7 +428,13 @@ class DatabaseBridge {
     }
   }
 
-  withDriverSynchronous = (
+  withDriverSynchronous: ((
+  tag: number,
+  functionName: string,
+  action: (driver: DatabaseDriver) => any
+) => 
+  | {|code: string, message: any, status: string|}
+  | {|result: any, status: string|}) = (
     tag: number,
     functionName: string,
     action: (driver: DatabaseDriver) => any,
@@ -340,27 +449,31 @@ class DatabaseBridge {
     })
   }
 
-  connectDriverAsync = (tag: number, driver: DatabaseDriver) => {
+  connectDriverAsync: ((tag: number, driver: DatabaseDriver) => void) = (tag: number, driver: DatabaseDriver) => {
     const { queue = [] } = this.connections[tag]
     this.connections[tag] = { driver, synchronous: false, queue: [], status: 'connected' }
 
     queue.forEach(operation => operation())
   }
 
-  disconnectDriver = (tag: number) => {
+  disconnectDriver: ((tag: number) => void) = (tag: number) => {
     const { queue = [] } = this.connections[tag]
     delete this.connections[tag]
 
     queue.forEach(operation => operation())
   }
 
-  assertNoConnection = (tag: number) => {
+  assertNoConnection: ((tag: number) => void) = (tag: number) => {
     if (this.connections[tag]) {
       throw new Error(`A driver with tag ${tag} already set up`)
     }
   }
 
-  sendReject = (reject: (string, string, Error) => void, error: Error, functionName: string) => {
+  sendReject: ((
+  reject: (string, string, Error) => void,
+  error: Error,
+  functionName: string
+) => void) = (reject: (string, string, Error) => void, error: Error, functionName: string) => {
     if (reject) {
       reject(`db.${functionName}.error`, error.message, error)
     } else {
@@ -369,6 +482,6 @@ class DatabaseBridge {
   }
 }
 
-const databaseBridge = new DatabaseBridge()
+const databaseBridge: DatabaseBridge = new DatabaseBridge()
 
 export default databaseBridge

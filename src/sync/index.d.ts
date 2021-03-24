@@ -1,5 +1,7 @@
 declare module '@nozbe/watermelondb/sync' {
   import { DirtyRaw, RecordId, TableName, Model, Database } from '@nozbe/watermelondb';
+  import { Migration } from '@nozbe/watermelondb/Schema/migrations';
+  
   export type Timestamp = number
 
   export type SyncTableChangeSet = {
@@ -11,7 +13,7 @@ declare module '@nozbe/watermelondb/sync' {
 
   export type SyncLocalChanges = { changes: SyncDatabaseChangeSet, affectedRecords: Model[] }
 
-  export type SyncPullArgs = { lastPulledAt: Timestamp | null }
+  export type SyncPullArgs = { lastPulledAt: Timestamp | null, schemaVersion?: number, migration?: Migration | null }
   export type SyncPullResult = { changes: SyncDatabaseChangeSet, timestamp: Timestamp }
 
   export type SyncPushArgs = { changes: SyncDatabaseChangeSet, lastPulledAt: Timestamp }
@@ -32,6 +34,7 @@ declare module '@nozbe/watermelondb/sync' {
     sendCreatedAsUpdated?: boolean,
     log?: SyncLog,
     _unsafeBatchPerCollection?: boolean, // commits changes in multiple batches, and not one - temporary workaround for memory issue
+    migrationsEnabledAtVersion?: number
   }
 
   export function synchronize({

@@ -17,4 +17,5 @@ module.exports = {
   collectCoverageFrom: ['!**/node_modules/**', 'src/**'],
   coverageDirectory: 'coverage',
   coverageReporters: ['html', 'json'],
+  cacheDirectory: '.cache/jest',
 }

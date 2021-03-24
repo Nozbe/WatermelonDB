@@ -4,16 +4,22 @@
 
 ### BREAKING CHANGES
 
+### Deprecations
+
+- [LokiJS] `Q.unsafeLokiFilter` is now deprecated and will be removed in a future version.
+    Use `Q.unsafeLokiTransform((raws, loki) => raws.filter(raw => ...))` instead.
+
 ### New features
-- [Model] `Model.update` method now returns updated record
 
 ### Performance
 
+- Removed dependency on rambdax and made the util library smaller to keep
+
 ### Changes
 
-### Fixes
-
-- [Typescript] Fixed type on OnFunction to accept `and` in join
+- [Docs] Add advanced tutorial to share database across iOS targets
 - [Sqlite] Allowed callbacks (within the migrationEvents object) to be passed so as to track the migration events status ( onStarted, onFailure, onSuccess )
+
+### Fixes
 
 ### Internal

@@ -1,9 +1,10 @@
 // @flow
 /* eslint-disable no-undef */
 
-import Loki, { LokiMemoryAdapter } from 'lokijs'
-import { logger } from '../../../utils/common'
+// don't import the whole utils/ here!
+import logger from '../../../utils/common/logger'
 import type { LokiAdapterOptions } from '../index'
+import type { Loki } from '../type'
 
 const isIDBAvailable = (onQuotaExceededError: ?(error: Error) => void) => {
   return new Promise(resolve => {
@@ -55,12 +56,16 @@ async function getLokiAdapter(options: LokiAdapterOptions): mixed {
     return adapter
   } else if (await isIDBAvailable(onQuotaExceededError)) {
     if (useIncrementalIndexedDB) {
-      const IncrementalIDBAdapter = require('lokijs/src/incremental-indexeddb-adapter')
+      const IncrementalIDBAdapter = options._betaLoki ?
+        require('lokijs/src/incremental-indexeddb-adapter') :
+        require('lokijs/src/incremental-indexeddb-adapter')
+      // $FlowFixMe
       return new IncrementalIDBAdapter({
         onversionchange: onIndexedDBVersionChange,
         onFetchStart: onIndexedDBFetchStart,
         serializeChunk: serializer?.serializeChunk,
         deserializeChunk: serializer?.deserializeChunk,
+        ...(options.extraIncrementalIDBOptions || {}),
       })
     }
     const LokiIndexedAdapter = require('lokijs/src/loki-indexed-adapter')
@@ -69,16 +74,20 @@ async function getLokiAdapter(options: LokiAdapterOptions): mixed {
 
   // if IDB is unavailable (that happens in private mode), fall back to memory adapter
   // we could also fall back to localstorage adapter, but it will fail in all but the smallest dbs
+  const { LokiMemoryAdapter } = options._betaLoki ? require('lokijs') : require('lokijs')
   return new LokiMemoryAdapter()
 }
 
 export async function newLoki(options: LokiAdapterOptions): Loki {
   const { autosave = true } = options
-  const loki = new Loki(options.dbName, {
+  const LokiDb = options._betaLoki ? require('lokijs') : require('lokijs')
+  // $FlowFixMe
+  const loki: Loki = new LokiDb(options.dbName, {
     adapter: await getLokiAdapter(options),
     autosave,
-    autosaveInterval: 250,
+    autosaveInterval: 500,
     verbose: true,
+    ...(options.extraLokiOptions || {}),
   })
 
   // force load database now
@@ -107,4 +116,28 @@ export async function deleteDatabase(loki: Loki): Promise<void> {
       })
     })
   })
+}
+
+// In case of a fatal error, break Loki so that it cannot save its contents to disk anymore
+// This might result in a loss of data in recent changes, but we assume that whatever caused the
+// fatal error has corrupted the database, so we want to prevent it from being persisted
+// There's no recovery from this, app must be restarted with a fresh LokiJSAdapter.
+export function lokiFatalError(loki: Loki): void {
+  try {
+    // below is some very ugly defensive coding, but we're fatal and don't trust anyone anymore
+    const fatalHandler = () => {
+      throw new Error('Illegal attempt to save Loki database after a fatal error')
+    }
+    loki.save = fatalHandler
+    loki.saveDatabase = fatalHandler
+    loki.saveDatabaseInternal = fatalHandler
+    // disable autosave
+    loki.autosave = false
+    loki.autosaveDisable()
+    // close db
+    loki.close()
+  } catch (error) {
+    logger.error('Failed to perform loki fatal error')
+    logger.error(error)
+  }
 }

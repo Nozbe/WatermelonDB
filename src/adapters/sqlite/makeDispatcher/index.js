@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable global-require */
 
-import { fromPairs } from 'rambdax'
+import { fromPairs } from '../../../utils/fp'
 
 import DatabaseBridge from './node/DatabaseBridge'
 

@@ -1,11 +1,11 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { uniq, partition, piped, map, groupBy } from 'rambdax'
-import { unnest } from '../utils/fp'
+import { unique, values as getValues, groupBy, unnest, pipe } from '../utils/fp'
 
 // don't import whole `utils` to keep worker size small
 import invariant from '../utils/common/invariant'
+import logger from '../utils/common/logger'
 import checkName from '../utils/fp/checkName'
 import deepFreeze from '../utils/common/deepFreeze'
 import type { $RE } from '../types'
@@ -31,12 +31,12 @@ export type Operator =
   | 'like'
   | 'notLike'
 
-export type ColumnDescription = $RE<{ column: ColumnName, type?: Symbol }>
+export type ColumnDescription = $RE<{ column: ColumnName, type?: symbol }>
 export type ComparisonRight =
   | $RE<{ value: Value }>
   | $RE<{ values: NonNullValues }>
   | ColumnDescription
-export type Comparison = $RE<{ operator: Operator, right: ComparisonRight, type?: Symbol }>
+export type Comparison = $RE<{ operator: Operator, right: ComparisonRight, type?: symbol }>
 
 export type WhereDescription = $RE<{
   type: 'where',
@@ -80,12 +80,12 @@ export type NestedJoinTable = $RE<{
   from: TableName<any>,
   to: TableName<any>,
 }>
-export type LokiFilterFunction = (rawLokiRecord: any, loki: any) => boolean
-export type LokiFilter = $RE<{
-  type: 'lokiFilter',
-  function: LokiFilterFunction,
+export type LokiTransformFunction = (rawLokiRecords: any[], loki: any) => any[]
+export type LokiTransform = $RE<{
+  type: 'lokiTransform',
+  function: LokiTransformFunction,
 }>
-export type Clause = Where | SortBy | Take | Skip | JoinTables | NestedJoinTable | LokiFilter
+export type Clause = Where | SortBy | Take | Skip | JoinTables | NestedJoinTable | LokiTransform
 
 type NestedJoinTableDef = $RE<{ from: TableName<any>, to: TableName<any> }>
 export type QueryDescription = $RE<{
@@ -95,7 +95,7 @@ export type QueryDescription = $RE<{
   sortBy: SortBy[],
   take?: number,
   skip?: number,
-  lokiFilter?: LokiFilterFunction,
+  lokiTransform?: LokiTransformFunction,
 }>
 
 const columnSymbol = Symbol('Q.column')
@@ -269,8 +269,19 @@ export function unsafeLokiExpr(expr: any): LokiExpr {
   return { type: 'loki', expr }
 }
 
-export function unsafeLokiFilter(fn: LokiFilterFunction): LokiFilter {
-  return { type: 'lokiFilter', function: fn }
+let warnedLokiFilterDeprecation = false
+
+export function unsafeLokiFilter(fn: (rawLokiRecord: any, loki: any) => boolean): LokiTransform {
+  // TODO: Remove after 2021-04-26
+  if (!warnedLokiFilterDeprecation) {
+    logger.warn('Q.unsafeLokiFilter is deprecated - use `Q.unsafeLokiTransform((raws, loki) => raws.filter(...))` instead')
+    warnedLokiFilterDeprecation = true
+  }
+  return { type: 'lokiTransform', function: (raws, loki) => raws.filter(raw => fn(raw, loki)) }
+}
+
+export function unsafeLokiTransform(fn: LokiTransformFunction): LokiTransform {
+  return { type: 'lokiTransform', function: fn }
 }
 
 const acceptableClauses = ['where', 'and', 'or', 'on', 'sql', 'loki']
@@ -364,17 +375,25 @@ const compressTopLevelOns = (conditions: Where[]): Where[] => {
   // special cases are used. Here, we're special casing only top-level Q.ons to avoid regressions
   // but it's not recommended for new code
   // TODO: Remove this special case
-  const [ons, wheres] = partition(clause => clause.type === 'on', conditions)
-  const grouppedOns: On[] = piped(
-    ons,
+  const ons = []
+  const wheres = []
+  conditions.forEach(clause => {
+    if (clause.type === 'on') {
+      ons.push(clause)
+    } else {
+      wheres.push(clause)
+    }
+  })
+
+  const onsByTable: On[][] = pipe(
     groupBy(clause => clause.table),
-    Object.values,
-    map((clauses: On[]) => {
-      const { table } = clauses[0]
-      const onConditions: Where[] = unnest(clauses.map(clause => clause.conditions))
-      return on(table, onConditions)
-    }),
-  )
+    getValues,
+  )(ons)
+  const grouppedOns: On[] = onsByTable.map((clauses: On[]) => {
+    const { table } = clauses[0]
+    const onConditions: Where[] = unnest(clauses.map(clause => clause.conditions))
+    return on(table, onConditions)
+  })
   return grouppedOns.concat(wheres)
 }
 
@@ -415,15 +434,15 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
         // $FlowFixMe
         clauseMap.nestedJoinTables.push({ from: clause.from, to: clause.to })
         break
-      case 'lokiFilter':
+      case 'lokiTransform':
         // $FlowFixMe
-        clauseMap.lokiFilter = clause.function
+        clauseMap.lokiTransform = clause.function
         break
       default:
         throw new Error('Invalid Query clause passed')
     }
   })
-  clauseMap.joinTables = uniq(clauseMap.joinTables)
+  clauseMap.joinTables = unique(clauseMap.joinTables)
   // $FlowFixMe
   clauseMap.where = compressTopLevelOns(clauseMap.where)
   // $FlowFixMe: Flow is too dumb to realize that it is valid
@@ -476,8 +495,6 @@ export function queryWithoutDeleted(query: QueryDescription): QueryDescription {
 }
 
 const searchForColumnComparisons: any => boolean = value => {
-  // Performance critical (100ms on login in previous rambdax-based implementation)
-
   if (Array.isArray(value)) {
     // dig deeper into the array
     for (let i = 0; i < value.length; i += 1) {

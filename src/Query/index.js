@@ -1,7 +1,5 @@
 // @flow
 
-import { prepend } from 'rambdax'
-
 import allPromises from '../utils/fp/allPromises'
 import { Observable } from '../utils/rx'
 import { toPromise } from '../utils/fp/Result'
@@ -80,7 +78,7 @@ export default class Query<Record: Model> {
       skip,
       joinTables,
       nestedJoinTables,
-      lokiFilter,
+      lokiTransform,
     } = this._rawDescription
 
     return new Query(collection, [
@@ -90,7 +88,7 @@ export default class Query<Record: Model> {
       ...sortBy,
       ...(take ? [Q.experimentalTake(take)] : []),
       ...(skip ? [Q.experimentalSkip(skip)] : []),
-      ...(lokiFilter ? [Q.unsafeLokiFilter(lokiFilter)] : []),
+      ...(lokiTransform ? [Q.unsafeLokiTransform(lokiTransform)] : []),
       ...clauses,
     ])
   }
@@ -196,6 +194,7 @@ export default class Query<Record: Model> {
   }
 
   get table(): TableName<Record> {
+    // $FlowFixMe
     return this.modelClass.table
   }
 
@@ -204,7 +203,7 @@ export default class Query<Record: Model> {
   }
 
   get allTables(): TableName<any>[] {
-    return prepend(this.table, this.secondaryTables)
+    return [this.table].concat(this.secondaryTables)
   }
 
   get associations(): QueryAssociation[] {

@@ -1,18 +1,18 @@
 {
   "name": "@nozbe/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
-  "version": "0.20.0",
+  "version": "0.22.0-0",
   "scripts": {
     "build": "NODE_ENV=production node ./scripts/make.js",
     "dev": "NODE_ENV=development node ./scripts/make.js",
     "dev:native": "react-native start",
-    "release": "node ./scripts/publish.js",
+    "release": "node ./scripts/release.js",
     "prettier": "prettier-eslint --config ./.prettierrc --write \"./src/**/*.js\"",
-    "flow": "flow check",
+    "flow": "flow check --color always",
     "eslint": "eslint ./src -c ./.eslintrc.yml --cache --cache-location ./.cache/.eslintcache",
     "tslint": "tslint --project .",
-    "test": "jest --config=./jest.config.js --forceExit --detectOpenHandles --no-cache",
-    "ci:check": "concurrently 'npm run test' 'npm run eslint' 'npm run flow' --kill-others-on-fail",
+    "test": "jest --config=./jest.config.js",
+    "ci:check": "concurrently -n jest,eslint,flow 'npm run test' 'npm run eslint' 'npm run flow' --kill-others-on-fail",
     "test:android": "cd native/androidTest; ./gradlew connectedAndroidTest",
     "test:ios": "cd native/iosTest; xcodebuild -workspace WatermelonTester.xcworkspace -scheme 'WatermelonTester' -destination 'name=iPhone 8' test",
     "test:typescript": "cd examples/typescript; yarn; npm run test",
@@ -34,6 +34,7 @@
     "react-native",
     "watermelon",
     "offline",
+    "reactive",
     "persistence"
   ],
   "repository": {
@@ -43,8 +44,7 @@
   "dependencies": {
     "@babel/runtime": "^7.11.2",
     "@nozbe/sqlite": "3.31.1",
-    "lokijs": "npm:@nozbe/lokijs@1.5.10-wmelon3",
-    "rambdax": "2.15.0",
+    "lokijs": "npm:@nozbe/lokijs@1.5.12-wmelon2",
     "rxjs": "^6.5.3",
     "sql-escape-string": "^1.1.0"
   },
@@ -117,7 +117,7 @@
     "execa": "^2.0.0",
     "fake-indexeddb": "^3.0.0",
     "fast-async": "^7.0",
-    "flow-bin": "^0.109.0",
+    "flow-bin": "npm:@nozbe/flow-bin@0.146",
     "fs-extra": "^8.0.0",
     "glob-to-regexp": "^0.4.1",
     "inquirer": "^7.0.0",
@@ -133,6 +133,7 @@
     "prettier": "^1.14.2",
     "prettier-eslint": "^9.0.0",
     "prettier-eslint-cli": "^4.7.1",
+    "rambdax": "2.15.0",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-native": "^0.59.3",

@@ -170,7 +170,10 @@ const encodeAndOr = (op: LokiKeyword) => (
 ): LokiRawQuery => {
   const conditions = encodeConditions(associations, clause.conditions)
   // flatten
-  return conditions.length === 1 ? conditions[0] : { [op]: conditions }
+  return conditions.length === 1 ?
+    conditions[0] :
+    // $FlowFixMe
+    { [op]: conditions }
 }
 
 const encodeAnd: (QueryAssociation[], And) => LokiRawQuery = encodeAndOr('$and')

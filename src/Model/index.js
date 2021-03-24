@@ -16,7 +16,7 @@ import type { Value } from '../QueryDescription'
 import { type RawRecord, type DirtyRaw, sanitizedRaw, setRawSanitized } from '../RawRecord'
 import { setRawColumnChange } from '../sync/helpers'
 
-import { createTimestampsFor, hasUpdatedAt, fetchChildren } from './helpers'
+import { createTimestampsFor, fetchChildren } from './helpers'
 
 export type RecordId = string
 
@@ -42,7 +42,7 @@ export default class Model {
 
   _raw: RawRecord
 
-  _isEditing = false
+  _isEditing: boolean = false
 
   // `false` when instantiated but not yet in the database
   _isCommitted: boolean = true
@@ -100,7 +100,7 @@ export default class Model {
     this._isEditing = true
 
     // Touch updatedAt (if available)
-    if (hasUpdatedAt(this)) {
+    if ('updatedAt' in this) {
       this._setRaw(columnName('updated_at'), Date.now())
     }
 

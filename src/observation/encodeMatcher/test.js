@@ -21,7 +21,8 @@ const unencodableQueries = [
   [Q.experimentalSortBy('left_column', 'asc')],
   [Q.experimentalTake(100)],
   [Q.experimentalTake(100)],
-  [Q.unsafeLokiFilter(() => {})],
+  [Q.unsafeLokiFilter(() => {})], // DEPRECATED
+  [Q.unsafeLokiTransform(() => {})],
 ]
 
 describe('SQLite encodeMatcher', () => {

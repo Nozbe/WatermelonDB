@@ -121,6 +121,7 @@ const copyNonJavaScriptFiles = buildPath => {
     'README.md',
     'yarn.lock',
     'WatermelonDB.podspec',
+    'react-native.config.js',
     'docs',
     'native/shared',
     'native/ios',

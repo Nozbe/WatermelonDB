@@ -1,25 +1,18 @@
 // @flow
 
-import { pipe, map, join, keys, values, append } from 'rambdax'
-
 import type { TableName } from '../../../Schema'
 import type { RawRecord } from '../../../RawRecord'
 import type { SQL, SQLiteQuery, SQLiteArg } from '../index'
 
 import encodeName from '../encodeName'
 
-const encodeSetPlaceholders: RawRecord => SQL = pipe(
-  keys,
-  map(encodeName),
-  map(key => `${key}=?`),
-  join(', '),
-)
+const encodeSetPlaceholders: RawRecord => SQL = raw =>
+  Object.keys(raw).map(key => `${encodeName(key)}=?`).join(', ')
 
-const getArgs: RawRecord => SQLiteArg[] = raw =>
-  pipe(
-    values,
-    append(raw.id), // for `where id is ?`
-  )(raw)
+
+// $FlowFixMe
+const getArgs: RawRecord => SQLiteArg[] = raw => Object.values(raw)
+  .concat(raw.id) // for `where id is ?`
 
 export default function encodeUpdate(table: TableName<any>, raw: RawRecord): SQLiteQuery {
   const sql = `update ${encodeName(table)} set ${encodeSetPlaceholders(raw)} where "id" is ?`

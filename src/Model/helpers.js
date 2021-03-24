@@ -1,27 +1,25 @@
 // @flow
 
-import { allPromises, hasIn, unnest } from '../utils/fp'
+import { allPromises, unnest } from '../utils/fp'
 
 import * as Q from '../QueryDescription'
 import type Model from './index'
 import type Query from '../Query/index'
 
-const hasCreatedAt = hasIn('createdAt')
-export const hasUpdatedAt = hasIn('updatedAt')
-
-export const createTimestampsFor = (model: Model) => {
+type TimestampsObj = $Exact<{ created_at?: number, updated_at?: number }>
+export const createTimestampsFor = (model: Model): TimestampsObj => {
   const date = Date.now()
   const timestamps = {}
 
-  if (hasCreatedAt(model)) {
+  if ('createdAt' in model) {
     timestamps.created_at = date
   }
 
-  if (hasUpdatedAt(model)) {
+  if ('updatedAt' in model) {
     timestamps.updated_at = date
   }
 
-  return timestamps
+  return (timestamps: any)
 }
 
 function getChildrenQueries(model: Model): Query<Model>[] {

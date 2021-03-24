@@ -29,6 +29,7 @@
     - [LocalStorage](./Advanced/LocalStorage.md)
     - [Pro tips](./Advanced/ProTips.md)
     - [Performance tips](./Advanced/Performance.md)
+    - [iOS - Sharing database across targets](./Advanced/SharingDatabaseAcrossTargets.md)
 
 ## Dig deeper into WatermelonDB
 

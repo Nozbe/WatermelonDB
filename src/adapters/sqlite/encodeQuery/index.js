@@ -99,6 +99,7 @@ const encodeWhereCondition = (
   if (comparison.operator === 'weakGt' && comparison.right.column) {
     return encodeWhere(table, associations)(
       Q.or(
+        // $FlowFixMe
         Q.where(left, Q.gt(Q.column(comparison.right.column))),
         Q.and(Q.where(left, Q.notEq(null)), Q.where((comparison.right: any).column, null)),
       ),
@@ -211,7 +212,7 @@ const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string
       !countMode,
       'take/skip is not currently supported with counting. Please contribute to fix this!',
     )
-  invariant(!description.lokiFilter, 'unsafeLokiFilter not supported with SQLite')
+  invariant(!description.lokiTransform, 'unsafeLokiTransform not supported with SQLite')
 
   const sql =
     encodeMethod(table, countMode, hasToManyJoins) +
