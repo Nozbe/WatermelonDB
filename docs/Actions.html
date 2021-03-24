@@ -1,26 +1,40 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js">
+<html lang="en" class="sidebar-visible no-js light">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Custom Actions - WatermelonDB documentation</title>
         
+        
+
+
+        <!-- Custom HTML head -->
+        
+
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
         <link rel="shortcut icon" href="favicon.png">
+        
         <link rel="stylesheet" href="css/variables.css">
         <link rel="stylesheet" href="css/general.css">
         <link rel="stylesheet" href="css/chrome.css">
+        
         <link rel="stylesheet" href="css/print.css" media="print">
+        
 
         <!-- Fonts -->
         <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
-        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
 
         <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="highlight.css">
@@ -32,11 +46,11 @@
 
         
     </head>
-    <body class="light">
+    <body>
         <!-- Provide site root to javascript -->
         <script type="text/javascript">
             var path_to_root = "";
-            var default_theme = "light";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
@@ -60,8 +74,11 @@
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            document.body.className = theme;
-            document.querySelector('html').className = theme + ' js';
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
@@ -78,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li><a href="ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li><a href="index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li><a href="Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li><a href="ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li><a href="Installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li><a href="Schema.html"><strong aria-hidden="true">2.2.</strong> Schema</a></li><li><a href="Model.html"><strong aria-hidden="true">2.3.</strong> Defining Models</a></li><li><a href="CRUD.html"><strong aria-hidden="true">2.4.</strong> Create, Read, Update, Delete</a></li><li><a href="Components.html"><strong aria-hidden="true">2.5.</strong> Connecting to React Components</a></li><li><a href="Query.html"><strong aria-hidden="true">2.6.</strong> Querying</a></li><li><a href="Relation.html"><strong aria-hidden="true">2.7.</strong> Relations</a></li><li><a href="Actions.html" class="active"><strong aria-hidden="true">2.8.</strong> Custom Actions</a></li></ol></li><li><a href="ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li><a href="Advanced/Migrations.html"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li><a href="Advanced/Sync.html"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li><a href="Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li><a href="Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li><a href="Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li><a href="Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li><a href="Advanced/ProTips.html"><strong aria-hidden="true">3.7.</strong> Pro tips</a></li><li><a href="Advanced/Performance.html"><strong aria-hidden="true">3.8.</strong> Performance tips</a></li></ol></li><li><a href="ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li><a href="Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li><a href="Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li><li><a href="Implementation/SyncImpl.html"><strong aria-hidden="true">4.3.</strong> Sync implementation</a></li></ol></li><li><a href="ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li><a href="Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li><a href="CONTRIBUTING.html"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li><a href="CHANGELOG.html"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li class="chapter-item expanded "><a href="Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="Schema.html"><strong aria-hidden="true">2.2.</strong> Schema</a></li><li class="chapter-item expanded "><a href="Model.html"><strong aria-hidden="true">2.3.</strong> Defining Models</a></li><li class="chapter-item expanded "><a href="CRUD.html"><strong aria-hidden="true">2.4.</strong> Create, Read, Update, Delete</a></li><li class="chapter-item expanded "><a href="Components.html"><strong aria-hidden="true">2.5.</strong> Connecting to React Components</a></li><li class="chapter-item expanded "><a href="Query.html"><strong aria-hidden="true">2.6.</strong> Querying</a></li><li class="chapter-item expanded "><a href="Relation.html"><strong aria-hidden="true">2.7.</strong> Relations</a></li><li class="chapter-item expanded "><a href="Actions.html" class="active"><strong aria-hidden="true">2.8.</strong> Custom Actions</a></li></ol></li><li class="chapter-item expanded "><a href="ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Advanced/Migrations.html"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li class="chapter-item expanded "><a href="Advanced/Sync.html"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li class="chapter-item expanded "><a href="Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li class="chapter-item expanded "><a href="Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li class="chapter-item expanded "><a href="Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li class="chapter-item expanded "><a href="Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li class="chapter-item expanded "><a href="Advanced/ProTips.html"><strong aria-hidden="true">3.7.</strong> Pro tips</a></li><li class="chapter-item expanded "><a href="Advanced/Performance.html"><strong aria-hidden="true">3.8.</strong> Performance tips</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li class="chapter-item expanded "><a href="Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li><li class="chapter-item expanded "><a href="Implementation/SyncImpl.html"><strong aria-hidden="true">4.3.</strong> Sync implementation</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="CONTRIBUTING.html"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="CHANGELOG.html"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -87,37 +104,38 @@
 
             <div class="page">
                 
-                <div id="menu-bar" class="menu-bar">
-                    <div id="menu-bar-sticky-container">
-                        <div class="left-buttons">
-                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
-                                <i class="fa fa-bars"></i>
-                            </button>
-                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
-                                <i class="fa fa-paint-brush"></i>
-                            </button>
-                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
-                            </ul>
-                            
-                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
-                                <i class="fa fa-search"></i>
-                            </button>
-                            
-                        </div>
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
 
-                        <h1 class="menu-title">WatermelonDB documentation</h1>
+                    <h1 class="menu-title">WatermelonDB documentation</h1>
 
-                        <div class="right-buttons">
-                            <a href="print.html" title="Print this book" aria-label="Print this book">
-                                <i id="print-button" class="fa fa-print"></i>
-                            </a>
-                            
-                        </div>
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
                     </div>
                 </div>
 
@@ -145,9 +163,9 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#actions" id="actions">Actions</a></h1>
+                        <h1 id="actions"><a class="header" href="#actions">Actions</a></h1>
 <p>Although you can <a href="./CRUD.html"><code>.create()</code> and <code>.update()</code> records</a> anywhere in your app, we recommend <strong>defining explicit Actions</strong> to encapsulate all ways to make changes.</p>
-<h2><a class="header" href="#defining-explicit-actions" id="defining-explicit-actions">Defining explicit Actions</a></h2>
+<h2 id="defining-explicit-actions"><a class="header" href="#defining-explicit-actions">Defining explicit Actions</a></h2>
 <p>An <strong>Action</strong> is a function that can modify the database (create, update, and delete records).</p>
 <p>To define it, just add a method to a <code>Model</code> class marked with the <code>@action</code> decorator</p>
 <pre><code class="language-js">import { action } from '@nozbe/watermelondb/decorators'
@@ -185,7 +203,7 @@ class Post extends Model {
 <pre><code class="language-js">const comment = await post.addComment('Lorem ipsum', someUser)
 await comment.markAsSpam()
 </code></pre>
-<h2><a class="header" href="#batch-updates" id="batch-updates">Batch updates</a></h2>
+<h2 id="batch-updates"><a class="header" href="#batch-updates">Batch updates</a></h2>
 <p>Whenever you make more than one change (create, delete or update records) in an action, you should <strong>batch them</strong>.</p>
 <blockquote>
 <p>It means that the app doesn't have to go back and forth with the database (sending one command, waiting for the response, then sending another), but instead sends multiple commands in one big batch. This is faster, safer, and can avoid subtle bugs in your app</p>
@@ -226,7 +244,7 @@ await comment.markAsSpam()
 <li>Pass the list of <strong>prepared operations</strong> as arguments:
 <ul>
 <li>Instead of calling <code>await record.update()</code>, pass <code>record.prepareUpdate()</code> — note lack of <code>await</code></li>
-<li>Instead of <code>await collection.create()</code>, use <code>collection.prepareCreate()</code></li>
+<li>Instead of <code>await collection.create()</code>, use <code>collection.prepareCreate()</code> or <code>collection.prepareCreateFromDirtyRaw({ put your JSON here })</code></li>
 <li>Instead of <code>await record.markAsDeleted()</code>, use <code>record.prepareMarkAsDeleted()</code></li>
 <li>Instead of <code>await record.destroyPermanently()</code>, use <code>record.prepareDestroyPermanently()</code></li>
 <li>You can pass falsy values (null, undefined, false) to batch — they will simply be ignored.</li>
@@ -235,7 +253,7 @@ await comment.markAsSpam()
 </li>
 <li>Otherwise, the API is the same!</li>
 </ul>
-<h2><a class="header" href="#calling-actions-from-actions" id="calling-actions-from-actions">Calling Actions from Actions</a></h2>
+<h2 id="calling-actions-from-actions"><a class="header" href="#calling-actions-from-actions">Calling Actions from Actions</a></h2>
 <p>If you try to call an Action from another Action, you'll notice that it won't work. This is because while Action is running, no other Action can run simultaneously. To override this behavior, wrap the Action call in <code>this.subAction</code>:</p>
 <pre><code class="language-js">class Comment extends Model {
   // ...
@@ -247,7 +265,7 @@ await comment.markAsSpam()
   }
 }
 </code></pre>
-<h2><a class="header" href="#delete-action" id="delete-action">Delete action</a></h2>
+<h2 id="delete-action"><a class="header" href="#delete-action">Delete action</a></h2>
 <p>When you delete, say, a <code>Post</code>, you generally want all <code>Comment</code>s that belong to it to be deleted as well.</p>
 <p>To do this, override <code>markAsDeleted()</code> (or <code>destroyPermanently()</code> if you don't sync) to explicitly delete all children as well.</p>
 <pre><code class="language-js">class Post extends Model {
@@ -274,7 +292,7 @@ await comment.markAsSpam()
 <li>Use <code>Query.destroyAllPermanently()</code> on all dependent <code>@children</code> you want to delete</li>
 <li>Remember to call <code>super.markAsDeleted</code> — at the end of the method!</li>
 </ul>
-<h2><a class="header" href="#inline-actions" id="inline-actions">Inline actions</a></h2>
+<h2 id="inline-actions"><a class="header" href="#inline-actions">Inline actions</a></h2>
 <p>If you want to call a number of write operations outside of a Model action, do it like so:</p>
 <pre><code class="language-js">const newPost = await database.action(async action =&gt; {
   // Note: function passed to `database.action()` MUST be asynchronous
@@ -288,7 +306,7 @@ await comment.markAsSpam()
   return post
 })
 </code></pre>
-<h2><a class="header" href="#advanced-why-actions-are-necessary" id="advanced-why-actions-are-necessary">Advanced: Why actions are necessary?</a></h2>
+<h2 id="advanced-why-actions-are-necessary"><a class="header" href="#advanced-why-actions-are-necessary">Advanced: Why actions are necessary?</a></h2>
 <p>WatermelonDB is highly asynchronous, which is a BIG challange in terms of achieving consistent data. Read this only if you are curious:</p>
 <blockquote>
 <p>Consider a function <code>markCommentsAsSpam</code> that fetches a list of comments on a post, and then marks them all as spam. The two operations (fetching, and then updating) are asynchronous, and some other operation that modifies the database could run in between. And it could just happen to be a function that adds a new comment on this post. Even though the function completes <em>successfully</em>, it wasn't <em>actually</em> successful at its job.</p>
@@ -297,7 +315,7 @@ await comment.markAsSpam()
 <p>Solution? Group together related reads and writes together in an Action, enforce that writes MUST occur in an Action, and only allow one Action to run at the time. This way, it's guaranteed that in an action, you're looking at a consistent view of the world. On the other hand, most reads are safe to perform without grouping them. If you suspect they're not, you can also wrap them in an Action.</p>
 </blockquote>
 <hr />
-<h2><a class="header" href="#next-steps" id="next-steps">Next steps</a></h2>
+<h2 id="next-steps"><a class="header" href="#next-steps">Next steps</a></h2>
 <p>➡️ Now that you've mastered all basics of Watermelon, go create some powerful apps — or keep reading <a href="./README.html"><strong>advanced guides</strong></a></p>
 
                     </main>
@@ -323,13 +341,13 @@ await comment.markAsSpam()
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a href="Relation.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="Relation.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
                 
-                    <a href="ch03-00-advanced.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="ch03-00-advanced.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 
@@ -339,6 +357,14 @@ await comment.markAsSpam()
 
         
 
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
         
 
         
