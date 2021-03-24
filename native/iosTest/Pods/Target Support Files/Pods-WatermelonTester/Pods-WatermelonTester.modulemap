@@ -1,0 +1,6 @@
+module Pods_WatermelonTester {
+  umbrella header "Pods-WatermelonTester-umbrella.h"
+
+  export *
+  module * { export * }
+}
