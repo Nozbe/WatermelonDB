@@ -28,7 +28,6 @@ matrix:
 
       script:
         - set -o pipefail
-        - npm run ci:check
         # - npm run test:ios | xcpretty
         # - npm run swiftlint
 
