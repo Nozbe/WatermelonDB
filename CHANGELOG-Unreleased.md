@@ -17,9 +17,11 @@
 
 ### Changes
 
-- [Docs] Add advanced tutorial to share database across iOS targets
-- [Sqlite] Allowed callbacks (within the migrationEvents object) to be passed so as to track the migration events status ( onStart, onSuccess, onError )
+- [Docs] Add advanced tutorial to share database across iOS targets - @thiagobrez
+- [Sqlite] Allowed callbacks (within the migrationEvents object) to be passed so as to track the migration events status ( onStart, onSuccess, onError ) - @avinashlng1080
 
 ### Fixes
+
+- Fixed a race condition when using standard fetch methods alongside `Collection.unsafeFetchRecordsWithSQL` - @jspizziri
 
 ### Internal
