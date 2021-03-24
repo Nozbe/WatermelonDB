@@ -7,13 +7,19 @@ Contributors: Please add your changes to CHANGELOG-Unreleased.md
 ## 0.21 - 2021-03-24
 
 ### BREAKING CHANGES
+
 - [LokiJS] `useWebWorker` and `useIncrementalIndexedDB` options are now required (previously, skipping them would only trigger a warning)
 
 ### New features
+
 - [Model] `Model.update` method now returns updated record
 - [adapters] `onSetUpError: Error => void` option is added to both `SQLiteAdapter` and `LokiJSAdapter`. Supply this option to catch initialization errors and offer the user to reload or log out
 - [LokiJS] new `extraLokiOptions` and `extraIncrementalIDBOptions` options
 - [Android] Autolinking is now supported (v0.20 is insufficient)
+
+### Performance
+
+- [LokiJS] Improved performance of launching the app
 
 ### Changes
 
@@ -25,6 +31,7 @@ Contributors: Please add your changes to CHANGELOG-Unreleased.md
 
 ### Fixes
 
+- [LokiJS] Fixed a case where IndexedDB could get corrupted over time
 - [Resilience] Added extra diagnostics for when you encounter the `Record ID aa#bb was sent over the bridge, but it's not cached` error and a recovery path (LokiJSAdapter-only). Please file an issue if you encounter this issue!
 - [Typescript] Fixed type on OnFunction to accept `and` in join
 - [Typescript] Fixed type `database#batch(records)`'s argument `records` to accept mixed types
@@ -32,7 +39,6 @@ Contributors: Please add your changes to CHANGELOG-Unreleased.md
 ### Internal
 
 - Added an experimental mode where a broken database state is detected, further mutations prevented, and the user notified
-- Added an experimental mode that attempts to fix IndexedDB corruption issue & improves launch performance
 
 ## 0.20 - 2020-10-05
 
