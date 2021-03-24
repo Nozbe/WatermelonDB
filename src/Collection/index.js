@@ -1,5 +1,5 @@
 // @flow
-
+import type { SQLDatabaseAdapter } from '../adapters/type'
 import { Observable, Subject } from '../utils/rx'
 import invariant from '../utils/common/invariant'
 import noop from '../utils/fp/noop'
@@ -34,7 +34,11 @@ export default class Collection<Record: Model> {
   constructor(database: Database, ModelClass: Class<Record>): void {
     this.database = database
     this.modelClass = ModelClass
-    this._cache = new RecordCache<Record>((ModelClass.table: $FlowFixMe), raw => new ModelClass((this: $FlowFixMe), raw), this)
+    this._cache = new RecordCache<Record>(
+      (ModelClass.table: $FlowFixMe),
+      raw => new ModelClass((this: $FlowFixMe), raw),
+      this,
+    )
   }
 
   get db(): Database {
@@ -113,15 +117,21 @@ export default class Collection<Record: Model> {
 
   // *** Implementation of Query APIs ***
 
-  async unsafeFetchRecordsWithSQL(sql: string): Promise<Record[]> {
-    const { adapter } = this.database
+  unsafeFetchRecordsWithSQL(sql: string): Promise<Record[]> {
+    const {
+      adapter: { underlyingAdapter },
+    } = this.database
     invariant(
-      typeof adapter.unsafeSqlQuery === 'function',
-      'unsafeFetchRecordsWithSQL called on database that does not support SQL',
+      // $FlowFixMe
+      typeof underlyingAdapter.unsafeSqlQuery === 'function',
+      'unsafeFetchRecordsWithSQL called on a database that does not support SQL',
     )
-    const rawRecords = await adapter.unsafeSqlQuery(this.modelClass.table, sql)
-
-    return this._cache.recordsFromQueryResult(rawRecords)
+    const sqlAdapter: SQLDatabaseAdapter = (underlyingAdapter: any)
+    return toPromise(callback => {
+      sqlAdapter.unsafeSqlQuery(this.modelClass.table, sql, result =>
+        callback(mapValue(rawRecords => this._cache.recordsFromQueryResult(rawRecords), result)),
+      )
+    })
   }
 
   // *** Implementation details ***
