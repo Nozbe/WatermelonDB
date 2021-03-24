@@ -22,5 +22,8 @@ module.file_ext=.js
 # fixes Flow on ARM
 sharedmemory.heap_size=4000000000
 
+# fixes Flow on ARM
+sharedmemory.heap_size=4000000000
+
 [version]
 >=0.140.0

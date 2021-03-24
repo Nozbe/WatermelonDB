@@ -24,6 +24,9 @@ Change `Unreleased` header to the new version, add new Unreleased
 
 ```bash
 npm run release
+
+# skips checks (only use on prerelease)
+npm run release --skip-checks
 ```
 
 Don't use `yarn release` (or `yarn publish`) — it won't work (yarn doesn't support NPM 2FA).

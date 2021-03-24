@@ -112,9 +112,15 @@ export default class LokiJSAdapter implements DatabaseAdapter {
       invariant('useWebWorker' in options,
           'LokiJSAdapter `useWebWorker` option is required. Pass `{ useWebWorker: false }` to adopt the new behavior, or `{ useWebWorker: true }` to supress this warning with no changes',
         )
+      if (options.useWebWorker === true) {
+        logger.warn('LokiJSAdapter {useWebWorker: true} option is now deprecated. If you rely on this feature, please file an issue')
+      }
       invariant('useIncrementalIndexedDB' in options,
           'LokiJSAdapter `useIncrementalIndexedDB` option is required. Pass `{ useIncrementalIndexedDB: true }` to adopt the new behavior, or `{ useIncrementalIndexedDB: false }` to supress this warning with no changes',
         )
+      if (options.useIncrementalIndexedDB === false) {
+        logger.warn('LokiJSAdapter {useIncrementalIndexedDB: false} option is now deprecated. If you rely on this feature, please file an issue')
+      }
       // TODO(2021-05): Remove this
       invariant(
         !('migrationsExperimental' in options),
