@@ -17,3 +17,5 @@ jobs:
         node-version: 12.x
     - run: yarn
     - run: yarn ci:check
+    - name: Gradle Wrapper Validation
+      uses: gradle/wrapper-validation-action@v1.0.3
