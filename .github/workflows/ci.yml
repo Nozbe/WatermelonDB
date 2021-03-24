@@ -28,5 +28,4 @@ jobs:
       with:
         node-version: 12.x
     - run: yarn
-    - run: bundle install
     - run: yarn test:ios
