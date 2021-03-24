@@ -21,5 +21,8 @@ module.file_ext=.js
 types_first=true
 well_formed_exports=true
 
+# fixes Flow on ARM
+sharedmemory.heap_size=4000000000
+
 [version]
 >=0.140.0
