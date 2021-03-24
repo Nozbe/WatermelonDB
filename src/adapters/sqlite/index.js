@@ -30,6 +30,7 @@ import type {
   SQLiteQuery,
   NativeBridgeBatchOperation,
   NativeDispatcher,
+  MigrationEvents,
 } from './type'
 
 import encodeQuery from './encodeQuery'
@@ -48,6 +49,8 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   migrations: ?SchemaMigrations
 
+  _migrationEvents: ?MigrationEvents
+
   _tag: ConnectionTag = connectionTag()
 
   _dbName: string
@@ -60,11 +63,11 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   constructor(options: SQLiteAdapterOptions): void {
     // console.log(`---> Initializing new adapter (${this._tag})`)
-    const { dbName, schema, migrations } = options
+    const { dbName, schema, migrations, migrationEvents } = options
     this.schema = schema
     this.migrations = migrations
+    this._migrationEvents = migrationEvents
     this._dbName = this._getName(dbName)
-
     this._dispatcherType = getDispatcherType(options)
     this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName)
 
@@ -78,7 +81,9 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
         // of this mode completely to simplify code. Ideally, we'd ONLY have JSI, but until RN goes
         // all-in on JSI everywhere, this might be a little too risky. I'm adding this warning to
         // get feedback via GH if JSI on iOS is ready to be considered stable or not yet.
-        logger.warn(`SQLiteAdapter's synchronous:true option is deprecated and will be replaced with experimentalUseJSI: true in the future. Please test if your app compiles and works well with experimentalUseJSI: true, and if not - file an issue!`)
+        logger.warn(
+          `SQLiteAdapter's synchronous:true option is deprecated and will be replaced with experimentalUseJSI: true in the future. Please test if your app compiles and works well with experimentalUseJSI: true, and if not - file an issue!`,
+        )
       }
       invariant(
         DatabaseBridge,
@@ -154,6 +159,10 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
         `[WatermelonDB][SQLite] Migrating from version ${databaseVersion} to ${this.schema.version}...`,
       )
 
+      if (this._migrationEvents && this._migrationEvents.onStart) {
+        this._migrationEvents.onStart()
+      }
+
       try {
         await toPromise(callback =>
           this._dispatcher.setUpWithMigrations(
@@ -165,8 +174,14 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
           ),
         )
         logger.log('[WatermelonDB][SQLite] Migration successful')
+        if (this._migrationEvents && this._migrationEvents.onSuccess) {
+          this._migrationEvents.onSuccess()
+        }
       } catch (error) {
         logger.error('[WatermelonDB][SQLite] Migration failed', error)
+        if (this._migrationEvents && this._migrationEvents.onError) {
+          this._migrationEvents.onError(error)
+        }
         throw error
       }
     } else {
