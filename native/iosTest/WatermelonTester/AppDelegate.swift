@@ -15,14 +15,14 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         }
 
         let jsLocation = RCTBundleURLProvider.sharedSettings()
-            .jsBundleURL(forBundleRoot: "src/index.integrationTests.native", fallbackResource: nil)
+            .jsBundleURL(forBundleRoot: "src/index.integrationTests.native", fallbackResource: nil)!
 
         let rootView = RCTRootView(
             bundleURL: jsLocation,
             moduleName: "watermelonTest",
             initialProperties: nil,
             launchOptions: launchOptions
-            )!
+        )
 
         let rootVC = UIViewController()
         rootVC.view = rootView
