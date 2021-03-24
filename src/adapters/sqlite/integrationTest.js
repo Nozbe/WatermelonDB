@@ -1,4 +1,4 @@
-import expect from 'expect'
+import expect from 'expect-rn'
 import { Platform } from 'react-native'
 import SQLiteAdapter from './index'
 import { testSchema } from '../__tests__/helpers'

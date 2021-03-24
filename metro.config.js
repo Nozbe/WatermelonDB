@@ -8,6 +8,7 @@ const getBlacklistRE = () => {
     glob(`${path.resolve(__dirname, '..')}/dist/*`),
     glob(`${path.resolve(__dirname, '..')}/dev/*`),
     glob(`${path.resolve(__dirname, '..')}/example/*`),
+    // 'graceful-fs',
   ])
     .toString()
     .slice(1, -1)
@@ -19,7 +20,21 @@ const getBlacklistRE = () => {
 }
 
 const config = {
+  projectRoot: path.resolve(__dirname),
+  watchFolders: [
+    // path.resolve(__dirname, 'src'),
+    path.resolve(__dirname, 'native'),
+    path.resolve(__dirname, 'node_modules', '@babel'),
+  ],
   resolver: {
+    extraNodeModules: {
+      fs: path.resolve(__dirname, 'src', 'fs-mock'),
+      'graceful-fs': path.resolve(__dirname, 'src', 'fs-mock'),
+      module: path.resolve(__dirname, 'src', 'fs-mock'),
+      assert: path.resolve(__dirname, 'src', 'fs-mock'),
+      stream: path.resolve(__dirname, 'src', 'fs-mock'),
+      constants: path.resolve(__dirname, 'src', 'fs-mock'),
+    },
     blacklistRE: getBlacklistRE(),
   },
   transformer: {

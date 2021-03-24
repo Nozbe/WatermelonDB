@@ -100,6 +100,7 @@ rules:
   max-classes-per-file: 0
   prefer-object-spread: 0
   react/jsx-props-no-spreading: 0
+  react/jsx-no-bind: 0
 
 overrides:
   - files:

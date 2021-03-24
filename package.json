@@ -104,7 +104,7 @@
     "better-sqlite3": "^7.1.0",
     "big-list-of-naughty-strings": "https://github.com/radex/big-list-of-naughty-strings#8346238a82f1e3a6f62389def1e668d80e4023fb",
     "cavy": "git+https://github.com/Nozbe/cavy.git",
-    "chokidar": "^3.0.0",
+    "chokidar": "^3.5.1",
     "concurrently": "^6.0.0",
     "eslint": "^6.5.1",
     "eslint-config-airbnb": "18.0.1",
@@ -118,7 +118,7 @@
     "execa": "^2.0.0",
     "fast-async": "^7.0",
     "flow-bin": "npm:@nozbe/flow-bin@0.146",
-    "fs-extra": "^8.0.0",
+    "fs-extra": "^9.1.0",
     "glob-to-regexp": "^0.4.1",
     "inquirer": "^7.0.0",
     "jest": "26.6.3",
@@ -130,6 +130,7 @@
     "lodash.clonedeep": "^4.5.0",
     "mkdirp": "^0.5.1",
     "p-timeout": "^3.0.0",
+    "path": "^0.12.7",
     "prettier-eslint-cli": "^5.0.0",
     "rambdax": "2.15.0",
     "react": "16.13.0",
@@ -140,6 +141,7 @@
     "semver": "^6.0.0",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.15.0",
+    "expect-rn": "npm:expect@24.1.0",
     "typescript": "^3.0.3"
   }
 }
