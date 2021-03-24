@@ -30,6 +30,7 @@ import type {
   SQLiteQuery,
   NativeBridgeBatchOperation,
   NativeDispatcher,
+  MigrationEvents,
 } from './type'
 
 import encodeQuery from './encodeQuery'
@@ -48,6 +49,8 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   migrations: ?SchemaMigrations
 
+  _migrationEvents: ?MigrationEvents
+
   _tag: ConnectionTag = connectionTag()
 
   _dbName: string
@@ -60,11 +63,11 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   constructor(options: SQLiteAdapterOptions): void {
     // console.log(`---> Initializing new adapter (${this._tag})`)
-    const { dbName, schema, migrations } = options
+    const { dbName, schema, migrations, migrationEvents } = options
     this.schema = schema
     this.migrations = migrations
+    this._migrationEvents = migrationEvents
     this._dbName = this._getName(dbName)
-
     this._dispatcherType = getDispatcherType(options)
     this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName)
 
@@ -154,6 +157,10 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
         `[WatermelonDB][SQLite] Migrating from version ${databaseVersion} to ${this.schema.version}...`,
       )
 
+      if(this._migrationEvents && this._migrationEvents.onStarted){
+        this._migrationEvents.onStarted()
+      }
+
       try {
         await toPromise(callback =>
           this._dispatcher.setUpWithMigrations(
@@ -165,8 +172,14 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
           ),
         )
         logger.log('[WatermelonDB][SQLite] Migration successful')
+        if(this._migrationEvents && this._migrationEvents.onSuccess){
+          this._migrationEvents.onSuccess()
+        }
       } catch (error) {
         logger.error('[WatermelonDB][SQLite] Migration failed', error)
+        if(this._migrationEvents && this._migrationEvents.onFailure){
+          this._migrationEvents.onFailure()
+        }
         throw error
       }
     } else {

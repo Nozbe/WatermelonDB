@@ -13,6 +13,12 @@ export type SQL = string
 export type SQLiteArg = string | boolean | number | null
 export type SQLiteQuery = [SQL, SQLiteArg[]]
 
+export type MigrationEvents = {
+  onSuccess: () => void,
+  onStarted: () => void,
+  onFailure: (error: string) => void,
+}
+
 export type SQLiteAdapterOptions = $Exact<{
   dbName?: string,
   schema: AppSchema,
@@ -21,6 +27,7 @@ export type SQLiteAdapterOptions = $Exact<{
   synchronous?: boolean,
   // The new way to run the database in synchronous mode. iOS-only at the moment
   experimentalUseJSI?: boolean,
+  migrationEvents?: MigrationEvents,
   // Called when database failed to set up (initialize) correctly. It's possible that
   // it's some transient error that will be solved by a reload, but it's
   // very likely that the error is persistent (e.g. a corrupted database).
