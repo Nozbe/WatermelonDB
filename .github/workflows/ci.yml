@@ -28,5 +28,23 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 12.x
+    - name: Select Xcode Version
+      uses: maxim-lobanov/setup-xcode@v1.2.1
+      with:
+        xcode-version: 12.2.0
     - run: yarn
     - run: yarn test:ios
+    - run: yarn swiftlint
+  android:
+    runs-on: ubuntu-latest
+    name: Check Android
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js 12
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    - run: yarn
+    - run: yarn test:android
+    - run: yarn ktlint
+
