@@ -3,7 +3,6 @@ import { field, relation, immutableRelation, text, readonly, date } from '../dec
 import Model from '../Model'
 import Database from '../Database'
 import LokiJSAdapter from '../adapters/lokijs'
-import SQLiteAdapter from '../adapters/sqlite'
 
 export const testSchema = appSchema({
   version: 1,
@@ -101,40 +100,6 @@ export const mockDatabase = ({
     migrations,
     useWebWorker: false,
     useIncrementalIndexedDB: false,
-  })
-  const database = new Database({
-    adapter,
-    schema,
-    modelClasses,
-    actionsEnabled,
-  })
-  return {
-    database,
-    db: database,
-    adapter,
-    projects: database.get('mock_projects'),
-    tasks: database.get('mock_tasks'),
-    comments: database.get('mock_comments'),
-    cloneDatabase: async (clonedSchema = schema) =>
-      // simulate reload
-      new Database({
-        adapter: await database.adapter.underlyingAdapter.testClone({ schema: clonedSchema }),
-        schema: clonedSchema,
-        modelClasses,
-        actionsEnabled,
-      }),
-  }
-}
-
-export const mockDatabaseSQLite = ({
-  actionsEnabled = false,
-  schema = testSchema,
-  migrations = undefined,
-} = {}) => {
-  const adapter = new SQLiteAdapter({
-    dbName: 'test',
-    schema,
-    migrations,
   })
   const database = new Database({
     adapter,

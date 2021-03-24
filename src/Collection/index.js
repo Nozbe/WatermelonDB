@@ -34,7 +34,11 @@ export default class Collection<Record: Model> {
   constructor(database: Database, ModelClass: Class<Record>): void {
     this.database = database
     this.modelClass = ModelClass
-    this._cache = new RecordCache<Record>((ModelClass.table: $FlowFixMe), raw => new ModelClass((this: $FlowFixMe), raw), this)
+    this._cache = new RecordCache<Record>(
+      (ModelClass.table: $FlowFixMe),
+      raw => new ModelClass((this: $FlowFixMe), raw),
+      this,
+    )
   }
 
   get db(): Database {
@@ -113,15 +117,16 @@ export default class Collection<Record: Model> {
 
   // *** Implementation of Query APIs ***
 
-  async unsafeFetchRecordsWithSQL(sql: string): Promise<Record[]> {
-    const { adapter } = this.database
+  unsafeFetchRecordsWithSQL(sql: string): Promise<Record[]> {
+    const {
+      adapter: { underlyingAdapter },
+    } = this.database
     invariant(
-      typeof adapter.unsafeSqlQuery === 'function',
-      'unsafeFetchRecordsWithSQL called on database that does not support SQL',
+      // $FlowFixMe
+      typeof underlyingAdapter.unsafeSqlQuery === 'function',
+      'unsafeFetchRecordsWithSQL called on a database that does not support SQL',
     )
-
-    // if no error was thrown then we must be dealing with a SQLDatabaseAdapter
-    const sqlAdapter: SQLDatabaseAdapter = (adapter.underlyingAdapter: any)
+    const sqlAdapter: SQLDatabaseAdapter = (underlyingAdapter: any)
     return toPromise(callback => {
       sqlAdapter.unsafeSqlQuery(this.modelClass.table, sql, result =>
         callback(mapValue(rawRecords => this._cache.recordsFromQueryResult(rawRecords), result)),
