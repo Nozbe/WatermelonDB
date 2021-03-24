@@ -18,7 +18,7 @@
 ### Changes
 
 - [Docs] Add advanced tutorial to share database across iOS targets
-- [Sqlite] Allowed callbacks (within the migrationEvents object) to be passed so as to track the migration events status ( onStarted, onFailure, onSuccess )
+- [Sqlite] Allowed callbacks (within the migrationEvents object) to be passed so as to track the migration events status ( onStart, onSuccess, onError )
 
 ### Fixes
 
