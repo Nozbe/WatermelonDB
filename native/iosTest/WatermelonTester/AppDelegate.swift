@@ -8,7 +8,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
     func application(
         _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]? = nil
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
         ) -> Bool {
         if NSClassFromString("XCTest") != nil {
             NSLog("%@", "WARN: WatermelonTester should be ran in Test mode, not ran directly to work in CI")

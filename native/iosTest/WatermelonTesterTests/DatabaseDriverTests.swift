@@ -66,7 +66,7 @@ class DatabaseDriverTests: XCTestCase {
 
         try! db.batch([.create(table: testTable, id: "1", query: insertTestQuery, args: testRecord1Args)])
 
-        expect {
+        func thisWillThrow() throws {
             try db.batch([
                 .markAsDeleted(table: testTable, id: "1"),
                 .create(table: testTable, id: "2", query: insertTestQuery, args: testRecord2Args),
@@ -74,6 +74,10 @@ class DatabaseDriverTests: XCTestCase {
                 .create(table: testTable, id: "4", query: insertTestQuery, args: testRecord4Args),
                 .create(table: testTable, id: "zzz", query: "bad query 2", args: []),
             ])
+        }
+        
+        expect { () -> Void in
+            try thisWillThrow()
         }.to(throwError())
 
         expect(try! ns(db.cachedQuery(table: testTable, query: selectAllQuery))) == ns(["1"])
@@ -85,14 +89,14 @@ class DatabaseDriverTests: XCTestCase {
     func testBadQueries() {
         let db = newDatabase()
 
-        expect { try db.batch([.execute(table: testTable, query:"blah blah", args: [])]) }.to(throwError())
-        expect { try db.cachedQuery(table: testTable, query: "blah blah") }.to(throwError())
-        expect { try db.count(testTable) }.to(throwError())
+        expect { () -> Void in try db.batch([.execute(table: testTable, query:"blah blah", args: [])]) }.to(throwError())
+        expect { () -> Void in _ = try db.cachedQuery(table: testTable, query: "blah blah") }.to(throwError())
+        expect { () -> Void in _ = try db.count(testTable) }.to(throwError())
 
-        expect { try db.batch([.execute(table: "test", query: "insert into bad_table (a) values (1)", args: [])]) }
+        expect { () -> Void in try db.batch([.execute(table: "test", query: "insert into bad_table (a) values (1)", args: [])]) }
             .to(throwError())
 
-        expect { try db.count(selectAllQuery) }.to(throwError())
-        expect { try db.count("select count(*) from \(testTable)") }.to(throwError()) // missing `as count`
+        expect { () -> Void in _ = try db.count(selectAllQuery) }.to(throwError())
+        expect { () -> Void in _ = try db.count("select count(*) from \(testTable)") }.to(throwError()) // missing `as count`
     }
 }
