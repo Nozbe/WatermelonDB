@@ -23,6 +23,7 @@ Contributors: Please add your changes to CHANGELOG-Unreleased.md
 
 ### Changes
 
+- [LokiJS] `useWebWorker: true` and `useIncrementalIndexedDB: false` options are now deprecated. If you rely on these features, please file an issue!
 - [Sync] Optional `log` passed to sync now has more helpful diagnostic information
 - [Sync] Open-sourced a simple SyncLogger you can optionally use. See docs for more info.
 - [SQLiteAdapter] `synchronous:true` option is now deprecated and will be replaced with `experimentalUseJSI: true` in the future. Please test if your app compiles and works well with `experimentalUseJSI: true`, and if not - file an issue!
