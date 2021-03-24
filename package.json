@@ -12,7 +12,7 @@
     "eslint": "eslint ./src -c ./.eslintrc.yml --cache --cache-location ./.cache/.eslintcache",
     "tslint": "tslint --project .",
     "test": "jest --config=./jest.config.js",
-    "ci:check": "concurrently 'npm run test' 'npm run eslint' 'npm run flow' --kill-others-on-fail",
+    "ci:check": "concurrently -n jest,eslint,flow 'npm run test' 'npm run eslint' 'npm run flow' --kill-others-on-fail",
     "test:android": "cd native/androidTest; ./gradlew connectedAndroidTest",
     "test:ios": "cd native/iosTest; xcodebuild -workspace WatermelonTester.xcworkspace -scheme 'WatermelonTester' -destination 'name=iPhone 8' test",
     "test:typescript": "cd examples/typescript; yarn; npm run test",
