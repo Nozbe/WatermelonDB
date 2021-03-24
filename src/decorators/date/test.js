@@ -58,4 +58,11 @@ describe('decorators/timestamp', () => {
         },
     ).toThrow(/column name/)
   })
+  it('returns a instance of date if cached', () => {
+    const model = new MockModel({ schema }, { date: 0 })
+    expect(model.date).toBeInstanceOf(Date)
+    model._isEditing = true
+    model.date = '2011-10-05T14:48:00.000Z'
+    expect(model.date).toBeInstanceOf(Date)
+  })
 })

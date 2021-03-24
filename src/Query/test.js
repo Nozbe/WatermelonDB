@@ -178,12 +178,12 @@ describe('Query', () => {
       ])
       expect(extendedQuery.serialize()).toEqual(expectedQuery.serialize())
     })
-    it(`can extend query with unsafeLokiFilter`, () => {
+    it(`can extend query with unsafeLokiTransform`, () => {
       const fn = () => {}
-      const query = new Query(mockCollection, [Q.unsafeLokiFilter(fn)])
+      const query = new Query(mockCollection, [Q.unsafeLokiTransform(fn)])
       const extendedQuery = query.extend(Q.where('foo', 'bar'))
       const expectedQuery = new Query(mockCollection, [
-        Q.unsafeLokiFilter(fn),
+        Q.unsafeLokiTransform(fn),
         Q.where('foo', 'bar'),
       ])
       expect(extendedQuery.serialize()).toEqual(expectedQuery.serialize())

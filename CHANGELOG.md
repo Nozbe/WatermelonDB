@@ -4,6 +4,68 @@ All notable changes to this project will be documented in this file.
 
 Contributors: Please add your changes to CHANGELOG-Unreleased.md
 
+## 0.21 - 2021-03-24
+
+### BREAKING CHANGES
+
+- [LokiJS] `useWebWorker` and `useIncrementalIndexedDB` options are now required (previously, skipping them would only trigger a warning)
+
+### New features
+
+- [Model] `Model.update` method now returns updated record
+- [adapters] `onSetUpError: Error => void` option is added to both `SQLiteAdapter` and `LokiJSAdapter`. Supply this option to catch initialization errors and offer the user to reload or log out
+- [LokiJS] new `extraLokiOptions` and `extraIncrementalIDBOptions` options
+- [Android] Autolinking is now supported (v0.20 is insufficient)
+
+### Performance
+
+- [LokiJS] Improved performance of launching the app
+
+### Changes
+
+- [LokiJS] `useWebWorker: true` and `useIncrementalIndexedDB: false` options are now deprecated. If you rely on these features, please file an issue!
+- [Sync] Optional `log` passed to sync now has more helpful diagnostic information
+- [Sync] Open-sourced a simple SyncLogger you can optionally use. See docs for more info.
+- [SQLiteAdapter] `synchronous:true` option is now deprecated and will be replaced with `experimentalUseJSI: true` in the future. Please test if your app compiles and works well with `experimentalUseJSI: true`, and if not - file an issue!
+- [LokiJS] Changed default autosave interval from 250 to 500ms
+- [Typescript] Add `experimentalNestedJoin` definition and `unsafeSqlExpr` clause
+
+### Fixes
+
+- [LokiJS] Fixed a case where IndexedDB could get corrupted over time
+- [Resilience] Added extra diagnostics for when you encounter the `Record ID aa#bb was sent over the bridge, but it's not cached` error and a recovery path (LokiJSAdapter-only). Please file an issue if you encounter this issue!
+- [Typescript] Fixed type on OnFunction to accept `and` in join
+- [Typescript] Fixed type `database#batch(records)`'s argument `records` to accept mixed types
+
+### Internal
+
+- Added an experimental mode where a broken database state is detected, further mutations prevented, and the user notified
+
+## 0.20 - 2020-10-05
+
+### BREAKING CHANGES
+
+This release has unintentionally broken RxJS for some apps using `with-observables`. If you have this issue, please update `@nozbe/with-observables` to the latest version.
+
+### New features
+
+- [Sync] Conflict resolution can now be customized. See docs for more details
+- [Android] Autolinking is now supported
+- [LokiJS] Adapter autosave option is now configurable
+
+### Changes
+
+- Interal RxJS imports have been refactor such that rxjs-compat should never be used now
+- [Performance] Tweak Babel config to produce smaller code
+- [Performance] LokiJS-based apps will now take up to 30% less time to load the database (id and unique indicies are generated lazily)
+
+### Fixes
+
+- [iOS] Fixed crash on database reset in apps linked against iOS 14 SDK
+- [LokiJS] Fix `Q.like` being broken for multi-line strings on web
+- Fixed warn "import cycle" from DialogProvider (#786) by @gmonte.
+- Fixed cache date as instance of Date (#828) by @djorkaeffalexandre.
+
 ## 0.19 - 2020-08-17
 
 ### New features

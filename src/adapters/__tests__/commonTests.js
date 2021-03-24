@@ -31,10 +31,11 @@ class BadModel extends Model {
 export default () => [
   [
     'validates adapter options',
-    async (_adapter, AdapterClass) => {
+    async (_adapter, AdapterClass, extraAdapterOptions) => {
       const schema = { ...testSchema, version: 10 }
 
-      const makeAdapter = options => new AdapterClass({ schema, ...options })
+      const makeAdapter = options =>
+        new AdapterClass({ schema, ...options, ...extraAdapterOptions })
       const adapterWithMigrations = migrations => makeAdapter({ migrations })
 
       // expect(() => makeAdapter({})).toThrowError(/missing migrations/)
@@ -66,6 +67,7 @@ export default () => [
           new AdapterClass({
             schema: { ...testSchema, version: 1 },
             migrations: schemaMigrations({ migrations: [] }),
+            ...extraAdapterOptions,
           }),
       ).not.toThrow()
       expect(() => adapterWithRealMigrations([])).toThrow(/Missing migration/)

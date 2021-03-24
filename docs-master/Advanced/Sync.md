@@ -18,9 +18,8 @@ async function mySync() {
   await synchronize({
     database,
     pullChanges: async ({ lastPulledAt, schemaVersion, migration }) => {
-      const response = await fetch(`https://my.backend/sync`, {
-        body: JSON.stringify({ lastPulledAt, schemaVersion, migration })
-      })
+      const urlParams = `last_pulled_at=${lastPulledAt}&schema_version=${schemaVersion}&migration=${encodeURIComponent(JSON.stringify(migration))}`
+      const response = await fetch(`https://my.backend/sync?${urlParams}`)
       if (!response.ok) {
         throw new Error(await response.text())
       }
@@ -107,6 +106,20 @@ Arguments passed:
 5. You MUST NOT resolve sync prematurely or in case of backend failure
 6. You MUST NOT mutate or store arguments passed to `pushChanges()`. If you need to do any processing on it, do it before returning the object. Watermelon treats this object as "consumable" and can mutate it (for performance reasons)
 
+### Checking unsynced changes
+
+WatermelonDB has a built in function to check whether there are any unsynced changes. The frontend code will look something like this
+
+```js
+import { hasUnsyncedChanges } from '@nozbe/watermelondb/sync'
+
+async function checkUnsyncedChanges() {
+  await hasUnsyncedChanges({
+    database
+  })
+}
+```
+
 ### General information and tips
 
 1. You MUST NOT connect to backend endpoints you don't control using `synchronize()`. WatermelonDB assumes pullChanges/pushChanges are friendly and correct and does not guarantee secure behavior if data returned is malformed.
@@ -128,20 +141,28 @@ For Watermelon Sync to maintain consistency after [migrations](./Migrations.md),
 
 ### Adding logging to your sync
 
-You can add basic sync logs to the sync process by passing an empty object to `synchronize()`. Sync will then mutate the object, populating it with diagnostic information (start/finish time, resolved conflicts, and more):
+You can add basic sync logs to the sync process by passing an empty object to `synchronize()`. Sync will then mutate the object, populating it with diagnostic information (start/finish time, resolved conflicts, number of remote/local changes, any errors that occured, and more):
 
 ```js
+// Using built-in SyncLogger
+import SyncLogger from '@nozbe/watermelondb/sync/SyncLogger'
+const logger = new SyncLogger(10 /* limit of sync logs to keep in memory */ )
+await synchronize({ database, log: logger.newLog(), ... })
+
+// this returns all logs (censored and safe to use in production code)
+console.log(logger.logs)
+// same, but pretty-formatted to a string (a user can easy copy this for diagnostic purposes)
+console.log(logger.formattedLogs)
+
+
+// You don't have to use SyncLogger, just pass a plain object to synchronize()
 const log = {}
-await synchronize({
-database,
-log,
-...
-})
+await synchronize({ database, log, ... })
 console.log(log.startedAt)
 console.log(log.finishedAt)
 ```
 
-⚠️ Remember to act responsibly with logs, since they might contain your user's private information. Don't display, save, or send the log unless you censor the log. [Example logger and censor code you can use](https://gist.github.com/radex/a0a27761ac348f4a5552ecaf227d500c).
+⚠️ Remember to act responsibly with logs, since they might contain your user's private information. Don't display, save, or send the log unless you censor the log.
 
 ### Additional `synchronize()` flags
 
@@ -218,6 +239,7 @@ Expected response:
    - all records that were created on the server since `lastPulledAt`
    - all records that were updated on the server since `lastPulledAt`
    - IDs of all records that were deleted on the server since `lastPulledAt`
+   - record IDs MUST NOT be duplicated
 3. If `lastPulledAt` is null or 0, you MUST return all accessible records (first sync)
 4. The timestamp returned by the server MUST be a value that, if passed again to `pullChanges()` as `lastPulledAt`, will return all changes that happened since this moment.
 5. The pull endpoint MUST provide a consistent view of changes since `lastPulledAt`

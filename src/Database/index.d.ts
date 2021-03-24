@@ -1,5 +1,5 @@
 declare module '@nozbe/watermelondb/Database' {
-  import { AppSchema, CollectionMap, DatabaseAdapter, Model, TableName } from '@nozbe/watermelondb'
+  import { AppSchema, CollectionMap, DatabaseAdapter, Model, TableName, Collection } from '@nozbe/watermelondb'
   import { CollectionChangeSet } from '@nozbe/watermelondb/Collection'
   import { Class } from '@nozbe/watermelondb/utils/common'
   import { Observable } from 'rxjs'
@@ -22,7 +22,7 @@ declare module '@nozbe/watermelondb/Database' {
         actionsEnabled: boolean;
       })
 
-    public batch(...records: Model[] | null[] | void[] | false[] | Promise<void>[]): Promise<void>
+    public batch(...records: (Model | null | void | false | Promise<void>)[]): Promise<void>
 
     // TODO: action<T>(work: ActionInterface => Promise<T>, description?: string): Promise<T>
     public action<T>(work: any, description?: string): Promise<T>
@@ -32,5 +32,7 @@ declare module '@nozbe/watermelondb/Database' {
     ): Observable<CollectionChangeSet<any> | null>
 
     public unsafeResetDatabase(): Promise<void>
+      
+    public get<T extends Model>(tableName: TableName<T>): Collection<T>
   }
 }

@@ -1,26 +1,40 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js">
+<html lang="en" class="sidebar-visible no-js light">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Sync - WatermelonDB documentation</title>
         
+        
+
+
+        <!-- Custom HTML head -->
+        
+
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
+        
+        <link rel="icon" href="../favicon.svg">
+        
+        
         <link rel="shortcut icon" href="../favicon.png">
+        
         <link rel="stylesheet" href="../css/variables.css">
         <link rel="stylesheet" href="../css/general.css">
         <link rel="stylesheet" href="../css/chrome.css">
+        
         <link rel="stylesheet" href="../css/print.css" media="print">
+        
 
         <!-- Fonts -->
         <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
-        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+        
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        
 
         <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="../highlight.css">
@@ -32,11 +46,11 @@
 
         
     </head>
-    <body class="light">
+    <body>
         <!-- Provide site root to javascript -->
         <script type="text/javascript">
             var path_to_root = "../";
-            var default_theme = "light";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
@@ -60,8 +74,11 @@
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            document.body.className = theme;
-            document.querySelector('html').className = theme + ' js';
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
@@ -78,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li><a href="../ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li><a href="../index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li><a href="../Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li><a href="../ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li><a href="../Installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li><a href="../Schema.html"><strong aria-hidden="true">2.2.</strong> Schema</a></li><li><a href="../Model.html"><strong aria-hidden="true">2.3.</strong> Defining Models</a></li><li><a href="../CRUD.html"><strong aria-hidden="true">2.4.</strong> Create, Read, Update, Delete</a></li><li><a href="../Components.html"><strong aria-hidden="true">2.5.</strong> Connecting to React Components</a></li><li><a href="../Query.html"><strong aria-hidden="true">2.6.</strong> Querying</a></li><li><a href="../Relation.html"><strong aria-hidden="true">2.7.</strong> Relations</a></li><li><a href="../Actions.html"><strong aria-hidden="true">2.8.</strong> Custom Actions</a></li></ol></li><li><a href="../ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li><a href="../Advanced/Migrations.html"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li><a href="../Advanced/Sync.html" class="active"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li><a href="../Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li><a href="../Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li><a href="../Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li><a href="../Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li><a href="../Advanced/ProTips.html"><strong aria-hidden="true">3.7.</strong> Pro tips</a></li><li><a href="../Advanced/Performance.html"><strong aria-hidden="true">3.8.</strong> Performance tips</a></li></ol></li><li><a href="../ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li><a href="../Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li><a href="../Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li><li><a href="../Implementation/SyncImpl.html"><strong aria-hidden="true">4.3.</strong> Sync implementation</a></li></ol></li><li><a href="../ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li><a href="../Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li><a href="../CONTRIBUTING.html"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li><a href="../CHANGELOG.html"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li class="chapter-item expanded "><a href="../Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li class="chapter-item expanded "><a href="../ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../Installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../Schema.html"><strong aria-hidden="true">2.2.</strong> Schema</a></li><li class="chapter-item expanded "><a href="../Model.html"><strong aria-hidden="true">2.3.</strong> Defining Models</a></li><li class="chapter-item expanded "><a href="../CRUD.html"><strong aria-hidden="true">2.4.</strong> Create, Read, Update, Delete</a></li><li class="chapter-item expanded "><a href="../Components.html"><strong aria-hidden="true">2.5.</strong> Connecting to React Components</a></li><li class="chapter-item expanded "><a href="../Query.html"><strong aria-hidden="true">2.6.</strong> Querying</a></li><li class="chapter-item expanded "><a href="../Relation.html"><strong aria-hidden="true">2.7.</strong> Relations</a></li><li class="chapter-item expanded "><a href="../Actions.html"><strong aria-hidden="true">2.8.</strong> Custom Actions</a></li></ol></li><li class="chapter-item expanded "><a href="../ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../Advanced/Migrations.html"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li class="chapter-item expanded "><a href="../Advanced/Sync.html" class="active"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li class="chapter-item expanded "><a href="../Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li class="chapter-item expanded "><a href="../Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li class="chapter-item expanded "><a href="../Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li class="chapter-item expanded "><a href="../Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li class="chapter-item expanded "><a href="../Advanced/ProTips.html"><strong aria-hidden="true">3.7.</strong> Pro tips</a></li><li class="chapter-item expanded "><a href="../Advanced/Performance.html"><strong aria-hidden="true">3.8.</strong> Performance tips</a></li></ol></li><li class="chapter-item expanded "><a href="../ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li class="chapter-item expanded "><a href="../Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li><li class="chapter-item expanded "><a href="../Implementation/SyncImpl.html"><strong aria-hidden="true">4.3.</strong> Sync implementation</a></li></ol></li><li class="chapter-item expanded "><a href="../ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="../CONTRIBUTING.html"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="../CHANGELOG.html"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -87,37 +104,38 @@
 
             <div class="page">
                 
-                <div id="menu-bar" class="menu-bar">
-                    <div id="menu-bar-sticky-container">
-                        <div class="left-buttons">
-                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
-                                <i class="fa fa-bars"></i>
-                            </button>
-                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
-                                <i class="fa fa-paint-brush"></i>
-                            </button>
-                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
-                            </ul>
-                            
-                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
-                                <i class="fa fa-search"></i>
-                            </button>
-                            
-                        </div>
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
 
-                        <h1 class="menu-title">WatermelonDB documentation</h1>
+                    <h1 class="menu-title">WatermelonDB documentation</h1>
 
-                        <div class="right-buttons">
-                            <a href="../print.html" title="Print this book" aria-label="Print this book">
-                                <i id="print-button" class="fa fa-print"></i>
-                            </a>
-                            
-                        </div>
+                    <div class="right-buttons">
+                        
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
                     </div>
                 </div>
 
@@ -145,14 +163,14 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#synchronization" id="synchronization">Synchronization</a></h1>
+                        <h1 id="synchronization"><a class="header" href="#synchronization">Synchronization</a></h1>
 <p>WatermelonDB has been designed from scratch to be able to seamlessly synchronize with a remote database (and, therefore, keep multiple copies of data synced with each other).</p>
 <p>Note that Watermelon is only a local database — you need to <strong>bring your own backend</strong>. What Watermelon provides are:</p>
 <ul>
 <li><strong>Synchronization primitives</strong> — information about which records were created, updated, or deleted locally since the last sync — and which columns exactly were modified. You can build your own custom sync engine using those primitives</li>
 <li><strong>Built-in sync adapter</strong> — You can use the sync engine Watermelon provides out of the box, and you only need to provide two API endpoints on your backend that conform to Watermelon sync protocol</li>
 </ul>
-<h2><a class="header" href="#using-synchronize-in-your-app" id="using-synchronize-in-your-app">Using <code>synchronize()</code> in your app</a></h2>
+<h2 id="using-synchronize-in-your-app"><a class="header" href="#using-synchronize-in-your-app">Using <code>synchronize()</code> in your app</a></h2>
 <p>To synchronize, you need to pass two functions, <code>pullChanges</code> and <code>pushChanges</code> that talk to your backend and are compatible with Watermelon Sync Protocol. The frontend code will look something like this:</p>
 <pre><code class="language-js">import { synchronize } from '@nozbe/watermelondb/sync'
 
@@ -160,9 +178,8 @@ async function mySync() {
   await synchronize({
     database,
     pullChanges: async ({ lastPulledAt, schemaVersion, migration }) =&gt; {
-      const response = await fetch(`https://my.backend/sync`, {
-        body: JSON.stringify({ lastPulledAt, schemaVersion, migration })
-      })
+      const urlParams = `last_pulled_at=${lastPulledAt}&amp;schema_version=${schemaVersion}&amp;migration=${encodeURIComponent(JSON.stringify(migration))}`
+      const response = await fetch(`https://my.backend/sync?${urlParams}`)
       if (!response.ok) {
         throw new Error(await response.text())
       }
@@ -184,7 +201,7 @@ async function mySync() {
 }
 
 </code></pre>
-<h3><a class="header" href="#troubleshooting" id="troubleshooting">Troubleshooting</a></h3>
+<h3 id="troubleshooting"><a class="header" href="#troubleshooting">Troubleshooting</a></h3>
 <p><strong>⚠️ Note about a React Native / UglifyES bug</strong>. When you import Watermelon Sync, your app might fail to compile in release mode. To fix this, configure Metro bundler to use Terser instead of UglifyES. Run:</p>
 <pre><code class="language-bash">yarn add metro-minify-terser
 </code></pre>
@@ -198,7 +215,7 @@ async function mySync() {
 }
 </code></pre>
 <p>You might also need to switch to Terser in Webpack if you use Watermelon for web.</p>
-<h3><a class="header" href="#implementing-pullchanges" id="implementing-pullchanges">Implementing <code>pullChanges()</code></a></h3>
+<h3 id="implementing-pullchanges"><a class="header" href="#implementing-pullchanges">Implementing <code>pullChanges()</code></a></h3>
 <p>Watermelon will call this function to ask for changes that happened on the server since the last pull.</p>
 <p>Arguments:</p>
 <ul>
@@ -219,7 +236,7 @@ async function mySync() {
 </li>
 <li>You MUST NOT store the object returned in <code>pullChanges()</code>. If you need to do any processing on it, do it before returning the object. Watermelon treats this object as &quot;consumable&quot; and can mutate it (for performance reasons)</li>
 </ol>
-<h3><a class="header" href="#implementing-pushchanges" id="implementing-pushchanges">Implementing <code>pushChanges()</code></a></h3>
+<h3 id="implementing-pushchanges"><a class="header" href="#implementing-pushchanges">Implementing <code>pushChanges()</code></a></h3>
 <p>Watermelon will call this function with a list of changes that happened locally since the last push so you can post it to your backend.</p>
 <p>Arguments passed:</p>
 <pre><code class="language-js">{
@@ -235,7 +252,17 @@ async function mySync() {
 <li>You MUST NOT resolve sync prematurely or in case of backend failure</li>
 <li>You MUST NOT mutate or store arguments passed to <code>pushChanges()</code>. If you need to do any processing on it, do it before returning the object. Watermelon treats this object as &quot;consumable&quot; and can mutate it (for performance reasons)</li>
 </ol>
-<h3><a class="header" href="#general-information-and-tips" id="general-information-and-tips">General information and tips</a></h3>
+<h3 id="checking-unsynced-changes"><a class="header" href="#checking-unsynced-changes">Checking unsynced changes</a></h3>
+<p>WatermelonDB has a built in function to check whether there are any unsynced changes. The frontend code will look something like this</p>
+<pre><code class="language-js">import { hasUnsyncedChanges } from '@nozbe/watermelondb/sync'
+
+async function checkUnsyncedChanges() {
+  await hasUnsyncedChanges({
+    database
+  })
+}
+</code></pre>
+<h3 id="general-information-and-tips"><a class="header" href="#general-information-and-tips">General information and tips</a></h3>
 <ol>
 <li>You MUST NOT connect to backend endpoints you don't control using <code>synchronize()</code>. WatermelonDB assumes pullChanges/pushChanges are friendly and correct and does not guarantee secure behavior if data returned is malformed.</li>
 <li>You SHOULD NOT call <code>synchronize()</code> while synchronization is already in progress (it will safely abort)</li>
@@ -243,7 +270,7 @@ async function mySync() {
 <li>You SHOULD wrap <code>synchronize()</code> in a &quot;retry once&quot; block - if sync fails, try again once. This will resolve push failures due to server-side conflicts by pulling once again before pushing.</li>
 <li>You can use <code>database.withChangesForTables</code> to detect when local changes occured to call sync. If you do this, you should debounce (or throttle) this signal to avoid calling <code>synchronize()</code> too often.</li>
 </ol>
-<h3><a class="header" href="#adopting-migration-syncs" id="adopting-migration-syncs">Adopting Migration Syncs</a></h3>
+<h3 id="adopting-migration-syncs"><a class="header" href="#adopting-migration-syncs">Adopting Migration Syncs</a></h3>
 <p>For Watermelon Sync to maintain consistency after <a href="./Migrations.html">migrations</a>, you must support Migration Syncs (introduced in WatermelonDB v0.17). This allows Watermelon to request from backend the tables and columns it needs to have all the data.</p>
 <ol>
 <li>For new apps, pass <code>{migrationsEnabledAtVersion: 1}</code> to <code>synchronize()</code> (or the first schema version that shipped / the oldest schema version from which it's possible to migrate to the current version)</li>
@@ -253,25 +280,34 @@ async function mySync() {
 <li>WatermelonDB &gt;=0.17 will note the schema version at which the user logged in, even if migrations are not enabled, so it's possible for app to request from backend changes from schema version lower than <code>migrationsEnabledAtVersion</code></li>
 <li>You MUST NOT delete old <a href="./Migrations.html">migrations</a>, otherwise it's possible that the app is permanently unable to sync.</li>
 </ol>
-<h3><a class="header" href="#adding-logging-to-your-sync" id="adding-logging-to-your-sync">Adding logging to your sync</a></h3>
-<p>You can add basic sync logs to the sync process by passing an empty object to <code>synchronize()</code>. Sync will then mutate the object, populating it with diagnostic information (start/finish time, resolved conflicts, and more):</p>
-<pre><code class="language-js">const log = {}
-await synchronize({
-database,
-log,
-...
-})
+<h3 id="adding-logging-to-your-sync"><a class="header" href="#adding-logging-to-your-sync">Adding logging to your sync</a></h3>
+<p>You can add basic sync logs to the sync process by passing an empty object to <code>synchronize()</code>. Sync will then mutate the object, populating it with diagnostic information (start/finish time, resolved conflicts, number of remote/local changes, any errors that occured, and more):</p>
+<pre><code class="language-js">// Using built-in SyncLogger
+import SyncLogger from '@nozbe/watermelondb/sync/SyncLogger'
+const logger = new SyncLogger(10 /* limit of sync logs to keep in memory */ )
+await synchronize({ database, log: logger.newLog(), ... })
+
+// this returns all logs (censored and safe to use in production code)
+console.log(logger.logs)
+// same, but pretty-formatted to a string (a user can easy copy this for diagnostic purposes)
+console.log(logger.formattedLogs)
+
+
+// You don't have to use SyncLogger, just pass a plain object to synchronize()
+const log = {}
+await synchronize({ database, log, ... })
 console.log(log.startedAt)
 console.log(log.finishedAt)
 </code></pre>
-<p>⚠️ Remember to act responsibly with logs, since they might contain your user's private information. Don't display, save, or send the log unless you censor the log. <a href="https://gist.github.com/radex/a0a27761ac348f4a5552ecaf227d500c">Example logger and censor code you can use</a>.</p>
-<h3><a class="header" href="#additional-synchronize-flags" id="additional-synchronize-flags">Additional <code>synchronize()</code> flags</a></h3>
+<p>⚠️ Remember to act responsibly with logs, since they might contain your user's private information. Don't display, save, or send the log unless you censor the log.</p>
+<h3 id="additional-synchronize-flags"><a class="header" href="#additional-synchronize-flags">Additional <code>synchronize()</code> flags</a></h3>
 <ul>
 <li><code>_unsafeBatchPerCollection: boolean</code> - if true, changes will be saved to the database in multiple batches. This is unsafe and breaks transactionality, however may be required for very large syncs due to memory issues</li>
 <li><code>sendCreatedAsUpdated: boolean</code> - if your backend can't differentiate between created and updated records, set this to <code>true</code> to supress warnings. Sync will still work well, however error reporting, and some edge cases will not be handled as well.</li>
+<li><code>conflictResolver: (TableName, local: DirtyRaw, remote: DirtyRaw, resolved: DirtyRaw) =&gt; DirtyRaw</code> - can be passed to customize how records are updated when they change during sync. See <code>src/sync/index.js</code> for details.</li>
 </ul>
-<h2><a class="header" href="#implementing-your-sync-backend" id="implementing-your-sync-backend">Implementing your Sync backend</a></h2>
-<h3><a class="header" href="#understanding-changes-objects" id="understanding-changes-objects">Understanding <code>changes</code> objects</a></h3>
+<h2 id="implementing-your-sync-backend"><a class="header" href="#implementing-your-sync-backend">Implementing your Sync backend</a></h2>
+<h3 id="understanding-changes-objects"><a class="header" href="#understanding-changes-objects">Understanding <code>changes</code> objects</a></h3>
 <p>Synchronized changes (received by the app in <code>pullChanges</code> and sent to the backend in <code>pushChanges</code>) are represented as an object with <em>raw records</em>. Those only use raw table and column names, and raw values (strings/numbers/booleans) — the same as in <a href="../Schema.html">Schema</a>.</p>
 <p>Deleted objects are always only represented by their IDs.</p>
 <p>Example:</p>
@@ -305,7 +341,7 @@ console.log(log.finishedAt)
   }
 }
 </code></pre>
-<h3><a class="header" href="#implementing-pull-endpoint" id="implementing-pull-endpoint">Implementing pull endpoint</a></h3>
+<h3 id="implementing-pull-endpoint"><a class="header" href="#implementing-pull-endpoint">Implementing pull endpoint</a></h3>
 <p>Expected parameters:</p>
 <pre><code class="language-js">{
   lastPulledAt: Timestamp,
@@ -324,6 +360,7 @@ This shape MAY be different if negotiated with the frontend (however, frontend-s
 <li>all records that were created on the server since <code>lastPulledAt</code></li>
 <li>all records that were updated on the server since <code>lastPulledAt</code></li>
 <li>IDs of all records that were deleted on the server since <code>lastPulledAt</code></li>
+<li>record IDs MUST NOT be duplicated</li>
 </ul>
 </li>
 <li>If <code>lastPulledAt</code> is null or 0, you MUST return all accessible records (first sync)</li>
@@ -367,7 +404,7 @@ This shape MAY be different if negotiated with the frontend (however, frontend-s
 </li>
 <li>Changes MUST NOT contain collections with arbitrary names, as they may be unsafe. You should whitelist acceptable collection names.</li>
 </ol>
-<h3><a class="header" href="#implementing-push-endpoint" id="implementing-push-endpoint">Implementing push endpoint</a></h3>
+<h3 id="implementing-push-endpoint"><a class="header" href="#implementing-push-endpoint">Implementing push endpoint</a></h3>
 <ol>
 <li>The push endpoint MUST apply local changes (passed as a <code>changes</code> object) to the database. Specifically:
 <ul>
@@ -412,7 +449,7 @@ This shape MAY be different if negotiated with the frontend (however, frontend-s
 </ul>
 </li>
 </ol>
-<h3><a class="header" href="#tips-on-implementing-server-side-changes-tracking" id="tips-on-implementing-server-side-changes-tracking">Tips on implementing server-side changes tracking</a></h3>
+<h3 id="tips-on-implementing-server-side-changes-tracking"><a class="header" href="#tips-on-implementing-server-side-changes-tracking">Tips on implementing server-side changes tracking</a></h3>
 <p>If you're wondering how to <em>actually</em> implement consistent pulling of all changes since the last pull, or how to detect that a record being pushed by the user changed after <code>lastPulledAt</code>, here's what we recommend:</p>
 <ul>
 <li>Add a <code>last_modified</code> field to all your server database tables, and bump it to <code>NOW()</code> every time you create or update a record.</li>
@@ -446,7 +483,7 @@ This shape MAY be different if negotiated with the frontend (however, frontend-s
 </ul>
 </li>
 </ul>
-<h2><a class="header" href="#local-vs-remote-ids" id="local-vs-remote-ids">Local vs Remote IDs</a></h2>
+<h2 id="local-vs-remote-ids"><a class="header" href="#local-vs-remote-ids">Local vs Remote IDs</a></h2>
 <p>WatermelonDB has been designed with the assumption that there is no difference between Local IDs (IDs of records and their relations in a WatermelonDB database) and Remote IDs (IDs on the backend server). So a local app can create new records, generating their IDs, and the backend server will use this ID as the true ID. This greatly simplifies synchronization, as you don't have to replace local with remote IDs on the record and all records that point to it.</p>
 <p>We highly recommend that you adopt this practice.</p>
 <p>Some people are skeptical about this approach due to conflicts, since backend can guarantee unique IDs, and the local app can't. However, in practice, a standard Watermelon ID has 8,000,000,000,000,000,000,000,000 possible combinations. That's enough entropy to make conflicts extremely unlikely. At <a href="https://nozbe.com">Nozbe</a>, we've done it this way at scale for more than a decade, and not once did we encounter a genuine ID conflict or had other issues due to this approach.</p>
@@ -454,14 +491,14 @@ This shape MAY be different if negotiated with the frontend (however, frontend-s
 <p>Using the birthday problem, we can calculate that for 36^16 possible IDs, if your system grows to a billion records, the probability of a single conflict is 6e-8. At 100B records, the probability grows to 0.06%. But if you grow to that many records, you're probably a very rich company and can start worrying about things like this <em>then</em>.</p>
 </blockquote>
 <p>If you absolutely can't adopt this practice, there's a number of production apps using WatermelonDB that keep local and remote IDs separate — however, more work is required this way. Search Issues to find discussions about this topic — and consider contributing to WatermelonDB to make managing separate local IDs easier for everyone!</p>
-<h2><a class="header" href="#existing-backend-implementations-for-watermelondb" id="existing-backend-implementations-for-watermelondb">Existing backend implementations for WatermelonDB</a></h2>
+<h2 id="existing-backend-implementations-for-watermelondb"><a class="header" href="#existing-backend-implementations-for-watermelondb">Existing backend implementations for WatermelonDB</a></h2>
 <p>Note that those are not maintained by WatermelonDB, and we make no endorsements about quality of these projects:</p>
 <ul>
 <li><a href="https://fahri.id/posts/how-to-build-watermelondb-sync-backend-in-elixir/">How to Build WatermelonDB Sync Backend in Elixir</a></li>
 <li><a href="https://github.com/AliAllaf/firemelon">Firemelon</a></li>
 <li>Did you make one? Please contribute a link!</li>
 </ul>
-<h2><a class="header" href="#current-sync-limitations" id="current-sync-limitations">Current Sync limitations</a></h2>
+<h2 id="current-sync-limitations"><a class="header" href="#current-sync-limitations">Current Sync limitations</a></h2>
 <ol>
 <li>If a record being pushed changes between pull and push, push will just fail. It would be better if it failed with a list of conflicts, so that <code>synchronize()</code> can automatically respond. Alternatively, sync could only send changed fields and server could automatically always just apply those changed fields to the server version (since that's what per-column client-wins resolver will do anyway)</li>
 <li>During next sync pull, changes we've just pushed will be pulled again, which is unnecessary. It would be better if server, during push, also pulled local changes since <code>lastPulledAt</code> and responded with NEW timestamp to be treated as <code>lastPulledAt</code>.</li>
@@ -471,14 +508,14 @@ This shape MAY be different if negotiated with the frontend (however, frontend-s
 <p>Note: That might conflict with &quot;If client wants to update a record that doesn’t exist, create it&quot;</p>
 </blockquote>
 <p>You don't like these limitations? Good, neither do we! Please contribute - we'll give you guidance.</p>
-<h2><a class="header" href="#contributing" id="contributing">Contributing</a></h2>
+<h2 id="contributing"><a class="header" href="#contributing">Contributing</a></h2>
 <ol>
 <li>If you implement Watermelon sync but found this guide confusing, please contribute improvements!</li>
 <li>Please help out with solving the current limitations!</li>
 <li>If you write server-side code made to be compatible with Watermelon, especially for popular platforms (Node, Ruby on Rails, Kinto, etc.) - please open source it and let us know! This would dramatically simplify implementing sync for people</li>
 <li>If you find Watermelon sync bugs, please report the issue! And if possible, write regression tests to make sure it never happens again</li>
 </ol>
-<h2><a class="header" href="#sync-primitives-and-implementing-your-own-sync-entirely-from-scratch" id="sync-primitives-and-implementing-your-own-sync-entirely-from-scratch">Sync primitives and implementing your own sync entirely from scratch</a></h2>
+<h2 id="sync-primitives-and-implementing-your-own-sync-entirely-from-scratch"><a class="header" href="#sync-primitives-and-implementing-your-own-sync-entirely-from-scratch">Sync primitives and implementing your own sync entirely from scratch</a></h2>
 <p>See: <a href="../Implementation/SyncImpl.html">Sync implementation details</a></p>
 
                     </main>
@@ -504,13 +541,13 @@ This shape MAY be different if negotiated with the frontend (however, frontend-s
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a href="../Advanced/Migrations.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Advanced/Migrations.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
                 
-                    <a href="../Advanced/CreateUpdateTracking.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../Advanced/CreateUpdateTracking.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 
@@ -520,6 +557,14 @@ This shape MAY be different if negotiated with the frontend (however, frontend-s
 
         
 
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
         
 
         

@@ -1,6 +1,5 @@
 // @flow
 
-import { keys, values } from 'rambdax'
 import type { TableSchema, AppSchema, ColumnSchema, TableName } from '../../../Schema'
 import { nullValue } from '../../../RawRecord'
 import type {
@@ -17,7 +16,7 @@ const standardColumns = `"id" primary key, "_changed", "_status"`
 
 const encodeCreateTable: TableSchema => SQL = ({ name, columns }) => {
   const columnsSQL = [standardColumns]
-    .concat(keys(columns).map(column => encodeName(column)))
+    .concat(Object.keys(columns).map(column => encodeName(column)))
     .join(', ')
   return `create table ${encodeName(name)} (${columnsSQL});`
 }
@@ -30,7 +29,8 @@ const encodeIndex: (ColumnSchema, TableName<any>) => SQL = (column, tableName) =
     : ''
 
 const encodeTableIndicies: TableSchema => SQL = ({ name: tableName, columns }) =>
-  values(columns)
+  Object.values(columns)
+    // $FlowFixMe
     .map(column => encodeIndex(column, tableName))
     .concat([`create index "${tableName}__status" on ${encodeName(tableName)} ("_status");`])
     .join('')
@@ -42,7 +42,8 @@ const encodeTable: TableSchema => SQL = table =>
   transform(encodeCreateTable(table) + encodeTableIndicies(table), table.unsafeSql)
 
 export const encodeSchema: AppSchema => SQL = ({ tables, unsafeSql }) => {
-  const sql = values(tables)
+  const sql = Object.values(tables)
+    // $FlowFixMe
     .map(encodeTable)
     .join('')
   return transform(sql, unsafeSql)

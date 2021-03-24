@@ -1,6 +1,6 @@
 // @flow
 
-import makeDecorator from '../../utils/common/makeDecorator'
+import makeDecorator, { type Decorator } from '../../utils/common/makeDecorator'
 import { onLowMemory } from '../../utils/common/memory'
 import { type ColumnName } from '../../Schema'
 
@@ -19,7 +19,7 @@ import { ensureDecoratorUsedProperly } from '../common'
 const cache = new Map<number, Date>()
 onLowMemory(() => cache.clear())
 
-const dateDecorator = makeDecorator(
+const dateDecorator: Decorator = makeDecorator(
   (columnName: ColumnName) => (target: Object, key: string, descriptor: Object) => {
     ensureDecoratorUsedProperly(columnName, target, key, descriptor)
 
@@ -42,7 +42,7 @@ const dateDecorator = makeDecorator(
       set(date: ?Date): void {
         const rawValue = date ? +new Date(date) : null
         if (rawValue && date) {
-          cache.set(rawValue, date)
+          cache.set(rawValue, new Date(date))
         }
         this.asModel._setRaw(columnName, rawValue)
       },

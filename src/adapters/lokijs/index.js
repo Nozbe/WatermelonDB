@@ -1,7 +1,9 @@
 // @flow
 
-import type { LokiMemoryAdapter } from 'lokijs'
-import { invariant, logger } from '../../utils/common'
+// don't import the whole utils/ here!
+import type { LokiMemoryAdapter } from './type'
+import invariant from '../../utils/common/invariant'
+import logger from '../../utils/common/logger'
 import type { ResultCallback } from '../../utils/fp/Result'
 
 import type { RecordId } from '../../Model'
@@ -27,6 +29,8 @@ const {
   REMOVE_LOCAL,
   GET_DELETED_RECORDS,
   DESTROY_DELETED_RECORDS,
+  EXPERIMENTAL_FATAL_ERROR,
+  CLEAR_CACHED_RECORDS,
 } = actions
 
 type LokiIDBSerializer = $Exact<{
@@ -36,14 +40,21 @@ type LokiIDBSerializer = $Exact<{
 
 export type LokiAdapterOptions = $Exact<{
   dbName?: ?string,
+  autosave?: boolean,
   schema: AppSchema,
   migrations?: SchemaMigrations,
   // (true by default) Although web workers may have some throughput benefits, disabling them
   // may lead to lower memory consumption, lower latency, and easier debugging
   useWebWorker?: boolean,
   useIncrementalIndexedDB?: boolean,
+  // Called when database failed to set up (initialize) correctly. It's possible that
+  // it's some transient IndexedDB error that will be solved by a reload, but it's
+  // very likely that the error is persistent (e.g. a corrupted database).
+  // Pass a callback to offer to the user to reload the app or log out
+  onSetUpError?: (error: Error) => void,
   // Called when internal IndexedDB version changed (most likely the database was deleted in another browser tab)
   // Pass a callback to force log out in this copy of the app as well
+  // (Due to a race condition, it's usually best to just reload the web app)
   // Note that this only works when using incrementalIDB and not using web workers
   onIndexedDBVersionChange?: () => void,
   // Called when underlying IndexedDB encountered a quota exceeded error (ran out of allotted disk space for app)
@@ -59,8 +70,20 @@ export type LokiAdapterOptions = $Exact<{
   // Hint: Hand-written conversion of objects to arrays is very profitable for performance.
   // Note that this only works when using incrementalIDB and not using web workers
   indexedDBSerializer?: LokiIDBSerializer,
+  // extra options passed to Loki constructor
+  extraLokiOptions?: { autosave?: boolean, autosaveInterval?: number, ... },
+  // extra options passed to IncrementalIDBAdapter constructor
+  extraIncrementalIDBOptions?: {
+    // Called when this adapter is forced to overwrite contents of IndexedDB.
+    // This happens if there's another open tab of the same app that's making changes.
+    // You might use it as an opportunity to alert user to the potential loss of data
+    onDidOverwrite?: () => void,
+    ...,
+  },
   // -- internal --
   _testLokiAdapter?: LokiMemoryAdapter,
+  _onFatalError?: (error: Error) => void, // (experimental)
+  _betaLoki?: boolean, // (experimental)
 }>
 
 export default class LokiJSAdapter implements DatabaseAdapter {
@@ -72,7 +95,10 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
   _dbName: ?string
 
+  _options: LokiAdapterOptions
+
   constructor(options: LokiAdapterOptions): void {
+    this._options = options
     const { schema, migrations, dbName } = options
 
     const useWebWorker = options.useWebWorker ?? process.env.NODE_ENV !== 'test'
@@ -83,28 +109,32 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     this._dbName = dbName
 
     if (process.env.NODE_ENV !== 'production') {
-      if (!('useWebWorker' in options)) {
-        logger.warn(
-          'LokiJSAdapter `useWebWorker` option will become required in a future version of WatermelonDB. Pass `{ useWebWorker: false }` to adopt the new behavior, or `{ useWebWorker: true }` to supress this warning with no changes',
+      invariant('useWebWorker' in options,
+          'LokiJSAdapter `useWebWorker` option is required. Pass `{ useWebWorker: false }` to adopt the new behavior, or `{ useWebWorker: true }` to supress this warning with no changes',
         )
+      if (options.useWebWorker === true) {
+        logger.warn('LokiJSAdapter {useWebWorker: true} option is now deprecated. If you rely on this feature, please file an issue')
       }
-      if (!('useIncrementalIndexedDB' in options)) {
-        logger.warn(
-          'LokiJSAdapter `useIncrementalIndexedDB` option will become required in a future version of WatermelonDB. Pass `{ useIncrementalIndexedDB: true }` to adopt the new behavior, or `{ useIncrementalIndexedDB: false }` to supress this warning with no changes',
+      invariant('useIncrementalIndexedDB' in options,
+          'LokiJSAdapter `useIncrementalIndexedDB` option is required. Pass `{ useIncrementalIndexedDB: true }` to adopt the new behavior, or `{ useIncrementalIndexedDB: false }` to supress this warning with no changes',
         )
+      if (options.useIncrementalIndexedDB === false) {
+        logger.warn('LokiJSAdapter {useIncrementalIndexedDB: false} option is now deprecated. If you rely on this feature, please file an issue')
       }
+      // TODO(2021-05): Remove this
       invariant(
         !('migrationsExperimental' in options),
         'LokiJSAdapter `migrationsExperimental` option has been renamed to `migrations`',
       )
+      // TODO(2021-05): Remove this
       invariant(
         !('experimentalUseIncrementalIndexedDB' in options),
         'LokiJSAdapter `experimentalUseIncrementalIndexedDB` option has been renamed to `useIncrementalIndexedDB`',
       )
       validateAdapter(this)
     }
-
-    this.workerBridge.send(SETUP, [options], devSetupCallback, 'immutable', 'immutable')
+    const callback = result => devSetupCallback(result, options.onSetUpError)
+    this.workerBridge.send(SETUP, [options], callback, 'immutable', 'immutable')
   }
 
   async testClone(options?: $Shape<LokiAdapterOptions> = {}): Promise<LokiJSAdapter> {
@@ -116,7 +146,9 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     // Copy
     const lokiAdapter = executor.loki.persistenceAdapter
 
+    // $FlowFixMe
     return new LokiJSAdapter({
+      ...this._options,
       dbName: this._dbName,
       schema: this.schema,
       ...(this.migrations ? { migrations: this.migrations } : {}),
@@ -182,5 +214,35 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
   removeLocal(key: string, callback: ResultCallback<void>): void {
     this.workerBridge.send(REMOVE_LOCAL, [key], callback, 'immutable', 'immutable')
+  }
+
+  // dev/debug utility
+  get _executor(): any {
+    // $FlowFixMe
+    return this.workerBridge._worker._worker.executor
+  }
+
+  // (experimental)
+  _fatalError(error: Error): void {
+    this.workerBridge.send(EXPERIMENTAL_FATAL_ERROR, [error], () => {}, 'immutable', 'immutable')
+  }
+
+  // (experimental)
+  _clearCachedRecords(): void {
+    this.workerBridge.send(CLEAR_CACHED_RECORDS, [], () => {}, 'immutable', 'immutable')
+  }
+
+  _debugDignoseMissingRecord(table: TableName<any>, id: RecordId): void {
+    const lokiExecutor = this._executor
+    if (lokiExecutor) {
+      const lokiCollection = lokiExecutor.loki.getCollection(table)
+      // if we can find the record by ID, it just means that the record cache ID was corrupted
+      const didFindById = !!lokiCollection.by('id', id)
+      logger.log(`Did find ${table}#${id} in Loki collection by ID? ${didFindById}`)
+
+      // if we can't, but can filter to it, it means that Loki indices are corrupted
+      const didFindByFilter = !!lokiCollection.data.filter(doc => doc.id === id)
+      logger.log(`Did find ${table}#${id} in Loki collection by filtering the collection? ${didFindByFilter}`)
+    }
   }
 }

@@ -1,7 +1,6 @@
 // @flow
 
-import type { Observable } from 'rxjs'
-import { BehaviorSubject } from 'rxjs/BehaviorSubject'
+import { type Observable, BehaviorSubject } from '../utils/rx'
 import { type Unsubscribe } from '../utils/subscriptions'
 import invariant from '../utils/common/invariant'
 import ensureSync from '../utils/common/ensureSync'
@@ -17,7 +16,7 @@ import type { Value } from '../QueryDescription'
 import { type RawRecord, type DirtyRaw, sanitizedRaw, setRawSanitized } from '../RawRecord'
 import { setRawColumnChange } from '../sync/helpers'
 
-import { createTimestampsFor, hasUpdatedAt, fetchChildren } from './helpers'
+import { createTimestampsFor, fetchChildren } from './helpers'
 
 export type RecordId = string
 
@@ -43,7 +42,7 @@ export default class Model {
 
   _raw: RawRecord
 
-  _isEditing = false
+  _isEditing: boolean = false
 
   // `false` when instantiated but not yet in the database
   _isCommitted: boolean = true
@@ -80,12 +79,13 @@ export default class Model {
   // someTask.update(task => {
   //   task.name = 'New name'
   // })
-  async update(recordUpdater: this => void = noop): Promise<void> {
+  async update(recordUpdater: this => void = noop): Promise<this> {
     this.collection.database._ensureInAction(
       `Model.update() can only be called from inside of an Action. See docs for more details.`,
     )
-    this.prepareUpdate(recordUpdater)
+    const record = this.prepareUpdate(recordUpdater)
     await this.collection.database.batch(this)
+    return record
   }
 
   // Prepares an update to the database (using passed function).
@@ -100,7 +100,7 @@ export default class Model {
     this._isEditing = true
 
     // Touch updatedAt (if available)
-    if (hasUpdatedAt(this)) {
+    if ('updatedAt' in this) {
       this._setRaw(columnName('updated_at'), Date.now())
     }
 

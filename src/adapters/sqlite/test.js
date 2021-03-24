@@ -12,8 +12,8 @@ function removeIfExists(file, dbName) {
 }
 
 describe.each([
-  ['SQLiteAdapterNode', 'Synchronous', 'File'],
-  ['SQLiteAdapterNode', 'Asynchronous', 'File'],
+  // ['SQLiteAdapterNode', 'Synchronous', 'File'],
+  // ['SQLiteAdapterNode', 'Asynchronous', 'File'],
   ['SQLiteAdapterNode', 'Synchronous', 'Memory'],
   ['SQLiteAdapterNode', 'Asynchronous', 'Memory'],
 ])('%s (%s/%s)', (adapterSubclass, synchronousString, fileString) => {

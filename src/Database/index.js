@@ -1,12 +1,8 @@
 // @flow
 
-import type { Observable } from 'rxjs/Observable'
-import { merge as merge$ } from 'rxjs/observable/merge'
-import { startWith } from 'rxjs/operators'
-import { values } from 'rambdax'
-
+import { type Observable, startWith, merge as merge$ } from '../utils/rx'
 import { type Unsubscribe } from '../utils/subscriptions'
-import { invariant } from '../utils/common'
+import { invariant, logger } from '../utils/common'
 import { noop } from '../utils/fp'
 
 import type { DatabaseAdapter, BatchOperation } from '../adapters/type'
@@ -25,6 +21,12 @@ type DatabaseProps = $Exact<{
   actionsEnabled: boolean,
 }>
 
+let experimentalAllowsFatalError = false
+
+export function setExperimentalAllowsFatalError(): void {
+  experimentalAllowsFatalError = true
+}
+
 export default class Database {
   adapter: DatabaseAdapterCompat
 
@@ -32,9 +34,12 @@ export default class Database {
 
   collections: CollectionMap
 
-  _actionQueue = new ActionQueue()
+  _actionQueue: ActionQueue = new ActionQueue()
 
   _actionsEnabled: boolean
+
+  // (experimental) if true, Database is in a broken state and should not be used anymore
+  _isBroken: boolean = false
 
   constructor({ adapter, modelClasses, actionsEnabled }: DatabaseProps): void {
     if (process.env.NODE_ENV !== 'production') {
@@ -61,7 +66,7 @@ export default class Database {
   // Executes multiple prepared operations
   // (made with `collection.prepareCreate` and `record.prepareUpdate`)
   // Note: falsy values (null, undefined, false) passed to batch are just ignored
-  async batch(...records: $ReadOnlyArray<Model | null | void | false>): Promise<void> {
+  async batch(...records: $ReadOnlyArray<Model | Model[] | null | void | false>): Promise<void> {
     if (!Array.isArray(records[0])) {
       // $FlowFixMe
       return this.batch(records)
@@ -160,10 +165,6 @@ export default class Database {
     return this._actionQueue.enqueue(work, description)
   }
 
-  _together<T>(work: ActionInterface => Promise<T>, description?: string): Promise<T> {
-    return this._actionQueue.enqueue(work, description)
-  }
-
   // Emits a signal immediately, and on change in any of the passed tables
   withChangesForTables(tables: TableName<any>[]): Observable<CollectionChangeSet<any> | null> {
     const changesSignals = tables.map(table => this.collections.get(table).changes)
@@ -247,12 +248,32 @@ export default class Database {
   }
 
   _unsafeClearCaches(): void {
-    values(this.collections.map).forEach(collection => {
+    Object.values(this.collections.map).forEach(collection => {
+      // $FlowFixMe
       collection.unsafeClearCache()
     })
   }
 
   _ensureInAction(error: string): void {
     this._actionsEnabled && invariant(this._actionQueue.isRunning, error)
+  }
+
+  // (experimental) puts Database in a broken state
+  // TODO: Not used anywhere yet
+  _fatalError(error: Error): void {
+    if (!experimentalAllowsFatalError) {
+      logger.warn('Database is now broken, but experimentalAllowsFatalError has not been enabled to do anything about it...')
+      return
+    }
+
+    this._isBroken = true
+    logger.error('Database is broken. App must be reloaded before continuing.')
+
+    // TODO: Passing this to an adapter feels wrong, but it's tricky.
+    // $FlowFixMe
+    if (this.adapter.underlyingAdapter._fatalError) {
+      // $FlowFixMe
+      this.adapter.underlyingAdapter._fatalError(error)
+    }
   }
 }

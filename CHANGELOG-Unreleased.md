@@ -4,11 +4,20 @@
 
 ### BREAKING CHANGES
 
+### Deprecations
+
+- [LokiJS] `Q.unsafeLokiFilter` is now deprecated and will be removed in a future version.
+    Use `Q.unsafeLokiTransform((raws, loki) => raws.filter(raw => ...))` instead.
+
 ### New features
+
+### Performance
+
+- Removed dependency on rambdax and made the util library smaller to keep
 
 ### Changes
 
-- [Docs] Add advanced tutorial to share database across iOS targets 
+- [Docs] Add advanced tutorial to share database across iOS targets
 
 ### Fixes
 

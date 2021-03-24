@@ -399,6 +399,8 @@ export const matchTests = [
     matching: [
       { id: 'm1', text1: 'Lorem ipsum dolor sit amet,' },
       { id: 'm2', text1: 'Lorem Ipsum dolor sit amet,' },
+      { id: 'm3', text1: 'Lorem\n\nIpsum' },
+      { id: 'm4', text1: 'Lorem\n\nIpsum\nfoo' },
     ],
     nonMatching: [{ id: 'n1', text1: 'consectetur adipiscing elit.' }, { id: 'n2', text1: null }],
   },
@@ -408,7 +410,9 @@ export const matchTests = [
     nonMatching: [
       { id: 'm1', text1: 'Lorem ipsum dolor sit amet,' },
       { id: 'm2', text1: 'Lorem Ipsum dolor sit amet,' },
-      { id: 'm3', text1: null },
+      { id: 'm3', text1: 'Lorem\n\nIpsum' },
+      { id: 'm4', text1: 'Lorem\n\nIpsum\nfoo' },
+      { id: 'mZ', text1: null },
     ],
     matching: [{ id: 'n1', text1: 'consectetur adipiscing elit.' }],
   },
@@ -420,7 +424,11 @@ export const matchTests = [
       { id: 'n1', text1: 'consectetur adipiscing elit.' },
       { id: 'n2', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
       { id: 'n3', text1: 'Integer accumsan tincidunt velit, eu fermentum lorem mollis at.' },
-      { id: 'n4', text1: null },
+      {
+        id: 'n4',
+        text1: 'Integer accumsan tincidunt velit \nLorem, eu fermentum lorem mollis at.',
+      },
+      { id: 'n5', text1: null },
     ],
   },
   {
@@ -431,6 +439,10 @@ export const matchTests = [
       { id: 'n1', text1: 'consectetur adipiscing elit.' },
       { id: 'n2', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
       { id: 'n3', text1: 'Integer accumsan tincidunt velit, eu fermentum lorem mollis at.' },
+      {
+        id: 'n4',
+        text1: 'Integer accumsan tincidunt velit \nLorem, eu fermentum lorem mollis at.',
+      },
     ],
   },
   {
@@ -438,13 +450,15 @@ export const matchTests = [
     query: [Q.where('text1', Q.like('%Lorem'))],
     matching: [
       { id: 'm1', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem' },
+      { id: 'm2', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue\n\nLorem' },
     ],
     nonMatching: [
       { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },
       { id: 'n2', text1: 'consectetur adipiscing elit.' },
       { id: 'n3', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
       { id: 'n4', text1: 'Integer accumsan tincidunt velit, eu fermentum lorem mollis at.' },
-      { id: 'n5', text1: null },
+      { id: 'n5', text1: 'Integer accumsan tincidunt velit, lorem\neu fermentum lorem mollis at.' },
+      { id: 'nZ', text1: null },
     ],
   },
   {
@@ -1111,12 +1125,54 @@ export const joinTests = [
     skipLoki: true,
   },
   {
+    // DEPRECATED
     name: 'can compare columns between tables using unsafe Loki filter',
     query: [
       Q.on('projects', 'num1', Q.notEq(null)),
       Q.unsafeLokiFilter((record, loki) => {
         const project = loki.getCollection('projects').by('id', record.project_id)
         return project && typeof record.num1 === 'number' && record.num1 > project.num1
+      }),
+    ],
+    extraRecords: {
+      projects: [
+        { id: 'p1', num1: 5 },
+        { id: 'p2', num1: 10 },
+        { id: 'badp1' },
+        { id: 'badp2', num1: 5, _status: 'deleted' },
+      ],
+    },
+    matching: [
+      { id: 'm1', project_id: 'p1', num1: 5.01 },
+      { id: 'm2', project_id: 'p1', num1: 100 },
+      { id: 'm3', project_id: 'p2', num1: 11 },
+      { id: 'm4', project_id: 'p2', num1: 10e12 },
+    ],
+    nonMatching: [
+      { id: 'n1', project_id: 'p1', num1: 0 },
+      { id: 'n2', project_id: 'p1', num1: -10 },
+      { id: 'n3', project_id: 'p1', num1: 4.99 },
+      { id: 'n4', project_id: 'p2', num1: 9 },
+      { id: 'n5', project_id: 'badp2', num1: 100 },
+      { id: 'n6', project_id: 'badp1', num1: 100 },
+      { id: 'n7', project_id: 'p1', num1: 100, _status: 'deleted' },
+      { id: 'n8', project_id: 'p1' },
+    ],
+    skipSqlite: true,
+  },
+  {
+    name: 'can compare columns between tables using unsafe Loki transform',
+    query: [
+      Q.on('projects', 'num1', Q.notEq(null)),
+      Q.unsafeLokiTransform((raws, loki) => {
+        const newRaws = []
+        raws.forEach(raw => {
+          const project = loki.getCollection('projects').by('id', raw.project_id)
+          if (project && typeof raw.num1 === 'number' && raw.num1 > project.num1) {
+            newRaws.push(raw)
+          }
+        })
+        return newRaws
       }),
     ],
     extraRecords: {

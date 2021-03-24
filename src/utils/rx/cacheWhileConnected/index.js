@@ -1,7 +1,6 @@
 // @flow
 
-import type { Observable } from 'rxjs/Observable'
-import { distinctUntilChanged } from 'rxjs/operators'
+import { type Observable, distinctUntilChanged } from '../__wmelonRxShim'
 import publishReplayLatestWhileConnected from '../publishReplayLatestWhileConnected'
 
 // Equivalent to observable |> distinctUntilChanged |> publishReplayLatestWhileConnected |> refCount

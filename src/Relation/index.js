@@ -1,9 +1,9 @@
 // @flow
-import type { Observable } from 'rxjs'
 
-import lazy from '../decorators/lazy'
+import type { Observable } from '../utils/rx'
 import invariant from '../utils/common/invariant'
 import publishReplayLatestWhileConnected from '../utils/rx/publishReplayLatestWhileConnected'
+import lazy from '../decorators/lazy'
 
 import type Model, { RecordId } from '../Model'
 import type { ColumnName, TableName } from '../Schema'

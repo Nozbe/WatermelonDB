@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js">
+<html lang="en" class="sidebar-visible no-js light">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -7,22 +7,36 @@
         
         <meta name="robots" content="noindex" />
         
+        
+
+
+        <!-- Custom HTML head -->
+        
+
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
         <link rel="shortcut icon" href="favicon.png">
+        
         <link rel="stylesheet" href="css/variables.css">
         <link rel="stylesheet" href="css/general.css">
         <link rel="stylesheet" href="css/chrome.css">
+        
         <link rel="stylesheet" href="css/print.css" media="print">
+        
 
         <!-- Fonts -->
         <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
-        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
 
         <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="highlight.css">
@@ -34,11 +48,11 @@
 
         
     </head>
-    <body class="light">
+    <body>
         <!-- Provide site root to javascript -->
         <script type="text/javascript">
             var path_to_root = "";
-            var default_theme = "light";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
@@ -62,8 +76,11 @@
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            document.body.className = theme;
-            document.querySelector('html').className = theme + ' js';
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
@@ -80,7 +97,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li><a href="ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li><a href="index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li><a href="Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li><a href="ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li><a href="Installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li><a href="Schema.html"><strong aria-hidden="true">2.2.</strong> Schema</a></li><li><a href="Model.html"><strong aria-hidden="true">2.3.</strong> Defining Models</a></li><li><a href="CRUD.html"><strong aria-hidden="true">2.4.</strong> Create, Read, Update, Delete</a></li><li><a href="Components.html"><strong aria-hidden="true">2.5.</strong> Connecting to React Components</a></li><li><a href="Query.html"><strong aria-hidden="true">2.6.</strong> Querying</a></li><li><a href="Relation.html"><strong aria-hidden="true">2.7.</strong> Relations</a></li><li><a href="Actions.html"><strong aria-hidden="true">2.8.</strong> Custom Actions</a></li></ol></li><li><a href="ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li><a href="Advanced/Migrations.html"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li><a href="Advanced/Sync.html"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li><a href="Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li><a href="Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li><a href="Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li><a href="Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li><a href="Advanced/ProTips.html"><strong aria-hidden="true">3.7.</strong> Pro tips</a></li><li><a href="Advanced/Performance.html"><strong aria-hidden="true">3.8.</strong> Performance tips</a></li></ol></li><li><a href="ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li><a href="Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li><a href="Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li><li><a href="Implementation/SyncImpl.html"><strong aria-hidden="true">4.3.</strong> Sync implementation</a></li></ol></li><li><a href="ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li><a href="Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li><a href="CONTRIBUTING.html"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li><a href="CHANGELOG.html"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li class="chapter-item expanded "><a href="Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="Schema.html"><strong aria-hidden="true">2.2.</strong> Schema</a></li><li class="chapter-item expanded "><a href="Model.html"><strong aria-hidden="true">2.3.</strong> Defining Models</a></li><li class="chapter-item expanded "><a href="CRUD.html"><strong aria-hidden="true">2.4.</strong> Create, Read, Update, Delete</a></li><li class="chapter-item expanded "><a href="Components.html"><strong aria-hidden="true">2.5.</strong> Connecting to React Components</a></li><li class="chapter-item expanded "><a href="Query.html"><strong aria-hidden="true">2.6.</strong> Querying</a></li><li class="chapter-item expanded "><a href="Relation.html"><strong aria-hidden="true">2.7.</strong> Relations</a></li><li class="chapter-item expanded "><a href="Actions.html"><strong aria-hidden="true">2.8.</strong> Custom Actions</a></li></ol></li><li class="chapter-item expanded "><a href="ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Advanced/Migrations.html"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li class="chapter-item expanded "><a href="Advanced/Sync.html"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li class="chapter-item expanded "><a href="Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li class="chapter-item expanded "><a href="Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li class="chapter-item expanded "><a href="Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li class="chapter-item expanded "><a href="Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li class="chapter-item expanded "><a href="Advanced/ProTips.html"><strong aria-hidden="true">3.7.</strong> Pro tips</a></li><li class="chapter-item expanded "><a href="Advanced/Performance.html"><strong aria-hidden="true">3.8.</strong> Performance tips</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li class="chapter-item expanded "><a href="Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li><li class="chapter-item expanded "><a href="Implementation/SyncImpl.html"><strong aria-hidden="true">4.3.</strong> Sync implementation</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="CONTRIBUTING.html"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="CHANGELOG.html"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -89,37 +106,38 @@
 
             <div class="page">
                 
-                <div id="menu-bar" class="menu-bar">
-                    <div id="menu-bar-sticky-container">
-                        <div class="left-buttons">
-                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
-                                <i class="fa fa-bars"></i>
-                            </button>
-                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
-                                <i class="fa fa-paint-brush"></i>
-                            </button>
-                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
-                            </ul>
-                            
-                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
-                                <i class="fa fa-search"></i>
-                            </button>
-                            
-                        </div>
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
 
-                        <h1 class="menu-title">WatermelonDB documentation</h1>
+                    <h1 class="menu-title">WatermelonDB documentation</h1>
 
-                        <div class="right-buttons">
-                            <a href="print.html" title="Print this book" aria-label="Print this book">
-                                <i id="print-button" class="fa fa-print"></i>
-                            </a>
-                            
-                        </div>
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
                     </div>
                 </div>
 
@@ -147,7 +165,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h3><a class="header" href="#get-excited" id="get-excited">Get excited</a></h3>
+                        <h3 id="get-excited"><a class="header" href="#get-excited">Get excited</a></h3>
 <p align="center">
   <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/logo-horizontal2.png" alt="WatermelonDB" width="539" />
 </p>
@@ -176,12 +194,12 @@
 <tr><td>📱</td><td><strong>Multiplatform</strong>. iOS, Android, and the web</td></tr>
 <tr><td>⚛️</td><td><strong>Works with React.</strong> Easily plug data into components</td></tr>
 <tr><td>⏱</td><td><strong>Fast.</strong> And getting faster with every release!</td></tr>
-<tr><td>✅</td><td><strong>Proven.</strong> Powers <a href="https://nozbe.com/teams">Nozbe Teams</a> since 2017 (and <a href="#who-uses-watermelondb">many others</a>)</td></tr>
+<tr><td>✅</td><td><strong>Proven.</strong> Powers <a href="https://nozbe.com/teams">Nozbe Teams</a> since 2017 (and <a href="index.html#who-uses-watermelondb">many others</a>)</td></tr>
 <tr><td>✨</td><td><strong>Reactive.</strong> (Optional) <a href="https://github.com/ReactiveX/rxjs">RxJS</a> API</td></tr>
 <tr><td>🔗</td><td><strong>Relational.</strong> Built on rock-solid <a href="https://www.sqlite.org">SQLite</a> foundation</td></tr>
 <tr><td>⚠️</td><td><strong>Static typing</strong> with <a href="https://flow.org">Flow</a> or <a href="https://typescriptlang.org">TypeScript</a></td></tr>
 </tbody></table>
-<h2><a class="header" href="#why-watermelon" id="why-watermelon">Why Watermelon?</a></h2>
+<h2 id="why-watermelon"><a class="header" href="#why-watermelon">Why Watermelon?</a></h2>
 <p><strong>WatermelonDB</strong> is a new way of dealing with user data in React Native and React web apps.</p>
 <p>It's optimized for building <strong>complex applications</strong> in React Native, and the number one goal is <strong>real-world performance</strong>. In simple words, <em>your app must launch fast</em>.</p>
 <p>For simple apps, using Redux or MobX with a persistence adapter is the easiest way to go. But when you start scaling to thousands or tens of thousands of database records, your app will now be slow to launch (especially on slower Android devices). Loading a full database into JavaScript is expensive!</p>
@@ -190,7 +208,7 @@
 <table><thead><tr><th><a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw"><img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-talk-thumbnail.jpg" alt="React Native EU: Next-generation React Databases" width="300" /></a></th><th><a href="https://watermelondb.now.sh/"><img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-demo-thumbnail.png" alt="WatermelonDB Demo" width="300" /></a></th></tr></thead><tbody>
 <tr><td><p align="center"><a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw">📺 <strong>Next-generation React databases</strong><br>(a talk about WatermelonDB)</a></p></td><td><p align="center"><a href="https://watermelondb.now.sh/">✨ <strong>Check out web Demo</strong></a></p></td></tr>
 </tbody></table>
-<h2><a class="header" href="#usage" id="usage">Usage</a></h2>
+<h2 id="usage"><a class="header" href="#usage">Usage</a></h2>
 <p><strong>Quick (over-simplified) example:</strong> an app with posts and comments.</p>
 <p>First, you define Models:</p>
 <pre><code class="language-js">class Post extends Model {
@@ -234,8 +252,8 @@ const enhance = withObservables(['post'], ({ post }) =&gt; ({
 }))
 </code></pre>
 <p>The result is fully reactive! Whenever a post or comment is added, changed, or removed, the right components <strong>will automatically re-render</strong> on screen. Doesn't matter if a change occurred in a totally different part of the app, it all just works out of the box!</p>
-<h3><a class="header" href="#-learn-more-a-hrefhttpsnozbegithubiowatermelondbsee-full-documentationa" id="-learn-more-a-hrefhttpsnozbegithubiowatermelondbsee-full-documentationa">➡️ <strong>Learn more:</strong> <a href="https://nozbe.github.io/WatermelonDB/">see full documentation</a></a></h3>
-<h2><a class="header" href="#who-uses-watermelondb" id="who-uses-watermelondb">Who uses WatermelonDB</a></h2>
+<h3 id="-learn-more-a-hrefhttpsnozbegithubiowatermelondbsee-full-documentationa"><a class="header" href="#-learn-more-a-hrefhttpsnozbegithubiowatermelondbsee-full-documentationa">➡️ <strong>Learn more:</strong> <a href="https://nozbe.github.io/WatermelonDB/">see full documentation</a></a></h3>
+<h2 id="who-uses-watermelondb"><a class="header" href="#who-uses-watermelondb">Who uses WatermelonDB</a></h2>
 <a href="https://nozbe.com/teams/">
     <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/nozbe-teams.png" alt="Nozbe Teams" width="300" />
   </a>
@@ -263,21 +281,25 @@ const enhance = withObservables(['post'], ({ post }) =&gt; ({
 <a href="https://halogo.com.au/">
     <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/halogo_logo.png" alt="HaloGo" width="300" />
   </a>
+<br>
+<a href="https://sportsrecruits.com/">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/sportsrecruits-logo.png" alt="SportsRecruits" width="300" />
+  </a>
   <br>
 <p><em>Does your company or app use 🍉? Open a pull request and add your logo/icon with link here!</em></p>
-<h2><a class="header" href="#contributing" id="contributing">Contributing</a></h2>
+<h2 id="contributing"><a class="header" href="#contributing">Contributing</a></h2>
 <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/needyou.jpg" alt="We need you" width="220" />
 <p><strong>WatermelonDB is an open-source project and it needs your help to thrive!</strong></p>
 <p>If there's a missing feature, a bug, or other improvement you'd like, we encourage you to contribute! Feel free to open an issue to get some guidance and see <a href="./CONTRIBUTING.html">Contributing guide</a> for details about project setup, testing, etc.</p>
 <p>If you're just getting started, see <a href="https://github.com/Nozbe/WatermelonDB/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22">good first issues</a> that are easy to contribute to. If you make a non-trivial contribution, email me, and I'll send you a nice 🍉 sticker!</p>
 <p>If you make or are considering making an app using WatermelonDB, please let us know!</p>
-<h2><a class="header" href="#author-and-license" id="author-and-license">Author and license</a></h2>
+<h2 id="author-and-license"><a class="header" href="#author-and-license">Author and license</a></h2>
 <p><strong>WatermelonDB</strong> was created by <a href="https://github.com/Nozbe">@Nozbe</a>. Main author and maintainer is <a href="https://github.com/radex">Radek Pietruszewski</a>.</p>
 <p><strong>Contributors:</strong> <a href="https://github.com/mobily">@mobily</a>, <a href="https://github.com/kokusGr">@kokusGr</a>, <a href="https://github.com/rozPierog">@rozPierog</a>, <a href="https://github.com/rkrajewski">@rkrajewski</a>, <a href="https://github.com/domeknn">@domeknn</a>, <a href="https://github.com/Tereszkiewicz">@Tereszkiewicz</a> and <a href="https://github.com/Nozbe/WatermelonDB/graphs/contributors">more</a>.</p>
 <p>WatermelonDB is available under the MIT license. See the <a href="./LICENSE">LICENSE file</a> for more info.</p>
-<h1><a class="header" href="#demo" id="demo">Demo</a></h1>
+<h1 id="demo"><a class="header" href="#demo">Demo</a></h1>
 <p>See how WatermelonDB performs at large scales in the demo app.</p>
-<h2><a class="header" href="#online-demo" id="online-demo">Online demo</a></h2>
+<h2 id="online-demo"><a class="header" href="#online-demo">Online demo</a></h2>
 <h3>
 <a href="https://watermelondb.now.sh">
     <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-demo-medium.png" alt="WatermelonDB Demo" width="600" /><br>
@@ -285,7 +307,7 @@ const enhance = withObservables(['post'], ({ post }) =&gt; ({
 </a>
 </h3>
 <p>Note that where Watermelon really shines is in React Native apps — see instructions below ⬇️</p>
-<h2><a class="header" href="#running-react-native-demo" id="running-react-native-demo">Running React Native demo</a></h2>
+<h2 id="running-react-native-demo"><a class="header" href="#running-react-native-demo">Running React Native demo</a></h2>
 <p>To compile the WatermelonDB demo on your own machine:</p>
 <ol>
 <li>Install <a href="https://facebook.github.io/react-native/docs/getting-started.html">React Native toolkit</a> if you haven't already</li>
@@ -308,7 +330,7 @@ yarn start:android
 <p>⚠️ Note that for accurate measurement of performance, you need to compile the demo app in Release mode and run it on a real device, not the simulator.</p>
 <p>⚠️ If iOS app doesn't compile, try running it from Xcode instead of the terminal first</p>
 <p>⚠️  You might want to <code>git checkout</code> the <a href="https://github.com/Nozbe/WatermelonDB/releases">latest stable tag</a> if the demo app doesn't work</p>
-<h2><a class="header" href="#running-web-demo" id="running-web-demo">Running web demo</a></h2>
+<h2 id="running-web-demo"><a class="header" href="#running-web-demo">Running web demo</a></h2>
 <p>To compile the WatermelonDB demo on your own machine:</p>
 <ol>
 <li>Download this project
@@ -327,9 +349,9 @@ yarn
 <pre><code class="language-bash">now
 </code></pre>
 <p>⚠️  You might want to <code>git checkout</code> the <a href="https://github.com/Nozbe/WatermelonDB/releases">latest stable tag</a> if the demo app doesn't work</p>
-<h3><a class="header" href="#learn-to-use-watermelon" id="learn-to-use-watermelon">Learn to use Watermelon</a></h3>
+<h3 id="learn-to-use-watermelon"><a class="header" href="#learn-to-use-watermelon">Learn to use Watermelon</a></h3>
 <p>Learn the basics of how to use WatermelonDB</p>
-<h1><a class="header" href="#installation" id="installation">Installation</a></h1>
+<h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
 <p>First, add Watermelon to your project:</p>
 <pre><code class="language-bash">yarn add @nozbe/watermelondb
 yarn add @nozbe/with-observables
@@ -338,7 +360,7 @@ yarn add @nozbe/with-observables
 <pre><code class="language-npm">npm install @nozbe/watermelondb
 npm install @nozbe/with-observables
 </code></pre>
-<h2><a class="header" href="#react-native-setup" id="react-native-setup">React Native setup</a></h2>
+<h2 id="react-native-setup"><a class="header" href="#react-native-setup">React Native setup</a></h2>
 <ol>
 <li>
 <p>Install the Babel plugin for decorators if you haven't already:</p>
@@ -363,7 +385,7 @@ npm install @nozbe/with-observables
 <p>Set up your iOS or Android project — see instructions below</p>
 </li>
 </ol>
-<h3><a class="header" href="#ios-react-native" id="ios-react-native">iOS (React Native)</a></h3>
+<h3 id="ios-react-native"><a class="header" href="#ios-react-native">iOS (React Native)</a></h3>
 <ol>
 <li>
 <p><strong>Set up Babel config in your project</strong></p>
@@ -411,7 +433,7 @@ pod 'React-jsi', :path =&gt; '../node_modules/react-native/ReactCommon/jsi', :mo
 <p>Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (although Xcode 11.5+ and iOS 12.0+ are recommended).</p>
 </li>
 </ol>
-<h3><a class="header" href="#android-react-native" id="android-react-native">Android (React Native)</a></h3>
+<h3 id="android-react-native"><a class="header" href="#android-react-native">Android (React Native)</a></h3>
 <ol>
 <li>
 <p><strong>Set up Babel config in your project</strong></p>
@@ -475,7 +497,7 @@ protected List&lt;ReactPackage&gt; getPackages() {
 <p>Alternatively, we also recommend <a href="https://github.com/react-community/jsc-android-buildscripts"><code>jsc-android</code></a>, with which you don't need this polyfill, and it also makes your app faster.</p>
 </li>
 </ol>
-<h2><a class="header" href="#nodejs-setup" id="nodejs-setup">NodeJS setup</a></h2>
+<h2 id="nodejs-setup"><a class="header" href="#nodejs-setup">NodeJS setup</a></h2>
 <ol>
 <li>
 <p>Install <a href="https://github.com/JoshuaWise/better-sqlite3">better-sqlite3</a> peer dependency</p>
@@ -486,7 +508,7 @@ protected List&lt;ReactPackage&gt; getPackages() {
 </code></pre>
 </li>
 </ol>
-<h2><a class="header" href="#web-setup" id="web-setup">Web setup</a></h2>
+<h2 id="web-setup"><a class="header" href="#web-setup">Web setup</a></h2>
 <p>This guide assumes you use Webpack as your bundler.</p>
 <ol start="3">
 <li>If you haven't already, install Babel plugins for decorators, static class properties, and async/await to get the most out of Watermelon. This assumes you use Babel 7 and already support ES6 syntax.
@@ -549,7 +571,7 @@ npm install -D @babel/plugin-transform-runtime
 </code></pre>
 </li>
 </ol>
-<h2><a class="header" href="#set-up-database" id="set-up-database">Set up <code>Database</code></a></h2>
+<h2 id="set-up-database"><a class="header" href="#set-up-database">Set up <code>Database</code></a></h2>
 <p>Create <code>model/schema.js</code> in your project:</p>
 <pre><code class="language-js">import { appSchema, tableSchema } from '@nozbe/watermelondb'
 
@@ -570,10 +592,18 @@ import schema from './model/schema'
 // First, create the adapter to the underlying database:
 const adapter = new SQLiteAdapter({
   schema,
-  // dbName: 'myapp', // optional database name or file system path
-  // migrations, // optional migrations
-  synchronous: true, // synchronous mode only works on iOS. improves performance and reduces glitches in most cases, but also has some downsides - test with and without it
-  // experimentalUseJSI: true, // experimental JSI mode, use only if you're brave
+  // optional database name or file system path
+  // dbName: 'myapp',
+  // optional migrations
+  // migrations,
+  // synchronous mode only works on iOS. improves performance and reduces glitches in most cases, but also has some downsides - test with and without it
+  synchronous: true,
+  // experimental JSI mode, a more advanced version of synchronous: true
+  // experimentalUseJSI: true,
+  // Optional, but you should implement this method:
+  onSetUpError: error =&gt; {
+    // Database failed to load -- offer the user to reload the app or log out
+  }
 })
 
 // Then, make a Watermelon database from it!
@@ -591,29 +621,33 @@ const database = new Database({
 const adapter = new LokiJSAdapter({
   schema,
   // migrations, // optional migrations
-  useWebWorker: false, // recommended for new projects. tends to improve performance and reduce glitches in most cases, but also has downsides - test with and without it
+  useWebWorker: false, // recommended setting for new projects
   useIncrementalIndexedDB: true, // recommended for new projects. improves performance (but incompatible with early Watermelon databases)
   // dbName: 'myapp', // optional db name
-  // It's recommended you implement this method:
-  // onIndexedDBVersionChange: () =&gt; {
-  //   // database was deleted in another browser tab (user logged out), so we must make sure we delete
-  //   // it in this tab as well
-  //   if (checkIfUserIsLoggedIn()) {
-  //     window.location.reload()
-  //   }
-  // },
-  // Optional:
-  // onQuotaExceededError: (error) =&gt; { /* do something when user runs out of disk space */ },
+  // Optional, but recommended event handlers:
+  onIndexedDBVersionChange: () =&gt; {
+    // database was deleted in another browser tab (user logged out), so we must make sure we delete
+    // it in this tab as well
+    if (checkIfUserIsLoggedIn()) {
+      window.location.reload()
+    }
+  },
+  onQuotaExceededError: (error) =&gt; {
+    // Browser ran out of disk space -- do something about it
+  },
+  onSetUpError: (error) =&gt; {
+    // Database failed to load -- offer the user to reload the app or log out
+  },
 })
 
 // The rest is the same!
 </code></pre>
 <hr />
-<h2><a class="header" href="#next-steps" id="next-steps">Next steps</a></h2>
+<h2 id="next-steps"><a class="header" href="#next-steps">Next steps</a></h2>
 <p>➡️ After Watermelon is installed, <a href="./Schema.html"><strong>define your app's schema</strong></a></p>
-<h1><a class="header" href="#schema" id="schema">Schema</a></h1>
+<h1 id="schema"><a class="header" href="#schema">Schema</a></h1>
 <p>When using WatermelonDB, you're dealing with <strong>Models</strong> and <strong>Collections</strong>. However, underneath Watermelon sits an <strong>underlying database</strong> (SQLite or LokiJS) which speaks a different language: <strong>tables and columns</strong>. Together, those are called a <strong>database schema</strong> and we must define it first.</p>
-<h2><a class="header" href="#defining-a-schema" id="defining-a-schema">Defining a Schema</a></h2>
+<h2 id="defining-a-schema"><a class="header" href="#defining-a-schema">Defining a Schema</a></h2>
 <p>Say you want Models <code>Post</code>, <code>Comment</code> in your app. For each of those Models, you define a table. And for every field of a Model (e.g. name of the blog post, author of the comment) you define a column. For example:</p>
 <pre><code class="language-js">// model/schema.js
 import { appSchema, tableSchema } from '@nozbe/watermelondb'
@@ -641,11 +675,11 @@ export const mySchema = appSchema({
 })
 </code></pre>
 <p><strong>Note:</strong> It is database convention to use plural and snake_case names for table names. Column names are also snake_case. So <code>Post</code> become <code>posts</code> and <code>createdAt</code> becomes <code>created_at</code>.</p>
-<h3><a class="header" href="#column-types" id="column-types">Column types</a></h3>
+<h3 id="column-types"><a class="header" href="#column-types">Column types</a></h3>
 <p>Columns have one of three types: <code>string</code>, <code>number</code>, or <code>boolean</code>.</p>
 <p>Fields of those types will default to <code>''</code>, <code>0</code>, or <code>false</code> respectively, if you create a record with a missing field.</p>
 <p>To allow fields to be <code>null</code>, mark the column as <code>isOptional: true</code>.</p>
-<h3><a class="header" href="#naming-conventions" id="naming-conventions">Naming conventions</a></h3>
+<h3 id="naming-conventions"><a class="header" href="#naming-conventions">Naming conventions</a></h3>
 <p>To add a relation to a table (e.g. <code>Post</code> where a <code>Comment</code> was published, or author of a comment), add a string column ending with <code>_id</code>:</p>
 <pre><code class="language-js">{ name: 'post_id', type: 'string' },
 { name: 'author_id', type: 'string' },
@@ -656,20 +690,20 @@ export const mySchema = appSchema({
 <p>Date fields should be <code>number</code> (dates are stored as Unix timestamps) and have names ending with <code>_at</code>:</p>
 <pre><code class="language-js">{ name: 'last_seen_at', type: 'number', isOptional: true }
 </code></pre>
-<h3><a class="header" href="#special-columns" id="special-columns">Special columns</a></h3>
+<h3 id="special-columns"><a class="header" href="#special-columns">Special columns</a></h3>
 <p>All tables automatically have a string column <code>id</code> to uniquely identify records. (Also two special columns for <a href="./Advanced/Sync.html">sync purposes</a>). You can add special <code>created_at</code> / <code>updated_at</code> columns to enable <a href="./Advanced/CreateUpdateTracking.html">automatic create/update tracking</a>.</p>
-<h3><a class="header" href="#modifying-schema" id="modifying-schema">Modifying Schema</a></h3>
+<h3 id="modifying-schema"><a class="header" href="#modifying-schema">Modifying Schema</a></h3>
 <p>Whenever you change the Schema, you must increment the version number. During development, this will cause the database to clear completely on next launch.</p>
 <p>To seamlessly change the schema (without deleting data), use <a href="./Advanced/Migrations.html">Migrations</a>.</p>
 <p>⚠️ Always use Migrations if you already shipped your app.</p>
-<h3><a class="header" href="#indexing" id="indexing">Indexing</a></h3>
+<h3 id="indexing"><a class="header" href="#indexing">Indexing</a></h3>
 <p>To enable database indexing, add <code>isIndexed: true</code> to a column.</p>
 <p>Indexing makes querying by a column faster, at the slight expense of create/update speed and database size.</p>
 <p>For example, you will often want to query all comments belonging to a post (that is, query comments by its <code>post_id</code> column), and so you should mark the <code>post_id</code> column as indexed.</p>
 <p>However, if you rarely query all comments by its author, indexing <code>author_id</code> is probably not worth it.</p>
 <p>In general, most <code>_id</code> fields are indexed. Sometimes, <code>boolean</code> fields are worth indexing if you often use it for queries. However, you should almost never index date (<code>_at</code>) columns or <code>string</code> columns.</p>
-<h2><a class="header" href="#advanced" id="advanced">Advanced</a></h2>
-<h3><a class="header" href="#unsafe-sql-schema" id="unsafe-sql-schema">Unsafe SQL schema</a></h3>
+<h2 id="advanced"><a class="header" href="#advanced">Advanced</a></h2>
+<h3 id="unsafe-sql-schema"><a class="header" href="#unsafe-sql-schema">Unsafe SQL schema</a></h3>
 <p>If you want to modify the SQL used to set up the SQLite database, you can pass <code>unsafeSql</code> parameter
 to <code>tableSchema</code> and <code>appSchema</code>. This parameter is a function that receives SQL generated by Watermelon,
 and you can return whatever you want - so you can append, prepend, replace parts of SQL, or return
@@ -689,12 +723,12 @@ and when to <code>appSchema</code> - the entire schema SQL.</p>
 })
 </code></pre>
 <hr />
-<h2><a class="header" href="#next-steps-1" id="next-steps-1">Next steps</a></h2>
+<h2 id="next-steps-1"><a class="header" href="#next-steps-1">Next steps</a></h2>
 <p>➡️ After you define your schema, go ahead and <a href="./Model.html"><strong>define your Models</strong></a></p>
-<h1><a class="header" href="#defining-models" id="defining-models">Defining Models</a></h1>
+<h1 id="defining-models"><a class="header" href="#defining-models">Defining Models</a></h1>
 <p>A <strong>Model</strong> class represents a type of thing in your app. For example, <code>Post</code>, <code>Comment</code>, <code>User</code>.</p>
 <p>Before defining a Model, you first need to <a href="./Schema.html">define its schema</a>.</p>
-<h2><a class="header" href="#create-a-model" id="create-a-model">Create a Model</a></h2>
+<h2 id="create-a-model"><a class="header" href="#create-a-model">Create a Model</a></h2>
 <p>Let's define the <code>Post</code> model:</p>
 <pre><code class="language-js">// model/Post.js
 import { Model } from '@nozbe/watermelondb'
@@ -713,7 +747,7 @@ const database = new Database({
   modelClasses: [Post],
 })
 </code></pre>
-<h3><a class="header" href="#associations" id="associations">Associations</a></h3>
+<h3 id="associations"><a class="header" href="#associations">Associations</a></h3>
 <p>Your models almost surely relate to one another. A <code>Post</code> has many <code>Comment</code>s. And every <code>Comment</code> belongs to a <code>Post</code>. (Every relation is double-sided). Define those associations like so:</p>
 <pre><code class="language-js">class Post extends Model {
   static table = 'posts'
@@ -731,7 +765,7 @@ class Comment extends Model {
 </code></pre>
 <p>On the &quot;child&quot; side (<code>comments</code>) you define a <code>belongs_to</code> association, and pass a column name (key) that points to the parent (<code>post_id</code> is the ID of the post the comment belongs to).</p>
 <p>On the &quot;parent&quot; side (<code>posts</code>) you define an equivalent <code>has_many</code> association and pass the same column name (here named <code>foreignKey</code>).</p>
-<h2><a class="header" href="#add-fields" id="add-fields">Add fields</a></h2>
+<h2 id="add-fields"><a class="header" href="#add-fields">Add fields</a></h2>
 <p>Next, define the Model's <em>fields</em> (properties). Those correspond to <a href="./Schema.html">table columns</a> defined earlier in the schema.</p>
 <pre><code class="language-js">import { field } from '@nozbe/watermelondb/decorators'
 
@@ -749,7 +783,7 @@ class Post extends Model {
 <p>Fields are defined using ES6 decorators. Pass <strong>column name</strong> you defined in Schema as the argument to <code>@field</code>.</p>
 <p><strong>Field types</strong>. Fields are guaranteed to be the same type (string/number/boolean) as the column type defined in Schema. If column is marked <code>isOptional: true</code>, fields may also be null.</p>
 <p><strong>Note:</strong> Why do I have to type the field/column name twice? The database convention is to use <code>snake_case</code> for names, and the JavaScript convention is to use camelCase. So for any multi-word name, the two differ. Also, for resiliency, we believe it's better to be explicit, because over time, you might want to refactor how you name your JavaScript field names, but column names must stay the same for backward compatibility.</p>
-<h3><a class="header" href="#date-fields" id="date-fields">Date fields</a></h3>
+<h3 id="date-fields"><a class="header" href="#date-fields">Date fields</a></h3>
 <p>For date fields, use <code>@date</code> instead of <code>@field</code>. This will return a JavaScript <code>Date</code> object (instead of Unix timestamp integer).</p>
 <pre><code class="language-js">import { date } from '@nozbe/watermelondb/decorators'
 
@@ -758,8 +792,8 @@ class Post extends Model {
   @date('last_event_at') lastEventAt
 }
 </code></pre>
-<h2><a class="header" href="#relation-fields" id="relation-fields">Relation fields</a></h2>
-<h3><a class="header" href="#to-one-relation" id="to-one-relation">To-one relation</a></h3>
+<h2 id="relation-fields"><a class="header" href="#relation-fields">Relation fields</a></h2>
+<h3 id="to-one-relation"><a class="header" href="#to-one-relation">To-one relation</a></h3>
 <p>To point to a related record, e.g. <code>Post</code> a <code>Comment</code> belongs to, or author (<code>User</code>) of a <code>Comment</code>, use <code>@relation</code>:</p>
 <pre><code class="language-js">import { relation } from '@nozbe/watermelondb/decorators'
 
@@ -770,7 +804,7 @@ class Comment extends Model {
 }
 </code></pre>
 <p><strong>➡️ Learn more:</strong> <a href="./Relation.html">Relation API</a></p>
-<h3><a class="header" href="#children-to-many-relation" id="children-to-many-relation">Children (To-Many relation)</a></h3>
+<h3 id="children-to-many-relation"><a class="header" href="#children-to-many-relation">Children (To-Many relation)</a></h3>
 <p>To point to a list of records that belong to this Model, e.g. all <code>Comment</code>s that belong to a <code>Post</code>, you can define a simple <code>Query</code> using <code>@children</code>:</p>
 <pre><code class="language-js">import { children } from '@nozbe/watermelondb/decorators'
 
@@ -786,14 +820,14 @@ class Post extends Model {
 <p>Pass the <em>table name</em> of the related records as an argument to <code>@children</code>. The resulting property will be a <code>Query</code> you can fetch, observe, or count.</p>
 <p><strong>Note:</strong> You must define a <code>has_many</code> association in <code>static associations</code> for this to work</p>
 <p><strong>➡️ Learn more:</strong> <a href="./Query.html">Queries</a></p>
-<h2><a class="header" href="#advanced-1" id="advanced-1">Advanced</a></h2>
-<h4><a class="header" href="#actions" id="actions">Actions</a></h4>
+<h2 id="advanced-1"><a class="header" href="#advanced-1">Advanced</a></h2>
+<h4 id="actions"><a class="header" href="#actions">Actions</a></h4>
 <p>Define <strong>actions</strong> to simplify creating and updating records.</p>
 <p><strong>➡️ Learn more:</strong> <a href="./Actions.html">Actions</a></p>
-<h4><a class="header" href="#queries" id="queries">Queries</a></h4>
+<h4 id="queries"><a class="header" href="#queries">Queries</a></h4>
 <p>In addition to <code>@children</code>, you can define custom Queries or extend existing ones.</p>
 <p><strong>➡️ Learn more:</strong> <a href="./Query.html">Queries</a></p>
-<h4><a class="header" href="#advanced-fields" id="advanced-fields">Advanced fields</a></h4>
+<h4 id="advanced-fields"><a class="header" href="#advanced-fields">Advanced fields</a></h4>
 <p>You can also use these decorators:</p>
 <ul>
 <li><code>@text</code> trims whitespace from user-input text</li>
@@ -803,30 +837,30 @@ class Post extends Model {
 </ul>
 <p><strong>➡️ Learn more:</strong> <a href="./Advanced/AdvancedFields.html">Advanced fields</a></p>
 <hr />
-<h2><a class="header" href="#next-steps-2" id="next-steps-2">Next steps</a></h2>
+<h2 id="next-steps-2"><a class="header" href="#next-steps-2">Next steps</a></h2>
 <p>➡️ After you define some Models, learn the <a href="./CRUD.html"><strong>Create / Read / Update / Delete API</strong></a></p>
-<h1><a class="header" href="#create-read-update-delete" id="create-read-update-delete">Create, Read, Update, Delete</a></h1>
+<h1 id="create-read-update-delete"><a class="header" href="#create-read-update-delete">Create, Read, Update, Delete</a></h1>
 <p>When you have your <a href="./Schema.html">Schema</a> and <a href="./Model.html">Models</a> defined, learn how to manipulate them!</p>
-<h2><a class="header" href="#collections" id="collections">Collections</a></h2>
+<h2 id="collections"><a class="header" href="#collections">Collections</a></h2>
 <p>The <code>Collection</code> object is how you find, query, and create new records of a given type.</p>
-<h4><a class="header" href="#get-a-collection" id="get-a-collection">Get a collection</a></h4>
+<h4 id="get-a-collection"><a class="header" href="#get-a-collection">Get a collection</a></h4>
 <pre><code class="language-js">const postsCollection = database.collections.get('posts')
 
 // Shortcut syntax:
 const postsCollection = database.get('posts')
 </code></pre>
 <p>Pass the <a href="./Schema.html">table name</a> as the argument.</p>
-<h4><a class="header" href="#find-a-record-by-id" id="find-a-record-by-id">Find a record (by ID)</a></h4>
+<h4 id="find-a-record-by-id"><a class="header" href="#find-a-record-by-id">Find a record (by ID)</a></h4>
 <pre><code class="language-js">const post = await postsCollection.find('abcdef')
 </code></pre>
 <p><code>find()</code> returns a Promise. If the record cannot be found, the Promise will be rejected.</p>
-<h4><a class="header" href="#query-records" id="query-records">Query records</a></h4>
+<h4 id="query-records"><a class="header" href="#query-records">Query records</a></h4>
 <p>Find a list of records matching given conditions using <code>.query()</code>:</p>
 <pre><code class="language-js">const allPosts = await postsCollection.query().fetch()
 const starredPosts = await postsCollection.query(Q.where('is_starred', true)).fetch()
 </code></pre>
 <p><strong>➡️ Learn more:</strong> <a href="./Query.html">Queries</a></p>
-<h2><a class="header" href="#modifying-the-database" id="modifying-the-database">Modifying the database</a></h2>
+<h2 id="modifying-the-database"><a class="header" href="#modifying-the-database">Modifying the database</a></h2>
 <p>To create, update, or delete records, use the respective operations <strong>wrapped in an Action</strong>:</p>
 <pre><code class="language-js">await database.action(async () =&gt; {
   const post = await postsCollection.find('abcdef')
@@ -835,7 +869,7 @@ const starredPosts = await postsCollection.query(Q.where('is_starred', true)).fe
 })
 </code></pre>
 <p><strong>➡️ Learn more:</strong> <a href="./Actions.html">Actions</a></p>
-<h3><a class="header" href="#create-a-new-record" id="create-a-new-record">Create a new record</a></h3>
+<h3 id="create-a-new-record"><a class="header" href="#create-a-new-record">Create a new record</a></h3>
 <pre><code class="language-js">await database.action(async () =&gt; {
   const newPost = await postsCollection.create(post =&gt; {
     post.title = 'New post'
@@ -846,7 +880,7 @@ const starredPosts = await postsCollection.query(Q.where('is_starred', true)).fe
 <p><code>.create()</code> takes a &quot;builder function&quot;. In the example above, the builder will get a <code>Post</code> object as an argument. Use this object to set values for <a href="./Model.html">fields you defined</a>.</p>
 <p><strong>Note:</strong> Always <code>await</code> the Promise returned by <code>create</code> before you access the created record.</p>
 <p><strong>Note:</strong> You can only use field setters in <code>create()</code> or <code>update()</code> builder functions.</p>
-<h3><a class="header" href="#update-a-record" id="update-a-record">Update a record</a></h3>
+<h3 id="update-a-record"><a class="header" href="#update-a-record">Update a record</a></h3>
 <pre><code class="language-js">await database.action(async () =&gt; {
   await somePost.update(post =&gt; {
     post.title = 'Updated title'
@@ -855,7 +889,7 @@ const starredPosts = await postsCollection.query(Q.where('is_starred', true)).fe
 </code></pre>
 <p>Like creating, updating takes a builder function, where you can use field setters.</p>
 <p><strong>Note:</strong> Always <code>await</code> the Promise returned by <code>update</code> before you access the modified record.</p>
-<h3><a class="header" href="#delete-a-record" id="delete-a-record">Delete a record</a></h3>
+<h3 id="delete-a-record"><a class="header" href="#delete-a-record">Delete a record</a></h3>
 <p>There are two ways of deleting records: syncable (mark as deleted), and permanent.</p>
 <p>If you only use Watermelon as a local database, destroy records permanently, if you <a href="./Advanced/Sync.html">synchronize</a>, mark as deleted instead.</p>
 <pre><code class="language-js">await database.action(async () =&gt; {
@@ -864,7 +898,7 @@ const starredPosts = await postsCollection.query(Q.where('is_starred', true)).fe
 })
 </code></pre>
 <p><strong>Note:</strong> Don't access, update, or observe records after they're destroyed.</p>
-<h2><a class="header" href="#advanced-2" id="advanced-2">Advanced</a></h2>
+<h2 id="advanced-2"><a class="header" href="#advanced-2">Advanced</a></h2>
 <ul>
 <li><code>Model.observe()</code> - usually you only use this <a href="./Components.html">when connecting records to components</a>, but you can manually observe a record outside of React components. The returned <a href="https://github.com/reactivex/rxjs">RxJS</a> <code>Observable</code> will emit the record immediately upon subscription, and then every time the record is updated. If the record is deleted, the Observable will complete.</li>
 <li><code>Query.observe()</code>, <code>Relation.observe()</code> — analagous to the above, but for <a href="./Query.html">Queries</a> and <a href="./Relation.html">Relations</a></li>
@@ -879,16 +913,16 @@ const starredPosts = await postsCollection.query(Q.where('is_starred', true)).fe
 })
 </code></pre>
 <hr />
-<h2><a class="header" href="#next-steps-3" id="next-steps-3">Next steps</a></h2>
+<h2 id="next-steps-3"><a class="header" href="#next-steps-3">Next steps</a></h2>
 <p>➡️ Now that you can create and update records, <a href="./Components.html"><strong>connect them to React components</strong></a></p>
-<h1><a class="header" href="#connecting-to-components" id="connecting-to-components">Connecting to Components</a></h1>
+<h1 id="connecting-to-components"><a class="header" href="#connecting-to-components">Connecting to Components</a></h1>
 <p>After you <a href="./Model.html">define some Models</a>, it's time to connect Watermelon to your app's interface. We're using React in this guide.</p>
-<h3><a class="header" href="#install-withobservables" id="install-withobservables">Install <code>withObservables</code></a></h3>
+<h3 id="install-withobservables"><a class="header" href="#install-withobservables">Install <code>withObservables</code></a></h3>
 <p>The recommended way to use Watermelon with React is with <code>withObservables</code> HOC (higher-order component). It doesn't come pre-packaged with Watermelon, but you can install it with:</p>
 <pre><code class="language-bash">yarn add @nozbe/with-observables
 </code></pre>
 <p><strong>Note:</strong> If you're not familiar with higher-order components, read <a href="https://reactjs.org/docs/higher-order-components.html">React documentation</a>, check out <a href="https://github.com/acdlite/recompose"><code>recompose</code></a>… or just read the examples below to see it in practice!</p>
-<h2><a class="header" href="#reactive-components" id="reactive-components">Reactive components</a></h2>
+<h2 id="reactive-components"><a class="header" href="#reactive-components">Reactive components</a></h2>
 <p>Here's a very simple React component rendering a <code>Comment</code> record:</p>
 <pre><code class="language-jsx">const Comment = ({ comment }) =&gt; (
   &lt;div&gt;
@@ -904,7 +938,7 @@ const starredPosts = await postsCollection.query(Q.where('is_starred', true)).fe
 const EnhancedComment = enhance(Comment)
 </code></pre>
 <p>Now, if we render <code>&lt;EnhancedComment comment={comment} /&gt;</code>, it <strong>will</strong> update every time the comment changes.</p>
-<h3><a class="header" href="#reactive-lists" id="reactive-lists">Reactive lists</a></h3>
+<h3 id="reactive-lists"><a class="header" href="#reactive-lists">Reactive lists</a></h3>
 <p>Let's render the whole <code>Post</code> with comments:</p>
 <pre><code class="language-jsx">import withObservables from '@nozbe/with-observables'
 
@@ -945,7 +979,7 @@ const EnhancedPost = enhance(Post)
 <p>However, observing the comments Query will not re-render <code>&lt;Post&gt;</code> if a comment is <em>updated</em> — we render the <code>&lt;EnhancedComment&gt;</code> so that <em>it</em> observes the comment and re-renders if necessary.</p>
 </li>
 </ol>
-<h3><a class="header" href="#reactive-relations" id="reactive-relations">Reactive relations</a></h3>
+<h3 id="reactive-relations"><a class="header" href="#reactive-relations">Reactive relations</a></h3>
 <p>The <code>&lt;Comment&gt;</code> component we made previously only renders the body of the comment but doesn't say who posted it.</p>
 <p>Assume the <code>Comment</code> model has a <code>@relation('users', 'author_id') author</code> field. Let's render it:</p>
 <pre><code class="language-jsx">const Comment = ({ comment, author }) =&gt; (
@@ -962,7 +996,7 @@ const EnhancedComment = enhance(Comment)
 </code></pre>
 <p><code>comment.author</code> is a <a href="./Relation.html">Relation object</a>, and we can call <code>.observe()</code> on it to fetch the <code>User</code> and then observe changes to it. If author's name changes, the component will re-render.</p>
 <p><strong>Note</strong> again that we can also pass <code>Relation</code> objects directly for convenience, skipping <code>.observe()</code></p>
-<h3><a class="header" href="#reactive-counters" id="reactive-counters">Reactive counters</a></h3>
+<h3 id="reactive-counters"><a class="header" href="#reactive-counters">Reactive counters</a></h3>
 <p>Let's make a <code>&lt;PostExcerpt&gt;</code> component to display on a <em>list</em> of Posts, with only a brief summary of the contents and only the number of comments it has:</p>
 <pre><code class="language-jsx">const PostExcerpt = ({ post, commentCount }) =&gt; (
   &lt;div&gt;
@@ -980,11 +1014,11 @@ const enhance = withObservables(['post'], ({ post }) =&gt; ({
 const EnhancedPostExcerpt = enhance(PostExcerpt)
 </code></pre>
 <p>This is very similar to normal <code>&lt;Post&gt;</code>. We take the <code>Query</code> for post's comments, but instead of observing the <em>list</em> of comments, we call <code>observeCount()</code>. This is far more efficient. And as always, if a new comment is posted, or one is deleted, the component will re-render with the updated count.</p>
-<h2><a class="header" href="#hey-what-about-react-hooks" id="hey-what-about-react-hooks">Hey, what about React Hooks?</a></h2>
+<h2 id="hey-what-about-react-hooks"><a class="header" href="#hey-what-about-react-hooks">Hey, what about React Hooks?</a></h2>
 <p>We get it — HOCs are so 2017, and Hooks are the future! And we agree.</p>
 <p>Instead of using <code>withObservables</code> HOC you can use an alternative open-source Hook for Rx Observables. But be warned that they are probably not as optimized for performance and WatermelonDB use as <code>withObservables</code>.</p>
 <p><strong>If you'd like to see official <code>useObservables</code> Hook - <a href="https://github.com/Nozbe/withObservables/issues/16">please contribute</a> ❤️</strong></p>
-<h2><a class="header" href="#understanding-withobservables" id="understanding-withobservables">Understanding <code>withObservables</code></a></h2>
+<h2 id="understanding-withobservables"><a class="header" href="#understanding-withobservables">Understanding <code>withObservables</code></a></h2>
 <p>Let's unpack this:</p>
 <pre><code class="language-js">withObservables(['post'], ({ post }) =&gt; ({
   post: post.observe(),
@@ -1003,7 +1037,7 @@ are the enhanced props we inject. The keys are props' names, and values are <cod
 <li>The first argument: <code>['post']</code> is a list of props that trigger observation restart. So if a different <code>post</code> is passed, that new post will be observed. If you pass <code>[]</code>, the rendered Post will not change. You can pass multiple prop names if any of them should cause observation to re-start.</li>
 <li><strong>Rule of thumb</strong>: If you want to use a prop in the second arg function, pass its name in the first arg array</li>
 </ol>
-<h2><a class="header" href="#advanced-3" id="advanced-3">Advanced</a></h2>
+<h2 id="advanced-3"><a class="header" href="#advanced-3">Advanced</a></h2>
 <ol>
 <li><strong>findAndObserve</strong>. If you have, say, a post ID from your Router (URL in the browser), you can use:
 <pre><code class="language-js">withObservables(['postId'], ({ postId, database }) =&gt; ({
@@ -1014,7 +1048,7 @@ are the enhanced props we inject. The keys are props' names, and values are <cod
 <li><strong>RxJS transformations</strong>. The values returned by <code>Model.observe()</code>, <code>Query.observe()</code>, <code>Relation.observe()</code> are <a href="https://github.com/ReactiveX/rxjs">RxJS Observables</a>. You can use standard transforms like mapping, filtering, throttling, startWith to change when and how the component is re-rendered.</li>
 <li><strong>Custom Observables</strong>. <code>withObservables</code> is a general-purpose HOC for Observables, not just Watermelon. You can create new props from any <code>Observable</code>.</li>
 </ol>
-<h3><a class="header" href="#advanced-observing-sorted-lists" id="advanced-observing-sorted-lists">Advanced: observing sorted lists</a></h3>
+<h3 id="advanced-observing-sorted-lists"><a class="header" href="#advanced-observing-sorted-lists">Advanced: observing sorted lists</a></h3>
 <p>If you have a list that's dynamically sorted (e.g. sort comments by number of likes), use <code>Query.observeWithColumns</code> to ensure the list is re-rendered when its order changes:</p>
 <pre><code class="language-jsx">// This is a function that sorts an array of comments according to its `likes` field
 // I'm using `ramda` functions for this example, but you can do sorting however you like
@@ -1037,7 +1071,7 @@ const enhance = withObservables(['post'], ({ post }) =&gt; ({
 const EnhancedCommentList = enhance(CommentList)
 </code></pre>
 <p>If you inject <code>post.comments.observe()</code> into the component, the list will not re-render to change its order, only if comments are added or removed. Instead, use <code>query.observeWithColumns()</code> with an array of <a href="./Schema.html"><strong>column names</strong></a> you use for sorting to re-render whenever a record on the list has any of those fields changed.</p>
-<h3><a class="header" href="#advanced-observing-2nd-level-relations" id="advanced-observing-2nd-level-relations">Advanced: observing 2nd level relations</a></h3>
+<h3 id="advanced-observing-2nd-level-relations"><a class="header" href="#advanced-observing-2nd-level-relations">Advanced: observing 2nd level relations</a></h3>
 <p>If you have 2nd level relations, like author's <code>Contact</code> info, and want to connect it to a component as well, you cannot simply use <code>post.author.contact.observe()</code> in <code>withComponents</code>. Before accessing and observing the <code>Contact</code> relation, you need to resolve the <code>author</code> itself. Here is the simplest way to do it:</p>
 <pre><code class="language-js">const enhancePostAndAuthor = withObservables(['post'], ({post}) =&gt; ({
   post,
@@ -1073,7 +1107,7 @@ const enhanceAuthorContact = withObservables(['author'], ({author}) =&gt; ({
 <p>With the <code>switchMap</code> approach, you can obtain the same result by doing:</p>
 <pre><code class="language-js">contact: post.autor.observe().pipe(switchMap(author =&gt; author ? autor.contact : of$(null)))
 </code></pre>
-<h2><a class="header" href="#database-provider" id="database-provider">Database Provider</a></h2>
+<h2 id="database-provider"><a class="header" href="#database-provider">Database Provider</a></h2>
 <p>To prevent prop drilling you can utilise the Database Provider and the <code>withDatabase</code> Higher-Order Component.</p>
 <pre><code class="language-jsx">import DatabaseProvider from '@nozbe/watermelondb/DatabaseProvider'
 
@@ -1103,7 +1137,7 @@ export default withDatabase(withObservables([], ({ database }) =&gt; ({
 
 </code></pre>
 <p>The database prop in the <code>withObservables</code> Higher-Order Component is provided by the database provider.</p>
-<h3><a class="header" href="#usedatabase" id="usedatabase"><code>useDatabase</code></a></h3>
+<h3 id="usedatabase"><a class="header" href="#usedatabase"><code>useDatabase</code></a></h3>
 <p>You can also consume <code>Database</code> object using React Hooks syntax:</p>
 <pre><code class="language-js">import { useDatabase } from '@nozbe/watermelondb/hooks'
 
@@ -1112,9 +1146,9 @@ const Component = () =&gt; {
 }
 </code></pre>
 <hr />
-<h2><a class="header" href="#next-steps-4" id="next-steps-4">Next steps</a></h2>
+<h2 id="next-steps-4"><a class="header" href="#next-steps-4">Next steps</a></h2>
 <p>➡️ Next, learn more about <a href="./Query.html"><strong>custom Queries</strong></a></p>
-<h1><a class="header" href="#query-api" id="query-api">Query API</a></h1>
+<h1 id="query-api"><a class="header" href="#query-api">Query API</a></h1>
 <p><strong>Querying</strong> is how you find records that match certain conditions, for example:</p>
 <ul>
 <li>Find all comments that belong to a certain post</li>
@@ -1122,8 +1156,8 @@ const Component = () =&gt; {
 <li>Count all verified comments made by John or Lucy published under posts made in the last two weeks</li>
 </ul>
 <p>Because queries are executed on the database, and not in JavaScript, they're really fast. It's also how Watermelon can be fast even at large scales, because even with tens of thousands of records <em>total</em>, you rarely need to load more than a few dozen records at app launch.</p>
-<h2><a class="header" href="#defining-queries" id="defining-queries">Defining Queries</a></h2>
-<h3><a class="header" href="#children" id="children">@children</a></h3>
+<h2 id="defining-queries"><a class="header" href="#defining-queries">Defining Queries</a></h2>
+<h3 id="children"><a class="header" href="#children">@children</a></h3>
 <p>The simplest query is made using <code>@children</code>. This defines a <code>Query</code> for all comments that belong to a <code>Post</code>:</p>
 <pre><code class="language-js">class Post extends Model {
   // ...
@@ -1131,8 +1165,8 @@ const Component = () =&gt; {
 }
 </code></pre>
 <p><strong>➡️ Learn more:</strong> <a href="./Model.html">Defining Models</a></p>
-<h3><a class="header" href="#extended-query" id="extended-query">Extended Query</a></h3>
-<p>To <strong>narrow down</strong> a <code>Query</code> (add <a href="#query-conditions">extra conditions</a> to an existing Query), use <code>.extend()</code>:</p>
+<h3 id="extended-query"><a class="header" href="#extended-query">Extended Query</a></h3>
+<p>To <strong>narrow down</strong> a <code>Query</code> (add <a href="Query.html#query-conditions">extra conditions</a> to an existing Query), use <code>.extend()</code>:</p>
 <pre><code class="language-js">import { children, lazy } from '@nozbe/watermelondb/decorators'
 
 class Post extends Model {
@@ -1143,7 +1177,7 @@ class Post extends Model {
 }
 </code></pre>
 <p><strong>Note:</strong> Use the <code>@lazy</code> when extending or defining new Queries for performance</p>
-<h3><a class="header" href="#custom-queries" id="custom-queries">Custom Queries</a></h3>
+<h3 id="custom-queries"><a class="header" href="#custom-queries">Custom Queries</a></h3>
 <p>You can query any table using <code>this.collections.get(tableName).query(conditions)</code>. Here, <code>post.comments</code> will query all users that made a comment under <code>post</code>.</p>
 <pre><code class="language-js">class Post extends Model {
   // ...
@@ -1152,7 +1186,7 @@ class Post extends Model {
   )
 }
 </code></pre>
-<h2><a class="header" href="#executing-queries" id="executing-queries">Executing Queries</a></h2>
+<h2 id="executing-queries"><a class="header" href="#executing-queries">Executing Queries</a></h2>
 <p>Most of the time, you <a href="./Components.html">connect Queries to Components</a> by using <code>observe</code> or <code>observeCount</code>:</p>
 <pre><code class="language-js">withObservables(['post'], ({ post }) =&gt; ({
   post: post.observe(),
@@ -1160,7 +1194,7 @@ class Post extends Model {
   verifiedCommentCount: post.verifiedComments.observeCount(),
 }))
 </code></pre>
-<h4><a class="header" href="#fetch" id="fetch">Fetch</a></h4>
+<h4 id="fetch"><a class="header" href="#fetch">Fetch</a></h4>
 <p>To simply get the current list or current count, use <code>fetch</code> / <code>fetchCount</code>. You might need it <a href="./Actions.html">in Actions</a>.</p>
 <pre><code class="language-js">const comments = await post.comments.fetch()
 const verifiedCommentCount = await post.verifiedComments.fetchCount()
@@ -1169,7 +1203,7 @@ const verifiedCommentCount = await post.verifiedComments.fetchCount()
 const comments = await post.comments
 const verifiedCommentCount = await post.verifiedComments.count
 </code></pre>
-<h2><a class="header" href="#query-conditions" id="query-conditions">Query conditions</a></h2>
+<h2 id="query-conditions"><a class="header" href="#query-conditions">Query conditions</a></h2>
 <pre><code class="language-js">import { Q } from '@nozbe/watermelondb'
 // ...
 commentCollection.query(
@@ -1179,25 +1213,25 @@ commentCollection.query(
 <p>This will query <strong>all</strong> comments that are verified (all comments with one condition: the <code>is_verified</code> column of a comment must be <code>true</code>).</p>
 <p>When making conditions, you refer to <a href="./Schema.html"><strong>column names</strong></a> of a table (i.e. <code>is_verified</code>, not <code>isVerified</code>). This is because queries are executed directly on the underlying database.</p>
 <p>The second argument is the value we want to query for. Note that the passed argument must be the same type as the column (<code>string</code>, <code>number</code>, or <code>boolean</code>; <code>null</code> is allowed only if the column is marked as <code>isOptional: true</code> in the schema).</p>
-<h4><a class="header" href="#empty-query" id="empty-query">Empty query</a></h4>
+<h4 id="empty-query"><a class="header" href="#empty-query">Empty query</a></h4>
 <pre><code class="language-js">const allComments = await commentCollection.query().fetch()
 </code></pre>
 <p>A Query with no conditions will find <strong>all</strong> records in the collection.</p>
 <p><strong>Note:</strong> Don't do this unless necessary. It's generally more efficient to only query the exact records you need.</p>
-<h4><a class="header" href="#multiple-conditions" id="multiple-conditions">Multiple conditions</a></h4>
+<h4 id="multiple-conditions"><a class="header" href="#multiple-conditions">Multiple conditions</a></h4>
 <pre><code class="language-js">commentCollection.query(
   Q.where('is_verified', true),
   Q.where('is_awesome', true)
 )
 </code></pre>
 <p>This queries all comments that are <strong>both</strong> verified <strong>and</strong> awesome.</p>
-<h3><a class="header" href="#conditions-with-other-operators" id="conditions-with-other-operators">Conditions with other operators</a></h3>
+<h3 id="conditions-with-other-operators"><a class="header" href="#conditions-with-other-operators">Conditions with other operators</a></h3>
 <table><thead><tr><th>Query</th><th>JavaScript equivalent</th></tr></thead><tbody>
 <tr><td><code>Q.where('is_verified', true)</code></td><td><code>is_verified === true</code> (shortcut syntax)</td></tr>
 <tr><td><code>Q.where('is_verified', Q.eq(true))</code></td><td><code>is_verified === true</code></td></tr>
 <tr><td><code>Q.where('archived_at', Q.notEq(null))</code></td><td><code>archived_at !== null</code></td></tr>
 <tr><td><code>Q.where('likes', Q.gt(0))</code></td><td><code>likes &gt; 0</code></td></tr>
-<tr><td><code>Q.where('likes', Q.weakGt(0))</code></td><td><code>likes &gt; 0</code> (slightly different semantics — <a href="#null-behavior">see &quot;null behavior&quot;</a> for details)</td></tr>
+<tr><td><code>Q.where('likes', Q.weakGt(0))</code></td><td><code>likes &gt; 0</code> (slightly different semantics — <a href="Query.html#null-behavior">see &quot;null behavior&quot;</a> for details)</td></tr>
 <tr><td><code>Q.where('likes', Q.gte(100))</code></td><td><code>likes &gt;= 100</code></td></tr>
 <tr><td><code>Q.where('dislikes', Q.lt(100))</code></td><td><code>dislikes &lt; 100</code></td></tr>
 <tr><td><code>Q.where('dislikes', Q.lte(100))</code></td><td><code>dislikes &lt;= 100</code></td></tr>
@@ -1217,7 +1251,7 @@ Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
 )
 </code></pre>
 <p>where <code>&quot;jas&quot;</code> can be changed dynamically with user input.</p>
-<h3><a class="header" href="#andor-nesting" id="andor-nesting">AND/OR nesting</a></h3>
+<h3 id="andor-nesting"><a class="header" href="#andor-nesting">AND/OR nesting</a></h3>
 <p>You can nest multiple conditions using <code>Q.and</code> and <code>Q.or</code>:</p>
 <pre><code class="language-js">commentCollection.query(
   Q.where('archived_at', Q.notEq(null)),
@@ -1231,7 +1265,7 @@ Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
 )
 </code></pre>
 <p>This is equivalent to <code>archivedAt !== null &amp;&amp; (isVerified || (likes &gt; 10 &amp;&amp; dislikes &lt; 5))</code>.</p>
-<h3><a class="header" href="#conditions-on-related-tables-join-queries" id="conditions-on-related-tables-join-queries">Conditions on related tables (&quot;JOIN queries&quot;)</a></h3>
+<h3 id="conditions-on-related-tables-join-queries"><a class="header" href="#conditions-on-related-tables-join-queries">Conditions on related tables (&quot;JOIN queries&quot;)</a></h3>
 <p>For example: query all comments under posts published by John:</p>
 <pre><code class="language-js">// Shortcut syntax:
 commentCollection.query(
@@ -1246,7 +1280,7 @@ commentCollection.query(
 <p>Normally you set conditions on the table you're querying. Here we're querying <strong>comments</strong>, but we have a condition on the <strong>post</strong> the comment belongs to.</p>
 <p>The first argument for <code>Q.on</code> is the table name you're making a condition on. The other two arguments are same as for <code>Q.where</code>.</p>
 <p><strong>Note:</strong> The two tables <a href="./Model.html">must be associated</a> before you can use <code>Q.on</code>.</p>
-<h4><a class="header" href="#multiple-conditions-on-a-related-table" id="multiple-conditions-on-a-related-table">Multiple conditions on a related table</a></h4>
+<h4 id="multiple-conditions-on-a-related-table"><a class="header" href="#multiple-conditions-on-a-related-table">Multiple conditions on a related table</a></h4>
 <p>For example: query all comments under posts that are written by John <em>and</em> are either published or belong to <code>draftBlog</code></p>
 <pre><code class="language-js">commentCollection.query(
   Q.on('posts', [
@@ -1259,7 +1293,7 @@ commentCollection.query(
 )
 </code></pre>
 <p>Instead of an array of conditions, you can also pass <code>Q.and</code>, <code>Q.or</code>, <code>Q.where</code>, or <code>Q.on</code> as the second argument to <code>Q.on</code>.</p>
-<h4><a class="header" href="#nesting-qon-within-andor" id="nesting-qon-within-andor">Nesting <code>Q.on</code> within AND/OR</a></h4>
+<h4 id="nesting-qon-within-andor"><a class="header" href="#nesting-qon-within-andor">Nesting <code>Q.on</code> within AND/OR</a></h4>
 <p>If you want to place <code>Q.on</code> nested within <code>Q.and</code> and <code>Q.or</code>, you must explicitly define all tables you're joining on. (NOTE: The <code>Q.experimentalJoinTables</code> API is subject to change)</p>
 <pre><code class="language-js">tasksCollection.query(
   Q.experimentalJoinTables(['projects']),
@@ -1269,7 +1303,7 @@ commentCollection.query(
   ),
 )
 </code></pre>
-<h4><a class="header" href="#deep-qons" id="deep-qons">Deep <code>Q.on</code>s</a></h4>
+<h4 id="deep-qons"><a class="header" href="#deep-qons">Deep <code>Q.on</code>s</a></h4>
 <p>You can also nest <code>Q.on</code> within <code>Q.on</code>, e.g. to make a condition on a grandparent. You must explicitly define the tables you're joining on. (NOTE: The <code>Q.experimentalNestedJoin</code> API is subject to change). Multiple levels of nesting are allowed.</p>
 <pre><code class="language-js">// this queries tasks that are inside projects that are inside teams where team.foo == 'bar'
 tasksCollection.query(
@@ -1277,18 +1311,18 @@ tasksCollection.query(
   Q.on('projects', Q.on('teams', 'foo', 'bar')),
 )
 </code></pre>
-<h2><a class="header" href="#advanced-queries" id="advanced-queries">Advanced Queries</a></h2>
-<h3><a class="header" href="#advanced-observing" id="advanced-observing">Advanced observing</a></h3>
+<h2 id="advanced-queries"><a class="header" href="#advanced-queries">Advanced Queries</a></h2>
+<h3 id="advanced-observing"><a class="header" href="#advanced-observing">Advanced observing</a></h3>
 <p>Call <code>query.observeWithColumns(['foo', 'bar'])</code> to create an Observable that emits a value not only when the list of matching records changes (new records/deleted records), but also when any of the matched records changes its <code>foo</code> or <code>bar</code> column. <a href="./Components.html">Use this for observing sorted lists</a></p>
-<h4><a class="header" href="#count-throttling" id="count-throttling">Count throttling</a></h4>
+<h4 id="count-throttling"><a class="header" href="#count-throttling">Count throttling</a></h4>
 <p>By default, calling <code>query.observeCount()</code> returns an Observable that is throttled to emit at most once every 250ms. You can disable throttling using <code>query.observeCount(false)</code>.</p>
-<h3><a class="header" href="#column-comparisons" id="column-comparisons">Column comparisons</a></h3>
+<h3 id="column-comparisons"><a class="header" href="#column-comparisons">Column comparisons</a></h3>
 <p>This queries comments that have more likes than dislikes. Note that we're comparing <code>likes</code> column to another column instead of a value.</p>
 <pre><code class="language-js">commentCollection.query(
   Q.where('likes', Q.gt(Q.column('dislikes')))
 )
 </code></pre>
-<h3><a class="header" href="#sortby-take-skip" id="sortby-take-skip">sortBy, take, skip</a></h3>
+<h3 id="sortby-take-skip"><a class="header" href="#sortby-take-skip">sortBy, take, skip</a></h3>
 <p>When using SQLite adapter, you can use these <em>experimental</em> clauses to sort the result of the query and to limit the number of results</p>
 <pre><code class="language-js">commentCollection.query(
   Q.experimentalSortBy('likes', Q.asc), // sorts ascending by `likes`
@@ -1297,7 +1331,7 @@ tasksCollection.query(
 )
 </code></pre>
 <p><strong>NOTE</strong>: This does not currently work on web/LokiJS (please contribute!), and causes query observation to fall back to a less efficient method. We recommend using sortBy only when you absolutely need to limit queries, otherwise, it may be better to sort in JavaScript.</p>
-<h3><a class="header" href="#security" id="security">Security</a></h3>
+<h3 id="security"><a class="header" href="#security">Security</a></h3>
 <p>Remember that Queries are a sensitive subject, security-wise. Never trust user input and pass it directly into queries. In particular:</p>
 <ul>
 <li>Never pass into queries values you don't know for sure are the right type (e.g. value passed to <code>Q.eq()</code> should be a string, number, boolean, or null -- but not an Object. If the value comes from JSON, you must validate it before passing it!)</li>
@@ -1306,15 +1340,15 @@ tasksCollection.query(
 <li>Do not use <code>Q.like</code> / <code>Q.notLike</code> without <code>Q.sanitizeLikeString</code></li>
 <li>Do not use <code>unsafe raw queries</code> without knowing what you're doing and sanitizing all user input</li>
 </ul>
-<h3><a class="header" href="#unsafe-raw-queries" id="unsafe-raw-queries">Unsafe raw queries</a></h3>
+<h3 id="unsafe-raw-queries"><a class="header" href="#unsafe-raw-queries">Unsafe raw queries</a></h3>
 <p>If this Query syntax is not enough for you, and you need to get your hands dirty on a raw SQL or Loki query, you need <strong>rawQueries</strong>.</p>
 <p>Please don't use this if you don't know what you're doing. The method name is called <code>unsafe</code> for a reason.</p>
-<h4><a class="header" href="#sql-queries" id="sql-queries">SQL queries</a></h4>
+<h4 id="sql-queries"><a class="header" href="#sql-queries">SQL queries</a></h4>
 <p>For now, only record SQL queries are available. If you need other SQL queries or LokiJS raw queries, please contribute!</p>
 <pre><code class="language-js">const records = commentCollection.unsafeFetchRecordsWithSQL('select * from comments where ...')
 </code></pre>
 <p>You need to be sure to properly sanitize user values to avoid SQL injection, and filter out deleted records using <code>where _status is not 'deleted'</code> clause</p>
-<h4><a class="header" href="#sqlloki-expressions" id="sqlloki-expressions">SQL/Loki expressions</a></h4>
+<h4 id="sqlloki-expressions"><a class="header" href="#sqlloki-expressions">SQL/Loki expressions</a></h4>
 <p>You can also include smaller bits of SQL and Loki expressions so that you can still use as much of Watermelon query builder as possible:</p>
 <pre><code class="language-js">// SQL example:
 postsCollection.query(
@@ -1329,7 +1363,7 @@ postsCollection.query(
 )
 </code></pre>
 <p>For SQL, be sure to prefix column names with table name when joining with other tables.</p>
-<h3><a class="header" href="#multi-table-column-comparisons-and-qunsafelokifilter" id="multi-table-column-comparisons-and-qunsafelokifilter">Multi-table column comparisons and <code>Q.unsafeLokiFilter</code></a></h3>
+<h3 id="multi-table-column-comparisons-and-qunsafelokifilter"><a class="header" href="#multi-table-column-comparisons-and-qunsafelokifilter">Multi-table column comparisons and <code>Q.unsafeLokiFilter</code></a></h3>
 <p>Example: we want to query comments posted more than 14 days after the post it belongs to was published.</p>
 <p>There's sadly no built-in syntax for this, but can be worked around using unsafe expressions like so:</p>
 <pre><code class="language-js">// SQL example:
@@ -1348,7 +1382,7 @@ commentsCollection.query(
 )
 </code></pre>
 <p>For LokiJS, remember that <code>record</code> is an unsanitized object and must not be mutated. <code>Q.unsafeLokiFilter</code> only works when using <code>LokiJSAdapter</code> with <code>useWebWorkers: false</code>. There can only be one <code>Q.unsafeLokiFilter</code> clause per query.</p>
-<h3><a class="header" href="#null-behavior" id="null-behavior"><code>null</code> behavior</a></h3>
+<h3 id="null-behavior"><a class="header" href="#null-behavior"><code>null</code> behavior</a></h3>
 <p>There are some gotchas you should be aware of. The <code>Q.gt</code>, <code>gte</code>, <code>lt</code>, <code>lte</code>, <code>oneOf</code>, <code>notIn</code>, <code>like</code> operators match the semantics of SQLite in terms of how they treat <code>null</code>. Those are different from JavaScript.</p>
 <p><strong>Rule of thumb:</strong> No null comparisons are allowed.</p>
 <p>For example, if you query <code>comments</code> for <code>Q.where('likes', Q.lt(10))</code>, a comment with 8 likes and 0 likes will be included, but a comment with <code>null</code> likes will not! In Watermelon queries, <code>null</code> is not less than any number. That's why you should avoid <a href="./Schema.html">making table columns optional</a> unless you actually need it.</p>
@@ -1363,7 +1397,7 @@ commentsCollection.query(
 </code></pre>
 <p><strong><code>Q.notIn</code> operator</strong>: If you query, say, posts with <code>Q.where('status', Q.notIn(['published', 'draft']))</code>, it will match posts with a status different than <code>published</code> or <code>draft</code>, however, it will NOT match posts with <code>status == null</code>. If you want to include such posts, query for that explicitly like with the example above.</p>
 <p><strong><code>Q.weakGt</code> operator</strong>: This is weakly typed version of <code>Q.gt</code> — one that allows null comparisons. So if you query <code>comments</code> with <code>Q.where('likes', Q.weakGt(Q.column('dislikes')))</code>, it WILL match comments with 5 likes and <code>null</code> dislikes. (For <code>weakGt</code>, unlike standard operators, any number is greater than <code>null</code>).</p>
-<h2><a class="header" href="#contributing-improvements-to-watermelon-query-language" id="contributing-improvements-to-watermelon-query-language">Contributing improvements to Watermelon query language</a></h2>
+<h2 id="contributing-improvements-to-watermelon-query-language"><a class="header" href="#contributing-improvements-to-watermelon-query-language">Contributing improvements to Watermelon query language</a></h2>
 <p>Here are files that are relevant. This list may look daunting, but adding new matchers is actually quite simple and multiple first-time contributors made these improvements (including like, sort, take, skip). The implementation is just split into multiple files (and their test files), but when you look at them, it'll be easy to add matchers by analogy.</p>
 <p>We recommend starting from writing tests first to check expected behavior, then implement the actual behavior.</p>
 <ul>
@@ -1378,11 +1412,11 @@ commentsCollection.query(
 <li><code>src/observation/encodeMatcher/</code> - If your query can be checked against a record in JavaScript (e.g. you're adding new &quot;by regex&quot; matcher), implement this behavior here (<code>index.js</code>, <code>operators.js</code>). This is used for efficient &quot;simple observation&quot;. You don't need to write tests - <code>databaseTests</code> are used automatically. If you can't or won't implement encodeMatcher for your query, add a check to <code>canEncode.js</code> so that it returns <code>false</code> for your query (Less efficient &quot;reloading observation&quot; will be used then). Add your query to <code>test.js</code>'s &quot;unencodable queries&quot; then.</li>
 </ul>
 <hr />
-<h2><a class="header" href="#next-steps-5" id="next-steps-5">Next steps</a></h2>
+<h2 id="next-steps-5"><a class="header" href="#next-steps-5">Next steps</a></h2>
 <p>➡️ Now that you've mastered Queries, <a href="./Relation.html"><strong>make more Relations</strong></a></p>
-<h1><a class="header" href="#relations" id="relations">Relations</a></h1>
+<h1 id="relations"><a class="header" href="#relations">Relations</a></h1>
 <p>A <code>Relation</code> object represents one record pointing to another — such as the author (<code>User</code>) of a <code>Comment</code>, or the <code>Post</code> the comment belongs to.</p>
-<h3><a class="header" href="#defining-relations" id="defining-relations">Defining Relations</a></h3>
+<h3 id="defining-relations"><a class="header" href="#defining-relations">Defining Relations</a></h3>
 <p>There's two steps to defining a relation:</p>
 <ol>
 <li>
@@ -1408,12 +1442,12 @@ class Comment extends Model {
 <p>The first argument is the <em>table name</em> of the related record, and the second is the <em>column name</em> with an ID for the related record.</p>
 </li>
 </ol>
-<h2><a class="header" href="#relation-api" id="relation-api">Relation API</a></h2>
+<h2 id="relation-api"><a class="header" href="#relation-api">Relation API</a></h2>
 <p>In the example above, <code>comment.author</code> returns a <code>Relation</code> object.</p>
 <blockquote>
 <p>Remember, WatermelonDB is a lazily-loaded database, so you don't get the related <code>User</code> record immediately, only when you explicitly fetch it</p>
 </blockquote>
-<h3><a class="header" href="#observing" id="observing">Observing</a></h3>
+<h3 id="observing"><a class="header" href="#observing">Observing</a></h3>
 <p>Most of the time, you <a href="./Components.html">connect Relations to Components</a> by using <code>observe()</code> (the same <a href="./Query.html">as with Queries</a>):</p>
 <pre><code class="language-js">withObservables(['comment'], ({ comment }) =&gt; ({
   comment: comment.observe(),
@@ -1421,7 +1455,7 @@ class Comment extends Model {
 }))
 </code></pre>
 <p>The component will now have an <code>author</code> prop containing a <code>User</code>, and will re-render both when the user changes (e.g. comment's author changes its name), but also when a new author is assigned to the comment (if that was possible).</p>
-<h3><a class="header" href="#fetching" id="fetching">Fetching</a></h3>
+<h3 id="fetching"><a class="header" href="#fetching">Fetching</a></h3>
 <p>To simply get the related record, use <code>fetch</code>. You might need it <a href="./Actions.html">in Actions</a></p>
 <pre><code class="language-js">const author = await comment.author.fetch()
 
@@ -1429,11 +1463,11 @@ class Comment extends Model {
 const author = await comment.author
 </code></pre>
 <p><strong>Note</strong>: If the relation column (in this example, <code>author_id</code>) is marked as <code>isOptional: true</code>, <code>fetch()</code> might return <code>null</code>.</p>
-<h3><a class="header" href="#id" id="id">ID</a></h3>
+<h3 id="id"><a class="header" href="#id">ID</a></h3>
 <p>If you only need the ID of a related record (e.g. to use in an URL or for the <code>key=</code> React prop), use <code>id</code>.</p>
 <pre><code class="language-js">const authorId = comment.author.id
 </code></pre>
-<h3><a class="header" href="#assigning" id="assigning">Assigning</a></h3>
+<h3 id="assigning"><a class="header" href="#assigning">Assigning</a></h3>
 <p>Use <code>set()</code> to assign a new record to the relation</p>
 <pre><code class="language-js">await commentsCollection.create(comment =&gt; {
   comment.author.set(someUser)
@@ -1446,8 +1480,8 @@ const author = await comment.author
   comment.author.id = userId
 })
 </code></pre>
-<h2><a class="header" href="#advanced-relations" id="advanced-relations">Advanced relations</a></h2>
-<h3><a class="header" href="#immutablerelation" id="immutablerelation">immutableRelation</a></h3>
+<h2 id="advanced-relations"><a class="header" href="#advanced-relations">Advanced relations</a></h2>
+<h3 id="immutablerelation"><a class="header" href="#immutablerelation">immutableRelation</a></h3>
 <p>If you have a relation that cannot change (for example, a comment can't change its author), you can use <code>@immutableRelation</code> for extra protection and performance:</p>
 <pre><code class="language-js">import { immutableRelation } from '@nozbe/watermelondb/decorators'
 
@@ -1457,7 +1491,7 @@ class Comment extends Model {
   @immutableRelation('users', 'author_id') author
 }
 </code></pre>
-<h3><a class="header" href="#many-to-many-relation" id="many-to-many-relation">Many-To-Many Relation</a></h3>
+<h3 id="many-to-many-relation"><a class="header" href="#many-to-many-relation">Many-To-Many Relation</a></h3>
 <p>If for instance, our app <code>Post</code>s can be authored by many <code>User</code>s and a user can author many <code>Post</code>s. We would create such a relation following these steps:-</p>
 <ol>
 <li>Create a pivot schema and model that both the <code>User</code> model and <code>Post</code> model has association to; say <code>PostAuthor</code></li>
@@ -1512,11 +1546,11 @@ class User extends Model {
 }))
 </code></pre>
 <hr />
-<h2><a class="header" href="#next-steps-6" id="next-steps-6">Next steps</a></h2>
+<h2 id="next-steps-6"><a class="header" href="#next-steps-6">Next steps</a></h2>
 <p>➡️ Now the last step of this guide: <a href="./Actions.html"><strong>define custom Actions</strong></a></p>
-<h1><a class="header" href="#actions-1" id="actions-1">Actions</a></h1>
+<h1 id="actions-1"><a class="header" href="#actions-1">Actions</a></h1>
 <p>Although you can <a href="./CRUD.html"><code>.create()</code> and <code>.update()</code> records</a> anywhere in your app, we recommend <strong>defining explicit Actions</strong> to encapsulate all ways to make changes.</p>
-<h2><a class="header" href="#defining-explicit-actions" id="defining-explicit-actions">Defining explicit Actions</a></h2>
+<h2 id="defining-explicit-actions"><a class="header" href="#defining-explicit-actions">Defining explicit Actions</a></h2>
 <p>An <strong>Action</strong> is a function that can modify the database (create, update, and delete records).</p>
 <p>To define it, just add a method to a <code>Model</code> class marked with the <code>@action</code> decorator</p>
 <pre><code class="language-js">import { action } from '@nozbe/watermelondb/decorators'
@@ -1554,7 +1588,7 @@ class Post extends Model {
 <pre><code class="language-js">const comment = await post.addComment('Lorem ipsum', someUser)
 await comment.markAsSpam()
 </code></pre>
-<h2><a class="header" href="#batch-updates" id="batch-updates">Batch updates</a></h2>
+<h2 id="batch-updates"><a class="header" href="#batch-updates">Batch updates</a></h2>
 <p>Whenever you make more than one change (create, delete or update records) in an action, you should <strong>batch them</strong>.</p>
 <blockquote>
 <p>It means that the app doesn't have to go back and forth with the database (sending one command, waiting for the response, then sending another), but instead sends multiple commands in one big batch. This is faster, safer, and can avoid subtle bugs in your app</p>
@@ -1595,7 +1629,7 @@ await comment.markAsSpam()
 <li>Pass the list of <strong>prepared operations</strong> as arguments:
 <ul>
 <li>Instead of calling <code>await record.update()</code>, pass <code>record.prepareUpdate()</code> — note lack of <code>await</code></li>
-<li>Instead of <code>await collection.create()</code>, use <code>collection.prepareCreate()</code></li>
+<li>Instead of <code>await collection.create()</code>, use <code>collection.prepareCreate()</code> or <code>collection.prepareCreateFromDirtyRaw({ put your JSON here })</code></li>
 <li>Instead of <code>await record.markAsDeleted()</code>, use <code>record.prepareMarkAsDeleted()</code></li>
 <li>Instead of <code>await record.destroyPermanently()</code>, use <code>record.prepareDestroyPermanently()</code></li>
 <li>You can pass falsy values (null, undefined, false) to batch — they will simply be ignored.</li>
@@ -1604,7 +1638,7 @@ await comment.markAsSpam()
 </li>
 <li>Otherwise, the API is the same!</li>
 </ul>
-<h2><a class="header" href="#calling-actions-from-actions" id="calling-actions-from-actions">Calling Actions from Actions</a></h2>
+<h2 id="calling-actions-from-actions"><a class="header" href="#calling-actions-from-actions">Calling Actions from Actions</a></h2>
 <p>If you try to call an Action from another Action, you'll notice that it won't work. This is because while Action is running, no other Action can run simultaneously. To override this behavior, wrap the Action call in <code>this.subAction</code>:</p>
 <pre><code class="language-js">class Comment extends Model {
   // ...
@@ -1616,7 +1650,7 @@ await comment.markAsSpam()
   }
 }
 </code></pre>
-<h2><a class="header" href="#delete-action" id="delete-action">Delete action</a></h2>
+<h2 id="delete-action"><a class="header" href="#delete-action">Delete action</a></h2>
 <p>When you delete, say, a <code>Post</code>, you generally want all <code>Comment</code>s that belong to it to be deleted as well.</p>
 <p>To do this, override <code>markAsDeleted()</code> (or <code>destroyPermanently()</code> if you don't sync) to explicitly delete all children as well.</p>
 <pre><code class="language-js">class Post extends Model {
@@ -1643,7 +1677,7 @@ await comment.markAsSpam()
 <li>Use <code>Query.destroyAllPermanently()</code> on all dependent <code>@children</code> you want to delete</li>
 <li>Remember to call <code>super.markAsDeleted</code> — at the end of the method!</li>
 </ul>
-<h2><a class="header" href="#inline-actions" id="inline-actions">Inline actions</a></h2>
+<h2 id="inline-actions"><a class="header" href="#inline-actions">Inline actions</a></h2>
 <p>If you want to call a number of write operations outside of a Model action, do it like so:</p>
 <pre><code class="language-js">const newPost = await database.action(async action =&gt; {
   // Note: function passed to `database.action()` MUST be asynchronous
@@ -1657,7 +1691,7 @@ await comment.markAsSpam()
   return post
 })
 </code></pre>
-<h2><a class="header" href="#advanced-why-actions-are-necessary" id="advanced-why-actions-are-necessary">Advanced: Why actions are necessary?</a></h2>
+<h2 id="advanced-why-actions-are-necessary"><a class="header" href="#advanced-why-actions-are-necessary">Advanced: Why actions are necessary?</a></h2>
 <p>WatermelonDB is highly asynchronous, which is a BIG challange in terms of achieving consistent data. Read this only if you are curious:</p>
 <blockquote>
 <p>Consider a function <code>markCommentsAsSpam</code> that fetches a list of comments on a post, and then marks them all as spam. The two operations (fetching, and then updating) are asynchronous, and some other operation that modifies the database could run in between. And it could just happen to be a function that adds a new comment on this post. Even though the function completes <em>successfully</em>, it wasn't <em>actually</em> successful at its job.</p>
@@ -1666,15 +1700,15 @@ await comment.markAsSpam()
 <p>Solution? Group together related reads and writes together in an Action, enforce that writes MUST occur in an Action, and only allow one Action to run at the time. This way, it's guaranteed that in an action, you're looking at a consistent view of the world. On the other hand, most reads are safe to perform without grouping them. If you suspect they're not, you can also wrap them in an Action.</p>
 </blockquote>
 <hr />
-<h2><a class="header" href="#next-steps-7" id="next-steps-7">Next steps</a></h2>
+<h2 id="next-steps-7"><a class="header" href="#next-steps-7">Next steps</a></h2>
 <p>➡️ Now that you've mastered all basics of Watermelon, go create some powerful apps — or keep reading <a href="./README.html"><strong>advanced guides</strong></a></p>
-<h3><a class="header" href="#advanced-guides" id="advanced-guides">Advanced guides</a></h3>
+<h3 id="advanced-guides"><a class="header" href="#advanced-guides">Advanced guides</a></h3>
 <p>Advanced guides for using WatermelonDB</p>
-<h1><a class="header" href="#migrations" id="migrations">Migrations</a></h1>
+<h1 id="migrations"><a class="header" href="#migrations">Migrations</a></h1>
 <p><strong>Schema migrations</strong> is the mechanism by which you can add new tables and columns to the database in a backward-compatible way.</p>
 <p>Without migrations, if a user of your app upgrades from one version to another, their local database will be cleared at launch, and they will lose all their data.</p>
 <p>⚠️ Always use migrations!</p>
-<h2><a class="header" href="#migrations-setup" id="migrations-setup">Migrations setup</a></h2>
+<h2 id="migrations-setup"><a class="header" href="#migrations-setup">Migrations setup</a></h2>
 <ol>
 <li>
 <p>Add a new file for migrations:</p>
@@ -1701,9 +1735,9 @@ const adapter = new SQLiteAdapter({
 </code></pre>
 </li>
 </ol>
-<h2><a class="header" href="#migrations-workflow" id="migrations-workflow">Migrations workflow</a></h2>
+<h2 id="migrations-workflow"><a class="header" href="#migrations-workflow">Migrations workflow</a></h2>
 <p>When you make schema changes when you use migrations, be sure to do this in this specific order, to minimize the likelihood of making an error.</p>
-<h3><a class="header" href="#step-1-add-a-new-migration" id="step-1-add-a-new-migration">Step 1: Add a new migration</a></h3>
+<h3 id="step-1-add-a-new-migration"><a class="header" href="#step-1-add-a-new-migration">Step 1: Add a new migration</a></h3>
 <p>First, define the migration - that is, define the <strong>change</strong> that occurs between two versions of schema (such as adding a new table, or a new table column).</p>
 <p>Don't change the schema file yet!</p>
 <pre><code class="language-js">// app/model/migrations.js
@@ -1734,8 +1768,8 @@ export default schemaMigrations({
 <p>Migrations can't be newer than schema. Schema is version 1 and migrations cover range from 1 to 2</p>
 </blockquote>
 <p>If so, good, move to the next step!</p>
-<p>But you might also see an error like &quot;Missing table name in schema&quot;, which means you made an error in defining migrations. See <a href="Advanced/#migrations-api">&quot;Migrations API&quot; below</a> for details.</p>
-<h3><a class="header" href="#step-2-make-matching-changes-in-schema" id="step-2-make-matching-changes-in-schema">Step 2: Make matching changes in schema</a></h3>
+<p>But you might also see an error like &quot;Missing table name in schema&quot;, which means you made an error in defining migrations. See <a href="Advanced/Migrations.html#migrations-api">&quot;Migrations API&quot; below</a> for details.</p>
+<h3 id="step-2-make-matching-changes-in-schema"><a class="header" href="#step-2-make-matching-changes-in-schema">Step 2: Make matching changes in schema</a></h3>
 <p>Now it's time to make the actual changes to the schema file — add the same tables or columns as in your migration definition</p>
 <p>⚠️ Please double and triple check that your changes to schema match exactly the change you defined in the migration. Otherwise you risk that the app will work when the user migrates, but will fail if it's a fresh install — or vice versa.</p>
 <p>⚠️ Don't change the schema version yet</p>
@@ -1757,7 +1791,7 @@ export default appSchema({
 })
 </code></pre>
 <p>Refresh the simulator. You should again see the same &quot;Migrations can't be newer than schema&quot; error. If you see a different error, you made a syntax error.</p>
-<h3><a class="header" href="#step-3-bump-schema-version" id="step-3-bump-schema-version">Step 3: Bump schema version</a></h3>
+<h3 id="step-3-bump-schema-version"><a class="header" href="#step-3-bump-schema-version">Step 3: Bump schema version</a></h3>
 <p>Now that we made matching changes in the schema (source of truth about tables and columns) and migrations (the change in tables and columns), it's time to commit the change by bumping the version:</p>
 <pre><code class="language-js">// model/schema.js
 
@@ -1769,15 +1803,15 @@ export default appSchema({
 })
 </code></pre>
 <p>If you refresh again, your app should show up without issues — but now you can use the new tables/columns</p>
-<h3><a class="header" href="#step-4-test-your-migrations" id="step-4-test-your-migrations">Step 4: Test your migrations</a></h3>
+<h3 id="step-4-test-your-migrations"><a class="header" href="#step-4-test-your-migrations">Step 4: Test your migrations</a></h3>
 <p>Before shipping a new version of the app, please check that your database changes are all compatible:</p>
 <ol>
 <li>Migrations test: Install the previous version of your app, then update to the version you're about to ship, and make sure it still works</li>
 <li>Fresh schema install test: Remove the app, and then install the <em>new</em> version of the app, and make sure it works</li>
 </ol>
-<h3><a class="header" href="#why-is-this-order-important" id="why-is-this-order-important">Why is this order important</a></h3>
+<h3 id="why-is-this-order-important"><a class="header" href="#why-is-this-order-important">Why is this order important</a></h3>
 <p>It's simply because React Native simulator (and often React web projects) are configured to automatically refresh when you save a file. You don't want to database to accidentally migrate (upgrade) with changes that have a mistake, or changes you haven't yet completed making. By making migrations first, and bumping version last, you can double check you haven't made a mistake.</p>
-<h2><a class="header" href="#migrations-api" id="migrations-api">Migrations API</a></h2>
+<h2 id="migrations-api"><a class="header" href="#migrations-api">Migrations API</a></h2>
 <p>Each migration must migrate to a version one above the previous migration, and have multiple <em>steps</em> (such as adding a new table, or new columns). Larger example:</p>
 <pre><code class="language-js">schemaMigrations({
   migrations: [
@@ -1809,20 +1843,20 @@ export default appSchema({
   ],
 })
 </code></pre>
-<h3><a class="header" href="#migration-steps" id="migration-steps">Migration steps:</a></h3>
+<h3 id="migration-steps"><a class="header" href="#migration-steps">Migration steps:</a></h3>
 <ul>
 <li><code>createTable({ name: 'table_name', columns: [ ... ] })</code> - same API as <code>tableSchema()</code></li>
 <li><code>addColumns({ table: 'table_name', columns: [ ... ] })</code> - you can add one or multiple columns to an existing table. The columns table has the same format as in schema definitions</li>
 <li>Other types of migrations (e.g. deleting or renaming tables and columns) are not yet implemented. See <a href="https://github.com/Nozbe/WatermelonDB/blob/master/src/Schema/migrations/index.js"><code>migrations/index.js</code></a>. Please contribute!</li>
 </ul>
-<h2><a class="header" href="#database-reseting-and-other-edge-cases" id="database-reseting-and-other-edge-cases">Database reseting and other edge cases</a></h2>
+<h2 id="database-reseting-and-other-edge-cases"><a class="header" href="#database-reseting-and-other-edge-cases">Database reseting and other edge cases</a></h2>
 <ol>
 <li>When you're <strong>not</strong> using migrations, the database will reset (delete all its contents) whenever you change the schema version.</li>
 <li>If the migration fails, the database will fail to initialize, and will roll back to previous version. This is unlikely, but could happen if you, for example, create a migration that tries to create the same table twice. The reason why the database will fail instead of reset is to avoid losing user data (also it's less confusing in development). You can notice the problem, fix the migration, and ship it again without data loss.</li>
 <li>When database in the running app has <em>newer</em> database version than the schema version defined in code, the database will reset (clear its contents). This is useful in development</li>
 <li>If there's no available migrations path (e.g. user has app with database version 4, but oldest migration is from version 10 to 11), the database will reset.</li>
 </ol>
-<h3><a class="header" href="#rolling-back-changes" id="rolling-back-changes">Rolling back changes</a></h3>
+<h3 id="rolling-back-changes"><a class="header" href="#rolling-back-changes">Rolling back changes</a></h3>
 <p>There's no automatic &quot;rollback&quot; feature in Watermelon. If you make a mistake in migrations during development, roll back in this order:</p>
 <ol>
 <li>Comment out any changes made to schema.js</li>
@@ -1830,16 +1864,16 @@ export default appSchema({
 <li>Decrement schema version number (bring back the original number)</li>
 </ol>
 <p>After refreshing app, the database should reset to previous state. Now you can correct your mistake and apply changes again (please do it in order described in &quot;Migrations workflow&quot;).</p>
-<h3><a class="header" href="#unsafe-sql-migrations" id="unsafe-sql-migrations">Unsafe SQL migrations</a></h3>
+<h3 id="unsafe-sql-migrations"><a class="header" href="#unsafe-sql-migrations">Unsafe SQL migrations</a></h3>
 <p>Similar to <a href="Advanced/../Schema.html">Schema</a>, you can add <code>unsafeSql</code> parameter to every migration step to modify or replace SQL generated by WatermelonDB to perform the migration. There is also an <code>unsafeExecuteSql('some sql;')</code> step you can use to append extra SQL. Those are ignored with LokiJSAdapter and for the purposes of <a href="Advanced/./Sync.html">migration syncs</a>.</p>
-<h1><a class="header" href="#synchronization" id="synchronization">Synchronization</a></h1>
+<h1 id="synchronization"><a class="header" href="#synchronization">Synchronization</a></h1>
 <p>WatermelonDB has been designed from scratch to be able to seamlessly synchronize with a remote database (and, therefore, keep multiple copies of data synced with each other).</p>
 <p>Note that Watermelon is only a local database — you need to <strong>bring your own backend</strong>. What Watermelon provides are:</p>
 <ul>
 <li><strong>Synchronization primitives</strong> — information about which records were created, updated, or deleted locally since the last sync — and which columns exactly were modified. You can build your own custom sync engine using those primitives</li>
 <li><strong>Built-in sync adapter</strong> — You can use the sync engine Watermelon provides out of the box, and you only need to provide two API endpoints on your backend that conform to Watermelon sync protocol</li>
 </ul>
-<h2><a class="header" href="#using-synchronize-in-your-app" id="using-synchronize-in-your-app">Using <code>synchronize()</code> in your app</a></h2>
+<h2 id="using-synchronize-in-your-app"><a class="header" href="#using-synchronize-in-your-app">Using <code>synchronize()</code> in your app</a></h2>
 <p>To synchronize, you need to pass two functions, <code>pullChanges</code> and <code>pushChanges</code> that talk to your backend and are compatible with Watermelon Sync Protocol. The frontend code will look something like this:</p>
 <pre><code class="language-js">import { synchronize } from '@nozbe/watermelondb/sync'
 
@@ -1847,9 +1881,8 @@ async function mySync() {
   await synchronize({
     database,
     pullChanges: async ({ lastPulledAt, schemaVersion, migration }) =&gt; {
-      const response = await fetch(`https://my.backend/sync`, {
-        body: JSON.stringify({ lastPulledAt, schemaVersion, migration })
-      })
+      const urlParams = `last_pulled_at=${lastPulledAt}&amp;schema_version=${schemaVersion}&amp;migration=${encodeURIComponent(JSON.stringify(migration))}`
+      const response = await fetch(`https://my.backend/sync?${urlParams}`)
       if (!response.ok) {
         throw new Error(await response.text())
       }
@@ -1871,7 +1904,7 @@ async function mySync() {
 }
 
 </code></pre>
-<h3><a class="header" href="#troubleshooting" id="troubleshooting">Troubleshooting</a></h3>
+<h3 id="troubleshooting"><a class="header" href="#troubleshooting">Troubleshooting</a></h3>
 <p><strong>⚠️ Note about a React Native / UglifyES bug</strong>. When you import Watermelon Sync, your app might fail to compile in release mode. To fix this, configure Metro bundler to use Terser instead of UglifyES. Run:</p>
 <pre><code class="language-bash">yarn add metro-minify-terser
 </code></pre>
@@ -1885,7 +1918,7 @@ async function mySync() {
 }
 </code></pre>
 <p>You might also need to switch to Terser in Webpack if you use Watermelon for web.</p>
-<h3><a class="header" href="#implementing-pullchanges" id="implementing-pullchanges">Implementing <code>pullChanges()</code></a></h3>
+<h3 id="implementing-pullchanges"><a class="header" href="#implementing-pullchanges">Implementing <code>pullChanges()</code></a></h3>
 <p>Watermelon will call this function to ask for changes that happened on the server since the last pull.</p>
 <p>Arguments:</p>
 <ul>
@@ -1906,7 +1939,7 @@ async function mySync() {
 </li>
 <li>You MUST NOT store the object returned in <code>pullChanges()</code>. If you need to do any processing on it, do it before returning the object. Watermelon treats this object as &quot;consumable&quot; and can mutate it (for performance reasons)</li>
 </ol>
-<h3><a class="header" href="#implementing-pushchanges" id="implementing-pushchanges">Implementing <code>pushChanges()</code></a></h3>
+<h3 id="implementing-pushchanges"><a class="header" href="#implementing-pushchanges">Implementing <code>pushChanges()</code></a></h3>
 <p>Watermelon will call this function with a list of changes that happened locally since the last push so you can post it to your backend.</p>
 <p>Arguments passed:</p>
 <pre><code class="language-js">{
@@ -1922,7 +1955,17 @@ async function mySync() {
 <li>You MUST NOT resolve sync prematurely or in case of backend failure</li>
 <li>You MUST NOT mutate or store arguments passed to <code>pushChanges()</code>. If you need to do any processing on it, do it before returning the object. Watermelon treats this object as &quot;consumable&quot; and can mutate it (for performance reasons)</li>
 </ol>
-<h3><a class="header" href="#general-information-and-tips" id="general-information-and-tips">General information and tips</a></h3>
+<h3 id="checking-unsynced-changes"><a class="header" href="#checking-unsynced-changes">Checking unsynced changes</a></h3>
+<p>WatermelonDB has a built in function to check whether there are any unsynced changes. The frontend code will look something like this</p>
+<pre><code class="language-js">import { hasUnsyncedChanges } from '@nozbe/watermelondb/sync'
+
+async function checkUnsyncedChanges() {
+  await hasUnsyncedChanges({
+    database
+  })
+}
+</code></pre>
+<h3 id="general-information-and-tips"><a class="header" href="#general-information-and-tips">General information and tips</a></h3>
 <ol>
 <li>You MUST NOT connect to backend endpoints you don't control using <code>synchronize()</code>. WatermelonDB assumes pullChanges/pushChanges are friendly and correct and does not guarantee secure behavior if data returned is malformed.</li>
 <li>You SHOULD NOT call <code>synchronize()</code> while synchronization is already in progress (it will safely abort)</li>
@@ -1930,7 +1973,7 @@ async function mySync() {
 <li>You SHOULD wrap <code>synchronize()</code> in a &quot;retry once&quot; block - if sync fails, try again once. This will resolve push failures due to server-side conflicts by pulling once again before pushing.</li>
 <li>You can use <code>database.withChangesForTables</code> to detect when local changes occured to call sync. If you do this, you should debounce (or throttle) this signal to avoid calling <code>synchronize()</code> too often.</li>
 </ol>
-<h3><a class="header" href="#adopting-migration-syncs" id="adopting-migration-syncs">Adopting Migration Syncs</a></h3>
+<h3 id="adopting-migration-syncs"><a class="header" href="#adopting-migration-syncs">Adopting Migration Syncs</a></h3>
 <p>For Watermelon Sync to maintain consistency after <a href="Advanced/./Migrations.html">migrations</a>, you must support Migration Syncs (introduced in WatermelonDB v0.17). This allows Watermelon to request from backend the tables and columns it needs to have all the data.</p>
 <ol>
 <li>For new apps, pass <code>{migrationsEnabledAtVersion: 1}</code> to <code>synchronize()</code> (or the first schema version that shipped / the oldest schema version from which it's possible to migrate to the current version)</li>
@@ -1940,25 +1983,34 @@ async function mySync() {
 <li>WatermelonDB &gt;=0.17 will note the schema version at which the user logged in, even if migrations are not enabled, so it's possible for app to request from backend changes from schema version lower than <code>migrationsEnabledAtVersion</code></li>
 <li>You MUST NOT delete old <a href="Advanced/./Migrations.html">migrations</a>, otherwise it's possible that the app is permanently unable to sync.</li>
 </ol>
-<h3><a class="header" href="#adding-logging-to-your-sync" id="adding-logging-to-your-sync">Adding logging to your sync</a></h3>
-<p>You can add basic sync logs to the sync process by passing an empty object to <code>synchronize()</code>. Sync will then mutate the object, populating it with diagnostic information (start/finish time, resolved conflicts, and more):</p>
-<pre><code class="language-js">const log = {}
-await synchronize({
-database,
-log,
-...
-})
+<h3 id="adding-logging-to-your-sync"><a class="header" href="#adding-logging-to-your-sync">Adding logging to your sync</a></h3>
+<p>You can add basic sync logs to the sync process by passing an empty object to <code>synchronize()</code>. Sync will then mutate the object, populating it with diagnostic information (start/finish time, resolved conflicts, number of remote/local changes, any errors that occured, and more):</p>
+<pre><code class="language-js">// Using built-in SyncLogger
+import SyncLogger from '@nozbe/watermelondb/sync/SyncLogger'
+const logger = new SyncLogger(10 /* limit of sync logs to keep in memory */ )
+await synchronize({ database, log: logger.newLog(), ... })
+
+// this returns all logs (censored and safe to use in production code)
+console.log(logger.logs)
+// same, but pretty-formatted to a string (a user can easy copy this for diagnostic purposes)
+console.log(logger.formattedLogs)
+
+
+// You don't have to use SyncLogger, just pass a plain object to synchronize()
+const log = {}
+await synchronize({ database, log, ... })
 console.log(log.startedAt)
 console.log(log.finishedAt)
 </code></pre>
-<p>⚠️ Remember to act responsibly with logs, since they might contain your user's private information. Don't display, save, or send the log unless you censor the log. <a href="https://gist.github.com/radex/a0a27761ac348f4a5552ecaf227d500c">Example logger and censor code you can use</a>.</p>
-<h3><a class="header" href="#additional-synchronize-flags" id="additional-synchronize-flags">Additional <code>synchronize()</code> flags</a></h3>
+<p>⚠️ Remember to act responsibly with logs, since they might contain your user's private information. Don't display, save, or send the log unless you censor the log.</p>
+<h3 id="additional-synchronize-flags"><a class="header" href="#additional-synchronize-flags">Additional <code>synchronize()</code> flags</a></h3>
 <ul>
 <li><code>_unsafeBatchPerCollection: boolean</code> - if true, changes will be saved to the database in multiple batches. This is unsafe and breaks transactionality, however may be required for very large syncs due to memory issues</li>
 <li><code>sendCreatedAsUpdated: boolean</code> - if your backend can't differentiate between created and updated records, set this to <code>true</code> to supress warnings. Sync will still work well, however error reporting, and some edge cases will not be handled as well.</li>
+<li><code>conflictResolver: (TableName, local: DirtyRaw, remote: DirtyRaw, resolved: DirtyRaw) =&gt; DirtyRaw</code> - can be passed to customize how records are updated when they change during sync. See <code>src/sync/index.js</code> for details.</li>
 </ul>
-<h2><a class="header" href="#implementing-your-sync-backend" id="implementing-your-sync-backend">Implementing your Sync backend</a></h2>
-<h3><a class="header" href="#understanding-changes-objects" id="understanding-changes-objects">Understanding <code>changes</code> objects</a></h3>
+<h2 id="implementing-your-sync-backend"><a class="header" href="#implementing-your-sync-backend">Implementing your Sync backend</a></h2>
+<h3 id="understanding-changes-objects"><a class="header" href="#understanding-changes-objects">Understanding <code>changes</code> objects</a></h3>
 <p>Synchronized changes (received by the app in <code>pullChanges</code> and sent to the backend in <code>pushChanges</code>) are represented as an object with <em>raw records</em>. Those only use raw table and column names, and raw values (strings/numbers/booleans) — the same as in <a href="Advanced/../Schema.html">Schema</a>.</p>
 <p>Deleted objects are always only represented by their IDs.</p>
 <p>Example:</p>
@@ -1992,7 +2044,7 @@ console.log(log.finishedAt)
   }
 }
 </code></pre>
-<h3><a class="header" href="#implementing-pull-endpoint" id="implementing-pull-endpoint">Implementing pull endpoint</a></h3>
+<h3 id="implementing-pull-endpoint"><a class="header" href="#implementing-pull-endpoint">Implementing pull endpoint</a></h3>
 <p>Expected parameters:</p>
 <pre><code class="language-js">{
   lastPulledAt: Timestamp,
@@ -2011,6 +2063,7 @@ This shape MAY be different if negotiated with the frontend (however, frontend-s
 <li>all records that were created on the server since <code>lastPulledAt</code></li>
 <li>all records that were updated on the server since <code>lastPulledAt</code></li>
 <li>IDs of all records that were deleted on the server since <code>lastPulledAt</code></li>
+<li>record IDs MUST NOT be duplicated</li>
 </ul>
 </li>
 <li>If <code>lastPulledAt</code> is null or 0, you MUST return all accessible records (first sync)</li>
@@ -2054,7 +2107,7 @@ This shape MAY be different if negotiated with the frontend (however, frontend-s
 </li>
 <li>Changes MUST NOT contain collections with arbitrary names, as they may be unsafe. You should whitelist acceptable collection names.</li>
 </ol>
-<h3><a class="header" href="#implementing-push-endpoint" id="implementing-push-endpoint">Implementing push endpoint</a></h3>
+<h3 id="implementing-push-endpoint"><a class="header" href="#implementing-push-endpoint">Implementing push endpoint</a></h3>
 <ol>
 <li>The push endpoint MUST apply local changes (passed as a <code>changes</code> object) to the database. Specifically:
 <ul>
@@ -2099,7 +2152,7 @@ This shape MAY be different if negotiated with the frontend (however, frontend-s
 </ul>
 </li>
 </ol>
-<h3><a class="header" href="#tips-on-implementing-server-side-changes-tracking" id="tips-on-implementing-server-side-changes-tracking">Tips on implementing server-side changes tracking</a></h3>
+<h3 id="tips-on-implementing-server-side-changes-tracking"><a class="header" href="#tips-on-implementing-server-side-changes-tracking">Tips on implementing server-side changes tracking</a></h3>
 <p>If you're wondering how to <em>actually</em> implement consistent pulling of all changes since the last pull, or how to detect that a record being pushed by the user changed after <code>lastPulledAt</code>, here's what we recommend:</p>
 <ul>
 <li>Add a <code>last_modified</code> field to all your server database tables, and bump it to <code>NOW()</code> every time you create or update a record.</li>
@@ -2133,7 +2186,7 @@ This shape MAY be different if negotiated with the frontend (however, frontend-s
 </ul>
 </li>
 </ul>
-<h2><a class="header" href="#local-vs-remote-ids" id="local-vs-remote-ids">Local vs Remote IDs</a></h2>
+<h2 id="local-vs-remote-ids"><a class="header" href="#local-vs-remote-ids">Local vs Remote IDs</a></h2>
 <p>WatermelonDB has been designed with the assumption that there is no difference between Local IDs (IDs of records and their relations in a WatermelonDB database) and Remote IDs (IDs on the backend server). So a local app can create new records, generating their IDs, and the backend server will use this ID as the true ID. This greatly simplifies synchronization, as you don't have to replace local with remote IDs on the record and all records that point to it.</p>
 <p>We highly recommend that you adopt this practice.</p>
 <p>Some people are skeptical about this approach due to conflicts, since backend can guarantee unique IDs, and the local app can't. However, in practice, a standard Watermelon ID has 8,000,000,000,000,000,000,000,000 possible combinations. That's enough entropy to make conflicts extremely unlikely. At <a href="https://nozbe.com">Nozbe</a>, we've done it this way at scale for more than a decade, and not once did we encounter a genuine ID conflict or had other issues due to this approach.</p>
@@ -2141,14 +2194,14 @@ This shape MAY be different if negotiated with the frontend (however, frontend-s
 <p>Using the birthday problem, we can calculate that for 36^16 possible IDs, if your system grows to a billion records, the probability of a single conflict is 6e-8. At 100B records, the probability grows to 0.06%. But if you grow to that many records, you're probably a very rich company and can start worrying about things like this <em>then</em>.</p>
 </blockquote>
 <p>If you absolutely can't adopt this practice, there's a number of production apps using WatermelonDB that keep local and remote IDs separate — however, more work is required this way. Search Issues to find discussions about this topic — and consider contributing to WatermelonDB to make managing separate local IDs easier for everyone!</p>
-<h2><a class="header" href="#existing-backend-implementations-for-watermelondb" id="existing-backend-implementations-for-watermelondb">Existing backend implementations for WatermelonDB</a></h2>
+<h2 id="existing-backend-implementations-for-watermelondb"><a class="header" href="#existing-backend-implementations-for-watermelondb">Existing backend implementations for WatermelonDB</a></h2>
 <p>Note that those are not maintained by WatermelonDB, and we make no endorsements about quality of these projects:</p>
 <ul>
 <li><a href="https://fahri.id/posts/how-to-build-watermelondb-sync-backend-in-elixir/">How to Build WatermelonDB Sync Backend in Elixir</a></li>
 <li><a href="https://github.com/AliAllaf/firemelon">Firemelon</a></li>
 <li>Did you make one? Please contribute a link!</li>
 </ul>
-<h2><a class="header" href="#current-sync-limitations" id="current-sync-limitations">Current Sync limitations</a></h2>
+<h2 id="current-sync-limitations"><a class="header" href="#current-sync-limitations">Current Sync limitations</a></h2>
 <ol>
 <li>If a record being pushed changes between pull and push, push will just fail. It would be better if it failed with a list of conflicts, so that <code>synchronize()</code> can automatically respond. Alternatively, sync could only send changed fields and server could automatically always just apply those changed fields to the server version (since that's what per-column client-wins resolver will do anyway)</li>
 <li>During next sync pull, changes we've just pushed will be pulled again, which is unnecessary. It would be better if server, during push, also pulled local changes since <code>lastPulledAt</code> and responded with NEW timestamp to be treated as <code>lastPulledAt</code>.</li>
@@ -2158,18 +2211,19 @@ This shape MAY be different if negotiated with the frontend (however, frontend-s
 <p>Note: That might conflict with &quot;If client wants to update a record that doesn’t exist, create it&quot;</p>
 </blockquote>
 <p>You don't like these limitations? Good, neither do we! Please contribute - we'll give you guidance.</p>
-<h2><a class="header" href="#contributing-1" id="contributing-1">Contributing</a></h2>
+<h2 id="contributing-1"><a class="header" href="#contributing-1">Contributing</a></h2>
 <ol>
 <li>If you implement Watermelon sync but found this guide confusing, please contribute improvements!</li>
 <li>Please help out with solving the current limitations!</li>
 <li>If you write server-side code made to be compatible with Watermelon, especially for popular platforms (Node, Ruby on Rails, Kinto, etc.) - please open source it and let us know! This would dramatically simplify implementing sync for people</li>
 <li>If you find Watermelon sync bugs, please report the issue! And if possible, write regression tests to make sure it never happens again</li>
 </ol>
-<h2><a class="header" href="#sync-primitives-and-implementing-your-own-sync-entirely-from-scratch" id="sync-primitives-and-implementing-your-own-sync-entirely-from-scratch">Sync primitives and implementing your own sync entirely from scratch</a></h2>
+<h2 id="sync-primitives-and-implementing-your-own-sync-entirely-from-scratch"><a class="header" href="#sync-primitives-and-implementing-your-own-sync-entirely-from-scratch">Sync primitives and implementing your own sync entirely from scratch</a></h2>
 <p>See: <a href="Advanced/../Implementation/SyncImpl.html">Sync implementation details</a></p>
-<h1><a class="header" href="#createupdate-tracking" id="createupdate-tracking">Create/Update tracking</a></h1>
+<h1 id="createupdate-tracking"><a class="header" href="#createupdate-tracking">Create/Update tracking</a></h1>
 <p>You can add per-table support for create/update tracking. When you do this, the Model will have information about when it was created, and when it was last updated.</p>
-<h3><a class="header" href="#when-to-use-this" id="when-to-use-this">When to use this</a></h3>
+<p>:warning: <strong>Note:</strong> WatermelonDB automatically sets and persists the <code>created_at</code>/<code>updated_at</code> fields if they are present as <em>millisecond</em> epoch's. If you intend to interact with these properties in any way you should always treat them as such.</p>
+<h3 id="when-to-use-this"><a class="header" href="#when-to-use-this">When to use this</a></h3>
 <p><strong>Use create tracking</strong>:</p>
 <ul>
 <li>When you display to the user when a thing (e.g. a Post, Comment, Task) was created</li>
@@ -2179,8 +2233,12 @@ This shape MAY be different if negotiated with the frontend (however, frontend-s
 <ul>
 <li>When you display to the user when a thing (e.g. a Post) was modified</li>
 </ul>
-<p><strong>Note</strong>: you <em>don't have to</em> enable both create and update tracking. You can do either, both, or none.</p>
-<h3><a class="header" href="#how-to-do-this" id="how-to-do-this">How to do this</a></h3>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li>you <em>don't have to</em> enable both create and update tracking. You can do either, both, or none.</li>
+<li>In your model, these fields need to be called createdAt and updatedAt respectively.</li>
+</ul>
+<h3 id="how-to-do-this"><a class="header" href="#how-to-do-this">How to do this</a></h3>
 <p><strong>Step 1:</strong> Add to the <a href="Advanced/../Schema.html">schema</a>:</p>
 <pre><code class="language-js">tableSchema({
   name: 'posts',
@@ -2201,11 +2259,11 @@ class Post extends Model {
 }
 </code></pre>
 <p>Again, you can add just <code>created_at</code> column and field if you don't need update tracking.</p>
-<h3><a class="header" href="#how-this-behaves" id="how-this-behaves">How this behaves</a></h3>
+<h3 id="how-this-behaves"><a class="header" href="#how-this-behaves">How this behaves</a></h3>
 <p>If you have the magic <code>createdAt</code> field defined on the Model, the current timestamp will be set when you first call <code>collection.create()</code> or <code>collection.prepareCreate()</code>. It will never be modified again.</p>
 <p>If the magic <code>updatedAt</code> field is also defined, then after creation, <code>model.updatedAt</code> will have the same value as <code>model.createdAt</code>. Then every time you call <code>model.update()</code> or <code>model.prepareUpdate()</code>, <code>updatedAt</code> will be changed to the current timestamp.</p>
-<h1><a class="header" href="#advanced-fields-1" id="advanced-fields-1">Advanced Fields</a></h1>
-<h2><a class="header" href="#text" id="text"><code>@text</code></a></h2>
+<h1 id="advanced-fields-1"><a class="header" href="#advanced-fields-1">Advanced Fields</a></h1>
+<h2 id="text"><a class="header" href="#text"><code>@text</code></a></h2>
 <p>You can use <code>@text</code> instead of <code>@field</code> to enable user text sanitization. When setting a new value on a <code>@text</code> field, excess whitespace will be trimmed from both ends from the string.</p>
 <pre><code class="language-js">import { text } from '@nozbe/watermelondb/decorators'
 
@@ -2214,7 +2272,7 @@ class Post extends Model {
   @text('body') body
 }
 </code></pre>
-<h2><a class="header" href="#json" id="json"><code>@json</code></a></h2>
+<h2 id="json"><a class="header" href="#json"><code>@json</code></a></h2>
 <p>If you have a lot of metadata about a record (say, an object with many keys, or an array of values), you can use a <code>@json</code> field to contain that information in a single string column (serialized to JSON) instead of adding multiple columns or a relation to another table.</p>
 <p>⚠️ This is an advanced feature that comes with downsides — make sure you really need it</p>
 <p>First, add a string column to <a href="Advanced/../Schema.html">the schema</a>:</p>
@@ -2252,7 +2310,7 @@ class Comment extends Model {
 <p><strong>Warning about JSON fields</strong>:</p>
 <p>JSON fields go against relational, lazy nature of Watermelon, because <strong>you can't query or count by the contents of JSON fields</strong>. If you need or might need in the future to query records by some piece of data, don't use JSON.</p>
 <p>Only use JSON fields when you need the flexibility of complex freeform data, or the speed of having metadata without querying another table, and you are sure that you won't need to query by those metadata.</p>
-<h2><a class="header" href="#nochange" id="nochange"><code>@nochange</code></a></h2>
+<h2 id="nochange"><a class="header" href="#nochange"><code>@nochange</code></a></h2>
 <p>For extra protection, you can mark fields as <code>@nochange</code> to ensure they can't be modified. Always put <code>@nochange</code> before <code>@field</code> / <code>@date</code> / <code>@text</code></p>
 <pre><code class="language-js">import { field, nochange } from '@nozbe/watermelondb/decorators'
 
@@ -2262,9 +2320,9 @@ class User extends Model {
 }
 </code></pre>
 <p><code>user.isOwner</code> can only be set in the <code>collection.create()</code> block, but will throw an error if you try to set a new value in <code>user.update()</code> block.</p>
-<h3><a class="header" href="#readonly" id="readonly"><code>@readonly</code></a></h3>
+<h3 id="readonly"><a class="header" href="#readonly"><code>@readonly</code></a></h3>
 <p>Similar to <code>@nochange</code>, you can use the <code>@readonly</code> decorator to ensure a field cannot be set at all. Use this for <a href="Advanced/./CreateUpdateTracking.html">create/update tracking</a>, but it might also be useful if you use Watermelon with a <a href="Advanced/../Advanced/Sync.html">Sync engine</a> and a field can only be set by the server.</p>
-<h2><a class="header" href="#custom-observable-fields" id="custom-observable-fields">Custom observable fields</a></h2>
+<h2 id="custom-observable-fields"><a class="header" href="#custom-observable-fields">Custom observable fields</a></h2>
 <p>You're in advanced <a href="https://github.com/ReactiveX/rxjs">RxJS</a> territory now! You have been warned.</p>
 <p>Say, you have a Post model that has many Comments. And a Post is considered to be &quot;popular&quot; if it has more than 10 comments.</p>
 <p>You can add a &quot;popular&quot; badge to a Post component in two ways.</p>
@@ -2322,17 +2380,17 @@ class Post extends Model {
 <li><code>distinctUntilKeyChanged('isStarred')</code> - for performance, so that we don't re-subscribe to comment count Observable if the post changes (only if the <code>isStarred</code> field changes)</li>
 <li><code>distinctUntilChanged()</code> - again, don't emit new values, if popularity doesn't change</li>
 </ul>
-<h1><a class="header" href="#watermelon--flow" id="watermelon--flow">Watermelon ❤️ Flow</a></h1>
+<h1 id="watermelon--flow"><a class="header" href="#watermelon--flow">Watermelon ❤️ Flow</a></h1>
 <p>Watermelon was developed with <a href="https://flow.org">Flow</a> in mind.</p>
 <p>If you're a Flow user yourself (and we highly recommend it!), here's some things you need to keep in mind:</p>
-<h2><a class="header" href="#setup" id="setup">Setup</a></h2>
+<h2 id="setup"><a class="header" href="#setup">Setup</a></h2>
 <p>Add this to your <code>.flowconfig</code> file so that Flow can see Watermelon's types.</p>
 <pre><code class="language-ini">[options]
 
 module.name_mapper='^@nozbe/watermelondb\(.*\)$' -&gt; '&lt;PROJECT_ROOT&gt;/node_modules/@nozbe/watermelondb/src\1'
 </code></pre>
 <p>Note that this won't work if you put the entire <code>node_modules/</code> folder under the <code>[ignore]</code> section. In that case, change it to only ignore the specific node modules that throw errors in your app, so that Flow can scan Watermelon files.</p>
-<h2><a class="header" href="#tables-and-columns" id="tables-and-columns">Tables and columns</a></h2>
+<h2 id="tables-and-columns"><a class="header" href="#tables-and-columns">Tables and columns</a></h2>
 <p>Table and column names are <strong>opaque types</strong> in Flow.</p>
 <p>So if you try to use simple strings, like so:</p>
 <pre><code class="language-js">class Comment extends Model {
@@ -2392,7 +2450,7 @@ export default class Comment extends Model {
   @text(Column.body) body: string
 }
 </code></pre>
-<h3><a class="header" href="#but-isnt-that-a-lot-of-boilerplate" id="but-isnt-that-a-lot-of-boilerplate">But isn't that a lot of boilerplate?</a></h3>
+<h3 id="but-isnt-that-a-lot-of-boilerplate"><a class="header" href="#but-isnt-that-a-lot-of-boilerplate">But isn't that a lot of boilerplate?</a></h3>
 <p>Yes, it looks more boilerplate'y than the non-Flow examples, however:</p>
 <ul>
 <li>you're protected from typos — strings are defined once</li>
@@ -2401,7 +2459,7 @@ export default class Comment extends Model {
 <li><code>TableName</code> is typed with the model class it refers to, which allows Flow to find other mistakes in your code</li>
 </ul>
 <p>In general, we find that untyped string constants lead to bugs, and defining typed constants is a good practice.</p>
-<h3><a class="header" href="#associations-1" id="associations-1">associations</a></h3>
+<h3 id="associations-1"><a class="header" href="#associations-1">associations</a></h3>
 <p>When using Flow, you define model associations like this:</p>
 <pre><code class="language-js">import { Model, associations } from '@nozbe/watermelondb'
 import { Tables, Columns } from './schema.js'
@@ -2416,7 +2474,7 @@ class Post extends Model {
   )
 }
 </code></pre>
-<h2><a class="header" href="#common-types" id="common-types">Common types</a></h2>
+<h2 id="common-types"><a class="header" href="#common-types">Common types</a></h2>
 <p>Many types are tagged with the model class the type refers to:</p>
 <pre><code class="language-js">TableName&lt;Post&gt; // a table name referring to posts
 Collection&lt;Post&gt; // the Collection for posts
@@ -2431,7 +2489,7 @@ Query&lt;Comment&gt; // a query that can fetch many Comments
 </code></pre>
 <p>If you need to refer to an ID of a record, always use the <code>RecordId</code> type alias, not <code>string</code> (they're the same, but the former is self-documenting).</p>
 <p>If you ever access the record's raw data (DON'T do that unless you <em>really</em> know what you're doing), use <code>DirtyRaw</code> to refer to raw data from external sources (database, server), and <code>RawRecord</code> after it was passed through <code>sanitizedRaw</code>.</p>
-<h1><a class="header" href="#local-storage" id="local-storage">Local storage</a></h1>
+<h1 id="local-storage"><a class="header" href="#local-storage">Local storage</a></h1>
 <p>WatermelonDB has a simple key/value store, similar to <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage">localStorage</a>:</p>
 <pre><code class="language-js">// setting a value
 await database.adapter.setLocal(&quot;user_id&quot;, &quot;abcdef&quot;)
@@ -2446,19 +2504,19 @@ await database.adapter.removeLocal(&quot;user_id&quot;)
 <p><strong>This is a low-level API</strong>. You can't do things like observe changes of a value over time. If you need that, just use standard WatermelonDB records. Also, you can only store strings. You can build your own abstraction that (de)serializes those values to/from JSON.</p>
 <p><strong>What to be aware of</strong>. DO NOT let the local storage key be a user-supplied value. Only allow predefined/whitelisted keys.</p>
 <p><strong>Why not use localStorage/AsyncStorage?</strong> Because this way, you have only one source of truth — one database that, say, stores the logged-in user ID and the information about all users. So there's a lower risk that the two sets of values get out of sync.</p>
-<h1><a class="header" href="#various-pro-tips" id="various-pro-tips">Various Pro Tips</a></h1>
-<h2><a class="header" href="#database-viewer" id="database-viewer">Database viewer</a></h2>
-<p><strong>Android</strong> - you can use the new database inspector which comes with the Android Studio Beta. https://medium.com/androiddevelopers/database-inspector-9e91aa265316</p>
+<h1 id="various-pro-tips"><a class="header" href="#various-pro-tips">Various Pro Tips</a></h1>
+<h2 id="database-viewer"><a class="header" href="#database-viewer">Database viewer</a></h2>
+<p><strong>Android</strong> - you can use the new database inspector which comes with the Android Studio Beta. https://medium.com/androiddevelopers/database-inspector-9e91aa265316  . You can also use Facebook Flipper with this plugin: https://github.com/panz3r/react-native-flipper-databases#readme</p>
 <p><strong>iOS</strong> - check open database path in iOS System Log (via Console for plugged-in device, or Xcode logs), then open it via <code>sqlite3</code> in the console, or an external tool like https://sqlitebrowser.org</p>
-<h2><a class="header" href="#prepopulating-database-on-native" id="prepopulating-database-on-native">Prepopulating database on native</a></h2>
+<h2 id="prepopulating-database-on-native"><a class="header" href="#prepopulating-database-on-native">Prepopulating database on native</a></h2>
 <p>There's no built-in support for this. One way is to generate a SQLite DB (you can use the the Node SQLite support in 0.19.0-2 pre-release or extract it from an ios/android app), bundle it with the app, and then use a bit of code to check if the DB you're expecting it available, and if not, making a copy of the default DB — before you attempt loading DB from JS side. See this thread: https://github.com/Nozbe/WatermelonDB/issues/774#issuecomment-667981361</p>
-<h1><a class="header" href="#performance" id="performance">Performance</a></h1>
+<h1 id="performance"><a class="header" href="#performance">Performance</a></h1>
 <p>Performance tips — TODO</p>
-<h2><a class="header" href="#dig-deeper-into-watermelondb" id="dig-deeper-into-watermelondb">Dig deeper into WatermelonDB</a></h2>
+<h2 id="dig-deeper-into-watermelondb"><a class="header" href="#dig-deeper-into-watermelondb">Dig deeper into WatermelonDB</a></h2>
 <p>Details about how Watermelon works, how to hack and contribute</p>
 <p><a href="https://www.youtube.com/watch?v=uFvHURTRLxQ">📺 Digging deeper into WatermelonDB</a> — more architectural info about caching, observation, and sync</p>
-<h1><a class="header" href="#architecture" id="architecture">Architecture</a></h1>
-<h2><a class="header" href="#base-objects" id="base-objects">Base objects</a></h2>
+<h1 id="architecture"><a class="header" href="#architecture">Architecture</a></h1>
+<h2 id="base-objects"><a class="header" href="#base-objects">Base objects</a></h2>
 <p><code>Database</code> is the root object of Watermelon. It owns:</p>
 <ul>
 <li>a <code>DatabaseAdapter</code></li>
@@ -2486,13 +2544,13 @@ await database.adapter.removeLocal(&quot;user_id&quot;)
 <li>fetch/observe methods actually delegate to <code>Collection</code> to perform database operations</li>
 <li>caches <code>Observable</code>s created by <code>observe/observeCount</code> methods so they can be reused and shared</li>
 </ul>
-<h2><a class="header" href="#helper-functions" id="helper-functions">Helper functions</a></h2>
+<h2 id="helper-functions"><a class="header" href="#helper-functions">Helper functions</a></h2>
 <p>Watermelon's objects and classes are meant to be as minimal as possible — only manage their own state and be an API for your app. Most logic should be stateless, and implemented as pure functions:</p>
 <p><code>QueryDescription</code> is a structure (object) describing the query, built using <code>Q.*</code> helper functions</p>
 <p><code>encodeMatcher()</code>, <code>simpleObserver()</code>, <code>reloadingObserver()</code>, <code>fieldObserver()</code> implement query observation logic (See <a href="Implementation/./Observation.html">Observation</a>.)</p>
 <p>Model decorators transform simple class properties into Watermelon-aware record fields.</p>
 <p>Much of Adapters' logic is implemented as pure functions too. See <a href="Implementation/./Adapters.html">Adapters</a>.</p>
-<h1><a class="header" href="#database-adapters" id="database-adapters">Database adapters</a></h1>
+<h1 id="database-adapters"><a class="header" href="#database-adapters">Database adapters</a></h1>
 <p>The idea for the <a href="Implementation/./Architecture.html">Watermelon architecture</a> is to be database-agnostic. <code>Watermelon</code> is a cross-platform high-level layer for dealing with data, but can be plugged in to any underlying database, depending on platform needs.</p>
 <p>Think of it this way:</p>
 <ul>
@@ -2501,7 +2559,7 @@ await database.adapter.removeLocal(&quot;user_id&quot;)
 </ul>
 <p>The adapter merely performs simple CRUD (create/read/update/delete) operations.</p>
 <p><code>DatabaseAdapter</code> is a Flow <em>interface</em>. Watermelon comes with two concrete implementations:</p>
-<h2><a class="header" href="#react-native" id="react-native">React Native</a></h2>
+<h2 id="react-native"><a class="header" href="#react-native">React Native</a></h2>
 <p><code>SQLiteAdapter</code> is an adapter for React Native, based on SQLite:</p>
 <ul>
 <li>Queries are converted to SQL on app thread using <code>adapters/sqlite/encodeQuery</code></li>
@@ -2511,7 +2569,7 @@ await database.adapter.removeLocal(&quot;user_id&quot;)
 <li><code>DatabaseDriver</code> implements Watermelon-specific logic (caching, etc.)</li>
 <li><code>Database</code> is a simple SQLite abstraction layer (over <a href="https://github.com/ccgus/fmdb">FMDB</a> on iOS and built-in <code>sqlite.SQLiteDatabase</code> on Android)</li>
 </ul>
-<h2><a class="header" href="#web" id="web">Web</a></h2>
+<h2 id="web"><a class="header" href="#web">Web</a></h2>
 <p><code>LokiJSAdapter</code> is an adapter for the web, based around <a href="http://techfort.github.io/LokiJS/">LokiJS</a>:</p>
 <ul>
 <li>Why LokiJS? WebSQL would be a perfect fit for Watermelon, but sadly is a dead API, so we must use IndexedDB, but it's too low-level. LokiJS implements a fast querying API on top of IndexedDB.</li>
@@ -2522,19 +2580,19 @@ await database.adapter.removeLocal(&quot;user_id&quot;)
 <li><code>encodeQuery</code> translates <code>QueryDescription</code> objects to Loki query objects</li>
 <li><code>executeQuery</code> implements join queries (<code>Q.on</code>), which Loki does not support</li>
 </ul>
-<h2><a class="header" href="#writing-your-own-adapter" id="writing-your-own-adapter">Writing your own adapter</a></h2>
+<h2 id="writing-your-own-adapter"><a class="header" href="#writing-your-own-adapter">Writing your own adapter</a></h2>
 <p>If you want to write a new adapter, please contact <a href="https://github.com/radex">@radex</a> for more information.</p>
 <p>⚠️ TODO: This section needs more concrete tips</p>
-<h1><a class="header" href="#sync-implementation-details" id="sync-implementation-details">Sync implementation details</a></h1>
+<h1 id="sync-implementation-details"><a class="header" href="#sync-implementation-details">Sync implementation details</a></h1>
 <p>If you're looking for a guide to implement Watermelon Sync in your app, see <a href="Implementation/../Advanced/Sync.html"><strong>Synchronization</strong></a>.</p>
 <p>If you want to contribute to Watermelon Sync, or implement your own synchronization engine from scratch, read this.</p>
-<h2><a class="header" href="#implementing-your-own-sync-from-scratch" id="implementing-your-own-sync-from-scratch">Implementing your own sync from scratch</a></h2>
+<h2 id="implementing-your-own-sync-from-scratch"><a class="header" href="#implementing-your-own-sync-from-scratch">Implementing your own sync from scratch</a></h2>
 <p>For basic details about how changes tracking works, see: <a href="https://www.youtube.com/watch?v=uFvHURTRLxQ">📺 Digging deeper into WatermelonDB</a></p>
 <p>Why you might want to implement a custom sync engine? If you have an existing remote server architecture that's difficult to adapt to Watermelon sync protocol, or you specifically want a different architecture (e.g. single HTTP request -- server resolves conflicts). Be warned, however, that <strong>implementing sync that works reliably</strong> is a hard problem, so we recommend sticking to Watermelon Sync and tweaking it as needed.</p>
 <p>The rest of this document contains details about how Watermelon Sync works - you can use that as a blueprint for your own work.</p>
 <p>If possible, please use sync implementation helpers from <code>sync/*.js</code> to keep your custom sync implementation have as much commonality as possible with the standard implementation. This is good both for you and for the rest of WatermelonDB community, as we get to share improvements and bug fixes. If the helpers are <em>almost</em> what you need, but not quite, please send pull requests with improvements!</p>
-<h2><a class="header" href="#watermelon-sync----details" id="watermelon-sync----details">Watermelon Sync -- Details</a></h2>
-<h3><a class="header" href="#general-design" id="general-design">General design</a></h3>
+<h2 id="watermelon-sync----details"><a class="header" href="#watermelon-sync----details">Watermelon Sync -- Details</a></h2>
+<h3 id="general-design"><a class="header" href="#general-design">General design</a></h3>
 <ul>
 <li>master/replica - server is the source of truth, client has a full copy and syncs back to server (no peer-to-peer syncs)</li>
 <li>two phase sync: first pull remote changes to local app, then push local changes to server</li>
@@ -2551,7 +2609,7 @@ local changes need to be pushed)</li>
 <li>non-blocking: local database writes (but not reads) are only momentarily locked when writing data
 but user can safely make new changes throughout the process</li>
 </ul>
-<h3><a class="header" href="#sync-procedure" id="sync-procedure">Sync procedure</a></h3>
+<h3 id="sync-procedure"><a class="header" href="#sync-procedure">Sync procedure</a></h3>
 <ol>
 <li>Pull phase</li>
 </ol>
@@ -2632,7 +2690,7 @@ all changes reverted, and server responds with an error</li>
 </ul>
 </li>
 </ul>
-<h3><a class="header" href="#notes" id="notes">Notes</a></h3>
+<h3 id="notes"><a class="header" href="#notes">Notes</a></h3>
 <ul>
 <li>This procedure is designed such that if sync fails at any moment, and even leaves local app in
 inconsistent (not fully synced) state, we should still achieve consistency with the next sync:
@@ -2649,7 +2707,7 @@ unless there's a per-record conflict (then push fails, but next sync resolves bo
 </ul>
 </li>
 </ul>
-<h3><a class="header" href="#migration-syncs" id="migration-syncs">Migration Syncs</a></h3>
+<h3 id="migration-syncs"><a class="header" href="#migration-syncs">Migration Syncs</a></h3>
 <p>Schema versioning and migrations complicate sync, because a client might not be able to sync some tables and columns, but after upgrade to the newest version, it should be able to get consistent sync. To be able
 to do that, we need to know what's the schema version at which the last sync occured. Unfortunately,
 Watermelon Sync didn't track that from the first version, so backwards-compat is required.</p>
@@ -2680,7 +2738,7 @@ null    X       X       10      null        YES          first sync. regardless 
 100     9       11      10      ERROR       NO           LS &gt; CV indicates programmer error
 100     11      X       10      ERROR       NO           MEA &gt; CV indicates programmer error
 </code></pre>
-<h3><a class="header" href="#reference" id="reference">Reference</a></h3>
+<h3 id="reference"><a class="header" href="#reference">Reference</a></h3>
 <p>This design has been informed by:</p>
 <ul>
 <li>10 years of experience building synchronization at Nozbe</li>
@@ -2692,28 +2750,28 @@ null    X       X       10      null        YES          first sync. regardless 
 </li>
 <li>Histo - https://github.com/mirkokiefer/syncing-thesis</li>
 </ul>
-<h2><a class="header" href="#dig-deeper-into-watermelondb-1" id="dig-deeper-into-watermelondb-1">Dig deeper into WatermelonDB</a></h2>
+<h2 id="dig-deeper-into-watermelondb-1"><a class="header" href="#dig-deeper-into-watermelondb-1">Dig deeper into WatermelonDB</a></h2>
 <p>Details about how Watermelon works, how to hack and contribute</p>
 <p><a href="https://www.youtube.com/watch?v=uFvHURTRLxQ">📺 Digging deeper into WatermelonDB</a> — more architectural info about caching, observation, and sync</p>
-<h1><a class="header" href="#watermelondb-roadmap" id="watermelondb-roadmap">WatermelonDB Roadmap</a></h1>
-<h2><a class="header" href="#from-today-to-10" id="from-today-to-10">From today to 1.0</a></h2>
+<h1 id="watermelondb-roadmap"><a class="header" href="#watermelondb-roadmap">WatermelonDB Roadmap</a></h1>
+<h2 id="from-today-to-10"><a class="header" href="#from-today-to-10">From today to 1.0</a></h2>
 <p>WatermelonDB is currently in active development at <a href="https://nozbe.com">Nozbe</a> for use in advanced projects. It's mostly feature-complete. However, there are a few features left before we can call it 1.0.</p>
-<h3><a class="header" href="#v0xxx" id="v0xxx">v0.xxx</a></h3>
+<h3 id="v0xxx"><a class="header" href="#v0xxx">v0.xxx</a></h3>
 <ul>
 <li>Full transactionality (atomicity) support ???</li>
 <li>Field sanitizers</li>
 <li>Optimized tree deleting</li>
 <li>API improvements</li>
 </ul>
-<h3><a class="header" href="#v10" id="v10">v1.0</a></h3>
+<h3 id="v10"><a class="header" href="#v10">v1.0</a></h3>
 <p>Everything above plus having at least one non-trivial app using WatermelonDB in production to verify its concepts</p>
-<h3><a class="header" href="#beyond-10" id="beyond-10">Beyond 1.0</a></h3>
+<h3 id="beyond-10"><a class="header" href="#beyond-10">Beyond 1.0</a></h3>
 <ul>
 <li>Replace <code>withObservables</code> HOC and Prefetching with a solution based on React 17 Suspense feature</li>
 <li>Query templates</li>
 </ul>
-<h1><a class="header" href="#contributing-guidelines" id="contributing-guidelines">Contributing guidelines</a></h1>
-<h2><a class="header" href="#before-you-send-a-pull-request" id="before-you-send-a-pull-request">Before you send a pull request</a></h2>
+<h1 id="contributing-guidelines"><a class="header" href="#contributing-guidelines">Contributing guidelines</a></h1>
+<h2 id="before-you-send-a-pull-request"><a class="header" href="#before-you-send-a-pull-request">Before you send a pull request</a></h2>
 <ol>
 <li>
 <p><strong>Did you add or changed some functionality?</strong></p>
@@ -2734,13 +2792,13 @@ null    X       X       10      null        YES          first sync. regardless 
 <p>Put a one-line description of your change under Added/Changed section. See <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>.</p>
 </li>
 </ol>
-<h2><a class="header" href="#running-watermelon-in-development" id="running-watermelon-in-development">Running Watermelon in development</a></h2>
-<h3><a class="header" href="#download-source-and-dependencies" id="download-source-and-dependencies">Download source and dependencies</a></h3>
+<h2 id="running-watermelon-in-development"><a class="header" href="#running-watermelon-in-development">Running Watermelon in development</a></h2>
+<h3 id="download-source-and-dependencies"><a class="header" href="#download-source-and-dependencies">Download source and dependencies</a></h3>
 <pre><code class="language-bash">git clone https://github.com/Nozbe/WatermelonDB.git
 cd WatermelonDB
 yarn
 </code></pre>
-<h3><a class="header" href="#developing-watermelon-alongside-your-app" id="developing-watermelon-alongside-your-app">Developing Watermelon alongside your app</a></h3>
+<h3 id="developing-watermelon-alongside-your-app"><a class="header" href="#developing-watermelon-alongside-your-app">Developing Watermelon alongside your app</a></h3>
 <p>To work on Watermelon code in the sandbox of your app:</p>
 <pre><code class="language-bash">yarn dev
 </code></pre>
@@ -2753,7 +2811,7 @@ ln -s path-to-watermelondb/dev watermelondb
 <p><strong>This will work in Webpack but not in Metro</strong> (React Native). Metro doesn't follow symlinks. Instead, you can compile WatermelonDB directly to your project:</p>
 <pre><code class="language-bash">DEV_PATH=&quot;/path/to/your/app/node_modules/@nozbe/watermelondb&quot; yarn dev
 </code></pre>
-<h3><a class="header" href="#running-tests" id="running-tests">Running tests</a></h3>
+<h3 id="running-tests"><a class="header" href="#running-tests">Running tests</a></h3>
 <p>This runs Jest, ESLint and Flow:</p>
 <pre><code class="language-bash">yarn ci:check
 </code></pre>
@@ -2762,27 +2820,27 @@ ln -s path-to-watermelondb/dev watermelondb
 yarn eslint
 yarn flow
 </code></pre>
-<h3><a class="header" href="#editing-files" id="editing-files">Editing files</a></h3>
+<h3 id="editing-files"><a class="header" href="#editing-files">Editing files</a></h3>
 <p>We recommend VS Code with ESLint, Flow, and Prettier (with prettier-eslint enabled) plugins for best development experience. (To see lint/type issues inline + have automatic reformatting of code)</p>
-<h2><a class="header" href="#editing-native-code" id="editing-native-code">Editing native code</a></h2>
+<h2 id="editing-native-code"><a class="header" href="#editing-native-code">Editing native code</a></h2>
 <p>In <code>native/ios</code> and <code>native/android</code> you'll find the native bridge code for React Native.</p>
 <p>It's recommended to use the latest stable version of Xcode / Android Studio to work on that code.</p>
-<h3><a class="header" href="#integration-tests" id="integration-tests">Integration tests</a></h3>
+<h3 id="integration-tests"><a class="header" href="#integration-tests">Integration tests</a></h3>
 <p>If you change native bridge code or <code>adapter/sqlite</code> code, it's recommended to run integration tests that run the entire Watermelon code with SQLite and React Native in the loop:</p>
 <pre><code class="language-bash">yarn test:ios
 yarn test:android
 </code></pre>
-<h3><a class="header" href="#running-tests-manualy" id="running-tests-manualy">Running tests manualy</a></h3>
+<h3 id="running-tests-manualy"><a class="header" href="#running-tests-manualy">Running tests manualy</a></h3>
 <ul>
 <li>For iOS open the <code>native/iosTest/WatermelonTester.xcworkspace</code> project and hit Cmd+U.</li>
 <li>For Android open <code>native/androidTest</code> in AndroidStudio navigate to <code>app/src/androidTest/java/com.nozbe.watermelonTest/BridgeTest</code> and click green arrow near <code>class BridgeTest</code></li>
 </ul>
-<h3><a class="header" href="#native-linting" id="native-linting">Native linting</a></h3>
+<h3 id="native-linting"><a class="header" href="#native-linting">Native linting</a></h3>
 <p>Make sure the native code you're editing conforms to Watermelon standards:</p>
 <pre><code class="language-bash">yarn swiftlint
 yarn ktlint
 </code></pre>
-<h3><a class="header" href="#native-code-troubleshooting" id="native-code-troubleshooting">Native code troubleshooting</a></h3>
+<h3 id="native-code-troubleshooting"><a class="header" href="#native-code-troubleshooting">Native code troubleshooting</a></h3>
 <ol>
 <li>If <code>test:ios</code> fails in terminal:</li>
 </ol>
@@ -2799,11 +2857,69 @@ yarn ktlint
 <li>Android: <code>.gradle</code> and <code>build</code> folders in <code>native/android</code> and <code>native/androidTest</code></li>
 <li><code>node_modules</code> (because of React Native precompiled third party libraries)</li>
 </ul>
-<h1><a class="header" href="#changelog" id="changelog">Changelog</a></h1>
+<h1 id="changelog"><a class="header" href="#changelog">Changelog</a></h1>
 <p>All notable changes to this project will be documented in this file.</p>
 <p>Contributors: Please add your changes to CHANGELOG-Unreleased.md</p>
-<h2><a class="header" href="#019---2020-08-17" id="019---2020-08-17">0.19 - 2020-08-17</a></h2>
-<h3><a class="header" href="#new-features" id="new-features">New features</a></h3>
+<h2 id="021---2021-03-24"><a class="header" href="#021---2021-03-24">0.21 - 2021-03-24</a></h2>
+<h3 id="breaking-changes"><a class="header" href="#breaking-changes">BREAKING CHANGES</a></h3>
+<ul>
+<li>[LokiJS] <code>useWebWorker</code> and <code>useIncrementalIndexedDB</code> options are now required (previously, skipping them would only trigger a warning)</li>
+</ul>
+<h3 id="new-features"><a class="header" href="#new-features">New features</a></h3>
+<ul>
+<li>[Model] <code>Model.update</code> method now returns updated record</li>
+<li>[adapters] <code>onSetUpError: Error =&gt; void</code> option is added to both <code>SQLiteAdapter</code> and <code>LokiJSAdapter</code>. Supply this option to catch initialization errors and offer the user to reload or log out</li>
+<li>[LokiJS] new <code>extraLokiOptions</code> and <code>extraIncrementalIDBOptions</code> options</li>
+<li>[Android] Autolinking is now supported (v0.20 is insufficient)</li>
+</ul>
+<h3 id="performance-1"><a class="header" href="#performance-1">Performance</a></h3>
+<ul>
+<li>[LokiJS] Improved performance of launching the app</li>
+</ul>
+<h3 id="changes"><a class="header" href="#changes">Changes</a></h3>
+<ul>
+<li>[LokiJS] <code>useWebWorker: true</code> and <code>useIncrementalIndexedDB: false</code> options are now deprecated. If you rely on these features, please file an issue!</li>
+<li>[Sync] Optional <code>log</code> passed to sync now has more helpful diagnostic information</li>
+<li>[Sync] Open-sourced a simple SyncLogger you can optionally use. See docs for more info.</li>
+<li>[SQLiteAdapter] <code>synchronous:true</code> option is now deprecated and will be replaced with <code>experimentalUseJSI: true</code> in the future. Please test if your app compiles and works well with <code>experimentalUseJSI: true</code>, and if not - file an issue!</li>
+<li>[LokiJS] Changed default autosave interval from 250 to 500ms</li>
+<li>[Typescript] Add <code>experimentalNestedJoin</code> definition and <code>unsafeSqlExpr</code> clause</li>
+</ul>
+<h3 id="fixes"><a class="header" href="#fixes">Fixes</a></h3>
+<ul>
+<li>[LokiJS] Fixed a case where IndexedDB could get corrupted over time</li>
+<li>[Resilience] Added extra diagnostics for when you encounter the <code>Record ID aa#bb was sent over the bridge, but it's not cached</code> error and a recovery path (LokiJSAdapter-only). Please file an issue if you encounter this issue!</li>
+<li>[Typescript] Fixed type on OnFunction to accept <code>and</code> in join</li>
+<li>[Typescript] Fixed type <code>database#batch(records)</code>'s argument <code>records</code> to accept mixed types</li>
+</ul>
+<h3 id="internal"><a class="header" href="#internal">Internal</a></h3>
+<ul>
+<li>Added an experimental mode where a broken database state is detected, further mutations prevented, and the user notified</li>
+</ul>
+<h2 id="020---2020-10-05"><a class="header" href="#020---2020-10-05">0.20 - 2020-10-05</a></h2>
+<h3 id="breaking-changes-1"><a class="header" href="#breaking-changes-1">BREAKING CHANGES</a></h3>
+<p>This release has unintentionally broken RxJS for some apps using <code>with-observables</code>. If you have this issue, please update <code>@nozbe/with-observables</code> to the latest version.</p>
+<h3 id="new-features-1"><a class="header" href="#new-features-1">New features</a></h3>
+<ul>
+<li>[Sync] Conflict resolution can now be customized. See docs for more details</li>
+<li>[Android] Autolinking is now supported</li>
+<li>[LokiJS] Adapter autosave option is now configurable</li>
+</ul>
+<h3 id="changes-1"><a class="header" href="#changes-1">Changes</a></h3>
+<ul>
+<li>Interal RxJS imports have been refactor such that rxjs-compat should never be used now</li>
+<li>[Performance] Tweak Babel config to produce smaller code</li>
+<li>[Performance] LokiJS-based apps will now take up to 30% less time to load the database (id and unique indicies are generated lazily)</li>
+</ul>
+<h3 id="fixes-1"><a class="header" href="#fixes-1">Fixes</a></h3>
+<ul>
+<li>[iOS] Fixed crash on database reset in apps linked against iOS 14 SDK</li>
+<li>[LokiJS] Fix <code>Q.like</code> being broken for multi-line strings on web</li>
+<li>Fixed warn &quot;import cycle&quot; from DialogProvider (#786) by @gmonte.</li>
+<li>Fixed cache date as instance of Date (#828) by @djorkaeffalexandre.</li>
+</ul>
+<h2 id="019---2020-08-17"><a class="header" href="#019---2020-08-17">0.19 - 2020-08-17</a></h2>
+<h3 id="new-features-2"><a class="header" href="#new-features-2">New features</a></h3>
 <ul>
 <li>[iOS] Added CocoaPods support - @leninlin</li>
 <li>[NodeJS] Introducing a new SQLite Adapter based integration to NodeJS. This requires a
@@ -2813,14 +2929,14 @@ and should work with the same configuration as iOS/Android - @sidferreira</li>
 <li>[Schema] [Migrations] You can now pass <code>unsafeSql</code> parameters to schema builder and migration steps to modify SQL generated to set up the database or perform migrations. There's also new <code>unsafeExecuteSql</code> migration step. Please use this only if you know what you're doing — you shouldn't need this in 99% of cases. See Schema and Migrations docs for more details</li>
 <li>[LokiJS] [Performance] Added experimental <code>onIndexedDBFetchStart</code> and <code>indexedDBSerializer</code> options to <code>LokiJSAdapter</code>. These can be used to improve app launch time. See <code>src/adapters/lokijs/index.js</code> for more details.</li>
 </ul>
-<h3><a class="header" href="#changes" id="changes">Changes</a></h3>
+<h3 id="changes-2"><a class="header" href="#changes-2">Changes</a></h3>
 <ul>
 <li>[Performance] findAndObserve is now able to emit a value synchronously. By extension, this makes Relations put into withObservables able to render the child component in one shot. Avoiding the extra unnecessary render cycles avoids a lot of DOM and React commit-phase work, which can speed up loading some views by 30%</li>
 <li>[Performance] LokiJS is now faster (refactored encodeQuery, skipped unnecessary clone operations)</li>
 </ul>
-<h2><a class="header" href="#018---2020-06-30" id="018---2020-06-30">0.18 - 2020-06-30</a></h2>
+<h2 id="018---2020-06-30"><a class="header" href="#018---2020-06-30">0.18 - 2020-06-30</a></h2>
 <p>Another WatermelonDB release after just a week? Yup! And it's jam-packed full of features!</p>
-<h3><a class="header" href="#new-features-1" id="new-features-1">New features</a></h3>
+<h3 id="new-features-3"><a class="header" href="#new-features-3">New features</a></h3>
 <ul>
 <li>
 <p>[Query] <code>Q.on</code> queries are now far more flexible. Previously, they could only be placed at the top
@@ -2859,7 +2975,7 @@ queries with LokiJSAdapter that are not otherwise possible (e.g. multi-table col
 See docs for more details</p>
 </li>
 </ul>
-<h3><a class="header" href="#changes-1" id="changes-1">Changes</a></h3>
+<h3 id="changes-3"><a class="header" href="#changes-3">Changes</a></h3>
 <ul>
 <li>[Performance] [LokiJS] Improved performance of queries containing query comparisons on LokiJSAdapter</li>
 <li>[Docs] Added Contributing guide for Query language improvements</li>
@@ -2868,20 +2984,20 @@ See docs for more details</p>
 <li>[Query] Counting queries that contain <code>Q.experimentalTake</code> / <code>Q.experimentalSkip</code> is currently broken - previously it would return incorrect results, but
 now it will throw an error to avoid confusion. Please contribute to fix the root cause!</li>
 </ul>
-<h3><a class="header" href="#fixes" id="fixes">Fixes</a></h3>
+<h3 id="fixes-2"><a class="header" href="#fixes-2">Fixes</a></h3>
 <ul>
 <li>[Typescript] Fixed types of Relation</li>
 </ul>
-<h3><a class="header" href="#internal" id="internal">Internal</a></h3>
+<h3 id="internal-1"><a class="header" href="#internal-1">Internal</a></h3>
 <ul>
 <li><code>QueryDescription</code> structure has been changed.</li>
 </ul>
-<h2><a class="header" href="#0171---2020-06-24" id="0171---2020-06-24">0.17.1 - 2020-06-24</a></h2>
+<h2 id="0171---2020-06-24"><a class="header" href="#0171---2020-06-24">0.17.1 - 2020-06-24</a></h2>
 <ul>
 <li>Fixed broken iOS build - @mlecoq</li>
 </ul>
-<h2><a class="header" href="#017---2020-06-22" id="017---2020-06-22">0.17 - 2020-06-22</a></h2>
-<h3><a class="header" href="#new-features-2" id="new-features-2">New features</a></h3>
+<h2 id="017---2020-06-22"><a class="header" href="#017---2020-06-22">0.17 - 2020-06-22</a></h2>
+<h3 id="new-features-4"><a class="header" href="#new-features-4">New features</a></h3>
 <ul>
 <li>
 <p>[Sync] Introducing Migration Syncs - this allows fully consistent synchronization when migrating
@@ -2921,7 +3037,7 @@ Android version will be introduced.</p>
 <p>[DX] Exposed <code>collection.db</code> and <code>model.db</code> as shortcuts to get to their Database object</p>
 </li>
 </ul>
-<h3><a class="header" href="#changes-2" id="changes-2">Changes</a></h3>
+<h3 id="changes-4"><a class="header" href="#changes-4">Changes</a></h3>
 <ul>
 <li>[Hardening] Column and table names starting with <code>__</code>, Object property names (e.g. <code>constructor</code>), and some reserved keywords are now forbidden</li>
 <li>[DX] [Hardening] QueryDescription builder methods do tighter type checks, catching more bugs, and
@@ -2935,7 +3051,7 @@ preventing users from unwisely passing unsanitized user data into Query builder 
 <li>[Hardening] database.collections.get() better validates passed value</li>
 <li>[Hardening] Prevents unsafe strings from being passed as column name/table name arguments in QueryDescription</li>
 </ul>
-<h3><a class="header" href="#fixes-1" id="fixes-1">Fixes</a></h3>
+<h3 id="fixes-3"><a class="header" href="#fixes-3">Fixes</a></h3>
 <ul>
 <li>[Sync] Fixed <code>RangeError: Maximum call stack size exceeded</code> when syncing large amounts of data - @leninlin</li>
 <li>[iOS] Fixed a bug that could cause a database operation to fail with an (6) SQLITE_LOCKED error</li>
@@ -2943,19 +3059,19 @@ preventing users from unwisely passing unsanitized user data into Query builder 
 <li>[Native] SQLite keywords used as table or column names no longer crash</li>
 <li>Fixed potential issues when subscribing to database, collection, model, queries passing a subscriber function with the same identity more than once</li>
 </ul>
-<h3><a class="header" href="#internal-1" id="internal-1">Internal</a></h3>
+<h3 id="internal-2"><a class="header" href="#internal-2">Internal</a></h3>
 <ul>
 <li>Fixed broken adapter tests</li>
 </ul>
-<h2><a class="header" href="#0151-0161-fix-0162---2020-06-03" id="0151-0161-fix-0162---2020-06-03">0.15.1, 0.16.1-fix, 0.16.2 - 2020-06-03</a></h2>
+<h2 id="0151-0161-fix-0162---2020-06-03"><a class="header" href="#0151-0161-fix-0162---2020-06-03">0.15.1, 0.16.1-fix, 0.16.2 - 2020-06-03</a></h2>
 <p>This is a security patch for a vulnerability that could cause maliciously crafted record IDs to
 cause all or some of user's data to be deleted. More information available via GitHub security advisory</p>
-<h2><a class="header" href="#0161---2020-05-18" id="0161---2020-05-18">0.16.1 - 2020-05-18</a></h2>
-<h3><a class="header" href="#changes-3" id="changes-3">Changes</a></h3>
+<h2 id="0161---2020-05-18"><a class="header" href="#0161---2020-05-18">0.16.1 - 2020-05-18</a></h2>
+<h3 id="changes-5"><a class="header" href="#changes-5">Changes</a></h3>
 <ul>
 <li><code>Database.unsafeResetDatabase()</code> is now less unsafe — more application bugs are being caught</li>
 </ul>
-<h3><a class="header" href="#fixes-2" id="fixes-2">Fixes</a></h3>
+<h3 id="fixes-4"><a class="header" href="#fixes-4">Fixes</a></h3>
 <ul>
 <li>[iOS] Fix build in apps using Flipper</li>
 <li>[Typescript] Added type definition for <code>setGenerator</code>.</li>
@@ -2964,21 +3080,21 @@ cause all or some of user's data to be deleted. More information available via G
 <li>Fixed typo in learn-to-use docs.</li>
 <li>[Typescript] Fixed types of changes.</li>
 </ul>
-<h3><a class="header" href="#internal-2" id="internal-2">Internal</a></h3>
+<h3 id="internal-3"><a class="header" href="#internal-3">Internal</a></h3>
 <ul>
 <li>[SQLite] Infrastruture for a future JSI adapter has been added</li>
 </ul>
-<h2><a class="header" href="#016---2020-03-06" id="016---2020-03-06">0.16 - 2020-03-06</a></h2>
-<h3><a class="header" href="#-breaking" id="-breaking">⚠️ Breaking</a></h3>
+<h2 id="016---2020-03-06"><a class="header" href="#016---2020-03-06">0.16 - 2020-03-06</a></h2>
+<h3 id="-breaking"><a class="header" href="#-breaking">⚠️ Breaking</a></h3>
 <ul>
 <li><code>experimentalUseIncrementalIndexedDB</code> has been renamed to <code>useIncrementalIndexedDB</code></li>
 </ul>
-<h4><a class="header" href="#low-breakage-risk" id="low-breakage-risk">Low breakage risk</a></h4>
+<h4 id="low-breakage-risk"><a class="header" href="#low-breakage-risk">Low breakage risk</a></h4>
 <ul>
 <li>[adapters] Adapter API has changed from returning Promise to taking callbacks as the last argument. This won't affect you unless you call on adapter methods directly. <code>database.adapter</code> returns a new <code>DatabaseAdapterCompat</code> which has the same shape as old adapter API. You can use <code>database.adapter.underlyingAdapter</code> to get back <code>SQLiteAdapter</code> / <code>LokiJSAdapter</code></li>
 <li>[Collection] <code>Collection.fetchQuery</code> and <code>Collection.fetchCount</code> are removed. Please use <code>Query.fetch()</code> and <code>Query.fetchCount()</code>.</li>
 </ul>
-<h3><a class="header" href="#new-features-3" id="new-features-3">New features</a></h3>
+<h3 id="new-features-5"><a class="header" href="#new-features-5">New features</a></h3>
 <ul>
 <li>[SQLiteAdapter] [iOS] Add new <code>synchronous</code> option to adapter: <code>new SQLiteAdapter({ ..., synchronous: true })</code>.
 When enabled, database operations will block JavaScript thread. Adapter actions will resolve in the
@@ -2989,20 +3105,20 @@ This is called when underlying IndexedDB encountered a quota exceeded error (ran
 This means that app can't save more data or that it will fall back to using in-memory database only
 Note that this only works when <code>useWebWorker: false</code></li>
 </ul>
-<h3><a class="header" href="#changes-4" id="changes-4">Changes</a></h3>
+<h3 id="changes-6"><a class="header" href="#changes-6">Changes</a></h3>
 <ul>
 <li>[Performance] Watermelon internals have been rewritten not to rely on Promises and allow some fetch/observe calls to resolve synchronously. Do not rely on this -- external API is still based on Rx and Promises and may resolve either asynchronously or synchronously depending on capabilities. This is meant as a internal performance optimization only for the time being.</li>
 <li>[LokiJS] [Performance] Improved worker queue implementation for performance</li>
 <li>[observation] Refactored observer implementations for performance</li>
 </ul>
-<h3><a class="header" href="#fixes-3" id="fixes-3">Fixes</a></h3>
+<h3 id="fixes-5"><a class="header" href="#fixes-5">Fixes</a></h3>
 <ul>
 <li>Fixed a possible cause for &quot;Record ID xxx#yyy was sent over the bridge, but it's not cached&quot; error</li>
 <li>[LokiJS] Fixed an issue preventing database from saving when using <code>experimentalUseIncrementalIndexedDB</code></li>
 <li>Fixed a potential issue when using <code>database.unsafeResetDatabase()</code></li>
 <li>[iOS] Fixed issue with clearing database under experimental synchronous mode</li>
 </ul>
-<h3><a class="header" href="#new-features-experimental" id="new-features-experimental">New features (Experimental)</a></h3>
+<h3 id="new-features-experimental"><a class="header" href="#new-features-experimental">New features (Experimental)</a></h3>
 <ul>
 <li>[Model] Added experimental <code>model.experimentalSubscribe((isDeleted) =&gt; { ... })</code> method as a vanilla JS alternative to Rx based <code>model.observe()</code>. Unlike the latter, it does not notify the subscriber immediately upon subscription.</li>
 <li>[Collection] Added internal <code>collection.experimentalSubscribe((changeSet) =&gt; { ... })</code> method as a vanilla JS alternative to Rx based <code>collection.changes</code> (you probably shouldn't be using this API anyway)</li>
@@ -3010,8 +3126,8 @@ Note that this only works when <code>useWebWorker: false</code></li>
 <li>Added <code>experimentalDisableObserveCountThrottling()</code> to <code>@nozbe/watermelondb/observation/observeCount</code> that globally disables count observation throttling. We think that throttling on WatermelonDB level is not a good feature and will be removed in a future release - and will be better implemented on app level if necessary</li>
 <li>[Query] Added experimental <code>query.experimentalSubscribe(records =&gt; { ... })</code>, <code>query.experimentalSubscribeWithColumns(['col1', 'col2'], records =&gt; { ... })</code>, and <code>query.experimentalSubscribeToCount(count =&gt; { ... })</code> methods</li>
 </ul>
-<h2><a class="header" href="#015---2019-11-08" id="015---2019-11-08">0.15 - 2019-11-08</a></h2>
-<h3><a class="header" href="#highlights" id="highlights">Highlights</a></h3>
+<h2 id="015---2019-11-08"><a class="header" href="#015---2019-11-08">0.15 - 2019-11-08</a></h2>
+<h3 id="highlights"><a class="header" href="#highlights">Highlights</a></h3>
 <p>This is a <strong>massive</strong> new update to WatermelonDB! 🍉</p>
 <ul>
 <li>
@@ -3034,12 +3150,12 @@ and now works in Private Modes. We recommend adding <code>useWebWorker: false, e
 <p><strong>Improved TypeScript support</strong> — thanks to the community</p>
 </li>
 </ul>
-<h3><a class="header" href="#-breaking-1" id="-breaking-1">⚠️ Breaking</a></h3>
+<h3 id="-breaking-1"><a class="header" href="#-breaking-1">⚠️ Breaking</a></h3>
 <ul>
 <li>Deprecated <code>bool</code> schema column type is removed -- please change to <code>boolean</code></li>
 <li>Experimental <code>experimentalSetOnlyMarkAsChangedIfDiffers(false)</code> API is now removed</li>
 </ul>
-<h3><a class="header" href="#new-featuers" id="new-featuers">New featuers</a></h3>
+<h3 id="new-featuers"><a class="header" href="#new-featuers">New featuers</a></h3>
 <ul>
 <li>
 <p>[Collection] Add <code>Collection.unsafeFetchRecordsWithSQL()</code> method. You can use it to fetch record using
@@ -3081,11 +3197,11 @@ this is useful</p>
 <p>@json decorator sanitizer functions take an optional second argument, with a reference to the model</p>
 </li>
 </ul>
-<h3><a class="header" href="#fixes-4" id="fixes-4">Fixes</a></h3>
+<h3 id="fixes-6"><a class="header" href="#fixes-6">Fixes</a></h3>
 <ul>
 <li>Pinned required <code>rambdax</code> version to 2.15.0 to avoid console logging bug. In a future release we will switch to our own fork of <code>rambdax</code> to avoid future breakages like this.</li>
 </ul>
-<h3><a class="header" href="#improvements" id="improvements">Improvements</a></h3>
+<h3 id="improvements"><a class="header" href="#improvements">Improvements</a></h3>
 <ul>
 <li>[Performance] Make large batches a lot faster (1.3s shaved off on a 65K insert sample)</li>
 <li>[Performance] [iOS] Make large batch inserts an order of magnitude faster</li>
@@ -3116,7 +3232,7 @@ call stacks and profiles</li>
 but shouldn't matter if you use latest version of React Native. Please report an issue if you see a problem.</li>
 <li>Avoid <code>database</code> prop drilling in the web demo</li>
 </ul>
-<h2><a class="header" href="#0141---2019-08-31" id="0141---2019-08-31">0.14.1 - 2019-08-31</a></h2>
+<h2 id="0141---2019-08-31"><a class="header" href="#0141---2019-08-31">0.14.1 - 2019-08-31</a></h2>
 <p>Hotfix for rambdax crash</p>
 <ul>
 <li>[Schema] Handle invalid table schema argument in appSchema</li>
@@ -3124,14 +3240,14 @@ but shouldn't matter if you use latest version of React Native. Please report an
 <li>[Electron] avoid <code>Uncaught ReferenceError: global is not defined</code> in electron runtime (<a href="https://github.com/Nozbe/WatermelonDB/issues/453">#453</a>)</li>
 <li>[rambdax] Replaces <code>contains</code> with <code>includes</code> due to <code>contains</code> deprecation https://github.com/selfrefactor/rambda/commit/1dc1368f81e9f398664c9d95c2efbc48b5cdff9b#diff-04c6e90faac2675aa89e2176d2eec7d8R2209</li>
 </ul>
-<h2><a class="header" href="#0140---2019-08-02" id="0140---2019-08-02">0.14.0 - 2019-08-02</a></h2>
-<h3><a class="header" href="#new-features-4" id="new-features-4">New features</a></h3>
+<h2 id="0140---2019-08-02"><a class="header" href="#0140---2019-08-02">0.14.0 - 2019-08-02</a></h2>
+<h3 id="new-features-6"><a class="header" href="#new-features-6">New features</a></h3>
 <ul>
 <li>[Query] Added support for <code>notLike</code> queries 🎉</li>
 <li>[Actions] You can now batch delete record with all descendants using experimental functions <code>experimentalMarkAsDeleted</code> or <code>experimentalDestroyPermanently</code></li>
 </ul>
-<h2><a class="header" href="#0130---2019-07-18" id="0130---2019-07-18">0.13.0 - 2019-07-18</a></h2>
-<h3><a class="header" href="#-breaking-2" id="-breaking-2">⚠️ Breaking</a></h3>
+<h2 id="0130---2019-07-18"><a class="header" href="#0130---2019-07-18">0.13.0 - 2019-07-18</a></h2>
+<h3 id="-breaking-2"><a class="header" href="#-breaking-2">⚠️ Breaking</a></h3>
 <ul>
 <li>
 <p>[Database] It is now mandatory to pass <code>actionsEnabled:</code> option to Database constructor.
@@ -3150,7 +3266,7 @@ backward compatibility, but this option <strong>will be removed</strong> in a la
 to <code>migrations</code>.</p>
 </li>
 </ul>
-<h3><a class="header" href="#new-features-5" id="new-features-5">New features</a></h3>
+<h3 id="new-features-7"><a class="header" href="#new-features-7">New features</a></h3>
 <ul>
 <li>[Actions] You can now batch deletes by using <code>prepareMarkAsDeleted</code> or <code>prepareDestroyPermanently</code></li>
 <li>[Sync] Performance: <code>synchronize()</code> no longer calls your <code>pushChanges()</code> function if there are no
@@ -3164,12 +3280,12 @@ behavior. For now you can import <code>experimentalSetOnlyMarkAsChangedIfDiffers
 this will be removed in the later version -- create a new issue explaining why you need this</li>
 <li>[Sync] Small perf improvements</li>
 </ul>
-<h3><a class="header" href="#improvements-1" id="improvements-1">Improvements</a></h3>
+<h3 id="improvements-1"><a class="header" href="#improvements-1">Improvements</a></h3>
 <ul>
 <li>[Typescript] Improved types for SQLite and LokiJS adapters, migrations, models, the database and the logger.</li>
 </ul>
-<h2><a class="header" href="#0123---2019-05-06" id="0123---2019-05-06">0.12.3 - 2019-05-06</a></h2>
-<h3><a class="header" href="#changes-5" id="changes-5">Changes</a></h3>
+<h2 id="0123---2019-05-06"><a class="header" href="#0123---2019-05-06">0.12.3 - 2019-05-06</a></h2>
+<h3 id="changes-7"><a class="header" href="#changes-7">Changes</a></h3>
 <ul>
 <li>[Database] You can now update the random id schema by importing
 <code>import { setGenerator } from '@nozbe/watermelondb/utils/common/randomId'</code> and then calling <code>setGenerator(newGenenerator)</code>.
@@ -3177,12 +3293,12 @@ This allows WatermelonDB to create specific IDs for example if your backend uses
 <li>[Typescript] Type improvements to SQLiteAdapter and Database</li>
 <li>[Tests] remove cleanup for react-hooks-testing-library@0.5.0 compatibility</li>
 </ul>
-<h2><a class="header" href="#0122---2019-04-19" id="0122---2019-04-19">0.12.2 - 2019-04-19</a></h2>
-<h3><a class="header" href="#fixes-5" id="fixes-5">Fixes</a></h3>
+<h2 id="0122---2019-04-19"><a class="header" href="#0122---2019-04-19">0.12.2 - 2019-04-19</a></h2>
+<h3 id="fixes-7"><a class="header" href="#fixes-7">Fixes</a></h3>
 <ul>
 <li>[TypeScript] 'Cannot use 'in' operator to search for 'initializer'; decorator fix</li>
 </ul>
-<h3><a class="header" href="#changes-6" id="changes-6">Changes</a></h3>
+<h3 id="changes-8"><a class="header" href="#changes-8">Changes</a></h3>
 <ul>
 <li>[Database] You can now pass falsy values to <code>Database.batch(...)</code> (false, null, undefined). This is
 useful in keeping code clean when doing operations conditionally. (Also works with <code>model.batch(...)</code>)</li>
@@ -3195,8 +3311,8 @@ for reliability and performance reasons, but it works around a memory issue that
 to crash on very large syncs (&gt;20,000 records). Use this only if necessary. Note that this option
 might be removed at any time if a better solution is found.</li>
 </ul>
-<h2><a class="header" href="#0121---2019-04-01" id="0121---2019-04-01">0.12.1 - 2019-04-01</a></h2>
-<h3><a class="header" href="#-hotfix" id="-hotfix">⚠️ Hotfix</a></h3>
+<h2 id="0121---2019-04-01"><a class="header" href="#0121---2019-04-01">0.12.1 - 2019-04-01</a></h2>
+<h3 id="-hotfix"><a class="header" href="#-hotfix">⚠️ Hotfix</a></h3>
 <ul>
 <li>
 <p>[iOS] Fix runtime crash when built with Xcode 10.2 (Swift 5 runtime).</p>
@@ -3205,7 +3321,7 @@ React Native yet, either stick to Xcode 10.1 or manually apply this patch:
 https://github.com/Nozbe/WatermelonDB/pull/302/commits/aa4e08ad0fa55f434da2a94407c51fc5ff18e506</p>
 </li>
 </ul>
-<h3><a class="header" href="#changes-7" id="changes-7">Changes</a></h3>
+<h3 id="changes-9"><a class="header" href="#changes-9">Changes</a></h3>
 <ul>
 <li>[Sync] Adds basic sync logging capability to Sync. Pass an empty object to <code>synchronize()</code> to populate it with diagnostic information:
 <pre><code class="language-js">const log = {}
@@ -3214,8 +3330,8 @@ console.log(log.startedAt)
 </code></pre>
 See Sync documentation for more details.</li>
 </ul>
-<h2><a class="header" href="#0120---2019-03-18" id="0120---2019-03-18">0.12.0 - 2019-03-18</a></h2>
-<h3><a class="header" href="#added" id="added">Added</a></h3>
+<h2 id="0120---2019-03-18"><a class="header" href="#0120---2019-03-18">0.12.0 - 2019-03-18</a></h2>
+<h3 id="added"><a class="header" href="#added">Added</a></h3>
 <ul>
 <li>[Hooks] new <code>useDatabase</code> hook for consuming the Database Context:
 <pre><code class="language-js">import { useDatabase } from '@nozbe/watermelondb/hooks';
@@ -3226,24 +3342,24 @@ const Component = () =&gt; {
 </li>
 <li>[TypeScript] added <code>.d.ts</code> files. Please note: TypeScript definitions are currently incomplete and should be used as a guide only. <strong>PRs for improvements would be greatly appreciated!</strong></li>
 </ul>
-<h3><a class="header" href="#performance-1" id="performance-1">Performance</a></h3>
+<h3 id="performance-2"><a class="header" href="#performance-2">Performance</a></h3>
 <ul>
 <li>Improved UI performance by consolidating multiple observation emissions into a single per-collection batch emission when doing batch changes</li>
 </ul>
-<h2><a class="header" href="#0110---2019-03-12" id="0110---2019-03-12">0.11.0 - 2019-03-12</a></h2>
-<h3><a class="header" href="#breaking" id="breaking">Breaking</a></h3>
+<h2 id="0110---2019-03-12"><a class="header" href="#0110---2019-03-12">0.11.0 - 2019-03-12</a></h2>
+<h3 id="breaking"><a class="header" href="#breaking">Breaking</a></h3>
 <ul>
 <li>⚠️ Potentially BREAKING fix: a <code>@date</code> field now returns a Jan 1, 1970 date instead of <code>null</code> if the field's raw value is <code>0</code>.
 This is considered a bug fix, since it's unexpected to receive a <code>null</code> from a getter of a field whose column schema doesn't say <code>isOptional: true</code>.
 However, if you relied on this behavior, this might be a breaking change.</li>
 <li>⚠️ BREAKING: <code>Database.unsafeResetDatabase()</code> now requires that you run it inside an Action</li>
 </ul>
-<h3><a class="header" href="#bug-fixes" id="bug-fixes">Bug fixes</a></h3>
+<h3 id="bug-fixes"><a class="header" href="#bug-fixes">Bug fixes</a></h3>
 <ul>
 <li>[Sync] Fixed an issue where synchronization would continue running despite <code>unsafeResetDatabase</code> being called</li>
 <li>[Android] fix compile error for kotlin 1.3+</li>
 </ul>
-<h3><a class="header" href="#other-changes" id="other-changes">Other changes</a></h3>
+<h3 id="other-changes"><a class="header" href="#other-changes">Other changes</a></h3>
 <ul>
 <li>Actions are now aborted when <code>unsafeResetDatabase()</code> is called, making reseting database a little bit safer</li>
 <li>Updated demo dependencies</li>
@@ -3251,8 +3367,8 @@ However, if you relied on this behavior, this might be a breaking change.</li>
 <li>[Android] removed unused test class</li>
 <li>[Android] updated ktlint to <code>0.30.0</code></li>
 </ul>
-<h2><a class="header" href="#0101---2019-02-12" id="0101---2019-02-12">0.10.1 - 2019-02-12</a></h2>
-<h3><a class="header" href="#changes-8" id="changes-8">Changes</a></h3>
+<h2 id="0101---2019-02-12"><a class="header" href="#0101---2019-02-12">0.10.1 - 2019-02-12</a></h2>
+<h3 id="changes-10"><a class="header" href="#changes-10">Changes</a></h3>
 <ul>
 <li>[Android] Changed <code>compile</code> to <code>implementation</code> in Library Gradle file
 <ul>
@@ -3268,8 +3384,8 @@ However, if you relied on this behavior, this might be a breaking change.</li>
 <li>[iOS] <code>SQLiteAdapter</code>'s <code>dbName</code> path now allows you to pass an absolute path to a file, instead of a name</li>
 <li>[Web] Add adaptive layout for demo example with smooth scrolling for iOS</li>
 </ul>
-<h2><a class="header" href="#0100---2019-01-18" id="0100---2019-01-18">0.10.0 - 2019-01-18</a></h2>
-<h3><a class="header" href="#breaking-1" id="breaking-1">Breaking</a></h3>
+<h2 id="0100---2019-01-18"><a class="header" href="#0100---2019-01-18">0.10.0 - 2019-01-18</a></h2>
+<h3 id="breaking-1"><a class="header" href="#breaking-1">Breaking</a></h3>
 <ul>
 <li><strong>BREAKING:</strong> Table column <code>last_modified</code> is no longer automatically added to all database tables. If
 you don't use this column (e.g. in your custom sync code), you don't have to do anything.
@@ -3278,7 +3394,7 @@ If you do, manually add this column to all table definitions in your Schema:
 </code></pre>
 <strong>Don't</strong> bump schema version or write a migration for this.</li>
 </ul>
-<h3><a class="header" href="#new" id="new">New</a></h3>
+<h3 id="new"><a class="header" href="#new">New</a></h3>
 <ul>
 <li>
 <p><strong>Actions API</strong>.</p>
@@ -3303,32 +3419,32 @@ resolving conflicts, finding local changes, and marking them as synced) is done 
 <p><strong>Support caching for non-global IDs at Native level</strong></p>
 </li>
 </ul>
-<h2><a class="header" href="#090---2018-11-23" id="090---2018-11-23">0.9.0 - 2018-11-23</a></h2>
-<h3><a class="header" href="#new-1" id="new-1">New</a></h3>
+<h2 id="090---2018-11-23"><a class="header" href="#090---2018-11-23">0.9.0 - 2018-11-23</a></h2>
+<h3 id="new-1"><a class="header" href="#new-1">New</a></h3>
 <ul>
 <li>Added <code>Q.like</code> - you can now make queries similar to SQL <code>LIKE</code></li>
 </ul>
-<h2><a class="header" href="#080---2018-11-16" id="080---2018-11-16">0.8.0 - 2018-11-16</a></h2>
-<h3><a class="header" href="#new-2" id="new-2">New</a></h3>
+<h2 id="080---2018-11-16"><a class="header" href="#080---2018-11-16">0.8.0 - 2018-11-16</a></h2>
+<h3 id="new-2"><a class="header" href="#new-2">New</a></h3>
 <ul>
 <li>Added <code>DatabaseProvider</code> and <code>withDatabase</code> Higher-Order Component to reduce prop drilling</li>
 <li>Added experimental Actions API. This will be documented in a future release.</li>
 </ul>
-<h3><a class="header" href="#fixes-6" id="fixes-6">Fixes</a></h3>
+<h3 id="fixes-8"><a class="header" href="#fixes-8">Fixes</a></h3>
 <ul>
 <li>Fixes crash on older Android React Native targets without <code>jsc-android</code> installed</li>
 </ul>
-<h2><a class="header" href="#070---2018-10-31" id="070---2018-10-31">0.7.0 - 2018-10-31</a></h2>
-<h3><a class="header" href="#deprecations" id="deprecations">Deprecations</a></h3>
+<h2 id="070---2018-10-31"><a class="header" href="#070---2018-10-31">0.7.0 - 2018-10-31</a></h2>
+<h3 id="deprecations"><a class="header" href="#deprecations">Deprecations</a></h3>
 <ul>
 <li>[Schema] Column type 'bool' is deprecated — change to 'boolean'</li>
 </ul>
-<h3><a class="header" href="#new-3" id="new-3">New</a></h3>
+<h3 id="new-3"><a class="header" href="#new-3">New</a></h3>
 <ul>
 <li>Added support for Schema Migrations. See documentation for more details.</li>
 <li>Added fundaments for integration of Danger with Jest</li>
 </ul>
-<h3><a class="header" href="#changes-9" id="changes-9">Changes</a></h3>
+<h3 id="changes-11"><a class="header" href="#changes-11">Changes</a></h3>
 <ul>
 <li>Fixed &quot;dependency cycle&quot; warning</li>
 <li>[SQLite] Fixed rare cases where database could be left in an unusable state (added missing transaction)</li>
@@ -3337,12 +3453,12 @@ resolving conflicts, finding local changes, and marking them as synced) is done 
 <li>Fixed typos in README.md</li>
 <li>Updated Flow to 0.85</li>
 </ul>
-<h2><a class="header" href="#062---2018-10-04" id="062---2018-10-04">0.6.2 - 2018-10-04</a></h2>
-<h3><a class="header" href="#deprecations-1" id="deprecations-1">Deprecations</a></h3>
+<h2 id="062---2018-10-04"><a class="header" href="#062---2018-10-04">0.6.2 - 2018-10-04</a></h2>
+<h3 id="deprecations-1"><a class="header" href="#deprecations-1">Deprecations</a></h3>
 <ul>
 <li>The <code>@nozbe/watermelondb/babel/cjs</code> / <code>@nozbe/watermelondb/babel/esm</code> Babel plugin that ships with Watermelon is deprecated and no longer necessary. Delete it from your Babel config as it will be removed in a future update</li>
 </ul>
-<h3><a class="header" href="#refactoring" id="refactoring">Refactoring</a></h3>
+<h3 id="refactoring"><a class="header" href="#refactoring">Refactoring</a></h3>
 <ul>
 <li>Removed dependency on <code>async</code> (Web Worker should be ~30KB smaller)</li>
 <li>Refactored <code>Collection</code> and <code>simpleObserver</code> for getting changes in an array and also adds CollectionChangeTypes for differentiation between different changes</li>
@@ -3350,24 +3466,24 @@ resolving conflicts, finding local changes, and marking them as synced) is done 
 <li>Simplified build system by using relative imports</li>
 <li>Simplified build package by outputting CJS-only files</li>
 </ul>
-<h2><a class="header" href="#061---2018-09-20" id="061---2018-09-20">0.6.1 - 2018-09-20</a></h2>
-<h3><a class="header" href="#added-1" id="added-1">Added</a></h3>
+<h2 id="061---2018-09-20"><a class="header" href="#061---2018-09-20">0.6.1 - 2018-09-20</a></h2>
+<h3 id="added-1"><a class="header" href="#added-1">Added</a></h3>
 <ul>
 <li>Added iOS and Android integration tests and lint checks to TravisCI</li>
 </ul>
-<h3><a class="header" href="#changed" id="changed">Changed</a></h3>
+<h3 id="changed"><a class="header" href="#changed">Changed</a></h3>
 <ul>
 <li>Changed Flow setup for apps using Watermelon - see docs/Advanced/Flow.md</li>
 <li>Improved documentation, and demo code</li>
 <li>Updated dependencies</li>
 </ul>
-<h3><a class="header" href="#fixed" id="fixed">Fixed</a></h3>
+<h3 id="fixed"><a class="header" href="#fixed">Fixed</a></h3>
 <ul>
 <li>Add quotes to all names in sql queries to allow keywords as table or column names</li>
 <li>Fixed running model tests in apps with Watermelon in the loop</li>
 <li>Fixed Flow when using Watermelon in apps</li>
 </ul>
-<h2><a class="header" href="#060---2018-09-05" id="060---2018-09-05">0.6.0 - 2018-09-05</a></h2>
+<h2 id="060---2018-09-05"><a class="header" href="#060---2018-09-05">0.6.0 - 2018-09-05</a></h2>
 <p>Initial release of WatermelonDB</p>
 
                     </main>
@@ -3393,6 +3509,14 @@ resolving conflicts, finding local changes, and marking them as synced) is done 
 
         
 
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
         
 
         

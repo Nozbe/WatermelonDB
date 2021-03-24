@@ -1,26 +1,40 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js">
+<html lang="en" class="sidebar-visible no-js light">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Migrations - WatermelonDB documentation</title>
         
+        
+
+
+        <!-- Custom HTML head -->
+        
+
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
+        
+        <link rel="icon" href="../favicon.svg">
+        
+        
         <link rel="shortcut icon" href="../favicon.png">
+        
         <link rel="stylesheet" href="../css/variables.css">
         <link rel="stylesheet" href="../css/general.css">
         <link rel="stylesheet" href="../css/chrome.css">
+        
         <link rel="stylesheet" href="../css/print.css" media="print">
+        
 
         <!-- Fonts -->
         <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
-        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+        
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        
 
         <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="../highlight.css">
@@ -32,11 +46,11 @@
 
         
     </head>
-    <body class="light">
+    <body>
         <!-- Provide site root to javascript -->
         <script type="text/javascript">
             var path_to_root = "../";
-            var default_theme = "light";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
@@ -60,8 +74,11 @@
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            document.body.className = theme;
-            document.querySelector('html').className = theme + ' js';
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
@@ -78,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li><a href="../ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li><a href="../index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li><a href="../Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li><a href="../ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li><a href="../Installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li><a href="../Schema.html"><strong aria-hidden="true">2.2.</strong> Schema</a></li><li><a href="../Model.html"><strong aria-hidden="true">2.3.</strong> Defining Models</a></li><li><a href="../CRUD.html"><strong aria-hidden="true">2.4.</strong> Create, Read, Update, Delete</a></li><li><a href="../Components.html"><strong aria-hidden="true">2.5.</strong> Connecting to React Components</a></li><li><a href="../Query.html"><strong aria-hidden="true">2.6.</strong> Querying</a></li><li><a href="../Relation.html"><strong aria-hidden="true">2.7.</strong> Relations</a></li><li><a href="../Actions.html"><strong aria-hidden="true">2.8.</strong> Custom Actions</a></li></ol></li><li><a href="../ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li><a href="../Advanced/Migrations.html" class="active"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li><a href="../Advanced/Sync.html"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li><a href="../Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li><a href="../Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li><a href="../Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li><a href="../Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li><a href="../Advanced/ProTips.html"><strong aria-hidden="true">3.7.</strong> Pro tips</a></li><li><a href="../Advanced/Performance.html"><strong aria-hidden="true">3.8.</strong> Performance tips</a></li></ol></li><li><a href="../ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li><a href="../Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li><a href="../Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li><li><a href="../Implementation/SyncImpl.html"><strong aria-hidden="true">4.3.</strong> Sync implementation</a></li></ol></li><li><a href="../ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li><a href="../Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li><a href="../CONTRIBUTING.html"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li><a href="../CHANGELOG.html"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li class="chapter-item expanded "><a href="../Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li class="chapter-item expanded "><a href="../ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../Installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../Schema.html"><strong aria-hidden="true">2.2.</strong> Schema</a></li><li class="chapter-item expanded "><a href="../Model.html"><strong aria-hidden="true">2.3.</strong> Defining Models</a></li><li class="chapter-item expanded "><a href="../CRUD.html"><strong aria-hidden="true">2.4.</strong> Create, Read, Update, Delete</a></li><li class="chapter-item expanded "><a href="../Components.html"><strong aria-hidden="true">2.5.</strong> Connecting to React Components</a></li><li class="chapter-item expanded "><a href="../Query.html"><strong aria-hidden="true">2.6.</strong> Querying</a></li><li class="chapter-item expanded "><a href="../Relation.html"><strong aria-hidden="true">2.7.</strong> Relations</a></li><li class="chapter-item expanded "><a href="../Actions.html"><strong aria-hidden="true">2.8.</strong> Custom Actions</a></li></ol></li><li class="chapter-item expanded "><a href="../ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../Advanced/Migrations.html" class="active"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li class="chapter-item expanded "><a href="../Advanced/Sync.html"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li class="chapter-item expanded "><a href="../Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li class="chapter-item expanded "><a href="../Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li class="chapter-item expanded "><a href="../Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li class="chapter-item expanded "><a href="../Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li class="chapter-item expanded "><a href="../Advanced/ProTips.html"><strong aria-hidden="true">3.7.</strong> Pro tips</a></li><li class="chapter-item expanded "><a href="../Advanced/Performance.html"><strong aria-hidden="true">3.8.</strong> Performance tips</a></li></ol></li><li class="chapter-item expanded "><a href="../ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li class="chapter-item expanded "><a href="../Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li><li class="chapter-item expanded "><a href="../Implementation/SyncImpl.html"><strong aria-hidden="true">4.3.</strong> Sync implementation</a></li></ol></li><li class="chapter-item expanded "><a href="../ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="../CONTRIBUTING.html"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="../CHANGELOG.html"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -87,37 +104,38 @@
 
             <div class="page">
                 
-                <div id="menu-bar" class="menu-bar">
-                    <div id="menu-bar-sticky-container">
-                        <div class="left-buttons">
-                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
-                                <i class="fa fa-bars"></i>
-                            </button>
-                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
-                                <i class="fa fa-paint-brush"></i>
-                            </button>
-                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
-                            </ul>
-                            
-                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
-                                <i class="fa fa-search"></i>
-                            </button>
-                            
-                        </div>
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
 
-                        <h1 class="menu-title">WatermelonDB documentation</h1>
+                    <h1 class="menu-title">WatermelonDB documentation</h1>
 
-                        <div class="right-buttons">
-                            <a href="../print.html" title="Print this book" aria-label="Print this book">
-                                <i id="print-button" class="fa fa-print"></i>
-                            </a>
-                            
-                        </div>
+                    <div class="right-buttons">
+                        
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
                     </div>
                 </div>
 
@@ -145,11 +163,11 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#migrations" id="migrations">Migrations</a></h1>
+                        <h1 id="migrations"><a class="header" href="#migrations">Migrations</a></h1>
 <p><strong>Schema migrations</strong> is the mechanism by which you can add new tables and columns to the database in a backward-compatible way.</p>
 <p>Without migrations, if a user of your app upgrades from one version to another, their local database will be cleared at launch, and they will lose all their data.</p>
 <p>⚠️ Always use migrations!</p>
-<h2><a class="header" href="#migrations-setup" id="migrations-setup">Migrations setup</a></h2>
+<h2 id="migrations-setup"><a class="header" href="#migrations-setup">Migrations setup</a></h2>
 <ol>
 <li>
 <p>Add a new file for migrations:</p>
@@ -176,9 +194,9 @@ const adapter = new SQLiteAdapter({
 </code></pre>
 </li>
 </ol>
-<h2><a class="header" href="#migrations-workflow" id="migrations-workflow">Migrations workflow</a></h2>
+<h2 id="migrations-workflow"><a class="header" href="#migrations-workflow">Migrations workflow</a></h2>
 <p>When you make schema changes when you use migrations, be sure to do this in this specific order, to minimize the likelihood of making an error.</p>
-<h3><a class="header" href="#step-1-add-a-new-migration" id="step-1-add-a-new-migration">Step 1: Add a new migration</a></h3>
+<h3 id="step-1-add-a-new-migration"><a class="header" href="#step-1-add-a-new-migration">Step 1: Add a new migration</a></h3>
 <p>First, define the migration - that is, define the <strong>change</strong> that occurs between two versions of schema (such as adding a new table, or a new table column).</p>
 <p>Don't change the schema file yet!</p>
 <pre><code class="language-js">// app/model/migrations.js
@@ -210,7 +228,7 @@ export default schemaMigrations({
 </blockquote>
 <p>If so, good, move to the next step!</p>
 <p>But you might also see an error like &quot;Missing table name in schema&quot;, which means you made an error in defining migrations. See <a href="#migrations-api">&quot;Migrations API&quot; below</a> for details.</p>
-<h3><a class="header" href="#step-2-make-matching-changes-in-schema" id="step-2-make-matching-changes-in-schema">Step 2: Make matching changes in schema</a></h3>
+<h3 id="step-2-make-matching-changes-in-schema"><a class="header" href="#step-2-make-matching-changes-in-schema">Step 2: Make matching changes in schema</a></h3>
 <p>Now it's time to make the actual changes to the schema file — add the same tables or columns as in your migration definition</p>
 <p>⚠️ Please double and triple check that your changes to schema match exactly the change you defined in the migration. Otherwise you risk that the app will work when the user migrates, but will fail if it's a fresh install — or vice versa.</p>
 <p>⚠️ Don't change the schema version yet</p>
@@ -232,7 +250,7 @@ export default appSchema({
 })
 </code></pre>
 <p>Refresh the simulator. You should again see the same &quot;Migrations can't be newer than schema&quot; error. If you see a different error, you made a syntax error.</p>
-<h3><a class="header" href="#step-3-bump-schema-version" id="step-3-bump-schema-version">Step 3: Bump schema version</a></h3>
+<h3 id="step-3-bump-schema-version"><a class="header" href="#step-3-bump-schema-version">Step 3: Bump schema version</a></h3>
 <p>Now that we made matching changes in the schema (source of truth about tables and columns) and migrations (the change in tables and columns), it's time to commit the change by bumping the version:</p>
 <pre><code class="language-js">// model/schema.js
 
@@ -244,15 +262,15 @@ export default appSchema({
 })
 </code></pre>
 <p>If you refresh again, your app should show up without issues — but now you can use the new tables/columns</p>
-<h3><a class="header" href="#step-4-test-your-migrations" id="step-4-test-your-migrations">Step 4: Test your migrations</a></h3>
+<h3 id="step-4-test-your-migrations"><a class="header" href="#step-4-test-your-migrations">Step 4: Test your migrations</a></h3>
 <p>Before shipping a new version of the app, please check that your database changes are all compatible:</p>
 <ol>
 <li>Migrations test: Install the previous version of your app, then update to the version you're about to ship, and make sure it still works</li>
 <li>Fresh schema install test: Remove the app, and then install the <em>new</em> version of the app, and make sure it works</li>
 </ol>
-<h3><a class="header" href="#why-is-this-order-important" id="why-is-this-order-important">Why is this order important</a></h3>
+<h3 id="why-is-this-order-important"><a class="header" href="#why-is-this-order-important">Why is this order important</a></h3>
 <p>It's simply because React Native simulator (and often React web projects) are configured to automatically refresh when you save a file. You don't want to database to accidentally migrate (upgrade) with changes that have a mistake, or changes you haven't yet completed making. By making migrations first, and bumping version last, you can double check you haven't made a mistake.</p>
-<h2><a class="header" href="#migrations-api" id="migrations-api">Migrations API</a></h2>
+<h2 id="migrations-api"><a class="header" href="#migrations-api">Migrations API</a></h2>
 <p>Each migration must migrate to a version one above the previous migration, and have multiple <em>steps</em> (such as adding a new table, or new columns). Larger example:</p>
 <pre><code class="language-js">schemaMigrations({
   migrations: [
@@ -284,20 +302,20 @@ export default appSchema({
   ],
 })
 </code></pre>
-<h3><a class="header" href="#migration-steps" id="migration-steps">Migration steps:</a></h3>
+<h3 id="migration-steps"><a class="header" href="#migration-steps">Migration steps:</a></h3>
 <ul>
 <li><code>createTable({ name: 'table_name', columns: [ ... ] })</code> - same API as <code>tableSchema()</code></li>
 <li><code>addColumns({ table: 'table_name', columns: [ ... ] })</code> - you can add one or multiple columns to an existing table. The columns table has the same format as in schema definitions</li>
 <li>Other types of migrations (e.g. deleting or renaming tables and columns) are not yet implemented. See <a href="https://github.com/Nozbe/WatermelonDB/blob/master/src/Schema/migrations/index.js"><code>migrations/index.js</code></a>. Please contribute!</li>
 </ul>
-<h2><a class="header" href="#database-reseting-and-other-edge-cases" id="database-reseting-and-other-edge-cases">Database reseting and other edge cases</a></h2>
+<h2 id="database-reseting-and-other-edge-cases"><a class="header" href="#database-reseting-and-other-edge-cases">Database reseting and other edge cases</a></h2>
 <ol>
 <li>When you're <strong>not</strong> using migrations, the database will reset (delete all its contents) whenever you change the schema version.</li>
 <li>If the migration fails, the database will fail to initialize, and will roll back to previous version. This is unlikely, but could happen if you, for example, create a migration that tries to create the same table twice. The reason why the database will fail instead of reset is to avoid losing user data (also it's less confusing in development). You can notice the problem, fix the migration, and ship it again without data loss.</li>
 <li>When database in the running app has <em>newer</em> database version than the schema version defined in code, the database will reset (clear its contents). This is useful in development</li>
 <li>If there's no available migrations path (e.g. user has app with database version 4, but oldest migration is from version 10 to 11), the database will reset.</li>
 </ol>
-<h3><a class="header" href="#rolling-back-changes" id="rolling-back-changes">Rolling back changes</a></h3>
+<h3 id="rolling-back-changes"><a class="header" href="#rolling-back-changes">Rolling back changes</a></h3>
 <p>There's no automatic &quot;rollback&quot; feature in Watermelon. If you make a mistake in migrations during development, roll back in this order:</p>
 <ol>
 <li>Comment out any changes made to schema.js</li>
@@ -305,7 +323,7 @@ export default appSchema({
 <li>Decrement schema version number (bring back the original number)</li>
 </ol>
 <p>After refreshing app, the database should reset to previous state. Now you can correct your mistake and apply changes again (please do it in order described in &quot;Migrations workflow&quot;).</p>
-<h3><a class="header" href="#unsafe-sql-migrations" id="unsafe-sql-migrations">Unsafe SQL migrations</a></h3>
+<h3 id="unsafe-sql-migrations"><a class="header" href="#unsafe-sql-migrations">Unsafe SQL migrations</a></h3>
 <p>Similar to <a href="../Schema.html">Schema</a>, you can add <code>unsafeSql</code> parameter to every migration step to modify or replace SQL generated by WatermelonDB to perform the migration. There is also an <code>unsafeExecuteSql('some sql;')</code> step you can use to append extra SQL. Those are ignored with LokiJSAdapter and for the purposes of <a href="./Sync.html">migration syncs</a>.</p>
 
                     </main>
@@ -331,13 +349,13 @@ export default appSchema({
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a href="../ch03-00-advanced.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../ch03-00-advanced.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
                 
-                    <a href="../Advanced/Sync.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../Advanced/Sync.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 
@@ -347,6 +365,14 @@ export default appSchema({
 
         
 
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
         
 
         

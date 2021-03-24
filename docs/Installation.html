@@ -1,26 +1,40 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js">
+<html lang="en" class="sidebar-visible no-js light">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Installation - WatermelonDB documentation</title>
         
+        
+
+
+        <!-- Custom HTML head -->
+        
+
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
         <link rel="shortcut icon" href="favicon.png">
+        
         <link rel="stylesheet" href="css/variables.css">
         <link rel="stylesheet" href="css/general.css">
         <link rel="stylesheet" href="css/chrome.css">
+        
         <link rel="stylesheet" href="css/print.css" media="print">
+        
 
         <!-- Fonts -->
         <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
-        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
 
         <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="highlight.css">
@@ -32,11 +46,11 @@
 
         
     </head>
-    <body class="light">
+    <body>
         <!-- Provide site root to javascript -->
         <script type="text/javascript">
             var path_to_root = "";
-            var default_theme = "light";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
@@ -60,8 +74,11 @@
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            document.body.className = theme;
-            document.querySelector('html').className = theme + ' js';
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
@@ -78,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li><a href="ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li><a href="index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li><a href="Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li><a href="ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li><a href="Installation.html" class="active"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li><a href="Schema.html"><strong aria-hidden="true">2.2.</strong> Schema</a></li><li><a href="Model.html"><strong aria-hidden="true">2.3.</strong> Defining Models</a></li><li><a href="CRUD.html"><strong aria-hidden="true">2.4.</strong> Create, Read, Update, Delete</a></li><li><a href="Components.html"><strong aria-hidden="true">2.5.</strong> Connecting to React Components</a></li><li><a href="Query.html"><strong aria-hidden="true">2.6.</strong> Querying</a></li><li><a href="Relation.html"><strong aria-hidden="true">2.7.</strong> Relations</a></li><li><a href="Actions.html"><strong aria-hidden="true">2.8.</strong> Custom Actions</a></li></ol></li><li><a href="ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li><a href="Advanced/Migrations.html"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li><a href="Advanced/Sync.html"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li><a href="Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li><a href="Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li><a href="Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li><a href="Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li><a href="Advanced/ProTips.html"><strong aria-hidden="true">3.7.</strong> Pro tips</a></li><li><a href="Advanced/Performance.html"><strong aria-hidden="true">3.8.</strong> Performance tips</a></li></ol></li><li><a href="ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li><a href="Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li><a href="Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li><li><a href="Implementation/SyncImpl.html"><strong aria-hidden="true">4.3.</strong> Sync implementation</a></li></ol></li><li><a href="ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li><a href="Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li><a href="CONTRIBUTING.html"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li><a href="CHANGELOG.html"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li class="chapter-item expanded "><a href="Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Installation.html" class="active"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="Schema.html"><strong aria-hidden="true">2.2.</strong> Schema</a></li><li class="chapter-item expanded "><a href="Model.html"><strong aria-hidden="true">2.3.</strong> Defining Models</a></li><li class="chapter-item expanded "><a href="CRUD.html"><strong aria-hidden="true">2.4.</strong> Create, Read, Update, Delete</a></li><li class="chapter-item expanded "><a href="Components.html"><strong aria-hidden="true">2.5.</strong> Connecting to React Components</a></li><li class="chapter-item expanded "><a href="Query.html"><strong aria-hidden="true">2.6.</strong> Querying</a></li><li class="chapter-item expanded "><a href="Relation.html"><strong aria-hidden="true">2.7.</strong> Relations</a></li><li class="chapter-item expanded "><a href="Actions.html"><strong aria-hidden="true">2.8.</strong> Custom Actions</a></li></ol></li><li class="chapter-item expanded "><a href="ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Advanced/Migrations.html"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li class="chapter-item expanded "><a href="Advanced/Sync.html"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li class="chapter-item expanded "><a href="Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li class="chapter-item expanded "><a href="Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li class="chapter-item expanded "><a href="Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li class="chapter-item expanded "><a href="Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li class="chapter-item expanded "><a href="Advanced/ProTips.html"><strong aria-hidden="true">3.7.</strong> Pro tips</a></li><li class="chapter-item expanded "><a href="Advanced/Performance.html"><strong aria-hidden="true">3.8.</strong> Performance tips</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li class="chapter-item expanded "><a href="Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li><li class="chapter-item expanded "><a href="Implementation/SyncImpl.html"><strong aria-hidden="true">4.3.</strong> Sync implementation</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="CONTRIBUTING.html"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="CHANGELOG.html"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -87,37 +104,38 @@
 
             <div class="page">
                 
-                <div id="menu-bar" class="menu-bar">
-                    <div id="menu-bar-sticky-container">
-                        <div class="left-buttons">
-                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
-                                <i class="fa fa-bars"></i>
-                            </button>
-                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
-                                <i class="fa fa-paint-brush"></i>
-                            </button>
-                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
-                            </ul>
-                            
-                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
-                                <i class="fa fa-search"></i>
-                            </button>
-                            
-                        </div>
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
 
-                        <h1 class="menu-title">WatermelonDB documentation</h1>
+                    <h1 class="menu-title">WatermelonDB documentation</h1>
 
-                        <div class="right-buttons">
-                            <a href="print.html" title="Print this book" aria-label="Print this book">
-                                <i id="print-button" class="fa fa-print"></i>
-                            </a>
-                            
-                        </div>
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
                     </div>
                 </div>
 
@@ -145,7 +163,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#installation" id="installation">Installation</a></h1>
+                        <h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
 <p>First, add Watermelon to your project:</p>
 <pre><code class="language-bash">yarn add @nozbe/watermelondb
 yarn add @nozbe/with-observables
@@ -154,7 +172,7 @@ yarn add @nozbe/with-observables
 <pre><code class="language-npm">npm install @nozbe/watermelondb
 npm install @nozbe/with-observables
 </code></pre>
-<h2><a class="header" href="#react-native-setup" id="react-native-setup">React Native setup</a></h2>
+<h2 id="react-native-setup"><a class="header" href="#react-native-setup">React Native setup</a></h2>
 <ol>
 <li>
 <p>Install the Babel plugin for decorators if you haven't already:</p>
@@ -179,7 +197,7 @@ npm install @nozbe/with-observables
 <p>Set up your iOS or Android project — see instructions below</p>
 </li>
 </ol>
-<h3><a class="header" href="#ios-react-native" id="ios-react-native">iOS (React Native)</a></h3>
+<h3 id="ios-react-native"><a class="header" href="#ios-react-native">iOS (React Native)</a></h3>
 <ol>
 <li>
 <p><strong>Set up Babel config in your project</strong></p>
@@ -227,7 +245,7 @@ pod 'React-jsi', :path =&gt; '../node_modules/react-native/ReactCommon/jsi', :mo
 <p>Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (although Xcode 11.5+ and iOS 12.0+ are recommended).</p>
 </li>
 </ol>
-<h3><a class="header" href="#android-react-native" id="android-react-native">Android (React Native)</a></h3>
+<h3 id="android-react-native"><a class="header" href="#android-react-native">Android (React Native)</a></h3>
 <ol>
 <li>
 <p><strong>Set up Babel config in your project</strong></p>
@@ -291,7 +309,7 @@ protected List&lt;ReactPackage&gt; getPackages() {
 <p>Alternatively, we also recommend <a href="https://github.com/react-community/jsc-android-buildscripts"><code>jsc-android</code></a>, with which you don't need this polyfill, and it also makes your app faster.</p>
 </li>
 </ol>
-<h2><a class="header" href="#nodejs-setup" id="nodejs-setup">NodeJS setup</a></h2>
+<h2 id="nodejs-setup"><a class="header" href="#nodejs-setup">NodeJS setup</a></h2>
 <ol>
 <li>
 <p>Install <a href="https://github.com/JoshuaWise/better-sqlite3">better-sqlite3</a> peer dependency</p>
@@ -302,7 +320,7 @@ protected List&lt;ReactPackage&gt; getPackages() {
 </code></pre>
 </li>
 </ol>
-<h2><a class="header" href="#web-setup" id="web-setup">Web setup</a></h2>
+<h2 id="web-setup"><a class="header" href="#web-setup">Web setup</a></h2>
 <p>This guide assumes you use Webpack as your bundler.</p>
 <ol start="3">
 <li>If you haven't already, install Babel plugins for decorators, static class properties, and async/await to get the most out of Watermelon. This assumes you use Babel 7 and already support ES6 syntax.
@@ -365,7 +383,7 @@ npm install -D @babel/plugin-transform-runtime
 </code></pre>
 </li>
 </ol>
-<h2><a class="header" href="#set-up-database" id="set-up-database">Set up <code>Database</code></a></h2>
+<h2 id="set-up-database"><a class="header" href="#set-up-database">Set up <code>Database</code></a></h2>
 <p>Create <code>model/schema.js</code> in your project:</p>
 <pre><code class="language-js">import { appSchema, tableSchema } from '@nozbe/watermelondb'
 
@@ -386,10 +404,18 @@ import schema from './model/schema'
 // First, create the adapter to the underlying database:
 const adapter = new SQLiteAdapter({
   schema,
-  // dbName: 'myapp', // optional database name or file system path
-  // migrations, // optional migrations
-  synchronous: true, // synchronous mode only works on iOS. improves performance and reduces glitches in most cases, but also has some downsides - test with and without it
-  // experimentalUseJSI: true, // experimental JSI mode, use only if you're brave
+  // optional database name or file system path
+  // dbName: 'myapp',
+  // optional migrations
+  // migrations,
+  // synchronous mode only works on iOS. improves performance and reduces glitches in most cases, but also has some downsides - test with and without it
+  synchronous: true,
+  // experimental JSI mode, a more advanced version of synchronous: true
+  // experimentalUseJSI: true,
+  // Optional, but you should implement this method:
+  onSetUpError: error =&gt; {
+    // Database failed to load -- offer the user to reload the app or log out
+  }
 })
 
 // Then, make a Watermelon database from it!
@@ -407,25 +433,29 @@ const database = new Database({
 const adapter = new LokiJSAdapter({
   schema,
   // migrations, // optional migrations
-  useWebWorker: false, // recommended for new projects. tends to improve performance and reduce glitches in most cases, but also has downsides - test with and without it
+  useWebWorker: false, // recommended setting for new projects
   useIncrementalIndexedDB: true, // recommended for new projects. improves performance (but incompatible with early Watermelon databases)
   // dbName: 'myapp', // optional db name
-  // It's recommended you implement this method:
-  // onIndexedDBVersionChange: () =&gt; {
-  //   // database was deleted in another browser tab (user logged out), so we must make sure we delete
-  //   // it in this tab as well
-  //   if (checkIfUserIsLoggedIn()) {
-  //     window.location.reload()
-  //   }
-  // },
-  // Optional:
-  // onQuotaExceededError: (error) =&gt; { /* do something when user runs out of disk space */ },
+  // Optional, but recommended event handlers:
+  onIndexedDBVersionChange: () =&gt; {
+    // database was deleted in another browser tab (user logged out), so we must make sure we delete
+    // it in this tab as well
+    if (checkIfUserIsLoggedIn()) {
+      window.location.reload()
+    }
+  },
+  onQuotaExceededError: (error) =&gt; {
+    // Browser ran out of disk space -- do something about it
+  },
+  onSetUpError: (error) =&gt; {
+    // Database failed to load -- offer the user to reload the app or log out
+  },
 })
 
 // The rest is the same!
 </code></pre>
 <hr />
-<h2><a class="header" href="#next-steps" id="next-steps">Next steps</a></h2>
+<h2 id="next-steps"><a class="header" href="#next-steps">Next steps</a></h2>
 <p>➡️ After Watermelon is installed, <a href="./Schema.html"><strong>define your app's schema</strong></a></p>
 
                     </main>
@@ -451,13 +481,13 @@ const adapter = new LokiJSAdapter({
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a href="ch02-00-learn-to-use.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="ch02-00-learn-to-use.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
                 
-                    <a href="Schema.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="Schema.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 
@@ -467,6 +497,14 @@ const adapter = new LokiJSAdapter({
 
         
 
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
         
 
         
