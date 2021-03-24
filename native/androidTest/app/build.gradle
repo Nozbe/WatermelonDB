@@ -155,6 +155,7 @@ android {
 
     packagingOptions {
         pickFirst '**/libjsc.so'
+        pickFirst '**/libc++_shared.so'
     }
 }
 
@@ -165,6 +166,7 @@ configurations {
 dependencies {
     ktlint "com.github.shyiko:ktlint:0.31.0"
     implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation "org.webkit:android-jsc:+"
     implementation project(':watermelondb')
     implementation project(':watermelondb-jsi')
     implementation 'androidx.appcompat:appcompat:1.0.2'
@@ -192,12 +194,6 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
     classpath = configurations.ktlint
     main = "com.github.shyiko.ktlint.Main"
     args "-F", "../../**/*.kt"
-}
-
-configurations.all {
-    resolutionStrategy {
-        force 'org.webkit:android-jsc:r241213'
-    }
 }
 
 
