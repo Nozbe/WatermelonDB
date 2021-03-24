@@ -168,7 +168,7 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.webkit:android-jsc:+"
     implementation project(':watermelondb')
-    implementation project(':watermelondb-jsi')
+    // implementation project(':watermelondb-jsi')
     implementation 'androidx.appcompat:appcompat:1.0.2'
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
