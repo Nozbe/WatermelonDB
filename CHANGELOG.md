@@ -15,7 +15,9 @@ Contributors: Please add your changes to CHANGELOG-Unreleased.md
 - [Model] `Model.update` method now returns updated record
 - [adapters] `onSetUpError: Error => void` option is added to both `SQLiteAdapter` and `LokiJSAdapter`. Supply this option to catch initialization errors and offer the user to reload or log out
 - [LokiJS] new `extraLokiOptions` and `extraIncrementalIDBOptions` options
-- [Android] Autolinking is now supported (v0.20 is insufficient)
+- [Android] Autolinking is now supported.
+  - If You upgrade to `<= v0.21.0` **AND** are on a version of React Native which supports Autolinking, you will need to remove the config manually linking WatermelonDB.
+  - You can resolve this issue by **REMOVING** the lines of config from your project which are _added_ in the `Manual Install ONLY` section of the [Android Install docs](https://nozbe.github.io/WatermelonDB/Installation.html#android-react-native).
 
 ### Performance
 
