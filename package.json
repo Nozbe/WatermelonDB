@@ -6,7 +6,7 @@
     "build": "NODE_ENV=production node ./scripts/make.js",
     "dev": "NODE_ENV=development node ./scripts/make.js",
     "dev:native": "react-native start",
-    "release": "node ./scripts/publish.js",
+    "release": "node ./scripts/release.js",
     "prettier": "prettier-eslint --config ./.prettierrc --write \"./src/**/*.js\"",
     "flow": "flow check --color always",
     "eslint": "eslint ./src -c ./.eslintrc.yml --cache --cache-location ./.cache/.eslintcache",
