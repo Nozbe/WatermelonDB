@@ -10,6 +10,7 @@ include_directories(
         ../../../../../node_modules/react-native/React
         ../../../../../node_modules/react-native/React/Base
         ../../../../../node_modules/react-native/ReactCommon
+        ../../../../../node_modules/react-native/ReactCommon/jsi
 # these seem necessary only if we import <jsi/JSIDynamic.h>
 #        ../../../../../node_modules/react-native/third-party/folly-2018.10.22.00
 #        ../../../../../node_modules/react-native/third-party/double-conversion-1.1.6
