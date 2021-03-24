@@ -59,9 +59,6 @@ rules:
   # react
   react/prop-types: 0
   react/jsx-filename-extension: 0
-  react/jsx-no-bind:
-    - 2
-    - ignoreRefs: true
   react/jsx-first-prop-new-line:
     - 2
     - never

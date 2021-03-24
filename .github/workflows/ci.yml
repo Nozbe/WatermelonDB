@@ -34,7 +34,7 @@ jobs:
         xcode-version: 12.2.0
     - run: yarn
     - run: bundle install
-    - run: cd native/iosText && bundle exec pod install
+    - run: cd native/iosTest && bundle exec pod install
     - run: yarn test:ios
     - run: yarn swiftlint
   android:

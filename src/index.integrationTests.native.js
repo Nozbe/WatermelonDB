@@ -36,13 +36,11 @@ if (openPlayground) {
     }
 
     return (
-      <Tester
-        specs={integrationTests}
+      <Tester specs={integrationTests}
         store={testHookStore}
         waitTime={4000}
         sendReport={true}
-        customReporter={sendReport}
-      >
+        customReporter={sendReport}>
         <Text style={{ paddingTop: 100 }}>The tests are running. Please remain calm.</Text>
       </Tester>
     )

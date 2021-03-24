@@ -1,3 +1,4 @@
+PROJECT(watermelondb-jsi C CXX)
 cmake_minimum_required(VERSION 3.4.1)
 
 # inspired by https://github.com/ericlewis/react-native-hostobject-demo/blob/6f16c01db80f928ccd294c8cc5d4668b0f8c15ec/android/app/CMakeLists.txt
@@ -38,7 +39,7 @@ add_library(watermelondb-jsi SHARED
             ../../../../shared/DatabaseInstallation.cpp
             # this seems necessary to use almost any JSI API - otherwise we get linker errors
             # seems wrong to compile a file that's already getting compiled as part of the app, but ¯\_(ツ)_/¯
-            ../../../../../node_modules/react-native/ReactCommon/jsi/jsi.cpp)
+            ../../../../../node_modules/react-native/ReactCommon/jsi/jsi/jsi.cpp)
 
 target_link_libraries(watermelondb-jsi
                       # link with these libraries:
