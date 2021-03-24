@@ -19,3 +19,14 @@ jobs:
     - run: yarn ci:check
     - name: Gradle Wrapper Validation
       uses: gradle/wrapper-validation-action@v1.0.3
+  ios:
+    runs-on: macos-10.15
+    name: Check iOS
+    steps:
+    - name: Use Node.js 12
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    - run: yarn
+    - run: bundle install
+    - run: yarn test:ios
