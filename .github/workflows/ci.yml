@@ -46,7 +46,7 @@ jobs:
         key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
     - run: yarn
     - run: bundle install
-    - run: cd native/iosTest && bundle exec pod install
+    - run: cd native/iosTest && bundle exec pod install --no-repo-update
     - run: yarn test:ios
     - run: yarn swiftlint
   android:
