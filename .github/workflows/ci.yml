@@ -15,6 +15,10 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 12.x
+    - uses: actions/cache@v2
+      with:
+        path: 'node_modules'
+        key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
     - run: yarn
     - run: yarn ci:check
     - name: Gradle Wrapper Validation
@@ -32,6 +36,14 @@ jobs:
       uses: maxim-lobanov/setup-xcode@v1.2.1
       with:
         xcode-version: 12.2.0
+    - uses: actions/cache@v2
+      with:
+        path: 'node_modules'
+        key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+    - uses: actions/cache@v2
+      with:
+        path: native/iosTest/Pods
+        key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
     - run: yarn
     - run: bundle install
     - run: cd native/iosTest && bundle exec pod install
@@ -46,6 +58,10 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 12.x
+    - uses: actions/cache@v2
+      with:
+        path: 'node_modules'
+        key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
     - run: yarn
     - run: yarn test:android
     - run: yarn ktlint
