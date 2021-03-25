@@ -52,6 +52,7 @@ jobs:
   android:
     # https://github.com/ReactiveCircus/android-emulator-runner/issues/46
     runs-on: macos-10.15
+    if: ${{ false }}
     name: Check Android
     steps:
     - uses: actions/checkout@v2
