@@ -4,13 +4,9 @@ First, add Watermelon to your project:
 
 ```bash
 yarn add @nozbe/watermelondb
-yarn add @nozbe/with-observables
-```
-or alternatively if you prefer npm:
 
-```npm
+# (or with npm:)
 npm install @nozbe/watermelondb
-npm install @nozbe/with-observables
 ```
 
 ## React Native setup
@@ -18,11 +14,10 @@ npm install @nozbe/with-observables
 1. Install the Babel plugin for decorators if you haven't already:
     ```bash
     yarn add --dev @babel/plugin-proposal-decorators
-    ```
-    or
 
-    ```bash
+    # (or with npm:)
     npm install -D @babel/plugin-proposal-decorators
+    ```
 
 2. Add ES6 decorators support to your `.babelrc` file:
     ```json
@@ -42,38 +37,44 @@ npm install @nozbe/with-observables
    See instructions above ⬆️
 
 2. **Add Swift support to your Xcode project**:
+
    - Open `ios/YourAppName.xcodeproj` in Xcode
-   - Right-click on **Your App Name** in the Project Navigator on the left, and click **New File…**
-   - Create a single empty `Swift` file to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header** and **do not remove `Swift`** file then.
+   - Right-click on **(your app name)** in the Project Navigator on the left, and click **New File…**
+   - Create a single empty Swift file (`wmelon.swift`) to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header** and **do not remove** the Swift file afterwards
 
-3. **Link WatermelonDB's native library with the Xcode project**:
+3. **Link WatermelonDB's native library using CocoaPods**
 
-    You can link WatermelonDB manually or using CocoaPods:
+    Add this to your `Podfile` (if you're using autolinking, it might not be needed):
 
-      - **Manually**
+    ```ruby
+    pod 'WatermelonDB', :path => '../node_modules/@nozbe/watermelondb'
 
-         1. Open your project in Xcode, right click on **Libraries** in the Project Navigator on the left and click **Add Files to "Your Project Name"**. Look under `node_modules/@nozbe/watermelondb/native/ios` and select `WatermelonDB.xcodeproj`
-         2. Go to Project settings (top item in the Project navigator on the left), select your app name under **Targets** → **Build Phases** → **Link Binary With Libraries**, and add `libWatermelonDB.a`
+    # NOTE: Do not remove, needed to keep WatermelonDB compiling:
+    pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi', :modular_headers => true
+    ```
 
-         For more information about linking libraries manually, [see React Native documentation](https://facebook.github.io/react-native/docs/linking-libraries-ios).
+    Note that as of WatermelonDB 0.22, manual (non-CocoaPods) linking is not supported.
 
-      - **Link WatermelonDB's native library with the Xcode project -- using CocoaPods**:
+    At least Xcode 12.2 and iOS 13 are recommended (earlier versions are not tested for compatibility).
 
-          1. Add this to your CocoaPods (might not be needed if you're using autolinking):
+4. **Fix up your Bridging Header**
 
-              ```ruby
-              pod 'WatermelonDB', :path => '../node_modules/@nozbe/watermelondb'
-              ```
-          2. Unfortunately, the build will fail due to an issue with React Native's Pods, so you need to modify this line:
+    You will likely see that the iOS build fails to compile. If this happens:
 
-              ```ruby
-              # Before:
-              pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi'
-              # Change to:
-              pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi', :modular_headers => true
-              ```
+       - Open the Swift Bridging Header (likely `ios/YourAppName/YourAppName-Bridging-Header.h`)
+       - Paste this:
 
-      Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (although Xcode 11.5+ and iOS 12.0+ are recommended).
+           ```objc
+           #import <React/RCTBundleURLProvider.h>
+           #import <React/RCTRootView.h>
+           #import <React/RCTViewManager.h>
+           #import <React/RCTBridgeModule.h>
+
+           // Silence warning
+           #import "../../node_modules/@nozbe/watermelondb/native/ios/WatermelonDB/SupportingFiles/Bridging.h"
+          ```
+
+          You might have to tweak the import path to correctly locate Watermelon's bridging header
 
 ### Android (React Native)
 
@@ -125,19 +126,7 @@ npm install @nozbe/with-observables
 6. **Troubleshooting**. If you get this error:
     > `Can't find variable: Symbol`
 
-    You might need a polyfill for ES6 Symbol:
-
-    ```bash
-    yarn add es6-symbol
-    ```
-
-    And in your `index.js`:
-
-    ```bash
-    import 'es6-symbol/implement'
-    ```
-
-    Alternatively, we also recommend [`jsc-android`](https://github.com/react-community/jsc-android-buildscripts), with which you don't need this polyfill, and it also makes your app faster.
+    You're using an ancient version of JSC. Install [`jsc-android`](https://github.com/react-community/jsc-android-buildscripts) or Hermes.
 
 
 ## NodeJS setup
@@ -145,10 +134,8 @@ npm install @nozbe/with-observables
 1. Install [better-sqlite3](https://github.com/JoshuaWise/better-sqlite3) peer dependency
     ```sh
     yarn add --dev better-sqlite3
-    ```
-    or
 
-    ```bash
+    # (or with npm:)
     npm install -D better-sqlite3
     ```
 
@@ -161,9 +148,8 @@ This guide assumes you use Webpack as your bundler.
     yarn add --dev @babel/plugin-proposal-decorators
     yarn add --dev @babel/plugin-proposal-class-properties
     yarn add --dev @babel/plugin-transform-runtime
-    ```
-    or
-    ```bash
+
+    # (or with npm:)
     npm install -D @babel/plugin-proposal-decorators
     npm install -D @babel/plugin-proposal-class-properties
     npm install -D @babel/plugin-transform-runtime
@@ -190,10 +176,8 @@ If you want to use Web Worker for WatermelonDB (this has pros and cons, we recom
 1. Install [worker-loader](https://github.com/webpack-contrib/worker-loader) Webpack plugin to add support for Web Workers to your app:
     ```sh
     yarn add --dev worker-loader
-    ```
-    or
 
-    ```bash
+    # (or with npm:)
     npm install -D worker-loader
     ```
 
