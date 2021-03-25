@@ -141,4 +141,10 @@ describe('Relation', () => {
 
     expect(observable1).toBe(observable2)
   })
+  it(`has wmelon tag`, () => {
+    const { tasks } = mockDatabase()
+    const model = new MockTask(tasks, {})
+    const relation = new Relation(model, 't1', 'c1', { isImmutable: false })
+    expect(relation.constructor._wmelonTag).toBe('relation')
+  })
 })

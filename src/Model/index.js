@@ -40,6 +40,9 @@ export default class Model {
   // Set this in concrete Models to define relationships between different records
   static associations: Associations = {}
 
+  // Used by withObservables to differentiate between object types
+  static _wmelonTag = 'model'
+
   _raw: RawRecord
 
   _isEditing: boolean = false

@@ -40,6 +40,9 @@ interface QueryCountProxy {
 }
 
 export default class Query<Record: Model> {
+  // Used by withObservables to differentiate between object types
+  static _wmelonTag = 'query'
+
   collection: Collection<Record>
 
   description: QueryDescription

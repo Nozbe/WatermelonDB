@@ -21,6 +21,9 @@ export type Options = $Exact<{
 // Defines a one-to-one relation between two Models (two tables in db)
 // Do not create this object directly! Use `relation` or `immutableRelation` decorators instead
 export default class Relation<T: ?Model> {
+  // Used by withObservables to differentiate between object types
+  static _wmelonTag = 'relation'
+
   _model: Model
 
   _columnName: ColumnName
