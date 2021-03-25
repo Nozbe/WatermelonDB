@@ -14,9 +14,11 @@
 ### Performance
 
 - Removed dependency on rambdax and made the util library smaller
+- Faster withObservables
 
 ### Changes
 
+- withObservables is now a dependency of WatermelonDB for simpler installation and consistent updates. You can (and generally should) delete `@nozbe/with-observables` from your app's package.json
 - [Docs] Add advanced tutorial to share database across iOS targets - @thiagobrez
 - [Sqlite] Allowed callbacks (within the migrationEvents object) to be passed so as to track the migration events status ( onStart, onSuccess, onError ) - @avinashlng1080
 - [Sqlite] Added a dev-only `Query._sql()` method for quickly extracting SQL from Queries for debugging purposes
@@ -25,5 +27,6 @@
 
 - Fixed incorrect reference to `process`, which can break apps in some environments (e.g. webpack5)
 - Fixed a race condition when using standard fetch methods alongside `Collection.unsafeFetchRecordsWithSQL` - @jspizziri
+- withObservables shouldn't cause any RxJS issues anymore as it no longer imports RxJS
 
 ### Internal
