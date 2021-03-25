@@ -52,7 +52,6 @@ jobs:
   android:
     # https://github.com/ReactiveCircus/android-emulator-runner/issues/46
     runs-on: macos-10.15
-    if: ${{ false }}
     name: Check Android
     steps:
     - uses: actions/checkout@v2
@@ -65,7 +64,11 @@ jobs:
         path: 'node_modules'
         key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
     - run: yarn
-    - run: scripts/any-android-device
-    - run: yarn test:android
+    - name: run tests
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 29
+        working-directory: ./native/androidTest
+        script: ./gradlew connectedAndroidTest
     - run: yarn ktlint
 
