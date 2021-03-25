@@ -10,6 +10,7 @@
 
 - [Learn to use Watermelon](./ch02-00-learn-to-use.md)
     - [Installation](./Installation.md)
+    - [Setup](./Setup.md)
     - [Schema](./Schema.md)
     - [Defining Models](./Model.md)
     - [Create, Read, Update, Delete](./CRUD.md)

@@ -59,22 +59,19 @@ npm install @nozbe/watermelondb
 
 4. **Fix up your Bridging Header**
 
-    You will likely see that the iOS build fails to compile. If this happens:
+    You will likely see that the iOS build fails to compile. If this happens, locate the Swift Bridging Header (likely `ios/YourAppName/YourAppName-Bridging-Header.h`), and paste this:
 
-       - Open the Swift Bridging Header (likely `ios/YourAppName/YourAppName-Bridging-Header.h`)
-       - Paste this:
+    ```objc
+    #import <React/RCTBundleURLProvider.h>
+    #import <React/RCTRootView.h>
+    #import <React/RCTViewManager.h>
+    #import <React/RCTBridgeModule.h>
 
-           ```objc
-           #import <React/RCTBundleURLProvider.h>
-           #import <React/RCTRootView.h>
-           #import <React/RCTViewManager.h>
-           #import <React/RCTBridgeModule.h>
+    // Silence warning
+    #import "../../node_modules/@nozbe/watermelondb/native/ios/WatermelonDB/SupportingFiles/Bridging.h"
+    ```
 
-           // Silence warning
-           #import "../../node_modules/@nozbe/watermelondb/native/ios/WatermelonDB/SupportingFiles/Bridging.h"
-          ```
-
-          You might have to tweak the import path to correctly locate Watermelon's bridging header
+    You might have to tweak the import path to correctly locate Watermelon's bridging header.
 
 ### Android (React Native)
 
@@ -171,120 +168,8 @@ This guide assumes you use Webpack as your bundler.
     }
     ```
 
-If you want to use Web Worker for WatermelonDB (this has pros and cons, we recommend you start without Web Workers, and evaluate later if it makes sense for your app to use them):
-
-1. Install [worker-loader](https://github.com/webpack-contrib/worker-loader) Webpack plugin to add support for Web Workers to your app:
-    ```sh
-    yarn add --dev worker-loader
-
-    # (or with npm:)
-    npm install -D worker-loader
-    ```
-
-2. And add this to Webpack configuration:
-    ```js
-    // webpack.config.js
-    {
-      module: {
-        rules: [
-          // ⬇️ Add this:
-          {
-            test: /\.worker\.js$/,
-            use: { loader: 'worker-loader' }
-          }
-        ]
-      },
-      // ...
-      output: {
-        // ...
-        globalObject: 'this', // ⬅️ And this
-      }
-    }
-    ```
-
-## Set up `Database`
-
-Create `model/schema.js` in your project:
-
-```js
-import { appSchema, tableSchema } from '@nozbe/watermelondb'
-
-export default appSchema({
-  version: 1,
-  tables: [
-    // tableSchemas go here...
-  ]
-})
-```
-
-You'll need it for [the next step](./Schema.md). Now, in your `index.js`:
-
-```js
-import { Database } from '@nozbe/watermelondb'
-import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite'
-
-import schema from './model/schema'
-// import Post from './model/Post' // ⬅️ You'll import your Models here
-
-// First, create the adapter to the underlying database:
-const adapter = new SQLiteAdapter({
-  schema,
-  // optional database name or file system path
-  // dbName: 'myapp',
-  // optional migrations
-  // migrations,
-  // synchronous mode only works on iOS. improves performance and reduces glitches in most cases, but also has some downsides - test with and without it
-  synchronous: true,
-  // experimental JSI mode, a more advanced version of synchronous: true
-  // experimentalUseJSI: true,
-  // Optional, but you should implement this method:
-  onSetUpError: error => {
-    // Database failed to load -- offer the user to reload the app or log out
-  }
-})
-
-// Then, make a Watermelon database from it!
-const database = new Database({
-  adapter,
-  modelClasses: [
-    // Post, // ⬅️ You'll add Models to Watermelon here
-  ],
-  actionsEnabled: true,
-})
-```
-
-The above will work on React Native (iOS/Android) and NodeJS. For the web, instead of `SQLiteAdapter` use `LokiJSAdapter`:
-
-```js
-import LokiJSAdapter from '@nozbe/watermelondb/adapters/lokijs'
-
-const adapter = new LokiJSAdapter({
-  schema,
-  // migrations, // optional migrations
-  useWebWorker: false, // recommended setting for new projects
-  useIncrementalIndexedDB: true, // recommended for new projects. improves performance (but incompatible with early Watermelon databases)
-  // dbName: 'myapp', // optional db name
-  // Optional, but recommended event handlers:
-  onIndexedDBVersionChange: () => {
-    // database was deleted in another browser tab (user logged out), so we must make sure we delete
-    // it in this tab as well
-    if (checkIfUserIsLoggedIn()) {
-      window.location.reload()
-    }
-  },
-  onQuotaExceededError: (error) => {
-    // Browser ran out of disk space -- do something about it
-  },
-  onSetUpError: (error) => {
-    // Database failed to load -- offer the user to reload the app or log out
-  },
-})
-
-// The rest is the same!
-```
-
 * * *
 
 ## Next steps
 
-➡️ After Watermelon is installed, [**define your app's schema**](./Schema.md)
+➡️ After Watermelon is installed, [**set it up**](./Setup.md)
