@@ -3,7 +3,7 @@ package com.nozbe.watermelonTest
 import com.facebook.react.ReactActivity
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.ReactInstanceManager
-// import com.nozbe.watermelondb.jsi.WatermelonJSI
+import com.nozbe.watermelondb.jsi.WatermelonJSI
 
 class MainActivity : ReactActivity(), ReactInstanceManager.ReactInstanceEventListener {
     override fun getMainComponentName(): String? = "watermelonTest"
