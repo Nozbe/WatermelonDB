@@ -41,7 +41,7 @@ export default class Model {
   static associations: Associations = {}
 
   // Used by withObservables to differentiate between object types
-  static _wmelonTag = 'model'
+  static _wmelonTag: string = 'model'
 
   _raw: RawRecord
 

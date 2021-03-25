@@ -22,7 +22,7 @@ export type Options = $Exact<{
 // Do not create this object directly! Use `relation` or `immutableRelation` decorators instead
 export default class Relation<T: ?Model> {
   // Used by withObservables to differentiate between object types
-  static _wmelonTag = 'relation'
+  static _wmelonTag: string = 'relation'
 
   _model: Model
 
