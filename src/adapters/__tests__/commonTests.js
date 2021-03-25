@@ -1,4 +1,4 @@
-import expect from 'expect'
+import expect from 'expect-rn'
 import naughtyStrings from 'big-list-of-naughty-strings'
 
 import expectToRejectWithMessage from '../../__tests__/utils/expectToRejectWithMessage'

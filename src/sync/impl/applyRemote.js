@@ -1,11 +1,6 @@
 // @flow
 
-import {
-  mapObj,
-  filterObj,
-  pipe,
-  toPairs,
-} from '../../utils/fp'
+import { mapObj, filterObj, pipe, toPairs } from '../../utils/fp'
 import splitEvery from '../../utils/fp/splitEvery'
 import allPromisesObj from '../../utils/fp/allPromisesObj'
 import { logError, invariant, logger } from '../../utils/common'
@@ -168,27 +163,28 @@ const getAllRecordsToApply = (
 ): AllRecordsToApply =>
   allPromisesObj(
     pipe(
-    filterObj((_changes, tableName: TableName<any>) => {
-      const collection = db.get((tableName: any))
+      filterObj((_changes, tableName: TableName<any>) => {
+        const collection = db.get((tableName: any))
 
-      if (!collection) {
-        logger.warn(
-          `You are trying to sync a collection named ${tableName}, but it does not exist. Will skip it (for forward-compatibility). If this is unexpected, perhaps you forgot to add it to your Database constructor's modelClasses property?`,
-        )
-      }
+        if (!collection) {
+          logger.warn(
+            `You are trying to sync a collection named ${tableName}, but it does not exist. Will skip it (for forward-compatibility). If this is unexpected, perhaps you forgot to add it to your Database constructor's modelClasses property?`,
+          )
+        }
 
-      return !!collection
-    }),
-    mapObj((changes, tableName: TableName<any>) => {
-      return recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes)
-    }))(remoteChanges)
+        return !!collection
+      }),
+      mapObj((changes, tableName: TableName<any>) => {
+        return recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes)
+      }),
+    )(remoteChanges),
   )
 
 const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> => {
   const promises = toPairs(recordsToApply).map(([tableName, { deletedRecordsToDestroy }]) => {
-    return deletedRecordsToDestroy.length ?
-      db.adapter.destroyDeletedRecords((tableName: any), deletedRecordsToDestroy) :
-      null
+    return deletedRecordsToDestroy.length
+      ? db.adapter.destroyDeletedRecords((tableName: any), deletedRecordsToDestroy)
+      : null
   })
   return Promise.all(promises)
 }
@@ -202,13 +198,15 @@ const applyAllRemoteChanges = (
 ): Promise<void> => {
   const allRecords = []
   toPairs(recordsToApply).forEach(([tableName, records]) => {
-    allRecords.push(...prepareApplyRemoteChangesToCollection(
-      db.get((tableName: any)),
-      records,
-      sendCreatedAsUpdated,
-      log,
-      conflictResolver,
-    ))
+    allRecords.push(
+      ...prepareApplyRemoteChangesToCollection(
+        db.get((tableName: any)),
+        records,
+        sendCreatedAsUpdated,
+        log,
+        conflictResolver,
+      ),
+    )
   })
   return db.batch(allRecords)
 }
@@ -252,21 +250,15 @@ export default function applyRemoteChanges(
     // Perform steps concurrently
     await Promise.all([
       destroyAllDeletedRecords(db, recordsToApply),
-      _unsafeBatchPerCollection ?
-        unsafeApplyAllRemoteChangesByBatches(
-          db,
-          recordsToApply,
-          sendCreatedAsUpdated,
-          log,
-          conflictResolver,
-        ) :
-        applyAllRemoteChanges(
-          db,
-          recordsToApply,
-          sendCreatedAsUpdated,
-          log,
-          conflictResolver,
-        ),
+      _unsafeBatchPerCollection
+        ? unsafeApplyAllRemoteChangesByBatches(
+            db,
+            recordsToApply,
+            sendCreatedAsUpdated,
+            log,
+            conflictResolver,
+          )
+        : applyAllRemoteChanges(db, recordsToApply, sendCreatedAsUpdated, log, conflictResolver),
     ])
   }, 'sync-applyRemoteChanges')
 }

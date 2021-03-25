@@ -59,9 +59,6 @@ rules:
   # react
   react/prop-types: 0
   react/jsx-filename-extension: 0
-  react/jsx-no-bind:
-    - 2
-    - ignoreRefs: true
   react/jsx-first-prop-new-line:
     - 2
     - never
@@ -92,11 +89,15 @@ rules:
   import/prefer-default-export: 0
   import/named: 0 # doesn't seem to work with Flow
   import/no-extraneous-dependencies: 0
-  import/no-cycle: 0 # FIXME: broken with flow https://github.com/benmosher/eslint-plugin-import/issues/1343
+  import/no-cycle: 0
   jest/no-large-snapshots: 1
   jest/no-disabled-tests: 0
   global-require: 0
   no-plusplus: 0
+  max-classes-per-file: 0
+  prefer-object-spread: 0
+  react/jsx-props-no-spreading: 0
+  react/jsx-no-bind: 0
 
 overrides:
   - files:

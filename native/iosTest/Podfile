@@ -1,13 +1,30 @@
 source 'https://github.com/CocoaPods/Specs.git'
 workspace 'WatermelonTester.xcworkspace'
 
+require_relative '../../node_modules/react-native/scripts/react_native_pods'
+require_relative '../../node_modules/@react-native-community/cli-platform-ios/native_modules'
+
+platform :ios, '13.0'
+
 target 'WatermelonTester' do
-  platform :ios, '11.3'
+  config = use_native_modules!
+
+  use_react_native!(
+    path: '../../node_modules/react-native',
+    # hermes_enabled: false
+  )
+
+  pod 'React-jsi', path: '../../node_modules/react-native/ReactCommon/jsi', modular_headers: true
+  pod 'WatermelonDB', path: '../../'
+
+  # post_install do |installer|
+  #   react_native_post_install(installer)
+  # end
 
   target 'WatermelonTesterTests' do
     inherit! :search_paths
     use_frameworks!
 
-    pod 'Nimble',                 '~> 7.0'
+    pod 'Nimble',                 '~> 8.1.2'
   end
 end
