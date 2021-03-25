@@ -20,7 +20,7 @@
     "native/ios/**/*.{h,m,mm,swift,c,cpp}",
     "native/shared/*.{h,c,cpp}"
   ],
-  "public_header_files": "**/Bridging.h",
+  "public_header_files": "native/ios/WatermelonDB/SupportingFiles/Bridging.h",
   "requires_arc": true,
   "dependencies": {
     "React": [
