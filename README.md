@@ -178,3 +178,4 @@ If you make or are considering making an app using WatermelonDB, please let us k
 **Contributors:** [@mobily](https://github.com/mobily), [@kokusGr](https://github.com/kokusGr), [@rozPierog](https://github.com/rozPierog), [@rkrajewski](https://github.com/rkrajewski), [@domeknn](https://github.com/domeknn), [@Tereszkiewicz](https://github.com/Tereszkiewicz) and [more](https://github.com/Nozbe/WatermelonDB/graphs/contributors).
 
 WatermelonDB is available under the MIT license. See the [LICENSE file](./LICENSE) for more info.
+
