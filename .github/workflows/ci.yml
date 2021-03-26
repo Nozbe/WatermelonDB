@@ -32,19 +32,21 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 12.x
-    - name: Select Xcode Version
+    - name: Use Xcode 12.2
       uses: maxim-lobanov/setup-xcode@v1.2.1
       with:
         xcode-version: 12.2.0
     - name: ccache
       uses: hendrikmuhs/ccache-action@v1
-    - uses: actions/cache@v2
+    - name: cache node_modules
+      uses: actions/cache@v2
       with:
         path: 'node_modules'
         key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
     - run: yarn
-    - uses: actions/cache@v2
-      name: pods-cache
+    - name: cache Pods
+      uses: actions/cache@v2
+      id: pods-cache
       with:
         path: native/iosTest/Pods
         key: ${{ runner.os }}-pods-cache-${{ hashFiles('**/Podfile.lock') }}
