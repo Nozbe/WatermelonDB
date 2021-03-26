@@ -44,11 +44,14 @@ jobs:
         key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
     - run: yarn
     - uses: actions/cache@v2
+      name: pods-cache
       with:
-        path: ~/.cocoapods/repos
-        key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+        path: native/iosTest/Pods
+        key: ${{ runner.os }}-pods-cache-${{ hashFiles('**/Podfile.lock') }}
     - run: bundle install
-    - run: cd native/iosTest && bundle exec pod install
+    - name: 'pod install'
+      if: steps.pods-cache.outputs.cache-hit != 'true'
+      run: cd native/iosTest && bundle exec pod install
     - run: yarn test:ios
     - run: yarn swiftlint
   android:
