@@ -45,7 +45,12 @@ class Root extends Component {
 
   render() {
     const {search, isGenerating, isSearchFocused} = this.state;
-    const {navigation, timeToLaunch} = this.props;
+    const {
+      navigation,
+      route: {
+        params: {timeToLaunch},
+      },
+    } = this.props;
 
     return (
       <ScrollView>

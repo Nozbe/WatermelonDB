@@ -33,5 +33,4 @@ export const database = new Database({
   actionsEnabled: true,
 });
 
-
 AppRegistry.registerComponent(appName, () => App);
