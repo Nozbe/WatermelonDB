@@ -8,6 +8,7 @@ import prompt from './helpers/prompt';
 import Button from './helpers/Button';
 import {extractId} from '../utils';
 
+
 const renderComment = ({item}) => <Comment comment={item} key={item.id} />;
 
 class Post extends Component {
