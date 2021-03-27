@@ -24,10 +24,10 @@ declare module '@nozbe/watermelondb/adapters/lokijs' {
     useWebWorker?: boolean
     useIncrementalIndexedDB?: boolean
     _testLokiAdapter?: LokiMemoryAdapter
-    useWebWorker?: boolean
-    useIncrementalIndexedDB?: boolean
     onIndexedDBVersionChange?: () => void
     onQuotaExceededError?: (error: any) => void
+    onSetUpError?: (error: Error) => void
+    onIndexedDBFetchStart?: () => void
   }
 
   export default class LokiJSAdapter implements DatabaseAdapter {
