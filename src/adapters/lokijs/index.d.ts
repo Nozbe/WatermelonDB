@@ -24,8 +24,6 @@ declare module '@nozbe/watermelondb/adapters/lokijs' {
     useWebWorker?: boolean
     useIncrementalIndexedDB?: boolean
     _testLokiAdapter?: LokiMemoryAdapter
-    useWebWorker?: boolean
-    useIncrementalIndexedDB?: boolean
     onIndexedDBVersionChange?: () => void
     onQuotaExceededError?: (error: any) => void
   }

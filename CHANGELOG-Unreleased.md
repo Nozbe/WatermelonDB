@@ -19,6 +19,7 @@
 
 - [Docs] Add advanced tutorial to share database across iOS targets - @thiagobrez
 - [Sqlite] Allowed callbacks (within the migrationEvents object) to be passed so as to track the migration events status ( onStart, onSuccess, onError ) - @avinashlng1080
+- [Typescript] Removed duplicated identifiers `useWebWorker` and `useIncrementalIndexedDB` in `LokiAdapterOptions` - @3DDario
 
 ### Fixes
 
