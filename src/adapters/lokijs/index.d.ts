@@ -26,6 +26,8 @@ declare module '@nozbe/watermelondb/adapters/lokijs' {
     _testLokiAdapter?: LokiMemoryAdapter
     onIndexedDBVersionChange?: () => void
     onQuotaExceededError?: (error: any) => void
+    onSetUpError?: (error: Error) => void
+    onIndexedDBFetchStart?: () => void
   }
 
   export default class LokiJSAdapter implements DatabaseAdapter {
