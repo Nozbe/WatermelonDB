@@ -15,10 +15,6 @@
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License">
   </a>
 
-  <a href="https://travis-ci.com/Nozbe/WatermelonDB">
-    <img src="https://api.travis-ci.com/Nozbe/WatermelonDB.svg?branch=master" alt="CI Status">
-  </a>
-
   <a href="https://www.npmjs.com/package/@nozbe/watermelondb">
     <img src="https://img.shields.io/npm/v/@nozbe/watermelondb.svg" alt="npm">
   </a>
@@ -147,7 +143,7 @@ The result is fully reactive! Whenever a post or comment is added, changed, or r
   <a href="https://rocket.chat/">
     <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/rocketchat.png" alt="Rocket Chat" width="300" />
   </a>
-  
+
   <br>
 
   <a href="https://halogo.com.au/">

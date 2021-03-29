@@ -41,8 +41,9 @@ import { makeDispatcher, DatabaseBridge, getDispatcherType } from './makeDispatc
 
 export type { SQL, SQLiteArg, SQLiteQuery }
 
-// Hacky-ish way to create an object with NativeModule-like shape, but that can dispatch method
-// calls to async, synch NativeModule, or JSI implementation w/ type safety in rest of the impl
+if (process.env.NODE_ENV !== 'production') {
+  require('./devtools')
+}
 
 export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapter {
   schema: AppSchema
@@ -69,6 +70,8 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     this._migrationEvents = migrationEvents
     this._dbName = this._getName(dbName)
     this._dispatcherType = getDispatcherType(options)
+    // Hacky-ish way to create an object with NativeModule-like shape, but that can dispatch method
+    // calls to async, synch NativeModule, or JSI implementation w/ type safety in rest of the impl
     this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName)
 
     if (process.env.NODE_ENV !== 'production') {
@@ -156,7 +159,9 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
     if (migrationSteps) {
       logger.log(
-        `[WatermelonDB][SQLite] Migrating from version ${databaseVersion} to ${this.schema.version}...`,
+        `[WatermelonDB][SQLite] Migrating from version ${databaseVersion} to ${
+          this.schema.version
+        }...`,
       )
 
       if (this._migrationEvents && this._migrationEvents.onStart) {

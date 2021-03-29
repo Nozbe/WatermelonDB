@@ -28,3 +28,21 @@ target 'WatermelonTester' do
     pod 'Nimble',                 '~> 8.1.2'
   end
 end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      # ccache bails out of caching if clang modules are enabled, but this breaks some packages
+      # you also have to be careful about PCHs
+      # sometimes you might have to manually add a system framework to project Link phase
+      # more info: https://pspdfkit.com/blog/2015/ccache-for-fun-and-profit/
+      config.build_settings['CC'] ||= ['$(SRCROOT)/../../../scripts/ccache-clang']
+      case target.name
+      when 'Nimble'
+        config.build_settings['CLANG_ENABLE_MODULES'] ||= ['YES']
+      else
+        config.build_settings['CLANG_ENABLE_MODULES'] ||= ['NO']
+      end
+    end
+  end
+end

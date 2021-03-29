@@ -4,13 +4,9 @@ First, add Watermelon to your project:
 
 ```bash
 yarn add @nozbe/watermelondb
-yarn add @nozbe/with-observables
-```
-or alternatively if you prefer npm:
 
-```npm
+# (or with npm:)
 npm install @nozbe/watermelondb
-npm install @nozbe/with-observables
 ```
 
 ## React Native setup
@@ -18,11 +14,10 @@ npm install @nozbe/with-observables
 1. Install the Babel plugin for decorators if you haven't already:
     ```bash
     yarn add --dev @babel/plugin-proposal-decorators
-    ```
-    or
 
-    ```bash
+    # (or with npm:)
     npm install -D @babel/plugin-proposal-decorators
+    ```
 
 2. Add ES6 decorators support to your `.babelrc` file:
     ```json
@@ -42,38 +37,41 @@ npm install @nozbe/with-observables
    See instructions above ⬆️
 
 2. **Add Swift support to your Xcode project**:
+
    - Open `ios/YourAppName.xcodeproj` in Xcode
-   - Right-click on **Your App Name** in the Project Navigator on the left, and click **New File…**
-   - Create a single empty `Swift` file to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header** and **do not remove `Swift`** file then.
+   - Right-click on **(your app name)** in the Project Navigator on the left, and click **New File…**
+   - Create a single empty Swift file (`wmelon.swift`) to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header** and **do not remove** the Swift file afterwards
 
-3. **Link WatermelonDB's native library with the Xcode project**:
+3. **Link WatermelonDB's native library using CocoaPods**
 
-    You can link WatermelonDB manually or using CocoaPods:
+    Add this to your `Podfile` (if you're using autolinking, it might not be needed):
 
-      - **Manually**
+    ```ruby
+    pod 'WatermelonDB', :path => '../node_modules/@nozbe/watermelondb'
 
-         1. Open your project in Xcode, right click on **Libraries** in the Project Navigator on the left and click **Add Files to "Your Project Name"**. Look under `node_modules/@nozbe/watermelondb/native/ios` and select `WatermelonDB.xcodeproj`
-         2. Go to Project settings (top item in the Project navigator on the left), select your app name under **Targets** → **Build Phases** → **Link Binary With Libraries**, and add `libWatermelonDB.a`
+    # NOTE: Do not remove, needed to keep WatermelonDB compiling:
+    pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi', :modular_headers => true
+    ```
 
-         For more information about linking libraries manually, [see React Native documentation](https://facebook.github.io/react-native/docs/linking-libraries-ios).
+    Note that as of WatermelonDB 0.22, manual (non-CocoaPods) linking is not supported.
 
-      - **Link WatermelonDB's native library with the Xcode project -- using CocoaPods**:
+    At least Xcode 12.2 and iOS 13 are recommended (earlier versions are not tested for compatibility).
 
-          1. Add this to your CocoaPods (might not be needed if you're using autolinking):
+4. **Fix up your Bridging Header**
 
-              ```ruby
-              pod 'WatermelonDB', :path => '../node_modules/@nozbe/watermelondb'
-              ```
-          2. Unfortunately, the build will fail due to an issue with React Native's Pods, so you need to modify this line:
+    You will likely see that the iOS build fails to compile. If this happens, locate the Swift Bridging Header (likely `ios/YourAppName/YourAppName-Bridging-Header.h`), and paste this:
 
-              ```ruby
-              # Before:
-              pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi'
-              # Change to:
-              pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi', :modular_headers => true
-              ```
+    ```objc
+    #import <React/RCTBundleURLProvider.h>
+    #import <React/RCTRootView.h>
+    #import <React/RCTViewManager.h>
+    #import <React/RCTBridgeModule.h>
 
-      Note that Xcode 9.4 and a deployment target of at least iOS 9.0 is required (although Xcode 11.5+ and iOS 12.0+ are recommended).
+    // Silence warning
+    #import "../../node_modules/@nozbe/watermelondb/native/ios/WatermelonDB/SupportingFiles/Bridging.h"
+    ```
+
+    You might have to tweak the import path to correctly locate Watermelon's bridging header.
 
 ### Android (React Native)
 
@@ -125,19 +123,7 @@ npm install @nozbe/with-observables
 6. **Troubleshooting**. If you get this error:
     > `Can't find variable: Symbol`
 
-    You might need a polyfill for ES6 Symbol:
-
-    ```bash
-    yarn add es6-symbol
-    ```
-
-    And in your `index.js`:
-
-    ```bash
-    import 'es6-symbol/implement'
-    ```
-
-    Alternatively, we also recommend [`jsc-android`](https://github.com/react-community/jsc-android-buildscripts), with which you don't need this polyfill, and it also makes your app faster.
+    You're using an ancient version of JSC. Install [`jsc-android`](https://github.com/react-community/jsc-android-buildscripts) or Hermes.
 
 
 ## NodeJS setup
@@ -145,10 +131,8 @@ npm install @nozbe/with-observables
 1. Install [better-sqlite3](https://github.com/JoshuaWise/better-sqlite3) peer dependency
     ```sh
     yarn add --dev better-sqlite3
-    ```
-    or
 
-    ```bash
+    # (or with npm:)
     npm install -D better-sqlite3
     ```
 
@@ -161,9 +145,8 @@ This guide assumes you use Webpack as your bundler.
     yarn add --dev @babel/plugin-proposal-decorators
     yarn add --dev @babel/plugin-proposal-class-properties
     yarn add --dev @babel/plugin-transform-runtime
-    ```
-    or
-    ```bash
+
+    # (or with npm:)
     npm install -D @babel/plugin-proposal-decorators
     npm install -D @babel/plugin-proposal-class-properties
     npm install -D @babel/plugin-transform-runtime
@@ -185,122 +168,8 @@ This guide assumes you use Webpack as your bundler.
     }
     ```
 
-If you want to use Web Worker for WatermelonDB (this has pros and cons, we recommend you start without Web Workers, and evaluate later if it makes sense for your app to use them):
-
-1. Install [worker-loader](https://github.com/webpack-contrib/worker-loader) Webpack plugin to add support for Web Workers to your app:
-    ```sh
-    yarn add --dev worker-loader
-    ```
-    or
-
-    ```bash
-    npm install -D worker-loader
-    ```
-
-2. And add this to Webpack configuration:
-    ```js
-    // webpack.config.js
-    {
-      module: {
-        rules: [
-          // ⬇️ Add this:
-          {
-            test: /\.worker\.js$/,
-            use: { loader: 'worker-loader' }
-          }
-        ]
-      },
-      // ...
-      output: {
-        // ...
-        globalObject: 'this', // ⬅️ And this
-      }
-    }
-    ```
-
-## Set up `Database`
-
-Create `model/schema.js` in your project:
-
-```js
-import { appSchema, tableSchema } from '@nozbe/watermelondb'
-
-export default appSchema({
-  version: 1,
-  tables: [
-    // tableSchemas go here...
-  ]
-})
-```
-
-You'll need it for [the next step](./Schema.md). Now, in your `index.js`:
-
-```js
-import { Database } from '@nozbe/watermelondb'
-import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite'
-
-import schema from './model/schema'
-// import Post from './model/Post' // ⬅️ You'll import your Models here
-
-// First, create the adapter to the underlying database:
-const adapter = new SQLiteAdapter({
-  schema,
-  // optional database name or file system path
-  // dbName: 'myapp',
-  // optional migrations
-  // migrations,
-  // synchronous mode only works on iOS. improves performance and reduces glitches in most cases, but also has some downsides - test with and without it
-  synchronous: true,
-  // experimental JSI mode, a more advanced version of synchronous: true
-  // experimentalUseJSI: true,
-  // Optional, but you should implement this method:
-  onSetUpError: error => {
-    // Database failed to load -- offer the user to reload the app or log out
-  }
-})
-
-// Then, make a Watermelon database from it!
-const database = new Database({
-  adapter,
-  modelClasses: [
-    // Post, // ⬅️ You'll add Models to Watermelon here
-  ],
-  actionsEnabled: true,
-})
-```
-
-The above will work on React Native (iOS/Android) and NodeJS. For the web, instead of `SQLiteAdapter` use `LokiJSAdapter`:
-
-```js
-import LokiJSAdapter from '@nozbe/watermelondb/adapters/lokijs'
-
-const adapter = new LokiJSAdapter({
-  schema,
-  // migrations, // optional migrations
-  useWebWorker: false, // recommended setting for new projects
-  useIncrementalIndexedDB: true, // recommended for new projects. improves performance (but incompatible with early Watermelon databases)
-  // dbName: 'myapp', // optional db name
-  // Optional, but recommended event handlers:
-  onIndexedDBVersionChange: () => {
-    // database was deleted in another browser tab (user logged out), so we must make sure we delete
-    // it in this tab as well
-    if (checkIfUserIsLoggedIn()) {
-      window.location.reload()
-    }
-  },
-  onQuotaExceededError: (error) => {
-    // Browser ran out of disk space -- do something about it
-  },
-  onSetUpError: (error) => {
-    // Database failed to load -- offer the user to reload the app or log out
-  },
-})
-
-// The rest is the same!
-```
-
 * * *
 
 ## Next steps
 
-➡️ After Watermelon is installed, [**define your app's schema**](./Schema.md)
+➡️ After Watermelon is installed, [**set it up**](./Setup.md)

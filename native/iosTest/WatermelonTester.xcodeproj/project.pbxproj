@@ -10,6 +10,8 @@
 		13956D90BB7A1C69EC8F1805 /* Pods_WatermelonTesterTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BFE4B508C9B2245A65FE719F /* Pods_WatermelonTesterTests.framework */; };
 		13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB11A68108700A75B9A /* LaunchScreen.xib */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		6E339A1D260CCC4500E44857 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E339A1C260CCC4500E44857 /* Accelerate.framework */; };
+		6E339A21260CCC6800E44857 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E339A20260CCC6800E44857 /* XCTest.framework */; };
 		6ECAF1762212B9D000D06219 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6ECAF1752212B9D000D06219 /* JavaScriptCore.framework */; };
 		6ED501382143FE770031A190 /* DatabaseDriverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED5010F2143FE760031A190 /* DatabaseDriverTests.swift */; };
 		6ED501392143FE770031A190 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED501362143FE760031A190 /* Tests.swift */; };
@@ -41,6 +43,8 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2D16E6891FA4F8E400B85C8A /* libReact.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libReact.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		4AD1A2FF035C6D8230E674A2 /* Pods-WatermelonTesterTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WatermelonTesterTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-WatermelonTesterTests/Pods-WatermelonTesterTests.release.xcconfig"; sourceTree = "<group>"; };
+		6E339A1C260CCC4500E44857 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		6E339A20260CCC6800E44857 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		6ECAF1752212B9D000D06219 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		6ED500E02143DC690031A190 /* WatermelonTester-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WatermelonTester-Bridging-Header.h"; sourceTree = "<group>"; };
 		6ED500F22143FA1B0031A190 /* WatermelonTesterTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WatermelonTesterTests-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -61,6 +65,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E339A21260CCC6800E44857 /* XCTest.framework in Frameworks */,
 				13956D90BB7A1C69EC8F1805 /* Pods_WatermelonTesterTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -69,6 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E339A1D260CCC4500E44857 /* Accelerate.framework in Frameworks */,
 				6ECAF1762212B9D000D06219 /* JavaScriptCore.framework in Frameworks */,
 				74495B067A2AC39EC93E72DA /* libPods-WatermelonTester.a in Frameworks */,
 			);
@@ -115,6 +121,8 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6E339A20260CCC6800E44857 /* XCTest.framework */,
+				6E339A1C260CCC4500E44857 /* Accelerate.framework */,
 				6ECAF1752212B9D000D06219 /* JavaScriptCore.framework */,
 				2D16E6891FA4F8E400B85C8A /* libReact.a */,
 				A01CD653626AB115D2D4A8E8 /* libPods-WatermelonTester.a */,
@@ -482,6 +490,7 @@
 			baseConfigurationReference = D0B14896BFD7C8D34D2F0FF5 /* Pods-WatermelonTester.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CC = "$(SRCROOT)/../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
@@ -516,6 +525,7 @@
 			baseConfigurationReference = A90F273F5BA305B1349074B2 /* Pods-WatermelonTester.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CC = "$(SRCROOT)/../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;

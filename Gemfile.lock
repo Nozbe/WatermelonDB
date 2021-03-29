@@ -1,7 +1,7 @@
 GIT
-  remote: https://github.com/vincentisambart/ethon.git
-  revision: 90889ce772a98a26bbdbb4c68a88ea81cc1c9a25
-  ref: 90889ce772a98a26bbdbb4c68a88ea81cc1c9a25
+  remote: https://github.com/radex/ethon.git
+  revision: 301517d087830569985eb3945fa5a6c74866863f
+  ref: 301517d087830569985eb3945fa5a6c74866863f
   specs:
     ethon (0.12.0)
       ffi (>= 1.15.0)

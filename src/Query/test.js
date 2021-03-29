@@ -404,4 +404,9 @@ describe('Query', () => {
       await testMassDelete('destroyAllPermanently')
     })
   })
+
+  it(`has wmelon tag`, () => {
+    const query = new Query(mockCollection, [Q.where('id', 'abcdef')])
+    expect(query.constructor._wmelonTag).toBe('query')
+  })
 })

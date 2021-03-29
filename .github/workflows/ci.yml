@@ -8,7 +8,7 @@ on:
 jobs:
   ci-check:
     runs-on: ubuntu-latest
-    name: Check CI
+    name: JavaScript tests
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js 12
@@ -25,34 +25,41 @@ jobs:
       uses: gradle/wrapper-validation-action@v1.0.3
   ios:
     runs-on: macos-10.15
-    name: Check iOS
+    name: iOS tests
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js 12
       uses: actions/setup-node@v1
       with:
         node-version: 12.x
-    - name: Select Xcode Version
+    - name: Use Xcode 12.2
       uses: maxim-lobanov/setup-xcode@v1.2.1
       with:
         xcode-version: 12.2.0
-    - uses: actions/cache@v2
+    - name: ccache
+      uses: hendrikmuhs/ccache-action@v1
+    - name: cache node_modules
+      uses: actions/cache@v2
       with:
         path: 'node_modules'
         key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
-    - uses: actions/cache@v2
+    - run: yarn
+    - name: cache Pods
+      uses: actions/cache@v2
+      id: pods-cache
       with:
         path: native/iosTest/Pods
-        key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-    - run: yarn
+        key: ${{ runner.os }}-pods-cache-${{ hashFiles('**/Podfile.lock') }}
     - run: bundle install
-    - run: cd native/iosTest && bundle exec pod install --no-repo-update
+    - name: 'pod install'
+      if: steps.pods-cache.outputs.cache-hit != 'true'
+      run: cd native/iosTest && bundle exec pod install
     - run: yarn test:ios
     - run: yarn swiftlint
   android:
     # https://github.com/ReactiveCircus/android-emulator-runner/issues/46
     runs-on: macos-10.15
-    name: Check Android
+    name: Android tests
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js 12
@@ -64,6 +71,7 @@ jobs:
         path: 'node_modules'
         key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
     - run: yarn
+    # See: https://github.com/android/compose-samples/actions/runs/27015993/workflow for ideas for caching
     - name: run tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
@@ -71,4 +79,13 @@ jobs:
         working-directory: ./native/androidTest
         script: ./gradlew connectedAndroidTest
     - run: yarn ktlint
+  docs:
+    runs-on: ubuntu-latest
+    name: Check documentation
+    steps:
+    - uses: actions/checkout@v2
+    - run: (test -x $HOME/.cargo/bin/cargo-install-update || cargo install cargo-update)
+    - run: (test -x $HOME/.cargo/bin/mdbook || cargo install --vers "^0.3" mdbook)
+    - run: cargo install-update -a
+    - run: ./scripts/mdbook
 
