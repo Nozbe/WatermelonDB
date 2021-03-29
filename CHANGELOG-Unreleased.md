@@ -28,5 +28,7 @@
 - Fixed incorrect reference to `process`, which can break apps in some environments (e.g. webpack5)
 - Fixed a race condition when using standard fetch methods alongside `Collection.unsafeFetchRecordsWithSQL` - @jspizziri
 - withObservables shouldn't cause any RxJS issues anymore as it no longer imports RxJS
+- [Typescript] Added `onSetUpError` and `onIndexedDBFetchStart` fields to `LokiAdapterOptions`; fixes TS error - @3DDario
+- [Typescript] Removed duplicated identifiers `useWebWorker` and `useIncrementalIndexedDB` in `LokiAdapterOptions` - @3DDario
 
 ### Internal
