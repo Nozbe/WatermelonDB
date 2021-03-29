@@ -4,7 +4,7 @@
 
 [See discussion](https://github.com/Nozbe/WatermelonDB/issues/710)
 
-**Android** - you can use the [new database inspector](https://medium.com/androiddevelopers/database-inspector-9e91aa265316) which comes with the Android Studio Beta.
+**Android** - you can use the new [App Inspector](https://medium.com/androiddevelopers/database-inspector-9e91aa265316) in modern versions of Android Studio.
 
 **Via Flipper** You can also use Facebook Flipper [with a plugin](https://github.com/panz3r/react-native-flipper-databases#readme). See [discussion](https://github.com/Nozbe/WatermelonDB/issues/653).
 
