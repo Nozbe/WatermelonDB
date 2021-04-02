@@ -9,7 +9,7 @@ Note that Watermelon is only a local database — you need to **bring your own b
 
 ## Using `synchronize()` in your app
 
-To synchronize, you need to pass two functions, `pullChanges` and `pushChanges` that talk to your backend and are compatible with Watermelon Sync Protocol. The frontend code will look something like this:
+To synchronize, you need to pass `pullChanges` and `pushChanges` _(optional)_ that talk to your backend and are compatible with Watermelon Sync Protocol. The frontend code will look something like this:
 
 ```js
 import { synchronize } from '@nozbe/watermelondb/sync'

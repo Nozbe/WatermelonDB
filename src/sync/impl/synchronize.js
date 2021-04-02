@@ -84,6 +84,10 @@ export default async function synchronize({
   }, 'sync-synchronize-apply')
 
   // push phase
+  if (!pushChanges) {
+    log && (log.phase = 'pushChanges not defined')
+    return;
+  }
   log && (log.phase = 'ready to fetch local changes')
 
   const localChanges = await fetchLocalChanges(database)
