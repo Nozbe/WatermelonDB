@@ -637,19 +637,23 @@ describe('queryWithoutDeleted', () => {
   })
 
   it('supports textMatches as fts join', () => {
-    const query = Q.buildQueryDescription([
-      Q.textMatches('searchable', 'hello world'),
-    ])
+    const query = Q.buildQueryDescription([Q.where('searchable', Q.textMatches('hello world'))])
     expect(query).toEqual({
-      'where': [
+      where: [
         {
-          'operator': 'match',
-          'right': {
-            'value': 'searchable',
+          type: 'where',
+          left: 'searchable',
+          comparison: {
+            operator: 'match',
+            right: {
+              value: 'hello world',
+            },
           },
         },
       ],
-      'join': [],
+      joinTables: [],
+      nestedJoinTables: [],
+      sortBy: [],
     })
   })
 })

@@ -235,7 +235,8 @@ export function sanitizeLikeString(value: string): string {
 }
 
 export function textMatches(value: string): Comparison {
-  return { operator: 'match', right: { value } }
+  invariant(typeof value === 'string', 'Value passed to Q.textMatches() is not a string')
+  return { operator: 'match', right: { value }, type: comparisonSymbol }
 }
 
 export function column(name: ColumnName): ColumnDescription {
