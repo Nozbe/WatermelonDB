@@ -4,9 +4,12 @@ import android.app.Application
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
+import com.facebook.react.bridge.JSIModulePackage
 import com.facebook.react.shell.MainReactPackage
 import com.nozbe.watermelondb.WatermelonDBPackage
-import java.util.Arrays
+import com.nozbe.watermelondb.jsi.WatermelonDBJSIPackage
+import java.util.*
+
 
 class MainApplication : Application(), ReactApplication {
 
@@ -19,6 +22,10 @@ class MainApplication : Application(), ReactApplication {
                         NativeModulesPackage(),
                         WatermelonDBPackage()
                 )
+
+        override fun getJSIModulePackage(): JSIModulePackage? {
+            return WatermelonDBJSIPackage()
+        }
 
         override fun getJSMainModuleName(): String = "src/index.integrationTests.native"
     }
