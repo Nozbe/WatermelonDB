@@ -15,12 +15,25 @@ android {
         targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"
+        externalNativeBuild {
+            cmake {
+                // TODO: Not sure if this is necessary. I added this in attempt to fix catching
+                // C++ errors across .so bounds, but it still doesn't work, so can probably get rid
+                // of this
+                arguments "-DANDROID_STL=c++_shared"
+            }
+        }
     }
     externalNativeBuild {
         cmake {
             // version '3.10.2'
             path "src/main/cpp/CMakeLists.txt"
         }
+    }
+
+    packagingOptions {
+        // TODO: This only seems necessary if c++_shared is enabled in cmake
+        pickFirst '**/libc++_shared.so'
     }
 }
 

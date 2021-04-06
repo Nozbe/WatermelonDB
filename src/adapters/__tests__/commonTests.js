@@ -526,6 +526,7 @@ export default () => [
         expect(await adapter.query(taskQuery())).toEqual(['t1'])
       }
     },
+    true,
   ],
   [
     'can run sync-like flow',
@@ -1017,6 +1018,7 @@ export default () => [
         await expect(adapterPromise).rejects.toBeInstanceOf(Error)
       }
     },
+    true,
   ],
   [
     'can actually save and read from file system',
