@@ -8,8 +8,7 @@ import com.facebook.react.bridge.JSIModulePackage
 import com.facebook.react.shell.MainReactPackage
 import com.nozbe.watermelondb.WatermelonDBPackage
 import com.nozbe.watermelondb.jsi.WatermelonDBJSIPackage
-import java.util.*
-
+import java.util.Arrays
 
 class MainApplication : Application(), ReactApplication {
 
