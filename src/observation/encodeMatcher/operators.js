@@ -1,7 +1,6 @@
 // @flow
 /* eslint-disable eqeqeq */
 
-import { gt, gte, lt, lte } from '../../utils/fp'
 import likeToRegexp from '../../utils/fp/likeToRegexp'
 
 import type { Value, CompoundValue, Operator } from '../../QueryDescription'
@@ -46,6 +45,11 @@ export const notLike: OperatorFunction = (left, right) => {
 
 const oneOf: OperatorFunction = (value, values) => values.includes(value)
 const notOneOf: OperatorFunction = (value, values) => !values.includes(value)
+
+const gt = (a, b) => a > b
+const gte = (a, b) => a >= b
+const lt = (a, b) => a < b
+const lte = (a, b) => a <= b
 
 const operators: { [Operator]: OperatorFunction } = {
   eq: rawFieldEquals,

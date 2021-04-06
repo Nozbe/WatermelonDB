@@ -30,6 +30,15 @@ func newDatabase() -> DatabaseDriver {
     return DatabaseDriver(dbName: ":memory:", setUpWithSchema: (version: 1, sql: testSchema))
 }
 
+func throwsError(_ fn: () throws -> Void) -> Bool {
+    do {
+        try fn()
+        return false
+    } catch {
+        return true
+    }
+}
+
 class DatabaseDriverTests: XCTestCase {
     func testSetUp() {
         let db = newDatabase()
@@ -66,15 +75,13 @@ class DatabaseDriverTests: XCTestCase {
 
         try! db.batch([.create(table: testTable, id: "1", query: insertTestQuery, args: testRecord1Args)])
 
-        expect {
-            try db.batch([
-                .markAsDeleted(table: testTable, id: "1"),
-                .create(table: testTable, id: "2", query: insertTestQuery, args: testRecord2Args),
-                .execute(table: testTable, query: "bad query", args: []),
-                .create(table: testTable, id: "4", query: insertTestQuery, args: testRecord4Args),
-                .create(table: testTable, id: "zzz", query: "bad query 2", args: []),
-            ])
-        }.to(throwError())
+        expect(throwsError { try db.batch([
+            .markAsDeleted(table: testTable, id: "1"),
+            .create(table: testTable, id: "2", query: insertTestQuery, args: testRecord2Args),
+            .execute(table: testTable, query: "bad query", args: []),
+            .create(table: testTable, id: "4", query: insertTestQuery, args: testRecord4Args),
+            .create(table: testTable, id: "zzz", query: "bad query 2", args: []),
+        ]) }) == true
 
         expect(try! ns(db.cachedQuery(table: testTable, query: selectAllQuery))) == ns(["1"])
         expect(try! db.getDeletedRecords(table: testTable)) == []
@@ -85,14 +92,14 @@ class DatabaseDriverTests: XCTestCase {
     func testBadQueries() {
         let db = newDatabase()
 
-        expect { try db.batch([.execute(table: testTable, query:"blah blah", args: [])]) }.to(throwError())
-        expect { try db.cachedQuery(table: testTable, query: "blah blah") }.to(throwError())
-        expect { try db.count(testTable) }.to(throwError())
+        expect(throwsError { try db.batch([.execute(table: testTable, query:"blah blah", args: [])]) }) == true
+        expect(throwsError { _ = try db.cachedQuery(table: testTable, query: "blah blah") }) == true
+        expect(throwsError { _ = try db.count(testTable) }) == true
 
-        expect { try db.batch([.execute(table: "test", query: "insert into bad_table (a) values (1)", args: [])]) }
-            .to(throwError())
+        expect(throwsError { try db.batch([.execute(table: "test", query: "insert into bad_table (a) values (1)", args: [])]) }
+            ) == true
 
-        expect { try db.count(selectAllQuery) }.to(throwError())
-        expect { try db.count("select count(*) from \(testTable)") }.to(throwError()) // missing `as count`
+        expect(throwsError { _ = try db.count(selectAllQuery) }) == true
+        expect(throwsError { _ = try db.count("select count(*) from \(testTable)") }) == true // missing `as count`
     }
 }

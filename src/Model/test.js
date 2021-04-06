@@ -99,6 +99,10 @@ describe('Model', () => {
     expect(model.collections).toBe(database.collections)
     expect(model.collections.get('mock_created').modelClass).toBe(MockModelCreated)
   })
+  it(`has wmelon tag`, () => {
+    const model = new MockModel({}, {})
+    expect(model.constructor._wmelonTag).toBe('model')
+  })
 })
 
 describe('CRUD', () => {

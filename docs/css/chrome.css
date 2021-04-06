@@ -8,7 +8,9 @@
 ::-webkit-scrollbar-thumb {
     background: var(--scrollbar);
 }
-
+html {
+    scrollbar-color: var(--scrollbar) var(--bg);
+}
 #searchresults a,
 .content a:link,
 a:visited,
@@ -18,14 +20,13 @@ a > .hljs {
 
 /* Menu Bar */
 
-#menu-bar {
-    position: -webkit-sticky;
-    position: sticky;
-    top: 0;
+#menu-bar,
+#menu-bar-hover-placeholder {
     z-index: 101;
     margin: auto calc(0px - var(--page-padding));
 }
-#menu-bar > #menu-bar-sticky-container {
+#menu-bar {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     background-color: var(--bg);
@@ -33,17 +34,28 @@ a > .hljs {
     border-bottom-width: 1px;
     border-bottom-style: solid;
 }
-.js #menu-bar > #menu-bar-sticky-container {
-    transition: transform 0.3s;
+#menu-bar.sticky,
+.js #menu-bar-hover-placeholder:hover + #menu-bar,
+.js #menu-bar:hover,
+.js.sidebar-visible #menu-bar {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0 !important;
 }
-#menu-bar.bordered > #menu-bar-sticky-container  {
+#menu-bar-hover-placeholder {
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0;
+    height: var(--menu-bar-height);
+}
+#menu-bar.bordered {
     border-bottom-color: var(--table-border-color);
 }
 #menu-bar i, #menu-bar .icon-button {
     position: relative;
     padding: 0 8px;
     z-index: 10;
-    line-height: 50px;
+    line-height: var(--menu-bar-height);
     cursor: pointer;
     transition: color 0.5s;
 }
@@ -70,10 +82,6 @@ a > .hljs {
     text-decoration: none;
 }
 
-html:not(.sidebar-visible) #menu-bar:not(:hover).folded > #menu-bar-sticky-container {
-    transform: translateY(-60px);
-}
-
 .left-buttons {
     display: flex;
     margin: 0 5px;
@@ -85,8 +93,8 @@ html:not(.sidebar-visible) #menu-bar:not(:hover).folded > #menu-bar-sticky-conta
 .menu-title {
     display: inline-block;
     font-weight: 200;
-    font-size: 20px;
-    line-height: 50px;
+    font-size: 2.4rem;
+    line-height: var(--menu-bar-height);
     text-align: center;
     margin: 0;
     flex: 1;
@@ -124,7 +132,7 @@ html:not(.sidebar-visible) #menu-bar:not(:hover).folded > #menu-bar-sticky-conta
     text-decoration: none;
 
     position: fixed;
-    top: 50px; /* Height of menu-bar */
+    top: 0;
     bottom: 0;
     margin: 0;
     max-width: 150px;
@@ -135,10 +143,14 @@ html:not(.sidebar-visible) #menu-bar:not(:hover).folded > #menu-bar-sticky-conta
     align-content: center;
     flex-direction: column;
 
-    transition: color 0.5s;
+    transition: color 0.5s, background-color 0.5s;
 }
 
-.nav-chapters:hover { text-decoration: none; }
+.nav-chapters:hover {
+    text-decoration: none;
+    background-color: var(--theme-hover);
+    transition: background-color 0.15s, color 0.15s;
+}
 
 .nav-wrapper {
     margin-top: 50px;
@@ -176,8 +188,7 @@ html:not(.sidebar-visible) #menu-bar:not(:hover).folded > #menu-bar-sticky-conta
 /* Inline code */
 
 :not(pre) > .hljs {
-    display: inline-block;
-    vertical-align: middle;
+    display: inline;
     padding: 0.1em 0.3em;
     border-radius: 3px;
 }
@@ -370,7 +381,13 @@ ul#searchresults span.teaser em {
     padding-left: 0;
     line-height: 2.2em;
 }
+
+.chapter ol {
+    width: 100%;
+}
+
 .chapter li {
+    display: flex;
     color: var(--sidebar-non-existant);
 }
 .chapter li a {
@@ -384,8 +401,35 @@ ul#searchresults span.teaser em {
     color: var(--sidebar-active);
 }
 
-.chapter li .active {
+.chapter li a.active {
     color: var(--sidebar-active);
+}
+
+.chapter li > a.toggle {
+    cursor: pointer;
+    display: block;
+    margin-left: auto;
+    padding: 0 10px;
+    user-select: none;
+    opacity: 0.68;
+}
+
+.chapter li > a.toggle div {
+    transition: transform 0.5s;
+}
+
+/* collapse the section */
+.chapter li:not(.expanded) + li > ol {
+    display: none;
+}
+
+.chapter li.chapter-item {
+    line-height: 1.5em;
+    margin-top: 0.6em;
+}
+
+.chapter li.expanded > a.toggle div {
+    transform: rotate(90deg);
 }
 
 .spacer {
@@ -413,7 +457,7 @@ ul#searchresults span.teaser em {
 .theme-popup {
     position: absolute;
     left: 10px;
-    top: 50px;
+    top: var(--menu-bar-height);
     z-index: 1000;
     border-radius: 4px;
     font-size: 0.7em;

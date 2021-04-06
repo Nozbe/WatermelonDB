@@ -16,7 +16,7 @@ import type { Value } from '../QueryDescription'
 import { type RawRecord, type DirtyRaw, sanitizedRaw, setRawSanitized } from '../RawRecord'
 import { setRawColumnChange } from '../sync/helpers'
 
-import { createTimestampsFor, hasUpdatedAt, fetchChildren } from './helpers'
+import { createTimestampsFor, fetchChildren } from './helpers'
 
 export type RecordId = string
 
@@ -39,6 +39,9 @@ export default class Model {
 
   // Set this in concrete Models to define relationships between different records
   static associations: Associations = {}
+
+  // Used by withObservables to differentiate between object types
+  static _wmelonTag: string = 'model'
 
   _raw: RawRecord
 
@@ -100,7 +103,7 @@ export default class Model {
     this._isEditing = true
 
     // Touch updatedAt (if available)
-    if (hasUpdatedAt(this)) {
+    if ('updatedAt' in this) {
       this._setRaw(columnName('updated_at'), Date.now())
     }
 
@@ -112,11 +115,18 @@ export default class Model {
     // TODO: `process.nextTick` doesn't work on React Native
     // We could polyfill with setImmediate, but it doesn't have the same effect — test and enseure
     // it would actually work for this purpose
-    if (process.env.NODE_ENV !== 'production' && process && process.nextTick) {
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      typeof process !== 'undefined' &&
+      process &&
+      process.nextTick
+    ) {
       process.nextTick(() => {
         invariant(
           !this._hasPendingUpdate,
-          `record.prepareUpdate was called on ${this.table}#${this.id} but wasn't sent to batch() synchronously -- this is bad!`,
+          `record.prepareUpdate was called on ${this.table}#${
+            this.id
+          } but wasn't sent to batch() synchronously -- this is bad!`,
         )
       })
     }

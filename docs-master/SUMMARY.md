@@ -10,6 +10,7 @@
 
 - [Learn to use Watermelon](./ch02-00-learn-to-use.md)
     - [Installation](./Installation.md)
+    - [Setup](./Setup.md)
     - [Schema](./Schema.md)
     - [Defining Models](./Model.md)
     - [Create, Read, Update, Delete](./CRUD.md)
@@ -29,6 +30,7 @@
     - [LocalStorage](./Advanced/LocalStorage.md)
     - [Pro tips](./Advanced/ProTips.md)
     - [Performance tips](./Advanced/Performance.md)
+    - [iOS - Sharing database across targets](./Advanced/SharingDatabaseAcrossTargets.md)
 
 ## Dig deeper into WatermelonDB
 

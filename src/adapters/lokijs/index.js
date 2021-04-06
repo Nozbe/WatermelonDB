@@ -78,12 +78,12 @@ export type LokiAdapterOptions = $Exact<{
     // This happens if there's another open tab of the same app that's making changes.
     // You might use it as an opportunity to alert user to the potential loss of data
     onDidOverwrite?: () => void,
-    ...,
+    ...
   },
   // -- internal --
   _testLokiAdapter?: LokiMemoryAdapter,
   _onFatalError?: (error: Error) => void, // (experimental)
-  _concurrentIdb?: boolean, // (experimental)
+  _betaLoki?: boolean, // (experimental)
 }>
 
 export default class LokiJSAdapter implements DatabaseAdapter {
@@ -109,12 +109,24 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     this._dbName = dbName
 
     if (process.env.NODE_ENV !== 'production') {
-      invariant('useWebWorker' in options,
-          'LokiJSAdapter `useWebWorker` option is required. Pass `{ useWebWorker: false }` to adopt the new behavior, or `{ useWebWorker: true }` to supress this warning with no changes',
+      invariant(
+        'useWebWorker' in options,
+        'LokiJSAdapter `useWebWorker` option is required. Pass `{ useWebWorker: false }` to adopt the new behavior, or `{ useWebWorker: true }` to supress this warning with no changes',
+      )
+      if (options.useWebWorker === true) {
+        logger.warn(
+          'LokiJSAdapter {useWebWorker: true} option is now deprecated. If you rely on this feature, please file an issue',
         )
-      invariant('useIncrementalIndexedDB' in options,
-          'LokiJSAdapter `useIncrementalIndexedDB` option is required. Pass `{ useIncrementalIndexedDB: true }` to adopt the new behavior, or `{ useIncrementalIndexedDB: false }` to supress this warning with no changes',
+      }
+      invariant(
+        'useIncrementalIndexedDB' in options,
+        'LokiJSAdapter `useIncrementalIndexedDB` option is required. Pass `{ useIncrementalIndexedDB: true }` to adopt the new behavior, or `{ useIncrementalIndexedDB: false }` to supress this warning with no changes',
+      )
+      if (options.useIncrementalIndexedDB === false) {
+        logger.warn(
+          'LokiJSAdapter {useIncrementalIndexedDB: false} option is now deprecated. If you rely on this feature, please file an issue',
         )
+      }
       // TODO(2021-05): Remove this
       invariant(
         !('migrationsExperimental' in options),
@@ -236,7 +248,9 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
       // if we can't, but can filter to it, it means that Loki indices are corrupted
       const didFindByFilter = !!lokiCollection.data.filter(doc => doc.id === id)
-      logger.log(`Did find ${table}#${id} in Loki collection by filtering the collection? ${didFindByFilter}`)
+      logger.log(
+        `Did find ${table}#${id} in Loki collection by filtering the collection? ${didFindByFilter}`,
+      )
     }
   }
 }

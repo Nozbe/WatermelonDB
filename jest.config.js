@@ -13,8 +13,9 @@ module.exports = {
   testMatch: ['**/__tests__/**/?(spec|test).js', '**/?(*.)(spec|test).js'],
   moduleFileExtensions: ['js'],
   modulePathIgnorePatterns: ['<rootDir>/dist', '<rootDir>/dev'],
-  collectCoverage: true,
-  collectCoverageFrom: ['!**/node_modules/**', 'src/**'],
-  coverageDirectory: 'coverage',
-  coverageReporters: ['html', 'json'],
+  // collectCoverage: true,
+  // collectCoverageFrom: ['!**/node_modules/**', 'src/**'],
+  // coverageDirectory: 'coverage',
+  // coverageReporters: ['html', 'json'],
+  cacheDirectory: '.cache/jest',
 }

@@ -12,7 +12,9 @@ import {
   getMigrationInfo,
 } from './index'
 import { ensureActionsEnabled, ensureSameDatabase, isChangeSetEmpty, changeSetCount } from './helpers'
-import { type SyncArgs } from '../index'
+import {
+  type SyncArgs,
+} from '../index'
 
 export default async function synchronize({
   database,
@@ -83,7 +85,7 @@ export default async function synchronize({
 
   // push phase
   log && (log.phase = 'ready to fetch local changes')
-  // $FlowFixMe
+
   const localChanges = await fetchLocalChanges(database)
   log && (log.localChangeCount = changeSetCount(localChanges.changes))
   log && (log.phase = 'fetched local changes')

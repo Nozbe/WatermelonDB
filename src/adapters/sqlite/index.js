@@ -30,6 +30,7 @@ import type {
   SQLiteQuery,
   NativeBridgeBatchOperation,
   NativeDispatcher,
+  MigrationEvents,
 } from './type'
 
 import encodeQuery from './encodeQuery'
@@ -40,13 +41,16 @@ import { makeDispatcher, DatabaseBridge, getDispatcherType } from './makeDispatc
 
 export type { SQL, SQLiteArg, SQLiteQuery }
 
-// Hacky-ish way to create an object with NativeModule-like shape, but that can dispatch method
-// calls to async, synch NativeModule, or JSI implementation w/ type safety in rest of the impl
+if (process.env.NODE_ENV !== 'production') {
+  require('./devtools')
+}
 
 export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapter {
   schema: AppSchema
 
   migrations: ?SchemaMigrations
+
+  _migrationEvents: ?MigrationEvents
 
   _tag: ConnectionTag = connectionTag()
 
@@ -60,12 +64,14 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   constructor(options: SQLiteAdapterOptions): void {
     // console.log(`---> Initializing new adapter (${this._tag})`)
-    const { dbName, schema, migrations } = options
+    const { dbName, schema, migrations, migrationEvents } = options
     this.schema = schema
     this.migrations = migrations
+    this._migrationEvents = migrationEvents
     this._dbName = this._getName(dbName)
-
     this._dispatcherType = getDispatcherType(options)
+    // Hacky-ish way to create an object with NativeModule-like shape, but that can dispatch method
+    // calls to async, synch NativeModule, or JSI implementation w/ type safety in rest of the impl
     this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName)
 
     if (process.env.NODE_ENV !== 'production') {
@@ -78,7 +84,9 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
         // of this mode completely to simplify code. Ideally, we'd ONLY have JSI, but until RN goes
         // all-in on JSI everywhere, this might be a little too risky. I'm adding this warning to
         // get feedback via GH if JSI on iOS is ready to be considered stable or not yet.
-        logger.warn(`SQLiteAdapter's synchronous:true option is deprecated and will be replaced with experimentalUseJSI: true in the future. Please test if your app compiles and works well with experimentalUseJSI: true, and if not - file an issue!`)
+        logger.warn(
+          `SQLiteAdapter's synchronous:true option is deprecated and will be replaced with experimentalUseJSI: true in the future. Please test if your app compiles and works well with experimentalUseJSI: true, and if not - file an issue!`,
+        )
       }
       invariant(
         DatabaseBridge,
@@ -151,8 +159,14 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
     if (migrationSteps) {
       logger.log(
-        `[WatermelonDB][SQLite] Migrating from version ${databaseVersion} to ${this.schema.version}...`,
+        `[WatermelonDB][SQLite] Migrating from version ${databaseVersion} to ${
+          this.schema.version
+        }...`,
       )
+
+      if (this._migrationEvents && this._migrationEvents.onStart) {
+        this._migrationEvents.onStart()
+      }
 
       try {
         await toPromise(callback =>
@@ -165,8 +179,14 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
           ),
         )
         logger.log('[WatermelonDB][SQLite] Migration successful')
+        if (this._migrationEvents && this._migrationEvents.onSuccess) {
+          this._migrationEvents.onSuccess()
+        }
       } catch (error) {
         logger.error('[WatermelonDB][SQLite] Migration failed', error)
+        if (this._migrationEvents && this._migrationEvents.onError) {
+          this._migrationEvents.onError(error)
+        }
         throw error
       }
     } else {

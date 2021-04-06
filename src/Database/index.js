@@ -1,7 +1,5 @@
 // @flow
 
-import { values } from 'rambdax'
-
 import { type Observable, startWith, merge as merge$ } from '../utils/rx'
 import { type Unsubscribe } from '../utils/subscriptions'
 import { invariant, logger } from '../utils/common'
@@ -68,7 +66,7 @@ export default class Database {
   // Executes multiple prepared operations
   // (made with `collection.prepareCreate` and `record.prepareUpdate`)
   // Note: falsy values (null, undefined, false) passed to batch are just ignored
-  async batch(...records: $ReadOnlyArray<Model | null | void | false>): Promise<void> {
+  async batch(...records: $ReadOnlyArray<Model | Model[] | null | void | false>): Promise<void> {
     if (!Array.isArray(records[0])) {
       // $FlowFixMe
       return this.batch(records)
@@ -250,7 +248,8 @@ export default class Database {
   }
 
   _unsafeClearCaches(): void {
-    values(this.collections.map).forEach(collection => {
+    Object.values(this.collections.map).forEach(collection => {
+      // $FlowFixMe
       collection.unsafeClearCache()
     })
   }

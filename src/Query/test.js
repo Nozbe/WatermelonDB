@@ -178,12 +178,12 @@ describe('Query', () => {
       ])
       expect(extendedQuery.serialize()).toEqual(expectedQuery.serialize())
     })
-    it(`can extend query with unsafeLokiFilter`, () => {
+    it(`can extend query with unsafeLokiTransform`, () => {
       const fn = () => {}
-      const query = new Query(mockCollection, [Q.unsafeLokiFilter(fn)])
+      const query = new Query(mockCollection, [Q.unsafeLokiTransform(fn)])
       const extendedQuery = query.extend(Q.where('foo', 'bar'))
       const expectedQuery = new Query(mockCollection, [
-        Q.unsafeLokiFilter(fn),
+        Q.unsafeLokiTransform(fn),
         Q.where('foo', 'bar'),
       ])
       expect(extendedQuery.serialize()).toEqual(expectedQuery.serialize())
@@ -403,5 +403,10 @@ describe('Query', () => {
     it('can destroy all permanently', async () => {
       await testMassDelete('destroyAllPermanently')
     })
+  })
+
+  it(`has wmelon tag`, () => {
+    const query = new Query(mockCollection, [Q.where('id', 'abcdef')])
+    expect(query.constructor._wmelonTag).toBe('query')
   })
 })

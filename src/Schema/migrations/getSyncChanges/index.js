@@ -1,13 +1,13 @@
 // @flow
 
-import { uniq, groupBy, toPairs, piped } from 'rambdax'
+import { unique, groupBy, toPairs, pipe , unnest } from '../../../utils/fp'
 import type { CreateTableMigrationStep, AddColumnsMigrationStep, SchemaMigrations } from '../index'
 import type { TableName, ColumnName, SchemaVersion } from '../../index'
 import { tableName } from '../../index'
 import { stepsForMigration } from '../stepsForMigration'
 
 import { invariant } from '../../../utils/common'
-import { unnest } from '../../../utils/fp'
+
 
 export type MigrationSyncChanges = $Exact<{
   +from: SchemaVersion,
@@ -54,15 +54,15 @@ export default function getSyncChanges(
     .filter(step => !createdTables.includes(step.table))
     .map(({ table, columns }) => columns.map(({ name }) => ({ table, name })))
 
-  const columnsByTable = piped(allAddedColumns, unnest, groupBy(({ table }) => table), toPairs)
+  const columnsByTable = pipe(unnest, groupBy(({ table }) => table), toPairs)(allAddedColumns)
   const addedColumns = columnsByTable.map(([table, columnDefs]) => ({
     table: tableName(table),
-    columns: uniq(columnDefs.map(({ name }) => name)),
+    columns: unique(columnDefs.map(({ name }) => name)),
   }))
 
   return {
     from: fromVersion,
-    tables: uniq(createdTables),
+    tables: unique(createdTables),
     columns: addedColumns,
   }
 }
