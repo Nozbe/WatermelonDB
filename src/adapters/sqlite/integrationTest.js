@@ -50,14 +50,8 @@ const SQLiteAdapterTest = spec => {
   })
   spec.describe('SQLiteAdapter (JSI mode)', () => {
     commonTests().forEach(testCase => {
-      const [name, test, temporaryAndroidSkip] = testCase
+      const [name, test] = testCase
       spec.it(name, async () => {
-        if (temporaryAndroidSkip && Platform.OS === 'android') {
-          // eslint-disable-next-line no-console
-          console.warn(`Skipping test case ${name} due to unresolved JSI issue`)
-          return
-        }
-
         const adapter = new SQLiteAdapter({ schema: testSchema, experimentalUseJSI: true })
 
         invariant(adapter._dispatcherType === 'jsi', 'native platforms should support jsi')

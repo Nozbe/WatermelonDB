@@ -10,13 +10,43 @@ using platform::consoleLog;
 void assertCount(size_t count, size_t expected, std::string name) {
     if (count != expected) {
         std::string error = name + " takes " + std::to_string(expected) + " arguments";
+        #ifdef ANDROID
+        consoleError(error);
+        std::abort();
+        #else
         throw std::invalid_argument(error);
+        #endif
     }
 }
 
-jsi::Value withJSCLockHolder(facebook::jsi::Runtime &rt, std::function<jsi::Value(void)> block) {
+jsi::Value makeError(facebook::jsi::Runtime &rt, const std::string &desc) {
+    return rt.global().getPropertyAsFunction(rt, "Error").call(rt, desc);
+}
+
+jsi::Value runBlock(facebook::jsi::Runtime &rt, std::function<jsi::Value(void)> block) {
     jsi::Value retValue;
-    watermelonCallWithJSCLockHolder(rt, [&]() { retValue = block(); });
+    watermelonCallWithJSCLockHolder(rt, [&]() {
+        // NOTE: C++ Exceptions don't work correctly on Android -- most likely due to the fact that
+        // we don't share the C++ stdlib with React Native targets, which means that the executor
+        // doesn't know how to catch our exceptions to turn them into JS errors. As a workaround,
+        // we catch those ourselves and return JS Errors instead of throwing them in JS VM.
+        #ifdef ANDROID
+        try {
+            retValue = block();
+        } catch (const jsi::JSError &error) {
+            retValue = makeError(rt, error.getMessage());
+        } catch (const std::exception &ex) {
+            std::string exceptionString("Exception in HostFunction: ");
+            exceptionString += ex.what();
+            retValue = makeError(rt, exceptionString);
+        } catch (...) {
+            std::string exceptionString("Exception in HostFunction: <unknown>");
+            retValue = makeError(rt, exceptionString);
+        }
+        #else
+        retValue = block();
+        #endif
+    });
     return retValue;
 }
 
@@ -101,7 +131,7 @@ void Database::install(jsi::Runtime *runtime) {
                 database->migrate(migrationSchema, fromVersion, toVersion);
             } catch (const std::exception &ex) {
                 consoleError("Failed to migrate the database correctly - " + std::string(ex.what()));
-                throw;
+                return makeError(rt, ex.what());
             }
 
             database->initialized_ = true;
@@ -112,7 +142,7 @@ void Database::install(jsi::Runtime *runtime) {
             jsi::String tableName = args[0].getString(rt);
             jsi::String id = args[1].getString(rt);
 
-            return withJSCLockHolder(rt, [&]() { return database->find(tableName, id); });
+            return runBlock(rt, [&]() { return database->find(tableName, id); });
         });
         createMethod(rt, adapter, "query", 3, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
@@ -120,35 +150,36 @@ void Database::install(jsi::Runtime *runtime) {
             jsi::String sql = args[1].getString(rt);
             jsi::Array arguments = args[2].getObject(rt).getArray(rt);
 
-            return withJSCLockHolder(rt, [&]() { return database->query(tableName, sql, arguments); });
+            return runBlock(rt, [&]() { return database->query(tableName, sql, arguments); });
         });
         createMethod(rt, adapter, "count", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String sql = args[0].getString(rt);
             jsi::Array arguments = args[1].getObject(rt).getArray(rt);
 
-            return withJSCLockHolder(rt, [&]() { return database->count(sql, arguments); });
+            return runBlock(rt, [&]() { return database->count(sql, arguments); });
         });
         createMethod(rt, adapter, "batch", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::Array operations = args[0].getObject(rt).getArray(rt);
 
-            watermelonCallWithJSCLockHolder(rt, [&]() { database->batch(operations); });
-
-            return jsi::Value::undefined();
+            return runBlock(rt, [&]() {
+                database->batch(operations);
+                return jsi::Value::undefined();
+            });
         });
         createMethod(rt, adapter, "getLocal", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String key = args[0].getString(rt);
 
-            return withJSCLockHolder(rt, [&]() { return database->getLocal(key); });
+            return runBlock(rt, [&]() { return database->getLocal(key); });
         });
         createMethod(rt, adapter, "setLocal", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String key = args[0].getString(rt);
             jsi::String value = args[1].getString(rt);
 
-            return withJSCLockHolder(rt, [&]() {
+            return runBlock(rt, [&]() {
                 database->setLocal(key, value);
                 return jsi::Value::undefined();
             });
@@ -157,41 +188,42 @@ void Database::install(jsi::Runtime *runtime) {
             assert(database->initialized_);
             jsi::String key = args[0].getString(rt);
 
-            watermelonCallWithJSCLockHolder(rt, [&]() { database->removeLocal(key); });
-
-            return jsi::Value::undefined();
+            return runBlock(rt, [&]() {
+                database->removeLocal(key);
+                return jsi::Value::undefined();
+            });
         });
         createMethod(rt, adapter, "getDeletedRecords", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String tableName = args[0].getString(rt);
 
-            return withJSCLockHolder(rt, [&]() { return database->getDeletedRecords(tableName); });
+            return runBlock(rt, [&]() { return database->getDeletedRecords(tableName); });
         });
         createMethod(rt, adapter, "destroyDeletedRecords", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String tableName = args[0].getString(rt);
             jsi::Array recordIds = args[1].getObject(rt).getArray(rt);
 
-            watermelonCallWithJSCLockHolder(rt, [&]() { database->destroyDeletedRecords(tableName, recordIds); });
-
-            return jsi::Value::undefined();
+            return runBlock(rt, [&]() {
+                database->destroyDeletedRecords(tableName, recordIds);
+                return jsi::Value::undefined();
+            });
         });
         createMethod(rt, adapter, "unsafeResetDatabase", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String schema = args[0].getString(rt);
             int schemaVersion = (int)args[1].getNumber();
 
-            watermelonCallWithJSCLockHolder(rt, [&]() {
+            return runBlock(rt, [&]() {
                 try {
                     database->unsafeResetDatabase(schema, schemaVersion);
+                    return jsi::Value::undefined();
                 } catch (const std::exception &ex) {
                     consoleError("Failed to reset database correctly - " + std::string(ex.what()));
                     // Partially reset database is likely corrupted, so it's probably less bad to crash
                     std::abort();
                 }
             });
-
-            return jsi::Value::undefined();
         });
 
         return adapter;

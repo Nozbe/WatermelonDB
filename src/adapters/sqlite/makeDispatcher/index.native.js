@@ -65,7 +65,12 @@ export const makeDispatcher = (
               methodName === 'query' || methodName === 'count'
                 ? jsiDb[methodName](...otherArgs, []) // FIXME: temp workaround
                 : jsiDb[methodName](...otherArgs)
-            callback({ value })
+
+            if (value instanceof Error) {
+              callback({ error: value })
+            } else {
+              callback({ value })
+            }
           } catch (error) {
             callback({ error })
           }

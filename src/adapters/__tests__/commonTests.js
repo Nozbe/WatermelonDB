@@ -516,9 +516,8 @@ export default () => [
           ['create', 'tasks', mockTaskRaw({ id: 't2' })],
           ['create', 'tasks', mockTaskRaw({ id: 't2' })], // duplicate
         ]),
-        // TODO: Get rid of the unknown error - fix on Android
         AdapterClass.name === 'SQLiteAdapter'
-          ? /(UNIQUE constraint failed: tasks.id|Exception in HostFunction: <unknown>)/
+          ? /UNIQUE constraint failed: tasks.id/
           : /Duplicate key for property id: t2/,
       )
       if (AdapterClass.name !== 'LokiJSAdapter') {
@@ -526,7 +525,6 @@ export default () => [
         expect(await adapter.query(taskQuery())).toEqual(['t1'])
       }
     },
-    true,
   ],
   [
     'can run sync-like flow',
@@ -1018,7 +1016,6 @@ export default () => [
         await expect(adapterPromise).rejects.toBeInstanceOf(Error)
       }
     },
-    true,
   ],
   [
     'can actually save and read from file system',
