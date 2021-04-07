@@ -166,7 +166,7 @@ jsi::Object Database::resultDictionary(sqlite3_stmt *statement) {
             const char *text = (const char *)sqlite3_column_text(statement, i);
 
             if (text) {
-                dictionary.setProperty(rt, column, jsi::String::createFromAscii(rt, text));
+                dictionary.setProperty(rt, column, jsi::String::createFromUtf8(rt, text));
             } else {
                 dictionary.setProperty(rt, column, jsi::Value::null());
             }
@@ -510,7 +510,7 @@ jsi::Value Database::getLocal(jsi::String &key) {
         return jsi::Value::null();
     }
 
-    return jsi::String::createFromAscii(rt, text);
+    return jsi::String::createFromUtf8(rt, text);
 }
 
 void Database::setLocal(jsi::String &key, jsi::String &value) {
