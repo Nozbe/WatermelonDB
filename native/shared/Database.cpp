@@ -260,9 +260,11 @@ jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array 
     auto &rt = getRt();
     auto statement = executeQuery(sql.utf8(rt), arguments);
 
-    jsi::Array records(rt, 0);
+    // FIXME: Adding directly to a jsi::Array should be more efficient, but Hermes does not support
+    // automatically resizing an Array by setting new values to it
+    std::vector<jsi::Value> records = {};
 
-    for (size_t i = 0; true; i++) {
+    while (true) {
         int stepResult = sqlite3_step(statement.stmt);
 
         if (stepResult == SQLITE_DONE) {
@@ -280,15 +282,22 @@ jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array 
 
         if (isCached(cacheKey(tableName.utf8(rt), std::string(id)))) {
             jsi::String jsiId = jsi::String::createFromAscii(rt, id);
-            records.setValueAtIndex(rt, i, std::move(jsiId));
+            records.push_back(std::move(jsiId));
         } else {
             markAsCached(cacheKey(tableName.utf8(rt), std::string(id)));
             jsi::Object record = resultDictionary(statement.stmt);
-            records.setValueAtIndex(rt, i, std::move(record));
+            records.push_back(std::move(record));
         }
     }
 
-    return records;
+    jsi::Array jsiRecords(rt, records.size());
+    size_t i = 0;
+    for (auto const &record : records) {
+        jsiRecords.setValueAtIndex(rt, i, record);
+        i++;
+    }
+
+    return jsiRecords;
 }
 
 jsi::Value Database::count(jsi::String &sql, jsi::Array &arguments) {
@@ -370,9 +379,11 @@ jsi::Array Database::getDeletedRecords(jsi::String &tableName) {
     auto args = jsi::Array::createWithElements(rt);
     auto statement = executeQuery("select id from `" + tableName.utf8(rt) + "` where _status='deleted'", args);
 
-    jsi::Array records(rt, 0);
+    // FIXME: Adding directly to a jsi::Array should be more efficient, but Hermes does not support
+    // automatically resizing an Array by setting new values to it
+    std::vector<jsi::Value> records = {};
 
-    for (size_t i = 0; true; i++) {
+    while (true) {
         int stepResult = sqlite3_step(statement.stmt);
 
         if (stepResult == SQLITE_DONE) {
@@ -389,10 +400,17 @@ jsi::Array Database::getDeletedRecords(jsi::String &tableName) {
         }
 
         jsi::String id = jsi::String::createFromAscii(rt, idText);
-        records.setValueAtIndex(rt, i, id);
+        records.push_back(std::move(id));
     }
 
-    return records;
+    jsi::Array jsiRecords(rt, records.size());
+    size_t i = 0;
+    for (auto const &record : records) {
+        jsiRecords.setValueAtIndex(rt, i, record);
+        i++;
+    }
+
+    return jsiRecords;
 }
 
 void Database::destroyDeletedRecords(jsi::String &tableName, jsi::Array &recordIds) {
