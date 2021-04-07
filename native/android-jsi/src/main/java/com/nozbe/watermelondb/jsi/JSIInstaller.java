@@ -1,6 +1,7 @@
 package com.nozbe.watermelondb.jsi;
 
 import android.content.Context;
+import androidx.annotation;
 
 class JSIInstaller {
     static void install(Context context, long javaScriptContextHolder) {
@@ -9,6 +10,7 @@ class JSIInstaller {
     }
 
     // Helper method called from C++
+    @Keep
     static String _resolveDatabasePath(String dbName) {
         // On some systems there is some kind of lock on `/databases` folder ¯\_(ツ)_/¯
         return context.getDatabasePath(dbName + ".db").getPath().replace("/databases", "");
