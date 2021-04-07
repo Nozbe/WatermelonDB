@@ -1,7 +1,7 @@
 {
   "name": "@nozbe/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
-  "version": "0.22.0-0",
+  "version": "0.22.0-1",
   "scripts": {
     "build": "NODE_ENV=production node ./scripts/make.js",
     "dev": "NODE_ENV=development node ./scripts/make.js",
@@ -117,6 +117,7 @@
     "eslint-plugin-react": "^7.16.0",
     "eslint-plugin-react-hooks": "^2.1.2",
     "execa": "^2.0.0",
+    "expect-rn": "npm:expect@24.1.0",
     "fast-async": "^7.0",
     "flow-bin": "npm:@nozbe/flow-bin@0.146",
     "fs-extra": "^9.1.0",
@@ -142,7 +143,6 @@
     "semver": "^6.0.0",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.15.0",
-    "expect-rn": "npm:expect@24.1.0",
     "typescript": "^3.0.3"
   }
 }
