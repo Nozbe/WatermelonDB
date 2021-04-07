@@ -11,7 +11,9 @@ import java.util.List;
 public class WatermelonDBJSIPackage implements JSIModulePackage {
   @Override
   public List<JSIModuleSpec> getJSIModules(ReactApplicationContext reactApplicationContext, JavaScriptContextHolder jsContextHolder) {
-    JSIInstaller.install(reactApplicationContext.getApplicationContext(), jsContextHolder.get());
+    synchronized(jsContextHolder) {
+      JSIInstaller.install(reactApplicationContext.getApplicationContext(), jsContextHolder.get());
+    }
     return Arrays.<JSIModuleSpec>asList();
   }
 }
