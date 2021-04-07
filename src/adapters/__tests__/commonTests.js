@@ -693,7 +693,7 @@ export default () => [
         // KNOWN ISSUE: non-JSI adapter implementation gets confused by this (it's a BOM mark)
         if (
           AdapterClass.name === 'SQLiteAdapter' &&
-          !extraAdapterOptions.experimentalUseJSI &&
+          !extraAdapterOptions.jsi &&
           (string === '﻿' || (string === '￾' && platform === 'android')) &&
           platform !== 'node'
         ) {
@@ -1110,7 +1110,7 @@ export default () => [
         const naughtyString = testCase.matching[0].text1
         if (
           AdapterClass.name === 'SQLiteAdapter' &&
-          !extraAdapterOptions.experimentalUseJSI &&
+          !extraAdapterOptions.jsi &&
           (naughtyString === '﻿' || (naughtyString === '￾' && platform === 'android'))
         ) {
           // eslint-disable-next-line no-console
@@ -1154,7 +1154,7 @@ export default () => [
         // KNOWN ISSUE: non-JSI adapter implementation gets confused by this (it's a BOM mark)
         if (
           AdapterClass.name === 'SQLiteAdapter' &&
-          !extraAdapterOptions.experimentalUseJSI &&
+          !extraAdapterOptions.jsi &&
           (string === '﻿' || (string === '￾' && platform === 'android')) &&
           platform !== 'node'
         ) {

@@ -25,8 +25,8 @@ export type SQLiteAdapterOptions = $Exact<{
   migrations?: SchemaMigrations,
   // (deprecated) use JSI instead
   synchronous?: boolean,
-  // The new way to run the database in synchronous mode. iOS-only at the moment
-  experimentalUseJSI?: boolean,
+  // The new way to run the database in synchronous mode.
+  jsi?: boolean,
   migrationEvents?: MigrationEvents,
   // Called when database failed to set up (initialize) correctly. It's possible that
   // it's some transient error that will be solved by a reload, but it's

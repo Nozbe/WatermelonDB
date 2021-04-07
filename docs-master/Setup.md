@@ -30,6 +30,7 @@ export default schemaMigrations({
 Now, in your `index.js`:
 
 ```js
+import { Platform } from 'react-native'
 import { Database } from '@nozbe/watermelondb'
 import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite'
 
@@ -45,7 +46,7 @@ const adapter = new SQLiteAdapter({
   // (optional database name or file system path)
   // dbName: 'myapp',
   // (recommended option, only works on iOS currently)
-  experimentalUseJSI: true,
+  jsi: Platform.OS === 'ios',
   // (optional, but you should implement this method)
   onSetUpError: error => {
     // Database failed to load -- offer the user to reload the app or log out

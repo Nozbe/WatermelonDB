@@ -79,13 +79,17 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
         !('migrationsExperimental' in options),
         'SQLiteAdapter `migrationsExperimental` option has been renamed to `migrations`',
       )
+      invariant(
+        !('experimentalUseJSI' in options),
+        'SQLiteAdapter `experimentalUseJSI: true` has been renamed to `jsi: true`',
+      )
       if (options.synchronous) {
         // Docs semi-recommend synchronous: true, but it adds a lot of junk and I want to get rid
         // of this mode completely to simplify code. Ideally, we'd ONLY have JSI, but until RN goes
         // all-in on JSI everywhere, this might be a little too risky. I'm adding this warning to
         // get feedback via GH if JSI on iOS is ready to be considered stable or not yet.
         logger.warn(
-          `SQLiteAdapter's synchronous:true option is deprecated and will be replaced with experimentalUseJSI: true in the future. Please test if your app compiles and works well with experimentalUseJSI: true, and if not - file an issue!`,
+          'SQLiteAdapter `synchronous: true` option is deprecated and will be replaced with `jsi: true` soon. Please test if your app compiles and works well with `jsi: true`, and if not - file an issue!',
         )
       }
       invariant(
@@ -109,7 +113,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
       dbName: this._dbName,
       schema: this.schema,
       synchronous: this._dispatcherType === 'synchronous',
-      experimentalUseJSI: this._dispatcherType === 'jsi',
+      jsi: this._dispatcherType === 'jsi',
       ...(this.migrations ? { migrations: this.migrations } : {}),
       ...options,
     })

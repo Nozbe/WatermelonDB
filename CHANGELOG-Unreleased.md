@@ -4,6 +4,8 @@
 
 ### BREAKING CHANGES
 
+- [SQLite] `experimentalUseJSI: true` option has been renamed to `jsi: true`
+
 ### Deprecations
 
 - [LokiJS] `Q.unsafeLokiFilter` is now deprecated and will be removed in a future version.
@@ -11,7 +13,7 @@
 
 ### New features
 
-- [SQLite] [JSI] `experimetalUseJSI: true` now works on Android - see docs for installation info
+- [SQLite] [JSI] `jsi: true` now works on Android - see docs for installation info
 
 ### Performance
 
@@ -22,8 +24,8 @@
 
 - withObservables is now a dependency of WatermelonDB for simpler installation and consistent updates. You can (and generally should) delete `@nozbe/with-observables` from your app's package.json
 - [Docs] Add advanced tutorial to share database across iOS targets - @thiagobrez
-- [Sqlite] Allowed callbacks (within the migrationEvents object) to be passed so as to track the migration events status ( onStart, onSuccess, onError ) - @avinashlng1080
-- [Sqlite] Added a dev-only `Query._sql()` method for quickly extracting SQL from Queries for debugging purposes
+- [SQLite] Allowed callbacks (within the migrationEvents object) to be passed so as to track the migration events status ( onStart, onSuccess, onError ) - @avinashlng1080
+- [SQLite] Added a dev-only `Query._sql()` method for quickly extracting SQL from Queries for debugging purposes
 
 ### Fixes
 
