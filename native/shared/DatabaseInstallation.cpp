@@ -30,6 +30,11 @@ jsi::Value runBlock(facebook::jsi::Runtime &rt, std::function<jsi::Value(void)> 
         // we don't share the C++ stdlib with React Native targets, which means that the executor
         // doesn't know how to catch our exceptions to turn them into JS errors. As a workaround,
         // we catch those ourselves and return JS Errors instead of throwing them in JS VM.
+        // See also:
+        // https://github.com/facebook/hermes/issues/422 - REA also catches all exceptions in C++
+        //    but then passes them to Java world via JNI
+        // https://github.com/facebook/hermes/issues/298#issuecomment-661352050
+        // https://github.com/facebook/react-native/issues/29558
         #ifdef ANDROID
         try {
             retValue = block();

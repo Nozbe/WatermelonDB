@@ -66,6 +66,7 @@ export const makeDispatcher = (
                 ? jsiDb[methodName](...otherArgs, []) // FIXME: temp workaround
                 : jsiDb[methodName](...otherArgs)
 
+            // On Android, errors are returned, not thrown - see DatabaseInstallation.cpp
             if (value instanceof Error) {
               callback({ error: value })
             } else {
