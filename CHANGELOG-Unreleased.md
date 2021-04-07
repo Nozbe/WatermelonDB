@@ -11,6 +11,8 @@
 
 ### New features
 
+- [SQLite] [JSI] `experimetalUseJSI: true` now works on Android - see docs for installation info
+
 ### Performance
 
 - Removed dependency on rambdax and made the util library smaller
@@ -26,6 +28,7 @@
 ### Fixes
 
 - Fixed incorrect reference to `process`, which can break apps in some environments (e.g. webpack5)
+- [SQLite] [JSI] Fixed JSI mode when running on Hermes
 - Fixed a race condition when using standard fetch methods alongside `Collection.unsafeFetchRecordsWithSQL` - @jspizziri
 - withObservables shouldn't cause any RxJS issues anymore as it no longer imports RxJS
 - [Typescript] Added `onSetUpError` and `onIndexedDBFetchStart` fields to `LokiAdapterOptions`; fixes TS error - @3DDario
