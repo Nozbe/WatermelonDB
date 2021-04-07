@@ -717,16 +717,18 @@ describe('synchronize', () => {
     expect(log.remoteChangeCount).toBe(0)
     expect(log.localChangeCount).toBe(0)
   })
-  it("won't push changes if no `pushChanges`", async () => {
+  it('will not push changes if no `pushChanges`', async () => {
     const { database } = makeDatabase()
 
     await makeLocalChanges(database)
-    const localChanges = await fetchLocalChanges(database)
 
     const pullChanges = jest.fn(emptyPull())
     const log = {}
     await synchronize({ database, pullChanges, log })
-    // if it tries to push, it should throw exception
+    expect(log.startedAt).toBeInstanceOf(Date)
+    expect(log.finishedAt).toBeInstanceOf(Date)
+    expect(log.finishedAt.getTime()).toBeGreaterThan(log.startedAt.getTime())
+    expect(log.phase).toBe('done')
   })
   it('can push changes', async () => {
     const { database } = makeDatabase()
