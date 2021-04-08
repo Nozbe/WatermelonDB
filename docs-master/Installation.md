@@ -119,11 +119,11 @@ On RN60+, auto linking should work.
 
 <details>
   <summary>Custom Kotlin Version</summary>
-  Just set ext properties `kotlinVersion` in `android/build.gradle`
+  Just set ext properties `kotlinVersion` in `android/build.gradle`, and WatermelonDB will use the specified kotlin version.
   
   ```gradle
   buildscript {
-      ext.kotlin_version = '1.3.21'
+      ext.kotlinVersion = '1.3.21'
   }
   ```
 </details>
