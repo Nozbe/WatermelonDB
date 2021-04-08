@@ -18,6 +18,7 @@
 
 ### Changes
 
+- Synchronization: `pushChanges` is optional, will not calculate local changes if not specified.
 - withObservables is now a dependency of WatermelonDB for simpler installation and consistent updates. You can (and generally should) delete `@nozbe/with-observables` from your app's package.json
 - [Docs] Add advanced tutorial to share database across iOS targets - @thiagobrez
 - [Sqlite] Allowed callbacks (within the migrationEvents object) to be passed so as to track the migration events status ( onStart, onSuccess, onError ) - @avinashlng1080
