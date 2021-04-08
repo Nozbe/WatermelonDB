@@ -49,10 +49,10 @@ jobs:
       id: pods-cache
       with:
         path: native/iosTest/Pods
-        key: ${{ runner.os }}-pods-cache-${{ hashFiles('**/Podfile.lock') }}-${{ hashFiles('**/Manifest.lock') }}
+        key: ${{ runner.os }}-pods-cache-${{ hashFiles('**/Podfile.lock') }}
     - run: bundle install
     - name: 'pod install'
-      if: steps.pods-cache.outputs.cache-hit != 'true'
+      if: true # steps.pods-cache.outputs.cache-hit != 'true'
       run: cd native/iosTest && bundle exec pod install
     - run: yarn test:ios
     - run: yarn swiftlint
