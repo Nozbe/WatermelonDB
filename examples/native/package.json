@@ -6,13 +6,13 @@
     "android": "react-native run-android",
     "android:release": "react-native run-android --variant=release",
     "ios": "react-native run-ios",
-    "start": "react-native start",
+    "start": "react-native start --reset-cache",
     "test": "jest",
     "lint": "eslint .",
     "pretty": "prettier --write ."
   },
   "dependencies": {
-    "@nozbe/watermelondb": "^0.20.0",
+    "@nozbe/watermelondb": "^0.21.0",
     "@nozbe/with-observables": "^1.0.8",
     "@react-native-community/masked-view": "^0.1.10",
     "@react-navigation/native": "^5.9.3",

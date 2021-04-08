@@ -21,8 +21,7 @@ const adapter = new SQLiteAdapter({
   schema: blogSchema,
   dbName: 'WatermelonDemo', // optional database name or file system path
   // migrations, // optional migrations
-  synchronous: true, // synchronous mode only works on iOS. improves performance and reduces glitches in most cases, but also has some downsides - test with and without it
-  // experimentalUseJSI: true, // experimental JSI mode, use only if you're brave
+  experimentalUseJSI: false,
 });
 
 export const database = new Database({

@@ -1054,14 +1054,14 @@
   resolved "https://registry.yarnpkg.com/@nozbe/sqlite/-/sqlite-3.31.1.tgz"
   integrity sha512-z5+GdcHZl9OQ1g0pnygORAnwCYUlYw/gQxdW/8rS0HxD2Gnn/k3DBQOvqQIH4Z3Z3KWVMbGUYhcH1v4SqTAdwg==
 
-"@nozbe/watermelondb@^0.20.0":
-  version "0.20.0"
-  resolved "https://registry.yarnpkg.com/@nozbe/watermelondb/-/watermelondb-0.20.0.tgz"
-  integrity sha512-VKnIucGS/+TiJIl9YBPozrlw+BKBDqmaUpzAKi97uPz5zXRUtSaj7ripl27yg/6MzM26hcHAcoMOBXop2x8TQg==
+"@nozbe/watermelondb@^0.21.0":
+  version "0.21.0"
+  resolved "https://registry.yarnpkg.com/@nozbe/watermelondb/-/watermelondb-0.21.0.tgz#07cb01cea2609117d51242963445ae1d8145633f"
+  integrity sha512-ugTViv44aQt+fXXkCaX6PeObvS02u7RR2HwChnLAG3tEm3oIPwn1X9Hquogmw7FLUeXnChJfevATyCuPF/Tobg==
   dependencies:
     "@babel/runtime" "^7.11.2"
     "@nozbe/sqlite" "3.31.1"
-    lokijs "npm:@nozbe/lokijs@1.5.10-wmelon3"
+    lokijs "npm:@nozbe/lokijs@1.5.12-wmelon"
     rambdax "2.15.0"
     rxjs "^6.5.3"
     sql-escape-string "^1.1.0"
@@ -4749,10 +4749,10 @@ logkitty@^0.7.1:
     dayjs "^1.8.15"
     yargs "^15.1.0"
 
-"lokijs@npm:@nozbe/lokijs@1.5.10-wmelon3":
-  version "1.5.10-wmelon3"
-  resolved "https://registry.yarnpkg.com/@nozbe/lokijs/-/lokijs-1.5.10-wmelon3.tgz"
-  integrity sha512-yfuj/SzYiVVn0e3OP8vjcbekumUR62Df90deG8uH7+5nqJqTLe4HkEzlmwJfss9UE0K8PsTQLACFOUq/2aAJ2A==
+"lokijs@npm:@nozbe/lokijs@1.5.12-wmelon":
+  version "1.5.12-wmelon"
+  resolved "https://registry.yarnpkg.com/@nozbe/lokijs/-/lokijs-1.5.12-wmelon.tgz#a3bd2d90f24f7968e80404e609f1fadeab24f0c9"
+  integrity sha512-7xQUn80pzPBB9VcwvB/W2V9/60xIfuk+3IDIvS9cU7W29jJx4QBXe5dBWTaARmxD9hXozPCcPWh2wfd7m4dbTA==
 
 loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.4.0:
   version "1.4.0"

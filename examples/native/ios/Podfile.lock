@@ -306,7 +306,7 @@ PODS:
     - React-Core
   - RNScreens (2.18.1):
     - React-Core
-  - WatermelonDB (0.20.0):
+  - WatermelonDB (0.21.0):
     - React
     - React-jsi
   - Yoga (1.14.0)
@@ -491,7 +491,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNReanimated: e03f7425cb7a38dcf1b644d680d1bfc91c3337ad
   RNScreens: f7ad633b2e0190b77b6a7aab7f914fad6f198d8d
-  WatermelonDB: bee42fce57e12296f3aac66367837898d32f825e
+  WatermelonDB: ea3902f6e5f8bfc226440e23b628a2c5ed43538d
   Yoga: 4bd86afe9883422a7c4028c00e34790f560923d6
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
