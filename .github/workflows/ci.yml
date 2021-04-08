@@ -49,7 +49,7 @@ jobs:
       id: pods-cache
       with:
         path: native/iosTest/Pods
-        key: ${{ runner.os }}-pods-cache-${{ hashFiles('**/Podfile.lock') }}
+        key: ${{ runner.os }}-pods-cache-${{ hashFiles('**/Podfile.lock') }}-${{ hashFiles('**/Manifest.lock') }}
     - run: bundle install
     - name: 'pod install'
       if: steps.pods-cache.outputs.cache-hit != 'true'
