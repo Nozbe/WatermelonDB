@@ -1,4 +1,4 @@
-import {StyleSheet, Platform} from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 
 export default StyleSheet.create({
   logo: {
@@ -9,15 +9,15 @@ export default StyleSheet.create({
     alignSelf: 'center',
     flex: 1,
   },
-  title: {fontSize: 26, fontWeight: 'bold', color: 'black'},
+  title: { fontSize: 26, fontWeight: 'bold', color: 'black' },
   subtitle: {
     fontSize: 16,
     fontWeight: '500',
     paddingVertical: 10,
     color: '#333',
   },
-  body: {paddingVertical: 10, color: '#333', lineHeight: 20},
-  container: {flex: 1, paddingHorizontal: 10, marginVertical: 10},
+  body: { paddingVertical: 10, color: '#333', lineHeight: 20 },
+  container: { flex: 1, paddingHorizontal: 10, marginVertical: 10 },
   header: {
     flex: 1,
     padding: 10,
@@ -25,12 +25,12 @@ export default StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
   },
-  marginContainer: {marginVertical: 10},
-  buttonContainer: {flex: 1, flexDirection: 'row', justifyContent: 'center'},
-  button: Platform.select({android: {marginHorizontal: 12, marginBottom: 15}}),
+  marginContainer: { marginVertical: 10 },
+  buttonContainer: { flex: 1, flexDirection: 'row', justifyContent: 'center' },
+  button: Platform.select({ android: { marginHorizontal: 12, marginBottom: 15 } }),
   listItem: {
     backgroundColor: '#f0f0f0',
-    height: Platform.select({android: 56, ios: 44}),
+    height: Platform.select({ android: 56, ios: 44 }),
     borderTopWidth: 1,
     borderBottomWidth: 1,
     marginTop: -1,
@@ -39,10 +39,10 @@ export default StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
   },
-  listItemTitle: {flex: 1, fontWeight: '500'},
-  listItemCounter: {width: 30, textAlign: 'right', opacity: 0.6},
-  post: {textAlign: 'center', padding: 7, opacity: 0.7},
-  topPadding: {paddingTop: 15},
+  listItemTitle: { flex: 1, fontWeight: '500' },
+  listItemCounter: { width: 30, textAlign: 'right', opacity: 0.6 },
+  post: { textAlign: 'center', padding: 7, opacity: 0.7 },
+  topPadding: { paddingTop: 15 },
   comment: {
     backgroundColor: '#f0f0f0',
     padding: 10,

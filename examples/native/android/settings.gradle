@@ -1,6 +1,2 @@
 rootProject.name = 'native63'
 apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
-include ':watermelondb'
-project(':watermelondb').projectDir =
-    new File(rootProject.projectDir, '../node_modules/@nozbe/watermelondb/native/android')
-include ':app'

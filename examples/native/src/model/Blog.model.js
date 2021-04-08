@@ -1,11 +1,11 @@
-import {Model, Q} from '@nozbe/watermelondb';
-import {field, children, lazy, action} from '@nozbe/watermelondb/decorators';
+import { Model, Q } from '@nozbe/watermelondb';
+import { field, children, lazy, action } from '@nozbe/watermelondb/decorators';
 
 export class Blog extends Model {
   static table = 'blogs';
 
   static associations = {
-    posts: {type: 'has_many', foreignKey: 'blog_id'},
+    posts: { type: 'has_many', foreignKey: 'blog_id' },
   };
 
   @field('name')

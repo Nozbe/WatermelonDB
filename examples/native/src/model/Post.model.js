@@ -1,17 +1,12 @@
-import {Model} from '@nozbe/watermelondb';
-import {
-  field,
-  relation,
-  children,
-  action,
-} from '@nozbe/watermelondb/decorators';
+import { Model } from '@nozbe/watermelondb';
+import { field, relation, children, action } from '@nozbe/watermelondb/decorators';
 
 export class Post extends Model {
   static table = 'posts';
 
   static associations = {
-    blogs: {type: 'belongs_to', key: 'blog_id'},
-    comments: {type: 'has_many', foreignKey: 'post_id'},
+    blogs: { type: 'belongs_to', key: 'blog_id' },
+    comments: { type: 'has_many', foreignKey: 'post_id' },
   };
 
   @field('title')

@@ -1,5 +1,5 @@
-import {times} from 'rambdax';
-import {blogNames, postNames, postBody, commentBodies} from './randomData';
+import { times } from 'rambdax';
+import { blogNames, postNames, postBody, commentBodies } from './randomData';
 
 const flatMap = (fn, arr) => arr.map(fn).reduce((a, b) => a.concat(b), []);
 
@@ -23,8 +23,7 @@ const makePost = (db, blog, i) =>
     post.blog.set(blog);
   });
 
-const makePosts = (db, blog, count) =>
-  times((i) => makePost(db, blog, i), count);
+const makePosts = (db, blog, count) => times((i) => makePost(db, blog, i), count);
 
 const makeComment = (db, post, i) =>
   db.collections.get('comments').prepareCreate((comment) => {
@@ -33,21 +32,14 @@ const makeComment = (db, post, i) =>
     comment.isNasty = Math.random() < 0.25; // People can be not nice on the internet
   });
 
-const makeComments = (db, post, count) =>
-  times((i) => makeComment(db, post, i), count);
+const makeComments = (db, post, count) => times((i) => makeComment(db, post, i), count);
 
 const generate = (db, blogCount, postsPerBlog, commentsPerPost) =>
   db.action(async (action) => {
     await action.subAction(() => db.unsafeResetDatabase());
     const blogs = times((i) => makeBlog(db, i), blogCount);
-    const posts = flatMap(
-      (blog) => makePosts(db, blog, fuzzCount(postsPerBlog)),
-      blogs,
-    );
-    const comments = flatMap(
-      (post) => makeComments(db, post, fuzzCount(commentsPerPost)),
-      posts,
-    );
+    const posts = flatMap((blog) => makePosts(db, blog, fuzzCount(postsPerBlog)), blogs);
+    const comments = flatMap((post) => makeComments(db, post, fuzzCount(commentsPerPost)), posts);
 
     const allRecords = [...blogs, ...posts, ...comments];
     await db.batch(...allRecords);

@@ -1,13 +1,13 @@
-import React, {Component} from 'react';
-import {FlatList, Text} from 'react-native';
+import React, { Component } from 'react';
+import { FlatList, Text } from 'react-native';
 import withObservables from '@nozbe/with-observables';
 
 import Button from './helpers/Button';
 import ListItem from './helpers/ListItem';
 import styles from './helpers/styles';
-import {extractId} from '../utils';
+import { extractId } from '../utils';
 
-const NastyCommentsItem = ({blog, onPress}) => (
+const NastyCommentsItem = ({ blog, onPress }) => (
   <ListItem
     title="Nasty comments"
     countObservable={blog.nastyComments.observeCount()}
@@ -15,15 +15,11 @@ const NastyCommentsItem = ({blog, onPress}) => (
   />
 );
 
-const RawPostItem = ({post, onPress}) => (
-  <ListItem
-    title={post.title}
-    countObservable={post.comments.observeCount()}
-    onPress={onPress}
-  />
+const RawPostItem = ({ post, onPress }) => (
+  <ListItem title={post.title} countObservable={post.comments.observeCount()} onPress={onPress} />
 );
 
-const PostItem = withObservables(['post'], ({post}) => ({
+const PostItem = withObservables(['post'], ({ post }) => ({
   post: post.observe(),
 }))(RawPostItem);
 
@@ -33,27 +29,23 @@ class Blog extends Component {
   };
 
   render() {
-    const {blog, posts, navigation} = this.props;
+    const { blog, posts, navigation } = this.props;
     return (
       <FlatList
         data={posts}
-        renderItem={({item: post}) => (
+        renderItem={({ item: post }) => (
           <PostItem
             post={post}
             key={post.id}
-            onPress={() => navigation.navigate('Post', {post})}
+            onPress={() => navigation.navigate('Post', { post })}
           />
         )}
         ListHeaderComponent={() => (
           <>
-            <Button
-              style={styles.button}
-              title="Moderate"
-              onPress={this.moderate}
-            />
+            <Button style={styles.button} title="Moderate" onPress={this.moderate} />
             <NastyCommentsItem
               blog={blog}
-              onPress={() => navigation.navigate('ModerationQueue', {blog})}
+              onPress={() => navigation.navigate('ModerationQueue', { blog })}
             />
             <Text style={styles.postsListHeader}>Posts: {posts.length}</Text>
           </>
@@ -64,7 +56,7 @@ class Blog extends Component {
   }
 }
 
-const enhance = withObservables(['route'], ({route}) => ({
+const enhance = withObservables(['route'], ({ route }) => ({
   blog: route.params.blog.observe(),
   posts: route.params.blog.posts.observe(),
 }));

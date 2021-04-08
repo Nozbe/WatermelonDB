@@ -8,7 +8,8 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "pretty": "prettier --write ."
   },
   "dependencies": {
     "@nozbe/watermelondb": "^0.20.0",

@@ -1,21 +1,13 @@
-import React, {Component, Fragment} from 'react';
-import {
-  ScrollView,
-  SafeAreaView,
-  Alert,
-  Text,
-  View,
-  Image,
-  TextInput,
-} from 'react-native';
+import React, { Component, Fragment } from 'react';
+import { ScrollView, SafeAreaView, Alert, Text, View, Image, TextInput } from 'react-native';
 
 import Button from './helpers/Button';
 import styles from './helpers/styles';
 import BlogList from './BlogList';
 
 import logoSrc from './assets/logo-app.png';
-import {generate100, generate10k} from '../model/generate';
-import {database} from '../../index';
+import { generate100, generate10k } from '../model/generate';
+import { database } from '../../index';
 
 class Root extends Component {
   state = {
@@ -25,30 +17,30 @@ class Root extends Component {
   };
 
   generateWith = async (generator) => {
-    this.setState({isGenerating: true});
+    this.setState({ isGenerating: true });
 
     const count = await generator(database);
     Alert.alert(`Generated ${count} records!`);
 
-    this.setState({isGenerating: false});
+    this.setState({ isGenerating: false });
   };
 
   generate100 = () => this.generateWith(generate100);
 
   generate10k = () => this.generateWith(generate10k);
 
-  handleTextChanges = (v) => this.setState({search: v});
+  handleTextChanges = (v) => this.setState({ search: v });
 
-  handleOnFocus = () => this.setState({isSearchFocused: true});
+  handleOnFocus = () => this.setState({ isSearchFocused: true });
 
-  handleOnBlur = () => this.setState({isSearchFocused: false});
+  handleOnBlur = () => this.setState({ isSearchFocused: false });
 
   render() {
-    const {search, isGenerating, isSearchFocused} = this.state;
+    const { search, isGenerating, isSearchFocused } = this.state;
     const {
       navigation,
       route: {
-        params: {timeToLaunch},
+        params: { timeToLaunch },
       },
     } = this.props;
 
@@ -69,7 +61,7 @@ class Root extends Component {
             </Fragment>
           )}
           <TextInput
-            style={{padding: 5, fontSize: 16}}
+            style={{ padding: 5, fontSize: 16 }}
             placeholder="Search ..."
             defaultValue=""
             onFocus={this.handleOnFocus}
@@ -77,11 +69,7 @@ class Root extends Component {
             onChangeText={this.handleTextChanges}
           />
           {!isGenerating && (
-            <BlogList
-              database={database}
-              search={search}
-              navigation={navigation}
-            />
+            <BlogList database={database} search={search} navigation={navigation} />
           )}
         </SafeAreaView>
       </ScrollView>
