@@ -75,56 +75,67 @@ npm install @nozbe/watermelondb
 
 ### Android (React Native)
 
-1. **Set up Babel config in your project**
+**Set up Babel config in your project**
 
-   See instructions above ⬆️
+See instructions above ⬆️  
 
-2. In `android/settings.gradle`, add:
+On RN60+, auto linking should work.  
 
-   ```gradle
-   include ':watermelondb'
-   project(':watermelondb').projectDir =
-       new File(rootProject.projectDir, '../node_modules/@nozbe/watermelondb/native/android')
-   ```
-3. In `android/app/build.gradle`, add:
-   ```gradle
-   apply plugin: "com.android.application"
-   apply plugin: 'kotlin-android'  // ⬅️ This!
-   // ...
-   dependencies {
-       // ...
-       implementation project(':watermelondb')  // ⬅️ This!
-   }
-   ```
-4. In `android/build.gradle`, add Kotlin support to the project:
-   ```gradle
-   buildscript {
-       ext.kotlin_version = '1.3.21'
-       // ...
-       dependencies {
-           // ...
-           classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-       }
-   }
-   ```
-5. And finally, in `android/app/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.java`, add:
-   ```java
-   // ...
-   import com.nozbe.watermelondb.WatermelonDBPackage; // ⬅️ This!
-   // ...
-   @Override
-   protected List<ReactPackage> getPackages() {
-     return Arrays.<ReactPackage>asList(
-       new MainReactPackage(),
-       new WatermelonDBPackage() // ⬅️ Here!
-     );
-   }
-   ```
-6. **Troubleshooting**. If you get this error:
-    > `Can't find variable: Symbol`
+<details>
+  <summary>Linking Manually</summary>
 
-    You're using an ancient version of JSC. Install [`jsc-android`](https://github.com/react-community/jsc-android-buildscripts) or Hermes.
+  Users on React Native 0.60+ automatically have access to "autolinking", requiring no further manual installation steps. If you are on React Native 0.60+   please skip this section. If you are on React Native < 0.60 please do the following in **addition** to the previous steps:
 
+  1. In `android/settings.gradle`, add:
+
+  ```gradle
+  include ':watermelondb'
+  project(':watermelondb').projectDir =
+      new File(rootProject.projectDir, '../node_modules/@nozbe/watermelondb/native/android')
+  ```
+
+  2. In `android/app/build.gradle`, add:
+  ```gradle
+  // ...
+  dependencies {
+      // ...
+      implementation project(':watermelondb')  // ⬅️ This!
+  }
+  ```
+  3. And finally, in `android/app/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.java`, add:
+  ```java
+  // ...
+  import com.nozbe.watermelondb.WatermelonDBPackage; // ⬅️ This!
+  // ...
+  @Override
+  protected List<ReactPackage> getPackages() {
+    return Arrays.<ReactPackage>asList(
+      new MainReactPackage(),
+      new WatermelonDBPackage() // ⬅️ Here!
+    );
+  }
+  ```
+</details>
+
+<details>
+  <summary>Custom Kotlin Version</summary>
+  Just set ext properties `kotlinVersion` in `android/build.gradle`, and WatermelonDB will use the specified kotlin version.
+  
+  ```gradle
+  buildscript {
+      ext.kotlinVersion = '1.3.21'
+  }
+  ```
+</details>
+
+<details>
+  <summary>Troubleshooting</summary>
+  If you get this error:
+    
+  > `Can't find variable: Symbol`  
+    
+  You're using an ancient version of JSC. Install [`jsc-android`](https://github.com/react-community/jsc-android-buildscripts) or Hermes.
+</details>
 
 ## NodeJS setup
 
