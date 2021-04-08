@@ -722,7 +722,11 @@ describe('synchronize', () => {
 
     await makeLocalChanges(database)
 
-    const pullChanges = jest.fn(emptyPull())
+    const pullChanges = async () => {
+      // ensure we take more than 1ms for the log test
+      await new Promise(resolve => setTimeout(resolve, 10))
+      return emptyPull()()
+    }
     const log = {}
     await synchronize({ database, pullChanges, log })
     expect(log.startedAt).toBeInstanceOf(Date)
