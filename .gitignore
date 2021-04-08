@@ -13,6 +13,7 @@ dev/
 coverage/
 
 .vscode
+.idea
 
 # docs/book/
 # docs/CONTRIBUTING.md
