@@ -1,20 +1,18 @@
-import React from 'react'
-import { Text, View } from 'react-native'
-import withObservables from '@nozbe/with-observables'
+import React from 'react';
+import withObservablesSynchronized from '@nozbe/with-observables';
 
-import styles from './helpers/styles'
+import {View, Text} from 'react-native';
 
-const RawComment = ({ comment }) => (
-  <View style={styles.comment}>
-    <Text>
-      {comment.isNasty && '☹️ '}
-      {comment.body}
-    </Text>
+const Comment = ({comment}) => (
+  <View>
+    <Text>{comment.body}</Text>
   </View>
-)
+);
 
-const enhance = withObservables(['comment'], ({ comment }) => ({
-  comment: comment.observe(),
-}))
+const enhance = withObservablesSynchronized(['comment'], ({comment}) => ({
+  comment,
+}));
 
-export default enhance(RawComment)
+const EnhancedComment = enhance(Comment);
+
+export default EnhancedComment;
