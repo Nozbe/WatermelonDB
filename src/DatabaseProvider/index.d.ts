@@ -1,10 +1,9 @@
 declare module '@nozbe/watermelondb/DatabaseProvider' {
   import * as React from 'react'
   import Database from '@nozbe/watermelondb/Database'
+  import { NonReactStatics } from 'hoist-non-react-statics'
 
   type GetProps<C> = C extends React.ComponentType<infer P & { database?: Database }> ? P : never
-
-  type Statics<C extends React.ComponentType<any>> = { [K in keyof C]: C[K] }
 
   export const DatabaseContext: React.Context<Database>
 
@@ -19,7 +18,7 @@ declare module '@nozbe/watermelondb/DatabaseProvider' {
     C extends React.ComponentType<P>,
     P = GetProps<C>,
     R = Omit<P, 'database'>
-  >(Component: C): React.FunctionComponent<R> & Statics<C>
+  >(Component: C): React.FunctionComponent<R> & NonReactStatics<C>
 
   export default DatabaseProviderComponent
 }

@@ -2,6 +2,7 @@
 import React from 'react'
 import type Database from '../Database'
 import { DatabaseConsumer } from './DatabaseContext'
+import hoistNonReactStatics from 'hoist-non-react-statics'
 
 type WithDatabaseProps<T: {}> = {
   ...T,
@@ -11,7 +12,13 @@ type WithDatabaseProps<T: {}> = {
 export default function withDatabase<T: {}>(
   Component: React$ComponentType<WithDatabaseProps<T>>,
 ): React$ComponentType<T> {
-  return function DatabaseComponent(props): React$Element<*> {
-    return <DatabaseConsumer>{(database: Database) => <Component {...props} database={database} />}</DatabaseConsumer>
+  function DatabaseComponent(props): React$Element<*> {
+    return (
+      <DatabaseConsumer>
+        {(database: Database) => <Component {...props} database={database} />}
+      </DatabaseConsumer>
+    )
   }
+
+  return hoistNonReactStatics(DatabaseComponent, Component)
 }
