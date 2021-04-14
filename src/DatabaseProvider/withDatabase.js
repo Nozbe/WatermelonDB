@@ -1,8 +1,8 @@
 // @flow
 import React from 'react'
+import hoistNonReactStatics from 'hoist-non-react-statics'
 import type Database from '../Database'
 import { DatabaseConsumer } from './DatabaseContext'
-import hoistNonReactStatics from 'hoist-non-react-statics'
 
 type WithDatabaseProps<T: {}> = {
   ...T,
