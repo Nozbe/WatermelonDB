@@ -1,5 +1,5 @@
 declare module '@nozbe/watermelondb/utils/common/logger' {
-  export default class Logger {
+  class Logger {
     log(...messages: any[]): void
 
     warn(...messages: any[]): void
@@ -8,4 +8,8 @@ declare module '@nozbe/watermelondb/utils/common/logger' {
 
     silence(): void
   }
+
+  const logger: Logger
+  
+  export default logger
 }
