@@ -37,5 +37,6 @@
 - withObservables shouldn't cause any RxJS issues anymore as it no longer imports RxJS
 - [Typescript] Added `onSetUpError` and `onIndexedDBFetchStart` fields to `LokiAdapterOptions`; fixes TS error - @3DDario
 - [Typescript] Removed duplicated identifiers `useWebWorker` and `useIncrementalIndexedDB` in `LokiAdapterOptions` - @3DDario
+- [Typescript] Fix default export in logger util
 
 ### Internal
