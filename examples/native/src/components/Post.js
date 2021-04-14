@@ -1,26 +1,26 @@
-import React, { Component } from 'react'
-import { Text } from 'react-native'
-import { FlatList } from 'react-navigation'
-import withObservables from '@nozbe/with-observables'
+import React, { Component } from 'react';
+import { Text, FlatList } from 'react-native';
+import withObservables from '@nozbe/with-observables';
 
-import Comment from './Comment'
-import styles from './helpers/styles'
-import prompt from './helpers/prompt'
-import Button from './helpers/Button'
-import { extractId } from '../utils'
+import Comment from './Comment';
+import styles from './helpers/styles';
+import prompt from './helpers/prompt';
+import Button from './helpers/Button';
+import { extractId } from '../utils';
 
-const renderComment = ({ item }) => <Comment comment={item} key={item.id} />
+const renderComment = ({ item }) => <Comment comment={item} key={item.id} />;
 
 class Post extends Component {
   addComment = async () => {
-    const comment = await prompt('Write a comment')
-    await this.props.post.addComment(comment)
-  }
+    const comment = await prompt('Write a comment');
+    await this.props.post.addComment(comment);
+  };
 
   render() {
-    const { post, comments } = this.props
+    const { post, comments } = this.props;
     return (
-      <FlatList style={styles.marginContainer}
+      <FlatList
+        style={styles.marginContainer}
         data={comments}
         renderItem={renderComment}
         ListHeaderComponent={() => (
@@ -34,14 +34,15 @@ class Post extends Component {
         ListFooterComponent={() => (
           <Button style={styles.button} title="Add comment" onPress={this.addComment} />
         )}
-        keyExtractor={extractId} />
-    )
+        keyExtractor={extractId}
+      />
+    );
   }
 }
 
-const enhance = withObservables(['post'], ({ post }) => ({
-  post: post.observe(),
-  comments: post.comments.observe(),
-}))
+const enhance = withObservables(['route'], ({ route }) => ({
+  post: route.params.post.observe(),
+  comments: route.params.post.comments.observe(),
+}));
 
-export default enhance(Post)
+export default enhance(Post);
