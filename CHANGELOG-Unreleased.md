@@ -15,6 +15,7 @@
 
 - Removed dependency on rambdax and made the util library smaller
 - Faster withObservables
+- Non-react statics hoisting in `withDatabase()`
 
 ### Changes
 
