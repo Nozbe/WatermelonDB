@@ -65,7 +65,13 @@ export const makeDispatcher = (
               methodName === 'query' || methodName === 'count'
                 ? jsiDb[methodName](...otherArgs, []) // FIXME: temp workaround
                 : jsiDb[methodName](...otherArgs)
-            callback({ value })
+
+            // On Android, errors are returned, not thrown - see DatabaseInstallation.cpp
+            if (value instanceof Error) {
+              callback({ error: value })
+            } else {
+              callback({ value })
+            }
           } catch (error) {
             callback({ error })
           }
@@ -108,8 +114,8 @@ const initializeJSI = () => {
 
 export function getDispatcherType(options: SQLiteAdapterOptions): DispatcherType {
   invariant(
-    !(options.synchronous && options.experimentalUseJSI),
-    '`synchronous` and `experimentalUseJSI` SQLiteAdapter options are mutually exclusive',
+    !(options.synchronous && options.jsi),
+    '`synchronous` and `jsi` SQLiteAdapter options are mutually exclusive',
   )
 
   if (options.synchronous) {
@@ -120,7 +126,7 @@ export function getDispatcherType(options: SQLiteAdapterOptions): DispatcherType
     logger.warn(
       `Synchronous SQLiteAdapter not available… falling back to asynchronous operation. This will happen if you're using remote debugger, and may happen if you forgot to recompile native app after WatermelonDB update`,
     )
-  } else if (options.experimentalUseJSI) {
+  } else if (options.jsi) {
     if (initializeJSI()) {
       return 'jsi'
     }

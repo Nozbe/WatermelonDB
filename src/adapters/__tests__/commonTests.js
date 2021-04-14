@@ -516,9 +516,8 @@ export default () => [
           ['create', 'tasks', mockTaskRaw({ id: 't2' })],
           ['create', 'tasks', mockTaskRaw({ id: 't2' })], // duplicate
         ]),
-        // TODO: Get rid of the unknown error - fix on Android
         AdapterClass.name === 'SQLiteAdapter'
-          ? /(UNIQUE constraint failed: tasks.id|Exception in HostFunction: <unknown>)/
+          ? /UNIQUE constraint failed: tasks.id/
           : /Duplicate key for property id: t2/,
       )
       if (AdapterClass.name !== 'LokiJSAdapter') {
@@ -694,7 +693,7 @@ export default () => [
         // KNOWN ISSUE: non-JSI adapter implementation gets confused by this (it's a BOM mark)
         if (
           AdapterClass.name === 'SQLiteAdapter' &&
-          !extraAdapterOptions.experimentalUseJSI &&
+          !extraAdapterOptions.jsi &&
           (string === '﻿' || (string === '￾' && platform === 'android')) &&
           platform !== 'node'
         ) {
@@ -1111,7 +1110,7 @@ export default () => [
         const naughtyString = testCase.matching[0].text1
         if (
           AdapterClass.name === 'SQLiteAdapter' &&
-          !extraAdapterOptions.experimentalUseJSI &&
+          !extraAdapterOptions.jsi &&
           (naughtyString === '﻿' || (naughtyString === '￾' && platform === 'android'))
         ) {
           // eslint-disable-next-line no-console
@@ -1155,7 +1154,7 @@ export default () => [
         // KNOWN ISSUE: non-JSI adapter implementation gets confused by this (it's a BOM mark)
         if (
           AdapterClass.name === 'SQLiteAdapter' &&
-          !extraAdapterOptions.experimentalUseJSI &&
+          !extraAdapterOptions.jsi &&
           (string === '﻿' || (string === '￾' && platform === 'android')) &&
           platform !== 'node'
         ) {

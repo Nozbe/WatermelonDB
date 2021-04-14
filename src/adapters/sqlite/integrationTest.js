@@ -48,29 +48,20 @@ const SQLiteAdapterTest = spec => {
       })
     })
   })
-  // TODO: Reenable JSI on Android
-  Platform.OS === 'ios' &&
-    spec.describe('SQLiteAdapter (JSI mode)', () => {
-      commonTests().forEach(testCase => {
-        const [name, test] = testCase
-        spec.it(name, async () => {
-          const adapter = new SQLiteAdapter({ schema: testSchema, experimentalUseJSI: true })
+  spec.describe('SQLiteAdapter (JSI mode)', () => {
+    commonTests().forEach(testCase => {
+      const [name, test] = testCase
+      spec.it(name, async () => {
+        const adapter = new SQLiteAdapter({ schema: testSchema, jsi: true })
 
-          invariant(adapter._dispatcherType === 'jsi', 'native platforms should support jsi')
+        invariant(adapter._dispatcherType === 'jsi', 'native platforms should support jsi')
 
-          // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
-          await new Promise(resolve => setTimeout(resolve, 0))
-          await test(
-            new DatabaseAdapterCompat(adapter),
-            SQLiteAdapter,
-            {
-              experimentalUseJSI: true,
-            },
-            Platform.OS,
-          )
-        })
+        // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
+        await new Promise(resolve => setTimeout(resolve, 0))
+        await test(new DatabaseAdapterCompat(adapter), SQLiteAdapter, { jsi: true }, Platform.OS)
       })
     })
+  })
 }
 
 export default SQLiteAdapterTest

@@ -77,9 +77,9 @@ npm install @nozbe/watermelondb
 
 **Set up Babel config in your project**
 
-See instructions above ⬆️  
+See instructions above ⬆️
 
-On RN60+, auto linking should work.  
+On RN60+, auto linking should work.
 
 <details>
   <summary>Linking Manually</summary>
@@ -120,7 +120,7 @@ On RN60+, auto linking should work.
 <details>
   <summary>Custom Kotlin Version</summary>
   Just set ext properties `kotlinVersion` in `android/build.gradle`, and WatermelonDB will use the specified kotlin version.
-  
+
   ```gradle
   buildscript {
       ext.kotlinVersion = '1.3.21'
@@ -131,10 +131,58 @@ On RN60+, auto linking should work.
 <details>
   <summary>Troubleshooting</summary>
   If you get this error:
-    
-  > `Can't find variable: Symbol`  
-    
+
+  > `Can't find variable: Symbol`
+
   You're using an ancient version of JSC. Install [`jsc-android`](https://github.com/react-community/jsc-android-buildscripts) or Hermes.
+</details>
+
+<details>
+  <summary>JSI Installation (Optional)</summary>
+
+  To enable fast, highly performant, synchronous JSI operation on Android, you need to take a few
+  additional steps manually.
+
+   1. Make sure you have NDK installed (version `20.1.5948944` has been tested to work when writing this guide)
+   1. In `android/settings.gradle`, add:
+
+      ```gradle
+      include ':watermelondb-jsi'
+      project(':watermelondb-jsi').projectDir =
+          new File(rootProject.projectDir, '../node_modules/@nozbe/watermelondb/native/android-jsi')
+      ```
+   2. In `android/app/build.gradle`, add:
+      ```gradle
+      // ...
+      android {
+        // ...
+        packagingOptions {
+           pickFirst '**/libc++_shared.so' // ⬅️ This (if missing)
+        }
+      }
+
+      dependencies {
+          // ...
+          implementation project(':watermelondb-jsi') // ⬅️ This!
+      }
+      ```
+   3. And finally, in `android/app/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.java`, add:
+      ```java
+      // ...
+      import com.nozbe.watermelondb.jsi.WatermelonDBJSIPackage; // ⬅️ This!
+      import com.facebook.react.bridge.JSIModulePackage; // ⬅️ This!
+      // ...
+      private final ReactNativeHost mReactNativeHost =
+         new ReactNativeHost(this) {
+           // ...
+
+           @Override
+           protected JSIModulePackage getJSIModulePackage() {
+             return new WatermelonDBJSIPackage(); // ⬅️ This!
+           }
+         }
+
+      ```
 </details>
 
 ## NodeJS setup

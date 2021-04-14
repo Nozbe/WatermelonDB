@@ -1577,10 +1577,10 @@
   resolved "https://registry.yarnpkg.com/@nozbe/sqlite/-/sqlite-3.31.1.tgz#ffd394ad7c188c6b73f89fd6e1ccb849a1b96dba"
   integrity sha512-z5+GdcHZl9OQ1g0pnygORAnwCYUlYw/gQxdW/8rS0HxD2Gnn/k3DBQOvqQIH4Z3Z3KWVMbGUYhcH1v4SqTAdwg==
 
-"@nozbe/with-observables@1.2.1-0":
-  version "1.2.1-0"
-  resolved "https://registry.yarnpkg.com/@nozbe/with-observables/-/with-observables-1.2.1-0.tgz#84f0f493b081e1a8be746b864804d389efe4e688"
-  integrity sha512-xBqmPVs4ZPFy0Yr+X43QZBlpR+umGWbqAkvnTIsrzU1ZDd8ae4Q5UOYV8cDdkRI/lO40waReG7RnGViHFzwEhA==
+"@nozbe/with-observables@1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@nozbe/with-observables/-/with-observables-1.3.0.tgz#c1c581dd1e62866fd11bd3b6721c9c82c28aca2a"
+  integrity sha512-pcE8+FeDgDmHJcKjTkFrC3qAoSG6UvofpF65Hs4pCSNn243G7Tu5Fdlo56n9tAXKr7X37f73VmT8g8wXdojO4w==
   dependencies:
     hoist-non-react-statics "^3.3.2"
 
