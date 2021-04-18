@@ -163,9 +163,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
     if (migrationSteps) {
       logger.log(
-        `[WatermelonDB][SQLite] Migrating from version ${databaseVersion} to ${
-          this.schema.version
-        }...`,
+        `[WatermelonDB][SQLite] Migrating from version ${databaseVersion} to ${this.schema.version}...`,
       )
 
       if (this._migrationEvents && this._migrationEvents.onStart) {

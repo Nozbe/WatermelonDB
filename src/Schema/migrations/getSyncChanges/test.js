@@ -3,7 +3,10 @@ import { schemaMigrations, createTable, addColumns, unsafeExecuteSql } from '../
 
 const createCommentsTable = createTable({
   name: 'comments',
-  columns: [{ name: 'post_id', type: 'string', isIndexed: true }, { name: 'body', type: 'string' }],
+  columns: [
+    { name: 'post_id', type: 'string', isIndexed: true },
+    { name: 'body', type: 'string' },
+  ],
 })
 
 const test = (migrations, from, to) => getSyncChanges(schemaMigrations({ migrations }), from, to)
@@ -157,7 +160,10 @@ describe('getSyncChanges', () => {
       steps: [
         addColumns({
           table: 'comments',
-          columns: [{ name: 'is_pinned', type: 'boolean' }, { name: 'extra', type: 'string' }],
+          columns: [
+            { name: 'is_pinned', type: 'boolean' },
+            { name: 'extra', type: 'string' },
+          ],
         }),
         addColumns({ table: 'projects', columns: [{ name: 'extra', type: 'string' }] }),
       ],

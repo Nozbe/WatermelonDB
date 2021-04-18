@@ -18,7 +18,10 @@ describe('encodeSchema', () => {
         }),
         tableSchema({
           name: 'comments',
-          columns: [{ name: 'is_ended', type: 'boolean' }, { name: 'reactions', type: 'number' }],
+          columns: [
+            { name: 'is_ended', type: 'boolean' },
+            { name: 'reactions', type: 'number' },
+          ],
         }),
       ],
     })

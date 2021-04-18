@@ -56,9 +56,9 @@ async function getLokiAdapter(options: LokiAdapterOptions): mixed {
     return adapter
   } else if (await isIDBAvailable(onQuotaExceededError)) {
     if (useIncrementalIndexedDB) {
-      const IncrementalIDBAdapter = options._betaLoki ?
-        require('lokijs/src/incremental-indexeddb-adapter') :
-        require('lokijs/src/incremental-indexeddb-adapter')
+      const IncrementalIDBAdapter = options._betaLoki
+        ? require('lokijs/src/incremental-indexeddb-adapter')
+        : require('lokijs/src/incremental-indexeddb-adapter')
       // $FlowFixMe
       return new IncrementalIDBAdapter({
         onversionchange: onIndexedDBVersionChange,

@@ -8,7 +8,10 @@ describe('Schema', () => {
       tables: [
         tableSchema({
           name: 'foo',
-          columns: [{ name: 'col1', type: 'string' }, { name: 'col2', type: 'number' }],
+          columns: [
+            { name: 'col1', type: 'string' },
+            { name: 'col2', type: 'number' },
+          ],
         }),
         tableSchema({
           name: 'bar',
@@ -32,7 +35,10 @@ describe('Schema', () => {
             col1: { name: 'col1', type: 'string' },
             col2: { name: 'col2', type: 'number' },
           },
-          columnArray: [{ name: 'col1', type: 'string' }, { name: 'col2', type: 'number' }],
+          columnArray: [
+            { name: 'col1', type: 'string' },
+            { name: 'col2', type: 'number' },
+          ],
         },
         bar: {
           name: 'bar',

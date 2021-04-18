@@ -17,10 +17,12 @@ const censorRaw: DirtyRaw => DirtyRaw = mapObj((value, key) =>
 const censorLog = (log: SyncLog): SyncLog => ({
   ...log,
   // $FlowFixMe
-  ...(log.resolvedConflicts ? {
-    // $FlowFixMe
-    resolvedConflicts: log.resolvedConflicts.map(conflict => mapObj(censorRaw)(conflict)),
-  } : {}),
+  ...(log.resolvedConflicts
+    ? {
+        // $FlowFixMe
+        resolvedConflicts: log.resolvedConflicts.map(conflict => mapObj(censorRaw)(conflict)),
+      }
+    : {}),
 })
 const censorLogs = logs => logs.map(censorLog)
 

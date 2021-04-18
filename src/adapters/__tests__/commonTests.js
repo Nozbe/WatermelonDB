@@ -58,7 +58,10 @@ export default () => [
 
       expect(() => adapterWithRealMigrations([{ toVersion: 10, steps: [] }])).not.toThrow()
       expect(() =>
-        adapterWithRealMigrations([{ toVersion: 10, steps: [] }, { toVersion: 9, steps: [] }]),
+        adapterWithRealMigrations([
+          { toVersion: 10, steps: [] },
+          { toVersion: 9, steps: [] },
+        ]),
       ).not.toThrow()
 
       // Empty migrations only allowed if version 1
@@ -78,7 +81,10 @@ export default () => [
       )
       // Migration to latest version must be present
       expect(() =>
-        adapterWithRealMigrations([{ toVersion: 9, steps: [] }, { toVersion: 8, steps: [] }]),
+        adapterWithRealMigrations([
+          { toVersion: 9, steps: [] },
+          { toVersion: 8, steps: [] },
+        ]),
       ).toThrow(/Missing migration/)
     },
   ],
@@ -113,7 +119,10 @@ export default () => [
       // add more, restart app
       const s2 = mockTaskRaw({ id: 's2', bool1: true, order: 2 })
       const s3 = mockTaskRaw({ id: 's3', text1: 'baz' })
-      await adapter.batch([['create', 'tasks', s2], ['create', 'tasks', s3]])
+      await adapter.batch([
+        ['create', 'tasks', s2],
+        ['create', 'tasks', s3],
+      ])
       adapter = await adapter.testClone()
 
       // returns raw if not cached
@@ -295,7 +304,10 @@ export default () => [
       // add records, restart app
       const s1 = mockTaskRaw({ id: 's1', order: 1 })
       const s2 = mockTaskRaw({ id: 's2', order: 2 })
-      await adapter.batch([['create', 'tasks', s1], ['create', 'tasks', s2]])
+      await adapter.batch([
+        ['create', 'tasks', s1],
+        ['create', 'tasks', s2],
+      ])
       adapter = await adapter.testClone()
 
       // first time we see it, get full object
@@ -334,7 +346,10 @@ export default () => [
       const t1 = { id: 't1', text1: 'foo', order: 1 }
       const t2 = { id: 't2', text2: 'bar', order: 2 }
 
-      await adapter.batch([['create', 'tasks', t1], ['create', 'tasks', t2]])
+      await adapter.batch([
+        ['create', 'tasks', t1],
+        ['create', 'tasks', t2],
+      ])
       adapter = await adapter.testClone()
 
       expectSortedEqual(await adapter.query(taskQuery()), [

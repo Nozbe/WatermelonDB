@@ -307,9 +307,8 @@ export default class LokiExecutor {
   _addCollection(tableSchema: TableSchema): void {
     const { name, columnArray } = tableSchema
     const indexedColumns: string[] = columnArray.reduce(
-      (indexes: string[], column) => (
-        column.isIndexed ? indexes.concat([(column.name: string)]) : indexes
-      ),
+      (indexes: string[], column) =>
+        column.isIndexed ? indexes.concat([(column.name: string)]) : indexes,
       [],
     )
 
@@ -456,7 +455,9 @@ export default class LokiExecutor {
   // TODO: Setup, migrations, delete database should also break executor
   _fatalError(error: Error): void {
     if (!experimentalAllowsFatalError) {
-      logger.warn('LokiExecutor is broken, but experimentalAllowsFatalError has not been enabled to do anything about it...')
+      logger.warn(
+        'LokiExecutor is broken, but experimentalAllowsFatalError has not been enabled to do anything about it...',
+      )
       throw error
     }
     // Stop further mutations

@@ -262,7 +262,9 @@ export default class Database {
   // TODO: Not used anywhere yet
   _fatalError(error: Error): void {
     if (!experimentalAllowsFatalError) {
-      logger.warn('Database is now broken, but experimentalAllowsFatalError has not been enabled to do anything about it...')
+      logger.warn(
+        'Database is now broken, but experimentalAllowsFatalError has not been enabled to do anything about it...',
+      )
       return
     }
 

@@ -124,9 +124,7 @@ export default class Model {
       process.nextTick(() => {
         invariant(
           !this._hasPendingUpdate,
-          `record.prepareUpdate was called on ${this.table}#${
-            this.id
-          } but wasn't sent to batch() synchronously -- this is bad!`,
+          `record.prepareUpdate was called on ${this.table}#${this.id} but wasn't sent to batch() synchronously -- this is bad!`,
         )
       })
     }

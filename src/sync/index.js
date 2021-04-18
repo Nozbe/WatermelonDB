@@ -3,9 +3,7 @@
 import type { Database, RecordId, TableName, Model } from '..'
 import { type DirtyRaw } from '../RawRecord'
 
-import {
-  hasUnsyncedChanges as hasUnsyncedChangesImpl,
-} from './impl'
+import { hasUnsyncedChanges as hasUnsyncedChangesImpl } from './impl'
 import type { SchemaVersion } from '../Schema'
 import { type MigrationSyncChanges } from '../Schema/migrations/getSyncChanges'
 

@@ -52,7 +52,11 @@ const prepareCreateFromRaw = (collection, dirtyRaw) =>
     record._raw = sanitizedRaw({ _status: 'synced', ...dirtyRaw }, record.collection.schema)
   })
 
-const getRaw = (collection, id) => collection.find(id).then(record => record._raw, () => null)
+const getRaw = (collection, id) =>
+  collection.find(id).then(
+    record => record._raw,
+    () => null,
+  )
 
 const expectSyncedAndMatches = async (collection, id, match) =>
   expect(await getRaw(collection, id)).toMatchObject({
@@ -655,10 +659,7 @@ const observeDatabase = database => {
   const observer = jest.fn()
   const tables = ['mock_projects', 'mock_tasks', 'mock_comments']
   expect(tables).toEqual(Object.keys(database.collections.map))
-  database
-    .withChangesForTables(tables)
-    .pipe(skip$(1))
-    .subscribe(observer)
+  database.withChangesForTables(tables).pipe(skip$(1)).subscribe(observer)
   return observer
 }
 

@@ -2,8 +2,13 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable guard-for-in */
 
-type FilterObj2 = <T, Key, Obj: { [Key]: T }, Fn: (T, Key, Obj) => boolean>(fn: Fn, obj: Obj) => $Shape<Obj>
-type FilterObjCur = <T, Key, Obj: { [Key]: T }, Fn: (T, Key, Obj) => boolean>(fn: Fn) => (Obj => $Shape<Obj>)
+type FilterObj2 = <T, Key, Obj: { [Key]: T }, Fn: (T, Key, Obj) => boolean>(
+  fn: Fn,
+  obj: Obj,
+) => $Shape<Obj>
+type FilterObjCur = <T, Key, Obj: { [Key]: T }, Fn: (T, Key, Obj) => boolean>(
+  fn: Fn,
+) => Obj => $Shape<Obj>
 type FilterObj = FilterObj2 & FilterObjCur
 
 function filterObj(predicate: (any, any, any) => any, obj: {}): any {

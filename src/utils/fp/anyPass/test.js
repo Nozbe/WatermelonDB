@@ -10,7 +10,7 @@ describe('anyPass', () => {
     expect(anyPass([isBar])({ bar: true })).toBe(true)
     expect(anyPass([isBar])({ foo: true })).toBe(false)
 
-    expect(anyPass([isFoo, isBar])({ })).toBe(false)
+    expect(anyPass([isFoo, isBar])({})).toBe(false)
     expect(anyPass([isFoo, isBar])({ foo: true })).toBe(true)
     expect(anyPass([isFoo, isBar])({ bar: true })).toBe(true)
     expect(anyPass([isFoo, isBar])({ foo: true, bar: true })).toBe(true)
