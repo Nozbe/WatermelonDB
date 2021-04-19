@@ -370,7 +370,10 @@ describe('buildQueryDescription', () => {
         },
       ],
       joinTables: ['projects'],
-      nestedJoinTables: [{ from: 'projects', to: 'teams' }, { from: 'teams', to: 'organizations' }],
+      nestedJoinTables: [
+        { from: 'projects', to: 'teams' },
+        { from: 'teams', to: 'organizations' },
+      ],
       sortBy: [],
     })
   })

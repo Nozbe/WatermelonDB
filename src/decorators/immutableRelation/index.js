@@ -19,7 +19,9 @@ import relation from '../relation'
 // Example: a Comment has an author (and an author can never change), so it may define:
 //   @immutableRelation('team_member', 'author_id') author: Relation<TeamMember>
 
-const immutableRelation: Decorator = (relationTable: TableName<any>, relationIdColumn: ColumnName) =>
-  relation(relationTable, relationIdColumn, { isImmutable: true })
+const immutableRelation: Decorator = (
+  relationTable: TableName<any>,
+  relationIdColumn: ColumnName,
+) => relation(relationTable, relationIdColumn, { isImmutable: true })
 
 export default immutableRelation

@@ -102,9 +102,7 @@ export default class RecordCache<Record: Model> {
       // This may legitimately happen if we previously got ID without a record and we cleared
       // adapter-side cached record ID maps to recover
       logger.warn(
-        `Record ${this.tableName}#${
-          cachedRecord.id
-        } is cached, but full raw object was sent over the bridge`,
+        `Record ${this.tableName}#${cachedRecord.id} is cached, but full raw object was sent over the bridge`,
       )
       return cachedRecord
     }

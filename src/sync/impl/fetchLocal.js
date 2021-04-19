@@ -4,7 +4,8 @@ import {
   // $FlowFixMe
   values,
   identity,
-  unnest, allPromises,
+  unnest,
+  allPromises,
   mapObj,
 } from '../../utils/fp'
 import allPromisesObj from '../../utils/fp/allPromisesObj'

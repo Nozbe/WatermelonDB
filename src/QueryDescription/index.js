@@ -274,7 +274,9 @@ let warnedLokiFilterDeprecation = false
 export function unsafeLokiFilter(fn: (rawLokiRecord: any, loki: any) => boolean): LokiTransform {
   // TODO: Remove after 2021-04-26
   if (!warnedLokiFilterDeprecation) {
-    logger.warn('Q.unsafeLokiFilter is deprecated - use `Q.unsafeLokiTransform((raws, loki) => raws.filter(...))` instead')
+    logger.warn(
+      'Q.unsafeLokiFilter is deprecated - use `Q.unsafeLokiTransform((raws, loki) => raws.filter(...))` instead',
+    )
     warnedLokiFilterDeprecation = true
   }
   return { type: 'lokiTransform', function: (raws, loki) => raws.filter(raw => fn(raw, loki)) }

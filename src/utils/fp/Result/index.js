@@ -19,7 +19,10 @@ export function toPromise<T>(withCallback: (ResultCallback<T>) => void): Promise
 }
 
 export function fromPromise<T>(promise: Promise<T>, callback: ResultCallback<T>): void {
-  promise.then(value => callback({ value }), error => callback({ error }))
+  promise.then(
+    value => callback({ value }),
+    error => callback({ error }),
+  )
 }
 
 export function mapValue<T, U>(mapper: T => U, result: Result<T>): Result<U> {

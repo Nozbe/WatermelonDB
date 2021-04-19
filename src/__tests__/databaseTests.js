@@ -17,7 +17,10 @@ export const matchTests = [
   {
     name: 'matches `true`',
     query: [Q.where('bool1', true)],
-    matching: [{ id: 'm1', bool1: true }, { id: 'm2', bool1: 1 }],
+    matching: [
+      { id: 'm1', bool1: true },
+      { id: 'm2', bool1: 1 },
+    ],
     nonMatching: [
       { id: 'n1' },
       { id: 'n2', bool1: null },
@@ -28,7 +31,10 @@ export const matchTests = [
   {
     name: 'matches `false`',
     query: [Q.where('bool2', false)],
-    matching: [{ id: 'm1', bool2: false }, { id: 'm2', bool2: 0 }],
+    matching: [
+      { id: 'm1', bool2: false },
+      { id: 'm2', bool2: 0 },
+    ],
     nonMatching: [
       { id: 'n1' },
       { id: 'n2', bool2: null },
@@ -40,12 +46,19 @@ export const matchTests = [
     name: 'matches `null`',
     query: [Q.where('num1', null)],
     matching: [{ id: 'm1' }, { id: 'm2', num1: null }, { id: 'm3', num1: undefined }],
-    nonMatching: [{ id: 'n1', num1: 0 }, { id: 'n2', num1: false }, { id: 'n3', num1: '' }],
+    nonMatching: [
+      { id: 'n1', num1: 0 },
+      { id: 'n2', num1: false },
+      { id: 'n3', num1: '' },
+    ],
   },
   {
     name: 'matches integers (0)',
     query: [Q.where('num1', 0)],
-    matching: [{ id: 'm1', num1: 0 }, { id: 'm2', num1: false }],
+    matching: [
+      { id: 'm1', num1: 0 },
+      { id: 'm2', num1: false },
+    ],
     nonMatching: [
       { id: 'n1' },
       { id: 'n2', num1: null },
@@ -56,7 +69,10 @@ export const matchTests = [
   {
     name: 'matches integers (1)',
     query: [Q.where('num1', 1)],
-    matching: [{ id: 'm1', num1: 1 }, { id: 'm2', num1: true }],
+    matching: [
+      { id: 'm1', num1: 1 },
+      { id: 'm2', num1: true },
+    ],
     nonMatching: [
       { id: 'n1' },
       { id: 'n2', num1: null },
@@ -68,13 +84,19 @@ export const matchTests = [
     name: 'matches floats',
     query: [Q.where('float1', 3.14)],
     matching: [{ id: 'm1', float1: 3.14 }],
-    nonMatching: [{ id: 'n1', float1: null }, { id: 'n2', float1: 1.0 }],
+    nonMatching: [
+      { id: 'n1', float1: null },
+      { id: 'n2', float1: 1.0 },
+    ],
   },
   {
     name: 'matches big numbers (e.g. JS timestamps)',
     query: [Q.where('float1', 1590485104033)],
     matching: [{ id: 'm1', float1: 1590485104033 }],
-    nonMatching: [{ id: 'n1', float1: null }, { id: 'n2', float1: 159048510 }],
+    nonMatching: [
+      { id: 'n1', float1: null },
+      { id: 'n2', float1: 159048510 },
+    ],
   },
   {
     name: 'matches multiple conditions',
@@ -110,7 +132,10 @@ export const matchTests = [
   {
     name: 'matches by greater-than-or-equal',
     query: [Q.where('float1', Q.gte(2.1))],
-    matching: [{ id: 'm1', float1: 2.1 }, { id: 'm2', float1: 5 }],
+    matching: [
+      { id: 'm1', float1: 2.1 },
+      { id: 'm2', float1: 5 },
+    ],
     nonMatching: [
       { id: 'n1' },
       { id: 'n2', float1: null },
@@ -135,13 +160,19 @@ export const matchTests = [
   {
     name: 'matches by less-than',
     query: [Q.where('float1', Q.lt(2))],
-    matching: [{ id: 'm1', float1: 1 }, { id: 'm2', float1: 0 }],
+    matching: [
+      { id: 'm1', float1: 1 },
+      { id: 'm2', float1: 0 },
+    ],
     nonMatching: [{ id: 'n1', float1: 2 }, { id: 'n2', float1: null }, { id: 'n3' }],
   },
   {
     name: 'matches by less-than-or-equal',
     query: [Q.where('float1', Q.lte(2))],
-    matching: [{ id: 'm1', float1: 2 }, { id: 'm2', float1: 0 }],
+    matching: [
+      { id: 'm1', float1: 2 },
+      { id: 'm2', float1: 0 },
+    ],
     nonMatching: [{ id: 'n1', float1: 2.1 }, { id: 'n2', float1: null }, { id: 'n3' }],
   },
   {
@@ -171,13 +202,19 @@ export const matchTests = [
   {
     name: 'matches by IN',
     query: [Q.where('num1', Q.oneOf([0, 1, 2]))],
-    matching: [{ id: 'm1', num1: 0 }, { id: 'm2', num1: 2 }],
+    matching: [
+      { id: 'm1', num1: 0 },
+      { id: 'm2', num1: 2 },
+    ],
     nonMatching: [{ id: 'n1' }, { id: 'n2', num1: null }, { id: 'n3', num1: 10 }],
   },
   {
     name: 'matches by NOT IN',
     query: [Q.where('num1', Q.notIn([0, 1, 2]))],
-    matching: [{ id: 'm1', num1: 5 }, { id: 'm2', num1: 10 }],
+    matching: [
+      { id: 'm1', num1: 5 },
+      { id: 'm2', num1: 10 },
+    ],
     nonMatching: [
       { id: 'n1', num1: 0 },
       { id: 'n2', num1: 2 },
@@ -189,7 +226,10 @@ export const matchTests = [
   {
     name: 'matches by BETWEEN',
     query: [Q.where('float1', Q.between(5, 10))],
-    matching: [{ id: 'm1', float1: 5 }, { id: 'm2', float1: 10 }],
+    matching: [
+      { id: 'm1', float1: 5 },
+      { id: 'm2', float1: 10 },
+    ],
     nonMatching: [
       { id: 'n1' },
       { id: 'n2', float1: null },
@@ -252,7 +292,10 @@ export const matchTests = [
   {
     name: 'can compare columns (less-than)',
     query: [Q.where('num2', Q.lt(Q.column('num1')))],
-    matching: [{ id: 'm1', num1: 10, num2: 5 }, { id: 'm2', num1: 5.1, num2: 5.09 }],
+    matching: [
+      { id: 'm1', num1: 10, num2: 5 },
+      { id: 'm2', num1: 5.1, num2: 5.09 },
+    ],
     nonMatching: [
       { id: 'n1' },
       { id: 'n2', num1: null },
@@ -269,7 +312,10 @@ export const matchTests = [
   {
     name: 'can compare columns (less-than-or-equal)',
     query: [Q.where('num2', Q.lte(Q.column('num1')))],
-    matching: [{ id: 'm1', num1: 10, num2: 5 }, { id: 'm2', num1: 5, num2: 5 }],
+    matching: [
+      { id: 'm1', num1: 10, num2: 5 },
+      { id: 'm2', num1: 5, num2: 5 },
+    ],
     nonMatching: [
       { id: 'n1' },
       { id: 'n2', num1: null },
@@ -285,7 +331,10 @@ export const matchTests = [
   {
     name: 'can compare columns (greater-than/float)',
     query: [Q.where('float1', Q.gt(Q.column('float2')))],
-    matching: [{ id: 'm1', float1: 10, float2: 5 }, { id: 'm2', float1: 5.1, float2: 5.09 }],
+    matching: [
+      { id: 'm1', float1: 10, float2: 5 },
+      { id: 'm2', float1: 5.1, float2: 5.09 },
+    ],
     nonMatching: [
       { id: 'n1' },
       { id: 'n2', float1: null },
@@ -302,7 +351,10 @@ export const matchTests = [
   {
     name: 'can compare columns (greater-than-or-equal/integer)',
     query: [Q.where('num1', Q.gte(Q.column('num2')))],
-    matching: [{ id: 'm1', num1: 10, num2: 5 }, { id: 'm2', num1: 5, num2: 5 }],
+    matching: [
+      { id: 'm1', num1: 10, num2: 5 },
+      { id: 'm2', num1: 5, num2: 5 },
+    ],
     nonMatching: [
       { id: 'n1' },
       { id: 'n2', num1: null },
@@ -391,7 +443,10 @@ export const matchTests = [
     name: 'can match by NOT IN with JS semantics',
     query: [Q.or(Q.where('num1', Q.notIn([0, 1, 2])), Q.where('num1', null))],
     matching: [{ id: 'm1' }, { id: 'm2', num1: null }, { id: 'm3', num1: 10 }],
-    nonMatching: [{ id: 'n1', num1: 0 }, { id: 'n2', num1: 2 }],
+    nonMatching: [
+      { id: 'n1', num1: 0 },
+      { id: 'n2', num1: 2 },
+    ],
   },
   {
     name: 'match like (string)',
@@ -402,7 +457,10 @@ export const matchTests = [
       { id: 'm3', text1: 'Lorem\n\nIpsum' },
       { id: 'm4', text1: 'Lorem\n\nIpsum\nfoo' },
     ],
-    nonMatching: [{ id: 'n1', text1: 'consectetur adipiscing elit.' }, { id: 'n2', text1: null }],
+    nonMatching: [
+      { id: 'n1', text1: 'consectetur adipiscing elit.' },
+      { id: 'n2', text1: null },
+    ],
   },
   {
     name: 'match notLike (string)',
@@ -434,7 +492,10 @@ export const matchTests = [
   {
     name: 'match notLike (value%)',
     query: [Q.where('text1', Q.notLike('Lorem%'))],
-    nonMatching: [{ id: 'm1', text1: 'Lorem Ipsum dolor sit amet,' }, { id: 'm2', text1: null }],
+    nonMatching: [
+      { id: 'm1', text1: 'Lorem Ipsum dolor sit amet,' },
+      { id: 'm2', text1: null },
+    ],
     matching: [
       { id: 'n1', text1: 'consectetur adipiscing elit.' },
       { id: 'n2', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem.' },
@@ -572,7 +633,10 @@ export const matchTests = [
   {
     name: 'match like (_alu_)',
     query: [Q.where('text1', Q.like('_ore_'))],
-    matching: [{ id: 'm1', text1: 'Lorem' }, { id: 'm2', text1: 'poret' }],
+    matching: [
+      { id: 'm1', text1: 'Lorem' },
+      { id: 'm2', text1: 'poret' },
+    ],
     nonMatching: [
       { id: 'n1', text1: 'Lorem Ipsum dolor sit amet,' },
       { id: 'n2', text1: 'Vestibulum eget felis commodo, gravida velit nec, congue lorem' },
@@ -644,14 +708,21 @@ export const matchTests = [
       { id: 'm3', num1: 6 },
       { id: 'm4', num1: 10 },
     ],
-    nonMatching: [{ id: 'n1', num1: 1 }, { id: 'n2', num1: 3 }, { id: 'n3', num1: 5 }],
+    nonMatching: [
+      { id: 'n1', num1: 1 },
+      { id: 'n2', num1: 3 },
+      { id: 'n3', num1: 5 },
+    ],
     skipLoki: true,
     skipMatcher: true,
   },
   {
     name: 'match unsafe Loki expression',
     query: [Q.unsafeLokiExpr({ text1: { $contains: 'hey' } })],
-    matching: [{ id: 'm1', text1: 'hey' }, { id: 'm2', text1: 'aeheyea' }],
+    matching: [
+      { id: 'm1', text1: 'hey' },
+      { id: 'm2', text1: 'aeheyea' },
+    ],
     nonMatching: [{ id: 'n1' }, { id: 'n2', text1: 'he' }],
     skipSqlite: true,
     skipMatcher: true,
@@ -708,7 +779,10 @@ export const naughtyMatchTests = naughtyStrings.map(naughtyString => ({
   name: naughtyString,
   query: [Q.where('text1', naughtyString)],
   matching: [{ id: 'm1', text1: naughtyString }],
-  nonMatching: [{ id: 'n1', text1: null }, { id: 'n2', text1: 'not-a-naughty-string' }],
+  nonMatching: [
+    { id: 'n1', text1: null },
+    { id: 'n2', text1: 'not-a-naughty-string' },
+  ],
 }))
 
 export const joinTests = [
@@ -877,7 +951,10 @@ export const joinTests = [
         { id: 'badt2', text1: 'bingo', _status: 'deleted' },
       ],
     },
-    matching: [{ id: 'm1', project_id: 'p1' }, { id: 'm2', project_id: 'p2' }],
+    matching: [
+      { id: 'm1', project_id: 'p1' },
+      { id: 'm2', project_id: 'p2' },
+    ],
     nonMatching: [
       { id: 'n1', project_id: 'badp1' },
       { id: 'n2', project_id: 'badp2' },
@@ -948,7 +1025,11 @@ export const joinTests = [
     name: 'can perform both JOIN queries and column comparisons',
     query: [Q.on('projects', 'text1', 't1'), Q.where('text1', Q.eq(Q.column('text2')))],
     extraRecords: {
-      projects: [{ id: 'p1', text1: 't1' }, { id: 'p2', text1: 't1' }, { id: 'p3', text1: 't2' }],
+      projects: [
+        { id: 'p1', text1: 't1' },
+        { id: 'p2', text1: 't1' },
+        { id: 'p3', text1: 't2' },
+      ],
     },
     matching: [
       { id: 'm1', project_id: 'p1', text1: 'a', text2: 'a' },
@@ -1052,7 +1133,10 @@ export const joinTests = [
         { id: 'badtt5', task_id: 'n9', num1: 10, num2: 5, _status: 'deleted' },
       ],
     },
-    matching: [{ id: 'm1', text1: 'val1' }, { id: 'm2', text1: 'val1' }],
+    matching: [
+      { id: 'm1', text1: 'val1' },
+      { id: 'm2', text1: 'val1' },
+    ],
     nonMatching: [
       { id: 'n1' },
       { id: 'n2' },
@@ -1088,7 +1172,10 @@ export const joinTests = [
         { id: 'badp3', team_id: 'badt3' },
       ],
     },
-    matching: [{ id: 'm1', project_id: 'p1' }, { id: 'm2', project_id: 'p2' }],
+    matching: [
+      { id: 'm1', project_id: 'p1' },
+      { id: 'm2', project_id: 'p2' },
+    ],
     nonMatching: [
       { id: 'n1', project_id: 'badp1' },
       { id: 'n2', project_id: 'badp2' },

@@ -135,6 +135,7 @@
     "mkdirp": "^0.5.1",
     "p-timeout": "^3.0.0",
     "path": "^0.12.7",
+    "prettier": "^2.2.1",
     "prettier-eslint-cli": "^5.0.0",
     "rambdax": "2.15.0",
     "react": "16.13.0",

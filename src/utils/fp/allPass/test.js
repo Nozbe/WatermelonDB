@@ -12,7 +12,7 @@ describe('allPass', () => {
     expect(allPass([isBar])({ bar: true, foo: true })).toBe(true)
     expect(allPass([isBar])({ foo: true })).toBe(false)
 
-    expect(allPass([isFoo, isBar])({ })).toBe(false)
+    expect(allPass([isFoo, isBar])({})).toBe(false)
     expect(allPass([isFoo, isBar])({ foo: true })).toBe(false)
     expect(allPass([isFoo, isBar])({ bar: true })).toBe(false)
     expect(allPass([isFoo, isBar])({ foo: true, bar: true })).toBe(true)

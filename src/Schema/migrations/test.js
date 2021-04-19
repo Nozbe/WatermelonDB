@@ -123,7 +123,12 @@ describe('schemaMigrations()', () => {
   })
   it(`throws if there are gaps or duplicates in migrations`, () => {
     expect(() =>
-      schemaMigrations({ migrations: [{ toVersion: 2, steps: [] }, { toVersion: 2, steps: [] }] }),
+      schemaMigrations({
+        migrations: [
+          { toVersion: 2, steps: [] },
+          { toVersion: 2, steps: [] },
+        ],
+      }),
     ).toThrow(/duplicates/)
     expect(() =>
       schemaMigrations({

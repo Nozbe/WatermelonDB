@@ -34,11 +34,13 @@ export default class ActionQueue implements ActionInterface {
         const queue = this._queue
         const current = queue[0]
         logger.warn(
-          `[WatermelonDB] The action you're trying to perform (${description ||
-            'unnamed'}) can't be performed yet, because there are ${
+          `[WatermelonDB] The action you're trying to perform (${
+            description || 'unnamed'
+          }) can't be performed yet, because there are ${
             queue.length
-          } actions in the queue. Current action: ${current.description ||
-            'unnamed'}. Ignore this message if everything is working fine. But if your actions are not running, it's because the current action is stuck. Remember that if you're calling an action from an action, you must use subAction(). See docs for more details.`,
+          } actions in the queue. Current action: ${
+            current.description || 'unnamed'
+          }. Ignore this message if everything is working fine. But if your actions are not running, it's because the current action is stuck. Remember that if you're calling an action from an action, you must use subAction(). See docs for more details.`,
         )
         logger.log(`[WatermelonDB] Enqueued action:`, work)
         logger.log(`[WatermelonDB] Running action:`, current.work)
@@ -71,8 +73,9 @@ export default class ActionQueue implements ActionInterface {
       if (process.env.NODE_ENV !== 'production') {
         invariant(
           workPromise instanceof Promise,
-          `The function passed to database.action() or a method marked as @action must be asynchronous — either marked as 'async' or always returning a promise (in: ${this
-            ._queue[0].description || 'unnamed'})`,
+          `The function passed to database.action() or a method marked as @action must be asynchronous — either marked as 'async' or always returning a promise (in: ${
+            this._queue[0].description || 'unnamed'
+          })`,
         )
       }
 

@@ -97,7 +97,10 @@ const encodeWhereCondition = (
   // if right operand is a value, we can use simple comparison
   // if a column, we must check for `not null > null`
   if (comparison.operator === 'weakGt' && comparison.right.column) {
-    return encodeWhere(table, associations)(
+    return encodeWhere(
+      table,
+      associations,
+    )(
       Q.or(
         // $FlowFixMe
         Q.where(left, Q.gt(Q.column(comparison.right.column))),

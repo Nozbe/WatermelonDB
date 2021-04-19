@@ -144,10 +144,7 @@ const insertAll = async (adapter, table, records) =>
   )
 
 const sort = sortBy(identity)
-const getExpectedResults = pipe(
-  pluck('id'),
-  sort,
-)
+const getExpectedResults = pipe(pluck('id'), sort)
 
 export const expectSortedEqual = (actual, expected) => {
   expect(sort(actual)).toEqual(sort(expected))

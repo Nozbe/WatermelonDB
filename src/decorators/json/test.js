@@ -11,7 +11,10 @@ const schema = tableSchema({
 
 const schema2 = tableSchema({
   name: 'mock',
-  columns: [{ name: 'kind', type: 'string' }, { name: 'extras', type: 'string', isOptional: true }],
+  columns: [
+    { name: 'kind', type: 'string' },
+    { name: 'extras', type: 'string', isOptional: true },
+  ],
 })
 
 const mockSanitizer = storedValue =>

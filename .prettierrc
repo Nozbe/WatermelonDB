@@ -1,5 +1,5 @@
 {
-  "parser": "babylon",
+  "parser": "babel",
   "printWidth": 100,
   "trailingComma": "all",
   "singleQuote": true,

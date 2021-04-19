@@ -36,7 +36,10 @@ const mockSchema = appSchema({
     }),
     tableSchema({
       name: 'mock_created_updated',
-      columns: [{ name: 'created_at', type: 'number' }, { name: 'updated_at', type: 'number' }],
+      columns: [
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
+      ],
     }),
   ],
 })
@@ -408,7 +411,10 @@ describe('Safety features', () => {
     const model = MockModel._prepareCreate(database.get('mock'), () => {})
     expect(model._isCommitted).toBe(false)
 
-    await expectToRejectWithMessage(model.update(() => {}), /uncommitted/)
+    await expectToRejectWithMessage(
+      model.update(() => {}),
+      /uncommitted/,
+    )
     await expectToRejectWithMessage(model.markAsDeleted(), /uncomitted record as deleted/)
     await expectToRejectWithMessage(model.destroyPermanently(), /uncomitted record as deleted/)
     expect(() => model.observe()).toThrow(/uncommitted/)
@@ -422,7 +428,10 @@ describe('Safety features', () => {
     expect(() => {
       model.prepareUpdate()
     }).toThrow(/pending update/)
-    await expectToRejectWithMessage(model.update(() => {}), /pending update/)
+    await expectToRejectWithMessage(
+      model.update(() => {}),
+      /pending update/,
+    )
 
     // need to call batch or a dev check will get angry
     database.batch(model)

@@ -11,9 +11,7 @@ const generatePlaceholders = count => {
     return memoized
   }
 
-  const placeholders = Array(count)
-    .fill('?')
-    .join(', ')
+  const placeholders = Array(count).fill('?').join(', ')
   memoizedPlaceholders[count] = placeholders
   return placeholders
 }
