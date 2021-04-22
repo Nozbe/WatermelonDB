@@ -234,8 +234,8 @@ export function sanitizeLikeString(value: string): string {
   return value.replace(nonLikeSafeRegexp, '_')
 }
 
-export function textMatches(value: string): Comparison {
-  invariant(typeof value === 'string', 'Value passed to Q.textMatches() is not a string')
+export function ftsMatch(value: string): Comparison {
+  invariant(typeof value === 'string', 'Value passed to Q.ftsMatch() is not a string')
   return { operator: 'match', right: { value }, type: comparisonSymbol }
 }
 

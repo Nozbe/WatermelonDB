@@ -14,6 +14,11 @@
 
 ### New features
 
+
+- [SQLiteAdapter] Added support for Full Text Search for SQLite adapter:
+  Add `isFTS` boolean flag to schema column descriptor for creating Full Text Search-able columns
+  Add `Q.ftsMatch(value)` that compiles to `match 'value'` SQL for performing Full Text Search using SQLite adpater
+
 ### Performance
 
 ### Changes

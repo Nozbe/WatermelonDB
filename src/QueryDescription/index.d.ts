@@ -106,7 +106,7 @@ declare module '@nozbe/watermelondb/QueryDescription' {
   export function where(left: ColumnName, valueOrComparison: Value | Comparison): WhereDescription
   export function and(...conditions: Condition[]): And
   export function or(...conditions: Condition[]): Or
-  export function textMatches(value: string): Comparison
+  export function ftsMatch(value: string): Comparison
   export function like(value: string): Comparison
   export function notLike(value: string): Comparison
   export function experimentalSortBy(sortColumn: ColumnName, sortOrder?: SortOrder): SortBy

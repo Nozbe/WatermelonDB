@@ -65,7 +65,7 @@ describe('SQLite encodeQuery', () => {
         Q.where('col5', Q.lte(5)),
         Q.where('col6', Q.notEq(null)),
         Q.where('col7', Q.oneOf([1, 2, 3])),
-        Q.where('col8', Q.notIn(['"a"', "'b'", 'c'])),
+        Q.where('col8', Q.notIn(['"a"', "'b'", 'c'])), // eslint-disable-line quotes
         Q.where('col9', Q.between(10, 11)),
         Q.where('col10', Q.like('%abc')),
         Q.where('col11', Q.notLike('def%')),
@@ -271,7 +271,7 @@ describe('SQLite encodeQuery', () => {
     expect(() => encoded([Q.unsafeLokiTransform(() => {})])).toThrow('not supported')
   })
   it('encodes JOIN over FTS table', () => {
-    const query = new Query(mockCollection, [Q.where('searchable', Q.textMatches('hello world'))])
+    const query = new Query(mockCollection, [Q.where('searchable', Q.ftsMatch('hello world'))])
     expect(encodeQuery(query)).toBe(
       `select "tasks".* from "tasks" ` +
         `where "tasks"."rowid" in (` +

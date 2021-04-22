@@ -318,7 +318,7 @@ export default class LokiExecutor {
       [],
     )
 
-    this._warnAboutLackingFTSSupport(values(columns))
+    this._warnAboutLackingFTSSupport(columnArray)
 
     this.loki.addCollection(name, {
       unique: ['id'],
