@@ -40,7 +40,7 @@ const destroyDeletedRecords = (db: Database, { changes }: SyncLocalChanges): Pro
     mapObj(
       ({ deleted }, tableName) => deleted.length
         ? db.adapter.destroyDeletedRecords(tableName, deleted)
-        : Promise.resolve([]),
+        : Promise.resolve(),
       changes,
     ),
   )
