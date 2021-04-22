@@ -17,7 +17,7 @@ declare module '@nozbe/watermelondb/Schema' {
     type: ColumnType
     isOptional?: boolean
     isIndexed?: boolean
-    isSearchable?: boolean
+    isFTS?: boolean
   }
 
   interface ColumnMap {

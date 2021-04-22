@@ -112,7 +112,7 @@ const encodeWhereCondition = (
 
   if (comparison.operator === 'match') {
     const srcTable = encodeName(table)
-    const ftsTable = encodeName(`${table}_fts`)
+    const ftsTable = encodeName(`_fts_${table}`)
     const rowid = encodeName('rowid')
     const ftsColumn = encodeName(left)
     const matchValue = getComparisonRight(table, comparison.right)

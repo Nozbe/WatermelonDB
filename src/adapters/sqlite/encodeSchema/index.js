@@ -39,8 +39,15 @@ const encodeTableIndicies: (TableSchema) => SQL = ({ name: tableName, columns })
 const transform = (sql: string, transformer: ?(string) => string) =>
   transformer ? transformer(sql) : sql
 
-const encodeTable: (TableSchema) => SQL = (table) =>
-  transform(encodeCreateTable(table) + encodeTableIndicies(table), table.unsafeSql)
+const encodeTable: TableSchema => SQL = table =>
+  transform(
+    // eslint-disable-next-line no-use-before-define
+    encodeCreateTable(table) + encodeTableIndicies(table) + encodeFTSSearch(table),
+    table.unsafeSql,
+  )
+
+/** FTS Full Text Search */
+
 const encodeFTSTrigger: ({
   tableName: string,
   ftsTableName: string,
@@ -124,20 +131,20 @@ const encodeFTSTable: ({
   return `create virtual table ${encodeName(ftsTableName)} using fts4(${columnsSQL});`
 }
 
-const encodeFTSSearch: TableSchema => SQL = ({ name: tableName, columns }) => {
-  const ftsColumns = values(columns).filter(c => c.isSearchable)
+const encodeFTSSearch: TableSchema => SQL = tableSchema => {
+  const { name: tableName, columnArray } = tableSchema
+  const ftsColumns = columnArray.filter(column => column.isFTS)
   if (ftsColumns.length === 0) {
     return ''
   }
-  const ftsTableName = `${tableName}_fts`
+  const ftsTableName = `_fts_${tableName}`
   return (
     encodeFTSTable({ ftsTableName, ftsColumns }) +
     encodeFTSTriggers({ tableName, ftsTableName, ftsColumns })
   )
 }
 
-const encodeTable: TableSchema => SQL = table =>
-  encodeCreateTable(table) + encodeTableIndicies(table) + encodeFTSSearch(table)
+/** FTS END */
 
 export const encodeSchema: (AppSchema) => SQL = ({ tables, unsafeSql }) => {
   const sql = Object.values(tables)
@@ -163,10 +170,8 @@ const encodeAddColumnsMigrationStep: (AddColumnsMigrationStep) => SQL = ({
       )} = ${encodeValue(nullValue(column))};`
       const addIndex = encodeIndex(column, table)
 
-      if (column.isSearchable) {
-        logger.warn(
-          '[DB][Worker] Support for migrations and isSearchable is still to be implemented',
-        )
+      if (column.isFTS) {
+        logger.warn('[DB][Worker] Support for migrations and isFTS is still to be implemented')
       }
 
       return transform(addColumn + setDefaultValue + addIndex, unsafeSql)

@@ -4,7 +4,13 @@
 import logger from '../../../utils/common/logger'
 
 import type { CachedQueryResult, CachedFindResult, BatchOperation } from '../../type'
-import type { TableName, AppSchema, SchemaVersion, TableSchema, ColumnSchema } from '../../../Schema'
+import type {
+  TableName,
+  AppSchema,
+  SchemaVersion,
+  TableSchema,
+  ColumnSchema,
+} from '../../../Schema'
 import type {
   SchemaMigrations,
   CreateTableMigrationStep,
@@ -474,9 +480,9 @@ export default class LokiExecutor {
     // Rethrow error
     throw error
   }
-  
+
   _warnAboutLackingFTSSupport(columns: Array<ColumnSchema>): void {
-    const searchableColumns = columns.filter(column => column.isSearchable)
+    const searchableColumns = columns.filter(column => column.isFTS)
     if (searchableColumns.length > 0) {
       // Warn the user about missing FTS support for the LokiJS adapter
       // Please contribute! Here are some pointers:

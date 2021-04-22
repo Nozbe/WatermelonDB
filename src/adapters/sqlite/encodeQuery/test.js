@@ -271,15 +271,13 @@ describe('SQLite encodeQuery', () => {
     expect(() => encoded([Q.unsafeLokiTransform(() => {})])).toThrow('not supported')
   })
   it('encodes JOIN over FTS table', () => {
-    const query = new Query(mockCollection, [
-      Q.where('searchable', Q.textMatches('hello world')),
-    ])
+    const query = new Query(mockCollection, [Q.where('searchable', Q.textMatches('hello world'))])
     expect(encodeQuery(query)).toBe(
       `select "tasks".* from "tasks" ` +
-      `where "tasks"."rowid" in (` +
-      `select "tasks_fts"."rowid" from "tasks_fts" ` +
-      `where "tasks_fts"."searchable" match 'hello world'` +
-      `) and "tasks"."_status" is not 'deleted'`
+        `where "tasks"."rowid" in (` +
+        `select "_fts_tasks"."rowid" from "_fts_tasks" ` +
+        `where "_fts_tasks"."searchable" match 'hello world'` +
+        `) and "tasks"."_status" is not 'deleted'`,
     )
   })
 })

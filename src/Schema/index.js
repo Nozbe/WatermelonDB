@@ -15,7 +15,7 @@ export type ColumnSchema = $RE<{
   type: ColumnType,
   isOptional?: boolean,
   isIndexed?: boolean,
-  isSearchable?: boolean,
+  isFTS?: boolean,
 }>
 
 export type ColumnMap = { [name: ColumnName]: ColumnSchema }
