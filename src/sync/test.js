@@ -311,6 +311,8 @@ describe('markLocalChangesAsSynced', () => {
   it('does nothing for empty local changes', async () => {
     const { database } = makeDatabase()
 
+    const destroyDeletedRecordsSpy = jest.spyOn(database.adapter, 'destroyDeletedRecords')
+
     await makeLocalChanges(database)
     const localChanges1 = await fetchLocalChanges(database)
 
@@ -318,6 +320,9 @@ describe('markLocalChangesAsSynced', () => {
 
     const localChanges2 = await fetchLocalChanges(database)
     expect(localChanges1).toEqual(localChanges2)
+
+    // Should NOT call `database.adapter.destroyDeletedRecords` if no records present
+    expect(destroyDeletedRecordsSpy).toHaveBeenCalledTimes(0)
   })
   it('marks local changes as synced', async () => {
     const { database, projects, tasks } = makeDatabase()
@@ -361,6 +366,8 @@ describe('markLocalChangesAsSynced', () => {
   it(`doesn't mark as synced records that changed since changes were fetched`, async () => {
     const { database, projects, tasks } = makeDatabase()
 
+    const destroyDeletedRecordsSpy = jest.spyOn(database.adapter, 'destroyDeletedRecords')
+
     const {
       pSynced,
       tSynced,
@@ -396,9 +403,15 @@ describe('markLocalChangesAsSynced', () => {
       await cUpdated.markAsDeleted()
       await cDeleted.destroyPermanently()
     })
+    expect(destroyDeletedRecordsSpy).toHaveBeenCalledTimes(0)
 
     // mark local changes as synced; check if new changes are still pending sync
     await markLocalChangesAsSynced(database, localChanges)
+    expect(destroyDeletedRecordsSpy).toHaveBeenCalledTimes(3)
+    expect(destroyDeletedRecordsSpy).toHaveBeenCalledWith('mock_projects', ['pDeleted'])
+    expect(destroyDeletedRecordsSpy).toHaveBeenCalledWith('mock_tasks', ['tDeleted'])
+    expect(destroyDeletedRecordsSpy).toHaveBeenCalledWith('mock_comments', ['cDeleted'])
+    destroyDeletedRecordsSpy.mockClear()
 
     const localChanges2 = await fetchLocalChanges(database)
     expect(localChanges2.changes).toEqual({
@@ -409,7 +422,8 @@ describe('markLocalChangesAsSynced', () => {
     expect(sorted(localChanges2.affectedRecords)).toEqual(
       sorted([newProject, tCreated, pSynced, tUpdated]),
     )
-
+    expect(destroyDeletedRecordsSpy).toHaveBeenCalledTimes(0)
+    
     await expectSyncedAndMatches(tasks, 'tUpdated', {
       _status: 'updated',
       // TODO: ideally position would probably not be here
@@ -421,7 +435,13 @@ describe('markLocalChangesAsSynced', () => {
 
     // test that second push will mark all as synced
     await markLocalChangesAsSynced(database, localChanges2)
+    expect(destroyDeletedRecordsSpy).toHaveBeenCalledTimes(2)
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+
+    expect(destroyDeletedRecordsSpy).toHaveBeenCalledTimes(2)
+    expect(destroyDeletedRecordsSpy).toHaveBeenCalledWith('mock_tasks', ['tSynced'])
+    expect(destroyDeletedRecordsSpy).toHaveBeenCalledWith('mock_comments', ['cUpdated', 'cCreated'])
+    
   })
   // TODO: Unskip the test when batch collection emissions are implemented
   it.skip('only emits one collection batch change', async () => {

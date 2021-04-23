@@ -38,7 +38,11 @@ const destroyDeletedRecords = (db: Database, { changes }: SyncLocalChanges): Pro
   allPromisesObj(
     // $FlowFixMe
     mapObj(
-      ({ deleted }, tableName) => db.adapter.destroyDeletedRecords(tableName, deleted),
+      ({ deleted }, tableName) => {
+        return deleted.length
+        ? db.adapter.destroyDeletedRecords(tableName, deleted)
+        : Promise.resolve()
+      },
       changes,
     ),
   )
