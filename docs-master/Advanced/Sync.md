@@ -42,6 +42,10 @@ async function mySync() {
 
 ```
 
+#### Who calls `synchronize()`?
+
+Upon looking at the example above, one question that may arise is who will call `synchronize()` -- or, in the example above `mySync()`. WatermelonDB does not manage the moment of invocation of the `synchronize()` function in any way. The database assumes every call of `pullChanges` will return _all_ the changes that haven't yet been replicated (up to `last_pulled_at`). The application code is responsible for calling `synchronize()` in the frequence it deems necessary. 
+
 ### Troubleshooting
 
 **⚠️ Note about a React Native / UglifyES bug**. When you import Watermelon Sync, your app might fail to compile in release mode. To fix this, configure Metro bundler to use Terser instead of UglifyES. Run:
@@ -202,6 +206,8 @@ Example:
   ...
 }
 ```
+
+Again, notice the properties returned have the format defined in the [Schema](../Schema.md) (e.g. `is_favorite`, not `isFavorite`).
 
 Valid changes objects MUST conform to this shape:
 
