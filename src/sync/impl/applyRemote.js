@@ -140,7 +140,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
       // Record doesn't exist (but should) — just create it
       !sendCreatedAsUpdated &&
         logError(
-          `[Sync] Server wants client to update record ${table}#${raw.id}, but it doesn't exist locally. This could be a serious bug. Will create record instead.`,
+          `[Sync] Server wants client to update record ${table}#${raw.id}, but it doesn't exist locally. This could be a serious bug. Will create record instead. If this was intentional, please check the flag sendCreatedAsUpdated in https://nozbe.github.io/WatermelonDB/Advanced/Sync.html#additional-synchronize-flags`,
         )
 
       recordsToBatch.push(prepareCreateFromRaw(collection, raw))
