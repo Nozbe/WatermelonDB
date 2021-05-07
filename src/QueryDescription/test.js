@@ -182,18 +182,6 @@ describe('buildQueryDescription', () => {
       sortBy: [],
     })
   })
-  it(`supports unsafe Loki filter (DEPRECATED)`, () => {
-    const filter = (_record, _loki) => true
-    const filterClause = Q.unsafeLokiFilter(filter)
-    const query = Q.buildQueryDescription([filterClause])
-    expect(query).toEqual({
-      where: [],
-      joinTables: [],
-      nestedJoinTables: [],
-      sortBy: [],
-      lokiTransform: filterClause.function,
-    })
-  })
   it(`supports unsafe Loki transform`, () => {
     const transform = (records, _loki) => records
     const query = Q.buildQueryDescription([Q.unsafeLokiTransform(transform)])

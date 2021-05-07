@@ -5,7 +5,6 @@ import { unique, values as getValues, groupBy, unnest, pipe } from '../utils/fp'
 
 // don't import whole `utils` to keep worker size small
 import invariant from '../utils/common/invariant'
-import logger from '../utils/common/logger'
 import checkName from '../utils/fp/checkName'
 import deepFreeze from '../utils/common/deepFreeze'
 import type { $RE } from '../types'
@@ -267,19 +266,6 @@ export function unsafeLokiExpr(expr: any): LokiExpr {
     'Value passed to Q.unsafeLokiExpr is not an object',
   )
   return { type: 'loki', expr }
-}
-
-let warnedLokiFilterDeprecation = false
-
-export function unsafeLokiFilter(fn: (rawLokiRecord: any, loki: any) => boolean): LokiTransform {
-  // TODO: Remove after 2021-04-26
-  if (!warnedLokiFilterDeprecation) {
-    logger.warn(
-      'Q.unsafeLokiFilter is deprecated - use `Q.unsafeLokiTransform((raws, loki) => raws.filter(...))` instead',
-    )
-    warnedLokiFilterDeprecation = true
-  }
-  return { type: 'lokiTransform', function: (raws, loki) => raws.filter((raw) => fn(raw, loki)) }
 }
 
 export function unsafeLokiTransform(fn: LokiTransformFunction): LokiTransform {
