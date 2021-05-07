@@ -7,20 +7,20 @@ type Pipe = (<A, B, C, D, E, F, G>(
   de: (D) => E,
   ef: (E) => F,
   fg: (F) => G,
-) => A => G) &
+) => (A) => G) &
   (<A, B, C, D, E, F>(
     ab: (A) => B,
     bc: (B) => C,
     cd: (C) => D,
     de: (D) => E,
     ef: (E) => F,
-  ) => A => F) &
-  (<A, B, C, D, E>(ab: (A) => B, bc: (B) => C, cd: (C) => D, de: (D) => E) => A => E) &
-  (<A, B, C, D>(ab: (A) => B, bc: (B) => C, cd: (C) => D) => A => D) &
-  (<A, B, C>(ab: (A) => B, bc: (B) => C) => A => C) &
-  (<A, B>(ab: (A) => B) => A => B)
+  ) => (A) => F) &
+  (<A, B, C, D, E>(ab: (A) => B, bc: (B) => C, cd: (C) => D, de: (D) => E) => (A) => E) &
+  (<A, B, C, D>(ab: (A) => B, bc: (B) => C, cd: (C) => D) => (A) => D) &
+  (<A, B, C>(ab: (A) => B, bc: (B) => C) => (A) => C) &
+  (<A, B>(ab: (A) => B) => (A) => B)
 
-function pipe(...fns: ((any) => any)[]): any => any {
+function pipe(...fns: ((any) => any)[]): (any) => any {
   const fnsLen = fns.length
   return (...args) => {
     let result

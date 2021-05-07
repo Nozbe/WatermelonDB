@@ -100,7 +100,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     }
 
     this._initPromise = this._init()
-    fromPromise(this._initPromise, result => devSetupCallback(result, options.onSetUpError))
+    fromPromise(this._initPromise, (result) => devSetupCallback(result, options.onSetUpError))
   }
 
   get initializingPromise(): Promise<void> {
@@ -138,7 +138,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     // we're good. If not, we try again, this time sending the compiled schema or a migration set
     // This is to speed up the launch (less to do and pass through bridge), and avoid repeating
     // migration logic inside native code
-    const status = await toPromise(callback =>
+    const status = await toPromise((callback) =>
       this._dispatcher.initialize(this._dbName, this.schema.version, callback),
     )
 
@@ -171,7 +171,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
       }
 
       try {
-        await toPromise(callback =>
+        await toPromise((callback) =>
           this._dispatcher.setUpWithMigrations(
             this._dbName,
             this._encodeMigrations(migrationSteps),
@@ -203,7 +203,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     logger.log(
       `[WatermelonDB][SQLite] Setting up database with schema version ${this.schema.version}`,
     )
-    await toPromise(callback =>
+    await toPromise((callback) =>
       this._dispatcher.setUpWithSchema(
         this._dbName,
         this._encodedSchema(),
@@ -216,9 +216,9 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   find(table: TableName<any>, id: RecordId, callback: ResultCallback<CachedFindResult>): void {
     validateTable(table, this.schema)
-    this._dispatcher.find(table, id, result =>
+    this._dispatcher.find(table, id, (result) =>
       callback(
-        mapValue(rawRecord => sanitizeFindResult(rawRecord, this.schema.tables[table]), result),
+        mapValue((rawRecord) => sanitizeFindResult(rawRecord, this.schema.tables[table]), result),
       ),
     )
   }
@@ -234,9 +234,12 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     callback: ResultCallback<CachedQueryResult>,
   ): void {
     validateTable(table, this.schema)
-    this._dispatcher.query(table, sql, result =>
+    this._dispatcher.query(table, sql, (result) =>
       callback(
-        mapValue(rawRecords => sanitizeQueryResult(rawRecords, this.schema.tables[table]), result),
+        mapValue(
+          (rawRecords) => sanitizeQueryResult(rawRecords, this.schema.tables[table]),
+          result,
+        ),
       ),
     )
   }
@@ -248,7 +251,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   }
 
   batch(operations: BatchOperation[], callback: ResultCallback<void>): void {
-    const batchOperations: NativeBridgeBatchOperation[] = operations.map(operation => {
+    const batchOperations: NativeBridgeBatchOperation[] = operations.map((operation) => {
       const [type, table, rawOrId] = operation
       validateTable(table, this.schema)
       switch (type) {
@@ -291,7 +294,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   }
 
   unsafeResetDatabase(callback: ResultCallback<void>): void {
-    this._dispatcher.unsafeResetDatabase(this._encodedSchema(), this.schema.version, result => {
+    this._dispatcher.unsafeResetDatabase(this._encodedSchema(), this.schema.version, (result) => {
       if (result.value) {
         logger.log('[WatermelonDB][SQLite] Database is now reset')
       }

@@ -1,9 +1,9 @@
 // @flow
 
 export default function groupBy<Val, Key>(
-  predicate: Val => Key,
+  predicate: (Val) => Key,
 ): (list: Val[]) => { [Key]: Val[] } {
-  return list => {
+  return (list) => {
     const groupped: { [Key]: Val[] } = {}
     let item
     let key

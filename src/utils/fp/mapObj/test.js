@@ -7,9 +7,9 @@ describe('mapObj', () => {
       b: 10,
       c: 20,
     }
-    expect(mapObj(x => x + 1, obj)).toEqual({ a: 6, b: 11, c: 21 })
-    expect(mapObj(x => x + 1)(obj)).toEqual({ a: 6, b: 11, c: 21 })
-    expect(mapObj(x => x + 1, {})).toEqual({})
+    expect(mapObj((x) => x + 1, obj)).toEqual({ a: 6, b: 11, c: 21 })
+    expect(mapObj((x) => x + 1)(obj)).toEqual({ a: 6, b: 11, c: 21 })
+    expect(mapObj((x) => x + 1, {})).toEqual({})
     // TODO: Should we test for __proto__ ?
   })
 })

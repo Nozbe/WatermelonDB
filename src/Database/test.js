@@ -216,7 +216,7 @@ describe('Database', () => {
       ])
 
       const createdRecords = [m5, m6]
-      createdRecords.forEach(record => {
+      createdRecords.forEach((record) => {
         expect(record._isCommitted).toBe(true)
         expect(record.collection._cache.get(record.id)).toBe(record)
       })
@@ -278,7 +278,7 @@ describe('Database', () => {
       // check if in action is successful
       await database.action(() =>
         database.batch(
-          tasks.prepareCreate(task => {
+          tasks.prepareCreate((task) => {
             task.name = 'foo1'
           }),
         ),
@@ -429,7 +429,7 @@ describe('Database', () => {
       const { database, projects, tasks } = mockDatabase()
 
       const project = projects.prepareCreate()
-      const task = tasks.prepareCreate(t => {
+      const task = tasks.prepareCreate((t) => {
         t.project.set(project)
       })
 
@@ -454,7 +454,7 @@ describe('Database', () => {
     })
   })
 
-  const delayPromise = () => new Promise(resolve => setTimeout(resolve, 100))
+  const delayPromise = () => new Promise((resolve) => setTimeout(resolve, 100))
 
   describe('Database actions', () => {
     it('can execute an action', async () => {
@@ -526,11 +526,11 @@ describe('Database', () => {
         },
         () => delayPromise(),
       ]
-      const promises = actions.map(action =>
+      const promises = actions.map((action) =>
         database.action(action).then(
           // jest will automatically fail the test if a promise rejects even though we're testing it later
-          value => ['value', value],
-          error => ['error', error],
+          (value) => ['value', value],
+          (error) => ['error', error],
         ),
       )
       await promises[4]
@@ -567,7 +567,7 @@ describe('Database', () => {
       const { database } = mockDatabase()
 
       const action2 = () => database.action(async () => 32)
-      const result = await database.action(async action => {
+      const result = await database.action(async (action) => {
         const a = await action.subAction(() => action2())
         return a + 10
       })
@@ -577,8 +577,8 @@ describe('Database', () => {
       const { database } = mockDatabase()
 
       const action1 = () => database.action(async () => 42)
-      const action2 = () => database.action(async action => action.subAction(() => action1()))
-      const action3 = () => database.action(async action => action.subAction(() => action2()))
+      const action2 = () => database.action(async (action) => action.subAction(() => action1()))
+      const action3 = () => database.action(async (action) => action.subAction(() => action2()))
       expect(await action3()).toBe(42)
     })
     it('sub actions skip the line only once', async () => {
@@ -595,7 +595,7 @@ describe('Database', () => {
         database.action(async () => {
           called2 += 1
         })
-      await database.action(action => {
+      await database.action((action) => {
         action.subAction(() => action1())
         action2()
         return delayPromise() // don't await subaction, just see it will never be called
@@ -629,7 +629,7 @@ describe('Database', () => {
         await promise3
       }
 
-      const promises = manyActions().catch(e => e)
+      const promises = manyActions().catch((e) => e)
       await database.action(() => database.unsafeResetDatabase())
 
       // actions beyond unsafe reset should be successful

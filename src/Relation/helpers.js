@@ -22,9 +22,9 @@ const getObservable = <T: ?Model>(relation: Relation<T>): Observable<T> =>
     .observe()
     // $FlowFixMe
     .pipe(
-      map$(model => model._getRaw(relation._columnName)),
+      map$((model) => model._getRaw(relation._columnName)),
       distinctUntilChanged(),
-      switchMap(id =>
+      switchMap((id) =>
         id
           ? relation._model.collections.get(relation._relationTableName).findAndObserve(id)
           : of$(null),

@@ -37,14 +37,14 @@ export const makeDispatcher = (
   tag: ConnectionTag,
   _dbName: string,
 ): NativeDispatcher => {
-  const methods = dispatcherMethods.map(methodName => {
+  const methods = dispatcherMethods.map((methodName) => {
     const name = type === 'synchronous' ? `${methodName}Synchronous` : methodName
 
     return [
       methodName,
       (...args) => {
         // $FlowFixMe
-        const callback: any => void = args[args.length - 1]
+        const callback: (any) => void = args[args.length - 1]
         const otherArgs = args.slice(0, -1)
 
         if (type === 'synchronous') {

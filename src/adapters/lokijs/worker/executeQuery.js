@@ -22,7 +22,7 @@ function performJoin(join: LokiJoin, loki: Loki): DirtyRaw[] {
 function executeFind(query: SerializedQuery, loki: Loki): LokiResultset {
   // Step one: perform all inner queries (JOINs) to get the single table query
   const lokiQuery = encodeQuery(query)
-  const mainQuery = performJoins(lokiQuery, join => performJoin(join, loki))
+  const mainQuery = performJoins(lokiQuery, (join) => performJoin(join, loki))
 
   // Step two: fetch all records matching query
   const collection = loki.getCollection(query.table).chain()

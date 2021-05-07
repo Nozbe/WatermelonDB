@@ -7,7 +7,7 @@ import DatabaseAdapterCompat from '../compat'
 // require('fake-indexeddb/auto')
 
 describe('LokiJSAdapter (Synchronous / Memory persistence)', () => {
-  commonTests().forEach(testCase => {
+  commonTests().forEach((testCase) => {
     const [name, test] = testCase
 
     it(name, async () => {

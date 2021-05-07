@@ -89,10 +89,7 @@ export class MockComment extends Model {
 
 export const modelClasses = [MockProject, MockTask, MockComment]
 
-export const mockDatabase = ({
-  schema = testSchema,
-  migrations = undefined,
-} = {}) => {
+export const mockDatabase = ({ schema = testSchema, migrations = undefined } = {}) => {
   const adapter = new LokiJSAdapter({
     dbName: 'test',
     schema,

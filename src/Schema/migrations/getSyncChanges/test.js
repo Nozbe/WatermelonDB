@@ -10,7 +10,7 @@ const createCommentsTable = createTable({
 })
 
 const test = (migrations, from, to) => getSyncChanges(schemaMigrations({ migrations }), from, to)
-const testSteps = steps =>
+const testSteps = (steps) =>
   getSyncChanges(schemaMigrations({ migrations: [{ toVersion: 2, steps }] }), 1, 2)
 
 describe('getSyncChanges', () => {
@@ -150,7 +150,7 @@ describe('getSyncChanges', () => {
             { name: 'author_id', type: 'string' },
             { name: 'created_at', type: 'number' },
           ],
-          unsafeSql: sql => sql,
+          unsafeSql: (sql) => sql,
         }),
         unsafeExecuteSql(''),
       ],
@@ -232,7 +232,7 @@ describe('getSyncChanges', () => {
       'destroy_table',
       'destroy_column',
     ]
-    possibleFutureTypes.forEach(type => {
+    possibleFutureTypes.forEach((type) => {
       expect(() => testSteps([{ type }])).toThrow('Unknown migration step type')
     })
     expect(() => testSteps([{ type: undefined }])).toThrow('Invalid migration steps')

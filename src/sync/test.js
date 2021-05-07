@@ -48,13 +48,13 @@ describe('Conflict resolution', () => {
 const makeDatabase = () => mockDatabase()
 
 const prepareCreateFromRaw = (collection, dirtyRaw) =>
-  collection.prepareCreate(record => {
+  collection.prepareCreate((record) => {
     record._raw = sanitizedRaw({ _status: 'synced', ...dirtyRaw }, record.collection.schema)
   })
 
 const getRaw = (collection, id) =>
   collection.find(id).then(
-    record => record._raw,
+    (record) => record._raw,
     () => null,
   )
 
@@ -74,10 +74,10 @@ const emptyChangeSet = Object.freeze({
 })
 const emptyLocalChanges = Object.freeze({ changes: emptyChangeSet, affectedRecords: [] })
 
-const makeChangeSet = set => change(emptyChangeSet, '', set)
+const makeChangeSet = (set) => change(emptyChangeSet, '', set)
 const testApplyRemoteChanges = (db, set) => applyRemoteChanges(db, makeChangeSet(set))
 
-const sorted = models => {
+const sorted = (models) => {
   const copy = models.slice()
   copy.sort((a, b) => {
     if (a.id < b.id) {
@@ -90,14 +90,14 @@ const sorted = models => {
   return copy
 }
 
-const makeLocalChanges = database =>
+const makeLocalChanges = (database) =>
   database.action(async () => {
     const projects = database.get('mock_projects')
     const tasks = database.get('mock_tasks')
     const comments = database.get('mock_comments')
 
     // create records
-    const created = obj => ({ _status: 'created', ...obj })
+    const created = (obj) => ({ _status: 'created', ...obj })
     const timestamps = { created_at: 1000, updated_at: 2000 }
 
     const records = {
@@ -125,17 +125,17 @@ const makeLocalChanges = database =>
     await database.batch(...Object.values(records))
 
     // update records
-    await records.pUpdated.update(p => {
+    await records.pUpdated.update((p) => {
       p.name = 'local'
     })
-    await records.tUpdated.update(p => {
+    await records.tUpdated.update((p) => {
       p.name = 'local'
       p.position = 100
     })
-    await records.cUpdated.update(c => {
+    await records.cUpdated.update((c) => {
       c.body = 'local'
     })
-    await records.tDeleted.update(t => {
+    await records.tDeleted.update((t) => {
       t.name = 'local'
     })
 
@@ -204,8 +204,8 @@ describe('fetchLocalChanges', () => {
     database = await cloneDatabase()
     const result2 = await fetchLocalChanges(database)
     expect(result2.changes).toEqual(expectedChanges)
-    expect(result2.affectedRecords.map(r => r._raw)).toEqual(
-      expectedAffectedRecords.map(r => r._raw),
+    expect(result2.affectedRecords.map((r) => r._raw)).toEqual(
+      expectedAffectedRecords.map((r) => r._raw),
     )
   })
   it('returns object copies', async () => {
@@ -218,7 +218,7 @@ describe('fetchLocalChanges', () => {
 
     // raws should be cloned - further changes don't affect result
     await database.action(() =>
-      pUpdated.update(p => {
+      pUpdated.update((p) => {
         p.name = 'y'
       }),
     )
@@ -240,7 +240,7 @@ describe('hasUnsyncedChanges', () => {
     const { database } = makeDatabase()
     const collection = database.get('mock_comments')
     const record = await database.action(() =>
-      collection.create(rec => {
+      collection.create((rec) => {
         rec._raw._status = 'synced'
       }),
     )
@@ -259,7 +259,7 @@ describe('hasUnsyncedChanges', () => {
     const { database } = makeDatabase()
     const collection = database.get('mock_comments')
     const record = await database.action(() =>
-      collection.create(rec => {
+      collection.create((rec) => {
         rec._raw._status = 'synced'
       }),
     )
@@ -339,8 +339,8 @@ describe('markLocalChangesAsSynced', () => {
     expect(taskList.length).toBe(taskCount)
 
     // all objects marked as synced
-    expect(projectList.every(record => record.syncStatus === 'synced')).toBe(true)
-    expect(taskList.every(record => record.syncStatus === 'synced')).toBe(true)
+    expect(projectList.every((record) => record.syncStatus === 'synced')).toBe(true)
+    expect(taskList.every((record) => record.syncStatus === 'synced')).toBe(true)
 
     // no objects marked as deleted
     expect(await database.adapter.getDeletedRecords('mock_projects')).toEqual([])
@@ -436,7 +436,6 @@ describe('markLocalChangesAsSynced', () => {
     expect(destroyDeletedRecordsSpy).toHaveBeenCalledTimes(2)
     expect(destroyDeletedRecordsSpy).toHaveBeenCalledWith('mock_tasks', ['tSynced'])
     expect(destroyDeletedRecordsSpy).toHaveBeenCalledWith('mock_comments', ['cUpdated', 'cCreated'])
-
   })
   // TODO: Unskip the test when batch collection emissions are implemented
   it.skip('only emits one collection batch change', async () => {
@@ -643,14 +642,14 @@ describe('applyRemoteChanges', () => {
   it('rejects invalid records', async () => {
     const { database } = makeDatabase()
 
-    const expectChangeFails = changes =>
+    const expectChangeFails = (changes) =>
       expectToRejectWithMessage(
         testApplyRemoteChanges(database, { mock_projects: changes }),
         /invalid raw record/i,
       )
 
-    const expectCreateFails = raw => expectChangeFails({ created: [raw] })
-    const expectUpdateFails = raw => expectChangeFails({ updated: [raw] })
+    const expectCreateFails = (raw) => expectChangeFails({ created: [raw] })
+    const expectUpdateFails = (raw) => expectChangeFails({ updated: [raw] })
 
     await expectCreateFails({ id: 'foo', _status: 'created' })
     await expectCreateFails({ id: 'foo', _changed: 'bla' })
@@ -670,7 +669,7 @@ describe('applyRemoteChanges', () => {
   })
 })
 
-const observeDatabase = database => {
+const observeDatabase = (database) => {
   const observer = jest.fn()
   const tables = ['mock_projects', 'mock_tasks', 'mock_comments']
   expect(tables).toEqual(Object.keys(database.collections.map))
@@ -713,7 +712,7 @@ describe('synchronize', () => {
       database,
       pullChanges: async () => {
         // ensure we take more than 1ms for the log test
-        await new Promise(resolve => setTimeout(resolve, 10))
+        await new Promise((resolve) => setTimeout(resolve, 10))
         return emptyPull()()
       },
       pushChanges: () => {},
@@ -740,7 +739,7 @@ describe('synchronize', () => {
 
     const pullChanges = async () => {
       // ensure we take more than 1ms for the log test
-      await new Promise(resolve => setTimeout(resolve, 10))
+      await new Promise((resolve) => setTimeout(resolve, 10))
       return emptyPull()()
     }
     const log = {}
@@ -981,8 +980,8 @@ describe('synchronize', () => {
   it('prevents concurrent syncs', async () => {
     const { database } = makeDatabase()
 
-    const delayPromise = delay => new Promise(resolve => setTimeout(resolve, delay))
-    const syncWithDelay = delay =>
+    const delayPromise = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
+    const syncWithDelay = (delay) =>
       synchronize({
         database,
         pullChanges: () => delayPromise(delay).then(emptyPull(delay)),
@@ -990,7 +989,7 @@ describe('synchronize', () => {
       })
 
     const sync1 = syncWithDelay(100)
-    const sync2 = syncWithDelay(300).catch(error => error)
+    const sync2 = syncWithDelay(300).catch((error) => error)
 
     expect(await sync1).toBe(undefined)
     expect(await sync2).toMatchObject({ message: expect.stringMatching(/concurrent sync/i) })
@@ -1006,7 +1005,7 @@ describe('synchronize', () => {
     const pullChanges = jest.fn(() => Promise.reject(error))
     const pushChanges = jest.fn()
     const log = {}
-    const sync = await synchronize({ database, pullChanges, pushChanges, log }).catch(e => e)
+    const sync = await synchronize({ database, pullChanges, pushChanges, log }).catch((e) => e)
 
     expect(observer).toHaveBeenCalledTimes(0)
     expect(pullChanges).toHaveBeenCalledTimes(1)
@@ -1032,7 +1031,7 @@ describe('synchronize', () => {
       timestamp: 1500,
     })
     const pushChanges = jest.fn(() => Promise.reject(new Error('push-fail')))
-    const sync = await synchronize({ database, pullChanges, pushChanges }).catch(e => e)
+    const sync = await synchronize({ database, pullChanges, pushChanges }).catch((e) => e)
 
     // full sync failed - local changes still awaiting sync
     expect(pushChanges).toHaveBeenCalledWith({ changes: localChanges.changes, lastPulledAt: 1500 })
@@ -1069,8 +1068,8 @@ describe('synchronize', () => {
       syncCompleted = true
     })
 
-    const createProject = name =>
-      projects.create(project => {
+    const createProject = (name) =>
+      projects.create((project) => {
         project.name = name
       })
 
@@ -1151,13 +1150,13 @@ describe('synchronize', () => {
       )
       await database.batch(...createdProjects, ...updatedTasks, ...deletedComments)
       await database.batch(
-        ...updatedTasks.map(task =>
+        ...updatedTasks.map((task) =>
           task.prepareUpdate(() => {
             task.name = 'x'
           }),
         ),
       )
-      await database.batch(...deletedComments.map(comment => comment.prepareMarkAsDeleted()))
+      await database.batch(...deletedComments.map((comment) => comment.prepareMarkAsDeleted()))
     })
 
     // remote changes
@@ -1385,7 +1384,7 @@ describe('synchronize', () => {
         pullChanges: jest.fn(() => Promise.reject(new Error('pull-fail'))),
         pushChanges: jest.fn(),
         migrationsEnabledAtVersion: 8,
-      }).catch(e => e)
+      }).catch((e) => e)
       expect(await getLastPulledSchemaVersion(database)).toBe(null)
     })
     it(`fails on programmer errors`, async () => {

@@ -23,7 +23,7 @@ export default class DatabaseAdapterCompat {
     const sqlAdapter: SQLDatabaseAdapter = (adapter: any)
     if (sqlAdapter.unsafeSqlQuery) {
       this.unsafeSqlQuery = (tableName, sql) =>
-        toPromise(callback => sqlAdapter.unsafeSqlQuery(tableName, sql, callback))
+        toPromise((callback) => sqlAdapter.unsafeSqlQuery(tableName, sql, callback))
     }
   }
 
@@ -36,45 +36,45 @@ export default class DatabaseAdapterCompat {
   }
 
   find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {
-    return toPromise(callback => this.underlyingAdapter.find(table, id, callback))
+    return toPromise((callback) => this.underlyingAdapter.find(table, id, callback))
   }
 
   query(query: SerializedQuery): Promise<CachedQueryResult> {
-    return toPromise(callback => this.underlyingAdapter.query(query, callback))
+    return toPromise((callback) => this.underlyingAdapter.query(query, callback))
   }
 
   count(query: SerializedQuery): Promise<number> {
-    return toPromise(callback => this.underlyingAdapter.count(query, callback))
+    return toPromise((callback) => this.underlyingAdapter.count(query, callback))
   }
 
   batch(operations: BatchOperation[]): Promise<void> {
-    return toPromise(callback => this.underlyingAdapter.batch(operations, callback))
+    return toPromise((callback) => this.underlyingAdapter.batch(operations, callback))
   }
 
   getDeletedRecords(tableName: TableName<any>): Promise<RecordId[]> {
-    return toPromise(callback => this.underlyingAdapter.getDeletedRecords(tableName, callback))
+    return toPromise((callback) => this.underlyingAdapter.getDeletedRecords(tableName, callback))
   }
 
   destroyDeletedRecords(tableName: TableName<any>, recordIds: RecordId[]): Promise<void> {
-    return toPromise(callback =>
+    return toPromise((callback) =>
       this.underlyingAdapter.destroyDeletedRecords(tableName, recordIds, callback),
     )
   }
 
   unsafeResetDatabase(): Promise<void> {
-    return toPromise(callback => this.underlyingAdapter.unsafeResetDatabase(callback))
+    return toPromise((callback) => this.underlyingAdapter.unsafeResetDatabase(callback))
   }
 
   getLocal(key: string): Promise<?string> {
-    return toPromise(callback => this.underlyingAdapter.getLocal(key, callback))
+    return toPromise((callback) => this.underlyingAdapter.getLocal(key, callback))
   }
 
   setLocal(key: string, value: string): Promise<void> {
-    return toPromise(callback => this.underlyingAdapter.setLocal(key, value, callback))
+    return toPromise((callback) => this.underlyingAdapter.setLocal(key, value, callback))
   }
 
   removeLocal(key: string): Promise<void> {
-    return toPromise(callback => this.underlyingAdapter.removeLocal(key, callback))
+    return toPromise((callback) => this.underlyingAdapter.removeLocal(key, callback))
   }
 
   unsafeSqlQuery: ?(tableName: TableName<any>, sql: string) => Promise<CachedQueryResult>

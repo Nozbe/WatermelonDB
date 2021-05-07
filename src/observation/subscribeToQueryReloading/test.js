@@ -3,7 +3,7 @@ import * as Q from '../../QueryDescription'
 import subscribeToQueryReloading from './index'
 
 const prepareTask = (tasks, name, isCompleted) =>
-  tasks.prepareCreate(mock => {
+  tasks.prepareCreate((mock) => {
     mock.name = name
     mock.isCompleted = isCompleted
     mock.project.id = 'MOCK_PROJECT'
@@ -63,7 +63,7 @@ describe('subscribeToQueryReloading', () => {
     expect(observer).toHaveBeenLastCalledWith([m2, m4])
 
     // some irrelevant change (no emission)
-    await updateTask(m2, task => {
+    await updateTask(m2, (task) => {
       task.name = 'changed name'
     })
     await waitForNextQuery()

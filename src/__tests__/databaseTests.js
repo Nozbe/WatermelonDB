@@ -775,7 +775,7 @@ export const matchTests = [
   // TODO: Order, not match tests for sortBy, take, skip
 ]
 
-export const naughtyMatchTests = naughtyStrings.map(naughtyString => ({
+export const naughtyMatchTests = naughtyStrings.map((naughtyString) => ({
   name: naughtyString,
   query: [Q.where('text1', naughtyString)],
   matching: [{ id: 'm1', text1: naughtyString }],
@@ -1253,7 +1253,7 @@ export const joinTests = [
       Q.on('projects', 'num1', Q.notEq(null)),
       Q.unsafeLokiTransform((raws, loki) => {
         const newRaws = []
-        raws.forEach(raw => {
+        raws.forEach((raw) => {
           const project = loki.getCollection('projects').by('id', raw.project_id)
           if (project && typeof raw.num1 === 'number' && raw.num1 > project.num1) {
             newRaws.push(raw)

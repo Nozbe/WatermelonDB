@@ -18,10 +18,10 @@ import { prepareCreateFromRaw, prepareUpdateFromRaw } from './helpers'
 
 const idsForChanges = ({ created, updated, deleted }: SyncTableChangeSet): RecordId[] => {
   const ids = []
-  created.forEach(record => {
+  created.forEach((record) => {
     ids.push(record.id)
   })
-  updated.forEach(record => {
+  updated.forEach((record) => {
     ids.push(record.id)
   })
   return ids.concat(deleted)
@@ -73,8 +73,8 @@ async function recordsToApplyRemoteChangesTo<T: Model>(
     ...changes,
     records,
     locallyDeletedIds,
-    recordsToDestroy: records.filter(record => deletedIds.includes(record.id)),
-    deletedRecordsToDestroy: locallyDeletedIds.filter(id => deletedIds.includes(id)),
+    recordsToDestroy: records.filter((record) => deletedIds.includes(record.id)),
+    deletedRecordsToDestroy: locallyDeletedIds.filter((id) => deletedIds.includes(id)),
   }
 }
 
@@ -108,7 +108,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   const recordsToBatch: T[] = [] // mutating - perf critical
 
   // Insert and update records
-  created.forEach(raw => {
+  created.forEach((raw) => {
     validateRemoteRaw(raw)
     const currentRecord = findRecord(raw.id, records)
     if (currentRecord) {
@@ -128,7 +128,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
     }
   })
 
-  updated.forEach(raw => {
+  updated.forEach((raw) => {
     validateRemoteRaw(raw)
     const currentRecord = findRecord(raw.id, records)
 
@@ -147,7 +147,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
     }
   })
 
-  deleted.forEach(record => {
+  deleted.forEach((record) => {
     // $FlowFixMe
     recordsToBatch.push(record.prepareDestroyPermanently())
   })
@@ -228,7 +228,7 @@ const unsafeApplyAllRemoteChangesByBatches = (
       log,
       conflictResolver,
     )
-    const batches = splitEvery(5000, preparedModels).map(recordBatch => db.batch(recordBatch))
+    const batches = splitEvery(5000, preparedModels).map((recordBatch) => db.batch(recordBatch))
     promises.push(...batches)
   })
   return Promise.all(promises)

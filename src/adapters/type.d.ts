@@ -46,7 +46,9 @@ declare module '@nozbe/watermelondb/adapters/type' {
   }
 
   export interface SQLiteDatabaseAdapter {
-    unsafeSqlQuery<T extends Model>(sql: string, tableName: TableName<any>): Promise<CachedQueryResult>
+    unsafeSqlQuery<T extends Model>(
+      sql: string,
+      tableName: TableName<any>,
+    ): Promise<CachedQueryResult>
   }
 }
-

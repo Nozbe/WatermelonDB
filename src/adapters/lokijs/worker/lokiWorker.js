@@ -114,7 +114,7 @@ export default class LokiWorker {
     }
   }
 
-  _executorAction(type: WorkerExecutorType): WorkerExecutorPayload => WorkerResponseData {
+  _executorAction(type: WorkerExecutorType): (WorkerExecutorPayload) => WorkerResponseData {
     invariant(this.executor, `Cannot run actions because executor is not set up`)
     return executorMethods[type].bind(this.executor)
   }

@@ -10,7 +10,7 @@ import { mockDatabase, MockTask, testSchema } from '../__tests__/testModels'
 
 import { CollectionChangeTypes } from './common'
 
-const mockQuery = collection => new Query(collection, [Q.where('a', 'b')])
+const mockQuery = (collection) => new Query(collection, [Q.where('a', 'b')])
 
 describe('Collection', () => {
   it(`exposes database`, () => {
@@ -99,8 +99,8 @@ describe('finding records', () => {
     )
     const normalFetch = collection.query().fetch()
 
-    expect((await normalFetch).map(x => x._raw)).toEqual([{ id: 'm1' }, { id: 'm2' }])
-    expect((await unsafeFetch).map(x => x._raw)).toEqual([{ id: 'm1' }])
+    expect((await normalFetch).map((x) => x._raw)).toEqual([{ id: 'm1' }, { id: 'm2' }])
+    expect((await unsafeFetch).map((x) => x._raw)).toEqual([{ id: 'm1' }])
   })
 })
 
@@ -115,7 +115,7 @@ describe('fetching queries', () => {
     const query = mockQuery(collection)
 
     // fetch, check models
-    const models = await toPromise(callback => collection._fetchQuery(query, callback))
+    const models = await toPromise((callback) => collection._fetchQuery(query, callback))
     expect(models.length).toBe(2)
 
     expect(models[0]._raw).toEqual({ id: 'm1' })
@@ -141,7 +141,7 @@ describe('fetching queries', () => {
     collection._cache.add(m1)
 
     // fetch, check models
-    const models = await toPromise(cb => collection._fetchQuery(mockQuery(collection), cb))
+    const models = await toPromise((cb) => collection._fetchQuery(mockQuery(collection), cb))
     expect(models.length).toBe(2)
     expect(models[0]).toBe(m1)
     expect(models[1]._raw).toEqual({ id: 'm2' })
@@ -161,7 +161,7 @@ describe('fetching queries', () => {
 
     // fetch, check if error occured
     const spy = jest.spyOn(logger, 'warn').mockImplementation(() => {})
-    const models = await toPromise(cb => collection._fetchQuery(mockQuery(collection), cb))
+    const models = await toPromise((cb) => collection._fetchQuery(mockQuery(collection), cb))
     expect(spy).toHaveBeenCalledTimes(1)
     spy.mockRestore()
 
@@ -180,8 +180,8 @@ describe('fetching queries', () => {
 
     const query = mockQuery(collection)
 
-    expect(await toPromise(callback => collection._fetchCount(query, callback))).toBe(5)
-    expect(await toPromise(callback => collection._fetchCount(query, callback))).toBe(10)
+    expect(await toPromise((callback) => collection._fetchCount(query, callback))).toBe(5)
+    expect(await toPromise((callback) => collection._fetchCount(query, callback))).toBe(10)
 
     expect(adapter.count.mock.calls.length).toBe(2)
     expect(adapter.count.mock.calls[0][0]).toEqual(query.serialize())

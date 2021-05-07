@@ -279,7 +279,7 @@ export function unsafeLokiFilter(fn: (rawLokiRecord: any, loki: any) => boolean)
     )
     warnedLokiFilterDeprecation = true
   }
-  return { type: 'lokiTransform', function: (raws, loki) => raws.filter(raw => fn(raw, loki)) }
+  return { type: 'lokiTransform', function: (raws, loki) => raws.filter((raw) => fn(raw, loki)) }
 }
 
 export function unsafeLokiTransform(fn: LokiTransformFunction): LokiTransform {
@@ -379,7 +379,7 @@ const compressTopLevelOns = (conditions: Where[]): Where[] => {
   // TODO: Remove this special case
   const ons = []
   const wheres = []
-  conditions.forEach(clause => {
+  conditions.forEach((clause) => {
     if (clause.type === 'on') {
       ons.push(clause)
     } else {
@@ -388,21 +388,21 @@ const compressTopLevelOns = (conditions: Where[]): Where[] => {
   })
 
   const onsByTable: On[][] = pipe(
-    groupBy(clause => clause.table),
+    groupBy((clause) => clause.table),
     getValues,
   )(ons)
   const grouppedOns: On[] = onsByTable.map((clauses: On[]) => {
     const { table } = clauses[0]
-    const onConditions: Where[] = unnest(clauses.map(clause => clause.conditions))
+    const onConditions: Where[] = unnest(clauses.map((clause) => clause.conditions))
     return on(table, onConditions)
   })
   return grouppedOns.concat(wheres)
 }
 
 const syncStatusColumn = columnName('_status')
-const extractClauses: (Clause[]) => QueryDescription = clauses => {
+const extractClauses: (Clause[]) => QueryDescription = (clauses) => {
   const clauseMap = { where: [], joinTables: [], nestedJoinTables: [], sortBy: [] }
-  clauses.forEach(clause => {
+  clauses.forEach((clause) => {
     const { type } = clause
     switch (type) {
       case 'where':
@@ -496,7 +496,7 @@ export function queryWithoutDeleted(query: QueryDescription): QueryDescription {
   return newQuery
 }
 
-const searchForColumnComparisons: any => boolean = value => {
+const searchForColumnComparisons: (any) => boolean = (value) => {
   if (Array.isArray(value)) {
     // dig deeper into the array
     for (let i = 0; i < value.length; i += 1) {

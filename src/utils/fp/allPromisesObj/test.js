@@ -2,8 +2,8 @@ import allPromisesObj from './index'
 
 describe('allPromisesObj', () => {
   it(`works correctly`, async () => {
-    const delayed = ms =>
-      new Promise(resolve => {
+    const delayed = (ms) =>
+      new Promise((resolve) => {
         setTimeout(() => resolve(ms), ms)
       })
 

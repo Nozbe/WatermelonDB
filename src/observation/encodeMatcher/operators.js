@@ -13,7 +13,7 @@ export const rawFieldEquals: OperatorFunction = (left, right) => left == right
 
 const rawFieldNotEquals: OperatorFunction = (left, right) => !(left == right)
 
-const noNullComparisons: OperatorFunction => OperatorFunction = operator => (left, right) => {
+const noNullComparisons: (OperatorFunction) => OperatorFunction = (operator) => (left, right) => {
   // return false if any operand is null/undefined
   if (left == null || right == null) {
     return false

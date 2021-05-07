@@ -53,7 +53,7 @@ export default function subscribeToQueryWithColumns<Record: Model>(
   let observedRecords: Record[] = []
   const recordStates = new Map<RecordId, RecordState>()
 
-  const emitCopy = records => {
+  const emitCopy = (records) => {
     !unsubscribed && subscriber(records.slice(0))
   }
 
@@ -62,8 +62,8 @@ export default function subscribeToQueryWithColumns<Record: Model>(
   // on the other, it would be good to have source provided as Observable, not Query
   // so that we can reuse cached responses -- but they don't have compatible format
   const [subscribeToSource, asyncSource] = canEncodeMatcher(query.description)
-    ? [observer => subscribeToSimpleQuery(query, observer, true), false]
-    : [observer => subscribeToQueryReloading(query, observer, true), false]
+    ? [(observer) => subscribeToSimpleQuery(query, observer, true), false]
+    : [(observer) => subscribeToQueryReloading(query, observer, true), false]
 
   // NOTE:
   // Observing both the source subscription and changes to columns is very tricky
@@ -141,12 +141,12 @@ export default function subscribeToQueryWithColumns<Record: Model>(
     observedRecords = records
 
     // Unsubscribe from records removed from list
-    removed.forEach(record => {
+    removed.forEach((record) => {
       recordStates.delete(record.id)
     })
 
     // Save current record state for later comparison
-    added.forEach(newRecord => {
+    added.forEach((newRecord) => {
       recordStates.set(newRecord.id, getRecordState(newRecord, columnNames))
     })
 

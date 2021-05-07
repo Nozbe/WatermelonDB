@@ -122,7 +122,7 @@ const mockCollections = {
 export const modelQuery = (modelClass, ...conditions) => {
   const mockCollection = {
     modelClass,
-    db: { get: table => ({ modelClass: mockCollections[table] }) },
+    db: { get: (table) => ({ modelClass: mockCollections[table] }) },
   }
   return new Query(mockCollection, conditions)
 }
@@ -130,12 +130,12 @@ export const modelQuery = (modelClass, ...conditions) => {
 export const taskQuery = (...conditions) => modelQuery(MockTask, ...conditions).serialize()
 export const projectQuery = (...conditions) => modelQuery(MockProject, ...conditions).serialize()
 
-export const mockTaskRaw = raw => sanitizedRaw(raw, testSchema.tables.tasks)
-export const mockProjectRaw = raw => sanitizedRaw(raw, testSchema.tables.projects)
+export const mockTaskRaw = (raw) => sanitizedRaw(raw, testSchema.tables.tasks)
+export const mockProjectRaw = (raw) => sanitizedRaw(raw, testSchema.tables.projects)
 
 const insertAll = async (adapter, table, records) =>
   adapter.batch(
-    records.map(raw => {
+    records.map((raw) => {
       // TODO: Are we sure we want to test this by inserting non-sanitized records?
       // On one hand, this _shouldn't_ happen, on the other, through error or malice
       // (changing DB directly, outside of Wmelon), it _might_ happen

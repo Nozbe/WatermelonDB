@@ -17,7 +17,7 @@ describe.each([
   ['SQLiteAdapterNode', 'Synchronous', 'Memory'],
   ['SQLiteAdapterNode', 'Asynchronous', 'Memory'],
 ])('%s (%s/%s)', (adapterSubclass, synchronousString, fileString) => {
-  commonTests().forEach(testCase => {
+  commonTests().forEach((testCase) => {
     const [name, test] = testCase
     it(name, async () => {
       const synchronous = synchronousString.toLowerCase() === 'synchronous'

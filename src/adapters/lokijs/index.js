@@ -139,7 +139,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
       )
       validateAdapter(this)
     }
-    const callback = result => devSetupCallback(result, options.onSetUpError)
+    const callback = (result) => devSetupCallback(result, options.onSetUpError)
     this.workerBridge.send(SETUP, [options], callback, 'immutable', 'immutable')
   }
 
@@ -247,7 +247,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
       logger.log(`Did find ${table}#${id} in Loki collection by ID? ${didFindById}`)
 
       // if we can't, but can filter to it, it means that Loki indices are corrupted
-      const didFindByFilter = !!lokiCollection.data.filter(doc => doc.id === id)
+      const didFindByFilter = !!lokiCollection.data.filter((doc) => doc.id === id)
       logger.log(
         `Did find ${table}#${id} in Loki collection by filtering the collection? ${didFindByFilter}`,
       )

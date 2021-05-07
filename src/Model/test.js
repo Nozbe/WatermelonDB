@@ -111,7 +111,7 @@ describe('CRUD', () => {
   it('_prepareCreate: can instantiate new records', () => {
     const database = makeDatabase()
     const collection = database.get('mock')
-    const m1 = MockModel._prepareCreate(collection, record => {
+    const m1 = MockModel._prepareCreate(collection, (record) => {
       expect(record._isEditing).toBe(true)
       record.name = 'Some name'
     })
@@ -179,7 +179,7 @@ describe('CRUD', () => {
       const spyBatchDB = jest.spyOn(db, 'batch')
 
       const collection = db.get('mock')
-      const m1 = await collection.create(record => {
+      const m1 = await collection.create((record) => {
         record.name = 'Original name'
       })
 
@@ -189,7 +189,7 @@ describe('CRUD', () => {
 
       expect(m1._isEditing).toBe(false)
 
-      const update = await m1.update(record => {
+      const update = await m1.update((record) => {
         expect(m1._isEditing).toBe(true)
         record.name = 'New name'
       })
@@ -212,16 +212,18 @@ describe('CRUD', () => {
 
     const collection = db.get('mock')
 
-    const m1 = await db.action(() => collection.create(record => {
-      record.name = 'Original name'
-    }))
+    const m1 = await db.action(() =>
+      collection.create((record) => {
+        record.name = 'Original name'
+      }),
+    )
 
     expect(db.adapter.batch).toHaveBeenCalledTimes(1)
 
     const observer = jest.fn()
     m1.observe().subscribe(observer)
 
-    const preparedUpdate = m1.prepareUpdate(record => {
+    const preparedUpdate = m1.prepareUpdate((record) => {
       expect(m1._isEditing).toBe(true)
       record.name = 'New name'
     })
@@ -263,15 +265,15 @@ describe('CRUD', () => {
   it('can destroy a record and its children permanently', async () => {
     const { db, projects, tasks, comments } = mockDatabase()
     await db.action(async () => {
-      const project = await projects.create(mock => {
+      const project = await projects.create((mock) => {
         mock.name = 'foo'
       })
 
-      const task = await tasks.create(mock => {
+      const task = await tasks.create((mock) => {
         mock.project.set(project)
       })
 
-      const comment = await comments.create(mock => {
+      const comment = await comments.create((mock) => {
         mock.task.set(task)
       })
 
@@ -314,15 +316,15 @@ describe('CRUD', () => {
   it('can mark as deleted record and its children permanently', async () => {
     const { db, projects, tasks, comments } = mockDatabase()
     await db.action(async () => {
-      const project = await projects.create(mock => {
+      const project = await projects.create((mock) => {
         mock.name = 'foo'
       })
 
-      const task = await tasks.create(mock => {
+      const task = await tasks.create((mock) => {
         mock.project.set(project)
       })
 
-      const comment = await comments.create(mock => {
+      const comment = await comments.create((mock) => {
         mock.task.set(task)
       })
 
@@ -503,7 +505,7 @@ describe('Automatic created_at/updated_at', () => {
     const db = makeDatabase()
     db.adapter.batch = jest.fn()
     await db.action(async () => {
-      const m1 = await db.get('mock_updated').create(record => {
+      const m1 = await db.get('mock_updated').create((record) => {
         record._raw.updated_at -= 100
       })
       const updatedAt = +m1.updatedAt
@@ -644,7 +646,7 @@ describe('Sync status fields', () => {
     const db = makeDatabase()
     db.adapter.batch = jest.fn()
     await db.action(async () => {
-      const mock = await db.get('mock').create(record => {
+      const mock = await db.get('mock').create((record) => {
         record.name = 'Initial name'
       })
 
@@ -654,7 +656,7 @@ describe('Sync status fields', () => {
       expect(mock.syncStatus).toBe('created')
 
       // updating a status:created record doesn't change anything
-      await mock.update(record => {
+      await mock.update((record) => {
         record.name = 'New name'
       })
 
@@ -679,25 +681,31 @@ describe('Sync status fields', () => {
     )
 
     // update
-    await db.action(() => mock.update(record => {
-      record.name = 'New name'
-    }))
+    await db.action(() =>
+      mock.update((record) => {
+        record.name = 'New name'
+      }),
+    )
 
     expect(mock._raw._status).toBe('updated')
     expect(mock._raw._changed).toBe('name')
 
     // change another field
-    await db.action(() => mock.update(record => {
-      record.otherfield = 'New value'
-    }))
+    await db.action(() =>
+      mock.update((record) => {
+        record.otherfield = 'New value'
+      }),
+    )
 
     expect(mock._raw._status).toBe('updated')
     expect(mock._raw._changed).toBe('name,otherfield')
 
     // no duplicated change fields
-    await db.action(() => mock.update(record => {
-      record.name = 'New name 2'
-    }))
+    await db.action(() =>
+      mock.update((record) => {
+        record.name = 'New name 2'
+      }),
+    )
 
     expect(mock._raw._changed).toBe('name,otherfield')
   })
@@ -726,7 +734,7 @@ describe('Model observation', () => {
     const bExpected = '--------m--m-m---|'
     const cExpected = 'm-m---m----m-m---|'
 
-    scheduler.hot(changes__).subscribe(event => {
+    scheduler.hot(changes__).subscribe((event) => {
       event === 'a' ? model._notifyChanged() : model._notifyDestroyed()
     })
 
@@ -832,15 +840,15 @@ describe('model helpers', () => {
   it('checks if fetchChildren retrieves all the children', async () => {
     const { projects, tasks, comments, db } = mockDatabase()
     await db.action(async () => {
-      const projectFoo = await projects.create(mock => {
+      const projectFoo = await projects.create((mock) => {
         mock.name = 'foo'
       })
-      const projectBar = await projects.create(mock => {
+      const projectBar = await projects.create((mock) => {
         mock.name = 'bar'
       })
 
-      const commentPromise = async task => {
-        const comment = await comments.create(mock => {
+      const commentPromise = async (task) => {
+        const comment = await comments.create((mock) => {
           mock.task.set(task)
         })
         const commentChildren = await fetchChildren(comment)
@@ -848,7 +856,7 @@ describe('model helpers', () => {
       }
 
       const taskPromise = async (project, commentsCount) => {
-        const task = await tasks.create(mock => {
+        const task = await tasks.create((mock) => {
           mock.project.set(project)
         })
         await allPromises(commentPromise, Array(commentsCount).fill(task))
@@ -856,8 +864,8 @@ describe('model helpers', () => {
         expect(taskChildren).toHaveLength(commentsCount)
       }
 
-      await allPromises(project => taskPromise(project, 2), Array(2).fill(projectFoo))
-      await allPromises(project => taskPromise(project, 3), Array(3).fill(projectBar))
+      await allPromises((project) => taskPromise(project, 2), Array(2).fill(projectFoo))
+      await allPromises((project) => taskPromise(project, 3), Array(3).fill(projectBar))
 
       const fooChildren = await fetchChildren(projectFoo)
       const barChildren = await fetchChildren(projectBar)

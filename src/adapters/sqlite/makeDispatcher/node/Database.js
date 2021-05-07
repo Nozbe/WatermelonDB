@@ -93,9 +93,9 @@ class Database {
     if (this.isInMemoryDatabase()) {
       this.inTransaction(() => {
         const results = this.queryRaw(`SELECT * FROM sqlite_master WHERE type = 'table'`)
-        const tables = results.map(table => table.name)
+        const tables = results.map((table) => table.name)
 
-        tables.forEach(table => {
+        tables.forEach((table) => {
           this.execute(`DROP TABLE IF EXISTS '${table}'`)
         })
 

@@ -22,7 +22,7 @@ export type ColumnMap = { [name: ColumnName]: ColumnSchema }
 export type TableSchemaSpec = $Exact<{
   name: TableName<any>,
   columns: ColumnSchema[],
-  unsafeSql?: string => string,
+  unsafeSql?: (string) => string,
 }>
 
 export type TableSchema = $RE<{
@@ -30,7 +30,7 @@ export type TableSchema = $RE<{
   // depending on operation, it's faster to use map or array
   columns: ColumnMap,
   columnArray: ColumnSchema[],
-  unsafeSql?: string => string,
+  unsafeSql?: (string) => string,
 }>
 
 type TableMap = { [name: TableName<any>]: TableSchema }
@@ -40,13 +40,13 @@ export type SchemaVersion = number
 export type AppSchemaSpec = $Exact<{
   version: number,
   tables: TableSchema[],
-  unsafeSql?: string => string,
+  unsafeSql?: (string) => string,
 }>
 
 export type AppSchema = $RE<{
   version: SchemaVersion,
   tables: TableMap,
-  unsafeSql?: string => string,
+  unsafeSql?: (string) => string,
 }>
 
 export function tableName<T: Model>(name: string): TableName<T> {

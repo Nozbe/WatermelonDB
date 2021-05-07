@@ -3,7 +3,7 @@ import * as Q from '../../QueryDescription'
 import subscribeToCount from './index'
 
 const prepareTask = (tasks, isCompleted) =>
-  tasks.prepareCreate(mock => {
+  tasks.prepareCreate((mock) => {
     mock.isCompleted = isCompleted
   })
 

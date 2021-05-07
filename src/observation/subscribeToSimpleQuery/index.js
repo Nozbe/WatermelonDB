@@ -18,7 +18,7 @@ export function processChangeSet<Record: Model>(
   mutableMatchingRecords: Record[],
 ): boolean {
   let shouldEmit = false
-  changeSet.forEach(change => {
+  changeSet.forEach((change) => {
     const { record, type } = change
     const index = mutableMatchingRecords.indexOf(record)
     const currentlyMatching = index > -1

@@ -7,7 +7,7 @@ export interface ActionInterface {
 }
 
 type ActionQueueItem<T> = $Exact<{
-  work: ActionInterface => Promise<T>,
+  work: (ActionInterface) => Promise<T>,
   resolve: (value: T) => void,
   reject: (reason: any) => void,
   description: ?string,
@@ -22,7 +22,7 @@ export default class ActionQueue implements ActionInterface {
     return this._queue.length > 0
   }
 
-  enqueue<T>(work: ActionInterface => Promise<T>, description?: string): Promise<T> {
+  enqueue<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
     // If a subAction was scheduled using subAction(), database.action() calls skip the line
     if (this._subActionIncoming) {
       this._subActionIncoming = false

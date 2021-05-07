@@ -5,7 +5,7 @@ import type { RawRecord } from '../../../RawRecord'
 import type { SQLiteQuery, SQLiteArg } from '../index'
 
 const memoizedPlaceholders = {}
-const generatePlaceholders = count => {
+const generatePlaceholders = (count) => {
   const memoized = memoizedPlaceholders[count]
   if (memoized) {
     return memoized

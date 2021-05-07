@@ -147,7 +147,7 @@ describe('sanitizedRaw()', () => {
   it('sanitizes id, _status, _changed', () => {
     const schema2 = tableSchema({ name: 'test2', columns: [] })
 
-    const validateId = raw => {
+    const validateId = (raw) => {
       expect(typeof raw.id).toBe('string')
       expect(raw.id).toHaveLength(16)
     }

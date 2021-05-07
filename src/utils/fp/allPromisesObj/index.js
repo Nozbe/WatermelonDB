@@ -9,7 +9,7 @@ export default function allPromisesObj<T, Key, Spec: { [Key]: Promise<T> }>(
     const keys = Object.keys(promisesObj)
     const len = keys.length
 
-    Promise.all(Object.values(promisesObj)).then(result => {
+    Promise.all(Object.values(promisesObj)).then((result) => {
       const resultObj = {}
       for (let i = 0; i < len; i++) {
         resultObj[keys[i]] = result[i]

@@ -28,7 +28,7 @@ class MockProject extends Model {
 
 const mockCollection = Object.freeze({
   modelClass: MockTask,
-  db: { get: table => (table === 'projects' ? { modelClass: MockProject } : undefined) },
+  db: { get: (table) => (table === 'projects' ? { modelClass: MockProject } : undefined) },
 })
 
 describe('Query', () => {
@@ -226,9 +226,9 @@ describe('Query', () => {
     })
     it('can pipe query', () => {
       const query = new Query(mockCollection, [Q.on('projects', 'team_id', 'abcdef')])
-      const identity = a => a
+      const identity = (a) => a
       expect(query.pipe(identity)).toBe(query)
-      const wrap = q => ({ wrapped: q })
+      const wrap = (q) => ({ wrapped: q })
       expect(query.pipe(wrap).wrapped).toBe(query)
     })
   })
@@ -246,20 +246,20 @@ describe('Query', () => {
       const m2 = tasks.prepareCreate()
       await database.action(() => database.batch(m1, m2))
       expect(await queryAll).toEqual([m1, m2])
-      expect(await queryAll.then(records => records.length)).toBe(2)
+      expect(await queryAll.then((records) => records.length)).toBe(2)
     })
     it(`count is thenable`, async () => {
       const { database, tasks } = mockDatabase()
       const queryAll = new Query(tasks, [])
       await database.action(() => database.batch(tasks.prepareCreate(), tasks.prepareCreate()))
       expect(await queryAll.count).toEqual(2)
-      expect(await queryAll.count.then(length => length * 2)).toBe(4)
+      expect(await queryAll.count.then((length) => length * 2)).toBe(4)
     })
   })
 
   describe('observation', () => {
     // NOTE: Sanity checks only. Concrete tests: observation/
-    const waitFor = database => {
+    const waitFor = (database) => {
       // make sure we wait until end of DB queue without triggering query for
       // easy counting
       return database.adapter.getLocal('nothing')
@@ -330,7 +330,7 @@ describe('Query', () => {
       expect(observer).toHaveBeenLastCalledWith(0)
 
       if (isThrottled) {
-        await new Promise(resolve => setTimeout(resolve, 300))
+        await new Promise((resolve) => setTimeout(resolve, 300))
       }
 
       await database.action(() => tasks.create())
@@ -371,20 +371,20 @@ describe('Query', () => {
   })
 
   describe('mass delete', () => {
-    const testMassDelete = async methodName => {
+    const testMassDelete = async (methodName) => {
       const { database, tasks } = mockDatabase()
       const query = new Query(tasks, [Q.where('name', 'foo')])
       const queryAll = new Query(tasks, [])
 
       await database.action(() =>
         database.batch(
-          tasks.prepareCreate(t => {
+          tasks.prepareCreate((t) => {
             t.name = 'foo'
           }),
-          tasks.prepareCreate(t => {
+          tasks.prepareCreate((t) => {
             t.name = 'foo'
           }),
-          tasks.prepareCreate(t => {
+          tasks.prepareCreate((t) => {
             t.name = 'foo'
           }),
           tasks.prepareCreate(),

@@ -44,26 +44,32 @@ describe('Relation', () => {
   it('allows setting id/record only on create/prepareCreate when immutable', async () => {
     const { tasks, comments, db } = mockDatabase()
 
-    const secondary = await db.action(() => tasks.create(mock => {
-      mock.name = 'foo'
-    }))
-    const primary = await db.action(() => comments.create(mock => {
-      mock.task.id = secondary.id
-    }))
+    const secondary = await db.action(() =>
+      tasks.create((mock) => {
+        mock.name = 'foo'
+      }),
+    )
+    const primary = await db.action(() =>
+      comments.create((mock) => {
+        mock.task.id = secondary.id
+      }),
+    )
 
     expect(primary.task.id).toBe(secondary.id)
 
     expect(() =>
-      primary.prepareUpdate(mock => {
+      primary.prepareUpdate((mock) => {
         mock.task.id = 'foo'
       }),
     ).toThrow()
 
-    const secondary2 = await db.action(() => comments.create(mock => {
-      mock.name = 'bar'
-    }))
+    const secondary2 = await db.action(() =>
+      comments.create((mock) => {
+        mock.name = 'bar'
+      }),
+    )
 
-    const primary2 = comments.prepareCreate(mock => {
+    const primary2 = comments.prepareCreate((mock) => {
       mock.task.id = secondary.id
       expect(mock.task.id).toBe(secondary.id)
       mock.task.set(secondary2)
@@ -75,12 +81,16 @@ describe('Relation', () => {
   it('observers related record', async () => {
     const { tasks, projects, db } = mockDatabase()
 
-    const secondary = await db.action(() => projects.create(mock => {
-      mock.name = 'foo'
-    }))
-    const primary = await db.action(() => tasks.create(mock => {
-      mock.projectId = secondary.id
-    }))
+    const secondary = await db.action(() =>
+      projects.create((mock) => {
+        mock.name = 'foo'
+      }),
+    )
+    const primary = await db.action(() =>
+      tasks.create((mock) => {
+        mock.projectId = secondary.id
+      }),
+    )
 
     const relation = new Relation(primary, 'mock_projects', 'project_id', { isImmutable: false })
 
@@ -91,9 +101,11 @@ describe('Relation', () => {
 
     expect(observer).toHaveBeenCalledWith(secondary)
 
-    await db.action(() => secondary.update(mock => {
-      mock.name = 'bar'
-    }))
+    await db.action(() =>
+      secondary.update((mock) => {
+        mock.name = 'bar'
+      }),
+    )
 
     expect(observer).toHaveBeenCalledTimes(2)
     subscription.unsubscribe()
@@ -101,32 +113,40 @@ describe('Relation', () => {
   it('fetches current record', async () => {
     const { tasks, projects, db } = mockDatabase()
 
-    const secondary = await db.action(() => projects.create(mock => {
-      mock.name = 'foo'
-    }))
-    const primary = await db.action(() => tasks.create(mock => {
-      mock.projectId = secondary.id
-    }))
+    const secondary = await db.action(() =>
+      projects.create((mock) => {
+        mock.name = 'foo'
+      }),
+    )
+    const primary = await db.action(() =>
+      tasks.create((mock) => {
+        mock.projectId = secondary.id
+      }),
+    )
 
     const relation = new Relation(primary, 'mock_projects', 'project_id', { isImmutable: false })
 
     let currentRecord = await relation.fetch()
     expect(currentRecord).toBe(secondary)
 
-    const newSecondary = await db.action(() => projects.create(mock => {
-      mock.name = 'bar'
-    }))
+    const newSecondary = await db.action(() =>
+      projects.create((mock) => {
+        mock.name = 'bar'
+      }),
+    )
 
-    db.action(() => primary.update(mock => {
-      mock.projectId = newSecondary.id
-    }))
+    db.action(() =>
+      primary.update((mock) => {
+        mock.projectId = newSecondary.id
+      }),
+    )
 
     currentRecord = await relation.fetch()
     expect(currentRecord).toBe(newSecondary)
 
     // test thenable syntax
     expect(await relation).toBe(currentRecord)
-    expect(await relation.then(model => [model])).toEqual([currentRecord])
+    expect(await relation.then((model) => [model])).toEqual([currentRecord])
   })
   it('caches observable', () => {
     const { tasks } = mockDatabase()

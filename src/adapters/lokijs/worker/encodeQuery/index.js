@@ -119,7 +119,7 @@ const columnCompRequiresColumnNotNull: { [$FlowFixMe<Operator>]: boolean } = {
   lte: true,
 }
 
-const encodeWhereDescription: WhereDescription => LokiRawQuery = ({ left, comparison }) => {
+const encodeWhereDescription: (WhereDescription) => LokiRawQuery = ({ left, comparison }) => {
   const { operator, right } = comparison
   const col: string = left
   // $FlowFixMe - NOTE: order of ||s is important here, since .value can be falsy, but .column and .values are either truthy or are undefined
@@ -142,7 +142,9 @@ const encodeWhereDescription: WhereDescription => LokiRawQuery = ({ left, compar
   return { [col]: encodedComparison }
 }
 
-const encodeCondition: (QueryAssociation[]) => Clause => LokiRawQuery = associations => clause => {
+const encodeCondition: (QueryAssociation[]) => (Clause) => LokiRawQuery = (associations) => (
+  clause,
+) => {
   switch (clause.type) {
     case 'and':
       return encodeAnd(associations, clause)

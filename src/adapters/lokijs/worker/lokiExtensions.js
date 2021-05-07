@@ -7,7 +7,7 @@ import type { LokiAdapterOptions } from '../index'
 import type { Loki } from '../type'
 
 const isIDBAvailable = (onQuotaExceededError: ?(error: Error) => void) => {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     // $FlowFixMe
     if (typeof indexedDB === 'undefined') {
       resolve(false)
@@ -15,12 +15,12 @@ const isIDBAvailable = (onQuotaExceededError: ?(error: Error) => void) => {
 
     // in Firefox private mode, IDB will be available, but will fail to open
     const checkRequest: IDBOpenDBRequest = indexedDB.open('WatermelonIDBChecker')
-    checkRequest.onsuccess = e => {
+    checkRequest.onsuccess = (e) => {
       const db: IDBDatabase = e.target.result
       db.close()
       resolve(true)
     }
-    checkRequest.onerror = event => {
+    checkRequest.onerror = (event) => {
       const error: ?Error = event?.target?.error
       // this is what Firefox in Private Mode returns:
       // DOMException: "A mutation operation was attempted on a database that did not allow mutations."
@@ -92,7 +92,7 @@ export async function newLoki(options: LokiAdapterOptions): Loki {
 
   // force load database now
   await new Promise((resolve, reject) => {
-    loki.loadDatabase({}, error => {
+    loki.loadDatabase({}, (error) => {
       error ? reject(error) : resolve()
     })
   })
@@ -105,7 +105,7 @@ export async function deleteDatabase(loki: Loki): Promise<void> {
     // Works around a race condition - Loki doesn't disable autosave or drain save queue before
     // deleting database, so it's possible to delete and then have the database be saved
     loki.close(() => {
-      loki.deleteDatabase({}, response => {
+      loki.deleteDatabase({}, (response) => {
         // LokiIndexedAdapter responds with `{ success: true }`, while
         // LokiMemory adapter just calls it with no params
         if ((response && response.success) || response === undefined) {

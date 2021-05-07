@@ -43,10 +43,10 @@ describe('encodeSchema', () => {
         tableSchema({
           name: 'tasks',
           columns: [{ name: 'author_id', type: 'string', isIndexed: true }],
-          unsafeSql: sql => sql.replace(/create table "tasks" [^)]+\)/, '$& without rowid'),
+          unsafeSql: (sql) => sql.replace(/create table "tasks" [^)]+\)/, '$& without rowid'),
         }),
       ],
-      unsafeSql: sql => `create blabla;${sql}`,
+      unsafeSql: (sql) => `create blabla;${sql}`,
     })
 
     const expectedSchema =
@@ -99,12 +99,12 @@ describe('encodeSchema', () => {
       addColumns({
         table: 'posts',
         columns: [{ name: 'subtitle', type: 'string', isOptional: true }],
-        unsafeSql: sql => `${sql}bla;`,
+        unsafeSql: (sql) => `${sql}bla;`,
       }),
       createTable({
         name: 'comments',
         columns: [{ name: 'body', type: 'string' }],
-        unsafeSql: sql => sql.replace(/create table [^)]+\)/, '$& without rowid'),
+        unsafeSql: (sql) => sql.replace(/create table [^)]+\)/, '$& without rowid'),
       }),
       unsafeExecuteSql('boop;'),
     ]

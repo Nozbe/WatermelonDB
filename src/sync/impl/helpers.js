@@ -30,7 +30,7 @@ export function resolveConflict(local: RawRecord, remote: DirtyRaw): DirtyRaw {
   }
 
   // Use local properties where changed
-  local._changed.split(',').forEach(column => {
+  local._changed.split(',').forEach((column) => {
     resolved[column] = local[column]
   })
 
@@ -114,13 +114,13 @@ export function ensureSameDatabase(database: Database, initialResetCount: number
   )
 }
 
-export const isChangeSetEmpty: SyncDatabaseChangeSet => boolean = changeset =>
+export const isChangeSetEmpty: (SyncDatabaseChangeSet) => boolean = (changeset) =>
   values(changeset).every(
     ({ created, updated, deleted }) => created.length + updated.length + deleted.length === 0,
   )
 
-const sum: (number[]) => number = xs => xs.reduce((a, b) => a + b, 0)
-export const changeSetCount: SyncDatabaseChangeSet => number = changeset =>
+const sum: (number[]) => number = (xs) => xs.reduce((a, b) => a + b, 0)
+export const changeSetCount: (SyncDatabaseChangeSet) => number = (changeset) =>
   sum(
     values(changeset).map(
       ({ created, updated, deleted }) => created.length + updated.length + deleted.length,

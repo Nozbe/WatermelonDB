@@ -33,7 +33,7 @@ function getChildrenQueries(model: Model): Query<Model>[] {
 }
 
 export async function fetchChildren(model: Model): Promise<Model[]> {
-  const childPromise = async query => {
+  const childPromise = async (query) => {
     const children = await query.fetch()
     const grandchildren = await allPromises(fetchChildren, children)
     return unnest(grandchildren).concat(children)

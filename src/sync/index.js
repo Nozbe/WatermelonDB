@@ -51,8 +51,8 @@ export type SyncConflictResolver = (
 
 export type SyncArgs = $Exact<{
   database: Database,
-  pullChanges: SyncPullArgs => Promise<SyncPullResult>,
-  pushChanges?: SyncPushArgs => Promise<void>,
+  pullChanges: (SyncPullArgs) => Promise<SyncPullResult>,
+  pushChanges?: (SyncPushArgs) => Promise<void>,
   // version at which support for migration syncs was added - the version BEFORE first syncable migration
   migrationsEnabledAtVersion?: SchemaVersion,
   sendCreatedAsUpdated?: boolean,

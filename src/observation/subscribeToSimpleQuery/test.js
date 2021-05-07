@@ -6,9 +6,11 @@ import * as Q from '../../QueryDescription'
 import subscribeToSimpleQuery from './index'
 
 const makeMock = (db, name) =>
-  db.action(() => db.get('mock_tasks').create(mock => {
-    mock.name = name
-  }))
+  db.action(() =>
+    db.get('mock_tasks').create((mock) => {
+      mock.name = name
+    }),
+  )
 
 describe('subscribeToSimpleQuery', () => {
   it('observes changes correctly', async () => {
@@ -30,7 +32,7 @@ describe('subscribeToSimpleQuery', () => {
     // make some irrelevant changes (no emission)
     const m3 = await makeMock(db, 'irrelevant')
     await db.action(async () => {
-      await m1.update(mock => {
+      await m1.update((mock) => {
         mock.name = 'still_bad_name'
       })
       await m1.destroyPermanently()
@@ -41,15 +43,19 @@ describe('subscribeToSimpleQuery', () => {
     expect(observer).toHaveBeenCalledWith([m2, m4])
 
     // change existing record to match
-    await db.action(() => m3.update(mock => {
-      mock.name = 'foo'
-    }))
+    await db.action(() =>
+      m3.update((mock) => {
+        mock.name = 'foo'
+      }),
+    )
     expect(observer).toHaveBeenCalledWith([m2, m4, m3])
 
     // change existing record to no longer match
-    await db.action(() => m4.update(mock => {
-      mock.name = 'nope'
-    }))
+    await db.action(() =>
+      m4.update((mock) => {
+        mock.name = 'nope'
+      }),
+    )
     expect(observer).toHaveBeenCalledWith([m2, m3])
 
     // change matching record in irrelevant ways (no emission)
