@@ -233,8 +233,8 @@ describe('getSyncChanges', () => {
       'destroy_column',
     ]
     possibleFutureTypes.forEach(type => {
-      expect(() => testSteps([{ type }])).toThrow(/Unknown migration step type/)
+      expect(() => testSteps([{ type }])).toThrow('Unknown migration step type')
     })
-    expect(() => testSteps([{ type: undefined }])).toThrow(/Invalid migration steps/)
+    expect(() => testSteps([{ type: undefined }])).toThrow('Invalid migration steps')
   })
 })

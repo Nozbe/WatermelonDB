@@ -250,7 +250,7 @@ describe('SharedSubscribable', () => {
     const unsubscribe1 = shared.subscribe(subscriber1)
     unsubscribe1()
     expect(sourceUnsubscribe).toHaveBeenCalledTimes(1)
-    expect(() => emitValue(10)).toThrow(/emitted a value after/)
+    expect(() => emitValue(10)).toThrow('emitted a value after')
     expect(subscriber1).toHaveBeenCalledTimes(0)
 
     const subscriber2 = jest.fn()

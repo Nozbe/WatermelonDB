@@ -75,7 +75,7 @@ describe('decorators/nochange', () => {
           mock.foo = 't2'
         }),
       ),
-      /set a new value/,
+      'set a new value',
     )
     expect(model.foo).toBe('t1')
   })

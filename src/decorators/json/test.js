@@ -93,6 +93,6 @@ describe('decorators/json', () => {
           @json
           noName
         },
-    ).toThrow(/column name/)
+    ).toThrow('column name')
   })
 })

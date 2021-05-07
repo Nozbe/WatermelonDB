@@ -83,9 +83,9 @@ describe('finding records', () => {
   })
   it('quickly rejects for invalid IDs', async () => {
     const { tasks } = mockDatabase()
-    await expectToRejectWithMessage(tasks.find(), /Invalid record ID/)
-    await expectToRejectWithMessage(tasks.find(null), /Invalid record ID/)
-    await expectToRejectWithMessage(tasks.find({}), /Invalid record ID/)
+    await expectToRejectWithMessage(tasks.find(), 'Invalid record ID')
+    await expectToRejectWithMessage(tasks.find(null), 'Invalid record ID')
+    await expectToRejectWithMessage(tasks.find({}), 'Invalid record ID')
   })
   it('successfully executes unsafe SQL fetches in the same sequence as normal fetches', async () => {
     // See: https://github.com/Nozbe/WatermelonDB/issues/931
@@ -242,7 +242,7 @@ describe('creating new records', () => {
 
     await expectToRejectWithMessage(
       tasks.create(noop),
-      /can only be called from inside of an Action/,
+      'can only be called from inside of an Action',
     )
 
     // no throw inside action

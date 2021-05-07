@@ -59,7 +59,7 @@ describe('checkName', () => {
     ]
     unsafeNames.forEach(name => {
       // console.log(name)
-      expect(() => checkName(name)).toThrow(/Unsafe name/)
+      expect(() => checkName(name)).toThrow('Unsafe name')
     })
   })
 })

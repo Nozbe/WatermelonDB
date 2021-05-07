@@ -461,7 +461,7 @@ describe('buildQueryDescription', () => {
     }
   })
   it('catches bad types', () => {
-    expect(() => Q.eq({})).toThrow(/Invalid value passed to query/)
+    expect(() => Q.eq({})).toThrow('Invalid value passed to query')
     // TODO: oneOf/notIn values?
     expect(() => Q.oneOf({})).toThrow('not an array')
     expect(() => Q.notIn({})).toThrow('not an array')
@@ -491,22 +491,22 @@ describe('buildQueryDescription', () => {
     // protect against passing something that could be a user-input Object (risk is when Watermelon users pass stuff from JSON without validation), but is unintended or even malicious in some way
     expect(() => Q.eq({ column: 'foo' })).toThrow(/Invalid { column: }/)
     expect(() => Q.where('foo', { operator: 'eq', right: { value: 'foo' } })).toThrow(
-      /Invalid Comparison/,
+      'Invalid Comparison',
     )
-    expect(() => Q.where('foo', {})).toThrow(/Invalid Comparison/)
-    expect(() => Q.on('table', 'foo', {})).toThrow(/Invalid Comparison/)
+    expect(() => Q.where('foo', {})).toThrow('Invalid Comparison')
+    expect(() => Q.on('table', 'foo', {})).toThrow('Invalid Comparison')
     expect(() => Q.on('table', 'foo', Q.eq({ column: 'foo' }))).toThrow(/Invalid { column: }/)
   })
   it(`protects against unsafe column and table names passed`, () => {
-    expect(() => Q.column('sqlite_master')).toThrow(/Unsafe name/)
-    expect(() => Q.column('hey` or --')).toThrow(/Unsafe name/)
-    expect(() => Q.where('rowid', 10)).toThrow(/Unsafe name/)
-    expect(() => Q.experimentalSortBy('sqlite_master', 'asc')).toThrow(/Unsafe name/)
-    expect(() => Q.on('sqlite_master', 'foo', 'bar')).toThrow(/Unsafe name/)
-    expect(() => Q.on('sqlite_master', Q.where('foo', 'bar'))).toThrow(/Unsafe name/)
-    expect(() => Q.experimentalJoinTables(['foo', 'sqlite_master'])).toThrow(/Unsafe name/)
-    expect(() => Q.experimentalNestedJoin('sqlite_master', 'foo')).toThrow(/Unsafe name/)
-    expect(() => Q.experimentalNestedJoin('foo', 'sqlite_master')).toThrow(/Unsafe name/)
+    expect(() => Q.column('sqlite_master')).toThrow('Unsafe name')
+    expect(() => Q.column('hey` or --')).toThrow('Unsafe name')
+    expect(() => Q.where('rowid', 10)).toThrow('Unsafe name')
+    expect(() => Q.experimentalSortBy('sqlite_master', 'asc')).toThrow('Unsafe name')
+    expect(() => Q.on('sqlite_master', 'foo', 'bar')).toThrow('Unsafe name')
+    expect(() => Q.on('sqlite_master', Q.where('foo', 'bar'))).toThrow('Unsafe name')
+    expect(() => Q.experimentalJoinTables(['foo', 'sqlite_master'])).toThrow('Unsafe name')
+    expect(() => Q.experimentalNestedJoin('sqlite_master', 'foo')).toThrow('Unsafe name')
+    expect(() => Q.experimentalNestedJoin('foo', 'sqlite_master')).toThrow('Unsafe name')
   })
 })
 

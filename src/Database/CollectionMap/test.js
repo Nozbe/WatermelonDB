@@ -47,7 +47,7 @@ describe('CollectionMap', () => {
       static table = 'not_known_by_db'
     }
     expect(() => new CollectionMap(db, [ModelWithUnrecognizedTableName])).toThrow(
-      /Model class ModelWithUnrecognizedTableName has static table defined that is missing in schema known by this database/,
+      'Model class ModelWithUnrecognizedTableName has static table defined that is missing in schema known by this database',
     )
   })
 })

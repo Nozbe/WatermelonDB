@@ -25,8 +25,8 @@ describe('Database', () => {
       // reset
       await database.action(() => database.unsafeResetDatabase())
 
-      await expectToRejectWithMessage(tasks.find(m1.id), /not found/)
-      await expectToRejectWithMessage(tasks.find(m2.id), /not found/)
+      await expectToRejectWithMessage(tasks.find(m1.id), 'not found')
+      await expectToRejectWithMessage(tasks.find(m2.id), 'not found')
     })
     it('throws error if reset is called from outside an Action', async () => {
       const { database, tasks } = mockDatabase()
@@ -34,7 +34,7 @@ describe('Database', () => {
 
       await expectToRejectWithMessage(
         database.unsafeResetDatabase(),
-        /can only be called from inside of an Action/,
+        'can only be called from inside of an Action',
       )
 
       expect(await tasks.find(m1.id)).toBe(m1)
@@ -130,7 +130,7 @@ describe('Database', () => {
       }
       const promise2 = database.action(() => database.unsafeResetDatabase())
       expect(database._isBeingReset).toBe(true)
-      await expectToRejectWithMessage(promise2, /forced/)
+      await expectToRejectWithMessage(promise2, 'forced')
       expect(database._isBeingReset).toBe(false)
     })
     it.skip('Disallows <many methods> calls during reset', async () => {})
@@ -272,7 +272,7 @@ describe('Database', () => {
 
       await expectToRejectWithMessage(
         database.batch(tasks.prepareCreate(noop)),
-        /can only be called from inside of an Action/,
+        'can only be called from inside of an Action',
       )
 
       // check if in action is successful
@@ -290,7 +290,7 @@ describe('Database', () => {
       const { database } = mockDatabase()
       await expectToRejectWithMessage(
         database.batch([], null),
-        /batch should be called with a list/,
+        'batch should be called with a list',
       )
     })
   })
@@ -642,10 +642,10 @@ describe('Database', () => {
         }),
       ])
 
-      expect(await promises).toMatchObject({ message: expect.stringMatching(/database was reset/) })
+      expect(await promises).toMatchObject({ message: expect.stringMatching('database was reset') })
 
       expect(await promise1).toBe(1)
-      await expectToRejectWithMessage(promise2, /database was reset/)
+      await expectToRejectWithMessage(promise2, 'database was reset')
       expect(promise3).toBe(undefined) // code will never reach this point
       expect(dangerousActionsCalled).toBe(0)
       expect(safeActionsCalled).toBe(2)
