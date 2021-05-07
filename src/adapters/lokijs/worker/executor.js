@@ -230,7 +230,7 @@ export default class LokiExecutor {
     await deleteDatabase(this.loki)
 
     this.cachedRecords.clear()
-    logger.log('[WatermelonDB][Loki] Database is now reset')
+    logger.log('[Loki] Database is now reset')
 
     await this._openDatabase()
     this._setUpSchema()
@@ -276,15 +276,15 @@ export default class LokiExecutor {
   // *** Internals ***
 
   async _openDatabase(): Promise<void> {
-    logger.log('[WatermelonDB][Loki] Initializing IndexedDB')
+    logger.log('[Loki] Initializing IndexedDB')
 
     this.loki = await newLoki(this.options)
 
-    logger.log('[WatermelonDB][Loki] Database loaded')
+    logger.log('[Loki] Database loaded')
   }
 
   _setUpSchema(): void {
-    logger.log('[WatermelonDB][Loki] Setting up schema')
+    logger.log('[Loki] Setting up schema')
 
     // Add collections
     const tables: TableSchema[] = (Object.values(this.schema.tables): any)
@@ -301,7 +301,7 @@ export default class LokiExecutor {
     // Set database version
     this._databaseVersion = this.schema.version
 
-    logger.log('[WatermelonDB][Loki] Database collections set up')
+    logger.log('[Loki] Database collections set up')
   }
 
   _addCollection(tableSchema: TableSchema): void {
@@ -335,32 +335,28 @@ export default class LokiExecutor {
     if (dbVersion === schemaVersion) {
       // All good!
     } else if (dbVersion === 0) {
-      logger.log('[WatermelonDB][Loki] Empty database, setting up')
+      logger.log('[Loki] Empty database, setting up')
       await this.unsafeResetDatabase()
     } else if (dbVersion > 0 && dbVersion < schemaVersion) {
-      logger.log('[WatermelonDB][Loki] Database has old schema version. Migration is required.')
+      logger.log('[Loki] Database has old schema version. Migration is required.')
       const migrationSteps = this._getMigrationSteps(dbVersion)
 
       if (migrationSteps) {
-        logger.log(
-          `[WatermelonDB][Loki] Migrating from version ${dbVersion} to ${this.schema.version}...`,
-        )
+        logger.log(`[Loki] Migrating from version ${dbVersion} to ${this.schema.version}...`)
         try {
           await this._migrate(migrationSteps)
         } catch (error) {
-          logger.error('[WatermelonDB][Loki] Migration failed', error)
+          logger.error('[Loki] Migration failed', error)
           throw error
         }
       } else {
         logger.warn(
-          '[WatermelonDB][Loki] Migrations not available for this version range, resetting database instead',
+          '[Loki] Migrations not available for this version range, resetting database instead',
         )
         await this.unsafeResetDatabase()
       }
     } else {
-      logger.warn(
-        '[WatermelonDB][Loki] Database has newer version than app schema. Resetting database.',
-      )
+      logger.warn('[Loki] Database has newer version than app schema. Resetting database.')
       await this.unsafeResetDatabase()
     }
   }
@@ -396,7 +392,7 @@ export default class LokiExecutor {
     // Set database version
     this._databaseVersion = this.schema.version
 
-    logger.log(`[WatermelonDB][Loki] Migration successful`)
+    logger.log(`[Loki] Migration successful`)
   }
 
   _executeCreateTableMigration({ schema }: CreateTableMigrationStep): void {

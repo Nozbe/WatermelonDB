@@ -26,18 +26,18 @@ const isIDBAvailable = (onQuotaExceededError: ?(error: Error) => void) => {
       // DOMException: "A mutation operation was attempted on a database that did not allow mutations."
       // code: 11, name: InvalidStateError
       logger.error(
-        '[WatermelonDB][Loki] IndexedDB checker failed to open. Most likely, user is in Private Mode. It could also be a quota exceeded error. Will fall back to in-memory database.',
+        '[Loki] IndexedDB checker failed to open. Most likely, user is in Private Mode. It could also be a quota exceeded error. Will fall back to in-memory database.',
         event,
         error,
       )
       if (error && error.name === 'QuotaExceededError') {
-        logger.log('[WatermelonDB][Loki] Looks like disk quota was exceeded: ', error)
+        logger.log('[Loki] Looks like disk quota was exceeded: ', error)
         onQuotaExceededError && onQuotaExceededError(error)
       }
       resolve(false)
     }
     checkRequest.onblocked = () => {
-      logger.error('[WatermelonDB] IndexedDB checker call is blocked')
+      logger.error('IndexedDB checker call is blocked')
     }
   })
 }

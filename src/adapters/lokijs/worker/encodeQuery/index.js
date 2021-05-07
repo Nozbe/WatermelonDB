@@ -225,8 +225,8 @@ export default function encodeQuery(query: SerializedQuery): LokiQuery {
   } = query
 
   // TODO: implement support for Q.sortBy(), Q.take(), Q.skip() for Loki adapter
-  invariant(!sortBy.length, '[WatermelonDB][Loki] Q.sortBy() not yet supported')
-  invariant(!take, '[WatermelonDB][Loki] Q.take() not yet supported')
+  invariant(!sortBy.length, '[Loki] Q.sortBy() not yet supported')
+  invariant(!take, '[Loki] Q.take() not yet supported')
 
   return {
     table,
