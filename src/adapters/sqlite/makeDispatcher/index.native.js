@@ -3,19 +3,14 @@
 
 import { NativeModules } from 'react-native'
 import { fromPairs } from '../../../utils/fp'
-
-import { type ConnectionTag, logger, invariant } from '../../../utils/common'
-
+import { type ConnectionTag, logger } from '../../../utils/common'
 import { fromPromise } from '../../../utils/fp/Result'
-
 import type {
   DispatcherType,
   SQLiteAdapterOptions,
   NativeDispatcher,
   NativeBridgeType,
 } from '../type'
-
-import { syncReturnToResult } from '../common'
 
 const { DatabaseBridge }: { DatabaseBridge: NativeBridgeType } = NativeModules
 
@@ -51,8 +46,6 @@ export const makeDispatcher = (
       return [methodName, undefined]
     }
 
-    const name = type === 'synchronous' ? `${methodName}Synchronous` : methodName
-
     return [
       methodName,
       (...args) => {
@@ -79,13 +72,8 @@ export const makeDispatcher = (
         }
 
         // $FlowFixMe
-        const returnValue = DatabaseBridge[name](tag, ...otherArgs)
-
-        if (type === 'synchronous') {
-          callback(syncReturnToResult((returnValue: any)))
-        } else {
-          fromPromise(returnValue, callback)
-        }
+        const returnValue = DatabaseBridge[methodName](tag, ...otherArgs)
+        fromPromise(returnValue, callback)
       },
     ]
   })
@@ -113,20 +101,7 @@ const initializeJSI = () => {
 }
 
 export function getDispatcherType(options: SQLiteAdapterOptions): DispatcherType {
-  invariant(
-    !(options.synchronous && options.jsi),
-    '`synchronous` and `jsi` SQLiteAdapter options are mutually exclusive',
-  )
-
-  if (options.synchronous) {
-    if (DatabaseBridge.initializeSynchronous) {
-      return 'synchronous'
-    }
-
-    logger.warn(
-      `Synchronous SQLiteAdapter not available… falling back to asynchronous operation. This will happen if you're using remote debugger, and may happen if you forgot to recompile native app after WatermelonDB update`,
-    )
-  } else if (options.jsi) {
+  if (options.jsi) {
     if (initializeJSI()) {
       return 'jsi'
     }

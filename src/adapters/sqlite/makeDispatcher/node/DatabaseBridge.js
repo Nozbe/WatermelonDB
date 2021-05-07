@@ -4,7 +4,6 @@ import DatabaseDriver from './DatabaseDriver'
 
 type Connection = {
   driver: DatabaseDriver,
-  synchronous: boolean,
   queue: any[],
   status: string,
 }
@@ -14,20 +13,18 @@ class DatabaseBridge {
 
   // MARK: - Asynchronous connections
 
-  connected: (tag: number, driver: DatabaseDriver, synchronous?: boolean) => void = (
+  connected: (tag: number, driver: DatabaseDriver) => void = (
     tag: number,
     driver: DatabaseDriver,
-    synchronous: boolean = false,
   ) => {
-    this.connections[tag] = { driver, synchronous, queue: [], status: 'connected' }
+    this.connections[tag] = { driver, queue: [], status: 'connected' }
   }
 
-  waiting: (tag: number, driver: DatabaseDriver, synchronous?: boolean) => void = (
+  waiting: (tag: number, driver: DatabaseDriver) => void = (
     tag: number,
     driver: DatabaseDriver,
-    synchronous: boolean = false,
   ) => {
-    this.connections[tag] = { driver, synchronous, queue: [], status: 'waiting' }
+    this.connections[tag] = { driver, queue: [], status: 'waiting' }
   }
 
   initialize: (
@@ -115,86 +112,6 @@ class DatabaseBridge {
       this.disconnectDriver(tag)
       this.sendReject(reject, error, 'setUpWithMigrations')
     }
-  }
-
-  // MARK: - Synchronous connections
-
-  initializeJSI: () => any = (): any => {
-    // return this.synchronously('initializeJSI', bridge => {
-    //   // swiftlint:disable all
-    //   installWatermelonJSI(bridge) //  as? RCTCxxBridge
-    // })
-    throw new Error('No JSI here')
-  }
-
-  initializeSynchronous: (tag: number, databaseName: string, schemaVersion: number) => any = (
-    tag: number,
-    databaseName: string,
-    schemaVersion: number,
-  ): any => {
-    return this.synchronously('initializeSynchronous', () => {
-      let driver
-      try {
-        this.assertNoConnection(tag)
-        driver = new DatabaseDriver()
-        driver.initialize(databaseName, schemaVersion)
-        this.connected(tag, driver, true)
-        return { code: 'ok' }
-      } catch (error) {
-        if (driver && error.type === 'SchemaNeededError') {
-          this.waiting(tag, driver, true)
-          return { code: 'schema_needed' }
-        } else if (driver && error.type === 'MigrationNeededError') {
-          this.waiting(tag, driver, true)
-          return { code: 'migrations_needed', databaseVersion: error.databaseVersion }
-        }
-        throw error
-      }
-    })
-  }
-
-  setUpWithSchemaSynchronous: (
-    tag: number,
-    databaseName: string,
-    schema: string,
-    schemaVersion: number,
-  ) => any = (tag: number, databaseName: string, schema: string, schemaVersion: number): any => {
-    return this.synchronously('setUpWithSchemaSynchronous', () => {
-      const driver = new DatabaseDriver()
-      driver.setUpWithSchema(databaseName, schema, schemaVersion)
-      this.connectDriverAsync(tag, driver)
-      return true
-    })
-  }
-
-  setUpWithMigrationsSynchronous: (
-    tag: number,
-    databaseName: string,
-    migrations: string,
-    fromVersion: number,
-    toVersion: number,
-  ) => any = (
-    tag: number,
-    databaseName: string,
-    migrations: string,
-    fromVersion: number,
-    toVersion: number,
-  ): any => {
-    return this.synchronously('setUpWithSchemaSynchronous', () => {
-      try {
-        const driver = new DatabaseDriver()
-        driver.setUpWithMigrations(databaseName, {
-          from: fromVersion,
-          to: toVersion,
-          sql: migrations,
-        })
-        this.connectDriverAsync(tag, driver)
-        return true
-      } catch (error) {
-        this.disconnectDriver(tag)
-        throw error
-      }
-    })
   }
 
   // MARK: - Asynchronous actions
@@ -332,82 +249,6 @@ class DatabaseBridge {
   ) => void = (tag: number, key: string, resolve: (any) => void, reject: (string) => void) =>
     this.withDriver(tag, resolve, reject, 'removeLocal', (driver) => driver.removeLocal(key))
 
-  // MARK: - Synchronous methods
-
-  findSynchronous: (tag: number, table: string, id: string) => any = (
-    tag: number,
-    table: string,
-    id: string,
-  ): any => this.withDriverSynchronous(tag, 'findSynchronous', (driver) => driver.find(table, id))
-
-  querySynchronous: (tag: number, table: string, query: string) => any = (
-    tag: number,
-    table: string,
-    query: string,
-  ): any =>
-    this.withDriverSynchronous(tag, 'querySynchronous', (driver) => {
-      const results = driver.cachedQuery(table, query)
-      return results
-    })
-
-  countSynchronous: (tag: number, query: string) => any = (tag: number, query: string): any =>
-    this.withDriverSynchronous(tag, 'countSynchronous', (driver) => driver.count(query))
-
-  batchJSONSynchronous: (tag: number, operations: string) => any = (
-    tag: number,
-    operations: string,
-  ): any =>
-    this.withDriverSynchronous(tag, 'batchJSONSynchronous', (driver) =>
-      driver.batch(this.toBatchOperations(operations)),
-    )
-
-  batchSynchronous: (tag: number, operations: Array<Array<any>>) => any = (
-    tag: number,
-    operations: any[][],
-  ): any =>
-    this.withDriverSynchronous(tag, 'batchSynchronous', (driver) =>
-      driver.batch(this.toBatchOperations(operations)),
-    )
-
-  getDeletedRecordsSynchronous: (tag: number, table: string) => any = (
-    tag: number,
-    table: string,
-  ): any =>
-    this.withDriverSynchronous(tag, 'getDeletedRecordsSynchronous', (driver) =>
-      driver.getDeletedRecords(table),
-    )
-
-  destroyDeletedRecordsSynchronous: (tag: number, table: string, records: Array<string>) => any = (
-    tag: number,
-    table: string,
-    records: string[],
-  ): any =>
-    this.withDriverSynchronous(tag, 'destroyDeletedRecordsSynchronous', (driver) =>
-      driver.destroyDeletedRecords(table, records),
-    )
-
-  unsafeResetDatabaseSynchronous: (tag: number, schema: string, schemaVersion: number) => any = (
-    tag: number,
-    schema: string,
-    schemaVersion: number,
-  ): any =>
-    this.withDriverSynchronous(tag, 'unsafeResetDatabaseSynchronous', (driver) =>
-      driver.unsafeResetDatabase({ version: schemaVersion, sql: schema }),
-    )
-
-  getLocalSynchronous: (tag: number, key: string) => any = (tag: number, key: string): any =>
-    this.withDriverSynchronous(tag, 'getLocalSynchronous', (driver) => driver.getLocal(key))
-
-  setLocalSynchronous: (tag: number, key: string, value: string) => any = (
-    tag: number,
-    key: string,
-    value: string,
-  ): any =>
-    this.withDriverSynchronous(tag, 'setLocalSynchronous', (driver) => driver.setLocal(key, value))
-
-  removeLocalSynchronous: (tag: number, key: string) => any = (tag: number, key: string): any =>
-    this.withDriverSynchronous(tag, 'removeLocalSynchronous', (driver) => driver.removeLocal(key))
-
   // MARK: - Helpers
 
   toBatchOperations: (operations: any) => any = (operations: any) => {
@@ -440,9 +281,6 @@ class DatabaseBridge {
         throw new Error(`No driver for with tag ${tag} available`)
       }
       if (connection.status === 'connected') {
-        if (connection.synchronous) {
-          throw new Error(`Can't perform async action on synchronous connection ${tag}`)
-        }
         const result = action(connection.driver)
         resolve(result)
       } else if (connection.status === 'waiting') {
@@ -457,46 +295,12 @@ class DatabaseBridge {
     }
   }
 
-  synchronously: (
-    functionName: string,
-    action: () => any,
-  ) => {| code: string, message: any, status: string |} | {| result: any, status: string |} = (
-    functionName: string,
-    action: () => any,
-  ) => {
-    try {
-      const result = action()
-      return { status: 'success', result }
-    } catch (error) {
-      return { status: 'error', code: `db.${functionName}.error`, message: error.message }
-    }
-  }
-
-  withDriverSynchronous: (
-    tag: number,
-    functionName: string,
-    action: (driver: DatabaseDriver) => any,
-  ) => {| code: string, message: any, status: string |} | {| result: any, status: string |} = (
-    tag: number,
-    functionName: string,
-    action: (driver: DatabaseDriver) => any,
-  ) => {
-    return this.synchronously(functionName, () => {
-      const connection = this.connections[tag]
-      if (!connection) {
-        throw new Error(`No or invalid connection for tag ${tag}`)
-      }
-      const actionResult = action(connection.driver)
-      return actionResult
-    })
-  }
-
   connectDriverAsync: (tag: number, driver: DatabaseDriver) => void = (
     tag: number,
     driver: DatabaseDriver,
   ) => {
     const { queue = [] } = this.connections[tag]
-    this.connections[tag] = { driver, synchronous: false, queue: [], status: 'connected' }
+    this.connections[tag] = { driver, queue: [], status: 'connected' }
 
     queue.forEach((operation) => operation())
   }

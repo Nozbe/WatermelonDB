@@ -5,7 +5,8 @@
 ### BREAKING CHANGES
 
 - [SQLite] `experimentalUseJSI: true` option has been renamed to `jsi: true`
-- Depreacated `new Database({ actionsEnabled: false })` options is now removed. Actions are always enabled.
+- Deprecated `new Database({ actionsEnabled: false })` options is now removed. Actions are always enabled.
+- Deprecated `new SQLiteAdapter({ synchronous: true })` option is now removed. Use `{ jsi: true }` instead.
 
 ### Deprecations
 

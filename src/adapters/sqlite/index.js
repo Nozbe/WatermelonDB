@@ -83,15 +83,10 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
         !('experimentalUseJSI' in options),
         'SQLiteAdapter `experimentalUseJSI: true` has been renamed to `jsi: true`',
       )
-      if (options.synchronous) {
-        // Docs semi-recommend synchronous: true, but it adds a lot of junk and I want to get rid
-        // of this mode completely to simplify code. Ideally, we'd ONLY have JSI, but until RN goes
-        // all-in on JSI everywhere, this might be a little too risky. I'm adding this warning to
-        // get feedback via GH if JSI on iOS is ready to be considered stable or not yet.
-        logger.warn(
-          'SQLiteAdapter `synchronous: true` option is deprecated and will be replaced with `jsi: true` soon. Please test if your app compiles and works well with `jsi: true`, and if not - file an issue!',
-        )
-      }
+      invariant(
+        !('synchronous' in options),
+        'SQLiteAdapter `synchronous: true` was removed. Replace with `jsi: true`, which has the same effect, but with a more modern implementation',
+      )
       invariant(
         DatabaseBridge,
         `NativeModules.DatabaseBridge is not defined! This means that you haven't properly linked WatermelonDB native module. Refer to docs for more details`,
@@ -112,7 +107,6 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     const clone = new SQLiteAdapter({
       dbName: this._dbName,
       schema: this.schema,
-      synchronous: this._dispatcherType === 'synchronous',
       jsi: this._dispatcherType === 'jsi',
       ...(this.migrations ? { migrations: this.migrations } : {}),
       ...options,
