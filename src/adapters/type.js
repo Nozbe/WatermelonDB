@@ -54,12 +54,10 @@ export interface DatabaseAdapter {
 
   // Removes key from local storage
   removeLocal(key: string, callback: ResultCallback<void>): void;
-}
 
-export interface SQLDatabaseAdapter {
-  unsafeSqlQuery(
+  +unsafeSqlQuery?: (
     tableName: TableName<any>,
     sql: string,
     callback: ResultCallback<CachedQueryResult>,
-  ): void;
+  ) => void;
 }

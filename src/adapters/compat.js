@@ -6,13 +6,7 @@ import type { SchemaMigrations } from '../Schema/migrations'
 import type { RecordId } from '../Model'
 import { toPromise } from '../utils/fp/Result'
 
-import type {
-  DatabaseAdapter,
-  CachedFindResult,
-  CachedQueryResult,
-  BatchOperation,
-  SQLDatabaseAdapter,
-} from './type'
+import type { DatabaseAdapter, CachedFindResult, CachedQueryResult, BatchOperation } from './type'
 
 export default class DatabaseAdapterCompat {
   underlyingAdapter: DatabaseAdapter
@@ -20,10 +14,10 @@ export default class DatabaseAdapterCompat {
   constructor(adapter: DatabaseAdapter): void {
     this.underlyingAdapter = adapter
 
-    const sqlAdapter: SQLDatabaseAdapter = (adapter: any)
-    if (sqlAdapter.unsafeSqlQuery) {
+    if (adapter.unsafeSqlQuery) {
       this.unsafeSqlQuery = (tableName, sql) =>
-        toPromise((callback) => sqlAdapter.unsafeSqlQuery(tableName, sql, callback))
+        // $FlowFixMe
+        toPromise((callback) => adapter.unsafeSqlQuery(tableName, sql, callback))
     }
   }
 

@@ -1,5 +1,4 @@
 // @flow
-import type { SQLDatabaseAdapter } from '../adapters/type'
 import { Observable, Subject } from '../utils/rx'
 import invariant from '../utils/common/invariant'
 import noop from '../utils/fp/noop'
@@ -122,13 +121,12 @@ export default class Collection<Record: Model> {
       adapter: { underlyingAdapter },
     } = this.database
     invariant(
-      // $FlowFixMe
-      typeof underlyingAdapter.unsafeSqlQuery === 'function',
+      underlyingAdapter.unsafeSqlQuery,
       'unsafeFetchRecordsWithSQL called on a database that does not support SQL',
     )
-    const sqlAdapter: SQLDatabaseAdapter = (underlyingAdapter: any)
     return toPromise((callback) => {
-      sqlAdapter.unsafeSqlQuery(this.modelClass.table, sql, (result) =>
+      // $FlowFixMe
+      underlyingAdapter.unsafeSqlQuery(this.modelClass.table, sql, (result) =>
         callback(mapValue((rawRecords) => this._cache.recordsFromQueryResult(rawRecords), result)),
       )
     })
