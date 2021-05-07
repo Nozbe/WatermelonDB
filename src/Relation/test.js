@@ -42,15 +42,14 @@ describe('Relation', () => {
     expect(relation.id).toBe('s1')
   })
   it('allows setting id/record only on create/prepareCreate when immutable', async () => {
-    const { tasks, comments } = mockDatabase()
+    const { tasks, comments, db } = mockDatabase()
 
-    const secondary = await tasks.create(mock => {
+    const secondary = await db.action(() => tasks.create(mock => {
       mock.name = 'foo'
-    })
-
-    const primary = await comments.create(mock => {
+    }))
+    const primary = await db.action(() => comments.create(mock => {
       mock.task.id = secondary.id
-    })
+    }))
 
     expect(primary.task.id).toBe(secondary.id)
 
@@ -60,11 +59,11 @@ describe('Relation', () => {
       }),
     ).toThrow()
 
-    const secondary2 = await comments.create(mock => {
+    const secondary2 = await db.action(() => comments.create(mock => {
       mock.name = 'bar'
-    })
+    }))
 
-    const primary2 = await comments.prepareCreate(mock => {
+    const primary2 = comments.prepareCreate(mock => {
       mock.task.id = secondary.id
       expect(mock.task.id).toBe(secondary.id)
       mock.task.set(secondary2)
@@ -74,15 +73,14 @@ describe('Relation', () => {
     expect(primary2.task.id).toBe(secondary2.id)
   })
   it('observers related record', async () => {
-    const { tasks, projects } = mockDatabase()
+    const { tasks, projects, db } = mockDatabase()
 
-    const secondary = await projects.create(mock => {
+    const secondary = await db.action(() => projects.create(mock => {
       mock.name = 'foo'
-    })
-
-    const primary = await tasks.create(mock => {
+    }))
+    const primary = await db.action(() => tasks.create(mock => {
       mock.projectId = secondary.id
-    })
+    }))
 
     const relation = new Relation(primary, 'mock_projects', 'project_id', { isImmutable: false })
 
@@ -93,36 +91,35 @@ describe('Relation', () => {
 
     expect(observer).toHaveBeenCalledWith(secondary)
 
-    await secondary.update(mock => {
+    await db.action(() => secondary.update(mock => {
       mock.name = 'bar'
-    })
+    }))
 
     expect(observer).toHaveBeenCalledTimes(2)
     subscription.unsubscribe()
   })
   it('fetches current record', async () => {
-    const { tasks, projects } = mockDatabase()
+    const { tasks, projects, db } = mockDatabase()
 
-    const secondary = await projects.create(mock => {
+    const secondary = await db.action(() => projects.create(mock => {
       mock.name = 'foo'
-    })
-
-    const primary = await tasks.create(mock => {
+    }))
+    const primary = await db.action(() => tasks.create(mock => {
       mock.projectId = secondary.id
-    })
+    }))
 
     const relation = new Relation(primary, 'mock_projects', 'project_id', { isImmutable: false })
 
     let currentRecord = await relation.fetch()
     expect(currentRecord).toBe(secondary)
 
-    const newSecondary = await projects.create(mock => {
+    const newSecondary = await db.action(() => projects.create(mock => {
       mock.name = 'bar'
-    })
+    }))
 
-    primary.update(mock => {
+    db.action(() => primary.update(mock => {
       mock.projectId = newSecondary.id
-    })
+    }))
 
     currentRecord = await relation.fetch()
     expect(currentRecord).toBe(newSecondary)

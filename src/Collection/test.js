@@ -191,7 +191,7 @@ describe('fetching queries', () => {
 
 describe('creating new records', () => {
   it('can create records', async () => {
-    const { tasks: collection, adapter } = mockDatabase()
+    const { tasks: collection, adapter, db } = mockDatabase()
     const dbBatchSpy = jest.spyOn(adapter, 'batch')
 
     const observer = jest.fn()
@@ -200,7 +200,7 @@ describe('creating new records', () => {
     // Check Model._prepareCreate was called
     const newModelSpy = jest.spyOn(MockTask, '_prepareCreate')
 
-    const m1 = await collection.create()
+    const m1 = await db.action(() => collection.create())
 
     // Check database insert, cache insert, observers update
     expect(m1._isCommitted).toBe(true)
