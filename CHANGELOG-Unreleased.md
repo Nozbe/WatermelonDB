@@ -18,6 +18,8 @@
 
 ### Changes
 
+- All Watermelon console logs are prepended with a 🍉 tag
+
 ### Fixes
 
 ### Internal
