@@ -14,7 +14,7 @@ import type {
   SyncLog,
   SyncConflictResolver,
 } from '../index'
-import { prepareCreateFromRaw, prepareUpdateFromRaw, ensureActionsEnabled } from './helpers'
+import { prepareCreateFromRaw, prepareUpdateFromRaw } from './helpers'
 
 const idsForChanges = ({ created, updated, deleted }: SyncTableChangeSet): RecordId[] => {
   const ids = []
@@ -242,7 +242,6 @@ export default function applyRemoteChanges(
   conflictResolver?: SyncConflictResolver,
   _unsafeBatchPerCollection?: boolean,
 ): Promise<void> {
-  ensureActionsEnabled(db)
   return db.action(async () => {
     // $FlowFixMe
     const recordsToApply = await getAllRecordsToApply(db, remoteChanges)

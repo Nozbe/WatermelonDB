@@ -107,13 +107,6 @@ export function prepareMarkAsSynced<T: Model>(record: T): T {
   })
 }
 
-export function ensureActionsEnabled(database: Database): void {
-  invariant(
-    database._actionsEnabled,
-    '[Sync] To use Sync, Actions must be enabled. Pass `{ actionsEnabled: true }` to Database constructor — see docs for more details',
-  )
-}
-
 export function ensureSameDatabase(database: Database, initialResetCount: number): void {
   invariant(
     database._resetCount === initialResetCount,

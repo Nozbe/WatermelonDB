@@ -6,7 +6,7 @@ import allPromisesObj from '../../utils/fp/allPromisesObj'
 import { logError } from '../../utils/common'
 import type { Database, Model } from '../..'
 
-import { prepareMarkAsSynced, ensureActionsEnabled } from './helpers'
+import { prepareMarkAsSynced } from './helpers'
 import type { SyncLocalChanges } from '../index'
 
 const unchangedRecordsForRaws = (raws, recordCache) =>
@@ -51,7 +51,6 @@ export default function markLocalChangesAsSynced(
   db: Database,
   syncedLocalChanges: SyncLocalChanges,
 ): Promise<void> {
-  ensureActionsEnabled(db)
   return db.action(async () => {
     // update and destroy records concurrently
     await Promise.all([

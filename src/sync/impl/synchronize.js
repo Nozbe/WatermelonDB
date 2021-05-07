@@ -12,7 +12,6 @@ import {
   getMigrationInfo,
 } from './index'
 import {
-  ensureActionsEnabled,
   ensureSameDatabase,
   isChangeSetEmpty,
   changeSetCount,
@@ -29,7 +28,6 @@ export default async function synchronize({
   conflictResolver,
   _unsafeBatchPerCollection,
 }: SyncArgs): Promise<void> {
-  ensureActionsEnabled(database)
   const resetCount = database._resetCount
   log && (log.startedAt = new Date())
   log && (log.phase = 'starting')

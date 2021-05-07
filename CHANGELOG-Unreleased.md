@@ -5,6 +5,7 @@
 ### BREAKING CHANGES
 
 - [SQLite] `experimentalUseJSI: true` option has been renamed to `jsi: true`
+- Depreacated `new Database({ actionsEnabled: false })` options is now removed. Actions are always enabled.
 
 ### Deprecations
 
@@ -19,7 +20,6 @@
 
 - Removed dependency on rambdax and made the util library smaller
 - Faster withObservables
-- Non-react statics hoisting in `withDatabase()`
 
 ### Changes
 
@@ -38,5 +38,6 @@
 - [Typescript] Added `onSetUpError` and `onIndexedDBFetchStart` fields to `LokiAdapterOptions`; fixes TS error - @3DDario
 - [Typescript] Removed duplicated identifiers `useWebWorker` and `useIncrementalIndexedDB` in `LokiAdapterOptions` - @3DDario
 - [Typescript] Fix default export in logger util
+- Non-react statics hoisting in `withDatabase()`
 
 ### Internal

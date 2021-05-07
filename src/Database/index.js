@@ -18,7 +18,6 @@ import ActionQueue, { type ActionInterface } from './ActionQueue'
 type DatabaseProps = $Exact<{
   adapter: DatabaseAdapter,
   modelClasses: Array<Class<Model>>,
-  actionsEnabled: boolean,
 }>
 
 let experimentalAllowsFatalError = false
@@ -36,27 +35,27 @@ export default class Database {
 
   _actionQueue: ActionQueue = new ActionQueue()
 
-  _actionsEnabled: boolean
-
   // (experimental) if true, Database is in a broken state and should not be used anymore
   _isBroken: boolean = false
 
-  constructor({ adapter, modelClasses, actionsEnabled }: DatabaseProps): void {
+  constructor(options: DatabaseProps): void {
+    const { adapter, modelClasses } = options
     if (process.env.NODE_ENV !== 'production') {
       invariant(adapter, `Missing adapter parameter for new Database()`)
       invariant(
         modelClasses && Array.isArray(modelClasses),
         `Missing modelClasses parameter for new Database()`,
       )
-      invariant(
-        actionsEnabled === true || actionsEnabled === false,
-        'You must pass `actionsEnabled:` key to Database constructor. It is highly recommended you pass `actionsEnabled: true` (see documentation for more details), but can pass `actionsEnabled: false` for backwards compatibility.',
+      // $FlowFixMe
+      options.actionsEnabled === false && invariant(
+        false,
+        'new Database({ actionsEnabled: false }) is no longer supported',
       )
+      options.actionsEnabled === true && logger.warn('new Database({ actionsEnabled: true }) option is unnecessary (actions are always enabled)')
     }
     this.adapter = new DatabaseAdapterCompat(adapter)
     this.schema = adapter.schema
     this.collections = new CollectionMap(this, modelClasses)
-    this._actionsEnabled = actionsEnabled
   }
 
   get<T: Model>(tableName: TableName<T>): Collection<T> {
@@ -255,7 +254,7 @@ export default class Database {
   }
 
   _ensureInAction(error: string): void {
-    this._actionsEnabled && invariant(this._actionQueue.isRunning, error)
+    invariant(this._actionQueue.isRunning, error)
   }
 
   // (experimental) puts Database in a broken state

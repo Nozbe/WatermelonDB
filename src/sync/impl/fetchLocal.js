@@ -14,7 +14,6 @@ import * as Q from '../../QueryDescription'
 import { columnName } from '../../Schema'
 
 import type { SyncTableChangeSet, SyncLocalChanges } from '../index'
-import { ensureActionsEnabled } from './helpers'
 
 // NOTE: Two separate queries are faster than notEq(synced) on LokiJS
 const createdQuery = Q.where(columnName('_status'), 'created')
@@ -49,7 +48,6 @@ async function fetchLocalChangesForCollection<T: Model>(
 }
 
 export default function fetchLocalChanges(db: Database): Promise<SyncLocalChanges> {
-  ensureActionsEnabled(db)
   return db.action(async () => {
     const changes = await allPromisesObj(mapObj(fetchLocalChangesForCollection, db.collections.map))
     // TODO: deep-freeze changes object (in dev mode only) to detect mutations (user bug)
@@ -62,7 +60,6 @@ export default function fetchLocalChanges(db: Database): Promise<SyncLocalChange
 }
 
 export function hasUnsyncedChanges(db: Database): Promise<boolean> {
-  ensureActionsEnabled(db)
   // action is necessary to ensure other code doesn't make changes under our nose
   return db.action(async () => {
     // $FlowFixMe
