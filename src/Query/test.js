@@ -50,7 +50,6 @@ describe('Query', () => {
     })
     it('fetches associations correctly for simple queries', () => {
       const query = new Query(mockCollection, [Q.where('id', 'abcdef')])
-      expect(query.hasJoins).toBe(false)
       expect(query.associations).toEqual([])
     })
     it('fetches associations correctly for more complex queries', () => {
@@ -59,7 +58,6 @@ describe('Query', () => {
         Q.where('left_column', 'right_value'),
         Q.on('tag_assignments', 'tag_id', Q.oneOf(['a', 'b', 'c'])),
       ])
-      expect(query.hasJoins).toBe(true)
       expect(query.secondaryTables).toEqual(['projects', 'tag_assignments'])
       expect(query.associations).toEqual([
         { from: 'mock_tasks', to: 'projects', info: { type: 'belongs_to', key: 'project_id' } },
@@ -76,7 +74,6 @@ describe('Query', () => {
         Q.experimentalNestedJoin('projects', 'teams'),
         Q.on('projects', Q.on('teams', 'foo', 'bar')),
       ])
-      expect(query.hasJoins).toBe(true)
       expect(query.secondaryTables).toEqual(['projects', 'teams'])
       expect(query.associations).toEqual([
         { from: 'mock_tasks', to: 'projects', info: { type: 'belongs_to', key: 'project_id' } },
@@ -123,7 +120,6 @@ describe('Query', () => {
       expect(extendedQuery.description).toEqual(expectedQuery.description)
       expect(extendedQuery.secondaryTables).toEqual(expectedQuery.secondaryTables)
       expect(extendedQuery.associations).toEqual(expectedQuery.associations)
-      expect(extendedQuery.hasJoins).toBe(expectedQuery.hasJoins)
       expect(extendedQuery._rawDescription).toEqual(expectedQuery._rawDescription)
     })
     it('can return extended query for sortBy, take and skip', () => {
@@ -221,7 +217,6 @@ describe('Query', () => {
       expect(extendedQuery.description).toEqual(expectedQuery.description)
       expect(extendedQuery.secondaryTables).toEqual(expectedQuery.secondaryTables)
       expect(extendedQuery.associations).toEqual(expectedQuery.associations)
-      expect(extendedQuery.hasJoins).toBe(expectedQuery.hasJoins)
       expect(extendedQuery._rawDescription).toEqual(expectedQuery._rawDescription)
     })
     it('can pipe query', () => {
