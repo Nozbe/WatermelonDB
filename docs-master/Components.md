@@ -252,7 +252,6 @@ import DatabaseProvider from '@nozbe/watermelondb/DatabaseProvider'
 const database = new Database({
   adapter,
   modelClasses: [Blog, Post, Comment],
-  actionsEnabled: true,
 })
 
 render(

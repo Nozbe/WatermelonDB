@@ -3,7 +3,7 @@ import * as Q from '../../QueryDescription'
 import subscribeToQueryReloading from './index'
 
 const prepareTask = (tasks, name, isCompleted) =>
-  tasks.prepareCreate(mock => {
+  tasks.prepareCreate((mock) => {
     mock.name = name
     mock.isCompleted = isCompleted
     mock.project.id = 'MOCK_PROJECT'
@@ -19,7 +19,7 @@ const updateTask = (task, updater) => task.collection.database.action(() => task
 
 describe('subscribeToQueryReloading', () => {
   it('observes changes to query', async () => {
-    const { database, tasks, projects } = mockDatabase({ actionsEnabled: true })
+    const { database, tasks, projects } = mockDatabase()
 
     const query = tasks.query(
       Q.where('is_completed', true),
@@ -63,7 +63,7 @@ describe('subscribeToQueryReloading', () => {
     expect(observer).toHaveBeenLastCalledWith([m2, m4])
 
     // some irrelevant change (no emission)
-    await updateTask(m2, task => {
+    await updateTask(m2, (task) => {
       task.name = 'changed name'
     })
     await waitForNextQuery()
@@ -90,7 +90,7 @@ describe('subscribeToQueryReloading', () => {
     expect(observer).toHaveBeenCalledTimes(4)
   })
   it('calls observer even if query is empty (regression)', async () => {
-    const { tasks } = mockDatabase({ actionsEnabled: true })
+    const { tasks } = mockDatabase()
 
     const observer = jest.fn()
     const unsubscribe = subscribeToQueryReloading(tasks.query(), observer)

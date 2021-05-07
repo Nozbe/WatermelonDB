@@ -13,7 +13,7 @@ export const getAssociations = (
   db: Database,
 ): QueryAssociation[] =>
   description.joinTables
-    .map(table => {
+    .map((table) => {
       const info = modelClass.associations[table]
       invariant(
         info,

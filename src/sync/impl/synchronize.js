@@ -11,12 +11,7 @@ import {
   setLastPulledSchemaVersion,
   getMigrationInfo,
 } from './index'
-import {
-  ensureActionsEnabled,
-  ensureSameDatabase,
-  isChangeSetEmpty,
-  changeSetCount,
-} from './helpers'
+import { ensureSameDatabase, isChangeSetEmpty, changeSetCount } from './helpers'
 import { type SyncArgs } from '../index'
 
 export default async function synchronize({
@@ -29,7 +24,6 @@ export default async function synchronize({
   conflictResolver,
   _unsafeBatchPerCollection,
 }: SyncArgs): Promise<void> {
-  ensureActionsEnabled(database)
   const resetCount = database._resetCount
   log && (log.startedAt = new Date())
   log && (log.phase = 'starting')
@@ -62,7 +56,7 @@ export default async function synchronize({
     `pullChanges() returned invalid timestamp ${newLastPulledAt}. timestamp must be a non-zero number`,
   )
 
-  await database.action(async action => {
+  await database.action(async (action) => {
     ensureSameDatabase(database, resetCount)
     invariant(
       lastPulledAt === (await getLastPulledAt(database)),

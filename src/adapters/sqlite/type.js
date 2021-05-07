@@ -23,8 +23,6 @@ export type SQLiteAdapterOptions = $Exact<{
   dbName?: string,
   schema: AppSchema,
   migrations?: SchemaMigrations,
-  // (deprecated) use JSI instead
-  synchronous?: boolean,
   // The new way to run the database in synchronous mode.
   jsi?: boolean,
   migrationEvents?: MigrationEvents,
@@ -35,7 +33,7 @@ export type SQLiteAdapterOptions = $Exact<{
   onSetUpError?: (error: Error) => void,
 }>
 
-export type DispatcherType = 'asynchronous' | 'synchronous' | 'jsi'
+export type DispatcherType = 'asynchronous' | 'jsi'
 
 export type NativeBridgeBatchOperation =
   | ['execute', TableName<any>, SQL, SQLiteArg[]]
@@ -86,32 +84,6 @@ export type NativeBridgeType = {
   getLocal: (ConnectionTag, string) => Promise<?string>,
   setLocal: (ConnectionTag, string, string) => Promise<void>,
   removeLocal: (ConnectionTag, string) => Promise<void>,
-
-  // Synchronous methods
-  initializeSynchronous?: (ConnectionTag, string, SchemaVersion) => SyncReturn<InitializeStatus>,
-  setUpWithSchemaSynchronous?: (ConnectionTag, string, SQL, SchemaVersion) => SyncReturn<void>,
-  setUpWithMigrationsSynchronous?: (
-    ConnectionTag,
-    string,
-    SQL,
-    SchemaVersion,
-    SchemaVersion,
-  ) => SyncReturn<void>,
-  findSynchronous?: (ConnectionTag, TableName<any>, RecordId) => SyncReturn<DirtyFindResult>,
-  querySynchronous?: (ConnectionTag, TableName<any>, SQL) => SyncReturn<DirtyQueryResult>,
-  countSynchronous?: (ConnectionTag, SQL) => SyncReturn<number>,
-  batchSynchronous?: (ConnectionTag, NativeBridgeBatchOperation[]) => SyncReturn<void>,
-  batchJSONSynchronous?: (ConnectionTag, string) => SyncReturn<void>,
-  getDeletedRecordsSynchronous?: (ConnectionTag, TableName<any>) => SyncReturn<RecordId[]>,
-  destroyDeletedRecordsSynchronous?: (
-    ConnectionTag,
-    TableName<any>,
-    RecordId[],
-  ) => SyncReturn<void>,
-  unsafeResetDatabaseSynchronous?: (ConnectionTag, SQL, SchemaVersion) => SyncReturn<void>,
-  getLocalSynchronous?: (ConnectionTag, string) => SyncReturn<?string>,
-  setLocalSynchronous?: (ConnectionTag, string, string) => SyncReturn<void>,
-  removeLocalSynchronous?: (ConnectionTag, string) => SyncReturn<void>,
 
   // Special methods
   initializeJSI?: () => void,

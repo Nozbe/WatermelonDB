@@ -43,7 +43,7 @@ export default class LokiWorkerMock {
   constructor(): void {
     // $FlowFixMe
     this._workerContext = {
-      postMessage: data => {
+      postMessage: (data) => {
         const message = { data: clone(data) }
         this.onmessage(message)
       },

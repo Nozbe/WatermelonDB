@@ -81,9 +81,9 @@ describe('Schema', () => {
   it('does not allow unsafe names', () => {
     ;[
       '"hey"',
-      '\'hey\'',
+      "'hey'",
       '`hey`',
-      'foo\' and delete * from users --',
+      "foo' and delete * from users --",
       'id',
       '_changed',
       '_status',
@@ -96,7 +96,7 @@ describe('Schema', () => {
       'oid',
       '_rowid_',
       'ROWID',
-    ].forEach(name => {
+    ].forEach((name) => {
       // console.log(name)
       expect(() => tableSchema({ name: 'foo', columns: [{ name, type: 'string' }] })).toThrow()
       expect(() => tableSchema({ name, columns: [{ name: 'hey', type: 'string' }] })).toThrow()

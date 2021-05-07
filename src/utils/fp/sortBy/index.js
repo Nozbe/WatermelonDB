@@ -1,6 +1,6 @@
 // @flow
 
-export default function sortBy<T, U>(sorter: T => U, list: T[]): T[] {
+export default function sortBy<T, U>(sorter: (T) => U, list: T[]): T[] {
   const clone = list.slice()
   let a
   let b

@@ -6,7 +6,7 @@ import * as Q from '../QueryDescription'
 
 describe('Database', () => {
   it(`implements get()`, () => {
-    const { database } = mockDatabase({ actionsEnabled: true })
+    const { database } = mockDatabase()
     expect(database.get('mock_tasks').table).toBe('mock_tasks')
     expect(database.get('mock_tasks')).toBe(database.collections.get('mock_tasks'))
     expect(database.get('mock_comments')).toBe(database.collections.get('mock_comments'))
@@ -14,7 +14,7 @@ describe('Database', () => {
 
   describe('unsafeResetDatabase', () => {
     it('can reset database', async () => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
 
       const m1 = await database.action(() => tasks.create())
       const m2 = await database.action(() => tasks.create())
@@ -25,22 +25,22 @@ describe('Database', () => {
       // reset
       await database.action(() => database.unsafeResetDatabase())
 
-      await expectToRejectWithMessage(tasks.find(m1.id), /not found/)
-      await expectToRejectWithMessage(tasks.find(m2.id), /not found/)
+      await expectToRejectWithMessage(tasks.find(m1.id), 'not found')
+      await expectToRejectWithMessage(tasks.find(m2.id), 'not found')
     })
     it('throws error if reset is called from outside an Action', async () => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
       const m1 = await database.action(() => tasks.create())
 
       await expectToRejectWithMessage(
         database.unsafeResetDatabase(),
-        /can only be called from inside of an Action/,
+        'can only be called from inside of an Action',
       )
 
       expect(await tasks.find(m1.id)).toBe(m1)
     })
     it('increments reset count after every reset', async () => {
-      const { database } = mockDatabase({ actionsEnabled: true })
+      const { database } = mockDatabase()
       expect(database._resetCount).toBe(0)
 
       await database.action(() => database.unsafeResetDatabase())
@@ -50,7 +50,7 @@ describe('Database', () => {
       expect(database._resetCount).toBe(2)
     })
     it('prevents Adapter from being called during reset db', async () => {
-      const { database } = mockDatabase({ actionsEnabled: true })
+      const { database } = mockDatabase()
 
       const checkAdapter = async () => {
         expect(await database.adapter.getLocal('test')).toBe(null)
@@ -77,7 +77,7 @@ describe('Database', () => {
       await checkAdapter()
     })
     it('Cancels Database experimental subscribers during reset', async () => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
 
       // sanity check first
       const subscriber1 = jest.fn()
@@ -116,7 +116,7 @@ describe('Database', () => {
     it.skip('Cancels Relation observation during reset', async () => {})
     it.skip('Cancels Relation experimental subscribers during reset', async () => {})
     it('Signals internally when database is being reset', async () => {
-      const { database } = mockDatabase({ actionsEnabled: true })
+      const { database } = mockDatabase()
 
       expect(database._isBeingReset).toBe(false)
       const promise = database.action(() => database.unsafeResetDatabase())
@@ -130,7 +130,7 @@ describe('Database', () => {
       }
       const promise2 = database.action(() => database.unsafeResetDatabase())
       expect(database._isBeingReset).toBe(true)
-      await expectToRejectWithMessage(promise2, /forced/)
+      await expectToRejectWithMessage(promise2, 'forced')
       expect(database._isBeingReset).toBe(false)
     })
     it.skip('Disallows <many methods> calls during reset', async () => {})
@@ -148,7 +148,7 @@ describe('Database', () => {
         cloneDatabase,
         tasks: tasksCollection,
         comments: commentsCollection,
-      } = mockDatabase({ actionsEnabled: true })
+      } = mockDatabase()
       const adapterBatchSpy = jest.spyOn(database.adapter, 'batch')
 
       // m1, m2 will be used to test batch-updates
@@ -216,7 +216,7 @@ describe('Database', () => {
       ])
 
       const createdRecords = [m5, m6]
-      createdRecords.forEach(record => {
+      createdRecords.forEach((record) => {
         expect(record._isCommitted).toBe(true)
         expect(record.collection._cache.get(record.id)).toBe(record)
       })
@@ -239,7 +239,7 @@ describe('Database', () => {
       expect(fetchedM4.length).toBe(0)
     })
     it('ignores falsy values passed', async () => {
-      const { database, tasks: tasksCollection } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks: tasksCollection } = mockDatabase()
       const adapterBatchSpy = jest.spyOn(database.adapter, 'batch')
 
       const model = tasksCollection.prepareCreate()
@@ -249,7 +249,7 @@ describe('Database', () => {
       expect(adapterBatchSpy).toHaveBeenLastCalledWith([['create', 'mock_tasks', model._raw]])
     })
     it(`can batch with an array passed as argument`, async () => {
-      const { database, tasks: tasksCollection } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks: tasksCollection } = mockDatabase()
       const adapterBatchSpy = jest.spyOn(database.adapter, 'batch')
 
       const model = tasksCollection.prepareCreate()
@@ -259,7 +259,7 @@ describe('Database', () => {
       expect(adapterBatchSpy).toHaveBeenLastCalledWith([['create', 'mock_tasks', model._raw]])
     })
     it('throws error if attempting to batch records without a pending operation', async () => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
       const m1 = await database.action(() => tasks.create())
 
       await expectToRejectWithMessage(
@@ -268,17 +268,17 @@ describe('Database', () => {
       )
     })
     it('throws error if batch is called outside of an action', async () => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
 
       await expectToRejectWithMessage(
         database.batch(tasks.prepareCreate(noop)),
-        /can only be called from inside of an Action/,
+        'can only be called from inside of an Action',
       )
 
       // check if in action is successful
       await database.action(() =>
         database.batch(
-          tasks.prepareCreate(task => {
+          tasks.prepareCreate((task) => {
             task.name = 'foo1'
           }),
         ),
@@ -287,17 +287,17 @@ describe('Database', () => {
       expect(task.name).toBe('foo1')
     })
     it(`throws an error if invalid arguments`, async () => {
-      const { database } = mockDatabase({ actionsEnabled: true })
+      const { database } = mockDatabase()
       await expectToRejectWithMessage(
         database.batch([], null),
-        /batch should be called with a list/,
+        'batch should be called with a list',
       )
     })
   })
 
   describe('Observation', () => {
     it('implements withChangesForTables', async () => {
-      const { database, projects, tasks, comments } = mockDatabase({ actionsEnabled: true })
+      const { database, projects, tasks, comments } = mockDatabase()
 
       const observer = jest.fn()
       database.withChangesForTables(['mock_projects', 'mock_tasks']).subscribe(observer)
@@ -339,7 +339,7 @@ describe('Database', () => {
       ])
     })
     it('can subscribe to change signals for particular tables', async () => {
-      const { database, projects, tasks, comments } = mockDatabase({ actionsEnabled: true })
+      const { database, projects, tasks, comments } = mockDatabase()
 
       const subscriber1 = jest.fn()
       const unsubscribe1 = database.experimentalSubscribe([], subscriber1)
@@ -389,7 +389,7 @@ describe('Database', () => {
       unsubscribe3()
     })
     it('unsubscribe can safely be called more than once', async () => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
 
       const subscriber1 = jest.fn()
       const unsubscribe1 = database.experimentalSubscribe(['mock_tasks'], subscriber1)
@@ -405,7 +405,7 @@ describe('Database', () => {
       unsubscribe1()
     })
     it(`can subscribe with the same subscriber multiple times`, async () => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
 
       const subscriber = jest.fn()
       const unsubscribe1 = database.experimentalSubscribe(['mock_tasks'], subscriber)
@@ -426,10 +426,10 @@ describe('Database', () => {
       expect(subscriber).toHaveBeenCalledTimes(4)
     })
     it('has new objects cached before calling subscribers (regression test)', async () => {
-      const { database, projects, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, projects, tasks } = mockDatabase()
 
       const project = projects.prepareCreate()
-      const task = tasks.prepareCreate(t => {
+      const task = tasks.prepareCreate((t) => {
         t.project.set(project)
       })
 
@@ -454,7 +454,7 @@ describe('Database', () => {
     })
   })
 
-  const delayPromise = () => new Promise(resolve => setTimeout(resolve, 100))
+  const delayPromise = () => new Promise((resolve) => setTimeout(resolve, 100))
 
   describe('Database actions', () => {
     it('can execute an action', async () => {
@@ -526,11 +526,11 @@ describe('Database', () => {
         },
         () => delayPromise(),
       ]
-      const promises = actions.map(action =>
+      const promises = actions.map((action) =>
         database.action(action).then(
           // jest will automatically fail the test if a promise rejects even though we're testing it later
-          value => ['value', value],
-          error => ['error', error],
+          (value) => ['value', value],
+          (error) => ['error', error],
         ),
       )
       await promises[4]
@@ -567,7 +567,7 @@ describe('Database', () => {
       const { database } = mockDatabase()
 
       const action2 = () => database.action(async () => 32)
-      const result = await database.action(async action => {
+      const result = await database.action(async (action) => {
         const a = await action.subAction(() => action2())
         return a + 10
       })
@@ -577,8 +577,8 @@ describe('Database', () => {
       const { database } = mockDatabase()
 
       const action1 = () => database.action(async () => 42)
-      const action2 = () => database.action(async action => action.subAction(() => action1()))
-      const action3 = () => database.action(async action => action.subAction(() => action2()))
+      const action2 = () => database.action(async (action) => action.subAction(() => action1()))
+      const action3 = () => database.action(async (action) => action.subAction(() => action2()))
       expect(await action3()).toBe(42)
     })
     it('sub actions skip the line only once', async () => {
@@ -595,7 +595,7 @@ describe('Database', () => {
         database.action(async () => {
           called2 += 1
         })
-      await database.action(action => {
+      await database.action((action) => {
         action.subAction(() => action1())
         action2()
         return delayPromise() // don't await subaction, just see it will never be called
@@ -604,7 +604,7 @@ describe('Database', () => {
       expect(called2).toBe(0)
     })
     it('aborts all pending actions if database is reset', async () => {
-      const { database } = mockDatabase({ actionsEnabled: true })
+      const { database } = mockDatabase()
 
       let promise1
       let promise2
@@ -629,7 +629,7 @@ describe('Database', () => {
         await promise3
       }
 
-      const promises = manyActions().catch(e => e)
+      const promises = manyActions().catch((e) => e)
       await database.action(() => database.unsafeResetDatabase())
 
       // actions beyond unsafe reset should be successful
@@ -642,10 +642,10 @@ describe('Database', () => {
         }),
       ])
 
-      expect(await promises).toMatchObject({ message: expect.stringMatching(/database was reset/) })
+      expect(await promises).toMatchObject({ message: expect.stringMatching('database was reset') })
 
       expect(await promise1).toBe(1)
-      await expectToRejectWithMessage(promise2, /database was reset/)
+      await expectToRejectWithMessage(promise2, 'database was reset')
       expect(promise3).toBe(undefined) // code will never reach this point
       expect(dangerousActionsCalled).toBe(0)
       expect(safeActionsCalled).toBe(2)

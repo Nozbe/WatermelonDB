@@ -193,7 +193,7 @@ class DatabaseDriver {
   getDeletedRecords: (table: string) => Array<string> = (table: string): string[] => {
     return this.database
       .queryRaw(`SELECT ID FROM '${table}' WHERE _status='deleted'`)
-      .map(row => `${row.id}`)
+      .map((row) => `${row.id}`)
   }
 
   destroyDeletedRecords: (table: string, records: Array<string>) => void = (

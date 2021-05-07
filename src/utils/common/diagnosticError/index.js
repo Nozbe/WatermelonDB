@@ -1,6 +1,6 @@
 // @flow
 
-export type DiagnosticErrorFunction = string => Error
+export type DiagnosticErrorFunction = (string) => Error
 let customDiagnosticErrorFunction: ?DiagnosticErrorFunction = null
 
 // Use this to replace default diagnosticError function to inject your custom logic

@@ -8,6 +8,5 @@ declare module '@nozbe/watermelondb/decorators/relation' {
     options?: Options,
   ) => PropertyDecorator
 
-
   export default relation
 }

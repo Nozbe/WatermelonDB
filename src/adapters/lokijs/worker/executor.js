@@ -157,7 +157,7 @@ export default class LokiExecutor {
     try {
       const recordsToCreate: { [TableName<any>]: RawRecord[] } = {}
 
-      operations.forEach(operation => {
+      operations.forEach((operation) => {
         const [type, table, raw] = operation
         switch (type) {
           case 'create':
@@ -179,12 +179,12 @@ export default class LokiExecutor {
         this.loki.getCollection(table).insert(raws, shouldRebuildIndexAfterInsert)
 
         const cache = this.getCache(table)
-        raws.forEach(raw => {
+        raws.forEach((raw) => {
           cache.add(raw.id)
         })
       })
 
-      operations.forEach(operation => {
+      operations.forEach((operation) => {
         const [type, table, rawOrId] = operation
         switch (type) {
           case 'update':
@@ -209,14 +209,14 @@ export default class LokiExecutor {
     return this.loki
       .getCollection(table)
       .find({ _status: { $eq: 'deleted' } })
-      .map(record => record.id)
+      .map((record) => record.id)
   }
 
   destroyDeletedRecords(table: TableName<any>, records: RecordId[]): void {
     this._assertNotBroken()
     try {
       const collection = this.loki.getCollection(table)
-      records.forEach(recordId => {
+      records.forEach((recordId) => {
         const record = collection.by('id', recordId)
 
         record && collection.remove(record)
@@ -230,7 +230,7 @@ export default class LokiExecutor {
     await deleteDatabase(this.loki)
 
     this.cachedRecords.clear()
-    logger.log('[WatermelonDB][Loki] Database is now reset')
+    logger.log('[Loki] Database is now reset')
 
     await this._openDatabase()
     this._setUpSchema()
@@ -276,19 +276,19 @@ export default class LokiExecutor {
   // *** Internals ***
 
   async _openDatabase(): Promise<void> {
-    logger.log('[WatermelonDB][Loki] Initializing IndexedDB')
+    logger.log('[Loki] Initializing IndexedDB')
 
     this.loki = await newLoki(this.options)
 
-    logger.log('[WatermelonDB][Loki] Database loaded')
+    logger.log('[Loki] Database loaded')
   }
 
   _setUpSchema(): void {
-    logger.log('[WatermelonDB][Loki] Setting up schema')
+    logger.log('[Loki] Setting up schema')
 
     // Add collections
     const tables: TableSchema[] = (Object.values(this.schema.tables): any)
-    tables.forEach(tableSchema => {
+    tables.forEach((tableSchema) => {
       this._addCollection(tableSchema)
     })
 
@@ -301,7 +301,7 @@ export default class LokiExecutor {
     // Set database version
     this._databaseVersion = this.schema.version
 
-    logger.log('[WatermelonDB][Loki] Database collections set up')
+    logger.log('[Loki] Database collections set up')
   }
 
   _addCollection(tableSchema: TableSchema): void {
@@ -335,32 +335,28 @@ export default class LokiExecutor {
     if (dbVersion === schemaVersion) {
       // All good!
     } else if (dbVersion === 0) {
-      logger.log('[WatermelonDB][Loki] Empty database, setting up')
+      logger.log('[Loki] Empty database, setting up')
       await this.unsafeResetDatabase()
     } else if (dbVersion > 0 && dbVersion < schemaVersion) {
-      logger.log('[WatermelonDB][Loki] Database has old schema version. Migration is required.')
+      logger.log('[Loki] Database has old schema version. Migration is required.')
       const migrationSteps = this._getMigrationSteps(dbVersion)
 
       if (migrationSteps) {
-        logger.log(
-          `[WatermelonDB][Loki] Migrating from version ${dbVersion} to ${this.schema.version}...`,
-        )
+        logger.log(`[Loki] Migrating from version ${dbVersion} to ${this.schema.version}...`)
         try {
           await this._migrate(migrationSteps)
         } catch (error) {
-          logger.error('[WatermelonDB][Loki] Migration failed', error)
+          logger.error('[Loki] Migration failed', error)
           throw error
         }
       } else {
         logger.warn(
-          '[WatermelonDB][Loki] Migrations not available for this version range, resetting database instead',
+          '[Loki] Migrations not available for this version range, resetting database instead',
         )
         await this.unsafeResetDatabase()
       }
     } else {
-      logger.warn(
-        '[WatermelonDB][Loki] Database has newer version than app schema. Resetting database.',
-      )
+      logger.warn('[Loki] Database has newer version than app schema. Resetting database.')
       await this.unsafeResetDatabase()
     }
   }
@@ -381,7 +377,7 @@ export default class LokiExecutor {
   }
 
   async _migrate(steps: MigrationStep[]): Promise<void> {
-    steps.forEach(step => {
+    steps.forEach((step) => {
       if (step.type === 'create_table') {
         this._executeCreateTableMigration(step)
       } else if (step.type === 'add_columns') {
@@ -396,7 +392,7 @@ export default class LokiExecutor {
     // Set database version
     this._databaseVersion = this.schema.version
 
-    logger.log(`[WatermelonDB][Loki] Migration successful`)
+    logger.log(`[Loki] Migration successful`)
   }
 
   _executeCreateTableMigration({ schema }: CreateTableMigrationStep): void {
@@ -407,14 +403,14 @@ export default class LokiExecutor {
     const collection = this.loki.getCollection(table)
 
     // update ALL records in the collection, adding new fields
-    collection.findAndUpdate({}, record => {
-      columns.forEach(column => {
+    collection.findAndUpdate({}, (record) => {
+      columns.forEach((column) => {
         setRawSanitized(record, column.name, null, column)
       })
     })
 
     // add indexes, if needed
-    columns.forEach(column => {
+    columns.forEach((column) => {
       if (column.isIndexed) {
         collection.ensureIndex(column.name)
       }
@@ -424,7 +420,7 @@ export default class LokiExecutor {
   // Maps records to their IDs if the record is already cached on JS side
   _compactQueryResults(records: DirtyRaw[], table: TableName<any>): CachedQueryResult {
     const cache = this.getCache(table)
-    return records.map(raw => {
+    return records.map((raw) => {
       const { id } = raw
 
       if (cache.has(id)) {

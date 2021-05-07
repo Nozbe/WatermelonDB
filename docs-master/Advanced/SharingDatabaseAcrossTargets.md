@@ -37,30 +37,29 @@ This tells iOS to share storage directories between your targets, and in this ca
     import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite';
     import schema from './schema';
     import RNFetchBlob from 'rn-fetch-blob';
-    
+
     const getAppGroupPath = (): string => {
       let path = '';
-    
+
       if (Platform.OS === 'ios') {
         path = `${RNFetchBlob.fs.syncPathAppGroup('group.com.example.MyAwesomeApp')}/`;
       }
-    
+
       return path;
     }
-    
+
     const adapter = new SQLiteAdapter({
       dbName: `${getAppGroupPath()}default.db`,
       schema,
     });
-    
+
     const database = new Database({
       adapter,
       modelClasses: [
         ...
       ],
-      actionsEnabled: true,
     });
-    
+
     export default database;
     ```
 
@@ -80,10 +79,10 @@ This tells iOS to share storage directories between your targets, and in this ca
 4. Add a file named `AppGroup.swift` and paste the following:
     ```
    import Foundation
-   
+
    @objc(AppGroup)
    class AppGroup: NSObject {
-   
+
      @objc
      func constantsToExport() -> [AnyHashable : Any]! {
        var path = ""
@@ -92,13 +91,13 @@ This tells iOS to share storage directories between your targets, and in this ca
            path = directory.path
          }
        }
-   
+
        return ["path": "\(path)/"]
      }
    }
     ```
    This reads your new `Info.plist` row and exports a constant called `path` with your App Group path (shared directory path), to be used in your JS code.
-   
+
 5. In your JS, when creating the database, import the `path` constant from your new `AppGroup` module and prepend to your `dbName`:
 
     ```ts
@@ -106,30 +105,29 @@ This tells iOS to share storage directories between your targets, and in this ca
     import { Database } from '@nozbe/watermelondb';
     import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite';
     import schema from './schema';
-    
+
     const getAppGroupPath = (): string => {
       let path = '';
-    
+
       if (Platform.OS === 'ios') {
         path = NativeModules.AppGroup.path;
       }
-    
+
       return path;
     }
-    
+
     const adapter = new SQLiteAdapter({
       dbName: `${getAppGroupPath()}default.db`,
       schema,
     });
-    
+
     const database = new Database({
       adapter,
       modelClasses: [
         ...
       ],
-      actionsEnabled: true,
     });
-    
+
     export default database;
     ```
 

@@ -27,7 +27,7 @@ export default class SharedSubscribable<T> {
     this._source = source
   }
 
-  subscribe(subscriber: T => void, debugInfo?: any): Unsubscribe {
+  subscribe(subscriber: (T) => void, debugInfo?: any): Unsubscribe {
     const entry = [subscriber, debugInfo]
     this._subscribers.push(entry)
 
@@ -37,7 +37,7 @@ export default class SharedSubscribable<T> {
 
     if (this._subscribers.length === 1) {
       // TODO: What if this throws?
-      this._unsubscribeSource = this._source(value => this._notify(value))
+      this._unsubscribeSource = this._source((value) => this._notify(value))
     }
 
     return () => this._unsubscribe(entry)

@@ -18,7 +18,6 @@ import ActionQueue, { type ActionInterface } from './ActionQueue'
 type DatabaseProps = $Exact<{
   adapter: DatabaseAdapter,
   modelClasses: Array<Class<Model>>,
-  actionsEnabled: boolean,
 }>
 
 let experimentalAllowsFatalError = false
@@ -36,27 +35,28 @@ export default class Database {
 
   _actionQueue: ActionQueue = new ActionQueue()
 
-  _actionsEnabled: boolean
-
   // (experimental) if true, Database is in a broken state and should not be used anymore
   _isBroken: boolean = false
 
-  constructor({ adapter, modelClasses, actionsEnabled }: DatabaseProps): void {
+  constructor(options: DatabaseProps): void {
+    const { adapter, modelClasses } = options
     if (process.env.NODE_ENV !== 'production') {
       invariant(adapter, `Missing adapter parameter for new Database()`)
       invariant(
         modelClasses && Array.isArray(modelClasses),
         `Missing modelClasses parameter for new Database()`,
       )
-      invariant(
-        actionsEnabled === true || actionsEnabled === false,
-        'You must pass `actionsEnabled:` key to Database constructor. It is highly recommended you pass `actionsEnabled: true` (see documentation for more details), but can pass `actionsEnabled: false` for backwards compatibility.',
-      )
+      // $FlowFixMe
+      options.actionsEnabled === false &&
+        invariant(false, 'new Database({ actionsEnabled: false }) is no longer supported')
+      options.actionsEnabled === true &&
+        logger.warn(
+          'new Database({ actionsEnabled: true }) option is unnecessary (actions are always enabled)',
+        )
     }
     this.adapter = new DatabaseAdapterCompat(adapter)
     this.schema = adapter.schema
     this.collections = new CollectionMap(this, modelClasses)
-    this._actionsEnabled = actionsEnabled
   }
 
   get<T: Model>(tableName: TableName<T>): Collection<T> {
@@ -84,7 +84,7 @@ export default class Database {
     // performance critical - using mutations
     const batchOperations: BatchOperation[] = []
     const changeNotifications: { [collectionName: TableName<any>]: CollectionChangeSet<*> } = {}
-    actualRecords.forEach(record => {
+    actualRecords.forEach((record) => {
       if (!record) {
         return
       }
@@ -126,19 +126,19 @@ export default class Database {
     await this.adapter.batch(batchOperations)
 
     // NOTE: We must make two passes to ensure all changes to caches are applied before subscribers are called
-    Object.entries(changeNotifications).forEach(notification => {
+    Object.entries(changeNotifications).forEach((notification) => {
       const [table, changeSet]: [TableName<any>, CollectionChangeSet<any>] = (notification: any)
       this.collections.get(table)._applyChangesToCache(changeSet)
     })
 
-    Object.entries(changeNotifications).forEach(notification => {
+    Object.entries(changeNotifications).forEach((notification) => {
       const [table, changeSet]: [TableName<any>, CollectionChangeSet<any>] = (notification: any)
       this.collections.get(table)._notify(changeSet)
     })
 
     const affectedTables = Object.keys(changeNotifications)
     const databaseChangeNotifySubscribers = ([tables, subscriber]): void => {
-      if (tables.some(table => affectedTables.includes(table))) {
+      if (tables.some((table) => affectedTables.includes(table))) {
         subscriber()
       }
     }
@@ -152,22 +152,22 @@ export default class Database {
   // must be performed inside Actions, so Actions guarantee a write lock.
   //
   // See docs for more details and practical guide
-  action<T>(work: ActionInterface => Promise<T>, description?: string): Promise<T> {
+  action<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
     return this._actionQueue.enqueue(work, description)
   }
 
   /* EXPERIMENTAL API - DO NOT USE */
-  _write<T>(work: ActionInterface => Promise<T>, description?: string): Promise<T> {
+  _write<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
     return this._actionQueue.enqueue(work, description)
   }
 
-  _read<T>(work: ActionInterface => Promise<T>, description?: string): Promise<T> {
+  _read<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
     return this._actionQueue.enqueue(work, description)
   }
 
   // Emits a signal immediately, and on change in any of the passed tables
   withChangesForTables(tables: TableName<any>[]): Observable<CollectionChangeSet<any> | null> {
-    const changesSignals = tables.map(table => this.collections.get(table).changes)
+    const changesSignals = tables.map((table) => this.collections.get(table).changes)
 
     return merge$(...changesSignals).pipe(startWith(null))
   }
@@ -248,14 +248,14 @@ export default class Database {
   }
 
   _unsafeClearCaches(): void {
-    Object.values(this.collections.map).forEach(collection => {
+    Object.values(this.collections.map).forEach((collection) => {
       // $FlowFixMe
       collection.unsafeClearCache()
     })
   }
 
   _ensureInAction(error: string): void {
-    this._actionsEnabled && invariant(this._actionQueue.isRunning, error)
+    invariant(this._actionQueue.isRunning, error)
   }
 
   // (experimental) puts Database in a broken state

@@ -8,13 +8,13 @@ type FilterObj2 = <T, Key, Obj: { [Key]: T }, Fn: (T, Key, Obj) => boolean>(
 ) => $Shape<Obj>
 type FilterObjCur = <T, Key, Obj: { [Key]: T }, Fn: (T, Key, Obj) => boolean>(
   fn: Fn,
-) => Obj => $Shape<Obj>
+) => (Obj) => $Shape<Obj>
 type FilterObj = FilterObj2 & FilterObjCur
 
 function filterObj(predicate: (any, any, any) => any, obj: {}): any {
   if (arguments.length === 1) {
     // $FlowFixMe
-    return _obj => filterObj(predicate, _obj)
+    return (_obj) => filterObj(predicate, _obj)
   }
   const result = {}
   let value

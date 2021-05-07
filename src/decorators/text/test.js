@@ -56,6 +56,6 @@ describe('decorators/text', () => {
           @text
           noName
         },
-    ).toThrow(/column name/)
+    ).toThrow('column name')
   })
 })

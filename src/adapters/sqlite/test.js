@@ -12,28 +12,23 @@ function removeIfExists(file, dbName) {
 }
 
 describe.each([
-  // ['SQLiteAdapterNode', 'Synchronous', 'File'],
   // ['SQLiteAdapterNode', 'Asynchronous', 'File'],
-  ['SQLiteAdapterNode', 'Synchronous', 'Memory'],
   ['SQLiteAdapterNode', 'Asynchronous', 'Memory'],
-])('%s (%s/%s)', (adapterSubclass, synchronousString, fileString) => {
-  commonTests().forEach(testCase => {
+])('%s (%s/%s)', (adapterSubclass, fileString) => {
+  commonTests().forEach((testCase) => {
     const [name, test] = testCase
     it(name, async () => {
-      const synchronous = synchronousString.toLowerCase() === 'synchronous'
       const file = fileString.toLowerCase() === 'file'
       const dbName = `${process.cwd()}/test${Math.random()}.db${
         file ? '' : '?mode=memory&cache=shared'
       }`
       const extraAdapterOptions = {
         dbName,
-        synchronous,
         adapterSubclass,
       }
       const adapter = new SqliteAdapter({
         dbName,
         schema: testSchema,
-        synchronous,
       })
 
       try {

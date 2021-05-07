@@ -82,11 +82,10 @@ class MockModelCreatedUpdated extends Model {
   updatedAt
 }
 
-const makeDatabase = ({ actionsEnabled = false } = {}) =>
+const makeDatabase = () =>
   new Database({
     adapter: { schema: mockSchema },
     modelClasses: [MockModel, MockModelCreated, MockModelUpdated, MockModelCreatedUpdated],
-    actionsEnabled,
   })
 
 describe('Model', () => {
@@ -112,7 +111,7 @@ describe('CRUD', () => {
   it('_prepareCreate: can instantiate new records', () => {
     const database = makeDatabase()
     const collection = database.get('mock')
-    const m1 = MockModel._prepareCreate(collection, record => {
+    const m1 = MockModel._prepareCreate(collection, (record) => {
       expect(record._isEditing).toBe(true)
       record.name = 'Some name'
     })
@@ -174,53 +173,57 @@ describe('CRUD', () => {
     expect(m2._raw).not.toBe(raw)
   })
   it('can update a record', async () => {
-    const database = makeDatabase()
-    database.adapter.batch = jest.fn()
-    const spyBatchDB = jest.spyOn(database, 'batch')
+    const db = makeDatabase()
+    await db.action(async () => {
+      db.adapter.batch = jest.fn()
+      const spyBatchDB = jest.spyOn(db, 'batch')
 
-    const collection = database.get('mock')
-    const m1 = await collection.create(record => {
-      record.name = 'Original name'
+      const collection = db.get('mock')
+      const m1 = await collection.create((record) => {
+        record.name = 'Original name'
+      })
+
+      const spyOnPrepareUpdate = jest.spyOn(m1, 'prepareUpdate')
+      const observer = jest.fn()
+      m1.observe().subscribe(observer)
+
+      expect(m1._isEditing).toBe(false)
+
+      const update = await m1.update((record) => {
+        expect(m1._isEditing).toBe(true)
+        record.name = 'New name'
+      })
+
+      expect(spyBatchDB).toHaveBeenCalledWith(m1)
+      expect(spyOnPrepareUpdate).toHaveBeenCalledTimes(1)
+      expect(observer).toHaveBeenCalledTimes(2)
+      expect(update).toBe(m1)
+
+      expect(m1.name).toBe('New name')
+      expect(m1.updatedAt).toBe(undefined)
+      expect(m1._isEditing).toBe(false)
+      expect(m1._isCommitted).toBe(true)
+      expect(m1._hasPendingUpdate).toBe(false)
     })
-
-    const spyOnPrepareUpdate = jest.spyOn(m1, 'prepareUpdate')
-    const observer = jest.fn()
-    m1.observe().subscribe(observer)
-
-    expect(m1._isEditing).toBe(false)
-
-    const update = await m1.update(record => {
-      expect(m1._isEditing).toBe(true)
-      record.name = 'New name'
-    })
-
-    expect(spyBatchDB).toHaveBeenCalledWith(m1)
-    expect(spyOnPrepareUpdate).toHaveBeenCalledTimes(1)
-    expect(observer).toHaveBeenCalledTimes(2)
-    expect(update).toBe(m1)
-
-    expect(m1.name).toBe('New name')
-    expect(m1.updatedAt).toBe(undefined)
-    expect(m1._isEditing).toBe(false)
-    expect(m1._isCommitted).toBe(true)
-    expect(m1._hasPendingUpdate).toBe(false)
   })
   it('can prepare an update', async () => {
-    const database = makeDatabase()
-    database.adapter.batch = jest.fn()
+    const db = makeDatabase()
+    db.adapter.batch = jest.fn()
 
-    const collection = database.get('mock')
+    const collection = db.get('mock')
 
-    const m1 = await collection.create(record => {
-      record.name = 'Original name'
-    })
+    const m1 = await db.action(() =>
+      collection.create((record) => {
+        record.name = 'Original name'
+      }),
+    )
 
-    expect(database.adapter.batch).toHaveBeenCalledTimes(1)
+    expect(db.adapter.batch).toHaveBeenCalledTimes(1)
 
     const observer = jest.fn()
     m1.observe().subscribe(observer)
 
-    const preparedUpdate = m1.prepareUpdate(record => {
+    const preparedUpdate = m1.prepareUpdate((record) => {
       expect(m1._isEditing).toBe(true)
       record.name = 'New name'
     })
@@ -231,23 +234,20 @@ describe('CRUD', () => {
     expect(m1.updatedAt).toBe(undefined)
     expect(m1._isEditing).toBe(false)
     expect(m1._hasPendingUpdate).toBe(true)
-    expect(database.adapter.batch).toHaveBeenCalledTimes(1)
+    expect(db.adapter.batch).toHaveBeenCalledTimes(1)
 
     expect(observer).toHaveBeenCalledTimes(1)
 
     expect(m1._isCommitted).toBe(true)
 
-    // need to call batch or a dev check will get angry
-    database.batch(preparedUpdate)
+    await db.action(() => db.batch(preparedUpdate))
   })
   it('can destroy a record permanently', async () => {
-    const database = makeDatabase()
-    database.adapter.batch = jest.fn()
-    const spyBatchDB = jest.spyOn(database, 'batch')
+    const db = makeDatabase()
+    db.adapter.batch = jest.fn()
+    const spyBatchDB = jest.spyOn(db, 'batch')
 
-    const collection = database.get('mock')
-
-    const m1 = await collection.create()
+    const m1 = await db.action(() => db.get('mock').create())
     expect(spyBatchDB).toHaveBeenCalledWith(m1)
 
     const spyOnPrepareDestroyPermanently = jest.spyOn(m1, 'prepareDestroyPermanently')
@@ -255,7 +255,7 @@ describe('CRUD', () => {
     const completionObserver = jest.fn()
     m1.observe().subscribe(nextObserver, null, completionObserver)
 
-    await m1.destroyPermanently()
+    await db.action(() => m1.destroyPermanently())
 
     expect(spyOnPrepareDestroyPermanently).toHaveBeenCalledTimes(1)
 
@@ -263,43 +263,42 @@ describe('CRUD', () => {
     expect(completionObserver).toHaveBeenCalledTimes(1)
   })
   it('can destroy a record and its children permanently', async () => {
-    const { database, projects, tasks, comments } = mockDatabase()
+    const { db, projects, tasks, comments } = mockDatabase()
+    await db.action(async () => {
+      const project = await projects.create((mock) => {
+        mock.name = 'foo'
+      })
 
-    const project = await projects.create(mock => {
-      mock.name = 'foo'
+      const task = await tasks.create((mock) => {
+        mock.project.set(project)
+      })
+
+      const comment = await comments.create((mock) => {
+        mock.task.set(task)
+      })
+
+      db.adapter.batch = jest.fn()
+      const spyBatchDB = jest.spyOn(db, 'batch')
+
+      const spyOnPrepareDestroyPermanentlyProject = jest.spyOn(project, 'prepareDestroyPermanently')
+      const spyOnPrepareDestroyPermanentlyTask = jest.spyOn(task, 'prepareDestroyPermanently')
+      const spyOnPrepareDestroyPermanentlyComment = jest.spyOn(comment, 'prepareDestroyPermanently')
+
+      await project.experimentalDestroyPermanently()
+
+      expect(spyOnPrepareDestroyPermanentlyProject).toHaveBeenCalledTimes(1)
+      expect(spyOnPrepareDestroyPermanentlyTask).toHaveBeenCalledTimes(1)
+      expect(spyOnPrepareDestroyPermanentlyComment).toHaveBeenCalledTimes(1)
+
+      expect(spyBatchDB).toHaveBeenCalledWith(comment, task, project)
     })
-
-    const task = await tasks.create(mock => {
-      mock.project.set(project)
-    })
-
-    const comment = await comments.create(mock => {
-      mock.task.set(task)
-    })
-
-    database.adapter.batch = jest.fn()
-    const spyBatchDB = jest.spyOn(database, 'batch')
-
-    const spyOnPrepareDestroyPermanentlyProject = jest.spyOn(project, 'prepareDestroyPermanently')
-    const spyOnPrepareDestroyPermanentlyTask = jest.spyOn(task, 'prepareDestroyPermanently')
-    const spyOnPrepareDestroyPermanentlyComment = jest.spyOn(comment, 'prepareDestroyPermanently')
-
-    await project.experimentalDestroyPermanently()
-
-    expect(spyOnPrepareDestroyPermanentlyProject).toHaveBeenCalledTimes(1)
-    expect(spyOnPrepareDestroyPermanentlyTask).toHaveBeenCalledTimes(1)
-    expect(spyOnPrepareDestroyPermanentlyComment).toHaveBeenCalledTimes(1)
-
-    expect(spyBatchDB).toHaveBeenCalledWith(comment, task, project)
   })
   it('can mark a record as deleted', async () => {
-    const database = makeDatabase()
-    database.adapter.batch = jest.fn()
-    const spyBatchDB = jest.spyOn(database, 'batch')
+    const db = makeDatabase()
+    db.adapter.batch = jest.fn()
+    const spyBatchDB = jest.spyOn(db, 'batch')
 
-    const collection = database.get('mock')
-
-    const m1 = await collection.create()
+    const m1 = await db.action(() => db.get('mock').create())
     expect(spyBatchDB).toHaveBeenCalledWith(m1)
 
     const spyOnMarkAsDeleted = jest.spyOn(m1, 'prepareMarkAsDeleted')
@@ -307,7 +306,7 @@ describe('CRUD', () => {
     const completionObserver = jest.fn()
     m1.observe().subscribe(nextObserver, null, completionObserver)
 
-    await m1.markAsDeleted()
+    await db.action(() => m1.markAsDeleted())
 
     expect(spyOnMarkAsDeleted).toHaveBeenCalledTimes(1)
 
@@ -315,34 +314,35 @@ describe('CRUD', () => {
     expect(completionObserver).toHaveBeenCalledTimes(1)
   })
   it('can mark as deleted record and its children permanently', async () => {
-    const { database, projects, tasks, comments } = mockDatabase()
+    const { db, projects, tasks, comments } = mockDatabase()
+    await db.action(async () => {
+      const project = await projects.create((mock) => {
+        mock.name = 'foo'
+      })
 
-    const project = await projects.create(mock => {
-      mock.name = 'foo'
+      const task = await tasks.create((mock) => {
+        mock.project.set(project)
+      })
+
+      const comment = await comments.create((mock) => {
+        mock.task.set(task)
+      })
+
+      db.adapter.batch = jest.fn()
+      const spyBatchDB = jest.spyOn(db, 'batch')
+
+      const spyOnPrepareMarkAsDeletedProject = jest.spyOn(project, 'prepareMarkAsDeleted')
+      const spyOnPrepareMarkAsDeletedTask = jest.spyOn(task, 'prepareMarkAsDeleted')
+      const spyOnPrepareMarkAsDeletedComment = jest.spyOn(comment, 'prepareMarkAsDeleted')
+
+      await project.experimentalMarkAsDeleted()
+
+      expect(spyOnPrepareMarkAsDeletedProject).toHaveBeenCalledTimes(1)
+      expect(spyOnPrepareMarkAsDeletedTask).toHaveBeenCalledTimes(1)
+      expect(spyOnPrepareMarkAsDeletedComment).toHaveBeenCalledTimes(1)
+
+      expect(spyBatchDB).toHaveBeenCalledWith(comment, task, project)
     })
-
-    const task = await tasks.create(mock => {
-      mock.project.set(project)
-    })
-
-    const comment = await comments.create(mock => {
-      mock.task.set(task)
-    })
-
-    database.adapter.batch = jest.fn()
-    const spyBatchDB = jest.spyOn(database, 'batch')
-
-    const spyOnPrepareMarkAsDeletedProject = jest.spyOn(project, 'prepareMarkAsDeleted')
-    const spyOnPrepareMarkAsDeletedTask = jest.spyOn(task, 'prepareMarkAsDeleted')
-    const spyOnPrepareMarkAsDeletedComment = jest.spyOn(comment, 'prepareMarkAsDeleted')
-
-    await project.experimentalMarkAsDeleted()
-
-    expect(spyOnPrepareMarkAsDeletedProject).toHaveBeenCalledTimes(1)
-    expect(spyOnPrepareMarkAsDeletedTask).toHaveBeenCalledTimes(1)
-    expect(spyOnPrepareMarkAsDeletedComment).toHaveBeenCalledTimes(1)
-
-    expect(spyBatchDB).toHaveBeenCalledWith(comment, task, project)
   })
 })
 
@@ -351,8 +351,8 @@ describe('Safety features', () => {
     // TODO: No clue how to implement this test
   })
   it('disallows field changes outside of create/update', () => {
-    const database = makeDatabase()
-    const model = new MockModel(database.get('mock'), {})
+    const db = makeDatabase()
+    const model = new MockModel(db.get('mock'), {})
 
     expect(() => {
       model.name = 'new'
@@ -368,107 +368,114 @@ describe('Safety features', () => {
     }).toThrow()
   })
   it('disallows changes to just-deleted records', async () => {
-    const database = makeDatabase()
-    database.adapter.batch = jest.fn()
+    const db = makeDatabase()
+    db.adapter.batch = jest.fn()
+    await db.action(async () => {
+      const m1 = await db.get('mock').create()
+      await m1.destroyPermanently()
 
-    const m1 = await database.get('mock').create()
-    await m1.destroyPermanently()
-
-    await expect(
-      m1.update(() => {
-        m1.name = 'new'
-      }),
-    ).rejects.toBeInstanceOf(Error)
+      await expectToRejectWithMessage(
+        m1.update(() => {
+          m1.name = 'new'
+        }),
+        'Not allowed to change deleted records',
+      )
+    })
   })
   it('disallows changes to previously-deleted records', async () => {
-    const database = makeDatabase()
+    const db = makeDatabase()
+    await db.action(async () => {
+      const m1 = new MockModel(db.get('mock'), {
+        _status: 'deleted',
+      })
 
-    const m1 = new MockModel(database.get('mock'), {
-      _status: 'deleted',
+      await expectToRejectWithMessage(
+        m1.update(() => {
+          m1.name = 'new'
+        }),
+        'Not allowed to change deleted records',
+      )
     })
-
-    await expect(
-      m1.update(() => {
-        m1.name = 'new'
-      }),
-    ).rejects.toBeInstanceOf(Error)
   })
   it('diallows direct manipulation of id', async () => {
-    const database = makeDatabase()
-    database.adapter.batch = jest.fn()
+    const db = makeDatabase()
+    db.adapter.batch = jest.fn()
+    await db.action(async () => {
+      const model = await db.get('mock').create()
 
-    const model = await database.get('mock').create()
-
-    await expect(
-      model.update(() => {
-        model.id = 'newId'
-      }),
-    ).rejects.toBeInstanceOf(Error)
+      await expectToRejectWithMessage(
+        model.update(() => {
+          model.id = 'newId'
+        }),
+        'Cannot set property id',
+      )
+    })
   })
-
   it('disallows operations on uncommited records', async () => {
-    const database = makeDatabase()
-    const model = MockModel._prepareCreate(database.get('mock'), () => {})
-    expect(model._isCommitted).toBe(false)
+    const db = makeDatabase()
+    await db.action(async () => {
+      const model = MockModel._prepareCreate(db.get('mock'), () => {})
+      expect(model._isCommitted).toBe(false)
 
-    await expectToRejectWithMessage(
-      model.update(() => {}),
-      /uncommitted/,
-    )
-    await expectToRejectWithMessage(model.markAsDeleted(), /uncomitted record as deleted/)
-    await expectToRejectWithMessage(model.destroyPermanently(), /uncomitted record as deleted/)
-    expect(() => model.observe()).toThrow(/uncommitted/)
+      await expectToRejectWithMessage(
+        model.update(() => {}),
+        'uncommitted',
+      )
+      await expectToRejectWithMessage(model.markAsDeleted(), 'uncomitted record as deleted')
+      await expectToRejectWithMessage(model.destroyPermanently(), 'uncomitted record as deleted')
+      expect(() => model.observe()).toThrow('uncommitted')
+    })
   })
   it('disallows changes on records with pending updates', async () => {
-    const database = makeDatabase()
-    database.adapter.batch = jest.fn()
-
-    const model = new MockModel(database.get('mock'), {})
-    model.prepareUpdate()
-    expect(() => {
+    const db = makeDatabase()
+    db.adapter.batch = jest.fn()
+    await db.action(async () => {
+      const model = new MockModel(db.get('mock'), {})
       model.prepareUpdate()
-    }).toThrow(/pending update/)
-    await expectToRejectWithMessage(
-      model.update(() => {}),
-      /pending update/,
-    )
+      expect(() => {
+        model.prepareUpdate()
+      }).toThrow('pending update')
+      await expectToRejectWithMessage(
+        model.update(() => {}),
+        'pending update',
+      )
 
-    // need to call batch or a dev check will get angry
-    database.batch(model)
+      await db.batch(model)
+    })
   })
   it('disallows writes outside of an action', async () => {
-    const database = makeDatabase({ actionsEnabled: true })
-    database.adapter.batch = jest.fn()
+    const db = makeDatabase()
+    db.adapter.batch = jest.fn()
 
-    const model = await database.action(() => database.get('mock').create())
+    const model = await db.action(() => db.get('mock').create())
 
     await expectToRejectWithMessage(
       model.update(noop),
-      /can only be called from inside of an Action/,
+      'can only be called from inside of an Action',
     )
 
     await expectToRejectWithMessage(
       model.markAsDeleted(),
-      /can only be called from inside of an Action/,
+      'can only be called from inside of an Action',
     )
 
     await expectToRejectWithMessage(
       model.destroyPermanently(),
-      /can only be called from inside of an Action/,
+      'can only be called from inside of an Action',
     )
 
     await expectToRejectWithMessage(
       model.experimentalMarkAsDeleted(),
-      /can only be called from inside of an Action/,
+      'can only be called from inside of an Action',
     )
 
     await expectToRejectWithMessage(
       model.experimentalDestroyPermanently(),
-      /can only be called from inside of an Action/,
+      'can only be called from inside of an Action',
     )
 
     // check that no throw inside action
-    await database.action(async () => {
+    await db.action(async () => {
       await model.update(noop)
       await model.markAsDeleted()
       await model.destroyPermanently()
@@ -480,32 +487,32 @@ describe('Safety features', () => {
 
 describe('Automatic created_at/updated_at', () => {
   it('_prepareCreate: sets created_at on create if model defines it', () => {
-    const database = makeDatabase()
-    const m1 = MockModelCreated._prepareCreate(database.get('mock_created'), noop)
+    const db = makeDatabase()
+    const m1 = MockModelCreated._prepareCreate(db.get('mock_created'), noop)
 
     expect(m1.createdAt).toBeInstanceOf(Date)
     expect(+m1.createdAt).toBeGreaterThan(1500000000000)
     expect(m1.updatedAt).toBe(undefined)
   })
   it('_prepareCreate: sets created_at, updated_at on create if model defines it', () => {
-    const database = makeDatabase()
-    const m1 = MockModelCreatedUpdated._prepareCreate(database.get('mock_created_updated'), noop)
+    const db = makeDatabase()
+    const m1 = MockModelCreatedUpdated._prepareCreate(db.get('mock_created_updated'), noop)
 
     expect(m1.createdAt).toBeInstanceOf(Date)
     expect(+m1.createdAt).toBe(+m1.updatedAt)
   })
   it('touches updated_at on update if model defines it', async () => {
-    const database = makeDatabase()
-    database.adapter.batch = jest.fn()
+    const db = makeDatabase()
+    db.adapter.batch = jest.fn()
+    await db.action(async () => {
+      const m1 = await db.get('mock_updated').create((record) => {
+        record._raw.updated_at -= 100
+      })
+      const updatedAt = +m1.updatedAt
 
-    const m1 = await database.get('mock_updated').create(record => {
-      record._raw.updated_at -= 100
+      await m1.update()
+      expect(+m1.updatedAt).toBeGreaterThan(updatedAt)
     })
-    const updatedAt = +m1.updatedAt
-
-    await m1.update()
-
-    expect(+m1.updatedAt).toBeGreaterThan(updatedAt)
   })
 })
 
@@ -636,32 +643,33 @@ describe('Sync status fields', () => {
     expect(model._raw._changed).toBe('otherfield')
   })
   it('marks new records as status:created', async () => {
-    const database = makeDatabase()
-    database.adapter.batch = jest.fn()
+    const db = makeDatabase()
+    db.adapter.batch = jest.fn()
+    await db.action(async () => {
+      const mock = await db.get('mock').create((record) => {
+        record.name = 'Initial name'
+      })
 
-    const mock = await database.get('mock').create(record => {
-      record.name = 'Initial name'
+      expect(mock._raw._status).toBe('created')
+      expect(mock._raw._changed).toBe('')
+
+      expect(mock.syncStatus).toBe('created')
+
+      // updating a status:created record doesn't change anything
+      await mock.update((record) => {
+        record.name = 'New name'
+      })
+
+      expect(mock.syncStatus).toBe('created')
+      expect(mock._raw._changed).toBe('')
     })
-
-    expect(mock._raw._status).toBe('created')
-    expect(mock._raw._changed).toBe('')
-
-    expect(mock.syncStatus).toBe('created')
-
-    // updating a status:created record doesn't change anything
-    await mock.update(record => {
-      record.name = 'New name'
-    })
-
-    expect(mock.syncStatus).toBe('created')
-    expect(mock._raw._changed).toBe('')
   })
   it('marks updated records with changed fields', async () => {
-    const database = makeDatabase()
-    database.adapter.batch = jest.fn()
+    const db = makeDatabase()
+    db.adapter.batch = jest.fn()
 
     const mock = new MockModel(
-      database.get('mock'),
+      db.get('mock'),
       sanitizedRaw(
         {
           id: '',
@@ -673,34 +681,40 @@ describe('Sync status fields', () => {
     )
 
     // update
-    await mock.update(record => {
-      record.name = 'New name'
-    })
+    await db.action(() =>
+      mock.update((record) => {
+        record.name = 'New name'
+      }),
+    )
 
     expect(mock._raw._status).toBe('updated')
     expect(mock._raw._changed).toBe('name')
 
     // change another field
-    await mock.update(record => {
-      record.otherfield = 'New value'
-    })
+    await db.action(() =>
+      mock.update((record) => {
+        record.otherfield = 'New value'
+      }),
+    )
 
     expect(mock._raw._status).toBe('updated')
     expect(mock._raw._changed).toBe('name,otherfield')
 
     // no duplicated change fields
-    await mock.update(record => {
-      record.name = 'New name 2'
-    })
+    await db.action(() =>
+      mock.update((record) => {
+        record.name = 'New name 2'
+      }),
+    )
 
     expect(mock._raw._changed).toBe('name,otherfield')
   })
   it('marks update_at as updated when auto-touched', async () => {
-    const database = makeDatabase()
-    database.adapter.batch = jest.fn()
+    const db = makeDatabase()
+    db.adapter.batch = jest.fn()
 
-    const m1 = new MockModelUpdated(database.get('mock_updated'), {})
-    await m1.update()
+    const m1 = new MockModelUpdated(db.get('mock_updated'), {})
+    await db.action(() => m1.update())
 
     expect(m1._raw._status).toBe('updated')
     expect(m1._raw._changed).toBe('updated_at')
@@ -720,7 +734,7 @@ describe('Model observation', () => {
     const bExpected = '--------m--m-m---|'
     const cExpected = 'm-m---m----m-m---|'
 
-    scheduler.hot(changes__).subscribe(event => {
+    scheduler.hot(changes__).subscribe((event) => {
       event === 'a' ? model._notifyChanged() : model._notifyDestroyed()
     })
 
@@ -734,53 +748,55 @@ describe('Model observation', () => {
     scheduler.flush()
   })
   it('notifies subscribers of changes and deletion', async () => {
-    const { tasks } = mockDatabase()
-    const task = await tasks.create()
+    const { tasks, db } = mockDatabase()
+    await db.action(async () => {
+      const task = await tasks.create()
 
-    const observer1 = jest.fn()
-    const unsubscribe1 = task.experimentalSubscribe(observer1)
-    expect(observer1).toHaveBeenCalledTimes(0)
+      const observer1 = jest.fn()
+      const unsubscribe1 = task.experimentalSubscribe(observer1)
+      expect(observer1).toHaveBeenCalledTimes(0)
 
-    await task.update()
-    expect(observer1).toHaveBeenCalledTimes(1)
-    expect(observer1).toHaveBeenLastCalledWith(false)
+      await task.update()
+      expect(observer1).toHaveBeenCalledTimes(1)
+      expect(observer1).toHaveBeenLastCalledWith(false)
 
-    const observer2 = jest.fn()
-    const unsubscribe2 = task.experimentalSubscribe(observer2)
-    expect(observer2).toHaveBeenCalledTimes(0)
+      const observer2 = jest.fn()
+      const unsubscribe2 = task.experimentalSubscribe(observer2)
+      expect(observer2).toHaveBeenCalledTimes(0)
 
-    unsubscribe1()
+      unsubscribe1()
 
-    const observer3 = jest.fn()
-    const unsubscribe3 = task.experimentalSubscribe(observer3)
+      const observer3 = jest.fn()
+      const unsubscribe3 = task.experimentalSubscribe(observer3)
 
-    await task.update()
+      await task.update()
 
-    expect(observer2).toHaveBeenCalledTimes(1)
-    expect(observer3).toHaveBeenCalledTimes(1)
+      expect(observer2).toHaveBeenCalledTimes(1)
+      expect(observer3).toHaveBeenCalledTimes(1)
 
-    unsubscribe2()
+      unsubscribe2()
 
-    await task.update()
+      await task.update()
 
-    expect(observer3).toHaveBeenCalledTimes(2)
-    expect(observer3).toHaveBeenLastCalledWith(false)
+      expect(observer3).toHaveBeenCalledTimes(2)
+      expect(observer3).toHaveBeenLastCalledWith(false)
 
-    await task.markAsDeleted()
+      await task.markAsDeleted()
 
-    expect(observer3).toHaveBeenCalledTimes(3)
-    expect(observer3).toHaveBeenLastCalledWith(true)
+      expect(observer3).toHaveBeenCalledTimes(3)
+      expect(observer3).toHaveBeenLastCalledWith(true)
 
-    unsubscribe3()
-    unsubscribe3()
+      unsubscribe3()
+      unsubscribe3()
 
-    expect(observer1).toHaveBeenCalledTimes(1)
-    expect(observer2).toHaveBeenCalledTimes(1)
-    expect(observer3).toHaveBeenCalledTimes(3)
+      expect(observer1).toHaveBeenCalledTimes(1)
+      expect(observer2).toHaveBeenCalledTimes(1)
+      expect(observer3).toHaveBeenCalledTimes(3)
+    })
   })
   it('unsubscribe can safely be called more than once', async () => {
-    const { tasks } = mockDatabase()
-    const task = await tasks.create()
+    const { tasks, db } = mockDatabase()
+    const task = await db.action(() => tasks.create())
 
     const observer1 = jest.fn()
     const unsubscribe1 = task.experimentalSubscribe(observer1)
@@ -790,16 +806,16 @@ describe('Model observation', () => {
     unsubscribe2()
     unsubscribe2()
 
-    await task.update()
+    await db.action(() => task.update())
 
     expect(observer1).toHaveBeenCalledTimes(1)
 
     unsubscribe1()
   })
   it(`can subscribe with the same subscriber multiple times`, async () => {
-    const { database, tasks } = mockDatabase({ actionsEnabled: true })
-    const task = await database.action(() => tasks.create())
-    const trigger = () => database.action(() => task.update())
+    const { db, tasks } = mockDatabase()
+    const task = await db.action(() => tasks.create())
+    const trigger = () => db.action(() => task.update())
     const subscriber = jest.fn()
 
     const unsubscribe1 = task.experimentalSubscribe(subscriber)
@@ -822,38 +838,39 @@ describe('Model observation', () => {
 
 describe('model helpers', () => {
   it('checks if fetchChildren retrieves all the children', async () => {
-    const { projects, tasks, comments } = mockDatabase()
-
-    const projectFoo = await projects.create(mock => {
-      mock.name = 'foo'
-    })
-    const projectBar = await projects.create(mock => {
-      mock.name = 'bar'
-    })
-
-    const commentPromise = async task => {
-      const comment = await comments.create(mock => {
-        mock.task.set(task)
+    const { projects, tasks, comments, db } = mockDatabase()
+    await db.action(async () => {
+      const projectFoo = await projects.create((mock) => {
+        mock.name = 'foo'
       })
-      const commentChildren = await fetchChildren(comment)
-      expect(commentChildren).toHaveLength(0)
-    }
-
-    const taskPromise = async (project, commentsCount) => {
-      const task = await tasks.create(mock => {
-        mock.project.set(project)
+      const projectBar = await projects.create((mock) => {
+        mock.name = 'bar'
       })
-      await allPromises(commentPromise, Array(commentsCount).fill(task))
-      const taskChildren = await fetchChildren(task)
-      expect(taskChildren).toHaveLength(commentsCount)
-    }
 
-    await allPromises(project => taskPromise(project, 2), Array(2).fill(projectFoo))
-    await allPromises(project => taskPromise(project, 3), Array(3).fill(projectBar))
+      const commentPromise = async (task) => {
+        const comment = await comments.create((mock) => {
+          mock.task.set(task)
+        })
+        const commentChildren = await fetchChildren(comment)
+        expect(commentChildren).toHaveLength(0)
+      }
 
-    const fooChildren = await fetchChildren(projectFoo)
-    const barChildren = await fetchChildren(projectBar)
-    expect(fooChildren).toHaveLength(6) // 2 tasks + 4 comments
-    expect(barChildren).toHaveLength(12) // 3 tasks + 9 comments
+      const taskPromise = async (project, commentsCount) => {
+        const task = await tasks.create((mock) => {
+          mock.project.set(project)
+        })
+        await allPromises(commentPromise, Array(commentsCount).fill(task))
+        const taskChildren = await fetchChildren(task)
+        expect(taskChildren).toHaveLength(commentsCount)
+      }
+
+      await allPromises((project) => taskPromise(project, 2), Array(2).fill(projectFoo))
+      await allPromises((project) => taskPromise(project, 3), Array(3).fill(projectBar))
+
+      const fooChildren = await fetchChildren(projectFoo)
+      const barChildren = await fetchChildren(projectBar)
+      expect(fooChildren).toHaveLength(6) // 2 tasks + 4 comments
+      expect(barChildren).toHaveLength(12) // 3 tasks + 9 comments
+    })
   })
 })

@@ -26,6 +26,6 @@ export function stepsForMigration({
     ({ toVersion: version }) => version > fromVersion && version <= toVersion,
   )
 
-  const allSteps = unnest(matchingMigrations.map(migration => migration.steps))
+  const allSteps = unnest(matchingMigrations.map((migration) => migration.steps))
   return allSteps
 }

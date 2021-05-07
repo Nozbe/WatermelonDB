@@ -28,7 +28,7 @@ class MockProject extends Model {
 
 const mockCollection = Object.freeze({
   modelClass: MockTask,
-  db: { get: table => (table === 'projects' ? { modelClass: MockProject } : undefined) },
+  db: { get: (table) => (table === 'projects' ? { modelClass: MockProject } : undefined) },
 })
 
 describe('Query', () => {
@@ -50,7 +50,6 @@ describe('Query', () => {
     })
     it('fetches associations correctly for simple queries', () => {
       const query = new Query(mockCollection, [Q.where('id', 'abcdef')])
-      expect(query.hasJoins).toBe(false)
       expect(query.associations).toEqual([])
     })
     it('fetches associations correctly for more complex queries', () => {
@@ -59,7 +58,6 @@ describe('Query', () => {
         Q.where('left_column', 'right_value'),
         Q.on('tag_assignments', 'tag_id', Q.oneOf(['a', 'b', 'c'])),
       ])
-      expect(query.hasJoins).toBe(true)
       expect(query.secondaryTables).toEqual(['projects', 'tag_assignments'])
       expect(query.associations).toEqual([
         { from: 'mock_tasks', to: 'projects', info: { type: 'belongs_to', key: 'project_id' } },
@@ -76,7 +74,6 @@ describe('Query', () => {
         Q.experimentalNestedJoin('projects', 'teams'),
         Q.on('projects', Q.on('teams', 'foo', 'bar')),
       ])
-      expect(query.hasJoins).toBe(true)
       expect(query.secondaryTables).toEqual(['projects', 'teams'])
       expect(query.associations).toEqual([
         { from: 'mock_tasks', to: 'projects', info: { type: 'belongs_to', key: 'project_id' } },
@@ -123,7 +120,6 @@ describe('Query', () => {
       expect(extendedQuery.description).toEqual(expectedQuery.description)
       expect(extendedQuery.secondaryTables).toEqual(expectedQuery.secondaryTables)
       expect(extendedQuery.associations).toEqual(expectedQuery.associations)
-      expect(extendedQuery.hasJoins).toBe(expectedQuery.hasJoins)
       expect(extendedQuery._rawDescription).toEqual(expectedQuery._rawDescription)
     })
     it('can return extended query for sortBy, take and skip', () => {
@@ -221,14 +217,13 @@ describe('Query', () => {
       expect(extendedQuery.description).toEqual(expectedQuery.description)
       expect(extendedQuery.secondaryTables).toEqual(expectedQuery.secondaryTables)
       expect(extendedQuery.associations).toEqual(expectedQuery.associations)
-      expect(extendedQuery.hasJoins).toBe(expectedQuery.hasJoins)
       expect(extendedQuery._rawDescription).toEqual(expectedQuery._rawDescription)
     })
     it('can pipe query', () => {
       const query = new Query(mockCollection, [Q.on('projects', 'team_id', 'abcdef')])
-      const identity = a => a
+      const identity = (a) => a
       expect(query.pipe(identity)).toBe(query)
-      const wrap = q => ({ wrapped: q })
+      const wrap = (q) => ({ wrapped: q })
       expect(query.pipe(wrap).wrapped).toBe(query)
     })
   })
@@ -240,32 +235,32 @@ describe('Query', () => {
       // no test here - Collection._fetchCount is tested
     })
     it(`is thenable`, async () => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
       const queryAll = new Query(tasks, [])
       const m1 = tasks.prepareCreate()
       const m2 = tasks.prepareCreate()
       await database.action(() => database.batch(m1, m2))
       expect(await queryAll).toEqual([m1, m2])
-      expect(await queryAll.then(records => records.length)).toBe(2)
+      expect(await queryAll.then((records) => records.length)).toBe(2)
     })
     it(`count is thenable`, async () => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
       const queryAll = new Query(tasks, [])
       await database.action(() => database.batch(tasks.prepareCreate(), tasks.prepareCreate()))
       expect(await queryAll.count).toEqual(2)
-      expect(await queryAll.count.then(length => length * 2)).toBe(4)
+      expect(await queryAll.count.then((length) => length * 2)).toBe(4)
     })
   })
 
   describe('observation', () => {
     // NOTE: Sanity checks only. Concrete tests: observation/
-    const waitFor = database => {
+    const waitFor = (database) => {
       // make sure we wait until end of DB queue without triggering query for
       // easy counting
       return database.adapter.getLocal('nothing')
     }
     const testQueryObservation = async (makeSubscribe, withColumns) => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
       const adapterSpy = jest.spyOn(database.adapter.underlyingAdapter, 'query')
       const query = new Query(tasks, [])
       const observer = jest.fn()
@@ -318,7 +313,7 @@ describe('Query', () => {
     })
 
     const testCountObservation = async (makeSubscribe, isThrottled) => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
       const adapterSpy = jest.spyOn(database.adapter.underlyingAdapter, 'count')
       const query = new Query(tasks, [])
       const observer = jest.fn()
@@ -330,7 +325,7 @@ describe('Query', () => {
       expect(observer).toHaveBeenLastCalledWith(0)
 
       if (isThrottled) {
-        await new Promise(resolve => setTimeout(resolve, 300))
+        await new Promise((resolve) => setTimeout(resolve, 300))
       }
 
       await database.action(() => tasks.create())
@@ -371,20 +366,20 @@ describe('Query', () => {
   })
 
   describe('mass delete', () => {
-    const testMassDelete = async methodName => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+    const testMassDelete = async (methodName) => {
+      const { database, tasks } = mockDatabase()
       const query = new Query(tasks, [Q.where('name', 'foo')])
       const queryAll = new Query(tasks, [])
 
       await database.action(() =>
         database.batch(
-          tasks.prepareCreate(t => {
+          tasks.prepareCreate((t) => {
             t.name = 'foo'
           }),
-          tasks.prepareCreate(t => {
+          tasks.prepareCreate((t) => {
             t.name = 'foo'
           }),
-          tasks.prepareCreate(t => {
+          tasks.prepareCreate((t) => {
             t.name = 'foo'
           }),
           tasks.prepareCreate(),

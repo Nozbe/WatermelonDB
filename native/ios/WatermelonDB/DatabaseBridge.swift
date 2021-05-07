@@ -9,7 +9,7 @@ final public class DatabaseBridge: NSObject {
     @objc let methodQueue = DispatchQueue(label: "com.nozbe.watermelondb.database", qos: .userInteractive)
 
     private enum Connection {
-        case connected(driver: DatabaseDriver, synchronous: Bool)
+        case connected(driver: DatabaseDriver)
         case waiting(queue: [() -> Void])
 
         var queue: [() -> Void] {
@@ -34,7 +34,7 @@ extension DatabaseBridge {
         do {
             try assertNoConnection(tag)
             let driver = try DatabaseDriver(dbName: databaseName, schemaVersion: schemaVersion.intValue)
-            connections[tag.intValue] = .connected(driver: driver, synchronous: false)
+            connections[tag.intValue] = .connected(driver: driver)
             resolve(["code": "ok"])
         } catch _ as DatabaseDriver.SchemaNeededError {
             connections[tag.intValue] = .waiting(queue: [])
@@ -83,67 +83,16 @@ extension DatabaseBridge {
     }
 }
 
-// MARK: - Synchronous connections
+// MARK: - JSI Support
 
 extension DatabaseBridge {
     @objc(initializeJSI)
     func initializeJSI() -> NSDictionary {
-        return synchronously {
+        methodQueue.sync {
             // swiftlint:disable all
             installWatermelonJSI(bridge as? RCTCxxBridge)
         }
-    }
-
-    @objc(initializeSynchronous:databaseName:schemaVersion:)
-    func initializeSynchronous(tag: ConnectionTag,
-                               databaseName: String,
-                               schemaVersion: NSNumber) -> NSDictionary {
-        return synchronously {
-            do {
-                try assertNoConnection(tag)
-                let driver = try DatabaseDriver(dbName: databaseName, schemaVersion: schemaVersion.intValue)
-                connections[tag.intValue] = .connected(driver: driver, synchronous: true)
-                return ["code": "ok"]
-            } catch _ as DatabaseDriver.SchemaNeededError {
-                return ["code": "schema_needed"]
-            } catch let error as DatabaseDriver.MigrationNeededError {
-                return ["code": "migrations_needed", "databaseVersion": error.databaseVersion]
-            } catch {
-                assertionFailure("Unknown error thrown in DatabaseDriver.init")
-                throw error // rethrow
-            }
-        }
-    }
-
-    @objc(setUpWithSchemaSynchronous:databaseName:schema:schemaVersion:)
-    func setUpWithSchemaSynchronous(tag: ConnectionTag,
-                                    databaseName: String,
-                                    schema: Database.SQL,
-                                    schemaVersion: NSNumber) -> NSDictionary {
-        return synchronously {
-            try assertNoConnection(tag)
-            let driver = DatabaseDriver(dbName: databaseName,
-                                        setUpWithSchema: (version: schemaVersion.intValue, sql: schema))
-            connections[tag.intValue] = .connected(driver: driver, synchronous: true)
-            return true
-        }
-    }
-
-    @objc(setUpWithMigrationsSynchronous:databaseName:migrations:fromVersion:toVersion:)
-    func setUpWithMigrationsSynchronous(tag: ConnectionTag,
-                                        databaseName: String,
-                                        migrations: Database.SQL,
-                                        fromVersion: NSNumber,
-                                        toVersion: NSNumber) -> NSDictionary {
-        return synchronously {
-            try assertNoConnection(tag)
-            let driver = try DatabaseDriver(
-                dbName: databaseName,
-                setUpWithMigrations: (from: fromVersion.intValue, to: toVersion.intValue, sql: migrations)
-            )
-            connections[tag.intValue] = .connected(driver: driver, synchronous: true)
-            return true
-        }
+        return [:]
     }
 }
 
@@ -259,91 +208,6 @@ extension DatabaseBridge {
     }
 }
 
-// MARK: - Synchronous methods
-
-extension DatabaseBridge {
-    @objc(findSynchronous:table:id:)
-    func findSynchronous(tag: ConnectionTag, table: Database.TableName, id: DatabaseDriver.RecordId) -> NSDictionary {
-        return withDriverSynchronous(tag) {
-            try $0.find(table: table, id: id) as Any
-        }
-    }
-
-    @objc(querySynchronous:table:query:)
-    func querySynchronous(tag: ConnectionTag, table: Database.TableName, query: Database.SQL) -> NSDictionary {
-        return withDriverSynchronous(tag) {
-            try $0.cachedQuery(table: table, query: query)
-        }
-    }
-
-    @objc(countSynchronous:query:)
-    func countSynchronous(tag: ConnectionTag, query: Database.SQL) -> NSDictionary {
-        return withDriverSynchronous(tag) {
-            try $0.count(query)
-        }
-    }
-
-    @objc(batchJSONSynchronous:operations:)
-    func batchJSONSynchronous(tag: ConnectionTag, operations serializedOperations: NSString) -> NSDictionary {
-        return withDriverSynchronous(tag) {
-            try $0.batch(self.toBatchOperations(serializedOperations))
-        }
-    }
-
-    @objc(batchSynchronous:operations:)
-    func batchSynchronous(tag: ConnectionTag, operations: [[Any]]) -> NSDictionary {
-        return withDriverSynchronous(tag) {
-            try $0.batch(self.toBatchOperations(operations))
-        }
-    }
-
-    @objc(getDeletedRecordsSynchronous:table:)
-    func getDeletedRecordsSynchronous(tag: ConnectionTag, table: Database.TableName) -> NSDictionary {
-        return withDriverSynchronous(tag) {
-            try $0.getDeletedRecords(table: table)
-        }
-    }
-
-    @objc(destroyDeletedRecordsSynchronous:table:records:)
-    func destroyDeletedRecordsSynchronous(tag: ConnectionTag,
-                                          table: Database.TableName,
-                                          records: [DatabaseDriver.RecordId]) -> NSDictionary {
-        return withDriverSynchronous(tag) {
-            try $0.destroyDeletedRecords(table: table, records: records)
-        }
-    }
-
-    @objc(unsafeResetDatabaseSynchronous:schema:schemaVersion:)
-    func unsafeResetDatabaseSynchronous(tag: ConnectionTag,
-                                        schema: Database.SQL,
-                                        schemaVersion: NSNumber) -> NSDictionary {
-        return withDriverSynchronous(tag) {
-            try $0.unsafeResetDatabase(schema: (version: schemaVersion.intValue, sql: schema))
-        }
-    }
-
-    @objc(getLocalSynchronous:key:)
-    func getLocalSynchronous(tag: ConnectionTag, key: String) -> NSDictionary {
-        return withDriverSynchronous(tag) {
-            try $0.getLocal(key: key) as Any
-        }
-    }
-
-    @objc(setLocalSynchronous:key:value:)
-    func setLocalSynchronous(tag: ConnectionTag, key: String, value: String) -> NSDictionary {
-        return withDriverSynchronous(tag) {
-            try $0.setLocal(key: key, value: value)
-        }
-    }
-
-    @objc(removeLocalSynchronous:key:)
-    func removeLocalSynchronous(tag: ConnectionTag, key: String) -> NSDictionary {
-        return withDriverSynchronous(tag) {
-            try $0.removeLocal(key: key)
-        }
-    }
-}
-
 // MARK: - Helpers
 
 extension DatabaseBridge {
@@ -416,10 +280,7 @@ extension DatabaseBridge {
             }
 
             switch connection {
-            case .connected(let driver, let synchronous):
-                guard !synchronous else {
-                    throw "Can't perform async action on synchronous connection \(tagID)".asError()
-                }
+            case .connected(let driver):
                 let result = try action(driver)
                 resolve(result)
             case .waiting(var queue):
@@ -435,34 +296,10 @@ extension DatabaseBridge {
         }
     }
 
-    private func synchronously(functionName: String = #function, action: () throws -> Any) -> NSDictionary {
-        return methodQueue.sync {
-            do {
-                let result = try action()
-                return ["status": "success", "result": result]
-            } catch {
-                return ["status": "error", "code": "db.\(functionName).error", "message": "\(error)"]
-            }
-        }
-    }
-
-    private func withDriverSynchronous(_ connectionTag: ConnectionTag,
-                                       functionName: String = #function,
-                                       action: (DatabaseDriver) throws -> Any) -> NSDictionary {
-        return synchronously {
-            guard let connection = connections[connectionTag.intValue],
-            case let .connected(driver, synchronous: true) = connection else {
-                throw "No or invalid connection for tag \(connectionTag)".asError()
-            }
-
-            return try action(driver)
-        }
-    }
-
     private func connectDriverAsync(connectionTag: ConnectionTag, driver: DatabaseDriver) {
         let tagID = connectionTag.intValue
         let queue = connections[tagID]?.queue ?? []
-        connections[tagID] = .connected(driver: driver, synchronous: false)
+        connections[tagID] = .connected(driver: driver)
 
         for operation in queue {
             operation()

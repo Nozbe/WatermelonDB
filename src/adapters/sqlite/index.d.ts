@@ -24,7 +24,6 @@ declare module '@nozbe/watermelondb/adapters/sqlite' {
     dbName?: string
     migrations?: SchemaMigrations
     schema: AppSchema
-    synchronous?: boolean
     jsi?: boolean
   }
 
@@ -47,7 +46,10 @@ declare module '@nozbe/watermelondb/adapters/sqlite' {
 
     query<T extends Model>(query: Query<T>): Promise<CachedQueryResult>
 
-    unsafeSqlQuery<T extends Model>(sql: string, tableName: TableName<T>): Promise<CachedQueryResult>
+    unsafeSqlQuery<T extends Model>(
+      sql: string,
+      tableName: TableName<T>,
+    ): Promise<CachedQueryResult>
 
     removeLocal(key: string): Promise<void>
 

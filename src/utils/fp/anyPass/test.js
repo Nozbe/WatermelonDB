@@ -2,8 +2,8 @@ import anyPass from './index'
 
 describe('anyPass', () => {
   it(`works correctly`, () => {
-    const isFoo = x => x.foo
-    const isBar = x => x.bar
+    const isFoo = (x) => x.foo
+    const isBar = (x) => x.bar
     expect(anyPass([isFoo])({ foo: true })).toBe(true)
     expect(anyPass([isFoo])({ bar: true })).toBe(false)
 

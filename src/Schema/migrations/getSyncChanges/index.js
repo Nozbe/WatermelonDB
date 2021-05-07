@@ -32,7 +32,7 @@ export default function getSyncChanges(
     return null
   }
 
-  steps.forEach(step => {
+  steps.forEach((step) => {
     invariant(
       ['create_table', 'add_columns', 'sql'].includes(step.type),
       `Unknown migration step type ${step.type}. Can not perform migration sync. This most likely means your migrations are defined incorrectly. It could also be a WatermelonDB bug.`,
@@ -41,16 +41,16 @@ export default function getSyncChanges(
 
   // $FlowFixMe
   const createTableSteps: CreateTableMigrationStep[] = steps.filter(
-    step => step.type === 'create_table',
+    (step) => step.type === 'create_table',
   )
-  const createdTables = createTableSteps.map(step => step.schema.name)
+  const createdTables = createTableSteps.map((step) => step.schema.name)
 
   // $FlowFixMe
   const addColumnSteps: AddColumnsMigrationStep[] = steps.filter(
-    step => step.type === 'add_columns',
+    (step) => step.type === 'add_columns',
   )
   const allAddedColumns = addColumnSteps
-    .filter(step => !createdTables.includes(step.table))
+    .filter((step) => !createdTables.includes(step.table))
     .map(({ table, columns }) => columns.map(({ name }) => ({ table, name })))
 
   const columnsByTable = pipe(

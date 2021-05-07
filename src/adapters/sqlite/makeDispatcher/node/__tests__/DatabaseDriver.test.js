@@ -16,13 +16,16 @@ describe('NodeJS DatabaseDriver', () => {
     ['file:foo?bar=baz'],
     ['/path/foo?bar=baz'],
     ['foo.sqlite?bar=baz'],
-  ])('getPath will add extension for %s', dbName => {
+  ])('getPath will add extension for %s', (dbName) => {
     const path = getPath(dbName)
     expect(path).toContain('.db')
     expect(path.split('.db')).toHaveLength(2)
   })
 
-  test.each([[':memory:'], ['file::memory:']])('getPath will not add extension for %s', dbName => {
-    expect(getPath(dbName)).not.toContain('.db')
-  })
+  test.each([[':memory:'], ['file::memory:']])(
+    'getPath will not add extension for %s',
+    (dbName) => {
+      expect(getPath(dbName)).not.toContain('.db')
+    },
+  )
 })

@@ -83,15 +83,10 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
         !('experimentalUseJSI' in options),
         'SQLiteAdapter `experimentalUseJSI: true` has been renamed to `jsi: true`',
       )
-      if (options.synchronous) {
-        // Docs semi-recommend synchronous: true, but it adds a lot of junk and I want to get rid
-        // of this mode completely to simplify code. Ideally, we'd ONLY have JSI, but until RN goes
-        // all-in on JSI everywhere, this might be a little too risky. I'm adding this warning to
-        // get feedback via GH if JSI on iOS is ready to be considered stable or not yet.
-        logger.warn(
-          'SQLiteAdapter `synchronous: true` option is deprecated and will be replaced with `jsi: true` soon. Please test if your app compiles and works well with `jsi: true`, and if not - file an issue!',
-        )
-      }
+      invariant(
+        !('synchronous' in options),
+        'SQLiteAdapter `synchronous: true` was removed. Replace with `jsi: true`, which has the same effect, but with a more modern implementation',
+      )
       invariant(
         DatabaseBridge,
         `NativeModules.DatabaseBridge is not defined! This means that you haven't properly linked WatermelonDB native module. Refer to docs for more details`,
@@ -100,7 +95,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     }
 
     this._initPromise = this._init()
-    fromPromise(this._initPromise, result => devSetupCallback(result, options.onSetUpError))
+    fromPromise(this._initPromise, (result) => devSetupCallback(result, options.onSetUpError))
   }
 
   get initializingPromise(): Promise<void> {
@@ -112,7 +107,6 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     const clone = new SQLiteAdapter({
       dbName: this._dbName,
       schema: this.schema,
-      synchronous: this._dispatcherType === 'synchronous',
       jsi: this._dispatcherType === 'jsi',
       ...(this.migrations ? { migrations: this.migrations } : {}),
       ...options,
@@ -138,7 +132,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     // we're good. If not, we try again, this time sending the compiled schema or a migration set
     // This is to speed up the launch (less to do and pass through bridge), and avoid repeating
     // migration logic inside native code
-    const status = await toPromise(callback =>
+    const status = await toPromise((callback) =>
       this._dispatcher.initialize(this._dbName, this.schema.version, callback),
     )
 
@@ -156,22 +150,20 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   }
 
   async _setUpWithMigrations(databaseVersion: SchemaVersion): Promise<void> {
-    logger.log('[WatermelonDB][SQLite] Database needs migrations')
+    logger.log('[SQLite] Database needs migrations')
     invariant(databaseVersion > 0, 'Invalid database schema version')
 
     const migrationSteps = this._migrationSteps(databaseVersion)
 
     if (migrationSteps) {
-      logger.log(
-        `[WatermelonDB][SQLite] Migrating from version ${databaseVersion} to ${this.schema.version}...`,
-      )
+      logger.log(`[SQLite] Migrating from version ${databaseVersion} to ${this.schema.version}...`)
 
       if (this._migrationEvents && this._migrationEvents.onStart) {
         this._migrationEvents.onStart()
       }
 
       try {
-        await toPromise(callback =>
+        await toPromise((callback) =>
           this._dispatcher.setUpWithMigrations(
             this._dbName,
             this._encodeMigrations(migrationSteps),
@@ -180,12 +172,12 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
             callback,
           ),
         )
-        logger.log('[WatermelonDB][SQLite] Migration successful')
+        logger.log('[SQLite] Migration successful')
         if (this._migrationEvents && this._migrationEvents.onSuccess) {
           this._migrationEvents.onSuccess()
         }
       } catch (error) {
-        logger.error('[WatermelonDB][SQLite] Migration failed', error)
+        logger.error('[SQLite] Migration failed', error)
         if (this._migrationEvents && this._migrationEvents.onError) {
           this._migrationEvents.onError(error)
         }
@@ -193,17 +185,15 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
       }
     } else {
       logger.warn(
-        '[WatermelonDB][SQLite] Migrations not available for this version range, resetting database instead',
+        '[SQLite] Migrations not available for this version range, resetting database instead',
       )
       await this._setUpWithSchema()
     }
   }
 
   async _setUpWithSchema(): Promise<void> {
-    logger.log(
-      `[WatermelonDB][SQLite] Setting up database with schema version ${this.schema.version}`,
-    )
-    await toPromise(callback =>
+    logger.log(`[SQLite] Setting up database with schema version ${this.schema.version}`)
+    await toPromise((callback) =>
       this._dispatcher.setUpWithSchema(
         this._dbName,
         this._encodedSchema(),
@@ -211,14 +201,14 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
         callback,
       ),
     )
-    logger.log(`[WatermelonDB][SQLite] Schema set up successfully`)
+    logger.log(`[SQLite] Schema set up successfully`)
   }
 
   find(table: TableName<any>, id: RecordId, callback: ResultCallback<CachedFindResult>): void {
     validateTable(table, this.schema)
-    this._dispatcher.find(table, id, result =>
+    this._dispatcher.find(table, id, (result) =>
       callback(
-        mapValue(rawRecord => sanitizeFindResult(rawRecord, this.schema.tables[table]), result),
+        mapValue((rawRecord) => sanitizeFindResult(rawRecord, this.schema.tables[table]), result),
       ),
     )
   }
@@ -234,9 +224,12 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     callback: ResultCallback<CachedQueryResult>,
   ): void {
     validateTable(table, this.schema)
-    this._dispatcher.query(table, sql, result =>
+    this._dispatcher.query(table, sql, (result) =>
       callback(
-        mapValue(rawRecords => sanitizeQueryResult(rawRecords, this.schema.tables[table]), result),
+        mapValue(
+          (rawRecords) => sanitizeQueryResult(rawRecords, this.schema.tables[table]),
+          result,
+        ),
       ),
     )
   }
@@ -248,7 +241,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   }
 
   batch(operations: BatchOperation[], callback: ResultCallback<void>): void {
-    const batchOperations: NativeBridgeBatchOperation[] = operations.map(operation => {
+    const batchOperations: NativeBridgeBatchOperation[] = operations.map((operation) => {
       const [type, table, rawOrId] = operation
       validateTable(table, this.schema)
       switch (type) {
@@ -291,9 +284,9 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   }
 
   unsafeResetDatabase(callback: ResultCallback<void>): void {
-    this._dispatcher.unsafeResetDatabase(this._encodedSchema(), this.schema.version, result => {
+    this._dispatcher.unsafeResetDatabase(this._encodedSchema(), this.schema.version, (result) => {
       if (result.value) {
-        logger.log('[WatermelonDB][SQLite] Database is now reset')
+        logger.log('[SQLite] Database is now reset')
       }
       callback(result)
     })

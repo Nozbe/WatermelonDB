@@ -3,7 +3,7 @@ import * as Q from '../../QueryDescription'
 import subscribeToCount from './index'
 
 const prepareTask = (tasks, isCompleted) =>
-  tasks.prepareCreate(mock => {
+  tasks.prepareCreate((mock) => {
     mock.isCompleted = isCompleted
   })
 
@@ -17,7 +17,7 @@ const updateTask = (task, updater) => task.collection.database.action(() => task
 
 describe('subscribeToCount', () => {
   it('observes changes to count', async () => {
-    const { database, tasks } = mockDatabase({ actionsEnabled: true })
+    const { database, tasks } = mockDatabase()
 
     const query = tasks.query(Q.where('is_completed', true))
 

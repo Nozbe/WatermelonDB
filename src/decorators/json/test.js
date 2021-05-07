@@ -17,7 +17,7 @@ const schema2 = tableSchema({
   ],
 })
 
-const mockSanitizer = storedValue =>
+const mockSanitizer = (storedValue) =>
   storedValue && Array.isArray(storedValue.elements)
     ? { elements: storedValue.elements }
     : { elements: [] }
@@ -93,6 +93,6 @@ describe('decorators/json', () => {
           @json
           noName
         },
-    ).toThrow(/column name/)
+    ).toThrow('column name')
   })
 })

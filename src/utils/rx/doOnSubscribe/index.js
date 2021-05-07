@@ -7,7 +7,7 @@ import { defer, type Observable } from '../__wmelonRxShim'
 export default function doOnSubscribe<T>(
   onSubscribe: () => void,
 ): (Observable<T>) => Observable<T> {
-  return source =>
+  return (source) =>
     defer(() => {
       onSubscribe()
       return source

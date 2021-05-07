@@ -36,7 +36,7 @@ export default class Collection<Record: Model> {
     this.modelClass = ModelClass
     this._cache = new RecordCache<Record>(
       (ModelClass.table: $FlowFixMe),
-      raw => new ModelClass((this: $FlowFixMe), raw),
+      (raw) => new ModelClass((this: $FlowFixMe), raw),
       this,
     )
   }
@@ -48,20 +48,20 @@ export default class Collection<Record: Model> {
   // Finds a record with the given ID
   // Promise will reject if not found
   async find(id: RecordId): Promise<Record> {
-    return toPromise(callback => this._fetchRecord(id, callback))
+    return toPromise((callback) => this._fetchRecord(id, callback))
   }
 
   // Finds the given record and starts observing it
   // (with the same semantics as when calling `model.observe()`)
   findAndObserve(id: RecordId): Observable<Record> {
-    return Observable.create(observer => {
+    return Observable.create((observer) => {
       let unsubscribe = null
       let unsubscribed = false
-      this._fetchRecord(id, result => {
+      this._fetchRecord(id, (result) => {
         if (result.value) {
           const record = result.value
           observer.next(record)
-          unsubscribe = record.experimentalSubscribe(isDeleted => {
+          unsubscribe = record.experimentalSubscribe((isDeleted) => {
             if (!unsubscribed) {
               isDeleted ? observer.complete() : observer.next(record)
             }
@@ -90,7 +90,7 @@ export default class Collection<Record: Model> {
   // collections.get(Tables.tasks).create(task => {
   //   task.name = 'Task name'
   // })
-  async create(recordBuilder: Record => void = noop): Promise<Record> {
+  async create(recordBuilder: (Record) => void = noop): Promise<Record> {
     this.database._ensureInAction(
       `Collection.create() can only be called from inside of an Action. See docs for more details.`,
     )
@@ -102,7 +102,7 @@ export default class Collection<Record: Model> {
 
   // Prepares a new record in this collection
   // Use this to batch-create multiple records
-  prepareCreate(recordBuilder: Record => void = noop): Record {
+  prepareCreate(recordBuilder: (Record) => void = noop): Record {
     // $FlowFixMe
     return this.modelClass._prepareCreate(this, recordBuilder)
   }
@@ -127,9 +127,9 @@ export default class Collection<Record: Model> {
       'unsafeFetchRecordsWithSQL called on a database that does not support SQL',
     )
     const sqlAdapter: SQLDatabaseAdapter = (underlyingAdapter: any)
-    return toPromise(callback => {
-      sqlAdapter.unsafeSqlQuery(this.modelClass.table, sql, result =>
-        callback(mapValue(rawRecords => this._cache.recordsFromQueryResult(rawRecords), result)),
+    return toPromise((callback) => {
+      sqlAdapter.unsafeSqlQuery(this.modelClass.table, sql, (result) =>
+        callback(mapValue((rawRecords) => this._cache.recordsFromQueryResult(rawRecords), result)),
       )
     })
   }
@@ -147,8 +147,8 @@ export default class Collection<Record: Model> {
 
   // See: Query.fetch
   _fetchQuery(query: Query<Record>, callback: ResultCallback<Record[]>): void {
-    this.database.adapter.underlyingAdapter.query(query.serialize(), result =>
-      callback(mapValue(rawRecords => this._cache.recordsFromQueryResult(rawRecords), result)),
+    this.database.adapter.underlyingAdapter.query(query.serialize(), (result) =>
+      callback(mapValue((rawRecords) => this._cache.recordsFromQueryResult(rawRecords), result)),
     )
   }
 
@@ -171,9 +171,9 @@ export default class Collection<Record: Model> {
       return
     }
 
-    this.database.adapter.underlyingAdapter.find(this.table, id, result =>
+    this.database.adapter.underlyingAdapter.find(this.table, id, (result) =>
       callback(
-        mapValue(rawRecord => {
+        mapValue((rawRecord) => {
           invariant(rawRecord, `Record ${this.table}#${id} not found`)
           return this._cache.recordFromQueryResult(rawRecord)
         }, result),

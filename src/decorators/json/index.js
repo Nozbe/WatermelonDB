@@ -20,7 +20,7 @@ import { ensureDecoratorUsedProperly } from '../common'
 // Examples:
 //   @json('contact_info', jsonValue => jasonValue || {}) contactInfo: ContactInfo
 
-const parseJSON = value => {
+const parseJSON = (value) => {
   try {
     return JSON.parse(value)
   } catch (_) {

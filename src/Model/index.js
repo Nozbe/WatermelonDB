@@ -82,7 +82,7 @@ export default class Model {
   // someTask.update(task => {
   //   task.name = 'New name'
   // })
-  async update(recordUpdater: this => void = noop): Promise<this> {
+  async update(recordUpdater: (this) => void = noop): Promise<this> {
     this.collection.database._ensureInAction(
       `Model.update() can only be called from inside of an Action. See docs for more details.`,
     )
@@ -96,7 +96,7 @@ export default class Model {
   //
   // After preparing an update, you must execute it synchronously using
   // database.batch()
-  prepareUpdate(recordUpdater: this => void = noop): this {
+  prepareUpdate(recordUpdater: (this) => void = noop): this {
     invariant(this._isCommitted, `Cannot update uncommitted record`)
     invariant(!this._hasPendingUpdate, `Cannot update a record with pending updates`)
 
@@ -179,7 +179,7 @@ export default class Model {
       `Model.experimental_markAsDeleted() can only be called from inside of an Action. See docs for more details.`,
     )
     const children = await fetchChildren(this)
-    children.forEach(model => model.prepareMarkAsDeleted())
+    children.forEach((model) => model.prepareMarkAsDeleted())
     await this.collection.database.batch(...children, this.prepareMarkAsDeleted())
   }
 
@@ -188,7 +188,7 @@ export default class Model {
       `Model.experimental_destroyPermanently() can only be called from inside of an Action. See docs for more details.`,
     )
     const children = await fetchChildren(this)
-    children.forEach(model => model.prepareDestroyPermanently())
+    children.forEach((model) => model.prepareDestroyPermanently())
     await this.collection.database.batch(...children, this.prepareDestroyPermanently())
   }
 
@@ -246,7 +246,7 @@ export default class Model {
 
   static _prepareCreate(
     collection: Collection<$FlowFixMe<this>>,
-    recordBuilder: this => void,
+    recordBuilder: (this) => void,
   ): this {
     const record = new this(
       collection,

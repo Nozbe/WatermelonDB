@@ -18,12 +18,12 @@ function performJoinsImpl(query: LokiRawQuery, performer: QueryPerformer): LokiR
     //   (e.g. task: { project_id in ids })
     // and for `has_many` tables, it will be IDs of the main table records
     //   (e.g. task: { id in (ids from tag_assignment.task_id) })
-    const matchingIds = records.map(record => record[join.mapKey])
+    const matchingIds = records.map((record) => record[join.mapKey])
     return { [(join.joinKey: string)]: { $in: matchingIds } }
   } else if (query.$and) {
-    return { $and: query.$and.map(clause => performJoinsImpl(clause, performer)) }
+    return { $and: query.$and.map((clause) => performJoinsImpl(clause, performer)) }
   } else if (query.$or) {
-    return { $or: query.$or.map(clause => performJoinsImpl(clause, performer)) }
+    return { $or: query.$or.map((clause) => performJoinsImpl(clause, performer)) }
   }
   return query
 }

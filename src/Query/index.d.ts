@@ -4,7 +4,7 @@ declare module '@nozbe/watermelondb/Query' {
   import { Clause, QueryDescription } from '@nozbe/watermelondb/QueryDescription'
   import { Observable } from 'rxjs'
 
-  export type QueryAssociation = { from: TableName<any>, to: TableName<any>, info: AssociationInfo }
+  export type QueryAssociation = { from: TableName<any>; to: TableName<any>; info: AssociationInfo }
   export interface SerializedQuery {
     table: TableName<any>
     description: QueryDescription

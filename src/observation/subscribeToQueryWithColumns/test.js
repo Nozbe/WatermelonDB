@@ -3,7 +3,7 @@ import * as Q from '../../QueryDescription'
 import subscribeToQueryWithColumns from './index'
 
 const prepareTask = (tasks, name, isCompleted, position) =>
-  tasks.prepareCreate(mock => {
+  tasks.prepareCreate((mock) => {
     mock.name = name
     mock.isCompleted = isCompleted
     mock.position = position
@@ -67,14 +67,14 @@ describe('subscribeToQueryWithColumns', () => {
     expect(observer).toHaveBeenLastCalledWith([m2, m4])
 
     // some irrelevant change (no emission)
-    await updateTask(m2, task => {
+    await updateTask(m2, (task) => {
       task.name = 'changed name'
     })
     asyncSource && (await waitForNextQuery())
     expect(observer).toHaveBeenCalledTimes(4)
 
     // change model to start matching
-    await updateTask(m3, task => {
+    await updateTask(m3, (task) => {
       task.isCompleted = true
     })
 
@@ -85,7 +85,7 @@ describe('subscribeToQueryWithColumns', () => {
 
     // change model to no longer match
     // make sure changed model isn't re-emitted before source query removes it
-    await updateTask(m2, task => {
+    await updateTask(m2, (task) => {
       task.isCompleted = false
     })
 
@@ -95,7 +95,7 @@ describe('subscribeToQueryWithColumns', () => {
     expect(observer.mock.calls[5][0]).toEqual(expect.arrayContaining([m3, m4]))
 
     // change a relevant field in previously-observed record (no emission)
-    await updateTask(m2, task => {
+    await updateTask(m2, (task) => {
       task.position = 10
     })
     asyncSource && (await waitForNextQuery())
@@ -124,7 +124,7 @@ describe('subscribeToQueryWithColumns', () => {
     // make an irrelevant change to recently changed record (no emission)
     // Note: This is a regression check for a situation where task had a relevant change,
     // but new record state was not cached, so another irrelevant change triggered an update
-    await updateTask(m4, task => {
+    await updateTask(m4, (task) => {
       task.name = 'different name'
     })
     asyncSource && (await waitForNextQuery())
@@ -141,18 +141,18 @@ describe('subscribeToQueryWithColumns', () => {
 
     // ensure record subscriptions are disposed properly
     unsubscribe()
-    await updateTask(m3, mock => {
+    await updateTask(m3, (mock) => {
       mock.position += 1
     })
     expect(observer).toHaveBeenCalledTimes(7)
   }
   it('observes changes correctly - test with simple observer', async () => {
-    const mockDb = mockDatabase({ actionsEnabled: true })
+    const mockDb = mockDatabase()
     const query = mockDb.tasks.query(Q.where('is_completed', true))
     await fullObservationTest(mockDb, query, false)
   })
   it('observes changes correctly - test with reloading observer', async () => {
-    const mockDb = mockDatabase({ actionsEnabled: true })
+    const mockDb = mockDatabase()
     const query = mockDb.tasks.query(
       Q.where('is_completed', true),
       // fake query to force to use reloading observer

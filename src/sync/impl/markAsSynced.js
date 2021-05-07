@@ -6,12 +6,12 @@ import allPromisesObj from '../../utils/fp/allPromisesObj'
 import { logError } from '../../utils/common'
 import type { Database, Model } from '../..'
 
-import { prepareMarkAsSynced, ensureActionsEnabled } from './helpers'
+import { prepareMarkAsSynced } from './helpers'
 import type { SyncLocalChanges } from '../index'
 
 const unchangedRecordsForRaws = (raws, recordCache) =>
   raws.reduce((records, raw) => {
-    const record = recordCache.find(model => model.id === raw.id)
+    const record = recordCache.find((model) => model.id === raw.id)
     if (!record) {
       logError(
         `[Sync] Looking for record ${raw.id} to mark it as synced, but I can't find it. Will ignore it (it should get synced next time). This is probably a Watermelon bug — please file an issue!`,
@@ -37,21 +37,17 @@ const recordsToMarkAsSynced = ({ changes, affectedRecords }: SyncLocalChanges): 
 const destroyDeletedRecords = (db: Database, { changes }: SyncLocalChanges): Promise<*> =>
   allPromisesObj(
     // $FlowFixMe
-    mapObj(
-      ({ deleted }, tableName) => {
-        return deleted.length
+    mapObj(({ deleted }, tableName) => {
+      return deleted.length
         ? db.adapter.destroyDeletedRecords(tableName, deleted)
         : Promise.resolve()
-      },
-      changes,
-    ),
+    }, changes),
   )
 
 export default function markLocalChangesAsSynced(
   db: Database,
   syncedLocalChanges: SyncLocalChanges,
 ): Promise<void> {
-  ensureActionsEnabled(db)
   return db.action(async () => {
     // update and destroy records concurrently
     await Promise.all([

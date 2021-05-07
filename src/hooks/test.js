@@ -13,7 +13,7 @@ import { mockDatabase } from '../__tests__/testModels'
 describe('useDatabase hook', () => {
   let database
   beforeAll(() => {
-    database = mockDatabase({ actionsEnabled: true }).db
+    database = mockDatabase().db
   })
   test('should use database', () => {
     const wrapper = ({ children }) => (

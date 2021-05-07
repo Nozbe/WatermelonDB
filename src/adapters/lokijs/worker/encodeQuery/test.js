@@ -24,10 +24,10 @@ class MockProject extends Model {
 
 const mockCollection = Object.freeze({
   modelClass: MockTask,
-  db: { get: table => (table === 'projects' ? { modelClass: MockProject } : {}) },
+  db: { get: (table) => (table === 'projects' ? { modelClass: MockProject } : {}) },
 })
 
-const encoded = clauses => encodeQueryRaw(new Query(mockCollection, clauses).serialize())
+const encoded = (clauses) => encodeQueryRaw(new Query(mockCollection, clauses).serialize())
 
 describe('LokiJS encodeQuery', () => {
   it('encodes simple queries', () => {

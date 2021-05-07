@@ -25,7 +25,7 @@ class MockProject extends Model {
 
 const mockCollection = Object.freeze({
   modelClass: MockTask,
-  db: { get: table => (table === 'projects' ? { modelClass: MockProject } : {}) },
+  db: { get: (table) => (table === 'projects' ? { modelClass: MockProject } : {}) },
 })
 
 const testQuery = (query, performer) => performJoins(encodeQuery(query.serialize()), performer)

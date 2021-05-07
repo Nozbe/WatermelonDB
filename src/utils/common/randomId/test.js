@@ -13,7 +13,7 @@ describe('randomId', () => {
     for (let i = 0; i < 250; i += 1) {
       const id = randomId()
       expect(id.length).toBe(16)
-      expect(id.split('').every(char => alphabet.includes(char))).toBe(true)
+      expect(id.split('').every((char) => alphabet.includes(char))).toBe(true)
     }
   })
 

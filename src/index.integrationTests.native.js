@@ -27,7 +27,7 @@ if (openPlayground) {
     const integrationTests = require('./__tests__/integrationTests').default
 
     const { current: testHookStore } = React.useRef(new TestHookStore())
-    const sendReport = report => {
+    const sendReport = (report) => {
       // eslint-disable-next-line
       console.log('Done:')
       // eslint-disable-next-line
@@ -36,11 +36,13 @@ if (openPlayground) {
     }
 
     return (
-      <Tester specs={integrationTests}
+      <Tester
+        specs={integrationTests}
         store={testHookStore}
         waitTime={4000}
         sendReport={true}
-        customReporter={sendReport}>
+        customReporter={sendReport}
+      >
         <Text style={{ paddingTop: 100 }}>The tests are running. Please remain calm.</Text>
       </Tester>
     )
