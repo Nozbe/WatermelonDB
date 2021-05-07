@@ -238,7 +238,7 @@ describe('creating new records', () => {
     expect(newModelSpy).toHaveBeenCalledTimes(1)
   })
   it('disallows record creating outside of an action', async () => {
-    const { database, tasks } = mockDatabase({ actionsEnabled: true })
+    const { database, tasks } = mockDatabase()
 
     await expectToRejectWithMessage(
       tasks.create(noop),
@@ -252,7 +252,7 @@ describe('creating new records', () => {
 
 describe('Collection observation', () => {
   it('can subscribe to collection changes', async () => {
-    const { database, tasks } = mockDatabase({ actionsEnabled: true })
+    const { database, tasks } = mockDatabase()
 
     await database.action(() => tasks.create())
 
@@ -289,7 +289,7 @@ describe('Collection observation', () => {
     expect(subscriber2).toHaveBeenCalledTimes(2)
   })
   it('unsubscribe can safely be called more than once', async () => {
-    const { database, tasks } = mockDatabase({ actionsEnabled: true })
+    const { database, tasks } = mockDatabase()
 
     const subscriber1 = jest.fn()
     const unsubscribe1 = tasks.experimentalSubscribe(subscriber1)
@@ -305,7 +305,7 @@ describe('Collection observation', () => {
     unsubscribe1()
   })
   it(`can subscribe with the same subscriber multiple times`, async () => {
-    const { database, tasks } = mockDatabase({ actionsEnabled: true })
+    const { database, tasks } = mockDatabase()
     const trigger = () => database.action(() => tasks.create())
     const subscriber = jest.fn()
 

@@ -12,7 +12,7 @@ function MockComponent() {
 describe('DatabaseProvider', () => {
   let database
   beforeAll(() => {
-    database = mockDatabase({ actionsEnabled: true }).db
+    database = mockDatabase().db
   })
   it('throws if no database or adapter supplied', () => {
     expect(() => {

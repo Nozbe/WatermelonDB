@@ -19,7 +19,7 @@ const updateTask = (task, updater) => task.collection.database.action(() => task
 
 describe('subscribeToQueryReloading', () => {
   it('observes changes to query', async () => {
-    const { database, tasks, projects } = mockDatabase({ actionsEnabled: true })
+    const { database, tasks, projects } = mockDatabase()
 
     const query = tasks.query(
       Q.where('is_completed', true),
@@ -90,7 +90,7 @@ describe('subscribeToQueryReloading', () => {
     expect(observer).toHaveBeenCalledTimes(4)
   })
   it('calls observer even if query is empty (regression)', async () => {
-    const { tasks } = mockDatabase({ actionsEnabled: true })
+    const { tasks } = mockDatabase()
 
     const observer = jest.fn()
     const unsubscribe = subscribeToQueryReloading(tasks.query(), observer)

@@ -147,12 +147,12 @@ describe('subscribeToQueryWithColumns', () => {
     expect(observer).toHaveBeenCalledTimes(7)
   }
   it('observes changes correctly - test with simple observer', async () => {
-    const mockDb = mockDatabase({ actionsEnabled: true })
+    const mockDb = mockDatabase()
     const query = mockDb.tasks.query(Q.where('is_completed', true))
     await fullObservationTest(mockDb, query, false)
   })
   it('observes changes correctly - test with reloading observer', async () => {
-    const mockDb = mockDatabase({ actionsEnabled: true })
+    const mockDb = mockDatabase()
     const query = mockDb.tasks.query(
       Q.where('is_completed', true),
       // fake query to force to use reloading observer

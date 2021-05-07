@@ -39,7 +39,6 @@ const makeDatabase = () =>
       }),
     },
     modelClasses: [MockParent, MockChild],
-    actionsEnabled: true,
   })
 
 describe('decorators/children', () => {

@@ -45,7 +45,7 @@ describe('Conflict resolution', () => {
   })
 })
 
-const makeDatabase = () => mockDatabase({ actionsEnabled: true })
+const makeDatabase = () => mockDatabase()
 
 const prepareCreateFromRaw = (collection, dirtyRaw) =>
   collection.prepareCreate(record => {
@@ -270,11 +270,6 @@ describe('hasUnsyncedChanges', () => {
 
     expect(await hasUnsyncedChanges({ database })).toBe(true)
   })
-  it('aborts if actions are not enabled', async () => {
-    const { database } = mockDatabase({ actionsEnabled: false })
-
-    await expectToRejectWithMessage(hasUnsyncedChanges({ database }), /actions must be enabled/i)
-  })
 })
 
 describe('isChangeSetEmpty', () => {
@@ -423,7 +418,7 @@ describe('markLocalChangesAsSynced', () => {
       sorted([newProject, tCreated, pSynced, tUpdated]),
     )
     expect(destroyDeletedRecordsSpy).toHaveBeenCalledTimes(0)
-    
+
     await expectSyncedAndMatches(tasks, 'tUpdated', {
       _status: 'updated',
       // TODO: ideally position would probably not be here
@@ -441,7 +436,7 @@ describe('markLocalChangesAsSynced', () => {
     expect(destroyDeletedRecordsSpy).toHaveBeenCalledTimes(2)
     expect(destroyDeletedRecordsSpy).toHaveBeenCalledWith('mock_tasks', ['tSynced'])
     expect(destroyDeletedRecordsSpy).toHaveBeenCalledWith('mock_comments', ['cUpdated', 'cCreated'])
-    
+
   })
   // TODO: Unskip the test when batch collection emissions are implemented
   it.skip('only emits one collection batch change', async () => {
@@ -1250,14 +1245,6 @@ describe('synchronize', () => {
     )
     await expectToRejectWithMessage(projects.find('new_project'), /not found/)
   })
-  it('aborts if actions are not enabled', async () => {
-    const { database } = mockDatabase({ actionsEnabled: false })
-
-    await expectToRejectWithMessage(
-      synchronize({ database, pullChanges: jest.fn(), pushChanges: jest.fn() }),
-      /actions must be enabled/i,
-    )
-  })
   describe('migration syncs', () => {
     const testSchema10 = { ...testSchema, version: 10 }
     const migrations = schemaMigrations({
@@ -1284,7 +1271,7 @@ describe('synchronize', () => {
       ],
     })
     it(`remembers synced schema version on first sync`, async () => {
-      const { database } = mockDatabase({ actionsEnabled: true, schema: testSchema10, migrations })
+      const { database } = mockDatabase({ schema: testSchema10, migrations })
       const pullChanges = jest.fn(emptyPull())
 
       await synchronize({
@@ -1303,7 +1290,7 @@ describe('synchronize', () => {
       expect(await database.adapter.getLocal('__watermelon_last_pulled_schema_version')).toBe('10')
     })
     it(`remembers synced schema version on first sync, even if migrations are not enabled`, async () => {
-      const { database } = mockDatabase({ actionsEnabled: true, schema: testSchema10 })
+      const { database } = mockDatabase({ schema: testSchema10 })
       const pullChanges = jest.fn(emptyPull())
 
       await synchronize({ database, pullChanges, pushChanges: jest.fn() })
@@ -1315,7 +1302,7 @@ describe('synchronize', () => {
       expect(await getLastPulledSchemaVersion(database)).toBe(10)
     })
     it(`does not remember schema version if migration syncs are not enabled`, async () => {
-      const { database } = mockDatabase({ actionsEnabled: true, schema: testSchema10 })
+      const { database } = mockDatabase({ schema: testSchema10 })
       await setLastPulledAt(database, 100)
       const pullChanges = jest.fn(emptyPull())
 
@@ -1328,7 +1315,7 @@ describe('synchronize', () => {
       expect(await getLastPulledSchemaVersion(database)).toBe(null)
     })
     it(`performs no migration if up to date`, async () => {
-      const { database } = mockDatabase({ actionsEnabled: true, schema: testSchema10, migrations })
+      const { database } = mockDatabase({ schema: testSchema10, migrations })
       await setLastPulledAt(database, 1500)
       await setLastPulledSchemaVersion(database, 10)
 
@@ -1347,7 +1334,7 @@ describe('synchronize', () => {
       expect(await getLastPulledSchemaVersion(database)).toBe(10)
     })
     it(`performs migration sync on schema version bump`, async () => {
-      const { database } = mockDatabase({ actionsEnabled: true, schema: testSchema10, migrations })
+      const { database } = mockDatabase({ schema: testSchema10, migrations })
       await setLastPulledAt(database, 1500)
       await setLastPulledSchemaVersion(database, 9)
 
@@ -1370,7 +1357,7 @@ describe('synchronize', () => {
       expect(await getLastPulledSchemaVersion(database)).toBe(10)
     })
     it(`performs fallback migration sync`, async () => {
-      const { database } = mockDatabase({ actionsEnabled: true, schema: testSchema10, migrations })
+      const { database } = mockDatabase({ schema: testSchema10, migrations })
       await setLastPulledAt(database, 1500)
 
       const pullChanges = jest.fn(emptyPull(2500))
@@ -1392,7 +1379,7 @@ describe('synchronize', () => {
       expect(await getLastPulledSchemaVersion(database)).toBe(10)
     })
     it(`does not remember schema version if pull fails`, async () => {
-      const { database } = mockDatabase({ actionsEnabled: true, schema: testSchema10, migrations })
+      const { database } = mockDatabase({ schema: testSchema10, migrations })
       await synchronize({
         database,
         pullChanges: jest.fn(() => Promise.reject(new Error('pull-fail'))),
@@ -1402,7 +1389,7 @@ describe('synchronize', () => {
       expect(await getLastPulledSchemaVersion(database)).toBe(null)
     })
     it(`fails on programmer errors`, async () => {
-      const { database } = mockDatabase({ actionsEnabled: true, schema: testSchema10, migrations })
+      const { database } = mockDatabase({ schema: testSchema10, migrations })
 
       await expectToRejectWithMessage(
         synchronize({ database, migrationsEnabledAtVersion: '9' }),
@@ -1414,7 +1401,7 @@ describe('synchronize', () => {
       )
       await expectToRejectWithMessage(
         synchronize({
-          database: mockDatabase({ actionsEnabled: true, schema: testSchema10 }).db,
+          database: mockDatabase({ schema: testSchema10 }).db,
           migrationsEnabledAtVersion: 9,
         }),
         'Migration syncs cannot be enabled on a database that does not support migrations',
@@ -1425,7 +1412,7 @@ describe('synchronize', () => {
       )
     })
     it(`fails on last synced schema version > current schema version`, async () => {
-      const { database } = mockDatabase({ actionsEnabled: true, schema: testSchema10, migrations })
+      const { database } = mockDatabase({ schema: testSchema10, migrations })
       await setLastPulledAt(database, 1500)
       await setLastPulledSchemaVersion(database, 11)
       await expectToRejectWithMessage(

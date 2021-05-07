@@ -90,7 +90,6 @@ export class MockComment extends Model {
 export const modelClasses = [MockProject, MockTask, MockComment]
 
 export const mockDatabase = ({
-  actionsEnabled = false,
   schema = testSchema,
   migrations = undefined,
 } = {}) => {
@@ -105,7 +104,6 @@ export const mockDatabase = ({
     adapter,
     schema,
     modelClasses,
-    actionsEnabled,
   })
   return {
     database,
@@ -120,7 +118,6 @@ export const mockDatabase = ({
         adapter: await database.adapter.underlyingAdapter.testClone({ schema: clonedSchema }),
         schema: clonedSchema,
         modelClasses,
-        actionsEnabled,
       }),
   }
 }

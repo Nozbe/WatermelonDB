@@ -6,7 +6,7 @@ import * as Q from '../QueryDescription'
 
 describe('Database', () => {
   it(`implements get()`, () => {
-    const { database } = mockDatabase({ actionsEnabled: true })
+    const { database } = mockDatabase()
     expect(database.get('mock_tasks').table).toBe('mock_tasks')
     expect(database.get('mock_tasks')).toBe(database.collections.get('mock_tasks'))
     expect(database.get('mock_comments')).toBe(database.collections.get('mock_comments'))
@@ -14,7 +14,7 @@ describe('Database', () => {
 
   describe('unsafeResetDatabase', () => {
     it('can reset database', async () => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
 
       const m1 = await database.action(() => tasks.create())
       const m2 = await database.action(() => tasks.create())
@@ -29,7 +29,7 @@ describe('Database', () => {
       await expectToRejectWithMessage(tasks.find(m2.id), /not found/)
     })
     it('throws error if reset is called from outside an Action', async () => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
       const m1 = await database.action(() => tasks.create())
 
       await expectToRejectWithMessage(
@@ -40,7 +40,7 @@ describe('Database', () => {
       expect(await tasks.find(m1.id)).toBe(m1)
     })
     it('increments reset count after every reset', async () => {
-      const { database } = mockDatabase({ actionsEnabled: true })
+      const { database } = mockDatabase()
       expect(database._resetCount).toBe(0)
 
       await database.action(() => database.unsafeResetDatabase())
@@ -50,7 +50,7 @@ describe('Database', () => {
       expect(database._resetCount).toBe(2)
     })
     it('prevents Adapter from being called during reset db', async () => {
-      const { database } = mockDatabase({ actionsEnabled: true })
+      const { database } = mockDatabase()
 
       const checkAdapter = async () => {
         expect(await database.adapter.getLocal('test')).toBe(null)
@@ -77,7 +77,7 @@ describe('Database', () => {
       await checkAdapter()
     })
     it('Cancels Database experimental subscribers during reset', async () => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
 
       // sanity check first
       const subscriber1 = jest.fn()
@@ -116,7 +116,7 @@ describe('Database', () => {
     it.skip('Cancels Relation observation during reset', async () => {})
     it.skip('Cancels Relation experimental subscribers during reset', async () => {})
     it('Signals internally when database is being reset', async () => {
-      const { database } = mockDatabase({ actionsEnabled: true })
+      const { database } = mockDatabase()
 
       expect(database._isBeingReset).toBe(false)
       const promise = database.action(() => database.unsafeResetDatabase())
@@ -148,7 +148,7 @@ describe('Database', () => {
         cloneDatabase,
         tasks: tasksCollection,
         comments: commentsCollection,
-      } = mockDatabase({ actionsEnabled: true })
+      } = mockDatabase()
       const adapterBatchSpy = jest.spyOn(database.adapter, 'batch')
 
       // m1, m2 will be used to test batch-updates
@@ -239,7 +239,7 @@ describe('Database', () => {
       expect(fetchedM4.length).toBe(0)
     })
     it('ignores falsy values passed', async () => {
-      const { database, tasks: tasksCollection } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks: tasksCollection } = mockDatabase()
       const adapterBatchSpy = jest.spyOn(database.adapter, 'batch')
 
       const model = tasksCollection.prepareCreate()
@@ -249,7 +249,7 @@ describe('Database', () => {
       expect(adapterBatchSpy).toHaveBeenLastCalledWith([['create', 'mock_tasks', model._raw]])
     })
     it(`can batch with an array passed as argument`, async () => {
-      const { database, tasks: tasksCollection } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks: tasksCollection } = mockDatabase()
       const adapterBatchSpy = jest.spyOn(database.adapter, 'batch')
 
       const model = tasksCollection.prepareCreate()
@@ -259,7 +259,7 @@ describe('Database', () => {
       expect(adapterBatchSpy).toHaveBeenLastCalledWith([['create', 'mock_tasks', model._raw]])
     })
     it('throws error if attempting to batch records without a pending operation', async () => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
       const m1 = await database.action(() => tasks.create())
 
       await expectToRejectWithMessage(
@@ -268,7 +268,7 @@ describe('Database', () => {
       )
     })
     it('throws error if batch is called outside of an action', async () => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
 
       await expectToRejectWithMessage(
         database.batch(tasks.prepareCreate(noop)),
@@ -287,7 +287,7 @@ describe('Database', () => {
       expect(task.name).toBe('foo1')
     })
     it(`throws an error if invalid arguments`, async () => {
-      const { database } = mockDatabase({ actionsEnabled: true })
+      const { database } = mockDatabase()
       await expectToRejectWithMessage(
         database.batch([], null),
         /batch should be called with a list/,
@@ -297,7 +297,7 @@ describe('Database', () => {
 
   describe('Observation', () => {
     it('implements withChangesForTables', async () => {
-      const { database, projects, tasks, comments } = mockDatabase({ actionsEnabled: true })
+      const { database, projects, tasks, comments } = mockDatabase()
 
       const observer = jest.fn()
       database.withChangesForTables(['mock_projects', 'mock_tasks']).subscribe(observer)
@@ -339,7 +339,7 @@ describe('Database', () => {
       ])
     })
     it('can subscribe to change signals for particular tables', async () => {
-      const { database, projects, tasks, comments } = mockDatabase({ actionsEnabled: true })
+      const { database, projects, tasks, comments } = mockDatabase()
 
       const subscriber1 = jest.fn()
       const unsubscribe1 = database.experimentalSubscribe([], subscriber1)
@@ -389,7 +389,7 @@ describe('Database', () => {
       unsubscribe3()
     })
     it('unsubscribe can safely be called more than once', async () => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
 
       const subscriber1 = jest.fn()
       const unsubscribe1 = database.experimentalSubscribe(['mock_tasks'], subscriber1)
@@ -405,7 +405,7 @@ describe('Database', () => {
       unsubscribe1()
     })
     it(`can subscribe with the same subscriber multiple times`, async () => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
 
       const subscriber = jest.fn()
       const unsubscribe1 = database.experimentalSubscribe(['mock_tasks'], subscriber)
@@ -426,7 +426,7 @@ describe('Database', () => {
       expect(subscriber).toHaveBeenCalledTimes(4)
     })
     it('has new objects cached before calling subscribers (regression test)', async () => {
-      const { database, projects, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, projects, tasks } = mockDatabase()
 
       const project = projects.prepareCreate()
       const task = tasks.prepareCreate(t => {
@@ -604,7 +604,7 @@ describe('Database', () => {
       expect(called2).toBe(0)
     })
     it('aborts all pending actions if database is reset', async () => {
-      const { database } = mockDatabase({ actionsEnabled: true })
+      const { database } = mockDatabase()
 
       let promise1
       let promise2

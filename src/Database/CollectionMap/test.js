@@ -4,7 +4,7 @@ import Model from '../../Model'
 
 describe('CollectionMap', () => {
   it('can initialize and get models', () => {
-    const { db } = mockDatabase({ actionsEnabled: true })
+    const { db } = mockDatabase()
     const map = new CollectionMap(db, [MockProject, MockTask])
 
     expect(map.get('mock_projects').modelClass).toBe(MockProject)
@@ -13,14 +13,14 @@ describe('CollectionMap', () => {
     expect(map.get('mock_tasks').table).toBe('mock_tasks')
   })
   it(`returns null for collections that don't exist`, () => {
-    const { db } = mockDatabase({ actionsEnabled: true })
+    const { db } = mockDatabase()
     const map = new CollectionMap(db, [MockProject, MockTask])
 
     expect(map.get('mock_comments')).toBe(null)
     expect(map.get('does_not_exist')).toBe(null)
   })
   it(`returns null for naughty table names`, () => {
-    const { db } = mockDatabase({ actionsEnabled: true })
+    const { db } = mockDatabase()
     const map = new CollectionMap(db, [MockProject, MockTask])
 
     expect(map.get(null)).toBe(null)
@@ -30,14 +30,14 @@ describe('CollectionMap', () => {
     expect(map.get('hasOwnProperty')).toBe(null)
   })
   it(`collection map is immutable`, () => {
-    const { db } = mockDatabase({ actionsEnabled: true })
+    const { db } = mockDatabase()
     const map = new CollectionMap(db, [MockProject, MockTask])
     expect(() => {
       map.map.foo = 'hey'
     }).toThrow()
   })
   it(`alerts the user of invalid model classes`, () => {
-    const { db } = mockDatabase({ actionsEnabled: true })
+    const { db } = mockDatabase()
     class ModelWithMissingTable extends Model {}
     expect(() => new CollectionMap(db, [ModelWithMissingTable])).toThrow(
       /Model class ModelWithMissingTable passed to Database constructor is missing "static table = 'table_name'"/,

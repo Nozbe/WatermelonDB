@@ -29,7 +29,6 @@ const makeDatabase = () =>
       }),
     },
     modelClasses: [MockModel],
-    actionsEnabled: true,
   })
 
 describe('decorators/nochange', () => {

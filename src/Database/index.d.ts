@@ -19,7 +19,6 @@ declare module '@nozbe/watermelondb/Database' {
       options: {
         adapter: DatabaseAdapter;
         modelClasses: Class<Model>[];
-        actionsEnabled: boolean;
       })
 
     public batch(...records: (Model | null | void | false | Promise<void>)[]): Promise<void>
@@ -32,7 +31,7 @@ declare module '@nozbe/watermelondb/Database' {
     ): Observable<CollectionChangeSet<any> | null>
 
     public unsafeResetDatabase(): Promise<void>
-      
+
     public get<T extends Model>(tableName: TableName<T>): Collection<T>
   }
 }

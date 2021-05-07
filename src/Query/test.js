@@ -240,7 +240,7 @@ describe('Query', () => {
       // no test here - Collection._fetchCount is tested
     })
     it(`is thenable`, async () => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
       const queryAll = new Query(tasks, [])
       const m1 = tasks.prepareCreate()
       const m2 = tasks.prepareCreate()
@@ -249,7 +249,7 @@ describe('Query', () => {
       expect(await queryAll.then(records => records.length)).toBe(2)
     })
     it(`count is thenable`, async () => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
       const queryAll = new Query(tasks, [])
       await database.action(() => database.batch(tasks.prepareCreate(), tasks.prepareCreate()))
       expect(await queryAll.count).toEqual(2)
@@ -265,7 +265,7 @@ describe('Query', () => {
       return database.adapter.getLocal('nothing')
     }
     const testQueryObservation = async (makeSubscribe, withColumns) => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
       const adapterSpy = jest.spyOn(database.adapter.underlyingAdapter, 'query')
       const query = new Query(tasks, [])
       const observer = jest.fn()
@@ -318,7 +318,7 @@ describe('Query', () => {
     })
 
     const testCountObservation = async (makeSubscribe, isThrottled) => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
       const adapterSpy = jest.spyOn(database.adapter.underlyingAdapter, 'count')
       const query = new Query(tasks, [])
       const observer = jest.fn()
@@ -372,7 +372,7 @@ describe('Query', () => {
 
   describe('mass delete', () => {
     const testMassDelete = async methodName => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
       const query = new Query(tasks, [Q.where('name', 'foo')])
       const queryAll = new Query(tasks, [])
 

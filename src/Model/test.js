@@ -82,11 +82,10 @@ class MockModelCreatedUpdated extends Model {
   updatedAt
 }
 
-const makeDatabase = ({ actionsEnabled = false } = {}) =>
+const makeDatabase = () =>
   new Database({
     adapter: { schema: mockSchema },
     modelClasses: [MockModel, MockModelCreated, MockModelUpdated, MockModelCreatedUpdated],
-    actionsEnabled,
   })
 
 describe('Model', () => {
@@ -437,7 +436,7 @@ describe('Safety features', () => {
     database.batch(model)
   })
   it('disallows writes outside of an action', async () => {
-    const database = makeDatabase({ actionsEnabled: true })
+    const database = makeDatabase()
     database.adapter.batch = jest.fn()
 
     const model = await database.action(() => database.get('mock').create())
@@ -797,7 +796,7 @@ describe('Model observation', () => {
     unsubscribe1()
   })
   it(`can subscribe with the same subscriber multiple times`, async () => {
-    const { database, tasks } = mockDatabase({ actionsEnabled: true })
+    const { database, tasks } = mockDatabase()
     const task = await database.action(() => tasks.create())
     const trigger = () => database.action(() => task.update())
     const subscriber = jest.fn()
