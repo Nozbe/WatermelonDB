@@ -433,6 +433,9 @@ void Database::unsafeLoadFromSync(jsi::Object &changeSet, jsi::Object &schema) {
     try {
         auto tableSchemas = schema.getProperty(rt, "tables").getObject(rt);
         auto tableNames = changeSet.getPropertyNames(rt);
+        
+        auto idStr = jsi::String::createFromAscii(rt, "id");
+        
         for (size_t i = 0, len = tableNames.size(rt); i < len; i++) {
             auto tableName = tableNames.getValueAtIndex(rt, i).getString(rt);
             auto tableChangeset = changeSet.getProperty(rt, tableName).getObject(rt);
@@ -446,19 +449,22 @@ void Database::unsafeLoadFromSync(jsi::Object &changeSet, jsi::Object &schema) {
             
             auto tableSchemaObj = tableSchemas.getProperty(rt, tableName).getObject(rt);
             auto tableSchema = decodeTableSchema(rt, tableSchemaObj);
-            auto syncedStr = jsi::String::createFromUtf8(rt, "synced");
+            std::vector<jsi::String> columnNames = {};
+            for (auto const &column : tableSchema) {
+                columnNames.push_back(jsi::String::createFromAscii(rt, column.name));
+            }
             
             sqlite3_stmt *statement = cachedStatement(insertSqlFor(rt, tableName.utf8(rt), tableSchema));
             
             for (size_t j = 0, j_len = updated.size(rt); j < j_len; j++) {
                 auto record = updated.getValueAtIndex(rt, j).getObject(rt);
                 
-                sqlite3_bind_text(statement, 1, record.getProperty(rt, "id").getString(rt).utf8(rt).c_str(), -1, SQLITE_TRANSIENT);
+                sqlite3_bind_text(statement, 1, record.getProperty(rt, idStr).getString(rt).utf8(rt).c_str(), -1, SQLITE_TRANSIENT);
                 sqlite3_bind_text(statement, 2, "synced", -1, SQLITE_STATIC);
                 
                 int argumentsIdx = 3;
                 for (auto const &column : tableSchema) {
-                    auto value = record.getProperty(rt, jsi::String::createFromAscii(rt, column.name));
+                    auto value = record.getProperty(rt, columnNames[argumentsIdx - 3]);
                     
                     if (value.isNull() || value.isUndefined()) {
                         sqlite3_bind_null(statement, argumentsIdx);
