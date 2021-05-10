@@ -1,7 +1,8 @@
 // @flow
 /* eslint-disable no-console */
 
-const formatMessages = (first, ...other) => {
+const formatMessages = (messages) => {
+  const [first, ...other] = messages
   return [typeof first === 'string' ? `[🍉] ${first}` : first, ...other]
 }
 
