@@ -8,6 +8,7 @@ import type { AppSchema, TableName, SchemaVersion } from '../../Schema'
 import type { SchemaMigrations } from '../../Schema/migrations'
 
 import { type DirtyFindResult, type DirtyQueryResult } from '../common'
+import type { SyncDatabaseChangeSet } from '../type'
 
 export type SQL = string
 export type SQLiteArg = string | boolean | number | null
@@ -66,6 +67,7 @@ export type NativeDispatcher = $Exact<{
   getLocal: (string, ResultCallback<?string>) => void,
   setLocal: (string, string, ResultCallback<void>) => void,
   removeLocal: (string, ResultCallback<void>) => void,
+  unsafeLoadFromSync?: (SyncDatabaseChangeSet, AppSchema, ResultCallback<void>) => void,
 }>
 
 export type NativeBridgeType = {

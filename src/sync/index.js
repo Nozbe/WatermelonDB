@@ -64,6 +64,8 @@ export type SyncArgs = $Exact<{
   conflictResolver?: SyncConflictResolver,
   // commits changes in multiple batches, and not one - temporary workaround for memory issue
   _unsafeBatchPerCollection?: boolean,
+  // experimental - do not use!
+  _turbo?: boolean,
 }>
 
 // See Sync docs for usage details

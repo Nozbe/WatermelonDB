@@ -31,6 +31,7 @@ const dispatcherMethods = [
   'getLocal',
   'setLocal',
   'removeLocal',
+  'unsafeLoadFromSync',
 ]
 
 export const makeDispatcher = (
@@ -42,7 +43,7 @@ export const makeDispatcher = (
 
   const methods = dispatcherMethods.map((methodName) => {
     // batchJSON is missing on Android
-    if (!DatabaseBridge[methodName] || (methodName === 'batchJSON' && jsiDb)) {
+    if (!DatabaseBridge[(methodName: any)] || (methodName === 'batchJSON' && jsiDb)) {
       return [methodName, undefined]
     }
 

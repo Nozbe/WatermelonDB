@@ -23,6 +23,7 @@ export default async function synchronize({
   log,
   conflictResolver,
   _unsafeBatchPerCollection,
+  _turbo,
 }: SyncArgs): Promise<void> {
   const resetCount = database._resetCount
   log && (log.startedAt = new Date())
@@ -62,16 +63,21 @@ export default async function synchronize({
       lastPulledAt === (await getLastPulledAt(database)),
       '[Sync] Concurrent synchronization is not allowed. More than one synchronize() call was running at the same time, and the later one was aborted before committing results to local database.',
     )
-    await action.subAction(() =>
-      applyRemoteChanges(
-        database,
-        remoteChanges,
-        sendCreatedAsUpdated,
-        log,
-        conflictResolver,
-        _unsafeBatchPerCollection,
-      ),
-    )
+    if (_turbo) {
+      // $FlowFixMe
+      await database.adapter.unsafeLoadFromSync(remoteChanges)
+    } else {
+      await action.subAction(() =>
+        applyRemoteChanges(
+          database,
+          remoteChanges,
+          sendCreatedAsUpdated,
+          log,
+          conflictResolver,
+          _unsafeBatchPerCollection,
+        ),
+      )
+    }
     log && (log.phase = 'applied remote changes')
     await setLastPulledAt(database, newLastPulledAt)
 

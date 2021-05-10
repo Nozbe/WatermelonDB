@@ -21,6 +21,7 @@ class Database : public jsi::HostObject {
     jsi::Value query(jsi::String &tableName, jsi::String &sql, jsi::Array &arguments);
     jsi::Value count(jsi::String &sql, jsi::Array &arguments);
     void batch(jsi::Array &operations);
+    void unsafeLoadFromSync(jsi::Object &changeSet, jsi::Object &schema);
     jsi::Array getDeletedRecords(jsi::String &tableName);
     void destroyDeletedRecords(jsi::String &tableName, jsi::Array &recordIds);
     void unsafeResetDatabase(jsi::String &schema, int schemaVersion);

@@ -6,6 +6,7 @@ import type { SchemaMigrations } from '../Schema/migrations'
 import type { RecordId } from '../Model'
 import type { RawRecord } from '../RawRecord'
 import type { ResultCallback } from '../utils/fp/Result'
+import type { SyncDatabaseChangeSet } from '../sync'
 
 export type CachedFindResult = RecordId | ?RawRecord
 export type CachedQueryResult = Array<RecordId | RawRecord>
@@ -15,6 +16,8 @@ export type BatchOperation =
   | ['update', TableName<any>, RawRecord]
   | ['markAsDeleted', TableName<any>, RecordId]
   | ['destroyPermanently', TableName<any>, RecordId]
+
+export type { SyncDatabaseChangeSet }
 
 export interface DatabaseAdapter {
   schema: AppSchema;
@@ -60,4 +63,6 @@ export interface DatabaseAdapter {
     sql: string,
     callback: ResultCallback<CachedQueryResult>,
   ) => void;
+
+  +unsafeLoadFromSync?: (changeSet: SyncDatabaseChangeSet, callback: ResultCallback<void>) => void;
 }

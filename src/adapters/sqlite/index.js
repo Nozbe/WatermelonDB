@@ -9,6 +9,7 @@ import type { SerializedQuery } from '../../Query'
 import type { TableName, AppSchema, SchemaVersion } from '../../Schema'
 import type { SchemaMigrations, MigrationStep } from '../../Schema/migrations'
 import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
+import type { SyncDatabaseChangeSet } from '../../sync'
 import {
   sanitizeFindResult,
   sanitizeQueryResult,
@@ -260,6 +261,15 @@ export default class SQLiteAdapter implements DatabaseAdapter {
       batchJSON(JSON.stringify(batchOperations), callback)
     } else {
       this._dispatcher.batch(batchOperations, callback)
+    }
+  }
+
+  unsafeLoadFromSync(changeSet: SyncDatabaseChangeSet, callback: ResultCallback<void>): void {
+    const load = this._dispatcher.unsafeLoadFromSync
+    if (load) {
+      load(changeSet, this.schema, callback)
+    } else {
+      callback({ error: new Error('unavailable') })
     }
   }
 
