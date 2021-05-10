@@ -3,7 +3,6 @@
 import type { Database, RecordId, TableName, Model } from '..'
 import { type DirtyRaw } from '../RawRecord'
 
-import { hasUnsyncedChanges as hasUnsyncedChangesImpl } from './impl'
 import type { SchemaVersion } from '../Schema'
 import { type MigrationSyncChanges } from '../Schema/migrations/getSyncChanges'
 
@@ -79,8 +78,6 @@ export async function synchronize(args: SyncArgs): Promise<void> {
   }
 }
 
-export async function hasUnsyncedChanges({
-  database,
-}: $Exact<{ database: Database }>): Promise<boolean> {
-  return hasUnsyncedChangesImpl(database)
+export function hasUnsyncedChanges({ database }: $Exact<{ database: Database }>): Promise<boolean> {
+  return require('./impl').hasUnsyncedChanges(database)
 }
