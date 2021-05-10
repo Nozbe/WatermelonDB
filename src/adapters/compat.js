@@ -18,7 +18,8 @@ export default class DatabaseAdapterCompat {
       this.unsafeSqlQuery = (tableName, sql) =>
         // $FlowFixMe
         toPromise((callback) => adapter.unsafeSqlQuery(tableName, sql, callback))
-    } else if (adapter.unsafeLoadFromSync) {
+    }
+    if (adapter.unsafeLoadFromSync) {
       // $FlowFixMe
       this.unsafeLoadFromSync = (changeSet) =>
         // $FlowFixMe

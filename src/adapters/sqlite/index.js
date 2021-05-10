@@ -269,7 +269,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     if (load) {
       load(changeSet, this.schema, callback)
     } else {
-      callback({ error: new Error('unavailable') })
+      callback({ error: new Error('unsafeLoadFromSync unavailable') })
     }
   }
 

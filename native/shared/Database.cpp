@@ -377,7 +377,7 @@ void Database::batch(jsi::Array &operations) {
 
 enum ColumnType { string, number, boolean };
 struct ColumnSchema {
-    jsi::String &name;
+    std::string name;
     ColumnType type;
 };
 
@@ -399,7 +399,7 @@ TableSchema decodeTableSchema(jsi::Runtime &rt, jsi::Object &schema) {
     std::vector<ColumnSchema> columns = {};
     for (size_t i = 0, len = columnArr.size(rt); i < len; i++) {
         auto columnObj = columnArr.getValueAtIndex(rt, i).getObject(rt);
-        auto name = columnObj.getProperty(rt, "name").getString(rt);
+        auto name = columnObj.getProperty(rt, "name").getString(rt).utf8(rt); // TODO: reuse the same JS string
         auto typeStr = columnObj.getProperty(rt, "type").getString(rt).utf8(rt);
         ColumnType type = columnTypeFromStr(typeStr);
         ColumnSchema column = { name, type };
@@ -411,7 +411,7 @@ TableSchema decodeTableSchema(jsi::Runtime &rt, jsi::Object &schema) {
 std::string insertSqlFor(jsi::Runtime &rt, std::string tableName, TableSchema columns) {
     std::string sql = "insert into `" + tableName + "` (`id`, `_status";
     for (auto const &column : columns) {
-        sql += "`, `" + column.name.utf8(rt);
+        sql += "`, `" + column.name;
     }
     sql += "`) values (?, ?";
     for (size_t i = 0, len = columns.size(); i < len; i++) {
@@ -453,12 +453,13 @@ void Database::unsafeLoadFromSync(jsi::Object &changeSet, jsi::Object &schema) {
                 arguments.setValueAtIndex(rt, 1, syncedStr);
                 size_t argumentsIdx = 2;
                 for (auto const &column : tableSchema) {
-                    arguments.setValueAtIndex(rt, argumentsIdx, record.getProperty(rt, column.name));
+                    arguments.setValueAtIndex(rt, argumentsIdx, record.getProperty(rt, jsi::String::createFromAscii(rt, column.name)));
                     argumentsIdx += 1;
                 }
                 executeUpdate(sql, arguments);
             }
         }
+        commit();
     } catch (const std::exception &ex) {
         rollback();
         throw;

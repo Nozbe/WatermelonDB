@@ -43,7 +43,7 @@ export const makeDispatcher = (
 
   const methods = dispatcherMethods.map((methodName) => {
     // batchJSON is missing on Android
-    if (!DatabaseBridge[(methodName: any)] || (methodName === 'batchJSON' && jsiDb)) {
+    if ((!DatabaseBridge[(methodName: any)] && !jsiDb) || (methodName === 'batchJSON' && jsiDb)) {
       return [methodName, undefined]
     }
 
