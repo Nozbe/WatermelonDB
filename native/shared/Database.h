@@ -39,6 +39,7 @@ class Database : public jsi::HostObject {
     jsi::Runtime &getRt();
     jsi::JSError dbError(std::string description);
 
+    sqlite3_stmt* cachedStatement(std::string sql);
     SqliteStatement executeQuery(std::string sql, jsi::Array &arguments);
     void executeUpdate(std::string sql, jsi::Array &arguments);
     void executeUpdate(std::string sql);

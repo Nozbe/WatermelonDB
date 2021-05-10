@@ -49,9 +49,7 @@ void Database::removeFromCache(std::string cacheKey) {
     cachedRecords_.erase(cacheKey);
 }
 
-// TODO: Can we use templates or make jsi::Array iterable so we can avoid _creating_ jsi::Array in C++?
-SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
-    auto &rt = getRt();
+sqlite3_stmt* Database::cachedStatement(std::string sql) {
     sqlite3_stmt *statement = cachedStatements_[sql];
 
     if (statement == nullptr) {
@@ -71,6 +69,13 @@ SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
         sqlite3_reset(statement);
     }
     assert(statement != nullptr);
+    return statement;
+}
+
+// TODO: Can we use templates or make jsi::Array iterable so we can avoid _creating_ jsi::Array in C++?
+SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
+    auto &rt = getRt();
+    sqlite3_stmt *statement = cachedStatement(sql);
 
     int argsCount = sqlite3_bind_parameter_count(statement);
 
@@ -441,23 +446,45 @@ void Database::unsafeLoadFromSync(jsi::Object &changeSet, jsi::Object &schema) {
             
             auto tableSchemaObj = tableSchemas.getProperty(rt, tableName).getObject(rt);
             auto tableSchema = decodeTableSchema(rt, tableSchemaObj);
-            auto sql = insertSqlFor(rt, tableName.utf8(rt), tableSchema);
-            auto colCount = tableSchema.size();
             auto syncedStr = jsi::String::createFromUtf8(rt, "synced");
+            
+            sqlite3_stmt *statement = cachedStatement(insertSqlFor(rt, tableName.utf8(rt), tableSchema));
             
             for (size_t j = 0, j_len = updated.size(rt); j < j_len; j++) {
                 auto record = updated.getValueAtIndex(rt, j).getObject(rt);
-                auto arguments = jsi::Array(rt, colCount + 2);
-                // TODO: Skip creating JSI Array; use schema type
-                arguments.setValueAtIndex(rt, 0, record.getProperty(rt, "id"));
-                arguments.setValueAtIndex(rt, 1, syncedStr);
-                size_t argumentsIdx = 2;
+                
+                sqlite3_bind_text(statement, 1, record.getProperty(rt, "id").getString(rt).utf8(rt).c_str(), -1, SQLITE_TRANSIENT);
+                sqlite3_bind_text(statement, 2, "synced", -1, SQLITE_STATIC);
+                
+                int argumentsIdx = 3;
                 for (auto const &column : tableSchema) {
-                    arguments.setValueAtIndex(rt, argumentsIdx, record.getProperty(rt, jsi::String::createFromAscii(rt, column.name)));
+                    auto value = record.getProperty(rt, jsi::String::createFromAscii(rt, column.name));
+                    
+                    if (value.isNull() || value.isUndefined()) {
+                        sqlite3_bind_null(statement, argumentsIdx);
+                    } else if (column.type == ColumnType::string) {
+                        sqlite3_bind_text(statement, argumentsIdx, value.getString(rt).utf8(rt).c_str(), -1, SQLITE_TRANSIENT);
+                    } else if (column.type == ColumnType::boolean) {
+                        sqlite3_bind_int(statement, argumentsIdx, value.isBool() ? value.getBool() : 0);
+                    } else if (column.type == ColumnType::number) {
+                        sqlite3_bind_double(statement, argumentsIdx, value.getNumber());
+                    } else {
+                        throw jsi::JSError(rt, "Invalid argument type (unknown) for query");
+                    }
+                    
                     argumentsIdx += 1;
                 }
-                executeUpdate(sql, arguments);
+                
+                int stepResult = sqlite3_step(statement);
+
+                if (stepResult != SQLITE_DONE) {
+                    throw dbError("Failed to execute db update");
+                }
+                
+                sqlite3_reset(statement);
             }
+            
+            sqlite3_reset(statement);
         }
         commit();
     } catch (const std::exception &ex) {
