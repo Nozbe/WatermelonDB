@@ -34,6 +34,9 @@ export default class RecordCache<Record: Model> {
   }
 
   add(record: Record): void {
+    if (record.syncStatus === 'deleted') {
+      return
+    }
     this.map.set(record.id, record)
   }
 
@@ -109,7 +112,9 @@ export default class RecordCache<Record: Model> {
 
     // Return new model
     const newRecord = this.recordInsantiator(raw)
-    this.add(newRecord)
+    if (newRecord.syncStatus !== 'deleted') {
+      this.add(newRecord)
+    }
     return newRecord
   }
 }

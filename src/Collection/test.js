@@ -105,6 +105,17 @@ describe('finding records', () => {
 })
 
 describe('fetching queries', () => {
+  it('build queries', () => {
+    const { tasks: collection, adapter } = mockDatabase()
+    adapter.query = jest.fn()
+
+    collection.query().fetch()
+    expect(adapter.query.mock.calls[0][0].description.where.length).toBe(1)
+
+    adapter.query.mockClear()
+    collection.queryWithDeleted().fetch()
+    expect(adapter.query.mock.calls[0][0].description.where.length).toBe(0)
+  })
   it('fetches queries and caches records', async () => {
     const { tasks: collection, adapter } = mockDatabase()
 
