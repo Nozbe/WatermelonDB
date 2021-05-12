@@ -54,7 +54,7 @@
     "koa-connect": "^2.0.1",
     "koa-router": "^7.4.0",
     "mini-css-extract-plugin": "^0.5.0",
-    "postcss": "^7.0.14",
+    "postcss": "^8.2.10",
     "postcss-browser-reporter": "^0.5.0",
     "postcss-calc": "^7.0.1",
     "postcss-hexrgba": "^1.0.1",
