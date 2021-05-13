@@ -63,6 +63,7 @@ export default async function synchronize({
       lastPulledAt === (await getLastPulledAt(database)),
       '[Sync] Concurrent synchronization is not allowed. More than one synchronize() call was running at the same time, and the later one was aborted before committing results to local database.',
     )
+    const b4 = Date.now()
     if (_turbo) {
       // $FlowFixMe
       await database.adapter.unsafeLoadFromSync(remoteChanges)
@@ -78,6 +79,7 @@ export default async function synchronize({
         ),
       )
     }
+    console.log(`[🍉] ${Date.now() - b4}`)
     log && (log.phase = 'applied remote changes')
     await setLastPulledAt(database, newLastPulledAt)
 
