@@ -35,7 +35,7 @@ export default class Database {
 
   collections: CollectionMap
 
-  _workQueue: WorkQueue = new WorkQueue()
+  _workQueue: WorkQueue = new WorkQueue(this)
 
   // (experimental) if true, Database is in a broken state and should not be used anymore
   _isBroken: boolean = false

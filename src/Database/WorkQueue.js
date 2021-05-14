@@ -2,6 +2,8 @@
 /* eslint-disable no-use-before-define */
 
 import { invariant, logger } from '../utils/common'
+import type Model from '../Model'
+import type Database from './index'
 
 export interface ReaderInterface {
   callReader<T>(reader: () => Promise<T>): Promise<T>;
@@ -9,6 +11,7 @@ export interface ReaderInterface {
 
 export interface WriterInterface extends ReaderInterface {
   callWriter<T>(writer: () => Promise<T>): Promise<T>;
+  batch(...records: $ReadOnlyArray<Model | Model[] | null | void | false>): Promise<void>;
 }
 
 class ReaderInterfaceImpl implements ReaderInterface {
@@ -49,6 +52,11 @@ class WriterInterfaceImpl extends ReaderInterfaceImpl implements WriterInterface
     this.__validateQueue()
     return this.__workQueue.subAction(writer)
   }
+
+  batch(...records: any): Promise<any> {
+    this.__validateQueue()
+    return this.__workQueue._db.batch(...records)
+  }
 }
 
 const actionInterface = (queue: WorkQueue, item: WorkQueueItem<any>) =>
@@ -63,9 +71,15 @@ type WorkQueueItem<T> = $Exact<{
 }>
 
 export default class WorkQueue {
+  _db: Database
+
   _queue: WorkQueueItem<any>[] = []
 
   _subActionIncoming: boolean = false
+
+  constructor(db: Database): void {
+    this._db = db
+  }
 
   get isWriterRunning(): boolean {
     const [item] = this._queue

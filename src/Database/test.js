@@ -663,6 +663,29 @@ describe('Database', () => {
         ),
       )
     })
+    it(`can batch from a writer interface`, async () => {
+      const { db, tasks } = mockDatabase()
+      const adapterBatchSpy = jest.spyOn(db.adapter, 'batch')
+
+      let t1, t2
+      await db.write(async (writer) => {
+        t1 = await tasks.create()
+        t2 = tasks.prepareCreate()
+        await writer.batch(
+          t2,
+          t1.prepareUpdate(() => {}),
+          null,
+          false,
+          undefined,
+        )
+      })
+
+      expect(adapterBatchSpy).toHaveBeenCalledTimes(2)
+      expect(adapterBatchSpy).toHaveBeenLastCalledWith([
+        ['create', 'mock_tasks', t2._raw],
+        ['update', 'mock_tasks', t1._raw],
+      ])
+    })
     it(`ensures that reader/writer interface is not used after block is done`, async () => {
       const { db } = mockDatabase()
 
@@ -677,6 +700,7 @@ describe('Database', () => {
       saved.callReader(() => sth())
       saved.callWriter(() => sth())
       saved.subAction(() => sth())
+      saved.batch()
       await promise
 
       const expectError = (work) =>
@@ -684,6 +708,7 @@ describe('Database', () => {
       expectError(() => saved.callReader(() => sth()))
       expectError(() => saved.callWriter(() => sth()))
       expectError(() => saved.subAction(() => sth()))
+      expectError(() => saved.batch())
 
       db.write(async () => {})
       expectError(() => saved.callReader(() => sth()))
