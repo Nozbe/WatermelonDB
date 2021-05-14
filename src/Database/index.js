@@ -26,6 +26,8 @@ export function setExperimentalAllowsFatalError(): void {
   experimentalAllowsFatalError = true
 }
 
+let warnedAboutActionDeprecation = false
+
 export default class Database {
   adapter: DatabaseAdapterCompat
 
@@ -146,23 +148,29 @@ export default class Database {
     return undefined // shuts up flow
   }
 
-  // Enqueues an Action -- a block of code that, when its ran, has a guarantee that no other Action
+  // Enqueues a Writer - a block of code that, when it's running, has a guarantee that no other Writer
   // is running at the same time.
-  // If Database is instantiated with actions enabled, all write actions (create, update, delete)
-  // must be performed inside Actions, so Actions guarantee a write lock.
-  //
+  // All actions that modify the database (create, update, delete) must be performed inside of a Writer block
   // See docs for more details and practical guide
-  action<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
-    return this._actionQueue.enqueue(work, description, true)
-  }
-
-  /* EXPERIMENTAL API - DO NOT USE */
   write<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
     return this._actionQueue.enqueue(work, description, true)
   }
 
+  // Enqueues a Reader - a block of code that, when it's running, has a guarantee that no Writer
+  // is running at the same time (therefore, the database won't be modified for the duration of Reader's work)
+  // See docs for more details and practical guide
   read<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
     return this._actionQueue.enqueue(work, description, false)
+  }
+
+  action<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
+    if (process.env.NODE_ENV !== 'production' && !warnedAboutActionDeprecation) {
+      logger.warn(
+        'database.action() is deprecated - use database.write() instead. See changelog for more details',
+      )
+      warnedAboutActionDeprecation = true
+    }
+    return this._actionQueue.enqueue(work, description, true)
   }
 
   // Emits a signal immediately, and on change in any of the passed tables
