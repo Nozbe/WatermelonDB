@@ -157,11 +157,11 @@ export default class Database {
   }
 
   /* EXPERIMENTAL API - DO NOT USE */
-  _write<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
+  write<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
     return this._actionQueue.enqueue(work, description)
   }
 
-  _read<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
+  read<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
     return this._actionQueue.enqueue(work, description)
   }
 

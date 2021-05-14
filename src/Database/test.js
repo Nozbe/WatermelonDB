@@ -16,21 +16,21 @@ describe('Database', () => {
     it('can reset database', async () => {
       const { database, tasks } = mockDatabase()
 
-      const m1 = await database.action(() => tasks.create())
-      const m2 = await database.action(() => tasks.create())
+      const m1 = await database.write(() => tasks.create())
+      const m2 = await database.write(() => tasks.create())
 
       expect(await tasks.find(m1.id)).toBe(m1)
       expect(await tasks.find(m2.id)).toBe(m2)
 
       // reset
-      await database.action(() => database.unsafeResetDatabase())
+      await database.write(() => database.unsafeResetDatabase())
 
       await expectToRejectWithMessage(tasks.find(m1.id), 'not found')
       await expectToRejectWithMessage(tasks.find(m2.id), 'not found')
     })
     it('throws error if reset is called from outside an Action', async () => {
       const { database, tasks } = mockDatabase()
-      const m1 = await database.action(() => tasks.create())
+      const m1 = await database.write(() => tasks.create())
 
       await expectToRejectWithMessage(
         database.unsafeResetDatabase(),
@@ -43,10 +43,10 @@ describe('Database', () => {
       const { database } = mockDatabase()
       expect(database._resetCount).toBe(0)
 
-      await database.action(() => database.unsafeResetDatabase())
+      await database.write(() => database.unsafeResetDatabase())
       expect(database._resetCount).toBe(1)
 
-      await database.action(() => database.unsafeResetDatabase())
+      await database.write(() => database.unsafeResetDatabase())
       expect(database._resetCount).toBe(2)
     })
     it('prevents Adapter from being called during reset db', async () => {
@@ -59,7 +59,7 @@ describe('Database', () => {
       }
       await checkAdapter()
 
-      const resetPromise = database.action(() => database.unsafeResetDatabase())
+      const resetPromise = database.write(() => database.unsafeResetDatabase())
 
       expect(() => database.adapter.underlyingAdapter).toThrow(
         /Cannot call database.adapter.underlyingAdapter while the database is being reset/,
@@ -82,11 +82,11 @@ describe('Database', () => {
       // sanity check first
       const subscriber1 = jest.fn()
       const unsubscribe1 = database.experimentalSubscribe(['mock_tasks'], subscriber1)
-      await database.action(() => tasks.create())
+      await database.write(() => tasks.create())
       expect(subscriber1).toHaveBeenCalledTimes(1)
       unsubscribe1()
-      await database.action(() => database.unsafeResetDatabase())
-      await database.action(() => tasks.create())
+      await database.write(() => database.unsafeResetDatabase())
+      await database.write(() => tasks.create())
       expect(subscriber1).toHaveBeenCalledTimes(1)
 
       // keep subscriber during reset
@@ -94,7 +94,7 @@ describe('Database', () => {
       database.experimentalSubscribe(['mock_tasks'], subscriber2)
       const consoleErrorSpy = jest.spyOn(console, 'log')
 
-      await database.action(() => database.unsafeResetDatabase())
+      await database.write(() => database.unsafeResetDatabase())
 
       // check that error was logged
       expect(consoleErrorSpy).toHaveBeenCalledTimes(2)
@@ -103,7 +103,7 @@ describe('Database', () => {
       )
 
       // check that subscriber was killed
-      await database.action(() => tasks.create())
+      await database.write(() => tasks.create())
       expect(subscriber2).toHaveBeenCalledTimes(0)
     })
     it.skip('Cancels withChangesForTables observation during reset', async () => {})
@@ -119,7 +119,7 @@ describe('Database', () => {
       const { database } = mockDatabase()
 
       expect(database._isBeingReset).toBe(false)
-      const promise = database.action(() => database.unsafeResetDatabase())
+      const promise = database.write(() => database.unsafeResetDatabase())
       expect(database._isBeingReset).toBe(true)
       await promise
       expect(database._isBeingReset).toBe(false)
@@ -128,7 +128,7 @@ describe('Database', () => {
       database.adapter.unsafeResetDatabase = async () => {
         throw new Error('forced')
       }
-      const promise2 = database.action(() => database.unsafeResetDatabase())
+      const promise2 = database.write(() => database.unsafeResetDatabase())
       expect(database._isBeingReset).toBe(true)
       await expectToRejectWithMessage(promise2, 'forced')
       expect(database._isBeingReset).toBe(false)
@@ -152,12 +152,12 @@ describe('Database', () => {
       const adapterBatchSpy = jest.spyOn(database.adapter, 'batch')
 
       // m1, m2 will be used to test batch-updates
-      const m1 = await database.action(() => tasksCollection.create())
-      const m2 = await database.action(() => commentsCollection.create())
+      const m1 = await database.write(() => tasksCollection.create())
+      const m2 = await database.write(() => commentsCollection.create())
 
       // m3, m4 will be used to test batch-deletes
-      const m3 = await database.action(() => tasksCollection.create())
-      const m4 = await database.action(() => commentsCollection.create())
+      const m3 = await database.write(() => tasksCollection.create())
+      const m4 = await database.write(() => commentsCollection.create())
 
       const tasksCollectionObserver = jest.fn()
       tasksCollection.changes.subscribe(tasksCollectionObserver)
@@ -172,7 +172,7 @@ describe('Database', () => {
       const recordObserver = jest.fn()
       m1.observe().subscribe(recordObserver)
 
-      const batchPromise = database.action(() =>
+      const batchPromise = database.write(() =>
         database.batch(
           m6,
           m1.prepareUpdate(() => {
@@ -243,7 +243,7 @@ describe('Database', () => {
       const adapterBatchSpy = jest.spyOn(database.adapter, 'batch')
 
       const model = tasksCollection.prepareCreate()
-      await database.action(() => database.batch(null, model, false, undefined))
+      await database.write(() => database.batch(null, model, false, undefined))
 
       expect(adapterBatchSpy).toHaveBeenCalledTimes(1)
       expect(adapterBatchSpy).toHaveBeenLastCalledWith([['create', 'mock_tasks', model._raw]])
@@ -253,17 +253,17 @@ describe('Database', () => {
       const adapterBatchSpy = jest.spyOn(database.adapter, 'batch')
 
       const model = tasksCollection.prepareCreate()
-      await database.action(() => database.batch([null, model, false, undefined]))
+      await database.write(() => database.batch([null, model, false, undefined]))
 
       expect(adapterBatchSpy).toHaveBeenCalledTimes(1)
       expect(adapterBatchSpy).toHaveBeenLastCalledWith([['create', 'mock_tasks', model._raw]])
     })
     it('throws error if attempting to batch records without a pending operation', async () => {
       const { database, tasks } = mockDatabase()
-      const m1 = await database.action(() => tasks.create())
+      const m1 = await database.write(() => tasks.create())
 
       await expectToRejectWithMessage(
-        database.action(() => database.batch(m1)),
+        database.write(() => database.batch(m1)),
         /doesn't have a prepared create or prepared update/,
       )
     })
@@ -276,7 +276,7 @@ describe('Database', () => {
       )
 
       // check if in action is successful
-      await database.action(() =>
+      await database.write(() =>
         database.batch(
           tasks.prepareCreate((task) => {
             task.name = 'foo1'
@@ -304,10 +304,10 @@ describe('Database', () => {
 
       expect(observer).toHaveBeenCalledTimes(1)
 
-      await database.action(() => projects.create())
-      const m1 = await database.action(() => projects.create())
-      const m2 = await database.action(() => tasks.create())
-      const m3 = await database.action(() => comments.create())
+      await database.write(() => projects.create())
+      const m1 = await database.write(() => projects.create())
+      const m2 = await database.write(() => tasks.create())
+      const m3 = await database.write(() => comments.create())
 
       expect(observer).toHaveBeenCalledTimes(4)
       expect(observer).toHaveBeenCalledWith([{ record: m1, type: CollectionChangeTypes.created }])
@@ -315,7 +315,7 @@ describe('Database', () => {
         { record: m2, type: CollectionChangeTypes.created },
       ])
 
-      await database.action(async () => {
+      await database.write(async () => {
         await m1.update()
         await m2.update()
         await m3.update()
@@ -326,7 +326,7 @@ describe('Database', () => {
         { record: m2, type: CollectionChangeTypes.updated },
       ])
 
-      await database.action(async () => {
+      await database.write(async () => {
         await m1.destroyPermanently()
         await m2.destroyPermanently()
         await m3.destroyPermanently()
@@ -344,7 +344,7 @@ describe('Database', () => {
       const subscriber1 = jest.fn()
       const unsubscribe1 = database.experimentalSubscribe([], subscriber1)
 
-      await database.action(() => tasks.create())
+      await database.write(() => tasks.create())
 
       const subscriber2 = jest.fn()
       const unsubscribe2 = database.experimentalSubscribe(['mock_tasks'], subscriber2)
@@ -355,23 +355,23 @@ describe('Database', () => {
         subscriber3,
       )
 
-      const p1 = await database.action(() => projects.create())
-      await database.action(() => tasks.create())
-      await database.action(() => comments.create())
+      const p1 = await database.write(() => projects.create())
+      await database.write(() => tasks.create())
+      await database.write(() => comments.create())
 
       expect(subscriber1).toHaveBeenCalledTimes(0)
       expect(subscriber2).toHaveBeenCalledTimes(1)
       expect(subscriber3).toHaveBeenCalledTimes(2)
       expect(subscriber2).toHaveBeenLastCalledWith()
 
-      await database.action(() =>
+      await database.write(() =>
         database.batch(projects.prepareCreate(), projects.prepareCreate(), tasks.prepareCreate()),
       )
 
       expect(subscriber2).toHaveBeenCalledTimes(2)
       expect(subscriber3).toHaveBeenCalledTimes(3)
 
-      await database.action(() => p1.update())
+      await database.write(() => p1.update())
 
       expect(subscriber2).toHaveBeenCalledTimes(2)
       expect(subscriber3).toHaveBeenCalledTimes(4)
@@ -379,7 +379,7 @@ describe('Database', () => {
       unsubscribe1()
       unsubscribe2()
 
-      await database.action(() =>
+      await database.write(() =>
         database.batch(tasks.prepareCreate(), p1.prepareDestroyPermanently()),
       )
 
@@ -399,7 +399,7 @@ describe('Database', () => {
       unsubscribe2()
       unsubscribe2()
 
-      await database.action(() => tasks.create())
+      await database.write(() => tasks.create())
 
       expect(subscriber1).toHaveBeenCalledTimes(1)
       unsubscribe1()
@@ -410,19 +410,19 @@ describe('Database', () => {
       const subscriber = jest.fn()
       const unsubscribe1 = database.experimentalSubscribe(['mock_tasks'], subscriber)
 
-      await database.action(() => tasks.create())
+      await database.write(() => tasks.create())
       expect(subscriber).toHaveBeenCalledTimes(1)
 
       const unsubscribe2 = database.experimentalSubscribe(['mock_tasks'], subscriber)
 
-      await database.action(() => tasks.create())
+      await database.write(() => tasks.create())
       expect(subscriber).toHaveBeenCalledTimes(3)
       unsubscribe2()
       unsubscribe2() // noop
-      await database.action(() => tasks.create())
+      await database.write(() => tasks.create())
       expect(subscriber).toHaveBeenCalledTimes(4)
       unsubscribe1()
-      await database.action(() => tasks.create())
+      await database.write(() => tasks.create())
       expect(subscriber).toHaveBeenCalledTimes(4)
     })
     it('has new objects cached before calling subscribers (regression test)', async () => {
@@ -446,7 +446,7 @@ describe('Database', () => {
       database.withChangesForTables(['mock_projects']).subscribe(observer)
       expect(observer).toHaveBeenCalledTimes(1)
 
-      await database.action(() => database.batch(project, task))
+      await database.write(() => database.batch(project, task))
       expect(observer).toHaveBeenCalledTimes(2)
 
       // check if task is already cached
@@ -456,28 +456,28 @@ describe('Database', () => {
 
   const delayPromise = () => new Promise((resolve) => setTimeout(resolve, 100))
 
-  describe('Database actions', () => {
-    it('can execute an action', async () => {
+  describe('Database readers/writers', () => {
+    it('can execute a writer block', async () => {
       const { database } = mockDatabase()
 
       const action = jest.fn(() => Promise.resolve(true))
-      await database.action(action)
+      await database.write(action)
 
       expect(action).toHaveBeenCalledTimes(1)
     })
-    it('queues actions', async () => {
+    it('queues writers/readers', async () => {
       const { database } = mockDatabase()
 
       const actions = [jest.fn(delayPromise), jest.fn(delayPromise), jest.fn(delayPromise)]
 
-      const promise0 = database.action(actions[0])
-      database.action(actions[1])
+      const promise0 = database.write(actions[0])
+      database.read(actions[1])
 
       expect(actions[0]).toHaveBeenCalledTimes(1)
       expect(actions[1]).toHaveBeenCalledTimes(0)
 
       await promise0
-      const promise2 = database.action(actions[2])
+      const promise2 = database.write(actions[2])
 
       expect(actions[0]).toHaveBeenCalledTimes(1)
       expect(actions[1]).toHaveBeenCalledTimes(0)
@@ -490,20 +490,20 @@ describe('Database', () => {
       expect(actions[2]).toHaveBeenCalledTimes(1)
 
       // after queue is empty I can queue again and have result immediately
-      const action3 = jest.fn(async () => 42)
-      const promise3 = database.action(action3)
-      expect(action3).toHaveBeenCalledTimes(1)
+      const writer3 = jest.fn(async () => 42)
+      const promise3 = database.write(writer3)
+      expect(writer3).toHaveBeenCalledTimes(1)
       await promise3
     })
-    it('returns value from action', async () => {
+    it('returns value from reader/writer', async () => {
       const { database } = mockDatabase()
-      const result = await database.action(async () => 42)
-      expect(result).toBe(42)
+      expect(await database.write(async () => 42)).toBe(42)
+      expect(await database.read(async () => 420)).toBe(420)
     })
-    it('passes error from action', async () => {
+    it('passes error from reader/writer', async () => {
       const { database } = mockDatabase()
       await expectToRejectWithMessage(
-        database.action(async () => {
+        database.write(async () => {
           throw new Error('test error')
         }),
         'test error',
@@ -527,7 +527,7 @@ describe('Database', () => {
         () => delayPromise(),
       ]
       const promises = actions.map((action) =>
-        database.action(action).then(
+        database.write(action).then(
           // jest will automatically fail the test if a promise rejects even though we're testing it later
           (value) => ['value', value],
           (error) => ['error', error],
@@ -537,7 +537,7 @@ describe('Database', () => {
 
       // after queue is empty I can queue again
       const action5 = jest.fn(async () => 42)
-      const promise5 = database.action(action5)
+      const promise5 = database.read(action5)
       expect(action5).toHaveBeenCalledTimes(1)
 
       // check if right answers
@@ -553,11 +553,11 @@ describe('Database', () => {
 
       let called = 0
       const subaction = () =>
-        database.action(async () => {
+        database.write(async () => {
           called += 1
         })
 
-      await database.action(() => {
+      await database.write(() => {
         subaction()
         return delayPromise() // don't await subaction, just see it will never be called
       })
@@ -566,9 +566,9 @@ describe('Database', () => {
     it('can call subactions with subAction()', async () => {
       const { database } = mockDatabase()
 
-      const action2 = () => database.action(async () => 32)
-      const result = await database.action(async (action) => {
-        const a = await action.subAction(() => action2())
+      const action2 = () => database.write(async () => 32)
+      const result = await database.write(async (writer) => {
+        const a = await writer.subAction(() => action2())
         return a + 10
       })
       expect(result).toBe(42)
@@ -576,9 +576,9 @@ describe('Database', () => {
     it('can arbitrarily nest subactions', async () => {
       const { database } = mockDatabase()
 
-      const action1 = () => database.action(async () => 42)
-      const action2 = () => database.action(async (action) => action.subAction(() => action1()))
-      const action3 = () => database.action(async (action) => action.subAction(() => action2()))
+      const action1 = () => database.write(async () => 42)
+      const action2 = () => database.write(async (writer) => writer.subAction(() => action1()))
+      const action3 = () => database.write(async (writer) => writer.subAction(() => action2()))
       expect(await action3()).toBe(42)
     })
     it('sub actions skip the line only once', async () => {
@@ -588,14 +588,14 @@ describe('Database', () => {
       let called2 = 0
 
       const action1 = () =>
-        database.action(async () => {
+        database.write(async () => {
           called1 += 1
         })
       const action2 = () =>
-        database.action(async () => {
+        database.write(async () => {
           called2 += 1
         })
-      await database.action((action) => {
+      await database.write((action) => {
         action.subAction(() => action1())
         action2()
         return delayPromise() // don't await subaction, just see it will never be called
@@ -614,30 +614,30 @@ describe('Database', () => {
 
       const manyActions = async () => {
         // this will be called before reset:
-        promise1 = database.action(async () => 1)
+        promise1 = database.write(async () => 1)
         await promise1
 
         // this will be called after reset:
-        promise2 = database.action(async () => {
+        promise2 = database.write(async () => {
           dangerousActionsCalled += 1
         })
         await promise2
 
-        promise3 = database.action(async () => {
+        promise3 = database.read(async () => {
           dangerousActionsCalled += 1
         })
         await promise3
       }
 
       const promises = manyActions().catch((e) => e)
-      await database.action(() => database.unsafeResetDatabase())
+      await database.write(() => database.unsafeResetDatabase())
 
       // actions beyond unsafe reset should be successful
       await Promise.all([
-        database.action(async () => {
+        database.write(async () => {
           safeActionsCalled += 1
         }),
-        database.action(async () => {
+        database.read(async () => {
           safeActionsCalled += 1
         }),
       ])
