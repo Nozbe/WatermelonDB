@@ -16,14 +16,14 @@ const createTask = async (tasks, name, isCompleted, position) => {
   return task
 }
 
-const updateTask = (task, updater) => task.collection.database.action(() => task.update(updater))
+const updateTask = (task, updater) => task.collection.database.write(() => task.update(updater))
 
 describe('subscribeToQueryWithColumns', () => {
   async function fullObservationTest(mockDb, query, asyncSource) {
     const { database, tasks, projects } = mockDb
 
     // preparation - create mock project
-    await database.action(() =>
+    await database.write(() =>
       database.batch(projects.prepareCreateFromDirtyRaw({ id: 'MOCK_PROJECT' })),
     )
 
@@ -41,7 +41,7 @@ describe('subscribeToQueryWithColumns', () => {
     let m1
     let m2
     let m3
-    await database.action(async () => {
+    await database.write(async () => {
       m1 = prepareTask(tasks, 'name1', true, 10)
       m2 = prepareTask(tasks, 'name2', true, 20)
       m3 = prepareTask(tasks, 'name3', false, 30)
@@ -53,14 +53,14 @@ describe('subscribeToQueryWithColumns', () => {
     expect(observer).toHaveBeenLastCalledWith([m1, m2])
 
     // add matching model
-    const m4 = await database.action(() => createTask(tasks, 'name4', true, 40))
+    const m4 = await database.write(() => createTask(tasks, 'name4', true, 40))
 
     asyncSource && (await waitForNextQuery())
     expect(observer).toHaveBeenCalledTimes(3)
     expect(observer).toHaveBeenLastCalledWith([m1, m2, m4])
 
     // remove matching model
-    await database.action(() => m1.markAsDeleted())
+    await database.write(() => m1.markAsDeleted())
 
     asyncSource && (await waitForNextQuery())
     expect(observer).toHaveBeenCalledTimes(4)
@@ -102,7 +102,7 @@ describe('subscribeToQueryWithColumns', () => {
     expect(observer).toHaveBeenCalledTimes(6)
 
     // make multiple simultaneous changes to observed records - expect only one emission
-    await database.action(() =>
+    await database.write(() =>
       database.batch(
         m2.prepareUpdate(() => {
           // not observed anymore - irrelevant
@@ -132,9 +132,7 @@ describe('subscribeToQueryWithColumns', () => {
 
     // make irrelevant changes to secondary table (async join query)
     if (asyncSource) {
-      await database.action(() =>
-        database.batch(projects.prepareCreate(), projects.prepareCreate()),
-      )
+      await database.write(() => database.batch(projects.prepareCreate(), projects.prepareCreate()))
       await waitForNextQuery()
       expect(observer).toHaveBeenCalledTimes(7)
     }

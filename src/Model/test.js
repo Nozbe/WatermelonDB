@@ -174,7 +174,7 @@ describe('CRUD', () => {
   })
   it('can update a record', async () => {
     const db = makeDatabase()
-    await db.action(async () => {
+    await db.write(async () => {
       db.adapter.batch = jest.fn()
       const spyBatchDB = jest.spyOn(db, 'batch')
 
@@ -212,7 +212,7 @@ describe('CRUD', () => {
 
     const collection = db.get('mock')
 
-    const m1 = await db.action(() =>
+    const m1 = await db.write(() =>
       collection.create((record) => {
         record.name = 'Original name'
       }),
@@ -240,14 +240,14 @@ describe('CRUD', () => {
 
     expect(m1._isCommitted).toBe(true)
 
-    await db.action(() => db.batch(preparedUpdate))
+    await db.write(() => db.batch(preparedUpdate))
   })
   it('can destroy a record permanently', async () => {
     const db = makeDatabase()
     db.adapter.batch = jest.fn()
     const spyBatchDB = jest.spyOn(db, 'batch')
 
-    const m1 = await db.action(() => db.get('mock').create())
+    const m1 = await db.write(() => db.get('mock').create())
     expect(spyBatchDB).toHaveBeenCalledWith(m1)
 
     const spyOnPrepareDestroyPermanently = jest.spyOn(m1, 'prepareDestroyPermanently')
@@ -255,7 +255,7 @@ describe('CRUD', () => {
     const completionObserver = jest.fn()
     m1.observe().subscribe(nextObserver, null, completionObserver)
 
-    await db.action(() => m1.destroyPermanently())
+    await db.write(() => m1.destroyPermanently())
 
     expect(spyOnPrepareDestroyPermanently).toHaveBeenCalledTimes(1)
 
@@ -264,7 +264,7 @@ describe('CRUD', () => {
   })
   it('can destroy a record and its children permanently', async () => {
     const { db, projects, tasks, comments } = mockDatabase()
-    await db.action(async () => {
+    await db.write(async () => {
       const project = await projects.create((mock) => {
         mock.name = 'foo'
       })
@@ -298,7 +298,7 @@ describe('CRUD', () => {
     db.adapter.batch = jest.fn()
     const spyBatchDB = jest.spyOn(db, 'batch')
 
-    const m1 = await db.action(() => db.get('mock').create())
+    const m1 = await db.write(() => db.get('mock').create())
     expect(spyBatchDB).toHaveBeenCalledWith(m1)
 
     const spyOnMarkAsDeleted = jest.spyOn(m1, 'prepareMarkAsDeleted')
@@ -306,7 +306,7 @@ describe('CRUD', () => {
     const completionObserver = jest.fn()
     m1.observe().subscribe(nextObserver, null, completionObserver)
 
-    await db.action(() => m1.markAsDeleted())
+    await db.write(() => m1.markAsDeleted())
 
     expect(spyOnMarkAsDeleted).toHaveBeenCalledTimes(1)
 
@@ -315,7 +315,7 @@ describe('CRUD', () => {
   })
   it('can mark as deleted record and its children permanently', async () => {
     const { db, projects, tasks, comments } = mockDatabase()
-    await db.action(async () => {
+    await db.write(async () => {
       const project = await projects.create((mock) => {
         mock.name = 'foo'
       })
@@ -370,7 +370,7 @@ describe('Safety features', () => {
   it('disallows changes to just-deleted records', async () => {
     const db = makeDatabase()
     db.adapter.batch = jest.fn()
-    await db.action(async () => {
+    await db.write(async () => {
       const m1 = await db.get('mock').create()
       await m1.destroyPermanently()
 
@@ -384,7 +384,7 @@ describe('Safety features', () => {
   })
   it('disallows changes to previously-deleted records', async () => {
     const db = makeDatabase()
-    await db.action(async () => {
+    await db.write(async () => {
       const m1 = new MockModel(db.get('mock'), {
         _status: 'deleted',
       })
@@ -400,7 +400,7 @@ describe('Safety features', () => {
   it('diallows direct manipulation of id', async () => {
     const db = makeDatabase()
     db.adapter.batch = jest.fn()
-    await db.action(async () => {
+    await db.write(async () => {
       const model = await db.get('mock').create()
 
       await expectToRejectWithMessage(
@@ -413,7 +413,7 @@ describe('Safety features', () => {
   })
   it('disallows operations on uncommited records', async () => {
     const db = makeDatabase()
-    await db.action(async () => {
+    await db.write(async () => {
       const model = MockModel._prepareCreate(db.get('mock'), () => {})
       expect(model._isCommitted).toBe(false)
 
@@ -429,7 +429,7 @@ describe('Safety features', () => {
   it('disallows changes on records with pending updates', async () => {
     const db = makeDatabase()
     db.adapter.batch = jest.fn()
-    await db.action(async () => {
+    await db.write(async () => {
       const model = new MockModel(db.get('mock'), {})
       model.prepareUpdate()
       expect(() => {
@@ -447,7 +447,7 @@ describe('Safety features', () => {
     const db = makeDatabase()
     db.adapter.batch = jest.fn()
 
-    const model = await db.action(() => db.get('mock').create())
+    const model = await db.write(() => db.get('mock').create())
 
     await expectToRejectWithMessage(
       model.update(noop),
@@ -475,7 +475,7 @@ describe('Safety features', () => {
     )
 
     // check that no throw inside action
-    await db.action(async () => {
+    await db.write(async () => {
       await model.update(noop)
       await model.markAsDeleted()
       await model.destroyPermanently()
@@ -504,7 +504,7 @@ describe('Automatic created_at/updated_at', () => {
   it('touches updated_at on update if model defines it', async () => {
     const db = makeDatabase()
     db.adapter.batch = jest.fn()
-    await db.action(async () => {
+    await db.write(async () => {
       const m1 = await db.get('mock_updated').create((record) => {
         record._raw.updated_at -= 100
       })
@@ -645,7 +645,7 @@ describe('Sync status fields', () => {
   it('marks new records as status:created', async () => {
     const db = makeDatabase()
     db.adapter.batch = jest.fn()
-    await db.action(async () => {
+    await db.write(async () => {
       const mock = await db.get('mock').create((record) => {
         record.name = 'Initial name'
       })
@@ -681,7 +681,7 @@ describe('Sync status fields', () => {
     )
 
     // update
-    await db.action(() =>
+    await db.write(() =>
       mock.update((record) => {
         record.name = 'New name'
       }),
@@ -691,7 +691,7 @@ describe('Sync status fields', () => {
     expect(mock._raw._changed).toBe('name')
 
     // change another field
-    await db.action(() =>
+    await db.write(() =>
       mock.update((record) => {
         record.otherfield = 'New value'
       }),
@@ -701,7 +701,7 @@ describe('Sync status fields', () => {
     expect(mock._raw._changed).toBe('name,otherfield')
 
     // no duplicated change fields
-    await db.action(() =>
+    await db.write(() =>
       mock.update((record) => {
         record.name = 'New name 2'
       }),
@@ -714,7 +714,7 @@ describe('Sync status fields', () => {
     db.adapter.batch = jest.fn()
 
     const m1 = new MockModelUpdated(db.get('mock_updated'), {})
-    await db.action(() => m1.update())
+    await db.write(() => m1.update())
 
     expect(m1._raw._status).toBe('updated')
     expect(m1._raw._changed).toBe('updated_at')
@@ -749,7 +749,7 @@ describe('Model observation', () => {
   })
   it('notifies subscribers of changes and deletion', async () => {
     const { tasks, db } = mockDatabase()
-    await db.action(async () => {
+    await db.write(async () => {
       const task = await tasks.create()
 
       const observer1 = jest.fn()
@@ -796,7 +796,7 @@ describe('Model observation', () => {
   })
   it('unsubscribe can safely be called more than once', async () => {
     const { tasks, db } = mockDatabase()
-    const task = await db.action(() => tasks.create())
+    const task = await db.write(() => tasks.create())
 
     const observer1 = jest.fn()
     const unsubscribe1 = task.experimentalSubscribe(observer1)
@@ -806,7 +806,7 @@ describe('Model observation', () => {
     unsubscribe2()
     unsubscribe2()
 
-    await db.action(() => task.update())
+    await db.write(() => task.update())
 
     expect(observer1).toHaveBeenCalledTimes(1)
 
@@ -814,8 +814,8 @@ describe('Model observation', () => {
   })
   it(`can subscribe with the same subscriber multiple times`, async () => {
     const { db, tasks } = mockDatabase()
-    const task = await db.action(() => tasks.create())
-    const trigger = () => db.action(() => task.update())
+    const task = await db.write(() => tasks.create())
+    const trigger = () => db.write(() => task.update())
     const subscriber = jest.fn()
 
     const unsubscribe1 = task.experimentalSubscribe(subscriber)
@@ -839,7 +839,7 @@ describe('Model observation', () => {
 describe('model helpers', () => {
   it('checks if fetchChildren retrieves all the children', async () => {
     const { projects, tasks, comments, db } = mockDatabase()
-    await db.action(async () => {
+    await db.write(async () => {
       const projectFoo = await projects.create((mock) => {
         mock.name = 'foo'
       })

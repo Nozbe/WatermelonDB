@@ -200,7 +200,7 @@ describe('creating new records', () => {
     // Check Model._prepareCreate was called
     const newModelSpy = jest.spyOn(MockTask, '_prepareCreate')
 
-    const m1 = await db.action(() => collection.create())
+    const m1 = await db.write(() => collection.create())
 
     // Check database insert, cache insert, observers update
     expect(m1._isCommitted).toBe(true)
@@ -246,7 +246,7 @@ describe('creating new records', () => {
     )
 
     // no throw inside action
-    await database.action(() => tasks.create(noop))
+    await database.write(() => tasks.create(noop))
   })
 })
 
@@ -254,14 +254,14 @@ describe('Collection observation', () => {
   it('can subscribe to collection changes', async () => {
     const { database, tasks } = mockDatabase()
 
-    await database.action(() => tasks.create())
+    await database.write(() => tasks.create())
 
     const subscriber1 = jest.fn()
     const unsubscribe1 = tasks.experimentalSubscribe(subscriber1)
 
     expect(subscriber1).toHaveBeenCalledTimes(0)
 
-    const t1 = await database.action(() => tasks.create())
+    const t1 = await database.write(() => tasks.create())
 
     expect(subscriber1).toHaveBeenCalledTimes(1)
     expect(subscriber1).toHaveBeenLastCalledWith([{ record: t1, type: 'created' }])
@@ -269,7 +269,7 @@ describe('Collection observation', () => {
     const subscriber2 = jest.fn()
     const unsubscribe2 = tasks.experimentalSubscribe(subscriber2)
 
-    await database.action(() => t1.update())
+    await database.write(() => t1.update())
 
     expect(subscriber1).toHaveBeenCalledTimes(2)
     expect(subscriber2).toHaveBeenCalledTimes(1)
@@ -277,7 +277,7 @@ describe('Collection observation', () => {
 
     unsubscribe1()
 
-    await database.action(() => t1.markAsDeleted())
+    await database.write(() => t1.markAsDeleted())
 
     expect(subscriber1).toHaveBeenCalledTimes(2)
     expect(subscriber2).toHaveBeenCalledTimes(2)
@@ -285,7 +285,7 @@ describe('Collection observation', () => {
 
     unsubscribe2()
 
-    await database.action(() => tasks.create())
+    await database.write(() => tasks.create())
     expect(subscriber2).toHaveBeenCalledTimes(2)
   })
   it('unsubscribe can safely be called more than once', async () => {
@@ -299,14 +299,14 @@ describe('Collection observation', () => {
     unsubscribe2()
     unsubscribe2()
 
-    await database.action(() => tasks.create())
+    await database.write(() => tasks.create())
     expect(subscriber1).toHaveBeenCalledTimes(1)
 
     unsubscribe1()
   })
   it(`can subscribe with the same subscriber multiple times`, async () => {
     const { database, tasks } = mockDatabase()
-    const trigger = () => database.action(() => tasks.create())
+    const trigger = () => database.write(() => tasks.create())
     const subscriber = jest.fn()
 
     const unsubscribe1 = tasks.experimentalSubscribe(subscriber)

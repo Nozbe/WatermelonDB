@@ -56,7 +56,7 @@ export default async function synchronize({
     `pullChanges() returned invalid timestamp ${newLastPulledAt}. timestamp must be a non-zero number`,
   )
 
-  await database.action(async (action) => {
+  await database.write(async (action) => {
     ensureSameDatabase(database, resetCount)
     invariant(
       lastPulledAt === (await getLastPulledAt(database)),
