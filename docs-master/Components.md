@@ -1,14 +1,6 @@
 # Connecting to Components
 
-After you [define some Models](./Model.md), it's time to connect Watermelon to your app's interface. We're using React in this guide.
-
-### Install `withObservables`
-
-The recommended way to use Watermelon with React is with `withObservables` HOC (higher-order component). It doesn't come pre-packaged with Watermelon, but you can install it with:
-
-```bash
-yarn add @nozbe/with-observables
-```
+After you [define some Models](./Model.md), it's time to connect Watermelon to your app's interface. We're using React in this guide, however WatermelonDB can be used with any UI framework.
 
 **Note:** If you're not familiar with higher-order components, read [React documentation](https://reactjs.org/docs/higher-order-components.html), check out [`recompose`](https://github.com/acdlite/recompose)… or just read the examples below to see it in practice!
 
@@ -29,10 +21,12 @@ Now we can fetch a comment: `const comment = await commentsCollection.find(id)` 
 Let's enhance the component to make it _observe_ the `Comment` automatically:
 
 ```jsx
+import withObservables from '@nozbe/with-observables'
 const enhance = withObservables(['comment'], ({ comment }) => ({
   comment // shortcut syntax for `comment: comment.observe()`
 }))
 const EnhancedComment = enhance(Comment)
+export default EnhancedComment
 ```
 
 Now, if we render `<EnhancedComment comment={comment} />`, it **will** update every time the comment changes.
@@ -43,6 +37,7 @@ Let's render the whole `Post` with comments:
 
 ```jsx
 import withObservables from '@nozbe/with-observables'
+import EnhancedComment from 'components/Comment'
 
 const Post = ({ post, comments }) => (
   <article>
@@ -61,6 +56,7 @@ const enhance = withObservables(['post'], ({ post }) => ({
 }))
 
 const EnhancedPost = enhance(Post)
+export default EnhancedPost
 ```
 
 Notice a couple of things:
@@ -111,7 +107,7 @@ const PostExcerpt = ({ post, commentCount }) => (
 )
 
 const enhance = withObservables(['post'], ({ post }) => ({
-  post: post.observe(),
+  post,
   commentCount: post.comments.observeCount()
 }))
 
@@ -124,9 +120,9 @@ This is very similar to normal `<Post>`. We take the `Query` for post's comments
 
 We get it — HOCs are so 2017, and Hooks are the future! And we agree.
 
-Instead of using `withObservables` HOC you can use an alternative open-source Hook for Rx Observables. But be warned that they are probably not as optimized for performance and WatermelonDB use as `withObservables`.
+However, Hooks are not compatible with WatermelonDB's asynchronous API. You _could_ use alternative open-source Hooks for Rx Observables, however we don't recommend that. They won't work correctly in all cases and won't be as optimized for performance with WatermelonDB as `withObservables`. In the future, once Concurrent React is fully developed and published, WatermelonDB will have official hooks.
 
-**If you'd like to see official `useObservables` Hook - [please contribute](https://github.com/Nozbe/withObservables/issues/16) ❤️**
+**[See discussion about official `useObservables` Hook](https://github.com/Nozbe/withObservables/issues/16)**
 
 ## Understanding `withObservables`
 
@@ -148,7 +144,7 @@ withObservables(['post'], ({ post }) => ({
     })
     ```
     are the enhanced props we inject. The keys are props' names, and values are `Observable` objects. Here, we override the `post` prop with an observable version, and create a new `commentCount` prop.
-3. The first argument: `['post']` is a list of props that trigger observation restart. So if a different `post` is passed, that new post will be observed. If you pass `[]`, the rendered Post will not change. You can pass multiple prop names if any of them should cause observation to re-start.
+3. The first argument: `['post']` is a list of props that trigger observation restart. So if a different `post` is passed, that new post will be observed. If you pass `[]`, the rendered Post will not change. You can pass multiple prop names if any of them should cause observation to re-start. Think of it the same way as the `deps` argument you pass to `useEffect` hook.
 4. **Rule of thumb**: If you want to use a prop in the second arg function, pass its name in the first arg array
 
 ## Advanced
@@ -156,7 +152,7 @@ withObservables(['post'], ({ post }) => ({
 1. **findAndObserve**. If you have, say, a post ID from your Router (URL in the browser), you can use:
    ```js
    withObservables(['postId'], ({ postId, database }) => ({
-     post: database.collections.get('posts').findAndObserve(postId)
+     post: database.get('posts').findAndObserve(postId)
    }))
    ```
 1. **RxJS transformations**. The values returned by `Model.observe()`, `Query.observe()`, `Relation.observe()` are [RxJS Observables](https://github.com/ReactiveX/rxjs). You can use standard transforms like mapping, filtering, throttling, startWith to change when and how the component is re-rendered.
@@ -192,57 +188,83 @@ If you inject `post.comments.observe()` into the component, the list will not re
 
 ### Advanced: observing 2nd level relations
 
-If you have 2nd level relations, like author's `Contact` info, and want to connect it to a component as well, you cannot simply use `post.author.contact.observe()` in `withComponents`. Before accessing and observing the `Contact` relation, you need to resolve the `author` itself. Here is the simplest way to do it:
+If you have 2nd level relations, like author's `Contact` info, and want to connect it to a component as well, you cannot simply use `post.author.contact.observe()` in `withComponents`. Remember, `post.author` is not a `User` object, but a `Relation` that has to be asynchronously fetched.
+
+Before accessing and observing the `Contact` relation, you need to resolve the `author` itself. Here is the simplest way to do it:
 
 ```js
-const enhancePostAndAuthor = withObservables(['post'], ({post}) => ({
-  post,
-  author: post.author,
-}));
+import { compose } from 'recompose'
 
-const enhanceAuthorContact = withObservables(['author'], ({author}) => ({
-  contact: author.contact,
-}));
+const enhance = compose(
+  withObservables(['post'], ({ post }) => ({
+    post,
+    author: post.author,
+  })),
+  withObservables(['author'], ({ author }) => ({
+    contact: author.contact,
+  })),
+)
 
-const EnhancedPost = enhancePostAndAuthor(enhanceAuthorContact(PostComponent));
+const EnhancedPost = enhance(PostComponent);
 ```
+
+This is using a `compose` function from [`recompose`](https://github.com/acdlite/recompose). If you're not familiar with function composition, read the `enhance` function from top to bottom:
+
+- first, the PostComponent is enhanced by changing the incoming `post` prop into its observable version, and by adding a new `author` prop that will contain the fetched contents of `post.author`
+- then, the enhanced component is enhanced once again, by adding a `contact` prop containing the fetched contents of `author.contact`.
+
+#### Alternative method of observing 2nd level relations
 
 If you are familiar with `rxjs`, another way to achieve the same result is using `switchMap` operator:
 
 ```js
 import { switchMap } from 'rxjs/operators'
 
-const enhancePost = withObservables(['post'], ({post}) => ({
+const enhance = withObservables(['post'], ({post}) => ({
   post: post,
   author: post.author,
   contact: post.author.observe().pipe(switchMap(author => author.contact.observe()))
-}));
+}))
 
-const EnhancedPost = enhancePost(PostComponent);
+const EnhancedPost = enhance(PostComponent)
 ```
 
 Now `PostComponent` will have `Post`, `Author` and `Contact` props.
 
-**Note:** If you have an optional relation between `Post` and `Author`, the `enhanceAuthorContact` might receive `null` as `author` prop. For this case, as you must always return an observable for the `contact` prop, you can use `rxjs` `of` function to create a default or empty `Contact` prop:
+#### 2nd level optional relations
+
+If you have an optional relation between `Post` and `Author`, the enhanced component might receive `null` as `author` prop. As you must always return an observable for the `contact` prop, you can use `rxjs`'s `of` function to create a default or empty `Contact` prop:
 
 ```js
-import { of as of$ } from 'rxjs';
+import { of as of$ } from 'rxjs'
+import { compose } from 'recompose'
 
-
-const enhanceAuthorContact = withObservables(['author'], ({author}) => ({
-  contact: author ? author.contact.observe() : of$(null)
-}));
+const enhance = compose(
+  withObservables(['post'], ({ post }) => ({
+    post,
+    author: post.author,
+  })),
+  withObservables(['author'], ({ author }) => ({
+    contact: author ? author.contact.observe() : of$(null),
+  })),
+)
 ```
 
-With the `switchMap` approach, you can obtain the same result by doing:
+With the `switchMap` approach, you can do:
 
 ```js
-contact: post.autor.observe().pipe(switchMap(author => author ? autor.contact : of$(null)))
+const enhance = withObservables(['post'], ({post}) => ({
+  post: post,
+  author: post.author,
+  contact: post.autor.observe().pipe(
+    switchMap(author => author ? autor.contact : of$(null))
+  )
+}))
 ```
 
 ## Database Provider
 
-To prevent prop drilling you can utilise the Database Provider and the `withDatabase` Higher-Order Component.
+To prevent prop drilling you can use the Database Provider and the `withDatabase` Higher-Order Component.
 
 ```jsx
 import DatabaseProvider from '@nozbe/watermelondb/DatabaseProvider'
@@ -266,12 +288,16 @@ To consume the database in your components you just wrap your component like so:
 
 ```jsx
 import { withDatabase } from '@nozbe/watermelondb/DatabaseProvider'
+import { compose } from 'recompose'
 
 // ...
 
-export default withDatabase(withObservables([], ({ database }) => ({
-  blogs: database.collections.get('blogs').query().observe(),
-}))(BlogList))
+export default compose(
+  withDatabase,
+  withObservables([], ({ database }) => ({
+    blogs: database.get('blogs').query(),
+  }),
+)(BlogList)
 
 ```
 

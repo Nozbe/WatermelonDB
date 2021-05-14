@@ -12,4 +12,5 @@ chokidar "./docs-master/**" --initial -c "rm -fr ./docs-build && \
   cp README.md ./docs-build/README.md && \
   cp CONTRIBUTING.md ./docs-build/CONTRIBUTING.md && \
   cp CHANGELOG.md ./docs-build/CHANGELOG.md && \
+  (killall mdbook || echo 'skip kill') && \
   mdbook serve ./docs-build"

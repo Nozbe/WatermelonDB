@@ -185,21 +185,11 @@ On RN60+, auto linking should work.
       ```
 </details>
 
-## NodeJS setup
-
-1. Install [better-sqlite3](https://github.com/JoshuaWise/better-sqlite3) peer dependency
-    ```sh
-    yarn add --dev better-sqlite3
-
-    # (or with npm:)
-    npm install -D better-sqlite3
-    ```
-
 ## Web setup
 
 This guide assumes you use Webpack as your bundler.
 
-3. If you haven't already, install Babel plugins for decorators, static class properties, and async/await to get the most out of Watermelon. This assumes you use Babel 7 and already support ES6 syntax.
+1. If you haven't already, install Babel plugins for decorators, static class properties, and async/await to get the most out of Watermelon. This assumes you use Babel 7 and already support ES6 syntax.
     ```bash
     yarn add --dev @babel/plugin-proposal-decorators
     yarn add --dev @babel/plugin-proposal-class-properties
@@ -210,7 +200,7 @@ This guide assumes you use Webpack as your bundler.
     npm install -D @babel/plugin-proposal-class-properties
     npm install -D @babel/plugin-transform-runtime
     ```
-4. Add ES7 support to your `.babelrc` file:
+2. Add ES7 support to your `.babelrc` file:
     ```json
     {
       "plugins": [
@@ -225,6 +215,18 @@ This guide assumes you use Webpack as your bundler.
         ]
       ]
     }
+    ```
+
+## NodeJS setup
+
+You only need this if you want to use WatermelonDB in NodeJS (e.g. for scripts that share code with your web/React Native app)
+
+1. Install [better-sqlite3](https://github.com/JoshuaWise/better-sqlite3) peer dependency
+    ```sh
+    yarn add --dev better-sqlite3
+
+    # (or with npm:)
+    npm install -D better-sqlite3
     ```
 
 * * *

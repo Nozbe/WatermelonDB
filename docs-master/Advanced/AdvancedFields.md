@@ -1,18 +1,5 @@
 # Advanced Fields
 
-## `@text`
-
-You can use `@text` instead of `@field` to enable user text sanitization. When setting a new value on a `@text` field, excess whitespace will be trimmed from both ends from the string.
-
-```js
-import { text } from '@nozbe/watermelondb/decorators'
-
-class Post extends Model {
-  // ...
-  @text('body') body
-}
-```
-
 ## `@json`
 
 If you have a lot of metadata about a record (say, an object with many keys, or an array of values), you can use a `@json` field to contain that information in a single string column (serialized to JSON) instead of adding multiple columns or a relation to another table.
