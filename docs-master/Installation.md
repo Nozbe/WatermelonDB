@@ -183,6 +183,39 @@ On RN60+, auto linking should work.
          }
 
       ```
+      or if you have **multiple** JSI Packages:
+      ```
+      // ...
+      import java.util.Arrays; // ⬅️ This!
+      import com.facebook.react.bridge.JSIModuleSpec; // ⬅️ This!
+      import com.facebook.react.bridge.JSIModulePackage; // ⬅️ This!
+      import com.facebook.react.bridge.ReactApplicationContext; // ⬅️ This!
+      import com.facebook.react.bridge.JavaScriptContextHolder; // ⬅️ This!
+      import com.nozbe.watermelondb.jsi.WatermelonDBJSIPackage; // ⬅️ This!
+      // ...
+      private final ReactNativeHost mReactNativeHost =
+         new ReactNativeHost(this) {
+           // ...
+
+           @Override
+           protected JSIModulePackage getJSIModulePackage() {
+             return new JSIModulePackage() {
+               @Override
+               public List<JSIModuleSpec> getJSIModules(
+                 final ReactApplicationContext reactApplicationContext,
+                 final JavaScriptContextHolder jsContext
+               ) {
+                 List<JSIModuleSpec> modules = Arrays.asList();
+                 
+                 modules.addAll(new WatermelonDBJSIPackage().getJSIModules(reactApplicationContext, jsContext)); // ⬅️ This!
+                 // ⬅️ add more JSI packages here by conventions above
+                 
+                 return modules;
+               }
+             };
+           }
+         }
+      ```
 </details>
 
 ## NodeJS setup
