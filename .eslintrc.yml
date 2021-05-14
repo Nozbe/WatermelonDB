@@ -58,6 +58,7 @@ rules:
   react/jsx-curly-newline: off
   flowtype/space-after-type-colon: off
   flowtype/generic-spacing: off
+  lines-between-class-members: off
   # react
   react/prop-types: off
   react/jsx-filename-extension: off
