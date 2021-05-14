@@ -315,7 +315,6 @@ const Component = () => {
 }
 ```
 
-
 * * *
 
 ## Next steps
