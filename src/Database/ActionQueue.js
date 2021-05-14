@@ -21,7 +21,7 @@ export default class ActionQueue implements ActionInterface {
 
   get isWriterRunning(): boolean {
     const [item] = this._queue
-    return item && item.isWriter
+    return Boolean(item && item.isWriter)
   }
 
   enqueue<T>(
