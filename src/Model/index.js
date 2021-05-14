@@ -3,6 +3,7 @@
 import { type Observable, BehaviorSubject } from '../utils/rx'
 import { type Unsubscribe } from '../utils/subscriptions'
 import invariant from '../utils/common/invariant'
+import logger from '../utils/common/logger'
 import ensureSync from '../utils/common/ensureSync'
 import fromPairs from '../utils/fp/fromPairs'
 import noop from '../utils/fp/noop'
@@ -32,6 +33,8 @@ export function associations(
 ): Associations {
   return (fromPairs(associationList): any)
 }
+
+let warnedAboutSubActionDeprecation = false
 
 export default class Model {
   // Set this in concrete Models to the name of the database table
@@ -223,14 +226,28 @@ export default class Model {
   }
 
   // See: Database.batch()
-  // To be used by Model subclass methods only
+  // To be used by Model @writer methods only!
+  // TODO: protect batch,callWriter,... from being used outside a @reader/@writer
   batch(...records: $ReadOnlyArray<Model | null | void | false>): Promise<void> {
     return this.collection.database.batch(...records)
   }
 
-  // TODO: Document me
-  // To be used by Model subclass methods only
+  // To be used by Model @writer methods only!
+  callWriter<T>(action: () => Promise<T>): Promise<T> {
+    return this.collection.database._workQueue.subAction(action)
+  }
+
+  // To be used by Model @writer/@reader methods only!
+  callReader<T>(action: () => Promise<T>): Promise<T> {
+    return this.collection.database._workQueue.subAction(action)
+  }
+
+  // To be used by Model @writer/@reader methods only!
   subAction<T>(action: () => Promise<T>): Promise<T> {
+    if (!warnedAboutSubActionDeprecation) {
+      warnedAboutSubActionDeprecation = true
+      logger.warn('Model.subAction() is deprecated. Use .callWriter() / .callReader() instead')
+    }
     return this.collection.database._workQueue.subAction(action)
   }
 

@@ -9,7 +9,10 @@ class MockTaskExtended extends MockTask {
 
   @writer
   async nested(...args) {
-    return this.subAction(() => this.returnArgs('sub', ...args))
+    this.subAction(() => this.returnArgs('sub', ...args))
+    this.callWriter(() => this.db.write(async () => 42))
+
+    return this.callReader(() => this.returnArgs('sub', ...args))
   }
 }
 
@@ -26,7 +29,7 @@ describe('@writer', () => {
     expect(spy.mock.calls[0][0]).toBeInstanceOf(Function)
     expect(spy.mock.calls[0][1]).toBe('mock_tasks.returnArgs')
   })
-  it('can call subactions using this.subAction', async () => {
+  it('can call subactions using this.callReader/callWriter', async () => {
     const { tasks } = mockDatabase()
     const record = new MockTaskExtended(tasks, { name: 'test' })
 

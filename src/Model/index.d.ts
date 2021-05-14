@@ -64,6 +64,10 @@ declare module '@nozbe/watermelondb/Model' {
 
     public subAction<T>(action: () => Promise<T>): Promise<T>
 
+    public callReader<T>(action: () => Promise<T>): Promise<T>
+
+    public callWriter<T>(action: () => Promise<T>): Promise<T>
+
     public collection: Collection<Model>
 
     public collections: CollectionMap

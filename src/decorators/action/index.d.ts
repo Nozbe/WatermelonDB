@@ -8,4 +8,6 @@ declare module '@nozbe/watermelondb/decorators/action' {
   function action(): MethodDecorator
 
   export default action
+  export function writer(): MethodDecorator
+  export function reader(): MethodDecorator
 }

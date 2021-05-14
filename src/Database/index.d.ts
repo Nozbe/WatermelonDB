@@ -16,6 +16,7 @@ declare module '@nozbe/watermelondb/Database' {
   }
   interface WriterInterface extends ReaderInterface {
     callWriter<T>(work: () => Promise<T>): Promise<T>
+    batch(...records: (Model | null | void | false | Promise<void>)[]): Promise<void>
   }
 
   export default class Database {
