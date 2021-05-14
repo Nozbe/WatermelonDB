@@ -591,45 +591,102 @@ describe('Database', () => {
       })
       expect(called).toBe(0)
     })
-    it('can call subactions with subAction()', async () => {
-      const { database } = mockDatabase()
+    it(`can call readers with callReader`, async () => {
+      const { db } = mockDatabase()
 
-      const action2 = () => database.write(async () => 32)
-      const result = await database.write(async (writer) => {
-        const a = await writer.subAction(() => action2())
-        return a + 10
-      })
-      expect(result).toBe(42)
-    })
-    it('can arbitrarily nest subactions', async () => {
-      const { database } = mockDatabase()
-
-      const action1 = () => database.write(async () => 42)
-      const action2 = () => database.write(async (writer) => writer.subAction(() => action1()))
-      const action3 = () => database.write(async (writer) => writer.subAction(() => action2()))
+      const action1 = () => db.read(async () => 42)
+      const action2 = () => db.read(async (reader) => reader.callReader(() => action1()))
+      const action3 = () => db.read(async (reader) => reader.callReader(() => action2()))
       expect(await action3()).toBe(42)
     })
+    it(`can call writers with callWriter`, async () => {
+      const { db } = mockDatabase()
+
+      const action0 = () => db.read(async () => 42)
+      const action1 = () => db.write(async (writer) => writer.callReader(() => action0()))
+      const action2 = () => db.write(async (writer) => writer.callWriter(() => action1()))
+      const action3 = () => db.write(async (writer) => writer.subAction(() => action2()))
+      expect(await action3()).toBe(42)
+    })
+    it(`cannot call writers from readers`, async () => {
+      const { db } = mockDatabase()
+
+      const writer = () => db.write(async () => 42)
+      await expectToRejectWithMessage(
+        db.read(async (reader) => reader.callWriter(() => writer())),
+        'is not a function',
+      )
+      await expectToRejectWithMessage(
+        db.read(async (reader) => reader.callReader(() => writer())),
+        'Cannot call a writer block from a reader block',
+      )
+    })
     it('sub actions skip the line only once', async () => {
-      const { database } = mockDatabase()
+      const { db } = mockDatabase()
 
       let called1 = 0
       let called2 = 0
 
       const action1 = () =>
-        database.write(async () => {
+        db.write(async () => {
           called1 += 1
         })
       const action2 = () =>
-        database.write(async () => {
+        db.write(async () => {
           called2 += 1
         })
-      await database.write((action) => {
-        action.subAction(() => action1())
+      await db.write((writer) => {
+        writer.callWriter(() => action1())
         action2()
         return delayPromise() // don't await subaction, just see it will never be called
       })
       expect(called1).toBe(1)
       expect(called2).toBe(0)
+    })
+    it(`ensures that callReader/callWriter calls a reader/writer`, async () => {
+      const { db } = mockDatabase()
+      const expectError = (promise) =>
+        expectToRejectWithMessage(
+          promise,
+          'callReader/callWriter call must call a reader/writer synchronously',
+        )
+      const action = () => db.write(async () => 42)
+      await expectError(db.write(async (writer) => writer.callWriter(() => {})))
+      await expectError(db.write(async (writer) => writer.callReader(() => {})))
+      await expectError(db.read(async (reader) => reader.callReader(() => {})))
+      await expectError(
+        db.write(async (writer) =>
+          writer.callWriter(async () => {
+            await delayPromise()
+            return action()
+          }),
+        ),
+      )
+    })
+    it(`ensures that reader/writer interface is not used after block is done`, async () => {
+      const { db } = mockDatabase()
+
+      const sth = () => db.read(async () => 42)
+
+      let saved
+      const action0 = () =>
+        db.write(async (writer) => {
+          saved = writer
+        })
+      const promise = action0()
+      saved.callReader(() => sth())
+      saved.callWriter(() => sth())
+      saved.subAction(() => sth())
+      await promise
+
+      const expectError = (work) =>
+        expect(work).toThrow('Illegal call on a reader/writer that should no longer be running')
+      expectError(() => saved.callReader(() => sth()))
+      expectError(() => saved.callWriter(() => sth()))
+      expectError(() => saved.subAction(() => sth()))
+
+      db.write(async () => {})
+      expectError(() => saved.callReader(() => sth()))
     })
     it('aborts all pending actions if database is reset', async () => {
       const { database } = mockDatabase()

@@ -13,7 +13,7 @@ import { CollectionChangeTypes } from '../Collection/common'
 import type { TableName, AppSchema } from '../Schema'
 
 import CollectionMap from './CollectionMap'
-import WorkQueue, { type ActionInterface } from './WorkQueue'
+import WorkQueue, { type ReaderInterface, type WriterInterface } from './WorkQueue'
 
 type DatabaseProps = $Exact<{
   adapter: DatabaseAdapter,
@@ -152,18 +152,18 @@ export default class Database {
   // is running at the same time.
   // All actions that modify the database (create, update, delete) must be performed inside of a Writer block
   // See docs for more details and practical guide
-  write<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
+  write<T>(work: (WriterInterface) => Promise<T>, description?: string): Promise<T> {
     return this._workQueue.enqueue(work, description, true)
   }
 
   // Enqueues a Reader - a block of code that, when it's running, has a guarantee that no Writer
   // is running at the same time (therefore, the database won't be modified for the duration of Reader's work)
   // See docs for more details and practical guide
-  read<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
+  read<T>(work: (ReaderInterface) => Promise<T>, description?: string): Promise<T> {
     return this._workQueue.enqueue(work, description, false)
   }
 
-  action<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
+  action<T>(work: (WriterInterface) => Promise<T>, description?: string): Promise<T> {
     if (process.env.NODE_ENV !== 'production' && !warnedAboutActionDeprecation) {
       logger.warn(
         'database.action() is deprecated - use database.write() instead. See changelog for more details',

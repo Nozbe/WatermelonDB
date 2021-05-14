@@ -2,12 +2,12 @@ import { MockTask, mockDatabase } from '../../__tests__/testModels'
 import { writer, reader } from './index'
 
 class MockTaskExtended extends MockTask {
-  @writer
+  @reader
   async returnArgs(a, b, ...c) {
     return [this.name, a, b, c]
   }
 
-  @reader
+  @writer
   async nested(...args) {
     return this.subAction(() => this.returnArgs('sub', ...args))
   }
@@ -18,7 +18,7 @@ describe('@writer', () => {
     const { database, tasks } = mockDatabase()
     const record = new MockTaskExtended(tasks, { name: 'test' })
 
-    const spy = jest.spyOn(database, 'write')
+    const spy = jest.spyOn(database, 'read')
 
     expect(await record.returnArgs(1, 2, 3, 4)).toEqual(['test', 1, 2, [3, 4]])
 

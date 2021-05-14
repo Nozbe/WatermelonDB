@@ -1,13 +1,61 @@
 // @flow
+/* eslint-disable no-use-before-define */
 
 import { invariant, logger } from '../utils/common'
 
-export interface ActionInterface {
-  subAction<T>(work: () => Promise<T>): Promise<T>;
+export interface ReaderInterface {
+  callReader<T>(reader: () => Promise<T>): Promise<T>;
 }
 
+export interface WriterInterface extends ReaderInterface {
+  callWriter<T>(writer: () => Promise<T>): Promise<T>;
+}
+
+class ReaderInterfaceImpl implements ReaderInterface {
+  __workItem: WorkQueueItem<any>
+  __workQueue: WorkQueue
+
+  constructor(queue: WorkQueue, item: WorkQueueItem<any>): void {
+    this.__workQueue = queue
+    this.__workItem = item
+  }
+
+  __validateQueue(): void {
+    invariant(
+      this.__workQueue._queue[0] === this.__workItem,
+      'Illegal call on a reader/writer that should no longer be running',
+    )
+  }
+
+  callReader<T>(reader: () => Promise<T>): Promise<T> {
+    this.__validateQueue()
+    return this.__workQueue.subAction(reader)
+  }
+}
+
+let warnedAboutSubActionDeprecation = false
+
+class WriterInterfaceImpl extends ReaderInterfaceImpl implements WriterInterface {
+  callWriter<T>(writer: () => Promise<T>): Promise<T> {
+    this.__validateQueue()
+    return this.__workQueue.subAction(writer)
+  }
+
+  subAction<T>(writer: () => Promise<T>): Promise<T> {
+    if (!warnedAboutSubActionDeprecation) {
+      warnedAboutSubActionDeprecation = true
+      logger.warn('.subAction() is deprecated. Use .callWriter() or .callReader() instead!')
+    }
+    this.__validateQueue()
+    return this.__workQueue.subAction(writer)
+  }
+}
+
+const actionInterface = (queue: WorkQueue, item: WorkQueueItem<any>) =>
+  item.isWriter ? new WriterInterfaceImpl(queue, item) : new ReaderInterfaceImpl(queue, item)
+
 type WorkQueueItem<T> = $Exact<{
-  work: (ActionInterface) => Promise<T>,
+  work: (ReaderInterface | WriterInterface) => Promise<T>,
   isWriter: boolean,
   resolve: (value: T) => void,
   reject: (reason: any) => void,
@@ -25,14 +73,18 @@ export default class WorkQueue {
   }
 
   enqueue<T>(
-    work: (ActionInterface) => Promise<T>,
+    work: ($FlowFixMe<ReaderInterface | WriterInterface>) => Promise<T>,
     description: ?string,
     isWriter: boolean,
   ): Promise<T> {
     // If a subAction was scheduled using subAction(), database.write/read() calls skip the line
     if (this._subActionIncoming) {
       this._subActionIncoming = false
-      return work(this)
+      const currentWork = this._queue[0]
+      if (!currentWork.isWriter) {
+        invariant(!isWriter, 'Cannot call a writer block from a reader block')
+      }
+      return work(actionInterface(this, currentWork))
     }
 
     return new Promise((resolve, reject) => {
@@ -66,7 +118,12 @@ export default class WorkQueue {
   subAction<T>(work: () => Promise<T>): Promise<T> {
     try {
       this._subActionIncoming = true
-      return work()
+      const promise = work()
+      invariant(
+        !this._subActionIncoming,
+        'callReader/callWriter call must call a reader/writer synchronously',
+      )
+      return promise
     } catch (error) {
       this._subActionIncoming = false
       return Promise.reject(error)
@@ -75,18 +132,18 @@ export default class WorkQueue {
 
   async _executeNext(): Promise<void> {
     const workItem = this._queue[0]
-    const { work, resolve, reject } = workItem
+    const { work, resolve, reject, isWriter } = workItem
 
     try {
-      const workPromise = work(this)
+      const workPromise = work(actionInterface(this, workItem))
 
       if (process.env.NODE_ENV !== 'production') {
         invariant(
           workPromise instanceof Promise,
           `The function passed to database.${
-            workItem.isWriter ? 'write' : 'read'
+            isWriter ? 'write' : 'read'
           }() or a method marked as @${
-            workItem.isWriter ? 'writer' : 'reader'
+            isWriter ? 'writer' : 'reader'
           } must be asynchronous (marked as 'async' or always returning a promise) (in: ${
             workItem.description || 'unnamed'
           })`,

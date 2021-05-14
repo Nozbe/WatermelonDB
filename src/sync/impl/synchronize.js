@@ -56,13 +56,13 @@ export default async function synchronize({
     `pullChanges() returned invalid timestamp ${newLastPulledAt}. timestamp must be a non-zero number`,
   )
 
-  await database.write(async (action) => {
+  await database.write(async (writer) => {
     ensureSameDatabase(database, resetCount)
     invariant(
       lastPulledAt === (await getLastPulledAt(database)),
       '[Sync] Concurrent synchronization is not allowed. More than one synchronize() call was running at the same time, and the later one was aborted before committing results to local database.',
     )
-    await action.subAction(() =>
+    await writer.callWriter(() =>
       applyRemoteChanges(
         database,
         remoteChanges,
