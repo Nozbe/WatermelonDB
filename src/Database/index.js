@@ -170,7 +170,7 @@ export default class Database {
       )
       warnedAboutActionDeprecation = true
     }
-    return this._actionQueue.enqueue(work, description, true)
+    return this._actionQueue.enqueue(work, `${description || 'unnamed'} (legacy action)`, true)
   }
 
   // Emits a signal immediately, and on change in any of the passed tables

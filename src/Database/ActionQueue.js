@@ -14,7 +14,7 @@ type ActionQueueItem<T> = $Exact<{
   description: ?string,
 }>
 
-export default class ActionQueue implements ActionInterface {
+export default class ActionQueue {
   _queue: ActionQueueItem<any>[] = []
 
   _subActionIncoming: boolean = false
@@ -29,7 +29,7 @@ export default class ActionQueue implements ActionInterface {
     description: ?string,
     isWriter: boolean,
   ): Promise<T> {
-    // If a subAction was scheduled using subAction(), database.action() calls skip the line
+    // If a subAction was scheduled using subAction(), database.write/read() calls skip the line
     if (this._subActionIncoming) {
       this._subActionIncoming = false
       return work(this)
@@ -37,19 +37,22 @@ export default class ActionQueue implements ActionInterface {
 
     return new Promise((resolve, reject) => {
       if (process.env.NODE_ENV !== 'production' && this._queue.length) {
+        // TODO: This warning confuses people - maybe delay its showing by some time (say, 1s) to avoid showing it unnecessarily?
         const queue = this._queue
         const current = queue[0]
+        const enqueuedKind = isWriter ? 'writer' : 'reader'
+        const currentKind = current.isWriter ? 'writer' : 'reader'
         logger.warn(
-          `The action you're trying to perform (${
+          `The ${enqueuedKind} you're trying to run (${
             description || 'unnamed'
           }) can't be performed yet, because there are ${
             queue.length
-          } actions in the queue. Current action: ${
+          } other readers/writers in the queue. Current ${currentKind}: ${
             current.description || 'unnamed'
-          }. Ignore this message if everything is working fine. But if your actions are not running, it's because the current action is stuck. Remember that if you're calling an action from an action, you must use subAction(). See docs for more details.`,
+          }. If everything is working fine, you can safely ignore this message (queueing is working as expected). But if your readers/writers are not running, it's because the current ${currentKind} is stuck. Remember that if you're calling a reader/writer form a reader/writer, you must use subAction(). See docs for more details.`,
         )
-        logger.log(`Enqueued action:`, work)
-        logger.log(`Running action:`, current.work)
+        logger.log(`Enqueued ${enqueuedKind}:`, work)
+        logger.log(`Running ${currentKind}:`, current.work)
       }
 
       this._queue.push({ work, isWriter, resolve, reject, description })
@@ -71,7 +74,8 @@ export default class ActionQueue implements ActionInterface {
   }
 
   async _executeNext(): Promise<void> {
-    const { work, resolve, reject } = this._queue[0]
+    const workItem = this._queue[0]
+    const { work, resolve, reject } = workItem
 
     try {
       const workPromise = work(this)
@@ -79,8 +83,12 @@ export default class ActionQueue implements ActionInterface {
       if (process.env.NODE_ENV !== 'production') {
         invariant(
           workPromise instanceof Promise,
-          `The function passed to database.action() or a method marked as @action must be asynchronous — either marked as 'async' or always returning a promise (in: ${
-            this._queue[0].description || 'unnamed'
+          `The function passed to database.${
+            workItem.isWriter ? 'write' : 'read'
+          }() or a method marked as @${
+            workItem.isWriter ? 'writer' : 'reader'
+          } must be asynchronous (marked as 'async' or always returning a promise) (in: ${
+            workItem.description || 'unnamed'
           })`,
         )
       }
@@ -102,7 +110,7 @@ export default class ActionQueue implements ActionInterface {
     const actionsToAbort = this._queue.splice(1) // leave only the current action (calling this method) on the queue
 
     actionsToAbort.forEach(({ reject }) => {
-      reject(new Error('Action has been aborted because the database was reset'))
+      reject(new Error('Reader/writer has been aborted because the database was reset'))
     })
   }
 }
