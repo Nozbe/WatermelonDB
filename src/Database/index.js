@@ -13,7 +13,7 @@ import { CollectionChangeTypes } from '../Collection/common'
 import type { TableName, AppSchema } from '../Schema'
 
 import CollectionMap from './CollectionMap'
-import ActionQueue, { type ActionInterface } from './ActionQueue'
+import WorkQueue, { type ActionInterface } from './WorkQueue'
 
 type DatabaseProps = $Exact<{
   adapter: DatabaseAdapter,
@@ -35,7 +35,7 @@ export default class Database {
 
   collections: CollectionMap
 
-  _actionQueue: ActionQueue = new ActionQueue()
+  _workQueue: WorkQueue = new WorkQueue()
 
   // (experimental) if true, Database is in a broken state and should not be used anymore
   _isBroken: boolean = false
@@ -153,14 +153,14 @@ export default class Database {
   // All actions that modify the database (create, update, delete) must be performed inside of a Writer block
   // See docs for more details and practical guide
   write<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
-    return this._actionQueue.enqueue(work, description, true)
+    return this._workQueue.enqueue(work, description, true)
   }
 
   // Enqueues a Reader - a block of code that, when it's running, has a guarantee that no Writer
   // is running at the same time (therefore, the database won't be modified for the duration of Reader's work)
   // See docs for more details and practical guide
   read<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
-    return this._actionQueue.enqueue(work, description, false)
+    return this._workQueue.enqueue(work, description, false)
   }
 
   action<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
@@ -170,7 +170,7 @@ export default class Database {
       )
       warnedAboutActionDeprecation = true
     }
-    return this._actionQueue.enqueue(work, `${description || 'unnamed'} (legacy action)`, true)
+    return this._workQueue.enqueue(work, `${description || 'unnamed'} (legacy action)`, true)
   }
 
   // Emits a signal immediately, and on change in any of the passed tables
@@ -222,7 +222,7 @@ export default class Database {
     try {
       this._isBeingReset = true
       // First kill actions, to ensure no more traffic to adapter happens
-      this._actionQueue._abortPendingActions()
+      this._workQueue._abortPendingWork()
 
       // Kill ability to call adapter methods during reset (to catch bugs if someone does this)
       const { adapter } = this
@@ -263,7 +263,7 @@ export default class Database {
   }
 
   _ensureInWriter(error: string): void {
-    invariant(this._actionQueue.isWriterRunning, error)
+    invariant(this._workQueue.isWriterRunning, error)
   }
 
   // (experimental) puts Database in a broken state

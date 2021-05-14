@@ -3,10 +3,10 @@
 import { invariant, logger } from '../utils/common'
 
 export interface ActionInterface {
-  subAction<T>(action: () => Promise<T>): Promise<T>;
+  subAction<T>(work: () => Promise<T>): Promise<T>;
 }
 
-type ActionQueueItem<T> = $Exact<{
+type WorkQueueItem<T> = $Exact<{
   work: (ActionInterface) => Promise<T>,
   isWriter: boolean,
   resolve: (value: T) => void,
@@ -14,8 +14,8 @@ type ActionQueueItem<T> = $Exact<{
   description: ?string,
 }>
 
-export default class ActionQueue {
-  _queue: ActionQueueItem<any>[] = []
+export default class WorkQueue {
+  _queue: WorkQueueItem<any>[] = []
 
   _subActionIncoming: boolean = false
 
@@ -49,7 +49,7 @@ export default class ActionQueue {
             queue.length
           } other readers/writers in the queue. Current ${currentKind}: ${
             current.description || 'unnamed'
-          }. If everything is working fine, you can safely ignore this message (queueing is working as expected). But if your readers/writers are not running, it's because the current ${currentKind} is stuck. Remember that if you're calling a reader/writer form a reader/writer, you must use subAction(). See docs for more details.`,
+          }. If everything is working fine, you can safely ignore this message (queueing is working as expected). But if your readers/writers are not running, it's because the current ${currentKind} is stuck. Remember that if you're calling a reader/writer from another reader/writer, you must use subAction(). See docs for more details.`,
         )
         logger.log(`Enqueued ${enqueuedKind}:`, work)
         logger.log(`Running ${currentKind}:`, current.work)
@@ -63,10 +63,10 @@ export default class ActionQueue {
     })
   }
 
-  subAction<T>(action: () => Promise<T>): Promise<T> {
+  subAction<T>(work: () => Promise<T>): Promise<T> {
     try {
       this._subActionIncoming = true
-      return action()
+      return work()
     } catch (error) {
       this._subActionIncoming = false
       return Promise.reject(error)
@@ -105,11 +105,10 @@ export default class ActionQueue {
     }
   }
 
-  _abortPendingActions(): void {
-    invariant(this._queue.length >= 1, 'abortPendingActions can only be called from an Action')
-    const actionsToAbort = this._queue.splice(1) // leave only the current action (calling this method) on the queue
-
-    actionsToAbort.forEach(({ reject }) => {
+  _abortPendingWork(): void {
+    invariant(this._queue.length >= 1, '_abortPendingWork can only be called from a reader/writer')
+    const workToAbort = this._queue.splice(1) // leave only the caller on the queue
+    workToAbort.forEach(({ reject }) => {
       reject(new Error('Reader/writer has been aborted because the database was reset'))
     })
   }

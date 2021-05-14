@@ -523,19 +523,19 @@ describe('Database', () => {
 
       const promise0 = db.write(actions[0])
       db.read(actions[1])
-      expect(db._actionQueue.isWriterRunning).toBe(true)
+      expect(db._workQueue.isWriterRunning).toBe(true)
 
       await promise0
       const promise2 = db.write(actions[2])
-      expect(db._actionQueue.isWriterRunning).toBe(false)
+      expect(db._workQueue.isWriterRunning).toBe(false)
 
       await promise2
-      expect(db._actionQueue.isWriterRunning).toBe(false)
+      expect(db._workQueue.isWriterRunning).toBe(false)
 
       const promise3 = db.write(async () => 42)
-      expect(db._actionQueue.isWriterRunning).toBe(true)
+      expect(db._workQueue.isWriterRunning).toBe(true)
       await promise3
-      expect(db._actionQueue.isWriterRunning).toBe(false)
+      expect(db._workQueue.isWriterRunning).toBe(false)
     })
     it('queues actions correctly even if some error out', async () => {
       const { database } = mockDatabase()

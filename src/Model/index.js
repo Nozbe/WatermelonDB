@@ -231,7 +231,7 @@ export default class Model {
   // TODO: Document me
   // To be used by Model subclass methods only
   subAction<T>(action: () => Promise<T>): Promise<T> {
-    return this.collection.database._actionQueue.subAction(action)
+    return this.collection.database._workQueue.subAction(action)
   }
 
   get table(): TableName<this> {
