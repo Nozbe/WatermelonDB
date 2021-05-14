@@ -9,9 +9,6 @@ The `Collection` object is how you find, query, and create new records of a give
 #### Get a collection
 
 ```js
-const postsCollection = database.collections.get('posts')
-
-// Shortcut syntax:
 const postsCollection = database.get('posts')
 ```
 
@@ -20,7 +17,7 @@ Pass the [table name](./Schema.md) as the argument.
 #### Find a record (by ID)
 
 ```js
-const post = await postsCollection.find('abcdef')
+const post = await database.get('posts').find('abcdef')
 ```
 
 `find()` returns a Promise. If the record cannot be found, the Promise will be rejected.
@@ -30,19 +27,19 @@ const post = await postsCollection.find('abcdef')
 Find a list of records matching given conditions using `.query()`:
 
 ```js
-const allPosts = await postsCollection.query().fetch()
-const starredPosts = await postsCollection.query(Q.where('is_starred', true)).fetch()
+const allPosts = await database.get('posts').query().fetch()
+const starredPosts = await database.get('posts').query(Q.where('is_starred', true)).fetch()
 ```
 
 **➡️ Learn more:** [Queries](./Query.md)
 
 ## Modifying the database
 
-To create, update, or delete records, use the respective operations **wrapped in an Action**:
+All modifications to the database (like creating, updating, deleting records) must be done **in a Writer block**, like so:
 
 ```js
-await database.action(async () => {
-  const post = await postsCollection.find('abcdef')
+await database.write(async () => {
+  const post = await database.get('posts').find('abcdef')
   await post.update( /* update the post */ )
   await post.markAsDeleted()
 })
@@ -53,8 +50,8 @@ await database.action(async () => {
 ### Create a new record
 
 ```js
-await database.action(async () => {
-  const newPost = await postsCollection.create(post => {
+await database.write(async () => {
+  const newPost = await database.get('posts').create(post => {
     post.title = 'New post'
     post.body = 'Lorem ipsum...'
   })
@@ -70,7 +67,7 @@ await database.action(async () => {
 ### Update a record
 
 ```js
-await database.action(async () => {
+await database.write(async () => {
   await somePost.update(post => {
     post.title = 'Updated title'
   })
@@ -88,7 +85,7 @@ There are two ways of deleting records: syncable (mark as deleted), and permanen
 If you only use Watermelon as a local database, destroy records permanently, if you [synchronize](./Advanced/Sync.md), mark as deleted instead.
 
 ```js
-await database.action(async () => {
+await database.write(async () => {
   await somePost.markAsDeleted() // syncable
   await somePost.destroyPermanently() // permanent
 })
@@ -105,11 +102,11 @@ await database.action(async () => {
 - `Model.prepareUpdate()`, `Collection.prepareCreate`, `Database.batch` — used for [batch updates](./Actions.md)
 - `Database.unsafeResetDatabase()` destroys the whole database - [be sure to see this comment before using it](https://github.com/Nozbe/WatermelonDB/blob/22188ee5b6e3af08e48e8af52d14e0d90db72925/src/Database/index.js#L131)
 - To override the `record.id` during the creation, e.g. to sync with a remote database, you can do it by `record._raw` property. Be aware that the `id` must be of type `string`.
-```js
-await postsCollection.create(post => {
-  post._raw.id = serverId
-})
-```
+    ```js
+    await database.get('posts').create(post => {
+      post._raw.id = serverId
+    })
+    ```
 
 * * *
 

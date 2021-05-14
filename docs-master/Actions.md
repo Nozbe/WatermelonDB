@@ -6,7 +6,7 @@ Although you can [`.create()` and `.update()` records](./CRUD.md) anywhere in yo
 
 An **Action** is a function that can modify the database (create, update, and delete records).
 
-To define it, just add a method to a `Model` class marked with the `@action` decorator
+To define it, just add a method to a `Model` class marked with the `@writer` decorator
 
 ```js
 import { action } from '@nozbe/watermelondb/decorators'
@@ -14,7 +14,7 @@ import { action } from '@nozbe/watermelondb/decorators'
 class Post extends Model {
   // ...
 
-  @action async addComment(body, author) {
+  @writer async addComment(body, author) {
     return await this.collections.get('comments').create(comment => {
       comment.post.set(this)
       comment.author.set(author)
@@ -36,7 +36,7 @@ class Comment extends Model {
   // ...
   @field('is_spam') isSpam
 
-  @action async markAsSpam() {
+  @writer async markAsSpam() {
     await this.update(comment => {
       comment.isSpam = true
     })
@@ -62,7 +62,7 @@ Take an action that changes a `Post` into spam:
 ```js
 class Post extends Model {
   // ...
-  @action async createSpam() {
+  @writer async createSpam() {
     await this.update(post => {
       post.title = `7 ways to lose weight`
     })
@@ -79,7 +79,7 @@ Let's modify it to use batching:
 ```js
 class Post extends Model {
   // ...
-  @action async createSpam() {
+  @writer async createSpam() {
     await this.batch(
       this.prepareUpdate(post => {
         post.title = `7 ways to lose weight`
@@ -107,16 +107,16 @@ class Post extends Model {
 
 ## Calling Actions from Actions
 
-If you try to call an Action from another Action, you'll notice that it won't work. This is because while Action is running, no other Action can run simultaneously. To override this behavior, wrap the Action call in `this.subAction`:
+If you try to call an Action from another Action, you'll notice that it won't work. This is because while Action is running, no other Action can run simultaneously. To override this behavior, wrap the Action call in `this.callWriter`:
 
 ```js
 class Comment extends Model {
   // ...
 
-  @action async appendToPost() {
+  @writer async appendToPost() {
     const post = await this.post.fetch()
-    // `appendToBody` is an `@action` on `Post`, so we call subAction to allow it
-    await this.subAction(() => post.appendToBody(this.body))
+    // `appendToBody` is an `@writer` on `Post`, so we call callWriter to allow it
+    await this.callWriter(() => post.appendToBody(this.body))
   }
 }
 ```
@@ -146,7 +146,7 @@ class Post extends Model {
 Then to actually delete the post:
 
 ```js
-database.action(async () => {
+database.write(async () => {
   await post.markAsDeleted()
 })
 ```
@@ -161,15 +161,15 @@ database.action(async () => {
 If you want to call a number of write operations outside of a Model action, do it like so:
 
 ```js
-const newPost = await database.action(async action => {
-  // Note: function passed to `database.action()` MUST be asynchronous
+// Note: function passed to `database.write()` MUST be asynchronous
+const newPost = await database.write(async action => {
   const posts = database.collections.get('posts')
   const post = await posts.create( /* configure Post here */ )
 
-  // Note: to call an action from an inline action, call `action.subAction`:
-  await action.subAction(() => post.markAsPromoted())
+  // Note: to call an action from an inline action, call `action.callWriter`:
+  await action.callWriter(() => post.markAsPromoted())
 
-  // Note: Value returned from the wrapped function will be returned to `database.action` caller
+  // Note: Value returned from the wrapped function will be returned to `database.write` caller
   return post
 })
 ```
