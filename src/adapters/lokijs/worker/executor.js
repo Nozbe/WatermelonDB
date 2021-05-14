@@ -482,8 +482,7 @@ export default class LokiExecutor {
   }
 
   _warnAboutLackingFTSSupport(columns: Array<ColumnSchema>): void {
-    const searchableColumns = columns.filter(column => column.isFTS)
-    if (searchableColumns.length > 0) {
+    if (columns.some((column) => column.isFTS)) {
       // Warn the user about missing FTS support for the LokiJS adapter
       // Please contribute! Here are some pointers:
       // https://github.com/LokiJS-Forge/LokiDB/blob/master/packages/full-text-search/spec/generic/full_text_search.spec.ts

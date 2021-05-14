@@ -52,7 +52,7 @@ const operators: { [Operator]: string } = {
   between: 'between',
   like: 'like',
   notLike: 'not like',
-  match: 'match',
+  ftsMatch: 'match',
 }
 
 const encodeComparison = (table: TableName<any>, comparison: Comparison) => {
@@ -110,7 +110,7 @@ const encodeWhereCondition = (
     )
   }
 
-  if (comparison.operator === 'match') {
+  if (comparison.operator === 'ftsMatch') {
     const srcTable = encodeName(table)
     const ftsTable = encodeName(`_fts_${table}`)
     const rowid = encodeName('rowid')

@@ -448,6 +448,26 @@ describe('buildQueryDescription', () => {
       process.env.NODE_ENV = env
     }
   })
+  it('supports ftsMatch as fts join', () => {
+    const query = Q.buildQueryDescription([Q.where('searchable', Q.ftsMatch('hello world'))])
+    expect(query).toEqual({
+      where: [
+        {
+          type: 'where',
+          left: 'searchable',
+          comparison: {
+            operator: 'ftsMatch',
+            right: {
+              value: 'hello world',
+            },
+          },
+        },
+      ],
+      joinTables: [],
+      nestedJoinTables: [],
+      sortBy: [],
+    })
+  })
   it('catches bad types', () => {
     expect(() => Q.eq({})).toThrow('Invalid value passed to query')
     // TODO: oneOf/notIn values?
@@ -458,6 +478,7 @@ describe('buildQueryDescription', () => {
     expect(() => Q.notLike(null)).toThrow('not a string')
     expect(() => Q.notLike({})).toThrow('not a string')
     expect(() => Q.sanitizeLikeString(null)).toThrow('not a string')
+    expect(() => Q.ftsMatch(null)).toThrow('not a string')
     expect(() => Q.column({})).toThrow('not a string')
     expect(() => Q.experimentalTake('0')).toThrow('not a number')
     expect(() => Q.experimentalSkip('0')).toThrow('not a number')
@@ -634,26 +655,5 @@ describe('queryWithoutDeleted', () => {
         whereNotDeleted,
       ]),
     )
-  })
-
-  it('supports ftsMatch as fts join', () => {
-    const query = Q.buildQueryDescription([Q.where('searchable', Q.ftsMatch('hello world'))])
-    expect(query).toEqual({
-      where: [
-        {
-          type: 'where',
-          left: 'searchable',
-          comparison: {
-            operator: 'match',
-            right: {
-              value: 'hello world',
-            },
-          },
-        },
-      ],
-      joinTables: [],
-      nestedJoinTables: [],
-      sortBy: [],
-    })
   })
 })

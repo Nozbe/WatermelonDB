@@ -163,6 +163,48 @@ describe('SQLite encodeQuery', () => {
         ` and "tasks"."_status" is not 'deleted'`,
     )
   })
+  it('encodes ftsMatch', () => {
+    const query = new Query(mockCollection, [Q.where('searchable', Q.ftsMatch('hello world'))])
+    expect(encodeQuery(query)).toBe(
+      `select "tasks".* from "tasks" ` +
+        `where "tasks"."rowid" in (` +
+        `select "_fts_tasks"."rowid" from "_fts_tasks" ` +
+        `where "_fts_tasks"."searchable" match 'hello world'` +
+        `) and "tasks"."_status" is not 'deleted'`,
+    )
+  })
+  it('encodes ftsMatch with other joins', () => {
+    const query = [
+      Q.on('projects', 'team_id', 'abcdef'),
+      Q.on('projects', 'is_active', true),
+      Q.on('projects', 'left_column', Q.lte(Q.column('right_column'))),
+      Q.on('projects', 'left2', Q.weakGt(Q.column('right2'))),
+      Q.where('left_column', 'right_value'),
+      Q.on('tag_assignments', 'tag_id', Q.oneOf(['a', 'b', 'c'])),
+      Q.where('searchable', Q.ftsMatch('hello world')),
+    ]
+    const expectedQuery =
+      `join "projects" on "projects"."id" = "tasks"."project_id"` +
+      ` join "tag_assignments" on "tag_assignments"."task_id" = "tasks"."id"` +
+      ` where ("projects"."team_id" is 'abcdef'` +
+      ` and "projects"."is_active" is 1` +
+      ` and "projects"."left_column" <= "projects"."right_column"` +
+      ` and ("projects"."left2" > "projects"."right2"` +
+      ` or ("projects"."left2" is not null` +
+      ` and "projects"."right2" is null))` +
+      ` and "projects"."_status" is not 'deleted')` +
+      ` and ("tag_assignments"."tag_id" in ('a', 'b', 'c')` +
+      ` and "tag_assignments"."_status" is not 'deleted')` +
+      ` and "tasks"."left_column" is 'right_value'` +
+      ` and "tasks"."rowid" in` +
+      ` (select "_fts_tasks"."rowid" from "_fts_tasks" where` +
+      ` "_fts_tasks"."searchable" match 'hello world')` +
+      ` and "tasks"."_status" is not 'deleted'`
+    expect(encoded(query)).toBe(`select distinct "tasks".* from "tasks" ${expectedQuery}`)
+    expect(encoded(query, true)).toBe(
+      `select count(distinct "tasks"."id") as "count" from "tasks" ${expectedQuery}`,
+    )
+  })
   it(`encodes on nested in and/or`, () => {
     expect(
       encoded([
@@ -269,15 +311,5 @@ describe('SQLite encodeQuery', () => {
   it(`does not encode loki-specific syntax`, () => {
     expect(() => encoded([Q.unsafeLokiExpr({ hi: true })])).toThrow('Unknown clause')
     expect(() => encoded([Q.unsafeLokiTransform(() => {})])).toThrow('not supported')
-  })
-  it('encodes JOIN over FTS table', () => {
-    const query = new Query(mockCollection, [Q.where('searchable', Q.ftsMatch('hello world'))])
-    expect(encodeQuery(query)).toBe(
-      `select "tasks".* from "tasks" ` +
-        `where "tasks"."rowid" in (` +
-        `select "_fts_tasks"."rowid" from "_fts_tasks" ` +
-        `where "_fts_tasks"."searchable" match 'hello world'` +
-        `) and "tasks"."_status" is not 'deleted'`,
-    )
   })
 })
