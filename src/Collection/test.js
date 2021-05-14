@@ -237,15 +237,19 @@ describe('creating new records', () => {
     expect(m1._isCommitted).toBe(false)
     expect(newModelSpy).toHaveBeenCalledTimes(1)
   })
-  it('disallows record creating outside of an action', async () => {
+  it('disallows record creating outside of a writer', async () => {
     const { database, tasks } = mockDatabase()
 
     await expectToRejectWithMessage(
       tasks.create(noop),
-      'can only be called from inside of an Action',
+      'can only be called from inside of a Writer',
+    )
+    await expectToRejectWithMessage(
+      database.read(() => tasks.create(noop)),
+      'can only be called from inside of a Writer',
     )
 
-    // no throw inside action
+    // no throw inside writer
     await database.write(() => tasks.create(noop))
   })
 })

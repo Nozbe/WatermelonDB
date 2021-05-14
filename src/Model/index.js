@@ -83,8 +83,8 @@ export default class Model {
   //   task.name = 'New name'
   // })
   async update(recordUpdater: (this) => void = noop): Promise<this> {
-    this.collection.database._ensureInAction(
-      `Model.update() can only be called from inside of an Action. See docs for more details.`,
+    this.collection.database._ensureInWriter(
+      `Model.update() can only be called from inside of a Writer. See docs for more details.`,
     )
     const record = this.prepareUpdate(recordUpdater)
     await this.collection.database.batch(this)
@@ -159,8 +159,8 @@ export default class Model {
   // Marks this record as deleted (will be permanently deleted after sync)
   // Note: Use this only with Sync
   async markAsDeleted(): Promise<void> {
-    this.collection.database._ensureInAction(
-      `Model.markAsDeleted() can only be called from inside of an Action. See docs for more details.`,
+    this.collection.database._ensureInWriter(
+      `Model.markAsDeleted() can only be called from inside of a Writer. See docs for more details.`,
     )
     await this.collection.database.batch(this.prepareMarkAsDeleted())
   }
@@ -168,15 +168,15 @@ export default class Model {
   // Pernamently removes this record from the database
   // Note: Don't use this when using Sync
   async destroyPermanently(): Promise<void> {
-    this.collection.database._ensureInAction(
-      `Model.destroyPermanently() can only be called from inside of an Action. See docs for more details.`,
+    this.collection.database._ensureInWriter(
+      `Model.destroyPermanently() can only be called from inside of a Writer. See docs for more details.`,
     )
     await this.collection.database.batch(this.prepareDestroyPermanently())
   }
 
   async experimentalMarkAsDeleted(): Promise<void> {
-    this.collection.database._ensureInAction(
-      `Model.experimental_markAsDeleted() can only be called from inside of an Action. See docs for more details.`,
+    this.collection.database._ensureInWriter(
+      `Model.experimental_markAsDeleted() can only be called from inside of a Writer. See docs for more details.`,
     )
     const children = await fetchChildren(this)
     children.forEach((model) => model.prepareMarkAsDeleted())
@@ -184,8 +184,8 @@ export default class Model {
   }
 
   async experimentalDestroyPermanently(): Promise<void> {
-    this.collection.database._ensureInAction(
-      `Model.experimental_destroyPermanently() can only be called from inside of an Action. See docs for more details.`,
+    this.collection.database._ensureInWriter(
+      `Model.experimental_destroyPermanently() can only be called from inside of a Writer. See docs for more details.`,
     )
     const children = await fetchChildren(this)
     children.forEach((model) => model.prepareDestroyPermanently())

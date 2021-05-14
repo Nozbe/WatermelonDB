@@ -8,6 +8,7 @@ export interface ActionInterface {
 
 type ActionQueueItem<T> = $Exact<{
   work: (ActionInterface) => Promise<T>,
+  isWriter: boolean,
   resolve: (value: T) => void,
   reject: (reason: any) => void,
   description: ?string,
@@ -18,11 +19,16 @@ export default class ActionQueue implements ActionInterface {
 
   _subActionIncoming: boolean = false
 
-  get isRunning(): boolean {
-    return this._queue.length > 0
+  get isWriterRunning(): boolean {
+    const [item] = this._queue
+    return item && item.isWriter
   }
 
-  enqueue<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
+  enqueue<T>(
+    work: (ActionInterface) => Promise<T>,
+    description: ?string,
+    isWriter: boolean,
+  ): Promise<T> {
     // If a subAction was scheduled using subAction(), database.action() calls skip the line
     if (this._subActionIncoming) {
       this._subActionIncoming = false
@@ -46,7 +52,7 @@ export default class ActionQueue implements ActionInterface {
         logger.log(`Running action:`, current.work)
       }
 
-      this._queue.push({ work, resolve, reject, description })
+      this._queue.push({ work, isWriter, resolve, reject, description })
 
       if (this._queue.length === 1) {
         this._executeNext()

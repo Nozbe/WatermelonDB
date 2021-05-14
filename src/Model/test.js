@@ -443,38 +443,28 @@ describe('Safety features', () => {
       await db.batch(model)
     })
   })
-  it('disallows writes outside of an action', async () => {
+  it('disallows writes outside of an writer', async () => {
     const db = makeDatabase()
     db.adapter.batch = jest.fn()
 
     const model = await db.write(() => db.get('mock').create())
 
-    await expectToRejectWithMessage(
-      model.update(noop),
-      'can only be called from inside of an Action',
-    )
+    const expectError = (promise) =>
+      expectToRejectWithMessage(promise, 'can only be called from inside of a Writer')
 
-    await expectToRejectWithMessage(
-      model.markAsDeleted(),
-      'can only be called from inside of an Action',
-    )
+    await expectError(model.update(noop))
+    await expectError(model.markAsDeleted())
+    await expectError(model.destroyPermanently())
+    await expectError(model.experimentalMarkAsDeleted())
+    await expectError(model.experimentalDestroyPermanently())
 
-    await expectToRejectWithMessage(
-      model.destroyPermanently(),
-      'can only be called from inside of an Action',
-    )
+    await expectError(db.read(() => model.update(noop)))
+    await expectError(db.read(() => model.markAsDeleted()))
+    await expectError(db.read(() => model.destroyPermanently()))
+    await expectError(db.read(() => model.experimentalMarkAsDeleted()))
+    await expectError(db.read(() => model.experimentalDestroyPermanently()))
 
-    await expectToRejectWithMessage(
-      model.experimentalMarkAsDeleted(),
-      'can only be called from inside of an Action',
-    )
-
-    await expectToRejectWithMessage(
-      model.experimentalDestroyPermanently(),
-      'can only be called from inside of an Action',
-    )
-
-    // check that no throw inside action
+    // check that no throw inside writer
     await db.write(async () => {
       await model.update(noop)
       await model.markAsDeleted()

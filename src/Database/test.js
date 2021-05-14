@@ -28,13 +28,17 @@ describe('Database', () => {
       await expectToRejectWithMessage(tasks.find(m1.id), 'not found')
       await expectToRejectWithMessage(tasks.find(m2.id), 'not found')
     })
-    it('throws error if reset is called from outside an Action', async () => {
+    it('throws error if reset is called from outside a writer', async () => {
       const { database, tasks } = mockDatabase()
       const m1 = await database.write(() => tasks.create())
 
       await expectToRejectWithMessage(
         database.unsafeResetDatabase(),
-        'can only be called from inside of an Action',
+        'can only be called from inside of a Writer',
+      )
+      await expectToRejectWithMessage(
+        database.read(() => database.unsafeResetDatabase()),
+        'can only be called from inside of a Writer',
       )
 
       expect(await tasks.find(m1.id)).toBe(m1)
@@ -267,15 +271,19 @@ describe('Database', () => {
         /doesn't have a prepared create or prepared update/,
       )
     })
-    it('throws error if batch is called outside of an action', async () => {
+    it('throws error if batch is called outside of a writer', async () => {
       const { database, tasks } = mockDatabase()
 
       await expectToRejectWithMessage(
         database.batch(tasks.prepareCreate(noop)),
-        'can only be called from inside of an Action',
+        'can only be called from inside of a Writer',
+      )
+      await expectToRejectWithMessage(
+        database.read(() => database.batch(tasks.prepareCreate(noop))),
+        'can only be called from inside of a Writer',
       )
 
-      // check if in action is successful
+      // check if in writer is successful
       await database.write(() =>
         database.batch(
           tasks.prepareCreate((task) => {

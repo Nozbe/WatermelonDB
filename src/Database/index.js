@@ -77,8 +77,8 @@ export default class Database {
     )
     const actualRecords = records[0]
 
-    this._ensureInAction(
-      `Database.batch() can only be called from inside of an Action. See docs for more details.`,
+    this._ensureInWriter(
+      `Database.batch() can only be called from inside of a Writer. See docs for more details.`,
     )
 
     // performance critical - using mutations
@@ -153,16 +153,16 @@ export default class Database {
   //
   // See docs for more details and practical guide
   action<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
-    return this._actionQueue.enqueue(work, description)
+    return this._actionQueue.enqueue(work, description, true)
   }
 
   /* EXPERIMENTAL API - DO NOT USE */
   write<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
-    return this._actionQueue.enqueue(work, description)
+    return this._actionQueue.enqueue(work, description, true)
   }
 
   read<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
-    return this._actionQueue.enqueue(work, description)
+    return this._actionQueue.enqueue(work, description, false)
   }
 
   // Emits a signal immediately, and on change in any of the passed tables
@@ -208,8 +208,8 @@ export default class Database {
   //
   // Yes, this sucks and there should be some safety mechanisms or warnings. Please contribute!
   async unsafeResetDatabase(): Promise<void> {
-    this._ensureInAction(
-      `Database.unsafeResetDatabase() can only be called from inside of an Action. See docs for more details.`,
+    this._ensureInWriter(
+      `Database.unsafeResetDatabase() can only be called from inside of a Writer. See docs for more details.`,
     )
     try {
       this._isBeingReset = true
@@ -254,8 +254,8 @@ export default class Database {
     })
   }
 
-  _ensureInAction(error: string): void {
-    invariant(this._actionQueue.isRunning, error)
+  _ensureInWriter(error: string): void {
+    invariant(this._actionQueue.isWriterRunning, error)
   }
 
   // (experimental) puts Database in a broken state
