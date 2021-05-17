@@ -203,7 +203,7 @@ describe('creating new records', () => {
     const m1 = await db.write(() => collection.create())
 
     // Check database insert, cache insert, observers update
-    expect(m1._isCommitted).toBe(true)
+    expect(m1._preparedState).toBe(null)
     expect(newModelSpy).toHaveBeenCalledTimes(1)
     expect(dbBatchSpy).toHaveBeenCalledTimes(1)
     expect(dbBatchSpy).toHaveBeenCalledWith([['create', 'mock_tasks', m1._raw]], expect.anything())
@@ -223,7 +223,7 @@ describe('creating new records', () => {
 
     const m1 = collection.prepareCreate()
 
-    expect(m1._isCommitted).toBe(false)
+    expect(m1._preparedState).toBe('create')
     expect(newModelSpy).toHaveBeenCalledTimes(1)
     expect(observer).toHaveBeenCalledTimes(0)
     await expect(collection.find(m1.id)).rejects.toBeInstanceOf(Error)
@@ -234,7 +234,7 @@ describe('creating new records', () => {
     const newModelSpy = jest.spyOn(MockTask, '_prepareCreateFromDirtyRaw')
 
     const m1 = collection.prepareCreateFromDirtyRaw({ col3: 'hello' })
-    expect(m1._isCommitted).toBe(false)
+    expect(m1._preparedState).toBe('create')
     expect(newModelSpy).toHaveBeenCalledTimes(1)
   })
   it('disallows record creating outside of a writer', async () => {

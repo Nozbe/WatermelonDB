@@ -118,7 +118,7 @@ describe('CRUD', () => {
 
     expect(m1.collection).toBe(collection)
     expect(m1._isEditing).toBe(false)
-    expect(m1._isCommitted).toBe(false)
+    expect(m1._preparedState).toBe('create')
     expect(m1.id.length).toBe(16)
     expect(m1.createdAt).toBe(undefined)
     expect(m1.updatedAt).toBe(undefined)
@@ -141,7 +141,7 @@ describe('CRUD', () => {
 
     expect(m1.collection).toBe(collection)
     expect(m1._isEditing).toBe(false)
-    expect(m1._isCommitted).toBe(false)
+    expect(m1._preparedState).toBe('create')
     expect(m1.id.length).toBe(16)
     expect(m1.createdAt).toBe(undefined)
     expect(m1.updatedAt).toBe(undefined)
@@ -202,8 +202,7 @@ describe('CRUD', () => {
       expect(m1.name).toBe('New name')
       expect(m1.updatedAt).toBe(undefined)
       expect(m1._isEditing).toBe(false)
-      expect(m1._isCommitted).toBe(true)
-      expect(m1._hasPendingUpdate).toBe(false)
+      expect(m1._preparedState).toBe(null)
     })
   })
   it('can prepare an update', async () => {
@@ -233,12 +232,10 @@ describe('CRUD', () => {
     expect(m1.name).toBe('New name')
     expect(m1.updatedAt).toBe(undefined)
     expect(m1._isEditing).toBe(false)
-    expect(m1._hasPendingUpdate).toBe(true)
+    expect(m1._preparedState).toBe('update')
     expect(db.adapter.batch).toHaveBeenCalledTimes(1)
 
     expect(observer).toHaveBeenCalledTimes(1)
-
-    expect(m1._isCommitted).toBe(true)
 
     await db.write(() => db.batch(preparedUpdate))
   })
@@ -261,6 +258,10 @@ describe('CRUD', () => {
 
     expect(nextObserver).toHaveBeenCalledTimes(1)
     expect(completionObserver).toHaveBeenCalledTimes(1)
+
+    expect(m1._isEditing).toBe(false)
+    expect(m1._preparedState).toBe(null)
+    expect(m1.syncStatus).toBe('deleted')
   })
   it('can destroy a record and its children permanently', async () => {
     const { db, projects, tasks, comments } = mockDatabase()
@@ -312,6 +313,10 @@ describe('CRUD', () => {
 
     expect(nextObserver).toHaveBeenCalledTimes(1)
     expect(completionObserver).toHaveBeenCalledTimes(1)
+
+    expect(m1._isEditing).toBe(false)
+    expect(m1._preparedState).toBe(null)
+    expect(m1.syncStatus).toBe('deleted')
   })
   it('can mark as deleted record and its children permanently', async () => {
     const { db, projects, tasks, comments } = mockDatabase()
@@ -413,17 +418,19 @@ describe('Safety features', () => {
   })
   it('disallows operations on uncommited records', async () => {
     const db = makeDatabase()
+    db.adapter.batch = jest.fn()
     await db.write(async () => {
       const model = MockModel._prepareCreate(db.get('mock'), () => {})
-      expect(model._isCommitted).toBe(false)
+      expect(model._preparedState).toBe('create')
 
       await expectToRejectWithMessage(
         model.update(() => {}),
-        'uncommitted',
+        'with pending changes',
       )
-      await expectToRejectWithMessage(model.markAsDeleted(), 'uncomitted record as deleted')
-      await expectToRejectWithMessage(model.destroyPermanently(), 'uncomitted record as deleted')
+      await expectToRejectWithMessage(model.markAsDeleted(), 'with pending changes')
+      await expectToRejectWithMessage(model.destroyPermanently(), 'with pending changes')
       expect(() => model.observe()).toThrow('uncommitted')
+      await db.batch(model)
     })
   })
   it('disallows changes on records with pending updates', async () => {
@@ -434,10 +441,10 @@ describe('Safety features', () => {
       model.prepareUpdate()
       expect(() => {
         model.prepareUpdate()
-      }).toThrow('pending update')
+      }).toThrow('with pending changes')
       await expectToRejectWithMessage(
         model.update(() => {}),
-        'pending update',
+        'with pending changes',
       )
 
       await db.batch(model)

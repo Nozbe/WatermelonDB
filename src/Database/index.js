@@ -89,9 +89,10 @@ export default class Database {
         return
       }
 
+      const preparedState = record._preparedState
       invariant(
-        !record._isCommitted || record._hasPendingUpdate || record._hasPendingDelete,
-        `Cannot batch a record that doesn't have a prepared create or prepared update`,
+        preparedState,
+        `Cannot batch a record that doesn't have a prepared create/update/delete`,
       )
 
       const raw = record._raw
@@ -100,21 +101,27 @@ export default class Database {
 
       let changeType
 
-      // Deletes take presedence over updates
-      if (record._hasPendingDelete) {
-        if (record._hasPendingDelete === 'destroy') {
-          batchOperations.push(['destroyPermanently', table, id])
-        } else {
-          batchOperations.push(['markAsDeleted', table, id])
-        }
-        changeType = CollectionChangeTypes.destroyed
-      } else if (record._hasPendingUpdate) {
-        record._hasPendingUpdate = false // TODO: What if this fails?
+      if (preparedState === 'update') {
         batchOperations.push(['update', table, raw])
         changeType = CollectionChangeTypes.updated
-      } else {
+      } else if (preparedState === 'create') {
         batchOperations.push(['create', table, raw])
         changeType = CollectionChangeTypes.created
+      } else if (preparedState === 'markAsDeleted') {
+        batchOperations.push(['markAsDeleted', table, id])
+        changeType = CollectionChangeTypes.destroyed
+      } else if (preparedState === 'destroyPermanently') {
+        batchOperations.push(['destroyPermanently', table, id])
+        changeType = CollectionChangeTypes.destroyed
+      } else {
+        invariant(false, 'bad preparedState')
+      }
+
+      if (preparedState !== 'create') {
+        // We're (unsafely) assuming that batch will succeed and removing the "pending" state so that
+        // subsequent changes to the record don't trip up the invariant
+        // TODO: What if this fails?
+        record._preparedState = null
       }
 
       if (!changeNotifications[table]) {

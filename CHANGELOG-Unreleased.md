@@ -6,9 +6,9 @@
 
 - Deprecated `new Database({ actionsEnabled: false })` options is now removed. Actions are always enabled.
 - Deprecated `new SQLiteAdapter({ synchronous: true })` option is now removed. Use `{ jsi: true }` instead.
-- Deprecated `Q.unsafeLokiFilter` is now removed.
-    Use `Q.unsafeLokiTransform((raws, loki) => raws.filter(raw => ...))` instead.
+- Deprecated `Q.unsafeLokiFilter` is now removed. Use `Q.unsafeLokiTransform((raws, loki) => raws.filter(raw => ...))` instead.
 - Deprecated `Query.hasJoins` is now removed
+- (Internal API, unlikely to affect users) - `Model._isCommited`, `._hasPendingUpdate`, `._hasPendingDelete` have been removed and changed to `Model._pendingState`
 
 ### Deprecations
 

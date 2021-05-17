@@ -191,8 +191,8 @@ describe('Database', () => {
         ),
       )
 
-      expect(m1._hasPendingUpdate).toBe(false)
-      expect(m2._hasPendingUpdate).toBe(false)
+      expect(m1._preparedState).toBe(null)
+      expect(m2._preparedState).toBe(null)
 
       await batchPromise
 
@@ -221,7 +221,7 @@ describe('Database', () => {
 
       const createdRecords = [m5, m6]
       createdRecords.forEach((record) => {
-        expect(record._isCommitted).toBe(true)
+        expect(record._preparedState).toBe(null)
         expect(record.collection._cache.get(record.id)).toBe(record)
       })
 
@@ -268,7 +268,7 @@ describe('Database', () => {
 
       await expectToRejectWithMessage(
         database.write(() => database.batch(m1)),
-        /doesn't have a prepared create or prepared update/,
+        'prepared create/update/delete',
       )
     })
     it('throws error if batch is called outside of a writer', async () => {

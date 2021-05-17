@@ -182,7 +182,7 @@ export default class Collection<Record: Model> {
   _applyChangesToCache(operations: CollectionChangeSet<Record>): void {
     operations.forEach(({ record, type }) => {
       if (type === CollectionChangeTypes.created) {
-        record._isCommitted = true
+        record._preparedState = null
         this._cache.add(record)
       } else if (type === CollectionChangeTypes.destroyed) {
         this._cache.delete(record)

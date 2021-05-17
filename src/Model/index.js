@@ -50,15 +50,7 @@ export default class Model {
 
   _isEditing: boolean = false
 
-  // `false` when instantiated but not yet in the database
-  _isCommitted: boolean = true
-
-  // `true` when prepareUpdate was called, but not yet sent to be executed
-  // turns to `false` the moment the update is sent to be executed, even if database
-  // did not respond yet
-  _hasPendingUpdate: boolean = false
-
-  _hasPendingDelete: false | 'mark' | 'destroy' = false
+  _preparedState: null | 'create' | 'update' | 'markAsDeleted' | 'destroyPermanently' = null
 
   __changes: ?BehaviorSubject<$FlowFixMe<this>> = null
 
@@ -98,9 +90,7 @@ export default class Model {
   // After preparing an update, you must execute it synchronously using
   // database.batch()
   prepareUpdate(recordUpdater: (this) => void = noop): this {
-    invariant(this._isCommitted, `Cannot update uncommitted record`)
-    invariant(!this._hasPendingUpdate, `Cannot update a record with pending updates`)
-
+    invariant(!this._preparedState, `Cannot update a record with pending changes`)
     this._isEditing = true
 
     // Touch updatedAt (if available)
@@ -111,7 +101,7 @@ export default class Model {
     // Perform updates
     ensureSync(recordUpdater(this))
     this._isEditing = false
-    this._hasPendingUpdate = true
+    this._preparedState = 'update'
 
     // TODO: `process.nextTick` doesn't work on React Native
     // We could polyfill with setImmediate, but it doesn't have the same effect — test and enseure
@@ -124,7 +114,7 @@ export default class Model {
     ) {
       process.nextTick(() => {
         invariant(
-          !this._hasPendingUpdate,
+          this._preparedState !== 'update',
           `record.prepareUpdate was called on ${this.table}#${this.id} but wasn't sent to batch() synchronously -- this is bad!`,
         )
       })
@@ -134,26 +124,16 @@ export default class Model {
   }
 
   prepareMarkAsDeleted(): this {
-    invariant(this._isCommitted, `Cannot mark an uncomitted record as deleted`)
-    invariant(!this._hasPendingUpdate, `Cannot mark an updated record as deleted`)
-
-    this._isEditing = true
+    invariant(!this._preparedState, `Cannot mark a record with pending changes as deleted`)
     this._raw._status = 'deleted'
-    this._hasPendingDelete = 'mark'
-    this._isEditing = false
-
+    this._preparedState = 'markAsDeleted'
     return this
   }
 
   prepareDestroyPermanently(): this {
-    invariant(this._isCommitted, `Cannot mark an uncomitted record as deleted`)
-    invariant(!this._hasPendingUpdate, `Cannot mark an updated record as deleted`)
-
-    this._isEditing = true
+    invariant(!this._preparedState, `Cannot destroy permanently a record with pending changes`)
     this._raw._status = 'deleted'
-    this._hasPendingDelete = 'destroy'
-    this._isEditing = false
-
+    this._preparedState = 'destroyPermanently'
     return this
   }
 
@@ -190,7 +170,7 @@ export default class Model {
   // Returns an observable that emits `this` upon subscription and every time this record changes
   // Emits `complete` if this record is destroyed
   observe(): Observable<this> {
-    invariant(this._isCommitted, `Cannot observe uncommitted record`)
+    invariant(this._preparedState !== 'create', `Cannot observe uncommitted record`)
     return this._getChanges()
   }
 
@@ -261,7 +241,7 @@ export default class Model {
       sanitizedRaw(createTimestampsFor(this.prototype), collection.schema),
     )
 
-    record._isCommitted = false
+    record._preparedState = 'create'
     record._isEditing = true
     ensureSync(recordBuilder(record))
     record._isEditing = false
@@ -274,7 +254,7 @@ export default class Model {
     dirtyRaw: DirtyRaw,
   ): this {
     const record = new this(collection, sanitizedRaw(dirtyRaw, collection.schema))
-    record._isCommitted = false
+    record._preparedState = 'create'
     return record
   }
 
