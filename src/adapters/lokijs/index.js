@@ -127,16 +127,6 @@ export default class LokiJSAdapter implements DatabaseAdapter {
           'LokiJSAdapter {useIncrementalIndexedDB: false} option is now deprecated. If you rely on this feature, please file an issue',
         )
       }
-      // TODO(2021-05): Remove this
-      invariant(
-        !('migrationsExperimental' in options),
-        'LokiJSAdapter `migrationsExperimental` option has been renamed to `migrations`',
-      )
-      // TODO(2021-05): Remove this
-      invariant(
-        !('experimentalUseIncrementalIndexedDB' in options),
-        'LokiJSAdapter `experimentalUseIncrementalIndexedDB` option has been renamed to `useIncrementalIndexedDB`',
-      )
       validateAdapter(this)
     }
     const callback = (result) => devSetupCallback(result, options.onSetUpError)
