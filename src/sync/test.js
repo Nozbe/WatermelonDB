@@ -1219,9 +1219,9 @@ describe('synchronize', () => {
         }),
         pushChanges,
       }),
-      /database was reset/,
+      'database was reset',
     )
-    await expectToRejectWithMessage(projects.find('new_project'), /not found/)
+    await expectToRejectWithMessage(projects.find('new_project'), 'not found')
     expect(pushChanges).not.toHaveBeenCalled()
   })
   it('aborts if database is cleared during sync — different case', async () => {
@@ -1240,9 +1240,9 @@ describe('synchronize', () => {
         }),
         pushChanges: () => database.write(() => database.unsafeResetDatabase()),
       }),
-      /database was reset/,
+      'database was reset',
     )
-    await expectToRejectWithMessage(projects.find('new_project'), /not found/)
+    await expectToRejectWithMessage(projects.find('new_project'), 'not found')
   })
   describe('migration syncs', () => {
     const testSchema10 = { ...testSchema, version: 10 }
@@ -1396,7 +1396,7 @@ describe('synchronize', () => {
       )
       await expectToRejectWithMessage(
         synchronize({ database, migrationsEnabledAtVersion: 11 }),
-        /migrationsEnabledAtVersion must not be greater than current schema version/,
+        'migrationsEnabledAtVersion must not be greater than current schema version',
       )
       await expectToRejectWithMessage(
         synchronize({
