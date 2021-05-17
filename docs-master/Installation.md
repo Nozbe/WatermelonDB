@@ -184,7 +184,7 @@ On RN60+, auto linking should work.
 
       ```
       or if you have **multiple** JSI Packages:
-      ```
+      ```java
       // ...
       import java.util.Arrays; // ⬅️ This!
       import com.facebook.react.bridge.JSIModuleSpec; // ⬅️ This!
