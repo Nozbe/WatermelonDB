@@ -115,7 +115,7 @@ export default class WorkQueue {
             queue.length
           } other readers/writers in the queue. Current ${currentKind}: ${
             current.description || 'unnamed'
-          }. If everything is working fine, you can safely ignore this message (queueing is working as expected). But if your readers/writers are not running, it's because the current ${currentKind} is stuck. Remember that if you're calling a reader/writer from another reader/writer, you must use subAction(). See docs for more details.`,
+          }. If everything is working fine, you can safely ignore this message (queueing is working as expected). But if your readers/writers are not running, it's because the current ${currentKind} is stuck. Remember that if you're calling a reader/writer from another reader/writer, you must use callReader()/callWriter(). See docs for more details.`,
         )
         logger.log(`Enqueued ${enqueuedKind}:`, work)
         logger.log(`Running ${currentKind}:`, current.work)
