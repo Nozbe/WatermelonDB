@@ -2,7 +2,7 @@
 
 import { type Observable, startWith, merge as merge$ } from '../utils/rx'
 import { type Unsubscribe } from '../utils/subscriptions'
-import { invariant, logger } from '../utils/common'
+import { invariant, logger, deprecated } from '../utils/common'
 import { noop } from '../utils/fp'
 
 import type { DatabaseAdapter, BatchOperation } from '../adapters/type'
@@ -25,8 +25,6 @@ let experimentalAllowsFatalError = false
 export function setExperimentalAllowsFatalError(): void {
   experimentalAllowsFatalError = true
 }
-
-let warnedAboutActionDeprecation = false
 
 export default class Database {
   adapter: DatabaseAdapterCompat
@@ -169,12 +167,7 @@ export default class Database {
   }
 
   action<T>(work: (WriterInterface) => Promise<T>, description?: string): Promise<T> {
-    if (process.env.NODE_ENV !== 'production' && !warnedAboutActionDeprecation) {
-      logger.warn(
-        'database.action() is deprecated - use database.write() instead. See changelog for more details',
-      )
-      warnedAboutActionDeprecation = true
-    }
+    deprecated('Database.action()', 'Use Database.write() instead.')
     return this._workQueue.enqueue(work, `${description || 'unnamed'} (legacy action)`, true)
   }
 

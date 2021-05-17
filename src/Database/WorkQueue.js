@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { invariant, logger } from '../utils/common'
+import { invariant, deprecated, logger } from '../utils/common'
 import type Model from '../Model'
 import type Database from './index'
 
@@ -36,8 +36,6 @@ class ReaderInterfaceImpl implements ReaderInterface {
   }
 }
 
-let warnedAboutSubActionDeprecation = false
-
 class WriterInterfaceImpl extends ReaderInterfaceImpl implements WriterInterface {
   callWriter<T>(writer: () => Promise<T>): Promise<T> {
     this.__validateQueue()
@@ -45,10 +43,7 @@ class WriterInterfaceImpl extends ReaderInterfaceImpl implements WriterInterface
   }
 
   subAction<T>(writer: () => Promise<T>): Promise<T> {
-    if (!warnedAboutSubActionDeprecation) {
-      warnedAboutSubActionDeprecation = true
-      logger.warn('.subAction() is deprecated. Use .callWriter() or .callReader() instead!')
-    }
+    deprecated('.subAction()', 'Use .callWriter() / .callReader() instead.')
     this.__validateQueue()
     return this.__workQueue.subAction(writer)
   }
