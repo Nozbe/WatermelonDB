@@ -241,7 +241,10 @@ export default class Database {
       await adapter.unsafeResetDatabase()
 
       // Only now clear caches, since there may have been queued fetches from DB still bringing in items to cache
-      this._unsafeClearCaches()
+      Object.values(this.collections.map).forEach((collection) => {
+        // $FlowFixMe
+        collection._cache.unsafeClear()
+      })
 
       // Restore working Database
       this._resetCount += 1
@@ -249,13 +252,6 @@ export default class Database {
     } finally {
       this._isBeingReset = false
     }
-  }
-
-  _unsafeClearCaches(): void {
-    Object.values(this.collections.map).forEach((collection) => {
-      // $FlowFixMe
-      collection._cache.unsafeClear()
-    })
   }
 
   _ensureInWriter(diagnosticMethodName: string): void {

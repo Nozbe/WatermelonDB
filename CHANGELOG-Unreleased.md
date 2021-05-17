@@ -9,6 +9,7 @@
 - Deprecated `Q.unsafeLokiFilter` is now removed. Use `Q.unsafeLokiTransform((raws, loki) => raws.filter(raw => ...))` instead.
 - Deprecated `Query.hasJoins` is now removed
 - (Internal API, unlikely to affect users) - `Model._isCommited`, `._hasPendingUpdate`, `._hasPendingDelete` have been removed and changed to `Model._pendingState`
+- Internal `CollectionMap` is no longer exported from `@nozbe/watermelondb`
 
 ### Deprecations
 
