@@ -91,9 +91,7 @@ export default class Collection<Record: Model> {
   //   task.name = 'Task name'
   // })
   async create(recordBuilder: (Record) => void = noop): Promise<Record> {
-    this.database._ensureInWriter(
-      `Collection.create() can only be called from inside of a Writer. See docs for more details.`,
-    )
+    this.database._ensureInWriter(`Collection.create()`)
 
     const record = this.prepareCreate(recordBuilder)
     await this.database.batch(record)
@@ -222,10 +220,5 @@ export default class Collection<Record: Model> {
       const idx = this._subscribers.indexOf(entry)
       idx !== -1 && this._subscribers.splice(idx, 1)
     }
-  }
-
-  // See: Database.unsafeClearCaches
-  unsafeClearCache(): void {
-    this._cache.unsafeClear()
   }
 }

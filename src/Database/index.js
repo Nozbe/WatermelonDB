@@ -79,9 +79,7 @@ export default class Database {
     )
     const actualRecords = records[0]
 
-    this._ensureInWriter(
-      `Database.batch() can only be called from inside of a Writer. See docs for more details.`,
-    )
+    this._ensureInWriter(`Database.batch()`)
 
     // performance critical - using mutations
     const batchOperations: BatchOperation[] = []
@@ -216,9 +214,7 @@ export default class Database {
   //
   // Yes, this sucks and there should be some safety mechanisms or warnings. Please contribute!
   async unsafeResetDatabase(): Promise<void> {
-    this._ensureInWriter(
-      `Database.unsafeResetDatabase() can only be called from inside of a Writer. See docs for more details.`,
-    )
+    this._ensureInWriter(`Database.unsafeResetDatabase()`)
     try {
       this._isBeingReset = true
       // First kill actions, to ensure no more traffic to adapter happens
@@ -258,12 +254,15 @@ export default class Database {
   _unsafeClearCaches(): void {
     Object.values(this.collections.map).forEach((collection) => {
       // $FlowFixMe
-      collection.unsafeClearCache()
+      collection._cache.unsafeClear()
     })
   }
 
-  _ensureInWriter(error: string): void {
-    invariant(this._workQueue.isWriterRunning, error)
+  _ensureInWriter(diagnosticMethodName: string): void {
+    invariant(
+      this._workQueue.isWriterRunning,
+      `${diagnosticMethodName} can only be called from inside of a Writer. See docs for more details.`,
+    )
   }
 
   // (experimental) puts Database in a broken state
