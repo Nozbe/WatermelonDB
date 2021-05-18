@@ -170,9 +170,7 @@ const encodeAddColumnsMigrationStep: (AddColumnsMigrationStep) => SQL = ({
       )} = ${encodeValue(nullValue(column))};`
       const addIndex = encodeIndex(column, table)
 
-      if (column.isFTS) {
-        logger.warn('[DB][Worker] Support for migrations and isFTS is still to be implemented')
-      }
+      invariant(!column.isFTS, '[DB][Worker] Support for migrations with isFTS is still to be implemented')
 
       return transform(addColumn + setDefaultValue + addIndex, unsafeSql)
     })
