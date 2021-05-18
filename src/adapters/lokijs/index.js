@@ -87,7 +87,7 @@ export type LokiAdapterOptions = $Exact<{
 }>
 
 export default class LokiJSAdapter implements DatabaseAdapter {
-  workerBridge: WorkerBridge
+  _bridge: WorkerBridge
 
   schema: AppSchema
 
@@ -102,7 +102,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     const { schema, migrations, dbName } = options
 
     const useWebWorker = options.useWebWorker ?? process.env.NODE_ENV !== 'test'
-    this.workerBridge = new WorkerBridge(useWebWorker)
+    this._bridge = new WorkerBridge(useWebWorker)
 
     this.schema = schema
     this.migrations = migrations
@@ -130,13 +130,13 @@ export default class LokiJSAdapter implements DatabaseAdapter {
       validateAdapter(this)
     }
     const callback = (result) => devSetupCallback(result, options.onSetUpError)
-    this.workerBridge.send(SETUP, [options], callback, 'immutable', 'immutable')
+    this._bridge.send(SETUP, [options], callback, 'immutable', 'immutable')
   }
 
   async testClone(options?: $Shape<LokiAdapterOptions> = {}): Promise<LokiJSAdapter> {
     // Ensure data is saved to memory
     // $FlowFixMe
-    const { executor } = this.workerBridge._worker._worker
+    const { executor } = this._bridge._worker._worker
     executor.loki.close()
 
     // Copy
@@ -155,30 +155,30 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
   find(table: TableName<any>, id: RecordId, callback: ResultCallback<CachedFindResult>): void {
     validateTable(table, this.schema)
-    this.workerBridge.send(FIND, [table, id], callback, 'immutable', 'shallowCloneDeepObjects')
+    this._bridge.send(FIND, [table, id], callback, 'immutable', 'shallowCloneDeepObjects')
   }
 
   query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void {
     validateTable(query.table, this.schema)
     // SerializedQueries are immutable, so we need no copy
-    this.workerBridge.send(QUERY, [query], callback, 'immutable', 'shallowCloneDeepObjects')
+    this._bridge.send(QUERY, [query], callback, 'immutable', 'shallowCloneDeepObjects')
   }
 
   count(query: SerializedQuery, callback: ResultCallback<number>): void {
     validateTable(query.table, this.schema)
     // SerializedQueries are immutable, so we need no copy
-    this.workerBridge.send(COUNT, [query], callback, 'immutable', 'immutable')
+    this._bridge.send(COUNT, [query], callback, 'immutable', 'immutable')
   }
 
   batch(operations: BatchOperation[], callback: ResultCallback<void>): void {
     operations.forEach(([, table]) => validateTable(table, this.schema))
     // batches are only strings + raws which only have JSON-compatible values, rest is immutable
-    this.workerBridge.send(BATCH, [operations], callback, 'shallowCloneDeepObjects', 'immutable')
+    this._bridge.send(BATCH, [operations], callback, 'shallowCloneDeepObjects', 'immutable')
   }
 
   getDeletedRecords(table: TableName<any>, callback: ResultCallback<RecordId[]>): void {
     validateTable(table, this.schema)
-    this.workerBridge.send(GET_DELETED_RECORDS, [table], callback, 'immutable', 'immutable')
+    this._bridge.send(GET_DELETED_RECORDS, [table], callback, 'immutable', 'immutable')
   }
 
   destroyDeletedRecords(
@@ -187,7 +187,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     callback: ResultCallback<void>,
   ): void {
     validateTable(table, this.schema)
-    this.workerBridge.send(
+    this._bridge.send(
       DESTROY_DELETED_RECORDS,
       [table, recordIds],
       callback,
@@ -197,35 +197,35 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   }
 
   unsafeResetDatabase(callback: ResultCallback<void>): void {
-    this.workerBridge.send(UNSAFE_RESET_DATABASE, [], callback, 'immutable', 'immutable')
+    this._bridge.send(UNSAFE_RESET_DATABASE, [], callback, 'immutable', 'immutable')
   }
 
   getLocal(key: string, callback: ResultCallback<?string>): void {
-    this.workerBridge.send(GET_LOCAL, [key], callback, 'immutable', 'immutable')
+    this._bridge.send(GET_LOCAL, [key], callback, 'immutable', 'immutable')
   }
 
   setLocal(key: string, value: string, callback: ResultCallback<void>): void {
-    this.workerBridge.send(SET_LOCAL, [key, value], callback, 'immutable', 'immutable')
+    this._bridge.send(SET_LOCAL, [key, value], callback, 'immutable', 'immutable')
   }
 
   removeLocal(key: string, callback: ResultCallback<void>): void {
-    this.workerBridge.send(REMOVE_LOCAL, [key], callback, 'immutable', 'immutable')
+    this._bridge.send(REMOVE_LOCAL, [key], callback, 'immutable', 'immutable')
   }
 
   // dev/debug utility
   get _executor(): any {
     // $FlowFixMe
-    return this.workerBridge._worker._worker.executor
+    return this._bridge._worker._worker.executor
   }
 
   // (experimental)
   _fatalError(error: Error): void {
-    this.workerBridge.send(EXPERIMENTAL_FATAL_ERROR, [error], () => {}, 'immutable', 'immutable')
+    this._bridge.send(EXPERIMENTAL_FATAL_ERROR, [error], () => {}, 'immutable', 'immutable')
   }
 
   // (experimental)
   _clearCachedRecords(): void {
-    this.workerBridge.send(CLEAR_CACHED_RECORDS, [], () => {}, 'immutable', 'immutable')
+    this._bridge.send(CLEAR_CACHED_RECORDS, [], () => {}, 'immutable', 'immutable')
   }
 
   _debugDignoseMissingRecord(table: TableName<any>, id: RecordId): void {
