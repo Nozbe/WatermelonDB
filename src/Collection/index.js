@@ -14,7 +14,6 @@ import { type TableName, type TableSchema } from '../Schema'
 import { type DirtyRaw } from '../RawRecord'
 
 import RecordCache from './RecordCache'
-import { CollectionChangeTypes } from './common'
 
 type CollectionChangeType = 'created' | 'updated' | 'destroyed'
 export type CollectionChange<Record: Model> = { record: Record, type: CollectionChangeType }
@@ -181,10 +180,10 @@ export default class Collection<Record: Model> {
 
   _applyChangesToCache(operations: CollectionChangeSet<Record>): void {
     operations.forEach(({ record, type }) => {
-      if (type === CollectionChangeTypes.created) {
+      if (type === 'created') {
         record._preparedState = null
         this._cache.add(record)
-      } else if (type === CollectionChangeTypes.destroyed) {
+      } else if (type === 'destroyed') {
         this._cache.delete(record)
       }
     })
@@ -198,9 +197,9 @@ export default class Collection<Record: Model> {
     this.changes.next(operations)
 
     const collectionChangeNotifyModels = ({ record, type }): void => {
-      if (type === CollectionChangeTypes.updated) {
+      if (type === 'updated') {
         record._notifyChanged()
-      } else if (type === CollectionChangeTypes.destroyed) {
+      } else if (type === 'destroyed') {
         record._notifyDestroyed()
       }
     }

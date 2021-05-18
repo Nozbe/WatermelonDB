@@ -8,8 +8,6 @@ import { toPromise } from '../utils/fp/Result'
 
 import { mockDatabase, MockTask, testSchema } from '../__tests__/testModels'
 
-import { CollectionChangeTypes } from './common'
-
 const mockQuery = (collection) => new Query(collection, [Q.where('a', 'b')])
 
 describe('Collection', () => {
@@ -208,7 +206,7 @@ describe('creating new records', () => {
     expect(dbBatchSpy).toHaveBeenCalledTimes(1)
     expect(dbBatchSpy).toHaveBeenCalledWith([['create', 'mock_tasks', m1._raw]], expect.anything())
     expect(observer).toHaveBeenCalledTimes(1)
-    expect(observer).toHaveBeenCalledWith([{ record: m1, type: CollectionChangeTypes.created }])
+    expect(observer).toHaveBeenCalledWith([{ record: m1, type: 'created' }])
     expect(collection._cache.get(m1.id)).toBe(m1)
     expect(await collection.find(m1.id)).toBe(m1)
   })

@@ -9,7 +9,6 @@ import type { DatabaseAdapter, BatchOperation } from '../adapters/type'
 import DatabaseAdapterCompat from '../adapters/compat'
 import type Model from '../Model'
 import type Collection, { CollectionChangeSet } from '../Collection'
-import { CollectionChangeTypes } from '../Collection/common'
 import type { TableName, AppSchema } from '../Schema'
 
 import CollectionMap from './CollectionMap'
@@ -101,16 +100,16 @@ export default class Database {
 
       if (preparedState === 'update') {
         batchOperations.push(['update', table, raw])
-        changeType = CollectionChangeTypes.updated
+        changeType = 'updated'
       } else if (preparedState === 'create') {
         batchOperations.push(['create', table, raw])
-        changeType = CollectionChangeTypes.created
+        changeType = 'created'
       } else if (preparedState === 'markAsDeleted') {
         batchOperations.push(['markAsDeleted', table, id])
-        changeType = CollectionChangeTypes.destroyed
+        changeType = 'destroyed'
       } else if (preparedState === 'destroyPermanently') {
         batchOperations.push(['destroyPermanently', table, id])
-        changeType = CollectionChangeTypes.destroyed
+        changeType = 'destroyed'
       } else {
         invariant(false, 'bad preparedState')
       }

@@ -4,7 +4,6 @@ import { logError } from '../../utils/common'
 import { type Unsubscribe } from '../../utils/subscriptions'
 
 import type { CollectionChangeSet } from '../../Collection'
-import { CollectionChangeTypes } from '../../Collection/common'
 
 import type Query from '../../Query'
 import type Model from '../../Model'
@@ -23,7 +22,7 @@ export function processChangeSet<Record: Model>(
     const index = mutableMatchingRecords.indexOf(record)
     const currentlyMatching = index > -1
 
-    if (type === CollectionChangeTypes.destroyed) {
+    if (type === 'destroyed') {
       if (currentlyMatching) {
         // Remove if record was deleted
         mutableMatchingRecords.splice(index, 1)

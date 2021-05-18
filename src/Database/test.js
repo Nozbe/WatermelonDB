@@ -1,7 +1,6 @@
 import { expectToRejectWithMessage } from '../__tests__/utils'
 import { mockDatabase } from '../__tests__/testModels'
 import { noop } from '../utils/fp'
-import { CollectionChangeTypes } from '../Collection/common'
 import * as Q from '../QueryDescription'
 
 describe('Database', () => {
@@ -209,14 +208,14 @@ describe('Database', () => {
       expect(tasksCollectionObserver).toHaveBeenCalledTimes(1)
       expect(commentsCollectionObserver).toHaveBeenCalledTimes(1)
       expect(tasksCollectionObserver).toHaveBeenCalledWith([
-        { record: m1, type: CollectionChangeTypes.updated },
-        { record: m5, type: CollectionChangeTypes.created },
-        { record: m3, type: CollectionChangeTypes.destroyed },
+        { record: m1, type: 'updated' },
+        { record: m5, type: 'created' },
+        { record: m3, type: 'destroyed' },
       ])
       expect(commentsCollectionObserver).toHaveBeenCalledWith([
-        { record: m6, type: CollectionChangeTypes.created },
-        { record: m2, type: CollectionChangeTypes.updated },
-        { record: m4, type: CollectionChangeTypes.destroyed },
+        { record: m6, type: 'created' },
+        { record: m2, type: 'updated' },
+        { record: m4, type: 'destroyed' },
       ])
 
       const createdRecords = [m5, m6]
@@ -318,10 +317,8 @@ describe('Database', () => {
       const m3 = await database.write(() => comments.create())
 
       expect(observer).toHaveBeenCalledTimes(4)
-      expect(observer).toHaveBeenCalledWith([{ record: m1, type: CollectionChangeTypes.created }])
-      expect(observer).toHaveBeenLastCalledWith([
-        { record: m2, type: CollectionChangeTypes.created },
-      ])
+      expect(observer).toHaveBeenCalledWith([{ record: m1, type: 'created' }])
+      expect(observer).toHaveBeenLastCalledWith([{ record: m2, type: 'created' }])
 
       await database.write(async () => {
         await m1.update()
@@ -330,9 +327,7 @@ describe('Database', () => {
       })
 
       expect(observer).toHaveBeenCalledTimes(6)
-      expect(observer).toHaveBeenLastCalledWith([
-        { record: m2, type: CollectionChangeTypes.updated },
-      ])
+      expect(observer).toHaveBeenLastCalledWith([{ record: m2, type: 'updated' }])
 
       await database.write(async () => {
         await m1.destroyPermanently()
@@ -341,10 +336,8 @@ describe('Database', () => {
       })
 
       expect(observer).toHaveBeenCalledTimes(8)
-      expect(observer).toHaveBeenCalledWith([{ record: m1, type: CollectionChangeTypes.destroyed }])
-      expect(observer).toHaveBeenLastCalledWith([
-        { record: m2, type: CollectionChangeTypes.destroyed },
-      ])
+      expect(observer).toHaveBeenCalledWith([{ record: m1, type: 'destroyed' }])
+      expect(observer).toHaveBeenLastCalledWith([{ record: m2, type: 'destroyed' }])
     })
     it('can subscribe to change signals for particular tables', async () => {
       const { database, projects, tasks, comments } = mockDatabase()
