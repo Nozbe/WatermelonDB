@@ -498,50 +498,6 @@ describe('buildQueryDescription', () => {
   })
 })
 
-describe('hasColumnComparisons', () => {
-  it('can recognize whether a query has column comparisons or not', () => {
-    const query1 = Q.buildQueryDescription([])
-    expect(Q.hasColumnComparisons(query1)).toBe(false)
-
-    const query2 = Q.buildQueryDescription([
-      Q.where('col1', 'value'),
-      Q.or(
-        Q.where('col2', true),
-        Q.where('col3', null),
-        Q.and(Q.where('col4', Q.gt(5)), Q.where('col5', Q.notIn([6, 7]))),
-      ),
-      Q.on('foreign_table', 'foreign_column', 'value'),
-    ])
-    expect(Q.hasColumnComparisons(query2)).toBe(false)
-
-    const query3 = Q.buildQueryDescription([
-      Q.where('left_column', Q.gte(Q.column('right_column'))),
-    ])
-    expect(Q.hasColumnComparisons(query3)).toBe(true)
-  })
-  it(`can find deeply neested column comparisons`, () => {
-    const query4 = Q.buildQueryDescription([
-      Q.on('foreign_table2', 'foreign_column2', Q.gt(Q.column('foreign_column3'))),
-    ])
-    expect(Q.hasColumnComparisons(query4)).toBe(true)
-
-    const query5 = Q.buildQueryDescription([
-      Q.where('col1', 'value'),
-      Q.or(
-        Q.where('col2', true),
-        Q.and(Q.where('col4', Q.gt(5)), Q.where('left_column', Q.gte(Q.column('right_column')))),
-      ),
-    ])
-    expect(Q.hasColumnComparisons(query5)).toBe(true)
-  })
-  it(`doesn't get fooled by broken oneOf/notIn`, () => {
-    // we don't validate elements of arrays passed to Q.oneOf/Q.notIn
-    // because they may be large, so make sure even if someone passes a bad object, it doesn't break this logic
-    const query6 = Q.buildQueryDescription([Q.where('heh', Q.notIn([6, { column: 'heh' }]))])
-    expect(Q.hasColumnComparisons(query6)).toBe(false)
-  })
-})
-
 describe('queryWithoutDeleted', () => {
   const whereNotDeleted = Q.where('_status', Q.notEq('deleted'))
   it('builds empty query without deleted', () => {

@@ -133,5 +133,4 @@ declare module '@nozbe/watermelondb/QueryDescription' {
 
   export function buildQueryDescription(conditions: Clause[]): QueryDescription
   export function queryWithoutDeleted(query: QueryDescription): QueryDescription
-  export function hasColumnComparisons(conditions: Where[]): boolean
 }
