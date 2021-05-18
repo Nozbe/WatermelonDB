@@ -16,14 +16,8 @@ import { devSetupCallback, validateAdapter, validateTable } from '../common'
 
 import WorkerBridge from './WorkerBridge'
 
-type LokiIDBSerializer = $Exact<{
-  serializeChunk: (TableName<any>, DirtyRaw[]) => any,
-  deserializeChunk: (TableName<any>, any) => DirtyRaw[],
-}>
-
 export type LokiAdapterOptions = $Exact<{
   dbName?: ?string,
-  autosave?: boolean,
   schema: AppSchema,
   migrations?: SchemaMigrations,
   // (true by default) Although web workers may have some throughput benefits, disabling them
@@ -35,24 +29,10 @@ export type LokiAdapterOptions = $Exact<{
   // very likely that the error is persistent (e.g. a corrupted database).
   // Pass a callback to offer to the user to reload the app or log out
   onSetUpError?: (error: Error) => void,
-  // Called when internal IndexedDB version changed (most likely the database was deleted in another browser tab)
-  // Pass a callback to force log out in this copy of the app as well
-  // (Due to a race condition, it's usually best to just reload the web app)
-  // Note that this only works when using incrementalIDB and not using web workers
-  onIndexedDBVersionChange?: () => void,
   // Called when underlying IndexedDB encountered a quota exceeded error (ran out of allotted disk space for app)
   // This means that app can't save more data or that it will fall back to using in-memory database only
   // Note that this only works when `useWebWorker: false`
   onQuotaExceededError?: (error: Error) => void,
-  // Called when IndexedDB fetch has begun. Use this as an opportunity to execute code concurrently
-  // while IDB does work on a separate thread.
-  // Note that this only works when using incrementalIDB and not using web workers
-  onIndexedDBFetchStart?: () => void,
-  // Called with a chunk (array of Loki documents) before it's saved to IndexedDB/loaded from IDB. You can use it to
-  // manually compress on-disk representation for faster database loads.
-  // Hint: Hand-written conversion of objects to arrays is very profitable for performance.
-  // Note that this only works when using incrementalIDB and not using web workers
-  indexedDBSerializer?: LokiIDBSerializer,
   // extra options passed to Loki constructor
   extraLokiOptions?: { autosave?: boolean, autosaveInterval?: number, ... },
   // extra options passed to IncrementalIDBAdapter constructor
@@ -61,6 +41,21 @@ export type LokiAdapterOptions = $Exact<{
     // This happens if there's another open tab of the same app that's making changes.
     // You might use it as an opportunity to alert user to the potential loss of data
     onDidOverwrite?: () => void,
+    // Called when internal IndexedDB version changed (most likely the database was deleted in another browser tab)
+    // Pass a callback to force log out in this copy of the app as well
+    // (Due to a race condition, it's usually best to just reload the web app)
+    // Note that this only works when not using web workers
+    onversionchange?: () => void,
+    // Called with a chunk (array of Loki documents) before it's saved to IndexedDB/loaded from IDB. You can use it to
+    // manually compress on-disk representation for faster database loads.
+    // Hint: Hand-written conversion of objects to arrays is very profitable for performance.
+    // Note that this only works when not using web workers
+    serializeChunk?: (TableName<any>, DirtyRaw[]) => any,
+    deserializeChunk?: (TableName<any>, any) => DirtyRaw[],
+    // Called when IndexedDB fetch has begun. Use this as an opportunity to execute code concurrently
+    // while IDB does work on a separate thread.
+    // Note that this only works when not using web workers
+    onFetchStart?: () => void,
     ...
   },
   // -- internal --
@@ -76,20 +71,17 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
   migrations: ?SchemaMigrations
 
-  _dbName: ?string
-
   _options: LokiAdapterOptions
 
   constructor(options: LokiAdapterOptions): void {
     this._options = options
-    const { schema, migrations, dbName } = options
+    const { schema, migrations } = options
 
     const useWebWorker = options.useWebWorker ?? process.env.NODE_ENV !== 'test'
     this._bridge = new WorkerBridge(useWebWorker)
 
     this.schema = schema
     this.migrations = migrations
-    this._dbName = dbName
 
     if (process.env.NODE_ENV !== 'production') {
       invariant(
@@ -110,6 +102,22 @@ export default class LokiJSAdapter implements DatabaseAdapter {
           'LokiJSAdapter {useIncrementalIndexedDB: false} option is now deprecated. If you rely on this feature, please file an issue',
         )
       }
+      invariant(
+        !('indexedDBSerializer' in options),
+        'LokiJSAdapter `indexedDBSerializer` option is now `{ extraIncrementalIDBOptions: { serializeChunk, deserializeChunk } }`',
+      )
+      invariant(
+        !('onIndexedDBFetchStart' in options),
+        'LokiJSAdapter `onIndexedDBFetchStart` option is now `extraIncrementalIDBOptions: { onFetchStart }`',
+      )
+      invariant(
+        !('onIndexedDBVersionChange' in options),
+        'LokiJSAdapter `onIndexedDBVersionChange` option is now `extraIncrementalIDBOptions: { onversionchange }`',
+      )
+      invariant(
+        !('autosave' in options),
+        'LokiJSAdapter `autosave` option is now `extraLokiOptions: { autosave }`',
+      )
       validateAdapter(this)
     }
     const callback = (result) => devSetupCallback(result, options.onSetUpError)
@@ -122,16 +130,10 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     const { executor } = this._bridge._worker._worker
     executor.loki.close()
 
-    // Copy
-    const lokiAdapter = executor.loki.persistenceAdapter
-
     // $FlowFixMe
     return new LokiJSAdapter({
       ...this._options,
-      dbName: this._dbName,
-      schema: this.schema,
-      ...(this.migrations ? { migrations: this.migrations } : {}),
-      _testLokiAdapter: lokiAdapter,
+      _testLokiAdapter: executor.loki.persistenceAdapter,
       ...options,
     })
   }

@@ -47,10 +47,8 @@ async function getLokiAdapter(options: LokiAdapterOptions): mixed {
     useIncrementalIndexedDB,
     _testLokiAdapter: adapter,
     onQuotaExceededError,
-    onIndexedDBVersionChange,
-    onIndexedDBFetchStart,
     dbName,
-    indexedDBSerializer: serializer,
+    extraIncrementalIDBOptions = {},
   } = options
   if (adapter) {
     return adapter
@@ -60,13 +58,7 @@ async function getLokiAdapter(options: LokiAdapterOptions): mixed {
         ? require('lokijs/src/incremental-indexeddb-adapter')
         : require('lokijs/src/incremental-indexeddb-adapter')
       // $FlowFixMe
-      return new IncrementalIDBAdapter({
-        onversionchange: onIndexedDBVersionChange,
-        onFetchStart: onIndexedDBFetchStart,
-        serializeChunk: serializer?.serializeChunk,
-        deserializeChunk: serializer?.deserializeChunk,
-        ...(options.extraIncrementalIDBOptions || {}),
-      })
+      return new IncrementalIDBAdapter(extraIncrementalIDBOptions)
     }
     const LokiIndexedAdapter = require('lokijs/src/loki-indexed-adapter')
     return new LokiIndexedAdapter(dbName)
@@ -79,15 +71,15 @@ async function getLokiAdapter(options: LokiAdapterOptions): mixed {
 }
 
 export async function newLoki(options: LokiAdapterOptions): Loki {
-  const { autosave = true } = options
+  const { extraLokiOptions = {} } = options
   const LokiDb = options._betaLoki ? require('lokijs') : require('lokijs')
   // $FlowFixMe
   const loki: Loki = new LokiDb(options.dbName, {
     adapter: await getLokiAdapter(options),
-    autosave,
+    autosave: true,
     autosaveInterval: 500,
     verbose: true,
-    ...(options.extraLokiOptions || {}),
+    ...extraLokiOptions,
   })
 
   // force load database now
