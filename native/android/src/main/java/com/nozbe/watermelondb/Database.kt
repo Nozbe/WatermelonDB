@@ -3,6 +3,7 @@ package com.nozbe.watermelondb
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteCursor
+import android.database.sqlite.SQLiteCursorDriver
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteQuery
 import java.io.File
@@ -44,22 +45,62 @@ class Database(private val name: String, private val context: Context) {
     fun delete(query: SQL, args: QueryArgs) = db.execSQL(query, args)
 
     fun rawQuery(sql: SQL, args: QueryArgs = emptyArray()): Cursor {
-        val query = SQLiteQuery(db, sql, null)
-        for (i in 0 until args.size) {
-            val arg = args[i]
-            if (arg is String) {
-                query.bindString(i, arg)
-            } else if (arg is Boolean) {
-                query.bindLong(i, if (arg) 1 else 0)
-            } else if (arg is Long) {
-                query.bindLong(i, arg)
-            } else if (arg is Double) {
-                query.bindDouble(i, arg)
+//        val query = SQLiteQuery(db, sql, null)
+//        for (i in 0 until args.size) {
+//            val arg = args[i]
+//            if (arg is String) {
+//                query.bindString(i, arg)
+//            } else if (arg is Boolean) {
+//                query.bindLong(i, if (arg) 1 else 0)
+//            } else if (arg is Long) {
+//                query.bindLong(i, arg)
+//            } else if (arg is Double) {
+//                query.bindDouble(i, arg)
+//            } else {
+//                query.bindNull(i)
+//            }
+//        }
+//        return SQLiteCursor(null, null, query)
+//        val rawArgs = args.map {
+//            if (it is String) {
+//                it as String
+//            } else if (it == null) {
+//                "" as String
+//            } else {
+//                it.toString() as String
+//            }
+//        }.toTypedArray()
+//        return db.rawQuery(sql, rawArgs)
+
+        val rawArgs = args.map {
+            if (it is String) {
+                it as String
+            } else if (it == null) {
+                "" as String
             } else {
-                query.bindNull(i)
+                it.toString() as String
             }
-        }
-        return SQLiteCursor(null, null, query)
+        }.toTypedArray()
+//        val rawArgs = Array(args.size, { "" })
+        return db.rawQueryWithFactory(object : SQLiteDatabase.CursorFactory {
+            override fun newCursor(db: SQLiteDatabase?, driver: SQLiteCursorDriver?, editTable: String?, query: SQLiteQuery): Cursor {
+                for (i in args.indices) {
+                    val arg = args[i]
+                    if (arg is String) {
+                        query.bindString(i + 1, arg)
+                    } else if (arg is Boolean) {
+                        query.bindLong(i + 1, if (arg) 1 else 0)
+                    } else if (arg is Double) {
+                        query.bindDouble(i + 1, arg)
+                    } else if (arg == null) {
+                        query.bindNull(i + 1)
+                    } else {
+                        throw (Throwable("Bad query arg type"))
+                    }
+                }
+                return SQLiteCursor(driver, editTable, query)
+            }
+        }, sql, rawArgs, null, null)
     }
 
     fun count(query: SQL, args: QueryArgs = emptyArray()): Int =
