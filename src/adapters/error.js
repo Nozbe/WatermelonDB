@@ -21,7 +21,6 @@ export default class ErrorAdapter {
       'getLocal',
       'setLocal',
       'removeLocal',
-      'unsafeSqlQuery',
       'testClone',
     ].forEach((name) => {
       // $FlowFixMe

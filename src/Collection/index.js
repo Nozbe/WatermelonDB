@@ -1,12 +1,13 @@
 // @flow
-import type { SQLDatabaseAdapter } from '../adapters/type'
 import { Observable, Subject } from '../utils/rx'
 import invariant from '../utils/common/invariant'
+import deprecated from '../utils/common/deprecated'
 import noop from '../utils/fp/noop'
 import { type ResultCallback, toPromise, mapValue } from '../utils/fp/Result'
 import { type Unsubscribe } from '../utils/subscriptions'
 
 import Query from '../Query'
+import * as Q from '../QueryDescription'
 import type Database from '../Database'
 import type Model, { RecordId } from '../Model'
 import type { Clause } from '../QueryDescription'
@@ -115,20 +116,11 @@ export default class Collection<Record: Model> {
   // *** Implementation of Query APIs ***
 
   unsafeFetchRecordsWithSQL(sql: string): Promise<Record[]> {
-    const {
-      adapter: { underlyingAdapter },
-    } = this.database
-    invariant(
-      // $FlowFixMe
-      typeof underlyingAdapter.unsafeSqlQuery === 'function',
-      'unsafeFetchRecordsWithSQL called on a database that does not support SQL',
+    deprecated(
+      'Collection.unsafeFetchRecordsWithSQL()',
+      'Use .query(Q.unsafeSqlQuery(`select * from...`)).fetch() instead.',
     )
-    const sqlAdapter: SQLDatabaseAdapter = (underlyingAdapter: any)
-    return toPromise((callback) => {
-      sqlAdapter.unsafeSqlQuery(this.modelClass.table, sql, (result) =>
-        callback(mapValue((rawRecords) => this._cache.recordsFromQueryResult(rawRecords), result)),
-      )
-    })
+    return this.query(Q.unsafeSqlQuery(sql)).fetch()
   }
 
   // *** Implementation details ***

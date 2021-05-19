@@ -239,51 +239,6 @@ export default () => [
     },
   ],
   [
-    'can query records in raw query format',
-    async (adapter, AdapterClass) => {
-      if (AdapterClass.name === 'SQLiteAdapter') {
-        const record1 = mockTaskRaw({ id: 't1', text1: 'bar', bool1: false, order: 1 })
-        const record2 = mockTaskRaw({ id: 't2', text1: 'baz', bool1: true, order: 2 })
-        const record3 = mockTaskRaw({ id: 't3', text1: 'abc', bool1: false, order: 3 })
-
-        await adapter.batch([
-          ['create', 'tasks', record1],
-          ['create', 'tasks', record2],
-          ['create', 'tasks', record3],
-        ])
-
-        // all records
-        expectSortedEqual(await adapter.unsafeSqlQuery('tasks', `SELECT * FROM tasks`), [
-          't1',
-          't2',
-          't3',
-        ])
-
-        expectSortedEqual(
-          await adapter.unsafeSqlQuery('tasks', `SELECT * FROM tasks WHERE bool1 = 0`),
-          ['t1', 't3'],
-        )
-
-        expectSortedEqual(
-          await adapter.unsafeSqlQuery('tasks', `SELECT * FROM tasks WHERE id = 't2'`),
-          ['t2'],
-        )
-
-        expectSortedEqual(
-          await adapter.unsafeSqlQuery('tasks', `SELECT * FROM tasks WHERE \`order\` = 2`),
-          ['t2'],
-        )
-
-        expectSortedEqual(
-          await adapter.unsafeSqlQuery('tasks', `SELECT * FROM tasks WHERE text1 = 'nope'`),
-          [],
-        )
-      } else {
-        expect(adapter.unsafeSqlQuery).toBe(undefined)
-      }
-    },
-  ],
-  [
     'compacts query results',
     async (_adapter) => {
       let adapter = _adapter
@@ -737,14 +692,11 @@ export default () => [
   ],
   [
     'fails quickly on non-existing table names',
-    async (adapter, AdapterClass) => {
+    async (adapter) => {
       const table = 'does-not-exist'
       const msg = /table name '.*' does not exist/
       await expectToRejectWithMessage(adapter.find(table, 'i'), msg)
       await expectToRejectWithMessage(adapter.query(modelQuery({ table })), msg)
-      if (AdapterClass.name === 'SQLiteAdapter') {
-        await expectToRejectWithMessage(adapter.unsafeSqlQuery(table, 'xxx'), msg)
-      }
       await expectToRejectWithMessage(adapter.count(modelQuery({ table })), msg)
       await expectToRejectWithMessage(adapter.batch([['create', table, { id: 'i1' }]]), msg)
       await expectToRejectWithMessage(adapter.batch([['update', table, { id: 'i1' }]]), msg)

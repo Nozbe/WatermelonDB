@@ -8,13 +8,7 @@ import type { RecordId } from '../../Model'
 import type { SerializedQuery } from '../../Query'
 import type { TableName, AppSchema, SchemaVersion } from '../../Schema'
 import type { SchemaMigrations, MigrationStep } from '../../Schema/migrations'
-import type {
-  DatabaseAdapter,
-  SQLDatabaseAdapter,
-  CachedQueryResult,
-  CachedFindResult,
-  BatchOperation,
-} from '../type'
+import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
 import {
   sanitizeFindResult,
   sanitizeQueryResult,
@@ -45,7 +39,7 @@ if (process.env.NODE_ENV !== 'production') {
   require('./devtools')
 }
 
-export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapter {
+export default class SQLiteAdapter implements DatabaseAdapter {
   schema: AppSchema
 
   migrations: ?SchemaMigrations
@@ -211,16 +205,8 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void {
     validateTable(query.table, this.schema)
-    this.unsafeSqlQuery(query.table, encodeQuery(query), callback)
-  }
-
-  unsafeSqlQuery(
-    table: TableName<any>,
-    sql: string,
-    callback: ResultCallback<CachedQueryResult>,
-  ): void {
-    validateTable(table, this.schema)
-    this._dispatcher.query(table, sql, (result) =>
+    const { table } = query
+    this._dispatcher.query(table, encodeQuery(query), (result) =>
       callback(
         mapValue(
           (rawRecords) => sanitizeQueryResult(rawRecords, this.schema.tables[table]),

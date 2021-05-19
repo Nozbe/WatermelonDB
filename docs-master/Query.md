@@ -308,13 +308,18 @@ Please don't use this if you don't know what you're doing. The method name is ca
 
 #### SQL queries
 
-For now, only record SQL queries are available. If you need other SQL queries or LokiJS raw queries, please contribute!
-
 ```js
-const records = database.get('comments').unsafeFetchRecordsWithSQL('select * from comments where ...')
+const records = await database.get('comments').query(Q.unsafeSqlQuery(`select * from comments where foo is not 'bar' and _status is not 'deleted'`)).fetch()
+
+const recordCount = await database.get('comments').query(Q.unsafeSqlQuery(`select count(*) as count from comments where foo is not 'bar' and _status is not 'deleted'`)).fetchCount()
 ```
 
-You need to be sure to properly sanitize user values to avoid SQL injection, and filter out deleted records using `where _status is not 'deleted'` clause
+⚠️ Please note:
+
+- Do not use this if you don't know what you're doing
+- Be sure to properly sanitize all user input to avoid SQL injection
+- You must filter out deleted record using `where _status is not 'deleted'` clause
+- If you're going to fetch count of the query, use `count(*) as count` as the select result
 
 #### SQL/Loki expressions
 

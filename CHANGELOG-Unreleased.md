@@ -21,10 +21,13 @@
 - `database.action(() => {})` is now deprecated. Use `db.write(() => {})` instead (or `db.read(() => {})` if you only need consistency but are not writing any changes to DB)
 - `@action` is now deprecated. Use `@writer` or `@reader` instead
 - `.subAction()` is now deprecated. Use `.callReader()` or `.callWriter()` instead
+- `Collection.unsafeFetchRecordsWithSQL()` is now deprecated. Use `collection.query(Q.unsafeSqlQuery("select * from...")).fetch()` instead.
 
 ### New features
 
 - `db.write(writer => { ... writer.batch() })` - you can now call batch on the interface passed to a writer block
+- New syntax for running unsafe raw SQL queries: `collection.query(Q.unsafeSqlQuery("select * from tasks")).fetch()`
+  - You can now also run `.fetchCount()` on SQL queries
 
 ### Performance
 
