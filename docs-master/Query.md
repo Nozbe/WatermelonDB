@@ -318,6 +318,21 @@ const recordCount = await database.get('comments').query(
 ).fetchCount()
 ```
 
+You can also observe unsafe raw SQL queries, however, if it contains `JOIN` statements, you must explicitly specify all other tables using `Q.experimentalJoinTables` and/or `Q.experimentalNestedJoin`, like so:
+
+```js
+const records = await database.get('comments').query(
+  Q.experimentalJoinTables(['posts']),
+  Q.experimentalNestedJoin('posts', 'blogs'),
+  Q.unsafeSqlQuery(
+    'select comments.* from comments ' +
+      'left join posts on comments.post_id is posts.id ' +
+      'left join blogs on posts.blog_id is blogs.id' +
+      'where ...',
+  ),
+).observe()
+```
+
 ⚠️ Please note:
 
 - Do not use this if you don't know what you're doing

@@ -1290,6 +1290,7 @@ export const joinTests = [
   {
     name: 'can compare columns between tables using unsafe SQL queries',
     query: [
+      Q.experimentalJoinTables(['projects']),
       Q.unsafeSqlQuery(
         `select tasks.* from tasks left join projects on tasks.project_id is projects.id where projects.num1 is not null and tasks.num1 > projects.num1 and tasks._status is not 'deleted' and projects._status is not 'deleted'`,
       ),

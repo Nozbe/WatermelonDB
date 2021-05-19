@@ -235,6 +235,31 @@ describe('buildQueryDescription', () => {
       ])
     }).toThrow('Cannot use Q.unsafeSqlQuery with')
   })
+  it(`allows unsafe SQL queries to be properly observable`, () => {
+    const query = Q.buildQueryDescription([
+      Q.experimentalJoinTables(['projects']),
+      Q.experimentalNestedJoin('projects', 'teams'),
+      Q.unsafeSqlQuery(
+        'select tasks.* from tasks ' +
+          'left join projects on tasks.project_id is projects.id ' +
+          'left join teams on projects.team_id is teams.id ',
+      ),
+    ])
+    expect(query).toEqual({
+      where: [],
+      joinTables: ['projects'],
+      nestedJoinTables: [{ from: 'projects', to: 'teams' }],
+      sortBy: [],
+      sql: {
+        type: 'sqlQuery',
+        sql:
+          'select tasks.* from tasks ' +
+          'left join projects on tasks.project_id is projects.id ' +
+          'left join teams on projects.team_id is teams.id ',
+        values: [],
+      },
+    })
+  })
   it('supports simple JOIN queries', () => {
     const query = Q.buildQueryDescription([
       Q.on('foreign_table', 'foreign_column', 'value'),

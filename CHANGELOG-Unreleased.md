@@ -29,6 +29,7 @@
 - New syntax for running unsafe raw SQL queries: `collection.query(Q.unsafeSqlQuery("select * from tasks where foo = ?", ['bar'])).fetch()`
   - You can now also run `.fetchCount()` on SQL queries
   - You can now safely pass values for SQL placeholders by passing an array
+  - You can also observe an unsafe raw SQL query -- with some caveats! refer to documentation for more details
 
 ### Performance
 

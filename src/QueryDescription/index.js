@@ -450,8 +450,10 @@ const extractClauses: (Clause[]) => QueryDescription = (clauses) => {
         // $FlowFixMe
         query.sql = clause
         invariant(
-          clauses.length === 1,
-          'Cannot use Q.unsafeSqlQuery with other clauses. (Did you mean Q.unsafeSqlExpr?)',
+          clauses.every((_clause) =>
+            ['sqlQuery', 'joinTables', 'nestedJoinTable'].includes(_clause.type),
+          ),
+          'Cannot use Q.unsafeSqlQuery with other clauses, except for Q.experimentalJoinTables and Q.experimentalNestedJoin (Did you mean Q.unsafeSqlExpr?)',
         )
         break
       default:
