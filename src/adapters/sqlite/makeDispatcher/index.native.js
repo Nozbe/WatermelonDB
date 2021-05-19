@@ -54,10 +54,7 @@ export const makeDispatcher = (
 
         if (jsiDb) {
           try {
-            const value =
-              methodName === 'query' || methodName === 'count'
-                ? jsiDb[methodName](...otherArgs, []) // FIXME: temp workaround
-                : jsiDb[methodName](...otherArgs)
+            const value = jsiDb[methodName](...otherArgs)
 
             // On Android, errors are returned, not thrown - see DatabaseInstallation.cpp
             if (value instanceof Error) {

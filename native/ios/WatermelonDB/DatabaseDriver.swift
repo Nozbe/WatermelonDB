@@ -58,8 +58,8 @@ class DatabaseDriver {
         return record.resultDictionary!
     }
 
-    func cachedQuery(table: Database.TableName, query: Database.SQL) throws -> [Any] {
-        return try database.queryRaw(query).map { row in
+    func cachedQuery(table: Database.TableName, query: Database.SQL, args: Database.QueryArgs = []) throws -> [Any] {
+        return try database.queryRaw(query, args).map { row in
             let id = row.string(forColumn: "id")!
 
             if isCached(table, id) {
@@ -71,8 +71,8 @@ class DatabaseDriver {
         }
     }
 
-    func count(_ query: Database.SQL) throws -> Int {
-        return try database.count(query)
+    func count(_ query: Database.SQL, args: Database.QueryArgs = []) throws -> Int {
+        return try database.count(query, args)
     }
 
     enum Operation {

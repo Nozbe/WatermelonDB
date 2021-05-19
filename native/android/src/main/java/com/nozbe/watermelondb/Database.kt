@@ -2,7 +2,9 @@ package com.nozbe.watermelondb
 
 import android.content.Context
 import android.database.Cursor
+import android.database.sqlite.SQLiteCursor
 import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteQuery
 import java.io.File
 
 class Database(private val name: String, private val context: Context) {
@@ -29,7 +31,7 @@ class Database(private val name: String, private val context: Context) {
 
     fun unsafeExecuteStatements(statements: SQL) =
             transaction {
-                // NOTE: This must NEVER be allowed to take user input - split by `;` is not grammer-aware
+                // NOTE: This must NEVER be allowed to take user input - split by `;` is not grammar-aware
                 // and so is unsafe. Only works with Watermelon-generated strings known to be safe
                 statements.split(";").forEach {
                     if (it.isNotBlank()) execute(it)
@@ -41,9 +43,26 @@ class Database(private val name: String, private val context: Context) {
 
     fun delete(query: SQL, args: QueryArgs) = db.execSQL(query, args)
 
-    fun rawQuery(query: SQL, args: RawQueryArgs = emptyArray()): Cursor = db.rawQuery(query, args)
+    fun rawQuery(sql: SQL, args: QueryArgs = emptyArray()): Cursor {
+        val query = SQLiteQuery(db, sql, null)
+        for (i in 0 until args.size) {
+            val arg = args[i]
+            if (arg is String) {
+                query.bindString(i, arg)
+            } else if (arg is Boolean) {
+                query.bindLong(i, if (arg) 1 else 0)
+            } else if (arg is Long) {
+                query.bindLong(i, arg)
+            } else if (arg is Double) {
+                query.bindDouble(i, arg)
+            } else {
+                query.bindNull(i)
+            }
+        }
+        return SQLiteCursor(null, null, query)
+    }
 
-    fun count(query: SQL, args: RawQueryArgs = emptyArray()): Int =
+    fun count(query: SQL, args: QueryArgs = emptyArray()): Int =
             rawQuery(query, args).use {
                 it.moveToFirst()
                 return it.getInt(it.getColumnIndex("count"))

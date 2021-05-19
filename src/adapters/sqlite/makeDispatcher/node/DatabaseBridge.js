@@ -134,22 +134,34 @@ class DatabaseBridge {
     tag: number,
     table: string,
     query: string,
+    args: any[],
     resolve: (any) => void,
     reject: (string) => void,
   ) => void = (
     tag: number,
     table: string,
     query: string,
+    args: any[],
     resolve: (any) => void,
     reject: (string) => void,
-  ) => this.withDriver(tag, resolve, reject, 'query', (driver) => driver.cachedQuery(table, query))
+  ) =>
+    this.withDriver(tag, resolve, reject, 'query', (driver) =>
+      driver.cachedQuery(table, query, args),
+    )
 
-  count: (tag: number, query: string, resolve: (any) => void, reject: (string) => void) => void = (
+  count: (
     tag: number,
     query: string,
+    args: any[],
     resolve: (any) => void,
     reject: (string) => void,
-  ) => this.withDriver(tag, resolve, reject, 'count', (driver) => driver.count(query))
+  ) => void = (
+    tag: number,
+    query: string,
+    args: any[],
+    resolve: (any) => void,
+    reject: (string) => void,
+  ) => this.withDriver(tag, resolve, reject, 'count', (driver) => driver.count(query, args))
 
   batchJSON: (
     tag: number,

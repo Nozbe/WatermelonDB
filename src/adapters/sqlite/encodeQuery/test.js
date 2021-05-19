@@ -28,7 +28,13 @@ const mockCollection = Object.freeze({
   db: { get: (table) => (table === 'projects' ? { modelClass: MockProject } : {}) },
 })
 
-const encoded = (clauses, countMode) => encodeQuery(new Query(mockCollection, clauses), countMode)
+const encodedWithArgs = (clauses, countMode) =>
+  encodeQuery(new Query(mockCollection, clauses), countMode)
+
+const encoded = (clauses, countMode) => {
+  const [sql] = encodedWithArgs(clauses, countMode)
+  return sql
+}
 
 describe('SQLite encodeQuery', () => {
   it('encodes simple queries', () => {
@@ -271,8 +277,21 @@ describe('SQLite encodeQuery', () => {
       `select * from tasks where foo = 'bar'`,
     )
     expect(
-      encoded([Q.unsafeSqlQuery(`select count(*) as count from tasks where foo = 'bar'`)]),
+      encoded([Q.unsafeSqlQuery(`select count(*) as count from tasks where foo = 'bar'`)], true),
     ).toBe(`select count(*) as count from tasks where foo = 'bar'`)
+
+    expect(
+      encodedWithArgs([
+        Q.unsafeSqlQuery(`select * from tasks where text1 is ? and num1 is ? and bool1 is ?`, [
+          'foo',
+          10,
+          true,
+        ]),
+      ]),
+    ).toEqual([
+      `select * from tasks where text1 is ? and num1 is ? and bool1 is ?`,
+      ['foo', 10, true],
+    ])
   })
   it(`does not encode loki-specific syntax`, () => {
     expect(() => encoded([Q.unsafeLokiExpr({ hi: true })])).toThrow('Unknown clause')

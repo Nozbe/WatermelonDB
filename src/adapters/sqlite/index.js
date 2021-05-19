@@ -206,7 +206,8 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void {
     validateTable(query.table, this.schema)
     const { table } = query
-    this._dispatcher.query(table, encodeQuery(query), (result) =>
+    const [sql, args] = encodeQuery(query)
+    this._dispatcher.query(table, sql, args, (result) =>
       callback(
         mapValue(
           (rawRecords) => sanitizeQueryResult(rawRecords, this.schema.tables[table]),
@@ -218,8 +219,8 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
   count(query: SerializedQuery, callback: ResultCallback<number>): void {
     validateTable(query.table, this.schema)
-    const sql = encodeQuery(query, true)
-    this._dispatcher.count(sql, callback)
+    const [sql, args] = encodeQuery(query, true)
+    this._dispatcher.count(sql, args, callback)
   }
 
   batch(operations: BatchOperation[], callback: ResultCallback<void>): void {

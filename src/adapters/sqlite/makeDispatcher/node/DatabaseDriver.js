@@ -11,6 +11,15 @@ function fixArgs(args: any): any {
   }, args)
 }
 
+function fixArgsArray(args: any[]): any[] {
+  return args.map((value) => {
+    if (typeof value === 'boolean') {
+      return value ? 1 : 0
+    }
+    return value
+  })
+}
+
 type Migrations = { from: number, to: number, sql: string }
 
 class MigrationNeededError extends Error {
@@ -117,11 +126,12 @@ class DatabaseDriver {
     return results[0]
   }
 
-  cachedQuery: (table: string, query: string) => Array<any> = (
+  cachedQuery: (table: string, query: string, args: any[]) => Array<any> = (
     table: string,
     query: string,
+    args: any[],
   ): any[] => {
-    const results = this.database.queryRaw(query)
+    const results = this.database.queryRaw(query, fixArgsArray(args))
     return results.map((row: any) => {
       const id = `${row.id}`
       if (this.isCached(table, id)) {
@@ -132,10 +142,14 @@ class DatabaseDriver {
     })
   }
 
-  query: (table: string, query: string) => Array<any> = (table: string, query: string) =>
-    this.cachedQuery(table, query)
+  query: (table: string, query: string, args: any[]) => Array<any> = (
+    table: string,
+    query: string,
+    args: any[],
+  ) => this.cachedQuery(table, query, args)
 
-  count: (query: string) => number = (query: string) => this.database.count(query)
+  count: (query: string, args: any[]) => number = (query: string, args: any[]) =>
+    this.database.count(query, fixArgsArray(args))
 
   batch: (operations: Array<any>) => void = (operations: any[]) => {
     const newIds = []
