@@ -1,6 +1,7 @@
 // @flow
 
 import allPromises from '../utils/fp/allPromises'
+import invariant from '../utils/common/invariant'
 import { Observable } from '../utils/rx'
 import { toPromise } from '../utils/fp/Result'
 import { type Unsubscribe, SharedSubscribable } from '../utils/subscriptions'
@@ -81,8 +82,12 @@ export default class Query<Record: Model> {
       joinTables,
       nestedJoinTables,
       lokiTransform,
+      sql,
     } = this._rawDescription
 
+    invariant(!sql, 'Cannot extend an unsafe SQL query')
+
+    // TODO: Move this & tests to QueryDescription
     return new Query(collection, [
       Q.experimentalJoinTables(joinTables),
       ...nestedJoinTables.map(({ from, to }) => Q.experimentalNestedJoin(from, to)),

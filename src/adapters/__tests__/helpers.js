@@ -157,13 +157,16 @@ export const performMatchTest = async (adapter, testCase) => {
   await insertAll(adapter, 'tasks', nonMatching)
 
   const query = taskQuery(...conditions)
-  const results = await adapter.query(query)
-  expect(sort(results)).toEqual(getExpectedResults(matching))
+
+  if (!testCase.skipQuery) {
+    const results = await adapter.query(query)
+    expect(sort(results)).toEqual(getExpectedResults(matching))
+  }
 
   // also test if counting works correctly
   if (!testCase.skipCount) {
     const count = await adapter.count(query)
-    expect(count).toBe(results.length)
+    expect(count).toBe(matching.length)
   }
 
   // delete

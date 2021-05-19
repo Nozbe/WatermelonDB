@@ -193,6 +193,32 @@ describe('buildQueryDescription', () => {
       lokiTransform: transform,
     })
   })
+  it(`supports unsafe SQL queries`, () => {
+    const query = Q.buildQueryDescription([
+      Q.unsafeSqlQuery("select * from tasks where foo = 'bar'"),
+    ])
+    expect(query).toEqual({
+      where: [],
+      joinTables: [],
+      nestedJoinTables: [],
+      sortBy: [],
+      sql: "select * from tasks where foo = 'bar'",
+    })
+  })
+  it(`prevents use of unsafe sql queries with other clauses`, () => {
+    expect(() => {
+      Q.buildQueryDescription([
+        Q.unsafeSqlQuery("select * from tasks where foo = 'bar'"),
+        Q.where('foo', 'bar'),
+      ])
+    }).toThrow('Cannot use Q.unsafeSqlQuery with')
+    expect(() => {
+      Q.buildQueryDescription([
+        Q.where('foo', 'bar'),
+        Q.unsafeSqlQuery("select * from tasks where foo = 'bar'"),
+      ])
+    }).toThrow('Cannot use Q.unsafeSqlQuery with')
+  })
   it('supports simple JOIN queries', () => {
     const query = Q.buildQueryDescription([
       Q.on('foreign_table', 'foreign_column', 'value'),
@@ -464,6 +490,7 @@ describe('buildQueryDescription', () => {
     expect(() => Q.unsafeSqlExpr({})).toThrow('not a string')
     expect(() => Q.unsafeLokiExpr()).toThrow('not an object')
     expect(() => Q.unsafeLokiExpr('hey')).toThrow('not an object')
+    expect(() => Q.unsafeSqlQuery(null)).toThrow('not a string')
   })
   it(`catches bad argument values`, () => {
     expect(() => Q.experimentalSortBy('foo', 'ascasc')).toThrow('Invalid sortOrder')
@@ -471,6 +498,7 @@ describe('buildQueryDescription', () => {
     expect(() => Q.where('foo', Q.unsafeLokiExpr('is RANDOM()'))).toThrow()
     expect(() => Q.and(Q.like('foo'))).toThrow('can only contain')
     expect(() => Q.or(Q.like('foo'))).toThrow('can only contain')
+    expect(() => Q.or(Q.unsafeSqlQuery('foo'))).toThrow('can only contain')
     expect(() => Q.on('foo', Q.column('foo'))).toThrow('can only contain')
     expect(() => Q.buildQueryDescription([Q.like('foo')])).toThrow('Invalid Query clause passed')
     expect(() => Q.experimentalJoinTables('foo', 'bar')).toThrow('expected an array')

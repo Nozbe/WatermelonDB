@@ -84,7 +84,19 @@ export type LokiTransform = $RE<{
   type: 'lokiTransform',
   function: LokiTransformFunction,
 }>
-export type Clause = Where | SortBy | Take | Skip | JoinTables | NestedJoinTable | LokiTransform
+export type SqlQuery = $RE<{
+  type: 'sqlQuery',
+  sql: string,
+}>
+export type Clause =
+  | Where
+  | SortBy
+  | Take
+  | Skip
+  | JoinTables
+  | NestedJoinTable
+  | LokiTransform
+  | SqlQuery
 
 type NestedJoinTableDef = $RE<{ from: TableName<any>, to: TableName<any> }>
 export type QueryDescription = $RE<{
@@ -95,6 +107,7 @@ export type QueryDescription = $RE<{
   take?: number,
   skip?: number,
   lokiTransform?: LokiTransformFunction,
+  sql?: string,
 }>
 
 const columnSymbol = Symbol('Q.column')
@@ -358,6 +371,11 @@ export function experimentalNestedJoin(from: TableName<any>, to: TableName<any>)
   return { type: 'nestedJoinTable', from: checkName(from), to: checkName(to) }
 }
 
+export function unsafeSqlQuery(sql: string): SqlQuery {
+  invariant(typeof sql === 'string', 'Value passed to Q.unsafeSqlQuery is not a string')
+  return { type: 'sqlQuery', sql }
+}
+
 const compressTopLevelOns = (conditions: Where[]): Where[] => {
   // Multiple separate Q.ons is a legacy syntax producing suboptimal query code unless
   // special cases are used. Here, we're special casing only top-level Q.ons to avoid regressions
@@ -387,7 +405,7 @@ const compressTopLevelOns = (conditions: Where[]): Where[] => {
 
 const syncStatusColumn = columnName('_status')
 const extractClauses: (Clause[]) => QueryDescription = (clauses) => {
-  const clauseMap = { where: [], joinTables: [], nestedJoinTables: [], sortBy: [] }
+  const query = { where: [], joinTables: [], nestedJoinTables: [], sortBy: [] }
   clauses.forEach((clause) => {
     const { type } = clause
     switch (type) {
@@ -396,45 +414,53 @@ const extractClauses: (Clause[]) => QueryDescription = (clauses) => {
       case 'or':
       case 'sql':
       case 'loki':
-        clauseMap.where.push(clause)
+        query.where.push(clause)
         break
       case 'on':
         // $FlowFixMe
-        clauseMap.joinTables.push(clause.table)
-        clauseMap.where.push(clause)
+        query.joinTables.push(clause.table)
+        query.where.push(clause)
         break
       case 'sortBy':
-        clauseMap.sortBy.push(clause)
+        query.sortBy.push(clause)
         break
       case 'take':
         // $FlowFixMe
-        clauseMap.take = clause.count
+        query.take = clause.count
         break
       case 'skip':
         // $FlowFixMe
-        clauseMap.skip = clause.count
+        query.skip = clause.count
         break
       case 'joinTables':
         // $FlowFixMe
-        clauseMap.joinTables.push(...clause.tables)
+        query.joinTables.push(...clause.tables)
         break
       case 'nestedJoinTable':
         // $FlowFixMe
-        clauseMap.nestedJoinTables.push({ from: clause.from, to: clause.to })
+        query.nestedJoinTables.push({ from: clause.from, to: clause.to })
         break
       case 'lokiTransform':
         // $FlowFixMe
-        clauseMap.lokiTransform = clause.function
+        query.lokiTransform = clause.function
+        break
+      case 'sqlQuery':
+        // $FlowFixMe
+        query.sql = clause.sql
+        invariant(
+          clauses.length === 1,
+          'Cannot use Q.unsafeSqlQuery with other clauses. (Did you mean Q.unsafeSqlExpr?)',
+        )
         break
       default:
         throw new Error('Invalid Query clause passed')
     }
   })
-  clauseMap.joinTables = unique(clauseMap.joinTables)
+  query.joinTables = unique(query.joinTables)
   // $FlowFixMe
-  clauseMap.where = compressTopLevelOns(clauseMap.where)
+  query.where = compressTopLevelOns(query.where)
   // $FlowFixMe: Flow is too dumb to realize that it is valid
-  return clauseMap
+  return query
 }
 
 export function buildQueryDescription(clauses: Clause[]): QueryDescription {

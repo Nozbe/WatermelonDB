@@ -266,6 +266,14 @@ describe('SQLite encodeQuery', () => {
       `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' order by "tasks"."sortable_column" desc limit 100 offset 200`,
     )
   })
+  it(`encodes unsafe SQL queries`, () => {
+    expect(encoded([Q.unsafeSqlQuery(`select * from tasks where foo = 'bar'`)])).toBe(
+      `select * from tasks where foo = 'bar'`,
+    )
+    expect(
+      encoded([Q.unsafeSqlQuery(`select count(*) as count from tasks where foo = 'bar'`)]),
+    ).toBe(`select count(*) as count from tasks where foo = 'bar'`)
+  })
   it(`does not encode loki-specific syntax`, () => {
     expect(() => encoded([Q.unsafeLokiExpr({ hi: true })])).toThrow('Unknown clause')
     expect(() => encoded([Q.unsafeLokiTransform(() => {})])).toThrow('not supported')
