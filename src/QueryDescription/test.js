@@ -202,7 +202,23 @@ describe('buildQueryDescription', () => {
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
-      sql: "select * from tasks where foo = 'bar'",
+      sql: { type: 'sqlQuery', sql: "select * from tasks where foo = 'bar'", values: [] },
+    })
+  })
+  it(`supports unsafe SQL queries with placeholder values`, () => {
+    const query = Q.buildQueryDescription([
+      Q.unsafeSqlQuery('select * from tasks where foo = ? and bar = ?', ['hello', 'world']),
+    ])
+    expect(query).toEqual({
+      where: [],
+      joinTables: [],
+      nestedJoinTables: [],
+      sortBy: [],
+      sql: {
+        type: 'sqlQuery',
+        sql: 'select * from tasks where foo = ? and bar = ?',
+        values: ['hello', 'world'],
+      },
     })
   })
   it(`prevents use of unsafe sql queries with other clauses`, () => {
@@ -491,6 +507,7 @@ describe('buildQueryDescription', () => {
     expect(() => Q.unsafeLokiExpr()).toThrow('not an object')
     expect(() => Q.unsafeLokiExpr('hey')).toThrow('not an object')
     expect(() => Q.unsafeSqlQuery(null)).toThrow('not a string')
+    expect(() => Q.unsafeSqlQuery('foo', null)).toThrow('not an array')
   })
   it(`catches bad argument values`, () => {
     expect(() => Q.experimentalSortBy('foo', 'ascasc')).toThrow('Invalid sortOrder')

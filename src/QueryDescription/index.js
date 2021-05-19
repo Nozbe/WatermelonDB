@@ -87,6 +87,7 @@ export type LokiTransform = $RE<{
 export type SqlQuery = $RE<{
   type: 'sqlQuery',
   sql: string,
+  values: Value[],
 }>
 export type Clause =
   | Where
@@ -107,7 +108,7 @@ export type QueryDescription = $RE<{
   take?: number,
   skip?: number,
   lokiTransform?: LokiTransformFunction,
-  sql?: string,
+  sql?: SqlQuery,
 }>
 
 const columnSymbol = Symbol('Q.column')
@@ -371,9 +372,10 @@ export function experimentalNestedJoin(from: TableName<any>, to: TableName<any>)
   return { type: 'nestedJoinTable', from: checkName(from), to: checkName(to) }
 }
 
-export function unsafeSqlQuery(sql: string): SqlQuery {
+export function unsafeSqlQuery(sql: string, values: Value[] = []): SqlQuery {
   invariant(typeof sql === 'string', 'Value passed to Q.unsafeSqlQuery is not a string')
-  return { type: 'sqlQuery', sql }
+  invariant(Array.isArray(values), 'Placeholder values passed to Q.unsafeSqlQuery are not an array')
+  return { type: 'sqlQuery', sql, values }
 }
 
 const compressTopLevelOns = (conditions: Where[]): Where[] => {
@@ -446,7 +448,7 @@ const extractClauses: (Clause[]) => QueryDescription = (clauses) => {
         break
       case 'sqlQuery':
         // $FlowFixMe
-        query.sql = clause.sql
+        query.sql = clause
         invariant(
           clauses.length === 1,
           'Cannot use Q.unsafeSqlQuery with other clauses. (Did you mean Q.unsafeSqlExpr?)',

@@ -209,7 +209,7 @@ const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string
   const { table, description, associations } = query
 
   if (description.sql) {
-    return description.sql
+    return description.sql.sql
   }
 
   const hasToManyJoins = associations.some(({ info }) => info.type === 'has_many')
