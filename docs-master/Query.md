@@ -306,22 +306,26 @@ If this Query syntax is not enough for you, and you need to get your hands dirty
 
 Please don't use this if you don't know what you're doing. The method name is called `unsafe` for a reason.
 
-#### SQL queries
+#### Unsafe SQL queries
 
 ```js
-const records = await database.get('comments').query(Q.unsafeSqlQuery(`select * from comments where foo is not 'bar' and _status is not 'deleted'`)).fetch()
+const records = await database.get('comments').query(
+  Q.unsafeSqlQuery(`select * from comments where foo is not ? and _status is not 'deleted'`, ['bar'])
+).fetch()
 
-const recordCount = await database.get('comments').query(Q.unsafeSqlQuery(`select count(*) as count from comments where foo is not 'bar' and _status is not 'deleted'`)).fetchCount()
+const recordCount = await database.get('comments').query(
+  Q.unsafeSqlQuery(`select count(*) as count from comments where foo is not ? and _status is not 'deleted'`, ['bar'])
+).fetchCount()
 ```
 
 ⚠️ Please note:
 
 - Do not use this if you don't know what you're doing
-- Be sure to properly sanitize all user input to avoid SQL injection
+- Do not pass user input directly to avoid SQL Injection - use `?` placeholders and pass array of placeholder values
 - You must filter out deleted record using `where _status is not 'deleted'` clause
 - If you're going to fetch count of the query, use `count(*) as count` as the select result
 
-#### SQL/Loki expressions
+#### Unsafe SQL/Loki expressions
 
 You can also include smaller bits of SQL and Loki expressions so that you can still use as much of Watermelon query builder as possible:
 

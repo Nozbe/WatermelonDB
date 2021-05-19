@@ -26,8 +26,9 @@
 ### New features
 
 - `db.write(writer => { ... writer.batch() })` - you can now call batch on the interface passed to a writer block
-- New syntax for running unsafe raw SQL queries: `collection.query(Q.unsafeSqlQuery("select * from tasks")).fetch()`
+- New syntax for running unsafe raw SQL queries: `collection.query(Q.unsafeSqlQuery("select * from tasks where foo = ?", ['bar'])).fetch()`
   - You can now also run `.fetchCount()` on SQL queries
+  - You can now safely pass values for SQL placeholders by passing an array
 
 ### Performance
 
