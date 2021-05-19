@@ -116,10 +116,12 @@ export default class Collection<Record: Model> {
   // *** Implementation of Query APIs ***
 
   unsafeFetchRecordsWithSQL(sql: string): Promise<Record[]> {
-    deprecated(
-      'Collection.unsafeFetchRecordsWithSQL()',
-      'Use .query(Q.unsafeSqlQuery(`select * from...`)).fetch() instead.',
-    )
+    if (process.env.NODE_ENV !== 'production') {
+      deprecated(
+        'Collection.unsafeFetchRecordsWithSQL()',
+        'Use .query(Q.unsafeSqlQuery(`select * from...`)).fetch() instead.',
+      )
+    }
     return this.query(Q.unsafeSqlQuery(sql)).fetch()
   }
 

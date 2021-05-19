@@ -212,7 +212,9 @@ export default class Model {
 
   // To be used by Model @writer/@reader methods only!
   subAction<T>(action: () => Promise<T>): Promise<T> {
-    deprecated('Model.subAction()', 'Use .callWriter() / .callReader() instead.')
+    if (process.env.NODE_ENV !== 'production') {
+      deprecated('Model.subAction()', 'Use .callWriter() / .callReader() instead.')
+    }
     return this.db._workQueue.subAction(action)
   }
 

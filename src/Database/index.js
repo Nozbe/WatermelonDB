@@ -166,7 +166,9 @@ export default class Database {
   }
 
   action<T>(work: (WriterInterface) => Promise<T>, description?: string): Promise<T> {
-    deprecated('Database.action()', 'Use Database.write() instead.')
+    if (process.env.NODE_ENV !== 'production') {
+      deprecated('Database.action()', 'Use Database.write() instead.')
+    }
     return this._workQueue.enqueue(work, `${description || 'unnamed'} (legacy action)`, true)
   }
 

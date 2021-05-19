@@ -43,7 +43,9 @@ class WriterInterfaceImpl extends ReaderInterfaceImpl implements WriterInterface
   }
 
   subAction<T>(writer: () => Promise<T>): Promise<T> {
-    deprecated('.subAction()', 'Use .callWriter() / .callReader() instead.')
+    if (process.env.NODE_ENV !== 'production') {
+      deprecated('.subAction()', 'Use .callWriter() / .callReader() instead.')
+    }
     this.__validateQueue()
     return this.__workQueue.subAction(writer)
   }

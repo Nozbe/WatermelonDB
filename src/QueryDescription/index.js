@@ -270,15 +270,19 @@ export function where(left: ColumnName, valueOrComparison: Value | Comparison): 
 }
 
 export function unsafeSqlExpr(sql: string): SqlExpr {
-  invariant(typeof sql === 'string', 'Value passed to Q.unsafeSqlExpr is not a string')
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(typeof sql === 'string', 'Value passed to Q.unsafeSqlExpr is not a string')
+  }
   return { type: 'sql', expr: sql }
 }
 
 export function unsafeLokiExpr(expr: any): LokiExpr {
-  invariant(
-    expr && typeof expr === 'object' && !Array.isArray(expr),
-    'Value passed to Q.unsafeLokiExpr is not an object',
-  )
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(
+      expr && typeof expr === 'object' && !Array.isArray(expr),
+      'Value passed to Q.unsafeLokiExpr is not an object',
+    )
+  }
   return { type: 'loki', expr }
 }
 
@@ -289,10 +293,12 @@ export function unsafeLokiTransform(fn: LokiTransformFunction): LokiTransform {
 const acceptableClauses = ['where', 'and', 'or', 'on', 'sql', 'loki']
 const isAcceptableClause = (clause: Where) => acceptableClauses.includes(clause.type)
 const validateConditions = (clauses: Where[]) => {
-  invariant(
-    clauses.every(isAcceptableClause),
-    'Q.and(), Q.or(), Q.on() can only contain: Q.where, Q.and, Q.or, Q.on, Q.unsafeSqlExpr, Q.unsafeLokiExpr clauses',
-  )
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(
+      clauses.every(isAcceptableClause),
+      'Q.and(), Q.or(), Q.on() can only contain: Q.where, Q.and, Q.or, Q.on, Q.unsafeSqlExpr, Q.unsafeLokiExpr clauses',
+    )
+  }
 }
 
 export function and(...clauses: Where[]): And {
@@ -373,8 +379,13 @@ export function experimentalNestedJoin(from: TableName<any>, to: TableName<any>)
 }
 
 export function unsafeSqlQuery(sql: string, values: Value[] = []): SqlQuery {
-  invariant(typeof sql === 'string', 'Value passed to Q.unsafeSqlQuery is not a string')
-  invariant(Array.isArray(values), 'Placeholder values passed to Q.unsafeSqlQuery are not an array')
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(typeof sql === 'string', 'Value passed to Q.unsafeSqlQuery is not a string')
+    invariant(
+      Array.isArray(values),
+      'Placeholder values passed to Q.unsafeSqlQuery are not an array',
+    )
+  }
   return { type: 'sqlQuery', sql, values }
 }
 
@@ -449,12 +460,14 @@ const extractClauses: (Clause[]) => QueryDescription = (clauses) => {
       case 'sqlQuery':
         // $FlowFixMe
         query.sql = clause
-        invariant(
-          clauses.every((_clause) =>
-            ['sqlQuery', 'joinTables', 'nestedJoinTable'].includes(_clause.type),
-          ),
-          'Cannot use Q.unsafeSqlQuery with other clauses, except for Q.experimentalJoinTables and Q.experimentalNestedJoin (Did you mean Q.unsafeSqlExpr?)',
-        )
+        if (process.env.NODE_ENV !== 'production') {
+          invariant(
+            clauses.every((_clause) =>
+              ['sqlQuery', 'joinTables', 'nestedJoinTable'].includes(_clause.type),
+            ),
+            'Cannot use Q.unsafeSqlQuery with other clauses, except for Q.experimentalJoinTables and Q.experimentalNestedJoin (Did you mean Q.unsafeSqlExpr?)',
+          )
+        }
         break
       default:
         throw new Error('Invalid Query clause passed')
@@ -469,8 +482,8 @@ const extractClauses: (Clause[]) => QueryDescription = (clauses) => {
 
 export function buildQueryDescription(clauses: Clause[]): QueryDescription {
   const query = extractClauses(clauses)
-  invariant(!(query.skip && !query.take), 'cannot skip without take')
   if (process.env.NODE_ENV !== 'production') {
+    invariant(!(query.skip && !query.take), 'cannot skip without take')
     deepFreeze(query)
   }
   return query
