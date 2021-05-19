@@ -7,6 +7,7 @@ import { mockDatabase, testSchema } from '../__tests__/testModels'
 import { expectToRejectWithMessage } from '../__tests__/utils'
 import { sanitizedRaw } from '../RawRecord'
 import { schemaMigrations, createTable, addColumns } from '../Schema/migrations'
+import * as Q from '../QueryDescription'
 
 import { synchronize, hasUnsyncedChanges } from './index'
 import {
@@ -151,7 +152,7 @@ const makeLocalChanges = (database) =>
 describe('fetchLocalChanges', () => {
   it('returns empty object if no changes', async () => {
     const { database } = makeDatabase()
-    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+    expect(await fetchLocalChanges({ database })).toEqual(emptyLocalChanges)
   })
   it('fetches all local changes', async () => {
     // eslint-disable-next-line
@@ -196,13 +197,13 @@ describe('fetchLocalChanges', () => {
       cCreated,
       cUpdated,
     ]
-    const result = await fetchLocalChanges(database)
+    const result = await fetchLocalChanges({ database })
     expect(result.changes).toEqual(expectedChanges)
     expect(result.affectedRecords).toEqual(expectedAffectedRecords)
 
     // simulate reload
     database = await cloneDatabase()
-    const result2 = await fetchLocalChanges(database)
+    const result2 = await fetchLocalChanges({ database })
     expect(result2.changes).toEqual(expectedChanges)
     expect(result2.affectedRecords.map((r) => r._raw)).toEqual(
       expectedAffectedRecords.map((r) => r._raw),
@@ -213,7 +214,7 @@ describe('fetchLocalChanges', () => {
 
     const { pUpdated } = await makeLocalChanges(database)
 
-    const { changes } = await fetchLocalChanges(database)
+    const { changes } = await fetchLocalChanges({ database })
     const changesCloned = clone(changes)
 
     // raws should be cloned - further changes don't affect result
@@ -309,11 +310,11 @@ describe('markLocalChangesAsSynced', () => {
     const destroyDeletedRecordsSpy = jest.spyOn(database.adapter, 'destroyDeletedRecords')
 
     await makeLocalChanges(database)
-    const localChanges1 = await fetchLocalChanges(database)
+    const localChanges1 = await fetchLocalChanges({ database })
 
     await markLocalChangesAsSynced(database, { changes: emptyChangeSet, affectedRecords: [] })
 
-    const localChanges2 = await fetchLocalChanges(database)
+    const localChanges2 = await fetchLocalChanges({ database })
     expect(localChanges1).toEqual(localChanges2)
 
     // Should NOT call `database.adapter.destroyDeletedRecords` if no records present
@@ -327,10 +328,10 @@ describe('markLocalChangesAsSynced', () => {
     const projectCount = await projects.query().fetchCount()
     const taskCount = await tasks.query().fetchCount()
 
-    await markLocalChangesAsSynced(database, await fetchLocalChanges(database))
+    await markLocalChangesAsSynced(database, await fetchLocalChanges({ database }))
 
     // no more changes
-    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+    expect(await fetchLocalChanges({ database })).toEqual(emptyLocalChanges)
 
     // still just as many objects
     const projectList = await projects.query().fetch()
@@ -347,12 +348,88 @@ describe('markLocalChangesAsSynced', () => {
     expect(await database.adapter.getDeletedRecords('mock_tasks')).toEqual([])
     expect(await database.adapter.getDeletedRecords('mock_comments')).toEqual([])
   })
+  it('marks local changes as synced - matching query', async () => {
+    const { database, projects, tasks, comments } = makeDatabase()
+
+    await makeLocalChanges(database)
+
+    const projectCount = await projects.query().fetchCount()
+    const taskCount = await tasks.query().fetchCount()
+
+    const createdQueries = [Q.where('id', 'pCreated1')]
+    const updatedQueries = [Q.where('id', 'tUpdated')]
+    const deletedQueries = [Q.where('id', 'cDeleted')]
+    const deletedStatusQuery = Q.where('_status', 'deleted')
+
+    const changesFound = await fetchLocalChanges({
+      database,
+      createdQueries,
+      updatedQueries,
+      deletedQueries,
+    })
+
+    expect(changesFound.changes.mock_projects.created.length).toBe(1)
+    expect(changesFound.changes.mock_projects.updated.length).toBe(0)
+    expect(changesFound.changes.mock_projects.deleted.length).toBe(0)
+
+    expect(changesFound.changes.mock_tasks.created.length).toBe(0)
+    expect(changesFound.changes.mock_tasks.updated.length).toBe(1)
+    expect(changesFound.changes.mock_tasks.deleted.length).toBe(0)
+
+    expect(changesFound.changes.mock_comments.created.length).toBe(0)
+    expect(changesFound.changes.mock_comments.updated.length).toBe(0)
+    expect(changesFound.changes.mock_comments.deleted.length).toBe(1)
+
+    await markLocalChangesAsSynced(database, changesFound)
+
+    // no more changes
+    expect(
+      await fetchLocalChanges({ database, createdQueries, updatedQueries, deletedQueries }),
+    ).toEqual(emptyLocalChanges)
+    expect(await fetchLocalChanges({ database })).not.toEqual(emptyLocalChanges)
+
+    // still just as many objects
+    const projectList = await projects.query().fetch()
+    const taskList = await tasks.query().fetch()
+    expect(projectList.length).toBe(projectCount)
+    expect(taskList.length).toBe(taskCount)
+
+    // not all objects marked as synced
+    expect(projectList.every((record) => record.syncStatus === 'synced')).toBe(false)
+    expect(taskList.every((record) => record.syncStatus === 'synced')).toBe(false)
+
+    // all objects queried marked as synced
+    const query = Q.or(Q.where('id', 'pCreated1'), Q.where('id', 'tUpdated'))
+    const queriedProjectList = await projects.query(query).fetch()
+    const queriedTaskList = await tasks.query(query).fetch()
+    expect(queriedProjectList.every((record) => record.syncStatus === 'synced')).toBe(true)
+    expect(queriedTaskList.every((record) => record.syncStatus === 'synced')).toBe(true)
+
+    // no objects marked as deleted
+    const d1 = await projects.queryWithDeleted(deletedStatusQuery)
+    const d2 = await database.adapter.getDeletedRecords('mock_projects')
+    expect(d1).not.toEqual([])
+    expect(d2).not.toEqual([])
+    expect(d1.map((r) => r.id)).toEqual(d2)
+
+    const t1 = await tasks.queryWithDeleted(deletedStatusQuery)
+    const t2 = await database.adapter.getDeletedRecords('mock_tasks')
+    expect(t1).not.toEqual([])
+    expect(t2).not.toEqual([])
+    expect(t1.map((r) => r.id)).toEqual(t2)
+
+    const c1 = await comments.queryWithDeleted(deletedStatusQuery)
+    const c2 = await database.adapter.getDeletedRecords('mock_comments')
+    expect(c1).toEqual([])
+    expect(c2).toEqual([])
+    expect(c1.map((r) => r.id)).toEqual(c2)
+  })
   it(`doesn't modify updated_at timestamps`, async () => {
     const { database, comments } = makeDatabase()
 
     await makeLocalChanges(database)
     const updatedAt = (await getRaw(comments, 'cUpdated')).updated_at
-    await markLocalChangesAsSynced(database, await fetchLocalChanges(database))
+    await markLocalChangesAsSynced(database, await fetchLocalChanges({ database }))
 
     await expectSyncedAndMatches(comments, 'cCreated', { created_at: 1000, updated_at: 2000 })
     await expectSyncedAndMatches(comments, 'cUpdated', { created_at: 1000, updated_at: updatedAt })
@@ -373,7 +450,7 @@ describe('markLocalChangesAsSynced', () => {
       cUpdated,
       cDeleted,
     } = await makeLocalChanges(database)
-    const localChanges = await fetchLocalChanges(database)
+    const localChanges = await fetchLocalChanges({ database })
 
     // simulate user making changes the the app while sync push request is in progress
     let newProject
@@ -408,7 +485,7 @@ describe('markLocalChangesAsSynced', () => {
     expect(destroyDeletedRecordsSpy).toHaveBeenCalledWith('mock_comments', ['cDeleted'])
     destroyDeletedRecordsSpy.mockClear()
 
-    const localChanges2 = await fetchLocalChanges(database)
+    const localChanges2 = await fetchLocalChanges({ database })
     expect(localChanges2.changes).toEqual({
       mock_projects: { created: [newProject._raw], updated: [pSynced._raw], deleted: [] },
       mock_tasks: { created: [tCreated._raw], updated: [tUpdated._raw], deleted: ['tSynced'] },
@@ -431,7 +508,7 @@ describe('markLocalChangesAsSynced', () => {
     // test that second push will mark all as synced
     await markLocalChangesAsSynced(database, localChanges2)
     expect(destroyDeletedRecordsSpy).toHaveBeenCalledTimes(2)
-    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+    expect(await fetchLocalChanges({ database })).toEqual(emptyLocalChanges)
 
     expect(destroyDeletedRecordsSpy).toHaveBeenCalledTimes(2)
     expect(destroyDeletedRecordsSpy).toHaveBeenCalledWith('mock_tasks', ['tSynced'])
@@ -442,7 +519,7 @@ describe('markLocalChangesAsSynced', () => {
     const { database, projects } = makeDatabase()
 
     const { pCreated1 } = await makeLocalChanges(database)
-    const localChanges = await fetchLocalChanges(database)
+    const localChanges = await fetchLocalChanges({ database })
 
     const projectsObserver = jest.fn()
     projects.changes.subscribe(projectsObserver)
@@ -468,11 +545,11 @@ describe('applyRemoteChanges', () => {
     const { database } = makeDatabase()
 
     await makeLocalChanges(database)
-    const localChanges1 = await fetchLocalChanges(database)
+    const localChanges1 = await fetchLocalChanges({ database })
 
     await applyRemoteChanges(database, emptyChangeSet)
 
-    const localChanges2 = await fetchLocalChanges(database)
+    const localChanges2 = await fetchLocalChanges({ database })
     expect(localChanges1).toEqual(localChanges2)
   })
   // Note: We need to test all possible status combinations - xproduct of:
@@ -659,7 +736,7 @@ describe('applyRemoteChanges', () => {
     await expectUpdateFails({ id: 'foo', _changed: 'bla' })
     await expectUpdateFails({ foo: 'bar' })
 
-    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+    expect(await fetchLocalChanges({ database })).toEqual(emptyLocalChanges)
   })
   it(`safely skips collections that don't exist`, async () => {
     const { database } = makeDatabase()
@@ -753,7 +830,7 @@ describe('synchronize', () => {
     const { database } = makeDatabase()
 
     await makeLocalChanges(database)
-    const localChanges = await fetchLocalChanges(database)
+    const localChanges = await fetchLocalChanges({ database })
 
     const pullChanges = jest.fn(emptyPull())
     const pushChanges = jest.fn()
@@ -761,7 +838,7 @@ describe('synchronize', () => {
     await synchronize({ database, pullChanges, pushChanges, log })
 
     expect(pushChanges).toHaveBeenCalledWith({ changes: localChanges.changes, lastPulledAt: 1500 })
-    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+    expect(await fetchLocalChanges({ database })).toEqual(emptyLocalChanges)
     expect(log.localChangeCount).toBe(10)
   })
   it('can pull changes', async () => {
@@ -788,7 +865,7 @@ describe('synchronize', () => {
       migration: null,
     })
 
-    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+    expect(await fetchLocalChanges({ database })).toEqual(emptyLocalChanges)
     await expectSyncedAndMatches(projects, 'new_project', { name: 'remote' })
     await expectSyncedAndMatches(projects, 'pSynced', { name: 'remote' })
     await expectDoesNotExist(tasks, 'tSynced')
@@ -800,7 +877,7 @@ describe('synchronize', () => {
     const tUpdatedInitial = { ...records.tUpdated._raw }
     const cUpdatedInitial = { ...records.cUpdated._raw }
 
-    const localChanges = await fetchLocalChanges(database)
+    const localChanges = await fetchLocalChanges({ database })
 
     const pullChanges = async () => ({
       changes: makeChangeSet({
@@ -857,7 +934,7 @@ describe('synchronize', () => {
     await expectDoesNotExist(tasks, 'tDeleted')
     await expectSyncedAndMatches(comments, 'cUpdated', { body: 'local', task_id: 'remote' })
 
-    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+    expect(await fetchLocalChanges({ database })).toEqual(emptyLocalChanges)
 
     // check that log is good
     expect(log.remoteChangeCount).toBe(7)
@@ -940,7 +1017,7 @@ describe('synchronize', () => {
     await expectSyncedAndMatches(tasks, 't1', { name: 'GOTCHA' })
     await expectSyncedAndMatches(tasks, 't3', { name: 'GOTCHA' })
 
-    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+    expect(await fetchLocalChanges({ database })).toEqual(emptyLocalChanges)
   })
   it('remembers last_synced_at timestamp', async () => {
     const { database } = makeDatabase()
@@ -1019,7 +1096,7 @@ describe('synchronize', () => {
     const { database, projects } = makeDatabase()
 
     await makeLocalChanges(database)
-    const localChanges = await fetchLocalChanges(database)
+    const localChanges = await fetchLocalChanges({ database })
 
     const observer = observeDatabase(database)
     const pullChanges = async () => ({
@@ -1036,7 +1113,7 @@ describe('synchronize', () => {
     // full sync failed - local changes still awaiting sync
     expect(pushChanges).toHaveBeenCalledWith({ changes: localChanges.changes, lastPulledAt: 1500 })
     expect(sync).toMatchObject({ message: 'push-fail' })
-    expect(await fetchLocalChanges(database)).toEqual(localChanges)
+    expect(await fetchLocalChanges({ database })).toEqual(localChanges)
 
     // but pull phase succeeded
     expect(await getLastPulledAt(database)).toBe(1500)
@@ -1047,7 +1124,7 @@ describe('synchronize', () => {
     const { database, projects } = makeDatabase()
 
     await makeLocalChanges(database)
-    const localChanges = await fetchLocalChanges(database)
+    const localChanges = await fetchLocalChanges({ database })
 
     const pullChanges = jest.fn(async () => ({
       changes: makeChangeSet({
@@ -1122,7 +1199,7 @@ describe('synchronize', () => {
     expect(pushedChanges).toEqual(expectedPushedChanges)
 
     // Expect project3 to still need pushing
-    const localChanges2 = await fetchLocalChanges(database)
+    const localChanges2 = await fetchLocalChanges({ database })
     expect(localChanges2).not.toEqual(emptyLocalChanges)
     expect(await hasUnsyncedChanges({ database })).toBe(true)
     expect(localChanges2).toEqual({
@@ -1181,7 +1258,7 @@ describe('synchronize', () => {
     expect(await tasks.query().fetchCount()).toBe(sample + sample) // local + remote
     expect(await comments.query().fetchCount()).toBe(0) // all deleted
 
-    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+    expect(await fetchLocalChanges({ database })).toEqual(emptyLocalChanges)
     expect(await hasUnsyncedChanges({ database })).toBe(false)
     const pushedChanges = pushChanges.mock.calls[0][0].changes
     const pushedCounts = map(map(length), pushedChanges)

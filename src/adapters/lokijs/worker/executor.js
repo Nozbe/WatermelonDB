@@ -426,8 +426,10 @@ export default class LokiExecutor {
       if (cache.has(id)) {
         return id
       }
+      if (raw._status !== 'deleted') {
+        cache.add(id)
+      }
 
-      cache.add(id)
       return sanitizedRaw(raw, this.schema.tables[table])
     })
   }

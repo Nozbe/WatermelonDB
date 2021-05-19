@@ -83,6 +83,10 @@ export default class Collection<Record: Model> {
     return new Query(this, clauses)
   }
 
+  queryWithDeleted(...clauses: Clause[]): Query<Record> {
+    return new Query(this, clauses, false)
+  }
+
   // Creates a new record in this collection
   // Pass a function to set attributes of the record.
   //

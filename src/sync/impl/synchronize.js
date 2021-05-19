@@ -17,6 +17,9 @@ import { type SyncArgs } from '../index'
 export default async function synchronize({
   database,
   pullChanges,
+  pushChangesCreatedQueries,
+  pushChangesUpdatedQueries,
+  pushChangesDeletedQueries,
   pushChanges,
   sendCreatedAsUpdated = false,
   migrationsEnabledAtVersion,
@@ -84,7 +87,12 @@ export default async function synchronize({
   if (pushChanges) {
     log && (log.phase = 'ready to fetch local changes')
 
-    const localChanges = await fetchLocalChanges(database)
+    const localChanges = await fetchLocalChanges({
+      database,
+      createdQueries: pushChangesCreatedQueries,
+      updatedQueries: pushChangesUpdatedQueries,
+      deletedQueries: pushChangesDeletedQueries,
+    })
     log && (log.localChangeCount = changeSetCount(localChanges.changes))
     log && (log.phase = 'fetched local changes')
 

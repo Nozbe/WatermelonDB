@@ -38,6 +38,24 @@ describe('Query', () => {
       expect(query.table).toBe('mock_tasks')
       expect(query.secondaryTables).toEqual([])
       expect(query.allTables).toEqual(['mock_tasks'])
+
+      expect(query._rawDescription.where.length).toBe(1)
+      expect(query._rawDescription.where[0].comparison.right.value).toBe('abcdef')
+
+      expect(query.description.where.length).toBe(2)
+      expect(query.description.where[0].comparison.right.value).toBe('abcdef')
+      expect(query.description.where[1].comparison.operator).toBe('notEq')
+      expect(query.description.where[1].comparison.right.value).toBe('deleted')
+
+      expect(query._rawDescription.where[0]).toEqual(query.description.where[0])
+
+      const queryWithDeleted = new Query(mockCollection, [Q.where('id', 'abcdef')], false)
+      expect(queryWithDeleted.table).toBe(query.table)
+      expect(queryWithDeleted.secondaryTables).toEqual(query.secondaryTables)
+      expect(queryWithDeleted.allTables).toEqual(query.allTables)
+      expect(queryWithDeleted._rawDescription).toEqual(query._rawDescription)
+      expect(queryWithDeleted.description).toEqual(query._rawDescription)
+      expect(queryWithDeleted.description).not.toEqual(query.description)
     })
     it('fetches tables correctly for complex queries', () => {
       const query = new Query(mockCollection, [

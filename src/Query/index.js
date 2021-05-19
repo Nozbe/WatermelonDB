@@ -64,10 +64,16 @@ export default class Query<Record: Model> {
   )
 
   // Note: Don't use this directly, use Collection.query(...)
-  constructor(collection: Collection<Record>, clauses: Clause[]): void {
+  constructor(
+    collection: Collection<Record>,
+    clauses: Clause[],
+    skipDeleted: boolean = true,
+  ): void {
     this.collection = collection
     this._rawDescription = Q.buildQueryDescription(clauses)
-    this.description = Q.queryWithoutDeleted(this._rawDescription)
+    this.description = skipDeleted
+      ? Q.queryWithoutDeleted(this._rawDescription)
+      : this._rawDescription
   }
 
   // Creates a new Query that extends the clauses of this query
