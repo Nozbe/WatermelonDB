@@ -45,43 +45,12 @@ class Database(private val name: String, private val context: Context) {
     fun delete(query: SQL, args: QueryArgs) = db.execSQL(query, args)
 
     fun rawQuery(sql: SQL, args: QueryArgs = emptyArray()): Cursor {
-//        val query = SQLiteQuery(db, sql, null)
-//        for (i in 0 until args.size) {
-//            val arg = args[i]
-//            if (arg is String) {
-//                query.bindString(i, arg)
-//            } else if (arg is Boolean) {
-//                query.bindLong(i, if (arg) 1 else 0)
-//            } else if (arg is Long) {
-//                query.bindLong(i, arg)
-//            } else if (arg is Double) {
-//                query.bindDouble(i, arg)
-//            } else {
-//                query.bindNull(i)
-//            }
-//        }
-//        return SQLiteCursor(null, null, query)
-//        val rawArgs = args.map {
-//            if (it is String) {
-//                it as String
-//            } else if (it == null) {
-//                "" as String
-//            } else {
-//                it.toString() as String
-//            }
-//        }.toTypedArray()
-//        return db.rawQuery(sql, rawArgs)
-
-        val rawArgs = args.map {
-            if (it is String) {
-                it as String
-            } else if (it == null) {
-                "" as String
-            } else {
-                it.toString() as String
-            }
-        }.toTypedArray()
-//        val rawArgs = Array(args.size, { "" })
+        // HACK: db.rawQuery only supports String args, and there's no clean way AFAIK to construct
+        // a query with arbitrary args (like with execSQL). However, we can misuse cursor factory
+        // to get the reference of a SQLiteQuery before it's executed
+        // https://github.com/aosp-mirror/platform_frameworks_base/blob/0799624dc7eb4b4641b4659af5b5ec4b9f80dd81/core/java/android/database/sqlite/SQLiteDirectCursorDriver.java#L30
+        // https://github.com/aosp-mirror/platform_frameworks_base/blob/0799624dc7eb4b4641b4659af5b5ec4b9f80dd81/core/java/android/database/sqlite/SQLiteProgram.java#L32
+        val rawArgs = Array(args.size, { "" })
         return db.rawQueryWithFactory(object : SQLiteDatabase.CursorFactory {
             override fun newCursor(db: SQLiteDatabase?, driver: SQLiteCursorDriver?, editTable: String?, query: SQLiteQuery): Cursor {
                 for (i in args.indices) {
