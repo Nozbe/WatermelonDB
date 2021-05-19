@@ -742,7 +742,7 @@ export const matchTests = [
     query: [
       Q.unsafeSqlQuery(
         'select * from tasks where num1 not between ? and ? and num2 is not ? and text1 is ? and bool1 is ? and text2 is ?',
-        [1, 5, 6, 'hi', true, null],
+        [1, 5, 3.14, 'hi', true, null],
       ),
     ],
     matching: [
@@ -752,10 +752,10 @@ export const matchTests = [
       { id: 'm4', text1: 'hi', bool1: true, num1: 10 },
     ],
     nonMatching: [
-      { id: 'n1', num1: 1 },
-      { id: 'n2', num1: 3 },
-      { id: 'n3', num1: 5 },
-      { id: 'n4', num1: 6, num2: 6 },
+      { id: 'n1', text1: 'hi', bool1: true, num1: 1 },
+      { id: 'n2', text1: 'hi', bool1: true, num1: 3 },
+      { id: 'n3', text1: 'hi', bool1: true, num1: 5 },
+      { id: 'n4', text1: 'hi', bool1: true, num1: 6, num2: 3.14 },
       { id: 'n5', text1: 'hia', bool1: true, num1: 10 },
       { id: 'n6', text1: 'hi', bool1: false, num1: 10 },
       { id: 'n7', num1: 10 },
@@ -769,8 +769,8 @@ export const matchTests = [
     name: 'count with unsafe SQL query with values',
     query: [
       Q.unsafeSqlQuery(
-        'select count(*) as count from tasks where num1 not between ? and ? and num2 is not ? and text1 is ? and bool1 is ?',
-        [1, 5, 6, 'hi', true],
+        'select count(*) as count from tasks where num1 not between ? and ? and num2 is not ? and text1 is ? and bool1 is ? and text2 is ?',
+        [1, 5, 3.14, 'hi', true, null],
       ),
     ],
     matching: [
@@ -780,13 +780,14 @@ export const matchTests = [
       { id: 'm4', text1: 'hi', bool1: true, num1: 10 },
     ],
     nonMatching: [
-      { id: 'n1', num1: 1 },
-      { id: 'n2', num1: 3 },
-      { id: 'n3', num1: 5 },
-      { id: 'n4', num1: 6, num2: 6 },
+      { id: 'n1', text1: 'hi', bool1: true, num1: 1 },
+      { id: 'n2', text1: 'hi', bool1: true, num1: 3 },
+      { id: 'n3', text1: 'hi', bool1: true, num1: 5 },
+      { id: 'n4', text1: 'hi', bool1: true, num1: 6, num2: 3.14 },
       { id: 'n5', text1: 'hia', bool1: true, num1: 10 },
       { id: 'n6', text1: 'hi', bool1: false, num1: 10 },
       { id: 'n7', num1: 10 },
+      { id: 'n8', text1: 'hi', bool1: true, num1: 10, text2: 'bad' },
     ],
     skipLoki: true,
     skipMatcher: true,

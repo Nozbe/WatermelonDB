@@ -30,9 +30,10 @@ if (openPlayground) {
     const sendReport = (report) => {
       // eslint-disable-next-line
       console.log('Done:')
-      // eslint-disable-next-line
       const { results, ...rest } = report
+      // eslint-disable-next-line
       console.log(rest)
+      // eslint-disable-next-line
       results.forEach(console.log)
       NativeModules.BridgeTestReporter.testsFinished(report)
     }
