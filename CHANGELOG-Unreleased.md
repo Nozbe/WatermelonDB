@@ -13,8 +13,10 @@
   - `onIndexedDBFetchStart` -> `extraIncrementalIDBOptions: { onFetchStart }`
   - `onIndexedDBVersionChange` -> `extraIncrementalIDBOptions: { onversionchange }`
   - `autosave: false` -> `extraLokiOptions: { autosave: false }`
-- (Internal API, unlikely to affect users) - `Model._isCommited`, `._hasPendingUpdate`, `._hasPendingDelete` have been removed and changed to `Model._pendingState`
-- Internal `CollectionMap` is no longer exported from `@nozbe/watermelondb`
+- Changes to Internal APIs. These were never meant to be public, and so are unlikely to affect you:
+  - `Model._isCommited`, `._hasPendingUpdate`, `._hasPendingDelete` have been removed and changed to `Model._pendingState`
+  - `CollectionMap` is no longer exported from `@nozbe/watermelondb`
+  - `Collection.unsafeClearCache()` is no longer exposed
 
 ### Deprecations
 
