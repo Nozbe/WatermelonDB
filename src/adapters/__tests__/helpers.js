@@ -158,12 +158,18 @@ export const performMatchTest = async (adapter, testCase) => {
 
   const query = taskQuery(...conditions)
 
+  // test if query fetch is correct
   if (!testCase.skipQuery) {
     const results = await adapter.query(query)
-    expect(sort(results)).toEqual(getExpectedResults(matching))
+    const expectedResults = getExpectedResults(matching)
+    expect(sort(results)).toEqual(expectedResults)
+
+    // test if ID fetch is correct
+    const ids = await adapter.queryIds(query)
+    expect(sort(ids)).toEqual(expectedResults)
   }
 
-  // also test if counting works correctly
+  // test if counting is correct
   if (!testCase.skipCount) {
     const count = await adapter.count(query)
     expect(count).toBe(matching.length)
