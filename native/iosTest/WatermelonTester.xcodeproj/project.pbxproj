@@ -181,7 +181,6 @@
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				06D343BB3954D17CF1201020 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -304,23 +303,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "FORCE_BUNDLING=1 ../../node_modules/react-native/scripts/react-native-xcode.sh \"src/index.integrationTests.native.js\"\n";
-		};
-		06D343BB3954D17CF1201020 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-WatermelonTesterTests/Pods-WatermelonTesterTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-WatermelonTesterTests/Pods-WatermelonTesterTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WatermelonTesterTests/Pods-WatermelonTesterTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
 		};
 		6917CB7EADD178FFB06C02A2 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;

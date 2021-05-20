@@ -25,7 +25,6 @@ target 'WatermelonTester' do
     inherit! :search_paths
     use_frameworks!
 
-    pod 'Nimble',                 '~> 8.1.2'
   end
 end
 
@@ -37,12 +36,12 @@ post_install do |installer|
       # sometimes you might have to manually add a system framework to project Link phase
       # more info: https://pspdfkit.com/blog/2015/ccache-for-fun-and-profit/
       config.build_settings['CC'] ||= ['$(SRCROOT)/../../../scripts/ccache-clang']
-      case target.name
-      when 'Nimble'
-        config.build_settings['CLANG_ENABLE_MODULES'] ||= ['YES']
-      else
+      # case target.name
+      # when 'Nimble'
+      #   config.build_settings['CLANG_ENABLE_MODULES'] ||= ['YES']
+      # else
         config.build_settings['CLANG_ENABLE_MODULES'] ||= ['NO']
-      end
+      # end
     end
   end
 end
