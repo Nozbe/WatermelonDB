@@ -126,12 +126,6 @@ class DatabaseDriver {
         }
     }
 
-    func getDeletedRecords(table: Database.TableName) throws -> [RecordId] {
-        return try database.queryRaw("select id from `\(table)` where _status='deleted'").map { row in
-            row.string(forColumn: "id")!
-        }
-    }
-
     func destroyDeletedRecords(table: Database.TableName, records: [RecordId]) throws {
         // TODO: What's the behavior if record doesn't exist or isn't actually deleted?
         let recordPlaceholders = records.map { _ in "?" }.joined(separator: ",")

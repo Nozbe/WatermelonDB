@@ -27,6 +27,7 @@ import type {
   MigrationEvents,
 } from './type'
 
+import encodeName from './encodeName'
 import encodeQuery from './encodeQuery'
 import encodeUpdate from './encodeUpdate'
 import encodeInsert from './encodeInsert'
@@ -260,7 +261,8 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
   getDeletedRecords(table: TableName<any>, callback: ResultCallback<RecordId[]>): void {
     validateTable(table, this.schema)
-    this._dispatcher.getDeletedRecords(table, callback)
+    const sql = `select id from ${encodeName(table)} where _status='deleted'`
+    this._dispatcher.queryIds(sql, [], callback)
   }
 
   destroyDeletedRecords(

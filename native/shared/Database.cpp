@@ -412,45 +412,6 @@ void Database::batch(jsi::Array &operations) {
     }
 }
 
-jsi::Array Database::getDeletedRecords(jsi::String &tableName) {
-    auto &rt = getRt();
-    auto args = jsi::Array::createWithElements(rt);
-    auto statement = executeQuery("select id from `" + tableName.utf8(rt) + "` where _status='deleted'", args);
-
-    // FIXME: Adding directly to a jsi::Array should be more efficient, but Hermes does not support
-    // automatically resizing an Array by setting new values to it
-    std::vector<jsi::Value> records = {};
-
-    while (true) {
-        int stepResult = sqlite3_step(statement.stmt);
-
-        if (stepResult == SQLITE_DONE) {
-            break;
-        } else if (stepResult != SQLITE_ROW) {
-            throw dbError("Failed to get deleted records");
-        }
-
-        assert(sqlite3_data_count(statement.stmt) == 1);
-
-        const char *idText = (const char *)sqlite3_column_text(statement.stmt, 0);
-        if (!idText) {
-            throw jsi::JSError(rt, "Failed to get ID of a record");
-        }
-
-        jsi::String id = jsi::String::createFromAscii(rt, idText);
-        records.push_back(std::move(id));
-    }
-
-    jsi::Array jsiRecords(rt, records.size());
-    size_t i = 0;
-    for (auto const &record : records) {
-        jsiRecords.setValueAtIndex(rt, i, record);
-        i++;
-    }
-
-    return jsiRecords;
-}
-
 void Database::destroyDeletedRecords(jsi::String &tableName, jsi::Array &recordIds) {
     auto &rt = getRt();
     beginTransaction();

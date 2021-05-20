@@ -101,18 +101,6 @@ class DatabaseDriver(context: Context, dbName: String) {
         this.pushMap(cursorMap)
     }
 
-    fun getDeletedRecords(table: TableName): WritableArray {
-        val resultArray = Arguments.createArray()
-        database.rawQuery(Queries.selectDeletedIdsFromTable(table)).use {
-            it.moveToFirst()
-            for (i in 0 until it.count) {
-                resultArray.pushString(it.getString(0))
-                it.moveToNext()
-            }
-        }
-        return resultArray
-    }
-
     fun destroyDeletedRecords(table: TableName, records: QueryArgs) =
             database.delete(Queries.multipleDeleteFromTable(table, records), records)
 

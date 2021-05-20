@@ -26,7 +26,6 @@ const dispatcherMethods = [
   'count',
   'batch',
   'batchJSON',
-  'getDeletedRecords',
   'destroyDeletedRecords',
   'unsafeResetDatabase',
   'getLocal',

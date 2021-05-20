@@ -150,16 +150,6 @@ extension DatabaseBridge {
         }
     }
 
-    @objc(getDeletedRecords:table:resolve:reject:)
-    func getDeletedRecords(tag: ConnectionTag,
-                           table: Database.TableName,
-                           resolve: @escaping RCTPromiseResolveBlock,
-                           reject: @escaping RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.getDeletedRecords(table: table)
-        }
-    }
-
     @objc(destroyDeletedRecords:table:records:resolve:reject:)
     func destroyDeletedRecords(tag: ConnectionTag,
                                table: Database.TableName,

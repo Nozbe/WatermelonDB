@@ -53,10 +53,6 @@ WMELON_BRIDGE_METHOD(batchJSON,
   operations:(NSString *)serializedOperations
 )
 
-WMELON_BRIDGE_METHOD(getDeletedRecords,
-  table:(nonnull NSString *)table
-)
-
 WMELON_BRIDGE_METHOD(destroyDeletedRecords,
   table:(nonnull NSString *)table
   records:(NSArray<NSString *>*)recordIds

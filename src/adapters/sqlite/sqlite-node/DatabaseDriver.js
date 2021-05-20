@@ -188,12 +188,6 @@ class DatabaseDriver {
     })
   }
 
-  getDeletedRecords(table: string): string[] {
-    return this.database
-      .queryRaw(`SELECT ID FROM '${table}' WHERE _status='deleted'`)
-      .map((row) => `${row.id}`)
-  }
-
   destroyDeletedRecords(table: string, records: string[]): void {
     const recordPlaceholders = records.map(() => '?').join(',')
     this.database.execute(`DELETE FROM '${table}' WHERE id IN (${recordPlaceholders})`, records)

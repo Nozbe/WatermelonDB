@@ -65,7 +65,6 @@ class DatabaseDriverTests: XCTestCase {
 
         // Check if caching is correct
         expect(try! ns(db.cachedQuery(table: testTable, query: selectAllQuery))) == ns(["1", "3"])
-        expect(try! db.getDeletedRecords(table: testTable)) == ["2", "4"]
         expect(db.isCached(testTable, "2")) == false
         expect(db.isCached(testTable, "4")) == false
     }
@@ -84,7 +83,6 @@ class DatabaseDriverTests: XCTestCase {
         ]) }) == true
 
         expect(try! ns(db.cachedQuery(table: testTable, query: selectAllQuery))) == ns(["1"])
-        expect(try! db.getDeletedRecords(table: testTable)) == []
         expect(db.isCached(testTable, "1")) == true
         expect(db.isCached(testTable, "2")) == false
     }
