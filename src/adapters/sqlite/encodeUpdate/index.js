@@ -1,22 +1,36 @@
 // @flow
 
-import type { TableName } from '../../../Schema'
+import type { TableSchema } from '../../../Schema'
 import type { RawRecord } from '../../../RawRecord'
-import type { SQL, SQLiteQuery, SQLiteArg } from '../index'
+import type { SQLiteQuery } from '../index'
 
-import encodeName from '../encodeName'
+const memoizedSqls = new Map()
+const generateSql = (schema) => {
+  const memoized = memoizedSqls.get(schema)
+  if (memoized) {
+    return memoized
+  }
 
-const encodeSetPlaceholders: (RawRecord) => SQL = (raw) =>
-  Object.keys(raw)
-    .map((key) => `${encodeName(key)}=?`)
-    .join(', ')
+  // skipping encodeName because performance
+  const columns = schema.columnArray
+  const placeholders = columns.map((column) => `, "${column.name}" = ?`).join('')
+  const sql = `update "${schema.name}" set "_status" = ?, "_changed" = ?${placeholders} where "id" is ?`
+  memoizedSqls.set(schema, sql)
+  return sql
+}
 
-// $FlowFixMe
-const getArgs: (RawRecord) => SQLiteArg[] = (raw) => Object.values(raw).concat(raw.id) // for `where id is ?`
+export default function encodeUpdate(tableSchema: TableSchema, raw: RawRecord): SQLiteQuery {
+  const sql = generateSql(tableSchema)
+  const columns = tableSchema.columnArray
+  const len = columns.length
 
-export default function encodeUpdate(table: TableName<any>, raw: RawRecord): SQLiteQuery {
-  const sql = `update ${encodeName(table)} set ${encodeSetPlaceholders(raw)} where "id" is ?`
-  const args = getArgs(raw)
+  const args = Array(len + 3)
+  args[0] = raw._status
+  args[1] = raw._changed
+  for (let i = 0; i < len; i++) {
+    args[i + 2] = raw[(columns[i].name: any)]
+  }
+  args[len + 2] = raw.id
 
   return [sql, args]
 }
