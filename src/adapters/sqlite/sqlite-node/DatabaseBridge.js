@@ -122,15 +122,8 @@ class DatabaseBridge {
     this.withDriver(tag, resolve, reject, 'count', (driver) => driver.count(query, args))
   }
 
-  batchJSON(
-    tag: number,
-    operations: string,
-    resolve: (any) => void,
-    reject: (string) => void,
-  ): void {
-    this.withDriver(tag, resolve, reject, 'batchJSON', (driver) =>
-      driver.batch(JSON.parse(operations)),
-    )
+  batch(tag: number, operations: any[], resolve: (any) => void, reject: (string) => void): void {
+    this.withDriver(tag, resolve, reject, 'batch', (driver) => driver.batch(operations))
   }
 
   getDeletedRecords(
