@@ -71,34 +71,24 @@ class DatabaseDriver {
 
   cachedRecords: any = {}
 
-  initialize: (dbName: string, schemaVersion: number) => void = (
-    dbName: string,
-    schemaVersion: number,
-  ) => {
+  initialize(dbName: string, schemaVersion: number): void {
     this.init(dbName)
     this.isCompatible(schemaVersion)
   }
 
-  setUpWithSchema: (dbName: string, schema: string, schemaVersion: number) => void = (
-    dbName: string,
-    schema: string,
-    schemaVersion: number,
-  ) => {
+  setUpWithSchema(dbName: string, schema: string, schemaVersion: number): void {
     this.init(dbName)
     this.unsafeResetDatabase({ version: schemaVersion, sql: schema })
     this.isCompatible(schemaVersion)
   }
 
-  setUpWithMigrations: (dbName: string, migrations: Migrations) => void = (
-    dbName: string,
-    migrations: Migrations,
-  ) => {
+  setUpWithMigrations(dbName: string, migrations: Migrations): void {
     this.init(dbName)
     this.migrate(migrations)
     this.isCompatible(migrations.to)
   }
 
-  init: (dbName: string) => void = (dbName: string) => {
+  init(dbName: string): void {
     this.database = new Database(getPath(dbName))
 
     const isSharedMemory = dbName.indexOf('mode=memory') > 0 && dbName.indexOf('cache=shared') > 0
@@ -110,7 +100,7 @@ class DatabaseDriver {
     }
   }
 
-  find: (table: string, id: string) => any | null | string = (table: string, id: string) => {
+  find(table: string, id: string): any | null | string {
     if (this.isCached(table, id)) {
       return id
     }
@@ -126,11 +116,7 @@ class DatabaseDriver {
     return results[0]
   }
 
-  cachedQuery: (table: string, query: string, args: any[]) => Array<any> = (
-    table: string,
-    query: string,
-    args: any[],
-  ): any[] => {
+  cachedQuery(table: string, query: string, args: any[]): any[] {
     const results = this.database.queryRaw(query, fixArgsArray(args))
     return results.map((row: any) => {
       const id = `${row.id}`
@@ -142,16 +128,11 @@ class DatabaseDriver {
     })
   }
 
-  query: (table: string, query: string, args: any[]) => Array<any> = (
-    table: string,
-    query: string,
-    args: any[],
-  ) => this.cachedQuery(table, query, args)
+  count(query: string, args: any[]): number {
+    return this.database.count(query, fixArgsArray(args))
+  }
 
-  count: (query: string, args: any[]) => number = (query: string, args: any[]) =>
-    this.database.count(query, fixArgsArray(args))
-
-  batch: (operations: Array<any>) => void = (operations: any[]) => {
+  batch(operations: any[]): void {
     const newIds = []
     const removedIds = []
 
@@ -174,8 +155,7 @@ class DatabaseDriver {
 
           case 'markAsDeleted': {
             const [id] = rest
-            const query = `UPDATE '${table}' SET _status='deleted' WHERE id == ?`
-            this.database.execute(query, [id])
+            this.database.execute(`UPDATE '${table}' SET _status='deleted' WHERE id == ?`, [id])
             removedIds.push([table, id])
             break
           }
@@ -204,23 +184,20 @@ class DatabaseDriver {
     })
   }
 
-  getDeletedRecords: (table: string) => Array<string> = (table: string): string[] => {
+  getDeletedRecords(table: string): string[] {
     return this.database
       .queryRaw(`SELECT ID FROM '${table}' WHERE _status='deleted'`)
       .map((row) => `${row.id}`)
   }
 
-  destroyDeletedRecords: (table: string, records: Array<string>) => void = (
-    table: string,
-    records: string[],
-  ) => {
+  destroyDeletedRecords(table: string, records: string[]): void {
     const recordPlaceholders = records.map(() => '?').join(',')
     this.database.execute(`DELETE FROM '${table}' WHERE id IN (${recordPlaceholders})`, records)
   }
 
   // MARK: - LocalStorage
 
-  getLocal: (key: string) => any | null = (key: string) => {
+  getLocal(key: string): any | null {
     const results = this.database.queryRaw('SELECT `value` FROM `local_storage` WHERE `key` = ?', [
       key,
     ])
@@ -232,37 +209,38 @@ class DatabaseDriver {
     return null
   }
 
-  setLocal: (key: string, value: any) => void = (key: string, value: any) => {
+  setLocal(key: string, value: any): void {
     this.database.execute('INSERT OR REPLACE INTO `local_storage` (key, value) VALUES (?, ?)', [
       key,
       `${value}`,
     ])
   }
 
-  removeLocal: (key: string) => void = (key: string) => {
+  removeLocal(key: string): void {
     this.database.execute('DELETE FROM `local_storage` WHERE `key` == ?', [key])
   }
 
   // MARK: - Record caching
 
-  hasCachedTable: (table: string) => any = (table: string) =>
-    Object.prototype.hasOwnProperty.call(this.cachedRecords, table)
+  hasCachedTable(table: string): any {
+    return Object.prototype.hasOwnProperty.call(this.cachedRecords, table)
+  }
 
-  isCached: (table: string, id: string) => any | boolean = (table: string, id: string) => {
+  isCached(table: string, id: string): boolean {
     if (this.hasCachedTable(table)) {
       return this.cachedRecords[table].has(id)
     }
     return false
   }
 
-  markAsCached: (table: string, id: string) => void = (table: string, id: string) => {
+  markAsCached(table: string, id: string): void {
     if (!this.hasCachedTable(table)) {
       this.cachedRecords[table] = new Set()
     }
     this.cachedRecords[table].add(id)
   }
 
-  removeFromCache: (table: string, id: string) => void = (table: string, id: string) => {
+  removeFromCache(table: string, id: string): void {
     if (this.hasCachedTable(table) && this.cachedRecords[table].has(id)) {
       this.cachedRecords[table].delete(id)
     }
@@ -270,7 +248,7 @@ class DatabaseDriver {
 
   // MARK: - Other private details
 
-  isCompatible: (schemaVersion: number) => void = (schemaVersion: number) => {
+  isCompatible(schemaVersion: number): void {
     const databaseVersion = this.database.userVersion
     if (schemaVersion !== databaseVersion) {
       if (databaseVersion > 0 && databaseVersion < schemaVersion) {
@@ -281,27 +259,21 @@ class DatabaseDriver {
     }
   }
 
-  unsafeResetDatabase: (schema: { sql: string, version: number, ... }) => void = (schema: {
-    sql: string,
-    version: number,
-  }) => {
+  unsafeResetDatabase(schema: { sql: string, version: number }): void {
     this.database.unsafeDestroyEverything()
     this.cachedRecords = {}
 
     this.setUpSchema(schema)
   }
 
-  setUpSchema: (schema: { sql: string, version: number, ... }) => void = (schema: {
-    sql: string,
-    version: number,
-  }) => {
+  setUpSchema(schema: { sql: string, version: number }): void {
     this.database.inTransaction(() => {
       this.database.executeStatements(schema.sql + this.localStorageSchema)
       this.database.userVersion = schema.version
     })
   }
 
-  migrate: (migrations: Migrations) => void = (migrations: Migrations) => {
+  migrate(migrations: Migrations): void {
     const databaseVersion = this.database.userVersion
 
     if (`${databaseVersion}` !== `${migrations.from}`) {
