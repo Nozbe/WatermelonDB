@@ -13,6 +13,7 @@ export default class ErrorAdapter {
     ;[
       'find',
       'query',
+      'queryIds',
       'count',
       'batch',
       'getDeletedRecords',

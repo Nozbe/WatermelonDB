@@ -217,6 +217,12 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     )
   }
 
+  queryIds(query: SerializedQuery, callback: ResultCallback<RecordId[]>): void {
+    validateTable(query.table, this.schema)
+    const [sql, args] = encodeQuery(query)
+    this._dispatcher.queryIds(sql, args, callback)
+  }
+
   count(query: SerializedQuery, callback: ResultCallback<number>): void {
     validateTable(query.table, this.schema)
     const [sql, args] = encodeQuery(query, true)

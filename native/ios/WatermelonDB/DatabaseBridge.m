@@ -39,6 +39,11 @@ WMELON_BRIDGE_METHOD(query,
   args:(nonnull NSArray *)args
 )
 
+WMELON_BRIDGE_METHOD(queryIds,
+  query:(nonnull NSString *)query
+  args:(nonnull NSArray *)args
+)
+
 WMELON_BRIDGE_METHOD(count,
   query:(nonnull NSString *)query
   args:(nonnull NSArray *)args

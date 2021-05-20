@@ -112,6 +112,16 @@ class DatabaseBridge {
     )
   }
 
+  queryIds(
+    tag: number,
+    query: string,
+    args: any[],
+    resolve: (any) => void,
+    reject: (string) => void,
+  ): void {
+    this.withDriver(tag, resolve, reject, 'queryIds', (driver) => driver.queryIds(query, args))
+  }
+
   count(
     tag: number,
     query: string,

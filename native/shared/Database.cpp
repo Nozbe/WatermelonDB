@@ -300,6 +300,44 @@ jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array 
     return jsiRecords;
 }
 
+jsi::Array Database::queryIds(jsi::String &sql, jsi::Array &arguments) {
+    auto &rt = getRt();
+    auto statement = executeQuery(sql.utf8(rt), arguments);
+
+    // FIXME: Adding directly to a jsi::Array should be more efficient, but Hermes does not support
+    // automatically resizing an Array by setting new values to it
+    std::vector<jsi::String> ids = {};
+
+    while (true) {
+        int stepResult = sqlite3_step(statement.stmt);
+
+        if (stepResult == SQLITE_DONE) {
+            break;
+        } else if (stepResult != SQLITE_ROW) {
+            throw dbError("Failed to query the database");
+        }
+
+        assert(std::string(sqlite3_column_name(statement.stmt, 0)) == "id");
+
+        const char *idText = (const char *)sqlite3_column_text(statement.stmt, 0);
+        if (!idText) {
+            throw jsi::JSError(rt, "Failed to get ID of a record");
+        }
+
+        jsi::String id = jsi::String::createFromAscii(rt, idText);
+        ids.push_back(std::move(id));
+    }
+
+    jsi::Array jsiIds(rt, ids.size());
+    size_t i = 0;
+    for (auto const &id : ids) {
+        jsiIds.setValueAtIndex(rt, i, id);
+        i++;
+    }
+
+    return jsiIds;
+}
+
 jsi::Value Database::count(jsi::String &sql, jsi::Array &arguments) {
     auto &rt = getRt();
     auto statement = executeQuery(sql.utf8(rt), arguments);

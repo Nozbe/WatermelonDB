@@ -128,6 +128,10 @@ class DatabaseDriver {
     })
   }
 
+  queryIds(query: string, args: any[]): string[] {
+    return this.database.queryRaw(query, fixArgsArray(args)).map((row) => `${row.id}`)
+  }
+
   count(query: string, args: any[]): number {
     return this.database.count(query, fixArgsArray(args))
   }

@@ -15,6 +15,7 @@ const dispatcherMethods = [
   'setUpWithMigrations',
   'find',
   'query',
+  'queryIds',
   'count',
   'batch',
   'getDeletedRecords',

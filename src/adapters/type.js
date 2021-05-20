@@ -27,6 +27,9 @@ export interface DatabaseAdapter {
   // Fetches matching records. Should not send raw object if already cached in JS
   query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void;
 
+  // Fetches IDs of matching records
+  queryIds(query: SerializedQuery, callback: ResultCallback<RecordId[]>): void;
+
   // Counts matching records
   count(query: SerializedQuery, callback: ResultCallback<number>): void;
 

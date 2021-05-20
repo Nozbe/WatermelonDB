@@ -8,6 +8,7 @@ export type WorkerExecutorType =
   | 'setup'
   | 'find'
   | 'query'
+  | 'queryIds'
   | 'count'
   | 'batch'
   | 'getDeletedRecords'

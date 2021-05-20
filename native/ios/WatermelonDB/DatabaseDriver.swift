@@ -71,6 +71,12 @@ class DatabaseDriver {
         }
     }
 
+    func queryIds(query: Database.SQL, args: Database.QueryArgs = []) throws -> [String] {
+        return try database.queryRaw(query, args).map { row in
+            row.string(forColumn: "id")!
+        }
+    }
+
     func count(_ query: Database.SQL, args: Database.QueryArgs = []) throws -> Int {
         return try database.count(query, args)
     }

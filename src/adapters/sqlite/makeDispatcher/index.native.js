@@ -22,6 +22,7 @@ const dispatcherMethods = [
   'setUpWithMigrations',
   'find',
   'query',
+  'queryIds',
   'count',
   'batch',
   'batchJSON',
@@ -42,7 +43,7 @@ export const makeDispatcher = (
 
   const methods = dispatcherMethods.map((methodName) => {
     // batchJSON is missing on Android
-    if (!DatabaseBridge[methodName] || (methodName === 'batchJSON' && jsiDb)) {
+    if (jsiDb ? !jsiDb[methodName] : !DatabaseBridge[methodName]) {
       return [methodName, undefined]
     }
 
@@ -76,6 +77,7 @@ export const makeDispatcher = (
   })
 
   const dispatcher: any = fromPairs(methods)
+
   return dispatcher
 }
 
