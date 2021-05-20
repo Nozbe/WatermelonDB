@@ -82,7 +82,7 @@ class DatabaseDriver {
     }
 
     enum Operation {
-        case execute(table: Database.TableName, query: Database.SQL, args: Database.QueryArgs)
+        case execute(query: Database.SQL, args: Database.QueryArgs)
         case create(table: Database.TableName, id: RecordId, query: Database.SQL, args: Database.QueryArgs)
         case destroyPermanently(table: Database.TableName, id: RecordId)
         case markAsDeleted(table: Database.TableName, id: RecordId)
@@ -98,7 +98,7 @@ class DatabaseDriver {
         try database.inTransaction {
             for operation in operations {
                 switch operation {
-                case .execute(table: _, query: let query, args: let args):
+                case .execute(query: let query, args: let args):
                     try database.execute(query, args)
 
                 case .create(table: let table, id: let id, query: let query, args: let args):

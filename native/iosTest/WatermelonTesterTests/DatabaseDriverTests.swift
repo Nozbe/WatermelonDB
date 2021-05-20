@@ -48,7 +48,7 @@ class DatabaseDriverTests: XCTestCase {
     func testExecuteBatch() {
         let db = newDatabase()
 
-        try! db.batch([.execute(table: testTable, query: insertTestQuery, args: testRecord1Args)])
+        try! db.batch([.execute(query: insertTestQuery, args: testRecord1Args)])
         try! db.batch([.create(table: testTable, id: "2", query: insertTestQuery, args: testRecord2Args)])
 
         try! db.batch([
@@ -56,7 +56,7 @@ class DatabaseDriverTests: XCTestCase {
             .markAsDeleted(table: testTable, id: "2"),
             .create(table: testTable, id: "4", query: insertTestQuery, args: testRecord4Args),
             .markAsDeleted(table: testTable, id: "4"),
-            .execute(table: testTable, query: "update \(testTable) set name=? where id=?", args: ["new_name", "1"]),
+            .execute(query: "update \(testTable) set name=? where id=?", args: ["new_name", "1"]),
         ])
 
         expect(try! ns(db.cachedQuery(table: testTable, query: "select * from \(testTable) where id='1'"))) == ns([
@@ -77,7 +77,7 @@ class DatabaseDriverTests: XCTestCase {
         expect(throwsError { try db.batch([
             .markAsDeleted(table: testTable, id: "1"),
             .create(table: testTable, id: "2", query: insertTestQuery, args: testRecord2Args),
-            .execute(table: testTable, query: "bad query", args: []),
+            .execute(query: "bad query", args: []),
             .create(table: testTable, id: "4", query: insertTestQuery, args: testRecord4Args),
             .create(table: testTable, id: "zzz", query: "bad query 2", args: []),
         ]) }) == true
@@ -90,11 +90,11 @@ class DatabaseDriverTests: XCTestCase {
     func testBadQueries() {
         let db = newDatabase()
 
-        expect(throwsError { try db.batch([.execute(table: testTable, query:"blah blah", args: [])]) }) == true
+        expect(throwsError { try db.batch([.execute(query:"blah blah", args: [])]) }) == true
         expect(throwsError { _ = try db.cachedQuery(table: testTable, query: "blah blah") }) == true
         expect(throwsError { _ = try db.count(testTable) }) == true
 
-        expect(throwsError { try db.batch([.execute(table: "test", query: "insert into bad_table (a) values (1)", args: [])]) }
+        expect(throwsError { try db.batch([.execute(query: "insert into bad_table (a) values (1)", args: [])]) }
             ) == true
 
         expect(throwsError { _ = try db.count(selectAllQuery) }) == true

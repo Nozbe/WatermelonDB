@@ -36,7 +36,7 @@ export type SQLiteAdapterOptions = $Exact<{
 export type DispatcherType = 'asynchronous' | 'jsi'
 
 export type NativeBridgeBatchOperation =
-  | ['execute', TableName<any>, SQL, SQLiteArg[]]
+  | ['execute', SQL, SQLiteArg[]]
   | ['create', TableName<any>, RecordId, SQL, SQLiteArg[]]
   | ['markAsDeleted', TableName<any>, RecordId]
   | ['destroyPermanently', TableName<any>, RecordId]

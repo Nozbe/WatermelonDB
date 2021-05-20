@@ -241,7 +241,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
         }
         case 'update': {
           // $FlowFixMe
-          return ['execute', table].concat(encodeUpdate(table, rawOrId))
+          return ['execute'].concat(encodeUpdate(table, rawOrId))
         }
         case 'markAsDeleted':
         case 'destroyPermanently':

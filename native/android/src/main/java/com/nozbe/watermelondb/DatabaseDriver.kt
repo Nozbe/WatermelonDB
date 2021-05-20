@@ -134,8 +134,8 @@ class DatabaseDriver(context: Context, dbName: String) {
                     val type = operation?.getString(0)
                     when (type) {
                         "execute" -> {
-                            val query = operation.getString(2) as SQL
-                            val args = operation.getArray(3)!!.toArrayList().toArray()
+                            val query = operation.getString(1) as SQL
+                            val args = operation.getArray(2)!!.toArrayList().toArray()
                             execute(query, args)
                         }
                         "create" -> {

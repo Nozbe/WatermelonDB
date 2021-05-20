@@ -145,7 +145,7 @@ class DatabaseDriver {
         const [type, ...rest] = operation
         switch (type) {
           case 'execute': {
-            const [, query, args] = rest
+            const [query, args] = rest
             this.database.execute(query, fixArgs(args))
             break
           }

@@ -198,14 +198,13 @@ extension DatabaseBridge {
         return try operations.map { operation in
             switch operation[safe: 0] as? String {
             case "execute":
-                guard let table = operation[safe: 1] as? Database.TableName,
-                let query = operation[safe: 2] as? Database.SQL,
-                let args = operation[safe: 3] as? Database.QueryArgs
+                guard let query = operation[safe: 1] as? Database.SQL,
+                let args = operation[safe: 2] as? Database.QueryArgs
                 else {
                     throw "Bad execute arguments".asError()
                 }
 
-                return .execute(table: table, query: query, args: args)
+                return .execute(query: query, args: args)
 
             case "create":
                 guard let table = operation[safe: 1] as? Database.TableName,
