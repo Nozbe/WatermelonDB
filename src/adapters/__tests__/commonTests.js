@@ -38,18 +38,6 @@ export default () => [
         new AdapterClass({ schema, ...options, ...extraAdapterOptions })
       const adapterWithMigrations = (migrations) => makeAdapter({ migrations })
 
-      // expect(() => makeAdapter({})).toThrowError(/missing migrations/)
-
-      expect(() => makeAdapter({ migrationsExperimental: [] })).toThrow(
-        /`migrationsExperimental` option has been renamed to `migrations`/,
-      )
-
-      if (AdapterClass.name === 'LokiJSAdapter') {
-        expect(() => makeAdapter({ experimentalUseIncrementalIndexedDB: false })).toThrow(
-          /LokiJSAdapter `experimentalUseIncrementalIndexedDB` option has been renamed/,
-        )
-      }
-
       expect(() => adapterWithMigrations({ migrations: [] })).toThrow(/use schemaMigrations()/)
 
       // OK migrations passed

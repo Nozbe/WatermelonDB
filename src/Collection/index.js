@@ -14,7 +14,6 @@ import { type TableName, type TableSchema } from '../Schema'
 import { type DirtyRaw } from '../RawRecord'
 
 import RecordCache from './RecordCache'
-import { CollectionChangeTypes } from './common'
 
 type CollectionChangeType = 'created' | 'updated' | 'destroyed'
 export type CollectionChange<Record: Model> = { record: Record, type: CollectionChangeType }
@@ -91,9 +90,7 @@ export default class Collection<Record: Model> {
   //   task.name = 'Task name'
   // })
   async create(recordBuilder: (Record) => void = noop): Promise<Record> {
-    this.database._ensureInWriter(
-      `Collection.create() can only be called from inside of a Writer. See docs for more details.`,
-    )
+    this.database._ensureInWriter(`Collection.create()`)
 
     const record = this.prepareCreate(recordBuilder)
     await this.database.batch(record)
@@ -183,10 +180,10 @@ export default class Collection<Record: Model> {
 
   _applyChangesToCache(operations: CollectionChangeSet<Record>): void {
     operations.forEach(({ record, type }) => {
-      if (type === CollectionChangeTypes.created) {
-        record._isCommitted = true
+      if (type === 'created') {
+        record._preparedState = null
         this._cache.add(record)
-      } else if (type === CollectionChangeTypes.destroyed) {
+      } else if (type === 'destroyed') {
         this._cache.delete(record)
       }
     })
@@ -200,9 +197,9 @@ export default class Collection<Record: Model> {
     this.changes.next(operations)
 
     const collectionChangeNotifyModels = ({ record, type }): void => {
-      if (type === CollectionChangeTypes.updated) {
+      if (type === 'updated') {
         record._notifyChanged()
-      } else if (type === CollectionChangeTypes.destroyed) {
+      } else if (type === 'destroyed') {
         record._notifyDestroyed()
       }
     }
@@ -222,10 +219,5 @@ export default class Collection<Record: Model> {
       const idx = this._subscribers.indexOf(entry)
       idx !== -1 && this._subscribers.splice(idx, 1)
     }
-  }
-
-  // See: Database.unsafeClearCaches
-  unsafeClearCache(): void {
-    this._cache.unsafeClear()
   }
 }

@@ -18,7 +18,7 @@ const nochange: Decorator = makeDecorator(
     return {
       ...descriptor,
       set(value: any): void {
-        invariant(!this.asModel._isCommitted, errorMessage)
+        invariant(this.asModel._preparedState === 'create', errorMessage)
         descriptor.set.call(this, value)
       },
     }

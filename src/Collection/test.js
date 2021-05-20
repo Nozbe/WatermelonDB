@@ -8,8 +8,6 @@ import { toPromise } from '../utils/fp/Result'
 
 import { mockDatabase, MockTask, testSchema } from '../__tests__/testModels'
 
-import { CollectionChangeTypes } from './common'
-
 const mockQuery = (collection) => new Query(collection, [Q.where('a', 'b')])
 
 describe('Collection', () => {
@@ -203,12 +201,12 @@ describe('creating new records', () => {
     const m1 = await db.write(() => collection.create())
 
     // Check database insert, cache insert, observers update
-    expect(m1._isCommitted).toBe(true)
+    expect(m1._preparedState).toBe(null)
     expect(newModelSpy).toHaveBeenCalledTimes(1)
     expect(dbBatchSpy).toHaveBeenCalledTimes(1)
     expect(dbBatchSpy).toHaveBeenCalledWith([['create', 'mock_tasks', m1._raw]], expect.anything())
     expect(observer).toHaveBeenCalledTimes(1)
-    expect(observer).toHaveBeenCalledWith([{ record: m1, type: CollectionChangeTypes.created }])
+    expect(observer).toHaveBeenCalledWith([{ record: m1, type: 'created' }])
     expect(collection._cache.get(m1.id)).toBe(m1)
     expect(await collection.find(m1.id)).toBe(m1)
   })
@@ -223,7 +221,7 @@ describe('creating new records', () => {
 
     const m1 = collection.prepareCreate()
 
-    expect(m1._isCommitted).toBe(false)
+    expect(m1._preparedState).toBe('create')
     expect(newModelSpy).toHaveBeenCalledTimes(1)
     expect(observer).toHaveBeenCalledTimes(0)
     await expect(collection.find(m1.id)).rejects.toBeInstanceOf(Error)
@@ -234,7 +232,7 @@ describe('creating new records', () => {
     const newModelSpy = jest.spyOn(MockTask, '_prepareCreateFromDirtyRaw')
 
     const m1 = collection.prepareCreateFromDirtyRaw({ col3: 'hello' })
-    expect(m1._isCommitted).toBe(false)
+    expect(m1._preparedState).toBe('create')
     expect(newModelSpy).toHaveBeenCalledTimes(1)
   })
   it('disallows record creating outside of a writer', async () => {

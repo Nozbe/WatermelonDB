@@ -39,7 +39,5 @@ declare module '@nozbe/watermelondb/Collection' {
     public fetchQuery(query: Query<Record>): Promise<Record[]>
 
     public fetchCount(query: Query<Record>): Promise<number>
-
-    public unsafeClearCache(): void
   }
 }

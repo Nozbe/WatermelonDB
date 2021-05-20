@@ -56,7 +56,7 @@ export default class Relation<T: ?Model> {
   set id(newId: $Call<ExtractRecordId, T>): void {
     if (this._isImmutable) {
       invariant(
-        !this._model._isCommitted,
+        this._model._preparedState === 'create',
         `Cannot change property marked as @immutableRelation ${
           Object.getPrototypeOf(this._model).constructor.name
         } - ${this._columnName}`,
