@@ -48,7 +48,7 @@ async function fetchLocalChangesForCollection<T: Model>(
 }
 
 export default function fetchLocalChanges(db: Database): Promise<SyncLocalChanges> {
-  return db.action(async () => {
+  return db.read(async () => {
     const changes = await allPromisesObj(mapObj(fetchLocalChangesForCollection, db.collections.map))
     // TODO: deep-freeze changes object (in dev mode only) to detect mutations (user bug)
     return {
@@ -61,7 +61,7 @@ export default function fetchLocalChanges(db: Database): Promise<SyncLocalChange
 
 export function hasUnsyncedChanges(db: Database): Promise<boolean> {
   // action is necessary to ensure other code doesn't make changes under our nose
-  return db.action(async () => {
+  return db.read(async () => {
     // $FlowFixMe
     const collections = values(db.collections.map)
     const hasUnsynced = async (collection) => {

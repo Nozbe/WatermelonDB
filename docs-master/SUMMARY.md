@@ -17,7 +17,7 @@
     - [Connecting to React Components](./Components.md)
     - [Querying](./Query.md)
     - [Relations](./Relation.md)
-    - [Custom Actions](./Actions.md)
+    - [Writers, Readers, batching](./Writers.md)
 
 ### Advanced guides
 

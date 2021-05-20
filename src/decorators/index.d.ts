@@ -1,5 +1,5 @@
 declare module '@nozbe/watermelondb/decorators' {
-  export { default as action } from '@nozbe/watermelondb/decorators/action'
+  export { default as action, writer, reader } from '@nozbe/watermelondb/decorators/action'
   export { default as children } from '@nozbe/watermelondb/decorators/children'
   export { default as date } from '@nozbe/watermelondb/decorators/date'
   export { default as field } from '@nozbe/watermelondb/decorators/field'

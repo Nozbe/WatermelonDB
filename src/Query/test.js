@@ -239,14 +239,14 @@ describe('Query', () => {
       const queryAll = new Query(tasks, [])
       const m1 = tasks.prepareCreate()
       const m2 = tasks.prepareCreate()
-      await database.action(() => database.batch(m1, m2))
+      await database.write(() => database.batch(m1, m2))
       expect(await queryAll).toEqual([m1, m2])
       expect(await queryAll.then((records) => records.length)).toBe(2)
     })
     it(`count is thenable`, async () => {
       const { database, tasks } = mockDatabase()
       const queryAll = new Query(tasks, [])
-      await database.action(() => database.batch(tasks.prepareCreate(), tasks.prepareCreate()))
+      await database.write(() => database.batch(tasks.prepareCreate(), tasks.prepareCreate()))
       expect(await queryAll.count).toEqual(2)
       expect(await queryAll.count.then((length) => length * 2)).toBe(4)
     })
@@ -271,7 +271,7 @@ describe('Query', () => {
       expect(observer).toHaveBeenCalledTimes(1)
       expect(observer).toHaveBeenLastCalledWith([])
 
-      const t1 = await database.action(() => tasks.create())
+      const t1 = await database.write(() => tasks.create())
       await waitFor(database)
       expect(observer).toHaveBeenCalledTimes(2)
       expect(observer).toHaveBeenLastCalledWith([t1])
@@ -328,7 +328,7 @@ describe('Query', () => {
         await new Promise((resolve) => setTimeout(resolve, 300))
       }
 
-      await database.action(() => tasks.create())
+      await database.write(() => tasks.create())
       await waitFor(database)
 
       expect(adapterSpy).toHaveBeenCalledTimes(2)
@@ -371,7 +371,7 @@ describe('Query', () => {
       const query = new Query(tasks, [Q.where('name', 'foo')])
       const queryAll = new Query(tasks, [])
 
-      await database.action(() =>
+      await database.write(() =>
         database.batch(
           tasks.prepareCreate((t) => {
             t.name = 'foo'
@@ -388,7 +388,7 @@ describe('Query', () => {
       )
       expect(await queryAll.fetchCount()).toBe(5)
       expect(await query.fetchCount()).toBe(3)
-      await database.action(() => query[methodName]())
+      await database.write(() => query[methodName]())
       expect(await queryAll.fetchCount()).toBe(2)
       expect(await query.fetchCount()).toBe(0)
     }

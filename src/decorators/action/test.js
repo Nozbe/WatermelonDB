@@ -1,32 +1,35 @@
 import { MockTask, mockDatabase } from '../../__tests__/testModels'
-import action from './index'
+import { writer, reader } from './index'
 
 class MockTaskExtended extends MockTask {
-  @action
+  @reader
   async returnArgs(a, b, ...c) {
     return [this.name, a, b, c]
   }
 
-  @action
+  @writer
   async nested(...args) {
-    return this.subAction(() => this.returnArgs('sub', ...args))
+    this.subAction(() => this.returnArgs('sub', ...args))
+    this.callWriter(() => this.db.write(async () => 42))
+
+    return this.callReader(() => this.returnArgs('sub', ...args))
   }
 }
 
-describe('@action', () => {
-  it('calls db.action() and passes arguments correctly', async () => {
+describe('@writer', () => {
+  it('calls db.writer() and passes arguments correctly', async () => {
     const { database, tasks } = mockDatabase()
     const record = new MockTaskExtended(tasks, { name: 'test' })
 
-    const actionSpy = jest.spyOn(database, 'action')
+    const spy = jest.spyOn(database, 'read')
 
     expect(await record.returnArgs(1, 2, 3, 4)).toEqual(['test', 1, 2, [3, 4]])
 
-    expect(actionSpy).toHaveBeenCalledTimes(1)
-    expect(actionSpy.mock.calls[0][0]).toBeInstanceOf(Function)
-    expect(actionSpy.mock.calls[0][1]).toBe('mock_tasks.returnArgs')
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy.mock.calls[0][0]).toBeInstanceOf(Function)
+    expect(spy.mock.calls[0][1]).toBe('mock_tasks.returnArgs')
   })
-  it('can call subactions using this.subAction', async () => {
+  it('can call subactions using this.callReader/callWriter', async () => {
     const { tasks } = mockDatabase()
     const record = new MockTaskExtended(tasks, { name: 'test' })
 
@@ -34,11 +37,11 @@ describe('@action', () => {
   })
   it('works with arbitrary classes', async () => {
     const { database } = mockDatabase()
-    const actionSpy = jest.spyOn(database, 'action')
+    const spy = jest.spyOn(database, 'read')
     class TestClass {
       database
 
-      @action async test() {
+      @reader async test() {
         return 42
       }
     }
@@ -47,6 +50,6 @@ describe('@action', () => {
     test.database = database
 
     expect(await test.test()).toEqual(42)
-    expect(actionSpy).toHaveBeenCalledTimes(1)
+    expect(spy).toHaveBeenCalledTimes(1)
   })
 })

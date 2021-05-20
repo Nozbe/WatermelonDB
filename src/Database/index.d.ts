@@ -11,8 +11,12 @@ declare module '@nozbe/watermelondb/Database' {
   import { Class } from '@nozbe/watermelondb/utils/common'
   import { Observable } from 'rxjs'
 
-  export interface ActionInterface {
-    subAction<T>(action: () => Promise<T>): Promise<T>
+  interface ReaderInterface {
+    callReader<T>(work: () => Promise<T>): Promise<T>
+  }
+  interface WriterInterface extends ReaderInterface {
+    callWriter<T>(work: () => Promise<T>): Promise<T>
+    batch(...records: (Model | null | void | false | Promise<void>)[]): Promise<void>
   }
 
   export default class Database {
@@ -26,8 +30,9 @@ declare module '@nozbe/watermelondb/Database' {
 
     public batch(...records: (Model | null | void | false | Promise<void>)[]): Promise<void>
 
-    // TODO: action<T>(work: ActionInterface => Promise<T>, description?: string): Promise<T>
-    public action<T>(work: any, description?: string): Promise<T>
+    public write<T>(work: (WriterInterface) => Promise<T>, description?: string): Promise<T>
+
+    public read<T>(work: (ReaderInterface) => Promise<T>, description?: string): Promise<T>
 
     public withChangesForTables(
       tables: Array<TableName<any>>,

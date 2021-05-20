@@ -44,12 +44,12 @@ describe('Relation', () => {
   it('allows setting id/record only on create/prepareCreate when immutable', async () => {
     const { tasks, comments, db } = mockDatabase()
 
-    const secondary = await db.action(() =>
+    const secondary = await db.write(() =>
       tasks.create((mock) => {
         mock.name = 'foo'
       }),
     )
-    const primary = await db.action(() =>
+    const primary = await db.write(() =>
       comments.create((mock) => {
         mock.task.id = secondary.id
       }),
@@ -63,7 +63,7 @@ describe('Relation', () => {
       }),
     ).toThrow()
 
-    const secondary2 = await db.action(() =>
+    const secondary2 = await db.write(() =>
       comments.create((mock) => {
         mock.name = 'bar'
       }),
@@ -81,12 +81,12 @@ describe('Relation', () => {
   it('observers related record', async () => {
     const { tasks, projects, db } = mockDatabase()
 
-    const secondary = await db.action(() =>
+    const secondary = await db.write(() =>
       projects.create((mock) => {
         mock.name = 'foo'
       }),
     )
-    const primary = await db.action(() =>
+    const primary = await db.write(() =>
       tasks.create((mock) => {
         mock.projectId = secondary.id
       }),
@@ -101,7 +101,7 @@ describe('Relation', () => {
 
     expect(observer).toHaveBeenCalledWith(secondary)
 
-    await db.action(() =>
+    await db.write(() =>
       secondary.update((mock) => {
         mock.name = 'bar'
       }),
@@ -113,12 +113,12 @@ describe('Relation', () => {
   it('fetches current record', async () => {
     const { tasks, projects, db } = mockDatabase()
 
-    const secondary = await db.action(() =>
+    const secondary = await db.write(() =>
       projects.create((mock) => {
         mock.name = 'foo'
       }),
     )
-    const primary = await db.action(() =>
+    const primary = await db.write(() =>
       tasks.create((mock) => {
         mock.projectId = secondary.id
       }),
@@ -129,13 +129,13 @@ describe('Relation', () => {
     let currentRecord = await relation.fetch()
     expect(currentRecord).toBe(secondary)
 
-    const newSecondary = await db.action(() =>
+    const newSecondary = await db.write(() =>
       projects.create((mock) => {
         mock.name = 'bar'
       }),
     )
 
-    db.action(() =>
+    db.write(() =>
       primary.update((mock) => {
         mock.projectId = newSecondary.id
       }),

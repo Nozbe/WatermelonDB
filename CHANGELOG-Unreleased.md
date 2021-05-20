@@ -12,13 +12,20 @@
 
 ### Deprecations
 
+- `database.action(() => {})` is now deprecated. Use `db.write(() => {})` instead (or `db.read(() => {})` if you only need consistency but are not writing any changes to DB)
+- `@action` is now deprecated. Use `@writer` or `@reader` instead
+- `.subAction()` is now deprecated. Use `.callReader()` or `.callWriter()` instead
+
 ### New features
+
+- `db.write(writer => { ... writer.batch() })` - you can now call batch on the interface passed to a writer block
 
 ### Performance
 
 ### Changes
 
 - All Watermelon console logs are prepended with a 🍉 tag
+- Extra protections against improper use of writers/readers (formerly actions) have been added
 
 ### Fixes
 
