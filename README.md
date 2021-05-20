@@ -26,7 +26,7 @@
 | 📈 | **Highly scalable** from hundreds to tens of thousands of records |
 | 😎 | **Lazy loaded**. Only load data when you need it |
 | 🔄 | **Offline-first.** [Sync](https://nozbe.github.io/WatermelonDB/Advanced/Sync.html) with your own backend |
-| 📱 | **Multiplatform**. iOS, Android, and the web |
+| 📱 | **Multiplatform**. iOS, Android, web, and Node.js |
 | ⚛️ | **Works with React.** Easily plug data into components |
 | ⏱ | **Fast.** And getting faster with every release! |
 | ✅ | **Proven.** Powers [Nozbe Teams](https://nozbe.com/teams) since 2017 (and [many others](#who-uses-watermelondb)) |

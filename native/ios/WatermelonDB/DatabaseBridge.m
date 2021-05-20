@@ -44,10 +44,6 @@ WMELON_BRIDGE_METHOD(count,
   args:(nonnull NSArray *)args
 )
 
-WMELON_BRIDGE_METHOD(batch,
-  operations:(NSArray *)operations
-)
-
 WMELON_BRIDGE_METHOD(batchJSON,
   operations:(NSString *)serializedOperations
 )

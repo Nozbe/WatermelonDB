@@ -129,13 +129,7 @@ class DatabaseBridge {
     reject: (string) => void,
   ): void {
     this.withDriver(tag, resolve, reject, 'batchJSON', (driver) =>
-      driver.batch(this.toBatchOperations(operations)),
-    )
-  }
-
-  batch(tag: number, operations: any[][], resolve: (any) => void, reject: (string) => void): void {
-    this.withDriver(tag, resolve, reject, 'batch', (driver) =>
-      driver.batch(this.toBatchOperations(operations)),
+      driver.batch(JSON.parse(operations)),
     )
   }
 
@@ -193,17 +187,6 @@ class DatabaseBridge {
   }
 
   // MARK: - Helpers
-
-  toBatchOperations(operations: any): any {
-    if (typeof operations === 'string') {
-      try {
-        return JSON.parse(operations)
-      } catch (error) {
-        //
-      }
-    }
-    return operations
-  }
 
   withDriver(
     tag: number,

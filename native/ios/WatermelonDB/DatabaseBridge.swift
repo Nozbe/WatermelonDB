@@ -140,16 +140,6 @@ extension DatabaseBridge {
         }
     }
 
-    @objc(batch:operations:resolve:reject:)
-    func batch(tag: ConnectionTag,
-               operations: [[Any]],
-               resolve: @escaping RCTPromiseResolveBlock,
-               reject: @escaping RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.batch(self.toBatchOperations(operations))
-        }
-    }
-
     @objc(getDeletedRecords:table:resolve:reject:)
     func getDeletedRecords(tag: ConnectionTag,
                            table: Database.TableName,
