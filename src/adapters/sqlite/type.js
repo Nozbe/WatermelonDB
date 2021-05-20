@@ -40,8 +40,6 @@ export type NativeBridgeBatchOperation =
   | ['create', TableName<any>, RecordId, SQL, SQLiteArg[]]
   | ['markAsDeleted', TableName<any>, RecordId]
   | ['destroyPermanently', TableName<any>, RecordId]
-  | ['setLocal', string, string]
-  | ['removeLocal', string]
 
 type InitializeStatus =
   | { code: 'ok' | 'schema_needed' }

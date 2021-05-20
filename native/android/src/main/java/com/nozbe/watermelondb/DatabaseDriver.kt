@@ -158,15 +158,6 @@ class DatabaseDriver(context: Context, dbName: String) {
                             database.execute(Queries.destroyPermanently(table), arrayOf(id))
                             removedIds.add(Pair(table, id))
                         }
-                        "setLocal" -> {
-                            val key = operation.getString(1) as String
-                            val value = operation.getString(2) as String
-                            execute(Queries.insert_local_storage, arrayOf(key, value))
-                        }
-                        "removeLocal" -> {
-                            val key = operation.getString(1) as String
-                            execute(Queries.delete_local_storage, arrayOf(key))
-                        }
                         else -> throw (Throwable("unknown batch operation"))
                     }
                 }

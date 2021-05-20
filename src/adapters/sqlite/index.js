@@ -283,11 +283,20 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   setLocal(key: string, value: string, callback: ResultCallback<void>): void {
-    this._batch([['setLocal', key, value]], callback)
+    this._batch(
+      [
+        [
+          'execute',
+          `insert or replace into "local_storage" ("key", "value") values (?, ?)`,
+          [key, value],
+        ],
+      ],
+      callback,
+    )
   }
 
   removeLocal(key: string, callback: ResultCallback<void>): void {
-    this._batch([['removeLocal', key]], callback)
+    this._batch([['execute', `delete from "local_storage" where "key" == ?`, [key]]], callback)
   }
 
   _encodedSchema(): SQL {

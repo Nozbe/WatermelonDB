@@ -235,23 +235,6 @@ extension DatabaseBridge {
 
                 return .destroyPermanently(table: table, id: id)
 
-            case "setLocal":
-                guard let key = operation[safe: 1] as? String,
-                let value = operation[safe: 2] as? String
-                else {
-                    throw "Bad setLocal arguments".asError()
-                }
-
-                return .setLocal(key: key, value: value)
-
-            case "removeLocal":
-                guard let key = operation[safe: 1] as? String
-                else {
-                    throw "Bad removeLocal arguments".asError()
-                }
-
-                return .removeLocal(key: key)
-
             default:
                 throw "unknown batch operation".asError()
             }

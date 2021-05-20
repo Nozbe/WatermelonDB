@@ -172,21 +172,6 @@ class DatabaseDriver {
             break
           }
 
-          case 'setLocal': {
-            const [key, value] = rest
-            this.database.execute(
-              'INSERT OR REPLACE INTO `local_storage` (key, value) VALUES (?, ?)',
-              [key, `${value}`],
-            )
-            break
-          }
-
-          case 'removeLocal': {
-            const [key] = rest
-            this.database.execute('DELETE FROM `local_storage` WHERE `key` == ?', [key])
-            break
-          }
-
           default: {
             throw new Error('unknown batch operation')
           }
