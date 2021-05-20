@@ -237,7 +237,9 @@ export default class SQLiteAdapter implements DatabaseAdapter {
       switch (type) {
         case 'create': {
           // $FlowFixMe
-          return ['create', table, rawOrId.id].concat(encodeInsert(table, rawOrId))
+          return ['create', table, rawOrId.id].concat(
+            encodeInsert(this.schema.tables[table], (rawOrId: any)),
+          )
         }
         case 'update': {
           // $FlowFixMe
