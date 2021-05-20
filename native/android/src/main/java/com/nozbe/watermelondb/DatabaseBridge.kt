@@ -151,14 +151,6 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     fun getLocal(tag: ConnectionTag, key: String, promise: Promise) =
             withDriver(tag, promise) { it.getLocal(key) }
 
-    @ReactMethod
-    fun setLocal(tag: ConnectionTag, key: String, value: String, promise: Promise) =
-            withDriver(tag, promise) { it.setLocal(key, value) }
-
-    @ReactMethod
-    fun removeLocal(tag: ConnectionTag, key: String, promise: Promise) =
-            withDriver(tag, promise) { it.removeLocal(key) }
-
     @Throws(Exception::class)
     private fun withDriver(
         tag: ConnectionTag,

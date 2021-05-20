@@ -393,8 +393,19 @@ void Database::batch(jsi::Array &operations) {
                 // TODO: What's the behavior if nothing got deleted?
                 executeUpdate("delete from `" + table.utf8(rt) + "` where id == ?", args);
                 removedIds.push_back(cacheKey(table.utf8(rt), id.utf8(rt)));
+            } else if (type == "setLocal") {
+                std::string key = operation.getValueAtIndex(rt, 1).getString(rt).utf8(rt);
+                std::string value = operation.getValueAtIndex(rt, 2).getString(rt).utf8(rt);
+
+                auto args = jsi::Array::createWithElements(rt, key, value);
+                executeUpdate("insert or replace into local_storage (key, value) values (?, ?)", args);
+            } else if (type == "removeLocal") {
+                std::string key = operation.getValueAtIndex(rt, 1).getString(rt).utf8(rt);
+
+                auto args = jsi::Array::createWithElements(rt, key);
+                executeUpdate("delete from local_storage where key == ?", args);
             } else {
-                throw jsi::JSError(rt, "Invalid operation type");
+                throw jsi::JSError(rt, "unknown batch operation");
             }
         }
         commit();
@@ -510,18 +521,6 @@ jsi::Value Database::getLocal(jsi::String &key) {
     }
 
     return jsi::String::createFromUtf8(rt, text);
-}
-
-void Database::setLocal(jsi::String &key, jsi::String &value) {
-    auto &rt = getRt();
-    auto args = jsi::Array::createWithElements(rt, key, value);
-    executeUpdate("insert or replace into local_storage (key, value) values (?, ?)", args);
-}
-
-void Database::removeLocal(jsi::String &key) {
-    auto &rt = getRt();
-    auto args = jsi::Array::createWithElements(rt, key);
-    executeUpdate("delete from local_storage where key == ?", args);
 }
 
 } // namespace watermelondb

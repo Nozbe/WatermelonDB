@@ -179,25 +179,6 @@ extension DatabaseBridge {
             try $0.getLocal(key: key) as Any
         }
     }
-
-    @objc(setLocal:key:value:resolve:reject:)
-    func setLocal(tag: ConnectionTag,
-                  key: String,
-                  value: String,
-                  resolve: @escaping RCTPromiseResolveBlock,
-                  reject: @escaping RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.setLocal(key: key, value: value)
-        }
-    }
-
-    @objc(removeLocal:key:resolve:reject:)
-    func removeLocal(tag: ConnectionTag, key: String,
-                     resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.removeLocal(key: key)
-        }
-    }
 }
 
 // MARK: - Helpers
@@ -254,8 +235,26 @@ extension DatabaseBridge {
                 }
 
                 return .destroyPermanently(table: table, id: id)
+
+            case "setLocal":
+                guard let key = operation[safe: 1] as? String,
+                let value = operation[safe: 2] as? String
+                else {
+                    throw "Bad setLocal arguments".asError()
+                }
+
+                return .setLocal(key: key, value: value)
+
+            case "removeLocal":
+                guard let key = operation[safe: 1] as? String
+                else {
+                    throw "Bad removeLocal arguments".asError()
+                }
+
+                return .removeLocal(key: key)
+
             default:
-                throw "Bad operation name".asError()
+                throw "unknown batch operation".asError()
             }
         }
     }

@@ -25,8 +25,6 @@ class Database : public jsi::HostObject {
     void destroyDeletedRecords(jsi::String &tableName, jsi::Array &recordIds);
     void unsafeResetDatabase(jsi::String &schema, int schemaVersion);
     jsi::Value getLocal(jsi::String &key);
-    void setLocal(jsi::String &key, jsi::String &value);
-    void removeLocal(jsi::String &key);
 
     private:
     bool initialized_;

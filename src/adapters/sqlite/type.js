@@ -40,8 +40,8 @@ export type NativeBridgeBatchOperation =
   | ['create', TableName<any>, RecordId, SQL, SQLiteArg[]]
   | ['markAsDeleted', TableName<any>, RecordId]
   | ['destroyPermanently', TableName<any>, RecordId]
-// | ['setLocal', string, string]
-// | ['removeLocal', string]
+  | ['setLocal', string, string]
+  | ['removeLocal', string]
 
 type InitializeStatus =
   | { code: 'ok' | 'schema_needed' }
@@ -64,8 +64,6 @@ export type NativeDispatcher = $Exact<{
   destroyDeletedRecords: (TableName<any>, RecordId[], ResultCallback<void>) => void,
   unsafeResetDatabase: (SQL, SchemaVersion, ResultCallback<void>) => void,
   getLocal: (string, ResultCallback<?string>) => void,
-  setLocal: (string, string, ResultCallback<void>) => void,
-  removeLocal: (string, ResultCallback<void>) => void,
 }>
 
 export type NativeBridgeType = {
@@ -82,8 +80,6 @@ export type NativeBridgeType = {
   destroyDeletedRecords: (ConnectionTag, TableName<any>, RecordId[]) => Promise<void>,
   unsafeResetDatabase: (ConnectionTag, SQL, SchemaVersion) => Promise<void>,
   getLocal: (ConnectionTag, string) => Promise<?string>,
-  setLocal: (ConnectionTag, string, string) => Promise<void>,
-  removeLocal: (ConnectionTag, string) => Promise<void>,
 
   // Special methods
   initializeJSI?: () => void,

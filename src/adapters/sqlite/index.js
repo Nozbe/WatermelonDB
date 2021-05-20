@@ -251,12 +251,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
           throw new Error('unknown batch operation type')
       }
     })
-    const { batchJSON } = this._dispatcher
-    if (batchJSON) {
-      batchJSON(JSON.stringify(batchOperations), callback)
-    } else {
-      this._dispatcher.batch(batchOperations, callback)
-    }
+    this._batch(batchOperations, callback)
   }
 
   getDeletedRecords(table: TableName<any>, callback: ResultCallback<RecordId[]>): void {
@@ -288,11 +283,11 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   setLocal(key: string, value: string, callback: ResultCallback<void>): void {
-    this._dispatcher.setLocal(key, value, callback)
+    this._batch([['setLocal', key, value]], callback)
   }
 
   removeLocal(key: string, callback: ResultCallback<void>): void {
-    this._dispatcher.removeLocal(key, callback)
+    this._batch([['removeLocal', key]], callback)
   }
 
   _encodedSchema(): SQL {
@@ -317,5 +312,14 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   _encodeMigrations(steps: MigrationStep[]): SQL {
     const { encodeMigrationSteps } = require('./encodeSchema')
     return encodeMigrationSteps(steps)
+  }
+
+  _batch(batchOperations: NativeBridgeBatchOperation[], callback: ResultCallback<void>): void {
+    const { batchJSON } = this._dispatcher
+    if (batchJSON) {
+      batchJSON(JSON.stringify(batchOperations), callback)
+    } else {
+      this._dispatcher.batch(batchOperations, callback)
+    }
   }
 }

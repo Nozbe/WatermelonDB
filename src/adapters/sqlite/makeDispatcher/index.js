@@ -21,8 +21,6 @@ const dispatcherMethods = [
   'destroyDeletedRecords',
   'unsafeResetDatabase',
   'getLocal',
-  'setLocal',
-  'removeLocal',
 ]
 
 export const makeDispatcher = (

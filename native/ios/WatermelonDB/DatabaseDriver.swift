@@ -87,8 +87,8 @@ class DatabaseDriver {
         case destroyPermanently(table: Database.TableName, id: RecordId)
         case markAsDeleted(table: Database.TableName, id: RecordId)
         // case destroyDeletedRecords(table: Database.TableName, records: [RecordId])
-        // case setLocal(key: String, value: String)
-        // case removeLocal(key: String)
+        case setLocal(key: String, value: String)
+        case removeLocal(key: String)
     }
 
     func batch(_ operations: [Operation]) throws {
@@ -113,6 +113,12 @@ class DatabaseDriver {
                     // TODO: What's the behavior if nothing got deleted?
                     try database.execute("delete from `\(table)` where id == ?", [id])
                     removedIds.append((table, id))
+
+                case .setLocal(key: let key, value: let value):
+                    try database.execute("insert or replace into `local_storage` (key, value) values (?, ?)", [key, value])
+
+                case .removeLocal(key: let key):
+                    try database.execute("delete from `local_storage` where `key` == ?", [key])
                 }
             }
         }
@@ -142,14 +148,6 @@ class DatabaseDriver {
         }
 
         return record.string(forColumn: "value")!
-    }
-
-    func setLocal(key: String, value: String) throws {
-        return try database.execute("insert or replace into `local_storage` (key, value) values (?, ?)", [key, value])
-    }
-
-    func removeLocal(key: String) throws {
-        return try database.execute("delete from `local_storage` where `key` == ?", [key])
     }
 
 // MARK: - Record caching

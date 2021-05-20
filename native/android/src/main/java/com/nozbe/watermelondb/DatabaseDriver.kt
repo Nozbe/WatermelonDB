@@ -116,16 +116,6 @@ class DatabaseDriver(context: Context, dbName: String) {
         return database.getFromLocalStorage(key)
     }
 
-    fun setLocal(key: String, value: String) {
-        // log?.info("Set Local: $key -> $value")
-        database.insertToLocalStorage(key, value)
-    }
-
-    fun removeLocal(key: String) {
-        log?.info("Remove local: $key")
-        database.deleteFromLocalStorage(key)
-    }
-
     private fun create(id: RecordID, query: SQL, args: QueryArgs) {
         // log?.info("Create id: $id query: $query")
         database.execute(query, args)
@@ -168,16 +158,16 @@ class DatabaseDriver(context: Context, dbName: String) {
                             database.execute(Queries.destroyPermanently(table), arrayOf(id))
                             removedIds.add(Pair(table, id))
                         }
-                        // "setLocal" -> {
-                        //     val key = operation.getString(1)
-                        //     val value = operation.getString(2)
-                        //     preparedOperations.add(Operation.SetLocal(key, value))
-                        // }
-                        // "removeLocal" -> {
-                        //     val key = operation.getString(1)
-                        //     preparedOperations.add(Operation.RemoveLocal(key))
-                        // }
-                        else -> throw (Throwable("Bad operation name in batch"))
+                        "setLocal" -> {
+                            val key = operation.getString(1) as String
+                            val value = operation.getString(2) as String
+                            execute(Queries.insert_local_storage, arrayOf(key, value))
+                        }
+                        "removeLocal" -> {
+                            val key = operation.getString(1) as String
+                            execute(Queries.delete_local_storage, arrayOf(key))
+                        }
+                        else -> throw (Throwable("unknown batch operation"))
                     }
                 }
             }

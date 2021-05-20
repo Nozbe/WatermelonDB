@@ -164,20 +164,6 @@ class DatabaseBridge {
     this.withDriver(tag, resolve, reject, 'getLocal', (driver) => driver.getLocal(key))
   }
 
-  setLocal(
-    tag: number,
-    key: string,
-    value: string,
-    resolve: (any) => void,
-    reject: (string) => void,
-  ): void {
-    this.withDriver(tag, resolve, reject, 'setLocal', (driver) => driver.setLocal(key, value))
-  }
-
-  removeLocal(tag: number, key: string, resolve: (any) => void, reject: (string) => void): void {
-    this.withDriver(tag, resolve, reject, 'removeLocal', (driver) => driver.removeLocal(key))
-  }
-
   // MARK: - Helpers
 
   withDriver(

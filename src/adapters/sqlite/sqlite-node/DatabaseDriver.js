@@ -142,38 +142,53 @@ class DatabaseDriver {
 
     this.database.inTransaction(() => {
       operations.forEach((operation: any[]) => {
-        const [type, table, ...rest] = operation
+        const [type, ...rest] = operation
         switch (type) {
           case 'execute': {
-            const [query, args] = rest
+            const [, query, args] = rest
             this.database.execute(query, fixArgs(args))
             break
           }
 
           case 'create': {
-            const [id, query, args] = rest
+            const [table, id, query, args] = rest
             this.database.execute(query, fixArgs(args))
             newIds.push([table, id])
             break
           }
 
           case 'markAsDeleted': {
-            const [id] = rest
+            const [table, id] = rest
             this.database.execute(`UPDATE '${table}' SET _status='deleted' WHERE id == ?`, [id])
             removedIds.push([table, id])
             break
           }
 
           case 'destroyPermanently': {
-            const [id] = rest
+            const [table, id] = rest
             // TODO: What's the behavior if nothing got deleted?
             this.database.execute(`DELETE FROM '${table}' WHERE id == ?`, [id])
             removedIds.push([table, id])
             break
           }
 
+          case 'setLocal': {
+            const [key, value] = rest
+            this.database.execute(
+              'INSERT OR REPLACE INTO `local_storage` (key, value) VALUES (?, ?)',
+              [key, `${value}`],
+            )
+            break
+          }
+
+          case 'removeLocal': {
+            const [key] = rest
+            this.database.execute('DELETE FROM `local_storage` WHERE `key` == ?', [key])
+            break
+          }
+
           default: {
-            throw new Error('unreachable')
+            throw new Error('unknown batch operation')
           }
         }
       })
@@ -205,17 +220,6 @@ class DatabaseDriver {
     }
 
     return null
-  }
-
-  setLocal(key: string, value: any): void {
-    this.database.execute('INSERT OR REPLACE INTO `local_storage` (key, value) VALUES (?, ?)', [
-      key,
-      `${value}`,
-    ])
-  }
-
-  removeLocal(key: string): void {
-    this.database.execute('DELETE FROM `local_storage` WHERE `key` == ?', [key])
   }
 
   // MARK: - Record caching

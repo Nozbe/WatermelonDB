@@ -50,3 +50,8 @@
 ### Fixes
 
 ### Internal
+
+- Internal changes to SQLiteAdapter:
+  - .batch is no longer available on iOS implementation
+  - .batch/.batchJSON internal format has changed
+  - .getDeletedRecords, setLocal, removeLocal is no longer available

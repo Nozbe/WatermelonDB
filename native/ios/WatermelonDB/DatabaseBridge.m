@@ -67,15 +67,6 @@ WMELON_BRIDGE_METHOD(getLocal,
   key:(nonnull NSString *)key
 )
 
-WMELON_BRIDGE_METHOD(setLocal,
-  key:(nonnull NSString *)key
-  value:(nonnull NSString *)value
-)
-
-WMELON_BRIDGE_METHOD(removeLocal,
-  key:(nonnull NSString *)key
-)
-
 RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(initializeJSI)
 
 @end
