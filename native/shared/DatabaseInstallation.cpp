@@ -186,16 +186,6 @@ void Database::install(jsi::Runtime *runtime) {
 
             return runBlock(rt, [&]() { return database->getLocal(key); });
         });
-        createMethod(rt, adapter, "destroyDeletedRecords", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
-            jsi::String tableName = args[0].getString(rt);
-            jsi::Array recordIds = args[1].getObject(rt).getArray(rt);
-
-            return runBlock(rt, [&]() {
-                database->destroyDeletedRecords(tableName, recordIds);
-                return jsi::Value::undefined();
-            });
-        });
         createMethod(rt, adapter, "unsafeResetDatabase", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String schema = args[0].getString(rt);

@@ -69,13 +69,12 @@ export type NativeDispatcher = $Exact<{
   count: (SQL, SQLiteArg[], ResultCallback<number>) => void,
   batch: (NativeBridgeBatchOperation[], ResultCallback<void>) => void,
   batchJSON?: (string, ResultCallback<void>) => void,
-  destroyDeletedRecords: (TableName<any>, RecordId[], ResultCallback<void>) => void,
   unsafeResetDatabase: (SQL, SchemaVersion, ResultCallback<void>) => void,
   getLocal: (string, ResultCallback<?string>) => void,
 }>
 
 export type NativeBridgeType = {
-  // Async methods
+  initializeJSI?: () => void,
   initialize: (ConnectionTag, string, SchemaVersion) => Promise<InitializeStatus>,
   setUpWithSchema: (ConnectionTag, string, SQL, SchemaVersion) => Promise<void>,
   setUpWithMigrations: (ConnectionTag, string, SQL, SchemaVersion, SchemaVersion) => Promise<void>,
@@ -85,10 +84,6 @@ export type NativeBridgeType = {
   count: (ConnectionTag, SQL, SQLiteArg[]) => Promise<number>,
   batch: (ConnectionTag, NativeBridgeBatchOperation[]) => Promise<void>,
   batchJSON?: (ConnectionTag, string) => Promise<void>,
-  destroyDeletedRecords: (ConnectionTag, TableName<any>, RecordId[]) => Promise<void>,
   unsafeResetDatabase: (ConnectionTag, SQL, SchemaVersion) => Promise<void>,
   getLocal: (ConnectionTag, string) => Promise<?string>,
-
-  // Special methods
-  initializeJSI?: () => void,
 }

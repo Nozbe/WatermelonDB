@@ -154,11 +154,6 @@ class DatabaseDriver {
     })
   }
 
-  destroyDeletedRecords(table: string, records: string[]): void {
-    const recordPlaceholders = records.map(() => '?').join(',')
-    this.database.execute(`DELETE FROM '${table}' WHERE id IN (${recordPlaceholders})`, records)
-  }
-
   // MARK: - LocalStorage
 
   getLocal(key: string): any | null {

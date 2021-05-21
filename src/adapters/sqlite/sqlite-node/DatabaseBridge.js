@@ -136,18 +136,6 @@ class DatabaseBridge {
     this.withDriver(tag, resolve, reject, 'batch', (driver) => driver.batch(operations))
   }
 
-  destroyDeletedRecords(
-    tag: number,
-    table: string,
-    records: string[],
-    resolve: (any) => void,
-    reject: (string) => void,
-  ): void {
-    this.withDriver(tag, resolve, reject, 'destroyDeletedRecords', (driver) =>
-      driver.destroyDeletedRecords(table, records),
-    )
-  }
-
   unsafeResetDatabase(
     tag: number,
     schema: string,

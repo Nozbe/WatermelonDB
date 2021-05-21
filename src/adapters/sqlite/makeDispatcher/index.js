@@ -18,7 +18,6 @@ const dispatcherMethods = [
   'queryIds',
   'count',
   'batch',
-  'destroyDeletedRecords',
   'unsafeResetDatabase',
   'getLocal',
 ]
