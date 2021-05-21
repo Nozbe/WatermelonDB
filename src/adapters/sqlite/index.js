@@ -29,8 +29,6 @@ import type {
 
 import encodeName from './encodeName'
 import encodeQuery from './encodeQuery'
-import encodeUpdate from './encodeUpdate'
-import encodeInsert from './encodeInsert'
 
 import { makeDispatcher, DatabaseBridge, getDispatcherType } from './makeDispatcher'
 
@@ -231,76 +229,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   batch(operations: BatchOperation[], callback: ResultCallback<void>): void {
-    const batchOperations: NativeBridgeBatchOperation[] = []
-    let previousType: ?string = null
-    let previousTable: ?TableName<any> = null
-    let currentOperation: NativeBridgeBatchOperation = (null: any)
-    operations.forEach((operation) => {
-      const [type, table, rawOrId] = operation
-      if (type !== previousType || table !== previousTable) {
-        if (currentOperation) {
-          batchOperations.push(currentOperation)
-        }
-        validateTable(table, this.schema)
-        previousType = type
-        previousTable = table
-        switch (type) {
-          case 'create':
-            currentOperation = [
-              1,
-              table,
-              encodeInsert(this.schema.tables[table], (rawOrId: any))[0],
-              [],
-            ]
-            break
-          case 'update':
-            currentOperation = [
-              0,
-              null,
-              encodeUpdate(this.schema.tables[table], (rawOrId: any))[0],
-              [],
-            ]
-            break
-          case 'markAsDeleted':
-            currentOperation = [
-              -1,
-              table,
-              `update "${table}" set "_status" = 'deleted' where "id" == ?`,
-              [],
-            ]
-            break
-          case 'destroyPermanently':
-            currentOperation = [-1, table, `delete from "${table}" where "id" == ?`, []]
-            break
-          default:
-            throw new Error('unknown batch operation type')
-        }
-      }
-
-      let args: SQLiteArg[]
-      switch (type) {
-        case 'create':
-          // eslint-disable-next-line prefer-destructuring
-          args = encodeInsert(this.schema.tables[table], (rawOrId: any))[1]
-          break
-        case 'update':
-          // eslint-disable-next-line prefer-destructuring
-          args = encodeUpdate(this.schema.tables[table], (rawOrId: any))[1]
-          break
-        case 'markAsDeleted':
-        case 'destroyPermanently':
-          args = [(rawOrId: any)]
-          break
-        default:
-          throw new Error('unknown batch operation type')
-      }
-      currentOperation[3].push(args)
-    })
-    if (currentOperation) {
-      batchOperations.push(currentOperation)
-    }
-
-    this._batch(batchOperations, callback)
+    this._batch(require('./encodeBatch').default(operations, this.schema), callback)
   }
 
   getDeletedRecords(table: TableName<any>, callback: ResultCallback<RecordId[]>): void {
