@@ -121,6 +121,44 @@ class DatabaseDriver(context: Context, dbName: String) {
         database.execute(query, args)
     }
 
+    fun batchV2(operations: ReadableArray) {
+        val newIds = arrayListOf<Pair<TableName, RecordID>>()
+        val removedIds = arrayListOf<Pair<TableName, RecordID>>()
+
+        Trace.beginSection("Batch")
+        try {
+            database.transaction {
+                for (i in 0 until operations.size()) {
+                    val operation = operations.getArray(i)!!
+                    val cacheBehavior = operation.getInt(0)
+                    val table = if (cacheBehavior != 0) operation.getString(1)!! else ""
+                    val sql = operation.getString(2) as SQL
+                    val argBatches = operation.getArray(3)!!
+
+                    for (j in 0 until argBatches.size()) {
+                        val args = argBatches.getArray(j)!!.toArrayList().toArray()
+                        database.execute(sql, args)
+                        if (cacheBehavior != 0) {
+                            val id = args[0] as RecordID
+                            if (cacheBehavior == 1) {
+                                newIds.add(Pair(table, id))
+                            } else if (cacheBehavior == -1) {
+                                removedIds.add(Pair(table, id))
+                            }
+                        }
+                    }
+                }
+            }
+        } finally {
+            Trace.endSection()
+        }
+
+        Trace.beginSection("updateCaches")
+        newIds.forEach { markAsCached(table = it.first, id = it.second) }
+        removedIds.forEach { removeFromCache(table = it.first, id = it.second) }
+        Trace.endSection()
+    }
+
     fun batch(operations: ReadableArray) {
         // log?.info("Batch of ${operations.size()}")
         val newIds = arrayListOf<Pair<TableName, RecordID>>()
