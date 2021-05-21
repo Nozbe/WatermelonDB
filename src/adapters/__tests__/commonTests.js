@@ -20,6 +20,7 @@ import {
   expectSortedEqual,
   MockTask,
   mockProjectRaw,
+  mockTagAssignmentRaw,
   projectQuery,
   modelQuery,
 } from './helpers'
@@ -282,23 +283,6 @@ export default () => [
     },
   ],
   [
-    'can query record IDs',
-    async (_adapter) => {
-      let adapter = _adapter
-      const s1 = mockTaskRaw({ id: 's1', order: 1 })
-      const s2 = mockTaskRaw({ id: 's2', order: 2 })
-      await adapter.batch([
-        ['create', 'tasks', s1],
-        ['create', 'tasks', s2],
-      ])
-
-      // reloading adapter to make sure we don't accidentally just use normal query
-      adapter = await adapter.testClone()
-      expect(await adapter.queryIds(taskQuery())).toEqual(['s1', 's2'])
-      expect(await adapter.queryIds(taskQuery())).toEqual(['s1', 's2'])
-    },
-  ],
-  [
     'sanitizes records on query',
     async (_adapter) => {
       let adapter = _adapter
@@ -339,6 +323,69 @@ export default () => [
       const [queriedRaw] = await adapter.query(taskQuery())
       expect(queriedRaw).toEqual(originalRaw)
       expect(queriedRaw).not.toBe(raw)
+    },
+  ],
+  [
+    'can query record IDs',
+    async (_adapter) => {
+      let adapter = _adapter
+      await adapter.batch([
+        ['create', 'tasks', mockTaskRaw({ id: 's1', order: 1 })],
+        ['create', 'tasks', mockTaskRaw({ id: 's2', order: 2 })],
+      ])
+
+      // reloading adapter to make sure we don't accidentally just use normal query
+      adapter = await adapter.testClone()
+      expect(await adapter.queryIds(taskQuery())).toEqual(['s1', 's2'])
+      expect(await adapter.queryIds(taskQuery())).toEqual(['s1', 's2'])
+    },
+  ],
+  [
+    'can unsafely query raws with SQL',
+    async (adapter, AdapterClass) => {
+      if (AdapterClass.name === 'SQLiteAdapter') {
+        await adapter.batch([
+          ['create', 'tasks', mockTaskRaw({ id: 't1', order: 1, text1: 'hello' })],
+          ['create', 'tasks', mockTaskRaw({ id: 't2', order: 2, text1: 'foo' })],
+          ['create', 'tasks', mockTaskRaw({ id: 't3', order: 3, text1: 'bar' })],
+          [
+            'create',
+            'tag_assignments',
+            mockTagAssignmentRaw({ id: 'ta1', task_id: 't1', num1: 5 }),
+          ],
+          [
+            'create',
+            'tag_assignments',
+            mockTagAssignmentRaw({ id: 'ta2', task_id: 't1', num1: 9 }),
+          ],
+          [
+            'create',
+            'tag_assignments',
+            mockTagAssignmentRaw({ id: 'ta3', task_id: 't3', num1: 3 }),
+          ],
+        ])
+        expect(
+          await adapter.unsafeQueryRaw(
+            taskQuery(Q.unsafeSqlQuery('select * from tasks where text1 = ?', ['bad'])),
+          ),
+        ).toEqual([])
+        expect(
+          await adapter.unsafeQueryRaw(
+            taskQuery(
+              Q.unsafeSqlQuery(
+                'select tasks.text1, count(tag_assignments.id) as tags, sum(tag_assignments.num1) as magic from tasks' +
+                  ' left join tag_assignments on tasks.id = tag_assignments.task_id' +
+                  ' group by tasks.id' +
+                  ' order by tasks."order" desc',
+              ),
+            ),
+          ),
+        ).toEqual([
+          { text1: 'bar', tags: 1, magic: 3 },
+          { text1: 'foo', tags: 0, magic: null },
+          { text1: 'hello', tags: 2, magic: 14 },
+        ])
+      }
     },
   ],
   [

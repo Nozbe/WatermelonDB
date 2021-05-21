@@ -123,6 +123,10 @@ class DatabaseDriver {
     return this.database.queryRaw(query, fixArgs(args)).map((row) => `${row.id}`)
   }
 
+  unsafeQueryRaw(query: string, args: any[]): any[] {
+    return this.database.queryRaw(query, fixArgs(args))
+  }
+
   count(query: string, args: any[]): number {
     return this.database.count(query, fixArgs(args))
   }

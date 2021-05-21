@@ -30,6 +30,9 @@ export interface DatabaseAdapter {
   // Fetches IDs of matching records
   queryIds(query: SerializedQuery, callback: ResultCallback<RecordId[]>): void;
 
+  // Fetches unsafe, unsanitized objects according to query. You must not mutate these objects.
+  unsafeQueryRaw(query: SerializedQuery, callback: ResultCallback<any[]>): void;
+
   // Counts matching records
   count(query: SerializedQuery, callback: ResultCallback<number>): void;
 

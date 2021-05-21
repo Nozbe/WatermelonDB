@@ -164,6 +164,13 @@ void Database::install(jsi::Runtime *runtime) {
 
             return runBlock(rt, [&]() { return database->queryIds(sql, arguments); });
         });
+        createMethod(rt, adapter, "unsafeQueryRaw", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            assert(database->initialized_);
+            jsi::String sql = args[0].getString(rt);
+            jsi::Array arguments = args[1].getObject(rt).getArray(rt);
+
+            return runBlock(rt, [&]() { return database->unsafeQueryRaw(sql, arguments); });
+        });
         createMethod(rt, adapter, "count", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String sql = args[0].getString(rt);

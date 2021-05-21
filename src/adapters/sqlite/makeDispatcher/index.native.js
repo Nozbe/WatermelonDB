@@ -23,6 +23,7 @@ const dispatcherMethods = [
   'find',
   'query',
   'queryIds',
+  'unsafeQueryRaw',
   'count',
   'batch',
   'batchJSON',
