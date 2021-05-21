@@ -25,6 +25,7 @@ const dispatcherMethods = [
   'queryIds',
   'count',
   'batch',
+  'batchV2',
   'batchJSON',
   'batchJSONV2',
   'destroyDeletedRecords',

@@ -414,6 +414,53 @@ void Database::batch(jsi::Array &operations) {
     }
 }
 
+void Database::batchV2(jsi::Array &operations) {
+    auto &rt = getRt();
+    beginTransaction();
+
+    std::vector<std::string> addedIds = {};
+    std::vector<std::string> removedIds = {};
+
+    try {
+        size_t operationsCount = operations.length(rt);
+        for (size_t i = 0; i < operationsCount; i++) {
+            jsi::Array operation = operations.getValueAtIndex(rt, i).getObject(rt).getArray(rt);
+            
+            auto cacheBehavior = operation.getValueAtIndex(rt, 0).getNumber();
+            auto table = cacheBehavior != 0 ? operation.getValueAtIndex(rt, 1).getString(rt).utf8(rt) : "";
+            auto sql = operation.getValueAtIndex(rt, 2).getString(rt).utf8(rt);
+            
+            jsi::Array argsBatches = operation.getValueAtIndex(rt, 3).getObject(rt).getArray(rt);
+            size_t argsBatchesCount = argsBatches.length(rt);
+            for (size_t j = 0; j < argsBatchesCount; j++) {
+                jsi::Array args = argsBatches.getValueAtIndex(rt, j).getObject(rt).getArray(rt);
+                executeUpdate(sql, args);
+                if (cacheBehavior != 0) {
+                    auto id = args.getValueAtIndex(rt, 0).getString(rt).utf8(rt);
+                    if (cacheBehavior == 1) {
+                        addedIds.push_back(cacheKey(table, id));
+                    } else if (cacheBehavior == -1) {
+                        removedIds.push_back(cacheKey(table, id));
+                    }
+                }
+            }
+            
+        }
+        commit();
+    } catch (const std::exception &ex) {
+        rollback();
+        throw;
+    }
+
+    for (auto const &key : addedIds) {
+        markAsCached(key);
+    }
+
+    for (auto const &key : removedIds) {
+        removeFromCache(key);
+    }
+}
+
 void Database::destroyDeletedRecords(jsi::String &tableName, jsi::Array &recordIds) {
     auto &rt = getRt();
     beginTransaction();

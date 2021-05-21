@@ -180,6 +180,15 @@ void Database::install(jsi::Runtime *runtime) {
                 return jsi::Value::undefined();
             });
         });
+        createMethod(rt, adapter, "batchV2", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            assert(database->initialized_);
+            jsi::Array operations = args[0].getObject(rt).getArray(rt);
+
+            return runBlock(rt, [&]() {
+                database->batchV2(operations);
+                return jsi::Value::undefined();
+            });
+        });
         createMethod(rt, adapter, "getLocal", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String key = args[0].getString(rt);
