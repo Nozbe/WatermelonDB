@@ -155,6 +155,12 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     this._bridge.send('queryIds', [query], callback, 'immutable', 'immutable')
   }
 
+  unsafeQueryRaw(query: SerializedQuery, callback: ResultCallback<any[]>): void {
+    validateTable(query.table, this.schema)
+    // SerializedQueries are immutable, so we need no copy
+    this._bridge.send('unsafeQueryRaw', [query], callback, 'immutable', 'immutable')
+  }
+
   count(query: SerializedQuery, callback: ResultCallback<number>): void {
     validateTable(query.table, this.schema)
     // SerializedQueries are immutable, so we need no copy

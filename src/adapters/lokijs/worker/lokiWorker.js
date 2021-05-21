@@ -19,6 +19,7 @@ const executorMethods: { [WorkerExecutorType]: * } = {
   find: ExecutorProto.find,
   query: ExecutorProto.query,
   queryIds: ExecutorProto.queryIds,
+  unsafeQueryRaw: ExecutorProto.unsafeQueryRaw,
   count: ExecutorProto.count,
   batch: ExecutorProto.batch,
   unsafeResetDatabase: ExecutorProto.unsafeResetDatabase,

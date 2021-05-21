@@ -9,6 +9,7 @@ export type WorkerExecutorType =
   | 'find'
   | 'query'
   | 'queryIds'
+  | 'unsafeQueryRaw'
   | 'count'
   | 'batch'
   | 'getDeletedRecords'

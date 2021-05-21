@@ -115,6 +115,10 @@ export default class LokiExecutor {
     return executeQuery(query, this.loki).map((record) => record.id)
   }
 
+  unsafeQueryRaw(query: SerializedQuery): any[] {
+    return executeQuery(query, this.loki)
+  }
+
   count(query: SerializedQuery): number {
     return executeCount(query, this.loki)
   }

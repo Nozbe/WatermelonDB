@@ -343,27 +343,16 @@ export default () => [
   [
     'can unsafely query raws with SQL',
     async (adapter, AdapterClass) => {
+      await adapter.batch([
+        ['create', 'tasks', mockTaskRaw({ id: 't1', order: 1, text1: 'hello' })],
+        ['create', 'tasks', mockTaskRaw({ id: 't2', order: 2, text1: 'foo' })],
+        ['create', 'tasks', mockTaskRaw({ id: 't3', order: 3, text1: 'bar' })],
+        ['create', 'tag_assignments', mockTagAssignmentRaw({ id: 'ta1', task_id: 't1', num1: 5 })],
+        ['create', 'tag_assignments', mockTagAssignmentRaw({ id: 'ta2', task_id: 't1', num1: 9 })],
+        ['create', 'tag_assignments', mockTagAssignmentRaw({ id: 'ta3', task_id: 't3', num1: 3 })],
+      ])
+
       if (AdapterClass.name === 'SQLiteAdapter') {
-        await adapter.batch([
-          ['create', 'tasks', mockTaskRaw({ id: 't1', order: 1, text1: 'hello' })],
-          ['create', 'tasks', mockTaskRaw({ id: 't2', order: 2, text1: 'foo' })],
-          ['create', 'tasks', mockTaskRaw({ id: 't3', order: 3, text1: 'bar' })],
-          [
-            'create',
-            'tag_assignments',
-            mockTagAssignmentRaw({ id: 'ta1', task_id: 't1', num1: 5 }),
-          ],
-          [
-            'create',
-            'tag_assignments',
-            mockTagAssignmentRaw({ id: 'ta2', task_id: 't1', num1: 9 }),
-          ],
-          [
-            'create',
-            'tag_assignments',
-            mockTagAssignmentRaw({ id: 'ta3', task_id: 't3', num1: 3 }),
-          ],
-        ])
         expect(
           await adapter.unsafeQueryRaw(
             taskQuery(Q.unsafeSqlQuery('select * from tasks where text1 = ?', ['bad'])),
@@ -378,6 +367,34 @@ export default () => [
                   ' group by tasks.id' +
                   ' order by tasks."order" desc',
               ),
+            ),
+          ),
+        ).toEqual([
+          { text1: 'bar', tags: 1, magic: 3 },
+          { text1: 'foo', tags: 0, magic: null },
+          { text1: 'hello', tags: 2, magic: 14 },
+        ])
+      } else if (AdapterClass.name === 'LokiJSAdapter') {
+        expect(await adapter.unsafeQueryRaw(taskQuery(Q.unsafeLokiTransform(() => [])))).toEqual([])
+        expect(
+          await adapter.unsafeQueryRaw(
+            taskQuery(
+              Q.unsafeLokiTransform((raws, loki) => {
+                return raws
+                  .sort((a, b) => b.order - a.order)
+                  .map((raw) => {
+                    const { id, text1 } = raw
+                    const assignments = loki
+                      .getCollection('tag_assignments')
+                      .find({ task_id: id })
+                      .map((ta) => ta.num1)
+                    return {
+                      text1,
+                      tags: assignments.length,
+                      magic: assignments.length ? assignments.reduce((a, b) => a + b) : null,
+                    }
+                  })
+              }),
             ),
           ),
         ).toEqual([
