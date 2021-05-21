@@ -231,10 +231,10 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   batch(operations: BatchOperation[], callback: ResultCallback<void>): void {
-    const batchOperations = []
-    let previousType = null
-    let previousTable = null
-    let currentOperation = null
+    const batchOperations: NativeBridgeBatchOperation[] = []
+    let previousType: ?string = null
+    let previousTable: ?TableName<any> = null
+    let currentOperation: NativeBridgeBatchOperation = (null: any)
     operations.forEach((operation) => {
       const [type, table, rawOrId] = operation
       if (type !== previousType || table !== previousTable) {
@@ -277,17 +277,19 @@ export default class SQLiteAdapter implements DatabaseAdapter {
         }
       }
 
-      let args
+      let args: SQLiteArg[]
       switch (type) {
         case 'create':
+          // eslint-disable-next-line prefer-destructuring
           args = encodeInsert(this.schema.tables[table], (rawOrId: any))[1]
           break
         case 'update':
+          // eslint-disable-next-line prefer-destructuring
           args = encodeUpdate(this.schema.tables[table], (rawOrId: any))[1]
           break
         case 'markAsDeleted':
         case 'destroyPermanently':
-          args = [rawOrId]
+          args = [(rawOrId: any)]
           break
         default:
           throw new Error('unknown batch operation type')

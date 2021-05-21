@@ -212,7 +212,7 @@ extension DatabaseBridge {
             case 1:
                 cacheBehavior = .addFirstArg(table: table!)
             case -1:
-                cacheBehavior = .addFirstArg(table: table!)
+                cacheBehavior = .removeFirstArg(table: table!)
             default:
                 throw "bad cache behavior".asError()
             }

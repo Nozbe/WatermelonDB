@@ -354,7 +354,7 @@ jsi::Value Database::count(jsi::String &sql, jsi::Array &arguments) {
     return jsi::Value(count);
 }
 
-void Database::batchV2(jsi::Array &operations) {
+void Database::batch(jsi::Array &operations) {
     auto &rt = getRt();
     beginTransaction();
 
