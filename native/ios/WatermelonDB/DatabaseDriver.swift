@@ -200,7 +200,7 @@ class DatabaseDriver {
 
     private func setUpSchema(schema: Schema) throws {
         try database.inTransaction {
-            try database.executeStatements(schema.sql + localStorageSchema)
+            try database.executeStatements(schema.sql)
             database.userVersion = schema.version
         }
     }
@@ -216,15 +216,6 @@ class DatabaseDriver {
             database.userVersion = migrations.to
         }
     }
-
-    private let localStorageSchema = """
-        create table local_storage (
-        key varchar(16) primary key not null,
-        value text not null
-        );
-
-        create index local_storage_key_index on local_storage (key);
-    """
 }
 
 private func getPath(dbName: String) -> String {

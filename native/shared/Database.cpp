@@ -401,15 +401,6 @@ void Database::batch(jsi::Array &operations) {
     }
 }
 
-const std::string localStorageSchema = R"(
-create table local_storage (
-key varchar(16) primary key not null,
-value text not null
-);
-
-create index local_storage_key_index on local_storage (key);
-)";
-
 void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
     auto &rt = getRt();
 
@@ -433,7 +424,7 @@ void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
         cachedRecords_ = {};
 
         // Reinitialize schema
-        executeMultiple(schema.utf8(rt) + localStorageSchema);
+        executeMultiple(schema.utf8(rt));
         setUserVersion(schemaVersion);
 
         commit();

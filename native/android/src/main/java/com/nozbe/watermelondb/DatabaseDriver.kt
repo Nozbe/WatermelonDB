@@ -158,7 +158,7 @@ class DatabaseDriver(context: Context, dbName: String) {
 
     private fun setUpSchema(schema: Schema) {
         database.transaction {
-            database.unsafeExecuteStatements(schema.sql + Queries.localStorageSchema)
+            database.unsafeExecuteStatements(schema.sql)
             database.userVersion = schema.version
         }
     }
