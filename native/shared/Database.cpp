@@ -48,9 +48,7 @@ void Database::removeFromCache(std::string cacheKey) {
     cachedRecords_.erase(cacheKey);
 }
 
-// TODO: Can we use templates or make jsi::Array iterable so we can avoid _creating_ jsi::Array in C++?
-SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
-    auto &rt = getRt();
+SqliteStatement Database::prepareQuery(std::string sql) {
     sqlite3_stmt *statement = cachedStatements_[sql];
 
     if (statement == nullptr) {
@@ -70,48 +68,50 @@ SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
         sqlite3_reset(statement);
     }
     assert(statement != nullptr);
+    
+    return SqliteStatement(statement);
+}
 
-    int argsCount = sqlite3_bind_parameter_count(statement);
+void Database::bindQueryArgs(SqliteStatement &statement, jsi::Array &args) {
+    auto &rt = getRt();
+    
+    sqlite3_stmt *stmt = statement.stmt;
+    int argsCount = sqlite3_bind_parameter_count(stmt);
 
-    if (argsCount != arguments.length(rt)) {
-        sqlite3_reset(statement);
+    if (argsCount != args.length(rt)) {
+        sqlite3_reset(stmt);
         throw jsi::JSError(rt, "Number of args passed to query doesn't match number of arg placeholders");
     }
 
     for (int i = 0; i < argsCount; i++) {
-        jsi::Value value = arguments.getValueAtIndex(rt, i);
+        jsi::Value value = args.getValueAtIndex(rt, i);
 
         int bindResult;
         if (value.isNull() || value.isUndefined()) {
-            bindResult = sqlite3_bind_null(statement, i + 1);
+            bindResult = sqlite3_bind_null(stmt, i + 1);
         } else if (value.isString()) {
             // TODO: Check SQLITE_STATIC
-            bindResult = sqlite3_bind_text(statement, i + 1, value.getString(rt).utf8(rt).c_str(), -1, SQLITE_TRANSIENT);
+            bindResult = sqlite3_bind_text(stmt, i + 1, value.getString(rt).utf8(rt).c_str(), -1, SQLITE_TRANSIENT);
         } else if (value.isNumber()) {
-            bindResult = sqlite3_bind_double(statement, i + 1, value.getNumber());
+            bindResult = sqlite3_bind_double(stmt, i + 1, value.getNumber());
         } else if (value.isBool()) {
-            bindResult = sqlite3_bind_int(statement, i + 1, value.getBool());
+            bindResult = sqlite3_bind_int(stmt, i + 1, value.getBool());
         } else if (value.isObject()) {
-            sqlite3_reset(statement);
+            sqlite3_reset(stmt);
             throw jsi::JSError(rt, "Invalid argument type (object) for query");
         } else {
-            sqlite3_reset(statement);
+            sqlite3_reset(stmt);
             throw jsi::JSError(rt, "Invalid argument type (unknown) for query");
         }
 
         if (bindResult != SQLITE_OK) {
-            sqlite3_reset(statement);
+            sqlite3_reset(stmt);
             throw dbError("Failed to bind an argument for query");
         }
     }
-
-    // TODO: We may move this initialization earlier to avoid having to care about sqlite3_reset, but I think we'll
-    // have to implement a move constructor for it to be correct
-    return SqliteStatement(statement);
 }
 
-void Database::executeUpdate(std::string sql, jsi::Array &args) {
-    auto statement = executeQuery(sql, args);
+void Database::executeUpdate(SqliteStatement &statement) {
     int stepResult = sqlite3_step(statement.stmt);
 
     if (stepResult != SQLITE_DONE) {
@@ -120,9 +120,8 @@ void Database::executeUpdate(std::string sql, jsi::Array &args) {
 }
 
 void Database::executeUpdate(std::string sql) {
-    auto &rt = getRt();
-    auto args = jsi::Array::createWithElements(rt);
-    executeUpdate(sql, args);
+    auto statement = prepareQuery(sql);
+    executeUpdate(statement);
 }
 
 void Database::executeMultiple(std::string sql) {
@@ -210,10 +209,7 @@ void Database::rollback() {
 }
 
 int Database::getUserVersion() {
-    auto &rt = getRt();
-    auto args = jsi::Array::createWithElements(rt);
-    auto statement = executeQuery("pragma user_version", args);
-
+    auto statement = prepareQuery("pragma user_version");
     int stepResult = sqlite3_step(statement.stmt);
 
     if (stepResult != SQLITE_ROW) {
@@ -238,8 +234,9 @@ jsi::Value Database::find(jsi::String &tableName, jsi::String &id) {
         return std::move(id);
     }
 
+    auto statement = prepareQuery("select * from `" + tableName.utf8(rt) + "` where id == ? limit 1");
     auto args = jsi::Array::createWithElements(rt, id);
-    auto statement = executeQuery("select * from `" + tableName.utf8(rt) + "` where id == ? limit 1", args);
+    bindQueryArgs(statement, args);
 
     int stepResult = sqlite3_step(statement.stmt);
 
@@ -256,9 +253,10 @@ jsi::Value Database::find(jsi::String &tableName, jsi::String &id) {
     return record;
 }
 
-jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array &arguments) {
+jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array &args) {
     auto &rt = getRt();
-    auto statement = executeQuery(sql.utf8(rt), arguments);
+    auto statement = prepareQuery(sql.utf8(rt));
+    bindQueryArgs(statement, args);
 
     // FIXME: Adding directly to a jsi::Array should be more efficient, but Hermes does not support
     // automatically resizing an Array by setting new values to it
@@ -300,9 +298,10 @@ jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array 
     return jsiRecords;
 }
 
-jsi::Array Database::queryIds(jsi::String &sql, jsi::Array &arguments) {
+jsi::Array Database::queryIds(jsi::String &sql, jsi::Array &args) {
     auto &rt = getRt();
-    auto statement = executeQuery(sql.utf8(rt), arguments);
+    auto statement = prepareQuery(sql.utf8(rt));
+    bindQueryArgs(statement, args);
 
     // FIXME: Adding directly to a jsi::Array should be more efficient, but Hermes does not support
     // automatically resizing an Array by setting new values to it
@@ -338,9 +337,10 @@ jsi::Array Database::queryIds(jsi::String &sql, jsi::Array &arguments) {
     return jsiIds;
 }
 
-jsi::Value Database::count(jsi::String &sql, jsi::Array &arguments) {
+jsi::Value Database::count(jsi::String &sql, jsi::Array &args) {
     auto &rt = getRt();
-    auto statement = executeQuery(sql.utf8(rt), arguments);
+    auto statement = prepareQuery(sql.utf8(rt));
+    bindQueryArgs(statement, args);
 
     int stepResult = sqlite3_step(statement.stmt);
 
@@ -355,63 +355,63 @@ jsi::Value Database::count(jsi::String &sql, jsi::Array &arguments) {
 }
 
 void Database::batch(jsi::Array &operations) {
-    auto &rt = getRt();
-    beginTransaction();
-
-    std::vector<std::string> addedIds = {};
-    std::vector<std::string> removedIds = {};
-
-    try {
-        size_t operationsCount = operations.length(rt);
-        for (size_t i = 0; i < operationsCount; i++) {
-            jsi::Array operation = operations.getValueAtIndex(rt, i).getObject(rt).getArray(rt);
-            std::string type = operation.getValueAtIndex(rt, 0).getString(rt).utf8(rt);
-
-            if (type == "create") {
-                const jsi::String table = operation.getValueAtIndex(rt, 1).getString(rt);
-                std::string id = operation.getValueAtIndex(rt, 2).getString(rt).utf8(rt);
-                std::string sql = operation.getValueAtIndex(rt, 3).getString(rt).utf8(rt);
-                jsi::Array arguments = operation.getValueAtIndex(rt, 4).getObject(rt).getArray(rt);
-
-                executeUpdate(sql, arguments);
-                addedIds.push_back(cacheKey(table.utf8(rt), id));
-            } else if (type == "execute") {
-                jsi::String sql = operation.getValueAtIndex(rt, 1).getString(rt);
-                jsi::Array arguments = operation.getValueAtIndex(rt, 2).getObject(rt).getArray(rt);
-
-                executeUpdate(sql.utf8(rt), arguments);
-            } else if (type == "markAsDeleted") {
-                const jsi::String table = operation.getValueAtIndex(rt, 1).getString(rt);
-                const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
-                auto args = jsi::Array::createWithElements(rt, id);
-                executeUpdate("update `" + table.utf8(rt) + "` set _status='deleted' where id == ?", args);
-
-                removedIds.push_back(cacheKey(table.utf8(rt), id.utf8(rt)));
-            } else if (type == "destroyPermanently") {
-                const jsi::String table = operation.getValueAtIndex(rt, 1).getString(rt);
-                const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
-                auto args = jsi::Array::createWithElements(rt, id);
-
-                // TODO: What's the behavior if nothing got deleted?
-                executeUpdate("delete from `" + table.utf8(rt) + "` where id == ?", args);
-                removedIds.push_back(cacheKey(table.utf8(rt), id.utf8(rt)));
-            } else {
-                throw jsi::JSError(rt, "unknown batch operation");
-            }
-        }
-        commit();
-    } catch (const std::exception &ex) {
-        rollback();
-        throw;
-    }
-
-    for (auto const &key : addedIds) {
-        markAsCached(key);
-    }
-
-    for (auto const &key : removedIds) {
-        removeFromCache(key);
-    }
+//    auto &rt = getRt();
+//    beginTransaction();
+//
+//    std::vector<std::string> addedIds = {};
+//    std::vector<std::string> removedIds = {};
+//
+//    try {
+//        size_t operationsCount = operations.length(rt);
+//        for (size_t i = 0; i < operationsCount; i++) {
+//            jsi::Array operation = operations.getValueAtIndex(rt, i).getObject(rt).getArray(rt);
+//            std::string type = operation.getValueAtIndex(rt, 0).getString(rt).utf8(rt);
+//
+//            if (type == "create") {
+//                const jsi::String table = operation.getValueAtIndex(rt, 1).getString(rt);
+//                std::string id = operation.getValueAtIndex(rt, 2).getString(rt).utf8(rt);
+//                std::string sql = operation.getValueAtIndex(rt, 3).getString(rt).utf8(rt);
+//                jsi::Array arguments = operation.getValueAtIndex(rt, 4).getObject(rt).getArray(rt);
+//
+//                executeUpdate(sql, arguments);
+//                addedIds.push_back(cacheKey(table.utf8(rt), id));
+//            } else if (type == "execute") {
+//                jsi::String sql = operation.getValueAtIndex(rt, 1).getString(rt);
+//                jsi::Array arguments = operation.getValueAtIndex(rt, 2).getObject(rt).getArray(rt);
+//
+//                executeUpdate(sql.utf8(rt), arguments);
+//            } else if (type == "markAsDeleted") {
+//                const jsi::String table = operation.getValueAtIndex(rt, 1).getString(rt);
+//                const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
+//                auto args = jsi::Array::createWithElements(rt, id);
+//                executeUpdate("update `" + table.utf8(rt) + "` set _status='deleted' where id == ?", args);
+//
+//                removedIds.push_back(cacheKey(table.utf8(rt), id.utf8(rt)));
+//            } else if (type == "destroyPermanently") {
+//                const jsi::String table = operation.getValueAtIndex(rt, 1).getString(rt);
+//                const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
+//                auto args = jsi::Array::createWithElements(rt, id);
+//
+//                // TODO: What's the behavior if nothing got deleted?
+//                executeUpdate("delete from `" + table.utf8(rt) + "` where id == ?", args);
+//                removedIds.push_back(cacheKey(table.utf8(rt), id.utf8(rt)));
+//            } else {
+//                throw jsi::JSError(rt, "unknown batch operation");
+//            }
+//        }
+//        commit();
+//    } catch (const std::exception &ex) {
+//        rollback();
+//        throw;
+//    }
+//
+//    for (auto const &key : addedIds) {
+//        markAsCached(key);
+//    }
+//
+//    for (auto const &key : removedIds) {
+//        removeFromCache(key);
+//    }
 }
 
 void Database::batchV2(jsi::Array &operations) {
@@ -429,12 +429,15 @@ void Database::batchV2(jsi::Array &operations) {
             auto cacheBehavior = operation.getValueAtIndex(rt, 0).getNumber();
             auto table = cacheBehavior != 0 ? operation.getValueAtIndex(rt, 1).getString(rt).utf8(rt) : "";
             auto sql = operation.getValueAtIndex(rt, 2).getString(rt).utf8(rt);
+            auto statement = prepareQuery(sql);
             
             jsi::Array argsBatches = operation.getValueAtIndex(rt, 3).getObject(rt).getArray(rt);
             size_t argsBatchesCount = argsBatches.length(rt);
             for (size_t j = 0; j < argsBatchesCount; j++) {
                 jsi::Array args = argsBatches.getValueAtIndex(rt, j).getObject(rt).getArray(rt);
-                executeUpdate(sql, args);
+                bindQueryArgs(statement, args);
+                executeUpdate(statement);
+                statement.reset();
                 if (cacheBehavior != 0) {
                     auto id = args.getValueAtIndex(rt, 0).getString(rt).utf8(rt);
                     if (cacheBehavior == 1) {
@@ -467,12 +470,15 @@ void Database::destroyDeletedRecords(jsi::String &tableName, jsi::Array &recordI
     try {
         // TODO: Maybe it's faster & easier to do it in one query?
         std::string sql = "delete from `" + tableName.utf8(rt) + "` where id == ?";
+        auto statement = prepareQuery(sql);
 
         for (size_t i = 0, len = recordIds.size(rt); i < len; i++) {
             // TODO: What's the behavior if record doesn't exist or isn't actually deleted?
             jsi::String id = recordIds.getValueAtIndex(rt, i).getString(rt);
             auto args = jsi::Array::createWithElements(rt, id);
-            executeUpdate(sql, args);
+            bindQueryArgs(statement, args);
+            executeUpdate(statement);
+            statement.reset();
         }
         commit();
     } catch (const std::exception &ex) {
@@ -541,8 +547,9 @@ void Database::migrate(jsi::String &migrationSql, int fromVersion, int toVersion
 
 jsi::Value Database::getLocal(jsi::String &key) {
     auto &rt = getRt();
+    auto statement = prepareQuery("select value from local_storage where key = ?");
     auto args = jsi::Array::createWithElements(rt, key);
-    auto statement = executeQuery("select value from local_storage where key = ?", args);
+    bindQueryArgs(statement, args);
 
     int stepResult = sqlite3_step(statement.stmt);
     if (stepResult == SQLITE_DONE) {
