@@ -40,12 +40,15 @@ export type DispatcherType = 'asynchronous' | 'jsi'
 // adding a record:  [1, 'table', 'insert into...', [['id', 'created', ...]]]
 // updating a record [0, null, 'update...', [['id', 'created', ...]]]
 // removing a record [-1, table, 'delete...', [['id', 'created', ...]]]
-type NativeBridgeBatchOperationCacheBehavior = -1 | 0 | 1
+type NativeBridgeBatchOperationCacheBehavior =
+  | -1 // remove from cache
+  | 0 // ignore
+  | 1 // add to cache
 export type NativeBridgeBatchOperation = [
   NativeBridgeBatchOperationCacheBehavior,
   ?TableName<any>, // table to add/remove from cache
   SQL,
-  Array<SQLiteArg[]>,
+  Array<SQLiteArg[]>, // id must be at [0] if cacheBehavior != 0
 ]
 
 type InitializeStatus =
