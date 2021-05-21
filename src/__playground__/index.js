@@ -35,7 +35,7 @@ async function bench(jsi) {
     dbName: `playground_test_db_${jsi}`,
   })
   const ada = new AdapterCompat(adapter)
-
+  await ada.initializingPromise
   await ada.unsafeResetDatabase()
 
   const records = []
