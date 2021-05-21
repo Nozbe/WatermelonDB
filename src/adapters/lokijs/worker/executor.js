@@ -119,32 +119,6 @@ export default class LokiExecutor {
     return executeCount(query, this.loki)
   }
 
-  _update(table: TableName<any>, rawRecord: RawRecord): void {
-    const collection = this.loki.getCollection(table)
-    // Loki identifies records using internal $loki ID so we must find the saved record first
-    const lokiId = collection.by('id', rawRecord.id).$loki
-    const raw: DirtyRaw = rawRecord
-    raw.$loki = lokiId
-    collection.update(raw)
-  }
-
-  _destroyPermanently(table: TableName<any>, id: RecordId): void {
-    const collection = this.loki.getCollection(table)
-    const record = collection.by('id', id)
-    record && collection.remove(record)
-    this.removeFromCache(table, id)
-  }
-
-  _markAsDeleted(table: TableName<any>, id: RecordId): void {
-    const collection = this.loki.getCollection(table)
-    const record = collection.by('id', id)
-    if (record) {
-      record._status = 'deleted'
-      collection.update(record)
-      this.removeFromCache(table, id)
-    }
-  }
-
   batch(operations: BatchOperation[]): void {
     // NOTE: Mutations to LokiJS db are *not* transactional!
     // This is terrible and lame for a database, but there's just no simple and good solution to this
@@ -190,16 +164,34 @@ export default class LokiExecutor {
 
       operations.forEach((operation) => {
         const [type, table, rawOrId] = operation
+        const collection = this.loki.getCollection(table)
+
         switch (type) {
-          case 'update':
-            this._update(table, (rawOrId: $FlowFixMe<RawRecord>))
+          case 'update': {
+            // Loki identifies records using internal $loki ID so we must find the saved record first
+            const lokiId = collection.by('id', (rawOrId: any).id).$loki
+            const raw: DirtyRaw = rawOrId
+            raw.$loki = lokiId
+            collection.update(raw)
             break
-          case 'markAsDeleted':
-            this._markAsDeleted(table, (rawOrId: $FlowFixMe<RecordId>))
+          }
+          case 'markAsDeleted': {
+            const id: RecordId = (rawOrId: any)
+            const record = collection.by('id', id)
+            if (record) {
+              record._status = 'deleted'
+              collection.update(record)
+              this.removeFromCache(table, id)
+            }
             break
-          case 'destroyPermanently':
-            this._destroyPermanently(table, (rawOrId: $FlowFixMe<RecordId>))
+          }
+          case 'destroyPermanently': {
+            const id: RecordId = (rawOrId: any)
+            const record = collection.by('id', id)
+            record && collection.remove(record)
+            this.removeFromCache(table, id)
             break
+          }
           default:
             break
         }
