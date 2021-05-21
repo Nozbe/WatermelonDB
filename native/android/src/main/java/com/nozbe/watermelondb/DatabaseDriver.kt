@@ -139,7 +139,11 @@ class DatabaseDriver(context: Context, dbName: String) {
         log?.info("Unsafe Reset Database")
         database.unsafeDestroyEverything()
         cachedRecords.clear()
-        setUpSchema(schema)
+
+        database.transaction {
+            database.unsafeExecuteStatements(schema.sql)
+            database.userVersion = schema.version
+        }
     }
 
     fun close() = database.close()
@@ -155,13 +159,6 @@ class DatabaseDriver(context: Context, dbName: String) {
             cachedRecords[table]?.contains(id) ?: false
 
     private fun removeFromCache(table: TableName, id: RecordID) = cachedRecords[table]?.remove(id)
-
-    private fun setUpSchema(schema: Schema) {
-        database.transaction {
-            database.unsafeExecuteStatements(schema.sql)
-            database.userVersion = schema.version
-        }
-    }
 
     private fun migrate(migrations: MigrationSet) {
         require(database.userVersion == migrations.from) {

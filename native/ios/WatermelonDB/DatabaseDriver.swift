@@ -195,10 +195,6 @@ class DatabaseDriver {
         try database.unsafeDestroyEverything()
         cachedRecords = [:]
 
-        try setUpSchema(schema: schema)
-    }
-
-    private func setUpSchema(schema: Schema) throws {
         try database.inTransaction {
             try database.executeStatements(schema.sql)
             database.userVersion = schema.version

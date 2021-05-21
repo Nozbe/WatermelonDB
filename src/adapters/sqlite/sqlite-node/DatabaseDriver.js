@@ -211,10 +211,6 @@ class DatabaseDriver {
     this.database.unsafeDestroyEverything()
     this.cachedRecords = {}
 
-    this.setUpSchema(schema)
-  }
-
-  setUpSchema(schema: { sql: string, version: number }): void {
     this.database.inTransaction(() => {
       this.database.executeStatements(schema.sql)
       this.database.userVersion = schema.version
