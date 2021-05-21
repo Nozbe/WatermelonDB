@@ -32,6 +32,8 @@ using namespace facebook;
 //
 // To enable this hack, pass -DENABLE_JSLOCK_PERFORMANCE_HACK compiler flag
 
+#ifdef ENABLE_JSLOCK_PERFORMANCE_HACK
+
 namespace watermelondb {
 std::function<void (void)> *blockToExecute = nullptr;
 bool didBlockExecuteUsingHack = false;
@@ -118,3 +120,12 @@ void watermelonCallWithJSCLockHolder(jsi::Runtime& rt, std::function<void (void)
         block();
     }
 }
+
+#else
+
+// Used as fallback if hack is not compiled
+void watermelonCallWithJSCLockHolder(jsi::Runtime& rt, std::function<void (void)> block) {
+    block();
+}
+
+#endif
