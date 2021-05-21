@@ -298,33 +298,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
       batchOperations.push(currentOperation)
     }
 
-    this._batchV2(batchOperations, callback)
-
-    return
-    /*
-    const batchOperations: NativeBridgeBatchOperation[] = operations.map((operation) => {
-      const [type, table, rawOrId] = operation
-      validateTable(table, this.schema)
-      switch (type) {
-        case 'create': {
-          // $FlowFixMe
-          return ['create', table, rawOrId.id].concat(
-            encodeInsert(this.schema.tables[table], (rawOrId: any)),
-          )
-        }
-        case 'update': {
-          // $FlowFixMe
-          return ['execute'].concat(encodeUpdate(this.schema.tables[table], rawOrId))
-        }
-        case 'markAsDeleted':
-        case 'destroyPermanently':
-          // $FlowFixMe
-          return operation // same format, no need to repack
-        default:
-          throw new Error('unknown batch operation type')
-      }
-    })
-    this._batch(batchOperations, callback)*/
+    this._batch(batchOperations, callback)
   }
 
   getDeletedRecords(table: TableName<any>, callback: ResultCallback<RecordId[]>): void {
@@ -359,9 +333,10 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     this._batch(
       [
         [
-          'execute',
+          0,
+          null,
           `insert or replace into "local_storage" ("key", "value") values (?, ?)`,
-          [key, value],
+          [[key, value]],
         ],
       ],
       callback,
@@ -369,7 +344,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   removeLocal(key: string, callback: ResultCallback<void>): void {
-    this._batch([['execute', `delete from "local_storage" where "key" == ?`, [key]]], callback)
+    this._batch([[0, null, `delete from "local_storage" where "key" == ?`, [[key]]]], callback)
   }
 
   _encodedSchema(): SQL {
@@ -402,15 +377,6 @@ export default class SQLiteAdapter implements DatabaseAdapter {
       batchJSON(JSON.stringify(batchOperations), callback)
     } else {
       this._dispatcher.batch(batchOperations, callback)
-    }
-  }
-
-  _batchV2(batchOperations: NativeBridgeBatchOperation[], callback: ResultCallback<void>): void {
-    const { batchJSONV2 } = this._dispatcher
-    if (batchJSONV2) {
-      batchJSONV2(JSON.stringify(batchOperations), callback)
-    } else {
-      this._dispatcher.batchV2(batchOperations, callback)
     }
   }
 }
