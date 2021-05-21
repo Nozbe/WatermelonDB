@@ -104,8 +104,10 @@ class DatabaseDriver {
 
                     switch operation.cacheBehavior {
                     case .addFirstArg(table: let table):
+                        // swiftlint:disable:next force_cast
                         newIds.append((table, id: args[0] as! String))
                     case .removeFirstArg(table: let table):
+                        // swiftlint:disable:next force_cast
                         removedIds.append((table, id: args[0] as! String))
                     case .ignore:
                         break
