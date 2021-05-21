@@ -379,6 +379,40 @@ export default () => [
     },
   ],
   [
+    'can destroy records permanently',
+    async (adapter) => {
+      const m1 = mockTaskRaw({ id: 't1', text1: 'bar1' })
+      const m2 = mockTaskRaw({ id: 't2', text1: 'bar2' })
+      await adapter.batch([
+        ['create', 'tasks', m1],
+        ['create', 'tasks', m2],
+      ])
+      expect(await adapter.query(taskQuery())).toEqual(['t1', 't2'])
+
+      await adapter.batch([
+        ['destroyPermanently', 'tasks', m1.id],
+        ['markAsDeleted', 'tasks', m2.id],
+      ])
+      expect(await adapter.query(taskQuery())).toEqual([])
+      await adapter.batch([['destroyPermanently', 'tasks', m2.id]])
+      expect(await adapter.query(taskQuery())).toEqual([])
+    },
+  ],
+  [
+    'can destroy permanently records already destroyed',
+    async (adapter) => {
+      const m1 = mockTaskRaw({ id: 't1', text1: 'bar1' })
+      await adapter.batch([['create', 'tasks', m1]])
+      expect(await adapter.query(taskQuery())).toEqual(['t1'])
+
+      await adapter.batch([['destroyPermanently', 'tasks', m1.id]])
+      expect(await adapter.query(taskQuery())).toEqual([])
+
+      // this should not throw even though m1 is not present
+      await adapter.batch([['destroyPermanently', 'tasks', m1.id]])
+    },
+  ],
+  [
     'can get deleted record ids',
     async (adapter) => {
       const m1 = mockTaskRaw({ id: 't1', text1: 'bar1', order: 1 })

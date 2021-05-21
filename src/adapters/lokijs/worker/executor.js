@@ -131,7 +131,7 @@ export default class LokiExecutor {
   _destroyPermanently(table: TableName<any>, id: RecordId): void {
     const collection = this.loki.getCollection(table)
     const record = collection.by('id', id)
-    collection.remove(record)
+    record && collection.remove(record)
     this.removeFromCache(table, id)
   }
 
