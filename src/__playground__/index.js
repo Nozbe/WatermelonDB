@@ -32,9 +32,11 @@ async function bench(jsi) {
   const adapter = new SQLiteAdapter({
     schema: testSchema,
     jsi,
-    dbName: `file:testdb_${Math.random()}?mode=memory&cache=shared`,
+    dbName: `playground_test_db_${jsi}`,
   })
   const ada = new AdapterCompat(adapter)
+
+  await ada.unsafeResetDatabase()
 
   const records = []
   for (let i = 0; i < 20000; i++) {
@@ -82,6 +84,7 @@ async function bench(jsi) {
   log += `, destroying: ${Date.now() - b4}`
 
   console.log(log)
+  alert(log)
 }
 
 async function runPlayground() {
