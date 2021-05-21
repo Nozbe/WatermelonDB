@@ -179,8 +179,8 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   ): void {
     validateTable(table, this.schema)
     this._bridge.send(
-      'destroyDeletedRecords',
-      [table, recordIds],
+      'batch',
+      [recordIds.map((id) => ['destroyPermanently', table, id])],
       callback,
       'immutable',
       'immutable',

@@ -216,20 +216,6 @@ export default class LokiExecutor {
       .map((record) => record.id)
   }
 
-  destroyDeletedRecords(table: TableName<any>, records: RecordId[]): void {
-    this._assertNotBroken()
-    try {
-      const collection = this.loki.getCollection(table)
-      records.forEach((recordId) => {
-        const record = collection.by('id', recordId)
-
-        record && collection.remove(record)
-      })
-    } catch (error) {
-      this._fatalError(error)
-    }
-  }
-
   async unsafeResetDatabase(): Promise<void> {
     await deleteDatabase(this.loki)
 

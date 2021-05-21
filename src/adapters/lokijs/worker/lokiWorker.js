@@ -26,7 +26,6 @@ const executorMethods: { [WorkerExecutorType]: * } = {
   setLocal: ExecutorProto.setLocal,
   removeLocal: ExecutorProto.removeLocal,
   getDeletedRecords: ExecutorProto.getDeletedRecords,
-  destroyDeletedRecords: ExecutorProto.destroyDeletedRecords,
   experimentalFatalError: ExecutorProto._fatalError,
   clearCachedRecords: ExecutorProto.clearCachedRecords,
 }

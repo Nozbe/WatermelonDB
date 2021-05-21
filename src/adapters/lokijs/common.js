@@ -12,7 +12,6 @@ export type WorkerExecutorType =
   | 'count'
   | 'batch'
   | 'getDeletedRecords'
-  | 'destroyDeletedRecords'
   | 'unsafeResetDatabase'
   | 'getLocal'
   | 'setLocal'
