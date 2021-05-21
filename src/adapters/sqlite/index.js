@@ -231,6 +231,77 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   batch(operations: BatchOperation[], callback: ResultCallback<void>): void {
+    if (this._dispatcherType !== 'jsi') {
+      const batchOperations = []
+      let previousType = null
+      let previousTable = null
+      let currentOperation = null
+      operations.forEach((operation) => {
+        const [type, table, rawOrId] = operation
+        if (type !== previousType || table !== previousTable) {
+          if (currentOperation) {
+            batchOperations.push(currentOperation)
+          }
+          validateTable(table, this.schema)
+          previousType = type
+          previousTable = table
+          switch (type) {
+            case 'create':
+              currentOperation = [
+                1,
+                table,
+                encodeInsert(this.schema.tables[table], (rawOrId: any))[0],
+                [],
+              ]
+              break
+            case 'update':
+              currentOperation = [
+                0,
+                null,
+                encodeUpdate(this.schema.tables[table], (rawOrId: any))[0],
+                [],
+              ]
+              break
+            case 'markAsDeleted':
+              currentOperation = [
+                -1,
+                table,
+                `update "${table}" set "_status" = 'deleted' where "id" == ?`,
+                [],
+              ]
+              break
+            case 'destroyPermanently':
+              currentOperation = [-1, table, `delete from "${table}" where "id" == ?`, []]
+              break
+            default:
+              throw new Error('unknown batch operation type')
+          }
+        }
+
+        let args
+        switch (type) {
+          case 'create':
+            args = encodeInsert(this.schema.tables[table], (rawOrId: any))[1]
+            break
+          case 'update':
+            args = encodeUpdate(this.schema.tables[table], (rawOrId: any))[1]
+            break
+          case 'markAsDeleted':
+          case 'destroyPermanently':
+            args = [rawOrId]
+            break
+          default:
+            throw new Error('unknown batch operation type')
+        }
+        currentOperation[3].push(args)
+      })
+      if (currentOperation) {
+        batchOperations.push(currentOperation)
+      }
+      this._dispatcher.batchJSONV2(JSON.stringify(batchOperations), callback)
+      return
+    }
+
     const batchOperations: NativeBridgeBatchOperation[] = operations.map((operation) => {
       const [type, table, rawOrId] = operation
       validateTable(table, this.schema)

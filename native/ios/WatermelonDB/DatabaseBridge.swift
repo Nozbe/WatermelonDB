@@ -149,6 +149,16 @@ extension DatabaseBridge {
             try $0.batch(self.toBatchOperations(serializedOperations))
         }
     }
+    
+    @objc(batchJSONV2:operations:resolve:reject:)
+    func batchJSONV2(tag: ConnectionTag,
+                   operations serializedOperations: NSString,
+                   resolve: @escaping RCTPromiseResolveBlock,
+                   reject: @escaping RCTPromiseRejectBlock) {
+        withDriver(tag, resolve, reject) {
+            try $0.batchV2(self.toBatchOperationsV2(serializedOperations))
+        }
+    }
 
     @objc(destroyDeletedRecords:table:records:resolve:reject:)
     func destroyDeletedRecords(tag: ConnectionTag,
@@ -238,6 +248,43 @@ extension DatabaseBridge {
             default:
                 throw "unknown batch operation".asError()
             }
+        }
+    }
+    
+    private func toBatchOperationsV2(_ serializedOperations: NSString) throws -> [DatabaseDriver.OperationV2] {
+        guard let data = serializedOperations.data(using: String.Encoding.utf8.rawValue),
+        let operations = (try? JSONSerialization.jsonObject(with: data)) as? [[Any]]
+        else {
+            throw "Invalid serialized operations".asError()
+        }
+
+        return try toBatchOperationsV2(operations)
+    }
+
+    private func toBatchOperationsV2(_ operations: [[Any]]) throws -> [DatabaseDriver.OperationV2] {
+        return try operations.map { operation in
+            guard let cacheMode = operation[safe: 0] as? Int,
+                  let sql = operation[safe: 2] as? Database.SQL,
+                  let argBatches = operation[safe: 3] as? [Database.QueryArgs]
+            else {
+                throw "bad batch arguments".asError()
+            }
+            
+            let table = operation[safe: 1] as? String
+            
+            let cacheBehavior: DatabaseDriver.CacheBehavior
+            switch cacheMode {
+            case 0:
+                cacheBehavior = .ignore
+            case 1:
+                cacheBehavior = .addFirstArg(table: table!)
+            case -1:
+                cacheBehavior = .addFirstArg(table: table!)
+            default:
+                throw "bad cache behavior".asError()
+            }
+            
+            return DatabaseDriver.OperationV2(cacheBehavior: cacheBehavior, sql: sql, argBatches: argBatches)
         }
     }
 

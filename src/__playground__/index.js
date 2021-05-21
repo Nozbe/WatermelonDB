@@ -69,9 +69,13 @@ async function bench(jsi) {
   await ada.batch(records.map((rec) => ['update', 'tasks', rec]))
   log += `, updating: ${Date.now() - b4}`
 
+  await new Promise((resolve) => setTimeout(resolve, 150))
+
   b4 = Date.now()
   await ada.batch(records.map((rec) => ['markAsDeleted', 'tasks', rec.id]))
   log += `, marking: ${Date.now() - b4}`
+
+  await new Promise((resolve) => setTimeout(resolve, 150))
 
   b4 = Date.now()
   await ada.batch(records.map((rec) => ['destroyPermanently', 'tasks', rec.id]))

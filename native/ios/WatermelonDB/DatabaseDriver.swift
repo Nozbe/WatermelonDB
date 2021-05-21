@@ -87,6 +87,46 @@ class DatabaseDriver {
         case destroyPermanently(table: Database.TableName, id: RecordId)
         case markAsDeleted(table: Database.TableName, id: RecordId)
     }
+    enum CacheBehavior {
+        case ignore
+        case addFirstArg(table: Database.TableName)
+        case removeFirstArg(table: Database.TableName)
+    }
+    struct OperationV2 {
+        let cacheBehavior: CacheBehavior
+        let sql: Database.SQL
+        let argBatches: [Database.QueryArgs]
+    }
+    
+    func batchV2(_ operations: [OperationV2]) throws {
+        var newIds: [(Database.TableName, RecordId)] = []
+        var removedIds: [(Database.TableName, RecordId)] = []
+        
+        try database.inTransaction {
+            for operation in operations {
+                for args in operation.argBatches {
+                    try database.execute(operation.sql, args)
+                    
+                    switch operation.cacheBehavior {
+                    case .addFirstArg(table: let table):
+                        newIds.append((table, id: args[0] as! String))
+                    case .removeFirstArg(table: let table):
+                        removedIds.append((table, id: args[0] as! String))
+                    case .ignore:
+                        break
+                    }
+                }
+            }
+        }
+        
+        for (table, id) in newIds {
+            markAsCached(table, id)
+        }
+
+        for (table, id) in removedIds {
+            removeFromCache(table, id)
+        }
+    }
 
     func batch(_ operations: [Operation]) throws {
         var newIds: [(Database.TableName, RecordId)] = []
