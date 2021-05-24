@@ -9,6 +9,8 @@ export { default as Model, associations } from './Model'
 export { default as Query } from './Query'
 export { tableName, columnName, appSchema, tableSchema } from './Schema'
 
+export type { default as CollectionMap } from './Database/CollectionMap'
+
 export type { DatabaseAdapter } from './adapters/type'
 export type { RawRecord, DirtyRaw } from './RawRecord'
 export type { RecordId } from './Model'
