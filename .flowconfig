@@ -1,13 +1,10 @@
 [ignore]
 <PROJECT_ROOT>/.cache
-<PROJECT_ROOT>/src/__tests__
 <PROJECT_ROOT>/dist
 <PROJECT_ROOT>/dev
 <PROJECT_ROOT>/examples
 <PROJECT_ROOT>/react-native-copy
 .*/node_modules/react\-native/.*
-
-[include]
 
 [libs]
 flow-typed/
