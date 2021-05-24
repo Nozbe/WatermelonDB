@@ -16,6 +16,7 @@
 - Changes to Internal APIs. These were never meant to be public, and so are unlikely to affect you:
   - `Model._isCommited`, `._hasPendingUpdate`, `._hasPendingDelete` have been removed and changed to `Model._pendingState`
   - `Collection.unsafeClearCache()` is no longer exposed
+- Values passed to `adapter.setLocal()` are now validated to be strings. This is technically a bug fix, since local storage was always documented to only accept strings, however applications may have relied on this lack of validation. Adding this validation was necessary to achieve consistent behavior between SQLiteAdapter and LokiJSAdapter
 
 ### Deprecations
 

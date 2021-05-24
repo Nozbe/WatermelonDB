@@ -751,6 +751,20 @@ export default () => [
     },
   ],
   [
+    'only supports strings as LocalStorage values',
+    async (adapter) => {
+      const expectError = (value) =>
+        expectToRejectWithMessage(adapter.setLocal('test', value), 'must be a string')
+      await expectError(0)
+      await expectError(3.14)
+      await expectError(true)
+      await expectError(null)
+      await expectError(NaN)
+      await expectError([])
+      await expectError({})
+    },
+  ],
+  [
     'supports naughty strings in LocalStorage',
     async (adapter, AdapterClass, extraAdapterOptions, platform) => {
       const usePartialTestBecauseBuggyLoki = AdapterClass.name === 'LokiJSAdapter'

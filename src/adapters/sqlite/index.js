@@ -270,6 +270,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   setLocal(key: string, value: string, callback: ResultCallback<void>): void {
+    invariant(typeof value === 'string', 'adapter.setLocal() value must be a string')
     this._batch(
       [
         [

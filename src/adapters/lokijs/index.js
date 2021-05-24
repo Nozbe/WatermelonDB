@@ -204,6 +204,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   }
 
   setLocal(key: string, value: string, callback: ResultCallback<void>): void {
+    invariant(typeof value === 'string', 'adapter.setLocal() value must be a string')
     this._bridge.send('setLocal', [key, value], callback, 'immutable', 'immutable')
   }
 
