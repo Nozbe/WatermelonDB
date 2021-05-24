@@ -290,6 +290,10 @@ database.get('comments').query(
 
 **NOTE**: This does not currently work on web/LokiJS (please contribute!), and causes query observation to fall back to a less efficient method. We recommend using sortBy only when you absolutely need to limit queries, otherwise, it may be better to sort in JavaScript.
 
+### Fetch IDs
+
+If you only need IDs of records matching a query, you can optimize the query by calling `await query.fetchIds()` instead of `await query.fetch()`
+
 ### Security
 
 Remember that Queries are a sensitive subject, security-wise. Never trust user input and pass it directly into queries. In particular:

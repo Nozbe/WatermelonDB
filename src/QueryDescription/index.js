@@ -1,10 +1,11 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { unique, values as getValues, groupBy, unnest, pipe } from '../utils/fp'
+import { unique } from '../utils/fp'
 
 // don't import whole `utils` to keep worker size small
 import invariant from '../utils/common/invariant'
+import logger from '../utils/common/logger'
 import checkName from '../utils/fp/checkName'
 import deepFreeze from '../utils/common/deepFreeze'
 import type { $RE } from '../types'
@@ -389,33 +390,6 @@ export function unsafeSqlQuery(sql: string, values: Value[] = []): SqlQuery {
   return { type: 'sqlQuery', sql, values }
 }
 
-const compressTopLevelOns = (conditions: Where[]): Where[] => {
-  // Multiple separate Q.ons is a legacy syntax producing suboptimal query code unless
-  // special cases are used. Here, we're special casing only top-level Q.ons to avoid regressions
-  // but it's not recommended for new code
-  // TODO: Remove this special case
-  const ons = []
-  const wheres = []
-  conditions.forEach((clause) => {
-    if (clause.type === 'on') {
-      ons.push(clause)
-    } else {
-      wheres.push(clause)
-    }
-  })
-
-  const onsByTable: On[][] = pipe(
-    groupBy((clause) => clause.table),
-    getValues,
-  )(ons)
-  const grouppedOns: On[] = onsByTable.map((clauses: On[]) => {
-    const { table } = clauses[0]
-    const onConditions: Where[] = unnest(clauses.map((clause) => clause.conditions))
-    return on(table, onConditions)
-  })
-  return grouppedOns.concat(wheres)
-}
-
 const syncStatusColumn = columnName('_status')
 const extractClauses: (Clause[]) => QueryDescription = (clauses) => {
   const query = { where: [], joinTables: [], nestedJoinTables: [], sortBy: [] }
@@ -474,8 +448,26 @@ const extractClauses: (Clause[]) => QueryDescription = (clauses) => {
     }
   })
   query.joinTables = unique(query.joinTables)
-  // $FlowFixMe
-  query.where = compressTopLevelOns(query.where)
+
+  // In the past, multiple separate top-level Q.ons were the only supported syntax and were automatically merged per-table to produce optimal code
+  // We used to have a special case to avoid regressions, but it added complexity and had a side effect of rearranging the query suboptimally
+  // We won't support this anymore, but will warn about suboptimal queries
+  // TODO: Remove after 2022-01-01
+  if (process.env.NODE_ENV !== 'production') {
+    const onsEncountered = {}
+    query.where.forEach((clause) => {
+      if (clause.type === 'on') {
+        const table = (clause.table: string)
+        if (onsEncountered[table]) {
+          logger.warn(
+            `Found multiple Q.on('${table}', ...) clauses in a query. This is a performance bug - use a single Q.on('${table}', [condition1, condition1]) to produce a better performing query`,
+          )
+        }
+        onsEncountered[table] = true
+      }
+    })
+  }
+
   // $FlowFixMe: Flow is too dumb to realize that it is valid
   return query
 }

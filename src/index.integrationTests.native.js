@@ -34,7 +34,7 @@ if (openPlayground) {
       // eslint-disable-next-line
       console.log(rest)
       // eslint-disable-next-line
-      results.forEach(console.log)
+      results.forEach((result) => console.log(result))
       NativeModules.BridgeTestReporter.testsFinished(report)
     }
 

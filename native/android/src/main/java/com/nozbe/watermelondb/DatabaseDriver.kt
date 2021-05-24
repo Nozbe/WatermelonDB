@@ -83,6 +83,18 @@ class DatabaseDriver(context: Context, dbName: String) {
         return resultArray
     }
 
+    fun queryIds(query: SQL, args: QueryArgs): WritableArray {
+        val resultArray = Arguments.createArray()
+        database.rawQuery(query, args).use {
+            if (it.count > 0 && it.columnNames.contains("id")) {
+                while (it.moveToNext()) {
+                    resultArray.pushString(it.getString(it.getColumnIndex("id")))
+                }
+            }
+        }
+        return resultArray
+    }
+
     private fun WritableArray.pushMapFromCursor(cursor: Cursor) {
         val cursorMap = Arguments.createMap()
         cursorMap.mapCursor(cursor)

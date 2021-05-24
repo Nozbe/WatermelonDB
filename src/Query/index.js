@@ -14,7 +14,7 @@ import subscribeToQuery from '../observation/subscribeToQuery'
 import subscribeToQueryWithColumns from '../observation/subscribeToQueryWithColumns'
 import * as Q from '../QueryDescription'
 import type { Clause, QueryDescription } from '../QueryDescription'
-import type Model, { AssociationInfo } from '../Model'
+import type Model, { AssociationInfo, RecordId } from '../Model'
 import type Collection from '../Collection'
 import type { TableName, ColumnName } from '../Schema'
 
@@ -136,7 +136,12 @@ export default class Query<Record: Model> {
     )
   }
 
-  // Returns the number of matching records
+  // Queries database and returns an array with IDs of matching records
+  fetchIds(): Promise<RecordId[]> {
+    return toPromise((callback) => this.collection._fetchIds(this, callback))
+  }
+
+  // Queries database and returns the number of matching records
   fetchCount(): Promise<number> {
     return toPromise((callback) => this.collection._fetchCount(this, callback))
   }

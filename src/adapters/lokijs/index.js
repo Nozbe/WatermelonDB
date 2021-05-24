@@ -149,6 +149,12 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     this._bridge.send('query', [query], callback, 'immutable', 'shallowCloneDeepObjects')
   }
 
+  queryIds(query: SerializedQuery, callback: ResultCallback<RecordId[]>): void {
+    validateTable(query.table, this.schema)
+    // SerializedQueries and strings are immutable, so we need no copy
+    this._bridge.send('queryIds', [query], callback, 'immutable', 'immutable')
+  }
+
   count(query: SerializedQuery, callback: ResultCallback<number>): void {
     validateTable(query.table, this.schema)
     // SerializedQueries are immutable, so we need no copy

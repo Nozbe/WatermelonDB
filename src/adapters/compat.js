@@ -31,6 +31,10 @@ export default class DatabaseAdapterCompat {
     return toPromise((callback) => this.underlyingAdapter.query(query, callback))
   }
 
+  queryIds(query: SerializedQuery): Promise<RecordId[]> {
+    return toPromise((callback) => this.underlyingAdapter.queryIds(query, callback))
+  }
+
   count(query: SerializedQuery): Promise<number> {
     return toPromise((callback) => this.underlyingAdapter.count(query, callback))
   }

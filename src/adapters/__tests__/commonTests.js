@@ -282,6 +282,23 @@ export default () => [
     },
   ],
   [
+    'can query record IDs',
+    async (_adapter) => {
+      let adapter = _adapter
+      const s1 = mockTaskRaw({ id: 's1', order: 1 })
+      const s2 = mockTaskRaw({ id: 's2', order: 2 })
+      await adapter.batch([
+        ['create', 'tasks', s1],
+        ['create', 'tasks', s2],
+      ])
+
+      // reloading adapter to make sure we don't accidentally just use normal query
+      adapter = await adapter.testClone()
+      expect(await adapter.queryIds(taskQuery())).toEqual(['s1', 's2'])
+      expect(await adapter.queryIds(taskQuery())).toEqual(['s1', 's2'])
+    },
+  ],
+  [
     'sanitizes records on query',
     async (_adapter) => {
       let adapter = _adapter

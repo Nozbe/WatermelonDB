@@ -143,6 +143,10 @@ export default class Collection<Record: Model> {
     )
   }
 
+  _fetchIds(query: Query<Record>, callback: ResultCallback<RecordId[]>): void {
+    this.database.adapter.underlyingAdapter.queryIds(query.serialize(), callback)
+  }
+
   // See: Query.fetchCount
   _fetchCount(query: Query<Record>, callback: ResultCallback<number>): void {
     this.database.adapter.underlyingAdapter.count(query.serialize(), callback)

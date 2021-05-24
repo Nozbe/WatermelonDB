@@ -217,9 +217,9 @@ This guide assumes you use Webpack as your bundler.
     }
     ```
 
-## NodeJS setup
+## NodeJS (SQLite) setup
 
-You only need this if you want to use WatermelonDB in NodeJS (e.g. for scripts that share code with your web/React Native app)
+You only need this if you want to use WatermelonDB in NodeJS with SQLite (e.g. for scripts that share code with your web/React Native app)
 
 1. Install [better-sqlite3](https://github.com/JoshuaWise/better-sqlite3) peer dependency
     ```sh

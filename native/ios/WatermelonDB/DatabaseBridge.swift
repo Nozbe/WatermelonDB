@@ -120,6 +120,16 @@ extension DatabaseBridge {
         }
     }
 
+    @objc(queryIds:query:args:resolve:reject:)
+    func queryIds(tag: ConnectionTag,
+               query: Database.SQL,
+               args: Database.QueryArgs,
+               resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        withDriver(tag, resolve, reject) {
+            try $0.queryIds(query: query, args: args)
+        }
+    }
+
     @objc(count:query:args:resolve:reject:)
     func count(tag: ConnectionTag,
                query: Database.SQL,
@@ -137,16 +147,6 @@ extension DatabaseBridge {
                    reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
             try $0.batch(self.toBatchOperations(serializedOperations))
-        }
-    }
-
-    @objc(batch:operations:resolve:reject:)
-    func batch(tag: ConnectionTag,
-               operations: [[Any]],
-               resolve: @escaping RCTPromiseResolveBlock,
-               reject: @escaping RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.batch(self.toBatchOperations(operations))
         }
     }
 

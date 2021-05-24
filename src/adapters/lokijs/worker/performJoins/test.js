@@ -61,20 +61,25 @@ describe('performJoins', () => {
     expect(testQuery(query, performer)).toEqual({
       $and: [
         { project_id: { $in: ['p1', 'p2', 'p3'] } },
-        { id: { $in: ['t1', 't2'] } },
         { left_column: { $eq: 'right_value' } },
+        { id: { $in: ['t1', 't2'] } },
+        { project_id: { $in: ['p1', 'p2', 'p3'] } },
         { _status: { $ne: 'deleted' } },
       ],
     })
-    expect(performer).toHaveBeenCalledTimes(2)
+    expect(performer).toHaveBeenCalledTimes(3)
     expect(performer).toHaveBeenCalledWith({
       table: 'projects',
       query: {
-        $and: [
-          { team_id: { $eq: 'abcdef' } },
-          { is_active: { $aeq: true } },
-          { _status: { $ne: 'deleted' } },
-        ],
+        $and: [{ team_id: { $eq: 'abcdef' } }, { _status: { $ne: 'deleted' } }],
+      },
+      mapKey: 'id',
+      joinKey: 'project_id',
+    })
+    expect(performer).toHaveBeenLastCalledWith({
+      table: 'projects',
+      query: {
+        $and: [{ is_active: { $aeq: true } }, { _status: { $ne: 'deleted' } }],
       },
       mapKey: 'id',
       joinKey: 'project_id',

@@ -13,8 +13,10 @@
   - `onIndexedDBFetchStart` -> `extraIncrementalIDBOptions: { onFetchStart }`
   - `onIndexedDBVersionChange` -> `extraIncrementalIDBOptions: { onversionchange }`
   - `autosave: false` -> `extraLokiOptions: { autosave: false }`
-- (Internal API, unlikely to affect users) - `Model._isCommited`, `._hasPendingUpdate`, `._hasPendingDelete` have been removed and changed to `Model._pendingState`
-- Internal `CollectionMap` is no longer exported from `@nozbe/watermelondb`
+- Changes to Internal APIs. These were never meant to be public, and so are unlikely to affect you:
+  - `Model._isCommited`, `._hasPendingUpdate`, `._hasPendingDelete` have been removed and changed to `Model._pendingState`
+  - `CollectionMap` is no longer exported from `@nozbe/watermelondb`
+  - `Collection.unsafeClearCache()` is no longer exposed
 
 ### Deprecations
 
@@ -26,17 +28,24 @@
 ### New features
 
 - `db.write(writer => { ... writer.batch() })` - you can now call batch on the interface passed to a writer block
-- New syntax for running unsafe raw SQL queries: `collection.query(Q.unsafeSqlQuery("select * from tasks where foo = ?", ['bar'])).fetch()`
-  - You can now also run `.fetchCount()` on SQL queries
+- **Fetching record IDs.** You can now optimize fetching of queries that only require IDs, not full cached records:
+  - `await query.fetchIds()` will return an array of record ids
+  - advanced `adapter.queryIds()` is also available
+- **Raw SQL queries**. New syntax for running unsafe raw SQL queries:
+  - `collection.query(Q.unsafeSqlQuery("select * from tasks where foo = ?", ['bar'])).fetch()`
+  - You can now also run `.fetchCount()`, `.fetchIds()` on SQL queries
   - You can now safely pass values for SQL placeholders by passing an array
   - You can also observe an unsafe raw SQL query -- with some caveats! refer to documentation for more details
 
 ### Performance
 
+- The order of Q. clauses in a query is now preserved - previously, the clauses could get rearranged and produce a suboptimal query
+
 ### Changes
 
 - All Watermelon console logs are prepended with a 🍉 tag
 - Extra protections against improper use of writers/readers (formerly actions) have been added
+- Queries with multiple top-level `Q.on('table', ...)` now produce a warning. Use `Q.on('table', [condition1, condition2, ...])` syntax instead.
 
 ### Fixes
 

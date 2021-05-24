@@ -280,6 +280,11 @@ describe('buildQueryDescription', () => {
           ],
         },
         {
+          type: 'where',
+          left: 'left_column',
+          comparison: { operator: 'eq', right: { value: 'right_value' } },
+        },
+        {
           type: 'on',
           table: 'foreign_table2',
           conditions: [
@@ -289,11 +294,6 @@ describe('buildQueryDescription', () => {
               comparison: { operator: 'gt', right: { column: 'foreign_column3' } },
             },
           ],
-        },
-        {
-          type: 'where',
-          left: 'left_column',
-          comparison: { operator: 'eq', right: { value: 'right_value' } },
         },
       ],
       joinTables: ['foreign_table', 'foreign_table2'],
@@ -441,7 +441,8 @@ describe('buildQueryDescription', () => {
       Q.on('projects', [Q.where('foo', 'bar'), Q.where('bar', 'baz')]),
     )
   })
-  it(`compresses top-level Q.ons into a single nested Q.on`, () => {
+  it(`does not compress top-level Q.ons into a single nested Q.on`, () => {
+    // TODO: Remove this test after deprecation warning is removed
     expect(
       Q.buildQueryDescription([
         Q.on('projects', 'p1', 'v1'),
@@ -449,12 +450,17 @@ describe('buildQueryDescription', () => {
         Q.on('teams', 't1', 'v1'),
         Q.on('projects', 'p3', 'v3'),
       ]),
-    ).toEqual(
-      Q.buildQueryDescription([
-        Q.on('projects', [Q.where('p1', 'v1'), Q.where('p2', 'v2'), Q.where('p3', 'v3')]),
+    ).toEqual({
+      where: [
+        Q.on('projects', 'p1', 'v1'),
+        Q.on('projects', 'p2', 'v2'),
         Q.on('teams', 't1', 'v1'),
-      ]),
-    )
+        Q.on('projects', 'p3', 'v3'),
+      ],
+      joinTables: ['projects', 'teams'],
+      nestedJoinTables: [],
+      sortBy: [],
+    })
   })
   it('supports sorting query', () => {
     const query = Q.buildQueryDescription([Q.experimentalSortBy('sortable_column', Q.desc)])
@@ -585,24 +591,18 @@ describe('queryWithoutDeleted', () => {
   it('supports simple 2 JOIN queries on one table and JOIN query on another without deleted', () => {
     const query = Q.queryWithoutDeleted(
       Q.buildQueryDescription([
-        Q.on('foreign_table', 'foreign_column', 'value'),
-        Q.on('foreign_table', 'foreign_column4', 'value'),
+        Q.on('projects', 'col1', 'value'),
+        Q.on('projects', 'col2', 'value'),
         Q.where('left_column', 'right_value'),
-        Q.on('foreign_table2', 'foreign_column2', Q.gt(Q.column('foreign_column3'))),
+        Q.on('tag_assignments', 'col3', Q.gt(Q.column('col4'))),
       ]),
     )
     expect(query).toEqual(
       Q.buildQueryDescription([
+        Q.on('projects', [Q.where('col1', 'value'), whereNotDeleted]),
+        Q.on('projects', [Q.where('col2', 'value'), whereNotDeleted]),
         Q.where('left_column', 'right_value'),
-        Q.on('foreign_table', [
-          Q.where('foreign_column', 'value'),
-          Q.where('foreign_column4', 'value'),
-          whereNotDeleted,
-        ]),
-        Q.on('foreign_table2', [
-          Q.where('foreign_column2', Q.gt(Q.column('foreign_column3'))),
-          whereNotDeleted,
-        ]),
+        Q.on('tag_assignments', [Q.where('col3', Q.gt(Q.column('col4'))), whereNotDeleted]),
         whereNotDeleted,
       ]),
     )
