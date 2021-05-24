@@ -767,32 +767,25 @@ export default () => [
   [
     'supports naughty strings in LocalStorage',
     async (adapter, AdapterClass, extraAdapterOptions, platform) => {
-      const usePartialTestBecauseBuggyLoki = AdapterClass.name === 'LokiJSAdapter'
-      if (usePartialTestBecauseBuggyLoki) {
-        // FIXME: https://github.com/techfort/LokiJS/issues/839
-        console.warn('buggy skipping LocalStorage tests') // eslint-disable-line no-console
-      }
-
       // eslint-disable-next-line no-restricted-syntax
-      for (const string of naughtyStrings) {
-        const key = usePartialTestBecauseBuggyLoki ? `key${Math.random()}` : string
-        // console.log(string)
+      for (const key of naughtyStrings) {
+        // console.log(key)
         // KNOWN ISSUE: non-JSI adapter implementation gets confused by this (it's a BOM mark)
         if (
           AdapterClass.name === 'SQLiteAdapter' &&
           !extraAdapterOptions.jsi &&
-          (string === '﻿' || (string === '￾' && platform === 'android')) &&
+          (key === '﻿' || (key === '￾' && platform === 'android')) &&
           platform !== 'node'
         ) {
           // eslint-disable-next-line no-await-in-loop
-          await adapter.setLocal(key, string)
+          await adapter.setLocal(key, key)
           // eslint-disable-next-line no-await-in-loop
-          expect(await adapter.getLocal(key)).not.toBe(string) // if this fails, it means the issue's been fixed
+          expect(await adapter.getLocal(key)).not.toBe(key) // if this fails, it means the issue's been fixed
         } else {
           // eslint-disable-next-line no-await-in-loop
-          await adapter.setLocal(key, string)
+          await adapter.setLocal(key, key)
           // eslint-disable-next-line no-await-in-loop
-          expect(await adapter.getLocal(key)).toBe(string)
+          expect(await adapter.getLocal(key)).toBe(key)
         }
       }
     },
