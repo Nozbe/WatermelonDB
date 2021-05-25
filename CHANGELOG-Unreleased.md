@@ -52,6 +52,8 @@
 
 ### Fixes
 
+- [jsi] Fix a race condition where commands sent to the database right after instantiating SQLiteAdapter would fail
+
 ### Internal
 
 - Internal changes to SQLiteAdapter:

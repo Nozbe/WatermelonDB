@@ -2,7 +2,13 @@
 /* eslint-disable global-require */
 
 import { connectionTag, type ConnectionTag, logger, invariant } from '../../utils/common'
-import { type ResultCallback, mapValue, toPromise, fromPromise } from '../../utils/fp/Result'
+import {
+  type ResultCallback,
+  mapValue,
+  toPromise,
+  fromPromise,
+  type Result,
+} from '../../utils/fp/Result'
 
 import type { RecordId } from '../../Model'
 import type { SerializedQuery } from '../../Query'
@@ -91,8 +97,12 @@ export default class SQLiteAdapter implements DatabaseAdapter {
       validateAdapter(this)
     }
 
-    this._initPromise = this._init()
-    fromPromise(this._initPromise, (result) => devSetupCallback(result, options.onSetUpError))
+    this._initPromise = toPromise((callback) => {
+      this._init((result) => {
+        callback(result)
+        devSetupCallback(result, options.onSetUpError)
+      })
+    })
   }
 
   get initializingPromise(): Promise<void> {
@@ -124,29 +134,31 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     return name || 'watermelon'
   }
 
-  async _init(): Promise<void> {
+  _init(callback: ResultCallback<void>): void {
     // Try to initialize the database with just the schema number. If it matches the database,
     // we're good. If not, we try again, this time sending the compiled schema or a migration set
     // This is to speed up the launch (less to do and pass through bridge), and avoid repeating
     // migration logic inside native code
-    const status = await toPromise((callback) =>
-      this._dispatcher.initialize(this._dbName, this.schema.version, callback),
-    )
+    this._dispatcher.initialize(this._dbName, this.schema.version, (result) => {
+      if (result.error) {
+        callback(result)
+        return
+      }
 
-    // NOTE: Race condition - logic here is asynchronous, but synchronous-mode adapter does not allow
-    // for queueing operations. will fail if you start making actions immediately
-    if (status.code === 'schema_needed') {
-      await this._setUpWithSchema()
-    } else if (status.code === 'migrations_needed') {
-      await this._setUpWithMigrations(status.databaseVersion)
-    } else {
-      invariant(status.code === 'ok', 'Invalid database initialization status')
-    }
-
-    // console.log(`---> Done initializing (${this._tag})`)
+      const status = result.value
+      if (status.code === 'schema_needed') {
+        this._setUpWithSchema(callback)
+      } else if (status.code === 'migrations_needed') {
+        this._setUpWithMigrations(status.databaseVersion, callback)
+      } else if (status.code !== 'ok') {
+        callback({ error: new Error('Invalid database initialization status') })
+      } else {
+        callback({ value: undefined })
+      }
+    })
   }
 
-  async _setUpWithMigrations(databaseVersion: SchemaVersion): Promise<void> {
+  _setUpWithMigrations(databaseVersion: SchemaVersion, callback: ResultCallback<void>): void {
     logger.log('[SQLite] Database needs migrations')
     invariant(databaseVersion > 0, 'Invalid database schema version')
 
@@ -159,46 +171,47 @@ export default class SQLiteAdapter implements DatabaseAdapter {
         this._migrationEvents.onStart()
       }
 
-      try {
-        await toPromise((callback) =>
-          this._dispatcher.setUpWithMigrations(
-            this._dbName,
-            this._encodeMigrations(migrationSteps),
-            databaseVersion,
-            this.schema.version,
-            callback,
-          ),
-        )
-        logger.log('[SQLite] Migration successful')
-        if (this._migrationEvents && this._migrationEvents.onSuccess) {
-          this._migrationEvents.onSuccess()
-        }
-      } catch (error) {
-        logger.error('[SQLite] Migration failed', error)
-        if (this._migrationEvents && this._migrationEvents.onError) {
-          this._migrationEvents.onError(error)
-        }
-        throw error
-      }
+      this._dispatcher.setUpWithMigrations(
+        this._dbName,
+        this._encodeMigrations(migrationSteps),
+        databaseVersion,
+        this.schema.version,
+        (result) => {
+          if (result.error) {
+            logger.error('[SQLite] Migration failed', result.error)
+            if (this._migrationEvents && this._migrationEvents.onError) {
+              this._migrationEvents.onError(result.error)
+            }
+          } else {
+            logger.log('[SQLite] Migration successful')
+            if (this._migrationEvents && this._migrationEvents.onSuccess) {
+              this._migrationEvents.onSuccess()
+            }
+          }
+          callback(result)
+        },
+      )
     } else {
       logger.warn(
         '[SQLite] Migrations not available for this version range, resetting database instead',
       )
-      await this._setUpWithSchema()
+      this._setUpWithSchema(callback)
     }
   }
 
-  async _setUpWithSchema(): Promise<void> {
+  _setUpWithSchema(callback: ResultCallback<void>): void {
     logger.log(`[SQLite] Setting up database with schema version ${this.schema.version}`)
-    await toPromise((callback) =>
-      this._dispatcher.setUpWithSchema(
-        this._dbName,
-        this._encodedSchema(),
-        this.schema.version,
-        callback,
-      ),
+    this._dispatcher.setUpWithSchema(
+      this._dbName,
+      this._encodedSchema(),
+      this.schema.version,
+      (result) => {
+        if (!result.error) {
+          logger.log(`[SQLite] Schema set up successfully`)
+        }
+        callback(result)
+      },
     )
-    logger.log(`[SQLite] Schema set up successfully`)
   }
 
   find(table: TableName<any>, id: RecordId, callback: ResultCallback<CachedFindResult>): void {
