@@ -135,13 +135,13 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   async testClone(options?: $Shape<LokiAdapterOptions> = {}): Promise<LokiJSAdapter> {
     // Ensure data is saved to memory
     // $FlowFixMe
-    const { executor } = this._dispatcher._worker._worker
-    executor.loki.close()
+    const { driver } = this._dispatcher._worker._worker
+    driver.loki.close()
 
     // $FlowFixMe
     return new LokiJSAdapter({
       ...this._options,
-      _testLokiAdapter: executor.loki.persistenceAdapter,
+      _testLokiAdapter: driver.loki.persistenceAdapter,
       ...options,
     })
   }
@@ -223,9 +223,9 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   }
 
   // dev/debug utility
-  get _executor(): any {
+  get _driver(): any {
     // $FlowFixMe
-    return this._dispatcher._worker._worker.executor
+    return this._dispatcher._worker._worker.driver
   }
 
   // (experimental)
@@ -239,9 +239,9 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   }
 
   _debugDignoseMissingRecord(table: TableName<any>, id: RecordId): void {
-    const lokiExecutor = this._executor
-    if (lokiExecutor) {
-      const lokiCollection = lokiExecutor.loki.getCollection(table)
+    const driver = this._driver
+    if (driver) {
+      const lokiCollection = driver.loki.getCollection(table)
       // if we can find the record by ID, it just means that the record cache ID was corrupted
       const didFindById = !!lokiCollection.by('id', id)
       logger.log(`Did find ${table}#${id} in Loki collection by ID? ${didFindById}`)

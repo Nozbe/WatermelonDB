@@ -5,7 +5,7 @@ import type { Result } from '../../../utils/fp/Result'
 import logError from '../../../utils/common/logError'
 import invariant from '../../../utils/common/invariant'
 
-import LokiExecutor from './executor'
+import LokiDatabaseDriver from './DatabaseDriver'
 import type {
   WorkerAction,
   WorkerExecutorType,
@@ -16,7 +16,7 @@ import type {
 export default class LokiWorker {
   workerContext: DedicatedWorkerGlobalScope
 
-  executor: ?LokiExecutor
+  driver: ?LokiDatabaseDriver
 
   queue: WorkerAction[] = []
 
@@ -46,7 +46,7 @@ export default class LokiWorker {
       if (type === 'setUp' || type === 'unsafeResetDatabase') {
         this.processActionAsync(action)
       } else {
-        const response = this._executorAction(type)(...payload)
+        const response = this._driverAction(type)(...payload)
         this.onActionDone(action, { value: response })
       }
     } catch (error) {
@@ -59,18 +59,18 @@ export default class LokiWorker {
       const { type, payload } = action
 
       if (type === 'setUp') {
-        // app just launched, set up executor with options sent
-        invariant(!this.executor, `Loki executor already set up - cannot set up again`)
+        // app just launched, set up driver with options sent
+        invariant(!this.driver, `Loki driver already set up - cannot set up again`)
         const [options] = payload
-        const executor = new LokiExecutor(options)
+        const driver = new LokiDatabaseDriver(options)
 
-        // set up, make this.executor available only if successful
-        await executor.setUp()
-        this.executor = executor
+        // set up, make this.driver available only if successful
+        await driver.setUp()
+        this.driver = driver
 
         this.onActionDone(action, { value: null })
       } else {
-        const response = await this._executorAction(type)(...payload)
+        const response = await this._driverAction(type)(...payload)
         this.onActionDone(action, { value: response })
       }
     } catch (error) {
@@ -95,9 +95,9 @@ export default class LokiWorker {
     }
   }
 
-  _executorAction(type: WorkerExecutorType): (WorkerExecutorPayload) => WorkerResponseData {
-    invariant(this.executor, `Cannot run actions because executor is not set up`)
-    const action = (this.executor: any)[type].bind(this.executor)
+  _driverAction(type: WorkerExecutorType): (WorkerExecutorPayload) => WorkerResponseData {
+    invariant(this.driver, `Cannot run actions because driver is not set up`)
+    const action = (this.driver: any)[type].bind(this.driver)
     invariant(action, `Unknown worker action ${type}`)
     return action
   }

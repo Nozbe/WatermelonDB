@@ -35,7 +35,7 @@ export function setExperimentalAllowsFatalError(): void {
   experimentalAllowsFatalError = true
 }
 
-export default class LokiExecutor {
+export default class LokiDatabaseDriver {
   options: LokiAdapterOptions
 
   schema: AppSchema
@@ -46,7 +46,7 @@ export default class LokiExecutor {
 
   cachedRecords: Map<TableName<any>, Set<RecordId>> = new Map()
 
-  // (experimental) if true, Executor is in a broken state and should not be used anymore
+  // (experimental) if true, DatabaseDriver is in a broken state and should not be used anymore
   _isBroken: boolean = false
 
   constructor(options: LokiAdapterOptions): void {
@@ -137,7 +137,7 @@ export default class LokiExecutor {
     // It could be done with some sort of advanced journaling/CoW structure scheme, but that would
     // be very complicated (in itself a source of bugs), and possibly quite expensive cpu-wise
     //
-    // So instead, we assume that writes MUST succeed. If they don't, we put LokiExecutor in a "broken"
+    // So instead, we assume that writes MUST succeed. If they don't, we put LokiDatabaseDriver in a "broken"
     // state, refuse to persist or further mutate the DB, and notify the app (and user) about it.
     //
     // It can be assumed that Loki-level mutations that fail are WatermelonDB bugs that must be fixed
@@ -449,16 +449,16 @@ export default class LokiExecutor {
 
   _assertNotBroken(): void {
     if (this._isBroken) {
-      throw new Error('Loki executor is in a broken state, bailing...')
+      throw new Error('LokiDatabaseDriver is in a broken state, bailing...')
     }
   }
 
   // (experimental)
-  // TODO: Setup, migrations, delete database should also break executor
+  // TODO: Setup, migrations, delete database should also break driver
   _fatalError(error: Error): void {
     if (!experimentalAllowsFatalError) {
       logger.warn(
-        'LokiExecutor is broken, but experimentalAllowsFatalError has not been enabled to do anything about it...',
+        'LokiDatabaseDriver is broken, but experimentalAllowsFatalError has not been enabled to do anything about it...',
       )
       throw error
     }
@@ -469,7 +469,7 @@ export default class LokiExecutor {
     lokiFatalError(this.loki)
 
     // Notify handler
-    logger.error('LokiExecutor is broken. App must be reloaded before continuing.')
+    logger.error('LokiDatabaseDriver is broken. App must be reloaded before continuing.')
     const handler = this.options._onFatalError
     handler && handler(error)
 
