@@ -5,7 +5,7 @@ import type { Result } from '../../../utils/fp/Result'
 import logError from '../../../utils/common/logError'
 import invariant from '../../../utils/common/invariant'
 
-import LokiDatabaseDriver from './DatabaseDriver'
+import DatabaseDriver from './DatabaseDriver'
 import type {
   WorkerAction,
   WorkerExecutorType,
@@ -16,7 +16,7 @@ import type {
 export default class DatabaseBridge {
   workerContext: DedicatedWorkerGlobalScope
 
-  driver: ?LokiDatabaseDriver
+  driver: ?DatabaseDriver
 
   queue: WorkerAction[] = []
 
@@ -62,7 +62,7 @@ export default class DatabaseBridge {
         // app just launched, set up driver with options sent
         invariant(!this.driver, `Loki driver already set up - cannot set up again`)
         const [options] = payload
-        const driver = new LokiDatabaseDriver(options)
+        const driver = new DatabaseDriver(options)
 
         // set up, make this.driver available only if successful
         await driver.setUp()

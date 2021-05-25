@@ -59,3 +59,4 @@
   - .batch/.batchJSON internal format has changed
   - .getDeletedRecords, destroyDeletedRecords, setLocal, removeLocal is no longer available
 - encoded SQLiteAdapter schema has changed
+- LokiJSAdapter has had many internal changes

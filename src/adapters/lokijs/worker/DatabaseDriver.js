@@ -35,7 +35,7 @@ export function setExperimentalAllowsFatalError(): void {
   experimentalAllowsFatalError = true
 }
 
-export default class LokiDatabaseDriver {
+export default class DatabaseDriver {
   options: LokiAdapterOptions
 
   schema: AppSchema
@@ -137,7 +137,7 @@ export default class LokiDatabaseDriver {
     // It could be done with some sort of advanced journaling/CoW structure scheme, but that would
     // be very complicated (in itself a source of bugs), and possibly quite expensive cpu-wise
     //
-    // So instead, we assume that writes MUST succeed. If they don't, we put LokiDatabaseDriver in a "broken"
+    // So instead, we assume that writes MUST succeed. If they don't, we put DatabaseDriver in a "broken"
     // state, refuse to persist or further mutate the DB, and notify the app (and user) about it.
     //
     // It can be assumed that Loki-level mutations that fail are WatermelonDB bugs that must be fixed
@@ -449,7 +449,7 @@ export default class LokiDatabaseDriver {
 
   _assertNotBroken(): void {
     if (this._isBroken) {
-      throw new Error('LokiDatabaseDriver is in a broken state, bailing...')
+      throw new Error('DatabaseDriver is in a broken state, bailing...')
     }
   }
 
@@ -458,7 +458,7 @@ export default class LokiDatabaseDriver {
   _fatalError(error: Error): void {
     if (!experimentalAllowsFatalError) {
       logger.warn(
-        'LokiDatabaseDriver is broken, but experimentalAllowsFatalError has not been enabled to do anything about it...',
+        'DatabaseDriver is broken, but experimentalAllowsFatalError has not been enabled to do anything about it...',
       )
       throw error
     }
@@ -469,7 +469,7 @@ export default class LokiDatabaseDriver {
     lokiFatalError(this.loki)
 
     // Notify handler
-    logger.error('LokiDatabaseDriver is broken. App must be reloaded before continuing.')
+    logger.error('DatabaseDriver is broken. App must be reloaded before continuing.')
     const handler = this.options._onFatalError
     handler && handler(error)
 
