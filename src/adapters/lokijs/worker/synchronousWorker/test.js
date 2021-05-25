@@ -1,4 +1,4 @@
-import { shallowCloneDeepObjects } from './synchronousWorker'
+import { shallowCloneDeepObjects } from './index'
 
 describe('shallowCloneDeepObjects', () => {
   it('shallow clones deep objects', () => {

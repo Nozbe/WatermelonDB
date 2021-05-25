@@ -135,7 +135,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   async testClone(options?: $Shape<LokiAdapterOptions> = {}): Promise<LokiJSAdapter> {
     // Ensure data is saved to memory
     // $FlowFixMe
-    const { driver } = this._dispatcher._worker._worker
+    const driver = this._driver
     driver.loki.close()
 
     // $FlowFixMe
@@ -225,7 +225,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   // dev/debug utility
   get _driver(): any {
     // $FlowFixMe
-    return this._dispatcher._worker._worker.driver
+    return this._dispatcher._worker._bridge.driver
   }
 
   // (experimental)

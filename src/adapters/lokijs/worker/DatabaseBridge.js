@@ -13,7 +13,7 @@ import type {
   WorkerResponseData,
 } from '../common'
 
-export default class LokiWorker {
+export default class DatabaseBridge {
   workerContext: DedicatedWorkerGlobalScope
 
   driver: ?LokiDatabaseDriver
