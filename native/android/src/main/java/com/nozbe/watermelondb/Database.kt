@@ -53,18 +53,13 @@ class Database(private val name: String, private val context: Context) {
         val rawArgs = Array(args.size, { "" })
         return db.rawQueryWithFactory(object : SQLiteDatabase.CursorFactory {
             override fun newCursor(db: SQLiteDatabase?, driver: SQLiteCursorDriver?, editTable: String?, query: SQLiteQuery): Cursor {
-                for (i in args.indices) {
-                    val arg = args[i]
-                    if (arg is String) {
-                        query.bindString(i + 1, arg)
-                    } else if (arg is Boolean) {
-                        query.bindLong(i + 1, if (arg) 1 else 0)
-                    } else if (arg is Double) {
-                        query.bindDouble(i + 1, arg)
-                    } else if (arg == null) {
-                        query.bindNull(i + 1)
-                    } else {
-                        throw (Throwable("Bad query arg type"))
+                for ((i, arg) in args.withIndex()) {
+                    when (arg) {
+                        is String -> query.bindString(i + 1, arg)
+                        is Boolean -> query.bindLong(i + 1, if (arg) 1 else 0)
+                        is Double -> query.bindDouble(i + 1, arg)
+                        null -> query.bindNull(i + 1)
+                        else -> throw (Throwable("Bad query arg type"))
                     }
                 }
                 return SQLiteCursor(driver, editTable, query)
