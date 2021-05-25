@@ -17,7 +17,7 @@ type WorkerActions = WorkerAction[]
 
 function createWorker(useWebWorker: boolean): Worker {
   if (useWebWorker) {
-    const LokiWebWorker = (require('./worker/index.worker'): any)
+    const LokiWebWorker = (require('./worker/loki.worker'): any)
     return new LokiWebWorker()
   }
 
