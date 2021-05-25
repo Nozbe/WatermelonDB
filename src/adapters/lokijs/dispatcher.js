@@ -1,12 +1,12 @@
 // @flow
 
 import type { ResultCallback } from '../../utils/fp/Result'
-import {
-  type WorkerExecutorType,
-  type WorkerResponse,
-  type WorkerExecutorPayload,
-  type WorkerResponseData,
-  type CloneMethod,
+import type {
+  WorkerExecutorType,
+  WorkerResponse,
+  WorkerExecutorPayload,
+  WorkerResponseData,
+  CloneMethod,
 } from './common'
 
 type WorkerAction = {
@@ -32,7 +32,7 @@ function nextActionId(): number {
   return _actionId
 }
 
-class WorkerBridge {
+export default class LokiDispatcher {
   _worker: Worker
 
   _pendingActions: WorkerActions = []
@@ -54,7 +54,7 @@ class WorkerBridge {
   }
 
   // TODO: `any` return should be `WorkerResponsePayload`
-  send<T>(
+  call<T>(
     type: WorkerExecutorType,
     payload: WorkerExecutorPayload = [],
     callback: ResultCallback<T>,
@@ -70,5 +70,3 @@ class WorkerBridge {
     this._worker.postMessage({ id, type, payload, cloneMethod, returnCloneMethod })
   }
 }
-
-export default WorkerBridge

@@ -26,8 +26,8 @@ The adapter merely performs simple CRUD (create/read/update/delete) operations.
 `LokiJSAdapter` is an adapter for the web, based around [LokiJS](http://techfort.github.io/LokiJS/):
 
 - Why LokiJS? WebSQL would be a perfect fit for Watermelon, but sadly is a dead API, so we must use IndexedDB, but it's too low-level. LokiJS implements a fast querying API on top of IndexedDB.
-- `LokiJSAdapter` delegates everything to a separate thread over `WorkerBridge`
-- `WorkerBridge` spins up a worker thread running `LokiWorker`
+- `LokiJSAdapter` delegates everything to a separate thread over `LokiDispatcher`
+- `LokiDispatcher` spins up a worker thread running `LokiWorker`
 - `LokiWorker` maintains a queue of operations and executes them on `LokiExecutor`
 - `LokiExecutor` actually implements the Adapter operations
 - `encodeQuery` translates `QueryDescription` objects to Loki query objects
