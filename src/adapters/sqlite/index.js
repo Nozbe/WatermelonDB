@@ -44,6 +44,8 @@ if (process.env.NODE_ENV !== 'production') {
   require('./devtools')
 }
 
+const IGNORE_CACHE = 0
+
 export default class SQLiteAdapter implements DatabaseAdapter {
   schema: AppSchema
 
@@ -283,7 +285,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     }
     const queries: SQLiteQuery[] = (operations: any).sqls
     this._batch(
-      queries.map(([sql, args]) => [0, null, sql, [args]]),
+      queries.map(([sql, args]) => [IGNORE_CACHE, null, sql, [args]]),
       callback,
     )
   }
@@ -297,7 +299,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     this._batch(
       [
         [
-          0,
+          IGNORE_CACHE,
           null,
           `insert or replace into "local_storage" ("key", "value") values (?, ?)`,
           [[key, value]],
@@ -308,7 +310,10 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   removeLocal(key: string, callback: ResultCallback<void>): void {
-    this._batch([[0, null, `delete from "local_storage" where "key" == ?`, [[key]]]], callback)
+    this._batch(
+      [[IGNORE_CACHE, null, `delete from "local_storage" where "key" == ?`, [[key]]]],
+      callback,
+    )
   }
 
   _encodedSchema(): SQL {
