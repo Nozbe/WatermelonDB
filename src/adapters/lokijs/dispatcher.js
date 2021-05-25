@@ -21,8 +21,8 @@ function createWorker(useWebWorker: boolean): Worker {
     return new LokiWebWorker()
   }
 
-  const WebWorkerMock = (require('./worker/workerMock').default: any)
-  return new WebWorkerMock()
+  const LokiSynchronousWorker = (require('./worker/synchronousWorker').default: any)
+  return new LokiSynchronousWorker()
 }
 
 let _actionId = 0
@@ -35,13 +35,13 @@ function nextActionId(): number {
 export default class LokiDispatcher {
   _worker: Worker
 
-  _pendingActions: WorkerActions = []
+  _pendingCalls: WorkerActions = []
 
   constructor(useWebWorker: boolean): void {
     this._worker = createWorker(useWebWorker)
     this._worker.onmessage = ({ data }) => {
       const { result, id: responseId }: WorkerResponse = (data: any)
-      const { callback, id } = this._pendingActions.shift()
+      const { callback, id } = this._pendingCalls.shift()
 
       // sanity check
       if (id !== responseId) {
@@ -63,7 +63,7 @@ export default class LokiDispatcher {
     returnCloneMethod: CloneMethod,
   ): void {
     const id = nextActionId()
-    this._pendingActions.push({
+    this._pendingCalls.push({
       callback: (callback: any),
       id,
     })

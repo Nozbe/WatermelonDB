@@ -29,11 +29,11 @@ function clone(data: any): any {
     return data
   }
 
-  throw new Error('Unknown data.clone method for workerMock')
+  throw new Error('Unknown data.clone method for synchronousWorker')
 }
 
 // Simulates the web worker API
-export default class LokiWorkerMock {
+export default class SynchronousWorker {
   _worker: LokiWorker
 
   _workerContext: DedicatedWorkerGlobalScope
