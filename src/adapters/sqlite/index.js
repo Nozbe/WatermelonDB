@@ -2,13 +2,7 @@
 /* eslint-disable global-require */
 
 import { connectionTag, type ConnectionTag, logger, invariant } from '../../utils/common'
-import {
-  type ResultCallback,
-  mapValue,
-  toPromise,
-  fromPromise,
-  type Result,
-} from '../../utils/fp/Result'
+import { type ResultCallback, mapValue, toPromise } from '../../utils/fp/Result'
 
 import type { RecordId } from '../../Model'
 import type { SerializedQuery } from '../../Query'
