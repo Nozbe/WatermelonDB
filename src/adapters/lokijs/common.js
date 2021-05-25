@@ -5,7 +5,7 @@ import type { CachedQueryResult, CachedFindResult } from '../type'
 import type { RecordId } from '../../Model'
 
 export type WorkerExecutorType =
-  | 'setup'
+  | 'setUp'
   | 'find'
   | 'query'
   | 'queryIds'
@@ -18,7 +18,7 @@ export type WorkerExecutorType =
   | 'getLocal'
   | 'setLocal'
   | 'removeLocal'
-  | 'experimentalFatalError'
+  | '_fatalError'
   | 'clearCachedRecords'
 
 export type WorkerExecutorPayload = any[]

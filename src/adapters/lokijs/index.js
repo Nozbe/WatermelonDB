@@ -129,7 +129,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
       validateAdapter(this)
     }
     const callback = (result) => devSetupCallback(result, options.onSetUpError)
-    this._bridge.send('setup', [options], callback, 'immutable', 'immutable')
+    this._bridge.send('setUp', [options], callback, 'immutable', 'immutable')
   }
 
   async testClone(options?: $Shape<LokiAdapterOptions> = {}): Promise<LokiJSAdapter> {
@@ -230,7 +230,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
   // (experimental)
   _fatalError(error: Error): void {
-    this._bridge.send('experimentalFatalError', [error], () => {}, 'immutable', 'immutable')
+    this._bridge.send('_fatalError', [error], () => {}, 'immutable', 'immutable')
   }
 
   // (experimental)

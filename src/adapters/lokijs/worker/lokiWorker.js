@@ -6,31 +6,12 @@ import logError from '../../../utils/common/logError'
 import invariant from '../../../utils/common/invariant'
 
 import LokiExecutor from './executor'
-import {
-  type WorkerAction,
-  type WorkerExecutorType,
-  type WorkerExecutorPayload,
-  type WorkerResponseData,
+import type {
+  WorkerAction,
+  WorkerExecutorType,
+  WorkerExecutorPayload,
+  WorkerResponseData,
 } from '../common'
-
-const ExecutorProto = LokiExecutor.prototype
-const executorMethods: { [WorkerExecutorType]: * } = {
-  setup: ExecutorProto.setUp,
-  find: ExecutorProto.find,
-  query: ExecutorProto.query,
-  queryIds: ExecutorProto.queryIds,
-  unsafeQueryRaw: ExecutorProto.unsafeQueryRaw,
-  count: ExecutorProto.count,
-  batch: ExecutorProto.batch,
-  unsafeResetDatabase: ExecutorProto.unsafeResetDatabase,
-  unsafeExecute: ExecutorProto.unsafeExecute,
-  getLocal: ExecutorProto.getLocal,
-  setLocal: ExecutorProto.setLocal,
-  removeLocal: ExecutorProto.removeLocal,
-  getDeletedRecords: ExecutorProto.getDeletedRecords,
-  experimentalFatalError: ExecutorProto._fatalError,
-  clearCachedRecords: ExecutorProto.clearCachedRecords,
-}
 
 export default class LokiWorker {
   workerContext: DedicatedWorkerGlobalScope
@@ -62,7 +43,7 @@ export default class LokiWorker {
 
       const { type, payload } = action
 
-      if (type === 'setup' || type === 'unsafeResetDatabase') {
+      if (type === 'setUp' || type === 'unsafeResetDatabase') {
         this.processActionAsync(action)
       } else {
         const response = this._executorAction(type)(...payload)
@@ -77,7 +58,7 @@ export default class LokiWorker {
     try {
       const { type, payload } = action
 
-      if (type === 'setup') {
+      if (type === 'setUp') {
         // app just launched, set up executor with options sent
         invariant(!this.executor, `Loki executor already set up - cannot set up again`)
         const [options] = payload
@@ -116,7 +97,7 @@ export default class LokiWorker {
 
   _executorAction(type: WorkerExecutorType): (WorkerExecutorPayload) => WorkerResponseData {
     invariant(this.executor, `Cannot run actions because executor is not set up`)
-    const action = executorMethods[type].bind(this.executor)
+    const action = (this.executor: any)[type].bind(this.executor)
     invariant(action, `Unknown worker action ${type}`)
     return action
   }
