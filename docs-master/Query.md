@@ -290,6 +290,10 @@ database.get('comments').query(
 
 **NOTE**: This does not currently work on web/LokiJS (please contribute!), and causes query observation to fall back to a less efficient method. We recommend using sortBy only when you absolutely need to limit queries, otherwise, it may be better to sort in JavaScript.
 
+### Fetch IDs
+
+If you only need IDs of records matching a query, you can optimize the query by calling `await query.fetchIds()` instead of `await query.fetch()`
+
 ### Security
 
 Remember that Queries are a sensitive subject, security-wise. Never trust user input and pass it directly into queries. In particular:
@@ -306,17 +310,41 @@ If this Query syntax is not enough for you, and you need to get your hands dirty
 
 Please don't use this if you don't know what you're doing. The method name is called `unsafe` for a reason.
 
-#### SQL queries
-
-For now, only record SQL queries are available. If you need other SQL queries or LokiJS raw queries, please contribute!
+#### Unsafe SQL queries
 
 ```js
-const records = database.get('comments').unsafeFetchRecordsWithSQL('select * from comments where ...')
+const records = await database.get('comments').query(
+  Q.unsafeSqlQuery(`select * from comments where foo is not ? and _status is not 'deleted'`, ['bar'])
+).fetch()
+
+const recordCount = await database.get('comments').query(
+  Q.unsafeSqlQuery(`select count(*) as count from comments where foo is not ? and _status is not 'deleted'`, ['bar'])
+).fetchCount()
 ```
 
-You need to be sure to properly sanitize user values to avoid SQL injection, and filter out deleted records using `where _status is not 'deleted'` clause
+You can also observe unsafe raw SQL queries, however, if it contains `JOIN` statements, you must explicitly specify all other tables using `Q.experimentalJoinTables` and/or `Q.experimentalNestedJoin`, like so:
 
-#### SQL/Loki expressions
+```js
+const records = await database.get('comments').query(
+  Q.experimentalJoinTables(['posts']),
+  Q.experimentalNestedJoin('posts', 'blogs'),
+  Q.unsafeSqlQuery(
+    'select comments.* from comments ' +
+      'left join posts on comments.post_id is posts.id ' +
+      'left join blogs on posts.blog_id is blogs.id' +
+      'where ...',
+  ),
+).observe()
+```
+
+⚠️ Please note:
+
+- Do not use this if you don't know what you're doing
+- Do not pass user input directly to avoid SQL Injection - use `?` placeholders and pass array of placeholder values
+- You must filter out deleted record using `where _status is not 'deleted'` clause
+- If you're going to fetch count of the query, use `count(*) as count` as the select result
+
+#### Unsafe SQL/Loki expressions
 
 You can also include smaller bits of SQL and Loki expressions so that you can still use as much of Watermelon query builder as possible:
 

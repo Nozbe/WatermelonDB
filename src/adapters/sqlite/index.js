@@ -8,13 +8,7 @@ import type { RecordId } from '../../Model'
 import type { SerializedQuery } from '../../Query'
 import type { TableName, AppSchema, SchemaVersion } from '../../Schema'
 import type { SchemaMigrations, MigrationStep } from '../../Schema/migrations'
-import type {
-  DatabaseAdapter,
-  SQLDatabaseAdapter,
-  CachedQueryResult,
-  CachedFindResult,
-  BatchOperation,
-} from '../type'
+import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
 import {
   sanitizeFindResult,
   sanitizeQueryResult,
@@ -45,7 +39,7 @@ if (process.env.NODE_ENV !== 'production') {
   require('./devtools')
 }
 
-export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapter {
+export default class SQLiteAdapter implements DatabaseAdapter {
   schema: AppSchema
 
   migrations: ?SchemaMigrations
@@ -211,16 +205,9 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void {
     validateTable(query.table, this.schema)
-    this.unsafeSqlQuery(query.table, encodeQuery(query), callback)
-  }
-
-  unsafeSqlQuery(
-    table: TableName<any>,
-    sql: string,
-    callback: ResultCallback<CachedQueryResult>,
-  ): void {
-    validateTable(table, this.schema)
-    this._dispatcher.query(table, sql, (result) =>
+    const { table } = query
+    const [sql, args] = encodeQuery(query)
+    this._dispatcher.query(table, sql, args, (result) =>
       callback(
         mapValue(
           (rawRecords) => sanitizeQueryResult(rawRecords, this.schema.tables[table]),
@@ -230,10 +217,16 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     )
   }
 
+  queryIds(query: SerializedQuery, callback: ResultCallback<RecordId[]>): void {
+    validateTable(query.table, this.schema)
+    const [sql, args] = encodeQuery(query)
+    this._dispatcher.queryIds(sql, args, callback)
+  }
+
   count(query: SerializedQuery, callback: ResultCallback<number>): void {
     validateTable(query.table, this.schema)
-    const sql = encodeQuery(query, true)
-    this._dispatcher.count(sql, callback)
+    const [sql, args] = encodeQuery(query, true)
+    this._dispatcher.count(sql, args, callback)
   }
 
   batch(operations: BatchOperation[], callback: ResultCallback<void>): void {

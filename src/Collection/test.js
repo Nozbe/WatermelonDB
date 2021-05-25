@@ -85,21 +85,6 @@ describe('finding records', () => {
     await expectToRejectWithMessage(tasks.find(null), 'Invalid record ID')
     await expectToRejectWithMessage(tasks.find({}), 'Invalid record ID')
   })
-  it('successfully executes unsafe SQL fetches in the same sequence as normal fetches', async () => {
-    // See: https://github.com/Nozbe/WatermelonDB/issues/931
-    const { tasks: collection, adapter } = mockDatabase()
-
-    adapter.unsafeSqlQuery = (table, sql, cb) => cb({ value: [{ id: 'm1' }] })
-    adapter.query = jest.fn().mockImplementation((query, cb) => cb({ value: ['m1', { id: 'm2' }] }))
-
-    const unsafeFetch = collection.unsafeFetchRecordsWithSQL(
-      `SELECT t.* FROM mock_tasks AS t WHERE t.id = 'm1'`,
-    )
-    const normalFetch = collection.query().fetch()
-
-    expect((await normalFetch).map((x) => x._raw)).toEqual([{ id: 'm1' }, { id: 'm2' }])
-    expect((await unsafeFetch).map((x) => x._raw)).toEqual([{ id: 'm1' }])
-  })
 })
 
 describe('fetching queries', () => {
@@ -171,19 +156,26 @@ describe('fetching queries', () => {
   it('fetches counts', async () => {
     const { tasks: collection, adapter } = mockDatabase()
 
-    adapter.count = jest
-      .fn()
-      .mockImplementationOnce((query, callback) => callback({ value: 5 }))
-      .mockImplementationOnce((query, callback) => callback({ value: 10 }))
+    adapter.count = jest.fn().mockImplementationOnce((query, callback) => callback({ value: 5 }))
 
     const query = mockQuery(collection)
-
     expect(await toPromise((callback) => collection._fetchCount(query, callback))).toBe(5)
-    expect(await toPromise((callback) => collection._fetchCount(query, callback))).toBe(10)
 
-    expect(adapter.count.mock.calls.length).toBe(2)
+    expect(adapter.count.mock.calls.length).toBe(1)
     expect(adapter.count.mock.calls[0][0]).toEqual(query.serialize())
-    expect(adapter.count.mock.calls[1][0]).toEqual(query.serialize())
+  })
+  it('fetches ids', async () => {
+    const { tasks: collection, adapter } = mockDatabase()
+
+    adapter.queryIds = jest
+      .fn()
+      .mockImplementationOnce((query, callback) => callback({ value: ['a', 'b'] }))
+
+    const query = mockQuery(collection)
+    expect(await toPromise((callback) => collection._fetchIds(query, callback))).toEqual(['a', 'b'])
+
+    expect(adapter.queryIds.mock.calls.length).toBe(1)
+    expect(adapter.queryIds.mock.calls[0][0]).toEqual(query.serialize())
   })
 })
 

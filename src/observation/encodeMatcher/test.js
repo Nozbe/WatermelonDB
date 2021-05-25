@@ -22,6 +22,7 @@ const unencodableQueries = [
   [Q.experimentalTake(100)],
   [Q.experimentalTake(100)],
   [Q.unsafeLokiTransform(() => {})],
+  [Q.unsafeSqlQuery('select * from tasks')],
 ]
 
 describe('SQLite encodeMatcher', () => {

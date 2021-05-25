@@ -109,22 +109,34 @@ extension DatabaseBridge {
         }
     }
 
-    @objc(query:table:query:resolve:reject:)
+    @objc(query:table:query:args:resolve:reject:)
     func query(tag: ConnectionTag,
                table: Database.TableName,
                query: Database.SQL,
+               args: Database.QueryArgs,
                resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
-            try $0.cachedQuery(table: table, query: query)
+            try $0.cachedQuery(table: table, query: query, args: args)
         }
     }
 
-    @objc(count:query:resolve:reject:)
-    func count(tag: ConnectionTag,
+    @objc(queryIds:query:args:resolve:reject:)
+    func queryIds(tag: ConnectionTag,
                query: Database.SQL,
+               args: Database.QueryArgs,
                resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
-            try $0.count(query)
+            try $0.queryIds(query: query, args: args)
+        }
+    }
+
+    @objc(count:query:args:resolve:reject:)
+    func count(tag: ConnectionTag,
+               query: Database.SQL,
+               args: Database.QueryArgs,
+               resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        withDriver(tag, resolve, reject) {
+            try $0.count(query, args: args)
         }
     }
 
@@ -135,16 +147,6 @@ extension DatabaseBridge {
                    reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
             try $0.batch(self.toBatchOperations(serializedOperations))
-        }
-    }
-
-    @objc(batch:operations:resolve:reject:)
-    func batch(tag: ConnectionTag,
-               operations: [[Any]],
-               resolve: @escaping RCTPromiseResolveBlock,
-               reject: @escaping RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.batch(self.toBatchOperations(operations))
         }
     }
 

@@ -116,12 +116,16 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             withDriver(tag, promise) { it.find(table, id) }
 
     @ReactMethod
-    fun query(tag: ConnectionTag, table: TableName, query: SQL, promise: Promise) =
-            withDriver(tag, promise) { it.cachedQuery(table, query) }
+    fun query(tag: ConnectionTag, table: TableName, query: SQL, args: ReadableArray, promise: Promise) =
+            withDriver(tag, promise) { it.cachedQuery(table, query, args.toArrayList().toArray()) }
 
     @ReactMethod
-    fun count(tag: ConnectionTag, query: SQL, promise: Promise) =
-            withDriver(tag, promise) { it.count(query) }
+    fun queryIds(tag: ConnectionTag, query: SQL, args: ReadableArray, promise: Promise) =
+            withDriver(tag, promise) { it.queryIds(query, args.toArrayList().toArray()) }
+
+    @ReactMethod
+    fun count(tag: ConnectionTag, query: SQL, args: ReadableArray, promise: Promise) =
+            withDriver(tag, promise) { it.count(query, args.toArrayList().toArray()) }
 
     @ReactMethod
     fun batch(tag: ConnectionTag, operations: ReadableArray, promise: Promise) =

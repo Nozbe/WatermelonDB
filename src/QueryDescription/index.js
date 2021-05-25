@@ -1,10 +1,11 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { unique, values as getValues, groupBy, unnest, pipe } from '../utils/fp'
+import { unique } from '../utils/fp'
 
 // don't import whole `utils` to keep worker size small
 import invariant from '../utils/common/invariant'
+import logger from '../utils/common/logger'
 import checkName from '../utils/fp/checkName'
 import deepFreeze from '../utils/common/deepFreeze'
 import type { $RE } from '../types'
@@ -84,7 +85,20 @@ export type LokiTransform = $RE<{
   type: 'lokiTransform',
   function: LokiTransformFunction,
 }>
-export type Clause = Where | SortBy | Take | Skip | JoinTables | NestedJoinTable | LokiTransform
+export type SqlQuery = $RE<{
+  type: 'sqlQuery',
+  sql: string,
+  values: Value[],
+}>
+export type Clause =
+  | Where
+  | SortBy
+  | Take
+  | Skip
+  | JoinTables
+  | NestedJoinTable
+  | LokiTransform
+  | SqlQuery
 
 type NestedJoinTableDef = $RE<{ from: TableName<any>, to: TableName<any> }>
 export type QueryDescription = $RE<{
@@ -95,6 +109,7 @@ export type QueryDescription = $RE<{
   take?: number,
   skip?: number,
   lokiTransform?: LokiTransformFunction,
+  sql?: SqlQuery,
 }>
 
 const columnSymbol = Symbol('Q.column')
@@ -256,15 +271,19 @@ export function where(left: ColumnName, valueOrComparison: Value | Comparison): 
 }
 
 export function unsafeSqlExpr(sql: string): SqlExpr {
-  invariant(typeof sql === 'string', 'Value passed to Q.unsafeSqlExpr is not a string')
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(typeof sql === 'string', 'Value passed to Q.unsafeSqlExpr is not a string')
+  }
   return { type: 'sql', expr: sql }
 }
 
 export function unsafeLokiExpr(expr: any): LokiExpr {
-  invariant(
-    expr && typeof expr === 'object' && !Array.isArray(expr),
-    'Value passed to Q.unsafeLokiExpr is not an object',
-  )
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(
+      expr && typeof expr === 'object' && !Array.isArray(expr),
+      'Value passed to Q.unsafeLokiExpr is not an object',
+    )
+  }
   return { type: 'loki', expr }
 }
 
@@ -275,10 +294,12 @@ export function unsafeLokiTransform(fn: LokiTransformFunction): LokiTransform {
 const acceptableClauses = ['where', 'and', 'or', 'on', 'sql', 'loki']
 const isAcceptableClause = (clause: Where) => acceptableClauses.includes(clause.type)
 const validateConditions = (clauses: Where[]) => {
-  invariant(
-    clauses.every(isAcceptableClause),
-    'Q.and(), Q.or(), Q.on() can only contain: Q.where, Q.and, Q.or, Q.on, Q.unsafeSqlExpr, Q.unsafeLokiExpr clauses',
-  )
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(
+      clauses.every(isAcceptableClause),
+      'Q.and(), Q.or(), Q.on() can only contain: Q.where, Q.and, Q.or, Q.on, Q.unsafeSqlExpr, Q.unsafeLokiExpr clauses',
+    )
+  }
 }
 
 export function and(...clauses: Where[]): And {
@@ -358,36 +379,20 @@ export function experimentalNestedJoin(from: TableName<any>, to: TableName<any>)
   return { type: 'nestedJoinTable', from: checkName(from), to: checkName(to) }
 }
 
-const compressTopLevelOns = (conditions: Where[]): Where[] => {
-  // Multiple separate Q.ons is a legacy syntax producing suboptimal query code unless
-  // special cases are used. Here, we're special casing only top-level Q.ons to avoid regressions
-  // but it's not recommended for new code
-  // TODO: Remove this special case
-  const ons = []
-  const wheres = []
-  conditions.forEach((clause) => {
-    if (clause.type === 'on') {
-      ons.push(clause)
-    } else {
-      wheres.push(clause)
-    }
-  })
-
-  const onsByTable: On[][] = pipe(
-    groupBy((clause) => clause.table),
-    getValues,
-  )(ons)
-  const grouppedOns: On[] = onsByTable.map((clauses: On[]) => {
-    const { table } = clauses[0]
-    const onConditions: Where[] = unnest(clauses.map((clause) => clause.conditions))
-    return on(table, onConditions)
-  })
-  return grouppedOns.concat(wheres)
+export function unsafeSqlQuery(sql: string, values: Value[] = []): SqlQuery {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(typeof sql === 'string', 'Value passed to Q.unsafeSqlQuery is not a string')
+    invariant(
+      Array.isArray(values),
+      'Placeholder values passed to Q.unsafeSqlQuery are not an array',
+    )
+  }
+  return { type: 'sqlQuery', sql, values }
 }
 
 const syncStatusColumn = columnName('_status')
 const extractClauses: (Clause[]) => QueryDescription = (clauses) => {
-  const clauseMap = { where: [], joinTables: [], nestedJoinTables: [], sortBy: [] }
+  const query = { where: [], joinTables: [], nestedJoinTables: [], sortBy: [] }
   clauses.forEach((clause) => {
     const { type } = clause
     switch (type) {
@@ -396,51 +401,81 @@ const extractClauses: (Clause[]) => QueryDescription = (clauses) => {
       case 'or':
       case 'sql':
       case 'loki':
-        clauseMap.where.push(clause)
+        query.where.push(clause)
         break
       case 'on':
         // $FlowFixMe
-        clauseMap.joinTables.push(clause.table)
-        clauseMap.where.push(clause)
+        query.joinTables.push(clause.table)
+        query.where.push(clause)
         break
       case 'sortBy':
-        clauseMap.sortBy.push(clause)
+        query.sortBy.push(clause)
         break
       case 'take':
         // $FlowFixMe
-        clauseMap.take = clause.count
+        query.take = clause.count
         break
       case 'skip':
         // $FlowFixMe
-        clauseMap.skip = clause.count
+        query.skip = clause.count
         break
       case 'joinTables':
         // $FlowFixMe
-        clauseMap.joinTables.push(...clause.tables)
+        query.joinTables.push(...clause.tables)
         break
       case 'nestedJoinTable':
         // $FlowFixMe
-        clauseMap.nestedJoinTables.push({ from: clause.from, to: clause.to })
+        query.nestedJoinTables.push({ from: clause.from, to: clause.to })
         break
       case 'lokiTransform':
         // $FlowFixMe
-        clauseMap.lokiTransform = clause.function
+        query.lokiTransform = clause.function
+        break
+      case 'sqlQuery':
+        // $FlowFixMe
+        query.sql = clause
+        if (process.env.NODE_ENV !== 'production') {
+          invariant(
+            clauses.every((_clause) =>
+              ['sqlQuery', 'joinTables', 'nestedJoinTable'].includes(_clause.type),
+            ),
+            'Cannot use Q.unsafeSqlQuery with other clauses, except for Q.experimentalJoinTables and Q.experimentalNestedJoin (Did you mean Q.unsafeSqlExpr?)',
+          )
+        }
         break
       default:
         throw new Error('Invalid Query clause passed')
     }
   })
-  clauseMap.joinTables = unique(clauseMap.joinTables)
-  // $FlowFixMe
-  clauseMap.where = compressTopLevelOns(clauseMap.where)
+  query.joinTables = unique(query.joinTables)
+
+  // In the past, multiple separate top-level Q.ons were the only supported syntax and were automatically merged per-table to produce optimal code
+  // We used to have a special case to avoid regressions, but it added complexity and had a side effect of rearranging the query suboptimally
+  // We won't support this anymore, but will warn about suboptimal queries
+  // TODO: Remove after 2022-01-01
+  if (process.env.NODE_ENV !== 'production') {
+    const onsEncountered = {}
+    query.where.forEach((clause) => {
+      if (clause.type === 'on') {
+        const table = (clause.table: string)
+        if (onsEncountered[table]) {
+          logger.warn(
+            `Found multiple Q.on('${table}', ...) clauses in a query. This is a performance bug - use a single Q.on('${table}', [condition1, condition1]) to produce a better performing query`,
+          )
+        }
+        onsEncountered[table] = true
+      }
+    })
+  }
+
   // $FlowFixMe: Flow is too dumb to realize that it is valid
-  return clauseMap
+  return query
 }
 
 export function buildQueryDescription(clauses: Clause[]): QueryDescription {
   const query = extractClauses(clauses)
-  invariant(!(query.skip && !query.take), 'cannot skip without take')
   if (process.env.NODE_ENV !== 'production') {
+    invariant(!(query.skip && !query.take), 'cannot skip without take')
     deepFreeze(query)
   }
   return query

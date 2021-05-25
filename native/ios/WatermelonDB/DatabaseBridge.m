@@ -36,14 +36,17 @@ WMELON_BRIDGE_METHOD(find,
 WMELON_BRIDGE_METHOD(query,
   table:(nonnull NSString *)table
   query:(nonnull NSString *)query
+  args:(nonnull NSArray *)args
+)
+
+WMELON_BRIDGE_METHOD(queryIds,
+  query:(nonnull NSString *)query
+  args:(nonnull NSArray *)args
 )
 
 WMELON_BRIDGE_METHOD(count,
- query:(nonnull NSString *)query
-)
-
-WMELON_BRIDGE_METHOD(batch,
-  operations:(NSArray *)operations
+  query:(nonnull NSString *)query
+  args:(nonnull NSArray *)args
 )
 
 WMELON_BRIDGE_METHOD(batchJSON,

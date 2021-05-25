@@ -111,6 +111,10 @@ export default class LokiExecutor {
     return this._compactQueryResults(records, query.table)
   }
 
+  queryIds(query: SerializedQuery): RecordId[] {
+    return executeQuery(query, this.loki).map((record) => record.id)
+  }
+
   count(query: SerializedQuery): number {
     return executeCount(query, this.loki)
   }

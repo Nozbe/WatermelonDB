@@ -220,13 +220,15 @@ const encodeJoin = (associations: QueryAssociation[], on: On): LokiRawQuery => {
 export default function encodeQuery(query: SerializedQuery): LokiQuery {
   const {
     table,
-    description: { where, joinTables, sortBy, take },
+    description: { where, joinTables, sortBy, take, sql },
     associations,
   } = query
 
-  // TODO: implement support for Q.sortBy(), Q.take(), Q.skip() for Loki adapter
-  invariant(!sortBy.length, '[Loki] Q.sortBy() not yet supported')
-  invariant(!take, '[Loki] Q.take() not yet supported')
+  invariant(
+    // Note: can't skip without take, no need to check this
+    !sortBy.length && !take && !sql,
+    '[Loki] Q.experimentalSortBy, Q.experimentalTake, Q.experimentalSkip, Q.unsafeSqlQuery are not supported with LokiJSAdapter',
+  )
 
   return {
     table,

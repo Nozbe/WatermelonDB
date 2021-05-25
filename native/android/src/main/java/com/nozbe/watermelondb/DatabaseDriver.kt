@@ -64,10 +64,10 @@ class DatabaseDriver(context: Context, dbName: String) {
         }
     }
 
-    fun cachedQuery(table: TableName, query: SQL): WritableArray {
+    fun cachedQuery(table: TableName, query: SQL, args: QueryArgs): WritableArray {
         // log?.info("Cached Query: $query")
         val resultArray = Arguments.createArray()
-        database.rawQuery(query).use {
+        database.rawQuery(query, args).use {
             if (it.count > 0 && it.columnNames.contains("id")) {
                 while (it.moveToNext()) {
                     val id = it.getString(it.getColumnIndex("id"))
@@ -77,6 +77,18 @@ class DatabaseDriver(context: Context, dbName: String) {
                         markAsCached(table, id)
                         resultArray.pushMapFromCursor(it)
                     }
+                }
+            }
+        }
+        return resultArray
+    }
+
+    fun queryIds(query: SQL, args: QueryArgs): WritableArray {
+        val resultArray = Arguments.createArray()
+        database.rawQuery(query, args).use {
+            if (it.count > 0 && it.columnNames.contains("id")) {
+                while (it.moveToNext()) {
+                    resultArray.pushString(it.getString(it.getColumnIndex("id")))
                 }
             }
         }
@@ -104,7 +116,7 @@ class DatabaseDriver(context: Context, dbName: String) {
     fun destroyDeletedRecords(table: TableName, records: QueryArgs) =
             database.delete(Queries.multipleDeleteFromTable(table, records), records)
 
-    fun count(query: SQL): Int = database.count(query)
+    fun count(query: SQL, args: QueryArgs): Int = database.count(query, args)
 
     private fun execute(query: SQL, args: QueryArgs) {
         // log?.info("Executing: $query")

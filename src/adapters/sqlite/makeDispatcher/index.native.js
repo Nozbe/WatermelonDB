@@ -22,6 +22,7 @@ const dispatcherMethods = [
   'setUpWithMigrations',
   'find',
   'query',
+  'queryIds',
   'count',
   'batch',
   'batchJSON',
@@ -42,7 +43,7 @@ export const makeDispatcher = (
 
   const methods = dispatcherMethods.map((methodName) => {
     // batchJSON is missing on Android
-    if (!DatabaseBridge[methodName] || (methodName === 'batchJSON' && jsiDb)) {
+    if (jsiDb ? !jsiDb[methodName] : !DatabaseBridge[methodName]) {
       return [methodName, undefined]
     }
 
@@ -54,10 +55,7 @@ export const makeDispatcher = (
 
         if (jsiDb) {
           try {
-            const value =
-              methodName === 'query' || methodName === 'count'
-                ? jsiDb[methodName](...otherArgs, []) // FIXME: temp workaround
-                : jsiDb[methodName](...otherArgs)
+            const value = jsiDb[methodName](...otherArgs)
 
             // On Android, errors are returned, not thrown - see DatabaseInstallation.cpp
             if (value instanceof Error) {
@@ -79,6 +77,7 @@ export const makeDispatcher = (
   })
 
   const dispatcher: any = fromPairs(methods)
+
   return dispatcher
 }
 

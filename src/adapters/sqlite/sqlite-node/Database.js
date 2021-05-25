@@ -15,7 +15,7 @@ class Database {
     this.open()
   }
 
-  open: () => void = () => {
+  open(): void {
     let { path } = this
     if (path === 'file::memory:' || path.indexOf('?mode=memory') >= 0) {
       path = ':memory:'
@@ -33,18 +33,19 @@ class Database {
     }
   }
 
-  inTransaction: (executeBlock: () => void) => any = (executeBlock: () => void) =>
+  inTransaction(executeBlock: () => void): void {
     this.instance.transaction(executeBlock)()
+  }
 
-  execute: (query: string, args?: Array<any>) => any = (query: string, args: any[] = []) =>
-    this.instance.prepare(query).run(args)
+  execute(query: string, args: any[] = []): any {
+    return this.instance.prepare(query).run(args)
+  }
 
-  executeStatements: (queries: string) => any = (queries: string) => this.instance.exec(queries)
+  executeStatements(queries: string): any {
+    return this.instance.exec(queries)
+  }
 
-  queryRaw: (query: string, args?: Array<any>) => any | Array<any> = (
-    query: string,
-    args: any[] = [],
-  ) => {
+  queryRaw(query: string, args: any[] = []): any | any[] {
     let results = []
     const stmt = this.instance.prepare(query)
     if (stmt.get(args)) {
@@ -53,7 +54,7 @@ class Database {
     return results
   }
 
-  count: (query: string, args?: Array<any>) => number = (query: string, args: any[] = []) => {
+  count(query: string, args: any[] = []): number {
     const results = this.instance.prepare(query).all(args)
 
     if (results.length === 0) {
@@ -69,22 +70,18 @@ class Database {
     return Number.parseInt(result.count, 10)
   }
 
-  getUserVersion: () => number = (): number => {
+  get userVersion(): number {
     return this.instance.pragma('user_version', {
       simple: true,
     })
   }
 
-  get userVersion(): number {
-    return this.getUserVersion()
-  }
-
   set userVersion(version: number): number {
     this.instance.pragma(`user_version = ${version}`)
-    return this.getUserVersion()
+    return this.userVersion
   }
 
-  unsafeDestroyEverything: () => void = () => {
+  unsafeDestroyEverything(): void {
     // Deleting files by default because it seems simpler, more reliable
     // And we have a weird problem with sqlite code 6 (database busy) in sync mode
     // But sadly this won't work for in-memory (shared) databases, so in those cases,
@@ -128,7 +125,7 @@ class Database {
     }
   }
 
-  isInMemoryDatabase: () => any = () => {
+  isInMemoryDatabase(): any {
     return this.instance.memory
   }
 }

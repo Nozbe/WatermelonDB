@@ -35,9 +35,5 @@ declare module '@nozbe/watermelondb/Collection' {
     public create(recordBuilder?: (record: Record) => void): Promise<Record>
 
     public prepareCreate(recordBuilder?: (record: Record) => void): Record
-
-    public fetchQuery(query: Query<Record>): Promise<Record[]>
-
-    public fetchCount(query: Query<Record>): Promise<number>
   }
 }

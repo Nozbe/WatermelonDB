@@ -195,16 +195,13 @@ describe('LokiJS encodeQuery', () => {
             $join: {
               table: 'projects',
               query: {
-                $and: [
-                  { team_id: { $eq: 'abcdef' } },
-                  { is_active: { $aeq: true } },
-                  { _status: { $ne: 'deleted' } },
-                ],
+                $and: [{ team_id: { $eq: 'abcdef' } }, { _status: { $ne: 'deleted' } }],
               },
               mapKey: 'id',
               joinKey: 'project_id',
             },
           },
+          { left_column: { $eq: 'right_value' } },
           {
             $join: {
               table: 'tag_assignments',
@@ -215,7 +212,16 @@ describe('LokiJS encodeQuery', () => {
               joinKey: 'id',
             },
           },
-          { left_column: { $eq: 'right_value' } },
+          {
+            $join: {
+              table: 'projects',
+              query: {
+                $and: [{ is_active: { $aeq: true } }, { _status: { $ne: 'deleted' } }],
+              },
+              mapKey: 'id',
+              joinKey: 'project_id',
+            },
+          },
           { _status: { $ne: 'deleted' } },
         ],
       },
@@ -350,6 +356,7 @@ describe('LokiJS encodeQuery', () => {
       table: 'tasks',
       query: {
         $and: [
+          { foo: { $jgt: 10 } },
           {
             $join: {
               table: 'projects',
@@ -358,7 +365,6 @@ describe('LokiJS encodeQuery', () => {
               joinKey: 'project_id',
             },
           },
-          { foo: { $jgt: 10 } },
           { _status: { $ne: 'deleted' } },
         ],
       },
@@ -370,7 +376,10 @@ describe('LokiJS encodeQuery', () => {
       'explicitly declare Q.experimentalJoinTables',
     )
   })
-  it(`does not encode sql subexprs`, () => {
+  it(`throws an error on unsupported query clauses`, () => {
     expect(() => encoded([Q.unsafeSqlExpr('haha sql goes brrr')])).toThrow('Unknown clause')
+    expect(() => encoded([Q.unsafeSqlQuery('select * from tasks')])).toThrow('not supported')
+    expect(() => encoded([Q.experimentalSortBy('foo', 'asc')])).toThrow('not supported')
+    expect(() => encoded([Q.experimentalTake(5)])).toThrow('not supported')
   })
 })

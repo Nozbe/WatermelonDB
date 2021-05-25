@@ -13,6 +13,7 @@ export default class ErrorAdapter {
     ;[
       'find',
       'query',
+      'queryIds',
       'count',
       'batch',
       'getDeletedRecords',
@@ -21,7 +22,6 @@ export default class ErrorAdapter {
       'getLocal',
       'setLocal',
       'removeLocal',
-      'unsafeSqlQuery',
       'testClone',
     ].forEach((name) => {
       // $FlowFixMe
