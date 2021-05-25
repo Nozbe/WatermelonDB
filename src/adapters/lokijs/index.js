@@ -11,7 +11,13 @@ import type { TableName, AppSchema } from '../../Schema'
 import type { DirtyRaw } from '../../RawRecord'
 import type { SchemaMigrations } from '../../Schema/migrations'
 import type { SerializedQuery } from '../../Query'
-import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
+import type {
+  DatabaseAdapter,
+  CachedQueryResult,
+  CachedFindResult,
+  BatchOperation,
+  UnsafeExecuteOperations,
+} from '../type'
 import { devSetupCallback, validateAdapter, validateTable } from '../common'
 
 import WorkerBridge from './WorkerBridge'
@@ -197,6 +203,10 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
   unsafeResetDatabase(callback: ResultCallback<void>): void {
     this._bridge.send('unsafeResetDatabase', [], callback, 'immutable', 'immutable')
+  }
+
+  unsafeExecute(operations: UnsafeExecuteOperations, callback: ResultCallback<void>): void {
+    this._bridge.send('unsafeExecute', [operations], callback, 'immutable', 'immutable')
   }
 
   getLocal(key: string, callback: ResultCallback<?string>): void {

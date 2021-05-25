@@ -638,10 +638,22 @@ export default () => {
     // ).rejects.toBeInstanceOf(Error)
 
     // TODO: Mark as deleted?
+  })
+  it(`can unsafely execute raw commands`, async (adapter, AdapterClass) => {
+    if (AdapterClass.name === 'SQLiteAdapter') {
+      await adapter.unsafeExecute({
+        sqls: [['insert into tasks (id, text1) values (?, ?)', ['rec1', 'bar']]],
+      })
+    } else {
+      await adapter.unsafeExecute({
+        loki: (loki) => {
+          loki.getCollection('tasks').insert([{ id: 'rec1', text1: 'bar' }])
+        },
+      })
+    }
 
-    // const record = 'tasks', mockTaskRaw({ id: '1' })
-    // await expect(adapter.batch([['destroyPermanently', record]])).rejects.toBeInstanceOf(Error)
-    // }
+    const record = await adapter.find('tasks', 'rec1')
+    expect(record).toMatchObject({ id: 'rec1', text1: 'bar' })
   })
   it('supports LocalStorage', async (adapter) => {
     // non-existent fields return undefined

@@ -8,7 +8,13 @@ import type { RecordId } from '../../Model'
 import type { SerializedQuery } from '../../Query'
 import type { TableName, AppSchema, SchemaVersion } from '../../Schema'
 import type { SchemaMigrations, MigrationStep } from '../../Schema/migrations'
-import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
+import type {
+  DatabaseAdapter,
+  CachedQueryResult,
+  CachedFindResult,
+  BatchOperation,
+  UnsafeExecuteOperations,
+} from '../type'
 import {
   sanitizeFindResult,
   sanitizeQueryResult,
@@ -263,6 +269,23 @@ export default class SQLiteAdapter implements DatabaseAdapter {
       }
       callback(result)
     })
+  }
+
+  unsafeExecute(operations: UnsafeExecuteOperations, callback: ResultCallback<void>): void {
+    if (process.env.NODE_ENV !== 'production') {
+      invariant(
+        operations &&
+          typeof operations === 'object' &&
+          Object.keys(operations).length === 1 &&
+          Array.isArray(operations.sqls),
+        'unsafeExecute expects an { sqls: [ [sql, [args..]], ... ] } object',
+      )
+    }
+    const queries: SQLiteQuery[] = (operations: any).sqls
+    this._batch(
+      queries.map(([sql, args]) => [0, null, sql, [args]]),
+      callback,
+    )
   }
 
   getLocal(key: string, callback: ResultCallback<?string>): void {

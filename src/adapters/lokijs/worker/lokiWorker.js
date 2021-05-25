@@ -23,6 +23,7 @@ const executorMethods: { [WorkerExecutorType]: * } = {
   count: ExecutorProto.count,
   batch: ExecutorProto.batch,
   unsafeResetDatabase: ExecutorProto.unsafeResetDatabase,
+  unsafeExecute: ExecutorProto.unsafeExecute,
   getLocal: ExecutorProto.getLocal,
   setLocal: ExecutorProto.setLocal,
   removeLocal: ExecutorProto.removeLocal,

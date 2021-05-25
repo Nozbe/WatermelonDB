@@ -37,6 +37,7 @@
   - You can now also run `.fetchCount()`, `.fetchIds()` on SQL queries
   - You can now safely pass values for SQL placeholders by passing an array
   - You can also observe an unsafe raw SQL query -- with some caveats! refer to documentation for more details
+- **Unsafe raw execute**. You can now execute arbitrary SQL queries (SQLiteAdapter) or access Loki object directly (LokiJSAdapter) using `adapter.unsafeExecute` -- see docs for more details
 
 ### Performance
 

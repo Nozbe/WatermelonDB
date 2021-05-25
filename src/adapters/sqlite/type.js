@@ -7,7 +7,7 @@ import type { RecordId } from '../../Model'
 import type { AppSchema, TableName, SchemaVersion } from '../../Schema'
 import type { SchemaMigrations } from '../../Schema/migrations'
 
-import { type DirtyFindResult, type DirtyQueryResult } from '../common'
+import type { DirtyFindResult, DirtyQueryResult } from '../common'
 
 export type SQL = string
 export type SQLiteArg = string | boolean | number | null

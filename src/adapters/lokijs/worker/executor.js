@@ -2,8 +2,14 @@
 
 // don't import the whole utils/ here!
 import logger from '../../../utils/common/logger'
+import invariant from '../../../utils/common/invariant'
 
-import type { CachedQueryResult, CachedFindResult, BatchOperation } from '../../type'
+import type {
+  CachedQueryResult,
+  CachedFindResult,
+  BatchOperation,
+  UnsafeExecuteOperations,
+} from '../../type'
 import type { TableName, AppSchema, SchemaVersion, TableSchema } from '../../../Schema'
 import type {
   SchemaMigrations,
@@ -210,6 +216,20 @@ export default class LokiExecutor {
       .getCollection(table)
       .find({ _status: { $eq: 'deleted' } })
       .map((record) => record.id)
+  }
+
+  unsafeExecute(operations: UnsafeExecuteOperations): void {
+    if (process.env.NODE_ENV !== 'production') {
+      invariant(
+        operations &&
+          typeof operations === 'object' &&
+          Object.keys(operations).length === 1 &&
+          typeof operations.loki === 'function',
+        'unsafeExecute expects an { loki: loki => { ... } } object',
+      )
+    }
+    const lokiBlock: (Loki) => void = (operations: any).loki
+    lokiBlock(this.loki)
   }
 
   async unsafeResetDatabase(): Promise<void> {
