@@ -366,9 +366,9 @@ void Database::batch(jsi::Array &operations) {
         for (size_t i = 0; i < operationsCount; i++) {
             jsi::Array operation = operations.getValueAtIndex(rt, i).getObject(rt).getArray(rt);
             std::string type = operation.getValueAtIndex(rt, 0).getString(rt).utf8(rt);
-            const jsi::String table = operation.getValueAtIndex(rt, 1).getString(rt);
 
             if (type == "create") {
+                const jsi::String table = operation.getValueAtIndex(rt, 1).getString(rt);
                 std::string id = operation.getValueAtIndex(rt, 2).getString(rt).utf8(rt);
                 std::string sql = operation.getValueAtIndex(rt, 3).getString(rt).utf8(rt);
                 jsi::Array arguments = operation.getValueAtIndex(rt, 4).getObject(rt).getArray(rt);
@@ -376,17 +376,19 @@ void Database::batch(jsi::Array &operations) {
                 executeUpdate(sql, arguments);
                 addedIds.push_back(cacheKey(table.utf8(rt), id));
             } else if (type == "execute") {
-                jsi::String sql = operation.getValueAtIndex(rt, 2).getString(rt);
-                jsi::Array arguments = operation.getValueAtIndex(rt, 3).getObject(rt).getArray(rt);
+                jsi::String sql = operation.getValueAtIndex(rt, 1).getString(rt);
+                jsi::Array arguments = operation.getValueAtIndex(rt, 2).getObject(rt).getArray(rt);
 
                 executeUpdate(sql.utf8(rt), arguments);
             } else if (type == "markAsDeleted") {
+                const jsi::String table = operation.getValueAtIndex(rt, 1).getString(rt);
                 const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
                 auto args = jsi::Array::createWithElements(rt, id);
                 executeUpdate("update `" + table.utf8(rt) + "` set _status='deleted' where id == ?", args);
 
                 removedIds.push_back(cacheKey(table.utf8(rt), id.utf8(rt)));
             } else if (type == "destroyPermanently") {
+                const jsi::String table = operation.getValueAtIndex(rt, 1).getString(rt);
                 const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
                 auto args = jsi::Array::createWithElements(rt, id);
 
@@ -394,7 +396,7 @@ void Database::batch(jsi::Array &operations) {
                 executeUpdate("delete from `" + table.utf8(rt) + "` where id == ?", args);
                 removedIds.push_back(cacheKey(table.utf8(rt), id.utf8(rt)));
             } else {
-                throw jsi::JSError(rt, "Invalid operation type");
+                throw jsi::JSError(rt, "unknown batch operation");
             }
         }
         commit();
@@ -410,45 +412,6 @@ void Database::batch(jsi::Array &operations) {
     for (auto const &key : removedIds) {
         removeFromCache(key);
     }
-}
-
-jsi::Array Database::getDeletedRecords(jsi::String &tableName) {
-    auto &rt = getRt();
-    auto args = jsi::Array::createWithElements(rt);
-    auto statement = executeQuery("select id from `" + tableName.utf8(rt) + "` where _status='deleted'", args);
-
-    // FIXME: Adding directly to a jsi::Array should be more efficient, but Hermes does not support
-    // automatically resizing an Array by setting new values to it
-    std::vector<jsi::Value> records = {};
-
-    while (true) {
-        int stepResult = sqlite3_step(statement.stmt);
-
-        if (stepResult == SQLITE_DONE) {
-            break;
-        } else if (stepResult != SQLITE_ROW) {
-            throw dbError("Failed to get deleted records");
-        }
-
-        assert(sqlite3_data_count(statement.stmt) == 1);
-
-        const char *idText = (const char *)sqlite3_column_text(statement.stmt, 0);
-        if (!idText) {
-            throw jsi::JSError(rt, "Failed to get ID of a record");
-        }
-
-        jsi::String id = jsi::String::createFromAscii(rt, idText);
-        records.push_back(std::move(id));
-    }
-
-    jsi::Array jsiRecords(rt, records.size());
-    size_t i = 0;
-    for (auto const &record : records) {
-        jsiRecords.setValueAtIndex(rt, i, record);
-        i++;
-    }
-
-    return jsiRecords;
 }
 
 void Database::destroyDeletedRecords(jsi::String &tableName, jsi::Array &recordIds) {
@@ -549,18 +512,6 @@ jsi::Value Database::getLocal(jsi::String &key) {
     }
 
     return jsi::String::createFromUtf8(rt, text);
-}
-
-void Database::setLocal(jsi::String &key, jsi::String &value) {
-    auto &rt = getRt();
-    auto args = jsi::Array::createWithElements(rt, key, value);
-    executeUpdate("insert or replace into local_storage (key, value) values (?, ?)", args);
-}
-
-void Database::removeLocal(jsi::String &key) {
-    auto &rt = getRt();
-    auto args = jsi::Array::createWithElements(rt, key);
-    executeUpdate("delete from local_storage where key == ?", args);
 }
 
 } // namespace watermelondb

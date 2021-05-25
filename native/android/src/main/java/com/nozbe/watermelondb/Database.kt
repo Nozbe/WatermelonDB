@@ -88,12 +88,6 @@ class Database(private val name: String, private val context: Context) {
                 }
             }
 
-    fun insertToLocalStorage(key: String, value: String) =
-            execute(Queries.insert_local_storage, arrayOf(key, value))
-
-    fun deleteFromLocalStorage(key: String) =
-            execute(Queries.delete_local_storage, arrayOf(key))
-
 //    fun unsafeResetDatabase() = context.deleteDatabase("$name.db")
 
     fun unsafeDestroyEverything() =

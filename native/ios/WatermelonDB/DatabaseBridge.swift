@@ -150,16 +150,6 @@ extension DatabaseBridge {
         }
     }
 
-    @objc(getDeletedRecords:table:resolve:reject:)
-    func getDeletedRecords(tag: ConnectionTag,
-                           table: Database.TableName,
-                           resolve: @escaping RCTPromiseResolveBlock,
-                           reject: @escaping RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.getDeletedRecords(table: table)
-        }
-    }
-
     @objc(destroyDeletedRecords:table:records:resolve:reject:)
     func destroyDeletedRecords(tag: ConnectionTag,
                                table: Database.TableName,
@@ -189,25 +179,6 @@ extension DatabaseBridge {
             try $0.getLocal(key: key) as Any
         }
     }
-
-    @objc(setLocal:key:value:resolve:reject:)
-    func setLocal(tag: ConnectionTag,
-                  key: String,
-                  value: String,
-                  resolve: @escaping RCTPromiseResolveBlock,
-                  reject: @escaping RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.setLocal(key: key, value: value)
-        }
-    }
-
-    @objc(removeLocal:key:resolve:reject:)
-    func removeLocal(tag: ConnectionTag, key: String,
-                     resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.removeLocal(key: key)
-        }
-    }
 }
 
 // MARK: - Helpers
@@ -227,14 +198,13 @@ extension DatabaseBridge {
         return try operations.map { operation in
             switch operation[safe: 0] as? String {
             case "execute":
-                guard let table = operation[safe: 1] as? Database.TableName,
-                let query = operation[safe: 2] as? Database.SQL,
-                let args = operation[safe: 3] as? Database.QueryArgs
+                guard let query = operation[safe: 1] as? Database.SQL,
+                let args = operation[safe: 2] as? Database.QueryArgs
                 else {
                     throw "Bad execute arguments".asError()
                 }
 
-                return .execute(table: table, query: query, args: args)
+                return .execute(query: query, args: args)
 
             case "create":
                 guard let table = operation[safe: 1] as? Database.TableName,
@@ -264,8 +234,9 @@ extension DatabaseBridge {
                 }
 
                 return .destroyPermanently(table: table, id: id)
+
             default:
-                throw "Bad operation name".asError()
+                throw "unknown batch operation".asError()
             }
         }
     }

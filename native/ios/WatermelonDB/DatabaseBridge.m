@@ -53,10 +53,6 @@ WMELON_BRIDGE_METHOD(batchJSON,
   operations:(NSString *)serializedOperations
 )
 
-WMELON_BRIDGE_METHOD(getDeletedRecords,
-  table:(nonnull NSString *)table
-)
-
 WMELON_BRIDGE_METHOD(destroyDeletedRecords,
   table:(nonnull NSString *)table
   records:(NSArray<NSString *>*)recordIds
@@ -68,15 +64,6 @@ WMELON_BRIDGE_METHOD(unsafeResetDatabase,
 )
 
 WMELON_BRIDGE_METHOD(getLocal,
-  key:(nonnull NSString *)key
-)
-
-WMELON_BRIDGE_METHOD(setLocal,
-  key:(nonnull NSString *)key
-  value:(nonnull NSString *)value
-)
-
-WMELON_BRIDGE_METHOD(removeLocal,
   key:(nonnull NSString *)key
 )
 

@@ -27,6 +27,7 @@ import type {
   MigrationEvents,
 } from './type'
 
+import encodeName from './encodeName'
 import encodeQuery from './encodeQuery'
 import encodeUpdate from './encodeUpdate'
 import encodeInsert from './encodeInsert'
@@ -240,7 +241,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
         }
         case 'update': {
           // $FlowFixMe
-          return ['execute', table].concat(encodeUpdate(table, rawOrId))
+          return ['execute'].concat(encodeUpdate(table, rawOrId))
         }
         case 'markAsDeleted':
         case 'destroyPermanently':
@@ -250,17 +251,13 @@ export default class SQLiteAdapter implements DatabaseAdapter {
           throw new Error('unknown batch operation type')
       }
     })
-    const { batchJSON } = this._dispatcher
-    if (batchJSON) {
-      batchJSON(JSON.stringify(batchOperations), callback)
-    } else {
-      this._dispatcher.batch(batchOperations, callback)
-    }
+    this._batch(batchOperations, callback)
   }
 
   getDeletedRecords(table: TableName<any>, callback: ResultCallback<RecordId[]>): void {
     validateTable(table, this.schema)
-    this._dispatcher.getDeletedRecords(table, callback)
+    const sql = `select id from ${encodeName(table)} where _status='deleted'`
+    this._dispatcher.queryIds(sql, [], callback)
   }
 
   destroyDeletedRecords(
@@ -286,11 +283,20 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   setLocal(key: string, value: string, callback: ResultCallback<void>): void {
-    this._dispatcher.setLocal(key, value, callback)
+    this._batch(
+      [
+        [
+          'execute',
+          `insert or replace into "local_storage" ("key", "value") values (?, ?)`,
+          [key, value],
+        ],
+      ],
+      callback,
+    )
   }
 
   removeLocal(key: string, callback: ResultCallback<void>): void {
-    this._dispatcher.removeLocal(key, callback)
+    this._batch([['execute', `delete from "local_storage" where "key" == ?`, [key]]], callback)
   }
 
   _encodedSchema(): SQL {
@@ -315,5 +321,14 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   _encodeMigrations(steps: MigrationStep[]): SQL {
     const { encodeMigrationSteps } = require('./encodeSchema')
     return encodeMigrationSteps(steps)
+  }
+
+  _batch(batchOperations: NativeBridgeBatchOperation[], callback: ResultCallback<void>): void {
+    const { batchJSON } = this._dispatcher
+    if (batchJSON) {
+      batchJSON(JSON.stringify(batchOperations), callback)
+    } else {
+      this._dispatcher.batch(batchOperations, callback)
+    }
   }
 }

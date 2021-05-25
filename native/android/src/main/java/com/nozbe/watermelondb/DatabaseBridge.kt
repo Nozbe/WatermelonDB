@@ -132,10 +132,6 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             withDriver(tag, promise) { it.batch(operations) }
 
     @ReactMethod
-    fun getDeletedRecords(tag: ConnectionTag, table: TableName, promise: Promise) =
-            withDriver(tag, promise) { it.getDeletedRecords(table) }
-
-    @ReactMethod
     fun destroyDeletedRecords(
         tag: ConnectionTag,
         table: TableName,
@@ -154,14 +150,6 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     @ReactMethod
     fun getLocal(tag: ConnectionTag, key: String, promise: Promise) =
             withDriver(tag, promise) { it.getLocal(key) }
-
-    @ReactMethod
-    fun setLocal(tag: ConnectionTag, key: String, value: String, promise: Promise) =
-            withDriver(tag, promise) { it.setLocal(key, value) }
-
-    @ReactMethod
-    fun removeLocal(tag: ConnectionTag, key: String, promise: Promise) =
-            withDriver(tag, promise) { it.removeLocal(key) }
 
     @Throws(Exception::class)
     private fun withDriver(

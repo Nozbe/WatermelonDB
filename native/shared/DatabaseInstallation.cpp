@@ -186,31 +186,6 @@ void Database::install(jsi::Runtime *runtime) {
 
             return runBlock(rt, [&]() { return database->getLocal(key); });
         });
-        createMethod(rt, adapter, "setLocal", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
-            jsi::String key = args[0].getString(rt);
-            jsi::String value = args[1].getString(rt);
-
-            return runBlock(rt, [&]() {
-                database->setLocal(key, value);
-                return jsi::Value::undefined();
-            });
-        });
-        createMethod(rt, adapter, "removeLocal", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
-            jsi::String key = args[0].getString(rt);
-
-            return runBlock(rt, [&]() {
-                database->removeLocal(key);
-                return jsi::Value::undefined();
-            });
-        });
-        createMethod(rt, adapter, "getDeletedRecords", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
-            jsi::String tableName = args[0].getString(rt);
-
-            return runBlock(rt, [&]() { return database->getDeletedRecords(tableName); });
-        });
         createMethod(rt, adapter, "destroyDeletedRecords", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String tableName = args[0].getString(rt);

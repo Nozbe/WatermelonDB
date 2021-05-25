@@ -82,13 +82,10 @@ class DatabaseDriver {
     }
 
     enum Operation {
-        case execute(table: Database.TableName, query: Database.SQL, args: Database.QueryArgs)
+        case execute(query: Database.SQL, args: Database.QueryArgs)
         case create(table: Database.TableName, id: RecordId, query: Database.SQL, args: Database.QueryArgs)
         case destroyPermanently(table: Database.TableName, id: RecordId)
         case markAsDeleted(table: Database.TableName, id: RecordId)
-        // case destroyDeletedRecords(table: Database.TableName, records: [RecordId])
-        // case setLocal(key: String, value: String)
-        // case removeLocal(key: String)
     }
 
     func batch(_ operations: [Operation]) throws {
@@ -98,7 +95,7 @@ class DatabaseDriver {
         try database.inTransaction {
             for operation in operations {
                 switch operation {
-                case .execute(table: _, query: let query, args: let args):
+                case .execute(query: let query, args: let args):
                     try database.execute(query, args)
 
                 case .create(table: let table, id: let id, query: let query, args: let args):
@@ -126,12 +123,6 @@ class DatabaseDriver {
         }
     }
 
-    func getDeletedRecords(table: Database.TableName) throws -> [RecordId] {
-        return try database.queryRaw("select id from `\(table)` where _status='deleted'").map { row in
-            row.string(forColumn: "id")!
-        }
-    }
-
     func destroyDeletedRecords(table: Database.TableName, records: [RecordId]) throws {
         // TODO: What's the behavior if record doesn't exist or isn't actually deleted?
         let recordPlaceholders = records.map { _ in "?" }.joined(separator: ",")
@@ -148,14 +139,6 @@ class DatabaseDriver {
         }
 
         return record.string(forColumn: "value")!
-    }
-
-    func setLocal(key: String, value: String) throws {
-        return try database.execute("insert or replace into `local_storage` (key, value) values (?, ?)", [key, value])
-    }
-
-    func removeLocal(key: String) throws {
-        return try database.execute("delete from `local_storage` where `key` == ?", [key])
     }
 
 // MARK: - Record caching

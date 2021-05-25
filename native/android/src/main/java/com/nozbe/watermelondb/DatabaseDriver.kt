@@ -101,18 +101,6 @@ class DatabaseDriver(context: Context, dbName: String) {
         this.pushMap(cursorMap)
     }
 
-    fun getDeletedRecords(table: TableName): WritableArray {
-        val resultArray = Arguments.createArray()
-        database.rawQuery(Queries.selectDeletedIdsFromTable(table)).use {
-            it.moveToFirst()
-            for (i in 0 until it.count) {
-                resultArray.pushString(it.getString(0))
-                it.moveToNext()
-            }
-        }
-        return resultArray
-    }
-
     fun destroyDeletedRecords(table: TableName, records: QueryArgs) =
             database.delete(Queries.multipleDeleteFromTable(table, records), records)
 
@@ -126,16 +114,6 @@ class DatabaseDriver(context: Context, dbName: String) {
     fun getLocal(key: String): String? {
         // log?.info("Get Local: $key")
         return database.getFromLocalStorage(key)
-    }
-
-    fun setLocal(key: String, value: String) {
-        // log?.info("Set Local: $key -> $value")
-        database.insertToLocalStorage(key, value)
-    }
-
-    fun removeLocal(key: String) {
-        log?.info("Remove local: $key")
-        database.deleteFromLocalStorage(key)
     }
 
     private fun create(id: RecordID, query: SQL, args: QueryArgs) {
@@ -156,8 +134,8 @@ class DatabaseDriver(context: Context, dbName: String) {
                     val type = operation?.getString(0)
                     when (type) {
                         "execute" -> {
-                            val query = operation.getString(2) as SQL
-                            val args = operation.getArray(3)!!.toArrayList().toArray()
+                            val query = operation.getString(1) as SQL
+                            val args = operation.getArray(2)!!.toArrayList().toArray()
                             execute(query, args)
                         }
                         "create" -> {
@@ -180,16 +158,7 @@ class DatabaseDriver(context: Context, dbName: String) {
                             database.execute(Queries.destroyPermanently(table), arrayOf(id))
                             removedIds.add(Pair(table, id))
                         }
-                        // "setLocal" -> {
-                        //     val key = operation.getString(1)
-                        //     val value = operation.getString(2)
-                        //     preparedOperations.add(Operation.SetLocal(key, value))
-                        // }
-                        // "removeLocal" -> {
-                        //     val key = operation.getString(1)
-                        //     preparedOperations.add(Operation.RemoveLocal(key))
-                        // }
-                        else -> throw (Throwable("Bad operation name in batch"))
+                        else -> throw (Throwable("unknown batch operation"))
                     }
                 }
             }

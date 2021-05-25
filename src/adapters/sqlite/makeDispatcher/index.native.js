@@ -26,24 +26,14 @@ const dispatcherMethods = [
   'count',
   'batch',
   'batchJSON',
-  'getDeletedRecords',
   'destroyDeletedRecords',
   'unsafeResetDatabase',
   'getLocal',
-  'setLocal',
-  'removeLocal',
 ]
 
-export const makeDispatcher = (
-  type: DispatcherType,
-  tag: ConnectionTag,
-  dbName: string,
-): NativeDispatcher => {
-  const jsiDb = type === 'jsi' && global.nativeWatermelonCreateAdapter(dbName)
-
+export const makeDispatcherNativeModules = (tag: ConnectionTag): NativeDispatcher => {
   const methods = dispatcherMethods.map((methodName) => {
-    // batchJSON is missing on Android
-    if (jsiDb ? !jsiDb[methodName] : !DatabaseBridge[methodName]) {
+    if (!DatabaseBridge[methodName]) {
       return [methodName, undefined]
     }
 
@@ -53,22 +43,6 @@ export const makeDispatcher = (
         const callback = args[args.length - 1]
         const otherArgs = args.slice(0, -1)
 
-        if (jsiDb) {
-          try {
-            const value = jsiDb[methodName](...otherArgs)
-
-            // On Android, errors are returned, not thrown - see DatabaseInstallation.cpp
-            if (value instanceof Error) {
-              callback({ error: value })
-            } else {
-              callback({ value })
-            }
-          } catch (error) {
-            callback({ error })
-          }
-          return
-        }
-
         // $FlowFixMe
         const returnValue = DatabaseBridge[methodName](tag, ...otherArgs)
         fromPromise(returnValue, callback)
@@ -76,10 +50,48 @@ export const makeDispatcher = (
     ]
   })
 
-  const dispatcher: any = fromPairs(methods)
-
-  return dispatcher
+  return (fromPairs(methods): any)
 }
+
+export const makeDispatcherJsi = (dbName: string): NativeDispatcher => {
+  const jsiDb = global.nativeWatermelonCreateAdapter(dbName)
+
+  const methods = dispatcherMethods.map((methodName) => {
+    if (!jsiDb[methodName]) {
+      return [methodName, undefined]
+    }
+
+    return [
+      methodName,
+      (...args) => {
+        const callback = args[args.length - 1]
+        const otherArgs = args.slice(0, -1)
+
+        try {
+          const value = jsiDb[methodName](...otherArgs)
+
+          // On Android, errors are returned, not thrown - see DatabaseInstallation.cpp
+          if (value instanceof Error) {
+            callback({ error: value })
+          } else {
+            callback({ value })
+          }
+        } catch (error) {
+          callback({ error })
+        }
+      },
+    ]
+  })
+
+  return (fromPairs(methods): any)
+}
+
+export const makeDispatcher = (
+  type: DispatcherType,
+  tag: ConnectionTag,
+  dbName: string,
+): NativeDispatcher =>
+  type === 'jsi' ? makeDispatcherJsi(dbName) : makeDispatcherNativeModules(tag)
 
 const initializeJSI = () => {
   if (global.nativeWatermelonCreateAdapter) {

@@ -18,12 +18,9 @@ const dispatcherMethods = [
   'queryIds',
   'count',
   'batch',
-  'getDeletedRecords',
   'destroyDeletedRecords',
   'unsafeResetDatabase',
   'getLocal',
-  'setLocal',
-  'removeLocal',
 ]
 
 export const makeDispatcher = (
