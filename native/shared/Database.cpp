@@ -1,6 +1,7 @@
 #include "Database.h"
 #include "DatabasePlatform.h"
 #include "JSLockPerfHack.h"
+#include "simdjson.h"
 
 namespace watermelondb {
 
@@ -111,6 +112,90 @@ SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
     return SqliteStatement(statement);
 }
 
+std::pair<sqlite3_stmt *, std::string> Database::executeQuery(std::string sql, simdjson::ondemand::array &arguments) {
+    using namespace simdjson;
+    auto &rt = getRt();
+    sqlite3_stmt *statement; // = cachedStatements_[sql];
+
+//    if (statement == nullptr) {
+        int resultPrepare = sqlite3_prepare_v2(db_->sqlite, sql.c_str(), -1, &statement, nullptr);
+
+        if (resultPrepare != SQLITE_OK) {
+            sqlite3_finalize(statement);
+            throw dbError("Failed to prepare query statement");
+        }
+
+//        assert(statement != nullptr);
+//        cachedStatements_[sql] = statement;
+//    } else {
+//        // in theory, this shouldn't be necessary, since statements ought to be reset *after* use, not before use
+//        // but still this might prevent some crashes if this is not done right
+//        // TODO: Remove this later - should not be necessary, and it wastes time
+//        sqlite3_reset(statement);
+//    }
+    assert(statement != nullptr);
+
+    int argsCount = sqlite3_bind_parameter_count(statement);
+    
+    std::string returnId = "";
+    
+    int arg_i = 0;
+    for (auto arg : arguments) {
+        int bindResult;
+        switch (arg.type()) {
+            case ondemand::json_type::string: {
+                std::string_view str_view = arg;
+                std::string str = std::string(str_view);
+                // TODO: Check SQLITE_STATIC
+                // TODO: null termination?
+                bindResult = sqlite3_bind_text(statement, arg_i + 1, str.c_str(), -1, SQLITE_TRANSIENT);
+                if (arg_i == 0) {
+                    returnId = str;
+                }
+                break;
+            }
+            case ondemand::json_type::number: {
+                double num = arg;
+                bindResult = sqlite3_bind_double(statement, arg_i + 1, num);
+                break;
+            }
+            case ondemand::json_type::boolean: {
+                bool val = arg;
+                bindResult = sqlite3_bind_int(statement, arg_i + 1, val);
+                break;
+            }
+            case ondemand::json_type::null: {
+                bindResult = sqlite3_bind_null(statement, arg_i + 1);
+                break;
+            }
+            case ondemand::json_type::array: {
+                throw jsi::JSError(rt, "Invalid argument type (array) for query");
+                break;
+            }
+            case ondemand::json_type::object: {
+                throw jsi::JSError(rt, "Invalid argument type (object) for query");
+                break;
+            }
+        }
+        
+        if (bindResult != SQLITE_OK) {
+            sqlite3_reset(statement);
+            throw dbError("Failed to bind an argument for query");
+        }
+        
+        arg_i++;
+    }
+    
+    if (argsCount != arg_i) {
+        sqlite3_reset(statement);
+        throw jsi::JSError(rt, "Number of args passed to query doesn't match number of arg placeholders");
+    }
+
+    // TODO: We may move this initialization earlier to avoid having to care about sqlite3_reset, but I think we'll
+    // have to implement a move constructor for it to be correct
+    return std::make_pair(statement, returnId);
+}
+
 void Database::executeUpdate(std::string sql, jsi::Array &args) {
     auto statement = executeQuery(sql, args);
     int stepResult = sqlite3_step(statement.stmt);
@@ -118,6 +203,18 @@ void Database::executeUpdate(std::string sql, jsi::Array &args) {
     if (stepResult != SQLITE_DONE) {
         throw dbError("Failed to execute db update");
     }
+}
+
+std::string Database::executeUpdate(std::string sql, simdjson::ondemand::array &args) {
+    auto [stmt, id] = executeQuery(sql, args);
+    SqliteStatement statement(stmt);
+    int stepResult = sqlite3_step(stmt);
+
+    if (stepResult != SQLITE_DONE) {
+        throw dbError("Failed to execute db update");
+    }
+    
+    return id;
 }
 
 void Database::executeUpdate(std::string sql) {
@@ -431,6 +528,76 @@ void Database::batch(jsi::Array &operations) {
             }
 
         }
+        commit();
+    } catch (const std::exception &ex) {
+        rollback();
+        throw;
+    }
+
+    for (auto const &key : addedIds) {
+        markAsCached(key);
+    }
+
+    for (auto const &key : removedIds) {
+        removeFromCache(key);
+    }
+}
+
+void Database::batchJSON(jsi::String &jsiJson) {
+    using namespace simdjson;
+    
+    auto &rt = getRt();
+    beginTransaction();
+
+    std::vector<std::string> addedIds = {};
+    std::vector<std::string> removedIds = {};
+
+    try {
+        ondemand::parser parser;
+        auto json = padded_string(jsiJson.utf8(rt));
+        ondemand::document doc = parser.iterate(json);
+        
+        for (ondemand::array operation : doc) {
+            int64_t cacheBehavior = 0;
+            std::string table;
+            std::string sql;
+            ondemand::array argsBatches;
+            size_t i = 0;
+            for (auto field : operation) {
+                switch (i) {
+                    case 0:
+                        cacheBehavior = field;
+                        break;
+                    case 1: {
+                        if (cacheBehavior != 0) {
+                            std::string_view str = field;
+                            table = str;
+                        }
+                        break;
+                    }
+                    case 2: {
+                        std::string_view str = field;
+                        sql = str;
+                        break;
+                    }
+                    case 3:
+                        argsBatches = field;
+                        for (ondemand::array args : argsBatches) {
+                            auto id = executeUpdate(sql, args);
+                            if (cacheBehavior != 0) {
+                                if (cacheBehavior == 1) {
+                                    addedIds.push_back(cacheKey(table, id));
+                                } else if (cacheBehavior == -1) {
+                                    removedIds.push_back(cacheKey(table, id));
+                                }
+                            }
+                        }
+                        break;
+                }
+                i++;
+            }
+        }
+        
         commit();
     } catch (const std::exception &ex) {
         rollback();

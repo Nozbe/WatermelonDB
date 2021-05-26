@@ -86,6 +86,18 @@ export default () => {
     await adapter.batch([['create', 'tasks', record]])
     expect(await adapter.find('tasks', 'abc')).toBe('abc')
   })
+  it('can create and find records (sanity test 2)', async (_adapter) => {
+    let adapter = _adapter
+    const record = mockTaskRaw({ id: 'abc', text1: 'bar', order: 1 })
+    await adapter.batch([['create', 'tasks', record]])
+    // adapter = await adapter.testClone()
+    // expect(await adapter.find('tasks', 'abc')).toEqual(record)
+    expectSortedEqual(await adapter.query(taskQuery()), ['abc'])
+
+    // const record2 = mockTaskRaw({ id: 'abc2', text1: 'bar', order: 1 })
+    // await adapter.batch([['create', 'tasks', record2]])
+    // expect(await adapter.find('tasks', 'abc2')).toBe('abc2')
+  })
   it('can find records by ID', async (_adapter) => {
     let adapter = _adapter
 
