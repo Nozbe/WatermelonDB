@@ -256,6 +256,11 @@ tasksCollection.query(
 )
 ```
 
+
+#### Full Text Search with `Q.ftsMatch`
+
+If you are using `SQLite` and used `isFTS` in one or more of your text columns, you can use `Q.where(fieldName, Q.ftsMatch(searchText))`. If you have more than one column with `isFTS`, you can either use `tableName` instead of `fieldName` to search in all fields, or specify `fieldName` to focus the search in only one field.
+
 ## Advanced Queries
 
 ### Advanced observing

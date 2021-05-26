@@ -8,6 +8,7 @@ import type {
   AddColumnsMigrationStep,
 } from '../../../Schema/migrations'
 import type { SQL } from '../index'
+import { invariant } from '../../../utils/common'
 
 import encodeName from '../encodeName'
 import encodeValue from '../encodeValue'
@@ -42,7 +43,111 @@ const transform = (sql: string, transformer: ?(string) => string) =>
   transformer ? transformer(sql) : sql
 
 const encodeTable: (TableSchema) => SQL = (table) =>
-  transform(encodeCreateTable(table) + encodeTableIndicies(table), table.unsafeSql)
+  transform(
+    // eslint-disable-next-line no-use-before-define
+    encodeCreateTable(table) + encodeTableIndicies(table) + encodeFTSSearch(table),
+    table.unsafeSql,
+  )
+
+/** FTS Full Text Search */
+
+const encodeFTSTrigger: ({
+  tableName: string,
+  ftsTableName: string,
+  event: 'delete' | 'insert' | 'update',
+  action: SQL,
+}) => SQL = ({ tableName, ftsTableName, event, action }) => {
+  const triggerName = `${ftsTableName}_${event}`
+  return `create trigger ${encodeName(triggerName)} after ${event} on ${encodeName(
+    tableName,
+  )} begin ${action} end;`
+}
+
+const encodeFTSDeleteTrigger: ({
+  tableName: string,
+  ftsTableName: string,
+}) => SQL = ({ tableName, ftsTableName }) =>
+  encodeFTSTrigger({
+    tableName,
+    ftsTableName,
+    event: 'delete',
+    action: `delete from ${encodeName(ftsTableName)} where "rowid" = OLD.rowid;`,
+  })
+
+const encodeFTSInsertTrigger: ({
+  tableName: string,
+  ftsTableName: string,
+  ftsColumns: ColumnSchema[],
+}) => SQL = ({ tableName, ftsTableName, ftsColumns }) => {
+  const rawColumnNames = ['rowid', ...ftsColumns.map((column) => column.name)]
+  const columns = rawColumnNames.map(encodeName)
+  const valueColumns = rawColumnNames.map((column) => `NEW.${encodeName(column)}`)
+
+  const columnsSQL = columns.join(', ')
+  const valueColumnsSQL = valueColumns.join(', ')
+
+  return encodeFTSTrigger({
+    tableName,
+    ftsTableName,
+    event: 'insert',
+    action: `insert into ${encodeName(ftsTableName)} (${columnsSQL}) values (${valueColumnsSQL});`,
+  })
+}
+
+const encodeFTSUpdateTrigger: ({
+  tableName: string,
+  ftsTableName: string,
+  ftsColumns: ColumnSchema[],
+}) => SQL = ({ tableName, ftsTableName, ftsColumns }) => {
+  const rawColumnNames = ftsColumns.map((column) => column.name)
+  const assignments = rawColumnNames.map(
+    (column) => `${encodeName(column)} = NEW.${encodeName(column)}`,
+  )
+
+  const assignmentsSQL = assignments.join(', ')
+
+  return encodeFTSTrigger({
+    tableName,
+    ftsTableName,
+    event: 'update',
+    action: `update ${encodeName(ftsTableName)} set ${assignmentsSQL} where "rowid" = NEW."rowid";`,
+  })
+}
+
+const encodeFTSTriggers: ({
+  tableName: string,
+  ftsTableName: string,
+  ftsColumns: ColumnSchema[],
+}) => SQL = ({ tableName, ftsTableName, ftsColumns }) => {
+  return (
+    encodeFTSDeleteTrigger({ tableName, ftsTableName }) +
+    encodeFTSInsertTrigger({ tableName, ftsTableName, ftsColumns }) +
+    encodeFTSUpdateTrigger({ tableName, ftsTableName, ftsColumns })
+  )
+}
+
+const encodeFTSTable: ({
+  ftsTableName: string,
+  ftsColumns: ColumnSchema[],
+}) => SQL = ({ ftsTableName, ftsColumns }) => {
+  const columnsSQL = ftsColumns.map((column) => encodeName(column.name)).join(', ')
+  return `create virtual table ${encodeName(ftsTableName)} using fts4(${columnsSQL});`
+}
+
+const encodeFTSSearch: (TableSchema) => SQL = (tableSchema) => {
+  const { name: tableName, columnArray } = tableSchema
+  const ftsColumns = columnArray.filter((column) => column.isFTS)
+  if (ftsColumns.length === 0) {
+    return ''
+  }
+  const ftsTableName = `_fts_${tableName}`
+  return (
+    encodeFTSTable({ ftsTableName, ftsColumns }) +
+    encodeFTSTriggers({ tableName, ftsTableName, ftsColumns })
+  )
+}
+
+/** FTS END */
 
 export const encodeSchema: (AppSchema) => SQL = ({ tables, unsafeSql }) => {
   const sql = Object.values(tables)
@@ -67,6 +172,11 @@ const encodeAddColumnsMigrationStep: (AddColumnsMigrationStep) => SQL = ({
         column.name,
       )} = ${encodeValue(nullValue(column))};`
       const addIndex = encodeIndex(column, table)
+
+      invariant(
+        !column.isFTS,
+        '[DB][Worker] Support for migrations with isFTS is still to be implemented',
+      )
 
       return transform(addColumn + setDefaultValue + addIndex, unsafeSql)
     })

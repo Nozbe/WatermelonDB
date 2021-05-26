@@ -30,6 +30,7 @@ export type Operator =
   | 'between'
   | 'like'
   | 'notLike'
+  | 'ftsMatch'
 
 export type ColumnDescription = $RE<{ column: ColumnName, type?: symbol }>
 export type ComparisonRight =
@@ -246,6 +247,11 @@ const nonLikeSafeRegexp = /[^a-zA-Z0-9]/g
 export function sanitizeLikeString(value: string): string {
   invariant(typeof value === 'string', 'Value passed to Q.sanitizeLikeString() is not a string')
   return value.replace(nonLikeSafeRegexp, '_')
+}
+
+export function ftsMatch(value: string): Comparison {
+  invariant(typeof value === 'string', 'Value passed to Q.ftsMatch() is not a string')
+  return { operator: 'ftsMatch', right: { value }, type: comparisonSymbol }
 }
 
 export function column(name: ColumnName): ColumnDescription {
