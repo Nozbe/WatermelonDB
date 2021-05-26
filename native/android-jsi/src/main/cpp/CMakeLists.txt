@@ -8,6 +8,7 @@ cmake_minimum_required(VERSION 3.4.1)
 
 include_directories(
         ../../../../shared
+        ../../../../shared/vendor/simdjson
 # these paths work for WatermelonDB native tester
         ../../../../../node_modules/@nozbe/sqlite/sqlite-amalgamation-3310100/
         ../../../../../node_modules/react-native/React
@@ -49,8 +50,9 @@ get_filename_component(_nozbeTeamsPath "../../../../../../../../../native/node_m
 if(EXISTS "${_nativeTesterPath}")
         # these paths work for WatermelonDB native tester
         add_library(watermelondb-jsi SHARED
-                # sqlite3
+                # vendor files
                 ../../../../../node_modules/@nozbe/sqlite/sqlite-amalgamation-3310100/sqlite3.c
+                ../../../../shared/vendor/simdjson/simdjson.cpp
                 # source files
                 JSIInstaller.cpp
                 DatabasePlatformAndroid.cpp
@@ -66,6 +68,7 @@ elseif(EXISTS "${_nozbeTeamsPath}")
         # these paths work for Nozbe Teams
         add_library(watermelondb-jsi SHARED
                 ../../../../../../sqlite/sqlite-amalgamation-3310100/sqlite3.c
+                ../../../../shared/vendor/simdjson/simdjson.cpp
                 JSIInstaller.cpp
                 DatabasePlatformAndroid.cpp
                 JSLockPerfHack.cpp
@@ -78,6 +81,7 @@ else()
         # these paths should work for a standard RN project
         add_library(watermelondb-jsi SHARED
                 ../../../../../../sqlite/sqlite-amalgamation-3310100/sqlite3.c
+                ../../../../shared/vendor/simdjson/simdjson.cpp
                 JSIInstaller.cpp
                 DatabasePlatformAndroid.cpp
                 JSLockPerfHack.cpp
