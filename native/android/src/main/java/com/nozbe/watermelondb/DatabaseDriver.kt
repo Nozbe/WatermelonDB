@@ -10,17 +10,6 @@ import java.lang.Exception
 import java.util.logging.Logger
 
 class DatabaseDriver(context: Context, dbName: String) {
-    sealed class Operation {
-        class Execute(val table: TableName, val query: SQL, val args: QueryArgs) : Operation()
-        class Create(val table: TableName, val id: RecordID, val query: SQL, val args: QueryArgs) :
-                Operation()
-
-        class MarkAsDeleted(val table: TableName, val id: RecordID) : Operation()
-        class DestroyPermanently(val table: TableName, val id: RecordID) : Operation()
-        // class SetLocal(val key: String, val value: String) : Operation()
-        // class RemoveLocal(val key: String) : Operation()
-    }
-
     class SchemaNeededError : Exception()
     data class MigrationNeededError(val databaseVersion: SchemaVersion) : Exception()
 
@@ -101,9 +90,6 @@ class DatabaseDriver(context: Context, dbName: String) {
         this.pushMap(cursorMap)
     }
 
-    fun destroyDeletedRecords(table: TableName, records: QueryArgs) =
-            database.delete(Queries.multipleDeleteFromTable(table, records), records)
-
     fun count(query: SQL, args: QueryArgs): Int = database.count(query, args)
 
     fun getLocal(key: String): String? {
@@ -153,7 +139,11 @@ class DatabaseDriver(context: Context, dbName: String) {
         log?.info("Unsafe Reset Database")
         database.unsafeDestroyEverything()
         cachedRecords.clear()
-        setUpSchema(schema)
+
+        database.transaction {
+            database.unsafeExecuteStatements(schema.sql)
+            database.userVersion = schema.version
+        }
     }
 
     fun close() = database.close()
@@ -169,13 +159,6 @@ class DatabaseDriver(context: Context, dbName: String) {
             cachedRecords[table]?.contains(id) ?: false
 
     private fun removeFromCache(table: TableName, id: RecordID) = cachedRecords[table]?.remove(id)
-
-    private fun setUpSchema(schema: Schema) {
-        database.transaction {
-            database.unsafeExecuteStatements(schema.sql + Queries.localStorageSchema)
-            database.userVersion = schema.version
-        }
-    }
 
     private fun migrate(migrations: MigrationSet) {
         require(database.userVersion == migrations.from) {

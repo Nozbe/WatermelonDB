@@ -132,14 +132,6 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             withDriver(tag, promise) { it.batch(operations) }
 
     @ReactMethod
-    fun destroyDeletedRecords(
-        tag: ConnectionTag,
-        table: TableName,
-        records: ReadableArray,
-        promise: Promise
-    ) = withDriver(tag, promise) { it.destroyDeletedRecords(table, records.toArrayList().toArray()) }
-
-    @ReactMethod
     fun unsafeResetDatabase(
         tag: ConnectionTag,
         schema: SQL,

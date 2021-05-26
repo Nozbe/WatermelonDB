@@ -244,7 +244,10 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     callback: ResultCallback<void>,
   ): void {
     validateTable(table, this.schema)
-    this._dispatcher.destroyDeletedRecords(table, recordIds, callback)
+    this._batch(
+      [[0, null, `delete from "${table}" where "id" == ?`, recordIds.map((id) => [id])]],
+      callback,
+    )
   }
 
   unsafeResetDatabase(callback: ResultCallback<void>): void {

@@ -125,12 +125,6 @@ class DatabaseDriver {
         }
     }
 
-    func destroyDeletedRecords(table: Database.TableName, records: [RecordId]) throws {
-        // TODO: What's the behavior if record doesn't exist or isn't actually deleted?
-        let recordPlaceholders = records.map { _ in "?" }.joined(separator: ",")
-        try database.execute("delete from `\(table)` where id in (\(recordPlaceholders))", records)
-    }
-
 // MARK: - LocalStorage
 
     func getLocal(key: String) throws -> String? {
@@ -201,12 +195,8 @@ class DatabaseDriver {
         try database.unsafeDestroyEverything()
         cachedRecords = [:]
 
-        try setUpSchema(schema: schema)
-    }
-
-    private func setUpSchema(schema: Schema) throws {
         try database.inTransaction {
-            try database.executeStatements(schema.sql + localStorageSchema)
+            try database.executeStatements(schema.sql)
             database.userVersion = schema.version
         }
     }
@@ -222,15 +212,6 @@ class DatabaseDriver {
             database.userVersion = migrations.to
         }
     }
-
-    private let localStorageSchema = """
-        create table local_storage (
-        key varchar(16) primary key not null,
-        value text not null
-        );
-
-        create index local_storage_key_index on local_storage (key);
-    """
 }
 
 private func getPath(dbName: String) -> String {

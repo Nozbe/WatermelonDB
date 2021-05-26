@@ -401,35 +401,6 @@ void Database::batch(jsi::Array &operations) {
     }
 }
 
-void Database::destroyDeletedRecords(jsi::String &tableName, jsi::Array &recordIds) {
-    auto &rt = getRt();
-    beginTransaction();
-    try {
-        // TODO: Maybe it's faster & easier to do it in one query?
-        std::string sql = "delete from `" + tableName.utf8(rt) + "` where id == ?";
-
-        for (size_t i = 0, len = recordIds.size(rt); i < len; i++) {
-            // TODO: What's the behavior if record doesn't exist or isn't actually deleted?
-            jsi::String id = recordIds.getValueAtIndex(rt, i).getString(rt);
-            auto args = jsi::Array::createWithElements(rt, id);
-            executeUpdate(sql, args);
-        }
-        commit();
-    } catch (const std::exception &ex) {
-        rollback();
-        throw;
-    }
-}
-
-const std::string localStorageSchema = R"(
-create table local_storage (
-key varchar(16) primary key not null,
-value text not null
-);
-
-create index local_storage_key_index on local_storage (key);
-)";
-
 void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
     auto &rt = getRt();
 
@@ -453,7 +424,7 @@ void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
         cachedRecords_ = {};
 
         // Reinitialize schema
-        executeMultiple(schema.utf8(rt) + localStorageSchema);
+        executeMultiple(schema.utf8(rt));
         setUserVersion(schemaVersion);
 
         commit();

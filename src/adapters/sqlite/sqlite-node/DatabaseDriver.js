@@ -154,11 +154,6 @@ class DatabaseDriver {
     })
   }
 
-  destroyDeletedRecords(table: string, records: string[]): void {
-    const recordPlaceholders = records.map(() => '?').join(',')
-    this.database.execute(`DELETE FROM '${table}' WHERE id IN (${recordPlaceholders})`, records)
-  }
-
   // MARK: - LocalStorage
 
   getLocal(key: string): any | null {
@@ -216,12 +211,8 @@ class DatabaseDriver {
     this.database.unsafeDestroyEverything()
     this.cachedRecords = {}
 
-    this.setUpSchema(schema)
-  }
-
-  setUpSchema(schema: { sql: string, version: number }): void {
     this.database.inTransaction(() => {
-      this.database.executeStatements(schema.sql + this.localStorageSchema)
+      this.database.executeStatements(schema.sql)
       this.database.userVersion = schema.version
     })
   }
@@ -240,15 +231,6 @@ class DatabaseDriver {
       this.database.userVersion = migrations.to
     })
   }
-
-  localStorageSchema: string = `
-      create table local_storage (
-      key varchar(16) primary key not null,
-      value text not null
-      );
-
-      create index local_storage_key_index on local_storage (key);
-      `
 }
 
 export default DatabaseDriver
