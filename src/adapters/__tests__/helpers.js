@@ -132,6 +132,7 @@ export const projectQuery = (...conditions) => modelQuery(MockProject, ...condit
 
 export const mockTaskRaw = (raw) => sanitizedRaw(raw, testSchema.tables.tasks)
 export const mockProjectRaw = (raw) => sanitizedRaw(raw, testSchema.tables.projects)
+export const mockTagAssignmentRaw = (raw) => sanitizedRaw(raw, testSchema.tables.tag_assignments)
 
 const insertAll = async (adapter, table, records) =>
   adapter.batch(

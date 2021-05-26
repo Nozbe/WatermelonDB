@@ -34,9 +34,12 @@ export type LokiAdapterOptions = $Exact<{
   // Note that this only works when `useWebWorker: false`
   onQuotaExceededError?: (error: Error) => void,
   // extra options passed to Loki constructor
-  extraLokiOptions?: { autosave?: boolean, autosaveInterval?: number, ... },
+  extraLokiOptions?: $Exact<{
+    autosave?: boolean,
+    autosaveInterval?: number,
+  }>,
   // extra options passed to IncrementalIDBAdapter constructor
-  extraIncrementalIDBOptions?: {
+  extraIncrementalIDBOptions?: $Exact<{
     // Called when this adapter is forced to overwrite contents of IndexedDB.
     // This happens if there's another open tab of the same app that's making changes.
     // You might use it as an opportunity to alert user to the potential loss of data
@@ -56,8 +59,7 @@ export type LokiAdapterOptions = $Exact<{
     // while IDB does work on a separate thread.
     // Note that this only works when not using web workers
     onFetchStart?: () => void,
-    ...
-  },
+  }>,
   // -- internal --
   _testLokiAdapter?: LokiMemoryAdapter,
   _onFatalError?: (error: Error) => void, // (experimental)
@@ -155,6 +157,12 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     this._bridge.send('queryIds', [query], callback, 'immutable', 'immutable')
   }
 
+  unsafeQueryRaw(query: SerializedQuery, callback: ResultCallback<any[]>): void {
+    validateTable(query.table, this.schema)
+    // SerializedQueries are immutable, so we need no copy
+    this._bridge.send('unsafeQueryRaw', [query], callback, 'immutable', 'immutable')
+  }
+
   count(query: SerializedQuery, callback: ResultCallback<number>): void {
     validateTable(query.table, this.schema)
     // SerializedQueries are immutable, so we need no copy
@@ -179,8 +187,8 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   ): void {
     validateTable(table, this.schema)
     this._bridge.send(
-      'destroyDeletedRecords',
-      [table, recordIds],
+      'batch',
+      [recordIds.map((id) => ['destroyPermanently', table, id])],
       callback,
       'immutable',
       'immutable',

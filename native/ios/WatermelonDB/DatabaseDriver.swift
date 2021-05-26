@@ -77,6 +77,12 @@ class DatabaseDriver {
         }
     }
 
+    func unsafeQueryRaw(query: Database.SQL, args: Database.QueryArgs = []) throws -> [Any] {
+        return try database.queryRaw(query, args).map { row in
+            row.resultDictionary!
+        }
+    }
+
     func count(_ query: Database.SQL, args: Database.QueryArgs = []) throws -> Int {
         return try database.count(query, args)
     }

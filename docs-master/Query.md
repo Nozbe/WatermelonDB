@@ -304,13 +304,7 @@ Remember that Queries are a sensitive subject, security-wise. Never trust user i
 - Do not use `Q.like` / `Q.notLike` without `Q.sanitizeLikeString`
 - Do not use `unsafe raw queries` without knowing what you're doing and sanitizing all user input
 
-### Unsafe raw queries
-
-If this Query syntax is not enough for you, and you need to get your hands dirty on a raw SQL or Loki query, you need **rawQueries**.
-
-Please don't use this if you don't know what you're doing. The method name is called `unsafe` for a reason.
-
-#### Unsafe SQL queries
+### Unsafe SQL queries
 
 ```js
 const records = await database.get('comments').query(
@@ -344,7 +338,26 @@ const records = await database.get('comments').query(
 - You must filter out deleted record using `where _status is not 'deleted'` clause
 - If you're going to fetch count of the query, use `count(*) as count` as the select result
 
-#### Unsafe SQL/Loki expressions
+### Unsafe fetch raw
+
+In addition to `.fetch()` and `.fetchIds()`, there is also `.unsafeFetchRaw()`. Instead of returning an array of `Model` class instances, it returns an array of raw objects.
+
+You can use it as an unsafe optimization, or alongside `Q.unsafeSqlQuery`/`Q.unsafeLokiTransform` to create an advanced query that either skips fetching unnecessary columns or includes extra computed columns. For example:
+
+```js
+const rawData = await database.get('posts').query(
+  Q.unsafeSqlQuery(
+    'select posts.text1, count(tag_assignments.id) as tag_count, sum(tag_assignments.rank) as tag_rank from posts' +
+      ' left join tag_assignments on posts.id = tag_assignments.post_id' +
+      ' group by posts.id' +
+      ' order by posts.position desc',
+  )
+).unsafeFetchRaw()
+```
+
+⚠️ You MUST NOT mutate returned objects. Doing so will corrupt the database.
+
+### Unsafe SQL/Loki expressions
 
 You can also include smaller bits of SQL and Loki expressions so that you can still use as much of Watermelon query builder as possible:
 
@@ -363,6 +376,8 @@ postsCollection.query(
 ```
 
 For SQL, be sure to prefix column names with table name when joining with other tables.
+
+⚠️ Please do not use this if you don't know what you're doing. Do not pass user input directly to avoid SQL injection.
 
 ### Multi-table column comparisons and `Q.unsafeLokiTransform`
 

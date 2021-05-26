@@ -338,6 +338,37 @@ jsi::Array Database::queryIds(jsi::String &sql, jsi::Array &arguments) {
     return jsiIds;
 }
 
+jsi::Array Database::unsafeQueryRaw(jsi::String &sql, jsi::Array &arguments) {
+    auto &rt = getRt();
+    auto statement = executeQuery(sql.utf8(rt), arguments);
+
+    // FIXME: Adding directly to a jsi::Array should be more efficient, but Hermes does not support
+    // automatically resizing an Array by setting new values to it
+    std::vector<jsi::Value> raws = {};
+
+    while (true) {
+        int stepResult = sqlite3_step(statement.stmt);
+
+        if (stepResult == SQLITE_DONE) {
+            break;
+        } else if (stepResult != SQLITE_ROW) {
+            throw dbError("Failed to query the database");
+        }
+
+        jsi::Object raw = resultDictionary(statement.stmt);
+        raws.push_back(std::move(raw));
+    }
+
+    jsi::Array jsiRaws(rt, raws.size());
+    size_t i = 0;
+    for (auto const &raw : raws) {
+        jsiRaws.setValueAtIndex(rt, i, raw);
+        i++;
+    }
+
+    return jsiRaws;
+}
+
 jsi::Value Database::count(jsi::String &sql, jsi::Array &arguments) {
     auto &rt = getRt();
     auto statement = executeQuery(sql.utf8(rt), arguments);

@@ -177,6 +177,21 @@ describe('fetching queries', () => {
     expect(adapter.queryIds.mock.calls.length).toBe(1)
     expect(adapter.queryIds.mock.calls[0][0]).toEqual(query.serialize())
   })
+  it('fetches raws', async () => {
+    const { tasks: collection, adapter } = mockDatabase()
+
+    adapter.unsafeQueryRaw = jest
+      .fn()
+      .mockImplementationOnce((query, callback) => callback({ value: [{ a: 0, b: 1 }] }))
+
+    const query = mockQuery(collection)
+    expect(await toPromise((callback) => collection._unsafeFetchRaw(query, callback))).toEqual([
+      { a: 0, b: 1 },
+    ])
+
+    expect(adapter.unsafeQueryRaw.mock.calls.length).toBe(1)
+    expect(adapter.unsafeQueryRaw.mock.calls[0][0]).toEqual(query.serialize())
+  })
 })
 
 describe('creating new records', () => {

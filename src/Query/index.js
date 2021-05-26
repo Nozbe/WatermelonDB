@@ -136,11 +136,6 @@ export default class Query<Record: Model> {
     )
   }
 
-  // Queries database and returns an array with IDs of matching records
-  fetchIds(): Promise<RecordId[]> {
-    return toPromise((callback) => this.collection._fetchIds(this, callback))
-  }
-
   // Queries database and returns the number of matching records
   fetchCount(): Promise<number> {
     return toPromise((callback) => this.collection._fetchCount(this, callback))
@@ -170,6 +165,17 @@ export default class Query<Record: Model> {
         observer.next(count)
       })
     })
+  }
+
+  // Queries database and returns an array with IDs of matching records
+  fetchIds(): Promise<RecordId[]> {
+    return toPromise((callback) => this.collection._fetchIds(this, callback))
+  }
+
+  // Queries database and returns an array with unsanitized raw results
+  // You MUST NOT mutate these objects!
+  unsafeFetchRaw(): Promise<any[]> {
+    return toPromise((callback) => this.collection._unsafeFetchRaw(this, callback))
   }
 
   experimentalSubscribe(subscriber: (Record[]) => void): Unsubscribe {

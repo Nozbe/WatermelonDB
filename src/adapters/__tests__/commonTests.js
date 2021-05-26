@@ -20,6 +20,7 @@ import {
   expectSortedEqual,
   MockTask,
   mockProjectRaw,
+  mockTagAssignmentRaw,
   projectQuery,
   modelQuery,
 } from './helpers'
@@ -282,23 +283,6 @@ export default () => [
     },
   ],
   [
-    'can query record IDs',
-    async (_adapter) => {
-      let adapter = _adapter
-      const s1 = mockTaskRaw({ id: 's1', order: 1 })
-      const s2 = mockTaskRaw({ id: 's2', order: 2 })
-      await adapter.batch([
-        ['create', 'tasks', s1],
-        ['create', 'tasks', s2],
-      ])
-
-      // reloading adapter to make sure we don't accidentally just use normal query
-      adapter = await adapter.testClone()
-      expect(await adapter.queryIds(taskQuery())).toEqual(['s1', 's2'])
-      expect(await adapter.queryIds(taskQuery())).toEqual(['s1', 's2'])
-    },
-  ],
-  [
     'sanitizes records on query',
     async (_adapter) => {
       let adapter = _adapter
@@ -342,6 +326,86 @@ export default () => [
     },
   ],
   [
+    'can query record IDs',
+    async (_adapter) => {
+      let adapter = _adapter
+      await adapter.batch([
+        ['create', 'tasks', mockTaskRaw({ id: 's1', order: 1 })],
+        ['create', 'tasks', mockTaskRaw({ id: 's2', order: 2 })],
+      ])
+
+      // reloading adapter to make sure we don't accidentally just use normal query
+      adapter = await adapter.testClone()
+      expect(await adapter.queryIds(taskQuery())).toEqual(['s1', 's2'])
+      expect(await adapter.queryIds(taskQuery())).toEqual(['s1', 's2'])
+    },
+  ],
+  [
+    'can unsafely query raws with SQL',
+    async (adapter, AdapterClass) => {
+      await adapter.batch([
+        ['create', 'tasks', mockTaskRaw({ id: 't1', order: 1, text1: 'hello' })],
+        ['create', 'tasks', mockTaskRaw({ id: 't2', order: 2, text1: 'foo' })],
+        ['create', 'tasks', mockTaskRaw({ id: 't3', order: 3, text1: 'bar' })],
+        ['create', 'tag_assignments', mockTagAssignmentRaw({ id: 'ta1', task_id: 't1', num1: 5 })],
+        ['create', 'tag_assignments', mockTagAssignmentRaw({ id: 'ta2', task_id: 't1', num1: 9 })],
+        ['create', 'tag_assignments', mockTagAssignmentRaw({ id: 'ta3', task_id: 't3', num1: 3 })],
+      ])
+
+      if (AdapterClass.name === 'SQLiteAdapter') {
+        expect(
+          await adapter.unsafeQueryRaw(
+            taskQuery(Q.unsafeSqlQuery('select * from tasks where text1 = ?', ['bad'])),
+          ),
+        ).toEqual([])
+        expect(
+          await adapter.unsafeQueryRaw(
+            taskQuery(
+              Q.unsafeSqlQuery(
+                'select tasks.text1, count(tag_assignments.id) as tags, sum(tag_assignments.num1) as magic from tasks' +
+                  ' left join tag_assignments on tasks.id = tag_assignments.task_id' +
+                  ' group by tasks.id' +
+                  ' order by tasks."order" desc',
+              ),
+            ),
+          ),
+        ).toEqual([
+          { text1: 'bar', tags: 1, magic: 3 },
+          { text1: 'foo', tags: 0, magic: null },
+          { text1: 'hello', tags: 2, magic: 14 },
+        ])
+      } else if (AdapterClass.name === 'LokiJSAdapter') {
+        expect(await adapter.unsafeQueryRaw(taskQuery(Q.unsafeLokiTransform(() => [])))).toEqual([])
+        expect(
+          await adapter.unsafeQueryRaw(
+            taskQuery(
+              Q.unsafeLokiTransform((raws, loki) => {
+                return raws
+                  .sort((a, b) => b.order - a.order)
+                  .map((raw) => {
+                    const { id, text1 } = raw
+                    const assignments = loki
+                      .getCollection('tag_assignments')
+                      .find({ task_id: id })
+                      .map((ta) => ta.num1)
+                    return {
+                      text1,
+                      tags: assignments.length,
+                      magic: assignments.length ? assignments.reduce((a, b) => a + b) : null,
+                    }
+                  })
+              }),
+            ),
+          ),
+        ).toEqual([
+          { text1: 'bar', tags: 1, magic: 3 },
+          { text1: 'foo', tags: 0, magic: null },
+          { text1: 'hello', tags: 2, magic: 14 },
+        ])
+      }
+    },
+  ],
+  [
     'can update records',
     async (_adapter) => {
       let adapter = _adapter
@@ -376,6 +440,40 @@ export default () => [
       m1._status = 'synced'
       await adapter.batch([['update', 'tasks', m1]])
       expectSortedEqual(await adapter.query(taskQuery()), [m1])
+    },
+  ],
+  [
+    'can destroy records permanently',
+    async (adapter) => {
+      const m1 = mockTaskRaw({ id: 't1', text1: 'bar1' })
+      const m2 = mockTaskRaw({ id: 't2', text1: 'bar2' })
+      await adapter.batch([
+        ['create', 'tasks', m1],
+        ['create', 'tasks', m2],
+      ])
+      expect(await adapter.query(taskQuery())).toEqual(['t1', 't2'])
+
+      await adapter.batch([
+        ['destroyPermanently', 'tasks', m1.id],
+        ['markAsDeleted', 'tasks', m2.id],
+      ])
+      expect(await adapter.query(taskQuery())).toEqual([])
+      await adapter.batch([['destroyPermanently', 'tasks', m2.id]])
+      expect(await adapter.query(taskQuery())).toEqual([])
+    },
+  ],
+  [
+    'can destroy permanently records already destroyed',
+    async (adapter) => {
+      const m1 = mockTaskRaw({ id: 't1', text1: 'bar1' })
+      await adapter.batch([['create', 'tasks', m1]])
+      expect(await adapter.query(taskQuery())).toEqual(['t1'])
+
+      await adapter.batch([['destroyPermanently', 'tasks', m1.id]])
+      expect(await adapter.query(taskQuery())).toEqual([])
+
+      // this should not throw even though m1 is not present
+      await adapter.batch([['destroyPermanently', 'tasks', m1.id]])
     },
   ],
   [

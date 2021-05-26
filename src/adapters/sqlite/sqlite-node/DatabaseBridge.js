@@ -122,6 +122,18 @@ class DatabaseBridge {
     this.withDriver(tag, resolve, reject, 'queryIds', (driver) => driver.queryIds(query, args))
   }
 
+  unsafeQueryRaw(
+    tag: number,
+    query: string,
+    args: any[],
+    resolve: (any) => void,
+    reject: (string) => void,
+  ): void {
+    this.withDriver(tag, resolve, reject, 'unsafeQueryRaw', (driver) =>
+      driver.unsafeQueryRaw(query, args),
+    )
+  }
+
   count(
     tag: number,
     query: string,

@@ -20,6 +20,7 @@ class Database : public jsi::HostObject {
     jsi::Value find(jsi::String &tableName, jsi::String &id);
     jsi::Value query(jsi::String &tableName, jsi::String &sql, jsi::Array &arguments);
     jsi::Array queryIds(jsi::String &sql, jsi::Array &arguments);
+    jsi::Array unsafeQueryRaw(jsi::String &sql, jsi::Array &arguments);
     jsi::Value count(jsi::String &sql, jsi::Array &arguments);
     void batch(jsi::Array &operations);
     void unsafeResetDatabase(jsi::String &schema, int schemaVersion);

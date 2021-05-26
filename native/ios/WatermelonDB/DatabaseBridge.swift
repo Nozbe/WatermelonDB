@@ -130,6 +130,16 @@ extension DatabaseBridge {
         }
     }
 
+    @objc(unsafeQueryRaw:query:args:resolve:reject:)
+    func unsafeQueryRaw(tag: ConnectionTag,
+               query: Database.SQL,
+               args: Database.QueryArgs,
+               resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        withDriver(tag, resolve, reject) {
+            try $0.unsafeQueryRaw(query: query, args: args)
+        }
+    }
+
     @objc(count:query:args:resolve:reject:)
     func count(tag: ConnectionTag,
                query: Database.SQL,

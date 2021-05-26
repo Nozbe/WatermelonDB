@@ -84,6 +84,18 @@ class DatabaseDriver(context: Context, dbName: String) {
         return resultArray
     }
 
+    fun unsafeQueryRaw(query: SQL, args: QueryArgs): WritableArray {
+        val resultArray = Arguments.createArray()
+        database.rawQuery(query, args).use {
+            if (it.count > 0) {
+                while (it.moveToNext()) {
+                    resultArray.pushMapFromCursor(it)
+                }
+            }
+        }
+        return resultArray
+    }
+
     private fun WritableArray.pushMapFromCursor(cursor: Cursor) {
         val cursorMap = Arguments.createMap()
         cursorMap.mapCursor(cursor)
