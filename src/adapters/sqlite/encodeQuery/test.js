@@ -172,12 +172,18 @@ describe('SQLite encodeQuery', () => {
     )
   })
   it('encodes ftsMatch', () => {
-    const query = new Query(mockCollection, [Q.where('searchable', Q.ftsMatch('hello world'))])
-    expect(encodeQuery(query)).toBe(
+    expect(encoded([Q.where('searchable', Q.ftsMatch('hello world'))])).toBe(
       `select "tasks".* from "tasks" ` +
         `where "tasks"."rowid" in (` +
         `select "_fts_tasks"."rowid" from "_fts_tasks" ` +
         `where "_fts_tasks"."searchable" match 'hello world'` +
+        `) and "tasks"."_status" is not 'deleted'`,
+    )
+    expect(encoded([Q.where('tasks', Q.ftsMatch('hello world'))])).toBe(
+      `select "tasks".* from "tasks" ` +
+        `where "tasks"."rowid" in (` +
+        `select "_fts_tasks"."rowid" from "_fts_tasks" ` +
+        `where "_fts_tasks" match 'hello world'` +
         `) and "tasks"."_status" is not 'deleted'`,
     )
   })
@@ -195,15 +201,18 @@ describe('SQLite encodeQuery', () => {
       `join "projects" on "projects"."id" = "tasks"."project_id"` +
       ` join "tag_assignments" on "tag_assignments"."task_id" = "tasks"."id"` +
       ` where ("projects"."team_id" is 'abcdef'` +
-      ` and "projects"."is_active" is 1` +
-      ` and "projects"."left_column" <= "projects"."right_column"` +
-      ` and ("projects"."left2" > "projects"."right2"` +
+      ` and "projects"."_status" is not 'deleted')` +
+      ` and ("projects"."is_active" is 1` +
+      ` and "projects"."_status" is not 'deleted')` +
+      ` and ("projects"."left_column" <= "projects"."right_column"` +
+      ` and "projects"."_status" is not 'deleted')` +
+      ` and (("projects"."left2" > "projects"."right2"` +
       ` or ("projects"."left2" is not null` +
       ` and "projects"."right2" is null))` +
       ` and "projects"."_status" is not 'deleted')` +
+      ` and "tasks"."left_column" is 'right_value'` +
       ` and ("tag_assignments"."tag_id" in ('a', 'b', 'c')` +
       ` and "tag_assignments"."_status" is not 'deleted')` +
-      ` and "tasks"."left_column" is 'right_value'` +
       ` and "tasks"."rowid" in` +
       ` (select "_fts_tasks"."rowid" from "_fts_tasks" where` +
       ` "_fts_tasks"."searchable" match 'hello world')` +

@@ -88,7 +88,7 @@ describe('encodeSchema', () => {
       'create trigger "_fts_tasks_delete" after delete on "tasks" begin delete from "_fts_tasks" where "rowid" = OLD.rowid; end;' +
       'create trigger "_fts_tasks_insert" after insert on "tasks" begin insert into "_fts_tasks" ("rowid", "author_name", "author_title") values (NEW."rowid", NEW."author_name", NEW."author_title"); end;' +
       'create trigger "_fts_tasks_update" after update on "tasks" begin update "_fts_tasks" set "author_name" = NEW."author_name", "author_title" = NEW."author_title" where "rowid" = NEW."rowid"; end;' +
-      ''
+      'create table "local_storage" ("key" varchar(16) primary key not null, "value" text not null);create index "local_storage_key_index" on "local_storage" ("key");'
 
     expect(encodeSchema(testSchema)).toBe(expectedSchema)
   })
