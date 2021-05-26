@@ -250,7 +250,22 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   batch(operations: BatchOperation[], callback: ResultCallback<void>): void {
-    this._batch(require('./encodeBatch').default(operations, this.schema), callback)
+    const encodedOperations = require('./encodeBatch').default(operations, this.schema)
+
+    if (operations.length > 1000) {
+      const { removeIndices, addIndices } = require('./encodeSchema')
+      // console.log(removeIndices(this.schema))
+      // console.log(addIndices(this.schema))
+      const toEncodedOperations = (sqlStr) =>
+        sqlStr
+          .split(';')
+          .filter((sql) => sql)
+          .map((sql) => [0, null, sql, [[]]])
+      encodedOperations.unshift(...toEncodedOperations(removeIndices(this.schema)))
+      encodedOperations.push(...toEncodedOperations(addIndices(this.schema)))
+    }
+
+    this._batch(encodedOperations, callback)
   }
 
   getDeletedRecords(table: TableName<any>, callback: ResultCallback<RecordId[]>): void {

@@ -12,14 +12,31 @@ import type { SQL } from '../index'
 import encodeName from '../encodeName'
 import encodeValue from '../encodeValue'
 
-const standardColumns = `"id" primary key, "_changed", "_status"`
+const standardColumns = `"id" text primary key, "_changed" text, "_status" text`
 const localStorageSchema =
+  'PRAGMA journal_mode=WAL;' +
   'create table "local_storage" ("key" varchar(16) primary key not null, "value" text not null);' +
   'create index "local_storage_key_index" on "local_storage" ("key");'
 
+const encodeType = (type) => {
+  return ''
+  switch (type) {
+    case 'string':
+      return 'text'
+    case 'number':
+      return 'real'
+    case 'boolean':
+      return 'integer'
+  }
+}
+
 const encodeCreateTable: (TableSchema) => SQL = ({ name, columns }) => {
   const columnsSQL = [standardColumns]
-    .concat(Object.keys(columns).map((column) => encodeName(column)))
+    .concat(
+      Object.keys(columns).map(
+        (column) => `${encodeName(column)} ${encodeType(columns[column].type)}`,
+      ),
+    )
     .join(', ')
   return `create table ${encodeName(name)} (${columnsSQL});`
 }
@@ -50,6 +67,30 @@ export const encodeSchema: (AppSchema) => SQL = ({ tables, unsafeSql }) => {
     .map(encodeTable)
     .join('')
   return transform(sql + localStorageSchema, unsafeSql)
+}
+
+export const addIndices: (AppSchema) => SQL = ({ tables }) => {
+  return (
+    Object.values(tables)
+      // $FlowFixMe
+      .map(encodeTableIndicies)
+      .join('')
+  )
+}
+
+export const removeIndices: (AppSchema) => SQL = ({ tables }) => {
+  return (
+    Object.values(tables)
+      // $FlowFixMe
+      .map(({ name: tableName, columns }) =>
+        Object.values(columns)
+          // $FlowFixMe
+          .map((column) => (column.isIndexed ? `drop index "${tableName}_${column.name}";` : ''))
+          .concat([`drop index "${tableName}__status";`])
+          .join(''),
+      )
+      .join('')
+  )
 }
 
 const encodeCreateTableMigrationStep: (CreateTableMigrationStep) => SQL = ({ schema }) =>
