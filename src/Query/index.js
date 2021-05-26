@@ -1,6 +1,7 @@
 // @flow
 
 import allPromises from '../utils/fp/allPromises'
+import invariant from '../utils/common/invariant'
 import { Observable } from '../utils/rx'
 import { toPromise } from '../utils/fp/Result'
 import { type Unsubscribe, SharedSubscribable } from '../utils/subscriptions'
@@ -13,7 +14,7 @@ import subscribeToQuery from '../observation/subscribeToQuery'
 import subscribeToQueryWithColumns from '../observation/subscribeToQueryWithColumns'
 import * as Q from '../QueryDescription'
 import type { Clause, QueryDescription } from '../QueryDescription'
-import type Model, { AssociationInfo } from '../Model'
+import type Model, { AssociationInfo, RecordId } from '../Model'
 import type Collection from '../Collection'
 import type { TableName, ColumnName } from '../Schema'
 
@@ -81,8 +82,12 @@ export default class Query<Record: Model> {
       joinTables,
       nestedJoinTables,
       lokiTransform,
+      sql,
     } = this._rawDescription
 
+    invariant(!sql, 'Cannot extend an unsafe SQL query')
+
+    // TODO: Move this & tests to QueryDescription
     return new Query(collection, [
       Q.experimentalJoinTables(joinTables),
       ...nestedJoinTables.map(({ from, to }) => Q.experimentalNestedJoin(from, to)),
@@ -131,7 +136,7 @@ export default class Query<Record: Model> {
     )
   }
 
-  // Returns the number of matching records
+  // Queries database and returns the number of matching records
   fetchCount(): Promise<number> {
     return toPromise((callback) => this.collection._fetchCount(this, callback))
   }
@@ -160,6 +165,17 @@ export default class Query<Record: Model> {
         observer.next(count)
       })
     })
+  }
+
+  // Queries database and returns an array with IDs of matching records
+  fetchIds(): Promise<RecordId[]> {
+    return toPromise((callback) => this.collection._fetchIds(this, callback))
+  }
+
+  // Queries database and returns an array with unsanitized raw results
+  // You MUST NOT mutate these objects!
+  unsafeFetchRaw(): Promise<any[]> {
+    return toPromise((callback) => this.collection._unsafeFetchRaw(this, callback))
   }
 
   experimentalSubscribe(subscriber: (Record[]) => void): Unsubscribe {

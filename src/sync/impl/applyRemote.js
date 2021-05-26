@@ -242,7 +242,7 @@ export default function applyRemoteChanges(
   conflictResolver?: SyncConflictResolver,
   _unsafeBatchPerCollection?: boolean,
 ): Promise<void> {
-  return db.action(async () => {
+  return db.write(async () => {
     // $FlowFixMe
     const recordsToApply = await getAllRecordsToApply(db, remoteChanges)
 

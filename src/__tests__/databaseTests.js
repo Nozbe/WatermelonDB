@@ -717,6 +717,83 @@ export const matchTests = [
     skipMatcher: true,
   },
   {
+    name: 'match unsafe SQL query',
+    query: [
+      Q.unsafeSqlQuery('select * from tasks where num1 not between 1 and 5 and num2 is not 6'),
+    ],
+    matching: [
+      { id: 'm1', num1: 0 },
+      { id: 'm2', num1: -1 },
+      { id: 'm3', num1: 6 },
+      { id: 'm4', num1: 10 },
+    ],
+    nonMatching: [
+      { id: 'n1', num1: 1 },
+      { id: 'n2', num1: 3 },
+      { id: 'n3', num1: 5 },
+      { id: 'n4', num1: 6, num2: 6 },
+    ],
+    skipLoki: true,
+    skipMatcher: true,
+    skipCount: true,
+  },
+  {
+    name: 'match unsafe SQL query with values',
+    query: [
+      Q.unsafeSqlQuery(
+        'select * from tasks where num1 not between ? and ? and num2 is not ? and text1 is ? and bool1 is ? and text2 is ?',
+        [1, 5, 3.14, 'hi', true, null],
+      ),
+    ],
+    matching: [
+      { id: 'm1', text1: 'hi', bool1: true, num1: 0 },
+      { id: 'm2', text1: 'hi', bool1: true, num1: -1 },
+      { id: 'm3', text1: 'hi', bool1: true, num1: 6 },
+      { id: 'm4', text1: 'hi', bool1: true, num1: 10 },
+    ],
+    nonMatching: [
+      { id: 'n1', text1: 'hi', bool1: true, num1: 1 },
+      { id: 'n2', text1: 'hi', bool1: true, num1: 3 },
+      { id: 'n3', text1: 'hi', bool1: true, num1: 5 },
+      { id: 'n4', text1: 'hi', bool1: true, num1: 6, num2: 3.14 },
+      { id: 'n5', text1: 'hia', bool1: true, num1: 10 },
+      { id: 'n6', text1: 'hi', bool1: false, num1: 10 },
+      { id: 'n7', num1: 10 },
+      { id: 'n8', text1: 'hi', bool1: true, num1: 10, text2: 'bad' },
+    ],
+    skipLoki: true,
+    skipMatcher: true,
+    skipCount: true,
+  },
+  {
+    name: 'count with unsafe SQL query with values',
+    query: [
+      Q.unsafeSqlQuery(
+        'select count(*) as count from tasks where num1 not between ? and ? and num2 is not ? and text1 is ? and bool1 is ? and text2 is ?',
+        [1, 5, 3.14, 'hi', true, null],
+      ),
+    ],
+    matching: [
+      { id: 'm1', text1: 'hi', bool1: true, num1: 0 },
+      { id: 'm2', text1: 'hi', bool1: true, num1: -1 },
+      { id: 'm3', text1: 'hi', bool1: true, num1: 6 },
+      { id: 'm4', text1: 'hi', bool1: true, num1: 10 },
+    ],
+    nonMatching: [
+      { id: 'n1', text1: 'hi', bool1: true, num1: 1 },
+      { id: 'n2', text1: 'hi', bool1: true, num1: 3 },
+      { id: 'n3', text1: 'hi', bool1: true, num1: 5 },
+      { id: 'n4', text1: 'hi', bool1: true, num1: 6, num2: 3.14 },
+      { id: 'n5', text1: 'hia', bool1: true, num1: 10 },
+      { id: 'n6', text1: 'hi', bool1: false, num1: 10 },
+      { id: 'n7', num1: 10 },
+      { id: 'n8', text1: 'hi', bool1: true, num1: 10, text2: 'bad' },
+    ],
+    skipLoki: true,
+    skipMatcher: true,
+    skipQuery: true,
+  },
+  {
     name: 'match unsafe Loki expression',
     query: [Q.unsafeLokiExpr({ text1: { $contains: 'hey' } })],
     matching: [
@@ -1210,6 +1287,41 @@ export const joinTests = [
       { id: 'n8', project_id: 'p1' },
     ],
     skipLoki: true,
+  },
+  {
+    name: 'can compare columns between tables using unsafe SQL queries',
+    query: [
+      Q.experimentalJoinTables(['projects']),
+      Q.unsafeSqlQuery(
+        `select tasks.* from tasks left join projects on tasks.project_id is projects.id where projects.num1 is not null and tasks.num1 > projects.num1 and tasks._status is not 'deleted' and projects._status is not 'deleted'`,
+      ),
+    ],
+    extraRecords: {
+      projects: [
+        { id: 'p1', num1: 5 },
+        { id: 'p2', num1: 10 },
+        { id: 'badp1' },
+        { id: 'badp2', num1: 5, _status: 'deleted' },
+      ],
+    },
+    matching: [
+      { id: 'm1', project_id: 'p1', num1: 5.01 },
+      { id: 'm2', project_id: 'p1', num1: 100 },
+      { id: 'm3', project_id: 'p2', num1: 11 },
+      { id: 'm4', project_id: 'p2', num1: 10e12 },
+    ],
+    nonMatching: [
+      { id: 'n1', project_id: 'p1', num1: 0 },
+      { id: 'n2', project_id: 'p1', num1: -10 },
+      { id: 'n3', project_id: 'p1', num1: 4.99 },
+      { id: 'n4', project_id: 'p2', num1: 9 },
+      { id: 'n5', project_id: 'badp2', num1: 100 },
+      { id: 'n6', project_id: 'badp1', num1: 100 },
+      { id: 'n7', project_id: 'p1', num1: 100, _status: 'deleted' },
+      { id: 'n8', project_id: 'p1' },
+    ],
+    skipLoki: true,
+    skipCount: true,
   },
   {
     name: 'can compare columns between tables using unsafe Loki transform',

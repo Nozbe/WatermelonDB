@@ -14,6 +14,9 @@ import encodeName from '../encodeName'
 import encodeValue from '../encodeValue'
 
 const standardColumns = `"id" primary key, "_changed", "_status"`
+const localStorageSchema =
+  'create table "local_storage" ("key" varchar(16) primary key not null, "value" text not null);' +
+  'create index "local_storage_key_index" on "local_storage" ("key");'
 
 const encodeCreateTable: (TableSchema) => SQL = ({ name, columns }) => {
   const columnsSQL = [standardColumns]
@@ -151,7 +154,7 @@ export const encodeSchema: (AppSchema) => SQL = ({ tables, unsafeSql }) => {
     // $FlowFixMe
     .map(encodeTable)
     .join('')
-  return transform(sql, unsafeSql)
+  return transform(sql + localStorageSchema, unsafeSql)
 }
 
 const encodeCreateTableMigrationStep: (CreateTableMigrationStep) => SQL = ({ schema }) =>

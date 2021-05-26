@@ -157,6 +157,20 @@ void Database::install(jsi::Runtime *runtime) {
 
             return runBlock(rt, [&]() { return database->query(tableName, sql, arguments); });
         });
+        createMethod(rt, adapter, "queryIds", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            assert(database->initialized_);
+            jsi::String sql = args[0].getString(rt);
+            jsi::Array arguments = args[1].getObject(rt).getArray(rt);
+
+            return runBlock(rt, [&]() { return database->queryIds(sql, arguments); });
+        });
+        createMethod(rt, adapter, "unsafeQueryRaw", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            assert(database->initialized_);
+            jsi::String sql = args[0].getString(rt);
+            jsi::Array arguments = args[1].getObject(rt).getArray(rt);
+
+            return runBlock(rt, [&]() { return database->unsafeQueryRaw(sql, arguments); });
+        });
         createMethod(rt, adapter, "count", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String sql = args[0].getString(rt);
@@ -178,41 +192,6 @@ void Database::install(jsi::Runtime *runtime) {
             jsi::String key = args[0].getString(rt);
 
             return runBlock(rt, [&]() { return database->getLocal(key); });
-        });
-        createMethod(rt, adapter, "setLocal", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
-            jsi::String key = args[0].getString(rt);
-            jsi::String value = args[1].getString(rt);
-
-            return runBlock(rt, [&]() {
-                database->setLocal(key, value);
-                return jsi::Value::undefined();
-            });
-        });
-        createMethod(rt, adapter, "removeLocal", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
-            jsi::String key = args[0].getString(rt);
-
-            return runBlock(rt, [&]() {
-                database->removeLocal(key);
-                return jsi::Value::undefined();
-            });
-        });
-        createMethod(rt, adapter, "getDeletedRecords", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
-            jsi::String tableName = args[0].getString(rt);
-
-            return runBlock(rt, [&]() { return database->getDeletedRecords(tableName); });
-        });
-        createMethod(rt, adapter, "destroyDeletedRecords", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
-            jsi::String tableName = args[0].getString(rt);
-            jsi::Array recordIds = args[1].getObject(rt).getArray(rt);
-
-            return runBlock(rt, [&]() {
-                database->destroyDeletedRecords(tableName, recordIds);
-                return jsi::Value::undefined();
-            });
         });
         createMethod(rt, adapter, "unsafeResetDatabase", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);

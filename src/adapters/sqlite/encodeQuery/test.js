@@ -28,7 +28,13 @@ const mockCollection = Object.freeze({
   db: { get: (table) => (table === 'projects' ? { modelClass: MockProject } : {}) },
 })
 
-const encoded = (clauses, countMode) => encodeQuery(new Query(mockCollection, clauses), countMode)
+const encodedWithArgs = (clauses, countMode) =>
+  encodeQuery(new Query(mockCollection, clauses), countMode)
+
+const encoded = (clauses, countMode) => {
+  const [sql] = encodedWithArgs(clauses, countMode)
+  return sql
+}
 
 describe('SQLite encodeQuery', () => {
   it('encodes simple queries', () => {
@@ -135,11 +141,12 @@ describe('SQLite encodeQuery', () => {
       `join "projects" on "projects"."id" = "tasks"."project_id"` +
       ` join "tag_assignments" on "tag_assignments"."task_id" = "tasks"."id"` +
       ` where ("projects"."team_id" is 'abcdef'` +
-      ` and "projects"."is_active" is 1` +
       ` and "projects"."_status" is not 'deleted')` +
+      ` and ("projects"."is_active" is 1` +
+      ` and "projects"."_status" is not 'deleted')` +
+      ` and "tasks"."left_column" is 'right_value'` +
       ` and ("tag_assignments"."tag_id" in ('a', 'b', 'c')` +
       ` and "tag_assignments"."_status" is not 'deleted')` +
-      ` and "tasks"."left_column" is 'right_value'` +
       ` and "tasks"."_status" is not 'deleted'`
     expect(encoded(query)).toBe(`select distinct "tasks".* from "tasks" ${expectedQuery}`)
     expect(encoded(query, true)).toBe(
@@ -156,7 +163,8 @@ describe('SQLite encodeQuery', () => {
       `select "tasks".* from "tasks"` +
         ` join "projects" on "projects"."id" = "tasks"."project_id"` +
         ` where ("projects"."left_column" <= "projects"."right_column"` +
-        ` and ("projects"."left2" > "projects"."right2"` +
+        ` and "projects"."_status" is not 'deleted')` +
+        ` and (("projects"."left2" > "projects"."right2"` +
         ` or ("projects"."left2" is not null` +
         ` and "projects"."right2" is null))` +
         ` and "projects"."_status" is not 'deleted')` +
@@ -307,6 +315,27 @@ describe('SQLite encodeQuery', () => {
     ).toBe(
       `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' order by "tasks"."sortable_column" desc limit 100 offset 200`,
     )
+  })
+  it(`encodes unsafe SQL queries`, () => {
+    expect(encoded([Q.unsafeSqlQuery(`select * from tasks where foo = 'bar'`)])).toBe(
+      `select * from tasks where foo = 'bar'`,
+    )
+    expect(
+      encoded([Q.unsafeSqlQuery(`select count(*) as count from tasks where foo = 'bar'`)], true),
+    ).toBe(`select count(*) as count from tasks where foo = 'bar'`)
+
+    expect(
+      encodedWithArgs([
+        Q.unsafeSqlQuery(`select * from tasks where text1 is ? and num1 is ? and bool1 is ?`, [
+          'foo',
+          10,
+          true,
+        ]),
+      ]),
+    ).toEqual([
+      `select * from tasks where text1 is ? and num1 is ? and bool1 is ?`,
+      ['foo', 10, true],
+    ])
   })
   it(`does not encode loki-specific syntax`, () => {
     expect(() => encoded([Q.unsafeLokiExpr({ hi: true })])).toThrow('Unknown clause')

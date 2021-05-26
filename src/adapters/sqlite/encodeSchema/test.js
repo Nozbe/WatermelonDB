@@ -1,7 +1,12 @@
+/* eslint-disable prefer-template */
 import { appSchema, tableSchema } from '../../../Schema'
 import { addColumns, createTable, unsafeExecuteSql } from '../../../Schema/migrations'
 
 import { encodeSchema, encodeMigrationSteps } from './index'
+
+const expectedLocalStorageSchema =
+  'create table "local_storage" ("key" varchar(16) primary key not null, "value" text not null);' +
+  'create index "local_storage_key_index" on "local_storage" ("key");'
 
 describe('encodeSchema', () => {
   it('encodes schema', () => {
@@ -32,7 +37,8 @@ describe('encodeSchema', () => {
       'create index "tasks_order" on "tasks" ("order");' +
       'create index "tasks__status" on "tasks" ("_status");' +
       'create table "comments" ("id" primary key, "_changed", "_status", "is_ended", "reactions");' +
-      'create index "comments__status" on "comments" ("_status");'
+      'create index "comments__status" on "comments" ("_status");' +
+      expectedLocalStorageSchema
 
     expect(encodeSchema(testSchema)).toBe(expectedSchema)
   })
@@ -53,7 +59,8 @@ describe('encodeSchema', () => {
       'create blabla;' +
       'create table "tasks" ("id" primary key, "_changed", "_status", "author_id") without rowid;' +
       'create index "tasks_author_id" on "tasks" ("author_id");' +
-      'create index "tasks__status" on "tasks" ("_status");'
+      'create index "tasks__status" on "tasks" ("_status");' +
+      expectedLocalStorageSchema
 
     expect(encodeSchema(testSchema)).toBe(expectedSchema)
   })

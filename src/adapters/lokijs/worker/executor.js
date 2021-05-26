@@ -117,34 +117,16 @@ export default class LokiExecutor {
     return this._compactQueryResults(records, query.table)
   }
 
+  queryIds(query: SerializedQuery): RecordId[] {
+    return executeQuery(query, this.loki).map((record) => record.id)
+  }
+
+  unsafeQueryRaw(query: SerializedQuery): any[] {
+    return executeQuery(query, this.loki)
+  }
+
   count(query: SerializedQuery): number {
     return executeCount(query, this.loki)
-  }
-
-  _update(table: TableName<any>, rawRecord: RawRecord): void {
-    const collection = this.loki.getCollection(table)
-    // Loki identifies records using internal $loki ID so we must find the saved record first
-    const lokiId = collection.by('id', rawRecord.id).$loki
-    const raw: DirtyRaw = rawRecord
-    raw.$loki = lokiId
-    collection.update(raw)
-  }
-
-  _destroyPermanently(table: TableName<any>, id: RecordId): void {
-    const collection = this.loki.getCollection(table)
-    const record = collection.by('id', id)
-    collection.remove(record)
-    this.removeFromCache(table, id)
-  }
-
-  _markAsDeleted(table: TableName<any>, id: RecordId): void {
-    const collection = this.loki.getCollection(table)
-    const record = collection.by('id', id)
-    if (record) {
-      record._status = 'deleted'
-      collection.update(record)
-      this.removeFromCache(table, id)
-    }
   }
 
   batch(operations: BatchOperation[]): void {
@@ -192,16 +174,34 @@ export default class LokiExecutor {
 
       operations.forEach((operation) => {
         const [type, table, rawOrId] = operation
+        const collection = this.loki.getCollection(table)
+
         switch (type) {
-          case 'update':
-            this._update(table, (rawOrId: $FlowFixMe<RawRecord>))
+          case 'update': {
+            // Loki identifies records using internal $loki ID so we must find the saved record first
+            const lokiId = collection.by('id', (rawOrId: any).id).$loki
+            const raw: DirtyRaw = rawOrId
+            raw.$loki = lokiId
+            collection.update(raw)
             break
-          case 'markAsDeleted':
-            this._markAsDeleted(table, (rawOrId: $FlowFixMe<RecordId>))
+          }
+          case 'markAsDeleted': {
+            const id: RecordId = (rawOrId: any)
+            const record = collection.by('id', id)
+            if (record) {
+              record._status = 'deleted'
+              collection.update(record)
+              this.removeFromCache(table, id)
+            }
             break
-          case 'destroyPermanently':
-            this._destroyPermanently(table, (rawOrId: $FlowFixMe<RecordId>))
+          }
+          case 'destroyPermanently': {
+            const id: RecordId = (rawOrId: any)
+            const record = collection.by('id', id)
+            record && collection.remove(record)
+            this.removeFromCache(table, id)
             break
+          }
           default:
             break
         }
@@ -216,20 +216,6 @@ export default class LokiExecutor {
       .getCollection(table)
       .find({ _status: { $eq: 'deleted' } })
       .map((record) => record.id)
-  }
-
-  destroyDeletedRecords(table: TableName<any>, records: RecordId[]): void {
-    this._assertNotBroken()
-    try {
-      const collection = this.loki.getCollection(table)
-      records.forEach((recordId) => {
-        const record = collection.by('id', recordId)
-
-        record && collection.remove(record)
-      })
-    } catch (error) {
-      this._fatalError(error)
-    }
   }
 
   async unsafeResetDatabase(): Promise<void> {

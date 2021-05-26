@@ -6,25 +6,13 @@ import type { SchemaMigrations } from '../Schema/migrations'
 import type { RecordId } from '../Model'
 import { toPromise } from '../utils/fp/Result'
 
-import type {
-  DatabaseAdapter,
-  CachedFindResult,
-  CachedQueryResult,
-  BatchOperation,
-  SQLDatabaseAdapter,
-} from './type'
+import type { DatabaseAdapter, CachedFindResult, CachedQueryResult, BatchOperation } from './type'
 
 export default class DatabaseAdapterCompat {
   underlyingAdapter: DatabaseAdapter
 
   constructor(adapter: DatabaseAdapter): void {
     this.underlyingAdapter = adapter
-
-    const sqlAdapter: SQLDatabaseAdapter = (adapter: any)
-    if (sqlAdapter.unsafeSqlQuery) {
-      this.unsafeSqlQuery = (tableName, sql) =>
-        toPromise((callback) => sqlAdapter.unsafeSqlQuery(tableName, sql, callback))
-    }
   }
 
   get schema(): AppSchema {
@@ -41,6 +29,14 @@ export default class DatabaseAdapterCompat {
 
   query(query: SerializedQuery): Promise<CachedQueryResult> {
     return toPromise((callback) => this.underlyingAdapter.query(query, callback))
+  }
+
+  queryIds(query: SerializedQuery): Promise<RecordId[]> {
+    return toPromise((callback) => this.underlyingAdapter.queryIds(query, callback))
+  }
+
+  unsafeQueryRaw(query: SerializedQuery): Promise<any[]> {
+    return toPromise((callback) => this.underlyingAdapter.unsafeQueryRaw(query, callback))
   }
 
   count(query: SerializedQuery): Promise<number> {
@@ -76,8 +72,6 @@ export default class DatabaseAdapterCompat {
   removeLocal(key: string): Promise<void> {
     return toPromise((callback) => this.underlyingAdapter.removeLocal(key, callback))
   }
-
-  unsafeSqlQuery: ?(tableName: TableName<any>, sql: string) => Promise<CachedQueryResult>
 
   // untyped - test-only code
   async testClone(options: any): Promise<any> {

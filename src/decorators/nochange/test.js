@@ -36,7 +36,7 @@ describe('decorators/nochange', () => {
     const database = makeDatabase()
     database.adapter.batch = jest.fn()
 
-    const model = await database.action(() =>
+    const model = await database.write(() =>
       database.collections.get('mock').create((mock) => {
         expect(mock.foo).toBe(null)
         mock.foo = 't1'
@@ -63,14 +63,14 @@ describe('decorators/nochange', () => {
     const database = makeDatabase()
     database.adapter.batch = jest.fn()
 
-    const model = await database.action(() =>
+    const model = await database.write(() =>
       database.collections.get('mock').create((mock) => {
         mock.foo = 't1'
       }),
     )
 
     await expectToRejectWithMessage(
-      database.action(() =>
+      database.write(() =>
         model.update((mock) => {
           mock.foo = 't2'
         }),

@@ -8,8 +8,6 @@ import { toPromise } from '../utils/fp/Result'
 
 import { mockDatabase, MockTask, testSchema } from '../__tests__/testModels'
 
-import { CollectionChangeTypes } from './common'
-
 const mockQuery = (collection) => new Query(collection, [Q.where('a', 'b')])
 
 describe('Collection', () => {
@@ -87,21 +85,6 @@ describe('finding records', () => {
     await expectToRejectWithMessage(tasks.find(null), 'Invalid record ID')
     await expectToRejectWithMessage(tasks.find({}), 'Invalid record ID')
   })
-  it('successfully executes unsafe SQL fetches in the same sequence as normal fetches', async () => {
-    // See: https://github.com/Nozbe/WatermelonDB/issues/931
-    const { tasks: collection, adapter } = mockDatabase()
-
-    adapter.unsafeSqlQuery = (table, sql, cb) => cb({ value: [{ id: 'm1' }] })
-    adapter.query = jest.fn().mockImplementation((query, cb) => cb({ value: ['m1', { id: 'm2' }] }))
-
-    const unsafeFetch = collection.unsafeFetchRecordsWithSQL(
-      `SELECT t.* FROM mock_tasks AS t WHERE t.id = 'm1'`,
-    )
-    const normalFetch = collection.query().fetch()
-
-    expect((await normalFetch).map((x) => x._raw)).toEqual([{ id: 'm1' }, { id: 'm2' }])
-    expect((await unsafeFetch).map((x) => x._raw)).toEqual([{ id: 'm1' }])
-  })
 })
 
 describe('fetching queries', () => {
@@ -173,19 +156,41 @@ describe('fetching queries', () => {
   it('fetches counts', async () => {
     const { tasks: collection, adapter } = mockDatabase()
 
-    adapter.count = jest
-      .fn()
-      .mockImplementationOnce((query, callback) => callback({ value: 5 }))
-      .mockImplementationOnce((query, callback) => callback({ value: 10 }))
+    adapter.count = jest.fn().mockImplementationOnce((query, callback) => callback({ value: 5 }))
 
     const query = mockQuery(collection)
-
     expect(await toPromise((callback) => collection._fetchCount(query, callback))).toBe(5)
-    expect(await toPromise((callback) => collection._fetchCount(query, callback))).toBe(10)
 
-    expect(adapter.count.mock.calls.length).toBe(2)
+    expect(adapter.count.mock.calls.length).toBe(1)
     expect(adapter.count.mock.calls[0][0]).toEqual(query.serialize())
-    expect(adapter.count.mock.calls[1][0]).toEqual(query.serialize())
+  })
+  it('fetches ids', async () => {
+    const { tasks: collection, adapter } = mockDatabase()
+
+    adapter.queryIds = jest
+      .fn()
+      .mockImplementationOnce((query, callback) => callback({ value: ['a', 'b'] }))
+
+    const query = mockQuery(collection)
+    expect(await toPromise((callback) => collection._fetchIds(query, callback))).toEqual(['a', 'b'])
+
+    expect(adapter.queryIds.mock.calls.length).toBe(1)
+    expect(adapter.queryIds.mock.calls[0][0]).toEqual(query.serialize())
+  })
+  it('fetches raws', async () => {
+    const { tasks: collection, adapter } = mockDatabase()
+
+    adapter.unsafeQueryRaw = jest
+      .fn()
+      .mockImplementationOnce((query, callback) => callback({ value: [{ a: 0, b: 1 }] }))
+
+    const query = mockQuery(collection)
+    expect(await toPromise((callback) => collection._unsafeFetchRaw(query, callback))).toEqual([
+      { a: 0, b: 1 },
+    ])
+
+    expect(adapter.unsafeQueryRaw.mock.calls.length).toBe(1)
+    expect(adapter.unsafeQueryRaw.mock.calls[0][0]).toEqual(query.serialize())
   })
 })
 
@@ -200,15 +205,15 @@ describe('creating new records', () => {
     // Check Model._prepareCreate was called
     const newModelSpy = jest.spyOn(MockTask, '_prepareCreate')
 
-    const m1 = await db.action(() => collection.create())
+    const m1 = await db.write(() => collection.create())
 
     // Check database insert, cache insert, observers update
-    expect(m1._isCommitted).toBe(true)
+    expect(m1._preparedState).toBe(null)
     expect(newModelSpy).toHaveBeenCalledTimes(1)
     expect(dbBatchSpy).toHaveBeenCalledTimes(1)
     expect(dbBatchSpy).toHaveBeenCalledWith([['create', 'mock_tasks', m1._raw]], expect.anything())
     expect(observer).toHaveBeenCalledTimes(1)
-    expect(observer).toHaveBeenCalledWith([{ record: m1, type: CollectionChangeTypes.created }])
+    expect(observer).toHaveBeenCalledWith([{ record: m1, type: 'created' }])
     expect(collection._cache.get(m1.id)).toBe(m1)
     expect(await collection.find(m1.id)).toBe(m1)
   })
@@ -223,7 +228,7 @@ describe('creating new records', () => {
 
     const m1 = collection.prepareCreate()
 
-    expect(m1._isCommitted).toBe(false)
+    expect(m1._preparedState).toBe('create')
     expect(newModelSpy).toHaveBeenCalledTimes(1)
     expect(observer).toHaveBeenCalledTimes(0)
     await expect(collection.find(m1.id)).rejects.toBeInstanceOf(Error)
@@ -234,19 +239,23 @@ describe('creating new records', () => {
     const newModelSpy = jest.spyOn(MockTask, '_prepareCreateFromDirtyRaw')
 
     const m1 = collection.prepareCreateFromDirtyRaw({ col3: 'hello' })
-    expect(m1._isCommitted).toBe(false)
+    expect(m1._preparedState).toBe('create')
     expect(newModelSpy).toHaveBeenCalledTimes(1)
   })
-  it('disallows record creating outside of an action', async () => {
+  it('disallows record creating outside of a writer', async () => {
     const { database, tasks } = mockDatabase()
 
     await expectToRejectWithMessage(
       tasks.create(noop),
-      'can only be called from inside of an Action',
+      'can only be called from inside of a Writer',
+    )
+    await expectToRejectWithMessage(
+      database.read(() => tasks.create(noop)),
+      'can only be called from inside of a Writer',
     )
 
-    // no throw inside action
-    await database.action(() => tasks.create(noop))
+    // no throw inside writer
+    await database.write(() => tasks.create(noop))
   })
 })
 
@@ -254,14 +263,14 @@ describe('Collection observation', () => {
   it('can subscribe to collection changes', async () => {
     const { database, tasks } = mockDatabase()
 
-    await database.action(() => tasks.create())
+    await database.write(() => tasks.create())
 
     const subscriber1 = jest.fn()
     const unsubscribe1 = tasks.experimentalSubscribe(subscriber1)
 
     expect(subscriber1).toHaveBeenCalledTimes(0)
 
-    const t1 = await database.action(() => tasks.create())
+    const t1 = await database.write(() => tasks.create())
 
     expect(subscriber1).toHaveBeenCalledTimes(1)
     expect(subscriber1).toHaveBeenLastCalledWith([{ record: t1, type: 'created' }])
@@ -269,7 +278,7 @@ describe('Collection observation', () => {
     const subscriber2 = jest.fn()
     const unsubscribe2 = tasks.experimentalSubscribe(subscriber2)
 
-    await database.action(() => t1.update())
+    await database.write(() => t1.update())
 
     expect(subscriber1).toHaveBeenCalledTimes(2)
     expect(subscriber2).toHaveBeenCalledTimes(1)
@@ -277,7 +286,7 @@ describe('Collection observation', () => {
 
     unsubscribe1()
 
-    await database.action(() => t1.markAsDeleted())
+    await database.write(() => t1.markAsDeleted())
 
     expect(subscriber1).toHaveBeenCalledTimes(2)
     expect(subscriber2).toHaveBeenCalledTimes(2)
@@ -285,7 +294,7 @@ describe('Collection observation', () => {
 
     unsubscribe2()
 
-    await database.action(() => tasks.create())
+    await database.write(() => tasks.create())
     expect(subscriber2).toHaveBeenCalledTimes(2)
   })
   it('unsubscribe can safely be called more than once', async () => {
@@ -299,14 +308,14 @@ describe('Collection observation', () => {
     unsubscribe2()
     unsubscribe2()
 
-    await database.action(() => tasks.create())
+    await database.write(() => tasks.create())
     expect(subscriber1).toHaveBeenCalledTimes(1)
 
     unsubscribe1()
   })
   it(`can subscribe with the same subscriber multiple times`, async () => {
     const { database, tasks } = mockDatabase()
-    const trigger = () => database.action(() => tasks.create())
+    const trigger = () => database.write(() => tasks.create())
     const subscriber = jest.fn()
 
     const unsubscribe1 = tasks.experimentalSubscribe(subscriber)

@@ -17,6 +17,7 @@ import { type TableName, type ColumnName } from '../../../Schema'
 
 import encodeValue from '../encodeValue'
 import encodeName from '../encodeName'
+import type { SQL, SQLiteArg } from '../index'
 
 function mapJoin<T>(array: T[], mapper: (T) => string, joiner: string): string {
   // NOTE: DO NOT try to optimize this by concatenating strings together. In non-JIT JSC,
@@ -221,8 +222,14 @@ const encodeLimitOffset = (limit: ?number, offset: ?number) => {
   return ` limit ${limit}${optionalOffsetStmt}`
 }
 
-const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string => {
+const encodeQuery = (query: SerializedQuery, countMode: boolean = false): [SQL, SQLiteArg[]] => {
   const { table, description, associations } = query
+
+  // TODO: Test if encoding a `select id.x` query speeds up queryIds() calls
+  if (description.sql) {
+    const { sql, values } = description.sql
+    return [sql, values]
+  }
 
   const hasToManyJoins = associations.some(({ info }) => info.type === 'has_many')
 
@@ -240,7 +247,7 @@ const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string
     encodeOrderBy(table, description.sortBy) +
     encodeLimitOffset(description.take, description.skip)
 
-  return sql
+  return [sql, []]
 }
 
 export default encodeQuery

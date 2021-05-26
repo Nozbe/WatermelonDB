@@ -19,14 +19,12 @@ class Database : public jsi::HostObject {
 
     jsi::Value find(jsi::String &tableName, jsi::String &id);
     jsi::Value query(jsi::String &tableName, jsi::String &sql, jsi::Array &arguments);
+    jsi::Array queryIds(jsi::String &sql, jsi::Array &arguments);
+    jsi::Array unsafeQueryRaw(jsi::String &sql, jsi::Array &arguments);
     jsi::Value count(jsi::String &sql, jsi::Array &arguments);
     void batch(jsi::Array &operations);
-    jsi::Array getDeletedRecords(jsi::String &tableName);
-    void destroyDeletedRecords(jsi::String &tableName, jsi::Array &recordIds);
     void unsafeResetDatabase(jsi::String &schema, int schemaVersion);
     jsi::Value getLocal(jsi::String &key);
-    void setLocal(jsi::String &key, jsi::String &value);
-    void removeLocal(jsi::String &key);
 
     private:
     bool initialized_;

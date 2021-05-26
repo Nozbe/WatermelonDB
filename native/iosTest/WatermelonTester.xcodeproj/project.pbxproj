@@ -13,7 +13,6 @@
 		6E339A1D260CCC4500E44857 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E339A1C260CCC4500E44857 /* Accelerate.framework */; };
 		6E339A21260CCC6800E44857 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E339A20260CCC6800E44857 /* XCTest.framework */; };
 		6ECAF1762212B9D000D06219 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6ECAF1752212B9D000D06219 /* JavaScriptCore.framework */; };
-		6ED501382143FE770031A190 /* DatabaseDriverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED5010F2143FE760031A190 /* DatabaseDriverTests.swift */; };
 		6ED501392143FE770031A190 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED501362143FE760031A190 /* Tests.swift */; };
 		6ED5013A2143FE770031A190 /* BridgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED501372143FE770031A190 /* BridgeTests.swift */; };
 		6ED5013C2143FEE80031A190 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED5013B2143FEE80031A190 /* AppDelegate.swift */; };
@@ -48,7 +47,6 @@
 		6ECAF1752212B9D000D06219 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		6ED500E02143DC690031A190 /* WatermelonTester-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WatermelonTester-Bridging-Header.h"; sourceTree = "<group>"; };
 		6ED500F22143FA1B0031A190 /* WatermelonTesterTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WatermelonTesterTests-Bridging-Header.h"; sourceTree = "<group>"; };
-		6ED5010F2143FE760031A190 /* DatabaseDriverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseDriverTests.swift; sourceTree = "<group>"; };
 		6ED501362143FE760031A190 /* Tests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
 		6ED501372143FE770031A190 /* BridgeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BridgeTests.swift; sourceTree = "<group>"; };
 		6ED5013B2143FEE80031A190 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -87,7 +85,6 @@
 			isa = PBXGroup;
 			children = (
 				6ED501372143FE770031A190 /* BridgeTests.swift */,
-				6ED5010F2143FE760031A190 /* DatabaseDriverTests.swift */,
 				6ED501362143FE760031A190 /* Tests.swift */,
 				00E356F01AD99517003FC87E /* Supporting Files */,
 				6ED500F22143FA1B0031A190 /* WatermelonTesterTests-Bridging-Header.h */,
@@ -184,7 +181,6 @@
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				06D343BB3954D17CF1201020 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -308,23 +304,6 @@
 			shellPath = /bin/sh;
 			shellScript = "FORCE_BUNDLING=1 ../../node_modules/react-native/scripts/react-native-xcode.sh \"src/index.integrationTests.native.js\"\n";
 		};
-		06D343BB3954D17CF1201020 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-WatermelonTesterTests/Pods-WatermelonTesterTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-WatermelonTesterTests/Pods-WatermelonTesterTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WatermelonTesterTests/Pods-WatermelonTesterTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		6917CB7EADD178FFB06C02A2 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -385,7 +364,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6ED501382143FE770031A190 /* DatabaseDriverTests.swift in Sources */,
 				6ED501392143FE770031A190 /* Tests.swift in Sources */,
 				6ED5013A2143FE770031A190 /* BridgeTests.swift in Sources */,
 			);

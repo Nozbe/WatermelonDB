@@ -2,7 +2,7 @@
 /* eslint-disable global-require */
 
 import { fromPairs } from '../../../utils/fp'
-import DatabaseBridge from './node/DatabaseBridge'
+import DatabaseBridge from '../sqlite-node/DatabaseBridge'
 import { type ConnectionTag } from '../../../utils/common'
 import { fromPromise } from '../../../utils/fp/Result'
 import type { DispatcherType, SQLiteAdapterOptions, NativeDispatcher } from '../type'
@@ -15,15 +15,12 @@ const dispatcherMethods = [
   'setUpWithMigrations',
   'find',
   'query',
+  'queryIds',
+  'unsafeQueryRaw',
   'count',
   'batch',
-  'batchJSON',
-  'getDeletedRecords',
-  'destroyDeletedRecords',
   'unsafeResetDatabase',
   'getLocal',
-  'setLocal',
-  'removeLocal',
 ]
 
 export const makeDispatcher = (

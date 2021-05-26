@@ -2,18 +2,17 @@
 
 import { type Observable, startWith, merge as merge$ } from '../utils/rx'
 import { type Unsubscribe } from '../utils/subscriptions'
-import { invariant, logger } from '../utils/common'
+import { invariant, logger, deprecated } from '../utils/common'
 import { noop } from '../utils/fp'
 
 import type { DatabaseAdapter, BatchOperation } from '../adapters/type'
 import DatabaseAdapterCompat from '../adapters/compat'
 import type Model from '../Model'
 import type Collection, { CollectionChangeSet } from '../Collection'
-import { CollectionChangeTypes } from '../Collection/common'
 import type { TableName, AppSchema } from '../Schema'
 
 import CollectionMap from './CollectionMap'
-import ActionQueue, { type ActionInterface } from './ActionQueue'
+import WorkQueue, { type ReaderInterface, type WriterInterface } from './WorkQueue'
 
 type DatabaseProps = $Exact<{
   adapter: DatabaseAdapter,
@@ -33,7 +32,7 @@ export default class Database {
 
   collections: CollectionMap
 
-  _actionQueue: ActionQueue = new ActionQueue()
+  _workQueue: WorkQueue = new WorkQueue(this)
 
   // (experimental) if true, Database is in a broken state and should not be used anymore
   _isBroken: boolean = false
@@ -77,9 +76,7 @@ export default class Database {
     )
     const actualRecords = records[0]
 
-    this._ensureInAction(
-      `Database.batch() can only be called from inside of an Action. See docs for more details.`,
-    )
+    this._ensureInWriter(`Database.batch()`)
 
     // performance critical - using mutations
     const batchOperations: BatchOperation[] = []
@@ -89,9 +86,10 @@ export default class Database {
         return
       }
 
+      const preparedState = record._preparedState
       invariant(
-        !record._isCommitted || record._hasPendingUpdate || record._hasPendingDelete,
-        `Cannot batch a record that doesn't have a prepared create or prepared update`,
+        preparedState,
+        `Cannot batch a record that doesn't have a prepared create/update/delete`,
       )
 
       const raw = record._raw
@@ -100,21 +98,27 @@ export default class Database {
 
       let changeType
 
-      // Deletes take presedence over updates
-      if (record._hasPendingDelete) {
-        if (record._hasPendingDelete === 'destroy') {
-          batchOperations.push(['destroyPermanently', table, id])
-        } else {
-          batchOperations.push(['markAsDeleted', table, id])
-        }
-        changeType = CollectionChangeTypes.destroyed
-      } else if (record._hasPendingUpdate) {
-        record._hasPendingUpdate = false // TODO: What if this fails?
+      if (preparedState === 'update') {
         batchOperations.push(['update', table, raw])
-        changeType = CollectionChangeTypes.updated
-      } else {
+        changeType = 'updated'
+      } else if (preparedState === 'create') {
         batchOperations.push(['create', table, raw])
-        changeType = CollectionChangeTypes.created
+        changeType = 'created'
+      } else if (preparedState === 'markAsDeleted') {
+        batchOperations.push(['markAsDeleted', table, id])
+        changeType = 'destroyed'
+      } else if (preparedState === 'destroyPermanently') {
+        batchOperations.push(['destroyPermanently', table, id])
+        changeType = 'destroyed'
+      } else {
+        invariant(false, 'bad preparedState')
+      }
+
+      if (preparedState !== 'create') {
+        // We're (unsafely) assuming that batch will succeed and removing the "pending" state so that
+        // subsequent changes to the record don't trip up the invariant
+        // TODO: What if this fails?
+        record._preparedState = null
       }
 
       if (!changeNotifications[table]) {
@@ -146,23 +150,26 @@ export default class Database {
     return undefined // shuts up flow
   }
 
-  // Enqueues an Action -- a block of code that, when its ran, has a guarantee that no other Action
+  // Enqueues a Writer - a block of code that, when it's running, has a guarantee that no other Writer
   // is running at the same time.
-  // If Database is instantiated with actions enabled, all write actions (create, update, delete)
-  // must be performed inside Actions, so Actions guarantee a write lock.
-  //
+  // All actions that modify the database (create, update, delete) must be performed inside of a Writer block
   // See docs for more details and practical guide
-  action<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
-    return this._actionQueue.enqueue(work, description)
+  write<T>(work: (WriterInterface) => Promise<T>, description?: string): Promise<T> {
+    return this._workQueue.enqueue(work, description, true)
   }
 
-  /* EXPERIMENTAL API - DO NOT USE */
-  _write<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
-    return this._actionQueue.enqueue(work, description)
+  // Enqueues a Reader - a block of code that, when it's running, has a guarantee that no Writer
+  // is running at the same time (therefore, the database won't be modified for the duration of Reader's work)
+  // See docs for more details and practical guide
+  read<T>(work: (ReaderInterface) => Promise<T>, description?: string): Promise<T> {
+    return this._workQueue.enqueue(work, description, false)
   }
 
-  _read<T>(work: (ActionInterface) => Promise<T>, description?: string): Promise<T> {
-    return this._actionQueue.enqueue(work, description)
+  action<T>(work: (WriterInterface) => Promise<T>, description?: string): Promise<T> {
+    if (process.env.NODE_ENV !== 'production') {
+      deprecated('Database.action()', 'Use Database.write() instead.')
+    }
+    return this._workQueue.enqueue(work, `${description || 'unnamed'} (legacy action)`, true)
   }
 
   // Emits a signal immediately, and on change in any of the passed tables
@@ -208,13 +215,11 @@ export default class Database {
   //
   // Yes, this sucks and there should be some safety mechanisms or warnings. Please contribute!
   async unsafeResetDatabase(): Promise<void> {
-    this._ensureInAction(
-      `Database.unsafeResetDatabase() can only be called from inside of an Action. See docs for more details.`,
-    )
+    this._ensureInWriter(`Database.unsafeResetDatabase()`)
     try {
       this._isBeingReset = true
       // First kill actions, to ensure no more traffic to adapter happens
-      this._actionQueue._abortPendingActions()
+      this._workQueue._abortPendingWork()
 
       // Kill ability to call adapter methods during reset (to catch bugs if someone does this)
       const { adapter } = this
@@ -237,7 +242,10 @@ export default class Database {
       await adapter.unsafeResetDatabase()
 
       // Only now clear caches, since there may have been queued fetches from DB still bringing in items to cache
-      this._unsafeClearCaches()
+      Object.values(this.collections.map).forEach((collection) => {
+        // $FlowFixMe
+        collection._cache.unsafeClear()
+      })
 
       // Restore working Database
       this._resetCount += 1
@@ -247,15 +255,11 @@ export default class Database {
     }
   }
 
-  _unsafeClearCaches(): void {
-    Object.values(this.collections.map).forEach((collection) => {
-      // $FlowFixMe
-      collection.unsafeClearCache()
-    })
-  }
-
-  _ensureInAction(error: string): void {
-    invariant(this._actionQueue.isRunning, error)
+  _ensureInWriter(diagnosticMethodName: string): void {
+    invariant(
+      this._workQueue.isWriterRunning,
+      `${diagnosticMethodName} can only be called from inside of a Writer. See docs for more details.`,
+    )
   }
 
   // (experimental) puts Database in a broken state

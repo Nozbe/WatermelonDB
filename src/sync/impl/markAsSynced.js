@@ -48,7 +48,7 @@ export default function markLocalChangesAsSynced(
   db: Database,
   syncedLocalChanges: SyncLocalChanges,
 ): Promise<void> {
-  return db.action(async () => {
+  return db.write(async () => {
     // update and destroy records concurrently
     await Promise.all([
       // $FlowFixMe

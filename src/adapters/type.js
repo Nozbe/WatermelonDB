@@ -27,6 +27,12 @@ export interface DatabaseAdapter {
   // Fetches matching records. Should not send raw object if already cached in JS
   query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void;
 
+  // Fetches IDs of matching records
+  queryIds(query: SerializedQuery, callback: ResultCallback<RecordId[]>): void;
+
+  // Fetches unsafe, unsanitized objects according to query. You must not mutate these objects.
+  unsafeQueryRaw(query: SerializedQuery, callback: ResultCallback<any[]>): void;
+
   // Counts matching records
   count(query: SerializedQuery, callback: ResultCallback<number>): void;
 
@@ -54,12 +60,4 @@ export interface DatabaseAdapter {
 
   // Removes key from local storage
   removeLocal(key: string, callback: ResultCallback<void>): void;
-}
-
-export interface SQLDatabaseAdapter {
-  unsafeSqlQuery(
-    tableName: TableName<any>,
-    sql: string,
-    callback: ResultCallback<CachedQueryResult>,
-  ): void;
 }

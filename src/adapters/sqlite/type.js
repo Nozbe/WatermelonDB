@@ -35,13 +35,21 @@ export type SQLiteAdapterOptions = $Exact<{
 
 export type DispatcherType = 'asynchronous' | 'jsi'
 
-export type NativeBridgeBatchOperation =
-  | ['execute', TableName<any>, SQL, SQLiteArg[]]
-  | ['create', TableName<any>, RecordId, SQL, SQLiteArg[]]
-  | ['markAsDeleted', TableName<any>, RecordId]
-  | ['destroyPermanently', TableName<any>, RecordId]
-// | ['setLocal', string, string]
-// | ['removeLocal', string]
+// This is the internal format of batch operations
+// It's ugly, but optimized for performance and versatility, e.g.:
+// adding a record:  [1, 'table', 'insert into...', [['id', 'created', ...]]]
+// updating a record [0, null, 'update...', [['id', 'created', ...]]]
+// removing a record [-1, table, 'delete...', [['id', 'created', ...]]]
+type NativeBridgeBatchOperationCacheBehavior =
+  | -1 // remove from cache
+  | 0 // ignore
+  | 1 // add to cache
+export type NativeBridgeBatchOperation = [
+  NativeBridgeBatchOperationCacheBehavior,
+  ?TableName<any>, // table to add/remove from cache
+  SQL,
+  Array<SQLiteArg[]>, // id must be at [0] if cacheBehavior != 0
+]
 
 type InitializeStatus =
   | { code: 'ok' | 'schema_needed' }
@@ -56,35 +64,28 @@ export type NativeDispatcher = $Exact<{
   setUpWithSchema: (string, SQL, SchemaVersion, ResultCallback<void>) => void,
   setUpWithMigrations: (string, SQL, SchemaVersion, SchemaVersion, ResultCallback<void>) => void,
   find: (TableName<any>, RecordId, ResultCallback<DirtyFindResult>) => void,
-  query: (TableName<any>, SQL, ResultCallback<DirtyQueryResult>) => void,
-  count: (SQL, ResultCallback<number>) => void,
+  query: (TableName<any>, SQL, SQLiteArg[], ResultCallback<DirtyQueryResult>) => void,
+  queryIds: (SQL, SQLiteArg[], ResultCallback<RecordId[]>) => void,
+  unsafeQueryRaw: (SQL, SQLiteArg[], ResultCallback<any[]>) => void,
+  count: (SQL, SQLiteArg[], ResultCallback<number>) => void,
   batch: (NativeBridgeBatchOperation[], ResultCallback<void>) => void,
   batchJSON?: (string, ResultCallback<void>) => void,
-  getDeletedRecords: (TableName<any>, ResultCallback<RecordId[]>) => void,
-  destroyDeletedRecords: (TableName<any>, RecordId[], ResultCallback<void>) => void,
   unsafeResetDatabase: (SQL, SchemaVersion, ResultCallback<void>) => void,
   getLocal: (string, ResultCallback<?string>) => void,
-  setLocal: (string, string, ResultCallback<void>) => void,
-  removeLocal: (string, ResultCallback<void>) => void,
 }>
 
 export type NativeBridgeType = {
-  // Async methods
+  initializeJSI?: () => void,
   initialize: (ConnectionTag, string, SchemaVersion) => Promise<InitializeStatus>,
   setUpWithSchema: (ConnectionTag, string, SQL, SchemaVersion) => Promise<void>,
   setUpWithMigrations: (ConnectionTag, string, SQL, SchemaVersion, SchemaVersion) => Promise<void>,
   find: (ConnectionTag, TableName<any>, RecordId) => Promise<DirtyFindResult>,
-  query: (ConnectionTag, TableName<any>, SQL) => Promise<DirtyQueryResult>,
-  count: (ConnectionTag, SQL) => Promise<number>,
+  query: (ConnectionTag, TableName<any>, SQL, SQLiteArg[]) => Promise<DirtyQueryResult>,
+  queryIds: (ConnectionTag, SQL, SQLiteArg[]) => Promise<RecordId[]>,
+  unsafeQueryRaw: (ConnectionTag, SQL, SQLiteArg[]) => Promise<any[]>,
+  count: (ConnectionTag, SQL, SQLiteArg[]) => Promise<number>,
   batch: (ConnectionTag, NativeBridgeBatchOperation[]) => Promise<void>,
   batchJSON?: (ConnectionTag, string) => Promise<void>,
-  getDeletedRecords: (ConnectionTag, TableName<any>) => Promise<RecordId[]>,
-  destroyDeletedRecords: (ConnectionTag, TableName<any>, RecordId[]) => Promise<void>,
   unsafeResetDatabase: (ConnectionTag, SQL, SchemaVersion) => Promise<void>,
   getLocal: (ConnectionTag, string) => Promise<?string>,
-  setLocal: (ConnectionTag, string, string) => Promise<void>,
-  removeLocal: (ConnectionTag, string) => Promise<void>,
-
-  // Special methods
-  initializeJSI?: () => void,
 }

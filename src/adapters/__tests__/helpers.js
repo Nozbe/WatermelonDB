@@ -132,6 +132,7 @@ export const projectQuery = (...conditions) => modelQuery(MockProject, ...condit
 
 export const mockTaskRaw = (raw) => sanitizedRaw(raw, testSchema.tables.tasks)
 export const mockProjectRaw = (raw) => sanitizedRaw(raw, testSchema.tables.projects)
+export const mockTagAssignmentRaw = (raw) => sanitizedRaw(raw, testSchema.tables.tag_assignments)
 
 const insertAll = async (adapter, table, records) =>
   adapter.batch(
@@ -157,13 +158,22 @@ export const performMatchTest = async (adapter, testCase) => {
   await insertAll(adapter, 'tasks', nonMatching)
 
   const query = taskQuery(...conditions)
-  const results = await adapter.query(query)
-  expect(sort(results)).toEqual(getExpectedResults(matching))
 
-  // also test if counting works correctly
+  // test if query fetch is correct
+  if (!testCase.skipQuery) {
+    const results = await adapter.query(query)
+    const expectedResults = getExpectedResults(matching)
+    expect(sort(results)).toEqual(expectedResults)
+
+    // test if ID fetch is correct
+    const ids = await adapter.queryIds(query)
+    expect(sort(ids)).toEqual(expectedResults)
+  }
+
+  // test if counting is correct
   if (!testCase.skipCount) {
     const count = await adapter.count(query)
-    expect(count).toBe(results.length)
+    expect(count).toBe(matching.length)
   }
 
   // delete

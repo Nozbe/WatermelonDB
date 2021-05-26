@@ -116,28 +116,24 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             withDriver(tag, promise) { it.find(table, id) }
 
     @ReactMethod
-    fun query(tag: ConnectionTag, table: TableName, query: SQL, promise: Promise) =
-            withDriver(tag, promise) { it.cachedQuery(table, query) }
+    fun query(tag: ConnectionTag, table: TableName, query: SQL, args: ReadableArray, promise: Promise) =
+            withDriver(tag, promise) { it.cachedQuery(table, query, args.toArrayList().toArray()) }
 
     @ReactMethod
-    fun count(tag: ConnectionTag, query: SQL, promise: Promise) =
-            withDriver(tag, promise) { it.count(query) }
+    fun queryIds(tag: ConnectionTag, query: SQL, args: ReadableArray, promise: Promise) =
+            withDriver(tag, promise) { it.queryIds(query, args.toArrayList().toArray()) }
+
+    @ReactMethod
+    fun unsafeQueryRaw(tag: ConnectionTag, query: SQL, args: ReadableArray, promise: Promise) =
+            withDriver(tag, promise) { it.unsafeQueryRaw(query, args.toArrayList().toArray()) }
+
+    @ReactMethod
+    fun count(tag: ConnectionTag, query: SQL, args: ReadableArray, promise: Promise) =
+            withDriver(tag, promise) { it.count(query, args.toArrayList().toArray()) }
 
     @ReactMethod
     fun batch(tag: ConnectionTag, operations: ReadableArray, promise: Promise) =
             withDriver(tag, promise) { it.batch(operations) }
-
-    @ReactMethod
-    fun getDeletedRecords(tag: ConnectionTag, table: TableName, promise: Promise) =
-            withDriver(tag, promise) { it.getDeletedRecords(table) }
-
-    @ReactMethod
-    fun destroyDeletedRecords(
-        tag: ConnectionTag,
-        table: TableName,
-        records: ReadableArray,
-        promise: Promise
-    ) = withDriver(tag, promise) { it.destroyDeletedRecords(table, records.toArrayList().toArray()) }
 
     @ReactMethod
     fun unsafeResetDatabase(
@@ -150,14 +146,6 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     @ReactMethod
     fun getLocal(tag: ConnectionTag, key: String, promise: Promise) =
             withDriver(tag, promise) { it.getLocal(key) }
-
-    @ReactMethod
-    fun setLocal(tag: ConnectionTag, key: String, value: String, promise: Promise) =
-            withDriver(tag, promise) { it.setLocal(key, value) }
-
-    @ReactMethod
-    fun removeLocal(tag: ConnectionTag, key: String, promise: Promise) =
-            withDriver(tag, promise) { it.removeLocal(key) }
 
     @Throws(Exception::class)
     private fun withDriver(

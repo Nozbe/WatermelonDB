@@ -15,7 +15,7 @@ const createTask = async (tasks, name, isCompleted) => {
   return task
 }
 
-const updateTask = (task, updater) => task.collection.database.action(() => task.update(updater))
+const updateTask = (task, updater) => task.collection.database.write(() => task.update(updater))
 
 describe('subscribeToQueryReloading', () => {
   it('observes changes to query', async () => {
@@ -31,7 +31,7 @@ describe('subscribeToQueryReloading', () => {
     let m1
     let m2
     let m3
-    await database.action(() => {
+    await database.write(() => {
       project = projects.prepareCreateFromDirtyRaw({ id: 'MOCK_PROJECT', name: 'hello' })
       m1 = prepareTask(tasks, 'name1', true)
       m2 = prepareTask(tasks, 'name2', true)
@@ -50,13 +50,13 @@ describe('subscribeToQueryReloading', () => {
     expect(observer).toHaveBeenLastCalledWith([m1, m2])
 
     // add matching model
-    const m4 = await database.action(() => createTask(tasks, 'name4', true))
+    const m4 = await database.write(() => createTask(tasks, 'name4', true))
     await waitForNextQuery()
     expect(observer).toHaveBeenCalledTimes(2)
     expect(observer).toHaveBeenLastCalledWith([m1, m2, m4])
 
     // remove matching model
-    await database.action(() => m1.markAsDeleted())
+    await database.write(() => m1.markAsDeleted())
 
     await waitForNextQuery()
     expect(observer).toHaveBeenCalledTimes(3)
@@ -70,7 +70,7 @@ describe('subscribeToQueryReloading', () => {
     expect(observer).toHaveBeenCalledTimes(3)
 
     // change model in other table
-    await database.action(() =>
+    await database.write(() =>
       project.update(() => {
         project.name = 'other'
       }),
@@ -82,7 +82,7 @@ describe('subscribeToQueryReloading', () => {
 
     // ensure record subscriptions are disposed properly
     unsubscribe()
-    await database.action(() =>
+    await database.write(() =>
       project.update(() => {
         project.name = 'hello'
       }),

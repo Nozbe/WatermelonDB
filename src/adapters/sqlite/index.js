@@ -8,13 +8,7 @@ import type { RecordId } from '../../Model'
 import type { SerializedQuery } from '../../Query'
 import type { TableName, AppSchema, SchemaVersion } from '../../Schema'
 import type { SchemaMigrations, MigrationStep } from '../../Schema/migrations'
-import type {
-  DatabaseAdapter,
-  SQLDatabaseAdapter,
-  CachedQueryResult,
-  CachedFindResult,
-  BatchOperation,
-} from '../type'
+import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
 import {
   sanitizeFindResult,
   sanitizeQueryResult,
@@ -33,9 +27,8 @@ import type {
   MigrationEvents,
 } from './type'
 
+import encodeName from './encodeName'
 import encodeQuery from './encodeQuery'
-import encodeUpdate from './encodeUpdate'
-import encodeInsert from './encodeInsert'
 
 import { makeDispatcher, DatabaseBridge, getDispatcherType } from './makeDispatcher'
 
@@ -45,7 +38,7 @@ if (process.env.NODE_ENV !== 'production') {
   require('./devtools')
 }
 
-export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapter {
+export default class SQLiteAdapter implements DatabaseAdapter {
   schema: AppSchema
 
   migrations: ?SchemaMigrations
@@ -75,10 +68,6 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName)
 
     if (process.env.NODE_ENV !== 'production') {
-      invariant(
-        !('migrationsExperimental' in options),
-        'SQLiteAdapter `migrationsExperimental` option has been renamed to `migrations`',
-      )
       invariant(
         !('experimentalUseJSI' in options),
         'SQLiteAdapter `experimentalUseJSI: true` has been renamed to `jsi: true`',
@@ -215,16 +204,9 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void {
     validateTable(query.table, this.schema)
-    this.unsafeSqlQuery(query.table, encodeQuery(query), callback)
-  }
-
-  unsafeSqlQuery(
-    table: TableName<any>,
-    sql: string,
-    callback: ResultCallback<CachedQueryResult>,
-  ): void {
-    validateTable(table, this.schema)
-    this._dispatcher.query(table, sql, (result) =>
+    const { table } = query
+    const [sql, args] = encodeQuery(query)
+    this._dispatcher.query(table, sql, args, (result) =>
       callback(
         mapValue(
           (rawRecords) => sanitizeQueryResult(rawRecords, this.schema.tables[table]),
@@ -234,44 +216,32 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     )
   }
 
+  queryIds(query: SerializedQuery, callback: ResultCallback<RecordId[]>): void {
+    validateTable(query.table, this.schema)
+    const [sql, args] = encodeQuery(query)
+    this._dispatcher.queryIds(sql, args, callback)
+  }
+
+  unsafeQueryRaw(query: SerializedQuery, callback: ResultCallback<any[]>): void {
+    validateTable(query.table, this.schema)
+    const [sql, args] = encodeQuery(query)
+    this._dispatcher.unsafeQueryRaw(sql, args, callback)
+  }
+
   count(query: SerializedQuery, callback: ResultCallback<number>): void {
     validateTable(query.table, this.schema)
-    const sql = encodeQuery(query, true)
-    this._dispatcher.count(sql, callback)
+    const [sql, args] = encodeQuery(query, true)
+    this._dispatcher.count(sql, args, callback)
   }
 
   batch(operations: BatchOperation[], callback: ResultCallback<void>): void {
-    const batchOperations: NativeBridgeBatchOperation[] = operations.map((operation) => {
-      const [type, table, rawOrId] = operation
-      validateTable(table, this.schema)
-      switch (type) {
-        case 'create': {
-          // $FlowFixMe
-          return ['create', table, rawOrId.id].concat(encodeInsert(table, rawOrId))
-        }
-        case 'update': {
-          // $FlowFixMe
-          return ['execute', table].concat(encodeUpdate(table, rawOrId))
-        }
-        case 'markAsDeleted':
-        case 'destroyPermanently':
-          // $FlowFixMe
-          return operation // same format, no need to repack
-        default:
-          throw new Error('unknown batch operation type')
-      }
-    })
-    const { batchJSON } = this._dispatcher
-    if (batchJSON) {
-      batchJSON(JSON.stringify(batchOperations), callback)
-    } else {
-      this._dispatcher.batch(batchOperations, callback)
-    }
+    this._batch(require('./encodeBatch').default(operations, this.schema), callback)
   }
 
   getDeletedRecords(table: TableName<any>, callback: ResultCallback<RecordId[]>): void {
     validateTable(table, this.schema)
-    this._dispatcher.getDeletedRecords(table, callback)
+    const sql = `select id from ${encodeName(table)} where _status='deleted'`
+    this._dispatcher.queryIds(sql, [], callback)
   }
 
   destroyDeletedRecords(
@@ -280,7 +250,10 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     callback: ResultCallback<void>,
   ): void {
     validateTable(table, this.schema)
-    this._dispatcher.destroyDeletedRecords(table, recordIds, callback)
+    this._batch(
+      [[0, null, `delete from "${table}" where "id" == ?`, recordIds.map((id) => [id])]],
+      callback,
+    )
   }
 
   unsafeResetDatabase(callback: ResultCallback<void>): void {
@@ -297,11 +270,21 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   }
 
   setLocal(key: string, value: string, callback: ResultCallback<void>): void {
-    this._dispatcher.setLocal(key, value, callback)
+    this._batch(
+      [
+        [
+          0,
+          null,
+          `insert or replace into "local_storage" ("key", "value") values (?, ?)`,
+          [[key, value]],
+        ],
+      ],
+      callback,
+    )
   }
 
   removeLocal(key: string, callback: ResultCallback<void>): void {
-    this._dispatcher.removeLocal(key, callback)
+    this._batch([[0, null, `delete from "local_storage" where "key" == ?`, [[key]]]], callback)
   }
 
   _encodedSchema(): SQL {
@@ -326,5 +309,14 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   _encodeMigrations(steps: MigrationStep[]): SQL {
     const { encodeMigrationSteps } = require('./encodeSchema')
     return encodeMigrationSteps(steps)
+  }
+
+  _batch(batchOperations: NativeBridgeBatchOperation[], callback: ResultCallback<void>): void {
+    const { batchJSON } = this._dispatcher
+    if (batchJSON) {
+      batchJSON(JSON.stringify(batchOperations), callback)
+    } else {
+      this._dispatcher.batch(batchOperations, callback)
+    }
   }
 }

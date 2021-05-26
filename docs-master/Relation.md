@@ -30,6 +30,20 @@ There's two steps to defining a relation:
 
    The first argument is the _table name_ of the related record, and the second is the _column name_ with an ID for the related record.
 
+### immutableRelation
+
+If you have a relation that cannot change (for example, a comment can't change its author), use `@immutableRelation` for extra protection and performance:
+
+```js
+import { immutableRelation } from '@nozbe/watermelondb/decorators'
+
+class Comment extends Model {
+  // ...
+  @immutableRelation('posts', 'post_id') post
+  @immutableRelation('users', 'author_id') author
+}
+```
+
 ## Relation API
 
 In the example above, `comment.author` returns a `Relation` object.
@@ -42,8 +56,8 @@ Most of the time, you [connect Relations to Components](./Components.md) by usin
 
 ```js
 withObservables(['comment'], ({ comment }) => ({
-  comment: comment.observe(),
-  author: comment.author.observe(),
+  comment,
+  author: comment.author, // shortcut syntax for `author: comment.author.observe()`
 }))
 ```
 
@@ -51,7 +65,7 @@ The component will now have an `author` prop containing a `User`, and will re-re
 
 ### Fetching
 
-To simply get the related record, use `fetch`. You might need it [in Actions](./Actions.md)
+To simply get the related record, use `fetch`. You might need it [in a Writer](./Writers.md)
 
 ```js
 const author = await comment.author.fetch()
@@ -75,7 +89,7 @@ const authorId = comment.author.id
 Use `set()` to assign a new record to the relation
 
 ```js
-await commentsCollection.create(comment => {
+await database.get('comments').create(comment => {
   comment.author.set(someUser)
   // ...
 })
@@ -93,20 +107,6 @@ await comment.update(() => {
 
 ## Advanced relations
 
-### immutableRelation
-
-If you have a relation that cannot change (for example, a comment can't change its author), you can use `@immutableRelation` for extra protection and performance:
-
-```js
-import { immutableRelation } from '@nozbe/watermelondb/decorators'
-
-class Comment extends Model {
-  // ...
-  @immutableRelation('posts', 'post_id') post
-  @immutableRelation('users', 'author_id') author
-}
-```
-
 ### Many-To-Many Relation
 
 If for instance, our app `Post`s can be authored by many `User`s and a user can author many `Post`s. We would create such a relation following these steps:-
@@ -117,7 +117,7 @@ If for instance, our app `Post`s can be authored by many `User`s and a user can 
 4. Retrieve all `Posts` for a user by defining a query that uses the pivot `PostAuthor` to infer the `Post`s that were authored by the User.
 
 ```js
-import {lazy } from '@nozbe/watermelondb/decorators'
+import { lazy } from '@nozbe/watermelondb/decorators'
 
 class Post extends Model {
   static table = 'posts'
@@ -141,14 +141,14 @@ class PostAuthor extends Model {
     posts: { type: 'belongs_to', key: 'post_id' },
     users: { type: 'belongs_to', key: 'user_id' },
   }
-  @field('post_id') postId
-  @field('user_id') userId
+  @immutableRelation('posts', 'post_id') post
+  @immutableRelation('users', 'user_id') user
 }
 
 ```
 
 ```js
-import {lazy } from '@nozbe/watermelondb/decorators'
+import { lazy } from '@nozbe/watermelondb/decorators'
 
 class User extends Model {
   static table = 'users'
@@ -163,9 +163,10 @@ class User extends Model {
 
 }
 ```
+
 ```js
 withObservables(['post'], ({ post }) => ({
-  authors: post.authors.observe(),
+  authors: post.authors,
 }))
 ```
 
@@ -173,4 +174,4 @@ withObservables(['post'], ({ post }) => ({
 
 ## Next steps
 
-➡️ Now the last step of this guide: [**define custom Actions**](./Actions.md)
+➡️ Now the last step of this guide: [**understand Writers (and Readers)**](./Writers.md)

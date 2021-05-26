@@ -2,7 +2,10 @@ package com.nozbe.watermelondb
 
 import android.content.Context
 import android.database.Cursor
+import android.database.sqlite.SQLiteCursor
+import android.database.sqlite.SQLiteCursorDriver
 import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteQuery
 import java.io.File
 
 class Database(private val name: String, private val context: Context) {
@@ -29,7 +32,7 @@ class Database(private val name: String, private val context: Context) {
 
     fun unsafeExecuteStatements(statements: SQL) =
             transaction {
-                // NOTE: This must NEVER be allowed to take user input - split by `;` is not grammer-aware
+                // NOTE: This must NEVER be allowed to take user input - split by `;` is not grammar-aware
                 // and so is unsafe. Only works with Watermelon-generated strings known to be safe
                 statements.split(";").forEach {
                     if (it.isNotBlank()) execute(it)
@@ -41,9 +44,35 @@ class Database(private val name: String, private val context: Context) {
 
     fun delete(query: SQL, args: QueryArgs) = db.execSQL(query, args)
 
-    fun rawQuery(query: SQL, args: RawQueryArgs = emptyArray()): Cursor = db.rawQuery(query, args)
+    fun rawQuery(sql: SQL, args: QueryArgs = emptyArray()): Cursor {
+        // HACK: db.rawQuery only supports String args, and there's no clean way AFAIK to construct
+        // a query with arbitrary args (like with execSQL). However, we can misuse cursor factory
+        // to get the reference of a SQLiteQuery before it's executed
+        // https://github.com/aosp-mirror/platform_frameworks_base/blob/0799624dc7eb4b4641b4659af5b5ec4b9f80dd81/core/java/android/database/sqlite/SQLiteDirectCursorDriver.java#L30
+        // https://github.com/aosp-mirror/platform_frameworks_base/blob/0799624dc7eb4b4641b4659af5b5ec4b9f80dd81/core/java/android/database/sqlite/SQLiteProgram.java#L32
+        val rawArgs = Array(args.size, { "" })
+        return db.rawQueryWithFactory(object : SQLiteDatabase.CursorFactory {
+            override fun newCursor(db: SQLiteDatabase?, driver: SQLiteCursorDriver?, editTable: String?, query: SQLiteQuery): Cursor {
+                for (i in args.indices) {
+                    val arg = args[i]
+                    if (arg is String) {
+                        query.bindString(i + 1, arg)
+                    } else if (arg is Boolean) {
+                        query.bindLong(i + 1, if (arg) 1 else 0)
+                    } else if (arg is Double) {
+                        query.bindDouble(i + 1, arg)
+                    } else if (arg == null) {
+                        query.bindNull(i + 1)
+                    } else {
+                        throw (Throwable("Bad query arg type"))
+                    }
+                }
+                return SQLiteCursor(driver, editTable, query)
+            }
+        }, sql, rawArgs, null, null)
+    }
 
-    fun count(query: SQL, args: RawQueryArgs = emptyArray()): Int =
+    fun count(query: SQL, args: QueryArgs = emptyArray()): Int =
             rawQuery(query, args).use {
                 it.moveToFirst()
                 return it.getInt(it.getColumnIndex("count"))
@@ -58,12 +87,6 @@ class Database(private val name: String, private val context: Context) {
                     null
                 }
             }
-
-    fun insertToLocalStorage(key: String, value: String) =
-            execute(Queries.insert_local_storage, arrayOf(key, value))
-
-    fun deleteFromLocalStorage(key: String) =
-            execute(Queries.delete_local_storage, arrayOf(key))
 
 //    fun unsafeResetDatabase() = context.deleteDatabase("$name.db")
 

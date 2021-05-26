@@ -91,7 +91,7 @@ const sorted = (models) => {
 }
 
 const makeLocalChanges = (database) =>
-  database.action(async () => {
+  database.write(async () => {
     const projects = database.get('mock_projects')
     const tasks = database.get('mock_tasks')
     const comments = database.get('mock_comments')
@@ -217,7 +217,7 @@ describe('fetchLocalChanges', () => {
     const changesCloned = clone(changes)
 
     // raws should be cloned - further changes don't affect result
-    await database.action(() =>
+    await database.write(() =>
       pUpdated.update((p) => {
         p.name = 'y'
       }),
@@ -239,7 +239,7 @@ describe('hasUnsyncedChanges', () => {
   it('just one update is enough', async () => {
     const { database } = makeDatabase()
     const collection = database.get('mock_comments')
-    const record = await database.action(() =>
+    const record = await database.write(() =>
       collection.create((rec) => {
         rec._raw._status = 'synced'
       }),
@@ -247,7 +247,7 @@ describe('hasUnsyncedChanges', () => {
 
     expect(await hasUnsyncedChanges({ database })).toBe(false)
 
-    await database.action(async () => {
+    await database.write(async () => {
       await record.update(() => {
         record.body = 'changed'
       })
@@ -258,7 +258,7 @@ describe('hasUnsyncedChanges', () => {
   it('just one delete is enough', async () => {
     const { database } = makeDatabase()
     const collection = database.get('mock_comments')
-    const record = await database.action(() =>
+    const record = await database.write(() =>
       collection.create((rec) => {
         rec._raw._status = 'synced'
       }),
@@ -266,7 +266,7 @@ describe('hasUnsyncedChanges', () => {
 
     expect(await hasUnsyncedChanges({ database })).toBe(false)
 
-    await database.action(() => record.markAsDeleted())
+    await database.write(() => record.markAsDeleted())
 
     expect(await hasUnsyncedChanges({ database })).toBe(true)
   })
@@ -377,7 +377,7 @@ describe('markLocalChangesAsSynced', () => {
 
     // simulate user making changes the the app while sync push request is in progress
     let newProject
-    await database.action(async () => {
+    await database.write(async () => {
       // non-confliting changes: new record, update synced record, delete synced record
       newProject = await projects.create()
       await pSynced.update(() => {
@@ -877,7 +877,7 @@ describe('synchronize', () => {
   it(`allows conflict resolution to be customized`, async () => {
     const { database, projects, tasks } = makeDatabase()
 
-    await database.action(async () => {
+    await database.write(async () => {
       await database.batch(
         prepareCreateFromRaw(projects, { id: 'p1', _status: 'synced', name: 'local' }),
         prepareCreateFromRaw(projects, { id: 'p2', _status: 'created', name: 'local' }),
@@ -1077,7 +1077,7 @@ describe('synchronize', () => {
     // (doesn't really matter if it's before or after pushChanges is called)
     let project3
     betweenFetchAndMarkAction = jest.fn(() =>
-      database.action(async () => {
+      database.write(async () => {
         await expectSyncedAndMatches(projects, 'new_project', {})
         expect(syncCompleted).toBe(false)
         project3 = await createProject('project3')
@@ -1097,9 +1097,9 @@ describe('synchronize', () => {
     const beforeApplyAction = jest.fn(async () => {
       await expectDoesNotExist(projects, 'new_project')
       project1 = (await createProject('project1'))._raw
-      database.action(betweenApplyAndFetchAction, 'betweenApplyAndFetchAction')
+      database.write(betweenApplyAndFetchAction, 'betweenApplyAndFetchAction')
     })
-    database.action(beforeApplyAction, 'beforeApplyAction')
+    database.write(beforeApplyAction, 'beforeApplyAction')
 
     // we sync successfully and have received an object
     await sync
@@ -1141,7 +1141,7 @@ describe('synchronize', () => {
 
     // local changes
     const sample = 500
-    await database.action(async () => {
+    await database.write(async () => {
       const createdProjects = times(() => projects.prepareCreate(noop), sample)
       const updatedTasks = times(() => prepareCreateFromRaw(tasks, { id: randomId() }), sample)
       const deletedComments = times(
@@ -1207,7 +1207,7 @@ describe('synchronize', () => {
       synchronize({
         database,
         pullChanges: jest.fn(async () => {
-          await database.action(() => database.unsafeResetDatabase())
+          await database.write(() => database.unsafeResetDatabase())
           return {
             changes: makeChangeSet({
               mock_projects: {
@@ -1219,9 +1219,9 @@ describe('synchronize', () => {
         }),
         pushChanges,
       }),
-      /database was reset/,
+      'database was reset',
     )
-    await expectToRejectWithMessage(projects.find('new_project'), /not found/)
+    await expectToRejectWithMessage(projects.find('new_project'), 'not found')
     expect(pushChanges).not.toHaveBeenCalled()
   })
   it('aborts if database is cleared during sync — different case', async () => {
@@ -1238,11 +1238,11 @@ describe('synchronize', () => {
           }),
           timestamp: 1500,
         }),
-        pushChanges: () => database.action(() => database.unsafeResetDatabase()),
+        pushChanges: () => database.write(() => database.unsafeResetDatabase()),
       }),
-      /database was reset/,
+      'database was reset',
     )
-    await expectToRejectWithMessage(projects.find('new_project'), /not found/)
+    await expectToRejectWithMessage(projects.find('new_project'), 'not found')
   })
   describe('migration syncs', () => {
     const testSchema10 = { ...testSchema, version: 10 }
@@ -1396,7 +1396,7 @@ describe('synchronize', () => {
       )
       await expectToRejectWithMessage(
         synchronize({ database, migrationsEnabledAtVersion: 11 }),
-        /migrationsEnabledAtVersion must not be greater than current schema version/,
+        'migrationsEnabledAtVersion must not be greater than current schema version',
       )
       await expectToRejectWithMessage(
         synchronize({

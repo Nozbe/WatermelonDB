@@ -10,7 +10,7 @@ import { appSchema, tableSchema } from '@nozbe/watermelondb'
 export default appSchema({
   version: 1,
   tables: [
-    // tableSchemas go here...
+    // We'll add tableSchemas here later
   ]
 })
 ```
@@ -27,7 +27,7 @@ export default schemaMigrations({
 })
 ```
 
-Now, in your `index.js`:
+Now, in your `index.native.js`:
 
 ```js
 import { Platform } from 'react-native'
@@ -70,22 +70,16 @@ import LokiJSAdapter from '@nozbe/watermelondb/adapters/lokijs'
 
 const adapter = new LokiJSAdapter({
   schema,
-  // (You might want to comment it out for development purposes -- see Migrations documentation)
+  // (You might want to comment out migrations for development purposes -- see Migrations documentation)
   migrations,
   useWebWorker: false,
   useIncrementalIndexedDB: true,
   // dbName: 'myapp', // optional db name
-  // Optional, but recommended event handlers:
-  onIndexedDBVersionChange: () => {
-    // database was deleted in another browser tab (user logged out), so we must make sure we delete
-    // it in this tab as well
-    if (checkIfUserIsLoggedIn()) {
-      window.location.reload()
-    }
-  },
-  // (optional, but recommended)
+
+  // --- Optional, but recommended event handlers:
+
   onQuotaExceededError: (error) => {
-    // Browser ran out of disk space -- do something about it
+    // Browser ran out of disk space -- offer the user to reload the app or log out
   },
   onSetUpError: (error) => {
     // Database failed to load -- offer the user to reload the app or log out
@@ -94,8 +88,16 @@ const adapter = new LokiJSAdapter({
     onDidOverwrite: () => {
       // Called when this adapter is forced to overwrite contents of IndexedDB.
       // This happens if there's another open tab of the same app that's making changes.
-      // You might use it as an opportunity to alert user to the potential loss of data
-    }
+      // Try to synchronize the app now, and if user is offline, alert them that if they close this
+      // tab, some data may be lost
+    },
+    onversionchange: () => {
+      // database was deleted in another browser tab (user logged out), so we must make sure we delete
+      // it in this tab as well - usually best to just refresh the page
+      if (checkIfUserIsLoggedIn()) {
+        window.location.reload()
+      }
+    },
   }
 })
 

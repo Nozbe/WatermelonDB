@@ -1,7 +1,7 @@
 {
   "name": "@nozbe/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
-  "version": "0.22.0",
+  "version": "0.23.0-2",
   "scripts": {
     "build": "NODE_ENV=production node ./scripts/make.js",
     "dev": "NODE_ENV=development node ./scripts/make.js",
@@ -20,7 +20,8 @@
     "ktlint": "cd native/androidTest; ./gradlew ktlint",
     "ktlint:format": "cd native/androidTest; ./gradlew ktlintFormat",
     "android:emulator": "./scripts/emulatorWithJavaCheck",
-    "docs": "./scripts/mdbook"
+    "docs": "./scripts/mdbook",
+    "docs:dev": "./scripts/mdbook-dev"
   },
   "author": "@Nozbe",
   "homepage": "https://github.com/Nozbe/WatermelonDB#readme",
@@ -108,6 +109,7 @@
     "big-list-of-naughty-strings": "https://github.com/radex/big-list-of-naughty-strings#8346238a82f1e3a6f62389def1e668d80e4023fb",
     "cavy": "git+https://github.com/Nozbe/cavy.git",
     "chokidar": "^3.5.1",
+    "chokidar-cli": "^2.1.0",
     "concurrently": "^6.0.0",
     "eslint": "^6.5.1",
     "eslint-config-airbnb": "18.0.1",

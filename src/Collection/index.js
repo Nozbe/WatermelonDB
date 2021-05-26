@@ -1,12 +1,13 @@
 // @flow
-import type { SQLDatabaseAdapter } from '../adapters/type'
 import { Observable, Subject } from '../utils/rx'
 import invariant from '../utils/common/invariant'
+import deprecated from '../utils/common/deprecated'
 import noop from '../utils/fp/noop'
 import { type ResultCallback, toPromise, mapValue } from '../utils/fp/Result'
 import { type Unsubscribe } from '../utils/subscriptions'
 
 import Query from '../Query'
+import * as Q from '../QueryDescription'
 import type Database from '../Database'
 import type Model, { RecordId } from '../Model'
 import type { Clause } from '../QueryDescription'
@@ -14,7 +15,6 @@ import { type TableName, type TableSchema } from '../Schema'
 import { type DirtyRaw } from '../RawRecord'
 
 import RecordCache from './RecordCache'
-import { CollectionChangeTypes } from './common'
 
 type CollectionChangeType = 'created' | 'updated' | 'destroyed'
 export type CollectionChange<Record: Model> = { record: Record, type: CollectionChangeType }
@@ -91,9 +91,7 @@ export default class Collection<Record: Model> {
   //   task.name = 'Task name'
   // })
   async create(recordBuilder: (Record) => void = noop): Promise<Record> {
-    this.database._ensureInAction(
-      `Collection.create() can only be called from inside of an Action. See docs for more details.`,
-    )
+    this.database._ensureInWriter(`Collection.create()`)
 
     const record = this.prepareCreate(recordBuilder)
     await this.database.batch(record)
@@ -118,20 +116,13 @@ export default class Collection<Record: Model> {
   // *** Implementation of Query APIs ***
 
   unsafeFetchRecordsWithSQL(sql: string): Promise<Record[]> {
-    const {
-      adapter: { underlyingAdapter },
-    } = this.database
-    invariant(
-      // $FlowFixMe
-      typeof underlyingAdapter.unsafeSqlQuery === 'function',
-      'unsafeFetchRecordsWithSQL called on a database that does not support SQL',
-    )
-    const sqlAdapter: SQLDatabaseAdapter = (underlyingAdapter: any)
-    return toPromise((callback) => {
-      sqlAdapter.unsafeSqlQuery(this.modelClass.table, sql, (result) =>
-        callback(mapValue((rawRecords) => this._cache.recordsFromQueryResult(rawRecords), result)),
+    if (process.env.NODE_ENV !== 'production') {
+      deprecated(
+        'Collection.unsafeFetchRecordsWithSQL()',
+        'Use .query(Q.unsafeSqlQuery(`select * from...`)).fetch() instead.',
       )
-    })
+    }
+    return this.query(Q.unsafeSqlQuery(sql)).fetch()
   }
 
   // *** Implementation details ***
@@ -152,9 +143,16 @@ export default class Collection<Record: Model> {
     )
   }
 
-  // See: Query.fetchCount
+  _fetchIds(query: Query<Record>, callback: ResultCallback<RecordId[]>): void {
+    this.database.adapter.underlyingAdapter.queryIds(query.serialize(), callback)
+  }
+
   _fetchCount(query: Query<Record>, callback: ResultCallback<number>): void {
     this.database.adapter.underlyingAdapter.count(query.serialize(), callback)
+  }
+
+  _unsafeFetchRaw(query: Query<Record>, callback: ResultCallback<any[]>): void {
+    this.database.adapter.underlyingAdapter.unsafeQueryRaw(query.serialize(), callback)
   }
 
   // Fetches exactly one record (See: Collection.find)
@@ -183,10 +181,10 @@ export default class Collection<Record: Model> {
 
   _applyChangesToCache(operations: CollectionChangeSet<Record>): void {
     operations.forEach(({ record, type }) => {
-      if (type === CollectionChangeTypes.created) {
-        record._isCommitted = true
+      if (type === 'created') {
+        record._preparedState = null
         this._cache.add(record)
-      } else if (type === CollectionChangeTypes.destroyed) {
+      } else if (type === 'destroyed') {
         this._cache.delete(record)
       }
     })
@@ -200,9 +198,9 @@ export default class Collection<Record: Model> {
     this.changes.next(operations)
 
     const collectionChangeNotifyModels = ({ record, type }): void => {
-      if (type === CollectionChangeTypes.updated) {
+      if (type === 'updated') {
         record._notifyChanged()
-      } else if (type === CollectionChangeTypes.destroyed) {
+      } else if (type === 'destroyed') {
         record._notifyDestroyed()
       }
     }
@@ -222,10 +220,5 @@ export default class Collection<Record: Model> {
       const idx = this._subscribers.indexOf(entry)
       idx !== -1 && this._subscribers.splice(idx, 1)
     }
-  }
-
-  // See: Database.unsafeClearCaches
-  unsafeClearCache(): void {
-    this._cache.unsafeClear()
   }
 }

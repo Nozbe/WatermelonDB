@@ -109,22 +109,44 @@ extension DatabaseBridge {
         }
     }
 
-    @objc(query:table:query:resolve:reject:)
+    @objc(query:table:query:args:resolve:reject:)
     func query(tag: ConnectionTag,
                table: Database.TableName,
                query: Database.SQL,
+               args: Database.QueryArgs,
                resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
-            try $0.cachedQuery(table: table, query: query)
+            try $0.cachedQuery(table: table, query: query, args: args)
         }
     }
 
-    @objc(count:query:resolve:reject:)
-    func count(tag: ConnectionTag,
+    @objc(queryIds:query:args:resolve:reject:)
+    func queryIds(tag: ConnectionTag,
                query: Database.SQL,
+               args: Database.QueryArgs,
                resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
-            try $0.count(query)
+            try $0.queryIds(query: query, args: args)
+        }
+    }
+
+    @objc(unsafeQueryRaw:query:args:resolve:reject:)
+    func unsafeQueryRaw(tag: ConnectionTag,
+               query: Database.SQL,
+               args: Database.QueryArgs,
+               resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        withDriver(tag, resolve, reject) {
+            try $0.unsafeQueryRaw(query: query, args: args)
+        }
+    }
+
+    @objc(count:query:args:resolve:reject:)
+    func count(tag: ConnectionTag,
+               query: Database.SQL,
+               args: Database.QueryArgs,
+               resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        withDriver(tag, resolve, reject) {
+            try $0.count(query, args: args)
         }
     }
 
@@ -135,37 +157,6 @@ extension DatabaseBridge {
                    reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
             try $0.batch(self.toBatchOperations(serializedOperations))
-        }
-    }
-
-    @objc(batch:operations:resolve:reject:)
-    func batch(tag: ConnectionTag,
-               operations: [[Any]],
-               resolve: @escaping RCTPromiseResolveBlock,
-               reject: @escaping RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.batch(self.toBatchOperations(operations))
-        }
-    }
-
-    @objc(getDeletedRecords:table:resolve:reject:)
-    func getDeletedRecords(tag: ConnectionTag,
-                           table: Database.TableName,
-                           resolve: @escaping RCTPromiseResolveBlock,
-                           reject: @escaping RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.getDeletedRecords(table: table)
-        }
-    }
-
-    @objc(destroyDeletedRecords:table:records:resolve:reject:)
-    func destroyDeletedRecords(tag: ConnectionTag,
-                               table: Database.TableName,
-                               records: [DatabaseDriver.RecordId],
-                               resolve: @escaping RCTPromiseResolveBlock,
-                               reject: @escaping RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.destroyDeletedRecords(table: table, records: records)
         }
     }
 
@@ -187,25 +178,6 @@ extension DatabaseBridge {
             try $0.getLocal(key: key) as Any
         }
     }
-
-    @objc(setLocal:key:value:resolve:reject:)
-    func setLocal(tag: ConnectionTag,
-                  key: String,
-                  value: String,
-                  resolve: @escaping RCTPromiseResolveBlock,
-                  reject: @escaping RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.setLocal(key: key, value: value)
-        }
-    }
-
-    @objc(removeLocal:key:resolve:reject:)
-    func removeLocal(tag: ConnectionTag, key: String,
-                     resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            try $0.removeLocal(key: key)
-        }
-    }
 }
 
 // MARK: - Helpers
@@ -223,48 +195,28 @@ extension DatabaseBridge {
 
     private func toBatchOperations(_ operations: [[Any]]) throws -> [DatabaseDriver.Operation] {
         return try operations.map { operation in
-            switch operation[safe: 0] as? String {
-            case "execute":
-                guard let table = operation[safe: 1] as? Database.TableName,
-                let query = operation[safe: 2] as? Database.SQL,
-                let args = operation[safe: 3] as? Database.QueryArgs
-                else {
-                    throw "Bad execute arguments".asError()
-                }
-
-                return .execute(table: table, query: query, args: args)
-
-            case "create":
-                guard let table = operation[safe: 1] as? Database.TableName,
-                let id = operation[safe: 2] as? DatabaseDriver.RecordId,
-                let query = operation[safe: 3] as? Database.SQL,
-                let args = operation[safe: 4] as? Database.QueryArgs
-                else {
-                    throw "Bad create arguments".asError()
-                }
-
-                return .create(table: table, id: id, query: query, args: args)
-
-            case "markAsDeleted":
-                guard let table = operation[safe: 1] as? Database.SQL,
-                let id = operation[safe: 2] as? DatabaseDriver.RecordId
-                else {
-                    throw "Bad markAsDeleted arguments".asError()
-                }
-
-                return .markAsDeleted(table: table, id: id)
-
-            case "destroyPermanently":
-                guard let table = operation[safe: 1] as? Database.TableName,
-                let id = operation[safe: 2] as? DatabaseDriver.RecordId
-                else {
-                    throw "Bad destroyPermanently arguments".asError()
-                }
-
-                return .destroyPermanently(table: table, id: id)
-            default:
-                throw "Bad operation name".asError()
+            guard let cacheMode = operation[safe: 0] as? Int,
+                  let sql = operation[safe: 2] as? Database.SQL,
+                  let argBatches = operation[safe: 3] as? [Database.QueryArgs]
+            else {
+                throw "bad batch arguments".asError()
             }
+
+            let table = operation[safe: 1] as? String
+
+            let cacheBehavior: DatabaseDriver.CacheBehavior
+            switch cacheMode {
+            case 0:
+                cacheBehavior = .ignore
+            case 1:
+                cacheBehavior = .addFirstArg(table: table!)
+            case -1:
+                cacheBehavior = .removeFirstArg(table: table!)
+            default:
+                throw "bad cache behavior".asError()
+            }
+
+            return DatabaseDriver.Operation(cacheBehavior: cacheBehavior, sql: sql, argBatches: argBatches)
         }
     }
 
