@@ -581,8 +581,13 @@ void Database::batchJSON(jsi::String &&jsiJson) {
                     }
                     case 3:
                         argsBatches = field;
+                        auto stmt = prepareQuery(sql);
+                        SqliteStatement statement(stmt);
+                        
                         for (ondemand::array args : argsBatches) {
-                            auto id = executeUpdate(sql, args);
+                            auto id = bindArgs(stmt, args);
+                            executeUpdate(stmt);
+                            sqlite3_reset(stmt);
                             if (cacheBehavior != 0) {
                                 if (cacheBehavior == 1) {
                                     addedIds.push_back(cacheKey(table, id));
