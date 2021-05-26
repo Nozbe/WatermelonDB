@@ -43,11 +43,9 @@ bool Database::isCached(std::string cacheKey) {
     return cachedRecords_.find(cacheKey) != cachedRecords_.end();
 }
 void Database::markAsCached(std::string cacheKey) {
-    // TODO: what about duplicates?
     cachedRecords_.insert(cacheKey);
 }
 void Database::removeFromCache(std::string cacheKey) {
-    // TODO: will it remove all duplicates, if needed?
     cachedRecords_.erase(cacheKey);
 }
 
