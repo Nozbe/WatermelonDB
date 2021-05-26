@@ -24,7 +24,7 @@ class Database : public jsi::HostObject {
     jsi::Array unsafeQueryRaw(jsi::String &sql, jsi::Array &arguments);
     jsi::Value count(jsi::String &sql, jsi::Array &arguments);
     void batch(jsi::Array &operations);
-    void batchJSON(jsi::String &json);
+    void batchJSON(jsi::String &&json);
     void unsafeResetDatabase(jsi::String &schema, int schemaVersion);
     jsi::Value getLocal(jsi::String &key);
 
@@ -38,8 +38,12 @@ class Database : public jsi::HostObject {
     jsi::Runtime &getRt();
     jsi::JSError dbError(std::string description);
 
+    sqlite3_stmt* prepareQuery(std::string sql);
+    void bindArgs(sqlite3_stmt *statement, jsi::Array &arguments);
+    std::string bindArgs(sqlite3_stmt *statement, simdjson::ondemand::array &arguments);
     SqliteStatement executeQuery(std::string sql, jsi::Array &arguments);
     std::pair<sqlite3_stmt *, std::string> executeQuery(std::string sql, simdjson::ondemand::array &arguments);
+    void executeUpdate(sqlite3_stmt *statement);
     void executeUpdate(std::string sql, jsi::Array &arguments);
     std::string executeUpdate(std::string sql, simdjson::ondemand::array &args);
     void executeUpdate(std::string sql);

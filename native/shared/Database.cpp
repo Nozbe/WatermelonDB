@@ -50,9 +50,7 @@ void Database::removeFromCache(std::string cacheKey) {
     cachedRecords_.erase(cacheKey);
 }
 
-// TODO: Can we use templates or make jsi::Array iterable so we can avoid _creating_ jsi::Array in C++?
-SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
-    auto &rt = getRt();
+sqlite3_stmt* Database::prepareQuery(std::string sql) {
     sqlite3_stmt *statement = cachedStatements_[sql];
 
     if (statement == nullptr) {
@@ -63,7 +61,6 @@ SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
             throw dbError("Failed to prepare query statement");
         }
 
-        assert(statement != nullptr);
         cachedStatements_[sql] = statement;
     } else {
         // in theory, this shouldn't be necessary, since statements ought to be reset *after* use, not before use
@@ -72,7 +69,12 @@ SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
         sqlite3_reset(statement);
     }
     assert(statement != nullptr);
+    return statement;
+}
 
+void Database::bindArgs(sqlite3_stmt *statement, jsi::Array &arguments) {
+    auto &rt = getRt();
+    
     int argsCount = sqlite3_bind_parameter_count(statement);
 
     if (argsCount != arguments.length(rt)) {
@@ -106,35 +108,21 @@ SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
             throw dbError("Failed to bind an argument for query");
         }
     }
+}
+
+SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
+    auto statement = prepareQuery(sql);
+    bindArgs(statement, arguments);
 
     // TODO: We may move this initialization earlier to avoid having to care about sqlite3_reset, but I think we'll
     // have to implement a move constructor for it to be correct
     return SqliteStatement(statement);
 }
 
-std::pair<sqlite3_stmt *, std::string> Database::executeQuery(std::string sql, simdjson::ondemand::array &arguments) {
+std::string Database::bindArgs(sqlite3_stmt *statement, simdjson::ondemand::array &arguments) {
     using namespace simdjson;
     auto &rt = getRt();
-    sqlite3_stmt *statement; // = cachedStatements_[sql];
-
-//    if (statement == nullptr) {
-        int resultPrepare = sqlite3_prepare_v2(db_->sqlite, sql.c_str(), -1, &statement, nullptr);
-
-        if (resultPrepare != SQLITE_OK) {
-            sqlite3_finalize(statement);
-            throw dbError("Failed to prepare query statement");
-        }
-
-//        assert(statement != nullptr);
-//        cachedStatements_[sql] = statement;
-//    } else {
-//        // in theory, this shouldn't be necessary, since statements ought to be reset *after* use, not before use
-//        // but still this might prevent some crashes if this is not done right
-//        // TODO: Remove this later - should not be necessary, and it wastes time
-//        sqlite3_reset(statement);
-//    }
-    assert(statement != nullptr);
-
+    
     int argsCount = sqlite3_bind_parameter_count(statement);
     
     std::string returnId = "";
@@ -190,19 +178,30 @@ std::pair<sqlite3_stmt *, std::string> Database::executeQuery(std::string sql, s
         sqlite3_reset(statement);
         throw jsi::JSError(rt, "Number of args passed to query doesn't match number of arg placeholders");
     }
+    
+    return returnId;
+}
+
+std::pair<sqlite3_stmt *, std::string> Database::executeQuery(std::string sql, simdjson::ondemand::array &arguments) {
+    auto statement = prepareQuery(sql);
+    auto returnId = bindArgs(statement, arguments);
 
     // TODO: We may move this initialization earlier to avoid having to care about sqlite3_reset, but I think we'll
     // have to implement a move constructor for it to be correct
     return std::make_pair(statement, returnId);
 }
 
-void Database::executeUpdate(std::string sql, jsi::Array &args) {
-    auto statement = executeQuery(sql, args);
-    int stepResult = sqlite3_step(statement.stmt);
+void Database::executeUpdate(sqlite3_stmt *statement) {
+    int stepResult = sqlite3_step(statement);
 
     if (stepResult != SQLITE_DONE) {
         throw dbError("Failed to execute db update");
     }
+}
+
+void Database::executeUpdate(std::string sql, jsi::Array &args) {
+    auto statement = executeQuery(sql, args);
+    executeUpdate(statement.stmt);
 }
 
 std::string Database::executeUpdate(std::string sql, simdjson::ondemand::array &args) {
@@ -543,7 +542,7 @@ void Database::batch(jsi::Array &operations) {
     }
 }
 
-void Database::batchJSON(jsi::String &jsiJson) {
+void Database::batchJSON(jsi::String &&jsiJson) {
     using namespace simdjson;
     
     auto &rt = getRt();

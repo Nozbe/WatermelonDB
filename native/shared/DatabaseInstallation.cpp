@@ -189,10 +189,9 @@ void Database::install(jsi::Runtime *runtime) {
         });
         createMethod(rt, adapter, "batchJSON", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
-            auto json = args[0].getString(rt);
-
+            
             return runBlock(rt, [&]() {
-                database->batchJSON(json);
+                database->batchJSON(args[0].getString(rt));
                 return jsi::Value::undefined();
             });
         });

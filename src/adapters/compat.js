@@ -49,8 +49,10 @@ export default class DatabaseAdapterCompat {
     return toPromise((callback) => this.underlyingAdapter.count(query, callback))
   }
 
-  batch(operations: BatchOperation[]): Promise<void> {
-    return toPromise((callback) => this.underlyingAdapter.batch(operations, callback))
+  async batch(operations: BatchOperation[]): Promise<void> {
+    const b4 = Date.now()
+    const result = await toPromise((callback) => this.underlyingAdapter.batch(operations, callback))
+    console.log(`batch: ${Date.now() - b4}`)
   }
 
   getDeletedRecords(tableName: TableName<any>): Promise<RecordId[]> {
