@@ -133,12 +133,13 @@ std::string Database::bindArgs(sqlite3_stmt *statement, simdjson::ondemand::arra
         switch (arg.type()) {
             case ondemand::json_type::string: {
                 std::string_view str_view = arg;
-                std::string str = std::string(str_view);
+//                std::string str = std::string(str_view);
                 // TODO: Check SQLITE_STATIC
                 // TODO: null termination?
-                bindResult = sqlite3_bind_text(statement, arg_i + 1, str.c_str(), -1, SQLITE_TRANSIENT);
+                bindResult = sqlite3_bind_text(statement, arg_i + 1, str_view.data(), (int) str_view.length(), SQLITE_STATIC);
+//                bindResult = sqlite3_bind_text(statement, arg_i + 1, str.c_str(), -1, SQLITE_TRANSIENT);
                 if (arg_i == 0) {
-                    returnId = str;
+                    returnId = std::string(str_view);
                 }
                 break;
             }
