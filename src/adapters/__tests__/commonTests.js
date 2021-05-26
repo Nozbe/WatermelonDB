@@ -9,7 +9,12 @@ import * as Q from '../../QueryDescription'
 import { appSchema, tableSchema } from '../../Schema'
 import { schemaMigrations, createTable, addColumns } from '../../Schema/migrations'
 
-import { matchTests, naughtyMatchTests, joinTests } from '../../__tests__/databaseTests'
+import {
+  matchTests,
+  naughtyMatchTests,
+  joinTests,
+  ftsMatchTests,
+} from '../../__tests__/databaseTests'
 import DatabaseAdapterCompat from '../compat'
 import {
   testSchema,
@@ -17,6 +22,7 @@ import {
   mockTaskRaw,
   performMatchTest,
   performJoinTest,
+  performFtsMatchTest,
   expectSortedEqual,
   MockTask,
   mockProjectRaw,
@@ -1137,6 +1143,20 @@ export default () => [
       }
     },
   ],
+  ...ftsMatchTests.map((testCase) => [
+    `[shared ftsMatch test] ${testCase.name}`,
+    async (adapter, AdapterClass) => {
+      const perform = () => performFtsMatchTest(adapter, testCase)
+      const shouldSkip =
+        (AdapterClass.name === 'LokiJSAdapter' && testCase.skipLoki) ||
+        (AdapterClass.name === 'SQLiteAdapter' && testCase.skipSqlite)
+      if (shouldSkip) {
+        await expect(perform()).rejects.toBeInstanceOf(Error)
+      } else {
+        await perform()
+      }
+    },
+  ]),
   [
     'can store and retrieve large numbers (regression test)',
     async (_adapter) => {

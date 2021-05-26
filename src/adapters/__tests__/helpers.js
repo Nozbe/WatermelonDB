@@ -56,8 +56,8 @@ export const testSchema = appSchema({
         { name: 'num3', type: 'number' },
         { name: 'float1', type: 'number' }, // TODO: Remove me?
         { name: 'float2', type: 'number' },
-        { name: 'text1', type: 'string' },
-        { name: 'text2', type: 'string' },
+        { name: 'text1', type: 'string', isFTS: true },
+        { name: 'text2', type: 'string', isFTS: true },
         { name: 'bool1', type: 'boolean' },
         { name: 'bool2', type: 'boolean' },
         { name: 'order', type: 'number' },
@@ -173,6 +173,12 @@ export const performMatchTest = async (adapter, testCase) => {
 }
 
 export const performJoinTest = async (adapter, testCase) => {
+  const pairs = toPairs(testCase.extraRecords)
+  await allPromises(([table, records]) => insertAll(adapter, table, records), pairs)
+  await performMatchTest(adapter, testCase)
+}
+
+export const performFtsMatchTest = async (adapter, testCase) => {
   const pairs = toPairs(testCase.extraRecords)
   await allPromises(([table, records]) => insertAll(adapter, table, records), pairs)
   await performMatchTest(adapter, testCase)

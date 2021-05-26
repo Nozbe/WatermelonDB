@@ -116,10 +116,11 @@ const encodeWhereCondition = (
     const rowid = encodeName('rowid')
     const ftsColumn = encodeName(left)
     const matchValue = getComparisonRight(table, comparison.right)
+    const ftsTableColumn = table === left ? `${ftsTable}` : `${ftsTable}.${ftsColumn}`
     return (
       `${srcTable}.${rowid} in (` +
       `select ${ftsTable}.${rowid} from ${ftsTable} ` +
-      `where ${ftsTable}.${ftsColumn} match ${matchValue}` +
+      `where ${ftsTableColumn} match ${matchValue}` +
       `)`
     )
   }
