@@ -5,7 +5,7 @@ import XCTest
 class BridgeTests: XCTestCase {
     func testBridge() {
         let expectation = XCTestExpectation(description: "Cavy tests passed")
-        
+
         BridgeTestReporter.onFinished { result in
             switch result {
             case .success(let results):
@@ -21,7 +21,7 @@ class BridgeTests: XCTestCase {
 
             expectation.fulfill()
         }
-        
+
         wait(for: [expectation], timeout: 100)
     }
 }

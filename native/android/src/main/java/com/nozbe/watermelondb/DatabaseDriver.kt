@@ -106,23 +106,12 @@ class DatabaseDriver(context: Context, dbName: String) {
 
     fun count(query: SQL, args: QueryArgs): Int = database.count(query, args)
 
-    private fun execute(query: SQL, args: QueryArgs) {
-        // log?.info("Executing: $query")
-        database.execute(query, args)
-    }
-
     fun getLocal(key: String): String? {
         // log?.info("Get Local: $key")
         return database.getFromLocalStorage(key)
     }
 
-    private fun create(id: RecordID, query: SQL, args: QueryArgs) {
-        // log?.info("Create id: $id query: $query")
-        database.execute(query, args)
-    }
-
     fun batch(operations: ReadableArray) {
-        // log?.info("Batch of ${operations.size()}")
         val newIds = arrayListOf<Pair<TableName, RecordID>>()
         val removedIds = arrayListOf<Pair<TableName, RecordID>>()
 
@@ -130,35 +119,23 @@ class DatabaseDriver(context: Context, dbName: String) {
         try {
             database.transaction {
                 for (i in 0 until operations.size()) {
-                    val operation = operations.getArray(i)
-                    val type = operation?.getString(0)
-                    when (type) {
-                        "execute" -> {
-                            val query = operation.getString(1) as SQL
-                            val args = operation.getArray(2)!!.toArrayList().toArray()
-                            execute(query, args)
+                    val operation = operations.getArray(i)!!
+                    val cacheBehavior = operation.getInt(0)
+                    val table = if (cacheBehavior != 0) operation.getString(1)!! else ""
+                    val sql = operation.getString(2) as SQL
+                    val argBatches = operation.getArray(3)!!
+
+                    for (j in 0 until argBatches.size()) {
+                        val args = argBatches.getArray(j)!!.toArrayList().toArray()
+                        database.execute(sql, args)
+                        if (cacheBehavior != 0) {
+                            val id = args[0] as RecordID
+                            if (cacheBehavior == 1) {
+                                newIds.add(Pair(table, id))
+                            } else if (cacheBehavior == -1) {
+                                removedIds.add(Pair(table, id))
+                            }
                         }
-                        "create" -> {
-                            val table = operation.getString(1) as TableName
-                            val id = operation.getString(2) as RecordID
-                            val query = operation.getString(3) as SQL
-                            val args = operation.getArray(4)!!.toArrayList().toArray()
-                            create(id, query, args)
-                            newIds.add(Pair(table, id))
-                        }
-                        "markAsDeleted" -> {
-                            val table = operation.getString(1) as TableName
-                            val id = operation.getString(2) as RecordID
-                            database.execute(Queries.setStatusDeleted(table), arrayOf(id))
-                            removedIds.add(Pair(table, id))
-                        }
-                        "destroyPermanently" -> {
-                            val table = operation.getString(1) as TableName
-                            val id = operation.getString(2) as RecordID
-                            database.execute(Queries.destroyPermanently(table), arrayOf(id))
-                            removedIds.add(Pair(table, id))
-                        }
-                        else -> throw (Throwable("unknown batch operation"))
                     }
                 }
             }

@@ -196,48 +196,28 @@ extension DatabaseBridge {
 
     private func toBatchOperations(_ operations: [[Any]]) throws -> [DatabaseDriver.Operation] {
         return try operations.map { operation in
-            switch operation[safe: 0] as? String {
-            case "execute":
-                guard let query = operation[safe: 1] as? Database.SQL,
-                let args = operation[safe: 2] as? Database.QueryArgs
-                else {
-                    throw "Bad execute arguments".asError()
-                }
-
-                return .execute(query: query, args: args)
-
-            case "create":
-                guard let table = operation[safe: 1] as? Database.TableName,
-                let id = operation[safe: 2] as? DatabaseDriver.RecordId,
-                let query = operation[safe: 3] as? Database.SQL,
-                let args = operation[safe: 4] as? Database.QueryArgs
-                else {
-                    throw "Bad create arguments".asError()
-                }
-
-                return .create(table: table, id: id, query: query, args: args)
-
-            case "markAsDeleted":
-                guard let table = operation[safe: 1] as? Database.SQL,
-                let id = operation[safe: 2] as? DatabaseDriver.RecordId
-                else {
-                    throw "Bad markAsDeleted arguments".asError()
-                }
-
-                return .markAsDeleted(table: table, id: id)
-
-            case "destroyPermanently":
-                guard let table = operation[safe: 1] as? Database.TableName,
-                let id = operation[safe: 2] as? DatabaseDriver.RecordId
-                else {
-                    throw "Bad destroyPermanently arguments".asError()
-                }
-
-                return .destroyPermanently(table: table, id: id)
-
-            default:
-                throw "unknown batch operation".asError()
+            guard let cacheMode = operation[safe: 0] as? Int,
+                  let sql = operation[safe: 2] as? Database.SQL,
+                  let argBatches = operation[safe: 3] as? [Database.QueryArgs]
+            else {
+                throw "bad batch arguments".asError()
             }
+
+            let table = operation[safe: 1] as? String
+
+            let cacheBehavior: DatabaseDriver.CacheBehavior
+            switch cacheMode {
+            case 0:
+                cacheBehavior = .ignore
+            case 1:
+                cacheBehavior = .addFirstArg(table: table!)
+            case -1:
+                cacheBehavior = .removeFirstArg(table: table!)
+            default:
+                throw "bad cache behavior".asError()
+            }
+
+            return DatabaseDriver.Operation(cacheBehavior: cacheBehavior, sql: sql, argBatches: argBatches)
         }
     }
 

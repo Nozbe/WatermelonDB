@@ -29,8 +29,6 @@ import type {
 
 import encodeName from './encodeName'
 import encodeQuery from './encodeQuery'
-import encodeUpdate from './encodeUpdate'
-import encodeInsert from './encodeInsert'
 
 import { makeDispatcher, DatabaseBridge, getDispatcherType } from './makeDispatcher'
 
@@ -231,27 +229,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   batch(operations: BatchOperation[], callback: ResultCallback<void>): void {
-    const batchOperations: NativeBridgeBatchOperation[] = operations.map((operation) => {
-      const [type, table, rawOrId] = operation
-      validateTable(table, this.schema)
-      switch (type) {
-        case 'create': {
-          // $FlowFixMe
-          return ['create', table, rawOrId.id].concat(encodeInsert(table, rawOrId))
-        }
-        case 'update': {
-          // $FlowFixMe
-          return ['execute'].concat(encodeUpdate(table, rawOrId))
-        }
-        case 'markAsDeleted':
-        case 'destroyPermanently':
-          // $FlowFixMe
-          return operation // same format, no need to repack
-        default:
-          throw new Error('unknown batch operation type')
-      }
-    })
-    this._batch(batchOperations, callback)
+    this._batch(require('./encodeBatch').default(operations, this.schema), callback)
   }
 
   getDeletedRecords(table: TableName<any>, callback: ResultCallback<RecordId[]>): void {
@@ -286,9 +264,10 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     this._batch(
       [
         [
-          'execute',
+          0,
+          null,
           `insert or replace into "local_storage" ("key", "value") values (?, ?)`,
-          [key, value],
+          [[key, value]],
         ],
       ],
       callback,
@@ -296,7 +275,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   removeLocal(key: string, callback: ResultCallback<void>): void {
-    this._batch([['execute', `delete from "local_storage" where "key" == ?`, [key]]], callback)
+    this._batch([[0, null, `delete from "local_storage" where "key" == ?`, [[key]]]], callback)
   }
 
   _encodedSchema(): SQL {

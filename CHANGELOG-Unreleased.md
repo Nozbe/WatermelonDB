@@ -40,6 +40,7 @@
 ### Performance
 
 - The order of Q. clauses in a query is now preserved - previously, the clauses could get rearranged and produce a suboptimal query
+- [SQLite] `adapter.batch()` with large numbers of created/updated/deleted records is now between 16-48% faster
 
 ### Changes
 

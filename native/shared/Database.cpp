@@ -365,39 +365,26 @@ void Database::batch(jsi::Array &operations) {
         size_t operationsCount = operations.length(rt);
         for (size_t i = 0; i < operationsCount; i++) {
             jsi::Array operation = operations.getValueAtIndex(rt, i).getObject(rt).getArray(rt);
-            std::string type = operation.getValueAtIndex(rt, 0).getString(rt).utf8(rt);
 
-            if (type == "create") {
-                const jsi::String table = operation.getValueAtIndex(rt, 1).getString(rt);
-                std::string id = operation.getValueAtIndex(rt, 2).getString(rt).utf8(rt);
-                std::string sql = operation.getValueAtIndex(rt, 3).getString(rt).utf8(rt);
-                jsi::Array arguments = operation.getValueAtIndex(rt, 4).getObject(rt).getArray(rt);
+            auto cacheBehavior = operation.getValueAtIndex(rt, 0).getNumber();
+            auto table = cacheBehavior != 0 ? operation.getValueAtIndex(rt, 1).getString(rt).utf8(rt) : "";
+            auto sql = operation.getValueAtIndex(rt, 2).getString(rt).utf8(rt);
 
-                executeUpdate(sql, arguments);
-                addedIds.push_back(cacheKey(table.utf8(rt), id));
-            } else if (type == "execute") {
-                jsi::String sql = operation.getValueAtIndex(rt, 1).getString(rt);
-                jsi::Array arguments = operation.getValueAtIndex(rt, 2).getObject(rt).getArray(rt);
-
-                executeUpdate(sql.utf8(rt), arguments);
-            } else if (type == "markAsDeleted") {
-                const jsi::String table = operation.getValueAtIndex(rt, 1).getString(rt);
-                const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
-                auto args = jsi::Array::createWithElements(rt, id);
-                executeUpdate("update `" + table.utf8(rt) + "` set _status='deleted' where id == ?", args);
-
-                removedIds.push_back(cacheKey(table.utf8(rt), id.utf8(rt)));
-            } else if (type == "destroyPermanently") {
-                const jsi::String table = operation.getValueAtIndex(rt, 1).getString(rt);
-                const jsi::String id = operation.getValueAtIndex(rt, 2).getString(rt);
-                auto args = jsi::Array::createWithElements(rt, id);
-
-                // TODO: What's the behavior if nothing got deleted?
-                executeUpdate("delete from `" + table.utf8(rt) + "` where id == ?", args);
-                removedIds.push_back(cacheKey(table.utf8(rt), id.utf8(rt)));
-            } else {
-                throw jsi::JSError(rt, "unknown batch operation");
+            jsi::Array argsBatches = operation.getValueAtIndex(rt, 3).getObject(rt).getArray(rt);
+            size_t argsBatchesCount = argsBatches.length(rt);
+            for (size_t j = 0; j < argsBatchesCount; j++) {
+                jsi::Array args = argsBatches.getValueAtIndex(rt, j).getObject(rt).getArray(rt);
+                executeUpdate(sql, args);
+                if (cacheBehavior != 0) {
+                    auto id = args.getValueAtIndex(rt, 0).getString(rt).utf8(rt);
+                    if (cacheBehavior == 1) {
+                        addedIds.push_back(cacheKey(table, id));
+                    } else if (cacheBehavior == -1) {
+                        removedIds.push_back(cacheKey(table, id));
+                    }
+                }
             }
+
         }
         commit();
     } catch (const std::exception &ex) {

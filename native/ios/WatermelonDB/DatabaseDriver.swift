@@ -81,11 +81,16 @@ class DatabaseDriver {
         return try database.count(query, args)
     }
 
-    enum Operation {
-        case execute(query: Database.SQL, args: Database.QueryArgs)
-        case create(table: Database.TableName, id: RecordId, query: Database.SQL, args: Database.QueryArgs)
-        case destroyPermanently(table: Database.TableName, id: RecordId)
-        case markAsDeleted(table: Database.TableName, id: RecordId)
+    enum CacheBehavior {
+        case ignore
+        case addFirstArg(table: Database.TableName)
+        case removeFirstArg(table: Database.TableName)
+    }
+
+    struct Operation {
+        let cacheBehavior: CacheBehavior
+        let sql: Database.SQL
+        let argBatches: [Database.QueryArgs]
     }
 
     func batch(_ operations: [Operation]) throws {
@@ -94,22 +99,19 @@ class DatabaseDriver {
 
         try database.inTransaction {
             for operation in operations {
-                switch operation {
-                case .execute(query: let query, args: let args):
-                    try database.execute(query, args)
+                for args in operation.argBatches {
+                    try database.execute(operation.sql, args)
 
-                case .create(table: let table, id: let id, query: let query, args: let args):
-                    try database.execute(query, args)
-                    newIds.append((table, id))
-
-                case .markAsDeleted(table: let table, id: let id):
-                    try database.execute("update `\(table)` set _status='deleted' where id == ?", [id])
-                    removedIds.append((table, id))
-
-                case .destroyPermanently(table: let table, id: let id):
-                    // TODO: What's the behavior if nothing got deleted?
-                    try database.execute("delete from `\(table)` where id == ?", [id])
-                    removedIds.append((table, id))
+                    switch operation.cacheBehavior {
+                    case .addFirstArg(table: let table):
+                        // swiftlint:disable:next force_cast
+                        newIds.append((table, id: args[0] as! String))
+                    case .removeFirstArg(table: let table):
+                        // swiftlint:disable:next force_cast
+                        removedIds.append((table, id: args[0] as! String))
+                    case .ignore:
+                        break
+                    }
                 }
             }
         }

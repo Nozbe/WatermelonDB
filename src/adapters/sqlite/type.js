@@ -35,11 +35,21 @@ export type SQLiteAdapterOptions = $Exact<{
 
 export type DispatcherType = 'asynchronous' | 'jsi'
 
-export type NativeBridgeBatchOperation =
-  | ['execute', SQL, SQLiteArg[]]
-  | ['create', TableName<any>, RecordId, SQL, SQLiteArg[]]
-  | ['markAsDeleted', TableName<any>, RecordId]
-  | ['destroyPermanently', TableName<any>, RecordId]
+// This is the internal format of batch operations
+// It's ugly, but optimized for performance and versatility, e.g.:
+// adding a record:  [1, 'table', 'insert into...', [['id', 'created', ...]]]
+// updating a record [0, null, 'update...', [['id', 'created', ...]]]
+// removing a record [-1, table, 'delete...', [['id', 'created', ...]]]
+type NativeBridgeBatchOperationCacheBehavior =
+  | -1 // remove from cache
+  | 0 // ignore
+  | 1 // add to cache
+export type NativeBridgeBatchOperation = [
+  NativeBridgeBatchOperationCacheBehavior,
+  ?TableName<any>, // table to add/remove from cache
+  SQL,
+  Array<SQLiteArg[]>, // id must be at [0] if cacheBehavior != 0
+]
 
 type InitializeStatus =
   | { code: 'ok' | 'schema_needed' }

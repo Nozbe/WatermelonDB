@@ -2,16 +2,7 @@
 
 import Database from './Database'
 
-function fixArgs(args: any): any {
-  return Object.keys(args).reduce((acc, argName) => {
-    if (typeof acc[argName] === 'boolean') {
-      acc[argName] = acc[argName] ? 1 : 0
-    }
-    return acc
-  }, args)
-}
-
-function fixArgsArray(args: any[]): any[] {
+function fixArgs(args: any[]): any[] {
   return args.map((value) => {
     if (typeof value === 'boolean') {
       return value ? 1 : 0
@@ -117,7 +108,7 @@ class DatabaseDriver {
   }
 
   cachedQuery(table: string, query: string, args: any[]): any[] {
-    const results = this.database.queryRaw(query, fixArgsArray(args))
+    const results = this.database.queryRaw(query, fixArgs(args))
     return results.map((row: any) => {
       const id = `${row.id}`
       if (this.isCached(table, id)) {
@@ -129,11 +120,11 @@ class DatabaseDriver {
   }
 
   queryIds(query: string, args: any[]): string[] {
-    return this.database.queryRaw(query, fixArgsArray(args)).map((row) => `${row.id}`)
+    return this.database.queryRaw(query, fixArgs(args)).map((row) => `${row.id}`)
   }
 
   count(query: string, args: any[]): number {
-    return this.database.count(query, fixArgsArray(args))
+    return this.database.count(query, fixArgs(args))
   }
 
   batch(operations: any[]): void {
@@ -142,40 +133,15 @@ class DatabaseDriver {
 
     this.database.inTransaction(() => {
       operations.forEach((operation: any[]) => {
-        const [type, ...rest] = operation
-        switch (type) {
-          case 'execute': {
-            const [query, args] = rest
-            this.database.execute(query, fixArgs(args))
-            break
+        const [cacheBehavior, table, sql, argBatches] = operation
+        argBatches.forEach((args) => {
+          this.database.execute(sql, fixArgs(args))
+          if (cacheBehavior === 1) {
+            newIds.push([table, args[0]])
+          } else if (cacheBehavior === -1) {
+            removedIds.push([table, args[0]])
           }
-
-          case 'create': {
-            const [table, id, query, args] = rest
-            this.database.execute(query, fixArgs(args))
-            newIds.push([table, id])
-            break
-          }
-
-          case 'markAsDeleted': {
-            const [table, id] = rest
-            this.database.execute(`UPDATE '${table}' SET _status='deleted' WHERE id == ?`, [id])
-            removedIds.push([table, id])
-            break
-          }
-
-          case 'destroyPermanently': {
-            const [table, id] = rest
-            // TODO: What's the behavior if nothing got deleted?
-            this.database.execute(`DELETE FROM '${table}' WHERE id == ?`, [id])
-            removedIds.push([table, id])
-            break
-          }
-
-          default: {
-            throw new Error('unknown batch operation')
-          }
-        }
+        })
       })
     })
 
