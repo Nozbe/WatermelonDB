@@ -19,10 +19,11 @@ void consoleError(std::string message) {
     __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "%s\n", message.c_str());
 }
 
-bool isVerboseLogEnabled(const char *tag) {
-    // TODO: Need to use JNI to integrate with the system logging
-    // https://github.com/aosp-mirror/platform_frameworks_base/blob/6bebb8418ceecf44d2af40033870f3aabacfe36e/core/jni/android_util_Log.cpp#L68
-    // return __android_log_is_loggable(levels.verbose, tag, ANDROID_LOG_INFO)
+jint verbose_level;
+
+bool isVerboseLogEnabled() {
+    // TODO: Available since API level 30
+    // return __android_log_is_loggable(verbose_level, SQLITE_LOG_TAG, ANDROID_LOG_INFO);
     return false;
 }
 
@@ -47,7 +48,7 @@ std::once_flag sqliteInitialization;
 void initializeSqlite() {
     std::call_once(sqliteInitialization, []() {
         // Redirect sqlite messages to Android log
-        if (sqlite3_config(SQLITE_CONFIG_LOG, &sqliteLogCallback, isVerboseLogEnabled(SQLITE_LOG_TAG)) != SQLITE_OK) {
+        if (sqlite3_config(SQLITE_CONFIG_LOG, &sqliteLogCallback, isVerboseLogEnabled()) != SQLITE_OK) {
             consoleError("Failed to configure SQLite to redirect messages to Android log");
         }
 
@@ -56,8 +57,10 @@ void initializeSqlite() {
             consoleError("Failed to configure SQLite to support file URI syntax - shared cache will not work");
         }
 
-        // TODO: Soft heap limit
+        // sqlite should do its best to stay <8MB of heap allocations
+        // 8MB is what android uses by default:
         // https://github.com/aosp-mirror/platform_frameworks_base/blob/6bebb8418ceecf44d2af40033870f3aabacfe36e/core/jni/android_database_SQLiteGlobal.cpp#L68
+        sqlite3_soft_heap_limit(8 * 1024 * 1024);
 
         if (sqlite3_initialize() != SQLITE_OK) {
             consoleError("Failed to initialize sqlite - this probably means sqlite was already initialized");
@@ -74,6 +77,17 @@ void configureJNI(JNIEnv *env) {
         std::abort();
     }
     assert(jvm);
+
+    // // find magic constant needed for verbose logs
+    // jclass logClass = env->FindClass("android/util/Log");
+    // if (logClass == NULL) {
+    //     throw std::runtime_error("Unable to find android/util/Log");
+    // }
+    // jfieldID logVerboseFieldId = env->GetStaticFieldID(logClass, "VERBOSE", "I");
+    // if (logVerboseFieldId == NULL) {
+    //     throw std::runtime_error("Unable to find android/util/Log's VERBOSE");
+    // }
+    // verbose_level = env->GetStaticIntField(logClass, logVerboseFieldId);
 }
 
 std::string resolveDatabasePath(std::string path) {
