@@ -233,7 +233,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
       )
       return
     }
-
+    /*
     this._dispatcher.queryJSON(table, sql, args, (result) =>
       callback(
         mapValue(
@@ -242,6 +242,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
         ),
       ),
     )
+    */
 
     /*
     this._dispatcher.queryAsArray(table, sql, args, (result) =>
@@ -273,6 +274,43 @@ export default class SQLiteAdapter implements DatabaseAdapter {
       ),
     )
     */
+
+    this._dispatcher.queryAsArrayJSON(table, sql, args, (result) =>
+      callback(
+        mapValue((json) => {
+          let b4
+          b4 = Date.now()
+          const compressedRecords = JSON.parse(json)
+          console.log(`parse query: ${Date.now() - b4}`)
+          b4 = Date.now()
+          const len = compressedRecords.length
+          if (!len) {
+            return []
+          }
+          const columnNames = compressedRecords[0]
+          const columnLen = columnNames.length
+          const rawRecords = new Array(len - 1)
+          let rawRecord, compressedRecord
+          for (let i = 1; i < len; i++) {
+            compressedRecord = compressedRecords[i]
+            if (typeof compressedRecord === 'string') {
+              rawRecord = compressedRecord
+            } else {
+              rawRecord = {}
+              for (let j = 0; j < columnLen; j++) {
+                rawRecord[columnNames[j]] = compressedRecord[j]
+              }
+            }
+            rawRecords[i - 1] = rawRecord
+          }
+          console.log(`decompress query: ${Date.now() - b4}`)
+          b4 = Date.now()
+          const records = sanitizeQueryResult(rawRecords, this.schema.tables[table])
+          console.log(`sanitize query: ${Date.now() - b4}`)
+          return records
+        }, result),
+      ),
+    )
   }
 
   queryIds(query: SerializedQuery, callback: ResultCallback<RecordId[]>): void {

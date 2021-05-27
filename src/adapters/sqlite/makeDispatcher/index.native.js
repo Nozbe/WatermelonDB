@@ -23,6 +23,7 @@ const dispatcherMethods = [
   'find',
   'query',
   'queryAsArray',
+  'queryAsArrayJSON',
   'queryJSON',
   'queryIds',
   'unsafeQueryRaw',

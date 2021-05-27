@@ -338,6 +338,51 @@ void Database::resultJSON(sqlite3_stmt *statement, rapidjson::Writer<rapidjson::
     json.EndObject();
 }
 
+void Database::resultArrayJSON(sqlite3_stmt *statement, rapidjson::Writer<rapidjson::StringBuffer> &json) {
+    auto &rt = getRt();
+    int count = sqlite3_column_count(statement);
+    
+    json.StartArray();
+
+    for (int i = 0; i < count; i++) {
+        switch (sqlite3_column_type(statement, i)) {
+        case SQLITE_INTEGER: {
+            sqlite3_int64 value = sqlite3_column_int64(statement, i);
+            json.Int64(value);
+            break;
+        }
+        case SQLITE_FLOAT: {
+            double value = sqlite3_column_double(statement, i);
+            json.Double(value);
+            break;
+        }
+        case SQLITE_TEXT: {
+            const char *text = (const char *)sqlite3_column_text(statement, i);
+
+            if (text) {
+                json.String(text);
+            } else {
+                json.Null();
+            }
+            break;
+        }
+        case SQLITE_NULL: {
+            json.Null();
+            break;
+        }
+        case SQLITE_BLOB: {
+            throw jsi::JSError(rt, "Unable to fetch record from database because WatermelonDB does not support blobs");
+        }
+        default: {
+            throw jsi::JSError(rt, "Unable to fetch record from database - unknown column type (WatermelonDB does not "
+                                   "support custom sqlite types currently)");
+        }
+        }
+    }
+    
+    json.EndArray();
+}
+
 jsi::Array Database::resultArray(sqlite3_stmt *statement) {
     auto &rt = getRt();
     int count = sqlite3_column_count(statement);
@@ -395,6 +440,20 @@ jsi::Array Database::resultColumns(sqlite3_stmt *statement) {
     }
 
     return columns;
+}
+
+void Database::resultColumnsJSON(sqlite3_stmt *statement, rapidjson::Writer<rapidjson::StringBuffer> &json) {
+    int count = sqlite3_column_count(statement);
+    
+    json.StartArray();
+
+    for (int i = 0; i < count; i++) {
+        const char *column = sqlite3_column_name(statement, i);
+        assert(column);
+        json.String(column);
+    }
+
+    json.EndArray();
 }
 
 void Database::beginTransaction() {
@@ -567,6 +626,53 @@ jsi::Value Database::queryAsArray(jsi::String &tableName, jsi::String &sql, jsi:
     }
 
     return jsiRecords;
+}
+
+jsi::String Database::queryAsArrayJSON(jsi::String &tableName, jsi::String &sql, jsi::Array &arguments) {
+    using namespace rapidjson;
+    auto &rt = getRt();
+    auto statement = executeQuery(sql.utf8(rt), arguments);
+    
+    StringBuffer buffer;
+    Writer<StringBuffer> json(buffer);
+    
+    json.StartArray();
+
+    int i = 0;
+    while (true) {
+        int stepResult = sqlite3_step(statement.stmt);
+
+        if (stepResult == SQLITE_DONE) {
+            break;
+        } else if (stepResult != SQLITE_ROW) {
+            throw dbError("Failed to query the database");
+        }
+
+        assert(std::string(sqlite3_column_name(statement.stmt, 0)) == "id");
+
+        const char *id = (const char *)sqlite3_column_text(statement.stmt, 0);
+        if (!id) {
+            throw jsi::JSError(rt, "Failed to get ID of a record");
+        }
+        
+        if (i == 0) {
+            resultColumnsJSON(statement.stmt, json);
+        }
+
+        if (isCached(cacheKey(tableName.utf8(rt), std::string(id)))) {
+            json.String(id);
+        } else {
+            markAsCached(cacheKey(tableName.utf8(rt), std::string(id)));
+            resultArrayJSON(statement.stmt, json);
+        }
+        
+        i++;
+    }
+    
+    json.EndArray();
+    
+    const uint8_t* str = reinterpret_cast<const uint8_t *>(buffer.GetString());
+    return jsi::String::createFromUtf8(rt, str, buffer.GetLength());
 }
 
 jsi::String Database::queryJSON(jsi::String &tableName, jsi::String &sql, jsi::Array &arguments) {

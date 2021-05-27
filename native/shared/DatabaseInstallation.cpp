@@ -173,6 +173,14 @@ void Database::install(jsi::Runtime *runtime) {
 
             return runBlock(rt, [&]() { return database->queryJSON(tableName, sql, arguments); });
         });
+        createMethod(rt, adapter, "queryAsArrayJSON", 3, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            assert(database->initialized_);
+            jsi::String tableName = args[0].getString(rt);
+            jsi::String sql = args[1].getString(rt);
+            jsi::Array arguments = args[2].getObject(rt).getArray(rt);
+
+            return runBlock(rt, [&]() { return database->queryAsArrayJSON(tableName, sql, arguments); });
+        });
         createMethod(rt, adapter, "queryIds", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String sql = args[0].getString(rt);
