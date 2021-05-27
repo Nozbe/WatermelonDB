@@ -9,6 +9,7 @@ cmake_minimum_required(VERSION 3.4.1)
 include_directories(
         ../../../../shared
         ../../../../shared/vendor/simdjson
+        ../../../../shared/vendor/rapidjson
 # these paths work for WatermelonDB native tester
         ../../../../../node_modules/@nozbe/sqlite/sqlite-amalgamation-3310100/
         ../../../../../node_modules/react-native/React

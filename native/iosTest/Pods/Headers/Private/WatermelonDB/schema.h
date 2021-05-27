@@ -1,0 +1,1 @@
+../../../../../shared/vendor/rapidjson/schema.h
