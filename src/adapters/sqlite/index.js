@@ -234,6 +234,16 @@ export default class SQLiteAdapter implements DatabaseAdapter {
       return
     }
 
+    this._dispatcher.queryJSON(table, sql, args, (result) =>
+      callback(
+        mapValue(
+          (rawRecords) => sanitizeQueryResult(JSON.parse(rawRecords), this.schema.tables[table]),
+          result,
+        ),
+      ),
+    )
+
+    /*
     this._dispatcher.queryAsArray(table, sql, args, (result) =>
       callback(
         mapValue((compressedRecords) => {
@@ -262,6 +272,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
         }, result),
       ),
     )
+    */
   }
 
   queryIds(query: SerializedQuery, callback: ResultCallback<RecordId[]>): void {

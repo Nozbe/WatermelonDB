@@ -5,6 +5,8 @@
 #import <unordered_set>
 #import <sqlite3.h>
 #import "simdjson.h"
+#include "vendor/rapidjson/writer.h"
+#include "vendor/rapidjson/stringbuffer.h"
 
 #import "Sqlite.h"
 
@@ -21,6 +23,7 @@ class Database : public jsi::HostObject {
     jsi::Value find(jsi::String &tableName, jsi::String &id);
     jsi::Value query(jsi::String &tableName, jsi::String &sql, jsi::Array &arguments);
     jsi::Value queryAsArray(jsi::String &tableName, jsi::String &sql, jsi::Array &arguments);
+    jsi::String queryJSON(jsi::String &tableName, jsi::String &sql, jsi::Array &arguments);
     jsi::Array queryIds(jsi::String &sql, jsi::Array &arguments);
     jsi::Array unsafeQueryRaw(jsi::String &sql, jsi::Array &arguments);
     jsi::Value count(jsi::String &sql, jsi::Array &arguments);
@@ -50,6 +53,7 @@ class Database : public jsi::HostObject {
     void executeUpdate(std::string sql);
     void executeMultiple(std::string sql);
     jsi::Object resultDictionary(sqlite3_stmt *statement);
+    void resultJSON(sqlite3_stmt *statement, rapidjson::Writer<rapidjson::StringBuffer> &json);
     jsi::Array resultArray(sqlite3_stmt *statement);
     jsi::Array resultColumns(sqlite3_stmt *statement);
 
