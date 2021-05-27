@@ -976,7 +976,7 @@ TableSchemaMap decodeTableSchemaMap(jsi::Runtime &rt, jsi::Object &schema) {
      for (auto const &column : columns) {
          sql += "`, `" + column.name;
      }
-     sql += "`) values (?, ?";
+     sql += "`) values (?, 'synced'";
      for (size_t i = 0, len = columns.size(); i < len; i++) {
          sql += ", ?";
      }
@@ -1028,7 +1028,7 @@ void Database::unsafeLoadFromSyncJSON(std::string_view jsonStr, jsi::Object &sch
                 SqliteStatement statement(stmt);
                 
                 for (ondemand::object record : records) {
-                    sqlite3_bind_text(stmt, 2, "synced", -1, SQLITE_STATIC);
+//                    sqlite3_bind_text(stmt, 2, "synced", -1, SQLITE_STATIC);
 
                     for (auto valueField : record) {
                         std::string_view keyView = valueField.unescaped_key();
@@ -1043,7 +1043,7 @@ void Database::unsafeLoadFromSyncJSON(std::string_view jsonStr, jsi::Object &sch
                         
                         auto column = tableSchema[key];
                         ondemand::json_type type = value.type();
-                        auto argumentsIdx = column.index + 3;
+                        auto argumentsIdx = column.index + 2;
                         
                         if (type == ondemand::json_type::null) {
                             sqlite3_bind_null(stmt, argumentsIdx);
@@ -1107,9 +1107,9 @@ void Database::unsafeLoadFromSyncJSON(std::string_view jsonStr, jsi::Object &sch
                  auto record = updated.getValueAtIndex(rt, j).getObject(rt);
 
                  sqlite3_bind_text(stmt, 1, record.getProperty(rt, idStr).getString(rt).utf8(rt).c_str(), -1, SQLITE_TRANSIENT);
-                 sqlite3_bind_text(stmt, 2, "synced", -1, SQLITE_STATIC);
+//                 sqlite3_bind_text(stmt, 2, "synced", -1, SQLITE_STATIC);
 
-                 int argumentsIdx = 3;
+                 int argumentsIdx = 2;
                  for (auto const &column : tableSchema) {
                      auto value = record.getProperty(rt, columnNames[argumentsIdx - 3]);
 
