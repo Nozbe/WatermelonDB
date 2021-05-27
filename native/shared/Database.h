@@ -30,6 +30,7 @@ class Database : public jsi::HostObject {
     jsi::Value count(jsi::String &sql, jsi::Array &arguments);
     void batch(jsi::Array &operations);
     void batchJSON(jsi::String &&json);
+    void unsafeLoadFromSync(jsi::Object &changeSet, jsi::Object &schema);
     void unsafeResetDatabase(jsi::String &schema, int schemaVersion);
     jsi::Value getLocal(jsi::String &key);
 

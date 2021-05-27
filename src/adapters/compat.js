@@ -55,6 +55,10 @@ export default class DatabaseAdapterCompat {
     console.log(`batch: ${Date.now() - b4}`)
   }
 
+  unsafeLoadFromSync(changeSet: any): Promise<void> {
+    return toPromise((callback) => this.underlyingAdapter.unsafeLoadFromSync(changeSet, callback))
+  }
+
   getDeletedRecords(tableName: TableName<any>): Promise<RecordId[]> {
     return toPromise((callback) => this.underlyingAdapter.getDeletedRecords(tableName, callback))
   }

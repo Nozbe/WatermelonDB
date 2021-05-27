@@ -32,6 +32,7 @@ import type {
   NativeDispatcher,
   MigrationEvents,
 } from './type'
+import type { SyncDatabaseChangeSet } from '../../sync'
 
 import encodeName from './encodeName'
 import encodeQuery from './encodeQuery'
@@ -244,7 +245,6 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     )
     */
 
-    /*
     this._dispatcher.queryAsArray(table, sql, args, (result) =>
       callback(
         mapValue((compressedRecords) => {
@@ -273,8 +273,8 @@ export default class SQLiteAdapter implements DatabaseAdapter {
         }, result),
       ),
     )
-    */
 
+    /*
     this._dispatcher.queryAsArrayJSON(table, sql, args, (result) =>
       callback(
         mapValue((json) => {
@@ -310,7 +310,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
           return records
         }, result),
       ),
-    )
+    ) */
   }
 
   queryIds(query: SerializedQuery, callback: ResultCallback<RecordId[]>): void {
@@ -348,6 +348,15 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     }
 
     this._batch(encodedOperations, callback)
+  }
+
+  unsafeLoadFromSync(changeSet: SyncDatabaseChangeSet, callback: ResultCallback<void>): void {
+    const load = this._dispatcher.unsafeLoadFromSync
+    if (load) {
+      load(changeSet, this.schema, callback)
+    } else {
+      callback({ error: new Error('unsafeLoadFromSync unavailable') })
+    }
   }
 
   getDeletedRecords(table: TableName<any>, callback: ResultCallback<RecordId[]>): void {

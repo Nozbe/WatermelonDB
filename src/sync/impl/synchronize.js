@@ -23,6 +23,7 @@ export default async function synchronize({
   log,
   conflictResolver,
   _unsafeBatchPerCollection,
+  _turbo,
 }: SyncArgs): Promise<void> {
   const resetCount = database._resetCount
   log && (log.startedAt = new Date())
@@ -43,6 +44,7 @@ export default async function synchronize({
   log && (log.phase = 'ready to pull')
 
   // $FlowFixMe
+  let b4 = Date.now()
   const { changes: remoteChanges, timestamp: newLastPulledAt } = await pullChanges({
     lastPulledAt,
     schemaVersion,
@@ -62,16 +64,21 @@ export default async function synchronize({
       lastPulledAt === (await getLastPulledAt(database)),
       '[Sync] Concurrent synchronization is not allowed. More than one synchronize() call was running at the same time, and the later one was aborted before committing results to local database.',
     )
-    await writer.callWriter(() =>
-      applyRemoteChanges(
-        database,
-        remoteChanges,
-        sendCreatedAsUpdated,
-        log,
-        conflictResolver,
-        _unsafeBatchPerCollection,
-      ),
-    )
+    if (_turbo) {
+      // $FlowFixMe
+      await database.adapter.unsafeLoadFromSync(remoteChanges)
+    } else {
+      await writer.callWriter(() =>
+        applyRemoteChanges(
+          database,
+          remoteChanges,
+          sendCreatedAsUpdated,
+          log,
+          conflictResolver,
+          _unsafeBatchPerCollection,
+        ),
+      )
+    }
     log && (log.phase = 'applied remote changes')
     await setLastPulledAt(database, newLastPulledAt)
 
@@ -79,6 +86,8 @@ export default async function synchronize({
       await setLastPulledSchemaVersion(database, schemaVersion)
     }
   }, 'sync-synchronize-apply')
+
+  console.log(`synchronize: ${Date.now() - b4}`)
 
   // push phase
   if (pushChanges) {

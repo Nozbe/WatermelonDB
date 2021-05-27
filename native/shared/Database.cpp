@@ -922,6 +922,119 @@ void Database::batchJSON(jsi::String &&jsiJson) {
     }
 }
 
+enum ColumnType { string, number, boolean };
+ struct ColumnSchema {
+     std::string name;
+     ColumnType type;
+ };
+
+ ColumnType columnTypeFromStr(std::string &type) {
+     if (type == "string") {
+         return ColumnType::string;
+     } else if (type == "number") {
+         return ColumnType::number;
+     } else if (type == "boolean") {
+         return ColumnType::boolean;
+     } else {
+         throw std::invalid_argument("invalid column type in schema");
+     }
+ }
+
+ using TableSchema = std::vector<ColumnSchema>;
+ TableSchema decodeTableSchema(jsi::Runtime &rt, jsi::Object &schema) {
+     auto columnArr = schema.getProperty(rt, "columnArray").getObject(rt).getArray(rt);
+     std::vector<ColumnSchema> columns = {};
+     for (size_t i = 0, len = columnArr.size(rt); i < len; i++) {
+         auto columnObj = columnArr.getValueAtIndex(rt, i).getObject(rt);
+         auto name = columnObj.getProperty(rt, "name").getString(rt).utf8(rt); // TODO: reuse the same JS string
+         auto typeStr = columnObj.getProperty(rt, "type").getString(rt).utf8(rt);
+         ColumnType type = columnTypeFromStr(typeStr);
+         ColumnSchema column = { name, type };
+         columns.push_back(column);
+     }
+     return columns;
+ }
+
+ std::string insertSqlFor(jsi::Runtime &rt, std::string tableName, TableSchema columns) {
+     std::string sql = "insert into `" + tableName + "` (`id`, `_status";
+     for (auto const &column : columns) {
+         sql += "`, `" + column.name;
+     }
+     sql += "`) values (?, ?";
+     for (size_t i = 0, len = columns.size(); i < len; i++) {
+         sql += ", ?";
+     }
+     sql += ")";
+     return sql;
+ }
+
+ void Database::unsafeLoadFromSync(jsi::Object &changeSet, jsi::Object &schema) {
+     auto &rt = getRt();
+     beginTransaction();
+
+     try {
+         auto tableSchemas = schema.getProperty(rt, "tables").getObject(rt);
+         auto tableNames = changeSet.getPropertyNames(rt);
+
+         auto idStr = jsi::String::createFromAscii(rt, "id");
+
+         for (size_t i = 0, len = tableNames.size(rt); i < len; i++) {
+             auto tableName = tableNames.getValueAtIndex(rt, i).getString(rt);
+             auto tableChangeset = changeSet.getProperty(rt, tableName).getObject(rt);
+             auto created = tableChangeset.getProperty(rt, "created").getObject(rt).getArray(rt);
+             auto updated = tableChangeset.getProperty(rt, "updated").getObject(rt).getArray(rt);
+             auto deleted = tableChangeset.getProperty(rt, "deleted").getObject(rt).getArray(rt);
+
+             if (created.size(rt) > 0 || deleted.size(rt) > 0) {
+                 throw jsi::JSError(rt, "bad created/deleted");
+             }
+
+             auto tableSchemaObj = tableSchemas.getProperty(rt, tableName).getObject(rt);
+             auto tableSchema = decodeTableSchema(rt, tableSchemaObj);
+             std::vector<jsi::String> columnNames = {};
+             for (auto const &column : tableSchema) {
+                 columnNames.push_back(jsi::String::createFromAscii(rt, column.name));
+             }
+
+             sqlite3_stmt *stmt = prepareQuery(insertSqlFor(rt, tableName.utf8(rt), tableSchema));
+             SqliteStatement statement(stmt);
+
+             for (size_t j = 0, j_len = updated.size(rt); j < j_len; j++) {
+                 auto record = updated.getValueAtIndex(rt, j).getObject(rt);
+
+                 sqlite3_bind_text(stmt, 1, record.getProperty(rt, idStr).getString(rt).utf8(rt).c_str(), -1, SQLITE_TRANSIENT);
+                 sqlite3_bind_text(stmt, 2, "synced", -1, SQLITE_STATIC);
+
+                 int argumentsIdx = 3;
+                 for (auto const &column : tableSchema) {
+                     auto value = record.getProperty(rt, columnNames[argumentsIdx - 3]);
+
+                     if (value.isNull() || value.isUndefined()) {
+                         sqlite3_bind_null(stmt, argumentsIdx);
+                     } else if (column.type == ColumnType::string) {
+                         sqlite3_bind_text(stmt, argumentsIdx, value.getString(rt).utf8(rt).c_str(), -1, SQLITE_TRANSIENT);
+                     } else if (column.type == ColumnType::boolean) {
+                         sqlite3_bind_int(stmt, argumentsIdx, value.isBool() ? value.getBool() : 0);
+                     } else if (column.type == ColumnType::number) {
+                         sqlite3_bind_double(stmt, argumentsIdx, value.getNumber());
+                     } else {
+                         throw jsi::JSError(rt, "Invalid argument type (unknown) for query");
+                     }
+
+                     argumentsIdx += 1;
+                 }
+
+                 executeUpdate(stmt);
+                 sqlite3_reset(stmt);
+             }
+         }
+         commit();
+     } catch (const std::exception &ex) {
+         rollback();
+         throw;
+     }
+ }
+
 void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
     auto &rt = getRt();
 
