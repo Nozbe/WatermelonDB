@@ -353,11 +353,24 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   unsafeLoadFromSync(json: string, callback: ResultCallback<void>): void {
     const load = this._dispatcher.unsafeLoadFromSyncJSON
     if (load) {
-      if (typeof json === 'number') {
-        this._dispatcher.unsafeLoadFromSyncJSONNative(json, this.schema, callback)
-      } else {
-        load(json, this.schema, callback)
-      }
+      const { removeIndices, addIndices } = require('./encodeSchema')
+      const toEncodedOperations = (sqlStr) =>
+        sqlStr
+          .split(';')
+          .filter((sql) => sql)
+          .map((sql) => [0, null, sql, [[]]])
+
+      this._batch(toEncodedOperations(removeIndices(this.schema)), () => {
+        const after = () => {
+          this._batch(toEncodedOperations(addIndices(this.schema)), callback)
+        }
+
+        if (typeof json === 'number') {
+          this._dispatcher.unsafeLoadFromSyncJSONNative(json, this.schema, after)
+        } else {
+          load(json, this.schema, after)
+        }
+      })
     } else {
       callback({ error: new Error('unsafeLoadFromSync unavailable') })
     }
