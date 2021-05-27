@@ -20,6 +20,7 @@ class Database : public jsi::HostObject {
 
     jsi::Value find(jsi::String &tableName, jsi::String &id);
     jsi::Value query(jsi::String &tableName, jsi::String &sql, jsi::Array &arguments);
+    jsi::Value queryAsArray(jsi::String &tableName, jsi::String &sql, jsi::Array &arguments);
     jsi::Array queryIds(jsi::String &sql, jsi::Array &arguments);
     jsi::Array unsafeQueryRaw(jsi::String &sql, jsi::Array &arguments);
     jsi::Value count(jsi::String &sql, jsi::Array &arguments);
@@ -49,6 +50,8 @@ class Database : public jsi::HostObject {
     void executeUpdate(std::string sql);
     void executeMultiple(std::string sql);
     jsi::Object resultDictionary(sqlite3_stmt *statement);
+    jsi::Array resultArray(sqlite3_stmt *statement);
+    jsi::Array resultColumns(sqlite3_stmt *statement);
 
     void beginTransaction();
     void commit();

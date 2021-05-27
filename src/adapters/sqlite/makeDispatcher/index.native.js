@@ -22,6 +22,7 @@ const dispatcherMethods = [
   'setUpWithMigrations',
   'find',
   'query',
+  'queryAsArray',
   'queryIds',
   'unsafeQueryRaw',
   'count',

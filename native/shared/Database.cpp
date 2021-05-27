@@ -288,6 +288,65 @@ jsi::Object Database::resultDictionary(sqlite3_stmt *statement) {
     return dictionary; // TODO: Make sure this value is moved, not copied
 }
 
+jsi::Array Database::resultArray(sqlite3_stmt *statement) {
+    auto &rt = getRt();
+    int count = sqlite3_column_count(statement);
+    jsi::Array result(rt, count);
+
+    for (int i = 0; i < count; i++) {
+        switch (sqlite3_column_type(statement, i)) {
+        case SQLITE_INTEGER: {
+            sqlite3_int64 value = sqlite3_column_int64(statement, i);
+            result.setValueAtIndex(rt, i, jsi::Value((double)value));
+            break;
+        }
+        case SQLITE_FLOAT: {
+            double value = sqlite3_column_double(statement, i);
+            result.setValueAtIndex(rt, i, jsi::Value(value));
+            break;
+        }
+        case SQLITE_TEXT: {
+            const char *text = (const char *)sqlite3_column_text(statement, i);
+
+            if (text) {
+                result.setValueAtIndex(rt, i, jsi::String::createFromUtf8(rt, text));
+            } else {
+                result.setValueAtIndex(rt, i, jsi::Value::null());
+            }
+
+            break;
+        }
+        case SQLITE_NULL: {
+            result.setValueAtIndex(rt, i, jsi::Value::null());
+            break;
+        }
+        case SQLITE_BLOB: {
+            throw jsi::JSError(rt, "Unable to fetch record from database because WatermelonDB does not support blobs");
+        }
+        default: {
+            throw jsi::JSError(rt, "Unable to fetch record from database - unknown column type (WatermelonDB does not "
+                                   "support custom sqlite types currently)");
+        }
+        }
+    }
+
+    return result;
+}
+
+jsi::Array Database::resultColumns(sqlite3_stmt *statement) {
+    auto &rt = getRt();
+    int count = sqlite3_column_count(statement);
+    jsi::Array columns(rt, count);
+
+    for (int i = 0; i < count; i++) {
+        const char *column = sqlite3_column_name(statement, i);
+        assert(column);
+        columns.setValueAtIndex(rt, i, jsi::String::createFromUtf8(rt, column));
+    }
+
+    return columns;
+}
+
 void Database::beginTransaction() {
     // NOTE: using exclusive transaction, because that's what FMDB does
     // In theory, `deferred` seems better, since it's less likely to get locked
@@ -397,6 +456,55 @@ jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array 
         } else {
             markAsCached(cacheKey(tableName.utf8(rt), std::string(id)));
             jsi::Object record = resultDictionary(statement.stmt);
+            records.push_back(std::move(record));
+        }
+    }
+
+    jsi::Array jsiRecords(rt, records.size());
+    size_t i = 0;
+    for (auto const &record : records) {
+        jsiRecords.setValueAtIndex(rt, i, record);
+        i++;
+    }
+
+    return jsiRecords;
+}
+
+jsi::Value Database::queryAsArray(jsi::String &tableName, jsi::String &sql, jsi::Array &arguments) {
+    auto &rt = getRt();
+    auto statement = executeQuery(sql.utf8(rt), arguments);
+
+    // FIXME: Adding directly to a jsi::Array should be more efficient, but Hermes does not support
+    // automatically resizing an Array by setting new values to it
+    std::vector<jsi::Value> records = {};
+
+    while (true) {
+        int stepResult = sqlite3_step(statement.stmt);
+
+        if (stepResult == SQLITE_DONE) {
+            break;
+        } else if (stepResult != SQLITE_ROW) {
+            throw dbError("Failed to query the database");
+        }
+
+        assert(std::string(sqlite3_column_name(statement.stmt, 0)) == "id");
+
+        const char *id = (const char *)sqlite3_column_text(statement.stmt, 0);
+        if (!id) {
+            throw jsi::JSError(rt, "Failed to get ID of a record");
+        }
+        
+        if (records.size() == 0) {
+            jsi::Array columns = resultColumns(statement.stmt);
+            records.push_back(std::move(columns));
+        }
+
+        if (isCached(cacheKey(tableName.utf8(rt), std::string(id)))) {
+            jsi::String jsiId = jsi::String::createFromAscii(rt, id);
+            records.push_back(std::move(jsiId));
+        } else {
+            markAsCached(cacheKey(tableName.utf8(rt), std::string(id)));
+            jsi::Array record = resultArray(statement.stmt);
             records.push_back(std::move(record));
         }
     }

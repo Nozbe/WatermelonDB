@@ -221,12 +221,45 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     validateTable(query.table, this.schema)
     const { table } = query
     const [sql, args] = encodeQuery(query)
-    this._dispatcher.query(table, sql, args, (result) =>
-      callback(
-        mapValue(
-          (rawRecords) => sanitizeQueryResult(rawRecords, this.schema.tables[table]),
-          result,
+
+    if (this._dispatcherType !== 'jsi') {
+      this._dispatcher.query(table, sql, args, (result) =>
+        callback(
+          mapValue(
+            (rawRecords) => sanitizeQueryResult(rawRecords, this.schema.tables[table]),
+            result,
+          ),
         ),
+      )
+      return
+    }
+
+    this._dispatcher.queryAsArray(table, sql, args, (result) =>
+      callback(
+        mapValue((compressedRecords) => {
+          const len = compressedRecords.length
+          if (!len) {
+            return []
+          }
+          const columnNames = compressedRecords[0]
+          const columnLen = columnNames.length
+          const rawRecords = new Array(len - 1)
+          let rawRecord, compressedRecord
+          for (let i = 1; i < len; i++) {
+            compressedRecord = compressedRecords[i]
+            if (typeof compressedRecord === 'string') {
+              rawRecord = compressedRecord
+            } else {
+              rawRecord = {}
+              for (let j = 0; j < columnLen; j++) {
+                rawRecord[columnNames[j]] = compressedRecord[j]
+              }
+            }
+            rawRecords[i - 1] = rawRecord
+          }
+
+          return sanitizeQueryResult(rawRecords, this.schema.tables[table])
+        }, result),
       ),
     )
   }
