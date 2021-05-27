@@ -16,7 +16,7 @@ const standardColumns = `"id" text primary key, "_changed" text, "_status" text`
 const localStorageSchema =
   'PRAGMA journal_mode = WAL;' +
   'PRAGMA mmap_size = 268435456;' +
-  'PRAGMA temp_store = memory;' +
+  'PRAGMA temp_store = memory;' + // TODO: This causes a considerable slowdown
   'create table "local_storage" ("key" varchar(16) primary key not null, "value" text not null);' +
   'create index "local_storage_key_index" on "local_storage" ("key");'
 

@@ -62,6 +62,10 @@ void initializeSqlite() {
         // https://github.com/aosp-mirror/platform_frameworks_base/blob/6bebb8418ceecf44d2af40033870f3aabacfe36e/core/jni/android_database_SQLiteGlobal.cpp#L68
         sqlite3_soft_heap_limit(8 * 1024 * 1024);
 
+        if (sqlite3_config(SQLITE_THREADSAFE, SQLITE_CONFIG_SINGLETHREAD) != SQLITE_OK) {
+            consoleError("Failed to configure SQLite to SQLITE_CONFIG_SINGLETHREAD");
+        }
+
         if (sqlite3_initialize() != SQLITE_OK) {
             consoleError("Failed to initialize sqlite - this probably means sqlite was already initialized");
         }
