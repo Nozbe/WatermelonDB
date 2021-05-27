@@ -111,7 +111,7 @@ void Database::bindArgs(sqlite3_stmt *statement, jsi::Array &arguments) {
         }
     }
 }
-
+ 
 SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
     auto statement = prepareQuery(sql);
     bindArgs(statement, arguments);
@@ -967,6 +967,93 @@ enum ColumnType { string, number, boolean };
      sql += ")";
      return sql;
  }
+
+void Database::unsafeLoadFromSyncJSON(std::string jsonStr, jsi::Object &schema) {
+    using namespace simdjson;
+    auto &rt = getRt();
+    beginTransaction();
+
+    try {
+        auto tableSchemas = schema.getProperty(rt, "tables").getObject(rt);
+        
+        ondemand::parser parser;
+        auto json = padded_string(jsonStr);
+        ondemand::document doc = parser.iterate(json);
+        
+        ondemand::object changeSet = doc["changeSet"];
+        
+        for (auto changeSetField : changeSet) {
+            std::string_view tableNameView = changeSetField.unescaped_key();
+            auto tableName = std::string(tableNameView);
+            ondemand::object tableChangeSet = changeSetField.value();
+            
+            for (auto tableChangeSetField : tableChangeSet) {
+                std::string_view tableChangeSetKey = tableChangeSetField.unescaped_key();
+                ondemand::array records = tableChangeSetField.value();
+                
+                if (tableChangeSetKey == "created" || tableChangeSetKey == "deleted") {
+                    int i = 0;
+                    for (auto _value : records) {
+                        i++;
+                    }
+                    if (i > 0) {
+                        throw jsi::JSError(rt, "bad created/deleted");
+                    }
+                    continue;
+                } else if (tableChangeSetKey != "updated") {
+                    throw jsi::JSError(rt, "bad changeset field");
+                }
+                
+                auto tableSchemaObj = tableSchemas.getProperty(rt, jsi::String::createFromUtf8(rt, tableName)).getObject(rt);
+                auto tableSchema = decodeTableSchema(rt, tableSchemaObj);
+                
+                sqlite3_stmt *stmt = prepareQuery(insertSqlFor(rt, tableName, tableSchema));
+                SqliteStatement statement(stmt);
+                
+                for (ondemand::object record : records) {
+                    std::string_view idView = record["id"];
+                    sqlite3_bind_text(stmt, 1, idView.data(), (int) idView.length(), SQLITE_STATIC);
+                    sqlite3_bind_text(stmt, 2, "synced", -1, SQLITE_STATIC);
+
+                    int argumentsIdx = 3;
+                    for (auto const &column : tableSchema) {
+                        ondemand::value value;
+                        ondemand::json_type type;
+                        auto error = record[column.name].get(value);
+                        if (error) {
+                            type = ondemand::json_type::null;
+                        } else {
+                            type = value.type();
+                        }
+                        
+                        if (type == ondemand::json_type::null) {
+                            sqlite3_bind_null(stmt, argumentsIdx);
+                        } else if (column.type == ColumnType::string) {
+                            std::string_view stringView = value;
+                            sqlite3_bind_text(stmt, argumentsIdx, stringView.data(), (int) stringView.length(), SQLITE_STATIC);
+                        } else if (column.type == ColumnType::boolean) {
+                            sqlite3_bind_int(stmt, argumentsIdx, type == ondemand::json_type::boolean ? (bool) value : 0);
+                        } else if (column.type == ColumnType::number) {
+                            sqlite3_bind_double(stmt, argumentsIdx, (double) value);
+                        } else {
+                            throw jsi::JSError(rt, "Invalid argument type (unknown) for query");
+                        }
+
+                        argumentsIdx += 1;
+                    }
+
+                    executeUpdate(stmt);
+                    sqlite3_reset(stmt);
+                }
+            }
+        }
+        
+        commit();
+    } catch (const std::exception &ex) {
+        rollback();
+        throw;
+    }
+}
 
  void Database::unsafeLoadFromSync(jsi::Object &changeSet, jsi::Object &schema) {
      auto &rt = getRt();

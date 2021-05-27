@@ -31,6 +31,7 @@ const dispatcherMethods = [
   'batch',
   'batchJSON',
   'unsafeLoadFromSync',
+  'unsafeLoadFromSyncJSON',
   'unsafeResetDatabase',
   'getLocal',
 ]

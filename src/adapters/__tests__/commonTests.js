@@ -578,6 +578,31 @@ export default () => {
     expect(await adapter.getDeletedRecords('tasks')).toHaveLength(0)
     expect(await queryAll()).toHaveLength(1)
   })
+  it(`can unsafely load from sync JSON`, async (adapter, AdapterClass) => {
+    if (
+      AdapterClass.name !== 'SQLiteAdapter' ||
+      adapter.underlyingAdapter._dispatcherType !== 'jsi'
+    ) {
+      return
+    }
+    const syncedRaw = (raw) => ({ ...mockTaskRaw(raw), _status: 'synced' })
+
+    await adapter.unsafeLoadFromSync({
+      tasks: {
+        created: [],
+        updated: [],
+        deleted: [],
+      },
+    })
+    expect(await adapter.query(taskQuery())).toHaveLength(0)
+
+    const t1 = { id: 't1', text1: 'bar1', order: 1, float1: 3.14, bool1: true }
+
+    await adapter.unsafeLoadFromSync({
+      tasks: { updated: [t1] },
+    })
+    expect(await adapter.query(taskQuery())).toEqual([syncedRaw(t1)])
+  })
   it('can unsafely reset database', async (adapter) => {
     await adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1', text1: 'bar', order: 1 })]])
     await adapter.unsafeResetDatabase()
