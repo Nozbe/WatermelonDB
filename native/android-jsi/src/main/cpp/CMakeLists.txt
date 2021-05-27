@@ -46,8 +46,8 @@ include_directories(
 # https://www.sqlite.org/compile.html
 
 # simdjson is slow without optimization
-set(CMAKE_CXX_FLAGS_DEBUG "-Oz") # comment out for JSI debugging
-set(CMAKE_CXX_FLAGS_RELEASE "-Oz")
+set(CMAKE_CXX_FLAGS_DEBUG "-Os") # comment out for JSI debugging
+set(CMAKE_CXX_FLAGS_RELEASE "-Os")
 
 get_filename_component(_nativeTesterPath "../../../../../node_modules/@nozbe/sqlite/sqlite-amalgamation-3310100/" REALPATH)
 get_filename_component(_nozbeTeamsPath "../../../../../../../../../native/node_modules/react-native/ReactCommon/jsi/jsi/" REALPATH)
