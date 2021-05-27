@@ -984,7 +984,7 @@ TableSchemaMap decodeTableSchemaMap(jsi::Runtime &rt, jsi::Object &schema) {
      return sql;
  }
 
-void Database::unsafeLoadFromSyncJSON(std::string jsonStr, jsi::Object &schema) {
+void Database::unsafeLoadFromSyncJSON(std::string_view jsonStr, jsi::Object &schema) {
     using namespace simdjson;
     auto &rt = getRt();
     beginTransaction();
@@ -1058,32 +1058,6 @@ void Database::unsafeLoadFromSyncJSON(std::string jsonStr, jsi::Object &schema) 
                             throw jsi::JSError(rt, "Invalid argument type (unknown) for query");
                         }
                     }
-                    
-//                    for (auto const &column : tableSchema) {
-//                        ondemand::value value;
-//                        ondemand::json_type type;
-//                        auto error = record[column.name].get(value);
-//                        if (error) {
-//                            type = ondemand::json_type::null;
-//                        } else {
-//                            type = value.type();
-//                        }
-//
-//                        if (type == ondemand::json_type::null) {
-//                            sqlite3_bind_null(stmt, argumentsIdx);
-//                        } else if (column.type == ColumnType::string) {
-//                            std::string_view stringView = value;
-//                            sqlite3_bind_text(stmt, argumentsIdx, stringView.data(), (int) stringView.length(), SQLITE_STATIC);
-//                        } else if (column.type == ColumnType::boolean) {
-//                            sqlite3_bind_int(stmt, argumentsIdx, type == ondemand::json_type::boolean ? (bool) value : 0);
-//                        } else if (column.type == ColumnType::number) {
-//                            sqlite3_bind_double(stmt, argumentsIdx, (double) value);
-//                        } else {
-//                            throw jsi::JSError(rt, "Invalid argument type (unknown) for query");
-//                        }
-//
-//                        argumentsIdx += 1;
-//                    }
 
                     executeUpdate(stmt);
                     sqlite3_reset(stmt);

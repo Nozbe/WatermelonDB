@@ -1,5 +1,6 @@
 #include "DatabasePlatform.h"
 #import <Foundation/Foundation.h>
+#import <JSIInstaller.h>
 
 namespace watermelondb {
 namespace platform {
@@ -60,6 +61,10 @@ void deleteDatabaseFile(std::string path, bool warnIfDoesNotExist) {
 
 void onMemoryAlert(std::function<void(void)> callback) {
     // TODO: Unimplemented
+}
+
+std::string_view consumeJson(int tag) {
+    return ::consumeJson(tag);
 }
 
 } // namespace platform
