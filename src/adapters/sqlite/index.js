@@ -350,10 +350,10 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     this._batch(encodedOperations, callback)
   }
 
-  unsafeLoadFromSync(changeSet: SyncDatabaseChangeSet, callback: ResultCallback<void>): void {
+  unsafeLoadFromSync(json: string, callback: ResultCallback<void>): void {
     const load = this._dispatcher.unsafeLoadFromSyncJSON
     if (load) {
-      load(JSON.stringify({ changeSet }), this.schema, callback)
+      load(json, this.schema, callback)
     } else {
       callback({ error: new Error('unsafeLoadFromSync unavailable') })
     }

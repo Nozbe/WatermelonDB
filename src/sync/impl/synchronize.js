@@ -45,13 +45,13 @@ export default async function synchronize({
 
   // $FlowFixMe
   let b4 = Date.now()
-  const { changes: remoteChanges, timestamp: newLastPulledAt } = await pullChanges({
+  const { changes: remoteChanges, timestamp: newLastPulledAt, changesJSON } = await pullChanges({
     lastPulledAt,
     schemaVersion,
     migration,
   })
   log && (log.newLastPulledAt = newLastPulledAt)
-  log && (log.remoteChangeCount = changeSetCount(remoteChanges))
+  // log && (log.remoteChangeCount = changeSetCount(remoteChanges))
   log && (log.phase = 'pulled')
   invariant(
     typeof newLastPulledAt === 'number' && newLastPulledAt > 0,
@@ -66,7 +66,7 @@ export default async function synchronize({
     )
     if (_turbo) {
       // $FlowFixMe
-      await database.adapter.unsafeLoadFromSync(remoteChanges)
+      await database.adapter.unsafeLoadFromSync(changesJSON)
     } else {
       await writer.callWriter(() =>
         applyRemoteChanges(

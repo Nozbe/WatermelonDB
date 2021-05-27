@@ -996,7 +996,7 @@ void Database::unsafeLoadFromSyncJSON(std::string jsonStr, jsi::Object &schema) 
         auto json = padded_string(jsonStr);
         ondemand::document doc = parser.iterate(json);
         
-        ondemand::object changeSet = doc["changeSet"];
+        ondemand::object changeSet = doc["changes"];
         
         for (auto changeSetField : changeSet) {
             std::string_view tableNameView = changeSetField.unescaped_key();
