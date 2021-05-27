@@ -57,14 +57,14 @@ void initializeSqlite() {
             consoleError("Failed to configure SQLite to support file URI syntax - shared cache will not work");
         }
 
+        if (sqlite3_config(SQLITE_CONFIG_SINGLETHREAD) != SQLITE_OK) {
+            consoleError("Failed to configure SQLite to SQLITE_CONFIG_SINGLETHREAD");
+        }
+
         // sqlite should do its best to stay <8MB of heap allocations
         // 8MB is what android uses by default:
         // https://github.com/aosp-mirror/platform_frameworks_base/blob/6bebb8418ceecf44d2af40033870f3aabacfe36e/core/jni/android_database_SQLiteGlobal.cpp#L68
         sqlite3_soft_heap_limit(8 * 1024 * 1024);
-
-        if (sqlite3_config(SQLITE_THREADSAFE, SQLITE_CONFIG_SINGLETHREAD) != SQLITE_OK) {
-            consoleError("Failed to configure SQLite to SQLITE_CONFIG_SINGLETHREAD");
-        }
 
         if (sqlite3_initialize() != SQLITE_OK) {
             consoleError("Failed to initialize sqlite - this probably means sqlite was already initialized");
@@ -135,6 +135,38 @@ void deleteDatabaseFile(std::string path, bool warnIfDoesNotExist) {
 void onMemoryAlert(std::function<void(void)> callback) {
     // TODO: Unimplemented
     // NOTE: https://developer.android.com/reference/android/app/Application#onTrimMemory(int)
+}
+
+char *providedJson = NULL;
+size_t providedJsonLen = 0;
+
+void provideJson(jstring json) {
+    JNIEnv *env;
+    assert(jvm);
+    if (jvm->AttachCurrentThread(&env, NULL) != JNI_OK) {
+        throw std::runtime_error("Unable to resolve db path - JVM thread attach failed");
+    }
+    assert(env);
+
+    // TODO: MM
+    // if (providedJson) {
+    //     providedJson = NULL;
+    // }
+
+    const char *jsonStr = env->GetStringUTFChars(json, 0);
+    if (jsonStr == NULL) {
+        throw std::runtime_error("Unable to get json string");
+    }
+
+    jsize len = env->GetStringUTFLength(json);
+
+    providedJson = (char*) jsonStr;
+    providedJsonLen = len;
+}
+
+std::string_view consumeJson(int tag) {
+    std::string_view view(providedJson, providedJsonLen);
+    return view;
 }
 
 } // namespace platform

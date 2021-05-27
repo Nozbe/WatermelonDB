@@ -12,6 +12,10 @@ class JSIInstaller {
         _resolveDatabasePath("");
     }
 
+    static void provideJsonStatic(String json) {
+        new JSIInstaller().provideJson(json);
+    }
+
     // Helper method called from C++
     static String _resolveDatabasePath(String dbName) {
         // On some systems there is some kind of lock on `/databases` folder ¯\_(ツ)_/¯
@@ -19,6 +23,8 @@ class JSIInstaller {
     }
 
     private native void installBinding(long javaScriptContextHolder);
+
+    private native void provideJson(String json);
 
     private static Context context;
 
