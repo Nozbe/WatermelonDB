@@ -596,12 +596,13 @@ export default () => {
     })
     expect(await adapter.query(taskQuery())).toHaveLength(0)
 
-    const t1 = { id: 't1', text1: 'bar1', order: 1, float1: 3.14, bool1: true }
+    const t1 = { id: 't1' }
+    const t2 = { id: 't2', text1: 'bar1', order: 1, float1: 3.14, bool1: true, text2: null }
 
     await adapter.unsafeLoadFromSync({
-      tasks: { updated: [t1] },
+      tasks: { updated: [t1, t2] },
     })
-    expect(await adapter.query(taskQuery())).toEqual([syncedRaw(t1)])
+    expect(await adapter.query(taskQuery())).toEqual([syncedRaw(t1), syncedRaw(t2)])
   })
   it('can unsafely reset database', async (adapter) => {
     await adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1', text1: 'bar', order: 1 })]])
