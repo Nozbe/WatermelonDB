@@ -2,8 +2,14 @@
 
 // don't import the whole utils/ here!
 import logger from '../../../utils/common/logger'
+import invariant from '../../../utils/common/invariant'
 
-import type { CachedQueryResult, CachedFindResult, BatchOperation } from '../../type'
+import type {
+  CachedQueryResult,
+  CachedFindResult,
+  BatchOperation,
+  UnsafeExecuteOperations,
+} from '../../type'
 import type { TableName, AppSchema, SchemaVersion, TableSchema } from '../../../Schema'
 import type {
   SchemaMigrations,
@@ -29,7 +35,7 @@ export function setExperimentalAllowsFatalError(): void {
   experimentalAllowsFatalError = true
 }
 
-export default class LokiExecutor {
+export default class DatabaseDriver {
   options: LokiAdapterOptions
 
   schema: AppSchema
@@ -40,7 +46,7 @@ export default class LokiExecutor {
 
   cachedRecords: Map<TableName<any>, Set<RecordId>> = new Map()
 
-  // (experimental) if true, Executor is in a broken state and should not be used anymore
+  // (experimental) if true, DatabaseDriver is in a broken state and should not be used anymore
   _isBroken: boolean = false
 
   constructor(options: LokiAdapterOptions): void {
@@ -131,7 +137,7 @@ export default class LokiExecutor {
     // It could be done with some sort of advanced journaling/CoW structure scheme, but that would
     // be very complicated (in itself a source of bugs), and possibly quite expensive cpu-wise
     //
-    // So instead, we assume that writes MUST succeed. If they don't, we put LokiExecutor in a "broken"
+    // So instead, we assume that writes MUST succeed. If they don't, we put DatabaseDriver in a "broken"
     // state, refuse to persist or further mutate the DB, and notify the app (and user) about it.
     //
     // It can be assumed that Loki-level mutations that fail are WatermelonDB bugs that must be fixed
@@ -210,6 +216,20 @@ export default class LokiExecutor {
       .getCollection(table)
       .find({ _status: { $eq: 'deleted' } })
       .map((record) => record.id)
+  }
+
+  unsafeExecute(operations: UnsafeExecuteOperations): void {
+    if (process.env.NODE_ENV !== 'production') {
+      invariant(
+        operations &&
+          typeof operations === 'object' &&
+          Object.keys(operations).length === 1 &&
+          typeof operations.loki === 'function',
+        'unsafeExecute expects an { loki: loki => { ... } } object',
+      )
+    }
+    const lokiBlock: (Loki) => void = (operations: any).loki
+    lokiBlock(this.loki)
   }
 
   async unsafeResetDatabase(): Promise<void> {
@@ -429,16 +449,16 @@ export default class LokiExecutor {
 
   _assertNotBroken(): void {
     if (this._isBroken) {
-      throw new Error('Loki executor is in a broken state, bailing...')
+      throw new Error('DatabaseDriver is in a broken state, bailing...')
     }
   }
 
   // (experimental)
-  // TODO: Setup, migrations, delete database should also break executor
+  // TODO: Setup, migrations, delete database should also break driver
   _fatalError(error: Error): void {
     if (!experimentalAllowsFatalError) {
       logger.warn(
-        'LokiExecutor is broken, but experimentalAllowsFatalError has not been enabled to do anything about it...',
+        'DatabaseDriver is broken, but experimentalAllowsFatalError has not been enabled to do anything about it...',
       )
       throw error
     }
@@ -449,7 +469,7 @@ export default class LokiExecutor {
     lokiFatalError(this.loki)
 
     // Notify handler
-    logger.error('LokiExecutor is broken. App must be reloaded before continuing.')
+    logger.error('DatabaseDriver is broken. App must be reloaded before continuing.')
     const handler = this.options._onFatalError
     handler && handler(error)
 

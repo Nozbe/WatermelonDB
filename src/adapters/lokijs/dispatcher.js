@@ -1,12 +1,12 @@
 // @flow
 
 import type { ResultCallback } from '../../utils/fp/Result'
-import {
-  type WorkerExecutorType,
-  type WorkerResponse,
-  type WorkerExecutorPayload,
-  type WorkerResponseData,
-  type CloneMethod,
+import type {
+  WorkerExecutorType,
+  WorkerResponse,
+  WorkerExecutorPayload,
+  WorkerResponseData,
+  CloneMethod,
 } from './common'
 
 type WorkerAction = {
@@ -17,12 +17,12 @@ type WorkerActions = WorkerAction[]
 
 function createWorker(useWebWorker: boolean): Worker {
   if (useWebWorker) {
-    const LokiWebWorker = (require('./worker/index.worker'): any)
+    const LokiWebWorker = (require('./worker/loki.worker'): any)
     return new LokiWebWorker()
   }
 
-  const WebWorkerMock = (require('./worker/workerMock').default: any)
-  return new WebWorkerMock()
+  const LokiSynchronousWorker = (require('./worker/synchronousWorker').default: any)
+  return new LokiSynchronousWorker()
 }
 
 let _actionId = 0
@@ -32,16 +32,16 @@ function nextActionId(): number {
   return _actionId
 }
 
-class WorkerBridge {
+export default class LokiDispatcher {
   _worker: Worker
 
-  _pendingActions: WorkerActions = []
+  _pendingCalls: WorkerActions = []
 
   constructor(useWebWorker: boolean): void {
     this._worker = createWorker(useWebWorker)
     this._worker.onmessage = ({ data }) => {
       const { result, id: responseId }: WorkerResponse = (data: any)
-      const { callback, id } = this._pendingActions.shift()
+      const { callback, id } = this._pendingCalls.shift()
 
       // sanity check
       if (id !== responseId) {
@@ -54,7 +54,7 @@ class WorkerBridge {
   }
 
   // TODO: `any` return should be `WorkerResponsePayload`
-  send<T>(
+  call<T>(
     type: WorkerExecutorType,
     payload: WorkerExecutorPayload = [],
     callback: ResultCallback<T>,
@@ -63,12 +63,10 @@ class WorkerBridge {
     returnCloneMethod: CloneMethod,
   ): void {
     const id = nextActionId()
-    this._pendingActions.push({
+    this._pendingCalls.push({
       callback: (callback: any),
       id,
     })
     this._worker.postMessage({ id, type, payload, cloneMethod, returnCloneMethod })
   }
 }
-
-export default WorkerBridge

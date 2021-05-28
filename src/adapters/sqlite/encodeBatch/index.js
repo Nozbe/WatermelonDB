@@ -54,17 +54,21 @@ export function encodeUpdateArgs(tableSchema: TableSchema, raw: RawRecord): SQLi
   return args
 }
 
-type GrouppedBatchOperation =
+type GroupedBatchOperation =
   | ['create', TableName<any>, RawRecord[]]
   | ['update', TableName<any>, RawRecord[]]
   | ['markAsDeleted', TableName<any>, RecordId[]]
   | ['destroyPermanently', TableName<any>, RecordId[]]
 
-export function groupOperations(operations: BatchOperation[]): GrouppedBatchOperation[] {
-  const grouppedOperations: GrouppedBatchOperation[] = []
+const REMOVE_FROM_CACHE = -1
+const IGNORE_CACHE = 0
+const ADD_TO_CACHE = 1
+
+export function groupOperations(operations: BatchOperation[]): GroupedBatchOperation[] {
+  const grouppedOperations: GroupedBatchOperation[] = []
   let previousType: ?string = null
   let previousTable: ?TableName<any> = null
-  let currentOperation: ?GrouppedBatchOperation = null
+  let currentOperation: ?GroupedBatchOperation = null
   operations.forEach((operation) => {
     const [type, table, rawOrId] = operation
     if (type !== previousType || table !== previousTable) {
@@ -96,28 +100,28 @@ export default function encodeBatch(
     switch (type) {
       case 'create':
         return [
-          1,
+          ADD_TO_CACHE,
           table,
           encodeInsertSql(schema.tables[table]),
           recordsOrIds.map((raw) => encodeInsertArgs(schema.tables[table], (raw: any))),
         ]
       case 'update':
         return [
-          0,
+          IGNORE_CACHE,
           null,
           encodeUpdateSql(schema.tables[table]),
           recordsOrIds.map((raw) => encodeUpdateArgs(schema.tables[table], (raw: any))),
         ]
       case 'markAsDeleted':
         return [
-          -1,
+          REMOVE_FROM_CACHE,
           table,
           `update "${table}" set "_status" = 'deleted' where "id" == ?`,
           recordsOrIds.map((id) => [(id: any)]),
         ]
       case 'destroyPermanently':
         return [
-          -1,
+          REMOVE_FROM_CACHE,
           table,
           `delete from "${table}" where "id" == ?`,
           recordsOrIds.map((id) => [(id: any)]),

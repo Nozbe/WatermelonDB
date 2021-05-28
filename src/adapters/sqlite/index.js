@@ -8,7 +8,13 @@ import type { RecordId } from '../../Model'
 import type { SerializedQuery } from '../../Query'
 import type { TableName, AppSchema, SchemaVersion } from '../../Schema'
 import type { SchemaMigrations, MigrationStep } from '../../Schema/migrations'
-import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
+import type {
+  DatabaseAdapter,
+  CachedQueryResult,
+  CachedFindResult,
+  BatchOperation,
+  UnsafeExecuteOperations,
+} from '../type'
 import {
   sanitizeFindResult,
   sanitizeQueryResult,
@@ -37,6 +43,8 @@ export type { SQL, SQLiteArg, SQLiteQuery }
 if (process.env.NODE_ENV !== 'production') {
   require('./devtools')
 }
+
+const IGNORE_CACHE = 0
 
 export default class SQLiteAdapter implements DatabaseAdapter {
   schema: AppSchema
@@ -265,15 +273,33 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     })
   }
 
+  unsafeExecute(operations: UnsafeExecuteOperations, callback: ResultCallback<void>): void {
+    if (process.env.NODE_ENV !== 'production') {
+      invariant(
+        operations &&
+          typeof operations === 'object' &&
+          Object.keys(operations).length === 1 &&
+          Array.isArray(operations.sqls),
+        'unsafeExecute expects an { sqls: [ [sql, [args..]], ... ] } object',
+      )
+    }
+    const queries: SQLiteQuery[] = (operations: any).sqls
+    this._batch(
+      queries.map(([sql, args]) => [IGNORE_CACHE, null, sql, [args]]),
+      callback,
+    )
+  }
+
   getLocal(key: string, callback: ResultCallback<?string>): void {
     this._dispatcher.getLocal(key, callback)
   }
 
   setLocal(key: string, value: string, callback: ResultCallback<void>): void {
+    invariant(typeof value === 'string', 'adapter.setLocal() value must be a string')
     this._batch(
       [
         [
-          0,
+          IGNORE_CACHE,
           null,
           `insert or replace into "local_storage" ("key", "value") values (?, ?)`,
           [[key, value]],
@@ -284,7 +310,10 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   removeLocal(key: string, callback: ResultCallback<void>): void {
-    this._batch([[0, null, `delete from "local_storage" where "key" == ?`, [[key]]]], callback)
+    this._batch(
+      [[IGNORE_CACHE, null, `delete from "local_storage" where "key" == ?`, [[key]]]],
+      callback,
+    )
   }
 
   _encodedSchema(): SQL {

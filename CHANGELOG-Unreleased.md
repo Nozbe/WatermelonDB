@@ -16,6 +16,7 @@
 - Changes to Internal APIs. These were never meant to be public, and so are unlikely to affect you:
   - `Model._isCommited`, `._hasPendingUpdate`, `._hasPendingDelete` have been removed and changed to `Model._pendingState`
   - `Collection.unsafeClearCache()` is no longer exposed
+- Values passed to `adapter.setLocal()` are now validated to be strings. This is technically a bug fix, since local storage was always documented to only accept strings, however applications may have relied on this lack of validation. Adding this validation was necessary to achieve consistent behavior between SQLiteAdapter and LokiJSAdapter
 
 ### Deprecations
 
@@ -36,6 +37,7 @@
   - You can now also run `.fetchCount()`, `.fetchIds()` on SQL queries
   - You can now safely pass values for SQL placeholders by passing an array
   - You can also observe an unsafe raw SQL query -- with some caveats! refer to documentation for more details
+- **Unsafe raw execute**. You can now execute arbitrary SQL queries (SQLiteAdapter) or access Loki object directly (LokiJSAdapter) using `adapter.unsafeExecute` -- see docs for more details
 
 ### Performance
 
@@ -57,3 +59,4 @@
   - .batch/.batchJSON internal format has changed
   - .getDeletedRecords, destroyDeletedRecords, setLocal, removeLocal is no longer available
 - encoded SQLiteAdapter schema has changed
+- LokiJSAdapter has had many internal changes

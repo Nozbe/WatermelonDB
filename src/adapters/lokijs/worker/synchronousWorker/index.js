@@ -1,6 +1,6 @@
 // @flow
 
-import LokiWorker from './lokiWorker'
+import DatabaseBridge from '../DatabaseBridge'
 
 // shallow-clones objects (without checking their contents), but copies arrays
 export function shallowCloneDeepObjects(value: any): any {
@@ -29,12 +29,12 @@ function clone(data: any): any {
     return data
   }
 
-  throw new Error('Unknown data.clone method for workerMock')
+  throw new Error('Unknown data.clone method for synchronousWorker')
 }
 
 // Simulates the web worker API
-export default class LokiWorkerMock {
-  _worker: LokiWorker
+export default class SynchronousWorker {
+  _bridge: DatabaseBridge
 
   _workerContext: DedicatedWorkerGlobalScope
 
@@ -50,7 +50,7 @@ export default class LokiWorkerMock {
       onmessage: () => {},
     }
     // $FlowFixMe
-    this._worker = new LokiWorker(this._workerContext)
+    this._bridge = new DatabaseBridge(this._workerContext)
   }
 
   postMessage(data: any): void {
