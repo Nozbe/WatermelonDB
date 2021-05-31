@@ -57,6 +57,7 @@
 - [jsi] Fix a race condition where commands sent to the database right after instantiating SQLiteAdapter would fail
 - [jsi] Fix incorrect error reporting on some sqlite errors
 - [jsi] Fix issue where app would crash on Android/Hermes on reload
+- [jsi] Fix IO errors on Android
 
 ### Internal
 
