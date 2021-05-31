@@ -46,7 +46,10 @@ if (openPlayground) {
         sendReport={true}
         customReporter={sendReport}
       >
-        <Text style={{ paddingTop: 100 }}>The tests are running. Please remain calm.</Text>
+        <Text style={{ paddingTop: 100 }}>
+          The tests are running. Please remain calm. Using hermes?{' '}
+          {global.HermesInternal ? 'YES' : 'NO'}
+        </Text>
       </Tester>
     )
   }
