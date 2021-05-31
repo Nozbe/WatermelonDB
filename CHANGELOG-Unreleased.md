@@ -50,6 +50,7 @@
 - All Watermelon console logs are prepended with a 🍉 tag
 - Extra protections against improper use of writers/readers (formerly actions) have been added
 - Queries with multiple top-level `Q.on('table', ...)` now produce a warning. Use `Q.on('table', [condition1, condition2, ...])` syntax instead.
+- [jsi] WAL mode is now used
 
 ### Fixes
 

@@ -4,7 +4,7 @@ import { addColumns, createTable, unsafeExecuteSql } from '../../../Schema/migra
 
 import { encodeSchema, encodeMigrationSteps } from './index'
 
-const expectedLocalStorageSchema =
+const expectedCommonSchema =
   'create table "local_storage" ("key" varchar(16) primary key not null, "value" text not null);' +
   'create index "local_storage_key_index" on "local_storage" ("key");'
 
@@ -32,13 +32,13 @@ describe('encodeSchema', () => {
     })
 
     const expectedSchema =
+      expectedCommonSchema +
       'create table "tasks" ("id" primary key, "_changed", "_status", "author_id", "order", "created_at");' +
       'create index "tasks_author_id" on "tasks" ("author_id");' +
       'create index "tasks_order" on "tasks" ("order");' +
       'create index "tasks__status" on "tasks" ("_status");' +
       'create table "comments" ("id" primary key, "_changed", "_status", "is_ended", "reactions");' +
-      'create index "comments__status" on "comments" ("_status");' +
-      expectedLocalStorageSchema
+      'create index "comments__status" on "comments" ("_status");'
 
     expect(encodeSchema(testSchema)).toBe(expectedSchema)
   })
@@ -57,10 +57,10 @@ describe('encodeSchema', () => {
 
     const expectedSchema =
       'create blabla;' +
+      expectedCommonSchema +
       'create table "tasks" ("id" primary key, "_changed", "_status", "author_id") without rowid;' +
       'create index "tasks_author_id" on "tasks" ("author_id");' +
-      'create index "tasks__status" on "tasks" ("_status");' +
-      expectedLocalStorageSchema
+      'create index "tasks__status" on "tasks" ("_status");'
 
     expect(encodeSchema(testSchema)).toBe(expectedSchema)
   })

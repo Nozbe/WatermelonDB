@@ -9,6 +9,8 @@ using platform::consoleLog;
 
 Database::Database(jsi::Runtime *runtime, std::string path) : runtime_(runtime) {
     db_ = std::make_unique<SqliteDb>(path);
+
+    executeMultiple("pragma journal_mode = WAL;");
 }
 
 jsi::Runtime &Database::getRt() {
