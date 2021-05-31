@@ -1572,6 +1572,11 @@
     readdirp "^2.2.1"
     upath "^1.1.1"
 
+"@nozbe/simdjson@0.9.5":
+  version "0.9.5"
+  resolved "https://registry.yarnpkg.com/@nozbe/simdjson/-/simdjson-0.9.5.tgz#a77645664d9c9af9c9a14c122daffba5ac0778d8"
+  integrity sha512-pETOFBSM4Yka1+DgIm4QUcslTjNaglkk2B3UyevLe/p0zAjS0VoEWt03oxOP802w4hQGCOdSMHcaXO6WuqfaGQ==
+
 "@nozbe/sqlite@3.31.1":
   version "3.31.1"
   resolved "https://registry.yarnpkg.com/@nozbe/sqlite/-/sqlite-3.31.1.tgz#ffd394ad7c188c6b73f89fd6e1ccb849a1b96dba"
