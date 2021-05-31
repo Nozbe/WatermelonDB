@@ -5738,11 +5738,6 @@ jsc-android@^245459.0.0:
   resolved "https://registry.yarnpkg.com/jsc-android/-/jsc-android-245459.0.0.tgz#e584258dd0b04c9159a27fb104cd5d491fd202c9"
   integrity sha512-wkjURqwaB1daNkDi2OYYbsLnIdC/lUM2nPXQKRs5pqEU9chDg435bjvo+LSaHotDENygHQDHe+ntUkkw2gwMtg==
 
-"jsc-android@npm:@kudo-ci/jsc-android@250230.2.1":
-  version "250230.2.1"
-  resolved "https://registry.yarnpkg.com/@kudo-ci/jsc-android/-/jsc-android-250230.2.1.tgz#44d9574d4e27e846fe99bdfa179a1f30e1eb8fb1"
-  integrity sha512-+Bw0bYUqbWcDQpsFyT+EYIDkxM+1CpQU7abyB5sOFKYmYQWzWmcHlWVD1/GsddnMN5nb5QX23j84HH0x0qFYRA==
-
 jsdom@^16.4.0:
   version "16.5.1"
   resolved "https://registry.yarnpkg.com/jsdom/-/jsdom-16.5.1.tgz#4ced6bbd7b77d67fb980e64d9e3e6fb900f97dd6"

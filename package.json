@@ -128,7 +128,6 @@
     "glob-to-regexp": "^0.4.1",
     "inquirer": "^7.0.0",
     "jest": "26.6.3",
-    "jsc-android": "npm:@kudo-ci/jsc-android@250230.2.1",
     "json-stringify-pretty-compact": "^2.0.0",
     "klaw-sync": "^6.0.0",
     "listr": "^0.14.1",
