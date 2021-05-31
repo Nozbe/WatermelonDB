@@ -209,7 +209,7 @@ const encodeLimitOffset = (limit: ?number, offset: ?number) => {
 const encodeQuery = (query: SerializedQuery, countMode: boolean = false): [SQL, SQLiteArg[]] => {
   const { table, description, associations } = query
 
-  // TODO: Test if encoding a `select id.x` query speeds up querIds() calls
+  // TODO: Test if encoding a `select id.x` query speeds up queryIds() calls
   if (description.sql) {
     const { sql, values } = description.sql
     return [sql, values]

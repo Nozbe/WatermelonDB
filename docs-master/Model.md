@@ -95,7 +95,7 @@ class Post extends Model {
 }
 ```
 
-### Compound fields
+### Derived fields
 
 Use ES6 getters to define model properties that can be calculated based on database fields:
 

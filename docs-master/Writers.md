@@ -39,11 +39,12 @@ class Post extends Model {
   // ...
 
   @writer async addComment(body, author) {
-    return await this.collections.get('comments').create(comment => {
+    const newComment = await this.collections.get('comments').create(comment => {
       comment.post.set(this)
       comment.author.set(author)
       comment.body = body
     })
+    return newComment
   }
 }
 ```
