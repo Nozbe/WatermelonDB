@@ -22,6 +22,7 @@
   ],
   "public_header_files": "native/ios/WatermelonDB/SupportingFiles/Bridging.h",
   "requires_arc": true,
+  "compiler_flags": "-Os",
   "dependencies": {
     "React": [
 
