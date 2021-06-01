@@ -59,8 +59,8 @@ export default class LokiDispatcher {
     payload: WorkerExecutorPayload = [],
     callback: ResultCallback<T>,
     // NOTE: This are used when not using web workers (otherwise, the data naturally is just copied)
-    cloneMethod: CloneMethod,
-    returnCloneMethod: CloneMethod,
+    cloneMethod: CloneMethod = 'immutable',
+    returnCloneMethod: CloneMethod = 'immutable',
   ): void {
     const id = nextActionId()
     this._pendingCalls.push({

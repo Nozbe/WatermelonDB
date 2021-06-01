@@ -43,6 +43,7 @@
 
 - The order of Q. clauses in a query is now preserved - previously, the clauses could get rearranged and produce a suboptimal query
 - [SQLite] `adapter.batch()` with large numbers of created/updated/deleted records is now between 16-48% faster
+- [LokiJS] Querying and finding is now faster - unnecessary data copy is skipped
 
 ### Changes
 
@@ -51,6 +52,9 @@
 - Queries with multiple top-level `Q.on('table', ...)` now produce a warning. Use `Q.on('table', [condition1, condition2, ...])` syntax instead.
 
 ### Fixes
+
+- [jsi] Fix a race condition where commands sent to the database right after instantiating SQLiteAdapter would fail
+- [jsi] Fix incorrect error reporting on some sqlite errors
 
 ### Internal
 

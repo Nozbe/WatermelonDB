@@ -29,8 +29,6 @@ const SQLiteAdapterTest = (spec) => {
 
         invariant(adapter._dispatcherType === 'jsi', 'native platforms should support jsi')
 
-        // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
-        await new Promise((resolve) => setTimeout(resolve, 0))
         await test(new DatabaseAdapterCompat(adapter), SQLiteAdapter, { jsi: true }, Platform.OS)
       })
     })

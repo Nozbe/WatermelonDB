@@ -129,7 +129,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
       validateAdapter(this)
     }
     const callback = (result) => devSetupCallback(result, options.onSetUpError)
-    this._dispatcher.call('setUp', [options], callback, 'immutable', 'immutable')
+    this._dispatcher.call('setUp', [options], callback)
   }
 
   async testClone(options?: $Shape<LokiAdapterOptions> = {}): Promise<LokiJSAdapter> {
@@ -148,42 +148,38 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
   find(table: TableName<any>, id: RecordId, callback: ResultCallback<CachedFindResult>): void {
     validateTable(table, this.schema)
-    this._dispatcher.call('find', [table, id], callback, 'immutable', 'shallowCloneDeepObjects')
+    this._dispatcher.call('find', [table, id], callback)
   }
 
   query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void {
     validateTable(query.table, this.schema)
-    // SerializedQueries are immutable, so we need no copy
-    this._dispatcher.call('query', [query], callback, 'immutable', 'shallowCloneDeepObjects')
+    this._dispatcher.call('query', [query], callback)
   }
 
   queryIds(query: SerializedQuery, callback: ResultCallback<RecordId[]>): void {
     validateTable(query.table, this.schema)
-    // SerializedQueries and strings are immutable, so we need no copy
-    this._dispatcher.call('queryIds', [query], callback, 'immutable', 'immutable')
+    this._dispatcher.call('queryIds', [query], callback)
   }
 
   unsafeQueryRaw(query: SerializedQuery, callback: ResultCallback<any[]>): void {
     validateTable(query.table, this.schema)
-    // SerializedQueries are immutable, so we need no copy
-    this._dispatcher.call('unsafeQueryRaw', [query], callback, 'immutable', 'immutable')
+    this._dispatcher.call('unsafeQueryRaw', [query], callback)
   }
 
   count(query: SerializedQuery, callback: ResultCallback<number>): void {
     validateTable(query.table, this.schema)
-    // SerializedQueries are immutable, so we need no copy
-    this._dispatcher.call('count', [query], callback, 'immutable', 'immutable')
+    this._dispatcher.call('count', [query], callback)
   }
 
   batch(operations: BatchOperation[], callback: ResultCallback<void>): void {
     operations.forEach(([, table]) => validateTable(table, this.schema))
     // batches are only strings + raws which only have JSON-compatible values, rest is immutable
-    this._dispatcher.call('batch', [operations], callback, 'shallowCloneDeepObjects', 'immutable')
+    this._dispatcher.call('batch', [operations], callback, 'shallowCloneDeepObjects')
   }
 
   getDeletedRecords(table: TableName<any>, callback: ResultCallback<RecordId[]>): void {
     validateTable(table, this.schema)
-    this._dispatcher.call('getDeletedRecords', [table], callback, 'immutable', 'immutable')
+    this._dispatcher.call('getDeletedRecords', [table], callback)
   }
 
   destroyDeletedRecords(
@@ -202,24 +198,24 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   }
 
   unsafeResetDatabase(callback: ResultCallback<void>): void {
-    this._dispatcher.call('unsafeResetDatabase', [], callback, 'immutable', 'immutable')
+    this._dispatcher.call('unsafeResetDatabase', [], callback)
   }
 
   unsafeExecute(operations: UnsafeExecuteOperations, callback: ResultCallback<void>): void {
-    this._dispatcher.call('unsafeExecute', [operations], callback, 'immutable', 'immutable')
+    this._dispatcher.call('unsafeExecute', [operations], callback)
   }
 
   getLocal(key: string, callback: ResultCallback<?string>): void {
-    this._dispatcher.call('getLocal', [key], callback, 'immutable', 'immutable')
+    this._dispatcher.call('getLocal', [key], callback)
   }
 
   setLocal(key: string, value: string, callback: ResultCallback<void>): void {
     invariant(typeof value === 'string', 'adapter.setLocal() value must be a string')
-    this._dispatcher.call('setLocal', [key, value], callback, 'immutable', 'immutable')
+    this._dispatcher.call('setLocal', [key, value], callback)
   }
 
   removeLocal(key: string, callback: ResultCallback<void>): void {
-    this._dispatcher.call('removeLocal', [key], callback, 'immutable', 'immutable')
+    this._dispatcher.call('removeLocal', [key], callback)
   }
 
   // dev/debug utility
@@ -230,12 +226,12 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
   // (experimental)
   _fatalError(error: Error): void {
-    this._dispatcher.call('_fatalError', [error], () => {}, 'immutable', 'immutable')
+    this._dispatcher.call('_fatalError', [error], () => {})
   }
 
   // (experimental)
   _clearCachedRecords(): void {
-    this._dispatcher.call('clearCachedRecords', [], () => {}, 'immutable', 'immutable')
+    this._dispatcher.call('clearCachedRecords', [], () => {})
   }
 
   _debugDignoseMissingRecord(table: TableName<any>, id: RecordId): void {

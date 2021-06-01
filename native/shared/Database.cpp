@@ -20,6 +20,9 @@ jsi::JSError Database::dbError(std::string description) {
     auto sqliteMessage = std::string(sqlite3_errmsg(db_->sqlite));
     auto code = sqlite3_extended_errcode(db_->sqlite);
     auto message = description + " - sqlite error " + std::to_string(code) + " (" + sqliteMessage + ")";
+    // Note: logging to console in case another exception is thrown so that the original error isn't lost
+    consoleError(message);
+
     auto &rt = getRt();
     return jsi::JSError(rt, message);
 }
@@ -40,11 +43,9 @@ bool Database::isCached(std::string cacheKey) {
     return cachedRecords_.find(cacheKey) != cachedRecords_.end();
 }
 void Database::markAsCached(std::string cacheKey) {
-    // TODO: what about duplicates?
     cachedRecords_.insert(cacheKey);
 }
 void Database::removeFromCache(std::string cacheKey) {
-    // TODO: will it remove all duplicates, if needed?
     cachedRecords_.erase(cacheKey);
 }
 
@@ -203,10 +204,23 @@ void Database::commit() {
 }
 
 void Database::rollback() {
+    // TODO: Use RAII to rollback automatically!
     consoleError("WatermelonDB sqlite transaction is being rolled back! This is BAD - it means that there's either a "
                  "WatermelonDB bug or a user issue (e.g. no empty disk space) that Watermelon may be unable to recover "
                  "from safely... Do investigate!");
-    executeUpdate("rollback transaction"); // TODO: Use RAII to rollback automatically!
+    // NOTE: On some errors (like IO, memory errors), the transaction may be rolled back automatically
+    // Attempting to roll it back ourselves would result in another error, which would hide the original error
+    // According to https://sqlite.org/c3ref/get_autocommit.html , checking autocommit status is the only
+    // way to find out whether that's the case. This feels wrong...
+    // https://sqlite.org/lang_transaction.html recommends that we roll back anyway, since an error is
+    // harmless.
+    try {
+        executeUpdate("rollback transaction");
+    } catch (const std::exception &ex) {
+        std::string errorMessage = "Error while attempting to roll back transaction, probably harmless: ";
+        errorMessage += ex.what();
+        consoleError(errorMessage);
+    }
 }
 
 int Database::getUserVersion() {

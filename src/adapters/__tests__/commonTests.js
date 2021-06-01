@@ -768,8 +768,7 @@ export default () => {
         ...extraAdapterOptions,
       }),
     )
-    // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
-    await new Promise((resolve) => setTimeout(resolve, 0))
+
     // add data
     await adapter.batch([
       ['create', 'tasks', { id: 't1', num1: 10 }],
@@ -891,8 +890,7 @@ export default () => {
         ...extraAdapterOptions,
       }),
     )
-    // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
-    await new Promise((resolve) => setTimeout(resolve, 0))
+
     await adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1', text1: 'foo' })]])
     expect(await adapter.count(taskQuery())).toBe(1)
 
@@ -915,8 +913,6 @@ export default () => {
         ...extraAdapterOptions,
       }),
     )
-    // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
-    await new Promise((resolve) => setTimeout(resolve, 0))
 
     await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
     expect(await adapter.count(taskQuery())).toBe(1)
@@ -940,8 +936,6 @@ export default () => {
         ...extraAdapterOptions,
       }),
     )
-    // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
-    await new Promise((resolve) => setTimeout(resolve, 0))
 
     await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
     expect(await adapter.count(taskQuery())).toBe(1)
@@ -965,8 +959,6 @@ export default () => {
         ...extraAdapterOptions,
       }),
     )
-    // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
-    await new Promise((resolve) => setTimeout(resolve, 0))
 
     await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
     expect(await adapter.count(taskQuery())).toBe(1)
@@ -1014,8 +1006,6 @@ export default () => {
         ...extraAdapterOptions,
       }),
     )
-    // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
-    await new Promise((resolve) => setTimeout(resolve, 0))
 
     // sanity check
     expect(await adapter.count(taskQuery())).toBe(0)
@@ -1030,8 +1020,7 @@ export default () => {
         ...extraAdapterOptions,
       }),
     )
-    // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
-    await new Promise((resolve) => setTimeout(resolve, 0))
+
     expect(await adapter2.count(taskQuery())).toBe(1)
 
     // reset
@@ -1046,8 +1035,6 @@ export default () => {
         ...extraAdapterOptions,
       }),
     )
-    // TODO: Remove me. Temporary workaround for the race condition - wait until next macrotask to ensure that database has set up
-    await new Promise((resolve) => setTimeout(resolve, 0))
 
     expect(await adapter3.count(taskQuery())).toBe(0)
   })
