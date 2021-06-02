@@ -147,6 +147,26 @@ void Database::executeUpdate(std::string sql) {
     executeUpdate(stmt);
 }
 
+void Database::getRow(sqlite3_stmt *stmt) {
+    int result = sqlite3_step(stmt);
+    
+    if (result != SQLITE_ROW) {
+        throw dbError("Failed to get a row for query");
+    }
+}
+
+bool Database::getNextRowOrTrue(sqlite3_stmt *stmt) {
+    int result = sqlite3_step(stmt);
+    
+    if (result == SQLITE_DONE) {
+        return true;
+    } else if (result != SQLITE_ROW) {
+        throw dbError("Failed to get a row for query");
+    }
+    
+    return false;
+}
+
 void Database::executeMultiple(std::string sql) {
     auto &rt = getRt();
     char *errmsg = nullptr;
@@ -212,6 +232,19 @@ jsi::Object Database::resultDictionary(sqlite3_stmt *statement) {
     return dictionary; // TODO: Make sure this value is moved, not copied
 }
 
+jsi::Array Database::arrayFromStd(std::vector<jsi::Value> &vector) {
+    // FIXME: Adding directly to a jsi::Array should be more efficient, but Hermes does not support
+    // automatically resizing an Array by setting new values to it
+    auto &rt = getRt();
+    jsi::Array array(rt, vector.size());
+    size_t i = 0;
+    for (auto const &value : vector) {
+        array.setValueAtIndex(rt, i, value);
+        i++;
+    }
+    return array;
+}
+
 void Database::beginTransaction() {
     // NOTE: using exclusive transaction, because that's what FMDB does
     // In theory, `deferred` seems better, since it's less likely to get locked
@@ -248,12 +281,7 @@ int Database::getUserVersion() {
     auto &rt = getRt();
     auto args = jsi::Array::createWithElements(rt);
     auto statement = executeQuery("pragma user_version", args);
-
-    int stepResult = sqlite3_step(statement.stmt);
-
-    if (stepResult != SQLITE_ROW) {
-        throw dbError("Failed to obtain database user_version");
-    }
+    getRow(statement.stmt);
 
     assert(sqlite3_data_count(statement.stmt) == 1);
 
@@ -275,13 +303,9 @@ jsi::Value Database::find(jsi::String &tableName, jsi::String &id) {
 
     auto args = jsi::Array::createWithElements(rt, id);
     auto statement = executeQuery("select * from `" + tableName.utf8(rt) + "` where id == ? limit 1", args);
-
-    int stepResult = sqlite3_step(statement.stmt);
-
-    if (stepResult == SQLITE_DONE) {
+    
+    if (getNextRowOrTrue(statement.stmt)) {
         return jsi::Value::null();
-    } else if (stepResult != SQLITE_ROW) {
-        throw dbError("Failed to find a record in the database");
     }
 
     auto record = resultDictionary(statement.stmt);
@@ -295,17 +319,11 @@ jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array 
     auto &rt = getRt();
     auto statement = executeQuery(sql.utf8(rt), arguments);
 
-    // FIXME: Adding directly to a jsi::Array should be more efficient, but Hermes does not support
-    // automatically resizing an Array by setting new values to it
     std::vector<jsi::Value> records = {};
 
     while (true) {
-        int stepResult = sqlite3_step(statement.stmt);
-
-        if (stepResult == SQLITE_DONE) {
+        if (getNextRowOrTrue(statement.stmt)) {
             break;
-        } else if (stepResult != SQLITE_ROW) {
-            throw dbError("Failed to query the database");
         }
 
         assert(std::string(sqlite3_column_name(statement.stmt, 0)) == "id");
@@ -325,31 +343,18 @@ jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array 
         }
     }
 
-    jsi::Array jsiRecords(rt, records.size());
-    size_t i = 0;
-    for (auto const &record : records) {
-        jsiRecords.setValueAtIndex(rt, i, record);
-        i++;
-    }
-
-    return jsiRecords;
+    return arrayFromStd(records);
 }
 
 jsi::Array Database::queryIds(jsi::String &sql, jsi::Array &arguments) {
     auto &rt = getRt();
     auto statement = executeQuery(sql.utf8(rt), arguments);
 
-    // FIXME: Adding directly to a jsi::Array should be more efficient, but Hermes does not support
-    // automatically resizing an Array by setting new values to it
-    std::vector<jsi::String> ids = {};
+    std::vector<jsi::Value> ids = {};
 
     while (true) {
-        int stepResult = sqlite3_step(statement.stmt);
-
-        if (stepResult == SQLITE_DONE) {
+        if (getNextRowOrTrue(statement.stmt)) {
             break;
-        } else if (stepResult != SQLITE_ROW) {
-            throw dbError("Failed to query the database");
         }
 
         assert(std::string(sqlite3_column_name(statement.stmt, 0)) == "id");
@@ -363,60 +368,34 @@ jsi::Array Database::queryIds(jsi::String &sql, jsi::Array &arguments) {
         ids.push_back(std::move(id));
     }
 
-    jsi::Array jsiIds(rt, ids.size());
-    size_t i = 0;
-    for (auto const &id : ids) {
-        jsiIds.setValueAtIndex(rt, i, id);
-        i++;
-    }
-
-    return jsiIds;
+    return arrayFromStd(ids);
 }
 
 jsi::Array Database::unsafeQueryRaw(jsi::String &sql, jsi::Array &arguments) {
     auto &rt = getRt();
     auto statement = executeQuery(sql.utf8(rt), arguments);
 
-    // FIXME: Adding directly to a jsi::Array should be more efficient, but Hermes does not support
-    // automatically resizing an Array by setting new values to it
     std::vector<jsi::Value> raws = {};
 
     while (true) {
-        int stepResult = sqlite3_step(statement.stmt);
-
-        if (stepResult == SQLITE_DONE) {
+        if (getNextRowOrTrue(statement.stmt)) {
             break;
-        } else if (stepResult != SQLITE_ROW) {
-            throw dbError("Failed to query the database");
         }
 
         jsi::Object raw = resultDictionary(statement.stmt);
         raws.push_back(std::move(raw));
     }
 
-    jsi::Array jsiRaws(rt, raws.size());
-    size_t i = 0;
-    for (auto const &raw : raws) {
-        jsiRaws.setValueAtIndex(rt, i, raw);
-        i++;
-    }
-
-    return jsiRaws;
+    return arrayFromStd(raws);
 }
 
 jsi::Value Database::count(jsi::String &sql, jsi::Array &arguments) {
     auto &rt = getRt();
     auto statement = executeQuery(sql.utf8(rt), arguments);
-
-    int stepResult = sqlite3_step(statement.stmt);
-
-    if (stepResult != SQLITE_ROW) {
-        throw dbError("Failed to query a count");
-    }
+    getRow(statement.stmt);
 
     assert(sqlite3_data_count(statement.stmt) == 1);
     int count = sqlite3_column_int(statement.stmt, 0);
-
     return jsi::Value(count);
 }
 
@@ -520,12 +499,9 @@ jsi::Value Database::getLocal(jsi::String &key) {
     auto &rt = getRt();
     auto args = jsi::Array::createWithElements(rt, key);
     auto statement = executeQuery("select value from local_storage where key = ?", args);
-
-    int stepResult = sqlite3_step(statement.stmt);
-    if (stepResult == SQLITE_DONE) {
+    
+    if (getNextRowOrTrue(statement.stmt)) {
         return jsi::Value::null();
-    } else if (stepResult != SQLITE_ROW) {
-        throw dbError("Failed to get a value from local storage");
     }
 
     assert(sqlite3_data_count(statement.stmt) == 1);
