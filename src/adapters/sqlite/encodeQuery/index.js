@@ -16,7 +16,6 @@ import * as Q from '../../../QueryDescription'
 import { type TableName, type ColumnName } from '../../../Schema'
 
 import encodeValue from '../encodeValue'
-import encodeName from '../encodeName'
 import type { SQL, SQLiteArg } from '../index'
 
 function mapJoin<T>(array: T[], mapper: (T) => string, joiner: string): string {
@@ -32,7 +31,7 @@ const getComparisonRight = (table: TableName<any>, comparisonRight: ComparisonRi
   if (comparisonRight.values) {
     return encodeValues(comparisonRight.values)
   } else if (comparisonRight.column) {
-    return `${encodeName(table)}.${encodeName(comparisonRight.column)}`
+    return `"${table}"."${comparisonRight.column}"`
   }
 
   return typeof comparisonRight.value !== 'undefined' ? encodeValue(comparisonRight.value) : 'null'
@@ -110,7 +109,7 @@ const encodeWhereCondition = (
     )
   }
 
-  return `${encodeName(table)}.${encodeName(left)} ${encodeComparison(table, comparison)}`
+  return `"${table}"."${left}" ${encodeComparison(table, comparison)}`
 }
 
 const encodeAndOr = (
@@ -146,13 +145,13 @@ const encodeMethod = (
 ): string => {
   if (countMode) {
     return needsDistinct
-      ? `select count(distinct ${encodeName(table)}."id") as "count" from ${encodeName(table)}`
-      : `select count(*) as "count" from ${encodeName(table)}`
+      ? `select count(distinct "${table}"."id") as "count" from "${table}"`
+      : `select count(*) as "count" from "${table}"`
   }
 
   return needsDistinct
-    ? `select distinct ${encodeName(table)}.* from ${encodeName(table)}`
-    : `select ${encodeName(table)}.* from ${encodeName(table)}`
+    ? `select distinct "${table}".* from "${table}"`
+    : `select "${table}".* from "${table}"`
 }
 
 const encodeAssociation = (description: QueryDescription) => ({
@@ -176,10 +175,10 @@ const encodeAssociation = (description: QueryDescription) => ({
     (clause) => clause.type === 'on' && clause.table === joinedTable,
   )
   const joinKeyword = usesOldJoinStyle ? ' join ' : ' left join '
-  const joinBeginning = `${joinKeyword}${encodeName(joinedTable)} on ${encodeName(joinedTable)}.`
+  const joinBeginning = `${joinKeyword}"${joinedTable}" on "${joinedTable}".`
   return association.type === 'belongs_to'
-    ? `${joinBeginning}"id" = ${encodeName(mainTable)}.${encodeName(association.key)}`
-    : `${joinBeginning}${encodeName(association.foreignKey)} = ${encodeName(mainTable)}."id"`
+    ? `${joinBeginning}"id" = "${mainTable}"."${association.key}"`
+    : `${joinBeginning}"${association.foreignKey}" = "${mainTable}"."id"`
 }
 
 const encodeJoin = (description: QueryDescription, associations: QueryAssociation[]): string =>
@@ -191,7 +190,7 @@ const encodeOrderBy = (table: TableName<any>, sortBys: SortBy[]) => {
   }
   const orderBys = sortBys
     .map((sortBy) => {
-      return `${encodeName(table)}.${encodeName(sortBy.sortColumn)} ${sortBy.sortOrder}`
+      return `"${table}"."${sortBy.sortColumn}" ${sortBy.sortOrder}`
     })
     .join(', ')
   return ` order by ${orderBys}`

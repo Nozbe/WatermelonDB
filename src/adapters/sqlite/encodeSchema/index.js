@@ -9,7 +9,6 @@ import type {
 } from '../../../Schema/migrations'
 import type { SQL } from '../index'
 
-import encodeName from '../encodeName'
 import encodeValue from '../encodeValue'
 
 const standardColumns = `"id" primary key, "_changed", "_status"`
@@ -19,23 +18,21 @@ const commonSchema =
 
 const encodeCreateTable: (TableSchema) => SQL = ({ name, columns }) => {
   const columnsSQL = [standardColumns]
-    .concat(Object.keys(columns).map((column) => encodeName(column)))
+    .concat(Object.keys(columns).map((column) => `"${column}"`))
     .join(', ')
-  return `create table ${encodeName(name)} (${columnsSQL});`
+  return `create table "${name}" (${columnsSQL});`
 }
 
 const encodeIndex: (ColumnSchema, TableName<any>) => SQL = (column, tableName) =>
   column.isIndexed
-    ? `create index "${tableName}_${column.name}" on ${encodeName(tableName)} (${encodeName(
-        column.name,
-      )});`
+    ? `create index "${tableName}_${column.name}" on "${tableName}" ("${column.name}");`
     : ''
 
 const encodeTableIndicies: (TableSchema) => SQL = ({ name: tableName, columns }) =>
   Object.values(columns)
     // $FlowFixMe
     .map((column) => encodeIndex(column, tableName))
-    .concat([`create index "${tableName}__status" on ${encodeName(tableName)} ("_status");`])
+    .concat([`create index "${tableName}__status" on "${tableName}" ("_status");`])
     .join('')
 
 const transform = (sql: string, transformer: ?(string) => string) =>
@@ -62,10 +59,10 @@ const encodeAddColumnsMigrationStep: (AddColumnsMigrationStep) => SQL = ({
 }) =>
   columns
     .map((column) => {
-      const addColumn = `alter table ${encodeName(table)} add ${encodeName(column.name)};`
-      const setDefaultValue = `update ${encodeName(table)} set ${encodeName(
-        column.name,
-      )} = ${encodeValue(nullValue(column))};`
+      const addColumn = `alter table "${table}" add "${column.name}";`
+      const setDefaultValue = `update "${table}" set "${column.name}" = ${encodeValue(
+        nullValue(column),
+      )};`
       const addIndex = encodeIndex(column, table)
 
       return transform(addColumn + setDefaultValue + addIndex, unsafeSql)
