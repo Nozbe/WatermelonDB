@@ -100,7 +100,6 @@ void Database::bindArgs(sqlite3_stmt *statement, jsi::Array &arguments) {
         if (value.isNull() || value.isUndefined()) {
             bindResult = sqlite3_bind_null(statement, i + 1);
         } else if (value.isString()) {
-            // TODO: Check SQLITE_STATIC
             bindResult = sqlite3_bind_text(statement, i + 1, value.getString(rt).utf8(rt).c_str(), -1, SQLITE_TRANSIENT);
         } else if (value.isNumber()) {
             bindResult = sqlite3_bind_double(statement, i + 1, value.getNumber());
@@ -584,12 +583,10 @@ void Database::batchJSON(jsi::String &&jsiJson) {
                     cacheBehavior = field;
                 } else if (fieldIdx == 1) {
                     if (cacheBehavior != 0) {
-                        std::string_view tableView = field;
-                        table = tableView;
+                        table = (std::string_view) field;
                     }
                 } else if (fieldIdx == 2) {
-                    std::string_view sqlView = field;
-                    sql = sqlView;
+                    sql = (std::string_view) field;
                 } else if (fieldIdx == 3) {
                     ondemand::array argsBatches = field;
                     auto stmt = prepareQuery(sql);
