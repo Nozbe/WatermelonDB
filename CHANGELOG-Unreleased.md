@@ -44,6 +44,7 @@
 - The order of Q. clauses in a query is now preserved - previously, the clauses could get rearranged and produce a suboptimal query
 - [SQLite] `adapter.batch()` with large numbers of created/updated/deleted records is now between 16-48% faster
 - [LokiJS] Querying and finding is now faster - unnecessary data copy is skipped
+- [jsi] 15-30% faster querying on JSC (iOS) when the number of returned records is large
 
 ### Changes
 
