@@ -61,9 +61,7 @@ void Database::removeFromCache(std::string cacheKey) {
     cachedRecords_.erase(cacheKey);
 }
 
-// TODO: Can we use templates or make jsi::Array iterable so we can avoid _creating_ jsi::Array in C++?
-SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
-    auto &rt = getRt();
+sqlite3_stmt* Database::prepareQuery(std::string sql) {
     sqlite3_stmt *statement = cachedStatements_[sql];
 
     if (statement == nullptr) {
@@ -74,7 +72,6 @@ SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
             throw dbError("Failed to prepare query statement");
         }
 
-        assert(statement != nullptr);
         cachedStatements_[sql] = statement;
     } else {
         // in theory, this shouldn't be necessary, since statements ought to be reset *after* use, not before use
@@ -83,7 +80,11 @@ SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
         sqlite3_reset(statement);
     }
     assert(statement != nullptr);
+    return statement;
+}
 
+void Database::bindArgs(sqlite3_stmt *statement, jsi::Array &arguments) {
+    auto &rt = getRt();
     int argsCount = sqlite3_bind_parameter_count(statement);
 
     if (argsCount != arguments.length(rt)) {
@@ -117,25 +118,33 @@ SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
             throw dbError("Failed to bind an argument for query");
         }
     }
+}
 
-    // TODO: We may move this initialization earlier to avoid having to care about sqlite3_reset, but I think we'll
-    // have to implement a move constructor for it to be correct
+SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
+    auto statement = prepareQuery(sql);
+    bindArgs(statement, arguments);
     return SqliteStatement(statement);
 }
 
-void Database::executeUpdate(std::string sql, jsi::Array &args) {
-    auto statement = executeQuery(sql, args);
-    int stepResult = sqlite3_step(statement.stmt);
+void Database::executeUpdate(sqlite3_stmt *statement) {
+    int stepResult = sqlite3_step(statement);
 
     if (stepResult != SQLITE_DONE) {
         throw dbError("Failed to execute db update");
     }
 }
 
+void Database::executeUpdate(std::string sql, jsi::Array &args) {
+    auto stmt = prepareQuery(sql);
+    bindArgs(stmt, args);
+    SqliteStatement statement(stmt);
+    executeUpdate(stmt);
+}
+
 void Database::executeUpdate(std::string sql) {
-    auto &rt = getRt();
-    auto args = jsi::Array::createWithElements(rt);
-    executeUpdate(sql, args);
+    auto stmt = prepareQuery(sql);
+    SqliteStatement statement(stmt);
+    executeUpdate(stmt);
 }
 
 void Database::executeMultiple(std::string sql) {
