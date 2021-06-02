@@ -149,7 +149,7 @@ void Database::executeUpdate(std::string sql) {
 
 void Database::getRow(sqlite3_stmt *stmt) {
     int result = sqlite3_step(stmt);
-    
+
     if (result != SQLITE_ROW) {
         throw dbError("Failed to get a row for query");
     }
@@ -157,13 +157,13 @@ void Database::getRow(sqlite3_stmt *stmt) {
 
 bool Database::getNextRowOrTrue(sqlite3_stmt *stmt) {
     int result = sqlite3_step(stmt);
-    
+
     if (result == SQLITE_DONE) {
         return true;
     } else if (result != SQLITE_ROW) {
         throw dbError("Failed to get a row for query");
     }
-    
+
     return false;
 }
 
@@ -193,43 +193,73 @@ jsi::Object Database::resultDictionary(sqlite3_stmt *statement) {
         const char *column = sqlite3_column_name(statement, i);
         assert(column);
 
-        switch (sqlite3_column_type(statement, i)) {
-        case SQLITE_INTEGER: {
+        auto type = sqlite3_column_type(statement, i);
+        if (type == SQLITE_INTEGER) {
             sqlite3_int64 value = sqlite3_column_int64(statement, i);
             dictionary.setProperty(rt, column, jsi::Value((double)value));
-            break;
-        }
-        case SQLITE_FLOAT: {
+        } else if (type == SQLITE_FLOAT) {
             double value = sqlite3_column_double(statement, i);
             dictionary.setProperty(rt, column, jsi::Value(value));
-            break;
-        }
-        case SQLITE_TEXT: {
+        } else if (type == SQLITE_TEXT) {
             const char *text = (const char *)sqlite3_column_text(statement, i);
-
             if (text) {
                 dictionary.setProperty(rt, column, jsi::String::createFromUtf8(rt, text));
             } else {
                 dictionary.setProperty(rt, column, jsi::Value::null());
             }
-
-            break;
-        }
-        case SQLITE_NULL: {
+        } else if (type == SQLITE_NULL) {
             dictionary.setProperty(rt, column, jsi::Value::null());
-            break;
-        }
-        case SQLITE_BLOB: {
-            throw jsi::JSError(rt, "Unable to fetch record from database because WatermelonDB does not support blobs");
-        }
-        default: {
-            throw jsi::JSError(rt, "Unable to fetch record from database - unknown column type (WatermelonDB does not "
-                                   "support custom sqlite types currently)");
-        }
+        } else {
+            throw jsi::JSError(rt, "Unable to fetch record from database - unknown column type (WatermelonDB does not support blobs or custom sqlite types");
         }
     }
 
     return dictionary; // TODO: Make sure this value is moved, not copied
+}
+
+jsi::Array Database::resultArray(sqlite3_stmt *statement) {
+    auto &rt = getRt();
+    int count = sqlite3_column_count(statement);
+    jsi::Array result(rt, count);
+
+    // TODO: DRY with resultDictionary (but check for performance regressions)
+    for (int i = 0; i < count; i++) {
+        auto type = sqlite3_column_type(statement, i);
+        if (type == SQLITE_INTEGER) {
+            sqlite3_int64 value = sqlite3_column_int64(statement, i);
+            result.setValueAtIndex(rt, i, jsi::Value((double)value));
+        } else if (type == SQLITE_FLOAT) {
+            double value = sqlite3_column_double(statement, i);
+            result.setValueAtIndex(rt, i, jsi::Value(value));
+        } else if (type == SQLITE_TEXT) {
+            const char *text = (const char *)sqlite3_column_text(statement, i);
+            if (text) {
+                result.setValueAtIndex(rt, i, jsi::String::createFromUtf8(rt, text));
+            } else {
+                result.setValueAtIndex(rt, i, jsi::Value::null());
+            }
+        } else if (type == SQLITE_NULL) {
+            result.setValueAtIndex(rt, i, jsi::Value::null());
+        } else {
+            throw jsi::JSError(rt, "Unable to fetch record from database - unknown column type (WatermelonDB does not support blobs or custom sqlite types");
+        }
+    }
+
+    return result;
+}
+
+jsi::Array Database::resultColumns(sqlite3_stmt *statement) {
+    auto &rt = getRt();
+    int count = sqlite3_column_count(statement);
+    jsi::Array columns(rt, count);
+
+    for (int i = 0; i < count; i++) {
+        const char *column = sqlite3_column_name(statement, i);
+        assert(column);
+        columns.setValueAtIndex(rt, i, jsi::String::createFromUtf8(rt, column));
+    }
+
+    return columns;
 }
 
 jsi::Array Database::arrayFromStd(std::vector<jsi::Value> &vector) {
@@ -303,7 +333,7 @@ jsi::Value Database::find(jsi::String &tableName, jsi::String &id) {
 
     auto args = jsi::Array::createWithElements(rt, id);
     auto statement = executeQuery("select * from `" + tableName.utf8(rt) + "` where id == ? limit 1", args);
-    
+
     if (getNextRowOrTrue(statement.stmt)) {
         return jsi::Value::null();
     }
@@ -344,6 +374,42 @@ jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array 
     }
 
     return arrayFromStd(records);
+}
+
+jsi::Value Database::queryAsArray(jsi::String &tableName, jsi::String &sql, jsi::Array &arguments) {
+    auto &rt = getRt();
+    auto statement = executeQuery(sql.utf8(rt), arguments);
+
+    std::vector<jsi::Value> results = {};
+
+    while (true) {
+        if (getNextRowOrTrue(statement.stmt)) {
+            break;
+        }
+
+        assert(std::string(sqlite3_column_name(statement.stmt, 0)) == "id");
+
+        const char *id = (const char *)sqlite3_column_text(statement.stmt, 0);
+        if (!id) {
+            throw jsi::JSError(rt, "Failed to get ID of a record");
+        }
+
+        if (results.size() == 0) {
+            jsi::Array columns = resultColumns(statement.stmt);
+            results.push_back(std::move(columns));
+        }
+
+        if (isCached(cacheKey(tableName.utf8(rt), std::string(id)))) {
+            jsi::String jsiId = jsi::String::createFromAscii(rt, id);
+            results.push_back(std::move(jsiId));
+        } else {
+            markAsCached(cacheKey(tableName.utf8(rt), std::string(id)));
+            jsi::Array record = resultArray(statement.stmt);
+            results.push_back(std::move(record));
+        }
+    }
+
+    return arrayFromStd(results);
 }
 
 jsi::Array Database::queryIds(jsi::String &sql, jsi::Array &arguments) {
@@ -499,7 +565,7 @@ jsi::Value Database::getLocal(jsi::String &key) {
     auto &rt = getRt();
     auto args = jsi::Array::createWithElements(rt, key);
     auto statement = executeQuery("select value from local_storage where key = ?", args);
-    
+
     if (getNextRowOrTrue(statement.stmt)) {
         return jsi::Value::null();
     }
