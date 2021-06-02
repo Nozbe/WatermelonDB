@@ -175,6 +175,11 @@ void Database::install(jsi::Runtime *runtime) {
             database->batch(operations);
             return jsi::Value::undefined();
         });
+        createMethod(rt, adapter, "batchJSON", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            assert(database->initialized_);
+            database->batchJSON(args[0].getString(rt));
+            return jsi::Value::undefined();
+        });
         createMethod(rt, adapter, "getLocal", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String key = args[0].getString(rt);
