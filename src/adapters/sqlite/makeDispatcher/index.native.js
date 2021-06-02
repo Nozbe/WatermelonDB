@@ -2,7 +2,7 @@
 /* eslint-disable global-require */
 
 import { NativeModules } from 'react-native'
-import { type ConnectionTag, logger } from '../../../utils/common'
+import { type ConnectionTag, logger, invariant } from '../../../utils/common'
 import { fromPromise, type ResultCallback } from '../../../utils/fp/Result'
 import type {
   DispatcherType,
@@ -12,13 +12,18 @@ import type {
 } from '../type'
 
 const { DatabaseBridge } = NativeModules
-export { DatabaseBridge }
 
 class SqliteNativeModulesDispatcher implements SqliteDispatcher {
   _tag: ConnectionTag
 
   constructor(tag: ConnectionTag): void {
     this._tag = tag
+    if (process.env.NODE_ENV !== 'production') {
+      invariant(
+        DatabaseBridge,
+        `NativeModules.DatabaseBridge is not defined! This means that you haven't properly linked WatermelonDB native module. Refer to docs for more details`,
+      )
+    }
   }
 
   call(name: SqliteDispatcherMethod, _args: any[], callback: ResultCallback<any>): void {

@@ -34,7 +34,7 @@ import type {
 
 import encodeQuery from './encodeQuery'
 
-import { makeDispatcher, DatabaseBridge, getDispatcherType } from './makeDispatcher'
+import { makeDispatcher, getDispatcherType } from './makeDispatcher'
 
 export type { SQL, SQLiteArg, SQLiteQuery }
 
@@ -81,10 +81,6 @@ export default class SQLiteAdapter implements DatabaseAdapter {
       invariant(
         !('synchronous' in options),
         'SQLiteAdapter `synchronous: true` was removed. Replace with `jsi: true`, which has the same effect, but with a more modern implementation',
-      )
-      invariant(
-        DatabaseBridge,
-        `NativeModules.DatabaseBridge is not defined! This means that you haven't properly linked WatermelonDB native module. Refer to docs for more details`,
       )
       validateAdapter(this)
     }

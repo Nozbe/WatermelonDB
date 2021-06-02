@@ -11,8 +11,6 @@ import type {
   SqliteDispatcherMethod,
 } from '../type'
 
-export { DatabaseBridge }
-
 class SqliteNodeDispatcher implements SqliteDispatcher {
   _tag: ConnectionTag
 
