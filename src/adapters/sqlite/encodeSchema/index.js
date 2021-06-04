@@ -2,11 +2,7 @@
 
 import type { TableSchema, AppSchema, ColumnSchema, TableName } from '../../../Schema'
 import { nullValue } from '../../../RawRecord'
-import type {
-  MigrationStep,
-  CreateTableMigrationStep,
-  AddColumnsMigrationStep,
-} from '../../../Schema/migrations'
+import type { MigrationStep, AddColumnsMigrationStep } from '../../../Schema/migrations'
 import type { SQL } from '../index'
 
 import encodeValue from '../encodeValue'
@@ -16,19 +12,19 @@ const commonSchema =
   'create table "local_storage" ("key" varchar(16) primary key not null, "value" text not null);' +
   'create index "local_storage_key_index" on "local_storage" ("key");'
 
-const encodeCreateTable: (TableSchema) => SQL = ({ name, columns }) => {
+const encodeCreateTable = ({ name, columns }: TableSchema): SQL => {
   const columnsSQL = [standardColumns]
     .concat(Object.keys(columns).map((column) => `"${column}"`))
     .join(', ')
   return `create table "${name}" (${columnsSQL});`
 }
 
-const encodeIndex: (ColumnSchema, TableName<any>) => SQL = (column, tableName) =>
+const encodeIndex = (column: ColumnSchema, tableName: TableName<any>): SQL =>
   column.isIndexed
     ? `create index "${tableName}_${column.name}" on "${tableName}" ("${column.name}");`
     : ''
 
-const encodeTableIndicies: (TableSchema) => SQL = ({ name: tableName, columns }) =>
+const encodeTableIndicies = ({ name: tableName, columns }: TableSchema): SQL =>
   Object.values(columns)
     // $FlowFixMe
     .map((column) => encodeIndex(column, tableName))
@@ -38,10 +34,10 @@ const encodeTableIndicies: (TableSchema) => SQL = ({ name: tableName, columns })
 const transform = (sql: string, transformer: ?(string) => string) =>
   transformer ? transformer(sql) : sql
 
-const encodeTable: (TableSchema) => SQL = (table) =>
+const encodeTable = (table: TableSchema): SQL =>
   transform(encodeCreateTable(table) + encodeTableIndicies(table), table.unsafeSql)
 
-export const encodeSchema: (AppSchema) => SQL = ({ tables, unsafeSql }) => {
+export const encodeSchema = ({ tables, unsafeSql }: AppSchema): SQL => {
   const sql = Object.values(tables)
     // $FlowFixMe
     .map(encodeTable)
@@ -73,9 +69,6 @@ export function encodeDropIndices({ tables }: AppSchema): SQL {
   )
 }
 
-const encodeCreateTableMigrationStep: (CreateTableMigrationStep) => SQL = ({ schema }) =>
-  encodeTable(schema)
-
 const encodeAddColumnsMigrationStep: (AddColumnsMigrationStep) => SQL = ({
   table,
   columns,
@@ -97,7 +90,7 @@ export const encodeMigrationSteps: (MigrationStep[]) => SQL = (steps) =>
   steps
     .map((step) => {
       if (step.type === 'create_table') {
-        return encodeCreateTableMigrationStep(step)
+        return encodeTable(step.schema)
       } else if (step.type === 'add_columns') {
         return encodeAddColumnsMigrationStep(step)
       } else if (step.type === 'sql') {
