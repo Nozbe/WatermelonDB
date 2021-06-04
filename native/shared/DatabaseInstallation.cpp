@@ -185,6 +185,14 @@ void Database::install(jsi::Runtime *runtime) {
             jsi::String key = args[0].getString(rt);
             return database->getLocal(key);
         });
+        createMethod(rt, adapter, "unsafeLoadFromSync", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            assert(database->initialized_);
+            auto pullResult = args[0].getString(rt);
+            auto schema = args[1].getObject(rt);
+
+            database->unsafeLoadFromSync(pullResult.utf8(rt), schema);
+            return jsi::Value::undefined();
+        });
         createMethod(rt, adapter, "unsafeResetDatabase", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String schema = args[0].getString(rt);

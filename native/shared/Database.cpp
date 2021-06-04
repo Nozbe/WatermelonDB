@@ -622,6 +622,154 @@ void Database::batchJSON(jsi::String &&jsiJson) {
     }
 }
 
+enum ColumnType { string, number, boolean };
+struct ColumnSchema {
+    int index;
+    std::string name;
+    ColumnType type;
+};
+
+ColumnType columnTypeFromStr(std::string &type) {
+    if (type == "string") {
+        return ColumnType::string;
+    } else if (type == "number") {
+        return ColumnType::number;
+    } else if (type == "boolean") {
+        return ColumnType::boolean;
+    } else {
+        throw std::invalid_argument("invalid column type in schema");
+    }
+}
+
+using TableSchema = std::vector<ColumnSchema>;
+using TableSchemaMap = std::unordered_map<std::string, ColumnSchema>;
+TableSchema decodeTableSchema(jsi::Runtime &rt, jsi::Object &schema) {
+    auto columnArr = schema.getProperty(rt, "columnArray").getObject(rt).getArray(rt);
+    std::vector<ColumnSchema> columns = {};
+    for (size_t i = 0, len = columnArr.size(rt); i < len; i++) {
+        auto columnObj = columnArr.getValueAtIndex(rt, i).getObject(rt);
+        auto name = columnObj.getProperty(rt, "name").getString(rt).utf8(rt);
+        auto typeStr = columnObj.getProperty(rt, "type").getString(rt).utf8(rt);
+        ColumnType type = columnTypeFromStr(typeStr);
+        ColumnSchema column = { (int) i, name, type };
+        columns.push_back(column);
+    }
+    return columns;
+}
+
+TableSchemaMap decodeTableSchemaMap(jsi::Runtime &rt, jsi::Object &schema) {
+    auto columnArr = schema.getProperty(rt, "columnArray").getObject(rt).getArray(rt);
+    TableSchemaMap columns = {};
+    for (size_t i = 0, len = columnArr.size(rt); i < len; i++) {
+        auto columnObj = columnArr.getValueAtIndex(rt, i).getObject(rt);
+        auto name = columnObj.getProperty(rt, "name").getString(rt).utf8(rt);
+        auto typeStr = columnObj.getProperty(rt, "type").getString(rt).utf8(rt);
+        ColumnType type = columnTypeFromStr(typeStr);
+        ColumnSchema column = { (int) i, name, type };
+        columns[name] = column;
+    }
+    return columns;
+}
+
+std::string insertSqlFor(jsi::Runtime &rt, std::string tableName, TableSchema columns) {
+    std::string sql = "insert into `" + tableName + "` (`id`, `_status";
+    for (auto const &column : columns) {
+        sql += "`, `" + column.name;
+    }
+    sql += "`) values (?, 'synced'";
+    for (size_t i = 0, len = columns.size(); i < len; i++) {
+        sql += ", ?";
+    }
+    sql += ")";
+    return sql;
+}
+
+void Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &schema) {
+    using namespace simdjson;
+    auto &rt = getRt();
+    beginTransaction();
+
+    try {
+        auto tableSchemas = schema.getProperty(rt, "tables").getObject(rt);
+
+        ondemand::parser parser;
+        auto json = padded_string(jsonStr);
+        ondemand::document doc = parser.iterate(json);
+
+        ondemand::object changeSet = doc["changes"];
+
+        for (auto changeSetField : changeSet) {
+            std::string_view tableNameView = changeSetField.unescaped_key();
+            auto tableName = std::string(tableNameView);
+            ondemand::object tableChangeSet = changeSetField.value();
+
+            for (auto tableChangeSetField : tableChangeSet) {
+                std::string_view tableChangeSetKey = tableChangeSetField.unescaped_key();
+                ondemand::array records = tableChangeSetField.value();
+
+                if (tableChangeSetKey == "created" || tableChangeSetKey == "deleted") {
+                    int i = 0;
+                    for (auto _value : records) {
+                        i++;
+                    }
+                    if (i > 0) {
+                        throw jsi::JSError(rt, "bad created/deleted");
+                    }
+                    continue;
+                } else if (tableChangeSetKey != "updated") {
+                    throw jsi::JSError(rt, "bad changeset field");
+                }
+
+                auto tableSchemaObj = tableSchemas.getProperty(rt, jsi::String::createFromUtf8(rt, tableName)).getObject(rt);
+                auto tableSchemaArr = decodeTableSchema(rt, tableSchemaObj);
+                auto tableSchema = decodeTableSchemaMap(rt, tableSchemaObj);
+
+                sqlite3_stmt *stmt = prepareQuery(insertSqlFor(rt, tableName, tableSchemaArr));
+                SqliteStatement statement(stmt);
+
+                for (ondemand::object record : records) {
+                    for (auto valueField : record) {
+                        std::string_view keyView = valueField.unescaped_key();
+                        std::string key = std::string(keyView);
+                        auto value = valueField.value();
+
+                        if (key == "id") {
+                            std::string_view idView = value;
+                            sqlite3_bind_text(stmt, 1, idView.data(), (int) idView.length(), SQLITE_STATIC);
+                            continue;
+                        }
+
+                        auto column = tableSchema[key];
+                        ondemand::json_type type = value.type();
+                        auto argumentsIdx = column.index + 2;
+
+                        if (type == ondemand::json_type::null) {
+                            sqlite3_bind_null(stmt, argumentsIdx);
+                        } else if (column.type == ColumnType::string) {
+                            std::string_view stringView = value;
+                            sqlite3_bind_text(stmt, argumentsIdx, stringView.data(), (int) stringView.length(), SQLITE_STATIC);
+                        } else if (column.type == ColumnType::boolean) {
+                            sqlite3_bind_int(stmt, argumentsIdx, type == ondemand::json_type::boolean ? (bool) value : 0);
+                        } else if (column.type == ColumnType::number) {
+                            sqlite3_bind_double(stmt, argumentsIdx, (double) value);
+                        } else {
+                            throw jsi::JSError(rt, "Invalid argument type (unknown) for query");
+                        }
+                    }
+
+                    executeUpdate(stmt);
+                    sqlite3_reset(stmt);
+                }
+            }
+        }
+
+        commit();
+    } catch (const std::exception &ex) {
+        rollback();
+        throw;
+    }
+}
+
 void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
     auto &rt = getRt();
 
