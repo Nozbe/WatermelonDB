@@ -90,11 +90,26 @@ function groupOperations(operations: BatchOperation[]): GroupedBatchOperation[] 
   return grouppedOperations
 }
 
+function withRecreatedIndices(
+  operations: NativeBridgeBatchOperation[],
+  schema: AppSchema,
+): NativeBridgeBatchOperation[] {
+  const { encodeDropIndices, encodeCreateIndices } = require('../encodeSchema')
+  const toEncodedOperations = (sqlStr) =>
+    sqlStr
+      .split(';') // TODO: This will break when FTS is merged
+      .filter((sql) => sql)
+      .map((sql) => [0, null, sql, [[]]])
+  operations.unshift(...toEncodedOperations(encodeDropIndices(schema)))
+  operations.push(...toEncodedOperations(encodeCreateIndices(schema)))
+  return operations
+}
+
 export default function encodeBatch(
   operations: BatchOperation[],
   schema: AppSchema,
 ): NativeBridgeBatchOperation[] {
-  return groupOperations(operations).map(([type, table, recordsOrIds]) => {
+  const nativeOperations = groupOperations(operations).map(([type, table, recordsOrIds]) => {
     validateTable(table, schema)
 
     switch (type) {
@@ -130,6 +145,12 @@ export default function encodeBatch(
         throw new Error('unknown batch operation type')
     }
   })
+
+  // For large batches, it's profitable to delete all indices and then recreate them
+  if (operations.length >= 1000) {
+    return withRecreatedIndices(nativeOperations, schema)
+  }
+  return nativeOperations
 }
 
 if (process.env.NODE_ENV === 'test') {

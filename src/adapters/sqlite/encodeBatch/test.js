@@ -14,7 +14,7 @@ const testSchema = appSchema({
     tableSchema({
       name: 'tasks',
       columns: [
-        { name: 'author_id', type: 'string' },
+        { name: 'author_id', type: 'string', isIndexed: true },
         { name: 'order', type: 'number', isOptional: true },
         { name: 'created_at', type: 'number' },
         { name: 'is_followed', type: 'boolean' },
@@ -154,6 +154,20 @@ describe('encodeBatch', () => {
       [0, null, encodeUpdateSql(tasks), [encodeUpdateArgs(tasks, sanitize({ id: 't3' }))]],
       [-1, 'tasks', `update "tasks" set "_status" = 'deleted' where "id" == ?`, [['foo']]],
       [-1, 'tasks', `delete from "tasks" where "id" == ?`, [['bar'], ['baz']]],
+    ])
+  })
+  it(`can recreate indices for large batches`, () => {
+    expect(encodeBatch(Array(1000).fill(['markAsDeleted', 'tasks', 'foo']), testSchema)).toEqual([
+      [0, null, 'drop index "tasks_author_id"', [[]]],
+      [0, null, 'drop index "tasks__status"', [[]]],
+      [
+        -1,
+        'tasks',
+        `update "tasks" set "_status" = 'deleted' where "id" == ?`,
+        Array(1000).fill(['foo']),
+      ],
+      [0, null, 'create index "tasks_author_id" on "tasks" ("author_id")', [[]]],
+      [0, null, 'create index "tasks__status" on "tasks" ("_status")', [[]]],
     ])
   })
 })
