@@ -289,6 +289,10 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     this._dispatcher.call('batch', [[operation]], callback)
   }
 
+  unsafeLoadFromSync(syncPullResultJson: string, callback: ResultCallback<void>): void {
+    callback({ error: new Error('unsafeLoadFromSync unavailable') })
+  }
+
   unsafeResetDatabase(callback: ResultCallback<void>): void {
     this._dispatcher.call(
       'unsafeResetDatabase',
