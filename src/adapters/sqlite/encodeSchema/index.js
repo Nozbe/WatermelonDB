@@ -31,42 +31,39 @@ const encodeTableIndicies = ({ name: tableName, columns }: TableSchema): SQL =>
     .concat([`create index "${tableName}__status" on "${tableName}" ("_status");`])
     .join('')
 
-const transform = (sql: string, transformer: ?(string) => string) =>
-  transformer ? transformer(sql) : sql
+const identity = (sql: SQL, _?: any): SQL => sql
 
 const encodeTable = (table: TableSchema): SQL =>
-  transform(encodeCreateTable(table) + encodeTableIndicies(table), table.unsafeSql)
+  (table.unsafeSql || identity)(encodeCreateTable(table) + encodeTableIndicies(table))
 
 export const encodeSchema = ({ tables, unsafeSql }: AppSchema): SQL => {
   const sql = Object.values(tables)
     // $FlowFixMe
     .map(encodeTable)
     .join('')
-  return transform(commonSchema + sql, unsafeSql)
+  return (unsafeSql || identity)(commonSchema + sql, 'setup')
 }
 
-export function encodeCreateIndices({ tables }: AppSchema): SQL {
-  return (
-    Object.values(tables)
-      // $FlowFixMe
-      .map(encodeTableIndicies)
-      .join('')
-  )
+export function encodeCreateIndices({ tables, unsafeSql }: AppSchema): SQL {
+  const sql = Object.values(tables)
+    // $FlowFixMe
+    .map(encodeTableIndicies)
+    .join('')
+  return (unsafeSql || identity)(sql, 'create_indices')
 }
 
-export function encodeDropIndices({ tables }: AppSchema): SQL {
-  return (
-    Object.values(tables)
-      // $FlowFixMe
-      .map(({ name: tableName, columns }) =>
-        Object.values(columns)
-          // $FlowFixMe
-          .map((column) => (column.isIndexed ? `drop index "${tableName}_${column.name}";` : ''))
-          .concat([`drop index "${tableName}__status";`])
-          .join(''),
-      )
-      .join('')
-  )
+export function encodeDropIndices({ tables, unsafeSql }: AppSchema): SQL {
+  const sql = Object.values(tables)
+    // $FlowFixMe
+    .map(({ name: tableName, columns }) =>
+      Object.values(columns)
+        // $FlowFixMe
+        .map((column) => (column.isIndexed ? `drop index "${tableName}_${column.name}";` : ''))
+        .concat([`drop index "${tableName}__status";`])
+        .join(''),
+    )
+    .join('')
+  return (unsafeSql || identity)(sql, 'drop_indices')
 }
 
 const encodeAddColumnsMigrationStep: (AddColumnsMigrationStep) => SQL = ({
@@ -82,7 +79,7 @@ const encodeAddColumnsMigrationStep: (AddColumnsMigrationStep) => SQL = ({
       )};`
       const addIndex = encodeIndex(column, table)
 
-      return transform(addColumn + setDefaultValue + addIndex, unsafeSql)
+      return (unsafeSql || identity)(addColumn + setDefaultValue + addIndex)
     })
     .join('')
 
