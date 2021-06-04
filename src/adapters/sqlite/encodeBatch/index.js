@@ -7,7 +7,7 @@ import type { BatchOperation } from '../../type'
 import { validateTable } from '../../common'
 import type { SQL, SQLiteArg, NativeBridgeBatchOperation } from '../type'
 
-export function encodeInsertSql(schema: TableSchema): SQL {
+function encodeInsertSql(schema: TableSchema): SQL {
   const columns = schema.columnArray
   const columnsSql = `"id", "_status", "_changed${columns
     .map((column) => `", "${column.name}`)
@@ -18,7 +18,7 @@ export function encodeInsertSql(schema: TableSchema): SQL {
   return `insert into "${schema.name}" (${columnsSql}) values (${placeholders})`
 }
 
-export function encodeInsertArgs(tableSchema: TableSchema, raw: RawRecord): SQLiteArg[] {
+function encodeInsertArgs(tableSchema: TableSchema, raw: RawRecord): SQLiteArg[] {
   const columns = tableSchema.columnArray
   const len = columns.length
 
@@ -33,13 +33,13 @@ export function encodeInsertArgs(tableSchema: TableSchema, raw: RawRecord): SQLi
   return args
 }
 
-export function encodeUpdateSql(schema: TableSchema): SQL {
+function encodeUpdateSql(schema: TableSchema): SQL {
   const columns = schema.columnArray
   const placeholders = columns.map((column) => `, "${column.name}" = ?`).join('')
   return `update "${schema.name}" set "_status" = ?, "_changed" = ?${placeholders} where "id" is ?`
 }
 
-export function encodeUpdateArgs(tableSchema: TableSchema, raw: RawRecord): SQLiteArg[] {
+function encodeUpdateArgs(tableSchema: TableSchema, raw: RawRecord): SQLiteArg[] {
   const columns = tableSchema.columnArray
   const len = columns.length
 
@@ -64,7 +64,7 @@ const REMOVE_FROM_CACHE = -1
 const IGNORE_CACHE = 0
 const ADD_TO_CACHE = 1
 
-export function groupOperations(operations: BatchOperation[]): GroupedBatchOperation[] {
+function groupOperations(operations: BatchOperation[]): GroupedBatchOperation[] {
   const grouppedOperations: GroupedBatchOperation[] = []
   let previousType: ?string = null
   let previousTable: ?TableName<any> = null
@@ -130,4 +130,13 @@ export default function encodeBatch(
         throw new Error('unknown batch operation type')
     }
   })
+}
+
+if (process.env.NODE_ENV === 'test') {
+  /* eslint-disable dot-notation */
+  module['exports'].encodeInsertSql = encodeInsertSql
+  module['exports'].encodeInsertArgs = encodeInsertArgs
+  module['exports'].encodeUpdateSql = encodeUpdateSql
+  module['exports'].encodeUpdateArgs = encodeUpdateArgs
+  module['exports'].groupOperations = groupOperations
 }
