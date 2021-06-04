@@ -45,6 +45,7 @@
 - [SQLite] `adapter.batch()` with large numbers of created/updated/deleted records is now between 16-48% faster
 - [LokiJS] Querying and finding is now faster - unnecessary data copy is skipped
 - [jsi] 15-30% faster querying on JSC (iOS) when the number of returned records is large
+- [jsi] up to 52% faster batch creation (yes, that's on top of the improvement listed above!)
 
 ### Changes
 
