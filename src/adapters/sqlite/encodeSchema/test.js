@@ -2,35 +2,35 @@
 import { appSchema, tableSchema } from '../../../Schema'
 import { addColumns, createTable, unsafeExecuteSql } from '../../../Schema/migrations'
 
-import { encodeSchema, encodeMigrationSteps } from './index'
+import { encodeSchema, encodeMigrationSteps, encodeCreateIndices, encodeDropIndices } from './index'
 
 const expectedCommonSchema =
   'create table "local_storage" ("key" varchar(16) primary key not null, "value" text not null);' +
   'create index "local_storage_key_index" on "local_storage" ("key");'
 
+const testSchema = appSchema({
+  version: 1,
+  tables: [
+    tableSchema({
+      name: 'tasks',
+      columns: [
+        { name: 'author_id', type: 'string', isIndexed: true },
+        { name: 'order', type: 'number', isOptional: true, isIndexed: true },
+        { name: 'created_at', type: 'number' },
+      ],
+    }),
+    tableSchema({
+      name: 'comments',
+      columns: [
+        { name: 'is_ended', type: 'boolean' },
+        { name: 'reactions', type: 'number' },
+      ],
+    }),
+  ],
+})
+
 describe('encodeSchema', () => {
   it('encodes schema', () => {
-    const testSchema = appSchema({
-      version: 1,
-      tables: [
-        tableSchema({
-          name: 'tasks',
-          columns: [
-            { name: 'author_id', type: 'string', isIndexed: true },
-            { name: 'order', type: 'number', isOptional: true, isIndexed: true },
-            { name: 'created_at', type: 'number' },
-          ],
-        }),
-        tableSchema({
-          name: 'comments',
-          columns: [
-            { name: 'is_ended', type: 'boolean' },
-            { name: 'reactions', type: 'number' },
-          ],
-        }),
-      ],
-    })
-
     const expectedSchema =
       expectedCommonSchema +
       'create table "tasks" ("id" primary key, "_changed", "_status", "author_id", "order", "created_at");' +
@@ -43,7 +43,7 @@ describe('encodeSchema', () => {
     expect(encodeSchema(testSchema)).toBe(expectedSchema)
   })
   it(`encodes schema with unsafe SQL`, () => {
-    const testSchema = appSchema({
+    const testSchema2 = appSchema({
       version: 1,
       tables: [
         tableSchema({
@@ -62,8 +62,32 @@ describe('encodeSchema', () => {
       'create index "tasks_author_id" on "tasks" ("author_id");' +
       'create index "tasks__status" on "tasks" ("_status");'
 
-    expect(encodeSchema(testSchema)).toBe(expectedSchema)
+    expect(encodeSchema(testSchema2)).toBe(expectedSchema)
   })
+})
+
+describe('encodeIndices', () => {
+  it(`encodes creation of indices`, () => {
+    expect(encodeCreateIndices(testSchema)).toBe(
+      '' +
+        'create index "tasks_author_id" on "tasks" ("author_id");' +
+        'create index "tasks_order" on "tasks" ("order");' +
+        'create index "tasks__status" on "tasks" ("_status");' +
+        'create index "comments__status" on "comments" ("_status");',
+    )
+  })
+  it(`encodes removal of indices`, () => {
+    expect(encodeDropIndices(testSchema)).toBe(
+      '' +
+        'drop index "tasks_author_id";' +
+        'drop index "tasks_order";' +
+        'drop index "tasks__status";' +
+        'drop index "comments__status";',
+    )
+  })
+})
+
+describe('encodeMigrationSteps', () => {
   it('encodes migrations', () => {
     const migrationSteps = [
       addColumns({

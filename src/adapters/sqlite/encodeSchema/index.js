@@ -49,6 +49,30 @@ export const encodeSchema: (AppSchema) => SQL = ({ tables, unsafeSql }) => {
   return transform(commonSchema + sql, unsafeSql)
 }
 
+export function encodeCreateIndices({ tables }: AppSchema): SQL {
+  return (
+    Object.values(tables)
+      // $FlowFixMe
+      .map(encodeTableIndicies)
+      .join('')
+  )
+}
+
+export function encodeDropIndices({ tables }: AppSchema): SQL {
+  return (
+    Object.values(tables)
+      // $FlowFixMe
+      .map(({ name: tableName, columns }) =>
+        Object.values(columns)
+          // $FlowFixMe
+          .map((column) => (column.isIndexed ? `drop index "${tableName}_${column.name}";` : ''))
+          .concat([`drop index "${tableName}__status";`])
+          .join(''),
+      )
+      .join('')
+  )
+}
+
 const encodeCreateTableMigrationStep: (CreateTableMigrationStep) => SQL = ({ schema }) =>
   encodeTable(schema)
 
