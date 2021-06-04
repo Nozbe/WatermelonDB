@@ -133,7 +133,6 @@ std::string Database::bindArgsAndReturnId(sqlite3_stmt *statement, simdjson::ond
 
         if (type == ondemand::json_type::string) {
             std::string_view stringView = arg;
-            // TODO: verify null termination?
             bindResult = sqlite3_bind_text(statement, i + 1, stringView.data(), (int) stringView.length(), SQLITE_STATIC);
             if (i == 0) {
                 returnId = std::string(stringView);

@@ -1,7 +1,6 @@
 // @flow
 
-// $FlowFixMe
-import naughtyStrings from 'big-list-of-naughty-strings'
+import naughtyStrings from './utils/naughtyStrings'
 import * as QueryBuilders from '../QueryDescription'
 
 const Q = (QueryBuilders: any)
