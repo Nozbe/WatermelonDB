@@ -197,7 +197,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     )
   }
 
-  unsafeLoadFromSync(syncPullResultJson: string, callback: ResultCallback<void>): void {
+  unsafeLoadFromSync(syncPullResultJson: string, callback: ResultCallback<any>): void {
     callback({ error: new Error('unsafeLoadFromSync unavailable') })
   }
 

@@ -3,6 +3,7 @@
 
 import { connectionTag, type ConnectionTag, logger, invariant } from '../../utils/common'
 import { type ResultCallback, mapValue, toPromise } from '../../utils/fp/Result'
+import { fromPairs } from '../../utils/fp'
 
 import type { RecordId } from '../../Model'
 import type { SerializedQuery } from '../../Query'
@@ -289,8 +290,21 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     this._dispatcher.call('batch', [[operation]], callback)
   }
 
-  unsafeLoadFromSync(syncPullResultJson: string, callback: ResultCallback<void>): void {
-    callback({ error: new Error('unsafeLoadFromSync unavailable') })
+  unsafeLoadFromSync(syncPullResultJson: string, callback: ResultCallback<any>): void {
+    if (this._dispatcherType !== 'jsi') {
+      callback({ error: new Error('unsafeLoadFromSync unavailable') })
+    }
+
+    // TODO: Recreate indices
+    this._dispatcher.call('unsafeLoadFromSync', [syncPullResultJson, this.schema], (result) =>
+      callback(
+        mapValue(
+          // [[key, json], ...] -> { key: value }
+          (value) => fromPairs(value.map(([key, valueJson]) => [key, JSON.parse(valueJson)])),
+          result,
+        ),
+      ),
+    )
   }
 
   unsafeResetDatabase(callback: ResultCallback<void>): void {

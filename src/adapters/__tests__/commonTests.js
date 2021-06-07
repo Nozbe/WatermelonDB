@@ -582,19 +582,34 @@ export default () => {
       return
     }
 
-    await adapter.unsafeLoadFromSync(JSON.stringify({}))
+    expect(await adapter.unsafeLoadFromSync(JSON.stringify({ changes: {} }))).toEqual({})
     expect(await adapter.unsafeQueryRaw(taskQuery())).toHaveLength(0)
+
+    expect(
+      await adapter.unsafeLoadFromSync(
+        JSON.stringify({
+          changes: {
+            tasks: { created: [], updated: [], deleted: [] },
+          },
+          timestamp: 1000,
+          foo: [{ bar: true, baz: null }],
+        }),
+      ),
+    ).toEqual({ timestamp: 1000, foo: [{ bar: true, baz: null }] })
+    expect(await adapter.unsafeQueryRaw(taskQuery())).toHaveLength(0)
+
+    const syncedRaw = (raw) => ({ ...mockTaskRaw(raw), _status: 'synced' })
+    const t1 = { id: 't1' }
+    const t2 = { id: 't2', text1: 'bar1', order: 1, float1: 3.14, bool1: true, text2: null }
 
     await adapter.unsafeLoadFromSync(
       JSON.stringify({
-        tasks: {
-          created: [],
-          updated: [],
-          deleted: [],
+        changes: {
+          tasks: { updated: [t1, t2] },
         },
       }),
     )
-    expect(await adapter.unsafeQueryRaw(taskQuery())).toHaveLength(0)
+    expect(await adapter.query(taskQuery())).toEqual([syncedRaw(t1), syncedRaw(t2)])
   })
   it('can unsafely reset database', async (adapter) => {
     await adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1', text1: 'bar', order: 1 })]])

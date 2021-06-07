@@ -190,8 +190,7 @@ void Database::install(jsi::Runtime *runtime) {
             auto pullResult = args[0].getString(rt);
             auto schema = args[1].getObject(rt);
 
-            database->unsafeLoadFromSync(pullResult.utf8(rt), schema);
-            return jsi::Value::undefined();
+            return database->unsafeLoadFromSync(pullResult.utf8(rt), schema);
         });
         createMethod(rt, adapter, "unsafeResetDatabase", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
