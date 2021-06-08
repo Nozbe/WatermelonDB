@@ -3,7 +3,7 @@
 
 import { connectionTag, type ConnectionTag, logger, invariant } from '../../utils/common'
 import { type ResultCallback, mapValue, toPromise } from '../../utils/fp/Result'
-import { fromPairs } from '../../utils/fp'
+import { mapObj } from '../../utils/fp'
 
 import type { RecordId } from '../../Model'
 import type { SerializedQuery } from '../../Query'
@@ -299,8 +299,8 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     this._dispatcher.call('unsafeLoadFromSync', [syncPullResultJson, this.schema], (result) =>
       callback(
         mapValue(
-          // [[key, json], ...] -> { key: value }
-          (value) => fromPairs(value.map(([key, valueJson]) => [key, JSON.parse(valueJson)])),
+          // { key: JSON.stringify(value) } -> { key: value }
+          (residualValues) => mapObj((values) => JSON.parse(values), residualValues),
           result,
         ),
       ),
