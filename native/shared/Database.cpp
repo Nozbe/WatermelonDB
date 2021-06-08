@@ -25,8 +25,6 @@ std::string to_json_string(T&& element) {
             if (add_comma) {
                 json << ",";
             }
-            // We need the call to value() to get
-            // an ondemand::value type.
             json << to_json_string(child.value());
             add_comma = true;
         }
@@ -39,9 +37,6 @@ std::string to_json_string(T&& element) {
             if (add_comma) {
                 json << ",";
             }
-            // key() returns the unescaped key, if we
-            // want the escaped key, we should do
-            // field.unescaped_key().
             json << "\"" << field.key() << "\": ";
             json << to_json_string(field.value());
             add_comma = true;
@@ -49,16 +44,13 @@ std::string to_json_string(T&& element) {
         json << "}";
         break;
     case ondemand::json_type::number:
-        // assume it fits in a double
         json << element.get_double();
         break;
     case ondemand::json_type::string:
-        // get_string() would return escaped string, but
-        // we are happy with unescaped string.
         json << "\"" << element.get_raw_json_string() << "\"";
         break;
     case ondemand::json_type::boolean:
-        json << element.get_bool();
+        json << (element.get_bool() ? "true" : "false");
         break;
     case ondemand::json_type::null:
         json << "null";

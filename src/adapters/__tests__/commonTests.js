@@ -611,6 +611,31 @@ export default () => {
     )
     expect(await adapter.query(taskQuery())).toEqual([syncedRaw(t1), syncedRaw(t2)])
   })
+  it(`can return residual JSON from sync JSON`, async (adapter, AdapterClass) => {
+    if (
+      !(
+        AdapterClass.name === 'SQLiteAdapter' && adapter.underlyingAdapter._dispatcherType === 'jsi'
+      )
+    ) {
+      await expectToRejectWithMessage(
+        adapter.unsafeLoadFromSync(JSON.stringify({})),
+        'unsafeLoadFromSync unavailable',
+      )
+      return
+    }
+
+    const check = async (obj) =>
+      expect(await adapter.unsafeLoadFromSync(JSON.stringify({ changes: {}, ...obj }))).toEqual({
+        ...obj,
+      })
+
+    await check({})
+    await check({ foo: 'bar', num: 0, num1: 1, float: 3.14, nul: null, yes: true, no: false })
+    await check({ messages: ['foo', 'bar', 'baz'] })
+    await check({ foo: { bar: [1, 2, 3], baz: 'blah' } })
+    await check({ naughty: 'foo{\nbar\0' })
+    await check({ _naughty: { '_naughty\n{\0': 'yes' } })
+  })
   it('can unsafely reset database', async (adapter) => {
     await adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1', text1: 'bar', order: 1 })]])
     await adapter.unsafeResetDatabase()
