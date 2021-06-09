@@ -695,7 +695,7 @@ ColumnType columnTypeFromStr(std::string &type) {
 
 using TableSchemaArray = std::vector<ColumnSchema>;
 using TableSchema = std::unordered_map<std::string, ColumnSchema>;
-std::pair<TableSchemaArray, TableSchema> decodeTableSchema(jsi::Runtime &rt, jsi::Object &schema) {
+std::pair<TableSchemaArray, TableSchema> decodeTableSchema(jsi::Runtime &rt, jsi::Object schema) {
     auto columnArr = schema.getProperty(rt, "columnArray").getObject(rt).getArray(rt);
 
     TableSchemaArray columnsArray = {};
@@ -775,8 +775,11 @@ jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &s
                             throw jsi::JSError(rt, "bad changeset field");
                         }
 
-                        auto tableSchemaJsi = tableSchemas.getProperty(rt, jsi::String::createFromUtf8(rt, tableName)).getObject(rt);
-                        auto tableSchemas = decodeTableSchema(rt, tableSchemaJsi);
+                        auto tableSchemaJsi = tableSchemas.getProperty(rt, jsi::String::createFromUtf8(rt, tableName));
+                        if (!tableSchemaJsi.isObject()) {
+                            continue;
+                        }
+                        auto tableSchemas = decodeTableSchema(rt, tableSchemaJsi.getObject(rt));
                         auto tableSchemaArray = tableSchemas.first;
                         auto tableSchema = tableSchemas.second;
 

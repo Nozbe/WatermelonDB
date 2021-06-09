@@ -607,14 +607,21 @@ export default () => {
               { id: 't3', str: 'hy', strN: 'true', num: 3.14, bool: null, boolN: false },
             ],
             created: expectedSanitizations.map(({ value }, i) => ({
-              id: `x${i}`,
-              str: value,
-              strN: value,
+              // NOTE: Intentionally in wrong order
               num: value,
+              str: value,
+              boolN: value,
+              id: `x${i}`,
+              strN: value,
               numN: value,
               bool: value,
-              boolN: value,
             })),
+          },
+          tasks: {
+            created: [{ id: 't1', text1: 'hello' }],
+          },
+          bad_table: {
+            created: [],
           },
         },
       }),
@@ -643,6 +650,9 @@ export default () => {
         bool: sqlBool(values.boolean[0]),
         boolN: sqlBool(values.boolean[1]),
       })),
+    ])
+    expect(await adapter.query(taskQuery())).toEqual([
+      mockTaskRaw({ id: 't1', text1: 'hello', _status: 'synced' }),
     ])
     await expectToRejectWithMessage(
       adapter.unsafeLoadFromSync(JSON.stringify({ changes: { tasks: { deleted: ['t1', 't2'] } } })),
