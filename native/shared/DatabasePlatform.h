@@ -26,5 +26,11 @@ void deleteDatabaseFile(std::string path, bool warnIfDoesNotExist);
 // Calls function when device memory is getting low
 void onMemoryAlert(std::function<void(void)> callback);
 
+// Returns sync json provided by the user
+std::string_view getSyncJson(int id);
+
+// Destroys sync json after it's used
+void deleteSyncJson(int id);
+
 } // namespace platform
 } // namespace watermelondb
