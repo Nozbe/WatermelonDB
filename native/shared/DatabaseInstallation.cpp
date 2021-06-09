@@ -7,18 +7,6 @@ namespace watermelondb {
 using platform::consoleError;
 using platform::consoleLog;
 
-void assertCount(size_t count, size_t expected, std::string name) {
-    if (count != expected) {
-        std::string error = name + " takes " + std::to_string(expected) + " arguments";
-        #ifdef ANDROID
-        consoleError(error);
-        std::abort();
-        #else
-        throw std::invalid_argument(error);
-        #endif
-    }
-}
-
 jsi::Value makeError(facebook::jsi::Runtime &rt, const std::string &desc) {
     return rt.global().getPropertyAsFunction(rt, "Error").call(rt, desc);
 }
@@ -57,23 +45,24 @@ jsi::Value runBlock(facebook::jsi::Runtime &rt, std::function<jsi::Value(void)> 
 
 using jsiFunction = std::function<jsi::Value(jsi::Runtime &rt, const jsi::Value *args)>;
 
-jsi::Function createFunction(jsi::Runtime &runtime, const jsi::PropNameID &name, unsigned int argCount, jsiFunction func
-
-                             ) {
-    std::string stdName = name.utf8(runtime);
-    return jsi::Function::createFromHostFunction(runtime, name, argCount,
-                                                 [stdName, argCount, func](jsi::Runtime &rt, const jsi::Value &,
-                                                                           const jsi::Value *args, size_t count) {
-        assertCount(count, argCount, stdName);
-
-        return func(rt, args);
+void createMethod(jsi::Runtime &runtime, jsi::Object &object, const char *methodName, unsigned int argCount, jsiFunction func) {
+    jsi::PropNameID name = jsi::PropNameID::forAscii(runtime, methodName);
+    jsi::Function function = jsi::Function::createFromHostFunction(runtime, name, argCount, [methodName, argCount, func]
+                                                                   (jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
+        if (count != argCount) {
+            std::string error = std::string(methodName) + " takes " + std::to_string(argCount) + " arguments";
+            #ifdef ANDROID
+            consoleError(error);
+            std::abort();
+            #else
+            throw std::invalid_argument(error);
+            #endif
+        }
+        return runBlock(rt, [&]() {
+            return func(rt, args);
+        });
     });
-}
-
-void createMethod(jsi::Runtime &rt, jsi::Object &object, const char *methodName, unsigned int argCount, jsiFunction func) {
-    jsi::PropNameID name = jsi::PropNameID::forAscii(rt, methodName);
-    jsi::Function function = createFunction(rt, name, argCount, func);
-    object.setProperty(rt, name, function);
+    object.setProperty(runtime, name, function);
 }
 
 void Database::install(jsi::Runtime *runtime) {
@@ -146,68 +135,57 @@ void Database::install(jsi::Runtime *runtime) {
             assert(database->initialized_);
             jsi::String tableName = args[0].getString(rt);
             jsi::String id = args[1].getString(rt);
-
-            return runBlock(rt, [&]() { return database->find(tableName, id); });
+            return database->find(tableName, id);
         });
         createMethod(rt, adapter, "query", 3, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String tableName = args[0].getString(rt);
             jsi::String sql = args[1].getString(rt);
             jsi::Array arguments = args[2].getObject(rt).getArray(rt);
-
-            return runBlock(rt, [&]() { return database->query(tableName, sql, arguments); });
+            return database->query(tableName, sql, arguments);
         });
         createMethod(rt, adapter, "queryIds", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String sql = args[0].getString(rt);
             jsi::Array arguments = args[1].getObject(rt).getArray(rt);
-
-            return runBlock(rt, [&]() { return database->queryIds(sql, arguments); });
+            return database->queryIds(sql, arguments);
         });
         createMethod(rt, adapter, "unsafeQueryRaw", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String sql = args[0].getString(rt);
             jsi::Array arguments = args[1].getObject(rt).getArray(rt);
-
-            return runBlock(rt, [&]() { return database->unsafeQueryRaw(sql, arguments); });
+            return database->unsafeQueryRaw(sql, arguments);
         });
         createMethod(rt, adapter, "count", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String sql = args[0].getString(rt);
             jsi::Array arguments = args[1].getObject(rt).getArray(rt);
-
-            return runBlock(rt, [&]() { return database->count(sql, arguments); });
+            return database->count(sql, arguments);
         });
         createMethod(rt, adapter, "batch", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::Array operations = args[0].getObject(rt).getArray(rt);
-
-            return runBlock(rt, [&]() {
-                database->batch(operations);
-                return jsi::Value::undefined();
-            });
+            database->batch(operations);
+            return jsi::Value::undefined();
         });
         createMethod(rt, adapter, "getLocal", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String key = args[0].getString(rt);
-
-            return runBlock(rt, [&]() { return database->getLocal(key); });
+            return database->getLocal(key);
         });
         createMethod(rt, adapter, "unsafeResetDatabase", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String schema = args[0].getString(rt);
             int schemaVersion = (int)args[1].getNumber();
 
-            return runBlock(rt, [&]() {
-                try {
-                    database->unsafeResetDatabase(schema, schemaVersion);
-                    return jsi::Value::undefined();
-                } catch (const std::exception &ex) {
-                    consoleError("Failed to reset database correctly - " + std::string(ex.what()));
-                    // Partially reset database is likely corrupted, so it's probably less bad to crash
-                    std::abort();
-                }
-            });
+            try {
+                database->unsafeResetDatabase(schema, schemaVersion);
+                return jsi::Value::undefined();
+            } catch (const std::exception &ex) {
+                consoleError("Failed to reset database correctly - " + std::string(ex.what()));
+                // Partially reset database is likely corrupted, so it's probably less bad to crash
+                std::abort();
+            }
         });
 
         return adapter;

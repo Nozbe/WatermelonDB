@@ -57,6 +57,23 @@ void initializeSqlite() {
             consoleError("Failed to configure SQLite to support file URI syntax - shared cache will not work");
         }
 
+        // FIXME: I don't quite understand why, but without this, JSI Watermelon crashes on Android/Hermes
+        // on app reload, like so:
+        //   abort 0x00007d0bd27cff2f
+        //   __fortify_fatal(char const*, ...) 0x00007d0bd27d20c1
+        //   HandleUsingDestroyedMutex(pthread_mutex_t*, char const*) 0x00007d0bd283b020
+        //   pthread_mutex_lock 0x00007d0bd283aef4
+        //   pthreadMutexEnter sqlite3.c:26320
+        //   sqlite3_mutex_enter sqlite3.c:25775
+        //   sqlite3_next_stmt sqlite3.c:84221
+        //   watermelondb::SqliteDb::~SqliteDb() Sqlite.cpp:57
+        // It sounds like the unix thread on which we're running is already destroyed, but AFAIU
+        // destructors in jsi-managed objects should be safe in this respect...
+        // It should be safe to disable sqlite3's threadsafety since we're only using it singlethreaded anyway...
+        if (sqlite3_config(SQLITE_CONFIG_SINGLETHREAD) != SQLITE_OK) {
+            consoleError("Failed to configure SQLite to SQLITE_CONFIG_SINGLETHREAD");
+        }
+
         // sqlite should do its best to stay <8MB of heap allocations
         // 8MB is what android uses by default:
         // https://github.com/aosp-mirror/platform_frameworks_base/blob/6bebb8418ceecf44d2af40033870f3aabacfe36e/core/jni/android_database_SQLiteGlobal.cpp#L68

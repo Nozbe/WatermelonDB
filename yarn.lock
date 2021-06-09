@@ -1572,6 +1572,11 @@
     readdirp "^2.2.1"
     upath "^1.1.1"
 
+"@nozbe/simdjson@0.9.5":
+  version "0.9.5"
+  resolved "https://registry.yarnpkg.com/@nozbe/simdjson/-/simdjson-0.9.5.tgz#a77645664d9c9af9c9a14c122daffba5ac0778d8"
+  integrity sha512-pETOFBSM4Yka1+DgIm4QUcslTjNaglkk2B3UyevLe/p0zAjS0VoEWt03oxOP802w4hQGCOdSMHcaXO6WuqfaGQ==
+
 "@nozbe/sqlite@3.31.1":
   version "3.31.1"
   resolved "https://registry.yarnpkg.com/@nozbe/sqlite/-/sqlite-3.31.1.tgz#ffd394ad7c188c6b73f89fd6e1ccb849a1b96dba"
@@ -5737,11 +5742,6 @@ jsc-android@^245459.0.0:
   version "245459.0.0"
   resolved "https://registry.yarnpkg.com/jsc-android/-/jsc-android-245459.0.0.tgz#e584258dd0b04c9159a27fb104cd5d491fd202c9"
   integrity sha512-wkjURqwaB1daNkDi2OYYbsLnIdC/lUM2nPXQKRs5pqEU9chDg435bjvo+LSaHotDENygHQDHe+ntUkkw2gwMtg==
-
-"jsc-android@npm:@kudo-ci/jsc-android@250230.2.1":
-  version "250230.2.1"
-  resolved "https://registry.yarnpkg.com/@kudo-ci/jsc-android/-/jsc-android-250230.2.1.tgz#44d9574d4e27e846fe99bdfa179a1f30e1eb8fb1"
-  integrity sha512-+Bw0bYUqbWcDQpsFyT+EYIDkxM+1CpQU7abyB5sOFKYmYQWzWmcHlWVD1/GsddnMN5nb5QX23j84HH0x0qFYRA==
 
 jsdom@^16.4.0:
   version "16.5.1"

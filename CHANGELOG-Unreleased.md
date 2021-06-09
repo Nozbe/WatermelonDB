@@ -50,11 +50,14 @@
 - All Watermelon console logs are prepended with a 🍉 tag
 - Extra protections against improper use of writers/readers (formerly actions) have been added
 - Queries with multiple top-level `Q.on('table', ...)` now produce a warning. Use `Q.on('table', [condition1, condition2, ...])` syntax instead.
+- [jsi] WAL mode is now used
 
 ### Fixes
 
 - [jsi] Fix a race condition where commands sent to the database right after instantiating SQLiteAdapter would fail
 - [jsi] Fix incorrect error reporting on some sqlite errors
+- [jsi] Fix issue where app would crash on Android/Hermes on reload
+- [jsi] Fix IO errors on Android
 
 ### Internal
 
