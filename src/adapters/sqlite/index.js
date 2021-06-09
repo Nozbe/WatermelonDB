@@ -295,15 +295,19 @@ export default class SQLiteAdapter implements DatabaseAdapter {
       callback({ error: new Error('unsafeLoadFromSync unavailable') })
     }
 
-    // TODO: Recreate indices
-    this._dispatcher.call('unsafeLoadFromSync', [syncPullResultJson, this.schema], (result) =>
-      callback(
-        mapValue(
-          // { key: JSON.stringify(value) } -> { key: value }
-          (residualValues) => mapObj((values) => JSON.parse(values), residualValues),
-          result,
+    const { encodeDropIndices, encodeCreateIndices } = require('./encodeSchema')
+    const { schema } = this
+    this._dispatcher.call(
+      'unsafeLoadFromSync',
+      [syncPullResultJson, schema, encodeDropIndices(schema), encodeCreateIndices(schema)],
+      (result) =>
+        callback(
+          mapValue(
+            // { key: JSON.stringify(value) } -> { key: value }
+            (residualValues) => mapObj((values) => JSON.parse(values), residualValues),
+            result,
+          ),
         ),
-      ),
     )
   }
 

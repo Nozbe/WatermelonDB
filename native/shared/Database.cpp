@@ -730,12 +730,14 @@ std::string insertSqlFor(jsi::Runtime &rt, std::string tableName, TableSchemaArr
     return sql;
 }
 
-jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &schema) {
+jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &schema, std::string preamble, std::string postamble) {
     using namespace simdjson;
     auto &rt = getRt();
     beginTransaction();
 
     try {
+        executeMultiple(preamble);
+        
         jsi::Object residualValues(rt);
         auto tableSchemas = schema.getProperty(rt, "tables").getObject(rt);
 
@@ -847,7 +849,7 @@ jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &s
                 }
             }
         }
-
+        executeMultiple(postamble);
         commit();
         return residualValues;
     } catch (const std::exception &ex) {
