@@ -730,7 +730,9 @@ std::string insertSqlFor(jsi::Runtime &rt, std::string tableName, TableSchemaArr
     return sql;
 }
 
-jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &schema, std::string preamble, std::string postamble) {
+
+
+jsi::Value Database::unsafeLoadFromSync(int jsonId, jsi::Object &schema, std::string preamble, std::string postamble) {
     using namespace simdjson;
     auto &rt = getRt();
     beginTransaction();
@@ -742,7 +744,7 @@ jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &s
         auto tableSchemas = schema.getProperty(rt, "tables").getObject(rt);
 
         ondemand::parser parser;
-        auto json = padded_string(jsonStr);
+        auto json = padded_string(platform::getSyncJson(jsonId));
         ondemand::document doc = parser.iterate(json);
 
         // NOTE: simdjson::ondemand processes forwards-only, hence the weird field enumeration
@@ -851,8 +853,10 @@ jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &s
         }
         executeMultiple(postamble);
         commit();
+        platform::deleteSyncJson(jsonId);
         return residualValues;
     } catch (const std::exception &ex) {
+        platform::deleteSyncJson(jsonId);
         rollback();
         throw;
     }

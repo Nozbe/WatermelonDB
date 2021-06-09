@@ -66,6 +66,7 @@ export type SqliteDispatcherMethod =
   | 'count'
   | 'batch'
   | 'unsafeLoadFromSync'
+  | 'provideSyncJson'
   | 'unsafeResetDatabase'
   | 'getLocal'
 

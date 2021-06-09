@@ -577,55 +577,57 @@ export default () => {
       )
     ) {
       await expectToRejectWithMessage(
-        adapter.unsafeLoadFromSync(JSON.stringify({})),
+        adapter.unsafeLoadFromSync(0),
         'unsafeLoadFromSync unavailable',
       )
       return
     }
 
-    await adapter.unsafeLoadFromSync(JSON.stringify({ changes: {} }))
+    const loadFromSync = async (json) => {
+      const id = Math.round(Math.random() * 1_000_000_000)
+      await adapter.provideSyncJson(id, JSON.stringify(json))
+      return adapter.unsafeLoadFromSync(id)
+    }
+
+    await loadFromSync({ changes: {} })
     expect(
-      await adapter.unsafeLoadFromSync(
-        JSON.stringify({
-          changes: { sync_tests: { created: [], updated: [], deleted: [] } },
-          timestamp: 1000,
-        }),
-      ),
+      await loadFromSync({
+        changes: { sync_tests: { created: [], updated: [], deleted: [] } },
+        timestamp: 1000,
+      }),
     ).toEqual({ timestamp: 1000 })
 
     const query = modelQuery(MockSyncTestRecord).serialize()
     expect(await adapter.unsafeQueryRaw(query)).toHaveLength(0)
 
     const { expectedSanitizations } = require('../../RawRecord/__tests__/helpers')
-    await adapter.unsafeLoadFromSync(
-      JSON.stringify({
-        changes: {
-          sync_tests: {
-            updated: [
-              { id: 't1' },
-              { id: 't2', str: 'ab', _changed: 'abc', _status: 'updated', foo: 'blaaagh' },
-              { id: 't3', str: 'hy', strN: 'true', num: 3.14, bool: null, boolN: false },
-            ],
-            created: expectedSanitizations.map(({ value }, i) => ({
-              // NOTE: Intentionally in wrong order
-              num: value,
-              str: value,
-              boolN: value,
-              id: `x${i}`,
-              strN: value,
-              numN: value,
-              bool: value,
-            })),
-          },
-          tasks: {
-            created: [{ id: 't1', text1: 'hello' }],
-          },
-          bad_table: {
-            created: [],
-          },
+    await loadFromSync({
+      changes: {
+        sync_tests: {
+          updated: [
+            { id: 't1' },
+            { id: 't2', str: 'ab', _changed: 'abc', _status: 'updated', foo: 'blaaagh' },
+            { id: 't3', str: 'hy', strN: 'true', num: 3.14, bool: null, boolN: false },
+          ],
+          created: expectedSanitizations.map(({ value }, i) => ({
+            // NOTE: Intentionally in wrong order
+            num: value,
+            str: value,
+            boolN: value,
+            id: `x${i}`,
+            strN: value,
+            numN: value,
+            bool: value,
+          })),
         },
-      }),
-    )
+        tasks: {
+          created: [{ id: 't1', text1: 'hello' }],
+        },
+        bad_table: {
+          created: [],
+        },
+      },
+    })
     const d = { _status: 'synced', _changed: '' }
     const sqlBool = (value) => {
       if (value === true) {
@@ -655,11 +657,11 @@ export default () => {
       mockTaskRaw({ id: 't1', text1: 'hello', _status: 'synced' }),
     ])
     await expectToRejectWithMessage(
-      adapter.unsafeLoadFromSync(JSON.stringify({ changes: { tasks: { deleted: ['t1', 't2'] } } })),
+      loadFromSync({ changes: { tasks: { deleted: ['t1', 't2'] } } }),
       'expected deleted field to be empty',
     )
     await expectToRejectWithMessage(
-      adapter.unsafeLoadFromSync(JSON.stringify({ changes: { tasks: { wat: [] } } })),
+      loadFromSync({ changes: { tasks: { wat: [] } } }),
       'bad changeset field',
     )
   })
@@ -670,16 +672,18 @@ export default () => {
       )
     ) {
       await expectToRejectWithMessage(
-        adapter.unsafeLoadFromSync(JSON.stringify({})),
+        adapter.unsafeLoadFromSync(0),
         'unsafeLoadFromSync unavailable',
       )
       return
     }
 
-    const check = async (obj) =>
-      expect(await adapter.unsafeLoadFromSync(JSON.stringify({ changes: {}, ...obj }))).toEqual({
-        ...obj,
-      })
+    const check = async (obj) => {
+      const id = Math.round(Math.random() * 1_000_000_000)
+      await adapter.provideSyncJson(id, JSON.stringify({ changes: {}, ...obj }))
+      const result = await adapter.unsafeLoadFromSync(id)
+      expect(result).toEqual({ ...obj })
+    }
 
     await check({})
     await check({ foo: 'bar', num: 0, num1: 1, float: 3.14, nul: null, yes: true, no: false })
@@ -687,6 +691,32 @@ export default () => {
     await check({ foo: { bar: [1, 2, 3], baz: 'blah' } })
     await check({ naughty: 'foo{\nbar\0' })
     await check({ _naughty: { '_naughty\n{\0': 'yes' } })
+  })
+  it(`destroys provided jsons after being used`, async (adapter, AdapterClass) => {
+    if (
+      !(
+        AdapterClass.name === 'SQLiteAdapter' && adapter.underlyingAdapter._dispatcherType === 'jsi'
+      )
+    ) {
+      await expectToRejectWithMessage(
+        adapter.provideSyncJson(0, JSON.stringify({})),
+        'provideSyncJson unavailable',
+      )
+      return
+    }
+
+    await adapter.provideSyncJson(
+      2137,
+      JSON.stringify({ changes: { tasks: { created: [{ id: 't1' }] } } }),
+    )
+
+    await adapter.unsafeLoadFromSync(2137)
+    expect(await adapter.unsafeQueryRaw(taskQuery())).toHaveLength(1)
+
+    await expectToRejectWithMessage(
+      adapter.unsafeLoadFromSync(2137),
+      'Sync json 2137 does not exist',
+    )
   })
   it('can unsafely reset database', async (adapter) => {
     await adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1', text1: 'bar', order: 1 })]])

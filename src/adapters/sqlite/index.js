@@ -290,7 +290,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     this._dispatcher.call('batch', [[operation]], callback)
   }
 
-  unsafeLoadFromSync(syncPullResultJson: string, callback: ResultCallback<any>): void {
+  unsafeLoadFromSync(jsonId: number, callback: ResultCallback<any>): void {
     if (this._dispatcherType !== 'jsi') {
       callback({ error: new Error('unsafeLoadFromSync unavailable') })
     }
@@ -299,7 +299,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     const { schema } = this
     this._dispatcher.call(
       'unsafeLoadFromSync',
-      [syncPullResultJson, schema, encodeDropIndices(schema), encodeCreateIndices(schema)],
+      [jsonId, schema, encodeDropIndices(schema), encodeCreateIndices(schema)],
       (result) =>
         callback(
           mapValue(
@@ -309,6 +309,14 @@ export default class SQLiteAdapter implements DatabaseAdapter {
           ),
         ),
     )
+  }
+
+  provideSyncJson(id: number, syncPullResultJson: string, callback: ResultCallback<void>): void {
+    if (this._dispatcherType !== 'jsi') {
+      callback({ error: new Error('provideSyncJson unavailable') })
+    }
+
+    this._dispatcher.call('provideSyncJson', [id, syncPullResultJson], callback)
   }
 
   unsafeResetDatabase(callback: ResultCallback<void>): void {

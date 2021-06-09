@@ -55,6 +55,9 @@ class SqliteJsiDispatcher implements SqliteDispatcher {
     } else if (methodName === 'batch') {
       methodName = 'batchJSON'
       args = [JSON.stringify(args[0])]
+    } else if (methodName === 'provideSyncJson') {
+      fromPromise(DatabaseBridge.provideSyncJson(...args), callback)
+      return
     }
 
     try {
