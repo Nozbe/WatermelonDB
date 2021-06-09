@@ -767,16 +767,12 @@ jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &s
                         std::string_view tableChangeSetKey = tableChangeSetField.unescaped_key();
                         ondemand::array records = tableChangeSetField.value();
 
-                        if (tableChangeSetKey == "created" || tableChangeSetKey == "deleted") {
-                            int i = 0;
-                            for (auto _value : records) {
-                                i++;
-                            }
-                            if (i > 0) {
-                                throw jsi::JSError(rt, "bad created/deleted");
+                        if (tableChangeSetKey == "deleted") {
+                            if (records.begin() != records.end()) {
+                                throw jsi::JSError(rt, "expected deleted field to be empty");
                             }
                             continue;
-                        } else if (tableChangeSetKey != "updated") {
+                        } else if (tableChangeSetKey != "updated" && tableChangeSetKey != "created") {
                             throw jsi::JSError(rt, "bad changeset field");
                         }
 

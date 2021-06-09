@@ -605,18 +605,16 @@ export default () => {
               { id: 't1' },
               { id: 't2', str: 'ab', _changed: 'abc', _status: 'updated', foo: 'blaaagh' },
               { id: 't3', str: 'hy', strN: 'true', num: 3.14, bool: null, boolN: false },
-              // TODO: Test adding fake columns, replacing status, changed, etc.
-              ...expectedSanitizations.map(({ value }, i) => ({
-                id: `x${i}`,
-                str: value,
-                strN: value,
-                num: value,
-                numN: value,
-                bool: value,
-                boolN: value,
-              })),
             ],
-            // TODO: created: []
+            created: expectedSanitizations.map(({ value }, i) => ({
+              id: `x${i}`,
+              str: value,
+              strN: value,
+              num: value,
+              numN: value,
+              bool: value,
+              boolN: value,
+            })),
           },
         },
       }),
@@ -646,6 +644,14 @@ export default () => {
         boolN: sqlBool(values.boolean[1]),
       })),
     ])
+    await expectToRejectWithMessage(
+      adapter.unsafeLoadFromSync(JSON.stringify({ changes: { tasks: { deleted: ['t1', 't2'] } } })),
+      'expected deleted field to be empty',
+    )
+    await expectToRejectWithMessage(
+      adapter.unsafeLoadFromSync(JSON.stringify({ changes: { tasks: { wat: [] } } })),
+      'bad changeset field',
+    )
   })
   it(`can return residual JSON from sync JSON`, async (adapter, AdapterClass) => {
     if (
