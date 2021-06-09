@@ -603,7 +603,8 @@ export default () => {
           sync_tests: {
             updated: [
               { id: 't1' },
-              { id: 't2', str: 'hy', strN: 'true', num: 3.14, bool: null, boolN: false },
+              { id: 't2', str: 'ab', _changed: 'abc', _status: 'updated', foo: 'blaaagh' },
+              { id: 't3', str: 'hy', strN: 'true', num: 3.14, bool: null, boolN: false },
               // TODO: Test adding fake columns, replacing status, changed, etc.
               ...expectedSanitizations.map(({ value }, i) => ({
                 id: `x${i}`,
@@ -631,7 +632,8 @@ export default () => {
     }
     expect(await adapter.unsafeQueryRaw(query)).toEqual([
       { id: 't1', ...d, str: '', strN: null, num: 0, numN: null, bool: 0, boolN: null },
-      { id: 't2', ...d, str: 'hy', strN: 'true', num: 3.14, numN: null, bool: 0, boolN: 0 },
+      { id: 't2', ...d, str: 'ab', strN: null, num: 0, numN: null, bool: 0, boolN: null },
+      { id: 't3', ...d, str: 'hy', strN: 'true', num: 3.14, numN: null, bool: 0, boolN: 0 },
       ...expectedSanitizations.map((values, i) => ({
         id: `x${i}`,
         _status: 'synced',

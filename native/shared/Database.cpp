@@ -829,25 +829,29 @@ jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &s
                                     continue;
                                 }
 
-                                auto column = tableSchema[key];
-                                ondemand::json_type type = value.type();
-                                auto argumentsIdx = column.index + 2;
+                                try {
+                                    auto &column = tableSchema.at(key);
+                                    ondemand::json_type type = value.type();
+                                    auto argumentsIdx = column.index + 2;
 
-                                if (column.type == ColumnType::string) {
-                                    if (type == ondemand::json_type::string) {
-                                        std::string_view stringView = value;
-                                        sqlite3_bind_text(stmt, argumentsIdx, stringView.data(), (int) stringView.length(), SQLITE_STATIC);
+                                    if (column.type == ColumnType::string) {
+                                        if (type == ondemand::json_type::string) {
+                                            std::string_view stringView = value;
+                                            sqlite3_bind_text(stmt, argumentsIdx, stringView.data(), (int) stringView.length(), SQLITE_STATIC);
+                                        }
+                                    } else if (column.type == ColumnType::boolean) {
+                                        if (type == ondemand::json_type::boolean) {
+                                            sqlite3_bind_int(stmt, argumentsIdx, (bool) value);
+                                        } else if (type == ondemand::json_type::number && ((double) value == 0 || (double) value == 1)) {
+                                            sqlite3_bind_int(stmt, argumentsIdx, (bool) (double) value); // needed for compat with sanitizeRaw
+                                        }
+                                    } else if (column.type == ColumnType::number) {
+                                        if (type == ondemand::json_type::number) {
+                                            sqlite3_bind_double(stmt, argumentsIdx, (double) value);
+                                        }
                                     }
-                                } else if (column.type == ColumnType::boolean) {
-                                    if (type == ondemand::json_type::boolean) {
-                                        sqlite3_bind_int(stmt, argumentsIdx, (bool) value);
-                                    } else if (type == ondemand::json_type::number && ((double) value == 0 || (double) value == 1)) {
-                                        sqlite3_bind_int(stmt, argumentsIdx, (bool) (double) value); // needed for compat with sanitizeRaw
-                                    }
-                                } else if (column.type == ColumnType::number) {
-                                    if (type == ondemand::json_type::number) {
-                                        sqlite3_bind_double(stmt, argumentsIdx, (double) value);
-                                    }
+                                } catch (const std::out_of_range &ex) {
+                                    continue;
                                 }
                             }
                             
