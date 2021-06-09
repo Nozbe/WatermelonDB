@@ -13,10 +13,10 @@ using platform::consoleLog;
 template <class T>
 std::string to_json_string(T&& element) {
     using namespace simdjson;
-    
+
     bool add_comma;
     std::stringstream json;
-    
+
     switch (element.type()) {
     case ondemand::json_type::array:
         json << "[";
@@ -678,6 +678,7 @@ struct ColumnSchema {
     int index;
     std::string name;
     ColumnType type;
+    bool isOptional;
 };
 
 ColumnType columnTypeFromStr(std::string &type) {
@@ -692,37 +693,31 @@ ColumnType columnTypeFromStr(std::string &type) {
     }
 }
 
-using TableSchema = std::vector<ColumnSchema>;
-using TableSchemaMap = std::unordered_map<std::string, ColumnSchema>;
-TableSchema decodeTableSchema(jsi::Runtime &rt, jsi::Object &schema) {
+using TableSchemaArray = std::vector<ColumnSchema>;
+using TableSchema = std::unordered_map<std::string, ColumnSchema>;
+std::pair<TableSchemaArray, TableSchema> decodeTableSchema(jsi::Runtime &rt, jsi::Object &schema) {
     auto columnArr = schema.getProperty(rt, "columnArray").getObject(rt).getArray(rt);
-    std::vector<ColumnSchema> columns = {};
-    for (size_t i = 0, len = columnArr.size(rt); i < len; i++) {
-        auto columnObj = columnArr.getValueAtIndex(rt, i).getObject(rt);
-        auto name = columnObj.getProperty(rt, "name").getString(rt).utf8(rt);
-        auto typeStr = columnObj.getProperty(rt, "type").getString(rt).utf8(rt);
-        ColumnType type = columnTypeFromStr(typeStr);
-        ColumnSchema column = { (int) i, name, type };
-        columns.push_back(column);
-    }
-    return columns;
-}
 
-TableSchemaMap decodeTableSchemaMap(jsi::Runtime &rt, jsi::Object &schema) {
-    auto columnArr = schema.getProperty(rt, "columnArray").getObject(rt).getArray(rt);
-    TableSchemaMap columns = {};
+    TableSchemaArray columnsArray = {};
+    TableSchema columns = {};
+
     for (size_t i = 0, len = columnArr.size(rt); i < len; i++) {
         auto columnObj = columnArr.getValueAtIndex(rt, i).getObject(rt);
         auto name = columnObj.getProperty(rt, "name").getString(rt).utf8(rt);
         auto typeStr = columnObj.getProperty(rt, "type").getString(rt).utf8(rt);
         ColumnType type = columnTypeFromStr(typeStr);
-        ColumnSchema column = { (int) i, name, type };
+        auto isOptionalProp = columnObj.getProperty(rt, "isOptional");
+        bool isOptional = isOptionalProp.isBool() ? isOptionalProp.getBool() : false;
+        ColumnSchema column = { (int) i, name, type, isOptional };
+
+        columnsArray.push_back(column);
         columns[name] = column;
     }
-    return columns;
+
+    return std::make_pair(columnsArray, columns);
 }
 
-std::string insertSqlFor(jsi::Runtime &rt, std::string tableName, TableSchema columns) {
+std::string insertSqlFor(jsi::Runtime &rt, std::string tableName, TableSchemaArray columns) {
     std::string sql = "insert into `" + tableName + "` (`id`, `_status";
     for (auto const &column : columns) {
         sql += "`, `" + column.name;
@@ -784,10 +779,10 @@ jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &s
                         }
 
                         auto tableSchemaObj = tableSchemas.getProperty(rt, jsi::String::createFromUtf8(rt, tableName)).getObject(rt);
-                        auto tableSchemaArr = decodeTableSchema(rt, tableSchemaObj);
-                        auto tableSchema = decodeTableSchemaMap(rt, tableSchemaObj);
+                        auto tableSchemas = decodeTableSchema(rt, tableSchemaObj);
+                        auto tableSchema = tableSchemas.second;
 
-                        sqlite3_stmt *stmt = prepareQuery(insertSqlFor(rt, tableName, tableSchemaArr));
+                        sqlite3_stmt *stmt = prepareQuery(insertSqlFor(rt, tableName, tableSchemas.first));
                         SqliteStatement statement(stmt);
 
                         for (ondemand::object record : records) {
@@ -806,15 +801,31 @@ jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &s
                                 ondemand::json_type type = value.type();
                                 auto argumentsIdx = column.index + 2;
 
-                                if (type == ondemand::json_type::null) {
-                                    sqlite3_bind_null(stmt, argumentsIdx);
-                                } else if (column.type == ColumnType::string) {
-                                    std::string_view stringView = value;
-                                    sqlite3_bind_text(stmt, argumentsIdx, stringView.data(), (int) stringView.length(), SQLITE_STATIC);
+                                if (column.type == ColumnType::string) {
+                                    if (type == ondemand::json_type::string) {
+                                        std::string_view stringView = value;
+                                        sqlite3_bind_text(stmt, argumentsIdx, stringView.data(), (int) stringView.length(), SQLITE_STATIC);
+                                    } else if (column.isOptional) {
+                                        sqlite3_bind_null(stmt, argumentsIdx);
+                                    } else {
+                                        sqlite3_bind_text(stmt, argumentsIdx, "", -1, SQLITE_STATIC);
+                                    }
                                 } else if (column.type == ColumnType::boolean) {
-                                    sqlite3_bind_int(stmt, argumentsIdx, type == ondemand::json_type::boolean ? (bool) value : 0);
+                                    if (type == ondemand::json_type::boolean) {
+                                        sqlite3_bind_int(stmt, argumentsIdx, (bool) value);
+                                    } else if (column.isOptional) {
+                                        sqlite3_bind_null(stmt, argumentsIdx);
+                                    } else {
+                                        sqlite3_bind_int(stmt, argumentsIdx, (bool) 0);
+                                    }
                                 } else if (column.type == ColumnType::number) {
-                                    sqlite3_bind_double(stmt, argumentsIdx, (double) value);
+                                    if (type == ondemand::json_type::number) {
+                                        sqlite3_bind_double(stmt, argumentsIdx, (double) value);
+                                    } else if (column.isOptional) {
+                                        sqlite3_bind_null(stmt, argumentsIdx);
+                                    } else {
+                                        sqlite3_bind_double(stmt, argumentsIdx, (double) 0);
+                                    }
                                 } else {
                                     throw jsi::JSError(rt, "Invalid argument type (unknown) for query");
                                 }

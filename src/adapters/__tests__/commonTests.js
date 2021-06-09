@@ -22,6 +22,7 @@ import {
   performJoinTest,
   expectSortedEqual,
   MockTask,
+  MockSyncTestRecord,
   mockProjectRaw,
   mockTagAssignmentRaw,
   projectQuery,
@@ -582,34 +583,59 @@ export default () => {
       return
     }
 
-    expect(await adapter.unsafeLoadFromSync(JSON.stringify({ changes: {} }))).toEqual({})
-    expect(await adapter.unsafeQueryRaw(taskQuery())).toHaveLength(0)
-
+    await adapter.unsafeLoadFromSync(JSON.stringify({ changes: {} }))
     expect(
       await adapter.unsafeLoadFromSync(
         JSON.stringify({
-          changes: {
-            tasks: { created: [], updated: [], deleted: [] },
-          },
+          changes: { sync_tests: { created: [], updated: [], deleted: [] } },
           timestamp: 1000,
-          foo: [{ bar: true, baz: null }],
         }),
       ),
-    ).toEqual({ timestamp: 1000, foo: [{ bar: true, baz: null }] })
-    expect(await adapter.unsafeQueryRaw(taskQuery())).toHaveLength(0)
+    ).toEqual({ timestamp: 1000 })
 
-    const syncedRaw = (raw) => ({ ...mockTaskRaw(raw), _status: 'synced' })
-    const t1 = { id: 't1' }
-    const t2 = { id: 't2', text1: 'bar1', order: 1, float1: 3.14, bool1: true, text2: null }
+    const query = modelQuery(MockSyncTestRecord).serialize()
+    expect(await adapter.unsafeQueryRaw(query)).toHaveLength(0)
 
+    const { expectedSanitizations } = require('../../RawRecord/__tests__/helpers')
     await adapter.unsafeLoadFromSync(
       JSON.stringify({
         changes: {
-          tasks: { updated: [t1, t2] },
+          sync_tests: {
+            updated: [
+              { id: 't1' },
+              { id: 't2', str: 'hy', strN: 'true', num: 3.14, bool: null, boolN: false },
+              // TODO: Test adding fake columns, replacing status, changed, etc.
+              ...expectedSanitizations.map(({ value }, i) => ({
+                id: `x${i}`,
+                str: value,
+                strN: value,
+                num: value,
+                numN: value,
+                bool: value,
+                boolN: value,
+              })),
+            ],
+            // TODO: created: []
+          },
         },
       }),
     )
-    expect(await adapter.query(taskQuery())).toEqual([syncedRaw(t1), syncedRaw(t2)])
+    const d = { _status: 'synced', _changed: '' }
+    expect(await adapter.unsafeQueryRaw(query)).toEqual([
+      { id: 't1', ...d, str: '', strN: null, num: 0, numN: null, bool: false, boolN: null },
+      { id: 't2', ...d, str: 'hy', strN: 'true', num: 3.14, numN: null, bool: false, boolN: false },
+      ...expectedSanitizations.map((values, i) => ({
+        id: `x${i}`,
+        _status: 'synced',
+        _changed: '',
+        str: values.string[0],
+        strN: values.string[1],
+        num: values.number[0],
+        numN: values.number[1],
+        bool: values.boolean[0],
+        boolN: values.boolean[1],
+      })),
+    ])
   })
   it(`can return residual JSON from sync JSON`, async (adapter, AdapterClass) => {
     if (
