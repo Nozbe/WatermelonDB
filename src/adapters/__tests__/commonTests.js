@@ -621,9 +621,17 @@ export default () => {
       }),
     )
     const d = { _status: 'synced', _changed: '' }
+    const sqlBool = (value) => {
+      if (value === true) {
+        return 1
+      } else if (value === false) {
+        return 0
+      }
+      return value
+    }
     expect(await adapter.unsafeQueryRaw(query)).toEqual([
-      { id: 't1', ...d, str: '', strN: null, num: 0, numN: null, bool: false, boolN: null },
-      { id: 't2', ...d, str: 'hy', strN: 'true', num: 3.14, numN: null, bool: false, boolN: false },
+      { id: 't1', ...d, str: '', strN: null, num: 0, numN: null, bool: 0, boolN: null },
+      { id: 't2', ...d, str: 'hy', strN: 'true', num: 3.14, numN: null, bool: 0, boolN: 0 },
       ...expectedSanitizations.map((values, i) => ({
         id: `x${i}`,
         _status: 'synced',
@@ -632,8 +640,8 @@ export default () => {
         strN: values.string[1],
         num: values.number[0],
         numN: values.number[1],
-        bool: values.boolean[0],
-        boolN: values.boolean[1],
+        bool: sqlBool(values.boolean[0]),
+        boolN: sqlBool(values.boolean[1]),
       })),
     ])
   })

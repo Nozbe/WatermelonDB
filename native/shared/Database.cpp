@@ -718,11 +718,11 @@ std::pair<TableSchemaArray, TableSchema> decodeTableSchema(jsi::Runtime &rt, jsi
 }
 
 std::string insertSqlFor(jsi::Runtime &rt, std::string tableName, TableSchemaArray columns) {
-    std::string sql = "insert into `" + tableName + "` (`id`, `_status";
+    std::string sql = "insert into `" + tableName + "` (`id`, `_status`, `_changed";
     for (auto const &column : columns) {
         sql += "`, `" + column.name;
     }
-    sql += "`) values (?, 'synced'";
+    sql += "`) values (?, 'synced', ''";
     for (size_t i = 0, len = columns.size(); i < len; i++) {
         sql += ", ?";
     }
@@ -743,6 +743,8 @@ jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &s
         auto json = padded_string(jsonStr);
         ondemand::document doc = parser.iterate(json);
 
+        // NOTE: simdjson::ondemand processes forwards-only, hence the weird field enumeration
+        // We can't use subscript or backtrack.
         for (auto docField : (ondemand::object) doc) {
             std::string_view fieldNameView = docField.unescaped_key();
 
@@ -780,12 +782,42 @@ jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &s
 
                         auto tableSchemaObj = tableSchemas.getProperty(rt, jsi::String::createFromUtf8(rt, tableName)).getObject(rt);
                         auto tableSchemas = decodeTableSchema(rt, tableSchemaObj);
+                        auto tableSchemaArray = tableSchemas.first;
                         auto tableSchema = tableSchemas.second;
 
-                        sqlite3_stmt *stmt = prepareQuery(insertSqlFor(rt, tableName, tableSchemas.first));
+                        sqlite3_stmt *stmt = prepareQuery(insertSqlFor(rt, tableName, tableSchemaArray));
                         SqliteStatement statement(stmt);
 
                         for (ondemand::object record : records) {
+                            // TODO: It would be much more natural to iterate over schema, and then get json's field
+                            // and not the other way around, but simdjson doesn't allow us to do that right now
+                            // I think 1.0 will allow subscripting objects even if it means backtracking
+                            // So we need this stupid hack where we pre-bind null/0/false/'' to sanitize missing fields
+                            for (auto column : tableSchemaArray) {
+                                auto argumentsIdx = column.index + 2;
+                                if (column.type == ColumnType::string) {
+                                    if (column.isOptional) {
+                                        sqlite3_bind_null(stmt, argumentsIdx);
+                                    } else {
+                                        sqlite3_bind_text(stmt, argumentsIdx, "", -1, SQLITE_STATIC);
+                                    }
+                                } else if (column.type == ColumnType::boolean) {
+                                    if (column.isOptional) {
+                                        sqlite3_bind_null(stmt, argumentsIdx);
+                                    } else {
+                                        sqlite3_bind_int(stmt, argumentsIdx, 0);
+                                    }
+                                } else if (column.type == ColumnType::number) {
+                                    if (column.isOptional) {
+                                        sqlite3_bind_null(stmt, argumentsIdx);
+                                    } else {
+                                        sqlite3_bind_double(stmt, argumentsIdx, 0);
+                                    }
+                                } else {
+                                    throw jsi::JSError(rt, "Unknown schema type");
+                                }
+                            }
+                            
                             for (auto valueField : record) {
                                 std::string_view keyView = valueField.unescaped_key();
                                 std::string key = std::string(keyView);
@@ -805,31 +837,20 @@ jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &s
                                     if (type == ondemand::json_type::string) {
                                         std::string_view stringView = value;
                                         sqlite3_bind_text(stmt, argumentsIdx, stringView.data(), (int) stringView.length(), SQLITE_STATIC);
-                                    } else if (column.isOptional) {
-                                        sqlite3_bind_null(stmt, argumentsIdx);
-                                    } else {
-                                        sqlite3_bind_text(stmt, argumentsIdx, "", -1, SQLITE_STATIC);
                                     }
                                 } else if (column.type == ColumnType::boolean) {
                                     if (type == ondemand::json_type::boolean) {
                                         sqlite3_bind_int(stmt, argumentsIdx, (bool) value);
-                                    } else if (column.isOptional) {
-                                        sqlite3_bind_null(stmt, argumentsIdx);
-                                    } else {
-                                        sqlite3_bind_int(stmt, argumentsIdx, (bool) 0);
+                                    } else if (type == ondemand::json_type::number && ((double) value == 0 || (double) value == 1)) {
+                                        sqlite3_bind_int(stmt, argumentsIdx, (bool) (double) value); // needed for compat with sanitizeRaw
                                     }
                                 } else if (column.type == ColumnType::number) {
                                     if (type == ondemand::json_type::number) {
                                         sqlite3_bind_double(stmt, argumentsIdx, (double) value);
-                                    } else if (column.isOptional) {
-                                        sqlite3_bind_null(stmt, argumentsIdx);
-                                    } else {
-                                        sqlite3_bind_double(stmt, argumentsIdx, (double) 0);
                                     }
-                                } else {
-                                    throw jsi::JSError(rt, "Invalid argument type (unknown) for query");
                                 }
                             }
+                            
 
                             executeUpdate(stmt);
                             sqlite3_reset(stmt);
