@@ -15,6 +15,8 @@ Pod::Spec.new do |s|
   s.source_files = "native/ios/**/*.{h,m,mm,swift,c,cpp}", "native/shared/**/*.{h,c,cpp}"
   s.public_header_files = 'native/ios/WatermelonDB/SupportingFiles/Bridging.h'
   s.requires_arc = true
+  # simdjson is annoyingly slow without compiler optimization, disable for debugging
+  s.compiler_flags = '-Os'
   s.dependency "React"
   s.dependency "React-jsi"
 end

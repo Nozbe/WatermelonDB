@@ -36,11 +36,17 @@ class Database : public jsi::HostObject {
     jsi::Runtime &getRt();
     jsi::JSError dbError(std::string description);
 
+    sqlite3_stmt* prepareQuery(std::string sql);
+    void bindArgs(sqlite3_stmt *statement, jsi::Array &arguments);
     SqliteStatement executeQuery(std::string sql, jsi::Array &arguments);
+    void executeUpdate(sqlite3_stmt *statement);
     void executeUpdate(std::string sql, jsi::Array &arguments);
     void executeUpdate(std::string sql);
+    void getRow(sqlite3_stmt *stmt);
+    bool getNextRowOrTrue(sqlite3_stmt *stmt);
     void executeMultiple(std::string sql);
     jsi::Object resultDictionary(sqlite3_stmt *statement);
+    jsi::Array arrayFromStd(std::vector<jsi::Value> &vector);
 
     void beginTransaction();
     void commit();
