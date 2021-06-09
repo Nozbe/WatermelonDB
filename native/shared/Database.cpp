@@ -759,8 +759,7 @@ jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &s
             } else {
                 ondemand::object changeSet = docField.value();
                 for (auto changeSetField : changeSet) {
-                    std::string_view tableNameView = changeSetField.unescaped_key();
-                    auto tableName = std::string(tableNameView);
+                    auto tableName = (std::string) (std::string_view) changeSetField.unescaped_key();
                     ondemand::object tableChangeSet = changeSetField.value();
 
                     for (auto tableChangeSetField : tableChangeSet) {
@@ -776,8 +775,8 @@ jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &s
                             throw jsi::JSError(rt, "bad changeset field");
                         }
 
-                        auto tableSchemaObj = tableSchemas.getProperty(rt, jsi::String::createFromUtf8(rt, tableName)).getObject(rt);
-                        auto tableSchemas = decodeTableSchema(rt, tableSchemaObj);
+                        auto tableSchemaJsi = tableSchemas.getProperty(rt, jsi::String::createFromUtf8(rt, tableName)).getObject(rt);
+                        auto tableSchemas = decodeTableSchema(rt, tableSchemaJsi);
                         auto tableSchemaArray = tableSchemas.first;
                         auto tableSchema = tableSchemas.second;
 
@@ -791,32 +790,23 @@ jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &s
                             // So we need this stupid hack where we pre-bind null/0/false/'' to sanitize missing fields
                             for (auto column : tableSchemaArray) {
                                 auto argumentsIdx = column.index + 2;
-                                if (column.type == ColumnType::string) {
-                                    if (column.isOptional) {
-                                        sqlite3_bind_null(stmt, argumentsIdx);
-                                    } else {
-                                        sqlite3_bind_text(stmt, argumentsIdx, "", -1, SQLITE_STATIC);
-                                    }
-                                } else if (column.type == ColumnType::boolean) {
-                                    if (column.isOptional) {
-                                        sqlite3_bind_null(stmt, argumentsIdx);
-                                    } else {
-                                        sqlite3_bind_int(stmt, argumentsIdx, 0);
-                                    }
-                                } else if (column.type == ColumnType::number) {
-                                    if (column.isOptional) {
-                                        sqlite3_bind_null(stmt, argumentsIdx);
-                                    } else {
-                                        sqlite3_bind_double(stmt, argumentsIdx, 0);
-                                    }
+                                if (column.isOptional) {
+                                    sqlite3_bind_null(stmt, argumentsIdx);
                                 } else {
-                                    throw jsi::JSError(rt, "Unknown schema type");
+                                    if (column.type == ColumnType::string) {
+                                        sqlite3_bind_text(stmt, argumentsIdx, "", -1, SQLITE_STATIC);
+                                    } else if (column.type == ColumnType::boolean) {
+                                        sqlite3_bind_int(stmt, argumentsIdx, 0);
+                                    } else if (column.type == ColumnType::number) {
+                                        sqlite3_bind_double(stmt, argumentsIdx, 0);
+                                    } else {
+                                        throw jsi::JSError(rt, "Unknown schema type");
+                                    }
                                 }
                             }
                             
                             for (auto valueField : record) {
-                                std::string_view keyView = valueField.unescaped_key();
-                                std::string key = std::string(keyView);
+                                auto key = (std::string) (std::string_view) valueField.unescaped_key();
                                 auto value = valueField.value();
 
                                 if (key == "id") {
@@ -830,27 +820,22 @@ jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &s
                                     ondemand::json_type type = value.type();
                                     auto argumentsIdx = column.index + 2;
 
-                                    if (column.type == ColumnType::string) {
-                                        if (type == ondemand::json_type::string) {
-                                            std::string_view stringView = value;
-                                            sqlite3_bind_text(stmt, argumentsIdx, stringView.data(), (int) stringView.length(), SQLITE_STATIC);
-                                        }
+                                    if (column.type == ColumnType::string && type == ondemand::json_type::string) {
+                                        std::string_view stringView = value;
+                                        sqlite3_bind_text(stmt, argumentsIdx, stringView.data(), (int) stringView.length(), SQLITE_STATIC);
                                     } else if (column.type == ColumnType::boolean) {
                                         if (type == ondemand::json_type::boolean) {
                                             sqlite3_bind_int(stmt, argumentsIdx, (bool) value);
                                         } else if (type == ondemand::json_type::number && ((double) value == 0 || (double) value == 1)) {
                                             sqlite3_bind_int(stmt, argumentsIdx, (bool) (double) value); // needed for compat with sanitizeRaw
                                         }
-                                    } else if (column.type == ColumnType::number) {
-                                        if (type == ondemand::json_type::number) {
-                                            sqlite3_bind_double(stmt, argumentsIdx, (double) value);
-                                        }
+                                    } else if (column.type == ColumnType::number && type == ondemand::json_type::number) {
+                                        sqlite3_bind_double(stmt, argumentsIdx, (double) value);
                                     }
                                 } catch (const std::out_of_range &ex) {
                                     continue;
                                 }
                             }
-                            
 
                             executeUpdate(stmt);
                             sqlite3_reset(stmt);
