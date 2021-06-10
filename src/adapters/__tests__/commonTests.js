@@ -584,7 +584,7 @@ export default () => {
     }
 
     const loadFromSync = async (json) => {
-      const id = Math.round(Math.random() * 1_000_000_000)
+      const id = Math.round(Math.random() * 1000 * 1000 * 1000)
       await adapter.provideSyncJson(id, JSON.stringify(json))
       return adapter.unsafeLoadFromSync(id)
     }
@@ -679,7 +679,7 @@ export default () => {
     }
 
     const check = async (obj) => {
-      const id = Math.round(Math.random() * 1_000_000_000)
+      const id = Math.round(Math.random() * 1000 * 1000 * 1000)
       await adapter.provideSyncJson(id, JSON.stringify({ changes: {}, ...obj }))
       const result = await adapter.unsafeLoadFromSync(id)
       expect(result).toEqual({ ...obj })
@@ -699,7 +699,7 @@ export default () => {
       )
     ) {
       await expectToRejectWithMessage(
-        adapter.provideSyncJson(0, JSON.stringify({})),
+        adapter.provideSyncJson(0, '{}'),
         'provideSyncJson unavailable',
       )
       return
