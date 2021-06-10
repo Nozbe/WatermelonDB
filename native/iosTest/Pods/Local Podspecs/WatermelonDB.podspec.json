@@ -1,10 +1,10 @@
 {
   "name": "WatermelonDB",
-  "version": "0.23.0-3",
+  "version": "0.23.0-5",
   "summary": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
   "homepage": "https://github.com/Nozbe/WatermelonDB#readme",
-  "license": null,
+  "license": "MIT",
   "authors": {
     "author": "@Nozbe"
   },
@@ -14,13 +14,11 @@
   },
   "source": {
     "git": "https://github.com/Nozbe/WatermelonDB.git",
-    "tag": "v0.23.0-3"
+    "tag": "v0.23.0-5"
   },
   "source_files": [
     "native/ios/**/*.{h,m,mm,swift,c,cpp}",
-    "native/shared/**/*.{h,c,cpp}",
-    "node_modules/@nozbe/simdjson/src/*.{h,cpp}",
-    "../simdjson/src/*.{h,cpp}"
+    "native/shared/**/*.{h,c,cpp}"
   ],
   "public_header_files": "native/ios/WatermelonDB/SupportingFiles/Bridging.h",
   "requires_arc": true,
