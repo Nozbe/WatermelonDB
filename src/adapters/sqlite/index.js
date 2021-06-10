@@ -293,6 +293,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   unsafeLoadFromSync(jsonId: number, callback: ResultCallback<any>): void {
     if (this._dispatcherType !== 'jsi') {
       callback({ error: new Error('unsafeLoadFromSync unavailable') })
+      return
     }
 
     const { encodeDropIndices, encodeCreateIndices } = require('./encodeSchema')
@@ -314,6 +315,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   provideSyncJson(id: number, syncPullResultJson: string, callback: ResultCallback<void>): void {
     if (this._dispatcherType !== 'jsi') {
       callback({ error: new Error('provideSyncJson unavailable') })
+      return
     }
 
     this._dispatcher.call('provideSyncJson', [id, syncPullResultJson], callback)

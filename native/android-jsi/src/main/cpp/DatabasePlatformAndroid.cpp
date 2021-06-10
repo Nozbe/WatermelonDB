@@ -167,7 +167,7 @@ void provideJson(int id, jbyteArray array) {
     }
     assert(env);
 
-    if (providedSyncJsons.find(id) == providedSyncJsons.end()) {
+    if (providedSyncJsons.find(id) != providedSyncJsons.end()) {
         jclass exceptionClass = env->FindClass("java/lang/Exception");
         env->ThrowNew(exceptionClass, "sync json is already provided");
         return;
@@ -175,8 +175,9 @@ void provideJson(int id, jbyteArray array) {
 
     jbyte* bytes = env->GetByteArrayElements(array, NULL);
     jsize length = env->GetArrayLength(array);
+    jbyteArray arrayGlobalRef = static_cast<jbyteArray>(env->NewGlobalRef(array));
 
-    ProvidedSyncJson json = { array, bytes, length };
+    ProvidedSyncJson json = { arrayGlobalRef, bytes, length };
     providedSyncJsons[id] = json;
 }
 
@@ -194,9 +195,15 @@ void deleteSyncJson(int id) {
     }
     assert(env);
 
-    auto json = providedSyncJsons.at(id);
+    auto jsonSearch = providedSyncJsons.find(id);
+    if (jsonSearch == providedSyncJsons.end()) {
+        throw std::runtime_error("Sync json " + std::to_string(id) + " does not exist");
+    }
+
+    auto json = jsonSearch->second;
     env->ReleaseByteArrayElements(json.array, json.bytes, JNI_ABORT);
     providedSyncJsons.erase(id);
+    env->DeleteGlobalRef(json.array);
 }
 
 } // namespace platform
