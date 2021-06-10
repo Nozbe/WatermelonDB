@@ -39,6 +39,7 @@
   - You can now safely pass values for SQL placeholders by passing an array
   - You can also observe an unsafe raw SQL query -- with some caveats! refer to documentation for more details
 - **Unsafe raw execute**. You can now execute arbitrary SQL queries (SQLiteAdapter) or access Loki object directly (LokiJSAdapter) using `adapter.unsafeExecute` -- see docs for more details
+- **Turbo Login**. You can now speed up the initial (login) sync by up to 5.3x with Turbo Login. See Sync docs for more details.
 
 ### Performance
 
