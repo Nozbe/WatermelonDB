@@ -4,6 +4,7 @@
 
 ### BREAKING CHANGES
 
+- **iOS Installation change**. You need to add this line to your Podfile: `pod 'simdjson', path: '../node_modules/@nozbe/simdjson'`
 - Deprecated `new Database({ actionsEnabled: false })` options is now removed. Actions are always enabled.
 - Deprecated `new SQLiteAdapter({ synchronous: true })` option is now removed. Use `{ jsi: true }` instead.
 - Deprecated `Q.unsafeLokiFilter` is now removed. Use `Q.unsafeLokiTransform((raws, loki) => raws.filter(raw => ...))` instead.
