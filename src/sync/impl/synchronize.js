@@ -17,6 +17,7 @@ import { type SyncArgs, type Timestamp } from '../index'
 export default async function synchronize({
   database,
   pullChanges,
+  onDidPullChanges,
   pushChanges,
   sendCreatedAsUpdated = false,
   migrationsEnabledAtVersion,
@@ -79,6 +80,7 @@ export default async function synchronize({
 
       const resultRest = await database.adapter.unsafeLoadFromSync(syncJsonId)
       newLastPulledAt = resultRest.timestamp
+      onDidPullChanges && onDidPullChanges(resultRest)
     }
 
     log && (log.newLastPulledAt = newLastPulledAt)
@@ -89,7 +91,7 @@ export default async function synchronize({
 
     if (!unsafeTurbo) {
       // $FlowFixMe
-      const remoteChanges = pullResult.changes
+      const { changes: remoteChanges, ...resultRest } = pullResult
       log && (log.remoteChangeCount = changeSetCount(remoteChanges))
       await applyRemoteChanges(
         database,
@@ -99,6 +101,7 @@ export default async function synchronize({
         conflictResolver,
         _unsafeBatchPerCollection,
       )
+      onDidPullChanges && onDidPullChanges(resultRest)
     }
 
     log && (log.phase = 'applied remote changes')

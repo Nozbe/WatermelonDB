@@ -157,28 +157,48 @@ Here's basic usage:
 const isFirstSync = ...
 const useTurbo = isFirstSync
 await synchronize({
-    database,
-    pullChanges: async ({ lastPulledAt, schemaVersion, migration }) => {
-      const response = await fetch(`https://my.backend/sync?${...}`)
-      if (!response.ok) {
-        throw new Error(await response.text())
-      }
+  database,
+  pullChanges: async ({ lastPulledAt, schemaVersion, migration }) => {
+    const response = await fetch(`https://my.backend/sync?${...}`)
+    if (!response.ok) {
+      throw new Error(await response.text())
+    }
 
-      if (useTurbo) {
-        // NOTE: DO NOT parse JSON, we want raw text
-        const json = await response.text()
-        return { syncJson: json }
-      } else {
-        const { changes, timestamp } = await response.json()
-        return { changes, timestamp }
-      }
-    },
-    unsafeTurbo: useTurbo,
-    // ...
-  })
+    if (useTurbo) {
+      // NOTE: DO NOT parse JSON, we want raw text
+      const json = await response.text()
+      return { syncJson: json }
+    } else {
+      const { changes, timestamp } = await response.json()
+      return { changes, timestamp }
+    }
+  },
+  unsafeTurbo: useTurbo,
+  // ...
+})
 ```
 
 Raw JSON text is required, so it is not expected that you need to do any processing in pullChanges() - doing that defeats much of the point of using Turbo Login!
+
+If you're using pullChanges to send additional data to your app other than Watermelon Sync's `changes` and `timestamp`, you won't be able to process it in pullChanges. However, WatermelonDB can still pass extra keys in sync response back to the app - you can process them using `onDidPullChanges`. This works both with and without turbo mode:
+
+```js
+await synchronize({
+  database,
+  pullChanges: async ({ lastPulledAt, schemaVersion, migration }) => {
+    // ...
+  },
+  unsafeTurbo: useTurbo,
+  onDidPullChanges: async ({ messages }) => {
+    if (messages) {
+      messages.forEach(message => {
+        alert(message)
+      })
+    }
+  }
+  // ...
+})
+```
 
 There's a way to make Turbo Login even more _turbo_! However, it requires native development skills. You need to develop your own networking native code, so that raw JSON can go straight from your native code to WatermelonDB's native code - skipping JavaScript processing altogether.
 

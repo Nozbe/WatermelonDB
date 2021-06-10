@@ -73,6 +73,9 @@ export type SyncArgs = $Exact<{
   // The exact API may change between versions of WatermelonDB.
   // See documentation for more details.
   unsafeTurbo?: boolean,
+  // Called after pullChanges with whatever was returned by pullChanges, minus `changes`. Useful
+  // when using turbo mode
+  onDidPullChanges?: (Object) => Promise<void>,
 }>
 
 // See Sync docs for usage details

@@ -1265,6 +1265,37 @@ describe('synchronize', () => {
     expect(adapter.unsafeLoadFromSync.mock.calls.length).toBe(1)
     expect(adapter.unsafeLoadFromSync.mock.calls[0][0]).toBe(2137)
   })
+  it(`calls onDidPullChanges`, async () => {
+    const { database } = makeDatabase()
+
+    const onDidPullChanges = jest.fn()
+    await synchronize({
+      database,
+      pullChanges: () => ({ changes: {}, timestamp: 1000, hello: 'hi' }),
+      onDidPullChanges,
+    })
+    expect(onDidPullChanges).toHaveBeenCalledTimes(1)
+    expect(onDidPullChanges).toHaveBeenCalledWith({ timestamp: 1000, hello: 'hi' })
+  })
+  it(`calls onDidPullChanges in turbo`, async () => {
+    const { database, adapter } = makeDatabase()
+    // FIXME: Test on real native db instead of mocking
+    adapter.unsafeLoadFromSync = jest
+      .fn()
+      .mockImplementationOnce((id, callback) =>
+        callback({ value: { timestamp: 1000, hello: 'hi' } }),
+      )
+
+    const onDidPullChanges = jest.fn()
+    await synchronize({
+      database,
+      pullChanges: () => ({ syncJsonId: 0 }),
+      unsafeTurbo: true,
+      onDidPullChanges,
+    })
+    expect(onDidPullChanges).toHaveBeenCalledTimes(1)
+    expect(onDidPullChanges).toHaveBeenCalledWith({ timestamp: 1000, hello: 'hi' })
+  })
   it.skip(`can accept remote changes received during push`, async () => {
     // TODO: future improvement?
   })
