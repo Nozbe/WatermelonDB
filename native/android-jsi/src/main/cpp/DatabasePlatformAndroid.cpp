@@ -182,7 +182,12 @@ void provideJson(int id, jbyteArray array) {
 }
 
 std::string_view getSyncJson(int id) {
-    auto json = providedSyncJsons.at(id);
+    auto jsonSearch = providedSyncJsons.find(id);
+    if (jsonSearch == providedSyncJsons.end()) {
+        throw std::runtime_error("Sync json " + std::to_string(id) + " does not exist");
+    }
+
+    auto json = jsonSearch->second;
     std::string_view view((char *) json.bytes, json.length);
     return view;
 }
@@ -196,14 +201,12 @@ void deleteSyncJson(int id) {
     assert(env);
 
     auto jsonSearch = providedSyncJsons.find(id);
-    if (jsonSearch == providedSyncJsons.end()) {
-        throw std::runtime_error("Sync json " + std::to_string(id) + " does not exist");
+    if (jsonSearch != providedSyncJsons.end()) {
+        auto json = jsonSearch->second;
+        env->ReleaseByteArrayElements(json.array, json.bytes, JNI_ABORT);
+        providedSyncJsons.erase(id);
+        env->DeleteGlobalRef(json.array);
     }
-
-    auto json = jsonSearch->second;
-    env->ReleaseByteArrayElements(json.array, json.bytes, JNI_ABORT);
-    providedSyncJsons.erase(id);
-    env->DeleteGlobalRef(json.array);
 }
 
 } // namespace platform
