@@ -17,6 +17,7 @@
   - `Model._isCommited`, `._hasPendingUpdate`, `._hasPendingDelete` have been removed and changed to `Model._pendingState`
   - `Collection.unsafeClearCache()` is no longer exposed
 - Values passed to `adapter.setLocal()` are now validated to be strings. This is technically a bug fix, since local storage was always documented to only accept strings, however applications may have relied on this lack of validation. Adding this validation was necessary to achieve consistent behavior between SQLiteAdapter and LokiJSAdapter
+- `unsafeSql` passed to `appSchema` will now also be called when dropping and later recreating all database indices on large batches. A second argument was added so you can distinguish between these cases. See Schema docs for more details.
 
 ### Deprecations
 

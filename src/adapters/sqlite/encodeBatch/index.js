@@ -7,7 +7,7 @@ import type { BatchOperation } from '../../type'
 import { validateTable } from '../../common'
 import type { SQL, SQLiteArg, NativeBridgeBatchOperation } from '../type'
 
-export function encodeInsertSql(schema: TableSchema): SQL {
+function encodeInsertSql(schema: TableSchema): SQL {
   const columns = schema.columnArray
   const columnsSql = `"id", "_status", "_changed${columns
     .map((column) => `", "${column.name}`)
@@ -18,7 +18,7 @@ export function encodeInsertSql(schema: TableSchema): SQL {
   return `insert into "${schema.name}" (${columnsSql}) values (${placeholders})`
 }
 
-export function encodeInsertArgs(tableSchema: TableSchema, raw: RawRecord): SQLiteArg[] {
+function encodeInsertArgs(tableSchema: TableSchema, raw: RawRecord): SQLiteArg[] {
   const columns = tableSchema.columnArray
   const len = columns.length
 
@@ -33,13 +33,13 @@ export function encodeInsertArgs(tableSchema: TableSchema, raw: RawRecord): SQLi
   return args
 }
 
-export function encodeUpdateSql(schema: TableSchema): SQL {
+function encodeUpdateSql(schema: TableSchema): SQL {
   const columns = schema.columnArray
   const placeholders = columns.map((column) => `, "${column.name}" = ?`).join('')
   return `update "${schema.name}" set "_status" = ?, "_changed" = ?${placeholders} where "id" is ?`
 }
 
-export function encodeUpdateArgs(tableSchema: TableSchema, raw: RawRecord): SQLiteArg[] {
+function encodeUpdateArgs(tableSchema: TableSchema, raw: RawRecord): SQLiteArg[] {
   const columns = tableSchema.columnArray
   const len = columns.length
 
@@ -64,7 +64,7 @@ const REMOVE_FROM_CACHE = -1
 const IGNORE_CACHE = 0
 const ADD_TO_CACHE = 1
 
-export function groupOperations(operations: BatchOperation[]): GroupedBatchOperation[] {
+function groupOperations(operations: BatchOperation[]): GroupedBatchOperation[] {
   const grouppedOperations: GroupedBatchOperation[] = []
   let previousType: ?string = null
   let previousTable: ?TableName<any> = null
@@ -90,11 +90,26 @@ export function groupOperations(operations: BatchOperation[]): GroupedBatchOpera
   return grouppedOperations
 }
 
+function withRecreatedIndices(
+  operations: NativeBridgeBatchOperation[],
+  schema: AppSchema,
+): NativeBridgeBatchOperation[] {
+  const { encodeDropIndices, encodeCreateIndices } = require('../encodeSchema')
+  const toEncodedOperations = (sqlStr) =>
+    sqlStr
+      .split(';') // TODO: This will break when FTS is merged
+      .filter((sql) => sql)
+      .map((sql) => [0, null, sql, [[]]])
+  operations.unshift(...toEncodedOperations(encodeDropIndices(schema)))
+  operations.push(...toEncodedOperations(encodeCreateIndices(schema)))
+  return operations
+}
+
 export default function encodeBatch(
   operations: BatchOperation[],
   schema: AppSchema,
 ): NativeBridgeBatchOperation[] {
-  return groupOperations(operations).map(([type, table, recordsOrIds]) => {
+  const nativeOperations = groupOperations(operations).map(([type, table, recordsOrIds]) => {
     validateTable(table, schema)
 
     switch (type) {
@@ -130,4 +145,19 @@ export default function encodeBatch(
         throw new Error('unknown batch operation type')
     }
   })
+
+  // For large batches, it's profitable to delete all indices and then recreate them
+  if (operations.length >= 1000) {
+    return withRecreatedIndices(nativeOperations, schema)
+  }
+  return nativeOperations
+}
+
+if (process.env.NODE_ENV === 'test') {
+  /* eslint-disable dot-notation */
+  module['exports'].encodeInsertSql = encodeInsertSql
+  module['exports'].encodeInsertArgs = encodeInsertArgs
+  module['exports'].encodeUpdateSql = encodeUpdateSql
+  module['exports'].encodeUpdateArgs = encodeUpdateArgs
+  module['exports'].groupOperations = groupOperations
 }
