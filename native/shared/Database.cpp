@@ -43,9 +43,16 @@ std::string to_json_string(T&& element) {
         }
         json << "}";
         break;
-    case ondemand::json_type::number:
-        json << element.get_double();
+    case ondemand::json_type::number: {
+        int64_t intValue;
+        auto error = element.get(intValue);
+        if (error) {
+            json << element.get_double();
+        } else {
+            json << intValue;
+        }
         break;
+    }
     case ondemand::json_type::string:
         json << "\"" << element.get_raw_json_string() << "\"";
         break;
