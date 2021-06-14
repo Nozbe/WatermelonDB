@@ -1,5 +1,8 @@
 import expect from 'expect-rn'
-import naughtyStrings from 'big-list-of-naughty-strings'
+import naughtyStrings, {
+  bigEndianByteOrderMark,
+  littleEndianByteOrderMark,
+} from '../../__tests__/utils/naughtyStrings'
 
 import expectToRejectWithMessage from '../../__tests__/utils/expectToRejectWithMessage'
 import Model from '../../Model'
@@ -702,8 +705,8 @@ export default () => {
       if (
         AdapterClass.name === 'SQLiteAdapter' &&
         !extraAdapterOptions.jsi &&
-        (key === '﻿' || (key === '￾' && platform === 'android')) &&
-        platform !== 'node'
+        ((key === bigEndianByteOrderMark && ['android', 'ios'].includes(platform)) ||
+          (key === littleEndianByteOrderMark && platform === 'android'))
       ) {
         // eslint-disable-next-line no-await-in-loop
         await adapter.setLocal(key, key)
@@ -1074,7 +1077,8 @@ export default () => {
       if (
         AdapterClass.name === 'SQLiteAdapter' &&
         !extraAdapterOptions.jsi &&
-        (naughtyString === '﻿' || (naughtyString === '￾' && platform === 'android'))
+        ((naughtyString === bigEndianByteOrderMark && ['android', 'ios'].includes(platform)) ||
+          (naughtyString === littleEndianByteOrderMark && platform === 'android'))
       ) {
         // eslint-disable-next-line no-console
         console.warn('skip check for a BOM naughty string - known failing test')
@@ -1112,8 +1116,8 @@ export default () => {
       if (
         AdapterClass.name === 'SQLiteAdapter' &&
         !extraAdapterOptions.jsi &&
-        (string === '﻿' || (string === '￾' && platform === 'android')) &&
-        platform !== 'node'
+        ((string === bigEndianByteOrderMark && ['android', 'ios'].includes(platform)) ||
+          (string === littleEndianByteOrderMark && platform === 'android'))
       ) {
         expect(record.text1).not.toBe(string) // if this fails, it means the issue's been fixed
       } else {

@@ -18,7 +18,9 @@
   },
   "source_files": [
     "native/ios/**/*.{h,m,mm,swift,c,cpp}",
-    "native/shared/**/*.{h,c,cpp}"
+    "native/shared/**/*.{h,c,cpp}",
+    "node_modules/@nozbe/simdjson/src/*.{h,cpp}",
+    "../simdjson/src/*.{h,cpp}"
   ],
   "public_header_files": "native/ios/WatermelonDB/SupportingFiles/Bridging.h",
   "requires_arc": true,

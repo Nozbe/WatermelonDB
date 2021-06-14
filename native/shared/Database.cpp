@@ -1,6 +1,7 @@
 #include "Database.h"
 #include "DatabasePlatform.h"
 #include "JSLockPerfHack.h"
+#include "simdjson.h"
 
 namespace watermelondb {
 
@@ -99,7 +100,6 @@ void Database::bindArgs(sqlite3_stmt *statement, jsi::Array &arguments) {
         if (value.isNull() || value.isUndefined()) {
             bindResult = sqlite3_bind_null(statement, i + 1);
         } else if (value.isString()) {
-            // TODO: Check SQLITE_STATIC
             bindResult = sqlite3_bind_text(statement, i + 1, value.getString(rt).utf8(rt).c_str(), -1, SQLITE_TRANSIENT);
         } else if (value.isNumber()) {
             bindResult = sqlite3_bind_double(statement, i + 1, value.getNumber());
@@ -118,6 +118,49 @@ void Database::bindArgs(sqlite3_stmt *statement, jsi::Array &arguments) {
             throw dbError("Failed to bind an argument for query");
         }
     }
+}
+
+std::string Database::bindArgsAndReturnId(sqlite3_stmt *statement, simdjson::ondemand::array &args) {
+    using namespace simdjson;
+    auto &rt = getRt();
+    std::string returnId = "";
+
+    int argsCount = sqlite3_bind_parameter_count(statement);
+    int i = 0;
+    for (auto arg : args) {
+        int bindResult;
+        ondemand::json_type type = arg.type();
+
+        if (type == ondemand::json_type::string) {
+            std::string_view stringView = arg;
+            bindResult = sqlite3_bind_text(statement, i + 1, stringView.data(), (int) stringView.length(), SQLITE_STATIC);
+            if (i == 0) {
+                returnId = std::string(stringView);
+            }
+        } else if (type == ondemand::json_type::number) {
+            bindResult = sqlite3_bind_double(statement, i + 1, (double) arg);
+        } else if (type == ondemand::json_type::boolean) {
+            bindResult = sqlite3_bind_int(statement, i + 1, (bool) arg);
+        } else if (type == ondemand::json_type::null) {
+            bindResult = sqlite3_bind_null(statement, i + 1);
+        } else {
+            throw jsi::JSError(rt, "Invalid argument type for query - only strings, numbers, booleans and null are allowed");
+        }
+
+        i++;
+
+        if (bindResult != SQLITE_OK) {
+            sqlite3_reset(statement);
+            throw dbError("Failed to bind an argument for query");
+        }
+    }
+
+    if (argsCount != i) {
+        sqlite3_reset(statement);
+        throw jsi::JSError(rt, "Number of args passed to query doesn't match number of arg placeholders");
+    }
+
+    return returnId;
 }
 
 SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
@@ -465,6 +508,7 @@ jsi::Value Database::count(jsi::String &sql, jsi::Array &arguments) {
     return jsi::Value(count);
 }
 
+// TODO: Remove non-json batch once we can tell that there's no serious perf regression
 void Database::batch(jsi::Array &operations) {
     auto &rt = getRt();
     beginTransaction();
@@ -497,6 +541,72 @@ void Database::batch(jsi::Array &operations) {
             }
 
         }
+        commit();
+    } catch (const std::exception &ex) {
+        rollback();
+        throw;
+    }
+
+    for (auto const &key : addedIds) {
+        markAsCached(key);
+    }
+
+    for (auto const &key : removedIds) {
+        removeFromCache(key);
+    }
+}
+
+void Database::batchJSON(jsi::String &&jsiJson) {
+    using namespace simdjson;
+
+    auto &rt = getRt();
+    beginTransaction();
+
+    std::vector<std::string> addedIds = {};
+    std::vector<std::string> removedIds = {};
+
+    try {
+        ondemand::parser parser;
+        auto json = padded_string(jsiJson.utf8(rt));
+        ondemand::document doc = parser.iterate(json);
+
+        // NOTE: simdjson::ondemand processes forwards-only, hence the weird field enumeration
+        // We can't use subscript or backtrack.
+        for (ondemand::array operation : doc) {
+            int64_t cacheBehavior = 0;
+            std::string table;
+            std::string sql;
+            size_t fieldIdx = 0;
+            for (auto field : operation) {
+                if (fieldIdx == 0) {
+                    cacheBehavior = field;
+                } else if (fieldIdx == 1) {
+                    if (cacheBehavior != 0) {
+                        table = (std::string_view) field;
+                    }
+                } else if (fieldIdx == 2) {
+                    sql = (std::string_view) field;
+                } else if (fieldIdx == 3) {
+                    ondemand::array argsBatches = field;
+                    auto stmt = prepareQuery(sql);
+                    SqliteStatement statement(stmt);
+
+                    for (ondemand::array args : argsBatches) {
+                        // NOTE: We must capture the ID once first parsed
+                        auto id = bindArgsAndReturnId(stmt, args);
+                        executeUpdate(stmt);
+                        sqlite3_reset(stmt);
+                        if (cacheBehavior == 1) {
+                            addedIds.push_back(cacheKey(table, id));
+                        } else if (cacheBehavior == -1) {
+                            removedIds.push_back(cacheKey(table, id));
+                        }
+                    }
+                }
+                fieldIdx++;
+            }
+        }
+
         commit();
     } catch (const std::exception &ex) {
         rollback();

@@ -44,13 +44,17 @@ class SqliteJsiDispatcher implements SqliteDispatcher {
     this._db = global.nativeWatermelonCreateAdapter(dbName)
   }
 
-  call(name: SqliteDispatcherMethod, args: any[], callback: ResultCallback<any>): void {
+  call(name: SqliteDispatcherMethod, _args: any[], callback: ResultCallback<any>): void {
     let methodName = name
+    let args = _args
 
     if (methodName === 'query' && !global.HermesInternal) {
       // NOTE: compressing results of a query into a compact array makes querying 15-30% faster on JSC
       // but actually 9% slower on Hermes (presumably because Hermes has faster C++ JSI and slower JS execution)
       methodName = 'queryAsArray'
+    } else if (methodName === 'batch') {
+      methodName = 'batchJSON'
+      args = [JSON.stringify(args[0])]
     }
 
     try {

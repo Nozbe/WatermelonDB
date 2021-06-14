@@ -4,6 +4,7 @@
 #import <unordered_map>
 #import <unordered_set>
 #import <sqlite3.h>
+#import "simdjson.h"
 
 #import "Sqlite.h"
 
@@ -24,6 +25,7 @@ class Database : public jsi::HostObject {
     jsi::Array unsafeQueryRaw(jsi::String &sql, jsi::Array &arguments);
     jsi::Value count(jsi::String &sql, jsi::Array &arguments);
     void batch(jsi::Array &operations);
+    void batchJSON(jsi::String &&operationsJson);
     void unsafeResetDatabase(jsi::String &schema, int schemaVersion);
     jsi::Value getLocal(jsi::String &key);
 
@@ -39,6 +41,7 @@ class Database : public jsi::HostObject {
 
     sqlite3_stmt* prepareQuery(std::string sql);
     void bindArgs(sqlite3_stmt *statement, jsi::Array &arguments);
+    std::string bindArgsAndReturnId(sqlite3_stmt *statement, simdjson::ondemand::array &args);
     SqliteStatement executeQuery(std::string sql, jsi::Array &arguments);
     void executeUpdate(sqlite3_stmt *statement);
     void executeUpdate(std::string sql, jsi::Array &arguments);
