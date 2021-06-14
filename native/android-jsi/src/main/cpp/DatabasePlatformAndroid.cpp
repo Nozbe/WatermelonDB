@@ -158,8 +158,11 @@ struct ProvidedSyncJson {
 };
 
 std::unordered_map<int, ProvidedSyncJson> providedSyncJsons;
+std::mutex providedSyncJsonsMutex;
 
 void provideJson(int id, jbyteArray array) {
+    const std::lock_guard<std::mutex> lock(providedSyncJsonsMutex);
+
     JNIEnv *env;
     assert(jvm);
     if (jvm->AttachCurrentThread(&env, NULL) != JNI_OK) {
@@ -182,6 +185,8 @@ void provideJson(int id, jbyteArray array) {
 }
 
 std::string_view getSyncJson(int id) {
+    const std::lock_guard<std::mutex> lock(providedSyncJsonsMutex);
+
     auto jsonSearch = providedSyncJsons.find(id);
     if (jsonSearch == providedSyncJsons.end()) {
         throw std::runtime_error("Sync json " + std::to_string(id) + " does not exist");
@@ -193,6 +198,8 @@ std::string_view getSyncJson(int id) {
 }
 
 void deleteSyncJson(int id) {
+    const std::lock_guard<std::mutex> lock(providedSyncJsonsMutex);
+
     JNIEnv *env;
     assert(jvm);
     if (jvm->AttachCurrentThread(&env, NULL) != JNI_OK) {
