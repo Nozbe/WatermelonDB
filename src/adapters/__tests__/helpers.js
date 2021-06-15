@@ -43,6 +43,9 @@ export class MockTagAssignment extends Model {
     tasks: { type: 'belongs_to', key: 'task_id' },
   }
 }
+export class MockSyncTestRecord extends Model {
+  static table = 'sync_tests'
+}
 
 export const testSchema = appSchema({
   version: 1,
@@ -109,6 +112,17 @@ export const testSchema = appSchema({
     tableSchema({ name: 'set', columns: [] }),
     tableSchema({ name: 'drop', columns: [] }),
     tableSchema({ name: 'update', columns: [] }),
+    tableSchema({
+      name: 'sync_tests',
+      columns: [
+        { name: 'str', type: 'string' },
+        { name: 'strN', type: 'string', isOptional: true },
+        { name: 'num', type: 'number' },
+        { name: 'numN', type: 'number', isOptional: true },
+        { name: 'bool', type: 'boolean' },
+        { name: 'boolN', type: 'boolean', isOptional: true },
+      ],
+    }),
   ],
 })
 
@@ -117,6 +131,7 @@ const mockCollections = {
   projects: MockProject,
   teams: MockTeam,
   tag_assignments: MockTagAssignment,
+  sync_tests: MockSyncTestRecord,
 }
 
 export const modelQuery = (modelClass, ...conditions) => {

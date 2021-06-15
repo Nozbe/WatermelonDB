@@ -22,6 +22,7 @@ import {
   performJoinTest,
   expectSortedEqual,
   MockTask,
+  MockSyncTestRecord,
   mockProjectRaw,
   mockTagAssignmentRaw,
   projectQuery,
@@ -568,6 +569,114 @@ export default () => {
 
     expect(await adapter.getDeletedRecords('tasks')).toHaveLength(0)
     expect(await queryAll()).toHaveLength(1)
+  })
+  it(`can unsafely load from sync JSON`, async (adapter, AdapterClass) => {
+    if (
+      !(
+        AdapterClass.name === 'SQLiteAdapter' && adapter.underlyingAdapter._dispatcherType === 'jsi'
+      )
+    ) {
+      await expectToRejectWithMessage(
+        adapter.unsafeLoadFromSync(JSON.stringify({})),
+        'unsafeLoadFromSync unavailable',
+      )
+      return
+    }
+
+    await adapter.unsafeLoadFromSync(JSON.stringify({ changes: {} }))
+    expect(
+      await adapter.unsafeLoadFromSync(
+        JSON.stringify({
+          changes: { sync_tests: { created: [], updated: [], deleted: [] } },
+          timestamp: 1000,
+        }),
+      ),
+    ).toEqual({ timestamp: 1000 })
+
+    const query = modelQuery(MockSyncTestRecord).serialize()
+    expect(await adapter.unsafeQueryRaw(query)).toHaveLength(0)
+
+    const { expectedSanitizations } = require('../../RawRecord/__tests__/helpers')
+    await adapter.unsafeLoadFromSync(
+      JSON.stringify({
+        changes: {
+          sync_tests: {
+            updated: [
+              { id: 't1' },
+              { id: 't2', str: 'ab', _changed: 'abc', _status: 'updated', foo: 'blaaagh' },
+              { id: 't3', str: 'hy', strN: 'true', num: 3.14, bool: null, boolN: false },
+            ],
+            created: expectedSanitizations.map(({ value }, i) => ({
+              id: `x${i}`,
+              str: value,
+              strN: value,
+              num: value,
+              numN: value,
+              bool: value,
+              boolN: value,
+            })),
+          },
+        },
+      }),
+    )
+    const d = { _status: 'synced', _changed: '' }
+    const sqlBool = (value) => {
+      if (value === true) {
+        return 1
+      } else if (value === false) {
+        return 0
+      }
+      return value
+    }
+    expect(await adapter.unsafeQueryRaw(query)).toEqual([
+      { id: 't1', ...d, str: '', strN: null, num: 0, numN: null, bool: 0, boolN: null },
+      { id: 't2', ...d, str: 'ab', strN: null, num: 0, numN: null, bool: 0, boolN: null },
+      { id: 't3', ...d, str: 'hy', strN: 'true', num: 3.14, numN: null, bool: 0, boolN: 0 },
+      ...expectedSanitizations.map((values, i) => ({
+        id: `x${i}`,
+        _status: 'synced',
+        _changed: '',
+        str: values.string[0],
+        strN: values.string[1],
+        num: values.number[0],
+        numN: values.number[1],
+        bool: sqlBool(values.boolean[0]),
+        boolN: sqlBool(values.boolean[1]),
+      })),
+    ])
+    await expectToRejectWithMessage(
+      adapter.unsafeLoadFromSync(JSON.stringify({ changes: { tasks: { deleted: ['t1', 't2'] } } })),
+      'expected deleted field to be empty',
+    )
+    await expectToRejectWithMessage(
+      adapter.unsafeLoadFromSync(JSON.stringify({ changes: { tasks: { wat: [] } } })),
+      'bad changeset field',
+    )
+  })
+  it(`can return residual JSON from sync JSON`, async (adapter, AdapterClass) => {
+    if (
+      !(
+        AdapterClass.name === 'SQLiteAdapter' && adapter.underlyingAdapter._dispatcherType === 'jsi'
+      )
+    ) {
+      await expectToRejectWithMessage(
+        adapter.unsafeLoadFromSync(JSON.stringify({})),
+        'unsafeLoadFromSync unavailable',
+      )
+      return
+    }
+
+    const check = async (obj) =>
+      expect(await adapter.unsafeLoadFromSync(JSON.stringify({ changes: {}, ...obj }))).toEqual({
+        ...obj,
+      })
+
+    await check({})
+    await check({ foo: 'bar', num: 0, num1: 1, float: 3.14, nul: null, yes: true, no: false })
+    await check({ messages: ['foo', 'bar', 'baz'] })
+    await check({ foo: { bar: [1, 2, 3], baz: 'blah' } })
+    await check({ naughty: 'foo{\nbar\0' })
+    await check({ _naughty: { '_naughty\n{\0': 'yes' } })
   })
   it('can unsafely reset database', async (adapter) => {
     await adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1', text1: 'bar', order: 1 })]])
