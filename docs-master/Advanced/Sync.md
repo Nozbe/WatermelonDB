@@ -267,6 +267,19 @@ console.log(log.finishedAt)
 
 ⚠️ Remember to act responsibly with logs, since they might contain your user's private information. Don't display, save, or send the log unless you censor the log.
 
+### Debugging `changes`
+
+If you want to conveniently see incoming and outgoing changes in sync in the console, add these lines to your pullChanges/pushChanges:
+
+⚠️ Leaving such logging committed and running in production is a huge security vulnerability and a performance hog.
+
+```js
+// UNDER NO CIRCUMSTANCES SHOULD YOU COMMIT THESE LINES UNCOMMENTED!!!
+require('@nozbe/watermelondb/sync/debugPrintChanges').default(changes, isPush)
+```
+
+Pass `true` for second parameter if you're checking outgoing changes (pushChanges), `false` otherwise. Make absolutely sure you don't commit this debug tool. For best experience, run this on web (Chrome) -- the React Native experience is not as good.
+
 ### Additional `synchronize()` flags
 
 - `_unsafeBatchPerCollection: boolean` - if true, changes will be saved to the database in multiple batches. This is unsafe and breaks transactionality, however may be required for very large syncs due to memory issues
