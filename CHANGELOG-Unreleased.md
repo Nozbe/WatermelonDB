@@ -19,6 +19,8 @@
   - `Collection.unsafeClearCache()` is no longer exposed
 - Values passed to `adapter.setLocal()` are now validated to be strings. This is technically a bug fix, since local storage was always documented to only accept strings, however applications may have relied on this lack of validation. Adding this validation was necessary to achieve consistent behavior between SQLiteAdapter and LokiJSAdapter
 - `unsafeSql` passed to `appSchema` will now also be called when dropping and later recreating all database indices on large batches. A second argument was added so you can distinguish between these cases. See Schema docs for more details.
+- **Changes to sync change tracking**. The behavior of `record._raw._changed` and `record._raw._status` (a.k.a. `record.syncStatus`) has changed. This is unlikely to be a breaking change to you, unless you're writing your own sync engine or rely on these low-level details.
+  - Previously, _changed was always empty when _status=created. Now, _changed is not populated during initial creation of a record, but a later update will add changed fields to _changed. This change was necessary to fix a long-standing Sync bug.
 
 ### Deprecations
 
@@ -64,6 +66,7 @@
 - [jsi] Fix incorrect error reporting on some sqlite errors
 - [jsi] Fix issue where app would crash on Android/Hermes on reload
 - [jsi] Fix IO errors on Android
+- [sync] Fixed a long-standing bug that would cause records that are created before a sync and updated during sync's push to lose their most recent changes on a subsequent sync
 
 ### Internal
 
