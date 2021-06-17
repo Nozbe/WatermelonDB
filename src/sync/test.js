@@ -1135,6 +1135,63 @@ describe('synchronize', () => {
       affectedRecords: [project3],
     })
   })
+  it(`can safely update created records during push (regression test)`, async () => {
+    const { database, tasks } = makeDatabase()
+    const task = tasks.prepareCreateFromDirtyRaw({
+      id: 't1',
+      name: 'Task name',
+      position: 1,
+      is_completed: false,
+      project_id: 'p1',
+    })
+    await database.write(() => database.batch(task))
+    const initialRaw = { ...task._raw }
+    expect(task._raw).toMatchObject({
+      _status: 'created',
+      _changed: '',
+      position: 1,
+      is_completed: false,
+    })
+    await synchronize({
+      database,
+      pullChanges: emptyPull(1000),
+      pushChanges: async () => {
+        // this runs between fetchLocalChanges and markLocalChangesAsSynced
+        // user modifies record
+        await database.write(() =>
+          task.update(() => {
+            task.isCompleted = true
+            task.position = 20
+          }),
+        )
+      },
+    })
+    expect(task._raw).toMatchObject({
+      _status: 'created',
+      _changed: 'name,is_completed,position',
+      position: 20,
+      is_completed: true,
+    })
+    await synchronize({
+      database,
+      pullChanges: () => ({
+        changes: makeChangeSet({
+          mock_tasks: {
+            // backend serves the pushed record back
+            updated: [initialRaw],
+          },
+          timestamp: 1500,
+        }),
+      }),
+      pushChanges: () => {},
+    })
+    expect(task._raw).toMatchObject({
+      _status: 'synced',
+      _changed: '',
+      position: 20,
+      is_completed: true,
+    })
+  })
   it('can synchronize lots of data', async () => {
     const { database, projects, tasks, comments } = makeDatabase()
 
