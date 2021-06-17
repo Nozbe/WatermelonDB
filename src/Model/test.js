@@ -571,28 +571,26 @@ describe('Sync status fields', () => {
     const db = makeDatabase()
     db.adapter.batch = jest.fn()
     await db.write(async () => {
-      const model = new MockModel(db.get('mock'), sanitizedRaw({}, mockSchema.tables.mock))
-
-      await model.update(() => {
-        model._setRaw('name', 'val1')
-        model._setRaw('otherfield', 'val2')
+      const model = await db.get('mock').create((newModel) => {
+        newModel._setRaw('name', 'val1')
+        newModel._setRaw('otherfield', 'val2')
       })
 
       expect(model._raw._status).toBe('created')
       expect(model._raw._changed).toBe('')
 
+      // update created record
       await model.update(() => {
-        model._raw._status = 'updated'
-
         model._setRaw('col3', 'val3')
         model._setRaw('col3', 'val4')
         model._setRaw('col4', 'val5')
         model._setRaw('col3', 'val6')
       })
 
-      expect(model._raw._status).toBe('updated')
+      expect(model._raw._status).toBe('created')
       expect(model._raw._changed).toBe('col3,col4')
 
+      // update synced record
       const model2 = new MockModel(
         db.get('mock'),
         sanitizedRaw({ id: 'xx', _status: 'synced' }, mockSchema.tables.mock),
@@ -603,9 +601,17 @@ describe('Sync status fields', () => {
 
       expect(model2._raw._status).toBe('updated')
       expect(model2._raw._changed).toBe('name')
+
+      // update updated record
+      await model2.update(() => {
+        model2._setRaw('otherfield', 'hello')
+      })
+
+      expect(model2._raw._status).toBe('updated')
+      expect(model2._raw._changed).toBe('name,otherfield')
     })
   })
-  it('adds to changes on _setRaw (new behavior)', async () => {
+  it('does not add to _changed if sanitized value is equal to current value', async () => {
     const db = makeDatabase()
     db.adapter.batch = jest.fn()
     await db.write(async () => {
@@ -676,13 +682,13 @@ describe('Sync status fields', () => {
 
       expect(mock.syncStatus).toBe('created')
 
-      // updating a status:created record doesn't change anything
+      // updating a status:created record DOES add to changed (as of v23)
       await mock.update((record) => {
         record.name = 'New name'
       })
 
       expect(mock.syncStatus).toBe('created')
-      expect(mock._raw._changed).toBe('')
+      expect(mock._raw._changed).toBe('name')
     })
   })
   it('marks updated records with changed fields', async () => {
