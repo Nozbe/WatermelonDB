@@ -296,7 +296,7 @@ export default class Model {
     const valueBefore = this._raw[(rawFieldName: string)]
     setRawSanitized(this._raw, rawFieldName, rawValue, this.collection.schema.columns[rawFieldName])
 
-    if (valueBefore !== this._raw[(rawFieldName: string)]) {
+    if (valueBefore !== this._raw[(rawFieldName: string)] && this._preparedState !== 'create') {
       setRawColumnChange(this._raw, rawFieldName)
     }
   }

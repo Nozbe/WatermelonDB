@@ -1,4 +1,5 @@
 import clone from 'lodash.clonedeep'
+import { omit } from 'rambdax'
 import { change, times, map, length } from 'rambdax'
 import { skip as skip$ } from 'rxjs/operators'
 import { noop } from '../utils/fp'
@@ -586,13 +587,14 @@ describe('applyRemoteChanges', () => {
     await testApplyRemoteChanges(database, {
       mock_projects: {
         created: [
-          // create / created - very weird case. update with resolution (stay synced)
-          { id: 'pCreated', name: 'remote' },
+          // create / created - very weird case. resolve and update
+          // this and update/created could happen if app crashes after pushing
+          { id: 'pCreated1', name: 'remote' },
         ],
       },
       mock_tasks: {
         updated: [
-          // update / created - very weird. resolve and update (stay synced)
+          // update / created - very weird. resolve and update
           { id: 'tCreated', name: 'remote' },
           // update / doesn't exist - create (stay synced)
           { id: 'does_not_exist', name: 'remote' },
@@ -600,8 +602,16 @@ describe('applyRemoteChanges', () => {
       },
     })
 
-    await expectSyncedAndMatches(projects, 'pCreated', { name: 'remote' })
-    await expectSyncedAndMatches(tasks, 'tCreated', { name: 'remote' })
+    expect(await getRaw(projects, 'pCreated1')).toMatchObject({
+      _status: 'created',
+      _changed: '',
+      name: 'remote',
+    })
+    expect(await getRaw(tasks, 'tCreated')).toMatchObject({
+      _status: 'created',
+      _changed: '',
+      name: 'remote',
+    })
     await expectSyncedAndMatches(tasks, 'does_not_exist', { name: 'remote' })
   })
   it(`doesn't touch created_at/updated_at when applying updates`, async () => {
@@ -1168,7 +1178,7 @@ describe('synchronize', () => {
     })
     expect(task._raw).toMatchObject({
       _status: 'created',
-      _changed: 'name,is_completed,position',
+      _changed: 'is_completed,position',
       position: 20,
       is_completed: true,
     })
@@ -1178,12 +1188,14 @@ describe('synchronize', () => {
         changes: makeChangeSet({
           mock_tasks: {
             // backend serves the pushed record back
-            updated: [initialRaw],
+            updated: [omit(['_changed', '_status'], initialRaw)],
           },
-          timestamp: 1500,
         }),
+        timestamp: 1500,
       }),
-      pushChanges: () => {},
+      pushChanges: () => {
+        expect(task._raw).toMatchObject({ _status: 'created', _changed: 'is_completed,position' })
+      },
     })
     expect(task._raw).toMatchObject({
       _status: 'synced',

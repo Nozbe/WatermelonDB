@@ -2,7 +2,7 @@
 
 import { values } from '../../utils/fp'
 
-import { logError, invariant } from '../../utils/common'
+import { invariant } from '../../utils/common'
 
 import type { Model, Collection, Database } from '../..'
 import { type RawRecord, type DirtyRaw, sanitizedRaw } from '../../RawRecord'
@@ -33,14 +33,6 @@ export function resolveConflict(local: RawRecord, remote: DirtyRaw): DirtyRaw {
   local._changed.split(',').forEach((column) => {
     resolved[column] = local[column]
   })
-
-  // Handle edge case
-  if (local._status === 'created') {
-    logError(
-      `[Sync] Server wants client to update record ${local.id}, but it's marked as locally created. This is most likely either a server error or a Watermelon bug (please file an issue if it is!). Will assume it should have been 'synced', and just replace the raw`,
-    )
-    resolved._status = 'synced'
-  }
 
   return resolved
 }
