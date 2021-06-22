@@ -47,9 +47,9 @@ std::string to_json_string(T&& element) {
         int64_t intValue;
         auto error = element.get(intValue);
         if (error) {
-            json << element.get_double();
+            json << std::to_string(element.get_double());
         } else {
-            json << intValue;
+            json << std::to_string(intValue);
         }
         break;
     }
