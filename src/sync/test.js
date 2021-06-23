@@ -1,5 +1,5 @@
 import clone from 'lodash.clonedeep'
-import { change, times, map, length } from 'rambdax'
+import { change, times, map, length, omit } from 'rambdax'
 import { skip as skip$ } from 'rxjs/operators'
 import { noop } from '../utils/fp'
 import { randomId } from '../utils/common'
@@ -586,13 +586,14 @@ describe('applyRemoteChanges', () => {
     await testApplyRemoteChanges(database, {
       mock_projects: {
         created: [
-          // create / created - very weird case. update with resolution (stay synced)
-          { id: 'pCreated', name: 'remote' },
+          // create / created - very weird case. resolve and update
+          // this and update/created could happen if app crashes after pushing
+          { id: 'pCreated1', name: 'remote' },
         ],
       },
       mock_tasks: {
         updated: [
-          // update / created - very weird. resolve and update (stay synced)
+          // update / created - very weird. resolve and update
           { id: 'tCreated', name: 'remote' },
           // update / doesn't exist - create (stay synced)
           { id: 'does_not_exist', name: 'remote' },
@@ -600,8 +601,16 @@ describe('applyRemoteChanges', () => {
       },
     })
 
-    await expectSyncedAndMatches(projects, 'pCreated', { name: 'remote' })
-    await expectSyncedAndMatches(tasks, 'tCreated', { name: 'remote' })
+    expect(await getRaw(projects, 'pCreated1')).toMatchObject({
+      _status: 'created',
+      _changed: '',
+      name: 'remote',
+    })
+    expect(await getRaw(tasks, 'tCreated')).toMatchObject({
+      _status: 'created',
+      _changed: '',
+      name: 'remote',
+    })
     await expectSyncedAndMatches(tasks, 'does_not_exist', { name: 'remote' })
   })
   it(`doesn't touch created_at/updated_at when applying updates`, async () => {
@@ -1133,6 +1142,65 @@ describe('synchronize', () => {
         },
       }),
       affectedRecords: [project3],
+    })
+  })
+  it(`can safely update created records during push (regression test)`, async () => {
+    const { database, tasks } = makeDatabase()
+    const task = tasks.prepareCreateFromDirtyRaw({
+      id: 't1',
+      name: 'Task name',
+      position: 1,
+      is_completed: false,
+      project_id: 'p1',
+    })
+    await database.write(() => database.batch(task))
+    const initialRaw = { ...task._raw }
+    expect(task._raw).toMatchObject({
+      _status: 'created',
+      _changed: '',
+      position: 1,
+      is_completed: false,
+    })
+    await synchronize({
+      database,
+      pullChanges: emptyPull(1000),
+      pushChanges: async () => {
+        // this runs between fetchLocalChanges and markLocalChangesAsSynced
+        // user modifies record
+        await database.write(() =>
+          task.update(() => {
+            task.isCompleted = true
+            task.position = 20
+          }),
+        )
+      },
+    })
+    expect(task._raw).toMatchObject({
+      _status: 'created',
+      _changed: 'is_completed,position',
+      position: 20,
+      is_completed: true,
+    })
+    await synchronize({
+      database,
+      pullChanges: () => ({
+        changes: makeChangeSet({
+          mock_tasks: {
+            // backend serves the pushed record back
+            updated: [omit(['_changed', '_status'], initialRaw)],
+          },
+        }),
+        timestamp: 1500,
+      }),
+      pushChanges: () => {
+        expect(task._raw).toMatchObject({ _status: 'created', _changed: 'is_completed,position' })
+      },
+    })
+    expect(task._raw).toMatchObject({
+      _status: 'synced',
+      _changed: '',
+      position: 20,
+      is_completed: true,
     })
   })
   it('can synchronize lots of data', async () => {

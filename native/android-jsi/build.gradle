@@ -19,10 +19,19 @@ android {
         versionName "1.0"
         externalNativeBuild {
             cmake {
-                // TODO: Not sure if this is necessary. I added this in attempt to fix catching
+                // Not sure if this is necessary. I added this in attempt to fix catching
                 // C++ errors across .so bounds, but it still doesn't work, so can probably get rid
                 // of this
-                arguments "-DANDROID_STL=c++_shared"
+                // NOTE: It appears that doing this causes some ABI compatibility issues (or something):
+                //   libc++_shared.so
+                //   libc++_shared.so (__gxx_personality_v0+416)
+                //   libreactnativejni.so
+                //   libreactnativejni.so (_Unwind_RaiseException+263)
+                //   libfbjni.so (__cxa_throw+108)
+                //   libc++_shared.so (std::__ndk1::locale::use_facet(std::__ndk1::locale::id&) const+212)
+                //   libwatermelondb-jsi.so (std::__ndk1::basic_ostream<char, std::__ndk1::char_traits<char>>::operator<<(long long)+124)
+                //   libwatermelondb-jsi.so (std::__ndk1::basic_string<char, watermelondb::to_json_string<simdjson::fallback::ondemand::value&>::char_traits<char>, watermelondb::to_json_string<simdjson::fallback::ondemand::value&>::allocator<char>> watermelondb::to_json_string<simdjson::fallback::ondemand::value&>(simdjson::fallback::ondemand::value&&&)+3486)
+                // arguments "-DANDROID_STL=c++_shared"
             }
         }
     }
@@ -35,7 +44,7 @@ android {
 
     packagingOptions {
         // TODO: This only seems necessary if c++_shared is enabled in cmake
-        pickFirst '**/libc++_shared.so'
+        // pickFirst '**/libc++_shared.so'
     }
 }
 
