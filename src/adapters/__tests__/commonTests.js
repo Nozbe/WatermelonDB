@@ -607,7 +607,8 @@ export default () => {
           updated: [
             { id: 't1' },
             { id: 't2', str: 'ab', _changed: 'abc', _status: 'updated', foo: 'blaaagh' },
-            { id: 't3', str: 'hy', strN: 'true', num: 3.14, bool: null, boolN: false },
+            { id: 't3', str: 'hy', strN: 'true', num: 3.141592137, bool: null, boolN: false },
+            { id: 't4', num: 1623666158603 },
           ],
           created: expectedSanitizations.map(({ value }, i) => ({
             // NOTE: Intentionally in wrong order
@@ -640,7 +641,8 @@ export default () => {
     expect(await adapter.unsafeQueryRaw(query)).toEqual([
       { id: 't1', ...d, str: '', strN: null, num: 0, numN: null, bool: 0, boolN: null },
       { id: 't2', ...d, str: 'ab', strN: null, num: 0, numN: null, bool: 0, boolN: null },
-      { id: 't3', ...d, str: 'hy', strN: 'true', num: 3.14, numN: null, bool: 0, boolN: 0 },
+      { id: 't3', ...d, str: 'hy', strN: 'true', num: 3.141592137, numN: null, bool: 0, boolN: 0 },
+      { id: 't4', ...d, str: '', strN: null, num: 1623666158603, numN: null, bool: 0, boolN: null },
       ...expectedSanitizations.map((values, i) => ({
         id: `x${i}`,
         _status: 'synced',
@@ -687,6 +689,7 @@ export default () => {
 
     await check({})
     await check({ foo: 'bar', num: 0, num1: 1, float: 3.14, nul: null, yes: true, no: false })
+    await check({ timestamp: 1623666158603 })
     await check({ messages: ['foo', 'bar', 'baz'] })
     await check({ foo: { bar: [1, 2, 3], baz: 'blah' } })
     await check({ naughty: 'foo{\nbar\0' })

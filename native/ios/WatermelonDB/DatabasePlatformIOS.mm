@@ -1,5 +1,6 @@
 #include "DatabasePlatform.h"
 #import <Foundation/Foundation.h>
+#include <mutex>
 
 namespace watermelondb {
 namespace platform {
@@ -63,8 +64,11 @@ void onMemoryAlert(std::function<void(void)> callback) {
 }
 
 NSMutableDictionary<NSNumber *, NSData *> *providedSyncJsons = [NSMutableDictionary new];
+std::mutex providedSyncJsonsMutex;
 
 extern "C" void watermelondbProvideSyncJson(int id, NSData *json, NSError **errorPtr) {
+    const std::lock_guard<std::mutex> lock(providedSyncJsonsMutex);
+
     if (providedSyncJsons[@(id)]) {
         NSString *errorMsg = [NSString stringWithFormat:@"Sync json %i is already provided", id];
         *errorPtr = [NSError errorWithDomain:@"com.nozbe.watermelondb.error"
@@ -72,11 +76,13 @@ extern "C" void watermelondbProvideSyncJson(int id, NSData *json, NSError **erro
                                     userInfo:@{ @"NSLocalizedDescriptionKey": errorMsg }];
         return;
     }
-    
+
     providedSyncJsons[@(id)] = json;
 }
 
 std::string_view getSyncJson(int id) {
+    const std::lock_guard<std::mutex> lock(providedSyncJsonsMutex);
+
     NSData *json = providedSyncJsons[@(id)];
     if (!json) {
         throw std::runtime_error("Sync json " + std::to_string(id) + " does not exist");
@@ -86,6 +92,7 @@ std::string_view getSyncJson(int id) {
 }
 
 void deleteSyncJson(int id) {
+    const std::lock_guard<std::mutex> lock(providedSyncJsonsMutex);
     [providedSyncJsons removeObjectForKey: @(id)];
 }
 
