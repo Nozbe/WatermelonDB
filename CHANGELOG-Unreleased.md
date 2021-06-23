@@ -4,6 +4,7 @@
 
 ### BREAKING CHANGES
 
+- **iOS Installation change**. You need to add this line to your Podfile: `pod 'simdjson', path: '../node_modules/@nozbe/simdjson'`
 - Deprecated `new Database({ actionsEnabled: false })` options is now removed. Actions are always enabled.
 - Deprecated `new SQLiteAdapter({ synchronous: true })` option is now removed. Use `{ jsi: true }` instead.
 - Deprecated `Q.unsafeLokiFilter` is now removed. Use `Q.unsafeLokiTransform((raws, loki) => raws.filter(raw => ...))` instead.
@@ -39,6 +40,7 @@
   - You can now safely pass values for SQL placeholders by passing an array
   - You can also observe an unsafe raw SQL query -- with some caveats! refer to documentation for more details
 - **Unsafe raw execute**. You can now execute arbitrary SQL queries (SQLiteAdapter) or access Loki object directly (LokiJSAdapter) using `adapter.unsafeExecute` -- see docs for more details
+- **Turbo Login**. You can now speed up the initial (login) sync by up to 5.3x with Turbo Login. See Sync docs for more details.
 
 ### Performance
 

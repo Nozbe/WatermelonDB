@@ -22,7 +22,10 @@ export type SyncPullArgs = $Exact<{
   schemaVersion: SchemaVersion,
   migration: MigrationSyncChanges,
 }>
-export type SyncPullResult = $Exact<{ changes: SyncDatabaseChangeSet, timestamp: Timestamp }>
+export type SyncPullResult =
+  | $Exact<{ changes: SyncDatabaseChangeSet, timestamp: Timestamp }>
+  | $Exact<{ syncJson: string }>
+  | $Exact<{ syncJsonId: number }>
 
 export type SyncPushArgs = $Exact<{ changes: SyncDatabaseChangeSet, lastPulledAt: Timestamp }>
 
@@ -64,6 +67,15 @@ export type SyncArgs = $Exact<{
   conflictResolver?: SyncConflictResolver,
   // commits changes in multiple batches, and not one - temporary workaround for memory issue
   _unsafeBatchPerCollection?: boolean,
+  // Advanced optimization - pullChanges must return syncJson or syncJsonId to be processed by native code.
+  // This can only be used on initial (login) sync, not for incremental syncs.
+  // This can only be used with SQLiteAdapter with JSI enabled.
+  // The exact API may change between versions of WatermelonDB.
+  // See documentation for more details.
+  unsafeTurbo?: boolean,
+  // Called after pullChanges with whatever was returned by pullChanges, minus `changes`. Useful
+  // when using turbo mode
+  onDidPullChanges?: (Object) => Promise<void>,
 }>
 
 // See Sync docs for usage details

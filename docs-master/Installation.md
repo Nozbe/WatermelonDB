@@ -44,13 +44,17 @@ npm install @nozbe/watermelondb
 
 3. **Link WatermelonDB's native library using CocoaPods**
 
-    Add this to your `Podfile` (if you're using autolinking, it might not be needed):
+    Add this to your `Podfile`:
 
     ```ruby
+    # If you're using autolinking, this line might not be needed
     pod 'WatermelonDB', :path => '../node_modules/@nozbe/watermelondb'
 
     # NOTE: Do not remove, needed to keep WatermelonDB compiling:
     pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi', :modular_headers => true
+
+    # NOTE: This is required as of v0.23
+    pod 'simdjson', path: '../node_modules/@nozbe/simdjson'
     ```
 
     Note that as of WatermelonDB 0.22, manual (non-CocoaPods) linking is not supported.
@@ -206,10 +210,10 @@ On RN60+, auto linking should work.
                  final JavaScriptContextHolder jsContext
                ) {
                  List<JSIModuleSpec> modules = Arrays.asList();
-                 
+
                  modules.addAll(new WatermelonDBJSIPackage().getJSIModules(reactApplicationContext, jsContext)); // ⬅️ This!
                  // ⬅️ add more JSI packages here by conventions above
-                 
+
                  return modules;
                }
              };

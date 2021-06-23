@@ -234,7 +234,7 @@ const unsafeApplyAllRemoteChangesByBatches = (
   return Promise.all(promises)
 }
 
-export default function applyRemoteChanges(
+export default async function applyRemoteChanges(
   db: Database,
   remoteChanges: SyncDatabaseChangeSet,
   sendCreatedAsUpdated: boolean,
@@ -242,22 +242,20 @@ export default function applyRemoteChanges(
   conflictResolver?: SyncConflictResolver,
   _unsafeBatchPerCollection?: boolean,
 ): Promise<void> {
-  return db.write(async () => {
-    // $FlowFixMe
-    const recordsToApply = await getAllRecordsToApply(db, remoteChanges)
+  // $FlowFixMe
+  const recordsToApply = await getAllRecordsToApply(db, remoteChanges)
 
-    // Perform steps concurrently
-    await Promise.all([
-      destroyAllDeletedRecords(db, recordsToApply),
-      _unsafeBatchPerCollection
-        ? unsafeApplyAllRemoteChangesByBatches(
-            db,
-            recordsToApply,
-            sendCreatedAsUpdated,
-            log,
-            conflictResolver,
-          )
-        : applyAllRemoteChanges(db, recordsToApply, sendCreatedAsUpdated, log, conflictResolver),
-    ])
-  }, 'sync-applyRemoteChanges')
+  // Perform steps concurrently
+  await Promise.all([
+    destroyAllDeletedRecords(db, recordsToApply),
+    _unsafeBatchPerCollection
+      ? unsafeApplyAllRemoteChangesByBatches(
+          db,
+          recordsToApply,
+          sendCreatedAsUpdated,
+          log,
+          conflictResolver,
+        )
+      : applyAllRemoteChanges(db, recordsToApply, sendCreatedAsUpdated, log, conflictResolver),
+  ])
 }

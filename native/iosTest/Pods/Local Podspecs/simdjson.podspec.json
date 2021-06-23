@@ -1,0 +1,23 @@
+{
+  "name": "simdjson",
+  "version": "0.9.6-fix2",
+  "summary": "NPM-released fork of simdjson C++ library",
+  "description": "NPM-released fork of simdjson C++ library",
+  "homepage": "https://github.com/Nozbe/simdjson",
+  "license": "Apache-2.0",
+  "authors": {
+    "author": "simdjson authors"
+  },
+  "platforms": {
+    "ios": "9.0",
+    "tvos": "9.0"
+  },
+  "source": {
+    "git": "https://github.com/Nozbe/simdmjson.git",
+    "tag": "v0.9.6-fix2"
+  },
+  "source_files": "src/*.{h,cpp}",
+  "public_header_files": "src/simdjson.h",
+  "requires_arc": true,
+  "compiler_flags": "-Os"
+}

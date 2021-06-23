@@ -16,6 +16,7 @@ target 'WatermelonTester' do
 
   pod 'React-jsi', path: '../../node_modules/react-native/ReactCommon/jsi', modular_headers: true
   pod 'WatermelonDB', path: '../../'
+  pod 'simdjson', path: '../../node_modules/@nozbe/simdjson'
 
   # post_install do |installer|
   #   react_native_post_install(installer)
