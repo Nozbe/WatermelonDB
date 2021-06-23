@@ -57,14 +57,6 @@ export default function subscribeToQueryWithColumns<Record: Model>(
     !unsubscribed && subscriber(records.slice(0))
   }
 
-  // prepare source observable
-  // TODO: On one hand it would be nice to bring in the source logic to this function to optimize
-  // on the other, it would be good to have source provided as Observable, not Query
-  // so that we can reuse cached responses -- but they don't have compatible format
-  const [subscribeToSource, asyncSource] = canEncodeMatcher(query.description)
-    ? [(observer) => subscribeToSimpleQuery(query, observer, true), false]
-    : [(observer) => subscribeToQueryReloading(query, observer, true), false]
-
   // NOTE:
   // Observing both the source subscription and changes to columns is very tricky
   // if we want to avoid unnecessary emissions (we do, because that triggers wasted app renders).
@@ -78,6 +70,20 @@ export default function subscribeToQueryWithColumns<Record: Model>(
   // workaround to solve a race condition - collection observation for column check will always
   // emit first, but we don't know if the list of observed records isn't about to change, so we
   // flag, and wait for source response.
+  //
+  // FIXME: The above explanation is outdated in practice because modern WatermelonDB uses synchronous
+  // adapters... However, JSI on Android isn't yet fully shipped (so this is currently broken), and
+  // we may get back to some asynchronicity where appropriate...
+
+  // prepare source observable
+  // TODO: On one hand it would be nice to bring in the source logic to this function to optimize
+  // on the other, it would be good to have source provided as Observable, not Query
+  // so that we can reuse cached responses -- but they don't have compatible format
+  const canUseSimpleObservation = canEncodeMatcher(query.description)
+  const subscribeToSource = canUseSimpleObservation
+    ? (observer) => subscribeToSimpleQuery(query, observer, true)
+    : (observer) => subscribeToQueryReloading(query, observer, true)
+  const asyncSource = !canUseSimpleObservation
 
   // Observe changes to records we have on the list
   const debugInfo = { name: 'subscribeToQueryWithColumns', query, columnNames }
