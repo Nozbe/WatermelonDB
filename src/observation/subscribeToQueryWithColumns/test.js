@@ -29,7 +29,7 @@ describe('subscribeToQueryWithColumns', () => {
 
     // start observing
     const observer = jest.fn()
-    const unsubscribe = subscribeToQueryWithColumns(query, [('is_completed', 'position')], observer)
+    const unsubscribe = subscribeToQueryWithColumns(query, ['is_completed', 'position'], observer)
 
     const waitForNextQuery = () => tasks.query().fetch()
     await waitForNextQuery() // wait for initial query to go through
