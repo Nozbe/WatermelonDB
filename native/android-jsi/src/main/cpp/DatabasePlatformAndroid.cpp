@@ -1,5 +1,6 @@
 #include <android/log.h>
 #include <mutex>
+#include <unordered_map>
 #include <sqlite3.h>
 
 #include "DatabasePlatform.h"
@@ -148,6 +149,64 @@ void deleteDatabaseFile(std::string path, bool warnIfDoesNotExist) {
 void onMemoryAlert(std::function<void(void)> callback) {
     // TODO: Unimplemented
     // NOTE: https://developer.android.com/reference/android/app/Application#onTrimMemory(int)
+}
+
+struct ProvidedSyncJson {
+    jbyteArray array;
+    jbyte *bytes;
+    jsize length;
+};
+
+std::unordered_map<int, ProvidedSyncJson> providedSyncJsons;
+
+void provideJson(int id, jbyteArray array) {
+    JNIEnv *env;
+    assert(jvm);
+    if (jvm->AttachCurrentThread(&env, NULL) != JNI_OK) {
+        return;
+    }
+    assert(env);
+
+    if (providedSyncJsons.find(id) != providedSyncJsons.end()) {
+        jclass exceptionClass = env->FindClass("java/lang/Exception");
+        env->ThrowNew(exceptionClass, "sync json is already provided");
+        return;
+    }
+
+    jbyte* bytes = env->GetByteArrayElements(array, NULL);
+    jsize length = env->GetArrayLength(array);
+    jbyteArray arrayGlobalRef = static_cast<jbyteArray>(env->NewGlobalRef(array));
+
+    ProvidedSyncJson json = { arrayGlobalRef, bytes, length };
+    providedSyncJsons[id] = json;
+}
+
+std::string_view getSyncJson(int id) {
+    auto jsonSearch = providedSyncJsons.find(id);
+    if (jsonSearch == providedSyncJsons.end()) {
+        throw std::runtime_error("Sync json " + std::to_string(id) + " does not exist");
+    }
+
+    auto json = jsonSearch->second;
+    std::string_view view((char *) json.bytes, json.length);
+    return view;
+}
+
+void deleteSyncJson(int id) {
+    JNIEnv *env;
+    assert(jvm);
+    if (jvm->AttachCurrentThread(&env, NULL) != JNI_OK) {
+        throw std::runtime_error("JVM thread attach failed");
+    }
+    assert(env);
+
+    auto jsonSearch = providedSyncJsons.find(id);
+    if (jsonSearch != providedSyncJsons.end()) {
+        auto json = jsonSearch->second;
+        env->ReleaseByteArrayElements(json.array, json.bytes, JNI_ABORT);
+        providedSyncJsons.erase(id);
+        env->DeleteGlobalRef(json.array);
+    }
 }
 
 } // namespace platform

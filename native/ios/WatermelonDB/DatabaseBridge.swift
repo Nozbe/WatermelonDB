@@ -94,6 +94,19 @@ extension DatabaseBridge {
         }
         return [:]
     }
+    
+    @objc(provideSyncJson:json:resolve:reject:)
+    func provideSyncJson(id: NSNumber,
+                         json: NSString,
+                         resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        var error: NSError?
+        watermelondbProvideSyncJson(id.int32Value, json.data(using: String.Encoding.utf8.rawValue), &error)
+        if let error = error {
+            sendReject(reject, error)
+        } else {
+            resolve(true)
+        }
+    }
 }
 
 // MARK: - Asynchronous actions

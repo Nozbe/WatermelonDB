@@ -20,6 +20,8 @@ class JSIInstaller {
 
     private native void installBinding(long javaScriptContextHolder);
 
+    static native void provideSyncJson(int id, byte[] json);
+
     private static Context context;
 
     static {

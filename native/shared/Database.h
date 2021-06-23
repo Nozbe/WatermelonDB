@@ -26,7 +26,7 @@ class Database : public jsi::HostObject {
     jsi::Value count(jsi::String &sql, jsi::Array &arguments);
     void batch(jsi::Array &operations);
     void batchJSON(jsi::String &&operationsJson);
-    jsi::Value unsafeLoadFromSync(std::string_view json, jsi::Object &schema);
+    jsi::Value unsafeLoadFromSync(int jsonId, jsi::Object &schema, std::string preamble, std::string postamble);
     void unsafeResetDatabase(jsi::String &schema, int schemaVersion);
     jsi::Value getLocal(jsi::String &key);
 

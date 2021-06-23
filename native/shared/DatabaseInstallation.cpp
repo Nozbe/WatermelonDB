@@ -185,11 +185,13 @@ void Database::install(jsi::Runtime *runtime) {
             jsi::String key = args[0].getString(rt);
             return database->getLocal(key);
         });
-        createMethod(rt, adapter, "unsafeLoadFromSync", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
+        createMethod(rt, adapter, "unsafeLoadFromSync", 4, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
-            auto pullResult = args[0].getString(rt);
+            auto jsonId = (int) args[0].getNumber();
             auto schema = args[1].getObject(rt);
-            return database->unsafeLoadFromSync(pullResult.utf8(rt), schema);
+            auto preamble = args[2].getString(rt).utf8(rt);
+            auto postamble = args[3].getString(rt).utf8(rt);
+            return database->unsafeLoadFromSync(jsonId, schema, preamble, postamble);
         });
         createMethod(rt, adapter, "unsafeResetDatabase", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);

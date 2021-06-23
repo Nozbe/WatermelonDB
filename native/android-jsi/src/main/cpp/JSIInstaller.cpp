@@ -13,3 +13,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_nozbe_watermelondb_jsi_JSIInstaller_i
     watermelondb::platform::configureJNI(env);
     watermelondb::Database::install(runtime);
 }
+
+extern "C" JNIEXPORT void JNICALL Java_com_nozbe_watermelondb_jsi_JSIInstaller_provideSyncJson(JNIEnv *env, jclass clazz, jint id, jbyteArray array) {
+    watermelondb::platform::provideJson(id, array);
+}

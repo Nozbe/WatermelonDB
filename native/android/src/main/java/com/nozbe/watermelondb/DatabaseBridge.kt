@@ -202,4 +202,14 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             operation()
         }
     }
+
+    @ReactMethod
+    fun provideSyncJson(id: Int, json: String, promise: Promise) {
+        // Note: WatermelonJSI is optional on Android, but we don't want users to have to set up
+        // yet another NativeModule, so we're using Reflection to access it from here
+        val clazz = Class.forName("com.nozbe.watermelondb.jsi.WatermelonJSI")
+        val method = clazz.getDeclaredMethod("provideSyncJson", Int::class.java, ByteArray::class.java)
+        method.invoke(null, id, json.toByteArray())
+        promise.resolve(true)
+    }
 }

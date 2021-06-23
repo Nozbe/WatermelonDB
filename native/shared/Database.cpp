@@ -695,7 +695,7 @@ ColumnType columnTypeFromStr(std::string &type) {
 
 using TableSchemaArray = std::vector<ColumnSchema>;
 using TableSchema = std::unordered_map<std::string, ColumnSchema>;
-std::pair<TableSchemaArray, TableSchema> decodeTableSchema(jsi::Runtime &rt, jsi::Object &schema) {
+std::pair<TableSchemaArray, TableSchema> decodeTableSchema(jsi::Runtime &rt, jsi::Object schema) {
     auto columnArr = schema.getProperty(rt, "columnArray").getObject(rt).getArray(rt);
 
     TableSchemaArray columnsArray = {};
@@ -730,17 +730,21 @@ std::string insertSqlFor(jsi::Runtime &rt, std::string tableName, TableSchemaArr
     return sql;
 }
 
-jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &schema) {
+
+
+jsi::Value Database::unsafeLoadFromSync(int jsonId, jsi::Object &schema, std::string preamble, std::string postamble) {
     using namespace simdjson;
     auto &rt = getRt();
     beginTransaction();
 
     try {
+        executeMultiple(preamble);
+        
         jsi::Object residualValues(rt);
         auto tableSchemas = schema.getProperty(rt, "tables").getObject(rt);
 
         ondemand::parser parser;
-        auto json = padded_string(jsonStr);
+        auto json = padded_string(platform::getSyncJson(jsonId));
         ondemand::document doc = parser.iterate(json);
 
         // NOTE: simdjson::ondemand processes forwards-only, hence the weird field enumeration
@@ -775,8 +779,11 @@ jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &s
                             throw jsi::JSError(rt, "bad changeset field");
                         }
 
-                        auto tableSchemaJsi = tableSchemas.getProperty(rt, jsi::String::createFromUtf8(rt, tableName)).getObject(rt);
-                        auto tableSchemas = decodeTableSchema(rt, tableSchemaJsi);
+                        auto tableSchemaJsi = tableSchemas.getProperty(rt, jsi::String::createFromUtf8(rt, tableName));
+                        if (!tableSchemaJsi.isObject()) {
+                            continue;
+                        }
+                        auto tableSchemas = decodeTableSchema(rt, tableSchemaJsi.getObject(rt));
                         auto tableSchemaArray = tableSchemas.first;
                         auto tableSchema = tableSchemas.second;
 
@@ -844,10 +851,12 @@ jsi::Value Database::unsafeLoadFromSync(std::string_view jsonStr, jsi::Object &s
                 }
             }
         }
-
+        executeMultiple(postamble);
         commit();
+        platform::deleteSyncJson(jsonId);
         return residualValues;
     } catch (const std::exception &ex) {
+        platform::deleteSyncJson(jsonId);
         rollback();
         throw;
     }

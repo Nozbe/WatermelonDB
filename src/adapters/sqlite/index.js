@@ -290,21 +290,35 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     this._dispatcher.call('batch', [[operation]], callback)
   }
 
-  unsafeLoadFromSync(syncPullResultJson: string, callback: ResultCallback<any>): void {
+  unsafeLoadFromSync(jsonId: number, callback: ResultCallback<any>): void {
     if (this._dispatcherType !== 'jsi') {
       callback({ error: new Error('unsafeLoadFromSync unavailable') })
+      return
     }
 
-    // TODO: Recreate indices
-    this._dispatcher.call('unsafeLoadFromSync', [syncPullResultJson, this.schema], (result) =>
-      callback(
-        mapValue(
-          // { key: JSON.stringify(value) } -> { key: value }
-          (residualValues) => mapObj((values) => JSON.parse(values), residualValues),
-          result,
+    const { encodeDropIndices, encodeCreateIndices } = require('./encodeSchema')
+    const { schema } = this
+    this._dispatcher.call(
+      'unsafeLoadFromSync',
+      [jsonId, schema, encodeDropIndices(schema), encodeCreateIndices(schema)],
+      (result) =>
+        callback(
+          mapValue(
+            // { key: JSON.stringify(value) } -> { key: value }
+            (residualValues) => mapObj((values) => JSON.parse(values), residualValues),
+            result,
+          ),
         ),
-      ),
     )
+  }
+
+  provideSyncJson(id: number, syncPullResultJson: string, callback: ResultCallback<void>): void {
+    if (this._dispatcherType !== 'jsi') {
+      callback({ error: new Error('provideSyncJson unavailable') })
+      return
+    }
+
+    this._dispatcher.call('provideSyncJson', [id, syncPullResultJson], callback)
   }
 
   unsafeResetDatabase(callback: ResultCallback<void>): void {

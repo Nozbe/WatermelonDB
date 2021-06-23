@@ -69,4 +69,10 @@ WMELON_BRIDGE_METHOD(getLocal,
 
 RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(initializeJSI)
 
+RCT_EXTERN_METHOD(provideSyncJson:(nonnull NSNumber *)id \
+  json:(nonnull NSString *)json \
+  resolve:(RCTPromiseResolveBlock)resolve \
+  reject:(RCTPromiseRejectBlock)reject \
+)
+
 @end
