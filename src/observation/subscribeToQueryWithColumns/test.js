@@ -159,16 +159,11 @@ describe('subscribeToQueryWithColumns', () => {
     )
     await fullObservationTest(mockDb, query, true)
   })
-  it(`emits before model observation`, async () => {
+  async function updatesListBeforeModelTest(mockDb, query) {
     // If we observe a list of records, and then for each of them we observe the record
     // We must emit list changes first - otherwise, a change to a record that removes it from the list
     // will re-render its component unnecessarily before the whole list is re-rendered to remove it
-    const { db, tasks, projects } = mockDatabase()
-    const query = tasks.query(
-      Q.where('is_completed', true),
-      // fake query to force to use reloading observer
-      Q.on('mock_projects', Q.where('id', Q.notEq(null))),
-    )
+    const { db, tasks, projects } = mockDb
 
     // create a task
     const task = await db.write(async () => {
@@ -207,5 +202,19 @@ describe('subscribeToQueryWithColumns', () => {
     listUnsubscribe()
     taskUnsubsribe()
     taskUnsubsribe2.unsubscribe()
+  }
+  it(`updates list before model - test with simple observer`, async () => {
+    const mockDb = mockDatabase()
+    const query = mockDb.tasks.query(Q.where('is_completed', true))
+    await updatesListBeforeModelTest(mockDb, query)
+  })
+  it(`updates list before model - test with reloading observer`, async () => {
+    const mockDb = mockDatabase()
+    const query = mockDb.tasks.query(
+      Q.where('is_completed', true),
+      // fake query to force to use reloading observer
+      Q.on('mock_projects', Q.where('id', Q.notEq(null))),
+    )
+    await updatesListBeforeModelTest(mockDb, query)
   })
 })
