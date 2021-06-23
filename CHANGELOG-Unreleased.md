@@ -52,6 +52,7 @@
 - [LokiJS] Querying and finding is now faster - unnecessary data copy is skipped
 - [jsi] 15-30% faster querying on JSC (iOS) when the number of returned records is large
 - [jsi] up to 52% faster batch creation (yes, that's on top of the improvement listed above!)
+- Fixed a performance bug that caused observed items on a list observer with `.observeWithColumns()` to be unnecessarily re-rendered just before they were removed from the list
 
 ### Changes
 
