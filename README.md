@@ -93,7 +93,7 @@ const Post = ({ post, comments }) => (
     <Text>{post.name}</Text>
     <Text>Comments:</Text>
     {comments.map(comment =>
-      <Comment key={comment.id} comment={comment} />
+      <EnhancedComment key={comment.id} comment={comment} />
     )}
   </View>
 )
