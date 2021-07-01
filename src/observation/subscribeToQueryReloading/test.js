@@ -19,7 +19,7 @@ const updateTask = (task, updater) => task.collection.database.write(() => task.
 
 describe('subscribeToQueryReloading', () => {
   it('observes changes to query', async () => {
-    const { database, tasks, projects } = mockDatabase()
+    const { db, tasks, projects } = mockDatabase()
 
     const query = tasks.query(
       Q.where('is_completed', true),
@@ -31,12 +31,12 @@ describe('subscribeToQueryReloading', () => {
     let m1
     let m2
     let m3
-    await database.write(() => {
+    await db.write(() => {
       project = projects.prepareCreateFromDirtyRaw({ id: 'MOCK_PROJECT', name: 'hello' })
       m1 = prepareTask(tasks, 'name1', true)
       m2 = prepareTask(tasks, 'name2', true)
       m3 = prepareTask(tasks, 'name3', false)
-      return database.batch(project, m1, m2, m3)
+      return db.batch(project, m1, m2, m3)
     })
 
     // start observing
@@ -50,13 +50,13 @@ describe('subscribeToQueryReloading', () => {
     expect(observer).toHaveBeenLastCalledWith([m1, m2])
 
     // add matching model
-    const m4 = await database.write(() => createTask(tasks, 'name4', true))
+    const m4 = await db.write(() => createTask(tasks, 'name4', true))
     await waitForNextQuery()
     expect(observer).toHaveBeenCalledTimes(2)
     expect(observer).toHaveBeenLastCalledWith([m1, m2, m4])
 
     // remove matching model
-    await database.write(() => m1.markAsDeleted())
+    await db.write(() => m1.markAsDeleted())
 
     await waitForNextQuery()
     expect(observer).toHaveBeenCalledTimes(3)
@@ -70,7 +70,7 @@ describe('subscribeToQueryReloading', () => {
     expect(observer).toHaveBeenCalledTimes(3)
 
     // change model in other table
-    await database.write(() =>
+    await db.write(() =>
       project.update(() => {
         project.name = 'other'
       }),
@@ -82,14 +82,14 @@ describe('subscribeToQueryReloading', () => {
 
     // ensure record subscriptions are disposed properly
     unsubscribe()
-    await database.write(() =>
+    await db.write(() =>
       project.update(() => {
         project.name = 'hello'
       }),
     )
     expect(observer).toHaveBeenCalledTimes(4)
   })
-  it('calls observer even if query is empty (regression)', async () => {
+  it('calls observer even if query is empty (regression test)', async () => {
     const { tasks } = mockDatabase()
 
     const observer = jest.fn()

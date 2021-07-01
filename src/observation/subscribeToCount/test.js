@@ -17,7 +17,7 @@ const updateTask = (task, updater) => task.collection.database.write(() => task.
 
 describe('subscribeToCount', () => {
   it('observes changes to count', async () => {
-    const { database, tasks } = mockDatabase()
+    const { db, tasks } = mockDatabase()
 
     const query = tasks.query(Q.where('is_completed', true))
 
@@ -32,7 +32,7 @@ describe('subscribeToCount', () => {
     expect(observer).toHaveBeenLastCalledWith(0)
 
     // add matching model
-    const t1 = await database.write(() => createTask(tasks, true))
+    const t1 = await db.write(() => createTask(tasks, true))
 
     await waitForNextQuery()
     expect(observer).toHaveBeenCalledTimes(2)
@@ -41,10 +41,10 @@ describe('subscribeToCount', () => {
     // add many
     let t2
     let t3
-    await database.write(() => {
+    await db.write(() => {
       t2 = prepareTask(tasks, true)
       t3 = prepareTask(tasks, true)
-      return database.batch(t2, t3)
+      return db.batch(t2, t3)
     })
 
     await waitForNextQuery()
@@ -60,7 +60,7 @@ describe('subscribeToCount', () => {
     expect(observer).toHaveBeenCalledTimes(3)
 
     // remove some
-    await database.write(() => t2.destroyPermanently())
+    await db.write(() => t2.destroyPermanently())
 
     await waitForNextQuery()
     expect(observer).toHaveBeenCalledTimes(4)
