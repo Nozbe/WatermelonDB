@@ -44,3 +44,4 @@ declare module '@nozbe/watermelondb/adapters/type' {
     // Do not use — only for testing purposes
     unsafeClearCachedRecords(): Promise<void>
   }
+}
