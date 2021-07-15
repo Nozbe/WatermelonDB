@@ -46,7 +46,7 @@
     "@babel/runtime": "^7.11.2",
     "@nozbe/simdjson": "0.9.6-fix2",
     "@nozbe/sqlite": "3.31.1",
-    "@nozbe/with-observables": "1.3.0",
+    "@nozbe/with-observables": "1.4.0",
     "hoist-non-react-statics": "^3.3.2",
     "lokijs": "npm:@nozbe/lokijs@1.5.12-wmelon2",
     "rxjs": "^6.5.3",
