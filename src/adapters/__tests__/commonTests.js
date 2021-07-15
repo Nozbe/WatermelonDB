@@ -606,7 +606,13 @@ export default () => {
         sync_tests: {
           updated: [
             { id: 't1' },
-            { id: 't2', str: 'ab', _changed: 'abc', _status: 'updated', foo: 'blaaagh' },
+            {
+              id: 't2',
+              str: 'ab',
+              _changed: 'abc',
+              _status: 'updated',
+              this_column_does_not_exist: 'blaaagh',
+            },
             { id: 't3', str: 'hy', strN: 'true', num: 3.141592137, bool: null, boolN: false },
             { id: 't4', num: 1623666158603 },
           ],
@@ -624,7 +630,7 @@ export default () => {
         tasks: {
           created: [{ id: 't1', text1: 'hello' }],
         },
-        bad_table: {
+        this_table_does_not_exist: {
           created: [],
         },
       },
