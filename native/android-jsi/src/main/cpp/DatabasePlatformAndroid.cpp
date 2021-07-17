@@ -2,6 +2,7 @@
 #include <mutex>
 #include <unordered_map>
 #include <sqlite3.h>
+#include <cassert>
 
 #include "DatabasePlatform.h"
 #include "DatabasePlatformAndroid.h"
