@@ -826,11 +826,7 @@ matchTest({
 })
 matchTest({
   name: 'matches with sortBy & take',
-  query: [
-    Q.experimentalSortBy('text1', 'asc'),
-    Q.experimentalSortBy('num1', 'desc'),
-    Q.experimentalTake(2),
-  ],
+  query: [Q.sortBy('text1', 'asc'), Q.sortBy('num1', 'desc'), Q.take(2)],
   matching: [
     // TODO: null handling?
     { id: 'n1', text1: 'a', num1: 2 },
@@ -849,12 +845,7 @@ matchTest({
 })
 matchTest({
   name: 'matches with sortBy, take & skip',
-  query: [
-    Q.experimentalSortBy('text1', 'asc'),
-    Q.experimentalSortBy('num1', 'desc'),
-    Q.experimentalSkip(2),
-    Q.experimentalTake(2),
-  ],
+  query: [Q.sortBy('text1', 'asc'), Q.sortBy('num1', 'desc'), Q.skip(2), Q.take(2)],
   matching: [
     // TODO: null handling?
     { id: 'm1', text1: 'b', num1: 10 },

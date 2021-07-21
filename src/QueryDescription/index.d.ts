@@ -113,9 +113,9 @@ declare module '@nozbe/watermelondb/QueryDescription' {
   export function or(...conditions: Condition[]): Or
   export function like(value: string): Comparison
   export function notLike(value: string): Comparison
-  export function experimentalSortBy(sortColumn: ColumnName, sortOrder?: SortOrder): SortBy
-  export function experimentalTake(count: number): Take
-  export function experimentalSkip(count: number): Skip
+  export function sortBy(sortColumn: ColumnName, sortOrder?: SortOrder): SortBy
+  export function take(count: number): Take
+  export function skip(count: number): Skip
   export function experimentalJoinTables(tables: TableName<any>[]): Join
   export function experimentalNestedJoin(from: TableName<any>, to: TableName<any>): NestedJoin
   export function sanitizeLikeString(value: string): string

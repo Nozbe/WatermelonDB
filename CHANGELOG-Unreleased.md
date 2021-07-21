@@ -14,6 +14,7 @@
   - `onIndexedDBFetchStart` -> `extraIncrementalIDBOptions: { onFetchStart }`
   - `onIndexedDBVersionChange` -> `extraIncrementalIDBOptions: { onversionchange }`
   - `autosave: false` -> `extraLokiOptions: { autosave: false }`
+- `Q.experimentalSortBy`, `Q.experimentalSkip`, `Q.experimentalTake` have been renamed to `Q.sortBy`, `Q.skip`, `Q.take` respectively
 - Changes to Internal APIs. These were never meant to be public, and so are unlikely to affect you:
   - `Model._isCommited`, `._hasPendingUpdate`, `._hasPendingDelete` have been removed and changed to `Model._pendingState`
   - `Collection.unsafeClearCache()` is no longer exposed

@@ -18,9 +18,9 @@ const unencodableQueries = [
   [Q.on('projects', 'team_id', 'abcdef')],
   [Q.experimentalJoinTables(['foo'])],
   [Q.experimentalNestedJoin('foo', 'bar')],
-  [Q.experimentalSortBy('left_column', 'asc')],
-  [Q.experimentalTake(100)],
-  [Q.experimentalTake(100)],
+  [Q.sortBy('left_column', 'asc')],
+  [Q.take(100)],
+  [Q.take(100)],
   [Q.unsafeLokiTransform(() => {})],
   [Q.unsafeSqlQuery('select * from tasks')],
 ]

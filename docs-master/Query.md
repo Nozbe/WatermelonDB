@@ -282,9 +282,9 @@ When using SQLite adapter, you can use these *experimental* clauses to sort the 
 
 ```js
 database.get('comments').query(
-  Q.experimentalSortBy('likes', Q.asc), // sorts ascending by `likes`
-  Q.experimentalSkip(100),
-  Q.experimentalTake(100),
+  Q.sortBy('likes', Q.asc), // sorts ascending by `likes`
+  Q.skip(100),
+  Q.take(100),
 )
 ```
 

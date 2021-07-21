@@ -227,7 +227,7 @@ export default function encodeQuery(query: SerializedQuery): LokiQuery {
   invariant(
     // Note: can't skip without take, no need to check this
     !sortBy.length && !take && !sql,
-    '[Loki] Q.experimentalSortBy, Q.experimentalTake, Q.experimentalSkip, Q.unsafeSqlQuery are not supported with LokiJSAdapter',
+    '[Loki] Q.sortBy, Q.take, Q.skip, Q.unsafeSqlQuery are not supported with LokiJSAdapter',
   )
 
   return {
