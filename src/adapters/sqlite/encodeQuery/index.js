@@ -76,10 +76,12 @@ const encodeWhere = (table: TableName<any>, associations: QueryAssociation[]) =>
     case 'where':
       return encodeWhereCondition(associations, table, where.left, where.comparison)
     case 'on':
-      invariant(
-        associations.some(({ to }) => to === where.table),
-        'To nest Q.on inside Q.and/Q.or you must explicitly declare Q.experimentalJoinTables at the beginning of the query',
-      )
+      if (process.env.NODE_ENV !== 'production') {
+        invariant(
+          associations.some(({ to }) => to === where.table),
+          'To nest Q.on inside Q.and/Q.or you must explicitly declare Q.experimentalJoinTables at the beginning of the query',
+        )
+      }
       return `(${encodeAndOr(associations, 'and', where.table, where.conditions)})`
     case 'sql':
       return where.expr
@@ -208,7 +210,7 @@ const encodeLimitOffset = (limit: ?number, offset: ?number) => {
 const encodeQuery = (query: SerializedQuery, countMode: boolean = false): [SQL, SQLiteArg[]] => {
   const { table, description, associations } = query
 
-  // TODO: Test if encoding a `select id.x` query speeds up queryIds() calls
+  // TODO: Test if encoding a `select x.id from x` query speeds up queryIds() calls
   if (description.sql) {
     const { sql, values } = description.sql
     return [sql, values]
@@ -216,12 +218,14 @@ const encodeQuery = (query: SerializedQuery, countMode: boolean = false): [SQL, 
 
   const hasToManyJoins = associations.some(({ info }) => info.type === 'has_many')
 
-  description.take &&
-    invariant(
-      !countMode,
-      'take/skip is not currently supported with counting. Please contribute to fix this!',
-    )
-  invariant(!description.lokiTransform, 'unsafeLokiTransform not supported with SQLite')
+  if (process.env.NODE_ENV !== 'production') {
+    description.take &&
+      invariant(
+        !countMode,
+        'take/skip is not currently supported with counting. Please contribute to fix this!',
+      )
+    invariant(!description.lokiTransform, 'unsafeLokiTransform not supported with SQLite')
+  }
 
   const sql =
     encodeMethod(table, countMode, hasToManyJoins) +
