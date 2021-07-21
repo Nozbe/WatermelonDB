@@ -18,6 +18,7 @@ function matchTest(
     skipLoki?: boolean,
     skipSqlite?: boolean,
     skipMatcher?: boolean,
+    checkOrder?: boolean,
   }>,
 ): void {
   matchTests.push(options)
@@ -832,8 +833,8 @@ matchTest({
   ],
   matching: [
     // TODO: null handling?
-    { id: 'n2', text1: 'a', num1: 1 },
     { id: 'n1', text1: 'a', num1: 2 },
+    { id: 'n2', text1: 'a', num1: 1 },
   ],
   nonMatching: [
     { id: 'n3', text1: 'c', num1: 4 },
@@ -844,6 +845,7 @@ matchTest({
   skipLoki: true,
   skipCount: true, // count is broken
   skipMatcher: true,
+  checkOrder: true,
 })
 matchTest({
   name: 'matches with sortBy, take & skip',
@@ -855,8 +857,8 @@ matchTest({
   ],
   matching: [
     // TODO: null handling?
-    { id: 'm2', text1: 'b', num1: 2 },
     { id: 'm1', text1: 'b', num1: 10 },
+    { id: 'm2', text1: 'b', num1: 2 },
   ],
   nonMatching: [
     { id: 'n3', text1: 'c', num1: 4 },
@@ -867,8 +869,8 @@ matchTest({
   skipLoki: true,
   skipCount: true, // count is broken
   skipMatcher: true,
+  checkOrder: true,
 })
-// TODO: Order, not match tests for sortBy, take, skip
 
 export const naughtyMatchTests: any[] = naughtyStrings.map((naughtyString) => ({
   name: naughtyString,

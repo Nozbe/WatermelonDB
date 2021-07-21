@@ -180,6 +180,10 @@ export const performMatchTest = async (adapter, testCase) => {
     const expectedResults = getExpectedResults(matching)
     expect(sort(results)).toEqual(expectedResults)
 
+    if (testCase.checkOrder) {
+      expect(results).toEqual(pluck('id', matching))
+    }
+
     // test if ID fetch is correct
     const ids = await adapter.queryIds(query)
     expect(sort(ids)).toEqual(expectedResults)
