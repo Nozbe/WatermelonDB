@@ -39,6 +39,7 @@ declare module '@nozbe/watermelondb/sync' {
     log?: SyncLog
     _unsafeBatchPerCollection?: boolean // commits changes in multiple batches, and not one - temporary workaround for memory issue
     migrationsEnabledAtVersion?: number
+    unsafeTurbo?: boolean
   }
 
   export function synchronize({
@@ -48,5 +49,6 @@ declare module '@nozbe/watermelondb/sync' {
     sendCreatedAsUpdated,
     log,
     _unsafeBatchPerCollection,
+    unsafeTurbo
   }: SyncArgs): Promise<void>
 }
