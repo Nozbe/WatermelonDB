@@ -837,7 +837,6 @@ matchTest({
     { id: 'n6', text1: 'z' },
   ],
   nonMatching: [],
-  skipLoki: true,
   skipMatcher: true,
   checkOrder: true,
 })
@@ -854,7 +853,6 @@ matchTest({
     { id: 'n0', text1: null },
   ],
   nonMatching: [],
-  skipLoki: true,
   skipMatcher: true,
   checkOrder: true,
 })
@@ -871,7 +869,6 @@ matchTest({
     { id: 'n6', num1: 1000000 },
   ],
   nonMatching: [],
-  skipLoki: true,
   skipMatcher: true,
   checkOrder: true,
 })
@@ -884,7 +881,6 @@ matchTest({
     { id: 'n2', bool1: null },
   ],
   nonMatching: [],
-  skipLoki: true,
   skipMatcher: true,
   checkOrder: true,
 })
@@ -901,7 +897,6 @@ matchTest({
     { id: 'n6', text1: 'za', num1: -0 },
   ],
   nonMatching: [],
-  skipLoki: true,
   skipMatcher: true,
   checkOrder: true,
 })
@@ -918,7 +913,6 @@ matchTest({
     { id: 'm1', text1: 'b', num1: 10 },
     { id: 'n4', text1: 'c', num1: 3 },
   ],
-  skipLoki: true,
   skipCount: true, // count is broken
   skipMatcher: true,
   checkOrder: true,
@@ -936,7 +930,6 @@ matchTest({
     { id: 'n1', text1: 'a', num1: 2 },
     { id: 'n2', text1: 'a', num1: 1 },
   ],
-  skipLoki: true,
   skipCount: true, // count is broken
   skipMatcher: true,
   checkOrder: true,

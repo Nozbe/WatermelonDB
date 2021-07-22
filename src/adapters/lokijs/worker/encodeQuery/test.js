@@ -379,7 +379,5 @@ describe('LokiJS encodeQuery', () => {
   it(`throws an error on unsupported query clauses`, () => {
     expect(() => encoded([Q.unsafeSqlExpr('haha sql goes brrr')])).toThrow('Unknown clause')
     expect(() => encoded([Q.unsafeSqlQuery('select * from tasks')])).toThrow('not supported')
-    expect(() => encoded([Q.sortBy('foo', 'asc')])).toThrow('not supported')
-    expect(() => encoded([Q.take(5)])).toThrow('not supported')
   })
 })

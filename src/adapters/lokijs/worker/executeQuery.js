@@ -26,7 +26,23 @@ function performQuery(query: SerializedQuery, loki: Loki): LokiResultset {
 
   // Step two: fetch all records matching query
   const collection = loki.getCollection(query.table).chain()
-  return collection.find(mainQuery)
+  let resultset = collection.find(mainQuery)
+
+  // Step three: sort, skip, take
+  const { sortBy, take, skip } = query.description
+  if (sortBy.length) {
+    resultset = resultset.compoundsort(
+      sortBy.map(({ sortColumn, sortOrder }) => [sortColumn, sortOrder === 'desc']),
+    )
+  }
+  if (skip) {
+    resultset = resultset.offset(skip)
+  }
+  if (take) {
+    resultset = resultset.limit(take)
+  }
+
+  return resultset
 }
 
 export function executeQuery(query: SerializedQuery, loki: Loki): DirtyRaw[] {
