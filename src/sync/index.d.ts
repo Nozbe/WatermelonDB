@@ -19,6 +19,7 @@ declare module '@nozbe/watermelondb/sync' {
     migration?: Migration | null
   }
   export type SyncPullResult = { changes: SyncDatabaseChangeSet; timestamp: Timestamp }
+  export type SyncTurbo = { syncJson?: string; syncJsonId?: number }
 
   export type SyncPushArgs = { changes: SyncDatabaseChangeSet; lastPulledAt: Timestamp }
 
@@ -33,7 +34,7 @@ declare module '@nozbe/watermelondb/sync' {
 
   export type SyncArgs = {
     database: Database
-    pullChanges: (args: SyncPullArgs) => Promise<SyncPullResult>
+    pullChanges: (args: SyncPullArgs) => Promise<SyncPullResult | SyncTurbo>
     pushChanges: (args: SyncPushArgs) => Promise<void>
     sendCreatedAsUpdated?: boolean
     log?: SyncLog
