@@ -76,6 +76,13 @@ void Database::install(jsi::Runtime *runtime) {
         std::shared_ptr<Database> database = std::make_shared<Database>(runtime, dbPath);
         adapter.setProperty(rt, "database", jsi::Object::createFromHostObject(rt, database));
 
+        std::weak_ptr<Database> weakDatabase = database;
+        platform::onDestroy([weakDatabase]() {
+            if (auto databaseToDestroy = weakDatabase.lock()) {
+                databaseToDestroy->destroy();
+            }
+        });
+
         createMethod(rt, adapter, "initialize", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
             jsi::String dbName = args[0].getString(rt);
             int expectedVersion = (int)args[1].getNumber();

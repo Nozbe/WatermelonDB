@@ -71,9 +71,9 @@ void initializeSqlite() {
         // It sounds like the unix thread on which we're running is already destroyed, but AFAIU
         // destructors in jsi-managed objects should be safe in this respect...
         // It should be safe to disable sqlite3's threadsafety since we're only using it singlethreaded anyway...
-        if (sqlite3_config(SQLITE_CONFIG_SINGLETHREAD) != SQLITE_OK) {
-            consoleError("Failed to configure SQLite to SQLITE_CONFIG_SINGLETHREAD");
-        }
+        // if (sqlite3_config(SQLITE_CONFIG_SINGLETHREAD) != SQLITE_OK) {
+        //     consoleError("Failed to configure SQLite to SQLITE_CONFIG_SINGLETHREAD");
+        // }
 
         // sqlite should do its best to stay <8MB of heap allocations
         // 8MB is what android uses by default:
@@ -214,6 +214,19 @@ void deleteSyncJson(int id) {
         providedSyncJsons.erase(id);
         env->DeleteGlobalRef(json.array);
     }
+}
+
+std::vector<std::function<void()>> destroyListeners;
+
+void destroy() {
+    for (auto listener : destroyListeners) {
+        listener();
+    }
+    destroyListeners.clear();
+}
+
+void onDestroy(std::function<void()> callback) {
+    destroyListeners.push_back(callback);
 }
 
 } // namespace platform
