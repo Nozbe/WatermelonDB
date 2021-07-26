@@ -216,13 +216,15 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
 
     override fun onCatalystInstanceDestroy() {
         super.onCatalystInstanceDestroy()
-        try {
-            val clazz = Class.forName("com.nozbe.watermelondb.jsi.WatermelonJSI")
-            val method = clazz.getDeclaredMethod("onCatalystInstanceDestroy")
-            method.invoke(null)
-        } catch (e: Exception) {
-            if (BuildConfig.DEBUG) {
-                Logger.getLogger("DB_Bridge").info("Could not find JSI onCatalystInstanceDestroy")
+        reactContext.catalystInstance.reactQueueConfiguration.jsQueueThread.runOnQueue {
+            try {
+                val clazz = Class.forName("com.nozbe.watermelondb.jsi.WatermelonJSI")
+                val method = clazz.getDeclaredMethod("onCatalystInstanceDestroy")
+                method.invoke(null)
+            } catch (e: Exception) {
+                if (BuildConfig.DEBUG) {
+                    Logger.getLogger("DB_Bridge").info("Could not find JSI onCatalystInstanceDestroy")
+                }
             }
         }
     }
