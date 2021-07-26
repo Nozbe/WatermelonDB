@@ -54,7 +54,7 @@ You can query any table like so:
 ```js
 import { Q } from '@nozbe/watermelondb'
 
-const users = database.get('users').query(
+const users = await database.get('users').query(
   // conditions that a user must match:
   Q.on('comments', 'post_id', somePostId)
 ).fetch()
