@@ -215,6 +215,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     }
 
     override fun onCatalystInstanceDestroy() {
+        // NOTE: See Database::install() for explanation
         super.onCatalystInstanceDestroy()
         reactContext.catalystInstance.reactQueueConfiguration.jsQueueThread.runOnQueue {
             try {

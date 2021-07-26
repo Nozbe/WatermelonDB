@@ -76,6 +76,49 @@ void Database::install(jsi::Runtime *runtime) {
         std::shared_ptr<Database> database = std::make_shared<Database>(runtime, dbPath);
         adapter.setProperty(rt, "database", jsi::Object::createFromHostObject(rt, database));
 
+        // FIXME: Important hack!
+        // Without any hacks, JSI Watermelon crashes on Android/Hermes on app reload in development:
+        // (This doesn't happen on iOS/JSC)
+        //   abort 0x00007d0bd27cff2f
+        //   __fortify_fatal(char const*, ...) 0x00007d0bd27d20c1
+        //   HandleUsingDestroyedMutex(pthread_mutex_t*, char const*) 0x00007d0bd283b020
+        //   pthread_mutex_lock 0x00007d0bd283aef4
+        //   pthreadMutexEnter sqlite3.c:26320
+        //   sqlite3_mutex_enter sqlite3.c:25775
+        //   sqlite3_next_stmt sqlite3.c:84221
+        //   watermelondb::SqliteDb::~SqliteDb() Sqlite.cpp:57
+        // It appears that the Unix thread on which Database is set up is already destroyed by the
+        // time destructor is called. AFAIU destructors on objects that are managed by JSI runtime
+        // *should* be safe in this respect, but maybe they're not/there's a bug...
+        //
+        // For future debuggers, the flow goes like this:
+        //  - ReactInstanceManager.runCreateReactContextOnNewThread()
+        //       this sets up new instance
+        //  - ReactInstanceManager.tearDownReactContext()
+        //  - ReactContext.destroy()
+        //  - CatalystInstanceImpl.destroy()
+        //       this notifies listeners that the app is about to be destroyed
+        //  - mHybridData.resetNative()
+        //  - ~CatalystInstanceImpl()
+        //  - ~Instance()
+        //  - NativeToJSBridge.destroy()
+        //  - m_executor = nullptr
+        //  - ~Runtime()
+        //  - ...
+        //  - ~Database()
+        //
+        // First attempt to work around this issue was by disabling sqlite3's threadsafety (which caused
+        // pthread apis to be called, leading to a crash), since we're only using it from one thread
+        // but predictably that caused new issues.
+        // When using headless JS, this issue would occur:
+        //    Failed to get a row for query - sqlite error 11 (database disk image is malformed)
+        // (Not exactly sure why, seems like headless JS reuses the same catalyst instance...)
+        //
+        // Current workaround is to tap into CatalystInstanceImpl.destroy() to destroy the database
+        // before it's destructed via normal C++ rules. There's no clean API for our JSI setup, so
+        // we route via NativeModuleRegistry onCatalystInstanceDestroy -> DatabaseBridge ->
+        // WatermelonJSI via reflection (and switch to the currect thread - important!) and then to
+        // individual Database objects via this listener callback. It's ugly, but should work.
         std::weak_ptr<Database> weakDatabase = database;
         platform::onDestroy([weakDatabase]() {
             if (auto databaseToDestroy = weakDatabase.lock()) {
