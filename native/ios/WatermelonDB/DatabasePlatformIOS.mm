@@ -96,5 +96,9 @@ void deleteSyncJson(int id) {
     [providedSyncJsons removeObjectForKey: @(id)];
 }
 
+void onDestroy(std::function<void()> callback) {
+    // not implemented (not needed on iOS)
+}
+
 } // namespace platform
 } // namespace watermelondb

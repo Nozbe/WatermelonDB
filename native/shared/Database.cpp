@@ -98,12 +98,21 @@ jsi::JSError Database::dbError(std::string description) {
     return jsi::JSError(rt, message);
 }
 
-Database::~Database() {
+void Database::destroy() {
+    if (isDestroyed_) {
+        return;
+    }
+    isDestroyed_ = true;
     for (auto const &cachedStatement : cachedStatements_) {
         sqlite3_stmt *statement = cachedStatement.second;
         sqlite3_finalize(statement);
     }
     cachedStatements_ = {};
+    db_->destroy();
+}
+
+Database::~Database() {
+    destroy();
 }
 
 std::string cacheKey(std::string tableName, std::string recordId) {
@@ -746,7 +755,7 @@ jsi::Value Database::unsafeLoadFromSync(int jsonId, jsi::Object &schema, std::st
 
     try {
         executeMultiple(preamble);
-        
+
         jsi::Object residualValues(rt);
         auto tableSchemas = schema.getProperty(rt, "tables").getObject(rt);
 
@@ -818,7 +827,7 @@ jsi::Value Database::unsafeLoadFromSync(int jsonId, jsi::Object &schema, std::st
                                     }
                                 }
                             }
-                            
+
                             for (auto valueField : record) {
                                 auto key = (std::string) (std::string_view) valueField.unescaped_key();
                                 auto value = valueField.value();

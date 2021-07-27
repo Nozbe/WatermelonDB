@@ -22,6 +22,8 @@ class JSIInstaller {
 
     static native void provideSyncJson(int id, byte[] json);
 
+    static native void destroy();
+
     private static Context context;
 
     static {
