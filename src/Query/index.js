@@ -93,8 +93,8 @@ export default class Query<Record: Model> {
       ...nestedJoinTables.map(({ from, to }) => Q.experimentalNestedJoin(from, to)),
       ...where,
       ...sortBy,
-      ...(take ? [Q.experimentalTake(take)] : []),
-      ...(skip ? [Q.experimentalSkip(skip)] : []),
+      ...(take ? [Q.take(take)] : []),
+      ...(skip ? [Q.skip(skip)] : []),
       ...(lokiTransform ? [Q.unsafeLokiTransform(lokiTransform)] : []),
       ...clauses,
     ])

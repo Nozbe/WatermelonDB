@@ -278,17 +278,21 @@ database.get('comments').query(
 
 ### sortBy, take, skip
 
-When using SQLite adapter, you can use these *experimental* clauses to sort the result of the query and to limit the number of results
+You can use these clauses to sort the query by one or more columns. Note that only simple ascending/descending criteria for columns are supported.
 
 ```js
 database.get('comments').query(
-  Q.experimentalSortBy('likes', Q.asc), // sorts ascending by `likes`
-  Q.experimentalSkip(100),
-  Q.experimentalTake(100),
+  // sorts by number of likes from the most likes to the fewest
+  Q.sortBy('likes', Q.desc),
+  // if two comments have the same number of likes, the one with fewest dislikes will be at the top
+  Q.sortBy('dislikes', Q.asc),
+  // limit number of comments to 100, skipping the first 50
+  Q.skip(50),
+  Q.take(100),
 )
 ```
 
-**NOTE**: This does not currently work on web/LokiJS (please contribute!), and causes query observation to fall back to a less efficient method. We recommend using sortBy only when you absolutely need to limit queries, otherwise, it may be better to sort in JavaScript.
+It isn't _necessarily_ better or more efficient to sort on query level instead of in JavaScript, **however** the most important use case for `Q.sortBy` is when used alongside `Q.skip` and `Q.take` to implement paging - to limit the number of records loaded from database to memory on very long lists
 
 ### Fetch IDs
 

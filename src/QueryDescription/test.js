@@ -463,7 +463,7 @@ describe('buildQueryDescription', () => {
     })
   })
   it('supports sorting query', () => {
-    const query = Q.buildQueryDescription([Q.experimentalSortBy('sortable_column', Q.desc)])
+    const query = Q.buildQueryDescription([Q.sortBy('sortable_column', Q.desc)])
     expect(query).toEqual({
       where: [],
       joinTables: [],
@@ -473,16 +473,11 @@ describe('buildQueryDescription', () => {
   })
   it('does not support skip operator without take operator', () => {
     expect(() => {
-      Q.buildQueryDescription([Q.experimentalSkip(100)])
+      Q.buildQueryDescription([Q.skip(100)])
     }).toThrow('cannot skip without take')
   })
   it('support multiple skip operators but only take the last', () => {
-    const query = Q.buildQueryDescription([
-      Q.experimentalTake(100),
-      Q.experimentalSkip(200),
-      Q.experimentalSkip(400),
-      Q.experimentalSkip(800),
-    ])
+    const query = Q.buildQueryDescription([Q.take(100), Q.skip(200), Q.skip(400), Q.skip(800)])
     expect(query).toEqual({
       where: [],
       joinTables: [],
@@ -532,8 +527,8 @@ describe('buildQueryDescription', () => {
     expect(() => Q.notLike({})).toThrow('not a string')
     expect(() => Q.sanitizeLikeString(null)).toThrow('not a string')
     expect(() => Q.column({})).toThrow('not a string')
-    expect(() => Q.experimentalTake('0')).toThrow('not a number')
-    expect(() => Q.experimentalSkip('0')).toThrow('not a number')
+    expect(() => Q.take('0')).toThrow('not a number')
+    expect(() => Q.skip('0')).toThrow('not a number')
     expect(() => Q.unsafeSqlExpr({})).toThrow('not a string')
     expect(() => Q.unsafeLokiExpr()).toThrow('not an object')
     expect(() => Q.unsafeLokiExpr('hey')).toThrow('not an object')
@@ -541,7 +536,7 @@ describe('buildQueryDescription', () => {
     expect(() => Q.unsafeSqlQuery('foo', null)).toThrow('not an array')
   })
   it(`catches bad argument values`, () => {
-    expect(() => Q.experimentalSortBy('foo', 'ascasc')).toThrow('Invalid sortOrder')
+    expect(() => Q.sortBy('foo', 'ascasc')).toThrow('Invalid sortOrder')
     expect(() => Q.where('foo', Q.unsafeSqlExpr('is RANDOM()'))).toThrow()
     expect(() => Q.where('foo', Q.unsafeLokiExpr('is RANDOM()'))).toThrow()
     expect(() => Q.and(Q.like('foo'))).toThrow('can only contain')
@@ -565,7 +560,7 @@ describe('buildQueryDescription', () => {
     expect(() => Q.column('sqlite_master')).toThrow('Unsafe name')
     expect(() => Q.column('hey` or --')).toThrow('Unsafe name')
     expect(() => Q.where('rowid', 10)).toThrow('Unsafe name')
-    expect(() => Q.experimentalSortBy('sqlite_master', 'asc')).toThrow('Unsafe name')
+    expect(() => Q.sortBy('sqlite_master', 'asc')).toThrow('Unsafe name')
     expect(() => Q.on('sqlite_master', 'foo', 'bar')).toThrow('Unsafe name')
     expect(() => Q.on('sqlite_master', Q.where('foo', 'bar'))).toThrow('Unsafe name')
     expect(() => Q.experimentalJoinTables(['foo', 'sqlite_master'])).toThrow('Unsafe name')

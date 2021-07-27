@@ -239,38 +239,29 @@ describe('SQLite encodeQuery', () => {
     )
   })
   it('encodes order by clause', () => {
-    expect(encoded([Q.experimentalSortBy('sortable_column', Q.desc)])).toBe(
+    expect(encoded([Q.sortBy('sortable_column', Q.desc)])).toBe(
       `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' order by "tasks"."sortable_column" desc`,
     )
   })
   it('encodes multiple order by clauses', () => {
     expect(
-      encoded([
-        Q.experimentalSortBy('sortable_column', Q.desc),
-        Q.experimentalSortBy('sortable_column2', Q.asc),
-      ]),
+      encoded([Q.sortBy('sortable_column', Q.desc), Q.sortBy('sortable_column2', Q.asc)]),
     ).toBe(
       `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' order by "tasks"."sortable_column" desc, "tasks"."sortable_column2" asc`,
     )
   })
   it('encodes limit clause', () => {
-    expect(encoded([Q.experimentalTake(100)])).toBe(
+    expect(encoded([Q.take(100)])).toBe(
       `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' limit 100`,
     )
   })
   it('encodes limit with offset clause', () => {
-    expect(encoded([Q.experimentalTake(100), Q.experimentalSkip(200)])).toBe(
+    expect(encoded([Q.take(100), Q.skip(200)])).toBe(
       `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' limit 100 offset 200`,
     )
   })
   it('encodes order by together with limit and offset clause', () => {
-    expect(
-      encoded([
-        Q.experimentalSortBy('sortable_column', 'desc'),
-        Q.experimentalTake(100),
-        Q.experimentalSkip(200),
-      ]),
-    ).toBe(
+    expect(encoded([Q.sortBy('sortable_column', 'desc'), Q.take(100), Q.skip(200)])).toBe(
       `select "tasks".* from "tasks" where "tasks"."_status" is not 'deleted' order by "tasks"."sortable_column" desc limit 100 offset 200`,
     )
   })

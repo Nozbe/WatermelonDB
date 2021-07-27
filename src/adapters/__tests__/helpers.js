@@ -1,4 +1,4 @@
-import { sortBy, identity, pipe, pluck } from 'rambdax'
+import { sortBy, identity, pipe, pluck, shuffle } from 'rambdax'
 import expect from 'expect-rn'
 import { allPromises, toPairs } from '../../utils/fp'
 
@@ -169,8 +169,9 @@ export const expectSortedEqual = (actual, expected) => {
 export const performMatchTest = async (adapter, testCase) => {
   const { matching, nonMatching, query: conditions } = testCase
 
-  await insertAll(adapter, 'tasks', matching)
-  await insertAll(adapter, 'tasks', nonMatching)
+  // NOTE: shuffle so that order test does not depend on insertion order
+  await insertAll(adapter, 'tasks', shuffle(matching))
+  await insertAll(adapter, 'tasks', shuffle(nonMatching))
 
   const query = taskQuery(...conditions)
 
@@ -179,6 +180,10 @@ export const performMatchTest = async (adapter, testCase) => {
     const results = await adapter.query(query)
     const expectedResults = getExpectedResults(matching)
     expect(sort(results)).toEqual(expectedResults)
+
+    if (testCase.checkOrder) {
+      expect(results).toEqual(pluck('id', matching))
+    }
 
     // test if ID fetch is correct
     const ids = await adapter.queryIds(query)
