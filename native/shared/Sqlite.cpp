@@ -40,7 +40,11 @@ SqliteDb::SqliteDb(std::string path) {
     consoleLog("Opened database at " + resolvedPath);
 }
 
-SqliteDb::~SqliteDb() {
+void SqliteDb::destroy() {
+    if (isDestroyed_) {
+        return;
+    }
+    isDestroyed_ = true;
     assert(sqlite != nullptr);
 
     // Find and finalize all prepared statements
@@ -63,6 +67,10 @@ SqliteDb::~SqliteDb() {
         // only leaking memory/resources
         consoleError("Failed to close sqlite database - " + std::string(sqlite3_errmsg(sqlite)));
     }
+}
+
+SqliteDb::~SqliteDb() {
+    destroy();
 }
 
 SqliteStatement::SqliteStatement(sqlite3_stmt *statement) : stmt(statement) {

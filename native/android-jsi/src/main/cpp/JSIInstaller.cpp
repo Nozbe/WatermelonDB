@@ -17,3 +17,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_nozbe_watermelondb_jsi_JSIInstaller_i
 extern "C" JNIEXPORT void JNICALL Java_com_nozbe_watermelondb_jsi_JSIInstaller_provideSyncJson(JNIEnv *env, jclass clazz, jint id, jbyteArray array) {
     watermelondb::platform::provideJson(id, array);
 }
+
+extern "C" JNIEXPORT void JNICALL Java_com_nozbe_watermelondb_jsi_JSIInstaller_destroy(JNIEnv *env, jclass clazz) {
+    watermelondb::platform::destroy();
+}

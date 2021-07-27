@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Custom Actions - WatermelonDB documentation</title>
+        <title>Writers, Readers, batching - WatermelonDB documentation</title>
         
         
 
@@ -95,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li class="chapter-item expanded "><a href="Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="Setup.html"><strong aria-hidden="true">2.2.</strong> Setup</a></li><li class="chapter-item expanded "><a href="Schema.html"><strong aria-hidden="true">2.3.</strong> Schema</a></li><li class="chapter-item expanded "><a href="Model.html"><strong aria-hidden="true">2.4.</strong> Defining Models</a></li><li class="chapter-item expanded "><a href="CRUD.html"><strong aria-hidden="true">2.5.</strong> Create, Read, Update, Delete</a></li><li class="chapter-item expanded "><a href="Components.html"><strong aria-hidden="true">2.6.</strong> Connecting to React Components</a></li><li class="chapter-item expanded "><a href="Query.html"><strong aria-hidden="true">2.7.</strong> Querying</a></li><li class="chapter-item expanded "><a href="Relation.html"><strong aria-hidden="true">2.8.</strong> Relations</a></li><li class="chapter-item expanded "><a href="Actions.html" class="active"><strong aria-hidden="true">2.9.</strong> Custom Actions</a></li></ol></li><li class="chapter-item expanded "><a href="ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Advanced/Migrations.html"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li class="chapter-item expanded "><a href="Advanced/Sync.html"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li class="chapter-item expanded "><a href="Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li class="chapter-item expanded "><a href="Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li class="chapter-item expanded "><a href="Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li class="chapter-item expanded "><a href="Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li class="chapter-item expanded "><a href="Advanced/ProTips.html"><strong aria-hidden="true">3.7.</strong> Pro tips</a></li><li class="chapter-item expanded "><a href="Advanced/Performance.html"><strong aria-hidden="true">3.8.</strong> Performance tips</a></li><li class="chapter-item expanded "><a href="Advanced/SharingDatabaseAcrossTargets.html"><strong aria-hidden="true">3.9.</strong> iOS - Sharing database across targets</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li class="chapter-item expanded "><a href="Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li><li class="chapter-item expanded "><a href="Implementation/SyncImpl.html"><strong aria-hidden="true">4.3.</strong> Sync implementation</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="CONTRIBUTING.html"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="CHANGELOG.html"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li class="chapter-item expanded "><a href="Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="Setup.html"><strong aria-hidden="true">2.2.</strong> Setup</a></li><li class="chapter-item expanded "><a href="Schema.html"><strong aria-hidden="true">2.3.</strong> Schema</a></li><li class="chapter-item expanded "><a href="Model.html"><strong aria-hidden="true">2.4.</strong> Defining Models</a></li><li class="chapter-item expanded "><a href="CRUD.html"><strong aria-hidden="true">2.5.</strong> Create, Read, Update, Delete</a></li><li class="chapter-item expanded "><a href="Components.html"><strong aria-hidden="true">2.6.</strong> Connecting to React Components</a></li><li class="chapter-item expanded "><a href="Query.html"><strong aria-hidden="true">2.7.</strong> Querying</a></li><li class="chapter-item expanded "><a href="Relation.html"><strong aria-hidden="true">2.8.</strong> Relations</a></li><li class="chapter-item expanded "><a href="Writers.html" class="active"><strong aria-hidden="true">2.9.</strong> Writers, Readers, batching</a></li></ol></li><li class="chapter-item expanded "><a href="ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Advanced/Migrations.html"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li class="chapter-item expanded "><a href="Advanced/Sync.html"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li class="chapter-item expanded "><a href="Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li class="chapter-item expanded "><a href="Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li class="chapter-item expanded "><a href="Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li class="chapter-item expanded "><a href="Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li class="chapter-item expanded "><a href="Advanced/ProTips.html"><strong aria-hidden="true">3.7.</strong> Pro tips</a></li><li class="chapter-item expanded "><a href="Advanced/Performance.html"><strong aria-hidden="true">3.8.</strong> Performance tips</a></li><li class="chapter-item expanded "><a href="Advanced/SharingDatabaseAcrossTargets.html"><strong aria-hidden="true">3.9.</strong> iOS - Sharing database across targets</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li class="chapter-item expanded "><a href="Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li><li class="chapter-item expanded "><a href="Implementation/SyncImpl.html"><strong aria-hidden="true">4.3.</strong> Sync implementation</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="CONTRIBUTING.html"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="CHANGELOG.html"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -163,25 +163,47 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="actions"><a class="header" href="#actions">Actions</a></h1>
-<p>Although you can <a href="./CRUD.html"><code>.create()</code> and <code>.update()</code> records</a> anywhere in your app, we recommend <strong>defining explicit Actions</strong> to encapsulate all ways to make changes.</p>
-<h2 id="defining-explicit-actions"><a class="header" href="#defining-explicit-actions">Defining explicit Actions</a></h2>
-<p>An <strong>Action</strong> is a function that can modify the database (create, update, and delete records).</p>
-<p>To define it, just add a method to a <code>Model</code> class marked with the <code>@action</code> decorator</p>
-<pre><code class="language-js">import { action } from '@nozbe/watermelondb/decorators'
+                        <h1 id="writers-readers-and-batching"><a class="header" href="#writers-readers-and-batching">Writers, Readers, and batching</a></h1>
+<p>Think of this guide as a part two of <a href="./CRUD.html">Create, Read, Update, Delete</a>.</p>
+<p>As mentioned previously, you can't just modify WatermelonDB's database anywhere. All changes must be done within a <strong>Writer</strong>.</p>
+<p>There are two ways of defining a writer: inline and by defining a <strong>writer method</strong>.</p>
+<h3 id="inline-writers"><a class="header" href="#inline-writers">Inline writers</a></h3>
+<p>Here is an inline writer, you can invoke it anywhere you have access to the <code>database</code> object:</p>
+<pre><code class="language-js">// Note: function passed to `database.write()` MUST be asynchronous
+const newPost = await database.write(async =&gt; {
+  const post = await database.get('posts').create(post =&gt; {
+    post.title = 'New post'
+    post.body = 'Lorem ipsum...'
+  })
+  const comment = await database.get('comments').create(comment =&gt; {
+    comment.post.set(post)
+    comment.author.id = someUserId
+    comment.body = 'Great post!'
+  })
+
+  // Note: Value returned from the wrapped function will be returned to `database.write` caller
+  return post
+})
+</code></pre>
+<h3 id="writer-methods"><a class="header" href="#writer-methods">Writer methods</a></h3>
+<p>Writer methods can be defined on <code>Model</code> subclasses by using the <code>@writer</code> decorator:</p>
+<pre><code class="language-js">import { writer } from '@nozbe/watermelondb/decorators'
 
 class Post extends Model {
   // ...
 
-  @action async addComment(body, author) {
-    return await this.collections.get('comments').create(comment =&gt; {
+  @writer async addComment(body, author) {
+    const newComment = await this.collections.get('comments').create(comment =&gt; {
       comment.post.set(this)
       comment.author.set(author)
       comment.body = body
     })
+    return newComment
   }
 }
 </code></pre>
+<p>We highly recommend defining writer methods on <code>Models</code> to organize all code that changes the database in one place, and only use inline writers sporadically.</p>
+<p>Note that this is the same as defining a simple method that wraps all work in <code>database.write()</code> - using <code>@writer</code> is simply more convenient.</p>
 <p><strong>Note:</strong></p>
 <ul>
 <li>Always mark actions as <code>async</code> and remember to <code>await</code> on <code>.create()</code> and <code>.update()</code></li>
@@ -192,7 +214,7 @@ class Post extends Model {
   // ...
   @field('is_spam') isSpam
 
-  @action async markAsSpam() {
+  @writer async markAsSpam() {
     await this.update(comment =&gt; {
       comment.isSpam = true
     })
@@ -204,14 +226,12 @@ class Post extends Model {
 await comment.markAsSpam()
 </code></pre>
 <h2 id="batch-updates"><a class="header" href="#batch-updates">Batch updates</a></h2>
-<p>Whenever you make more than one change (create, delete or update records) in an action, you should <strong>batch them</strong>.</p>
-<blockquote>
-<p>It means that the app doesn't have to go back and forth with the database (sending one command, waiting for the response, then sending another), but instead sends multiple commands in one big batch. This is faster, safer, and can avoid subtle bugs in your app</p>
-</blockquote>
+<p>When you make multiple changes in a writer, it's best to <strong>batch them</strong>.</p>
+<p>Batching means that the app doesn't have to go back and forth with the database (sending one command, waiting for the response, then sending another), but instead sends multiple commands in one big batch. This is faster, safer, and can avoid subtle bugs in your app</p>
 <p>Take an action that changes a <code>Post</code> into spam:</p>
 <pre><code class="language-js">class Post extends Model {
   // ...
-  @action async createSpam() {
+  @writer async createSpam() {
     await this.update(post =&gt; {
       post.title = `7 ways to lose weight`
     })
@@ -225,7 +245,7 @@ await comment.markAsSpam()
 <p>Let's modify it to use batching:</p>
 <pre><code class="language-js">class Post extends Model {
   // ...
-  @action async createSpam() {
+  @writer async createSpam() {
     await this.batch(
       this.prepareUpdate(post =&gt; {
         post.title = `7 ways to lose weight`
@@ -240,31 +260,19 @@ await comment.markAsSpam()
 </code></pre>
 <p><strong>Note</strong>:</p>
 <ul>
-<li>Call <code>await this.batch</code> in the Action (outside of actions, you can also call <code>.batch()</code> <a href="./CRUD.html">on the <code>Database</code> object</a>)</li>
+<li>You can call <code>await this.batch</code> within <code>@writer</code> methods only. You can also call <code>database.batch()</code> within a <code>database.write()</code> block.</li>
 <li>Pass the list of <strong>prepared operations</strong> as arguments:
 <ul>
 <li>Instead of calling <code>await record.update()</code>, pass <code>record.prepareUpdate()</code> — note lack of <code>await</code></li>
-<li>Instead of <code>await collection.create()</code>, use <code>collection.prepareCreate()</code> or <code>collection.prepareCreateFromDirtyRaw({ put your JSON here })</code></li>
+<li>Instead of <code>await collection.create()</code>, use <code>collection.prepareCreate()</code></li>
 <li>Instead of <code>await record.markAsDeleted()</code>, use <code>record.prepareMarkAsDeleted()</code></li>
 <li>Instead of <code>await record.destroyPermanently()</code>, use <code>record.prepareDestroyPermanently()</code></li>
+<li>Advanced: you can pass <code>collection.prepareCreateFromDirtyRaw({ put your JSON here })</code></li>
 <li>You can pass falsy values (null, undefined, false) to batch — they will simply be ignored.</li>
 <li>You can also pass a single array argument instead of a list of arguments</li>
 </ul>
 </li>
-<li>Otherwise, the API is the same!</li>
 </ul>
-<h2 id="calling-actions-from-actions"><a class="header" href="#calling-actions-from-actions">Calling Actions from Actions</a></h2>
-<p>If you try to call an Action from another Action, you'll notice that it won't work. This is because while Action is running, no other Action can run simultaneously. To override this behavior, wrap the Action call in <code>this.subAction</code>:</p>
-<pre><code class="language-js">class Comment extends Model {
-  // ...
-
-  @action async appendToPost() {
-    const post = await this.post.fetch()
-    // `appendToBody` is an `@action` on `Post`, so we call subAction to allow it
-    await this.subAction(() =&gt; post.appendToBody(this.body))
-  }
-}
-</code></pre>
 <h2 id="delete-action"><a class="header" href="#delete-action">Delete action</a></h2>
 <p>When you delete, say, a <code>Post</code>, you generally want all <code>Comment</code>s that belong to it to be deleted as well.</p>
 <p>To do this, override <code>markAsDeleted()</code> (or <code>destroyPermanently()</code> if you don't sync) to explicitly delete all children as well.</p>
@@ -283,7 +291,7 @@ await comment.markAsSpam()
 }
 </code></pre>
 <p>Then to actually delete the post:</p>
-<pre><code class="language-js">database.action(async () =&gt; {
+<pre><code class="language-js">database.write(async () =&gt; {
   await post.markAsDeleted()
 })
 </code></pre>
@@ -292,28 +300,54 @@ await comment.markAsSpam()
 <li>Use <code>Query.destroyAllPermanently()</code> on all dependent <code>@children</code> you want to delete</li>
 <li>Remember to call <code>super.markAsDeleted</code> — at the end of the method!</li>
 </ul>
-<h2 id="inline-actions"><a class="header" href="#inline-actions">Inline actions</a></h2>
-<p>If you want to call a number of write operations outside of a Model action, do it like so:</p>
-<pre><code class="language-js">const newPost = await database.action(async action =&gt; {
-  // Note: function passed to `database.action()` MUST be asynchronous
-  const posts = database.collections.get('posts')
-  const post = await posts.create( /* configure Post here */ )
-
-  // Note: to call an action from an inline action, call `action.subAction`:
-  await action.subAction(() =&gt; post.markAsPromoted())
-
-  // Note: Value returned from the wrapped function will be returned to `database.action` caller
-  return post
-})
-</code></pre>
-<h2 id="advanced-why-actions-are-necessary"><a class="header" href="#advanced-why-actions-are-necessary">Advanced: Why actions are necessary?</a></h2>
+<h2 id="advanced-why-are-readers-and-writers-necessary"><a class="header" href="#advanced-why-are-readers-and-writers-necessary">Advanced: Why are readers and writers necessary?</a></h2>
 <p>WatermelonDB is highly asynchronous, which is a BIG challange in terms of achieving consistent data. Read this only if you are curious:</p>
-<blockquote>
+<details>
+  <summary>Why are readers and writers necessary?</summary>
 <p>Consider a function <code>markCommentsAsSpam</code> that fetches a list of comments on a post, and then marks them all as spam. The two operations (fetching, and then updating) are asynchronous, and some other operation that modifies the database could run in between. And it could just happen to be a function that adds a new comment on this post. Even though the function completes <em>successfully</em>, it wasn't <em>actually</em> successful at its job.</p>
 <p>This example is trivial. But others may be far more dangerous. If a function fetches a record to perform an update on, this very record could be deleted midway through, making the action fail (and potentially causing the app to crash, if not handled properly). Or a function could have invariants determining whether the user is allowed to perform an action, that would be invalidated during action's execution. Or, in a collaborative app where access permissions are represented by another object, parallel execution of different actions could cause those access relations to be left in an inconsistent state.</p>
 <p>The worst part is that analyzing all <em>possible</em> interactions for dangers is very hard, and having sync that runs automatically makes them very likely.</p>
-<p>Solution? Group together related reads and writes together in an Action, enforce that writes MUST occur in an Action, and only allow one Action to run at the time. This way, it's guaranteed that in an action, you're looking at a consistent view of the world. On the other hand, most reads are safe to perform without grouping them. If you suspect they're not, you can also wrap them in an Action.</p>
-</blockquote>
+<p>Solution? Group together related reads and writes together in an Writer, enforce that all writes MUST occur in a Writer, and only allow one Writer to run at the time. This way, it's guaranteed that in a Writer, you're looking at a consistent view of the world. Most simple reads are safe to do without groupping them, however if you have multiple related reads, you also need to wrap them in a Reader.</p>
+</details>
+<h2 id="advanced-readers"><a class="header" href="#advanced-readers">Advanced: Readers</a></h2>
+<p>Readers are an advanced feature you'll rarely need.</p>
+<p>Because WatermelonDB is asynchronous, if you make multiple separate queries, normally you have no guarantee that no records were created, updated, or deleted between fetching these queries.</p>
+<p>Code within a Reader, however, has a guarantee that for the duration of the Reader, no changes will be made to the database (more precisely, no Writer can execute during Reader's work).</p>
+<p>For example, if you were writing a custom XML data export feature for your app, you'd want the information there to be fully consistent. Therefore, you'd wrap all queries within a Reader:</p>
+<pre><code class="language-js">database.read(async () =&gt; {
+  // no changes will happen to the database until this function exits
+})
+
+// alternatively:
+class Blog extends Model {
+  // ...
+
+  @reader async exportBlog() {
+    const posts = await this.posts.fetch()
+    const comments = await this.allComments.fetch()
+    // ...
+  }
+}
+</code></pre>
+<h2 id="advanced-nesting-writers-or-readers"><a class="header" href="#advanced-nesting-writers-or-readers">Advanced: nesting writers or readers</a></h2>
+<p>If you try to call a Writer from another Writer, you'll notice that it won't work. This is because while a Writer is running, no other Writer can run simultaneously. To override this behavior, wrap the Writer call in <code>this.callWriter</code>:</p>
+<pre><code class="language-js">class Comment extends Model {
+  // ...
+
+  @writer async appendToPost() {
+    const post = await this.post.fetch()
+    // `appendToBody` is an `@writer` on `Post`, so we call callWriter to allow it
+    await this.callWriter(() =&gt; post.appendToBody(this.body))
+  }
+}
+
+// alternatively:
+database.write(async writer =&gt; {
+  const post = await database.get('posts').find('abcdef')
+  await writer.callWriter(() =&gt; post.appendToBody('Lorem ipsum...')) // appendToBody is a @writer
+})
+</code></pre>
+<p>The same is true with Readers - use <code>callReader</code> to nest readers.</p>
 <hr />
 <h2 id="next-steps"><a class="header" href="#next-steps">Next steps</a></h2>
 <p>➡️ Now that you've mastered all basics of Watermelon, go create some powerful apps — or keep reading <a href="./README.html"><strong>advanced guides</strong></a></p>

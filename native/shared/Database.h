@@ -13,10 +13,11 @@ using namespace facebook;
 namespace watermelondb {
 
 class Database : public jsi::HostObject {
-    public:
+public:
     static void install(jsi::Runtime *runtime);
     Database(jsi::Runtime *runtime, std::string path);
     ~Database();
+    void destroy();
 
     jsi::Value find(jsi::String &tableName, jsi::String &id);
     jsi::Value query(jsi::String &tableName, jsi::String &sql, jsi::Array &arguments);
@@ -30,8 +31,9 @@ class Database : public jsi::HostObject {
     void unsafeResetDatabase(jsi::String &schema, int schemaVersion);
     jsi::Value getLocal(jsi::String &key);
 
-    private:
+private:
     bool initialized_;
+    bool isDestroyed_;
     jsi::Runtime *runtime_; // TODO: std::shared_ptr would be better, but I don't know how to make it from void* in RCTCxxBridge
     std::unique_ptr<SqliteDb> db_;
     std::unordered_map<std::string, sqlite3_stmt *> cachedStatements_; // NOTE: may contain null pointers!

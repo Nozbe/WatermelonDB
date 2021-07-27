@@ -11,4 +11,8 @@ public class WatermelonJSI {
     public static void provideSyncJson(int id, byte[] json) {
         JSIInstaller.provideSyncJson(id, json);
     }
+
+    public static void onCatalystInstanceDestroy() {
+        JSIInstaller.destroy();
+    }
 }
