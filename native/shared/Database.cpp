@@ -69,6 +69,8 @@ std::string to_json_string(T&& element) {
 Database::Database(jsi::Runtime *runtime, std::string path) : runtime_(runtime), mutex_() {
     db_ = std::make_unique<SqliteDb>(path);
 
+    consoleLog("--> watermelondb jsi setup");
+
     // FIXME: On Android, Watermelon often errors out on large batches with an IO error, because it
     // can't find a temp store... I tried setting sqlite3_temp_directory to /tmp/something, but that
     // didn't work. Setting temp_store to memory seems to fix the issue, but causes a significant
@@ -79,9 +81,9 @@ Database::Database(jsi::Runtime *runtime, std::string path) : runtime_(runtime),
     executeMultiple("pragma temp_store = memory;");
     #endif
 
-    // executeMultiple("pragma locking_mode = EXCLUSIVE;");
+    executeMultiple("pragma locking_mode = EXCLUSIVE;"); // NOTE: This breaks tests/dbs that use shared memory
     executeMultiple("pragma journal_mode = WAL;");
-    // executeMultiple("pragma synchronous = FULL;");
+    executeMultiple("pragma synchronous = FULL;"); // NOTE: This slows things down
 }
 
 jsi::Runtime &Database::getRt() {
@@ -102,6 +104,7 @@ jsi::JSError Database::dbError(std::string description) {
 
 void Database::destroy() {
     const std::lock_guard<std::mutex> lock(mutex_);
+    consoleLog("--> watermelondb jsi destroy");
     if (isDestroyed_) {
         return;
     }
