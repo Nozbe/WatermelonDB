@@ -66,7 +66,7 @@ std::string to_json_string(T&& element) {
     return json.str();
 }
 
-Database::Database(jsi::Runtime *runtime, std::string path) : runtime_(runtime) {
+Database::Database(jsi::Runtime *runtime, std::string path) : runtime_(runtime), mutex_() {
     db_ = std::make_unique<SqliteDb>(path);
 
     // FIXME: On Android, Watermelon often errors out on large batches with an IO error, because it
@@ -99,6 +99,7 @@ jsi::JSError Database::dbError(std::string description) {
 }
 
 void Database::destroy() {
+    const std::lock_guard<std::mutex> lock(mutex_);
     if (isDestroyed_) {
         return;
     }
@@ -437,6 +438,8 @@ void Database::setUserVersion(int newVersion) {
 
 jsi::Value Database::find(jsi::String &tableName, jsi::String &id) {
     auto &rt = getRt();
+    const std::lock_guard<std::mutex> lock(mutex_);
+
     if (isCached(cacheKey(tableName.utf8(rt), id.utf8(rt)))) {
         return std::move(id);
     }
@@ -457,8 +460,9 @@ jsi::Value Database::find(jsi::String &tableName, jsi::String &id) {
 
 jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array &arguments) {
     auto &rt = getRt();
-    auto statement = executeQuery(sql.utf8(rt), arguments);
+    const std::lock_guard<std::mutex> lock(mutex_);
 
+    auto statement = executeQuery(sql.utf8(rt), arguments);
     std::vector<jsi::Value> records = {};
 
     while (true) {
@@ -488,8 +492,9 @@ jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array 
 
 jsi::Value Database::queryAsArray(jsi::String &tableName, jsi::String &sql, jsi::Array &arguments) {
     auto &rt = getRt();
-    auto statement = executeQuery(sql.utf8(rt), arguments);
+    const std::lock_guard<std::mutex> lock(mutex_);
 
+    auto statement = executeQuery(sql.utf8(rt), arguments);
     std::vector<jsi::Value> results = {};
 
     while (true) {
@@ -524,8 +529,9 @@ jsi::Value Database::queryAsArray(jsi::String &tableName, jsi::String &sql, jsi:
 
 jsi::Array Database::queryIds(jsi::String &sql, jsi::Array &arguments) {
     auto &rt = getRt();
-    auto statement = executeQuery(sql.utf8(rt), arguments);
+    const std::lock_guard<std::mutex> lock(mutex_);
 
+    auto statement = executeQuery(sql.utf8(rt), arguments);
     std::vector<jsi::Value> ids = {};
 
     while (true) {
@@ -549,8 +555,9 @@ jsi::Array Database::queryIds(jsi::String &sql, jsi::Array &arguments) {
 
 jsi::Array Database::unsafeQueryRaw(jsi::String &sql, jsi::Array &arguments) {
     auto &rt = getRt();
-    auto statement = executeQuery(sql.utf8(rt), arguments);
+    const std::lock_guard<std::mutex> lock(mutex_);
 
+    auto statement = executeQuery(sql.utf8(rt), arguments);
     std::vector<jsi::Value> raws = {};
 
     while (true) {
@@ -567,6 +574,8 @@ jsi::Array Database::unsafeQueryRaw(jsi::String &sql, jsi::Array &arguments) {
 
 jsi::Value Database::count(jsi::String &sql, jsi::Array &arguments) {
     auto &rt = getRt();
+    const std::lock_guard<std::mutex> lock(mutex_);
+
     auto statement = executeQuery(sql.utf8(rt), arguments);
     getRow(statement.stmt);
 
@@ -578,6 +587,7 @@ jsi::Value Database::count(jsi::String &sql, jsi::Array &arguments) {
 // TODO: Remove non-json batch once we can tell that there's no serious perf regression
 void Database::batch(jsi::Array &operations) {
     auto &rt = getRt();
+    const std::lock_guard<std::mutex> lock(mutex_);
     beginTransaction();
 
     std::vector<std::string> addedIds = {};
@@ -627,6 +637,7 @@ void Database::batchJSON(jsi::String &&jsiJson) {
     using namespace simdjson;
 
     auto &rt = getRt();
+    const std::lock_guard<std::mutex> lock(mutex_);
     beginTransaction();
 
     std::vector<std::string> addedIds = {};
@@ -751,6 +762,7 @@ std::string insertSqlFor(jsi::Runtime &rt, std::string tableName, TableSchemaArr
 jsi::Value Database::unsafeLoadFromSync(int jsonId, jsi::Object &schema, std::string preamble, std::string postamble) {
     using namespace simdjson;
     auto &rt = getRt();
+    const std::lock_guard<std::mutex> lock(mutex_);
     beginTransaction();
 
     try {
@@ -880,6 +892,7 @@ jsi::Value Database::unsafeLoadFromSync(int jsonId, jsi::Object &schema, std::st
 
 void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
     auto &rt = getRt();
+    const std::lock_guard<std::mutex> lock(mutex_);
 
     // TODO: in non-memory mode, just delete the DB files
     // NOTE: As of iOS 14, selecting tables from sqlite_master and deleting them does not work
@@ -913,6 +926,8 @@ void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
 
 void Database::migrate(jsi::String &migrationSql, int fromVersion, int toVersion) {
     auto &rt = getRt();
+    const std::lock_guard<std::mutex> lock(mutex_);
+
     beginTransaction();
     try {
         assert(getUserVersion() == fromVersion && "Incompatible migration set");
@@ -929,6 +944,8 @@ void Database::migrate(jsi::String &migrationSql, int fromVersion, int toVersion
 
 jsi::Value Database::getLocal(jsi::String &key) {
     auto &rt = getRt();
+    const std::lock_guard<std::mutex> lock(mutex_);
+
     auto args = jsi::Array::createWithElements(rt, key);
     auto statement = executeQuery("select value from local_storage where key = ?", args);
 
