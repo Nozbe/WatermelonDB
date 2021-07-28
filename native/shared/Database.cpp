@@ -79,7 +79,9 @@ Database::Database(jsi::Runtime *runtime, std::string path) : runtime_(runtime),
     executeMultiple("pragma temp_store = memory;");
     #endif
 
+    // executeMultiple("pragma locking_mode = EXCLUSIVE;");
     executeMultiple("pragma journal_mode = WAL;");
+    // executeMultiple("pragma synchronous = FULL;");
 }
 
 jsi::Runtime &Database::getRt() {
