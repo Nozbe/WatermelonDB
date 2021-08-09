@@ -188,7 +188,7 @@ If you inject `post.comments.observe()` into the component, the list will not re
 
 ### Advanced: observing 2nd level relations
 
-If you have 2nd level relations, like author's `Contact` info, and want to connect it to a component as well, you cannot simply use `post.author.contact.observe()` in `withComponents`. Remember, `post.author` is not a `User` object, but a `Relation` that has to be asynchronously fetched.
+If you have 2nd level relations, like author's `Contact` info, and want to connect it to a component as well, you cannot simply use `post.author.contact.observe()` in `withObservables`. Remember, `post.author` is not a `User` object, but a `Relation` that has to be asynchronously fetched.
 
 Before accessing and observing the `Contact` relation, you need to resolve the `author` itself. Here is the simplest way to do it:
 
