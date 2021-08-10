@@ -449,6 +449,7 @@ Note that those are not maintained by WatermelonDB, and we make no endorsements 
 
 - [How to Build WatermelonDB Sync Backend in Elixir](https://fahri.id/posts/how-to-build-watermelondb-sync-backend-in-elixir/)
 - [Firemelon](https://github.com/AliAllaf/firemelon)
+- [Laravel Watermelon](https://github.com/nathanheffley/laravel-watermelon)
 - Did you make one? Please contribute a link!
 
 ## Current Sync limitations
