@@ -64,7 +64,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
   constructor(options: SQLiteAdapterOptions): void {
     // console.log(`---> Initializing new adapter (${this._tag})`)
-    const { dbName, schema, migrations, migrationEvents } = options
+    const { dbName, schema, migrations, migrationEvents, usesExclusiveLocking = false } = options
     this.schema = schema
     this.migrations = migrations
     this._migrationEvents = migrationEvents
@@ -72,7 +72,12 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     this._dispatcherType = getDispatcherType(options)
     // Hacky-ish way to create an object with NativeModule-like shape, but that can dispatch method
     // calls to async, synch NativeModule, or JSI implementation w/ type safety in rest of the impl
-    this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName)
+    this._dispatcher = makeDispatcher(
+      this._dispatcherType,
+      this._tag,
+      this._dbName,
+      usesExclusiveLocking,
+    )
 
     if (process.env.NODE_ENV !== 'production') {
       invariant(

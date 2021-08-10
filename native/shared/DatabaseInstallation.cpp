@@ -68,12 +68,13 @@ void createMethod(jsi::Runtime &runtime, jsi::Object &object, const char *method
 void Database::install(jsi::Runtime *runtime) {
     jsi::Runtime &rt = *runtime;
     auto globalObject = rt.global();
-    createMethod(rt, globalObject, "nativeWatermelonCreateAdapter", 1, [runtime](jsi::Runtime &rt, const jsi::Value *args) {
+    createMethod(rt, globalObject, "nativeWatermelonCreateAdapter", 2, [runtime](jsi::Runtime &rt, const jsi::Value *args) {
         std::string dbPath = args[0].getString(rt).utf8(rt);
+        bool usesExclusiveLocking = args[1].getBool();
 
         jsi::Object adapter(rt);
 
-        std::shared_ptr<Database> database = std::make_shared<Database>(runtime, dbPath);
+        std::shared_ptr<Database> database = std::make_shared<Database>(runtime, dbPath, usesExclusiveLocking);
         adapter.setProperty(rt, "database", jsi::Object::createFromHostObject(rt, database));
 
         // FIXME: Important hack!

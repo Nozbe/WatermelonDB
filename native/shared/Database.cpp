@@ -66,7 +66,7 @@ std::string to_json_string(T&& element) {
     return json.str();
 }
 
-Database::Database(jsi::Runtime *runtime, std::string path) : runtime_(runtime), mutex_() {
+Database::Database(jsi::Runtime *runtime, std::string path, bool usesExclusiveLocking) : runtime_(runtime), mutex_() {
     db_ = std::make_unique<SqliteDb>(path);
 
     // FIXME: On Android, Watermelon often errors out on large batches with an IO error, because it
@@ -82,10 +82,14 @@ Database::Database(jsi::Runtime *runtime, std::string path) : runtime_(runtime),
     executeMultiple("pragma journal_mode = WAL;");
     
     #ifdef ANDROID
-    // NOTE: This was added in an attempt to fix `database disk image is malformed` issue when using
+    // NOTE: This was added in an attempt to fix mysterious `database disk image is malformed` issue when using
     // headless JS services
     executeMultiple("pragma synchronous = FULL;"); // NOTE: This slows things down
     #endif
+    if (usesExclusiveLocking) {
+        // this seems to fix the headless JS service issue but breaks if you have multiple readers
+        executeMultiple("pragma locking_mode = EXCLUSIVE;");
+    }
 }
 
 jsi::Runtime &Database::getRt() {

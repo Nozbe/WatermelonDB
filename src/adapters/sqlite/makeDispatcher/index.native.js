@@ -40,8 +40,8 @@ class SqliteNativeModulesDispatcher implements SqliteDispatcher {
 class SqliteJsiDispatcher implements SqliteDispatcher {
   _db: any
 
-  constructor(dbName: string): void {
-    this._db = global.nativeWatermelonCreateAdapter(dbName)
+  constructor(dbName: string, usesExclusiveLocking: boolean): void {
+    this._db = global.nativeWatermelonCreateAdapter(dbName, usesExclusiveLocking)
   }
 
   call(name: SqliteDispatcherMethod, _args: any[], callback: ResultCallback<any>): void {
@@ -81,8 +81,11 @@ export const makeDispatcher = (
   type: DispatcherType,
   tag: ConnectionTag,
   dbName: string,
+  usesExclusiveLocking: boolean,
 ): SqliteDispatcher =>
-  type === 'jsi' ? new SqliteJsiDispatcher(dbName) : new SqliteNativeModulesDispatcher(tag)
+  type === 'jsi'
+    ? new SqliteJsiDispatcher(dbName, usesExclusiveLocking)
+    : new SqliteNativeModulesDispatcher(tag)
 
 const initializeJSI = () => {
   if (global.nativeWatermelonCreateAdapter) {
