@@ -49,7 +49,7 @@
     "@nozbe/with-observables": "1.4.0",
     "hoist-non-react-statics": "^3.3.2",
     "lokijs": "npm:@nozbe/lokijs@1.5.12-wmelon4",
-    "rxjs": "^6.5.3",
+    "rxjs": "^7.3.0",
     "sql-escape-string": "^1.1.0"
   },
   "publishConfig": {
