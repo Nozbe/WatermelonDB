@@ -34,6 +34,7 @@ export const makeDispatcher = (
   _type: DispatcherType,
   tag: ConnectionTag,
   _dbName: string,
+  _usesExclusiveLocking: boolean,
 ): SqliteDispatcher => {
   return new SqliteNodeDispatcher(tag)
 }
