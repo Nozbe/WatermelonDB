@@ -83,7 +83,7 @@ export function sanitizedRaw(dirtyRaw: DirtyRaw, tableSchema: TableSchema): RawR
     raw._status = isValidStatus(_status) ? _status : 'created'
     raw._changed = typeof _changed === 'string' ? _changed : ''
   } else {
-    raw.id = randomId()
+    raw.id = randomId(tableSchema.name)
     raw._status = 'created'
     raw._changed = ''
   }
