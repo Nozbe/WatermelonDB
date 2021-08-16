@@ -1,5 +1,5 @@
 // eslint-disable-next-line
-import { TestScheduler } from 'rxjs/internal/testing/TestScheduler'
+import { TestScheduler } from 'rxjs/testing'
 
 class WatermelonTestScheduler extends TestScheduler {
   cold(marbles, values, error) {
