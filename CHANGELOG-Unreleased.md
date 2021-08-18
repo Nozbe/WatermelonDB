@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
-
+- [Android] Provides the user with the ability to pass in a file path instead of the database name only and creates the *.db file under a 'databases' sub-folder under the provided path.  Pattern for file path is *file:///data/user/0/com.mattermost.rnbeta/files/xxx.db*
 ### BREAKING CHANGES
 
 - `Q.experimentalSortBy`, `Q.experimentalSkip`, `Q.experimentalTake` have been renamed to `Q.sortBy`, `Q.skip`, `Q.take` respectively
