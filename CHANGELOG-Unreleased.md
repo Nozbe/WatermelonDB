@@ -20,5 +20,6 @@
 ### Fixes
 
 - Fixes an issue when using Headless JS on Android with JSI mode enabled - pass `usesExclusiveLocking: true` to SQLiteAdapter to enable
+- Fixes Typescript annotations for Collection and adapters/sqlite
 
 ### Internal
