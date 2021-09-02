@@ -63,7 +63,11 @@ class SqliteJsiDispatcher implements SqliteDispatcher {
     }
 
     try {
-      let result = this._db[methodName](...args)
+      const method = this._db[methodName]
+      if (!method) {
+        throw new Error('Cannot run database method because database failed to open')
+      }
+      let result = method(...args)
       // On Android, errors are returned, not thrown - see DatabaseInstallation.cpp
       if (result instanceof Error) {
         throw result
