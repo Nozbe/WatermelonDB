@@ -84,7 +84,7 @@ describe('encodeSchema', () => {
       'create table "tasks" ("id" primary key, "_changed", "_status", "author_id", "author_name", "author_title", "created_at");' +
       'create index "tasks_author_id" on "tasks" ("author_id");' +
       'create index "tasks__status" on "tasks" ("_status");' +
-      'create virtual table "_fts_tasks" using fts4("author_name", "author_title");' +
+      'create virtual table "_fts_tasks" using fts5("author_name", "author_title");' +
       'create trigger "_fts_tasks_delete" after delete on "tasks" begin delete from "_fts_tasks" where "rowid" = OLD.rowid; end;' +
       'create trigger "_fts_tasks_insert" after insert on "tasks" begin insert into "_fts_tasks" ("rowid", "author_name", "author_title") values (NEW."rowid", NEW."author_name", NEW."author_title"); end;' +
       'create trigger "_fts_tasks_update" after update on "tasks" begin update "_fts_tasks" set "author_name" = NEW."author_name", "author_title" = NEW."author_title" where "rowid" = NEW."rowid"; end;' +

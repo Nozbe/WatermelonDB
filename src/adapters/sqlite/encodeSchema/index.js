@@ -131,7 +131,7 @@ const encodeFTSTable: ({
   ftsColumns: ColumnSchema[],
 }) => SQL = ({ ftsTableName, ftsColumns }) => {
   const columnsSQL = ftsColumns.map((column) => encodeName(column.name)).join(', ')
-  return `create virtual table ${encodeName(ftsTableName)} using fts4(${columnsSQL});`
+  return `create virtual table ${encodeName(ftsTableName)} using fts5(${columnsSQL});`
 }
 
 const encodeFTSSearch: (TableSchema) => SQL = (tableSchema) => {
