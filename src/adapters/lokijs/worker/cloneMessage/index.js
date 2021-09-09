@@ -1,7 +1,5 @@
 // @flow
 
-import LokiWorker from './lokiWorker'
-
 // shallow-clones objects (without checking their contents), but copies arrays
 export function shallowCloneDeepObjects(value: any): any {
   if (Array.isArray(value)) {
@@ -17,7 +15,7 @@ export function shallowCloneDeepObjects(value: any): any {
   return value
 }
 
-function clone(data: any): any {
+export default function cloneMessage(data: any): any {
   // TODO: Even better, it would be great if we had zero-copy architecture (COW RawRecords?) and we didn't have to clone
   const method = data.cloneMethod
   if (method === 'shallowCloneDeepObjects') {
@@ -29,32 +27,5 @@ function clone(data: any): any {
     return data
   }
 
-  throw new Error('Unknown data.clone method for workerMock')
-}
-
-// Simulates the web worker API
-export default class LokiWorkerMock {
-  _worker: LokiWorker
-
-  _workerContext: DedicatedWorkerGlobalScope
-
-  onmessage: ({ data: any }) => void = () => {}
-
-  constructor(): void {
-    // $FlowFixMe
-    this._workerContext = {
-      postMessage: (data) => {
-        const message = { data: clone(data) }
-        this.onmessage(message)
-      },
-      onmessage: () => {},
-    }
-    // $FlowFixMe
-    this._worker = new LokiWorker(this._workerContext)
-  }
-
-  postMessage(data: any): void {
-    const message: any = { data: clone(data) }
-    this._workerContext.onmessage(message)
-  }
+  throw new Error('Unknown data.clone method for cloneMessage')
 }

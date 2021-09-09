@@ -38,16 +38,18 @@ type TableMap = { [name: TableName<any>]: TableSchema }
 
 export type SchemaVersion = number
 
+export type AppSchemaUnsafeSqlKind = 'setup' | 'create_indices' | 'drop_indices'
+
 export type AppSchemaSpec = $Exact<{
   version: number,
   tables: TableSchema[],
-  unsafeSql?: (string) => string,
+  unsafeSql?: (string, AppSchemaUnsafeSqlKind) => string,
 }>
 
 export type AppSchema = $RE<{
   version: SchemaVersion,
   tables: TableMap,
-  unsafeSql?: (string) => string,
+  unsafeSql?: (string, AppSchemaUnsafeSqlKind) => string,
 }>
 
 export function tableName<T: Model>(name: string): TableName<T> {

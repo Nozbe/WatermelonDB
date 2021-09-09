@@ -8,6 +8,7 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.Arguments
+import java.util.logging.Logger
 import kotlin.collections.ArrayList
 
 class DatabaseBridge(private val reactContext: ReactApplicationContext) :
@@ -200,6 +201,32 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
 
         for (operation in queue) {
             operation()
+        }
+    }
+
+    @ReactMethod
+    fun provideSyncJson(id: Int, json: String, promise: Promise) {
+        // Note: WatermelonJSI is optional on Android, but we don't want users to have to set up
+        // yet another NativeModule, so we're using Reflection to access it from here
+        val clazz = Class.forName("com.nozbe.watermelondb.jsi.WatermelonJSI")
+        val method = clazz.getDeclaredMethod("provideSyncJson", Int::class.java, ByteArray::class.java)
+        method.invoke(null, id, json.toByteArray())
+        promise.resolve(true)
+    }
+
+    override fun onCatalystInstanceDestroy() {
+        // NOTE: See Database::install() for explanation
+        super.onCatalystInstanceDestroy()
+        reactContext.catalystInstance.reactQueueConfiguration.jsQueueThread.runOnQueue {
+            try {
+                val clazz = Class.forName("com.nozbe.watermelondb.jsi.WatermelonJSI")
+                val method = clazz.getDeclaredMethod("onCatalystInstanceDestroy")
+                method.invoke(null)
+            } catch (e: Exception) {
+                if (BuildConfig.DEBUG) {
+                    Logger.getLogger("DB_Bridge").info("Could not find JSI onCatalystInstanceDestroy")
+                }
+            }
         }
     }
 }

@@ -44,7 +44,7 @@ async function mySync() {
 
 #### Who calls `synchronize()`?
 
-Upon looking at the example above, one question that may arise is who will call `synchronize()` -- or, in the example above `mySync()`. WatermelonDB does not manage the moment of invocation of the `synchronize()` function in any way. The database assumes every call of `pullChanges` will return _all_ the changes that haven't yet been replicated (up to `last_pulled_at`). The application code is responsible for calling `synchronize()` in the frequence it deems necessary. 
+Upon looking at the example above, one question that may arise is who will call `synchronize()` -- or, in the example above `mySync()`. WatermelonDB does not manage the moment of invocation of the `synchronize()` function in any way. The database assumes every call of `pullChanges` will return _all_ the changes that haven't yet been replicated (up to `last_pulled_at`). The application code is responsible for calling `synchronize()` in the frequence it deems necessary.
 
 ### Troubleshooting
 
@@ -143,6 +143,105 @@ For Watermelon Sync to maintain consistency after [migrations](./Migrations.md),
 5. WatermelonDB >=0.17 will note the schema version at which the user logged in, even if migrations are not enabled, so it's possible for app to request from backend changes from schema version lower than `migrationsEnabledAtVersion`
 6. You MUST NOT delete old [migrations](./Migrations.md), otherwise it's possible that the app is permanently unable to sync.
 
+### Adopting Turbo Login
+
+WatermelonDB v0.23 introduced an experimental optimization called "Turbo Login". Syncing using Turbo is up to 5.3x faster than the traditional method and uses a lot less memory, so it's suitable for even very large syncs. Keep in mind:
+
+1. This can only be used for the initial (login) sync, not for incremental syncs. It is a serious programmer error to run sync in Turbo mode if the database is not empty. Syncs with `deleted: []` fields not empty will fail.
+2. This only withs with SQLiteAdapter with JSI enabled and running - it does not work on web, or if e.g. Chrome Remote Debugging is enabled
+3. As of writing this, Turbo Login is considered experimental, so the exact API may change in a future version
+
+Here's basic usage:
+
+```js
+const isFirstSync = ...
+const useTurbo = isFirstSync
+await synchronize({
+  database,
+  pullChanges: async ({ lastPulledAt, schemaVersion, migration }) => {
+    const response = await fetch(`https://my.backend/sync?${...}`)
+    if (!response.ok) {
+      throw new Error(await response.text())
+    }
+
+    if (useTurbo) {
+      // NOTE: DO NOT parse JSON, we want raw text
+      const json = await response.text()
+      return { syncJson: json }
+    } else {
+      const { changes, timestamp } = await response.json()
+      return { changes, timestamp }
+    }
+  },
+  unsafeTurbo: useTurbo,
+  // ...
+})
+```
+
+Raw JSON text is required, so it is not expected that you need to do any processing in pullChanges() - doing that defeats much of the point of using Turbo Login!
+
+If you're using pullChanges to send additional data to your app other than Watermelon Sync's `changes` and `timestamp`, you won't be able to process it in pullChanges. However, WatermelonDB can still pass extra keys in sync response back to the app - you can process them using `onDidPullChanges`. This works both with and without turbo mode:
+
+```js
+await synchronize({
+  database,
+  pullChanges: async ({ lastPulledAt, schemaVersion, migration }) => {
+    // ...
+  },
+  unsafeTurbo: useTurbo,
+  onDidPullChanges: async ({ messages }) => {
+    if (messages) {
+      messages.forEach(message => {
+        alert(message)
+      })
+    }
+  }
+  // ...
+})
+```
+
+There's a way to make Turbo Login even more _turbo_! However, it requires native development skills. You need to develop your own networking native code, so that raw JSON can go straight from your native code to WatermelonDB's native code - skipping JavaScript processing altogether.
+
+```js
+await synchronize({
+    database,
+    pullChanges: async ({ lastPulledAt, schemaVersion, migration }) => {
+      // NOTE: You need the standard JS code path for incremental syncs
+
+      // Create a unique id for this sync request
+      const syncId = Math.floor(Math.random() * 1000000000)
+
+      await NativeModules.MyNetworkingPlugin.pullSyncChanges(
+        // Pass the id
+        syncId,
+        // Pass whatever information your plugin needs to make the request
+        lastPulledAt, schemaVersion, migration
+      )
+
+      // If successful, return the sync id
+      return { syncJsonId: syncId }
+    },
+    unsafeTurbo: true,
+    // ...
+  })
+```
+
+In native code, perform network request and if successful, extract raw response body data - `NSData *` on iOS, `byte[]` on Android. Avoid extracting the response as a string or parsing the JSON. Then pass it to WatermelonDB's native code:
+
+```java
+// On Android (Java):
+import com.nozbe.watermelondb.jsi.WatermelonJSI;
+
+WatermelonJSI.provideSyncJson(/* id */ syncId, /* byte[] */ data);
+```
+
+```objc
+// On iOS (Objective-C):
+extern void watermelondbProvideSyncJson(int id, NSData *json, NSError **errorPtr);
+
+watermelondbProvideSyncJson(syncId, data, &error)
+```
+
 ### Adding logging to your sync
 
 You can add basic sync logs to the sync process by passing an empty object to `synchronize()`. Sync will then mutate the object, populating it with diagnostic information (start/finish time, resolved conflicts, number of remote/local changes, any errors that occured, and more):
@@ -167,6 +266,19 @@ console.log(log.finishedAt)
 ```
 
 ⚠️ Remember to act responsibly with logs, since they might contain your user's private information. Don't display, save, or send the log unless you censor the log.
+
+### Debugging `changes`
+
+If you want to conveniently see incoming and outgoing changes in sync in the console, add these lines to your pullChanges/pushChanges:
+
+⚠️ Leaving such logging committed and running in production is a huge security vulnerability and a performance hog.
+
+```js
+// UNDER NO CIRCUMSTANCES SHOULD YOU COMMIT THESE LINES UNCOMMENTED!!!
+require('@nozbe/watermelondb/sync/debugPrintChanges').default(changes, isPush)
+```
+
+Pass `true` for second parameter if you're checking outgoing changes (pushChanges), `false` otherwise. Make absolutely sure you don't commit this debug tool. For best experience, run this on web (Chrome) -- the React Native experience is not as good.
 
 ### Additional `synchronize()` flags
 
@@ -337,6 +449,7 @@ Note that those are not maintained by WatermelonDB, and we make no endorsements 
 
 - [How to Build WatermelonDB Sync Backend in Elixir](https://fahri.id/posts/how-to-build-watermelondb-sync-backend-in-elixir/)
 - [Firemelon](https://github.com/AliAllaf/firemelon)
+- [Laravel Watermelon](https://github.com/nathanheffley/laravel-watermelon)
 - Did you make one? Please contribute a link!
 
 ## Current Sync limitations

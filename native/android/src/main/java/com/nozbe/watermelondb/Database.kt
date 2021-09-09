@@ -50,26 +50,21 @@ class Database(private val name: String, private val context: Context) {
         // to get the reference of a SQLiteQuery before it's executed
         // https://github.com/aosp-mirror/platform_frameworks_base/blob/0799624dc7eb4b4641b4659af5b5ec4b9f80dd81/core/java/android/database/sqlite/SQLiteDirectCursorDriver.java#L30
         // https://github.com/aosp-mirror/platform_frameworks_base/blob/0799624dc7eb4b4641b4659af5b5ec4b9f80dd81/core/java/android/database/sqlite/SQLiteProgram.java#L32
-        val rawArgs = Array(args.size, { "" })
-        return db.rawQueryWithFactory(object : SQLiteDatabase.CursorFactory {
-            override fun newCursor(db: SQLiteDatabase?, driver: SQLiteCursorDriver?, editTable: String?, query: SQLiteQuery): Cursor {
-                for (i in args.indices) {
-                    val arg = args[i]
-                    if (arg is String) {
-                        query.bindString(i + 1, arg)
-                    } else if (arg is Boolean) {
-                        query.bindLong(i + 1, if (arg) 1 else 0)
-                    } else if (arg is Double) {
-                        query.bindDouble(i + 1, arg)
-                    } else if (arg == null) {
-                        query.bindNull(i + 1)
-                    } else {
-                        throw (Throwable("Bad query arg type"))
+        val rawArgs = Array(args.size) { "" }
+        return db.rawQueryWithFactory(
+            { _, driver: SQLiteCursorDriver?, editTable: String?, query: SQLiteQuery ->
+                args.withIndex().forEach { (i, arg) ->
+                    when (arg) {
+                        is String -> query.bindString(i + 1, arg)
+                        is Boolean -> query.bindLong(i + 1, if (arg) 1 else 0)
+                        is Double -> query.bindDouble(i + 1, arg)
+                        null -> query.bindNull(i + 1)
+                        else -> throw IllegalArgumentException("Bad query arg type: ${arg::class.java.canonicalName}")
                     }
                 }
-                return SQLiteCursor(driver, editTable, query)
-            }
-        }, sql, rawArgs, null, null)
+                SQLiteCursor(driver, editTable, query)
+            }, sql, rawArgs, null, null
+        )
     }
 
     fun count(query: SQL, args: QueryArgs = emptyArray()): Int =

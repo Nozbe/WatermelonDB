@@ -528,28 +528,38 @@ describe('RawRecord manipulation', () => {
     model._raw.col1 = 'val2'
     expect(model._getRaw('col1')).toBe('val2')
   })
-  it('allows raw writes via _setRaw', () => {
+  it('allows raw writes via _setRaw', async () => {
+    const db = makeDatabase()
+    db.adapter.batch = jest.fn()
     const model = new MockModel(
-      { schema: mockSchema.tables.mock },
+      db.get('mock'),
       sanitizedRaw({ name: 'val1' }, mockSchema.tables.mock),
     )
 
-    model._isEditing = true
-    model._setRaw('name', 'val2')
-    model._setRaw('otherfield', 'val3')
+    await db.write(() =>
+      model.update(() => {
+        model._setRaw('name', 'val2')
+        model._setRaw('otherfield', 'val3')
+      }),
+    )
 
     expect(model._raw.name).toBe('val2')
     expect(model._raw.otherfield).toBe('val3')
   })
-  it('allows raw writes via _dangerouslySetRawWithoutMarkingColumnChange', () => {
+  it('allows raw writes via _dangerouslySetRawWithoutMarkingColumnChange', async () => {
+    const db = makeDatabase()
+    db.adapter.batch = jest.fn()
     const model = new MockModel(
-      { schema: mockSchema.tables.mock },
+      db.get('mock'),
       sanitizedRaw({ name: 'val1' }, mockSchema.tables.mock),
     )
 
-    model._isEditing = true
-    model._dangerouslySetRawWithoutMarkingColumnChange('name', 'val2')
-    model._dangerouslySetRawWithoutMarkingColumnChange('otherfield', 'val3')
+    await db.write(() =>
+      model.update(() => {
+        model._dangerouslySetRawWithoutMarkingColumnChange('name', 'val2')
+        model._dangerouslySetRawWithoutMarkingColumnChange('otherfield', 'val3')
+      }),
+    )
 
     expect(model._raw.name).toBe('val2')
     expect(model._raw.otherfield).toBe('val3')
@@ -557,87 +567,107 @@ describe('RawRecord manipulation', () => {
 })
 
 describe('Sync status fields', () => {
-  it('adds to changes on _setRaw', () => {
-    const model = new MockModel(
-      { schema: mockSchema.tables.mock },
-      sanitizedRaw({}, mockSchema.tables.mock),
-    )
+  it('adds to changes on _setRaw', async () => {
+    const db = makeDatabase()
+    db.adapter.batch = jest.fn()
+    await db.write(async () => {
+      const model = await db.get('mock').create((newModel) => {
+        newModel._setRaw('name', 'val1')
+        newModel._setRaw('otherfield', 'val2')
+      })
 
-    model._isEditing = true
-    model._setRaw('name', 'val1')
-    model._setRaw('otherfield', 'val2')
+      expect(model._raw._status).toBe('created')
+      expect(model._raw._changed).toBe('')
 
-    expect(model._raw._status).toBe('created')
-    expect(model._raw._changed).toBe('')
+      // update created record
+      await model.update(() => {
+        model._setRaw('col3', 'val3')
+        model._setRaw('col3', 'val4')
+        model._setRaw('col4', 'val5')
+        model._setRaw('col3', 'val6')
+      })
 
-    model._raw._status = 'updated'
+      expect(model._raw._status).toBe('created')
+      expect(model._raw._changed).toBe('col3,col4')
 
-    model._setRaw('col3', 'val3')
-    model._setRaw('col3', 'val4')
-    model._setRaw('col4', 'val5')
-    model._setRaw('col3', 'val6')
+      // update synced record
+      const model2 = new MockModel(
+        db.get('mock'),
+        sanitizedRaw({ id: 'xx', _status: 'synced' }, mockSchema.tables.mock),
+      )
+      await model2.update(() => {
+        model2._setRaw('name', 'val1')
+      })
 
-    expect(model._raw._status).toBe('updated')
-    expect(model._raw._changed).toBe('col3,col4')
+      expect(model2._raw._status).toBe('updated')
+      expect(model2._raw._changed).toBe('name')
 
-    const model2 = new MockModel(
-      { schema: mockSchema.tables.mock },
-      sanitizedRaw({ id: 'xx', _status: 'synced' }, mockSchema.tables.mock),
-    )
-    model2._isEditing = true
-    model2._setRaw('name', 'val1')
+      // update updated record
+      await model2.update(() => {
+        model2._setRaw('otherfield', 'hello')
+      })
 
-    expect(model2._raw._status).toBe('updated')
-    expect(model2._raw._changed).toBe('name')
-  })
-  it('adds to changes on _setRaw (new behavior)', async () => {
-    const model = new MockModel(
-      { schema: mockSchema.tables.mock },
-      sanitizedRaw({ col3: '', number: 0 }, mockSchema.tables.mock),
-    )
-
-    model._isEditing = true
-    model._raw.id = 'xxx'
-    model._raw._status = 'updated'
-
-    model._setRaw('name', null) // ensure we're comparing sanitized values
-    model._setRaw('otherfield', '')
-    model._setRaw('col3', 'foo')
-    model._setRaw('col4', undefined)
-    model._setRaw('number', NaN)
-    expect(model._raw._changed).toBe('col3')
-    model._setRaw('number', 10)
-
-    expect(model._raw).toEqual({
-      _status: 'updated',
-      _changed: 'col3,number',
-      id: 'xxx',
-      name: '',
-      otherfield: '',
-      col3: 'foo',
-      col4: null,
-      number: 10,
+      expect(model2._raw._status).toBe('updated')
+      expect(model2._raw._changed).toBe('name,otherfield')
     })
   })
-  it('does not change _changed fields when using _dangerouslySetRawWithoutMarkingColumnChange', () => {
-    const model = new MockModel(
-      { schema: mockSchema.tables.mock },
-      sanitizedRaw({}, mockSchema.tables.mock),
-    )
+  it('does not add to _changed if sanitized value is equal to current value', async () => {
+    const db = makeDatabase()
+    db.adapter.batch = jest.fn()
+    await db.write(async () => {
+      const model = new MockModel(
+        db.get('mock'),
+        sanitizedRaw({ col3: '', number: 0 }, mockSchema.tables.mock),
+      )
 
-    model._isEditing = true
-    model._raw._status = 'updated'
+      await model.update(() => {
+        model._raw.id = 'xxx'
+        model._raw._status = 'updated'
 
-    model._dangerouslySetRawWithoutMarkingColumnChange('col3', 'foo')
+        model._setRaw('name', null) // ensure we're comparing sanitized values
+        model._setRaw('otherfield', '')
+        model._setRaw('col3', 'foo')
+        model._setRaw('col4', undefined)
+        model._setRaw('number', NaN)
+        expect(model._raw._changed).toBe('col3')
+        model._setRaw('number', 10)
+      })
 
-    expect(model._raw.col3).toBe('foo')
-    expect(model._raw._status).toBe('updated')
-    expect(model._raw._changed).toBe('')
+      expect(model._raw).toEqual({
+        _status: 'updated',
+        _changed: 'col3,number',
+        id: 'xxx',
+        name: '',
+        otherfield: '',
+        col3: 'foo',
+        col4: null,
+        number: 10,
+      })
+    })
+  })
+  it('does not change _changed fields when using _dangerouslySetRawWithoutMarkingColumnChange', async () => {
+    const db = makeDatabase()
+    db.adapter.batch = jest.fn()
+    await db.write(async () => {
+      const model = new MockModel(db.get('mock'), sanitizedRaw({}, mockSchema.tables.mock))
 
-    model._setRaw('otherfield', 'heh')
-    model._dangerouslySetRawWithoutMarkingColumnChange('number', 10)
+      await model.update(() => {
+        model._raw._status = 'updated'
 
-    expect(model._raw._changed).toBe('otherfield')
+        model._dangerouslySetRawWithoutMarkingColumnChange('col3', 'foo')
+      })
+
+      expect(model._raw.col3).toBe('foo')
+      expect(model._raw._status).toBe('updated')
+      expect(model._raw._changed).toBe('')
+
+      await model.update(() => {
+        model._setRaw('otherfield', 'heh')
+        model._dangerouslySetRawWithoutMarkingColumnChange('number', 10)
+      })
+
+      expect(model._raw._changed).toBe('otherfield')
+    })
   })
   it('marks new records as status:created', async () => {
     const db = makeDatabase()
@@ -652,13 +682,13 @@ describe('Sync status fields', () => {
 
       expect(mock.syncStatus).toBe('created')
 
-      // updating a status:created record doesn't change anything
+      // updating a status:created record DOES add to changed (as of v23)
       await mock.update((record) => {
         record.name = 'New name'
       })
 
       expect(mock.syncStatus).toBe('created')
-      expect(mock._raw._changed).toBe('')
+      expect(mock._raw._changed).toBe('name')
     })
   })
   it('marks updated records with changed fields', async () => {

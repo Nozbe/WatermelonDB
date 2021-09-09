@@ -7,6 +7,9 @@ import type { RecordId } from '../Model'
 import type { RawRecord } from '../RawRecord'
 import type { ResultCallback } from '../utils/fp/Result'
 
+import type { SQLiteQuery } from './sqlite/type'
+import type { Loki } from './lokijs/type'
+
 export type CachedFindResult = RecordId | ?RawRecord
 export type CachedQueryResult = Array<RecordId | RawRecord>
 export type BatchOperationType = 'create' | 'update' | 'markAsDeleted' | 'destroyPermanently'
@@ -15,6 +18,10 @@ export type BatchOperation =
   | ['update', TableName<any>, RawRecord]
   | ['markAsDeleted', TableName<any>, RecordId]
   | ['destroyPermanently', TableName<any>, RecordId]
+
+export type UnsafeExecuteOperations =
+  | $Exact<{ sqls: SQLiteQuery[] }>
+  | $Exact<{ loki: (Loki) => void }>
 
 export interface DatabaseAdapter {
   schema: AppSchema;
@@ -49,8 +56,17 @@ export interface DatabaseAdapter {
     callback: ResultCallback<void>,
   ): void;
 
+  // Unsafely adds records from a serialized (json) SyncPullResult provided earlier via native API
+  unsafeLoadFromSync(jsonId: number, callback: ResultCallback<any>): void;
+
+  // Provides JSON for use by unsafeLoadFromSync
+  provideSyncJson(id: number, syncPullResultJson: string, callback: ResultCallback<void>): void;
+
   // Destroys the whole database, its schema, indexes, everything.
   unsafeResetDatabase(callback: ResultCallback<void>): void;
+
+  // Performs work on the underlying database - see concrete DatabaseAdapter implementation for more details
+  unsafeExecute(work: UnsafeExecuteOperations, callback: ResultCallback<void>): void;
 
   // Fetches string value from local storage
   getLocal(key: string, callback: ResultCallback<?string>): void;

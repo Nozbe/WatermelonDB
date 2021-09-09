@@ -121,6 +121,33 @@ await somePost.destroyPermanently() // permanent
     })
     ```
 
+### Advanced: Unsafe raw execute
+
+⚠️ Do not use this if you don't know what you're doing...
+
+There is an escape hatch to drop down from WatermelonDB to underlying database level to execute arbitrary commands. Use as a last resort tool:
+
+```js
+await database.write(() => {
+  // sqlite:
+  await database.adapter.unsafeExecute({
+    sqls: [
+      // [sql_query, [placeholder arguments, ...]]
+      ['create table temporary_test (id, foo, bar)', []],
+      ['insert into temporary_test (id, foo, bar) values (?, ?, ?)', ['t1', true, 3.14]],
+    ]
+  })
+
+  // lokijs:
+  await database.adapter.unsafeExecute({
+    loki: loki => {
+      loki.addCollection('temporary_test', { unique: ['id'], indices: [], disableMeta: true })
+      loki.getCollection('temporary_test').insert({ id: 't1', foo: true, bar: 3.14 })
+    }
+  })
+})
+```
+
 * * *
 
 ## Next steps

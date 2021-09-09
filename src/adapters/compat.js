@@ -6,7 +6,13 @@ import type { SchemaMigrations } from '../Schema/migrations'
 import type { RecordId } from '../Model'
 import { toPromise } from '../utils/fp/Result'
 
-import type { DatabaseAdapter, CachedFindResult, CachedQueryResult, BatchOperation } from './type'
+import type {
+  DatabaseAdapter,
+  CachedFindResult,
+  CachedQueryResult,
+  BatchOperation,
+  UnsafeExecuteOperations,
+} from './type'
 
 export default class DatabaseAdapterCompat {
   underlyingAdapter: DatabaseAdapter
@@ -57,8 +63,22 @@ export default class DatabaseAdapterCompat {
     )
   }
 
+  unsafeLoadFromSync(jsonId: number): Promise<any> {
+    return toPromise((callback) => this.underlyingAdapter.unsafeLoadFromSync(jsonId, callback))
+  }
+
+  provideSyncJson(id: number, syncPullResultJson: string): Promise<void> {
+    return toPromise((callback) =>
+      this.underlyingAdapter.provideSyncJson(id, syncPullResultJson, callback),
+    )
+  }
+
   unsafeResetDatabase(): Promise<void> {
     return toPromise((callback) => this.underlyingAdapter.unsafeResetDatabase(callback))
+  }
+
+  unsafeExecute(work: UnsafeExecuteOperations): Promise<void> {
+    return toPromise((callback) => this.underlyingAdapter.unsafeExecute(work, callback))
   }
 
   getLocal(key: string): Promise<?string> {

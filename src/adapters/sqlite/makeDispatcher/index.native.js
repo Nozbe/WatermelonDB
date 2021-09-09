@@ -2,96 +2,90 @@
 /* eslint-disable global-require */
 
 import { NativeModules } from 'react-native'
-import { fromPairs } from '../../../utils/fp'
-import { type ConnectionTag, logger } from '../../../utils/common'
-import { fromPromise } from '../../../utils/fp/Result'
+import { type ConnectionTag, logger, invariant } from '../../../utils/common'
+import { fromPromise, type ResultCallback } from '../../../utils/fp/Result'
 import type {
   DispatcherType,
   SQLiteAdapterOptions,
-  NativeDispatcher,
-  NativeBridgeType,
+  SqliteDispatcher,
+  SqliteDispatcherMethod,
 } from '../type'
 
-const { DatabaseBridge }: { DatabaseBridge: NativeBridgeType } = NativeModules
+const { DatabaseBridge } = NativeModules
 
-export { DatabaseBridge }
+class SqliteNativeModulesDispatcher implements SqliteDispatcher {
+  _tag: ConnectionTag
 
-const dispatcherMethods = [
-  'initialize',
-  'setUpWithSchema',
-  'setUpWithMigrations',
-  'find',
-  'query',
-  'queryIds',
-  'unsafeQueryRaw',
-  'count',
-  'batch',
-  'batchJSON',
-  'unsafeResetDatabase',
-  'getLocal',
-]
-
-export const makeDispatcherNativeModules = (tag: ConnectionTag): NativeDispatcher => {
-  const methods = dispatcherMethods.map((methodName) => {
-    if (!DatabaseBridge[methodName]) {
-      return [methodName, undefined]
+  constructor(tag: ConnectionTag): void {
+    this._tag = tag
+    if (process.env.NODE_ENV !== 'production') {
+      invariant(
+        DatabaseBridge,
+        `NativeModules.DatabaseBridge is not defined! This means that you haven't properly linked WatermelonDB native module. Refer to docs for more details`,
+      )
     }
+  }
 
-    return [
-      methodName,
-      (...args) => {
-        const callback = args[args.length - 1]
-        const otherArgs = args.slice(0, -1)
-
-        // $FlowFixMe
-        const returnValue = DatabaseBridge[methodName](tag, ...otherArgs)
-        fromPromise(returnValue, callback)
-      },
-    ]
-  })
-
-  return (fromPairs(methods): any)
+  call(name: SqliteDispatcherMethod, _args: any[], callback: ResultCallback<any>): void {
+    let methodName = name
+    let args = _args
+    if (methodName === 'batch' && DatabaseBridge.batchJSON) {
+      methodName = 'batchJSON'
+      args = [JSON.stringify(args[0])]
+    }
+    fromPromise(DatabaseBridge[methodName](this._tag, ...args), callback)
+  }
 }
 
-export const makeDispatcherJsi = (dbName: string): NativeDispatcher => {
-  const jsiDb = global.nativeWatermelonCreateAdapter(dbName)
+class SqliteJsiDispatcher implements SqliteDispatcher {
+  _db: any
 
-  const methods = dispatcherMethods.map((methodName) => {
-    if (!jsiDb[methodName]) {
-      return [methodName, undefined]
+  constructor(dbName: string, usesExclusiveLocking: boolean): void {
+    this._db = global.nativeWatermelonCreateAdapter(dbName, usesExclusiveLocking)
+  }
+
+  call(name: SqliteDispatcherMethod, _args: any[], callback: ResultCallback<any>): void {
+    let methodName = name
+    let args = _args
+
+    if (methodName === 'query' && !global.HermesInternal) {
+      // NOTE: compressing results of a query into a compact array makes querying 15-30% faster on JSC
+      // but actually 9% slower on Hermes (presumably because Hermes has faster C++ JSI and slower JS execution)
+      methodName = 'queryAsArray'
+    } else if (methodName === 'batch') {
+      methodName = 'batchJSON'
+      args = [JSON.stringify(args[0])]
+    } else if (methodName === 'provideSyncJson') {
+      fromPromise(DatabaseBridge.provideSyncJson(...args), callback)
+      return
     }
 
-    return [
-      methodName,
-      (...args) => {
-        const callback = args[args.length - 1]
-        const otherArgs = args.slice(0, -1)
-
-        try {
-          const value = jsiDb[methodName](...otherArgs)
-
-          // On Android, errors are returned, not thrown - see DatabaseInstallation.cpp
-          if (value instanceof Error) {
-            callback({ error: value })
-          } else {
-            callback({ value })
-          }
-        } catch (error) {
-          callback({ error })
+    try {
+      let result = this._db[methodName](...args)
+      // On Android, errors are returned, not thrown - see DatabaseInstallation.cpp
+      if (result instanceof Error) {
+        callback({ error: result })
+      } else {
+        if (methodName === 'queryAsArray') {
+          result = require('./decodeQueryResult').default(result)
         }
-      },
-    ]
-  })
-
-  return (fromPairs(methods): any)
+        callback({ value: result })
+      }
+    } catch (error) {
+      callback({ error })
+    }
+  }
 }
 
 export const makeDispatcher = (
   type: DispatcherType,
   tag: ConnectionTag,
   dbName: string,
-): NativeDispatcher =>
-  type === 'jsi' ? makeDispatcherJsi(dbName) : makeDispatcherNativeModules(tag)
+  usesExclusiveLocking: boolean,
+): SqliteDispatcher =>
+  type === 'jsi'
+    ? new SqliteJsiDispatcher(dbName, usesExclusiveLocking)
+    : new SqliteNativeModulesDispatcher(tag)
 
 const initializeJSI = () => {
   if (global.nativeWatermelonCreateAdapter) {

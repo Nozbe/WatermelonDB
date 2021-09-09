@@ -79,8 +79,14 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     type: 'sql'
     expr: string
   }
+  export interface SqlQuery{
+    type: 'sqlQuery',
+    sql: string,
+    values: Value[]
+  }
 
-  export type Clause = Where | On | SortBy | Take | Skip | Join | NestedJoin | Sql
+
+  export type Clause = Where | On | SortBy | Take | Skip | Join | NestedJoin | Sql | SqlQuery
   export interface QueryDescription {
     where: Where[]
     join: On[]
@@ -109,13 +115,14 @@ declare module '@nozbe/watermelondb/QueryDescription' {
   export function ftsMatch(value: string): Comparison
   export function like(value: string): Comparison
   export function notLike(value: string): Comparison
-  export function experimentalSortBy(sortColumn: ColumnName, sortOrder?: SortOrder): SortBy
-  export function experimentalTake(count: number): Take
-  export function experimentalSkip(count: number): Skip
+  export function sortBy(sortColumn: ColumnName, sortOrder?: SortOrder): SortBy
+  export function take(count: number): Take
+  export function skip(count: number): Skip
   export function experimentalJoinTables(tables: TableName<any>[]): Join
   export function experimentalNestedJoin(from: TableName<any>, to: TableName<any>): NestedJoin
   export function sanitizeLikeString(value: string): string
   export function unsafeSqlExpr(sql: string): Sql
+  export function unsafeSqlQuery(sql: string): SqlQuery
 
   type _OnFunctionColumnValue = (table: TableName<any>, column: ColumnName, value: Value) => On
   type _OnFunctionColumnComparison = (

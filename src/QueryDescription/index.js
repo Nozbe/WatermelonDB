@@ -22,7 +22,7 @@ export type Operator =
   | 'notEq'
   | 'gt'
   | 'gte'
-  | 'weakGt' // TODO: Do we still even need `gt`?
+  | 'weakGt'
   | 'lt'
   | 'lte'
   | 'oneOf'
@@ -318,7 +318,7 @@ export function or(...clauses: Where[]): Or {
   return { type: 'or', conditions: clauses }
 }
 
-export function experimentalSortBy(sortColumn: ColumnName, sortOrder: SortOrder = asc): SortBy {
+export function sortBy(sortColumn: ColumnName, sortOrder: SortOrder = asc): SortBy {
   invariant(
     sortOrder === 'asc' || sortOrder === 'desc',
     `Invalid sortOrder argument received in Q.sortBy (valid: asc, desc)`,
@@ -326,12 +326,12 @@ export function experimentalSortBy(sortColumn: ColumnName, sortOrder: SortOrder 
   return { type: 'sortBy', sortColumn: checkName(sortColumn), sortOrder }
 }
 
-export function experimentalTake(count: number): Take {
+export function take(count: number): Take {
   invariant(typeof count === 'number', 'Value passed to Q.take() is not a number')
   return { type: 'take', count }
 }
 
-export function experimentalSkip(count: number): Skip {
+export function skip(count: number): Skip {
   invariant(typeof count === 'number', 'Value passed to Q.skip() is not a number')
   return { type: 'skip', count }
 }

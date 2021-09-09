@@ -67,9 +67,11 @@ import com.android.build.OutputFile
  */
 
 project.ext.react = [
-        entryFile: "src/index.integrationTests.native.js",
-        cliPath  : "../node_modules/react-native/local-cli/cli.js",
-       bundleInDebug: true,
+    entryFile: "src/index.integrationTests.native.js",
+    cliPath: "../node_modules/react-native/local-cli/cli.js",
+    bundleInDebug: true,
+    enableHermes: true,
+    hermesCommand: "../../../node_modules/hermes-engine/%OS-BIN%/hermesc",
 ]
 
 apply from: "../../../node_modules/react-native/react.gradle"
@@ -154,7 +156,6 @@ android {
     }
 
     packagingOptions {
-        pickFirst '**/libjsc.so'
         pickFirst '**/libc++_shared.so'
     }
 }
@@ -166,12 +167,16 @@ configurations {
 dependencies {
     ktlint "com.github.shyiko:ktlint:0.31.0"
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation "org.webkit:android-jsc:+"
     implementation project(':watermelondb')
     implementation project(':watermelondb-jsi')
     implementation 'androidx.appcompat:appcompat:1.0.2'
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
+
+    def hermesPath = "../../../node_modules/hermes-engine/android/"
+    debugImplementation files(hermesPath + "hermes-debug.aar")
+    releaseImplementation files(hermesPath + "hermes-release.aar")
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     androidTestImplementation 'androidx.annotation:annotation:1.0.0'
     androidTestImplementation 'androidx.test:runner:1.1.1'

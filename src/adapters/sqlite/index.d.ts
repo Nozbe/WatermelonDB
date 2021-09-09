@@ -20,11 +20,20 @@ declare module '@nozbe/watermelondb/adapters/sqlite' {
 
   export type SQLiteQuery = [SQL, SQLiteArg[]]
 
+  export type MigrationEvents = {
+    onSuccess: () => void
+    onStart: () => void
+    onError: (error: Error) => void
+  }
+
   export interface SQLiteAdapterOptions {
     dbName?: string
     migrations?: SchemaMigrations
     schema: AppSchema
     jsi?: boolean
+    migrationEvents?: MigrationEvents
+    onSetUpError?: (error: Error) => void
+    usesExclusiveLocking?: boolean
   }
 
   export default class SQLiteAdapter implements DatabaseAdapter {

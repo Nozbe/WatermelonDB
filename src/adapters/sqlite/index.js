@@ -2,13 +2,20 @@
 /* eslint-disable global-require */
 
 import { connectionTag, type ConnectionTag, logger, invariant } from '../../utils/common'
-import { type ResultCallback, mapValue, toPromise, fromPromise } from '../../utils/fp/Result'
+import { type ResultCallback, mapValue, toPromise } from '../../utils/fp/Result'
+import { mapObj } from '../../utils/fp'
 
 import type { RecordId } from '../../Model'
 import type { SerializedQuery } from '../../Query'
 import type { TableName, AppSchema, SchemaVersion } from '../../Schema'
 import type { SchemaMigrations, MigrationStep } from '../../Schema/migrations'
-import type { DatabaseAdapter, CachedQueryResult, CachedFindResult, BatchOperation } from '../type'
+import type {
+  DatabaseAdapter,
+  CachedQueryResult,
+  CachedFindResult,
+  BatchOperation,
+  UnsafeExecuteOperations,
+} from '../type'
 import {
   sanitizeFindResult,
   sanitizeQueryResult,
@@ -22,21 +29,21 @@ import type {
   SQLiteAdapterOptions,
   SQLiteArg,
   SQLiteQuery,
-  NativeBridgeBatchOperation,
-  NativeDispatcher,
+  SqliteDispatcher,
   MigrationEvents,
 } from './type'
 
-import encodeName from './encodeName'
 import encodeQuery from './encodeQuery'
 
-import { makeDispatcher, DatabaseBridge, getDispatcherType } from './makeDispatcher'
+import { makeDispatcher, getDispatcherType } from './makeDispatcher'
 
 export type { SQL, SQLiteArg, SQLiteQuery }
 
 if (process.env.NODE_ENV !== 'production') {
   require('./devtools')
 }
+
+const IGNORE_CACHE = 0
 
 export default class SQLiteAdapter implements DatabaseAdapter {
   schema: AppSchema
@@ -51,13 +58,13 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
   _dispatcherType: DispatcherType
 
-  _dispatcher: NativeDispatcher
+  _dispatcher: SqliteDispatcher
 
   _initPromise: Promise<void>
 
   constructor(options: SQLiteAdapterOptions): void {
     // console.log(`---> Initializing new adapter (${this._tag})`)
-    const { dbName, schema, migrations, migrationEvents } = options
+    const { dbName, schema, migrations, migrationEvents, usesExclusiveLocking = false } = options
     this.schema = schema
     this.migrations = migrations
     this._migrationEvents = migrationEvents
@@ -65,7 +72,12 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     this._dispatcherType = getDispatcherType(options)
     // Hacky-ish way to create an object with NativeModule-like shape, but that can dispatch method
     // calls to async, synch NativeModule, or JSI implementation w/ type safety in rest of the impl
-    this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName)
+    this._dispatcher = makeDispatcher(
+      this._dispatcherType,
+      this._tag,
+      this._dbName,
+      usesExclusiveLocking,
+    )
 
     if (process.env.NODE_ENV !== 'production') {
       invariant(
@@ -76,15 +88,15 @@ export default class SQLiteAdapter implements DatabaseAdapter {
         !('synchronous' in options),
         'SQLiteAdapter `synchronous: true` was removed. Replace with `jsi: true`, which has the same effect, but with a more modern implementation',
       )
-      invariant(
-        DatabaseBridge,
-        `NativeModules.DatabaseBridge is not defined! This means that you haven't properly linked WatermelonDB native module. Refer to docs for more details`,
-      )
       validateAdapter(this)
     }
 
-    this._initPromise = this._init()
-    fromPromise(this._initPromise, (result) => devSetupCallback(result, options.onSetUpError))
+    this._initPromise = toPromise((callback) => {
+      this._init((result) => {
+        callback(result)
+        devSetupCallback(result, options.onSetUpError)
+      })
+    })
   }
 
   get initializingPromise(): Promise<void> {
@@ -116,29 +128,31 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     return name || 'watermelon'
   }
 
-  async _init(): Promise<void> {
+  _init(callback: ResultCallback<void>): void {
     // Try to initialize the database with just the schema number. If it matches the database,
     // we're good. If not, we try again, this time sending the compiled schema or a migration set
     // This is to speed up the launch (less to do and pass through bridge), and avoid repeating
     // migration logic inside native code
-    const status = await toPromise((callback) =>
-      this._dispatcher.initialize(this._dbName, this.schema.version, callback),
-    )
+    this._dispatcher.call('initialize', [this._dbName, this.schema.version], (result) => {
+      if (result.error) {
+        callback(result)
+        return
+      }
 
-    // NOTE: Race condition - logic here is asynchronous, but synchronous-mode adapter does not allow
-    // for queueing operations. will fail if you start making actions immediately
-    if (status.code === 'schema_needed') {
-      await this._setUpWithSchema()
-    } else if (status.code === 'migrations_needed') {
-      await this._setUpWithMigrations(status.databaseVersion)
-    } else {
-      invariant(status.code === 'ok', 'Invalid database initialization status')
-    }
-
-    // console.log(`---> Done initializing (${this._tag})`)
+      const status = result.value
+      if (status.code === 'schema_needed') {
+        this._setUpWithSchema(callback)
+      } else if (status.code === 'migrations_needed') {
+        this._setUpWithMigrations(status.databaseVersion, callback)
+      } else if (status.code !== 'ok') {
+        callback({ error: new Error('Invalid database initialization status') })
+      } else {
+        callback({ value: undefined })
+      }
+    })
   }
 
-  async _setUpWithMigrations(databaseVersion: SchemaVersion): Promise<void> {
+  _setUpWithMigrations(databaseVersion: SchemaVersion, callback: ResultCallback<void>): void {
     logger.log('[SQLite] Database needs migrations')
     invariant(databaseVersion > 0, 'Invalid database schema version')
 
@@ -151,51 +165,54 @@ export default class SQLiteAdapter implements DatabaseAdapter {
         this._migrationEvents.onStart()
       }
 
-      try {
-        await toPromise((callback) =>
-          this._dispatcher.setUpWithMigrations(
-            this._dbName,
-            this._encodeMigrations(migrationSteps),
-            databaseVersion,
-            this.schema.version,
-            callback,
-          ),
-        )
-        logger.log('[SQLite] Migration successful')
-        if (this._migrationEvents && this._migrationEvents.onSuccess) {
-          this._migrationEvents.onSuccess()
-        }
-      } catch (error) {
-        logger.error('[SQLite] Migration failed', error)
-        if (this._migrationEvents && this._migrationEvents.onError) {
-          this._migrationEvents.onError(error)
-        }
-        throw error
-      }
+      this._dispatcher.call(
+        'setUpWithMigrations',
+        [
+          this._dbName,
+          require('./encodeSchema').encodeMigrationSteps(migrationSteps),
+          databaseVersion,
+          this.schema.version,
+        ],
+        (result) => {
+          if (result.error) {
+            logger.error('[SQLite] Migration failed', result.error)
+            if (this._migrationEvents && this._migrationEvents.onError) {
+              this._migrationEvents.onError(result.error)
+            }
+          } else {
+            logger.log('[SQLite] Migration successful')
+            if (this._migrationEvents && this._migrationEvents.onSuccess) {
+              this._migrationEvents.onSuccess()
+            }
+          }
+          callback(result)
+        },
+      )
     } else {
       logger.warn(
         '[SQLite] Migrations not available for this version range, resetting database instead',
       )
-      await this._setUpWithSchema()
+      this._setUpWithSchema(callback)
     }
   }
 
-  async _setUpWithSchema(): Promise<void> {
+  _setUpWithSchema(callback: ResultCallback<void>): void {
     logger.log(`[SQLite] Setting up database with schema version ${this.schema.version}`)
-    await toPromise((callback) =>
-      this._dispatcher.setUpWithSchema(
-        this._dbName,
-        this._encodedSchema(),
-        this.schema.version,
-        callback,
-      ),
+    this._dispatcher.call(
+      'setUpWithSchema',
+      [this._dbName, this._encodedSchema(), this.schema.version],
+      (result) => {
+        if (!result.error) {
+          logger.log(`[SQLite] Schema set up successfully`)
+        }
+        callback(result)
+      },
     )
-    logger.log(`[SQLite] Schema set up successfully`)
   }
 
   find(table: TableName<any>, id: RecordId, callback: ResultCallback<CachedFindResult>): void {
     validateTable(table, this.schema)
-    this._dispatcher.find(table, id, (result) =>
+    this._dispatcher.call('find', [table, id], (result) =>
       callback(
         mapValue((rawRecord) => sanitizeFindResult(rawRecord, this.schema.tables[table]), result),
       ),
@@ -206,7 +223,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     validateTable(query.table, this.schema)
     const { table } = query
     const [sql, args] = encodeQuery(query)
-    this._dispatcher.query(table, sql, args, (result) =>
+    this._dispatcher.call('query', [table, sql, args], (result) =>
       callback(
         mapValue(
           (rawRecords) => sanitizeQueryResult(rawRecords, this.schema.tables[table]),
@@ -218,30 +235,49 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
   queryIds(query: SerializedQuery, callback: ResultCallback<RecordId[]>): void {
     validateTable(query.table, this.schema)
-    const [sql, args] = encodeQuery(query)
-    this._dispatcher.queryIds(sql, args, callback)
+    this._dispatcher.call(
+      'queryIds',
+      // $FlowFixMe
+      encodeQuery(query),
+      callback,
+    )
   }
 
   unsafeQueryRaw(query: SerializedQuery, callback: ResultCallback<any[]>): void {
     validateTable(query.table, this.schema)
-    const [sql, args] = encodeQuery(query)
-    this._dispatcher.unsafeQueryRaw(sql, args, callback)
+    this._dispatcher.call(
+      'unsafeQueryRaw',
+      // $FlowFixMe
+      encodeQuery(query),
+      callback,
+    )
   }
 
   count(query: SerializedQuery, callback: ResultCallback<number>): void {
     validateTable(query.table, this.schema)
-    const [sql, args] = encodeQuery(query, true)
-    this._dispatcher.count(sql, args, callback)
+    this._dispatcher.call(
+      'count',
+      // $FlowFixMe
+      encodeQuery(query, true),
+      callback,
+    )
   }
 
   batch(operations: BatchOperation[], callback: ResultCallback<void>): void {
-    this._batch(require('./encodeBatch').default(operations, this.schema), callback)
+    this._dispatcher.call(
+      'batch',
+      [require('./encodeBatch').default(operations, this.schema)],
+      callback,
+    )
   }
 
   getDeletedRecords(table: TableName<any>, callback: ResultCallback<RecordId[]>): void {
     validateTable(table, this.schema)
-    const sql = `select id from ${encodeName(table)} where _status='deleted'`
-    this._dispatcher.queryIds(sql, [], callback)
+    this._dispatcher.call(
+      'queryIds',
+      [`select id from "${table}" where _status='deleted'`, []],
+      callback,
+    )
   }
 
   destroyDeletedRecords(
@@ -250,46 +286,96 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     callback: ResultCallback<void>,
   ): void {
     validateTable(table, this.schema)
-    this._batch(
-      [[0, null, `delete from "${table}" where "id" == ?`, recordIds.map((id) => [id])]],
-      callback,
+    const operation = [
+      0,
+      null,
+      `delete from "${table}" where "id" == ?`,
+      recordIds.map((id) => [id]),
+    ]
+    this._dispatcher.call('batch', [[operation]], callback)
+  }
+
+  unsafeLoadFromSync(jsonId: number, callback: ResultCallback<any>): void {
+    if (this._dispatcherType !== 'jsi') {
+      callback({ error: new Error('unsafeLoadFromSync unavailable') })
+      return
+    }
+
+    const { encodeDropIndices, encodeCreateIndices } = require('./encodeSchema')
+    const { schema } = this
+    this._dispatcher.call(
+      'unsafeLoadFromSync',
+      [jsonId, schema, encodeDropIndices(schema), encodeCreateIndices(schema)],
+      (result) =>
+        callback(
+          mapValue(
+            // { key: JSON.stringify(value) } -> { key: value }
+            (residualValues) => mapObj((values) => JSON.parse(values), residualValues),
+            result,
+          ),
+        ),
     )
+  }
+
+  provideSyncJson(id: number, syncPullResultJson: string, callback: ResultCallback<void>): void {
+    if (this._dispatcherType !== 'jsi') {
+      callback({ error: new Error('provideSyncJson unavailable') })
+      return
+    }
+
+    this._dispatcher.call('provideSyncJson', [id, syncPullResultJson], callback)
   }
 
   unsafeResetDatabase(callback: ResultCallback<void>): void {
-    this._dispatcher.unsafeResetDatabase(this._encodedSchema(), this.schema.version, (result) => {
-      if (result.value) {
-        logger.log('[SQLite] Database is now reset')
-      }
-      callback(result)
-    })
-  }
-
-  getLocal(key: string, callback: ResultCallback<?string>): void {
-    this._dispatcher.getLocal(key, callback)
-  }
-
-  setLocal(key: string, value: string, callback: ResultCallback<void>): void {
-    this._batch(
-      [
-        [
-          0,
-          null,
-          `insert or replace into "local_storage" ("key", "value") values (?, ?)`,
-          [[key, value]],
-        ],
-      ],
-      callback,
+    this._dispatcher.call(
+      'unsafeResetDatabase',
+      [this._encodedSchema(), this.schema.version],
+      (result) => {
+        if (result.value) {
+          logger.log('[SQLite] Database is now reset')
+        }
+        callback(result)
+      },
     )
   }
 
+  unsafeExecute(operations: UnsafeExecuteOperations, callback: ResultCallback<void>): void {
+    if (process.env.NODE_ENV !== 'production') {
+      invariant(
+        operations &&
+          typeof operations === 'object' &&
+          Object.keys(operations).length === 1 &&
+          Array.isArray(operations.sqls),
+        'unsafeExecute expects an { sqls: [ [sql, [args..]], ... ] } object',
+      )
+    }
+    const queries: SQLiteQuery[] = (operations: any).sqls
+    const batchOperations = queries.map(([sql, args]) => [IGNORE_CACHE, null, sql, [args]])
+    this._dispatcher.call('batch', [batchOperations], callback)
+  }
+
+  getLocal(key: string, callback: ResultCallback<?string>): void {
+    this._dispatcher.call('getLocal', [key], callback)
+  }
+
+  setLocal(key: string, value: string, callback: ResultCallback<void>): void {
+    invariant(typeof value === 'string', 'adapter.setLocal() value must be a string')
+    const operation = [
+      IGNORE_CACHE,
+      null,
+      `insert or replace into "local_storage" ("key", "value") values (?, ?)`,
+      [[key, value]],
+    ]
+    this._dispatcher.call('batch', [[operation]], callback)
+  }
+
   removeLocal(key: string, callback: ResultCallback<void>): void {
-    this._batch([[0, null, `delete from "local_storage" where "key" == ?`, [[key]]]], callback)
+    const operation = [IGNORE_CACHE, null, `delete from "local_storage" where "key" == ?`, [[key]]]
+    this._dispatcher.call('batch', [[operation]], callback)
   }
 
   _encodedSchema(): SQL {
-    const { encodeSchema } = require('./encodeSchema')
-    return encodeSchema(this.schema)
+    return require('./encodeSchema').encodeSchema(this.schema)
   }
 
   _migrationSteps(fromVersion: SchemaVersion): ?(MigrationStep[]) {
@@ -304,19 +390,5 @@ export default class SQLiteAdapter implements DatabaseAdapter {
       fromVersion,
       toVersion: this.schema.version,
     })
-  }
-
-  _encodeMigrations(steps: MigrationStep[]): SQL {
-    const { encodeMigrationSteps } = require('./encodeSchema')
-    return encodeMigrationSteps(steps)
-  }
-
-  _batch(batchOperations: NativeBridgeBatchOperation[], callback: ResultCallback<void>): void {
-    const { batchJSON } = this._dispatcher
-    if (batchJSON) {
-      batchJSON(JSON.stringify(batchOperations), callback)
-    } else {
-      this._dispatcher.batch(batchOperations, callback)
-    }
   }
 }
