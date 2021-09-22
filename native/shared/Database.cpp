@@ -8,64 +8,6 @@ namespace watermelondb {
 using platform::consoleError;
 using platform::consoleLog;
 
-// TODO: Remove this after simdjson::to_string is released
-// Adapted from https://github.com/simdjson/simdjson/blob/v0.9.5/doc/basics.md#documents-are-iterators
-template <class T>
-std::string to_json_string(T&& element) {
-    using namespace simdjson;
-
-    bool add_comma;
-    std::stringstream json;
-
-    switch (element.type()) {
-    case ondemand::json_type::array:
-        json << "[";
-        add_comma = false;
-        for (auto child : element.get_array()) {
-            if (add_comma) {
-                json << ",";
-            }
-            json << to_json_string(child.value());
-            add_comma = true;
-        }
-        json << "]";
-        break;
-    case ondemand::json_type::object:
-        json << "{";
-        add_comma = false;
-        for (auto field : element.get_object()) {
-            if (add_comma) {
-                json << ",";
-            }
-            json << "\"" << field.key() << "\": ";
-            json << to_json_string(field.value());
-            add_comma = true;
-        }
-        json << "}";
-        break;
-    case ondemand::json_type::number: {
-        int64_t intValue;
-        auto error = element.get(intValue);
-        if (error) {
-            json << std::to_string(element.get_double());
-        } else {
-            json << std::to_string(intValue);
-        }
-        break;
-    }
-    case ondemand::json_type::string:
-        json << "\"" << element.get_raw_json_string() << "\"";
-        break;
-    case ondemand::json_type::boolean:
-        json << (element.get_bool() ? "true" : "false");
-        break;
-    case ondemand::json_type::null:
-        json << "null";
-        break;
-    }
-    return json.str();
-}
-
 Database::Database(jsi::Runtime *runtime, std::string path, bool usesExclusiveLocking) : runtime_(runtime), mutex_() {
     db_ = std::make_unique<SqliteDb>(path);
 
@@ -792,13 +734,11 @@ jsi::Value Database::unsafeLoadFromSync(int jsonId, jsi::Object &schema, std::st
             std::string_view fieldNameView = docField.unescaped_key();
 
             if (fieldNameView != "changes") {
-                // TODO: replace this with simdjson::to_string once available:
-                // https://github.com/simdjson/simdjson/issues/1607
                 ondemand::value value = docField.value();
-                auto valueJson = to_json_string(value);
+                std::string_view valueJson = simdjson::to_json_string(value);
                 residualValues.setProperty(rt,
                                            jsi::String::createFromUtf8(rt, (std::string) fieldNameView),
-                                           jsi::String::createFromUtf8(rt, valueJson));
+                                           jsi::String::createFromUtf8(rt, (std::string) valueJson));
             } else {
                 ondemand::object changeSet = docField.value();
                 for (auto changeSetField : changeSet) {
