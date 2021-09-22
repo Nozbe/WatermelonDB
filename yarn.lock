@@ -1572,10 +1572,10 @@
     readdirp "^2.2.1"
     upath "^1.1.1"
 
-"@nozbe/simdjson@0.9.6-fix2":
-  version "0.9.6-fix2"
-  resolved "https://registry.yarnpkg.com/@nozbe/simdjson/-/simdjson-0.9.6-fix2.tgz#00d1c8ec76bfac25c022b07511c8fff4568b2973"
-  integrity sha512-xKzrhtH7elBUOOihtNwN4Jr0iVcI7+95NCzC2gLvBYkITiCYqqOUm+2badFMkWFEE9gKQLUJJaux4qtgPPItaQ==
+"@nozbe/simdjson@1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@nozbe/simdjson/-/simdjson-1.0.0.tgz#9327962214c98e046bea44d0d56a70e10d9d7ce8"
+  integrity sha512-lm/MNUneznK65NNbmvawOn+OFYMjeBga+xEBACda4hTpZBnJhIgfLIxpYvx40sIeihRX0v7WiEB7VwQO9FIMAg==
 
 "@nozbe/sqlite@3.31.1":
   version "3.31.1"
