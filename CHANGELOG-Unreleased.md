@@ -12,6 +12,7 @@
 ### New features
 
 - **sortBy, skip, take** are now available in LokiJSAdapter as well
+- [Sync] `experimentalRejectedIds` parameter now available in push response to allow partial rejection of an otherwise successful sync
 
 ### Performance
 
