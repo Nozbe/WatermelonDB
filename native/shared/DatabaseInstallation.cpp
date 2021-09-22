@@ -258,6 +258,12 @@ void Database::install(jsi::Runtime *runtime) {
                 std::abort();
             }
         });
+        createMethod(rt, adapter, "unsafeClose", 0, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            assert(database->initialized_);
+            database->destroy();
+            database->initialized_ = false;
+            return jsi::Value::undefined();
+        });
 
         return adapter;
     });

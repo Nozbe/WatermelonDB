@@ -39,9 +39,11 @@ class SqliteNativeModulesDispatcher implements SqliteDispatcher {
 
 class SqliteJsiDispatcher implements SqliteDispatcher {
   _db: any
+  _unsafeErrorListener: (Error) => void // debug hook for NT use
 
   constructor(dbName: string, usesExclusiveLocking: boolean): void {
     this._db = global.nativeWatermelonCreateAdapter(dbName, usesExclusiveLocking)
+    this._unsafeErrorListener = () => {}
   }
 
   call(name: SqliteDispatcherMethod, _args: any[], callback: ResultCallback<any>): void {
@@ -61,10 +63,14 @@ class SqliteJsiDispatcher implements SqliteDispatcher {
     }
 
     try {
-      let result = this._db[methodName](...args)
+      const method = this._db[methodName]
+      if (!method) {
+        throw new Error('Cannot run database method because database failed to open')
+      }
+      let result = method(...args)
       // On Android, errors are returned, not thrown - see DatabaseInstallation.cpp
       if (result instanceof Error) {
-        callback({ error: result })
+        throw result
       } else {
         if (methodName === 'queryAsArray') {
           result = require('./decodeQueryResult').default(result)
@@ -72,6 +78,7 @@ class SqliteJsiDispatcher implements SqliteDispatcher {
         callback({ value: result })
       }
     } catch (error) {
+      this._unsafeErrorListener(error)
       callback({ error })
     }
   }
