@@ -270,6 +270,15 @@ describe('Database', () => {
         'prepared create/update/delete',
       )
     })
+    it(`throws error if attempting to batch a disposable record`, async () => {
+      const { database, tasks } = mockDatabase()
+      const m1 = tasks.disposableFromDirtyRaw({ name: 'hello' })
+
+      await expectToRejectWithMessage(
+        database.write(() => database.batch(m1)),
+        'disposable',
+      )
+    })
     it('throws error if batch is called outside of a writer', async () => {
       const { database, tasks } = mockDatabase()
 

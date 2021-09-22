@@ -113,6 +113,16 @@ export default class Collection<Record: Model> {
     return this.modelClass._prepareCreateFromDirtyRaw(this, dirtyRaw)
   }
 
+  // Prepares a disposable record in this collection based on a raw object, e.g. `{ foo: 'bar' }`.
+  // Disposable records are read-only, cannot be saved in the database, updated, or deleted
+  // they only exist for as long as you keep a reference to them in memory.
+  // Don't use this unless you know how RawRecords work in WatermelonDB.
+  // This is useful when you're adding online-only features to an otherwise offline-first app
+  disposableFromDirtyRaw(dirtyRaw: DirtyRaw): Record {
+    // $FlowFixMe
+    return this.modelClass._disposableFromDirtyRaw(this, dirtyRaw)
+  }
+
   // *** Implementation of Query APIs ***
 
   unsafeFetchRecordsWithSQL(sql: string): Promise<Record[]> {

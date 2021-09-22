@@ -87,10 +87,10 @@ export default class Database {
       }
 
       const preparedState = record._preparedState
-      invariant(
-        preparedState,
-        `Cannot batch a record that doesn't have a prepared create/update/delete`,
-      )
+      if (!preparedState) {
+        invariant(record._raw._status !== 'disposable', `Cannot batch a disposable record`)
+        throw new Error(`Cannot batch a record that doesn't have a prepared create/update/delete`)
+      }
 
       const raw = record._raw
       const { id } = raw // faster than Model.id

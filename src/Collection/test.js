@@ -242,6 +242,15 @@ describe('creating new records', () => {
     expect(m1._preparedState).toBe('create')
     expect(newModelSpy).toHaveBeenCalledTimes(1)
   })
+  it('can prepare a disposable record from raw', async () => {
+    const { tasks: collection } = mockDatabase()
+
+    const newModelSpy = jest.spyOn(MockTask, '_disposableFromDirtyRaw')
+
+    const m1 = collection.disposableFromDirtyRaw({ col3: 'hello' })
+    expect(m1.syncStatus).toBe('disposable')
+    expect(newModelSpy).toHaveBeenCalledTimes(1)
+  })
   it('disallows record creating outside of a writer', async () => {
     const { database, tasks } = mockDatabase()
 
