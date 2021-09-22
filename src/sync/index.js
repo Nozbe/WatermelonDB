@@ -27,7 +27,11 @@ export type SyncPullResult =
   | $Exact<{ syncJson: string }>
   | $Exact<{ syncJsonId: number }>
 
+export type SyncRejectedIds = { [TableName<any>]: RecordId[] }
+
 export type SyncPushArgs = $Exact<{ changes: SyncDatabaseChangeSet, lastPulledAt: Timestamp }>
+
+export type SyncPushResult = $Exact<{ experimentalRejectedIds?: SyncRejectedIds }>
 
 type SyncConflict = $Exact<{ local: DirtyRaw, remote: DirtyRaw, resolved: DirtyRaw }>
 export type SyncLog = {
@@ -37,6 +41,7 @@ export type SyncLog = {
   migration?: ?MigrationSyncChanges,
   newLastPulledAt?: number,
   resolvedConflicts?: SyncConflict[],
+  rejectedIds?: SyncRejectedIds,
   finishedAt?: Date,
   remoteChangeCount?: number,
   localChangeCount?: number,
@@ -54,7 +59,7 @@ export type SyncConflictResolver = (
 export type SyncArgs = $Exact<{
   database: Database,
   pullChanges: (SyncPullArgs) => Promise<SyncPullResult>,
-  pushChanges?: (SyncPushArgs) => Promise<void>,
+  pushChanges?: (SyncPushArgs) => Promise<?SyncPushResult>,
   // version at which support for migration syncs was added - the version BEFORE first syncable migration
   migrationsEnabledAtVersion?: SchemaVersion,
   sendCreatedAsUpdated?: boolean,
