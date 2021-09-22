@@ -8,7 +8,11 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteQuery
 import java.io.File
 
-class Database(private val name: String, private val context: Context, private val openFlags: Int = SQLiteDatabase.CREATE_IF_NECESSARY or SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING) {
+class Database(
+    private val name: String,
+    private val context: Context,
+    private val openFlags: Int = SQLiteDatabase.CREATE_IF_NECESSARY or SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING
+) {
 
     private val db: SQLiteDatabase by lazy {
         // TODO: This SUCKS. Seems like Android doesn't like sqlite `?mode=memory&cache=shared` mode. To avoid random breakages, save the file to /tmp, but this is slow.
