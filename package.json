@@ -45,7 +45,7 @@
   "dependencies": {
     "@babel/runtime": "^7.11.2",
     "@nozbe/simdjson": "1.0.0",
-    "@nozbe/sqlite": "3.31.1",
+    "@nozbe/sqlite": "3.36.0",
     "@nozbe/with-observables": "1.4.0",
     "hoist-non-react-statics": "^3.3.2",
     "lokijs": "npm:@nozbe/lokijs@1.5.12-wmelon4",
