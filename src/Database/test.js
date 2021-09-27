@@ -11,6 +11,12 @@ describe('Database', () => {
     expect(database.get('mock_comments')).toBe(database.collections.get('mock_comments'))
   })
 
+  it(`implements localStorage`, async () => {
+    const { database } = mockDatabase()
+    await database.localStorage.set('foo', 'bar')
+    expect(await database.localStorage.get('foo')).toBe('bar')
+  })
+
   describe('unsafeResetDatabase', () => {
     it('can reset database', async () => {
       const { database, tasks } = mockDatabase()
@@ -268,6 +274,15 @@ describe('Database', () => {
       await expectToRejectWithMessage(
         database.write(() => database.batch(m1)),
         'prepared create/update/delete',
+      )
+    })
+    it(`throws error if attempting to batch a disposable record`, async () => {
+      const { database, tasks } = mockDatabase()
+      const m1 = tasks.disposableFromDirtyRaw({ name: 'hello' })
+
+      await expectToRejectWithMessage(
+        database.write(() => database.batch(m1)),
+        'disposable',
       )
     })
     it('throws error if batch is called outside of a writer', async () => {

@@ -21,7 +21,8 @@ import { createTimestampsFor, fetchChildren } from './helpers'
 
 export type RecordId = string
 
-export type SyncStatus = 'synced' | 'created' | 'updated' | 'deleted'
+// NOTE: status 'disposable' MUST NOT ever appear in a persisted record
+export type SyncStatus = 'synced' | 'created' | 'updated' | 'deleted' | 'disposable'
 
 export type BelongsToAssociation = $RE<{ type: 'belongs_to', key: ColumnName }>
 export type HasManyAssociation = $RE<{ type: 'has_many', foreignKey: ColumnName }>
@@ -89,6 +90,7 @@ export default class Model {
   // database.batch()
   prepareUpdate(recordUpdater: (this) => void = noop): this {
     invariant(!this._preparedState, `Cannot update a record with pending changes`)
+    this.__ensureNotDisposable(`Model.prepareUpdate()`)
     this._isEditing = true
 
     // Touch updatedAt (if available)
@@ -123,6 +125,7 @@ export default class Model {
 
   prepareMarkAsDeleted(): this {
     invariant(!this._preparedState, `Cannot mark a record with pending changes as deleted`)
+    this.__ensureNotDisposable(`Model.prepareMarkAsDeleted()`)
     this._raw._status = 'deleted'
     this._preparedState = 'markAsDeleted'
     return this
@@ -130,6 +133,7 @@ export default class Model {
 
   prepareDestroyPermanently(): this {
     invariant(!this._preparedState, `Cannot destroy permanently a record with pending changes`)
+    this.__ensureNotDisposable(`Model.prepareDestroyPermanently()`)
     this._raw._status = 'deleted'
     this._preparedState = 'destroyPermanently'
     return this
@@ -139,6 +143,7 @@ export default class Model {
   // Note: Use this only with Sync
   async markAsDeleted(): Promise<void> {
     this.db._ensureInWriter(`Model.markAsDeleted()`)
+    this.__ensureNotDisposable(`Model.markAsDeleted()`)
     await this.db.batch(this.prepareMarkAsDeleted())
   }
 
@@ -146,11 +151,13 @@ export default class Model {
   // Note: Don't use this when using Sync
   async destroyPermanently(): Promise<void> {
     this.db._ensureInWriter(`Model.destroyPermanently()`)
+    this.__ensureNotDisposable(`Model.destroyPermanently()`)
     await this.db.batch(this.prepareDestroyPermanently())
   }
 
   async experimentalMarkAsDeleted(): Promise<void> {
     this.db._ensureInWriter(`Model.experimental_markAsDeleted()`)
+    this.__ensureNotDisposable(`Model.experimentalMarkAsDeleted()`)
     const children = await fetchChildren(this)
     children.forEach((model) => model.prepareMarkAsDeleted())
     await this.db.batch(...children, this.prepareMarkAsDeleted())
@@ -158,6 +165,7 @@ export default class Model {
 
   async experimentalDestroyPermanently(): Promise<void> {
     this.db._ensureInWriter(`Model.experimental_destroyPermanently()`)
+    this.__ensureNotDisposable(`Model.experimentalDestroyPermanently()`)
     const children = await fetchChildren(this)
     children.forEach((model) => model.prepareDestroyPermanently())
     await this.db.batch(...children, this.prepareDestroyPermanently())
@@ -255,6 +263,15 @@ export default class Model {
     return record
   }
 
+  static _disposableFromDirtyRaw(
+    collection: Collection<$FlowFixMe<this>>,
+    dirtyRaw: DirtyRaw,
+  ): this {
+    const record = new this(collection, sanitizedRaw(dirtyRaw, collection.schema))
+    record._raw._status = 'disposable'
+    return record
+  }
+
   _subscribers: [(isDeleted: boolean) => void, any][] = []
 
   experimentalSubscribe(subscriber: (isDeleted: boolean) => void, debugInfo?: any): Unsubscribe {
@@ -286,13 +303,7 @@ export default class Model {
   }
 
   _setRaw(rawFieldName: ColumnName, rawValue: Value): void {
-    invariant(this._isEditing, 'Not allowed to change record outside of create/update()')
-    invariant(
-      !(this._getChanges(): $FlowFixMe<BehaviorSubject<any>>).isStopped &&
-        this._raw._status !== 'deleted',
-      'Not allowed to change deleted records',
-    )
-
+    this.__ensureCanSetRaw()
     const valueBefore = this._raw[(rawFieldName: string)]
     setRawSanitized(this._raw, rawFieldName, rawValue, this.collection.schema.columns[rawFieldName])
 
@@ -304,13 +315,24 @@ export default class Model {
   // Please don't use this unless you really understand how Watermelon Sync works, and thought long and
   // hard about risks of inconsistency after sync
   _dangerouslySetRawWithoutMarkingColumnChange(rawFieldName: ColumnName, rawValue: Value): void {
+    this.__ensureCanSetRaw()
+    setRawSanitized(this._raw, rawFieldName, rawValue, this.collection.schema.columns[rawFieldName])
+  }
+
+  __ensureCanSetRaw(): void {
+    this.__ensureNotDisposable(`Model._setRaw()`)
     invariant(this._isEditing, 'Not allowed to change record outside of create/update()')
     invariant(
       !(this._getChanges(): $FlowFixMe<BehaviorSubject<any>>).isStopped &&
         this._raw._status !== 'deleted',
       'Not allowed to change deleted records',
     )
+  }
 
-    setRawSanitized(this._raw, rawFieldName, rawValue, this.collection.schema.columns[rawFieldName])
+  __ensureNotDisposable(debugName: string): void {
+    invariant(
+      this._raw._status !== 'disposable',
+      `${debugName} cannot be called on a disposable record`,
+    )
   }
 }
