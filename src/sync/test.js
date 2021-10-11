@@ -438,6 +438,28 @@ describe('markLocalChangesAsSynced', () => {
     expect(destroyDeletedRecordsSpy).toHaveBeenCalledWith('mock_tasks', ['tSynced'])
     expect(destroyDeletedRecordsSpy).toHaveBeenCalledWith('mock_comments', ['cUpdated', 'cCreated'])
   })
+  it(`doesn't mark as synced records in the rejectedIds object`, async () => {
+    const { database } = makeDatabase()
+
+    const { pCreated1, pUpdated } = await makeLocalChanges(database)
+    const localChanges = await fetchLocalChanges(database)
+
+    // mark as synced
+    await markLocalChangesAsSynced(database, localChanges, {
+      mock_projects: ['pCreated1', 'pUpdated'],
+      mock_comments: ['cDeleted'],
+    })
+
+    // verify
+    const localChanges2 = await fetchLocalChanges(database)
+    expect(localChanges2.changes).toEqual(
+      makeChangeSet({
+        mock_projects: { created: [pCreated1._raw], updated: [pUpdated._raw] },
+        mock_comments: { deleted: ['cDeleted'] },
+      }),
+    )
+    expect(await database.adapter.getDeletedRecords('mock_comments')).toEqual(['cDeleted'])
+  })
   // TODO: Unskip the test when batch collection emissions are implemented
   it.skip('only emits one collection batch change', async () => {
     const { database, projects } = makeDatabase()
@@ -1202,6 +1224,64 @@ describe('synchronize', () => {
       position: 20,
       is_completed: true,
     })
+  })
+  it(`can partially reject a push`, async () => {
+    const { database } = makeDatabase()
+
+    const { tCreated, tUpdated } = await makeLocalChanges(database)
+
+    const rejectedIds = Object.freeze({
+      mock_tasks: ['tCreated', 'tUpdated'],
+      mock_comments: ['cDeleted'],
+    })
+    const log = {}
+    await synchronize({
+      database,
+      pullChanges: jest.fn(emptyPull()),
+      pushChanges: jest.fn(() => ({ experimentalRejectedIds: rejectedIds })),
+      log,
+    })
+    expect((await fetchLocalChanges(database)).changes).toEqual(
+      makeChangeSet({
+        mock_tasks: { created: [tCreated._raw], updated: [tUpdated._raw] },
+        mock_comments: { deleted: ['cDeleted'] },
+      }),
+    )
+    expect(log.rejectedIds).toBe(rejectedIds)
+  })
+  it(`can partially reject a push and make changes during push`, async () => {
+    const { database, comments } = makeDatabase()
+
+    const { pCreated1, tUpdated } = await makeLocalChanges(database)
+    const pCreated1Raw = { ...pCreated1._raw }
+    let newComment
+    await synchronize({
+      database,
+      pullChanges: jest.fn(emptyPull()),
+      pushChanges: jest.fn(async () => {
+        await database.write(async () => {
+          await pCreated1.update((p) => {
+            p.name = 'updated!'
+          })
+          newComment = await comments.create((c) => {
+            c.body = 'bazinga'
+          })
+        })
+        return {
+          experimentalRejectedIds: {
+            mock_tasks: ['tUpdated'],
+            mock_comments: ['cDeleted'],
+          },
+        }
+      }),
+    })
+    expect((await fetchLocalChanges(database)).changes).toEqual(
+      makeChangeSet({
+        mock_projects: { created: [{ ...pCreated1Raw, _changed: 'name', name: 'updated!' }] },
+        mock_tasks: { updated: [tUpdated._raw] },
+        mock_comments: { created: [newComment._raw], deleted: ['cDeleted'] },
+      }),
+    )
   })
   it('can synchronize lots of data', async () => {
     const { database, projects, tasks, comments } = makeDatabase()

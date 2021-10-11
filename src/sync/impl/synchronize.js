@@ -123,11 +123,13 @@ export default async function synchronize({
     ensureSameDatabase(database, resetCount)
     if (!isChangeSetEmpty(localChanges.changes)) {
       log && (log.phase = 'ready to push')
-      await pushChanges({ changes: localChanges.changes, lastPulledAt: newLastPulledAt })
+      const pushResult =
+        (await pushChanges({ changes: localChanges.changes, lastPulledAt: newLastPulledAt })) || {}
       log && (log.phase = 'pushed')
+      log && (log.rejectedIds = pushResult.experimentalRejectedIds)
 
       ensureSameDatabase(database, resetCount)
-      await markLocalChangesAsSynced(database, localChanges)
+      await markLocalChangesAsSynced(database, localChanges, pushResult.experimentalRejectedIds)
       log && (log.phase = 'marked local changes as synced')
     }
   } else {

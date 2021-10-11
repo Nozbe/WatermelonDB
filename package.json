@@ -1,7 +1,7 @@
 {
   "name": "@nozbe/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
-  "version": "0.23.1-5",
+  "version": "0.23.1-8",
   "scripts": {
     "build": "NODE_ENV=production node ./scripts/make.js",
     "dev": "NODE_ENV=development node ./scripts/make.js",
@@ -44,8 +44,8 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.11.2",
-    "@nozbe/simdjson": "0.9.6-fix2",
-    "@nozbe/sqlite": "3.31.1",
+    "@nozbe/simdjson": "1.0.0",
+    "@nozbe/sqlite": "3.36.0",
     "@nozbe/with-observables": "1.4.0",
     "hoist-non-react-statics": "^3.3.2",
     "lokijs": "npm:@nozbe/lokijs@1.5.12-wmelon4",

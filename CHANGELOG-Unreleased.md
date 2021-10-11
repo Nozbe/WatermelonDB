@@ -24,7 +24,10 @@
 - [SQLiteAdapter] Added support for Full Text Search for SQLite adapter:
   Add `isFTS` boolean flag to schema column descriptor for creating Full Text Search-able columns
   Add `Q.ftsMatch(value)` that compiles to `match 'value'` SQL for performing Full Text Search using SQLite adpater
+- **LocalStorage**. `database.localStorage` is now available
 - **sortBy, skip, take** are now available in LokiJSAdapter as well
+- **Disposable records**. Read-only records that cannot be saved in the database, updated, or deleted and only exist for as long as you keep a reference to them in memory can now be created using `collection.disposableFromDirtyRaw()`. This is useful when you're adding online-only features to an otherwise offline-first app.
+- [Sync] `experimentalRejectedIds` parameter now available in push response to allow partial rejection of an otherwise successful sync
 
 ### Performance
 

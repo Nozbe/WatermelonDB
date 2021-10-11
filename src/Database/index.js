@@ -12,6 +12,7 @@ import type Collection, { CollectionChangeSet } from '../Collection'
 import type { TableName, AppSchema } from '../Schema'
 
 import CollectionMap from './CollectionMap'
+import type LocalStorage from './LocalStorage'
 import WorkQueue, { type ReaderInterface, type WriterInterface } from './WorkQueue'
 
 type DatabaseProps = $Exact<{
@@ -37,6 +38,8 @@ export default class Database {
   // (experimental) if true, Database is in a broken state and should not be used anymore
   _isBroken: boolean = false
 
+  _localStorage: LocalStorage
+
   constructor(options: DatabaseProps): void {
     const { adapter, modelClasses } = options
     if (process.env.NODE_ENV !== 'production') {
@@ -60,6 +63,14 @@ export default class Database {
 
   get<T: Model>(tableName: TableName<T>): Collection<T> {
     return this.collections.get(tableName)
+  }
+
+  get localStorage(): LocalStorage {
+    if (!this._localStorage) {
+      const LocalStorageClass = require('./LocalStorage').default
+      this._localStorage = new LocalStorageClass(this)
+    }
+    return this._localStorage
   }
 
   // Executes multiple prepared operations
@@ -87,10 +98,10 @@ export default class Database {
       }
 
       const preparedState = record._preparedState
-      invariant(
-        preparedState,
-        `Cannot batch a record that doesn't have a prepared create/update/delete`,
-      )
+      if (!preparedState) {
+        invariant(record._raw._status !== 'disposable', `Cannot batch a disposable record`)
+        throw new Error(`Cannot batch a record that doesn't have a prepared create/update/delete`)
+      }
 
       const raw = record._raw
       const { id } = raw // faster than Model.id

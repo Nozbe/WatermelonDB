@@ -748,6 +748,52 @@ describe('Sync status fields', () => {
   })
 })
 
+describe('Disposable Models', () => {
+  it(`can create a disposable record`, () => {
+    const db = makeDatabase()
+    const record = MockModel._disposableFromDirtyRaw(db.get('mock'), {
+      id: 'm1',
+      name: 'foo',
+      otherfield: 123,
+      number: 3.14,
+    })
+    expect(record.database).toBe(db)
+    expect(record._raw).toEqual({
+      id: 'm1',
+      _status: 'disposable',
+      _changed: '',
+      name: 'foo',
+      otherfield: '',
+      col3: '',
+      col4: null,
+      number: 3.14,
+    })
+    expect(record.id).toBe('m1')
+    expect(record.syncStatus).toBe('disposable')
+    expect(record.name).toBe('foo')
+    expect(record.otherfield).toBe('')
+    expect(record._getRaw('name')).toBe('foo')
+    expect(record._getRaw('number')).toBe(3.14)
+  })
+  it(`cannot modify a disposable record`, async () => {
+    const db = makeDatabase()
+    const record = MockModel._disposableFromDirtyRaw(db.get('mock'), { id: 'm1', name: 'foo' })
+
+    const expectError = (writeAction) =>
+      expectToRejectWithMessage(db.write(writeAction), 'cannot be called on a disposable record')
+
+    await expectError(() => record.prepareUpdate(noop))
+    await expectError(() => record.prepareMarkAsDeleted())
+    await expectError(() => record.prepareDestroyPermanently())
+    await expectError(() => record._setRaw('', ''))
+    await expectError(() => record._dangerouslySetRawWithoutMarkingColumnChange('', ''))
+    await expectError(() => record.update(noop))
+    await expectError(() => record.markAsDeleted())
+    await expectError(() => record.experimentalMarkAsDeleted())
+    await expectError(() => record.experimentalDestroyPermanently())
+  })
+})
+
 describe('Model observation', () => {
   it('notifies Rx observers of changes and deletion', () => {
     const model = new MockModel(null, {})
