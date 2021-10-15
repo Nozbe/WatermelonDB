@@ -77,6 +77,8 @@ export type LokiAdapterOptions = $Exact<{
 }>
 
 export default class LokiJSAdapter implements DatabaseAdapter {
+  static adapterType: string = 'loki'
+
   _dispatcher: LokiDispatcher
 
   schema: AppSchema
