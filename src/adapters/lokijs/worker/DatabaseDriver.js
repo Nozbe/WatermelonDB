@@ -10,7 +10,7 @@ import type {
   BatchOperation,
   UnsafeExecuteOperations,
 } from '../../type'
-import type { TableName, AppSchema, SchemaVersion, TableSchema } from '../../../Schema'
+import type { TableName, AppSchema, SchemaVersion, TableSchema, ColumnSchema } from '../../../Schema'
 import type {
   SchemaMigrations,
   CreateTableMigrationStep,
@@ -318,6 +318,8 @@ export default class DatabaseDriver {
       [],
     )
 
+    this._warnAboutLackingFTSSupport(columnArray)
+
     this.loki.addCollection(name, {
       unique: ['id'],
       indices: ['_status', ...indexedColumns],
@@ -421,6 +423,8 @@ export default class DatabaseDriver {
         collection.ensureIndex(column.name)
       }
     })
+
+    this._warnAboutLackingFTSSupport(columns)
   }
 
   // Maps records to their IDs if the record is already cached on JS side
@@ -475,5 +479,14 @@ export default class DatabaseDriver {
 
     // Rethrow error
     throw error
+  }
+
+  _warnAboutLackingFTSSupport(columns: Array<ColumnSchema>): void {
+    if (columns.some((column) => column.isFTS)) {
+      // Warn the user about missing FTS support for the LokiJS adapter
+      // Please contribute! Here are some pointers:
+      // https://github.com/LokiJS-Forge/LokiDB/blob/master/packages/full-text-search/spec/generic/full_text_search.spec.ts
+      logger.warn('[DB][Worker] LokiJS support for FTS is still to be implemented')
+    }
   }
 }

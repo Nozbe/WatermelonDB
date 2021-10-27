@@ -89,6 +89,34 @@ describe('encodeIndices', () => {
         'drop index "comments__status";',
     )
   })
+  it('encodes schema with FTS', () => {
+    const testSchema = appSchema({
+      version: 1,
+      tables: [
+        tableSchema({
+          name: 'tasks',
+          columns: [
+            { name: 'author_id', type: 'string', isIndexed: true },
+            { name: 'author_name', type: 'string', isFTS: true },
+            { name: 'author_title', type: 'string', isFTS: true },
+            { name: 'created_at', type: 'number' },
+          ],
+        }),
+      ],
+    })
+
+    const expectedSchema =
+      'create table "local_storage" ("key" varchar(16) primary key not null, "value" text not null);create index "local_storage_key_index" on "local_storage" ("key");' +
+      'create table "tasks" ("id" primary key, "_changed", "_status", "author_id", "author_name", "author_title", "created_at");' +
+      'create index "tasks_author_id" on "tasks" ("author_id");' +
+      'create index "tasks__status" on "tasks" ("_status");' +
+      'create virtual table "_fts_tasks" using fts5("author_name", "author_title");' +
+      'create trigger "_fts_tasks_delete" after delete on "tasks" begin delete from "_fts_tasks" where "rowid" = OLD.rowid; end;' +
+      'create trigger "_fts_tasks_insert" after insert on "tasks" begin insert into "_fts_tasks" ("rowid", "author_name", "author_title") values (NEW."rowid", NEW."author_name", NEW."author_title"); end;' +
+      'create trigger "_fts_tasks_update" after update on "tasks" begin update "_fts_tasks" set "author_name" = NEW."author_name", "author_title" = NEW."author_title" where "rowid" = NEW."rowid"; end;'
+
+    expect(encodeSchema(testSchema)).toBe(expectedSchema)
+  })
   it(`encodes creation of indices with unsafe sql`, () => {
     const testSchema2 = {
       ...testSchema,

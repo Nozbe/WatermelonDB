@@ -52,6 +52,7 @@ const operators: { [Operator]: string } = {
   between: 'between',
   like: 'like',
   notLike: 'not like',
+  ftsMatch: 'match',
 }
 
 const encodeComparison = (table: TableName<any>, comparison: Comparison) => {
@@ -108,6 +109,22 @@ const encodeWhereCondition = (
         Q.where(left, Q.gt(Q.column(comparison.right.column))),
         Q.and(Q.where(left, Q.notEq(null)), Q.where((comparison.right: any).column, null)),
       ),
+    )
+  }
+
+
+  if (comparison.operator === 'ftsMatch') {
+    const srcTable = `"${table}"`
+    const ftsTable = `"_fts_${table}"`
+    const rowid = '"rowid"'
+    const ftsColumn = `"${left}"`
+    const matchValue = getComparisonRight(table, comparison.right)
+    const ftsTableColumn = table === left ? `${ftsTable}` : `${ftsTable}.${ftsColumn}`
+    return (
+      `${srcTable}.${rowid} in (` +
+      `select ${ftsTable}.${rowid} from ${ftsTable} ` +
+      `where ${ftsTableColumn} match ${matchValue}` +
+      `)`
     )
   }
 

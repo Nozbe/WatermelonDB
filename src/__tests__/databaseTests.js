@@ -1267,7 +1267,6 @@ joinTest({
       { id: 'p4', num1: 5, num2: undefined },
       { id: 'p5', num1: 0 },
       { id: 'p6', num1: 0, num2: null },
-
       { id: 'badp1' },
       { id: 'badp2', num1: null },
       { id: 'badp3', num2: null },
@@ -1466,4 +1465,53 @@ joinTest({
   skipSqlite: true,
 })
 
-export { matchTests, joinTests }
+const ftsMatchTests = [
+  {
+    name: 'Can ftsMatch - text1',
+    query: [Q.where('text1', Q.ftsMatch('bar'))],
+    matching: [
+      { id: 'fts_foo_bar', text1: 'foo bar' },
+      { id: 'fts_bar', text1: 'bar' },
+      { id: 'fts_bar_baz', text1: 'bar baz' },
+    ],
+    nonMatching: [
+      { id: 'fts_foo', text1: 'foo', text2: 'bar baz' },
+      { id: 'fts_foo_baz', text1: 'foo baz', text2: 'bar' },
+      { id: 'fts_baz', text1: 'baz', text2: 'foo bar' },
+      { id: 'fts_foo_bar_baz', text1: 'foo bar baz', _status: 'deleted' },
+    ],
+    skipLoki: true,
+  },
+  {
+    name: 'Can ftsMatch - text2',
+    query: [Q.where('text2', Q.ftsMatch('bar'))],
+    matching: [
+      { id: 'fts_foo', text1: 'foo', text2: 'bar baz' },
+      { id: 'fts_foo_baz', text1: 'foo baz', text2: 'bar' },
+      { id: 'fts_baz', text1: 'baz', text2: 'foo bar' },
+    ],
+    nonMatching: [
+      { id: 'fts_foo_bar', text1: 'foo bar' },
+      { id: 'fts_bar', text1: 'bar' },
+      { id: 'fts_bar_baz', text1: 'bar baz' },
+      { id: 'fts_foo_bar_baz', text1: 'foo bar baz', _status: 'deleted' },
+    ],
+    skipLoki: true,
+  },
+  {
+    name: 'Can ftsMatch - text1 and text2',
+    query: [Q.where('tasks', Q.ftsMatch('bar'))],
+    matching: [
+      { id: 'fts_foo_bar', text1: 'foo bar' },
+      { id: 'fts_bar', text1: 'bar' },
+      { id: 'fts_bar_baz', text1: 'bar baz' },
+      { id: 'fts_foo', text1: 'foo', text2: 'bar baz' },
+      { id: 'fts_foo_baz', text1: 'foo baz', text2: 'bar' },
+      { id: 'fts_baz', text1: 'baz', text2: 'foo bar' },
+    ],
+    nonMatching: [{ id: 'fts_foo_bar_baz', text1: 'foo bar baz', _status: 'deleted' }],
+    skipLoki: true,
+  },
+]
+
+export { matchTests, joinTests, ftsMatchTests }
