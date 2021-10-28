@@ -68,7 +68,6 @@ export type LokiAdapterOptions = $Exact<{
     // Collections (by table name) that Loki should deserialize lazily. This is only profitable for
     // collections that are most likely not required for launch - making everything lazy makes it slower
     lazyCollections?: TableName<any>[],
-    preloads?: $Exact<{ idb: ?IDBDatabase, keys: ?(string[]) }>,
   }>,
   // -- internal --
   _testLokiAdapter?: LokiMemoryAdapter,
