@@ -166,17 +166,17 @@
                         <h1 id="local-storage"><a class="header" href="#local-storage">Local storage</a></h1>
 <p>WatermelonDB has a simple key/value store, similar to <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage">localStorage</a>:</p>
 <pre><code class="language-js">// setting a value
-await database.adapter.setLocal(&quot;user_id&quot;, &quot;abcdef&quot;)
+await database.localStorage.set(&quot;user_id&quot;, &quot;abcdef&quot;)
 
 // retrieving a value
-const userId = await database.adapter.getLocal(&quot;user_id&quot;) // string or null if no value for this key
+const userId = await database.localStorage.get(&quot;user_id&quot;) // string or undefined if no value for this key
 
 // removing a value
-await database.adapter.removeLocal(&quot;user_id&quot;)
+await database.localStorage.remove(&quot;user_id&quot;)
 </code></pre>
 <p><strong>When to use it</strong>. For things like the ID of the logged-in user, or the route to the last-viewed screen in the app. You should generally avoid it and stick to standard Watermelon records.</p>
-<p><strong>This is a low-level API</strong>. You can't do things like observe changes of a value over time. If you need that, just use standard WatermelonDB records. Also, you can only store strings. You can build your own abstraction that (de)serializes those values to/from JSON.</p>
-<p><strong>What to be aware of</strong>. DO NOT let the local storage key be a user-supplied value. Only allow predefined/whitelisted keys.</p>
+<p><strong>This is a low-level API</strong>. You can't do things like observe changes of a value over time. If you need that, just use standard WatermelonDB records. You can only store JSON-serializable values</p>
+<p><strong>What to be aware of</strong>. DO NOT let the local storage key be a user-supplied value. Only allow predefined/whitelisted keys. Key names starting with <code>__</code> are reserved for WatermelonDB use (e.g. used by Sync to remember time of last sync)</p>
 <p><strong>Why not use localStorage/AsyncStorage?</strong> Because this way, you have only one source of truth — one database that, say, stores the logged-in user ID and the information about all users. So there's a lower risk that the two sets of values get out of sync.</p>
 
                     </main>
