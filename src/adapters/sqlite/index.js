@@ -46,6 +46,8 @@ if (process.env.NODE_ENV !== 'production') {
 const IGNORE_CACHE = 0
 
 export default class SQLiteAdapter implements DatabaseAdapter {
+  static adapterType: string = 'sqlite'
+
   schema: AppSchema
 
   migrations: ?SchemaMigrations

@@ -22,6 +22,15 @@ export default class LocalStorage {
     return json == null ? undefined : JSON.parse(json)
   }
 
+  // Experimental: Same as get(), but can be called synchronously
+  _getSync<ValueType>(key: LocalStorageKey<ValueType>, callback: (ValueType | void) => void): void {
+    this._db.adapter.underlyingAdapter.getLocal(key, (result) => {
+      const json = result.value ? result.value : undefined
+      const value = json == null ? undefined : JSON.parse(json)
+      callback(value)
+    })
+  }
+
   // Set value to LocalStorage
   // Only JSON-serializable values are allowed and well-behaved:
   // strings, numbers, booleans, and null; as well as arrays and objects only containing those
