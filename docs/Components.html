@@ -320,7 +320,7 @@ const EnhancedCommentList = enhance(CommentList)
 </code></pre>
 <p>If you inject <code>post.comments.observe()</code> into the component, the list will not re-render to change its order, only if comments are added or removed. Instead, use <code>query.observeWithColumns()</code> with an array of <a href="./Schema.html"><strong>column names</strong></a> you use for sorting to re-render whenever a record on the list has any of those fields changed.</p>
 <h3 id="advanced-observing-2nd-level-relations"><a class="header" href="#advanced-observing-2nd-level-relations">Advanced: observing 2nd level relations</a></h3>
-<p>If you have 2nd level relations, like author's <code>Contact</code> info, and want to connect it to a component as well, you cannot simply use <code>post.author.contact.observe()</code> in <code>withComponents</code>. Remember, <code>post.author</code> is not a <code>User</code> object, but a <code>Relation</code> that has to be asynchronously fetched.</p>
+<p>If you have 2nd level relations, like author's <code>Contact</code> info, and want to connect it to a component as well, you cannot simply use <code>post.author.contact.observe()</code> in <code>withObservables</code>. Remember, <code>post.author</code> is not a <code>User</code> object, but a <code>Relation</code> that has to be asynchronously fetched.</p>
 <p>Before accessing and observing the <code>Contact</code> relation, you need to resolve the <code>author</code> itself. Here is the simplest way to do it:</p>
 <pre><code class="language-js">import { compose } from 'recompose'
 

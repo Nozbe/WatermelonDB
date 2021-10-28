@@ -189,7 +189,8 @@
 <tr><td>😎</td><td><strong>Lazy loaded</strong>. Only load data when you need it</td></tr>
 <tr><td>🔄</td><td><strong>Offline-first.</strong> <a href="https://nozbe.github.io/WatermelonDB/Advanced/Sync.html">Sync</a> with your own backend</td></tr>
 <tr><td>📱</td><td><strong>Multiplatform</strong>. iOS, Android, web, and Node.js</td></tr>
-<tr><td>⚛️</td><td><strong>Works with React.</strong> Easily plug data into components</td></tr>
+<tr><td>⚛️</td><td><strong>Optimized for React.</strong> Easily plug data into components</td></tr>
+<tr><td>🧰</td><td><strong>Framework-agnostic.</strong> Use JS API to plug into other UI frameworks</td></tr>
 <tr><td>⏱</td><td><strong>Fast.</strong> And getting faster with every release!</td></tr>
 <tr><td>✅</td><td><strong>Proven.</strong> Powers <a href="https://nozbe.com/teams">Nozbe Teams</a> since 2017 (and <a href="index.html#who-uses-watermelondb">many others</a>)</td></tr>
 <tr><td>✨</td><td><strong>Reactive.</strong> (Optional) <a href="https://github.com/ReactiveX/rxjs">RxJS</a> API</td></tr>
@@ -282,7 +283,11 @@ const enhance = withObservables(['post'], ({ post }) =&gt; ({
 <a href="https://sportsrecruits.com/">
     <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/sportsrecruits-logo.png" alt="SportsRecruits" width="300" />
   </a>
-  <br>
+<br>
+<a href="https://chatable.io/">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/chatable_logo.png" alt="Chatable" width="300" />
+  </a>
+<br>
 <p><em>Does your company or app use 🍉? Open a pull request and add your logo/icon with link here!</em></p>
 <h2 id="contributing"><a class="header" href="#contributing">Contributing</a></h2>
 <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/needyou.jpg" alt="We need you" width="220" />
@@ -461,10 +466,10 @@ protected List&lt;ReactPackage&gt; getPackages() {
 </code></pre>
 </details>
 <details>
-  <summary>Custom Kotlin Version</summary>
-  Just set ext properties `kotlinVersion` in `android/build.gradle`, and WatermelonDB will use the specified kotlin version.
+  <summary>Custom Kotlin Version ⚠️</summary>
+  Make sure the kotlin version is set to 1.3.50 or above. Just set ext properties `kotlinVersion` in `android/build.gradle`, and WatermelonDB will use the specified kotlin version.
 <pre><code class="language-gradle">buildscript {
-    ext.kotlinVersion = '1.3.21'
+    ext.kotlinVersion = '1.3.50'
 }
 </code></pre>
 </details>
@@ -1217,7 +1222,7 @@ const EnhancedCommentList = enhance(CommentList)
 </code></pre>
 <p>If you inject <code>post.comments.observe()</code> into the component, the list will not re-render to change its order, only if comments are added or removed. Instead, use <code>query.observeWithColumns()</code> with an array of <a href="./Schema.html"><strong>column names</strong></a> you use for sorting to re-render whenever a record on the list has any of those fields changed.</p>
 <h3 id="advanced-observing-2nd-level-relations"><a class="header" href="#advanced-observing-2nd-level-relations">Advanced: observing 2nd level relations</a></h3>
-<p>If you have 2nd level relations, like author's <code>Contact</code> info, and want to connect it to a component as well, you cannot simply use <code>post.author.contact.observe()</code> in <code>withComponents</code>. Remember, <code>post.author</code> is not a <code>User</code> object, but a <code>Relation</code> that has to be asynchronously fetched.</p>
+<p>If you have 2nd level relations, like author's <code>Contact</code> info, and want to connect it to a component as well, you cannot simply use <code>post.author.contact.observe()</code> in <code>withObservables</code>. Remember, <code>post.author</code> is not a <code>User</code> object, but a <code>Relation</code> that has to be asynchronously fetched.</p>
 <p>Before accessing and observing the <code>Contact</code> relation, you need to resolve the <code>author</code> itself. Here is the simplest way to do it:</p>
 <pre><code class="language-js">import { compose } from 'recompose'
 
@@ -1359,7 +1364,7 @@ class Post extends Model {
 <p>You can query any table like so:</p>
 <pre><code class="language-js">import { Q } from '@nozbe/watermelondb'
 
-const users = database.get('users').query(
+const users = await database.get('users').query(
   // conditions that a user must match:
   Q.on('comments', 'post_id', somePostId)
 ).fetch()
@@ -1511,14 +1516,18 @@ tasksCollection.query(
 )
 </code></pre>
 <h3 id="sortby-take-skip"><a class="header" href="#sortby-take-skip">sortBy, take, skip</a></h3>
-<p>When using SQLite adapter, you can use these <em>experimental</em> clauses to sort the result of the query and to limit the number of results</p>
+<p>You can use these clauses to sort the query by one or more columns. Note that only simple ascending/descending criteria for columns are supported.</p>
 <pre><code class="language-js">database.get('comments').query(
-  Q.experimentalSortBy('likes', Q.asc), // sorts ascending by `likes`
-  Q.experimentalSkip(100),
-  Q.experimentalTake(100),
+  // sorts by number of likes from the most likes to the fewest
+  Q.sortBy('likes', Q.desc),
+  // if two comments have the same number of likes, the one with fewest dislikes will be at the top
+  Q.sortBy('dislikes', Q.asc),
+  // limit number of comments to 100, skipping the first 50
+  Q.skip(50),
+  Q.take(100),
 )
 </code></pre>
-<p><strong>NOTE</strong>: This does not currently work on web/LokiJS (please contribute!), and causes query observation to fall back to a less efficient method. We recommend using sortBy only when you absolutely need to limit queries, otherwise, it may be better to sort in JavaScript.</p>
+<p>It isn't <em>necessarily</em> better or more efficient to sort on query level instead of in JavaScript, <strong>however</strong> the most important use case for <code>Q.sortBy</code> is when used alongside <code>Q.skip</code> and <code>Q.take</code> to implement paging - to limit the number of records loaded from database to memory on very long lists</p>
 <h3 id="fetch-ids"><a class="header" href="#fetch-ids">Fetch IDs</a></h3>
 <p>If you only need IDs of records matching a query, you can optimize the query by calling <code>await query.fetchIds()</code> instead of <code>await query.fetch()</code></p>
 <h3 id="security"><a class="header" href="#security">Security</a></h3>
@@ -2552,6 +2561,7 @@ This shape MAY be different if negotiated with the frontend (however, frontend-s
 <ul>
 <li><a href="https://fahri.id/posts/how-to-build-watermelondb-sync-backend-in-elixir/">How to Build WatermelonDB Sync Backend in Elixir</a></li>
 <li><a href="https://github.com/AliAllaf/firemelon">Firemelon</a></li>
+<li><a href="https://github.com/nathanheffley/laravel-watermelon">Laravel Watermelon</a></li>
 <li>Did you make one? Please contribute a link!</li>
 </ul>
 <h2 id="current-sync-limitations"><a class="header" href="#current-sync-limitations">Current Sync limitations</a></h2>
@@ -2836,17 +2846,17 @@ Query&lt;Comment&gt; // a query that can fetch many Comments
 <h1 id="local-storage"><a class="header" href="#local-storage">Local storage</a></h1>
 <p>WatermelonDB has a simple key/value store, similar to <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage">localStorage</a>:</p>
 <pre><code class="language-js">// setting a value
-await database.adapter.setLocal(&quot;user_id&quot;, &quot;abcdef&quot;)
+await database.localStorage.set(&quot;user_id&quot;, &quot;abcdef&quot;)
 
 // retrieving a value
-const userId = await database.adapter.getLocal(&quot;user_id&quot;) // string or null if no value for this key
+const userId = await database.localStorage.get(&quot;user_id&quot;) // string or undefined if no value for this key
 
 // removing a value
-await database.adapter.removeLocal(&quot;user_id&quot;)
+await database.localStorage.remove(&quot;user_id&quot;)
 </code></pre>
 <p><strong>When to use it</strong>. For things like the ID of the logged-in user, or the route to the last-viewed screen in the app. You should generally avoid it and stick to standard Watermelon records.</p>
-<p><strong>This is a low-level API</strong>. You can't do things like observe changes of a value over time. If you need that, just use standard WatermelonDB records. Also, you can only store strings. You can build your own abstraction that (de)serializes those values to/from JSON.</p>
-<p><strong>What to be aware of</strong>. DO NOT let the local storage key be a user-supplied value. Only allow predefined/whitelisted keys.</p>
+<p><strong>This is a low-level API</strong>. You can't do things like observe changes of a value over time. If you need that, just use standard WatermelonDB records. You can only store JSON-serializable values</p>
+<p><strong>What to be aware of</strong>. DO NOT let the local storage key be a user-supplied value. Only allow predefined/whitelisted keys. Key names starting with <code>__</code> are reserved for WatermelonDB use (e.g. used by Sync to remember time of last sync)</p>
 <p><strong>Why not use localStorage/AsyncStorage?</strong> Because this way, you have only one source of truth — one database that, say, stores the logged-in user ID and the information about all users. So there's a lower risk that the two sets of values get out of sync.</p>
 <h1 id="various-pro-tips"><a class="header" href="#various-pro-tips">Various Pro Tips</a></h1>
 <h2 id="database-viewer"><a class="header" href="#database-viewer">Database viewer</a></h2>
@@ -3338,11 +3348,28 @@ yarn ktlint
 <h1 id="changelog"><a class="header" href="#changelog">Changelog</a></h1>
 <p>All notable changes to this project will be documented in this file.</p>
 <p>Contributors: Please add your changes to CHANGELOG-Unreleased.md</p>
-<h2 id="unreleased"><a class="header" href="#unreleased">Unreleased</a></h2>
+<h2 id="024---2021-10-28"><a class="header" href="#024---2021-10-28">0.24 - 2021-10-28</a></h2>
+<h3 id="breaking-changes"><a class="header" href="#breaking-changes">BREAKING CHANGES</a></h3>
+<ul>
+<li><code>Q.experimentalSortBy</code>, <code>Q.experimentalSkip</code>, <code>Q.experimentalTake</code> have been renamed to <code>Q.sortBy</code>, <code>Q.skip</code>, <code>Q.take</code> respectively</li>
+<li><strong>RxJS has been updated to 7.3.0</strong>. If you're not importing from <code>rxjs</code> in your app, this doesn't apply to you. If you are, read RxJS 7 breaking changes: https://rxjs.dev/deprecations/breaking-changes</li>
+</ul>
+<h3 id="new-features"><a class="header" href="#new-features">New features</a></h3>
+<ul>
+<li><strong>LocalStorage</strong>. <code>database.localStorage</code> is now available</li>
+<li><strong>sortBy, skip, take</strong> are now available in LokiJSAdapter as well</li>
+<li><strong>Disposable records</strong>. Read-only records that cannot be saved in the database, updated, or deleted and only exist for as long as you keep a reference to them in memory can now be created using <code>collection.disposableFromDirtyRaw()</code>. This is useful when you're adding online-only features to an otherwise offline-first app.</li>
+<li>[Sync] <code>experimentalRejectedIds</code> parameter now available in push response to allow partial rejection of an otherwise successful sync</li>
+</ul>
+<h3 id="fixes"><a class="header" href="#fixes">Fixes</a></h3>
+<ul>
+<li>Fixes an issue when using Headless JS on Android with JSI mode enabled - pass <code>usesExclusiveLocking: true</code> to SQLiteAdapter to enable</li>
+<li>Fixes Typescript annotations for Collection and adapters/sqlite</li>
+</ul>
 <h2 id="023---2021-07-22"><a class="header" href="#023---2021-07-22">0.23 - 2021-07-22</a></h2>
 <p>This is a big release to WatermelonDB with new advanced features, great performance improvements, and important fixes to JSI on Android.</p>
 <p>Please don't get scared off the long list of breaking changes - they are all either simple Find&amp;Replace renames or changes to internals you probably don't use. It shouldn't take you more than 15 minutes to upgrade to 0.23.</p>
-<h3 id="breaking-changes"><a class="header" href="#breaking-changes">BREAKING CHANGES</a></h3>
+<h3 id="breaking-changes-1"><a class="header" href="#breaking-changes-1">BREAKING CHANGES</a></h3>
 <ul>
 <li><strong>iOS Installation change</strong>. You need to add this line to your Podfile: <code>pod 'simdjson', path: '../node_modules/@nozbe/simdjson'</code></li>
 <li>Deprecated <code>new Database({ actionsEnabled: false })</code> options is now removed. Actions are always enabled.</li>
@@ -3378,7 +3405,7 @@ yarn ktlint
 <li><code>.subAction()</code> is now deprecated. Use <code>.callReader()</code> or <code>.callWriter()</code> instead</li>
 <li><code>Collection.unsafeFetchRecordsWithSQL()</code> is now deprecated. Use <code>collection.query(Q.unsafeSqlQuery(&quot;select * from...&quot;)).fetch()</code> instead.</li>
 </ul>
-<h3 id="new-features"><a class="header" href="#new-features">New features</a></h3>
+<h3 id="new-features-1"><a class="header" href="#new-features-1">New features</a></h3>
 <ul>
 <li><code>db.write(writer =&gt; { ... writer.batch() })</code> - you can now call batch on the interface passed to a writer block</li>
 <li><strong>Fetching record IDs and unsafe raws.</strong> You can now optimize fetching of queries that only require IDs, not full cached records:
@@ -3416,7 +3443,7 @@ yarn ktlint
 <li>Queries with multiple top-level <code>Q.on('table', ...)</code> now produce a warning. Use <code>Q.on('table', [condition1, condition2, ...])</code> syntax instead.</li>
 <li>[jsi] WAL mode is now used</li>
 </ul>
-<h3 id="fixes"><a class="header" href="#fixes">Fixes</a></h3>
+<h3 id="fixes-1"><a class="header" href="#fixes-1">Fixes</a></h3>
 <ul>
 <li>[jsi] Fix a race condition where commands sent to the database right after instantiating SQLiteAdapter would fail</li>
 <li>[jsi] Fix incorrect error reporting on some sqlite errors</li>
@@ -3437,7 +3464,7 @@ yarn ktlint
 <li>LokiJSAdapter has had many internal changes</li>
 </ul>
 <h2 id="022---2021-05-07"><a class="header" href="#022---2021-05-07">0.22 - 2021-05-07</a></h2>
-<h3 id="breaking-changes-1"><a class="header" href="#breaking-changes-1">BREAKING CHANGES</a></h3>
+<h3 id="breaking-changes-2"><a class="header" href="#breaking-changes-2">BREAKING CHANGES</a></h3>
 <ul>
 <li>[SQLite] <code>experimentalUseJSI: true</code> option has been renamed to <code>jsi: true</code></li>
 </ul>
@@ -3446,7 +3473,7 @@ yarn ktlint
 <li>[LokiJS] <code>Q.unsafeLokiFilter</code> is now deprecated and will be removed in a future version.
 Use <code>Q.unsafeLokiTransform((raws, loki) =&gt; raws.filter(raw =&gt; ...))</code> instead.</li>
 </ul>
-<h3 id="new-features-1"><a class="header" href="#new-features-1">New features</a></h3>
+<h3 id="new-features-2"><a class="header" href="#new-features-2">New features</a></h3>
 <ul>
 <li>[SQLite] [JSI] <code>jsi: true</code> now works on Android - see docs for installation info</li>
 </ul>
@@ -3463,7 +3490,7 @@ Use <code>Q.unsafeLokiTransform((raws, loki) =&gt; raws.filter(raw =&gt; ...))</
 <li>[SQLite] Allowed callbacks (within the migrationEvents object) to be passed so as to track the migration events status ( onStart, onSuccess, onError ) - @avinashlng1080</li>
 <li>[SQLite] Added a dev-only <code>Query._sql()</code> method for quickly extracting SQL from Queries for debugging purposes</li>
 </ul>
-<h3 id="fixes-1"><a class="header" href="#fixes-1">Fixes</a></h3>
+<h3 id="fixes-2"><a class="header" href="#fixes-2">Fixes</a></h3>
 <ul>
 <li>Non-react statics hoisting in <code>withDatabase()</code></li>
 <li>Fixed incorrect reference to <code>process</code>, which can break apps in some environments (e.g. webpack5)</li>
@@ -3475,11 +3502,11 @@ Use <code>Q.unsafeLokiTransform((raws, loki) =&gt; raws.filter(raw =&gt; ...))</
 <li>[Typescript] Fix default export in logger util</li>
 </ul>
 <h2 id="021---2021-03-24"><a class="header" href="#021---2021-03-24">0.21 - 2021-03-24</a></h2>
-<h3 id="breaking-changes-2"><a class="header" href="#breaking-changes-2">BREAKING CHANGES</a></h3>
+<h3 id="breaking-changes-3"><a class="header" href="#breaking-changes-3">BREAKING CHANGES</a></h3>
 <ul>
 <li>[LokiJS] <code>useWebWorker</code> and <code>useIncrementalIndexedDB</code> options are now required (previously, skipping them would only trigger a warning)</li>
 </ul>
-<h3 id="new-features-2"><a class="header" href="#new-features-2">New features</a></h3>
+<h3 id="new-features-3"><a class="header" href="#new-features-3">New features</a></h3>
 <ul>
 <li>[Model] <code>Model.update</code> method now returns updated record</li>
 <li>[adapters] <code>onSetUpError: Error =&gt; void</code> option is added to both <code>SQLiteAdapter</code> and <code>LokiJSAdapter</code>. Supply this option to catch initialization errors and offer the user to reload or log out</li>
@@ -3504,7 +3531,7 @@ Use <code>Q.unsafeLokiTransform((raws, loki) =&gt; raws.filter(raw =&gt; ...))</
 <li>[LokiJS] Changed default autosave interval from 250 to 500ms</li>
 <li>[Typescript] Add <code>experimentalNestedJoin</code> definition and <code>unsafeSqlExpr</code> clause</li>
 </ul>
-<h3 id="fixes-2"><a class="header" href="#fixes-2">Fixes</a></h3>
+<h3 id="fixes-3"><a class="header" href="#fixes-3">Fixes</a></h3>
 <ul>
 <li>[LokiJS] Fixed a case where IndexedDB could get corrupted over time</li>
 <li>[Resilience] Added extra diagnostics for when you encounter the <code>Record ID aa#bb was sent over the bridge, but it's not cached</code> error and a recovery path (LokiJSAdapter-only). Please file an issue if you encounter this issue!</li>
@@ -3516,9 +3543,9 @@ Use <code>Q.unsafeLokiTransform((raws, loki) =&gt; raws.filter(raw =&gt; ...))</
 <li>Added an experimental mode where a broken database state is detected, further mutations prevented, and the user notified</li>
 </ul>
 <h2 id="020---2020-10-05"><a class="header" href="#020---2020-10-05">0.20 - 2020-10-05</a></h2>
-<h3 id="breaking-changes-3"><a class="header" href="#breaking-changes-3">BREAKING CHANGES</a></h3>
+<h3 id="breaking-changes-4"><a class="header" href="#breaking-changes-4">BREAKING CHANGES</a></h3>
 <p>This release has unintentionally broken RxJS for some apps using <code>with-observables</code>. If you have this issue, please update <code>@nozbe/with-observables</code> to the latest version.</p>
-<h3 id="new-features-3"><a class="header" href="#new-features-3">New features</a></h3>
+<h3 id="new-features-4"><a class="header" href="#new-features-4">New features</a></h3>
 <ul>
 <li>[Sync] Conflict resolution can now be customized. See docs for more details</li>
 <li>[Android] Autolinking is now supported</li>
@@ -3530,7 +3557,7 @@ Use <code>Q.unsafeLokiTransform((raws, loki) =&gt; raws.filter(raw =&gt; ...))</
 <li>[Performance] Tweak Babel config to produce smaller code</li>
 <li>[Performance] LokiJS-based apps will now take up to 30% less time to load the database (id and unique indicies are generated lazily)</li>
 </ul>
-<h3 id="fixes-3"><a class="header" href="#fixes-3">Fixes</a></h3>
+<h3 id="fixes-4"><a class="header" href="#fixes-4">Fixes</a></h3>
 <ul>
 <li>[iOS] Fixed crash on database reset in apps linked against iOS 14 SDK</li>
 <li>[LokiJS] Fix <code>Q.like</code> being broken for multi-line strings on web</li>
@@ -3538,7 +3565,7 @@ Use <code>Q.unsafeLokiTransform((raws, loki) =&gt; raws.filter(raw =&gt; ...))</
 <li>Fixed cache date as instance of Date (#828) by @djorkaeffalexandre.</li>
 </ul>
 <h2 id="019---2020-08-17"><a class="header" href="#019---2020-08-17">0.19 - 2020-08-17</a></h2>
-<h3 id="new-features-4"><a class="header" href="#new-features-4">New features</a></h3>
+<h3 id="new-features-5"><a class="header" href="#new-features-5">New features</a></h3>
 <ul>
 <li>[iOS] Added CocoaPods support - @leninlin</li>
 <li>[NodeJS] Introducing a new SQLite Adapter based integration to NodeJS. This requires a
@@ -3555,7 +3582,7 @@ and should work with the same configuration as iOS/Android - @sidferreira</li>
 </ul>
 <h2 id="018---2020-06-30"><a class="header" href="#018---2020-06-30">0.18 - 2020-06-30</a></h2>
 <p>Another WatermelonDB release after just a week? Yup! And it's jam-packed full of features!</p>
-<h3 id="new-features-5"><a class="header" href="#new-features-5">New features</a></h3>
+<h3 id="new-features-6"><a class="header" href="#new-features-6">New features</a></h3>
 <ul>
 <li>
 <p>[Query] <code>Q.on</code> queries are now far more flexible. Previously, they could only be placed at the top
@@ -3603,7 +3630,7 @@ See docs for more details</p>
 <li>[Query] Counting queries that contain <code>Q.experimentalTake</code> / <code>Q.experimentalSkip</code> is currently broken - previously it would return incorrect results, but
 now it will throw an error to avoid confusion. Please contribute to fix the root cause!</li>
 </ul>
-<h3 id="fixes-4"><a class="header" href="#fixes-4">Fixes</a></h3>
+<h3 id="fixes-5"><a class="header" href="#fixes-5">Fixes</a></h3>
 <ul>
 <li>[Typescript] Fixed types of Relation</li>
 </ul>
@@ -3616,7 +3643,7 @@ now it will throw an error to avoid confusion. Please contribute to fix the root
 <li>Fixed broken iOS build - @mlecoq</li>
 </ul>
 <h2 id="017---2020-06-22"><a class="header" href="#017---2020-06-22">0.17 - 2020-06-22</a></h2>
-<h3 id="new-features-6"><a class="header" href="#new-features-6">New features</a></h3>
+<h3 id="new-features-7"><a class="header" href="#new-features-7">New features</a></h3>
 <ul>
 <li>
 <p>[Sync] Introducing Migration Syncs - this allows fully consistent synchronization when migrating
@@ -3670,7 +3697,7 @@ preventing users from unwisely passing unsanitized user data into Query builder 
 <li>[Hardening] database.collections.get() better validates passed value</li>
 <li>[Hardening] Prevents unsafe strings from being passed as column name/table name arguments in QueryDescription</li>
 </ul>
-<h3 id="fixes-5"><a class="header" href="#fixes-5">Fixes</a></h3>
+<h3 id="fixes-6"><a class="header" href="#fixes-6">Fixes</a></h3>
 <ul>
 <li>[Sync] Fixed <code>RangeError: Maximum call stack size exceeded</code> when syncing large amounts of data - @leninlin</li>
 <li>[iOS] Fixed a bug that could cause a database operation to fail with an (6) SQLITE_LOCKED error</li>
@@ -3690,7 +3717,7 @@ cause all or some of user's data to be deleted. More information available via G
 <ul>
 <li><code>Database.unsafeResetDatabase()</code> is now less unsafe — more application bugs are being caught</li>
 </ul>
-<h3 id="fixes-6"><a class="header" href="#fixes-6">Fixes</a></h3>
+<h3 id="fixes-7"><a class="header" href="#fixes-7">Fixes</a></h3>
 <ul>
 <li>[iOS] Fix build in apps using Flipper</li>
 <li>[Typescript] Added type definition for <code>setGenerator</code>.</li>
@@ -3713,7 +3740,7 @@ cause all or some of user's data to be deleted. More information available via G
 <li>[adapters] Adapter API has changed from returning Promise to taking callbacks as the last argument. This won't affect you unless you call on adapter methods directly. <code>database.adapter</code> returns a new <code>DatabaseAdapterCompat</code> which has the same shape as old adapter API. You can use <code>database.adapter.underlyingAdapter</code> to get back <code>SQLiteAdapter</code> / <code>LokiJSAdapter</code></li>
 <li>[Collection] <code>Collection.fetchQuery</code> and <code>Collection.fetchCount</code> are removed. Please use <code>Query.fetch()</code> and <code>Query.fetchCount()</code>.</li>
 </ul>
-<h3 id="new-features-7"><a class="header" href="#new-features-7">New features</a></h3>
+<h3 id="new-features-8"><a class="header" href="#new-features-8">New features</a></h3>
 <ul>
 <li>[SQLiteAdapter] [iOS] Add new <code>synchronous</code> option to adapter: <code>new SQLiteAdapter({ ..., synchronous: true })</code>.
 When enabled, database operations will block JavaScript thread. Adapter actions will resolve in the
@@ -3730,7 +3757,7 @@ Note that this only works when <code>useWebWorker: false</code></li>
 <li>[LokiJS] [Performance] Improved worker queue implementation for performance</li>
 <li>[observation] Refactored observer implementations for performance</li>
 </ul>
-<h3 id="fixes-7"><a class="header" href="#fixes-7">Fixes</a></h3>
+<h3 id="fixes-8"><a class="header" href="#fixes-8">Fixes</a></h3>
 <ul>
 <li>Fixed a possible cause for &quot;Record ID xxx#yyy was sent over the bridge, but it's not cached&quot; error</li>
 <li>[LokiJS] Fixed an issue preventing database from saving when using <code>experimentalUseIncrementalIndexedDB</code></li>
@@ -3816,7 +3843,7 @@ this is useful</p>
 <p>@json decorator sanitizer functions take an optional second argument, with a reference to the model</p>
 </li>
 </ul>
-<h3 id="fixes-8"><a class="header" href="#fixes-8">Fixes</a></h3>
+<h3 id="fixes-9"><a class="header" href="#fixes-9">Fixes</a></h3>
 <ul>
 <li>Pinned required <code>rambdax</code> version to 2.15.0 to avoid console logging bug. In a future release we will switch to our own fork of <code>rambdax</code> to avoid future breakages like this.</li>
 </ul>
@@ -3860,7 +3887,7 @@ but shouldn't matter if you use latest version of React Native. Please report an
 <li>[rambdax] Replaces <code>contains</code> with <code>includes</code> due to <code>contains</code> deprecation https://github.com/selfrefactor/rambda/commit/1dc1368f81e9f398664c9d95c2efbc48b5cdff9b#diff-04c6e90faac2675aa89e2176d2eec7d8R2209</li>
 </ul>
 <h2 id="0140---2019-08-02"><a class="header" href="#0140---2019-08-02">0.14.0 - 2019-08-02</a></h2>
-<h3 id="new-features-8"><a class="header" href="#new-features-8">New features</a></h3>
+<h3 id="new-features-9"><a class="header" href="#new-features-9">New features</a></h3>
 <ul>
 <li>[Query] Added support for <code>notLike</code> queries 🎉</li>
 <li>[Actions] You can now batch delete record with all descendants using experimental functions <code>experimentalMarkAsDeleted</code> or <code>experimentalDestroyPermanently</code></li>
@@ -3885,7 +3912,7 @@ backward compatibility, but this option <strong>will be removed</strong> in a la
 to <code>migrations</code>.</p>
 </li>
 </ul>
-<h3 id="new-features-9"><a class="header" href="#new-features-9">New features</a></h3>
+<h3 id="new-features-10"><a class="header" href="#new-features-10">New features</a></h3>
 <ul>
 <li>[Actions] You can now batch deletes by using <code>prepareMarkAsDeleted</code> or <code>prepareDestroyPermanently</code></li>
 <li>[Sync] Performance: <code>synchronize()</code> no longer calls your <code>pushChanges()</code> function if there are no
@@ -3913,7 +3940,7 @@ This allows WatermelonDB to create specific IDs for example if your backend uses
 <li>[Tests] remove cleanup for react-hooks-testing-library@0.5.0 compatibility</li>
 </ul>
 <h2 id="0122---2019-04-19"><a class="header" href="#0122---2019-04-19">0.12.2 - 2019-04-19</a></h2>
-<h3 id="fixes-9"><a class="header" href="#fixes-9">Fixes</a></h3>
+<h3 id="fixes-10"><a class="header" href="#fixes-10">Fixes</a></h3>
 <ul>
 <li>[TypeScript] 'Cannot use 'in' operator to search for 'initializer'; decorator fix</li>
 </ul>
@@ -4049,7 +4076,7 @@ resolving conflicts, finding local changes, and marking them as synced) is done 
 <li>Added <code>DatabaseProvider</code> and <code>withDatabase</code> Higher-Order Component to reduce prop drilling</li>
 <li>Added experimental Actions API. This will be documented in a future release.</li>
 </ul>
-<h3 id="fixes-10"><a class="header" href="#fixes-10">Fixes</a></h3>
+<h3 id="fixes-11"><a class="header" href="#fixes-11">Fixes</a></h3>
 <ul>
 <li>Fixes crash on older Android React Native targets without <code>jsc-android</code> installed</li>
 </ul>
