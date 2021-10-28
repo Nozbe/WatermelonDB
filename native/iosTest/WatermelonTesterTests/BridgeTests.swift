@@ -4,6 +4,7 @@ import XCTest
 
 class BridgeTests: XCTestCase {
     func testBridge() {
+        // TODO: Consider using Cavy native reporter https://github.com/Nozbe/WatermelonDB/pull/351/files
         let expectation = XCTestExpectation(description: "Cavy tests passed")
 
         BridgeTestReporter.onFinished { result in
