@@ -19,4 +19,6 @@
 
 ### Fixes
 
+- [android] Fixed compilation on some setups due to a missing <cassert> import
+
 ### Internal
