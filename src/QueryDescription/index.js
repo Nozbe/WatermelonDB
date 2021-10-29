@@ -133,6 +133,7 @@ const comparisonSymbol = Symbol('QueryComparison')
 
 function _valueOrColumn(arg: Value | ColumnDescription): ComparisonRight {
   if (arg === null || typeof arg !== 'object') {
+    invariant(arg !== undefined, 'Cannot compare to undefined in a Query. Did you mean null?')
     return { value: arg }
   }
 

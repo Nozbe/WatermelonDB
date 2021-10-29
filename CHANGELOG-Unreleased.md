@@ -4,6 +4,10 @@
 
 ### BREAKING CHANGES
 
+- [Query] `Q.where(xxx, undefined)` will now throw an error. This is a bug fix, since comparing to
+  undefined was never allowed and would either error out or produce a wrong result in some cases.
+  However, it could technically break an app that relied on existing buggy behavior
+
 ### Deprecations
 
 ### New features

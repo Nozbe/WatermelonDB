@@ -518,6 +518,7 @@ describe('buildQueryDescription', () => {
   })
   it('catches bad types', () => {
     expect(() => Q.eq({})).toThrow('Invalid value passed to query')
+    expect(() => Q.where('foo', undefined)).toThrow('undefined')
     // TODO: oneOf/notIn values?
     expect(() => Q.oneOf({})).toThrow('not an array')
     expect(() => Q.notIn({})).toThrow('not an array')
