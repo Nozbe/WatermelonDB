@@ -22,6 +22,8 @@ if (openPlayground) {
   const TestRoot = () => {
     require('./__tests__/setUpIntegrationTestEnv')
 
+    const [status, setStatus] = React.useState('testing')
+
     const Tester = require('cavy/src/Tester').default
     const TestHookStore = require('cavy/src/TestHookStore').default
     const integrationTests = require('./__tests__/integrationTests').default
@@ -36,6 +38,7 @@ if (openPlayground) {
       // eslint-disable-next-line
       results.forEach((result) => console.log(result))
       NativeModules.BridgeTestReporter.testsFinished(report)
+      setStatus(report.errorCount ? 'error' : 'done')
     }
 
     return (
@@ -46,10 +49,15 @@ if (openPlayground) {
         sendReport={true}
         customReporter={sendReport}
       >
-        <Text style={{ paddingTop: 100 }}>
-          The tests are running. Please remain calm. Using hermes?{' '}
-          {global.HermesInternal ? 'YES' : 'NO'}
-        </Text>
+        <>
+          <Text style={{ paddingTop: 100 }}>Watermelon tester!</Text>
+          <Text>Using hermes? {global.HermesInternal ? 'YES' : 'NO'}</Text>
+          {status === 'testing' ? (
+            <Text style={{ fontSize: 30 }}>The tests are running. Please remain calm.</Text>
+          ) : null}
+          {status === 'done' ? <Text style={{ fontSize: 30, color: 'green' }}>Done</Text> : null}
+          {status === 'error' ? <Text style={{ fontSize: 30, color: 'red' }}>Error</Text> : null}
+        </>
       </Tester>
     )
   }
