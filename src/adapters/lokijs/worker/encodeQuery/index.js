@@ -31,6 +31,7 @@ type LokiOperator =
   | '$nin'
   | '$between'
   | '$regex'
+  | '$containsString'
 type LokiKeyword = LokiOperator | '$and' | '$or'
 
 export type LokiJoin = $Exact<{
@@ -99,13 +100,13 @@ const encodeComparison = (comparison: Comparison, value: any): LokiRawQuery => {
       case 'between':
         return { $between: value }
       case 'like':
-        return {
-          $regex: likeToRegexp(value),
-        }
+        return { $regex: likeToRegexp(value) }
       case 'notLike':
         return {
           $and: [{ $not: { $eq: null } }, { $not: { $regex: likeToRegexp(value) } }],
         }
+      case 'includes':
+        return { $containsString: value }
       default:
         throw new Error(`Unknown operator ${operator}`)
     }

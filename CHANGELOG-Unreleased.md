@@ -13,6 +13,7 @@
 ### New features
 
 - [adapters] Adapter objects can now be distinguished by checking their `static adapterType`
+- [Query] New `Q.includes('foo')` query for case-sensitive exact string includes comparison
 
 ### Performance
 

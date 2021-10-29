@@ -30,6 +30,7 @@ export type Operator =
   | 'between'
   | 'like'
   | 'notLike'
+  | 'includes'
 
 export type ColumnDescription = $RE<{ column: ColumnName, type?: symbol }>
 export type ComparisonRight =
@@ -247,6 +248,11 @@ const nonLikeSafeRegexp = /[^a-zA-Z0-9]/g
 export function sanitizeLikeString(value: string): string {
   invariant(typeof value === 'string', 'Value passed to Q.sanitizeLikeString() is not a string')
   return value.replace(nonLikeSafeRegexp, '_')
+}
+
+export function includes(value: string): Comparison {
+  invariant(typeof value === 'string', 'Value passed to Q.includes() is not a string')
+  return { operator: 'includes', right: { value }, type: comparisonSymbol }
 }
 
 export function column(name: ColumnName): ColumnDescription {

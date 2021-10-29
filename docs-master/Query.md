@@ -154,6 +154,7 @@ This queries all comments that are **both** verified **and** awesome.
 | `Q.where('status', Q.notIn(['archived', 'deleted']))` | `status !== 'archived' && status !== 'deleted'` |
 | `Q.where('status', Q.like('%bl_sh%'))` | `/.*bl.sh.*/i` (See note below!) |
 | `Q.where('status', Q.notLike('%bl_sh%'))` | `/^((!?.*bl.sh.*).)*$/i` (Inverse regex match) (See note below!) |
+| `Q.where('status', Q.includes('promoted'))` | `status.includes('promoted')` |
 
 ### LIKE / NOT LIKE
 
