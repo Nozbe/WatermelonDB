@@ -81,7 +81,7 @@ void watermelonCallWithJSCLockHolder(jsi::Runtime& rt, std::function<void (void)
     using namespace watermelondb;
     float systemVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
 
-    if (systemVersion < 13 || systemVersion >= 15) {
+    if (systemVersion < 13 || systemVersion >= 16) {
         // Those iOS versions have not been tested, so using fallback
         // Please contribute :)
         perfhackFail(@"unknown iOS version");

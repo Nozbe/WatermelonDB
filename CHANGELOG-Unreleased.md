@@ -13,6 +13,7 @@
 ### Performance
 
 - [LokiJS] Updated Loki with some performance improvements
+- [iOS] JSLockPerfHack now works on iOS 15
 - Improved `@json` decorator, now with optional `{ memo: true }` parameter
 
 ### Changes
