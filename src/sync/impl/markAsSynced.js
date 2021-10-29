@@ -20,11 +20,10 @@ const recordsToMarkAsSynced = (
 
     raws.forEach((raw) => {
       const { id } = raw
-      // TODO: assumes global (not per-table) id uniqueness
-      const record = affectedRecords.find((model) => model.id === id)
+      const record = affectedRecords.find((model) => model.id === id && model.table === table)
       if (!record) {
         logError(
-          `[Sync] Looking for record ${id} to mark it as synced, but I can't find it. Will ignore it (it should get synced next time). This is probably a Watermelon bug — please file an issue!`,
+          `[Sync] Looking for record ${table}#${id} to mark it as synced, but I can't find it. Will ignore it (it should get synced next time). This is probably a Watermelon bug — please file an issue!`,
         )
         return
       }

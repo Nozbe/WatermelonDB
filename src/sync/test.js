@@ -460,6 +460,23 @@ describe('markLocalChangesAsSynced', () => {
     )
     expect(await database.adapter.getDeletedRecords('mock_comments')).toEqual(['cDeleted'])
   })
+  it(`can mark records as synced when ids are per-table not globally unique`, async () => {
+    const { database, projects, tasks, comments } = makeDatabase()
+
+    await makeLocalChanges(database)
+    await database.write(async () => {
+      await database.batch(
+        projects.prepareCreateFromDirtyRaw({ id: 'hello' }),
+        tasks.prepareCreateFromDirtyRaw({ id: 'hello' }),
+        comments.prepareCreateFromDirtyRaw({ id: 'hello' }),
+      )
+    })
+
+    await markLocalChangesAsSynced(database, await fetchLocalChanges(database))
+
+    // no more changes
+    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+  })
   // TODO: Unskip the test when batch collection emissions are implemented
   it.skip('only emits one collection batch change', async () => {
     const { database, projects } = makeDatabase()
