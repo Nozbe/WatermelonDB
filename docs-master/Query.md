@@ -155,11 +155,7 @@ This queries all comments that are **both** verified **and** awesome.
 | `Q.where('status', Q.like('%bl_sh%'))` | `/.*bl.sh.*/i` (See note below!) |
 | `Q.where('status', Q.notLike('%bl_sh%'))` | `/^((!?.*bl.sh.*).)*$/i` (Inverse regex match) (See note below!) |
 
-**Note:** It's NOT SAFE to use `Q.like` and `Q.notLike` with user input directly, because special characters like `%` or `_` are not escaped. Always sanitize user input like so:
-```js
-Q.like(`%${Q.sanitizeLikeString(userInput)}%`)
-Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
-```
+### LIKE / NOT LIKE
 
 You can use `Q.like` for search-related tasks. For example, to find all users whose username start with "jas" (case-insensitive) you can write
 
@@ -170,6 +166,14 @@ usersCollection.query(
 ```
 
 where `"jas"` can be changed dynamically with user input.
+
+Note that the behavior of `Q.like` is not exact and can differ somewhat between implementations (SQLite vs LokiJS). For instance, while the comparison is case-insensitive, SQLite cannot by default compare non-ASCII characters case-insensitively (unless you install ICU extension). Use `Q.like` for user input search, but not for tasks that require a precise matching behavior.
+
+**Note:** It's NOT SAFE to use `Q.like` and `Q.notLike` with user input directly, because special characters like `%` or `_` are not escaped. Always sanitize user input like so:
+```js
+Q.like(`%${Q.sanitizeLikeString(userInput)}%`)
+Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
+```
 
 ### AND/OR nesting
 
