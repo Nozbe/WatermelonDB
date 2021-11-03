@@ -75,6 +75,7 @@ describe('SQLite encodeQuery', () => {
         Q.where('col9', Q.between(10, 11)),
         Q.where('col10', Q.like('%abc')),
         Q.where('col11', Q.notLike('def%')),
+        Q.where('col12', Q.includes('foo')),
       ]),
     ).toBe(
       `select "tasks".* from "tasks" where "tasks"."col1" is 'val1'` +
@@ -89,6 +90,7 @@ describe('SQLite encodeQuery', () => {
         ` and "tasks"."col9" between 10 and 11` +
         ` and "tasks"."col10" like '%abc'` +
         ` and "tasks"."col11" not like 'def%'` +
+        ` and instr("tasks"."col12", 'foo')` +
         ` and "tasks"."_status" is not 'deleted'`,
     )
   })
@@ -97,9 +99,13 @@ describe('SQLite encodeQuery', () => {
       encoded([
         Q.where('left1', Q.gte(Q.column('right1'))),
         Q.where('left2', Q.weakGt(Q.column('right2'))),
+        // Q.where('left3', Q.includes(Q.column('right3'))),
       ]),
     ).toBe(
-      `select "tasks".* from "tasks" where "tasks"."left1" >= "tasks"."right1" and ("tasks"."left2" > "tasks"."right2" or ("tasks"."left2" is not null and "tasks"."right2" is null)) and "tasks"."_status" is not 'deleted'`,
+      `select "tasks".* from "tasks" where "tasks"."left1" >= "tasks"."right1"` +
+        ` and ("tasks"."left2" > "tasks"."right2" or ("tasks"."left2" is not null and "tasks"."right2" is null))` +
+        // ` and instr("tasks"."left3", "tasks"."right3")` +
+        ` and "tasks"."_status" is not 'deleted'`,
     )
   })
   it(`encodes raw SQL expressions`, () => {

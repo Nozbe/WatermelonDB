@@ -85,6 +85,7 @@ describe('LokiJS encodeQuery', () => {
         Q.where('col9', Q.between(10, 11)),
         Q.where('col10', Q.like('%abc')),
         Q.where('col11', Q.notLike('%abc')),
+        Q.where('col12', Q.includes('foo')),
       ]),
     ).toEqual({
       table: 'tasks',
@@ -102,6 +103,7 @@ describe('LokiJS encodeQuery', () => {
           { col9: { $between: [10, 11] } },
           { col10: { $regex: /^.*abc$/is } },
           { col11: { $and: [{ $not: { $eq: null } }, { $not: { $regex: /^.*abc$/is } }] } },
+          { col12: { $containsString: 'foo' } },
           { _status: { $ne: 'deleted' } },
         ],
       },

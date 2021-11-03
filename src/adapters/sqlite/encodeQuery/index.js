@@ -55,14 +55,15 @@ const operators: { [Operator]: string } = {
 }
 
 const encodeComparison = (table: TableName<any>, comparison: Comparison) => {
-  if (comparison.operator === 'between') {
+  const { operator } = comparison
+  if (operator === 'between') {
     const { right } = comparison
     return right.values
       ? `between ${encodeValue(right.values[0])} and ${encodeValue(right.values[1])}`
       : ''
   }
 
-  return `${operators[comparison.operator]} ${getComparisonRight(table, comparison.right)}`
+  return `${operators[operator]} ${getComparisonRight(table, comparison.right)}`
 }
 
 const encodeWhere = (table: TableName<any>, associations: QueryAssociation[]) => (
@@ -96,9 +97,10 @@ const encodeWhereCondition = (
   left: ColumnName,
   comparison: Comparison,
 ): string => {
+  const { operator } = comparison
   // if right operand is a value, we can use simple comparison
   // if a column, we must check for `not null > null`
-  if (comparison.operator === 'weakGt' && comparison.right.column) {
+  if (operator === 'weakGt' && comparison.right.column) {
     return encodeWhere(
       table,
       associations,
@@ -109,6 +111,8 @@ const encodeWhereCondition = (
         Q.and(Q.where(left, Q.notEq(null)), Q.where((comparison.right: any).column, null)),
       ),
     )
+  } else if (operator === 'includes') {
+    return `instr("${table}"."${left}", ${getComparisonRight(table, comparison.right)})`
   }
 
   return `"${table}"."${left}" ${encodeComparison(table, comparison)}`

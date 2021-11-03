@@ -79,7 +79,7 @@ describe('decorators/children', () => {
   })
   it('caches created Query', () => {
     const database = makeDatabase()
-    const parent = new MockParent(database.collections.get('mock_parent'), {})
+    const parent = new MockParent(database.collections.get('mock_parent'), { id: 'parent' })
 
     const query1 = parent.children
     const query2 = parent.children

@@ -722,6 +722,38 @@ matchTest({
   ],
 })
 matchTest({
+  name: 'matches includes(foo)',
+  query: [Q.where('text1', Q.includes(`foo`))],
+  matching: [
+    { id: 'm1', text1: 'foo' },
+    { id: 'm2', text1: '   foo' },
+    { id: 'm3', text1: 'xcascasdfoo' },
+    { id: 'm4', text1: 'foobarbar' },
+    { id: 'm5', text1: '....foobar' },
+    { id: 'm6', text1: '\n\n\n\tfoo\n\n\t' },
+  ],
+  nonMatching: [
+    { id: 'n1', text1: null },
+    { id: 'n2', text1: '' },
+    { id: 'n3', text1: 'Lorem Ipsum' },
+    { id: 'n4', text1: 'fo o' },
+    { id: 'n5', text1: 'FOO' },
+    { id: 'n6', text1: 'Foo' },
+    { id: 'n7', text1: 'fóó' },
+    { id: 'n8', text1: 'f​o​o' }, // zero-width space used
+  ],
+})
+matchTest({
+  name: 'matches includes()',
+  query: [Q.where('text1', Q.includes(``))], // weird edge case
+  matching: [
+    { id: 'm0', text1: '' },
+    { id: 'm1', text1: 'foo' },
+    { id: 'm2', text1: '\n\n\nhi' },
+  ],
+  nonMatching: [{ id: 'n1', text1: null }],
+})
+matchTest({
   name: 'matches unsafe SQL expression',
   query: [Q.unsafeSqlExpr('tasks.num1 not between 1 and 5')],
   matching: [

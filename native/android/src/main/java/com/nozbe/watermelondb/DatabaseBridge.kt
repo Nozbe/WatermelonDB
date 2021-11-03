@@ -2,21 +2,24 @@ package com.nozbe.watermelondb
 
 import android.database.SQLException
 import android.os.Trace
+import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
-import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableArray
-import com.facebook.react.bridge.Arguments
 import java.util.logging.Logger
 import kotlin.collections.ArrayList
 
 class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         ReactContextBaseJavaModule(reactContext) {
+    companion object {
+        const val NAME = "DatabaseBridge"
+    }
 
     private val connections: MutableMap<ConnectionTag, Connection> = mutableMapOf()
 
-    override fun getName(): String = "DatabaseBridge"
+    override fun getName(): String = NAME
 
     sealed class Connection {
         class Connected(val driver: DatabaseDriver) : Connection()
@@ -162,11 +165,13 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
                             Exception("No driver with tag $tag available"))) {
                 is Connection.Connected -> {
                     val result = function(connection.driver)
-                    promise.resolve(if (result === Unit) {
+                    promise.resolve(
+                        if (result === Unit) {
                         true
                     } else {
                         result
-                    })
+                        }
+                    )
                 }
                 is Connection.Waiting -> {
                     // try again when driver is ready

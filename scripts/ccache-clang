@@ -8,6 +8,30 @@ export PATH="$PATH:/usr/local/bin:/opt/homebrew/bin/"
 # (debug)
 # echo $PATH
 
+# NOTE: Xcode does not pass environment variables to its C compiler (this file here), so we don't
+# know which clang we're supposed to use. We could just use /usr/bin/clang, but that relies on
+# "Command-line tools" being set properly in Xcode, and worse yet, it will fail in bizarre, hard to
+# understand ways when you upgrade Xcode and don't change the CLI tools version
+# To work around, we need to pass CCACHE_HACK_TOOLCHAIN_DIR argument here with the tool to Xcode's toolchain dir
+# The easiest way is to add CCACHE_HACK_TOOLCHAIN_DIR="$(TOOLCHAIN_DIR)" to GCC_PREPROCESSOR_DEFINITIONS
+for arg in "$@"; do
+  # echo arg
+  # echo "$arg"
+  case "$arg" in
+  "-DCCACHE_HACK_TOOLCHAIN_DIR="*)
+    # echo "bingo!"
+    xcode_toolchain_dir="${arg/-DCCACHE_HACK_TOOLCHAIN_DIR=/}"
+    ;;
+  *) ;;
+  esac
+done
+
+xcode_toolchain_dir="${xcode_toolchain_dir:?CCACHE_HACK_TOOLCHAIN_DIR not found. See ccache-clang for more details}"
+
+# (debug)
+# echo "and the toolchain is…"
+# echo "$xcode_toolchain_dir"
+
 if type -p ccache >/dev/null 2>&1; then
   # (debug)
   # echo "ccache is found!"
@@ -31,7 +55,7 @@ if type -p ccache >/dev/null 2>&1; then
   #   export CCACHE_PREFIX="distcc"
   # fi
 
-  exec ccache /usr/bin/clang "$@"
+  exec ccache "$xcode_toolchain_dir/usr/bin/clang" "$@"
 else
   exec clang "$@"
 fi
