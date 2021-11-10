@@ -32,13 +32,20 @@ function getChildrenQueries(model: Model): Query<Model>[] {
   return childrenQueries
 }
 
-export async function fetchChildren(model: Model): Promise<Model[]> {
+async function fetchDescendantsInner(model: Model): Promise<Model[]> {
   const childPromise = async (query) => {
     const children = await query.fetch()
-    const grandchildren = await allPromises(fetchChildren, children)
+    const grandchildren = await allPromises(fetchDescendantsInner, children)
     return unnest(grandchildren).concat(children)
   }
   const childrenQueries = getChildrenQueries(model)
   const results = await allPromises(childPromise, childrenQueries)
   return unnest(results)
+}
+
+export async function fetchDescendants(model: Model): Promise<Model[]> {
+  const descendants = await fetchDescendantsInner(model)
+  // We need to deduplicate because we can have a child accessible through multiple parents
+  // TODO: Use fp/unique after updating it not to suck
+  return Array.from(new Set(descendants))
 }

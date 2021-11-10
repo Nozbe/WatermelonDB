@@ -7,11 +7,12 @@ import { makeScheduler, expectToRejectWithMessage } from '../__tests__/utils'
 import Database from '../Database'
 import { appSchema, tableSchema } from '../Schema'
 import { field, date, readonly } from '../decorators'
-import { noop, allPromises } from '../utils/fp'
+import { noop } from '../utils/fp'
+import sortBy from '../utils/fp/sortBy'
 import { sanitizedRaw } from '../RawRecord'
 
 import Model from './index'
-import { fetchChildren } from './helpers'
+import { fetchDescendants } from './helpers'
 
 const mockSchema = appSchema({
   version: 1,
@@ -910,40 +911,38 @@ describe('Model observation', () => {
 })
 
 describe('model helpers', () => {
-  it('checks if fetchChildren retrieves all the children', async () => {
-    const { projects, tasks, comments, db } = mockDatabase()
+  it('checks if fetchDescendants retrieves all the children', async () => {
+    const { projects, projectSections: sections, tasks, comments, db } = mockDatabase()
     await db.write(async () => {
-      const projectFoo = await projects.create((mock) => {
-        mock.name = 'foo'
-      })
-      const projectBar = await projects.create((mock) => {
-        mock.name = 'bar'
-      })
+      const prepare = (collection, raw) => collection.prepareCreateFromDirtyRaw(raw)
 
-      const commentPromise = async (task) => {
-        const comment = await comments.create((mock) => {
-          mock.task.set(task)
-        })
-        const commentChildren = await fetchChildren(comment)
-        expect(commentChildren).toHaveLength(0)
-      }
+      const sort = (list) => sortBy((record) => record.id, list)
 
-      const taskPromise = async (project, commentsCount) => {
-        const task = await tasks.create((mock) => {
-          mock.project.set(project)
-        })
-        await allPromises(commentPromise, Array(commentsCount).fill(task))
-        const taskChildren = await fetchChildren(task)
-        expect(taskChildren).toHaveLength(commentsCount)
-      }
+      const p1 = prepare(projects, { id: 'p1' })
+      const p1_descendants = [
+        prepare(tasks, { id: 't1', project_id: 'p1' }),
+        prepare(comments, { id: 'c1', task_id: 't1' }),
+        prepare(comments, { id: 'c2', task_id: 't1' }),
+        prepare(tasks, { id: 't2', project_id: 'p1' }),
+        prepare(comments, { id: 'c3', task_id: 't2' }),
+      ]
+      const p2 = prepare(projects, { id: 'p2' })
+      const p2_descendants = [
+        prepare(tasks, { id: 't3', project_id: 'p2' }),
+        prepare(comments, { id: 'c4', task_id: 't3' }),
+        prepare(sections, { id: 's1', project_id: 'p2' }),
+        prepare(tasks, { id: 't4', project_id: 'p2', project_section_id: 's1' }),
+        prepare(tasks, { id: 't5', project_id: 'p2', project_section_id: 's1' }),
+        prepare(tasks, { id: 't6', project_id: 'p2', project_section_id: 's1' }),
+        prepare(comments, { id: 'c5', task_id: 't6' }),
+        prepare(sections, { id: 's2', project_id: 'p2' }),
+      ]
 
-      await allPromises((project) => taskPromise(project, 2), Array(2).fill(projectFoo))
-      await allPromises((project) => taskPromise(project, 3), Array(3).fill(projectBar))
+      await db.batch(p1, ...p1_descendants, p2, ...p2_descendants)
 
-      const fooChildren = await fetchChildren(projectFoo)
-      const barChildren = await fetchChildren(projectBar)
-      expect(fooChildren).toHaveLength(6) // 2 tasks + 4 comments
-      expect(barChildren).toHaveLength(12) // 3 tasks + 9 comments
+      expect(sort(await fetchDescendants(p1))).toEqual(sort(p1_descendants))
+      expect(sort(await fetchDescendants(p2)).length).toEqual(sort(p2_descendants).length)
+      expect(sort(await fetchDescendants(p2))).toEqual(sort(p2_descendants))
     })
   })
 })
