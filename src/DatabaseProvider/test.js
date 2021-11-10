@@ -1,7 +1,7 @@
 import React from 'react'
 import * as TestRenderer from 'react-test-renderer'
 import Database from '../Database'
-import { MockProject, MockTask, MockComment } from '../__tests__/testModels'
+import { mockDatabase } from '../__tests__/testModels'
 import DatabaseProvider, { DatabaseConsumer, withDatabase } from '.'
 
 // Simple mock component
@@ -12,11 +12,7 @@ function MockComponent() {
 describe('DatabaseProvider', () => {
   let database
   beforeAll(() => {
-    database = new Database({
-      adapter: { schema: null },
-      modelClasses: [MockProject, MockTask, MockComment],
-      actionsEnabled: true,
-    })
+    database = mockDatabase().db
   })
   it('throws if no database or adapter supplied', () => {
     expect(() => {
@@ -25,12 +21,19 @@ describe('DatabaseProvider', () => {
           <p />
         </DatabaseProvider>,
       )
-    }).toThrow(/You must supply a database/i)
+    }).toThrow(/You must supply a valid database/i)
+    expect(() => {
+      TestRenderer.create(
+        <DatabaseProvider database={{ fake: 'db' }}>
+          <p />
+        </DatabaseProvider>,
+      )
+    }).toThrow(/You must supply a valid database/i)
   })
   it('passes database to consumer', () => {
     const instance = TestRenderer.create(
       <DatabaseProvider database={database}>
-        <DatabaseConsumer>{db => <MockComponent database={db} />}</DatabaseConsumer>
+        <DatabaseConsumer>{(db) => <MockComponent database={db} />}</DatabaseConsumer>
       </DatabaseProvider>,
     )
     const component = instance.root.find(MockComponent)

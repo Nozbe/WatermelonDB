@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if ! [ -x "$(command -v mdbook)" ]; then
+  echo ""
+  echo "You will need to install mdbook to run this script, check https://github.com/rust-lang-nursery/mdBook" >&2
+  echo ""
+  exit 1
+fi
+
+chokidar "./docs-master/**" --initial -c "rm -fr ./docs-build && \
+  cp -r ./docs-master ./docs-build && \
+  cp README.md ./docs-build/README.md && \
+  cp CONTRIBUTING.md ./docs-build/CONTRIBUTING.md && \
+  cp CHANGELOG.md ./docs-build/CHANGELOG.md && \
+  (killall mdbook || echo 'skip kill') && \
+  mdbook serve ./docs-build"

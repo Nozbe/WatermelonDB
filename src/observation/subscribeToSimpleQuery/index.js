@@ -1,51 +1,12 @@
 // @flow
 
-import { invariant, logError } from '../../utils/common'
+import { logError } from '../../utils/common'
 import { type Unsubscribe } from '../../utils/subscriptions'
-
-import type { CollectionChangeSet } from '../../Collection'
-import { CollectionChangeTypes } from '../../Collection/common'
 
 import type Query from '../../Query'
 import type Model from '../../Model'
 
-import encodeMatcher, { type Matcher } from '../encodeMatcher'
-
-// WARN: Mutates arguments
-export function processChangeSet<Record: Model>(
-  changeSet: CollectionChangeSet<Record>,
-  matcher: Matcher<Record>,
-  mutableMatchingRecords: Record[],
-): boolean {
-  let shouldEmit = false
-  changeSet.forEach(change => {
-    const { record, type } = change
-    const index = mutableMatchingRecords.indexOf(record)
-    const currentlyMatching = index > -1
-
-    if (type === CollectionChangeTypes.destroyed) {
-      if (currentlyMatching) {
-        // Remove if record was deleted
-        mutableMatchingRecords.splice(index, 1)
-        shouldEmit = true
-      }
-      return
-    }
-
-    const matches = matcher(record._raw)
-
-    if (currentlyMatching && !matches) {
-      // Remove if doesn't match anymore
-      mutableMatchingRecords.splice(index, 1)
-      shouldEmit = true
-    } else if (matches && !currentlyMatching) {
-      // Add if should be included but isn't
-      mutableMatchingRecords.push(record)
-      shouldEmit = true
-    }
-  })
-  return shouldEmit
-}
+import type { Matcher } from '../encodeMatcher'
 
 export default function subscribeToSimpleQuery<Record: Model>(
   query: Query<Record>,
@@ -54,9 +15,7 @@ export default function subscribeToSimpleQuery<Record: Model>(
   // observeQueryWithColumns
   alwaysEmit: boolean = false,
 ): Unsubscribe {
-  invariant(!query.hasJoins, 'subscribeToSimpleQuery only supports simple queries!')
-
-  const matcher: Matcher<Record> = encodeMatcher(query.description)
+  let matcher: ?Matcher<Record> = null
   let unsubscribed = false
   let unsubscribe = null
 
@@ -83,14 +42,19 @@ export default function subscribeToSimpleQuery<Record: Model>(
     }
 
     // Observe changes to the collection
+    const debugInfo = { name: 'subscribeToSimpleQuery', query, subscriber }
     unsubscribe = query.collection.experimentalSubscribe(function observeQueryCollectionChanged(
       changeSet,
     ): void {
-      const shouldEmit = processChangeSet(changeSet, matcher, matchingRecords)
+      if (!matcher) {
+        matcher = require('../encodeMatcher').default(query.description)
+      }
+      const shouldEmit = require('./processChangeSet').default(changeSet, matcher, matchingRecords)
       if (shouldEmit || alwaysEmit) {
         emitCopy()
       }
-    })
+    },
+    debugInfo)
   })
 
   return () => {

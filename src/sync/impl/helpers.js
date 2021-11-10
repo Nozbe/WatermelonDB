@@ -1,12 +1,12 @@
 // @flow
 
-import { all, values, pipe } from 'rambdax'
+import { values } from '../../utils/fp'
 
-import { logError, invariant } from '../../utils/common'
+import { invariant } from '../../utils/common'
 
 import type { Model, Collection, Database } from '../..'
 import { type RawRecord, type DirtyRaw, sanitizedRaw } from '../../RawRecord'
-import type { SyncLog, SyncDatabaseChangeSet } from '../index'
+import type { SyncLog, SyncDatabaseChangeSet, SyncConflictResolver } from '../index'
 
 // Returns raw record with naive solution to a conflict based on local `_changed` field
 // This is a per-column resolution algorithm. All columns that were changed locally win
@@ -30,17 +30,9 @@ export function resolveConflict(local: RawRecord, remote: DirtyRaw): DirtyRaw {
   }
 
   // Use local properties where changed
-  local._changed.split(',').forEach(column => {
+  local._changed.split(',').forEach((column) => {
     resolved[column] = local[column]
   })
-
-  // Handle edge case
-  if (local._status === 'created') {
-    logError(
-      `[Sync] Server wants client to update record ${local.id}, but it's marked as locally created. This is most likely either a server error or a Watermelon bug (please file an issue if it is!). Will assume it should have been 'synced', and just replace the raw`,
-    )
-    resolved._status = 'synced'
-  }
 
   return resolved
 }
@@ -50,6 +42,12 @@ function replaceRaw(record: Model, dirtyRaw: DirtyRaw): void {
 }
 
 export function prepareCreateFromRaw<T: Model>(collection: Collection<T>, dirtyRaw: DirtyRaw): T {
+  // TODO: Think more deeply about this - it's probably unnecessary to do this check, since it would
+  // mean malicious sync server, which is a bigger problem
+  invariant(
+    !Object.prototype.hasOwnProperty.call(dirtyRaw, '__proto__'),
+    'Malicious dirtyRaw detected - contains a __proto__ key',
+  )
   const raw = Object.assign({}, dirtyRaw, { _status: 'synced', _changed: '' }) // faster than object spread
   return collection.prepareCreateFromDirtyRaw(raw)
 }
@@ -58,13 +56,25 @@ export function prepareUpdateFromRaw<T: Model>(
   record: T,
   updatedDirtyRaw: DirtyRaw,
   log: ?SyncLog,
+  conflictResolver?: SyncConflictResolver,
 ): T {
   // Note COPY for log - only if needed
   const logConflict = log && !!record._raw._changed
-  const logLocal = logConflict ? { ...record._raw } : {}
+  const logLocal = logConflict
+    ? {
+        // $FlowFixMe
+        ...record._raw,
+      }
+    : {}
   const logRemote = logConflict ? { ...updatedDirtyRaw } : {}
 
-  const newRaw = resolveConflict(record._raw, updatedDirtyRaw)
+  let newRaw = resolveConflict(record._raw, updatedDirtyRaw)
+
+  if (conflictResolver) {
+    newRaw = conflictResolver(record.table, record._raw, updatedDirtyRaw, newRaw)
+  }
+
+  // $FlowFixMe
   return record.prepareUpdate(() => {
     replaceRaw(record, newRaw)
 
@@ -74,6 +84,7 @@ export function prepareUpdateFromRaw<T: Model>(
       log.resolvedConflicts.push({
         local: logLocal,
         remote: logRemote,
+        // $FlowFixMe
         resolved: { ...record._raw },
       })
     }
@@ -82,16 +93,10 @@ export function prepareUpdateFromRaw<T: Model>(
 
 export function prepareMarkAsSynced<T: Model>(record: T): T {
   const newRaw = Object.assign({}, record._raw, { _status: 'synced', _changed: '' }) // faster than object spread
+  // $FlowFixMe
   return record.prepareUpdate(() => {
     replaceRaw(record, newRaw)
   })
-}
-
-export function ensureActionsEnabled(database: Database): void {
-  invariant(
-    database._actionsEnabled,
-    '[Sync] To use Sync, Actions must be enabled. Pass `{ actionsEnabled: true }` to Database constructor — see docs for more details',
-  )
 }
 
 export function ensureSameDatabase(database: Database, initialResetCount: number): void {
@@ -101,7 +106,15 @@ export function ensureSameDatabase(database: Database, initialResetCount: number
   )
 }
 
-export const isChangeSetEmpty: SyncDatabaseChangeSet => boolean = pipe(
-  values,
-  all(({ created, updated, deleted }) => created.length + updated.length + deleted.length === 0),
-)
+export const isChangeSetEmpty: (SyncDatabaseChangeSet) => boolean = (changeset) =>
+  values(changeset).every(
+    ({ created, updated, deleted }) => created.length + updated.length + deleted.length === 0,
+  )
+
+const sum: (number[]) => number = (xs) => xs.reduce((a, b) => a + b, 0)
+export const changeSetCount: (SyncDatabaseChangeSet) => number = (changeset) =>
+  sum(
+    values(changeset).map(
+      ({ created, updated, deleted }) => created.length + updated.length + deleted.length,
+    ),
+  )

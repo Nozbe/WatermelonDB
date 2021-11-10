@@ -4,24 +4,17 @@ import { renderHook } from '@testing-library/react-hooks'
 import { useDatabase } from './use-database'
 import DatabaseProvider from '../DatabaseProvider'
 import Database from '../Database'
-import { MockProject, MockTask, MockComment } from '../__tests__/testModels'
+import { mockDatabase } from '../__tests__/testModels'
 
-/**
- * Note: this uses two testing libraries; react-test-renderer and @testing-library/react-hooks.
- * This is probably overkill for such a simple hook but I will leave these here in case more
- * hooks are added in the future.
- * */
+// Note: this uses two testing libraries; react-test-renderer and @testing-library/react-hooks.
+// This is probably overkill for such a simple hook but I will leave these here in case more
+// hooks are added in the future.
 
 describe('useDatabase hook', () => {
   let database
   beforeAll(() => {
-    database = new Database({
-      adapter: { schema: null },
-      modelClasses: [MockProject, MockTask, MockComment],
-      actionsEnabled: true,
-    })
+    database = mockDatabase().db
   })
-
   test('should use database', () => {
     const wrapper = ({ children }) => (
       <DatabaseProvider database={database}>{children}</DatabaseProvider>
@@ -29,7 +22,6 @@ describe('useDatabase hook', () => {
     const { result } = renderHook(() => useDatabase(), { wrapper })
     expect(result.current).toBeInstanceOf(Database)
   })
-
   test('should throw without Provider', () => {
     const Component = () => {
       useDatabase()

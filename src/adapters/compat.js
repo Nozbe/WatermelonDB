@@ -11,7 +11,7 @@ import type {
   CachedFindResult,
   CachedQueryResult,
   BatchOperation,
-  SQLDatabaseAdapter,
+  UnsafeExecuteOperations,
 } from './type'
 
 export default class DatabaseAdapterCompat {
@@ -19,12 +19,6 @@ export default class DatabaseAdapterCompat {
 
   constructor(adapter: DatabaseAdapter): void {
     this.underlyingAdapter = adapter
-
-    const sqlAdapter: SQLDatabaseAdapter = (adapter: any)
-    if (sqlAdapter.unsafeSqlQuery) {
-      this.unsafeSqlQuery = (tableName, sql) =>
-        toPromise(callback => sqlAdapter.unsafeSqlQuery(tableName, sql, true, callback))
-    }
   }
 
   get schema(): AppSchema {
@@ -36,11 +30,19 @@ export default class DatabaseAdapterCompat {
   }
 
   find(table: TableName<any>, id: RecordId): Promise<CachedFindResult> {
-    return toPromise(callback => this.underlyingAdapter.find(table, id, callback))
+    return toPromise((callback) => this.underlyingAdapter.find(table, id, callback))
   }
 
   query(query: SerializedQuery): Promise<CachedQueryResult> {
-    return toPromise(callback => this.underlyingAdapter.query(query, callback))
+    return toPromise((callback) => this.underlyingAdapter.query(query, callback))
+  }
+
+  queryIds(query: SerializedQuery): Promise<RecordId[]> {
+    return toPromise((callback) => this.underlyingAdapter.queryIds(query, callback))
+  }
+
+  unsafeQueryRaw(query: SerializedQuery): Promise<any[]> {
+    return toPromise((callback) => this.underlyingAdapter.unsafeQueryRaw(query, callback))
   }
 
   cachedQuery(query: SerializedQuery): Promise<CachedQueryResult> {
@@ -48,44 +50,56 @@ export default class DatabaseAdapterCompat {
   }
 
   count(query: SerializedQuery): Promise<number> {
-    return toPromise(callback => this.underlyingAdapter.count(query, callback))
+    return toPromise((callback) => this.underlyingAdapter.count(query, callback))
   }
 
   batch(operations: BatchOperation[]): Promise<void> {
-    return toPromise(callback => this.underlyingAdapter.batch(operations, callback))
+    return toPromise((callback) => this.underlyingAdapter.batch(operations, callback))
   }
 
   getDeletedRecords(tableName: TableName<any>): Promise<RecordId[]> {
-    return toPromise(callback => this.underlyingAdapter.getDeletedRecords(tableName, callback))
+    return toPromise((callback) => this.underlyingAdapter.getDeletedRecords(tableName, callback))
   }
 
   destroyDeletedRecords(tableName: TableName<any>, recordIds: RecordId[]): Promise<void> {
-    return toPromise(callback =>
+    return toPromise((callback) =>
       this.underlyingAdapter.destroyDeletedRecords(tableName, recordIds, callback),
     )
   }
 
+  unsafeLoadFromSync(jsonId: number): Promise<any> {
+    return toPromise((callback) => this.underlyingAdapter.unsafeLoadFromSync(jsonId, callback))
+  }
+
+  provideSyncJson(id: number, syncPullResultJson: string): Promise<void> {
+    return toPromise((callback) =>
+      this.underlyingAdapter.provideSyncJson(id, syncPullResultJson, callback),
+    )
+  }
+
   unsafeResetDatabase(): Promise<void> {
-    return toPromise(callback => this.underlyingAdapter.unsafeResetDatabase(callback))
+    return toPromise((callback) => this.underlyingAdapter.unsafeResetDatabase(callback))
+  }
+
+  unsafeExecute(work: UnsafeExecuteOperations): Promise<void> {
+    return toPromise((callback) => this.underlyingAdapter.unsafeExecute(work, callback))
   }
 
   getLocal(key: string): Promise<?string> {
-    return toPromise(callback => this.underlyingAdapter.getLocal(key, callback))
+    return toPromise((callback) => this.underlyingAdapter.getLocal(key, callback))
   }
 
   setLocal(key: string, value: string): Promise<void> {
-    return toPromise(callback => this.underlyingAdapter.setLocal(key, value, callback))
+    return toPromise((callback) => this.underlyingAdapter.setLocal(key, value, callback))
   }
 
   removeLocal(key: string): Promise<void> {
-    return toPromise(callback => this.underlyingAdapter.removeLocal(key, callback))
+    return toPromise((callback) => this.underlyingAdapter.removeLocal(key, callback))
   }
 
-  unsafeSqlQuery: ?(tableName: TableName<any>, sql: string) => Promise<CachedQueryResult>
-
   // untyped - test-only code
-  testClone(options: any): any {
+  async testClone(options: any): Promise<any> {
     // $FlowFixMe
-    return new DatabaseAdapterCompat(this.underlyingAdapter.testClone(options))
+    return new DatabaseAdapterCompat(await this.underlyingAdapter.testClone(options))
   }
 }

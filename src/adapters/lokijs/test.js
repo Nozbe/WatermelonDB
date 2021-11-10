@@ -7,7 +7,7 @@ import DatabaseAdapterCompat from '../compat'
 // require('fake-indexeddb/auto')
 
 describe('LokiJSAdapter (Synchronous / Memory persistence)', () => {
-  commonTests().forEach(testCase => {
+  commonTests().forEach((testCase) => {
     const [name, test] = testCase
 
     it(name, async () => {
@@ -15,8 +15,12 @@ describe('LokiJSAdapter (Synchronous / Memory persistence)', () => {
         dbName: `test${Math.random()}`,
         schema: testSchema,
         useWebWorker: false,
+        useIncrementalIndexedDB: false,
       })
-      await test(new DatabaseAdapterCompat(adapter), LokiJSAdapter)
+      await test(new DatabaseAdapterCompat(adapter), LokiJSAdapter, {
+        useWebWorker: false,
+        useIncrementalIndexedDB: false,
+      })
     })
   })
 })

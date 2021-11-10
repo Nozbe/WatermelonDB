@@ -1,5 +1,23 @@
 const plugins = [
-  '@babel/plugin-transform-modules-commonjs',
+  [
+    '@babel/plugin-transform-runtime',
+    {
+      helpers: true,
+      // regenerator: true,
+    },
+  ],
+  [
+    '@babel/plugin-transform-modules-commonjs',
+    {
+      loose: true, // improves speed & code size; unlikely to be a problem
+      strict: false,
+      strictMode: true,
+      allowTopLevelThis: true,
+      // this would improve speed&code size but breaks 3rd party code. can we apply it to our paths only?
+      // (same with struct: true)
+      // noInterop: true,
+    },
+  ],
   ['@babel/plugin-proposal-decorators', { legacy: true }],
   '@babel/plugin-transform-flow-strip-types',
   ['@babel/plugin-proposal-class-properties', { loose: true }],
@@ -12,7 +30,6 @@ const plugins = [
   '@babel/plugin-syntax-dynamic-import',
   '@babel/plugin-transform-block-scoping',
   '@babel/plugin-proposal-json-strings',
-  '@babel/plugin-proposal-object-rest-spread',
   '@babel/plugin-proposal-unicode-property-regex',
   // See http://incaseofstairs.com/six-speed/ for speed comparison between native and transpiled ES6
   '@babel/plugin-proposal-optional-chaining',
@@ -23,6 +40,13 @@ const plugins = [
   '@babel/plugin-proposal-nullish-coalescing-operator',
   '@babel/plugin-transform-shorthand-properties',
   '@babel/plugin-transform-spread',
+  [
+    '@babel/plugin-proposal-object-rest-spread',
+    {
+      // use fast Object.assign
+      loose: true,
+    },
+  ],
   '@babel/plugin-transform-react-jsx',
   [
     '@babel/plugin-transform-computed-properties',
@@ -52,9 +76,6 @@ module.exports = {
     production: {
       plugins: [
         ...plugins,
-        // console.log is expensive for performance on native
-        // we don't want it on web either, but it's useful for development
-        ['transform-remove-console', { exclude: ['error', 'warn'] }],
         'minify-flip-comparisons',
         'minify-guarded-expressions',
         'minify-dead-code-elimination',

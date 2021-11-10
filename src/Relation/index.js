@@ -1,9 +1,9 @@
 // @flow
-import type { Observable } from 'rxjs'
 
-import lazy from '../decorators/lazy'
+import type { Observable } from '../utils/rx'
 import invariant from '../utils/common/invariant'
 import publishReplayLatestWhileConnected from '../utils/rx/publishReplayLatestWhileConnected'
+import lazy from '../decorators/lazy'
 
 import type Model, { RecordId } from '../Model'
 import type { ColumnName, TableName } from '../Schema'
@@ -21,6 +21,9 @@ export type Options = $Exact<{
 // Defines a one-to-one relation between two Models (two tables in db)
 // Do not create this object directly! Use `relation` or `immutableRelation` decorators instead
 export default class Relation<T: ?Model> {
+  // Used by withObservables to differentiate between object types
+  static _wmelonTag: string = 'relation'
+
   _model: Model
 
   _columnName: ColumnName
@@ -53,7 +56,7 @@ export default class Relation<T: ?Model> {
   set id(newId: $Call<ExtractRecordId, T>): void {
     if (this._isImmutable) {
       invariant(
-        !this._model._isCommitted,
+        this._model._preparedState === 'create',
         `Cannot change property marked as @immutableRelation ${
           Object.getPrototypeOf(this._model).constructor.name
         } - ${this._columnName}`,
@@ -70,6 +73,14 @@ export default class Relation<T: ?Model> {
     }
 
     return Promise.resolve((null: any))
+  }
+
+  then<U>(
+    onFulfill?: (value: T) => Promise<U> | U,
+    onReject?: (error: any) => Promise<U> | U,
+  ): Promise<U> {
+    // $FlowFixMe
+    return this.fetch().then(onFulfill, onReject)
   }
 
   set(record: T): void {

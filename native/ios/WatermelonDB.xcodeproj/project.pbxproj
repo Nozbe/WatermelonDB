@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6E41F87D251C9183001C250B /* DatabaseDeleteHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E41F87C251C9183001C250B /* DatabaseDeleteHelper.m */; };
+		6E5E6259246C1F61003DBEF4 /* DatabasePlatformIOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E6257246C1F61003DBEF4 /* DatabasePlatformIOS.mm */; };
 		6E660D95213BD75D00189354 /* WatermelonDB.modulemap in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6E660D94213BD74F00189354 /* WatermelonDB.modulemap */; };
 		6E9477D4213BDE2E0077EDFB /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477CA213BDE220077EDFB /* FMDatabaseQueue.m */; };
 		6E9477D5213BDE2E0077EDFB /* FMDatabaseAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477CD213BDE220077EDFB /* FMDatabaseAdditions.m */; };
@@ -18,6 +20,11 @@
 		6E9477F2213BDF8A0077EDFB /* DatabaseBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477EA213BDF8A0077EDFB /* DatabaseBridge.m */; };
 		6E9477F4213BDF8A0077EDFB /* std_ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477ED213BDF8A0077EDFB /* std_ext.swift */; };
 		6E9477F6213BDF8A0077EDFB /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E9477EF213BDF8A0077EDFB /* Database.swift */; };
+		6EBBB7162472B4A200E43F26 /* Sqlite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6EBBB7142472B4A200E43F26 /* Sqlite.cpp */; };
+		6EBBB7182472BDD000E43F26 /* DatabaseInstallation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6EBBB7172472BDD000E43F26 /* DatabaseInstallation.cpp */; };
+		6ED8793123665D7800F45881 /* JSLockPerfHack.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6ED8793023665D7800F45881 /* JSLockPerfHack.mm */; };
+		6EF7F8602362E9100041E1F6 /* Database.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6EF7F85E2362E9100041E1F6 /* Database.cpp */; };
+		6EF7F86223630D6D0041E1F6 /* JSIInstaller.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6EF7F86123630D6D0041E1F6 /* JSIInstaller.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -34,6 +41,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		6E41F87C251C9183001C250B /* DatabaseDeleteHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseDeleteHelper.m; sourceTree = "<group>"; };
+		6E41F87E251C93D1001C250B /* DatabaseDeleteHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DatabaseDeleteHelper.h; sourceTree = "<group>"; };
+		6E5E6257246C1F61003DBEF4 /* DatabasePlatformIOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DatabasePlatformIOS.mm; sourceTree = "<group>"; };
+		6E5E6258246C1F61003DBEF4 /* DatabasePlatform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DatabasePlatform.h; path = ../../shared/DatabasePlatform.h; sourceTree = "<group>"; };
 		6E660D5E213BCCD300189354 /* libWatermelonDB.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWatermelonDB.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E660D93213BD74F00189354 /* Bridging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Bridging.h; sourceTree = "<group>"; };
 		6E660D94213BD74F00189354 /* WatermelonDB.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = WatermelonDB.modulemap; sourceTree = "<group>"; };
@@ -55,6 +66,15 @@
 		6E9477EA213BDF8A0077EDFB /* DatabaseBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DatabaseBridge.m; path = WatermelonDB/DatabaseBridge.m; sourceTree = SOURCE_ROOT; };
 		6E9477ED213BDF8A0077EDFB /* std_ext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = std_ext.swift; sourceTree = "<group>"; };
 		6E9477EF213BDF8A0077EDFB /* Database.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Database.swift; path = WatermelonDB/Database.swift; sourceTree = SOURCE_ROOT; };
+		6EBBB7142472B4A200E43F26 /* Sqlite.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Sqlite.cpp; path = ../../shared/Sqlite.cpp; sourceTree = "<group>"; };
+		6EBBB7152472B4A200E43F26 /* Sqlite.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Sqlite.h; path = ../../shared/Sqlite.h; sourceTree = "<group>"; };
+		6EBBB7172472BDD000E43F26 /* DatabaseInstallation.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = DatabaseInstallation.cpp; path = ../../shared/DatabaseInstallation.cpp; sourceTree = "<group>"; };
+		6ED8793023665D7800F45881 /* JSLockPerfHack.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = JSLockPerfHack.mm; sourceTree = "<group>"; };
+		6ED8793223665D8800F45881 /* JSLockPerfHack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JSLockPerfHack.h; path = ../../shared/JSLockPerfHack.h; sourceTree = "<group>"; };
+		6EF7F85E2362E9100041E1F6 /* Database.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Database.cpp; path = ../../shared/Database.cpp; sourceTree = "<group>"; };
+		6EF7F85F2362E9100041E1F6 /* Database.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Database.h; path = ../../shared/Database.h; sourceTree = "<group>"; };
+		6EF7F86123630D6D0041E1F6 /* JSIInstaller.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = JSIInstaller.mm; sourceTree = "<group>"; };
+		6EF7F86323630D790041E1F6 /* JSIInstaller.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSIInstaller.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,12 +108,25 @@
 			isa = PBXGroup;
 			children = (
 				6E9477EF213BDF8A0077EDFB /* Database.swift */,
+				6E41F87C251C9183001C250B /* DatabaseDeleteHelper.m */,
+				6E41F87E251C93D1001C250B /* DatabaseDeleteHelper.h */,
 				6E9477EA213BDF8A0077EDFB /* DatabaseBridge.m */,
 				6E9477E9213BDF8A0077EDFB /* DatabaseBridge.swift */,
 				6E9477E8213BDF8A0077EDFB /* DatabaseDriver.swift */,
+				6EBBB7142472B4A200E43F26 /* Sqlite.cpp */,
+				6EBBB7152472B4A200E43F26 /* Sqlite.h */,
+				6EF7F85E2362E9100041E1F6 /* Database.cpp */,
+				6EBBB7172472BDD000E43F26 /* DatabaseInstallation.cpp */,
+				6EF7F85F2362E9100041E1F6 /* Database.h */,
+				6E5E6257246C1F61003DBEF4 /* DatabasePlatformIOS.mm */,
+				6E5E6258246C1F61003DBEF4 /* DatabasePlatform.h */,
+				6EF7F86323630D790041E1F6 /* JSIInstaller.h */,
+				6EF7F86123630D6D0041E1F6 /* JSIInstaller.mm */,
+				6ED8793023665D7800F45881 /* JSLockPerfHack.mm */,
+				6ED8793223665D8800F45881 /* JSLockPerfHack.h */,
 				6E9477ED213BDF8A0077EDFB /* std_ext.swift */,
-				6E9477C4213BDE220077EDFB /* FMDB */,
 				6E660D92213BD74F00189354 /* SupportingFiles */,
+				6E9477C4213BDE220077EDFB /* FMDB */,
 			);
 			path = WatermelonDB;
 			sourceTree = "<group>";
@@ -186,6 +219,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 39DF4FDE1E00394E00F5B4B2;
@@ -211,7 +245,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "target_dir=${BUILT_PRODUCTS_DIR}/include/${PRODUCT_MODULE_NAME}/\n\n# Ensure the target include path exists\nmkdir -p ${target_dir}\n\n# Copy any file that looks like a Swift generated header to the include path\ncp ${DERIVED_SOURCES_DIR}/*-Swift.h ${target_dir}";
+			shellScript = "target_dir=${BUILT_PRODUCTS_DIR}/include/${PRODUCT_MODULE_NAME}/\n\n# Ensure the target include path exists\nmkdir -p ${target_dir}\n\n# Copy any file that looks like a Swift generated header to the include path\ncp ${DERIVED_SOURCES_DIR}/*-Swift.h ${target_dir}\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -220,16 +254,23 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6EBBB7182472BDD000E43F26 /* DatabaseInstallation.cpp in Sources */,
 				6E9477F0213BDF8A0077EDFB /* DatabaseDriver.swift in Sources */,
+				6EBBB7162472B4A200E43F26 /* Sqlite.cpp in Sources */,
+				6EF7F86223630D6D0041E1F6 /* JSIInstaller.mm in Sources */,
 				6E9477F1213BDF8A0077EDFB /* DatabaseBridge.swift in Sources */,
 				6E9477D8213BDE2E0077EDFB /* FMResultSet.m in Sources */,
 				6E9477D7213BDE2E0077EDFB /* FMDatabasePool.m in Sources */,
 				6E9477F2213BDF8A0077EDFB /* DatabaseBridge.m in Sources */,
 				6E9477F4213BDF8A0077EDFB /* std_ext.swift in Sources */,
+				6ED8793123665D7800F45881 /* JSLockPerfHack.mm in Sources */,
 				6E9477F6213BDF8A0077EDFB /* Database.swift in Sources */,
+				6E5E6259246C1F61003DBEF4 /* DatabasePlatformIOS.mm in Sources */,
 				6E9477D5213BDE2E0077EDFB /* FMDatabaseAdditions.m in Sources */,
 				6E9477D4213BDE2E0077EDFB /* FMDatabaseQueue.m in Sources */,
+				6E41F87D251C9183001C250B /* DatabaseDeleteHelper.m in Sources */,
 				6E9477D6213BDE2E0077EDFB /* FMDatabase.m in Sources */,
+				6EF7F8602362E9100041E1F6 /* Database.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -353,7 +394,10 @@
 					"$(SRCROOT)/../../../react-native/React/**",
 					"$(SRCROOT)/../../node_modules/react-native/Libraries/**",
 					"$(SRCROOT)/../../../../node_modules/react-native/Libraries/**",
-					"$(SRCROOT)/../../../../../ios/Pods/Headers/Public/**",
+					"$(SRCROOT)/../../../../../ios/Pods/Headers/Public/React-Core/**",
+					"$(SRCROOT)/../../../../../../native/ios/Pods/Headers/Public/React-Core/**",
+					"$(SRCROOT)/../../../../../ios/Pods/Headers/Public/React-jsi/**",
+					"$(SRCROOT)/../../../../../../native/ios/Pods/Headers/Public/React-jsi/**",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -404,7 +448,10 @@
 					"$(SRCROOT)/../../../react-native/React/**",
 					"$(SRCROOT)/../../node_modules/react-native/Libraries/**",
 					"$(SRCROOT)/../../../../node_modules/react-native/Libraries/**",
-					"$(SRCROOT)/../../../../../ios/Pods/Headers/Public/**",
+					"$(SRCROOT)/../../../../../ios/Pods/Headers/Public/React-Core/**",
+					"$(SRCROOT)/../../../../../../native/ios/Pods/Headers/Public/React-Core/**",
+					"$(SRCROOT)/../../../../../ios/Pods/Headers/Public/React-jsi/**",
+					"$(SRCROOT)/../../../../../../native/ios/Pods/Headers/Public/React-jsi/**",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (

@@ -1,19 +1,24 @@
 // @flow
 /* eslint-disable no-console */
 
+const formatMessages = (messages) => {
+  const [first, ...other] = messages
+  return [typeof first === 'string' ? `[🍉] ${first}` : first, ...other]
+}
+
 class Logger {
-  silent = false
+  silent: boolean = false
 
   log(...messages: any[]): void {
-    !this.silent && console.log(...messages)
+    !this.silent && console.log(...formatMessages(messages))
   }
 
   warn(...messages: any[]): void {
-    !this.silent && console.warn(...messages)
+    !this.silent && console.warn(...formatMessages(messages))
   }
 
   error(...messages: any[]): void {
-    !this.silent && console.error(...messages)
+    !this.silent && console.error(...formatMessages(messages))
   }
 
   silence(): void {
@@ -21,4 +26,4 @@ class Logger {
   }
 }
 
-export default new Logger()
+export default (new Logger(): Logger)

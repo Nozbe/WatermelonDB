@@ -2,12 +2,16 @@ import { appSchema, tableSchema } from './index'
 
 describe('Schema', () => {
   it('can prepare schema', () => {
+    const unsafeSql = () => {}
     const testSchema = appSchema({
       version: 1,
       tables: [
         tableSchema({
           name: 'foo',
-          columns: [{ name: 'col1', type: 'string' }, { name: 'col2', type: 'number' }],
+          columns: [
+            { name: 'col1', type: 'string' },
+            { name: 'col2', type: 'number' },
+          ],
         }),
         tableSchema({
           name: 'bar',
@@ -16,8 +20,10 @@ describe('Schema', () => {
             { name: 'col2', type: 'boolean' },
             { name: 'col3', type: 'boolean' },
           ],
+          unsafeSql,
         }),
       ],
+      unsafeSql,
     })
 
     expect(testSchema).toEqual({
@@ -29,7 +35,10 @@ describe('Schema', () => {
             col1: { name: 'col1', type: 'string' },
             col2: { name: 'col2', type: 'number' },
           },
-          columnArray: [{ name: 'col1', type: 'string' }, { name: 'col2', type: 'number' }],
+          columnArray: [
+            { name: 'col1', type: 'string' },
+            { name: 'col2', type: 'number' },
+          ],
         },
         bar: {
           name: 'bar',
@@ -43,8 +52,10 @@ describe('Schema', () => {
             { name: 'col2', type: 'boolean' },
             { name: 'col3', type: 'boolean' },
           ],
+          unsafeSql,
         },
       },
+      unsafeSql,
     })
   })
   it('can define last_modified in user land', () => {
@@ -67,18 +78,28 @@ describe('Schema', () => {
       }),
     ).toThrow(/last_modified must be.*number/)
   })
-  it('does not allow unsafe characters', () => {
-    expect(() =>
-      tableSchema({
-        name: 'foo',
-        columns: [{ name: '"hey"', type: 'string' }],
-      }),
-    ).toThrow(/must contain only safe characters/)
-    expect(() =>
-      tableSchema({
-        name: 'foo\' and delete * from users --',
-        columns: [{ name: 'hey', type: 'string' }],
-      }),
-    ).toThrow(/must contain only safe characters/)
+  it('does not allow unsafe names', () => {
+    ;[
+      '"hey"',
+      "'hey'",
+      '`hey`',
+      "foo' and delete * from users --",
+      'id',
+      '_changed',
+      '_status',
+      'local_storage',
+      '$loki',
+      '__foo',
+      '__proto__',
+      'toString',
+      'valueOf',
+      'oid',
+      '_rowid_',
+      'ROWID',
+    ].forEach((name) => {
+      // console.log(name)
+      expect(() => tableSchema({ name: 'foo', columns: [{ name, type: 'string' }] })).toThrow()
+      expect(() => tableSchema({ name, columns: [{ name: 'hey', type: 'string' }] })).toThrow()
+    })
   })
 })

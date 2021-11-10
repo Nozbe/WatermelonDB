@@ -67,9 +67,11 @@ import com.android.build.OutputFile
  */
 
 project.ext.react = [
-        entryFile: "src/index.integrationTests.native.js",
-        cliPath  : "../node_modules/react-native/local-cli/cli.js",
-        bundleInDebug: true,
+    entryFile: "src/index.integrationTests.native.js",
+    cliPath: "../node_modules/react-native/local-cli/cli.js",
+    bundleInDebug: true,
+    enableHermes: true,
+    hermesCommand: "../../../node_modules/hermes-engine/%OS-BIN%/hermesc",
 ]
 
 apply from: "../../../node_modules/react-native/react.gradle"
@@ -102,7 +104,7 @@ android {
         versionCode 1
         versionName "1.0"
         ndk {
-            abiFilters "armeabi-v7a", "x86"
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86"
         }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -121,7 +123,7 @@ android {
             reset()
             enable enableSeparateBuildPerCPUArchitecture
             universalApk false  // If true, also generate a universal APK
-            include "armeabi-v7a", "x86"
+            include "armeabi-v7a", "arm64-v8a", "x86"
         }
     }
     buildTypes {
@@ -144,7 +146,7 @@ android {
         variant.outputs.each { output ->
             // For each separate APK per architecture, set a unique version code as described here:
             // http://tools.android.com/tech-docs/new-build-system/user-guide/apk-splits
-            def versionCodes = ["armeabi-v7a": 1, "x86": 2]
+            def versionCodes = ["armeabi-v7a": 1, "x86": 2, "arm64-v8a": 3, "x86_64": 4]
             def abi = output.getFilter(OutputFile.ABI)
             if (abi != null) {  // null for the universal-debug, universal-release variants
                 output.versionCodeOverride =
@@ -154,7 +156,7 @@ android {
     }
 
     packagingOptions {
-        pickFirst '**/libjsc.so'
+        pickFirst '**/libc++_shared.so'
     }
 }
 
@@ -166,9 +168,15 @@ dependencies {
     ktlint "com.github.shyiko:ktlint:0.31.0"
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation project(':watermelondb')
+    implementation project(':watermelondb-jsi')
     implementation 'androidx.appcompat:appcompat:1.0.2'
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
+
+    def hermesPath = "../../../node_modules/hermes-engine/android/"
+    debugImplementation files(hermesPath + "hermes-debug.aar")
+    releaseImplementation files(hermesPath + "hermes-release.aar")
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     androidTestImplementation 'androidx.annotation:annotation:1.0.0'
     androidTestImplementation 'androidx.test:runner:1.1.1'
@@ -191,12 +199,6 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
     classpath = configurations.ktlint
     main = "com.github.shyiko.ktlint.Main"
     args "-F", "../../**/*.kt"
-}
-
-configurations.all {
-    resolutionStrategy {
-        force 'org.webkit:android-jsc:r241213'
-    }
 }
 
 
