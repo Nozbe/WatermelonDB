@@ -12,6 +12,10 @@ export const testSchema = appSchema({
       columns: [{ name: 'name', type: 'string' }],
     }),
     tableSchema({
+      name: 'mock_project_sections',
+      columns: [{ name: 'project_id', type: 'string' }],
+    }),
+    tableSchema({
       name: 'mock_tasks',
       columns: [
         { name: 'name', type: 'string' },
@@ -19,6 +23,7 @@ export const testSchema = appSchema({
         { name: 'is_completed', type: 'boolean' },
         { name: 'description', type: 'string', isOptional: true },
         { name: 'project_id', type: 'string' },
+        { name: 'project_section_id', type: 'string', isOptional: true },
       ],
     }),
     tableSchema({
@@ -38,10 +43,21 @@ export class MockProject extends Model {
 
   static associations = {
     mock_tasks: { type: 'has_many', foreignKey: 'project_id' },
+    mock_project_sections: { type: 'has_many', foreignKey: 'project_id' },
   }
 
   @field('name')
   name
+}
+
+export class MockProjectSection extends Model {
+  static table = 'mock_project_sections'
+
+  static associations = {
+    mock_tasks: { type: 'has_many', foreignKey: 'project_section_id' },
+  }
+
+  @field('project_id') projectId
 }
 
 export class MockTask extends Model {
@@ -49,6 +65,7 @@ export class MockTask extends Model {
 
   static associations = {
     mock_projects: { type: 'belongs_to', key: 'project_id' },
+    mock_project_sections: { type: 'belongs_to', key: 'project_section_id' },
     mock_comments: { type: 'has_many', foreignKey: 'task_id' },
   }
 
@@ -63,6 +80,8 @@ export class MockTask extends Model {
   @field('project_id') projectId
 
   @relation('mock_projects', 'project_id') project
+
+  @relation('mock_project_sections', 'project_section_id') projectSection
 }
 
 export class MockComment extends Model {
@@ -87,7 +106,7 @@ export class MockComment extends Model {
   updatedAt
 }
 
-export const modelClasses = [MockProject, MockTask, MockComment]
+export const modelClasses = [MockProject, MockProjectSection, MockTask, MockComment]
 
 export const mockDatabase = ({ schema = testSchema, migrations = undefined } = {}) => {
   const adapter = new LokiJSAdapter({
@@ -107,6 +126,7 @@ export const mockDatabase = ({ schema = testSchema, migrations = undefined } = {
     db: database,
     adapter,
     projects: database.get('mock_projects'),
+    projectSections: database.get('mock_project_sections'),
     tasks: database.get('mock_tasks'),
     comments: database.get('mock_comments'),
     cloneDatabase: async (clonedSchema = schema) =>
