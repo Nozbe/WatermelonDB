@@ -216,6 +216,16 @@ const database = new Database({
     // Post, // ⬅️ You'll add Models to Watermelon here
   ],
 })
+
+// (optionally override WatermelonDB's id generator with your own custom id generator in order to create specific random id formats. For example, if UUIDs are used in the backend)
+// Define a custom ID generator.
+function randomString(): string {
+  return 'RANDOM STRING';
+}
+setGenerator(randomString);
+
+// or as anonymous function:
+setGenerator(() => 'RANDOM STRING');
 </code></pre>
 <p>The above will work on React Native (iOS/Android) and NodeJS. For the web, instead of <code>SQLiteAdapter</code> use <code>LokiJSAdapter</code>:</p>
 <pre><code class="language-js">import LokiJSAdapter from '@nozbe/watermelondb/adapters/lokijs'
