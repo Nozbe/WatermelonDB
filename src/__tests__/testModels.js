@@ -54,6 +54,7 @@ export class MockProjectSection extends Model {
   static table = 'mock_project_sections'
 
   static associations = {
+    mock_projects: { type: 'belongs_to', key: 'project_id' },
     mock_tasks: { type: 'has_many', foreignKey: 'project_section_id' },
   }
 
