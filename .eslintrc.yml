@@ -53,6 +53,7 @@ rules:
   object-curly-newline: off
   function-paren-newline: off
   max-classes-per-file: off
+  camelcase: off
   react/jsx-indent: off
   quotes: off
   react/jsx-curly-newline: off

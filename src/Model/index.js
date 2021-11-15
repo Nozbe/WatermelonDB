@@ -17,7 +17,7 @@ import type { Value } from '../QueryDescription'
 import { type RawRecord, type DirtyRaw, sanitizedRaw, setRawSanitized } from '../RawRecord'
 import { setRawColumnChange } from '../sync/helpers'
 
-import { createTimestampsFor, fetchChildren } from './helpers'
+import { createTimestampsFor, fetchDescendants } from './helpers'
 
 export type RecordId = string
 
@@ -158,7 +158,7 @@ export default class Model {
   async experimentalMarkAsDeleted(): Promise<void> {
     this.db._ensureInWriter(`Model.experimental_markAsDeleted()`)
     this.__ensureNotDisposable(`Model.experimentalMarkAsDeleted()`)
-    const children = await fetchChildren(this)
+    const children = await fetchDescendants(this)
     children.forEach((model) => model.prepareMarkAsDeleted())
     await this.db.batch(...children, this.prepareMarkAsDeleted())
   }
@@ -166,7 +166,7 @@ export default class Model {
   async experimentalDestroyPermanently(): Promise<void> {
     this.db._ensureInWriter(`Model.experimental_destroyPermanently()`)
     this.__ensureNotDisposable(`Model.experimentalDestroyPermanently()`)
-    const children = await fetchChildren(this)
+    const children = await fetchDescendants(this)
     children.forEach((model) => model.prepareDestroyPermanently())
     await this.db.batch(...children, this.prepareDestroyPermanently())
   }
