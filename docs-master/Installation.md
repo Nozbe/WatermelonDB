@@ -170,7 +170,7 @@ On RN60+, auto linking should work.
           implementation project(':watermelondb-jsi') // ⬅️ This!
       }
       ```
-   4. In `android/app/proguard-rules.pro` add:
+   4. If you're using Proguard, in `android/app/proguard-rules.pro` add:
       ```
       -keep class com.nozbe.watermelondb.** { *; }
       ```
