@@ -23,6 +23,8 @@
 
 ### Changes
 
+- [Docs] Added additional Android JSI installation step
+
 ### Fixes
 
 - [android] Fixed compilation on some setups due to a missing <cassert> import
