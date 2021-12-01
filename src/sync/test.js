@@ -69,6 +69,7 @@ const expectDoesNotExist = async (collection, id) => expect(await getRaw(collect
 
 const emptyChangeSet = Object.freeze({
   mock_projects: { created: [], updated: [], deleted: [] },
+  mock_project_sections: { created: [], updated: [], deleted: [] },
   mock_tasks: { created: [], updated: [], deleted: [] },
   mock_comments: { created: [], updated: [], deleted: [] },
 })
@@ -175,19 +176,21 @@ describe('fetchLocalChanges', () => {
     expect(pUpdated._raw._changed).toBe('name')
 
     expect(tDeleted._raw._status).toBe('deleted')
-    const expectedChanges = clone({
-      mock_projects: {
-        created: [pCreated2._raw, pCreated1._raw],
-        updated: [pUpdated._raw],
-        deleted: ['pDeleted'],
-      },
-      mock_tasks: { created: [tCreated._raw], updated: [tUpdated._raw], deleted: ['tDeleted'] },
-      mock_comments: {
-        created: [cCreated._raw],
-        updated: [cUpdated._raw],
-        deleted: ['cDeleted'],
-      },
-    })
+    const expectedChanges = clone(
+      makeChangeSet({
+        mock_projects: {
+          created: [pCreated2._raw, pCreated1._raw],
+          updated: [pUpdated._raw],
+          deleted: ['pDeleted'],
+        },
+        mock_tasks: { created: [tCreated._raw], updated: [tUpdated._raw], deleted: ['tDeleted'] },
+        mock_comments: {
+          created: [cCreated._raw],
+          updated: [cUpdated._raw],
+          deleted: ['cDeleted'],
+        },
+      }),
+    )
     const expectedAffectedRecords = [
       pCreated2,
       pCreated1,
@@ -410,11 +413,13 @@ describe('markLocalChangesAsSynced', () => {
     destroyDeletedRecordsSpy.mockClear()
 
     const localChanges2 = await fetchLocalChanges(database)
-    expect(localChanges2.changes).toEqual({
-      mock_projects: { created: [newProject._raw], updated: [pSynced._raw], deleted: [] },
-      mock_tasks: { created: [tCreated._raw], updated: [tUpdated._raw], deleted: ['tSynced'] },
-      mock_comments: { created: [], updated: [], deleted: ['cUpdated', 'cCreated'] },
-    })
+    expect(localChanges2.changes).toEqual(
+      makeChangeSet({
+        mock_projects: { created: [newProject._raw], updated: [pSynced._raw] },
+        mock_tasks: { created: [tCreated._raw], updated: [tUpdated._raw], deleted: ['tSynced'] },
+        mock_comments: { deleted: ['cUpdated', 'cCreated'] },
+      }),
+    )
     expect(sorted(localChanges2.affectedRecords)).toEqual(
       sorted([newProject, tCreated, pSynced, tUpdated]),
     )
@@ -459,6 +464,23 @@ describe('markLocalChangesAsSynced', () => {
       }),
     )
     expect(await database.adapter.getDeletedRecords('mock_comments')).toEqual(['cDeleted'])
+  })
+  it(`can mark records as synced when ids are per-table not globally unique`, async () => {
+    const { database, projects, tasks, comments } = makeDatabase()
+
+    await makeLocalChanges(database)
+    await database.write(async () => {
+      await database.batch(
+        projects.prepareCreateFromDirtyRaw({ id: 'hello' }),
+        tasks.prepareCreateFromDirtyRaw({ id: 'hello' }),
+        comments.prepareCreateFromDirtyRaw({ id: 'hello' }),
+      )
+    })
+
+    await markLocalChangesAsSynced(database, await fetchLocalChanges(database))
+
+    // no more changes
+    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
   })
   // TODO: Unskip the test when batch collection emissions are implemented
   it.skip('only emits one collection batch change', async () => {
@@ -703,7 +725,7 @@ describe('applyRemoteChanges', () => {
 
 const observeDatabase = (database) => {
   const observer = jest.fn()
-  const tables = ['mock_projects', 'mock_tasks', 'mock_comments']
+  const tables = ['mock_projects', 'mock_project_sections', 'mock_tasks', 'mock_comments']
   expect(tables).toEqual(Object.keys(database.collections.map))
   database.withChangesForTables(tables).pipe(skip$(1)).subscribe(observer)
   return observer
@@ -1336,6 +1358,7 @@ describe('synchronize', () => {
     const pushedCounts = map(map(length), pushedChanges)
     expect(pushedCounts).toEqual({
       mock_projects: { created: sample, updated: 0, deleted: 0 },
+      mock_project_sections: { created: 0, updated: 0, deleted: 0 },
       mock_tasks: { created: 0, updated: sample, deleted: 0 },
       mock_comments: { created: 0, updated: 0, deleted: sample },
     })

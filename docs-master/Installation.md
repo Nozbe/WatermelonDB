@@ -148,14 +148,14 @@ On RN60+, auto linking should work.
   additional steps manually.
 
    1. Make sure you have NDK installed (version `20.1.5948944` has been tested to work when writing this guide)
-   1. In `android/settings.gradle`, add:
+   2. In `android/settings.gradle`, add:
 
       ```gradle
       include ':watermelondb-jsi'
       project(':watermelondb-jsi').projectDir =
           new File(rootProject.projectDir, '../node_modules/@nozbe/watermelondb/native/android-jsi')
       ```
-   2. In `android/app/build.gradle`, add:
+   3. In `android/app/build.gradle`, add:
       ```gradle
       // ...
       android {
@@ -170,7 +170,11 @@ On RN60+, auto linking should work.
           implementation project(':watermelondb-jsi') // ⬅️ This!
       }
       ```
-   3. And finally, in `android/app/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.java`, add:
+   4. If you're using Proguard, in `android/app/proguard-rules.pro` add:
+      ```
+      -keep class com.nozbe.watermelondb.** { *; }
+      ```
+   5. And finally, in `android/app/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.java`, add:
       ```java
       // ...
       import com.nozbe.watermelondb.jsi.WatermelonDBJSIPackage; // ⬅️ This!

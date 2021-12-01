@@ -46,6 +46,9 @@ class MockModel3 extends Model {
 
   @json('extras', mockSanitizer2)
   extras
+
+  @json('extras', mockSanitizer2, { memo: true })
+  extrasMemoized
 }
 
 describe('decorators/json', () => {
@@ -86,13 +89,20 @@ describe('decorators/json', () => {
     model2.extras = { data: [1, 2, 3, 4] }
     expect(model2._getRaw('extras')).toBe(null)
   })
-  it('fails if applied to incorrect fields', () => {
-    expect(
-      () =>
-        class {
-          @json
-          noName
-        },
-    ).toThrow('column name')
+  it(`can memoize deserialized values`, () => {
+    const model = new MockModel3({ schema2 }, { kind: 'B', extras: '{ "dataB": [1, 2, 3, 4] }' })
+    const extras = model.extrasMemoized
+    expect(extras).toEqual(model.extras)
+    expect(extras).not.toBe(model.extras)
+    expect(extras).toBe(model.extrasMemoized)
   })
+  // it('fails if applied to incorrect fields', () => {
+  //   expect(
+  //     () =>
+  //       class {
+  //         @json
+  //         noName
+  //       },
+  //   ).toThrow('column name')
+  // })
 })

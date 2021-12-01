@@ -25,11 +25,19 @@ const SQLiteAdapterTest = (spec) => {
     commonTests().forEach((testCase) => {
       const [name, test] = testCase
       spec.it(name, async () => {
-        const adapter = new SQLiteAdapter({ schema: testSchema, jsi: true })
+        // NOTE: This is needed because connectionTag will reset to 0 on bridge reload, but JSI's
+        // sqlites will persist in memory
+        const dbName = `file:testdb${Math.random()}?mode=memory&cache=shared`
+        const adapter = new SQLiteAdapter({ schema: testSchema, jsi: true, dbName })
 
         invariant(adapter._dispatcherType === 'jsi', 'native platforms should support jsi')
 
-        await test(new DatabaseAdapterCompat(adapter), SQLiteAdapter, { jsi: true }, Platform.OS)
+        await test(
+          new DatabaseAdapterCompat(adapter),
+          SQLiteAdapter,
+          { jsi: true, dbName },
+          Platform.OS,
+        )
       })
     })
   })
