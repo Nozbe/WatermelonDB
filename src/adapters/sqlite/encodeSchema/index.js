@@ -24,12 +24,18 @@ const encodeIndex = (column: ColumnSchema, tableName: TableName<any>): SQL =>
     ? `create index "${tableName}_${column.name}" on "${tableName}" ("${column.name}");`
     : ''
 
-const encodeTableIndicies = ({ name: tableName, columns }: TableSchema): SQL =>
-  Object.values(columns)
-    // $FlowFixMe
-    .map((column) => encodeIndex(column, tableName))
-    .concat([`create index "${tableName}__status" on "${tableName}" ("_status");`])
-    .join('')
+const encodeTableIndicies = ({ name: tableName, columns, skipIndexing }: TableSchema): SQL => {
+  if (skipIndexing) {
+    return ''
+  }
+  return (
+    Object.values(columns)
+      // $FlowFixMe
+      .map((column) => encodeIndex(column, tableName))
+      .concat([`create index "${tableName}__status" on "${tableName}" ("_status");`])
+      .join('')
+  )
+}
 
 const identity = (sql: SQL, _?: any): SQL => sql
 
@@ -55,13 +61,18 @@ export function encodeCreateIndices({ tables, unsafeSql }: AppSchema): SQL {
 export function encodeDropIndices({ tables, unsafeSql }: AppSchema): SQL {
   const sql = Object.values(tables)
     // $FlowFixMe
-    .map(({ name: tableName, columns }) =>
-      Object.values(columns)
-        // $FlowFixMe
-        .map((column) => (column.isIndexed ? `drop index "${tableName}_${column.name}";` : ''))
-        .concat([`drop index "${tableName}__status";`])
-        .join(''),
-    )
+    .map(({ name: tableName, columns, skipIndexing }) => {
+      if (skipIndexing) {
+        return ''
+      }
+      return (
+        Object.values(columns)
+          // $FlowFixMe
+          .map((column) => (column.isIndexed ? `drop index "${tableName}_${column.name}";` : ''))
+          .concat([`drop index "${tableName}__status";`])
+          .join('')
+      )
+    })
     .join('')
   return (unsafeSql || identity)(sql, 'drop_indices')
 }

@@ -78,14 +78,13 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     type: 'sql'
     expr: string
   }
-  export interface SqlQuery{
-    type: 'sqlQuery',
-    sql: string,
+  export interface SqlQuery {
+    type: 'sqlQuery'
+    sql: string
     values: Value[]
   }
 
-
-  export type Clause = Where | On | SortBy | Take | Skip | Join | NestedJoin | Sql | SqlQuery
+  export type Clause = Where | On | SortBy | Take | Skip | Join | NestedJoin | Sql | SqlQuery
   export interface QueryDescription {
     where: Where[]
     join: On[]

@@ -27,15 +27,15 @@ declare module '@nozbe/watermelondb/adapters/lokijs' {
     onQuotaExceededError?: (error: any) => void
     onSetUpError?: (error: Error) => void
     extraLokiOptions?: {
-      autosave?: boolean,
-      autosaveInterval?: number,
+      autosave?: boolean
+      autosaveInterval?: number
     }
     extraIncrementalIDBOptions?: {
-      onDidOverwrite?: () => void,
-      onversionchange?: () => void,
-      serializeChunk?: (table: TableName<any>, raws: DirtyRaw[]) => any,
-      deserializeChunk?: (table: TableName<any>, chunk: any) => DirtyRaw[],
-      onFetchStart?: () => void,
+      onDidOverwrite?: () => void
+      onversionchange?: () => void
+      serializeChunk?: (table: TableName<any>, raws: DirtyRaw[]) => any
+      deserializeChunk?: (table: TableName<any>, chunk: any) => DirtyRaw[]
+      onFetchStart?: () => void
     }
   }
 

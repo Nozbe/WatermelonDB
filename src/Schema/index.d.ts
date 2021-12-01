@@ -23,7 +23,12 @@ declare module '@nozbe/watermelondb/Schema' {
     [name: string]: ColumnSchema
   }
 
-  export type TableSchemaSpec = { name: TableName<any>; columns: ColumnSchema[] }
+  export type TableSchemaSpec = {
+    name: TableName<any>
+    columns: ColumnSchema[]
+    unsafeSql?: (string) => string
+    skipIndexing?: boolean
+  }
 
   export interface TableSchema {
     name: TableName<any>

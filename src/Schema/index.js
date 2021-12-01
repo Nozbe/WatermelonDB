@@ -23,6 +23,7 @@ export type TableSchemaSpec = $Exact<{
   name: TableName<any>,
   columns: ColumnSchema[],
   unsafeSql?: (string) => string,
+  skipIndexing?: Boolean,
 }>
 
 export type TableSchema = $RE<{
@@ -31,6 +32,7 @@ export type TableSchema = $RE<{
   columns: ColumnMap,
   columnArray: ColumnSchema[],
   unsafeSql?: (string) => string,
+  skipIndexing?: Boolean,
 }>
 
 type TableMap = { [name: TableName<any>]: TableSchema }
@@ -113,6 +115,7 @@ export function tableSchema({
   name,
   columns: columnArray,
   unsafeSql,
+  skipIndexing,
 }: TableSchemaSpec): TableSchema {
   if (process.env.NODE_ENV !== 'production') {
     invariant(name, `Missing table name in schema`)
@@ -127,5 +130,5 @@ export function tableSchema({
     return map
   }, {})
 
-  return { name, columns, columnArray, unsafeSql }
+  return { name, columns, columnArray, unsafeSql, skipIndexing }
 }

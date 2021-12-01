@@ -26,6 +26,14 @@ const testSchema = appSchema({
         { name: 'reactions', type: 'number' },
       ],
     }),
+    tableSchema({
+      name: 'other_comments',
+      columns: [
+        { name: 'is_ended', type: 'boolean' },
+        { name: 'reactions', type: 'number' },
+      ],
+      skipIndexing: true,
+    }),
   ],
 })
 
@@ -38,7 +46,8 @@ describe('encodeSchema', () => {
         'create index "tasks_order" on "tasks" ("order");' +
         'create index "tasks__status" on "tasks" ("_status");' +
         'create table "comments" ("id" primary key, "_changed", "_status", "is_ended", "reactions");' +
-        'create index "comments__status" on "comments" ("_status");',
+        'create index "comments__status" on "comments" ("_status");' +
+        'create table "other_comments" ("id" primary key, "_changed", "_status", "is_ended", "reactions");',
     )
   })
   it(`encodes schema with unsafe SQL`, () => {
@@ -142,6 +151,14 @@ describe('encodeMigrationSteps', () => {
           { name: 'body', type: 'string' },
         ],
       }),
+      createTable({
+        name: 'other_comments',
+        columns: [
+          { name: 'post_id', type: 'string', isIndexed: true },
+          { name: 'body', type: 'string' },
+        ],
+        skipIndexing: true,
+      }),
       addColumns({
         table: 'posts',
         columns: [
@@ -158,6 +175,7 @@ describe('encodeMigrationSteps', () => {
         `create table "comments" ("id" primary key, "_changed", "_status", "post_id", "body");` +
         `create index "comments_post_id" on "comments" ("post_id");` +
         `create index "comments__status" on "comments" ("_status");` +
+        `create table "other_comments" ("id" primary key, "_changed", "_status", "post_id", "body");` +
         `alter table "posts" add "author_id";` +
         `update "posts" set "author_id" = '';` +
         `create index "posts_author_id" on "posts" ("author_id");` +
@@ -178,6 +196,11 @@ describe('encodeMigrationSteps', () => {
         columns: [{ name: 'body', type: 'string' }],
         unsafeSql: (sql) => sql.replace(/create table [^)]+\)/, '$& without rowid'),
       }),
+      createTable({
+        name: 'other_comments',
+        columns: [{ name: 'body', type: 'string' }],
+        skipIndexing: true,
+      }),
       unsafeExecuteSql('boop;'),
     ]
 
@@ -188,6 +211,7 @@ describe('encodeMigrationSteps', () => {
         'bla;' +
         `create table "comments" ("id" primary key, "_changed", "_status", "body") without rowid;` +
         `create index "comments__status" on "comments" ("_status");` +
+        `create table "other_comments" ("id" primary key, "_changed", "_status", "body");` +
         'boop;',
     )
   })
