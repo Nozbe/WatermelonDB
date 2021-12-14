@@ -1284,5 +1284,8 @@ export default () => {
       }
     })
   })
+  it('can retrieve dbName', async (adapter, _, { dbName }) => {
+    expect(adapter.dbName).toBe(dbName)
+  })
   return commonTests
 }

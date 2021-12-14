@@ -26,6 +26,8 @@ export type UnsafeExecuteOperations =
 export interface DatabaseAdapter {
   schema: AppSchema;
 
+  _dbName: string;
+
   migrations: ?SchemaMigrations; // TODO: Not optional
 
   // Fetches given (one) record or null. Should not send raw object if already cached in JS
