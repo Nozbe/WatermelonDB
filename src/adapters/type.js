@@ -26,7 +26,7 @@ export type UnsafeExecuteOperations =
 export interface DatabaseAdapter {
   schema: AppSchema;
 
-  _dbName: string;
+  dbName: string;
 
   migrations: ?SchemaMigrations; // TODO: Not optional
 

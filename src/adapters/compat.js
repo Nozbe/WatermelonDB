@@ -26,7 +26,7 @@ export default class DatabaseAdapterCompat {
   }
 
   get dbName(): ?string {
-    return this.underlyingAdapter._dbName
+    return this.underlyingAdapter.dbName
   }
 
   get migrations(): ?SchemaMigrations {

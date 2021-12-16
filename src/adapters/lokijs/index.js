@@ -82,7 +82,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
   schema: AppSchema
 
-  _dbName: string
+  dbName: string
 
   migrations: ?SchemaMigrations
 
@@ -90,7 +90,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
 
   constructor(options: LokiAdapterOptions): void {
     this._options = options
-    this._dbName = options.dbName || 'loki'
+    this.dbName = options.dbName || 'loki'
     const { schema, migrations } = options
 
     const useWebWorker = options.useWebWorker ?? process.env.NODE_ENV !== 'test'
