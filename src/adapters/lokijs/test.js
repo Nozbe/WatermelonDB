@@ -9,8 +9,9 @@ import DatabaseAdapterCompat from '../compat'
 describe('LokiJSAdapter (Synchronous / Memory persistence)', () => {
   commonTests().forEach((testCase) => {
     const [name, test] = testCase
-    const dbName = `test${Math.random()}`
+
     it(name, async () => {
+      const dbName = `test${Math.random()}`
       const adapter = new LokiJSAdapter({
         dbName,
         schema: testSchema,
