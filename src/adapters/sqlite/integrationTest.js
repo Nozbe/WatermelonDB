@@ -15,9 +15,10 @@ const SQLiteAdapterTest = (spec) => {
     commonTests().forEach((testCase) => {
       const [name, test] = testCase
       spec.it(name, async () => {
-        const adapter = new SQLiteAdapter({ schema: testSchema, jsi: false })
+        const dbName = `file:testdb${Math.random()}?mode=memory&cache=shared`
+        const adapter = new SQLiteAdapter({ schema: testSchema, jsi: false, dbName })
         invariant(adapter._dispatcherType === 'asynchronous', 'this should be asynchronous')
-        await test(new DatabaseAdapterCompat(adapter), SQLiteAdapter, {}, Platform.OS)
+        await test(new DatabaseAdapterCompat(adapter), SQLiteAdapter, { dbName }, Platform.OS)
       })
     })
   })

@@ -56,7 +56,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
   _tag: ConnectionTag = connectionTag()
 
-  _dbName: string
+  dbName: string
 
   _dispatcherType: DispatcherType
 
@@ -70,14 +70,14 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     this.schema = schema
     this.migrations = migrations
     this._migrationEvents = migrationEvents
-    this._dbName = this._getName(dbName)
+    this.dbName = this._getName(dbName)
     this._dispatcherType = getDispatcherType(options)
     // Hacky-ish way to create an object with NativeModule-like shape, but that can dispatch method
     // calls to async, synch NativeModule, or JSI implementation w/ type safety in rest of the impl
     this._dispatcher = makeDispatcher(
       this._dispatcherType,
       this._tag,
-      this._dbName,
+      this.dbName,
       usesExclusiveLocking,
     )
 
@@ -108,7 +108,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   async testClone(options?: $Shape<SQLiteAdapterOptions> = {}): Promise<SQLiteAdapter> {
     // $FlowFixMe
     const clone = new SQLiteAdapter({
-      dbName: this._dbName,
+      dbName: this.dbName,
       schema: this.schema,
       jsi: this._dispatcherType === 'jsi',
       ...(this.migrations ? { migrations: this.migrations } : {}),
@@ -135,7 +135,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     // we're good. If not, we try again, this time sending the compiled schema or a migration set
     // This is to speed up the launch (less to do and pass through bridge), and avoid repeating
     // migration logic inside native code
-    this._dispatcher.call('initialize', [this._dbName, this.schema.version], (result) => {
+    this._dispatcher.call('initialize', [this.dbName, this.schema.version], (result) => {
       if (result.error) {
         callback(result)
         return
@@ -170,7 +170,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
       this._dispatcher.call(
         'setUpWithMigrations',
         [
-          this._dbName,
+          this.dbName,
           require('./encodeSchema').encodeMigrationSteps(migrationSteps),
           databaseVersion,
           this.schema.version,
@@ -202,7 +202,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     logger.log(`[SQLite] Setting up database with schema version ${this.schema.version}`)
     this._dispatcher.call(
       'setUpWithSchema',
-      [this._dbName, this._encodedSchema(), this.schema.version],
+      [this.dbName, this._encodedSchema(), this.schema.version],
       (result) => {
         if (!result.error) {
           logger.log(`[SQLite] Schema set up successfully`)

@@ -11,6 +11,10 @@ declare module '@nozbe/watermelondb/adapters/type' {
 
   export interface DatabaseAdapter {
     schema: AppSchema
+
+    /** Name of the database. */
+    dbName?: string
+
     // Fetches given (one) record or null. Should not send raw object if already cached in JS
     find(table: TableName<any>, id: RecordId): Promise<CachedFindResult>
 
