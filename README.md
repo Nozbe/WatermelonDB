@@ -171,7 +171,7 @@ The result is fully reactive! Whenever a post or comment is added, changed, or r
 
   <br>
 
-  <a href="https://todorant.com/">
+  <a href="https://blastworkout.app/">
     <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/blastworkout-logo.png" alt="Blast Workout" width="300" />
   </a>
 
