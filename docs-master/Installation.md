@@ -56,6 +56,8 @@ npm install @nozbe/watermelondb
     # NOTE: This is required as of v0.23
     pod 'simdjson', path: '../node_modules/@nozbe/simdjson'
     ```
+    
+    Make sure you run `pod install` after updating `Podfile`
 
     Note that as of WatermelonDB 0.22, manual (non-CocoaPods) linking is not supported.
 
