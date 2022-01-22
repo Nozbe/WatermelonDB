@@ -1,11 +1,6 @@
 // @flow
 
-import {
-  mapObj,
-  filterObj,
-  pipe,
-  toPairs,
-} from '../../utils/fp'
+import { mapObj, filterObj, pipe, toPairs } from '../../utils/fp'
 import splitEvery from '../../utils/fp/splitEvery'
 import allPromisesObj from '../../utils/fp/allPromisesObj'
 import { logError, invariant, logger } from '../../utils/common'
@@ -19,14 +14,14 @@ import type {
   SyncLog,
   SyncConflictResolver,
 } from '../index'
-import { prepareCreateFromRaw, prepareUpdateFromRaw, ensureActionsEnabled } from './helpers'
+import { prepareCreateFromRaw, prepareUpdateFromRaw } from './helpers'
 
 const idsForChanges = ({ created, updated, deleted }: SyncTableChangeSet): RecordId[] => {
   const ids = []
-  created.forEach(record => {
+  created.forEach((record) => {
     ids.push(record.id)
   })
-  updated.forEach(record => {
+  updated.forEach((record) => {
     ids.push(record.id)
   })
   return ids.concat(deleted)
@@ -78,8 +73,8 @@ async function recordsToApplyRemoteChangesTo<T: Model>(
     ...changes,
     records,
     locallyDeletedIds,
-    recordsToDestroy: records.filter(record => deletedIds.includes(record.id)),
-    deletedRecordsToDestroy: locallyDeletedIds.filter(id => deletedIds.includes(id)),
+    recordsToDestroy: records.filter((record) => deletedIds.includes(record.id)),
+    deletedRecordsToDestroy: locallyDeletedIds.filter((id) => deletedIds.includes(id)),
   }
 }
 
@@ -113,7 +108,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   const recordsToBatch: T[] = [] // mutating - perf critical
 
   // Insert and update records
-  created.forEach(raw => {
+  created.forEach((raw) => {
     validateRemoteRaw(raw)
     const currentRecord = findRecord(raw.id, records)
     if (currentRecord) {
@@ -133,7 +128,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
     }
   })
 
-  updated.forEach(raw => {
+  updated.forEach((raw) => {
     validateRemoteRaw(raw)
     const currentRecord = findRecord(raw.id, records)
 
@@ -145,14 +140,14 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
       // Record doesn't exist (but should) — just create it
       !sendCreatedAsUpdated &&
         logError(
-          `[Sync] Server wants client to update record ${table}#${raw.id}, but it doesn't exist locally. This could be a serious bug. Will create record instead.`,
+          `[Sync] Server wants client to update record ${table}#${raw.id}, but it doesn't exist locally. This could be a serious bug. Will create record instead. If this was intentional, please check the flag sendCreatedAsUpdated in https://nozbe.github.io/WatermelonDB/Advanced/Sync.html#additional-synchronize-flags`,
         )
 
       recordsToBatch.push(prepareCreateFromRaw(collection, raw))
     }
   })
 
-  deleted.forEach(record => {
+  deleted.forEach((record) => {
     // $FlowFixMe
     recordsToBatch.push(record.prepareDestroyPermanently())
   })
@@ -168,27 +163,28 @@ const getAllRecordsToApply = (
 ): AllRecordsToApply =>
   allPromisesObj(
     pipe(
-    filterObj((_changes, tableName: TableName<any>) => {
-      const collection = db.get((tableName: any))
+      filterObj((_changes, tableName: TableName<any>) => {
+        const collection = db.get((tableName: any))
 
-      if (!collection) {
-        logger.warn(
-          `You are trying to sync a collection named ${tableName}, but it does not exist. Will skip it (for forward-compatibility). If this is unexpected, perhaps you forgot to add it to your Database constructor's modelClasses property?`,
-        )
-      }
+        if (!collection) {
+          logger.warn(
+            `You are trying to sync a collection named ${tableName}, but it does not exist. Will skip it (for forward-compatibility). If this is unexpected, perhaps you forgot to add it to your Database constructor's modelClasses property?`,
+          )
+        }
 
-      return !!collection
-    }),
-    mapObj((changes, tableName: TableName<any>) => {
-      return recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes)
-    }))(remoteChanges)
+        return !!collection
+      }),
+      mapObj((changes, tableName: TableName<any>) => {
+        return recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes)
+      }),
+    )(remoteChanges),
   )
 
 const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> => {
   const promises = toPairs(recordsToApply).map(([tableName, { deletedRecordsToDestroy }]) => {
-    return deletedRecordsToDestroy.length ?
-      db.adapter.destroyDeletedRecords((tableName: any), deletedRecordsToDestroy) :
-      null
+    return deletedRecordsToDestroy.length
+      ? db.adapter.destroyDeletedRecords((tableName: any), deletedRecordsToDestroy)
+      : null
   })
   return Promise.all(promises)
 }
@@ -202,13 +198,15 @@ const applyAllRemoteChanges = (
 ): Promise<void> => {
   const allRecords = []
   toPairs(recordsToApply).forEach(([tableName, records]) => {
-    allRecords.push(...prepareApplyRemoteChangesToCollection(
-      db.get((tableName: any)),
-      records,
-      sendCreatedAsUpdated,
-      log,
-      conflictResolver,
-    ))
+    allRecords.push(
+      ...prepareApplyRemoteChangesToCollection(
+        db.get((tableName: any)),
+        records,
+        sendCreatedAsUpdated,
+        log,
+        conflictResolver,
+      ),
+    )
   })
   return db.batch(allRecords)
 }
@@ -230,13 +228,13 @@ const unsafeApplyAllRemoteChangesByBatches = (
       log,
       conflictResolver,
     )
-    const batches = splitEvery(5000, preparedModels).map(recordBatch => db.batch(recordBatch))
+    const batches = splitEvery(5000, preparedModels).map((recordBatch) => db.batch(recordBatch))
     promises.push(...batches)
   })
   return Promise.all(promises)
 }
 
-export default function applyRemoteChanges(
+export default async function applyRemoteChanges(
   db: Database,
   remoteChanges: SyncDatabaseChangeSet,
   sendCreatedAsUpdated: boolean,
@@ -244,29 +242,20 @@ export default function applyRemoteChanges(
   conflictResolver?: SyncConflictResolver,
   _unsafeBatchPerCollection?: boolean,
 ): Promise<void> {
-  ensureActionsEnabled(db)
-  return db.action(async () => {
-    // $FlowFixMe
-    const recordsToApply = await getAllRecordsToApply(db, remoteChanges)
+  // $FlowFixMe
+  const recordsToApply = await getAllRecordsToApply(db, remoteChanges)
 
-    // Perform steps concurrently
-    await Promise.all([
-      destroyAllDeletedRecords(db, recordsToApply),
-      _unsafeBatchPerCollection ?
-        unsafeApplyAllRemoteChangesByBatches(
+  // Perform steps concurrently
+  await Promise.all([
+    destroyAllDeletedRecords(db, recordsToApply),
+    _unsafeBatchPerCollection
+      ? unsafeApplyAllRemoteChangesByBatches(
           db,
           recordsToApply,
           sendCreatedAsUpdated,
           log,
           conflictResolver,
-        ) :
-        applyAllRemoteChanges(
-          db,
-          recordsToApply,
-          sendCreatedAsUpdated,
-          log,
-          conflictResolver,
-        ),
-    ])
-  }, 'sync-applyRemoteChanges')
+        )
+      : applyAllRemoteChanges(db, recordsToApply, sendCreatedAsUpdated, log, conflictResolver),
+  ])
 }

@@ -12,8 +12,8 @@ export function addToRawSet(rawSet: string, value: string): string {
 
 // Mutates `rawRecord` to mark `columName` as modified for sync purposes
 export function setRawColumnChange(rawRecord: RawRecord, columnName: ColumnName): void {
+  rawRecord._changed = addToRawSet(rawRecord._changed, columnName)
   if (rawRecord._status !== 'created') {
-    rawRecord._changed = addToRawSet(rawRecord._changed, columnName)
     rawRecord._status = 'updated'
   }
 }

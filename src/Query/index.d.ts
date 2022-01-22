@@ -1,10 +1,10 @@
 declare module '@nozbe/watermelondb/Query' {
-  import { Collection, ColumnName, Model, TableName } from '@nozbe/watermelondb'
+  import { Collection, ColumnName, Model, TableName, RecordId } from '@nozbe/watermelondb'
   import { AssociationInfo } from '@nozbe/watermelondb/Model'
   import { Clause, QueryDescription } from '@nozbe/watermelondb/QueryDescription'
   import { Observable } from 'rxjs'
 
-  export type QueryAssociation = { from: TableName<any>, to: TableName<any>, info: AssociationInfo }
+  export type QueryAssociation = { from: TableName<any>; to: TableName<any>; info: AssociationInfo }
   export interface SerializedQuery {
     table: TableName<any>
     description: QueryDescription
@@ -25,6 +25,8 @@ declare module '@nozbe/watermelondb/Query' {
     public observe(): Observable<Record[]>
 
     public observeWithColumns(rawFields: ColumnName[]): Observable<Record[]>
+
+    public fetchIds(): Promise<RecordId[]>
 
     public fetchCount(): Promise<number>
 

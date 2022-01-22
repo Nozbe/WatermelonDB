@@ -1,63 +1,65 @@
 // @flow
 
-import {
-  mapObj,
-  values,
-  unnest,
-} from '../../utils/fp'
 import areRecordsEqual from '../../utils/fp/areRecordsEqual'
-import allPromisesObj from '../../utils/fp/allPromisesObj'
 import { logError } from '../../utils/common'
-import type { Database, Model } from '../..'
+import type { Database, Model, TableName } from '../..'
 
-import { prepareMarkAsSynced, ensureActionsEnabled } from './helpers'
-import type { SyncLocalChanges } from '../index'
+import { prepareMarkAsSynced } from './helpers'
+import type { SyncLocalChanges, SyncRejectedIds } from '../index'
 
-const unchangedRecordsForRaws = (raws, recordCache) =>
-  raws.reduce(
-    (records, raw) => {
-      const record = recordCache.find(model => model.id === raw.id)
+const recordsToMarkAsSynced = (
+  { changes, affectedRecords }: SyncLocalChanges,
+  allRejectedIds: SyncRejectedIds,
+): Model[] => {
+  const syncedRecords = []
+
+  Object.keys(changes).forEach((table) => {
+    const { created, updated } = changes[(table: any)]
+    const raws = created.concat(updated)
+    const rejectedIds = new Set(allRejectedIds[(table: any)])
+
+    raws.forEach((raw) => {
+      const { id } = raw
+      const record = affectedRecords.find((model) => model.id === id && model.table === table)
       if (!record) {
         logError(
-          `[Sync] Looking for record ${raw.id} to mark it as synced, but I can't find it. Will ignore it (it should get synced next time). This is probably a Watermelon bug — please file an issue!`,
+          `[Sync] Looking for record ${table}#${id} to mark it as synced, but I can't find it. Will ignore it (it should get synced next time). This is probably a Watermelon bug — please file an issue!`,
         )
-        return records
+        return
       }
-
-      // only include if it didn't change since fetch
-      return areRecordsEqual(record._raw, raw) ? records.concat(record) : records
-    },
-    [],
-  )
-
-const recordsToMarkAsSynced = ({ changes, affectedRecords }: SyncLocalChanges): Model[] => {
-  // $FlowFixMe
-  const changesTables = values(changes)
-  return unnest(
-    // $FlowFixMe
-    changesTables.map(({ created, updated }) =>
-      unchangedRecordsForRaws(created.concat(updated), affectedRecords),
-    )
-  )
+      if (areRecordsEqual(record._raw, raw) && !rejectedIds.has(id)) {
+        syncedRecords.push(record)
+      }
+    })
+  })
+  return syncedRecords
 }
 
-const destroyDeletedRecords = (db: Database, { changes }: SyncLocalChanges): Promise<*> =>
-  allPromisesObj(
-    // $FlowFixMe
-    mapObj(({ deleted }, tableName) => db.adapter.destroyDeletedRecords(tableName, deleted), changes),
-  )
+const destroyDeletedRecords = (
+  db: Database,
+  { changes }: SyncLocalChanges,
+  allRejectedIds: SyncRejectedIds,
+): Promise<any>[] => {
+  return Object.keys(changes).map((_tableName) => {
+    const tableName: TableName<any> = (_tableName: any)
+    const rejectedIds = new Set(allRejectedIds[tableName])
+    const deleted = changes[tableName].deleted.filter((id) => !rejectedIds.has(id))
+    return deleted.length ? db.adapter.destroyDeletedRecords(tableName, deleted) : Promise.resolve()
+  })
+}
 
 export default function markLocalChangesAsSynced(
   db: Database,
   syncedLocalChanges: SyncLocalChanges,
+  rejectedIds?: ?SyncRejectedIds,
 ): Promise<void> {
-  ensureActionsEnabled(db)
-  return db.action(async () => {
+  return db.write(async () => {
     // update and destroy records concurrently
     await Promise.all([
-      // $FlowFixMe
-      db.batch(recordsToMarkAsSynced(syncedLocalChanges).map(prepareMarkAsSynced)),
-      destroyDeletedRecords(db, syncedLocalChanges),
+      db.batch(
+        recordsToMarkAsSynced(syncedLocalChanges, rejectedIds || {}).map(prepareMarkAsSynced),
+      ),
+      ...destroyDeletedRecords(db, syncedLocalChanges, rejectedIds || {}),
     ])
   }, 'sync-markLocalChangesAsSynced')
 }

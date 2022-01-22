@@ -58,8 +58,8 @@ class DatabaseDriver {
         return record.resultDictionary!
     }
 
-    func cachedQuery(table: Database.TableName, query: Database.SQL) throws -> [Any] {
-        return try database.queryRaw(query).map { row in
+    func cachedQuery(table: Database.TableName, query: Database.SQL, args: Database.QueryArgs = []) throws -> [Any] {
+        return try database.queryRaw(query, args).map { row in
             let id = row.string(forColumn: "id")!
 
             if isCached(table, id) {
@@ -71,18 +71,32 @@ class DatabaseDriver {
         }
     }
 
-    func count(_ query: Database.SQL) throws -> Int {
-        return try database.count(query)
+    func queryIds(query: Database.SQL, args: Database.QueryArgs = []) throws -> [String] {
+        return try database.queryRaw(query, args).map { row in
+            row.string(forColumn: "id")!
+        }
     }
 
-    enum Operation {
-        case execute(table: Database.TableName, query: Database.SQL, args: Database.QueryArgs)
-        case create(table: Database.TableName, id: RecordId, query: Database.SQL, args: Database.QueryArgs)
-        case destroyPermanently(table: Database.TableName, id: RecordId)
-        case markAsDeleted(table: Database.TableName, id: RecordId)
-        // case destroyDeletedRecords(table: Database.TableName, records: [RecordId])
-        // case setLocal(key: String, value: String)
-        // case removeLocal(key: String)
+    func unsafeQueryRaw(query: Database.SQL, args: Database.QueryArgs = []) throws -> [Any] {
+        return try database.queryRaw(query, args).map { row in
+            row.resultDictionary!
+        }
+    }
+
+    func count(_ query: Database.SQL, args: Database.QueryArgs = []) throws -> Int {
+        return try database.count(query, args)
+    }
+
+    enum CacheBehavior {
+        case ignore
+        case addFirstArg(table: Database.TableName)
+        case removeFirstArg(table: Database.TableName)
+    }
+
+    struct Operation {
+        let cacheBehavior: CacheBehavior
+        let sql: Database.SQL
+        let argBatches: [Database.QueryArgs]
     }
 
     func batch(_ operations: [Operation]) throws {
@@ -91,22 +105,19 @@ class DatabaseDriver {
 
         try database.inTransaction {
             for operation in operations {
-                switch operation {
-                case .execute(table: _, query: let query, args: let args):
-                    try database.execute(query, args)
+                for args in operation.argBatches {
+                    try database.execute(operation.sql, args)
 
-                case .create(table: let table, id: let id, query: let query, args: let args):
-                    try database.execute(query, args)
-                    newIds.append((table, id))
-
-                case .markAsDeleted(table: let table, id: let id):
-                    try database.execute("update `\(table)` set _status='deleted' where id == ?", [id])
-                    removedIds.append((table, id))
-
-                case .destroyPermanently(table: let table, id: let id):
-                    // TODO: What's the behavior if nothing got deleted?
-                    try database.execute("delete from `\(table)` where id == ?", [id])
-                    removedIds.append((table, id))
+                    switch operation.cacheBehavior {
+                    case .addFirstArg(table: let table):
+                        // swiftlint:disable:next force_cast
+                        newIds.append((table, id: args[0] as! String))
+                    case .removeFirstArg(table: let table):
+                        // swiftlint:disable:next force_cast
+                        removedIds.append((table, id: args[0] as! String))
+                    case .ignore:
+                        break
+                    }
                 }
             }
         }
@@ -120,18 +131,6 @@ class DatabaseDriver {
         }
     }
 
-    func getDeletedRecords(table: Database.TableName) throws -> [RecordId] {
-        return try database.queryRaw("select id from `\(table)` where _status='deleted'").map { row in
-            row.string(forColumn: "id")!
-        }
-    }
-
-    func destroyDeletedRecords(table: Database.TableName, records: [RecordId]) throws {
-        // TODO: What's the behavior if record doesn't exist or isn't actually deleted?
-        let recordPlaceholders = records.map { _ in "?" }.joined(separator: ",")
-        try database.execute("delete from `\(table)` where id in (\(recordPlaceholders))", records)
-    }
-
 // MARK: - LocalStorage
 
     func getLocal(key: String) throws -> String? {
@@ -142,14 +141,6 @@ class DatabaseDriver {
         }
 
         return record.string(forColumn: "value")!
-    }
-
-    func setLocal(key: String, value: String) throws {
-        return try database.execute("insert or replace into `local_storage` (key, value) values (?, ?)", [key, value])
-    }
-
-    func removeLocal(key: String) throws {
-        return try database.execute("delete from `local_storage` where `key` == ?", [key])
     }
 
 // MARK: - Record caching
@@ -210,12 +201,8 @@ class DatabaseDriver {
         try database.unsafeDestroyEverything()
         cachedRecords = [:]
 
-        try setUpSchema(schema: schema)
-    }
-
-    private func setUpSchema(schema: Schema) throws {
         try database.inTransaction {
-            try database.executeStatements(schema.sql + localStorageSchema)
+            try database.executeStatements(schema.sql)
             database.userVersion = schema.version
         }
     }
@@ -231,15 +218,6 @@ class DatabaseDriver {
             database.userVersion = migrations.to
         }
     }
-
-    private let localStorageSchema = """
-        create table local_storage (
-        key varchar(16) primary key not null,
-        value text not null
-        );
-
-        create index local_storage_key_index on local_storage (key);
-    """
 }
 
 private func getPath(dbName: String) -> String {

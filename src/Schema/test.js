@@ -8,7 +8,10 @@ describe('Schema', () => {
       tables: [
         tableSchema({
           name: 'foo',
-          columns: [{ name: 'col1', type: 'string' }, { name: 'col2', type: 'number' }],
+          columns: [
+            { name: 'col1', type: 'string' },
+            { name: 'col2', type: 'number' },
+          ],
         }),
         tableSchema({
           name: 'bar',
@@ -32,7 +35,10 @@ describe('Schema', () => {
             col1: { name: 'col1', type: 'string' },
             col2: { name: 'col2', type: 'number' },
           },
-          columnArray: [{ name: 'col1', type: 'string' }, { name: 'col2', type: 'number' }],
+          columnArray: [
+            { name: 'col1', type: 'string' },
+            { name: 'col2', type: 'number' },
+          ],
         },
         bar: {
           name: 'bar',
@@ -75,9 +81,9 @@ describe('Schema', () => {
   it('does not allow unsafe names', () => {
     ;[
       '"hey"',
-      '\'hey\'',
+      "'hey'",
       '`hey`',
-      'foo\' and delete * from users --',
+      "foo' and delete * from users --",
       'id',
       '_changed',
       '_status',
@@ -90,7 +96,7 @@ describe('Schema', () => {
       'oid',
       '_rowid_',
       'ROWID',
-    ].forEach(name => {
+    ].forEach((name) => {
       // console.log(name)
       expect(() => tableSchema({ name: 'foo', columns: [{ name, type: 'string' }] })).toThrow()
       expect(() => tableSchema({ name, columns: [{ name: 'hey', type: 'string' }] })).toThrow()

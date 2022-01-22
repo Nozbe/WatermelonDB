@@ -19,19 +19,35 @@ function performJoin(join: LokiJoin, loki: Loki): DirtyRaw[] {
   return records
 }
 
-function executeFind(query: SerializedQuery, loki: Loki): LokiResultset {
+function performQuery(query: SerializedQuery, loki: Loki): LokiResultset {
   // Step one: perform all inner queries (JOINs) to get the single table query
   const lokiQuery = encodeQuery(query)
-  const mainQuery = performJoins(lokiQuery, join => performJoin(join, loki))
+  const mainQuery = performJoins(lokiQuery, (join) => performJoin(join, loki))
 
   // Step two: fetch all records matching query
   const collection = loki.getCollection(query.table).chain()
-  return collection.find(mainQuery)
+  let resultset = collection.find(mainQuery)
+
+  // Step three: sort, skip, take
+  const { sortBy, take, skip } = query.description
+  if (sortBy.length) {
+    resultset = resultset.compoundsort(
+      sortBy.map(({ sortColumn, sortOrder }) => [sortColumn, sortOrder === 'desc']),
+    )
+  }
+  if (skip) {
+    resultset = resultset.offset(skip)
+  }
+  if (take) {
+    resultset = resultset.limit(take)
+  }
+
+  return resultset
 }
 
 export function executeQuery(query: SerializedQuery, loki: Loki): DirtyRaw[] {
   const { lokiTransform } = query.description
-  const results = executeFind(query, loki).data()
+  const results = performQuery(query, loki).data()
 
   if (lokiTransform) {
     return lokiTransform(results, loki)
@@ -42,7 +58,7 @@ export function executeQuery(query: SerializedQuery, loki: Loki): DirtyRaw[] {
 
 export function executeCount(query: SerializedQuery, loki: Loki): number {
   const { lokiTransform } = query.description
-  const resultset = executeFind(query, loki)
+  const resultset = performQuery(query, loki)
 
   if (lokiTransform) {
     const records = lokiTransform(resultset.data(), loki)

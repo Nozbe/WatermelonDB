@@ -24,7 +24,7 @@ function observeCountThrottled<Record: Model>(query: Query<Record>): Observable<
   const { collection } = query
   return collection.database.withChangesForTables(query.allTables).pipe(
     throttleTime(250), // Note: this has a bug, but we'll delete it anyway
-    switchMap(() => toPromise(callback => collection._fetchCount(query, callback))),
+    switchMap(() => toPromise((callback) => collection._fetchCount(query, callback))),
     distinctUntilChanged(),
   )
 }
@@ -32,7 +32,7 @@ function observeCountThrottled<Record: Model>(query: Query<Record>): Observable<
 export default function subscribeToCount<Record: Model>(
   query: Query<Record>,
   isThrottled: boolean,
-  subscriber: number => void,
+  subscriber: (number) => void,
 ): Unsubscribe {
   if (isThrottled && !isThrottlingDisabled) {
     const observable = observeCountThrottled(query)
@@ -45,7 +45,7 @@ export default function subscribeToCount<Record: Model>(
 
   let previousCount = -1
   const observeCountFetch = () => {
-    collection._fetchCount(query, result => {
+    collection._fetchCount(query, (result) => {
       if (result.error) {
         logError(result.error.toString())
         return

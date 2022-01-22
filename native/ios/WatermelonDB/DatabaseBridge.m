@@ -8,9 +8,6 @@
     args \
     resolve:(RCTPromiseResolveBlock)resolve \
     reject:(RCTPromiseRejectBlock)reject \
-  ) \
-  RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(WMELON_CONCAT(name, Synchronous):(nonnull NSNumber *)connectionTag \
-    args \
   )
 
 WMELON_BRIDGE_METHOD(initialize,
@@ -39,27 +36,26 @@ WMELON_BRIDGE_METHOD(find,
 WMELON_BRIDGE_METHOD(query,
   table:(nonnull NSString *)table
   query:(nonnull NSString *)query
+  args:(nonnull NSArray *)args
+)
+
+WMELON_BRIDGE_METHOD(queryIds,
+  query:(nonnull NSString *)query
+  args:(nonnull NSArray *)args
+)
+
+WMELON_BRIDGE_METHOD(unsafeQueryRaw,
+  query:(nonnull NSString *)query
+  args:(nonnull NSArray *)args
 )
 
 WMELON_BRIDGE_METHOD(count,
- query:(nonnull NSString *)query
-)
-
-WMELON_BRIDGE_METHOD(batch,
-  operations:(NSArray *)operations
+  query:(nonnull NSString *)query
+  args:(nonnull NSArray *)args
 )
 
 WMELON_BRIDGE_METHOD(batchJSON,
   operations:(NSString *)serializedOperations
-)
-
-WMELON_BRIDGE_METHOD(getDeletedRecords,
-  table:(nonnull NSString *)table
-)
-
-WMELON_BRIDGE_METHOD(destroyDeletedRecords,
-  table:(nonnull NSString *)table
-  records:(NSArray<NSString *>*)recordIds
 )
 
 WMELON_BRIDGE_METHOD(unsafeResetDatabase,
@@ -71,15 +67,12 @@ WMELON_BRIDGE_METHOD(getLocal,
   key:(nonnull NSString *)key
 )
 
-WMELON_BRIDGE_METHOD(setLocal,
-  key:(nonnull NSString *)key
-  value:(nonnull NSString *)value
-)
-
-WMELON_BRIDGE_METHOD(removeLocal,
-  key:(nonnull NSString *)key
-)
-
 RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(initializeJSI)
+
+RCT_EXTERN_METHOD(provideSyncJson:(nonnull NSNumber *)id \
+  json:(nonnull NSString *)json \
+  resolve:(RCTPromiseResolveBlock)resolve \
+  reject:(RCTPromiseRejectBlock)reject \
+)
 
 @end

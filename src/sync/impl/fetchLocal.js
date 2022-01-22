@@ -4,7 +4,8 @@ import {
   // $FlowFixMe
   values,
   identity,
-  unnest, allPromises,
+  unnest,
+  allPromises,
   mapObj,
 } from '../../utils/fp'
 import allPromisesObj from '../../utils/fp/allPromisesObj'
@@ -13,7 +14,6 @@ import * as Q from '../../QueryDescription'
 import { columnName } from '../../Schema'
 
 import type { SyncTableChangeSet, SyncLocalChanges } from '../index'
-import { ensureActionsEnabled } from './helpers'
 
 // NOTE: Two separate queries are faster than notEq(synced) on LokiJS
 const createdQuery = Q.where(columnName('_status'), 'created')
@@ -36,10 +36,10 @@ async function fetchLocalChangesForCollection<T: Model>(
   // but this complicates markLocalChangesAsDone, since we don't have the exact copy to compare if record changed
   // TODO: It would probably also be good to only send to server locally changed fields, not full records
   // perf-critical - using mutation
-  createdRecords.forEach(record => {
+  createdRecords.forEach((record) => {
     changeSet.created.push(Object.assign({}, record._raw))
   })
-  updatedRecords.forEach(record => {
+  updatedRecords.forEach((record) => {
     changeSet.updated.push(Object.assign({}, record._raw))
   })
   const changedRecords = createdRecords.concat(updatedRecords)
@@ -48,8 +48,7 @@ async function fetchLocalChangesForCollection<T: Model>(
 }
 
 export default function fetchLocalChanges(db: Database): Promise<SyncLocalChanges> {
-  ensureActionsEnabled(db)
-  return db.action(async () => {
+  return db.read(async () => {
     const changes = await allPromisesObj(mapObj(fetchLocalChangesForCollection, db.collections.map))
     // TODO: deep-freeze changes object (in dev mode only) to detect mutations (user bug)
     return {
@@ -61,12 +60,11 @@ export default function fetchLocalChanges(db: Database): Promise<SyncLocalChange
 }
 
 export function hasUnsyncedChanges(db: Database): Promise<boolean> {
-  ensureActionsEnabled(db)
   // action is necessary to ensure other code doesn't make changes under our nose
-  return db.action(async () => {
+  return db.read(async () => {
     // $FlowFixMe
     const collections = values(db.collections.map)
-    const hasUnsynced = async collection => {
+    const hasUnsynced = async (collection) => {
       const created = await collection.query(createdQuery).fetchCount()
       const updated = await collection.query(updatedQuery).fetchCount()
       const deleted = await db.adapter.getDeletedRecords(collection.table)

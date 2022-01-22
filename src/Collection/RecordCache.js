@@ -8,7 +8,7 @@ import type { CachedQueryResult } from '../adapters/type'
 import type { TableName } from '../Schema'
 import type { RawRecord } from '../RawRecord'
 
-type Instantiator<T> = RawRecord => T
+type Instantiator<T> = (RawRecord) => T
 
 export default class RecordCache<Record: Model> {
   map: Map<RecordId, Record> = new Map()
@@ -46,7 +46,7 @@ export default class RecordCache<Record: Model> {
   }
 
   recordsFromQueryResult(result: CachedQueryResult): Record[] {
-    return result.map(res => this.recordFromQueryResult(res))
+    return result.map((res) => this.recordFromQueryResult(res))
   }
 
   recordFromQueryResult(result: RecordId | RawRecord): Record {
@@ -102,9 +102,7 @@ export default class RecordCache<Record: Model> {
       // This may legitimately happen if we previously got ID without a record and we cleared
       // adapter-side cached record ID maps to recover
       logger.warn(
-        `Record ${this.tableName}#${
-          cachedRecord.id
-        } is cached, but full raw object was sent over the bridge`,
+        `Record ${this.tableName}#${cachedRecord.id} is cached, but full raw object was sent over the bridge`,
       )
       return cachedRecord
     }

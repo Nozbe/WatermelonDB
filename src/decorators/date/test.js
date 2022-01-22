@@ -56,7 +56,7 @@ describe('decorators/timestamp', () => {
           @date
           noName
         },
-    ).toThrow(/column name/)
+    ).toThrow('column name')
   })
   it('returns a instance of date if cached', () => {
     const model = new MockModel({ schema }, { date: 0 })

@@ -13,7 +13,7 @@ export const rawFieldEquals: OperatorFunction = (left, right) => left == right
 
 const rawFieldNotEquals: OperatorFunction = (left, right) => !(left == right)
 
-const noNullComparisons: OperatorFunction => OperatorFunction = operator => (left, right) => {
+const noNullComparisons: (OperatorFunction) => OperatorFunction = (operator) => (left, right) => {
   // return false if any operand is null/undefined
   if (left == null || right == null) {
     return false
@@ -50,6 +50,7 @@ const gt = (a, b) => a > b
 const gte = (a, b) => a >= b
 const lt = (a, b) => a < b
 const lte = (a, b) => a <= b
+const includes = (a, b) => typeof a === 'string' && a.includes(b)
 
 const operators: { [Operator]: OperatorFunction } = {
   eq: rawFieldEquals,
@@ -64,6 +65,7 @@ const operators: { [Operator]: OperatorFunction } = {
   between,
   like,
   notLike,
+  includes,
 }
 
 export default operators

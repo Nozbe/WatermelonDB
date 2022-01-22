@@ -1,5 +1,5 @@
 // @flow
-import expect from 'expect'
+import expect from 'expect-rn'
 
 export default async function expectToRejectWithMessage(
   promise: Promise<*>,

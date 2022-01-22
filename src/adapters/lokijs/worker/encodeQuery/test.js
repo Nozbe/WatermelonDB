@@ -24,10 +24,10 @@ class MockProject extends Model {
 
 const mockCollection = Object.freeze({
   modelClass: MockTask,
-  db: { get: table => (table === 'projects' ? { modelClass: MockProject } : {}) },
+  db: { get: (table) => (table === 'projects' ? { modelClass: MockProject } : {}) },
 })
 
-const encoded = clauses => encodeQueryRaw(new Query(mockCollection, clauses).serialize())
+const encoded = (clauses) => encodeQueryRaw(new Query(mockCollection, clauses).serialize())
 
 describe('LokiJS encodeQuery', () => {
   it('encodes simple queries', () => {
@@ -85,6 +85,7 @@ describe('LokiJS encodeQuery', () => {
         Q.where('col9', Q.between(10, 11)),
         Q.where('col10', Q.like('%abc')),
         Q.where('col11', Q.notLike('%abc')),
+        Q.where('col12', Q.includes('foo')),
       ]),
     ).toEqual({
       table: 'tasks',
@@ -100,8 +101,9 @@ describe('LokiJS encodeQuery', () => {
           { col7: { $in: [1, 2, 3] } },
           { col8: { $and: [{ $nin: ['"a"', 'b', 'c'] }, { $not: { $aeq: null } }] } },
           { col9: { $between: [10, 11] } },
-          { col10: { $regex: /^.*abc$/i } },
-          { col11: { $and: [{ $not: { $eq: null } }, { $not: { $regex: /^.*abc$/i } }] } },
+          { col10: { $regex: /^.*abc$/is } },
+          { col11: { $and: [{ $not: { $eq: null } }, { $not: { $regex: /^.*abc$/is } }] } },
+          { col12: { $containsString: 'foo' } },
           { _status: { $ne: 'deleted' } },
         ],
       },
@@ -195,16 +197,13 @@ describe('LokiJS encodeQuery', () => {
             $join: {
               table: 'projects',
               query: {
-                $and: [
-                  { team_id: { $eq: 'abcdef' } },
-                  { is_active: { $aeq: true } },
-                  { _status: { $ne: 'deleted' } },
-                ],
+                $and: [{ team_id: { $eq: 'abcdef' } }, { _status: { $ne: 'deleted' } }],
               },
               mapKey: 'id',
               joinKey: 'project_id',
             },
           },
+          { left_column: { $eq: 'right_value' } },
           {
             $join: {
               table: 'tag_assignments',
@@ -215,7 +214,16 @@ describe('LokiJS encodeQuery', () => {
               joinKey: 'id',
             },
           },
-          { left_column: { $eq: 'right_value' } },
+          {
+            $join: {
+              table: 'projects',
+              query: {
+                $and: [{ is_active: { $aeq: true } }, { _status: { $ne: 'deleted' } }],
+              },
+              mapKey: 'id',
+              joinKey: 'project_id',
+            },
+          },
           { _status: { $ne: 'deleted' } },
         ],
       },
@@ -350,6 +358,7 @@ describe('LokiJS encodeQuery', () => {
       table: 'tasks',
       query: {
         $and: [
+          { foo: { $jgt: 10 } },
           {
             $join: {
               table: 'projects',
@@ -358,7 +367,6 @@ describe('LokiJS encodeQuery', () => {
               joinKey: 'project_id',
             },
           },
-          { foo: { $jgt: 10 } },
           { _status: { $ne: 'deleted' } },
         ],
       },
@@ -370,7 +378,8 @@ describe('LokiJS encodeQuery', () => {
       'explicitly declare Q.experimentalJoinTables',
     )
   })
-  it(`does not encode sql subexprs`, () => {
+  it(`throws an error on unsupported query clauses`, () => {
     expect(() => encoded([Q.unsafeSqlExpr('haha sql goes brrr')])).toThrow('Unknown clause')
+    expect(() => encoded([Q.unsafeSqlQuery('select * from tasks')])).toThrow('not supported')
   })
 })

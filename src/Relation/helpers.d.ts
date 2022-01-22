@@ -8,5 +8,7 @@ declare module '@nozbe/watermelondb/Relation/helpers' {
 
   export function getObservable<T extends Model>(relation: Relation<T>): Observable<T | undefined>
 
-  export function createObservable<T extends Model>(relation: Relation<T>): Observable<T | undefined>
+  export function createObservable<T extends Model>(
+    relation: Relation<T>,
+  ): Observable<T | undefined>
 }

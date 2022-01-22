@@ -4,11 +4,15 @@ import android.app.Application;
 
 // Public interface to JSI-based Watermelon
 public class WatermelonJSI {
-    public static void install(Application context, long javaScriptContextHolder) {
-        JSIInstaller.install(context, javaScriptContextHolder);
-    }
-
     public static void onTrimMemory(int level) {
       // TODO: Unimplemented
+    }
+
+    public static void provideSyncJson(int id, byte[] json) {
+        JSIInstaller.provideSyncJson(id, json);
+    }
+
+    public static void onCatalystInstanceDestroy() {
+        JSIInstaller.destroy();
     }
 }

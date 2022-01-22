@@ -1,21 +1,15 @@
 # WatermelonDB Roadmap
 
-## From today to 1.0
+Despite being called 0.xx, WatermelonDB is essentially feature-complete and relatively API stable. It's used in production by [Nozbe Teams](https://nozbe.com) and many others.
 
-WatermelonDB is currently in active development at [Nozbe](https://nozbe.com) for use in advanced projects. It's mostly feature-complete. However, there are a few features left before we can call it 1.0.
-
-### v0.xxx
-
-- Full transactionality (atomicity) support ???
-- Field sanitizers
-- Optimized tree deleting
-- API improvements
+We don't call it 1.0 mostly out of convenience, to allow rapid development without incrementing `major` version counter (as dictated by SemVer). We do intend to call WatermelonDB a 1.0 once we can reach a long-term stable API.
 
 ### v1.0
 
-Everything above plus having at least one non-trivial app using WatermelonDB in production to verify its concepts
+- Optimized tree deleting
+- Long term stable API
 
 ### Beyond 1.0
 
-- Replace `withObservables` HOC and Prefetching with a solution based on React 17 Suspense feature
-- Query templates
+- Full transactionality (atomicity) support?
+- Field sanitizers

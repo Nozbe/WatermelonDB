@@ -20,16 +20,12 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
-#project.xcworkspace
 
 # Android/IntelliJ
 #
 build/
 .idea
 .gradle
-.settings
-.project
-.classpath
 local.properties
 *.iml
 
@@ -43,6 +39,7 @@ yarn-error.log
 buck-out/
 \.buckd/
 *.keystore
+!debug.keystore
 
 # fastlane
 #
@@ -57,3 +54,6 @@ buck-out/
 
 # Bundle artifact
 *.jsbundle
+
+# CocoaPods
+/ios/Pods/

@@ -1,5 +1,4 @@
 ---
-
 env:
   es6: true
   jest: true
@@ -22,93 +21,91 @@ settings:
 
 rules:
   curly:
-    - 2
+    - error
     - all
-  arrow-parens:
-    - 2
-    - as-needed
-  semi:
-    - 2
-    - never
-  class-methods-use-this: 0
+  class-methods-use-this: off
   comma-dangle:
-    - 2
+    - error
     - always-multiline
   no-console:
-    - 2
-  no-unused-expressions: 0
+    - error
+  no-unused-expressions: off
   no-param-reassign:
-    - 2
+    - error
     - props: false
-  no-useless-escape: 0
-  func-names: 0
-  quotes:
-    - 2
-    - single
-    - allowTemplateLiterals: true
-  no-underscore-dangle: 0
-  object-curly-newline: 0
-  function-paren-newline: 0
+  no-useless-escape: off
+  func-names: off
+  no-underscore-dangle: off
   no-unused-vars:
-    - 2
-    - argsIgnorePattern: "^_"
+    - error
+    - argsIgnorePattern: '^_'
   no-else-return:
-    - 2
+    - error
     - allowElseIf: true
-
-  # react
-  react/prop-types: 0
-  react/jsx-filename-extension: 0
-  react/jsx-no-bind:
-    - 2
-    - ignoreRefs: true
-  react/jsx-first-prop-new-line:
-    - 2
+  # formatting (off - formatting is Prettier's job)
+  semi:
+    - error
     - never
+  arrow-parens: off
+  react/jsx-closing-bracket-location: off
+  react/jsx-first-prop-new-line: off
+  operator-linebreak: off
+  object-curly-newline: off
+  function-paren-newline: off
+  max-classes-per-file: off
+  camelcase: off
+  react/jsx-indent: off
+  quotes: off
+  react/jsx-curly-newline: off
+  flowtype/space-after-type-colon: off
+  flowtype/generic-spacing: off
+  lines-between-class-members: off
+  one-var: off
+  # react
+  react/prop-types: off
+  react/jsx-filename-extension: off
   react/jsx-indent-props:
-    - 2
-    - 2
-  react/jsx-closing-bracket-location:
-    - 1
-    - selfClosing: after-props
-      nonEmpty: after-props
+    - error
   react/prefer-stateless-function:
     - 1
     - ignorePureComponents: true
   react/jsx-boolean-value:
-    - 2
+    - error
     - always
-  react/no-unused-prop-types: 0
-  react/destructuring-assignment: 0
-  react/jsx-one-expression-per-line: 0
+  react/no-unused-prop-types: off
+  react/destructuring-assignment: off
+  react/jsx-one-expression-per-line: off
   flowtype/delimiter-dangle:
-    - 2
+    - error
     - always-multiline
   flowtype/require-return-type:
-    - 2
+    - error
     - always
     - excludeArrowFunctions: true
       annotateUndefined: always
-  import/prefer-default-export: 0
-  import/named: 0 # doesn't seem to work with Flow
-  import/no-extraneous-dependencies: 0
-  import/no-cycle: 0 # FIXME: broken with flow https://github.com/benmosher/eslint-plugin-import/issues/1343
-  jest/no-large-snapshots: 1
-  jest/no-disabled-tests: 0
-  global-require: 0
-  no-plusplus: 0
+  import/prefer-default-export: off
+  import/named: off # doesn't seem to work with Flow
+  import/no-extraneous-dependencies: off
+  import/no-cycle: off
+  jest/no-large-snapshots: warn
+  jest/no-disabled-tests: off
+  global-require: off
+  no-plusplus: off
+  prefer-object-spread: off
+  react/jsx-props-no-spreading: off
+  react/jsx-no-bind: off
 
 overrides:
   - files:
-      - "src/**/*.js"
+      - 'src/**/*.js'
     excludedFiles:
-      - "*integrationTest.js"
-      - "*test.js"
-      - "**/__tests__/**"
-      - "*test.*.js"
+      - '*integrationTest.js'
+      - '*test.js'
+      - '**/__tests__/**'
+      - '*test.*.js'
     rules:
       flowtype/require-valid-file-annotation:
-        - 2
+        - error
         - always
 
 globals:

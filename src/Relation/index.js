@@ -21,6 +21,9 @@ export type Options = $Exact<{
 // Defines a one-to-one relation between two Models (two tables in db)
 // Do not create this object directly! Use `relation` or `immutableRelation` decorators instead
 export default class Relation<T: ?Model> {
+  // Used by withObservables to differentiate between object types
+  static _wmelonTag: string = 'relation'
+
   _model: Model
 
   _columnName: ColumnName
@@ -53,7 +56,7 @@ export default class Relation<T: ?Model> {
   set id(newId: $Call<ExtractRecordId, T>): void {
     if (this._isImmutable) {
       invariant(
-        !this._model._isCommitted,
+        this._model._preparedState === 'create',
         `Cannot change property marked as @immutableRelation ${
           Object.getPrototypeOf(this._model).constructor.name
         } - ${this._columnName}`,

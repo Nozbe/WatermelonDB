@@ -4,22 +4,32 @@
 
 ### BREAKING CHANGES
 
-### Deprecations
+- [Query] `Q.where(xxx, undefined)` will now throw an error. This is a bug fix, since comparing to
+  undefined was never allowed and would either error out or produce a wrong result in some cases.
+  However, it could technically break an app that relied on existing buggy behavior
 
-- [LokiJS] `Q.unsafeLokiFilter` is now deprecated and will be removed in a future version.
-    Use `Q.unsafeLokiTransform((raws, loki) => raws.filter(raw => ...))` instead.
+### Deprecations
 
 ### New features
 
+- [adapters] Adapter objects can now be distinguished by checking their `static adapterType`
+- [Query] New `Q.includes('foo')` query for case-sensitive exact string includes comparison
+- [adapters] Adapter objects now returns `dbName`
+
 ### Performance
 
-- Removed dependency on rambdax and made the util library smaller to keep
+- [LokiJS] Updated Loki with some performance improvements
+- [iOS] JSLockPerfHack now works on iOS 15
+- Improved `@json` decorator, now with optional `{ memo: true }` parameter
 
 ### Changes
 
-- [Docs] Add advanced tutorial to share database across iOS targets
-- [Sqlite] Allowed callbacks (within the migrationEvents object) to be passed so as to track the migration events status ( onStarted, onFailure, onSuccess )
+- [Docs] Added additional Android JSI installation step
 
 ### Fixes
+
+- [android] Fixed compilation on some setups due to a missing <cassert> import
+- [sync] Fixed marking changes as synced for users that don't keep globally unique (only per-table unique) IDs
+- Fix `Model.experimentalMarkAsDeleted/experimentalDestroyPermanently()` throwing an error in some cases
 
 ### Internal
