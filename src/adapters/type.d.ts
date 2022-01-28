@@ -1,3 +1,5 @@
+import { SQLiteQuery } from '@nozbe/watermelondb/adapters/sqlite'
+
 declare module '@nozbe/watermelondb/adapters/type' {
   import { AppSchema, Model, Query, RawRecord, RecordId, TableName } from '@nozbe/watermelondb'
 
@@ -8,6 +10,8 @@ declare module '@nozbe/watermelondb/adapters/type' {
     | ['update', Model]
     | ['markAsDeleted', Model]
     | ['destroyPermanently', Model]
+
+  export type UnsafeExecuteOperations = { sqls: SQLiteQuery[] }
 
   export interface DatabaseAdapter {
     schema: AppSchema
@@ -35,6 +39,9 @@ declare module '@nozbe/watermelondb/adapters/type' {
 
     // Destroys the whole database, its schema, indexes, everything.
     unsafeResetDatabase(): Promise<void>
+
+    // Performs work on the underlying database - see concrete DatabaseAdapter implementation for more details
+    unsafeExecute(work: UnsafeExecuteOperations): Promise<void>
 
     // Fetches string value from local storage
     getLocal(key: string): Promise<string | null>
