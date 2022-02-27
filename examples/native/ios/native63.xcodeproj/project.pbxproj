@@ -19,6 +19,7 @@
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		83164AAF0B30EA6D9CE03052 /* libPods-native63-native63Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 723853129648C44B18315D3D /* libPods-native63-native63Tests.a */; };
 		A185D01BDC103B7BA3A1F635 /* libPods-native63-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3595618FE57A95E1BBF66712 /* libPods-native63-tvOSTests.a */; };
+		B1469BA327CBE9A2005F0476 /* WatermelonDemo.db in Resources */ = {isa = PBXBuildFile; fileRef = B1469BA227CBE9A2005F0476 /* WatermelonDemo.db */; };
 		FC7761BC9DA1B29AECA93688 /* libPods-native63-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AE931131A87B69407C3A4C23 /* libPods-native63-tvOS.a */; };
 /* End PBXBuildFile section */
 
@@ -65,6 +66,7 @@
 		A509A975BC76E51B59FFC028 /* Pods-native63-native63Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-native63-native63Tests.debug.xcconfig"; path = "Target Support Files/Pods-native63-native63Tests/Pods-native63-native63Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		AE931131A87B69407C3A4C23 /* libPods-native63-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-native63-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AFFE10FB1296DD0923B80D33 /* Pods-native63.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-native63.release.xcconfig"; path = "Target Support Files/Pods-native63/Pods-native63.release.xcconfig"; sourceTree = "<group>"; };
+		B1469BA227CBE9A2005F0476 /* WatermelonDemo.db */ = {isa = PBXFileReference; lastKnownFileType = file; name = WatermelonDemo.db; path = native63/WatermelonDemo.db; sourceTree = "<group>"; };
 		DCCD71FFF58FE0C6F28F78DA /* Pods-native63-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-native63-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-native63-tvOS/Pods-native63-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		EBB974C1D7696ADB9243A293 /* Pods-native63.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-native63.debug.xcconfig"; path = "Target Support Files/Pods-native63/Pods-native63.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -127,6 +129,7 @@
 		13B07FAE1A68108700A75B9A /* native63 */ = {
 			isa = PBXGroup;
 			children = (
+				B1469BA227CBE9A2005F0476 /* WatermelonDemo.db */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
@@ -213,6 +216,7 @@
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
 				3E661FCE0655E040247F2388 /* [CP] Copy Pods Resources */,
+				774DD75F1982AFE14758B1BC /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -235,6 +239,7 @@
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				74204DE027132CE8D7441E4D /* [CP] Copy Pods Resources */,
+				A16375419E362C062D53B2C2 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -345,6 +350,7 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				B1469BA327CBE9A2005F0476 /* WatermelonDemo.db in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -494,6 +500,42 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-native63/Pods-native63-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		774DD75F1982AFE14758B1BC /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-native63-native63Tests/Pods-native63-native63Tests-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Universal/OpenSSL.framework/OpenSSL",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OpenSSL.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-native63-native63Tests/Pods-native63-native63Tests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A16375419E362C062D53B2C2 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-native63/Pods-native63-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Universal/OpenSSL.framework/OpenSSL",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OpenSSL.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-native63/Pods-native63-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		D589C9C01D7D2EC187EEC7FC /* [CP] Check Pods Manifest.lock */ = {

@@ -5,6 +5,7 @@
   "scripts": {
     "android": "react-native run-android",
     "android:release": "react-native run-android --variant=release",
+    "generate:database": "babel-node ./scripts/generateEmbeddedDatabase.js",
     "ios": "react-native run-ios",
     "start": "react-native start --reset-cache",
     "test": "jest",
@@ -12,6 +13,7 @@
     "pretty": "prettier --write ."
   },
   "dependencies": {
+    "@babel/node": "^7.16.8",
     "@nozbe/watermelondb": "^0.21.0",
     "@nozbe/with-observables": "^1.0.8",
     "@react-native-community/masked-view": "^0.1.10",
@@ -19,6 +21,7 @@
     "@react-navigation/stack": "^5.14.3",
     "react": "16.13.1",
     "react-native": "0.63.4",
+    "react-native-fs": "^2.19.0",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-prompt-android": "^1.1.0",
     "react-native-reanimated": "^1.13.2",

@@ -7,17 +7,27 @@ import BlogList from './BlogList';
 
 import logoSrc from './assets/logo-app.png';
 import { generate100, generate10k } from '../model/generate';
-import { database } from '../../index';
+import database from '../database/init';
+// import embeddedDatabasePromise from '../database/embeddedInit';
 
 class Root extends Component {
   state = {
     isGenerating: false,
     search: '',
     isSearchFocused: false,
+    embeddedDatabase: undefined,
   };
+
+  constructor() {
+    super();
+    /*
+    embeddedDatabasePromise.then((embeddedDatabase) => this.setState({ embeddedDatabase }));
+    */
+  }
 
   generateWith = async (generator) => {
     this.setState({ isGenerating: true });
+    // const { embeddedDatabase: database } = this.state;
 
     const count = await generator(database);
     Alert.alert(`Generated ${count} records!`);
@@ -36,6 +46,12 @@ class Root extends Component {
   handleOnBlur = () => this.setState({ isSearchFocused: false });
 
   render() {
+    /*
+    const { embeddedDatabase: database } = this.state;
+    if (!database) {
+      return null;
+    }
+    */
     const { search, isGenerating, isSearchFocused } = this.state;
     const {
       navigation,
