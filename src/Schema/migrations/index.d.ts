@@ -26,7 +26,12 @@ declare module '@nozbe/watermelondb/Schema/migrations' {
     columns: ColumnSchema[]
   }
 
-  export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep
+  export type SqlMigrationStep = {
+    type: 'sql'
+    sql: string
+  }
+
+  export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep | SqlMigrationStep
 
   export interface Migration {
     toVersion: SchemaVersion
