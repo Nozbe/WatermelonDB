@@ -244,6 +244,12 @@ void Database::install(jsi::Runtime *runtime) {
             auto postamble = args[3].getString(rt).utf8(rt);
             return database->unsafeLoadFromSync(jsonId, schema, preamble, postamble);
         });
+        createMethod(rt, adapter, "unsafeExecuteMultiple", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
+            assert(database->initialized_);
+            auto sqlString = args[0].getString(rt).utf8(rt);
+            database->executeMultiple(sqlString);
+            return jsi::Value::undefined();
+        });
         createMethod(rt, adapter, "unsafeResetDatabase", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
             assert(database->initialized_);
             jsi::String schema = args[0].getString(rt);

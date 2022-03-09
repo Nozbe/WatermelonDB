@@ -72,6 +72,7 @@ export type SqliteDispatcherMethod =
   | 'provideSyncJson'
   | 'unsafeResetDatabase'
   | 'getLocal'
+  | 'unsafeExecuteMultiple'
 
 export interface SqliteDispatcher {
   call(methodName: SqliteDispatcherMethod, args: any[], callback: ResultCallback<any>): void;
