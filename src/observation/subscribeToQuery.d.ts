@@ -1,5 +1,5 @@
-declare module '@nozbe/watermelondb/observation/observeQuery' {
-  import { Model, Query } from '@nozbe/watermelondb'
+declare module '@BuildHero/watermelondb/observation/observeQuery' {
+  import { Model, Query } from '@BuildHero/watermelondb'
   import { Observable } from 'rxjs'
 
   export default function observeQuery<Record extends Model>(

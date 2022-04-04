@@ -1,5 +1,5 @@
-declare module '@nozbe/watermelondb/decorators/json' {
-  import { ColumnName, Model } from '@nozbe/watermelondb'
+declare module '@BuildHero/watermelondb/decorators/json' {
+  import { ColumnName, Model } from '@BuildHero/watermelondb'
 
   type Sanitizer = (source: any, model?: Model) => any
 

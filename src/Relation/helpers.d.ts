@@ -1,5 +1,5 @@
-declare module '@nozbe/watermelondb/Relation/helpers' {
-  import { Model, Relation } from '@nozbe/watermelondb'
+declare module '@BuildHero/watermelondb/Relation/helpers' {
+  import { Model, Relation } from '@BuildHero/watermelondb'
   import { Observable } from 'rxjs'
 
   export function getImmutableObservable<T extends Model>(

@@ -1,6 +1,6 @@
-declare module '@nozbe/watermelondb/Collection/RecordCache' {
-  import { Model, RawRecord, RecordId, TableName } from '@nozbe/watermelondb'
-  import { CachedQueryResult } from '@nozbe/watermelondb/adapters/type'
+declare module '@BuildHero/watermelondb/Collection/RecordCache' {
+  import { Model, RawRecord, RecordId, TableName } from '@BuildHero/watermelondb'
+  import { CachedQueryResult } from '@BuildHero/watermelondb/adapters/type'
 
   type Instantiator<T> = (raw: RawRecord) => T
 

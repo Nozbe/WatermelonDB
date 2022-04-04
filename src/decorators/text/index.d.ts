@@ -1,5 +1,5 @@
-declare module '@nozbe/watermelondb/decorators/text' {
-  import { ColumnName } from '@nozbe/watermelondb'
+declare module '@BuildHero/watermelondb/decorators/text' {
+  import { ColumnName } from '@BuildHero/watermelondb'
 
   const text: (columnName: ColumnName) => PropertyDecorator
 

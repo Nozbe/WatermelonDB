@@ -1,7 +1,7 @@
-declare module '@nozbe/watermelondb/Query/helpers' {
-  import { QueryDescription } from '@nozbe/watermelondb/QueryDescription'
-  import { TableName } from '@nozbe/watermelondb'
-  import { AssociationInfo, Associations } from '@nozbe/watermelondb/Model'
+declare module '@BuildHero/watermelondb/Query/helpers' {
+  import { QueryDescription } from '@BuildHero/watermelondb/QueryDescription'
+  import { TableName } from '@BuildHero/watermelondb'
+  import { AssociationInfo, Associations } from '@BuildHero/watermelondb/Model'
 
   export const getSecondaryTables: QueryDescription
 

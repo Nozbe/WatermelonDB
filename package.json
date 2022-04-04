@@ -1,7 +1,7 @@
 {
-  "name": "@nozbe/watermelondb",
+  "name": "@BuildHero/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
-  "version": "0.20.0",
+  "version": "0.20.2",
   "scripts": {
     "build": "NODE_ENV=production node ./scripts/make.js",
     "dev": "NODE_ENV=development node ./scripts/make.js",
@@ -38,7 +38,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Nozbe/WatermelonDB.git"
+    "url": "https://github.com/BuildHero/WatermelonDB.git"
   },
   "dependencies": {
     "@babel/runtime": "^7.11.2",
@@ -49,7 +49,7 @@
     "sql-escape-string": "^1.1.0"
   },
   "publishConfig": {
-    "access": "public"
+    "registry": "https://npm.pkg.github.com"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.0",

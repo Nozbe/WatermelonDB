@@ -1,5 +1,5 @@
-declare module '@nozbe/watermelondb/decorators/children' {
-  import { TableName } from '@nozbe/watermelondb'
+declare module '@BuildHero/watermelondb/decorators/children' {
+  import { TableName } from '@BuildHero/watermelondb'
 
   const children: (childTable: TableName<any>) => PropertyDecorator
   export default children

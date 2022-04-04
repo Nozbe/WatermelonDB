@@ -1,7 +1,7 @@
-declare module '@nozbe/watermelondb/Collection' {
-  import { Database, Model, Query, RecordId, TableName, TableSchema } from '@nozbe/watermelondb'
-  import { Clause } from '@nozbe/watermelondb/QueryDescription'
-  import { Class } from '@nozbe/watermelondb/utils/common'
+declare module '@BuildHero/watermelondb/Collection' {
+  import { Database, Model, Query, RecordId, TableName, TableSchema } from '@BuildHero/watermelondb'
+  import { Clause } from '@BuildHero/watermelondb/QueryDescription'
+  import { Class } from '@BuildHero/watermelondb/utils/common'
   import { Observable, Subject } from 'rxjs'
 
   export interface CollectionChange<Record extends Model> {

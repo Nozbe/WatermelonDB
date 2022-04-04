@@ -1,5 +1,5 @@
-declare module '@nozbe/watermelondb/decorators/field' {
-  import { ColumnName } from '@nozbe/watermelondb'
+declare module '@BuildHero/watermelondb/decorators/field' {
+  import { ColumnName } from '@BuildHero/watermelondb'
 
   const field: (columnName: ColumnName) => PropertyDecorator
   export default field

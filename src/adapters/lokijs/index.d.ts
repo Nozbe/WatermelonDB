@@ -1,6 +1,6 @@
-declare module '@nozbe/watermelondb/adapters/lokijs' {
-  import { SchemaMigrations } from '@nozbe/watermelondb/Schema/migrations';
-  import { LokiMemoryAdapter } from 'lokijs';
+declare module '@BuildHero/watermelondb/adapters/lokijs' {
+  import { SchemaMigrations } from '@BuildHero/watermelondb/Schema/migrations'
+  import { LokiMemoryAdapter } from 'lokijs'
 
   import {
     AppSchema,
@@ -9,19 +9,19 @@ declare module '@nozbe/watermelondb/adapters/lokijs' {
     Query,
     RecordId,
     TableName,
-  } from '@nozbe/watermelondb'
+  } from '@BuildHero/watermelondb'
   import {
     BatchOperation,
     CachedFindResult,
     CachedQueryResult,
-  } from '@nozbe/watermelondb/adapters/type'
+  } from '@BuildHero/watermelondb/adapters/type'
 
   export interface LokiAdapterOptions {
     dbName?: string
     autosave?: boolean
     schema: AppSchema
     migrations?: SchemaMigrations
-    _testLokiAdapter?: LokiMemoryAdapter,
+    _testLokiAdapter?: LokiMemoryAdapter
   }
 
   export default class LokiJSAdapter implements DatabaseAdapter {

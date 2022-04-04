@@ -1,7 +1,7 @@
-declare module '@nozbe/watermelondb/Schema' {
-  import { Model } from '@nozbe/watermelondb'
+declare module '@BuildHero/watermelondb/Schema' {
+  import { Model } from '@BuildHero/watermelondb'
 
-  export type SchemaVersion = number;
+  export type SchemaVersion = number
 
   export type TableName<T extends Model | void> = string
   export type ColumnName = string
