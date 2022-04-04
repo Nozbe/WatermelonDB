@@ -51,6 +51,10 @@ export default class DatabaseAdapterCompat {
     return toPromise(callback => this.underlyingAdapter.batch(operations, callback))
   }
 
+  batchImport(operations: BatchOperation[], srcDB: any): Promise<void> {
+    return toPromise(callback => this.underlyingAdapter.batchImport(operations, srcDB, callback))
+  }
+
   getDeletedRecords(tableName: TableName<any>): Promise<RecordId[]> {
     return toPromise(callback => this.underlyingAdapter.getDeletedRecords(tableName, callback))
   }

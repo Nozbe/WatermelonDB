@@ -16,6 +16,7 @@ import { syncReturnToResult } from '../common'
 export { DatabaseBridge }
 
 const dispatcherMethods = [
+  'copyTables',
   'initialize',
   'setUpWithSchema',
   'setUpWithMigrations',

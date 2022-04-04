@@ -96,6 +96,7 @@ export type QueryDescription = $RE<{
   take?: number,
   skip?: number,
   lokiFilter?: LokiFilterFunction,
+  sql?: string,
 }>
 
 const columnSymbol = Symbol('Q.column')
@@ -419,6 +420,14 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
         // $FlowFixMe
         clauseMap.lokiFilter = clause.function
         break
+      case 'sqlQuery':
+        // $FlowFixMe
+        clauseMap.sql = clause.sql
+        break
+      case 'sqlCTE':
+        // $FlowFixMe
+        clauseMap.cte = clause.cte
+        break
       default:
         throw new Error('Invalid Query clause passed')
     }
@@ -519,4 +528,22 @@ export function hasColumnComparisons(conditions: Where[]): boolean {
     'Broken Object prototype! You must not have properties defined on Object prototype',
   )
   return searchForColumnComparisons(conditions)
+}
+
+export function asUnsafeSql(sql: String): any {
+  return {
+    type: 'sqlCTE',
+    cte: sql,
+  }
+}
+
+export function unsafeSqlQuery(sql: string): any {
+  if (typeof sql !== 'string') {
+    throw new Error('Value passed to Q.unsafeSqlQuery is not a string')
+  }
+
+  return {
+    type: 'sqlQuery',
+    sql,
+  }
 }

@@ -217,6 +217,10 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     this._dispatcher.count(sql, callback)
   }
 
+  batchImport(tables: any, srcDB: any, callback: any): void {
+    this._dispatcher.copyTables(tables, srcDB, callback)
+  }
+
   batch(operations: BatchOperation[], callback: ResultCallback<void>): void {
     const batchOperations: NativeBridgeBatchOperation[] = operations.map(operation => {
       const [type, table, rawOrId] = operation

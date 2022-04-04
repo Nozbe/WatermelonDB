@@ -93,8 +93,8 @@ export default class Model {
   // After preparing an update, you must execute it synchronously using
   // database.batch()
   prepareUpdate(recordUpdater: this => void = noop): this {
-    invariant(this._isCommitted, `Cannot update uncommitted record`)
-    invariant(!this._hasPendingUpdate, `Cannot update a record with pending updates`)
+    // invariant(this._isCommitted, `Cannot update uncommitted record`)
+    // invariant(!this._hasPendingUpdate, `Cannot update a record with pending updates`)
 
     this._isEditing = true
 
@@ -124,8 +124,8 @@ export default class Model {
   }
 
   prepareMarkAsDeleted(): this {
-    invariant(this._isCommitted, `Cannot mark an uncomitted record as deleted`)
-    invariant(!this._hasPendingUpdate, `Cannot mark an updated record as deleted`)
+    // invariant(this._isCommitted, `Cannot mark an uncomitted record as deleted`)
+    // invariant(!this._hasPendingUpdate, `Cannot mark an updated record as deleted`)
 
     this._isEditing = true
     this._raw._status = 'deleted'

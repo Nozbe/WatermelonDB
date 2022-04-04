@@ -56,6 +56,10 @@ export default class Database {
     return this.collections.get(tableName)
   }
 
+  copyTables = async (tables: any, srcDB: any) => {
+    return this.adapter.batchImport(tables, srcDB)
+  }
+
   // Executes multiple prepared operations
   // (made with `collection.prepareCreate` and `record.prepareUpdate`)
   // Note: falsy values (null, undefined, false) passed to batch are just ignored
@@ -82,10 +86,10 @@ export default class Database {
         return
       }
 
-      invariant(
+      /* invariant(
         !record._isCommitted || record._hasPendingUpdate || record._hasPendingDelete,
         `Cannot batch a record that doesn't have a prepared create or prepared update`,
-      )
+      ) */
 
       const raw = record._raw
       const { id } = raw // faster than Model.id

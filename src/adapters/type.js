@@ -54,6 +54,9 @@ export interface DatabaseAdapter {
 
   // Removes key from local storage
   removeLocal(key: string, callback: ResultCallback<void>): void;
+
+  // Executes multiple prepared operations
+  batchImport(operations: BatchOperation[], srcDB: any, callback: ResultCallback<void>): void;
 }
 
 export interface SQLDatabaseAdapter {
