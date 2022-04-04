@@ -54,6 +54,7 @@ export type NativeDispatcher = $Exact<{
   getLocal: (string, ResultCallback<?string>) => void,
   setLocal: (string, string, ResultCallback<void>) => void,
   removeLocal: (string, ResultCallback<void>) => void,
+  copyTables: (tables: any, srcDB: any, callback: ResultCallback<void>) => void,
 }>
 
 export type NativeBridgeType = {
@@ -101,4 +102,6 @@ export type NativeBridgeType = {
 
   // Special methods
   initializeJSI?: () => void,
+
+  copyTables?: (TableName<any>[], any) => Promise<void>,
 }

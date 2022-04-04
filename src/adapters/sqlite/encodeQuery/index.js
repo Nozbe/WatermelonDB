@@ -201,8 +201,23 @@ const encodeLimitOffset = (limit: ?number, offset: ?number) => {
   return ` limit ${limit}${optionalOffsetStmt}`
 }
 
+const encodeCTE = (description: any, sql: string, table: string) => {
+  return `
+      with ${table}_cte as (
+        ${description.cte}
+      )
+
+      ${sql.replace(new RegExp(table, 'g'), `${table}_cte`)}
+    `
+}
+
 const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string => {
   const { table, description, associations } = query
+
+  // $FlowFixMe
+  if (description.sql) {
+    return description.sql
+  }
 
   const hasToManyJoins = associations.some(({ info }) => info.type === 'has_many')
 
@@ -213,12 +228,17 @@ const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string
     )
   invariant(!description.lokiFilter, 'unsafeLokiFilter not supported with SQLite')
 
-  const sql =
+  let sql =
     encodeMethod(table, countMode, hasToManyJoins) +
     encodeJoin(description, associations) +
     encodeConditions(table, description, associations) +
     encodeOrderBy(table, description.sortBy) +
     encodeLimitOffset(description.take, description.skip)
+
+  // $FlowFixMe
+  if (description.cte) {
+    sql = encodeCTE(description, sql, table)
+  }
 
   return sql
 }

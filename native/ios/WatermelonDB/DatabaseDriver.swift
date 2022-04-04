@@ -76,6 +76,7 @@ class DatabaseDriver {
     }
 
     enum Operation {
+        case copy(table: Database.TableName, attachPath: String)
         case execute(table: Database.TableName, query: Database.SQL, args: Database.QueryArgs)
         case create(table: Database.TableName, id: RecordId, query: Database.SQL, args: Database.QueryArgs)
         case destroyPermanently(table: Database.TableName, id: RecordId)
@@ -83,6 +84,18 @@ class DatabaseDriver {
         // case destroyDeletedRecords(table: Database.TableName, records: [RecordId])
         // case setLocal(key: String, value: String)
         // case removeLocal(key: String)
+    }
+
+    func copyTables(_ tables: [String], srcDB: String) throws {
+        try database.execute("ATTACH DATABASE '\(srcDB)' as 'other'")
+
+        try database.inTransaction {
+            for table in tables {
+                try database.execute("INSERT OR IGNORE  INTO \(table) SELECT * FROM other.\(table)")
+            }
+        }
+
+        try database.execute("DETACH DATABASE 'other'")
     }
 
     func batch(_ operations: [Operation]) throws {
@@ -107,6 +120,13 @@ class DatabaseDriver {
                     // TODO: What's the behavior if nothing got deleted?
                     try database.execute("delete from `\(table)` where id == ?", [id])
                     removedIds.append((table, id))
+
+                case .copy(table: let table, attachPath: let attachPath):
+//                    try database.execute("ATTACH DATABASE '\(attachPath)' as 'other'")
+//                    try database.execute("INSERT INTO other.\(table) SELECT * FROM \(table)")
+//                    try database.execute("DETACH DATABASE 'other'")
+                    try database.executeStatements("ATTACH DATABASE '\(attachPath)' as 'other'; INSERT INTO \(table) SELECT * FROM other.\(table)")
+
                 }
             }
         }

@@ -124,6 +124,10 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             withDriver(tag, promise) { it.count(query) }
 
     @ReactMethod
+    fun copyTables(tag: ConnectionTag, tables: ReadableArray, srcDB: String, promise: Promise) =
+            withDriver(tag, promise) { it.copyTables(tables, srcDB) }
+
+    @ReactMethod
     fun batch(tag: ConnectionTag, operations: ReadableArray, promise: Promise) =
             withDriver(tag, promise) { it.batch(operations) }
 

@@ -69,7 +69,18 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     type: 'joinTables'
     tables: TableName<any>[]
   }
-  export type Clause = Where | On | SortBy | Take | Skip | Join
+  export interface SqlQuery {
+    type: 'sqlQuery'
+    sql: string
+    values: Value[]
+  }
+
+  export interface SqlCTE {
+    type: 'sqlCTE'
+    cte: string
+  }
+
+  export type Clause = Where | On | SortBy | Take | Skip | Join | SqlQuery
   export interface QueryDescription {
     where: Where[]
     join: On[]
@@ -100,7 +111,10 @@ declare module '@nozbe/watermelondb/QueryDescription' {
   export function experimentalTake(count: number): Take
   export function experimentalSkip(count: number): Skip
   export function experimentalJoinTables(tables: TableName<any>[]): Join
+  export function experimentalNestedJoin(from: string, to: string)
   export function sanitizeLikeString(value: string): string
+  export function unsafeSqlQuery(value: string): SqlQuery
+  export function asUnsafeSql(value: string): SqlCTE
 
   type _OnFunctionColumnValue = (table: TableName<any>, column: ColumnName, value: Value) => On
   type _OnFunctionColumnComparison = (
@@ -108,7 +122,10 @@ declare module '@nozbe/watermelondb/QueryDescription' {
     column: ColumnName,
     comparison: Comparison,
   ) => On
-  type _OnFunctionWhereDescription = (table: TableName<any>, where: WhereDescription) => On
+  type _OnFunctionWhereDescription = (
+    table: TableName<any>,
+    where: WhereDescription | WhereDescription[],
+  ) => On
 
   type OnFunction = _OnFunctionColumnValue &
     _OnFunctionColumnComparison &

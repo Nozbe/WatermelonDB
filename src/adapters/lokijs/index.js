@@ -184,4 +184,9 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   removeLocal(key: string, callback: ResultCallback<void>): void {
     this.workerBridge.send(REMOVE_LOCAL, [key], callback, 'immutable', 'immutable')
   }
+
+  // Executes multiple prepared operations
+  batchImport(_operations: BatchOperation[], _srcDB: any, _callback: ResultCallback<void>): void {
+    throw new Error('batchImport not implemented in LOKIJS')
+  }
 }

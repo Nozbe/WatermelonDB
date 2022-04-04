@@ -199,6 +199,17 @@ extension DatabaseBridge {
         }
     }
 
+    @objc(copyTables:tables:srcDB:resolve:reject:)
+    func copyTables(tag: ConnectionTag,
+                    tables: [String],
+                    srcDB: String,
+                    resolve: @escaping RCTPromiseResolveBlock,
+                    reject: @escaping RCTPromiseRejectBlock) {
+        withDriver(tag, resolve, reject) {
+            try $0.copyTables(tables, srcDB: srcDB)
+        }
+    }
+
     @objc(getDeletedRecords:table:resolve:reject:)
     func getDeletedRecords(tag: ConnectionTag,
                            table: Database.TableName,
@@ -280,6 +291,13 @@ extension DatabaseBridge {
     func countSynchronous(tag: ConnectionTag, query: Database.SQL) -> NSDictionary {
         return withDriverSynchronous(tag) {
             try $0.count(query)
+        }
+    }
+
+    @objc(copyTablesSynchronous:tables:srcDB:)
+    func copyTables(tag: ConnectionTag, tables: [String], srcDB: String) -> NSDictionary {
+        return withDriverSynchronous(tag) {
+            try $0.copyTables(tables, srcDB: srcDB)
         }
     }
 
@@ -398,6 +416,15 @@ extension DatabaseBridge {
                 }
 
                 return .destroyPermanently(table: table, id: id)
+
+            case "copy":
+                guard let table = operation[safe: 1] as? Database.TableName,
+                let attachPath = operation[safe: 2] as? String
+                else {
+                    throw "Bad copy arguments".asError()
+                }
+                return .copy(table: table, attachPath: attachPath)
+
             default:
                 throw "Bad operation name".asError()
             }

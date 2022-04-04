@@ -131,6 +131,20 @@ class DatabaseDriver(context: Context, dbName: String) {
         database.execute(query, args)
     }
 
+    fun copyTables(tables: ReadableArray, srcDB: String) {
+        database.execute("ATTACH DATABASE '${srcDB}' as 'other'")
+
+        database.transaction {
+            for (i in 0 until tables.size()) {
+                val table = tables.getString(i)
+
+                database.execute("INSERT OR IGNORE  INTO ${table} SELECT * FROM other.${table}")
+            }
+        }
+
+        database.execute("DETACH DATABASE 'other'")
+    }
+
     fun batch(operations: ReadableArray) {
         // log?.info("Batch of ${operations.size()}")
         val newIds = arrayListOf<Pair<TableName, RecordID>>()
