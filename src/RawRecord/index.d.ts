@@ -1,8 +1,8 @@
-declare module '@nozbe/watermelondb/RawRecord' {
-  import { ColumnName, ColumnSchema, RecordId, TableSchema } from '@nozbe/watermelondb'
-  import { SyncStatus } from '@nozbe/watermelondb/Model'
+declare module '@BuildHero/watermelondb/RawRecord' {
+  import { ColumnName, ColumnSchema, RecordId, TableSchema } from '@BuildHero/watermelondb'
+  import { SyncStatus } from '@BuildHero/watermelondb/Model'
 
-  export type DirtyRaw = {[id: string]: any}
+  export type DirtyRaw = { [id: string]: any }
 
   export interface RawRecord {
     id: RecordId

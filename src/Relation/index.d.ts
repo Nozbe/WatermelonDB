@@ -1,7 +1,7 @@
-declare module '@nozbe/watermelondb/Relation' {
-  import { ColumnName, Model, RecordId, TableName } from '@nozbe/watermelondb'
+declare module '@BuildHero/watermelondb/Relation' {
+  import { ColumnName, Model, RecordId, TableName } from '@BuildHero/watermelondb'
   import { Observable } from 'rxjs'
-  import { $Call } from '@nozbe/watermelondb/utils/common'
+  import { $Call } from '@BuildHero/watermelondb/utils/common'
 
   export interface Options {
     isImmutable: boolean

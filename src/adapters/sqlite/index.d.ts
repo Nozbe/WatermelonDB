@@ -1,4 +1,4 @@
-declare module '@nozbe/watermelondb/adapters/sqlite' {
+declare module '@BuildHero/watermelondb/adapters/sqlite' {
   import {
     AppSchema,
     DatabaseAdapter,
@@ -6,13 +6,13 @@ declare module '@nozbe/watermelondb/adapters/sqlite' {
     Query,
     RecordId,
     TableName,
-  } from '@nozbe/watermelondb'
+  } from '@BuildHero/watermelondb'
   import {
     BatchOperation,
     CachedFindResult,
     CachedQueryResult,
-  } from '@nozbe/watermelondb/adapters/type'
-  import { SchemaMigrations } from '@nozbe/watermelondb/Schema/migrations'
+  } from '@BuildHero/watermelondb/adapters/type'
+  import { SchemaMigrations } from '@BuildHero/watermelondb/Schema/migrations'
 
   export type SQL = string
 
@@ -45,7 +45,10 @@ declare module '@nozbe/watermelondb/adapters/sqlite' {
 
     query<T extends Model>(query: Query<T>): Promise<CachedQueryResult>
 
-    unsafeSqlQuery<T extends Model>(sql: string, tableName: TableName<T>): Promise<CachedQueryResult>
+    unsafeSqlQuery<T extends Model>(
+      sql: string,
+      tableName: TableName<T>,
+    ): Promise<CachedQueryResult>
 
     removeLocal(key: string): Promise<void>
 

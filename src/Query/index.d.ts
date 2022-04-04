@@ -1,10 +1,10 @@
-declare module '@nozbe/watermelondb/Query' {
-  import { Collection, ColumnName, Model, TableName } from '@nozbe/watermelondb'
-  import { AssociationInfo } from '@nozbe/watermelondb/Model'
-  import { Clause, QueryDescription } from '@nozbe/watermelondb/QueryDescription'
+declare module '@BuildHero/watermelondb/Query' {
+  import { Collection, ColumnName, Model, TableName } from '@BuildHero/watermelondb'
+  import { AssociationInfo } from '@BuildHero/watermelondb/Model'
+  import { Clause, QueryDescription } from '@BuildHero/watermelondb/QueryDescription'
   import { Observable } from 'rxjs'
 
-  export type QueryAssociation = { from: TableName<any>, to: TableName<any>, info: AssociationInfo }
+  export type QueryAssociation = { from: TableName<any>; to: TableName<any>; info: AssociationInfo }
   export interface SerializedQuery {
     table: TableName<any>
     description: QueryDescription

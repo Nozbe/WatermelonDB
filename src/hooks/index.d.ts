@@ -1,5 +1,5 @@
-declare module '@nozbe/watermelondb/hooks' {
-  import { Database } from '@nozbe/watermelondb'
+declare module '@BuildHero/watermelondb/hooks' {
+  import { Database } from '@BuildHero/watermelondb'
 
   export function useDatabase(): Database
 }

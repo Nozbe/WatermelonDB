@@ -84,7 +84,7 @@ const buildTasks = options => {
           },
         ]
       : [
-          {
+          /*          {
             title: 'check current branch',
             task: () =>
               execa('git', ['symbolic-ref', '--short', 'HEAD']).then(
@@ -113,12 +113,12 @@ const buildTasks = options => {
                   throwError('please pull changes first'),
                 ),
               ),
-          },
+          }, */
         ]),
-    {
+    /* {
       title: 'check tests',
       task: () => execa('yarn', ['test']),
-    },
+    }, */
     {
       title: 'check flow',
       task: () => execa('yarn', ['flow']),
