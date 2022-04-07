@@ -20,9 +20,9 @@ Database::Database(jsi::Runtime *runtime, std::string path, bool usesExclusiveLo
     #ifdef ANDROID
     executeMultiple("pragma temp_store = memory;");
     #endif
-    
+
     executeMultiple("pragma journal_mode = WAL;");
-    
+
     #ifdef ANDROID
     // NOTE: This was added in an attempt to fix mysterious `database disk image is malformed` issue when using
     // headless JS services
@@ -52,7 +52,7 @@ jsi::JSError Database::dbError(std::string description) {
 
 void Database::destroy() {
     const std::lock_guard<std::mutex> lock(mutex_);
-    
+
     if (isDestroyed_) {
         return;
     }

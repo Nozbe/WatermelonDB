@@ -31,6 +31,7 @@ public:
     jsi::Value unsafeLoadFromSync(int jsonId, jsi::Object &schema, std::string preamble, std::string postamble);
     void unsafeResetDatabase(jsi::String &schema, int schemaVersion);
     jsi::Value getLocal(jsi::String &key);
+    void executeMultiple(std::string sql);
 
 private:
     bool initialized_;
@@ -53,7 +54,6 @@ private:
     void executeUpdate(std::string sql);
     void getRow(sqlite3_stmt *stmt);
     bool getNextRowOrTrue(sqlite3_stmt *stmt);
-    void executeMultiple(std::string sql);
     jsi::Object resultDictionary(sqlite3_stmt *statement);
     jsi::Array resultArray(sqlite3_stmt *statement);
     jsi::Array resultColumns(sqlite3_stmt *statement);

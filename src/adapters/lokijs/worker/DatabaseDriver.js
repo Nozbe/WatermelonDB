@@ -362,7 +362,9 @@ export default class DatabaseDriver {
         await this.unsafeResetDatabase()
       }
     } else {
-      logger.warn('[Loki] Database has newer version than app schema. Resetting database.')
+      logger.warn(
+        `[Loki] Database has newer version ${dbVersion} than app schema ${schemaVersion}. Resetting database.`,
+      )
       await this.unsafeResetDatabase()
     }
   }

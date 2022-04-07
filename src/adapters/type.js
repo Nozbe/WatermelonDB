@@ -7,7 +7,7 @@ import type { RecordId } from '../Model'
 import type { RawRecord } from '../RawRecord'
 import type { ResultCallback } from '../utils/fp/Result'
 
-import type { SQLiteQuery } from './sqlite/type'
+import type { SQLiteQuery, SQL } from './sqlite/type'
 import type { Loki } from './lokijs/type'
 
 export type CachedFindResult = RecordId | ?RawRecord
@@ -21,6 +21,7 @@ export type BatchOperation =
 
 export type UnsafeExecuteOperations =
   | $Exact<{ sqls: SQLiteQuery[] }>
+  | $Exact<{ sqlString: SQL }> // JSI-only
   | $Exact<{ loki: (Loki) => void }>
 
 export interface DatabaseAdapter {

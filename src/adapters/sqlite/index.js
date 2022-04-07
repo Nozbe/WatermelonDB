@@ -347,13 +347,17 @@ export default class SQLiteAdapter implements DatabaseAdapter {
         operations &&
           typeof operations === 'object' &&
           Object.keys(operations).length === 1 &&
-          Array.isArray(operations.sqls),
-        'unsafeExecute expects an { sqls: [ [sql, [args..]], ... ] } object',
+          (Array.isArray(operations.sqls) || typeof operations.sqlString === 'string'),
+        "unsafeExecute expects an { sqls: [ [sql, [args..]], ... ] } or { sqlString: 'foo; bar' } object",
       )
     }
-    const queries: SQLiteQuery[] = (operations: any).sqls
-    const batchOperations = queries.map(([sql, args]) => [IGNORE_CACHE, null, sql, [args]])
-    this._dispatcher.call('batch', [batchOperations], callback)
+    if (operations.sqls) {
+      const queries: SQLiteQuery[] = (operations: any).sqls
+      const batchOperations = queries.map(([sql, args]) => [IGNORE_CACHE, null, sql, [args]])
+      this._dispatcher.call('batch', [batchOperations], callback)
+    } else if (operations.sqlString) {
+      this._dispatcher.call('unsafeExecuteMultiple', [operations.sqlString], callback)
+    }
   }
 
   getLocal(key: string, callback: ResultCallback<?string>): void {
