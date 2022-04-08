@@ -30,9 +30,9 @@ declare module '@nozbe/watermelondb/Database' {
 
     public batch(...records: (Model | null | void | false | Promise<void>)[]): Promise<void>
 
-    public write<T>(work: (WriterInterface) => Promise<T>, description?: string): Promise<T>
+    public write<T>(work: (arg0: ReaderInterface) => Promise<T>, description?: string): Promise<T>
 
-    public read<T>(work: (ReaderInterface) => Promise<T>, description?: string): Promise<T>
+    public read<T>(work: (arg0: WriterInterface) => Promise<T>, description?: string): Promise<T>
 
     public withChangesForTables(
       tables: Array<TableName<any>>,
