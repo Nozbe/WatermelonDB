@@ -16,6 +16,7 @@
 - [Query] New `Q.includes('foo')` query for case-sensitive exact string includes comparison
 - [adapters] Adapter objects now returns `dbName`
 - [TypeScript] Add unsafeExecute method
+- [TypeScript] Add localStorage property to Database
 
 ### Performance
 
