@@ -18,13 +18,19 @@ declare module '@nozbe/watermelondb/Database' {
     callWriter<T>(work: () => Promise<T>): Promise<T>
     batch(...records: (Model | null | void | false | Promise<void>)[]): Promise<void>
   }
-
+  interface LocalStorage {
+    get(key: string): Promise<string | undefined>
+    set(key: string, value: string): Promise<void>
+    remove(key: string): Promise<void>
+  }
   export default class Database {
     public adapter: DatabaseAdapter
 
     public schema: AppSchema
 
     public collections: CollectionMap
+
+    public localStorage: LocalStorage
 
     public constructor(options: { adapter: DatabaseAdapter; modelClasses: Class<Model>[] })
 
