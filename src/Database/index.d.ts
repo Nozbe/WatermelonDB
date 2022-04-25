@@ -1,7 +1,10 @@
+import { LocalStorage } from '@nozbe/watermelondb'
+
 declare module '@nozbe/watermelondb/Database' {
   import {
     AppSchema,
     CollectionMap,
+    LocalStorage,
     DatabaseAdapter,
     Model,
     TableName,
@@ -25,6 +28,8 @@ declare module '@nozbe/watermelondb/Database' {
     public schema: AppSchema
 
     public collections: CollectionMap
+
+    public localStorage: LocalStorage
 
     public constructor(options: { adapter: DatabaseAdapter; modelClasses: Class<Model>[] })
 
