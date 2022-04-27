@@ -88,7 +88,7 @@ export function prepareUpdateFromRaw<T: Model>(
         resolved: { ...record._raw },
       })
     }
-  })
+  }, true)
 }
 
 export function prepareMarkAsSynced<T: Model>(record: T): T {

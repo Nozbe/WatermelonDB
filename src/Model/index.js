@@ -88,8 +88,10 @@ export default class Model {
   //
   // After preparing an update, you must execute it synchronously using
   // database.batch()
-  prepareUpdate(recordUpdater: (this) => void = noop): this {
-    invariant(!this._preparedState, `Cannot update a record with pending changes`)
+  prepareUpdate(recordUpdater: (this) => void = noop, fromRaw?: boolean): this {
+    if(!fromRaw){
+     invariant(!this._preparedState, `Cannot update a record with pending changes`)
+    }
     this.__ensureNotDisposable(`Model.prepareUpdate()`)
     this._isEditing = true
 
