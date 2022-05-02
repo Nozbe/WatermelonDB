@@ -57,8 +57,6 @@ rules:
   react/jsx-indent: off
   quotes: off
   react/jsx-curly-newline: off
-  flowtype/space-after-type-colon: off
-  flowtype/generic-spacing: off
   lines-between-class-members: off
   one-var: off
   # react
@@ -75,14 +73,6 @@ rules:
   react/no-unused-prop-types: off
   react/destructuring-assignment: off
   react/jsx-one-expression-per-line: off
-  flowtype/delimiter-dangle:
-    - error
-    - always-multiline
-  flowtype/require-return-type:
-    - error
-    - always
-    - excludeArrowFunctions: true
-      annotateUndefined: always
   import/prefer-default-export: off
   import/named: off # doesn't seem to work with Flow
   import/no-extraneous-dependencies: off
@@ -94,6 +84,16 @@ rules:
   prefer-object-spread: off
   react/jsx-props-no-spreading: off
   react/jsx-no-bind: off
+  flowtype/space-after-type-colon: off
+  flowtype/generic-spacing: off
+  flowtype/delimiter-dangle:
+    - error
+    - always-multiline
+  flowtype/require-return-type:
+    - error
+    - always
+    - excludeArrowFunctions: true
+      annotateUndefined: always
 
 overrides:
   - files:
@@ -107,6 +107,9 @@ overrides:
       flowtype/require-valid-file-annotation:
         - error
         - always
+  - 'src/**/*.ts'
+    rules:
+      flowtype/no-types-missing-file-annotation: off
 
 globals:
   document: true

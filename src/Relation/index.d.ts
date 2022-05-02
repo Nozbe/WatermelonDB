@@ -1,26 +1,55 @@
-declare module '@nozbe/watermelondb/Relation' {
-  import { ColumnName, Model, RecordId, TableName } from '@nozbe/watermelondb'
-  import { Observable } from 'rxjs'
-  import { $Call } from '@nozbe/watermelondb/utils/common'
+import { $NonMaybeType, $Exact, $Call } from '../types';
+import type { Observable } from '../utils/rx'
 
-  export interface Options {
-    isImmutable: boolean
-  }
+import type Model from '../Model'
+import type { RecordId } from '../Model'
+import type { ColumnName, TableName } from '../Schema'
 
-  export default class Relation<T extends Model> {
-    public constructor(
-      model: Model,
-      relationTableName: TableName<T>,
-      columnName: ColumnName,
-      options: Options,
-    )
+type ExtractRecordIdNonOptional = <T = Model>(value: T) => RecordId
+type ExtractRecordIdOptional = <T = Model>(value: T) => RecordId
+type ExtractRecordId = ExtractRecordIdNonOptional & ExtractRecordIdOptional
 
-    public id: $Call<(value: T | void) => RecordId | void>
+export type Options = $Exact<{
+  isImmutable: boolean,
+}>
 
-    public fetch(): Promise<T | null>
+// Defines a one-to-one relation between two Models (two tables in db)
+// Do not create this object directly! Use `relation` or `immutableRelation` decorators instead
+export default class Relation<T extends Model> {
+  // Used by withObservables to differentiate between object types
+  static _wmelonTag: string
 
-    public set(record: T | null): void
+  _model: Model
 
-    public observe(): Observable<T | null>
-  }
+  _columnName: ColumnName
+
+  _relationTableName: TableName<$NonMaybeType<T>>
+
+  _isImmutable: boolean
+
+  // TODO: FIX TS
+  // @lazy
+  _cachedObservable: Observable<T>
+
+  constructor(
+    model: Model,
+    relationTableName: TableName<$NonMaybeType<T>>,
+    columnName: ColumnName,
+    options: Options,
+  )
+
+  get id(): $Call<ExtractRecordId, T>
+
+  set id(newId: $Call<ExtractRecordId, T>)
+
+  fetch(): Promise<T>
+
+  then<U>(
+    onFulfill?: (value: T) => Promise<U> | U,
+    onReject?: (error: any) => Promise<U> | U,
+  ): Promise<U>
+
+  set(record: T): void
+
+  observe(): Observable<T>
 }

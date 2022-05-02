@@ -1,22 +1,39 @@
-declare module '@nozbe/watermelondb/RawRecord' {
-  import { ColumnName, ColumnSchema, RecordId, TableSchema } from '@nozbe/watermelondb'
-  import { SyncStatus } from '@nozbe/watermelondb/Model'
+import { type ColumnName, type ColumnSchema, type TableSchema } from '../Schema'
+import { type RecordId, type SyncStatus } from '../Model'
 
-  export type DirtyRaw = { [id: string]: any }
+import randomId from '../utils/common/randomId'
 
-  export interface RawRecord {
-    id: RecordId
-    _status: SyncStatus
-    _changed: string
-    last_modified: number | null
-  }
+// Raw object representing a model record, coming from an untrusted source
+// (disk, sync, user data). Before it can be used to create a Model instance
+// it must be sanitized (with `sanitizedRaw`) into a RawRecord
+export type DirtyRaw = Object
 
-  export function sanitizedRaw(dirtyRaw: DirtyRaw, tableSchema: TableSchema): RawRecord
-
-  export function setRawSanitized(
-    rawRecord: RawRecord,
-    columnName: ColumnName,
-    value: any,
-    columnSchema: ColumnSchema,
-  ): void
+// These fields are ALWAYS present in records of any collection.
+type _RawRecord = {
+  id: RecordId,
+  _status: SyncStatus,
+  _changed: string,
 }
+
+// Raw object representing a model record. A RawRecord is guaranteed by the type system
+// to be safe to use (sanitied with `sanitizedRaw`):
+// - it has exactly the fields described by TableSchema (+ standard fields)
+// - every field is exactly the type described by ColumnSchema (string, number, or boolean)
+// - … and the same optionality (will not be null unless isOptional: true)
+export type RawRecord = _RawRecord
+
+// Transforms a dirty raw record object into a trusted sanitized RawRecord according to passed TableSchema
+export function sanitizedRaw(dirtyRaw: DirtyRaw, tableSchema: TableSchema): RawRecord
+
+// Modifies passed rawRecord by setting sanitized `value` to `columnName`
+// Note: Assumes columnName exists and columnSchema matches the name
+export function setRawSanitized(
+  rawRecord: RawRecord,
+  columnName: ColumnName,
+  value: any,
+  columnSchema: ColumnSchema,
+): void
+
+export type NullValue = null | '' | 0 | false
+
+export function nullValue(columnSchema: ColumnSchema): NullValue

@@ -1,39 +1,114 @@
-declare module '@nozbe/watermelondb/Query' {
-  import { Collection, ColumnName, Model, TableName, RecordId } from '@nozbe/watermelondb'
-  import { AssociationInfo } from '@nozbe/watermelondb/Model'
-  import { Clause, QueryDescription } from '@nozbe/watermelondb/QueryDescription'
-  import { Observable } from 'rxjs'
+import { Observable } from '../utils/rx'
+import { type Unsubscribe, SharedSubscribable } from '../utils/subscriptions'
+import {$Exact} from '../types'
 
-  export type QueryAssociation = { from: TableName<any>; to: TableName<any>; info: AssociationInfo }
-  export interface SerializedQuery {
-    table: TableName<any>
-    description: QueryDescription
-    associations: QueryAssociation[]
-  }
+import type { Clause, QueryDescription } from '../QueryDescription'
+import type Model from '../Model'
+import type { AssociationInfo, RecordId } from '../Model'
+import type Collection from '../Collection'
+import type { TableName, ColumnName } from '../Schema'
 
-  export default class Query<Record extends Model> {
-    public collection: Collection<Record>
+export type QueryAssociation = $Exact<{
+  from: TableName<any>,
+  to: TableName<any>,
+  info: AssociationInfo,
+}>
 
-    public description: QueryDescription
+export type SerializedQuery = $Exact<{
+  table: TableName<any>,
+  description: QueryDescription,
+  associations: QueryAssociation[],
+}>
 
-    public extend(...conditions: Clause[]): Query<Record>
+interface QueryCountProxy {
+  then<U>(
+    onFulfill?: (value: number) => Promise<U> | U,
+    onReject?: (error: any) => Promise<U> | U,
+  ): Promise<U>;
+}
 
-    public pipe<T>(transform: (this: this) => T): T
+export default class Query<Record extends Model> {
+  // Used by withObservables to differentiate between object types
+  static _wmelonTag: string
 
-    public fetch(): Promise<Record[]>
+  collection: Collection<Record>
 
-    public observe(): Observable<Record[]>
+  description: QueryDescription
 
-    public observeWithColumns(rawFields: ColumnName[]): Observable<Record[]>
+  _rawDescription: QueryDescription
 
-    public fetchIds(): Promise<RecordId[]>
+  _cachedSubscribable: SharedSubscribable<Record[]>
 
-    public fetchCount(): Promise<number>
+  _cachedCountSubscribable: SharedSubscribable<number>
 
-    public observeCount(isThrottled?: boolean): Observable<number>
+  _cachedCountThrottledSubscribable: SharedSubscribable<number>
 
-    public markAllAsDeleted(): Promise<void>
+  // Note: Don't use this directly, use Collection.query(...)
+  constructor(collection: Collection<Record>, clauses: Clause[])
 
-    public destroyAllPermanently(): Promise<void>
-  }
+  // Creates a new Query that extends the clauses of this query
+  extend(...clauses: Clause[]): Query<Record>
+
+  pipe<T>(transform: (this) => T): T
+
+  // Queries database and returns an array of matching records
+  fetch(): Promise<Record[]>
+
+  then<U>(
+    onFulfill?: (value: Record[]) => Promise<U> | U,
+    onReject?: (error: any) => Promise<U> | U,
+  ): Promise<U>
+
+  // Emits an array of matching records, then emits a new array every time it changes
+  observe(): Observable<Record[]>
+
+  // Same as `observe()` but also emits the list when any of the records
+  // on the list has one of `columnNames` chaged
+  observeWithColumns(columnNames: ColumnName[]): Observable<Record[]>
+
+  // Queries database and returns the number of matching records
+  fetchCount(): Promise<number>
+
+  get count(): QueryCountProxy
+
+  // Emits the number of matching records, then emits a new count every time it changes
+  // Note: By default, the Observable is throttled!
+  observeCount(isThrottled: boolean): Observable<number>
+
+  // Queries database and returns an array with IDs of matching records
+  fetchIds(): Promise<RecordId[]>
+
+  // Queries database and returns an array with unsanitized raw results
+  // You MUST NOT mutate these objects!
+  unsafeFetchRaw(): Promise<any[]>
+
+  experimentalSubscribe(subscriber: (records: Record[]) => void): Unsubscribe
+
+  experimentalSubscribeWithColumns(
+    columnNames: ColumnName[],
+    subscriber: (records: Record[]) => void,
+  ): Unsubscribe
+
+  experimentalSubscribeToCount(subscriber: (number) => void): Unsubscribe
+
+  // Marks as deleted all records matching the query
+  markAllAsDeleted(): Promise<void>
+
+  // Destroys all records matching the query
+  destroyAllPermanently(): Promise<void>
+
+  // MARK: - Internals
+
+  get modelClass(): Record
+
+  get table(): TableName<Record>
+
+  get secondaryTables(): TableName<any>[]
+
+  get allTables(): TableName<any>[]
+
+  get associations(): QueryAssociation[]
+
+  // Serialized version of Query (e.g. for sending to web worker)
+  serialize(): SerializedQuery
 }
