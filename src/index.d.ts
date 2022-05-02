@@ -5,6 +5,7 @@ declare module '@nozbe/watermelondb' {
   export { default as Collection } from '@nozbe/watermelondb/Collection'
   // export { default as Database } from '@nozbe/watermelondb/Database'
   export { default as CollectionMap } from '@nozbe/watermelondb/Database/CollectionMap'
+  export { default as LocalStorage } from '@nozbe/watermelondb/Database/LocalStorage'
   export { default as Relation } from '@nozbe/watermelondb/Relation'
   export { default as Model, associations } from '@nozbe/watermelondb/Model'
   export { default as Query } from '@nozbe/watermelondb/Query'
