@@ -107,7 +107,8 @@ overrides:
       flowtype/require-valid-file-annotation:
         - error
         - always
-  - 'src/**/*.ts'
+  - files:
+      - 'src/**/*.ts'
     rules:
       flowtype/no-types-missing-file-annotation: off
 
