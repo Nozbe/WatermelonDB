@@ -12,6 +12,10 @@ export default function withDatabase<T>(
   Component: React$ComponentType<WithDatabaseProps<T>>,
 ): React$ComponentType<T> {
   return function DatabaseComponent(props): React$Element<*> {
-    return <DatabaseConsumer>{(database: Database) => <Component {...props} database={database} />}</DatabaseConsumer>
+    return (
+      <DatabaseConsumer>
+        {(database: Database) => <Component {...props} database={database} />}
+      </DatabaseConsumer>
+    )
   }
 }

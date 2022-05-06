@@ -122,9 +122,6 @@ class DatabaseDriver {
                     removedIds.append((table, id))
 
                 case .copy(table: let table, attachPath: let attachPath):
-//                    try database.execute("ATTACH DATABASE '\(attachPath)' as 'other'")
-//                    try database.execute("INSERT INTO other.\(table) SELECT * FROM \(table)")
-//                    try database.execute("DETACH DATABASE 'other'")
                     try database.executeStatements("ATTACH DATABASE '\(attachPath)' as 'other'; INSERT INTO \(table) SELECT * FROM other.\(table)")
 
                 }
@@ -136,6 +133,12 @@ class DatabaseDriver {
         }
 
         for (table, id) in removedIds {
+            removeFromCache(table, id)
+        }
+    }
+
+    func syncCache(_ table: String, removedIds: [String]) {
+        for id in removedIds {
             removeFromCache(table, id)
         }
     }

@@ -189,4 +189,8 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   batchImport(_operations: BatchOperation[], _srcDB: any, _callback: ResultCallback<void>): void {
     throw new Error('batchImport not implemented in LOKIJS')
   }
+
+  syncCache(_table: any, _removedIds): void {
+    throw new Error('syncCache not implemented in LOKIJS')
+  }
 }

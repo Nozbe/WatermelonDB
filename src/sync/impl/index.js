@@ -7,7 +7,7 @@ import type { Timestamp, SyncLog } from '../index'
 import type { SchemaVersion } from '../../Schema'
 import getSyncChanges, { type MigrationSyncChanges } from '../../Schema/migrations/getSyncChanges'
 
-export { default as applyRemoteChanges } from './applyRemote'
+export { default as applyRemoteChanges, applyNativeChanges } from './applyRemote'
 export { default as fetchLocalChanges, hasUnsyncedChanges } from './fetchLocal'
 export { default as markLocalChangesAsSynced } from './markAsSynced'
 

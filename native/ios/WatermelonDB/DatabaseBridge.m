@@ -54,6 +54,11 @@ WMELON_BRIDGE_METHOD(copyTables,
   srcDB:(NSString *)srcDB
 )
 
+WMELON_BRIDGE_METHOD(syncCache,
+  table:(NSString *)table
+  removedIds:(NSArray *)removedIds
+)
+
 WMELON_BRIDGE_METHOD(batchJSON,
   operations:(NSString *)serializedOperations
 )

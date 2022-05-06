@@ -4,5 +4,6 @@
 export const CollectionChangeTypes = {
   created: 'created',
   updated: 'updated',
+  upserted: 'upserted',
   destroyed: 'destroyed',
 }

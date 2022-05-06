@@ -67,9 +67,7 @@ export default class RecordCache<Record: Model> {
 
     if (cachedRecord) {
       logError(
-        `Record ${this.tableName}#${
-          cachedRecord.id
-        } is cached, but full raw object was sent over the bridge`,
+        `Record ${this.tableName}#${cachedRecord.id} is cached, but full raw object was sent over the bridge`,
       )
       return cachedRecord
     }

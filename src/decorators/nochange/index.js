@@ -12,9 +12,7 @@ const nochange = makeDecorator(() => (target: Object, key: string, descriptor: O
     `@nochange can only be applied to model fields (to properties with a setter)`,
   )
 
-  const errorMessage = `Attempt to set a new value on a @nochange field: ${
-    target.constructor.name
-  }.prototype.${key}`
+  const errorMessage = `Attempt to set a new value on a @nochange field: ${target.constructor.name}.prototype.${key}`
 
   return {
     ...descriptor,
