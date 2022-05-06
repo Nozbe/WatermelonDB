@@ -169,7 +169,7 @@ export default class Collection<Record: Model> {
 
   _applyChangesToCache(operations: CollectionChangeSet<Record>): void {
     operations.forEach(({ record, type }) => {
-      if (type === CollectionChangeTypes.created) {
+      if (type === CollectionChangeTypes.created || type === CollectionChangeTypes.upserted) {
         record._isCommitted = true
         this._cache.add(record)
       } else if (type === CollectionChangeTypes.destroyed) {
@@ -186,7 +186,7 @@ export default class Collection<Record: Model> {
     this.changes.next(operations)
 
     const collectionChangeNotifyModels = ({ record, type }): void => {
-      if (type === CollectionChangeTypes.updated) {
+      if (type === CollectionChangeTypes.updated || type === CollectionChangeTypes.upserted) {
         record._notifyChanged()
       } else if (type === CollectionChangeTypes.destroyed) {
         record._notifyDestroyed()

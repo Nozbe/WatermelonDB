@@ -5,6 +5,7 @@ import type { Database, RecordId, TableName, Model } from '..'
 import { type DirtyRaw } from '../RawRecord'
 
 import {
+  applyNativeChanges,
   applyRemoteChanges,
   fetchLocalChanges,
   markLocalChangesAsSynced,
@@ -75,6 +76,27 @@ export type SyncArgs = $Exact<{
 }>
 
 // See Sync docs for usage details
+
+export async function syncrhonizeNative({
+  database,
+  syncedChanges,
+  pushChanges,
+}: any): Promise<void> {
+  ensureActionsEnabled(database)
+
+  await database.action(async action => {
+    await action.subAction(() => applyNativeChanges(database, syncedChanges))
+  }, 'native-sync-synchronize-apply')
+
+  // push phase
+  const localChanges = await fetchLocalChanges(database)
+  
+  if (!isChangeSetEmpty(localChanges.changes)) {
+    await pushChanges({ changes: localChanges.changes, lastPulledAt: null })
+
+    await markLocalChangesAsSynced(database, localChanges)
+  }
+}
 
 export async function synchronize({
   database,

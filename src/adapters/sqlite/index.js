@@ -221,6 +221,14 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     this._dispatcher.copyTables(tables, srcDB, callback)
   }
 
+  syncCache(table: string, removedIds: String[]) {
+    return new Promise((resolve, _) => {
+      this._dispatcher.syncCache(table, removedIds, () => {
+        resolve()
+      })
+    })
+  }
+
   batch(operations: BatchOperation[], callback: ResultCallback<void>): void {
     const batchOperations: NativeBridgeBatchOperation[] = operations.map(operation => {
       const [type, table, rawOrId] = operation

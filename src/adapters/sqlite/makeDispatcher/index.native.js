@@ -22,6 +22,7 @@ const { DatabaseBridge }: { DatabaseBridge: NativeBridgeType } = NativeModules
 export { DatabaseBridge }
 
 const dispatcherMethods = [
+  'syncCache',
   'copyTables',
   'initialize',
   'setUpWithSchema',

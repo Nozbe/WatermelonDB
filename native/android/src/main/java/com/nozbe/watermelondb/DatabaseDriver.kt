@@ -145,6 +145,14 @@ class DatabaseDriver(context: Context, dbName: String) {
         database.execute("DETACH DATABASE 'other'")
     }
 
+    func syncCache(table: String, removedIds: ReadableArray) {
+        for (i in 0 until tables.size()) {
+            val id = tables.getString(i)
+
+             removeFromCache(table = table, id = id)
+        }
+    }
+
     fun batch(operations: ReadableArray) {
         // log?.info("Batch of ${operations.size()}")
         val newIds = arrayListOf<Pair<TableName, RecordID>>()

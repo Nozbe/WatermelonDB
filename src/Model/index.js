@@ -137,7 +137,6 @@ export default class Model {
 
   prepareDestroyPermanently(): this {
     invariant(this._isCommitted, `Cannot mark an uncomitted record as deleted`)
-    invariant(!this._hasPendingUpdate, `Cannot mark an updated record as deleted`)
 
     this._isEditing = true
     this._raw._status = 'deleted'

@@ -206,7 +206,19 @@ extension DatabaseBridge {
                     resolve: @escaping RCTPromiseResolveBlock,
                     reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
-            try $0.copyTables(tables, srcDB: srcDB)
+           try $0.copyTables(tables, srcDB: srcDB)
+        }
+    }
+
+    @objc(syncCache:table:removedIds:resolve:reject:)
+    func syncCache(
+                    tag: ConnectionTag,
+                    table: String,
+                    removedIds: [String],
+                    resolve: @escaping RCTPromiseResolveBlock,
+                    reject: @escaping RCTPromiseRejectBlock) {
+        withDriver(tag, resolve, reject) {
+            $0.syncCache(table, removedIds: removedIds)
         }
     }
 
@@ -298,6 +310,13 @@ extension DatabaseBridge {
     func copyTables(tag: ConnectionTag, tables: [String], srcDB: String) -> NSDictionary {
         return withDriverSynchronous(tag) {
             try $0.copyTables(tables, srcDB: srcDB)
+        }
+    }
+
+    @objc(syncCacheSynchronous:table:removedIds:)
+    func syncCacheSynchronous(tag: ConnectionTag, table: String, removedIds: [String]) -> NSDictionary {
+        return withDriverSynchronous(tag) {
+            try $0.syncCache(table, removedIds: removedIds)
         }
     }
 

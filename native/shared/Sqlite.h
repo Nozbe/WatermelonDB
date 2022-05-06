@@ -1,4 +1,5 @@
 #pragma once
+#if defined __cplusplus
 
 #import <string>
 #import <sqlite3.h>
@@ -29,3 +30,4 @@ public:
 
 } // namespace watermelondb
 
+#endif

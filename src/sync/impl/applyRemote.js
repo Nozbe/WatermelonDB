@@ -6,6 +6,7 @@ import {
   map,
   values,
   filter,
+  flatten,
   piped,
   splitEvery,
 } from 'rambdax'
@@ -32,6 +33,36 @@ const idsForChanges = ({ created, updated, deleted }: SyncTableChangeSet): Recor
     ids.push(record.id)
   })
   return ids.concat(deleted)
+}
+
+const fetchRecordForNativeChanges = <T: Model>(
+  collection: Collection<T>,
+  changes: any,
+): Promise<T[]> => {
+  if (changes.upsertedIds.length || changes.deletedIds.length) {
+    return new Promise(async (resolve, _reject) => {
+      const deletedRecords = []
+
+      const upsertedRecords = await collection.unsafeFetchRecordsWithSQL(`
+        SELECT * FROM ${collection.table} WHERE id in (${changes.upsertedIds
+        .map(id => `'${id}'`)
+        .join(',')})
+      `)
+
+      changes.deletedIds.forEach(id => {
+        const cachedRecord = collection._cache.get(id)
+
+        if (cachedRecord) {
+          cachedRecord._hasPendingDelete = 'destroy'
+          deletedRecords.push(cachedRecord)
+        }
+      })
+
+      resolve(upsertedRecords.concat(deletedRecords))
+    })
+  }
+
+  return Promise.resolve([])
 }
 
 const fetchRecordsForChanges = <T: Model>(
@@ -73,6 +104,27 @@ async function recordsToApplyRemoteChangesTo<T: Model>(
 
   const [records, locallyDeletedIds] = await Promise.all([
     fetchRecordsForChanges(collection, changes),
+    database.adapter.getDeletedRecords(table),
+  ])
+
+  return {
+    ...changes,
+    records,
+    locallyDeletedIds,
+    recordsToDestroy: filter(record => deletedIds.includes(record.id), records),
+    deletedRecordsToDestroy: filter(id => deletedIds.includes(id), locallyDeletedIds),
+  }
+}
+
+async function recordsToApplyNativeRemoteChangesTo<T: Model>(
+  collection: Collection<T>,
+  changes: any,
+): Promise<RecordsToApplyRemoteChangesTo<T>> {
+  const { database, table } = collection
+  const { deletedIds } = changes
+
+  const [records, locallyDeletedIds] = await Promise.all([
+    fetchRecordForNativeChanges(collection, changes),
     database.adapter.getDeletedRecords(table),
   ])
 
@@ -187,6 +239,27 @@ const getAllRecordsToApply = (
     promiseAllObject,
   )
 
+const getAllRecordsToApplyNative = (db: Database, remoteChanges: any): AllRecordsToApply =>
+  piped(
+    remoteChanges,
+    // $FlowFixMe
+    filter((_changes, tableName: TableName<any>) => {
+      const collection = db.get((tableName: any))
+
+      if (!collection) {
+        logger.warn(
+          `You are trying to sync a collection named ${tableName}, but it does not exist. Will skip it (for forward-compatibility). If this is unexpected, perhaps you forgot to add it to your Database constructor's modelClasses property?`,
+        )
+      }
+
+      return !!collection
+    }),
+    map((changes, tableName: TableName<any>) => {
+      return recordsToApplyNativeRemoteChangesTo(db.get((tableName: any)), changes)
+    }),
+    promiseAllObject,
+  )
+
 const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> =>
   piped(
     recordsToApply,
@@ -246,6 +319,19 @@ const unsafeBatchesWithRecordsToApply = (
     values,
     unnest,
   )
+
+export function applyNativeChanges(db: Database, remoteChanges: any): Promise<void> {
+  ensureActionsEnabled(db)
+
+  return db.action(async () => {
+    const recordsToApply = await getAllRecordsToApplyNative(db, remoteChanges)
+
+    await Promise.all([
+      destroyAllDeletedRecords(db, recordsToApply),
+      db.nativeBatch(flatten(Object.entries(recordsToApply).map(([_, val]) => val.records))),
+    ])
+  }, 'native-sync-applyRemoteChanges')
+}
 
 export default function applyRemoteChanges(
   db: Database,

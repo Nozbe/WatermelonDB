@@ -60,6 +60,75 @@ export default class Database {
     return this.adapter.batchImport(tables, srcDB)
   }
 
+  syncCache = async (changeNotifications: {
+    [collectionName: TableName<any>]: CollectionChangeSet<*>,
+  }) => {
+    const tables = Object.keys(changeNotifications)
+
+    for (let i = 0; i < tables.length; ++i) {
+      const notifications = changeNotifications[tables[i]]
+
+      const removedIds = notifications
+        .filter(({ type }) => type === CollectionChangeTypes.destroyed)
+        .map(({ record }) => record.id)
+
+      await this.adapter.syncCache(tables[i], removedIds)
+    }
+  }
+
+  async nativeBatch(records: $ReadOnlyArray<Model | null | void | false>): Promise<void> {
+    const changeNotifications: { [collectionName: TableName<any>]: CollectionChangeSet<*> } = {}
+
+    records.forEach(record => {
+      if (!record) {
+        return
+      }
+
+      /* invariant(
+        !record._isCommitted || record._hasPendingUpdate || record._hasPendingDelete,
+        `Cannot batch a record that doesn't have a prepared create or prepared update`,
+      ) */
+
+      const { table } = record.constructor // faster than Model.table
+
+      const changeType =
+        record._hasPendingDelete === 'destroy'
+          ? CollectionChangeTypes.destroyed
+          : CollectionChangeTypes.upserted
+
+      if (!changeNotifications[table]) {
+        changeNotifications[table] = []
+      }
+
+      changeNotifications[table].push({ record, type: changeType })
+    })
+
+    await this.syncCache(changeNotifications)
+
+    // NOTE: We must make two passes to ensure all changes to caches are applied before subscribers are called
+    Object.entries(changeNotifications).forEach(notification => {
+      const [table, changeSet]: [TableName<any>, CollectionChangeSet<any>] = (notification: any)
+      this.collections.get(table)._applyChangesToCache(changeSet)
+    })
+
+    Object.entries(changeNotifications).forEach(notification => {
+      const [table, changeSet]: [TableName<any>, CollectionChangeSet<any>] = (notification: any)
+      this.collections.get(table)._notify(changeSet)
+    })
+
+    const affectedTables = Object.keys(changeNotifications)
+
+    const databaseChangeNotifySubscribers = ([tables, subscriber]): void => {
+      if (tables.some(table => affectedTables.includes(table))) {
+        subscriber()
+      }
+    }
+
+    this._subscribers.forEach(databaseChangeNotifySubscribers)
+
+    return undefined // shuts up flow
+  }
+
   // Executes multiple prepared operations
   // (made with `collection.prepareCreate` and `record.prepareUpdate`)
   // Note: falsy values (null, undefined, false) passed to batch are just ignored

@@ -14,9 +14,7 @@ const readonly = makeDecorator(() => (target: Object, key: string, descriptor: O
       set(): void {
         invariant(
           false,
-          `Attempt to set new value on a property ${
-            target.constructor.name
-          }.prototype.${key} marked as @readonly`,
+          `Attempt to set new value on a property ${target.constructor.name}.prototype.${key} marked as @readonly`,
         )
       },
     }
