@@ -67,15 +67,15 @@ const buildTasks = options => {
   console.warn(`Will publish with NPM tag ${tag}`)
 
   return [
-    {
-      title: 'ping npm registry',
-      task: () =>
-        timeout(
-          execa('npm', ['ping']).catch(throwError('connection to npm registry failed')),
-          5000,
-          'Connection to npm registry timed out',
-        ),
-    },
+    // {
+    //   title: 'ping npm registry',
+    //   task: () =>
+    //     timeout(
+    //       execa('npm', ['ping']).catch(throwError('connection to npm registry failed')),
+    //       5000,
+    //       'Connection to npm registry timed out',
+    //     ),
+    // },
     ...(isPrerelease
       ? [
           {
@@ -150,20 +150,22 @@ const buildTasks = options => {
     },
     {
       title: 'publish package',
-      task: () => {
-        console.log('\u0007')
-        return listrInput('2-Factor Authentication code', {
-          validate: otp => otp.length > 0,
-          done: otp =>
-            execa('npm', [
-              'publish',
-              `./dist/nozbe-watermelondb-v${version}.tgz`,
-              `--otp=${otp}`,
-              '--tag',
-              tag,
-            ]),
-        })
-      },
+      task: () =>
+        execa('npm', ['publish', `./dist/BuildHero-watermelondb-v${version}.tgz`, '--tag', tag]),
+      // {
+      //   console.log('\u0007')
+      //   return listrInput('2-Factor Authentication code', {
+      //     validate: otp => otp.length > 0,
+      //     done: otp =>
+      //       execa('npm', [
+      //         'publish',
+      //         `./dist/nozbe-watermelondb-v${version}.tgz`,
+      //         `--otp=${otp}`,
+      //         '--tag',
+      //         tag,
+      //       ]),
+      //   })
+      // },
     },
     {
       title: 'git push',
@@ -178,7 +180,7 @@ const buildTasks = options => {
       : [
           {
             title: 'update docs',
-            task: () => execa('yarn', ['docs']),
+            task: () => execa('echo', ['IGNORED']), // execa('yarn', ['docs']),
           },
         ]),
   ]
