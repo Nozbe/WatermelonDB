@@ -17,6 +17,7 @@ import { type RawRecord, type DirtyRaw, sanitizedRaw, setRawSanitized } from '..
 import { setRawColumnChange } from '../sync/helpers'
 
 import { createTimestampsFor, hasUpdatedAt, fetchChildren } from './helpers'
+import logger from '../utils/common/logger'
 
 export type RecordId = string
 
@@ -233,6 +234,11 @@ export default class Model {
   constructor(collection: Collection<this>, raw: RawRecord): void {
     this.collection = collection
     this._raw = raw
+  }
+
+  static fetchFromRemote(tableName: string, id: string): any {
+    logger.warn(`fetchFromRemote not implemented. Trying to fetch ${tableName}::${id}`)
+    return Promise.resolve(null)
   }
 
   static _prepareCreate(

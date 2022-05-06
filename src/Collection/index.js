@@ -15,6 +15,7 @@ import { type DirtyRaw } from '../RawRecord'
 
 import RecordCache from './RecordCache'
 import { CollectionChangeTypes } from './common'
+import logger from '../utils/common/logger'
 
 type CollectionChangeType = 'created' | 'updated' | 'destroyed'
 export type CollectionChange<Record: Model> = { record: Record, type: CollectionChangeType }
@@ -157,14 +158,21 @@ export default class Collection<Record: Model> {
       return
     }
 
-    this.database.adapter.underlyingAdapter.find(this.table, id, result =>
+    this.database.adapter.underlyingAdapter.find(this.table, id, result => {
+      let safeResult = result
+      if (!result || !result.value) {
+        logger.log(`Record ${this.table}#${id} not found`)
+        this.modelClass.fetchFromRemote(this.modelClass.table, id).then(response => {
+          safeResult = response
+        })
+      }
       callback(
         mapValue(rawRecord => {
           invariant(rawRecord, `Record ${this.table}#${id} not found`)
           return this._cache.recordFromQueryResult(rawRecord)
-        }, result),
-      ),
-    )
+        }, safeResult),
+      )
+    })
   }
 
   _applyChangesToCache(operations: CollectionChangeSet<Record>): void {
