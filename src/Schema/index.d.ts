@@ -28,6 +28,7 @@ declare module '@nozbe/watermelondb/Schema' {
   export interface TableSchema {
     name: TableName<any>
     columns: ColumnMap
+    columnArray: ColumnSchema[]
   }
 
   interface TableMap {
