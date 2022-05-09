@@ -159,18 +159,15 @@ export default class Collection<Record: Model> {
     }
 
     this.database.adapter.underlyingAdapter.find(this.table, id, result => {
-      let safeResult = result
       if (!result || !result.value) {
         logger.log(`Record ${this.table}#${id} not found`)
-        this.modelClass.fetchFromRemote(this.modelClass.table, id).then(response => {
-          safeResult = response
-        })
+        this.modelClass.fetchFromRemote(this.modelClass.table, id)
       }
       callback(
         mapValue(rawRecord => {
           invariant(rawRecord, `Record ${this.table}#${id} not found`)
           return this._cache.recordFromQueryResult(rawRecord)
-        }, safeResult),
+        }, result),
       )
     })
   }
