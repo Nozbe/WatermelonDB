@@ -129,7 +129,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun syncCache(tag: ConnectionTag, table: String, removedIds: ReadableArray, promise: Promise) =
-            withDriver(tag, promise) { it.syncCache(tables, srcDB) }
+            withDriver(tag, promise) { it.syncCache(table, removedIds) }
 
     @ReactMethod
     fun batch(tag: ConnectionTag, operations: ReadableArray, promise: Promise) =

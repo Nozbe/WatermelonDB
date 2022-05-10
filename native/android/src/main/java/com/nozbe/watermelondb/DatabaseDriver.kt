@@ -145,11 +145,11 @@ class DatabaseDriver(context: Context, dbName: String) {
         database.execute("DETACH DATABASE 'other'")
     }
 
-    func syncCache(table: String, removedIds: ReadableArray) {
-        for (i in 0 until tables.size()) {
-            val id = tables.getString(i)
+    fun syncCache(table: String, removedIds: ReadableArray) {
+        for (i in 0 until removedIds.size()) {
+            val id = removedIds.getString(i)
 
-             removeFromCache(table = table, id = id)
+            removeFromCache(table = table, id = id)
         }
     }
 
