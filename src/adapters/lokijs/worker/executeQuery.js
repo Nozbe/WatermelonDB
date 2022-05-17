@@ -1,5 +1,7 @@
 // @flow
 
+import { invariant } from '../../../utils/common'
+
 import type { SerializedQuery } from '../../../Query'
 
 import type { DirtyRaw } from '../../../RawRecord'
@@ -31,6 +33,10 @@ function performQuery(query: SerializedQuery, loki: Loki): LokiResultset {
   // Step three: sort, skip, take
   const { sortBy, take, skip } = query.description
   if (sortBy.length) {
+    if (process.env.NODE_ENV !== 'production') {
+      invariant(!sortBy.some((sort) => sort.table), 'sortBy is not supported on joined table')
+    }
+
     resultset = resultset.compoundsort(
       sortBy.map(({ sortColumn, sortOrder }) => [sortColumn, sortOrder === 'desc']),
     )
