@@ -30,7 +30,7 @@ export function resolveConflict(local: RawRecord, remote: DirtyRaw): DirtyRaw {
   }
 
   // Use local properties where changed
-  local._changed.split(',').forEach(column => {
+  local._changed?.split(',').forEach(column => {
     resolved[column] = local[column]
   })
 
