@@ -31,7 +31,7 @@ class DatabaseDriver(context: Context, dbName: String) {
         migrate(migrations)
     }
 
-    private val database: Database = Database(dbName, context)
+    private val database: Database = Database.getInstance(dbName, context)
 
     private val log: Logger? = if (BuildConfig.DEBUG) Logger.getLogger("DB_Driver") else null
 
