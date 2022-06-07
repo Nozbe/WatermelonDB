@@ -20,8 +20,14 @@ class Database private constructor(private val db: SQLiteDatabase) {
             openFlags: Int = SQLiteDatabase.CREATE_IF_NECESSARY or
                 SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING
         ): Database =
-            INSTANCE ?: synchronized(this) {
-                INSTANCE ?: buildDatabase(name, context, openFlags).also { INSTANCE = it }
+            synchronized(this) {
+                if (INSTANCE?.isOpen != true) {
+                    buildDatabase(
+                        name,
+                        context,
+                        openFlags
+                    ).also { INSTANCE = it }
+                } else INSTANCE as Database
             }
 
         private fun buildDatabase(name: String, context: Context, openFlags: Int) =
