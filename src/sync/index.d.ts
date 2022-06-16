@@ -1,6 +1,13 @@
 declare module '@nozbe/watermelondb/sync' {
-  import { DirtyRaw, RecordId, TableName, Model, Database } from '@nozbe/watermelondb'
-  import { Migration } from '@nozbe/watermelondb/Schema/migrations'
+  import type {
+    DirtyRaw,
+    RecordId,
+    TableName,
+    Model,
+    Database,
+    ColumnName,
+  } from '@nozbe/watermelondb'
+  import type { SchemaVersion } from '@nozbe/watermelondb/Schema'
 
   export type Timestamp = number
 
@@ -13,10 +20,16 @@ declare module '@nozbe/watermelondb/sync' {
 
   export type SyncLocalChanges = { changes: SyncDatabaseChangeSet; affectedRecords: Model[] }
 
+  export type MigrationSyncChanges = {
+    columns: { table: TableName<any>; columns: ColumnName[] }[]
+    from: SchemaVersion
+    table: TableName<any>[]
+  }
+
   export type SyncPullArgs = {
     lastPulledAt: Timestamp | null
     schemaVersion?: number
-    migration?: Migration | null
+    migration?: MigrationSyncChanges | null
   }
   export type SyncPullResult = { changes: SyncDatabaseChangeSet; timestamp: Timestamp }
 
