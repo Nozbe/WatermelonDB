@@ -1,12 +1,10 @@
-declare module '@nozbe/watermelondb/decorators/relation' {
-  import { ColumnName, TableName } from '@nozbe/watermelondb'
-  import { Options } from '@nozbe/watermelondb/Relation'
+import { ColumnName, TableName } from '../../Schema'
+import { Options } from '../../Relation'
 
-  const relation: (
-    relationTable: TableName<any>,
-    relationIdColumn: ColumnName,
-    options?: Options,
-  ) => PropertyDecorator
+type relation = (
+  relationTable: TableName<any>,
+  relationIdColumn: ColumnName,
+  options?: Options,
+) => PropertyDecorator
 
-  export default relation
-}
+export default relation

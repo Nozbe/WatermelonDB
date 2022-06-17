@@ -1,12 +1,12 @@
-declare module '@nozbe/watermelondb/Database/CollectionMap' {
-  import { Collection, Database, Model, TableName } from '@nozbe/watermelondb'
-  import { Class } from '@nozbe/watermelondb/utils/common'
+import type Model from '../../Model'
+import Collection from '../../Collection'
+import type { TableName } from '../../Schema'
+import type Database from '../index'
 
-  export default class CollectionMap {
-    public map: { [tableName: string]: Collection<any> }
+export default class CollectionMap {
+  map: { [tableName: TableName<any>]: Collection<any> }
 
-    public constructor(database: Database, modelClasses: Array<Class<Model>>)
+  constructor(db: Database, modelClasses: Model[])
 
-    public get<T extends Model>(tableName: TableName<T>): Collection<T>
-  }
+  get<T extends Model>(tableName: TableName<T>): Collection<T>
 }

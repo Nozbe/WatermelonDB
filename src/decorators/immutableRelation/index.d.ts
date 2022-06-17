@@ -1,10 +1,9 @@
-declare module '@nozbe/watermelondb/decorators/immutableRelation' {
-  import { ColumnName, TableName } from '@nozbe/watermelondb'
+  import { ColumnName, TableName } from '../../Schema'
 
-  const immutableRelation: (
+  type immutableRelation = (
     relationTable: TableName<any>,
     relationIdColumn: ColumnName,
   ) => PropertyDecorator
 
   export default immutableRelation
-}
+

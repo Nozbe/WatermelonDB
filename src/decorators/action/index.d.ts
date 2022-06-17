@@ -1,8 +1,7 @@
-declare module '@nozbe/watermelondb/decorators/action' {
-  const action: MethodDecorator
+type action = MethodDecorator
 
-  export default action
+export default action
 
-  export const writer: MethodDecorator
-  export const reader: MethodDecorator
-}
+export type writer = MethodDecorator
+export type reader = MethodDecorator
+
