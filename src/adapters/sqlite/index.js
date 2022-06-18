@@ -80,7 +80,12 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
       validateAdapter(this)
     }
 
-    this._initPromise = this._init()
+    this._initPromise = this._init().then(() => {
+      if ('onReady' in options) {
+        options.onReady()
+      }
+    })
+
     fromPromise(this._initPromise, devSetupCallback)
   }
 

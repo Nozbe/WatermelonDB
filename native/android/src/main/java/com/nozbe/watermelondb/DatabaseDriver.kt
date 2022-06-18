@@ -149,7 +149,7 @@ class DatabaseDriver(context: Context, dbName: String) {
         for (i in 0 until removedIds.size()) {
             val id = removedIds.getString(i)
 
-            removeFromCache(table = table, id = id)
+            removeFromCache(table = table, id = id!!)
         }
     }
 

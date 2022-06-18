@@ -64,7 +64,6 @@ const buildTasks = options => {
   const tag = isPrerelease ? 'next' : 'latest'
 
   // eslint-disable-next-line
-  console.warn(`Will publish with NPM tag ${tag}`)
 
   return [
     // {
@@ -166,14 +165,6 @@ const buildTasks = options => {
       //       ]),
       //   })
       // },
-    },
-    {
-      title: 'git push',
-      task: () => execa('git', ['push']),
-    },
-    {
-      title: 'push tags',
-      task: () => execa('git', ['push', '--tags', '--follow-tags']),
     },
     ...(isPrerelease
       ? []

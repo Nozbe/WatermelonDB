@@ -19,6 +19,7 @@ export type SQLiteAdapterOptions = $Exact<{
   migrations?: SchemaMigrations,
   synchronous?: boolean,
   experimentalUseJSI?: boolean,
+  onReady?: () => void
 }>
 
 export type DispatcherType = 'asynchronous' | 'synchronous' | 'jsi'
