@@ -159,7 +159,7 @@ function prepareApplyRemoteNativeChangesToCollection<T: Model>(
   Object.keys(upsertedRecords).forEach(key => {
     const currentRecord = findRecord(key, records)
 
-    const newRaw = Object.assign({}, currentRecord._raw, { _status: 'synced', _changed: '' })
+    const newRaw = Object.assign({}, upsertedRecords[key], { _status: 'synced', _changed: '' })
 
     currentRecord._raw = newRaw
 
