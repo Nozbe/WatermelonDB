@@ -146,6 +146,29 @@ function validateRemoteRaw(raw: DirtyRaw): void {
   )
 }
 
+function prepareApplyRemoteNativeChangesToCollection<T: Model>(
+  collection: Collection<T>,
+  recordsToApply: RecordsToApplyRemoteChangesTo<T>
+): T[] {
+  const { database, table } = collection
+
+  const { upsertedRecords, records, recordsToDestroy: deleted, locallyDeletedIds } = recordsToApply
+
+  const recordsToBatch: T[] = [...deleted] // mutating - perf critical
+
+  Object.keys(upsertedRecords).forEach(key => {
+    const currentRecord = findRecord(key, records)
+
+    const newRaw = Object.assign({}, currentRecord._raw, { _status: 'synced', _changed: '' })
+
+    currentRecord._raw = newRaw
+
+    recordsToBatch.push(currentRecord)
+  })
+
+  return recordsToBatch
+}
+
 function prepareApplyRemoteChangesToCollection<T: Model>(
   collection: Collection<T>,
   recordsToApply: RecordsToApplyRemoteChangesTo<T>,
@@ -271,6 +294,22 @@ const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToAppl
     promiseAllObject,
   )
 
+const prepareApplyAllRemoteNativeChanges = (
+  db: Database,
+  recordsToApply: AllRecordsToApply
+): Model[] =>
+  piped(
+    recordsToApply,
+    map((records, tableName: TableName<any>) =>
+      prepareApplyRemoteNativeChangesToCollection(
+        db.get((tableName: any)),
+        records
+      ),
+    ),
+    values,
+    unnest,
+  )
+
 const prepareApplyAllRemoteChanges = (
   db: Database,
   recordsToApply: AllRecordsToApply,
@@ -328,7 +367,12 @@ export function applyNativeChanges(db: Database, remoteChanges: any): Promise<vo
 
     await Promise.all([
       destroyAllDeletedRecords(db, recordsToApply),
-      db.nativeBatch(flatten(Object.entries(recordsToApply).map(([_, val]) => val.records))),
+      db.nativeBatch(
+        prepareApplyAllRemoteNativeChanges(
+          db,
+          recordsToApply
+        )
+      ),
     ])
   }, 'native-sync-applyRemoteChanges')
 }
