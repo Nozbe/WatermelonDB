@@ -135,6 +135,13 @@ On RN60+, auto linking should work.
 </details>
 
 <details>
+  <summary>Using with react-native-screens or react-native-gesture-handler</summary>
+  If you are using recent versions of react-native-screens or react-native-gesture-handler, you will need to set the kotlin version to 1.5.20 or above.
+
+  See instructions above ⬆️
+</details>
+
+<details>
   <summary>Troubleshooting</summary>
   If you get this error:
 
