@@ -199,22 +199,6 @@ const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToAppl
     promiseAllObject,
   )
 
-const prepareApplyAllRemoteNativeChanges = (
-  db: Database,
-  recordsToApply: AllRecordsToApply
-): Model[] =>
-  piped(
-    recordsToApply,
-    map((records, tableName: TableName<any>) =>
-      prepareApplyRemoteNativeChangesToCollection(
-        db.get((tableName: any)),
-        records
-      ),
-    ),
-    values,
-    unnest,
-  )
-
 const prepareApplyAllRemoteChanges = (
   db: Database,
   recordsToApply: AllRecordsToApply,
@@ -263,24 +247,6 @@ const unsafeBatchesWithRecordsToApply = (
     values,
     unnest,
   )
-
-export function applyNativeChanges(db: Database, remoteChanges: any): Promise<void> {
-  ensureActionsEnabled(db)
-
-  return db.action(async () => {
-    const recordsToApply = await getAllRecordsToApplyNative(db, remoteChanges)
-
-    await Promise.all([
-      destroyAllDeletedRecords(db, recordsToApply),
-      db.nativeBatch(
-        prepareApplyAllRemoteNativeChanges(
-          db,
-          recordsToApply
-        )
-      ),
-    ])
-  }, 'native-sync-applyRemoteChanges')
-}
 
 export default function applyRemoteChanges(
   db: Database,
