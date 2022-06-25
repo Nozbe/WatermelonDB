@@ -5,7 +5,6 @@ import type { Database, RecordId, TableName, Model } from '..'
 import { type DirtyRaw } from '../RawRecord'
 
 import {
-  applyNativeChanges,
   applyRemoteChanges,
   fetchLocalChanges,
   markLocalChangesAsSynced,
@@ -77,32 +76,12 @@ export type SyncArgs = $Exact<{
 
 // See Sync docs for usage details
 
-export async function syncrhonizeNative({
-  database,
-  syncedChanges,
-  pushChanges,
-}: any): Promise<void> {
-  ensureActionsEnabled(database)
-
-  await database.action(async action => {
-    await action.subAction(() => applyNativeChanges(database, syncedChanges))
-  }, 'native-sync-synchronize-apply')
-
-  // push phase
-  const localChanges = await fetchLocalChanges(database)
-  
-  if (!isChangeSetEmpty(localChanges.changes)) {
-    await pushChanges({ changes: localChanges.changes, lastPulledAt: null })
-
-    await markLocalChangesAsSynced(database, localChanges)
-  }
-}
-
 export async function synchronize({
   database,
   pullChanges,
   pushChanges,
   sendCreatedAsUpdated = false,
+  useSequenceIds = false,
   migrationsEnabledAtVersion,
   log,
   conflictResolver,
@@ -115,7 +94,7 @@ export async function synchronize({
   // TODO: Wrap the three computionally intensive phases in `requestIdleCallback`
 
   // pull phase
-  const lastPulledAt = await getLastPulledAt(database)
+  const lastPulledAt = await getLastPulledAt(database, useSequenceIds)
   log && (log.lastPulledAt = lastPulledAt)
 
   const { schemaVersion, migration, shouldSaveSchemaVersion } = await getMigrationInfo(
@@ -131,15 +110,11 @@ export async function synchronize({
     migration,
   })
   log && (log.newLastPulledAt = newLastPulledAt)
-  invariant(
-    typeof newLastPulledAt === 'number' && newLastPulledAt > 0,
-    `pullChanges() returned invalid timestamp ${newLastPulledAt}. timestamp must be a non-zero number`,
-  )
 
   await database.action(async action => {
     ensureSameDatabase(database, resetCount)
     invariant(
-      lastPulledAt === (await getLastPulledAt(database)),
+      lastPulledAt === (await getLastPulledAt(database, useSequenceIds)),
       '[Sync] Concurrent synchronization is not allowed. More than one synchronize() call was running at the same time, and the later one was aborted before committing results to local database.',
     )
     await action.subAction(() =>
@@ -152,7 +127,7 @@ export async function synchronize({
         _unsafeBatchPerCollection,
       ),
     )
-    await setLastPulledAt(database, newLastPulledAt)
+    await setLastPulledAt(database, newLastPulledAt, useSequenceIds)
 
     if (shouldSaveSchemaVersion) {
       await setLastPulledSchemaVersion(database, schemaVersion)

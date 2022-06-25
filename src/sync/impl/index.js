@@ -7,26 +7,48 @@ import type { Timestamp, SyncLog } from '../index'
 import type { SchemaVersion } from '../../Schema'
 import getSyncChanges, { type MigrationSyncChanges } from '../../Schema/migrations/getSyncChanges'
 
-export { default as applyRemoteChanges, applyNativeChanges } from './applyRemote'
+export { default as applyRemoteChanges } from './applyRemote'
 export { default as fetchLocalChanges, hasUnsyncedChanges } from './fetchLocal'
 export { default as markLocalChangesAsSynced } from './markAsSynced'
+import { ulid, decodeTime } from 'ulid'
 
+const lastSequenceIdKey = '__watermelon_last_sequence_id'
 const lastPulledAtKey = '__watermelon_last_pulled_at'
 const lastPulledSchemaVersionKey = '__watermelon_last_pulled_schema_version'
 
-export async function getLastPulledAt(database: Database): Promise<?Timestamp> {
-  return parseInt(await database.adapter.getLocal(lastPulledAtKey), 10) || null
+export async function getLastPulledAt(database: Database, useSequenceIds = false): Promise<?Timestamp|?String> {
+  const lastPulledAt = parseInt(await database.adapter.getLocal(lastPulledAtKey), 10) || null
+
+  if (!useSequenceIds)
+    return lastPulledAt
+
+  const lastSequenceId = await getLastSequenceId(database)
+
+  if (lastSequenceId)
+    return lastSequenceId
+
+  if (!lastPulledAt) 
+    return null
+
+  return ulid(lastPulledAt)
 }
 
-export async function setLastPulledAt(database: Database, timestamp: Timestamp): Promise<void> {
-  const previousTimestamp = (await getLastPulledAt(database)) || 0
-  if (timestamp < previousTimestamp) {
-    logError(
-      `[Sync] Pull has finished and received server time ${timestamp} — but previous pulled-at time was greater - ${previousTimestamp}. This is most likely server bug.`,
-    )
-  }
+export async function setLastPulledAt(database: Database, timestamp: Timestamp|String, useSequenceIds = false): Promise<void> {
+  const timeValue = useSequenceIds ? decodeTime(timestamp) : timestamp
 
-  await database.adapter.setLocal(lastPulledAtKey, `${timestamp}`)
+  await database.adapter.setLocal(lastPulledAtKey, `${timeValue}`)
+  
+  if (useSequenceIds) {
+    await setLastSequenceId(database, timestamp)
+  }
+}
+
+async function getLastSequenceId(database: Database): Promise<string> {
+  return await database.adapter.getLocal(lastSequenceIdKey)
+}
+
+async function setLastSequenceId(database: Database, sequenceId: string): Promise<void> {
+  await database.adapter.setLocal(lastSequenceIdKey, sequenceId)
 }
 
 export async function getLastPulledSchemaVersion(database: Database): Promise<?SchemaVersion> {

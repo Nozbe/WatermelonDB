@@ -136,13 +136,7 @@ class DatabaseDriver {
             removeFromCache(table, id)
         }
     }
-
-    func syncCache(_ table: String, removedIds: [String]) {
-        for id in removedIds {
-            removeFromCache(table, id)
-        }
-    }
-
+    
     func getDeletedRecords(table: Database.TableName) throws -> [RecordId] {
         return try database.queryRaw("select id from `\(table)` where _status='deleted'").map { row in
             row.string(forColumn: "id")!

@@ -210,18 +210,6 @@ extension DatabaseBridge {
         }
     }
 
-    @objc(syncCache:table:removedIds:resolve:reject:)
-    func syncCache(
-                    tag: ConnectionTag,
-                    table: String,
-                    removedIds: [String],
-                    resolve: @escaping RCTPromiseResolveBlock,
-                    reject: @escaping RCTPromiseRejectBlock) {
-        withDriver(tag, resolve, reject) {
-            $0.syncCache(table, removedIds: removedIds)
-        }
-    }
-
     @objc(getDeletedRecords:table:resolve:reject:)
     func getDeletedRecords(tag: ConnectionTag,
                            table: Database.TableName,
@@ -312,14 +300,7 @@ extension DatabaseBridge {
             try $0.copyTables(tables, srcDB: srcDB)
         }
     }
-
-    @objc(syncCacheSynchronous:table:removedIds:)
-    func syncCacheSynchronous(tag: ConnectionTag, table: String, removedIds: [String]) -> NSDictionary {
-        return withDriverSynchronous(tag) {
-            try $0.syncCache(table, removedIds: removedIds)
-        }
-    }
-
+    
     @objc(batchJSONSynchronous:operations:)
     func batchJSONSynchronous(tag: ConnectionTag, operations serializedOperations: NSString) -> NSDictionary {
         return withDriverSynchronous(tag) {

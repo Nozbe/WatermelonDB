@@ -35,36 +35,6 @@ const idsForChanges = ({ created, updated, deleted }: SyncTableChangeSet): Recor
   return ids.concat(deleted)
 }
 
-const fetchRecordForNativeChanges = <T: Model>(
-  collection: Collection<T>,
-  changes: any,
-): Promise<T[]> => {
-  if (changes.upsertedIds.length || changes.deletedIds.length) {
-    return new Promise(async (resolve, _reject) => {
-      const deletedRecords = []
-
-      const upsertedRecords = await collection.unsafeFetchRecordsWithSQL(`
-        SELECT * FROM ${collection.table} WHERE id in (${changes.upsertedIds
-        .map(id => `'${id}'`)
-        .join(',')})
-      `)
-
-      changes.deletedIds.forEach(id => {
-        const cachedRecord = collection._cache.get(id)
-
-        if (cachedRecord) {
-          cachedRecord._hasPendingDelete = 'destroy'
-          deletedRecords.push(cachedRecord)
-        }
-      })
-
-      resolve(upsertedRecords.concat(deletedRecords))
-    })
-  }
-
-  return Promise.resolve([])
-}
-
 const fetchRecordsForChanges = <T: Model>(
   collection: Collection<T>,
   changes: SyncTableChangeSet,
@@ -116,27 +86,6 @@ async function recordsToApplyRemoteChangesTo<T: Model>(
   }
 }
 
-async function recordsToApplyNativeRemoteChangesTo<T: Model>(
-  collection: Collection<T>,
-  changes: any,
-): Promise<RecordsToApplyRemoteChangesTo<T>> {
-  const { database, table } = collection
-  const { deletedIds } = changes
-
-  const [records, locallyDeletedIds] = await Promise.all([
-    fetchRecordForNativeChanges(collection, changes),
-    database.adapter.getDeletedRecords(table),
-  ])
-
-  return {
-    ...changes,
-    records,
-    locallyDeletedIds,
-    recordsToDestroy: filter(record => deletedIds.includes(record.id), records),
-    deletedRecordsToDestroy: filter(id => deletedIds.includes(id), locallyDeletedIds),
-  }
-}
-
 function validateRemoteRaw(raw: DirtyRaw): void {
   // TODO: I think other code is actually resilient enough to handle illegal _status and _changed
   // would be best to change that part to a warning - but tests are needed
@@ -144,29 +93,6 @@ function validateRemoteRaw(raw: DirtyRaw): void {
     raw && typeof raw === 'object' && 'id' in raw && !('_status' in raw || '_changed' in raw),
     `[Sync] Invalid raw record supplied to Sync. Records must be objects, must have an 'id' field, and must NOT have a '_status' or '_changed' fields`,
   )
-}
-
-function prepareApplyRemoteNativeChangesToCollection<T: Model>(
-  collection: Collection<T>,
-  recordsToApply: RecordsToApplyRemoteChangesTo<T>
-): T[] {
-  const { database, table } = collection
-
-  const { upsertedRecords, records, recordsToDestroy: deleted, locallyDeletedIds } = recordsToApply
-
-  const recordsToBatch: T[] = [...deleted] // mutating - perf critical
-
-  Object.keys(upsertedRecords).forEach(key => {
-    const currentRecord = findRecord(key, records)
-
-    const newRaw = Object.assign({}, upsertedRecords[key], { _status: 'synced', _changed: '' })
-
-    currentRecord._raw = newRaw
-
-    recordsToBatch.push(currentRecord)
-  })
-
-  return recordsToBatch
 }
 
 function prepareApplyRemoteChangesToCollection<T: Model>(
@@ -258,27 +184,6 @@ const getAllRecordsToApply = (
     }),
     map((changes, tableName: TableName<any>) => {
       return recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes)
-    }),
-    promiseAllObject,
-  )
-
-const getAllRecordsToApplyNative = (db: Database, remoteChanges: any): AllRecordsToApply =>
-  piped(
-    remoteChanges,
-    // $FlowFixMe
-    filter((_changes, tableName: TableName<any>) => {
-      const collection = db.get((tableName: any))
-
-      if (!collection) {
-        logger.warn(
-          `You are trying to sync a collection named ${tableName}, but it does not exist. Will skip it (for forward-compatibility). If this is unexpected, perhaps you forgot to add it to your Database constructor's modelClasses property?`,
-        )
-      }
-
-      return !!collection
-    }),
-    map((changes, tableName: TableName<any>) => {
-      return recordsToApplyNativeRemoteChangesTo(db.get((tableName: any)), changes)
     }),
     promiseAllObject,
   )
