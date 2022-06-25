@@ -113,10 +113,7 @@ export async function synchronize({
 
   await database.action(async action => {
     ensureSameDatabase(database, resetCount)
-    invariant(
-      lastPulledAt === (await getLastPulledAt(database, useSequenceIds)),
-      '[Sync] Concurrent synchronization is not allowed. More than one synchronize() call was running at the same time, and the later one was aborted before committing results to local database.',
-    )
+
     await action.subAction(() =>
       applyRemoteChanges(
         database,
