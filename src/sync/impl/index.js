@@ -34,7 +34,7 @@ export async function getLastPulledAt(database: Database, useSequenceIds = false
 }
 
 export async function setLastPulledAt(database: Database, timestamp: Timestamp|String, useSequenceIds = false): Promise<void> {
-  const timeValue = useSequenceIds ? decodeTime(timestamp) : timestamp
+  const timeValue = useSequenceIds ? (decodeTime(timestamp) / 1000) : timestamp
 
   await database.adapter.setLocal(lastPulledAtKey, `${timeValue}`)
   

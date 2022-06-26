@@ -106,6 +106,10 @@ export function ensureActionsEnabled(database: Database): void {
   )
 }
 
+export function isSameDatabase(database: Database, initialResetCount: number) {
+  return database._resetCount === initialResetCount
+}
+
 export function ensureSameDatabase(database: Database, initialResetCount: number): void {
   invariant(
     database._resetCount === initialResetCount,
