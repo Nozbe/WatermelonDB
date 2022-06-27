@@ -929,31 +929,41 @@ describe('synchronize', () => {
     // check underlying database since it's an implicit API
     expect(await database.adapter.getLocal('__watermelon_last_pulled_at')).toBe('2500')
   })
-  it(`validates timestamp returned from pullChanges`, async () => {
-    const { database } = makeDatabase()
-    await expectToRejectWithMessage(
-      synchronize({ database, pullChanges: jest.fn(emptyPull(0)), pushChanges: jest.fn() }),
-      /pullChanges\(\) returned invalid timestamp/,
-    )
-  })
-  it('prevents concurrent syncs', async () => {
+
+  it('remember last_sync_at timestamp and sequence_id', async () => {
     const { database } = makeDatabase()
 
-    const delayPromise = delay => new Promise(resolve => setTimeout(resolve, delay))
-    const syncWithDelay = delay =>
-      synchronize({
-        database,
-        pullChanges: () => delayPromise(delay).then(emptyPull(delay)),
-        pushChanges: jest.fn(),
-      })
+    let pullChanges = jest.fn(emptyPull(1500))
 
-    const sync1 = syncWithDelay(100)
-    const sync2 = syncWithDelay(300).catch(error => error)
+    // intentionally not setting useSequenceIds to true 
+    // to test backward compat with regular timestamps
+    await synchronize({ database, pullChanges, pushChanges: jest.fn() })
 
-    expect(await sync1).toBe(undefined)
-    expect(await sync2).toMatchObject({ message: expect.stringMatching(/concurrent sync/i) })
-    expect(await getLastPulledAt(database)).toBe(100)
+    expect(pullChanges).toHaveBeenCalledWith({
+      lastPulledAt: null,
+      schemaVersion: 1,
+      migration: null,
+    })
+
+    pullChanges = jest.fn(emptyPull('000002C9D02JT1PBBTR4TPSRFX'))
+    const log = {}
+    await synchronize({ database, pullChanges, pushChanges: jest.fn(), log, useSequenceIds: true })
+
+    expect(pullChanges).toHaveBeenCalledTimes(1)
+    expect(pullChanges).toHaveBeenCalledWith(expect.objectContaining({
+      lastPulledAt: expect.stringContaining('000001DRV'), 
+      schemaVersion: 1,
+      migration: null,
+     }))
+     
+    expect(await getLastPulledAt(database)).toBe(2500)
+    expect(log.lastPulledAt).toContain('000001DRV')
+    expect(log.newLastPulledAt).toBe('000002C9D02JT1PBBTR4TPSRFX')
+    // check underlying database since it's an implicit API
+    expect(await database.adapter.getLocal('__watermelon_last_pulled_at')).toBe('2500')
+    expect(await database.adapter.getLocal('__watermelon_last_sequence_id')).toBe('000002C9D02JT1PBBTR4TPSRFX')
   })
+
   it('can recover from pull failure', async () => {
     const { database } = makeDatabase()
     // make change to make sure pushChagnes isn't called because of pull failure and not lack of changes
@@ -1155,50 +1165,7 @@ describe('synchronize', () => {
   it.skip(`only emits one collection batch change`, async () => {
     // TODO: unskip when batch change emissions are implemented
   })
-  it('aborts if database is cleared during sync', async () => {
-    const { database, projects } = makeDatabase()
-    const pushChanges = jest.fn()
-    await expectToRejectWithMessage(
-      synchronize({
-        database,
-        pullChanges: jest.fn(async () => {
-          await database.action(() => database.unsafeResetDatabase())
-          return {
-            changes: makeChangeSet({
-              mock_projects: {
-                created: [{ id: 'new_project', name: 'remote' }],
-              },
-            }),
-            timestamp: 1500,
-          }
-        }),
-        pushChanges,
-      }),
-      /database was reset/,
-    )
-    await expectToRejectWithMessage(projects.find('new_project'), /not found/)
-    expect(pushChanges).not.toHaveBeenCalled()
-  })
-  it('aborts if database is cleared during sync — different case', async () => {
-    const { database, projects } = makeDatabase()
-    await makeLocalChanges(database) // make changes so pushChanges is called
-    await expectToRejectWithMessage(
-      synchronize({
-        database,
-        pullChanges: () => ({
-          changes: makeChangeSet({
-            mock_projects: {
-              created: [{ id: 'new_project', name: 'remote' }],
-            },
-          }),
-          timestamp: 1500,
-        }),
-        pushChanges: () => database.action(() => database.unsafeResetDatabase()),
-      }),
-      /database was reset/,
-    )
-    await expectToRejectWithMessage(projects.find('new_project'), /not found/)
-  })
+
   it('aborts if actions are not enabled', async () => {
     const { database } = mockDatabase({ actionsEnabled: false })
 
