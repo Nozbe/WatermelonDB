@@ -14,7 +14,7 @@ import {
   hasUnsyncedChanges as hasUnsyncedChangesImpl,
   getMigrationInfo,
 } from './impl'
-import { ensureActionsEnabled, isChangeSetEmpty, ensureSameDatabase } from './impl/helpers'
+import { ensureActionsEnabled, isChangeSetEmpty, isSameDatabase } from './impl/helpers'
 import type { SchemaVersion } from '../Schema'
 import { type MigrationSyncChanges } from '../Schema/migrations/getSyncChanges'
 
@@ -112,7 +112,8 @@ export async function synchronize({
   log && (log.newLastPulledAt = newLastPulledAt)
 
   await database.action(async action => {
-    ensureSameDatabase(database, resetCount)
+    if (!isSameDatabase(database, resetCount))
+      return
 
     await action.subAction(() =>
       applyRemoteChanges(
@@ -134,12 +135,14 @@ export async function synchronize({
   // push phase
   const localChanges = await fetchLocalChanges(database)
 
-  ensureSameDatabase(database, resetCount)
+  if (!isSameDatabase(database, resetCount))
+    return
 
   if (!isChangeSetEmpty(localChanges.changes)) {
     await pushChanges({ changes: localChanges.changes, lastPulledAt: newLastPulledAt })
 
-    ensureSameDatabase(database, resetCount)
+    if (!isSameDatabase(database, resetCount))
+      return
       
     await markLocalChangesAsSynced(database, localChanges)
   }
