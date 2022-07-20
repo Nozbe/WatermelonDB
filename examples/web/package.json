@@ -67,7 +67,7 @@
     "postcss-url": "^8.0.0",
     "prettier-eslint-cli": "^4.7.1",
     "serve-static": "^1.13.2",
-    "terser": "^3.16.1",
+    "terser": "^4.8.1",
     "uglifyjs-webpack-plugin": "2.1.1",
     "url-loader": "^1.1.1",
     "webpack": "^4.17.1",
