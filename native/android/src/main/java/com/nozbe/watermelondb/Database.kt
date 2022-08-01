@@ -15,7 +15,6 @@ class Database(
     private val context: Context,
     private val openFlags: Int = SQLiteDatabase.CREATE_IF_NECESSARY or SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING
 ) {
-    private val TAG = "XXX"
     private val db: SQLiteDatabase by lazy {
         // TODO: This SUCKS. Seems like Android doesn't like sqlite `?mode=memory&cache=shared` mode. To avoid random breakages, save the file to /tmp, but this is slow.
         // NOTE: This is because Android system SQLite is not compiled with SQLITE_USE_URI=1
