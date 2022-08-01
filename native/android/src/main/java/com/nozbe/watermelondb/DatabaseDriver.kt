@@ -10,17 +10,6 @@ import java.lang.Exception
 import java.util.logging.Logger
 
 class DatabaseDriver(context: Context, dbName: String) {
-    sealed class Operation {
-        class Execute(val table: TableName, val query: SQL, val args: QueryArgs) : Operation()
-        class Create(val table: TableName, val id: RecordID, val query: SQL, val args: QueryArgs) :
-                Operation()
-
-        class MarkAsDeleted(val table: TableName, val id: RecordID) : Operation()
-        class DestroyPermanently(val table: TableName, val id: RecordID) : Operation()
-        // class SetLocal(val key: String, val value: String) : Operation()
-        // class RemoveLocal(val key: String) : Operation()
-    }
-
     class SchemaNeededError : Exception()
     data class MigrationNeededError(val databaseVersion: SchemaVersion) : Exception()
 
@@ -64,10 +53,10 @@ class DatabaseDriver(context: Context, dbName: String) {
         }
     }
 
-    fun cachedQuery(table: TableName, query: SQL): WritableArray {
+    fun cachedQuery(table: TableName, query: SQL, args: QueryArgs): WritableArray {
         // log?.info("Cached Query: $query")
         val resultArray = Arguments.createArray()
-        database.rawQuery(query).use {
+        database.rawQuery(query, args).use {
             if (it.count > 0 && it.columnNames.contains("id")) {
                 while (it.moveToNext()) {
                     val id = it.getString(it.getColumnIndex("id"))
@@ -83,56 +72,44 @@ class DatabaseDriver(context: Context, dbName: String) {
         return resultArray
     }
 
+    fun queryIds(query: SQL, args: QueryArgs): WritableArray {
+        val resultArray = Arguments.createArray()
+        database.rawQuery(query, args).use {
+            if (it.count > 0 && it.columnNames.contains("id")) {
+                while (it.moveToNext()) {
+                    resultArray.pushString(it.getString(it.getColumnIndex("id")))
+                }
+            }
+        }
+        return resultArray
+    }
+
+    fun unsafeQueryRaw(query: SQL, args: QueryArgs): WritableArray {
+        val resultArray = Arguments.createArray()
+        database.rawQuery(query, args).use {
+            if (it.count > 0) {
+                while (it.moveToNext()) {
+                    resultArray.pushMapFromCursor(it)
+                }
+            }
+        }
+        return resultArray
+    }
+
     private fun WritableArray.pushMapFromCursor(cursor: Cursor) {
         val cursorMap = Arguments.createMap()
         cursorMap.mapCursor(cursor)
         this.pushMap(cursorMap)
     }
 
-    fun getDeletedRecords(table: TableName): WritableArray {
-        val resultArray = Arguments.createArray()
-        database.rawQuery(Queries.selectDeletedIdsFromTable(table)).use {
-            it.moveToFirst()
-            for (i in 0 until it.count) {
-                resultArray.pushString(it.getString(0))
-                it.moveToNext()
-            }
-        }
-        return resultArray
-    }
-
-    fun destroyDeletedRecords(table: TableName, records: QueryArgs) =
-            database.delete(Queries.multipleDeleteFromTable(table, records), records)
-
-    fun count(query: SQL): Int = database.count(query)
-
-    private fun execute(query: SQL, args: QueryArgs) {
-        // log?.info("Executing: $query")
-        database.execute(query, args)
-    }
+    fun count(query: SQL, args: QueryArgs): Int = database.count(query, args)
 
     fun getLocal(key: String): String? {
         // log?.info("Get Local: $key")
         return database.getFromLocalStorage(key)
     }
 
-    fun setLocal(key: String, value: String) {
-        // log?.info("Set Local: $key -> $value")
-        database.insertToLocalStorage(key, value)
-    }
-
-    fun removeLocal(key: String) {
-        log?.info("Remove local: $key")
-        database.deleteFromLocalStorage(key)
-    }
-
-    private fun create(id: RecordID, query: SQL, args: QueryArgs) {
-        // log?.info("Create id: $id query: $query")
-        database.execute(query, args)
-    }
-
     fun batch(operations: ReadableArray) {
-        // log?.info("Batch of ${operations.size()}")
         val newIds = arrayListOf<Pair<TableName, RecordID>>()
         val removedIds = arrayListOf<Pair<TableName, RecordID>>()
 
@@ -140,44 +117,23 @@ class DatabaseDriver(context: Context, dbName: String) {
         try {
             database.transaction {
                 for (i in 0 until operations.size()) {
-                    val operation = operations.getArray(i)
-                    val type = operation?.getString(0)
-                    when (type) {
-                        "execute" -> {
-                            val query = operation.getString(2) as SQL
-                            val args = operation.getArray(3)!!.toArrayList().toArray()
-                            execute(query, args)
+                    val operation = operations.getArray(i)!!
+                    val cacheBehavior = operation.getInt(0)
+                    val table = if (cacheBehavior != 0) operation.getString(1)!! else ""
+                    val sql = operation.getString(2) as SQL
+                    val argBatches = operation.getArray(3)!!
+
+                    for (j in 0 until argBatches.size()) {
+                        val args = argBatches.getArray(j)!!.toArrayList().toArray()
+                        database.execute(sql, args)
+                        if (cacheBehavior != 0) {
+                            val id = args[0] as RecordID
+                            if (cacheBehavior == 1) {
+                                newIds.add(Pair(table, id))
+                            } else if (cacheBehavior == -1) {
+                                removedIds.add(Pair(table, id))
+                            }
                         }
-                        "create" -> {
-                            val table = operation.getString(1) as TableName
-                            val id = operation.getString(2) as RecordID
-                            val query = operation.getString(3) as SQL
-                            val args = operation.getArray(4)!!.toArrayList().toArray()
-                            create(id, query, args)
-                            newIds.add(Pair(table, id))
-                        }
-                        "markAsDeleted" -> {
-                            val table = operation.getString(1) as TableName
-                            val id = operation.getString(2) as RecordID
-                            database.execute(Queries.setStatusDeleted(table), arrayOf(id))
-                            removedIds.add(Pair(table, id))
-                        }
-                        "destroyPermanently" -> {
-                            val table = operation.getString(1) as TableName
-                            val id = operation.getString(2) as RecordID
-                            database.execute(Queries.destroyPermanently(table), arrayOf(id))
-                            removedIds.add(Pair(table, id))
-                        }
-                        // "setLocal" -> {
-                        //     val key = operation.getString(1)
-                        //     val value = operation.getString(2)
-                        //     preparedOperations.add(Operation.SetLocal(key, value))
-                        // }
-                        // "removeLocal" -> {
-                        //     val key = operation.getString(1)
-                        //     preparedOperations.add(Operation.RemoveLocal(key))
-                        // }
-                        else -> throw (Throwable("Bad operation name in batch"))
                     }
                 }
             }
@@ -195,7 +151,11 @@ class DatabaseDriver(context: Context, dbName: String) {
         log?.info("Unsafe Reset Database")
         database.unsafeDestroyEverything()
         cachedRecords.clear()
-        setUpSchema(schema)
+
+        database.transaction {
+            database.unsafeExecuteStatements(schema.sql)
+            database.userVersion = schema.version
+        }
     }
 
     fun close() = database.close()
@@ -211,13 +171,6 @@ class DatabaseDriver(context: Context, dbName: String) {
             cachedRecords[table]?.contains(id) ?: false
 
     private fun removeFromCache(table: TableName, id: RecordID) = cachedRecords[table]?.remove(id)
-
-    private fun setUpSchema(schema: Schema) {
-        database.transaction {
-            database.unsafeExecuteStatements(schema.sql + Queries.localStorageSchema)
-            database.userVersion = schema.version
-        }
-    }
 
     private fun migrate(migrations: MigrationSet) {
         require(database.userVersion == migrations.from) {

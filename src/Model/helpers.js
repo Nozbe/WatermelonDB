@@ -1,24 +1,21 @@
 // @flow
 
-import { allPromises, hasIn, unnest } from '../utils/fp'
+import { allPromises, unnest } from '../utils/fp'
 
 import * as Q from '../QueryDescription'
 import type Model from './index'
 import type Query from '../Query/index'
-
-const hasCreatedAt = hasIn('createdAt')
-export const hasUpdatedAt: any = hasIn('updatedAt')
 
 type TimestampsObj = $Exact<{ created_at?: number, updated_at?: number }>
 export const createTimestampsFor = (model: Model): TimestampsObj => {
   const date = Date.now()
   const timestamps = {}
 
-  if (hasCreatedAt(model)) {
+  if ('createdAt' in model) {
     timestamps.created_at = date
   }
 
-  if (hasUpdatedAt(model)) {
+  if ('updatedAt' in model) {
     timestamps.updated_at = date
   }
 
@@ -35,13 +32,20 @@ function getChildrenQueries(model: Model): Query<Model>[] {
   return childrenQueries
 }
 
-export async function fetchChildren(model: Model): Promise<Model[]> {
-  const childPromise = async query => {
+async function fetchDescendantsInner(model: Model): Promise<Model[]> {
+  const childPromise = async (query) => {
     const children = await query.fetch()
-    const grandchildren = await allPromises(fetchChildren, children)
+    const grandchildren = await allPromises(fetchDescendantsInner, children)
     return unnest(grandchildren).concat(children)
   }
   const childrenQueries = getChildrenQueries(model)
   const results = await allPromises(childPromise, childrenQueries)
   return unnest(results)
+}
+
+export async function fetchDescendants(model: Model): Promise<Model[]> {
+  const descendants = await fetchDescendantsInner(model)
+  // We need to deduplicate because we can have a child accessible through multiple parents
+  // TODO: Use fp/unique after updating it not to suck
+  return Array.from(new Set(descendants))
 }

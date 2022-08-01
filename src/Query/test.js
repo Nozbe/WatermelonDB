@@ -28,18 +28,18 @@ class MockProject extends Model {
 
 const mockCollection = Object.freeze({
   modelClass: MockTask,
-  db: { get: table => (table === 'projects' ? { modelClass: MockProject } : undefined) },
+  db: { get: (table) => (table === 'projects' ? { modelClass: MockProject } : undefined) },
 })
 
 describe('Query', () => {
   describe('description properties', () => {
-    it('fetches tables correctly for simple queries', () => {
+    it('returns tables correctly for simple queries', () => {
       const query = new Query(mockCollection, [Q.where('id', 'abcdef')])
       expect(query.table).toBe('mock_tasks')
       expect(query.secondaryTables).toEqual([])
       expect(query.allTables).toEqual(['mock_tasks'])
     })
-    it('fetches tables correctly for complex queries', () => {
+    it('returns tables correctly for complex queries', () => {
       const query = new Query(mockCollection, [
         Q.where('id', 'abcdef'),
         Q.on('projects', 'team_id', 'abcdef'),
@@ -48,18 +48,16 @@ describe('Query', () => {
       expect(query.secondaryTables).toEqual(['projects'])
       expect(query.allTables).toEqual(['mock_tasks', 'projects'])
     })
-    it('fetches associations correctly for simple queries', () => {
+    it('returns associations correctly for simple queries', () => {
       const query = new Query(mockCollection, [Q.where('id', 'abcdef')])
-      expect(query.hasJoins).toBe(false)
       expect(query.associations).toEqual([])
     })
-    it('fetches associations correctly for more complex queries', () => {
+    it('returns associations correctly for more complex queries', () => {
       const query = new Query(mockCollection, [
         Q.on('projects', 'team_id', 'abcdef'),
         Q.where('left_column', 'right_value'),
         Q.on('tag_assignments', 'tag_id', Q.oneOf(['a', 'b', 'c'])),
       ])
-      expect(query.hasJoins).toBe(true)
       expect(query.secondaryTables).toEqual(['projects', 'tag_assignments'])
       expect(query.associations).toEqual([
         { from: 'mock_tasks', to: 'projects', info: { type: 'belongs_to', key: 'project_id' } },
@@ -70,13 +68,12 @@ describe('Query', () => {
         },
       ])
     })
-    it('fetches associations correctly for explicit joins', () => {
+    it('returns associations correctly for explicit joins', () => {
       const query = new Query(mockCollection, [
         Q.experimentalJoinTables(['projects']),
         Q.experimentalNestedJoin('projects', 'teams'),
         Q.on('projects', Q.on('teams', 'foo', 'bar')),
       ])
-      expect(query.hasJoins).toBe(true)
       expect(query.secondaryTables).toEqual(['projects', 'teams'])
       expect(query.associations).toEqual([
         { from: 'mock_tasks', to: 'projects', info: { type: 'belongs_to', key: 'project_id' } },
@@ -103,6 +100,8 @@ describe('Query', () => {
         `Query on 'mock_tasks' has a nested join from 'projects' to 'flaflas', but MockProject does not have associations={} defined for 'flaflas'`,
       )
     })
+  })
+  describe('Query.extend()', () => {
     it('can return extended query', () => {
       const query = new Query(mockCollection, [
         Q.on('projects', 'team_id', 'abcdef'),
@@ -123,41 +122,36 @@ describe('Query', () => {
       expect(extendedQuery.description).toEqual(expectedQuery.description)
       expect(extendedQuery.secondaryTables).toEqual(expectedQuery.secondaryTables)
       expect(extendedQuery.associations).toEqual(expectedQuery.associations)
-      expect(extendedQuery.hasJoins).toBe(expectedQuery.hasJoins)
       expect(extendedQuery._rawDescription).toEqual(expectedQuery._rawDescription)
     })
     it('can return extended query for sortBy, take and skip', () => {
       const query = new Query(mockCollection, [
-        Q.experimentalSortBy('sortable', Q.desc),
-        Q.experimentalSkip(60),
-        Q.experimentalTake(20),
+        Q.sortBy('sortable', Q.desc),
+        Q.skip(60),
+        Q.take(20),
       ])
-      const extendedQuery = query.extend(
-        Q.experimentalSortBy('sortable2'),
-        Q.experimentalSkip(40),
-        Q.experimentalTake(10),
-      )
+      const extendedQuery = query.extend(Q.sortBy('sortable2'), Q.skip(40), Q.take(10))
       const expectedQuery = new Query(mockCollection, [
-        Q.experimentalSortBy('sortable', Q.desc),
-        Q.experimentalSortBy('sortable2', Q.asc),
-        Q.experimentalSkip(40),
-        Q.experimentalTake(10),
+        Q.sortBy('sortable', Q.desc),
+        Q.sortBy('sortable2', Q.asc),
+        Q.skip(40),
+        Q.take(10),
       ])
       expect(extendedQuery.serialize()).toEqual(expectedQuery.serialize())
       expect(extendedQuery._rawDescription).toEqual(expectedQuery._rawDescription)
     })
     it('can return extended query and leave take and skip clauses intact', () => {
       const query = new Query(mockCollection, [
-        Q.experimentalSortBy('sortable', Q.desc),
-        Q.experimentalSkip(60),
-        Q.experimentalTake(20),
+        Q.sortBy('sortable', Q.desc),
+        Q.skip(60),
+        Q.take(20),
       ])
-      const extendedQuery = query.extend(Q.experimentalSortBy('sortable2'))
+      const extendedQuery = query.extend(Q.sortBy('sortable2'))
       const expectedQuery = new Query(mockCollection, [
-        Q.experimentalSortBy('sortable', Q.desc),
-        Q.experimentalSortBy('sortable2', Q.asc),
-        Q.experimentalSkip(60),
-        Q.experimentalTake(20),
+        Q.sortBy('sortable', Q.desc),
+        Q.sortBy('sortable2', Q.asc),
+        Q.skip(60),
+        Q.take(20),
       ])
       expect(extendedQuery.serialize()).toEqual(expectedQuery.serialize())
       expect(extendedQuery._rawDescription).toEqual(expectedQuery._rawDescription)
@@ -178,29 +172,16 @@ describe('Query', () => {
       ])
       expect(extendedQuery.serialize()).toEqual(expectedQuery.serialize())
     })
-    it(`can extend query with unsafeLokiFilter`, () => {
+    it(`can extend query with unsafeLokiTransform`, () => {
       const fn = () => {}
-      const query = new Query(mockCollection, [Q.unsafeLokiFilter(fn)])
+      const query = new Query(mockCollection, [Q.unsafeLokiTransform(fn)])
       const extendedQuery = query.extend(Q.where('foo', 'bar'))
       const expectedQuery = new Query(mockCollection, [
-        Q.unsafeLokiFilter(fn),
+        Q.unsafeLokiTransform(fn),
         Q.where('foo', 'bar'),
       ])
       expect(extendedQuery.serialize()).toEqual(expectedQuery.serialize())
     })
-    it('returns serializable version of Query', () => {
-      const query = new Query(mockCollection, [
-        Q.on('projects', 'team_id', 'abcdef'),
-        Q.where('left_column', 'right_value'),
-        Q.on('tag_assignments', 'tag_id', Q.oneOf(['a', 'b', 'c'])),
-      ])
-      expect(query.serialize()).toEqual({
-        table: 'mock_tasks',
-        description: query.description,
-        associations: query.associations,
-      })
-    })
-
     it('can return double extended query', () => {
       const query = new Query(mockCollection, [Q.on('projects', 'team_id', 'abcdef')])
       const extendedQuery = query
@@ -221,15 +202,30 @@ describe('Query', () => {
       expect(extendedQuery.description).toEqual(expectedQuery.description)
       expect(extendedQuery.secondaryTables).toEqual(expectedQuery.secondaryTables)
       expect(extendedQuery.associations).toEqual(expectedQuery.associations)
-      expect(extendedQuery.hasJoins).toBe(expectedQuery.hasJoins)
       expect(extendedQuery._rawDescription).toEqual(expectedQuery._rawDescription)
     })
-    it('can pipe query', () => {
-      const query = new Query(mockCollection, [Q.on('projects', 'team_id', 'abcdef')])
-      const identity = a => a
-      expect(query.pipe(identity)).toBe(query)
-      const wrap = q => ({ wrapped: q })
-      expect(query.pipe(wrap).wrapped).toBe(query)
+    it(`cannot extend an unsafe SQL query`, () => {
+      const query = new Query(mockCollection, [Q.unsafeSqlQuery('select * from tasks')])
+      expect(() => query.extend()).toThrow('Cannot extend an unsafe SQL query')
+    })
+  })
+  it('can pipe query', () => {
+    const query = new Query(mockCollection, [Q.on('projects', 'team_id', 'abcdef')])
+    const identity = (a) => a
+    expect(query.pipe(identity)).toBe(query)
+    const wrap = (q) => ({ wrapped: q })
+    expect(query.pipe(wrap).wrapped).toBe(query)
+  })
+  it('returns serializable version of Query', () => {
+    const query = new Query(mockCollection, [
+      Q.on('projects', 'team_id', 'abcdef'),
+      Q.where('left_column', 'right_value'),
+      Q.on('tag_assignments', 'tag_id', Q.oneOf(['a', 'b', 'c'])),
+    ])
+    expect(query.serialize()).toEqual({
+      table: 'mock_tasks',
+      description: query.description,
+      associations: query.associations,
     })
   })
   describe('fetching', () => {
@@ -240,32 +236,32 @@ describe('Query', () => {
       // no test here - Collection._fetchCount is tested
     })
     it(`is thenable`, async () => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
       const queryAll = new Query(tasks, [])
       const m1 = tasks.prepareCreate()
       const m2 = tasks.prepareCreate()
-      await database.action(() => database.batch(m1, m2))
+      await database.write(() => database.batch(m1, m2))
       expect(await queryAll).toEqual([m1, m2])
-      expect(await queryAll.then(records => records.length)).toBe(2)
+      expect(await queryAll.then((records) => records.length)).toBe(2)
     })
     it(`count is thenable`, async () => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
       const queryAll = new Query(tasks, [])
-      await database.action(() => database.batch(tasks.prepareCreate(), tasks.prepareCreate()))
+      await database.write(() => database.batch(tasks.prepareCreate(), tasks.prepareCreate()))
       expect(await queryAll.count).toEqual(2)
-      expect(await queryAll.count.then(length => length * 2)).toBe(4)
+      expect(await queryAll.count.then((length) => length * 2)).toBe(4)
     })
   })
 
   describe('observation', () => {
     // NOTE: Sanity checks only. Concrete tests: observation/
-    const waitFor = database => {
+    const waitFor = (database) => {
       // make sure we wait until end of DB queue without triggering query for
       // easy counting
       return database.adapter.getLocal('nothing')
     }
     const testQueryObservation = async (makeSubscribe, withColumns) => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
       const adapterSpy = jest.spyOn(database.adapter.underlyingAdapter, 'query')
       const query = new Query(tasks, [])
       const observer = jest.fn()
@@ -276,7 +272,7 @@ describe('Query', () => {
       expect(observer).toHaveBeenCalledTimes(1)
       expect(observer).toHaveBeenLastCalledWith([])
 
-      const t1 = await database.action(() => tasks.create())
+      const t1 = await database.write(() => tasks.create())
       await waitFor(database)
       expect(observer).toHaveBeenCalledTimes(2)
       expect(observer).toHaveBeenLastCalledWith([t1])
@@ -318,7 +314,7 @@ describe('Query', () => {
     })
 
     const testCountObservation = async (makeSubscribe, isThrottled) => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+      const { database, tasks } = mockDatabase()
       const adapterSpy = jest.spyOn(database.adapter.underlyingAdapter, 'count')
       const query = new Query(tasks, [])
       const observer = jest.fn()
@@ -330,10 +326,10 @@ describe('Query', () => {
       expect(observer).toHaveBeenLastCalledWith(0)
 
       if (isThrottled) {
-        await new Promise(resolve => setTimeout(resolve, 300))
+        await new Promise((resolve) => setTimeout(resolve, 300))
       }
 
-      await database.action(() => tasks.create())
+      await database.write(() => tasks.create())
       await waitFor(database)
 
       expect(adapterSpy).toHaveBeenCalledTimes(2)
@@ -371,20 +367,20 @@ describe('Query', () => {
   })
 
   describe('mass delete', () => {
-    const testMassDelete = async methodName => {
-      const { database, tasks } = mockDatabase({ actionsEnabled: true })
+    const testMassDelete = async (methodName) => {
+      const { database, tasks } = mockDatabase()
       const query = new Query(tasks, [Q.where('name', 'foo')])
       const queryAll = new Query(tasks, [])
 
-      await database.action(() =>
+      await database.write(() =>
         database.batch(
-          tasks.prepareCreate(t => {
+          tasks.prepareCreate((t) => {
             t.name = 'foo'
           }),
-          tasks.prepareCreate(t => {
+          tasks.prepareCreate((t) => {
             t.name = 'foo'
           }),
-          tasks.prepareCreate(t => {
+          tasks.prepareCreate((t) => {
             t.name = 'foo'
           }),
           tasks.prepareCreate(),
@@ -393,7 +389,7 @@ describe('Query', () => {
       )
       expect(await queryAll.fetchCount()).toBe(5)
       expect(await query.fetchCount()).toBe(3)
-      await database.action(() => query[methodName]())
+      await database.write(() => query[methodName]())
       expect(await queryAll.fetchCount()).toBe(2)
       expect(await query.fetchCount()).toBe(0)
     }
@@ -403,5 +399,10 @@ describe('Query', () => {
     it('can destroy all permanently', async () => {
       await testMassDelete('destroyAllPermanently')
     })
+  })
+
+  it(`has wmelon tag`, () => {
+    const query = new Query(mockCollection, [Q.where('id', 'abcdef')])
+    expect(query.constructor._wmelonTag).toBe('query')
   })
 })

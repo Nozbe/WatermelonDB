@@ -1,26 +1,37 @@
 declare module '@nozbe/watermelondb/Schema/migrations' {
-  import { SchemaVersion, TableName, ColumnMap, ColumnSchema, TableSchemaSpec } from "@nozbe/watermelondb/Schema";
+  import {
+    SchemaVersion,
+    TableName,
+    ColumnMap,
+    ColumnSchema,
+    TableSchemaSpec,
+  } from '@nozbe/watermelondb/Schema'
 
   export interface SchemaMigrations {
-    validated: true,
-    minVersion: SchemaVersion,
-    maxVersion: SchemaVersion,
-    sortedMigrations: Migration[],
+    validated: true
+    minVersion: SchemaVersion
+    maxVersion: SchemaVersion
+    sortedMigrations: Migration[]
   }
 
   export interface CreateTableMigrationStep {
-    type: 'create_table',
-    name: TableName<any>,
-    columns: ColumnMap,
+    type: 'create_table'
+    name: TableName<any>
+    columns: ColumnMap
   }
 
   export interface AddColumnsMigrationStep {
-    type: 'add_columns',
-    table: TableName<any>,
-    columns: ColumnSchema[],
+    type: 'add_columns'
+    table: TableName<any>
+    columns: ColumnSchema[]
   }
 
-  export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep
+  export type SqlMigrationStep = {
+    type: 'sql'
+    sql: string
+  }
+
+  export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep | SqlMigrationStep
 
   export interface Migration {
     toVersion: SchemaVersion
@@ -28,7 +39,7 @@ declare module '@nozbe/watermelondb/Schema/migrations' {
   }
 
   interface SchemaMigrationsSpec {
-    migrations: Migration[],
+    migrations: Migration[]
   }
 
   export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMigrations
@@ -36,5 +47,8 @@ declare module '@nozbe/watermelondb/Schema/migrations' {
   export function addColumns({
     table,
     columns,
-  }: { table: TableName<any>, columns: ColumnSchema[] }): AddColumnsMigrationStep
+  }: {
+    table: TableName<any>
+    columns: ColumnSchema[]
+  }): AddColumnsMigrationStep
 }

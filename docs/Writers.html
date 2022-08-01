@@ -1,0 +1,422 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Writers, Readers, batching - WatermelonDB documentation</title>
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="favicon.png">
+        
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        
+        <link rel="stylesheet" href="css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li class="chapter-item expanded "><a href="Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="Setup.html"><strong aria-hidden="true">2.2.</strong> Setup</a></li><li class="chapter-item expanded "><a href="Schema.html"><strong aria-hidden="true">2.3.</strong> Schema</a></li><li class="chapter-item expanded "><a href="Model.html"><strong aria-hidden="true">2.4.</strong> Defining Models</a></li><li class="chapter-item expanded "><a href="CRUD.html"><strong aria-hidden="true">2.5.</strong> Create, Read, Update, Delete</a></li><li class="chapter-item expanded "><a href="Components.html"><strong aria-hidden="true">2.6.</strong> Connecting to React Components</a></li><li class="chapter-item expanded "><a href="Query.html"><strong aria-hidden="true">2.7.</strong> Querying</a></li><li class="chapter-item expanded "><a href="Relation.html"><strong aria-hidden="true">2.8.</strong> Relations</a></li><li class="chapter-item expanded "><a href="Writers.html" class="active"><strong aria-hidden="true">2.9.</strong> Writers, Readers, batching</a></li></ol></li><li class="chapter-item expanded "><a href="ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Advanced/Migrations.html"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li class="chapter-item expanded "><a href="Advanced/Sync.html"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li class="chapter-item expanded "><a href="Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li class="chapter-item expanded "><a href="Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li class="chapter-item expanded "><a href="Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li class="chapter-item expanded "><a href="Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li class="chapter-item expanded "><a href="Advanced/ProTips.html"><strong aria-hidden="true">3.7.</strong> Pro tips</a></li><li class="chapter-item expanded "><a href="Advanced/Performance.html"><strong aria-hidden="true">3.8.</strong> Performance tips</a></li><li class="chapter-item expanded "><a href="Advanced/SharingDatabaseAcrossTargets.html"><strong aria-hidden="true">3.9.</strong> iOS - Sharing database across targets</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li class="chapter-item expanded "><a href="Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li><li class="chapter-item expanded "><a href="Implementation/SyncImpl.html"><strong aria-hidden="true">4.3.</strong> Sync implementation</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="CONTRIBUTING.html"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="CHANGELOG.html"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">WatermelonDB documentation</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="writers-readers-and-batching"><a class="header" href="#writers-readers-and-batching">Writers, Readers, and batching</a></h1>
+<p>Think of this guide as a part two of <a href="./CRUD.html">Create, Read, Update, Delete</a>.</p>
+<p>As mentioned previously, you can't just modify WatermelonDB's database anywhere. All changes must be done within a <strong>Writer</strong>.</p>
+<p>There are two ways of defining a writer: inline and by defining a <strong>writer method</strong>.</p>
+<h3 id="inline-writers"><a class="header" href="#inline-writers">Inline writers</a></h3>
+<p>Here is an inline writer, you can invoke it anywhere you have access to the <code>database</code> object:</p>
+<pre><code class="language-js">// Note: function passed to `database.write()` MUST be asynchronous
+const newPost = await database.write(async =&gt; {
+  const post = await database.get('posts').create(post =&gt; {
+    post.title = 'New post'
+    post.body = 'Lorem ipsum...'
+  })
+  const comment = await database.get('comments').create(comment =&gt; {
+    comment.post.set(post)
+    comment.author.id = someUserId
+    comment.body = 'Great post!'
+  })
+
+  // Note: Value returned from the wrapped function will be returned to `database.write` caller
+  return post
+})
+</code></pre>
+<h3 id="writer-methods"><a class="header" href="#writer-methods">Writer methods</a></h3>
+<p>Writer methods can be defined on <code>Model</code> subclasses by using the <code>@writer</code> decorator:</p>
+<pre><code class="language-js">import { writer } from '@nozbe/watermelondb/decorators'
+
+class Post extends Model {
+  // ...
+
+  @writer async addComment(body, author) {
+    const newComment = await this.collections.get('comments').create(comment =&gt; {
+      comment.post.set(this)
+      comment.author.set(author)
+      comment.body = body
+    })
+    return newComment
+  }
+}
+</code></pre>
+<p>We highly recommend defining writer methods on <code>Models</code> to organize all code that changes the database in one place, and only use inline writers sporadically.</p>
+<p>Note that this is the same as defining a simple method that wraps all work in <code>database.write()</code> - using <code>@writer</code> is simply more convenient.</p>
+<p><strong>Note:</strong></p>
+<ul>
+<li>Always mark actions as <code>async</code> and remember to <code>await</code> on <code>.create()</code> and <code>.update()</code></li>
+<li>You can use <code>this.collections</code> to access <code>Database.collections</code></li>
+</ul>
+<p><strong>Another example</strong>: updater action on <code>Comment</code>:</p>
+<pre><code class="language-js">class Comment extends Model {
+  // ...
+  @field('is_spam') isSpam
+
+  @writer async markAsSpam() {
+    await this.update(comment =&gt; {
+      comment.isSpam = true
+    })
+  }
+}
+</code></pre>
+<p>Now we can create a comment and immediately mark it as spam:</p>
+<pre><code class="language-js">const comment = await post.addComment('Lorem ipsum', someUser)
+await comment.markAsSpam()
+</code></pre>
+<h2 id="batch-updates"><a class="header" href="#batch-updates">Batch updates</a></h2>
+<p>When you make multiple changes in a writer, it's best to <strong>batch them</strong>.</p>
+<p>Batching means that the app doesn't have to go back and forth with the database (sending one command, waiting for the response, then sending another), but instead sends multiple commands in one big batch. This is faster, safer, and can avoid subtle bugs in your app</p>
+<p>Take an action that changes a <code>Post</code> into spam:</p>
+<pre><code class="language-js">class Post extends Model {
+  // ...
+  @writer async createSpam() {
+    await this.update(post =&gt; {
+      post.title = `7 ways to lose weight`
+    })
+    await this.collections.get('comments').create(comment =&gt; {
+      comment.post.set(this)
+      comment.body = &quot;Don't forget to comment, like, and subscribe!&quot;
+    })
+  }
+}
+</code></pre>
+<p>Let's modify it to use batching:</p>
+<pre><code class="language-js">class Post extends Model {
+  // ...
+  @writer async createSpam() {
+    await this.batch(
+      this.prepareUpdate(post =&gt; {
+        post.title = `7 ways to lose weight`
+      }),
+      this.collections.get('comments').prepareCreate(comment =&gt; {
+        comment.post.set(this)
+        comment.body = &quot;Don't forget to comment, like, and subscribe!&quot;
+      })
+    )
+  }
+}
+</code></pre>
+<p><strong>Note</strong>:</p>
+<ul>
+<li>You can call <code>await this.batch</code> within <code>@writer</code> methods only. You can also call <code>database.batch()</code> within a <code>database.write()</code> block.</li>
+<li>Pass the list of <strong>prepared operations</strong> as arguments:
+<ul>
+<li>Instead of calling <code>await record.update()</code>, pass <code>record.prepareUpdate()</code> — note lack of <code>await</code></li>
+<li>Instead of <code>await collection.create()</code>, use <code>collection.prepareCreate()</code></li>
+<li>Instead of <code>await record.markAsDeleted()</code>, use <code>record.prepareMarkAsDeleted()</code></li>
+<li>Instead of <code>await record.destroyPermanently()</code>, use <code>record.prepareDestroyPermanently()</code></li>
+<li>Advanced: you can pass <code>collection.prepareCreateFromDirtyRaw({ put your JSON here })</code></li>
+<li>You can pass falsy values (null, undefined, false) to batch — they will simply be ignored.</li>
+<li>You can also pass a single array argument instead of a list of arguments</li>
+</ul>
+</li>
+</ul>
+<h2 id="delete-action"><a class="header" href="#delete-action">Delete action</a></h2>
+<p>When you delete, say, a <code>Post</code>, you generally want all <code>Comment</code>s that belong to it to be deleted as well.</p>
+<p>To do this, override <code>markAsDeleted()</code> (or <code>destroyPermanently()</code> if you don't sync) to explicitly delete all children as well.</p>
+<pre><code class="language-js">class Post extends Model {
+  static table = 'posts'
+  static associations = {
+    comments: { type: 'has_many', foreignKey: 'post_id' },
+  }
+
+  @children('comments') comments
+
+  async markAsDeleted() {
+    await this.comments.destroyAllPermanently()
+    await super.markAsDeleted()
+  }
+}
+</code></pre>
+<p>Then to actually delete the post:</p>
+<pre><code class="language-js">database.write(async () =&gt; {
+  await post.markAsDeleted()
+})
+</code></pre>
+<p><strong>Note:</strong></p>
+<ul>
+<li>Use <code>Query.destroyAllPermanently()</code> on all dependent <code>@children</code> you want to delete</li>
+<li>Remember to call <code>super.markAsDeleted</code> — at the end of the method!</li>
+</ul>
+<h2 id="advanced-why-are-readers-and-writers-necessary"><a class="header" href="#advanced-why-are-readers-and-writers-necessary">Advanced: Why are readers and writers necessary?</a></h2>
+<p>WatermelonDB is highly asynchronous, which is a BIG challange in terms of achieving consistent data. Read this only if you are curious:</p>
+<details>
+  <summary>Why are readers and writers necessary?</summary>
+<p>Consider a function <code>markCommentsAsSpam</code> that fetches a list of comments on a post, and then marks them all as spam. The two operations (fetching, and then updating) are asynchronous, and some other operation that modifies the database could run in between. And it could just happen to be a function that adds a new comment on this post. Even though the function completes <em>successfully</em>, it wasn't <em>actually</em> successful at its job.</p>
+<p>This example is trivial. But others may be far more dangerous. If a function fetches a record to perform an update on, this very record could be deleted midway through, making the action fail (and potentially causing the app to crash, if not handled properly). Or a function could have invariants determining whether the user is allowed to perform an action, that would be invalidated during action's execution. Or, in a collaborative app where access permissions are represented by another object, parallel execution of different actions could cause those access relations to be left in an inconsistent state.</p>
+<p>The worst part is that analyzing all <em>possible</em> interactions for dangers is very hard, and having sync that runs automatically makes them very likely.</p>
+<p>Solution? Group together related reads and writes together in an Writer, enforce that all writes MUST occur in a Writer, and only allow one Writer to run at the time. This way, it's guaranteed that in a Writer, you're looking at a consistent view of the world. Most simple reads are safe to do without groupping them, however if you have multiple related reads, you also need to wrap them in a Reader.</p>
+</details>
+<h2 id="advanced-readers"><a class="header" href="#advanced-readers">Advanced: Readers</a></h2>
+<p>Readers are an advanced feature you'll rarely need.</p>
+<p>Because WatermelonDB is asynchronous, if you make multiple separate queries, normally you have no guarantee that no records were created, updated, or deleted between fetching these queries.</p>
+<p>Code within a Reader, however, has a guarantee that for the duration of the Reader, no changes will be made to the database (more precisely, no Writer can execute during Reader's work).</p>
+<p>For example, if you were writing a custom XML data export feature for your app, you'd want the information there to be fully consistent. Therefore, you'd wrap all queries within a Reader:</p>
+<pre><code class="language-js">database.read(async () =&gt; {
+  // no changes will happen to the database until this function exits
+})
+
+// alternatively:
+class Blog extends Model {
+  // ...
+
+  @reader async exportBlog() {
+    const posts = await this.posts.fetch()
+    const comments = await this.allComments.fetch()
+    // ...
+  }
+}
+</code></pre>
+<h2 id="advanced-nesting-writers-or-readers"><a class="header" href="#advanced-nesting-writers-or-readers">Advanced: nesting writers or readers</a></h2>
+<p>If you try to call a Writer from another Writer, you'll notice that it won't work. This is because while a Writer is running, no other Writer can run simultaneously. To override this behavior, wrap the Writer call in <code>this.callWriter</code>:</p>
+<pre><code class="language-js">class Comment extends Model {
+  // ...
+
+  @writer async appendToPost() {
+    const post = await this.post.fetch()
+    // `appendToBody` is an `@writer` on `Post`, so we call callWriter to allow it
+    await this.callWriter(() =&gt; post.appendToBody(this.body))
+  }
+}
+
+// alternatively:
+database.write(async writer =&gt; {
+  const post = await database.get('posts').find('abcdef')
+  await writer.callWriter(() =&gt; post.appendToBody('Lorem ipsum...')) // appendToBody is a @writer
+})
+</code></pre>
+<p>The same is true with Readers - use <code>callReader</code> to nest readers.</p>
+<hr />
+<h2 id="next-steps"><a class="header" href="#next-steps">Next steps</a></h2>
+<p>➡️ Now that you've mastered all basics of Watermelon, go create some powerful apps — or keep reading <a href="./README.html"><strong>advanced guides</strong></a></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="Relation.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="ch03-00-advanced.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="Relation.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="ch03-00-advanced.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

@@ -9,5 +9,5 @@ export function onLowMemory(callback: Callback): void {
 
 // TODO: Not currently hooked up to anything
 export function _triggerOnLowMemory(): void {
-  lowMemoryCallbacks.forEach(callback => callback())
+  lowMemoryCallbacks.forEach((callback) => callback())
 }

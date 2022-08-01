@@ -3,11 +3,14 @@ import { schemaMigrations, createTable, addColumns, unsafeExecuteSql } from '../
 
 const createCommentsTable = createTable({
   name: 'comments',
-  columns: [{ name: 'post_id', type: 'string', isIndexed: true }, { name: 'body', type: 'string' }],
+  columns: [
+    { name: 'post_id', type: 'string', isIndexed: true },
+    { name: 'body', type: 'string' },
+  ],
 })
 
 const test = (migrations, from, to) => getSyncChanges(schemaMigrations({ migrations }), from, to)
-const testSteps = steps =>
+const testSteps = (steps) =>
   getSyncChanges(schemaMigrations({ migrations: [{ toVersion: 2, steps }] }), 1, 2)
 
 describe('getSyncChanges', () => {
@@ -147,7 +150,7 @@ describe('getSyncChanges', () => {
             { name: 'author_id', type: 'string' },
             { name: 'created_at', type: 'number' },
           ],
-          unsafeSql: sql => sql,
+          unsafeSql: (sql) => sql,
         }),
         unsafeExecuteSql(''),
       ],
@@ -157,7 +160,10 @@ describe('getSyncChanges', () => {
       steps: [
         addColumns({
           table: 'comments',
-          columns: [{ name: 'is_pinned', type: 'boolean' }, { name: 'extra', type: 'string' }],
+          columns: [
+            { name: 'is_pinned', type: 'boolean' },
+            { name: 'extra', type: 'string' },
+          ],
         }),
         addColumns({ table: 'projects', columns: [{ name: 'extra', type: 'string' }] }),
       ],
@@ -226,9 +232,9 @@ describe('getSyncChanges', () => {
       'destroy_table',
       'destroy_column',
     ]
-    possibleFutureTypes.forEach(type => {
-      expect(() => testSteps([{ type }])).toThrow(/Unknown migration step type/)
+    possibleFutureTypes.forEach((type) => {
+      expect(() => testSteps([{ type }])).toThrow('Unknown migration step type')
     })
-    expect(() => testSteps([{ type: undefined }])).toThrow(/Invalid migration steps/)
+    expect(() => testSteps([{ type: undefined }])).toThrow('Invalid migration steps')
   })
 })

@@ -1,3 +1,5 @@
+import { SQLiteQuery } from '@nozbe/watermelondb/adapters/sqlite'
+
 declare module '@nozbe/watermelondb/adapters/type' {
   import { AppSchema, Model, Query, RawRecord, RecordId, TableName } from '@nozbe/watermelondb'
 
@@ -9,8 +11,14 @@ declare module '@nozbe/watermelondb/adapters/type' {
     | ['markAsDeleted', Model]
     | ['destroyPermanently', Model]
 
+  export type UnsafeExecuteOperations = { sqls: SQLiteQuery[] }
+
   export interface DatabaseAdapter {
     schema: AppSchema
+
+    /** Name of the database. */
+    dbName?: string
+
     // Fetches given (one) record or null. Should not send raw object if already cached in JS
     find(table: TableName<any>, id: RecordId): Promise<CachedFindResult>
 
@@ -32,6 +40,9 @@ declare module '@nozbe/watermelondb/adapters/type' {
     // Destroys the whole database, its schema, indexes, everything.
     unsafeResetDatabase(): Promise<void>
 
+    // Performs work on the underlying database - see concrete DatabaseAdapter implementation for more details
+    unsafeExecute(work: UnsafeExecuteOperations): Promise<void>
+
     // Fetches string value from local storage
     getLocal(key: string): Promise<string | null>
 
@@ -44,9 +55,4 @@ declare module '@nozbe/watermelondb/adapters/type' {
     // Do not use — only for testing purposes
     unsafeClearCachedRecords(): Promise<void>
   }
-
-  export interface SQLiteDatabaseAdapter {
-    unsafeSqlQuery<T extends Model>(sql: string, tableName: TableName<any>): Promise<CachedQueryResult>
-  }
 }
-

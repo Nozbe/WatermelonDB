@@ -15,10 +15,6 @@
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License">
   </a>
 
-  <a href="https://travis-ci.com/Nozbe/WatermelonDB">
-    <img src="https://api.travis-ci.com/Nozbe/WatermelonDB.svg?branch=master" alt="CI Status">
-  </a>
-
   <a href="https://www.npmjs.com/package/@nozbe/watermelondb">
     <img src="https://img.shields.io/npm/v/@nozbe/watermelondb.svg" alt="npm">
   </a>
@@ -30,8 +26,9 @@
 | 📈 | **Highly scalable** from hundreds to tens of thousands of records |
 | 😎 | **Lazy loaded**. Only load data when you need it |
 | 🔄 | **Offline-first.** [Sync](https://nozbe.github.io/WatermelonDB/Advanced/Sync.html) with your own backend |
-| 📱 | **Multiplatform**. iOS, Android, and the web |
-| ⚛️ | **Works with React.** Easily plug data into components |
+| 📱 | **Multiplatform**. iOS, Android, web, and Node.js |
+| ⚛️ | **Optimized for React.** Easily plug data into components |
+| 🧰 | **Framework-agnostic.** Use JS API to plug into other UI frameworks |
 | ⏱ | **Fast.** And getting faster with every release! |
 | ✅ | **Proven.** Powers [Nozbe Teams](https://nozbe.com/teams) since 2017 (and [many others](#who-uses-watermelondb)) |
 | ✨ | **Reactive.** (Optional) [RxJS](https://github.com/ReactiveX/rxjs) API |
@@ -97,7 +94,7 @@ const Post = ({ post, comments }) => (
     <Text>{post.name}</Text>
     <Text>Comments:</Text>
     {comments.map(comment =>
-      <Comment key={comment.id} comment={comment} />
+      <EnhancedComment key={comment.id} comment={comment} />
     )}
   </View>
 )
@@ -147,12 +144,37 @@ The result is fully reactive! Whenever a post or comment is added, changed, or r
   <a href="https://rocket.chat/">
     <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/rocketchat.png" alt="Rocket Chat" width="300" />
   </a>
-  
+
   <br>
 
   <a href="https://halogo.com.au/">
     <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/halogo_logo.png" alt="HaloGo" width="300" />
   </a>
+
+  <br>
+
+  <a href="https://sportsrecruits.com/">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/sportsrecruits-logo.png" alt="SportsRecruits" width="300" />
+  </a>
+
+  <br>
+
+  <a href="https://chatable.io/">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/chatable_logo.png" alt="Chatable" width="300" />
+  </a>
+
+  <br>
+
+  <a href="https://todorant.com/">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/todorant-logo.png" alt="Todorant" width="300" />
+  </a>
+
+  <br>
+
+  <a href="https://blastworkout.app/">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/blastworkout-logo.png" alt="Blast Workout" width="300" />
+  </a>
+
   <br>
 
 _Does your company or app use 🍉? Open a pull request and add your logo/icon with link here!_

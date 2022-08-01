@@ -41,21 +41,21 @@ describe('decorators/field', () => {
           @field
           noName
         },
-    ).toThrow(/column name/)
+    ).toThrow('column name')
     expect(
       () =>
         class {
           @field()
           noName
         },
-    ).toThrow(/column name/)
+    ).toThrow('column name')
     expect(
       () =>
         class {
           @field('field_with_default_value')
           fieldWithDefaultValue = 'hey'
         },
-    ).toThrow(/properties with a default value/)
+    ).toThrow('properties with a default value')
     expect(
       () =>
         class {
@@ -64,13 +64,13 @@ describe('decorators/field', () => {
             return 'hey'
           }
         },
-    ).toThrow(/simple properties/)
+    ).toThrow('simple properties')
     expect(
       () =>
         class {
           @field('method')
           method() {}
         },
-    ).toThrow(/simple properties/)
+    ).toThrow('simple properties')
   })
 })

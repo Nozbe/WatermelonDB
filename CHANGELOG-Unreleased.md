@@ -3,31 +3,35 @@
 ## Unreleased
 - [Android] Provides the user with the ability to pass in a file path instead of the database name only and creates the *.db file under a 'databases' sub-folder under the provided path.  Pattern for file path is *file:///data/user/0/com.mattermost.rnbeta/files/xxx.db*
 ### BREAKING CHANGES
-- [LokiJS] `useWebWorker` and `useIncrementalIndexedDB` options are now required (previously, skipping them would only trigger a warning)
+
+- [Query] `Q.where(xxx, undefined)` will now throw an error. This is a bug fix, since comparing to
+  undefined was never allowed and would either error out or produce a wrong result in some cases.
+  However, it could technically break an app that relied on existing buggy behavior
+
+### Deprecations
 
 ### New features
-- [Model] `Model.update` method now returns updated record
-- [adapters] `onSetUpError: Error => void` option is added to both `SQLiteAdapter` and `LokiJSAdapter`. Supply this option to catch initialization errors and offer the user to reload or log out
-- [LokiJS] new `extraLokiOptions` and `extraIncrementalIDBOptions` options
-- [Android] Autolinking is now supported (v0.20 is insufficient)
+
+- [adapters] Adapter objects can now be distinguished by checking their `static adapterType`
+- [Query] New `Q.includes('foo')` query for case-sensitive exact string includes comparison
+- [adapters] Adapter objects now returns `dbName`
+- [TypeScript] Add unsafeExecute method
+- [TypeScript] Add localStorage property to Database
 
 ### Performance
 
+- [LokiJS] Updated Loki with some performance improvements
+- [iOS] JSLockPerfHack now works on iOS 15
+- Improved `@json` decorator, now with optional `{ memo: true }` parameter
+
 ### Changes
 
-- [Sync] Optional `log` passed to sync now has more helpful diagnostic information
-- [Sync] Open-sourced a simple SyncLogger you can optionally use. See docs for more info.
-- [SQLiteAdapter] `synchronous:true` option is now deprecated and will be replaced with `experimentalUseJSI: true` in the future. Please test if your app compiles and works well with `experimentalUseJSI: true`, and if not - file an issue!
-- [LokiJS] Changed default autosave interval from 250 to 500ms
-- [Typescript] Add `experimentalNestedJoin` definition and `unsafeSqlExpr` clause
+- [Docs] Added additional Android JSI installation step
 
 ### Fixes
 
-- [Resilience] Added extra diagnostics for when you encounter the `Record ID aa#bb was sent over the bridge, but it's not cached` error and a recovery path (LokiJSAdapter-only). Please file an issue if you encounter this issue!
-- [Typescript] Fixed type on OnFunction to accept `and` in join
-- [Typescript] Fixed type `database#batch(records)`'s argument `records` to accept mixed types
+- [android] Fixed compilation on some setups due to a missing <cassert> import
+- [sync] Fixed marking changes as synced for users that don't keep globally unique (only per-table unique) IDs
+- Fix `Model.experimentalMarkAsDeleted/experimentalDestroyPermanently()` throwing an error in some cases
 
 ### Internal
-
-- Added an experimental mode where a broken database state is detected, further mutations prevented, and the user notified
-- Added an experimental mode that attempts to fix IndexedDB corruption issue & improves launch performance

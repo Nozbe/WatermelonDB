@@ -1,11 +1,15 @@
 package com.nozbe.watermelondb.jsi;
 
-import android.app.Application;
-
+import android.content.Context;
 class JSIInstaller {
-    static void install(Application context, long javaScriptContextHolder) {
+    static void install(Context context, long javaScriptContextHolder) {
         JSIInstaller.context = context;
         new JSIInstaller().installBinding(javaScriptContextHolder);
+
+        // call methods we're going to need from JNI - if we don't, Proguard/R8 will strip it from
+        // release binaries. We could use @Keep or configure Proguard to keep it but that would be
+        // error prone for lib users
+        _resolveDatabasePath("");
     }
 
     // Helper method called from C++
@@ -16,7 +20,11 @@ class JSIInstaller {
 
     private native void installBinding(long javaScriptContextHolder);
 
-    private static Application context;
+    static native void provideSyncJson(int id, byte[] json);
+
+    static native void destroy();
+
+    private static Context context;
 
     static {
         System.loadLibrary("watermelondb-jsi");

@@ -27,7 +27,7 @@ export default function subscribeToQueryReloading<Record: Model>(
       !unsubscribed && subscriber((false: any))
     }
 
-    collection._fetchQuery(query, result => {
+    collection._fetchQuery(query, (result) => {
       if (result.error) {
         logError(result.error.toString())
         return

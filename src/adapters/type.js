@@ -7,6 +7,9 @@ import type { RecordId } from '../Model'
 import type { RawRecord } from '../RawRecord'
 import type { ResultCallback } from '../utils/fp/Result'
 
+import type { SQLiteQuery, SQL } from './sqlite/type'
+import type { Loki } from './lokijs/type'
+
 export type CachedFindResult = RecordId | ?RawRecord
 export type CachedQueryResult = Array<RecordId | RawRecord>
 export type BatchOperationType = 'create' | 'update' | 'markAsDeleted' | 'destroyPermanently'
@@ -16,8 +19,15 @@ export type BatchOperation =
   | ['markAsDeleted', TableName<any>, RecordId]
   | ['destroyPermanently', TableName<any>, RecordId]
 
+export type UnsafeExecuteOperations =
+  | $Exact<{ sqls: SQLiteQuery[] }>
+  | $Exact<{ sqlString: SQL }> // JSI-only
+  | $Exact<{ loki: (Loki) => void }>
+
 export interface DatabaseAdapter {
   schema: AppSchema;
+
+  dbName: string;
 
   migrations: ?SchemaMigrations; // TODO: Not optional
 
@@ -26,6 +36,12 @@ export interface DatabaseAdapter {
 
   // Fetches matching records. Should not send raw object if already cached in JS
   query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void;
+
+  // Fetches IDs of matching records
+  queryIds(query: SerializedQuery, callback: ResultCallback<RecordId[]>): void;
+
+  // Fetches unsafe, unsanitized objects according to query. You must not mutate these objects.
+  unsafeQueryRaw(query: SerializedQuery, callback: ResultCallback<any[]>): void;
 
   // Counts matching records
   count(query: SerializedQuery, callback: ResultCallback<number>): void;
@@ -43,8 +59,17 @@ export interface DatabaseAdapter {
     callback: ResultCallback<void>,
   ): void;
 
+  // Unsafely adds records from a serialized (json) SyncPullResult provided earlier via native API
+  unsafeLoadFromSync(jsonId: number, callback: ResultCallback<any>): void;
+
+  // Provides JSON for use by unsafeLoadFromSync
+  provideSyncJson(id: number, syncPullResultJson: string, callback: ResultCallback<void>): void;
+
   // Destroys the whole database, its schema, indexes, everything.
   unsafeResetDatabase(callback: ResultCallback<void>): void;
+
+  // Performs work on the underlying database - see concrete DatabaseAdapter implementation for more details
+  unsafeExecute(work: UnsafeExecuteOperations, callback: ResultCallback<void>): void;
 
   // Fetches string value from local storage
   getLocal(key: string, callback: ResultCallback<?string>): void;
@@ -54,12 +79,4 @@ export interface DatabaseAdapter {
 
   // Removes key from local storage
   removeLocal(key: string, callback: ResultCallback<void>): void;
-}
-
-export interface SQLDatabaseAdapter {
-  unsafeSqlQuery(
-    tableName: TableName<any>,
-    sql: string,
-    callback: ResultCallback<CachedQueryResult>,
-  ): void;
 }

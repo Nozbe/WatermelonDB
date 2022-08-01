@@ -4,23 +4,23 @@ import { type Result } from '../../utils/fp/Result'
 import type { CachedQueryResult, CachedFindResult } from '../type'
 import type { RecordId } from '../../Model'
 
-export const actions = {
-  SETUP: 'SETUP',
-  FIND: 'FIND',
-  QUERY: 'QUERY',
-  COUNT: 'COUNT',
-  BATCH: 'BATCH',
-  GET_DELETED_RECORDS: 'GET_DELETED_RECORDS',
-  DESTROY_DELETED_RECORDS: 'DESTROY_DELETED_RECORDS',
-  UNSAFE_RESET_DATABASE: 'UNSAFE_RESET_DATABASE',
-  GET_LOCAL: 'GET_LOCAL',
-  SET_LOCAL: 'SET_LOCAL',
-  REMOVE_LOCAL: 'REMOVE_LOCAL',
-  EXPERIMENTAL_FATAL_ERROR: 'EXPERIMENTAL_FATAL_ERROR',
-  CLEAR_CACHED_RECORDS: 'CLEAR_CACHED_RECORDS',
-}
+export type WorkerExecutorType =
+  | 'setUp'
+  | 'find'
+  | 'query'
+  | 'queryIds'
+  | 'unsafeQueryRaw'
+  | 'count'
+  | 'batch'
+  | 'getDeletedRecords'
+  | 'unsafeResetDatabase'
+  | 'unsafeExecute'
+  | 'getLocal'
+  | 'setLocal'
+  | 'removeLocal'
+  | '_fatalError'
+  | 'clearCachedRecords'
 
-export type WorkerExecutorType = $Values<typeof actions>
 export type WorkerExecutorPayload = any[]
 
 export type WorkerResponseData = CachedQueryResult | CachedFindResult | number | RecordId[]

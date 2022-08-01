@@ -18,7 +18,7 @@ describe('setRawColumnChange', () => {
       expect(raw).toEqual(output)
     }
     test({ _status: 'synced', _changed: '' }, 'foo', { _status: 'updated', _changed: 'foo' })
-    test({ _status: 'created', _changed: '' }, 'foo', { _status: 'created', _changed: '' })
+    test({ _status: 'created', _changed: '' }, 'foo', { _status: 'created', _changed: 'foo' })
     test({ _status: 'updated', _changed: '' }, 'foo', { _status: 'updated', _changed: 'foo' })
     test({ _status: 'updated', _changed: 'foo,bar' }, 'bar', {
       _status: 'updated',

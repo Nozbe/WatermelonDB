@@ -1,7 +1,8 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { pipe, map, allPass, anyPass } from 'rambdax'
+import allPass from '../../utils/fp/allPass'
+import anyPass from '../../utils/fp/anyPass'
 
 import invariant from '../../utils/common/invariant'
 
@@ -13,9 +14,9 @@ import operators from './operators'
 import canEncodeMatcher, { forbiddenError } from './canEncode'
 
 // eslint-disable-next-line no-unused-vars
-export type Matcher<Element: Model> = RawRecord => boolean
+export type Matcher<Element: Model> = (RawRecord) => boolean
 
-const encodeWhereDescription: WhereDescription => Matcher<*> = description => rawRecord => {
+const encodeWhereDescription: (WhereDescription) => Matcher<*> = (description) => (rawRecord) => {
   const left = (rawRecord: Object)[description.left]
   const { comparison } = description
   const operator = operators[comparison.operator]
@@ -37,7 +38,7 @@ const encodeWhereDescription: WhereDescription => Matcher<*> = description => ra
   return operator(left, right)
 }
 
-const encodeWhere: Where => Matcher<*> = where => {
+const encodeWhere: (Where) => Matcher<*> = (where) => {
   switch (where.type) {
     case 'where':
       return encodeWhereDescription(where)
@@ -54,10 +55,8 @@ const encodeWhere: Where => Matcher<*> = where => {
   }
 }
 
-const encodeConditions: (Where[]) => Matcher<*> = pipe(
-  map(encodeWhere),
-  allPass,
-)
+const encodeConditions: (Where[]) => Matcher<*> = (conditions) =>
+  allPass(conditions.map(encodeWhere))
 
 export default function encodeMatcher<Element: Model>(query: QueryDescription): Matcher<Element> {
   invariant(canEncodeMatcher(query), forbiddenError)

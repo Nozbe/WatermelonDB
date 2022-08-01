@@ -1,29 +1,33 @@
-import { AppRegistry, NativeModules } from 'react-native'
+/**
+ * @format
+ */
 
-import { Database } from '@nozbe/watermelondb'
-import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite'
+import { AppRegistry, LogBox } from 'react-native';
+import App from './App';
+import { name as appName } from './app.json';
 
-import { mySchema } from './src/models/schema'
-import Blog from './src/models/Blog'
-import Post from './src/models/Post'
-import Comment from './src/models/Comment'
+import { Database } from '@nozbe/watermelondb';
+import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite';
+import { blogSchema } from './src/model/schema';
+import { Post } from './src/model/Post.model.js';
+import { Comment } from './src/model/Comment.model';
+import { Blog } from './src/model/Blog.model';
 
-import { createNavigation } from './src/components/helpers/Navigation'
+// The example passes WatermelonDB objects as navigation params, these objects contain functions which triggers this warning.
+// See more: https://reactnavigation.org/docs/troubleshooting/#i-get-the-warning-non-serializable-values-were-found-in-the-navigation-state
+LogBox.ignoreLogs(['Non-serializable values were found in the navigation state']);
 
 const adapter = new SQLiteAdapter({
-  dbName: 'WatermelonDemo',
-  schema: mySchema,
-})
+  schema: blogSchema,
+  dbName: 'WatermelonDemo', // optional database name or file system path
+  // migrations, // optional migrations
+  experimentalUseJSI: false,
+});
 
-const database = new Database({
+export const database = new Database({
   adapter,
-  modelClasses: [Blog, Post, Comment],
+  modelClasses: [Post, Comment, Blog],
   actionsEnabled: true,
-})
+});
 
-const appStartedLaunchingAt = NativeModules.PerformancePlugin.appInitTimestamp
-const timeToLaunch = new Date().getTime() - appStartedLaunchingAt
-
-const Navigation = createNavigation({ database, timeToLaunch })
-
-AppRegistry.registerComponent('App', () => Navigation)
+AppRegistry.registerComponent(appName, () => App);

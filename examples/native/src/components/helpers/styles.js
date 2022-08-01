@@ -1,4 +1,4 @@
-import { StyleSheet, Platform } from 'react-native'
+import { StyleSheet, Platform } from 'react-native';
 
 export default StyleSheet.create({
   logo: {
@@ -10,7 +10,12 @@ export default StyleSheet.create({
     flex: 1,
   },
   title: { fontSize: 26, fontWeight: 'bold', color: 'black' },
-  subtitle: { fontSize: 16, fontWeight: '500', paddingVertical: 10, color: '#333' },
+  subtitle: {
+    fontSize: 16,
+    fontWeight: '500',
+    paddingVertical: 10,
+    color: '#333',
+  },
   body: { paddingVertical: 10, color: '#333', lineHeight: 20 },
   container: { flex: 1, paddingHorizontal: 10, marginVertical: 10 },
   header: {
@@ -53,4 +58,4 @@ export default StyleSheet.create({
     marginTop: 10,
     padding: 10,
   },
-})
+});

@@ -60,6 +60,7 @@ describe('buildQueryDescription', () => {
       Q.where('col9', Q.between(10, 11)),
       Q.where('col10', Q.like('%abc')),
       Q.where('col11', Q.notLike('def%')),
+      Q.where('col12', Q.includes('foo')),
     ])
     expect(query).toEqual({
       where: [
@@ -98,6 +99,11 @@ describe('buildQueryDescription', () => {
           type: 'where',
           left: 'col11',
           comparison: { operator: 'notLike', right: { value: 'def%' } },
+        },
+        {
+          type: 'where',
+          left: 'col12',
+          comparison: { operator: 'includes', right: { value: 'foo' } },
         },
       ],
       joinTables: [],
@@ -182,16 +188,82 @@ describe('buildQueryDescription', () => {
       sortBy: [],
     })
   })
-  it(`supports unsafe Loki filter`, () => {
-    const filter = (_record, _loki) => true
-    const query = Q.buildQueryDescription([Q.unsafeLokiFilter(filter)])
+  it(`supports unsafe Loki transform`, () => {
+    const transform = (records, _loki) => records
+    const query = Q.buildQueryDescription([Q.unsafeLokiTransform(transform)])
     expect(query).toEqual({
       where: [],
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
-
-      lokiFilter: filter,
+      lokiTransform: transform,
+    })
+  })
+  it(`supports unsafe SQL queries`, () => {
+    const query = Q.buildQueryDescription([
+      Q.unsafeSqlQuery("select * from tasks where foo = 'bar'"),
+    ])
+    expect(query).toEqual({
+      where: [],
+      joinTables: [],
+      nestedJoinTables: [],
+      sortBy: [],
+      sql: { type: 'sqlQuery', sql: "select * from tasks where foo = 'bar'", values: [] },
+    })
+  })
+  it(`supports unsafe SQL queries with placeholder values`, () => {
+    const query = Q.buildQueryDescription([
+      Q.unsafeSqlQuery('select * from tasks where foo = ? and bar = ?', ['hello', 'world']),
+    ])
+    expect(query).toEqual({
+      where: [],
+      joinTables: [],
+      nestedJoinTables: [],
+      sortBy: [],
+      sql: {
+        type: 'sqlQuery',
+        sql: 'select * from tasks where foo = ? and bar = ?',
+        values: ['hello', 'world'],
+      },
+    })
+  })
+  it(`prevents use of unsafe sql queries with other clauses`, () => {
+    expect(() => {
+      Q.buildQueryDescription([
+        Q.unsafeSqlQuery("select * from tasks where foo = 'bar'"),
+        Q.where('foo', 'bar'),
+      ])
+    }).toThrow('Cannot use Q.unsafeSqlQuery with')
+    expect(() => {
+      Q.buildQueryDescription([
+        Q.where('foo', 'bar'),
+        Q.unsafeSqlQuery("select * from tasks where foo = 'bar'"),
+      ])
+    }).toThrow('Cannot use Q.unsafeSqlQuery with')
+  })
+  it(`allows unsafe SQL queries to be properly observable`, () => {
+    const query = Q.buildQueryDescription([
+      Q.experimentalJoinTables(['projects']),
+      Q.experimentalNestedJoin('projects', 'teams'),
+      Q.unsafeSqlQuery(
+        'select tasks.* from tasks ' +
+          'left join projects on tasks.project_id is projects.id ' +
+          'left join teams on projects.team_id is teams.id ',
+      ),
+    ])
+    expect(query).toEqual({
+      where: [],
+      joinTables: ['projects'],
+      nestedJoinTables: [{ from: 'projects', to: 'teams' }],
+      sortBy: [],
+      sql: {
+        type: 'sqlQuery',
+        sql:
+          'select tasks.* from tasks ' +
+          'left join projects on tasks.project_id is projects.id ' +
+          'left join teams on projects.team_id is teams.id ',
+        values: [],
+      },
     })
   })
   it('supports simple JOIN queries', () => {
@@ -214,6 +286,11 @@ describe('buildQueryDescription', () => {
           ],
         },
         {
+          type: 'where',
+          left: 'left_column',
+          comparison: { operator: 'eq', right: { value: 'right_value' } },
+        },
+        {
           type: 'on',
           table: 'foreign_table2',
           conditions: [
@@ -223,11 +300,6 @@ describe('buildQueryDescription', () => {
               comparison: { operator: 'gt', right: { column: 'foreign_column3' } },
             },
           ],
-        },
-        {
-          type: 'where',
-          left: 'left_column',
-          comparison: { operator: 'eq', right: { value: 'right_value' } },
         },
       ],
       joinTables: ['foreign_table', 'foreign_table2'],
@@ -359,7 +431,10 @@ describe('buildQueryDescription', () => {
         },
       ],
       joinTables: ['projects'],
-      nestedJoinTables: [{ from: 'projects', to: 'teams' }, { from: 'teams', to: 'organizations' }],
+      nestedJoinTables: [
+        { from: 'projects', to: 'teams' },
+        { from: 'teams', to: 'organizations' },
+      ],
       sortBy: [],
     })
   })
@@ -372,7 +447,8 @@ describe('buildQueryDescription', () => {
       Q.on('projects', [Q.where('foo', 'bar'), Q.where('bar', 'baz')]),
     )
   })
-  it(`compresses top-level Q.ons into a single nested Q.on`, () => {
+  it(`does not compress top-level Q.ons into a single nested Q.on`, () => {
+    // TODO: Remove this test after deprecation warning is removed
     expect(
       Q.buildQueryDescription([
         Q.on('projects', 'p1', 'v1'),
@@ -380,15 +456,20 @@ describe('buildQueryDescription', () => {
         Q.on('teams', 't1', 'v1'),
         Q.on('projects', 'p3', 'v3'),
       ]),
-    ).toEqual(
-      Q.buildQueryDescription([
-        Q.on('projects', [Q.where('p1', 'v1'), Q.where('p2', 'v2'), Q.where('p3', 'v3')]),
+    ).toEqual({
+      where: [
+        Q.on('projects', 'p1', 'v1'),
+        Q.on('projects', 'p2', 'v2'),
         Q.on('teams', 't1', 'v1'),
-      ]),
-    )
+        Q.on('projects', 'p3', 'v3'),
+      ],
+      joinTables: ['projects', 'teams'],
+      nestedJoinTables: [],
+      sortBy: [],
+    })
   })
   it('supports sorting query', () => {
-    const query = Q.buildQueryDescription([Q.experimentalSortBy('sortable_column', Q.desc)])
+    const query = Q.buildQueryDescription([Q.sortBy('sortable_column', Q.desc)])
     expect(query).toEqual({
       where: [],
       joinTables: [],
@@ -398,16 +479,11 @@ describe('buildQueryDescription', () => {
   })
   it('does not support skip operator without take operator', () => {
     expect(() => {
-      Q.buildQueryDescription([Q.experimentalSkip(100)])
+      Q.buildQueryDescription([Q.skip(100)])
     }).toThrow('cannot skip without take')
   })
   it('support multiple skip operators but only take the last', () => {
-    const query = Q.buildQueryDescription([
-      Q.experimentalTake(100),
-      Q.experimentalSkip(200),
-      Q.experimentalSkip(400),
-      Q.experimentalSkip(800),
-    ])
+    const query = Q.buildQueryDescription([Q.take(100), Q.skip(200), Q.skip(400), Q.skip(800)])
     expect(query).toEqual({
       where: [],
       joinTables: [],
@@ -447,7 +523,8 @@ describe('buildQueryDescription', () => {
     }
   })
   it('catches bad types', () => {
-    expect(() => Q.eq({})).toThrow(/Invalid value passed to query/)
+    expect(() => Q.eq({})).toThrow('Invalid value passed to query')
+    expect(() => Q.where('foo', undefined)).toThrow('undefined')
     // TODO: oneOf/notIn values?
     expect(() => Q.oneOf({})).toThrow('not an array')
     expect(() => Q.notIn({})).toThrow('not an array')
@@ -455,20 +532,24 @@ describe('buildQueryDescription', () => {
     expect(() => Q.like({})).toThrow('not a string')
     expect(() => Q.notLike(null)).toThrow('not a string')
     expect(() => Q.notLike({})).toThrow('not a string')
+    expect(() => Q.includes(null)).toThrow('not a string')
     expect(() => Q.sanitizeLikeString(null)).toThrow('not a string')
     expect(() => Q.column({})).toThrow('not a string')
-    expect(() => Q.experimentalTake('0')).toThrow('not a number')
-    expect(() => Q.experimentalSkip('0')).toThrow('not a number')
+    expect(() => Q.take('0')).toThrow('not a number')
+    expect(() => Q.skip('0')).toThrow('not a number')
     expect(() => Q.unsafeSqlExpr({})).toThrow('not a string')
     expect(() => Q.unsafeLokiExpr()).toThrow('not an object')
     expect(() => Q.unsafeLokiExpr('hey')).toThrow('not an object')
+    expect(() => Q.unsafeSqlQuery(null)).toThrow('not a string')
+    expect(() => Q.unsafeSqlQuery('foo', null)).toThrow('not an array')
   })
   it(`catches bad argument values`, () => {
-    expect(() => Q.experimentalSortBy('foo', 'ascasc')).toThrow('Invalid sortOrder')
+    expect(() => Q.sortBy('foo', 'ascasc')).toThrow('Invalid sortOrder')
     expect(() => Q.where('foo', Q.unsafeSqlExpr('is RANDOM()'))).toThrow()
     expect(() => Q.where('foo', Q.unsafeLokiExpr('is RANDOM()'))).toThrow()
     expect(() => Q.and(Q.like('foo'))).toThrow('can only contain')
     expect(() => Q.or(Q.like('foo'))).toThrow('can only contain')
+    expect(() => Q.or(Q.unsafeSqlQuery('foo'))).toThrow('can only contain')
     expect(() => Q.on('foo', Q.column('foo'))).toThrow('can only contain')
     expect(() => Q.buildQueryDescription([Q.like('foo')])).toThrow('Invalid Query clause passed')
     expect(() => Q.experimentalJoinTables('foo', 'bar')).toThrow('expected an array')
@@ -477,66 +558,22 @@ describe('buildQueryDescription', () => {
     // protect against passing something that could be a user-input Object (risk is when Watermelon users pass stuff from JSON without validation), but is unintended or even malicious in some way
     expect(() => Q.eq({ column: 'foo' })).toThrow(/Invalid { column: }/)
     expect(() => Q.where('foo', { operator: 'eq', right: { value: 'foo' } })).toThrow(
-      /Invalid Comparison/,
+      'Invalid Comparison',
     )
-    expect(() => Q.where('foo', {})).toThrow(/Invalid Comparison/)
-    expect(() => Q.on('table', 'foo', {})).toThrow(/Invalid Comparison/)
+    expect(() => Q.where('foo', {})).toThrow('Invalid Comparison')
+    expect(() => Q.on('table', 'foo', {})).toThrow('Invalid Comparison')
     expect(() => Q.on('table', 'foo', Q.eq({ column: 'foo' }))).toThrow(/Invalid { column: }/)
   })
   it(`protects against unsafe column and table names passed`, () => {
-    expect(() => Q.column('sqlite_master')).toThrow(/Unsafe name/)
-    expect(() => Q.column('hey` or --')).toThrow(/Unsafe name/)
-    expect(() => Q.where('rowid', 10)).toThrow(/Unsafe name/)
-    expect(() => Q.experimentalSortBy('sqlite_master', 'asc')).toThrow(/Unsafe name/)
-    expect(() => Q.on('sqlite_master', 'foo', 'bar')).toThrow(/Unsafe name/)
-    expect(() => Q.on('sqlite_master', Q.where('foo', 'bar'))).toThrow(/Unsafe name/)
-    expect(() => Q.experimentalJoinTables(['foo', 'sqlite_master'])).toThrow(/Unsafe name/)
-    expect(() => Q.experimentalNestedJoin('sqlite_master', 'foo')).toThrow(/Unsafe name/)
-    expect(() => Q.experimentalNestedJoin('foo', 'sqlite_master')).toThrow(/Unsafe name/)
-  })
-})
-
-describe('hasColumnComparisons', () => {
-  it('can recognize whether a query has column comparisons or not', () => {
-    const query1 = Q.buildQueryDescription([])
-    expect(Q.hasColumnComparisons(query1)).toBe(false)
-
-    const query2 = Q.buildQueryDescription([
-      Q.where('col1', 'value'),
-      Q.or(
-        Q.where('col2', true),
-        Q.where('col3', null),
-        Q.and(Q.where('col4', Q.gt(5)), Q.where('col5', Q.notIn([6, 7]))),
-      ),
-      Q.on('foreign_table', 'foreign_column', 'value'),
-    ])
-    expect(Q.hasColumnComparisons(query2)).toBe(false)
-
-    const query3 = Q.buildQueryDescription([
-      Q.where('left_column', Q.gte(Q.column('right_column'))),
-    ])
-    expect(Q.hasColumnComparisons(query3)).toBe(true)
-  })
-  it(`can find deeply neested column comparisons`, () => {
-    const query4 = Q.buildQueryDescription([
-      Q.on('foreign_table2', 'foreign_column2', Q.gt(Q.column('foreign_column3'))),
-    ])
-    expect(Q.hasColumnComparisons(query4)).toBe(true)
-
-    const query5 = Q.buildQueryDescription([
-      Q.where('col1', 'value'),
-      Q.or(
-        Q.where('col2', true),
-        Q.and(Q.where('col4', Q.gt(5)), Q.where('left_column', Q.gte(Q.column('right_column')))),
-      ),
-    ])
-    expect(Q.hasColumnComparisons(query5)).toBe(true)
-  })
-  it(`doesn't get fooled by broken oneOf/notIn`, () => {
-    // we don't validate elements of arrays passed to Q.oneOf/Q.notIn
-    // because they may be large, so make sure even if someone passes a bad object, it doesn't break this logic
-    const query6 = Q.buildQueryDescription([Q.where('heh', Q.notIn([6, { column: 'heh' }]))])
-    expect(Q.hasColumnComparisons(query6)).toBe(false)
+    expect(() => Q.column('sqlite_master')).toThrow('Unsafe name')
+    expect(() => Q.column('hey` or --')).toThrow('Unsafe name')
+    expect(() => Q.where('rowid', 10)).toThrow('Unsafe name')
+    expect(() => Q.sortBy('sqlite_master', 'asc')).toThrow('Unsafe name')
+    expect(() => Q.on('sqlite_master', 'foo', 'bar')).toThrow('Unsafe name')
+    expect(() => Q.on('sqlite_master', Q.where('foo', 'bar'))).toThrow('Unsafe name')
+    expect(() => Q.experimentalJoinTables(['foo', 'sqlite_master'])).toThrow('Unsafe name')
+    expect(() => Q.experimentalNestedJoin('sqlite_master', 'foo')).toThrow('Unsafe name')
+    expect(() => Q.experimentalNestedJoin('foo', 'sqlite_master')).toThrow('Unsafe name')
   })
 })
 
@@ -557,24 +594,18 @@ describe('queryWithoutDeleted', () => {
   it('supports simple 2 JOIN queries on one table and JOIN query on another without deleted', () => {
     const query = Q.queryWithoutDeleted(
       Q.buildQueryDescription([
-        Q.on('foreign_table', 'foreign_column', 'value'),
-        Q.on('foreign_table', 'foreign_column4', 'value'),
+        Q.on('projects', 'col1', 'value'),
+        Q.on('projects', 'col2', 'value'),
         Q.where('left_column', 'right_value'),
-        Q.on('foreign_table2', 'foreign_column2', Q.gt(Q.column('foreign_column3'))),
+        Q.on('tag_assignments', 'col3', Q.gt(Q.column('col4'))),
       ]),
     )
     expect(query).toEqual(
       Q.buildQueryDescription([
+        Q.on('projects', [Q.where('col1', 'value'), whereNotDeleted]),
+        Q.on('projects', [Q.where('col2', 'value'), whereNotDeleted]),
         Q.where('left_column', 'right_value'),
-        Q.on('foreign_table', [
-          Q.where('foreign_column', 'value'),
-          Q.where('foreign_column4', 'value'),
-          whereNotDeleted,
-        ]),
-        Q.on('foreign_table2', [
-          Q.where('foreign_column2', Q.gt(Q.column('foreign_column3'))),
-          whereNotDeleted,
-        ]),
+        Q.on('tag_assignments', [Q.where('col3', Q.gt(Q.column('col4'))), whereNotDeleted]),
         whereNotDeleted,
       ]),
     )

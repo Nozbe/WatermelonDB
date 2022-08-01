@@ -28,21 +28,41 @@ class Post extends Model {
 To **narrow down** a `Query` (add [extra conditions](#query-conditions) to an existing Query), use `.extend()`:
 
 ```js
+import { Q } from '@nozbe/watermelondb'
 import { children, lazy } from '@nozbe/watermelondb/decorators'
 
 class Post extends Model {
   // ...
   @children('comments') comments
-  @lazy verifiedComments = this.comments.extend(Q.where('is_verified', true))
-  @lazy verifiedAwesomeComments = this.verifiedComments.extend(Q.where('is_awesome', true))
+
+  @lazy verifiedComments = this.comments.extend(
+    Q.where('is_verified', true)
+  )
+
+  @lazy verifiedAwesomeComments = this.verifiedComments.extend(
+    Q.where('is_awesome', true)
+  )
 }
 ```
 
-**Note:** Use the `@lazy` when extending or defining new Queries for performance
+**Note:** Use `@lazy` when extending or defining new Queries for performance
 
 ### Custom Queries
 
-You can query any table using `this.collections.get(tableName).query(conditions)`. Here, `post.comments` will query all users that made a comment under `post`.
+You can query any table like so:
+
+```js
+import { Q } from '@nozbe/watermelondb'
+
+const users = await database.get('users').query(
+  // conditions that a user must match:
+  Q.on('comments', 'post_id', somePostId)
+).fetch()
+```
+
+This fetches all users that made a comment under a post with `id = somePostId`.
+
+You can define custom queries on a Model like so:
 
 ```js
 class Post extends Model {
@@ -55,19 +75,21 @@ class Post extends Model {
 
 ## Executing Queries
 
-Most of the time, you [connect Queries to Components](./Components.md) by using `observe` or `observeCount`:
+Most of the time, you execute Queries by connecting them to React Components like so:
 
 ```js
 withObservables(['post'], ({ post }) => ({
-  post: post.observe(),
-  comments: post.comments.observe(),
+  post,
+  comments: post.comments,
   verifiedCommentCount: post.verifiedComments.observeCount(),
 }))
 ```
 
+**➡️ Learn more:** [Connecting to Components](./Components.md)
+
 #### Fetch
 
-To simply get the current list or current count, use `fetch` / `fetchCount`. You might need it [in Actions](./Actions.md).
+To simply get the current list or current count (without observing future changes), use `fetch` / `fetchCount`.
 
 ```js
 const comments = await post.comments.fetch()
@@ -83,7 +105,7 @@ const verifiedCommentCount = await post.verifiedComments.count
 ```js
 import { Q } from '@nozbe/watermelondb'
 // ...
-commentCollection.query(
+database.get('comments').query(
   Q.where('is_verified', true)
 )
 ```
@@ -97,7 +119,7 @@ The second argument is the value we want to query for. Note that the passed argu
 #### Empty query
 
 ```js
-const allComments = await commentCollection.query().fetch()
+const allComments = await database.get('comments').query().fetch()
 ```
 
 A Query with no conditions will find **all** records in the collection.
@@ -107,7 +129,7 @@ A Query with no conditions will find **all** records in the collection.
 #### Multiple conditions
 
 ```js
-commentCollection.query(
+database.get('comments').query(
   Q.where('is_verified', true),
   Q.where('is_awesome', true)
 )
@@ -128,16 +150,13 @@ This queries all comments that are **both** verified **and** awesome.
 | `Q.where('dislikes', Q.lt(100))` | `dislikes < 100` |
 | `Q.where('dislikes', Q.lte(100))` | `dislikes <= 100` |
 | `Q.where('likes', Q.between(10, 100))` | `likes >= 10 && likes <= 100` |
-| `Q.where('status', Q.oneOf(['published', 'draft']))` | `status === 'published' \|\| status === 'draft'` |
+| `Q.where('status', Q.oneOf(['published', 'draft']))` | `['published', 'draft'].includes(status)` |
 | `Q.where('status', Q.notIn(['archived', 'deleted']))` | `status !== 'archived' && status !== 'deleted'` |
 | `Q.where('status', Q.like('%bl_sh%'))` | `/.*bl.sh.*/i` (See note below!) |
 | `Q.where('status', Q.notLike('%bl_sh%'))` | `/^((!?.*bl.sh.*).)*$/i` (Inverse regex match) (See note below!) |
+| `Q.where('status', Q.includes('promoted'))` | `status.includes('promoted')` |
 
-**Note:** It's NOT SAFE to use `Q.like` and `Q.notLike` with user input directly, because special characters like `%` or `_` are not escaped. Always sanitize user input like so:
-```js
-Q.like(`%${Q.sanitizeLikeString(userInput)}%`)
-Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
-```
+### LIKE / NOT LIKE
 
 You can use `Q.like` for search-related tasks. For example, to find all users whose username start with "jas" (case-insensitive) you can write
 
@@ -149,12 +168,20 @@ usersCollection.query(
 
 where `"jas"` can be changed dynamically with user input.
 
+Note that the behavior of `Q.like` is not exact and can differ somewhat between implementations (SQLite vs LokiJS). For instance, while the comparison is case-insensitive, SQLite cannot by default compare non-ASCII characters case-insensitively (unless you install ICU extension). Use `Q.like` for user input search, but not for tasks that require a precise matching behavior.
+
+**Note:** It's NOT SAFE to use `Q.like` and `Q.notLike` with user input directly, because special characters like `%` or `_` are not escaped. Always sanitize user input like so:
+```js
+Q.like(`%${Q.sanitizeLikeString(userInput)}%`)
+Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
+```
+
 ### AND/OR nesting
 
 You can nest multiple conditions using `Q.and` and `Q.or`:
 
 ```js
-commentCollection.query(
+database.get('comments').query(
   Q.where('archived_at', Q.notEq(null)),
   Q.or(
     Q.where('is_verified', true),
@@ -174,13 +201,13 @@ For example: query all comments under posts published by John:
 
 ```js
 // Shortcut syntax:
-commentCollection.query(
+database.get('comments').query(
   Q.on('posts', 'author_id', john.id),
 )
 
 // Full syntax:
-commentCollection.query(
-  Q.on('posts', Q.where('author_id', john.id)),
+database.get('comments').query(
+  Q.on('posts', Q.where('author_id', Q.eq(john.id))),
 )
 ```
 
@@ -195,7 +222,7 @@ The first argument for `Q.on` is the table name you're making a condition on. Th
 For example: query all comments under posts that are written by John *and* are either published or belong to `draftBlog`
 
 ```js
-commentCollection.query(
+database.get('comments').query(
   Q.on('posts', [
     Q.where('author_id', john.id)
     Q.or(
@@ -249,24 +276,32 @@ By default, calling `query.observeCount()` returns an Observable that is throttl
 This queries comments that have more likes than dislikes. Note that we're comparing `likes` column to another column instead of a value.
 
 ```js
-commentCollection.query(
+database.get('comments').query(
   Q.where('likes', Q.gt(Q.column('dislikes')))
 )
 ```
 
 ### sortBy, take, skip
 
-When using SQLite adapter, you can use these *experimental* clauses to sort the result of the query and to limit the number of results
+You can use these clauses to sort the query by one or more columns. Note that only simple ascending/descending criteria for columns are supported.
 
 ```js
-commentCollection.query(
-  Q.experimentalSortBy('likes', Q.asc), // sorts ascending by `likes`
-  Q.experimentalSkip(100),
-  Q.experimentalTake(100),
+database.get('comments').query(
+  // sorts by number of likes from the most likes to the fewest
+  Q.sortBy('likes', Q.desc),
+  // if two comments have the same number of likes, the one with fewest dislikes will be at the top
+  Q.sortBy('dislikes', Q.asc),
+  // limit number of comments to 100, skipping the first 50
+  Q.skip(50),
+  Q.take(100),
 )
 ```
 
-**NOTE**: This does not currently work on web/LokiJS (please contribute!), and causes query observation to fall back to a less efficient method. We recommend using sortBy only when you absolutely need to limit queries, otherwise, it may be better to sort in JavaScript.
+It isn't _necessarily_ better or more efficient to sort on query level instead of in JavaScript, **however** the most important use case for `Q.sortBy` is when used alongside `Q.skip` and `Q.take` to implement paging - to limit the number of records loaded from database to memory on very long lists
+
+### Fetch IDs
+
+If you only need IDs of records matching a query, you can optimize the query by calling `await query.fetchIds()` instead of `await query.fetch()`
 
 ### Security
 
@@ -278,23 +313,60 @@ Remember that Queries are a sensitive subject, security-wise. Never trust user i
 - Do not use `Q.like` / `Q.notLike` without `Q.sanitizeLikeString`
 - Do not use `unsafe raw queries` without knowing what you're doing and sanitizing all user input
 
-### Unsafe raw queries
-
-If this Query syntax is not enough for you, and you need to get your hands dirty on a raw SQL or Loki query, you need **rawQueries**.
-
-Please don't use this if you don't know what you're doing. The method name is called `unsafe` for a reason.
-
-#### SQL queries
-
-For now, only record SQL queries are available. If you need other SQL queries or LokiJS raw queries, please contribute!
+### Unsafe SQL queries
 
 ```js
-const records = commentCollection.unsafeFetchRecordsWithSQL('select * from comments where ...')
+const records = await database.get('comments').query(
+  Q.unsafeSqlQuery(`select * from comments where foo is not ? and _status is not 'deleted'`, ['bar'])
+).fetch()
+
+const recordCount = await database.get('comments').query(
+  Q.unsafeSqlQuery(`select count(*) as count from comments where foo is not ? and _status is not 'deleted'`, ['bar'])
+).fetchCount()
 ```
 
-You need to be sure to properly sanitize user values to avoid SQL injection, and filter out deleted records using `where _status is not 'deleted'` clause
+You can also observe unsafe raw SQL queries, however, if it contains `JOIN` statements, you must explicitly specify all other tables using `Q.experimentalJoinTables` and/or `Q.experimentalNestedJoin`, like so:
 
-#### SQL/Loki expressions
+```js
+const records = await database.get('comments').query(
+  Q.experimentalJoinTables(['posts']),
+  Q.experimentalNestedJoin('posts', 'blogs'),
+  Q.unsafeSqlQuery(
+    'select comments.* from comments ' +
+      'left join posts on comments.post_id is posts.id ' +
+      'left join blogs on posts.blog_id is blogs.id' +
+      'where ...',
+  ),
+).observe()
+```
+
+⚠️ Please note:
+
+- Do not use this if you don't know what you're doing
+- Do not pass user input directly to avoid SQL Injection - use `?` placeholders and pass array of placeholder values
+- You must filter out deleted record using `where _status is not 'deleted'` clause
+- If you're going to fetch count of the query, use `count(*) as count` as the select result
+
+### Unsafe fetch raw
+
+In addition to `.fetch()` and `.fetchIds()`, there is also `.unsafeFetchRaw()`. Instead of returning an array of `Model` class instances, it returns an array of raw objects.
+
+You can use it as an unsafe optimization, or alongside `Q.unsafeSqlQuery`/`Q.unsafeLokiTransform` to create an advanced query that either skips fetching unnecessary columns or includes extra computed columns. For example:
+
+```js
+const rawData = await database.get('posts').query(
+  Q.unsafeSqlQuery(
+    'select posts.text1, count(tag_assignments.id) as tag_count, sum(tag_assignments.rank) as tag_rank from posts' +
+      ' left join tag_assignments on posts.id = tag_assignments.post_id' +
+      ' group by posts.id' +
+      ' order by posts.position desc',
+  )
+).unsafeFetchRaw()
+```
+
+⚠️ You MUST NOT mutate returned objects. Doing so will corrupt the database.
+
+### Unsafe SQL/Loki expressions
 
 You can also include smaller bits of SQL and Loki expressions so that you can still use as much of Watermelon query builder as possible:
 
@@ -314,7 +386,9 @@ postsCollection.query(
 
 For SQL, be sure to prefix column names with table name when joining with other tables.
 
-### Multi-table column comparisons and `Q.unsafeLokiFilter`
+⚠️ Please do not use this if you don't know what you're doing. Do not pass user input directly to avoid SQL injection.
+
+### Multi-table column comparisons and `Q.unsafeLokiTransform`
 
 Example: we want to query comments posted more than 14 days after the post it belongs to was published.
 
@@ -330,14 +404,16 @@ commentsCollection.query(
 // LokiJS example:
 commentsCollection.query(
   Q.on('posts', 'published_at', Q.notEq(null)),
-  Q.unsafeLokiFilter((record, loki) => {
-    const post = loki.getCollection('posts').by('id', record.post_id)
-    return post && record.created_at > post.published_at + 14 * 24 * 3600 * 1000
+  Q.unsafeLokiTransform((rawRecords, loki) => {
+    return rawRecords.filter(rawRecord => {
+      const post = loki.getCollection('posts').by('id', rawRecord.post_id)
+      return post && rawRecord.created_at > post.published_at + 14 * 24 * 3600 * 1000
+    })
   }),
 )
 ```
 
-For LokiJS, remember that `record` is an unsanitized object and must not be mutated. `Q.unsafeLokiFilter` only works when using `LokiJSAdapter` with `useWebWorkers: false`. There can only be one `Q.unsafeLokiFilter` clause per query.
+For LokiJS, remember that `rawRecord` is an unsanitized, unsafe object and must not be mutated. `Q.unsafeLokiTransform` only works when using `LokiJSAdapter` with `useWebWorkers: false`. There can only be one `Q.unsafeLokiTransform` clause per query.
 
 ### `null` behavior
 

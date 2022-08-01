@@ -39,7 +39,6 @@ const makeDatabase = () =>
       }),
     },
     modelClasses: [MockParent, MockChild],
-    actionsEnabled: true,
   })
 
 describe('decorators/children', () => {
@@ -47,7 +46,7 @@ describe('decorators/children', () => {
     const database = makeDatabase()
     database.adapter.batch = jest.fn()
 
-    const parentMock = await database.action(() => database.collections.get('mock_parent').create())
+    const parentMock = await database.write(() => database.collections.get('mock_parent').create())
 
     const expectedQuery = database.collections
       .get('mock_child')
@@ -58,7 +57,7 @@ describe('decorators/children', () => {
     const database = makeDatabase()
     database.adapter.batch = jest.fn()
 
-    const parent = await database.action(() => database.collections.get('mock_parent').create())
+    const parent = await database.write(() => database.collections.get('mock_parent').create())
     class ParentProxy {
       asModel = parent
 
@@ -71,7 +70,7 @@ describe('decorators/children', () => {
     const database = makeDatabase()
     database.adapter.batch = jest.fn()
 
-    const parent = await database.action(() => database.collections.get('mock_parent').create())
+    const parent = await database.write(() => database.collections.get('mock_parent').create())
 
     const spy = jest.spyOn(logger, 'error').mockImplementation(() => {})
     parent.children = []
@@ -80,7 +79,7 @@ describe('decorators/children', () => {
   })
   it('caches created Query', () => {
     const database = makeDatabase()
-    const parent = new MockParent(database.collections.get('mock_parent'), {})
+    const parent = new MockParent(database.collections.get('mock_parent'), { id: 'parent' })
 
     const query1 = parent.children
     const query2 = parent.children

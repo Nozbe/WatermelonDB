@@ -12,7 +12,7 @@ function MockComponent() {
 describe('DatabaseProvider', () => {
   let database
   beforeAll(() => {
-    database = mockDatabase({ actionsEnabled: true }).db
+    database = mockDatabase().db
   })
   it('throws if no database or adapter supplied', () => {
     expect(() => {
@@ -33,7 +33,7 @@ describe('DatabaseProvider', () => {
   it('passes database to consumer', () => {
     const instance = TestRenderer.create(
       <DatabaseProvider database={database}>
-        <DatabaseConsumer>{db => <MockComponent database={db} />}</DatabaseConsumer>
+        <DatabaseConsumer>{(db) => <MockComponent database={db} />}</DatabaseConsumer>
       </DatabaseProvider>,
     )
     const component = instance.root.find(MockComponent)

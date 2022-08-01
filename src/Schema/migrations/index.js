@@ -1,12 +1,13 @@
 // @flow
 
-import { sortBy, prop, last, head } from 'rambdax'
+// NOTE: Only require files needed (critical path on web)
+import sortBy from '../../utils/fp/sortBy'
+import invariant from '../../utils/common/invariant'
+import isObj from '../../utils/fp/isObj'
+
 import type { $RE } from '../../types'
 import type { ColumnSchema, TableName, TableSchema, TableSchemaSpec, SchemaVersion } from '../index'
 import { tableSchema, validateColumnSchema } from '../index'
-
-import { invariant } from '../../utils/common'
-import { isObject } from '../../utils/fp'
 
 export type CreateTableMigrationStep = $RE<{
   type: 'create_table',
@@ -17,7 +18,7 @@ export type AddColumnsMigrationStep = $RE<{
   type: 'add_columns',
   table: TableName<any>,
   columns: ColumnSchema[],
-  unsafeSql?: string => string,
+  unsafeSql?: (string) => string,
 }>
 
 export type SqlMigrationStep = $RE<{
@@ -42,8 +43,6 @@ export type SchemaMigrations = $RE<{
   maxVersion: SchemaVersion,
   sortedMigrations: Migration[],
 }>
-
-const sortMigrations = sortBy(prop('toVersion'))
 
 // Creates a specification of how to migrate between different versions of
 // database schema. Every time you change the database schema, you must
@@ -91,8 +90,8 @@ export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMig
     invariant(Array.isArray(migrations), 'Missing migrations array')
 
     // validate migrations format
-    migrations.forEach(migration => {
-      invariant(isObject(migration), `Invalid migration (not an object) in schema migrations`)
+    migrations.forEach((migration) => {
+      invariant(isObj(migration), `Invalid migration (not an object) in schema migrations`)
       const { toVersion, steps } = migration
       invariant(typeof toVersion === 'number', 'Invalid migration - `toVersion` must be a number')
       invariant(
@@ -100,15 +99,16 @@ export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMig
         `Invalid migration to version ${toVersion}. Minimum possible migration version is 2`,
       )
       invariant(
-        Array.isArray(steps) && steps.every(step => typeof step.type === 'string'),
+        Array.isArray(steps) && steps.every((step) => typeof step.type === 'string'),
         `Invalid migration steps for migration to version ${toVersion}. 'steps' should be an array of migration step calls`,
       )
     })
   }
 
-  const sortedMigrations = sortMigrations(migrations)
-  const oldestMigration = head(sortedMigrations)
-  const newestMigration = last(sortedMigrations)
+  // TODO: Force order of migrations?
+  const sortedMigrations = sortBy((migration) => migration.toVersion, migrations)
+  const oldestMigration = sortedMigrations[0]
+  const newestMigration = sortedMigrations[sortedMigrations.length - 1]
   const minVersion = oldestMigration ? oldestMigration.toVersion - 1 : 1
   const maxVersion = newestMigration?.toVersion || 1
 
@@ -148,12 +148,12 @@ export function addColumns({
 }: $Exact<{
   table: TableName<any>,
   columns: ColumnSchema[],
-  unsafeSql?: string => string,
+  unsafeSql?: (string) => string,
 }>): AddColumnsMigrationStep {
   if (process.env.NODE_ENV !== 'production') {
     invariant(table, `Missing table name in addColumn()`)
     invariant(columns && Array.isArray(columns), `Missing 'columns' or not an array in addColumn()`)
-    columns.forEach(column => validateColumnSchema(column))
+    columns.forEach((column) => validateColumnSchema(column))
   }
 
   return { type: 'add_columns', table, columns, unsafeSql }

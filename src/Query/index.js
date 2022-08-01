@@ -1,12 +1,10 @@
 // @flow
 
-import { prepend } from 'rambdax'
-
 import allPromises from '../utils/fp/allPromises'
+import invariant from '../utils/common/invariant'
 import { Observable } from '../utils/rx'
 import { toPromise } from '../utils/fp/Result'
 import { type Unsubscribe, SharedSubscribable } from '../utils/subscriptions'
-import { logger } from '../utils/common'
 
 // TODO: ?
 import lazy from '../decorators/lazy' // import from decorarators break the app on web production WTF ¯\_(ツ)_/¯
@@ -16,7 +14,7 @@ import subscribeToQuery from '../observation/subscribeToQuery'
 import subscribeToQueryWithColumns from '../observation/subscribeToQueryWithColumns'
 import * as Q from '../QueryDescription'
 import type { Clause, QueryDescription } from '../QueryDescription'
-import type Model, { AssociationInfo } from '../Model'
+import type Model, { AssociationInfo, RecordId } from '../Model'
 import type Collection from '../Collection'
 import type { TableName, ColumnName } from '../Schema'
 
@@ -42,6 +40,9 @@ interface QueryCountProxy {
 }
 
 export default class Query<Record: Model> {
+  // Used by withObservables to differentiate between object types
+  static _wmelonTag: string = 'query'
+
   collection: Collection<Record>
 
   description: QueryDescription
@@ -49,18 +50,18 @@ export default class Query<Record: Model> {
   _rawDescription: QueryDescription
 
   @lazy
-  _cachedSubscribable: SharedSubscribable<Record[]> = new SharedSubscribable(subscriber =>
+  _cachedSubscribable: SharedSubscribable<Record[]> = new SharedSubscribable((subscriber) =>
     subscribeToQuery(this, subscriber),
   )
 
   @lazy
-  _cachedCountSubscribable: SharedSubscribable<number> = new SharedSubscribable(subscriber =>
+  _cachedCountSubscribable: SharedSubscribable<number> = new SharedSubscribable((subscriber) =>
     subscribeToCount(this, false, subscriber),
   )
 
   @lazy
   _cachedCountThrottledSubscribable: SharedSubscribable<number> = new SharedSubscribable(
-    subscriber => subscribeToCount(this, true, subscriber),
+    (subscriber) => subscribeToCount(this, true, subscriber),
   )
 
   // Note: Don't use this directly, use Collection.query(...)
@@ -80,28 +81,32 @@ export default class Query<Record: Model> {
       skip,
       joinTables,
       nestedJoinTables,
-      lokiFilter,
+      lokiTransform,
+      sql,
     } = this._rawDescription
 
+    invariant(!sql, 'Cannot extend an unsafe SQL query')
+
+    // TODO: Move this & tests to QueryDescription
     return new Query(collection, [
       Q.experimentalJoinTables(joinTables),
       ...nestedJoinTables.map(({ from, to }) => Q.experimentalNestedJoin(from, to)),
       ...where,
       ...sortBy,
-      ...(take ? [Q.experimentalTake(take)] : []),
-      ...(skip ? [Q.experimentalSkip(skip)] : []),
-      ...(lokiFilter ? [Q.unsafeLokiFilter(lokiFilter)] : []),
+      ...(take ? [Q.take(take)] : []),
+      ...(skip ? [Q.skip(skip)] : []),
+      ...(lokiTransform ? [Q.unsafeLokiTransform(lokiTransform)] : []),
       ...clauses,
     ])
   }
 
-  pipe<T>(transform: this => T): T {
+  pipe<T>(transform: (this) => T): T {
     return transform(this)
   }
 
   // Queries database and returns an array of matching records
   fetch(): Promise<Record[]> {
-    return toPromise(callback => this.collection._fetchQuery(this, callback))
+    return toPromise((callback) => this.collection._fetchQuery(this, callback))
   }
 
   then<U>(
@@ -114,8 +119,8 @@ export default class Query<Record: Model> {
 
   // Emits an array of matching records, then emits a new array every time it changes
   observe(): Observable<Record[]> {
-    return Observable.create(observer =>
-      this._cachedSubscribable.subscribe(records => {
+    return Observable.create((observer) =>
+      this._cachedSubscribable.subscribe((records) => {
         observer.next(records)
       }),
     )
@@ -124,16 +129,16 @@ export default class Query<Record: Model> {
   // Same as `observe()` but also emits the list when any of the records
   // on the list has one of `columnNames` chaged
   observeWithColumns(columnNames: ColumnName[]): Observable<Record[]> {
-    return Observable.create(observer =>
-      this.experimentalSubscribeWithColumns(columnNames, records => {
+    return Observable.create((observer) =>
+      this.experimentalSubscribeWithColumns(columnNames, (records) => {
         observer.next(records)
       }),
     )
   }
 
-  // Returns the number of matching records
+  // Queries database and returns the number of matching records
   fetchCount(): Promise<number> {
-    return toPromise(callback => this.collection._fetchCount(this, callback))
+    return toPromise((callback) => this.collection._fetchCount(this, callback))
   }
 
   get count(): QueryCountProxy {
@@ -152,14 +157,25 @@ export default class Query<Record: Model> {
   // Emits the number of matching records, then emits a new count every time it changes
   // Note: By default, the Observable is throttled!
   observeCount(isThrottled: boolean = true): Observable<number> {
-    return Observable.create(observer => {
+    return Observable.create((observer) => {
       const subscribable = isThrottled
         ? this._cachedCountThrottledSubscribable
         : this._cachedCountSubscribable
-      return subscribable.subscribe(count => {
+      return subscribable.subscribe((count) => {
         observer.next(count)
       })
     })
+  }
+
+  // Queries database and returns an array with IDs of matching records
+  fetchIds(): Promise<RecordId[]> {
+    return toPromise((callback) => this.collection._fetchIds(this, callback))
+  }
+
+  // Queries database and returns an array with unsanitized raw results
+  // You MUST NOT mutate these objects!
+  unsafeFetchRaw(): Promise<any[]> {
+    return toPromise((callback) => this.collection._unsafeFetchRaw(this, callback))
   }
 
   experimentalSubscribe(subscriber: (Record[]) => void): Unsubscribe {
@@ -173,20 +189,20 @@ export default class Query<Record: Model> {
     return subscribeToQueryWithColumns(this, columnNames, subscriber)
   }
 
-  experimentalSubscribeToCount(subscriber: number => void): Unsubscribe {
+  experimentalSubscribeToCount(subscriber: (number) => void): Unsubscribe {
     return this._cachedCountSubscribable.subscribe(subscriber)
   }
 
   // Marks as deleted all records matching the query
   async markAllAsDeleted(): Promise<void> {
     const records = await this.fetch()
-    await allPromises(record => record.markAsDeleted(), records)
+    await allPromises((record) => record.markAsDeleted(), records)
   }
 
   // Destroys all records matching the query
   async destroyAllPermanently(): Promise<void> {
     const records = await this.fetch()
-    await allPromises(record => record.destroyPermanently(), records)
+    await allPromises((record) => record.destroyPermanently(), records)
   }
 
   // MARK: - Internals
@@ -205,17 +221,11 @@ export default class Query<Record: Model> {
   }
 
   get allTables(): TableName<any>[] {
-    return prepend(this.table, this.secondaryTables)
+    return [this.table].concat(this.secondaryTables)
   }
 
   get associations(): QueryAssociation[] {
     return getAssociations(this.description, this.modelClass, this.collection.db)
-  }
-
-  // `true` if query contains join clauses on foreign tables
-  get hasJoins(): boolean {
-    logger.warn('DEPRECATION: Query.hasJoins is deprecated')
-    return !!this.secondaryTables.length
   }
 
   // Serialized version of Query (e.g. for sending to web worker)

@@ -4,9 +4,10 @@ declare module '@nozbe/watermelondb/Collection' {
   import { Class } from '@nozbe/watermelondb/utils/common'
   import { Observable, Subject } from 'rxjs'
 
+  type CollectionChangeType = 'created' | 'updated' | 'destroyed'
   export interface CollectionChange<Record extends Model> {
     record: Record
-    isDestroyed: boolean
+    type: CollectionChangeType
   }
 
   export type CollectionChangeSet<Record extends Model> = CollectionChange<Record>[]
@@ -35,11 +36,5 @@ declare module '@nozbe/watermelondb/Collection' {
     public create(recordBuilder?: (record: Record) => void): Promise<Record>
 
     public prepareCreate(recordBuilder?: (record: Record) => void): Record
-
-    public fetchQuery(query: Query<Record>): Promise<Record[]>
-
-    public fetchCount(query: Query<Record>): Promise<number>
-
-    public unsafeClearCache(): void
   }
 }

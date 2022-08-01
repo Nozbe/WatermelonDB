@@ -1,1 +1,1 @@
-export const extractId = item => item.id
+export const extractId = (item) => item.id;

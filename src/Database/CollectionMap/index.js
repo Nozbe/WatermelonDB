@@ -12,7 +12,7 @@ export default class CollectionMap {
 
   constructor(db: Database, modelClasses: Class<Model>[]): void {
     this.map = (Object.create(null): any)
-    modelClasses.forEach(modelClass => {
+    modelClasses.forEach((modelClass) => {
       const { table } = modelClass
       if (process.env.NODE_ENV !== 'production') {
         // TODO: move these checks to Collection?

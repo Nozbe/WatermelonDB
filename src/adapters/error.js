@@ -4,7 +4,7 @@
 // Used as a placeholder during reset database to catch illegal
 // adapter calls
 
-const throwError = name => {
+const throwError = (name) => {
   throw new Error(`Cannot call database.adapter.${name} while the database is being reset`)
 }
 
@@ -13,6 +13,7 @@ export default class ErrorAdapter {
     ;[
       'find',
       'query',
+      'queryIds',
       'count',
       'batch',
       'getDeletedRecords',
@@ -21,9 +22,8 @@ export default class ErrorAdapter {
       'getLocal',
       'setLocal',
       'removeLocal',
-      'unsafeSqlQuery',
       'testClone',
-    ].forEach(name => {
+    ].forEach((name) => {
       // $FlowFixMe
       this[name] = () => throwError(name)
     })

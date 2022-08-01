@@ -1,26 +1,40 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js">
+<html lang="en" class="sidebar-visible no-js light">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Sync implementation - WatermelonDB documentation</title>
         
+        
+
+
+        <!-- Custom HTML head -->
+        
+
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
+        
+        <link rel="icon" href="../favicon.svg">
+        
+        
         <link rel="shortcut icon" href="../favicon.png">
+        
         <link rel="stylesheet" href="../css/variables.css">
         <link rel="stylesheet" href="../css/general.css">
         <link rel="stylesheet" href="../css/chrome.css">
+        
         <link rel="stylesheet" href="../css/print.css" media="print">
+        
 
         <!-- Fonts -->
         <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
-        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+        
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        
 
         <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="../highlight.css">
@@ -32,11 +46,11 @@
 
         
     </head>
-    <body class="light">
+    <body>
         <!-- Provide site root to javascript -->
         <script type="text/javascript">
             var path_to_root = "../";
-            var default_theme = "light";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
@@ -60,8 +74,11 @@
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            document.body.className = theme;
-            document.querySelector('html').className = theme + ' js';
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
@@ -78,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li><a href="../ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li><a href="../index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li><a href="../Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li><a href="../ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li><a href="../Installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li><a href="../Schema.html"><strong aria-hidden="true">2.2.</strong> Schema</a></li><li><a href="../Model.html"><strong aria-hidden="true">2.3.</strong> Defining Models</a></li><li><a href="../CRUD.html"><strong aria-hidden="true">2.4.</strong> Create, Read, Update, Delete</a></li><li><a href="../Components.html"><strong aria-hidden="true">2.5.</strong> Connecting to React Components</a></li><li><a href="../Query.html"><strong aria-hidden="true">2.6.</strong> Querying</a></li><li><a href="../Relation.html"><strong aria-hidden="true">2.7.</strong> Relations</a></li><li><a href="../Actions.html"><strong aria-hidden="true">2.8.</strong> Custom Actions</a></li></ol></li><li><a href="../ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li><a href="../Advanced/Migrations.html"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li><a href="../Advanced/Sync.html"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li><a href="../Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li><a href="../Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li><a href="../Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li><a href="../Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li><a href="../Advanced/ProTips.html"><strong aria-hidden="true">3.7.</strong> Pro tips</a></li><li><a href="../Advanced/Performance.html"><strong aria-hidden="true">3.8.</strong> Performance tips</a></li></ol></li><li><a href="../ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li><a href="../Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li><a href="../Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li><li><a href="../Implementation/SyncImpl.html" class="active"><strong aria-hidden="true">4.3.</strong> Sync implementation</a></li></ol></li><li><a href="../ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li><a href="../Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li><a href="../CONTRIBUTING.html"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li><a href="../CHANGELOG.html"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li class="chapter-item expanded "><a href="../Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li class="chapter-item expanded "><a href="../ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../Installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../Setup.html"><strong aria-hidden="true">2.2.</strong> Setup</a></li><li class="chapter-item expanded "><a href="../Schema.html"><strong aria-hidden="true">2.3.</strong> Schema</a></li><li class="chapter-item expanded "><a href="../Model.html"><strong aria-hidden="true">2.4.</strong> Defining Models</a></li><li class="chapter-item expanded "><a href="../CRUD.html"><strong aria-hidden="true">2.5.</strong> Create, Read, Update, Delete</a></li><li class="chapter-item expanded "><a href="../Components.html"><strong aria-hidden="true">2.6.</strong> Connecting to React Components</a></li><li class="chapter-item expanded "><a href="../Query.html"><strong aria-hidden="true">2.7.</strong> Querying</a></li><li class="chapter-item expanded "><a href="../Relation.html"><strong aria-hidden="true">2.8.</strong> Relations</a></li><li class="chapter-item expanded "><a href="../Writers.html"><strong aria-hidden="true">2.9.</strong> Writers, Readers, batching</a></li></ol></li><li class="chapter-item expanded "><a href="../ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../Advanced/Migrations.html"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li class="chapter-item expanded "><a href="../Advanced/Sync.html"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li class="chapter-item expanded "><a href="../Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li class="chapter-item expanded "><a href="../Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li class="chapter-item expanded "><a href="../Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li class="chapter-item expanded "><a href="../Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li class="chapter-item expanded "><a href="../Advanced/ProTips.html"><strong aria-hidden="true">3.7.</strong> Pro tips</a></li><li class="chapter-item expanded "><a href="../Advanced/Performance.html"><strong aria-hidden="true">3.8.</strong> Performance tips</a></li><li class="chapter-item expanded "><a href="../Advanced/SharingDatabaseAcrossTargets.html"><strong aria-hidden="true">3.9.</strong> iOS - Sharing database across targets</a></li></ol></li><li class="chapter-item expanded "><a href="../ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li class="chapter-item expanded "><a href="../Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li><li class="chapter-item expanded "><a href="../Implementation/SyncImpl.html" class="active"><strong aria-hidden="true">4.3.</strong> Sync implementation</a></li></ol></li><li class="chapter-item expanded "><a href="../ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="../CONTRIBUTING.html"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="../CHANGELOG.html"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -87,37 +104,38 @@
 
             <div class="page">
                 
-                <div id="menu-bar" class="menu-bar">
-                    <div id="menu-bar-sticky-container">
-                        <div class="left-buttons">
-                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
-                                <i class="fa fa-bars"></i>
-                            </button>
-                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
-                                <i class="fa fa-paint-brush"></i>
-                            </button>
-                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
-                            </ul>
-                            
-                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
-                                <i class="fa fa-search"></i>
-                            </button>
-                            
-                        </div>
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
 
-                        <h1 class="menu-title">WatermelonDB documentation</h1>
+                    <h1 class="menu-title">WatermelonDB documentation</h1>
 
-                        <div class="right-buttons">
-                            <a href="../print.html" title="Print this book" aria-label="Print this book">
-                                <i id="print-button" class="fa fa-print"></i>
-                            </a>
-                            
-                        </div>
+                    <div class="right-buttons">
+                        
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
                     </div>
                 </div>
 
@@ -145,16 +163,16 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#sync-implementation-details" id="sync-implementation-details">Sync implementation details</a></h1>
+                        <h1 id="sync-implementation-details"><a class="header" href="#sync-implementation-details">Sync implementation details</a></h1>
 <p>If you're looking for a guide to implement Watermelon Sync in your app, see <a href="../Advanced/Sync.html"><strong>Synchronization</strong></a>.</p>
 <p>If you want to contribute to Watermelon Sync, or implement your own synchronization engine from scratch, read this.</p>
-<h2><a class="header" href="#implementing-your-own-sync-from-scratch" id="implementing-your-own-sync-from-scratch">Implementing your own sync from scratch</a></h2>
+<h2 id="implementing-your-own-sync-from-scratch"><a class="header" href="#implementing-your-own-sync-from-scratch">Implementing your own sync from scratch</a></h2>
 <p>For basic details about how changes tracking works, see: <a href="https://www.youtube.com/watch?v=uFvHURTRLxQ">📺 Digging deeper into WatermelonDB</a></p>
 <p>Why you might want to implement a custom sync engine? If you have an existing remote server architecture that's difficult to adapt to Watermelon sync protocol, or you specifically want a different architecture (e.g. single HTTP request -- server resolves conflicts). Be warned, however, that <strong>implementing sync that works reliably</strong> is a hard problem, so we recommend sticking to Watermelon Sync and tweaking it as needed.</p>
 <p>The rest of this document contains details about how Watermelon Sync works - you can use that as a blueprint for your own work.</p>
 <p>If possible, please use sync implementation helpers from <code>sync/*.js</code> to keep your custom sync implementation have as much commonality as possible with the standard implementation. This is good both for you and for the rest of WatermelonDB community, as we get to share improvements and bug fixes. If the helpers are <em>almost</em> what you need, but not quite, please send pull requests with improvements!</p>
-<h2><a class="header" href="#watermelon-sync----details" id="watermelon-sync----details">Watermelon Sync -- Details</a></h2>
-<h3><a class="header" href="#general-design" id="general-design">General design</a></h3>
+<h2 id="watermelon-sync----details"><a class="header" href="#watermelon-sync----details">Watermelon Sync -- Details</a></h2>
+<h3 id="general-design"><a class="header" href="#general-design">General design</a></h3>
 <ul>
 <li>master/replica - server is the source of truth, client has a full copy and syncs back to server (no peer-to-peer syncs)</li>
 <li>two phase sync: first pull remote changes to local app, then push local changes to server</li>
@@ -171,7 +189,7 @@ local changes need to be pushed)</li>
 <li>non-blocking: local database writes (but not reads) are only momentarily locked when writing data
 but user can safely make new changes throughout the process</li>
 </ul>
-<h3><a class="header" href="#sync-procedure" id="sync-procedure">Sync procedure</a></h3>
+<h3 id="sync-procedure"><a class="header" href="#sync-procedure">Sync procedure</a></h3>
 <ol>
 <li>Pull phase</li>
 </ol>
@@ -252,7 +270,7 @@ all changes reverted, and server responds with an error</li>
 </ul>
 </li>
 </ul>
-<h3><a class="header" href="#notes" id="notes">Notes</a></h3>
+<h3 id="notes"><a class="header" href="#notes">Notes</a></h3>
 <ul>
 <li>This procedure is designed such that if sync fails at any moment, and even leaves local app in
 inconsistent (not fully synced) state, we should still achieve consistency with the next sync:
@@ -269,7 +287,7 @@ unless there's a per-record conflict (then push fails, but next sync resolves bo
 </ul>
 </li>
 </ul>
-<h3><a class="header" href="#migration-syncs" id="migration-syncs">Migration Syncs</a></h3>
+<h3 id="migration-syncs"><a class="header" href="#migration-syncs">Migration Syncs</a></h3>
 <p>Schema versioning and migrations complicate sync, because a client might not be able to sync some tables and columns, but after upgrade to the newest version, it should be able to get consistent sync. To be able
 to do that, we need to know what's the schema version at which the last sync occured. Unfortunately,
 Watermelon Sync didn't track that from the first version, so backwards-compat is required.</p>
@@ -300,7 +318,7 @@ null    X       X       10      null        YES          first sync. regardless 
 100     9       11      10      ERROR       NO           LS &gt; CV indicates programmer error
 100     11      X       10      ERROR       NO           MEA &gt; CV indicates programmer error
 </code></pre>
-<h3><a class="header" href="#reference" id="reference">Reference</a></h3>
+<h3 id="reference"><a class="header" href="#reference">Reference</a></h3>
 <p>This design has been informed by:</p>
 <ul>
 <li>10 years of experience building synchronization at Nozbe</li>
@@ -336,13 +354,13 @@ null    X       X       10      null        YES          first sync. regardless 
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a href="../Implementation/Adapters.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../Implementation/Adapters.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
                 
-                    <a href="../ch04-00-deeper.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="../ch04-00-deeper.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 
@@ -352,6 +370,14 @@ null    X       X       10      null        YES          first sync. regardless 
 
         
 
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
         
 
         

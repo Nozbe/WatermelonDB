@@ -1,15 +1,9 @@
 // @flow
 
-import { prop, pipe, map } from 'rambdax'
 import { unnest } from '../../utils/fp'
 
 import { type SchemaMigrations, type MigrationStep } from './index'
 import { type SchemaVersion } from '../index'
-
-const getAllSteps = pipe(
-  map(prop('steps')),
-  unnest,
-)
 
 export function stepsForMigration({
   migrations: schemaMigrations,
@@ -32,5 +26,6 @@ export function stepsForMigration({
     ({ toVersion: version }) => version > fromVersion && version <= toVersion,
   )
 
-  return getAllSteps(matchingMigrations)
+  const allSteps = unnest(matchingMigrations.map((migration) => migration.steps))
+  return allSteps
 }

@@ -29,7 +29,6 @@ const makeDatabase = () =>
       }),
     },
     modelClasses: [MockModel],
-    actionsEnabled: true,
   })
 
 describe('decorators/nochange', () => {
@@ -37,8 +36,8 @@ describe('decorators/nochange', () => {
     const database = makeDatabase()
     database.adapter.batch = jest.fn()
 
-    const model = await database.action(() =>
-      database.collections.get('mock').create(mock => {
+    const model = await database.write(() =>
+      database.collections.get('mock').create((mock) => {
         expect(mock.foo).toBe(null)
         mock.foo = 't1'
         expect(mock.foo).toBe('t1')
@@ -54,7 +53,7 @@ describe('decorators/nochange', () => {
   })
   it('allows setting value in prepareCreate', () => {
     const database = makeDatabase()
-    const model = database.collections.get('mock').prepareCreate(mock => {
+    const model = database.collections.get('mock').prepareCreate((mock) => {
       mock.foo = 't1'
       mock.foo = 't2'
     })
@@ -64,19 +63,19 @@ describe('decorators/nochange', () => {
     const database = makeDatabase()
     database.adapter.batch = jest.fn()
 
-    const model = await database.action(() =>
-      database.collections.get('mock').create(mock => {
+    const model = await database.write(() =>
+      database.collections.get('mock').create((mock) => {
         mock.foo = 't1'
       }),
     )
 
     await expectToRejectWithMessage(
-      database.action(() =>
-        model.update(mock => {
+      database.write(() =>
+        model.update((mock) => {
           mock.foo = 't2'
         }),
       ),
-      /set a new value/,
+      'set a new value',
     )
     expect(model.foo).toBe('t1')
   })

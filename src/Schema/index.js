@@ -1,7 +1,7 @@
 // @flow
 
+// NOTE: Only require files needed (critical path on web)
 import invariant from '../utils/common/invariant'
-import checkName from '../utils/fp/checkName'
 import type { $RE } from '../types'
 
 import type Model from '../Model'
@@ -22,7 +22,7 @@ export type ColumnMap = { [name: ColumnName]: ColumnSchema }
 export type TableSchemaSpec = $Exact<{
   name: TableName<any>,
   columns: ColumnSchema[],
-  unsafeSql?: string => string,
+  unsafeSql?: (string) => string,
 }>
 
 export type TableSchema = $RE<{
@@ -30,23 +30,25 @@ export type TableSchema = $RE<{
   // depending on operation, it's faster to use map or array
   columns: ColumnMap,
   columnArray: ColumnSchema[],
-  unsafeSql?: string => string,
+  unsafeSql?: (string) => string,
 }>
 
 type TableMap = { [name: TableName<any>]: TableSchema }
 
 export type SchemaVersion = number
 
+export type AppSchemaUnsafeSqlKind = 'setup' | 'create_indices' | 'drop_indices'
+
 export type AppSchemaSpec = $Exact<{
   version: number,
   tables: TableSchema[],
-  unsafeSql?: string => string,
+  unsafeSql?: (string, AppSchemaUnsafeSqlKind) => string,
 }>
 
 export type AppSchema = $RE<{
   version: SchemaVersion,
   tables: TableMap,
-  unsafeSql?: string => string,
+  unsafeSql?: (string, AppSchemaUnsafeSqlKind) => string,
 }>
 
 export function tableName<T: Model>(name: string): TableName<T> {
@@ -79,6 +81,7 @@ const validateName = (name: string) => {
       !['id', '_changed', '_status', 'local_storage'].includes(name.toLowerCase()),
       `Invalid column or table name '${name}' - reserved by WatermelonDB`,
     )
+    const checkName = require('../utils/fp/checkName').default
     checkName(name)
   }
 }

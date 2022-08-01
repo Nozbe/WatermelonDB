@@ -1,26 +1,40 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js">
+<html lang="en" class="sidebar-visible no-js light">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Contributing - WatermelonDB documentation</title>
         
+        
+
+
+        <!-- Custom HTML head -->
+        
+
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
         <link rel="shortcut icon" href="favicon.png">
+        
         <link rel="stylesheet" href="css/variables.css">
         <link rel="stylesheet" href="css/general.css">
         <link rel="stylesheet" href="css/chrome.css">
+        
         <link rel="stylesheet" href="css/print.css" media="print">
+        
 
         <!-- Fonts -->
         <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
-        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
 
         <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="highlight.css">
@@ -32,11 +46,11 @@
 
         
     </head>
-    <body class="light">
+    <body>
         <!-- Provide site root to javascript -->
         <script type="text/javascript">
             var path_to_root = "";
-            var default_theme = "light";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
@@ -60,8 +74,11 @@
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            document.body.className = theme;
-            document.querySelector('html').className = theme + ' js';
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
@@ -78,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li><a href="ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li><a href="index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li><a href="Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li><a href="ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li><a href="Installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li><a href="Schema.html"><strong aria-hidden="true">2.2.</strong> Schema</a></li><li><a href="Model.html"><strong aria-hidden="true">2.3.</strong> Defining Models</a></li><li><a href="CRUD.html"><strong aria-hidden="true">2.4.</strong> Create, Read, Update, Delete</a></li><li><a href="Components.html"><strong aria-hidden="true">2.5.</strong> Connecting to React Components</a></li><li><a href="Query.html"><strong aria-hidden="true">2.6.</strong> Querying</a></li><li><a href="Relation.html"><strong aria-hidden="true">2.7.</strong> Relations</a></li><li><a href="Actions.html"><strong aria-hidden="true">2.8.</strong> Custom Actions</a></li></ol></li><li><a href="ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li><a href="Advanced/Migrations.html"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li><a href="Advanced/Sync.html"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li><a href="Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li><a href="Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li><a href="Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li><a href="Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li><a href="Advanced/ProTips.html"><strong aria-hidden="true">3.7.</strong> Pro tips</a></li><li><a href="Advanced/Performance.html"><strong aria-hidden="true">3.8.</strong> Performance tips</a></li></ol></li><li><a href="ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li><a href="Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li><a href="Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li><li><a href="Implementation/SyncImpl.html"><strong aria-hidden="true">4.3.</strong> Sync implementation</a></li></ol></li><li><a href="ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li><a href="Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li><a href="CONTRIBUTING.html" class="active"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li><a href="CHANGELOG.html"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li class="chapter-item expanded "><a href="Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="Setup.html"><strong aria-hidden="true">2.2.</strong> Setup</a></li><li class="chapter-item expanded "><a href="Schema.html"><strong aria-hidden="true">2.3.</strong> Schema</a></li><li class="chapter-item expanded "><a href="Model.html"><strong aria-hidden="true">2.4.</strong> Defining Models</a></li><li class="chapter-item expanded "><a href="CRUD.html"><strong aria-hidden="true">2.5.</strong> Create, Read, Update, Delete</a></li><li class="chapter-item expanded "><a href="Components.html"><strong aria-hidden="true">2.6.</strong> Connecting to React Components</a></li><li class="chapter-item expanded "><a href="Query.html"><strong aria-hidden="true">2.7.</strong> Querying</a></li><li class="chapter-item expanded "><a href="Relation.html"><strong aria-hidden="true">2.8.</strong> Relations</a></li><li class="chapter-item expanded "><a href="Writers.html"><strong aria-hidden="true">2.9.</strong> Writers, Readers, batching</a></li></ol></li><li class="chapter-item expanded "><a href="ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Advanced/Migrations.html"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li class="chapter-item expanded "><a href="Advanced/Sync.html"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li class="chapter-item expanded "><a href="Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li class="chapter-item expanded "><a href="Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li class="chapter-item expanded "><a href="Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li class="chapter-item expanded "><a href="Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li class="chapter-item expanded "><a href="Advanced/ProTips.html"><strong aria-hidden="true">3.7.</strong> Pro tips</a></li><li class="chapter-item expanded "><a href="Advanced/Performance.html"><strong aria-hidden="true">3.8.</strong> Performance tips</a></li><li class="chapter-item expanded "><a href="Advanced/SharingDatabaseAcrossTargets.html"><strong aria-hidden="true">3.9.</strong> iOS - Sharing database across targets</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li class="chapter-item expanded "><a href="Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li><li class="chapter-item expanded "><a href="Implementation/SyncImpl.html"><strong aria-hidden="true">4.3.</strong> Sync implementation</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="CONTRIBUTING.html" class="active"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="CHANGELOG.html"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -87,37 +104,38 @@
 
             <div class="page">
                 
-                <div id="menu-bar" class="menu-bar">
-                    <div id="menu-bar-sticky-container">
-                        <div class="left-buttons">
-                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
-                                <i class="fa fa-bars"></i>
-                            </button>
-                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
-                                <i class="fa fa-paint-brush"></i>
-                            </button>
-                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
-                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
-                            </ul>
-                            
-                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
-                                <i class="fa fa-search"></i>
-                            </button>
-                            
-                        </div>
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
 
-                        <h1 class="menu-title">WatermelonDB documentation</h1>
+                    <h1 class="menu-title">WatermelonDB documentation</h1>
 
-                        <div class="right-buttons">
-                            <a href="print.html" title="Print this book" aria-label="Print this book">
-                                <i id="print-button" class="fa fa-print"></i>
-                            </a>
-                            
-                        </div>
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
                     </div>
                 </div>
 
@@ -145,8 +163,8 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#contributing-guidelines" id="contributing-guidelines">Contributing guidelines</a></h1>
-<h2><a class="header" href="#before-you-send-a-pull-request" id="before-you-send-a-pull-request">Before you send a pull request</a></h2>
+                        <h1 id="contributing-guidelines"><a class="header" href="#contributing-guidelines">Contributing guidelines</a></h1>
+<h2 id="before-you-send-a-pull-request"><a class="header" href="#before-you-send-a-pull-request">Before you send a pull request</a></h2>
 <ol>
 <li>
 <p><strong>Did you add or changed some functionality?</strong></p>
@@ -167,13 +185,13 @@
 <p>Put a one-line description of your change under Added/Changed section. See <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>.</p>
 </li>
 </ol>
-<h2><a class="header" href="#running-watermelon-in-development" id="running-watermelon-in-development">Running Watermelon in development</a></h2>
-<h3><a class="header" href="#download-source-and-dependencies" id="download-source-and-dependencies">Download source and dependencies</a></h3>
+<h2 id="running-watermelon-in-development"><a class="header" href="#running-watermelon-in-development">Running Watermelon in development</a></h2>
+<h3 id="download-source-and-dependencies"><a class="header" href="#download-source-and-dependencies">Download source and dependencies</a></h3>
 <pre><code class="language-bash">git clone https://github.com/Nozbe/WatermelonDB.git
 cd WatermelonDB
 yarn
 </code></pre>
-<h3><a class="header" href="#developing-watermelon-alongside-your-app" id="developing-watermelon-alongside-your-app">Developing Watermelon alongside your app</a></h3>
+<h3 id="developing-watermelon-alongside-your-app"><a class="header" href="#developing-watermelon-alongside-your-app">Developing Watermelon alongside your app</a></h3>
 <p>To work on Watermelon code in the sandbox of your app:</p>
 <pre><code class="language-bash">yarn dev
 </code></pre>
@@ -186,7 +204,7 @@ ln -s path-to-watermelondb/dev watermelondb
 <p><strong>This will work in Webpack but not in Metro</strong> (React Native). Metro doesn't follow symlinks. Instead, you can compile WatermelonDB directly to your project:</p>
 <pre><code class="language-bash">DEV_PATH=&quot;/path/to/your/app/node_modules/@nozbe/watermelondb&quot; yarn dev
 </code></pre>
-<h3><a class="header" href="#running-tests" id="running-tests">Running tests</a></h3>
+<h3 id="running-tests"><a class="header" href="#running-tests">Running tests</a></h3>
 <p>This runs Jest, ESLint and Flow:</p>
 <pre><code class="language-bash">yarn ci:check
 </code></pre>
@@ -195,27 +213,27 @@ ln -s path-to-watermelondb/dev watermelondb
 yarn eslint
 yarn flow
 </code></pre>
-<h3><a class="header" href="#editing-files" id="editing-files">Editing files</a></h3>
+<h3 id="editing-files"><a class="header" href="#editing-files">Editing files</a></h3>
 <p>We recommend VS Code with ESLint, Flow, and Prettier (with prettier-eslint enabled) plugins for best development experience. (To see lint/type issues inline + have automatic reformatting of code)</p>
-<h2><a class="header" href="#editing-native-code" id="editing-native-code">Editing native code</a></h2>
+<h2 id="editing-native-code"><a class="header" href="#editing-native-code">Editing native code</a></h2>
 <p>In <code>native/ios</code> and <code>native/android</code> you'll find the native bridge code for React Native.</p>
 <p>It's recommended to use the latest stable version of Xcode / Android Studio to work on that code.</p>
-<h3><a class="header" href="#integration-tests" id="integration-tests">Integration tests</a></h3>
+<h3 id="integration-tests"><a class="header" href="#integration-tests">Integration tests</a></h3>
 <p>If you change native bridge code or <code>adapter/sqlite</code> code, it's recommended to run integration tests that run the entire Watermelon code with SQLite and React Native in the loop:</p>
 <pre><code class="language-bash">yarn test:ios
 yarn test:android
 </code></pre>
-<h3><a class="header" href="#running-tests-manualy" id="running-tests-manualy">Running tests manualy</a></h3>
+<h3 id="running-tests-manualy"><a class="header" href="#running-tests-manualy">Running tests manualy</a></h3>
 <ul>
 <li>For iOS open the <code>native/iosTest/WatermelonTester.xcworkspace</code> project and hit Cmd+U.</li>
 <li>For Android open <code>native/androidTest</code> in AndroidStudio navigate to <code>app/src/androidTest/java/com.nozbe.watermelonTest/BridgeTest</code> and click green arrow near <code>class BridgeTest</code></li>
 </ul>
-<h3><a class="header" href="#native-linting" id="native-linting">Native linting</a></h3>
+<h3 id="native-linting"><a class="header" href="#native-linting">Native linting</a></h3>
 <p>Make sure the native code you're editing conforms to Watermelon standards:</p>
 <pre><code class="language-bash">yarn swiftlint
 yarn ktlint
 </code></pre>
-<h3><a class="header" href="#native-code-troubleshooting" id="native-code-troubleshooting">Native code troubleshooting</a></h3>
+<h3 id="native-code-troubleshooting"><a class="header" href="#native-code-troubleshooting">Native code troubleshooting</a></h3>
 <ol>
 <li>If <code>test:ios</code> fails in terminal:</li>
 </ol>
@@ -256,13 +274,13 @@ yarn ktlint
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a href="Roadmap.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="Roadmap.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
                 
-                    <a href="CHANGELOG.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="CHANGELOG.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                 
@@ -272,6 +290,14 @@ yarn ktlint
 
         
 
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
         
 
         
