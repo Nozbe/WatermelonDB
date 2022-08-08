@@ -144,13 +144,9 @@ const buildTasks = options => {
       task: () => execa('yarn', ['build']),
     },
     {
-      title: 'pack tgz',
-      task: () => execa('yarn', ['pack'], { cwd: './dist' }),
-    },
-    {
       title: 'publish package',
       task: () =>
-        execa('npm', ['publish', `./dist/BuildHero-watermelondb-v${version}.tgz`, '--tag', tag]),
+        execa('npm', ['publish', '--tag', tag], { cwd: './dist' }),
       // {
       //   console.log('\u0007')
       //   return listrInput('2-Factor Authentication code', {
