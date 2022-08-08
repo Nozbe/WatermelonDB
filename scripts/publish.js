@@ -119,10 +119,6 @@ const buildTasks = options => {
       task: () => execa('yarn', ['test']),
     }, */
     // {
-    //   title: 'check flow',
-    //   task: () => execa('yarn', ['flow']),
-    // },
-    // {
     //   title: 'check eslint',
     //   task: () => execa('yarn', ['eslint']),
     // },
@@ -147,29 +143,12 @@ const buildTasks = options => {
       title: 'publish package',
       task: () =>
         execa('npm', ['publish', '--tag', tag], { cwd: './dist' }),
-      // {
-      //   console.log('\u0007')
-      //   return listrInput('2-Factor Authentication code', {
-      //     validate: otp => otp.length > 0,
-      //     done: otp =>
-      //       execa('npm', [
-      //         'publish',
-      //         `./dist/nozbe-watermelondb-v${version}.tgz`,
-      //         `--otp=${otp}`,
-      //         '--tag',
-      //         tag,
-      //       ]),
-      //   })
-      // },
     },
-    ...(isPrerelease
-      ? []
-      : [
-          {
-            title: 'update docs',
-            task: () => execa('echo', ['IGNORED']), // execa('yarn', ['docs']),
-          },
-        ]),
+    {
+      title: 'push and tag',
+      task: () =>
+        execa('git', ['push', 'origin', `v${version}`]),
+    },
   ]
 }
 
