@@ -1,8 +1,8 @@
 package com.nozbe.watermelondb
 
-import android.os.Trace
 import android.content.Context
 import android.database.Cursor
+import android.os.Trace
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.WritableArray
@@ -19,6 +19,7 @@ class DatabaseDriver(context: Context, dbName: String) {
             is SchemaCompatibility.NeedsSetup -> throw SchemaNeededError()
             is SchemaCompatibility.NeedsMigration ->
                 throw MigrationNeededError(compatibility.fromVersion)
+            else -> {}
         }
     }
 
@@ -59,7 +60,8 @@ class DatabaseDriver(context: Context, dbName: String) {
         database.rawQuery(query, args).use {
             if (it.count > 0 && it.columnNames.contains("id")) {
                 while (it.moveToNext()) {
-                    val id = it.getString(it.getColumnIndex("id"))
+                    val idColumnIndex = it.getColumnIndex("id")
+                    val id = it.getString(idColumnIndex)
                     if (isCached(table, id)) {
                         resultArray.pushString(id)
                     } else {
@@ -77,7 +79,8 @@ class DatabaseDriver(context: Context, dbName: String) {
         database.rawQuery(query, args).use {
             if (it.count > 0 && it.columnNames.contains("id")) {
                 while (it.moveToNext()) {
-                    resultArray.pushString(it.getString(it.getColumnIndex("id")))
+                    val idColumnIndex = it.getColumnIndex("id")
+                    resultArray.pushString(it.getString(idColumnIndex))
                 }
             }
         }
@@ -168,7 +171,7 @@ class DatabaseDriver(context: Context, dbName: String) {
     }
 
     private fun isCached(table: TableName, id: RecordID): Boolean =
-            cachedRecords[table]?.contains(id) ?: false
+        cachedRecords[table]?.contains(id) ?: false
 
     private fun removeFromCache(table: TableName, id: RecordID) = cachedRecords[table]?.remove(id)
 
@@ -191,15 +194,17 @@ class DatabaseDriver(context: Context, dbName: String) {
     }
 
     private fun isCompatible(schemaVersion: SchemaVersion): SchemaCompatibility =
-            when (val databaseVersion = database.userVersion) {
-                schemaVersion -> SchemaCompatibility.Compatible
-                0 -> SchemaCompatibility.NeedsSetup
-                in 1 until schemaVersion ->
-                    SchemaCompatibility.NeedsMigration(fromVersion = databaseVersion)
-                else -> {
-                    log?.info("Database has newer version ($databaseVersion) than what the " +
-                            "app supports ($schemaVersion). Will reset database.")
-                    SchemaCompatibility.NeedsSetup
-                }
+        when (val databaseVersion = database.userVersion) {
+            schemaVersion -> SchemaCompatibility.Compatible
+            0 -> SchemaCompatibility.NeedsSetup
+            in 1 until schemaVersion ->
+                SchemaCompatibility.NeedsMigration(fromVersion = databaseVersion)
+            else -> {
+                log?.info(
+                    "Database has newer version ($databaseVersion) than what the " +
+                            "app supports ($schemaVersion). Will reset database."
+                )
+                SchemaCompatibility.NeedsSetup
             }
+        }
 }
