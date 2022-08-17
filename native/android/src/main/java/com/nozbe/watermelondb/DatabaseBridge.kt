@@ -151,6 +151,32 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     fun getLocal(tag: ConnectionTag, key: String, promise: Promise) =
             withDriver(tag, promise) { it.getLocal(key) }
 
+    @ReactMethod(isBlockingSynchronousMethod = true)
+    fun unsafeGetLocalSynchronously(tag: ConnectionTag, key: String): WritableArray {
+        try {
+            when (val connection =
+                    connections[tag] ?: throw (Exception("No driver with tag $tag available"))) {
+                is Connection.Connected -> {
+                    val value = connection.driver.getLocal(key)
+                    val returnValue = Arguments.createArray().also {
+                        it.pushString("result")
+                        it.pushString(value)
+                    }
+                    return returnValue
+                }
+                is Connection.Waiting -> {
+                    throw Exception("Waiting connection unexpected for unsafeGetLocalSynchronously")
+                }
+            }
+        } catch (e: Exception) {
+            val returnValue = Arguments.createArray().also {
+                it.pushString("error")
+                it.pushString(e.message)
+            }
+            return returnValue
+        }
+    }
+
     @Throws(Exception::class)
     private fun withDriver(
         tag: ConnectionTag,
