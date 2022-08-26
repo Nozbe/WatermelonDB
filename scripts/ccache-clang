@@ -1,0 +1,61 @@
+#!/bin/sh
+
+# NOTE: This runs clang compilation through `ccache`, which aims to permanently cache build objects
+# without ever producing a bad result, so you can Clean in Xcode, but still reuse precompiled code
+# Tutorial for setup: https://pspdfkit.com/blog/2015/ccache-for-fun-and-profit/
+
+export PATH="$PATH:/usr/local/bin:/opt/homebrew/bin/"
+# (debug)
+# echo $PATH
+
+# NOTE: Xcode does not pass environment variables to its C compiler (this file here), so we don't
+# know which clang we're supposed to use. We could just use /usr/bin/clang, but that relies on
+# "Command-line tools" being set properly in Xcode, and worse yet, it will fail in bizarre, hard to
+# understand ways when you upgrade Xcode and don't change the CLI tools version
+# To work around, we need to pass CCACHE_HACK_TOOLCHAIN_DIR argument here with the tool to Xcode's toolchain dir
+# The easiest way is to add CCACHE_HACK_TOOLCHAIN_DIR="$(TOOLCHAIN_DIR)" to GCC_PREPROCESSOR_DEFINITIONS
+for arg in "$@"; do
+  # echo arg
+  # echo "$arg"
+  case "$arg" in
+  "-DCCACHE_HACK_TOOLCHAIN_DIR="*)
+    # echo "bingo!"
+    xcode_toolchain_dir="${arg/-DCCACHE_HACK_TOOLCHAIN_DIR=/}"
+    ;;
+  *) ;;
+  esac
+done
+
+xcode_toolchain_dir="${xcode_toolchain_dir:?CCACHE_HACK_TOOLCHAIN_DIR not found. See ccache-clang for more details}"
+
+# (debug)
+# echo "and the toolchain is…"
+# echo "$xcode_toolchain_dir"
+
+if type -p ccache >/dev/null 2>&1; then
+  # (debug)
+  # echo "ccache is found!"
+
+  # https://ccache.dev/manual/latest.html#_configuration
+  export CCACHE_MAXSIZE=5G
+  export CCACHE_CPP2=true
+  # (debug)
+  # export CCACHE_LOGFILE=/Users/radex/.ccache-log
+
+  # NOTE: check out https://pspdfkit.com/blog/2020/faster-compilation-with-ccache/
+  # export CCACHE_HARDLINK=true
+  # export CCACHE_SLOPPINESS=file_macro,time_macros,include_file_mtime,include_file_ctime,file_stat_matches
+
+  # NOTE: distcc doesn't work very well, at least not with my setup -- worth investigating if
+  # you have more than one exact same kind of machine
+  # Does the hosts file exist and is distcc in the path?
+  # if test -f ~/.distcc/hosts && type -p distcc >/dev/null 2>&1
+  # then
+  #   # Tell ccache to prefix calls to the compiler with 'distcc'
+  #   export CCACHE_PREFIX="distcc"
+  # fi
+
+  exec ccache "$xcode_toolchain_dir/usr/bin/clang" "$@"
+else
+  exec clang "$@"
+fi

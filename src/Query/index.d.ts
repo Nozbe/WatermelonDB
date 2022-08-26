@@ -1,14 +1,14 @@
 declare module '@nozbe/watermelondb/Query' {
-  import { Collection, ColumnName, Model, TableName, RecordState } from '@nozbe/watermelondb'
+  import { Collection, ColumnName, Model, TableName, RecordId, RecordState } from '@nozbe/watermelondb'
   import { AssociationInfo } from '@nozbe/watermelondb/Model'
-  import { Condition, QueryDescription } from '@nozbe/watermelondb/QueryDescription'
+  import { Clause, QueryDescription } from '@nozbe/watermelondb/QueryDescription'
   import { Observable } from 'rxjs'
 
-  export type AssociationArgs = [TableName<any>, AssociationInfo]
+  export type QueryAssociation = { from: TableName<any>; to: TableName<any>; info: AssociationInfo }
   export interface SerializedQuery {
     table: TableName<any>
     description: QueryDescription
-    associations: AssociationArgs[]
+    associations: QueryAssociation[]
   }
 
   export default class Query<Record extends Model> {
@@ -16,7 +16,7 @@ declare module '@nozbe/watermelondb/Query' {
 
     public description: QueryDescription
 
-    public extend(...conditions: Condition[]): Query<Record>
+    public extend(...conditions: Clause[]): Query<Record>
 
     public pipe<T>(transform: (this: this) => T): T
 
@@ -29,6 +29,8 @@ declare module '@nozbe/watermelondb/Query' {
     public observeWithColumns(rawFields: ColumnName[]): Observable<Record[]>
 
     public experimentalObserveColumns<T>(rawFields: Array<keyof T>): Observable<RecordState<T>[]>
+
+    public fetchIds(): Promise<RecordId[]>
 
     public fetchCount(): Promise<number>
 

@@ -26,7 +26,15 @@ const relation = (
   relationTable: TableName<any>,
   relationIdColumn: ColumnName,
   options: ?Options,
-) => (target: Object, key: string, descriptor: Object) => {
+): (((
+  target: any,
+  key: string,
+  descriptor: any,
+) => {| get: () => Relation<Model>, set: () => void |})) => (
+  target: Object,
+  key: string,
+  descriptor: Object,
+) => {
   ensureDecoratorUsedProperly(relationIdColumn, target, key, descriptor)
 
   return {

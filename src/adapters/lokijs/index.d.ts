@@ -1,6 +1,6 @@
 declare module '@nozbe/watermelondb/adapters/lokijs' {
-  import { SchemaMigrations } from '@nozbe/watermelondb/Schema/migrations';
-  import { LokiMemoryAdapter } from 'lokijs';
+  import { SchemaMigrations } from '@nozbe/watermelondb/Schema/migrations'
+  import { LokiMemoryAdapter } from 'lokijs'
 
   import {
     AppSchema,
@@ -9,6 +9,7 @@ declare module '@nozbe/watermelondb/adapters/lokijs' {
     Query,
     RecordId,
     TableName,
+    DirtyRaw,
   } from '@nozbe/watermelondb'
   import {
     BatchOperation,
@@ -20,7 +21,22 @@ declare module '@nozbe/watermelondb/adapters/lokijs' {
     dbName?: string
     schema: AppSchema
     migrations?: SchemaMigrations
-    _testLokiAdapter?: LokiMemoryAdapter,
+    useWebWorker?: boolean
+    useIncrementalIndexedDB?: boolean
+    _testLokiAdapter?: LokiMemoryAdapter
+    onQuotaExceededError?: (error: any) => void
+    onSetUpError?: (error: Error) => void
+    extraLokiOptions?: {
+      autosave?: boolean,
+      autosaveInterval?: number,
+    }
+    extraIncrementalIDBOptions?: {
+      onDidOverwrite?: () => void,
+      onversionchange?: () => void,
+      serializeChunk?: (table: TableName<any>, raws: DirtyRaw[]) => any,
+      deserializeChunk?: (table: TableName<any>, chunk: any) => DirtyRaw[],
+      onFetchStart?: () => void,
+    }
   }
 
   export default class LokiJSAdapter implements DatabaseAdapter {

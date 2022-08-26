@@ -7,11 +7,12 @@ const inquirer = require('inquirer')
 
 const { execSync } = require('child_process')
 
-const { add } = require('rambdax')
+const launchFirst = process.argv[2]
+const noSnapshot = process.argv[3]
 
 const emulators = execSync(`$ANDROID_HOME/emulator/emulator -list-avds`).toString()
 const sdks = execSync(
-  `$ANDROID_HOME/tools/bin/sdkmanager --list | grep "system-images/" `,
+  `$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep "system-images/" `,
 ).toString()
 
 const askForEmu = [
@@ -19,7 +20,7 @@ const askForEmu = [
     type: 'list',
     name: 'name',
     message: 'Pick Emulator from list or add a new one',
-    pageSize: add(emulators.length, 4),
+    pageSize: emulators.length + 4,
     choices: emulators
       .split('\n')
       .filter(value => value.length > 0)
@@ -41,7 +42,7 @@ const askForEmu = [
     name: 'sdk',
     when: answers => !answers.name,
     message: 'Sdk Version:',
-    pageSize: add(sdks.length, 4),
+    pageSize: sdks.length + 4,
     choices: sdks
       .split('\n')
       .filter(value => value.length > 0)
@@ -86,7 +87,7 @@ const emulatorTasks = options => {
           // eslint-disable-next-line
           console.log('Downloading Emulator Image\nIt may take a while')
           execSync('touch ~/.android/repositories.cfg')
-          execSync(`$ANDROID_HOME/tools/bin/sdkmanager "${sdkPath}"`)
+          execSync(`$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "${sdkPath}"`)
         },
       })
     }
@@ -107,8 +108,16 @@ const emulatorTasks = options => {
   return tasks
 }
 
-inquirer.prompt(askForEmu).then(options => {
-  const tasks = emulatorTasks(options)
-  const listr = new Listr(tasks)
-  listr.run()
-})
+if (launchFirst) {
+  execSync(
+    `$ANDROID_HOME/emulator/emulator @${emulators.split('\n')[0]} ${
+      noSnapshot ? '-no-snapshot' : ''
+    }`,
+  )
+} else {
+  inquirer.prompt(askForEmu).then(options => {
+    const tasks = emulatorTasks(options)
+    const listr = new Listr(tasks)
+    listr.run()
+  })
+}

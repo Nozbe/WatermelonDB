@@ -2,7 +2,7 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable no-self-compare */
 
-import {pickAll, values} from 'rambdax'
+import { pickAll, values } from 'rambdax'
 import { type ColumnName, type ColumnSchema, type TableSchema } from '../Schema'
 import { type RecordId, type SyncStatus } from '../Model'
 import { type Value } from '../QueryDescription'
@@ -63,7 +63,7 @@ function _setRaw(raw: Object, key: string, value: any, columnSchema: ColumnSchem
     // type = number
     // Treat NaN and Infinity as null
     if (isValidNumber(value)) {
-      raw[key] = value
+      raw[key] = value || 0
     } else {
       raw[key] = isOptional ? null : 0
     }
@@ -81,6 +81,9 @@ export function sanitizedRaw(dirtyRaw: DirtyRaw, tableSchema: TableSchema): RawR
   // This is called with `{}` when making a new record, so we need to set a new ID, status
   // Also: If an existing has one of those fields broken, we're screwed. Safest to treat it as a
   // new record (so that it gets synced)
+
+  // TODO: Think about whether prototypeless objects are a useful mitigation
+  // const raw = Object.create(null) // create a prototypeless object
   const raw = {}
 
   if (typeof id === 'string') {
@@ -98,11 +101,12 @@ export function sanitizedRaw(dirtyRaw: DirtyRaw, tableSchema: TableSchema): RawR
   for (let i = 0, len = columns.length; i < len; i += 1) {
     const columnSchema = columns[i]
     const key = (columnSchema.name: string)
-    const value = dirtyRaw[key]
+    // TODO: Check performance
+    const value = Object.prototype.hasOwnProperty.call(dirtyRaw, key) ? dirtyRaw[key] : null
     _setRaw(raw, key, value, columnSchema)
   }
 
-  return raw
+  return (raw: any)
 }
 
 // Modifies passed rawRecord by setting sanitized `value` to `columnName`

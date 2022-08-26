@@ -1,4 +1,4 @@
-import expect from 'expect'
+import expect from 'expect-rn'
 import { Platform } from 'react-native'
 import SQLiteAdapter from './index'
 import { testSchema } from '../__tests__/helpers'
@@ -6,43 +6,40 @@ import commonTests from '../__tests__/commonTests'
 import { invariant } from '../../utils/common'
 import DatabaseAdapterCompat from '../compat'
 
-const SQLiteAdapterTest = spec => {
-  const runTests = isSynchronous => {
-    commonTests().forEach(testCase => {
-      const [name, test] = testCase
-      spec.it(name, async () => {
-        const adapter = new SQLiteAdapter({ schema: testSchema, synchronous: isSynchronous })
-
-        if (isSynchronous) {
-          if (Platform.OS === 'ios') {
-            invariant(adapter._synchronous === true, 'this should be synchronous')
-          } else {
-            invariant(
-              adapter._synchronous === false,
-              'this should be asynchronous - android does not support synchronous adaoter',
-            )
-          }
-
-          // Temporary workaround for the race condition - wait until next macrotask to ensure that
-          // database has set up
-          await new Promise(resolve => setTimeout(resolve, 0))
-        } else {
-          invariant(adapter._synchronous === false, 'this should be asynchronous')
-        }
-        await test(new DatabaseAdapterCompat(adapter), SQLiteAdapter)
-      })
-    })
-  }
-
-  spec.describe('SQLiteAdapter (asynchronous mode)', () => {
+const SQLiteAdapterTest = (spec) => {
+  spec.describe('SQLiteAdapter (async mode)', () => {
     spec.it('configures adapter correctly', () => {
       const adapter = new SQLiteAdapter({ schema: testSchema })
-      expect(adapter._synchronous).toBe(false)
+      expect(adapter._dispatcherType).toBe('asynchronous')
     })
-    runTests(false)
+    commonTests().forEach((testCase) => {
+      const [name, test] = testCase
+      spec.it(name, async () => {
+        const adapter = new SQLiteAdapter({ schema: testSchema, jsi: false })
+        invariant(adapter._dispatcherType === 'asynchronous', 'this should be asynchronous')
+        await test(new DatabaseAdapterCompat(adapter), SQLiteAdapter, {}, Platform.OS)
+      })
+    })
   })
-  spec.describe('SQLiteAdapter (synchronous mode)', () => {
-    runTests(true)
+  spec.describe('SQLiteAdapter (JSI mode)', () => {
+    commonTests().forEach((testCase) => {
+      const [name, test] = testCase
+      spec.it(name, async () => {
+        // NOTE: This is needed because connectionTag will reset to 0 on bridge reload, but JSI's
+        // sqlites will persist in memory
+        const dbName = `file:testdb${Math.random()}?mode=memory&cache=shared`
+        const adapter = new SQLiteAdapter({ schema: testSchema, jsi: true, dbName })
+
+        invariant(adapter._dispatcherType === 'jsi', 'native platforms should support jsi')
+
+        await test(
+          new DatabaseAdapterCompat(adapter),
+          SQLiteAdapter,
+          { jsi: true, dbName },
+          Platform.OS,
+        )
+      })
+    })
   })
 }
 

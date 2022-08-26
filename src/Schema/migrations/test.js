@@ -1,5 +1,5 @@
 import { createTable, addColumns, schemaMigrations } from './index'
-import { stepsForMigration } from './helpers'
+import { stepsForMigration } from './stepsForMigration'
 
 describe('schemaMigrations()', () => {
   it('returns a basic schema migrations spec', () => {
@@ -108,7 +108,7 @@ describe('schemaMigrations()', () => {
     })
   })
   it('throws if migration spec is malformed', () => {
-    expect(() => schemaMigrations({ migrations: [{}] })).toThrow(/Invalid migration/)
+    expect(() => schemaMigrations({ migrations: [{}] })).toThrow('Invalid migration')
     expect(() => schemaMigrations({ migrations: [{ toVersion: 0, steps: [] }] })).toThrow(
       /minimum.*is 2/i,
     )
@@ -119,12 +119,17 @@ describe('schemaMigrations()', () => {
       schemaMigrations({
         migrations: [{ toVersion: 2, steps: [{ table: 'x' }] }],
       }),
-    ).toThrow(/Invalid migration steps/)
+    ).toThrow('Invalid migration steps')
   })
   it(`throws if there are gaps or duplicates in migrations`, () => {
     expect(() =>
-      schemaMigrations({ migrations: [{ toVersion: 2, steps: [] }, { toVersion: 2, steps: [] }] }),
-    ).toThrow(/duplicates/)
+      schemaMigrations({
+        migrations: [
+          { toVersion: 2, steps: [] },
+          { toVersion: 2, steps: [] },
+        ],
+      }),
+    ).toThrow('duplicates')
     expect(() =>
       schemaMigrations({
         migrations: [
@@ -133,7 +138,7 @@ describe('schemaMigrations()', () => {
           { toVersion: 2, steps: [] },
         ],
       }),
-    ).toThrow(/gaps/)
+    ).toThrow('gaps')
 
     // missing migrations from 2 to x are ok
     expect(() =>
@@ -161,24 +166,24 @@ describe('schemaMigrations()', () => {
 
 describe('migration step functions', () => {
   it('throws if createTable() is malformed', () => {
-    expect(() => createTable({ columns: [] })).toThrow(/name/)
+    expect(() => createTable({ columns: [] })).toThrow('name')
     expect(() => createTable({ name: 'foo', columns: [{ name: 'x', type: 'blah' }] })).toThrow(
-      /type/,
+      'type',
     )
   })
   it('throws if addColumns() is malformed', () => {
-    expect(() => addColumns({ columns: [{}] })).toThrow(/table/)
-    expect(() => addColumns({ table: 'foo' })).toThrow(/columns/)
+    expect(() => addColumns({ columns: [{}] })).toThrow('table')
+    expect(() => addColumns({ table: 'foo' })).toThrow('columns')
     expect(() => addColumns({ table: 'foo', columns: { name: 'x', type: 'blah' } })).toThrow(
-      /columns/,
+      'columns',
     )
     expect(() => addColumns({ table: 'foo', columns: [{ name: 'x', type: 'blah' }] })).toThrow(
-      /type/,
+      'type',
     )
   })
 })
 
-describe('migration execution helpers', () => {
+describe('stepsForMigration', () => {
   it('finds the right migration steps', () => {
     const step1 = addColumns({
       table: 'posts',

@@ -1,6 +1,6 @@
 // @flow
 
-import makeDecorator from '../../utils/common/makeDecorator'
+import makeDecorator, { type Decorator } from '../../utils/common/makeDecorator'
 
 import { ensureDecoratorUsedProperly } from '../common'
 
@@ -18,7 +18,7 @@ import { type ColumnName } from '../../Schema'
 //   @text(Column.name) name: string
 //   @text('full_description') fullDescription: string
 
-const text = makeDecorator(
+const text: Decorator = makeDecorator(
   (columnName: ColumnName) => (target: Object, key: string, descriptor: Object) => {
     ensureDecoratorUsedProperly(columnName, target, key, descriptor)
 

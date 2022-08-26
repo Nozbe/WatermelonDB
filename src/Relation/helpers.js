@@ -1,8 +1,12 @@
 // @flow
 
-import type { Observable } from 'rxjs'
-import { of as of$ } from 'rxjs/observable/of'
-import { map as map$, switchMap, distinctUntilChanged } from 'rxjs/operators'
+import {
+  type Observable,
+  of as of$,
+  map as map$,
+  switchMap,
+  distinctUntilChanged,
+} from '../utils/rx'
 
 import type Relation from './index'
 import type Model from '../Model'
@@ -18,13 +22,12 @@ const getObservable = <T: ?Model>(relation: Relation<T>): Observable<T> =>
     .observe()
     // $FlowFixMe
     .pipe(
-      map$(model => model._getRaw(relation._columnName)),
+      map$((model) => model._getRaw(relation._columnName)),
       distinctUntilChanged(),
-      switchMap(
-        id =>
-          id ?
-            relation._model.collections.get(relation._relationTableName).findAndObserve(id) :
-            of$(null),
+      switchMap((id) =>
+        id
+          ? relation._model.collections.get(relation._relationTableName).findAndObserve(id)
+          : of$(null),
       ),
     )
 

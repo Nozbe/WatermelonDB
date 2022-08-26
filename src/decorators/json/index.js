@@ -1,9 +1,6 @@
 // @flow
 
-import { always } from 'rambdax'
-
-import makeDecorator from '../../utils/common/makeDecorator'
-import tryCatch from '../../utils/fp/tryCatch'
+import { type Decorator } from '../../utils/common/makeDecorator'
 
 import { type ColumnName } from '../../Schema'
 import type Model from '../../Model'
@@ -23,33 +20,58 @@ import { ensureDecoratorUsedProperly } from '../common'
 // Examples:
 //   @json('contact_info', jsonValue => jasonValue || {}) contactInfo: ContactInfo
 
-const parseJSON = tryCatch(JSON.parse, always(undefined))
+const parseJSON = (value) => {
+  // fast path
+  if (value === null || value === undefined || value === '') {
+    return undefined
+  }
+  try {
+    return JSON.parse(value)
+  } catch (_) {
+    return undefined
+  }
+}
 
-export const jsonDecorator = makeDecorator(
-  (rawFieldName: ColumnName, sanitizer: (json: any, model?: Model) => any) => (
-    target: Object,
-    key: string,
-    descriptor: Object,
-  ) => {
-    ensureDecoratorUsedProperly(rawFieldName, target, key, descriptor)
+const defaultOptions = { memo: false }
 
-    return {
-      configurable: true,
-      enumerable: true,
-      get(): any {
-        const rawValue = this.asModel._getRaw(rawFieldName)
-        const parsedValue = parseJSON(rawValue)
+export const jsonDecorator: Decorator = (
+  rawFieldName: ColumnName,
+  sanitizer: (json: any, model?: Model) => any,
+  options?: $Exact<{ memo?: boolean }> = defaultOptions,
+) => (target: Object, key: string, descriptor: Object) => {
+  ensureDecoratorUsedProperly(rawFieldName, target, key, descriptor)
 
-        return sanitizer(parsedValue, this)
-      },
-      set(json: any): void {
-        const sanitizedValue = sanitizer(json, this)
-        const stringifiedValue = sanitizedValue != null ? JSON.stringify(sanitizedValue) : null
+  return {
+    configurable: true,
+    enumerable: true,
+    get(): any {
+      const rawValue = this.asModel._getRaw(rawFieldName)
 
-        this.asModel._setRaw(rawFieldName, stringifiedValue)
-      },
-    }
-  },
-)
+      if (options.memo) {
+        // Use cached value if possible
+        this._jsonDecoratorCache = this._jsonDecoratorCache || {}
+        const cachedEntry = this._jsonDecoratorCache[rawFieldName]
+        if (cachedEntry && cachedEntry[0] === rawValue) {
+          return cachedEntry[1]
+        }
+      }
+
+      const parsedValue = parseJSON(rawValue)
+      const sanitized = sanitizer(parsedValue, this)
+
+      if (options.memo) {
+        this._jsonDecoratorCache[rawFieldName] = [rawValue, sanitized]
+      }
+
+      return sanitized
+    },
+    set(json: any): void {
+      const sanitizedValue = sanitizer(json, this)
+      const stringifiedValue = sanitizedValue != null ? JSON.stringify(sanitizedValue) : null
+
+      this.asModel._setRaw(rawFieldName, stringifiedValue)
+    },
+  }
+}
 
 export default jsonDecorator

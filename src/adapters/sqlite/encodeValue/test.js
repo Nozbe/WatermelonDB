@@ -16,5 +16,8 @@ describe('SQLite encodeValue', () => {
     expect(encodeValue(NaN)).toBe('null')
     expect(spy).toHaveBeenCalledTimes(2)
     spy.mockRestore()
+
+    expect(() => encodeValue([])).toThrow()
+    expect(() => encodeValue({})).toThrow()
   })
 })

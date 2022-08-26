@@ -1,5 +1,12 @@
 declare module '@nozbe/watermelondb/Model' {
-  import { Collection, CollectionMap, ColumnName, Database, RawRecord, TableName } from '@nozbe/watermelondb';
+  import {
+    Collection,
+    CollectionMap,
+    ColumnName,
+    Database,
+    RawRecord,
+    TableName,
+  } from '@nozbe/watermelondb'
   import { Observable } from 'rxjs'
 
   export type RecordId = string
@@ -35,7 +42,7 @@ declare module '@nozbe/watermelondb/Model' {
 
     public syncStatus: SyncStatus
 
-    public update(recordUpdater?: (record: this) => void): Promise<void>
+    public update(recordUpdater?: (record: this) => void): Promise<this>
 
     public prepareUpdate(recordUpdater?: (record: this) => void): this
 
@@ -43,22 +50,30 @@ declare module '@nozbe/watermelondb/Model' {
 
     public destroyPermanently(): Promise<void>
 
+    public experimentalMarkAsDeleted(): Promise<void>
+
+    public experimentalDestroyPermanently(): Promise<void>
+
     public prepareMarkAsDeleted(): this
 
     public prepareDestroyPermanently(): this
 
     public observe(): Observable<this>
 
-    public batch(...records: Readonly<[Model]>): Promise<void>
+    public batch(...records: Readonly<Model[]>): Promise<void>
 
     public subAction<T>(action: () => Promise<T>): Promise<T>
 
+    public callReader<T>(action: () => Promise<T>): Promise<T>
+
+    public callWriter<T>(action: () => Promise<T>): Promise<T>
+
     public collection: Collection<Model>
-                                 
+
     public collections: CollectionMap
 
     public database: Database
 
-    public asModel: this                             
+    public asModel: this
   }
 }

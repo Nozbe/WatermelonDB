@@ -1,71 +1,68 @@
 // @flow
 
-import Loki from 'lokijs'
-import type { LokiResultset } from 'lokijs'
-
 import type { SerializedQuery } from '../../../Query'
 
-import encodeMatcher from '../../../observation/encodeMatcher'
-import { hasColumnComparisons, type Where } from '../../../QueryDescription'
+import type { DirtyRaw } from '../../../RawRecord'
 
 import encodeQuery from './encodeQuery'
-import type { LokiQuery, LokiJoin, LokiRawQuery } from './encodeQuery'
-
-function refineResultsForColumnComparisons(
-  roughResults: LokiResultset,
-  conditions: Where[],
-): LokiResultset {
-  if (hasColumnComparisons(conditions)) {
-    // ignore JOINs (already checked and encodeMatcher can't check it)
-    const queryWithoutJoins = { where: conditions, join: [], select: [] }
-    const matcher = encodeMatcher(queryWithoutJoins)
-
-    return roughResults.where(matcher)
-  }
-
-  return roughResults
-}
+import performJoins from './performJoins'
+import type { Loki, LokiResultset } from '../type'
+import type { LokiJoin } from './encodeQuery'
 
 // Finds IDs of matching records on foreign table
-function performJoin(join: LokiJoin, loki: Loki): LokiRawQuery {
-  const { table, query, originalConditions, mapKey, joinKey } = join
+function performJoin(join: LokiJoin, loki: Loki): DirtyRaw[] {
+  const { table, query } = join
 
-  // for queries on `belongs_to` tables, matchingIds will be IDs of the parent table records
-  //   (e.g. task: { project_id in ids })
-  // and for `has_many` tables, it will be IDs of the main table records
-  //   (e.g. task: { id in (ids from tag_assignment.task_id) })
   const collection = loki.getCollection(table).chain()
-  const roughRecords = collection.find(query)
+  const records = collection.find(query).data()
 
-  // See executeQuery for explanation of column comparison workaround
-  const refinedRecords = refineResultsForColumnComparisons(roughRecords, originalConditions)
-  const matchingIds = refinedRecords.data().map(record => record[mapKey])
-
-  return { [(joinKey: string)]: { $in: matchingIds } }
+  return records
 }
 
-function performJoinsGetQuery(lokiQuery: LokiQuery, loki: Loki): LokiRawQuery {
-  const { query, joins } = lokiQuery
-  const joinConditions = joins.map(join => performJoin(join, loki))
-
-  return joinConditions.length ? { $and: [...joinConditions, query] } : query
-}
-
-// Note: Loki currently doesn't support column comparisons in its query syntax, so for queries
-// that need them, we filter records with a matcher function.
-// This is far less efficient, so should be considered a temporary hack/workaround
-export default function executeQuery(query: SerializedQuery, loki: Loki): LokiResultset {
-  const collection = loki.getCollection(query.table).chain()
-
-  // Step one: fetch all records matching query (and consider `on` conditions)
-  // Ignore column comparison conditions (assume condition is true)
+function performQuery(query: SerializedQuery, loki: Loki): LokiResultset {
+  // Step one: perform all inner queries (JOINs) to get the single table query
   const lokiQuery = encodeQuery(query)
-  const roughResults = collection.find(performJoinsGetQuery(lokiQuery, loki))
+  const mainQuery = performJoins(lokiQuery, (join) => performJoin(join, loki))
 
-  // Step two: if query makes column comparison conditions, we (inefficiently) refine
-  // the rough results using a matcher function
-  // Matcher ignores `on` conditions, so it's not possible to use column comparison in an `on`
-  const result = refineResultsForColumnComparisons(roughResults, query.description.where)
+  // Step two: fetch all records matching query
+  const collection = loki.getCollection(query.table).chain()
+  let resultset = collection.find(mainQuery)
 
-  return result
+  // Step three: sort, skip, take
+  const { sortBy, take, skip } = query.description
+  if (sortBy.length) {
+    resultset = resultset.compoundsort(
+      sortBy.map(({ sortColumn, sortOrder }) => [sortColumn, sortOrder === 'desc']),
+    )
+  }
+  if (skip) {
+    resultset = resultset.offset(skip)
+  }
+  if (take) {
+    resultset = resultset.limit(take)
+  }
+
+  return resultset
+}
+
+export function executeQuery(query: SerializedQuery, loki: Loki): DirtyRaw[] {
+  const { lokiTransform } = query.description
+  const results = performQuery(query, loki).data()
+
+  if (lokiTransform) {
+    return lokiTransform(results, loki)
+  }
+
+  return results
+}
+
+export function executeCount(query: SerializedQuery, loki: Loki): number {
+  const { lokiTransform } = query.description
+  const resultset = performQuery(query, loki)
+
+  if (lokiTransform) {
+    const records = lokiTransform(resultset.data(), loki)
+    return records.length
+  }
+  return resultset.count()
 }

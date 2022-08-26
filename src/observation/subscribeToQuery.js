@@ -7,12 +7,13 @@ import type Model from '../Model'
 
 import subscribeToQueryReloading from './subscribeToQueryReloading'
 import subscribeToSimpleQuery from './subscribeToSimpleQuery'
+import canEncodeMatcher from './encodeMatcher/canEncode'
 
 export default function subscribeToQuery<Record: Model>(
   query: Query<Record>,
   subscriber: (Record[]) => void,
 ): Unsubscribe {
-  return query.hasJoins
-    ? subscribeToQueryReloading(query, subscriber)
-    : subscribeToSimpleQuery(query, subscriber)
+  return canEncodeMatcher(query.description)
+    ? subscribeToSimpleQuery(query, subscriber)
+    : subscribeToQueryReloading(query, subscriber)
 }

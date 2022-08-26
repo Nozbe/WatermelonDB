@@ -28,21 +28,41 @@ class Post extends Model {
 To **narrow down** a `Query` (add [extra conditions](#query-conditions) to an existing Query), use `.extend()`:
 
 ```js
+import { Q } from '@nozbe/watermelondb'
 import { children, lazy } from '@nozbe/watermelondb/decorators'
 
 class Post extends Model {
   // ...
   @children('comments') comments
-  @lazy verifiedComments = this.comments.extend(Q.where('is_verified', true))
-  @lazy verifiedAwesomeComments = this.verifiedComments.extend(Q.where('is_awesome', true))
+
+  @lazy verifiedComments = this.comments.extend(
+    Q.where('is_verified', true)
+  )
+
+  @lazy verifiedAwesomeComments = this.verifiedComments.extend(
+    Q.where('is_awesome', true)
+  )
 }
 ```
 
-**Note:** Use the `@lazy` when extending or defining new Queries for performance
+**Note:** Use `@lazy` when extending or defining new Queries for performance
 
 ### Custom Queries
 
-You can query any table using `this.collections.get(tableName).query(conditions)`. Here, `post.comments` will query all users that made a comment under `post`.
+You can query any table like so:
+
+```js
+import { Q } from '@nozbe/watermelondb'
+
+const users = await database.get('users').query(
+  // conditions that a user must match:
+  Q.on('comments', 'post_id', somePostId)
+).fetch()
+```
+
+This fetches all users that made a comment under a post with `id = somePostId`.
+
+You can define custom queries on a Model like so:
 
 ```js
 class Post extends Model {
@@ -55,23 +75,29 @@ class Post extends Model {
 
 ## Executing Queries
 
-Most of the time, you [connect Queries to Components](./Components.md) by using `observe` or `observeCount`:
+Most of the time, you execute Queries by connecting them to React Components like so:
 
 ```js
 withObservables(['post'], ({ post }) => ({
-  post: post.observe(),
-  comments: post.comments.observe(),
+  post,
+  comments: post.comments,
   verifiedCommentCount: post.verifiedComments.observeCount(),
 }))
 ```
 
+**➡️ Learn more:** [Connecting to Components](./Components.md)
+
 #### Fetch
 
-To simply get the current list or current count, use `fetch` / `fetchCount`. You might need it [in Actions](./Actions.md).
+To simply get the current list or current count (without observing future changes), use `fetch` / `fetchCount`.
 
 ```js
 const comments = await post.comments.fetch()
 const verifiedCommentCount = await post.verifiedComments.fetchCount()
+
+// Shortcut syntax:
+const comments = await post.comments
+const verifiedCommentCount = await post.verifiedComments.count
 ```
 
 To fetch record states with selected columns only, use `experimentalFetchColumns(['col1', 'col2'])`.
@@ -101,7 +127,7 @@ This will query **all** comments of the post and fetch comment states with only 
 ```js
 import { Q } from '@nozbe/watermelondb'
 // ...
-commentCollection.query(
+database.get('comments').query(
   Q.where('is_verified', true)
 )
 ```
@@ -115,7 +141,7 @@ The second argument is the value we want to query for. Note that the passed argu
 #### Empty query
 
 ```js
-const allComments = await commentCollection.query().fetch()
+const allComments = await database.get('comments').query().fetch()
 ```
 
 A Query with no conditions will find **all** records in the collection.
@@ -125,7 +151,7 @@ A Query with no conditions will find **all** records in the collection.
 #### Multiple conditions
 
 ```js
-commentCollection.query(
+database.get('comments').query(
   Q.where('is_verified', true),
   Q.where('is_awesome', true)
 )
@@ -146,16 +172,13 @@ This queries all comments that are **both** verified **and** awesome.
 | `Q.where('dislikes', Q.lt(100))` | `dislikes < 100` |
 | `Q.where('dislikes', Q.lte(100))` | `dislikes <= 100` |
 | `Q.where('likes', Q.between(10, 100))` | `likes >= 10 && likes <= 100` |
-| `Q.where('status', Q.oneOf(['published', 'draft']))` | `status === 'published' \|\| status === 'draft'` |
+| `Q.where('status', Q.oneOf(['published', 'draft']))` | `['published', 'draft'].includes(status)` |
 | `Q.where('status', Q.notIn(['archived', 'deleted']))` | `status !== 'archived' && status !== 'deleted'` |
 | `Q.where('status', Q.like('%bl_sh%'))` | `/.*bl.sh.*/i` (See note below!) |
 | `Q.where('status', Q.notLike('%bl_sh%'))` | `/^((!?.*bl.sh.*).)*$/i` (Inverse regex match) (See note below!) |
+| `Q.where('status', Q.includes('promoted'))` | `status.includes('promoted')` |
 
-**Note:** It's NOT SAFE to use `Q.like` and `Q.notLike` with user input directly, because special characters like `%` or `_` are not escaped. Always sanitize user input like so:
-```js
-Q.like(`%${Q.sanitizeLikeString(userInput)}%`)
-Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
-```
+### LIKE / NOT LIKE
 
 You can use `Q.like` for search-related tasks. For example, to find all users whose username start with "jas" (case-insensitive) you can write
 
@@ -167,14 +190,46 @@ usersCollection.query(
 
 where `"jas"` can be changed dynamically with user input.
 
+Note that the behavior of `Q.like` is not exact and can differ somewhat between implementations (SQLite vs LokiJS). For instance, while the comparison is case-insensitive, SQLite cannot by default compare non-ASCII characters case-insensitively (unless you install ICU extension). Use `Q.like` for user input search, but not for tasks that require a precise matching behavior.
 
-### Conditions on related tables
+**Note:** It's NOT SAFE to use `Q.like` and `Q.notLike` with user input directly, because special characters like `%` or `_` are not escaped. Always sanitize user input like so:
+```js
+Q.like(`%${Q.sanitizeLikeString(userInput)}%`)
+Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
+```
+
+### AND/OR nesting
+
+You can nest multiple conditions using `Q.and` and `Q.or`:
+
+```js
+database.get('comments').query(
+  Q.where('archived_at', Q.notEq(null)),
+  Q.or(
+    Q.where('is_verified', true),
+    Q.and(
+      Q.where('likes', Q.gt(10)),
+      Q.where('dislikes', Q.lt(5))
+    )
+  )
+)
+```
+
+This is equivalent to `archivedAt !== null && (isVerified || (likes > 10 && dislikes < 5))`.
+
+### Conditions on related tables ("JOIN queries")
 
 For example: query all comments under posts published by John:
 
 ```js
-commentCollection.query(
+// Shortcut syntax:
+database.get('comments').query(
   Q.on('posts', 'author_id', john.id),
+)
+
+// Full syntax:
+database.get('comments').query(
+  Q.on('posts', Q.where('author_id', Q.eq(john.id))),
 )
 ```
 
@@ -183,6 +238,50 @@ Normally you set conditions on the table you're querying. Here we're querying **
 The first argument for `Q.on` is the table name you're making a condition on. The other two arguments are same as for `Q.where`.
 
 **Note:** The two tables [must be associated](./Model.md) before you can use `Q.on`.
+
+#### Multiple conditions on a related table
+
+For example: query all comments under posts that are written by John *and* are either published or belong to `draftBlog`
+
+```js
+database.get('comments').query(
+  Q.on('posts', [
+    Q.where('author_id', john.id)
+    Q.or(
+      Q.where('published', true),
+      Q.where('blog_id', draftBlog.id),
+    )
+  ]),
+)
+```
+
+Instead of an array of conditions, you can also pass `Q.and`, `Q.or`, `Q.where`, or `Q.on` as the second argument to `Q.on`.
+
+#### Nesting `Q.on` within AND/OR
+
+If you want to place `Q.on` nested within `Q.and` and `Q.or`, you must explicitly define all tables you're joining on. (NOTE: The `Q.experimentalJoinTables` API is subject to change)
+
+```js
+tasksCollection.query(
+  Q.experimentalJoinTables(['projects']),
+  Q.or(
+    Q.where('is_followed', true),
+    Q.on('projects', 'is_followed', true),
+  ),
+)
+```
+
+#### Deep `Q.on`s
+
+You can also nest `Q.on` within `Q.on`, e.g. to make a condition on a grandparent. You must explicitly define the tables you're joining on. (NOTE: The `Q.experimentalNestedJoin` API is subject to change). Multiple levels of nesting are allowed.
+
+```js
+// this queries tasks that are inside projects that are inside teams where team.foo == 'bar'
+tasksCollection.query(
+  Q.experimentalNestedJoin('projects', 'teams'),
+  Q.on('projects', Q.on('teams', 'foo', 'bar')),
+)
+```
 
 ## Advanced Queries
 
@@ -214,44 +313,149 @@ query.observe().pipe(
 
 By default, calling `query.observeCount()` returns an Observable that is throttled to emit at most once every 250ms. You can disable throttling using `query.observeCount(false)`.
 
-### AND/OR nesting
-
-You can nest multiple conditions using `Q.and` and `Q.or`:
-
-```js
-commentCollection.query(
-  Q.where('archived_at', Q.notEq(null)),
-  Q.or(
-    Q.where('is_verified', true),
-    Q.and(
-      Q.where('likes', Q.gt(10)),
-      Q.where('dislikes', Q.lt(5))
-    )
-  )
-)
-```
-
-This is equivalent to `archivedAt !== null && (isVerified || (likes > 10 && dislikes < 5))`.
-
 ### Column comparisons
 
 This queries comments that have more likes than dislikes. Note that we're comparing `likes` column to another column instead of a value.
 
 ```js
-commentCollection.query(
+database.get('comments').query(
   Q.where('likes', Q.gt(Q.column('dislikes')))
 )
 ```
 
-### Raw Queries
+### sortBy, take, skip
 
-If this Query syntax is not enough for you, and you need to get your hands dirty on a raw SQL or Loki query, you need **rawQueries**. For now, only record SQL queries are available. If you need other SQL queries or LokiJS raw queries, please contribute!
+You can use these clauses to sort the query by one or more columns. Note that only simple ascending/descending criteria for columns are supported.
 
 ```js
-const records = commentCollection.unsafeFetchRecordsWithSQL('select * from comments where ...')
+database.get('comments').query(
+  // sorts by number of likes from the most likes to the fewest
+  Q.sortBy('likes', Q.desc),
+  // if two comments have the same number of likes, the one with fewest dislikes will be at the top
+  Q.sortBy('dislikes', Q.asc),
+  // limit number of comments to 100, skipping the first 50
+  Q.skip(50),
+  Q.take(100),
+)
 ```
 
-Please don't use this if you don't know what you're doing. The method name is called `unsafe` for a reason. You need to be sure to properly sanitize user values to avoid SQL injection, and filter out deleted records using `where _status is not 'deleted'` clause
+It isn't _necessarily_ better or more efficient to sort on query level instead of in JavaScript, **however** the most important use case for `Q.sortBy` is when used alongside `Q.skip` and `Q.take` to implement paging - to limit the number of records loaded from database to memory on very long lists
+
+### Fetch IDs
+
+If you only need IDs of records matching a query, you can optimize the query by calling `await query.fetchIds()` instead of `await query.fetch()`
+
+### Security
+
+Remember that Queries are a sensitive subject, security-wise. Never trust user input and pass it directly into queries. In particular:
+
+- Never pass into queries values you don't know for sure are the right type (e.g. value passed to `Q.eq()` should be a string, number, boolean, or null -- but not an Object. If the value comes from JSON, you must validate it before passing it!)
+- Never pass column names (without whitelisting) from user input
+- Values passed to `oneOf`, `notIn` should be arrays of simple types - be careful they don't contain objects
+- Do not use `Q.like` / `Q.notLike` without `Q.sanitizeLikeString`
+- Do not use `unsafe raw queries` without knowing what you're doing and sanitizing all user input
+
+### Unsafe SQL queries
+
+```js
+const records = await database.get('comments').query(
+  Q.unsafeSqlQuery(`select * from comments where foo is not ? and _status is not 'deleted'`, ['bar'])
+).fetch()
+
+const recordCount = await database.get('comments').query(
+  Q.unsafeSqlQuery(`select count(*) as count from comments where foo is not ? and _status is not 'deleted'`, ['bar'])
+).fetchCount()
+```
+
+You can also observe unsafe raw SQL queries, however, if it contains `JOIN` statements, you must explicitly specify all other tables using `Q.experimentalJoinTables` and/or `Q.experimentalNestedJoin`, like so:
+
+```js
+const records = await database.get('comments').query(
+  Q.experimentalJoinTables(['posts']),
+  Q.experimentalNestedJoin('posts', 'blogs'),
+  Q.unsafeSqlQuery(
+    'select comments.* from comments ' +
+      'left join posts on comments.post_id is posts.id ' +
+      'left join blogs on posts.blog_id is blogs.id' +
+      'where ...',
+  ),
+).observe()
+```
+
+⚠️ Please note:
+
+- Do not use this if you don't know what you're doing
+- Do not pass user input directly to avoid SQL Injection - use `?` placeholders and pass array of placeholder values
+- You must filter out deleted record using `where _status is not 'deleted'` clause
+- If you're going to fetch count of the query, use `count(*) as count` as the select result
+
+### Unsafe fetch raw
+
+In addition to `.fetch()` and `.fetchIds()`, there is also `.unsafeFetchRaw()`. Instead of returning an array of `Model` class instances, it returns an array of raw objects.
+
+You can use it as an unsafe optimization, or alongside `Q.unsafeSqlQuery`/`Q.unsafeLokiTransform` to create an advanced query that either skips fetching unnecessary columns or includes extra computed columns. For example:
+
+```js
+const rawData = await database.get('posts').query(
+  Q.unsafeSqlQuery(
+    'select posts.text1, count(tag_assignments.id) as tag_count, sum(tag_assignments.rank) as tag_rank from posts' +
+      ' left join tag_assignments on posts.id = tag_assignments.post_id' +
+      ' group by posts.id' +
+      ' order by posts.position desc',
+  )
+).unsafeFetchRaw()
+```
+
+⚠️ You MUST NOT mutate returned objects. Doing so will corrupt the database.
+
+### Unsafe SQL/Loki expressions
+
+You can also include smaller bits of SQL and Loki expressions so that you can still use as much of Watermelon query builder as possible:
+
+```js
+// SQL example:
+postsCollection.query(
+  Q.where('is_published', true),
+  Q.unsafeSqlExpr('tasks.num1 not between 1 and 5'),
+)
+
+// LokiJS example:
+postsCollection.query(
+  Q.where('is_published', true),
+  Q.unsafeLokiExpr({ text1: { $contains: 'hey' } })
+)
+```
+
+For SQL, be sure to prefix column names with table name when joining with other tables.
+
+⚠️ Please do not use this if you don't know what you're doing. Do not pass user input directly to avoid SQL injection.
+
+### Multi-table column comparisons and `Q.unsafeLokiTransform`
+
+Example: we want to query comments posted more than 14 days after the post it belongs to was published.
+
+There's sadly no built-in syntax for this, but can be worked around using unsafe expressions like so:
+
+```js
+// SQL example:
+commentsCollection.query(
+  Q.on('posts', 'published_at', Q.notEq(null)),
+  Q.unsafeSqlExpr(`comments.createad_at > posts.published_at + ${14 * 24 * 3600 * 1000}`)
+)
+
+// LokiJS example:
+commentsCollection.query(
+  Q.on('posts', 'published_at', Q.notEq(null)),
+  Q.unsafeLokiTransform((rawRecords, loki) => {
+    return rawRecords.filter(rawRecord => {
+      const post = loki.getCollection('posts').by('id', rawRecord.post_id)
+      return post && rawRecord.created_at > post.published_at + 14 * 24 * 3600 * 1000
+    })
+  }),
+)
+```
+
+For LokiJS, remember that `rawRecord` is an unsanitized, unsafe object and must not be mutated. `Q.unsafeLokiTransform` only works when using `LokiJSAdapter` with `useWebWorkers: false`. There can only be one `Q.unsafeLokiTransform` clause per query.
 
 ### `null` behavior
 
@@ -277,6 +481,22 @@ postsCollection.query(
 **`Q.notIn` operator**: If you query, say, posts with `Q.where('status', Q.notIn(['published', 'draft']))`, it will match posts with a status different than `published` or `draft`, however, it will NOT match posts with `status == null`. If you want to include such posts, query for that explicitly like with the example above.
 
 **`Q.weakGt` operator**: This is weakly typed version of `Q.gt` — one that allows null comparisons. So if you query `comments` with `Q.where('likes', Q.weakGt(Q.column('dislikes')))`, it WILL match comments with 5 likes and `null` dislikes. (For `weakGt`, unlike standard operators, any number is greater than `null`).
+
+## Contributing improvements to Watermelon query language
+
+Here are files that are relevant. This list may look daunting, but adding new matchers is actually quite simple and multiple first-time contributors made these improvements (including like, sort, take, skip). The implementation is just split into multiple files (and their test files), but when you look at them, it'll be easy to add matchers by analogy.
+
+We recommend starting from writing tests first to check expected behavior, then implement the actual behavior.
+
+- `src/QueryDescription/test.js` - Test clause builder (`Q.myThing`) output and test that it rejects bad/unsafe parameters
+- `src/QueryDescription/index.js` - Add clause builder and type definition
+- `src/__tests__/databaseTests.js` - Add test ("join" if it requires conditions on related tables; "match" otherwise) that checks that the new clause matches expected records. From this, tests running against SQLite, LokiJS, and Matcher are generated. (If one of those is not supported, add `skip{Loki,Sql,Count,Matcher}: true` to your test)
+- `src/adapters/sqlite/encodeQuery/test.js` - Test that your query generates SQL you expect. (If your clause is Loki-only, test that error is thrown)
+- `src/adapters/sqlite/encodeQuery/index.js` - Generate SQL
+- `src/adapters/lokijs/worker/encodeQuery/test.js` - Test that your query generates the Loki query you expect (If your clause is SQLite-only, test that an error is thrown)
+- `src/adapters/lokijs/worker/encodeQuery/index.js` - Generate Loki query
+- `src/adapters/lokijs/worker/{performJoins/*.js,executeQuery.js}` - May be relevant for some Loki queries, but most likely you don't need to look here.
+- `src/observation/encodeMatcher/` - If your query can be checked against a record in JavaScript (e.g. you're adding new "by regex" matcher), implement this behavior here (`index.js`, `operators.js`). This is used for efficient "simple observation". You don't need to write tests - `databaseTests` are used automatically. If you can't or won't implement encodeMatcher for your query, add a check to `canEncode.js` so that it returns `false` for your query (Less efficient "reloading observation" will be used then). Add your query to `test.js`'s "unencodable queries" then.
 
 * * *
 

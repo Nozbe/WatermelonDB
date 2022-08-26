@@ -1,7 +1,8 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { pipe, map, allPass, anyPass } from 'rambdax'
+import allPass from '../../utils/fp/allPass'
+import anyPass from '../../utils/fp/anyPass'
 
 import invariant from '../../utils/common/invariant'
 
@@ -10,11 +11,12 @@ import type { RawRecord } from '../../RawRecord'
 import type Model from '../../Model'
 
 import operators from './operators'
+import canEncodeMatcher, { forbiddenError } from './canEncode'
 
 // eslint-disable-next-line no-unused-vars
-export type Matcher<Element: Model> = RawRecord => boolean
+export type Matcher<Element: Model> = (RawRecord) => boolean
 
-const encodeWhereDescription: WhereDescription => Matcher<*> = description => rawRecord => {
+const encodeWhereDescription: (WhereDescription) => Matcher<*> = (description) => (rawRecord) => {
   const left = (rawRecord: Object)[description.left]
   const { comparison } = description
   const operator = operators[comparison.operator]
@@ -36,7 +38,7 @@ const encodeWhereDescription: WhereDescription => Matcher<*> = description => ra
   return operator(left, right)
 }
 
-const encodeWhere: Where => Matcher<*> = where => {
+const encodeWhere: (Where) => Matcher<*> = (where) => {
   switch (where.type) {
     case 'where':
       return encodeWhereDescription(where)
@@ -44,20 +46,20 @@ const encodeWhere: Where => Matcher<*> = where => {
       return allPass(where.conditions.map(encodeWhere))
     case 'or':
       return anyPass(where.conditions.map(encodeWhere))
+    case 'on':
+      throw new Error(
+        'Illegal Q.on found -- nested Q.ons require explicit Q.experimentalJoinTables declaration',
+      )
     default:
-      throw new Error('Invalid Where')
+      throw new Error(`Illegal clause ${where.type}`)
   }
 }
 
-const encodeConditions: (Where[]) => Matcher<*> = pipe(
-  map(encodeWhere),
-  allPass,
-)
+const encodeConditions: (Where[]) => Matcher<*> = (conditions) =>
+  allPass(conditions.map(encodeWhere))
 
 export default function encodeMatcher<Element: Model>(query: QueryDescription): Matcher<Element> {
-  const { join, where } = query
+  invariant(canEncodeMatcher(query), forbiddenError)
 
-  invariant(!join.length, `Queries with joins can't be encoded into a matcher`)
-
-  return (encodeConditions(where): any)
+  return (encodeConditions(query.where): any)
 }
