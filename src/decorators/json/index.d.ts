@@ -1,9 +1,9 @@
-declare module '@nozbe/watermelondb/decorators/json' {
-  import { ColumnName, Model } from '@nozbe/watermelondb'
+  import { ColumnName } from '../../Schema'
+  import Model from '../../Model'
 
   type Sanitizer = (source: any, model?: Model) => any
 
-  const json: (rawFieldName: ColumnName, sanitizer: Sanitizer) => PropertyDecorator
+  type json = (rawFieldName: ColumnName, sanitizer: Sanitizer) => PropertyDecorator
 
   export default json
-}
+

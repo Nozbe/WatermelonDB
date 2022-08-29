@@ -1,6 +1,4 @@
-declare module '@nozbe/watermelondb/decorators/field' {
-  import { ColumnName } from '@nozbe/watermelondb'
+import { ColumnName } from '../../Schema'
 
-  const field: (columnName: ColumnName) => PropertyDecorator
-  export default field
-}
+type field = (columnName: ColumnName) => PropertyDecorator
+export default field

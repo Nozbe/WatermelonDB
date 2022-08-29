@@ -1,24 +1,18 @@
-declare module '@nozbe/watermelondb/DatabaseProvider' {
-  import * as React from 'react'
-  import Database from '@nozbe/watermelondb/Database'
-  import { NonReactStatics } from 'hoist-non-react-statics'
+import {ElementType, ReactNode} from 'react'
+import Database from '../Database'
+import { Provider } from './DatabaseContext'
 
-  type GetProps<C> = C extends React.ComponentType<infer P & { database?: Database }> ? P : never
-
-  export const DatabaseContext: React.Context<Database>
-
-  export interface DatabaseProviderProps {
-    children?: React.ReactChild // only one child is allowed, goes through React.Children.only
-    database: Database
-  }
-
-  export const DatabaseProviderComponent: React.ComponentClass<DatabaseProviderProps>
-
-  export function withDatabase<
-    C extends React.ComponentType<P>,
-    P = GetProps<C>,
-    R = Omit<P, 'database'>
-  >(Component: C): React.FunctionComponent<R> & NonReactStatics<C>
-
-  export default DatabaseProviderComponent
+export type Props = {
+  database: Database,
+  children: ReactNode,
 }
+
+/**
+ * Database provider to create the database context
+ * to allow child components to consume the database without prop drilling
+ */
+declare function DatabaseProvider({ children, database }: Props): ElementType<Provider>;
+
+export { default as withDatabase } from './withDatabase'
+export { default as DatabaseContext, DatabaseConsumer } from './DatabaseContext'
+export default DatabaseProvider

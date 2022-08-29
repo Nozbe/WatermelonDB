@@ -1,50 +1,95 @@
-import { LocalStorage } from '@nozbe/watermelondb'
+import { type Observable, startWith, merge as merge$ } from '../utils/rx'
+import { Unsubscribe } from '../utils/subscriptions'
 
-declare module '@nozbe/watermelondb/Database' {
-  import {
-    AppSchema,
-    CollectionMap,
-    LocalStorage,
-    DatabaseAdapter,
-    Model,
-    TableName,
-    Collection,
-  } from '@nozbe/watermelondb'
-  import { CollectionChangeSet } from '@nozbe/watermelondb/Collection'
-  import { Class } from '@nozbe/watermelondb/utils/common'
-  import { Observable } from 'rxjs'
+import type { DatabaseAdapter } from '../adapters/type'
+import DatabaseAdapterCompat from '../adapters/compat'
+import type Model from '../Model'
+import type Collection from '../Collection'
+import type { CollectionChangeSet } from '../Collection'
+import type { TableName, AppSchema } from '../Schema'
 
-  interface ReaderInterface {
-    callReader<T>(work: () => Promise<T>): Promise<T>
-  }
-  interface WriterInterface extends ReaderInterface {
-    callWriter<T>(work: () => Promise<T>): Promise<T>
-    batch(...records: (Model | null | void | false | Promise<void>)[]): Promise<void>
-  }
+import CollectionMap from './CollectionMap'
+import type LocalStorage from './LocalStorage'
+import WorkQueue, { type ReaderInterface, type WriterInterface } from './WorkQueue'
 
-  export default class Database {
-    public adapter: DatabaseAdapter
+import {$ReadOnlyArray, $Exact} from '../types'
 
-    public schema: AppSchema
+type DatabaseProps = $Exact<{
+  adapter: DatabaseAdapter,
+  modelClasses: Model[],
+}>
 
-    public collections: CollectionMap
+export function setExperimentalAllowsFatalError();
 
-    public localStorage: LocalStorage
+export default class Database {
+  adapter: DatabaseAdapterCompat
 
-    public constructor(options: { adapter: DatabaseAdapter; modelClasses: Class<Model>[] })
+  schema: AppSchema
 
-    public batch(...records: (Model | null | void | false | Promise<void>)[]): Promise<void>
+  collections: CollectionMap
 
-    public write<T>(work: (arg0: ReaderInterface) => Promise<T>, description?: string): Promise<T>
+  _workQueue: WorkQueue;
 
-    public read<T>(work: (arg0: WriterInterface) => Promise<T>, description?: string): Promise<T>
+  // (experimental) if true, Database is in a broken state and should not be used anymore
+  _isBroken: boolean;
 
-    public withChangesForTables(
-      tables: Array<TableName<any>>,
-    ): Observable<CollectionChangeSet<any> | null>
+  _localStorage: LocalStorage
 
-    public unsafeResetDatabase(): Promise<void>
+  constructor(options: DatabaseProps);
 
-    public get<T extends Model>(tableName: TableName<T>): Collection<T>
-  }
+  get<T extends Model>(tableName: TableName<T>): Collection<T>;
+
+  get localStorage(): LocalStorage;
+
+  // Executes multiple prepared operations
+  // (made with `collection.prepareCreate` and `record.prepareUpdate`)
+  // Note: falsy values (null, undefined, false) passed to batch are just ignored
+  batch(...records: $ReadOnlyArray<Model | Model[] | null | void | false>): Promise<void>;
+
+  // Enqueues a Writer - a block of code that, when it's running, has a guarantee that no other Writer
+  // is running at the same time.
+  // All actions that modify the database (create, update, delete) must be performed inside of a Writer block
+  // See docs for more details and practical guide
+  write<T>(work: (writer: WriterInterface) => Promise<T>, description?: string): Promise<T>;
+
+  // Enqueues a Reader - a block of code that, when it's running, has a guarantee that no Writer
+  // is running at the same time (therefore, the database won't be modified for the duration of Reader's work)
+  // See docs for more details and practical guide
+  read<T>(work: (reader: ReaderInterface) => Promise<T>, description?: string): Promise<T>;
+
+  action<T>(work: (writer: WriterInterface) => Promise<T>, description?: string): Promise<T>;
+
+  // Emits a signal immediately, and on change in any of the passed tables
+  withChangesForTables(tables: TableName<any>[]): Observable<CollectionChangeSet<any> | null>;
+
+  _subscribers: [TableName<any>[], () => void, any][]
+
+  // Notifies `subscriber` on change in any of passed tables (only a signal, no change set)
+  experimentalSubscribe(
+    tables: TableName<any>[],
+    subscriber: () => void,
+    debugInfo?: any,
+  ): Unsubscribe;
+
+  _resetCount: number
+
+  _isBeingReset: boolean
+
+  // Resets database - permanently destroys ALL records stored in the database, and sets up empty database
+  //
+  // NOTE: This is not 100% safe automatically and you must take some precautions to avoid bugs:
+  // - You must NOT hold onto any Database objects. DO NOT store or cache any records, collections, anything
+  // - You must NOT observe any record or collection or query
+  // - You SHOULD NOT have any pending (queued) Actions. Pending actions will be aborted (will reject with an error).
+  //
+  // It's best to reset your app to an empty / logged out state before doing this.
+  //
+  // Yes, this sucks and there should be some safety mechanisms or warnings. Please contribute!
+  unsafeResetDatabase(): Promise<void>;
+
+  _ensureInWriter(diagnosticMethodName: string): void;
+
+  // (experimental) puts Database in a broken state
+  // TODO: Not used anywhere yet
+  _fatalError(error: Error): void;
 }

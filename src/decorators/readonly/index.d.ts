@@ -1,7 +1,6 @@
-declare module '@nozbe/watermelondb/decorators/readonly' {
-  // Copied from lib.es5.d.ts, PropertyDecorator
-  function readonly(target: Object, propertyKey: string | symbol): void
-  function readonly(): PropertyDecorator
+// Copied from lib.es5.d.ts, PropertyDecorator
+declare function readonly(target: Object, propertyKey: string | symbol): void
+declare function readonly(): PropertyDecorator
 
-  export default readonly
-}
+export default readonly
+

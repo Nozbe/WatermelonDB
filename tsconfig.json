@@ -4,7 +4,8 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "declaration": true,
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "experimentalDecorators": true
   },
   "include": [
     "src/**/*"

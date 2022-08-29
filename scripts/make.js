@@ -144,6 +144,9 @@ if (isDevelopment) {
       buildCjsModule(file)
     } else if (file.match(/\.js$/)) {
       fs.copySync(file, path.join(DEV_PATH, replace(SOURCE_PATH, '', file)))
+    } else if (file.match(/\.d.ts$/)) {
+      // Typescript
+      fs.copySync(file, path.join(DEV_PATH, replace(SOURCE_PATH, '', file)))
     } else {
       // native files
       fs.copySync(file, path.join(DEV_PATH, replace(resolvePath(), '', file)))
@@ -194,6 +197,8 @@ if (isDevelopment) {
 
   // copy typescript definitions
   glob(`${SOURCE_PATH}/**/*.d.ts`, {}, (err, files) => {
-    copyFiles(DIST_PATH, files, SOURCE_PATH)
+    files.forEach(file => {
+      fs.copySync(file, path.join(DIST_PATH, replace(SOURCE_PATH, '', file)))
+    })
   })
 }

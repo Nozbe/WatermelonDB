@@ -1,7 +1,5 @@
-declare module '@nozbe/watermelondb/decorators/nochange' {
-  // Copied from lib.es5.d.ts, PropertyDecorator
-  function nochange(target: Object, propertyKey: string | symbol): void
-  function nochange(): PropertyDecorator
+// Copied from lib.es5.d.ts, PropertyDecorator
+declare function nochange(target: Object, propertyKey: string | symbol): void
+declare function nochange(): PropertyDecorator
 
-  export default nochange
-}
+export default nochange

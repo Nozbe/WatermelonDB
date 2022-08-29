@@ -4,6 +4,7 @@
 <PROJECT_ROOT>/dev
 <PROJECT_ROOT>/examples
 <PROJECT_ROOT>/react-native-copy
+<PROJECT_ROOT>/src/**/*.ts
 .*/node_modules/react\-native/.*
 
 [libs]

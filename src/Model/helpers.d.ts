@@ -1,14 +1,7 @@
-declare module '@nozbe/watermelondb/Model/helper' {
-  import { Model } from '@nozbe/watermelondb'
+import type Model from './index'
+import{$Exact} from '../types'
 
-  export const hasUpdatedAt: (obj: Object) => boolean
+type TimestampsObj = $Exact<{ created_at?: number, updated_at?: number }>
+export function createTimestampsFor(model: Model): TimestampsObj;
 
-  export const createTimestampsFor: (
-    model: Model,
-  ) => {
-    created_at: Date
-    updated_at: Date
-  }
-
-  export function addToRawSet(rawSet: string | void, value: string): string
-}
+export function fetchDescendants(model: Model): Promise<Model[]>

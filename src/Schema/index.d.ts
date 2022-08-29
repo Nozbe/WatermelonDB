@@ -1,46 +1,66 @@
-declare module '@nozbe/watermelondb/Schema' {
-  import { Model } from '@nozbe/watermelondb'
+// @flow
 
-  export type SchemaVersion = number
+// NOTE: Only require files needed (critical path on web)
+import invariant from '../utils/common/invariant'
+import type { $Exact, $RE } from '../types'
 
-  export type TableName<T extends Model | void> = string
-  export type ColumnName = string
+import type Model from '../Model'
 
-  export function tableName<T extends Model>(name: string): TableName<T>
+export type TableName<T extends Model> = string;
+export type ColumnName = string
 
-  export function columnName(name: string): ColumnName
+export type ColumnType = 'string' | 'number' | 'boolean'
+export type ColumnSchema = $RE<{
+  name: ColumnName,
+  type: ColumnType,
+  isOptional?: boolean,
+  isIndexed?: boolean,
+}>
 
-  export type ColumnType = 'string' | 'number' | 'boolean'
+export type ColumnMap = { [name: ColumnName]: ColumnSchema }
 
-  export interface ColumnSchema {
-    name: ColumnName
-    type: ColumnType
-    isOptional?: boolean
-    isIndexed?: boolean
-  }
+export type TableSchemaSpec = $Exact<{
+  name: TableName<any>,
+  columns: ColumnSchema[],
+  unsafeSql?: (string) => string,
+}>
 
-  interface ColumnMap {
-    [name: string]: ColumnSchema
-  }
+export type TableSchema = $RE<{
+  name: TableName<any>,
+  // depending on operation, it's faster to use map or array
+  columns: ColumnMap,
+  columnArray: ColumnSchema[],
+  unsafeSql?: (string) => string,
+}>
 
-  export type TableSchemaSpec = { name: TableName<any>; columns: ColumnSchema[] }
+type TableMap = { [name: TableName<any>]: TableSchema }
 
-  export interface TableSchema {
-    name: TableName<any>
-    columns: ColumnMap
-    columnArray: ColumnSchema[]
-  }
+export type SchemaVersion = number
 
-  interface TableMap {
-    [name: string]: TableSchema
-  }
+export type AppSchemaUnsafeSqlKind = 'setup' | 'create_indices' | 'drop_indices'
 
-  export interface AppSchema {
-    version: number
-    tables: TableMap
-  }
+export type AppSchemaSpec = $Exact<{
+  version: number,
+  tables: TableSchema[],
+  unsafeSql?: (string, AppSchemaUnsafeSqlKind) => string,
+}>
 
-  export function appSchema(options: { version: number; tables: TableSchema[] }): AppSchema
+export type AppSchema = $RE<{
+  version: SchemaVersion,
+  tables: TableMap,
+  unsafeSql?: (string, AppSchemaUnsafeSqlKind) => string,
+}>
 
-  export function tableSchema(options: TableSchemaSpec): TableSchema
-}
+export function tableName<T extends Model>(name: string): TableName<T>
+
+export function columnName(name: string): ColumnName;
+
+export function appSchema({ version, tables: tableList, unsafeSql }: AppSchemaSpec): AppSchema;
+
+export function validateColumnSchema(column: ColumnSchema): void;
+
+export function tableSchema({
+  name,
+  columns: columnArray,
+  unsafeSql,
+}: TableSchemaSpec): TableSchema;
