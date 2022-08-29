@@ -78,6 +78,9 @@ export default class Query<Record extends Model> {
   // Queries database and returns an array with IDs of matching records
   fetchIds(): Promise<RecordId[]>
 
+  // Emits an array of matching record ids, then emits a new array every time it changes
+  observeIds(): Observable<RecordId[]>
+
   // Queries database and returns an array with unsanitized raw results
   // You MUST NOT mutate these objects!
   unsafeFetchRaw(): Promise<any[]>

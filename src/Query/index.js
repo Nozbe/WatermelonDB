@@ -12,6 +12,7 @@ import lazy from '../decorators/lazy' // import from decorarators break the app 
 import subscribeToCount from '../observation/subscribeToCount'
 import subscribeToQuery from '../observation/subscribeToQuery'
 import subscribeToQueryWithColumns from '../observation/subscribeToQueryWithColumns'
+import subscribeToIds from '../observation/subscribeToIds'
 import * as Q from '../QueryDescription'
 import type { Clause, QueryDescription } from '../QueryDescription'
 import type Model, { AssociationInfo, RecordId } from '../Model'
@@ -62,6 +63,11 @@ export default class Query<Record: Model> {
   @lazy
   _cachedCountThrottledSubscribable: SharedSubscribable<number> = new SharedSubscribable(
     (subscriber) => subscribeToCount(this, true, subscriber),
+  )
+
+  @lazy
+  _cachedIdsSubscribable: SharedSubscribable<RecordId[]> = new SharedSubscribable((subscriber) =>
+    subscribeToIds(this, subscriber),
   )
 
   // Note: Don't use this directly, use Collection.query(...)
@@ -170,6 +176,15 @@ export default class Query<Record: Model> {
   // Queries database and returns an array with IDs of matching records
   fetchIds(): Promise<RecordId[]> {
     return toPromise((callback) => this.collection._fetchIds(this, callback))
+  }
+
+  // Emits an array of matching record ids, then emits a new array every time it changes
+  observeIds(): Observable<RecordId[]> {
+    return Observable.create((observer) => {
+      return this._cachedIdsSubscribable.subscribe((ids) => {
+        observer.next(ids)
+      })
+    })
   }
 
   // Queries database and returns an array with unsanitized raw results
