@@ -1,27 +1,28 @@
-declare module '@nozbe/watermelondb' {
-  import * as Q from '@nozbe/watermelondb/QueryDescription'
-  import Database from '@nozbe/watermelondb/Database'
+import * as Q from './QueryDescription'
 
-  export { default as Collection } from '@nozbe/watermelondb/Collection'
-  // export { default as Database } from '@nozbe/watermelondb/Database'
-  export { default as CollectionMap } from '@nozbe/watermelondb/Database/CollectionMap'
-  export { default as LocalStorage } from '@nozbe/watermelondb/Database/LocalStorage'
-  export { default as Relation } from '@nozbe/watermelondb/Relation'
-  export { default as Model, associations } from '@nozbe/watermelondb/Model'
-  export { default as Query } from '@nozbe/watermelondb/Query'
-  export { tableName, columnName, appSchema, tableSchema } from '@nozbe/watermelondb/Schema'
+export { default as Collection } from './Collection'
+export { default as Database } from './Database'
+export { default as Relation } from './Relation'
+export { default as Model, associations } from './Model'
+export { default as Query } from './Query'
+export { tableName, columnName, appSchema, tableSchema } from './Schema'
 
-  export { DatabaseAdapter } from '@nozbe/watermelondb/adapters/type'
-  export { RawRecord, DirtyRaw } from '@nozbe/watermelondb/RawRecord'
-  export { RecordId } from '@nozbe/watermelondb/Model'
-  export {
-    TableName,
-    ColumnName,
-    ColumnType,
-    ColumnSchema,
-    TableSchema,
-    AppSchema,
-  } from '@nozbe/watermelondb/Schema'
+export type { default as CollectionMap } from './Database/CollectionMap'
 
-  export { Q, Database }
-}
+export type { LocalStorageKey } from './Database/LocalStorage'
+export { localStorageKey } from './Database/LocalStorage'
+
+export type { DatabaseAdapter } from './adapters/type'
+export type { RawRecord, DirtyRaw } from './RawRecord'
+export type { RecordId } from './Model'
+export type {
+  TableName,
+  ColumnName,
+  ColumnType,
+  ColumnSchema,
+  TableSchema,
+  AppSchema,
+} from './Schema'
+export type { SchemaMigrations } from './Schema/migrations'
+
+export { Q }

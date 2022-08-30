@@ -1,28 +1,44 @@
-declare module '@nozbe/watermelondb/Collection/RecordCache' {
-  import { Model, RawRecord, RecordId, TableName } from '@nozbe/watermelondb'
-  import { CachedQueryResult } from '@nozbe/watermelondb/adapters/type'
+// @flow
 
-  type Instantiator<T> = (raw: RawRecord) => T
+import logger from '../utils/common/logger'
 
-  export default class RecordCache<Record extends Model> {
-    public map: Map<RecordId, Record>
+import type Model from '../Model'
+import type { RecordId } from '../Model'
+import type Collection from './index'
+import type { CachedQueryResult } from '../adapters/type'
+import type { TableName } from '../Schema'
+import type { RawRecord } from '../RawRecord'
 
-    public tableName: TableName<Record>
+type Instantiator<T> = (RawRecord) => T
 
-    public recordInsantiator: Instantiator<Record>
+export default class RecordCache<Record extends Model> {
+  map: Map<RecordId, Record>;
 
-    public constructor(tableName: TableName<Record>, recordInsantiator: Instantiator<Record>)
+  tableName: TableName<Record>;
 
-    public get(id: RecordId): Record | void
+  recordInsantiator: Instantiator<Record>;
 
-    public add(record: Record): void
+  _debugCollection: Collection<Record>;
 
-    public delete(record: Record): void
+  constructor(
+    tableName: TableName<Record>,
+    recordInsantiator: Instantiator<Record>,
+    collection: Collection<Record>,
+  );
 
-    public unsafeClear(): void
+  get(id: RecordId): Record | undefined;
 
-    public recordsFromQueryResult(result: CachedQueryResult): Record[]
+  add(record: Record): void;
 
-    public recordFromQueryResult(result: RecordId | RawRecord): Record
-  }
+  delete(record: Record): void;
+
+  unsafeClear(): void;
+
+  recordsFromQueryResult(result: CachedQueryResult): Record[];
+
+  recordFromQueryResult(result: RecordId | RawRecord): Record;
+
+  _cachedModelForId(id: RecordId): Record;
+
+  _modelForRaw(raw: RawRecord): Record;
 }

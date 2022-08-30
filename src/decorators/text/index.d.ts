@@ -1,7 +1,6 @@
-declare module '@nozbe/watermelondb/decorators/text' {
-  import { ColumnName } from '@nozbe/watermelondb'
+import { ColumnName } from '../../Schema'
 
-  const text: (columnName: ColumnName) => PropertyDecorator
+type text = (columnName: ColumnName) => PropertyDecorator
 
-  export default text
-}
+export default text
+

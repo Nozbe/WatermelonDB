@@ -1,54 +1,53 @@
-declare module '@nozbe/watermelondb/Schema/migrations' {
-  import {
-    SchemaVersion,
-    TableName,
-    ColumnMap,
-    ColumnSchema,
-    TableSchemaSpec,
-  } from '@nozbe/watermelondb/Schema'
+import type { $RE, $Exact } from '../../types'
+import type { ColumnSchema, TableName, TableSchema, TableSchemaSpec, SchemaVersion } from '../index'
 
-  export interface SchemaMigrations {
-    validated: true
-    minVersion: SchemaVersion
-    maxVersion: SchemaVersion
-    sortedMigrations: Migration[]
-  }
+export type CreateTableMigrationStep = $RE<{
+  type: 'create_table',
+  schema: TableSchema,
+}>
 
-  export interface CreateTableMigrationStep {
-    type: 'create_table'
-    name: TableName<any>
-    columns: ColumnMap
-  }
+export type AddColumnsMigrationStep = $RE<{
+  type: 'add_columns',
+  table: TableName<any>,
+  columns: ColumnSchema[],
+  unsafeSql?: (string) => string,
+}>
 
-  export interface AddColumnsMigrationStep {
-    type: 'add_columns'
-    table: TableName<any>
-    columns: ColumnSchema[]
-  }
+export type SqlMigrationStep = $RE<{
+  type: 'sql',
+  sql: string,
+}>
 
-  export type SqlMigrationStep = {
-    type: 'sql'
-    sql: string
-  }
+export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep | SqlMigrationStep
 
-  export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep | SqlMigrationStep
+type Migration = $RE<{
+  toVersion: SchemaVersion,
+  steps: MigrationStep[],
+}>
 
-  export interface Migration {
-    toVersion: SchemaVersion
-    steps: MigrationStep[]
-  }
+type SchemaMigrationsSpec = $RE<{
+  migrations: Migration[],
+}>
 
-  interface SchemaMigrationsSpec {
-    migrations: Migration[]
-  }
+export type SchemaMigrations = $RE<{
+  validated: true,
+  minVersion: SchemaVersion,
+  maxVersion: SchemaVersion,
+  sortedMigrations: Migration[],
+}>
 
-  export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMigrations
-  export function createTable(tableSchemaSpec: TableSchemaSpec): CreateTableMigrationStep
-  export function addColumns({
-    table,
-    columns,
-  }: {
-    table: TableName<any>
-    columns: ColumnSchema[]
-  }): AddColumnsMigrationStep
-}
+export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMigrations;
+
+export function createTable(tableSchemaSpec: TableSchemaSpec): CreateTableMigrationStep;
+
+export function addColumns({
+  table,
+  columns,
+  unsafeSql,
+}: $Exact<{
+  table: TableName<any>,
+  columns: ColumnSchema[],
+  unsafeSql?: (string) => string,
+}>): AddColumnsMigrationStep;
+
+export function unsafeExecuteSql(sql: string): SqlMigrationStep;

@@ -1,10 +1,8 @@
-declare module '@nozbe/watermelondb/decorators/common' {
-  import { ColumnName } from '@nozbe/watermelondb'
+import type { ColumnName } from '../Schema'
 
-  export function ensureDecoratorUsedProperly(
-    columnName: ColumnName,
-    target: Object,
-    key: string,
-    descriptor: Object,
-  ): void
-}
+export function ensureDecoratorUsedProperly(
+  columnName: ColumnName,
+  target: Object,
+  key: string,
+  descriptor: Object,
+): void
