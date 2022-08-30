@@ -68,14 +68,14 @@ describe('subscribeToIds', () => {
     })
 
     await waitForNextQuery()
-    expect(observer).toHaveBeenCalledTimes(5)
+    expect(observer).toHaveBeenCalledTimes(4)
     expect(observer).toHaveBeenLastCalledWith(['a', 'c', 'b'])
 
     // remove some
     await db.write(() => t2.destroyPermanently())
 
     await waitForNextQuery()
-    expect(observer).toHaveBeenCalledTimes(6)
+    expect(observer).toHaveBeenCalledTimes(5)
     expect(observer).toHaveBeenLastCalledWith(['a', 'c'])
 
     // change to no longer match
@@ -84,7 +84,7 @@ describe('subscribeToIds', () => {
     })
 
     await waitForNextQuery()
-    expect(observer).toHaveBeenCalledTimes(7)
+    expect(observer).toHaveBeenCalledTimes(6)
     expect(observer).toHaveBeenLastCalledWith(['c'])
 
     // ensure record subscriptions are disposed properly
@@ -92,6 +92,6 @@ describe('subscribeToIds', () => {
     await updateTask(t3, () => {
       t3.isCompleted = false
     })
-    expect(observer).toHaveBeenCalledTimes(7)
+    expect(observer).toHaveBeenCalledTimes(6)
   })
 })

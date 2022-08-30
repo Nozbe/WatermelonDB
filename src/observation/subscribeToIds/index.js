@@ -1,8 +1,7 @@
 // @flow
 
-import { Observable, switchMap, distinctUntilChanged, throttleTime } from '../../utils/rx'
 import { logError } from '../../utils/common'
-import { toPromise } from '../../utils/fp/Result'
+import identicalArrays from '../../utils/fp/identicalArrays'
 import { type Unsubscribe } from '../../utils/subscriptions'
 
 import type Query from '../../Query'
@@ -14,6 +13,7 @@ export default function subscribeToIds<Record: Model>(
 ): Unsubscribe {
   const { collection } = query
 
+  let previousRecordIds: ?(RecordId[]) = null
   let unsubscribed = false
 
   const observeIdsFetch = () => {
@@ -23,8 +23,13 @@ export default function subscribeToIds<Record: Model>(
         return
       }
 
-      const shouldEmit = !unsubscribed
-      shouldEmit && subscriber(result.value)
+      const recordIds = result.value
+
+      const shouldEmit =
+        !unsubscribed && (!previousRecordIds || !identicalArrays(recordIds, previousRecordIds))
+
+      previousRecordIds = recordIds
+      shouldEmit && subscriber(recordIds)
     })
   }
 
