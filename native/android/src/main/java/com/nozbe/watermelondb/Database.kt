@@ -149,4 +149,7 @@ class Database private constructor(private val db: SQLiteDatabase) {
     }
 
     fun close() = db.close()
+
+    val isOpen
+        get() = db.isOpen
 }
