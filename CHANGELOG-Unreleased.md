@@ -33,5 +33,6 @@
 - [android] Fixed compilation on some setups due to a missing <cassert> import
 - [sync] Fixed marking changes as synced for users that don't keep globally unique (only per-table unique) IDs
 - Fix `Model.experimentalMarkAsDeleted/experimentalDestroyPermanently()` throwing an error in some cases
+- Fixes included in updated `withObservables`
 
 ### Internal
