@@ -120,6 +120,10 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             withDriver(tag, promise) { it.cachedQuery(table, query) }
 
     @ReactMethod
+    fun execSqlQuery(tag: ConnectionTag, query: SQL, promise: Promise) =
+        withDriver(tag, promise) { it.execSqlQuery(query) }
+
+    @ReactMethod
     fun count(tag: ConnectionTag, query: SQL, promise: Promise) =
             withDriver(tag, promise) { it.count(query) }
 

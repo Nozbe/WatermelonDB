@@ -169,6 +169,15 @@ extension DatabaseBridge {
             try $0.cachedQuery(table: table, query: query)
         }
     }
+    
+    @objc(execSqlQuery:query:resolve:reject:)
+    func execSqlQuery(tag: ConnectionTag,
+                      query: Database.SQL,
+                      resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+        withDriver(tag, resolve, reject) {
+            try $0.execSqlQuery(query)
+        }
+    }
 
     @objc(count:query:resolve:reject:)
     func count(tag: ConnectionTag,
@@ -284,6 +293,14 @@ extension DatabaseBridge {
     func querySynchronous(tag: ConnectionTag, table: Database.TableName, query: Database.SQL) -> NSDictionary {
         return withDriverSynchronous(tag) {
             try $0.cachedQuery(table: table, query: query)
+        }
+    }
+    
+    @objc(execSqlQuerySynchronous:query:)
+        func execSqlQuerySynchronous(tag: ConnectionTag, query: Database.SQL) -> NSDictionary {
+            return withDriverSynchronous(tag) {
+                try $0.execSqlQuery(query)
+            }
         }
     }
 

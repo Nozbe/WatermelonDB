@@ -37,6 +37,7 @@ const dispatcherMethods = [
   'getLocal',
   'setLocal',
   'removeLocal',
+  'execSqlQuery'
 ]
 
 export const makeDispatcher = (
