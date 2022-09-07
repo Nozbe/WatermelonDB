@@ -87,7 +87,7 @@ class DatabaseDriver(context: Context, dbName: String) {
         val resultArray = Arguments.createArray()
 
         database.rawQuery(query).use {
-            if (it.count > 0 && it.columnNames.contains("id")) {
+            if (it.count > 0) {
                 while (it.moveToNext()) {
                     resultArray.pushMapFromCursor(it)
                 }
