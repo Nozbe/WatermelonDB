@@ -203,6 +203,11 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     this.unsafeSqlQuery(query.table, encodeQuery(query), callback)
   }
 
+  execSqlQuery(sql: string, callback: ResultCallback<CachedQueryResult>): void {
+    this._dispatcher.execSqlQuery(sql, result => 
+      callback(result))
+  }
+
   unsafeSqlQuery(
     table: TableName<any>,
     sql: string,
