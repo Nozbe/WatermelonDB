@@ -297,12 +297,12 @@ extension DatabaseBridge {
     }
     
     @objc(execSqlQuerySynchronous:query:)
-        func execSqlQuerySynchronous(tag: ConnectionTag, query: Database.SQL) -> NSDictionary {
-            return withDriverSynchronous(tag) {
-                try $0.execSqlQuery(query)
-            }
+    func execSqlQuerySynchronous(tag: ConnectionTag, query: Database.SQL) -> NSDictionary {
+        return withDriverSynchronous(tag) {
+            try $0.execSqlQuery(query)
         }
     }
+    
 
     @objc(countSynchronous:query:)
     func countSynchronous(tag: ConnectionTag, query: Database.SQL) -> NSDictionary {
