@@ -32,6 +32,7 @@ public:
     void unsafeResetDatabase(jsi::String &schema, int schemaVersion);
     jsi::Value getLocal(jsi::String &key);
     void executeMultiple(std::string sql);
+    void loadOrSaveDb(jsi::String &fileName, int isSave);
 
 private:
     bool initialized_;
