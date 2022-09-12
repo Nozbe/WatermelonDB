@@ -97,6 +97,10 @@ export default class DatabaseAdapterCompat {
     return toPromise((callback) => this.underlyingAdapter.removeLocal(key, callback))
   }
 
+  loadOrSaveDb(filePath: string, isSave: boolean): Promise<void> {
+    return toPromise((callback) => this.underlyingAdapter.loadOrSaveDb(filePath, isSave, callback))
+  }
+
   // untyped - test-only code
   async testClone(options: any): Promise<any> {
     // $FlowFixMe

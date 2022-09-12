@@ -375,6 +375,10 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     this._dispatcher.call('batch', [[operation]], callback)
   }
 
+  loadOrSaveDb(filePath: string, isSave: boolean, callback: ResultCallback<void>): void {
+    this._dispatcher.call('loadOrSaveDb', [filePath, isSave], callback)
+  }
+
   removeLocal(key: string, callback: ResultCallback<void>): void {
     const operation = [IGNORE_CACHE, null, `delete from "local_storage" where "key" == ?`, [[key]]]
     this._dispatcher.call('batch', [[operation]], callback)

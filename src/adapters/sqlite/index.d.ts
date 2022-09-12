@@ -59,6 +59,8 @@ declare module '@nozbe/watermelondb/adapters/sqlite' {
 
     setLocal(key: string, value: string): Promise<void>
 
+    loadOrSaveDb(filePath: string, isSave: Boolean): Promise<void>
+
     unsafeClearCachedRecords(): Promise<void>
 
     unsafeResetDatabase(): Promise<void>

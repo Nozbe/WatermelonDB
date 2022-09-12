@@ -234,6 +234,10 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     this._dispatcher.call('removeLocal', [key], callback)
   }
 
+  loadOrSaveDb(filePath: string, isSave: boolean, callback: ResultCallback<void>): void {
+    callback({ error: new Error('loadOrSaveDb unavailable on LokiJS') })
+  }
+
   // dev/debug utility
   get _driver(): any {
     // $FlowFixMe
