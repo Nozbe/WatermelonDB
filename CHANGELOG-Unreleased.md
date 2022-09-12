@@ -17,6 +17,7 @@
 - [adapters] Adapter objects now returns `dbName`
 - [TypeScript] Add unsafeExecute method
 - [TypeScript] Add localStorage property to Database
+- [iOS] Added ability to backup and restore sqlite db with `database.writeToFile(filePath)` and `database.readFromFile(filePath)`.
 
 ### Performance
 
