@@ -170,9 +170,10 @@ extension DatabaseBridge {
         }
     }
     
-    @objc(execSqlQuery:query:resolve:reject:)
+    @objc(execSqlQuery:query:params:resolve:reject:)
     func execSqlQuery(tag: ConnectionTag,
                       query: Database.SQL,
+                      params: [Any] = [],
                       resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         withDriver(tag, resolve, reject) {
             try $0.execSqlQuery(query)

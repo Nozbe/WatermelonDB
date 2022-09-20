@@ -71,8 +71,8 @@ class DatabaseDriver {
         }
     }
     
-    func execSqlQuery(_ query: Database.SQL) throws -> [[AnyHashable: Any]?] {
-        return try database.queryRaw(query).map { row in row.resultDictionary }
+    func execSqlQuery(_ query: Database.SQL, params: [Any] = []) throws -> [[AnyHashable: Any]?] {
+        return try database.queryRaw(query, params).map { row in row.resultDictionary }
     }
     
     func count(_ query: Database.SQL) throws -> Int {

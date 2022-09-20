@@ -83,10 +83,10 @@ class DatabaseDriver(context: Context, dbName: String) {
         return resultArray
     }
 
-    fun execSqlQuery(query: SQL): WritableArray {
+    fun execSqlQuery(query: SQL, params: Array<Any> = arrayOf()): WritableArray {
         val resultArray = Arguments.createArray()
 
-        database.rawQuery(query).use {
+        database.rawQuery(query, params).use {
             if (it.count > 0) {
                 while (it.moveToNext()) {
                     resultArray.pushMapFromCursor(it)
