@@ -83,7 +83,7 @@ class DatabaseDriver(context: Context, dbName: String) {
         return resultArray
     }
 
-    fun execSqlQuery(query: SQL, params: Array<Any> = arrayOf()): WritableArray {
+    fun execSqlQuery(query: SQL, params: Array<String> = arrayOf()): WritableArray {
         val resultArray = Arguments.createArray()
 
         database.rawQuery(query, params).use {

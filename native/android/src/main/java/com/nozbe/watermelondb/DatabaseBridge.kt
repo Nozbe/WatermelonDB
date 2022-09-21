@@ -120,7 +120,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             withDriver(tag, promise) { it.cachedQuery(table, query) }
 
     @ReactMethod
-    fun execSqlQuery(tag: ConnectionTag, query: SQL, params: Array<Any> = arrayOf(), promise: Promise) =
+    fun execSqlQuery(tag: ConnectionTag, query: SQL, params: Array<String> = arrayOf(), promise: Promise) =
         withDriver(tag, promise) { it.execSqlQuery(query, params) }
 
     @ReactMethod
