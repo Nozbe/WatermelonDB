@@ -44,7 +44,7 @@ declare module '@BuildHero/watermelondb/adapters/type' {
     // Do not use — only for testing purposes
     unsafeClearCachedRecords(): Promise<void>
 
-    execSqlQuery(sql: string): Promise<Record<string, any>[]>
+    execSqlQuery(sql: string, params: any[]): Promise<Record<string, any>[]>
   }
 
   export interface SQLiteDatabaseAdapter {
