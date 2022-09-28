@@ -36,7 +36,9 @@ import encodeQuery from './encodeQuery'
 import encodeUpdate from './encodeUpdate'
 import encodeInsert from './encodeInsert'
 
-import { makeDispatcher, DatabaseBridge, getDispatcherType } from './makeDispatcher'
+let makeDispatcher = null
+let DatabaseBridge = null
+let getDispatcherType = null
 
 export type { SQL, SQLiteArg, SQLiteQuery }
 
@@ -59,6 +61,14 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   _initPromise: Promise<void>
 
   constructor(options: SQLiteAdapterOptions): void {
+    const dispatchImportPath = process.env.NODE_ENV !== 'test' ? './makeDispatcher' : './makeDispatcher/testDispatcher'
+    const dispatcher = require(dispatchImportPath)
+
+    makeDispatcher = dispatcher.makeDispatcher
+    DatabaseBridge = dispatcher.DatabaseBridge
+    getDispatcherType = dispatcher.getDispatcherType
+
+
     // console.log(`---> Initializing new adapter (${this._tag})`)
     const { dbName, schema, migrations } = options
     this.schema = schema
