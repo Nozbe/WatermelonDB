@@ -123,6 +123,18 @@ class DatabaseDriver {
 
   count = (query: string) => this.database.count(query)
 
+  copyTables = (tables: string[], srcDB: string) => {
+    this.database.execute(`ATTACH DATABASE '${srcDB}' as 'other'`)
+
+    this.database.inTransaction(() => {
+      tables.forEach(table => {
+        this.database.execute(`INSERT OR IGNORE  INTO ${table} SELECT * FROM other.${table}`)
+      })
+    })
+
+    this.database.execute('DETACH DATABASE \'other\'')
+  }
+
   batch = (operations: any[]) => {
     const newIds = []
     const removedIds = []

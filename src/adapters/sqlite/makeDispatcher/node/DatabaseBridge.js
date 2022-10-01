@@ -184,6 +184,11 @@ class DatabaseBridge {
       driver.batch(this.toBatchOperations(operations)),
     )
 
+  copyTables = (tag: number, tables: string[], srcDB: string, resolve: any => void, reject: string => void) =>
+    this.withDriver(tag, resolve, reject, 'copyTables', driver =>
+      driver.copyTables(tables, srcDB)
+    )
+
   getDeletedRecords = (tag: number, table: string, resolve: any => void, reject: string => void) =>
     this.withDriver(tag, resolve, reject, 'getDeletedRecords', driver =>
       driver.getDeletedRecords(table),
