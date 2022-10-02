@@ -254,7 +254,7 @@ class DatabaseBridge {
       driver.batch(this.toBatchOperations(operations)),
     )
 
-  copyTables = (tag: number, tables: string[], srcDB: string) =>
+  copyTablesSynchronous = (tag: number, tables: string[], srcDB: string) =>
     this.withDriverSynchronous(tag, 'copyTables', driver =>
       driver.copyTables(tables, srcDB),
     )
