@@ -186,7 +186,7 @@ class DatabaseBridge {
 
   copyTables = (tag: number, tables: string[], srcDB: string, resolve: any => void, reject: string => void) =>
     this.withDriver(tag, resolve, reject, 'copyTables', driver =>
-      driver.copyTables(tables, srcDB)
+      driver.copyTables(tables, srcDB),
     )
 
   getDeletedRecords = (tag: number, table: string, resolve: any => void, reject: string => void) =>
@@ -252,6 +252,11 @@ class DatabaseBridge {
   batchSynchronous = (tag: number, operations: any[][]): any =>
     this.withDriverSynchronous(tag, 'batchSynchronous', driver =>
       driver.batch(this.toBatchOperations(operations)),
+    )
+
+  copyTables = (tag: number, tables: string[], srcDB: string) =>
+    this.withDriverSynchronous(tag, 'copyTables', driver =>
+      driver.copyTables(tables, srcDB),
     )
 
   getDeletedRecordsSynchronous = (tag: number, table: string): any =>
