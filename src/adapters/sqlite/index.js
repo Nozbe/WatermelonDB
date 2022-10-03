@@ -61,8 +61,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   _initPromise: Promise<void>
 
   constructor(options: SQLiteAdapterOptions): void {
-    const dispatchImportPath = process.env.NODE_ENV !== 'test' ? './makeDispatcher' : './makeDispatcher/testDispatcher'
-    const dispatcher = require(dispatchImportPath)
+    const dispatcher = process.env.NODE_ENV !== 'test' ? require('./makeDispatcher') : require('./makeDispatcher/testDispatcher')
 
     makeDispatcher = dispatcher.makeDispatcher
     DatabaseBridge = dispatcher.DatabaseBridge
