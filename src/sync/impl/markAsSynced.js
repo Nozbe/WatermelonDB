@@ -21,9 +21,6 @@ const unchangedRecordsForRaws = (raws, recordCache) =>
     (records, raw) => {
       const record = recordCache.find(model => model.id === raw.id)
       if (!record) {
-        logError(
-          `[Sync] Looking for record ${raw.id} to mark it as synced, but I can't find it. Will ignore it (it should get synced next time). This is probably a Watermelon bug — please file an issue!`,
-        )
         return records
       }
 
