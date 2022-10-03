@@ -22,7 +22,7 @@ export default function encodeInsert(table: TableName<any>, raw: RawRecord): SQL
   const keys = Object.keys(raw)
 
   // skipping encodeName because performance
-  const sql = `insert into "${table}" ("${keys.join('", "')}") values (${generatePlaceholders(
+  const sql = `insert or replace into "${table}" ("${keys.join('", "')}") values (${generatePlaceholders(
     keys.length,
   )})`
   const args: SQLiteArg[] = (Object.values(raw): any)
