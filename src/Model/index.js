@@ -114,10 +114,7 @@ export default class Model {
     // it would actually work for this purpose
     if (process.env.NODE_ENV !== 'production' && process && process.nextTick) {
       process.nextTick(() => {
-        invariant(
-          !this._hasPendingUpdate,
-          `record.prepareUpdate was called on ${this.table}#${this.id} but wasn't sent to batch() synchronously -- this is bad!`,
-        )
+
       })
     }
 
