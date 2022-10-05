@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.Cursor
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
+import com.facebook.react.bridge.WritableNativeArray
 import com.facebook.react.bridge.WritableArray
 import java.lang.Exception
 import java.util.logging.Logger
@@ -83,10 +84,15 @@ class DatabaseDriver(context: Context, dbName: String) {
         return resultArray
     }
 
-    fun execSqlQuery(query: SQL, params: Array<String> = arrayOf()): WritableArray {
+    fun execSqlQuery(query: SQL, params: ReadableArray = WritableNativeArray()): WritableArray {
         val resultArray = Arguments.createArray()
+        val sqlParams = mutableListOf<String>()
 
-        database.rawQuery(query, params).use {
+        for (i in 0 until params.size()) {
+            sqlParams.add(params.getString(i))
+        }
+
+        database.rawQuery(query, sqlParams.toTypedArray()).use {
             if (it.count > 0) {
                 while (it.moveToNext()) {
                     resultArray.pushMapFromCursor(it)

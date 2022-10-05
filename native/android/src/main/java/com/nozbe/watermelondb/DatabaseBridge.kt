@@ -7,6 +7,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableArray
+import com.facebook.react.bridge.WritableNativeArray
 import com.facebook.react.bridge.Arguments
 import kotlin.collections.ArrayList
 
@@ -120,7 +121,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             withDriver(tag, promise) { it.cachedQuery(table, query) }
 
     @ReactMethod
-    fun execSqlQuery(tag: ConnectionTag, query: SQL, params: Array<String> = arrayOf(), promise: Promise) =
+    fun execSqlQuery(tag: ConnectionTag, query: SQL, params: ReadableArray = WritableNativeArray(), promise: Promise) =
         withDriver(tag, promise) { it.execSqlQuery(query, params) }
 
     @ReactMethod
