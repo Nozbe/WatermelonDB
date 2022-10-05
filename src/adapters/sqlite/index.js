@@ -213,7 +213,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   }
 
   execSqlQuery(sql: string, params: any[], callback: ResultCallback<CachedQueryResult>): void {
-    this._dispatcher.execSqlQuery(sql, params, result => 
+    this._dispatcher.execSqlQuery(sql, params?.map(param => `${param}`), result => 
       callback(result))
   }
 
