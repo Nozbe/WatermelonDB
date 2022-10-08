@@ -12,33 +12,33 @@ import type { RawRecord } from '../RawRecord'
 type Instantiator<T> = (RawRecord) => T
 
 export default class RecordCache<Record extends Model> {
-  map: Map<RecordId, Record>;
+  map: Map<RecordId, Record>
 
-  tableName: TableName<Record>;
+  tableName: TableName<Record>
 
-  recordInsantiator: Instantiator<Record>;
+  recordInsantiator: Instantiator<Record>
 
-  _debugCollection: Collection<Record>;
+  _debugCollection: Collection<Record>
 
   constructor(
     tableName: TableName<Record>,
     recordInsantiator: Instantiator<Record>,
     collection: Collection<Record>,
-  );
+  )
 
-  get(id: RecordId): Record | undefined;
+  get(id: RecordId): Record | undefined
 
-  add(record: Record): void;
+  add(record: Record): void
 
-  delete(record: Record): void;
+  delete(record: Record): void
 
-  unsafeClear(): void;
+  unsafeClear(): void
 
-  recordsFromQueryResult(result: CachedQueryResult): Record[];
+  recordsFromQueryResult(result: CachedQueryResult): Record[]
 
-  recordFromQueryResult(result: RecordId | RawRecord): Record;
+  recordFromQueryResult(result: RecordId | RawRecord): Record
 
-  _cachedModelForId(id: RecordId): Record;
+  _cachedModelForId(id: RecordId): Record
 
-  _modelForRaw(raw: RawRecord): Record;
+  _modelForRaw(raw: RawRecord): Record
 }
