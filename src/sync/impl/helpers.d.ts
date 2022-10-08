@@ -4,7 +4,7 @@ import type { SyncLog, SyncDatabaseChangeSet, SyncConflictResolver } from '../in
 
 export function resolveConflict(local: RawRecord, remote: DirtyRaw): DirtyRaw
 
-export function prepareCreateFromRaw<T = Model>(collection: Collection<T>, dirtyRaw: DirtyRaw): T
+export function prepareCreateFromRaw<T extends Model = Model>(collection: Collection<T>, dirtyRaw: DirtyRaw): T
 
 export function prepareUpdateFromRaw<T = Model>(
   record: T,

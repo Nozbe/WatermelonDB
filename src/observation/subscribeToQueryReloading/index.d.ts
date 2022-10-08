@@ -1,8 +1,7 @@
-declare module '@nozbe/watermelondb/observation/reloadingObserver' {
-  import { Model, Query } from '@nozbe/watermelondb'
-  import { Observable } from 'rxjs'
+import type Query from '../../Query'
+import type Model from '../../Model'
+import { Observable } from 'rxjs'
 
-  export default function reloadingObserver<Record extends Model>(
-    query: Query<Record>,
-  ): Observable<Record[]>
-}
+export default function reloadingObserver<Record extends Model>(
+  query: Query<Record>,
+): Observable<Record[]>

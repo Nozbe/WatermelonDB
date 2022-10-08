@@ -1,8 +1,8 @@
-declare module '@nozbe/watermelondb/observation/observeQuery' {
-  import { Model, Query } from '@nozbe/watermelondb'
-  import { Observable } from 'rxjs'
+import type Query from '../Query'
+import type Model from '../Model'
 
-  export default function observeQuery<Record extends Model>(
-    query: Query<Record>,
-  ): Observable<Record[]>
-}
+import { Observable } from 'rxjs'
+
+export default function observeQuery<Record extends Model>(
+  query: Query<Record>,
+): Observable<Record[]>
