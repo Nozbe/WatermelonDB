@@ -1,8 +1,9 @@
+import { type Unsubscribe } from '../utils/subscriptions'
+
 import type Query from '../Query'
 import type Model from '../Model'
 
-import { Observable } from 'rxjs'
-
-export default function observeQuery<Record extends Model>(
+export default function subscribeToQuery<Record extends Model>(
   query: Query<Record>,
-): Observable<Record[]>
+  subscriber: (records: Record[]) => void,
+): Unsubscribe
