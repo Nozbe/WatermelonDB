@@ -5,8 +5,8 @@ import type Model from '../Model'
 import type { RecordId } from '../Model'
 import type { ColumnName, TableName } from '../Schema'
 
-type ExtractRecordIdNonOptional = <T = Model>(value: T) => RecordId
-type ExtractRecordIdOptional = <T = Model>(value: T) => RecordId
+type ExtractRecordIdNonOptional = <T extends Model = Model>(value: T) => RecordId
+type ExtractRecordIdOptional = <T extends Model = Model>(value: T) => RecordId
 type ExtractRecordId = ExtractRecordIdNonOptional & ExtractRecordIdOptional
 
 export type Options = $Exact<{

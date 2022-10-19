@@ -1,8 +1,15 @@
-declare module '@nozbe/watermelondb/observation/reloadingObserver' {
-  import { Model, Query } from '@nozbe/watermelondb'
-  import { Observable } from 'rxjs'
+import { type Unsubscribe } from '../../utils/subscriptions'
 
-  export default function reloadingObserver<Record extends Model>(
-    query: Query<Record>,
-  ): Observable<Record[]>
-}
+import type Query from '../../Query'
+import type Model from '../../Model'
+
+// Produces an observable version of a query by re-querying the database
+// when any change occurs in any of the relevant Stores.
+// This is inefficient for simple queries, but necessary for complex queries
+export default function subscribeToQueryReloading<Record extends Model>(
+  query: Query<Record>,
+  subscriber: (records: Record[]) => void,
+  // Emits `false` when query fetch begins + always emits even if no change - internal trick needed
+  // by observeWithColumns
+  shouldEmitStatus?: boolean,
+): Unsubscribe
