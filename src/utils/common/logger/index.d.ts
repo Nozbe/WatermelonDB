@@ -1,4 +1,3 @@
-
 declare class Logger {
   silent: boolean
 
@@ -11,6 +10,6 @@ declare class Logger {
   silence(): void
 }
 
-declare const logger: Logger;
+declare const logger: Logger
 
-export default logger;
+export default logger

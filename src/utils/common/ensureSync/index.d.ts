@@ -1,2 +1,1 @@
-
-export default function ensureSync<T>(value: T): T;
+export default function ensureSync<T>(value: T): T

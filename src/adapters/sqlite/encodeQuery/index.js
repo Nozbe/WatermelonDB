@@ -66,30 +66,30 @@ const encodeComparison = (table: TableName<any>, comparison: Comparison) => {
   return `${operators[operator]} ${getComparisonRight(table, comparison.right)}`
 }
 
-const encodeWhere = (table: TableName<any>, associations: QueryAssociation[]) => (
-  where: Where,
-): string => {
-  switch (where.type) {
-    case 'and':
-      return `(${encodeAndOr(associations, 'and', table, where.conditions)})`
-    case 'or':
-      return `(${encodeAndOr(associations, 'or', table, where.conditions)})`
-    case 'where':
-      return encodeWhereCondition(associations, table, where.left, where.comparison)
-    case 'on':
-      if (process.env.NODE_ENV !== 'production') {
-        invariant(
-          associations.some(({ to }) => to === where.table),
-          'To nest Q.on inside Q.and/Q.or you must explicitly declare Q.experimentalJoinTables at the beginning of the query',
-        )
-      }
-      return `(${encodeAndOr(associations, 'and', where.table, where.conditions)})`
-    case 'sql':
-      return where.expr
-    default:
-      throw new Error(`Unknown clause ${where.type}`)
+const encodeWhere =
+  (table: TableName<any>, associations: QueryAssociation[]) =>
+  (where: Where): string => {
+    switch (where.type) {
+      case 'and':
+        return `(${encodeAndOr(associations, 'and', table, where.conditions)})`
+      case 'or':
+        return `(${encodeAndOr(associations, 'or', table, where.conditions)})`
+      case 'where':
+        return encodeWhereCondition(associations, table, where.left, where.comparison)
+      case 'on':
+        if (process.env.NODE_ENV !== 'production') {
+          invariant(
+            associations.some(({ to }) => to === where.table),
+            'To nest Q.on inside Q.and/Q.or you must explicitly declare Q.experimentalJoinTables at the beginning of the query',
+          )
+        }
+        return `(${encodeAndOr(associations, 'and', where.table, where.conditions)})`
+      case 'sql':
+        return where.expr
+      default:
+        throw new Error(`Unknown clause ${where.type}`)
+    }
   }
-}
 
 const encodeWhereCondition = (
   associations: QueryAssociation[],
@@ -160,32 +160,30 @@ const encodeMethod = (
     : `select "${table}".* from "${table}"`
 }
 
-const encodeAssociation = (description: QueryDescription) => ({
-  from: mainTable,
-  to: joinedTable,
-  info: association,
-}: QueryAssociation): string => {
-  // TODO: We have a problem here. For all of eternity, WatermelonDB Q.ons were encoded using JOIN
-  // However, this precludes many legitimate use cases for Q.ons once you start nesting them
-  // (e.g. get tasks where X or has a tag assignment that Y -- if there is no tag assignment, this will
-  // fail to join)
-  // LEFT JOIN needs to be used to address this… BUT technically that's a breaking change. I never
-  // considered a possiblity of making a query like `Q.on(relation_id, x != 'bla')`. Before this would
-  // only match if there IS a relation, but with LEFT JOIN it would also match if record does not have
-  // this relation. I don't know if there are legitimate use cases where this would change anything
-  // so I need more time to think about whether this breaking change is OK to make or if we need to
-  // do something more clever/add option/whatever.
-  // so for now, i'm making an extreeeeemelyyyy bad hack to make sure that there's no breaking change
-  // for existing code and code with nested Q.ons probably works (with caveats)
-  const usesOldJoinStyle = description.where.some(
-    (clause) => clause.type === 'on' && clause.table === joinedTable,
-  )
-  const joinKeyword = usesOldJoinStyle ? ' join ' : ' left join '
-  const joinBeginning = `${joinKeyword}"${joinedTable}" on "${joinedTable}".`
-  return association.type === 'belongs_to'
-    ? `${joinBeginning}"id" = "${mainTable}"."${association.key}"`
-    : `${joinBeginning}"${association.foreignKey}" = "${mainTable}"."id"`
-}
+const encodeAssociation =
+  (description: QueryDescription) =>
+  ({ from: mainTable, to: joinedTable, info: association }: QueryAssociation): string => {
+    // TODO: We have a problem here. For all of eternity, WatermelonDB Q.ons were encoded using JOIN
+    // However, this precludes many legitimate use cases for Q.ons once you start nesting them
+    // (e.g. get tasks where X or has a tag assignment that Y -- if there is no tag assignment, this will
+    // fail to join)
+    // LEFT JOIN needs to be used to address this… BUT technically that's a breaking change. I never
+    // considered a possiblity of making a query like `Q.on(relation_id, x != 'bla')`. Before this would
+    // only match if there IS a relation, but with LEFT JOIN it would also match if record does not have
+    // this relation. I don't know if there are legitimate use cases where this would change anything
+    // so I need more time to think about whether this breaking change is OK to make or if we need to
+    // do something more clever/add option/whatever.
+    // so for now, i'm making an extreeeeemelyyyy bad hack to make sure that there's no breaking change
+    // for existing code and code with nested Q.ons probably works (with caveats)
+    const usesOldJoinStyle = description.where.some(
+      (clause) => clause.type === 'on' && clause.table === joinedTable,
+    )
+    const joinKeyword = usesOldJoinStyle ? ' join ' : ' left join '
+    const joinBeginning = `${joinKeyword}"${joinedTable}" on "${joinedTable}".`
+    return association.type === 'belongs_to'
+      ? `${joinBeginning}"id" = "${mainTable}"."${association.key}"`
+      : `${joinBeginning}"${association.foreignKey}" = "${mainTable}"."id"`
+  }
 
 const encodeJoin = (description: QueryDescription, associations: QueryAssociation[]): string =>
   associations.length ? associations.map(encodeAssociation(description)).join('') : ''

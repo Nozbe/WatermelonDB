@@ -74,16 +74,8 @@ export default class Query<Record: Model> {
   // Creates a new Query that extends the clauses of this query
   extend(...clauses: Clause[]): Query<Record> {
     const { collection } = this
-    const {
-      where,
-      sortBy,
-      take,
-      skip,
-      joinTables,
-      nestedJoinTables,
-      lokiTransform,
-      sql,
-    } = this._rawDescription
+    const { where, sortBy, take, skip, joinTables, nestedJoinTables, lokiTransform, sql } =
+      this._rawDescription
 
     invariant(!sql, 'Cannot extend an unsafe SQL query')
 

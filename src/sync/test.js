@@ -159,16 +159,8 @@ describe('fetchLocalChanges', () => {
     // eslint-disable-next-line
     let { database, cloneDatabase } = makeDatabase()
 
-    const {
-      pCreated1,
-      pCreated2,
-      pUpdated,
-      tCreated,
-      tUpdated,
-      tDeleted,
-      cCreated,
-      cUpdated,
-    } = await makeLocalChanges(database)
+    const { pCreated1, pCreated2, pUpdated, tCreated, tUpdated, tDeleted, cCreated, cUpdated } =
+      await makeLocalChanges(database)
 
     // check
     expect(pCreated1._raw._status).toBe('created')
@@ -367,16 +359,8 @@ describe('markLocalChangesAsSynced', () => {
 
     const destroyDeletedRecordsSpy = jest.spyOn(database.adapter, 'destroyDeletedRecords')
 
-    const {
-      pSynced,
-      tSynced,
-      tCreated,
-      tUpdated,
-      cSynced,
-      cCreated,
-      cUpdated,
-      cDeleted,
-    } = await makeLocalChanges(database)
+    const { pSynced, tSynced, tCreated, tUpdated, cSynced, cCreated, cUpdated, cDeleted } =
+      await makeLocalChanges(database)
     const localChanges = await fetchLocalChanges(database)
 
     // simulate user making changes the the app while sync push request is in progress
@@ -731,7 +715,9 @@ const observeDatabase = (database) => {
   return observer
 }
 
-const emptyPull = (timestamp = 1500) => async () => ({ changes: emptyChangeSet, timestamp })
+const emptyPull =
+  (timestamp = 1500) =>
+  async () => ({ changes: emptyChangeSet, timestamp })
 
 describe('synchronize', () => {
   it('can perform an empty sync', async () => {

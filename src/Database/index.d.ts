@@ -12,14 +12,14 @@ import CollectionMap from './CollectionMap'
 import type LocalStorage from './LocalStorage'
 import WorkQueue, { type ReaderInterface, type WriterInterface } from './WorkQueue'
 
-import {$ReadOnlyArray, $Exact} from '../types'
+import { $ReadOnlyArray, $Exact } from '../types'
 
 type DatabaseProps = $Exact<{
-  adapter: DatabaseAdapter,
-  modelClasses: Model[],
+  adapter: DatabaseAdapter
+  modelClasses: Model[]
 }>
 
-export function setExperimentalAllowsFatalError();
+export function setExperimentalAllowsFatalError()
 
 export default class Database {
   adapter: DatabaseAdapterCompat
@@ -28,39 +28,39 @@ export default class Database {
 
   collections: CollectionMap
 
-  _workQueue: WorkQueue;
+  _workQueue: WorkQueue
 
   // (experimental) if true, Database is in a broken state and should not be used anymore
-  _isBroken: boolean;
+  _isBroken: boolean
 
   _localStorage: LocalStorage
 
-  constructor(options: DatabaseProps);
+  constructor(options: DatabaseProps)
 
-  get<T extends Model>(tableName: TableName<T>): Collection<T>;
+  get<T extends Model>(tableName: TableName<T>): Collection<T>
 
-  get localStorage(): LocalStorage;
+  get localStorage(): LocalStorage
 
   // Executes multiple prepared operations
   // (made with `collection.prepareCreate` and `record.prepareUpdate`)
   // Note: falsy values (null, undefined, false) passed to batch are just ignored
-  batch(...records: $ReadOnlyArray<Model | Model[] | null | void | false>): Promise<void>;
+  batch(...records: $ReadOnlyArray<Model | Model[] | null | void | false>): Promise<void>
 
   // Enqueues a Writer - a block of code that, when it's running, has a guarantee that no other Writer
   // is running at the same time.
   // All actions that modify the database (create, update, delete) must be performed inside of a Writer block
   // See docs for more details and practical guide
-  write<T>(work: (writer: WriterInterface) => Promise<T>, description?: string): Promise<T>;
+  write<T>(work: (writer: WriterInterface) => Promise<T>, description?: string): Promise<T>
 
   // Enqueues a Reader - a block of code that, when it's running, has a guarantee that no Writer
   // is running at the same time (therefore, the database won't be modified for the duration of Reader's work)
   // See docs for more details and practical guide
-  read<T>(work: (reader: ReaderInterface) => Promise<T>, description?: string): Promise<T>;
+  read<T>(work: (reader: ReaderInterface) => Promise<T>, description?: string): Promise<T>
 
-  action<T>(work: (writer: WriterInterface) => Promise<T>, description?: string): Promise<T>;
+  action<T>(work: (writer: WriterInterface) => Promise<T>, description?: string): Promise<T>
 
   // Emits a signal immediately, and on change in any of the passed tables
-  withChangesForTables(tables: TableName<any>[]): Observable<CollectionChangeSet<any> | null>;
+  withChangesForTables(tables: TableName<any>[]): Observable<CollectionChangeSet<any> | null>
 
   _subscribers: [TableName<any>[], () => void, any][]
 
@@ -69,7 +69,7 @@ export default class Database {
     tables: TableName<any>[],
     subscriber: () => void,
     debugInfo?: any,
-  ): Unsubscribe;
+  ): Unsubscribe
 
   _resetCount: number
 
@@ -85,11 +85,11 @@ export default class Database {
   // It's best to reset your app to an empty / logged out state before doing this.
   //
   // Yes, this sucks and there should be some safety mechanisms or warnings. Please contribute!
-  unsafeResetDatabase(): Promise<void>;
+  unsafeResetDatabase(): Promise<void>
 
-  _ensureInWriter(diagnosticMethodName: string): void;
+  _ensureInWriter(diagnosticMethodName: string): void
 
   // (experimental) puts Database in a broken state
   // TODO: Not used anywhere yet
-  _fatalError(error: Error): void;
+  _fatalError(error: Error): void
 }
