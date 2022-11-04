@@ -588,7 +588,8 @@ This shape MAY be different if negotiated with the frontend (however, frontend-s
 <p>Note that those are not maintained by WatermelonDB, and we make no endorsements about quality of these projects:</p>
 <ul>
 <li><a href="https://fahri.id/posts/how-to-build-watermelondb-sync-backend-in-elixir/">How to Build WatermelonDB Sync Backend in Elixir</a></li>
-<li><a href="https://github.com/AliAllaf/firemelon">Firemelon</a></li>
+<li><a href="https://github.com/fivecar/melon-fire">MelonFire</a>, a React Native library to sync your database to Firestore. MelonFire overcomes common bugs in implementations (e.g. timestamp jitter, multiple writers, Firestore's 500-write transaction limit, retries) to guarantee database consistency.</li>
+<li><a href="https://github.com/AliAllaf/firemelon">Firemelon</a>, an alternative implementation to sync your database to Firestore. It relies on changes being smaller than Firestore's 500-write transaction limit, and doesn't handle server timestamp intricacies, but supports ignoring certain tables when backing up.</li>
 <li><a href="https://github.com/nathanheffley/laravel-watermelon">Laravel Watermelon</a></li>
 <li>Did you make one? Please contribute a link!</li>
 </ul>
