@@ -44,4 +44,5 @@
 - [Other](./ch04-00-deeper.md)
     - [Roadmap](./Roadmap.md)
     - [Contributing](./CONTRIBUTING.md)
+    - [Tutorials](./Tutorials.md)
     - [Changelog](./CHANGELOG.md)
