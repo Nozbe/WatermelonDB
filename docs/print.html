@@ -4,59 +4,37 @@
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>WatermelonDB documentation</title>
-        
         <meta name="robots" content="noindex" />
-        
-        
-
-
         <!-- Custom HTML head -->
-        
-
-
-        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
-        
         <link rel="icon" href="favicon.svg">
-        
-        
         <link rel="shortcut icon" href="favicon.png">
-        
         <link rel="stylesheet" href="css/variables.css">
         <link rel="stylesheet" href="css/general.css">
         <link rel="stylesheet" href="css/chrome.css">
-        
         <link rel="stylesheet" href="css/print.css" media="print">
-        
-
         <!-- Fonts -->
         <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        
         <link rel="stylesheet" href="fonts/fonts.css">
-        
-
         <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="highlight.css">
         <link rel="stylesheet" href="tomorrow-night.css">
         <link rel="stylesheet" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
-        
-
-        
     </head>
     <body>
         <!-- Provide site root to javascript -->
-        <script type="text/javascript">
+        <script>
             var path_to_root = "";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
-        <script type="text/javascript">
+        <script>
             try {
                 var theme = localStorage.getItem('mdbook-theme');
                 var sidebar = localStorage.getItem('mdbook-sidebar');
@@ -72,7 +50,7 @@
         </script>
 
         <!-- Set the theme before any content is loaded, prevents flash -->
-        <script type="text/javascript">
+        <script>
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
@@ -84,7 +62,7 @@
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
-        <script type="text/javascript">
+        <script>
             var html = document.querySelector('html');
             var sidebar = 'hidden';
             if (document.body.clientWidth >= 1080) {
@@ -105,7 +83,6 @@
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                
                 <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky bordered">
                     <div class="left-buttons">
@@ -116,35 +93,29 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                         </ul>
-                        
                         <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
                             <i class="fa fa-search"></i>
                         </button>
-                        
                     </div>
 
                     <h1 class="menu-title">WatermelonDB documentation</h1>
 
                     <div class="right-buttons">
-                        
                         <a href="print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
-                        
-                        
                     </div>
                 </div>
 
-                
                 <div id="search-wrapper" class="hidden">
                     <form id="searchbar-outer" class="searchbar-outer">
-                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
                     </form>
                     <div id="searchresults-outer" class="searchresults-outer hidden">
                         <div id="searchresults-header" class="searchresults-header"></div>
@@ -152,10 +123,8 @@
                         </ul>
                     </div>
                 </div>
-                
-
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
-                <script type="text/javascript">
+                <script>
                     document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
                     document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
                     Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
@@ -166,7 +135,7 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="get-excited"><a class="header" href="#get-excited">Get excited</a></h3>
-<p align="center">
+<div style="break-before: page; page-break-before: always;"></div><p align="center">
   <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/logo-horizontal2.png" alt="WatermelonDB" width="539" />
 </p>
 <h4 align="center">
@@ -183,7 +152,7 @@
     <img src="https://img.shields.io/npm/v/@nozbe/watermelondb.svg" alt="npm">
   </a>
 </p>
-<table><thead><tr><th></th><th>WatermelonDB</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th></th><th>WatermelonDB</th></tr></thead><tbody>
 <tr><td>⚡️</td><td><strong>Launch your app instantly</strong> no matter how much data you have</td></tr>
 <tr><td>📈</td><td><strong>Highly scalable</strong> from hundreds to tens of thousands of records</td></tr>
 <tr><td>😎</td><td><strong>Lazy loaded</strong>. Only load data when you need it</td></tr>
@@ -197,15 +166,17 @@
 <tr><td>🔗</td><td><strong>Relational.</strong> Built on rock-solid <a href="https://www.sqlite.org">SQLite</a> foundation</td></tr>
 <tr><td>⚠️</td><td><strong>Static typing</strong> with <a href="https://flow.org">Flow</a> or <a href="https://typescriptlang.org">TypeScript</a></td></tr>
 </tbody></table>
+</div>
 <h2 id="why-watermelon"><a class="header" href="#why-watermelon">Why Watermelon?</a></h2>
 <p><strong>WatermelonDB</strong> is a new way of dealing with user data in React Native and React web apps.</p>
 <p>It's optimized for building <strong>complex applications</strong> in React Native, and the number one goal is <strong>real-world performance</strong>. In simple words, <em>your app must launch fast</em>.</p>
 <p>For simple apps, using Redux or MobX with a persistence adapter is the easiest way to go. But when you start scaling to thousands or tens of thousands of database records, your app will now be slow to launch (especially on slower Android devices). Loading a full database into JavaScript is expensive!</p>
 <p>Watermelon fixes it <strong>by being lazy</strong>. Nothing is loaded until it's requested. And since all querying is performed directly on the rock-solid <a href="https://www.sqlite.org/index.html">SQLite database</a> on a separate native thread, most queries resolve in an instant.</p>
 <p>But unlike using SQLite directly, Watermelon is <strong>fully observable</strong>. So whenever you change a record, all UI that depends on it will automatically re-render. For example, completing a task in a to-do app will re-render the task component, the list (to reorder), and all relevant task counters. <a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw"><strong>Learn more</strong></a>.</p>
-<table><thead><tr><th><a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw"><img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-talk-thumbnail.jpg" alt="React Native EU: Next-generation React Databases" width="300" /></a></th><th><a href="https://watermelondb.now.sh/"><img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-demo-thumbnail.png" alt="WatermelonDB Demo" width="300" /></a></th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th><a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw"><img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-talk-thumbnail.jpg" alt="React Native EU: Next-generation React Databases" width="300" /></a></th><th><a href="https://watermelondb.now.sh/"><img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-demo-thumbnail.png" alt="WatermelonDB Demo" width="300" /></a></th></tr></thead><tbody>
 <tr><td><p align="center"><a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw">📺 <strong>Next-generation React databases</strong><br>(a talk about WatermelonDB)</a></p></td><td><p align="center"><a href="https://watermelondb.now.sh/">✨ <strong>Check out web Demo</strong></a></p></td></tr>
 </tbody></table>
+</div>
 <h2 id="usage"><a class="header" href="#usage">Usage</a></h2>
 <p><strong>Quick (over-simplified) example:</strong> an app with posts and comments.</p>
 <p>First, you define Models:</p>
@@ -250,7 +221,7 @@ const enhance = withObservables(['post'], ({ post }) =&gt; ({
 }))
 </code></pre>
 <p>The result is fully reactive! Whenever a post or comment is added, changed, or removed, the right components <strong>will automatically re-render</strong> on screen. Doesn't matter if a change occurred in a totally different part of the app, it all just works out of the box!</p>
-<h3 id="-learn-more-a-hrefhttpsnozbegithubiowatermelondbsee-full-documentationa"><a class="header" href="#-learn-more-a-hrefhttpsnozbegithubiowatermelondbsee-full-documentationa">➡️ <strong>Learn more:</strong> <a href="https://nozbe.github.io/WatermelonDB/">see full documentation</a></a></h3>
+<h3 id="-learn-more-see-full-documentation"><a class="header" href="#-learn-more-see-full-documentation">➡️ <strong>Learn more:</strong> <a href="https://nozbe.github.io/WatermelonDB/">see full documentation</a></a></h3>
 <h2 id="who-uses-watermelondb"><a class="header" href="#who-uses-watermelondb">Who uses WatermelonDB</a></h2>
 <a href="https://nozbe.com/teams/">
     <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/nozbe-teams.png" alt="Nozbe Teams" width="300" />
@@ -288,6 +259,14 @@ const enhance = withObservables(['post'], ({ post }) =&gt; ({
     <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/chatable_logo.png" alt="Chatable" width="300" />
   </a>
 <br>
+<a href="https://todorant.com/">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/todorant-logo.png" alt="Todorant" width="300" />
+  </a>
+<br>
+<a href="https://blastworkout.app/">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/blastworkout-logo.png" alt="Blast Workout" width="300" />
+  </a>
+<br>
 <p><em>Does your company or app use 🍉? Open a pull request and add your logo/icon with link here!</em></p>
 <h2 id="contributing"><a class="header" href="#contributing">Contributing</a></h2>
 <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/needyou.jpg" alt="We need you" width="220" />
@@ -296,10 +275,11 @@ const enhance = withObservables(['post'], ({ post }) =&gt; ({
 <p>If you're just getting started, see <a href="https://github.com/Nozbe/WatermelonDB/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22">good first issues</a> that are easy to contribute to. If you make a non-trivial contribution, email me, and I'll send you a nice 🍉 sticker!</p>
 <p>If you make or are considering making an app using WatermelonDB, please let us know!</p>
 <h2 id="author-and-license"><a class="header" href="#author-and-license">Author and license</a></h2>
-<p><strong>WatermelonDB</strong> was created by <a href="https://github.com/Nozbe">@Nozbe</a>. Main author and maintainer is <a href="https://github.com/radex">Radek Pietruszewski</a>.</p>
-<p><strong>Contributors:</strong> <a href="https://github.com/mobily">@mobily</a>, <a href="https://github.com/kokusGr">@kokusGr</a>, <a href="https://github.com/rozPierog">@rozPierog</a>, <a href="https://github.com/rkrajewski">@rkrajewski</a>, <a href="https://github.com/domeknn">@domeknn</a>, <a href="https://github.com/Tereszkiewicz">@Tereszkiewicz</a> and <a href="https://github.com/Nozbe/WatermelonDB/graphs/contributors">more</a>.</p>
+<p><strong>WatermelonDB</strong> was created by <a href="https://github.com/Nozbe">@Nozbe</a>.</p>
+<p><strong>WatermelonDB's</strong> main author and maintainer is <a href="https://github.com/radex">Radek Pietruszewski</a> (<a href="https://radex.io">website</a> ⋅ <a href="https://twitter.com/radexp">twitter</a> ⋅ <a href="https://beamvalley.com">engineering posters</a>)</p>
+<p><a href="https://github.com/Nozbe/WatermelonDB/graphs/contributors">See all contributors</a>.</p>
 <p>WatermelonDB is available under the MIT license. See the <a href="./LICENSE">LICENSE file</a> for more info.</p>
-<h1 id="demo"><a class="header" href="#demo">Demo</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="demo"><a class="header" href="#demo">Demo</a></h1>
 <p>See how WatermelonDB performs at large scales in the demo app.</p>
 <h2 id="online-demo"><a class="header" href="#online-demo">Online demo</a></h2>
 <h3>
@@ -351,9 +331,9 @@ yarn
 <pre><code class="language-bash">now
 </code></pre>
 <p>⚠️  You might want to <code>git checkout</code> the <a href="https://github.com/Nozbe/WatermelonDB/releases">latest stable tag</a> if the demo app doesn't work</p>
-<h3 id="learn-to-use-watermelon"><a class="header" href="#learn-to-use-watermelon">Learn to use Watermelon</a></h3>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="learn-to-use-watermelon"><a class="header" href="#learn-to-use-watermelon">Learn to use Watermelon</a></h3>
 <p>Learn the basics of how to use WatermelonDB</p>
-<h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
 <p>First, add Watermelon to your project:</p>
 <pre><code class="language-bash">yarn add @nozbe/watermelondb
 
@@ -410,6 +390,7 @@ pod 'React-jsi', :path =&gt; '../node_modules/react-native/ReactCommon/jsi', :mo
 # NOTE: This is required as of v0.23
 pod 'simdjson', path: '../node_modules/@nozbe/simdjson'
 </code></pre>
+<p>Make sure you run <code>pod install</code> after updating <code>Podfile</code></p>
 <p>Note that as of WatermelonDB 0.22, manual (non-CocoaPods) linking is not supported.</p>
 <p>At least Xcode 12.2 and iOS 13 are recommended (earlier versions are not tested for compatibility).</p>
 </li>
@@ -474,6 +455,11 @@ protected List&lt;ReactPackage&gt; getPackages() {
 </code></pre>
 </details>
 <details>
+  <summary>Using with react-native-screens or react-native-gesture-handler</summary>
+  If you are using recent versions of react-native-screens or react-native-gesture-handler, you will need to set the kotlin version to 1.5.20 or above.
+<p>See instructions above ⬆️</p>
+</details>
+<details>
   <summary>Troubleshooting</summary>
   If you get this error:
 <blockquote>
@@ -510,6 +496,11 @@ dependencies {
     // ...
     implementation project(':watermelondb-jsi') // ⬅️ This!
 }
+</code></pre>
+</li>
+<li>
+<p>If you're using Proguard, in <code>android/app/proguard-rules.pro</code> add:</p>
+<pre><code>-keep class com.nozbe.watermelondb.** { *; }
 </code></pre>
 </li>
 <li>
@@ -609,7 +600,7 @@ npm install -D better-sqlite3
 <hr />
 <h2 id="next-steps"><a class="header" href="#next-steps">Next steps</a></h2>
 <p>➡️ After Watermelon is installed, <a href="./Setup.html"><strong>set it up</strong></a></p>
-<h1 id="set-up-your-app-for-watermelondb"><a class="header" href="#set-up-your-app-for-watermelondb">Set up your app for WatermelonDB</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="set-up-your-app-for-watermelondb"><a class="header" href="#set-up-your-app-for-watermelondb">Set up your app for WatermelonDB</a></h1>
 <p>Make sure you <a href="./Installation.html">installed Watermelon</a> before proceeding.</p>
 <p>Create <code>model/schema.js</code> in your project. You'll need it for <a href="./Schema.html">the next step</a>.</p>
 <pre><code class="language-js">import { appSchema, tableSchema } from '@nozbe/watermelondb'
@@ -704,7 +695,7 @@ const adapter = new LokiJSAdapter({
 <hr />
 <h2 id="next-steps-1"><a class="header" href="#next-steps-1">Next steps</a></h2>
 <p>➡️ After Watermelon is installed, <a href="./Schema.html"><strong>define your app's schema</strong></a></p>
-<h1 id="schema"><a class="header" href="#schema">Schema</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="schema"><a class="header" href="#schema">Schema</a></h1>
 <p>When using WatermelonDB, you're dealing with <strong>Models</strong> and <strong>Collections</strong>. However, underneath Watermelon sits an <strong>underlying database</strong> (SQLite or LokiJS) which speaks a different language: <strong>tables and columns</strong>. Together, those are called a <strong>database schema</strong> and we must define it first.</p>
 <h2 id="defining-a-schema"><a class="header" href="#defining-a-schema">Defining a Schema</a></h2>
 <p>Say you want Models <code>Post</code>, <code>Comment</code> in your app. For each of those Models, you define a table. And for every field of a Model (e.g. name of the blog post, author of the comment) you define a column. For example:</p>
@@ -800,7 +791,7 @@ and when to <code>appSchema</code> - the entire schema SQL.</p>
 <hr />
 <h2 id="next-steps-2"><a class="header" href="#next-steps-2">Next steps</a></h2>
 <p>➡️ After you define your schema, go ahead and <a href="./Model.html"><strong>define your Models</strong></a></p>
-<h1 id="defining-models"><a class="header" href="#defining-models">Defining Models</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="defining-models"><a class="header" href="#defining-models">Defining Models</a></h1>
 <p>A <strong>Model</strong> class represents a type of thing in your app. For example, <code>Post</code>, <code>Comment</code>, <code>User</code>.</p>
 <p>Before defining a Model, make sure you <a href="./Schema.html">defined its schema</a>.</p>
 <h2 id="create-a-model"><a class="header" href="#create-a-model">Create a Model</a></h2>
@@ -959,7 +950,7 @@ class Comment extends Model {
 <hr />
 <h2 id="next-steps-3"><a class="header" href="#next-steps-3">Next steps</a></h2>
 <p>➡️ After you define some Models, learn the <a href="./CRUD.html"><strong>Create / Read / Update / Delete API</strong></a></p>
-<h1 id="create-read-update-delete"><a class="header" href="#create-read-update-delete">Create, Read, Update, Delete</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="create-read-update-delete"><a class="header" href="#create-read-update-delete">Create, Read, Update, Delete</a></h1>
 <p>When you have your <a href="./Schema.html">Schema</a> and <a href="./Model.html">Models</a> defined, learn how to manipulate them!</p>
 <h2 id="reading"><a class="header" href="#reading">Reading</a></h2>
 <h4 id="get-a-collection"><a class="header" href="#get-a-collection">Get a collection</a></h4>
@@ -1065,7 +1056,7 @@ await somePost.destroyPermanently() // permanent
 <hr />
 <h2 id="next-steps-4"><a class="header" href="#next-steps-4">Next steps</a></h2>
 <p>➡️ Now that you can create and update records, <a href="./Components.html"><strong>connect them to React components</strong></a></p>
-<h1 id="connecting-to-components"><a class="header" href="#connecting-to-components">Connecting to Components</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="connecting-to-components"><a class="header" href="#connecting-to-components">Connecting to Components</a></h1>
 <p>After you <a href="./Model.html">define some Models</a>, it's time to connect Watermelon to your app's interface. We're using React in this guide, however WatermelonDB can be used with any UI framework.</p>
 <p><strong>Note:</strong> If you're not familiar with higher-order components, read <a href="https://reactjs.org/docs/higher-order-components.html">React documentation</a>, check out <a href="https://github.com/acdlite/recompose"><code>recompose</code></a>… or just read the examples below to see it in practice!</p>
 <h2 id="reactive-components"><a class="header" href="#reactive-components">Reactive components</a></h2>
@@ -1324,7 +1315,7 @@ const Component = () =&gt; {
 <hr />
 <h2 id="next-steps-5"><a class="header" href="#next-steps-5">Next steps</a></h2>
 <p>➡️ Next, learn more about <a href="./Query.html"><strong>custom Queries</strong></a></p>
-<h1 id="query-api"><a class="header" href="#query-api">Query API</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="query-api"><a class="header" href="#query-api">Query API</a></h1>
 <p><strong>Querying</strong> is how you find records that match certain conditions, for example:</p>
 <ul>
 <li>Find all comments that belong to a certain post</li>
@@ -1419,7 +1410,7 @@ database.get('comments').query(
 </code></pre>
 <p>This queries all comments that are <strong>both</strong> verified <strong>and</strong> awesome.</p>
 <h3 id="conditions-with-other-operators"><a class="header" href="#conditions-with-other-operators">Conditions with other operators</a></h3>
-<table><thead><tr><th>Query</th><th>JavaScript equivalent</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>Query</th><th>JavaScript equivalent</th></tr></thead><tbody>
 <tr><td><code>Q.where('is_verified', true)</code></td><td><code>is_verified === true</code> (shortcut syntax)</td></tr>
 <tr><td><code>Q.where('is_verified', Q.eq(true))</code></td><td><code>is_verified === true</code></td></tr>
 <tr><td><code>Q.where('archived_at', Q.notEq(null))</code></td><td><code>archived_at !== null</code></td></tr>
@@ -1433,17 +1424,21 @@ database.get('comments').query(
 <tr><td><code>Q.where('status', Q.notIn(['archived', 'deleted']))</code></td><td><code>status !== 'archived' &amp;&amp; status !== 'deleted'</code></td></tr>
 <tr><td><code>Q.where('status', Q.like('%bl_sh%'))</code></td><td><code>/.*bl.sh.*/i</code> (See note below!)</td></tr>
 <tr><td><code>Q.where('status', Q.notLike('%bl_sh%'))</code></td><td><code>/^((!?.*bl.sh.*).)*$/i</code> (Inverse regex match) (See note below!)</td></tr>
+<tr><td><code>Q.where('status', Q.includes('promoted'))</code></td><td><code>status.includes('promoted')</code></td></tr>
 </tbody></table>
-<p><strong>Note:</strong> It's NOT SAFE to use <code>Q.like</code> and <code>Q.notLike</code> with user input directly, because special characters like <code>%</code> or <code>_</code> are not escaped. Always sanitize user input like so:</p>
-<pre><code class="language-js">Q.like(`%${Q.sanitizeLikeString(userInput)}%`)
-Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
-</code></pre>
+</div>
+<h3 id="like--not-like"><a class="header" href="#like--not-like">LIKE / NOT LIKE</a></h3>
 <p>You can use <code>Q.like</code> for search-related tasks. For example, to find all users whose username start with &quot;jas&quot; (case-insensitive) you can write</p>
 <pre><code class="language-js">usersCollection.query(
   Q.where(&quot;username&quot;, Q.like(`${Q.sanitizeLikeString(&quot;jas&quot;)}%`)
 )
 </code></pre>
 <p>where <code>&quot;jas&quot;</code> can be changed dynamically with user input.</p>
+<p>Note that the behavior of <code>Q.like</code> is not exact and can differ somewhat between implementations (SQLite vs LokiJS). For instance, while the comparison is case-insensitive, SQLite cannot by default compare non-ASCII characters case-insensitively (unless you install ICU extension). Use <code>Q.like</code> for user input search, but not for tasks that require a precise matching behavior.</p>
+<p><strong>Note:</strong> It's NOT SAFE to use <code>Q.like</code> and <code>Q.notLike</code> with user input directly, because special characters like <code>%</code> or <code>_</code> are not escaped. Always sanitize user input like so:</p>
+<pre><code class="language-js">Q.like(`%${Q.sanitizeLikeString(userInput)}%`)
+Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
+</code></pre>
 <h3 id="andor-nesting"><a class="header" href="#andor-nesting">AND/OR nesting</a></h3>
 <p>You can nest multiple conditions using <code>Q.and</code> and <code>Q.or</code>:</p>
 <pre><code class="language-js">database.get('comments').query(
@@ -1649,7 +1644,7 @@ commentsCollection.query(
 <hr />
 <h2 id="next-steps-6"><a class="header" href="#next-steps-6">Next steps</a></h2>
 <p>➡️ Now that you've mastered Queries, <a href="./Relation.html"><strong>make more Relations</strong></a></p>
-<h1 id="relations"><a class="header" href="#relations">Relations</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="relations"><a class="header" href="#relations">Relations</a></h1>
 <p>A <code>Relation</code> object represents one record pointing to another — such as the author (<code>User</code>) of a <code>Comment</code>, or the <code>Post</code> the comment belongs to.</p>
 <h3 id="defining-relations"><a class="header" href="#defining-relations">Defining Relations</a></h3>
 <p>There's two steps to defining a relation:</p>
@@ -1783,7 +1778,7 @@ class User extends Model {
 <hr />
 <h2 id="next-steps-7"><a class="header" href="#next-steps-7">Next steps</a></h2>
 <p>➡️ Now the last step of this guide: <a href="./Writers.html"><strong>understand Writers (and Readers)</strong></a></p>
-<h1 id="writers-readers-and-batching"><a class="header" href="#writers-readers-and-batching">Writers, Readers, and batching</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="writers-readers-and-batching"><a class="header" href="#writers-readers-and-batching">Writers, Readers, and batching</a></h1>
 <p>Think of this guide as a part two of <a href="./CRUD.html">Create, Read, Update, Delete</a>.</p>
 <p>As mentioned previously, you can't just modify WatermelonDB's database anywhere. All changes must be done within a <strong>Writer</strong>.</p>
 <p>There are two ways of defining a writer: inline and by defining a <strong>writer method</strong>.</p>
@@ -1971,9 +1966,9 @@ database.write(async writer =&gt; {
 <hr />
 <h2 id="next-steps-8"><a class="header" href="#next-steps-8">Next steps</a></h2>
 <p>➡️ Now that you've mastered all basics of Watermelon, go create some powerful apps — or keep reading <a href="./README.html"><strong>advanced guides</strong></a></p>
-<h3 id="advanced-guides"><a class="header" href="#advanced-guides">Advanced guides</a></h3>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="advanced-guides"><a class="header" href="#advanced-guides">Advanced guides</a></h3>
 <p>Advanced guides for using WatermelonDB</p>
-<h1 id="migrations"><a class="header" href="#migrations">Migrations</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="migrations"><a class="header" href="#migrations">Migrations</a></h1>
 <p><strong>Schema migrations</strong> is the mechanism by which you can add new tables and columns to the database in a backward-compatible way.</p>
 <p>Without migrations, if a user of your app upgrades from one version to another, their local database will be cleared at launch, and they will lose all their data.</p>
 <p>⚠️ Always use migrations!</p>
@@ -2135,7 +2130,7 @@ export default appSchema({
 <p>After refreshing app, the database should reset to previous state. Now you can correct your mistake and apply changes again (please do it in order described in &quot;Migrations workflow&quot;).</p>
 <h3 id="unsafe-sql-migrations"><a class="header" href="#unsafe-sql-migrations">Unsafe SQL migrations</a></h3>
 <p>Similar to <a href="Advanced/../Schema.html">Schema</a>, you can add <code>unsafeSql</code> parameter to every migration step to modify or replace SQL generated by WatermelonDB to perform the migration. There is also an <code>unsafeExecuteSql('some sql;')</code> step you can use to append extra SQL. Those are ignored with LokiJSAdapter and for the purposes of <a href="Advanced/./Sync.html">migration syncs</a>.</p>
-<h1 id="synchronization"><a class="header" href="#synchronization">Synchronization</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="synchronization"><a class="header" href="#synchronization">Synchronization</a></h1>
 <p>WatermelonDB has been designed from scratch to be able to seamlessly synchronize with a remote database (and, therefore, keep multiple copies of data synced with each other).</p>
 <p>Note that Watermelon is only a local database — you need to <strong>bring your own backend</strong>. What Watermelon provides are:</p>
 <ul>
@@ -2583,7 +2578,7 @@ This shape MAY be different if negotiated with the frontend (however, frontend-s
 </ol>
 <h2 id="sync-primitives-and-implementing-your-own-sync-entirely-from-scratch"><a class="header" href="#sync-primitives-and-implementing-your-own-sync-entirely-from-scratch">Sync primitives and implementing your own sync entirely from scratch</a></h2>
 <p>See: <a href="Advanced/../Implementation/SyncImpl.html">Sync implementation details</a></p>
-<h1 id="createupdate-tracking"><a class="header" href="#createupdate-tracking">Create/Update tracking</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="createupdate-tracking"><a class="header" href="#createupdate-tracking">Create/Update tracking</a></h1>
 <p>You can add per-table support for create/update tracking. When you do this, the Model will have information about when it was created, and when it was last updated.</p>
 <p>:warning: <strong>Note:</strong> WatermelonDB automatically sets and persists the <code>created_at</code>/<code>updated_at</code> fields if they are present as <em>millisecond</em> epoch's. If you intend to interact with these properties in any way you should always treat them as such.</p>
 <h3 id="when-to-use-this"><a class="header" href="#when-to-use-this">When to use this</a></h3>
@@ -2625,7 +2620,7 @@ class Post extends Model {
 <h3 id="how-this-behaves"><a class="header" href="#how-this-behaves">How this behaves</a></h3>
 <p>If you have the magic <code>createdAt</code> field defined on the Model, the current timestamp will be set when you first call <code>collection.create()</code> or <code>collection.prepareCreate()</code>. It will never be modified again.</p>
 <p>If the magic <code>updatedAt</code> field is also defined, then after creation, <code>model.updatedAt</code> will have the same value as <code>model.createdAt</code>. Then every time you call <code>model.update()</code> or <code>model.prepareUpdate()</code>, <code>updatedAt</code> will be changed to the current timestamp.</p>
-<h1 id="advanced-fields-1"><a class="header" href="#advanced-fields-1">Advanced Fields</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="advanced-fields-1"><a class="header" href="#advanced-fields-1">Advanced Fields</a></h1>
 <h2 id="json"><a class="header" href="#json"><code>@json</code></a></h2>
 <p>If you have a lot of metadata about a record (say, an object with many keys, or an array of values), you can use a <code>@json</code> field to contain that information in a single string column (serialized to JSON) instead of adding multiple columns or a relation to another table.</p>
 <p>⚠️ This is an advanced feature that comes with downsides — make sure you really need it</p>
@@ -2734,7 +2729,7 @@ class Post extends Model {
 <li><code>distinctUntilKeyChanged('isStarred')</code> - for performance, so that we don't re-subscribe to comment count Observable if the post changes (only if the <code>isStarred</code> field changes)</li>
 <li><code>distinctUntilChanged()</code> - again, don't emit new values, if popularity doesn't change</li>
 </ul>
-<h1 id="watermelon--flow"><a class="header" href="#watermelon--flow">Watermelon ❤️ Flow</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="watermelon--flow"><a class="header" href="#watermelon--flow">Watermelon ❤️ Flow</a></h1>
 <p>Watermelon was developed with <a href="https://flow.org">Flow</a> in mind.</p>
 <p>If you're a Flow user yourself (and we highly recommend it!), here's some things you need to keep in mind:</p>
 <h2 id="setup"><a class="header" href="#setup">Setup</a></h2>
@@ -2843,22 +2838,22 @@ Query&lt;Comment&gt; // a query that can fetch many Comments
 </code></pre>
 <p>If you need to refer to an ID of a record, always use the <code>RecordId</code> type alias, not <code>string</code> (they're the same, but the former is self-documenting).</p>
 <p>If you ever access the record's raw data (DON'T do that unless you <em>really</em> know what you're doing), use <code>DirtyRaw</code> to refer to raw data from external sources (database, server), and <code>RawRecord</code> after it was passed through <code>sanitizedRaw</code>.</p>
-<h1 id="local-storage"><a class="header" href="#local-storage">Local storage</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="local-storage"><a class="header" href="#local-storage">Local storage</a></h1>
 <p>WatermelonDB has a simple key/value store, similar to <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage">localStorage</a>:</p>
 <pre><code class="language-js">// setting a value
-await database.localStorage.set(&quot;user_id&quot;, &quot;abcdef&quot;)
+await database.adapter.setLocal(&quot;user_id&quot;, &quot;abcdef&quot;)
 
 // retrieving a value
-const userId = await database.localStorage.get(&quot;user_id&quot;) // string or undefined if no value for this key
+const userId = await database.adapter.getLocal(&quot;user_id&quot;) // string or undefined if no value for this key
 
 // removing a value
-await database.localStorage.remove(&quot;user_id&quot;)
+await database.adapter.removeLocal(&quot;user_id&quot;)
 </code></pre>
 <p><strong>When to use it</strong>. For things like the ID of the logged-in user, or the route to the last-viewed screen in the app. You should generally avoid it and stick to standard Watermelon records.</p>
 <p><strong>This is a low-level API</strong>. You can't do things like observe changes of a value over time. If you need that, just use standard WatermelonDB records. You can only store JSON-serializable values</p>
 <p><strong>What to be aware of</strong>. DO NOT let the local storage key be a user-supplied value. Only allow predefined/whitelisted keys. Key names starting with <code>__</code> are reserved for WatermelonDB use (e.g. used by Sync to remember time of last sync)</p>
 <p><strong>Why not use localStorage/AsyncStorage?</strong> Because this way, you have only one source of truth — one database that, say, stores the logged-in user ID and the information about all users. So there's a lower risk that the two sets of values get out of sync.</p>
-<h1 id="various-pro-tips"><a class="header" href="#various-pro-tips">Various Pro Tips</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="various-pro-tips"><a class="header" href="#various-pro-tips">Various Pro Tips</a></h1>
 <h2 id="database-viewer"><a class="header" href="#database-viewer">Database viewer</a></h2>
 <p><a href="https://github.com/Nozbe/WatermelonDB/issues/710">See discussion</a></p>
 <p><strong>Android</strong> - you can use the new <a href="https://medium.com/androiddevelopers/database-inspector-9e91aa265316">App Inspector</a> in modern versions of Android Studio.</p>
@@ -2866,9 +2861,25 @@ await database.localStorage.remove(&quot;user_id&quot;)
 <p><strong>iOS</strong> - check open database path in iOS System Log (via Console for plugged-in device, or Xcode logs, or <a href="https://github.com/Nozbe/WatermelonDB/issues/710#issuecomment-776255654">by using <code>find</code></a>), then open it via <code>sqlite3</code> in the console, or an external tool like <a href="https://sqlitebrowser.org">sqlitebrowser</a></p>
 <h2 id="prepopulating-database-on-native"><a class="header" href="#prepopulating-database-on-native">Prepopulating database on native</a></h2>
 <p>There's no built-in support for this. One way is to generate a SQLite DB (you can use the the Node SQLite support in 0.19.0-2 pre-release or extract it from an ios/android app), bundle it with the app, and then use a bit of code to check if the DB you're expecting it available, and if not, making a copy of the default DB — before you attempt loading DB from JS side. <a href="https://github.com/Nozbe/WatermelonDB/issues/774#issuecomment-667981361">See discussion</a></p>
-<h1 id="performance"><a class="header" href="#performance">Performance</a></h1>
+<h2 id="override-entity-id-generator"><a class="header" href="#override-entity-id-generator">Override entity ID generator</a></h2>
+<p>You can optionally overide WatermelonDB's id generator with your own custom id generator in order to create specific random id formats (e.g. if UUIDs are used in the backend). In your database index file, pass a function with your custom ID generator to <code>setGenerator</code>:</p>
+<pre><code>// Define a custom ID generator.
+function randomString(): string {
+  return 'RANDOM STRING';
+}
+setGenerator(randomString);
+
+// or as anonymous function:
+setGenerator(() =&gt; 'RANDOM STRING');
+</code></pre>
+<p>To get UUIDs specifically, install <a href="https://github.com/uuidjs/uuid">uuid</a> and then pass their id generator to <code>setGenerator</code>:</p>
+<pre><code>import { v4 as uuidv4 } from 'uuid';
+
+setGenerator(() =&gt; uuidv4());
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="performance"><a class="header" href="#performance">Performance</a></h1>
 <p>Performance tips — TODO</p>
-<h1 id="ios---sharing-database-across-targets"><a class="header" href="#ios---sharing-database-across-targets">iOS - Sharing database across targets</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="ios---sharing-database-across-targets"><a class="header" href="#ios---sharing-database-across-targets">iOS - Sharing database across targets</a></h1>
 <p>In case you have multiple Xcode targets and want to share your WatermelonDB instance across them, there are 2 options to be followed: via JS or via native Swift / Objective-C.</p>
 <h3 id="when-to-use-this-1"><a class="header" href="#when-to-use-this-1">When to use this</a></h3>
 <p>When you want to access the same database data in 2 or more Xcode targets (Notification Service Extension, Share Extension, iMessage stickers, etc).</p>
@@ -3004,10 +3015,10 @@ export default database;
 </li>
 </ol>
 <p>This way you're telling Watermelon to store your database into the shared directories, you're ready to go!</p>
-<h2 id="dig-deeper-into-watermelondb"><a class="header" href="#dig-deeper-into-watermelondb">Dig deeper into WatermelonDB</a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="dig-deeper-into-watermelondb"><a class="header" href="#dig-deeper-into-watermelondb">Dig deeper into WatermelonDB</a></h2>
 <p>Details about how Watermelon works, how to hack and contribute</p>
 <p><a href="https://www.youtube.com/watch?v=uFvHURTRLxQ">📺 Digging deeper into WatermelonDB</a> — more architectural info about caching, observation, and sync</p>
-<h1 id="architecture"><a class="header" href="#architecture">Architecture</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="architecture"><a class="header" href="#architecture">Architecture</a></h1>
 <h2 id="base-objects"><a class="header" href="#base-objects">Base objects</a></h2>
 <p><code>Database</code> is the root object of Watermelon. It owns:</p>
 <ul>
@@ -3042,7 +3053,7 @@ export default database;
 <p><code>encodeMatcher()</code>, <code>simpleObserver()</code>, <code>reloadingObserver()</code>, <code>fieldObserver()</code> implement query observation logic (See <a href="Implementation/./Observation.html">Observation</a>.)</p>
 <p>Model decorators transform simple class properties into Watermelon-aware record fields.</p>
 <p>Much of Adapters' logic is implemented as pure functions too. See <a href="Implementation/./Adapters.html">Adapters</a>.</p>
-<h1 id="database-adapters"><a class="header" href="#database-adapters">Database adapters</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="database-adapters"><a class="header" href="#database-adapters">Database adapters</a></h1>
 <p>The idea for the <a href="Implementation/./Architecture.html">Watermelon architecture</a> is to be database-agnostic. <code>Watermelon</code> is a cross-platform high-level layer for dealing with data, but can be plugged in to any underlying database, depending on platform needs.</p>
 <p>Think of it this way:</p>
 <ul>
@@ -3075,7 +3086,7 @@ export default database;
 <h2 id="writing-your-own-adapter"><a class="header" href="#writing-your-own-adapter">Writing your own adapter</a></h2>
 <p>If you want to write a new adapter, please contact <a href="https://github.com/radex">@radex</a> for more information.</p>
 <p>⚠️ TODO: This section needs more concrete tips</p>
-<h1 id="sync-implementation-details"><a class="header" href="#sync-implementation-details">Sync implementation details</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="sync-implementation-details"><a class="header" href="#sync-implementation-details">Sync implementation details</a></h1>
 <p>If you're looking for a guide to implement Watermelon Sync in your app, see <a href="Implementation/../Advanced/Sync.html"><strong>Synchronization</strong></a>.</p>
 <p>If you want to contribute to Watermelon Sync, or implement your own synchronization engine from scratch, read this.</p>
 <h2 id="implementing-your-own-sync-from-scratch"><a class="header" href="#implementing-your-own-sync-from-scratch">Implementing your own sync from scratch</a></h2>
@@ -3242,10 +3253,10 @@ null    X       X       10      null        YES          first sync. regardless 
 </li>
 <li>Histo - https://github.com/mirkokiefer/syncing-thesis</li>
 </ul>
-<h2 id="dig-deeper-into-watermelondb-1"><a class="header" href="#dig-deeper-into-watermelondb-1">Dig deeper into WatermelonDB</a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="dig-deeper-into-watermelondb-1"><a class="header" href="#dig-deeper-into-watermelondb-1">Dig deeper into WatermelonDB</a></h2>
 <p>Details about how Watermelon works, how to hack and contribute</p>
 <p><a href="https://www.youtube.com/watch?v=uFvHURTRLxQ">📺 Digging deeper into WatermelonDB</a> — more architectural info about caching, observation, and sync</p>
-<h1 id="watermelondb-roadmap"><a class="header" href="#watermelondb-roadmap">WatermelonDB Roadmap</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="watermelondb-roadmap"><a class="header" href="#watermelondb-roadmap">WatermelonDB Roadmap</a></h1>
 <p>Despite being called 0.xx, WatermelonDB is essentially feature-complete and relatively API stable. It's used in production by <a href="https://nozbe.com">Nozbe Teams</a> and many others.</p>
 <p>We don't call it 1.0 mostly out of convenience, to allow rapid development without incrementing <code>major</code> version counter (as dictated by SemVer). We do intend to call WatermelonDB a 1.0 once we can reach a long-term stable API.</p>
 <h3 id="v10"><a class="header" href="#v10">v1.0</a></h3>
@@ -3258,7 +3269,7 @@ null    X       X       10      null        YES          first sync. regardless 
 <li>Full transactionality (atomicity) support?</li>
 <li>Field sanitizers</li>
 </ul>
-<h1 id="contributing-guidelines"><a class="header" href="#contributing-guidelines">Contributing guidelines</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="contributing-guidelines"><a class="header" href="#contributing-guidelines">Contributing guidelines</a></h1>
 <h2 id="before-you-send-a-pull-request"><a class="header" href="#before-you-send-a-pull-request">Before you send a pull request</a></h2>
 <ol>
 <li>
@@ -3345,7 +3356,7 @@ yarn ktlint
 <li>Android: <code>.gradle</code> and <code>build</code> folders in <code>native/android</code> and <code>native/androidTest</code></li>
 <li><code>node_modules</code> (because of React Native precompiled third party libraries)</li>
 </ul>
-<h1 id="changelog"><a class="header" href="#changelog">Changelog</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="changelog"><a class="header" href="#changelog">Changelog</a></h1>
 <p>All notable changes to this project will be documented in this file.</p>
 <p>Contributors: Please add your changes to CHANGELOG-Unreleased.md</p>
 <h2 id="024---2021-10-28"><a class="header" href="#024---2021-10-28">0.24 - 2021-10-28</a></h2>
@@ -4136,59 +4147,31 @@ resolving conflicts, finding local changes, and marking them as synced) is done 
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                        
-
-                        
-
                         <div style="clear: both"></div>
                     </nav>
                 </div>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                
-
-                
             </nav>
 
         </div>
 
-        
-
-        
-
-        
-
-        
-        <script type="text/javascript">
+        <script>
             window.playground_copyable = true;
         </script>
-        
-
-        
-
-        
-        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
-        
-
-        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
 
         <!-- Custom JS scripts -->
-        
-
-        
-        
-        <script type="text/javascript">
+        <script>
         window.addEventListener('load', function() {
             window.setTimeout(window.print, 100);
         });
         </script>
-        
-        
-
     </body>
 </html>

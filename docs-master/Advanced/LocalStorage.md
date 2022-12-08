@@ -4,13 +4,13 @@ WatermelonDB has a simple key/value store, similar to [localStorage](https://dev
 
 ```js
 // setting a value
-await database.localStorage.set("user_id", "abcdef")
+await database.adapter.setLocal("user_id", "abcdef")
 
 // retrieving a value
-const userId = await database.localStorage.get("user_id") // string or undefined if no value for this key
+const userId = await database.adapter.getLocal("user_id") // string or undefined if no value for this key
 
 // removing a value
-await database.localStorage.remove("user_id")
+await database.adapter.removeLocal("user_id")
 ```
 
 **When to use it**. For things like the ID of the logged-in user, or the route to the last-viewed screen in the app. You should generally avoid it and stick to standard Watermelon records.
