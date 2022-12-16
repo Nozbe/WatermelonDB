@@ -141,7 +141,7 @@
     "rambdax": "2.15.0",
     "react": "16.13.0",
     "react-dom": "16.13.0",
-    "react-native": "0.63.4",
+    "react-native": "0.64.1",
     "react-test-renderer": "16.11.0",
     "rimraf": "^3.0.0",
     "semver": "^6.0.0",
