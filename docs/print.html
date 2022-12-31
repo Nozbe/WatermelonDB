@@ -1748,7 +1748,7 @@ class Post extends Model {
     .query(Q.on('post_authors', 'post_id', this.id));
 }
 </code></pre>
-<pre><code class="language-js">import { field } from '@nozbe/watermelondb/decorators'
+<pre><code class="language-js">import { immutableRelation } from '@nozbe/watermelondb/decorators'
 
 class PostAuthor extends Model {
   static table = 'post_authors'
