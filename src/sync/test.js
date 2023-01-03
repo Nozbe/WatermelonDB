@@ -76,8 +76,8 @@ const emptyChangeSet = Object.freeze({
 const emptyLocalChanges = Object.freeze({ changes: emptyChangeSet, affectedRecords: [] })
 
 const makeChangeSet = (set) => change(emptyChangeSet, '', set)
-const testApplyRemoteChanges = (db, set) =>
-  db.write(() => applyRemoteChanges(makeChangeSet(set), { db }))
+const testApplyRemoteChanges = (db, set, extraContext = {}) =>
+  db.write(() => applyRemoteChanges(makeChangeSet(set), { db, ...extraContext }))
 
 const sorted = (models) => {
   const copy = models.slice()
@@ -640,6 +640,77 @@ describe('applyRemoteChanges', () => {
       name: 'remote',
     })
     await expectSyncedAndMatches(tasks, 'does_not_exist', { name: 'remote' })
+  })
+  describe('replacement sync', () => {
+    it(`can apply changes using replacement strategy`, async () => {
+      const { database, projects, tasks, comments } = makeDatabase()
+
+      await makeLocalChanges(database)
+      await testApplyRemoteChanges(
+        database,
+        {
+          mock_projects: {
+            created: [
+              // same as local
+              { id: 'pSynced' },
+              // created / created - resolve and update
+              { id: 'pCreated1' },
+              // newly created by remote
+              { id: 'new_project', name: 'remote' },
+            ],
+            updated: [
+              // updated / created - resolve and update
+              { id: 'pCreated2', name: 'remote' },
+            ],
+          },
+          mock_tasks: {
+            created: [
+              // created / updated - resolve and update
+              { id: 'tUpdated', name: 'remote', description: 'remote' },
+            ],
+          },
+          mock_comments: {
+            deleted: [
+              // explicit deletions aren't disallowed when doing replacement strategy
+              // (but pointless unless you do replacement per-collection)
+              'cUpdated',
+              'cDeleted',
+              'cDestroyed',
+              'cDoesNotExist',
+            ],
+          },
+        },
+        { strategy: 'replacement' },
+      )
+
+      await expectSyncedAndMatches(projects, 'pSynced', {})
+      expect(await getRaw(projects, 'pCreated1')).toMatchObject({
+        _status: 'created',
+        _changed: '',
+        name: '',
+      })
+      await expectSyncedAndMatches(projects, 'new_project', { name: 'remote' })
+      expect(await getRaw(projects, 'pCreated2')).toMatchObject({
+        _status: 'created',
+        _changed: '',
+        name: 'remote',
+      })
+      expect(await getRaw(tasks, 'tUpdated')).toMatchObject({
+        _status: 'updated',
+        _changed: 'name,position',
+        name: 'local',
+        position: 100,
+        description: 'remote',
+        project_id: 'orig',
+      })
+
+      // TODO: Add a blanket check that there aren't other records than those that are expected
+      await expectDoesNotExist(comments, 'cUpdated')
+      await expectDoesNotExist(comments, 'cDeleted')
+      await expectDoesNotExist(comments, 'cDestroyed')
+      await expectDoesNotExist(comments, 'cDoesNotExist')
+      // await expectDoesNotExist(comments, 'cCreated')
+    })
   })
   it(`doesn't touch created_at/updated_at when applying updates`, async () => {
     const { database, comments } = makeDatabase()
