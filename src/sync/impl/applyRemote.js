@@ -70,13 +70,43 @@ type RecordsToApplyRemoteChangesTo<T: Model> = {
 async function recordsToApplyRemoteChangesTo<T: Model>(
   collection: Collection<T>,
   changes: SyncTableChangeSet,
+  context: ApplyRemoteChangesContext,
 ): Promise<RecordsToApplyRemoteChangesTo<T>> {
-  const { database, table } = collection
+  const { db, strategy } = context
+  const { table } = collection
+
+  if (strategy === 'replacement') {
+    const { created, updated, deleted: changesDeletedIds } = changes
+
+    const [records, locallyDeletedIds] = await Promise.all([
+      collection.query().fetch(),
+      db.adapter.getDeletedRecords(table),
+    ])
+
+    const expectedRecordIdsAfterReplacement = new Set([
+      ...created.map((record) => (record.id: RecordId)),
+      ...updated.map((record) => (record.id: RecordId)),
+    ])
+    const recordIdsToDestroyDueToReplacement = records
+      .filter((record) => !expectedRecordIdsAfterReplacement.has(record.id))
+      .map((record) => record.id)
+
+    const deletedIds = [...changesDeletedIds, ...recordIdsToDestroyDueToReplacement]
+
+    return {
+      ...changes,
+      records,
+      locallyDeletedIds,
+      recordsToDestroy: records.filter((record) => deletedIds.includes(record.id)),
+      deletedRecordsToDestroy: locallyDeletedIds.filter((id) => deletedIds.includes(id)),
+    }
+  }
+
   const { deleted: deletedIds } = changes
 
   const [records, locallyDeletedIds] = await Promise.all([
     fetchRecordsForChanges(collection, changes),
-    database.adapter.getDeletedRecords(table),
+    db.adapter.getDeletedRecords(table),
   ])
 
   return {
@@ -167,10 +197,11 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
 type AllRecordsToApply = { [TableName<any>]: RecordsToApplyRemoteChangesTo<Model> }
 
 const getAllRecordsToApply = (
-  db: Database,
   remoteChanges: SyncDatabaseChangeSet,
-): AllRecordsToApply =>
-  allPromisesObj(
+  context: ApplyRemoteChangesContext,
+): AllRecordsToApply => {
+  const { db } = context
+  return allPromisesObj(
     pipe(
       filterObj((_changes, tableName: TableName<any>) => {
         const collection = db.get((tableName: any))
@@ -184,10 +215,11 @@ const getAllRecordsToApply = (
         return !!collection
       }),
       mapObj((changes, tableName: TableName<any>) => {
-        return recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes)
+        return recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes, context)
       }),
     )(remoteChanges),
   )
+}
 
 const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> => {
   const promises = toPairs(recordsToApply).map(([tableName, { deletedRecordsToDestroy }]) => {
@@ -238,7 +270,7 @@ export default async function applyRemoteChanges(
   const { db, _unsafeBatchPerCollection } = context
 
   // $FlowFixMe
-  const recordsToApply = await getAllRecordsToApply(db, remoteChanges)
+  const recordsToApply = await getAllRecordsToApply(remoteChanges, context)
 
   // Perform steps concurrently
   await Promise.all([

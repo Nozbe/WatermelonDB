@@ -709,7 +709,7 @@ describe('applyRemoteChanges', () => {
       await expectDoesNotExist(comments, 'cDeleted')
       await expectDoesNotExist(comments, 'cDestroyed')
       await expectDoesNotExist(comments, 'cDoesNotExist')
-      // await expectDoesNotExist(comments, 'cCreated')
+      await expectDoesNotExist(comments, 'cCreated')
     })
   })
   it(`doesn't touch created_at/updated_at when applying updates`, async () => {
