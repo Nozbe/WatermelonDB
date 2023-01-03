@@ -77,7 +77,7 @@ const emptyLocalChanges = Object.freeze({ changes: emptyChangeSet, affectedRecor
 
 const makeChangeSet = (set) => change(emptyChangeSet, '', set)
 const testApplyRemoteChanges = (db, set) =>
-  db.write(() => applyRemoteChanges(db, makeChangeSet(set)))
+  db.write(() => applyRemoteChanges(makeChangeSet(set), { db }))
 
 const sorted = (models) => {
   const copy = models.slice()
@@ -499,7 +499,7 @@ describe('applyRemoteChanges', () => {
     await makeLocalChanges(database)
     const localChanges1 = await fetchLocalChanges(database)
 
-    await database.write(() => applyRemoteChanges(database, emptyChangeSet))
+    await database.write(() => applyRemoteChanges(emptyChangeSet, { db: database }))
 
     const localChanges2 = await fetchLocalChanges(database)
     expect(localChanges1).toEqual(localChanges2)

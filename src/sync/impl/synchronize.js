@@ -12,7 +12,7 @@ import {
   getMigrationInfo,
 } from './index'
 import { ensureSameDatabase, isChangeSetEmpty, changeSetCount } from './helpers'
-import { type SyncArgs, type Timestamp } from '../index'
+import type { SyncArgs, Timestamp, SyncPullStrategy } from '../index'
 
 export default async function synchronize({
   database,
@@ -93,14 +93,14 @@ export default async function synchronize({
       // $FlowFixMe
       const { changes: remoteChanges, ...resultRest } = pullResult
       log && (log.remoteChangeCount = changeSetCount(remoteChanges))
-      await applyRemoteChanges(
-        database,
-        remoteChanges,
+      await applyRemoteChanges(remoteChanges, {
+        db: database,
+        strategy: ((pullResult: any).strategy: ?SyncPullStrategy),
         sendCreatedAsUpdated,
         log,
         conflictResolver,
         _unsafeBatchPerCollection,
-      )
+      })
       onDidPullChanges && onDidPullChanges(resultRest)
     }
 

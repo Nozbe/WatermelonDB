@@ -13,8 +13,18 @@ import type {
   SyncDatabaseChangeSet,
   SyncLog,
   SyncConflictResolver,
+  SyncPullStrategy,
 } from '../index'
 import { prepareCreateFromRaw, prepareUpdateFromRaw } from './helpers'
+
+type ApplyRemoteChangesContext = $Exact<{
+  db: Database,
+  strategy?: ?SyncPullStrategy,
+  sendCreatedAsUpdated?: boolean,
+  log?: SyncLog,
+  conflictResolver?: SyncConflictResolver,
+  _unsafeBatchPerCollection?: boolean,
+}>
 
 const idsForChanges = ({ created, updated, deleted }: SyncTableChangeSet): RecordId[] => {
   const ids = []
@@ -88,13 +98,12 @@ function validateRemoteRaw(raw: DirtyRaw): void {
 }
 
 function prepareApplyRemoteChangesToCollection<T: Model>(
-  collection: Collection<T>,
   recordsToApply: RecordsToApplyRemoteChangesTo<T>,
-  sendCreatedAsUpdated: boolean,
-  log?: SyncLog,
-  conflictResolver?: SyncConflictResolver,
+  collection: Collection<T>,
+  context: ApplyRemoteChangesContext,
 ): T[] {
-  const { database, table } = collection
+  const { db, sendCreatedAsUpdated, log, conflictResolver } = context
+  const { table } = collection
   const { created, updated, recordsToDestroy: deleted, records, locallyDeletedIds } = recordsToApply
 
   // if `sendCreatedAsUpdated`, server should send all non-deleted records as `updated`
@@ -121,7 +130,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
         `[Sync] Server wants client to create record ${table}#${raw.id}, but it already exists locally and is marked as deleted. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will delete local record and recreate it instead.`,
       )
       // Note: we're not awaiting the async operation (but it will always complete before the batch)
-      database.adapter.destroyDeletedRecords(table, [raw.id])
+      db.adapter.destroyDeletedRecords(table, [raw.id])
       recordsToBatch.push(prepareCreateFromRaw(collection, raw))
     } else {
       recordsToBatch.push(prepareCreateFromRaw(collection, raw))
@@ -190,22 +199,14 @@ const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToAppl
 }
 
 const applyAllRemoteChanges = (
-  db: Database,
   recordsToApply: AllRecordsToApply,
-  sendCreatedAsUpdated: boolean,
-  log?: SyncLog,
-  conflictResolver?: SyncConflictResolver,
+  context: ApplyRemoteChangesContext,
 ): Promise<void> => {
+  const { db } = context
   const allRecords = []
   toPairs(recordsToApply).forEach(([tableName, records]) => {
     allRecords.push(
-      ...prepareApplyRemoteChangesToCollection(
-        db.get((tableName: any)),
-        records,
-        sendCreatedAsUpdated,
-        log,
-        conflictResolver,
-      ),
+      ...prepareApplyRemoteChangesToCollection(records, db.get((tableName: any)), context),
     )
   })
   return db.batch(allRecords)
@@ -213,20 +214,16 @@ const applyAllRemoteChanges = (
 
 // See _unsafeBatchPerCollection - temporary fix
 const unsafeApplyAllRemoteChangesByBatches = (
-  db: Database,
   recordsToApply: AllRecordsToApply,
-  sendCreatedAsUpdated: boolean,
-  log?: SyncLog,
-  conflictResolver?: SyncConflictResolver,
+  context: ApplyRemoteChangesContext,
 ): Promise<*> => {
+  const { db } = context
   const promises = []
   toPairs(recordsToApply).forEach(([tableName, records]) => {
     const preparedModels: Model[] = prepareApplyRemoteChangesToCollection(
-      db.collections.get((tableName: any)),
       records,
-      sendCreatedAsUpdated,
-      log,
-      conflictResolver,
+      db.get((tableName: any)),
+      context,
     )
     const batches = splitEvery(5000, preparedModels).map((recordBatch) => db.batch(recordBatch))
     promises.push(...batches)
@@ -235,13 +232,11 @@ const unsafeApplyAllRemoteChangesByBatches = (
 }
 
 export default async function applyRemoteChanges(
-  db: Database,
   remoteChanges: SyncDatabaseChangeSet,
-  sendCreatedAsUpdated: boolean,
-  log?: SyncLog,
-  conflictResolver?: SyncConflictResolver,
-  _unsafeBatchPerCollection?: boolean,
+  context: ApplyRemoteChangesContext,
 ): Promise<void> {
+  const { db, _unsafeBatchPerCollection } = context
+
   // $FlowFixMe
   const recordsToApply = await getAllRecordsToApply(db, remoteChanges)
 
@@ -249,13 +244,7 @@ export default async function applyRemoteChanges(
   await Promise.all([
     destroyAllDeletedRecords(db, recordsToApply),
     _unsafeBatchPerCollection
-      ? unsafeApplyAllRemoteChangesByBatches(
-          db,
-          recordsToApply,
-          sendCreatedAsUpdated,
-          log,
-          conflictResolver,
-        )
-      : applyAllRemoteChanges(db, recordsToApply, sendCreatedAsUpdated, log, conflictResolver),
+      ? unsafeApplyAllRemoteChangesByBatches(recordsToApply, context)
+      : applyAllRemoteChanges(recordsToApply, context),
   ])
 }
