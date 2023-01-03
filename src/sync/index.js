@@ -22,8 +22,20 @@ export type SyncPullArgs = $Exact<{
   schemaVersion: SchemaVersion,
   migration: MigrationSyncChanges,
 }>
+export type SyncPullStrategy =
+  // Standard sync strategy (default)
+  | 'incremental'
+  // Advanced alternative strategy: indicates that `changes` contains a full dataset (same as during
+  // initial sync). Local records not present in the changeset will be deleted. Other records will be
+  // applied as usual (created, updated, local update conflicts resolved).
+  // This is useful to recover from a corrupted local database, or to deal with very large state changes
+  // such that server doesn't know how to efficiently send incremental changes and wants to send a full
+  // changeset instead.
+  // See docs for more details.
+  | 'replacement'
+
 export type SyncPullResult =
-  | $Exact<{ changes: SyncDatabaseChangeSet, timestamp: Timestamp }>
+  | $Exact<{ changes: SyncDatabaseChangeSet, timestamp: Timestamp, strategy?: SyncPullStrategy }>
   | $Exact<{ syncJson: string }>
   | $Exact<{ syncJsonId: number }>
 
