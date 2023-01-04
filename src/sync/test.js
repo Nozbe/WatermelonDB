@@ -1,7 +1,7 @@
 import clone from 'lodash.clonedeep'
 import { change, times, map, length, omit } from 'rambdax'
 import { skip as skip$ } from 'rxjs/operators'
-import { noop } from '../utils/fp'
+import { noop, allPromises } from '../utils/fp'
 import { randomId } from '../utils/common'
 import { mockDatabase, testSchema } from '../__tests__/testModels'
 import { expectToRejectWithMessage } from '../__tests__/utils'
@@ -642,6 +642,21 @@ describe('applyRemoteChanges', () => {
     await expectSyncedAndMatches(tasks, 'does_not_exist', { name: 'remote' })
   })
   describe('replacement sync', () => {
+    it(`can clear database using replacement strategy`, async () => {
+      const { database, projects, tasks, comments } = makeDatabase()
+      const countAll = async () => {
+        const counts = await allPromises(
+          (collection) => collection.query().fetchCount(),
+          [projects, tasks, comments],
+        )
+        return counts.reduce((a, b) => a + b, 0)
+      }
+
+      await makeLocalChanges(database)
+      expect(await countAll()).toBe(10)
+      await testApplyRemoteChanges(database, {}, { strategy: 'replacement' })
+      expect(await countAll()).toBe(0)
+    })
     it(`can apply changes using replacement strategy`, async () => {
       const { database, projects, tasks, comments } = makeDatabase()
 
