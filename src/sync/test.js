@@ -52,6 +52,14 @@ const countAll = async (collections) => {
   return counts.reduce((a, b) => a + b, 0)
 }
 
+const allDeletedRecords = async (collections) => {
+  const deletedRecords = await allPromises(
+    (collection) => collection.database.adapter.getDeletedRecords(collection.table),
+    collections,
+  )
+  return deletedRecords.flatMap((records) => records)
+}
+
 const prepareCreateFromRaw = (collection, dirtyRaw) =>
   collection.prepareCreate((record) => {
     record._raw = sanitizedRaw({ _status: 'synced', ...dirtyRaw }, record.collection.schema)
@@ -321,7 +329,7 @@ describe('markLocalChangesAsSynced', () => {
     expect(destroyDeletedRecordsSpy).toHaveBeenCalledTimes(0)
   })
   it('marks local changes as synced', async () => {
-    const { database, projects, tasks } = makeDatabase()
+    const { database, projects, tasks, comments } = makeDatabase()
 
     await makeLocalChanges(database)
 
@@ -344,9 +352,7 @@ describe('markLocalChangesAsSynced', () => {
     expect(taskList.every((record) => record.syncStatus === 'synced')).toBe(true)
 
     // no objects marked as deleted
-    expect(await database.adapter.getDeletedRecords('mock_projects')).toEqual([])
-    expect(await database.adapter.getDeletedRecords('mock_tasks')).toEqual([])
-    expect(await database.adapter.getDeletedRecords('mock_comments')).toEqual([])
+    expect(await allDeletedRecords([projects, tasks, comments])).toEqual([])
   })
   it(`doesn't modify updated_at timestamps`, async () => {
     const { database, comments } = makeDatabase()
@@ -433,7 +439,7 @@ describe('markLocalChangesAsSynced', () => {
     expect(destroyDeletedRecordsSpy).toHaveBeenCalledWith('mock_comments', ['cUpdated', 'cCreated'])
   })
   it(`doesn't mark as synced records in the rejectedIds object`, async () => {
-    const { database } = makeDatabase()
+    const { database, comments } = makeDatabase()
 
     const { pCreated1, pUpdated } = await makeLocalChanges(database)
     const localChanges = await fetchLocalChanges(database)
@@ -452,7 +458,7 @@ describe('markLocalChangesAsSynced', () => {
         mock_comments: { deleted: ['cDeleted'] },
       }),
     )
-    expect(await database.adapter.getDeletedRecords('mock_comments')).toEqual(['cDeleted'])
+    expect(await allDeletedRecords([comments])).toEqual(['cDeleted'])
   })
   it(`can mark records as synced when ids are per-table not globally unique`, async () => {
     const { database, projects, tasks, comments } = makeDatabase()
@@ -655,9 +661,7 @@ describe('applyRemoteChanges', () => {
 
       await testApplyRemoteChanges(database, {}, { strategy: 'replacement' })
       expect(await countAll([projects, tasks, comments])).toBe(0)
-      expect(await database.adapter.getDeletedRecords(projects.table)).toEqual([])
-      expect(await database.adapter.getDeletedRecords(tasks.table)).toEqual([])
-      expect(await database.adapter.getDeletedRecords(comments.table)).toEqual([])
+      expect(await allDeletedRecords([projects, tasks, comments])).toEqual([])
     })
     it(`can apply changes using replacement strategy`, async () => {
       const { database, projects, tasks, comments } = makeDatabase()
@@ -678,6 +682,8 @@ describe('applyRemoteChanges', () => {
             updated: [
               // updated / created - resolve and update
               { id: 'pCreated2', name: 'remote' },
+              // updated / updated - resolve and update (actually no remote change)
+              { id: 'pUpdated', name: 'remote' },
             ],
           },
           mock_tasks: {
@@ -712,6 +718,11 @@ describe('applyRemoteChanges', () => {
         _changed: '',
         name: 'remote',
       })
+      expect(await getRaw(projects, 'pUpdated')).toMatchObject({
+        _status: 'updated',
+        _changed: 'name',
+        name: 'local',
+      })
       expect(await getRaw(tasks, 'tUpdated')).toMatchObject({
         _status: 'updated',
         _changed: 'name,position',
@@ -724,7 +735,8 @@ describe('applyRemoteChanges', () => {
       // everything else is deleted
       await expectDoesNotExist(comments, 'cUpdated')
       await expectDoesNotExist(comments, 'cCreated')
-      expect(await countAll([projects, tasks, comments])).toBe(5)
+      expect(await countAll([projects, tasks, comments])).toBe(6)
+      expect(await allDeletedRecords([projects, tasks, comments])).toEqual([])
     })
   })
   it(`doesn't touch created_at/updated_at when applying updates`, async () => {
@@ -999,6 +1011,48 @@ describe('synchronize', () => {
         resolved: cUpdatedResolvedExpected,
       },
     ])
+  })
+  it('can synchronize using replacement strategy', async () => {
+    const { database, projects, tasks, comments } = makeDatabase()
+
+    await makeLocalChanges(database)
+
+    const pullChanges = async () => ({
+      changes: makeChangeSet({
+        mock_projects: {
+          updated: [
+            // no changes, keep
+            { id: 'pSynced' },
+          ],
+        },
+        mock_tasks: {
+          updated: [
+            // update
+            { id: 'tSynced', name: 'remote', description: 'remote' },
+            // create
+            { id: 'new_task', name: 'remote' },
+          ],
+        },
+      }),
+      timestamp: 1500,
+      strategy: 'replacement',
+    })
+    const pushChanges = jest.fn()
+
+    await synchronize({ database, pullChanges, pushChanges, sendCreatedAsUpdated: true })
+
+    // check replacement behavior
+    expect(await getRaw(tasks, 'tSynced')).toMatchObject({
+      _status: 'synced',
+      _changed: '',
+      name: 'remote',
+    })
+    expect(await countAll([projects, tasks, comments])).toBe(3)
+    expect(await allDeletedRecords([projects, tasks, comments])).toEqual([])
+
+    // expect no local changes
+    expect(pushChanges).toHaveBeenCalledTimes(0)
+  })
   })
   it(`allows conflict resolution to be customized`, async () => {
     const { database, projects, tasks } = makeDatabase()
