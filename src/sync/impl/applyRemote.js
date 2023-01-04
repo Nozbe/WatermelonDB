@@ -67,41 +67,14 @@ type RecordsToApplyRemoteChangesTo<T: Model> = {
   locallyDeletedIds: RecordId[],
   deletedRecordsToDestroy: RecordId[],
 }
-async function recordsToApplyRemoteChangesTo<T: Model>(
+
+async function recordsToApplyRemoteChangesTo_incremental<T: Model>(
   collection: Collection<T>,
   changes: SyncTableChangeSet,
   context: ApplyRemoteChangesContext,
 ): Promise<RecordsToApplyRemoteChangesTo<T>> {
-  const { db, strategy } = context
+  const { db } = context
   const { table } = collection
-
-  if (strategy === 'replacement') {
-    const { created, updated, deleted: changesDeletedIds } = changes
-
-    const [records, locallyDeletedIds] = await Promise.all([
-      collection.query().fetch(),
-      db.adapter.getDeletedRecords(table),
-    ])
-
-    const expectedRecordIdsAfterReplacement = new Set([
-      ...created.map((record) => (record.id: RecordId)),
-      ...updated.map((record) => (record.id: RecordId)),
-    ])
-    const recordIdsToDestroyDueToReplacement = [
-      ...records.map((record) => record.id),
-      ...locallyDeletedIds,
-    ].filter((id) => !expectedRecordIdsAfterReplacement.has(id))
-
-    const deletedIds = [...changesDeletedIds, ...recordIdsToDestroyDueToReplacement]
-
-    return {
-      ...changes,
-      records,
-      locallyDeletedIds,
-      recordsToDestroy: records.filter((record) => deletedIds.includes(record.id)),
-      deletedRecordsToDestroy: locallyDeletedIds.filter((id) => deletedIds.includes(id)),
-    }
-  }
 
   const { deleted: deletedIds } = changes
 
@@ -116,6 +89,55 @@ async function recordsToApplyRemoteChangesTo<T: Model>(
     locallyDeletedIds,
     recordsToDestroy: records.filter((record) => deletedIds.includes(record.id)),
     deletedRecordsToDestroy: locallyDeletedIds.filter((id) => deletedIds.includes(id)),
+  }
+}
+
+async function recordsToApplyRemoteChangesTo_replacement<T: Model>(
+  collection: Collection<T>,
+  changes: SyncTableChangeSet,
+  context: ApplyRemoteChangesContext,
+): Promise<RecordsToApplyRemoteChangesTo<T>> {
+  const { db } = context
+  const { table } = collection
+
+  const { created, updated, deleted: changesDeletedIds } = changes
+
+  const [records, locallyDeletedIds] = await Promise.all([
+    collection.query().fetch(),
+    db.adapter.getDeletedRecords(table),
+  ])
+
+  const expectedRecordIdsAfterReplacement = new Set([
+    ...created.map((record) => (record.id: RecordId)),
+    ...updated.map((record) => (record.id: RecordId)),
+  ])
+  const recordIdsToDestroyDueToReplacement = [
+    ...records.map((record) => record.id),
+    ...locallyDeletedIds,
+  ].filter((id) => !expectedRecordIdsAfterReplacement.has(id))
+
+  const deletedIds = [...changesDeletedIds, ...recordIdsToDestroyDueToReplacement]
+
+  return {
+    ...changes,
+    records,
+    locallyDeletedIds,
+    recordsToDestroy: records.filter((record) => deletedIds.includes(record.id)),
+    deletedRecordsToDestroy: locallyDeletedIds.filter((id) => deletedIds.includes(id)),
+  }
+}
+
+async function recordsToApplyRemoteChangesTo<T: Model>(
+  collection: Collection<T>,
+  changes: SyncTableChangeSet,
+  context: ApplyRemoteChangesContext,
+): Promise<RecordsToApplyRemoteChangesTo<T>> {
+  switch (context.strategy) {
+    case 'replacement':
+      return recordsToApplyRemoteChangesTo_replacement(collection, changes, context)
+    case 'incremental':
+    default:
+      return recordsToApplyRemoteChangesTo_incremental(collection, changes, context)
   }
 }
 
