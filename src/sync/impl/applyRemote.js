@@ -50,23 +50,13 @@ const fetchRecordsForChanges = <T: Model>(
   return Promise.resolve([])
 }
 
-const findRecord = <T: Model>(id: RecordId, list: T[]): T | null => {
-  // perf-critical
-  for (let i = 0, len = list.length; i < len; i += 1) {
-    if (list[i]._raw.id === id) {
-      return list[i]
-    }
-  }
-  return null
-}
-
-type RecordsToApplyRemoteChangesTo<T: Model> = {
+type RecordsToApplyRemoteChangesTo<T: Model> = $Exact<{
   ...SyncTableChangeSet,
-  records: T[],
+  recordsMap: Map<RecordId, T>,
   recordsToDestroy: T[],
   locallyDeletedIds: RecordId[],
   deletedRecordsToDestroy: RecordId[],
-}
+}>
 
 async function recordsToApplyRemoteChangesTo_incremental<T: Model>(
   collection: Collection<T>,
@@ -77,6 +67,7 @@ async function recordsToApplyRemoteChangesTo_incremental<T: Model>(
   const { table } = collection
 
   const { deleted: deletedIds } = changes
+  const deletedIdsSet = new Set(deletedIds)
 
   const [records, locallyDeletedIds] = await Promise.all([
     fetchRecordsForChanges(collection, changes),
@@ -85,10 +76,10 @@ async function recordsToApplyRemoteChangesTo_incremental<T: Model>(
 
   return {
     ...changes,
-    records,
+    recordsMap: new Map(records.map((record) => [record._raw.id, record])),
     locallyDeletedIds,
-    recordsToDestroy: records.filter((record) => deletedIds.includes(record.id)),
-    deletedRecordsToDestroy: locallyDeletedIds.filter((id) => deletedIds.includes(id)),
+    recordsToDestroy: records.filter((record) => deletedIdsSet.has(record.id)),
+    deletedRecordsToDestroy: locallyDeletedIds.filter((id) => deletedIdsSet.has(id)),
   }
 }
 
@@ -101,29 +92,29 @@ async function recordsToApplyRemoteChangesTo_replacement<T: Model>(
   const { table } = collection
 
   const { created, updated, deleted: changesDeletedIds } = changes
+  const deletedIdsSet = new Set(changesDeletedIds)
 
   const [records, locallyDeletedIds] = await Promise.all([
     collection.query().fetch(),
     db.adapter.getDeletedRecords(table),
   ])
 
-  const expectedRecordIdsAfterReplacement = new Set([
+  const recordsToKeep = new Set([
     ...created.map((record) => (record.id: RecordId)),
     ...updated.map((record) => (record.id: RecordId)),
   ])
-  const recordIdsToDestroyDueToReplacement = [
-    ...records.map((record) => record.id),
-    ...locallyDeletedIds,
-  ].filter((id) => !expectedRecordIdsAfterReplacement.has(id))
-
-  const deletedIds = [...changesDeletedIds, ...recordIdsToDestroyDueToReplacement]
 
   return {
     ...changes,
-    records,
+    // TODO: Is this right? I think we only use it with ids present in changeset, so maybe it's beter to pre-filter it?
+    recordsMap: new Map(records.map((record) => [record._raw.id, record])),
     locallyDeletedIds,
-    recordsToDestroy: records.filter((record) => deletedIds.includes(record.id)),
-    deletedRecordsToDestroy: locallyDeletedIds.filter((id) => deletedIds.includes(id)),
+    recordsToDestroy: records.filter(
+      (record) => !recordsToKeep.has(record.id) || deletedIdsSet.has(record.id),
+    ),
+    deletedRecordsToDestroy: locallyDeletedIds.filter(
+      (id) => !recordsToKeep.has(id) || deletedIdsSet.has(id),
+    ),
   }
 }
 
@@ -157,7 +148,13 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
 ): T[] {
   const { db, sendCreatedAsUpdated, log, conflictResolver } = context
   const { table } = collection
-  const { created, updated, recordsToDestroy: deleted, records, locallyDeletedIds } = recordsToApply
+  const {
+    created,
+    updated,
+    recordsToDestroy: deleted,
+    recordsMap,
+    locallyDeletedIds,
+  } = recordsToApply
 
   // if `sendCreatedAsUpdated`, server should send all non-deleted records as `updated`
   // log error if it doesn't — but disable standard created vs updated errors
@@ -172,7 +169,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   // Insert and update records
   created.forEach((raw) => {
     validateRemoteRaw(raw)
-    const currentRecord = findRecord(raw.id, records)
+    const currentRecord = recordsMap.get(raw.id)
     if (currentRecord) {
       logError(
         `[Sync] Server wants client to create record ${table}#${raw.id}, but it already exists locally. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will update existing record instead.`,
@@ -192,7 +189,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
 
   updated.forEach((raw) => {
     validateRemoteRaw(raw)
-    const currentRecord = findRecord(raw.id, records)
+    const currentRecord = recordsMap.get(raw.id)
 
     if (currentRecord) {
       recordsToBatch.push(prepareUpdateFromRaw(currentRecord, raw, log, conflictResolver))
