@@ -118,9 +118,8 @@ WatermelonDB has a built in function to check whether there are any unsynced cha
 import { hasUnsyncedChanges } from '@nozbe/watermelondb/sync'
 
 async function checkUnsyncedChanges() {
-  await hasUnsyncedChanges({
-    database
-  })
+  const database = useDatabase()
+  await hasUnsyncedChanges({ database })
 }
 ```
 
@@ -145,11 +144,12 @@ For Watermelon Sync to maintain consistency after [migrations](./Migrations.md),
 
 ### Adopting Turbo Login
 
-WatermelonDB v0.23 introduced an experimental optimization called "Turbo Login". Syncing using Turbo is up to 5.3x faster than the traditional method and uses a lot less memory, so it's suitable for even very large syncs. Keep in mind:
+WatermelonDB v0.23 introduced an advanced optimization called "Turbo Login". Syncing using Turbo is up to 5.3x faster than the traditional method and uses a lot less memory, so it's suitable for even very large syncs. Keep in mind:
 
-1. This can only be used for the initial (login) sync, not for incremental syncs. It is a serious programmer error to run sync in Turbo mode if the database is not empty. Syncs with `deleted: []` fields not empty will fail.
-2. This only withs with SQLiteAdapter with JSI enabled and running - it does not work on web, or if e.g. Chrome Remote Debugging is enabled
-3. As of writing this, Turbo Login is considered experimental, so the exact API may change in a future version
+1. This can only be used for the initial (login) sync, not for incremental syncs. It is a serious programmer error to run sync in Turbo mode if the database is not empty.
+2. Syncs with `deleted: []` fields not empty will fail.
+3. Turbo only works with SQLiteAdapter with JSI enabled and running - it does not work on web, or if e.g. Chrome Remote Debugging is enabled
+4. While Turbo Login is stable, it's marked as "unsafe", meaning that the exact API may change in a future version
 
 Here's basic usage:
 
@@ -200,7 +200,7 @@ await synchronize({
 })
 ```
 
-There's a way to make Turbo Login even more _turbo_! However, it requires native development skills. You need to develop your own networking native code, so that raw JSON can go straight from your native code to WatermelonDB's native code - skipping JavaScript processing altogether.
+There's a way to make Turbo Login even more _turbo_! However, it requires native development skills. You need to develop your own native networking code, so that raw JSON can go straight from your native code to WatermelonDB's native code - skipping JavaScript processing altogether.
 
 ```js
 await synchronize({
@@ -437,7 +437,7 @@ WatermelonDB has been designed with the assumption that there is no difference b
 
 We highly recommend that you adopt this practice.
 
-Some people are skeptical about this approach due to conflicts, since backend can guarantee unique IDs, and the local app can't. However, in practice, a standard Watermelon ID has 8,000,000,000,000,000,000,000,000 possible combinations. That's enough entropy to make conflicts extremely unlikely. At [Nozbe](https://nozbe.com), we've done it this way at scale for more than a decade, and not once did we encounter a genuine ID conflict or had other issues due to this approach.
+Some people are skeptical about this approach due to conflicts, since backend can guarantee unique IDs, and the local app can't. However, in practice, a standard Watermelon ID has 8,000,000,000,000,000,000,000,000 possible combinations. That's enough entropy to make conflicts extremely unlikely. At [Nozbe](https://nozbe.com), we've done it this way at scale for more than 15 years, and not once did we encounter a genuine ID conflict or had other issues due to this approach.
 
 > Using the birthday problem, we can calculate that for 36^16 possible IDs, if your system grows to a billion records, the probability of a single conflict is 6e-8. At 100B records, the probability grows to 0.06%. But if you grow to that many records, you're probably a very rich company and can start worrying about things like this _then_.
 
@@ -454,7 +454,7 @@ Note that those are not maintained by WatermelonDB, and we make no endorsements 
 
 ## Current Sync limitations
 
-1. If a record being pushed changes between pull and push, push will just fail. It would be better if it failed with a list of conflicts, so that `synchronize()` can automatically respond. Alternatively, sync could only send changed fields and server could automatically always just apply those changed fields to the server version (since that's what per-column client-wins resolver will do anyway)
+1. If a record being pushed changes remotely between pull and push, push will just fail. It would be better if it failed with a list of conflicts, so that `synchronize()` can automatically respond. Alternatively, sync could only send changed fields and server could automatically always just apply those changed fields to the server version (since that's what per-column client-wins resolver will do anyway)
 2. During next sync pull, changes we've just pushed will be pulled again, which is unnecessary. It would be better if server, during push, also pulled local changes since `lastPulledAt` and responded with NEW timestamp to be treated as `lastPulledAt`.
 3. It shouldn't be necessary to push the whole updated record — just changed fields + ID should be enough
   > Note: That might conflict with "If client wants to update a record that doesn’t exist, create it"
