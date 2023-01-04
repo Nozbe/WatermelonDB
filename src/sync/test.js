@@ -47,6 +47,11 @@ describe('Conflict resolution', () => {
 
 const makeDatabase = () => mockDatabase()
 
+const countAll = async (collections) => {
+  const counts = await allPromises((collection) => collection.query().fetchCount(), collections)
+  return counts.reduce((a, b) => a + b, 0)
+}
+
 const prepareCreateFromRaw = (collection, dirtyRaw) =>
   collection.prepareCreate((record) => {
     record._raw = sanitizedRaw({ _status: 'synced', ...dirtyRaw }, record.collection.schema)
@@ -644,18 +649,15 @@ describe('applyRemoteChanges', () => {
   describe('replacement sync', () => {
     it(`can clear database using replacement strategy`, async () => {
       const { database, projects, tasks, comments } = makeDatabase()
-      const countAll = async () => {
-        const counts = await allPromises(
-          (collection) => collection.query().fetchCount(),
-          [projects, tasks, comments],
-        )
-        return counts.reduce((a, b) => a + b, 0)
-      }
 
       await makeLocalChanges(database)
-      expect(await countAll()).toBe(10)
+      expect(await countAll([projects, tasks, comments])).toBe(10)
+
       await testApplyRemoteChanges(database, {}, { strategy: 'replacement' })
-      expect(await countAll()).toBe(0)
+      expect(await countAll([projects, tasks, comments])).toBe(0)
+      expect(await database.adapter.getDeletedRecords(projects.table)).toEqual([])
+      expect(await database.adapter.getDeletedRecords(tasks.table)).toEqual([])
+      expect(await database.adapter.getDeletedRecords(comments.table)).toEqual([])
     })
     it(`can apply changes using replacement strategy`, async () => {
       const { database, projects, tasks, comments } = makeDatabase()
@@ -719,12 +721,10 @@ describe('applyRemoteChanges', () => {
         project_id: 'orig',
       })
 
-      // TODO: Add a blanket check that there aren't other records than those that are expected
+      // everything else is deleted
       await expectDoesNotExist(comments, 'cUpdated')
-      await expectDoesNotExist(comments, 'cDeleted')
-      await expectDoesNotExist(comments, 'cDestroyed')
-      await expectDoesNotExist(comments, 'cDoesNotExist')
       await expectDoesNotExist(comments, 'cCreated')
+      expect(await countAll([projects, tasks, comments])).toBe(5)
     })
   })
   it(`doesn't touch created_at/updated_at when applying updates`, async () => {

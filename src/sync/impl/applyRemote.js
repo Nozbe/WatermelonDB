@@ -87,9 +87,10 @@ async function recordsToApplyRemoteChangesTo<T: Model>(
       ...created.map((record) => (record.id: RecordId)),
       ...updated.map((record) => (record.id: RecordId)),
     ])
-    const recordIdsToDestroyDueToReplacement = records
-      .filter((record) => !expectedRecordIdsAfterReplacement.has(record.id))
-      .map((record) => record.id)
+    const recordIdsToDestroyDueToReplacement = [
+      ...records.map((record) => record.id),
+      ...locallyDeletedIds,
+    ].filter((id) => !expectedRecordIdsAfterReplacement.has(id))
 
     const deletedIds = [...changesDeletedIds, ...recordIdsToDestroyDueToReplacement]
 
