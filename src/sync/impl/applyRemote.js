@@ -290,7 +290,12 @@ export default async function applyRemoteChanges(
   remoteChanges: SyncDatabaseChangeSet,
   context: ApplyRemoteChangesContext,
 ): Promise<void> {
-  const { db, _unsafeBatchPerCollection } = context
+  const { db, _unsafeBatchPerCollection, strategy } = context
+
+  invariant(
+    [undefined, null, 'incremental', 'replacement'].includes(strategy),
+    '[Sync] Invalid pull strategy',
+  )
 
   // $FlowFixMe
   const recordsToApply = await getAllRecordsToApply(remoteChanges, context)

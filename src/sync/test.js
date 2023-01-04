@@ -1053,6 +1053,18 @@ describe('synchronize', () => {
     // expect no local changes
     expect(pushChanges).toHaveBeenCalledTimes(0)
   })
+  it(`fails on incorrect strategy`, async () => {
+    const { database } = makeDatabase()
+
+    const pullChanges = async () => ({
+      changes: makeChangeSet({}),
+      timestamp: 1500,
+      strategy: 'replace',
+    })
+    await expectToRejectWithMessage(
+      synchronize({ database, pullChanges, pushChanges: jest.fn() }),
+      'Invalid pull strategy',
+    )
   })
   it(`allows conflict resolution to be customized`, async () => {
     const { database, projects, tasks } = makeDatabase()
