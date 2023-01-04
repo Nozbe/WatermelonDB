@@ -142,7 +142,7 @@ For Watermelon Sync to maintain consistency after [migrations](./Migrations.md),
 5. WatermelonDB >=0.17 will note the schema version at which the user logged in, even if migrations are not enabled, so it's possible for app to request from backend changes from schema version lower than `migrationsEnabledAtVersion`
 6. You MUST NOT delete old [migrations](./Migrations.md), otherwise it's possible that the app is permanently unable to sync.
 
-### Adopting Turbo Login
+### (Advanced) Adopting Turbo Login
 
 WatermelonDB v0.23 introduced an advanced optimization called "Turbo Login". Syncing using Turbo is up to 5.3x faster than the traditional method and uses a lot less memory, so it's suitable for even very large syncs. Keep in mind:
 
@@ -279,6 +279,44 @@ require('@nozbe/watermelondb/sync/debugPrintChanges').default(changes, isPush)
 ```
 
 Pass `true` for second parameter if you're checking outgoing changes (pushChanges), `false` otherwise. Make absolutely sure you don't commit this debug tool. For best experience, run this on web (Chrome) -- the React Native experience is not as good.
+
+### (Advanced) Replacement Sync
+
+Added in WatermelonDB 0.25, there is an alternative way to synchronize changes with the server called "Replacement Sync". You should only use this as last resort for cases difficult to deal with in an incremental fashion, due to performance implications.
+
+Normally, `pullChanges` is expected to only return changes to data that had occured since `lastPulledAt`. During Replacement Sync, server sends the full dataset - *all* records that user has access to, same as during initial (first/login) sync.
+
+Instead of applying these changes normally, the app will replace its database with the data set received, except that local unpushed changes will be preserved. In other words:
+
+- App will create records that are new locally, and update the rest to the server state as per usual
+- Records that have unpushed changes locally will go through conflict resolution as per usual
+- HOWEVER, instead of server passing a list of records to delete, app will delete all local records not present in the dataset received
+  - This also means that locally created (but not pushed) records will be lost
+
+If there are no local (unpushed) changes before or during sync, replacement sync should yield the same state as clearing database and performing initial sync. In case replacement sync is performed with an empty dataset (and there are no local changes), the result should be equivalent to clearing database.
+
+**When should you use Replacement Sync?**
+
+- You can use it as a way to fix a bad sync state (mismatch between local and remote state)
+- You can use it in case you have a very large state change and your server doesn't know how to correctly calculate incremental changes since last sync (e.g. accessible records changed in a very complex permissions system)
+
+In such cases, you could alternatively relogin (clear the database, then perform initial sync again), however:
+
+- Replacement Sync preserves most local changes to records (and other state such as Local Storage), so there's minimal risk for data loss
+- When clearing the database, you need to give up all references to Watermelon objects and stop all observation. Therefore, you need to unmount all UI that touches Watermelon, leading to poor UX. This is not required for Replacement Sync
+- On the other hand, Replacement Sync is much, much slower than Turbo Login (it's not possible to combine the two techniques), so this technique might not scale to very large datasets
+
+**Using Replacement Sync**
+
+In `pullChanges`, return an object with an extra `strategy` field
+
+    ```js
+    {
+      changes: { ... },
+      timestamp: ...,
+      strategy: 'replacement',
+    }
+    ```
 
 ### Additional `synchronize()` flags
 
