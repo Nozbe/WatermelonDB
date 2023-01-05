@@ -10,6 +10,14 @@ export const countAll = async (collections) => {
   return counts.reduce((a, b) => a + b, 0)
 }
 
+export const allIds = async (collections) => {
+  const ids = await allPromises(async (collection) => {
+    const records = await collection.query().fetch()
+    return records.map((record) => record.id)
+  }, collections)
+  return ids.flatMap((x) => x)
+}
+
 export const allDeletedRecords = async (collections) => {
   const deletedRecords = await allPromises(
     (collection) => collection.database.adapter.getDeletedRecords(collection.table),

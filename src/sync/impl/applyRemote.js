@@ -91,6 +91,13 @@ async function recordsToApplyRemoteChangesTo_replacement<T: Model>(
   const { db } = context
   const { table } = collection
 
+  const queryForReplacement =
+    context.strategy &&
+    typeof context.strategy === 'object' &&
+    context.strategy.experimentalQueryRecordsForReplacement
+      ? context.strategy.experimentalQueryRecordsForReplacement[table]?.()
+      : null
+
   const { created, updated, deleted: changesDeletedIds } = changes
   const deletedIdsSet = new Set(changesDeletedIds)
 
@@ -101,6 +108,15 @@ async function recordsToApplyRemoteChangesTo_replacement<T: Model>(
     db.adapter.getDeletedRecords(table),
   ])
 
+  // TODO: This is inefficient, as we're already fetching all records
+  const replacementRecords = await (async () => {
+    if (queryForReplacement) {
+      const recordsForReplacement = await collection.query(...queryForReplacement).fetch()
+      return new Set(recordsForReplacement.map((record) => record._raw.id))
+    }
+    return null
+  })()
+
   const recordsToKeep = new Set([
     ...created.map((record) => (record.id: RecordId)),
     ...updated.map((record) => (record.id: RecordId)),
@@ -110,11 +126,21 @@ async function recordsToApplyRemoteChangesTo_replacement<T: Model>(
     ...changes,
     recordsMap: new Map(records.map((record) => [record._raw.id, record])),
     locallyDeletedIds,
-    recordsToDestroy: records.filter(
-      (record) =>
-        deletedIdsSet.has(record._raw.id) ||
-        (!recordsToKeep.has(record._raw.id) && record._raw._status !== 'created'),
-    ),
+    recordsToDestroy: records.filter((record) => {
+      if (deletedIdsSet.has(record._raw.id)) {
+        return true
+      }
+
+      const subjectToReplacement = replacementRecords
+        ? replacementRecords.has(record._raw.id)
+        : true
+
+      return (
+        subjectToReplacement &&
+        !recordsToKeep.has(record._raw.id) &&
+        record._raw._status !== 'created'
+      )
+    }),
     deletedRecordsToDestroy: locallyDeletedIds.filter(
       (id) => !recordsToKeep.has(id) || deletedIdsSet.has(id),
     ),

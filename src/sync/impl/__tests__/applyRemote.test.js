@@ -1,10 +1,12 @@
 import { expectToRejectWithMessage } from '../../../__tests__/utils'
+import * as Q from '../../../QueryDescription'
 import {
   makeDatabase,
   emptyLocalChanges,
   emptyChangeSet,
   allDeletedRecords,
   countAll,
+  allIds,
   expectSyncedAndMatches,
   getRaw,
   makeLocalChanges,
@@ -320,6 +322,83 @@ describe('applyRemoteChanges', () => {
       // tasks, comments are incremental
       expect(await countAll([tasks, comments])).toBe(4 + 3)
       expect(await allDeletedRecords([tasks, comments])).toEqual(['tDeleted', 'cDeleted'])
+    })
+    it(`can apply changes using partial replacement`, async () => {
+      const { database, projects, tasks, comments } = makeDatabase()
+
+      await database.write(async () => {
+        await database.batch(
+          // records in the "needs replacement" segment
+          prepareCreateFromRaw(tasks, { id: '1', project_id: 'deleted' }), // deleted remotely
+          prepareCreateFromRaw(tasks, { id: '2', project_id: 'deleted' }), // deleted remotely
+          prepareCreateFromRaw(tasks, { id: '3', project_id: 'permsChanged' }), // unchanged
+          prepareCreateFromRaw(tasks, {
+            id: '3b',
+            _status: 'updated',
+            _changed: 'name',
+            project_id: 'permsChanged',
+            name: 'local',
+          }), // updated remotely
+          prepareCreateFromRaw(tasks, { id: '4', project_id: 'permsChanged' }), // lost access (deleted)
+          prepareCreateFromRaw(tasks, { id: '5', _status: 'created', project_id: 'deleted' }),
+
+          // other records, that will be processed incrementally
+          prepareCreateFromRaw(tasks, { id: 'a', project_id: 'foo' }), // deleted remotely
+          prepareCreateFromRaw(tasks, { id: 'b', project_id: 'foo' }), // updated remotely
+          prepareCreateFromRaw(tasks, { id: 'c', project_id: 'bar' }), // unchanged
+          prepareCreateFromRaw(tasks, { id: 'c1', _status: 'updated', project_id: 'bar' }), // unchanged
+          prepareCreateFromRaw(tasks, { id: 'd', _status: 'created', project_id: 'baz' }), // created locally
+        )
+      })
+
+      await testApplyRemoteChanges(
+        database,
+        {
+          mock_tasks: {
+            updated: [
+              // replacement segment
+              { id: '3', project_id: 'permsChanged' }, // unchanged
+              { id: '3b', project_id: 'permsChanged', name: 'orig' }, // unchanged (but updated locally)
+              { id: '6', project_id: 'permsChanged' }, // new
+              // incremental changes
+              { id: 'b', name: 'remote' },
+              { id: 'e' }, // new
+            ],
+            deleted: ['a'],
+          },
+        },
+        {
+          strategy: {
+            default: 'replacement',
+            override: {},
+            experimentalQueryRecordsForReplacement: {
+              mock_tasks: () => [Q.where('project_id', Q.oneOf(['deleted', 'permsChanged']))],
+            },
+          },
+        },
+      )
+
+      // incremental records are incremental
+      expect((await allIds([tasks])).sort()).toEqual(
+        [
+          // replacement
+          '3',
+          '3b',
+          '5',
+          '6',
+          // incremental
+          'b',
+          'c',
+          'c1',
+          'd',
+          'e',
+        ].sort(),
+      )
+      expect(await getRaw(tasks, 'b')).toMatchObject({ name: 'remote' })
+      expect(await getRaw(tasks, '3b')).toMatchObject({ _status: 'updated', name: 'local' })
+
+      // sanity check
+      expect(await countAll([projects, comments])).toBe(0)
     })
   })
   describe('timestamp management', () => {
