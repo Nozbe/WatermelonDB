@@ -1,7 +1,14 @@
 import { times, map, length } from 'rambdax'
 import { noop } from '../../../utils/fp'
 import { randomId } from '../../../utils/common'
-import { makeDatabase, emptyLocalChanges, makeChangeSet, prepareCreateFromRaw } from './helpers'
+import {
+  makeDatabase,
+  emptyLocalChanges,
+  makeChangeSet,
+  prepareCreateFromRaw,
+  countAll,
+  getRaw,
+} from './helpers'
 
 import { synchronize, hasUnsyncedChanges } from '../../index'
 import { fetchLocalChanges } from '../index'
@@ -63,6 +70,58 @@ describe('synchronize - benchmark', () => {
       mock_project_sections: { created: 0, updated: 0, deleted: 0 },
       mock_tasks: { created: 0, updated: sample, deleted: 0 },
       mock_comments: { created: 0, updated: 0, deleted: sample },
+    })
+  })
+  it(`can run a large replacement sync`, async () => {
+    const { database, tasks } = makeDatabase()
+
+    const sample = 500
+    const unchanged = times(() => ({ id: randomId() }), sample)
+    const modified = times(() => ({ id: randomId() }), sample)
+    const deleted = times(() => ({ id: randomId() }), sample)
+
+    // create local changes
+    await database.write(async () => {
+      await database.batch(
+        ...unchanged.map((raw) => prepareCreateFromRaw(tasks, raw)),
+        ...modified.map((raw) =>
+          prepareCreateFromRaw(tasks, {
+            ...raw,
+            _status: 'updated',
+            _changed: 'name',
+            name: 'local',
+            description: 'orig',
+          }),
+        ),
+        ...deleted.map((raw) => prepareCreateFromRaw(tasks, raw)),
+      )
+    })
+    expect(await countAll([tasks])).toBe(3 * sample) // sanity check
+
+    // run replacement (with the same data, there should be no changes)
+    await synchronize({
+      database,
+      pullChanges: async () => ({
+        changes: makeChangeSet({
+          mock_tasks: {
+            updated: [
+              ...unchanged,
+              ...modified.map((raw) => ({ ...raw, name: 'remote', description: 'remote' })),
+            ],
+          },
+        }),
+        timestamp: 1500,
+        experimentalStrategy: 'replacement',
+      }),
+      pushChanges: jest.fn(),
+    })
+
+    // sanity checks
+    expect(await countAll([tasks])).toBe(2 * sample)
+    expect(await getRaw(tasks, modified[0].id)).toMatchObject({
+      _status: 'synced',
+      name: 'local',
+      description: 'remote',
     })
   })
 })
