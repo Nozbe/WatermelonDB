@@ -1,5 +1,5 @@
 import clone from 'lodash.clonedeep'
-import { omit } from 'rambdax'
+import { delay, omit } from 'rambdax'
 import { skip as skip$ } from 'rxjs/operators'
 import { expectToRejectWithMessage } from '../../../__tests__/utils'
 import {
@@ -77,6 +77,43 @@ describe('synchronize', () => {
 
     expect(log.remoteChangeCount).toBe(0)
     expect(log.localChangeCount).toBe(0)
+  })
+  it(`notifies user about remote change count`, async () => {
+    const { database } = makeDatabase()
+
+    const onWillApplyRemoteChanges = jest.fn()
+    await synchronize({
+      database,
+      pullChanges: emptyPull(),
+      pushChanges: () => {},
+      onWillApplyRemoteChanges,
+    })
+    expect(onWillApplyRemoteChanges).toHaveBeenCalledTimes(1)
+    expect(onWillApplyRemoteChanges).toHaveBeenCalledWith({ remoteChangeCount: 0 })
+
+    // real changes
+    const onWillApplyRemoteChanges2 = jest.fn(async () => {
+      await delay(100)
+    })
+    await synchronize({
+      database,
+      pullChanges: () => ({
+        changes: makeChangeSet({
+          mock_projects: {
+            created: [{ id: 'new_project', name: 'remote' }],
+          },
+          mock_tasks: {
+            updated: [{ id: 'task_1', name: 'remote' }],
+            deleted: ['task_2'],
+          },
+        }),
+        timestamp: 1500,
+      }),
+      pushChanges: () => {},
+      onWillApplyRemoteChanges: onWillApplyRemoteChanges2,
+    })
+    expect(onWillApplyRemoteChanges2).toHaveBeenCalledTimes(1)
+    expect(onWillApplyRemoteChanges2).toHaveBeenCalledWith({ remoteChangeCount: 3 })
   })
   it('will not push changes if no `pushChanges`', async () => {
     const { database } = makeDatabase()
@@ -521,7 +558,6 @@ describe('synchronize', () => {
       is_completed: true,
     })
   })
-
   it.skip(`can accept remote changes received during push`, async () => {
     // TODO: future improvement?
   })

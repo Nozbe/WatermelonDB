@@ -23,6 +23,7 @@
   corrupted local database, or as a hack to deal with very large state changes such that server doesn't
   know how to efficiently send incremental changes and wants to send a full dataset instead. See docs
   for more details.
+- [Sync] Added `onWillApplyRemoteChanges` callback
 
 ### Performance
 

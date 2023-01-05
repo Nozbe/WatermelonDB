@@ -6,6 +6,7 @@ import {
   getRaw,
   makeLocalChanges,
   makeChangeSet,
+  emptyChangeSet,
 } from './helpers'
 
 import { synchronize } from '../../index'
@@ -57,7 +58,7 @@ describe('synchronize - replacement syncs', () => {
     const { database } = makeDatabase()
 
     const pullChanges = async () => ({
-      changes: makeChangeSet({}),
+      changes: emptyChangeSet,
       timestamp: 1500,
       experimentalStrategy: 'replace',
     })

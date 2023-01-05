@@ -94,9 +94,14 @@ export type SyncArgs = $Exact<{
   // The exact API may change between versions of WatermelonDB.
   // See documentation for more details.
   unsafeTurbo?: boolean,
-  // Called after pullChanges with whatever was returned by pullChanges, minus `changes`. Useful
+  // Called after changes are pulled with whatever was returned by pullChanges, minus `changes`. Useful
   // when using turbo mode
   onDidPullChanges?: (Object) => Promise<void>,
+  // Called after pullChanges is done, but before these changes are applied. Some stats about the pulled
+  // changes are passed as arguments. An advanced user can use this for example to show some UI to the user
+  // when processing a very large sync (could be useful for replacement syncs). Note that remote change count
+  // is NaN in turbo mode.
+  onWillApplyRemoteChanges?: (info: $Exact<{ remoteChangeCount: number }>) => Promise<void>,
 }>
 
 // See Sync docs for usage details
