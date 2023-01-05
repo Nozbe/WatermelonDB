@@ -284,6 +284,43 @@ describe('applyRemoteChanges', () => {
       )
       expect(await allDeletedRecords([projects, tasks, comments])).toEqual([])
     })
+    it(`can apply changes using replacement with per-table granularity`, async () => {
+      const { database, projects, tasks, comments } = makeDatabase()
+
+      await makeLocalChanges(database)
+      await testApplyRemoteChanges(
+        database,
+        {
+          mock_projects: {
+            updated: [
+              // same as local
+              { id: 'pSynced' },
+              // newly created by remote
+              { id: 'new_project', name: 'remote' },
+            ],
+          },
+          mock_tasks: {
+            created: [{ id: 'new_task' }],
+          },
+        },
+        {
+          strategy: {
+            default: 'incremental',
+            override: {
+              mock_projects: 'replacement',
+            },
+          },
+        },
+      )
+
+      // projects are replaced
+      expect(await countAll([projects])).toBe(2 + 2) // 2 in dataset, 2 created locally
+      expect(await allDeletedRecords([projects])).toEqual([])
+
+      // tasks, comments are incremental
+      expect(await countAll([tasks, comments])).toBe(4 + 3)
+      expect(await allDeletedRecords([tasks, comments])).toEqual(['tDeleted', 'cDeleted'])
+    })
   })
   describe('timestamp management', () => {
     it(`doesn't touch created_at/updated_at when applying updates`, async () => {

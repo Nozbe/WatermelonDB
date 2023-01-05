@@ -121,12 +121,28 @@ async function recordsToApplyRemoteChangesTo_replacement<T: Model>(
   }
 }
 
+const strategyForCollection = (
+  collection: Collection<any>,
+  strategy: ?SyncPullStrategy,
+): SyncPullStrategy => {
+  if (!strategy) {
+    return 'incremental'
+  } else if (typeof strategy === 'string') {
+    return strategy
+  }
+
+  return strategy.override[collection.table] || strategy.default
+}
+
 async function recordsToApplyRemoteChangesTo<T: Model>(
   collection: Collection<T>,
   changes: SyncTableChangeSet,
   context: ApplyRemoteChangesContext,
 ): Promise<RecordsToApplyRemoteChangesTo<T>> {
-  switch (context.strategy) {
+  const strategy = strategyForCollection(collection, context.strategy)
+  invariant(['incremental', 'replacement'].includes(strategy), '[Sync] Invalid pull strategy')
+
+  switch (strategy) {
     case 'replacement':
       return recordsToApplyRemoteChangesTo_replacement(collection, changes, context)
     case 'incremental':
@@ -290,12 +306,7 @@ export default async function applyRemoteChanges(
   remoteChanges: SyncDatabaseChangeSet,
   context: ApplyRemoteChangesContext,
 ): Promise<void> {
-  const { db, _unsafeBatchPerCollection, strategy } = context
-
-  invariant(
-    [undefined, null, 'incremental', 'replacement'].includes(strategy),
-    '[Sync] Invalid pull strategy',
-  )
+  const { db, _unsafeBatchPerCollection } = context
 
   // $FlowFixMe
   const recordsToApply = await getAllRecordsToApply(remoteChanges, context)

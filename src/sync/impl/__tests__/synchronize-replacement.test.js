@@ -57,14 +57,22 @@ describe('synchronize - replacement syncs', () => {
   it(`fails on incorrect strategy`, async () => {
     const { database } = makeDatabase()
 
-    const pullChanges = async () => ({
-      changes: emptyChangeSet,
-      timestamp: 1500,
-      experimentalStrategy: 'replace',
-    })
-    await expectToRejectWithMessage(
-      synchronize({ database, pullChanges, pushChanges: jest.fn() }),
-      'Invalid pull strategy',
-    )
+    const check = (strategy) =>
+      expectToRejectWithMessage(
+        synchronize({
+          database,
+          pullChanges: async () => ({
+            changes: emptyChangeSet,
+            timestamp: 1500,
+            experimentalStrategy: strategy,
+          }),
+          pushChanges: jest.fn(),
+        }),
+        'Invalid pull strategy',
+      )
+
+    await check('bad')
+    await check({ default: 'bad', override: {} })
+    await check({ default: 'incremental', override: { mock_projects: 'bad' } })
   })
 })

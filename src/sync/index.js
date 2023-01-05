@@ -22,7 +22,7 @@ export type SyncPullArgs = $Exact<{
   schemaVersion: SchemaVersion,
   migration: MigrationSyncChanges,
 }>
-export type SyncPullStrategy =
+export type SyncPullStrategyType =
   // Standard sync strategy (default)
   | 'incremental'
   // Advanced alternative strategy: indicates that `changes` contains a full dataset (same as during
@@ -33,6 +33,12 @@ export type SyncPullStrategy =
   // changeset instead.
   // See docs for more details.
   | 'replacement'
+export type SyncPullStrategy =
+  | SyncPullStrategyType
+  | $Exact<{
+      default: SyncPullStrategyType,
+      override: { [TableName<any>]: SyncPullStrategyType },
+    }>
 
 export type SyncPullResult =
   | $Exact<{
