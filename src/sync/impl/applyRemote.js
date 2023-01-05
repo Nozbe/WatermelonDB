@@ -111,8 +111,8 @@ async function recordsToApplyRemoteChangesTo_replacement<T: Model>(
     locallyDeletedIds,
     recordsToDestroy: records.filter(
       (record) =>
-        deletedIdsSet.has(record.id) ||
-        (!recordsToKeep.has(record.id) && record.syncStatus !== 'created'),
+        deletedIdsSet.has(record._raw.id) ||
+        (!recordsToKeep.has(record._raw.id) && record._raw._status !== 'created'),
     ),
     deletedRecordsToDestroy: locallyDeletedIds.filter(
       (id) => !recordsToKeep.has(id) || deletedIdsSet.has(id),
