@@ -106,7 +106,6 @@ async function recordsToApplyRemoteChangesTo_replacement<T: Model>(
 
   return {
     ...changes,
-    // TODO: Is this right? I think we only use it with ids present in changeset, so maybe it's beter to pre-filter it?
     recordsMap: new Map(records.map((record) => [record._raw.id, record])),
     locallyDeletedIds,
     recordsToDestroy: records.filter(
