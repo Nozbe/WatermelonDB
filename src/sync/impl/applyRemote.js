@@ -147,7 +147,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   recordsToApply: RecordsToApplyRemoteChangesTo<T>,
   collection: Collection<T>,
   context: ApplyRemoteChangesContext,
-): T[] {
+): Array<?T> {
   const { db, sendCreatedAsUpdated, log, conflictResolver } = context
   const { table } = collection
   const {
@@ -166,7 +166,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
     )
   }
 
-  const recordsToBatch: T[] = [] // mutating - perf critical
+  const recordsToBatch: Array<?T> = [] // mutating - perf critical
 
   // Insert and update records
   created.forEach((raw) => {
@@ -263,7 +263,7 @@ const applyAllRemoteChanges = (
       ...prepareApplyRemoteChangesToCollection(records, db.get((tableName: any)), context),
     )
   })
-  return db.batch(allRecords)
+  return db.batch(...allRecords)
 }
 
 // See _unsafeBatchPerCollection - temporary fix
@@ -274,12 +274,12 @@ const unsafeApplyAllRemoteChangesByBatches = (
   const { db } = context
   const promises = []
   toPairs(recordsToApply).forEach(([tableName, records]) => {
-    const preparedModels: Model[] = prepareApplyRemoteChangesToCollection(
+    const preparedModels: Array<?Model> = prepareApplyRemoteChangesToCollection(
       records,
       db.get((tableName: any)),
       context,
     )
-    const batches = splitEvery(5000, preparedModels).map((recordBatch) => db.batch(recordBatch))
+    const batches = splitEvery(5000, preparedModels).map((recordBatch) => db.batch(...recordBatch))
     promises.push(...batches)
   })
   return Promise.all(promises)

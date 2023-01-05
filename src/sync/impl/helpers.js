@@ -1,7 +1,7 @@
 // @flow
 
 import { values } from '../../utils/fp'
-
+import areRecordsEqual from '../../utils/fp/areRecordsEqual'
 import { invariant } from '../../utils/common'
 
 import type { Model, Collection, Database } from '../..'
@@ -52,12 +52,31 @@ export function prepareCreateFromRaw<T: Model>(collection: Collection<T>, dirtyR
   return collection.prepareCreateFromDirtyRaw(raw)
 }
 
+// optimization - don't run DB update if received record is the same as local
+// (this happens a lot during replacement sync)
+export function requiresUpdate<T: Model>(record: T, updatedDirtyRaw: DirtyRaw): boolean {
+  const local = record._raw
+  if (local._status !== 'synced') {
+    return true
+  }
+
+  const remote = sanitizedRaw(updatedDirtyRaw, record.collection.schema)
+  remote._status = 'synced'
+
+  const canSkipSafely = areRecordsEqual(local, remote)
+  return !canSkipSafely
+}
+
 export function prepareUpdateFromRaw<T: Model>(
   record: T,
   updatedDirtyRaw: DirtyRaw,
   log: ?SyncLog,
   conflictResolver?: SyncConflictResolver,
-): T {
+): ?T {
+  if (!requiresUpdate(record, updatedDirtyRaw)) {
+    return null
+  }
+
   // Note COPY for log - only if needed
   const logConflict = log && !!record._raw._changed
   const logLocal = logConflict

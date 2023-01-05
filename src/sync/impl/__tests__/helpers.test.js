@@ -1,5 +1,5 @@
-import { isChangeSetEmpty, resolveConflict } from '../helpers'
-import { emptyChangeSet, makeChangeSet } from './helpers'
+import { isChangeSetEmpty, requiresUpdate, resolveConflict } from '../helpers'
+import { makeDatabase, emptyChangeSet, makeChangeSet, prepareCreateFromRaw } from './helpers'
 
 describe('resolveConflict', () => {
   it('can resolve per-column conflicts', () => {
@@ -53,5 +53,23 @@ describe('isChangeSetEmpty', () => {
         }),
       ),
     ).toBe(false)
+  })
+})
+
+describe('requiresUpdate', () => {
+  it(`know how to skip unnecessary updates`, () => {
+    const { tasks } = makeDatabase()
+    const check = (local, remote) => requiresUpdate(prepareCreateFromRaw(tasks, local), remote)
+    expect(check({ id: 't1', name: 'foo' }, { id: 't1', name: 'foo' })).toBe(false)
+    expect(
+      check({ id: 't1', name: 'foo' }, { id: 't1', name: 'foo', description: null, position: 0 }),
+    ).toBe(false)
+
+    expect(check({ id: 't1', name: 'foo' }, { id: 't1' })).toBe(true)
+    expect(check({ id: 't1', name: 'foo' }, { id: 't2', name: 'foo' })).toBe(true)
+    expect(check({ id: 't1', name: 'foo' }, { id: 't1', name: 'bar' })).toBe(true)
+    expect(check({ _status: 'updated', id: 't1', name: 'foo' }, { id: 't1', name: 'foo' })).toBe(
+      true,
+    )
   })
 })
