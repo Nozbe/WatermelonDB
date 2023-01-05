@@ -94,6 +94,8 @@ async function recordsToApplyRemoteChangesTo_replacement<T: Model>(
   const { created, updated, deleted: changesDeletedIds } = changes
   const deletedIdsSet = new Set(changesDeletedIds)
 
+  // TODO: We can improve memory usage by creating JS records lazily
+  // (won't be needed for records that don't change)
   const [records, locallyDeletedIds] = await Promise.all([
     collection.query().fetch(),
     db.adapter.getDeletedRecords(table),
