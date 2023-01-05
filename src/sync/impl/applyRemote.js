@@ -141,9 +141,13 @@ async function recordsToApplyRemoteChangesTo_replacement<T: Model>(
         record._raw._status !== 'created'
       )
     }),
-    deletedRecordsToDestroy: locallyDeletedIds.filter(
-      (id) => !recordsToKeep.has(id) || deletedIdsSet.has(id),
-    ),
+    deletedRecordsToDestroy: locallyDeletedIds.filter((id) => {
+      if (deletedIdsSet.has(id)) {
+        return true
+      }
+      const subjectToReplacement = replacementRecords ? replacementRecords.has(id) : true
+      return subjectToReplacement && !recordsToKeep.has(id)
+    }),
   }
 }
 

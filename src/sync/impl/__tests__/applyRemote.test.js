@@ -327,10 +327,11 @@ describe('applyRemoteChanges', () => {
       const { database, projects, tasks, comments } = makeDatabase()
 
       await database.write(async () => {
-        await database.batch(
+        const recs = [
           // records in the "needs replacement" segment
           prepareCreateFromRaw(tasks, { id: '1', project_id: 'deleted' }), // deleted remotely
           prepareCreateFromRaw(tasks, { id: '2', project_id: 'deleted' }), // deleted remotely
+          prepareCreateFromRaw(tasks, { id: '2_del', project_id: 'deleted' }), // deleted remotely and locally
           prepareCreateFromRaw(tasks, { id: '3', project_id: 'permsChanged' }), // unchanged
           prepareCreateFromRaw(tasks, {
             id: '3b',
@@ -339,6 +340,7 @@ describe('applyRemoteChanges', () => {
             project_id: 'permsChanged',
             name: 'local',
           }), // updated remotely
+          prepareCreateFromRaw(tasks, { id: '3_del', project_id: 'permsChanged' }), // locally deleted
           prepareCreateFromRaw(tasks, { id: '4', project_id: 'permsChanged' }), // lost access (deleted)
           prepareCreateFromRaw(tasks, { id: '5', _status: 'created', project_id: 'deleted' }),
 
@@ -347,8 +349,14 @@ describe('applyRemoteChanges', () => {
           prepareCreateFromRaw(tasks, { id: 'b', project_id: 'foo' }), // updated remotely
           prepareCreateFromRaw(tasks, { id: 'c', project_id: 'bar' }), // unchanged
           prepareCreateFromRaw(tasks, { id: 'c1', _status: 'updated', project_id: 'bar' }), // unchanged
+          prepareCreateFromRaw(tasks, { id: 'c_del' }), // locally deleted
           prepareCreateFromRaw(tasks, { id: 'd', _status: 'created', project_id: 'baz' }), // created locally
-        )
+        ]
+        await database.batch(recs)
+        await recs.find((rec) => rec.id === '2_del').markAsDeleted()
+        await recs.find((rec) => rec.id === '3_del').markAsDeleted()
+        await recs.find((rec) => rec.id === 'c_del').markAsDeleted()
+        return recs
       })
 
       await testApplyRemoteChanges(
@@ -359,6 +367,7 @@ describe('applyRemoteChanges', () => {
               // replacement segment
               { id: '3', project_id: 'permsChanged' }, // unchanged
               { id: '3b', project_id: 'permsChanged', name: 'orig' }, // unchanged (but updated locally)
+              { id: '3_del', project_id: 'permsChanged' }, // unchanged (but deleted locally)
               { id: '6', project_id: 'permsChanged' }, // new
               // incremental changes
               { id: 'b', name: 'remote' },
@@ -378,7 +387,7 @@ describe('applyRemoteChanges', () => {
         },
       )
 
-      // incremental records are incremental
+      // check results
       expect((await allIds([tasks])).sort()).toEqual(
         [
           // replacement
@@ -396,8 +405,12 @@ describe('applyRemoteChanges', () => {
       )
       expect(await getRaw(tasks, 'b')).toMatchObject({ name: 'remote' })
       expect(await getRaw(tasks, '3b')).toMatchObject({ _status: 'updated', name: 'local' })
+      expect(await allDeletedRecords([tasks])).toEqual([
+        'c_del', // kept (not in replacement segment)
+        // 2_del not kept (in replacement segment, but not in dataset)
+        '3_del', // kept (in dataset, needs to be pushed)
+      ])
 
-      // sanity check
       expect(await countAll([projects, comments])).toBe(0)
     })
   })
