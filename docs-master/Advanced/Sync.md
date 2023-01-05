@@ -290,8 +290,10 @@ Instead of applying these changes normally, the app will replace its database wi
 
 - App will create records that are new locally, and update the rest to the server state as per usual
 - Records that have unpushed changes locally will go through conflict resolution as per usual
-- HOWEVER, instead of server passing a list of records to delete, app will delete all local records not present in the dataset received
-  - This also means that locally created (but not pushed) records will be lost
+- HOWEVER, instead of server passing a list of records to delete, app will delete local records not present in the dataset received
+- Details on how unpushed changes are preserved:
+  - Records marked as `created` are preserved so they have a chance to sync
+  - Records marked as `updated` or `deleted` will be preserved if they're contained in dataset received. Otherwise, they're deleted (since they were remotely deleted/server no longer grants you accecss to them, these changes would be ignored anyway if pushed).
 
 If there are no local (unpushed) changes before or during sync, replacement sync should yield the same state as clearing database and performing initial sync. In case replacement sync is performed with an empty dataset (and there are no local changes), the result should be equivalent to clearing database.
 
@@ -302,7 +304,7 @@ If there are no local (unpushed) changes before or during sync, replacement sync
 
 In such cases, you could alternatively relogin (clear the database, then perform initial sync again), however:
 
-- Replacement Sync preserves most local changes to records (and other state such as Local Storage), so there's minimal risk for data loss
+- Replacement Sync preserves local changes to records (and other state such as Local Storage), so there's minimal risk for data loss
 - When clearing the database, you need to give up all references to Watermelon objects and stop all observation. Therefore, you need to unmount all UI that touches Watermelon, leading to poor UX. This is not required for Replacement Sync
 - On the other hand, Replacement Sync is much, much slower than Turbo Login (it's not possible to combine the two techniques), so this technique might not scale to very large datasets
 

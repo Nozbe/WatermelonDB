@@ -656,11 +656,33 @@ describe('applyRemoteChanges', () => {
     it(`can clear database using replacement strategy`, async () => {
       const { database, projects, tasks, comments } = makeDatabase()
 
+      // create only synced/updated records
+      await database.write(async () => {
+        await database.batch(
+          prepareCreateFromRaw(projects, { id: 'p1', name: 'orig' }),
+          prepareCreateFromRaw(tasks, {
+            id: 't1',
+            _status: 'updated',
+            _updated: 'name',
+            name: 'local',
+          }),
+        )
+      })
+
+      expect(await countAll([projects, tasks, comments])).toBe(2)
+
+      await testApplyRemoteChanges(database, {}, { strategy: 'replacement' })
+      expect(await countAll([projects, tasks, comments])).toBe(0)
+      expect(await allDeletedRecords([projects, tasks, comments])).toEqual([])
+    })
+    it(`can clear database using replacement strategy (but locally created are preserved)`, async () => {
+      const { database, projects, tasks, comments } = makeDatabase()
+
       await makeLocalChanges(database)
       expect(await countAll([projects, tasks, comments])).toBe(10)
 
       await testApplyRemoteChanges(database, {}, { strategy: 'replacement' })
-      expect(await countAll([projects, tasks, comments])).toBe(0)
+      expect(await countAll([projects, tasks, comments])).toBe(4)
       expect(await allDeletedRecords([projects, tasks, comments])).toEqual([])
     })
     it(`can apply changes using replacement strategy`, async () => {
@@ -700,6 +722,11 @@ describe('applyRemoteChanges', () => {
               'cDeleted',
               'cDestroyed',
               'cDoesNotExist',
+              // exception: if record is created locally, it wouldn't be deleted if not in this list
+              // (weird edge that shouldn't happen, but it's not incorrect - if first replacement sync failed to mark
+              // records as synced after push, but were received by server and added to list of records to push-delete,
+              // then this could theoretically happen)
+              'cCreated',
             ],
           },
         },
@@ -733,9 +760,13 @@ describe('applyRemoteChanges', () => {
       })
 
       // everything else is deleted
+      await expectDoesNotExist(comments, 'cSynced')
       await expectDoesNotExist(comments, 'cUpdated')
-      await expectDoesNotExist(comments, 'cCreated')
-      expect(await countAll([projects, tasks, comments])).toBe(6)
+      const recordsInDataset = 6
+      const createdRecordsKept = 1 // tCreated. pCreated1/pCreated2 are in dataset, cCreated is explicitly deleted
+      expect(await countAll([projects, tasks, comments])).toBe(
+        recordsInDataset + createdRecordsKept,
+      )
       expect(await allDeletedRecords([projects, tasks, comments])).toEqual([])
     })
   })
@@ -1038,8 +1069,8 @@ describe('synchronize', () => {
       strategy: 'replacement',
     })
     const pushChanges = jest.fn()
-
-    await synchronize({ database, pullChanges, pushChanges, sendCreatedAsUpdated: true })
+    const log = {}
+    await synchronize({ database, pullChanges, pushChanges, sendCreatedAsUpdated: true, log })
 
     // check replacement behavior
     expect(await getRaw(tasks, 'tSynced')).toMatchObject({
@@ -1047,11 +1078,12 @@ describe('synchronize', () => {
       _changed: '',
       name: 'remote',
     })
-    expect(await countAll([projects, tasks, comments])).toBe(3)
+    expect(await countAll([projects, tasks, comments])).toBe(3 + 4) // dataset + created
     expect(await allDeletedRecords([projects, tasks, comments])).toEqual([])
 
-    // expect no local changes
-    expect(pushChanges).toHaveBeenCalledTimes(0)
+    // expect 4 created records to be sent
+    expect(pushChanges).toHaveBeenCalledTimes(1)
+    expect(log.localChangeCount).toBe(4)
   })
   it(`fails on incorrect strategy`, async () => {
     const { database } = makeDatabase()
