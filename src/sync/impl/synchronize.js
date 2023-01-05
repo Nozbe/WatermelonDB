@@ -95,7 +95,7 @@ export default async function synchronize({
       log && (log.remoteChangeCount = changeSetCount(remoteChanges))
       await applyRemoteChanges(remoteChanges, {
         db: database,
-        strategy: ((pullResult: any).strategy: ?SyncPullStrategy),
+        strategy: ((pullResult: any).experimentalStrategy: ?SyncPullStrategy),
         sendCreatedAsUpdated,
         log,
         conflictResolver,

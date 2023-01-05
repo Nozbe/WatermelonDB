@@ -1066,7 +1066,7 @@ describe('synchronize', () => {
         },
       }),
       timestamp: 1500,
-      strategy: 'replacement',
+      experimentalStrategy: 'replacement',
     })
     const pushChanges = jest.fn()
     const log = {}
@@ -1091,7 +1091,7 @@ describe('synchronize', () => {
     const pullChanges = async () => ({
       changes: makeChangeSet({}),
       timestamp: 1500,
-      strategy: 'replace',
+      experimentalStrategy: 'replace',
     })
     await expectToRejectWithMessage(
       synchronize({ database, pullChanges, pushChanges: jest.fn() }),

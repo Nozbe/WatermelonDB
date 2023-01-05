@@ -16,7 +16,7 @@
 - [Query] New `Q.includes('foo')` query for case-sensitive exact string includes comparison
 - [adapters] Adapter objects now returns `dbName`
 - [Sync] Replacement Sync - a new advanced sync feature. Server can now send a full dataset (same as
-  during initial sync) and indicate with `{strategy: 'replacement'}` that instead of applying a diff,
+  during initial sync) and indicate with `{ experimentalStrategy: 'replacement' }` that instead of applying a diff,
   local database should be replaced with the dataset sent. Local records not present in the changeset
   will be deleted. However, unlike clearing database and logging in again, unpushed local changes
   (to records that are kept after replacement) are preserved. This is useful for recovering from a

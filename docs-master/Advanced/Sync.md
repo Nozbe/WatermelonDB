@@ -316,7 +316,7 @@ In `pullChanges`, return an object with an extra `strategy` field
     {
       changes: { ... },
       timestamp: ...,
-      strategy: 'replacement',
+      experimentalStrategy: 'replacement',
     }
     ```
 
