@@ -234,6 +234,19 @@ const unsafeApplyAllRemoteChangesByBatches = (
   return Promise.all(promises)
 }
 
+// #1462: If the same changeset contains an id in both created/updated and
+// deleted, we need to remove it from created so that the record doesn't end
+// up remaining in the DB.
+function reduceChanges(remoteChanges: SyncDatabaseChangeSet): SyncDatabaseChangeSet {
+  Object.keys(remoteChanges).forEach(tableName => {
+    const changes = remoteChanges[tableName]
+
+    changes.created = changes.created.filter(rec => !changes.deleted.includes(rec.id))
+    changes.updated = changes.updated.filter(rec => !changes.deleted.includes(rec.id))
+  })
+  return remoteChanges
+}
+
 export default async function applyRemoteChanges(
   db: Database,
   remoteChanges: SyncDatabaseChangeSet,
@@ -243,7 +256,7 @@ export default async function applyRemoteChanges(
   _unsafeBatchPerCollection?: boolean,
 ): Promise<void> {
   // $FlowFixMe
-  const recordsToApply = await getAllRecordsToApply(db, remoteChanges)
+  const recordsToApply = await getAllRecordsToApply(db, reduceChanges(remoteChanges))
 
   // Perform steps concurrently
   await Promise.all([
