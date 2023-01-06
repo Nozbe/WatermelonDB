@@ -238,7 +238,7 @@ const unsafeApplyAllRemoteChangesByBatches = (
 // deleted, we need to remove it from created so that the record doesn't end
 // up remaining in the DB.
 function reduceChanges(remoteChanges: SyncDatabaseChangeSet): SyncDatabaseChangeSet {
-  Object.keys(remoteChanges).forEach(tableName => {
+  Object.keys(remoteChanges).forEach((tableName: any) => {
     const changes = remoteChanges[tableName]
 
     changes.created = changes.created.filter(rec => !changes.deleted.includes(rec.id))
