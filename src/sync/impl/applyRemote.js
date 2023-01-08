@@ -104,24 +104,26 @@ async function recordsToApplyRemoteChangesTo_replacement<T: Model>(
   // TODO: We can improve memory usage by creating JS records lazily
   // (won't be needed for records that don't change)
   const [records, locallyDeletedIds] = await Promise.all([
-    collection.query().fetch(),
+    collection
+      .query(
+        ...(queryForReplacement
+          ? [
+              Q.or(
+                Q.where(columnName('id'), Q.oneOf(idsForChanges(changes))),
+                Q.and(...queryForReplacement),
+              ),
+            ]
+          : []),
+      )
+      .fetch(),
     db.adapter.getDeletedRecords(table),
   ])
-
-  // TODO: This is inefficient, as we're already fetching all records
-  const replacementRecords = await (async () => {
-    if (queryForReplacement) {
-      const recordsForReplacement = await collection.query(...queryForReplacement).fetch()
-      return new Set(recordsForReplacement.map((record) => record._raw.id))
-    }
-    return null
-  })()
 
   // HACK: We need to figure out which records deleted locally are subject to replacement, but
   // there's no officially supported way to do that, so we're using an internal API and make sure
   // we don't add these to RecordCache. Note that there could be edge cases when using join queries
   // and some of the other referenced records are also deleted.
-  const replacementRecordsForDeleted = await (async () => {
+  const replacementRecords = await (async () => {
     if (queryForReplacement) {
       const modifiedQuery = collection.query(...queryForReplacement)
       modifiedQuery.description = modifiedQuery._rawDescription
@@ -158,9 +160,7 @@ async function recordsToApplyRemoteChangesTo_replacement<T: Model>(
       if (deletedIdsSet.has(id)) {
         return true
       }
-      const subjectToReplacement = replacementRecordsForDeleted
-        ? replacementRecordsForDeleted.has(id)
-        : true
+      const subjectToReplacement = replacementRecords ? replacementRecords.has(id) : true
       return subjectToReplacement && !recordsToKeep.has(id)
     }),
   }

@@ -1,7 +1,7 @@
 // @flow
 
 import type { Database, RecordId, TableName, Model } from '..'
-import type { Clause } from '../QueryDescription'
+import type { Where } from '../QueryDescription'
 import { type DirtyRaw } from '../RawRecord'
 
 import type { SchemaVersion } from '../Schema'
@@ -40,7 +40,7 @@ export type SyncPullStrategy =
       default: SyncPullStrategyType,
       override: { [TableName<any>]: SyncPullStrategyType },
       experimentalQueryRecordsForReplacement?: {
-        [TableName<any>]: () => Clause[],
+        [TableName<any>]: () => Where[],
       },
     }>
 
