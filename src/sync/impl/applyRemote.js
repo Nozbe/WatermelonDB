@@ -117,6 +117,19 @@ async function recordsToApplyRemoteChangesTo_replacement<T: Model>(
     return null
   })()
 
+  // HACK: We need to figure out which records deleted locally are subject to replacement, but
+  // there's no officially supported way to do that, so we're using an internal API and make sure
+  // we don't add these to RecordCache. Note that there could be edge cases when using join queries
+  // and some of the other referenced records are also deleted.
+  const replacementRecordsForDeleted = await (async () => {
+    if (queryForReplacement) {
+      const modifiedQuery = collection.query(...queryForReplacement)
+      modifiedQuery.description = modifiedQuery._rawDescription
+      return new Set(await modifiedQuery.fetchIds())
+    }
+    return null
+  })()
+
   const recordsToKeep = new Set([
     ...created.map((record) => (record.id: RecordId)),
     ...updated.map((record) => (record.id: RecordId)),
@@ -145,7 +158,9 @@ async function recordsToApplyRemoteChangesTo_replacement<T: Model>(
       if (deletedIdsSet.has(id)) {
         return true
       }
-      const subjectToReplacement = replacementRecords ? replacementRecords.has(id) : true
+      const subjectToReplacement = replacementRecordsForDeleted
+        ? replacementRecordsForDeleted.has(id)
+        : true
       return subjectToReplacement && !recordsToKeep.has(id)
     }),
   }
