@@ -59,7 +59,8 @@ describe('isChangeSetEmpty', () => {
 describe('requiresUpdate', () => {
   it(`know how to skip unnecessary updates`, () => {
     const { tasks } = makeDatabase()
-    const check = (local, remote) => requiresUpdate(prepareCreateFromRaw(tasks, local), remote)
+    const check = (local, remote) =>
+      requiresUpdate(tasks, prepareCreateFromRaw(tasks, local)._raw, remote)
     expect(check({ id: 't1', name: 'foo' }, { id: 't1', name: 'foo' })).toBe(false)
     expect(
       check({ id: 't1', name: 'foo' }, { id: 't1', name: 'foo', description: null, position: 0 }),

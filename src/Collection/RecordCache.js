@@ -57,6 +57,17 @@ export default class RecordCache<Record: Model> {
     return this._modelForRaw(result)
   }
 
+  rawRecordsFromQueryResult(results: CachedQueryResult): RawRecord[] {
+    return results.map((res) => {
+      if (typeof res === 'string') {
+        return this._cachedModelForId(res)._raw
+      }
+
+      const cachedRecord = this.map.get(res.id)
+      return cachedRecord ? cachedRecord._raw : res
+    })
+  }
+
   _cachedModelForId(id: RecordId): Record {
     const record = this.map.get(id)
 
@@ -94,16 +105,17 @@ export default class RecordCache<Record: Model> {
     return record
   }
 
-  _modelForRaw(raw: RawRecord): Record {
+  _modelForRaw(raw: RawRecord, warnIfCached: boolean = true): Record {
     // Sanity check: is this already cached?
     const cachedRecord = this.map.get(raw.id)
 
     if (cachedRecord) {
       // This may legitimately happen if we previously got ID without a record and we cleared
       // adapter-side cached record ID maps to recover
-      logger.warn(
-        `Record ${this.tableName}#${cachedRecord.id} is cached, but full raw object was sent over the bridge`,
-      )
+      warnIfCached &&
+        logger.warn(
+          `Record ${this.tableName}#${cachedRecord.id} is cached, but full raw object was sent over the bridge`,
+        )
       return cachedRecord
     }
 
