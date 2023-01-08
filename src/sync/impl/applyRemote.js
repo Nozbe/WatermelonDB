@@ -196,6 +196,33 @@ async function recordsToApplyRemoteChangesTo<T: Model>(
   }
 }
 
+type AllRecordsToApply = { [TableName<any>]: RecordsToApplyRemoteChangesTo<Model> }
+
+const getAllRecordsToApply = (
+  remoteChanges: SyncDatabaseChangeSet,
+  context: ApplyRemoteChangesContext,
+): AllRecordsToApply => {
+  const { db } = context
+  return allPromisesObj(
+    pipe(
+      filterObj((_changes, tableName: TableName<any>) => {
+        const collection = db.get((tableName: any))
+
+        if (!collection) {
+          logger.warn(
+            `You are trying to sync a collection named ${tableName}, but it does not exist. Will skip it (for forward-compatibility). If this is unexpected, perhaps you forgot to add it to your Database constructor's modelClasses property?`,
+          )
+        }
+
+        return !!collection
+      }),
+      mapObj((changes, tableName: TableName<any>) => {
+        return recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes, context)
+      }),
+    )(remoteChanges),
+  )
+}
+
 function validateRemoteRaw(raw: DirtyRaw): void {
   // TODO: I think other code is actually resilient enough to handle illegal _status and _changed
   // would be best to change that part to a warning - but tests are needed
@@ -276,33 +303,6 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   })
 
   return recordsToBatch
-}
-
-type AllRecordsToApply = { [TableName<any>]: RecordsToApplyRemoteChangesTo<Model> }
-
-const getAllRecordsToApply = (
-  remoteChanges: SyncDatabaseChangeSet,
-  context: ApplyRemoteChangesContext,
-): AllRecordsToApply => {
-  const { db } = context
-  return allPromisesObj(
-    pipe(
-      filterObj((_changes, tableName: TableName<any>) => {
-        const collection = db.get((tableName: any))
-
-        if (!collection) {
-          logger.warn(
-            `You are trying to sync a collection named ${tableName}, but it does not exist. Will skip it (for forward-compatibility). If this is unexpected, perhaps you forgot to add it to your Database constructor's modelClasses property?`,
-          )
-        }
-
-        return !!collection
-      }),
-      mapObj((changes, tableName: TableName<any>) => {
-        return recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes, context)
-      }),
-    )(remoteChanges),
-  )
 }
 
 const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> => {
