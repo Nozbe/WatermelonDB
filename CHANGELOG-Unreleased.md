@@ -14,6 +14,7 @@
 
 - [adapters] Adapter objects can now be distinguished by checking their `static adapterType`
 - [Query] New `Q.includes('foo')` query for case-sensitive exact string includes comparison
+- [Query] New `Q.observeIds()` will return an array of matching record ids, then emits a new array every time it changes
 - [adapters] Adapter objects now returns `dbName`
 - [TypeScript] Add unsafeExecute method
 - [TypeScript] Add localStorage property to Database
