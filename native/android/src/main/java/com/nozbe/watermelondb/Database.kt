@@ -6,26 +6,46 @@ import android.database.sqlite.SQLiteCursor
 import android.database.sqlite.SQLiteCursorDriver
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteQuery
+import android.util.Log
 import java.io.File
 
 class Database(
+
     private val name: String,
     private val context: Context,
     private val openFlags: Int = SQLiteDatabase.CREATE_IF_NECESSARY or SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING
 ) {
-
     private val db: SQLiteDatabase by lazy {
         // TODO: This SUCKS. Seems like Android doesn't like sqlite `?mode=memory&cache=shared` mode. To avoid random breakages, save the file to /tmp, but this is slow.
         // NOTE: This is because Android system SQLite is not compiled with SQLITE_USE_URI=1
         // issue `PRAGMA cache=shared` query after connection when needed
+
+
         val path =
             if (name == ":memory:" || name.contains("mode=memory")) {
                 context.cacheDir.delete()
                 File(context.cacheDir, name).path
-            } else {
+            }
+            else if (name.startsWith("/") || name.startsWith("file")) {
+                // Extracts the database name from the path
+                val dbName = name.substringAfterLast("/")
+                if(dbName.contains(".db")){
+                    // Extracts the real path where the *.db file will be created
+                    val directory = name.substringAfterLast("file://").substringBeforeLast("/")
+
+                    // Creates the directory
+                    val fileObj = File(directory, "databases")
+                    fileObj.mkdir()
+                    File("${directory}/databases", dbName).path
+                }else{
+                    throw IllegalArgumentException("Database name should contain '.db' as extension")
+                }
+            }
+            else {
                 // On some systems there is some kind of lock on `/databases` folder ¯\_(ツ)_/¯
                 context.getDatabasePath("$name.db").path.replace("/databases", "")
             }
+
         return@lazy SQLiteDatabase.openDatabase(path, null, openFlags)
     }
 
