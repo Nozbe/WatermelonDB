@@ -38,6 +38,7 @@
 
 ### Fixes
 
+- [Expo] Fixes Expo SDK 44+ build errors (@Kudo)
 - [TypeScript] Improve typings: add unsafeExecute method, localStorage property to Database
 - [android] Fixed compilation on some setups due to a missing <cassert> import
 - [sync] Fixed marking changes as synced for users that don't keep globally unique (only per-table unique) IDs
