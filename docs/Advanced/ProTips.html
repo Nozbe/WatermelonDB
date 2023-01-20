@@ -171,6 +171,22 @@
 <p><strong>iOS</strong> - check open database path in iOS System Log (via Console for plugged-in device, or Xcode logs, or <a href="https://github.com/Nozbe/WatermelonDB/issues/710#issuecomment-776255654">by using <code>find</code></a>), then open it via <code>sqlite3</code> in the console, or an external tool like <a href="https://sqlitebrowser.org">sqlitebrowser</a></p>
 <h2 id="prepopulating-database-on-native"><a class="header" href="#prepopulating-database-on-native">Prepopulating database on native</a></h2>
 <p>There's no built-in support for this. One way is to generate a SQLite DB (you can use the the Node SQLite support in 0.19.0-2 pre-release or extract it from an ios/android app), bundle it with the app, and then use a bit of code to check if the DB you're expecting it available, and if not, making a copy of the default DB — before you attempt loading DB from JS side. <a href="https://github.com/Nozbe/WatermelonDB/issues/774#issuecomment-667981361">See discussion</a></p>
+<h2 id="override-entity-id-generator"><a class="header" href="#override-entity-id-generator">Override entity ID generator</a></h2>
+<p>You can optionally overide WatermelonDB's id generator with your own custom id generator in order to create specific random id formats (e.g. if UUIDs are used in the backend). In your database index file, pass a function with your custom ID generator to <code>setGenerator</code>:</p>
+<pre><code>// Define a custom ID generator.
+function randomString(): string {
+  return 'RANDOM STRING';
+}
+setGenerator(randomString);
+
+// or as anonymous function:
+setGenerator(() =&gt; 'RANDOM STRING');
+</code></pre>
+<p>To get UUIDs specifically, install <a href="https://github.com/uuidjs/uuid">uuid</a> and then pass their id generator to <code>setGenerator</code>:</p>
+<pre><code>import { v4 as uuidv4 } from 'uuid';
+
+setGenerator(() =&gt; uuidv4());
+</code></pre>
 
                     </main>
 
