@@ -39,6 +39,7 @@
 ### Fixes
 
 - [Expo] Fixes Expo SDK 44+ build errors (@Kudo)
+- [JSI] Fix an issue that sometimes led to crashing app upon database close
 - [TypeScript] Improve typings: add unsafeExecute method, localStorage property to Database
 - [android] Fixed compilation on some setups due to a missing <cassert> import
 - [sync] Fixed marking changes as synced for users that don't keep globally unique (only per-table unique) IDs
