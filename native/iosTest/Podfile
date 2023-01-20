@@ -6,6 +6,9 @@ require_relative '../../node_modules/@react-native-community/cli-platform-ios/na
 
 platform :ios, '13.0'
 
+hermes_enabled = false
+enable_jslock_hack = false
+
 target 'WatermelonTester' do
   config = use_native_modules!
 
@@ -36,6 +39,11 @@ post_install do |installer|
         $(inherited)
         CCACHE_HACK_TOOLCHAIN_DIR="$(TOOLCHAIN_DIR)"
       ]
+      if !hermes_enabled && enable_jslock_hack
+        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'].push(
+          'ENABLE_JSLOCK_PERFORMANCE_HACK=1',
+        )
+      end
       # ccache bails out of caching if clang modules are enabled, but this breaks some packages
       # you also have to be careful about PCHs
       # sometimes you might have to manually add a system framework to project Link phase
