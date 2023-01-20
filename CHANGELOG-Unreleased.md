@@ -38,6 +38,7 @@
 
 ### Fixes
 
+- Fix broken build on React Native 0.71+
 - [Expo] Fixes Expo SDK 44+ build errors (@Kudo)
 - [JSI] Fix an issue that sometimes led to crashing app upon database close
 - [TypeScript] Improve typings: add unsafeExecute method, localStorage property to Database
