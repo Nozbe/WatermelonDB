@@ -5,14 +5,13 @@ window.onunload = function () { };
 
 // Global variable, shared between modules
 function playground_text(playground) {
-    let code_block = playground.querySelector("code");
+    const code_block = playground.querySelector("code");
 
     if (window.ace && code_block.classList.contains("editable")) {
-        let editor = window.ace.edit(code_block);
+        const editor = window.ace.edit(code_block);
         return editor.getValue();
-    } else {
-        return code_block.textContent;
     }
+    return code_block.textContent;
 }
 
 (function codeSnippets() {
@@ -23,7 +22,7 @@ function playground_text(playground) {
         ]);
     }
 
-    var playgrounds = Array.from(document.querySelectorAll(".playground"));
+    const playgrounds = Array.from(document.querySelectorAll(".playground"));
     if (playgrounds.length > 0) {
         fetch_with_timeout("https://play.rust-lang.org/meta/crates", {
             headers: {
@@ -35,7 +34,7 @@ function playground_text(playground) {
         .then(response => response.json())
         .then(response => {
             // get list of crates available in the rust playground
-            let playground_crates = response.crates.map(item => item["id"]);
+            const playground_crates = response.crates.map(item => item["id"]);
             playgrounds.forEach(block => handle_crate_list_update(block, playground_crates));
         });
     }
@@ -46,9 +45,9 @@ function playground_text(playground) {
 
         // and install on change listener to dynamically update ACE editors
         if (window.ace) {
-            let code_block = playground_block.querySelector("code");
+            const code_block = playground_block.querySelector("code");
             if (code_block.classList.contains("editable")) {
-                let editor = window.ace.edit(code_block);
+                const editor = window.ace.edit(code_block);
                 editor.addEventListener("change", function (e) {
                     update_play_button(playground_block, playground_crates);
                 });
