@@ -1,6 +1,6 @@
 {
   "name": "React-Core",
-  "version": "0.66.1",
+  "version": "0.68.5",
   "summary": "The core of React Native.",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
@@ -10,7 +10,7 @@
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.66.1"
+    "tag": "v0.68.5"
   },
   "resource_bundles": {
     "AccessibilityResources": [
@@ -20,9 +20,8 @@
   "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation",
   "header_dir": "React",
   "frameworks": "JavaScriptCore",
-  "libraries": "stdc++",
   "pod_target_xcconfig": {
-    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/RCT-Folly\" \"${PODS_ROOT}/Headers/Public/React-hermes\" \"${PODS_ROOT}/Headers/Public/hermes-engine\"",
+    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/RCT-Folly\" \"${PODS_ROOT}/Headers/Public/React-hermes\" \"${PODS_ROOT}/Headers/Public/hermes-engine\" \"${PODS_ROOT}/Headers/Public/FlipperKit\" \"$(PODS_ROOT)/Headers/Public/ReactCommon\" \"$(PODS_ROOT)/Headers/Public/React-RCTFabric\"",
     "DEFINES_MODULE": "YES"
   },
   "user_target_xcconfig": {
@@ -34,16 +33,16 @@
       "2021.06.28.00-v2"
     ],
     "React-cxxreact": [
-      "0.66.1"
+      "0.68.5"
     ],
     "React-perflogger": [
-      "0.66.1"
+      "0.68.5"
     ],
     "React-jsi": [
-      "0.66.1"
+      "0.68.5"
     ],
     "React-jsiexecutor": [
-      "0.66.1"
+      "0.68.5"
     ],
     "Yoga": [
 
@@ -74,13 +73,13 @@
       ],
       "dependencies": {
         "React-Core/Default": [
-          "0.66.1"
+          "0.68.5"
         ],
         "React-Core/RCTWebSocket": [
-          "0.66.1"
+          "0.68.5"
         ],
         "React-jsinspector": [
-          "0.66.1"
+          "0.68.5"
         ]
       }
     },
@@ -89,7 +88,7 @@
       "source_files": "Libraries/WebSocket/*.{h,m}",
       "dependencies": {
         "React-Core/Default": [
-          "0.66.1"
+          "0.68.5"
         ]
       }
     },
