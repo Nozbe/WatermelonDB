@@ -230,7 +230,7 @@ export function experimentalJoinTables(tables: TableName<any>[]): JoinTables
 
 export function experimentalNestedJoin(from: TableName<any>, to: TableName<any>): NestedJoinTable
 
-export function unsafeSqlQuery(sql: string, values: Value[]): SqlQuery
+export function unsafeSqlQuery(sql: string, values?: Value[]): SqlQuery
 
 // const extractClauses: (clauses: Clause[]) => QueryDescription;
 
