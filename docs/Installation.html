@@ -220,6 +220,7 @@ pod 'React-jsi', :path =&gt; '../node_modules/react-native/ReactCommon/jsi', :mo
 # NOTE: This is required as of v0.23
 pod 'simdjson', path: '../node_modules/@nozbe/simdjson'
 </code></pre>
+<p>Make sure you run <code>pod install</code> after updating <code>Podfile</code></p>
 <p>Note that as of WatermelonDB 0.22, manual (non-CocoaPods) linking is not supported.</p>
 <p>At least Xcode 12.2 and iOS 13 are recommended (earlier versions are not tested for compatibility).</p>
 </li>
@@ -284,6 +285,11 @@ protected List&lt;ReactPackage&gt; getPackages() {
 </code></pre>
 </details>
 <details>
+  <summary>Using with react-native-screens or react-native-gesture-handler</summary>
+  If you are using recent versions of react-native-screens or react-native-gesture-handler, you will need to set the kotlin version to 1.5.20 or above.
+<p>See instructions above ⬆️</p>
+</details>
+<details>
   <summary>Troubleshooting</summary>
   If you get this error:
 <blockquote>
@@ -320,6 +326,11 @@ dependencies {
     // ...
     implementation project(':watermelondb-jsi') // ⬅️ This!
 }
+</code></pre>
+</li>
+<li>
+<p>If you're using Proguard, in <code>android/app/proguard-rules.pro</code> add:</p>
+<pre><code>-keep class com.nozbe.watermelondb.** { *; }
 </code></pre>
 </li>
 <li>

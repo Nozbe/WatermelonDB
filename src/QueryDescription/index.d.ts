@@ -22,64 +22,64 @@ export type Operator =
   | 'notLike'
   | 'includes'
 
-export type ColumnDescription = $RE<{ column: ColumnName, type?: symbol }>
+export type ColumnDescription = $RE<{ column: ColumnName; type?: symbol }>
 export type ComparisonRight =
   | $RE<{ value: Value }>
   | $RE<{ values: NonNullValues }>
   | ColumnDescription
-export type Comparison = $RE<{ operator: Operator, right: ComparisonRight, type?: symbol }>
+export type Comparison = $RE<{ operator: Operator; right: ComparisonRight; type?: symbol }>
 
 export type WhereDescription = $RE<{
-  type: 'where',
-  left: ColumnName,
-  comparison: Comparison,
+  type: 'where'
+  left: ColumnName
+  comparison: Comparison
 }>
 
-export type SqlExpr = $RE<{ type: 'sql', expr: string }>
-export type LokiExpr = $RE<{ type: 'loki', expr: any }>
+export type SqlExpr = $RE<{ type: 'sql'; expr: string }>
+export type LokiExpr = $RE<{ type: 'loki'; expr: any }>
 
 export type Where = WhereDescription | And | Or | On | SqlExpr | LokiExpr
-export type And = $RE<{ type: 'and', conditions: Where[] }>
-export type Or = $RE<{ type: 'or', conditions: Where[] }>
+export type And = $RE<{ type: 'and'; conditions: Where[] }>
+export type Or = $RE<{ type: 'or'; conditions: Where[] }>
 export type On = $RE<{
-  type: 'on',
-  table: TableName<any>,
-  conditions: Where[],
+  type: 'on'
+  table: TableName<any>
+  conditions: Where[]
 }>
 export type SortOrder = 'asc' | 'desc'
 export const asc: SortOrder
 export const desc: SortOrder
 export type SortBy = $RE<{
-  type: 'sortBy',
-  sortColumn: ColumnName,
-  sortOrder: SortOrder,
+  type: 'sortBy'
+  sortColumn: ColumnName
+  sortOrder: SortOrder
 }>
 export type Take = $RE<{
-  type: 'take',
-  count: number,
+  type: 'take'
+  count: number
 }>
 export type Skip = $RE<{
-  type: 'skip',
-  count: number,
+  type: 'skip'
+  count: number
 }>
 export type JoinTables = $RE<{
-  type: 'joinTables',
-  tables: TableName<any>[],
+  type: 'joinTables'
+  tables: TableName<any>[]
 }>
 export type NestedJoinTable = $RE<{
-  type: 'nestedJoinTable',
-  from: TableName<any>,
-  to: TableName<any>,
+  type: 'nestedJoinTable'
+  from: TableName<any>
+  to: TableName<any>
 }>
 export type LokiTransformFunction = (rawLokiRecords: any[], loki: any) => any[]
 export type LokiTransform = $RE<{
-  type: 'lokiTransform',
-  function: LokiTransformFunction,
+  type: 'lokiTransform'
+  function: LokiTransformFunction
 }>
 export type SqlQuery = $RE<{
-  type: 'sqlQuery',
-  sql: string,
-  values: Value[],
+  type: 'sqlQuery'
+  sql: string
+  values: Value[]
 }>
 export type Clause =
   | Where
@@ -91,16 +91,16 @@ export type Clause =
   | LokiTransform
   | SqlQuery
 
-type NestedJoinTableDef = $RE<{ from: TableName<any>, to: TableName<any> }>
+type NestedJoinTableDef = $RE<{ from: TableName<any>; to: TableName<any> }>
 export type QueryDescription = $RE<{
-  where: Where[],
-  joinTables: TableName<any>[],
-  nestedJoinTables: NestedJoinTableDef[],
-  sortBy: SortBy[],
-  take?: number,
-  skip?: number,
-  lokiTransform?: LokiTransformFunction,
-  sql?: SqlQuery,
+  where: Where[]
+  joinTables: TableName<any>[]
+  nestedJoinTables: NestedJoinTableDef[]
+  sortBy: SortBy[]
+  take?: number
+  skip?: number
+  lokiTransform?: LokiTransformFunction
+  sql?: SqlQuery
 }>
 
 // Note: These operators are designed to match SQLite semantics
@@ -201,8 +201,16 @@ export function skip(count: number): Skip
 
 // Note: we have to write out three separate meanings of OnFunction because of a Babel bug
 // (it will remove the parentheses, changing the meaning of the flow type)
-type _OnFunctionColumnValue = (tableName: TableName<any>, columnName: ColumnName, value:Value) => On;
-type _OnFunctionColumnComparison = (tableName: TableName<any>, columnName: ColumnName, comparison: Comparison) => On
+type _OnFunctionColumnValue = (
+  tableName: TableName<any>,
+  columnName: ColumnName,
+  value: Value,
+) => On
+type _OnFunctionColumnComparison = (
+  tableName: TableName<any>,
+  columnName: ColumnName,
+  comparison: Comparison,
+) => On
 type _OnFunctionWhere = (tableName: TableName<any>, where: Where) => On
 type _OnFunctionWhereList = (tableName: TableName<any>, where: Where[]) => On
 
@@ -226,10 +234,10 @@ export function unsafeSqlQuery(sql: string, values: Value[]): SqlQuery
 
 // const extractClauses: (clauses: Clause[]) => QueryDescription;
 
-export function buildQueryDescription(clauses: Clause[]): QueryDescription;
+export function buildQueryDescription(clauses: Clause[]): QueryDescription
 
 // function conditionsWithoutDeleted(conditions: Where[]): Where[];
 
 // function queryWithoutDeletedImpl(clause: Where): Where;
 
-export function queryWithoutDeleted(query: QueryDescription): QueryDescription;
+export function queryWithoutDeleted(query: QueryDescription): QueryDescription

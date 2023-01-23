@@ -10,9 +10,9 @@ export type DirtyRaw = Object
 
 // These fields are ALWAYS present in records of any collection.
 type _RawRecord = {
-  id: RecordId,
-  _status: SyncStatus,
-  _changed: string,
+  id: RecordId
+  _status: SyncStatus
+  _changed: string
 }
 
 // Raw object representing a model record. A RawRecord is guaranteed by the type system

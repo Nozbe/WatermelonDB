@@ -1,4 +1,4 @@
-declare let generator: () => string;
+declare let generator: () => string
 
 export const setGenerator: (newGenerator: () => string) => void
 

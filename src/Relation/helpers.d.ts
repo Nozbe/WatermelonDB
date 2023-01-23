@@ -1,6 +1,4 @@
-import {
-  type Observable,
-} from '../utils/rx'
+import { type Observable } from '../utils/rx'
 
 import type Relation from './index'
 import type Model from '../Model'

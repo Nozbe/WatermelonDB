@@ -57,10 +57,8 @@ void SqliteDb::destroy() {
     }
 
     // Close connection
-    int closeResult = sqlite3_close(sqlite);
-
     // NOTE: Applications should finalize all prepared statements, close all BLOB handles, and finish all sqlite3_backup objects
-    assert(sqlite != nullptr && sqlite3_next_stmt(sqlite, nullptr) == nullptr);
+    int closeResult = sqlite3_close(sqlite);
 
     if (closeResult != SQLITE_OK) {
         // NOTE: We're just gonna log an error. We can't throw an exception here. We could crash, but most likely we're

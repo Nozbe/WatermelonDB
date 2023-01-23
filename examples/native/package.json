@@ -21,7 +21,7 @@
     "react-native": "0.63.4",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-prompt-android": "^1.1.0",
-    "react-native-reanimated": "^1.13.2",
+    "react-native-reanimated": "^2.10.0",
     "react-native-safe-area-context": "^3.1.9",
     "react-native-screens": "^2.18.1"
   },

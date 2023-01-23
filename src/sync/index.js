@@ -1,6 +1,7 @@
 // @flow
 
 import type { Database, RecordId, TableName, Model } from '..'
+import type { Where } from '../QueryDescription'
 import { type DirtyRaw } from '../RawRecord'
 
 import type { SchemaVersion } from '../Schema'
@@ -22,8 +23,33 @@ export type SyncPullArgs = $Exact<{
   schemaVersion: SchemaVersion,
   migration: MigrationSyncChanges,
 }>
+export type SyncPullStrategyType =
+  // Standard sync strategy (default)
+  | 'incremental'
+  // Advanced alternative strategy: indicates that `changes` contains a full dataset (same as during
+  // initial sync). Local records not present in the changeset will be deleted. Other records will be
+  // applied as usual (created, updated, local update conflicts resolved).
+  // This is useful to recover from a corrupted local database, or to deal with very large state changes
+  // such that server doesn't know how to efficiently send incremental changes and wants to send a full
+  // changeset instead.
+  // See docs for more details.
+  | 'replacement'
+export type SyncPullStrategy =
+  | SyncPullStrategyType
+  | $Exact<{
+      default: SyncPullStrategyType,
+      override: { [TableName<any>]: SyncPullStrategyType },
+      experimentalQueryRecordsForReplacement?: {
+        [TableName<any>]: () => Where[],
+      },
+    }>
+
 export type SyncPullResult =
-  | $Exact<{ changes: SyncDatabaseChangeSet, timestamp: Timestamp }>
+  | $Exact<{
+      changes: SyncDatabaseChangeSet,
+      timestamp: Timestamp,
+      experimentalStrategy?: SyncPullStrategy,
+    }>
   | $Exact<{ syncJson: string }>
   | $Exact<{ syncJsonId: number }>
 
@@ -78,9 +104,14 @@ export type SyncArgs = $Exact<{
   // The exact API may change between versions of WatermelonDB.
   // See documentation for more details.
   unsafeTurbo?: boolean,
-  // Called after pullChanges with whatever was returned by pullChanges, minus `changes`. Useful
+  // Called after changes are pulled with whatever was returned by pullChanges, minus `changes`. Useful
   // when using turbo mode
   onDidPullChanges?: (Object) => Promise<void>,
+  // Called after pullChanges is done, but before these changes are applied. Some stats about the pulled
+  // changes are passed as arguments. An advanced user can use this for example to show some UI to the user
+  // when processing a very large sync (could be useful for replacement syncs). Note that remote change count
+  // is NaN in turbo mode.
+  onWillApplyRemoteChanges?: (info: $Exact<{ remoteChangeCount: number }>) => Promise<void>,
 }>
 
 // See Sync docs for usage details

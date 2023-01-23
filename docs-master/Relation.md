@@ -133,7 +133,7 @@ class Post extends Model {
 ```
 
 ```js
-import { field } from '@nozbe/watermelondb/decorators'
+import { immutableRelation } from '@nozbe/watermelondb/decorators'
 
 class PostAuthor extends Model {
   static table = 'post_authors'

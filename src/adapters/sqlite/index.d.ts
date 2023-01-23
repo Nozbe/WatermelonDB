@@ -1,66 +1,99 @@
-declare module '@nozbe/watermelondb/adapters/sqlite' {
-  import {
-    AppSchema,
-    DatabaseAdapter,
-    Model,
-    Query,
-    RecordId,
-    TableName,
-  } from '@nozbe/watermelondb'
-  import {
-    BatchOperation,
-    CachedFindResult,
-    CachedQueryResult,
-  } from '@nozbe/watermelondb/adapters/type'
-  import { SchemaMigrations } from '@nozbe/watermelondb/Schema/migrations'
+import { type ConnectionTag } from '../../utils/common'
+import { type ResultCallback } from '../../utils/fp/Result'
 
-  export type SQL = string
+import type { RecordId } from '../../Model'
+import type { SerializedQuery } from '../../Query'
+import type { TableName, AppSchema, SchemaVersion } from '../../Schema'
+import type { SchemaMigrations, MigrationStep } from '../../Schema/migrations'
+import type {
+  DatabaseAdapter,
+  CachedQueryResult,
+  CachedFindResult,
+  BatchOperation,
+  UnsafeExecuteOperations,
+} from '../type'
+import type {
+  DispatcherType,
+  SQL,
+  SQLiteAdapterOptions,
+  SQLiteArg,
+  SQLiteQuery,
+  SqliteDispatcher,
+  MigrationEvents,
+} from './type'
 
-  export type SQLiteArg = string | boolean | number | null
+import { $Shape } from '../../types'
 
-  export type SQLiteQuery = [SQL, SQLiteArg[]]
+export type { SQL, SQLiteArg, SQLiteQuery }
 
-  export type MigrationEvents = {
-    onSuccess: () => void
-    onStart: () => void
-    onError: (error: Error) => void
-  }
+export default class SQLiteAdapter implements DatabaseAdapter {
+  static adapterType: string
 
-  export interface SQLiteAdapterOptions {
-    dbName?: string
-    migrations?: SchemaMigrations
-    schema: AppSchema
-    jsi?: boolean
-    migrationEvents?: MigrationEvents
-    onSetUpError?: (error: Error) => void
-    usesExclusiveLocking?: boolean
-  }
+  schema: AppSchema
 
-  export default class SQLiteAdapter implements DatabaseAdapter {
-    schema: AppSchema
+  migrations?: SchemaMigrations
 
-    constructor(options: SQLiteAdapterOptions)
+  _migrationEvents?: MigrationEvents
 
-    batch(operations: BatchOperation[]): Promise<void>
+  _tag: ConnectionTag
 
-    count<T extends Model>(query: Query<T>): Promise<number>
+  dbName: string
 
-    destroyDeletedRecords(tableName: TableName<any>, recordIds: RecordId[]): Promise<void>
+  _dispatcherType: DispatcherType
 
-    find(table: TableName<any>, id: RecordId): Promise<CachedFindResult>
+  _dispatcher: SqliteDispatcher
 
-    getDeletedRecords(tableName: TableName<any>): Promise<RecordId[]>
+  _initPromise: Promise<void>
 
-    getLocal(key: string): Promise<string | null>
+  constructor(options: SQLiteAdapterOptions)
 
-    query<T extends Model>(query: Query<T>): Promise<CachedQueryResult>
+  get initializingPromise(): Promise<void>
 
-    removeLocal(key: string): Promise<void>
+  testClone(options?: $Shape<SQLiteAdapterOptions>): Promise<SQLiteAdapter>
 
-    setLocal(key: string, value: string): Promise<void>
+  _getName(name?: string): string
 
-    unsafeClearCachedRecords(): Promise<void>
+  _init(callback: ResultCallback<void>): void
 
-    unsafeResetDatabase(): Promise<void>
-  }
+  _setUpWithMigrations(databaseVersion: SchemaVersion, callback: ResultCallback<void>): void
+
+  _setUpWithSchema(callback: ResultCallback<void>): void
+
+  find(table: TableName<any>, id: RecordId, callback: ResultCallback<CachedFindResult>): void
+
+  query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void
+
+  queryIds(query: SerializedQuery, callback: ResultCallback<RecordId[]>): void
+
+  unsafeQueryRaw(query: SerializedQuery, callback: ResultCallback<any[]>): void
+
+  count(query: SerializedQuery, callback: ResultCallback<number>): void
+
+  batch(operations: BatchOperation[], callback: ResultCallback<void>): void
+
+  getDeletedRecords(table: TableName<any>, callback: ResultCallback<RecordId[]>): void
+
+  destroyDeletedRecords(
+    table: TableName<any>,
+    recordIds: RecordId[],
+    callback: ResultCallback<void>,
+  ): void
+
+  unsafeLoadFromSync(jsonId: number, callback: ResultCallback<any>): void
+
+  provideSyncJson(id: number, syncPullResultJson: string, callback: ResultCallback<void>): void
+
+  unsafeResetDatabase(callback: ResultCallback<void>): void
+
+  unsafeExecute(operations: UnsafeExecuteOperations, callback: ResultCallback<void>): void
+
+  getLocal(key: string, callback: ResultCallback<string | undefined>): void
+
+  setLocal(key: string, value: string, callback: ResultCallback<void>): void
+
+  removeLocal(key: string, callback: ResultCallback<void>): void
+
+  _encodedSchema(): SQL
+
+  _migrationSteps(fromVersion: SchemaVersion): MigrationStep[] | undefined
 }

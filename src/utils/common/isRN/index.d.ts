@@ -1,3 +1,3 @@
-declare const isRN: boolean;
+declare const isRN: boolean
 
-export default isRN;
+export default isRN

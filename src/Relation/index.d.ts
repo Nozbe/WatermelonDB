@@ -1,16 +1,16 @@
-import { $NonMaybeType, $Exact, $Call } from '../types';
+import { $NonMaybeType, $Exact, $Call } from '../types'
 import type { Observable } from '../utils/rx'
 
 import type Model from '../Model'
 import type { RecordId } from '../Model'
 import type { ColumnName, TableName } from '../Schema'
 
-type ExtractRecordIdNonOptional = <T = Model>(value: T) => RecordId
-type ExtractRecordIdOptional = <T = Model>(value: T) => RecordId
+type ExtractRecordIdNonOptional = <T extends Model = Model>(value: T) => RecordId
+type ExtractRecordIdOptional = <T extends Model = Model>(value: T) => RecordId
 type ExtractRecordId = ExtractRecordIdNonOptional & ExtractRecordIdOptional
 
 export type Options = $Exact<{
-  isImmutable: boolean,
+  isImmutable: boolean
 }>
 
 // Defines a one-to-one relation between two Models (two tables in db)

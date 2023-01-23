@@ -1,5 +1,4 @@
 #include "JSLockPerfHack.h"
-#include <jsi/JSCRuntime.h>
 
 using namespace facebook;
 

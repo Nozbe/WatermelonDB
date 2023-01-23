@@ -1,6 +1,6 @@
 import { Observable } from '../utils/rx'
 import { type Unsubscribe, SharedSubscribable } from '../utils/subscriptions'
-import {$Exact} from '../types'
+import { $Exact } from '../types'
 
 import type { Clause, QueryDescription } from '../QueryDescription'
 import type Model from '../Model'
@@ -9,22 +9,22 @@ import type Collection from '../Collection'
 import type { TableName, ColumnName } from '../Schema'
 
 export type QueryAssociation = $Exact<{
-  from: TableName<any>,
-  to: TableName<any>,
-  info: AssociationInfo,
+  from: TableName<any>
+  to: TableName<any>
+  info: AssociationInfo
 }>
 
 export type SerializedQuery = $Exact<{
-  table: TableName<any>,
-  description: QueryDescription,
-  associations: QueryAssociation[],
+  table: TableName<any>
+  description: QueryDescription
+  associations: QueryAssociation[]
 }>
 
 interface QueryCountProxy {
   then<U>(
     onFulfill?: (value: number) => Promise<U> | U,
     onReject?: (error: any) => Promise<U> | U,
-  ): Promise<U>;
+  ): Promise<U>
 }
 
 export default class Query<Record extends Model> {

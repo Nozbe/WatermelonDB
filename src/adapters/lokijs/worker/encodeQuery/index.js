@@ -143,41 +143,39 @@ const encodeWhereDescription: (WhereDescription) => LokiRawQuery = ({ left, comp
   return { [col]: encodedComparison }
 }
 
-const encodeCondition: (QueryAssociation[]) => (Clause) => LokiRawQuery = (associations) => (
-  clause,
-) => {
-  switch (clause.type) {
-    case 'and':
-      return encodeAnd(associations, clause)
-    case 'or':
-      return encodeOr(associations, clause)
-    case 'where':
-      return encodeWhereDescription(clause)
-    case 'on':
-      return encodeJoin(associations, clause)
-    case 'loki':
-      return clause.expr
-    default:
-      throw new Error(`Unknown clause ${clause.type}`)
+const encodeCondition: (QueryAssociation[]) => (Clause) => LokiRawQuery =
+  (associations) => (clause) => {
+    switch (clause.type) {
+      case 'and':
+        return encodeAnd(associations, clause)
+      case 'or':
+        return encodeOr(associations, clause)
+      case 'where':
+        return encodeWhereDescription(clause)
+      case 'on':
+        return encodeJoin(associations, clause)
+      case 'loki':
+        return clause.expr
+      default:
+        throw new Error(`Unknown clause ${clause.type}`)
+    }
   }
-}
 
 const encodeConditions: (QueryAssociation[], Where[]) => LokiRawQuery[] = (
   associations,
   conditions,
 ) => conditions.map(encodeCondition(associations))
 
-const encodeAndOr = (op: LokiKeyword) => (
-  associations: QueryAssociation[],
-  clause: And | Or,
-): LokiRawQuery => {
-  const conditions = encodeConditions(associations, clause.conditions)
-  // flatten
-  return conditions.length === 1
-    ? conditions[0]
-    : // $FlowFixMe
-      { [op]: conditions }
-}
+const encodeAndOr =
+  (op: LokiKeyword) =>
+  (associations: QueryAssociation[], clause: And | Or): LokiRawQuery => {
+    const conditions = encodeConditions(associations, clause.conditions)
+    // flatten
+    return conditions.length === 1
+      ? conditions[0]
+      : // $FlowFixMe
+        { [op]: conditions }
+  }
 
 const encodeAnd: (QueryAssociation[], And) => LokiRawQuery = encodeAndOr('$and')
 const encodeOr: (QueryAssociation[], Or) => LokiRawQuery = encodeAndOr('$or')

@@ -259,9 +259,8 @@ async function mySync() {
 <pre><code class="language-js">import { hasUnsyncedChanges } from '@nozbe/watermelondb/sync'
 
 async function checkUnsyncedChanges() {
-  await hasUnsyncedChanges({
-    database
-  })
+  const database = useDatabase()
+  await hasUnsyncedChanges({ database })
 }
 </code></pre>
 <h3 id="general-information-and-tips"><a class="header" href="#general-information-and-tips">General information and tips</a></h3>
@@ -282,12 +281,13 @@ async function checkUnsyncedChanges() {
 <li>WatermelonDB &gt;=0.17 will note the schema version at which the user logged in, even if migrations are not enabled, so it's possible for app to request from backend changes from schema version lower than <code>migrationsEnabledAtVersion</code></li>
 <li>You MUST NOT delete old <a href="./Migrations.html">migrations</a>, otherwise it's possible that the app is permanently unable to sync.</li>
 </ol>
-<h3 id="adopting-turbo-login"><a class="header" href="#adopting-turbo-login">Adopting Turbo Login</a></h3>
-<p>WatermelonDB v0.23 introduced an experimental optimization called &quot;Turbo Login&quot;. Syncing using Turbo is up to 5.3x faster than the traditional method and uses a lot less memory, so it's suitable for even very large syncs. Keep in mind:</p>
+<h3 id="advanced-adopting-turbo-login"><a class="header" href="#advanced-adopting-turbo-login">(Advanced) Adopting Turbo Login</a></h3>
+<p>WatermelonDB v0.23 introduced an advanced optimization called &quot;Turbo Login&quot;. Syncing using Turbo is up to 5.3x faster than the traditional method and uses a lot less memory, so it's suitable for even very large syncs. Keep in mind:</p>
 <ol>
-<li>This can only be used for the initial (login) sync, not for incremental syncs. It is a serious programmer error to run sync in Turbo mode if the database is not empty. Syncs with <code>deleted: []</code> fields not empty will fail.</li>
-<li>This only withs with SQLiteAdapter with JSI enabled and running - it does not work on web, or if e.g. Chrome Remote Debugging is enabled</li>
-<li>As of writing this, Turbo Login is considered experimental, so the exact API may change in a future version</li>
+<li>This can only be used for the initial (login) sync, not for incremental syncs. It is a serious programmer error to run sync in Turbo mode if the database is not empty.</li>
+<li>Syncs with <code>deleted: []</code> fields not empty will fail.</li>
+<li>Turbo only works with SQLiteAdapter with JSI enabled and running - it does not work on web, or if e.g. Chrome Remote Debugging is enabled</li>
+<li>While Turbo Login is stable, it's marked as &quot;unsafe&quot;, meaning that the exact API may change in a future version</li>
 </ol>
 <p>Here's basic usage:</p>
 <pre><code class="language-js">const isFirstSync = ...
@@ -331,7 +331,7 @@ await synchronize({
   // ...
 })
 </code></pre>
-<p>There's a way to make Turbo Login even more <em>turbo</em>! However, it requires native development skills. You need to develop your own networking native code, so that raw JSON can go straight from your native code to WatermelonDB's native code - skipping JavaScript processing altogether.</p>
+<p>There's a way to make Turbo Login even more <em>turbo</em>! However, it requires native development skills. You need to develop your own native networking code, so that raw JSON can go straight from your native code to WatermelonDB's native code - skipping JavaScript processing altogether.</p>
 <pre><code class="language-js">await synchronize({
     database,
     pullChanges: async ({ lastPulledAt, schemaVersion, migration }) =&gt; {
@@ -392,11 +392,49 @@ console.log(log.finishedAt)
 require('@nozbe/watermelondb/sync/debugPrintChanges').default(changes, isPush)
 </code></pre>
 <p>Pass <code>true</code> for second parameter if you're checking outgoing changes (pushChanges), <code>false</code> otherwise. Make absolutely sure you don't commit this debug tool. For best experience, run this on web (Chrome) -- the React Native experience is not as good.</p>
+<h3 id="advanced-replacement-sync"><a class="header" href="#advanced-replacement-sync">(Advanced) Replacement Sync</a></h3>
+<p>Added in WatermelonDB 0.25, there is an alternative way to synchronize changes with the server called &quot;Replacement Sync&quot;. You should only use this as last resort for cases difficult to deal with in an incremental fashion, due to performance implications.</p>
+<p>Normally, <code>pullChanges</code> is expected to only return changes to data that had occured since <code>lastPulledAt</code>. During Replacement Sync, server sends the full dataset - <em>all</em> records that user has access to, same as during initial (first/login) sync.</p>
+<p>Instead of applying these changes normally, the app will replace its database with the data set received, except that local unpushed changes will be preserved. In other words:</p>
+<ul>
+<li>App will create records that are new locally, and update the rest to the server state as per usual</li>
+<li>Records that have unpushed changes locally will go through conflict resolution as per usual</li>
+<li>HOWEVER, instead of server passing a list of records to delete, app will delete local records not present in the dataset received</li>
+<li>Details on how unpushed changes are preserved:
+<ul>
+<li>Records marked as <code>created</code> are preserved so they have a chance to sync</li>
+<li>Records marked as <code>updated</code> or <code>deleted</code> will be preserved if they're contained in dataset received. Otherwise, they're deleted (since they were remotely deleted/server no longer grants you accecss to them, these changes would be ignored anyway if pushed).</li>
+</ul>
+</li>
+</ul>
+<p>If there are no local (unpushed) changes before or during sync, replacement sync should yield the same state as clearing database and performing initial sync. In case replacement sync is performed with an empty dataset (and there are no local changes), the result should be equivalent to clearing database.</p>
+<p><strong>When should you use Replacement Sync?</strong></p>
+<ul>
+<li>You can use it as a way to fix a bad sync state (mismatch between local and remote state)</li>
+<li>You can use it in case you have a very large state change and your server doesn't know how to correctly calculate incremental changes since last sync (e.g. accessible records changed in a very complex permissions system)</li>
+</ul>
+<p>In such cases, you could alternatively relogin (clear the database, then perform initial sync again), however:</p>
+<ul>
+<li>Replacement Sync preserves local changes to records (and other state such as Local Storage), so there's minimal risk for data loss</li>
+<li>When clearing the database, you need to give up all references to Watermelon objects and stop all observation. Therefore, you need to unmount all UI that touches Watermelon, leading to poor UX. This is not required for Replacement Sync</li>
+<li>On the other hand, Replacement Sync is much, much slower than Turbo Login (it's not possible to combine the two techniques), so this technique might not scale to very large datasets</li>
+</ul>
+<p><strong>Using Replacement Sync</strong></p>
+<p>In <code>pullChanges</code>, return an object with an extra <code>strategy</code> field</p>
+<pre><code>```js
+{
+  changes: { ... },
+  timestamp: ...,
+  experimentalStrategy: 'replacement',
+}
+```
+</code></pre>
 <h3 id="additional-synchronize-flags"><a class="header" href="#additional-synchronize-flags">Additional <code>synchronize()</code> flags</a></h3>
 <ul>
 <li><code>_unsafeBatchPerCollection: boolean</code> - if true, changes will be saved to the database in multiple batches. This is unsafe and breaks transactionality, however may be required for very large syncs due to memory issues</li>
 <li><code>sendCreatedAsUpdated: boolean</code> - if your backend can't differentiate between created and updated records, set this to <code>true</code> to supress warnings. Sync will still work well, however error reporting, and some edge cases will not be handled as well.</li>
 <li><code>conflictResolver: (TableName, local: DirtyRaw, remote: DirtyRaw, resolved: DirtyRaw) =&gt; DirtyRaw</code> - can be passed to customize how records are updated when they change during sync. See <code>src/sync/index.js</code> for details.</li>
+<li><code>onWillApplyRemoteChanges</code> - called after pullChanges is done, but before these changes are applied. Some stats about the pulled changes are passed as arguments. An advanced user can use this for example to show some UI to the user when processing a very large sync (could be useful for replacement syncs). Note that remote change count is NaN in turbo mode.</li>
 </ul>
 <h2 id="implementing-your-sync-backend"><a class="header" href="#implementing-your-sync-backend">Implementing your Sync backend</a></h2>
 <h3 id="understanding-changes-objects"><a class="header" href="#understanding-changes-objects">Understanding <code>changes</code> objects</a></h3>
@@ -579,7 +617,7 @@ This shape MAY be different if negotiated with the frontend (however, frontend-s
 <h2 id="local-vs-remote-ids"><a class="header" href="#local-vs-remote-ids">Local vs Remote IDs</a></h2>
 <p>WatermelonDB has been designed with the assumption that there is no difference between Local IDs (IDs of records and their relations in a WatermelonDB database) and Remote IDs (IDs on the backend server). So a local app can create new records, generating their IDs, and the backend server will use this ID as the true ID. This greatly simplifies synchronization, as you don't have to replace local with remote IDs on the record and all records that point to it.</p>
 <p>We highly recommend that you adopt this practice.</p>
-<p>Some people are skeptical about this approach due to conflicts, since backend can guarantee unique IDs, and the local app can't. However, in practice, a standard Watermelon ID has 8,000,000,000,000,000,000,000,000 possible combinations. That's enough entropy to make conflicts extremely unlikely. At <a href="https://nozbe.com">Nozbe</a>, we've done it this way at scale for more than a decade, and not once did we encounter a genuine ID conflict or had other issues due to this approach.</p>
+<p>Some people are skeptical about this approach due to conflicts, since backend can guarantee unique IDs, and the local app can't. However, in practice, a standard Watermelon ID has 8,000,000,000,000,000,000,000,000 possible combinations. That's enough entropy to make conflicts extremely unlikely. At <a href="https://nozbe.com">Nozbe</a>, we've done it this way at scale for more than 15 years, and not once did we encounter a genuine ID conflict or had other issues due to this approach.</p>
 <blockquote>
 <p>Using the birthday problem, we can calculate that for 36^16 possible IDs, if your system grows to a billion records, the probability of a single conflict is 6e-8. At 100B records, the probability grows to 0.06%. But if you grow to that many records, you're probably a very rich company and can start worrying about things like this <em>then</em>.</p>
 </blockquote>
@@ -594,7 +632,7 @@ This shape MAY be different if negotiated with the frontend (however, frontend-s
 </ul>
 <h2 id="current-sync-limitations"><a class="header" href="#current-sync-limitations">Current Sync limitations</a></h2>
 <ol>
-<li>If a record being pushed changes between pull and push, push will just fail. It would be better if it failed with a list of conflicts, so that <code>synchronize()</code> can automatically respond. Alternatively, sync could only send changed fields and server could automatically always just apply those changed fields to the server version (since that's what per-column client-wins resolver will do anyway)</li>
+<li>If a record being pushed changes remotely between pull and push, push will just fail. It would be better if it failed with a list of conflicts, so that <code>synchronize()</code> can automatically respond. Alternatively, sync could only send changed fields and server could automatically always just apply those changed fields to the server version (since that's what per-column client-wins resolver will do anyway)</li>
 <li>During next sync pull, changes we've just pushed will be pulled again, which is unnecessary. It would be better if server, during push, also pulled local changes since <code>lastPulledAt</code> and responded with NEW timestamp to be treated as <code>lastPulledAt</code>.</li>
 <li>It shouldn't be necessary to push the whole updated record — just changed fields + ID should be enough</li>
 </ol>

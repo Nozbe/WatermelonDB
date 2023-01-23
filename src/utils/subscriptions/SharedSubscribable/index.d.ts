@@ -11,9 +11,9 @@ export default class SharedSubscribable<T> {
 
   _lastValue: T | null
 
-  constructor(source: (subscriber: (T) => void) => Unsubscribe);
+  constructor(source: (subscriber: (T) => void) => Unsubscribe)
 
-  subscribe(subscriber: (T) => void, debugInfo?: any): Unsubscribe;
+  subscribe(subscriber: (T) => void, debugInfo?: any): Unsubscribe
 
   _notify(value: T): void
 
