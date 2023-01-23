@@ -193,7 +193,7 @@ export function and(...clauses: Where[]): And
 
 export function or(...clauses: Where[]): Or
 
-export function sortBy(sortColumn: ColumnName, sortOrder: SortOrder): SortBy
+export function sortBy(sortColumn: ColumnName, sortOrder?: SortOrder): SortBy
 
 export function take(count: number): Take
 
