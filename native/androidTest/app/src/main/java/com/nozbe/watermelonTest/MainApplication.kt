@@ -11,6 +11,7 @@ import com.facebook.react.shell.MainReactPackage
 import com.nozbe.watermelondb.WatermelonDBPackage
 import com.nozbe.watermelondb.jsi.WatermelonDBJSIPackage
 import java.util.Arrays
+import com.facebook.soloader.SoLoader
 
 class MainApplication : Application(), ReactApplication {
 
@@ -38,6 +39,11 @@ class MainApplication : Application(), ReactApplication {
         }
 
         override fun getJSMainModuleName(): String = "src/index.integrationTests.native"
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        SoLoader.init(this, false)
     }
 
     override fun getReactNativeHost(): ReactNativeHost = reactNativeHost

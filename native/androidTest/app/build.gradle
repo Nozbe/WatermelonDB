@@ -75,7 +75,7 @@ project.ext.react = [
     hermesCommand: "$rootDir/../../node_modules/hermes-engine/%OS-BIN%/hermesc",
 ]
 
-apply from: "../../../node_modules/react-native/react.gradle"
+apply from: "$rootDir/../../node_modules/react-native/react.gradle"
 
 /**
  * Set this to true to create two separate APKs instead of one:
@@ -160,7 +160,7 @@ android {
 //        jniLibs {
 //            pickFirsts += ['**/libc++_shared.so', 'META-INF/**']
 //        }
-
+        pickFirst '**/libhermes.so'
         pickFirst '**/libc++_shared.so'
     }
 }
