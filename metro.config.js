@@ -1,10 +1,11 @@
-const blacklist = require('metro-config/src/defaults/blacklist')
+const exclusionList = require('metro-config/src/defaults/exclusionList')
 const path = require('path')
 const glob = require('glob-to-regexp')
+const metroCache = require('metro-cache')
 
 const getBlacklistRE = () => {
   // ignore dist/, dev/
-  const defaultPattern = blacklist([
+  const defaultPattern = exclusionList([
     glob(`${path.resolve(__dirname, '..')}/dist/*`),
     glob(`${path.resolve(__dirname, '..')}/dev/*`),
     glob(`${path.resolve(__dirname, '..')}/example/*`),
@@ -13,7 +14,9 @@ const getBlacklistRE = () => {
     .slice(1, -1)
 
   // delete __tests__ from the default blacklist
-  const newPattern = defaultPattern.replace(`|.*\\/__tests__\\/.*`, '')
+  const newPattern = defaultPattern.replace('|\\/__tests__\\/.*', '')
+
+  console.log({ newPattern })
 
   return RegExp(newPattern)
 }
@@ -35,11 +38,16 @@ const config = {
       stream: path.resolve(__dirname, 'src/__tests__/emptyMock'),
       constants: path.resolve(__dirname, 'src/__tests__/emptyMock'),
     },
-    blacklistRE: getBlacklistRE(),
+    blockList: getBlacklistRE(),
   },
   transformer: {
     babelTransformerPath: path.resolve(__dirname, 'rn-transformer.js'),
   },
+  cacheStores: [
+    new metroCache.FileStore({
+      root: path.resolve(__dirname, '.cache/metro'),
+    }),
+  ],
 }
 
 module.exports = config
