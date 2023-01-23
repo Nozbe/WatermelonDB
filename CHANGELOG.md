@@ -21,6 +21,7 @@ Contributors: Please add your changes to CHANGELOG-Unreleased.md
 - [Query] `Q.where(xxx, undefined)` will now throw an error. This is a bug fix, since comparing to
   undefined was never allowed and would either error out or produce a wrong result in some cases.
   However, it could technically break an app that relied on existing buggy behavior
+- [JSI+Swift] If you use `watermelondbProvideSyncJson()` native iOS API, you might need to add `import WatermelonDB`
 
 ### New features
 
