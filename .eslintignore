@@ -2,4 +2,3 @@ node_modules/
 dist/
 flow-typed/
 dev/
-*.d.ts
