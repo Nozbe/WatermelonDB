@@ -24,7 +24,7 @@ jobs:
       - name: Gradle Wrapper Validation
         uses: gradle/wrapper-validation-action@v1.0.3
   ios:
-    runs-on: macos-12
+    runs-on: macos-11
     name: iOS tests
     steps:
       - uses: actions/checkout@v2
@@ -58,7 +58,7 @@ jobs:
       - run: yarn swiftlint
   android:
     # https://github.com/ReactiveCircus/android-emulator-runner/issues/46
-    runs-on: macos-12
+    runs-on: macos-11
     name: Android tests
     steps:
       - uses: actions/checkout@v2
