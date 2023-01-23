@@ -12,6 +12,8 @@
 
 ### Fixes
 
+- [JSI] Improved reliability when reloading RCTBridge
+
 ### Performance
 
 ### Changes
