@@ -73,7 +73,7 @@ export default class Query<Record extends Model> {
 
   // Emits the number of matching records, then emits a new count every time it changes
   // Note: By default, the Observable is throttled!
-  observeCount(isThrottled: boolean): Observable<number>
+  observeCount(isThrottled?: boolean): Observable<number>
 
   // Queries database and returns an array with IDs of matching records
   fetchIds(): Promise<RecordId[]>
@@ -89,7 +89,7 @@ export default class Query<Record extends Model> {
     subscriber: (records: Record[]) => void,
   ): Unsubscribe
 
-  experimentalSubscribeToCount(subscriber: (number) => void): Unsubscribe
+  experimentalSubscribeToCount(subscriber: (_: number) => void): Unsubscribe
 
   // Marks as deleted all records matching the query
   markAllAsDeleted(): Promise<void>
