@@ -7,9 +7,9 @@ project(':watermelondb-jsi').projectDir = new File(rootProject.projectDir, '../.
 
 include ':app'
 
-includeBuild('../node_modules/react-native-gradle-plugin')
+includeBuild('../../node_modules/react-native-gradle-plugin')
 
 if (settings.hasProperty("newArchEnabled") && settings.newArchEnabled == "true") {
     include(":ReactAndroid")
-    project(":ReactAndroid").projectDir = file('../node_modules/react-native/ReactAndroid')
+    project(":ReactAndroid").projectDir = file('../../node_modules/react-native/ReactAndroid')
 }
