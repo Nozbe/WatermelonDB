@@ -112,7 +112,7 @@ overrides:
     rules:
       flowtype/no-types-missing-file-annotation: off
   - files:
-      - '**/*d..ts'
+      - '**/*.d.ts'
     rules:
       no-unused-vars: off
       
