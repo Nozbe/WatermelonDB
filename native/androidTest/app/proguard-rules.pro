@@ -71,3 +71,6 @@
 -dontwarn java.nio.file.*
 -dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
 -dontwarn okio.**
+
+# watermelondb
+-keep class com.nozbe.watermelondb.** { *; }

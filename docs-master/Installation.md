@@ -56,7 +56,7 @@ npm install @nozbe/watermelondb
     # NOTE: This is required as of v0.23
     pod 'simdjson', path: '../node_modules/@nozbe/simdjson'
     ```
-    
+
     Make sure you run `pod install` after updating `Podfile`
 
     Note that as of WatermelonDB 0.22, manual (non-CocoaPods) linking is not supported.
@@ -233,6 +233,22 @@ On RN60+, auto linking should work.
            }
          }
       ```
+
+  #### Troubleshooting JSI issues
+
+  If you see a crash at launch similar to this after updating React Native:
+
+  ```
+  signal 11 (SIGSEGV), code 2 (SEGV_ACCERR), fault addr 0x79193ac4a9
+  (...)
+  backtrace:
+        (...)
+        watermelondb::createMethod(facebook::jsi::Runtime&, facebook::jsi::Object&, char const*, unsigned int, std::__ndk1::function<facebook::jsi::Value (facebook::jsi::Runtime&, facebook::jsi::Value const*)>)+88
+        watermelondb::Database::install(facebook::jsi::Runtime*)+96)
+        (...)
+  ```
+
+  … this is most likely due to broken `libc++_shared`. Run `./gradlew clean` from `native/android`, then try again.
 </details>
 
 ## Web setup

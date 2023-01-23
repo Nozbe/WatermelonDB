@@ -1,44 +1,58 @@
 {
   "name": "FBReactNativeSpec",
-  "version": "0.63.4",
+  "version": "0.66.1",
   "summary": "-",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
   "authors": "Facebook, Inc. and its affiliates",
   "platforms": {
-    "ios": "10.0",
-    "tvos": "10.0"
+    "ios": "11.0"
   },
   "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness",
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.63.4"
+    "tag": "v0.66.1"
   },
   "source_files": "**/*.{c,h,m,mm,cpp}",
   "header_dir": "FBReactNativeSpec",
   "pod_target_xcconfig": {
     "USE_HEADERMAP": "YES",
     "CLANG_CXX_LANGUAGE_STANDARD": "c++14",
-    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)/Libraries/FBReactNativeSpec\" \"$(PODS_ROOT)/Folly\""
+    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)/React/FBReactNativeSpec\" \"$(PODS_ROOT)/RCT-Folly\""
   },
   "dependencies": {
-    "Folly": [
-      "2020.01.13.00"
+    "RCT-Folly": [
+      "2021.06.28.00-v2"
     ],
     "RCTRequired": [
-      "0.63.4"
+      "0.66.1"
     ],
     "RCTTypeSafety": [
-      "0.63.4"
+      "0.66.1"
     ],
     "React-Core": [
-      "0.63.4"
+      "0.66.1"
     ],
     "React-jsi": [
-      "0.63.4"
+      "0.66.1"
     ],
     "ReactCommon/turbomodule/core": [
-      "0.63.4"
+      "0.66.1"
     ]
+  },
+  "prepare_command": "mkdir -p ../../React/FBReactNativeSpec/FBReactNativeSpec && touch -a ../../React/FBReactNativeSpec/FBReactNativeSpec/FBReactNativeSpec.h ../../React/FBReactNativeSpec/FBReactNativeSpec/FBReactNativeSpec-generated.mm",
+  "script_phases": {
+    "name": "Generate Specs",
+    "input_files": [
+      "${PODS_TARGET_SRCROOT}/../../Libraries"
+    ],
+    "output_files": [
+      "${DERIVED_FILE_DIR}/codegen-FBReactNativeSpec.log",
+      " ${PODS_TARGET_SRCROOT}/../../React/FBReactNativeSpec/FBReactNativeSpec/FBReactNativeSpec.h",
+      " ${PODS_TARGET_SRCROOT}/../../React/FBReactNativeSpec/FBReactNativeSpec/FBReactNativeSpec-generated.mm"
+    ],
+    "script": "set -o pipefail\n\nbash -l -c 'SRCS_DIR='${PODS_TARGET_SRCROOT}/../../Libraries' MODULES_OUTPUT_DIR='${PODS_TARGET_SRCROOT}/../../React/FBReactNativeSpec/FBReactNativeSpec' MODULES_LIBRARY_NAME='FBReactNativeSpec' ${PODS_TARGET_SRCROOT}/../../scripts/generate-specs.sh' 2>&1 | tee \"${SCRIPT_OUTPUT_FILE_0}\"\n    ",
+    "execution_position": "before_compile",
+    "show_env_vars_in_log": true
   }
 }

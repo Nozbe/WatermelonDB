@@ -12,6 +12,8 @@
 
 #import "yoga/YGEnums.h"
 #import "yoga/YGMacros.h"
+#import "yoga/YGNode.h"
+#import "yoga/YGStyle.h"
 #import "yoga/YGValue.h"
 #import "yoga/Yoga.h"
 

@@ -20,6 +20,14 @@ DerivedData
 project.xcworkspace
 iosTest/Pods/boost-for-react-native
 
+# CocoaPods that are too big to reasonably commit
+**/Pods/boost-for-react-native
+**/Pods/boost
+**/Pods/RCT-Folly
+**/Pods/hermes-engine
+**/Pods/libevent
+**/Pods/Sentry
+
 # Android/IntelliJ
 #
 build/

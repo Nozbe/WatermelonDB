@@ -1,17 +1,16 @@
 {
   "name": "FBLazyVector",
-  "version": "0.63.4",
+  "version": "0.66.1",
   "summary": "-",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
   "authors": "Facebook, Inc. and its affiliates",
   "platforms": {
-    "ios": "10.0",
-    "tvos": "10.0"
+    "ios": "11.0"
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.63.4"
+    "tag": "v0.66.1"
   },
   "source_files": "**/*.{c,h,m,mm,cpp}",
   "header_dir": "FBLazyVector"
