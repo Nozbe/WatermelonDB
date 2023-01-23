@@ -54,7 +54,7 @@ extension AppDelegate {
 //        }
 
         guard let jsLocation = RCTBundleURLProvider.sharedSettings()
-            .jsBundleURL(forBundleRoot: "src/index.integrationTests.native", fallbackResource: nil)
+            .jsBundleURL(forBundleRoot: "src/index.integrationTests.native")
         else {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 UIAlertController(title: "Could not find JS",
