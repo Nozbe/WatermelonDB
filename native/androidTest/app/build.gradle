@@ -156,6 +156,10 @@ android {
     }
 
     packagingOptions {
+//        jniLibs {
+//            pickFirsts += ['**/libc++_shared.so', 'META-INF/**']
+//        }
+
         pickFirst '**/libc++_shared.so'
     }
 }
