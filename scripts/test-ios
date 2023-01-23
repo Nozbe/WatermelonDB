@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -x
+set -e
+
+xcodebuild -workspace native/iosTest/WatermelonTester.xcworkspace -scheme 'WatermelonTester' -destination 'name=iPhone 8' test
