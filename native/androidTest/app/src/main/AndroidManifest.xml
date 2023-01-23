@@ -11,13 +11,15 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
+        <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false" />
     </application>
 
 </manifest>
