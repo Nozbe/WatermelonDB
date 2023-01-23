@@ -58,8 +58,8 @@ export type SyncConflictResolver = (
 
 export type SyncArgs = $Exact<{
   database: Database
-  pullChanges: (SyncPullArgs) => Promise<SyncPullResult>
-  pushChanges?: (SyncPushArgs) => Promise<SyncPushResult | undefined>
+  pullChanges: (_: SyncPullArgs) => Promise<SyncPullResult>
+  pushChanges?: (_: SyncPushArgs) => Promise<SyncPushResult | undefined | void>
   // version at which support for migration syncs was added - the version BEFORE first syncable migration
   migrationsEnabledAtVersion?: SchemaVersion
   sendCreatedAsUpdated?: boolean
@@ -80,7 +80,7 @@ export type SyncArgs = $Exact<{
   unsafeTurbo?: boolean
   // Called after pullChanges with whatever was returned by pullChanges, minus `changes`. Useful
   // when using turbo mode
-  onDidPullChanges?: (Object) => Promise<void>
+  onDidPullChanges?: (_: Object) => Promise<void>
 }>
 
 export function synchronize(args: SyncArgs): Promise<void>
