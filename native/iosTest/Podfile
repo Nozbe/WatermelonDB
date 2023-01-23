@@ -4,17 +4,20 @@ workspace 'WatermelonTester.xcworkspace'
 require_relative '../../node_modules/react-native/scripts/react_native_pods'
 require_relative '../../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-platform :ios, '13.0'
+platform :ios, '15.0'
 
 hermes_enabled = false
 enable_jslock_hack = false
 
 target 'WatermelonTester' do
   config = use_native_modules!
+  # flags = get_default_flags()
 
   use_react_native!(
     path: '../../node_modules/react-native',
-    # hermes_enabled: false
+    hermes_enabled: hermes_enabled,
+    fabric_enabled: false,
+    app_path: "#{Pod::Config.instance.installation_root}/../.."
   )
 
   pod 'React-jsi', path: '../../node_modules/react-native/ReactCommon/jsi', modular_headers: true
@@ -33,6 +36,9 @@ target 'WatermelonTester' do
 end
 
 post_install do |installer|
+  react_native_post_install(installer)
+  # __apply_Xcode_12_5_M1_post_install_workaround(installer)
+
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= %w[
