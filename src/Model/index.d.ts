@@ -52,14 +52,14 @@ export default class Model {
   // someTask.update(task => {
   //   task.name = 'New name'
   // })
-  update(recordUpdater: (this) => void): Promise<this>
+  update(recordUpdater: (_: this) => void): Promise<this>
 
   // Prepares an update to the database (using passed function).
   // Touches `updatedAt` if available.
   //
   // After preparing an update, you must execute it synchronously using
   // database.batch()
-  prepareUpdate(recordUpdater: (this) => void): this
+  prepareUpdate(recordUpdater: (_: this) => void): this
 
   prepareMarkAsDeleted(): this
 
