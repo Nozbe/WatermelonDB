@@ -25,6 +25,9 @@ Database::Database(jsi::Runtime *runtime, std::string path, bool usesExclusiveLo
 
     initSql += "pragma journal_mode = WAL;";
 
+    // set timeout before SQLITE_BUSY error is returned
+    initSql += "pragma busy_timeout = 5000;";
+
     #ifdef ANDROID
     // NOTE: This was added in an attempt to fix mysterious `database disk image is malformed` issue when using
     // headless JS services
