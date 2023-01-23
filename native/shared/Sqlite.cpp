@@ -44,6 +44,8 @@ void SqliteDb::destroy() {
     if (isDestroyed_) {
         return;
     }
+    consoleLog("Closing database...");
+
     isDestroyed_ = true;
     assert(sqlite != nullptr);
 
@@ -65,6 +67,8 @@ void SqliteDb::destroy() {
         // only leaking memory/resources
         consoleError("Failed to close sqlite database - " + std::string(sqlite3_errmsg(sqlite)));
     }
+
+    consoleLog("Database closed.");
 }
 
 SqliteDb::~SqliteDb() {
