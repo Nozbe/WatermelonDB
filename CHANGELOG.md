@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 Contributors: Please add your changes to CHANGELOG-Unreleased.md
 
+## 0.25.1 - 2023-01-23
+
+- Fix React Native 0.71+ Android broken build
+
 ## 0.25 - 2023-01-20
 
 ### Highlights
