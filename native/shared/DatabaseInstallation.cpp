@@ -129,6 +129,7 @@ void Database::install(jsi::Runtime *runtime) {
         std::weak_ptr<Database> weakDatabase = database;
         platform::onDestroy([weakDatabase]() {
             if (auto databaseToDestroy = weakDatabase.lock()) {
+                consoleLog("Destroying database due to RCTBridge invalidation");
                 databaseToDestroy->destroy();
             }
         });
