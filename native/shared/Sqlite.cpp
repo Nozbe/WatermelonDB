@@ -18,6 +18,7 @@ std::string resolveDatabasePath(std::string path) {
 }
 
 SqliteDb::SqliteDb(std::string path) {
+    consoleLog("Will open database...");
     platform::initializeSqlite();
     #ifndef ANDROID
     assert(sqlite3_threadsafe());
