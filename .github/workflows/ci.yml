@@ -7,85 +7,84 @@ on:
 
 jobs:
   ci-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     name: JavaScript tests
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js 12
-      uses: actions/setup-node@v1
-      with:
-        node-version: 12.x
-    - uses: actions/cache@v2
-      with:
-        path: 'node_modules'
-        key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
-    - run: yarn
-    - run: yarn ci:check
-    - name: Gradle Wrapper Validation
-      uses: gradle/wrapper-validation-action@v1.0.3
+      - uses: actions/checkout@v2
+      - name: Use Node.js 16
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - uses: actions/cache@v2
+        with:
+          path: 'node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+      - run: yarn
+      - run: yarn ci:check
+      - name: Gradle Wrapper Validation
+        uses: gradle/wrapper-validation-action@v1.0.3
   ios:
-    runs-on: macos-10.15
+    runs-on: macos-12
     name: iOS tests
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js 12
-      uses: actions/setup-node@v1
-      with:
-        node-version: 12.x
-    - name: Use Xcode 12.2
-      uses: maxim-lobanov/setup-xcode@v1.2.1
-      with:
-        xcode-version: 12.2.0
-    - name: ccache
-      uses: hendrikmuhs/ccache-action@v1
-    - name: cache node_modules
-      uses: actions/cache@v2
-      with:
-        path: 'node_modules'
-        key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
-    - run: yarn
-    - name: cache Pods
-      uses: actions/cache@v2
-      id: pods-cache
-      with:
-        path: native/iosTest/Pods
-        key: ${{ runner.os }}-pods-cache-${{ hashFiles('**/Podfile.lock') }}
-    - run: bundle install
-    - name: 'pod install'
-      if: true # steps.pods-cache.outputs.cache-hit != 'true'
-      run: cd native/iosTest && bundle exec pod install
-    - run: yarn test:ios
-    - run: yarn swiftlint
+      - uses: actions/checkout@v2
+      - name: Use Node.js 16
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - name: Use Xcode 12.2
+        uses: maxim-lobanov/setup-xcode@v1.2.1
+        with:
+          xcode-version: 14.1.0
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1
+      - name: cache node_modules
+        uses: actions/cache@v2
+        with:
+          path: 'node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+      - run: yarn
+      - name: cache Pods
+        uses: actions/cache@v2
+        id: pods-cache
+        with:
+          path: native/iosTest/Pods
+          key: ${{ runner.os }}-pods-cache-${{ hashFiles('**/Podfile.lock') }}
+      - run: bundle install
+      - name: 'pod install'
+        if: true # steps.pods-cache.outputs.cache-hit != 'true'
+        run: cd native/iosTest && bundle exec pod install
+      - run: yarn test:ios
+      - run: yarn swiftlint
   android:
     # https://github.com/ReactiveCircus/android-emulator-runner/issues/46
-    runs-on: macos-10.15
+    runs-on: macos-12
     name: Android tests
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js 12
-      uses: actions/setup-node@v1
-      with:
-        node-version: 12.x
-    - uses: actions/cache@v2
-      with:
-        path: 'node_modules'
-        key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
-    - run: yarn
-    # See: https://github.com/android/compose-samples/actions/runs/27015993/workflow for ideas for caching
-    - name: run tests
-      uses: reactivecircus/android-emulator-runner@v2
-      with:
-        api-level: 29
-        working-directory: ./native/androidTest
-        script: ./gradlew connectedAndroidTest
-    - run: yarn ktlint
+      - uses: actions/checkout@v2
+      - name: Use Node.js 16
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - uses: actions/cache@v2
+        with:
+          path: 'node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+      - run: yarn
+      # See: https://github.com/android/compose-samples/actions/runs/27015993/workflow for ideas for caching
+      - name: run tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          working-directory: ./native/androidTest
+          script: ./gradlew connectedAndroidTest
+      - run: yarn ktlint
   docs:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     name: Check documentation
     steps:
-    - uses: actions/checkout@v2
-    - run: (test -x $HOME/.cargo/bin/cargo-install-update || cargo install cargo-update)
-    - run: (test -x $HOME/.cargo/bin/mdbook || cargo install --vers "^0.3" mdbook)
-    - run: cargo install-update -a
-    - run: ./scripts/mdbook
-
+      - uses: actions/checkout@v2
+      - run: (test -x $HOME/.cargo/bin/cargo-install-update || cargo install cargo-update)
+      - run: (test -x $HOME/.cargo/bin/mdbook || cargo install --vers "^0.3" mdbook)
+      - run: cargo install-update -a
+      - run: ./scripts/mdbook
