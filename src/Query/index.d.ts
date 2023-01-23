@@ -49,7 +49,7 @@ export default class Query<Record extends Model> {
   // Creates a new Query that extends the clauses of this query
   extend(...clauses: Clause[]): Query<Record>
 
-  pipe<T>(transform: (this) => T): T
+  pipe<T>(transform: (_: this) => T): T
 
   // Queries database and returns an array of matching records
   fetch(): Promise<Record[]>

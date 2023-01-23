@@ -85,7 +85,7 @@ export default class Model {
 
   // *** Implementation details ***
 
-  collection: Collection<this>
+  collection: Collection<Model>
 
   // Collections of other Models in the same domain as this record
   get collections(): CollectionMap
