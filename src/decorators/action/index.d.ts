@@ -1,6 +1,6 @@
-type action = MethodDecorator
+export const action: MethodDecorator
 
 export default action
 
-export type writer = MethodDecorator
-export type reader = MethodDecorator
+export const writer: MethodDecorator
+export const reader: MethodDecorator
