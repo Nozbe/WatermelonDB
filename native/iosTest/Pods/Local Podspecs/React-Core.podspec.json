@@ -1,17 +1,16 @@
 {
   "name": "React-Core",
-  "version": "0.63.4",
+  "version": "0.66.1",
   "summary": "The core of React Native.",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
   "authors": "Facebook, Inc. and its affiliates",
   "platforms": {
-    "ios": "10.0",
-    "tvos": "10.0"
+    "ios": "11.0"
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.63.4"
+    "tag": "v0.66.1"
   },
   "resource_bundles": {
     "AccessibilityResources": [
@@ -23,7 +22,7 @@
   "frameworks": "JavaScriptCore",
   "libraries": "stdc++",
   "pod_target_xcconfig": {
-    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/Folly\"",
+    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/RCT-Folly\" \"${PODS_ROOT}/Headers/Public/React-hermes\" \"${PODS_ROOT}/Headers/Public/hermes-engine\"",
     "DEFINES_MODULE": "YES"
   },
   "user_target_xcconfig": {
@@ -31,17 +30,20 @@
   },
   "default_subspecs": "Default",
   "dependencies": {
-    "Folly": [
-      "2020.01.13.00"
+    "RCT-Folly": [
+      "2021.06.28.00-v2"
     ],
     "React-cxxreact": [
-      "0.63.4"
+      "0.66.1"
+    ],
+    "React-perflogger": [
+      "0.66.1"
     ],
     "React-jsi": [
-      "0.63.4"
+      "0.66.1"
     ],
     "React-jsiexecutor": [
-      "0.63.4"
+      "0.66.1"
     ],
     "Yoga": [
 
@@ -58,23 +60,11 @@
         "React/CoreModules/**/*",
         "React/DevSupport/**/*",
         "React/Fabric/**/*",
+        "React/FBReactNativeSpec/**/*",
+        "React/Tests/**/*",
         "React/Inspector/**/*"
       ],
-      "ios": {
-        "exclude_files": "React/**/RCTTV*.*"
-      },
-      "private_header_files": "React/Cxx*/*.h",
-      "tvos": {
-        "exclude_files": [
-          "React/Modules/RCTClipboard*",
-          "React/Views/RCTDatePicker*",
-          "React/Views/RCTPicker*",
-          "React/Views/RCTRefreshControl*",
-          "React/Views/RCTSlider*",
-          "React/Views/RCTSwitch*",
-          "React/Cxx*/*.h"
-        ]
-      }
+      "private_header_files": "React/Cxx*/*.h"
     },
     {
       "name": "DevSupport",
@@ -84,13 +74,13 @@
       ],
       "dependencies": {
         "React-Core/Default": [
-          "0.63.4"
+          "0.66.1"
         ],
         "React-Core/RCTWebSocket": [
-          "0.63.4"
+          "0.66.1"
         ],
         "React-jsinspector": [
-          "0.63.4"
+          "0.66.1"
         ]
       }
     },
@@ -99,16 +89,7 @@
       "source_files": "Libraries/WebSocket/*.{h,m}",
       "dependencies": {
         "React-Core/Default": [
-          "0.63.4"
-        ]
-      }
-    },
-    {
-      "name": "ARTHeaders",
-      "source_files": "Libraries/ART/**/*.h",
-      "dependencies": {
-        "React-Core/Default": [
-
+          "0.66.1"
         ]
       }
     },
