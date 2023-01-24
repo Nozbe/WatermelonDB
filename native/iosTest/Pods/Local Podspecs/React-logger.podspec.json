@@ -1,0 +1,28 @@
+{
+  "name": "React-logger",
+  "version": "0.69.7",
+  "summary": "-",
+  "homepage": "https://reactnative.dev/",
+  "license": "MIT",
+  "authors": "Facebook, Inc. and its affiliates",
+  "platforms": {
+    "ios": "12.4",
+    "tvos": "12.4"
+  },
+  "source": {
+    "git": "https://github.com/facebook/react-native.git",
+    "tag": "v0.69.7"
+  },
+  "source_files": "*.{cpp,h}",
+  "exclude_files": "SampleCxxModule.*",
+  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation",
+  "pod_target_xcconfig": {
+    "HEADER_SEARCH_PATHS": ""
+  },
+  "header_dir": "logger",
+  "dependencies": {
+    "glog": [
+
+    ]
+  }
+}

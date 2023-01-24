@@ -1,1 +1,1 @@
-../../../../../../../node_modules/react-native/ReactCommon/turbomodule/core/TurboModuleBinding.h
+../../../../../../../node_modules/react-native/ReactCommon/react/nativemodule/core/ReactCommon/TurboModuleBinding.h

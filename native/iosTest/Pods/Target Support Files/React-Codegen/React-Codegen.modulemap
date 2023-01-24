@@ -1,0 +1,6 @@
+module React_Codegen {
+  umbrella header "React-Codegen-umbrella.h"
+
+  export *
+  module * { export * }
+}

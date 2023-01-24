@@ -1,47 +1,46 @@
 {
   "name": "React-CoreModules",
-  "version": "0.63.4",
+  "version": "0.69.7",
   "summary": "-",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
   "authors": "Facebook, Inc. and its affiliates",
   "platforms": {
-    "ios": "10.0",
-    "tvos": "10.0"
+    "ios": "12.4"
   },
   "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness",
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.63.4"
+    "tag": "v0.69.7"
   },
   "source_files": "**/*.{c,m,mm,cpp}",
   "header_dir": "CoreModules",
   "pod_target_xcconfig": {
     "USE_HEADERMAP": "YES",
-    "CLANG_CXX_LANGUAGE_STANDARD": "c++14",
-    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)/React/CoreModules\" \"$(PODS_ROOT)/Folly\""
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++17",
+    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)/React/CoreModules\" \"$(PODS_ROOT)/RCT-Folly\" \"${PODS_ROOT}/Headers/Public/React-Codegen/react/renderer/components\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-Codegen/React_Codegen.framework/Headers\""
   },
   "dependencies": {
-    "FBReactNativeSpec": [
-      "0.63.4"
+    "React-Codegen": [
+      "0.69.7"
     ],
-    "Folly": [
-      "2020.01.13.00"
+    "RCT-Folly": [
+      "2021.06.28.00-v2"
     ],
     "RCTTypeSafety": [
-      "0.63.4"
+      "0.69.7"
     ],
     "React-Core/CoreModulesHeaders": [
-      "0.63.4"
+      "0.69.7"
     ],
     "React-RCTImage": [
-      "0.63.4"
+      "0.69.7"
     ],
     "ReactCommon/turbomodule/core": [
-      "0.63.4"
+      "0.69.7"
     ],
     "React-jsi": [
-      "0.63.4"
+      "0.69.7"
     ]
   }
 }
