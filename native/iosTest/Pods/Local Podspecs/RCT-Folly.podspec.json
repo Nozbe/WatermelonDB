@@ -1,6 +1,6 @@
 {
   "name": "RCT-Folly",
-  "version": "2021.06.28.00-v2",
+  "version": "2021.07.22.00",
   "license": {
     "type": "Apache License, Version 2.0"
   },
@@ -9,7 +9,7 @@
   "authors": "Facebook",
   "source": {
     "git": "https://github.com/facebook/folly.git",
-    "tag": "v2021.06.28.00"
+    "tag": "v2021.07.22.00"
   },
   "module_name": "folly",
   "header_mappings_dir": ".",
@@ -80,14 +80,12 @@
     "folly/net/detail/*.h",
     "folly/portability/*.h"
   ],
-  "libraries": [
-    "stdc++",
-    "c++abi"
-  ],
+  "libraries": "c++abi",
   "pod_target_xcconfig": {
     "USE_HEADERMAP": "NO",
     "CLANG_CXX_LANGUAGE_STANDARD": "c++17",
-    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/libevent/include/\""
+    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/libevent/include/\" \"$(PODS_ROOT)/fmt/include\"",
+    "OTHER_LDFLAGS": "\"-Wl,-U,_jump_fcontext\" \"-Wl,-U,_make_fcontext\""
   },
   "user_target_xcconfig": {
     "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/boost\""
@@ -108,7 +106,11 @@
         "folly/concurrency/CacheLocality.cpp",
         "folly/detail/Futex.cpp",
         "folly/synchronization/ParkingLot.cpp",
-        "folly/portability/Malloc.cpp"
+        "folly/portability/Malloc.cpp",
+        "folly/concurrency/CacheLocality.h",
+        "folly/synchronization/ParkingLot.h",
+        "folly/synchronization/SanitizeThread.h",
+        "folly/system/ThreadId.h"
       ],
       "preserve_paths": [
         "folly/concurrency/CacheLocality.h",

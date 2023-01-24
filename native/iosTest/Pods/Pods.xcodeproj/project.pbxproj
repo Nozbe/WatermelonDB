@@ -10164,7 +10164,7 @@
 			};
 			name = Debug;
 		};
-		0573F790682D2C473A470220E2FC8252 /* Debug */ = {
+		06C7616750E807A4F3E94555A738C193 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = AA5ED49397823DC9A16FE677B75A420E /* RCT-Folly.debug.xcconfig */;
 			buildSettings = {
@@ -10186,7 +10186,6 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MODULEMAP_FILE = "Headers/Public/folly/RCT-Folly.modulemap";
-				OTHER_LDFLAGS = "";
 				OTHER_LIBTOOLFLAGS = "";
 				PRIVATE_HEADERS_FOLDER_PATH = "";
 				PRODUCT_MODULE_NAME = folly;
@@ -11107,7 +11106,6 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				MODULEMAP_FILE = "Headers/Public/React/React-Core.modulemap";
-				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "";
 				OTHER_LIBTOOLFLAGS = "";
 				PRIVATE_HEADERS_FOLDER_PATH = "";
@@ -11937,7 +11935,6 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				MODULEMAP_FILE = "Headers/Public/React/React-Core.modulemap";
-				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "";
 				OTHER_LIBTOOLFLAGS = "";
 				PRIVATE_HEADERS_FOLDER_PATH = "";
@@ -12165,6 +12162,42 @@
 			};
 			name = Debug;
 		};
+		A934EA142699E9256BD303EC9AD3B83D /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = AC11CB1EA9E67A7ABAB3D82D9472668E /* RCT-Folly.release.xcconfig */;
+			buildSettings = {
+				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
+				CLANG_ENABLE_MODULES = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				GCC_PREFIX_HEADER = "Target Support Files/RCT-Folly/RCT-Folly-prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"CCACHE_HACK_TOOLCHAIN_DIR=\"$(TOOLCHAIN_DIR)\"",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(PODS_ROOT)/Headers/Private/React-bridging/react/bridging\"",
+					"\"$(PODS_CONFIGURATION_BUILD_DIR)/React-bridging/react_bridging.framework/Headers\"",
+					" ",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MODULEMAP_FILE = "Headers/Public/folly/RCT-Folly.modulemap";
+				OTHER_LIBTOOLFLAGS = "";
+				PRIVATE_HEADERS_FOLDER_PATH = "";
+				PRODUCT_MODULE_NAME = folly;
+				PRODUCT_NAME = "RCT-Folly";
+				PUBLIC_HEADERS_FOLDER_PATH = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		AC84CDD5BD2166ED14C0580FCAB3086B /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A2195864A7E06BA27B9A269A445E503D /* ReactCommon.release.xcconfig */;
@@ -12245,6 +12278,7 @@
 			buildSettings = {
 				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
+				CODE_SIGNING_ALLOWED = NO;
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/React-Core";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -12377,6 +12411,7 @@
 			buildSettings = {
 				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
+				CODE_SIGNING_ALLOWED = NO;
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/React-Core";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -12557,43 +12592,6 @@
 					"@executable_path/Frameworks",
 				);
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
-		DD56100595F352E7C05567D32C497030 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = AC11CB1EA9E67A7ABAB3D82D9472668E /* RCT-Folly.release.xcconfig */;
-			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
-				CLANG_ENABLE_MODULES = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				GCC_PREFIX_HEADER = "Target Support Files/RCT-Folly/RCT-Folly-prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(inherited)",
-					"CCACHE_HACK_TOOLCHAIN_DIR=\"$(TOOLCHAIN_DIR)\"",
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(PODS_ROOT)/Headers/Private/React-bridging/react/bridging\"",
-					"\"$(PODS_CONFIGURATION_BUILD_DIR)/React-bridging/react_bridging.framework/Headers\"",
-					" ",
-				);
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				MODULEMAP_FILE = "Headers/Public/folly/RCT-Folly.modulemap";
-				OTHER_LDFLAGS = "";
-				OTHER_LIBTOOLFLAGS = "";
-				PRIVATE_HEADERS_FOLDER_PATH = "";
-				PRODUCT_MODULE_NAME = folly;
-				PRODUCT_NAME = "RCT-Folly";
-				PUBLIC_HEADERS_FOLDER_PATH = "";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -13039,8 +13037,8 @@
 		8DD38676BBC86FCC5E30403ACC485D62 /* Build configuration list for PBXNativeTarget "RCT-Folly" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0573F790682D2C473A470220E2FC8252 /* Debug */,
-				DD56100595F352E7C05567D32C497030 /* Release */,
+				06C7616750E807A4F3E94555A738C193 /* Debug */,
+				A934EA142699E9256BD303EC9AD3B83D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
