@@ -1,11 +1,11 @@
 {
   "name": "React-Codegen",
-  "version": "0.68.5",
+  "version": "0.69.7",
   "summary": "Temp pod for generated files for React Native",
   "homepage": "https://facebook.com/",
   "license": "Unlicense",
   "authors": "Facebook",
-  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -Wno-nullability-completeness",
+  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -Wno-nullability-completeness -std=c++17",
   "source": {
     "git": ""
   },
@@ -19,28 +19,28 @@
   },
   "dependencies": {
     "FBReactNativeSpec": [
-      "0.68.5"
+      "0.69.7"
     ],
     "React-jsiexecutor": [
-      "0.68.5"
+      "0.69.7"
     ],
     "RCT-Folly": [
       "2021.06.28.00-v2"
     ],
     "RCTRequired": [
-      "0.68.5"
+      "0.69.7"
     ],
     "RCTTypeSafety": [
-      "0.68.5"
+      "0.69.7"
     ],
     "React-Core": [
-      "0.68.5"
+      "0.69.7"
     ],
     "React-jsi": [
-      "0.68.5"
+      "0.69.7"
     ],
     "ReactCommon/turbomodule/core": [
-      "0.68.5"
+      "0.69.7"
     ]
   }
 }

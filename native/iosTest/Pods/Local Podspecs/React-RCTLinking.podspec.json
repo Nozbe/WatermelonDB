@@ -1,18 +1,18 @@
 {
   "name": "React-RCTLinking",
-  "version": "0.68.5",
+  "version": "0.69.7",
   "summary": "A general interface to interact with both incoming and outgoing app links.",
   "homepage": "https://reactnative.dev/",
   "documentation_url": "https://reactnative.dev/docs/linking",
   "license": "MIT",
   "authors": "Facebook, Inc. and its affiliates",
   "platforms": {
-    "ios": "11.0"
+    "ios": "12.4"
   },
   "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness",
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.68.5"
+    "tag": "v0.69.7"
   },
   "source_files": "*.{m,mm}",
   "preserve_paths": [
@@ -23,21 +23,21 @@
   "header_dir": "RCTLinking",
   "pod_target_xcconfig": {
     "USE_HEADERMAP": "YES",
-    "CLANG_CXX_LANGUAGE_STANDARD": "c++14",
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++17",
     "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/RCT-Folly\" \"${PODS_ROOT}/Headers/Public/React-Codegen/react/renderer/components\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-Codegen/React_Codegen.framework/Headers\""
   },
   "dependencies": {
     "React-Codegen": [
-      "0.68.5"
+      "0.69.7"
     ],
     "React-Core/RCTLinkingHeaders": [
-      "0.68.5"
+      "0.69.7"
     ],
     "ReactCommon/turbomodule/core": [
-      "0.68.5"
+      "0.69.7"
     ],
     "React-jsi": [
-      "0.68.5"
+      "0.69.7"
     ]
   }
 }
