@@ -25,6 +25,7 @@
     "docs": "./scripts/mdbook",
     "docs:dev": "./scripts/mdbook-dev"
   },
+  "types": "src/index.d.ts",
   "author": "@Nozbe",
   "homepage": "https://github.com/Nozbe/WatermelonDB#readme",
   "bugs": "https://github.com/Nozbe/WatermelonDB/issues",
