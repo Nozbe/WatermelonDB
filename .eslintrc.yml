@@ -5,6 +5,7 @@ env:
 
 plugins:
   - flowtype
+  - '@typescript-eslint'
 
 extends:
   # https://github.com/airbnb/javascript
@@ -109,12 +110,9 @@ overrides:
         - always
   - files:
       - 'src/**/*.ts'
+    parser: '@typescript-eslint/parser'
     rules:
       flowtype/no-types-missing-file-annotation: off
-  - files:
-      - '**/*.d.ts'
-    rules:
-      no-unused-vars: off
       
 
 globals:
