@@ -19,3 +19,4 @@
 ### Internal
 
 - Update dependencies
+- Fix Android CI
