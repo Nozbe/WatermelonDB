@@ -1,4 +1,4 @@
-source 'https://github.com/CocoaPods/Specs.git'
+# source 'https://github.com/CocoaPods/Specs.git'
 workspace 'WatermelonTester.xcworkspace'
 
 require_relative '../../node_modules/react-native/scripts/react_native_pods'
@@ -11,10 +11,11 @@ enable_jslock_hack = false
 
 target 'WatermelonTester' do
   config = use_native_modules!
-  # flags = get_default_flags()
+  flags = get_default_flags()
 
   use_react_native!(
     path: '../../node_modules/react-native',
+    production: false,
     hermes_enabled: hermes_enabled,
     fabric_enabled: false,
     app_path: "#{Pod::Config.instance.installation_root}/../.."

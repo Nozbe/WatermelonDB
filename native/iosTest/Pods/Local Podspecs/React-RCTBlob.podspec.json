@@ -1,17 +1,17 @@
 {
   "name": "React-RCTBlob",
-  "version": "0.68.5",
+  "version": "0.69.7",
   "summary": "An API for displaying iOS action sheets and share sheets.",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
   "authors": "Facebook, Inc. and its affiliates",
   "platforms": {
-    "ios": "11.0"
+    "ios": "12.4"
   },
   "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness",
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.68.5"
+    "tag": "v0.69.7"
   },
   "source_files": "*.{h,m,mm}",
   "preserve_paths": [
@@ -22,7 +22,7 @@
   "header_dir": "RCTBlob",
   "pod_target_xcconfig": {
     "USE_HEADERMAP": "YES",
-    "CLANG_CXX_LANGUAGE_STANDARD": "c++14",
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++17",
     "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/RCT-Folly\" \"${PODS_ROOT}/Headers/Public/React-Codegen/react/renderer/components\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-Codegen/React_Codegen.framework/Headers\""
   },
   "dependencies": {
@@ -30,22 +30,22 @@
       "2021.06.28.00-v2"
     ],
     "React-Codegen": [
-      "0.68.5"
+      "0.69.7"
     ],
     "ReactCommon/turbomodule/core": [
-      "0.68.5"
+      "0.69.7"
     ],
     "React-jsi": [
-      "0.68.5"
+      "0.69.7"
     ],
     "React-Core/RCTBlobHeaders": [
-      "0.68.5"
+      "0.69.7"
     ],
     "React-Core/RCTWebSocket": [
-      "0.68.5"
+      "0.69.7"
     ],
     "React-RCTNetwork": [
-      "0.68.5"
+      "0.69.7"
     ]
   }
 }
