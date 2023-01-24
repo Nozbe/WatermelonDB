@@ -18,7 +18,6 @@ DerivedData
 *.dSYM.zip
 *.xcuserstate
 project.xcworkspace
-iosTest/Pods/boost-for-react-native
 
 # CocoaPods that are too big to reasonably commit
 **/Pods/boost-for-react-native

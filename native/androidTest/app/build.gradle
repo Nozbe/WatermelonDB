@@ -68,13 +68,14 @@ import com.android.build.OutputFile
 
 project.ext.react = [
     entryFile: "src/index.integrationTests.native.js",
-    cliPath: "../node_modules/react-native/local-cli/cli.js",
+    root: "$rootDir/../../",
+    cliPath: "$rootDir/../../node_modules/react-native/cli.js",
     bundleInDebug: true,
     enableHermes: true,
-    hermesCommand: "../../../node_modules/hermes-engine/%OS-BIN%/hermesc",
+    hermesCommand: "$rootDir/../../node_modules/hermes-engine/%OS-BIN%/hermesc",
 ]
 
-apply from: "../../../node_modules/react-native/react.gradle"
+apply from: "$rootDir/../../node_modules/react-native/react.gradle"
 
 /**
  * Set this to true to create two separate APKs instead of one:
@@ -159,7 +160,7 @@ android {
 //        jniLibs {
 //            pickFirsts += ['**/libc++_shared.so', 'META-INF/**']
 //        }
-
+        pickFirst '**/libhermes.so'
         pickFirst '**/libc++_shared.so'
     }
 }
@@ -177,7 +178,7 @@ dependencies {
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
-    def hermesPath = "../../../node_modules/hermes-engine/android/"
+    def hermesPath = "$rootDir/../../node_modules/hermes-engine/android/"
     debugImplementation files(hermesPath + "hermes-debug.aar")
     releaseImplementation files(hermesPath + "hermes-release.aar")
 
