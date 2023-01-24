@@ -12,7 +12,7 @@
     "eslint": "eslint ./src -c ./.eslintrc.yml --cache --cache-location ./.cache/.eslintcache",
     "tslint": "tslint --project .",
     "test": "jest --config=./jest.config.js",
-    "ci:check": "concurrently -n jest,eslint,flow 'npm run test' 'npm run eslint' 'npm run flow' --kill-others-on-fail",
+    "ci:check": "concurrently -n jest,eslint,flow,ts 'npm run test' 'npm run eslint' 'npm run flow' 'npm run test:typescript' --kill-others-on-fail",
     "test:android": "cd native/androidTest && ./gradlew connectedAndroidTest",
     "test:ios": "scripts/test-ios",
     "test:native": "concurrently -n android,ios 'npm run test:android' 'npm run test:ios' --kill-others-on-fail",

@@ -21,8 +21,6 @@ jobs:
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
       - run: yarn
       - run: yarn ci:check
-      - name: TS Checks
-        run: yarn test:typescript
       - name: Gradle Wrapper Validation
         uses: gradle/wrapper-validation-action@v1.0.3
   ios:
