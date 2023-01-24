@@ -1,9 +1,10 @@
 module.exports = {
-  dependency: {
-    platforms: {
-      android: {
-        sourceDir: './native/android',
-      },
+  project: {
+    android: {
+      sourceDir: './native/androidTest',
+    },
+    ios: {
+      sourceDir: './native/iosTest',
     },
   },
-};
+}
