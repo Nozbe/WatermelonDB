@@ -1,5 +1,5 @@
 import { Observable } from '../utils/rx'
-import { type Unsubscribe, SharedSubscribable } from '../utils/subscriptions'
+import type { Unsubscribe, SharedSubscribable } from '../utils/subscriptions'
 import { $Exact } from '../types'
 
 import type { Clause, QueryDescription } from '../QueryDescription'

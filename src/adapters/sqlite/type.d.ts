@@ -1,4 +1,4 @@
-import { type ResultCallback } from '../../utils/fp/Result'
+import type { ResultCallback } from '../../utils/fp/Result'
 import type { AppSchema } from '../../Schema'
 import type { SchemaMigrations } from '../../Schema/migrations'
 import { $Exact } from '../../types'

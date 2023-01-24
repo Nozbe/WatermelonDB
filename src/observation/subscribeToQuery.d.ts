@@ -1,4 +1,6 @@
-import { type Unsubscribe } from '../utils/subscriptions'
+/* eslint-disable import/no-named-as-default-member */
+/* eslint-disable import/no-named-as-default */
+import type { Unsubscribe } from '../utils/subscriptions'
 
 import type Query from '../Query'
 import type Model from '../Model'

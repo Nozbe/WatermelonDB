@@ -20,7 +20,7 @@ export type BatchOperation =
 
 export type UnsafeExecuteOperations =
   | $Exact<{ sqls: SQLiteQuery[] }>
-  | $Exact<{ loki: (Loki) => void }>
+  | $Exact<{ loki: (_: Loki) => void }>
 
 export interface DatabaseAdapter {
   schema: AppSchema

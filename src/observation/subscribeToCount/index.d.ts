@@ -1,4 +1,5 @@
-// @flow
+/* eslint-disable import/no-named-as-default-member */
+/* eslint-disable import/no-named-as-default */
 
 import type { Unsubscribe } from '../../utils/subscriptions'
 
