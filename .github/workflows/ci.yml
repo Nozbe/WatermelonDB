@@ -62,6 +62,10 @@ jobs:
     name: Android tests
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: '11'
       - name: Set Node.js version
         uses: actions/setup-node@v1
         with:
