@@ -15,7 +15,6 @@ target 'WatermelonTester' do
 
   use_react_native!(
     path: '../../node_modules/react-native',
-    production: false,
     hermes_enabled: hermes_enabled,
     fabric_enabled: false,
     app_path: "#{Pod::Config.instance.installation_root}/../.."
