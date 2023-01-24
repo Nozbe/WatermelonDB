@@ -72,7 +72,7 @@ project.ext.react = [
     cliPath: "$rootDir/../../node_modules/react-native/cli.js",
     bundleInDebug: true,
     enableHermes: true,
-    hermesCommand: "$rootDir/../../node_modules/hermes-engine/%OS-BIN%/hermesc",
+    hermesCommand: "$rootDir/../../node_modules/react-native/sdks/hermesc/%OS-BIN%/hermesc",
 ]
 
 apply from: "$rootDir/../../node_modules/react-native/react.gradle"
