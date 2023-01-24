@@ -24,6 +24,10 @@
   know how to efficiently send incremental changes and wants to send a full dataset instead. See docs
   for more details.
 - [Sync] Added `onWillApplyRemoteChanges` callback
+### Fixes
+
+- Fix compilation on Kotlin 1.7
+- Fix regression in Sync that could cause `Record ID xxx#yyy was sent over the bridge, but it's not cached` error
 
 ### Performance
 
