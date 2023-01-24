@@ -12,6 +12,8 @@
 
 ### Fixes
 
+- Fix compilation on Kotlin 1.7
+
 ### Performance
 
 ### Changes
