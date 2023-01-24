@@ -6,11 +6,9 @@ import { setGenerator } from '@nozbe/watermelondb/utils/common/randomId'
 import SQLiteAdapter from "@nozbe/watermelondb/adapters/sqlite"
 import { Associations } from '@nozbe/watermelondb/Model'
 import { SyncDatabaseChangeSet, synchronize } from "@nozbe/watermelondb/sync"
-// eslint-disable-next-line import/no-unresolved, import/extensions
 import { AppSchema } from "./AppSchema"
 // Create an enum for all Table Names.
 // This will help in documenting where all exact table names need to be passed.
-// eslint-disable-next-line no-shadow
 export enum TableName {
   BLOGS = 'blogs',
   POSTS = 'posts',
@@ -25,7 +23,6 @@ class Blog extends Model {
 
   @field('name') name!: string;
 
-  // eslint-disable-next-line no-use-before-define
   @children(TableName.POSTS) posts!: Query<Post>;
 
   @lazy nastyPosts = this.posts

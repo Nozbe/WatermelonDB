@@ -1,5 +1,4 @@
 import { appSchema, tableSchema } from "@nozbe/watermelondb"
-// eslint-disable-next-line import/no-unresolved, import/extensions
 import { TableName } from "./ts-example"
 
 export const AppSchema = appSchema({

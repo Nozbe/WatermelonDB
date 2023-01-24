@@ -4,7 +4,11 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "strict": true,
-    "target": "ES5"
+    "target": "ES5",
+    "paths": {
+      // this allows sub-package imports from src; fx. '@nozbe/watermelondb/decorators'
+      "@nozbe/watermelondb/*": ["../../src/*"]
+    }
   },
   "include": [
     "./*.ts",

@@ -19,7 +19,7 @@
   resolved "https://registry.yarnpkg.com/@nozbe/sqlite/-/sqlite-3.36.0.tgz#80a46f8cb4a502a068ec1a5bef665dd65350ea7c"
   integrity sha512-wKTFGvgf5V+bYlhXdukOWKH0XgdG0NmUQwLWG7w5Yk4EUeQS29D5uWPCeWT1Ac/NzDKuHsYP6KVOJDbJSauAAg==
 
-"@nozbe/watermelondb@link:../../dist":
+"@nozbe/watermelondb@link:../..":
   version "0.0.0"
   uid ""
 

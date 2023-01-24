@@ -16,6 +16,7 @@ extends:
 
 parser: babel-eslint
 
+ignorePatterns: "examples/typescript/**/*.ts"
 settings:
   flowtype:
     onlyFilesWithFlowAnnotation: true
