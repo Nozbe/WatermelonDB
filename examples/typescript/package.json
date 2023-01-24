@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
+    "preinstall": "cd ../.. && yarn build",
     "test": "tsc --noEmit"
   },
   "devDependencies": {
+    "@nozbe/watermelondb": "link:../../dist/",
     "@types/lokijs": "^1.5.3",
-    "typescript": "^3.8.3"
+    "typescript": "^4.5.0"
   }
 }

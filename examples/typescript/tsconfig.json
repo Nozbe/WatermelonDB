@@ -1,13 +1,12 @@
 {
   "compilerOptions": {
     "lib": ["ES2016"],
-    "baseUrl": "../../",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "strict": true,
     "target": "ES5"
   },
   "include": [
-    "../../"
+    "*.ts"
   ]
 }

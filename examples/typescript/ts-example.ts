@@ -1,11 +1,12 @@
 // tslint:disable: max-classes-per-file
-import { Model, Q, Query, Relation } from '@nozbe/watermelondb';
-import { action, children, field, lazy, relation } from '@nozbe/watermelondb/decorators';
-import { Associations } from '@nozbe/watermelondb/Model';
-import { setGenerator } from '@nozbe/watermelondb/utils/common/randomId';
+import { Model, Q, Query, Relation } from '@nozbe/watermelondb'
+import { action, children, field, lazy, relation } from '@nozbe/watermelondb/decorators'
+import { Associations } from '@nozbe/watermelondb/Model'
+import { setGenerator } from '@nozbe/watermelondb/utils/common/randomId'
 
 // Create an enum for all Table Names.
 // This will help in documenting where all exact table names need to be passed.
+// eslint-disable-next-line no-shadow
 enum TableName {
   BLOGS = 'blogs',
   POSTS = 'posts',
@@ -20,6 +21,7 @@ class Blog extends Model {
 
   @field('name') name!: string;
 
+  // eslint-disable-next-line no-use-before-define
   @children(TableName.POSTS) posts!: Query<Post>;
 
   @lazy nastyPosts = this.posts
@@ -45,10 +47,10 @@ class Post extends Model {
 
 // Define a custom ID generator.
 function randomString(): string {
-  return 'RANDOM STRING';
+  return 'RANDOM STRING'
 }
 
-setGenerator(randomString);
+setGenerator(randomString)
 
 // or as anonymous function:
-setGenerator(() => 'RANDOM STRING');
+setGenerator(() => 'RANDOM STRING')
