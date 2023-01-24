@@ -1,3 +1,4 @@
+import { omit } from 'rambdax'
 import { expectToRejectWithMessage } from '../../../__tests__/utils'
 import * as Q from '../../../QueryDescription'
 import {
@@ -483,5 +484,26 @@ describe('applyRemoteChanges', () => {
 
     await testApplyRemoteChanges(database, { invalid_project: { created: [{ id: 'foo' }] } })
     await testApplyRemoteChanges(database, { __proto__: { created: [{ id: 'foo' }] } }) // oof, naughty
+  })
+  it(`doesn't currupt RecordCache (regression test)`, async () => {
+    // eslint-disable-next-line
+    let { database, cloneDatabase } = makeDatabase()
+
+    const { tSynced } = await makeLocalChanges(database)
+
+    // simulate reload
+    database = await cloneDatabase()
+
+    // touch tSynced, but don't actually create its JS model
+    const previousRaw = omit(['_status', '_changed'], tSynced._raw)
+    await testApplyRemoteChanges(database, {
+      mock_tasks: {
+        updated: [{ id: 'tSynced', ...previousRaw }],
+      },
+    })
+
+    // Now actually fetch tSynced to trigger RecordCache corruption
+    //   Record ID mock_tasks#tSynced was sent over the bridge, but it's not cached
+    await database.get('mock_tasks').find('tSynced')
   })
 })
