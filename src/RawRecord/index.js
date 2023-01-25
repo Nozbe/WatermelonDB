@@ -94,6 +94,7 @@ export function sanitizedRaw(dirtyRaw: DirtyRaw, tableSchema: TableSchema): RawR
     const columnSchema = columns[i]
     const key = (columnSchema.name: string)
     // TODO: Check performance
+    // $FlowFixMe
     const value = Object.prototype.hasOwnProperty.call(dirtyRaw, key) ? dirtyRaw[key] : null
     _setRaw(raw, key, value, columnSchema)
   }

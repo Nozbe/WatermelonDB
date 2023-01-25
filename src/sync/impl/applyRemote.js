@@ -221,7 +221,7 @@ async function recordsToApplyRemoteChangesTo<T: Model>(
   }
 }
 
-type AllRecordsToApply = { [TableName<any>]: RecordsToApplyRemoteChangesTo<Model> }
+type AllRecordsToApply = interface { [TableName<any>]: RecordsToApplyRemoteChangesTo<Model> }
 
 const getAllRecordsToApply = (
   remoteChanges: SyncDatabaseChangeSet,

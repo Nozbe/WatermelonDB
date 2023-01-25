@@ -175,6 +175,7 @@ class DatabaseDriver {
   // MARK: - Record caching
 
   hasCachedTable(table: string): any {
+    // $FlowFixMe
     return Object.prototype.hasOwnProperty.call(this.cachedRecords, table)
   }
 
