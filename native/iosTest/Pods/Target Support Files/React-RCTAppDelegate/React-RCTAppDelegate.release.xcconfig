@@ -1,0 +1,16 @@
+CLANG_CXX_LANGUAGE_STANDARD = c++17
+CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO
+CONFIGURATION_BUILD_DIR = ${PODS_CONFIGURATION_BUILD_DIR}/React-RCTAppDelegate
+FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/hermes-engine/destroot/Library/Frameworks/universal" "${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built"
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
+HEADER_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/Headers/Private" "${PODS_ROOT}/Headers/Private/React-RCTAppDelegate" "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/DoubleConversion" "${PODS_ROOT}/Headers/Public/FBLazyVector" "${PODS_ROOT}/Headers/Public/RCT-Folly" "${PODS_ROOT}/Headers/Public/RCTRequired" "${PODS_ROOT}/Headers/Public/RCTTypeSafety" "${PODS_ROOT}/Headers/Public/React-Core" "${PODS_ROOT}/Headers/Public/React-RCTAppDelegate" "${PODS_ROOT}/Headers/Public/React-callinvoker" "${PODS_ROOT}/Headers/Public/React-cxxreact" "${PODS_ROOT}/Headers/Public/React-jsi" "${PODS_ROOT}/Headers/Public/React-jsiexecutor" "${PODS_ROOT}/Headers/Public/React-jsinspector" "${PODS_ROOT}/Headers/Public/React-logger" "${PODS_ROOT}/Headers/Public/React-perflogger" "${PODS_ROOT}/Headers/Public/React-runtimeexecutor" "${PODS_ROOT}/Headers/Public/ReactCommon" "${PODS_ROOT}/Headers/Public/Yoga" "${PODS_ROOT}/Headers/Public/fmt" "${PODS_ROOT}/Headers/Public/glog" "${PODS_ROOT}/Headers/Public/hermes-engine" "${PODS_ROOT}/Headers/Public/libevent" "$(PODS_TARGET_SRCROOT)/ReactCommon" "$(PODS_ROOT)/Headers/Private/React-Core" "$(PODS_ROOT)/boost" "$(PODS_ROOT)/DoubleConversion" "$(PODS_ROOT)/RCT-Folly" "${PODS_ROOT}/Headers/Public/FlipperKit" "$(PODS_ROOT)/Headers/Public/ReactCommon" "$(PODS_ROOT)/Headers/Public/React-RCTFabric" "$(PODS_ROOT)/Headers/Public/React-hermes" "$(PODS_ROOT)/Headers/Public/hermes-engine"
+OTHER_CFLAGS = $(inherited) -fmodule-map-file="${PODS_ROOT}/Headers/Public/RCTTypeSafety/RCTTypeSafety.modulemap" -fmodule-map-file="${PODS_ROOT}/Headers/Public/React/React-Core.modulemap" -fmodule-map-file="${PODS_ROOT}/Headers/Public/ReactCommon/ReactCommon.modulemap" -fmodule-map-file="${PODS_ROOT}/Headers/Public/folly/RCT-Folly.modulemap" -fmodule-map-file="${PODS_ROOT}/Headers/Public/jsi/React-jsi.modulemap" -fmodule-map-file="${PODS_ROOT}/Headers/Public/yoga/Yoga.modulemap"
+OTHER_CPLUSPLUSFLAGS = $(inherited) -DRN_FABRIC_ENABLED -DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1
+PODS_BUILD_DIR = ${BUILD_DIR}
+PODS_CONFIGURATION_BUILD_DIR = ${PODS_BUILD_DIR}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)
+PODS_ROOT = ${SRCROOT}
+PODS_TARGET_SRCROOT = ${PODS_ROOT}/../../../node_modules/react-native/Libraries/AppDelegate
+PODS_XCFRAMEWORKS_BUILD_DIR = $(PODS_CONFIGURATION_BUILD_DIR)/XCFrameworkIntermediates
+PRODUCT_BUNDLE_IDENTIFIER = org.cocoapods.${PRODUCT_NAME:rfc1034identifier}
+SKIP_INSTALL = YES
+USE_RECURSIVE_SCRIPT_INPUTS_IN_SCRIPT_PHASES = YES

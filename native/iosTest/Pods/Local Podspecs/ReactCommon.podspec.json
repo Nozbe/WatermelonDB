@@ -1,7 +1,7 @@
 {
   "name": "ReactCommon",
   "module_name": "ReactCommon",
-  "version": "0.70.6",
+  "version": "0.71.1",
   "summary": "-",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
@@ -11,18 +11,19 @@
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.70.6"
+    "tag": "v0.71.1"
   },
   "header_dir": "ReactCommon",
-  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation",
+  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation",
   "pod_target_xcconfig": {
-    "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/Headers/Private/React-Core\" \"$(PODS_ROOT)/Headers/Private/React-bridging/react/bridging\" \"$(PODS_CONFIGURATION_BUILD_DIR)/React-bridging/react_bridging.framework/Headers\"",
+    "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/Headers/Private/React-Core\"",
     "USE_HEADERMAP": "YES",
-    "CLANG_CXX_LANGUAGE_STANDARD": "c++17"
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++17",
+    "GCC_WARN_PEDANTIC": "YES"
   },
   "dependencies": {
     "React-logger": [
-      "0.70.6"
+      "0.71.1"
     ]
   },
   "subspecs": [
@@ -33,23 +34,20 @@
     {
       "name": "turbomodule",
       "dependencies": {
-        "React-bridging": [
-          "0.70.6"
-        ],
         "React-callinvoker": [
-          "0.70.6"
+          "0.71.1"
         ],
         "React-perflogger": [
-          "0.70.6"
+          "0.71.1"
         ],
         "React-Core": [
-          "0.70.6"
+          "0.71.1"
         ],
         "React-cxxreact": [
-          "0.70.6"
+          "0.71.1"
         ],
         "React-jsi": [
-          "0.70.6"
+          "0.71.1"
         ],
         "RCT-Folly": [
           "2021.07.22.00"
@@ -63,11 +61,26 @@
       },
       "subspecs": [
         {
+          "name": "bridging",
+          "dependencies": {
+            "React-jsi": [
+              "0.71.1"
+            ]
+          },
+          "source_files": "react/bridging/**/*.{cpp,h}",
+          "exclude_files": "react/bridging/tests",
+          "header_dir": "react/bridging",
+          "pod_target_xcconfig": {
+            "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_ROOT)/RCT-Folly\""
+          }
+        },
+        {
           "name": "core",
           "source_files": [
             "react/nativemodule/core/ReactCommon/**/*.{cpp,h}",
             "react/nativemodule/core/platform/ios/**/*.{mm,cpp,h}"
-          ]
+          ],
+          "exclude_files": "react/nativemodule/core/ReactCommon/LongLivedObject.h"
         },
         {
           "name": "samples",
@@ -77,7 +90,7 @@
           ],
           "dependencies": {
             "ReactCommon/turbomodule/core": [
-              "0.70.6"
+              "0.71.1"
             ]
           }
         }
