@@ -1,4 +1,3 @@
-import expect from '@nozbe/watermelondb_expect'
 import naughtyStrings, {
   bigEndianByteOrderMark,
   littleEndianByteOrderMark,
