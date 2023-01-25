@@ -99,6 +99,7 @@ export default async function synchronize({
       // $FlowFixMe
       const { changes: remoteChanges, ...resultRest } = pullResult
       log && (log.remoteChangeCount = remoteChangeCount)
+      // $FlowFixMe
       await applyRemoteChanges(remoteChanges, {
         db: database,
         strategy: ((pullResult: any).experimentalStrategy: ?SyncPullStrategy),
