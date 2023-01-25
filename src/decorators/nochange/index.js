@@ -18,8 +18,10 @@ const nochange: Decorator = makeDecorator(
     return {
       ...descriptor,
       set(value: any): void {
-        invariant(this.asModel._preparedState === 'create', errorMessage)
-        descriptor.set.call(this, value)
+        // $FlowFixMe
+        const model = this
+        invariant(model.asModel._preparedState === 'create', errorMessage)
+        descriptor.set.call(model, value)
       },
     }
   },

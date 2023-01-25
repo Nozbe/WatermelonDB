@@ -18,16 +18,18 @@ export default function lazy(target: Object, key: string, descriptor: Descriptor
     configurable,
     enumerable,
     get(): any {
+      // $FlowFixMe
+      const that = this
       // This happens if someone accesses the
       // property directly on the prototype
-      if (this === target) {
+      if (that === target) {
         return undefined
       }
 
-      const returnValue = initializer ? initializer.call(this) : value
+      const returnValue = initializer ? initializer.call(that) : value
 
       // Next time this property is called, skip the decorator, and just return the precomputed value
-      Object.defineProperty(this, key, {
+      Object.defineProperty(that, key, {
         configurable,
         enumerable,
         writable: true,
