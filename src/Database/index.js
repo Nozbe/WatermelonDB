@@ -91,7 +91,7 @@ export default class Database {
 
     // performance critical - using mutations
     const batchOperations: BatchOperation[] = []
-    const changeNotifications: { [collectionName: TableName<any>]: CollectionChangeSet<*> } = {}
+    const changeNotifications: { [collectionName: TableName<any>]: CollectionChangeSet<Model> } = {}
     actualRecords.forEach((record) => {
       if (!record) {
         return

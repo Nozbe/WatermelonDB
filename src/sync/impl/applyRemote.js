@@ -334,7 +334,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   return recordsToBatch
 }
 
-const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> => {
+const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<void | Array<$Call<<T>(p: Promise<T> | T) => T, Promise<void>>>> => {
   const promises = toPairs(recordsToApply).map(([tableName, { deletedRecordsToDestroy }]) => {
     return deletedRecordsToDestroy.length
       ? db.adapter.destroyDeletedRecords((tableName: any), deletedRecordsToDestroy)
@@ -361,7 +361,7 @@ const applyAllRemoteChanges = (
 const unsafeApplyAllRemoteChangesByBatches = (
   recordsToApply: AllRecordsToApply,
   context: ApplyRemoteChangesContext,
-): Promise<*> => {
+): Promise<Array<$Call<<T>(p: Promise<T> | T) => T, Promise<void>>>> => {
   const { db } = context
   const promises = []
   toPairs(recordsToApply).forEach(([tableName, records]) => {
