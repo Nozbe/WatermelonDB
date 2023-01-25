@@ -2,7 +2,7 @@ CLANG_CXX_LANGUAGE_STANDARD = c++17
 CLANG_CXX_LIBRARY = compiler-default
 CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO
 CONFIGURATION_BUILD_DIR = ${PODS_CONFIGURATION_BUILD_DIR}/hermes-engine
-FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/hermes-engine/destroot/Library/Frameworks/universal" "${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine"
+FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/hermes-engine/destroot/Library/Frameworks/universal" "${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built"
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1 HERMES_ENABLE_DEBUGGER=1
 HEADER_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/Headers/Private" "${PODS_ROOT}/Headers/Private/hermes-engine" "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/hermes-engine"
 PODS_BUILD_DIR = ${BUILD_DIR}

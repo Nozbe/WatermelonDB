@@ -1,6 +1,6 @@
 {
   "name": "React-Codegen",
-  "version": "0.70.6",
+  "version": "0.71.1",
   "summary": "Temp pod for generated files for React Native",
   "homepage": "https://facebook.com/",
   "license": "Unlicense",
@@ -19,28 +19,34 @@
   },
   "dependencies": {
     "FBReactNativeSpec": [
-      "0.70.6"
+
     ],
     "React-jsiexecutor": [
-      "0.70.6"
+
     ],
     "RCT-Folly": [
-      "2021.07.22.00"
+
     ],
     "RCTRequired": [
-      "0.70.6"
+
     ],
     "RCTTypeSafety": [
-      "0.70.6"
+
     ],
     "React-Core": [
-      "0.70.6"
+
     ],
     "React-jsi": [
-      "0.70.6"
+
+    ],
+    "ReactCommon/turbomodule/bridging": [
+
     ],
     "ReactCommon/turbomodule/core": [
-      "0.70.6"
+
+    ],
+    "hermes-engine": [
+
     ]
   }
 }

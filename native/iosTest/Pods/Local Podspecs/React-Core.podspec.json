@@ -1,6 +1,6 @@
 {
   "name": "React-Core",
-  "version": "0.70.6",
+  "version": "0.71.1",
   "summary": "The core of React Native.",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
@@ -10,7 +10,7 @@
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.70.6"
+    "tag": "v0.71.1"
   },
   "resource_bundles": {
     "AccessibilityResources": [
@@ -21,11 +21,11 @@
   "header_dir": "React",
   "frameworks": "JavaScriptCore",
   "pod_target_xcconfig": {
-    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/RCT-Folly\" \"${PODS_ROOT}/Headers/Public/React-hermes\" \"${PODS_ROOT}/Headers/Public/hermes-engine\" \"${PODS_ROOT}/Headers/Public/FlipperKit\" \"$(PODS_ROOT)/Headers/Public/ReactCommon\" \"$(PODS_ROOT)/Headers/Public/React-RCTFabric\"",
-    "FRAMEWORK_SEARCH_PATHS": "\"${PODS_CONFIGURATION_BUILD_DIR}/React-hermes\"",
+    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/RCT-Folly\" \"${PODS_ROOT}/Headers/Public/FlipperKit\" \"$(PODS_ROOT)/Headers/Public/ReactCommon\" \"$(PODS_ROOT)/Headers/Public/React-RCTFabric\" \"$(PODS_ROOT)/Headers/Public/React-hermes\" \"$(PODS_ROOT)/Headers/Public/hermes-engine\"",
     "DEFINES_MODULE": "YES",
     "GCC_PREPROCESSOR_DEFINITIONS": "RCT_METRO_PORT=${RCT_METRO_PORT}",
-    "CLANG_CXX_LANGUAGE_STANDARD": "c++17"
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++17",
+    "FRAMEWORK_SEARCH_PATHS": "\"$(PODS_CONFIGURATION_BUILD_DIR)/React-hermes\""
   },
   "user_target_xcconfig": {
     "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/Headers/Private/React-Core\""
@@ -36,16 +36,16 @@
       "2021.07.22.00"
     ],
     "React-cxxreact": [
-      "0.70.6"
+      "0.71.1"
     ],
     "React-perflogger": [
-      "0.70.6"
+      "0.71.1"
     ],
     "React-jsi": [
-      "0.70.6"
+      "0.71.1"
     ],
     "React-jsiexecutor": [
-      "0.70.6"
+      "0.71.1"
     ],
     "Yoga": [
 
@@ -76,13 +76,13 @@
       ],
       "dependencies": {
         "React-Core/Default": [
-          "0.70.6"
+          "0.71.1"
         ],
         "React-Core/RCTWebSocket": [
-          "0.70.6"
+          "0.71.1"
         ],
         "React-jsinspector": [
-          "0.70.6"
+          "0.71.1"
         ]
       }
     },
@@ -91,7 +91,7 @@
       "source_files": "Libraries/WebSocket/*.{h,m}",
       "dependencies": {
         "React-Core/Default": [
-          "0.70.6"
+          "0.71.1"
         ]
       }
     },

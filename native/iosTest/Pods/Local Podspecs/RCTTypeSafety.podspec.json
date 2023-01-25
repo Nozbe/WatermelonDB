@@ -1,6 +1,6 @@
 {
   "name": "RCTTypeSafety",
-  "version": "0.70.6",
+  "version": "0.71.1",
   "summary": "-",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
@@ -10,7 +10,7 @@
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.70.6"
+    "tag": "v0.71.1"
   },
   "source_files": "**/*.{c,h,m,mm,cpp}",
   "header_dir": "RCTTypeSafety",
@@ -21,13 +21,13 @@
   },
   "dependencies": {
     "FBLazyVector": [
-      "0.70.6"
+      "0.71.1"
     ],
     "RCTRequired": [
-      "0.70.6"
+      "0.71.1"
     ],
     "React-Core": [
-      "0.70.6"
+      "0.71.1"
     ]
   }
 }
