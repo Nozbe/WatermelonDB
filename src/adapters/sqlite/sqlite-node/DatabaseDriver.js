@@ -56,7 +56,7 @@ export function getPath(dbName: string): string {
 }
 
 class DatabaseDriver {
-  static sharedMemoryConnections: { ... } = {}
+  static sharedMemoryConnections: { [dbName: string]: Database } = {}
 
   database: Database
 
