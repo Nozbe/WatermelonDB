@@ -19,6 +19,9 @@
 
 ### Changes
 
+- Updated Flow version used in the project to 198.1. This shouldn't have an impact on you, but could fix or break Flow if you don't have WatermelonDB set to `[declarations]` mode
+- Clarified docs to recommend the use of `[declarations]` mode for WatermelonDB
+
 ### Internal
 
 - Update internal dependencies
