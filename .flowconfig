@@ -6,7 +6,7 @@
 <PROJECT_ROOT>/react-native-copy
 <PROJECT_ROOT>/src/**/*.ts
 .*/node_modules/react\-native/.*
-node_modules/fbjs/*
+.*/node_modules/fbjs/**
 
 [libs]
 flow-typed/
