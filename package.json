@@ -126,7 +126,7 @@
     "execa": "^6.1.0",
     "expect-rn": "npm:expect@24.1.0",
     "fast-async": "^7.0",
-    "flow-bin": "0.162.0",
+    "flow-bin": "0.170.0",
     "fs-extra": "^11.1.0",
     "glob-to-regexp": "^0.4.1",
     "inquirer": "^9.1.4",
