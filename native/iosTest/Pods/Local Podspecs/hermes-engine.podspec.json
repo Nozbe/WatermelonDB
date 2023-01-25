@@ -1,0 +1,32 @@
+{
+  "name": "hermes-engine",
+  "version": "0.70.6",
+  "summary": "Hermes is a small and lightweight JavaScript engine optimized for running React Native.",
+  "description": "Hermes is a JavaScript engine optimized for fast start-up of React Native apps. It features ahead-of-time static optimization and compact bytecode.",
+  "homepage": "https://hermesengine.dev",
+  "license": "MIT",
+  "authors": "Facebook",
+  "source": {
+    "http": "https://github.com/facebook/react-native/releases/download/v0.70.6/hermes-runtime-darwin-v0.70.6.tar.gz"
+  },
+  "platforms": {
+    "osx": "10.13",
+    "ios": "12.4"
+  },
+  "preserve_paths": [
+    "destroot/bin/*"
+  ],
+  "source_files": "destroot/include/**/*.h",
+  "header_mappings_dir": "destroot/include",
+  "ios": {
+    "vendored_frameworks": "destroot/Library/Frameworks/universal/hermes.xcframework"
+  },
+  "osx": {
+    "vendored_frameworks": "destroot/Library/Frameworks/macosx/hermes.framework"
+  },
+  "xcconfig": {
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++17",
+    "CLANG_CXX_LIBRARY": "compiler-default",
+    "GCC_PREPROCESSOR_DEFINITIONS": "HERMES_ENABLE_DEBUGGER=1"
+  }
+}

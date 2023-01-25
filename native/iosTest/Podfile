@@ -6,7 +6,7 @@ require_relative '../../node_modules/@react-native-community/cli-platform-ios/na
 
 platform :ios, '15.0'
 
-hermes_enabled = false
+hermes_enabled = true
 enable_jslock_hack = false
 
 target 'WatermelonTester' do
