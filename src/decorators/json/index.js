@@ -20,7 +20,7 @@ import { ensureDecoratorUsedProperly } from '../common'
 // Examples:
 //   @json('contact_info', jsonValue => jasonValue || {}) contactInfo: ContactInfo
 
-const parseJSON = (value) => {
+const parseJSON = (value: any) => {
   // fast path
   if (value === null || value === undefined || value === '') {
     return undefined
@@ -47,31 +47,35 @@ export const jsonDecorator: Decorator =
       configurable: true,
       enumerable: true,
       get(): any {
-        const rawValue = this.asModel._getRaw(rawFieldName)
+        // $FlowFixMe
+        const model = this
+        const rawValue = model.asModel._getRaw(rawFieldName)
 
         if (options.memo) {
           // Use cached value if possible
-          this._jsonDecoratorCache = this._jsonDecoratorCache || {}
-          const cachedEntry = this._jsonDecoratorCache[rawFieldName]
+          model._jsonDecoratorCache = model._jsonDecoratorCache || {}
+          const cachedEntry = model._jsonDecoratorCache[rawFieldName]
           if (cachedEntry && cachedEntry[0] === rawValue) {
             return cachedEntry[1]
           }
         }
 
         const parsedValue = parseJSON(rawValue)
-        const sanitized = sanitizer(parsedValue, this)
+        const sanitized = sanitizer(parsedValue, model)
 
         if (options.memo) {
-          this._jsonDecoratorCache[rawFieldName] = [rawValue, sanitized]
+          model._jsonDecoratorCache[rawFieldName] = [rawValue, sanitized]
         }
 
         return sanitized
       },
       set(json: any): void {
-        const sanitizedValue = sanitizer(json, this)
+        // $FlowFixMe
+        const model = this
+        const sanitizedValue = sanitizer(json, model)
         const stringifiedValue = sanitizedValue != null ? JSON.stringify(sanitizedValue) : null
 
-        this.asModel._setRaw(rawFieldName, stringifiedValue)
+        model.asModel._setRaw(rawFieldName, stringifiedValue)
       },
     }
   }

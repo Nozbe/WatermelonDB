@@ -6,13 +6,14 @@
 <PROJECT_ROOT>/react-native-copy
 <PROJECT_ROOT>/src/**/*.ts
 .*/node_modules/react\-native/.*
+.*/node_modules/fbjs/**
 
 [libs]
 flow-typed/
 
 [options]
-esproposal.optional_chaining=enable
 ; strip_root=true
+server.max_workers=8
 emoji=true
 module.ignore_non_literal_requires=true
 module.file_ext=.js

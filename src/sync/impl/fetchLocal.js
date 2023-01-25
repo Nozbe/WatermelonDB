@@ -37,9 +37,11 @@ async function fetchLocalChangesForCollection<T: Model>(
   // TODO: It would probably also be good to only send to server locally changed fields, not full records
   // perf-critical - using mutation
   createdRecords.forEach((record) => {
+    // $FlowFixMe
     changeSet.created.push(Object.assign({}, record._raw))
   })
   updatedRecords.forEach((record) => {
+    // $FlowFixMe
     changeSet.updated.push(Object.assign({}, record._raw))
   })
   const changedRecords = createdRecords.concat(updatedRecords)
@@ -64,7 +66,7 @@ export function hasUnsyncedChanges(db: Database): Promise<boolean> {
   return db.read(async () => {
     // $FlowFixMe
     const collections = values(db.collections.map)
-    const hasUnsynced = async (collection) => {
+    const hasUnsynced = async (collection: Collection<any>) => {
       const created = await collection.query(createdQuery).fetchCount()
       const updated = await collection.query(updatedQuery).fetchCount()
       const deleted = await db.adapter.getDeletedRecords(collection.table)

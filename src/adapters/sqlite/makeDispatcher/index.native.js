@@ -27,7 +27,7 @@ class SqliteNativeModulesDispatcher implements SqliteDispatcher {
   }
 
   call(name: SqliteDispatcherMethod, _args: any[], callback: ResultCallback<any>): void {
-    let methodName = name
+    let methodName: string = name
     let args = _args
     if (methodName === 'batch' && DatabaseBridge.batchJSON) {
       methodName = 'batchJSON'
@@ -47,7 +47,7 @@ class SqliteJsiDispatcher implements SqliteDispatcher {
   }
 
   call(name: SqliteDispatcherMethod, _args: any[], callback: ResultCallback<any>): void {
-    let methodName = name
+    let methodName: string = name
     let args = _args
 
     if (methodName === 'query' && !global.HermesInternal) {

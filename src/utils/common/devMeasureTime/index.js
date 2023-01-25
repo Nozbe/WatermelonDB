@@ -1,14 +1,16 @@
 // @flow
 
-const getPreciseTime: () => number = (() => {
+const getPreciseTimeFunction: () => () => number = () => {
   if (typeof global !== 'undefined' && global.nativePerformanceNow) {
     return global.nativePerformanceNow
   } else if (typeof window !== 'undefined' && window.performance && window.performance.now) {
     return window.performance.now.bind(window.performance)
   }
 
+  // $FlowFixMe
   return Date.now
-})()
+}
+const getPreciseTime: () => number = getPreciseTimeFunction()
 
 export { getPreciseTime }
 

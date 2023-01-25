@@ -4,7 +4,7 @@
 import type { LokiMemoryAdapter } from './type'
 import invariant from '../../utils/common/invariant'
 import logger from '../../utils/common/logger'
-import type { ResultCallback } from '../../utils/fp/Result'
+import type { ResultCallback, Result } from '../../utils/fp/Result'
 
 import type { RecordId } from '../../Model'
 import type { TableName, AppSchema } from '../../Schema'
@@ -136,7 +136,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
       )
       validateAdapter(this)
     }
-    const callback = (result) => devSetupCallback(result, options.onSetUpError)
+    const callback = (result: Result<any>) => devSetupCallback(result, options.onSetUpError)
     this._dispatcher.call('setUp', [options], callback)
   }
 

@@ -25,9 +25,11 @@ const field: Decorator = makeDecorator(
       configurable: true,
       enumerable: true,
       get(): Value {
+        // $FlowFixMe
         return this.asModel._getRaw(columnName)
       },
       set(value: any): void {
+        // $FlowFixMe
         this.asModel._setRaw(columnName, value)
       },
     }

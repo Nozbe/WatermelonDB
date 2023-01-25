@@ -27,6 +27,7 @@ const dateDecorator: Decorator = makeDecorator(
       configurable: true,
       enumerable: true,
       get(): ?Date {
+        // $FlowFixMe
         const rawValue = this.asModel._getRaw(columnName)
         if (typeof rawValue === 'number') {
           const cached = cache.get(rawValue)
@@ -44,6 +45,7 @@ const dateDecorator: Decorator = makeDecorator(
         if (rawValue && date) {
           cache.set(rawValue, new Date(date))
         }
+        // $FlowFixMe
         this.asModel._setRaw(columnName, rawValue)
       },
     }

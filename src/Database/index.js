@@ -51,6 +51,7 @@ export default class Database {
       // $FlowFixMe
       options.actionsEnabled === false &&
         invariant(false, 'new Database({ actionsEnabled: false }) is no longer supported')
+      // $FlowFixMe
       options.actionsEnabled === true &&
         logger.warn(
           'new Database({ actionsEnabled: true }) option is unnecessary (actions are always enabled)',
@@ -91,7 +92,7 @@ export default class Database {
 
     // performance critical - using mutations
     const batchOperations: BatchOperation[] = []
-    const changeNotifications: { [collectionName: TableName<any>]: CollectionChangeSet<*> } = {}
+    const changeNotifications: { [collectionName: TableName<any>]: CollectionChangeSet<Model> } = {}
     actualRecords.forEach((record) => {
       if (!record) {
         return
@@ -149,7 +150,11 @@ export default class Database {
       this.collections.get(table)._applyChangesToCache(changeSet)
     })
 
-    const databaseChangeNotifySubscribers = ([tables, subscriber]): void => {
+    const databaseChangeNotifySubscribers = ([tables, subscriber]: [
+      Array<TableName<any>>,
+      () => void,
+      any,
+    ]): void => {
       if (tables.some((table) => affectedTables.includes(table))) {
         subscriber()
       }

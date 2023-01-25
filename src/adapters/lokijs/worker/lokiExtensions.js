@@ -14,6 +14,7 @@ const isIDBAvailable = (onQuotaExceededError: ?(error: Error) => void) => {
     }
 
     // in Firefox private mode, IDB will be available, but will fail to open
+    // $FlowFixMe
     const checkRequest: IDBOpenDBRequest = indexedDB.open('WatermelonIDBChecker')
     checkRequest.onsuccess = (e) => {
       const db: IDBDatabase = e.target.result
