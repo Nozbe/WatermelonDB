@@ -21,5 +21,5 @@
 
 ### Internal
 
-- Update dependencies
+- Update internal dependencies
 - Fix Android CI
