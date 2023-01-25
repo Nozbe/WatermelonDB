@@ -25,7 +25,7 @@ const noNullComparisons: (OperatorFunction) => OperatorFunction = (operator) => 
 // Same as `a > b`, but `5 > undefined` is also true
 const weakGt = (left, right) => left > right || (left != null && right == null)
 
-const handleLikeValue = (v, defaultV) => (typeof v === 'string' ? v : defaultV)
+const handleLikeValue = (v, defaultV: string) => (typeof v === 'string' ? v : defaultV)
 
 export const like: OperatorFunction = (left, right) => {
   const leftV = handleLikeValue(left, '')
@@ -46,11 +46,11 @@ export const notLike: OperatorFunction = (left, right) => {
 const oneOf: OperatorFunction = (value, values) => values.includes(value)
 const notOneOf: OperatorFunction = (value, values) => !values.includes(value)
 
-const gt = (a, b) => a > b
-const gte = (a, b) => a >= b
-const lt = (a, b) => a < b
-const lte = (a, b) => a <= b
-const includes = (a, b) => typeof a === 'string' && a.includes(b)
+const gt = (a, b: any) => a > b
+const gte = (a, b: any) => a >= b
+const lt = (a, b: any) => a < b
+const lte = (a, b: any) => a <= b
+const includes = (a, b: any) => typeof a === 'string' && a.includes(b)
 
 const operators: { [Operator]: OperatorFunction } = {
   eq: rawFieldEquals,

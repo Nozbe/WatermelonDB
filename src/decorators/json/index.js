@@ -20,7 +20,7 @@ import { ensureDecoratorUsedProperly } from '../common'
 // Examples:
 //   @json('contact_info', jsonValue => jasonValue || {}) contactInfo: ContactInfo
 
-const parseJSON = (value) => {
+const parseJSON = (value: any) => {
   // fast path
   if (value === null || value === undefined || value === '') {
     return undefined

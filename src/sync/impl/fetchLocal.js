@@ -64,7 +64,7 @@ export function hasUnsyncedChanges(db: Database): Promise<boolean> {
   return db.read(async () => {
     // $FlowFixMe
     const collections = values(db.collections.map)
-    const hasUnsynced = async (collection) => {
+    const hasUnsynced = async (collection: Collection<any>) => {
       const created = await collection.query(createdQuery).fetchCount()
       const updated = await collection.query(updatedQuery).fetchCount()
       const deleted = await db.adapter.getDeletedRecords(collection.table)

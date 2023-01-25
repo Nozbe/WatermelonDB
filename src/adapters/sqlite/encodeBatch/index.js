@@ -95,7 +95,7 @@ function withRecreatedIndices(
   schema: AppSchema,
 ): NativeBridgeBatchOperation[] {
   const { encodeDropIndices, encodeCreateIndices } = require('../encodeSchema')
-  const toEncodedOperations = (sqlStr) =>
+  const toEncodedOperations = (sqlStr: SQL) =>
     sqlStr
       .split(';') // TODO: This will break when FTS is merged
       .filter((sql) => sql)

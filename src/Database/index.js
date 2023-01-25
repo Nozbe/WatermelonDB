@@ -150,7 +150,7 @@ export default class Database {
       this.collections.get(table)._applyChangesToCache(changeSet)
     })
 
-    const databaseChangeNotifySubscribers = ([tables, subscriber]): void => {
+    const databaseChangeNotifySubscribers = ([tables, subscriber]: [Array<TableName<any>>, () => void, any]): void => {
       if (tables.some((table) => affectedTables.includes(table))) {
         subscriber()
       }

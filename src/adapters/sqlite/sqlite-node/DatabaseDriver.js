@@ -18,7 +18,7 @@ class MigrationNeededError extends Error {
 
   type: string
 
-  constructor(databaseVersion): void {
+  constructor(databaseVersion: number): void {
     super('MigrationNeededError')
     this.databaseVersion = databaseVersion
     this.type = 'MigrationNeededError'
