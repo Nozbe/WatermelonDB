@@ -4,6 +4,7 @@ type UnpackPromise = <T>(promise: Promise<T>) => T
 
 export default function allPromisesObj<T, Key, Spec: { [Key]: Promise<T> }>(
   promisesObj: Spec,
+  // $FlowFixMe
 ): Promise<$ObjMap<Spec, UnpackPromise>> {
   return new Promise((resolve, reject) => {
     const keys = Object.keys(promisesObj)
@@ -14,6 +15,7 @@ export default function allPromisesObj<T, Key, Spec: { [Key]: Promise<T> }>(
       for (let i = 0; i < len; i++) {
         resultObj[keys[i]] = result[i]
       }
+      // $FlowFixMe
       resolve(resultObj)
     }, reject)
   })

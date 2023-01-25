@@ -121,6 +121,7 @@ export function prepareUpdateFromRaw<T: Model>(
 }
 
 export function prepareMarkAsSynced<T: Model>(record: T): T {
+  // $FlowFixMe
   const newRaw = Object.assign({}, record._raw, { _status: 'synced', _changed: '' }) // faster than object spread
   // $FlowFixMe
   return record.prepareUpdate(() => {

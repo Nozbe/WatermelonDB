@@ -9,7 +9,7 @@ import type Query from '../Query/index'
 type TimestampsObj = $Exact<{ created_at?: number, updated_at?: number }>
 export const createTimestampsFor = (model: Model): TimestampsObj => {
   const date = Date.now()
-  const timestamps = {}
+  const timestamps: $Shape<TimestampsObj> = {}
 
   if ('createdAt' in model) {
     timestamps.created_at = date
@@ -19,7 +19,7 @@ export const createTimestampsFor = (model: Model): TimestampsObj => {
     timestamps.updated_at = date
   }
 
-  return (timestamps: any)
+  return timestamps
 }
 
 function getChildrenQueries(model: Model): Query<Model>[] {

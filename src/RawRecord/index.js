@@ -76,7 +76,7 @@ export function sanitizedRaw(dirtyRaw: DirtyRaw, tableSchema: TableSchema): RawR
 
   // TODO: Think about whether prototypeless objects are a useful mitigation
   // const raw = Object.create(null) // create a prototypeless object
-  const raw = {}
+  const raw: $Shape<RawRecord> = {}
 
   if (typeof id === 'string') {
     raw.id = id

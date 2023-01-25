@@ -37,9 +37,11 @@ async function fetchLocalChangesForCollection<T: Model>(
   // TODO: It would probably also be good to only send to server locally changed fields, not full records
   // perf-critical - using mutation
   createdRecords.forEach((record) => {
+    // $FlowFixMe
     changeSet.created.push(Object.assign({}, record._raw))
   })
   updatedRecords.forEach((record) => {
+    // $FlowFixMe
     changeSet.updated.push(Object.assign({}, record._raw))
   })
   const changedRecords = createdRecords.concat(updatedRecords)
