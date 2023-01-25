@@ -1,5 +1,5 @@
 import { sortBy, identity, pipe, pluck, shuffle } from 'rambdax'
-import expect from 'expect-rn'
+import expect from '@nozbe/watermelondb_expect'
 import { allPromises, toPairs } from '../../utils/fp'
 
 import Model from '../../Model'
