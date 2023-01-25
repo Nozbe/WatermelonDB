@@ -1,6 +1,6 @@
 {
   "name": "React-jsi",
-  "version": "0.69.7",
+  "version": "0.70.6",
   "summary": "-",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
@@ -10,7 +10,7 @@
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.69.7"
+    "tag": "v0.70.6"
   },
   "source_files": "**/*.{cpp,h}",
   "exclude_files": "**/test/*",
@@ -29,7 +29,7 @@
 
     ],
     "RCT-Folly": [
-      "2021.06.28.00-v2"
+      "2021.07.22.00"
     ],
     "glog": [
 

@@ -6,7 +6,7 @@ require_relative '../../node_modules/@react-native-community/cli-platform-ios/na
 
 platform :ios, '15.0'
 
-hermes_enabled = false
+hermes_enabled = true
 enable_jslock_hack = false
 
 target 'WatermelonTester' do
@@ -15,7 +15,6 @@ target 'WatermelonTester' do
 
   use_react_native!(
     path: '../../node_modules/react-native',
-    production: false,
     hermes_enabled: hermes_enabled,
     fabric_enabled: false,
     app_path: "#{Pod::Config.instance.installation_root}/../.."
