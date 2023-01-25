@@ -49,6 +49,7 @@ export default function subscribeToSimpleQuery<Record: Model>(
       if (!matcher) {
         matcher = require('../encodeMatcher').default(query.description)
       }
+      // $FlowFixMe
       const shouldEmit = require('./processChangeSet').default(changeSet, matcher, matchingRecords)
       if (shouldEmit || alwaysEmit) {
         emitCopy()
