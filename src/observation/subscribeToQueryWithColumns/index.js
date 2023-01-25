@@ -81,7 +81,8 @@ export default function subscribeToQueryWithColumns<Record: Model>(
   // so that we can reuse cached responses -- but they don't have compatible format
   const canUseSimpleObservation = canEncodeMatcher(query.description)
   const subscribeToSource = canUseSimpleObservation
-    ? (observer: (recordsOrStatus: Array<Record>) => void) => subscribeToSimpleQuery(query, observer, true)
+    ? (observer: (recordsOrStatus: Array<Record>) => void) =>
+        subscribeToSimpleQuery(query, observer, true)
     : (observer) => subscribeToQueryReloading(query, observer, true)
   const asyncSource = !canUseSimpleObservation
 

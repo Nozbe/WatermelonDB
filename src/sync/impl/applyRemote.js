@@ -334,7 +334,10 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   return recordsToBatch
 }
 
-const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<void | Array<$Call<<T>(p: Promise<T> | T) => T, Promise<void>>>> => {
+const destroyAllDeletedRecords = (
+  db: Database,
+  recordsToApply: AllRecordsToApply,
+): Promise<void | Array<$Call<<T>(p: Promise<T> | T) => T, Promise<void>>>> => {
   const promises = toPairs(recordsToApply).map(([tableName, { deletedRecordsToDestroy }]) => {
     return deletedRecordsToDestroy.length
       ? db.adapter.destroyDeletedRecords((tableName: any), deletedRecordsToDestroy)
