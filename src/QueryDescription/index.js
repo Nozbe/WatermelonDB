@@ -462,7 +462,7 @@ const extractClauses: (Clause[]) => QueryDescription = (clauses) => {
   // We won't support this anymore, but will warn about suboptimal queries
   // TODO: Remove after 2022-01-01
   if (process.env.NODE_ENV !== 'production') {
-    const onsEncountered = {}
+    const onsEncountered: { [string]: boolean } = {}
     query.where.forEach((clause) => {
       if (clause.type === 'on') {
         const table = (clause.table: string)
