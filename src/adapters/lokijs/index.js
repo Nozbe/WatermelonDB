@@ -140,6 +140,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     this._dispatcher.call('setUp', [options], callback)
   }
 
+  // eslint-disable-next-line no-use-before-define
   async testClone(options?: $Shape<LokiAdapterOptions> = {}): Promise<LokiJSAdapter> {
     // Ensure data is saved to memory
     // $FlowFixMe

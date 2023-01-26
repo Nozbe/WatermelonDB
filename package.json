@@ -114,7 +114,7 @@
     "chokidar": "^3.5.3",
     "chokidar-cli": "^3.0.0",
     "concurrently": "^7.6.0",
-    "eslint": "^7.0.0",
+    "eslint": "^8.32.0",
     "eslint-config-airbnb": "^18.0.1",
     "eslint-config-prettier": "^6.4.0",
     "eslint-plugin-flowtype": "^8.0.3",
