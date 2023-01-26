@@ -28,5 +28,7 @@ Pod::Spec.new do |s|
   # simdjson is annoyingly slow without compiler optimization, disable for debugging
   s.compiler_flags = '-Os'
   s.dependency "React"
-  s.dependency "React-jsi"
+
+  # doesn't seem to be needed anymore?
+  # s.dependency "React-jsi"
 end
