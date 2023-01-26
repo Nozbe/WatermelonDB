@@ -41,7 +41,7 @@ const DIR_PATH = isDevelopment ? DEV_PATH : DIST_PATH
 
 const DO_NOT_BUILD_PATHS = [
   /__tests__/,
-  /adapters\/__tests__/,
+  /__playground__/,
   /test\.js/,
   /integrationTest/,
   /__mocks__/,
@@ -112,18 +112,21 @@ const copyNonJavaScriptFiles = (buildPath) => {
   createPackageJson(buildPath, pkg)
   copyFiles(buildPath, [
     'LICENSE',
-    'README.md',
+    // 'README.md',
     'yarn.lock',
     'WatermelonDB.podspec',
-    'react-native.config.js',
-    'docs',
+    'react-native.config.js', // why?
+    // 'docs',
     'native/shared',
     'native/ios',
     'native/android',
     'native/android-jsi',
   ])
+  cleanFolder(`${buildPath}/native/ios/WatermelonDB.xcodeproj/xcuserdata`)
   cleanFolder(`${buildPath}/native/android/build`)
   cleanFolder(`${buildPath}/native/android/bin/build`)
+  cleanFolder(`${buildPath}/native/android-jsi/.cxx`)
+  cleanFolder(`${buildPath}/native/android-jsi/.externalNativeBuild`)
   cleanFolder(`${buildPath}/native/android-jsi/build`)
   cleanFolder(`${buildPath}/native/android-jsi/bin/build`)
 }
@@ -136,8 +139,6 @@ if (isDevelopment) {
     if (file.match(/\.js$/)) {
       buildSrcModule(file)
       buildCjsModule(file)
-    } else if (file.match(/\.js$/)) {
-      fs.copySync(file, path.join(DEV_PATH, replace(SOURCE_PATH, '', file)))
     } else if (file.match(/\.d.ts$/)) {
       // Typescript
       fs.copySync(file, path.join(DEV_PATH, replace(SOURCE_PATH, '', file)))
