@@ -1,5 +1,5 @@
 const babel = require('@babel/core')
-const babelConfig = require('./babel.config.js')
+const babelConfig = require('../babel.config')
 
 const transform = ({ src, filename /* , options: { dev } */ }) => {
   // const nodeEnv = dev ? 'development' : 'production'

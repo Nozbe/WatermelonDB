@@ -3,7 +3,7 @@ const path = require('path')
 const glob = require('glob-to-regexp')
 const metroCache = require('metro-cache')
 
-const getBlacklistRE = () => {
+const getBlockList = () => {
   // ignore dist/, dev/
   const defaultPattern = exclusionList([
     glob(`${path.resolve(__dirname, '..')}/dist/*`),
@@ -15,8 +15,6 @@ const getBlacklistRE = () => {
 
   // delete __tests__ from the default blacklist
   const newPattern = defaultPattern.replace('|\\/__tests__\\/.*', '')
-
-  console.log({ newPattern })
 
   return RegExp(newPattern)
 }
@@ -38,10 +36,10 @@ const config = {
       stream: path.resolve(__dirname, 'src/__tests__/emptyMock'),
       constants: path.resolve(__dirname, 'src/__tests__/emptyMock'),
     },
-    blockList: getBlacklistRE(),
+    blockList: getBlockList(),
   },
   transformer: {
-    babelTransformerPath: path.resolve(__dirname, 'rn-transformer.js'),
+    babelTransformerPath: path.resolve(__dirname, 'native/metro-transformer.js'),
   },
   cacheStores: [
     new metroCache.FileStore({
