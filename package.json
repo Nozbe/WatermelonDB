@@ -11,7 +11,7 @@
     "flow": "flow check --color always",
     "eslint": "eslint ./src -c ./.eslintrc.yml --cache --cache-location ./.cache/.eslintcache",
     "tslint": "tslint --project .",
-    "test": "jest --config=./jest.config.js",
+    "test": "jest --config=./jest.config.js --forceExit",
     "ci:check": "concurrently -n jest,eslint,flow 'npm run test' 'npm run eslint' 'npm run flow' --kill-others-on-fail",
     "test:android": "cd native/androidTest && ./gradlew connectedAndroidTest",
     "test:ios": "scripts/test-ios",
