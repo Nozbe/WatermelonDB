@@ -1809,10 +1809,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@nozbe/simdjson@3.1.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@nozbe/simdjson/-/simdjson-3.1.0.tgz#5d66127342055f2a7922dfaaa1cc0ba53d1faa94"
-  integrity sha512-4ucu9715BwvtjW1eiVJskl063QDdVXYKtVmcWmxcQN/vzK5X9fWW0WW88Z1XEsI6CfWRzrO/DnzuWN8O78OaMQ==
+"@nozbe/simdjson@3.1.0-wmelon1":
+  version "3.1.0-wmelon1"
+  resolved "https://registry.yarnpkg.com/@nozbe/simdjson/-/simdjson-3.1.0-wmelon1.tgz#e02048b41d2b3662ddf1dc8c979a3a36fd389dfb"
+  integrity sha512-PQaHHQyvASrcrfzqkZ4ona43m0UjN81NuTWt6rJkOUePGDjxc8MNp2Q7jcod1CIdTsXJ13wRWeFbquwNfhpIQQ==
 
 "@nozbe/sqlite@3.40.1":
   version "3.40.1"
