@@ -38,30 +38,30 @@ npm install @nozbe/watermelondb
 
 2. **Add Swift support to your Xcode project**:
 
+   You only need to do this if you don't have Swift already set up in your project.
+
    - Open `ios/YourAppName.xcodeproj` in Xcode
    - Right-click on **(your app name)** in the Project Navigator on the left, and click **New File…**
    - Create a single empty Swift file (`wmelon.swift`) to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header** and **do not remove** the Swift file afterwards
 
-3. **Link WatermelonDB's native library using CocoaPods**
+3. **Link WatermelonDB's native library (using CocoaPods)**
 
     Add this to your `Podfile`:
 
     ```ruby
-    # If you're using autolinking, this line might not be needed
-    pod 'WatermelonDB', :path => '../node_modules/@nozbe/watermelondb'
+    # Uncomment this line if you're not using auto-linking
+    # pod 'WatermelonDB', :path => '../node_modules/@nozbe/watermelondb'
 
-    # NOTE: Do not remove, needed to keep WatermelonDB compiling:
+    # NOTE: Do not remove React-jsi or simdjson, those are required for WatermelonDB
     pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi', :modular_headers => true
-
-    # NOTE: This is required as of v0.23
     pod 'simdjson', path: '../node_modules/@nozbe/simdjson'
     ```
 
     Make sure you run `pod install` after updating `Podfile`
 
-    Note that as of WatermelonDB 0.22, manual (non-CocoaPods) linking is not supported.
+    Manual (non-CocoaPods) linking is not supported.
 
-    At least Xcode 12.2 and iOS 13 are recommended (earlier versions are not tested for compatibility).
+    At least Xcode 13.x and iOS 14 are recommended (earlier versions are not tested for compatibility).
 
 ### Android (React Native)
 
@@ -69,12 +69,10 @@ npm install @nozbe/watermelondb
 
 See instructions above ⬆️
 
-On RN60+, auto linking should work.
-
 <details>
   <summary>Linking Manually</summary>
 
-  Users on React Native 0.60+ automatically have access to "autolinking", requiring no further manual installation steps. If you are on React Native 0.60+   please skip this section. If you are on React Native < 0.60 please do the following in **addition** to the previous steps:
+  By default, React Native uses **autolinking**, and **you don't need the steps below**! Only use this with old versions of React Native or if you opt out of autolinking.
 
   1. In `android/settings.gradle`, add:
 
@@ -108,7 +106,7 @@ On RN60+, auto linking should work.
 </details>
 
 <details>
-  <summary>Custom Kotlin Version ⚠️</summary>
+  <summary>Custom Kotlin Version</summary>
   Make sure the kotlin version is set to 1.3.50 or above. Just set ext properties `kotlinVersion` in `android/build.gradle`, and WatermelonDB will use the specified kotlin version.
 
   ```gradle
@@ -120,9 +118,8 @@ On RN60+, auto linking should work.
 
 <details>
   <summary>Using with react-native-screens or react-native-gesture-handler</summary>
-  If you are using recent versions of react-native-screens or react-native-gesture-handler, you will need to set the kotlin version to 1.5.20 or above.
-
-  See instructions above ⬆️
+  If you are using recent versions of react-native-screens or react-native-gesture-handler,
+  you will need to set the kotlin version to 1.5.20 or above (see section above)
 </details>
 
 <details>
@@ -184,7 +181,7 @@ On RN60+, auto linking should work.
          }
 
       ```
-      or if you have **multiple** JSI Packages:
+      or if you have **multiple** JSI Packages (for example, when using `reanimated`):
       ```java
       // ...
       import java.util.Arrays; // ⬅️ This!
@@ -209,7 +206,8 @@ On RN60+, auto linking should work.
                  List<JSIModuleSpec> modules = Arrays.asList();
 
                  modules.addAll(new WatermelonDBJSIPackage().getJSIModules(reactApplicationContext, jsContext)); // ⬅️ This!
-                 // ⬅️ add more JSI packages here by conventions above
+                 // ⬅️ add more JSI packages here by conventions above, for example:
+                 // modules.addAll(new ReanimatedJSIModulePackage().getJSIModules(reactApplicationContext, jsContext));
 
                  return modules;
                }
