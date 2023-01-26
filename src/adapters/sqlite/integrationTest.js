@@ -1,4 +1,3 @@
-import expect from '@nozbe/watermelondb_expect'
 import { Platform } from 'react-native'
 import SQLiteAdapter from './index'
 import { testSchema } from '../__tests__/helpers'
