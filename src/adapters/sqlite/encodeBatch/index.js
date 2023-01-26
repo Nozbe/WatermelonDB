@@ -1,5 +1,5 @@
 // @flow
-
+/* eslint-disable import/no-import-module-exports */
 import type { RecordId } from '../../../Model'
 import type { TableName, TableSchema, AppSchema } from '../../../Schema'
 import type { RawRecord } from '../../../RawRecord'

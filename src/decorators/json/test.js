@@ -96,6 +96,8 @@ describe('decorators/json', () => {
     expect(extras).not.toBe(model.extras)
     expect(extras).toBe(model.extrasMemoized)
   })
+  // FIXME: missing test?
+  // eslint-disable-next-line jest/no-commented-out-tests
   // it('fails if applied to incorrect fields', () => {
   //   expect(
   //     () =>

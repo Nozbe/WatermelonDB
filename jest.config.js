@@ -1,7 +1,6 @@
 module.exports = {
   verbose: true,
   bail: true,
-  testURL: 'http://localhost/',
   moduleNameMapper: {},
   setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.js'],
   rootDir: __dirname,
