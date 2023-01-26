@@ -241,9 +241,9 @@ const getAllRecordsToApply = (
 
         return !!collection
       }),
-      mapObj((changes, tableName: TableName<any>) => {
-        return recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes, context)
-      }),
+      mapObj((changes, tableName: TableName<any>) =>
+        recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes, context),
+      ),
     )(remoteChanges),
   )
 }
@@ -338,11 +338,11 @@ const destroyAllDeletedRecords = (
   db: Database,
   recordsToApply: AllRecordsToApply,
 ): Promise<void | Array<$Call<<T>(p: Promise<T> | T) => T, Promise<void>>>> => {
-  const promises = toPairs(recordsToApply).map(([tableName, { deletedRecordsToDestroy }]) => {
-    return deletedRecordsToDestroy.length
+  const promises = toPairs(recordsToApply).map(([tableName, { deletedRecordsToDestroy }]) =>
+    deletedRecordsToDestroy.length
       ? db.adapter.destroyDeletedRecords((tableName: any), deletedRecordsToDestroy)
-      : null
-  })
+      : null,
+  )
   return Promise.all(promises)
 }
 

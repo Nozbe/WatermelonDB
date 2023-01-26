@@ -59,6 +59,7 @@ rules:
   react/jsx-curly-newline: off
   lines-between-class-members: off
   one-var: off
+  arrow-body-style: off
   # react
   react/prop-types: off
   react/jsx-filename-extension: off

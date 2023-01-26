@@ -89,6 +89,7 @@ export default function subscribeToQueryWithColumns<Record: Model>(
   // Observe changes to records we have on the list
   const debugInfo = { name: 'subscribeToQueryWithColumns', query, columnNames }
   const collectionUnsubscribe = query.collection.experimentalSubscribe(
+    // eslint-disable-next-line prefer-arrow-callback
     function observeWithColumnsCollectionChanged(changeSet: CollectionChangeSet<Record>): void {
       let hasColumnChanges = false
       // Can't use `Array.some`, because then we'd skip saving record state for relevant records
@@ -124,6 +125,7 @@ export default function subscribeToQueryWithColumns<Record: Model>(
   )
 
   // Observe the source records list (list of records matching a query)
+  // eslint-disable-next-line prefer-arrow-callback
   const sourceUnsubscribe = subscribeToSource(function observeWithColumnsSourceChanged(
     recordsOrStatus,
   ): void {
