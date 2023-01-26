@@ -13,7 +13,7 @@ extends:
   - prettier
   - plugin:jest/recommended
 
-parser: babel-eslint
+parser: '@babel/eslint-parser'
 
 settings:
   flowtype:
