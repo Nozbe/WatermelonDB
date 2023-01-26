@@ -24,6 +24,7 @@
 		6ED5018C214550C20031A190 /* BridgeTestReporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED50164214550C20031A190 /* BridgeTestReporter.m */; };
 		6ED5018D214550C20031A190 /* BridgeTestReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED5018B214550C20031A190 /* BridgeTestReporter.swift */; };
 		74495B067A2AC39EC93E72DA /* libPods-WatermelonTester.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A01CD653626AB115D2D4A8E8 /* libPods-WatermelonTester.a */; };
+		BDE3C0F881B76C98FF0F355E /* Pods_WatermelonTesterFrameworks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E7FF35C811F7F7E0CDA74C5 /* Pods_WatermelonTesterFrameworks.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +48,7 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2D16E6891FA4F8E400B85C8A /* libReact.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libReact.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		4AD1A2FF035C6D8230E674A2 /* Pods-WatermelonTesterTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WatermelonTesterTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-WatermelonTesterTests/Pods-WatermelonTesterTests.release.xcconfig"; sourceTree = "<group>"; };
+		5E7FF35C811F7F7E0CDA74C5 /* Pods_WatermelonTesterFrameworks.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WatermelonTesterFrameworks.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E339A1C260CCC4500E44857 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		6E339A20260CCC6800E44857 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		6EC9C3E72982C74F000A0961 /* WatermelonTesterFrameworks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WatermelonTesterFrameworks.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -62,6 +64,8 @@
 		6ED5013B2143FEE80031A190 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6ED50164214550C20031A190 /* BridgeTestReporter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BridgeTestReporter.m; sourceTree = "<group>"; };
 		6ED5018B214550C20031A190 /* BridgeTestReporter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BridgeTestReporter.swift; sourceTree = "<group>"; };
+		79DAA35D56016B750257014C /* Pods-WatermelonTesterFrameworks.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WatermelonTesterFrameworks.release.xcconfig"; path = "Pods/Target Support Files/Pods-WatermelonTesterFrameworks/Pods-WatermelonTesterFrameworks.release.xcconfig"; sourceTree = "<group>"; };
+		89FF976EFFE06A776A572B3A /* Pods-WatermelonTesterFrameworks.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WatermelonTesterFrameworks.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WatermelonTesterFrameworks/Pods-WatermelonTesterFrameworks.debug.xcconfig"; sourceTree = "<group>"; };
 		A01CD653626AB115D2D4A8E8 /* libPods-WatermelonTester.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WatermelonTester.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A90F273F5BA305B1349074B2 /* Pods-WatermelonTester.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WatermelonTester.release.xcconfig"; path = "Pods/Target Support Files/Pods-WatermelonTester/Pods-WatermelonTester.release.xcconfig"; sourceTree = "<group>"; };
 		BFE4B508C9B2245A65FE719F /* Pods_WatermelonTesterTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WatermelonTesterTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -92,6 +96,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BDE3C0F881B76C98FF0F355E /* Pods_WatermelonTesterFrameworks.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -141,6 +146,7 @@
 				2D16E6891FA4F8E400B85C8A /* libReact.a */,
 				A01CD653626AB115D2D4A8E8 /* libPods-WatermelonTester.a */,
 				BFE4B508C9B2245A65FE719F /* Pods_WatermelonTesterTests.framework */,
+				5E7FF35C811F7F7E0CDA74C5 /* Pods_WatermelonTesterFrameworks.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -196,6 +202,8 @@
 				A90F273F5BA305B1349074B2 /* Pods-WatermelonTester.release.xcconfig */,
 				0A79C91DD4C3201F28E3EE33 /* Pods-WatermelonTesterTests.debug.xcconfig */,
 				4AD1A2FF035C6D8230E674A2 /* Pods-WatermelonTesterTests.release.xcconfig */,
+				89FF976EFFE06A776A572B3A /* Pods-WatermelonTesterFrameworks.debug.xcconfig */,
+				79DAA35D56016B750257014C /* Pods-WatermelonTesterFrameworks.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -248,6 +256,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6EC9C3FA2982C74F000A0961 /* Build configuration list for PBXNativeTarget "WatermelonTesterFrameworks" */;
 			buildPhases = (
+				B5FA1BA329A89468637E9DCD /* [CP] Check Pods Manifest.lock */,
 				6EC9C3E32982C74F000A0961 /* Sources */,
 				6EC9C3E42982C74F000A0961 /* Frameworks */,
 				6EC9C3E52982C74F000A0961 /* Resources */,
@@ -416,6 +425,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WatermelonTester/Pods-WatermelonTester-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B5FA1BA329A89468637E9DCD /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-WatermelonTesterFrameworks-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FBDE50819C02F2F4954F1CCD /* [CP] Check Pods Manifest.lock */ = {
@@ -618,6 +649,7 @@
 		};
 		6EC9C3F82982C74F000A0961 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 89FF976EFFE06A776A572B3A /* Pods-WatermelonTesterFrameworks.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -675,6 +707,7 @@
 		};
 		6EC9C3F92982C74F000A0961 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 79DAA35D56016B750257014C /* Pods-WatermelonTesterFrameworks.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
