@@ -63,22 +63,6 @@ npm install @nozbe/watermelondb
 
     At least Xcode 12.2 and iOS 13 are recommended (earlier versions are not tested for compatibility).
 
-4. **Fix up your Bridging Header**
-
-    You will likely see that the iOS build fails to compile. If this happens, locate the Swift Bridging Header (likely `ios/YourAppName/YourAppName-Bridging-Header.h`), and paste this:
-
-    ```objc
-    #import <React/RCTBundleURLProvider.h>
-    #import <React/RCTRootView.h>
-    #import <React/RCTViewManager.h>
-    #import <React/RCTBridgeModule.h>
-
-    // Silence warning
-    #import "../../node_modules/@nozbe/watermelondb/native/ios/WatermelonDB/SupportingFiles/Bridging.h"
-    ```
-
-    You might have to tweak the import path to correctly locate Watermelon's bridging header.
-
 ### Android (React Native)
 
 **Set up Babel config in your project**

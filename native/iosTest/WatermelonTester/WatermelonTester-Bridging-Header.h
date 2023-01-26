@@ -4,4 +4,4 @@
 #import <React/RCTBridgeModule.h>
 
 // Silence warning
-#import "../../ios/WatermelonDB/SupportingFiles/Bridging.h"
+//#import "../../ios/WatermelonDB/SupportingFiles/Bridging.h"

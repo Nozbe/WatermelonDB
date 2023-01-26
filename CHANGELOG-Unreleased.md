@@ -4,6 +4,9 @@
 
 ### Highlights
 
+- Older version of iOS Installation docs said to import WatermelonDB's `SupportingFiles/Bridging.h` from your app project's `Bridging.h`.
+  This is no longer recommended, and you should remove this import from your project. If this removal causes build issues, please file and issue
+
 ### BREAKING CHANGES
 
 ### Deprecations
