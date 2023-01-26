@@ -21,7 +21,7 @@
     "ktlint": "cd native/androidTest; ./gradlew ktlint",
     "ktlint:format": "cd native/androidTest; ./gradlew ktlintFormat",
     "android:emulator": "./scripts/emulatorWithJavaCheck",
-    "cocoapods": "cd native/iosTest && bundle exec pod install",
+    "cocoapods": "rm -fr native/iosTest/build/generated && cd native/iosTest && bundle exec pod install",
     "docs": "./scripts/mdbook",
     "docs:dev": "./scripts/mdbook-dev"
   },
