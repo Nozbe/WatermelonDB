@@ -12881,36 +12881,6 @@
 			};
 			name = Release;
 		};
-		1EFB37EE7971383753D086E7BDCB05B3 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = E6718BE15713194765C6D84FF86BFF7A /* WatermelonDB.debug.xcconfig */;
-			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
-				CLANG_ENABLE_MODULES = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				GCC_PREFIX_HEADER = "Target Support Files/WatermelonDB/WatermelonDB-prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(inherited)",
-					"CCACHE_HACK_TOOLCHAIN_DIR=\"$(TOOLCHAIN_DIR)\"",
-				);
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				MODULEMAP_FILE = Headers/Public/WatermelonDB/WatermelonDB.modulemap;
-				OTHER_LDFLAGS = "";
-				OTHER_LIBTOOLFLAGS = "";
-				PRIVATE_HEADERS_FOLDER_PATH = "";
-				PRODUCT_MODULE_NAME = WatermelonDB;
-				PRODUCT_NAME = WatermelonDB;
-				PUBLIC_HEADERS_FOLDER_PATH = "";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
 		27ABB654B13715886D39086A681F499A /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = BF0F694E54A832070F95973E1A3818BB /* React-RCTImage.release.xcconfig */;
@@ -13562,12 +13532,13 @@
 			};
 			name = Release;
 		};
-		68CA1BAECEA1E43A01F73DEF2C1CBFE9 /* Release */ = {
+		6D317E76994DD103E7347A64463563E4 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9E8D330067198C0B602966AF06A98C7D /* WatermelonDB.release.xcconfig */;
+			baseConfigurationReference = E6718BE15713194765C6D84FF86BFF7A /* WatermelonDB.debug.xcconfig */;
 			buildSettings = {
 				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
@@ -13576,7 +13547,7 @@
 					"$(inherited)",
 					"CCACHE_HACK_TOOLCHAIN_DIR=\"$(TOOLCHAIN_DIR)\"",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MODULEMAP_FILE = Headers/Public/WatermelonDB/WatermelonDB.modulemap;
 				OTHER_LDFLAGS = "";
 				OTHER_LIBTOOLFLAGS = "";
@@ -13589,9 +13560,8 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
 			};
-			name = Release;
+			name = Debug;
 		};
 		7229296D9737690E8A2C11D436C39F27 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -15058,6 +15028,38 @@
 			};
 			name = Debug;
 		};
+		F777CA432E82DDEEDDD77947D366224F /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9E8D330067198C0B602966AF06A98C7D /* WatermelonDB.release.xcconfig */;
+			buildSettings = {
+				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
+				CLANG_ENABLE_MODULES = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				GCC_PREFIX_HEADER = "Target Support Files/WatermelonDB/WatermelonDB-prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"CCACHE_HACK_TOOLCHAIN_DIR=\"$(TOOLCHAIN_DIR)\"",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				MODULEMAP_FILE = Headers/Public/WatermelonDB/WatermelonDB.modulemap;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PRIVATE_HEADERS_FOLDER_PATH = "";
+				PRODUCT_MODULE_NAME = WatermelonDB;
+				PRODUCT_NAME = WatermelonDB;
+				PUBLIC_HEADERS_FOLDER_PATH = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		F94E1E714FCF2899C6BDF3FA6AF41CDF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E3924D525003A4E0B4CE0323BD74F777 /* React-logger.debug.xcconfig */;
@@ -15374,8 +15376,8 @@
 		78F3F82CAF9F620CC35542D1A1763A15 /* Build configuration list for PBXNativeTarget "WatermelonDB" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				1EFB37EE7971383753D086E7BDCB05B3 /* Debug */,
-				68CA1BAECEA1E43A01F73DEF2C1CBFE9 /* Release */,
+				6D317E76994DD103E7347A64463563E4 /* Debug */,
+				F777CA432E82DDEEDDD77947D366224F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
