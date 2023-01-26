@@ -1,6 +1,6 @@
 {
   "name": "simdjson",
-  "version": "1.0.0",
+  "version": "3.1.0",
   "summary": "NPM-released fork of simdjson C++ library",
   "description": "NPM-released fork of simdjson C++ library",
   "homepage": "https://github.com/Nozbe/simdjson",
@@ -14,7 +14,7 @@
   },
   "source": {
     "git": "https://github.com/Nozbe/simdmjson.git",
-    "tag": "v1.0.0"
+    "tag": "v3.1.0"
   },
   "source_files": "src/*.{h,cpp}",
   "public_header_files": "src/simdjson.h",
