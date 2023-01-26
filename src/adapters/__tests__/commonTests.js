@@ -1,3 +1,4 @@
+/* eslint-disable jest/no-standalone-expect */
 import naughtyStrings, {
   bigEndianByteOrderMark,
   littleEndianByteOrderMark,

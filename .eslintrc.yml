@@ -79,6 +79,7 @@ rules:
   import/no-cycle: off
   jest/no-large-snapshots: warn
   jest/no-disabled-tests: off
+  jest/expect-expect: off
   global-require: off
   no-plusplus: off
   prefer-object-spread: off
