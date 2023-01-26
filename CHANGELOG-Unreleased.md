@@ -21,6 +21,8 @@
 
 - Updated `@babel/runtime` to 7.20.13
 - Updated `rxjs` to 7.8.0
+- Updated `sqlite` (SQLite used on Android in JSI mode) to 3.40.1
+- Updated `simdjson` to 3.1.0
 - [flow] Updated Flow version used in the project to 198.1. This shouldn't have an impact on you, but could fix or break Flow if you don't have WatermelonDB set to `[declarations]` mode
 - [flow] Clarified docs to recommend the use of `[declarations]` mode for WatermelonDB
 
