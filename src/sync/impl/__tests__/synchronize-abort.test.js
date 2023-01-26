@@ -8,7 +8,10 @@ describe('synchronize - aborts', () => {
   it('aborts on concurrent synchronization', async () => {
     const { database } = makeDatabase()
 
-    const delayPromise = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
+    const delayPromise = (delay) =>
+      new Promise((resolve) => {
+        setTimeout(resolve, delay)
+      })
     const syncWithDelay = (delay) =>
       synchronize({
         database,

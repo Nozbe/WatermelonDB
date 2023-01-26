@@ -326,7 +326,9 @@ describe('Query', () => {
       expect(observer).toHaveBeenLastCalledWith(0)
 
       if (isThrottled) {
-        await new Promise((resolve) => setTimeout(resolve, 300))
+        await new Promise((resolve) => {
+          setTimeout(resolve, 300)
+        })
       }
 
       await database.write(() => tasks.create())
