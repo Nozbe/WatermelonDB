@@ -32,6 +32,8 @@ npm install @nozbe/watermelondb
 
 ### iOS (React Native)
 
+At least Xcode 13.x and iOS 14 are recommended (earlier versions are not tested for compatibility).
+
 1. **Set up Babel config in your project**
 
    See instructions above ⬆️
@@ -46,22 +48,24 @@ npm install @nozbe/watermelondb
 
 3. **Link WatermelonDB's native library (using CocoaPods)**
 
-    Add this to your `Podfile`:
+    On modern versions of React Native, just run `pod install`, and autolinking should just work.
+
+    However, in case of build issues, add this to your `Podfile`:
 
     ```ruby
     # Uncomment this line if you're not using auto-linking
     # pod 'WatermelonDB', :path => '../node_modules/@nozbe/watermelondb'
 
-    # NOTE: Do not remove React-jsi or simdjson, those are required for WatermelonDB
-    pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi', :modular_headers => true
-    pod 'simdjson', path: '../node_modules/@nozbe/simdjson'
+    # WatermelonDB dependency, should not be needed on modern React Native
+    # pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi', :modular_headers => true
+
+    # WatermelonDB dependency, uncomment if you're not using auto-linking
+    # pod 'simdjson', path: '../node_modules/@nozbe/simdjson'
     ```
 
     Make sure you run `pod install` after updating `Podfile`
 
     Manual (non-CocoaPods) linking is not supported.
-
-    At least Xcode 13.x and iOS 14 are recommended (earlier versions are not tested for compatibility).
 
 ### Android (React Native)
 

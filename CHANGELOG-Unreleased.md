@@ -23,6 +23,7 @@
 
 ### Changes
 
+- Simplified CocoaPods/iOS integration
 - Updated `@babel/runtime` to 7.20.13
 - Updated `rxjs` to 7.8.0
 - Updated `sqlite` (SQLite used on Android in JSI mode) to 3.40.1
