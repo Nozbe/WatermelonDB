@@ -128,7 +128,7 @@
     "flow-bin": "0.198.2",
     "fs-extra": "^11.1.0",
     "glob-to-regexp": "^0.4.1",
-    "inquirer": "^8",
+    "inquirer": "^7",
     "jest": "^29.0.0",
     "json-stringify-pretty-compact": "^3.0.0",
     "klaw-sync": "^6.0.0",

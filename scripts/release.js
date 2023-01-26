@@ -76,10 +76,10 @@ const buildTasks = (options) => {
     {
       title: 'ping npm registry',
       task: () =>
-        Promise.race(
+        Promise.race([
           execa('npm', ['ping']).catch(throwError('connection to npm registry failed')),
           promiseTimeoutError('Connection to npm registry timed out', 5000),
-        ),
+        ]),
     },
     ...(isPrerelease
       ? [
