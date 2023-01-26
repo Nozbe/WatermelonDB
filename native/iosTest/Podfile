@@ -26,20 +26,25 @@ target 'WatermelonTester' do
   pod 'WatermelonDB', path: '../../'
   pod 'simdjson', path: '../../node_modules/@nozbe/simdjson'
 
-  # post_install do |installer|
-  #   react_native_post_install(installer)
-  # end
-
   target 'WatermelonTesterTests' do
     inherit! :search_paths
     use_frameworks!
-
   end
 end
 
-target 'WatermelonTesterFrameworks' do
-  use_frameworks!
-end
+# target 'WatermelonTesterFrameworks' do
+#   use_frameworks!
+
+#   config = use_native_modules!
+#   flags = get_default_flags()
+
+#   use_react_native!(
+#     path: '../../node_modules/react-native',
+#     hermes_enabled: hermes_enabled,
+#     fabric_enabled: false,
+#     app_path: "#{Pod::Config.instance.installation_root}/../.."
+#   )
+# end
 
 post_install do |installer|
   react_native_post_install(installer, '../../node_modules/react-native')
