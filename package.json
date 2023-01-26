@@ -9,7 +9,7 @@
     "release": "node ./scripts/release.js",
     "prettier": "prettier --write src",
     "flow": "flow check --color always",
-    "eslint": "eslint ./src -c ./.eslintrc.yml --cache --cache-location ./.cache/.eslintcache",
+    "eslint": "eslint ./src -c ./.eslintrc.js --cache --cache-location ./.cache/.eslintcache",
     "tslint": "tslint --project .",
     "test": "jest --config=./jest.config.js --forceExit",
     "ci:check": "concurrently -n jest,eslint,flow 'npm run test' 'npm run eslint' 'npm run flow' --kill-others-on-fail",
