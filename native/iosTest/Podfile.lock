@@ -477,7 +477,7 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: 311feb67600774723fe10eb8801d3138cae9ad67
   ReactCommon: 03be76588338a27a88d103b35c3c44a3fd43d136
   simdjson: e6bfae9ce4bcdc80452d388d593816f1ca2106f3
-  WatermelonDB: 1d694c8ae2586a710c9debec4f2def1ce1fbd378
+  WatermelonDB: 7818ff515033d6eccf0e0f36b0e127d6dece2d7a
   Yoga: 921eb014669cf9c718ada68b08d362517d564e0c
 
 PODFILE CHECKSUM: ae6ce09e449ebd0054ffbbfe8366e572c9769320

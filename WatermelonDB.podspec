@@ -14,9 +14,16 @@ Pod::Spec.new do |s|
   s.source = { :git => "https://github.com/Nozbe/WatermelonDB.git", :tag => "v#{s.version}" }
   s.source_files = "native/ios/**/*.{h,m,mm,swift,c,cpp}", "native/shared/**/*.{h,c,cpp}"
   s.public_header_files = [
-    'native/ios/WatermelonDB/SupportingFiles/Bridging.h',
-    'native/ios/WatermelonDB/JSIInstaller.h',
+    # FIXME: I don't think we should be exporting all headers as public
+    # (although that is CocoaPods default behavior)
+    # but this is needed for WatermelonDB to work in use_frameworks! mode
+    'native/ios/**/*.h',
   ]
+  s.pod_target_xcconfig = {
+    # FIXME: This is a workaround for broken build in use_frameworks mode
+    # I don't think this is a correct fix, but… seems to work?
+    'OTHER_SWIFT_FLAGS' => '-Xcc -Wno-error=non-modular-include-in-framework-module'
+  }
   s.requires_arc = true
   # simdjson is annoyingly slow without compiler optimization, disable for debugging
   s.compiler_flags = '-Os'
