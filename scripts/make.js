@@ -49,29 +49,23 @@ const DO_NOT_BUILD_PATHS = [
   /package\.json/,
 ]
 
-const isNotIncludedInBuildPaths = value => !anymatch(DO_NOT_BUILD_PATHS, value)
+const isNotIncludedInBuildPaths = (value) => !anymatch(DO_NOT_BUILD_PATHS, value)
 
-const cleanFolder = dir => rimraf.sync(dir)
+const cleanFolder = (dir) => rimraf.sync(dir)
 
-const takeFiles = pipe(
-  prop('path'),
-  both(endsWith('.js'), isNotIncludedInBuildPaths),
-)
+const takeFiles = pipe(prop('path'), both(endsWith('.js'), isNotIncludedInBuildPaths))
 
-const takeModules = pipe(
-  filter(takeFiles),
-  map(prop('path')),
-)
+const takeModules = pipe(filter(takeFiles), map(prop('path')))
 
 const removeSourcePath = replace(SOURCE_PATH, '')
 
-const createModulePath = format => {
+const createModulePath = (format) => {
   const formatPathSegment = format === CJS_MODULES ? [] : [format]
   const modulePath = resolvePath(DIR_PATH, ...formatPathSegment)
   return replace(SOURCE_PATH, modulePath)
 }
 
-const createFolder = dir => mkdirp.sync(resolvePath(dir))
+const createFolder = (dir) => mkdirp.sync(resolvePath(dir))
 
 const babelTransform = (format, file) => {
   if (format === SRC_MODULES) {
@@ -86,7 +80,7 @@ const babelTransform = (format, file) => {
 const paths = klaw(SOURCE_PATH)
 const modules = takeModules(paths)
 
-const buildModule = format => file => {
+const buildModule = (format) => (file) => {
   const modulePath = createModulePath(format)
   const code = babelTransform(format, file)
   const filename = modulePath(file)
@@ -101,7 +95,7 @@ const prepareJson = pipe(
     main: './index.js',
     sideEffects: false,
   }),
-  obj => prettyJson(obj),
+  (obj) => prettyJson(obj),
 )
 
 const createPackageJson = (dir, obj) => {
@@ -110,11 +104,11 @@ const createPackageJson = (dir, obj) => {
 }
 
 const copyFiles = (dir, files, rm = resolvePath()) =>
-  forEach(file => {
+  forEach((file) => {
     fs.copySync(file, path.join(dir, replace(rm, '', file)))
   }, files)
 
-const copyNonJavaScriptFiles = buildPath => {
+const copyNonJavaScriptFiles = (buildPath) => {
   createPackageJson(buildPath, pkg)
   copyFiles(buildPath, [
     'LICENSE',
@@ -138,7 +132,7 @@ if (isDevelopment) {
   const buildCjsModule = buildModule(CJS_MODULES)
   const buildSrcModule = buildModule(SRC_MODULES)
 
-  const buildFile = file => {
+  const buildFile = (file) => {
     if (file.match(/\.js$/)) {
       buildSrcModule(file)
       buildCjsModule(file)
@@ -184,7 +178,7 @@ if (isDevelopment) {
       }
     })
 } else {
-  const buildModules = format => mapAsync(buildModule(format))
+  const buildModules = (format) => mapAsync(buildModule(format))
   const buildCjsModules = buildModules(CJS_MODULES)
   const buildSrcModules = buildModules(SRC_MODULES)
 
@@ -197,7 +191,7 @@ if (isDevelopment) {
 
   // copy typescript definitions
   glob(`${SOURCE_PATH}/**/*.d.ts`, {}, (err, files) => {
-    files.forEach(file => {
+    files.forEach((file) => {
       fs.copySync(file, path.join(DIST_PATH, replace(SOURCE_PATH, '', file)))
     })
   })
