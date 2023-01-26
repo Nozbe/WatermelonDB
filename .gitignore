@@ -20,3 +20,5 @@ coverage/
 # docs/CHANGELOG.md
 # docs/README.md
 docs-build/
+
+**/.metro-health-check*

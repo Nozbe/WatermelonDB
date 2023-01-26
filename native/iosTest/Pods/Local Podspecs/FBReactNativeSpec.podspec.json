@@ -1,6 +1,6 @@
 {
   "name": "FBReactNativeSpec",
-  "version": "0.69.7",
+  "version": "0.71.1",
   "summary": "-",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
@@ -11,7 +11,7 @@
   "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness",
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.69.7"
+    "tag": "v0.71.1"
   },
   "header_dir": "FBReactNativeSpec",
   "pod_target_xcconfig": {
@@ -21,22 +21,22 @@
   },
   "dependencies": {
     "RCT-Folly": [
-      "2021.06.28.00-v2"
+      "2021.07.22.00"
     ],
     "RCTRequired": [
-      "0.69.7"
+      "0.71.1"
     ],
     "RCTTypeSafety": [
-      "0.69.7"
+      "0.71.1"
     ],
     "React-Core": [
-      "0.69.7"
+      "0.71.1"
     ],
     "React-jsi": [
-      "0.69.7"
+      "0.71.1"
     ],
     "ReactCommon/turbomodule/core": [
-      "0.69.7"
+      "0.71.1"
     ]
   },
   "prepare_command": "mkdir -p ../../../../native/iosTest/build/generated/ios/./FBReactNativeSpec && touch -a ../../../../native/iosTest/build/generated/ios/./FBReactNativeSpec/FBReactNativeSpec.h ../../../../native/iosTest/build/generated/ios/./FBReactNativeSpec/FBReactNativeSpec-generated.mm",
@@ -71,7 +71,6 @@
       "${PODS_TARGET_SRCROOT}/../../Libraries/Image/NativeImageEditor.js",
       "${PODS_TARGET_SRCROOT}/../../Libraries/Image/NativeImageLoaderAndroid.js",
       "${PODS_TARGET_SRCROOT}/../../Libraries/Image/NativeImageLoaderIOS.js",
-      "${PODS_TARGET_SRCROOT}/../../Libraries/Image/NativeImagePickerIOS.js",
       "${PODS_TARGET_SRCROOT}/../../Libraries/Image/NativeImageStoreAndroid.js",
       "${PODS_TARGET_SRCROOT}/../../Libraries/Image/NativeImageStoreIOS.js",
       "${PODS_TARGET_SRCROOT}/../../Libraries/Interaction/NativeFrameRateLogger.js",
@@ -98,17 +97,15 @@
       "${PODS_TARGET_SRCROOT}/../../Libraries/ReactNative/NativeUIManager.js",
       "${PODS_TARGET_SRCROOT}/../../Libraries/Settings/NativeSettingsManager.js",
       "${PODS_TARGET_SRCROOT}/../../Libraries/Share/NativeShareModule.js",
-      "${PODS_TARGET_SRCROOT}/../../Libraries/Storage/NativeAsyncLocalStorage.js",
-      "${PODS_TARGET_SRCROOT}/../../Libraries/Storage/NativeAsyncSQLiteDBStorage.js",
       "${PODS_TARGET_SRCROOT}/../../Libraries/TurboModule/samples/NativeSampleTurboModule.js",
       "${PODS_TARGET_SRCROOT}/../../Libraries/Utilities/NativeAppearance.js",
       "${PODS_TARGET_SRCROOT}/../../Libraries/Utilities/NativeDevLoadingView.js",
       "${PODS_TARGET_SRCROOT}/../../Libraries/Utilities/NativeDevSplitBundleLoader.js",
       "${PODS_TARGET_SRCROOT}/../../Libraries/Utilities/NativeDeviceInfo.js",
-      "${PODS_TARGET_SRCROOT}/../../Libraries/Utilities/NativeJSDevSupport.js",
       "${PODS_TARGET_SRCROOT}/../../Libraries/Utilities/NativePlatformConstantsAndroid.js",
       "${PODS_TARGET_SRCROOT}/../../Libraries/Utilities/NativePlatformConstantsIOS.js",
       "${PODS_TARGET_SRCROOT}/../../Libraries/Vibration/NativeVibration.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/WebPerformance/NativePerformanceObserver.js",
       "${PODS_TARGET_SRCROOT}/../../Libraries/WebSocket/NativeWebSocketModule.js",
       "$PODS_ROOT/../.xcode.env.local",
       "$PODS_ROOT/../.xcode.env"
@@ -118,7 +115,7 @@
       "${PODS_TARGET_SRCROOT}/../../../../native/iosTest/build/generated/ios/./FBReactNativeSpec/FBReactNativeSpec.h",
       "${PODS_TARGET_SRCROOT}/../../../../native/iosTest/build/generated/ios/./FBReactNativeSpec/FBReactNativeSpec-generated.mm"
     ],
-    "script": "pushd \"$PODS_ROOT/../\" > /dev/null\nRCT_SCRIPT_POD_INSTALLATION_ROOT=$(pwd)\npopd >/dev/null\n\nexport RCT_SCRIPT_RN_DIR=${PODS_TARGET_SRCROOT}/../..\nexport RCT_SCRIPT_LIBRARY_NAME=FBReactNativeSpec\nexport RCT_SCRIPT_OUTPUT_DIR=$RCT_SCRIPT_POD_INSTALLATION_ROOT/build/generated/ios\nexport RCT_SCRIPT_LIBRARY_TYPE=modules\nexport RCT_SCRIPT_JS_SRCS_PATTERN=Native*.js\nexport RCT_SCRIPT_JS_SRCS_DIR=../../Libraries\nexport RCT_SCRIPT_CODEGEN_MODULE_DIR=.\nexport RCT_SCRIPT_CODEGEN_COMPONENT_DIR=react/renderer/components\nexport RCT_SCRIPT_FILE_LIST=\"[\\\"../../Libraries/ActionSheetIOS/NativeActionSheetManager.js\\\", \\\"../../Libraries/Alert/NativeAlertManager.js\\\", \\\"../../Libraries/Animated/NativeAnimatedHelper.js\\\", \\\"../../Libraries/Animated/NativeAnimatedModule.js\\\", \\\"../../Libraries/Animated/NativeAnimatedTurboModule.js\\\", \\\"../../Libraries/AppState/NativeAppState.js\\\", \\\"../../Libraries/BatchedBridge/NativeModules.js\\\", \\\"../../Libraries/Blob/NativeBlobModule.js\\\", \\\"../../Libraries/Blob/NativeFileReaderModule.js\\\", \\\"../../Libraries/BugReporting/NativeBugReporting.js\\\", \\\"../../Libraries/Components/AccessibilityInfo/NativeAccessibilityInfo.js\\\", \\\"../../Libraries/Components/AccessibilityInfo/NativeAccessibilityManager.js\\\", \\\"../../Libraries/Components/Clipboard/NativeClipboard.js\\\", \\\"../../Libraries/Components/DatePickerAndroid/NativeDatePickerAndroid.js\\\", \\\"../../Libraries/Components/Keyboard/NativeKeyboardObserver.js\\\", \\\"../../Libraries/Components/Sound/NativeSoundManager.js\\\", \\\"../../Libraries/Components/StatusBar/NativeStatusBarManagerAndroid.js\\\", \\\"../../Libraries/Components/StatusBar/NativeStatusBarManagerIOS.js\\\", \\\"../../Libraries/Components/ToastAndroid/NativeToastAndroid.js\\\", \\\"../../Libraries/Core/NativeExceptionsManager.js\\\", \\\"../../Libraries/Core/SegmentFetcher/NativeSegmentFetcher.js\\\", \\\"../../Libraries/Core/Timers/NativeTiming.js\\\", \\\"../../Libraries/EventEmitter/NativeEventEmitter.js\\\", \\\"../../Libraries/EventEmitter/__mocks__/NativeEventEmitter.js\\\", \\\"../../Libraries/HeapCapture/NativeJSCHeapCapture.js\\\", \\\"../../Libraries/Image/NativeImageEditor.js\\\", \\\"../../Libraries/Image/NativeImageLoaderAndroid.js\\\", \\\"../../Libraries/Image/NativeImageLoaderIOS.js\\\", \\\"../../Libraries/Image/NativeImagePickerIOS.js\\\", \\\"../../Libraries/Image/NativeImageStoreAndroid.js\\\", \\\"../../Libraries/Image/NativeImageStoreIOS.js\\\", \\\"../../Libraries/Interaction/NativeFrameRateLogger.js\\\", \\\"../../Libraries/Linking/NativeIntentAndroid.js\\\", \\\"../../Libraries/Linking/NativeLinkingManager.js\\\", \\\"../../Libraries/Modal/NativeModalManager.js\\\", \\\"../../Libraries/NativeComponent/NativeComponentRegistry.js\\\", \\\"../../Libraries/NativeComponent/NativeComponentRegistryUnstable.js\\\", \\\"../../Libraries/NativeModules/specs/NativeAnimationsDebugModule.js\\\", \\\"../../Libraries/NativeModules/specs/NativeDevMenu.js\\\", \\\"../../Libraries/NativeModules/specs/NativeDevSettings.js\\\", \\\"../../Libraries/NativeModules/specs/NativeDeviceEventManager.js\\\", \\\"../../Libraries/NativeModules/specs/NativeDialogManagerAndroid.js\\\", \\\"../../Libraries/NativeModules/specs/NativeLogBox.js\\\", \\\"../../Libraries/NativeModules/specs/NativeRedBox.js\\\", \\\"../../Libraries/NativeModules/specs/NativeSourceCode.js\\\", \\\"../../Libraries/Network/NativeNetworkingAndroid.js\\\", \\\"../../Libraries/Network/NativeNetworkingIOS.js\\\", \\\"../../Libraries/Performance/NativeJSCSamplingProfiler.js\\\", \\\"../../Libraries/PermissionsAndroid/NativePermissionsAndroid.js\\\", \\\"../../Libraries/PushNotificationIOS/NativePushNotificationManagerIOS.js\\\", \\\"../../Libraries/ReactNative/NativeHeadlessJsTaskSupport.js\\\", \\\"../../Libraries/ReactNative/NativeI18nManager.js\\\", \\\"../../Libraries/ReactNative/NativeUIManager.js\\\", \\\"../../Libraries/Settings/NativeSettingsManager.js\\\", \\\"../../Libraries/Share/NativeShareModule.js\\\", \\\"../../Libraries/Storage/NativeAsyncLocalStorage.js\\\", \\\"../../Libraries/Storage/NativeAsyncSQLiteDBStorage.js\\\", \\\"../../Libraries/TurboModule/samples/NativeSampleTurboModule.js\\\", \\\"../../Libraries/Utilities/NativeAppearance.js\\\", \\\"../../Libraries/Utilities/NativeDevLoadingView.js\\\", \\\"../../Libraries/Utilities/NativeDevSplitBundleLoader.js\\\", \\\"../../Libraries/Utilities/NativeDeviceInfo.js\\\", \\\"../../Libraries/Utilities/NativeJSDevSupport.js\\\", \\\"../../Libraries/Utilities/NativePlatformConstantsAndroid.js\\\", \\\"../../Libraries/Utilities/NativePlatformConstantsIOS.js\\\", \\\"../../Libraries/Vibration/NativeVibration.js\\\", \\\"../../Libraries/WebSocket/NativeWebSocketModule.js\\\"]\"\n\nSCRIPT_PHASES_SCRIPT=\"$RCT_SCRIPT_RN_DIR/scripts/react_native_pods_utils/script_phases.sh\"\nWITH_ENVIRONMENT=\"$RCT_SCRIPT_RN_DIR/scripts/xcode/with-environment.sh\"\n/bin/sh -c \"$WITH_ENVIRONMENT $SCRIPT_PHASES_SCRIPT\"\n",
+    "script": "pushd \"$PODS_ROOT/../\" > /dev/null\nRCT_SCRIPT_POD_INSTALLATION_ROOT=$(pwd)\npopd >/dev/null\n\nexport RCT_SCRIPT_RN_DIR=${PODS_TARGET_SRCROOT}/../..\nexport RCT_SCRIPT_LIBRARY_NAME=FBReactNativeSpec\nexport RCT_SCRIPT_OUTPUT_DIR=$RCT_SCRIPT_POD_INSTALLATION_ROOT/build/generated/ios\nexport RCT_SCRIPT_LIBRARY_TYPE=modules\nexport RCT_SCRIPT_JS_SRCS_PATTERN=Native*.js\nexport RCT_SCRIPT_JS_SRCS_DIR=../../Libraries\nexport RCT_SCRIPT_CODEGEN_MODULE_DIR=.\nexport RCT_SCRIPT_CODEGEN_COMPONENT_DIR=react/renderer/components\nexport RCT_SCRIPT_FILE_LIST=\"[\\\"../../Libraries/ActionSheetIOS/NativeActionSheetManager.js\\\", \\\"../../Libraries/Alert/NativeAlertManager.js\\\", \\\"../../Libraries/Animated/NativeAnimatedHelper.js\\\", \\\"../../Libraries/Animated/NativeAnimatedModule.js\\\", \\\"../../Libraries/Animated/NativeAnimatedTurboModule.js\\\", \\\"../../Libraries/AppState/NativeAppState.js\\\", \\\"../../Libraries/BatchedBridge/NativeModules.js\\\", \\\"../../Libraries/Blob/NativeBlobModule.js\\\", \\\"../../Libraries/Blob/NativeFileReaderModule.js\\\", \\\"../../Libraries/BugReporting/NativeBugReporting.js\\\", \\\"../../Libraries/Components/AccessibilityInfo/NativeAccessibilityInfo.js\\\", \\\"../../Libraries/Components/AccessibilityInfo/NativeAccessibilityManager.js\\\", \\\"../../Libraries/Components/Clipboard/NativeClipboard.js\\\", \\\"../../Libraries/Components/DatePickerAndroid/NativeDatePickerAndroid.js\\\", \\\"../../Libraries/Components/Keyboard/NativeKeyboardObserver.js\\\", \\\"../../Libraries/Components/Sound/NativeSoundManager.js\\\", \\\"../../Libraries/Components/StatusBar/NativeStatusBarManagerAndroid.js\\\", \\\"../../Libraries/Components/StatusBar/NativeStatusBarManagerIOS.js\\\", \\\"../../Libraries/Components/ToastAndroid/NativeToastAndroid.js\\\", \\\"../../Libraries/Core/NativeExceptionsManager.js\\\", \\\"../../Libraries/Core/SegmentFetcher/NativeSegmentFetcher.js\\\", \\\"../../Libraries/Core/Timers/NativeTiming.js\\\", \\\"../../Libraries/EventEmitter/NativeEventEmitter.js\\\", \\\"../../Libraries/EventEmitter/__mocks__/NativeEventEmitter.js\\\", \\\"../../Libraries/HeapCapture/NativeJSCHeapCapture.js\\\", \\\"../../Libraries/Image/NativeImageEditor.js\\\", \\\"../../Libraries/Image/NativeImageLoaderAndroid.js\\\", \\\"../../Libraries/Image/NativeImageLoaderIOS.js\\\", \\\"../../Libraries/Image/NativeImageStoreAndroid.js\\\", \\\"../../Libraries/Image/NativeImageStoreIOS.js\\\", \\\"../../Libraries/Interaction/NativeFrameRateLogger.js\\\", \\\"../../Libraries/Linking/NativeIntentAndroid.js\\\", \\\"../../Libraries/Linking/NativeLinkingManager.js\\\", \\\"../../Libraries/Modal/NativeModalManager.js\\\", \\\"../../Libraries/NativeComponent/NativeComponentRegistry.js\\\", \\\"../../Libraries/NativeComponent/NativeComponentRegistryUnstable.js\\\", \\\"../../Libraries/NativeModules/specs/NativeAnimationsDebugModule.js\\\", \\\"../../Libraries/NativeModules/specs/NativeDevMenu.js\\\", \\\"../../Libraries/NativeModules/specs/NativeDevSettings.js\\\", \\\"../../Libraries/NativeModules/specs/NativeDeviceEventManager.js\\\", \\\"../../Libraries/NativeModules/specs/NativeDialogManagerAndroid.js\\\", \\\"../../Libraries/NativeModules/specs/NativeLogBox.js\\\", \\\"../../Libraries/NativeModules/specs/NativeRedBox.js\\\", \\\"../../Libraries/NativeModules/specs/NativeSourceCode.js\\\", \\\"../../Libraries/Network/NativeNetworkingAndroid.js\\\", \\\"../../Libraries/Network/NativeNetworkingIOS.js\\\", \\\"../../Libraries/Performance/NativeJSCSamplingProfiler.js\\\", \\\"../../Libraries/PermissionsAndroid/NativePermissionsAndroid.js\\\", \\\"../../Libraries/PushNotificationIOS/NativePushNotificationManagerIOS.js\\\", \\\"../../Libraries/ReactNative/NativeHeadlessJsTaskSupport.js\\\", \\\"../../Libraries/ReactNative/NativeI18nManager.js\\\", \\\"../../Libraries/ReactNative/NativeUIManager.js\\\", \\\"../../Libraries/Settings/NativeSettingsManager.js\\\", \\\"../../Libraries/Share/NativeShareModule.js\\\", \\\"../../Libraries/TurboModule/samples/NativeSampleTurboModule.js\\\", \\\"../../Libraries/Utilities/NativeAppearance.js\\\", \\\"../../Libraries/Utilities/NativeDevLoadingView.js\\\", \\\"../../Libraries/Utilities/NativeDevSplitBundleLoader.js\\\", \\\"../../Libraries/Utilities/NativeDeviceInfo.js\\\", \\\"../../Libraries/Utilities/NativePlatformConstantsAndroid.js\\\", \\\"../../Libraries/Utilities/NativePlatformConstantsIOS.js\\\", \\\"../../Libraries/Vibration/NativeVibration.js\\\", \\\"../../Libraries/WebPerformance/NativePerformanceObserver.js\\\", \\\"../../Libraries/WebSocket/NativeWebSocketModule.js\\\"]\"\n\nSCRIPT_PHASES_SCRIPT=\"$RCT_SCRIPT_RN_DIR/scripts/react_native_pods_utils/script_phases.sh\"\nWITH_ENVIRONMENT=\"$RCT_SCRIPT_RN_DIR/scripts/xcode/with-environment.sh\"\n/bin/sh -c \"$WITH_ENVIRONMENT $SCRIPT_PHASES_SCRIPT\"\n",
     "execution_position": "before_compile",
     "show_env_vars_in_log": true
   }

@@ -9,6 +9,7 @@ export function writer(target: Object, key: string, descriptor: Descriptor): Des
   return {
     ...descriptor,
     value(...args): Promise<any> {
+      // $FlowFixMe
       return this.database.write(() => descriptor.value.apply(this, args), actionName)
     },
   }
@@ -21,6 +22,7 @@ export function reader(target: Object, key: string, descriptor: Descriptor): Des
   return {
     ...descriptor,
     value(...args): Promise<any> {
+      // $FlowFixMe
       return this.database.read(() => descriptor.value.apply(this, args), actionName)
     },
   }
@@ -31,6 +33,7 @@ export default function action(target: Object, key: string, descriptor: Descript
   return {
     ...descriptor,
     value(...args): Promise<any> {
+      // $FlowFixMe
       return this.database.action(() => descriptor.value.apply(this, args), actionName)
     },
   }

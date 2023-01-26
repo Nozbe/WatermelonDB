@@ -9,6 +9,9 @@ If you're a Flow user yourself (and we highly recommend it!), here's some things
 Add this to your `.flowconfig` file so that Flow can see Watermelon's types.
 
 ```ini
+[declarations]
+<PROJECT_ROOT>/node_modules/@nozbe/watermelondb/.*
+
 [options]
 
 module.name_mapper='^@nozbe/watermelondb\(.*\)$' -> '<PROJECT_ROOT>/node_modules/@nozbe/watermelondb/src\1'

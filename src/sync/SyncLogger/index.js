@@ -24,7 +24,7 @@ const censorLog = (log: SyncLog): SyncLog => ({
       }
     : {}),
 })
-const censorLogs = (logs) => logs.map(censorLog)
+const censorLogs = (logs: Array<SyncLog>) => logs.map(censorLog)
 
 export default class SyncLogger {
   _limit: number

@@ -1,6 +1,6 @@
 {
   "name": "React-RCTSettings",
-  "version": "0.69.7",
+  "version": "0.71.1",
   "summary": "A wrapper for NSUserDefaults, a persistent key-value store available only on iOS.",
   "homepage": "https://reactnative.dev/",
   "documentation_url": "https://reactnative.dev/docs/settings",
@@ -12,7 +12,7 @@
   "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness",
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.69.7"
+    "tag": "v0.71.1"
   },
   "source_files": "*.{m,mm}",
   "preserve_paths": [
@@ -28,22 +28,22 @@
   },
   "dependencies": {
     "RCT-Folly": [
-      "2021.06.28.00-v2"
+      "2021.07.22.00"
     ],
     "React-Codegen": [
-      "0.69.7"
+      "0.71.1"
     ],
     "RCTTypeSafety": [
-      "0.69.7"
+      "0.71.1"
     ],
     "ReactCommon/turbomodule/core": [
-      "0.69.7"
+      "0.71.1"
     ],
     "React-jsi": [
-      "0.69.7"
+      "0.71.1"
     ],
     "React-Core/RCTSettingsHeaders": [
-      "0.69.7"
+      "0.71.1"
     ]
   }
 }

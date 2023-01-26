@@ -15,10 +15,12 @@ if (typeof global.self === 'undefined') {
 const openPlayground = false
 
 if (openPlayground) {
+  // eslint-disable-next-line react/function-component-definition
   const PlaygroundPlaceholder = () => <Text style={{ paddingTop: 100 }}>Playground is running</Text>
   AppRegistry.registerComponent('watermelonTest', () => PlaygroundPlaceholder)
   require('./__playground__')
 } else {
+  // eslint-disable-next-line react/function-component-definition
   const TestRoot = () => {
     require('./__tests__/setUpIntegrationTestEnv')
 

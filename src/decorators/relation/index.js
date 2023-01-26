@@ -37,19 +37,21 @@ const relation =
 
     return {
       get(): Relation<Model> {
-        this._relationCache = this._relationCache || {}
-        const cachedRelation = this._relationCache[key]
+        // $FlowFixMe
+        const model = this
+        model._relationCache = model._relationCache || {}
+        const cachedRelation = model._relationCache[key]
         if (cachedRelation) {
           return cachedRelation
         }
 
         const newRelation = new Relation(
-          this.asModel,
+          model.asModel,
           relationTable,
           relationIdColumn,
           options || { isImmutable: false },
         )
-        this._relationCache[key] = newRelation
+        model._relationCache[key] = newRelation
 
         return newRelation
       },

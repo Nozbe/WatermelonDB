@@ -201,13 +201,16 @@ export default class Collection<Record: Model> {
   }
 
   _notify(operations: CollectionChangeSet<Record>): void {
-    const collectionChangeNotifySubscribers = ([subscriber]): void => {
+    const collectionChangeNotifySubscribers = ([subscriber]: [
+      (CollectionChangeSet<Record>) => void,
+      any,
+    ]): void => {
       subscriber(operations)
     }
     this._subscribers.forEach(collectionChangeNotifySubscribers)
     this.changes.next(operations)
 
-    const collectionChangeNotifyModels = ({ record, type }): void => {
+    const collectionChangeNotifyModels = ({ record, type }: CollectionChange<Record>): void => {
       if (type === 'updated') {
         record._notifyChanged()
       } else if (type === 'destroyed') {

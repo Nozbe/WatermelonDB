@@ -1,6 +1,6 @@
 {
   "name": "React-RCTNetwork",
-  "version": "0.69.7",
+  "version": "0.71.1",
   "summary": "The networking library of React Native.",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
@@ -11,7 +11,7 @@
   "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness",
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.69.7"
+    "tag": "v0.71.1"
   },
   "source_files": "*.{m,mm}",
   "preserve_paths": [
@@ -28,22 +28,22 @@
   "frameworks": "MobileCoreServices",
   "dependencies": {
     "RCT-Folly": [
-      "2021.06.28.00-v2"
+      "2021.07.22.00"
     ],
     "React-Codegen": [
-      "0.69.7"
+      "0.71.1"
     ],
     "RCTTypeSafety": [
-      "0.69.7"
+      "0.71.1"
     ],
     "ReactCommon/turbomodule/core": [
-      "0.69.7"
+      "0.71.1"
     ],
     "React-jsi": [
-      "0.69.7"
+      "0.71.1"
     ],
     "React-Core/RCTNetworkHeaders": [
-      "0.69.7"
+      "0.71.1"
     ]
   }
 }

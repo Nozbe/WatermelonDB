@@ -1,17 +1,16 @@
 {
   "name": "React-logger",
-  "version": "0.69.7",
+  "version": "0.71.1",
   "summary": "-",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
   "authors": "Facebook, Inc. and its affiliates",
   "platforms": {
-    "ios": "12.4",
-    "tvos": "12.4"
+    "ios": "12.4"
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.69.7"
+    "tag": "v0.71.1"
   },
   "source_files": "*.{cpp,h}",
   "exclude_files": "SampleCxxModule.*",

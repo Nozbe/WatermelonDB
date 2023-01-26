@@ -63,7 +63,7 @@ export function appSchema({ version, tables: tableList, unsafeSql }: AppSchemaSp
   if (process.env.NODE_ENV !== 'production') {
     invariant(version > 0, `Schema version must be greater than 0`)
   }
-  const tables: TableMap = tableList.reduce((map, table) => {
+  const tables: TableMap = tableList.reduce<{ [TableName<any>]: TableSchema }>((map, table) => {
     if (process.env.NODE_ENV !== 'production') {
       invariant(typeof table === 'object' && table.name, `Table schema must contain a name`)
     }
@@ -119,7 +119,7 @@ export function tableSchema({
     validateName(name)
   }
 
-  const columns: ColumnMap = columnArray.reduce((map, column) => {
+  const columns: ColumnMap = columnArray.reduce<{ [ColumnName]: ColumnSchema }>((map, column) => {
     if (process.env.NODE_ENV !== 'production') {
       validateColumnSchema(column)
     }

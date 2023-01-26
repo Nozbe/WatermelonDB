@@ -221,7 +221,7 @@ async function recordsToApplyRemoteChangesTo<T: Model>(
   }
 }
 
-type AllRecordsToApply = { [TableName<any>]: RecordsToApplyRemoteChangesTo<Model> }
+type AllRecordsToApply = interface { [TableName<any>]: RecordsToApplyRemoteChangesTo<Model> }
 
 const getAllRecordsToApply = (
   remoteChanges: SyncDatabaseChangeSet,
@@ -241,9 +241,9 @@ const getAllRecordsToApply = (
 
         return !!collection
       }),
-      mapObj((changes, tableName: TableName<any>) => {
-        return recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes, context)
-      }),
+      mapObj((changes, tableName: TableName<any>) =>
+        recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes, context),
+      ),
     )(remoteChanges),
   )
 }
@@ -334,12 +334,15 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   return recordsToBatch
 }
 
-const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> => {
-  const promises = toPairs(recordsToApply).map(([tableName, { deletedRecordsToDestroy }]) => {
-    return deletedRecordsToDestroy.length
+const destroyAllDeletedRecords = (
+  db: Database,
+  recordsToApply: AllRecordsToApply,
+): Promise<void | Array<$Call<<T>(p: Promise<T> | T) => T, Promise<void>>>> => {
+  const promises = toPairs(recordsToApply).map(([tableName, { deletedRecordsToDestroy }]) =>
+    deletedRecordsToDestroy.length
       ? db.adapter.destroyDeletedRecords((tableName: any), deletedRecordsToDestroy)
-      : null
-  })
+      : null,
+  )
   return Promise.all(promises)
 }
 
@@ -361,7 +364,7 @@ const applyAllRemoteChanges = (
 const unsafeApplyAllRemoteChangesByBatches = (
   recordsToApply: AllRecordsToApply,
   context: ApplyRemoteChangesContext,
-): Promise<*> => {
+): Promise<Array<$Call<<T>(p: Promise<T> | T) => T, Promise<void>>>> => {
   const { db } = context
   const promises = []
   toPairs(recordsToApply).forEach(([tableName, records]) => {

@@ -1,7 +1,7 @@
 {
   "name": "React-jsi",
-  "version": "0.69.7",
-  "summary": "-",
+  "version": "0.71.1",
+  "summary": "JavaScript Interface layer for React Native",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
   "authors": "Facebook, Inc. and its affiliates",
@@ -10,17 +10,13 @@
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.69.7"
+    "tag": "v0.71.1"
   },
-  "source_files": "**/*.{cpp,h}",
-  "exclude_files": "**/test/*",
-  "frameworks": "JavaScriptCore",
+  "header_dir": "jsi",
   "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation",
   "pod_target_xcconfig": {
     "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/DoubleConversion\""
   },
-  "header_dir": "jsi",
-  "default_subspecs": "Default",
   "dependencies": {
     "boost": [
       "1.76.0"
@@ -29,21 +25,14 @@
 
     ],
     "RCT-Folly": [
-      "2021.06.28.00-v2"
+      "2021.07.22.00"
     ],
     "glog": [
 
+    ],
+    "hermes-engine": [
+
     ]
   },
-  "subspecs": [
-    {
-      "name": "Default"
-    },
-    {
-      "name": "Fabric",
-      "pod_target_xcconfig": {
-        "OTHER_CFLAGS": "$(inherited) -DRN_FABRIC_ENABLED"
-      }
-    }
-  ]
+  "source_files": "jsi/JSIDynamic.{cpp,h}"
 }

@@ -58,7 +58,9 @@ describe('synchronize', () => {
       database,
       pullChanges: async () => {
         // ensure we take more than 1ms for the log test
-        await new Promise((resolve) => setTimeout(resolve, 10))
+        await new Promise((resolve) => {
+          setTimeout(resolve, 10)
+        })
         return emptyPull()()
       },
       pushChanges: () => {},
@@ -122,7 +124,9 @@ describe('synchronize', () => {
 
     const pullChanges = async () => {
       // ensure we take more than 1ms for the log test
-      await new Promise((resolve) => setTimeout(resolve, 10))
+      await new Promise((resolve) => {
+        setTimeout(resolve, 10)
+      })
       return emptyPull()()
     }
     const log = {}

@@ -10,6 +10,7 @@ describe('LokiJSAdapter (Synchronous / Memory persistence)', () => {
   commonTests().forEach((testCase) => {
     const [name, test] = testCase
 
+    // eslint-disable-next-line jest/valid-title
     it(name, async () => {
       const dbName = `test${Math.random()}`
       const adapter = new LokiJSAdapter({

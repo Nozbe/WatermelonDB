@@ -45,6 +45,7 @@ export function prepareCreateFromRaw<T: Model>(collection: Collection<T>, dirtyR
   // TODO: Think more deeply about this - it's probably unnecessary to do this check, since it would
   // mean malicious sync server, which is a bigger problem
   invariant(
+    // $FlowFixMe
     !Object.prototype.hasOwnProperty.call(dirtyRaw, '__proto__'),
     'Malicious dirtyRaw detected - contains a __proto__ key',
   )
@@ -120,6 +121,7 @@ export function prepareUpdateFromRaw<T: Model>(
 }
 
 export function prepareMarkAsSynced<T: Model>(record: T): T {
+  // $FlowFixMe
   const newRaw = Object.assign({}, record._raw, { _status: 'synced', _changed: '' }) // faster than object spread
   // $FlowFixMe
   return record.prepareUpdate(() => {

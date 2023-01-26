@@ -19,6 +19,7 @@ export default function subscribeToSimpleQuery<Record: Model>(
   let unsubscribed = false
   let unsubscribe = null
 
+  // eslint-disable-next-line prefer-arrow-callback
   query.collection._fetchQuery(query, function observeQueryInitialEmission(result): void {
     if (unsubscribed) {
       return
@@ -43,12 +44,14 @@ export default function subscribeToSimpleQuery<Record: Model>(
 
     // Observe changes to the collection
     const debugInfo = { name: 'subscribeToSimpleQuery', query, subscriber }
+    // eslint-disable-next-line prefer-arrow-callback
     unsubscribe = query.collection.experimentalSubscribe(function observeQueryCollectionChanged(
       changeSet,
     ): void {
       if (!matcher) {
         matcher = require('../encodeMatcher').default(query.description)
       }
+      // $FlowFixMe
       const shouldEmit = require('./processChangeSet').default(changeSet, matcher, matchingRecords)
       if (shouldEmit || alwaysEmit) {
         emitCopy()

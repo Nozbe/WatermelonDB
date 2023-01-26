@@ -57,7 +57,7 @@ export default class LokiDispatcher {
   call<T>(
     type: WorkerExecutorType,
     payload: WorkerExecutorPayload = [],
-    callback: ResultCallback<T>,
+    callback: ResultCallback<T> = () => {},
     // NOTE: This are used when not using web workers (otherwise, the data naturally is just copied)
     cloneMethod: CloneMethod = 'immutable',
     returnCloneMethod: CloneMethod = 'immutable',

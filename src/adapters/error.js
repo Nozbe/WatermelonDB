@@ -4,7 +4,7 @@
 // Used as a placeholder during reset database to catch illegal
 // adapter calls
 
-const throwError = (name) => {
+const throwError = (name: string) => {
   throw new Error(`Cannot call database.adapter.${name} while the database is being reset`)
 }
 

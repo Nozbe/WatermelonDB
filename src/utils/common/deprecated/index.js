@@ -2,7 +2,7 @@
 
 import logger from '../logger'
 
-const deprecationsReported = {}
+const deprecationsReported: { [string]: boolean } = {}
 
 export default function deprecated(name: string, deprecationInfo: string): void {
   if (!deprecationsReported[name]) {

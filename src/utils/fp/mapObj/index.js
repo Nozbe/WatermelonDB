@@ -16,7 +16,7 @@ function mapObj(fn: (any, string, any) => any, obj: {}): any {
     // $FlowFixMe
     return (_obj) => mapObj(fn, _obj)
   }
-  const result = {}
+  const result: { [string]: any } = {}
   for (const prop in obj) {
     result[prop] = fn(obj[prop], prop, obj)
   }

@@ -6,8 +6,10 @@ require_relative '../../node_modules/@react-native-community/cli-platform-ios/na
 
 platform :ios, '15.0'
 
-hermes_enabled = false
+hermes_enabled = true
 enable_jslock_hack = false
+
+# prepare_react_native_project!
 
 target 'WatermelonTester' do
   config = use_native_modules!
@@ -15,29 +17,22 @@ target 'WatermelonTester' do
 
   use_react_native!(
     path: '../../node_modules/react-native',
-    production: false,
     hermes_enabled: hermes_enabled,
     fabric_enabled: false,
     app_path: "#{Pod::Config.instance.installation_root}/../.."
   )
 
-  pod 'React-jsi', path: '../../node_modules/react-native/ReactCommon/jsi', modular_headers: true
   pod 'WatermelonDB', path: '../../'
-  pod 'simdjson', path: '../../node_modules/@nozbe/simdjson'
-
-  # post_install do |installer|
-  #   react_native_post_install(installer)
-  # end
+  # pod 'React-jsi', path: '../../node_modules/react-native/ReactCommon/jsi', modular_headers: true
+  # pod 'simdjson', path: '../../node_modules/@nozbe/simdjson'
 
   target 'WatermelonTesterTests' do
     inherit! :search_paths
-    use_frameworks!
-
   end
 end
 
 post_install do |installer|
-  react_native_post_install(installer)
+  react_native_post_install(installer, '../../node_modules/react-native')
   # __apply_Xcode_12_5_M1_post_install_workaround(installer)
 
   installer.pods_project.targets.each do |target|

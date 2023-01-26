@@ -105,6 +105,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     return this._initPromise
   }
 
+  // eslint-disable-next-line no-use-before-define
   async testClone(options?: $Shape<SQLiteAdapterOptions> = {}): Promise<SQLiteAdapter> {
     // $FlowFixMe
     const clone = new SQLiteAdapter({

@@ -16,35 +16,35 @@ import type Query from '../../Query'
 // Example: a Task has_many Comments, so it may define:
 //   @children('comment') comments: Query<Comment>
 
-const children: Decorator = makeDecorator((childTable: TableName<any>) => () => {
-  return {
-    get(): Query<Model> {
-      // Use cached Query if possible
-      this._childrenQueryCache = this._childrenQueryCache || {}
-      const cachedQuery = this._childrenQueryCache[childTable]
-      if (cachedQuery) {
-        return cachedQuery
-      }
+const children: Decorator = makeDecorator((childTable: TableName<any>) => () => ({
+  get(): Query<Model> {
+    // $FlowFixMe
+    const that = this
+    // Use cached Query if possible
+    that._childrenQueryCache = that._childrenQueryCache || {}
+    const cachedQuery = that._childrenQueryCache[childTable]
+    if (cachedQuery) {
+      return cachedQuery
+    }
 
-      // Cache new Query
-      const model: Model = this.asModel
-      const childCollection = model.collections.get(childTable)
+    // Cache new Query
+    const model: Model = that.asModel
+    const childCollection = model.collections.get(childTable)
 
-      const association = model.constructor.associations[childTable]
-      invariant(
-        association && association.type === 'has_many',
-        `@children decorator used for a table that's not has_many`,
-      )
+    const association = model.constructor.associations[childTable]
+    invariant(
+      association && association.type === 'has_many',
+      `@children decorator used for a table that's not has_many`,
+    )
 
-      const query = childCollection.query(Q.where(association.foreignKey, model.id))
+    const query = childCollection.query(Q.where(association.foreignKey, model.id))
 
-      this._childrenQueryCache[childTable] = query
-      return query
-    },
-    set(): void {
-      logError('Setter called on a @children-marked property')
-    },
-  }
-})
+    that._childrenQueryCache[childTable] = query
+    return query
+  },
+  set(): void {
+    logError('Setter called on a @children-marked property')
+  },
+}))
 
 export default children

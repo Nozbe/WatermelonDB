@@ -16,7 +16,7 @@ function filterObj(predicate: (any, any, any) => any, obj: {}): any {
     // $FlowFixMe
     return (_obj) => filterObj(predicate, _obj)
   }
-  const result = {}
+  const result: { [string]: any } = {}
   let value
   for (const prop in obj) {
     value = obj[prop]

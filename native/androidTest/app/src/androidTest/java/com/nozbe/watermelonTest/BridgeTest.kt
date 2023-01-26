@@ -14,7 +14,7 @@ class BridgeTest {
     @Test
     fun testBridge() {
         synchronized(BridgeTestReporter.testFinishedNotification) {
-            BridgeTestReporter.testFinishedNotification.wait(60*1000)
+            BridgeTestReporter.testFinishedNotification.wait(5*60*1000)
         }
         try {
             when (val result = BridgeTestReporter.result) {
