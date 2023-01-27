@@ -11,7 +11,7 @@ import java.io.File
 class Database private constructor(private val db: SQLiteDatabase) {
     companion object {
         @Volatile
-        private var INSTANCE: Database? = null
+        private var INSTANCES: MutableMap<String, Database> = mutableMapOf()
 
         @JvmStatic
         fun getInstance(
@@ -21,13 +21,13 @@ class Database private constructor(private val db: SQLiteDatabase) {
                 SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING
         ): Database =
             synchronized(this) {
-                if (INSTANCE?.isOpen != true) {
+                if (INSTANCES[name]?.isOpen != true) {
                     buildDatabase(
                         name,
                         context,
                         openFlags
-                    ).also { INSTANCE = it }
-                } else INSTANCE as Database
+                    ).also { INSTANCES[name] = it }
+                } else INSTANCES[name] as Database
             }
 
         private fun buildDatabase(name: String, context: Context, openFlags: Int) =
@@ -113,8 +113,7 @@ class Database private constructor(private val db: SQLiteDatabase) {
             }
         }
 
-//    fun unsafeResetDatabase() = context.deleteDatabase("$name.db")
-
+    //    fun unsafeResetDatabase() = context.deleteDatabase("$name.db")
     fun unsafeDestroyEverything() =
         transaction {
             getAllTables().forEach { execute(Queries.dropTable(it)) }
