@@ -9,6 +9,7 @@ import type {
   SQLiteAdapterOptions,
   SqliteDispatcher,
   SqliteDispatcherMethod,
+  SqliteDispatcherOptions,
 } from '../type'
 
 class SqliteNodeDispatcher implements SqliteDispatcher {
@@ -34,7 +35,7 @@ export const makeDispatcher = (
   _type: DispatcherType,
   tag: ConnectionTag,
   _dbName: string,
-  _usesExclusiveLocking: boolean,
+  _options: SqliteDispatcherOptions,
 ): SqliteDispatcher => {
   return new SqliteNodeDispatcher(tag)
 }

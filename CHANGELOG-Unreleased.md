@@ -25,8 +25,11 @@
 
 ### New features
 
+- [Android] Added `experimentalUnsafeNativeReuse` option to SQLiteAdapter. See `src/adapters/sqlite/type.js` for more details
+
 ### Fixes
 
+- [JSI] Improved reliability when reloading RCTBridge
 - Fix compilation on Kotlin 1.7
 - Fix regression in Sync that could cause `Record ID xxx#yyy was sent over the bridge, but it's not cached` error
 - Fix "range of supported deployment targets" Xcode warning
