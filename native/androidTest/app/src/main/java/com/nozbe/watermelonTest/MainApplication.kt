@@ -19,11 +19,7 @@ class MainApplication : Application(), ReactApplication {
         override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
 
         override fun getPackages(): List<ReactPackage> =
-                Arrays.asList<ReactPackage>(
-                        MainReactPackage(),
-                        NativeModulesPackage(),
-                        WatermelonDBPackage()
-                )
+                listOf(MainReactPackage(), NativeModulesPackage(), WatermelonDBPackage())
 
         override fun getJSIModulePackage(): JSIModulePackage? {
             return JSIModulePackage { reactApplicationContext, jsContext ->
