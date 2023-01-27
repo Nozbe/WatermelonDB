@@ -120,9 +120,16 @@ void Database::install(jsi::Runtime *runtime) {
         // we route via NativeModuleRegistry onCatalystInstanceDestroy -> DatabaseBridge ->
         // WatermelonJSI via reflection (and switch to the currect thread - important!) and then to
         // individual Database objects via this listener callback. It's ugly, but should work.
+        //
+        // 2023 update: Check if the above is still true, given https://github.com/Nozbe/WatermelonDB/issues/1474
+        // showed that the true cause of the pthread_mutex_lock crash is something else.
+        // On the other hand, it's still true that invalidation happens asynchronously and could happen
+        // after new bridge is already set up, which could cause locking issues (and a case was found on iOS where
+        // this does happen)
         std::weak_ptr<Database> weakDatabase = database;
         platform::onDestroy([weakDatabase]() {
             if (auto databaseToDestroy = weakDatabase.lock()) {
+                consoleLog("Destroying database due to RCTBridge invalidation");
                 databaseToDestroy->destroy();
             }
         });
