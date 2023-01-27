@@ -17,6 +17,7 @@ describe.each([
 ])('%s (%s/%s)', (adapterSubclass, fileString) => {
   commonTests().forEach((testCase) => {
     const [name, test] = testCase
+    // eslint-disable-next-line jest/valid-title
     it(name, async () => {
       const file = fileString.toLowerCase() === 'file'
       const dbName = `${process.cwd()}/test${Math.random()}.db${

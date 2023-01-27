@@ -11,6 +11,7 @@
 #endif
 
 #import "Bridging.h"
+#import "JSIInstaller.h"
 
 FOUNDATION_EXPORT double WatermelonDBVersionNumber;
 FOUNDATION_EXPORT const unsigned char WatermelonDBVersionString[];

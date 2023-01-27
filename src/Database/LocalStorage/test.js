@@ -1,7 +1,7 @@
 import { mockDatabase } from '../../__tests__/testModels'
 import LocalStorage from '.'
 
-export const simpleMockDatabase = () => {
+const simpleMockDatabase = () => {
   const storage = {}
   return {
     storage,

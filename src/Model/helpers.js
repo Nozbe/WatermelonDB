@@ -9,7 +9,7 @@ import type Query from '../Query/index'
 type TimestampsObj = $Exact<{ created_at?: number, updated_at?: number }>
 export const createTimestampsFor = (model: Model): TimestampsObj => {
   const date = Date.now()
-  const timestamps = {}
+  const timestamps: $Shape<TimestampsObj> = {}
 
   if ('createdAt' in model) {
     timestamps.created_at = date
@@ -19,7 +19,7 @@ export const createTimestampsFor = (model: Model): TimestampsObj => {
     timestamps.updated_at = date
   }
 
-  return (timestamps: any)
+  return timestamps
 }
 
 function getChildrenQueries(model: Model): Query<Model>[] {
@@ -33,7 +33,7 @@ function getChildrenQueries(model: Model): Query<Model>[] {
 }
 
 async function fetchDescendantsInner(model: Model): Promise<Model[]> {
-  const childPromise = async (query) => {
+  const childPromise = async (query: Query<Model>) => {
     const children = await query.fetch()
     const grandchildren = await allPromises(fetchDescendantsInner, children)
     return unnest(grandchildren).concat(children)

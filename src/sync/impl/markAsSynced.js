@@ -39,14 +39,13 @@ const destroyDeletedRecords = (
   db: Database,
   { changes }: SyncLocalChanges,
   allRejectedIds: SyncRejectedIds,
-): Promise<any>[] => {
-  return Object.keys(changes).map((_tableName) => {
+): Promise<any>[] =>
+  Object.keys(changes).map((_tableName) => {
     const tableName: TableName<any> = (_tableName: any)
     const rejectedIds = new Set(allRejectedIds[tableName])
     const deleted = changes[tableName].deleted.filter((id) => !rejectedIds.has(id))
     return deleted.length ? db.adapter.destroyDeletedRecords(tableName, deleted) : Promise.resolve()
   })
-}
 
 export default function markLocalChangesAsSynced(
   db: Database,

@@ -1,0 +1,1 @@
+../../../../../RCT-Folly/folly/detail/StaticSingletonManager.h

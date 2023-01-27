@@ -470,7 +470,10 @@ describe('Database', () => {
     })
   })
 
-  const delayPromise = () => new Promise((resolve) => setTimeout(resolve, 100))
+  const delayPromise = () =>
+    new Promise((resolve) => {
+      setTimeout(resolve, 100)
+    })
 
   describe('Database readers/writers', () => {
     it('can execute a writer block', async () => {

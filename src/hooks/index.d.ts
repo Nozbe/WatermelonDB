@@ -1,3 +1,3 @@
 import type Database from '../Database'
 
-  export function useDatabase(): Database
+export function useDatabase(): Database

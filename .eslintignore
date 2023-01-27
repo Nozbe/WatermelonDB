@@ -2,3 +2,5 @@ node_modules/
 dist/
 flow-typed/
 dev/
+; FIXME: Temporary, should be deleted after #1477 is merged
+**/*.ts

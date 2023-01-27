@@ -1,0 +1,43 @@
+{
+  "name": "React-RCTAppDelegate",
+  "version": "0.71.1",
+  "summary": "An utility library to simplify common operations for the New Architecture",
+  "homepage": "https://reactnative.dev/",
+  "documentation_url": "https://reactnative.dev/docs/actionsheetios",
+  "license": "MIT",
+  "authors": "Facebook, Inc. and its affiliates",
+  "platforms": {
+    "ios": "12.4"
+  },
+  "source": {
+    "git": "https://github.com/facebook/react-native.git",
+    "tag": "v0.71.1"
+  },
+  "source_files": "**/*.{c,h,m,mm,S,cpp}",
+  "compiler_flags": "$(inherited) -DRN_FABRIC_ENABLED -DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
+  "pod_target_xcconfig": {
+    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_ROOT)/Headers/Private/React-Core\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/RCT-Folly\" \"${PODS_ROOT}/Headers/Public/FlipperKit\" \"$(PODS_ROOT)/Headers/Public/ReactCommon\" \"$(PODS_ROOT)/Headers/Public/React-RCTFabric\" \"$(PODS_ROOT)/Headers/Public/React-hermes\" \"$(PODS_ROOT)/Headers/Public/hermes-engine\"",
+    "OTHER_CPLUSPLUSFLAGS": "$(inherited) -DRN_FABRIC_ENABLED -DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++17"
+  },
+  "user_target_xcconfig": {
+    "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/Headers/Private/React-Core\""
+  },
+  "dependencies": {
+    "React-Core": [
+
+    ],
+    "RCT-Folly": [
+
+    ],
+    "RCTRequired": [
+
+    ],
+    "RCTTypeSafety": [
+
+    ],
+    "ReactCommon/turbomodule/core": [
+
+    ]
+  }
+}

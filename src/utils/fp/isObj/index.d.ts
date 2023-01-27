@@ -1,3 +1,3 @@
 // @flow
 
-export default function isObj<T>(maybeObject: T): boolean;
+export default function isObj<T>(maybeObject: T): boolean

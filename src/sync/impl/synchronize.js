@@ -12,11 +12,12 @@ import {
   getMigrationInfo,
 } from './index'
 import { ensureSameDatabase, isChangeSetEmpty, changeSetCount } from './helpers'
-import { type SyncArgs, type Timestamp } from '../index'
+import type { SyncArgs, Timestamp, SyncPullStrategy } from '../index'
 
 export default async function synchronize({
   database,
   pullChanges,
+  onWillApplyRemoteChanges,
   onDidPullChanges,
   pushChanges,
   sendCreatedAsUpdated = false,
@@ -53,6 +54,11 @@ export default async function synchronize({
   log && (log.phase = 'pulled')
 
   let newLastPulledAt: Timestamp = (pullResult: any).timestamp
+  const remoteChangeCount = pullResult.changes ? changeSetCount(pullResult.changes) : NaN
+
+  if (onWillApplyRemoteChanges) {
+    await onWillApplyRemoteChanges({ remoteChangeCount })
+  }
 
   await database.write(async () => {
     ensureSameDatabase(database, resetCount)
@@ -92,15 +98,16 @@ export default async function synchronize({
     if (!unsafeTurbo) {
       // $FlowFixMe
       const { changes: remoteChanges, ...resultRest } = pullResult
-      log && (log.remoteChangeCount = changeSetCount(remoteChanges))
-      await applyRemoteChanges(
-        database,
-        remoteChanges,
+      log && (log.remoteChangeCount = remoteChangeCount)
+      // $FlowFixMe
+      await applyRemoteChanges(remoteChanges, {
+        db: database,
+        strategy: ((pullResult: any).experimentalStrategy: ?SyncPullStrategy),
         sendCreatedAsUpdated,
         log,
         conflictResolver,
         _unsafeBatchPerCollection,
-      )
+      })
       onDidPullChanges && onDidPullChanges(resultRest)
     }
 

@@ -76,9 +76,8 @@ class Database {
     })
   }
 
-  set userVersion(version: number): number {
+  set userVersion(version: number): void {
     this.instance.pragma(`user_version = ${version}`)
-    return this.userVersion
   }
 
   unsafeDestroyEverything(): void {

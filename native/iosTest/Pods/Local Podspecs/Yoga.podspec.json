@@ -11,7 +11,7 @@
   "authors": "Facebook",
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.63.4"
+    "tag": "v0.71.1"
   },
   "module_name": "yoga",
   "header_dir": "yoga",
@@ -24,13 +24,12 @@
     "-fexceptions",
     "-Wall",
     "-Werror",
-    "-std=c++1y",
+    "-std=c++17",
     "-fPIC"
   ],
   "platforms": {
-    "ios": "10.0",
-    "tvos": "10.0"
+    "ios": "12.4"
   },
   "source_files": "yoga/**/*.{cpp,h}",
-  "public_header_files": "yoga/{Yoga,YGEnums,YGMacros,YGValue}.h"
+  "public_header_files": "yoga/*.h"
 }

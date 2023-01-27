@@ -401,8 +401,7 @@ const syncStatusColumn = columnName('_status')
 const extractClauses: (Clause[]) => QueryDescription = (clauses) => {
   const query = { where: [], joinTables: [], nestedJoinTables: [], sortBy: [] }
   clauses.forEach((clause) => {
-    const { type } = clause
-    switch (type) {
+    switch (clause.type) {
       case 'where':
       case 'and':
       case 'or':
@@ -410,11 +409,12 @@ const extractClauses: (Clause[]) => QueryDescription = (clauses) => {
       case 'loki':
         query.where.push(clause)
         break
-      case 'on':
-        // $FlowFixMe
-        query.joinTables.push(clause.table)
+      case 'on': {
+        const { table } = clause
+        query.joinTables.push(table)
         query.where.push(clause)
         break
+      }
       case 'sortBy':
         query.sortBy.push(clause)
         break
@@ -426,10 +426,11 @@ const extractClauses: (Clause[]) => QueryDescription = (clauses) => {
         // $FlowFixMe
         query.skip = clause.count
         break
-      case 'joinTables':
-        // $FlowFixMe
-        query.joinTables.push(...clause.tables)
+      case 'joinTables': {
+        const { tables } = clause
+        query.joinTables.push(...tables)
         break
+      }
       case 'nestedJoinTable':
         // $FlowFixMe
         query.nestedJoinTables.push({ from: clause.from, to: clause.to })
@@ -461,7 +462,7 @@ const extractClauses: (Clause[]) => QueryDescription = (clauses) => {
   // We won't support this anymore, but will warn about suboptimal queries
   // TODO: Remove after 2022-01-01
   if (process.env.NODE_ENV !== 'production') {
-    const onsEncountered = {}
+    const onsEncountered: { [string]: boolean } = {}
     query.where.forEach((clause) => {
       if (clause.type === 'on') {
         const table = (clause.table: string)

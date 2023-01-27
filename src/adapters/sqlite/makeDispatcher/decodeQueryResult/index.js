@@ -21,7 +21,7 @@ export default function decodeQueryResult(compressedRecords: any[]): any[] {
     if (typeof compressedRecord === 'string') {
       rawRecord = compressedRecord
     } else {
-      rawRecord = {}
+      rawRecord = ({}: { [any]: any })
       for (let j = 0; j < columnsLen; j++) {
         rawRecord[columnNames[j]] = compressedRecord[j]
       }

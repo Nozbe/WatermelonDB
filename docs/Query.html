@@ -272,17 +272,20 @@ database.get('comments').query(
 <tr><td><code>Q.where('status', Q.notIn(['archived', 'deleted']))</code></td><td><code>status !== 'archived' &amp;&amp; status !== 'deleted'</code></td></tr>
 <tr><td><code>Q.where('status', Q.like('%bl_sh%'))</code></td><td><code>/.*bl.sh.*/i</code> (See note below!)</td></tr>
 <tr><td><code>Q.where('status', Q.notLike('%bl_sh%'))</code></td><td><code>/^((!?.*bl.sh.*).)*$/i</code> (Inverse regex match) (See note below!)</td></tr>
+<tr><td><code>Q.where('status', Q.includes('promoted'))</code></td><td><code>status.includes('promoted')</code></td></tr>
 </tbody></table>
-<p><strong>Note:</strong> It's NOT SAFE to use <code>Q.like</code> and <code>Q.notLike</code> with user input directly, because special characters like <code>%</code> or <code>_</code> are not escaped. Always sanitize user input like so:</p>
-<pre><code class="language-js">Q.like(`%${Q.sanitizeLikeString(userInput)}%`)
-Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
-</code></pre>
+<h3 id="like--not-like"><a class="header" href="#like--not-like">LIKE / NOT LIKE</a></h3>
 <p>You can use <code>Q.like</code> for search-related tasks. For example, to find all users whose username start with &quot;jas&quot; (case-insensitive) you can write</p>
 <pre><code class="language-js">usersCollection.query(
   Q.where(&quot;username&quot;, Q.like(`${Q.sanitizeLikeString(&quot;jas&quot;)}%`)
 )
 </code></pre>
 <p>where <code>&quot;jas&quot;</code> can be changed dynamically with user input.</p>
+<p>Note that the behavior of <code>Q.like</code> is not exact and can differ somewhat between implementations (SQLite vs LokiJS). For instance, while the comparison is case-insensitive, SQLite cannot by default compare non-ASCII characters case-insensitively (unless you install ICU extension). Use <code>Q.like</code> for user input search, but not for tasks that require a precise matching behavior.</p>
+<p><strong>Note:</strong> It's NOT SAFE to use <code>Q.like</code> and <code>Q.notLike</code> with user input directly, because special characters like <code>%</code> or <code>_</code> are not escaped. Always sanitize user input like so:</p>
+<pre><code class="language-js">Q.like(`%${Q.sanitizeLikeString(userInput)}%`)
+Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
+</code></pre>
 <h3 id="andor-nesting"><a class="header" href="#andor-nesting">AND/OR nesting</a></h3>
 <p>You can nest multiple conditions using <code>Q.and</code> and <code>Q.or</code>:</p>
 <pre><code class="language-js">database.get('comments').query(

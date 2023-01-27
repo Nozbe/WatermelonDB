@@ -2,36 +2,31 @@
 
 ## Unreleased
 
-### BREAKING CHANGES
+### Highlights
 
-- [Query] `Q.where(xxx, undefined)` will now throw an error. This is a bug fix, since comparing to
-  undefined was never allowed and would either error out or produce a wrong result in some cases.
-  However, it could technically break an app that relied on existing buggy behavior
+### BREAKING CHANGES
 
 ### Deprecations
 
 ### New features
 
-- [adapters] Adapter objects can now be distinguished by checking their `static adapterType`
-- [Query] New `Q.includes('foo')` query for case-sensitive exact string includes comparison
-- [adapters] Adapter objects now returns `dbName`
-- [TypeScript] Add unsafeExecute method
-- [TypeScript] Add localStorage property to Database
+### Fixes
+
+- Fix compilation on Kotlin 1.7
+- Fix regression in Sync that could cause `Record ID xxx#yyy was sent over the bridge, but it's not cached` error
 
 ### Performance
 
-- [LokiJS] Updated Loki with some performance improvements
-- [iOS] JSLockPerfHack now works on iOS 15
-- Improved `@json` decorator, now with optional `{ memo: true }` parameter
-
 ### Changes
 
-- [Docs] Added additional Android JSI installation step
-
-### Fixes
-
-- [android] Fixed compilation on some setups due to a missing <cassert> import
-- [sync] Fixed marking changes as synced for users that don't keep globally unique (only per-table unique) IDs
-- Fix `Model.experimentalMarkAsDeleted/experimentalDestroyPermanently()` throwing an error in some cases
+- Updated `@babel/runtime` to 7.20.13
+- Updated `rxjs` to 7.8.0
+- Updated `sqlite` (SQLite used on Android in JSI mode) to 3.40.1
+- Updated `simdjson` to 3.1.0
+- [flow] Updated Flow version used in the project to 198.1. This shouldn't have an impact on you, but could fix or break Flow if you don't have WatermelonDB set to `[declarations]` mode
+- [flow] Clarified docs to recommend the use of `[declarations]` mode for WatermelonDB
 
 ### Internal
+
+- Update internal dependencies
+- Fix Android CI

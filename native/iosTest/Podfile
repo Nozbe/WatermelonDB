@@ -1,17 +1,25 @@
-source 'https://github.com/CocoaPods/Specs.git'
+# source 'https://github.com/CocoaPods/Specs.git'
 workspace 'WatermelonTester.xcworkspace'
 
 require_relative '../../node_modules/react-native/scripts/react_native_pods'
 require_relative '../../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-platform :ios, '13.0'
+platform :ios, '15.0'
+
+hermes_enabled = true
+enable_jslock_hack = false
+
+# prepare_react_native_project!
 
 target 'WatermelonTester' do
   config = use_native_modules!
+  flags = get_default_flags()
 
   use_react_native!(
     path: '../../node_modules/react-native',
-    # hermes_enabled: false
+    hermes_enabled: hermes_enabled,
+    fabric_enabled: false,
+    app_path: "#{Pod::Config.instance.installation_root}/../.."
   )
 
   pod 'React-jsi', path: '../../node_modules/react-native/ReactCommon/jsi', modular_headers: true
@@ -30,12 +38,20 @@ target 'WatermelonTester' do
 end
 
 post_install do |installer|
+  react_native_post_install(installer, '../../node_modules/react-native')
+  # __apply_Xcode_12_5_M1_post_install_workaround(installer)
+
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= %w[
         $(inherited)
         CCACHE_HACK_TOOLCHAIN_DIR="$(TOOLCHAIN_DIR)"
       ]
+      if !hermes_enabled && enable_jslock_hack
+        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'].push(
+          'ENABLE_JSLOCK_PERFORMANCE_HACK=1',
+        )
+      end
       # ccache bails out of caching if clang modules are enabled, but this breaks some packages
       # you also have to be careful about PCHs
       # sometimes you might have to manually add a system framework to project Link phase

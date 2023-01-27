@@ -1,9 +1,4 @@
 #import "JSLockPerfHack.h"
-#import <UIKit/UIKit.h>
-#import <JavaScriptCore/JavaScriptCore.h>
-#import <jsi/JSCRuntime.h>
-#import <objc/runtime.h>
-#import <objc/message.h>
 
 using namespace facebook;
 
@@ -38,8 +33,18 @@ using namespace facebook;
 //   https://github.com/WebKit/WebKit/commit/03a825dad22db819967f3b19e00d3ac23ec31d2b#diff-a001581271f7e2b5dbace303c1a9a1d39b0a183c43dd63a7951cb4f57b42163d
 //
 // To enable this hack, pass -DENABLE_JSLOCK_PERFORMANCE_HACK compiler flag
+//
+// 2023 update:
+// - it seems that JSLock/JSUnlock are still private
+// - this perf hack is basically unmaintained, because we moved to Hermes. But it almost surely still works,
+//   so please contribute if you still need it on iOS 16 / RN 0.71+
 
 #ifdef ENABLE_JSLOCK_PERFORMANCE_HACK
+
+#import <JavaScriptCore/JavaScriptCore.h>
+#import <jsi/JSCRuntime.h>
+#import <objc/runtime.h>
+#import <objc/message.h>
 
 namespace watermelondb {
 std::function<void (void)> *blockToExecute = nullptr;

@@ -1,1 +1,2 @@
 native/iosTests/Pods/* linguist-generated=true
+*.pbxproj -text

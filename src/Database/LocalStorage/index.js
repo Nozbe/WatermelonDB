@@ -45,7 +45,7 @@ export default class LocalStorage {
     return this._db.adapter.setLocal(key, json)
   }
 
-  async remove(key: LocalStorageKey<*>): Promise<void> {
+  async remove(key: LocalStorageKey<any>): Promise<void> {
     return this._db.adapter.removeLocal(key)
   }
 }

@@ -6,7 +6,6 @@
 const Listr = require('listr')
 const listrInput = require('listr-input')
 const execa = require('execa')
-const timeout = require('p-timeout')
 const inquirer = require('inquirer')
 const semver = require('semver')
 
@@ -19,14 +18,19 @@ const increments = ['patch', 'minor', 'major', 'prepatch', 'preminor', 'premajor
 // const prerelease = ['prepatch', 'preminor', 'premajor', 'prerelease']
 
 const belongsToIncrements = flippedIncludes(increments)
-const isValidVersion = input => Boolean(semver.valid(input))
-const isVersionGreater = input => semver.gt(input, pkg.version)
-const getNewVersion = input => semver.inc(pkg.version, input)
+const isValidVersion = (input) => Boolean(semver.valid(input))
+const isVersionGreater = (input) => semver.gt(input, pkg.version)
+const getNewVersion = (input) => semver.inc(pkg.version, input)
 const isValidAndGreaterVersion = both(isValidVersion, isVersionGreater)
 
-const throwError = str => info => {
+const throwError = (str) => (info) => {
   throw new Error(str, JSON.stringify(info))
 }
+
+const promiseTimeoutError = (errorMessage, ms) =>
+  new Promise((_, reject) => {
+    setTimeout(reject, ms, new Error(errorMessage))
+  })
 
 const skipChecks = process.argv.includes('--skip-checks')
 
@@ -37,7 +41,7 @@ const questions = [
     message: `Specify new version (current version: ${pkg.version}):`,
     pageSize: add(increments.length, 4),
     choices: increments
-      .map(inc => ({
+      .map((inc) => ({
         name: `${inc} 	${semver.inc(pkg.version, inc)}`,
         value: inc,
       }))
@@ -48,18 +52,18 @@ const questions = [
           value: null,
         },
       ]),
-    filter: input => (belongsToIncrements(input) ? getNewVersion(input) : input),
+    filter: (input) => (belongsToIncrements(input) ? getNewVersion(input) : input),
   },
   {
     type: 'input',
     name: 'version',
     message: 'Version:',
-    when: answers => !answers.version,
-    validate: input => isValidAndGreaterVersion(input),
+    when: (answers) => !answers.version,
+    validate: (input) => isValidAndGreaterVersion(input),
   },
 ]
 
-const buildTasks = options => {
+const buildTasks = (options) => {
   const { version } = options
 
   const isPrerelease = includes('-', version)
@@ -72,10 +76,9 @@ const buildTasks = options => {
     {
       title: 'ping npm registry',
       task: () =>
-        timeout(
+        Promise.race(
           execa('npm', ['ping']).catch(throwError('connection to npm registry failed')),
-          5000,
-          'Connection to npm registry timed out',
+          promiseTimeoutError('Connection to npm registry timed out', 5000),
         ),
     },
     ...(isPrerelease
@@ -117,23 +120,27 @@ const buildTasks = options => {
               ),
           },
         ]),
-    ...(!skipChecks ? [
-      {
-        title: 'check tests',
-        task: () => execa('yarn', ['test']),
-      },
-      {
-        title: 'check flow',
-        task: () => execa('yarn', ['flow']),
-      },
-      {
-        title: 'check eslint',
-        task: () => execa('yarn', ['eslint']),
-      },
-    ] : [{
-      title: 'WARN: Skipping test/flow/lint checks',
-      task: () => {},
-    }]),
+    ...(!skipChecks
+      ? [
+          {
+            title: 'check tests',
+            task: () => execa('yarn', ['test']),
+          },
+          {
+            title: 'check flow',
+            task: () => execa('yarn', ['flow']),
+          },
+          {
+            title: 'check eslint',
+            task: () => execa('yarn', ['eslint']),
+          },
+        ]
+      : [
+          {
+            title: 'WARN: Skipping test/flow/lint checks',
+            task: () => {},
+          },
+        ]),
     // TODO: Bring those back when metro config is fixed
     // {
     //   title: 'check iOS tests',
@@ -160,8 +167,8 @@ const buildTasks = options => {
       task: () => {
         console.log('\u0007')
         return listrInput('2-Factor Authentication code', {
-          validate: otp => otp.length > 0,
-          done: otp =>
+          validate: (otp) => otp.length > 0,
+          done: (otp) =>
             execa('npm', [
               'publish',
               `./dist/nozbe-watermelondb-v${version}.tgz`,
@@ -191,7 +198,7 @@ const buildTasks = options => {
   ]
 }
 
-inquirer.prompt(questions).then(options => {
+inquirer.prompt(questions).then((options) => {
   const tasks = buildTasks(options)
   const listr = new Listr(tasks)
   listr.run()

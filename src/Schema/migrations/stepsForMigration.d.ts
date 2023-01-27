@@ -8,7 +8,7 @@ export function stepsForMigration({
   fromVersion,
   toVersion,
 }: $Exact<{
-  migrations: SchemaMigrations,
-  fromVersion: SchemaVersion,
-  toVersion: SchemaVersion,
+  migrations: SchemaMigrations
+  fromVersion: SchemaVersion
+  toVersion: SchemaVersion
 }>): MigrationStep[] | null

@@ -20,6 +20,6 @@ type Pipe = (<A, B, C, D, E, F, G>(
   (<A, B, C>(ab: (A) => B, bc: (B) => C) => (A) => C) &
   (<A, B>(ab: (A) => B) => (A) => B)
 
-declare function pipe(...fns: ((any) => any)[]): Pipe;
+declare function pipe(...fns: ((any) => any)[]): Pipe
 
 export default pipe

@@ -23,58 +23,58 @@ export type UnsafeExecuteOperations =
   | $Exact<{ loki: (Loki) => void }>
 
 export interface DatabaseAdapter {
-  schema: AppSchema;
+  schema: AppSchema
 
-  dbName: string;
+  dbName: string
 
-  migrations?: SchemaMigrations; // TODO: Not optional
+  migrations?: SchemaMigrations // TODO: Not optional
 
   // Fetches given (one) record or null. Should not send raw object if already cached in JS
-  find(table: TableName<any>, id: RecordId, callback: ResultCallback<CachedFindResult>): void;
+  find(table: TableName<any>, id: RecordId, callback: ResultCallback<CachedFindResult>): void
 
   // Fetches matching records. Should not send raw object if already cached in JS
-  query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void;
+  query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void
 
   // Fetches IDs of matching records
-  queryIds(query: SerializedQuery, callback: ResultCallback<RecordId[]>): void;
+  queryIds(query: SerializedQuery, callback: ResultCallback<RecordId[]>): void
 
   // Fetches unsafe, unsanitized objects according to query. You must not mutate these objects.
-  unsafeQueryRaw(query: SerializedQuery, callback: ResultCallback<any[]>): void;
+  unsafeQueryRaw(query: SerializedQuery, callback: ResultCallback<any[]>): void
 
   // Counts matching records
-  count(query: SerializedQuery, callback: ResultCallback<number>): void;
+  count(query: SerializedQuery, callback: ResultCallback<number>): void
 
   // Executes multiple prepared operations
-  batch(operations: BatchOperation[], callback: ResultCallback<void>): void;
+  batch(operations: BatchOperation[], callback: ResultCallback<void>): void
 
   // Return marked as deleted records
-  getDeletedRecords(tableName: TableName<any>, callback: ResultCallback<RecordId[]>): void;
+  getDeletedRecords(tableName: TableName<any>, callback: ResultCallback<RecordId[]>): void
 
   // Destroy deleted records from sync
   destroyDeletedRecords(
     tableName: TableName<any>,
     recordIds: RecordId[],
     callback: ResultCallback<void>,
-  ): void;
+  ): void
 
   // Unsafely adds records from a serialized (json) SyncPullResult provided earlier via native API
-  unsafeLoadFromSync(jsonId: number, callback: ResultCallback<any>): void;
+  unsafeLoadFromSync(jsonId: number, callback: ResultCallback<any>): void
 
   // Provides JSON for use by unsafeLoadFromSync
-  provideSyncJson(id: number, syncPullResultJson: string, callback: ResultCallback<void>): void;
+  provideSyncJson(id: number, syncPullResultJson: string, callback: ResultCallback<void>): void
 
   // Destroys the whole database, its schema, indexes, everything.
-  unsafeResetDatabase(callback: ResultCallback<void>): void;
+  unsafeResetDatabase(callback: ResultCallback<void>): void
 
   // Performs work on the underlying database - see concrete DatabaseAdapter implementation for more details
-  unsafeExecute(work: UnsafeExecuteOperations, callback: ResultCallback<void>): void;
+  unsafeExecute(work: UnsafeExecuteOperations, callback: ResultCallback<void>): void
 
   // Fetches string value from local storage
-  getLocal(key: string, callback: ResultCallback<string|undefined>): void;
+  getLocal(key: string, callback: ResultCallback<string | undefined>): void
 
   // Sets string value to a local storage key
-  setLocal(key: string, value: string, callback: ResultCallback<void>): void;
+  setLocal(key: string, value: string, callback: ResultCallback<void>): void
 
   // Removes key from local storage
-  removeLocal(key: string, callback: ResultCallback<void>): void;
+  removeLocal(key: string, callback: ResultCallback<void>): void
 }

@@ -18,7 +18,7 @@ class MigrationNeededError extends Error {
 
   type: string
 
-  constructor(databaseVersion): void {
+  constructor(databaseVersion: number): void {
     super('MigrationNeededError')
     this.databaseVersion = databaseVersion
     this.type = 'MigrationNeededError'
@@ -56,7 +56,7 @@ export function getPath(dbName: string): string {
 }
 
 class DatabaseDriver {
-  static sharedMemoryConnections: { ... } = {}
+  static sharedMemoryConnections: { [dbName: string]: Database } = {}
 
   database: Database
 
@@ -175,6 +175,7 @@ class DatabaseDriver {
   // MARK: - Record caching
 
   hasCachedTable(table: string): any {
+    // $FlowFixMe
     return Object.prototype.hasOwnProperty.call(this.cachedRecords, table)
   }
 

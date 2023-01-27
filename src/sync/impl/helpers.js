@@ -1,7 +1,7 @@
 // @flow
 
 import { values } from '../../utils/fp'
-
+import areRecordsEqual from '../../utils/fp/areRecordsEqual'
 import { invariant } from '../../utils/common'
 
 import type { Model, Collection, Database } from '../..'
@@ -45,6 +45,7 @@ export function prepareCreateFromRaw<T: Model>(collection: Collection<T>, dirtyR
   // TODO: Think more deeply about this - it's probably unnecessary to do this check, since it would
   // mean malicious sync server, which is a bigger problem
   invariant(
+    // $FlowFixMe
     !Object.prototype.hasOwnProperty.call(dirtyRaw, '__proto__'),
     'Malicious dirtyRaw detected - contains a __proto__ key',
   )
@@ -52,31 +53,59 @@ export function prepareCreateFromRaw<T: Model>(collection: Collection<T>, dirtyR
   return collection.prepareCreateFromDirtyRaw(raw)
 }
 
+// optimization - don't run DB update if received record is the same as local
+// (this happens a lot during replacement sync)
+export function requiresUpdate<T: Model>(
+  collection: Collection<T>,
+  local: RawRecord,
+  dirtyRemote: DirtyRaw,
+): boolean {
+  if (local._status !== 'synced') {
+    return true
+  }
+
+  const remote = sanitizedRaw(dirtyRemote, collection.schema)
+  remote._status = 'synced'
+
+  const canSkipSafely = areRecordsEqual(local, remote)
+  return !canSkipSafely
+}
+
+export const recordFromRaw = <T: Model>(raw: RawRecord, collection: Collection<T>): T =>
+  collection._cache._modelForRaw(raw, false)
+
 export function prepareUpdateFromRaw<T: Model>(
-  record: T,
-  updatedDirtyRaw: DirtyRaw,
+  localRaw: RawRecord,
+  remoteDirtyRaw: DirtyRaw,
+  collection: Collection<T>,
   log: ?SyncLog,
   conflictResolver?: SyncConflictResolver,
-): T {
+): ?T {
+  if (!requiresUpdate(collection, localRaw, remoteDirtyRaw)) {
+    return null
+  }
+
+  const local = recordFromRaw(localRaw, collection)
+
   // Note COPY for log - only if needed
-  const logConflict = log && !!record._raw._changed
+  const logConflict = log && !!localRaw._changed
   const logLocal = logConflict
     ? {
         // $FlowFixMe
-        ...record._raw,
+        ...localRaw,
       }
     : {}
-  const logRemote = logConflict ? { ...updatedDirtyRaw } : {}
+  const logRemote = logConflict ? { ...remoteDirtyRaw } : {}
 
-  let newRaw = resolveConflict(record._raw, updatedDirtyRaw)
+  let newRaw = resolveConflict(localRaw, remoteDirtyRaw)
 
   if (conflictResolver) {
-    newRaw = conflictResolver(record.table, record._raw, updatedDirtyRaw, newRaw)
+    newRaw = conflictResolver(collection.table, localRaw, remoteDirtyRaw, newRaw)
   }
 
   // $FlowFixMe
-  return record.prepareUpdate(() => {
-    replaceRaw(record, newRaw)
+  return local.prepareUpdate(() => {
+    replaceRaw(local, newRaw)
 
     // log resolved conflict - if any
     if (logConflict && log) {
@@ -85,13 +114,14 @@ export function prepareUpdateFromRaw<T: Model>(
         local: logLocal,
         remote: logRemote,
         // $FlowFixMe
-        resolved: { ...record._raw },
+        resolved: { ...newRaw },
       })
     }
   })
 }
 
 export function prepareMarkAsSynced<T: Model>(record: T): T {
+  // $FlowFixMe
   const newRaw = Object.assign({}, record._raw, { _status: 'synced', _changed: '' }) // faster than object spread
   // $FlowFixMe
   return record.prepareUpdate(() => {

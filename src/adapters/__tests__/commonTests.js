@@ -1,4 +1,4 @@
-import expect from 'expect-rn'
+/* eslint-disable jest/no-standalone-expect */
 import naughtyStrings, {
   bigEndianByteOrderMark,
   littleEndianByteOrderMark,
@@ -347,8 +347,8 @@ export default () => {
       expect(
         await adapter.unsafeQueryRaw(
           taskQuery(
-            Q.unsafeLokiTransform((raws, loki) => {
-              return raws
+            Q.unsafeLokiTransform((raws, loki) =>
+              raws
                 .sort((a, b) => b.order - a.order)
                 .map((raw) => {
                   const { id, text1 } = raw
@@ -361,8 +361,8 @@ export default () => {
                     tags: assignments.length,
                     magic: assignments.length ? assignments.reduce((a, b) => a + b) : null,
                   }
-                })
-            }),
+                }),
+            ),
           ),
         ),
       ).toEqual([

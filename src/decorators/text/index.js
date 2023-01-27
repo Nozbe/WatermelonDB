@@ -26,9 +26,11 @@ const text: Decorator = makeDecorator(
       configurable: true,
       enumerable: true,
       get(): ?string {
+        // $FlowFixMe
         return this.asModel._getRaw(columnName)
       },
       set(value: ?string): void {
+        // $FlowFixMe
         this.asModel._setRaw(columnName, typeof value === 'string' ? value.trim() : null)
       },
     }
