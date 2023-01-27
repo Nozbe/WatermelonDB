@@ -22,18 +22,12 @@ target 'WatermelonTester' do
     app_path: "#{Pod::Config.instance.installation_root}/../.."
   )
 
-  pod 'React-jsi', path: '../../node_modules/react-native/ReactCommon/jsi', modular_headers: true
   pod 'WatermelonDB', path: '../../'
-  pod 'simdjson', path: '../../node_modules/@nozbe/simdjson'
-
-  # post_install do |installer|
-  #   react_native_post_install(installer)
-  # end
+  # pod 'React-jsi', path: '../../node_modules/react-native/ReactCommon/jsi', modular_headers: true
+  # pod 'simdjson', path: '../../node_modules/@nozbe/simdjson'
 
   target 'WatermelonTesterTests' do
     inherit! :search_paths
-    use_frameworks!
-
   end
 end
 
