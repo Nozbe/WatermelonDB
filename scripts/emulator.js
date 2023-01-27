@@ -23,8 +23,8 @@ const askForEmu = [
     pageSize: emulators.length + 4,
     choices: emulators
       .split('\n')
-      .filter(value => value.length > 0)
-      .map(emu => ({
+      .filter((value) => value.length > 0)
+      .map((emu) => ({
         name: emu,
         value: emu,
       }))
@@ -40,13 +40,13 @@ const askForEmu = [
   {
     type: 'list',
     name: 'sdk',
-    when: answers => !answers.name,
+    when: (answers) => !answers.name,
     message: 'Sdk Version:',
     pageSize: sdks.length + 4,
     choices: sdks
       .split('\n')
-      .filter(value => value.length > 0)
-      .map(sdk => ({
+      .filter((value) => value.length > 0)
+      .map((sdk) => ({
         name: sdk.split(' ')[2].slice(14),
         value: sdk.split(' ')[2],
       }))
@@ -62,19 +62,19 @@ const askForEmu = [
   {
     type: 'input',
     name: 'sdk',
-    when: answers => !answers.sdk && !answers.name,
+    when: (answers) => !answers.sdk && !answers.name,
     message: 'Sdk Version (21-28):',
-    validate: input => input > 20 && input < 29,
+    validate: (input) => input > 20 && input < 29,
   },
   {
     type: 'input',
     name: 'name',
-    when: answers => !answers.name,
+    when: (answers) => !answers.name,
     message: 'Name:',
   },
 ]
 
-const emulatorTasks = options => {
+const emulatorTasks = (options) => {
   const { name, sdk } = options
   const tasks = []
   if (sdk !== undefined) {
@@ -115,7 +115,7 @@ if (launchFirst) {
     }`,
   )
 } else {
-  inquirer.prompt(askForEmu).then(options => {
+  inquirer.prompt(askForEmu).then((options) => {
     const tasks = emulatorTasks(options)
     const listr = new Listr(tasks)
     listr.run()

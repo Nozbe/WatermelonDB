@@ -11,6 +11,8 @@ using platform::consoleLog;
 Database::Database(jsi::Runtime *runtime, std::string path, bool usesExclusiveLocking) : runtime_(runtime), mutex_() {
     db_ = std::make_unique<SqliteDb>(path);
 
+    std::string initSql = "";
+
     // FIXME: On Android, Watermelon often errors out on large batches with an IO error, because it
     // can't find a temp store... I tried setting sqlite3_temp_directory to /tmp/something, but that
     // didn't work. Setting temp_store to memory seems to fix the issue, but causes a significant
@@ -18,20 +20,26 @@ Database::Database(jsi::Runtime *runtime, std::string path, bool usesExclusiveLo
     // also present on Android, and if so, investigate the root cause. Perhaps we need to set the temp
     // directory by interacting with JNI and finding a path within the app's sandbox?
     #ifdef ANDROID
-    executeMultiple("pragma temp_store = memory;");
+    initSql += "pragma temp_store = memory;";
     #endif
 
-    executeMultiple("pragma journal_mode = WAL;");
+    initSql += "pragma journal_mode = WAL;";
+
+    // set timeout before SQLITE_BUSY error is returned
+    initSql += "pragma busy_timeout = 5000;";
 
     #ifdef ANDROID
     // NOTE: This was added in an attempt to fix mysterious `database disk image is malformed` issue when using
     // headless JS services
-    executeMultiple("pragma synchronous = FULL;"); // NOTE: This slows things down
+    // NOTE: This slows things down
+    initSql += "pragma synchronous = FULL;";
     #endif
     if (usesExclusiveLocking) {
         // this seems to fix the headless JS service issue but breaks if you have multiple readers
-        executeMultiple("pragma locking_mode = EXCLUSIVE;");
+        initSql += "pragma locking_mode = EXCLUSIVE;";
     }
+
+    executeMultiple(initSql);
 }
 
 jsi::Runtime &Database::getRt() {

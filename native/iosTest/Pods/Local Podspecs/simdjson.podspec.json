@@ -1,6 +1,6 @@
 {
   "name": "simdjson",
-  "version": "3.1.0",
+  "version": "3.1.0-wmelon1",
   "summary": "NPM-released fork of simdjson C++ library",
   "description": "NPM-released fork of simdjson C++ library",
   "homepage": "https://github.com/Nozbe/simdjson",
@@ -9,12 +9,12 @@
     "author": "simdjson authors"
   },
   "platforms": {
-    "ios": "9.0",
-    "tvos": "9.0"
+    "ios": "11.0",
+    "tvos": "11.0"
   },
   "source": {
     "git": "https://github.com/Nozbe/simdmjson.git",
-    "tag": "v3.1.0"
+    "tag": "v3.1.0-wmelon1"
   },
   "source_files": "src/*.{h,cpp}",
   "public_header_files": "src/simdjson.h",
