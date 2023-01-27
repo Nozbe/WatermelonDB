@@ -10,7 +10,6 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.WritableArray
 import java.util.logging.Logger
-import kotlin.collections.ArrayList
 
 class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
@@ -38,6 +37,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         tag: ConnectionTag,
         databaseName: String,
         schemaVersion: Int,
+        unsafeNativeReuse: Boolean,
         promise: Promise
     ) {
         assert(connections[tag] == null) { "A driver with tag $tag already set up" }
@@ -48,7 +48,8 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
                 driver = DatabaseDriver(
                     context = reactContext,
                     dbName = databaseName,
-                    schemaVersion = schemaVersion
+                    schemaVersion = schemaVersion,
+                    unsafeNativeReuse = unsafeNativeReuse,
                 )
             )
             promiseMap.putString("code", "ok")
@@ -73,6 +74,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         databaseName: String,
         schema: SQL,
         schemaVersion: SchemaVersion,
+        unsafeNativeReuse: Boolean,
         promise: Promise
     ) = connectDriver(
         connectionTag = tag,
@@ -82,9 +84,10 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             schema = Schema(
                 version = schemaVersion,
                 sql = schema
-            )
+            ),
+            unsafeNativeReuse = unsafeNativeReuse,
         ),
-        promise = promise
+        promise = promise,
     )
 
     @ReactMethod
@@ -94,6 +97,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         migrations: SQL,
         fromVersion: SchemaVersion,
         toVersion: SchemaVersion,
+        unsafeNativeReuse: Boolean,
         promise: Promise
     ) {
         try {
@@ -106,9 +110,10 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
                         from = fromVersion,
                         to = toVersion,
                         sql = migrations
-                    )
+                    ),
+                    unsafeNativeReuse = unsafeNativeReuse,
                 ),
-                promise = promise
+                promise = promise,
             )
         } catch (e: Exception) {
             disconnectDriver(tag)

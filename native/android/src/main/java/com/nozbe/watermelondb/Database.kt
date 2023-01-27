@@ -13,6 +13,8 @@ class Database private constructor(private val db: SQLiteDatabase) {
         @Volatile
         private var INSTANCES: MutableMap<String, Database> = mutableMapOf()
 
+        // If you want to share DB access between RN and Native use this along with
+        // [_unsafeNativeReuse: true] param on JS side
         @JvmStatic
         fun getInstance(
             name: String,
@@ -30,8 +32,14 @@ class Database private constructor(private val db: SQLiteDatabase) {
                 } else INSTANCES[name] as Database
             }
 
-        private fun buildDatabase(name: String, context: Context, openFlags: Int) =
-            Database(createSQLiteDatabase(name, context, openFlags))
+        // If you don't care about shared DB access between RN and Native use this along with
+        // [_unsafeNativeReuse: false] param on JS side
+        fun buildDatabase(
+            name: String,
+            context: Context,
+            openFlags: Int = SQLiteDatabase.CREATE_IF_NECESSARY or
+                SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING
+        ) = Database(createSQLiteDatabase(name, context, openFlags))
 
         private fun createSQLiteDatabase(
             name: String,
