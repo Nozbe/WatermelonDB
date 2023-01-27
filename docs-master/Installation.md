@@ -48,22 +48,23 @@ At least Xcode 13.x and iOS 14 are recommended (earlier versions are not tested 
 
 3. **Link WatermelonDB's native library (using CocoaPods)**
 
-    On modern versions of React Native, just run `pod install`, and autolinking should just work.
-
-    However, in case of build issues, add this to your `Podfile`:
+    Open your `Podfile` and add this:
 
     ```ruby
     # Uncomment this line if you're not using auto-linking
-    # pod 'WatermelonDB', :path => '../node_modules/@nozbe/watermelondb'
+    # pod 'WatermelonDB', path: '../node_modules/@nozbe/watermelondb'
 
     # WatermelonDB dependency, should not be needed on modern React Native
-    # pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi', :modular_headers => true
+    # (please file an issue if this causes issues for you)
+    # pod 'React-jsi', path: '../node_modules/react-native/ReactCommon/jsi', modular_headers: true
 
-    # WatermelonDB dependency, uncomment if you're not using auto-linking
-    # pod 'simdjson', path: '../node_modules/@nozbe/simdjson'
+    # WatermelonDB dependency
+    pod 'simdjson', path: '../node_modules/@nozbe/simdjson', modular_headers: true
     ```
 
-    Make sure you run `pod install` after updating `Podfile`
+    Make sure you run `pod install` (or `bundle exec pod install`) after updating `Podfile`.
+
+    Static framework support with `use_frameworks! linkage: :static` is supported as of WatermelonDB 0.26. Note that this was only tested on latest version of React Native as of writing this. We highly recommend that you _do not_ use frameworks. If WatermelonDB fails to build in the frameworks mode for you, [use this workaround](https://github.com/Nozbe/WatermelonDB/issues/1285#issuecomment-1381323060) to force building it in static library mode.
 
     Manual (non-CocoaPods) linking is not supported.
 
