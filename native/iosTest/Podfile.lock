@@ -246,7 +246,7 @@ PODS:
     - React-cxxreact (= 0.63.4)
     - React-jsi (= 0.63.4)
   - simdjson (1.0.0)
-  - WatermelonDB (0.24.0):
+  - WatermelonDB (0.24.1-10):
     - React
     - React-jsi
   - Yoga (1.14.0)
@@ -373,9 +373,9 @@ SPEC CHECKSUMS:
   React-RCTVibration: ae4f914cfe8de7d4de95ae1ea6cc8f6315d73d9d
   ReactCommon: 73d79c7039f473b76db6ff7c6b159c478acbbb3b
   simdjson: c96317b3a50dff3468a42f586ab7ed22c6ab2fd9
-  WatermelonDB: e043b1a32ddc63864eb539b562e86ef80f8224cd
+  WatermelonDB: 63ce11ce11e957088382f6f0ef082013ed23d4ef
   Yoga: 4bd86afe9883422a7c4028c00e34790f560923d6
 
 PODFILE CHECKSUM: 35d1a057c9b8e31d8972213f30c75b1f70c31ec9
 
-COCOAPODS: 1.11.2
+COCOAPODS: 1.10.0
