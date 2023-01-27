@@ -1,10 +1,10 @@
 package com.nozbe.watermelonTest
 
-import org.junit.Test
-import androidx.test.rule.ActivityTestRule
 import android.util.Log
+import androidx.test.rule.ActivityTestRule
 import org.junit.Assert
 import org.junit.Rule
+import org.junit.Test
 
 class BridgeTest {
 
@@ -14,7 +14,7 @@ class BridgeTest {
     @Test
     fun testBridge() {
         synchronized(BridgeTestReporter.testFinishedNotification) {
-            BridgeTestReporter.testFinishedNotification.wait(5*60*1000)
+            BridgeTestReporter.testFinishedNotification.wait(5 * 60 * 1000)
         }
         try {
             when (val result = BridgeTestReporter.result) {
