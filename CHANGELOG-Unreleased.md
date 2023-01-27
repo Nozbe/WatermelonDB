@@ -10,9 +10,22 @@
 
 ### BREAKING CHANGES
 
+- [iOS] In your Podfile, make the following change:
+
+    ```rb
+    # replace this:
+    pod 'simdjson', path: '../node_modules/@nozbe/simdjson'
+    # with this:
+    pod 'simdjson', path: '../node_modules/@nozbe/simdjson', modular_headers: true
+    ```
+
+    This was required to support `use_frameworks!`
+
 ### Deprecations
 
 ### New features
+
+- [Android] Added `experimentalUnsafeNativeReuse` option to SQLiteAdapter. See `src/adapters/sqlite/type.js` for more details
 
 ### Fixes
 

@@ -29,6 +29,10 @@ Pod::Spec.new do |s|
   s.compiler_flags = '-Os'
   s.dependency "React"
 
-  # doesn't seem to be needed anymore?
+  # NOTE: This dependency doesn't seem to be needed anymore (tested on RN 0.66, 0.71), file an issue
+  # if this causes issues for you
   # s.dependency "React-jsi"
+
+  # NOTE: NPM-vendored @nozbe/simdjson must be used, not the CocoaPods version
+  s.dependency "simdjson"
 end
