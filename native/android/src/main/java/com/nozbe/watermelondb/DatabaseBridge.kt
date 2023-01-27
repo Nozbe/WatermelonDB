@@ -50,7 +50,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
                     dbName = databaseName,
                     schemaVersion = schemaVersion,
                     unsafeNativeReuse = unsafeNativeReuse,
-                )
+                ),
             )
             promiseMap.putString("code", "ok")
             promise.resolve(promiseMap)
