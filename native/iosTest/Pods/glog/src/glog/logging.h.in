@@ -82,7 +82,7 @@
 #include <inttypes.h>           // a third place for uint16_t or u_int16_t
 #endif
 
-#if @ac_cv_have_libgflags@
+#if 0
 #include <gflags/gflags.h>
 #endif
 

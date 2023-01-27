@@ -316,7 +316,7 @@ PODS:
     - React-logger (= 0.71.1)
     - React-perflogger (= 0.71.1)
   - simdjson (3.1.0-wmelon1)
-  - WatermelonDB (0.26.0-nozbe2):
+  - WatermelonDB (0.26.0-nozbe3):
     - React
     - simdjson
   - Yoga (1.14.0)
@@ -441,15 +441,15 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  boost: a7c83b31436843459a1961bfd74b96033dc77234
-  DoubleConversion: cde416483dac037923206447da6e1454df403714
+  boost: 57d2868c099736d80fcd648bf211b4431e51a558
+  DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   FBLazyVector: ad72713385db5289b19f1ead07e8e4aa26dcb01d
   FBReactNativeSpec: 29e2bed5d52bd67cf52976514863659e46c9d810
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
-  glog: 40a13f7840415b9a77023fbcae0f1e6f43192af3
+  glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 922ccd744f50d9bfde09e9677bf0f3b562ea5fb9
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  RCT-Folly: 0080d0a6ebf2577475bda044aa59e2ca1f909cda
+  RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
   RCTRequired: fd4d923b964658aa0c4091a32c8b2004c6d9e3a6
   RCTTypeSafety: c276d85975bde3d8448907235c70bf0da257adfd
   React: e481a67971af1ce9639c9f746b753dd0e84ca108
@@ -477,7 +477,7 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: 311feb67600774723fe10eb8801d3138cae9ad67
   ReactCommon: 03be76588338a27a88d103b35c3c44a3fd43d136
   simdjson: e6bfae9ce4bcdc80452d388d593816f1ca2106f3
-  WatermelonDB: 8623ea4b739e2e7c43184a0d54c051f589701415
+  WatermelonDB: f10f2b404f24676047d71fe82f53e5cacc670de8
   Yoga: 921eb014669cf9c718ada68b08d362517d564e0c
 
 PODFILE CHECKSUM: 262726e696291749eafb03251c36d81d829d8292
