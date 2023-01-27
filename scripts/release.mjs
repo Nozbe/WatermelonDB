@@ -3,13 +3,13 @@
 
 // inspired by `np` – https://github.com/sindresorhus/np
 
-const Listr = require('listr')
-const listrInput = require('listr-input')
-const execa = require('execa')
-const inquirer = require('inquirer')
-const semver = require('semver')
+import Listr from 'listr'
+import listrInput from 'listr-input'
+import { execa } from 'execa'
+import inquirer from 'inquirer'
+import semver from 'semver'
 
-const pkg = require('../package.json')
+import pkg from './pkg.cjs'
 
 const increments = ['patch', 'minor', 'major', 'prepatch', 'preminor', 'premajor', 'prerelease']
 
