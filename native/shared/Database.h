@@ -5,7 +5,7 @@
 #import <unordered_set>
 #import <mutex>
 #import <sqlite3.h>
-#import "simdjson.h"
+#import <simdjson/simdjson.h>
 
 #import "Sqlite.h"
 
