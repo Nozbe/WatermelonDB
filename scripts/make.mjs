@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const {
+import {
   pipe,
   filter,
   map,
@@ -12,20 +12,23 @@ const {
   omit,
   merge,
   forEach,
-} = require('rambdax')
+} from 'rambdax'
 
-const babel = require('@babel/core')
-const klaw = require('klaw-sync')
-const mkdirp = require('mkdirp')
-const path = require('path')
-const fs = require('fs-extra')
-const glob = require('glob')
-const prettyJson = require('json-stringify-pretty-compact')
-const chokidar = require('chokidar')
-const anymatch = require('anymatch')
-const rimraf = require('rimraf')
+import babel from '@babel/core'
+import klaw from 'klaw-sync'
+import mkdirp from 'mkdirp'
+import path from 'path'
+import fs from 'fs-extra'
+import glob from 'glob'
+import { fileURLToPath } from 'url'
+import prettyJson from 'json-stringify-pretty-compact'
+import chokidar from 'chokidar'
+import anymatch from 'anymatch'
+import rimraf from 'rimraf'
 
-const pkg = require('../package.json')
+import pkg from './pkg.cjs'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const resolvePath = (...paths) => path.resolve(__dirname, '..', ...paths)
 const isDevelopment = process.env.NODE_ENV === 'development'
