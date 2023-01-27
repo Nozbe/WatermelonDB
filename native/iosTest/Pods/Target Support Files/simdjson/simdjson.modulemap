@@ -1,0 +1,6 @@
+module simdjson {
+  umbrella header "simdjson-umbrella.h"
+
+  export *
+  module * { export * }
+}
