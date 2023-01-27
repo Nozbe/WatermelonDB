@@ -154,7 +154,7 @@ dependencies {
     // implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation project(':watermelondb')
     implementation project(':watermelondb-jsi')
-    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.appcompat:appcompat:1.6.0'
 
     implementation("com.facebook.react:hermes-android")
 

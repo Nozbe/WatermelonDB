@@ -42,7 +42,7 @@ class BridgeTestReporter(reactContext: ReactApplicationContext) :
             Result.Success(messages)
         }
         synchronized(testFinishedNotification) {
-            BridgeTestReporter.testFinishedNotification.notify()
+            testFinishedNotification.notify()
         }
     }
 }

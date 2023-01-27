@@ -8,10 +8,9 @@ import com.facebook.react.bridge.JSIModule
 import com.facebook.react.bridge.JSIModulePackage
 import com.facebook.react.bridge.JSIModuleSpec
 import com.facebook.react.shell.MainReactPackage
+import com.facebook.soloader.SoLoader
 import com.nozbe.watermelondb.WatermelonDBPackage
 import com.nozbe.watermelondb.jsi.WatermelonDBJSIPackage
-import java.util.Arrays
-import com.facebook.soloader.SoLoader
 
 class MainApplication : Application(), ReactApplication {
 
@@ -21,7 +20,7 @@ class MainApplication : Application(), ReactApplication {
         override fun getPackages(): List<ReactPackage> =
                 listOf(MainReactPackage(), NativeModulesPackage(), WatermelonDBPackage())
 
-        override fun getJSIModulePackage(): JSIModulePackage? {
+        override fun getJSIModulePackage(): JSIModulePackage {
             return JSIModulePackage { reactApplicationContext, jsContext ->
                 mutableListOf<JSIModuleSpec<JSIModule>>().apply {
                     addAll(
