@@ -131,7 +131,7 @@
     "glob-to-regexp": "^0.4.1",
     "inquirer": "^7.1.4",
     "jest": "26.6.3",
-    "json-stringify-pretty-compact": "^4.0.0",
+    "json-stringify-pretty-compact": "^3.0.0",
     "klaw-sync": "^6.0.0",
     "listr": "^0.14.1",
     "listr-input": "^0.2.1",
