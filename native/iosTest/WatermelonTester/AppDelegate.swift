@@ -1,4 +1,5 @@
 import UIKit
+import WatermelonDB
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, RCTBridgeDelegate {

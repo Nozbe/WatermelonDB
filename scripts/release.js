@@ -9,13 +9,19 @@ const execa = require('execa')
 const inquirer = require('inquirer')
 const semver = require('semver')
 
+const { when, includes, flip, both, add } = require('rambdax')
+
 const pkg = require('../package.json')
 
+const flippedIncludes = flip(includes)
 const increments = ['patch', 'minor', 'major', 'prepatch', 'preminor', 'premajor', 'prerelease']
+// const prerelease = ['prepatch', 'preminor', 'premajor', 'prerelease']
 
+const belongsToIncrements = flippedIncludes(increments)
+const isValidVersion = (input) => Boolean(semver.valid(input))
+const isVersionGreater = (input) => semver.gt(input, pkg.version)
 const getNewVersion = (input) => semver.inc(pkg.version, input)
-const isValidAndGreaterVersion = (input) =>
-  Boolean(semver.valid(input)) && semver.gt(input, pkg.version)
+const isValidAndGreaterVersion = both(isValidVersion, isVersionGreater)
 
 const throwError = (str) => (info) => {
   throw new Error(str, JSON.stringify(info))
@@ -33,7 +39,7 @@ const questions = [
     type: 'list',
     name: 'version',
     message: `Specify new version (current version: ${pkg.version}):`,
-    pageSize: 10,
+    pageSize: add(increments.length, 4),
     choices: increments
       .map((inc) => ({
         name: `${inc} 	${semver.inc(pkg.version, inc)}`,
@@ -43,10 +49,10 @@ const questions = [
         new inquirer.Separator(),
         {
           name: 'Other (specify)',
-          value: undefined,
+          value: null,
         },
       ]),
-    filter: (input) => (increments.includes(input) ? getNewVersion(input) : input),
+    filter: (input) => (belongsToIncrements(input) ? getNewVersion(input) : input),
   },
   {
     type: 'input',
@@ -60,7 +66,7 @@ const questions = [
 const buildTasks = (options) => {
   const { version } = options
 
-  const isPrerelease = version.includes('-')
+  const isPrerelease = includes('-', version)
   const tag = isPrerelease ? 'next' : 'latest'
 
   // eslint-disable-next-line
@@ -70,10 +76,10 @@ const buildTasks = (options) => {
     {
       title: 'ping npm registry',
       task: () =>
-        Promise.race([
+        Promise.race(
           execa('npm', ['ping']).catch(throwError('connection to npm registry failed')),
           promiseTimeoutError('Connection to npm registry timed out', 5000),
-        ]),
+        ),
     },
     ...(isPrerelease
       ? [
@@ -86,29 +92,32 @@ const buildTasks = (options) => {
           {
             title: 'check current branch',
             task: () =>
-              execa('git', ['symbolic-ref', '--short', 'HEAD']).then((info) => {
-                if (info.stdout.branch !== 'master') {
-                  throwError('not on `master` branch')(info)
-                }
-              }),
+              execa('git', ['symbolic-ref', '--short', 'HEAD']).then(
+                when(
+                  ({ stdout: branch }) => branch !== 'master',
+                  throwError('not on `master` branch'),
+                ),
+              ),
           },
           {
             title: 'check local working tree',
             task: () =>
-              execa('git', ['status', '--porcelain']).then((info) => {
-                if (info.stdout.status !== '') {
-                  throwError('commit or stash changes first')(info)
-                }
-              }),
+              execa('git', ['status', '--porcelain']).then(
+                when(
+                  ({ stdout: status }) => status !== '',
+                  throwError('commit or stash changes first'),
+                ),
+              ),
           },
           {
             title: 'check remote history',
             task: () =>
-              execa('git', ['rev-list', '--count', '--left-only', '@{u}...HEAD']).then((info) => {
-                if (info.stdout.result !== '0') {
-                  throwError('please pull changes first')(info)
-                }
-              }),
+              execa('git', ['rev-list', '--count', '--left-only', '@{u}...HEAD']).then(
+                when(
+                  ({ stdout: result }) => result !== '0',
+                  throwError('please pull changes first'),
+                ),
+              ),
           },
         ]),
     ...(!skipChecks

@@ -1,6 +1,5 @@
 #include "DatabasePlatform.h"
 #import <Foundation/Foundation.h>
-#import <React/RCTBridge.h>
 #include <mutex>
 
 namespace watermelondb {
@@ -98,12 +97,7 @@ void deleteSyncJson(int id) {
 }
 
 void onDestroy(std::function<void()> callback) {
-    [NSNotificationCenter.defaultCenter addObserverForName:RCTBridgeWillReloadNotification
-                                                    object:nil
-                                                     queue:nil
-                                                usingBlock: ^(NSNotification *note) {
-        callback();
-    }];
+    // not implemented (not needed on iOS)
 }
 
 } // namespace platform

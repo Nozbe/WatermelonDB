@@ -10,15 +10,8 @@
 #endif
 #endif
 
-#import "DatabaseDeleteHelper.h"
-#import "FMDatabase.h"
-#import "FMDatabaseAdditions.h"
-#import "FMDatabasePool.h"
-#import "FMDatabaseQueue.h"
-#import "FMDB.h"
-#import "FMResultSet.h"
-#import "JSIInstaller.h"
 #import "Bridging.h"
+#import "JSIInstaller.h"
 
 FOUNDATION_EXPORT double WatermelonDBVersionNumber;
 FOUNDATION_EXPORT const unsigned char WatermelonDBVersionString[];
