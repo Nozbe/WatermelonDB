@@ -27,9 +27,14 @@ export type SQLiteAdapterOptions = $Exact<{
   // very likely that the error is persistent (e.g. a corrupted database).
   // Pass a callback to offer to the user to reload the app or log out
   onSetUpError?: (error: Error) => void,
-  // Sets exclusive file locking mode in sqlite. Use this ONLY if you need to - e.g. seems to fix
+  // (JSI only) Sets exclusive file locking mode in sqlite. Use this ONLY if you need to - e.g. seems to fix
   // mysterious "database is malformed" issues on JSI+Android when using Headless JS
   usesExclusiveLocking?: boolean,
+  // (Android/non-JSI only) If `true`, this database connection will be accessible from native code
+  // like so:
+  //   import com.nozbe.watermelondb.*
+  //   Database.getInstance(dbName, context) // use the same dbName as in JS
+  experimentalUnsafeNativeReuse?: boolean,
 }>
 
 export type DispatcherType = 'asynchronous' | 'jsi'
@@ -57,6 +62,11 @@ export type InitializeStatus =
 export type SyncReturn<T> =
   | { status: 'success', result: T }
   | { status: 'error', code: string, message: string }
+
+export type SqliteDispatcherOptions = $Exact<{
+  usesExclusiveLocking: boolean,
+  experimentalUnsafeNativeReuse: boolean,
+}>
 
 export type SqliteDispatcherMethod =
   | 'initialize'

@@ -25,6 +25,8 @@
 
 ### New features
 
+- [Android] Added `experimentalUnsafeNativeReuse` option to SQLiteAdapter. See `src/adapters/sqlite/type.js` for more details
+
 ### Fixes
 
 - [JSI] Improved reliability when reloading RCTBridge

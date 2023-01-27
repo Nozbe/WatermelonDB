@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable global-require */
 
-import { NativeModules } from 'react-native'
+import { NativeModules, Platform } from 'react-native'
 import { type ConnectionTag, logger, invariant } from '../../../utils/common'
 import { fromPromise, type ResultCallback } from '../../../utils/fp/Result'
 import type {
@@ -9,15 +9,21 @@ import type {
   SQLiteAdapterOptions,
   SqliteDispatcher,
   SqliteDispatcherMethod,
+  SqliteDispatcherOptions,
 } from '../type'
 
 const { DatabaseBridge } = NativeModules
 
 class SqliteNativeModulesDispatcher implements SqliteDispatcher {
   _tag: ConnectionTag
+  _unsafeNativeReuse: boolean
 
-  constructor(tag: ConnectionTag): void {
+  constructor(
+    tag: ConnectionTag,
+    { experimentalUnsafeNativeReuse }: SqliteDispatcherOptions,
+  ): void {
     this._tag = tag
+    this._unsafeNativeReuse = experimentalUnsafeNativeReuse
     if (process.env.NODE_ENV !== 'production') {
       invariant(
         DatabaseBridge,
@@ -32,6 +38,12 @@ class SqliteNativeModulesDispatcher implements SqliteDispatcher {
     if (methodName === 'batch' && DatabaseBridge.batchJSON) {
       methodName = 'batchJSON'
       args = [JSON.stringify(args[0])]
+    } else if (
+      ['initialize', 'setUpWithSchema', 'setUpWithMigrations'].includes(methodName) &&
+      Platform.OS === 'android'
+    ) {
+      // FIXME: Hacky, refactor once native reuse isn't an "unsafe experimental" option
+      args.push(this._unsafeNativeReuse)
     }
     fromPromise(DatabaseBridge[methodName](this._tag, ...args), callback)
   }
@@ -41,7 +53,7 @@ class SqliteJsiDispatcher implements SqliteDispatcher {
   _db: any
   _unsafeErrorListener: (Error) => void // debug hook for NT use
 
-  constructor(dbName: string, usesExclusiveLocking: boolean): void {
+  constructor(dbName: string, { usesExclusiveLocking }: SqliteDispatcherOptions): void {
     this._db = global.nativeWatermelonCreateAdapter(dbName, usesExclusiveLocking)
     this._unsafeErrorListener = () => {}
   }
@@ -92,11 +104,11 @@ export const makeDispatcher = (
   type: DispatcherType,
   tag: ConnectionTag,
   dbName: string,
-  usesExclusiveLocking: boolean,
+  options: SqliteDispatcherOptions,
 ): SqliteDispatcher =>
   type === 'jsi'
-    ? new SqliteJsiDispatcher(dbName, usesExclusiveLocking)
-    : new SqliteNativeModulesDispatcher(tag)
+    ? new SqliteJsiDispatcher(dbName, options)
+    : new SqliteNativeModulesDispatcher(tag, options)
 
 const initializeJSI = () => {
   if (global.nativeWatermelonCreateAdapter) {
