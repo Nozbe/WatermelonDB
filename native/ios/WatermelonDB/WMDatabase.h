@@ -4,7 +4,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface WMDatabase : NSObject
 
-@property (nonatomic) FMDatabase *fmdb;
+@property (readwrite, strong, nonatomic) FMDatabase *fmdb;
 
 @end
 
