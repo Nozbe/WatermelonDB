@@ -10,6 +10,7 @@
     if (self = [super init]) {
         _path = path;
         _fmdb = [FMDatabase databaseWithPath:path];
+        [self open];
     }
     
     return self;
@@ -39,7 +40,6 @@
     return [_fmdb executeUpdate:query values:args error:errorPtr];
 }
 
-/// Executes multiple queries separated by `;`
 - (BOOL) executeStatements:(NSString *)sql error:(NSError **)errorPtr
 {
     if (![_fmdb executeStatements:sql]) {
