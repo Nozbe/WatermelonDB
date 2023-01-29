@@ -20,6 +20,7 @@
 #import "JSIInstaller.h"
 #import "Bridging.h"
 #import "WMDatabase.h"
+#import "WMDatabaseDriver.h"
 
 FOUNDATION_EXPORT double WatermelonDBVersionNumber;
 FOUNDATION_EXPORT const unsigned char WatermelonDBVersionString[];
