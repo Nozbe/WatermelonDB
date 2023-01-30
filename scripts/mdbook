@@ -18,3 +18,4 @@ cp CHANGELOG.md ./docs-build/CHANGELOG.md
 mdbook build ./docs-build
 mv ./docs-build/book ./docs
 cp ./docs-master/README.md ./docs/README.md
+echo "watermelondb.dev" >./docs/CNAME
