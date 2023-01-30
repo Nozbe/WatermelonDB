@@ -17,7 +17,7 @@ import { $ReadOnlyArray, $Exact, Class } from '../types'
 
 type DatabaseProps = $Exact<{
   adapter: DatabaseAdapter
-  modelClasses:  Class<Model>[]
+  modelClasses: Class<Model>[] | Model[]
 }>
 
 export function setExperimentalAllowsFatalError(): void
