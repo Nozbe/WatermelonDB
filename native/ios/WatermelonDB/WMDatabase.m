@@ -23,7 +23,9 @@
 
 - (void) open
 {
-    NSAssert([_fmdb open], @"Failed to open the database: %@", _fmdb.lastErrorMessage);
+    if (![_fmdb open]) {
+        [NSException raise:@"OpenFailed" format:@"Failed to open the database: %@", _fmdb.lastErrorMessage];
+    }
     
     // TODO: Experiment with WAL
     //     // must be queryRaw - returns value
@@ -116,7 +118,9 @@
 - (void) setUserVersion:(long)userVersion
 {
     BOOL result = [_fmdb executeUpdateWithFormat:@"pragma user_version = %li", userVersion];
-    NSAssert(result, @"Failed to set user version: %@", _fmdb.lastError);
+    if (!result) {
+        [NSException raise:@"SetUserVersionFailed" format:@"Failed to set user version: %@", _fmdb.lastErrorMessage];
+    }
 }
 
 - (BOOL) unsafeDestroyEverything:(NSError**)errorPtr
