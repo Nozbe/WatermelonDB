@@ -92,8 +92,7 @@
   },
   "default_subspecs": "Default",
   "platforms": {
-    "ios": "9.0",
-    "tvos": "9.0"
+    "ios": "9.0"
   },
   "subspecs": [
     {

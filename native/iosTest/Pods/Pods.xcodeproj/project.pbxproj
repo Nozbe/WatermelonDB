@@ -13021,6 +13021,36 @@
 			};
 			name = Release;
 		};
+		34F3392CD234063AF127BBF7C83DBF35 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 26CB0BD1EAC160490BAE30BC20B59733 /* DoubleConversion.debug.xcconfig */;
+			buildSettings = {
+				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
+				CLANG_ENABLE_MODULES = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				GCC_PREFIX_HEADER = "Target Support Files/DoubleConversion/DoubleConversion-prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"CCACHE_HACK_TOOLCHAIN_DIR=\"$(TOOLCHAIN_DIR)\"",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PRIVATE_HEADERS_FOLDER_PATH = "";
+				PRODUCT_MODULE_NAME = DoubleConversion;
+				PRODUCT_NAME = DoubleConversion;
+				PUBLIC_HEADERS_FOLDER_PATH = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		355B2D211CDD64A2DF58A6A1BE92890D /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4B291CE15F089EC0B8E9B6A522F4E312 /* React-callinvoker.release.xcconfig */;
@@ -13415,6 +13445,37 @@
 			};
 			name = Release;
 		};
+		5DA38CC55A368E97491C18D2F40AA4ED /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = AF5B10BCA34463C3154A9D558D351CD2 /* glog.release.xcconfig */;
+			buildSettings = {
+				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
+				CLANG_ENABLE_MODULES = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				GCC_PREFIX_HEADER = "Target Support Files/glog/glog-prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"CCACHE_HACK_TOOLCHAIN_DIR=\"$(TOOLCHAIN_DIR)\"",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PRIVATE_HEADERS_FOLDER_PATH = "";
+				PRODUCT_MODULE_NAME = glog;
+				PRODUCT_NAME = glog;
+				PUBLIC_HEADERS_FOLDER_PATH = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		62575CFAB14F362E8DBFA92DDA4C1A39 /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 29D51802A33B04C9F8DA7E168DCC085C /* hermes-engine.release.xcconfig */;
@@ -13647,36 +13708,6 @@
 			};
 			name = Release;
 		};
-		7745B833BAA1CEB67F3805B22B689943 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1DBA26FCC40614F790082A259A656698 /* glog.debug.xcconfig */;
-			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
-				CLANG_ENABLE_MODULES = NO;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				GCC_PREFIX_HEADER = "Target Support Files/glog/glog-prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(inherited)",
-					"CCACHE_HACK_TOOLCHAIN_DIR=\"$(TOOLCHAIN_DIR)\"",
-				);
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				OTHER_LDFLAGS = "";
-				OTHER_LIBTOOLFLAGS = "";
-				PRIVATE_HEADERS_FOLDER_PATH = "";
-				PRODUCT_MODULE_NAME = glog;
-				PRODUCT_NAME = glog;
-				PUBLIC_HEADERS_FOLDER_PATH = "";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
 		786090E7A3433C322EE6D42166C22ABA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = B0D96C9842359092BF561C1EF01D7449 /* React-Core.debug.xcconfig */;
@@ -13791,6 +13822,37 @@
 			};
 			name = Debug;
 		};
+		8C1EBC64D3AAB4CBE03B56C4F5E65339 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = DD94D081D43AA522A7720A782FA6B052 /* DoubleConversion.release.xcconfig */;
+			buildSettings = {
+				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
+				CLANG_ENABLE_MODULES = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				GCC_PREFIX_HEADER = "Target Support Files/DoubleConversion/DoubleConversion-prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"CCACHE_HACK_TOOLCHAIN_DIR=\"$(TOOLCHAIN_DIR)\"",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PRIVATE_HEADERS_FOLDER_PATH = "";
+				PRODUCT_MODULE_NAME = DoubleConversion;
+				PRODUCT_NAME = DoubleConversion;
+				PUBLIC_HEADERS_FOLDER_PATH = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		8C90F5D3C66C6F19DD467485B060B15A /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 1CB5438243A046CD0DA0C2C2DA8A291E /* RCTRequired.release.xcconfig */;
@@ -13810,37 +13872,6 @@
 					"@executable_path/Frameworks",
 				);
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
-		8DC9A670E8FA7CABD6B30D6ED60ABF34 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = DD94D081D43AA522A7720A782FA6B052 /* DoubleConversion.release.xcconfig */;
-			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
-				CLANG_ENABLE_MODULES = NO;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				GCC_PREFIX_HEADER = "Target Support Files/DoubleConversion/DoubleConversion-prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(inherited)",
-					"CCACHE_HACK_TOOLCHAIN_DIR=\"$(TOOLCHAIN_DIR)\"",
-				);
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				OTHER_LDFLAGS = "";
-				OTHER_LIBTOOLFLAGS = "";
-				PRIVATE_HEADERS_FOLDER_PATH = "";
-				PRODUCT_MODULE_NAME = DoubleConversion;
-				PRODUCT_NAME = DoubleConversion;
-				PUBLIC_HEADERS_FOLDER_PATH = "";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -13979,37 +14010,6 @@
 				SYMROOT = "${SRCROOT}/../build";
 			};
 			name = Debug;
-		};
-		9122B98F280DA58AC5E8563C3CCB2E37 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = AF5B10BCA34463C3154A9D558D351CD2 /* glog.release.xcconfig */;
-			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
-				CLANG_ENABLE_MODULES = NO;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				GCC_PREFIX_HEADER = "Target Support Files/glog/glog-prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(inherited)",
-					"CCACHE_HACK_TOOLCHAIN_DIR=\"$(TOOLCHAIN_DIR)\"",
-				);
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				OTHER_LDFLAGS = "";
-				OTHER_LIBTOOLFLAGS = "";
-				PRIVATE_HEADERS_FOLDER_PATH = "";
-				PRODUCT_MODULE_NAME = glog;
-				PRODUCT_NAME = glog;
-				PUBLIC_HEADERS_FOLDER_PATH = "";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
 		};
 		91A61D776827AE35382DD5742EFC5961 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -14335,36 +14335,6 @@
 				PRIVATE_HEADERS_FOLDER_PATH = "";
 				PRODUCT_MODULE_NAME = folly;
 				PRODUCT_NAME = "RCT-Folly";
-				PUBLIC_HEADERS_FOLDER_PATH = "";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		A799BD70DF032A736482D3435B1A23CF /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 26CB0BD1EAC160490BAE30BC20B59733 /* DoubleConversion.debug.xcconfig */;
-			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
-				CLANG_ENABLE_MODULES = NO;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				GCC_PREFIX_HEADER = "Target Support Files/DoubleConversion/DoubleConversion-prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(inherited)",
-					"CCACHE_HACK_TOOLCHAIN_DIR=\"$(TOOLCHAIN_DIR)\"",
-				);
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				OTHER_LDFLAGS = "";
-				OTHER_LIBTOOLFLAGS = "";
-				PRIVATE_HEADERS_FOLDER_PATH = "";
-				PRODUCT_MODULE_NAME = DoubleConversion;
-				PRODUCT_NAME = DoubleConversion;
 				PUBLIC_HEADERS_FOLDER_PATH = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -15005,6 +14975,36 @@
 			};
 			name = Release;
 		};
+		EFD8C90B4B31884D1B4EF2A207DC46BA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1DBA26FCC40614F790082A259A656698 /* glog.debug.xcconfig */;
+			buildSettings = {
+				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
+				CLANG_ENABLE_MODULES = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				GCC_PREFIX_HEADER = "Target Support Files/glog/glog-prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"CCACHE_HACK_TOOLCHAIN_DIR=\"$(TOOLCHAIN_DIR)\"",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PRIVATE_HEADERS_FOLDER_PATH = "";
+				PRODUCT_MODULE_NAME = glog;
+				PRODUCT_NAME = glog;
+				PUBLIC_HEADERS_FOLDER_PATH = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		F0F199F44C257755EF779EFCF2131F32 /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 0E3421706A11FF6950C96C537E028EFB /* simdjson.release.xcconfig */;
@@ -15194,8 +15194,8 @@
 		14775447AFF64546FC3DD7F4B58D1B6B /* Build configuration list for PBXNativeTarget "DoubleConversion" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A799BD70DF032A736482D3435B1A23CF /* Debug */,
-				8DC9A670E8FA7CABD6B30D6ED60ABF34 /* Release */,
+				34F3392CD234063AF127BBF7C83DBF35 /* Debug */,
+				8C1EBC64D3AAB4CBE03B56C4F5E65339 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -15482,8 +15482,8 @@
 		D3AB5C6F396D2AD01C214AD7C3410388 /* Build configuration list for PBXNativeTarget "glog" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				7745B833BAA1CEB67F3805B22B689943 /* Debug */,
-				9122B98F280DA58AC5E8563C3CCB2E37 /* Release */,
+				EFD8C90B4B31884D1B4EF2A207DC46BA /* Debug */,
+				5DA38CC55A368E97491C18D2F40AA4ED /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

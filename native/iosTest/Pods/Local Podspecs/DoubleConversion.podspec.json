@@ -16,8 +16,10 @@
   "header_dir": "double-conversion",
   "source_files": "double-conversion/*.{h,cc}",
   "compiler_flags": "-Wno-unreachable-code",
+  "user_target_xcconfig": {
+    "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/DoubleConversion\""
+  },
   "platforms": {
-    "ios": "10.0",
-    "tvos": "10.0"
+    "ios": "12.4"
   }
 }
