@@ -8,8 +8,16 @@ platform :ios, '15.0'
 
 hermes_enabled = true
 enable_jslock_hack = false
+should_use_frameworks = false
 
-# prepare_react_native_project!
+if should_use_frameworks
+  use_frameworks! linkage: :static
+
+  $static_framework = [
+    'WatermelonDB',
+    'simdjson',
+  ]
+end
 
 target 'WatermelonTester' do
   config = use_native_modules!
@@ -23,10 +31,23 @@ target 'WatermelonTester' do
   )
 
   pod 'WatermelonDB', path: '../../'
-  pod 'simdjson', path: '../../node_modules/@nozbe/simdjson', modular_headers: true
+  pod 'simdjson', path: '../../node_modules/@nozbe/simdjson', modular_headers: true, inhibit_warnings: true
 
   target 'WatermelonTesterTests' do
-    inherit! :search_paths
+    inherit! :complete
+  end
+end
+
+if should_use_frameworks
+  pre_install do |installer|
+    Pod::Installer::Xcode::TargetValidator.send(:define_method, :verify_no_static_framework_transitive_dependencies) {}
+      installer.pod_targets.each do |pod|
+        if $static_framework.include?(pod.name)
+          def pod.build_type;
+          Pod::BuildType.static_library # >= 1.9
+        end
+      end
+    end
   end
 end
 

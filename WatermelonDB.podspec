@@ -29,6 +29,7 @@ Pod::Spec.new do |s|
   s.requires_arc = true
   # simdjson is annoyingly slow without compiler optimization, disable for debugging
   s.compiler_flags = '-Os'
+
   s.dependency "React"
 
   # NOTE: This dependency doesn't seem to be needed anymore (tested on RN 0.66, 0.71), file an issue

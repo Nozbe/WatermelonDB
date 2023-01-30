@@ -259,7 +259,6 @@
 		17B311EE26DA2FDB4E7DF6AB39663EB6 /* RCTBaseTextViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E842D4F3B2DDB121E87F341864F25F34 /* RCTBaseTextViewManager.m */; };
 		17C71D3F72A9319D9B96B23FBA55FF65 /* bufferevent_pair.c in Sources */ = {isa = PBXBuildFile; fileRef = 92786AEE1035E6AD7F7DF4CAA47F1671 /* bufferevent_pair.c */; };
 		17C9C460E6D44E3CB0B75DB5108C796F /* EDFThreadPoolExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 185A9463054F55448C3ACB0240BA9B41 /* EDFThreadPoolExecutor.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
-		17DA07786FD71F5767678E1EABF3453E /* simdjson.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBC2BE7D93126F7DE593E04EF8A9EC4 /* simdjson.cpp */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		17EDF21E1EE6273ADA57FD8418F52AAB /* RCTRawTextShadowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 07D4526E96F275DD4F8157E8E6F34C85 /* RCTRawTextShadowView.m */; };
 		17F2717612A2B182E23D8D8C82C59C58 /* Exception.h in Headers */ = {isa = PBXBuildFile; fileRef = FE45E94779359FA9D1DE99E50268A089 /* Exception.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		18013D67700AD6D60095FB1580234B2C /* MallocImpl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CF74DEC9B3EE9A23B3BA2AC79639172 /* MallocImpl.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
@@ -908,6 +907,7 @@
 		7CA98684D46DB4B09D6679C9078E2524 /* RCTWebSocketExecutor.mm in Sources */ = {isa = PBXBuildFile; fileRef = E115D9B2FA9168A5680D9A9DE392630D /* RCTWebSocketExecutor.mm */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness"; }; };
 		7CDDF66116C711FF5204FAF108A25F66 /* RCTEventAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 55A4231858CEA4A33CCB150BEE722B3A /* RCTEventAnimation.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness"; }; };
 		7CF58EBBC31612AFEC369AE70D2D7DAF /* RCTPropsAnimatedNode.m in Sources */ = {isa = PBXBuildFile; fileRef = F6A6F8D03730426D877E5A54E486077E /* RCTPropsAnimatedNode.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness"; }; };
+		7D20DA972C7995726A4DC50BA583E9F5 /* Pods-WatermelonTester-WatermelonTesterTests-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 1DEA4E164E3CDFD58F103B0C9B448FA9 /* Pods-WatermelonTester-WatermelonTesterTests-umbrella.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		7D2A76A37F7DF3C80B05480AB84A6D8F /* WithAsyncStack.h in Headers */ = {isa = PBXBuildFile; fileRef = 76C9D028B5ED702C2D212F8A9894C631 /* WithAsyncStack.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		7DD99E9A38F362DE891E71E6A7A0E772 /* RCTBaseTextInputViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FB0E082575954C1CE18223002F09E32 /* RCTBaseTextInputViewManager.m */; };
 		7E0F3092D00B56BE1078D97B959E0B5E /* SysTime.h in Headers */ = {isa = PBXBuildFile; fileRef = 66A264D550D109A083EE8C1938AD4444 /* SysTime.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -1091,7 +1091,7 @@
 		9857F8B3108DA3827B84661210E05F5D /* RCTLayoutAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 015FC8DCAE9B6D4CC93A632C9C46E40A /* RCTLayoutAnimation.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
 		9893AF274CBD090963C77212C655EDD7 /* RCTDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 48685398C4A0B6DDD96A3BBAA7886B88 /* RCTDefines.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		989D12AD293A91DF94BCE30388DF157E /* demangle.cc in Sources */ = {isa = PBXBuildFile; fileRef = E8E84F9E3EDC9C810F39CB5F343763D7 /* demangle.cc */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
-		98A338903EFC536EF073A86F2956C350 /* Pods-WatermelonTester-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = EF8BC6FFB3008E7E36ED6755806B1675 /* Pods-WatermelonTester-dummy.m */; };
+		98A338903EFC536EF073A86F2956C350 /* Pods-WatermelonTester-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = C07B059ADE2FCE48B5537050DBE62104 /* Pods-WatermelonTester-dummy.m */; };
 		98AB99281679A1035932C93B70819788 /* Invoke.h in Headers */ = {isa = PBXBuildFile; fileRef = E2AB245C827D00BCA7F44A57FB356EC9 /* Invoke.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		98C8C1A95B2F04B829C446933621923A /* CurrentExecutor.h in Headers */ = {isa = PBXBuildFile; fileRef = C04269DBB94B7CF9EA9EF90FB2462512 /* CurrentExecutor.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		99037E399B85D898355390E08B55B3BE /* MallctlHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7EC58C03BC77A9F53CDDAB83E6A4747F /* MallctlHelper.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
@@ -1356,7 +1356,7 @@
 		C275723107AF8A379D9E841F5F5E7079 /* RCTMultiplicationAnimatedNode.h in Headers */ = {isa = PBXBuildFile; fileRef = B8F7F767FD9B18BC26C96ED03A13B44B /* RCTMultiplicationAnimatedNode.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		C280638615555B7541357C4581F2B78B /* RCTClipboard.h in Headers */ = {isa = PBXBuildFile; fileRef = 50AAB98D3F4A8DF4E798B577F49E402D /* RCTClipboard.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		C29A9F7174C4621EF19806795D295EAF /* RCTPackagerConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BED2E854F47FC758AA7D9E7C98F1C9F /* RCTPackagerConnection.h */; settings = {ATTRIBUTES = (Project, ); }; };
-		C29B187DADCB81311DD63C8D32821D64 /* Pods-WatermelonTester-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = F45215D3544C04D0D3843DF0A89E3214 /* Pods-WatermelonTester-umbrella.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		C29B187DADCB81311DD63C8D32821D64 /* Pods-WatermelonTester-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = E7E87E7A59C3751C6E044F79E8941E6C /* Pods-WatermelonTester-umbrella.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		C2E550F8CE481939D7E3994A720B4DBE /* RCTMultipartDataTask.h in Headers */ = {isa = PBXBuildFile; fileRef = FCA95DFA8440C415DC77435FB94B0F5B /* RCTMultipartDataTask.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		C317B80347828B35279957C102C667E6 /* RCTHTTPRequestHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2EC8E998633314A5135351DF16E885C2 /* RCTHTTPRequestHandler.mm */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness"; }; };
 		C3303EB10AB37E28C3032EA7F19C665D /* RCTMessageThread.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0E9FF44DC10350331DDC793BB1AD8A28 /* RCTMessageThread.mm */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
@@ -1400,7 +1400,6 @@
 		C8488FE675D3E7C5F1BC9DDAF4A87D32 /* Demangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30EDB6412492CAC26348D0A6072F0CB7 /* Demangle.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
 		C8D42BBC4B8E8C9009C3C5BEE659A0C0 /* Utility.h in Headers */ = {isa = PBXBuildFile; fileRef = 51F869CE2DB3A93A248ED5C09980A58D /* Utility.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		C91497054F484AD44060AEEDE62C023B /* Semaphore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01D1406E35087D64990C041B959BF105 /* Semaphore.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
-		C91A23C5D5238C95C0CBBC6544D8DA8B /* Pods-WatermelonTesterTests-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ACCA548882D4E923CD25C580D7DB8F6 /* Pods-WatermelonTesterTests-dummy.m */; };
 		C9BEA2A5468B80CDAFF39988E3326786 /* ratelim-internal.h in Headers */ = {isa = PBXBuildFile; fileRef = E76A1093D60D4EB11953960A46738585 /* ratelim-internal.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		C9DE9A6612EFB34CE42B9A2670F99F63 /* EventUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 972CA1069C85DCEC85A20242A9CF16A3 /* EventUtil.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		CA8837F3D092F72976DCB41F60D762B3 /* RCTLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = B9D0403F31977CFA52014DAF9FBA99DE /* RCTLayout.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -1438,11 +1437,13 @@
 		CF3BB47C66969522E7F731747E4D0786 /* ThreadLocalDetail.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04B955C23463F23BD2203426FF543C7E /* ThreadLocalDetail.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
 		CF83A98EAB6246D83E9670BA8FAFBFF3 /* RCTUITextField.h in Headers */ = {isa = PBXBuildFile; fileRef = 39F36BAEC69F261E067017BDC3B87A02 /* RCTUITextField.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		CF9EF3D31B7D8375231338A96AA524C0 /* Extern.h in Headers */ = {isa = PBXBuildFile; fileRef = 65A4A78E18A2D40F21827828566404A9 /* Extern.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		CFFC5A57BAD7CBC6E66F25FD3A9B8218 /* Pods-WatermelonTester-WatermelonTesterTests-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1456D452AFDA68F72D35AF9963C0DDE3 /* Pods-WatermelonTester-WatermelonTesterTests-dummy.m */; };
 		D01B4BD3387347E7EC30AAD7D20EBDC5 /* SpookyHashV1.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A8D8FBEB2BE2092200D7E9F9638EF39 /* SpookyHashV1.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		D0687C6C0D58AD07E2506BD903A20D3C /* Stdlib.h in Headers */ = {isa = PBXBuildFile; fileRef = AA1F30FC006401403BD12B6019444DEF /* Stdlib.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		D079E0695C58526DB73FFBBD815F01BF /* RCTBaseTextInputViewManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2915770E398E936923DB4F4EF3AA7EAF /* RCTBaseTextInputViewManager.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		D0997B2F8B1D23F61829BBEBA0864FB5 /* YGEnums.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EF2E3C0AB9EA2349158AD1B1F7F5F967 /* YGEnums.cpp */; settings = {COMPILER_FLAGS = "-fno-omit-frame-pointer -fexceptions -Wall -Werror -std=c++17 -fPIC -fno-objc-arc"; }; };
 		D0BB5D01525056DD909BE673096BA4E6 /* Event.h in Headers */ = {isa = PBXBuildFile; fileRef = 2477451C897A3B7E084AFC1F12B79A9D /* Event.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		D10439460704B6935C795DA2547B2566 /* simdjson.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBC2BE7D93126F7DE593E04EF8A9EC4 /* simdjson.cpp */; settings = {COMPILER_FLAGS = "-Os -w -Xanalyzer -analyzer-disable-all-checks"; }; };
 		D12C97FF683E96E0574DEA85A275EFBB /* GlobalThreadPoolList.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BAD87174D60F47708FA29722E0DFBAE /* GlobalThreadPoolList.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		D17BF13DF37D1CC0789E99E6B38EE556 /* RCTModalHostViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 4232CB809670081A97CAEA1356DB6A38 /* RCTModalHostViewController.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		D17D01719F1E4021F56B98EE20A57F4E /* kqueue.c in Sources */ = {isa = PBXBuildFile; fileRef = 25D7230A1C6611B5A1AEB1EDABCBB5F5 /* kqueue.c */; };
@@ -1718,12 +1719,33 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		00F26EB0D35E4D70833B09E4908CB5E2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 680299219D3A48D42A648AF6706275A9;
+			remoteInfo = "React-RCTSettings";
+		};
 		0202D781B877A89C49960FDF03EDD38D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = E7E7CE52C8C68B17224FF8C262D80ABF;
 			remoteInfo = RCTRequired;
+		};
+		063966844880B47595B8BBE36D451FCE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C3496D0495E700CF08A90C41EA8FA4BB;
+			remoteInfo = FBReactNativeSpec;
+		};
+		06A35C7E2736CA951DD62BA7F819A983 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 04A30E186743192DFB26B0FD7DB8F250;
+			remoteInfo = libevent;
 		};
 		07235420A1EAACCED5BDCB75F5A71607 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1788,6 +1810,13 @@
 			remoteGlobalIDString = EC55D52694092A9D0E6A78EB01207EB5;
 			remoteInfo = "RCT-Folly";
 		};
+		0ECF7B27D3852D6AFE1A68EF6F38CDCA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 083B602EA19B4AD50EC53C0602F29A7D;
+			remoteInfo = "React-logger";
+		};
 		11142956607D5818E77EF15BC21F1382 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
@@ -1837,6 +1866,13 @@
 			remoteGlobalIDString = 651511D7DA7F07F9FC9AA40A2E86270D;
 			remoteInfo = "React-RCTNetwork";
 		};
+		19512C6693F6E95645A217C55A751149 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B6D5DD49633DFF0657B8C3F08EB3ABA9;
+			remoteInfo = ReactCommon;
+		};
 		195CD74E9194E17AB7627BDDD7EB9EB2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
@@ -1850,6 +1886,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = D20469A9A1E5CFB26045EAEBE3F88E5E;
 			remoteInfo = RCTTypeSafety;
+		};
+		1BD1CFFB110FF8F0ED4E4E5674693A27 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 54EB12219122432FA744088BC5A680D2;
+			remoteInfo = "React-runtimeexecutor";
 		};
 		1BED511BDBD686CA1574C3E61891782F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1907,6 +1950,13 @@
 			remoteGlobalIDString = B6D5DD49633DFF0657B8C3F08EB3ABA9;
 			remoteInfo = ReactCommon;
 		};
+		259C743B794BFF8EEBCB462AD71A5EB5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DA0709CAAD589C6E7963495210438021;
+			remoteInfo = "React-jsiexecutor";
+		};
 		2645D797DAFE68EBB2ACD45916B859A1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
@@ -1928,6 +1978,13 @@
 			remoteGlobalIDString = DA0709CAAD589C6E7963495210438021;
 			remoteInfo = "React-jsiexecutor";
 		};
+		294AB09940339AAF317BCF46703CFDE0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DBD2D83E10F8B7D3F4E0E34E6A9FCFA6;
+			remoteInfo = "React-RCTText";
+		};
 		2B1A9230676142FC26A5749EA5F40B2C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
@@ -1942,6 +1999,13 @@
 			remoteGlobalIDString = EC55D52694092A9D0E6A78EB01207EB5;
 			remoteInfo = "RCT-Folly";
 		};
+		2CFBD9B28566A148A0F8BB691F4B78C4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 463F41A7E8B252F8AC5024DA1F4AF6DA;
+			remoteInfo = "React-cxxreact";
+		};
 		36723C0961E3319D5D5F255524B10BB4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
@@ -1949,12 +2013,26 @@
 			remoteGlobalIDString = 66B8F5758E6F90E16807A85C003CE61F;
 			remoteInfo = "React-Codegen";
 		};
+		371FE27115BDB69AA157C8BF8FD388A3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 02B79DFED924FA19CA90EC69614733E1;
+			remoteInfo = fmt;
+		};
 		37826AB6335AA80C465BB976905CCEE3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 7ACAA9BE580DD31A5CB9D97C45D9492D;
 			remoteInfo = "React-Core";
+		};
+		396139130BE42B0D18D259AF5FC04295 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6FE9147F8AAA4DE676C190F680F47AE2;
+			remoteInfo = "React-RCTLinking";
 		};
 		39D908131D17213C401F4FF10D367979 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2082,6 +2160,13 @@
 			remoteGlobalIDString = 6FE9147F8AAA4DE676C190F680F47AE2;
 			remoteInfo = "React-RCTLinking";
 		};
+		4B0E56377953A47C2A3864B2FBF5B300 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2681CB7EF647E61F4F9A43029C235607;
+			remoteInfo = "React-callinvoker";
+		};
 		4BD534CA81344380ADE66A6196CBF861 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
@@ -2117,12 +2202,26 @@
 			remoteGlobalIDString = E16E206437995280D349D4B67695C894;
 			remoteInfo = "React-CoreModules";
 		};
+		515DEF6969BA0E4C35BAAA6AAD1CCC20 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 11989A5E568B3B69655EE0C13DCDA3F9;
+			remoteInfo = "React-RCTActionSheet";
+		};
 		5404F4782B72E267B988BBB658234EFE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = D20469A9A1E5CFB26045EAEBE3F88E5E;
 			remoteInfo = RCTTypeSafety;
+		};
+		542140B5A3EBD8397059E8C9ED776467 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 66B8F5758E6F90E16807A85C003CE61F;
+			remoteInfo = "React-Codegen";
 		};
 		561870BEBAFAE56C986B207A9994A2DA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2138,6 +2237,13 @@
 			remoteGlobalIDString = 7ACAA9BE580DD31A5CB9D97C45D9492D;
 			remoteInfo = "React-Core";
 		};
+		59120F6A4B5B256197E8F884C70ECEAE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2AB2EF542954AB1C999E03BFEF8DE806;
+			remoteInfo = DoubleConversion;
+		};
 		5B1893827083B82975A46CD599DC84A6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
@@ -2151,6 +2257,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = FA877ADC442CB19CF61793D234C8B131;
 			remoteInfo = "React-jsi";
+		};
+		5C48620A57A0D6F4C4517884637E51FF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E7E7CE52C8C68B17224FF8C262D80ABF;
+			remoteInfo = RCTRequired;
 		};
 		5DEAAB477F9E448F8F3C7F9E475BF1E8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2180,6 +2293,13 @@
 			remoteGlobalIDString = D0EFEFB685D97280256C559792236873;
 			remoteInfo = glog;
 		};
+		60143B2658FA2B870F087F79C47EAD59 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 45B79B0C60C74716DCD2AD7BE782A719;
+			remoteInfo = simdjson;
+		};
 		61DA5082AD6314EDE218E252D3B4524D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
@@ -2200,6 +2320,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = E7E7CE52C8C68B17224FF8C262D80ABF;
 			remoteInfo = RCTRequired;
+		};
+		68134EB471181B7C1AFA30332970C2C5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E16E206437995280D349D4B67695C894;
+			remoteInfo = "React-CoreModules";
 		};
 		6984E9A2D9DEE18CD86C5D1C8E4B6858 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2257,6 +2384,13 @@
 			remoteGlobalIDString = B6D5DD49633DFF0657B8C3F08EB3ABA9;
 			remoteInfo = ReactCommon;
 		};
+		7564E594EFA3CE312CD9DD9D882A92FD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7ACAA9BE580DD31A5CB9D97C45D9492D;
+			remoteInfo = "React-Core";
+		};
 		75AFCEFA1564DD36704A819C487C88F1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
@@ -2284,6 +2418,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = DA0709CAAD589C6E7963495210438021;
 			remoteInfo = "React-jsiexecutor";
+		};
+		7CC43D98128EE54C86CC23E20693242D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EFEA55B1B776B6EB4B16F363BFE64D1A;
+			remoteInfo = boost;
 		};
 		80E0BB6640DB69B06FC3686ADA17C66E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2319,6 +2460,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = B6D5DD49633DFF0657B8C3F08EB3ABA9;
 			remoteInfo = ReactCommon;
+		};
+		8724EC901847C2B7124ADF80590097CB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 20F066A71CEA5EECC7463413442F2B77;
+			remoteInfo = "React-hermes";
 		};
 		886B078BD75525BDF987475828E09831 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2425,6 +2573,13 @@
 			remoteGlobalIDString = 7ACAA9BE580DD31A5CB9D97C45D9492D;
 			remoteInfo = "React-Core";
 		};
+		999393B780ECC84DF5D06D243DB83DEA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2B25F90D819B9ADF2AF2D8733A890333;
+			remoteInfo = Yoga;
+		};
 		9A33D8F17E296D08AC93EF306A6186C5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
@@ -2495,6 +2650,13 @@
 			remoteGlobalIDString = EC55D52694092A9D0E6A78EB01207EB5;
 			remoteInfo = "RCT-Folly";
 		};
+		A2293ABDC36515B1A4FF803BAD442384 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 95D98F901D07557EF7CA38D3F03832C5;
+			remoteInfo = "React-RCTBlob";
+		};
 		A411C80C88ACC2ED0DE6FDE96C2D11D7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
@@ -2502,12 +2664,26 @@
 			remoteGlobalIDString = 45B79B0C60C74716DCD2AD7BE782A719;
 			remoteInfo = simdjson;
 		};
+		A69A8DEDC1DDFFFAB7282D3CDE546AA3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C2B1B75CCC326124F29FE703CC59BFB7;
+			remoteInfo = "React-RCTAppDelegate";
+		};
 		A94E73604C90B2A80E2203284B8F3365 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = F7D033C4C128EECAA020990641FA985F;
 			remoteInfo = "React-jsinspector";
+		};
+		ABE5256193A81915717860A86A6E39F1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 938CCE22F6C4094B3FB6CF1478579E4B;
+			remoteInfo = "React-RCTAnimation";
 		};
 		ABFF5D7D097DBD3EAF6A18B23609DD71 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2558,6 +2734,13 @@
 			remoteGlobalIDString = 463F41A7E8B252F8AC5024DA1F4AF6DA;
 			remoteInfo = "React-cxxreact";
 		};
+		B23A230602386D08EC598B05F8D9BD78 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D20469A9A1E5CFB26045EAEBE3F88E5E;
+			remoteInfo = RCTTypeSafety;
+		};
 		B29448B914F002D278ACA0988900EFE8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
@@ -2565,12 +2748,26 @@
 			remoteGlobalIDString = 7ACAA9BE580DD31A5CB9D97C45D9492D;
 			remoteInfo = "React-Core";
 		};
+		B2BE361529B7AF61010C8FF1F4F5B404 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8CC4EAA817AA86310D1900F1DAB3580F;
+			remoteInfo = FBLazyVector;
+		};
 		B4797EA1083E372A44C4F414236EF239 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 2AB2EF542954AB1C999E03BFEF8DE806;
 			remoteInfo = DoubleConversion;
+		};
+		B4F1350E1B7A04B46942367FECF7D66A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FA877ADC442CB19CF61793D234C8B131;
+			remoteInfo = "React-jsi";
 		};
 		B5E09D1E8F1684A35401C1692D52D3E2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2585,6 +2782,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = B6D5DD49633DFF0657B8C3F08EB3ABA9;
 			remoteInfo = ReactCommon;
+		};
+		B9931B57B7F997E9841BCBDD52A8B64B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4F265533AAB7C8985856EC78A33164BB;
+			remoteInfo = "React-RCTImage";
 		};
 		BA46CFF3961519434751A28DB09A7923 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2649,6 +2853,13 @@
 			remoteGlobalIDString = 985FEA01F314F3C00F0C1E1181E6C4A5;
 			remoteInfo = "hermes-engine";
 		};
+		C29BAC0E3B968893F9C5B6BA4416D6D3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 53D121F9F9BB0F8AC1C94A12C5A8572F;
+			remoteInfo = "React-RCTVibration";
+		};
 		C2A35E02EC8C141F42A65AD1ACFBDF82 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
@@ -2698,6 +2909,13 @@
 			remoteGlobalIDString = B6D5DD49633DFF0657B8C3F08EB3ABA9;
 			remoteInfo = ReactCommon;
 		};
+		CDCBAE2A2781B5A60AFDCD266A162964 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 651511D7DA7F07F9FC9AA40A2E86270D;
+			remoteInfo = "React-RCTNetwork";
+		};
 		CEB3B47E843150BB3DBAFA76FB2BE79A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
@@ -2726,6 +2944,20 @@
 			remoteGlobalIDString = D0EFEFB685D97280256C559792236873;
 			remoteInfo = glog;
 		};
+		D07CFC1C445502F9A4BB6CEEB5A59042 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1BEE828C124E6416179B904A9F66D794;
+			remoteInfo = React;
+		};
+		D0EB697FFA770A2598C48D9DA2623065 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 985FEA01F314F3C00F0C1E1181E6C4A5;
+			remoteInfo = "hermes-engine";
+		};
 		D0EE536F0625468E618B32704DC76262 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
@@ -2753,6 +2985,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 7ACAA9BE580DD31A5CB9D97C45D9492D;
 			remoteInfo = "React-Core";
+		};
+		D562569F80A747AC38AE3B579E9BB2DC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EF554722D0D580AC702A6DAB8FDBB2B5;
+			remoteInfo = WatermelonDB;
 		};
 		D57E2EB2F00450A68932DAFA6620A110 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2809,6 +3048,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 985FEA01F314F3C00F0C1E1181E6C4A5;
 			remoteInfo = "hermes-engine";
+		};
+		E027F20F984692C3B41676AC18A3C61D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D0EFEFB685D97280256C559792236873;
+			remoteInfo = glog;
 		};
 		E0900F33CE247DD01DCEFFF4156C0948 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2887,6 +3133,13 @@
 			remoteGlobalIDString = FA877ADC442CB19CF61793D234C8B131;
 			remoteInfo = "React-jsi";
 		};
+		F2FF264F7B79DADDCED45A507A95832C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EC55D52694092A9D0E6A78EB01207EB5;
+			remoteInfo = "RCT-Folly";
+		};
 		F39EC4AA496E02FC750A8CA7907466B4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
@@ -2922,12 +3175,12 @@
 			remoteGlobalIDString = 938CCE22F6C4094B3FB6CF1478579E4B;
 			remoteInfo = "React-RCTAnimation";
 		};
-		FA89F78305F0D80D2BF66C46B98EF3E8 /* PBXContainerItemProxy */ = {
+		F9D36DBBC2FA45C781E9C2799AF75E91 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = C022870923962EA3953D70B907A7F8A7;
-			remoteInfo = "Pods-WatermelonTester";
+			remoteGlobalIDString = F1E2583679398CB5F4D2B3272E9B198F;
+			remoteInfo = "React-perflogger";
 		};
 		FB6B92EE2B451E94CEDDC9C3FDE68CA5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2942,6 +3195,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = B6D5DD49633DFF0657B8C3F08EB3ABA9;
 			remoteInfo = ReactCommon;
+		};
+		FD03208C76AE3A642D94CFEB85EA5278 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F7D033C4C128EECAA020990641FA985F;
+			remoteInfo = "React-jsinspector";
 		};
 		FF6F6FD89966417ED51CCE5C58107840 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -3060,6 +3320,7 @@
 		11A6CD24FEF09EEAFE6BF5B73EC6A87B /* Concat-inl.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "Concat-inl.h"; path = "folly/experimental/coro/Concat-inl.h"; sourceTree = "<group>"; };
 		11A78168629F641BF7F8F24390D82728 /* Thread.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Thread.h; sourceTree = "<group>"; };
 		11A90A0945DDF2AB7B30E7D17D64ABF9 /* RCTTextShadowView.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RCTTextShadowView.m; sourceTree = "<group>"; };
+		11C55BD1D6878E4F26B7FD2EAB89F0B7 /* Pods-WatermelonTester.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-WatermelonTester.debug.xcconfig"; sourceTree = "<group>"; };
 		11D9218ADF5426C4AE4C5DFC32A7F90F /* json_pointer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = json_pointer.h; path = folly/json_pointer.h; sourceTree = "<group>"; };
 		11FD0C3140C7C0A736359C8E776A281E /* RCTBlobManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTBlobManager.h; path = Libraries/Blob/RCTBlobManager.h; sourceTree = "<group>"; };
 		121A62E0ADB118E8FE19708C87011125 /* Util.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Util.h; path = folly/container/detail/Util.h; sourceTree = "<group>"; };
@@ -3070,7 +3331,6 @@
 		12B0C5425CEF3E5194F019AB16712810 /* UTF8String.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = UTF8String.h; path = folly/UTF8String.h; sourceTree = "<group>"; };
 		12BAEEC625BAF9731565F3F50D279C9A /* RCTBaseTextInputShadowView.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RCTBaseTextInputShadowView.m; sourceTree = "<group>"; };
 		12D77A5A51948036C468107FBAD59970 /* AtomicRef.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = AtomicRef.h; path = folly/synchronization/AtomicRef.h; sourceTree = "<group>"; };
-		12EB963B903B0B60DD38D9D78E44E1AD /* Pods-WatermelonTesterTests */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "Pods-WatermelonTesterTests"; path = "libPods-WatermelonTesterTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		12F0CAC1398B39394CE87667C9E05D99 /* FiberManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = FiberManager.cpp; path = folly/fibers/FiberManager.cpp; sourceTree = "<group>"; };
 		12FA4BFF33421CE26BD7ED1550CD63B6 /* RCTRawTextViewManager.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RCTRawTextViewManager.m; sourceTree = "<group>"; };
 		1303ACD1F11BD7F5FD7AE13990AF6CE6 /* React-RCTActionSheet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "React-RCTActionSheet.debug.xcconfig"; sourceTree = "<group>"; };
@@ -3081,6 +3341,7 @@
 		14105CB2AEF75F3489934C6577244B20 /* RCTAdditionAnimatedNode.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RCTAdditionAnimatedNode.h; sourceTree = "<group>"; };
 		142986E358F9CEED9175445BAF2CF4F8 /* Windows.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Windows.h; path = folly/portability/Windows.h; sourceTree = "<group>"; };
 		14340008CC5DF46426E207F126AFCC44 /* StaticConst.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = StaticConst.h; path = folly/lang/StaticConst.h; sourceTree = "<group>"; };
+		1456D452AFDA68F72D35AF9963C0DDE3 /* Pods-WatermelonTester-WatermelonTesterTests-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-WatermelonTester-WatermelonTesterTests-dummy.m"; sourceTree = "<group>"; };
 		14916C694FDD0E198C8207C4E970D47A /* Elf-inl.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "Elf-inl.h"; path = "folly/experimental/symbolizer/Elf-inl.h"; sourceTree = "<group>"; };
 		149614ACC184F68EC8C9797B9EDAFBD5 /* ConnectionDemux.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ConnectionDemux.cpp; sourceTree = "<group>"; };
 		14FD4376A8A748797F1CE10925DA47B2 /* Yoga-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Yoga-umbrella.h"; sourceTree = "<group>"; };
@@ -3091,6 +3352,7 @@
 		162716E6683A7F77BAD7F499CA1A1ABA /* CHANGELOG.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CHANGELOG.html; path = docs/CHANGELOG.html; sourceTree = "<group>"; };
 		165057576DE29B159FCA0C26F128D336 /* RCTLinkingManager.mm */ = {isa = PBXFileReference; includeInIndex = 1; path = RCTLinkingManager.mm; sourceTree = "<group>"; };
 		167B2200217E19F7E650BED9CEFD41F4 /* Foreach.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Foreach.h; path = folly/container/Foreach.h; sourceTree = "<group>"; };
+		1693B1015FE2C0C15CE0CD80F0A08DFB /* Pods-WatermelonTester-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-WatermelonTester-frameworks.sh"; sourceTree = "<group>"; };
 		169BE2F8E4C578CF229CC4E32A5416D3 /* CoreModulesPlugins.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = CoreModulesPlugins.h; path = React/CoreModules/CoreModulesPlugins.h; sourceTree = "<group>"; };
 		16C20A7069668E0572AE122FB897328F /* Helpers.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Helpers.h; path = folly/experimental/coro/detail/Helpers.h; sourceTree = "<group>"; };
 		16D4C9EA4D46306C7C5556D9BC77CEFA /* DatabaseInstallation.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = DatabaseInstallation.cpp; sourceTree = "<group>"; };
@@ -3146,7 +3408,9 @@
 		1D25889F907700ACE69CBAB9923EEE28 /* FBReactNativeSpec.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = FBReactNativeSpec.h; path = FBReactNativeSpec/FBReactNativeSpec.h; sourceTree = "<group>"; };
 		1D2E6DBFAF53055C19D07183B533FE72 /* Varint.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Varint.h; path = folly/Varint.h; sourceTree = "<group>"; };
 		1D963D7E9E8076ED2CD851B558D2AB49 /* SysMembarrier.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SysMembarrier.cpp; path = folly/portability/SysMembarrier.cpp; sourceTree = "<group>"; };
+		1DA95228981BF77AA024A73CF254FDE8 /* Pods-WatermelonTester.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-WatermelonTester.release.xcconfig"; sourceTree = "<group>"; };
 		1DBA26FCC40614F790082A259A656698 /* glog.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = glog.debug.xcconfig; sourceTree = "<group>"; };
+		1DEA4E164E3CDFD58F103B0C9B448FA9 /* Pods-WatermelonTester-WatermelonTesterTests-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-WatermelonTester-WatermelonTesterTests-umbrella.h"; sourceTree = "<group>"; };
 		1E2CFBCE53F128F7E04138E151EFEC87 /* UniqueInstance.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = UniqueInstance.h; path = folly/detail/UniqueInstance.h; sourceTree = "<group>"; };
 		1E2D8C141EFEE91AEF9BF110E837858E /* RCTSliderManager.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RCTSliderManager.m; sourceTree = "<group>"; };
 		1E7B28153B7AB6E9E2A0A658826B9196 /* LocalStorage.html */ = {isa = PBXFileReference; includeInIndex = 1; name = LocalStorage.html; path = docs/Advanced/LocalStorage.html; sourceTree = "<group>"; };
@@ -3204,7 +3468,6 @@
 		2477451C897A3B7E084AFC1F12B79A9D /* Event.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Event.h; path = folly/portability/Event.h; sourceTree = "<group>"; };
 		24D006253C49C5C2360E27D8589861F5 /* RCTAppearance.mm */ = {isa = PBXFileReference; includeInIndex = 1; path = RCTAppearance.mm; sourceTree = "<group>"; };
 		24D773937ED3C640FBA8FD1D82F26D17 /* Bridging.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Bridging.h; sourceTree = "<group>"; };
-		24E949124D01FD744AAE0A66089B087A /* Pods-WatermelonTester-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-WatermelonTester-resources.sh"; sourceTree = "<group>"; };
 		24EBE9EBE39BEBFF8F8422CE81C61588 /* RCTFileRequestHandler.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTFileRequestHandler.h; path = Libraries/Network/RCTFileRequestHandler.h; sourceTree = "<group>"; };
 		25046D2C01C83E9BA4B8A6D0954C4855 /* MPMCPipelineDetail.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = MPMCPipelineDetail.h; path = folly/detail/MPMCPipelineDetail.h; sourceTree = "<group>"; };
 		250DCECE416921C9A2DADDE9A67FFDDF /* AsyncTrace.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = AsyncTrace.cpp; path = folly/detail/AsyncTrace.cpp; sourceTree = "<group>"; };
@@ -3215,7 +3478,6 @@
 		259297246B507ADFFBA38BEF9B9834FE /* bignum.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = bignum.cc; path = "double-conversion/bignum.cc"; sourceTree = "<group>"; };
 		25D7230A1C6611B5A1AEB1EDABCBB5F5 /* kqueue.c */ = {isa = PBXFileReference; includeInIndex = 1; path = kqueue.c; sourceTree = "<group>"; };
 		2625A9902014AB052A17117CF500C7ED /* IOThreadPoolDeadlockDetectorObserver.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IOThreadPoolDeadlockDetectorObserver.h; path = folly/executors/IOThreadPoolDeadlockDetectorObserver.h; sourceTree = "<group>"; };
-		269362B11363F32FFCEF16B4B914E67E /* Pods-WatermelonTesterTests-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-WatermelonTesterTests-acknowledgements.markdown"; sourceTree = "<group>"; };
 		269A20A7A8E4D6E06132AA2D486380DC /* FBLazyVector.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = FBLazyVector.h; path = FBLazyVector/FBLazyVector.h; sourceTree = "<group>"; };
 		269BE773C9482484B70949A40F4EA525 /* React-RCTSettings */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "React-RCTSettings"; path = "libReact-RCTSettings.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		26B00415A6AB5A9C2E3EC68A1A3919A9 /* File.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = File.h; path = folly/File.h; sourceTree = "<group>"; };
@@ -3275,6 +3537,7 @@
 		2ED39FB4332845C83AD8251BDE49EFE9 /* RCTScrollViewManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RCTScrollViewManager.h; sourceTree = "<group>"; };
 		2EDB308191093C05FBCB54D146E7F6E6 /* print.html */ = {isa = PBXFileReference; includeInIndex = 1; name = print.html; path = docs/print.html; sourceTree = "<group>"; };
 		2F0D7C572FD40F2BE5210A025FBDA05D /* MeteredExecutor.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = MeteredExecutor.cpp; path = folly/executors/MeteredExecutor.cpp; sourceTree = "<group>"; };
+		2F34DD70F8CEC051F77FCA84ADD6A234 /* Pods-WatermelonTester-WatermelonTesterTests-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-WatermelonTester-WatermelonTesterTests-resources.sh"; sourceTree = "<group>"; };
 		2F5DF375E8BED8BD30E1D4616B7AFE77 /* RCTLogBox.mm */ = {isa = PBXFileReference; includeInIndex = 1; path = RCTLogBox.mm; sourceTree = "<group>"; };
 		2F9E8E7FA7D309653D3EACC52B067678 /* Stdio.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Stdio.h; path = folly/portability/Stdio.h; sourceTree = "<group>"; };
 		2FB2D72EFEE1A2E9946B155F309293DF /* YGNode.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = YGNode.cpp; path = yoga/YGNode.cpp; sourceTree = "<group>"; };
@@ -3304,7 +3567,6 @@
 		329C5EA86772448A1A1920035FB9C507 /* SequencedExecutor.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SequencedExecutor.h; path = folly/executors/SequencedExecutor.h; sourceTree = "<group>"; };
 		32CA0D7CAA00EF509E537FF067EC4265 /* RWSpinLock.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RWSpinLock.h; path = folly/synchronization/RWSpinLock.h; sourceTree = "<group>"; };
 		3353CD550C89F0411BE63A07CC9A2A92 /* AsyncIO.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = AsyncIO.h; path = folly/experimental/io/AsyncIO.h; sourceTree = "<group>"; };
-		336E12F755B99EED9D152F8099512D9A /* Pods-WatermelonTester.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-WatermelonTester.release.xcconfig"; sourceTree = "<group>"; };
 		3376384EBE8850FFAA95BAE0D4DEB5DE /* RCTViewUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RCTViewUtils.h; sourceTree = "<group>"; };
 		338C772AEEE4D6E18547B04141D5D543 /* strtod.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = strtod.h; path = "double-conversion/strtod.h"; sourceTree = "<group>"; };
 		338F0193850C6E896B196C053DB37A71 /* RCTDeviceInfo.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTDeviceInfo.h; path = React/CoreModules/RCTDeviceInfo.h; sourceTree = "<group>"; };
@@ -3564,7 +3826,6 @@
 		54F37C62AD014EFA1E6BF4612D56B010 /* RAMBundleRegistry.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = RAMBundleRegistry.cpp; sourceTree = "<group>"; };
 		55273FD606836DAB0E07B2806128F175 /* open-sans-v17-all-charsets-700.woff2 */ = {isa = PBXFileReference; includeInIndex = 1; name = "open-sans-v17-all-charsets-700.woff2"; path = "docs/fonts/open-sans-v17-all-charsets-700.woff2"; sourceTree = "<group>"; };
 		5538C3B14431A63916753CB4798E7011 /* RCTSurfaceRootView.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RCTSurfaceRootView.h; sourceTree = "<group>"; };
-		55521FB624A93301CC8489B9EFE6078B /* Pods-WatermelonTester.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-WatermelonTester.debug.xcconfig"; sourceTree = "<group>"; };
 		55A4231858CEA4A33CCB150BEE722B3A /* RCTEventAnimation.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RCTEventAnimation.m; sourceTree = "<group>"; };
 		55A7C2D416BDEFAF6C20533DAF0EED04 /* RCTTextViewManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RCTTextViewManager.h; sourceTree = "<group>"; };
 		55B2F1DF91BA2E70A2B2B6C306D316C8 /* logging.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = logging.h; path = src/glog/logging.h; sourceTree = "<group>"; };
@@ -3644,6 +3905,7 @@
 		5CA4D7BAFAA0660BEF5B6F1BC6876AD4 /* Unistd.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Unistd.h; path = folly/portability/Unistd.h; sourceTree = "<group>"; };
 		5CCAF3DBD611E4A51BFEC9EBA53D1B44 /* Utils.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Utils.cpp; path = yoga/Utils.cpp; sourceTree = "<group>"; };
 		5D03B13A0662D0060EDFE1578CAC30FD /* SymbolizePrinter.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SymbolizePrinter.h; path = folly/experimental/symbolizer/SymbolizePrinter.h; sourceTree = "<group>"; };
+		5D0504F57DEABEA93644810B3222842D /* Pods-WatermelonTester-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-WatermelonTester-acknowledgements.markdown"; sourceTree = "<group>"; };
 		5D12663BCA75D914F32E15609DC02A83 /* CompactValue.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = CompactValue.h; path = yoga/CompactValue.h; sourceTree = "<group>"; };
 		5D2F1660617E3913FB605E1ED0A7F4AA /* RCTImageURLLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTImageURLLoader.h; path = Libraries/Image/RCTImageURLLoader.h; sourceTree = "<group>"; };
 		5DA68F4A7270C850A0F319F9406EDFAC /* GenericBaton.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GenericBaton.h; path = folly/fibers/GenericBaton.h; sourceTree = "<group>"; };
@@ -3671,6 +3933,7 @@
 		608C3620D93AD0165809BBAF37080E9A /* CHANGELOG.md */ = {isa = PBXFileReference; includeInIndex = 1; name = CHANGELOG.md; path = "docs-build/CHANGELOG.md"; sourceTree = "<group>"; };
 		608DBF64F9747B48D3683E78B469B046 /* RCTSettingsPlugins.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTSettingsPlugins.h; path = Libraries/Settings/RCTSettingsPlugins.h; sourceTree = "<group>"; };
 		6093505481B2B8C82D17D9B8EF31425C /* SynthTraceParser.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SynthTraceParser.h; path = destroot/include/hermes/SynthTraceParser.h; sourceTree = "<group>"; };
+		60A166851EE51F482A0F4EB86D40ED17 /* Pods-WatermelonTester-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-WatermelonTester-resources.sh"; sourceTree = "<group>"; };
 		60B715A60942D0D64D6ACDE700EF8C9A /* ReactCommon-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "ReactCommon-prefix.pch"; sourceTree = "<group>"; };
 		60C1952F4EC688B2703108CB2270B9BD /* Coroutine.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Coroutine.h; path = folly/experimental/coro/Coroutine.h; sourceTree = "<group>"; };
 		61346F7F79A6AA20A3B9F836272A5ACC /* React-RCTBlob.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "React-RCTBlob.release.xcconfig"; sourceTree = "<group>"; };
@@ -3709,7 +3972,6 @@
 		6524D127C87955DB67DB720CE4C2729F /* JemallocHugePageAllocator.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = JemallocHugePageAllocator.h; path = folly/experimental/JemallocHugePageAllocator.h; sourceTree = "<group>"; };
 		656C4EB816D96CD4D789CDA5FCC54C5B /* React-RCTAppDelegate-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "React-RCTAppDelegate-prefix.pch"; sourceTree = "<group>"; };
 		65815BBD0ACC734578CA25B55AE633B1 /* DynamicBoundedQueue.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = DynamicBoundedQueue.h; path = folly/concurrency/DynamicBoundedQueue.h; sourceTree = "<group>"; };
-		65A213186302931C3B63400AD99C3406 /* Pods-WatermelonTester-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-WatermelonTester-acknowledgements.markdown"; sourceTree = "<group>"; };
 		65A4A78E18A2D40F21827828566404A9 /* Extern.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Extern.h; path = folly/lang/Extern.h; sourceTree = "<group>"; };
 		65A51DAAF72FDD5A37E1AE36435CB183 /* React-Core.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "React-Core.modulemap"; sourceTree = "<group>"; };
 		65AD52CE9291534BCE1770689896AFE4 /* EventBaseLocal.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = EventBaseLocal.cpp; path = folly/io/async/EventBaseLocal.cpp; sourceTree = "<group>"; };
@@ -3725,6 +3987,7 @@
 		66AB5806E5E1BCBCF04BFEECBEFFB909 /* RCTEventDispatcher.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RCTEventDispatcher.m; sourceTree = "<group>"; };
 		66B71BC3716EE1EC8E8ACFDDB7718B2C /* SignalHandlerTest.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SignalHandlerTest.h; path = folly/experimental/symbolizer/test/SignalHandlerTest.h; sourceTree = "<group>"; };
 		66DC7A5084C49D332CE0656434DB25C5 /* glog-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "glog-prefix.pch"; sourceTree = "<group>"; };
+		66E1BAC6CC436F67ACD51B9211A14858 /* Pods-WatermelonTester-WatermelonTesterTests */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "Pods-WatermelonTester-WatermelonTesterTests"; path = "libPods-WatermelonTester-WatermelonTesterTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		671F4A4BFE985F490D320E000671C0AF /* RCTBackedTextInputViewProtocol.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RCTBackedTextInputViewProtocol.h; sourceTree = "<group>"; };
 		67565FBE56D64239B1012A8D6819711C /* RCTAccessibilityManager.mm */ = {isa = PBXFileReference; includeInIndex = 1; path = RCTAccessibilityManager.mm; sourceTree = "<group>"; };
 		67610A23C6AB885630D6A1CAB2B955DA /* RCTBlobManager.mm */ = {isa = PBXFileReference; includeInIndex = 1; path = RCTBlobManager.mm; sourceTree = "<group>"; };
@@ -3761,7 +4024,6 @@
 		6A895EF4F50D8D50B4108530702BD4F3 /* Setup.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Setup.html; path = docs/Setup.html; sourceTree = "<group>"; };
 		6AA76771E575C660597CF853FAE8C040 /* Value.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Value.h; path = react/bridging/Value.h; sourceTree = "<group>"; };
 		6AC8AA2ABBBD16736E3098A706C357CF /* GlobalExecutor.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GlobalExecutor.h; path = folly/executors/GlobalExecutor.h; sourceTree = "<group>"; };
-		6ACCA548882D4E923CD25C580D7DB8F6 /* Pods-WatermelonTesterTests-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-WatermelonTesterTests-dummy.m"; sourceTree = "<group>"; };
 		6B0488018BCDC686C939274593020C1B /* AsyncScope.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = AsyncScope.h; path = folly/experimental/coro/AsyncScope.h; sourceTree = "<group>"; };
 		6B6D6541513E4548ADEAB02362CCC6D0 /* Yoga.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Yoga.h; path = yoga/Yoga.h; sourceTree = "<group>"; };
 		6B8AAF3AD4341A843D6BADB8BB8249B9 /* YGValue.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = YGValue.h; path = yoga/YGValue.h; sourceTree = "<group>"; };
@@ -4015,11 +4277,11 @@
 		8A7A923C652AAA47E487D35732AD8E5A /* SharingDatabaseAcrossTargets.html */ = {isa = PBXFileReference; includeInIndex = 1; name = SharingDatabaseAcrossTargets.html; path = docs/Advanced/SharingDatabaseAcrossTargets.html; sourceTree = "<group>"; };
 		8A9ED2DE1D9966A799EE97FEDC022525 /* RCTViewRegistry.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RCTViewRegistry.m; sourceTree = "<group>"; };
 		8AF7FA9EA5ADD13C4E02B1FAF257D8D0 /* CoreModulesPlugins.mm */ = {isa = PBXFileReference; includeInIndex = 1; path = CoreModulesPlugins.mm; sourceTree = "<group>"; };
+		8B45C6CF134B35ED794967F6598BCDBE /* Pods-WatermelonTester-WatermelonTesterTests-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-WatermelonTester-WatermelonTesterTests-frameworks.sh"; sourceTree = "<group>"; };
 		8B59700096F0883B1BAA9D5831BBC4F9 /* fmt.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = fmt.release.xcconfig; sourceTree = "<group>"; };
 		8B6EC5E2F79F8870134B7C0942C89C2C /* RCTNetworking.mm */ = {isa = PBXFileReference; includeInIndex = 1; path = RCTNetworking.mm; sourceTree = "<group>"; };
 		8B76EDAC04BD9E1947DE7AA285D35212 /* Yoga.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Yoga.cpp; path = yoga/Yoga.cpp; sourceTree = "<group>"; };
 		8B8A1C4668FC1AB32FADA53F1055E9F3 /* RCTAppSetupUtils.mm */ = {isa = PBXFileReference; includeInIndex = 1; path = RCTAppSetupUtils.mm; sourceTree = "<group>"; };
-		8B95E1AC05747189D58BA47ED3895CF6 /* Pods-WatermelonTester-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-WatermelonTester-acknowledgements.plist"; sourceTree = "<group>"; };
 		8BB85777443B7EF291C2F05EE406FD9E /* SingletonStackTrace.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SingletonStackTrace.cpp; path = folly/detail/SingletonStackTrace.cpp; sourceTree = "<group>"; };
 		8BB986ACC836A6346CE38AF720F199D4 /* RCTUIManagerUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RCTUIManagerUtils.h; sourceTree = "<group>"; };
 		8BC377E968EB0E655AE1A66B14115E0E /* evrpc.c */ = {isa = PBXFileReference; includeInIndex = 1; path = evrpc.c; sourceTree = "<group>"; };
@@ -4068,6 +4330,7 @@
 		9362C52D5590979353587A9DC7F3A42B /* RCTModuleData.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RCTModuleData.h; sourceTree = "<group>"; };
 		93A5F25826FEE73CFD19C9CCFED74006 /* SharingDatabaseAcrossTargets.md */ = {isa = PBXFileReference; includeInIndex = 1; name = SharingDatabaseAcrossTargets.md; path = "docs-build/Advanced/SharingDatabaseAcrossTargets.md"; sourceTree = "<group>"; };
 		93F5C296E23A7D4372EFC5D53BE8586B /* open-sans-v17-all-charsets-italic.woff2 */ = {isa = PBXFileReference; includeInIndex = 1; name = "open-sans-v17-all-charsets-italic.woff2"; path = "docs/fonts/open-sans-v17-all-charsets-italic.woff2"; sourceTree = "<group>"; };
+		9406CFC0CAD69D616941EB9B5B55CB11 /* Pods-WatermelonTester-WatermelonTesterTests-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-WatermelonTester-WatermelonTesterTests-acknowledgements.markdown"; sourceTree = "<group>"; };
 		9424393CE320C622AD5606F8ECC4BBA7 /* FmtCompile.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = FmtCompile.h; path = folly/portability/FmtCompile.h; sourceTree = "<group>"; };
 		9432B3D33F01F3DBCF8E77537FB4A871 /* JsArgumentHelpers.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = JsArgumentHelpers.h; sourceTree = "<group>"; };
 		94411B267E0C508A90341FA4608D4850 /* TimedWait.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = TimedWait.h; path = folly/experimental/coro/TimedWait.h; sourceTree = "<group>"; };
@@ -4083,7 +4346,6 @@
 		95E1D680FA8FFC33DF9DBCB91BA7577C /* WhenN-inl.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "WhenN-inl.h"; path = "folly/fibers/WhenN-inl.h"; sourceTree = "<group>"; };
 		95FA9A0C40B9880CE5CC417D0A46CF0A /* WatermelonDB.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; path = WatermelonDB.podspec; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		963C84A67120C69F8E7A98A44A34E145 /* RCTCxxConvert.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RCTCxxConvert.m; sourceTree = "<group>"; };
-		967F4F46045926F8C141AC83325E8B0D /* Pods-WatermelonTesterTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-WatermelonTesterTests.debug.xcconfig"; sourceTree = "<group>"; };
 		968A1E9FF09AA32B3A1C38B87E1F20D8 /* VirtualEventBase.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = VirtualEventBase.cpp; path = folly/io/async/VirtualEventBase.cpp; sourceTree = "<group>"; };
 		968B4A821D867DE1B0A8B9F6B69AE93C /* RCTMockDef.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RCTMockDef.h; sourceTree = "<group>"; };
 		96A6225985D6F14D2FBBF8789D9394AC /* Baton.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Baton.h; path = folly/experimental/coro/Baton.h; sourceTree = "<group>"; };
@@ -4118,7 +4380,6 @@
 		9B2F945E5CA869ED83B275DB14A10AAD /* RCTSafeAreaShadowView.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RCTSafeAreaShadowView.m; sourceTree = "<group>"; };
 		9B362D8C87A0CBE8AD0CBE5606AEF67F /* RCTUITextField.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RCTUITextField.m; sourceTree = "<group>"; };
 		9B68BF25934245EB2DB702DFDDE8AD1D /* Bser.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Bser.h; path = folly/experimental/bser/Bser.h; sourceTree = "<group>"; };
-		9B79B4F988143E0F8210A04255CB1166 /* Pods-WatermelonTester.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-WatermelonTester.modulemap"; sourceTree = "<group>"; };
 		9B860E7536F89159CC5D7AF7BE9FFC39 /* JSINativeModules.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = JSINativeModules.cpp; path = jsireact/JSINativeModules.cpp; sourceTree = "<group>"; };
 		9BAEC8BA7DE1D7008BC29D5AFA2A2F5C /* React-jsiexecutor.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; path = "React-jsiexecutor.podspec"; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		9BC95863574DB974E13C5B4172D85374 /* F14Table.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = F14Table.cpp; path = folly/container/detail/F14Table.cpp; sourceTree = "<group>"; };
@@ -4166,7 +4427,6 @@
 		A055AE5253218B126C06A72A9483350F /* Sleeper.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = Sleeper.cpp; path = folly/synchronization/detail/Sleeper.cpp; sourceTree = "<group>"; };
 		A0649075578B067632F231B6449B1CA8 /* JSBigString.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = JSBigString.cpp; sourceTree = "<group>"; };
 		A088E6C292BB530CD1DF3E3788DD40B9 /* HardwareConcurrency.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = HardwareConcurrency.h; path = folly/system/HardwareConcurrency.h; sourceTree = "<group>"; };
-		A0A06831E6BC828A180CF684C09886D6 /* Pods-WatermelonTesterTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-WatermelonTesterTests.release.xcconfig"; sourceTree = "<group>"; };
 		A0B4243038E09276BBF3189E9A53EF46 /* MethodCall.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = MethodCall.cpp; sourceTree = "<group>"; };
 		A1061F08FDEBAA04B698AF66513136C4 /* RCTConvert+Text.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "RCTConvert+Text.m"; sourceTree = "<group>"; };
 		A139B8CC0A604F9ACEE8CE3E9766D170 /* RCTAppearance.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTAppearance.h; path = React/CoreModules/RCTAppearance.h; sourceTree = "<group>"; };
@@ -4183,7 +4443,6 @@
 		A2A567996C59639927CEA4DFC5C1E591 /* StampedPtr.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = StampedPtr.h; path = folly/experimental/StampedPtr.h; sourceTree = "<group>"; };
 		A2C85F2D8F92C708ED5C58651B23397C /* MessageConverters.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = MessageConverters.h; sourceTree = "<group>"; };
 		A2FA56C3BC4B89E8EEEE7567E6204639 /* symbolize.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = symbolize.cc; path = src/symbolize.cc; sourceTree = "<group>"; };
-		A32178B7E2114A46ADB4CA66ABCF5701 /* Pods-WatermelonTester-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-WatermelonTester-frameworks.sh"; sourceTree = "<group>"; };
 		A34A230CE42A35E48402C8099E0D1033 /* RCTSourceCode.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTSourceCode.h; path = React/CoreModules/RCTSourceCode.h; sourceTree = "<group>"; };
 		A34BC1B4965740CC59AE651858FE3C86 /* RCTDevSplitBundleLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTDevSplitBundleLoader.h; path = React/CoreModules/RCTDevSplitBundleLoader.h; sourceTree = "<group>"; };
 		A37B3D2D9F85892BB2A5F1E25361F65C /* Writers.md */ = {isa = PBXFileReference; includeInIndex = 1; name = Writers.md; path = "docs-build/Writers.md"; sourceTree = "<group>"; };
@@ -4228,6 +4487,7 @@
 		A9D7F1EAE0B22AB91BE463F4428669FD /* RCTViewManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RCTViewManager.h; sourceTree = "<group>"; };
 		A9DE7C8356DC1FF733FF81D57F38C343 /* Memory.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Memory.h; path = folly/Memory.h; sourceTree = "<group>"; };
 		A9FE3066F4EE16C186BCB1AEA69EF48C /* RCTBackedTextInputDelegate.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RCTBackedTextInputDelegate.h; sourceTree = "<group>"; };
+		AA19D75F60D6A829A1DF8A6B7A60088E /* Pods-WatermelonTester.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-WatermelonTester.modulemap"; sourceTree = "<group>"; };
 		AA1F30FC006401403BD12B6019444DEF /* Stdlib.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Stdlib.h; path = folly/portability/Stdlib.h; sourceTree = "<group>"; };
 		AA1FDED6F0E5B67A44831062720CA933 /* evrpc.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = evrpc.h; path = include/evrpc.h; sourceTree = "<group>"; };
 		AA876D46751FEB60EFC9956C8D827AE9 /* Yoga.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; path = Yoga.podspec; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
@@ -4264,6 +4524,7 @@
 		AFDACDB17C95CE2F53B8B05B8EEEA702 /* RCTInputAccessoryViewManager.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RCTInputAccessoryViewManager.m; sourceTree = "<group>"; };
 		AFE43961E489518AF35274030E581EFA /* TraceInterpreter.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = TraceInterpreter.h; path = destroot/include/hermes/TraceInterpreter.h; sourceTree = "<group>"; };
 		AFEEB5EF356875F12E2A50EDC51CDDEE /* RCTDataRequestHandler.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTDataRequestHandler.h; path = Libraries/Network/RCTDataRequestHandler.h; sourceTree = "<group>"; };
+		B042EB7FF9F3C907F7B9E840A1D93E87 /* Pods-WatermelonTester-WatermelonTesterTests.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-WatermelonTester-WatermelonTesterTests.modulemap"; sourceTree = "<group>"; };
 		B059A4621649932515BB60F854E23420 /* FutureUtil.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = FutureUtil.h; path = folly/experimental/coro/FutureUtil.h; sourceTree = "<group>"; };
 		B05F43ED67348BB8DF2534F4E1DADD98 /* Byte.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Byte.h; path = folly/lang/Byte.h; sourceTree = "<group>"; };
 		B06983D583D51DDE3DD0DBC78B4DE07D /* RCTVibration.mm */ = {isa = PBXFileReference; includeInIndex = 1; path = RCTVibration.mm; sourceTree = "<group>"; };
@@ -4403,6 +4664,7 @@
 		C021E83F1D3CFFFFFCD1057926C72FBD /* Poly.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Poly.h; path = folly/Poly.h; sourceTree = "<group>"; };
 		C04269DBB94B7CF9EA9EF90FB2462512 /* CurrentExecutor.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = CurrentExecutor.h; path = folly/experimental/coro/CurrentExecutor.h; sourceTree = "<group>"; };
 		C04C066EF96C0877E5B3BFE8424937E3 /* RCTModalHostViewController.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RCTModalHostViewController.m; sourceTree = "<group>"; };
+		C07B059ADE2FCE48B5537050DBE62104 /* Pods-WatermelonTester-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-WatermelonTester-dummy.m"; sourceTree = "<group>"; };
 		C0C2E046BEB27FDA360B9B009D757606 /* FileUtil.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = FileUtil.h; path = folly/FileUtil.h; sourceTree = "<group>"; };
 		C0ECA37311C962C919E2BAE0D0125A08 /* RCTAccessibilityManager+Internal.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "RCTAccessibilityManager+Internal.h"; path = "React/CoreModules/RCTAccessibilityManager+Internal.h"; sourceTree = "<group>"; };
 		C0F6BD3EDF8D28FB5632D628245CF4AD /* ch04-00-deeper.html */ = {isa = PBXFileReference; includeInIndex = 1; name = "ch04-00-deeper.html"; path = "docs/ch04-00-deeper.html"; sourceTree = "<group>"; };
@@ -4491,6 +4753,7 @@
 		CD7418F8D9451B8C083ECE703DDE1D78 /* RCTViewUtils.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RCTViewUtils.m; sourceTree = "<group>"; };
 		CD795257C76EFCD405797B9BFDF3F512 /* RCTNetworkTask.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTNetworkTask.h; path = Libraries/Network/RCTNetworkTask.h; sourceTree = "<group>"; };
 		CDA16394A03B587D87856D0FA2EC1D22 /* RCTImageLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTImageLoader.h; path = Libraries/Image/RCTImageLoader.h; sourceTree = "<group>"; };
+		CDB726C39A1A0056918A06E851957E86 /* Pods-WatermelonTester-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-WatermelonTester-acknowledgements.plist"; sourceTree = "<group>"; };
 		CDD204FE02CC21C16E6E4BD9238AC726 /* color.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = color.h; path = include/fmt/color.h; sourceTree = "<group>"; };
 		CDD5512CD95D905D2D7D93B132D4BD09 /* QuotientMultiSet-inl.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "QuotientMultiSet-inl.h"; path = "folly/experimental/QuotientMultiSet-inl.h"; sourceTree = "<group>"; };
 		CE087B8E47AB1855C1F09072FEFA6E51 /* RCTVirtualTextShadowView.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RCTVirtualTextShadowView.m; sourceTree = "<group>"; };
@@ -4617,6 +4880,7 @@
 		DE9A14E174D4980ACBB99413F849CB01 /* IoUringBackend.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IoUringBackend.h; path = folly/experimental/io/IoUringBackend.h; sourceTree = "<group>"; };
 		DEBD685CADE2AAD56F57D91630A71D35 /* RCTSurface.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RCTSurface.h; sourceTree = "<group>"; };
 		DEF4AE4AF67D5E4154E4F58733C13F3E /* Relation.md */ = {isa = PBXFileReference; includeInIndex = 1; name = Relation.md; path = "docs-build/Relation.md"; sourceTree = "<group>"; };
+		DEF7AD3FD0B411CA182D311C0E10B492 /* Pods-WatermelonTester-WatermelonTesterTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-WatermelonTester-WatermelonTesterTests.debug.xcconfig"; sourceTree = "<group>"; };
 		DF1FE419105C8DB1521AF0C07FFD6F4F /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; path = README.md; sourceTree = "<group>"; };
 		DF20F66F8C10080D32C58AC3AAF4F7E2 /* RCTKeyboardObserver.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTKeyboardObserver.h; path = React/CoreModules/RCTKeyboardObserver.h; sourceTree = "<group>"; };
 		DF2E2C37E4DFE67593EFB32AAB10413A /* JSBundleType.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = JSBundleType.cpp; sourceTree = "<group>"; };
@@ -4677,6 +4941,7 @@
 		E76A1093D60D4EB11953960A46738585 /* ratelim-internal.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "ratelim-internal.h"; sourceTree = "<group>"; };
 		E78CB3D4D3E7E827ECFCEFB748E35598 /* react_native_log.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = react_native_log.h; sourceTree = "<group>"; };
 		E7AB8E2ADC3FC7E517147E00A66F2A00 /* DatabaseBridge.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = DatabaseBridge.m; sourceTree = "<group>"; };
+		E7E87E7A59C3751C6E044F79E8941E6C /* Pods-WatermelonTester-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-WatermelonTester-umbrella.h"; sourceTree = "<group>"; };
 		E8134C8B5C9A43D6D0FE7F9A1203167E /* RCTConvert+CoreLocation.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "RCTConvert+CoreLocation.m"; sourceTree = "<group>"; };
 		E816F0A7A3AC1EFF0856331309B6D64A /* React-cxxreact.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; path = "React-cxxreact.podspec"; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		E831BE56F95D215ECB75E0B7AA1B2666 /* RecoverableError.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RecoverableError.h; sourceTree = "<group>"; };
@@ -4724,6 +4989,7 @@
 		ED018A75CFE1BE710200C45B19C76EA9 /* QueueObserver.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = QueueObserver.h; path = folly/concurrency/QueueObserver.h; sourceTree = "<group>"; };
 		ED13C3E2A16D09508B34876A316E3A09 /* SysTypes.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SysTypes.h; path = folly/portability/SysTypes.h; sourceTree = "<group>"; };
 		ED465B33329184FC2A0730B2062BF0C5 /* RCTFPSGraph.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RCTFPSGraph.m; sourceTree = "<group>"; };
+		ED964E1866118E25847406F4A644ACAC /* Pods-WatermelonTester-WatermelonTesterTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-WatermelonTester-WatermelonTesterTests.release.xcconfig"; sourceTree = "<group>"; };
 		EDEA0B28F934ACBEF1FCDDDC53E4EECF /* LifoSem.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = LifoSem.h; path = folly/synchronization/LifoSem.h; sourceTree = "<group>"; };
 		EDEE15F192736392AB2E648D420A7A73 /* SharedPromise.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = SharedPromise.cpp; path = folly/futures/SharedPromise.cpp; sourceTree = "<group>"; };
 		EDF96F5AB2F418646D69B4D24E2487EE /* HazptrThreadPoolExecutor.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = HazptrThreadPoolExecutor.h; path = folly/synchronization/HazptrThreadPoolExecutor.h; sourceTree = "<group>"; };
@@ -4738,7 +5004,6 @@
 		EF80E4254A279213E17C1CB1DB8085F2 /* CallbackWrapper.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = CallbackWrapper.h; path = react/bridging/CallbackWrapper.h; sourceTree = "<group>"; };
 		EF85965689A1A2D3D0EC59A704C43F05 /* RCTScrollContentView.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RCTScrollContentView.h; sourceTree = "<group>"; };
 		EF8AA3BD8AE9891D7EB5A67CFE9B5463 /* JSExecutor.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = JSExecutor.h; sourceTree = "<group>"; };
-		EF8BC6FFB3008E7E36ED6755806B1675 /* Pods-WatermelonTester-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-WatermelonTester-dummy.m"; sourceTree = "<group>"; };
 		EF97614EEFE444253AC246FE13289330 /* RCTDecayAnimation.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RCTDecayAnimation.m; sourceTree = "<group>"; };
 		EFB3BEDE16789535374BB80EE740A395 /* String.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = String.cpp; path = folly/String.cpp; sourceTree = "<group>"; };
 		EFFBA077F0D08E78B420766384D2C884 /* RCTImageURLLoaderWithAttribution.mm */ = {isa = PBXFileReference; includeInIndex = 1; path = RCTImageURLLoaderWithAttribution.mm; sourceTree = "<group>"; };
@@ -4785,7 +5050,6 @@
 		F404F12D170AEC961410CD7CC007A540 /* SymbolizedFrame.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SymbolizedFrame.h; path = folly/experimental/symbolizer/SymbolizedFrame.h; sourceTree = "<group>"; };
 		F40B670F58A563E025F9964C3DDE6B98 /* Adapters.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Adapters.html; path = docs/Implementation/Adapters.html; sourceTree = "<group>"; };
 		F40C7867C70116F4B85A1B284BDC7696 /* ChannelTestUtil.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ChannelTestUtil.h; path = folly/experimental/channels/test/ChannelTestUtil.h; sourceTree = "<group>"; };
-		F45215D3544C04D0D3843DF0A89E3214 /* Pods-WatermelonTester-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-WatermelonTester-umbrella.h"; sourceTree = "<group>"; };
 		F452DD67CA86399DAB716F4C1402F9F3 /* RCTSurfaceHostingView.mm */ = {isa = PBXFileReference; includeInIndex = 1; path = RCTSurfaceHostingView.mm; sourceTree = "<group>"; };
 		F46BBE52E22BF072EC4500ACDAD7FEAE /* Symbolizer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Symbolizer.h; path = folly/experimental/symbolizer/Symbolizer.h; sourceTree = "<group>"; };
 		F478D6786A62ADD8C78E1D9069FEA258 /* RCTKeyCommands.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RCTKeyCommands.m; sourceTree = "<group>"; };
@@ -4833,7 +5097,6 @@
 		FB175CDDF4FE390F180FFDDE83F6B023 /* Promise.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Promise.h; path = folly/fibers/Promise.h; sourceTree = "<group>"; };
 		FB2809C6900955C83FC6DF2418C9BCF9 /* PrimaryPtr.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = PrimaryPtr.h; path = folly/experimental/PrimaryPtr.h; sourceTree = "<group>"; };
 		FB2F9E9D8A5B1FD612ACC599C0C46E7D /* TurboModule.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = TurboModule.h; sourceTree = "<group>"; };
-		FB49C2A4382E0E508C44A769F248465D /* Pods-WatermelonTesterTests-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-WatermelonTesterTests-acknowledgements.plist"; sourceTree = "<group>"; };
 		FB6FAD8F0183E86ACBFBD8A81BA7BF3A /* libevent */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = libevent; path = liblibevent.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB82F36419014FAD0F589EDCB603058C /* FiberIOExecutor.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = FiberIOExecutor.h; path = folly/executors/FiberIOExecutor.h; sourceTree = "<group>"; };
 		FB8E3A879B326F43F300A84AD4731D7B /* ch02-00-learn-to-use.md */ = {isa = PBXFileReference; includeInIndex = 1; name = "ch02-00-learn-to-use.md"; path = "docs-master/ch02-00-learn-to-use.md"; sourceTree = "<group>"; };
@@ -4864,6 +5127,7 @@
 		FEC67528EAE529EEF62AED536FE82108 /* evutil.c */ = {isa = PBXFileReference; includeInIndex = 1; path = evutil.c; sourceTree = "<group>"; };
 		FF15A6C750E85F67331BCEDB754DB207 /* RCTComponentData.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RCTComponentData.h; sourceTree = "<group>"; };
 		FF2267CA109EDB4ACD34CF1AB2C275E3 /* RCTLinkingManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTLinkingManager.h; path = Libraries/LinkingIOS/RCTLinkingManager.h; sourceTree = "<group>"; };
+		FF43C54B65173223BE7953F3F26712BB /* Pods-WatermelonTester-WatermelonTesterTests-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-WatermelonTester-WatermelonTesterTests-acknowledgements.plist"; sourceTree = "<group>"; };
 		FF7F92A73C29EF6CE737775A79BA2511 /* AtomicNotification-inl.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "AtomicNotification-inl.h"; path = "folly/synchronization/AtomicNotification-inl.h"; sourceTree = "<group>"; };
 		FFA044D0488569CF7B701EEE5DD5F119 /* RCTBaseTextViewManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RCTBaseTextViewManager.h; sourceTree = "<group>"; };
 		FFA90C32AD1997CDC08780B15F65B6A7 /* RCTSurfaceView+Internal.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "RCTSurfaceView+Internal.h"; sourceTree = "<group>"; };
@@ -4908,13 +5172,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		3391273B6FFD22F3C560D814C6B7C102 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		42D915DBA4FE602515FB489AABD4C5AA /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -5083,6 +5340,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		E6860181E8C4318EE7830355308D927E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E7D69D2014F7976A165B42DB4B9984B4 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -6376,6 +6640,45 @@
 			name = Pod;
 			sourceTree = "<group>";
 		};
+		7E2F9118747551285E1A875B1DA404E7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6FFB7B2992BB53405E6B771A5BA1E97D /* DoubleConversion */,
+				F4BDA69E3BCB0166D49FB679ABADCA00 /* fmt */,
+				3CA7A9404CCDD6BA22C97F8348CE3209 /* glog */,
+				FB6FAD8F0183E86ACBFBD8A81BA7BF3A /* libevent */,
+				D6A3CF2FDC9D571D60BAB0281B6FA1BD /* Pods-WatermelonTester */,
+				66E1BAC6CC436F67ACD51B9211A14858 /* Pods-WatermelonTester-WatermelonTesterTests */,
+				1936453FF2A7E3A13063C4917C4D5598 /* RCT-Folly */,
+				F958876A082BF810B342435CE3FB5AF6 /* RCTTypeSafety */,
+				E7178FECB829C9576A3723658B07F087 /* React-Codegen */,
+				BD71E2539823621820F84384064C253A /* React-Core */,
+				FE6D792B6328AAF68E46924D7F466631 /* React-Core-AccessibilityResources */,
+				6771D231F4C8C5976470A369C474B32E /* React-CoreModules */,
+				37592FDAD45752511010F4B06AC57355 /* React-cxxreact */,
+				DAD8B71DF2DFCF15AAF98C06D37D5703 /* React-hermes */,
+				D9F334F2E90E3EE462FC4192AF5C03BD /* React-jsi */,
+				F2E7C88DFCD460A4B46B913ADEB8A641 /* React-jsiexecutor */,
+				2577F299FCB0A19824FE989BE77B8E8F /* React-jsinspector */,
+				A5B49761F8D1EB12585DD45CAA2E489F /* React-logger */,
+				666E72807891C591E025A75410CD2A26 /* React-perflogger */,
+				FE7B9294FF05AAFD1653E2104E10844A /* React-RCTAnimation */,
+				39D0105B481E5FB78C661496BD63B8A5 /* React-RCTAppDelegate */,
+				F71EBF73F354B475D465FF6DE9A66707 /* React-RCTBlob */,
+				EEDBF403E8E0B3885E65C2741B536BC5 /* React-RCTImage */,
+				802121F5B756ACBFDD6D08C36246DADD /* React-RCTLinking */,
+				A68E5A9B69A3BA0FD52CAF7A354EC93B /* React-RCTNetwork */,
+				269BE773C9482484B70949A40F4EA525 /* React-RCTSettings */,
+				E6A16705C69FC7DE11C2469A4A0F8358 /* React-RCTText */,
+				C1A919103EAC9813D236486C34FC0A21 /* React-RCTVibration */,
+				D5C775614AC76D44CECB6BE08B022F1F /* ReactCommon */,
+				EB2EBC367DAD012021CB28C5D9106469 /* simdjson */,
+				B1BC0D650AD4A6CB2A62DB5D7C94556A /* WatermelonDB */,
+				65D0A19C165FA1126B1360680FE6DB12 /* Yoga */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		7E5433309B7CCE7BB01DD7954FF4B1DC /* Support Files */ = {
 			isa = PBXGroup;
 			children = (
@@ -6402,17 +6705,21 @@
 			path = "../../../../native/iosTest/Pods/Target Support Files/React-CoreModules";
 			sourceTree = "<group>";
 		};
-		7F1DD3AB82EADE1DBA6238DB27BEFD12 /* Pods-WatermelonTesterTests */ = {
+		7FFA2DFF6AD7B2A0B1E039D7DA1FCD5D /* Pods-WatermelonTester */ = {
 			isa = PBXGroup;
 			children = (
-				269362B11363F32FFCEF16B4B914E67E /* Pods-WatermelonTesterTests-acknowledgements.markdown */,
-				FB49C2A4382E0E508C44A769F248465D /* Pods-WatermelonTesterTests-acknowledgements.plist */,
-				6ACCA548882D4E923CD25C580D7DB8F6 /* Pods-WatermelonTesterTests-dummy.m */,
-				967F4F46045926F8C141AC83325E8B0D /* Pods-WatermelonTesterTests.debug.xcconfig */,
-				A0A06831E6BC828A180CF684C09886D6 /* Pods-WatermelonTesterTests.release.xcconfig */,
+				AA19D75F60D6A829A1DF8A6B7A60088E /* Pods-WatermelonTester.modulemap */,
+				5D0504F57DEABEA93644810B3222842D /* Pods-WatermelonTester-acknowledgements.markdown */,
+				CDB726C39A1A0056918A06E851957E86 /* Pods-WatermelonTester-acknowledgements.plist */,
+				C07B059ADE2FCE48B5537050DBE62104 /* Pods-WatermelonTester-dummy.m */,
+				1693B1015FE2C0C15CE0CD80F0A08DFB /* Pods-WatermelonTester-frameworks.sh */,
+				60A166851EE51F482A0F4EB86D40ED17 /* Pods-WatermelonTester-resources.sh */,
+				E7E87E7A59C3751C6E044F79E8941E6C /* Pods-WatermelonTester-umbrella.h */,
+				11C55BD1D6878E4F26B7FD2EAB89F0B7 /* Pods-WatermelonTester.debug.xcconfig */,
+				1DA95228981BF77AA024A73CF254FDE8 /* Pods-WatermelonTester.release.xcconfig */,
 			);
-			name = "Pods-WatermelonTesterTests";
-			path = "Target Support Files/Pods-WatermelonTesterTests";
+			name = "Pods-WatermelonTester";
+			path = "Target Support Files/Pods-WatermelonTester";
 			sourceTree = "<group>";
 		};
 		80B987A1C8B4A81CB5CC8D1D7F050CC3 /* React-logger */ = {
@@ -6932,23 +7239,6 @@
 			path = VirtualText;
 			sourceTree = "<group>";
 		};
-		86A96D5EF67DA871F03D7603F5829524 /* Pods-WatermelonTester */ = {
-			isa = PBXGroup;
-			children = (
-				9B79B4F988143E0F8210A04255CB1166 /* Pods-WatermelonTester.modulemap */,
-				65A213186302931C3B63400AD99C3406 /* Pods-WatermelonTester-acknowledgements.markdown */,
-				8B95E1AC05747189D58BA47ED3895CF6 /* Pods-WatermelonTester-acknowledgements.plist */,
-				EF8BC6FFB3008E7E36ED6755806B1675 /* Pods-WatermelonTester-dummy.m */,
-				A32178B7E2114A46ADB4CA66ABCF5701 /* Pods-WatermelonTester-frameworks.sh */,
-				24E949124D01FD744AAE0A66089B087A /* Pods-WatermelonTester-resources.sh */,
-				F45215D3544C04D0D3843DF0A89E3214 /* Pods-WatermelonTester-umbrella.h */,
-				55521FB624A93301CC8489B9EFE6078B /* Pods-WatermelonTester.debug.xcconfig */,
-				336E12F755B99EED9D152F8099512D9A /* Pods-WatermelonTester.release.xcconfig */,
-			);
-			name = "Pods-WatermelonTester";
-			path = "Target Support Files/Pods-WatermelonTester";
-			sourceTree = "<group>";
-		};
 		88D31D9174FE56A0515A7857C21A86D3 /* RCTImageHeaders */ = {
 			isa = PBXGroup;
 			children = (
@@ -7340,15 +7630,6 @@
 			);
 			name = "Support Files";
 			path = "../../../../native/iosTest/Pods/Target Support Files/RCTRequired";
-			sourceTree = "<group>";
-		};
-		8F32A042958EBBF10580A5F2E8408189 /* Targets Support Files */ = {
-			isa = PBXGroup;
-			children = (
-				86A96D5EF67DA871F03D7603F5829524 /* Pods-WatermelonTester */,
-				7F1DD3AB82EADE1DBA6238DB27BEFD12 /* Pods-WatermelonTesterTests */,
-			);
-			name = "Targets Support Files";
 			sourceTree = "<group>";
 		};
 		8FEFA76BC6146FC35B06107193CE1D6E /* Support Files */ = {
@@ -7839,6 +8120,23 @@
 			name = CoreModulesHeaders;
 			sourceTree = "<group>";
 		};
+		AD6BBF3CE77461F787F7D7316B951CE8 /* Pods-WatermelonTester-WatermelonTesterTests */ = {
+			isa = PBXGroup;
+			children = (
+				B042EB7FF9F3C907F7B9E840A1D93E87 /* Pods-WatermelonTester-WatermelonTesterTests.modulemap */,
+				9406CFC0CAD69D616941EB9B5B55CB11 /* Pods-WatermelonTester-WatermelonTesterTests-acknowledgements.markdown */,
+				FF43C54B65173223BE7953F3F26712BB /* Pods-WatermelonTester-WatermelonTesterTests-acknowledgements.plist */,
+				1456D452AFDA68F72D35AF9963C0DDE3 /* Pods-WatermelonTester-WatermelonTesterTests-dummy.m */,
+				8B45C6CF134B35ED794967F6598BCDBE /* Pods-WatermelonTester-WatermelonTesterTests-frameworks.sh */,
+				2F34DD70F8CEC051F77FCA84ADD6A234 /* Pods-WatermelonTester-WatermelonTesterTests-resources.sh */,
+				1DEA4E164E3CDFD58F103B0C9B448FA9 /* Pods-WatermelonTester-WatermelonTesterTests-umbrella.h */,
+				DEF7AD3FD0B411CA182D311C0E10B492 /* Pods-WatermelonTester-WatermelonTesterTests.debug.xcconfig */,
+				ED964E1866118E25847406F4A644ACAC /* Pods-WatermelonTester-WatermelonTesterTests.release.xcconfig */,
+			);
+			name = "Pods-WatermelonTester-WatermelonTesterTests";
+			path = "Target Support Files/Pods-WatermelonTester-WatermelonTesterTests";
+			sourceTree = "<group>";
+		};
 		AFC78BEE68442E75B17578295443C8E2 /* React-RCTAppDelegate */ = {
 			isa = PBXGroup;
 			children = (
@@ -8221,8 +8519,8 @@
 				393347347FB0B3B7968058329F30055E /* Development Pods */,
 				D89477F20FB1DE18A04690586D7808C4 /* Frameworks */,
 				C3FEBB5579B6FFDEE22C1DDD0441ECE8 /* Pods */,
-				D4AAE0DE9357CB5AE941494887740932 /* Products */,
-				8F32A042958EBBF10580A5F2E8408189 /* Targets Support Files */,
+				7E2F9118747551285E1A875B1DA404E7 /* Products */,
+				F1E713EE1BE34CE7F04108A42B521079 /* Targets Support Files */,
 			);
 			sourceTree = "<group>";
 		};
@@ -8280,45 +8578,6 @@
 			);
 			name = "Support Files";
 			path = "../../../../native/iosTest/Pods/Target Support Files/React-RCTLinking";
-			sourceTree = "<group>";
-		};
-		D4AAE0DE9357CB5AE941494887740932 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				6FFB7B2992BB53405E6B771A5BA1E97D /* DoubleConversion */,
-				F4BDA69E3BCB0166D49FB679ABADCA00 /* fmt */,
-				3CA7A9404CCDD6BA22C97F8348CE3209 /* glog */,
-				FB6FAD8F0183E86ACBFBD8A81BA7BF3A /* libevent */,
-				D6A3CF2FDC9D571D60BAB0281B6FA1BD /* Pods-WatermelonTester */,
-				12EB963B903B0B60DD38D9D78E44E1AD /* Pods-WatermelonTesterTests */,
-				1936453FF2A7E3A13063C4917C4D5598 /* RCT-Folly */,
-				F958876A082BF810B342435CE3FB5AF6 /* RCTTypeSafety */,
-				E7178FECB829C9576A3723658B07F087 /* React-Codegen */,
-				BD71E2539823621820F84384064C253A /* React-Core */,
-				FE6D792B6328AAF68E46924D7F466631 /* React-Core-AccessibilityResources */,
-				6771D231F4C8C5976470A369C474B32E /* React-CoreModules */,
-				37592FDAD45752511010F4B06AC57355 /* React-cxxreact */,
-				DAD8B71DF2DFCF15AAF98C06D37D5703 /* React-hermes */,
-				D9F334F2E90E3EE462FC4192AF5C03BD /* React-jsi */,
-				F2E7C88DFCD460A4B46B913ADEB8A641 /* React-jsiexecutor */,
-				2577F299FCB0A19824FE989BE77B8E8F /* React-jsinspector */,
-				A5B49761F8D1EB12585DD45CAA2E489F /* React-logger */,
-				666E72807891C591E025A75410CD2A26 /* React-perflogger */,
-				FE7B9294FF05AAFD1653E2104E10844A /* React-RCTAnimation */,
-				39D0105B481E5FB78C661496BD63B8A5 /* React-RCTAppDelegate */,
-				F71EBF73F354B475D465FF6DE9A66707 /* React-RCTBlob */,
-				EEDBF403E8E0B3885E65C2741B536BC5 /* React-RCTImage */,
-				802121F5B756ACBFDD6D08C36246DADD /* React-RCTLinking */,
-				A68E5A9B69A3BA0FD52CAF7A354EC93B /* React-RCTNetwork */,
-				269BE773C9482484B70949A40F4EA525 /* React-RCTSettings */,
-				E6A16705C69FC7DE11C2469A4A0F8358 /* React-RCTText */,
-				C1A919103EAC9813D236486C34FC0A21 /* React-RCTVibration */,
-				D5C775614AC76D44CECB6BE08B022F1F /* ReactCommon */,
-				EB2EBC367DAD012021CB28C5D9106469 /* simdjson */,
-				B1BC0D650AD4A6CB2A62DB5D7C94556A /* WatermelonDB */,
-				65D0A19C165FA1126B1360680FE6DB12 /* Yoga */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		D89477F20FB1DE18A04690586D7808C4 /* Frameworks */ = {
@@ -8543,6 +8802,15 @@
 			path = "../../../../native/iosTest/Pods/Target Support Files/React-RCTAppDelegate";
 			sourceTree = "<group>";
 		};
+		F1E713EE1BE34CE7F04108A42B521079 /* Targets Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				7FFA2DFF6AD7B2A0B1E039D7DA1FCD5D /* Pods-WatermelonTester */,
+				AD6BBF3CE77461F787F7D7316B951CE8 /* Pods-WatermelonTester-WatermelonTesterTests */,
+			);
+			name = "Targets Support Files";
+			sourceTree = "<group>";
+		};
 		F1F74010BB8159A42BDB95D1CA46D696 /* Support Files */ = {
 			isa = PBXGroup;
 			children = (
@@ -8656,13 +8924,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				AC2FE24A69E30640CDADCD6AE15464BE /* InspectorInterfaces.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		43DDDE9C90E9F9ED6EE1CCDFF13BA521 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -9102,6 +9363,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				D570D3B6F9790F6545CCDDEE5BA43E55 /* JSIDynamic.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8DA6F6E484E47343682B67737E441F02 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7D20DA972C7995726A4DC50BA583E9F5 /* Pods-WatermelonTester-WatermelonTesterTests-umbrella.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -10120,24 +10389,6 @@
 			productReference = EEDBF403E8E0B3885E65C2741B536BC5 /* React-RCTImage */;
 			productType = "com.apple.product-type.library.static";
 		};
-		51C97172DC703B913EE98E29E3A0BF72 /* Pods-WatermelonTesterTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 6812CD114CF2A73791DCD26B89E033C5 /* Build configuration list for PBXNativeTarget "Pods-WatermelonTesterTests" */;
-			buildPhases = (
-				43DDDE9C90E9F9ED6EE1CCDFF13BA521 /* Headers */,
-				DC8A79B722DEB46BB622F70C054713E8 /* Sources */,
-				42D915DBA4FE602515FB489AABD4C5AA /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				F0280F8BBCEBE9B7150A0CD146DD49B1 /* PBXTargetDependency */,
-			);
-			name = "Pods-WatermelonTesterTests";
-			productName = "Pods-WatermelonTesterTests";
-			productReference = 12EB963B903B0B60DD38D9D78E44E1AD /* Pods-WatermelonTesterTests */;
-			productType = "com.apple.product-type.library.static";
-		};
 		53D121F9F9BB0F8AC1C94A12C5A8572F /* React-RCTVibration */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4B929FA547409833B4A8D9C9298BF011 /* Build configuration list for PBXNativeTarget "React-RCTVibration" */;
@@ -10251,6 +10502,61 @@
 			name = "React-RCTLinking";
 			productName = "React-RCTLinking";
 			productReference = 802121F5B756ACBFDD6D08C36246DADD /* React-RCTLinking */;
+			productType = "com.apple.product-type.library.static";
+		};
+		779DAB46A58E8051C7D2E5A8782C79D1 /* Pods-WatermelonTester-WatermelonTesterTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 39442BFC5A1B4C5DBF1017F108F58833 /* Build configuration list for PBXNativeTarget "Pods-WatermelonTester-WatermelonTesterTests" */;
+			buildPhases = (
+				8DA6F6E484E47343682B67737E441F02 /* Headers */,
+				8578DDF19964D0BF3533EF7FD78B43ED /* Sources */,
+				E7D69D2014F7976A165B42DB4B9984B4 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				ACFE14A400834BBF0C589BC821C8B6D0 /* PBXTargetDependency */,
+				0EE713ECF439FAD2C36D71E0CB805DD7 /* PBXTargetDependency */,
+				BE1D08F3AABF85AA4AC32FD0A7B4CF22 /* PBXTargetDependency */,
+				01856D2F50A7834EED848ACBE5E12C68 /* PBXTargetDependency */,
+				D13BD58B3F11F4DD0CA6792DB60E0AEA /* PBXTargetDependency */,
+				13714BBDD9A80882E64DE48B9677CDB7 /* PBXTargetDependency */,
+				BED5682D28EBA4C23566CA794323C5DB /* PBXTargetDependency */,
+				5B1523F4AD1AB40FF22DBC41628BEB9A /* PBXTargetDependency */,
+				036A64E10D681DFD183222DFE8090ADB /* PBXTargetDependency */,
+				533D50AE0CB015A2BE59C367867F8494 /* PBXTargetDependency */,
+				A34976F423DAA2B73189C7F59CF8333F /* PBXTargetDependency */,
+				16E89FCA339AD6419646E4EF5C09CFE5 /* PBXTargetDependency */,
+				B31846F9CDCFB41BDD2A598D8501A503 /* PBXTargetDependency */,
+				5284EF43B9709AAD37C53AA598C816B4 /* PBXTargetDependency */,
+				75C383D8A6D1D02513B6E13872BDE905 /* PBXTargetDependency */,
+				08BD8352551B95704CC899A146D167D8 /* PBXTargetDependency */,
+				F09A3E3AE715D239F7625A07004366EA /* PBXTargetDependency */,
+				4F6E1D716727827456E4C0ABB192D9B7 /* PBXTargetDependency */,
+				C98C9D30A14E2B366CCB1362AAD60F49 /* PBXTargetDependency */,
+				889E3B0A7430FF7525CA73CB4CCDA4A7 /* PBXTargetDependency */,
+				C7402F285B56B18F722281DEE8CEDA54 /* PBXTargetDependency */,
+				4948FAC32FD0E96CB470246D870647AD /* PBXTargetDependency */,
+				56F1558C90393A3B6CCF8A344DCC0B66 /* PBXTargetDependency */,
+				064E727E673ACC6FDA945DFD6E7DC37F /* PBXTargetDependency */,
+				7EE06B652D41861314059B0607E658A4 /* PBXTargetDependency */,
+				74B8D4193013D1CCB0841C906FA45D14 /* PBXTargetDependency */,
+				4FC0FC78BFE7BF90699B67E5AF80FFA5 /* PBXTargetDependency */,
+				87AC9DF4ED807DC3CC165E899DD33279 /* PBXTargetDependency */,
+				D2A5C8655EAA8CAA5EF38C272BA2C1EA /* PBXTargetDependency */,
+				616B9E347A05F904174A3FF5C65DF905 /* PBXTargetDependency */,
+				FA31ED39028CDE7275A199168591220E /* PBXTargetDependency */,
+				52186EC63335FE038B636B82C5107CC4 /* PBXTargetDependency */,
+				3234E855E3F0AB37FADB42E3CC9CAE56 /* PBXTargetDependency */,
+				2D9C0A29E84F4CAEE13A24F84277F22D /* PBXTargetDependency */,
+				74338FD21CAC1173C8FC8F30CD7D2AC2 /* PBXTargetDependency */,
+				C7D4330653726FCF238E3E8563C228E9 /* PBXTargetDependency */,
+				F411E595363254968C27B5194E14B36A /* PBXTargetDependency */,
+				9524B87A9F2BF666087EFA17246E7779 /* PBXTargetDependency */,
+			);
+			name = "Pods-WatermelonTester-WatermelonTesterTests";
+			productName = "Pods-WatermelonTester-WatermelonTesterTests";
+			productReference = 66E1BAC6CC436F67ACD51B9211A14858 /* Pods-WatermelonTester-WatermelonTesterTests */;
 			productType = "com.apple.product-type.library.static";
 		};
 		7A020DAB6F3F0BA0A6D9946E84B38B7F /* React-Core-AccessibilityResources */ = {
@@ -10663,7 +10969,7 @@
 				en,
 			);
 			mainGroup = CF1408CF629C7361332E53B88F7BD30C;
-			productRefGroup = D4AAE0DE9357CB5AE941494887740932 /* Products */;
+			productRefGroup = 7E2F9118747551285E1A875B1DA404E7 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -10676,7 +10982,7 @@
 				985FEA01F314F3C00F0C1E1181E6C4A5 /* hermes-engine */,
 				04A30E186743192DFB26B0FD7DB8F250 /* libevent */,
 				C022870923962EA3953D70B907A7F8A7 /* Pods-WatermelonTester */,
-				51C97172DC703B913EE98E29E3A0BF72 /* Pods-WatermelonTesterTests */,
+				779DAB46A58E8051C7D2E5A8782C79D1 /* Pods-WatermelonTester-WatermelonTesterTests */,
 				EC55D52694092A9D0E6A78EB01207EB5 /* RCT-Folly */,
 				E7E7CE52C8C68B17224FF8C262D80ABF /* RCTRequired */,
 				D20469A9A1E5CFB26045EAEBE3F88E5E /* RCTTypeSafety */,
@@ -11369,6 +11675,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8578DDF19964D0BF3533EF7FD78B43ED /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CFFC5A57BAD7CBC6E66F25FD3A9B8218 /* Pods-WatermelonTester-WatermelonTesterTests-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		91562C29ABD3744C5B027F49A1B0F14F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -11401,7 +11715,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				17DA07786FD71F5767678E1EABF3453E /* simdjson.cpp in Sources */,
+				D10439460704B6935C795DA2547B2566 /* simdjson.cpp in Sources */,
 				4B45D8241E854296F50E36B460BDB448 /* simdjson-dummy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -11532,14 +11846,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DC8A79B722DEB46BB622F70C054713E8 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				C91A23C5D5238C95C0CBBC6544D8DA8B /* Pods-WatermelonTesterTests-dummy.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		DC9E0A16120EA04AFAF8CC35F39FB4FF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -11562,6 +11868,12 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		01856D2F50A7834EED848ACBE5E12C68 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "RCT-Folly";
+			target = EC55D52694092A9D0E6A78EB01207EB5 /* RCT-Folly */;
+			targetProxy = F2FF264F7B79DADDCED45A507A95832C /* PBXContainerItemProxy */;
+		};
 		02590EB0F845A8196CF52594964E5187 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "React-RCTBlob";
@@ -11586,6 +11898,24 @@
 			target = EFEA55B1B776B6EB4B16F363BFE64D1A /* boost */;
 			targetProxy = 1140309DB8E4F47C5EC0708979478C86 /* PBXContainerItemProxy */;
 		};
+		036A64E10D681DFD183222DFE8090ADB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-Core";
+			target = 7ACAA9BE580DD31A5CB9D97C45D9492D /* React-Core */;
+			targetProxy = 7564E594EFA3CE312CD9DD9D882A92FD /* PBXContainerItemProxy */;
+		};
+		064E727E673ACC6FDA945DFD6E7DC37F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-jsi";
+			target = FA877ADC442CB19CF61793D234C8B131 /* React-jsi */;
+			targetProxy = B4F1350E1B7A04B46942367FECF7D66A /* PBXContainerItemProxy */;
+		};
+		08BD8352551B95704CC899A146D167D8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-RCTLinking";
+			target = 6FE9147F8AAA4DE676C190F680F47AE2 /* React-RCTLinking */;
+			targetProxy = 396139130BE42B0D18D259AF5FC04295 /* PBXContainerItemProxy */;
+		};
 		0908471EB1C76C18FC375DC0040DC726 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "React-jsi";
@@ -11604,6 +11934,12 @@
 			target = DA0709CAAD589C6E7963495210438021 /* React-jsiexecutor */;
 			targetProxy = D5D58E4344437A5A6B1AFE39850E79A2 /* PBXContainerItemProxy */;
 		};
+		0EE713ECF439FAD2C36D71E0CB805DD7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = FBLazyVector;
+			target = 8CC4EAA817AA86310D1900F1DAB3580F /* FBLazyVector */;
+			targetProxy = B2BE361529B7AF61010C8FF1F4F5B404 /* PBXContainerItemProxy */;
+		};
 		11A27C7B435C8F29564225BB831D0898 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = ReactCommon;
@@ -11616,6 +11952,12 @@
 			target = B6D5DD49633DFF0657B8C3F08EB3ABA9 /* ReactCommon */;
 			targetProxy = 9A98899D3CDB41004AE8C03E06941FBF /* PBXContainerItemProxy */;
 		};
+		13714BBDD9A80882E64DE48B9677CDB7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = RCTTypeSafety;
+			target = D20469A9A1E5CFB26045EAEBE3F88E5E /* RCTTypeSafety */;
+			targetProxy = B23A230602386D08EC598B05F8D9BD78 /* PBXContainerItemProxy */;
+		};
 		13F7A7AFB8885122154DB156BDA9DE56 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "hermes-engine";
@@ -11627,6 +11969,12 @@
 			name = RCTTypeSafety;
 			target = D20469A9A1E5CFB26045EAEBE3F88E5E /* RCTTypeSafety */;
 			targetProxy = E251774353FFBF719BFD25F792F6B88F /* PBXContainerItemProxy */;
+		};
+		16E89FCA339AD6419646E4EF5C09CFE5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-RCTAnimation";
+			target = 938CCE22F6C4094B3FB6CF1478579E4B /* React-RCTAnimation */;
+			targetProxy = ABE5256193A81915717860A86A6E39F1 /* PBXContainerItemProxy */;
 		};
 		1716EDFD03E47DACEF35E15B113724E3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -11742,6 +12090,12 @@
 			target = 53D121F9F9BB0F8AC1C94A12C5A8572F /* React-RCTVibration */;
 			targetProxy = 6984E9A2D9DEE18CD86C5D1C8E4B6858 /* PBXContainerItemProxy */;
 		};
+		2D9C0A29E84F4CAEE13A24F84277F22D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = fmt;
+			target = 02B79DFED924FA19CA90EC69614733E1 /* fmt */;
+			targetProxy = 371FE27115BDB69AA157C8BF8FD388A3 /* PBXContainerItemProxy */;
+		};
 		2E0AAC3C4357FD8F7D519FCDC7D75119 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "React-Codegen";
@@ -11783,6 +12137,12 @@
 			name = "React-RCTImage";
 			target = 4F265533AAB7C8985856EC78A33164BB /* React-RCTImage */;
 			targetProxy = 987F437985458D3C5D8EEF252D668F94 /* PBXContainerItemProxy */;
+		};
+		3234E855E3F0AB37FADB42E3CC9CAE56 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = boost;
+			target = EFEA55B1B776B6EB4B16F363BFE64D1A /* boost */;
+			targetProxy = 7CC43D98128EE54C86CC23E20693242D /* PBXContainerItemProxy */;
 		};
 		33C3F52A3060A2478703E005810BEF00 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -11850,6 +12210,12 @@
 			target = 2B25F90D819B9ADF2AF2D8733A890333 /* Yoga */;
 			targetProxy = 3D0AB83927E4D2530FD3B91FBAF47609 /* PBXContainerItemProxy */;
 		};
+		4948FAC32FD0E96CB470246D870647AD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-cxxreact";
+			target = 463F41A7E8B252F8AC5024DA1F4AF6DA /* React-cxxreact */;
+			targetProxy = 2CFBD9B28566A148A0F8BB691F4B78C4 /* PBXContainerItemProxy */;
+		};
 		49A41AB9C37E907E645280544604BF20 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "RCT-Folly";
@@ -11892,11 +12258,41 @@
 			target = EC55D52694092A9D0E6A78EB01207EB5 /* RCT-Folly */;
 			targetProxy = 4BD534CA81344380ADE66A6196CBF861 /* PBXContainerItemProxy */;
 		};
+		4F6E1D716727827456E4C0ABB192D9B7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-RCTSettings";
+			target = 680299219D3A48D42A648AF6706275A9 /* React-RCTSettings */;
+			targetProxy = 00F26EB0D35E4D70833B09E4908CB5E2 /* PBXContainerItemProxy */;
+		};
+		4FC0FC78BFE7BF90699B67E5AF80FFA5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-logger";
+			target = 083B602EA19B4AD50EC53C0602F29A7D /* React-logger */;
+			targetProxy = 0ECF7B27D3852D6AFE1A68EF6F38CDCA /* PBXContainerItemProxy */;
+		};
 		51DC6FEF986E9CA21A0D54C731ED47C5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "React-perflogger";
 			target = F1E2583679398CB5F4D2B3272E9B198F /* React-perflogger */;
 			targetProxy = 4453418AAF5D4211E00772E830B34CEE /* PBXContainerItemProxy */;
+		};
+		52186EC63335FE038B636B82C5107CC4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Yoga;
+			target = 2B25F90D819B9ADF2AF2D8733A890333 /* Yoga */;
+			targetProxy = 999393B780ECC84DF5D06D243DB83DEA /* PBXContainerItemProxy */;
+		};
+		5284EF43B9709AAD37C53AA598C816B4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-RCTBlob";
+			target = 95D98F901D07557EF7CA38D3F03832C5 /* React-RCTBlob */;
+			targetProxy = A2293ABDC36515B1A4FF803BAD442384 /* PBXContainerItemProxy */;
+		};
+		533D50AE0CB015A2BE59C367867F8494 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-CoreModules";
+			target = E16E206437995280D349D4B67695C894 /* React-CoreModules */;
+			targetProxy = 68134EB471181B7C1AFA30332970C2C5 /* PBXContainerItemProxy */;
 		};
 		53A896B3BD0588766EEC8350A22A552C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -11910,6 +12306,12 @@
 			target = 938CCE22F6C4094B3FB6CF1478579E4B /* React-RCTAnimation */;
 			targetProxy = F9B793BC0371B2B52E16FB8C6947C5D0 /* PBXContainerItemProxy */;
 		};
+		56F1558C90393A3B6CCF8A344DCC0B66 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-hermes";
+			target = 20F066A71CEA5EECC7463413442F2B77 /* React-hermes */;
+			targetProxy = 8724EC901847C2B7124ADF80590097CB /* PBXContainerItemProxy */;
+		};
 		59CC318771B47AAC2BBED8C03C6000E7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = glog;
@@ -11921,6 +12323,12 @@
 			name = "React-cxxreact";
 			target = 463F41A7E8B252F8AC5024DA1F4AF6DA /* React-cxxreact */;
 			targetProxy = FF9AAAE257B9B0F86992AFB0EFAF11D5 /* PBXContainerItemProxy */;
+		};
+		5B1523F4AD1AB40FF22DBC41628BEB9A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-Codegen";
+			target = 66B8F5758E6F90E16807A85C003CE61F /* React-Codegen */;
+			targetProxy = 542140B5A3EBD8397059E8C9ED776467 /* PBXContainerItemProxy */;
 		};
 		5B440DAD399FDAF00EEE7992AB5081CD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -11963,6 +12371,12 @@
 			name = "React-Codegen";
 			target = 66B8F5758E6F90E16807A85C003CE61F /* React-Codegen */;
 			targetProxy = 13F8281E1186A5075D1256C95989F627 /* PBXContainerItemProxy */;
+		};
+		616B9E347A05F904174A3FF5C65DF905 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = ReactCommon;
+			target = B6D5DD49633DFF0657B8C3F08EB3ABA9 /* ReactCommon */;
+			targetProxy = 19512C6693F6E95645A217C55A751149 /* PBXContainerItemProxy */;
 		};
 		643811C401F77C0F7FC97E570C57426F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -12048,6 +12462,24 @@
 			target = EC55D52694092A9D0E6A78EB01207EB5 /* RCT-Folly */;
 			targetProxy = D727F426390ED620F8DF68529B7E66E2 /* PBXContainerItemProxy */;
 		};
+		74338FD21CAC1173C8FC8F30CD7D2AC2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = glog;
+			target = D0EFEFB685D97280256C559792236873 /* glog */;
+			targetProxy = E027F20F984692C3B41676AC18A3C61D /* PBXContainerItemProxy */;
+		};
+		74B8D4193013D1CCB0841C906FA45D14 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-jsinspector";
+			target = F7D033C4C128EECAA020990641FA985F /* React-jsinspector */;
+			targetProxy = FD03208C76AE3A642D94CFEB85EA5278 /* PBXContainerItemProxy */;
+		};
+		75C383D8A6D1D02513B6E13872BDE905 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-RCTImage";
+			target = 4F265533AAB7C8985856EC78A33164BB /* React-RCTImage */;
+			targetProxy = B9931B57B7F997E9841BCBDD52A8B64B /* PBXContainerItemProxy */;
+		};
 		7845D09ACC5AE70FF19E5916DB89E9E5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = ReactCommon;
@@ -12083,6 +12515,12 @@
 			name = fmt;
 			target = 02B79DFED924FA19CA90EC69614733E1 /* fmt */;
 			targetProxy = 407BEC932D3920ADE944B246EDE1FF26 /* PBXContainerItemProxy */;
+		};
+		7EE06B652D41861314059B0607E658A4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-jsiexecutor";
+			target = DA0709CAAD589C6E7963495210438021 /* React-jsiexecutor */;
+			targetProxy = 259C743B794BFF8EEBCB462AD71A5EB5 /* PBXContainerItemProxy */;
 		};
 		80943116A2C8A0A4AA92B51F3D462D16 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -12138,11 +12576,23 @@
 			target = F7D033C4C128EECAA020990641FA985F /* React-jsinspector */;
 			targetProxy = 5E621E3706BAA91995EF941B580EB436 /* PBXContainerItemProxy */;
 		};
+		87AC9DF4ED807DC3CC165E899DD33279 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-perflogger";
+			target = F1E2583679398CB5F4D2B3272E9B198F /* React-perflogger */;
+			targetProxy = F9D36DBBC2FA45C781E9C2799AF75E91 /* PBXContainerItemProxy */;
+		};
 		88043C0487C244171E7C1A31A15690F9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "RCT-Folly";
 			target = EC55D52694092A9D0E6A78EB01207EB5 /* RCT-Folly */;
 			targetProxy = A1FE954075558B751CBEBC5EF3C8B69E /* PBXContainerItemProxy */;
+		};
+		889E3B0A7430FF7525CA73CB4CCDA4A7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-RCTVibration";
+			target = 53D121F9F9BB0F8AC1C94A12C5A8572F /* React-RCTVibration */;
+			targetProxy = C29BAC0E3B968893F9C5B6BA4416D6D3 /* PBXContainerItemProxy */;
 		};
 		89901B37A239CA271C76F8902FD15964 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -12197,6 +12647,12 @@
 			name = "React-Core";
 			target = 7ACAA9BE580DD31A5CB9D97C45D9492D /* React-Core */;
 			targetProxy = AC5DAB834F6D6457FBB186B1AE1FD332 /* PBXContainerItemProxy */;
+		};
+		9524B87A9F2BF666087EFA17246E7779 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = simdjson;
+			target = 45B79B0C60C74716DCD2AD7BE782A719 /* simdjson */;
+			targetProxy = 60143B2658FA2B870F087F79C47EAD59 /* PBXContainerItemProxy */;
 		};
 		95D4F1F127D6AFADADBE57ECDF191EA7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -12282,6 +12738,12 @@
 			target = 651511D7DA7F07F9FC9AA40A2E86270D /* React-RCTNetwork */;
 			targetProxy = 5E43888DEC1BF401BE98196DB0EAC6BB /* PBXContainerItemProxy */;
 		};
+		A34976F423DAA2B73189C7F59CF8333F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-RCTActionSheet";
+			target = 11989A5E568B3B69655EE0C13DCDA3F9 /* React-RCTActionSheet */;
+			targetProxy = 515DEF6969BA0E4C35BAAA6AAD1CCC20 /* PBXContainerItemProxy */;
+		};
 		A50A38CF6D00805067C00DCC9CE5D473 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "hermes-engine";
@@ -12299,6 +12761,12 @@
 			name = "React-logger";
 			target = 083B602EA19B4AD50EC53C0602F29A7D /* React-logger */;
 			targetProxy = BC7D120EB782B0F10F8B46EDAE7C4B57 /* PBXContainerItemProxy */;
+		};
+		ACFE14A400834BBF0C589BC821C8B6D0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = DoubleConversion;
+			target = 2AB2EF542954AB1C999E03BFEF8DE806 /* DoubleConversion */;
+			targetProxy = 59120F6A4B5B256197E8F884C70ECEAE /* PBXContainerItemProxy */;
 		};
 		AD37C90653BB4758EC684434DEE59B76 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -12324,6 +12792,12 @@
 			target = 95D98F901D07557EF7CA38D3F03832C5 /* React-RCTBlob */;
 			targetProxy = 1ECF68DFC23773BC89853C5855D8735F /* PBXContainerItemProxy */;
 		};
+		B31846F9CDCFB41BDD2A598D8501A503 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-RCTAppDelegate";
+			target = C2B1B75CCC326124F29FE703CC59BFB7 /* React-RCTAppDelegate */;
+			targetProxy = A69A8DEDC1DDFFFAB7282D3CDE546AA3 /* PBXContainerItemProxy */;
+		};
 		B6002E667988129656709393B27B0282 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "React-RCTText";
@@ -12348,11 +12822,23 @@
 			target = B6D5DD49633DFF0657B8C3F08EB3ABA9 /* ReactCommon */;
 			targetProxy = 3A9BBEA24928BDDAA87D7A571A637389 /* PBXContainerItemProxy */;
 		};
+		BE1D08F3AABF85AA4AC32FD0A7B4CF22 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = FBReactNativeSpec;
+			target = C3496D0495E700CF08A90C41EA8FA4BB /* FBReactNativeSpec */;
+			targetProxy = 063966844880B47595B8BBE36D451FCE /* PBXContainerItemProxy */;
+		};
 		BE3390EE615026087A31AB28ECCC36EA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "React-jsi";
 			target = FA877ADC442CB19CF61793D234C8B131 /* React-jsi */;
 			targetProxy = EE52107D4DD6EFAD4ADB3886A742FCED /* PBXContainerItemProxy */;
+		};
+		BED5682D28EBA4C23566CA794323C5DB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = React;
+			target = 1BEE828C124E6416179B904A9F66D794 /* React */;
+			targetProxy = D07CFC1C445502F9A4BB6CEEB5A59042 /* PBXContainerItemProxy */;
 		};
 		BF7BD94B711B46B920253C54313D13A8 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -12389,6 +12875,24 @@
 			name = "React-cxxreact";
 			target = 463F41A7E8B252F8AC5024DA1F4AF6DA /* React-cxxreact */;
 			targetProxy = 3D71E783F3E551C60593268042A37403 /* PBXContainerItemProxy */;
+		};
+		C7402F285B56B18F722281DEE8CEDA54 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-callinvoker";
+			target = 2681CB7EF647E61F4F9A43029C235607 /* React-callinvoker */;
+			targetProxy = 4B0E56377953A47C2A3864B2FBF5B300 /* PBXContainerItemProxy */;
+		};
+		C7D4330653726FCF238E3E8563C228E9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "hermes-engine";
+			target = 985FEA01F314F3C00F0C1E1181E6C4A5 /* hermes-engine */;
+			targetProxy = D0EB697FFA770A2598C48D9DA2623065 /* PBXContainerItemProxy */;
+		};
+		C98C9D30A14E2B366CCB1362AAD60F49 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-RCTText";
+			target = DBD2D83E10F8B7D3F4E0E34E6A9FCFA6 /* React-RCTText */;
+			targetProxy = 294AB09940339AAF317BCF46703CFDE0 /* PBXContainerItemProxy */;
 		};
 		C9970AB01291B26EDC091A1D934B5543 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -12450,11 +12954,23 @@
 			target = EC55D52694092A9D0E6A78EB01207EB5 /* RCT-Folly */;
 			targetProxy = D57E2EB2F00450A68932DAFA6620A110 /* PBXContainerItemProxy */;
 		};
+		D13BD58B3F11F4DD0CA6792DB60E0AEA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = RCTRequired;
+			target = E7E7CE52C8C68B17224FF8C262D80ABF /* RCTRequired */;
+			targetProxy = 5C48620A57A0D6F4C4517884637E51FF /* PBXContainerItemProxy */;
+		};
 		D2158380292C2A01D2AC81BB2013D6C7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "RCT-Folly";
 			target = EC55D52694092A9D0E6A78EB01207EB5 /* RCT-Folly */;
 			targetProxy = F86CF7602DD02CE14173C4BD723C71C6 /* PBXContainerItemProxy */;
+		};
+		D2A5C8655EAA8CAA5EF38C272BA2C1EA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "React-runtimeexecutor";
+			target = 54EB12219122432FA744088BC5A680D2 /* React-runtimeexecutor */;
+			targetProxy = 1BD1CFFB110FF8F0ED4E4E5674693A27 /* PBXContainerItemProxy */;
 		};
 		D2ABA9241E6517B0A65A0E975B2EE25C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -12540,11 +13056,11 @@
 			target = D20469A9A1E5CFB26045EAEBE3F88E5E /* RCTTypeSafety */;
 			targetProxy = 0D10AB5CE9A1FD1DB095CEE46EFF286A /* PBXContainerItemProxy */;
 		};
-		F0280F8BBCEBE9B7150A0CD146DD49B1 /* PBXTargetDependency */ = {
+		F09A3E3AE715D239F7625A07004366EA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			name = "Pods-WatermelonTester";
-			target = C022870923962EA3953D70B907A7F8A7 /* Pods-WatermelonTester */;
-			targetProxy = FA89F78305F0D80D2BF66C46B98EF3E8 /* PBXContainerItemProxy */;
+			name = "React-RCTNetwork";
+			target = 651511D7DA7F07F9FC9AA40A2E86270D /* React-RCTNetwork */;
+			targetProxy = CDCBAE2A2781B5A60AFDCD266A162964 /* PBXContainerItemProxy */;
 		};
 		F0D19E65ADC3F60054A33A27DCDFA0E5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -12576,6 +13092,12 @@
 			target = FA877ADC442CB19CF61793D234C8B131 /* React-jsi */;
 			targetProxy = EC7764BA43B4FBAFEF667FBBEB97BCA9 /* PBXContainerItemProxy */;
 		};
+		F411E595363254968C27B5194E14B36A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = libevent;
+			target = 04A30E186743192DFB26B0FD7DB8F250 /* libevent */;
+			targetProxy = 06A35C7E2736CA951DD62BA7F819A983 /* PBXContainerItemProxy */;
+		};
 		F4ACD1BADC6FBF01A6639B0A74EB2834 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = ReactCommon;
@@ -12599,6 +13121,12 @@
 			name = RCTTypeSafety;
 			target = D20469A9A1E5CFB26045EAEBE3F88E5E /* RCTTypeSafety */;
 			targetProxy = 1B2F981D692051BB0AB3B185D3274C8A /* PBXContainerItemProxy */;
+		};
+		FA31ED39028CDE7275A199168591220E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = WatermelonDB;
+			target = EF554722D0D580AC702A6DAB8FDBB2B5 /* WatermelonDB */;
+			targetProxy = D562569F80A747AC38AE3B579E9BB2DC /* PBXContainerItemProxy */;
 		};
 		FAF784DFCC668BE0FE68136AD2BEE628 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -12652,7 +13180,7 @@
 		};
 		00A65C9F02978157766E585943BC4761 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 336E12F755B99EED9D152F8099512D9A /* Pods-WatermelonTester.release.xcconfig */;
+			baseConfigurationReference = 1DA95228981BF77AA024A73CF254FDE8 /* Pods-WatermelonTester.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
@@ -13309,6 +13837,34 @@
 			};
 			name = Release;
 		};
+		393D6A426FEB922ED6A53C60C9ECBF2A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = DEF7AD3FD0B411CA182D311C0E10B492 /* Pods-WatermelonTester-WatermelonTesterTests.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
+				CLANG_ENABLE_MODULES = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"CCACHE_HACK_TOOLCHAIN_DIR=\"$(TOOLCHAIN_DIR)\"",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-WatermelonTester-WatermelonTesterTests/Pods-WatermelonTester-WatermelonTesterTests.modulemap";
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		3B54DB67DED3C082229D6A39BB4AD6CC /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 418AD1345B56E97C3668603744D4E2A0 /* React-RCTSettings.release.xcconfig */;
@@ -13486,34 +14042,6 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
-		};
-		47238DEFC87DBF39A2040D3B6C3CAFCB /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = A0A06831E6BC828A180CF684C09886D6 /* Pods-WatermelonTesterTests.release.xcconfig */;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
-				CLANG_ENABLE_MODULES = NO;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(inherited)",
-					"CCACHE_HACK_TOOLCHAIN_DIR=\"$(TOOLCHAIN_DIR)\"",
-				);
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				MACH_O_TYPE = staticlib;
-				OTHER_LDFLAGS = "";
-				OTHER_LIBTOOLFLAGS = "";
-				PODS_ROOT = "$(SRCROOT)";
-				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
 		};
 		473D4F6C43E2C90BFFEF5EA9CA9D035C /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -13842,6 +14370,35 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
+		};
+		6AE823F60F2A53BCF2F1C0BE64570AA0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = ED964E1866118E25847406F4A644ACAC /* Pods-WatermelonTester-WatermelonTesterTests.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
+				CLANG_ENABLE_MODULES = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"CCACHE_HACK_TOOLCHAIN_DIR=\"$(TOOLCHAIN_DIR)\"",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-WatermelonTester-WatermelonTesterTests/Pods-WatermelonTester-WatermelonTesterTests.modulemap";
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
 		};
 		6EF4EEBC94A12BA8741D991651ACF6EA /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -14448,33 +15005,6 @@
 			};
 			name = Release;
 		};
-		B40EBD29FCD73249A1EF356B14102496 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 967F4F46045926F8C141AC83325E8B0D /* Pods-WatermelonTesterTests.debug.xcconfig */;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
-				CLANG_ENABLE_MODULES = NO;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(inherited)",
-					"CCACHE_HACK_TOOLCHAIN_DIR=\"$(TOOLCHAIN_DIR)\"",
-				);
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				MACH_O_TYPE = staticlib;
-				OTHER_LDFLAGS = "";
-				OTHER_LIBTOOLFLAGS = "";
-				PODS_ROOT = "$(SRCROOT)";
-				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
 		B9CD566359A6FC877A866AC8B08DE60F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E530797FAE28C237F7D7A8B24A23C970 /* boost.debug.xcconfig */;
@@ -14833,7 +15363,7 @@
 		};
 		E25CE145CA77EB43AEB7A972A203B329 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 55521FB624A93301CC8489B9EFE6078B /* Pods-WatermelonTester.debug.xcconfig */;
+			baseConfigurationReference = 11C55BD1D6878E4F26B7FD2EAB89F0B7 /* Pods-WatermelonTester.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
@@ -15187,6 +15717,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		39442BFC5A1B4C5DBF1017F108F58833 /* Build configuration list for PBXNativeTarget "Pods-WatermelonTester-WatermelonTesterTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				393D6A426FEB922ED6A53C60C9ECBF2A /* Debug */,
+				6AE823F60F2A53BCF2F1C0BE64570AA0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		3ADAE8086DDF0B369A4AD2A78C6D1C62 /* Build configuration list for PBXAggregateTarget "boost" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -15273,15 +15812,6 @@
 			buildConfigurations = (
 				7229296D9737690E8A2C11D436C39F27 /* Debug */,
 				4AA00521ABF9A89E2371E21A92C8B6E5 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		6812CD114CF2A73791DCD26B89E033C5 /* Build configuration list for PBXNativeTarget "Pods-WatermelonTesterTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				B40EBD29FCD73249A1EF356B14102496 /* Debug */,
-				47238DEFC87DBF39A2040D3B6C3CAFCB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
