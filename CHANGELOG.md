@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 Contributors: Please add your changes to CHANGELOG-Unreleased.md
 
+## 0.25.3 - 2023-01-31
+
+- Fixed TypeError regression
+
 ## 0.25.2 - 2023-01-30
 
 ### Fixes
