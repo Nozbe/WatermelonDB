@@ -1,6 +1,6 @@
 // @flow
 
-import { defer, type Observable } from '../__wmelonRxShim'
+import type { Observable } from '../__wmelonRxShim'
 
 // Performs an action when Observable is subscribed to; analogous to `Observable.do`
 

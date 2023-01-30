@@ -1,13 +1,17 @@
 {
   "compilerOptions": {
-    "lib": ["ES2016"],
-    "baseUrl": "../../",
+    "lib": ["ES2016", "DOM"],
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "strict": true,
-    "target": "ES5"
+    "target": "ES5",
+    "paths": {
+      // this allows sub-package imports from src; fx. '@nozbe/watermelondb/decorators'
+      "@nozbe/watermelondb/*": ["../../src/*"]
+    }
   },
   "include": [
-    "../../"
+    "./*.ts",
+    "../../src/**/*.ts" // this is just used to validate everything, not just imported declarations
   ]
 }

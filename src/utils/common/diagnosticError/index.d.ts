@@ -1,5 +1,4 @@
-export type DiagnosticErrorFunction = (string) => Error
-// let customDiagnosticErrorFunction: DiagnosticErrorFunction | null
+export type DiagnosticErrorFunction = (_: string) => Error
 
 export function useCustomDiagnosticErrorFunction(
   diagnosticErrorFunction: DiagnosticErrorFunction,

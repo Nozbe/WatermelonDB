@@ -1,7 +1,3 @@
-// @flow
-
-import logger from '../utils/common/logger'
-
 import type Model from '../Model'
 import type { RecordId } from '../Model'
 import type Collection from './index'
@@ -9,7 +5,7 @@ import type { CachedQueryResult } from '../adapters/type'
 import type { TableName } from '../Schema'
 import type { RawRecord } from '../RawRecord'
 
-type Instantiator<T> = (RawRecord) => T
+type Instantiator<T> = (_: RawRecord) => T
 
 export default class RecordCache<Record extends Model> {
   map: Map<RecordId, Record>

@@ -3,7 +3,7 @@ import type { Database } from '../..'
 
 import type { Timestamp, SyncLog } from '../index'
 import type { SchemaVersion } from '../../Schema'
-import { type MigrationSyncChanges } from '../../Schema/migrations/getSyncChanges'
+import type { MigrationSyncChanges } from '../../Schema/migrations/getSyncChanges'
 
 export { default as applyRemoteChanges } from './applyRemote'
 export { default as fetchLocalChanges, hasUnsyncedChanges } from './fetchLocal'

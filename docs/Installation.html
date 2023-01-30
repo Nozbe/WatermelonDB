@@ -384,6 +384,17 @@ private final ReactNativeHost mReactNativeHost =
 </code></pre>
 </li>
 </ol>
+<h4 id="troubleshooting-jsi-issues"><a class="header" href="#troubleshooting-jsi-issues">Troubleshooting JSI issues</a></h4>
+<p>If you see a crash at launch similar to this after updating React Native:</p>
+<pre><code>signal 11 (SIGSEGV), code 2 (SEGV_ACCERR), fault addr 0x79193ac4a9
+(...)
+backtrace:
+      (...)
+      watermelondb::createMethod(facebook::jsi::Runtime&amp;, facebook::jsi::Object&amp;, char const*, unsigned int, std::__ndk1::function&lt;facebook::jsi::Value (facebook::jsi::Runtime&amp;, facebook::jsi::Value const*)&gt;)+88
+      watermelondb::Database::install(facebook::jsi::Runtime*)+96)
+      (...)
+</code></pre>
+<p>… this is most likely due to broken <code>libc++_shared</code>. Run <code>./gradlew clean</code> from <code>native/android</code>, then try again.</p>
 </details>
 <h2 id="web-setup"><a class="header" href="#web-setup">Web setup</a></h2>
 <p>This guide assumes you use Webpack as your bundler.</p>

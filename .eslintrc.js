@@ -3,7 +3,7 @@ const config = {
     es6: true,
     jest: true,
   },
-  plugins: ['flowtype'],
+  plugins: ['flowtype', '@typescript-eslint'],
   extends: [
     // https://github.com/airbnb/javascript
     'airbnb',
@@ -12,6 +12,7 @@ const config = {
     'plugin:jest/recommended',
   ],
   parser: '@babel/eslint-parser',
+  ignorePatterns: 'examples/typescript/**/*.ts',
   settings: {
     flowtype: {
       onlyFilesWithFlowAnnotation: true,
@@ -107,9 +108,11 @@ const config = {
       },
     },
     {
-      files: ['src/**/*.ts'],
+      files: ['src/**/*.ts', 'examples/typescript/*.ts'],
+      parser: '@typescript-eslint/parser',
       rules: {
         'flowtype/no-types-missing-file-annotation': 'off',
+        'no-unused-vars': 'off',
       },
     },
   ],

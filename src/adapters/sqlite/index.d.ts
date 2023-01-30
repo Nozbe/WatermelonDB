@@ -1,5 +1,5 @@
-import { type ConnectionTag } from '../../utils/common'
-import { type ResultCallback } from '../../utils/fp/Result'
+import type { ConnectionTag } from '../../utils/common'
+import type { ResultCallback } from '../../utils/fp/Result'
 
 import type { RecordId } from '../../Model'
 import type { SerializedQuery } from '../../Query'
