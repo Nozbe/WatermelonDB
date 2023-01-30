@@ -50,7 +50,7 @@ const unsafeFetchAsRaws = async <T: Model>(query: Query<T>) => {
   // FIXME: The above actually causes RecordCache corruption, because we're not adding record to
   // RecordCache, but adapter notes that we did. Temporary quick fix below to undo the optimization.
   raws.forEach((raw) => {
-    query.collection._cache._modelForRaw(raw)
+    query.collection._cache._modelForRaw(raw, false)
   })
 
   return raws
