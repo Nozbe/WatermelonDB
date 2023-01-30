@@ -17,11 +17,11 @@ hide_title: true
 
 <p align="center">
   <a href="https://github.com/Nozbe/WatermelonDB/blob/master/LICENSE">
-    <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License" />
+    <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License"/>
   </a>
 
   <a href="https://www.npmjs.com/package/@nozbe/watermelondb">
-    <img src="https://img.shields.io/npm/v/@nozbe/watermelondb.svg" alt="npm" />
+    <img src="https://img.shields.io/npm/v/@nozbe/watermelondb.svg" alt="npm"/>
   </a>
 </p>
 

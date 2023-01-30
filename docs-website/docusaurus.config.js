@@ -14,12 +14,14 @@ const config = {
   url: 'https://watermelondb.dev',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: 'WatermelonDB',
+  baseUrl: '/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'nozbe', // Usually your GitHub org/user name.
+  organizationName: 'Nozbe', // Usually your GitHub org/user name.
   projectName: 'WatermelonDB', // Usually your repo name.
+
+  trailingSlash: false,
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+
+DOCS_PATH=docs-website/docs/docs
+REPLACED_DOCS_PATH=docs
+
+cp README.md ./docs-website/docs/docs/README.md && \
+cp CONTRIBUTING.md ./docs-website/docs/docs/CONTRIBUTING.md && \
+cp CHANGELOG.md ./docs-website/docs/docs/CHANGELOG.md && \
+sed -i  "s/\/docs-website\/docs\/docs//g" ./docs-website/docs/docs/CHANGELOG.md && \
+cd ./docs-website && \
+yarn start

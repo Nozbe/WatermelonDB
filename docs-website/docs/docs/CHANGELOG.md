@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 Contributors: Please add your changes to CHANGELOG-Unreleased.md
 
+## 0.25.3 - 2023-01-31
+
+- Fixed TypeError regression
+
+## 0.25.2 - 2023-01-30
+
+### Fixes
+
+- Fix TypeScript issues (@paulrostorp feat. @enahum)
+- Fix compilation on Kotlin 1.7
+- Fix regression in Sync that could cause `Record ID xxx#yyy was sent over the bridge, but it's not cached` error
+
+### Internal
+
+- Update internal dependencies
+- Fix Android CI
+- Improve TypeScript CI
+
 ## 0.25.1 - 2023-01-23
 
 - Fix React Native 0.71+ Android broken build
@@ -711,7 +729,7 @@ Hotfix for rambdax crash
 
 - **Actions API**.
 
-  This was actually released in 0.8.0 but is now documented in [CRUD.md](./docs/CRUD.md) and [Actions.md](./docs/Actions.md).
+  This was actually released in 0.8.0 but is now documented in [CRUD.md](./CRUD.md) and [Actions.md](./Actions.md).
   With Actions enabled, all create/update/delete/batch calls must be wrapped in an Action.
 
   To use Actions, call `await database.action(async () => { /* perform writes here */ }`, and in

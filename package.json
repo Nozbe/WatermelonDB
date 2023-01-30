@@ -23,7 +23,7 @@
     "android:emulator": "./scripts/emulatorWithJavaCheck",
     "cocoapods": "rm -fr native/iosTest/build/generated && cd native/iosTest && bundle exec pod install",
     "docs": "./scripts/mdbook",
-    "docs:dev": "./scripts/mdbook-dev"
+    "docs:dev": "./scripts/docusaurus-dev"
   },
   "types": "src/index.d.ts",
   "author": "@Nozbe",
