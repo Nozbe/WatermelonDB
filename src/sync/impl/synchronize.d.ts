@@ -1,4 +1,4 @@
-import { type SyncArgs } from '../index'
+import type { SyncArgs } from '../index'
 
 export default function synchronize({
   database,

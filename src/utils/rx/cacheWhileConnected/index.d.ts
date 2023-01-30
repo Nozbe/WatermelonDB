@@ -1,7 +1,6 @@
 // @flow
 
-import { type Observable, distinctUntilChanged } from '../__wmelonRxShim'
-import publishReplayLatestWhileConnected from '../publishReplayLatestWhileConnected'
+import type { Observable } from '../__wmelonRxShim'
 
 // Equivalent to observable |> distinctUntilChanged |> publishReplayLatestWhileConnected |> refCount
 //

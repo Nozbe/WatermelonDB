@@ -1,8 +1,6 @@
-// @flow
-
-import {
-  type ConnectableObservable,
-  type Observable,
+import type {
+  ConnectableObservable,
+  Observable,
   ReplaySubject,
   multicast,
 } from '../__wmelonRxShim'

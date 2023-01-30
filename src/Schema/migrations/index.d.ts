@@ -10,7 +10,7 @@ export type AddColumnsMigrationStep = $RE<{
   type: 'add_columns'
   table: TableName<any>
   columns: ColumnSchema[]
-  unsafeSql?: (string) => string
+  unsafeSql?: (_: string) => string
 }>
 
 export type SqlMigrationStep = $RE<{
@@ -47,7 +47,7 @@ export function addColumns({
 }: $Exact<{
   table: TableName<any>
   columns: ColumnSchema[]
-  unsafeSql?: (string) => string
+  unsafeSql?: (_: string) => string
 }>): AddColumnsMigrationStep
 
 export function unsafeExecuteSql(sql: string): SqlMigrationStep

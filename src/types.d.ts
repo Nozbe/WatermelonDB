@@ -16,3 +16,5 @@ export type Array<Type> = Type[]
 export type $Call<F, T> = any
 
 export type $ReadOnlyArray<T> = T[]
+
+export type Class<T> = new (...args: any[]) => T
