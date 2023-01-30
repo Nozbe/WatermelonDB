@@ -64,7 +64,7 @@ At least Xcode 13.x and iOS 14 are recommended (earlier versions are not tested 
 
     Make sure you run `pod install` (or `bundle exec pod install`) after updating `Podfile`.
 
-    Static framework support with `use_frameworks! linkage: :static` is supported as of WatermelonDB 0.26. Note that this was only tested on latest version of React Native as of writing this. We highly recommend that you _do not_ use frameworks. If WatermelonDB fails to build in the frameworks mode for you, [use this workaround](https://github.com/Nozbe/WatermelonDB/issues/1285#issuecomment-1381323060) to force building it in static library mode.
+    We highly recommend that you _do not_ use frameworks. If WatermelonDB fails to build in the frameworks mode for you, [use this workaround](https://github.com/Nozbe/WatermelonDB/issues/1285#issuecomment-1381323060) to force building it in static library mode.
 
     Manual (non-CocoaPods) linking is not supported.
 

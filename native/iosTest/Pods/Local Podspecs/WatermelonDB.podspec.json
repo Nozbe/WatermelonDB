@@ -21,10 +21,10 @@
     "native/shared/**/*.{h,c,cpp}"
   ],
   "public_header_files": [
-    "native/ios/**/*.h"
+    "native/ios/WatermelonDB/SupportingFiles/Bridging.h",
+    "native/ios/WatermelonDB/JSIInstaller.h"
   ],
   "pod_target_xcconfig": {
-    "OTHER_SWIFT_FLAGS": "-Xcc -Wno-error=non-modular-include-in-framework-module"
   },
   "requires_arc": true,
   "compiler_flags": "-Os",
