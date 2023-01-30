@@ -316,7 +316,7 @@ PODS:
     - React-logger (= 0.71.1)
     - React-perflogger (= 0.71.1)
   - simdjson (1.0.0)
-  - WatermelonDB (0.25.2):
+  - WatermelonDB (0.25.3-0):
     - React
     - React-jsi
   - Yoga (1.14.0)
@@ -477,7 +477,7 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: 311feb67600774723fe10eb8801d3138cae9ad67
   ReactCommon: 03be76588338a27a88d103b35c3c44a3fd43d136
   simdjson: c96317b3a50dff3468a42f586ab7ed22c6ab2fd9
-  WatermelonDB: 46c808f739b1520b1f62b57b7cbfb486d144d8a8
+  WatermelonDB: f0948c9f9e47837f058bdb521dc68ccb049dbc1d
   Yoga: 921eb014669cf9c718ada68b08d362517d564e0c
 
 PODFILE CHECKSUM: 8aed93537b740569186232e2091c7e047a06c16f
