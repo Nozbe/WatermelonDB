@@ -1,5 +1,4 @@
 @testable import WatermelonTester
-@testable import WatermelonDB
 import XCTest
 
 class BridgeTests: XCTestCase {
@@ -10,9 +9,9 @@ class BridgeTests: XCTestCase {
         BridgeTestReporter.onFinished { result in
             switch result {
             case .success(let results):
-                consoleLog("Bridge tests completed!")
+                print("Bridge tests completed!")
                 results.forEach { message in
-                    consoleLog(message)
+                    print(message)
                 }
             case .failure(let errors):
                 errors.forEach { error in

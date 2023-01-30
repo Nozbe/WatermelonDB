@@ -97,7 +97,7 @@ const prepareJson = pipe(
   merge({
     main: './index.js',
     sideEffects: false,
-    types: "index.d.ts",
+    types: 'index.d.ts',
   }),
   (obj) => prettyJson(obj),
 )

@@ -1,4 +1,4 @@
-module jsi {
+framework module jsi {
   umbrella header "React-jsi-umbrella.h"
 
   export *

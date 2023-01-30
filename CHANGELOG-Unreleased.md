@@ -6,7 +6,6 @@
 
 - [iOS] Older version of iOS Installation docs said to import WatermelonDB's `SupportingFiles/Bridging.h` from your app project's `Bridging.h`.
   This is no longer recommended, and you should remove this import from your project. If this removal causes build issues, please file an issue.
-- [iOS] Watermelon should now work when using CocoaPods in the `use_frameworks!` mode without workarounds (note that we highly recommend _not_ using frameworks, however this is relevant to users of some React Native modules that require it)
 
 ### BREAKING CHANGES
 
@@ -18,8 +17,6 @@
     # with this:
     pod 'simdjson', path: '../node_modules/@nozbe/simdjson', modular_headers: true
     ```
-
-    This was required to support `use_frameworks!`
 
 ### Deprecations
 

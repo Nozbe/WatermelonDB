@@ -1,0 +1,6 @@
+framework module logger {
+  umbrella header "React-logger-umbrella.h"
+
+  export *
+  module * { export * }
+}

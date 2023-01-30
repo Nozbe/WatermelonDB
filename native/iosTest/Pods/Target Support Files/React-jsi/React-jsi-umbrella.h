@@ -10,7 +10,7 @@
 #endif
 #endif
 
-#import "jsi/JSIDynamic.h"
+#import "JSIDynamic.h"
 
 FOUNDATION_EXPORT double jsiVersionNumber;
 FOUNDATION_EXPORT const unsigned char jsiVersionString[];
