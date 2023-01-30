@@ -91,8 +91,8 @@ const buildTasks = options => {
             task: () =>
               execa('git', ['symbolic-ref', '--short', 'HEAD']).then(
                 when(
-                  ({ stdout: branch }) => branch !== 'master',
-                  throwError('not on `master` branch'),
+                  ({ stdout: branch }) => branch !== 'master' || branch.startsWith('release-'),
+                  throwError('not on `master` or `release-xxx` branch'),
                 ),
               ),
           },
