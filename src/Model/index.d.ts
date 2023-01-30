@@ -1,13 +1,13 @@
-import { type Observable, BehaviorSubject } from '../utils/rx'
-import { type Unsubscribe } from '../utils/subscriptions'
+import type { Observable, BehaviorSubject } from '../utils/rx'
+import { Unsubscribe } from '../utils/subscriptions'
 import type { $RE, $ReadOnlyArray } from '../types'
 
 import type Database from '../Database'
 import type Collection from '../Collection'
 import type CollectionMap from '../Database/CollectionMap'
-import { type TableName, type ColumnName, columnName } from '../Schema'
+import type { TableName, ColumnName } from '../Schema'
 import type { Value } from '../QueryDescription'
-import { type RawRecord, type DirtyRaw, sanitizedRaw, setRawSanitized } from '../RawRecord'
+import type { RawRecord, DirtyRaw } from '../RawRecord'
 
 export type RecordId = string
 
@@ -52,14 +52,14 @@ export default class Model {
   // someTask.update(task => {
   //   task.name = 'New name'
   // })
-  update(recordUpdater: (this) => void): Promise<this>
+  update(recordUpdater?: (_: this) => void): Promise<this>
 
   // Prepares an update to the database (using passed function).
   // Touches `updatedAt` if available.
   //
   // After preparing an update, you must execute it synchronously using
   // database.batch()
-  prepareUpdate(recordUpdater: (this) => void): this
+  prepareUpdate(recordUpdater?: (_: this) => void): this
 
   prepareMarkAsDeleted(): this
 
@@ -85,7 +85,7 @@ export default class Model {
 
   // *** Implementation details ***
 
-  collection: Collection<this>
+  collection: Collection<Model>
 
   // Collections of other Models in the same domain as this record
   get collections(): CollectionMap
@@ -116,14 +116,11 @@ export default class Model {
   // Don't use this directly! Use `collection.create()`
   constructor(collection: Collection<Model>, raw: RawRecord)
 
-  // FIX_TS
-  static _prepareCreate(collection: Collection<Model>, recordBuilder: (this) => void)
+  static _prepareCreate(collection: Collection<Model>, recordBuilder: (_: Model) => void): Model
 
-  // FIX_TS
-  static _prepareCreateFromDirtyRaw(collection: Collection<Model>, dirtyRaw: DirtyRaw)
+  static _prepareCreateFromDirtyRaw(collection: Collection<Model>, dirtyRaw: DirtyRaw): Model
 
-  // FIX_TS
-  static _disposableFromDirtyRaw(collection: Collection<Model>, dirtyRaw: DirtyRaw)
+  static _disposableFromDirtyRaw(collection: Collection<Model>, dirtyRaw: DirtyRaw): Model
 
   _subscribers: [(isDeleted: boolean) => void, any][]
 

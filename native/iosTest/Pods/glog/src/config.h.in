@@ -31,7 +31,7 @@
 #undef HAVE_LIBUNWIND_H
 
 /* define if you have google gflags library */
-#undef HAVE_LIB_GFLAGS
+#undef HAVE_LIB_GFLAGS_DISABLED
 
 /* define if you have google gmock library */
 #undef HAVE_LIB_GMOCK

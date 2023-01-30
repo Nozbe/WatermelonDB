@@ -1,4 +1,5 @@
-// @flow
+/* eslint-disable import/no-named-as-default-member */
+/* eslint-disable import/no-named-as-default */
 
 import type { Unsubscribe } from '../../utils/subscriptions'
 
@@ -15,5 +16,5 @@ export function experimentalDisableObserveCountThrottling(): void
 export default function subscribeToCount<Record extends Model>(
   query: Query<Record>,
   isThrottled: boolean,
-  subscriber: (number) => void,
+  subscriber: (_: number) => void,
 ): Unsubscribe

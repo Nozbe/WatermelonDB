@@ -1,5 +1,5 @@
 import type { Model, Collection, Database } from '../..'
-import { type RawRecord, type DirtyRaw } from '../../RawRecord'
+import type { RawRecord, DirtyRaw } from '../../RawRecord'
 import type { SyncLog, SyncDatabaseChangeSet, SyncConflictResolver } from '../index'
 
 // Returns raw record with naive solution to a conflict based on local `_changed` field
@@ -23,6 +23,6 @@ export function prepareMarkAsSynced<T extends Model = Model>(record: T): T
 
 export function ensureSameDatabase(database: Database, initialResetCount: number): void
 
-export const isChangeSetEmpty: (SyncDatabaseChangeSet) => boolean
+export const isChangeSetEmpty: (_: SyncDatabaseChangeSet) => boolean
 
-export const changeSetCount: (SyncDatabaseChangeSet) => number
+export const changeSetCount: (_: SyncDatabaseChangeSet) => number

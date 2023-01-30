@@ -9,7 +9,8 @@
 /* Begin PBXBuildFile section */
 		13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB11A68108700A75B9A /* LaunchScreen.xib */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		6A246144906308B1836678A0 /* libPods-WatermelonTesterTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C8190223E85033F0AED394C7 /* libPods-WatermelonTesterTests.a */; };
+		3BB55D30C40C85879E494BFE /* libPods-WatermelonTester.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CD725A06C04B325CA2D73BF6 /* libPods-WatermelonTester.a */; };
+		6DA7B7DA7B1522AA049DE511 /* libPods-WatermelonTester-WatermelonTesterTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F9A6D5BBBFBECCF18215C07F /* libPods-WatermelonTester-WatermelonTesterTests.a */; };
 		6E339A1D260CCC4500E44857 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E339A1C260CCC4500E44857 /* Accelerate.framework */; };
 		6E339A21260CCC6800E44857 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E339A20260CCC6800E44857 /* XCTest.framework */; };
 		6ECAF1762212B9D000D06219 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6ECAF1752212B9D000D06219 /* JavaScriptCore.framework */; };
@@ -18,7 +19,6 @@
 		6ED5013C2143FEE80031A190 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED5013B2143FEE80031A190 /* AppDelegate.swift */; };
 		6ED5018C214550C20031A190 /* BridgeTestReporter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6ED50164214550C20031A190 /* BridgeTestReporter.m */; };
 		6ED5018D214550C20031A190 /* BridgeTestReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED5018B214550C20031A190 /* BridgeTestReporter.swift */; };
-		74495B067A2AC39EC93E72DA /* libPods-WatermelonTester.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A01CD653626AB115D2D4A8E8 /* libPods-WatermelonTester.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +36,7 @@
 		00E356EE1AD99517003FC87E /* WatermelonTesterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WatermelonTesterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0A79C91DD4C3201F28E3EE33 /* Pods-WatermelonTesterTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WatermelonTesterTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WatermelonTesterTests/Pods-WatermelonTesterTests.debug.xcconfig"; sourceTree = "<group>"; };
+		0FA83F6BA06D10FFEC899F36 /* Pods-WatermelonTester-WatermelonTesterTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WatermelonTester-WatermelonTesterTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-WatermelonTester-WatermelonTesterTests/Pods-WatermelonTester-WatermelonTesterTests.release.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* WatermelonTester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WatermelonTester.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB21A68108700A75B9A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
@@ -52,10 +53,11 @@
 		6ED5013B2143FEE80031A190 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6ED50164214550C20031A190 /* BridgeTestReporter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BridgeTestReporter.m; sourceTree = "<group>"; };
 		6ED5018B214550C20031A190 /* BridgeTestReporter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BridgeTestReporter.swift; sourceTree = "<group>"; };
-		A01CD653626AB115D2D4A8E8 /* libPods-WatermelonTester.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WatermelonTester.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7548A08DEFEA057E0AB8C042 /* Pods-WatermelonTester-WatermelonTesterTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WatermelonTester-WatermelonTesterTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WatermelonTester-WatermelonTesterTests/Pods-WatermelonTester-WatermelonTesterTests.debug.xcconfig"; sourceTree = "<group>"; };
 		A90F273F5BA305B1349074B2 /* Pods-WatermelonTester.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WatermelonTester.release.xcconfig"; path = "Pods/Target Support Files/Pods-WatermelonTester/Pods-WatermelonTester.release.xcconfig"; sourceTree = "<group>"; };
-		C8190223E85033F0AED394C7 /* libPods-WatermelonTesterTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WatermelonTesterTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CD725A06C04B325CA2D73BF6 /* libPods-WatermelonTester.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WatermelonTester.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0B14896BFD7C8D34D2F0FF5 /* Pods-WatermelonTester.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WatermelonTester.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WatermelonTester/Pods-WatermelonTester.debug.xcconfig"; sourceTree = "<group>"; };
+		F9A6D5BBBFBECCF18215C07F /* libPods-WatermelonTester-WatermelonTesterTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WatermelonTester-WatermelonTesterTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,7 +66,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6E339A21260CCC6800E44857 /* XCTest.framework in Frameworks */,
-				6A246144906308B1836678A0 /* libPods-WatermelonTesterTests.a in Frameworks */,
+				6DA7B7DA7B1522AA049DE511 /* libPods-WatermelonTester-WatermelonTesterTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,7 +76,7 @@
 			files = (
 				6E339A1D260CCC4500E44857 /* Accelerate.framework in Frameworks */,
 				6ECAF1762212B9D000D06219 /* JavaScriptCore.framework in Frameworks */,
-				74495B067A2AC39EC93E72DA /* libPods-WatermelonTester.a in Frameworks */,
+				3BB55D30C40C85879E494BFE /* libPods-WatermelonTester.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -122,8 +124,8 @@
 				6E339A1C260CCC4500E44857 /* Accelerate.framework */,
 				6ECAF1752212B9D000D06219 /* JavaScriptCore.framework */,
 				2D16E6891FA4F8E400B85C8A /* libReact.a */,
-				A01CD653626AB115D2D4A8E8 /* libPods-WatermelonTester.a */,
-				C8190223E85033F0AED394C7 /* libPods-WatermelonTesterTests.a */,
+				CD725A06C04B325CA2D73BF6 /* libPods-WatermelonTester.a */,
+				F9A6D5BBBFBECCF18215C07F /* libPods-WatermelonTester-WatermelonTesterTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -166,6 +168,8 @@
 				A90F273F5BA305B1349074B2 /* Pods-WatermelonTester.release.xcconfig */,
 				0A79C91DD4C3201F28E3EE33 /* Pods-WatermelonTesterTests.debug.xcconfig */,
 				4AD1A2FF035C6D8230E674A2 /* Pods-WatermelonTesterTests.release.xcconfig */,
+				7548A08DEFEA057E0AB8C042 /* Pods-WatermelonTester-WatermelonTesterTests.debug.xcconfig */,
+				0FA83F6BA06D10FFEC899F36 /* Pods-WatermelonTester-WatermelonTesterTests.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -181,6 +185,8 @@
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
+				F637EB956C2B209D3A876410 /* [CP] Embed Pods Frameworks */,
+				6D57072E20B2B2C4380EF995 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -202,8 +208,8 @@
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				6E0A6C1421661F7700195262 /* Run SwiftLint */,
-				6917CB7EADD178FFB06C02A2 /* [CP] Copy Pods Resources */,
 				9E5739FECA546BB738D2111F /* [CP] Embed Pods Frameworks */,
+				41E9FC1451031DEBE5E5FFEB /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -305,7 +311,7 @@
 			shellPath = /bin/sh;
 			shellScript = "FORCE_BUNDLING=1 ../../node_modules/react-native/scripts/react-native-xcode.sh \"src/index.integrationTests.native.js\"\n";
 		};
-		6917CB7EADD178FFB06C02A2 /* [CP] Copy Pods Resources */ = {
+		41E9FC1451031DEBE5E5FFEB /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -320,6 +326,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WatermelonTester/Pods-WatermelonTester-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		6D57072E20B2B2C4380EF995 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-WatermelonTester-WatermelonTesterTests/Pods-WatermelonTester-WatermelonTesterTests-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-WatermelonTester-WatermelonTesterTests/Pods-WatermelonTester-WatermelonTesterTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WatermelonTester-WatermelonTesterTests/Pods-WatermelonTester-WatermelonTesterTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		6E0A6C1421661F7700195262 /* Run SwiftLint */ = {
@@ -357,6 +380,23 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WatermelonTester/Pods-WatermelonTester-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		F637EB956C2B209D3A876410 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-WatermelonTester-WatermelonTesterTests/Pods-WatermelonTester-WatermelonTesterTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-WatermelonTester-WatermelonTesterTests/Pods-WatermelonTester-WatermelonTesterTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WatermelonTester-WatermelonTesterTests/Pods-WatermelonTester-WatermelonTesterTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		FBDE50819C02F2F4954F1CCD /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -368,7 +408,7 @@
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-WatermelonTesterTests-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-WatermelonTester-WatermelonTesterTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -421,7 +461,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0A79C91DD4C3201F28E3EE33 /* Pods-WatermelonTesterTests.debug.xcconfig */;
+			baseConfigurationReference = 7548A08DEFEA057E0AB8C042 /* Pods-WatermelonTester-WatermelonTesterTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -450,7 +490,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4AD1A2FF035C6D8230E674A2 /* Pods-WatermelonTesterTests.release.xcconfig */;
+			baseConfigurationReference = 0FA83F6BA06D10FFEC899F36 /* Pods-WatermelonTester-WatermelonTesterTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";

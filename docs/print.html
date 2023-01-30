@@ -260,6 +260,14 @@ const enhance = withObservables(['post'], ({ post }) =&gt; ({
     <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/capmo.png" alt="CAPMO" width="300" />
   </a>
 <br>
+<a href="https://mattermost.com/">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/mattermost.png" alt="Mattermost" width="300" />
+  </a>
+<br>
+<a href="https://rocket.chat/">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/rocketchat.png" alt="Rocket Chat" width="300" />
+  </a>
+<br>
 <a href="https://steady.health">
     <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/steady.png" alt="Steady" width="150">
   </a>
@@ -270,10 +278,6 @@ const enhance = withObservables(['post'], ({ post }) =&gt; ({
 <br>
 <a href="https://smashappz.com">
     <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/smashappz.jpg" alt="Smash Appz" width="300" />
-  </a>
-<br>
-<a href="https://rocket.chat/">
-    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/rocketchat.png" alt="Rocket Chat" width="300" />
   </a>
 <br>
 <a href="https://halogo.com.au/">
@@ -583,6 +587,17 @@ private final ReactNativeHost mReactNativeHost =
 </code></pre>
 </li>
 </ol>
+<h4 id="troubleshooting-jsi-issues"><a class="header" href="#troubleshooting-jsi-issues">Troubleshooting JSI issues</a></h4>
+<p>If you see a crash at launch similar to this after updating React Native:</p>
+<pre><code>signal 11 (SIGSEGV), code 2 (SEGV_ACCERR), fault addr 0x79193ac4a9
+(...)
+backtrace:
+      (...)
+      watermelondb::createMethod(facebook::jsi::Runtime&amp;, facebook::jsi::Object&amp;, char const*, unsigned int, std::__ndk1::function&lt;facebook::jsi::Value (facebook::jsi::Runtime&amp;, facebook::jsi::Value const*)&gt;)+88
+      watermelondb::Database::install(facebook::jsi::Runtime*)+96)
+      (...)
+</code></pre>
+<p>… this is most likely due to broken <code>libc++_shared</code>. Run <code>./gradlew clean</code> from <code>native/android</code>, then try again.</p>
 </details>
 <h2 id="web-setup"><a class="header" href="#web-setup">Web setup</a></h2>
 <p>This guide assumes you use Webpack as your bundler.</p>
@@ -3425,6 +3440,23 @@ yarn ktlint
 <h1 id="changelog"><a class="header" href="#changelog">Changelog</a></h1>
 <p>All notable changes to this project will be documented in this file.</p>
 <p>Contributors: Please add your changes to CHANGELOG-Unreleased.md</p>
+<h2 id="0253---2023-01-31"><a class="header" href="#0253---2023-01-31">0.25.3 - 2023-01-31</a></h2>
+<ul>
+<li>Fixed TypeError regression</li>
+</ul>
+<h2 id="0252---2023-01-30"><a class="header" href="#0252---2023-01-30">0.25.2 - 2023-01-30</a></h2>
+<h3 id="fixes"><a class="header" href="#fixes">Fixes</a></h3>
+<ul>
+<li>Fix TypeScript issues (@paulrostorp feat. @enahum)</li>
+<li>Fix compilation on Kotlin 1.7</li>
+<li>Fix regression in Sync that could cause <code>Record ID xxx#yyy was sent over the bridge, but it's not cached</code> error</li>
+</ul>
+<h3 id="internal"><a class="header" href="#internal">Internal</a></h3>
+<ul>
+<li>Update internal dependencies</li>
+<li>Fix Android CI</li>
+<li>Improve TypeScript CI</li>
+</ul>
 <h2 id="0251---2023-01-23"><a class="header" href="#0251---2023-01-23">0.25.1 - 2023-01-23</a></h2>
 <ul>
 <li>Fix React Native 0.71+ Android broken build</li>
@@ -3441,6 +3473,7 @@ yarn ktlint
 <li>[Query] <code>Q.where(xxx, undefined)</code> will now throw an error. This is a bug fix, since comparing to
 undefined was never allowed and would either error out or produce a wrong result in some cases.
 However, it could technically break an app that relied on existing buggy behavior</li>
+<li>[JSI+Swift] If you use <code>watermelondbProvideSyncJson()</code> native iOS API, you might need to add <code>import WatermelonDB</code></li>
 </ul>
 <h3 id="new-features"><a class="header" href="#new-features">New features</a></h3>
 <ul>
@@ -3468,7 +3501,7 @@ for more details.</li>
 <ul>
 <li>[Docs] Added additional Android JSI installation step</li>
 </ul>
-<h3 id="fixes"><a class="header" href="#fixes">Fixes</a></h3>
+<h3 id="fixes-1"><a class="header" href="#fixes-1">Fixes</a></h3>
 <ul>
 <li>[TypeScript] Improve typings: add unsafeExecute method, localStorage property to Database</li>
 <li>[android] Fixed compilation on some setups due to a missing <cassert> import</li>
@@ -3489,7 +3522,7 @@ for more details.</li>
 <li><strong>Disposable records</strong>. Read-only records that cannot be saved in the database, updated, or deleted and only exist for as long as you keep a reference to them in memory can now be created using <code>collection.disposableFromDirtyRaw()</code>. This is useful when you're adding online-only features to an otherwise offline-first app.</li>
 <li>[Sync] <code>experimentalRejectedIds</code> parameter now available in push response to allow partial rejection of an otherwise successful sync</li>
 </ul>
-<h3 id="fixes-1"><a class="header" href="#fixes-1">Fixes</a></h3>
+<h3 id="fixes-2"><a class="header" href="#fixes-2">Fixes</a></h3>
 <ul>
 <li>Fixes an issue when using Headless JS on Android with JSI mode enabled - pass <code>usesExclusiveLocking: true</code> to SQLiteAdapter to enable</li>
 <li>Fixes Typescript annotations for Collection and adapters/sqlite</li>
@@ -3571,7 +3604,7 @@ for more details.</li>
 <li>Queries with multiple top-level <code>Q.on('table', ...)</code> now produce a warning. Use <code>Q.on('table', [condition1, condition2, ...])</code> syntax instead.</li>
 <li>[jsi] WAL mode is now used</li>
 </ul>
-<h3 id="fixes-2"><a class="header" href="#fixes-2">Fixes</a></h3>
+<h3 id="fixes-3"><a class="header" href="#fixes-3">Fixes</a></h3>
 <ul>
 <li>[jsi] Fix a race condition where commands sent to the database right after instantiating SQLiteAdapter would fail</li>
 <li>[jsi] Fix incorrect error reporting on some sqlite errors</li>
@@ -3579,7 +3612,7 @@ for more details.</li>
 <li>[jsi] Fix IO errors on Android</li>
 <li>[sync] Fixed a long-standing bug that would cause records that are created before a sync and updated during sync's push to lose their most recent changes on a subsequent sync</li>
 </ul>
-<h3 id="internal"><a class="header" href="#internal">Internal</a></h3>
+<h3 id="internal-1"><a class="header" href="#internal-1">Internal</a></h3>
 <ul>
 <li>Internal changes to SQLiteAdapter:
 <ul>
@@ -3618,7 +3651,7 @@ Use <code>Q.unsafeLokiTransform((raws, loki) =&gt; raws.filter(raw =&gt; ...))</
 <li>[SQLite] Allowed callbacks (within the migrationEvents object) to be passed so as to track the migration events status ( onStart, onSuccess, onError ) - @avinashlng1080</li>
 <li>[SQLite] Added a dev-only <code>Query._sql()</code> method for quickly extracting SQL from Queries for debugging purposes</li>
 </ul>
-<h3 id="fixes-3"><a class="header" href="#fixes-3">Fixes</a></h3>
+<h3 id="fixes-4"><a class="header" href="#fixes-4">Fixes</a></h3>
 <ul>
 <li>Non-react statics hoisting in <code>withDatabase()</code></li>
 <li>Fixed incorrect reference to <code>process</code>, which can break apps in some environments (e.g. webpack5)</li>
@@ -3659,14 +3692,14 @@ Use <code>Q.unsafeLokiTransform((raws, loki) =&gt; raws.filter(raw =&gt; ...))</
 <li>[LokiJS] Changed default autosave interval from 250 to 500ms</li>
 <li>[Typescript] Add <code>experimentalNestedJoin</code> definition and <code>unsafeSqlExpr</code> clause</li>
 </ul>
-<h3 id="fixes-4"><a class="header" href="#fixes-4">Fixes</a></h3>
+<h3 id="fixes-5"><a class="header" href="#fixes-5">Fixes</a></h3>
 <ul>
 <li>[LokiJS] Fixed a case where IndexedDB could get corrupted over time</li>
 <li>[Resilience] Added extra diagnostics for when you encounter the <code>Record ID aa#bb was sent over the bridge, but it's not cached</code> error and a recovery path (LokiJSAdapter-only). Please file an issue if you encounter this issue!</li>
 <li>[Typescript] Fixed type on OnFunction to accept <code>and</code> in join</li>
 <li>[Typescript] Fixed type <code>database#batch(records)</code>'s argument <code>records</code> to accept mixed types</li>
 </ul>
-<h3 id="internal-1"><a class="header" href="#internal-1">Internal</a></h3>
+<h3 id="internal-2"><a class="header" href="#internal-2">Internal</a></h3>
 <ul>
 <li>Added an experimental mode where a broken database state is detected, further mutations prevented, and the user notified</li>
 </ul>
@@ -3685,7 +3718,7 @@ Use <code>Q.unsafeLokiTransform((raws, loki) =&gt; raws.filter(raw =&gt; ...))</
 <li>[Performance] Tweak Babel config to produce smaller code</li>
 <li>[Performance] LokiJS-based apps will now take up to 30% less time to load the database (id and unique indicies are generated lazily)</li>
 </ul>
-<h3 id="fixes-5"><a class="header" href="#fixes-5">Fixes</a></h3>
+<h3 id="fixes-6"><a class="header" href="#fixes-6">Fixes</a></h3>
 <ul>
 <li>[iOS] Fixed crash on database reset in apps linked against iOS 14 SDK</li>
 <li>[LokiJS] Fix <code>Q.like</code> being broken for multi-line strings on web</li>
@@ -3758,11 +3791,11 @@ See docs for more details</p>
 <li>[Query] Counting queries that contain <code>Q.experimentalTake</code> / <code>Q.experimentalSkip</code> is currently broken - previously it would return incorrect results, but
 now it will throw an error to avoid confusion. Please contribute to fix the root cause!</li>
 </ul>
-<h3 id="fixes-6"><a class="header" href="#fixes-6">Fixes</a></h3>
+<h3 id="fixes-7"><a class="header" href="#fixes-7">Fixes</a></h3>
 <ul>
 <li>[Typescript] Fixed types of Relation</li>
 </ul>
-<h3 id="internal-2"><a class="header" href="#internal-2">Internal</a></h3>
+<h3 id="internal-3"><a class="header" href="#internal-3">Internal</a></h3>
 <ul>
 <li><code>QueryDescription</code> structure has been changed.</li>
 </ul>
@@ -3825,7 +3858,7 @@ preventing users from unwisely passing unsanitized user data into Query builder 
 <li>[Hardening] database.collections.get() better validates passed value</li>
 <li>[Hardening] Prevents unsafe strings from being passed as column name/table name arguments in QueryDescription</li>
 </ul>
-<h3 id="fixes-7"><a class="header" href="#fixes-7">Fixes</a></h3>
+<h3 id="fixes-8"><a class="header" href="#fixes-8">Fixes</a></h3>
 <ul>
 <li>[Sync] Fixed <code>RangeError: Maximum call stack size exceeded</code> when syncing large amounts of data - @leninlin</li>
 <li>[iOS] Fixed a bug that could cause a database operation to fail with an (6) SQLITE_LOCKED error</li>
@@ -3833,7 +3866,7 @@ preventing users from unwisely passing unsanitized user data into Query builder 
 <li>[Native] SQLite keywords used as table or column names no longer crash</li>
 <li>Fixed potential issues when subscribing to database, collection, model, queries passing a subscriber function with the same identity more than once</li>
 </ul>
-<h3 id="internal-3"><a class="header" href="#internal-3">Internal</a></h3>
+<h3 id="internal-4"><a class="header" href="#internal-4">Internal</a></h3>
 <ul>
 <li>Fixed broken adapter tests</li>
 </ul>
@@ -3845,7 +3878,7 @@ cause all or some of user's data to be deleted. More information available via G
 <ul>
 <li><code>Database.unsafeResetDatabase()</code> is now less unsafe — more application bugs are being caught</li>
 </ul>
-<h3 id="fixes-8"><a class="header" href="#fixes-8">Fixes</a></h3>
+<h3 id="fixes-9"><a class="header" href="#fixes-9">Fixes</a></h3>
 <ul>
 <li>[iOS] Fix build in apps using Flipper</li>
 <li>[Typescript] Added type definition for <code>setGenerator</code>.</li>
@@ -3854,7 +3887,7 @@ cause all or some of user's data to be deleted. More information available via G
 <li>Fixed typo in learn-to-use docs.</li>
 <li>[Typescript] Fixed types of changes.</li>
 </ul>
-<h3 id="internal-4"><a class="header" href="#internal-4">Internal</a></h3>
+<h3 id="internal-5"><a class="header" href="#internal-5">Internal</a></h3>
 <ul>
 <li>[SQLite] Infrastruture for a future JSI adapter has been added</li>
 </ul>
@@ -3885,7 +3918,7 @@ Note that this only works when <code>useWebWorker: false</code></li>
 <li>[LokiJS] [Performance] Improved worker queue implementation for performance</li>
 <li>[observation] Refactored observer implementations for performance</li>
 </ul>
-<h3 id="fixes-9"><a class="header" href="#fixes-9">Fixes</a></h3>
+<h3 id="fixes-10"><a class="header" href="#fixes-10">Fixes</a></h3>
 <ul>
 <li>Fixed a possible cause for &quot;Record ID xxx#yyy was sent over the bridge, but it's not cached&quot; error</li>
 <li>[LokiJS] Fixed an issue preventing database from saving when using <code>experimentalUseIncrementalIndexedDB</code></li>
@@ -3971,7 +4004,7 @@ this is useful</p>
 <p>@json decorator sanitizer functions take an optional second argument, with a reference to the model</p>
 </li>
 </ul>
-<h3 id="fixes-10"><a class="header" href="#fixes-10">Fixes</a></h3>
+<h3 id="fixes-11"><a class="header" href="#fixes-11">Fixes</a></h3>
 <ul>
 <li>Pinned required <code>rambdax</code> version to 2.15.0 to avoid console logging bug. In a future release we will switch to our own fork of <code>rambdax</code> to avoid future breakages like this.</li>
 </ul>
@@ -4068,7 +4101,7 @@ This allows WatermelonDB to create specific IDs for example if your backend uses
 <li>[Tests] remove cleanup for react-hooks-testing-library@0.5.0 compatibility</li>
 </ul>
 <h2 id="0122---2019-04-19"><a class="header" href="#0122---2019-04-19">0.12.2 - 2019-04-19</a></h2>
-<h3 id="fixes-11"><a class="header" href="#fixes-11">Fixes</a></h3>
+<h3 id="fixes-12"><a class="header" href="#fixes-12">Fixes</a></h3>
 <ul>
 <li>[TypeScript] 'Cannot use 'in' operator to search for 'initializer'; decorator fix</li>
 </ul>
@@ -4204,7 +4237,7 @@ resolving conflicts, finding local changes, and marking them as synced) is done 
 <li>Added <code>DatabaseProvider</code> and <code>withDatabase</code> Higher-Order Component to reduce prop drilling</li>
 <li>Added experimental Actions API. This will be documented in a future release.</li>
 </ul>
-<h3 id="fixes-12"><a class="header" href="#fixes-12">Fixes</a></h3>
+<h3 id="fixes-13"><a class="header" href="#fixes-13">Fixes</a></h3>
 <ul>
 <li>Fixes crash on older Android React Native targets without <code>jsc-android</code> installed</li>
 </ul>

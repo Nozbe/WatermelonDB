@@ -5,7 +5,13 @@
 #import <unordered_set>
 #import <mutex>
 #import <sqlite3.h>
-#import "simdjson.h"
+
+// FIXME: Make these paths consistent
+#ifdef ANDROID
+#import <simdjson.h>
+#else
+#import <simdjson/simdjson.h>
+#endif
 
 #import "Sqlite.h"
 

@@ -1,5 +1,5 @@
 import { ColumnName } from '../../Schema'
 
-type text = (columnName: ColumnName) => PropertyDecorator
+declare function text(columnName: ColumnName): PropertyDecorator
 
 export default text

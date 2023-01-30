@@ -1,6 +1,5 @@
-import { ElementType, ReactNode } from 'react'
+import { ReactNode } from 'react'
 import Database from '../Database'
-import { Provider } from './DatabaseContext'
 
 export type Props = {
   database: Database
@@ -11,7 +10,7 @@ export type Props = {
  * Database provider to create the database context
  * to allow child components to consume the database without prop drilling
  */
-declare function DatabaseProvider({ children, database }: Props): ElementType<Provider>
+declare function DatabaseProvider({ children, database }: Props): JSX.Element
 
 export { default as withDatabase } from './withDatabase'
 export { default as DatabaseContext, DatabaseConsumer } from './DatabaseContext'

@@ -1,10 +1,10 @@
 import { ColumnName, TableName } from '../../Schema'
 import { Options } from '../../Relation'
 
-type relation = (
+declare function relation(
   relationTable: TableName<any>,
   relationIdColumn: ColumnName,
   options?: Options,
-) => PropertyDecorator
+): PropertyDecorator
 
 export default relation
