@@ -1,3 +1,1 @@
-// @flow
-
-export default function allPass<T>(predicates: Array<(T) => boolean>): (T) => boolean
+export default function allPass<T>(predicates: Array<(_: T) => boolean>): (__: T) => boolean

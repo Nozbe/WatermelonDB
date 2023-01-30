@@ -1,6 +1,6 @@
 import type { $RE } from '../types'
 
-import { type TableName, type ColumnName, columnName } from '../Schema'
+import type { TableName, ColumnName } from '../Schema'
 
 export type NonNullValue = number | string | boolean
 export type NonNullValues = number[] | string[] | boolean[]
@@ -38,6 +38,7 @@ export type WhereDescription = $RE<{
 export type SqlExpr = $RE<{ type: 'sql'; expr: string }>
 export type LokiExpr = $RE<{ type: 'loki'; expr: any }>
 
+// eslint-disable-next-line no-use-before-define
 export type Where = WhereDescription | And | Or | On | SqlExpr | LokiExpr
 export type And = $RE<{ type: 'and'; conditions: Where[] }>
 export type Or = $RE<{ type: 'or'; conditions: Where[] }>
@@ -193,7 +194,7 @@ export function and(...clauses: Where[]): And
 
 export function or(...clauses: Where[]): Or
 
-export function sortBy(sortColumn: ColumnName, sortOrder: SortOrder): SortBy
+export function sortBy(sortColumn: ColumnName, sortOrder?: SortOrder): SortBy
 
 export function take(count: number): Take
 
@@ -230,7 +231,7 @@ export function experimentalJoinTables(tables: TableName<any>[]): JoinTables
 
 export function experimentalNestedJoin(from: TableName<any>, to: TableName<any>): NestedJoinTable
 
-export function unsafeSqlQuery(sql: string, values: Value[]): SqlQuery
+export function unsafeSqlQuery(sql: string, values?: Value[]): SqlQuery
 
 // const extractClauses: (clauses: Clause[]) => QueryDescription;
 

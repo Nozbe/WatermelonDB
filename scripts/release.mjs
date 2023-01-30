@@ -87,8 +87,8 @@ const buildTasks = (options) => {
             title: 'check current branch',
             task: () =>
               execa('git', ['symbolic-ref', '--short', 'HEAD']).then((info) => {
-                if (info.stdout.branch !== 'master') {
-                  throwError('not on `master` branch')(info)
+                if (!(info.stdout.branch === 'master' || info.stdout.branch.startsWith('release/'))) {
+                  throwError('releases should be made from `master` or `release/xxx` branch')(info)
                 }
               }),
           },
