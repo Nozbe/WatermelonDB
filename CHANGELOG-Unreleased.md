@@ -12,7 +12,7 @@
 
 ### Fixes
 
-- [TypeScript] Fix type of `DirtyRaw` to `object` (from `Object`)
+- [TypeScript] Fix type of `DirtyRaw` to `{ [key: string]: any }` (from `Object`)
 
 ### Performance
 
