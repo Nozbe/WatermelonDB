@@ -30,6 +30,7 @@
 - [JSI] Improved reliability when reloading RCTBridge
 - [iOS] Fix "range of supported deployment targets" Xcode warning
 - [JSI] Improved reliability when reloading RCTBridge
+- [TypeScript] Fix type of `DirtyRaw` to `object` (from `Object`)
 
 ### Performance
 
