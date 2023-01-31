@@ -91,12 +91,17 @@ BRIDGE_METHOD(setUpWithMigrations,
 
 #pragma mark - Database functions
 
+#define WITH_DRIVER(block) \
+    [self withDriver:tag resolve:resolve reject:reject methodName:__PRETTY_FUNCTION__ action:^(WMDatabaseDriver *driver, NSError **errorPtr) block ];
+
 BRIDGE_METHOD(find,
     table:(nonnull NSString *)table
     id:(nonnull NSString *)id
 )
 {
-    // TODO: Unimplemented
+    WITH_DRIVER({
+        return [driver find:table id:id error:errorPtr];
+    })
 }
 
 BRIDGE_METHOD(query,
@@ -105,7 +110,9 @@ BRIDGE_METHOD(query,
     args:(nonnull NSArray *)args
 )
 {
-    // TODO: Unimplemented
+    WITH_DRIVER({
+        return [driver cachedQuery:table query:query args:args error:errorPtr];
+    })
 }
 
 BRIDGE_METHOD(queryIds,
@@ -113,7 +120,9 @@ BRIDGE_METHOD(queryIds,
     args:(nonnull NSArray *)args
 )
 {
-    // TODO: Unimplemented
+    WITH_DRIVER({
+        return [driver queryIds:query args:args error:errorPtr];
+    })
 }
 
 BRIDGE_METHOD(unsafeQueryRaw,
@@ -121,7 +130,9 @@ BRIDGE_METHOD(unsafeQueryRaw,
     args:(nonnull NSArray *)args
 )
 {
-    // TODO: Unimplemented
+    WITH_DRIVER({
+        return [driver unsafeQueryRaw:query args:args error:errorPtr];
+    })
 }
 
 BRIDGE_METHOD(count,
@@ -129,7 +140,9 @@ BRIDGE_METHOD(count,
     args:(nonnull NSArray *)args
 )
 {
-    // TODO: Unimplemented
+    WITH_DRIVER({
+        return [driver count:query args:args error:errorPtr];
+    })
 }
 
 BRIDGE_METHOD(batchJSON,
@@ -144,14 +157,19 @@ BRIDGE_METHOD(unsafeResetDatabase,
     schemaVersion:(nonnull NSNumber *)version
 )
 {
-    // TODO: Unimplemented
+    WITH_DRIVER({
+        [driver unsafeResetDatabaseWithSchema:schema schemaVersion:[version integerValue] error:errorPtr];
+        return @YES;
+    })
 }
 
 BRIDGE_METHOD(getLocal,
     key:(nonnull NSString *)key
 )
 {
-    // TODO: Unimplemented
+    WITH_DRIVER({
+        return [driver getLocal:key error:errorPtr];
+    })
 }
 
 #pragma mark - JSI Support
@@ -183,5 +201,28 @@ RCT_EXPORT_METHOD(provideSyncJson:(nonnull NSNumber *)id
 }
 
 #pragma mark - Helpers
+
+- (void) withDriver:(nonnull NSNumber *)tag
+            resolve:(RCTPromiseResolveBlock)resolve
+             reject:(RCTPromiseRejectBlock)reject
+         methodName:(const char *)methodName
+             action:(id (^)(WMDatabaseDriver *, NSError**))action
+{
+    WMDatabaseDriver *driver = _connections[tag];
+    
+    if (driver) {
+        NSError *error;
+        id result = action(driver, &error);
+        if (error) {
+            NSString *errorName = [NSString stringWithFormat:@"db.%s.error", methodName];
+            return reject(errorName, error.localizedDescription, error);
+        } else {
+            return resolve(result);
+        }
+    } else {
+        NSMutableArray *queuedOperations = _queue[tag];
+        [queuedOperations addObject:action];
+    }
+}
 
 @end
