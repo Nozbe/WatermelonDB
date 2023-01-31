@@ -1,8 +1,3 @@
----
-title: Contributing
-hide_title: true
----
-
 # Contributing guidelines
 
 ## Before you send a pull request
