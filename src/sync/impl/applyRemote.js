@@ -357,7 +357,9 @@ const applyAllRemoteChanges = (
       ...prepareApplyRemoteChangesToCollection(records, db.get((tableName: any)), context),
     )
   })
-  return db.batch(...allRecords)
+  // NOTE: Don't change to `...allRecords` - causes excessive stack usage
+  // $FlowFixMe
+  return db.batch(allRecords)
 }
 
 // See _unsafeBatchPerCollection - temporary fix
