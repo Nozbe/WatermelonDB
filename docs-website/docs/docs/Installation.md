@@ -118,9 +118,9 @@ protected List<ReactPackage> getPackages() {
   Make sure the kotlin version is set to 1.3.50 or above. Just set ext properties `kotlinVersion` in `android/build.gradle`, and WatermelonDB will use the specified kotlin version.
 
 ```gradle
-buildscript {
-    ext.kotlinVersion = '1.3.50'
-}
+  buildscript {
+      ext.kotlinVersion = '1.3.50'
+  }
 ```
 
 </details>

@@ -16,7 +16,7 @@ export default appSchema({
   version: 1,
   tables: [
     // We'll add tableSchemas here later
-  ],
+  ]
 })
 ```
 
@@ -52,11 +52,11 @@ const adapter = new SQLiteAdapter({
   // dbName: 'myapp',
   // (recommended option, should work flawlessly out of the box on iOS. On Android,
   // additional installation steps have to be taken - disable if you run into issues...)
-  jsi: true /* Platform.OS === 'ios' */,
+  jsi: true, /* Platform.OS === 'ios' */
   // (optional, but you should implement this method)
-  onSetUpError: (error) => {
+  onSetUpError: error => {
     // Database failed to load -- offer the user to reload the app or log out
-  },
+  }
 })
 
 // Then, make a Watermelon database from it!
@@ -103,13 +103,13 @@ const adapter = new LokiJSAdapter({
         window.location.reload()
       }
     },
-  },
+  }
 })
 
 // The rest is the same!
 ```
 
----
+* * *
 
 ## Next steps
 

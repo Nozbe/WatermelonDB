@@ -29,7 +29,7 @@ If possible, please use sync implementation helpers from `sync/*.js` to keep you
 - content-based, not time-based conflict resolution
 - conflicts are resolved using per-column client-wins strategy: in conflict, server version is taken
   except for any column that was changed locally since last sync.
-- local app tracks its changes using a \_status (synced/created/updated/deleted) field and \_changes
+- local app tracks its changes using a _status (synced/created/updated/deleted) field and _changes
   field (which specifies columns changed since last sync)
 - server only tracks timestamps (or version numbers) of every record, not specific changes
 - sync is performed for the entire database at once, not per-collection
@@ -41,47 +41,44 @@ If possible, please use sync implementation helpers from `sync/*.js` to keep you
 ### Sync procedure
 
 1. Pull phase
-
-- get `lastPulledAt` timestamp locally (null if first sync)
-- call `pullChanges` function, passing `lastPulledAt`
-  - server responds with all changes (create/update/delete) that occured since `lastPulledAt`
-  - server serves us with its current timestamp
-- IN ACTION (lock local writes):
-  - ensure no concurrent syncs
-  - apply remote changes locally
-    - insert new records
-      - if already exists (error), update
-      - if locally marked as deleted (error), un-delete and update
-    - update records
-      - if synced, just replace contents with server version
-      - if locally updated, we have a conflict!
-        - take remote version, apply local fields that have been changed locally since last sync
-          (per-column client wins strategy)
-        - record stays marked as updated, because local changes still need to be pushed
-      - if locally marked as deleted, ignore (deletion will be pushed later)
-      - if doesn't exist locally (error), create
-    - destroy records
-      - if alredy deleted, ignore
-      - if locally changed, destroy anyway
-      - ignore children (server ought to schedule children to be destroyed)
-  - if successful, save server's timestamp as new `lastPulledAt`
-
+  - get `lastPulledAt` timestamp locally (null if first sync)
+  - call `pullChanges` function, passing `lastPulledAt`
+    - server responds with all changes (create/update/delete) that occured since `lastPulledAt`
+    - server serves us with its current timestamp
+  - IN ACTION (lock local writes):
+    - ensure no concurrent syncs
+    - apply remote changes locally
+      - insert new records
+        - if already exists (error), update
+        - if locally marked as deleted (error), un-delete and update
+      - update records
+        - if synced, just replace contents with server version
+        - if locally updated, we have a conflict!
+          - take remote version, apply local fields that have been changed locally since last sync
+            (per-column client wins strategy)
+          - record stays marked as updated, because local changes still need to be pushed
+        - if locally marked as deleted, ignore (deletion will be pushed later)
+        - if doesn't exist locally (error), create
+      - destroy records
+        - if alredy deleted, ignore
+        - if locally changed, destroy anyway
+        - ignore children (server ought to schedule children to be destroyed)
+    - if successful, save server's timestamp as new `lastPulledAt`
 2. Push phase
-
-- Fetch local changes
-  - Find all locally changed records (created/updated record + deleted IDs) for all collections
-  - Strip \_status, \_changed
-- Call `pushChanges` function, passing local changes object, and the new `lastPulledAt` timestamp
-  - Server applies local changes to database, and sends OK
-  - If one of the pushed records has changed _on the server_ since `lastPulledAt`, push is aborted,
-    all changes reverted, and server responds with an error
-- IN ACTION (lock local writes):
-  - markLocalChangesAsSynced:
-    - take local changes fetched in previous step, and:
-    - permanently destroy records marked as deleted
-    - mark created/updated records as synced and reset their \_changed field
-    - note: _do not_ mark record as synced if it changed locally since `fetch local changes` step
-      (user could have made new changes that need syncing)
+  - Fetch local changes
+    - Find all locally changed records (created/updated record + deleted IDs) for all collections
+    - Strip _status, _changed
+  - Call `pushChanges` function, passing local changes object, and the new `lastPulledAt` timestamp
+    - Server applies local changes to database, and sends OK
+    - If one of the pushed records has changed *on the server* since `lastPulledAt`, push is aborted,
+      all changes reverted, and server responds with an error
+  - IN ACTION (lock local writes):
+    - markLocalChangesAsSynced:
+      - take local changes fetched in previous step, and:
+      - permanently destroy records marked as deleted
+      - mark created/updated records as synced and reset their _changed field
+      - note: *do not* mark record as synced if it changed locally since `fetch local changes` step
+        (user could have made new changes that need syncing)
 
 ### Notes
 

@@ -5,7 +5,6 @@
 1. **Did you add or changed some functionality?**
 
    Add (or modify) tests!
-
 2. **Check if the automated tests pass**
    ```bash
    yarn ci:check
@@ -104,13 +103,10 @@ yarn ktlint
 ### Native code troubleshooting
 
 1. If `test:ios` fails in terminal:
-
-- Run tests in Xcode first before running from terminal
-- Make sure you have the right version of Xcode CLI tools set in Preferences -> Locations
-
+  - Run tests in Xcode first before running from terminal
+  - Make sure you have the right version of Xcode CLI tools set in Preferences -> Locations
 1. Make sure you're on the most recent stable version of Xcode / Android Studio
 1. Remove native caches:
-
-- Xcode: `~/Library/Developer/Xcode/DerivedData`:
-- Android: `.gradle` and `build` folders in `native/android` and `native/androidTest`
-- `node_modules` (because of React Native precompiled third party libraries)
+  - Xcode: `~/Library/Developer/Xcode/DerivedData`:
+  - Android: `.gradle` and `build` folders in `native/android` and `native/androidTest`
+  - `node_modules` (because of React Native precompiled third party libraries)

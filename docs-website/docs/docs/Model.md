@@ -109,7 +109,8 @@ class Post extends Model {
 
   get isRecentlyArchived() {
     // in the last 7 days
-    return this.archivedAt && this.archivedAt.getTime() > Date.now() - 7 * 24 * 3600 * 1000
+    return this.archivedAt &&
+      this.archivedAt.getTime() > Date.now() - 7 * 24 * 3600 * 1000
   }
 }
 ```
@@ -168,7 +169,9 @@ class Post extends Model {
   }
 
   @children('comments') comments
-  @lazy verifiedComments = this.comments.extend(Q.where('is_verified', true))
+  @lazy verifiedComments = this.comments.extend(
+    Q.where('is_verified', true)
+  )
 }
 ```
 
@@ -187,7 +190,7 @@ class Comment extends Model {
   @field('is_spam') isSpam
 
   @writer async markAsSpam() {
-    await this.update((comment) => {
+    await this.update(comment => {
       comment.isSpam = true
     })
   }
@@ -210,7 +213,7 @@ And you can make observable compound properties using RxJS...
 
 **➡️ Learn more:** [Advanced fields](./Advanced/AdvancedFields.md)
 
----
+* * *
 
 ## Next steps
 

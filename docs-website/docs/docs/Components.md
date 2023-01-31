@@ -28,7 +28,7 @@ Let's enhance the component to make it _observe_ the `Comment` automatically:
 ```jsx
 import withObservables from '@nozbe/with-observables'
 const enhance = withObservables(['comment'], ({ comment }) => ({
-  comment, // shortcut syntax for `comment: comment.observe()`
+  comment // shortcut syntax for `comment: comment.observe()`
 }))
 const EnhancedComment = enhance(Comment)
 export default EnhancedComment
@@ -49,9 +49,9 @@ const Post = ({ post, comments }) => (
     <h1>{post.name}</h1>
     <p>{post.body}</p>
     <h2>Comments</h2>
-    {comments.map((comment) => (
+    {comments.map(comment =>
       <EnhancedComment key={comment.id} comment={comment} />
-    ))}
+    )}
   </article>
 )
 
@@ -71,7 +71,6 @@ Notice a couple of things:
 3. To access comments, we fetch them from the database and observe using `post.comments.observe()` and inject a new prop `comments`. (`post.comments` is a Query created using `@children`).
 
    Note that we can skip `.observe()` and just pass `post.comments` for convenience — `withObservables` will call observe for us
-
 4. By **observing the Query**, the `<Post>` component will re-render if a comment is created or deleted
 5. However, observing the comments Query will not re-render `<Post>` if a comment is _updated_ — we render the `<EnhancedComment>` so that _it_ observes the comment and re-renders if necessary.
 
@@ -84,9 +83,7 @@ Assume the `Comment` model has a `@relation('users', 'author_id') author` field.
 ```jsx
 const Comment = ({ comment, author }) => (
   <div>
-    <p>
-      {comment.body} — by {author.name}
-    </p>
+    <p>{comment.body} — by {author.name}</p>
   </div>
 )
 
@@ -103,7 +100,7 @@ const EnhancedComment = enhance(Comment)
 
 ### Reactive counters
 
-Let's make a `<PostExcerpt>` component to display on a _list_ of Posts, with only a brief summary of the contents and only the number of comments it has:
+Let's make a `<PostExcerpt>` component to display on a *list* of Posts, with only a brief summary of the contents and only the number of comments it has:
 
 ```jsx
 const PostExcerpt = ({ post, commentCount }) => (
@@ -116,7 +113,7 @@ const PostExcerpt = ({ post, commentCount }) => (
 
 const enhance = withObservables(['post'], ({ post }) => ({
   post,
-  commentCount: post.comments.observeCount(),
+  commentCount: post.comments.observeCount()
 }))
 
 const EnhancedPostExcerpt = enhance(PostExcerpt)
@@ -139,19 +136,19 @@ Let's unpack this:
 ```js
 withObservables(['post'], ({ post }) => ({
   post: post.observe(),
-  commentCount: post.comments.observeCount(),
+  commentCount: post.comments.observeCount()
 }))
 ```
 
 1. Starting from the second argument, `({ post })` are the input props for the component. Here, we receive `post` prop with a `Post` object.
 2. These:
-   ```js
-   ;({
-     post: post.observe(),
-     commentCount: post.comments.observeCount(),
-   })
-   ```
-   are the enhanced props we inject. The keys are props' names, and values are `Observable` objects. Here, we override the `post` prop with an observable version, and create a new `commentCount` prop.
+    ```js
+    ({
+      post: post.observe(),
+      commentCount: post.comments.observeCount()
+    })
+    ```
+    are the enhanced props we inject. The keys are props' names, and values are `Observable` objects. Here, we override the `post` prop with an observable version, and create a new `commentCount` prop.
 3. The first argument: `['post']` is a list of props that trigger observation restart. So if a different `post` is passed, that new post will be observed. If you pass `[]`, the rendered Post will not change. You can pass multiple prop names if any of them should cause observation to re-start. Think of it the same way as the `deps` argument you pass to `useEffect` hook.
 4. **Rule of thumb**: If you want to use a prop in the second arg function, pass its name in the first arg array
 
@@ -160,7 +157,7 @@ withObservables(['post'], ({ post }) => ({
 1. **findAndObserve**. If you have, say, a post ID from your Router (URL in the browser), you can use:
    ```js
    withObservables(['postId'], ({ postId, database }) => ({
-     post: database.get('posts').findAndObserve(postId),
+     post: database.get('posts').findAndObserve(postId)
    }))
    ```
 1. **RxJS transformations**. The values returned by `Model.observe()`, `Query.observe()`, `Relation.observe()` are [RxJS Observables](https://github.com/ReactiveX/rxjs). You can use standard transforms like mapping, filtering, throttling, startWith to change when and how the component is re-rendered.
@@ -173,18 +170,20 @@ If you have a list that's dynamically sorted (e.g. sort comments by number of li
 ```jsx
 // This is a function that sorts an array of comments according to its `likes` field
 // I'm using `ramda` functions for this example, but you can do sorting however you like
-const sortComments = sortWith([descend(prop('likes'))])
+const sortComments = sortWith([
+  descend(prop('likes'))
+])
 
 const CommentList = ({ comments }) => (
   <div>
-    {sortComments(comments).map((comment) => (
+    {sortComments(comments).map(comment =>
       <EnhancedComment key={comment.id} comment={comment} />
-    ))}
+    )}
   </div>
 )
 
 const enhance = withObservables(['post'], ({ post }) => ({
-  comments: post.comments.observeWithColumns(['likes']),
+  comments: post.comments.observeWithColumns(['likes'])
 }))
 
 const EnhancedCommentList = enhance(CommentList)
@@ -211,7 +210,7 @@ const enhance = compose(
   })),
 )
 
-const EnhancedPost = enhance(PostComponent)
+const EnhancedPost = enhance(PostComponent);
 ```
 
 This is using a `compose` function from [`recompose`](https://github.com/acdlite/recompose). If you're not familiar with function composition, read the `enhance` function from top to bottom:
@@ -226,10 +225,10 @@ If you are familiar with `rxjs`, another way to achieve the same result is using
 ```js
 import { switchMap } from 'rxjs/operators'
 
-const enhance = withObservables(['post'], ({ post }) => ({
+const enhance = withObservables(['post'], ({post}) => ({
   post: post,
   author: post.author,
-  contact: post.author.observe().pipe(switchMap((author) => author.contact.observe())),
+  contact: post.author.observe().pipe(switchMap(author => author.contact.observe()))
 }))
 
 const EnhancedPost = enhance(PostComponent)
@@ -259,10 +258,12 @@ const enhance = compose(
 With the `switchMap` approach, you can do:
 
 ```js
-const enhance = withObservables(['post'], ({ post }) => ({
+const enhance = withObservables(['post'], ({post}) => ({
   post: post,
   author: post.author,
-  contact: post.autor.observe().pipe(switchMap((author) => (author ? autor.contact : of$(null)))),
+  contact: post.autor.observe().pipe(
+    switchMap(author => author ? autor.contact : of$(null))
+  )
 }))
 ```
 
@@ -283,9 +284,9 @@ const database = new Database({
 render(
   <DatabaseProvider database={database}>
     <Root />
-  </DatabaseProvider>,
-  document.getElementById('application'),
+  </DatabaseProvider>, document.getElementById('application')
 )
+
 ```
 
 To consume the database in your components you just wrap your component like so:
@@ -315,11 +316,11 @@ You can also consume `Database` object using React Hooks syntax:
 import { useDatabase } from '@nozbe/watermelondb/hooks'
 
 const Component = () => {
-  const database = useDatabase()
+   const database = useDatabase()
 }
 ```
 
----
+* * *
 
 ## Next steps
 

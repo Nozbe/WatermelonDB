@@ -44,7 +44,7 @@ class Post extends Model {
   // ...
 
   @writer async addComment(body, author) {
-    const newComment = await this.collections.get('comments').create((comment) => {
+    const newComment = await this.collections.get('comments').create(comment => {
       comment.post.set(this)
       comment.author.set(author)
       comment.body = body
@@ -71,7 +71,7 @@ class Comment extends Model {
   @field('is_spam') isSpam
 
   @writer async markAsSpam() {
-    await this.update((comment) => {
+    await this.update(comment => {
       comment.isSpam = true
     })
   }
@@ -97,10 +97,10 @@ Take an action that changes a `Post` into spam:
 class Post extends Model {
   // ...
   @writer async createSpam() {
-    await this.update((post) => {
+    await this.update(post => {
       post.title = `7 ways to lose weight`
     })
-    await this.collections.get('comments').create((comment) => {
+    await this.collections.get('comments').create(comment => {
       comment.post.set(this)
       comment.body = "Don't forget to comment, like, and subscribe!"
     })
@@ -115,13 +115,13 @@ class Post extends Model {
   // ...
   @writer async createSpam() {
     await this.batch(
-      this.prepareUpdate((post) => {
+      this.prepareUpdate(post => {
         post.title = `7 ways to lose weight`
       }),
-      this.collections.get('comments').prepareCreate((comment) => {
+      this.collections.get('comments').prepareCreate(comment => {
         comment.post.set(this)
         comment.body = "Don't forget to comment, like, and subscribe!"
-      }),
+      })
     )
   }
 }
@@ -181,14 +181,13 @@ WatermelonDB is highly asynchronous, which is a BIG challange in terms of achiev
 <details>
   <summary>Why are readers and writers necessary?</summary>
 
-Consider a function `markCommentsAsSpam` that fetches a list of comments on a post, and then marks them all as spam. The two operations (fetching, and then updating) are asynchronous, and some other operation that modifies the database could run in between. And it could just happen to be a function that adds a new comment on this post. Even though the function completes _successfully_, it wasn't _actually_ successful at its job.
+  Consider a function `markCommentsAsSpam` that fetches a list of comments on a post, and then marks them all as spam. The two operations (fetching, and then updating) are asynchronous, and some other operation that modifies the database could run in between. And it could just happen to be a function that adds a new comment on this post. Even though the function completes *successfully*, it wasn't *actually* successful at its job.
 
-This example is trivial. But others may be far more dangerous. If a function fetches a record to perform an update on, this very record could be deleted midway through, making the action fail (and potentially causing the app to crash, if not handled properly). Or a function could have invariants determining whether the user is allowed to perform an action, that would be invalidated during action's execution. Or, in a collaborative app where access permissions are represented by another object, parallel execution of different actions could cause those access relations to be left in an inconsistent state.
+  This example is trivial. But others may be far more dangerous. If a function fetches a record to perform an update on, this very record could be deleted midway through, making the action fail (and potentially causing the app to crash, if not handled properly). Or a function could have invariants determining whether the user is allowed to perform an action, that would be invalidated during action's execution. Or, in a collaborative app where access permissions are represented by another object, parallel execution of different actions could cause those access relations to be left in an inconsistent state.
 
-The worst part is that analyzing all _possible_ interactions for dangers is very hard, and having sync that runs automatically makes them very likely.
+  The worst part is that analyzing all *possible* interactions for dangers is very hard, and having sync that runs automatically makes them very likely.
 
-Solution? Group together related reads and writes together in an Writer, enforce that all writes MUST occur in a Writer, and only allow one Writer to run at the time. This way, it's guaranteed that in a Writer, you're looking at a consistent view of the world. Most simple reads are safe to do without groupping them, however if you have multiple related reads, you also need to wrap them in a Reader.
-
+  Solution? Group together related reads and writes together in an Writer, enforce that all writes MUST occur in a Writer, and only allow one Writer to run at the time. This way, it's guaranteed that in a Writer, you're looking at a consistent view of the world. Most simple reads are safe to do without groupping them, however if you have multiple related reads, you also need to wrap them in a Reader.
 </details>
 
 ## Advanced: Readers
@@ -234,7 +233,7 @@ class Comment extends Model {
 }
 
 // alternatively:
-database.write(async (writer) => {
+database.write(async writer => {
   const post = await database.get('posts').find('abcdef')
   await writer.callWriter(() => post.appendToBody('Lorem ipsum...')) // appendToBody is a @writer
 })
@@ -242,7 +241,7 @@ database.write(async (writer) => {
 
 The same is true with Readers - use `callReader` to nest readers.
 
----
+* * *
 
 ## Next steps
 

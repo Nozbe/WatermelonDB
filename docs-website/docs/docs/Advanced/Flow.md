@@ -60,7 +60,7 @@ export const Columns = {
   comments: {
     body: columnName('body'),
     // ...
-  },
+  }
 }
 
 export const appSchema = appSchema({
@@ -68,10 +68,12 @@ export const appSchema = appSchema({
   tables: [
     tableSchema({
       name: Tables.comments,
-      columns: [{ name: Columns.comments.body, type: 'string' }],
+      columns: [
+        { name: Columns.comments.body, type: 'string' },
+      ],
     }),
     // ...
-  ],
+  ]
 })
 ```
 
@@ -147,4 +149,4 @@ Always mark the type of model fields. Remember to include `?` if the underlying 
 
 If you need to refer to an ID of a record, always use the `RecordId` type alias, not `string` (they're the same, but the former is self-documenting).
 
-If you ever access the record's raw data (DON'T do that unless you _really_ know what you're doing), use `DirtyRaw` to refer to raw data from external sources (database, server), and `RawRecord` after it was passed through `sanitizedRaw`.
+If you ever access the record's raw data (DON'T do that unless you *really* know what you're doing), use `DirtyRaw` to refer to raw data from external sources (database, server), and `RawRecord` after it was passed through `sanitizedRaw`.

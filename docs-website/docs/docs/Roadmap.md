@@ -2,7 +2,6 @@
 title: Roadmap
 hide_title: true
 ---
-
 # WatermelonDB Roadmap
 
 Despite being called 0.xx, WatermelonDB is essentially feature-complete and relatively API stable. It's used in production by [Nozbe Teams](https://nozbe.com) and many others.

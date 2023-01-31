@@ -8,7 +8,6 @@ hide_title: true
 The idea for the [Watermelon architecture](./Architecture.md) is to be database-agnostic. `Watermelon` is a cross-platform high-level layer for dealing with data, but can be plugged in to any underlying database, depending on platform needs.
 
 Think of it this way:
-
 - Collection/Model/Query is the **reactive** layer
 - `DatabaseAdapter` is the **imperative** layer
 
