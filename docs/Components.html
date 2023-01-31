@@ -1,0 +1,493 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Connecting to React Components - WatermelonDB documentation</title>
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="favicon.png">
+        
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        
+        <link rel="stylesheet" href="css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="ch01-00-get-excited.html"><strong aria-hidden="true">1.</strong> Get excited</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.1.</strong> Check out the README</a></li><li class="chapter-item expanded "><a href="Demo.html"><strong aria-hidden="true">1.2.</strong> See the demo</a></li></ol></li><li class="chapter-item expanded "><a href="ch02-00-learn-to-use.html"><strong aria-hidden="true">2.</strong> Learn to use Watermelon</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="Setup.html"><strong aria-hidden="true">2.2.</strong> Setup</a></li><li class="chapter-item expanded "><a href="Schema.html"><strong aria-hidden="true">2.3.</strong> Schema</a></li><li class="chapter-item expanded "><a href="Model.html"><strong aria-hidden="true">2.4.</strong> Defining Models</a></li><li class="chapter-item expanded "><a href="CRUD.html"><strong aria-hidden="true">2.5.</strong> Create, Read, Update, Delete</a></li><li class="chapter-item expanded "><a href="Components.html" class="active"><strong aria-hidden="true">2.6.</strong> Connecting to React Components</a></li><li class="chapter-item expanded "><a href="Query.html"><strong aria-hidden="true">2.7.</strong> Querying</a></li><li class="chapter-item expanded "><a href="Relation.html"><strong aria-hidden="true">2.8.</strong> Relations</a></li><li class="chapter-item expanded "><a href="Writers.html"><strong aria-hidden="true">2.9.</strong> Writers, Readers, batching</a></li></ol></li><li class="chapter-item expanded "><a href="ch03-00-advanced.html"><strong aria-hidden="true">3.</strong> Advanced guides</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Advanced/Migrations.html"><strong aria-hidden="true">3.1.</strong> Migrations</a></li><li class="chapter-item expanded "><a href="Advanced/Sync.html"><strong aria-hidden="true">3.2.</strong> Sync</a></li><li class="chapter-item expanded "><a href="Advanced/CreateUpdateTracking.html"><strong aria-hidden="true">3.3.</strong> Automatic create/update tracking</a></li><li class="chapter-item expanded "><a href="Advanced/AdvancedFields.html"><strong aria-hidden="true">3.4.</strong> Advanced fields</a></li><li class="chapter-item expanded "><a href="Advanced/Flow.html"><strong aria-hidden="true">3.5.</strong> Flow</a></li><li class="chapter-item expanded "><a href="Advanced/LocalStorage.html"><strong aria-hidden="true">3.6.</strong> LocalStorage</a></li><li class="chapter-item expanded "><a href="Advanced/ProTips.html"><strong aria-hidden="true">3.7.</strong> Pro tips</a></li><li class="chapter-item expanded "><a href="Advanced/Performance.html"><strong aria-hidden="true">3.8.</strong> Performance tips</a></li><li class="chapter-item expanded "><a href="Advanced/SharingDatabaseAcrossTargets.html"><strong aria-hidden="true">3.9.</strong> iOS - Sharing database across targets</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-00-deeper.html"><strong aria-hidden="true">4.</strong> Dig deeper into WatermelonDB</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Implementation/Architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a></li><li class="chapter-item expanded "><a href="Implementation/Adapters.html"><strong aria-hidden="true">4.2.</strong> Adapters</a></li><li class="chapter-item expanded "><a href="Implementation/SyncImpl.html"><strong aria-hidden="true">4.3.</strong> Sync implementation</a></li></ol></li><li class="chapter-item expanded "><a href="ch04-00-deeper.html"><strong aria-hidden="true">5.</strong> Other</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="Roadmap.html"><strong aria-hidden="true">5.1.</strong> Roadmap</a></li><li class="chapter-item expanded "><a href="CONTRIBUTING.html"><strong aria-hidden="true">5.2.</strong> Contributing</a></li><li class="chapter-item expanded "><a href="CHANGELOG.html"><strong aria-hidden="true">5.3.</strong> Changelog</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">WatermelonDB documentation</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="connecting-to-components"><a class="header" href="#connecting-to-components">Connecting to Components</a></h1>
+<p>After you <a href="./Model.html">define some Models</a>, it's time to connect Watermelon to your app's interface. We're using React in this guide, however WatermelonDB can be used with any UI framework.</p>
+<p><strong>Note:</strong> If you're not familiar with higher-order components, read <a href="https://reactjs.org/docs/higher-order-components.html">React documentation</a>, check out <a href="https://github.com/acdlite/recompose"><code>recompose</code></a>… or just read the examples below to see it in practice!</p>
+<h2 id="reactive-components"><a class="header" href="#reactive-components">Reactive components</a></h2>
+<p>Here's a very simple React component rendering a <code>Comment</code> record:</p>
+<pre><code class="language-jsx">const Comment = ({ comment }) =&gt; (
+  &lt;div&gt;
+    &lt;p&gt;{comment.body}&lt;/p&gt;
+  &lt;/div&gt;
+)
+</code></pre>
+<p>Now we can fetch a comment: <code>const comment = await commentsCollection.find(id)</code> and then render it: <code>&lt;Comment comment={comment} /&gt;</code>. The only problem is that this is <strong>not reactive</strong>. If the Comment is updated or deleted, the component will not re-render to reflect the changes. (Unless an update is forced manually or the parent component re-renders).</p>
+<p>Let's enhance the component to make it <em>observe</em> the <code>Comment</code> automatically:</p>
+<pre><code class="language-jsx">import withObservables from '@nozbe/with-observables'
+const enhance = withObservables(['comment'], ({ comment }) =&gt; ({
+  comment // shortcut syntax for `comment: comment.observe()`
+}))
+const EnhancedComment = enhance(Comment)
+export default EnhancedComment
+</code></pre>
+<p>Now, if we render <code>&lt;EnhancedComment comment={comment} /&gt;</code>, it <strong>will</strong> update every time the comment changes.</p>
+<h3 id="reactive-lists"><a class="header" href="#reactive-lists">Reactive lists</a></h3>
+<p>Let's render the whole <code>Post</code> with comments:</p>
+<pre><code class="language-jsx">import withObservables from '@nozbe/with-observables'
+import EnhancedComment from 'components/Comment'
+
+const Post = ({ post, comments }) =&gt; (
+  &lt;article&gt;
+    &lt;h1&gt;{post.name}&lt;/h1&gt;
+    &lt;p&gt;{post.body}&lt;/p&gt;
+    &lt;h2&gt;Comments&lt;/h2&gt;
+    {comments.map(comment =&gt;
+      &lt;EnhancedComment key={comment.id} comment={comment} /&gt;
+    )}
+  &lt;/article&gt;
+)
+
+const enhance = withObservables(['post'], ({ post }) =&gt; ({
+  post,
+  comments: post.comments, // Shortcut syntax for `post.comments.observe()`
+}))
+
+const EnhancedPost = enhance(Post)
+export default EnhancedPost
+</code></pre>
+<p>Notice a couple of things:</p>
+<ol>
+<li>
+<p>We're starting with a simple non-reactive <code>Post</code> component</p>
+</li>
+<li>
+<p>Like before, we enhance it by observing the <code>Post</code>. If the post name or body changes, it will re-render.</p>
+</li>
+<li>
+<p>To access comments, we fetch them from the database and observe using <code>post.comments.observe()</code> and inject a new prop <code>comments</code>. (<code>post.comments</code> is a Query created using <code>@children</code>).</p>
+<p>Note that we can skip <code>.observe()</code> and just pass <code>post.comments</code> for convenience — <code>withObservables</code> will call observe for us</p>
+</li>
+<li>
+<p>By <strong>observing the Query</strong>, the <code>&lt;Post&gt;</code> component will re-render if a comment is created or deleted</p>
+</li>
+<li>
+<p>However, observing the comments Query will not re-render <code>&lt;Post&gt;</code> if a comment is <em>updated</em> — we render the <code>&lt;EnhancedComment&gt;</code> so that <em>it</em> observes the comment and re-renders if necessary.</p>
+</li>
+</ol>
+<h3 id="reactive-relations"><a class="header" href="#reactive-relations">Reactive relations</a></h3>
+<p>The <code>&lt;Comment&gt;</code> component we made previously only renders the body of the comment but doesn't say who posted it.</p>
+<p>Assume the <code>Comment</code> model has a <code>@relation('users', 'author_id') author</code> field. Let's render it:</p>
+<pre><code class="language-jsx">const Comment = ({ comment, author }) =&gt; (
+  &lt;div&gt;
+    &lt;p&gt;{comment.body} — by {author.name}&lt;/p&gt;
+  &lt;/div&gt;
+)
+
+const enhance = withObservables(['comment'], ({ comment }) =&gt; ({
+  comment,
+  author: comment.author, // shortcut syntax for `comment.author.observe()`
+}))
+const EnhancedComment = enhance(Comment)
+</code></pre>
+<p><code>comment.author</code> is a <a href="./Relation.html">Relation object</a>, and we can call <code>.observe()</code> on it to fetch the <code>User</code> and then observe changes to it. If author's name changes, the component will re-render.</p>
+<p><strong>Note</strong> again that we can also pass <code>Relation</code> objects directly for convenience, skipping <code>.observe()</code></p>
+<h3 id="reactive-counters"><a class="header" href="#reactive-counters">Reactive counters</a></h3>
+<p>Let's make a <code>&lt;PostExcerpt&gt;</code> component to display on a <em>list</em> of Posts, with only a brief summary of the contents and only the number of comments it has:</p>
+<pre><code class="language-jsx">const PostExcerpt = ({ post, commentCount }) =&gt; (
+  &lt;div&gt;
+    &lt;h1&gt;{post.name}&lt;/h1&gt;
+    &lt;p&gt;{getExcerpt(post.body)}&lt;/p&gt;
+    &lt;span&gt;{commentCount} comments&lt;/span&gt;
+  &lt;/div&gt;
+)
+
+const enhance = withObservables(['post'], ({ post }) =&gt; ({
+  post,
+  commentCount: post.comments.observeCount()
+}))
+
+const EnhancedPostExcerpt = enhance(PostExcerpt)
+</code></pre>
+<p>This is very similar to normal <code>&lt;Post&gt;</code>. We take the <code>Query</code> for post's comments, but instead of observing the <em>list</em> of comments, we call <code>observeCount()</code>. This is far more efficient. And as always, if a new comment is posted, or one is deleted, the component will re-render with the updated count.</p>
+<h2 id="hey-what-about-react-hooks"><a class="header" href="#hey-what-about-react-hooks">Hey, what about React Hooks?</a></h2>
+<p>We get it — HOCs are so 2017, and Hooks are the future! And we agree.</p>
+<p>However, Hooks are not compatible with WatermelonDB's asynchronous API. You <em>could</em> use alternative open-source Hooks for Rx Observables, however we don't recommend that. They won't work correctly in all cases and won't be as optimized for performance with WatermelonDB as <code>withObservables</code>. In the future, once Concurrent React is fully developed and published, WatermelonDB will have official hooks.</p>
+<p><strong><a href="https://github.com/Nozbe/withObservables/issues/16">See discussion about official <code>useObservables</code> Hook</a></strong></p>
+<h2 id="understanding-withobservables"><a class="header" href="#understanding-withobservables">Understanding <code>withObservables</code></a></h2>
+<p>Let's unpack this:</p>
+<pre><code class="language-js">withObservables(['post'], ({ post }) =&gt; ({
+  post: post.observe(),
+  commentCount: post.comments.observeCount()
+}))
+</code></pre>
+<ol>
+<li>Starting from the second argument, <code>({ post })</code> are the input props for the component. Here, we receive <code>post</code> prop with a <code>Post</code> object.</li>
+<li>These:
+<pre><code class="language-js">({
+  post: post.observe(),
+  commentCount: post.comments.observeCount()
+})
+</code></pre>
+are the enhanced props we inject. The keys are props' names, and values are <code>Observable</code> objects. Here, we override the <code>post</code> prop with an observable version, and create a new <code>commentCount</code> prop.</li>
+<li>The first argument: <code>['post']</code> is a list of props that trigger observation restart. So if a different <code>post</code> is passed, that new post will be observed. If you pass <code>[]</code>, the rendered Post will not change. You can pass multiple prop names if any of them should cause observation to re-start. Think of it the same way as the <code>deps</code> argument you pass to <code>useEffect</code> hook.</li>
+<li><strong>Rule of thumb</strong>: If you want to use a prop in the second arg function, pass its name in the first arg array</li>
+</ol>
+<h2 id="advanced"><a class="header" href="#advanced">Advanced</a></h2>
+<ol>
+<li><strong>findAndObserve</strong>. If you have, say, a post ID from your Router (URL in the browser), you can use:
+<pre><code class="language-js">withObservables(['postId'], ({ postId, database }) =&gt; ({
+  post: database.get('posts').findAndObserve(postId)
+}))
+</code></pre>
+</li>
+<li><strong>RxJS transformations</strong>. The values returned by <code>Model.observe()</code>, <code>Query.observe()</code>, <code>Relation.observe()</code> are <a href="https://github.com/ReactiveX/rxjs">RxJS Observables</a>. You can use standard transforms like mapping, filtering, throttling, startWith to change when and how the component is re-rendered.</li>
+<li><strong>Custom Observables</strong>. <code>withObservables</code> is a general-purpose HOC for Observables, not just Watermelon. You can create new props from any <code>Observable</code>.</li>
+</ol>
+<h3 id="advanced-observing-sorted-lists"><a class="header" href="#advanced-observing-sorted-lists">Advanced: observing sorted lists</a></h3>
+<p>If you have a list that's dynamically sorted (e.g. sort comments by number of likes), use <code>Query.observeWithColumns</code> to ensure the list is re-rendered when its order changes:</p>
+<pre><code class="language-jsx">// This is a function that sorts an array of comments according to its `likes` field
+// I'm using `ramda` functions for this example, but you can do sorting however you like
+const sortComments = sortWith([
+  descend(prop('likes'))
+])
+
+const CommentList = ({ comments }) =&gt; (
+  &lt;div&gt;
+    {sortComments(comments).map(comment =&gt;
+      &lt;EnhancedComment key={comment.id} comment={comment} /&gt;
+    )}
+  &lt;/div&gt;
+)
+
+const enhance = withObservables(['post'], ({ post }) =&gt; ({
+  comments: post.comments.observeWithColumns(['likes'])
+}))
+
+const EnhancedCommentList = enhance(CommentList)
+</code></pre>
+<p>If you inject <code>post.comments.observe()</code> into the component, the list will not re-render to change its order, only if comments are added or removed. Instead, use <code>query.observeWithColumns()</code> with an array of <a href="./Schema.html"><strong>column names</strong></a> you use for sorting to re-render whenever a record on the list has any of those fields changed.</p>
+<h3 id="advanced-observing-2nd-level-relations"><a class="header" href="#advanced-observing-2nd-level-relations">Advanced: observing 2nd level relations</a></h3>
+<p>If you have 2nd level relations, like author's <code>Contact</code> info, and want to connect it to a component as well, you cannot simply use <code>post.author.contact.observe()</code> in <code>withObservables</code>. Remember, <code>post.author</code> is not a <code>User</code> object, but a <code>Relation</code> that has to be asynchronously fetched.</p>
+<p>Before accessing and observing the <code>Contact</code> relation, you need to resolve the <code>author</code> itself. Here is the simplest way to do it:</p>
+<pre><code class="language-js">import { compose } from 'recompose'
+
+const enhance = compose(
+  withObservables(['post'], ({ post }) =&gt; ({
+    post,
+    author: post.author,
+  })),
+  withObservables(['author'], ({ author }) =&gt; ({
+    contact: author.contact,
+  })),
+)
+
+const EnhancedPost = enhance(PostComponent);
+</code></pre>
+<p>This is using a <code>compose</code> function from <a href="https://github.com/acdlite/recompose"><code>recompose</code></a>. If you're not familiar with function composition, read the <code>enhance</code> function from top to bottom:</p>
+<ul>
+<li>first, the PostComponent is enhanced by changing the incoming <code>post</code> prop into its observable version, and by adding a new <code>author</code> prop that will contain the fetched contents of <code>post.author</code></li>
+<li>then, the enhanced component is enhanced once again, by adding a <code>contact</code> prop containing the fetched contents of <code>author.contact</code>.</li>
+</ul>
+<h4 id="alternative-method-of-observing-2nd-level-relations"><a class="header" href="#alternative-method-of-observing-2nd-level-relations">Alternative method of observing 2nd level relations</a></h4>
+<p>If you are familiar with <code>rxjs</code>, another way to achieve the same result is using <code>switchMap</code> operator:</p>
+<pre><code class="language-js">import { switchMap } from 'rxjs/operators'
+
+const enhance = withObservables(['post'], ({post}) =&gt; ({
+  post: post,
+  author: post.author,
+  contact: post.author.observe().pipe(switchMap(author =&gt; author.contact.observe()))
+}))
+
+const EnhancedPost = enhance(PostComponent)
+</code></pre>
+<p>Now <code>PostComponent</code> will have <code>Post</code>, <code>Author</code> and <code>Contact</code> props.</p>
+<h4 id="2nd-level-optional-relations"><a class="header" href="#2nd-level-optional-relations">2nd level optional relations</a></h4>
+<p>If you have an optional relation between <code>Post</code> and <code>Author</code>, the enhanced component might receive <code>null</code> as <code>author</code> prop. As you must always return an observable for the <code>contact</code> prop, you can use <code>rxjs</code>'s <code>of</code> function to create a default or empty <code>Contact</code> prop:</p>
+<pre><code class="language-js">import { of as of$ } from 'rxjs'
+import { compose } from 'recompose'
+
+const enhance = compose(
+  withObservables(['post'], ({ post }) =&gt; ({
+    post,
+    author: post.author,
+  })),
+  withObservables(['author'], ({ author }) =&gt; ({
+    contact: author ? author.contact.observe() : of$(null),
+  })),
+)
+</code></pre>
+<p>With the <code>switchMap</code> approach, you can do:</p>
+<pre><code class="language-js">const enhance = withObservables(['post'], ({post}) =&gt; ({
+  post: post,
+  author: post.author,
+  contact: post.autor.observe().pipe(
+    switchMap(author =&gt; author ? autor.contact : of$(null))
+  )
+}))
+</code></pre>
+<h2 id="database-provider"><a class="header" href="#database-provider">Database Provider</a></h2>
+<p>To prevent prop drilling you can use the Database Provider and the <code>withDatabase</code> Higher-Order Component.</p>
+<pre><code class="language-jsx">import DatabaseProvider from '@nozbe/watermelondb/DatabaseProvider'
+
+// ...
+
+const database = new Database({
+  adapter,
+  modelClasses: [Blog, Post, Comment],
+})
+
+render(
+  &lt;DatabaseProvider database={database}&gt;
+    &lt;Root /&gt;
+  &lt;/DatabaseProvider&gt;, document.getElementById('application')
+)
+
+</code></pre>
+<p>To consume the database in your components you just wrap your component like so:</p>
+<pre><code class="language-jsx">import { withDatabase } from '@nozbe/watermelondb/DatabaseProvider'
+import { compose } from 'recompose'
+
+// ...
+
+export default compose(
+  withDatabase,
+  withObservables([], ({ database }) =&gt; ({
+    blogs: database.get('blogs').query(),
+  }),
+)(BlogList)
+
+</code></pre>
+<p>The database prop in the <code>withObservables</code> Higher-Order Component is provided by the database provider.</p>
+<h3 id="usedatabase"><a class="header" href="#usedatabase"><code>useDatabase</code></a></h3>
+<p>You can also consume <code>Database</code> object using React Hooks syntax:</p>
+<pre><code class="language-js">import { useDatabase } from '@nozbe/watermelondb/hooks'
+
+const Component = () =&gt; {
+   const database = useDatabase()
+}
+</code></pre>
+<hr />
+<h2 id="next-steps"><a class="header" href="#next-steps">Next steps</a></h2>
+<p>➡️ Next, learn more about <a href="./Query.html"><strong>custom Queries</strong></a></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="CRUD.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="Query.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="CRUD.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="Query.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>
