@@ -1,11 +1,5 @@
 #import "WMDatabaseDriver.h"
 
-typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
-    WMDatabaseCompatibilityCompatible,
-    WMDatabaseCompatibilityNeedsSetup,
-    WMDatabaseCompatibilityNeedsMigration,
-};
-
 @implementation WMDatabaseDriver
 
 #pragma mark - Initialization
