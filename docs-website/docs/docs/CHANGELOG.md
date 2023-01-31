@@ -4,12 +4,7 @@ All notable changes to this project will be documented in this file.
 
 Contributors: Please add your changes to CHANGELOG-Unreleased.md
 
-## 0.25.4 - 2023-01-31
-
-- [Sync] Improve memory consumption (less likely to get "Maximum callstack exceeded" error)
-- [TypeScript] Fix type of `DirtyRaw` to `{ [key: string]: any }` (from `Object`)
-
-## 0.25.3 - 2023-01-30
+## 0.25.3 - 2023-01-31
 
 - Fixed TypeError regression
 
@@ -734,7 +729,7 @@ Hotfix for rambdax crash
 
 - **Actions API**.
 
-  This was actually released in 0.8.0 but is now documented in [CRUD.md](./docs-website/docs/docs/CRUD.md) and [Actions.md](./docs-website/docs/docs/Actions.md).
+  This was actually released in 0.8.0 but is now documented in [CRUD.md](./CRUD.md) and [Actions.md](./Actions.md).
   With Actions enabled, all create/update/delete/batch calls must be wrapped in an Action.
 
   To use Actions, call `await database.action(async () => { /* perform writes here */ }`, and in

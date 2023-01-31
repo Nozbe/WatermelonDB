@@ -11,12 +11,12 @@
 
 - [iOS] In your Podfile, make the following change:
 
-    ```rb
-    # replace this:
-    pod 'simdjson', path: '../node_modules/@nozbe/simdjson'
-    # with this:
-    pod 'simdjson', path: '../node_modules/@nozbe/simdjson', modular_headers: true
-    ```
+  ```rb
+  # replace this:
+  pod 'simdjson', path: '../node_modules/@nozbe/simdjson'
+  # with this:
+  pod 'simdjson', path: '../node_modules/@nozbe/simdjson', modular_headers: true
+  ```
 
 ### Deprecations
 
@@ -41,5 +41,6 @@
 - Updated Installation docs
 - [flow] Updated Flow version used in the project to 198.1. This shouldn't have an impact on you, but could fix or break Flow if you don't have WatermelonDB set to `[declarations]` mode
 - [flow] Clarified docs to recommend the use of `[declarations]` mode for WatermelonDB
+- [docs] Update docs to use docusaurus instead of mdbook
 
 ### Internal
