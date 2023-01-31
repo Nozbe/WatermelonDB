@@ -1,13 +1,27 @@
 #import "WMDatabaseBridge.h"
+#import "WMDatabaseDriver.h"
 #import "JSIInstaller.h"
 
-@implementation WMDatabaseBridge
+@implementation WMDatabaseBridge {
+    NSMutableDictionary<NSNumber *, WMDatabaseDriver *> *_connections;
+    NSMutableDictionary<NSNumber *, NSMutableArray *> *_queue; // operations waiting on a connection
+}
 
 #pragma mark - RCTBridgeModule stuff
 
 RCT_EXPORT_MODULE();
 
 @synthesize bridge = _bridge;
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        _connections = [NSMutableDictionary dictionary];
+        _queue = [NSMutableDictionary dictionary];
+    }
+    return self;
+}
 
 - (dispatch_queue_t) methodQueue
 {
@@ -22,7 +36,7 @@ RCT_EXPORT_MODULE();
 }
 
 #define BRIDGE_METHOD(name, args) \
-    RCT_EXPORT_METHOD(name:(nonnull NSNumber *)connectionTag \
+    RCT_EXPORT_METHOD(name:(nonnull NSNumber *)tag \
         args \
         resolve:(RCTPromiseResolveBlock)resolve \
         reject:(RCTPromiseRejectBlock)reject \
@@ -35,7 +49,25 @@ BRIDGE_METHOD(initialize,
     schemaVersion:(nonnull NSNumber *)version
 )
 {
-    // TODO: Unimplemented
+    if (_connections[tag] || _queue[tag]) {
+        return reject(@"db.initialize.error", [NSString stringWithFormat:@"A driver with tag %@ is already set up", tag], nil);
+    }
+    
+    WMDatabaseDriver *driver = [WMDatabaseDriver driverWithName:name];
+    WMDatabaseCompatibility compatibility = [driver isCompatibleWithSchemaVersion:[version integerValue]];
+    
+    if (compatibility == WMDatabaseCompatibilityCompatible) {
+        _connections[tag] = driver;
+        return resolve(@{@"code": @"ok"});
+    } else if (compatibility == WMDatabaseCompatibilityNeedsSetup) {
+        _queue[tag] = [NSMutableArray array];
+        return resolve(@{@"code": @"schema_needed"});
+    } else if (compatibility == WMDatabaseCompatibilityNeedsMigration) {
+        _queue[tag] = [NSMutableArray array];
+        return resolve(@{@"code": @"migrations_needed", @"databaseVersion": @(driver.schemaVersion)});
+    }
+    
+    [NSException raise:@"BadArgument" format:@"Unexpected WMDatabaseCompatibility"];
 }
 
 BRIDGE_METHOD(setUpWithSchema,
