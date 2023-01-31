@@ -12,6 +12,8 @@
 
 ### Fixes
 
+- [TypeScript] Fix type of `DirtyRaw` to `object` (from `Object`)
+
 ### Performance
 
 ### Changes
