@@ -11,12 +11,12 @@
 
 - [iOS] In your Podfile, make the following change:
 
-    ```rb
-    # replace this:
-    pod 'simdjson', path: '../node_modules/@nozbe/simdjson'
-    # with this:
-    pod 'simdjson', path: '../node_modules/@nozbe/simdjson', modular_headers: true
-    ```
+  ```rb
+  # replace this:
+  pod 'simdjson', path: '../node_modules/@nozbe/simdjson'
+  # with this:
+  pod 'simdjson', path: '../node_modules/@nozbe/simdjson', modular_headers: true
+  ```
 
 ### Deprecations
 
