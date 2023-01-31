@@ -7,4 +7,4 @@ cp CONTRIBUTING.md ./docs-website/docs/docs/CONTRIBUTING.md && \
 cp CHANGELOG.md ./docs-website/docs/docs/CHANGELOG.md && \
 sed -i  "s/\/docs-website\/docs\/docs//g" ./docs-website/docs/docs/CHANGELOG.md && \
 cd ./docs-website && \
-yarn start
+yarn deploy
