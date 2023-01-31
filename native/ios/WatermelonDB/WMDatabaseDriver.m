@@ -16,7 +16,7 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
         _db = [WMDatabase databaseWithPath:[self pathForName:dbName]];
         _cachedRecords = [NSMutableDictionary dictionary];
     }
-    
+
     return self;
 }
 
@@ -36,7 +36,7 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
                                                    appropriateForURL:nil
                                                               create:false
                                                                error:nil];
-        
+
         return [[url URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.db", dbName]] path];
     }
 }
@@ -51,7 +51,7 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
 - (WMDatabaseCompatibility) isCompatibleWithSchemaVersion:(long)version
 {
     long dbVersion = _db.userVersion;
-    
+
     if (version == dbVersion) {
         return WMDatabaseCompatibilityCompatible;
     } else if (dbVersion == 0) {
@@ -80,22 +80,19 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
         [NSException raise:@"IncompatibleMigrations"
                     format:@"Incompatbile migration set applied. DB: %li, migration: %li", databaseVersion, fromVersion];
     }
-    
+
     __block WMDatabase *db = _db;
     BOOL txnResult = [db inTransaction:^BOOL(NSError **innerErrorPtr) {
         if (![db executeStatements:sql error:innerErrorPtr]) {
             return NO;
         }
         [db setUserVersion:toVersion];
-        
+
         return YES;
     } error:errorPtr];
-    
+
     return txnResult;
 }
-
-// TODO: setUpWithSchema
-// TODO: setUpWithMigrations
 
 #pragma mark - Database functions
 
@@ -104,14 +101,14 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
     if ([self isCached:table id:id]) {
         return id;
     }
-    
+
     NSString *query = [NSString stringWithFormat:@"select * from `%@` where id == ? limit 1", table];
     FMResultSet *result = [_db queryRaw:query args:@[id] error:errorPtr];
-    
+
     if (![result next]) {
         return nil;
     }
-    
+
     [self markAsCached:table id:id];
     return [result resultDictionary];
 }
@@ -123,7 +120,7 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
     if (!resultArray) {
         return nil;
     }
-    
+
     while ([result next]) {
         NSString *id = [result stringForColumn:@"id"];
         if ([self isCached:table id:id]) {
@@ -133,7 +130,7 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
             [resultArray addObject:[result resultDictionary]];
         }
     }
-    
+
     return resultArray;
 }
 
@@ -144,11 +141,11 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
     if (!resultArray) {
         return nil;
     }
-    
+
     while ([result next]) {
         [resultArray addObject:[result stringForColumn:@"id"]];
     }
-    
+
     return resultArray;
 }
 
@@ -159,11 +156,11 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
     if (!resultArray) {
         return nil;
     }
-    
+
     while ([result next]) {
         [resultArray addObject:[result resultDictionary]];
     }
-    
+
     return resultArray;
 }
 
@@ -178,7 +175,7 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
     // TODO: Refactor for perf to use cacheKeys ala Database.cpp ?
     NSMutableArray *addedIds = [NSMutableArray array];
     NSMutableArray *removedIds = [NSMutableArray array];
-    
+
     __block WMDatabase *db = _db;
     BOOL txnResult = [db inTransaction:^BOOL(NSError **innerErrorPtr) {
         for (NSArray *operation in operations) {
@@ -186,12 +183,12 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
             NSString *table = operation[1];
             NSString *sql = operation[2];
             NSArray *argBatches = operation[3];
-            
+
             for (NSArray *args in argBatches) {
                 if (![db executeQuery:sql args:args error:innerErrorPtr]) {
                     return NO;
                 }
-                
+
                 if (cacheBehavior.intValue == 1) {
                     [addedIds addObject:@[table, args[0]]];
                 } else if (cacheBehavior.intValue == -1) {
@@ -199,22 +196,22 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
                 }
             }
         }
-        
+
         return YES;
     } error:errorPtr];
-    
+
     if (!txnResult) {
         return NO;
     }
-    
+
     for (NSArray *pair in addedIds) {
         [self markAsCached:pair[0] id:pair[1]];
     }
-    
+
     for (NSArray *pair in removedIds) {
         [self removeFromCache:pair[0] id:pair[1]];
     }
-    
+
     return YES;
 }
 
@@ -222,11 +219,11 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
 {
     // TODO: Shouldn't this be moved to JS, handled by queryRaw?
     FMResultSet *result = [_db queryRaw:@"select `value` from `local_storage` where `key` = ?" args:@[key] error:errorPtr];
-    
+
     if (![result next]) {
         return nil;
     }
-    
+
     return [result stringForColumn:@"value"];
 }
 
@@ -236,17 +233,17 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
         return NO;
     }
     _cachedRecords = [NSMutableDictionary dictionary];
-    
+
     __block WMDatabase *db = _db;
     BOOL txnResult = [db inTransaction:^BOOL(NSError **innerErrorPtr) {
         if (![db executeStatements:sql error:innerErrorPtr]) {
             return NO;
         }
         [db setUserVersion:version];
-        
+
         return YES;
     } error:errorPtr];
-    
+
     return txnResult;
 }
 
