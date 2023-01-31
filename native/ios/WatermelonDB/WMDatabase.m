@@ -85,6 +85,7 @@
 
 #pragma mark - Other database functions
 
+// TODO: This is a near 1-to-1 translated from Swift, but it's not an ObjC-y way of doing this
 - (BOOL) inTransaction:(BOOL (^)(NSError**))transactionBlock error:(NSError**)errorPtr
 {
     if (![_fmdb beginTransaction]) {
