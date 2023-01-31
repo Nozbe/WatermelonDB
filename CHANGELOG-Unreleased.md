@@ -26,11 +26,8 @@
 
 ### Fixes
 
-- [Sync] Improve memory consumption (less likely to get "Maximum callstack exceeded" error)
 - [JSI] Improved reliability when reloading RCTBridge
 - [iOS] Fix "range of supported deployment targets" Xcode warning
-- [JSI] Improved reliability when reloading RCTBridge
-- [TypeScript] Fix type of `DirtyRaw` to `{ [key: string]: any }` (from `Object`)
 
 ### Performance
 
