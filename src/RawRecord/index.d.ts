@@ -5,7 +5,7 @@ import type { RecordId, SyncStatus } from '../Model'
 // Raw object representing a model record, coming from an untrusted source
 // (disk, sync, user data). Before it can be used to create a Model instance
 // it must be sanitized (with `sanitizedRaw`) into a RawRecord
-export type DirtyRaw = Object
+export type DirtyRaw = object
 
 // These fields are ALWAYS present in records of any collection.
 type _RawRecord = {
