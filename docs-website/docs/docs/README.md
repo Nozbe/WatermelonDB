@@ -1,5 +1,5 @@
 ---
-title: 'Check out the README'
+title: Check out the README
 hide_title: true
 ---
 
