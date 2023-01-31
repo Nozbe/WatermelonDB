@@ -1,10 +1,13 @@
 #import "WMDatabaseBridge.h"
+#import "JSIInstaller.h"
 
 @implementation WMDatabaseBridge
 
 #pragma mark - RCTBridgeModule stuff
 
 RCT_EXPORT_MODULE();
+
+@synthesize bridge = _bridge;
 
 - (dispatch_queue_t) methodQueue
 {
@@ -121,13 +124,31 @@ BRIDGE_METHOD(getLocal,
 
 #pragma mark - JSI Support
 
-// RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(initializeJSI)
+RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(initializeJSI)
+{
+    __block RCTCxxBridge *bridge = (RCTCxxBridge *) _bridge;
+    dispatch_sync([self methodQueue], ^{
+        installWatermelonJSI(bridge);
+    });
+    
+    return @YES;
+}
 
-// RCT_EXTERN_METHOD(provideSyncJson:(nonnull NSNumber *)id \
-//     json:(nonnull NSString *)json \
-//     resolve:(RCTPromiseResolveBlock)resolve \
-//     reject:(RCTPromiseRejectBlock)reject \
-// )
+
+RCT_EXPORT_METHOD(provideSyncJson:(nonnull NSNumber *)id
+    json:(nonnull NSString *)json
+    resolve:(RCTPromiseResolveBlock)resolve
+    reject:(RCTPromiseRejectBlock)reject)
+{
+    NSError *error;
+    watermelondbProvideSyncJson(id.intValue, [json dataUsingEncoding:NSUTF8StringEncoding], &error);
+    if (error) {
+        // TODO: sendReject
+        reject(@"db.provideSyncJson.error", error.localizedDescription, error);
+    } else {
+        resolve(@YES);
+    }
+}
 
 #pragma mark - Helpers
 
