@@ -149,7 +149,15 @@ BRIDGE_METHOD(batchJSON,
     operations:(NSString *)serializedOperations
 )
 {
-    // TODO: Unimplemented
+    WITH_DRIVER({
+        NSData *jsonData = [serializedOperations dataUsingEncoding:NSUTF8StringEncoding];
+        NSArray *operations = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:errorPtr];
+        if (!operations) {
+            return @NO;
+        }
+        [driver batch:operations error:errorPtr];
+        return @YES;
+    })
 }
 
 BRIDGE_METHOD(unsafeResetDatabase,
@@ -193,7 +201,6 @@ RCT_EXPORT_METHOD(provideSyncJson:(nonnull NSNumber *)id
     NSError *error;
     watermelondbProvideSyncJson(id.intValue, [json dataUsingEncoding:NSUTF8StringEncoding], &error);
     if (error) {
-        // TODO: sendReject
         reject(@"db.provideSyncJson.error", error.localizedDescription, error);
     } else {
         resolve(@YES);
