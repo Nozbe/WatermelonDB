@@ -6,6 +6,8 @@ import android.os.Trace
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.WritableArray
+import com.nozbe.watermelondb.utils.MigrationSet
+import com.nozbe.watermelondb.utils.Schema
 import java.util.logging.Logger
 
 class DatabaseDriver(context: Context, dbName: String, unsafeNativeReuse: Boolean = false) {
@@ -60,11 +62,9 @@ class DatabaseDriver(context: Context, dbName: String, unsafeNativeReuse: Boolea
             if (it.count <= 0) {
                 return null
             }
-            val resultMap = Arguments.createMap()
             markAsCached(table, id)
             it.moveToFirst()
-            resultMap.mapCursor(it)
-            return resultMap
+            return DatabaseUtils.cursorToMap(it)
         }
     }
 
@@ -114,8 +114,7 @@ class DatabaseDriver(context: Context, dbName: String, unsafeNativeReuse: Boolea
     }
 
     private fun WritableArray.pushMapFromCursor(cursor: Cursor) {
-        val cursorMap = Arguments.createMap()
-        cursorMap.mapCursor(cursor)
+        val cursorMap = DatabaseUtils.cursorToMap(cursor)
         this.pushMap(cursorMap)
     }
 
