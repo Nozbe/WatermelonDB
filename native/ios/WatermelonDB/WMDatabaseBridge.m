@@ -76,7 +76,10 @@ BRIDGE_METHOD(setUpWithSchema,
     schemaVersion:(nonnull NSNumber *)version
 )
 {
-    // TODO: Unimplemented
+    WMDatabaseDriver *driver = [WMDatabaseDriver driverWithName:name];
+    [driver setUpWithSchema:schema schemaVersion:[version integerValue]];
+    [self connectDriverAsync:tag driver:driver];
+    return resolve(@YES);
 }
 
 BRIDGE_METHOD(setUpWithMigrations,
@@ -86,7 +89,16 @@ BRIDGE_METHOD(setUpWithMigrations,
     toVersion:(nonnull NSNumber *)toVersion
 )
 {
-    // TODO: Unimplemented
+    WMDatabaseDriver *driver = [WMDatabaseDriver driverWithName:name];
+    NSError *error;
+    
+    if ([driver setUpWithMigrations:migrationSQL fromVersion:[fromVersion integerValue] toVersion:[toVersion integerValue] error:&error]) {
+        [self connectDriverAsync:tag driver:driver];
+        return resolve(@YES);
+    } else {
+        [self disconnectDriver:tag];
+        return reject(@"db.setUpWithMigrations.error", error.localizedDescription, error);
+    }
 }
 
 #pragma mark - Database functions
@@ -209,6 +221,25 @@ RCT_EXPORT_METHOD(provideSyncJson:(nonnull NSNumber *)id
 
 #pragma mark - Helpers
 
+- (void) connectDriverAsync:(nonnull NSNumber *)tag
+                     driver:(WMDatabaseDriver *)driver
+{
+    _connections[tag] = driver;
+    NSArray *queuedOperations = _queue[tag];
+    [_queue removeObjectForKey:tag];
+    
+    for (void (^action)(void) in queuedOperations) {
+        action();
+    }
+}
+
+- (void) disconnectDriver:(nonnull NSNumber *)tag
+{
+    [_connections removeObjectForKey:tag];
+    // NOTE: In Swift, queued operations are executed, which seems wrong
+    [_queue removeObjectForKey:tag];
+}
+
 - (void) withDriver:(nonnull NSNumber *)tag
             resolve:(RCTPromiseResolveBlock)resolve
              reject:(RCTPromiseRejectBlock)reject
@@ -227,8 +258,15 @@ RCT_EXPORT_METHOD(provideSyncJson:(nonnull NSNumber *)id
             return resolve(result);
         }
     } else {
+        NSLog(@"Operation for driver %@ enqueued", tag);
         NSMutableArray *queuedOperations = _queue[tag];
-        [queuedOperations addObject:action];
+        
+        // try again when driver is ready
+        void (^queueOperation)(void) = ^() {
+            [self withDriver:tag resolve:resolve reject:reject methodName:methodName action:action];
+        };
+        
+        [queuedOperations addObject:queueOperation];
     }
 }
 
