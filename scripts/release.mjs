@@ -182,6 +182,10 @@ const buildTasks = (options) => {
       ? []
       : [
           {
+            title: 'update docs version',
+            task: () => execa('yarn', ['docs:version', version]),
+          },
+          {
             title: 'update docs',
             task: () => execa('yarn', ['docs']),
           },

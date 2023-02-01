@@ -1,6 +1,6 @@
 {
   "name": "docs-website",
-  "version": "0.0.0",
+  "version": "0.25.4",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",

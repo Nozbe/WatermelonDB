@@ -3,6 +3,7 @@
 
 const lightCodeTheme = require('prism-react-renderer/themes/github')
 const darkCodeTheme = require('prism-react-renderer/themes/dracula')
+const {version} = require('./package.json')
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -47,6 +48,13 @@ const config = {
             'https://github.com/nozbe/WatermelonDB/edit/master/docs-website/',
             routeBasePath: '/',
             path: 'docs',
+            lastVersion: 'current',
+            versions: {
+              current: {
+                label: `${version}`,
+                badge: true,
+              },
+            },
         },
         // blog: {
         //   showReadingTime: true,
@@ -79,6 +87,10 @@ const config = {
             position: 'left',
             label: 'Docs',
             docId: 'docs/README',
+          },
+          {
+            type: 'docsVersionDropdown',
+            position: 'left',
           },
           // {to: '/blog', label: 'Blog', position: 'left'},
           {
