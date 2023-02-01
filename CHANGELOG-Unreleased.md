@@ -28,6 +28,7 @@
 
 - [JSI] Improved reliability when reloading RCTBridge
 - [iOS] Fix "range of supported deployment targets" Xcode warning
+- [Sync] Improved resiliency to "Maximum call stack size exceeded" errors
 
 ### Performance
 
