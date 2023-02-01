@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 Contributors: Please add your changes to CHANGELOG-Unreleased.md
 
+## 0.25.5 - 2023-02-01
+
+- Fix Android auto-linking
+
 ## 0.25.4 - 2023-01-31
 
 - [Sync] Improve memory consumption (less likely to get "Maximum callstack exceeded" error)
