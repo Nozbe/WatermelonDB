@@ -1,11 +1,5 @@
 #import "WMDatabaseDriver.h"
 
-typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
-    WMDatabaseCompatibilityCompatible,
-    WMDatabaseCompatibilityNeedsSetup,
-    WMDatabaseCompatibilityNeedsMigration,
-};
-
 @implementation WMDatabaseDriver
 
 #pragma mark - Initialization
@@ -16,7 +10,7 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
         _db = [WMDatabase databaseWithPath:[self pathForName:dbName]];
         _cachedRecords = [NSMutableDictionary dictionary];
     }
-    
+
     return self;
 }
 
@@ -36,7 +30,7 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
                                                    appropriateForURL:nil
                                                               create:false
                                                                error:nil];
-        
+
         return [[url URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.db", dbName]] path];
     }
 }
@@ -51,7 +45,7 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
 - (WMDatabaseCompatibility) isCompatibleWithSchemaVersion:(long)version
 {
     long dbVersion = _db.userVersion;
-    
+
     if (version == dbVersion) {
         return WMDatabaseCompatibilityCompatible;
     } else if (dbVersion == 0) {
@@ -65,8 +59,34 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
     }
 }
 
-// TODO: setUpWithSchema
-// TODO: setUpWithMigrations
+- (void) setUpWithSchema:(NSString *)sql schemaVersion:(long)version
+{
+    NSError *error;
+    if (![self unsafeResetDatabaseWithSchema:sql schemaVersion:version error:&error]) {
+        [NSException raise:@"SetUpWithSchemaFailed" format:@"Error while setting up the database: %@", error];
+    }
+}
+
+- (BOOL) setUpWithMigrations:(NSString *)sql fromVersion:(long)fromVersion toVersion:(long)toVersion error:(NSError **)errorPtr
+{
+    long databaseVersion = _db.userVersion;
+    if (databaseVersion != fromVersion) {
+        [NSException raise:@"IncompatibleMigrations"
+                    format:@"Incompatbile migration set applied. DB: %li, migration: %li", databaseVersion, fromVersion];
+    }
+
+    __block WMDatabase *db = _db;
+    BOOL txnResult = [db inTransaction:^BOOL(NSError **innerErrorPtr) {
+        if (![db executeStatements:sql error:innerErrorPtr]) {
+            return NO;
+        }
+        [db setUserVersion:toVersion];
+
+        return YES;
+    } error:errorPtr];
+
+    return txnResult;
+}
 
 #pragma mark - Database functions
 
@@ -75,14 +95,14 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
     if ([self isCached:table id:id]) {
         return id;
     }
-    
+
     NSString *query = [NSString stringWithFormat:@"select * from `%@` where id == ? limit 1", table];
     FMResultSet *result = [_db queryRaw:query args:@[id] error:errorPtr];
-    
+
     if (![result next]) {
         return nil;
     }
-    
+
     [self markAsCached:table id:id];
     return [result resultDictionary];
 }
@@ -94,7 +114,7 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
     if (!resultArray) {
         return nil;
     }
-    
+
     while ([result next]) {
         NSString *id = [result stringForColumn:@"id"];
         if ([self isCached:table id:id]) {
@@ -104,7 +124,7 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
             [resultArray addObject:[result resultDictionary]];
         }
     }
-    
+
     return resultArray;
 }
 
@@ -115,11 +135,11 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
     if (!resultArray) {
         return nil;
     }
-    
+
     while ([result next]) {
         [resultArray addObject:[result stringForColumn:@"id"]];
     }
-    
+
     return resultArray;
 }
 
@@ -130,17 +150,95 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
     if (!resultArray) {
         return nil;
     }
-    
+
     while ([result next]) {
         [resultArray addObject:[result resultDictionary]];
     }
-    
+
     return resultArray;
 }
 
 - (NSNumber *) count:(NSString *)query args:(NSArray *)args error:(NSError **)errorPtr
 {
     return [_db count:query args:args error:errorPtr];
+}
+
+// Look for NativeBridgeBatchOperation type
+- (BOOL) batch:(NSArray<NSArray *> *)operations error:(NSError **)errorPtr
+{
+    // TODO: Refactor for perf to use cacheKeys ala Database.cpp ?
+    NSMutableArray *addedIds = [NSMutableArray array];
+    NSMutableArray *removedIds = [NSMutableArray array];
+
+    __block WMDatabase *db = _db;
+    BOOL txnResult = [db inTransaction:^BOOL(NSError **innerErrorPtr) {
+        for (NSArray *operation in operations) {
+            NSNumber *cacheBehavior = operation[0];
+            NSString *table = operation[1];
+            NSString *sql = operation[2];
+            NSArray *argBatches = operation[3];
+
+            for (NSArray *args in argBatches) {
+                if (![db executeQuery:sql args:args error:innerErrorPtr]) {
+                    return NO;
+                }
+
+                if (cacheBehavior.intValue == 1) {
+                    [addedIds addObject:@[table, args[0]]];
+                } else if (cacheBehavior.intValue == -1) {
+                    [removedIds addObject:@[table, args[0]]];
+                }
+            }
+        }
+
+        return YES;
+    } error:errorPtr];
+
+    if (!txnResult) {
+        return NO;
+    }
+
+    for (NSArray *pair in addedIds) {
+        [self markAsCached:pair[0] id:pair[1]];
+    }
+
+    for (NSArray *pair in removedIds) {
+        [self removeFromCache:pair[0] id:pair[1]];
+    }
+
+    return YES;
+}
+
+- (NSString *) getLocal:(NSString *)key error:(NSError **)errorPtr
+{
+    // TODO: Shouldn't this be moved to JS, handled by queryRaw?
+    FMResultSet *result = [_db queryRaw:@"select `value` from `local_storage` where `key` = ?" args:@[key] error:errorPtr];
+
+    if (![result next]) {
+        return nil;
+    }
+
+    return [result stringForColumn:@"value"];
+}
+
+- (BOOL) unsafeResetDatabaseWithSchema:(NSString *)sql schemaVersion:(long)version error:(NSError **)errorPtr
+{
+    if (![_db unsafeDestroyEverything:errorPtr]) {
+        return NO;
+    }
+    _cachedRecords = [NSMutableDictionary dictionary];
+
+    __block WMDatabase *db = _db;
+    BOOL txnResult = [db inTransaction:^BOOL(NSError **innerErrorPtr) {
+        if (![db executeStatements:sql error:innerErrorPtr]) {
+            return NO;
+        }
+        [db setUserVersion:version];
+
+        return YES;
+    } error:errorPtr];
+
+    return txnResult;
 }
 
 #pragma mark - Record caching
