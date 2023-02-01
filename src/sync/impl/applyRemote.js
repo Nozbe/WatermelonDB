@@ -334,39 +334,40 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   return recordsToBatch
 }
 
-const destroyAllDeletedRecords = (
+const destroyAllDeletedRecords = async (
   db: Database,
   recordsToApply: AllRecordsToApply,
-): Promise<void | Array<$Call<<T>(p: Promise<T> | T) => T, Promise<void>>>> => {
+): Promise<void> => {
   const promises = toPairs(recordsToApply).map(([tableName, { deletedRecordsToDestroy }]) =>
     deletedRecordsToDestroy.length
       ? db.adapter.destroyDeletedRecords((tableName: any), deletedRecordsToDestroy)
       : null,
   )
-  return Promise.all(promises)
+  await Promise.all(promises)
 }
 
-const applyAllRemoteChanges = (
+const applyAllRemoteChanges = async (
   recordsToApply: AllRecordsToApply,
   context: ApplyRemoteChangesContext,
 ): Promise<void> => {
   const { db } = context
-  const allRecords = []
+  const allRecords: Array<?Model> = []
   toPairs(recordsToApply).forEach(([tableName, records]) => {
-    allRecords.push(
-      ...prepareApplyRemoteChangesToCollection(records, db.get((tableName: any)), context),
+    prepareApplyRemoteChangesToCollection(records, db.get((tableName: any)), context).forEach(
+      (record) => {
+        allRecords.push(record)
+      },
     )
   })
-  // NOTE: Don't change to `...allRecords` - causes excessive stack usage
   // $FlowFixMe
-  return db.batch(allRecords)
+  await db.batch(allRecords)
 }
 
 // See _unsafeBatchPerCollection - temporary fix
-const unsafeApplyAllRemoteChangesByBatches = (
+const unsafeApplyAllRemoteChangesByBatches = async (
   recordsToApply: AllRecordsToApply,
   context: ApplyRemoteChangesContext,
-): Promise<Array<$Call<<T>(p: Promise<T> | T) => T, Promise<void>>>> => {
+): Promise<void> => {
   const { db } = context
   const promises = []
   toPairs(recordsToApply).forEach(([tableName, records]) => {
@@ -375,10 +376,12 @@ const unsafeApplyAllRemoteChangesByBatches = (
       db.get((tableName: any)),
       context,
     )
-    const batches = splitEvery(5000, preparedModels).map((recordBatch) => db.batch(...recordBatch))
-    promises.push(...batches)
+    splitEvery(5000, preparedModels).forEach((recordBatch) => {
+      // $FlowFixMe
+      promises.push(db.batch(recordBatch))
+    })
   })
-  return Promise.all(promises)
+  await Promise.all(promises)
 }
 
 export default async function applyRemoteChanges(
@@ -387,7 +390,6 @@ export default async function applyRemoteChanges(
 ): Promise<void> {
   const { db, _unsafeBatchPerCollection } = context
 
-  // $FlowFixMe
   const recordsToApply = await getAllRecordsToApply(remoteChanges, context)
 
   // Perform steps concurrently
