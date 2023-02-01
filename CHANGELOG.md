@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 Contributors: Please add your changes to CHANGELOG-Unreleased.md
 
-## 0.25.5 - 2023-02-01 [WIP]
+## 0.25.5 - 2023-02-01
 
 - Fix Android auto-linking
 
