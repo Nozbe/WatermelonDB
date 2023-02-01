@@ -27,7 +27,7 @@ class SqliteNativeModulesDispatcher implements SqliteDispatcher {
     if (process.env.NODE_ENV !== 'production') {
       invariant(
         DatabaseBridge,
-        `NativeModules.DatabaseBridge is not defined! This means that you haven't properly linked WatermelonDB native module. Refer to docs for more details`,
+        `NativeModules.DatabaseBridge is not defined! This means that you haven't properly linked WatermelonDB native module. Refer to docs for instructions about installation (and the changelog if this happened after an upgrade).`,
       )
     }
   }
