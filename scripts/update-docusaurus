@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+
+cp README.md ./docs-website/docs/docs/README.md && \
+echo "---
+title: Check out the README
+hide_title: true
+---
+" | cat - ./docs-website/docs/docs/README.md > temp && mv temp ./docs-website/docs/docs/README.md && \
+cp CONTRIBUTING.md ./docs-website/docs/docs/CONTRIBUTING.md && \
+echo "---
+title: Contributing
+hide_title: true
+---
+" | cat - ./docs-website/docs/docs/CONTRIBUTING.md > temp && mv temp ./docs-website/docs/docs/CONTRIBUTING.md && \
+cp CHANGELOG.md ./docs-website/docs/docs/CHANGELOG.md && \
+node scripts/replace-docs-path.mjs ./docs-website/docs/docs/CHANGELOG.md 
+
