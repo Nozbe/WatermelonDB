@@ -44,3 +44,5 @@
 - [flow] Clarified docs to recommend the use of `[declarations]` mode for WatermelonDB
 
 ### Internal
+
+- Clean up QueryDescription
