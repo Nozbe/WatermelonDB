@@ -166,15 +166,15 @@ public class DatabaseDriver {
     private SchemaCompatibility isCompatible(int schemaVersion) {
         int databaseVersion = database.getUserVersion();
         if (databaseVersion == schemaVersion) {
-            return SchemaCompatibility.Compatible;
+            return new SchemaCompatibility.Compatible();
         } else if (databaseVersion == 0) {
-            return SchemaCompatibility.NeedsSetup;
+            return new SchemaCompatibility.NeedsSetup();
         } else if (databaseVersion < schemaVersion) {
             return new SchemaCompatibility.NeedsMigration(databaseVersion);
         } else {
             log.info("Database has newer version (" + databaseVersion + ") than what the " +
                     "app supports (" + schemaVersion + "). Will reset database.");
-            return SchemaCompatibility.NeedsSetup;
+            return new SchemaCompatibility.NeedsSetup();
         }
     }
 }
