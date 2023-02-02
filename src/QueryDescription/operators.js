@@ -4,6 +4,7 @@
 // don't import whole `utils` to keep worker size small
 import invariant from '../utils/common/invariant'
 import checkName from '../utils/fp/checkName'
+import fromArrayOrSpread, { type ArrayOrSpreadFn } from '../utils/fp/arrayOrSpread'
 import { type TableName, type ColumnName } from '../Schema'
 
 import { validateConditions } from './helpers'
@@ -197,28 +198,14 @@ export function unsafeLokiTransform(fn: LokiTransformFunction): LokiTransform {
   return { type: 'lokiTransform', function: fn }
 }
 
-// Note: we have to write out three separate meanings of OnFunction because of a Babel bug
-// (it will remove the parentheses, changing the meaning of the flow type)
-type _AndFunctionSpread = (...clauses: Where[]) => And
-type _AndFunctionArray = (clauses: Where[]) => And
-type AndFunction = _AndFunctionSpread & _AndFunctionArray
-export const and: AndFunction = (...args): And => {
-  if (!Array.isArray(args[0])) {
-    return and((args: any))
-  }
-  const clauses: Where[] = args[0]
+export const and: ArrayOrSpreadFn<Where, And> = (...args): And => {
+  const clauses = fromArrayOrSpread<Where>(args, 'Q.and()', 'Where')
   validateConditions(clauses)
   return { type: 'and', conditions: clauses }
 }
 
-type _OrFunctionSpread = (...clauses: Where[]) => Or
-type _OrFunctionArray = (clauses: Where[]) => Or
-type OrFunction = _OrFunctionSpread & _OrFunctionArray
-export const or: OrFunction = (...args): Or => {
-  if (!Array.isArray(args[0])) {
-    return or((args: any))
-  }
-  const clauses: Where[] = args[0]
+export const or: ArrayOrSpreadFn<Where, Or> = (...args): Or => {
+  const clauses = fromArrayOrSpread<Where>(args, 'Q.or()', 'Where')
   validateConditions(clauses)
   return { type: 'or', conditions: clauses }
 }
@@ -244,6 +231,8 @@ export function skip(count: number): Skip {
   return { type: 'skip', count }
 }
 
+// Note: we have to write out three separate meanings of OnFunction because of a Babel bug
+// (it will remove the parentheses, changing the meaning of the flow type)
 type _OnFunctionColumnValue = (TableName<any>, ColumnName, Value) => On
 type _OnFunctionColumnComparison = (TableName<any>, ColumnName, Comparison) => On
 type _OnFunctionWhere = (TableName<any>, Where) => On

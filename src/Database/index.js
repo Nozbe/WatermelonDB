@@ -3,7 +3,7 @@
 import { type Observable, startWith, merge as merge$ } from '../utils/rx'
 import { type Unsubscribe } from '../utils/subscriptions'
 import { invariant, logger, deprecated } from '../utils/common'
-import { noop } from '../utils/fp'
+import { noop, fromArrayOrSpread } from '../utils/fp'
 
 import type { DatabaseAdapter, BatchOperation } from '../adapters/type'
 import DatabaseAdapterCompat from '../adapters/compat'
@@ -78,15 +78,7 @@ export default class Database {
   // (made with `collection.prepareCreate` and `record.prepareUpdate`)
   // Note: falsy values (null, undefined, false) passed to batch are just ignored
   async batch(...records: $ReadOnlyArray<Model | Model[] | null | void | false>): Promise<void> {
-    if (!Array.isArray(records[0])) {
-      // $FlowFixMe
-      return this.batch(records)
-    }
-    invariant(
-      records.length === 1,
-      'batch should be called with a list of models or a single array',
-    )
-    const actualRecords = records[0]
+    const actualRecords = fromArrayOrSpread((records: any), 'Database.batch', 'Model')
 
     this._ensureInWriter(`Database.batch()`)
 

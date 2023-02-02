@@ -2,7 +2,7 @@
 import { Observable, Subject } from '../utils/rx'
 import invariant from '../utils/common/invariant'
 import deprecated from '../utils/common/deprecated'
-import noop from '../utils/fp/noop'
+import { noop, type ArrayOrSpreadFn, fromArrayOrSpread } from '../utils/fp'
 import { type ResultCallback, toPromise, mapValue } from '../utils/fp/Result'
 import { type Unsubscribe } from '../utils/subscriptions'
 
@@ -19,11 +19,6 @@ import RecordCache from './RecordCache'
 type CollectionChangeType = 'created' | 'updated' | 'destroyed'
 export type CollectionChange<Record: Model> = { record: Record, type: CollectionChangeType }
 export type CollectionChangeSet<T> = CollectionChange<T>[]
-
-type _QueryFunctionSpread<Record> = (...clauses: Clause[]) => Query<Record>
-type _QueryFunctionArray<Record> = (clauses: Clause[]) => Query<Record>
-
-type QueryFunction<Record> = _QueryFunctionSpread<Record> & _QueryFunctionArray<Record>
 
 export default class Collection<Record: Model> {
   database: Database
@@ -84,12 +79,8 @@ export default class Collection<Record: Model> {
   }
 
   // Query records of this type
-  query: QueryFunction<Record> = (...args) => {
-    if (!Array.isArray(args[0])) {
-      return this.query((args: any))
-    }
-    const clauses: Clause[] = args[0]
-
+  query: ArrayOrSpreadFn<Clause, Query<Record>> = (...args) => {
+    const clauses = fromArrayOrSpread<Clause>(args, 'Collection.query', 'Clause')
     return new Query(this, clauses)
   }
 

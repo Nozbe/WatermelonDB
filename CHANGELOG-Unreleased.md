@@ -23,6 +23,7 @@
 ### New features
 
 - [Android] Added `experimentalUnsafeNativeReuse` option to SQLiteAdapter. See `src/adapters/sqlite/type.js` for more details
+- You can now pass an array to `Q.and(conditions)`, `Q.or(conditions)`, `collection.query(conditions)` in addition to spreading multiple arguments
 
 ### Fixes
 
@@ -31,6 +32,8 @@
 - [Sync] Improved resiliency to "Maximum call stack size exceeded" errors
 
 ### Performance
+
+- Warning is now given if a large number of arguments is passed to `Q.and, Q.or, Collection.query, Database.batch` instead of a single array
 
 ### Changes
 
