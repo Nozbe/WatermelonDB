@@ -1,4 +1,5 @@
 // @flow
+/* eslint-disable no-use-before-define */
 
 import type { $RE } from '../types'
 import { type TableName, type ColumnName } from '../Schema'
