@@ -58,6 +58,7 @@ class Database private constructor(private val db: SQLiteDatabase) {
         }
     }
 
+
     var userVersion: Int
         get() = db.version
         set(value) {
