@@ -11,8 +11,8 @@ import com.nozbe.watermelondb.utils.Schema
 import java.util.logging.Logger
 
 class DatabaseDriver(context: Context, dbName: String, unsafeNativeReuse: Boolean = false) {
-    class SchemaNeededError : Exception()
-    data class MigrationNeededError(val databaseVersion: SchemaVersion) : Exception()
+    class SchemaNeededError : RuntimeException()
+    data class MigrationNeededError(val databaseVersion: SchemaVersion) : RuntimeException()
 
     constructor(
         context: Context,

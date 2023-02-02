@@ -1,10 +1,8 @@
 package com.nozbe.watermelondb;
 
 import android.database.Cursor;
-
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableMap;
-
 
 public class DatabaseUtils {
     public static WritableMap cursorToMap(Cursor cursor) {

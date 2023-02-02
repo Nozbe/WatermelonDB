@@ -14,6 +14,6 @@ public class WatermelonDBJSIPackage implements JSIModulePackage {
     synchronized(jsContextHolder) {
       JSIInstaller.install(reactApplicationContext.getApplicationContext(), jsContextHolder.get());
     }
-    return Arrays.<JSIModuleSpec>asList();
+    return Arrays.asList();
   }
 }
