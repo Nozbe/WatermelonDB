@@ -1,5 +1,3 @@
-// @flow
-
 import expect from '@nozbe/watermelondb_expect'
 
 global.Buffer = class FakeBuffer {}
