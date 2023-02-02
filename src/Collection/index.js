@@ -20,6 +20,11 @@ type CollectionChangeType = 'created' | 'updated' | 'destroyed'
 export type CollectionChange<Record: Model> = { record: Record, type: CollectionChangeType }
 export type CollectionChangeSet<T> = CollectionChange<T>[]
 
+type _QueryFunctionSpread<Record> = (...clauses: Clause[]) => Query<Record>
+type _QueryFunctionArray<Record> = (clauses: Clause[]) => Query<Record>
+
+type QueryFunction<Record> = _QueryFunctionSpread<Record> & _QueryFunctionArray<Record>
+
 export default class Collection<Record: Model> {
   database: Database
 
@@ -79,7 +84,12 @@ export default class Collection<Record: Model> {
   }
 
   // Query records of this type
-  query(...clauses: Clause[]): Query<Record> {
+  query: QueryFunction<Record> = (...args) => {
+    if (!Array.isArray(args[0])) {
+      return this.query((args: any))
+    }
+    const clauses: Clause[] = args[0]
+
     return new Query(this, clauses)
   }
 

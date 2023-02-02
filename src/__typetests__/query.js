@@ -11,3 +11,10 @@ collection.query(Q.where(c, true))
 collection.query(Q.and(Q.where(c, true)))
 collection.query(Q.or(Q.where(c, true)))
 collection.query(Q.on(t, Q.where(c, true)))
+
+// Same as above, but as an array
+collection.query([])
+collection.query([Q.where(c, true)])
+collection.query(Q.and([Q.where(c, true)]))
+collection.query(Q.or([Q.where(c, true)]))
+collection.query(Q.on(t, [Q.where(c, true)]))
