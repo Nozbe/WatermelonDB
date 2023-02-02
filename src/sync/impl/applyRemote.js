@@ -123,7 +123,7 @@ async function recordsToApplyRemoteChangesTo_replacement<T: Model>(
   const { db } = context
   const { table } = collection
 
-  const queryForReplacement =
+  const queryForReplacement: ?(Q.Where[]) =
     context.strategy &&
     typeof context.strategy === 'object' &&
     context.strategy.experimentalQueryRecordsForReplacement
@@ -136,14 +136,14 @@ async function recordsToApplyRemoteChangesTo_replacement<T: Model>(
   const [rawRecords, locallyDeletedIds] = await Promise.all([
     unsafeFetchAsRaws(
       collection.query(
-        ...(queryForReplacement
+        queryForReplacement
           ? [
               Q.or(
                 Q.where(columnName('id'), Q.oneOf(idsForChanges(changes))),
-                Q.and(...queryForReplacement),
+                Q.and(queryForReplacement),
               ),
             ]
-          : []),
+          : [],
       ),
     ),
     db.adapter.getDeletedRecords(table),
@@ -155,7 +155,8 @@ async function recordsToApplyRemoteChangesTo_replacement<T: Model>(
   // and some of the other referenced records are also deleted.
   const replacementRecords = await (async () => {
     if (queryForReplacement) {
-      const modifiedQuery = collection.query(...queryForReplacement)
+      const clauses: Q.Clause[] = (queryForReplacement: any)
+      const modifiedQuery = collection.query(clauses)
       modifiedQuery.description = modifiedQuery._rawDescription
       return new Set(await modifiedQuery.fetchIds())
     }
