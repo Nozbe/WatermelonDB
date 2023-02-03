@@ -112,6 +112,7 @@
 
 /* Begin PBXBuildFile section */
 		00025A71609C2C4935467756FB19F08A /* RCTConvert+Text.h in Headers */ = {isa = PBXBuildFile; fileRef = 71233BE060D7C6F1D00B780D99C5B751 /* RCTConvert+Text.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		001735FC8C833067A451EDE246892A72 /* DatabasePlatformIOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9A0F1B912951B23A3E11EA79C18E7861 /* DatabasePlatformIOS.mm */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		004446F224E9F38A0267149918E395DD /* RCTFont.h in Headers */ = {isa = PBXBuildFile; fileRef = 9170081C82048F8A9EDA1C3944D09305 /* RCTFont.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		0063AC3AA607BDD839D59183B7A6ADB7 /* StringKeyedCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = 241CC27A6C77545485F07A21DB9CCE73 /* StringKeyedCommon.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		0068A316F507A2932DBFFC5643C424EE /* RCTBridgeMethod.h in Headers */ = {isa = PBXBuildFile; fileRef = 687E70133787E591F3211D0FB2058888 /* RCTBridgeMethod.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -167,16 +168,17 @@
 		08993BFBF739936564E3282312536EAC /* Access.h in Headers */ = {isa = PBXBuildFile; fileRef = A78972ACBA07B7B0345A06D7E77CEAE1 /* Access.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		08A30D585707C77AAFE30F4150925EB0 /* RCTVibrationPlugins.mm in Sources */ = {isa = PBXBuildFile; fileRef = 61F6D60C0BDF92EAD9F8E6738D98A328 /* RCTVibrationPlugins.mm */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness"; }; };
 		08D00D69DAA9C7F79C8117B9BBABA8AC /* Hardware.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BDFC135935B08C0D2395771F32043000 /* Hardware.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
+		08E69D960C0F2157C12F94D9C335B36B /* DatabaseBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3511C376B955332A66CAFA5F83F3C /* DatabaseBridge.m */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		0930651E58FDFDE2A4CFD4EA79159DD0 /* DiscriminatedPtr.h in Headers */ = {isa = PBXBuildFile; fileRef = 0197B312F18BC9EA01FCD57D97BD8E0E /* DiscriminatedPtr.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		0961C691AF3DBA5DFBAB6DE3E3E4578E /* RCTModuleMethod.h in Headers */ = {isa = PBXBuildFile; fileRef = 45A49F77070903DD2B814C128CC91433 /* RCTModuleMethod.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		09627AFFA2DA2BA39ACC46B87730E77C /* IoUring.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C0C47912F96628633ADC5E0525237DD /* IoUring.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		09A39466614947279144C125089E5687 /* RCTBridgeDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = B70D08CE804D75A3EE3F98A0E4DE66BF /* RCTBridgeDelegate.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		09BEBC05B4EF3B2FFAC0BC59E9473462 /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 06843ABBEC0785C76F379A02DF38D62E /* FMResultSet.m */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		0A65D1826D69ED40D717705F007EC3BD /* RCTRootShadowView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E2AC1FA72B89BC9DF1CEF2E01678D58 /* RCTRootShadowView.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		0A80E2148082C65337A707144ED1EDD8 /* Stdlib.h in Headers */ = {isa = PBXBuildFile; fileRef = AA1F30FC006401403BD12B6019444DEF /* Stdlib.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		0ACE4B421558B2A897D2E8D7D2658F96 /* JemallocHugePageAllocator.h in Headers */ = {isa = PBXBuildFile; fileRef = 6524D127C87955DB67DB720CE4C2729F /* JemallocHugePageAllocator.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		0AF3A33FEB62036BFFC48F8E1455C4B5 /* Bits.h in Headers */ = {isa = PBXBuildFile; fileRef = 821E458C4A985B4C16F7623F10B6B21E /* Bits.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		0B21AFF464B0EF66C1F6D1B0767D14EF /* Sleep-inl.h in Headers */ = {isa = PBXBuildFile; fileRef = 139416BA838B2A19B9AF72B1E4104E75 /* Sleep-inl.h */; settings = {ATTRIBUTES = (Project, ); }; };
-		0B348BFBB981053E1D98B6D664D9A348 /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B6A2C084E0142DDD96A8A52ECB9A3A2 /* FMDatabaseQueue.m */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		0B9B1DEF5F2AFC6A71D8CCD250D35B94 /* RCTMultilineTextInputView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7B7A6D9F37C6DC4D85A3E81F565B2 /* RCTMultilineTextInputView.m */; };
 		0B9D4F4D954CC9EA7079E74431F6E397 /* Promise-inl.h in Headers */ = {isa = PBXBuildFile; fileRef = 9DB0CCC68B4938198CA65178261F573A /* Promise-inl.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		0C19CBACDBADC4FFDC432E8F5E825144 /* RCTSurfaceStage.m in Sources */ = {isa = PBXBuildFile; fileRef = 6401E65EFE660220F5353D211F8018B7 /* RCTSurfaceStage.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
@@ -221,6 +223,7 @@
 		12AF2F9E6CFAB630411CAA580FA4A051 /* RCTViewUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 3376384EBE8850FFAA95BAE0D4DEB5DE /* RCTViewUtils.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		12DCB35EEDC7FBBFB487DF103A1AD782 /* cached-powers.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4F4C49E34B1C9325233753933C3BA356 /* cached-powers.cc */; settings = {COMPILER_FLAGS = "-Wno-unreachable-code"; }; };
 		1308DA176424393C3BA8BAD969AB4594 /* ExceptionTracer.h in Headers */ = {isa = PBXBuildFile; fileRef = F15A4EF914D53BF4CF1F4E9532C9BCE6 /* ExceptionTracer.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		132B5D63C381A6E08898F6848112EEF1 /* FMDatabaseAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FC6D2839BE0350AB87B0B08992908DF /* FMDatabaseAdditions.m */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		13358CC39883CBA8AA7DEF9BF26DB55D /* RCTJavaScriptExecutor.h in Headers */ = {isa = PBXBuildFile; fileRef = 2089210BA27F4E8A2B99DC0113C02A2D /* RCTJavaScriptExecutor.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		13628822AACCF6B4BCB5BBB024E10F81 /* IPAddressException.h in Headers */ = {isa = PBXBuildFile; fileRef = 07578944D313C62E9B617597E79C0736 /* IPAddressException.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		13AB8B786651B7DF9975441B5899FB1B /* SymbolizerTestUtils-inl.h in Headers */ = {isa = PBXBuildFile; fileRef = C35ADD3763323BC0CE462C5D6FC8570C /* SymbolizerTestUtils-inl.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -267,6 +270,7 @@
 		1B3D1825AA6E2F5E02182CC3AB3DBF99 /* SmallUnboundedQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = D854FA6C2F745603302498C6DDC0E77B /* SmallUnboundedQueue.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		1B4E37B7B499C05BFE8C04CF90A96385 /* ConcurrentHashMap.h in Headers */ = {isa = PBXBuildFile; fileRef = 74F71CB8ED286DD465A915296FCFBD29 /* ConcurrentHashMap.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		1B6FC8A75E65574AD9182904F7E86B09 /* TurboModulePerfLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 3E26B3BFD690DAFAC6498A66BB107C9F /* TurboModulePerfLogger.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		1B724F10EE43E6A24D6AF8310769E263 /* Database.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E152367A349D1A439B02AC33255E2BAC /* Database.cpp */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		1B7DF2388A59F1B3105FACD39CB6CF70 /* util-internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FCB7EF284AD4F517D9919B7A15E8B49 /* util-internal.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		1B982E4C94E154BAC04B8CE4B45460A6 /* event-internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 22F1FB69D22EF5094A8C5F4ED4C3746F /* event-internal.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		1BA0A75E63871757C1CA7BAAED621FD6 /* BlockingQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 33B7FA24C1BDEA1C28B01E77F97CCC3B /* BlockingQueue.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -300,14 +304,12 @@
 		21C584FF2062CD24CFBD80875347B6A8 /* Collect-inl.h in Headers */ = {isa = PBXBuildFile; fileRef = 07B9922D60F9E7E3551C552858495C0C /* Collect-inl.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		21E54E67656AAFD3133B2984D016A011 /* RCTPerfMonitor.mm in Sources */ = {isa = PBXBuildFile; fileRef = FA559625244293D1AFE0FD7EF0E9CBE7 /* RCTPerfMonitor.mm */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness"; }; };
 		21EEA2C516F303FCE3172209E820C609 /* RCTAssert.m in Sources */ = {isa = PBXBuildFile; fileRef = CF458C51465BE19273A2EB07EE0FA69E /* RCTAssert.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
-		2216DD17CF33782B41A252C33758EB2E /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99A55D7E1E6EB787E37FB3573C5A472C /* Database.swift */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		221A5E7DC14D9634C065CCC2F82D613B /* RCTPackagerClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 6380F7B7339BC73CE5CAB289B2A4F78F /* RCTPackagerClient.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		222D63DA2DF34A3D1203FF4F4ACA7654 /* RCTSegmentedControlManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 89CB6BB245AC8D3013A410234631D1B7 /* RCTSegmentedControlManager.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
 		222D9B6B5DB2FCC3FC7826DDD64FF8D0 /* AtomicReadMostlyMainPtr.h in Headers */ = {isa = PBXBuildFile; fileRef = DB4CE0FE4E3B56793D8280AD49639B48 /* AtomicReadMostlyMainPtr.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		22410F1652A2D3C1FD2837FB8C5B49EF /* CppAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 41139DF368348797A0934B8370BD6229 /* CppAttributes.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		22A78B0097B94E54EF34C4AE239770E2 /* JSCExecutorFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 0D8072E115E35CF0468B1E5C18CDF824 /* JSCExecutorFactory.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		22AFA939BCF00ECAB4664416320561C0 /* Result.h in Headers */ = {isa = PBXBuildFile; fileRef = 107E1BBA4E54CAE2D81D2A3AACCACF52 /* Result.h */; settings = {ATTRIBUTES = (Project, ); }; };
-		22FB48B66513107F3165540673AC0A0F /* DatabaseInstallation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A31B4AB6652F006CAFAE13ECF67C8295 /* DatabaseInstallation.cpp */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		2308525A67A52C3E469D6565BF130B5F /* InspectorInterfaces.h in Headers */ = {isa = PBXBuildFile; fileRef = DFA86C21CFC76F5425DDC0C4288C5B90 /* InspectorInterfaces.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		2309F3B8C43D0C67440893A178DA8DFF /* RCTAccessibilityManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 67565FBE56D64239B1012A8D6819711C /* RCTAccessibilityManager.mm */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness"; }; };
 		230CB078A579BDEC7FD47F539CE0A6DA /* RCTBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = BA75B4D93D3B951E04D7D16FD81635C4 /* RCTBridge.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -360,7 +362,6 @@
 		29D24B91BA7C3B066642FB9435DDD86F /* RCTVirtualTextViewManager.h in Headers */ = {isa = PBXBuildFile; fileRef = BA7EDE2B4954FEADA725C28824D8A914 /* RCTVirtualTextViewManager.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		29F2DB917640E7EEF9352242ED116D54 /* Assume-inl.h in Headers */ = {isa = PBXBuildFile; fileRef = 5E8FBDEDA0B29AB6824055F9DEAAE43B /* Assume-inl.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		2A016397A5330A45DAE1AE71CB85AB0C /* Codel.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B62DA4D8D40BAAA6758A99C51F8F117 /* Codel.h */; settings = {ATTRIBUTES = (Project, ); }; };
-		2A560152E7C6144A677EFC9704FDFDA6 /* DatabasePlatformIOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9A0F1B912951B23A3E11EA79C18E7861 /* DatabasePlatformIOS.mm */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		2A68535E2528E6B813536E0FDF079DEC /* RCTPerformanceLoggerLabels.m in Sources */ = {isa = PBXBuildFile; fileRef = 6378C69BC377C7721D819C0DFEF762E1 /* RCTPerformanceLoggerLabels.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
 		2AB443B789EA557C9D99D68819B76A95 /* GTest.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF9707411ED6E98CD5780E400E4C392 /* GTest.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		2AE5CE88F174E14F357190291D3D3030 /* RCTBaseTextInputShadowView.h in Headers */ = {isa = PBXBuildFile; fileRef = AE3CD46787A2369AEE399A33ED570B6C /* RCTBaseTextInputShadowView.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -465,11 +466,9 @@
 		3AD6E750BA56435A2D7F19D0B271BDCF /* IOBufQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 98EC59CDC631D4CF767BC006ED96E41A /* IOBufQueue.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
 		3B05BD8FB418EDC0B59F05F5BCA1AE20 /* Cursor.h in Headers */ = {isa = PBXBuildFile; fileRef = 64D6223FFF937079D05BAB6711309541 /* Cursor.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		3B5B370545F650163AE6571DACBC1372 /* RCTCxxConvert.m in Sources */ = {isa = PBXBuildFile; fileRef = 963C84A67120C69F8E7A98A44A34E145 /* RCTCxxConvert.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
-		3BA5DB53D5493E64A28B0A039973754D /* DatabaseDeleteHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D7C19C0CF68956A72CFF4D158E5DDBE /* DatabaseDeleteHelper.m */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		3BC466CCD13022AE6955B9747A6E30F1 /* WMDatabaseDriver.h in Headers */ = {isa = PBXBuildFile; fileRef = 00795D40076A200109E657E73D928159 /* WMDatabaseDriver.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		3BC8F996812FF7FCC7AB1CFDCD71CD1B /* Value.h in Headers */ = {isa = PBXBuildFile; fileRef = 6AA76771E575C660597CF853FAE8C040 /* Value.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		3BCB6358FF74D21BC158D2FE6F0D79D8 /* YGStyle.h in Headers */ = {isa = PBXBuildFile; fileRef = FC70397BC214B76F5E995CD82D5EC99D /* YGStyle.h */; settings = {ATTRIBUTES = (Project, ); }; };
-		3BCD757A1CCDC7CD96D5699448E1AB5A /* JSLockPerfHack.mm in Sources */ = {isa = PBXBuildFile; fileRef = F950AC9C2E0426AF62EE5909CCF3000C /* JSLockPerfHack.mm */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		3C4B24ADE5FFBEA4013F185F268AA8A4 /* TimekeeperScheduledExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C7D14AD72214E7CF1C38F3A1A5C69E0F /* TimekeeperScheduledExecutor.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
 		3C7E17122337C9CBDD4CE39E0F4FF6EB /* RCTJavaScriptLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 8233114E6BCDAE60674B8BE66CE45890 /* RCTJavaScriptLoader.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		3C9B5BFFAC627C3C12366079561645D7 /* SmartExceptionTracer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D1EAECCE6E64746B846E3CF7932018F /* SmartExceptionTracer.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -481,7 +480,7 @@
 		3D55991774E03FFD30960EF25C415AB8 /* Singleton.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AA345F7A1CC1CD756A7691AF2B3C42E /* Singleton.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		3D62E447A325ACA7B621247B3974B50B /* PackedSyncPtr.h in Headers */ = {isa = PBXBuildFile; fileRef = 75694E70FDFE729A645C8A77EE0BCD18 /* PackedSyncPtr.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		3DA263174DBB20071F938C046E31721D /* RCTVirtualTextShadowView.h in Headers */ = {isa = PBXBuildFile; fileRef = 54E82C1D2EBFAF0EE8135B984036AD9A /* RCTVirtualTextShadowView.h */; settings = {ATTRIBUTES = (Project, ); }; };
-		3DCE9798AF980DBD5FBDCD9EBC215542 /* JSLockPerfHack.h in Headers */ = {isa = PBXBuildFile; fileRef = A21A1F2A891B033D99AF9C022E9FB583 /* JSLockPerfHack.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		3DCE9798AF980DBD5FBDCD9EBC215542 /* JSLockPerfHack.h in Headers */ = {isa = PBXBuildFile; fileRef = 7C05C02D401EBCA083E3542F9D755B8B /* JSLockPerfHack.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		3E0A3E9B8AE35103DBB919656E060613 /* RCTFrameAnimation.h in Headers */ = {isa = PBXBuildFile; fileRef = C4F334EE678608F138F26AB50D537BFA /* RCTFrameAnimation.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		3E7C33C522CE82CCE0794E36F5B8D209 /* Registration.h in Headers */ = {isa = PBXBuildFile; fileRef = 799E26EC938C7242C91D1E07C918C8F5 /* Registration.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		3E9B0AA9F62E425F2442B7F0EC5A5468 /* Expected.h in Headers */ = {isa = PBXBuildFile; fileRef = EAC3C8CAD0F744BB7DEE811E14DC29C2 /* Expected.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -506,7 +505,7 @@
 		40F80A6465FE9E825FFC5F6BE23A4FB9 /* CArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 5ABCFA93D7FCFFBF14ECD0F55A3F3502 /* CArray.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		41628A2E7D3AF476E9BA052B92DC2560 /* Transform-inl.h in Headers */ = {isa = PBXBuildFile; fileRef = 6D26DD71F8F2B7F250BB534A608F3762 /* Transform-inl.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		41D431A7AB487126D7DB935921013D28 /* ReactMarker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4E38693726E2F6953AD3F2B0F657FDB5 /* ReactMarker.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
-		41D8A412E9BCDD20518768F1442453AD /* Database.h in Headers */ = {isa = PBXBuildFile; fileRef = 8F77BC035A3E7C8C8954E805343BD3F4 /* Database.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		41D8A412E9BCDD20518768F1442453AD /* Database.h in Headers */ = {isa = PBXBuildFile; fileRef = E0B10D3220D85F6F555EA6572E519308 /* Database.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		4209B274581E1F848ADE66D56A6DEFE8 /* IOThreadPoolDeadlockDetectorObserver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAE56039ADA9FC88D38465E9D32B46D9 /* IOThreadPoolDeadlockDetectorObserver.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
 		429984B67B65CA3DA3F5BAA0C6EE1A1B /* AtomicIntrusiveLinkedList.h in Headers */ = {isa = PBXBuildFile; fileRef = ECACB3772CB83DA97B588D9ABEC96744 /* AtomicIntrusiveLinkedList.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		42C16A8F4932C930F31408C6AEA26EEF /* HazptrDomain.h in Headers */ = {isa = PBXBuildFile; fileRef = 92755308CAFBC1F93C5D769A3B65CEB5 /* HazptrDomain.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -572,6 +571,7 @@
 		4C80AA6F7CC76B8785DD3F0FA406C703 /* RCTDivisionAnimatedNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 85EBFAF58F8629CAFAEE3358733286FE /* RCTDivisionAnimatedNode.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		4C8EEEBAC9CF7E7561BCFD3DCDE0A823 /* HardwareConcurrency.h in Headers */ = {isa = PBXBuildFile; fileRef = A088E6C292BB530CD1DF3E3788DD40B9 /* HardwareConcurrency.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		4C9B575952AFF81AACC44DB62E3752F0 /* React-jsinspector-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 82A90A9E14EE23BF8705CB64A460F04A /* React-jsinspector-dummy.m */; };
+		4CAC357FEA665094413729ECED8276F3 /* FMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CA88CF6F0766C8283E0DABE3C52C577 /* FMDatabase.m */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		4CBA87BAE77931F6B6D56D19F98E3F1A /* Singleton.h in Headers */ = {isa = PBXBuildFile; fileRef = 389C17C20BA99B75924F04A92737142A /* Singleton.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		4CCD8024305DC4AC606C3859D78260CB /* Constexpr.h in Headers */ = {isa = PBXBuildFile; fileRef = 78FE4673DFEF914EA409793AA03BCB1D /* Constexpr.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		4CCE4D212C464333A98BDCCFFB846FCA /* experiments.h in Headers */ = {isa = PBXBuildFile; fileRef = 8FE68657BAE614D686B3E6057DCC9FF3 /* experiments.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -590,6 +590,7 @@
 		4F4793946D940D6C9D45AF76CEB1F3C8 /* String.h in Headers */ = {isa = PBXBuildFile; fileRef = 354D82D0F0B28D193FEA12BD6368D084 /* String.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		4F564DF0264DE3F6DC8B378128162951 /* RCTWrapperViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 39101AA79BB42EE7ED25BCC0A3C3B85C /* RCTWrapperViewController.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		4F6C772EEB9526D3EA22F09DAB73CCC1 /* EventBaseLoopController-inl.h in Headers */ = {isa = PBXBuildFile; fileRef = 6CFD2A77D1231475EBF9869713DBA2A9 /* EventBaseLoopController-inl.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		4F88DDE475E80BD36114572345AE5BEF /* JSLockPerfHack.mm in Sources */ = {isa = PBXBuildFile; fileRef = F950AC9C2E0426AF62EE5909CCF3000C /* JSLockPerfHack.mm */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		4F92832DAB5FCAC6B6C43C5D9AAE7ADE /* TurboModule.h in Headers */ = {isa = PBXBuildFile; fileRef = FB2F9E9D8A5B1FD612ACC599C0C46E7D /* TurboModule.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		4FE55EA8F892FC7C8A322199939AF23E /* RCTBlobManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 11FD0C3140C7C0A736359C8E776A281E /* RCTBlobManager.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		502E9E7CBF148D3509878ADB39930706 /* QueueObserver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 467ADDFC5F588FC73B24C13A40869BCA /* QueueObserver.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
@@ -676,12 +677,14 @@
 		5ED70E85B0499A1AA61CF49BA8A4F3B6 /* RCTVirtualTextShadowView.h in Headers */ = {isa = PBXBuildFile; fileRef = 54E82C1D2EBFAF0EE8135B984036AD9A /* RCTVirtualTextShadowView.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		5EDD0EDA5AF64A52482307C43012A311 /* RCTInputAccessoryShadowView.h in Headers */ = {isa = PBXBuildFile; fileRef = 567995DE9987FCDAF453F44D04133F19 /* RCTInputAccessoryShadowView.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		5EF8CA36B637389D0EEFB2E2284D58A6 /* RCTTrackingAnimatedNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 95556214C90CE7D9114AEA320268352B /* RCTTrackingAnimatedNode.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		5F5CF3D16EBA41E6BCD46EFA6975F2AB /* WMDatabaseBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = C837637AEC1B9ADC5E3630E512D411EB /* WMDatabaseBridge.m */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		5F73D96A8367B2A19D96D139B7168C2D /* F14Set.h in Headers */ = {isa = PBXBuildFile; fileRef = B7263ED76728C705A32D5F2AE805BC9B /* F14Set.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		5FC21692E01C34830B2E3A8B1840B1DC /* RCTConvertHelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = DA778591771103D51C1537E545254773 /* RCTConvertHelpers.mm */; };
 		602CB4AA0A5C7F02317AD9020BAD6F0B /* Exceptions.h in Headers */ = {isa = PBXBuildFile; fileRef = A3A490C5DE24EE71839D29B337BCFD9C /* Exceptions.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		6038E8B6B68257CF5CEF381A9155C76B /* CallOnce.h in Headers */ = {isa = PBXBuildFile; fileRef = 4968DBBA9F541962277FE4FA7A749246 /* CallOnce.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		605F4A7A35E66F85C4298D1AF91B7C52 /* SystraceSection.h in Headers */ = {isa = PBXBuildFile; fileRef = 1C0D12271419FFB773518B341BDEA268 /* SystraceSection.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		6075B9EC4BC9F94EC61FCFEDAA75CC65 /* RCTImageURLLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 5D2F1660617E3913FB605E1ED0A7F4AA /* RCTImageURLLoader.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		6095CEF9986F13B1362D5CE3DBD64563 /* Sqlite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 53B9B82907224DB27CEEE6A04F1508B7 /* Sqlite.cpp */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		60C2486FD4E13480B558E1F1022ADB78 /* FMDatabaseQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 5D55968C9A4031A1AD31143318C3B4E0 /* FMDatabaseQueue.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		60F6EF2B568540EEBF77399D9AFBDFCC /* MethodCall.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A0B4243038E09276BBF3189E9A53EF46 /* MethodCall.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
 		610611E6541CC2523D4CC450BE62AE13 /* evutil.c in Sources */ = {isa = PBXBuildFile; fileRef = FEC67528EAE529EEF62AED536FE82108 /* evutil.c */; };
@@ -692,6 +695,7 @@
 		6231EA462205912A7594AE19D1892A7E /* RCTUtilsUIOverride.m in Sources */ = {isa = PBXBuildFile; fileRef = 509384C48E387022366CE9C9AE15FD3B /* RCTUtilsUIOverride.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
 		624197B9835887AE7B0DD667F87A8C00 /* Channel-fwd.h in Headers */ = {isa = PBXBuildFile; fileRef = 1C5432B06C1985FB224D2D147EB0A897 /* Channel-fwd.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		62432E4821EB79119C3ED0978F1B2BCF /* React-RCTNetwork-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E138857689A51476BF23A26F83569DC /* React-RCTNetwork-dummy.m */; };
+		6261E75458748D9C10329D3ED6AE9911 /* DatabaseBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE86D975302B80EFC26CA957D228B2B6 /* DatabaseBridge.swift */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		626291145654E4AE22B36208F7AA169C /* RCTRefreshControlManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D225672B09BC7E3F16BE6F17B0B5F /* RCTRefreshControlManager.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
 		628163741DEC287D198D31005BF34BE5 /* Padded.h in Headers */ = {isa = PBXBuildFile; fileRef = 6F104C92FC25A7EB02480035D18FD2E7 /* Padded.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		62AB2C82B5F16B5B6492D479AC990944 /* RCTSegmentedControl.h in Headers */ = {isa = PBXBuildFile; fileRef = CACE260B83C7888831D2912E2CE81FF1 /* RCTSegmentedControl.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -729,7 +733,6 @@
 		6B5C3AB8993944F5EDA52A2CC428732F /* InlineExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FD62DA10DD5012EB09FEBF1967924131 /* InlineExecutor.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
 		6BA5D0394EDA4FC955F0A5D960BA5DED /* RCTManagedPointer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 65FBD6940B6CCFDEC8E7A997F419B8F0 /* RCTManagedPointer.mm */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
 		6BAFD8360018038062D9185DBC6287B1 /* RCTRedBox.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5B452F5CBB0067D4FFACD7D18106D35A /* RCTRedBox.mm */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness"; }; };
-		6BC4ED5EEAE0FC437ED36C2B3112BB70 /* WMDatabaseBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = C837637AEC1B9ADC5E3630E512D411EB /* WMDatabaseBridge.m */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		6BCAA0827EBAEB7AE12306C87A3D5BE9 /* MallocImpl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CF74DEC9B3EE9A23B3BA2AC79639172 /* MallocImpl.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
 		6BD7CB7CD74046C3926224E10C15C758 /* RangeCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = B7967B8C8B51090064F71063FA6E8888 /* RangeCommon.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		6BDD53F8827E3ABBD517678FA722EE42 /* String.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EFB3BEDE16789535374BB80EE740A395 /* String.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
@@ -737,7 +740,6 @@
 		6C2D574A0525CBCB68997C58C3AEC395 /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5CCAF3DBD611E4A51BFEC9EBA53D1B44 /* Utils.cpp */; settings = {COMPILER_FLAGS = "-fno-omit-frame-pointer -fexceptions -Wall -Werror -std=c++17 -fPIC -fno-objc-arc"; }; };
 		6C91255E44D20B85858E727884E9F0F4 /* RCTDevLoadingView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E08AE447B9461EC2F69A54A5520AC148 /* RCTDevLoadingView.mm */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness"; }; };
 		6C9A1D7E5091FEFFAD72D972F02BFDB4 /* RCTTextShadowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 11A90A0945DDF2AB7B30E7D17D64ABF9 /* RCTTextShadowView.m */; };
-		6CBA0AFE04907F8871CCCBF7451BEECD /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 06843ABBEC0785C76F379A02DF38D62E /* FMResultSet.m */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		6CBABA9B35F2DB43A41672A0B7D89D55 /* Barrier.h in Headers */ = {isa = PBXBuildFile; fileRef = 54DAA7E316B3EF416B768C6ECD3D431F /* Barrier.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		6CD0237617603F1085216422E3D4EF58 /* AsyncTrace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 250DCECE416921C9A2DADDE9A67FFDDF /* AsyncTrace.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
 		6CD9362BEF2368607146FA41871C39A9 /* RCTPackagerClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 0957207A5F4D2B56E75F5130745AACB4 /* RCTPackagerClient.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
@@ -803,14 +805,12 @@
 		7519D3CBDF61EF59D9C5FB2FC3306082 /* TurboModuleBinding.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7A1812060CD6B2E1109E16AF0CE97A21 /* TurboModuleBinding.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation"; }; };
 		7523D08E09A79E6CE2A3CB09E60F4C34 /* RCTScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F021A968B30965E3EE6D2E6D3971904 /* RCTScrollView.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
 		7550CED3CA952A44B013AD3E7C7E8166 /* RCTModuloAnimatedNode.h in Headers */ = {isa = PBXBuildFile; fileRef = EC91EC721DA7095602E536285B6317A6 /* RCTModuloAnimatedNode.h */; settings = {ATTRIBUTES = (Project, ); }; };
-		7566EC5A79F2B7C087B9D1ECF930E764 /* WMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 258A036DB11D42351F16B553D9C49F3A /* WMDatabase.m */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		757957DBA93FD132E3311DDFDCE5DD22 /* AtomicUnorderedMap.h in Headers */ = {isa = PBXBuildFile; fileRef = 57A765DE462F2ACA2C9760910F9BDAE2 /* AtomicUnorderedMap.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		75A15427C747CEFE9F8432B21C7D8D56 /* RCTConvert+CoreLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = FD478DC790524C11FEC1CA0C3569AE81 /* RCTConvert+CoreLocation.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		75A609A033B332BCD4ED7EB2337DC77D /* Producer.h in Headers */ = {isa = PBXBuildFile; fileRef = 6F5DB5F83FBC6899DCE70CC40BDA88F9 /* Producer.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		75A80C8E442417761E88FF3AD7BCD6E3 /* LongLivedObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5412BB9DDFE3820D8C4AC4E860CC555D /* LongLivedObject.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation"; }; };
 		75D474F3854DBE246CEC6D8DB311A138 /* chrono.h in Headers */ = {isa = PBXBuildFile; fileRef = B0B36A31B2303991A76AFC8540ED5C3B /* chrono.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		75F4470DD2A3EBC50926B9CC41FC052F /* ExceptionTracerLib.h in Headers */ = {isa = PBXBuildFile; fileRef = 011E527F8DA2AAA3DFC666E1994104A6 /* ExceptionTracerLib.h */; settings = {ATTRIBUTES = (Project, ); }; };
-		760D8022C7B1C3DE463A0D50E2683E87 /* DatabaseBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3511C376B955332A66CAFA5F83F3C /* DatabaseBridge.m */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		761075B18CE67BF641F07614561D3656 /* Semaphore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01D1406E35087D64990C041B959BF105 /* Semaphore.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
 		7628A01ED7073357773776C98EB63AE2 /* Keep.h in Headers */ = {isa = PBXBuildFile; fileRef = BA3EDA18D93501E43925AE335CB3A481 /* Keep.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		766B6B14C36D29F63CBC885DFDAAA77C /* RCTAdditionAnimatedNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 14105CB2AEF75F3489934C6577244B20 /* RCTAdditionAnimatedNode.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -888,12 +888,13 @@
 		7EF5F4C5A017EDCA67815FE98883F043 /* Demangle.h in Headers */ = {isa = PBXBuildFile; fileRef = F8D8F0B9FE4709CF93DF43A1ADA72E02 /* Demangle.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		7F0BA4F956E40D6154F771DF6675C99C /* RCTAnimationPlugins.h in Headers */ = {isa = PBXBuildFile; fileRef = 89C8BCE24D31D74FDEE7C50A6EB80001 /* RCTAnimationPlugins.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		7F5A5F2429C6511F86D6CA42D637A373 /* RCTImageStoreManager.h in Headers */ = {isa = PBXBuildFile; fileRef = BB66BF0993E77C376502AE45810A3342 /* RCTImageStoreManager.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		7F919C8438802D15A778C9A324D8786D /* FMDatabasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = 344C85FB66797A48EC2F8B910F54949B /* FMDatabasePool.m */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		7FAEE7981FF51BCAA1B8A2394B42E597 /* RCTTiming.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8E809DFB217275F866859A5942413E74 /* RCTTiming.mm */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness"; }; };
 		7FDD12CD4E1750F2EE18299475EE64DA /* RCTShadowView+Layout.m in Sources */ = {isa = PBXBuildFile; fileRef = D8AC57F8920FC56F26E82175B97C1D8F /* RCTShadowView+Layout.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
 		80B6BCD6F771D15827C81A9B65FB0C30 /* Format-inl.h in Headers */ = {isa = PBXBuildFile; fileRef = BD2E5C64E90722C1A9D9ADEC1709D5EA /* Format-inl.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		80C87E6148232D995226352517010731 /* RCTInvalidating.h in Headers */ = {isa = PBXBuildFile; fileRef = 23F4461184F319F091AF256364C2881C /* RCTInvalidating.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		80E231250C507756E8609EEE16052DC4 /* Inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 287F2D6AE7624CC551701D8ADAA3E6D3 /* Inspector.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
-		80ED926F8AA81AA786FBE338CF5DDD6B /* Sqlite.h in Headers */ = {isa = PBXBuildFile; fileRef = A2F79FEAA46B8507092D72A6CFA3192B /* Sqlite.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		80ED926F8AA81AA786FBE338CF5DDD6B /* Sqlite.h in Headers */ = {isa = PBXBuildFile; fileRef = 9E32EA7F5A2066B55D455D5096003F28 /* Sqlite.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		81355AC621AA7A703A0742DC90241C43 /* AddTasks.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7DEC032BE15793486442941556F2A /* AddTasks.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		813AD6E31E61C2A9649E0DE724C380ED /* Bridging.h in Headers */ = {isa = PBXBuildFile; fileRef = 2986300B2BE2B9F4B91CCA976992CDB0 /* Bridging.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		813FC29D2B011F7E103E3B20F9A04188 /* changelist-internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 64F3B60F75D6037B5CB51053ADCA0225 /* changelist-internal.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -992,6 +993,7 @@
 		8E8E12CF5F6A553065446F6672DE22AC /* Preprocessor.h in Headers */ = {isa = PBXBuildFile; fileRef = 4927CD9C1E84E9E68B9B04EDF8DFECE9 /* Preprocessor.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		8EC4EC3A86E81EB5CB263FDEE39DE155 /* AsyncStack.h in Headers */ = {isa = PBXBuildFile; fileRef = BDEE23C6509B23790F090A026E78AB87 /* AsyncStack.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		8ED78EF8D51014614CB4F2EC6563EBC0 /* FileUtilDetail.h in Headers */ = {isa = PBXBuildFile; fileRef = 8540A945D1C849E34F55ADFD91B860EF /* FileUtilDetail.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		8F0939C113D02BBA4B045C6CF323362F /* DatabaseBridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26B2281D896B61D8060051A022CAA4CF /* DatabaseBridge.cpp */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		8F1C5827162C19C5F5B4E749AE6FBA3F /* CoreModulesPlugins.h in Headers */ = {isa = PBXBuildFile; fileRef = 169BE2F8E4C578CF229CC4E32A5416D3 /* CoreModulesPlugins.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		8F4478C4518FD2E9B1A3C1B37075A26B /* RCTBundleManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 299202AFD7966566EDA9E6218987BA2D /* RCTBundleManager.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		8F503563F62C98DDDC30D554E81DDE8E /* RCTAdditionAnimatedNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 14105CB2AEF75F3489934C6577244B20 /* RCTAdditionAnimatedNode.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -1030,6 +1032,7 @@
 		94BB65C1A1EF4DC829E817E9A2BEC6A9 /* ConsumeChannel-inl.h in Headers */ = {isa = PBXBuildFile; fileRef = ACD82DDF7C1596DF57F424BDBE66D833 /* ConsumeChannel-inl.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		94C6E806B6E0D0C8B98CC1D4A19A5C05 /* RCTNativeAnimatedNodesManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 9EBE6E07CE67427CC6CB3B4895DDF277 /* RCTNativeAnimatedNodesManager.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		9511CFBC792A8CB9BF936F9EEDD78B18 /* Request.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 69DB0D6142AFE46412484D24C6698B06 /* Request.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
+		9518906CB49358F52E8668F9056E1FEF /* WMDatabaseDriver.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABD1D51449D41C85A71D8ECF2BB63C9 /* WMDatabaseDriver.m */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		9522CB24245099A4536E328D22CF155A /* LoopController.h in Headers */ = {isa = PBXBuildFile; fileRef = A6A0E7C24967E8093F0EE89F6A848A61 /* LoopController.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		95253550BC55108FCD49EF702B6E3BCC /* Partial.h in Headers */ = {isa = PBXBuildFile; fileRef = 01C8C4754DD1A7E74353A940C589F5C4 /* Partial.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		955AA8A767BA8D24474ADC1FEDDBE27C /* RCTSurfaceHostingProxyRootView.h in Headers */ = {isa = PBXBuildFile; fileRef = 3F2C9551EF583A76F582C756D6DD2D00 /* RCTSurfaceHostingProxyRootView.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -1053,9 +1056,9 @@
 		97242DADE879D8F5A54450F7EBEAE85E /* RCTSwitchManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F9ED26E9FFA643142C0B7DE112D51521 /* RCTSwitchManager.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
 		978E02754CE063D1A1D3E22E9FB6CF40 /* RCTHTTPRequestHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2EC8E998633314A5135351DF16E885C2 /* RCTHTTPRequestHandler.mm */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness"; }; };
 		97E8C221252ED4994D750B8C385F9B73 /* ConcurrentSkipList.h in Headers */ = {isa = PBXBuildFile; fileRef = 08565DEF7EC619177202123DC8516C10 /* ConcurrentSkipList.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		986019B25B029387DEBF8C1A7F6B8D77 /* DatabaseDriver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC3D9CDE2B1F3C2BD7507F7EB50833B /* DatabaseDriver.swift */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		986BF2A52F19448EF087FCFEF6FC1A33 /* F14Map.h in Headers */ = {isa = PBXBuildFile; fileRef = 18EF247E5C92D8CD4DA9683CDBE20B2A /* F14Map.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		9893843AC4AA77B8D8F6518EDE8529DC /* BatchSemaphore.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D6F718B318EF3BA73D93A2F8A09E0AE /* BatchSemaphore.h */; settings = {ATTRIBUTES = (Project, ); }; };
-		989B86E1A41BD82D089EF9E9391DF6E1 /* std_ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079BFC20ABB956E311CFE52D23206502 /* std_ext.swift */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		98A338903EFC536EF073A86F2956C350 /* Pods-WatermelonTester-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = C07B059ADE2FCE48B5537050DBE62104 /* Pods-WatermelonTester-dummy.m */; };
 		98A668789CAF9F9A42A469E1A005DD4E /* poll.c in Sources */ = {isa = PBXBuildFile; fileRef = 2440A0F05709B3C4B2C4BDCA0CC7E77D /* poll.c */; };
 		990C90D5AF296C6C01E4E1CCA53A8F7C /* Transform.h in Headers */ = {isa = PBXBuildFile; fileRef = 723F11476F545EE4C6887F03514425E9 /* Transform.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -1102,8 +1105,8 @@
 		9D9162433E1F7597232D7A7B37692BFA /* RCTProfileTrampoline-i386.S in Sources */ = {isa = PBXBuildFile; fileRef = BBFD988869F91F053FB223EBF353D345 /* RCTProfileTrampoline-i386.S */; };
 		9DB708DE9D7BDCDBE3F560EB9911C0D2 /* RCTMultilineTextInputViewManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C5A2265B0C66D4798777BC4CC3568C1 /* RCTMultilineTextInputViewManager.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		9DF0DD69AD722678D8494767ACB48B9D /* TimedDrivableExecutor.h in Headers */ = {isa = PBXBuildFile; fileRef = BA7A3E8DA89F87B38F53B927DE39C88A /* TimedDrivableExecutor.h */; settings = {ATTRIBUTES = (Project, ); }; };
-		9E641CC0B7C6E42EE8168A80D8CE047A /* FMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CA88CF6F0766C8283E0DABE3C52C577 /* FMDatabase.m */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		9EFE08F876225D5E567771D5BA14BCC2 /* StrandExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A260D489F0672952BAC78DFCE404B3B3 /* StrandExecutor.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
+		9F16C14BFE6FE19A7CF029C99B9EB0F0 /* DatabaseDeleteHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D7C19C0CF68956A72CFF4D158E5DDBE /* DatabaseDeleteHelper.m */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		9F43591FA461D4612D8D5E11E08D28A3 /* RCTBaseTextViewManager.h in Headers */ = {isa = PBXBuildFile; fileRef = FFA044D0488569CF7B701EEE5DD5F119 /* RCTBaseTextViewManager.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		9F5F0A2595FF9EBBB3945D269127890C /* RCTStyleAnimatedNode.m in Sources */ = {isa = PBXBuildFile; fileRef = EBE0DB577B0E66E0D5C2BB40FE402B05 /* RCTStyleAnimatedNode.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness"; }; };
 		9F742A3D667E9DB9C26B949DB6C50A65 /* RCTAppState.mm in Sources */ = {isa = PBXBuildFile; fileRef = A4351733709B6856FB932AC8226D9185 /* RCTAppState.mm */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness"; }; };
@@ -1130,7 +1133,6 @@
 		A36F6317281982E08C8CC7B960933C5C /* evrpc.h in Headers */ = {isa = PBXBuildFile; fileRef = AA1FDED6F0E5B67A44831062720CA933 /* evrpc.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		A37C56BECF56FCA0F43B029EB44A6BCF /* evdns.h in Headers */ = {isa = PBXBuildFile; fileRef = CB59CA0E5B196B956C721734B37DA2E2 /* evdns.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		A37CF99E8A15438B0D0BB13655F5B2C6 /* RCTModalManager.h in Headers */ = {isa = PBXBuildFile; fileRef = BD602950D0E982ECDC3AFA6844D3AD0E /* RCTModalManager.h */; settings = {ATTRIBUTES = (Project, ); }; };
-		A3C25A60B04BC9694DFCF9C19FFE30BD /* JSIInstaller.mm in Sources */ = {isa = PBXBuildFile; fileRef = 388380F100780B4BA3F31D7EAD9DABCA /* JSIInstaller.mm */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		A3CCD9F8FE7CE8BE75FDE2F228E62CD9 /* WaitOptions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6F0A52C722AB43C6E6B3EDC6C7045102 /* WaitOptions.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
 		A3E11389A638FFA5DAAE2A810B735B06 /* MeteredExecutor.h in Headers */ = {isa = PBXBuildFile; fileRef = 0E4FA0F02FC64964B84B54AA14BC553B /* MeteredExecutor.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		A422ACD036B89684DD5C88D3E5496AC7 /* SanitizeThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 6D1FC0A586C5FFEFB1D51E84A1242F5D /* SanitizeThread.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -1238,6 +1240,7 @@
 		B3A2C86AF4CC3F2E3022079E656FCFDD /* RCTProgressViewManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D70A4191F4AE5F77045ED6941D3D32E0 /* RCTProgressViewManager.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		B46F2D0B93BCDF441C286147F5B5A9F2 /* RCTBlobManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 67610A23C6AB885630D6A1CAB2B955DA /* RCTBlobManager.mm */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness"; }; };
 		B493326EAC206E574503722C1E2C54E3 /* Thunk.h in Headers */ = {isa = PBXBuildFile; fileRef = 51D675283EB18FBCB0157530CF3904B1 /* Thunk.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		B4AAE2AB016F73B063D7F9F8CD0E6B84 /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99A55D7E1E6EB787E37FB3573C5A472C /* Database.swift */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		B4E90575E931D4909181F5949128F2BC /* Rcu.h in Headers */ = {isa = PBXBuildFile; fileRef = FFF0137DA402A927424B26596D511A46 /* Rcu.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		B51C6E79609B2AB8B2DABCA53533CED9 /* CString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 12620EA235FDDC57E8C2BA0636EEA04F /* CString.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
 		B535E268C11DC79FE6065E558E55F4D8 /* EventBaseBackendBase.h in Headers */ = {isa = PBXBuildFile; fileRef = B315665E0E6FC8DC622E2FB99A59357D /* EventBaseBackendBase.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -1284,7 +1287,6 @@
 		BBAF490FC60F248D9D54535CE753DA73 /* PriorityLifoSemMPMCQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 84B5C0435199953874D063EB5FB5A76A /* PriorityLifoSemMPMCQueue.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		BC40F79F76BE6662A8BDE141482F19CF /* compile.h in Headers */ = {isa = PBXBuildFile; fileRef = E151BC33D002E013FA437724A800F85C /* compile.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		BCEFD898DC8FD7213FC8AF1C4D37E60D /* Unicode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BA46511CEB116B1D058073D6D18A0E1 /* Unicode.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
-		BD2356025FB10899793CA911246E24A9 /* FMDatabaseAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FC6D2839BE0350AB87B0B08992908DF /* FMDatabaseAdditions.m */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		BD51B4ED116F3025D98C56E2EC2E72DE /* HazptrRec.h in Headers */ = {isa = PBXBuildFile; fileRef = C45EFF3E56C4D6DB1E24A5BE39690C95 /* HazptrRec.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		BDA446543ABDF746F710A7499ACA99DB /* LifoSem.h in Headers */ = {isa = PBXBuildFile; fileRef = EDEA0B28F934ACBEF1FCDDDC53E4EECF /* LifoSem.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		BDB063E28F6B10413CD736C276BFCA85 /* RCTSafeAreaViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EAF87F543C7A640AFD18D2B439866E5 /* RCTSafeAreaViewManager.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
@@ -1336,6 +1338,7 @@
 		C3F1EAEDD4B412290608841DCDEE7DDF /* NSDataBigString.mm in Sources */ = {isa = PBXBuildFile; fileRef = 19EAA4E7242E73A757CE25BFD4C04BE7 /* NSDataBigString.mm */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
 		C45E4ECE59C5B3086DE829753EA9B8E7 /* ipv6-internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 3B77F1A3405117C8DC5AA5B14B1810D5 /* ipv6-internal.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		C46B5889E686F814C6CC13766F3E6FB7 /* AsyncGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 762821BCB0FE62F53984E852EED3F6B7 /* AsyncGenerator.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		C4E8A8C28DB16CE1801AF29B79768912 /* WatermelonDB-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 954F174C29B7535DED07880ACB9C1019 /* WatermelonDB-dummy.m */; };
 		C4F4902A7642DA0E3118EC9FD3DF44A2 /* Merge.h in Headers */ = {isa = PBXBuildFile; fileRef = 3858CF94C32CA583BBDE233D9C9A46EA /* Merge.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		C525B1D5DECD88749AC29FA0331109A6 /* small_vector.h in Headers */ = {isa = PBXBuildFile; fileRef = 784EEF475396871D2979F26C45AA3D63 /* small_vector.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		C5703AF1536B63AD070E26A8105A0261 /* fast-dtoa.cc in Sources */ = {isa = PBXBuildFile; fileRef = 56CD91A9A560CD936F5E2A81C981A784 /* fast-dtoa.cc */; settings = {COMPILER_FLAGS = "-Wno-unreachable-code"; }; };
@@ -1356,7 +1359,6 @@
 		C82FEFBABBFEEA2F4D73CEDDBF8BD750 /* ThreadLocal.h in Headers */ = {isa = PBXBuildFile; fileRef = BC7AB3251688F3260713E5269B1C69D3 /* ThreadLocal.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		C88D69372A441446A797ACE358D14625 /* Math.h in Headers */ = {isa = PBXBuildFile; fileRef = AB73BEB8DA9F0046F22C6E36AF4A7D27 /* Math.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		C89A5450E06B640D561B408DF8009298 /* RCTLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = B9D0403F31977CFA52014DAF9FBA99DE /* RCTLayout.h */; settings = {ATTRIBUTES = (Project, ); }; };
-		C8B3A2DA1902559D167519F7BB0A3F68 /* Database.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8BE8FB834B5DE7E30185D6E5BF1D4C69 /* Database.cpp */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		C8DC6F3438857334033677421B85C93F /* RCTURLRequestHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 6A05DD97E8DF0B533FF942057E2A30F1 /* RCTURLRequestHandler.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		C8E927A0C65382F6E5536A57E00107C0 /* FBReactNativeSpec.h in Headers */ = {isa = PBXBuildFile; fileRef = 1D25889F907700ACE69CBAB9923EEE28 /* FBReactNativeSpec.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		C91CC3C50DF7C2E2F69E8E805308224A /* Fingerprint.h in Headers */ = {isa = PBXBuildFile; fileRef = 0451FB07AC35EC4A849954A8D07B4668 /* Fingerprint.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -1411,6 +1413,7 @@
 		D030C59F74D11C7CA4ACD2DC6CC8A65C /* RCTDeviceInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 338F0193850C6E896B196C053DB37A71 /* RCTDeviceInfo.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		D048CD19AA4CBAFC6C24F43707A8356C /* not_null.h in Headers */ = {isa = PBXBuildFile; fileRef = 496DB44BCD54DD3D4B3986ECF6C4301F /* not_null.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		D04A9F9C4A39BE4305437FDC4AFECD19 /* RCTErrorCustomizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 359DA4BFF7A57D723F2461695A68EE73 /* RCTErrorCustomizer.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		D0532A12B961248094AE974AF1B9CA16 /* std_ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079BFC20ABB956E311CFE52D23206502 /* std_ext.swift */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		D084696780A879624760DE3B17D47CAB /* IPAddressV4.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C05648A95DFF3A7D8F4A433F72BEBEB /* IPAddressV4.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		D17DA7B0AB0237D4FA5B19538702853B /* WhenN.h in Headers */ = {isa = PBXBuildFile; fileRef = 5A2DFD5BE90736533831083442C5961A /* WhenN.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		D1AAE91C7D063E974A79C952619E13E9 /* BatchDispatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = B49606B821F2E1CD8F1338F842E1C66D /* BatchDispatcher.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -1426,7 +1429,6 @@
 		D3D5DD5BAB905C3F32B0CC2AE03D8299 /* Event.h in Headers */ = {isa = PBXBuildFile; fileRef = 2477451C897A3B7E084AFC1F12B79A9D /* Event.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		D4123991DDF80134CC22D1F85407C605 /* ForEach-inl.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A0190E4B3831B22884B02CCEE56052C /* ForEach-inl.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		D44D54076C5DD3DB3A13B174A59E3981 /* RCTRootShadowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 51DF7110652B31AAA3849E254DEF09F0 /* RCTRootShadowView.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
-		D49EA76FA2E77158A1FC8EB25DBA22CD /* WatermelonDB-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 954F174C29B7535DED07880ACB9C1019 /* WatermelonDB-dummy.m */; };
 		D4BFFEC1F32C3423A02A7EF3DC4B3B21 /* FiberManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 12F0CAC1398B39394CE87667C9E05D99 /* FiberManager.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
 		D4D8AB56249F19A2043E8B71302BFDB0 /* RCTImageURLLoaderWithAttribution.h in Headers */ = {isa = PBXBuildFile; fileRef = 39AD347970F1F72E29407C4451AC8D5C /* RCTImageURLLoaderWithAttribution.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		D4EA83CA8B43C11FB76FB81A5F33183E /* SimpleLoopController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7652683005AE00B0579C4F5AA9D58C6 /* SimpleLoopController.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
@@ -1446,6 +1448,7 @@
 		D74C22FCB6AD22CA1A3F3C3BE323B8AE /* RuntimeAdapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 37AA4587A53D841D305CE1D02F445239 /* RuntimeAdapter.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
 		D74CBF20652872AA3D21304C90FEFC21 /* React-RCTSettings-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 62797AD65B8C77946BE5CA98622C000A /* React-RCTSettings-dummy.m */; };
 		D77B0A619677A2BCA2D46284A49EFC10 /* RCTDisplayWeakRefreshable.h in Headers */ = {isa = PBXBuildFile; fileRef = 484596E2B786BFDC12D6B6F5DF0CAE3F /* RCTDisplayWeakRefreshable.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		D797FAC9247FC2691292DA136FD894A8 /* WMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 258A036DB11D42351F16B553D9C49F3A /* WMDatabase.m */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		D79EFEC82BD52AB98401A3B716EE1A7F /* ChannelCallbackHandle.h in Headers */ = {isa = PBXBuildFile; fileRef = AC5A252D7D9E7D8086C12F0DE55A3EC6 /* ChannelCallbackHandle.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		D830F70782F0079C2F9A0ADE7B517BE5 /* ToAscii.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FB8089AB1D822F23E6A782CB9E9212C /* ToAscii.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		D83F431122E15CA96076060A172E7CB1 /* CallbackWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = BE0838E7A0B0EDB1496285027295BCDF /* CallbackWrapper.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -1466,9 +1469,7 @@
 		D9C7C2BCFF45CBC826716ECE9D36715E /* RCTAccessibilityManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 016E8355B58577C874CFA1EFF83C9487 /* RCTAccessibilityManager.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		DA06C78B788A0CFF220A3159F3DDF8C5 /* GlobalThreadPoolList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F22EC6EE5D355019F0F167EA5C4C6AD5 /* GlobalThreadPoolList.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
 		DA9F1D1F23C2C618398670ED4B79AF07 /* RCTWrapperViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D1815ED5BD2BD4B6D3508BEBCB383D63 /* RCTWrapperViewController.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
-		DAAA108D2CBBAAE6447EFE395E970391 /* DatabaseDriver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC3D9CDE2B1F3C2BD7507F7EB50833B /* DatabaseDriver.swift */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		DAB0C943F0B054AA9F55A9ED5A9F025E /* F14IntrinsicsAvailability.h in Headers */ = {isa = PBXBuildFile; fileRef = 79A65FB75985B02D5E6952B052674F86 /* F14IntrinsicsAvailability.h */; settings = {ATTRIBUTES = (Project, ); }; };
-		DAEEAD8430F3996A2869CCB88A0EC669 /* DatabaseBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE86D975302B80EFC26CA957D228B2B6 /* DatabaseBridge.swift */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		DB2A5B1FA169BDFE5FF72EA0DD14F25B /* Portability.h in Headers */ = {isa = PBXBuildFile; fileRef = 0711249E5E2AF942267836B6C0B4CD08 /* Portability.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		DB4164FC0D0DF56AA2D49DE08B083209 /* RCTUITextView.h in Headers */ = {isa = PBXBuildFile; fileRef = 3B55D3C4C55F05FF666576E3C7E9B142 /* RCTUITextView.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		DB63C1D2CE3DED58946954236B85C8C5 /* simdjson-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = E094FA3147BE104744CF2889849DC3E2 /* simdjson-umbrella.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -1533,7 +1534,6 @@
 		E3259A24B144BE8C57559682DE8D4C5D /* RCTSafeAreaViewManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 789333AA3850FF4290DB7894A84E0426 /* RCTSafeAreaViewManager.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		E331350B6144195E63758C0D02541274 /* RCTBackedTextInputViewProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 671F4A4BFE985F490D320E000671C0AF /* RCTBackedTextInputViewProtocol.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		E3B431F3E9B474697E09A3DB46D5AC8D /* bufferevent_ratelim.c in Sources */ = {isa = PBXBuildFile; fileRef = 9D2202C86848263FCC72DA97E7105499 /* bufferevent_ratelim.c */; };
-		E3B79760EF4EE1EC1C879C4EFBCF193E /* WMDatabaseDriver.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABD1D51449D41C85A71D8ECF2BB63C9 /* WMDatabaseDriver.m */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		E3C2425C83856D97ACD42A18B096DC0E /* RCTMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = A04E36F47C4B317A9F2C0C38ED68D0EB /* RCTMacros.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		E3CA40A3E0288E87162BCE0F71A540A4 /* RCTRootView.m in Sources */ = {isa = PBXBuildFile; fileRef = ECA0E7A65A4A54AB331427DE175B0386 /* RCTRootView.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
 		E3E4112D9CC2B5B97213C9394D9F64E5 /* Yoga-internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 375002AA4FB785112410067E1DB6EB06 /* Yoga-internal.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -1543,6 +1543,7 @@
 		E4FA12425BB4DAE1BF1B4A545656A615 /* signalhandler.cc in Sources */ = {isa = PBXBuildFile; fileRef = BE9CBB2AF75E41CD7230183FF8AF5857 /* signalhandler.cc */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
 		E508E440072CE1D91D2F6BE887CC0793 /* DetachOnCancel.h in Headers */ = {isa = PBXBuildFile; fileRef = 70D6A6900DC21A5294119D962AE3FDA2 /* DetachOnCancel.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		E551D1D0B6DFFB897233944C3D10C24E /* RCTConvert+Text.h in Headers */ = {isa = PBXBuildFile; fileRef = 71233BE060D7C6F1D00B780D99C5B751 /* RCTConvert+Text.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		E578B74256E1199C2FD734F5D35CBE83 /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B6A2C084E0142DDD96A8A52ECB9A3A2 /* FMDatabaseQueue.m */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		E59683D8BAF9711AD4F76EF2D5B27854 /* Error.h in Headers */ = {isa = PBXBuildFile; fileRef = 76E5ECC6B43721435AB01D3880D81F4D /* Error.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		E5E34A7B302CB309AA49F12E12E202C7 /* Core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 196B2AC697CD17AE2FB38622BB1A2C08 /* Core.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
 		E61BA6E34CCCE0AF502E3F0EFC3AB736 /* RCTConvert.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F5B351E6203B9BE42A2ED065392CA4D /* RCTConvert.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
@@ -1572,7 +1573,6 @@
 		E9E101CCF68FD7190FBC2BA9F17F4458 /* GlobalThreadPoolList.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BAD87174D60F47708FA29722E0DFBAE /* GlobalThreadPoolList.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		EA0A10DE8239E57100579836BEBEF04A /* Collect.h in Headers */ = {isa = PBXBuildFile; fileRef = FC2581C2F9E11442BAA3B6DD0FE32C7F /* Collect.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		EA155D5D5A6C14CE9AB404FA132BE020 /* Instructions.h in Headers */ = {isa = PBXBuildFile; fileRef = 55C80CF1656FCA320ED9D28F52180BED /* Instructions.h */; settings = {ATTRIBUTES = (Project, ); }; };
-		EA38BC44124CCC9C64BF9CBAE8482739 /* FMDatabasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = 344C85FB66797A48EC2F8B910F54949B /* FMDatabasePool.m */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		EA413885E11EE4912BE0F6F8B43C2552 /* RCTBlobCollector.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3DB9571E01F3E72E66E48760033B6527 /* RCTBlobCollector.mm */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness"; }; };
 		EA678476A4BB34BA9B234437DC82604E /* RCTBridgeConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 09B4956C2210C2013AB5B31A87CA8A45 /* RCTBridgeConstants.m */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
 		EAA0EC12FBE082091017845FB6C14D33 /* BoostContextCompatibility.h in Headers */ = {isa = PBXBuildFile; fileRef = FC9D37885B699BC7B8AF8295AE603FBB /* BoostContextCompatibility.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -1581,7 +1581,6 @@
 		EAC8D695B7359A2234362B4F953DED82 /* AsyncBaseTestLib.h in Headers */ = {isa = PBXBuildFile; fileRef = 7CA23CD4F01008E2E73D16470EAB3DDD /* AsyncBaseTestLib.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		EAD9A8746BF61739374E82BB6B42E885 /* JSITracing.h in Headers */ = {isa = PBXBuildFile; fileRef = C84AAF48C441FEBD6F1D34FD0265D271 /* JSITracing.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		EAE7689F52A7D51889EFC75737CB67BD /* RCTGIFImageDecoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 59C4A3328FDD88F1A8E7801A9852CDD9 /* RCTGIFImageDecoder.mm */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness"; }; };
-		EB4A945FA6C3DEBA09EA2F147734ABCC /* Sqlite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 249D4031A42B5B80C7C18DABCDA494BF /* Sqlite.cpp */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		EB5CE5B018689682D84662F6EE09EEB9 /* JSCExecutorFactory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2E8C26A572BC2D4B5266CF256FAE06B5 /* JSCExecutorFactory.mm */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"; }; };
 		EB8568C9D174A0F766F6D392BE81834D /* RCTRedBoxSetEnabled.h in Headers */ = {isa = PBXBuildFile; fileRef = F066445B6F848836494454AD4B05FCD9 /* RCTRedBoxSetEnabled.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		EC75455815674AAFCFBEE062F39625FB /* CString.h in Headers */ = {isa = PBXBuildFile; fileRef = 3B4D57D5BD5D5AB9A0E3EBEB3FC3CCED /* CString.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -1651,7 +1650,7 @@
 		F65847602051512E0B8FB1D5BB05B098 /* VirtualEventBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 968A1E9FF09AA32B3A1C38B87E1F20D8 /* VirtualEventBase.cpp */; settings = {COMPILER_FLAGS = "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new"; }; };
 		F66BFF351E43FCDA1B9D4BEE7C600858 /* Stdio.h in Headers */ = {isa = PBXBuildFile; fileRef = 2F9E8E7FA7D309653D3EACC52B067678 /* Stdio.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		F67B8901A81C9EAACC7C0C2632F38C91 /* AtomicHashMap.h in Headers */ = {isa = PBXBuildFile; fileRef = DF3328D2B90E6EF9FB9BC0B1717B4C63 /* AtomicHashMap.h */; settings = {ATTRIBUTES = (Project, ); }; };
-		F6A51D13F7292D7D6416B5C27F774F57 /* DatabasePlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = 7D495CDC620410D19E68786AEB98E0A1 /* DatabasePlatform.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		F6A51D13F7292D7D6416B5C27F774F57 /* DatabasePlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = 741797ECFD9066B88DAEBF90B75ECE7D /* DatabasePlatform.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		F6B1A211B5865827836EBBAEE6E0A3BD /* Base.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E26601259A013CF3E0B037784A246CF /* Base.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		F6B56B40F708E70060563040E481CF7A /* Task.h in Headers */ = {isa = PBXBuildFile; fileRef = 63194B6FEBAAA1985D22AE9E5013266E /* Task.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		F6F713F4DCC6D5F7934339A5BF5B7830 /* Checksum.h in Headers */ = {isa = PBXBuildFile; fileRef = FE69FF8B2C07CC98EC4AD0223CB1D05B /* Checksum.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -1667,6 +1666,7 @@
 		F7E5A85864E0A965824579521C13E29F /* Benchmark.h in Headers */ = {isa = PBXBuildFile; fileRef = BF18797D06F2415638FA1CD12316DD28 /* Benchmark.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		F7F5676C527502BA7ADB38E6A051F8F4 /* RCTImageEditingManager.h in Headers */ = {isa = PBXBuildFile; fileRef = B843D765A85BF395CDE81B4267959B45 /* RCTImageEditingManager.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		F80F3BD65DEE7BEB237BEA51A9D023AA /* RCTTiming.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C0E044576D3A0E2FFBB17501E4D16F4 /* RCTTiming.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		F844CDB3FECB6612C34FC1B7712CA04F /* JSIInstaller.mm in Sources */ = {isa = PBXBuildFile; fileRef = 388380F100780B4BA3F31D7EAD9DABCA /* JSIInstaller.mm */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		F844EEFD5BE879B716FB4124B1F7A6EA /* React-perflogger-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C82A5D7931B14164859C20B45766F51 /* React-perflogger-dummy.m */; };
 		F8721C139749E07013B2986C37E5D995 /* UninitializedMemoryHacks.h in Headers */ = {isa = PBXBuildFile; fileRef = 75BDAE93476C924982458EF650A955CB /* UninitializedMemoryHacks.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		F873381C31A1B65B581897F30CEB6BA5 /* RCTWeakProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 58181EFDFB52DD3F34B9E5E4D54C9B48 /* RCTWeakProxy.h */; settings = {ATTRIBUTES = (Project, ); }; };
@@ -3475,7 +3475,6 @@
 		244169BD3B5E3AE6CFD40834B18917C1 /* TypeInfo.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = TypeInfo.h; path = folly/lang/TypeInfo.h; sourceTree = "<group>"; };
 		2468FCA5F43F59669AEAE4F9FCAD7292 /* Future-inl.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "Future-inl.h"; path = "folly/futures/Future-inl.h"; sourceTree = "<group>"; };
 		2477451C897A3B7E084AFC1F12B79A9D /* Event.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Event.h; path = folly/portability/Event.h; sourceTree = "<group>"; };
-		249D4031A42B5B80C7C18DABCDA494BF /* Sqlite.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = Sqlite.cpp; sourceTree = "<group>"; };
 		24D006253C49C5C2360E27D8589861F5 /* RCTAppearance.mm */ = {isa = PBXFileReference; includeInIndex = 1; path = RCTAppearance.mm; sourceTree = "<group>"; };
 		24EBE9EBE39BEBFF8F8422CE81C61588 /* RCTFileRequestHandler.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTFileRequestHandler.h; path = Libraries/Network/RCTFileRequestHandler.h; sourceTree = "<group>"; };
 		25046D2C01C83E9BA4B8A6D0954C4855 /* MPMCPipelineDetail.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = MPMCPipelineDetail.h; path = folly/detail/MPMCPipelineDetail.h; sourceTree = "<group>"; };
@@ -3492,6 +3491,7 @@
 		269A20A7A8E4D6E06132AA2D486380DC /* FBLazyVector.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = FBLazyVector.h; path = FBLazyVector/FBLazyVector.h; sourceTree = "<group>"; };
 		269BE773C9482484B70949A40F4EA525 /* React-RCTSettings */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "React-RCTSettings"; path = "libReact-RCTSettings.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		26B00415A6AB5A9C2E3EC68A1A3919A9 /* File.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = File.h; path = folly/File.h; sourceTree = "<group>"; };
+		26B2281D896B61D8060051A022CAA4CF /* DatabaseBridge.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = DatabaseBridge.cpp; sourceTree = "<group>"; };
 		26CB0BD1EAC160490BAE30BC20B59733 /* DoubleConversion.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = DoubleConversion.debug.xcconfig; sourceTree = "<group>"; };
 		26E5F72EBCA8E1A45A743C9585A00E58 /* RCTSafeAreaShadowView.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RCTSafeAreaShadowView.h; sourceTree = "<group>"; };
 		26FF1458DE155E891FA73A26CAD8EFB8 /* print.css */ = {isa = PBXFileReference; includeInIndex = 1; name = print.css; path = docs/css/print.css; sourceTree = "<group>"; };
@@ -3833,6 +3833,7 @@
 		53327E9F6B60C1472AA4F346DB5729F2 /* Sleep.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Sleep.h; path = folly/experimental/coro/Sleep.h; sourceTree = "<group>"; };
 		534F7F3FD1A798641C30C76E11AB8F77 /* libevent-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "libevent-dummy.m"; sourceTree = "<group>"; };
 		537E26A5D476A1F28E316982B95B15F0 /* React.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; path = React.podspec; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		53B9B82907224DB27CEEE6A04F1508B7 /* Sqlite.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = Sqlite.cpp; sourceTree = "<group>"; };
 		53E8E908594D619980BB2EA39F782634 /* json_patch.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = json_patch.h; path = folly/json_patch.h; sourceTree = "<group>"; };
 		541187B7EE7BBFF171DAB2DA3D202989 /* RCTBundleManager.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RCTBundleManager.m; sourceTree = "<group>"; };
 		5412BB9DDFE3820D8C4AC4E860CC555D /* LongLivedObject.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = LongLivedObject.cpp; path = react/bridging/LongLivedObject.cpp; sourceTree = "<group>"; };
@@ -4106,6 +4107,7 @@
 		73C6281011B7AA7661F9E3EEC3E7E509 /* RCTHTTPRequestHandler.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTHTTPRequestHandler.h; path = Libraries/Network/RCTHTTPRequestHandler.h; sourceTree = "<group>"; };
 		73D2BB9804932D5338EAF522BDE53F68 /* HardwareConcurrency.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = HardwareConcurrency.cpp; path = folly/system/HardwareConcurrency.cpp; sourceTree = "<group>"; };
 		740A0A5E9510D1191673884AAF62D369 /* NSDataBigString.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = NSDataBigString.h; sourceTree = "<group>"; };
+		741797ECFD9066B88DAEBF90B75ECE7D /* DatabasePlatform.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = DatabasePlatform.h; sourceTree = "<group>"; };
 		7418F58582109A4CE25C17FE76ECCFC0 /* Optional.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Optional.h; path = folly/Optional.h; sourceTree = "<group>"; };
 		74374E262C15070BAD3F29CCCFA39CCB /* NativeToJsBridge.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = NativeToJsBridge.h; sourceTree = "<group>"; };
 		7463AD4AC353FC48FD3F6B1A84AA8C3E /* RuntimeExecutor.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RuntimeExecutor.h; path = ReactCommon/RuntimeExecutor.h; sourceTree = "<group>"; };
@@ -4166,6 +4168,7 @@
 		7BC87D53155C9FEFC7D16593FC7029CD /* FollyMemcpy.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = FollyMemcpy.h; path = folly/FollyMemcpy.h; sourceTree = "<group>"; };
 		7BE987E03A0C49A2D2E496452C288442 /* simdjson-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "simdjson-prefix.pch"; sourceTree = "<group>"; };
 		7BED2E854F47FC758AA7D9E7C98F1C9F /* RCTPackagerConnection.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RCTPackagerConnection.h; sourceTree = "<group>"; };
+		7C05C02D401EBCA083E3542F9D755B8B /* JSLockPerfHack.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = JSLockPerfHack.h; sourceTree = "<group>"; };
 		7C0B1900960B9FC4AF7E6818E6A521D8 /* RCTImageView.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTImageView.h; path = Libraries/Image/RCTImageView.h; sourceTree = "<group>"; };
 		7C3B70CC23224FF0520C60D820E52BB9 /* React-hermes.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; path = "React-hermes.podspec"; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		7C45CE637DEE82C55508510EB4C812D3 /* SparseByteSet.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SparseByteSet.h; path = folly/container/SparseByteSet.h; sourceTree = "<group>"; };
@@ -4181,7 +4184,6 @@
 		7D26A6592F998BD41E5EF7AA20C30296 /* Installation.md */ = {isa = PBXFileReference; includeInIndex = 1; name = Installation.md; path = "docs-build/Installation.md"; sourceTree = "<group>"; };
 		7D273B35814A17E944EDE3B6CD59BE59 /* IPAddressV6.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IPAddressV6.h; path = folly/IPAddressV6.h; sourceTree = "<group>"; };
 		7D3192933EC5631390F5C7035F139844 /* sidebars.js */ = {isa = PBXFileReference; includeInIndex = 1; name = sidebars.js; path = "docs-website/sidebars.js"; sourceTree = "<group>"; };
-		7D495CDC620410D19E68786AEB98E0A1 /* DatabasePlatform.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = DatabasePlatform.h; sourceTree = "<group>"; };
 		7DCA6D0884E07E63CAA63238003B3C68 /* IoTestTempFileUtil.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IoTestTempFileUtil.h; path = folly/experimental/io/test/IoTestTempFileUtil.h; sourceTree = "<group>"; };
 		7DD2AD740314C46A262BD1F761D3282D /* Core.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Core.h; path = folly/futures/detail/Core.h; sourceTree = "<group>"; };
 		7E0861BCE086CB16F2AA009F19C3230D /* MessageConverters.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = MessageConverters.cpp; sourceTree = "<group>"; };
@@ -4297,7 +4299,6 @@
 		8BCD4C963CA48A369769A18F8A76AD97 /* evsignal-internal.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "evsignal-internal.h"; sourceTree = "<group>"; };
 		8BD5288AE38B862B4F2398BE4C7C80B6 /* RCTAnimatedNode.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RCTAnimatedNode.h; sourceTree = "<group>"; };
 		8BD7E48863F0E91203DE3622CEDA2632 /* Yoga-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Yoga-dummy.m"; sourceTree = "<group>"; };
-		8BE8FB834B5DE7E30185D6E5BF1D4C69 /* Database.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = Database.cpp; sourceTree = "<group>"; };
 		8C82A5D7931B14164859C20B45766F51 /* React-perflogger-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "React-perflogger-dummy.m"; sourceTree = "<group>"; };
 		8CC45D404D073115B7262DF290D0E289 /* RCTRequired.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTRequired.h; path = RCTRequired/RCTRequired.h; sourceTree = "<group>"; };
 		8CCB59CC5FDF9FC652060D85F6E1E81F /* GCConfig.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GCConfig.h; path = destroot/include/hermes/Public/GCConfig.h; sourceTree = "<group>"; };
@@ -4316,7 +4317,6 @@
 		8E9F916C3760CFE39D2BE26123019A62 /* vlog_is_on.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = vlog_is_on.cc; path = src/vlog_is_on.cc; sourceTree = "<group>"; };
 		8EB832FEFF589417875437B835850E87 /* evhttp.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = evhttp.h; path = include/evhttp.h; sourceTree = "<group>"; };
 		8ECAC3CF92F92A78F671D0457EEAFB7D /* React-jsiexecutor-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "React-jsiexecutor-dummy.m"; sourceTree = "<group>"; };
-		8F77BC035A3E7C8C8954E805343BD3F4 /* Database.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Database.h; sourceTree = "<group>"; };
 		8F86EBE60E2F15581B7E0F574DFACB9E /* RCTConvert+Transform.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "RCTConvert+Transform.m"; sourceTree = "<group>"; };
 		8FE68657BAE614D686B3E6057DCC9FF3 /* experiments.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = experiments.h; sourceTree = "<group>"; };
 		902DF7D738E467595B8D35E504949832 /* Hardware.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Hardware.h; path = folly/chrono/Hardware.h; sourceTree = "<group>"; };
@@ -4412,6 +4412,7 @@
 		9DC3644EB2B8C944B04938D081BF8432 /* ExecutorWithPriority-inl.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "ExecutorWithPriority-inl.h"; path = "folly/executors/ExecutorWithPriority-inl.h"; sourceTree = "<group>"; };
 		9DCD674829603283D2170A4311BA2631 /* RCTDynamicTypeRamp.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RCTDynamicTypeRamp.h; sourceTree = "<group>"; };
 		9E1FCCCE3832CE35B3342DBEF19412E3 /* libevent.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = libevent.debug.xcconfig; sourceTree = "<group>"; };
+		9E32EA7F5A2066B55D455D5096003F28 /* Sqlite.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Sqlite.h; sourceTree = "<group>"; };
 		9E4733AC6B854905C94CE3C86FD7B7B3 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; path = README.md; sourceTree = "<group>"; };
 		9E7A18595B91F87C0F93F4A0A4AA10F1 /* RelaxedConcurrentPriorityQueue.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RelaxedConcurrentPriorityQueue.h; path = folly/experimental/RelaxedConcurrentPriorityQueue.h; sourceTree = "<group>"; };
 		9EBE6E07CE67427CC6CB3B4895DDF277 /* RCTNativeAnimatedNodesManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTNativeAnimatedNodesManager.h; path = Libraries/NativeAnimation/RCTNativeAnimatedNodesManager.h; sourceTree = "<group>"; };
@@ -4447,7 +4448,6 @@
 		A1D791B7ED5C2978E3068FF8D29D3BB8 /* RCTDevMenu.mm */ = {isa = PBXFileReference; includeInIndex = 1; path = RCTDevMenu.mm; sourceTree = "<group>"; };
 		A1E6010CDE924E4E137873A9BA8E0F50 /* Writers.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Writers.html; path = docs/Writers.html; sourceTree = "<group>"; };
 		A20B6A22D7B3B1DF6FCBC4E144152FF2 /* React-logger-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "React-logger-prefix.pch"; sourceTree = "<group>"; };
-		A21A1F2A891B033D99AF9C022E9FB583 /* JSLockPerfHack.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = JSLockPerfHack.h; sourceTree = "<group>"; };
 		A2477032C9D5FDDA4ABA8B65FF2CA137 /* RCTProfileTrampoline-arm.S */ = {isa = PBXFileReference; includeInIndex = 1; path = "RCTProfileTrampoline-arm.S"; sourceTree = "<group>"; };
 		A24FD009826322329CDB20E355562800 /* PropagateConst.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = PropagateConst.h; path = folly/lang/PropagateConst.h; sourceTree = "<group>"; };
 		A250A7313A88E237F54B659F344EC160 /* RCTProfileTrampoline-arm64.S */ = {isa = PBXFileReference; includeInIndex = 1; path = "RCTProfileTrampoline-arm64.S"; sourceTree = "<group>"; };
@@ -4455,9 +4455,7 @@
 		A2A567996C59639927CEA4DFC5C1E591 /* StampedPtr.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = StampedPtr.h; path = folly/experimental/StampedPtr.h; sourceTree = "<group>"; };
 		A2C85F2D8F92C708ED5C58651B23397C /* MessageConverters.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = MessageConverters.h; sourceTree = "<group>"; };
 		A2E9A440A437BBD8E9F028DB0FC7C237 /* Adapters.md */ = {isa = PBXFileReference; includeInIndex = 1; name = Adapters.md; path = "docs-website/docs/docs/Implementation/Adapters.md"; sourceTree = "<group>"; };
-		A2F79FEAA46B8507092D72A6CFA3192B /* Sqlite.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Sqlite.h; sourceTree = "<group>"; };
 		A2FA56C3BC4B89E8EEEE7567E6204639 /* symbolize.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = symbolize.cc; path = src/symbolize.cc; sourceTree = "<group>"; };
-		A31B4AB6652F006CAFAE13ECF67C8295 /* DatabaseInstallation.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = DatabaseInstallation.cpp; sourceTree = "<group>"; };
 		A346502BEFFCCCD990857A1071A7B5FA /* custom.css */ = {isa = PBXFileReference; includeInIndex = 1; name = custom.css; path = "docs-website/src/css/custom.css"; sourceTree = "<group>"; };
 		A34A230CE42A35E48402C8099E0D1033 /* RCTSourceCode.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTSourceCode.h; path = React/CoreModules/RCTSourceCode.h; sourceTree = "<group>"; };
 		A34BC1B4965740CC59AE651858FE3C86 /* RCTDevSplitBundleLoader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTDevSplitBundleLoader.h; path = React/CoreModules/RCTDevSplitBundleLoader.h; sourceTree = "<group>"; };
@@ -4923,12 +4921,14 @@
 		E027EED423A43E65D23A7DDC4D00A935 /* ExceptionString.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = ExceptionString.cpp; path = folly/ExceptionString.cpp; sourceTree = "<group>"; };
 		E08AE447B9461EC2F69A54A5520AC148 /* RCTDevLoadingView.mm */ = {isa = PBXFileReference; includeInIndex = 1; path = RCTDevLoadingView.mm; sourceTree = "<group>"; };
 		E094FA3147BE104744CF2889849DC3E2 /* simdjson-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "simdjson-umbrella.h"; sourceTree = "<group>"; };
+		E0B10D3220D85F6F555EA6572E519308 /* Database.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Database.h; sourceTree = "<group>"; };
 		E0B9E56C4FBD0AAD9971D47911709911 /* experiments-inl.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "experiments-inl.h"; sourceTree = "<group>"; };
 		E0FFAD05C2CFEA81F80CD5C8CD61BBB3 /* FutureSplitter.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = FutureSplitter.h; path = folly/futures/FutureSplitter.h; sourceTree = "<group>"; };
 		E115D9B2FA9168A5680D9A9DE392630D /* RCTWebSocketExecutor.mm */ = {isa = PBXFileReference; includeInIndex = 1; path = RCTWebSocketExecutor.mm; sourceTree = "<group>"; };
 		E1189D7ED4BBF91AA7D46A2A99652746 /* searchindex.json */ = {isa = PBXFileReference; includeInIndex = 1; name = searchindex.json; path = docs/searchindex.json; sourceTree = "<group>"; };
 		E1370D3B0A154B5451421C12C8D265C4 /* TimeoutManager.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = TimeoutManager.cpp; path = folly/io/async/TimeoutManager.cpp; sourceTree = "<group>"; };
 		E151BC33D002E013FA437724A800F85C /* compile.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = compile.h; path = include/fmt/compile.h; sourceTree = "<group>"; };
+		E152367A349D1A439B02AC33255E2BAC /* Database.cpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = Database.cpp; sourceTree = "<group>"; };
 		E15D882630C06530F793EE10DBF30D19 /* RCTI18nManager.mm */ = {isa = PBXFileReference; includeInIndex = 1; path = RCTI18nManager.mm; sourceTree = "<group>"; };
 		E1F641EC740C9BC983F6992279FC7AC4 /* RCTModalHostViewManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = RCTModalHostViewManager.h; sourceTree = "<group>"; };
 		E22437FEDB381645E6AB4E99871C0126 /* bufferevent_sock.c */ = {isa = PBXFileReference; includeInIndex = 1; path = bufferevent_sock.c; sourceTree = "<group>"; };
@@ -6733,6 +6733,21 @@
 			name = Pod;
 			sourceTree = "<group>";
 		};
+		6DB32ED4AB08632F5E9A824BA57495F5 /* shared */ = {
+			isa = PBXGroup;
+			children = (
+				E152367A349D1A439B02AC33255E2BAC /* Database.cpp */,
+				E0B10D3220D85F6F555EA6572E519308 /* Database.h */,
+				26B2281D896B61D8060051A022CAA4CF /* DatabaseBridge.cpp */,
+				741797ECFD9066B88DAEBF90B75ECE7D /* DatabasePlatform.h */,
+				7C05C02D401EBCA083E3542F9D755B8B /* JSLockPerfHack.h */,
+				53B9B82907224DB27CEEE6A04F1508B7 /* Sqlite.cpp */,
+				9E32EA7F5A2066B55D455D5096003F28 /* Sqlite.h */,
+			);
+			name = shared;
+			path = native/shared;
+			sourceTree = "<group>";
+		};
 		6F73FF14C045C1F9E14FC1187F377537 /* Support Files */ = {
 			isa = PBXGroup;
 			children = (
@@ -6900,7 +6915,7 @@
 			children = (
 				DE271A0C46420976874254710F9E566E /* ios */,
 				3A9711C7D4B35157C5D29CB0FD882DC1 /* Pod */,
-				D69E2578709DDC28E9CC4E8FA69B0E93 /* shared */,
+				6DB32ED4AB08632F5E9A824BA57495F5 /* shared */,
 				B55B3E4525F3F6B14C4EC8AE18FF6CF0 /* Support Files */,
 			);
 			name = WatermelonDB;
@@ -8594,21 +8609,6 @@
 			);
 			name = "Support Files";
 			path = "../../../../native/iosTest/Pods/Target Support Files/React-RCTLinking";
-			sourceTree = "<group>";
-		};
-		D69E2578709DDC28E9CC4E8FA69B0E93 /* shared */ = {
-			isa = PBXGroup;
-			children = (
-				8BE8FB834B5DE7E30185D6E5BF1D4C69 /* Database.cpp */,
-				8F77BC035A3E7C8C8954E805343BD3F4 /* Database.h */,
-				A31B4AB6652F006CAFAE13ECF67C8295 /* DatabaseInstallation.cpp */,
-				7D495CDC620410D19E68786AEB98E0A1 /* DatabasePlatform.h */,
-				A21A1F2A891B033D99AF9C022E9FB583 /* JSLockPerfHack.h */,
-				249D4031A42B5B80C7C18DABCDA494BF /* Sqlite.cpp */,
-				A2F79FEAA46B8507092D72A6CFA3192B /* Sqlite.h */,
-			);
-			name = shared;
-			path = native/shared;
 			sourceTree = "<group>";
 		};
 		D85AD4B381B1F4B047F8606408F07896 /* swift */ = {
@@ -10947,7 +10947,7 @@
 			buildConfigurationList = 54609A3B372E5254BAF3A0ED38C5C823 /* Build configuration list for PBXNativeTarget "WatermelonDB" */;
 			buildPhases = (
 				3A6607F563053DB6749CF5A3CE1D9E81 /* Headers */,
-				1336B845F65A7BE27C543692F8195E20 /* Sources */,
+				4644232D637FD0869161A8C24C074F95 /* Sources */,
 				A3951E9E96E3E99CEEC3AD8BF2E92101 /* Frameworks */,
 				FC487196FC41DCA842065FBF961421CC /* Copy generated compatibility header */,
 			);
@@ -11265,34 +11265,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		1336B845F65A7BE27C543692F8195E20 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				C8B3A2DA1902559D167519F7BB0A3F68 /* Database.cpp in Sources */,
-				2216DD17CF33782B41A252C33758EB2E /* Database.swift in Sources */,
-				760D8022C7B1C3DE463A0D50E2683E87 /* DatabaseBridge.m in Sources */,
-				DAEEAD8430F3996A2869CCB88A0EC669 /* DatabaseBridge.swift in Sources */,
-				3BA5DB53D5493E64A28B0A039973754D /* DatabaseDeleteHelper.m in Sources */,
-				DAAA108D2CBBAAE6447EFE395E970391 /* DatabaseDriver.swift in Sources */,
-				22FB48B66513107F3165540673AC0A0F /* DatabaseInstallation.cpp in Sources */,
-				2A560152E7C6144A677EFC9704FDFDA6 /* DatabasePlatformIOS.mm in Sources */,
-				9E641CC0B7C6E42EE8168A80D8CE047A /* FMDatabase.m in Sources */,
-				BD2356025FB10899793CA911246E24A9 /* FMDatabaseAdditions.m in Sources */,
-				EA38BC44124CCC9C64BF9CBAE8482739 /* FMDatabasePool.m in Sources */,
-				0B348BFBB981053E1D98B6D664D9A348 /* FMDatabaseQueue.m in Sources */,
-				6CBA0AFE04907F8871CCCBF7451BEECD /* FMResultSet.m in Sources */,
-				A3C25A60B04BC9694DFCF9C19FFE30BD /* JSIInstaller.mm in Sources */,
-				3BCD757A1CCDC7CD96D5699448E1AB5A /* JSLockPerfHack.mm in Sources */,
-				EB4A945FA6C3DEBA09EA2F147734ABCC /* Sqlite.cpp in Sources */,
-				989B86E1A41BD82D089EF9E9391DF6E1 /* std_ext.swift in Sources */,
-				D49EA76FA2E77158A1FC8EB25DBA22CD /* WatermelonDB-dummy.m in Sources */,
-				7566EC5A79F2B7C087B9D1ECF930E764 /* WMDatabase.m in Sources */,
-				6BC4ED5EEAE0FC437ED36C2B3112BB70 /* WMDatabaseBridge.m in Sources */,
-				E3B79760EF4EE1EC1C879C4EFBCF193E /* WMDatabaseDriver.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		1DFA101CAE98FB73545EC33164BE0007 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -11528,6 +11500,34 @@
 				7CA98684D46DB4B09D6679C9078E2524 /* RCTWebSocketExecutor.mm in Sources */,
 				CD9FEC277620405EC92B3D31D83EDE26 /* RCTWebSocketModule.mm in Sources */,
 				160AA70F5C30FD1A727572F8511395D3 /* React-CoreModules-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4644232D637FD0869161A8C24C074F95 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1B724F10EE43E6A24D6AF8310769E263 /* Database.cpp in Sources */,
+				B4AAE2AB016F73B063D7F9F8CD0E6B84 /* Database.swift in Sources */,
+				8F0939C113D02BBA4B045C6CF323362F /* DatabaseBridge.cpp in Sources */,
+				08E69D960C0F2157C12F94D9C335B36B /* DatabaseBridge.m in Sources */,
+				6261E75458748D9C10329D3ED6AE9911 /* DatabaseBridge.swift in Sources */,
+				9F16C14BFE6FE19A7CF029C99B9EB0F0 /* DatabaseDeleteHelper.m in Sources */,
+				986019B25B029387DEBF8C1A7F6B8D77 /* DatabaseDriver.swift in Sources */,
+				001735FC8C833067A451EDE246892A72 /* DatabasePlatformIOS.mm in Sources */,
+				4CAC357FEA665094413729ECED8276F3 /* FMDatabase.m in Sources */,
+				132B5D63C381A6E08898F6848112EEF1 /* FMDatabaseAdditions.m in Sources */,
+				7F919C8438802D15A778C9A324D8786D /* FMDatabasePool.m in Sources */,
+				E578B74256E1199C2FD734F5D35CBE83 /* FMDatabaseQueue.m in Sources */,
+				09BEBC05B4EF3B2FFAC0BC59E9473462 /* FMResultSet.m in Sources */,
+				F844CDB3FECB6612C34FC1B7712CA04F /* JSIInstaller.mm in Sources */,
+				4F88DDE475E80BD36114572345AE5BEF /* JSLockPerfHack.mm in Sources */,
+				6095CEF9986F13B1362D5CE3DBD64563 /* Sqlite.cpp in Sources */,
+				D0532A12B961248094AE974AF1B9CA16 /* std_ext.swift in Sources */,
+				C4E8A8C28DB16CE1801AF29B79768912 /* WatermelonDB-dummy.m in Sources */,
+				D797FAC9247FC2691292DA136FD894A8 /* WMDatabase.m in Sources */,
+				5F5CF3D16EBA41E6BCD46EFA6975F2AB /* WMDatabaseBridge.m in Sources */,
+				9518906CB49358F52E8668F9056E1FEF /* WMDatabaseDriver.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
