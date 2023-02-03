@@ -6,17 +6,42 @@ import { invariant } from '../../utils/common'
 import DatabaseAdapterCompat from '../compat'
 
 const SQLiteAdapterTest = (spec) => {
-  spec.describe('SQLiteAdapter (async mode)', () => {
+  spec.describe('SQLiteAdapter (async mode, old bridge)', () => {
     spec.it('configures adapter correctly', () => {
-      const adapter = new SQLiteAdapter({ schema: testSchema })
+      const adapter = new SQLiteAdapter({ schema: testSchema, disableNewBridge: true })
       expect(adapter._dispatcherType).toBe('asynchronous')
     })
     commonTests().forEach((testCase) => {
       const [name, test] = testCase
       spec.it(name, async () => {
         const dbName = `file:testdb${Math.random()}?mode=memory&cache=shared`
-        const adapter = new SQLiteAdapter({ schema: testSchema, jsi: false, dbName })
+        const adapter = new SQLiteAdapter({
+          schema: testSchema,
+          jsi: false,
+          disableNewBridge: true,
+          dbName,
+        })
         invariant(adapter._dispatcherType === 'asynchronous', 'this should be asynchronous')
+        await test(
+          new DatabaseAdapterCompat(adapter),
+          SQLiteAdapter,
+          { dbName, disableNewBridge: true },
+          Platform.OS,
+        )
+      })
+    })
+  })
+  spec.describe('SQLiteAdapter (async mode, new bridge)', () => {
+    spec.it('configures adapter correctly', () => {
+      const adapter = new SQLiteAdapter({ schema: testSchema })
+      expect(adapter._dispatcherType).toBe('asynchronous-v2')
+    })
+    commonTests().forEach((testCase) => {
+      const [name, test] = testCase
+      spec.it(name, async () => {
+        const dbName = `file:testdb${Math.random()}?mode=memory&cache=shared`
+        const adapter = new SQLiteAdapter({ schema: testSchema, jsi: false, dbName })
+        invariant(adapter._dispatcherType === 'asynchronous-v2', 'this should be asynchronous-v2')
         await test(new DatabaseAdapterCompat(adapter), SQLiteAdapter, { dbName }, Platform.OS)
       })
     })
