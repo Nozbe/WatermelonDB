@@ -3,6 +3,7 @@
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
   "version": "0.26.0-5",
   "scripts": {
+    "up": "yarn",
     "build": "NODE_ENV=production node ./scripts/make.mjs",
     "dev": "NODE_ENV=development node ./scripts/make.mjs",
     "dev:native": "react-native start",
@@ -12,6 +13,7 @@
     "eslint": "eslint ./src -c ./.eslintrc.js --cache --cache-location ./.cache/.eslintcache",
     "tslint": "tslint --project .",
     "test": "jest --config=./jest.config.js --forceExit",
+    "ci": "yarn ci:check",
     "ci:check": "concurrently -n jest,eslint,flow,ts 'npm run test' 'npm run eslint' 'npm run flow' 'npm run test:typescript' --kill-others-on-fail",
     "test:android": "cd native/androidTest && ./gradlew connectedAndroidTest",
     "test:ios": "scripts/test-ios",
