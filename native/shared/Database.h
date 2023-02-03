@@ -78,4 +78,8 @@ private:
     void removeFromCache(std::string cacheKey);
 };
 
+inline std::string cacheKey(std::string tableName, std::string recordId) {
+    return tableName + "$" + recordId; // NOTE: safe as long as table names cannot contain $ sign
+}
+
 } // namespace watermelondb

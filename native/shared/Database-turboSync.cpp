@@ -7,8 +7,6 @@ namespace watermelondb {
 using platform::consoleError;
 using platform::consoleLog;
 
-
-
 enum ColumnType { string, number, boolean };
 struct ColumnSchema {
     int index;
