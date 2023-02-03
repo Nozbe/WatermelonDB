@@ -10,20 +10,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
-public class Database {
+public class WMDatabase {
     private final SQLiteDatabase db;
 
-    private Database(SQLiteDatabase db) {
+    private WMDatabase(SQLiteDatabase db) {
         this.db = db;
     }
 
-    public static Map<String, Database> INSTANCES;
+    public static Map<String, WMDatabase> INSTANCES;
 
-    public static Database getInstance(String name, Context context, int openFlags) {
-        synchronized (Database.class) {
+    public static WMDatabase getInstance(String name, Context context, int openFlags) {
+        synchronized (WMDatabase.class) {
             if (!INSTANCES.containsKey(name) ||
                     !(INSTANCES.get(name) == null && INSTANCES.get(name).isOpen())) {
-                Database database = buildDatabase(name, context, openFlags);
+                WMDatabase database = buildDatabase(name, context, openFlags);
                 INSTANCES.put(name, database);
                 return database;
             } else {
@@ -32,9 +32,9 @@ public class Database {
         }
     }
 
-    public static Database buildDatabase(String name, Context context, int openFlags) {
-        SQLiteDatabase sqLiteDatabase = Database.createSQLiteDatabase(name, context, openFlags);
-        return new Database(sqLiteDatabase);
+    public static WMDatabase buildDatabase(String name, Context context, int openFlags) {
+        SQLiteDatabase sqLiteDatabase = WMDatabase.createSQLiteDatabase(name, context, openFlags);
+        return new WMDatabase(sqLiteDatabase);
     }
 
     private static SQLiteDatabase createSQLiteDatabase(String name, Context context, int openFlags) {

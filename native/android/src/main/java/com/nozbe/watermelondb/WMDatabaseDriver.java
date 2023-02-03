@@ -14,23 +14,22 @@ import com.nozbe.watermelondb.utils.Pair;
 import com.nozbe.watermelondb.utils.Schema;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class DatabaseDriver {
-    private final Database database;
+public class WMDatabaseDriver {
+    private final WMDatabase database;
 
     private final Logger log;
     private final Map<String, List<String>> cachedRecords;
 
-    public DatabaseDriver(Context context, String dbName) {
+    public WMDatabaseDriver(Context context, String dbName) {
         this(context, dbName, false);
     }
 
-    public DatabaseDriver(Context context, String dbName, int schemaVersion, boolean unsafeNativeReuse) {
+    public WMDatabaseDriver(Context context, String dbName, int schemaVersion, boolean unsafeNativeReuse) {
         this(context, dbName, unsafeNativeReuse);
         SchemaCompatibility compatibility = isCompatible(schemaVersion);
         if (compatibility instanceof SchemaCompatibility.NeedsSetup) {
@@ -44,21 +43,21 @@ public class DatabaseDriver {
 
     }
 
-    public DatabaseDriver(Context context, String dbName, Schema schema, boolean unsafeNativeReuse) {
+    public WMDatabaseDriver(Context context, String dbName, Schema schema, boolean unsafeNativeReuse) {
         this(context, dbName, unsafeNativeReuse);
         unsafeResetDatabase(schema);
     }
 
-    public DatabaseDriver(Context context, String dbName, MigrationSet migrations, boolean unsafeNativeReuse) {
+    public WMDatabaseDriver(Context context, String dbName, MigrationSet migrations, boolean unsafeNativeReuse) {
         this(context, dbName, unsafeNativeReuse);
         migrate(migrations);
     }
 
-    public DatabaseDriver(Context context, String dbName, boolean unsafeNativeReuse) {
-        this.database = unsafeNativeReuse ? Database.getInstance(dbName, context,
+    public WMDatabaseDriver(Context context, String dbName, boolean unsafeNativeReuse) {
+        this.database = unsafeNativeReuse ? WMDatabase.getInstance(dbName, context,
                 SQLiteDatabase.CREATE_IF_NECESSARY |
                         SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING) :
-                Database.buildDatabase(dbName, context,
+                WMDatabase.buildDatabase(dbName, context,
                         SQLiteDatabase.CREATE_IF_NECESSARY |
                                 SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING);
         if (BuildConfig.DEBUG) {

@@ -22,16 +22,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class DatabaseBridge extends ReactContextBaseJavaModule {
+public class WMDatabaseBridge extends ReactContextBaseJavaModule {
     ReactApplicationContext reactContext;
 
-    public DatabaseBridge(ReactApplicationContext reactContext) {
+    public WMDatabaseBridge(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
     }
 
 
-    public static final String NAME = "DatabaseBridge";
+    public static final String NAME = "WMDatabaseBridge";
 
     @NonNull
     @Override
@@ -48,7 +48,7 @@ public class DatabaseBridge extends ReactContextBaseJavaModule {
         }
         final WritableMap promiseMap = Arguments.createMap();
         try {
-            connections.put(tag, new Connection.Connected(new DatabaseDriver((Context) reactContext, databaseName, schemaVersion, unsafeNativeReuse)));
+            connections.put(tag, new Connection.Connected(new WMDatabaseDriver((Context) reactContext, databaseName, schemaVersion, unsafeNativeReuse)));
             promiseMap.putString("code", "ok");
             promise.resolve(promiseMap);
         } catch (SchemaNeededError e) {
@@ -67,13 +67,13 @@ public class DatabaseBridge extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void setUpWithSchema(final Integer tag, final String databaseName, final String schema, final int schemaVersion, final boolean unsafeNativeReuse, final Promise promise) {
-        connectDriver(tag, new DatabaseDriver(reactContext, databaseName, new Schema(schemaVersion, schema), unsafeNativeReuse), promise);
+        connectDriver(tag, new WMDatabaseDriver(reactContext, databaseName, new Schema(schemaVersion, schema), unsafeNativeReuse), promise);
     }
 
     @ReactMethod
     public void setUpWithMigrations(final Integer tag, final String databaseName, final String migrations, final int fromVersion, final int toVersion, final boolean unsafeNativeReuse, final Promise promise) {
         try {
-            connectDriver(tag, new DatabaseDriver(reactContext, databaseName, new MigrationSet(fromVersion, toVersion, migrations), unsafeNativeReuse), promise);
+            connectDriver(tag, new WMDatabaseDriver(reactContext, databaseName, new MigrationSet(fromVersion, toVersion, migrations), unsafeNativeReuse), promise);
         } catch (Exception e) {
             disconnectDriver(tag);
             promise.reject(e);
@@ -167,7 +167,7 @@ public class DatabaseBridge extends ReactContextBaseJavaModule {
     }
 
     interface ParamFunction {
-        Object applyParamFunction(DatabaseDriver arg);
+        Object applyParamFunction(WMDatabaseDriver arg);
     }
 
     private void withDriver(final int tag, final Promise promise, final ParamFunction function, String functionName) {
@@ -192,7 +192,7 @@ public class DatabaseBridge extends ReactContextBaseJavaModule {
     }
 
 
-    private void connectDriver(int connectionTag, DatabaseDriver driver, Promise promise) {
+    private void connectDriver(int connectionTag, WMDatabaseDriver driver, Promise promise) {
         List<Runnable> queue = getQueue(connectionTag);
         connections.put(connectionTag, new Connection.Connected(driver));
 

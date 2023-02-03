@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public abstract class Connection {
     public static class Connected extends Connection {
-        public final DatabaseDriver driver;
-        public Connected(DatabaseDriver driver) {
+        public final WMDatabaseDriver driver;
+        public Connected(WMDatabaseDriver driver) {
             this.driver = driver;
         }
     }

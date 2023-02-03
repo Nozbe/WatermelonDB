@@ -14,6 +14,7 @@ public class WatermelonDBPackage implements ReactPackage {
     @Override
     public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactAppContext) {
         List<NativeModule> modules = new ArrayList<>();
+        modules.add(new WMDatabaseBridge(reactAppContext));
         modules.add(new DatabaseBridge(reactAppContext));
         return modules;
     }
