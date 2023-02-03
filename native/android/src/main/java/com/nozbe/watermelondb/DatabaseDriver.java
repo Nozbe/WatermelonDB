@@ -4,24 +4,29 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import androidx.tracing.Trace;
+
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.WritableArray;
 import com.nozbe.watermelondb.utils.MigrationSet;
+import com.nozbe.watermelondb.utils.Pair;
 import com.nozbe.watermelondb.utils.Schema;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import kotlin.Unit;
+
 public class DatabaseDriver {
-    private Context context;
-    private String dbName;
-    private boolean unsafeNativeReuse;
+    private final Database database;
 
-    private Database database;
-
-    private Logger log;
-    private Map<String, List<String>> cachedRecords;
+    private final Logger log;
+    private final Map<String, List<String>> cachedRecords;
 
     public DatabaseDriver(Context context, String dbName) {
         this(context, dbName, false);
@@ -52,9 +57,6 @@ public class DatabaseDriver {
     }
 
     public DatabaseDriver(Context context, String dbName, boolean unsafeNativeReuse) {
-        this.context = context;
-        this.dbName = dbName;
-        this.unsafeNativeReuse = unsafeNativeReuse;
         this.database = unsafeNativeReuse ? Database.getInstance(dbName, context,
                 SQLiteDatabase.CREATE_IF_NECESSARY |
                         SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING) :
@@ -68,6 +70,116 @@ public class DatabaseDriver {
         }
         this.cachedRecords = new HashMap<>();
     }
+
+    public Object find(String table, String id) {
+        if (isCached(table, id)) {
+            return id;
+        }
+        try (Cursor cursor = database.rawQuery("select * from `" + table + "` where id == ? limit 1", new String[]{id})) {
+            if (cursor.getCount() <= 0) {
+                return null;
+            }
+            markAsCached(table, id);
+            cursor.moveToFirst();
+            return DatabaseUtils.cursorToMap(cursor);
+        }
+    }
+
+    public WritableArray cachedQuery(String table, String query, Object[] args) {
+        WritableArray resultArray = Arguments.createArray();
+        try (Cursor cursor = database.rawQuery(query, args)) {
+            if (cursor.getCount() > 0 && DatabaseUtils.arrayContains(cursor.getColumnNames(), "id")) {
+                int idColumnIndex = cursor.getColumnIndex("id");
+                while (cursor.moveToNext()) {
+                    String id = cursor.getString(idColumnIndex);
+                    if (isCached(table, id)) {
+                        resultArray.pushString(id);
+                    } else {
+                        markAsCached(table, id);
+                        resultArray.pushMap(DatabaseUtils.cursorToMap(cursor));
+                    }
+                }
+            }
+        }
+        return resultArray;
+    }
+
+    public WritableArray queryIds(String query, Object[] args) {
+        WritableArray resultArray = Arguments.createArray();
+        try (Cursor cursor = database.rawQuery(query, args)) {
+            if (cursor.getCount() > 0 && DatabaseUtils.arrayContains(cursor.getColumnNames(), "id")) {
+                while (cursor.moveToNext()) {
+                    int columnIndex = cursor.getColumnIndex("id");
+                    resultArray.pushString(cursor.getString(columnIndex));
+                }
+            }
+        }
+        return resultArray;
+    }
+
+    public WritableArray unsafeQueryRaw(String query, Object[] args) {
+        WritableArray resultArray = Arguments.createArray();
+        try (Cursor cursor = database.rawQuery(query, args)) {
+            if (cursor.getCount() > 0) {
+                while (cursor.moveToNext()) {
+                    resultArray.pushMap(DatabaseUtils.cursorToMap(cursor));
+                }
+            }
+        }
+        return resultArray;
+    }
+
+    public int count(String query, Object[] args) {
+        return database.count(query, args);
+    }
+
+    public String getLocal(String key) {
+        return database.getFromLocalStorage(key);
+    }
+
+    private void batch(ReadableArray operations) {
+        List<Pair<String, String>> newIds = new ArrayList<>();
+        List<Pair<String, String>> removedIds = new ArrayList<>();
+
+        Trace.beginSection("Batch");
+        try {
+            database.beginTransaction();
+            for (int i = 0; i < operations.size(); i++) {
+                ReadableArray operation = operations.getArray(i);
+                int cacheBehavior = operation.getInt(0);
+                String table = cacheBehavior != 0 ? operation.getString(1) : "";
+                String sql = operation.getString(2);
+                ReadableArray argBatches = operation.getArray(3);
+
+                for (int j = 0; j < argBatches.size(); j++) {
+                    Object[] args = argBatches.getArray(j).toArrayList().toArray();
+                    database.execute(sql, args);
+                    if (cacheBehavior != 0) {
+                        String id = (String) args[0];
+                        if (cacheBehavior == 1) {
+                            newIds.add(Pair.create(table, id));
+                        } else if (cacheBehavior == -1) {
+                            removedIds.add(Pair.create(table, id));
+                        }
+                    }
+                }
+            }
+            database.setTransactionSuccessful();
+        } finally {
+            Trace.endSection();
+            database.endTransaction();
+        }
+
+        Trace.beginSection("updateCaches");
+        for (Pair<String, String> it : newIds) {
+            markAsCached(it.first, it.second);
+        }
+        for (Pair<String, String> it : removedIds) {
+            removeFromCache(it.first, it.second);
+        }
+        Trace.endSection();
+    }
+
 
     private void markAsCached(String table, String id) {
         // log.info("Mark as cached " + id);
@@ -92,21 +204,6 @@ public class DatabaseDriver {
         }
     }
 
-
-    public Object find(String table, String id) {
-        if (isCached(table, id)) {
-            return id;
-        }
-        try (Cursor cursor = database.rawQuery("select * from `" + table + "` where id == ? limit 1", new String[]{id})) {
-            if (cursor.getCount() <= 0) {
-                return null;
-            }
-            markAsCached(table, id);
-            cursor.moveToFirst();
-            return DatabaseUtils.cursorToMap(cursor);
-        }
-    }
-
     public void close() {
         database.close();
     }
@@ -117,17 +214,11 @@ public class DatabaseDriver {
             throw new IllegalArgumentException("Incompatible migration set applied. " +
                     "DB: " + databaseVersion + ", migration: " + migrations.from);
         }
-
-        database.beginTransaction();
-        try {
-            database.execSQL(migrations.sql);
+        database.transaction(() -> {
+            database.execute(migrations.sql, Collections.emptyList().toArray());
             database.setUserVersion(migrations.to);
-            database.setTransactionSuccessful();
-        } catch (Exception e) {
-            log.info("Error while migrating database");
-        } finally {
-            database.endTransaction();
-        }
+            return Unit.INSTANCE;
+        });
     }
 
     private void unsafeResetDatabase(Schema schema) {
@@ -137,14 +228,11 @@ public class DatabaseDriver {
         database.unsafeDestroyEverything();
         cachedRecords.clear();
         database.beginTransaction();
-        try {
+        database.transaction(() -> {
             database.unsafeExecuteStatements(schema.sql);
             database.setUserVersion(schema.version);
-        } catch (Exception e) {
-            log.info("Error while reseting database");
-        } finally {
-            database.endTransaction();
-        }
+            return Unit.INSTANCE;
+        });
     }
 
     private static class SchemaCompatibility {

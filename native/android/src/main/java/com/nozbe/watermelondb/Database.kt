@@ -156,6 +156,14 @@ class Database private constructor(private val db: SQLiteDatabase) {
         }
     }
 
+    fun beginTransaction() {
+        db.beginTransaction()
+    }
+
+    fun setTransactionSuccessful() = db.setTransactionSuccessful()
+
+    fun endTransaction() = db.endTransaction()
+
     fun close() = db.close()
 
     val isOpen

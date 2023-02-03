@@ -27,4 +27,23 @@ public class DatabaseUtils {
         }
         return map;
     }
+
+    public static <T> boolean arrayContains(final T[] array, final T value) {
+        if (value == null) {
+            for (final T e : array) {
+                if (e == null) {
+                    return true;
+                }
+            }
+        }
+        else {
+            for (final T e : array) {
+                if (e == value || value.equals(e)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }
