@@ -36,6 +36,7 @@ class BadModel extends Model {
 export default () => {
   const commonTests = []
   const it = (name, test) => commonTests.push([name, test])
+  it.only = (name, test) => commonTests.push([name, test, true])
   it('validates adapter options', async (_adapter, AdapterClass, extraAdapterOptions) => {
     const schema = { ...testSchema, version: 10 }
 
