@@ -12,7 +12,10 @@ import type {
   SqliteDispatcherOptions,
 } from '../type'
 
-const { DatabaseBridge } = NativeModules
+const { DatabaseBridge, WMDatabaseBridge } = NativeModules
+
+// TODO: Remove this after we're sure that new bridge works well
+const USE_NEW_BRIDGE_FOR_JSI_SUPPORT = true
 
 class SqliteNativeModulesDispatcher implements SqliteDispatcher {
   _tag: ConnectionTag
@@ -70,7 +73,12 @@ class SqliteJsiDispatcher implements SqliteDispatcher {
       methodName = 'batchJSON'
       args = [JSON.stringify(args[0])]
     } else if (methodName === 'provideSyncJson') {
-      fromPromise(DatabaseBridge.provideSyncJson(...args), callback)
+      fromPromise(
+        (USE_NEW_BRIDGE_FOR_JSI_SUPPORT ? WMDatabaseBridge : DatabaseBridge).provideSyncJson(
+          ...args,
+        ),
+        callback,
+      )
       return
     }
 
@@ -115,9 +123,10 @@ const initializeJSI = () => {
     return true
   }
 
-  if (DatabaseBridge.initializeJSI) {
+  const bridge = USE_NEW_BRIDGE_FOR_JSI_SUPPORT ? WMDatabaseBridge : DatabaseBridge
+  if (bridge.initializeJSI) {
     try {
-      DatabaseBridge.initializeJSI()
+      bridge.initializeJSI()
       return !!global.nativeWatermelonCreateAdapter
     } catch (e) {
       logger.error('[SQLite] Failed to initialize JSI')
