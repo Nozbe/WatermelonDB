@@ -65,7 +65,7 @@ if(EXISTS "${_nativeTesterPath}")
                 # shared sources
                 ../../../../shared/Sqlite.cpp
                 ../../../../shared/Database.cpp
-                ../../../../shared/DatabaseInstallation.cpp
+                ../../../../shared/DatabaseBridge.cpp
                 # this seems necessary to use almost any JSI API - otherwise we get linker errors
                 # seems wrong to compile a file that's already getting compiled as part of the app, but ¯\_(ツ)_/¯
                 ../../../../../node_modules/react-native/ReactCommon/jsi/jsi/jsi.cpp)
@@ -80,7 +80,7 @@ elseif(EXISTS "${_nozbeTeamsPath}")
                 # shared sources
                 ../../../../shared/Sqlite.cpp
                 ../../../../shared/Database.cpp
-                ../../../../shared/DatabaseInstallation.cpp
+                ../../../../shared/DatabaseBridge.cpp
                 ../../../../../../../../../native/node_modules/react-native/ReactCommon/jsi/jsi/jsi.cpp)
 else()
         # these paths should work for a standard RN project
@@ -92,7 +92,7 @@ else()
                 JSLockPerfHack.cpp
                 ../../../../shared/Sqlite.cpp
                 ../../../../shared/Database.cpp
-                ../../../../shared/DatabaseInstallation.cpp
+                ../../../../shared/DatabaseBridge.cpp
                 ../../../../../../../react-native/ReactCommon/jsi/jsi/jsi.cpp)
 endif()
 

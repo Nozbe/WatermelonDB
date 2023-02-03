@@ -84,7 +84,7 @@ class SqliteJsiDispatcher implements SqliteDispatcher {
         )
       }
       let result = method(...args)
-      // On Android, errors are returned, not thrown - see DatabaseInstallation.cpp
+      // On Android, errors are returned, not thrown - see DatabaseBridge.cpp
       if (result instanceof Error) {
         throw result
       } else {
