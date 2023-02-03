@@ -22,7 +22,7 @@ public class WMDatabase {
     public static WMDatabase getInstance(String name, Context context, int openFlags) {
         synchronized (WMDatabase.class) {
             if (!INSTANCES.containsKey(name) ||
-                    !(INSTANCES.get(name) == null && INSTANCES.get(name).isOpen())) {
+                    !(INSTANCES.get(name) != null && INSTANCES.get(name).isOpen())) {
                 WMDatabase database = buildDatabase(name, context, openFlags);
                 INSTANCES.put(name, database);
                 return database;
