@@ -3,6 +3,7 @@ package com.nozbe.watermelondb;
 import android.content.Context;
 import android.os.Trace;
 import androidx.annotation.NonNull;
+
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -13,6 +14,7 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.nozbe.watermelondb.utils.MigrationSet;
 import com.nozbe.watermelondb.utils.Schema;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -80,35 +82,35 @@ public class DatabaseBridge extends ReactContextBaseJavaModule {
 
     @ReactMethod
     private void find(int tag, String table, String id, Promise promise) {
-        withDriver(tag, promise, (driver) -> driver.find(table, id));
+        withDriver(tag, promise, (driver) -> driver.find(table, id), "find " + id);
     }
 
     @ReactMethod
     public void query(int tag, String table, String query, ReadableArray args, Promise promise) {
-        withDriver(tag, promise, (driver) -> driver.cachedQuery(table, query, args.toArrayList().toArray()));
+        withDriver(tag, promise, (driver) -> driver.cachedQuery(table, query, args.toArrayList().toArray()), "query");
     }
 
     @ReactMethod
     public void queryIds(int tag, String query, ReadableArray args, Promise promise) {
-        withDriver(tag, promise, (driver) -> driver.queryIds(query, args.toArrayList().toArray()));
+        withDriver(tag, promise, (driver) -> driver.queryIds(query, args.toArrayList().toArray()), "queryIds");
     }
 
     @ReactMethod
     public void unsafeQueryRaw(int tag, String query, ReadableArray args, Promise promise) {
-        withDriver(tag, promise, (driver) -> driver.unsafeQueryRaw(query, args.toArrayList().toArray()));
+        withDriver(tag, promise, (driver) -> driver.unsafeQueryRaw(query, args.toArrayList().toArray()), "unsafeQueryRaw");
     }
 
     @ReactMethod
     public void count(int tag, String query, ReadableArray args, Promise promise) {
-        withDriver(tag, promise, (driver) -> driver.count(query, args.toArrayList().toArray()));
+        withDriver(tag, promise, (driver) -> driver.count(query, args.toArrayList().toArray()), "count");
     }
 
     @ReactMethod
     public void batch(int tag, ReadableArray operations, Promise promise) {
         withDriver(tag, promise, (driver) -> {
             driver.batch(operations);
-            return null;
-        });
+            return true;
+        }, "batch");
     }
 
     @ReactMethod
@@ -116,12 +118,12 @@ public class DatabaseBridge extends ReactContextBaseJavaModule {
         withDriver(tag, promise, (driver) -> {
             driver.unsafeResetDatabase(new Schema(schemaVersion, schema));
             return null;
-        });
+        }, "unsafeResetDatabase");
     }
 
     @ReactMethod
     public void getLocal(int tag, String key, Promise promise) {
-        withDriver(tag, promise, (driver) -> driver.getLocal(key));
+        withDriver(tag, promise, (driver) -> driver.getLocal(key), "getLocal");
     }
 
     @ReactMethod(isBlockingSynchronousMethod = true)
@@ -165,23 +167,21 @@ public class DatabaseBridge extends ReactContextBaseJavaModule {
     }
 
     interface ParamFunction {
-        Object apply(DatabaseDriver arg);
+        Object applyParamFunction(DatabaseDriver arg);
     }
 
-    private void withDriver(final int tag, final Promise promise, final ParamFunction function) {
-        Method enclosingMethod = function.getClass().getEnclosingMethod();
-        String functionName = enclosingMethod != null ? enclosingMethod.getName() : "unknown";
+    private void withDriver(final int tag, final Promise promise, final ParamFunction function, String functionName) {
         try {
             Trace.beginSection("DatabaseBridge." + functionName);
             Connection connection = connections.get(tag);
             if (connection == null) {
                 promise.reject(new Exception("No driver with tag " + tag + " available"));
             } else if (connection instanceof Connection.Connected) {
-                Object result = function.apply(((Connection.Connected) connection).driver);
-                promise.resolve(result == null || result == Void.TYPE ? true : result);
+                Object result = function.applyParamFunction(((Connection.Connected) connection).driver);
+                promise.resolve(result == Void.TYPE ? true : result);
             } else if (connection instanceof Connection.Waiting) {
                 // try again when driver is ready
-                connection.getQueue().add(() -> withDriver(tag, promise, function));
+                connection.getQueue().add(() -> withDriver(tag, promise, function, functionName));
                 connections.put(tag, new Connection.Waiting(connection.getQueue()));
             }
         } catch (Exception e) {
@@ -228,7 +228,7 @@ public class DatabaseBridge extends ReactContextBaseJavaModule {
 
     @Override
     public void invalidate() {
-        // NOTE: See com.nozbe.watermelondb.Database::install() for explanation
+        // NOTE: See Database::install() for explanation
         super.invalidate();
         reactContext.getCatalystInstance().getReactQueueConfiguration().getJSQueueThread().runOnQueue(() -> {
             try {
@@ -247,7 +247,7 @@ public class DatabaseBridge extends ReactContextBaseJavaModule {
     @Deprecated
     @Override
     public void onCatalystInstanceDestroy() {
-        // NOTE: See com.nozbe.watermelondb.Database::install() for explanation
+        // NOTE: See Database::install() for explanation
         super.onCatalystInstanceDestroy();
         reactContext.getCatalystInstance().getReactQueueConfiguration().getJSQueueThread().runOnQueue(() -> {
             try {

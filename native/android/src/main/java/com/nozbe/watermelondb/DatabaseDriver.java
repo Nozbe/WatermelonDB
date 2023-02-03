@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import kotlin.Unit;
-
 public class DatabaseDriver {
     private final Database database;
 
@@ -75,7 +73,9 @@ public class DatabaseDriver {
         if (isCached(table, id)) {
             return id;
         }
-        try (Cursor cursor = database.rawQuery("select * from `" + table + "` where id == ? limit 1", new String[]{id})) {
+        Object[] args = {id};
+        try (Cursor cursor =
+                     database.rawQuery("select * from `" + table + "` where id == ? limit 1", args)) {
             if (cursor.getCount() <= 0) {
                 return null;
             }
@@ -129,7 +129,7 @@ public class DatabaseDriver {
         return resultArray;
     }
 
-    public String count(String query, Object[] args) {
+    public int count(String query, Object[] args) {
         return database.count(query, args);
     }
 
@@ -142,29 +142,32 @@ public class DatabaseDriver {
         List<Pair<String, String>> removedIds = new ArrayList<>();
 
         Trace.beginSection("Batch");
-        database.transaction(() -> {
-            for (int i = 0; i < operations.size(); i++) {
-                ReadableArray operation = operations.getArray(i);
-                int cacheBehavior = operation.getInt(0);
-                String table = cacheBehavior != 0 ? operation.getString(1) : "";
-                String sql = operation.getString(2);
-                ReadableArray argBatches = operation.getArray(3);
+        try {
+            database.transaction(() -> {
+                for (int i = 0; i < operations.size(); i++) {
+                    ReadableArray operation = operations.getArray(i);
+                    int cacheBehavior = operation.getInt(0);
+                    String table = cacheBehavior != 0 ? operation.getString(1) : "";
+                    String sql = operation.getString(2);
+                    ReadableArray argBatches = operation.getArray(3);
 
-                for (int j = 0; j < argBatches.size(); j++) {
-                    Object[] args = argBatches.getArray(j).toArrayList().toArray();
-                    database.execute(sql, args);
-                    if (cacheBehavior != 0) {
-                        String id = (String) args[0];
-                        if (cacheBehavior == 1) {
-                            newIds.add(Pair.create(table, id));
-                        } else if (cacheBehavior == -1) {
-                            removedIds.add(Pair.create(table, id));
+                    for (int j = 0; j < argBatches.size(); j++) {
+                        Object[] args = argBatches.getArray(j).toArrayList().toArray();
+                        database.execute(sql, args);
+                        if (cacheBehavior != 0) {
+                            String id = (String) args[0];
+                            if (cacheBehavior == 1) {
+                                newIds.add(Pair.create(table, id));
+                            } else if (cacheBehavior == -1) {
+                                removedIds.add(Pair.create(table, id));
+                            }
                         }
                     }
                 }
-            }
-        });
-        Trace.endSection();
+            });
+        } finally {
+            Trace.endSection();
+        }
 
         Trace.beginSection("updateCaches");
         for (Pair<String, String> it : newIds) {

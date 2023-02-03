@@ -6,7 +6,8 @@ import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.io.File;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 public class Database {
@@ -20,7 +21,8 @@ public class Database {
 
     public static Database getInstance(String name, Context context, int openFlags) {
         synchronized (Database.class) {
-            if (!INSTANCES.containsKey(name) || !(INSTANCES.get(name) == null && INSTANCES.get(name).isOpen())) {
+            if (!INSTANCES.containsKey(name) ||
+                    !(INSTANCES.get(name) == null && INSTANCES.get(name).isOpen())) {
                 Database database = buildDatabase(name, context, openFlags);
                 INSTANCES.put(name, database);
                 return database;
@@ -80,24 +82,30 @@ public class Database {
     }
 
     public Cursor rawQuery(String sql, Object[] args) {
+        // HACK: db.rawQuery only supports String args, and there's no clean way AFAIK to construct
+        // a query with arbitrary args (like with execSQL). However, we can misuse cursor factory
+        // to get the reference of a SQLiteQuery before it's executed
+        // https://github.com/aosp-mirror/platform_frameworks_base/blob/0799624dc7eb4b4641b4659af5b5ec4b9f80dd81/core/java/android/database/sqlite/SQLiteDirectCursorDriver.java#L30
+        // https://github.com/aosp-mirror/platform_frameworks_base/blob/0799624dc7eb4b4641b4659af5b5ec4b9f80dd81/core/java/android/database/sqlite/SQLiteProgram.java#L32
         String[] rawArgs = new String[args.length];
+        Arrays.fill(rawArgs, "");
         return db.rawQueryWithFactory(
-                (db1, driver, editTable, query1) -> {
+                (db1, driver, editTable, query) -> {
                     for (int i = 0; i < args.length; i++) {
                         Object arg = args[i];
                         if (arg instanceof String) {
-                            query1.bindString(i + 1, (String) arg);
+                            query.bindString(i + 1, (String) arg);
                         } else if (arg instanceof Boolean) {
-                            query1.bindLong(i + 1, (Boolean) arg ? 1 : 0);
+                            query.bindLong(i + 1, (Boolean) arg ? 1 : 0);
                         } else if (arg instanceof Double) {
-                            query1.bindDouble(i + 1, (Double) arg);
+                            query.bindDouble(i + 1, (Double) arg);
                         } else if (arg == null) {
-                            query1.bindNull(i + 1);
+                            query.bindNull(i + 1);
                         } else {
                             throw new IllegalArgumentException("Bad query arg type: " + arg.getClass().getCanonicalName());
                         }
                     }
-                    return new SQLiteCursor(driver, editTable, query1);
+                    return new SQLiteCursor(driver, editTable, query);
                 }, sql, rawArgs, null, null
         );
     }
@@ -106,18 +114,19 @@ public class Database {
         return rawQuery(sql, new Object[] {});
     }
 
-    public String count(String query, Object[] args) {
+    public int count(String query, Object[] args) {
         try (Cursor cursor = rawQuery(query, args)) {
             cursor.moveToFirst();
+            int columnIndex = cursor.getColumnIndex("count");
             if (cursor.getCount() > 0) {
-                return cursor.getString(0);
+                return cursor.getInt(columnIndex);
             } else {
-                return null;
+                return 0;
             }
         }
     }
 
-    public String count(String query) {
+    public int count(String query) {
         return this.count(query, new Object[]{});
     }
 
@@ -132,8 +141,8 @@ public class Database {
         }
     }
 
-    private List<String> getAllTables() {
-        List<String> allTables = List.of();
+    private ArrayList<String> getAllTables() {
+        ArrayList<String> allTables = new ArrayList<>();
         try (Cursor cursor = rawQuery(Queries.select_tables)) {
             cursor.moveToFirst();
             int nameIndex = cursor.getColumnIndex("name");
@@ -159,13 +168,13 @@ public class Database {
     }
 
     interface TransactionFunction {
-        void apply();
+        void applyTransactionFunction();
     }
 
     public void transaction(TransactionFunction function) {
         db.beginTransaction();
         try {
-            function.apply();
+            function.applyTransactionFunction();
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
