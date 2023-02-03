@@ -52,20 +52,17 @@ set(CMAKE_CXX_FLAGS_RELEASE "-Os")
 get_filename_component(_nativeTesterPath "../../../../../node_modules/@nozbe/sqlite/" REALPATH)
 get_filename_component(_nozbeTeamsPath "../../../../../../../../../native/node_modules/react-native/ReactCommon/jsi/jsi/" REALPATH)
 
+file(GLOB ANDROID_JSI_SRC_FILES ./*.cpp)
+file(GLOB SHARED_SRC_FILES ../../../../shared/*.cpp)
+
 if(EXISTS "${_nativeTesterPath}")
         # these paths work for WatermelonDB native tester
         add_library(watermelondb-jsi SHARED
                 # vendor files
                 ../../../../../node_modules/@nozbe/sqlite/sqlite-amalgamation-3400100/sqlite3.c
                 ../../../../../node_modules/@nozbe/simdjson/src/simdjson.cpp
-                # source files
-                JSIInstaller.cpp
-                DatabasePlatformAndroid.cpp
-                JSLockPerfHack.cpp
-                # shared sources
-                ../../../../shared/Sqlite.cpp
-                ../../../../shared/Database.cpp
-                ../../../../shared/DatabaseBridge.cpp
+                ${ANDROID_JSI_SRC_FILES}
+                ${SHARED_SRC_FILES}
                 # this seems necessary to use almost any JSI API - otherwise we get linker errors
                 # seems wrong to compile a file that's already getting compiled as part of the app, but ¯\_(ツ)_/¯
                 ../../../../../node_modules/react-native/ReactCommon/jsi/jsi/jsi.cpp)
@@ -74,25 +71,16 @@ elseif(EXISTS "${_nozbeTeamsPath}")
         add_library(watermelondb-jsi SHARED
                 ../../../../../../sqlite/sqlite-amalgamation-3400100/sqlite3.c
                 ../../../../../../simdjson/src/simdjson.cpp
-                JSIInstaller.cpp
-                DatabasePlatformAndroid.cpp
-                JSLockPerfHack.cpp
-                # shared sources
-                ../../../../shared/Sqlite.cpp
-                ../../../../shared/Database.cpp
-                ../../../../shared/DatabaseBridge.cpp
+                ${ANDROID_JSI_SRC_FILES}
+                ${SHARED_SRC_FILES}
                 ../../../../../../../../../native/node_modules/react-native/ReactCommon/jsi/jsi/jsi.cpp)
 else()
         # these paths should work for a standard RN project
         add_library(watermelondb-jsi SHARED
                 ../../../../../../sqlite/sqlite-amalgamation-3400100/sqlite3.c
                 ../../../../../../simdjson/src/simdjson.cpp
-                JSIInstaller.cpp
-                DatabasePlatformAndroid.cpp
-                JSLockPerfHack.cpp
-                ../../../../shared/Sqlite.cpp
-                ../../../../shared/Database.cpp
-                ../../../../shared/DatabaseBridge.cpp
+                ${ANDROID_JSI_SRC_FILES}
+                ${SHARED_SRC_FILES}
                 ../../../../../../../react-native/ReactCommon/jsi/jsi/jsi.cpp)
 endif()
 
