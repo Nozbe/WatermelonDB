@@ -14,33 +14,32 @@ get_filename_component(_nozbePath "../../../../../../../../../native/node_module
 
 if(EXISTS "${_nativeTesterPath}")
         # these paths work for WatermelonDB native tester
-        set(NODE_MODULES_NOZBE_PREFIX ../../../../../node_modules/@nozbe/)
-        set(NODE_MODULES_RN_PREFIX    ../../../../../node_modules/react-native/)
+        set(NODE_MODULES_PATH_WM ../../../../../node_modules/)
+        set(NODE_MODULES_PATH_RN ../../../../../node_modules/)
 elseif(EXISTS "${_nozbePath}")
         # these paths work for Nozbe
-        set(NODE_MODULES_NOZBE_PREFIX ../../../../../../)
-        set(NODE_MODULES_RN_PREFIX    ../../../../../../../../../native/node_modules/react-native/)
+        set(NODE_MODULES_PATH_WM ../../../../../../../)
+        set(NODE_MODULES_PATH_RN ../../../../../../../../../native/node_modules/)
 else()
         # these paths should work for a standard RN project
-        set(NODE_MODULES_NOZBE_PREFIX ../../../../../../)
-        set(NODE_MODULES_RN_PREFIX    ../../../../../../../react-native/)
+        set(NODE_MODULES_PATH_WM ../../../../../../../)
+        set(NODE_MODULES_PATH_RN ../../../../../../../)
 endif()
-
-file(GLOB ANDROID_JSI_SRC_FILES ./*.cpp)
-file(GLOB SHARED_SRC_FILES ../../../../shared/*.cpp)
 
 # -------------------------------------------------
 # Header search paths
 # FIXME: <simdjson/simdjson.h> should work…
 
+set(SQLITE_VERSION sqlite-amalgamation-3400100)
+
 include_directories(
         ../../../../shared
-        ${NODE_MODULES_NOZBE_PREFIX}/sqlite/sqlite-amalgamation-3400100/
-        ${NODE_MODULES_NOZBE_PREFIX}/simdjson/src/
-        ${NODE_MODULES_RN_PREFIX}/React
-        ${NODE_MODULES_RN_PREFIX}/React/Base
-        ${NODE_MODULES_RN_PREFIX}/ReactCommon
-        ${NODE_MODULES_RN_PREFIX}/ReactCommon/jsi
+        ${NODE_MODULES_PATH_WM}/@nozbe/sqlite/${SQLITE_VERSION}/
+        ${NODE_MODULES_PATH_WM}/@nozbe/simdjson/src/
+        ${NODE_MODULES_PATH_RN}/react-native/React
+        ${NODE_MODULES_PATH_RN}/react-native/React/Base
+        ${NODE_MODULES_PATH_RN}/react-native/ReactCommon
+        ${NODE_MODULES_PATH_RN}/react-native/ReactCommon/jsi
         # these seem necessary only if we import <jsi/JSIDynamic.h>
         #  ../../../../../node_modules/react-native/third-party/folly-2018.10.22.00
         #  ../../../../../node_modules/react-native/third-party/double-conversion-1.1.6
@@ -67,16 +66,19 @@ set(CMAKE_CXX_FLAGS_RELEASE "-Os")
 # -------------------------------------------------
 # Source files
 
+file(GLOB ANDROID_JSI_SRC_FILES ./*.cpp)
+file(GLOB SHARED_SRC_FILES ../../../../shared/*.cpp)
+
 add_library(watermelondb-jsi SHARED
         # vendor files
-        ${NODE_MODULES_NOZBE_PREFIX}/sqlite/sqlite-amalgamation-3400100/sqlite3.c
-        ${NODE_MODULES_NOZBE_PREFIX}/simdjson/src/simdjson.cpp
+        ${NODE_MODULES_PATH_WM}/@nozbe/sqlite/${SQLITE_VERSION}/sqlite3.c
+        ${NODE_MODULES_PATH_WM}/@nozbe/simdjson/src/simdjson.cpp
         # our sources
         ${ANDROID_JSI_SRC_FILES}
         ${SHARED_SRC_FILES}
         # this seems necessary to use almost any JSI API - otherwise we get linker errors
         # seems wrong to compile a file that's already getting compiled as part of the app, but ¯\_(ツ)_/¯
-        ${NODE_MODULES_RN_PREFIX}/ReactCommon/jsi/jsi/jsi.cpp)
+        ${NODE_MODULES_PATH_RN}/react-native/ReactCommon/jsi/jsi/jsi.cpp)
 
 target_link_libraries(watermelondb-jsi
                       # link with these libraries:
