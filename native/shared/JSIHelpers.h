@@ -1,6 +1,10 @@
+#pragma once
 #include "JSLockPerfHack.h"
 
 namespace watermelondb {
+
+using platform::consoleError;
+using platform::consoleLog;
 
 jsi::Value makeError(facebook::jsi::Runtime &rt, const std::string &desc) {
     return rt.global().getPropertyAsFunction(rt, "Error").call(rt, desc);

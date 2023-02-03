@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 3.4.1)
 # inspired by https://github.com/ericlewis/react-native-hostobject-demo/blob/6f16c01db80f928ccd294c8cc5d4668b0f8c15ec/android/app/CMakeLists.txt
 # execute_process (COMMAND ln "-s" "src" "../../../../../node_modules/react-native/third-party/double-conversion-1.1.6/double-conversion")
 
+set(WMELON_JSI_BUMP 1)
+
 # -------------------------------------------------
 # Figure out where node_modules is
 # (surely there's a better way to do this)
