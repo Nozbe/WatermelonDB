@@ -1,6 +1,0 @@
-framework module reacthermes {
-  umbrella header "React-hermes-umbrella.h"
-
-  export *
-  module * { export * }
-}
