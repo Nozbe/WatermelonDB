@@ -214,7 +214,7 @@ public class DatabaseDriver {
                     "DB: " + databaseVersion + ", migration: " + migrations.from);
         }
         database.transaction(() -> {
-            database.execute(migrations.sql, Collections.emptyList().toArray());
+            database.unsafeExecuteStatements(migrations.sql);
             database.setUserVersion(migrations.to);
         });
     }
