@@ -1,6 +1,6 @@
 {
   "name": "WatermelonDB",
-  "version": "0.26.0-5",
+  "version": "0.26.0-7",
   "summary": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
   "homepage": "https://github.com/Nozbe/WatermelonDB#readme",
@@ -14,7 +14,7 @@
   },
   "source": {
     "git": "https://github.com/Nozbe/WatermelonDB.git",
-    "tag": "v0.26.0-5"
+    "tag": "v0.26.0-7"
   },
   "source_files": [
     "native/ios/**/*.{h,m,mm,swift,c,cpp}",
