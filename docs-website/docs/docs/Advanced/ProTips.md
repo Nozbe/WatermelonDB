@@ -15,6 +15,16 @@ hide_title: true
 
 **iOS** - check open database path in iOS System Log (via Console for plugged-in device, or Xcode logs, or [by using `find`](https://github.com/Nozbe/WatermelonDB/issues/710#issuecomment-776255654)), then open it via `sqlite3` in the console, or an external tool like [sqlitebrowser](https://sqlitebrowser.org)
 
+## Which SQLite version am I using?
+
+This usually only matters if you use raw SQL to use new SQLite versions:
+
+- On iOS, we use whatever SQLite version is bundled with the OS. [Here's a table of iOS version - SQLite version matches](https://github.com/yapstudios/YapDatabase/wiki/SQLite-version-(bundled-with-OS))
+- On Android in JSI mode, we use SQLite bundled with WatermelonDB. See `@nozbe/sqlite` NPM dependency version to see which SQLite version is bundled.
+- On Android NOT in JSI mode, we use the SQLite bundled with the OS
+
+BTW: We're happy to accept contributions so that you can choose custom version or build of SQLite in all modes and on all platforms, but it needs to be opt-in (this adds to build time and binary size and most people don't need this)
+
 ## Prepopulating database on native
 
 There's no built-in support for this. One way is to generate a SQLite DB (you can use the the Node SQLite support in 0.19.0-2 pre-release or extract it from an ios/android app), bundle it with the app, and then use a bit of code to check if the DB you're expecting it available, and if not, making a copy of the default DB — before you attempt loading DB from JS side. [See discussion](https://github.com/Nozbe/WatermelonDB/issues/774#issuecomment-667981361)
