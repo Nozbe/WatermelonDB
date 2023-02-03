@@ -8,10 +8,10 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableArray
+import com.facebook.react.bridge.WritableArray
 import com.nozbe.watermelondb.utils.MigrationSet
 import com.nozbe.watermelondb.utils.Schema
 import java.util.logging.Logger
-import kotlin.collections.ArrayList
 
 class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
@@ -39,6 +39,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         tag: ConnectionTag,
         databaseName: String,
         schemaVersion: Int,
+        unsafeNativeReuse: Boolean,
         promise: Promise
     ) {
         assert(connections[tag] == null) { "A driver with tag $tag already set up" }
@@ -49,7 +50,8 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
                 driver = DatabaseDriver(
                     context = reactContext,
                     dbName = databaseName,
-                    schemaVersion = schemaVersion
+                    schemaVersion = schemaVersion,
+                    unsafeNativeReuse = unsafeNativeReuse,
                 )
             )
             promiseMap.putString("code", "ok")
@@ -74,15 +76,17 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         databaseName: String,
         schema: SQL,
         schemaVersion: SchemaVersion,
+        unsafeNativeReuse: Boolean,
         promise: Promise
     ) = connectDriver(
         connectionTag = tag,
         driver = DatabaseDriver(
             context = reactContext,
             dbName = databaseName,
-            schema = Schema(schemaVersion, schema)
+            schema = Schema(schemaVersion, schema),
+            unsafeNativeReuse = unsafeNativeReuse,
         ),
-        promise = promise
+        promise = promise,
     )
 
     @ReactMethod
@@ -92,6 +96,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         migrations: SQL,
         fromVersion: SchemaVersion,
         toVersion: SchemaVersion,
+        unsafeNativeReuse: Boolean,
         promise: Promise
     ) {
         try {
@@ -100,13 +105,10 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
                 driver = DatabaseDriver(
                     context = reactContext,
                     dbName = databaseName,
-                    migrations = MigrationSet(
-                        fromVersion,
-                        toVersion,
-                        migrations
-                    )
+                    migrations = MigrationSet(fromVersion, toVersion, migrations),
+                    unsafeNativeReuse = unsafeNativeReuse,
                 ),
-                promise = promise
+                promise = promise,
             )
         } catch (e: Exception) {
             disconnectDriver(tag)
@@ -125,8 +127,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         query: SQL,
         args: ReadableArray,
         promise: Promise
-    ) =
-        withDriver(tag, promise) { it.cachedQuery(table, query, args.toArrayList().toArray()) }
+    ) = withDriver(tag, promise) { it.cachedQuery(table, query, args.toArrayList().toArray()) }
 
     @ReactMethod
     fun queryIds(tag: ConnectionTag, query: SQL, args: ReadableArray, promise: Promise) =
@@ -156,6 +157,32 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     fun getLocal(tag: ConnectionTag, key: String, promise: Promise) =
         withDriver(tag, promise) { it.getLocal(key) }
 
+    @ReactMethod(isBlockingSynchronousMethod = true)
+    fun unsafeGetLocalSynchronously(tag: ConnectionTag, key: String): WritableArray {
+        try {
+            when (
+                val connection =
+                    connections[tag] ?: throw (Exception("No driver with tag $tag available"))
+            ) {
+                is Connection.Connected -> {
+                    val value = connection.driver.getLocal(key)
+                    return Arguments.createArray().also {
+                        it.pushString("result")
+                        it.pushString(value)
+                    }
+                }
+                is Connection.Waiting -> {
+                    throw Exception("Waiting connection unexpected for unsafeGetLocalSynchronously")
+                }
+            }
+        } catch (e: Exception) {
+            return Arguments.createArray().also {
+                it.pushString("error")
+                it.pushString(e.message)
+            }
+        }
+    }
+
     @Throws(Exception::class)
     private fun withDriver(
         tag: ConnectionTag,
@@ -165,10 +192,12 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         val functionName = function.javaClass.enclosingMethod?.name
         try {
             Trace.beginSection("DatabaseBridge.$functionName")
-            when (val connection =
-                connections[tag] ?: promise.reject(
-                    Exception("No driver with tag $tag available")
-                )) {
+            when (
+                val connection =
+                    connections[tag] ?: promise.reject(
+                        Exception("No driver with tag $tag available")
+                    )
+            ) {
                 is Connection.Connected -> {
                     val result = function(connection.driver)
                     promise.resolve(

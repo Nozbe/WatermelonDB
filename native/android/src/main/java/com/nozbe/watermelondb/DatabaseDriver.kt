@@ -1,22 +1,25 @@
 package com.nozbe.watermelondb
 
-import android.os.Trace
 import android.content.Context
 import android.database.Cursor
+import android.os.Trace
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.WritableArray
 import com.nozbe.watermelondb.utils.MigrationSet
 import com.nozbe.watermelondb.utils.Schema
-import java.lang.Exception
 import java.util.logging.Logger
 
-class DatabaseDriver(context: Context, dbName: String) {
+class DatabaseDriver(context: Context, dbName: String, unsafeNativeReuse: Boolean = false) {
     class SchemaNeededError : Exception()
     data class MigrationNeededError(val databaseVersion: SchemaVersion) : Exception()
 
-    constructor(context: Context, dbName: String, schemaVersion: SchemaVersion) :
-            this(context, dbName) {
+    constructor(
+        context: Context,
+        dbName: String,
+        schemaVersion: SchemaVersion,
+        unsafeNativeReuse: Boolean = false
+    ) : this(context, dbName, unsafeNativeReuse) {
         when (val compatibility = isCompatible(schemaVersion)) {
             is SchemaCompatibility.NeedsSetup -> throw SchemaNeededError()
             is SchemaCompatibility.NeedsMigration ->
@@ -25,19 +28,30 @@ class DatabaseDriver(context: Context, dbName: String) {
         }
     }
 
-    constructor(context: Context, dbName: String, schema: Schema) : this(context, dbName) {
+    constructor(
+        context: Context,
+        dbName: String,
+        schema: Schema,
+        unsafeNativeReuse: Boolean = false
+    ) : this(context, dbName, unsafeNativeReuse) {
         unsafeResetDatabase(schema)
     }
 
-    constructor(context: Context, dbName: String, migrations: MigrationSet) :
-            this(context, dbName) {
+    constructor(
+        context: Context,
+        dbName: String,
+        migrations: MigrationSet,
+        unsafeNativeReuse: Boolean = false
+    ) : this(context, dbName, unsafeNativeReuse) {
         migrate(migrations)
     }
 
-    private val database: Database = Database(dbName, context)
-
+    private val database: Database = if (unsafeNativeReuse) {
+        Database.getInstance(dbName, context)
+    } else {
+        Database.buildDatabase(dbName, context)
+    }
     private val log: Logger? = if (BuildConfig.DEBUG) Logger.getLogger("DB_Driver") else null
-
     private val cachedRecords: MutableMap<TableName, MutableList<RecordID>> = mutableMapOf()
 
     fun find(table: TableName, id: RecordID): Any? {
@@ -62,8 +76,8 @@ class DatabaseDriver(context: Context, dbName: String) {
         database.rawQuery(query, args).use {
             if (it.count > 0 && it.columnNames.contains("id")) {
                 while (it.moveToNext()) {
-                    val index = it.getColumnIndex("id")
-                    val id = it.getString(index)
+                    val idColumnIndex = it.getColumnIndex("id")
+                    val id = it.getString(idColumnIndex)
                     if (isCached(table, id)) {
                         resultArray.pushString(id)
                     } else {
@@ -81,8 +95,8 @@ class DatabaseDriver(context: Context, dbName: String) {
         database.rawQuery(query, args).use {
             if (it.count > 0 && it.columnNames.contains("id")) {
                 while (it.moveToNext()) {
-                    val index = it.getColumnIndex("id")
-                    resultArray.pushString(it.getString(index))
+                    val idColumnIndex = it.getColumnIndex("id")
+                    resultArray.pushString(it.getString(idColumnIndex))
                 }
             }
         }
@@ -122,14 +136,14 @@ class DatabaseDriver(context: Context, dbName: String) {
         try {
             database.transaction {
                 for (i in 0 until operations.size()) {
-                    val operation = operations.getArray(i)!!
+                    val operation = operations.getArray(i)
                     val cacheBehavior = operation.getInt(0)
-                    val table = if (cacheBehavior != 0) operation.getString(1)!! else ""
-                    val sql = operation.getString(2) as SQL
-                    val argBatches = operation.getArray(3)!!
+                    val table = if (cacheBehavior != 0) operation.getString(1) else ""
+                    val sql = operation.getString(2)
+                    val argBatches = operation.getArray(3)
 
                     for (j in 0 until argBatches.size()) {
-                        val args = argBatches.getArray(j)!!.toArrayList().toArray()
+                        val args = argBatches.getArray(j).toArrayList().toArray()
                         database.execute(sql, args)
                         if (cacheBehavior != 0) {
                             val id = args[0] as RecordID
@@ -173,14 +187,14 @@ class DatabaseDriver(context: Context, dbName: String) {
     }
 
     private fun isCached(table: TableName, id: RecordID): Boolean =
-            cachedRecords[table]?.contains(id) ?: false
+        cachedRecords[table]?.contains(id) ?: false
 
     private fun removeFromCache(table: TableName, id: RecordID) = cachedRecords[table]?.remove(id)
 
     private fun migrate(migrations: MigrationSet) {
         require(database.userVersion == migrations.from) {
             "Incompatible migration set applied. " +
-                    "DB: ${database.userVersion}, migration: ${migrations.from}"
+                "DB: ${database.userVersion}, migration: ${migrations.from}"
         }
 
         database.transaction {
@@ -196,15 +210,17 @@ class DatabaseDriver(context: Context, dbName: String) {
     }
 
     private fun isCompatible(schemaVersion: SchemaVersion): SchemaCompatibility =
-            when (val databaseVersion = database.userVersion) {
-                schemaVersion -> SchemaCompatibility.Compatible
-                0 -> SchemaCompatibility.NeedsSetup
-                in 1 until schemaVersion ->
-                    SchemaCompatibility.NeedsMigration(fromVersion = databaseVersion)
-                else -> {
-                    log?.info("Database has newer version ($databaseVersion) than what the " +
-                            "app supports ($schemaVersion). Will reset database.")
-                    SchemaCompatibility.NeedsSetup
-                }
+        when (val databaseVersion = database.userVersion) {
+            schemaVersion -> SchemaCompatibility.Compatible
+            0 -> SchemaCompatibility.NeedsSetup
+            in 1 until schemaVersion ->
+                SchemaCompatibility.NeedsMigration(fromVersion = databaseVersion)
+            else -> {
+                log?.info(
+                    "Database has newer version ($databaseVersion) than what the " +
+                        "app supports ($schemaVersion). Will reset database."
+                )
+                SchemaCompatibility.NeedsSetup
             }
+        }
 }
