@@ -20,8 +20,8 @@ const SQLiteAdapterTest = (spec) => {
     { name: 'SQLiteAdapter (JSI mode)', options: { jsi: true }, expectedDispatcherType: 'jsi' },
   ]
 
-  configurations.forEach(({ name, options, expectedDispatcherType }) => {
-    spec.describe(name, () => {
+  configurations.forEach(({ name: configurationName, options, expectedDispatcherType }) => {
+    spec.describe(configurationName, () => {
       spec.it('configures adapter correctly', () => {
         const adapter = new SQLiteAdapter({ schema: testSchema, ...options })
         expect(adapter._dispatcherType).toBe(expectedDispatcherType)
