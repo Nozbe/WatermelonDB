@@ -9,6 +9,8 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.WritableArray
+import com.nozbe.watermelondb.utils.MigrationSet
+import com.nozbe.watermelondb.utils.Schema
 import java.util.logging.Logger
 
 class DatabaseBridge(private val reactContext: ReactApplicationContext) :
@@ -81,10 +83,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         driver = DatabaseDriver(
             context = reactContext,
             dbName = databaseName,
-            schema = Schema(
-                version = schemaVersion,
-                sql = schema
-            ),
+            schema = Schema(schemaVersion, schema),
             unsafeNativeReuse = unsafeNativeReuse,
         ),
         promise = promise,
@@ -106,11 +105,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
                 driver = DatabaseDriver(
                     context = reactContext,
                     dbName = databaseName,
-                    migrations = MigrationSet(
-                        from = fromVersion,
-                        to = toVersion,
-                        sql = migrations
-                    ),
+                    migrations = MigrationSet(fromVersion, toVersion, migrations),
                     unsafeNativeReuse = unsafeNativeReuse,
                 ),
                 promise = promise,

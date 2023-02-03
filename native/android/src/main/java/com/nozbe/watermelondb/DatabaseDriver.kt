@@ -6,6 +6,8 @@ import android.os.Trace
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.WritableArray
+import com.nozbe.watermelondb.utils.MigrationSet
+import com.nozbe.watermelondb.utils.Schema
 import java.util.logging.Logger
 
 class DatabaseDriver(context: Context, dbName: String, unsafeNativeReuse: Boolean = false) {
@@ -134,14 +136,14 @@ class DatabaseDriver(context: Context, dbName: String, unsafeNativeReuse: Boolea
         try {
             database.transaction {
                 for (i in 0 until operations.size()) {
-                    val operation = operations.getArray(i)!!
+                    val operation = operations.getArray(i)
                     val cacheBehavior = operation.getInt(0)
-                    val table = if (cacheBehavior != 0) operation.getString(1)!! else ""
-                    val sql = operation.getString(2) as SQL
-                    val argBatches = operation.getArray(3)!!
+                    val table = if (cacheBehavior != 0) operation.getString(1) else ""
+                    val sql = operation.getString(2)
+                    val argBatches = operation.getArray(3)
 
                     for (j in 0 until argBatches.size()) {
-                        val args = argBatches.getArray(j)!!.toArrayList().toArray()
+                        val args = argBatches.getArray(j).toArrayList().toArray()
                         database.execute(sql, args)
                         if (cacheBehavior != 0) {
                             val id = args[0] as RecordID
