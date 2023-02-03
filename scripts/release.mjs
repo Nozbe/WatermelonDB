@@ -158,7 +158,9 @@ const buildTasks = (options) => {
       task: () => {
         console.log('\u0007')
         return listrInput('2-Factor Authentication code', {
-          validate: (otp) => otp.match(/\d{6}/),
+          validate: (otp) => {
+            return Boolean(otp && otp.match(/\d{6}/))
+          },
           done: (otp) =>
             execa('npm', [
               'publish',
