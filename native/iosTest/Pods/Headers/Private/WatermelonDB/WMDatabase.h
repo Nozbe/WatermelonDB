@@ -1,1 +1,1 @@
-../../../../../ios/WatermelonDB/WMDatabase.h
+../../../../../ios/WatermelonDB/objc/WMDatabase.h

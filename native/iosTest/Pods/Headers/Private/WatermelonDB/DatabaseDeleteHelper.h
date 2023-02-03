@@ -1,1 +1,1 @@
-../../../../../ios/WatermelonDB/DatabaseDeleteHelper.h
+../../../../../ios/WatermelonDB/swift/DatabaseDeleteHelper.h

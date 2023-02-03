@@ -49,4 +49,6 @@
 
 ### Internal
 
-- Clean up QueryDescription
+- Cleaned up QueryDescription, ios folder structure, JSI implementation by splitting them into smaller parts.
+- [Android] [jsi] Simplify CMakeLists
+- Improve release script

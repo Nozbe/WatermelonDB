@@ -44,6 +44,7 @@ const DIR_PATH = isDevelopment ? DEV_PATH : DIST_PATH
 
 const DO_NOT_BUILD_PATHS = [
   /__tests__/,
+  /__typetests__/,
   /__playground__/,
   /test\.js/,
   /integrationTest/,

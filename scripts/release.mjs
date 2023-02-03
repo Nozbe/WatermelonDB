@@ -87,7 +87,7 @@ const buildTasks = (options) => {
             title: 'check current branch',
             task: () =>
               execa('git', ['symbolic-ref', '--short', 'HEAD']).then((info) => {
-                if (!(info.stdout.branch === 'master' || info.stdout.branch.startsWith('release/'))) {
+                if (!(info.stdout === 'master' || info.stdout.startsWith('release/'))) {
                   throwError('releases should be made from `master` or `release/xxx` branch')(info)
                 }
               }),
@@ -96,7 +96,7 @@ const buildTasks = (options) => {
             title: 'check local working tree',
             task: () =>
               execa('git', ['status', '--porcelain']).then((info) => {
-                if (info.stdout.status !== '') {
+                if (info.stdout !== '') {
                   throwError('commit or stash changes first')(info)
                 }
               }),
@@ -105,7 +105,7 @@ const buildTasks = (options) => {
             title: 'check remote history',
             task: () =>
               execa('git', ['rev-list', '--count', '--left-only', '@{u}...HEAD']).then((info) => {
-                if (info.stdout.result !== '0') {
+                if (info.stdout !== '0') {
                   throwError('please pull changes first')(info)
                 }
               }),
@@ -158,7 +158,9 @@ const buildTasks = (options) => {
       task: () => {
         console.log('\u0007')
         return listrInput('2-Factor Authentication code', {
-          validate: (otp) => otp.length > 0,
+          validate: (otp) => {
+            return Boolean(otp && otp.match(/\d{6}/))
+          },
           done: (otp) =>
             execa('npm', [
               'publish',
