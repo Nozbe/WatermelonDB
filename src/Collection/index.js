@@ -2,7 +2,7 @@
 import { Observable, Subject } from '../utils/rx'
 import invariant from '../utils/common/invariant'
 import deprecated from '../utils/common/deprecated'
-import noop from '../utils/fp/noop'
+import { noop, type ArrayOrSpreadFn, fromArrayOrSpread } from '../utils/fp'
 import { type ResultCallback, toPromise, mapValue } from '../utils/fp/Result'
 import { type Unsubscribe } from '../utils/subscriptions'
 
@@ -79,7 +79,8 @@ export default class Collection<Record: Model> {
   }
 
   // Query records of this type
-  query(...clauses: Clause[]): Query<Record> {
+  query: ArrayOrSpreadFn<Clause, Query<Record>> = (...args) => {
+    const clauses = fromArrayOrSpread<Clause>(args, 'Collection.query', 'Clause')
     return new Query(this, clauses)
   }
 

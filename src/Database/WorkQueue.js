@@ -52,7 +52,7 @@ class WriterInterfaceImpl extends ReaderInterfaceImpl implements WriterInterface
 
   batch(...records: any): Promise<any> {
     this.__validateQueue()
-    return this.__workQueue._db.batch(...records)
+    return this.__workQueue._db.batch(records)
   }
 }
 

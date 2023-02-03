@@ -158,17 +158,19 @@ export default class Model {
   async experimentalMarkAsDeleted(): Promise<void> {
     this.db._ensureInWriter(`Model.experimental_markAsDeleted()`)
     this.__ensureNotDisposable(`Model.experimentalMarkAsDeleted()`)
-    const children = await fetchDescendants(this)
-    children.forEach((model) => model.prepareMarkAsDeleted())
-    await this.db.batch(...children, this.prepareMarkAsDeleted())
+    const records = await fetchDescendants(this)
+    records.forEach((model) => model.prepareMarkAsDeleted())
+    records.push(this.prepareMarkAsDeleted())
+    await this.db.batch(records)
   }
 
   async experimentalDestroyPermanently(): Promise<void> {
     this.db._ensureInWriter(`Model.experimental_destroyPermanently()`)
     this.__ensureNotDisposable(`Model.experimentalDestroyPermanently()`)
-    const children = await fetchDescendants(this)
-    children.forEach((model) => model.prepareDestroyPermanently())
-    await this.db.batch(...children, this.prepareDestroyPermanently())
+    const records = await fetchDescendants(this)
+    records.forEach((model) => model.prepareDestroyPermanently())
+    records.push(this.prepareDestroyPermanently())
+    await this.db.batch(records)
   }
 
   // *** Observing changes ***
@@ -205,7 +207,7 @@ export default class Model {
   // To be used by Model @writer methods only!
   // TODO: protect batch,callWriter,... from being used outside a @reader/@writer
   batch(...records: $ReadOnlyArray<Model | null | void | false>): Promise<void> {
-    return this.db.batch(...records)
+    return this.db.batch((records: any))
   }
 
   // To be used by Model @writer methods only!

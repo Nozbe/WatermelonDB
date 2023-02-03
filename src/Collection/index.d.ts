@@ -1,6 +1,7 @@
 // @flow
 import { Observable, Subject } from '../utils/rx'
 import type { ResultCallback } from '../utils/fp/Result'
+import type { ArrayOrSpreadFn } from '../utils/fp'
 import type { Unsubscribe } from '../utils/subscriptions'
 
 import Query from '../Query'
@@ -41,7 +42,7 @@ export default class Collection<Record extends Model> {
   findAndObserve(id: RecordId): Observable<Record>
 
   // Query records of this type
-  query(...clauses: Clause[]): Query<Record>
+  query: ArrayOrSpreadFn<Clause, Query<Record>>
 
   // Creates a new record in this collection
   // Pass a function to set attributes of the record.

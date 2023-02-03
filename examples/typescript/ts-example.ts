@@ -7,6 +7,7 @@ import SQLiteAdapter from "@nozbe/watermelondb/adapters/sqlite"
 import { Associations } from '@nozbe/watermelondb/Model'
 import { SyncDatabaseChangeSet, synchronize } from "@nozbe/watermelondb/sync"
 import { AppSchema } from "./AppSchema"
+import './__typetests__'
 // Create an enum for all Table Names.
 // This will help in documenting where all exact table names need to be passed.
 export enum TableName {

@@ -25,6 +25,18 @@ describe('Collection', () => {
 
     expect(projects.schema).toBe(testSchema.tables.mock_projects)
   })
+  it(`exposes query()`, () => {
+    const { tasks } = mockDatabase()
+    const conditions = [Q.where('a', 'b'), Q.where('c', 'd')]
+    const query = tasks.query(...conditions)
+    expect(query).toBeInstanceOf(Query)
+    expect(query.collection).toBe(tasks)
+  })
+  it(`query() can accept both a spread and an array`, () => {
+    const { tasks } = mockDatabase()
+    const conditions = [Q.where('a', 'b'), Q.where('c', 'd')]
+    expect(tasks.query(...conditions).description).toEqual(tasks.query(conditions).description)
+  })
 })
 
 describe('finding records', () => {

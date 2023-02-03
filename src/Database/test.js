@@ -310,10 +310,7 @@ describe('Database', () => {
     })
     it(`throws an error if invalid arguments`, async () => {
       const { database } = mockDatabase()
-      await expectToRejectWithMessage(
-        database.batch([], null),
-        'batch should be called with a list',
-      )
+      await expectToRejectWithMessage(database.batch([], null), 'multiple arrays were passed')
     })
   })
 

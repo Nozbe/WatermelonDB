@@ -447,6 +447,11 @@ describe('buildQueryDescription', () => {
       Q.on('projects', [Q.where('foo', 'bar'), Q.where('bar', 'baz')]),
     )
   })
+  it(`supports passing conditions as array or via spread`, () => {
+    const conditions = [Q.where('col1', 'value'), Q.where('col2', true), Q.where('col3', null)]
+    expect(Q.and(...conditions)).toEqual(Q.and(conditions))
+    expect(Q.or(...conditions)).toEqual(Q.or(conditions))
+  })
   it(`does not compress top-level Q.ons into a single nested Q.on`, () => {
     // TODO: Remove this test after deprecation warning is removed
     expect(

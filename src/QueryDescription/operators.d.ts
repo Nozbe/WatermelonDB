@@ -1,4 +1,5 @@
 import type { TableName, ColumnName } from '../Schema'
+import type { ArrayOrSpreadFn } from '../utils/fp'
 import type {
   NonNullValue,
   NonNullValues,
@@ -99,8 +100,6 @@ export function includes(value: string): Comparison
 
 export function column(name: ColumnName): ColumnDescription
 
-// function _valueOrComparison(arg: Value | Comparison): Comparison
-
 export function where(left: ColumnName, valueOrComparison: Value | Comparison): WhereDescription
 
 export function unsafeSqlExpr(sql: string): SqlExpr
@@ -109,9 +108,8 @@ export function unsafeLokiExpr(expr: any): LokiExpr
 
 export function unsafeLokiTransform(fn: LokiTransformFunction): LokiTransform
 
-export function and(...clauses: Where[]): And
-
-export function or(...clauses: Where[]): Or
+export const and: ArrayOrSpreadFn<Where, And>
+export const or: ArrayOrSpreadFn<Where, Or>
 
 export const asc: SortOrder
 export const desc: SortOrder

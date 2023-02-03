@@ -4,6 +4,7 @@
 // don't import whole `utils` to keep worker size small
 import invariant from '../utils/common/invariant'
 import checkName from '../utils/fp/checkName'
+import fromArrayOrSpread, { type ArrayOrSpreadFn } from '../utils/fp/arrayOrSpread'
 import { type TableName, type ColumnName } from '../Schema'
 
 import { validateConditions } from './helpers'
@@ -197,12 +198,14 @@ export function unsafeLokiTransform(fn: LokiTransformFunction): LokiTransform {
   return { type: 'lokiTransform', function: fn }
 }
 
-export function and(...clauses: Where[]): And {
+export const and: ArrayOrSpreadFn<Where, And> = (...args): And => {
+  const clauses = fromArrayOrSpread<Where>(args, 'Q.and()', 'Where')
   validateConditions(clauses)
   return { type: 'and', conditions: clauses }
 }
 
-export function or(...clauses: Where[]): Or {
+export const or: ArrayOrSpreadFn<Where, Or> = (...args): Or => {
+  const clauses = fromArrayOrSpread<Where>(args, 'Q.or()', 'Where')
   validateConditions(clauses)
   return { type: 'or', conditions: clauses }
 }
