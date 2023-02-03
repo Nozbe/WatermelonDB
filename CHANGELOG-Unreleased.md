@@ -52,3 +52,4 @@
 - Clean up QueryDescription
 - [Android] [jsi] Simplify CMakeLists
 - [iOS] Clean up folder structure
+- Improve release script
