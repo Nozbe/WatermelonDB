@@ -1,5 +1,6 @@
 package com.nozbe.watermelondb;
 
+import android.content.Context;
 import android.os.Trace;
 import androidx.annotation.NonNull;
 import com.facebook.react.bridge.Arguments;
@@ -45,17 +46,17 @@ public class DatabaseBridge extends ReactContextBaseJavaModule {
         }
         final WritableMap promiseMap = Arguments.createMap();
         try {
-            connections.put(tag, new Connection.Connected(new DatabaseDriver(reactContext, databaseName, schemaVersion, unsafeNativeReuse)));
+            connections.put(tag, new Connection.Connected(new DatabaseDriver((Context) reactContext, databaseName, schemaVersion, unsafeNativeReuse)));
             promiseMap.putString("code", "ok");
             promise.resolve(promiseMap);
-        } catch (DatabaseDriver.SchemaNeededError e) {
+        } catch (SchemaNeededError e) {
             connections.put(tag, new Connection.Waiting(new ArrayList<>()));
             promiseMap.putString("code", "schema_needed");
             promise.resolve(promiseMap);
-        } catch (DatabaseDriver.MigrationNeededError e) {
+        } catch (MigrationNeededError e) {
             connections.put(tag, new Connection.Waiting(new ArrayList<>()));
             promiseMap.putString("code", "migrations_needed");
-            promiseMap.putInt("databaseVersion", e.getDatabaseVersion());
+            promiseMap.putInt("databaseVersion", e.databaseVersion);
             promise.resolve(promiseMap);
         } catch (Exception e) {
             promise.reject(e);
@@ -227,7 +228,7 @@ public class DatabaseBridge extends ReactContextBaseJavaModule {
 
     @Override
     public void invalidate() {
-        // NOTE: See Database::install() for explanation
+        // NOTE: See com.nozbe.watermelondb.Database::install() for explanation
         super.invalidate();
         reactContext.getCatalystInstance().getReactQueueConfiguration().getJSQueueThread().runOnQueue(() -> {
             try {
@@ -246,7 +247,7 @@ public class DatabaseBridge extends ReactContextBaseJavaModule {
     @Deprecated
     @Override
     public void onCatalystInstanceDestroy() {
-        // NOTE: See Database::install() for explanation
+        // NOTE: See com.nozbe.watermelondb.Database::install() for explanation
         super.onCatalystInstanceDestroy();
         reactContext.getCatalystInstance().getReactQueueConfiguration().getJSQueueThread().runOnQueue(() -> {
             try {

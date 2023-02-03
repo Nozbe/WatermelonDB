@@ -32,8 +32,8 @@ public class DatabaseDriver {
         this(context, dbName, false);
     }
 
-    public DatabaseDriver(Context context, String dbName, int schemaVersion) {
-        this(context, dbName, false);
+    public DatabaseDriver(Context context, String dbName, int schemaVersion, boolean unsafeNativeReuse) {
+        this(context, dbName, unsafeNativeReuse);
         SchemaCompatibility compatibility = isCompatible(schemaVersion);
         if (compatibility instanceof SchemaCompatibility.NeedsSetup) {
             throw new SchemaNeededError();
@@ -46,13 +46,13 @@ public class DatabaseDriver {
 
     }
 
-    public DatabaseDriver(Context context, String dbName, Schema schema) {
-        this(context, dbName, false);
+    public DatabaseDriver(Context context, String dbName, Schema schema, boolean unsafeNativeReuse) {
+        this(context, dbName, unsafeNativeReuse);
         unsafeResetDatabase(schema);
     }
 
-    public DatabaseDriver(Context context, String dbName, MigrationSet migrations) {
-        this(context, dbName, false);
+    public DatabaseDriver(Context context, String dbName, MigrationSet migrations, boolean unsafeNativeReuse) {
+        this(context, dbName, unsafeNativeReuse);
         migrate(migrations);
     }
 
@@ -60,7 +60,7 @@ public class DatabaseDriver {
         this.database = unsafeNativeReuse ? Database.getInstance(dbName, context,
                 SQLiteDatabase.CREATE_IF_NECESSARY |
                         SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING) :
-                Database.Companion.buildDatabase(dbName, context,
+                Database.buildDatabase(dbName, context,
                         SQLiteDatabase.CREATE_IF_NECESSARY |
                                 SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING);
         if (BuildConfig.DEBUG) {
@@ -129,7 +129,7 @@ public class DatabaseDriver {
         return resultArray;
     }
 
-    public int count(String query, Object[] args) {
+    public String count(String query, Object[] args) {
         return database.count(query, args);
     }
 
@@ -137,13 +137,12 @@ public class DatabaseDriver {
         return database.getFromLocalStorage(key);
     }
 
-    private void batch(ReadableArray operations) {
+    public void batch(ReadableArray operations) {
         List<Pair<String, String>> newIds = new ArrayList<>();
         List<Pair<String, String>> removedIds = new ArrayList<>();
 
         Trace.beginSection("Batch");
-        try {
-            database.beginTransaction();
+        database.transaction(() -> {
             for (int i = 0; i < operations.size(); i++) {
                 ReadableArray operation = operations.getArray(i);
                 int cacheBehavior = operation.getInt(0);
@@ -164,11 +163,8 @@ public class DatabaseDriver {
                     }
                 }
             }
-            database.setTransactionSuccessful();
-        } finally {
-            Trace.endSection();
-            database.endTransaction();
-        }
+        });
+        Trace.endSection();
 
         Trace.beginSection("updateCaches");
         for (Pair<String, String> it : newIds) {
@@ -217,21 +213,18 @@ public class DatabaseDriver {
         database.transaction(() -> {
             database.execute(migrations.sql, Collections.emptyList().toArray());
             database.setUserVersion(migrations.to);
-            return Unit.INSTANCE;
         });
     }
 
-    private void unsafeResetDatabase(Schema schema) {
+    public void unsafeResetDatabase(Schema schema) {
         if (log != null) {
             log.info("Unsafe reset database");
         }
         database.unsafeDestroyEverything();
         cachedRecords.clear();
-        database.beginTransaction();
         database.transaction(() -> {
             database.unsafeExecuteStatements(schema.sql);
             database.setUserVersion(schema.version);
-            return Unit.INSTANCE;
         });
     }
 
@@ -260,7 +253,7 @@ public class DatabaseDriver {
         } else if (databaseVersion < schemaVersion) {
             return new SchemaCompatibility.NeedsMigration(databaseVersion);
         } else {
-            log.info("Database has newer version (" + databaseVersion + ") than what the " +
+            log.info("com.nozbe.watermelondb.Database has newer version (" + databaseVersion + ") than what the " +
                     "app supports (" + schemaVersion + "). Will reset database.");
             return new SchemaCompatibility.NeedsSetup();
         }
