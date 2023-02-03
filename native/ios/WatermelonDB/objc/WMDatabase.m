@@ -73,7 +73,7 @@
         return nil;
     }
     
-    if ([result columnIndexForName:@"count"] != 1) {
+    if ([result columnIndexForName:@"count"] == -1) {
         *errorPtr = [NSError errorWithDomain:@"WMDatabase" code:0 userInfo:@{
             NSLocalizedDescriptionKey: @"Invalid count query, can't find `count` column"
         }];
@@ -118,7 +118,8 @@
 
 - (void) setUserVersion:(long)userVersion
 {
-    BOOL result = [_fmdb executeUpdateWithFormat:@"pragma user_version = %li", userVersion];
+    NSString *sql = [NSString stringWithFormat:@"pragma user_version = %li", userVersion];
+    BOOL result = [_fmdb executeUpdate:sql];
     if (!result) {
         [NSException raise:@"SetUserVersionFailed" format:@"Failed to set user version: %@", _fmdb.lastErrorMessage];
     }

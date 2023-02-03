@@ -98,9 +98,12 @@
 
     NSString *query = [NSString stringWithFormat:@"select * from `%@` where id == ? limit 1", table];
     FMResultSet *result = [_db queryRaw:query args:@[id] error:errorPtr];
+    if (!result) {
+        return nil;
+    }
 
     if (![result next]) {
-        return nil;
+        return [NSNull null];
     }
 
     [self markAsCached:table id:id];
@@ -109,9 +112,9 @@
 
 - (NSArray *) cachedQuery:(NSString *)table query:(NSString *)query args:(NSArray *)args error:(NSError **)errorPtr
 {
-    NSMutableArray *resultArray;
+    NSMutableArray *resultArray = [NSMutableArray array];
     FMResultSet *result = [_db queryRaw:query args:args error:errorPtr];
-    if (!resultArray) {
+    if (!result) {
         return nil;
     }
 
@@ -130,9 +133,9 @@
 
 - (NSArray *) queryIds:(NSString *)query args:(NSArray *)args error:(NSError **)errorPtr
 {
-    NSMutableArray *resultArray;
+    NSMutableArray *resultArray = [NSMutableArray array];
     FMResultSet *result = [_db queryRaw:query args:args error:errorPtr];
-    if (!resultArray) {
+    if (!result) {
         return nil;
     }
 
@@ -145,9 +148,9 @@
 
 - (NSArray *) unsafeQueryRaw:(NSString *)query args:(NSArray *)args error:(NSError **)errorPtr
 {
-    NSMutableArray *resultArray;
+    NSMutableArray *resultArray = [NSMutableArray array];
     FMResultSet *result = [_db queryRaw:query args:args error:errorPtr];
-    if (!resultArray) {
+    if (!result) {
         return nil;
     }
 
@@ -213,9 +216,13 @@
 {
     // TODO: Shouldn't this be moved to JS, handled by queryRaw?
     FMResultSet *result = [_db queryRaw:@"select `value` from `local_storage` where `key` = ?" args:@[key] error:errorPtr];
+    
+    if (!result) {
+        return nil;
+    }
 
     if (![result next]) {
-        return nil;
+        return [NSNull null];
     }
 
     return [result stringForColumn:@"value"];
