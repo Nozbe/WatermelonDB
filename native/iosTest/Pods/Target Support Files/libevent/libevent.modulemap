@@ -1,6 +1,0 @@
-framework module libevent {
-  umbrella header "libevent-umbrella.h"
-
-  export *
-  module * { export * }
-}
