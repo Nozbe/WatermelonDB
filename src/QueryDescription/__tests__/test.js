@@ -532,6 +532,7 @@ describe('buildQueryDescription', () => {
     expect(() => Q.where('foo', undefined)).toThrow('undefined')
     // TODO: oneOf/notIn values?
     expect(() => Q.oneOf({})).toThrow('not an array')
+    expect(() => Q.oneOf('a', 'b', 'c')).toThrow('not an array')
     expect(() => Q.notIn({})).toThrow('not an array')
     expect(() => Q.like(null)).toThrow('not a string')
     expect(() => Q.like({})).toThrow('not a string')
