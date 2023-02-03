@@ -1,6 +1,4 @@
 #include "Database.h"
-#include "DatabasePlatform.h"
-#include "JSLockPerfHack.h"
 
 // TODO: The split between Database-sqlite.cpp and Sqlite.cpp is confusing…
 // Maybe we should either just merge them?

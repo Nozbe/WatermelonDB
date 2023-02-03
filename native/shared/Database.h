@@ -14,6 +14,7 @@
 #endif
 
 #import "Sqlite.h"
+#import "DatabasePlatform.h"
 
 using namespace facebook;
 
