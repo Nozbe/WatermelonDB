@@ -118,22 +118,6 @@ export default class LokiJSAdapter implements DatabaseAdapter {
           'LokiJSAdapter {useIncrementalIndexedDB: false} option is now deprecated. If you rely on this feature, please file an issue',
         )
       }
-      invariant(
-        !('indexedDBSerializer' in options),
-        'LokiJSAdapter `indexedDBSerializer` option is now `{ extraIncrementalIDBOptions: { serializeChunk, deserializeChunk } }`',
-      )
-      invariant(
-        !('onIndexedDBFetchStart' in options),
-        'LokiJSAdapter `onIndexedDBFetchStart` option is now `extraIncrementalIDBOptions: { onFetchStart }`',
-      )
-      invariant(
-        !('onIndexedDBVersionChange' in options),
-        'LokiJSAdapter `onIndexedDBVersionChange` option is now `extraIncrementalIDBOptions: { onversionchange }`',
-      )
-      invariant(
-        !('autosave' in options),
-        'LokiJSAdapter `autosave` option is now `extraLokiOptions: { autosave }`',
-      )
       validateAdapter(this)
     }
     const callback = (result: Result<any>) => devSetupCallback(result, options.onSetUpError)

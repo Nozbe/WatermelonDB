@@ -87,14 +87,6 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     })
 
     if (process.env.NODE_ENV !== 'production') {
-      invariant(
-        !('experimentalUseJSI' in options),
-        'SQLiteAdapter `experimentalUseJSI: true` has been renamed to `jsi: true`',
-      )
-      invariant(
-        !('synchronous' in options),
-        'SQLiteAdapter `synchronous: true` was removed. Replace with `jsi: true`, which has the same effect, but with a more modern implementation',
-      )
       validateAdapter(this)
     }
 

@@ -48,14 +48,6 @@ export default class Database {
         modelClasses && Array.isArray(modelClasses),
         `Missing modelClasses parameter for new Database()`,
       )
-      // $FlowFixMe
-      options.actionsEnabled === false &&
-        invariant(false, 'new Database({ actionsEnabled: false }) is no longer supported')
-      // $FlowFixMe
-      options.actionsEnabled === true &&
-        logger.warn(
-          'new Database({ actionsEnabled: true }) option is unnecessary (actions are always enabled)',
-        )
     }
     this.adapter = new DatabaseAdapterCompat(adapter)
     this.schema = adapter.schema
