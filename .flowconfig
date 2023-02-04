@@ -13,7 +13,6 @@
 flow-typed/
 
 [options]
-; strip_root=true
 server.max_workers=8
 emoji=true
 module.ignore_non_literal_requires=true
