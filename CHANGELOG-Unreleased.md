@@ -51,6 +51,7 @@ help to do this! See: https://github.com/Nozbe/WatermelonDB/issues/1481
 
 ### Fixes
 
+- Fixes and changes included in `@nozbe/with-observables@1.5.0`
 - [JSI] Improved reliability when reloading RCTBridge
 - [iOS] Fix "range of supported deployment targets" Xcode warning
 - [Sync] Improved resiliency to "Maximum call stack size exceeded" errors

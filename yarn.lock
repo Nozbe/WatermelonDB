@@ -1864,10 +1864,10 @@
     jest-message-util "^24.0.0"
     jest-regex-util "^24.0.0"
 
-"@nozbe/with-observables@1.4.1":
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/@nozbe/with-observables/-/with-observables-1.4.1.tgz#e24680e57ae235e53db6ed7600494d7d0a8d36c2"
-  integrity sha512-xsYrSeSzelFiWF/BXFZW+khFAqJdet22Egt6nhVLHGF2GmYbV5kxv8om0Wh2om4OXK6IM0UAU3pwk+nX5GLsUw==
+"@nozbe/with-observables@^1.5.0-1":
+  version "1.5.0-1"
+  resolved "https://registry.yarnpkg.com/@nozbe/with-observables/-/with-observables-1.5.0-1.tgz#1c5a1a2a7d114e2c60852c7a93df2b72838188ea"
+  integrity sha512-uu9r9P8rVpku80YQ+X3K53k2qZfexfqZGqLhnl0eJNGaW626QLDG/QbrT+LdsK91ikWpqIB5vFIJUUiDNhu3ig==
   dependencies:
     hoist-non-react-statics "^3.3.2"
 
