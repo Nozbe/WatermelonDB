@@ -35,14 +35,20 @@
   "license": "MIT",
   "keywords": [
     "database",
-    "indexeddb",
     "sqlite",
     "react",
     "react-native",
+    "indexeddb",
+    "lokijs",
     "watermelon",
+    "watermelondb",
     "offline",
+    "offline-first",
+    "persistence",
     "reactive",
-    "persistence"
+    "rxjs",
+    "better-sqlite3",
+    "db"
   ],
   "repository": {
     "type": "git",
