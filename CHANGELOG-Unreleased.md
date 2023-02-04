@@ -41,6 +41,11 @@ help to do this! See: https://github.com/Nozbe/WatermelonDB/issues/1481
   # WatermelonDB dependency
   pod 'simdjson', path: '../node_modules/@nozbe/simdjson', modular_headers: true
   ```
+- Removed functions deprecated for 2+ years:
+  - `Collection.unsafeFetchRecordsWithSQL()`. Use `.query(Q.unsafeSqlQuery('select * from...')).fetch()` instead.
+  - `Database.action()`. Use `Database.write()` instead.
+  - `.subAction()`. Use `.callWriter()` instead.
+  - `@action` decorator. Use `@writer` instead.
 
 ### Deprecations
 

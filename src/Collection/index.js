@@ -1,13 +1,11 @@
 // @flow
 import { Observable, Subject } from '../utils/rx'
 import invariant from '../utils/common/invariant'
-import deprecated from '../utils/common/deprecated'
 import { noop, type ArrayOrSpreadFn, fromArrayOrSpread } from '../utils/fp'
 import { type ResultCallback, toPromise, mapValue } from '../utils/fp/Result'
 import { type Unsubscribe } from '../utils/subscriptions'
 
 import Query from '../Query'
-import * as Q from '../QueryDescription'
 import type Database from '../Database'
 import type Model, { RecordId } from '../Model'
 import type { Clause } from '../QueryDescription'
@@ -122,18 +120,6 @@ export default class Collection<Record: Model> {
   disposableFromDirtyRaw(dirtyRaw: DirtyRaw): Record {
     // $FlowFixMe
     return this.modelClass._disposableFromDirtyRaw(this, dirtyRaw)
-  }
-
-  // *** Implementation of Query APIs ***
-
-  unsafeFetchRecordsWithSQL(sql: string): Promise<Record[]> {
-    if (process.env.NODE_ENV !== 'production') {
-      deprecated(
-        'Collection.unsafeFetchRecordsWithSQL()',
-        'Use .query(Q.unsafeSqlQuery(`select * from...`)).fetch() instead.',
-      )
-    }
-    return this.query(Q.unsafeSqlQuery(sql)).fetch()
   }
 
   // *** Implementation details ***

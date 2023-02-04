@@ -2,7 +2,7 @@
 
 import { type Observable, startWith, merge as merge$ } from '../utils/rx'
 import { type Unsubscribe } from '../utils/subscriptions'
-import { invariant, logger, deprecated } from '../utils/common'
+import { invariant, logger } from '../utils/common'
 import { noop, fromArrayOrSpread } from '../utils/fp'
 
 import type { DatabaseAdapter, BatchOperation } from '../adapters/type'
@@ -166,13 +166,6 @@ export default class Database {
   // See docs for more details and practical guide
   read<T>(work: (ReaderInterface) => Promise<T>, description?: string): Promise<T> {
     return this._workQueue.enqueue(work, description, false)
-  }
-
-  action<T>(work: (WriterInterface) => Promise<T>, description?: string): Promise<T> {
-    if (process.env.NODE_ENV !== 'production') {
-      deprecated('Database.action()', 'Use Database.write() instead.')
-    }
-    return this._workQueue.enqueue(work, `${description || 'unnamed'} (legacy action)`, true)
   }
 
   // Emits a signal immediately, and on change in any of the passed tables
