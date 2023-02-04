@@ -452,27 +452,6 @@ describe('buildQueryDescription', () => {
     expect(Q.and(...conditions)).toEqual(Q.and(conditions))
     expect(Q.or(...conditions)).toEqual(Q.or(conditions))
   })
-  it(`does not compress top-level Q.ons into a single nested Q.on`, () => {
-    // TODO: Remove this test after deprecation warning is removed
-    expect(
-      Q.buildQueryDescription([
-        Q.on('projects', 'p1', 'v1'),
-        Q.on('projects', 'p2', 'v2'),
-        Q.on('teams', 't1', 'v1'),
-        Q.on('projects', 'p3', 'v3'),
-      ]),
-    ).toEqual({
-      where: [
-        Q.on('projects', 'p1', 'v1'),
-        Q.on('projects', 'p2', 'v2'),
-        Q.on('teams', 't1', 'v1'),
-        Q.on('projects', 'p3', 'v3'),
-      ],
-      joinTables: ['projects', 'teams'],
-      nestedJoinTables: [],
-      sortBy: [],
-    })
-  })
   it('supports sorting query', () => {
     const query = Q.buildQueryDescription([Q.sortBy('sortable_column', Q.desc)])
     expect(query).toEqual({

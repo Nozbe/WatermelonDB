@@ -4,7 +4,6 @@
 // don't import whole `utils` to keep worker size small
 import { unique } from '../utils/fp'
 import invariant from '../utils/common/invariant'
-import logger from '../utils/common/logger'
 import deepFreeze from '../utils/common/deepFreeze'
 import { columnName } from '../Schema'
 
@@ -81,25 +80,6 @@ const extractClauses: (Clause[]) => QueryDescription = (clauses) => {
     }
   })
   query.joinTables = unique(query.joinTables)
-
-  // In the past, multiple separate top-level Q.ons were the only supported syntax and were automatically merged per-table to produce optimal code
-  // We used to have a special case to avoid regressions, but it added complexity and had a side effect of rearranging the query suboptimally
-  // We won't support this anymore, but will warn about suboptimal queries
-  // TODO: Remove after 2022-01-01
-  if (process.env.NODE_ENV !== 'production') {
-    const onsEncountered: { [string]: boolean } = {}
-    query.where.forEach((clause) => {
-      if (clause.type === 'on') {
-        const table = (clause.table: string)
-        if (onsEncountered[table]) {
-          logger.warn(
-            `Found multiple Q.on('${table}', ...) clauses in a query. This is a performance bug - use a single Q.on('${table}', [condition1, condition1]) to produce a better performing query`,
-          )
-        }
-        onsEncountered[table] = true
-      }
-    })
-  }
 
   // $FlowFixMe: Flow is too dumb to realize that it is valid
   return query

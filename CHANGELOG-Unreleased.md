@@ -72,6 +72,7 @@ help to do this! See: https://github.com/Nozbe/WatermelonDB/issues/1481
 - Added note to docs about SQLite version
 - [flow] Updated Flow version used in the project to 198.1. This shouldn't have an impact on you, but could fix or break Flow if you don't have WatermelonDB set to `[declarations]` mode
 - [flow] Clarified docs to recommend the use of `[declarations]` mode for WatermelonDB
+- Remove a warning about `multiple Q.on()s` - irrelevant since v0.23
 
 ### Internal
 
