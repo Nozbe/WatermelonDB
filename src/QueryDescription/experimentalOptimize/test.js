@@ -216,4 +216,15 @@ describe('optimizeQueryDescription', () => {
       ]),
     ])
   })
+  it('deep freezes the query in dev', () => {
+    const make = () => optimize([Q.where('left_column', 'right_value')])
+    const query = make()
+    expect(() => {
+      query.foo = []
+    }).toThrow()
+    expect(() => {
+      query.where[0].comparison.right = {}
+    }).toThrow()
+    expect(query).toEqual(make())
+  })
 })

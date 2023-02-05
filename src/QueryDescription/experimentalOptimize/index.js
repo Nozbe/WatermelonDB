@@ -1,6 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
+import deepFreeze from '../../utils/common/deepFreeze'
 import type { AppSchema, TableName } from '../../Schema'
 import type { QueryDescription, Where, On } from '../type'
 
@@ -36,6 +37,10 @@ export default function optimizeQueryDescription(
   const optimizedQuery = { ...query }
   const optimized = optimizeWhere(query.where, table, schema, 'and')
   optimizedQuery.where = getWheres(optimized)
+
+  if (process.env.NODE_ENV !== 'production') {
+    deepFreeze(optimizedQuery)
+  }
   return optimizedQuery
 }
 
