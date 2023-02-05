@@ -15,6 +15,10 @@ const schema = appSchema({
   version: 1,
   tables: [
     tableSchema({
+      name: 'projects',
+      columns: [...standardColumns],
+    }),
+    tableSchema({
       name: 'tasks',
       columns: [...standardColumns],
     }),
@@ -28,7 +32,7 @@ const schema = appSchema({
 describe('optimizeQueryDescription', () => {
   const optimize = (clauses) => {
     const query = buildQueryDescription(clauses)
-    const optimized = optimizeQueryDescription({ query, table: 'tasks', schema })
+    const optimized = optimizeQueryDescription({ query, table: 'projects', schema })
     expect({ ...optimized, where: [] }).toEqual({ ...query, where: [] })
     return optimized.where
   }
@@ -96,13 +100,13 @@ describe('optimizeQueryDescription', () => {
       expect(
         optimize([
           //
-          Q.on('comments', 'foo', 'bar'),
+          Q.on('tasks', 'foo', 'bar'),
           Q.where('bar', 'baz'),
         ]),
       ).toEqual([
         //
         Q.where('bar', 'baz'),
-        Q.on('comments', 'foo', 'bar'),
+        Q.on('tasks', 'foo', 'bar'),
       ])
     })
   })
@@ -145,15 +149,15 @@ describe('optimizeQueryDescription', () => {
     it(`flattens (merges) Q.ons`, () => {
       expect(
         optimize([
-          Q.on('comments', 'foo', 'bar'),
-          Q.on('comments', [
+          Q.on('tasks', 'foo', 'bar'),
+          Q.on('tasks', [
             //
             Q.where('bar', 'baz'),
             Q.where('baz', 'blah'),
           ]),
         ]),
       ).toEqual([
-        Q.on('comments', [
+        Q.on('tasks', [
           //
           Q.where('foo', 'bar'),
           Q.where('bar', 'baz'),
@@ -161,6 +165,57 @@ describe('optimizeQueryDescription', () => {
         ]),
       ])
     })
+    it(`flattens (merges) inner Q.ons`, () => {
+      expect(
+        optimize([
+          Q.on('tasks', Q.on('comments', 'foo', 'bar')),
+          Q.on(
+            'tasks',
+            Q.on('comments', [
+              //
+              Q.where('bar', 'baz'),
+              Q.where('baz', 'blah'),
+            ]),
+          ),
+        ]),
+      ).toEqual([
+        Q.on(
+          'tasks',
+          Q.on('comments', [
+            //
+            Q.where('foo', 'bar'),
+            Q.where('bar', 'baz'),
+            Q.where('baz', 'blah'),
+          ]),
+        ),
+      ])
+    })
+    it(`does not merge Q.or(Q.on)`, () => {
+      const orig = [
+        Q.or(
+          Q.on('tasks', 'foo', 'bar'),
+          Q.on('tasks', [
+            //
+            Q.where('bar', 'baz'),
+            Q.where('baz', 'blah'),
+          ]),
+        ),
+      ]
+      expect(optimize(orig)).toEqual(orig)
+    })
+    // it(`flattens complex nested conditions`, () => {
+    //   expect(
+    //     optimize([
+    //       Q.on('tasks', 'foo', 'bar'),
+    //       Q.on('tasks', [
+    //         //
+    //         Q.where('bar', 'baz'),
+    //         Q.where('baz', 'blah'),
+    //       ]),
+    //     ]),
+    //   ).toEqual([
+    //   ])
+    // })
   })
   describe('optimizes inner lists', () => {
     it(`optimizes Q.and`, () => {
@@ -209,16 +264,37 @@ describe('optimizeQueryDescription', () => {
       expect(
         optimize([
           //
-          Q.on('comments', Q.where('str', 'bar')),
-          Q.on('comments', [Q.where('bool_i', 'bar'), Q.where('str_i', 'bar')]),
+          Q.on('tasks', Q.where('str', 'bar')),
+          Q.on('tasks', [Q.where('bool_i', 'bar'), Q.where('str_i', 'bar')]),
         ]),
       ).toEqual([
-        Q.on('comments', [
+        Q.on('tasks', [
           //
           Q.where('bool_i', 'bar'),
           Q.where('str_i', 'bar'),
           Q.where('str', 'bar'),
         ]),
+      ])
+    })
+    it(`optimizes Q.or(Q.on)`, () => {
+      expect(
+        optimize([
+          Q.or(
+            Q.on('tasks', [
+              //
+              Q.where('str', 'bar'),
+              Q.where('str_i', 'bar'),
+            ]),
+          ),
+        ]),
+      ).toEqual([
+        Q.or(
+          Q.on('tasks', [
+            //
+            Q.where('str_i', 'bar'),
+            Q.where('str', 'bar'),
+          ]),
+        ),
       ])
     })
   })

@@ -111,13 +111,18 @@ function optimizeWhere(
         break
       }
       case 'on': {
-        const existing = ons[condition.table]
-        if (existing) {
-          existing.conditions = [...existing.conditions, ...condition.conditions]
+        if (listContext === 'and') {
+          const existing = ons[condition.table]
+          if (existing) {
+            existing.conditions = [...existing.conditions, ...condition.conditions]
+          } else {
+            const on = { ...condition }
+            ons[condition.table] = on
+            optimized.push([on, ON_MULTPLIER])
+          }
         } else {
-          const on = { ...condition }
-          ons[condition.table] = on
-          optimized.push([on, ON_MULTPLIER])
+          const optimizedInner = optimizeWhere(condition.conditions, table, schema, 'and')
+          optimized.push([{ ...condition, conditions: getWheres(optimizedInner) }, ON_MULTPLIER])
         }
         break
       }
