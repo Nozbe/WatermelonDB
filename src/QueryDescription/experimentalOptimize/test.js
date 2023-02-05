@@ -3,28 +3,25 @@ import optimizeQueryDescription from './index'
 import * as Q from '../index'
 import { buildQueryDescription } from '../helpers'
 
+const standardColumns = [
+  { name: 'str', type: 'string' },
+  { name: 'num', type: 'number' },
+  { name: 'bool', type: 'boolean' },
+  { name: 'str_i', type: 'string', isIndexed: true },
+  { name: 'num_i', type: 'number', isIndexed: true },
+  { name: 'bool_i', type: 'boolean', isIndexed: true },
+]
 const schema = appSchema({
   version: 1,
   tables: [
     tableSchema({
       name: 'tasks',
-      columns: [
-        { name: 'str', type: 'string' },
-        { name: 'num', type: 'number' },
-        { name: 'bool', type: 'boolean' },
-        { name: 'str_i', type: 'string', isIndexed: true },
-        { name: 'num_i', type: 'number', isIndexed: true },
-        { name: 'bool_i', type: 'boolean', isIndexed: true },
-      ],
+      columns: [...standardColumns],
     }),
-    // tableSchema({
-    //   name: 'bar',
-    //   columns: [
-    //     { name: 'col1', type: 'number' },
-    //     { name: 'col2', type: 'boolean' },
-    //     { name: 'col3', type: 'boolean' },
-    //   ],
-    // }),
+    tableSchema({
+      name: 'comments',
+      columns: [...standardColumns],
+    }),
   ],
 })
 
@@ -46,38 +43,6 @@ describe('optimizeQueryDescription', () => {
       Q.or(Q.where('foo', 'bar')),
     ]
     expect(optimize(orig)).toEqual(orig)
-  })
-  it(`merges Q.ons`, () => {
-    expect(
-      optimize([
-        Q.on('table', 'foo', 'bar'),
-        Q.on('table', [
-          //
-          Q.where('bar', 'baz'),
-          Q.where('baz', 'blah'),
-        ]),
-      ]),
-    ).toEqual([
-      Q.on('table', [
-        //
-        Q.where('foo', 'bar'),
-        Q.where('bar', 'baz'),
-        Q.where('baz', 'blah'),
-      ]),
-    ])
-  })
-  it(`reorders Q.ons last`, () => {
-    expect(
-      optimize([
-        //
-        Q.on('table', 'foo', 'bar'),
-        Q.where('bar', 'baz'),
-      ]),
-    ).toEqual([
-      //
-      Q.where('bar', 'baz'),
-      Q.on('table', 'foo', 'bar'),
-    ])
   })
   it(`reorders indexed columns before unindexed`, () => {
     expect(
@@ -161,6 +126,38 @@ describe('optimizeQueryDescription', () => {
       Q.or([Q.where('str', 'bar2'), Q.where('str', 'bar3'), Q.where('str', 'bar4')]),
     ])
   })
+  it(`flattens (merges) Q.ons`, () => {
+    expect(
+      optimize([
+        Q.on('comments', 'foo', 'bar'),
+        Q.on('comments', [
+          //
+          Q.where('bar', 'baz'),
+          Q.where('baz', 'blah'),
+        ]),
+      ]),
+    ).toEqual([
+      Q.on('comments', [
+        //
+        Q.where('foo', 'bar'),
+        Q.where('bar', 'baz'),
+        Q.where('baz', 'blah'),
+      ]),
+    ])
+  })
+  it(`reorders Q.ons last`, () => {
+    expect(
+      optimize([
+        //
+        Q.on('comments', 'foo', 'bar'),
+        Q.where('bar', 'baz'),
+      ]),
+    ).toEqual([
+      //
+      Q.where('bar', 'baz'),
+      Q.on('comments', 'foo', 'bar'),
+    ])
+  })
   it(`optimizes Q.and`, () => {
     expect(
       optimize([
@@ -201,6 +198,22 @@ describe('optimizeQueryDescription', () => {
         Q.where('str_i', 'bar'),
         Q.where('str', 'bar'),
       ),
+    ])
+  })
+  it(`optimizes Q.on`, () => {
+    expect(
+      optimize([
+        //
+        Q.on('comments', Q.where('str', 'bar')),
+        Q.on('comments', [Q.where('bool_i', 'bar'), Q.where('str_i', 'bar')]),
+      ]),
+    ).toEqual([
+      Q.on('comments', [
+        //
+        Q.where('bool_i', 'bar'),
+        Q.where('str_i', 'bar'),
+        Q.where('str', 'bar'),
+      ]),
     ])
   })
 })

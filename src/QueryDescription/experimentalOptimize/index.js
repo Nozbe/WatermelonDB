@@ -58,7 +58,7 @@ function optimizeWhere(
   listContext: ListContext,
 ): CondEntry[] {
   const optimized: CondEntry[] = []
-  const ons: { [table: string]: On } = {}
+  const ons: { [table: string]: { ...On } } = {}
 
   const tableSchema = schema.tables[table]
 
@@ -75,17 +75,6 @@ function optimizeWhere(
             (isEq ? EQ_MULTIPLIER : 1) *
             (isOneOf ? oneOfMultiplier((condition.comparison.right.values: any).length) : 1),
         ])
-        break
-      }
-      case 'on': {
-        const existing = ons[condition.table]
-        if (existing) {
-          existing.conditions = [...existing.conditions, ...condition.conditions]
-        } else {
-          const on = { ...condition }
-          ons[condition.table] = on
-          optimized.push([on, ON_MULTPLIER])
-        }
         break
       }
       case 'and': {
@@ -116,11 +105,29 @@ function optimizeWhere(
         }
         break
       }
+      case 'on': {
+        const existing = ons[condition.table]
+        if (existing) {
+          existing.conditions = [...existing.conditions, ...condition.conditions]
+        } else {
+          const on = { ...condition }
+          ons[condition.table] = on
+          optimized.push([on, ON_MULTPLIER])
+        }
+        break
+      }
       default: {
+        // SqlExpr, LokiExpr - we don't know how to score these
         optimized.push([condition, DEFAULT_SCORE])
         break
       }
     }
+  })
+
+  // optimize ons
+  Object.values(ons).forEach((on) => {
+    const optimizedInner = optimizeWhere(on.conditions, on.table, schema, 'and')
+    on.conditions = getWheres(optimizedInner)
   })
 
   // sort by score
