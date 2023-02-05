@@ -40,6 +40,10 @@ export default function optimizeQueryDescription(
 
 type score = number // lower number = higher priority
 type CondEntry = [Where, score]
+const DEFAULT_SCORE = 1
+const INDEXED_MULTIPLIER = 0.1 // rationale: indexed fields are faster to query
+const EQ_MULTIPLIER = 0.5 // rationale: equality yields fewer results than lt/gt
+const ON_MULTPLIER = 5
 function optimizeWhere(conditions: Where[], table: TableName<any>, schema: AppSchema): Where[] {
   const optimized: CondEntry[] = []
   const ons: { [table: string]: On } = {}
@@ -50,7 +54,11 @@ function optimizeWhere(conditions: Where[], table: TableName<any>, schema: AppSc
     switch (condition.type) {
       case 'where': {
         const isIndexed = tableSchema.columns[condition.left]?.isIndexed
-        optimized.push([condition, isIndexed ? 0.5 : 1])
+        const isEq = condition.comparison.operator === 'eq'
+        optimized.push([
+          condition,
+          DEFAULT_SCORE * (isIndexed ? INDEXED_MULTIPLIER : 1) * (isEq ? EQ_MULTIPLIER : 1),
+        ])
         break
       }
       case 'on': {
@@ -60,12 +68,12 @@ function optimizeWhere(conditions: Where[], table: TableName<any>, schema: AppSc
         } else {
           const on = { ...condition }
           ons[condition.table] = on
-          optimized.push([on, 5])
+          optimized.push([on, ON_MULTPLIER])
         }
         break
       }
       default: {
-        optimized.push([condition, 1])
+        optimized.push([condition, DEFAULT_SCORE])
         break
       }
     }

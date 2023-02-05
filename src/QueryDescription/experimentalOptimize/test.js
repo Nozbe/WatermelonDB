@@ -94,4 +94,19 @@ describe('optimizeQueryDescription', () => {
       Q.where('str', 'bar'),
     ])
   })
+  it(`reorders Q.eq before other comparisons`, () => {
+    expect(
+      optimize([
+        //
+        Q.where('str', Q.gt('bar')),
+        Q.where('str', Q.notEq('bar')),
+        Q.where('str', 'bar'),
+      ]),
+    ).toEqual([
+      //
+      Q.where('str', 'bar'),
+      Q.where('str', Q.gt('bar')),
+      Q.where('str', Q.notEq('bar')),
+    ])
+  })
 })
