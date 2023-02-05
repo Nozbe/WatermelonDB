@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import type { QueryDescription, Where } from '../type'
+import type { QueryDescription, Where, On } from '../type'
 
 // where()s first
 // … but where()s with oneOf/notIn last (because it could be a long array)
@@ -31,9 +31,23 @@ export default function optimizeQueryDescription(query: QueryDescription): Query
 
 function optimizeWhere(conditions: Where[]): Where[] {
   const optimized: Where[] = []
+  const ons: { [table: string]: On } = {}
 
   conditions.forEach((condition) => {
-    optimized.push(condition)
+    if (condition.type === 'on') {
+      const existing = ons[condition.table]
+      if (existing) {
+        existing.conditions = [...existing.conditions, ...condition.conditions]
+      } else {
+        ons[condition.table] = { ...condition }
+      }
+    } else {
+      optimized.push(condition)
+    }
+  })
+
+  Object.values(ons).forEach((on) => {
+    optimized.push(on)
   })
 
   return optimized

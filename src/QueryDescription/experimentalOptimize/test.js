@@ -42,4 +42,20 @@ describe('optimizeQueryDescription', () => {
     ]
     expect(optimize(orig)).toEqual(orig)
   })
+  it(`merges Q.ons`, () => {
+    expect(
+      optimize([
+        Q.on('table', 'foo', 'bar'),
+        Q.on('table', [Q.where('bar', 'baz'), Q.where('baz', 'blah')]),
+      ]),
+    ).toEqual([
+      Q.on('table', [Q.where('foo', 'bar'), Q.where('bar', 'baz'), Q.where('baz', 'blah')]),
+    ])
+  })
+  it(`reorders Q.ons`, () => {
+    expect(optimize([Q.on('table', 'foo', 'bar'), Q.where('bar', 'baz')])).toEqual([
+      Q.where('bar', 'baz'),
+      Q.on('table', 'foo', 'bar'),
+    ])
+  })
 })
