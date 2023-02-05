@@ -85,7 +85,7 @@ function optimizeWhere(
       case 'and': {
         const optimizedInner = optimizeWhere(condition.conditions, table, schema, 'and')
 
-        if (listContext === 'and') {
+        if (listContext === 'and' || optimizedInner.length === 1) {
           optimized.push(...optimizedInner)
         } else {
           optimized.push([
@@ -99,7 +99,7 @@ function optimizeWhere(
       case 'or': {
         const optimizedInner = optimizeWhere(condition.conditions, table, schema, 'or')
 
-        if (listContext === 'or') {
+        if (listContext === 'or' || optimizedInner.length === 1) {
           optimized.push(...optimizedInner)
         } else {
           optimized.push([
@@ -121,7 +121,7 @@ function optimizeWhere(
             optimized.push([on, ON_MULTPLIER])
           }
         } else {
-          const optimizedInner = optimizeWhere(condition.conditions, table, schema, 'and')
+          const optimizedInner = optimizeWhere(condition.conditions, condition.table, schema, 'and')
           optimized.push([{ ...condition, conditions: getWheres(optimizedInner) }, ON_MULTPLIER])
         }
         break

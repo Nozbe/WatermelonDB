@@ -20,7 +20,7 @@ const schema = appSchema({
     }),
     tableSchema({
       name: 'tasks',
-      columns: [...standardColumns],
+      columns: [...standardColumns.map((c) => ({ ...c, name: `t_${c.name}` }))],
     }),
     tableSchema({
       name: 'comments',
@@ -41,12 +41,7 @@ describe('optimizeQueryDescription', () => {
   })
   describe('reorders conditions', () => {
     it(`does not reorder conditions if profitability is unknown`, () => {
-      const orig = [
-        Q.where('foo', 'bar'),
-        Q.unsafeSqlExpr(''),
-        Q.unsafeLokiExpr({}),
-        Q.or(Q.where('foo', 'bar')),
-      ]
+      const orig = [Q.where('foo', 'bar'), Q.unsafeSqlExpr(''), Q.unsafeLokiExpr({})]
       expect(optimize(orig)).toEqual(orig)
     })
     it(`reorders indexed columns before unindexed`, () => {
@@ -146,6 +141,31 @@ describe('optimizeQueryDescription', () => {
         Q.or([Q.where('str', 'bar2'), Q.where('str', 'bar3'), Q.where('str', 'bar4')]),
       ])
     })
+    it(`does not flatten Q.and(Q.or), Q.or(Q.and)`, () => {
+      const orig = [
+        //
+        Q.or(Q.where('str', 'bar'), Q.where('str', 'bar2')),
+        Q.or(
+          //
+          Q.where('str', 'bar3'),
+          Q.and(Q.where('str', 'bar'), Q.where('str', 'bar2')),
+        ),
+      ]
+      expect(optimize(orig)).toEqual(orig)
+    })
+    it(`flattens 1-element Q.and(Q.or), Q.or(Q.and)`, () => {
+      expect(
+        optimize([
+          //
+          Q.or(Q.where('str', 'bar')),
+          Q.or(Q.and(Q.where('str', 'bar')), Q.where('str', 'bar2')),
+        ]),
+      ).toEqual([
+        //
+        Q.where('str', 'bar'),
+        Q.or(Q.where('str', 'bar'), Q.where('str', 'bar2')),
+      ])
+    })
     it(`flattens (merges) Q.ons`, () => {
       expect(
         optimize([
@@ -203,25 +223,35 @@ describe('optimizeQueryDescription', () => {
       ]
       expect(optimize(orig)).toEqual(orig)
     })
-    // it(`flattens complex nested conditions`, () => {
-    //   expect(
-    //     optimize([
-    //       Q.on('tasks', 'foo', 'bar'),
-    //       Q.on('tasks', [
-    //         //
-    //         Q.where('bar', 'baz'),
-    //         Q.where('baz', 'blah'),
-    //       ]),
-    //     ]),
-    //   ).toEqual([
-    //   ])
-    // })
+    it.skip(`flattens complex nested conditions`, () => {
+      expect(
+        optimize([
+          Q.and(
+            Q.and(
+              Q.and(
+                //
+                Q.on('tasks', 'foo', 'bar'),
+                Q.on('tasks', Q.on('comments', 'foo', 'bar')),
+              ),
+            ),
+            Q.or(Q.or(Q.or())),
+          ),
+
+          // Q.on('tasks', [
+          //   //
+          //   Q.where('bar', 'baz'),
+          //   Q.where('baz', 'blah'),
+          // ]),
+        ]),
+      ).toEqual([])
+    })
   })
   describe('optimizes inner lists', () => {
     it(`optimizes Q.and`, () => {
       expect(
         optimize([
           Q.or(
+            Q.where('str', 'baz'),
             Q.and(
               //
               Q.where('str', 'bar'),
@@ -232,6 +262,7 @@ describe('optimizeQueryDescription', () => {
         ]),
       ).toEqual([
         Q.or(
+          Q.where('str', 'baz'),
           Q.and(
             //
             Q.where('bool_i', 'bar'),
@@ -264,15 +295,15 @@ describe('optimizeQueryDescription', () => {
       expect(
         optimize([
           //
-          Q.on('tasks', Q.where('str', 'bar')),
-          Q.on('tasks', [Q.where('bool_i', 'bar'), Q.where('str_i', 'bar')]),
+          Q.on('tasks', Q.where('t_str', 'bar')),
+          Q.on('tasks', [Q.where('t_bool_i', 'bar'), Q.where('t_str_i', 'bar')]),
         ]),
       ).toEqual([
         Q.on('tasks', [
           //
-          Q.where('bool_i', 'bar'),
-          Q.where('str_i', 'bar'),
-          Q.where('str', 'bar'),
+          Q.where('t_bool_i', 'bar'),
+          Q.where('t_str_i', 'bar'),
+          Q.where('t_str', 'bar'),
         ]),
       ])
     })
@@ -280,19 +311,21 @@ describe('optimizeQueryDescription', () => {
       expect(
         optimize([
           Q.or(
+            Q.where('foo', 'bar'),
             Q.on('tasks', [
               //
-              Q.where('str', 'bar'),
-              Q.where('str_i', 'bar'),
+              Q.where('t_str', 'bar'),
+              Q.where('t_str_i', 'bar'),
             ]),
           ),
         ]),
       ).toEqual([
         Q.or(
+          Q.where('foo', 'bar'),
           Q.on('tasks', [
             //
-            Q.where('str_i', 'bar'),
-            Q.where('str', 'bar'),
+            Q.where('t_str_i', 'bar'),
+            Q.where('t_str', 'bar'),
           ]),
         ),
       ])
