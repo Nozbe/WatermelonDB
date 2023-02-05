@@ -365,7 +365,7 @@ describe('optimizeQueryDescription', () => {
         ]),
       ])
     })
-    it.skip(`optimizes Q.or(Q.on)`, () => {
+    it.only(`optimizes Q.or(Q.on)`, () => {
       expect(
         optimize([
           Q.or(

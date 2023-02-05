@@ -167,26 +167,36 @@ function mergeOns(
   // merge&optimize entries
   Object.entries(ons).forEach(([onTable, manyOnConditions]) => {
     // merge
-    const mergedOnCondiions = []
-    manyOnConditions.forEach((conds) => {
-      // on(a) && on(b && b) == on(a && b && c)
-      // on(a) || on(b && c) == on(a || (b && c))
-      // on(a) || on(b) == on(a || b)
-      if (listContext === 'and' || conds.length === 1) {
-        mergedOnCondiions.push(...conds)
-      } else {
-        mergedOnCondiions.push({ type: 'and', conditions: conds })
-      }
-    })
+    // const mergedOnConditions = []
+    // manyOnConditions.forEach((conds) => {
+    //   // on(a) && on(b && b) == on(a && b && c)
+    //   // on(a) || on(b && c) == on(a || (b && c))
+    //   // on(a) || on(b) == on(a || b)
+    //   if (listContext === 'and' || conds.length === 1) {
+    //     mergedOnConditions.push(...conds)
+    //   } else {
+    //     mergedOnConditions.push({ type: 'and', conditions: conds })
+    //   }
+    // })
+    const mergedOnConditions: Where[] = [
+      {
+        type: (listContext: any),
+        conditions: manyOnConditions.map((onConds) => ({ type: 'and', conditions: onConds })),
+      },
+    ]
 
     const optimizedMerged = getWheres(
-      optimizeWhere(mergedOnCondiions, (onTable: any), schema, listContext),
+      optimizeWhere(mergedOnConditions, (onTable: any), schema, 'and'),
     )
+    console.log({ onTable, manyOnConditions, mergedOnConditions, optimizedMerged })
+    console.log(mergedOnConditions)
+    console.log(mergedOnConditions[0].conditions)
+    console.log(mergedOnConditions[0].conditions[0].conditions)
     // wrap in or() if we're transforming on(a) || on(b) to on(a || b)
-    const wrappedConditions =
-      listContext === 'or' && optimizedMerged.length > 1
-        ? [({ type: 'or', conditions: optimizedMerged }: Or)]
-        : optimizedMerged
+    const wrappedConditions = optimizedMerged
+    // listContext === 'or' && optimizedMerged.length > 1
+    //   ? [({ type: 'or', conditions: optimizedMerged }: Or)]
+    //   : optimizedMerged
 
     const optimizedOn: On = {
       type: 'on',
