@@ -109,4 +109,40 @@ describe('optimizeQueryDescription', () => {
       Q.where('str', Q.notEq('bar')),
     ])
   })
+  it(`reorders Q.oneOf depending on number of args`, () => {
+    expect(
+      optimize([
+        //
+        Q.where('str', Q.oneOf(Array(10).fill('bar'))),
+        Q.where('str', Q.oneOf(Array(2).fill('bar'))),
+        Q.where('str', Q.oneOf(Array(5).fill('bar'))),
+        Q.where('str', 'bar'),
+      ]),
+    ).toEqual([
+      //
+      Q.where('str', 'bar'),
+      Q.where('str', Q.oneOf(Array(2).fill('bar'))),
+      Q.where('str', Q.oneOf(Array(5).fill('bar'))),
+      Q.where('str', Q.oneOf(Array(10).fill('bar'))),
+    ])
+  })
+  it(`reorders Q.and conditions`, () => {
+    expect(
+      optimize([
+        Q.and([
+          //
+          Q.where('str', 'bar'),
+          Q.where('bool_i', 'bar'),
+          Q.where('str_i', 'bar'),
+        ]),
+      ]),
+    ).toEqual([
+      Q.and([
+        //
+        Q.where('bool_i', 'bar'),
+        Q.where('str_i', 'bar'),
+        Q.where('str', 'bar'),
+      ]),
+    ])
+  })
 })

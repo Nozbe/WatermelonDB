@@ -43,7 +43,8 @@ type CondEntry = [Where, score]
 const DEFAULT_SCORE = 1
 const INDEXED_MULTIPLIER = 0.1 // rationale: indexed fields are faster to query
 const EQ_MULTIPLIER = 0.5 // rationale: equality yields fewer results than lt/gt
-const ON_MULTPLIER = 5
+const oneOfMultiplier = (length: number) => Math.log2(length) / 2 + 1
+const ON_MULTPLIER = 10
 function optimizeWhere(conditions: Where[], table: TableName<any>, schema: AppSchema): Where[] {
   const optimized: CondEntry[] = []
   const ons: { [table: string]: On } = {}
@@ -55,9 +56,13 @@ function optimizeWhere(conditions: Where[], table: TableName<any>, schema: AppSc
       case 'where': {
         const isIndexed = tableSchema.columns[condition.left]?.isIndexed
         const isEq = condition.comparison.operator === 'eq'
+        const isOneOf = condition.comparison.operator === 'oneOf'
         optimized.push([
           condition,
-          DEFAULT_SCORE * (isIndexed ? INDEXED_MULTIPLIER : 1) * (isEq ? EQ_MULTIPLIER : 1),
+          DEFAULT_SCORE *
+            (isIndexed ? INDEXED_MULTIPLIER : 1) *
+            (isEq ? EQ_MULTIPLIER : 1) *
+            (isOneOf ? oneOfMultiplier((condition.comparison.right.values: any).length) : 1),
         ])
         break
       }
@@ -70,6 +75,15 @@ function optimizeWhere(conditions: Where[], table: TableName<any>, schema: AppSc
           ons[condition.table] = on
           optimized.push([on, ON_MULTPLIER])
         }
+        break
+      }
+      case 'and': {
+        const inner = condition.conditions
+        // NOTE: we should have a score estimate for this
+        optimized.push([
+          { ...condition, conditions: optimizeWhere(inner, table, schema) },
+          DEFAULT_SCORE,
+        ])
         break
       }
       default: {
