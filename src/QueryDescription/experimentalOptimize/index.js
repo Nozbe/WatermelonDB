@@ -1,6 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
+import type { AppSchema, TableName } from '../../Schema'
 import type { QueryDescription, Where, On } from '../type'
 
 // where()s first
@@ -23,32 +24,55 @@ import type { QueryDescription, Where, On } from '../type'
 // if we want users to add such information, they might as well manually tune the query order
 // themselves, no?
 
-export default function optimizeQueryDescription(query: QueryDescription): QueryDescription {
+type OptimizeQueryDescriptionOptions = $Exact<{
+  query: QueryDescription,
+  table: TableName<any>,
+  schema: AppSchema,
+}>
+export default function optimizeQueryDescription(
+  options: OptimizeQueryDescriptionOptions,
+): QueryDescription {
+  const { query, table, schema } = options
   const optimizedQuery = { ...query }
-  optimizedQuery.where = optimizeWhere(query.where)
+  optimizedQuery.where = optimizeWhere(query.where, table, schema)
   return optimizedQuery
 }
 
-function optimizeWhere(conditions: Where[]): Where[] {
-  const optimized: Where[] = []
+type score = number // lower number = higher priority
+type CondEntry = [Where, score]
+function optimizeWhere(conditions: Where[], table: TableName<any>, schema: AppSchema): Where[] {
+  const optimized: CondEntry[] = []
   const ons: { [table: string]: On } = {}
 
+  const tableSchema = schema.tables[table]
+
   conditions.forEach((condition) => {
-    if (condition.type === 'on') {
-      const existing = ons[condition.table]
-      if (existing) {
-        existing.conditions = [...existing.conditions, ...condition.conditions]
-      } else {
-        ons[condition.table] = { ...condition }
+    switch (condition.type) {
+      case 'where': {
+        const isIndexed = tableSchema.columns[condition.left]?.isIndexed
+        optimized.push([condition, isIndexed ? 0.5 : 1])
+        break
       }
-    } else {
-      optimized.push(condition)
+      case 'on': {
+        const existing = ons[condition.table]
+        if (existing) {
+          existing.conditions = [...existing.conditions, ...condition.conditions]
+        } else {
+          const on = { ...condition }
+          ons[condition.table] = on
+          optimized.push([on, 5])
+        }
+        break
+      }
+      default: {
+        optimized.push([condition, 1])
+        break
+      }
     }
   })
 
-  Object.values(ons).forEach((on) => {
-    optimized.push(on)
-  })
+  // sort by score
+  optimized.sort(([, a], [, b]) => a - b)
 
-  return optimized
+  return optimized.map(([condition]) => condition)
 }
