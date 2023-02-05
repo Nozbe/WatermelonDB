@@ -144,23 +144,63 @@ describe('optimizeQueryDescription', () => {
       Q.where('str', 'bar3'),
     ])
   })
-  // it(`reorders Q.and conditions`, () => {
-  //   expect(
-  //     optimize([
-  //       Q.and([
-  //         //
-  //         Q.where('str', 'bar'),
-  //         Q.where('bool_i', 'bar'),
-  //         Q.where('str_i', 'bar'),
-  //       ]),
-  //     ]),
-  //   ).toEqual([
-  //     Q.and([
-  //       //
-  //       Q.where('bool_i', 'bar'),
-  //       Q.where('str_i', 'bar'),
-  //       Q.where('str', 'bar'),
-  //     ]),
-  //   ])
-  // })
+  it(`flattens Q.or`, () => {
+    expect(
+      optimize([
+        //
+        Q.where('str', 'bar'),
+        Q.or([
+          //
+          Q.where('str', 'bar2'),
+          Q.or(Q.where('str', 'bar3'), Q.where('str', 'bar4')),
+        ]),
+      ]),
+    ).toEqual([
+      //
+      Q.where('str', 'bar'),
+      Q.or([Q.where('str', 'bar2'), Q.where('str', 'bar3'), Q.where('str', 'bar4')]),
+    ])
+  })
+  it(`optimizes Q.and`, () => {
+    expect(
+      optimize([
+        Q.or(
+          Q.and(
+            //
+            Q.where('str', 'bar'),
+            Q.where('bool_i', 'bar'),
+            Q.where('str_i', 'bar'),
+          ),
+        ),
+      ]),
+    ).toEqual([
+      Q.or(
+        Q.and(
+          //
+          Q.where('bool_i', 'bar'),
+          Q.where('str_i', 'bar'),
+          Q.where('str', 'bar'),
+        ),
+      ),
+    ])
+  })
+  it(`optimizes Q.or`, () => {
+    expect(
+      optimize([
+        Q.or(
+          //
+          Q.where('str', 'bar'),
+          Q.where('bool_i', 'bar'),
+          Q.where('str_i', 'bar'),
+        ),
+      ]),
+    ).toEqual([
+      Q.or(
+        //
+        Q.where('bool_i', 'bar'),
+        Q.where('str_i', 'bar'),
+        Q.where('str', 'bar'),
+      ),
+    ])
+  })
 })

@@ -34,13 +34,14 @@ export default function optimizeQueryDescription(
 ): QueryDescription {
   const { query, table, schema } = options
   const optimizedQuery = { ...query }
-  const optimized = optimizeWhere(query.where, table, schema)
+  const optimized = optimizeWhere(query.where, table, schema, 'and')
   optimizedQuery.where = getWheres(optimized)
   return optimizedQuery
 }
 
 type score = number // lower number = higher priority
 type CondEntry = [Where, score]
+type ListContext = 'and' | 'or'
 
 const getWheres = (entries: CondEntry[]): Where[] => entries.map(([condition]) => condition)
 
@@ -50,7 +51,12 @@ const EQ_MULTIPLIER = 0.5 // rationale: equality yields fewer results than lt/gt
 const oneOfMultiplier = (length: number) => Math.log2(length) / 2 + 1
 const ON_MULTPLIER = 10
 
-function optimizeWhere(conditions: Where[], table: TableName<any>, schema: AppSchema): CondEntry[] {
+function optimizeWhere(
+  conditions: Where[],
+  table: TableName<any>,
+  schema: AppSchema,
+  listContext: ListContext,
+): CondEntry[] {
   const optimized: CondEntry[] = []
   const ons: { [table: string]: On } = {}
 
@@ -83,13 +89,31 @@ function optimizeWhere(conditions: Where[], table: TableName<any>, schema: AppSc
         break
       }
       case 'and': {
-        // NOTE: we should have a score estimate for this
-        const optimizedInner = optimizeWhere(condition.conditions, table, schema)
-        optimized.push(...optimizedInner)
-        // optimized.push([
-        //   { ...condition, conditions:  },
-        //   DEFAULT_SCORE,
-        // ])
+        const optimizedInner = optimizeWhere(condition.conditions, table, schema, 'and')
+
+        if (listContext === 'and') {
+          optimized.push(...optimizedInner)
+        } else {
+          optimized.push([
+            { ...condition, conditions: getWheres(optimizedInner) },
+            // NOTE: we should have a score estimate for this
+            DEFAULT_SCORE,
+          ])
+        }
+        break
+      }
+      case 'or': {
+        const optimizedInner = optimizeWhere(condition.conditions, table, schema, 'or')
+
+        if (listContext === 'or') {
+          optimized.push(...optimizedInner)
+        } else {
+          optimized.push([
+            { ...condition, conditions: getWheres(optimizedInner) },
+            // NOTE: we should have a score estimate for this
+            DEFAULT_SCORE,
+          ])
+        }
         break
       }
       default: {
