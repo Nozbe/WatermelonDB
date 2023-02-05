@@ -166,7 +166,44 @@ describe('optimizeQueryDescription', () => {
         Q.or(Q.where('str', 'bar'), Q.where('str', 'bar2')),
       ])
     })
-    it(`flattens (merges) Q.ons`, () => {
+    it.skip(`flattens complex nested conditions`, () => {
+      expect(
+        optimize([
+          Q.and(
+            Q.and(
+              Q.and(
+                //
+                Q.on('tasks', Q.on('comments', 'foo', 'bar')),
+                Q.on('tasks', 'foo', 'bar'),
+              ),
+            ),
+            Q.or(
+              Q.or(
+                Q.or(
+                  //
+                  Q.on('tasks', Q.on('comments', 'foo', 'bar')),
+                  Q.on('tasks', 'foo', 'bar'),
+                ),
+              ),
+            ),
+          ),
+        ]),
+      ).toEqual([
+        Q.on('tasks', [
+          //
+          Q.where('foo', 'bar'),
+          Q.on('comments', 'foo', 'bar'),
+        ]),
+        // Q.or(
+        //   //
+        //   Q.on('tasks', 'foo', 'bar'),
+        //   Q.on('tasks', Q.on('comments', 'foo', 'bar')),
+        // ),
+      ])
+    })
+  })
+  describe('merges Q.on', () => {
+    it(`merges Q.ons`, () => {
       expect(
         optimize([
           Q.on('tasks', 'foo', 'bar'),
@@ -185,7 +222,7 @@ describe('optimizeQueryDescription', () => {
         ]),
       ])
     })
-    it(`flattens (merges) inner Q.ons`, () => {
+    it(`merges inner Q.ons`, () => {
       expect(
         optimize([
           Q.on('tasks', Q.on('comments', 'foo', 'bar')),
@@ -240,39 +277,30 @@ describe('optimizeQueryDescription', () => {
         ),
       ])
     })
-    it.skip(`flattens complex nested conditions`, () => {
+    it(`merges Q.on from flattened lists`, () => {
       expect(
         optimize([
-          Q.and(
-            Q.and(
-              Q.and(
-                //
-                Q.on('tasks', Q.on('comments', 'foo', 'bar')),
-                Q.on('tasks', 'foo', 'bar'),
-              ),
-            ),
-            Q.or(
-              Q.or(
-                Q.or(
-                  //
-                  Q.on('tasks', Q.on('comments', 'foo', 'bar')),
-                  Q.on('tasks', 'foo', 'bar'),
-                ),
-              ),
-            ),
+          Q.on('tasks', [
+            //
+            Q.where('baz', 'blah'),
+            Q.where('fiz', 'buzz'),
+          ]),
+          Q.or(
+            //
+            Q.on('tasks', 'foo', 'bar'),
+            Q.on('tasks', 'bar', 'baz'),
           ),
         ]),
       ).toEqual([
         Q.on('tasks', [
-          //
-          Q.where('foo', 'bar'),
-          Q.on('comments', 'foo', 'bar'),
+          Q.where('baz', 'blah'),
+          Q.where('fiz', 'buzz'),
+          Q.or([
+            //
+            Q.where('foo', 'bar'),
+            Q.where('bar', 'baz'),
+          ]),
         ]),
-        // Q.or(
-        //   //
-        //   Q.on('tasks', 'foo', 'bar'),
-        //   Q.on('tasks', Q.on('comments', 'foo', 'bar')),
-        // ),
       ])
     })
   })

@@ -64,9 +64,7 @@ function optimizeWhere(
   schema: AppSchema,
   listContext: ListContext,
 ): CondEntry[] {
-  const optimized: CondEntry[] = []
-  const ons: { [table: TableName<any>]: OnEntry } = {}
-
+  let optimized: CondEntry[] = []
   const tableSchema = schema.tables[table]
 
   conditions.forEach((condition) => {
@@ -117,14 +115,8 @@ function optimizeWhere(
         break
       }
       case 'on': {
-        // Note on's for merging later
-        const { table: onTable, conditions: onConditions } = condition
-        const onEntry = ons[onTable]
-        if (onEntry) {
-          onEntry.push(onConditions)
-        } else {
-          ons[onTable] = [onConditions]
-        }
+        // push as is, will be merged later
+        optimized.push([condition, ON_MULTPLIER])
         break
       }
       default: {
@@ -136,6 +128,43 @@ function optimizeWhere(
   })
 
   // merge & optimize ons
+  // merging needs to be a second pass to be able to merge ons
+  // originating from flattened and/or expressions
+  // e.g. (on(a) || on(b)) && on(c) -> on((a || b) && c)
+  optimized = mergeOns(optimized, table, schema, listContext)
+
+  // sort by score
+  optimized.sort(([, a], [, b]) => a - b)
+
+  return optimized
+}
+
+function mergeOns(
+  initial: CondEntry[],
+  table: TableName<any>,
+  schema: AppSchema,
+  listContext: ListContext,
+): CondEntry[] {
+  const optimized: CondEntry[] = []
+  const ons: { [table: TableName<any>]: OnEntry } = {}
+
+  // extract all on's, grouped by table
+  initial.forEach((condEntry) => {
+    if (condEntry[0].type === 'on') {
+      const on: On = condEntry[0]
+      const { table: onTable, conditions: onConditions } = on
+      const onEntry = ons[onTable]
+      if (onEntry) {
+        onEntry.push(onConditions)
+      } else {
+        ons[onTable] = [onConditions]
+      }
+    } else {
+      optimized.push(condEntry)
+    }
+  })
+
+  // merge&optimize entries
   Object.entries(ons).forEach(([onTable, manyOnConditions]) => {
     // merge
     const mergedOnCondiions = []
@@ -166,9 +195,6 @@ function optimizeWhere(
     }
     optimized.push([optimizedOn, ON_MULTPLIER])
   })
-
-  // sort by score
-  optimized.sort(([, a], [, b]) => a - b)
 
   return optimized
 }
