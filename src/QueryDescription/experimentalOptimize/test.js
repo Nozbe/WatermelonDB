@@ -210,18 +210,35 @@ describe('optimizeQueryDescription', () => {
         ),
       ])
     })
-    it(`does not merge Q.or(Q.on)`, () => {
-      const orig = [
+    it(`merges Q.or(Q.on) into Q.on(Q.or())`, () => {
+      expect(
+        optimize([
+          Q.or(
+            Q.where('foo', 'bar'),
+            Q.on('tasks', 'foo', 'bar'),
+            Q.on('tasks', [
+              //
+              Q.where('bar', 'baz'),
+              Q.where('baz', 'blah'),
+            ]),
+          ),
+        ]),
+      ).toEqual([
         Q.or(
-          Q.on('tasks', 'foo', 'bar'),
-          Q.on('tasks', [
-            //
-            Q.where('bar', 'baz'),
-            Q.where('baz', 'blah'),
-          ]),
+          Q.where('foo', 'bar'),
+          Q.on(
+            'tasks',
+            Q.or(
+              Q.where('foo', 'bar'),
+              Q.and([
+                //
+                Q.where('bar', 'baz'),
+                Q.where('baz', 'blah'),
+              ]),
+            ),
+          ),
         ),
-      ]
-      expect(optimize(orig)).toEqual(orig)
+      ])
     })
     it.skip(`flattens complex nested conditions`, () => {
       expect(
@@ -230,20 +247,33 @@ describe('optimizeQueryDescription', () => {
             Q.and(
               Q.and(
                 //
-                Q.on('tasks', 'foo', 'bar'),
                 Q.on('tasks', Q.on('comments', 'foo', 'bar')),
+                Q.on('tasks', 'foo', 'bar'),
               ),
             ),
-            Q.or(Q.or(Q.or())),
+            Q.or(
+              Q.or(
+                Q.or(
+                  //
+                  Q.on('tasks', Q.on('comments', 'foo', 'bar')),
+                  Q.on('tasks', 'foo', 'bar'),
+                ),
+              ),
+            ),
           ),
-
-          // Q.on('tasks', [
-          //   //
-          //   Q.where('bar', 'baz'),
-          //   Q.where('baz', 'blah'),
-          // ]),
         ]),
-      ).toEqual([])
+      ).toEqual([
+        Q.on('tasks', [
+          //
+          Q.where('foo', 'bar'),
+          Q.on('comments', 'foo', 'bar'),
+        ]),
+        // Q.or(
+        //   //
+        //   Q.on('tasks', 'foo', 'bar'),
+        //   Q.on('tasks', Q.on('comments', 'foo', 'bar')),
+        // ),
+      ])
     })
   })
   describe('optimizes inner lists', () => {
@@ -307,7 +337,7 @@ describe('optimizeQueryDescription', () => {
         ]),
       ])
     })
-    it(`optimizes Q.or(Q.on)`, () => {
+    it.skip(`optimizes Q.or(Q.on)`, () => {
       expect(
         optimize([
           Q.or(

@@ -2,8 +2,9 @@
 /* eslint-disable no-use-before-define */
 
 import deepFreeze from '../../utils/common/deepFreeze'
+import * as Q from '../index'
 import type { AppSchema, TableName } from '../../Schema'
-import type { QueryDescription, Where, On } from '../type'
+import type { QueryDescription, Where, On, And, Or } from '../type'
 
 // where()s first
 // … but where()s with oneOf/notIn last (because it could be a long array)
@@ -46,6 +47,7 @@ export default function optimizeQueryDescription(
 
 type score = number // lower number = higher priority
 type CondEntry = [Where, score]
+type OnEntry = Where[][]
 type ListContext = 'and' | 'or'
 
 const getWheres = (entries: CondEntry[]): Where[] => entries.map(([condition]) => condition)
@@ -63,7 +65,7 @@ function optimizeWhere(
   listContext: ListContext,
 ): CondEntry[] {
   const optimized: CondEntry[] = []
-  const ons: { [table: string]: { ...On } } = {}
+  const ons: { [table: TableName<any>]: OnEntry } = {}
 
   const tableSchema = schema.tables[table]
 
@@ -85,6 +87,8 @@ function optimizeWhere(
       case 'and': {
         const optimizedInner = optimizeWhere(condition.conditions, table, schema, 'and')
 
+        // a && (b && c) == a && b && c
+        // a || (b) == a || b
         if (listContext === 'and' || optimizedInner.length === 1) {
           optimized.push(...optimizedInner)
         } else {
@@ -99,6 +103,8 @@ function optimizeWhere(
       case 'or': {
         const optimizedInner = optimizeWhere(condition.conditions, table, schema, 'or')
 
+        // a || (b || c) == a || b || c
+        // a && (b) == a && b
         if (listContext === 'or' || optimizedInner.length === 1) {
           optimized.push(...optimizedInner)
         } else {
@@ -111,18 +117,13 @@ function optimizeWhere(
         break
       }
       case 'on': {
-        if (listContext === 'and') {
-          const existing = ons[condition.table]
-          if (existing) {
-            existing.conditions = [...existing.conditions, ...condition.conditions]
-          } else {
-            const on = { ...condition }
-            ons[condition.table] = on
-            optimized.push([on, ON_MULTPLIER])
-          }
+        // Note on's for merging later
+        const { table: onTable, conditions: onConditions } = condition
+        const onEntry = ons[onTable]
+        if (onEntry) {
+          onEntry.push(onConditions)
         } else {
-          const optimizedInner = optimizeWhere(condition.conditions, condition.table, schema, 'and')
-          optimized.push([{ ...condition, conditions: getWheres(optimizedInner) }, ON_MULTPLIER])
+          ons[onTable] = [onConditions]
         }
         break
       }
@@ -134,10 +135,36 @@ function optimizeWhere(
     }
   })
 
-  // optimize ons
-  Object.values(ons).forEach((on) => {
-    const optimizedInner = optimizeWhere(on.conditions, on.table, schema, 'and')
-    on.conditions = getWheres(optimizedInner)
+  // merge & optimize ons
+  Object.entries(ons).forEach(([onTable, manyOnConditions]) => {
+    // merge
+    const mergedOnCondiions = []
+    manyOnConditions.forEach((conds) => {
+      // on(a) && on(b && b) == on(a && b && c)
+      // on(a) || on(b && c) == on(a || (b && c))
+      // on(a) || on(b) == on(a || b)
+      if (listContext === 'and' || conds.length === 1) {
+        mergedOnCondiions.push(...conds)
+      } else {
+        mergedOnCondiions.push({ type: 'and', conditions: conds })
+      }
+    })
+
+    const optimizedMerged = getWheres(
+      optimizeWhere(mergedOnCondiions, (onTable: any), schema, listContext),
+    )
+    // wrap in or() if we're transforming on(a) || on(b) to on(a || b)
+    const wrappedConditions =
+      listContext === 'or' && optimizedMerged.length > 1
+        ? [({ type: 'or', conditions: optimizedMerged }: Or)]
+        : optimizedMerged
+
+    const optimizedOn: On = {
+      type: 'on',
+      table: (onTable: any),
+      conditions: wrappedConditions,
+    }
+    optimized.push([optimizedOn, ON_MULTPLIER])
   })
 
   // sort by score
