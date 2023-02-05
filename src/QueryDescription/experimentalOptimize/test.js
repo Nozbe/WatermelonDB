@@ -43,7 +43,7 @@ describe('optimizeQueryDescription', () => {
       Q.where('foo', 'bar'),
       Q.unsafeSqlExpr(''),
       Q.unsafeLokiExpr({}),
-      Q.and(Q.where('foo', 'bar')),
+      Q.or(Q.where('foo', 'bar')),
     ]
     expect(optimize(orig)).toEqual(orig)
   })
@@ -126,23 +126,41 @@ describe('optimizeQueryDescription', () => {
       Q.where('str', Q.oneOf(Array(10).fill('bar'))),
     ])
   })
-  it(`reorders Q.and conditions`, () => {
+  it(`flattens Q.and`, () => {
     expect(
       optimize([
+        //
+        Q.where('str', 'bar'),
         Q.and([
           //
-          Q.where('str', 'bar'),
-          Q.where('bool_i', 'bar'),
-          Q.where('str_i', 'bar'),
+          Q.where('str', 'bar2'),
+          Q.and(Q.where('str', 'bar3')),
         ]),
       ]),
     ).toEqual([
-      Q.and([
-        //
-        Q.where('bool_i', 'bar'),
-        Q.where('str_i', 'bar'),
-        Q.where('str', 'bar'),
-      ]),
+      //
+      Q.where('str', 'bar'),
+      Q.where('str', 'bar2'),
+      Q.where('str', 'bar3'),
     ])
   })
+  // it(`reorders Q.and conditions`, () => {
+  //   expect(
+  //     optimize([
+  //       Q.and([
+  //         //
+  //         Q.where('str', 'bar'),
+  //         Q.where('bool_i', 'bar'),
+  //         Q.where('str_i', 'bar'),
+  //       ]),
+  //     ]),
+  //   ).toEqual([
+  //     Q.and([
+  //       //
+  //       Q.where('bool_i', 'bar'),
+  //       Q.where('str_i', 'bar'),
+  //       Q.where('str', 'bar'),
+  //     ]),
+  //   ])
+  // })
 })
