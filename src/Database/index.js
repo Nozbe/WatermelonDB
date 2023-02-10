@@ -70,7 +70,11 @@ export default class Database {
   // (made with `collection.prepareCreate` and `record.prepareUpdate`)
   // Note: falsy values (null, undefined, false) passed to batch are just ignored
   async batch(...records: $ReadOnlyArray<Model | Model[] | null | void | false>): Promise<void> {
-    const actualRecords = fromArrayOrSpread((records: any), 'Database.batch', 'Model')
+    const actualRecords: Array<?Model> = fromArrayOrSpread(
+      (records: any),
+      'Database.batch',
+      'Model',
+    )
 
     this._ensureInWriter(`Database.batch()`)
 
