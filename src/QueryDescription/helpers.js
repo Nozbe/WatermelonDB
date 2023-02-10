@@ -10,17 +10,6 @@ import { columnName } from '../Schema'
 import type { Where, Clause, QueryDescription, On } from './type'
 import { where, notEq } from './operators'
 
-const acceptableClauses = ['where', 'and', 'or', 'on', 'sql', 'loki']
-const isAcceptableClause = (clause: Where) => acceptableClauses.includes(clause.type)
-export const validateConditions = (clauses: Where[]) => {
-  if (process.env.NODE_ENV !== 'production') {
-    invariant(
-      clauses.every(isAcceptableClause),
-      'Q.and(), Q.or(), Q.on() can only contain: Q.where, Q.and, Q.or, Q.on, Q.unsafeSqlExpr, Q.unsafeLokiExpr clauses',
-    )
-  }
-}
-
 const syncStatusColumn = columnName('_status')
 const extractClauses: (Clause[]) => QueryDescription = (clauses) => {
   const query: $Exact<{ ...$Shape<QueryDescription> }> = {
