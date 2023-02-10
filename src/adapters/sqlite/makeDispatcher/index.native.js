@@ -12,22 +12,28 @@ import type {
   SqliteDispatcherOptions,
 } from '../type'
 
-const { DatabaseBridge } = NativeModules
+const { DatabaseBridge, WMDatabaseBridge } = NativeModules
+
+// TODO: Remove this after we're sure that new bridge works well
+const USE_NEW_BRIDGE_FOR_JSI_SUPPORT = true
 
 class SqliteNativeModulesDispatcher implements SqliteDispatcher {
   _tag: ConnectionTag
   _unsafeNativeReuse: boolean
+  _bridge: any
 
   constructor(
     tag: ConnectionTag,
+    bridge: any,
     { experimentalUnsafeNativeReuse }: SqliteDispatcherOptions,
   ): void {
     this._tag = tag
+    this._bridge = bridge
     this._unsafeNativeReuse = experimentalUnsafeNativeReuse
     if (process.env.NODE_ENV !== 'production') {
       invariant(
-        DatabaseBridge,
-        `NativeModules.DatabaseBridge is not defined! This means that you haven't properly linked WatermelonDB native module. Refer to docs for instructions about installation (and the changelog if this happened after an upgrade).`,
+        this._bridge,
+        `NativeModules.(WM)DatabaseBridge is not defined! This means that you haven't properly linked WatermelonDB native module. Refer to docs for instructions about installation (and the changelog if this happened after an upgrade).`,
       )
     }
   }
@@ -35,7 +41,7 @@ class SqliteNativeModulesDispatcher implements SqliteDispatcher {
   call(name: SqliteDispatcherMethod, _args: any[], callback: ResultCallback<any>): void {
     let methodName: string = name
     let args = _args
-    if (methodName === 'batch' && DatabaseBridge.batchJSON) {
+    if (methodName === 'batch' && this._bridge.batchJSON) {
       methodName = 'batchJSON'
       args = [JSON.stringify(args[0])]
     } else if (
@@ -45,7 +51,7 @@ class SqliteNativeModulesDispatcher implements SqliteDispatcher {
       // FIXME: Hacky, refactor once native reuse isn't an "unsafe experimental" option
       args.push(this._unsafeNativeReuse)
     }
-    fromPromise(DatabaseBridge[methodName](this._tag, ...args), callback)
+    fromPromise(this._bridge[methodName](this._tag, ...args), callback)
   }
 }
 
@@ -70,7 +76,12 @@ class SqliteJsiDispatcher implements SqliteDispatcher {
       methodName = 'batchJSON'
       args = [JSON.stringify(args[0])]
     } else if (methodName === 'provideSyncJson') {
-      fromPromise(DatabaseBridge.provideSyncJson(...args), callback)
+      fromPromise(
+        (USE_NEW_BRIDGE_FOR_JSI_SUPPORT ? WMDatabaseBridge : DatabaseBridge).provideSyncJson(
+          ...args,
+        ),
+        callback,
+      )
       return
     }
 
@@ -105,19 +116,28 @@ export const makeDispatcher = (
   tag: ConnectionTag,
   dbName: string,
   options: SqliteDispatcherOptions,
-): SqliteDispatcher =>
-  type === 'jsi'
-    ? new SqliteJsiDispatcher(dbName, options)
-    : new SqliteNativeModulesDispatcher(tag, options)
+): SqliteDispatcher => {
+  switch (type) {
+    case 'jsi':
+      return new SqliteJsiDispatcher(dbName, options)
+    case 'asynchronous':
+      return new SqliteNativeModulesDispatcher(tag, DatabaseBridge, options)
+    case 'asynchronous-v2':
+      return new SqliteNativeModulesDispatcher(tag, WMDatabaseBridge, options)
+    default:
+      throw new Error('Unknown DispatcherType')
+  }
+}
 
 const initializeJSI = () => {
   if (global.nativeWatermelonCreateAdapter) {
     return true
   }
 
-  if (DatabaseBridge.initializeJSI) {
+  const bridge = USE_NEW_BRIDGE_FOR_JSI_SUPPORT ? WMDatabaseBridge : DatabaseBridge
+  if (bridge.initializeJSI) {
     try {
-      DatabaseBridge.initializeJSI()
+      bridge.initializeJSI()
       return !!global.nativeWatermelonCreateAdapter
     } catch (e) {
       logger.error('[SQLite] Failed to initialize JSI')
@@ -139,5 +159,9 @@ export function getDispatcherType(options: SQLiteAdapterOptions): DispatcherType
     )
   }
 
-  return 'asynchronous'
+  if (options.disableNewBridge) {
+    return 'asynchronous'
+  }
+
+  return 'asynchronous-v2'
 }

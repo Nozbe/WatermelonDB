@@ -4,18 +4,41 @@
 
 ### Highlights
 
-- [iOS] Older version of iOS Installation docs said to import WatermelonDB's `SupportingFiles/Bridging.h` from your app project's `Bridging.h`.
-  This is no longer recommended, and you should remove this import from your project. If this removal causes build issues, please file an issue.
-- [docs] Update docs to use docusaurus instead of mdbook (@ErickLuizA)
+**New Native Modules**
+
+We're transitioning SQLite adapters for React Native **from Kotlin and Swift to Java and Objective-C**.
+
+This is only a small part of WatermelonDB, yet is responsible for a disproportionate amount of issues
+raised, such as Kotlin version conflicts, Expo build failures, CocoaPods use_frameworks! issues. It
+makes library installation and updates more complicated for users. It complicates maintenance.
+Swift doesn't play nicely with either React Native's legacy Native Module system, nor can it interact
+cleanly with C++ (JSI/New Architecture) without going through Objective-C++.
+
+In other words, in the context of a React Native library, the benefit of these modern, nicer to use
+languages is far outweighed by the downsides. That's why we (@radex & @rozpierog) decided to rewrite
+the iOS and Android implementations to Objective-C and Java respectively.
+
+0.26 is a transition release, and it contains both implementations. If you find a regression caused
+by the new bridge, pass `{disableNewBridge: true}` to `new SQLiteAdapter()` **and file an issue**.
+We plan to remove the old implementation in 0.27 or 0.28 release.
+
+**New documentation**
+
+We have a brand new documentation page, built with Docusaurus (contributed by @ErickLuizA).
+
+We plan to expand guides, add typing to examples, and add a proper API reference, but we need your
+help to do this! See: https://github.com/Nozbe/WatermelonDB/issues/1481
 
 ### BREAKING CHANGES
 
-- [iOS] In your Podfile, make the following change:
+- [iOS] You should remove import of WatermelonDB's `SupportingFiles/Bridging.h` from your app project's `Bridging.h`.
+  If this removal causes build issues, please file an issue.
+- [iOS] In your Podfile, replace previous WatermelonDB's pod imports with this:
 
   ```rb
-  # replace this:
-  pod 'simdjson', path: '../node_modules/@nozbe/simdjson'
-  # with this:
+  # Uncomment this line if you're not using auto-linking
+  # pod 'WatermelonDB', path: '../node_modules/@nozbe/watermelondb'
+  # WatermelonDB dependency
   pod 'simdjson', path: '../node_modules/@nozbe/simdjson', modular_headers: true
   ```
 
