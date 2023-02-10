@@ -91,26 +91,33 @@ export default class WorkQueue {
     }
 
     return new Promise((resolve, reject) => {
+      const workItem: WorkQueueItem = { work, isWriter, resolve, reject, description }
+
       if (process.env.NODE_ENV !== 'production' && this._queue.length) {
-        // TODO: This warning confuses people - maybe delay its showing by some time (say, 1s) to avoid showing it unnecessarily?
-        const queue = this._queue
-        const current = queue[0]
-        const enqueuedKind = isWriter ? 'writer' : 'reader'
-        const currentKind = current.isWriter ? 'writer' : 'reader'
-        logger.warn(
-          `The ${enqueuedKind} you're trying to run (${
-            description || 'unnamed'
-          }) can't be performed yet, because there are ${
-            queue.length
-          } other readers/writers in the queue. Current ${currentKind}: ${
-            current.description || 'unnamed'
-          }. If everything is working fine, you can safely ignore this message (queueing is working as expected). But if your readers/writers are not running, it's because the current ${currentKind} is stuck. Remember that if you're calling a reader/writer from another reader/writer, you must use callReader()/callWriter(). See docs for more details.`,
-        )
-        logger.log(`Enqueued ${enqueuedKind}:`, work)
-        logger.log(`Running ${currentKind}:`, current.work)
+        setTimeout(() => {
+          const queue = this._queue
+          const current = queue[0]
+          if (current === workItem || !queue.includes(workItem)) {
+            return
+          }
+
+          const enqueuedKind = isWriter ? 'writer' : 'reader'
+          const currentKind = current.isWriter ? 'writer' : 'reader'
+          logger.warn(
+            `The ${enqueuedKind} you're trying to run (${
+              description || 'unnamed'
+            }) can't be performed yet, because there are ${
+              queue.length
+            } other readers/writers in the queue.\n\nCurrent ${currentKind}: ${
+              current.description || 'unnamed'
+            }.\n\nIf everything is working fine, you can safely ignore this message (queueing is working as expected). But if your readers/writers are not running, it's because the current ${currentKind} is stuck.\nRemember that if you're calling a reader/writer from another reader/writer, you must use callReader()/callWriter(). See docs for more details.`,
+          )
+          logger.log(`Enqueued ${enqueuedKind}:`, work)
+          logger.log(`Running ${currentKind}:`, current.work)
+        }, 1500)
       }
 
-      this._queue.push({ work, isWriter, resolve, reject, description })
+      this._queue.push(workItem)
 
       if (this._queue.length === 1) {
         this._executeNext()
