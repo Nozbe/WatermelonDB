@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable no-use-before-define */
 
-import { invariant, deprecated, logger } from '../utils/common'
+import { invariant, logger } from '../utils/common'
 import type Model from '../Model'
 import type Database from './index'
 
@@ -38,14 +38,6 @@ class ReaderInterfaceImpl implements ReaderInterface {
 
 class WriterInterfaceImpl extends ReaderInterfaceImpl implements WriterInterface {
   callWriter<T>(writer: () => Promise<T>): Promise<T> {
-    this.__validateQueue()
-    return this.__workQueue.subAction(writer)
-  }
-
-  subAction<T>(writer: () => Promise<T>): Promise<T> {
-    if (process.env.NODE_ENV !== 'production') {
-      deprecated('.subAction()', 'Use .callWriter() / .callReader() instead.')
-    }
     this.__validateQueue()
     return this.__workQueue.subAction(writer)
   }

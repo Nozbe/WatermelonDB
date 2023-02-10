@@ -9,7 +9,7 @@ class MockTaskExtended extends MockTask {
 
   @writer
   async nested(...args) {
-    this.subAction(() => this.returnArgs('sub', ...args))
+    this.callWriter(() => this.returnArgs('sub', ...args))
     this.callWriter(() => this.db.write(async () => 42))
 
     return this.callReader(() => this.returnArgs('sub', ...args))

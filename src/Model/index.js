@@ -3,7 +3,6 @@
 import { type Observable, BehaviorSubject } from '../utils/rx'
 import { type Unsubscribe } from '../utils/subscriptions'
 import invariant from '../utils/common/invariant'
-import deprecated from '../utils/common/deprecated'
 import ensureSync from '../utils/common/ensureSync'
 import fromPairs from '../utils/fp/fromPairs'
 import noop from '../utils/fp/noop'
@@ -217,14 +216,6 @@ export default class Model {
 
   // To be used by Model @writer/@reader methods only!
   callReader<T>(action: () => Promise<T>): Promise<T> {
-    return this.db._workQueue.subAction(action)
-  }
-
-  // To be used by Model @writer/@reader methods only!
-  subAction<T>(action: () => Promise<T>): Promise<T> {
-    if (process.env.NODE_ENV !== 'production') {
-      deprecated('Model.subAction()', 'Use .callWriter() / .callReader() instead.')
-    }
     return this.db._workQueue.subAction(action)
   }
 

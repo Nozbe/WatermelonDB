@@ -6,10 +6,11 @@
 #import <mutex>
 #import <sqlite3.h>
 
-// FIXME: Make these paths consistent
+// FIXME: Make these paths consistent across platforms
 #ifdef ANDROID
 #import <simdjson.h>
 #else
+// Does Xcode error on this line? You probably didn't include `simdjson` as a dependency in your Podfile.
 #import <simdjson/simdjson.h>
 #endif
 

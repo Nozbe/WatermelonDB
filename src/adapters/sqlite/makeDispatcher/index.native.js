@@ -89,7 +89,7 @@ class SqliteJsiDispatcher implements SqliteDispatcher {
       const method = this._db[methodName]
       if (!method) {
         throw new Error(
-          `Cannot run database method ${method} because database failed to open. ${Object.keys(
+          `Cannot run database method ${method} because database failed to open. Hint: Did you install JSI correctly? This happens if you forgot to configure Proguard correctly ${Object.keys(
             this._db,
           ).join(',')}`,
         )

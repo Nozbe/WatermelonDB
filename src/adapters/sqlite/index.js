@@ -87,14 +87,6 @@ export default class SQLiteAdapter implements DatabaseAdapter {
     })
 
     if (process.env.NODE_ENV !== 'production') {
-      invariant(
-        !('experimentalUseJSI' in options),
-        'SQLiteAdapter `experimentalUseJSI: true` has been renamed to `jsi: true`',
-      )
-      invariant(
-        !('synchronous' in options),
-        'SQLiteAdapter `synchronous: true` was removed. Replace with `jsi: true`, which has the same effect, but with a more modern implementation',
-      )
       validateAdapter(this)
     }
 
@@ -306,7 +298,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
   unsafeLoadFromSync(jsonId: number, callback: ResultCallback<any>): void {
     if (this._dispatcherType !== 'jsi') {
-      callback({ error: new Error('unsafeLoadFromSync unavailable') })
+      callback({ error: new Error('unsafeLoadFromSync unavailable. Use JSI mode to enable.') })
       return
     }
 
@@ -328,7 +320,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
 
   provideSyncJson(id: number, syncPullResultJson: string, callback: ResultCallback<void>): void {
     if (this._dispatcherType !== 'jsi') {
-      callback({ error: new Error('provideSyncJson unavailable') })
+      callback({ error: new Error('provideSyncJson unavailable. Use JSI mode to enable.') })
       return
     }
 
