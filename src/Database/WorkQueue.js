@@ -91,7 +91,7 @@ export default class WorkQueue {
     }
 
     return new Promise((resolve, reject) => {
-      const workItem: WorkQueueItem = { work, isWriter, resolve, reject, description }
+      const workItem: WorkQueueItem<T> = { work, isWriter, resolve, reject, description }
 
       if (process.env.NODE_ENV !== 'production' && this._queue.length) {
         setTimeout(() => {
