@@ -21,10 +21,20 @@ export type CollectionChangeSet<T> = CollectionChange<T>[]
 export default class Collection<Record: Model> {
   database: Database
 
+  /**
+   * `Model` subclass associated with this Collection
+   */
   modelClass: Class<Record>
 
-  // Emits event every time a record inside Collection changes or is deleted
-  // (Use Query API to observe collection changes)
+  /**
+   * An `Rx.Subject` that emits a signal on every change (record creation/update/deletion) in
+   * this Collection.
+   *
+   * The emissions contain information about which record was changed and what the change was.
+   *
+   * Warning: You can easily introduce performance bugs in your application by using this method
+   * inappropriately. You generally should just use the `Query` API.
+   */
   changes: Subject<CollectionChangeSet<Record>> = new Subject()
 
   _cache: RecordCache<Record>
@@ -39,18 +49,43 @@ export default class Collection<Record: Model> {
     )
   }
 
+  /**
+   * `Database` associated with this Collection.
+   */
   get db(): Database {
     return this.database
   }
 
-  // Finds a record with the given ID
-  // Promise will reject if not found
+  /**
+   * Table name associated with this Collection
+   */
+  get table(): TableName<Record> {
+    // $FlowFixMe
+    return this.modelClass.table
+  }
+
+  /**
+   * Table schema associated with this Collection
+   */
+  get schema(): TableSchema {
+    return this.database.schema.tables[this.table]
+  }
+
+  /**
+   * Fetches the record with the given ID.
+   *
+   * If the record is not found, the Promise will reject.
+   */
   async find(id: RecordId): Promise<Record> {
     return toPromise((callback) => this._fetchRecord(id, callback))
   }
 
-  // Finds the given record and starts observing it
-  // (with the same semantics as when calling `model.observe()`)
+  /**
+   * Fetches the given record and then starts observing it.
+   *
+   * This is a convenience method that's equivalent to
+   * `collection.find(id)`, followed by `record.observe()`.
+   */
   findAndObserve(id: RecordId): Observable<Record> {
     return Observable.create((observer) => {
       let unsubscribe = null
@@ -76,19 +111,29 @@ export default class Collection<Record: Model> {
     })
   }
 
-  // Query records of this type
+  /**
+   * Returns a `Query` with conditions given.
+   *
+   * You can pass conditions as multiple arguments or a single array.
+   *
+   * See docs for details about the Query API.
+   */
   query: ArrayOrSpreadFn<Clause, Query<Record>> = (...args) => {
     const clauses = fromArrayOrSpread<Clause>(args, 'Collection.query', 'Clause')
     return new Query(this, clauses)
   }
 
-  // Creates a new record in this collection
-  // Pass a function to set attributes of the record.
-  //
-  // Example:
-  // collections.get(Tables.tasks).create(task => {
-  //   task.name = 'Task name'
-  // })
+  /**
+   * Creates a new record.
+   * Pass a block to set attributes of the new record.
+   *
+   * @example
+   * ```js
+   * db.get(Tables.tasks).create(task => {
+   *   task.name = 'Task name'
+   * })
+   * ```
+   */
   async create(recordBuilder: (Record) => void = noop): Promise<Record> {
     this.database._ensureInWriter(`Collection.create()`)
 
@@ -97,41 +142,49 @@ export default class Collection<Record: Model> {
     return record
   }
 
-  // Prepares a new record in this collection
-  // Use this to batch-create multiple records
+  /**
+   * Prepares a new record to be created.
+   *
+   * Use this to batch-create multiple records at once.
+   * @see {Database#batch}
+   */
   prepareCreate(recordBuilder: (Record) => void = noop): Record {
     // $FlowFixMe
     return this.modelClass._prepareCreate(this, recordBuilder)
   }
 
-  // Prepares a new record in this collection based on a raw object
-  // e.g. `{ foo: 'bar' }`. Don't use this unless you know how RawRecords work in WatermelonDB
-  // this is useful as a performance optimization or if you're implementing your own sync mechanism
+  /**
+   * Prepares a new record to be created, based on a raw object.
+   *
+   * Don't use this unless you know how RawRecords work in WatermelonDB. See docs for more details.
+   *
+   * This is useful as a performance optimization, when adding online-only features to an otherwise
+   * offline-first app, or if you're implementing your own sync mechanism.
+   */
   prepareCreateFromDirtyRaw(dirtyRaw: DirtyRaw): Record {
     // $FlowFixMe
     return this.modelClass._prepareCreateFromDirtyRaw(this, dirtyRaw)
   }
 
-  // Prepares a disposable record in this collection based on a raw object, e.g. `{ foo: 'bar' }`.
-  // Disposable records are read-only, cannot be saved in the database, updated, or deleted
-  // they only exist for as long as you keep a reference to them in memory.
-  // Don't use this unless you know how RawRecords work in WatermelonDB.
-  // This is useful when you're adding online-only features to an otherwise offline-first app
+  /**
+   * Returns a disposable record, based on a raw object.
+   *
+   * A disposable record is a read-only record that **does not** exist in the actual database. It's
+   * not cached and cannot be saved in the database, updated, deleted, queried, or found by ID. It
+   * only exists for as long as you keep a reference to it.
+   *
+   * Don't use this unless you know how RawRecords work in WatermelonDB. See docs for more details.
+   *
+   * This is useful for adding online-only features to an otherwise offline-first app, or for
+   * temporary objects that are not meant to be persisted (as you can reuse existing Model helpers
+   * and compatible UI components to display a disposable record).
+   */
   disposableFromDirtyRaw(dirtyRaw: DirtyRaw): Record {
     // $FlowFixMe
     return this.modelClass._disposableFromDirtyRaw(this, dirtyRaw)
   }
 
   // *** Implementation details ***
-
-  get table(): TableName<Record> {
-    // $FlowFixMe
-    return this.modelClass.table
-  }
-
-  get schema(): TableSchema {
-    return this.database.schema.tables[this.table]
-  }
 
   // See: Query.fetch
   _fetchQuery(query: Query<Record>, callback: ResultCallback<Record[]>): void {
@@ -209,6 +262,15 @@ export default class Collection<Record: Model> {
 
   _subscribers: [(CollectionChangeSet<Record>) => void, any][] = []
 
+  /**
+   * Notifies `subscriber` on every change (record creation/update/deletion) in this Collection.
+   *
+   * The emissions contain information about which record was changed and what the change was.
+   * (Currently, subscribers are called before `changes` emissions, but this behavior might change)
+   *
+   * Warning: You can easily introduce performance bugs in your application by using this method
+   * inappropriately. You generally should just use the `Query` API.
+   */
   experimentalSubscribe(
     subscriber: (CollectionChangeSet<Record>) => void,
     debugInfo?: any,
