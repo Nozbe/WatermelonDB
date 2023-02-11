@@ -78,7 +78,7 @@ const config = {
     'import/prefer-default-export': 'off',
     'import/named': 'off', // doesn't seem to work with Flow
     'import/no-extraneous-dependencies': 'off',
-    'import/no-cycle': 'off',
+    'import/no-cycle': 'error',
     'jest/no-large-snapshots': 'warn',
     'jest/no-disabled-tests': 'off',
     'jest/expect-expect': 'off',

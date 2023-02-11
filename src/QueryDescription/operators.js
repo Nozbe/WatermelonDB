@@ -7,7 +7,6 @@ import checkName from '../utils/fp/checkName'
 import fromArrayOrSpread, { type ArrayOrSpreadFn } from '../utils/fp/arrayOrSpread'
 import { type TableName, type ColumnName } from '../Schema'
 
-import { validateConditions } from './helpers'
 import type {
   NonNullValue,
   NonNullValues,
@@ -309,4 +308,15 @@ function _valueOrColumn(arg: Value | ColumnDescription): ComparisonRight {
   }
 
   throw new Error(`Invalid value passed to query`)
+}
+
+const acceptableClauses = ['where', 'and', 'or', 'on', 'sql', 'loki']
+const isAcceptableClause = (clause: Where) => acceptableClauses.includes(clause.type)
+const validateConditions = (clauses: Where[]) => {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(
+      clauses.every(isAcceptableClause),
+      'Q.and(), Q.or(), Q.on() can only contain: Q.where, Q.and, Q.or, Q.on, Q.unsafeSqlExpr, Q.unsafeLokiExpr clauses',
+    )
+  }
 }
