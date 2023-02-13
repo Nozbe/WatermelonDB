@@ -125,7 +125,7 @@ export default class Collection<Record: Model> {
 
   /**
    * Creates a new record.
-   * Pass a block to set attributes of the new record.
+   * Pass a function to set attributes of the new record.
    *
    * @example
    * ```js
@@ -143,9 +143,11 @@ export default class Collection<Record: Model> {
   }
 
   /**
-   * Prepares a new record to be created.
+   * Prepares a new record to be created
    *
-   * Use this to batch-create multiple records at once.
+   * Use this to batch-execute multiple changes at once.
+   * Note: Prepared changes must be executed by **synchronously** passing them to `database.batch()`
+   * @see {Collection#create}
    * @see {Database#batch}
    */
   prepareCreate(recordBuilder: (Record) => void = noop): Record {
@@ -265,7 +267,7 @@ export default class Collection<Record: Model> {
   /**
    * Notifies `subscriber` on every change (record creation/update/deletion) in this Collection.
    *
-   * The emissions contain information about which record was changed and what the change was.
+   * Notifications contain information about which record was changed and what the change was.
    * (Currently, subscribers are called before `changes` emissions, but this behavior might change)
    *
    * Warning: You can easily introduce performance bugs in your application by using this method
