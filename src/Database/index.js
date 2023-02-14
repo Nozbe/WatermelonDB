@@ -103,7 +103,7 @@ export default class Database {
 
     // performance critical - using mutations
     const batchOperations: BatchOperation[] = []
-    const changeNotifications: { [collectionName: TableName<any>]: CollectionChangeSet<Model> } = {}
+    const changeNotifications: { [TableName<any>]: CollectionChangeSet<Model> } = {}
     actualRecords.forEach((record) => {
       if (!record) {
         return
@@ -153,31 +153,60 @@ export default class Database {
     await this.adapter.batch(batchOperations)
 
     // NOTE: We must make two passes to ensure all changes to caches are applied before subscribers are called
-    const affectedTables = Object.keys(changeNotifications)
-    const changeNotificationsEntries = Object.entries(changeNotifications)
+    const changes: [TableName<any>, CollectionChangeSet<any>][] = (Object.entries(
+      changeNotifications,
+    ): any)
 
-    changeNotificationsEntries.forEach((notification) => {
-      const [table, changeSet]: [TableName<any>, CollectionChangeSet<any>] = (notification: any)
+    changes.forEach(([table, changeSet]) => {
       this.collections.get(table)._applyChangesToCache(changeSet)
     })
+
+    this._notify(changes)
+
+    return undefined // shuts up flow
+  }
+
+  _pendingNotificationBatches: number = 0
+  _pendingNotificationChanges: [TableName<any>, CollectionChangeSet<any>][][] = []
+
+  _notify(changes: [TableName<any>, CollectionChangeSet<any>][]): void {
+    if (this._pendingNotificationBatches > 0) {
+      this._pendingNotificationChanges.push(changes)
+      return
+    }
+
+    const affectedTables = new Set(changes.map(([table]) => table))
 
     const databaseChangeNotifySubscribers = ([tables, subscriber]: [
       Array<TableName<any>>,
       () => void,
       any,
     ]): void => {
-      if (tables.some((table) => affectedTables.includes(table))) {
+      if (tables.some((table) => affectedTables.has(table))) {
         subscriber()
       }
     }
     this._subscribers.forEach(databaseChangeNotifySubscribers)
 
-    changeNotificationsEntries.forEach((notification) => {
-      const [table, changeSet]: [TableName<any>, CollectionChangeSet<any>] = (notification: any)
+    changes.forEach(([table, changeSet]) => {
       this.collections.get(table)._notify(changeSet)
     })
+  }
 
-    return undefined // shuts up flow
+  async experimentalBatchNotifications<T>(work: () => Promise<T>): Promise<T> {
+    // TODO: Document & add tests if this proves useful
+    try {
+      this._pendingNotificationBatches += 1
+      const result = await work()
+      return result
+    } finally {
+      this._pendingNotificationBatches -= 1
+      if (this._pendingNotificationBatches === 0) {
+        const changes = this._pendingNotificationChanges
+        this._pendingNotificationChanges = []
+        changes.forEach((_changes) => this._notify(_changes))
+      }
+    }
   }
 
   /**
