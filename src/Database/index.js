@@ -194,6 +194,7 @@ export default class Database {
   }
 
   async experimentalBatchNotifications<T>(work: () => Promise<T>): Promise<T> {
+    // TODO: Document & add tests if this proves useful
     try {
       this._pendingNotificationBatches += 1
       const result = await work()
