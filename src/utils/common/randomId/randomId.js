@@ -6,7 +6,7 @@ const alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
 const randomNumbers = new Uint8Array(256)
 let cur = 9999999
 
-export default function randomId(): string {
+function cryptoRandomId(): string {
   let id = ''
   let len = 0
   let v = 0
@@ -26,3 +26,8 @@ export default function randomId(): string {
 
   return id
 }
+
+const isCryptoAvailable: boolean = window.crypto && window.crypto.getRandomValues
+const randomId: () => string = isCryptoAvailable ? cryptoRandomId : require('./fallback').default
+
+export default randomId
