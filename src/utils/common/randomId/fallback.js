@@ -2,7 +2,7 @@
 
 const alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
-const randomId = (): string => {
+export default function fallbackRandomId(): string {
   let id = ''
   let v = 0
   for (let i = 0; i < 16; i += 1) {
@@ -12,5 +12,3 @@ const randomId = (): string => {
 
   return id
 }
-
-export default randomId

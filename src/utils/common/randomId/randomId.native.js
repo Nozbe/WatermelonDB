@@ -2,13 +2,14 @@
 /* eslint-disable no-bitwise */
 import { NativeModules } from 'react-native'
 
-// console.log(NativeModules.WMDatabaseBridge.getRandomBytes())
-
 const alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 let randomNumbers = []
 let cur = 9999999
 
+// TODO: This is 3-5x slower than Math.random()-based implementation
+// Should be migrated to JSI, or simply implemented fully in native
+// (bridging is the bottleneck)
 export default function nativeRandomId(): string {
   let id = ''
   let len = 0
@@ -22,8 +23,7 @@ export default function nativeRandomId(): string {
         len++
       }
     } else {
-      // getRandomValues(randomNumbers)
-      randomNumbers = NativeModules.WMDatabaseBridge.getRandomBytes()
+      randomNumbers = NativeModules.WMDatabaseBridge.getRandomBytes(256)
       cur = 0
     }
   }

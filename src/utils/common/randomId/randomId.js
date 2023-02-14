@@ -1,8 +1,6 @@
 // @flow
 /* eslint-disable no-bitwise */
 
-import getRandomValues from './getRandomValues'
-
 const alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 const randomNumbers = new Uint8Array(256)
@@ -21,7 +19,7 @@ export default function randomId(): string {
         len++
       }
     } else {
-      getRandomValues(randomNumbers)
+      window.crypto.getRandomValues(randomNumbers)
       cur = 0
     }
   }

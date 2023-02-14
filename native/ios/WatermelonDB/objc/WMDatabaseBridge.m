@@ -219,9 +219,13 @@ RCT_EXPORT_METHOD(provideSyncJson:(nonnull NSNumber *)id
     }
 }
 
-RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(getRandomBytes)
+RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(getRandomBytes:(nonnull NSNumber *)count)
 {
     size_t batchSize = 256;
+    if (![count isEqualToNumber:@(batchSize)]) {
+        [NSException raise:@"getRandomBytes" format:@"Expected getRandomBytes to be called with 256"];
+    }
+    
     uint8_t randomBuffer[batchSize];
     arc4random_buf(&randomBuffer, batchSize);
     

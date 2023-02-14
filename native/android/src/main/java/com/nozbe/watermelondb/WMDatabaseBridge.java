@@ -228,7 +228,11 @@ public class WMDatabaseBridge extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod(isBlockingSynchronousMethod = true)
-    public WritableArray getRandomBytes() {
+    public WritableArray getRandomBytes(int count) {
+        if (count != 256) {
+            throw new IllegalStateException("Expected getRandomBytes to be called with 256");
+        }
+
         byte[] randomBytes = new byte[256];
         SecureRandom random = new SecureRandom();
         random.nextBytes(randomBytes);
