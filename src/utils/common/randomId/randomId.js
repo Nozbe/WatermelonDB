@@ -19,7 +19,7 @@ function cryptoRandomId(): string {
         len++
       }
     } else {
-      window.crypto.getRandomValues(randomNumbers)
+      globalThis.crypto.getRandomValues(randomNumbers)
       cur = 0
     }
   }
@@ -27,7 +27,7 @@ function cryptoRandomId(): string {
   return id
 }
 
-const isCryptoAvailable: boolean = window.crypto && window.crypto.getRandomValues
+const isCryptoAvailable: boolean = globalThis.crypto && globalThis.crypto.getRandomValues
 const randomId: () => string = isCryptoAvailable ? cryptoRandomId : require('./fallback').default
 
 export default randomId
