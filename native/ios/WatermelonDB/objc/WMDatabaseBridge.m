@@ -219,6 +219,19 @@ RCT_EXPORT_METHOD(provideSyncJson:(nonnull NSNumber *)id
     }
 }
 
+RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(getRandomBytes)
+{
+    size_t batchSize = 256;
+    uint8_t randomBuffer[batchSize];
+    arc4random_buf(&randomBuffer, batchSize);
+    
+    NSMutableArray *randomBytes = [NSMutableArray array];
+    for (size_t i = 0; i < batchSize; i++) {
+        randomBytes[i] = @(randomBuffer[i]);
+    }
+    return randomBytes;
+}
+
 #pragma mark - Helpers
 
 - (void) connectDriverAsync:(nonnull NSNumber *)tag

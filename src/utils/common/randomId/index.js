@@ -35,5 +35,6 @@ const mathRandomOld = randomId
 
 export { mathRandomOld }
 export { default as mathRandomNew } from './fallback'
-export { default as cryptoSimple } from './crypto2'
-export { default as cryptoImproved } from './randomId'
+// export { default as cryptoSimple } from './crypto2'
+// export { default as cryptoImproved } from './randomId'
+export { default as nativeRandomId } from './nativeRandomId'
