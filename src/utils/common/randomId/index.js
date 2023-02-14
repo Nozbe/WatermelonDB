@@ -30,3 +30,10 @@ export const setGenerator = (newGenerator: (void) => string) => {
 }
 
 export default (): string => generator()
+
+const mathRandomOld = randomId
+
+export { mathRandomOld }
+export { default as mathRandomNew } from './fallback'
+export { default as cryptoSimple } from './crypto2'
+export { default as cryptoImproved } from './randomId'
