@@ -53,6 +53,7 @@ help to do this! See: https://github.com/Nozbe/WatermelonDB/issues/1481
 
 - [Android] Added `experimentalUnsafeNativeReuse` option to SQLiteAdapter. See `src/adapters/sqlite/type.js` for more details
 - You can now pass an array to `Q.and(conditions)`, `Q.or(conditions)`, `collection.query(conditions)` in addition to spreading multiple arguments
+- Added JSDoc comments to many APIs
 
 ### Fixes
 

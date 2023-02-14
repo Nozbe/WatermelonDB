@@ -82,6 +82,7 @@ export type SyncConflictResolver = (
   resolved: DirtyRaw,
 ) => DirtyRaw
 
+// TODO: JSDoc'ify this
 export type SyncArgs = $Exact<{
   database: Database,
   pullChanges: (SyncPullArgs) => Promise<SyncPullResult>,
@@ -114,8 +115,11 @@ export type SyncArgs = $Exact<{
   onWillApplyRemoteChanges?: (info: $Exact<{ remoteChangeCount: number }>) => Promise<void>,
 }>
 
-// See Sync docs for usage details
-
+/**
+ * Synchronizes database with a remote server
+ *
+ * See docs for more details
+ */
 export async function synchronize(args: SyncArgs): Promise<void> {
   try {
     const synchronizeImpl = require('./impl/synchronize').default
@@ -126,6 +130,11 @@ export async function synchronize(args: SyncArgs): Promise<void> {
   }
 }
 
+/**
+ * Returns `true` if database has any unsynced changes.
+ *
+ * Use this to check if you can safely log out (delete the database)
+ */
 export function hasUnsyncedChanges({ database }: $Exact<{ database: Database }>): Promise<boolean> {
   return require('./impl').hasUnsyncedChanges(database)
 }

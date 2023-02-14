@@ -6,11 +6,45 @@ import type Model from '../Model'
 import type Database from './index'
 
 export interface ReaderInterface {
+  /**
+   * Calls a Reader so that it runs as part of the current Reader (or Writer) instead of deadlocking.
+   *
+   * Specifically, the passed block should immediately call a method decorted with `@reader` or a
+   * function whose implementation is wrapped in `db.read()` block.
+   *
+   * See docs for more details.
+   *
+   * @example
+   * ```
+   * db.read(async reader => {
+   *   // ...
+   *   reader.callReader(() => someOtherReader())
+   * })
+   * ```
+   */
   callReader<T>(reader: () => Promise<T>): Promise<T>;
 }
 
 export interface WriterInterface extends ReaderInterface {
+  /**
+   * Calls another Writer so that it runs as part of the current Writer instead of deadlocking.
+   *
+   * Specifically, the passed block should immediately call a method decorated with `@writer` or
+   * a function whose implementation is wrapped in `db.write()` block.
+   *
+   * See docs for more details.
+   *
+   * @example
+   * ```
+   * db.write(async writer => {
+   *   // ...
+   *   writer.callWriter(() => someOtherWriter())
+   * })
+   * ```
+   */
   callWriter<T>(writer: () => Promise<T>): Promise<T>;
+
+  /** @see {Database#batch} */
   batch(...records: $ReadOnlyArray<Model | Model[] | null | void | false>): Promise<void>;
 }
 
