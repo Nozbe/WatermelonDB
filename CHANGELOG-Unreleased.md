@@ -65,9 +65,11 @@ help to do this! See: https://github.com/Nozbe/WatermelonDB/issues/1481
 ### Performance
 
 - Warning is now given if a large number of arguments is passed to `Q.and, Q.or, Collection.query, Database.batch` instead of a single array
+- `randomId()` is now 2x faster on Chrome, 10x faster on Safari
 
 ### Changes
 
+- Changed default `randomId()` format to also contain uppercase letters
 - Simplified CocoaPods/iOS integration
 - Updated `@babel/runtime` to 7.20.13
 - Updated `rxjs` to 7.8.0
