@@ -225,11 +225,11 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(getRandomBytes)
     uint8_t randomBuffer[batchSize];
     arc4random_buf(&randomBuffer, batchSize);
     
-    NSMutableArray *randomBytes = [NSMutableArray array];
+    NSMutableArray *result = [NSMutableArray array];
     for (size_t i = 0; i < batchSize; i++) {
-        randomBytes[i] = @(randomBuffer[i]);
+        result[i] = @(randomBuffer[i]);
     }
-    return randomBytes;
+    return result;
 }
 
 #pragma mark - Helpers
