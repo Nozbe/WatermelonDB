@@ -6,6 +6,8 @@ const alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
 const randomNumbers = new Uint8Array(256)
 let cur = 9999999
 
+/*:: declare var globalThis: WindowProxy */
+
 function cryptoRandomId(): string {
   let id = ''
   let len = 0
