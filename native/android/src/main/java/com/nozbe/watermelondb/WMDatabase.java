@@ -17,17 +17,17 @@ public class WMDatabase {
         this.db = db;
     }
 
-    public static Map<String, WMDatabase> INSTANCES;
+    public static Map<String, WMDatabase> INSTANCES = new HashMap<>();
 
     public static WMDatabase getInstance(String name, Context context, int openFlags) {
         synchronized (WMDatabase.class) {
-            if (!INSTANCES.containsKey(name) ||
-                    !(INSTANCES.get(name) != null && INSTANCES.get(name).isOpen())) {
+            WMDatabase instance = INSTANCES.getOrDefault(name, null);
+            if (instance == null || !instance.isOpen()) {
                 WMDatabase database = buildDatabase(name, context, openFlags);
                 INSTANCES.put(name, database);
                 return database;
             } else {
-                return INSTANCES.get(name);
+                return instance;
             }
         }
     }
