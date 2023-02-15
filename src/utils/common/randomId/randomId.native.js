@@ -30,3 +30,15 @@ export default function nativeRandomId(): string {
 
   return id
 }
+
+let randomIds = []
+let randomIdsCur = 9999
+
+export function nativeRandomId2(): string {
+  if (randomIdsCur >= 32) {
+    randomIds = NativeModules.WMDatabaseBridge.getRandomIds().split(',')
+    randomIdsCur = 0
+  }
+
+  return randomIds[randomIdsCur++]
+}
