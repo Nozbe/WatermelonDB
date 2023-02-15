@@ -239,7 +239,7 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(getRandomBytes:(nonnull NSNumber *)count)
 RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(getRandomIds)
 {
     static const char alphabet[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    size_t batchSize = 32;
+    size_t batchSize = 64;
     char randomIds[batchSize * 17];
     
     for (size_t i = 0; i < batchSize; i++) {
