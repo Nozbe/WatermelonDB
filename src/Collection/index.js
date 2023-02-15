@@ -127,6 +127,8 @@ export default class Collection<Record: Model> {
    * Creates a new record.
    * Pass a function to set attributes of the new record.
    *
+   * Note: This method must be called within a Writer {@link Database#write}.
+   *
    * @example
    * ```js
    * db.get(Tables.tasks).create(task => {

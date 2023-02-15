@@ -98,6 +98,8 @@ export default class Model {
    *
    * Updates `updateAt` field (if available)
    *
+   * Note: This method must be called within a Writer {@link Database#write}.
+   *
    * * @example
    * ```js
    * someTask.create(task => {
@@ -157,6 +159,8 @@ export default class Model {
 
   /**
    * Marks this record as deleted (it will be deleted permanently after sync)
+   *
+   * Note: This method must be called within a Writer {@link Database#write}.
    */
   async markAsDeleted(): Promise<void> {
     this.db._ensureInWriter(`Model.markAsDeleted()`)
@@ -184,6 +188,8 @@ export default class Model {
    * Permanently deletes this record from the database
    *
    * Note: Do not use this when using Sync, as deletion will not be synced.
+   *
+   * Note: This method must be called within a Writer {@link Database#write}.
    */
   async destroyPermanently(): Promise<void> {
     this.db._ensureInWriter(`Model.destroyPermanently()`)
@@ -214,6 +220,8 @@ export default class Model {
    *
    * Descendants are determined by taking Model's `has_many` (children) associations, and then their
    * children associations recursively.
+   *
+   * Note: This method must be called within a Writer {@link Database#write}.
    */
   async experimentalMarkAsDeleted(): Promise<void> {
     this.db._ensureInWriter(`Model.experimental_markAsDeleted()`)
@@ -231,6 +239,8 @@ export default class Model {
    * children associations recursively.
    *
    * Note: Do not use this when using Sync, as deletion will not be synced.
+   *
+   * Note: This method must be called within a Writer {@link Database#write}.
    */
   async experimentalDestroyPermanently(): Promise<void> {
     this.db._ensureInWriter(`Model.experimental_destroyPermanently()`)

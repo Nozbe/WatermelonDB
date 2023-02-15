@@ -90,7 +90,7 @@ export default class Database {
    * Note that falsy values (null, undefined, false) passed to batch are simply ignored
    * so you can use patterns like `.batch(condition && record.prepareUpdate(...))` for convenience.
    *
-   * `batch()` must be called within a Writer {@link Database#write}.
+   * Note: This method must be called within a Writer {@link Database#write}.
    */
   async batch(...records: $ReadOnlyArray<Model | Model[] | null | void | false>): Promise<void> {
     const actualRecords: Array<?Model> = fromArrayOrSpread(

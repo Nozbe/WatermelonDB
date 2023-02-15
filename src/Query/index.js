@@ -238,6 +238,8 @@ export default class Query<Record: Model> {
   /**
    * Marks all records matching this query as deleted (they will be deleted permenantly after sync)
    *
+   * Note: This method must be called within a Writer {@link Database#write}.
+   *
    * @see {Model#markAsDeleted}
    */
   async markAllAsDeleted(): Promise<void> {
@@ -249,6 +251,8 @@ export default class Query<Record: Model> {
    * Permanently deletes all records matching this query
    *
    * Note: Do not use this when using Sync, as deletion will not be synced.
+   *
+   * Note: This method must be called within a Writer {@link Database#write}.
    *
    * @see {Model#destroyPermanently}
    */
