@@ -137,6 +137,7 @@ export default class Model {
     // TODO: `process.nextTick` doesn't work on React Native
     // We could polyfill with setImmediate, but it doesn't have the same effect — test and enseure
     // it would actually work for this purpose
+    // TODO: Also add to other prepared changes
     if (
       process.env.NODE_ENV !== 'production' &&
       typeof process !== 'undefined' &&
@@ -168,6 +169,8 @@ export default class Model {
    *
    * Use this to batch-execute multiple changes at once.
    * Note: Prepared changes must be executed by **synchronously** passing them to `database.batch()`
+   * @see {Model#markAsDeleted}
+   * @see {Database#batch}
    */
   prepareMarkAsDeleted(): this {
     invariant(!this._preparedState, `Cannot mark a record with pending changes as deleted`)
@@ -195,6 +198,8 @@ export default class Model {
    *
    * Use this to batch-execute multiple changes at once.
    * Note: Prepared changes must be executed by **synchronously** passing them to `database.batch()`
+   * @see {Model#destroyPermanently}
+   * @see {Database#batch}
    */
   prepareDestroyPermanently(): this {
     invariant(!this._preparedState, `Cannot destroy permanently a record with pending changes`)

@@ -146,7 +146,6 @@ export default class Collection<Record: Model> {
    * Prepares a new record to be created
    *
    * Use this to batch-execute multiple changes at once.
-   * Note: Prepared changes must be executed by **synchronously** passing them to `database.batch()`
    * @see {Collection#create}
    * @see {Database#batch}
    */
