@@ -257,7 +257,7 @@ export default class Model {
   }
 
   /**
-   * `Collection` associated with this Model
+   * Collection associated with this Model
    */
   +collection: Collection<$FlowFixMe<this>>
 

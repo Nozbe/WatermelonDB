@@ -6,8 +6,8 @@ import { Observable } from '../utils/rx'
 import { toPromise } from '../utils/fp/Result'
 import { type Unsubscribe, SharedSubscribable } from '../utils/subscriptions'
 
-// TODO: ?
-import lazy from '../decorators/lazy' // import from decorarators break the app on web production WTF ¯\_(ツ)_/¯
+// import from decorarators break the app on web production WTF ¯\_(ツ)_/¯
+import lazy from '../decorators/lazy'
 
 import subscribeToCount from '../observation/subscribeToCount'
 import subscribeToQuery from '../observation/subscribeToQuery'
@@ -43,8 +43,12 @@ export default class Query<Record: Model> {
   // Used by withObservables to differentiate between object types
   static _wmelonTag: string = 'query'
 
+  /**
+   * Collection associated with this query
+   */
   collection: Collection<Record>
 
+  // TODO: Should this be public API? QueryDescription structure changes quite a bit...
   description: QueryDescription
 
   _rawDescription: QueryDescription
@@ -71,9 +75,12 @@ export default class Query<Record: Model> {
     this.description = Q.queryWithoutDeleted(this._rawDescription)
   }
 
-  // Creates a new Query that extends the clauses of this query
-  // eslint-disable-next-line no-use-before-define
-  extend(...clauses: Clause[]): Query<Record> {
+  /**
+   * Returns a new Query that contains all clauses (conditions, sorting, etc.) from this Query
+   * as well as the ones passed as arguments.
+   */
+  extend(...clauses: Clause[]): // eslint-disable-next-line no-use-before-define
+  Query<Record> {
     const { collection } = this
     const { where, sortBy, take, skip, joinTables, nestedJoinTables, lokiTransform, sql } =
       this._rawDescription
@@ -93,11 +100,18 @@ export default class Query<Record: Model> {
     ])
   }
 
+  /**
+   * `query.pipe(fn)` is a FP convenience for `fn(query)`
+   */
   pipe<T>(transform: (this) => T): T {
     return transform(this)
   }
 
-  // Queries database and returns an array of matching records
+  /**
+   * Fetches the list of records matching this query
+   *
+   * Tip: For convenience, you can also use `await query`
+   */
   fetch(): Promise<Record[]> {
     return toPromise((callback) => this.collection._fetchQuery(this, callback))
   }
@@ -110,7 +124,13 @@ export default class Query<Record: Model> {
     return this.fetch().then(onFulfill, onReject)
   }
 
-  // Emits an array of matching records, then emits a new array every time it changes
+  /**
+   * Returns an `Rx.Observable` that tracks the list of records matching this query
+   *
+   * Tip: When using `withObservables`, you can simply pass the query without calling `.observe()`
+   *
+   * Warning: Changes to individual records in the array are NOT observed. Use `observeWithColumns`
+   */
   observe(): Observable<Record[]> {
     return Observable.create((observer) =>
       this._cachedSubscribable.subscribe((records) => {
@@ -119,8 +139,10 @@ export default class Query<Record: Model> {
     )
   }
 
-  // Same as `observe()` but also emits the list when any of the records
-  // on the list has one of `columnNames` chaged
+  /**
+   * Same as {@link Query#observe}, but also emits when any of the records on the list
+   * has one of its `columnNames` changed.
+   */
   observeWithColumns(columnNames: ColumnName[]): Observable<Record[]> {
     return Observable.create((observer) =>
       this.experimentalSubscribeWithColumns(columnNames, (records) => {
@@ -129,7 +151,11 @@ export default class Query<Record: Model> {
     )
   }
 
-  // Queries database and returns the number of matching records
+  /**
+   * Fetches the number of records matching this query
+   *
+   * Tip: For convenience you can also use `await query.count`
+   */
   fetchCount(): Promise<number> {
     return toPromise((callback) => this.collection._fetchCount(this, callback))
   }
@@ -147,8 +173,11 @@ export default class Query<Record: Model> {
     }
   }
 
-  // Emits the number of matching records, then emits a new count every time it changes
-  // Note: By default, the Observable is throttled!
+  /**
+   * Returns an `Rx.Observable` that tracks the number of matching records
+   *
+   * Note: By default, the count is throttled. Pass `false` to opt out of throttling.
+   */
   observeCount(isThrottled: boolean = true): Observable<number> {
     return Observable.create((observer) => {
       const subscribable = isThrottled
@@ -160,21 +189,38 @@ export default class Query<Record: Model> {
     })
   }
 
-  // Queries database and returns an array with IDs of matching records
+  /**
+   * Fetches the list of IDs of records matching this query
+   *
+   * Note: This is faster than using `fetch()` if you only need IDs
+   */
   fetchIds(): Promise<RecordId[]> {
     return toPromise((callback) => this.collection._fetchIds(this, callback))
   }
 
-  // Queries database and returns an array with unsanitized raw results
-  // You MUST NOT mutate these objects!
+  /**
+   * Fetches an array of raw results of this query from the database.
+   * These are plain JavaScript types and objects, not `Model` instances
+   *
+   * Warning: You MUST NOT mutate these objects, this can corrupt the database!
+   *
+   * This is useful as a performance optimization or for running non-standard raw queries
+   * (e.g. pragmas, statistics, groupped results, records with extra columns, etc...)
+   */
   unsafeFetchRaw(): Promise<any[]> {
     return toPromise((callback) => this.collection._unsafeFetchRaw(this, callback))
   }
 
+  /**
+   * Rx-free equivalent of `.observe()`
+   */
   experimentalSubscribe(subscriber: (Record[]) => void): Unsubscribe {
     return this._cachedSubscribable.subscribe(subscriber)
   }
 
+  /**
+   * Rx-free equivalent of `.observeWithColumns()`
+   */
   experimentalSubscribeWithColumns(
     columnNames: ColumnName[],
     subscriber: (Record[]) => void,
@@ -182,17 +228,30 @@ export default class Query<Record: Model> {
     return subscribeToQueryWithColumns(this, columnNames, subscriber)
   }
 
+  /**
+   * Rx-free equivalent of `.observeCount()`
+   */
   experimentalSubscribeToCount(subscriber: (number) => void): Unsubscribe {
     return this._cachedCountSubscribable.subscribe(subscriber)
   }
 
-  // Marks as deleted all records matching the query
+  /**
+   * Marks all records matching this query as deleted (they will be deleted permenantly after sync)
+   *
+   * @see {Model#markAsDeleted}
+   */
   async markAllAsDeleted(): Promise<void> {
     const records = await this.fetch()
     await allPromises((record) => record.markAsDeleted(), records)
   }
 
-  // Destroys all records matching the query
+  /**
+   * Permanently deletes all records matching this query
+   *
+   * Note: Do not use this when using Sync, as deletion will not be synced.
+   *
+   * @see {Model#destroyPermanently}
+   */
   async destroyAllPermanently(): Promise<void> {
     const records = await this.fetch()
     await allPromises((record) => record.destroyPermanently(), records)
@@ -200,15 +259,23 @@ export default class Query<Record: Model> {
 
   // MARK: - Internals
 
+  /**
+   * `Model` subclass associated with this query
+   */
   get modelClass(): Class<Record> {
     return this.collection.modelClass
   }
 
+  /**
+   * Table name of the Collection associated with this query
+   */
   get table(): TableName<Record> {
     // $FlowFixMe
     return this.modelClass.table
   }
 
+  // TODO: Should any of the below be public API? Is this any useful outside of Watermelon
+  // internals? If so, should it even be here, not `_`-prefixed?
   get secondaryTables(): TableName<any>[] {
     return this.description.joinTables.concat(this.description.nestedJoinTables.map(({ to }) => to))
   }
