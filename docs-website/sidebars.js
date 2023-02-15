@@ -14,24 +14,37 @@
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
     docs: {
-      'Get excited': [
+      'About': [
         'docs/README',
+        'docs/Why',
+        'docs/WhoUses',
+        'docs/Example',
         'docs/Demo',
       ],
-      'Learn to use Watermelon': [
+      'Setup': [
         'docs/Installation',
         'docs/Setup',
         'docs/Schema',
         'docs/Model',
+        'docs/Advanced/Migrations',
+      ],
+      'Usage': [
+        'docs/Relation',
         'docs/CRUD',
         'docs/Components',
         'docs/Query',
-        'docs/Relation',
         'docs/Writers',
       ],
-      'Advanced guides': [
-        'docs/Advanced/Migrations',
-        'docs/Advanced/Sync',
+      'Sync': [
+          'docs/Sync/Intro',
+          'docs/Sync/Frontend',
+          'docs/Sync/Backend',
+          'docs/Sync/Limitations',
+          'docs/Sync/FAQ',
+          'docs/Sync/Troubleshoot',
+          'docs/Sync/Contribute',
+      ],
+      'Advanced': [
         'docs/Advanced/CreateUpdateTracking',
         'docs/Advanced/AdvancedFields',
         'docs/Advanced/Flow',

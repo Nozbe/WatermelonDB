@@ -3,22 +3,33 @@ title: Contributing
 hide_title: true
 ---
 
-# Contributing guidelines
+<img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/needyou.jpg" alt="We need you" width="220" />
+
+**WatermelonDB is an open-source project and it needs your help to thrive!**
+
+If there's a missing feature, a bug, or other improvement you'd like, we encourage you to contribute! Feel free to open an issue to get some guidance and see [Contributing guide](./CONTRIBUTING.md) for details about project setup, testing, etc.
+
+If you're just getting started, see [good first issues](https://github.com/Nozbe/WatermelonDB/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) that are easy to contribute to. If you make a non-trivial contribution, email me, and I'll send you a nice 🍉 sticker!
+
+If you make or are considering making an app using WatermelonDB, please let us know!
+
+<br />
+
 
 ## Before you send a pull request
 
-1. **Did you add or changed some functionality?**
+1. Did you add or changed some functionality?
 
    Add (or modify) tests!
-2. **Check if the automated tests pass**
+2. Check if the automated tests pass
    ```bash
    yarn ci:check
    ```
-3. **Format the files you changed**
+3. Format the files you changed
    ```bash
    yarn prettier
    ```
-4. **Mark your changes in CHANGELOG**
+4. Mark your changes in CHANGELOG
 
    Put a one-line description of your change under Added/Changed section. See [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
@@ -108,10 +119,12 @@ yarn ktlint
 ### Native code troubleshooting
 
 1. If `test:ios` fails in terminal:
-  - Run tests in Xcode first before running from terminal
-  - Make sure you have the right version of Xcode CLI tools set in Preferences -> Locations
+- Run tests in Xcode first before running from terminal
+- Make sure you have the right version of Xcode CLI tools set in Preferences -> Locations
 1. Make sure you're on the most recent stable version of Xcode / Android Studio
 1. Remove native caches:
-  - Xcode: `~/Library/Developer/Xcode/DerivedData`:
-  - Android: `.gradle` and `build` folders in `native/android` and `native/androidTest`
-  - `node_modules` (because of React Native precompiled third party libraries)
+- Xcode: `~/Library/Developer/Xcode/DerivedData`:
+- Android: `.gradle` and `build` folders in `native/android` and `native/androidTest`
+- `node_modules` (because of React Native precompiled third party libraries)
+
+

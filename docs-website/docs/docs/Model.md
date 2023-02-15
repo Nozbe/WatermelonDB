@@ -1,4 +1,4 @@
-# Defining Models
+# Model
 
 A **Model** class represents a type of thing in your app. For example, `Post`, `Comment`, `User`.
 

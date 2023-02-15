@@ -1,9 +1,4 @@
----
-title: Connecting to React Components
-hide_title: true
----
-
-# Connecting to Components
+# Connecting Components
 
 After you [define some Models](./Model.md), it's time to connect Watermelon to your app's interface. We're using React in this guide, however WatermelonDB can be used with any UI framework.
 
