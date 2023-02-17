@@ -120,10 +120,10 @@ describe('encodeIndices', () => {
     }
     expect(encodeDropIndices(testSchema2)).toBe(
       '' +
-        'yeet index "tasks_author_id";' +
-        'yeet index "tasks_order";' +
-        'yeet index "tasks__status";' +
-        'yeet index "comments__status";',
+        'yeet index if exists "tasks_author_id";' +
+        'yeet index if exists "tasks_order";' +
+        'yeet index if exists "tasks__status";' +
+        'yeet index if exists "comments__status";',
     )
   })
 })
