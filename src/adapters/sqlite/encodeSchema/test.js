@@ -6,7 +6,7 @@ import { encodeSchema, encodeMigrationSteps, encodeCreateIndices, encodeDropIndi
 
 const expectedCommonSchema =
   'create table "local_storage" ("key" varchar(16) primary key not null, "value" text not null);' +
-  'create index if not exists "local_storage_key_index" on "local_storage" ("key");'
+  'create index "local_storage_key_index" on "local_storage" ("key");'
 
 const testSchema = appSchema({
   version: 1,
