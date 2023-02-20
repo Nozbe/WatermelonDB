@@ -1,6 +1,6 @@
 {
   "name": "React-jsi",
-  "version": "0.71.1",
+  "version": "0.71.3",
   "summary": "JavaScript Interface layer for React Native",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
@@ -10,7 +10,7 @@
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.71.1"
+    "tag": "v0.71.3"
   },
   "header_dir": "jsi",
   "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation",

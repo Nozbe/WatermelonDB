@@ -1,6 +1,6 @@
 {
   "name": "React-runtimeexecutor",
-  "version": "0.71.1",
+  "version": "0.71.3",
   "summary": "-",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
@@ -10,13 +10,13 @@
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.71.1"
+    "tag": "v0.71.3"
   },
   "source_files": "**/*.{cpp,h}",
   "header_dir": "ReactCommon",
   "dependencies": {
     "React-jsi": [
-      "0.71.1"
+      "0.71.3"
     ]
   }
 }

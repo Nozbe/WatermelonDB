@@ -1,7 +1,7 @@
 {
   "name": "ReactCommon",
   "module_name": "ReactCommon",
-  "version": "0.71.1",
+  "version": "0.71.3",
   "summary": "-",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
@@ -11,7 +11,7 @@
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.71.1"
+    "tag": "v0.71.3"
   },
   "header_dir": "ReactCommon",
   "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation",
@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "React-logger": [
-      "0.71.1"
+      "0.71.3"
     ]
   },
   "subspecs": [
@@ -35,19 +35,19 @@
       "name": "turbomodule",
       "dependencies": {
         "React-callinvoker": [
-          "0.71.1"
+          "0.71.3"
         ],
         "React-perflogger": [
-          "0.71.1"
+          "0.71.3"
         ],
         "React-Core": [
-          "0.71.1"
+          "0.71.3"
         ],
         "React-cxxreact": [
-          "0.71.1"
+          "0.71.3"
         ],
         "React-jsi": [
-          "0.71.1"
+          "0.71.3"
         ],
         "RCT-Folly": [
           "2021.07.22.00"
@@ -57,6 +57,9 @@
         ],
         "glog": [
 
+        ],
+        "hermes-engine": [
+
         ]
       },
       "subspecs": [
@@ -64,7 +67,10 @@
           "name": "bridging",
           "dependencies": {
             "React-jsi": [
-              "0.71.1"
+              "0.71.3"
+            ],
+            "hermes-engine": [
+
             ]
           },
           "source_files": "react/bridging/**/*.{cpp,h}",
@@ -90,7 +96,7 @@
           ],
           "dependencies": {
             "ReactCommon/turbomodule/core": [
-              "0.71.1"
+              "0.71.3"
             ]
           }
         }
