@@ -10,9 +10,9 @@ jobs:
     runs-on: ubuntu-22.04
     name: JavaScript tests
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set Node.js version
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16.x
       - uses: actions/cache@v2
@@ -27,9 +27,9 @@ jobs:
     runs-on: macos-11
     name: iOS tests
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set Node.js version
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16.x
       - name: Set Xcode version
@@ -61,13 +61,13 @@ jobs:
     runs-on: macos-11
     name: Android tests
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
           java-version: '11'
       - name: Set Node.js version
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16.x
       - uses: actions/cache@v2
