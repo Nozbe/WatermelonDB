@@ -61,6 +61,7 @@ help to do this! See: https://github.com/Nozbe/WatermelonDB/issues/1481
 - Improved resiliency to "Maximum call stack size exceeded" errors
 - [JSI] Improved reliability when reloading RCTBridge
 - [iOS] Fix "range of supported deployment targets" Xcode warning
+- Fixed "no such index" when using non-standard schemas and >1k bulk updates
 
 ### Performance
 
