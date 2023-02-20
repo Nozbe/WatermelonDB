@@ -23,7 +23,7 @@
     "ktlint": "cd native/androidTest; ./gradlew ktlint",
     "ktlint:format": "cd native/androidTest; ./gradlew ktlintFormat",
     "android:emulator": "./scripts/emulatorWithJavaCheck",
-    "cocoapods": "rm -fr native/iosTest/build/generated && cd native/iosTest && bundle exec pod install --verbose",
+    "cocoapods": "rm -fr native/iosTest/build/generated && cd native/iosTest && bundle exec pod install",
     "docs:version": "cd docs-website && yarn version --no-git-tag-version --no-commit-hooks --new-version",
     "docs": "./scripts/update-docusaurus && cd docs-website && yarn deploy",
     "docs:dev": "./scripts/update-docusaurus && cd docs-website && yarn start"
