@@ -20,6 +20,10 @@ public class WMDatabase {
 
     public static Map<String, WMDatabase> INSTANCES = new HashMap<>();
 
+    public static WMDatabase getInstance(String name, Context context) {
+        return getInstance(name, context, SQLiteDatabase.CREATE_IF_NECESSARY | SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING);
+    }
+
     public static WMDatabase getInstance(String name, Context context, int openFlags) {
         synchronized (WMDatabase.class) {
             WMDatabase instance = INSTANCES.getOrDefault(name, null);
