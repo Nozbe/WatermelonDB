@@ -127,6 +127,8 @@ export default class Collection<Record: Model> {
    * Creates a new record.
    * Pass a function to set attributes of the new record.
    *
+   * Note: This method must be called within a Writer {@link Database#write}.
+   *
    * @example
    * ```js
    * db.get(Tables.tasks).create(task => {
@@ -146,7 +148,6 @@ export default class Collection<Record: Model> {
    * Prepares a new record to be created
    *
    * Use this to batch-execute multiple changes at once.
-   * Note: Prepared changes must be executed by **synchronously** passing them to `database.batch()`
    * @see {Collection#create}
    * @see {Database#batch}
    */

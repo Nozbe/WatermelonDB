@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 public class WMDatabase {
@@ -17,17 +18,21 @@ public class WMDatabase {
         this.db = db;
     }
 
-    public static Map<String, WMDatabase> INSTANCES;
+    public static Map<String, WMDatabase> INSTANCES = new HashMap<>();
+
+    public static WMDatabase getInstance(String name, Context context) {
+        return getInstance(name, context, SQLiteDatabase.CREATE_IF_NECESSARY | SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING);
+    }
 
     public static WMDatabase getInstance(String name, Context context, int openFlags) {
         synchronized (WMDatabase.class) {
-            if (!INSTANCES.containsKey(name) ||
-                    !(INSTANCES.get(name) != null && INSTANCES.get(name).isOpen())) {
+            WMDatabase instance = INSTANCES.getOrDefault(name, null);
+            if (instance == null || !instance.isOpen()) {
                 WMDatabase database = buildDatabase(name, context, openFlags);
                 INSTANCES.put(name, database);
                 return database;
             } else {
-                return INSTANCES.get(name);
+                return instance;
             }
         }
     }
