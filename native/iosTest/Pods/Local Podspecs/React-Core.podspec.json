@@ -1,6 +1,6 @@
 {
   "name": "React-Core",
-  "version": "0.71.1",
+  "version": "0.71.3",
   "summary": "The core of React Native.",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
@@ -10,7 +10,7 @@
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.71.1"
+    "tag": "v0.71.3"
   },
   "resource_bundles": {
     "AccessibilityResources": [
@@ -36,21 +36,27 @@
       "2021.07.22.00"
     ],
     "React-cxxreact": [
-      "0.71.1"
+      "0.71.3"
     ],
     "React-perflogger": [
-      "0.71.1"
+      "0.71.3"
     ],
     "React-jsi": [
-      "0.71.1"
+      "0.71.3"
     ],
     "React-jsiexecutor": [
-      "0.71.1"
+      "0.71.3"
     ],
     "Yoga": [
 
     ],
     "glog": [
+
+    ],
+    "React-hermes": [
+
+    ],
+    "hermes-engine": [
 
     ]
   },
@@ -64,7 +70,8 @@
         "React/Fabric/**/*",
         "React/FBReactNativeSpec/**/*",
         "React/Tests/**/*",
-        "React/Inspector/**/*"
+        "React/Inspector/**/*",
+        "React/CxxBridge/JSCExecutorFactory.{h,mm}"
       ],
       "private_header_files": "React/Cxx*/*.h"
     },
@@ -76,13 +83,13 @@
       ],
       "dependencies": {
         "React-Core/Default": [
-          "0.71.1"
+          "0.71.3"
         ],
         "React-Core/RCTWebSocket": [
-          "0.71.1"
+          "0.71.3"
         ],
         "React-jsinspector": [
-          "0.71.1"
+          "0.71.3"
         ]
       }
     },
@@ -91,7 +98,7 @@
       "source_files": "Libraries/WebSocket/*.{h,m}",
       "dependencies": {
         "React-Core/Default": [
-          "0.71.1"
+          "0.71.3"
         ]
       }
     },

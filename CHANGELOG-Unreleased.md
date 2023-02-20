@@ -57,11 +57,12 @@ help to do this! See: https://github.com/Nozbe/WatermelonDB/issues/1481
 
 ### Fixes
 
-- Fixes and changes included in `@nozbe/with-observables@1.5.0`
 - Improved resiliency to "Maximum call stack size exceeded" errors
 - [JSI] Improved reliability when reloading RCTBridge
 - [iOS] Fix "range of supported deployment targets" Xcode warning
+- `randomId` uses better randum number generator
 - Fixed "no such index" when using non-standard schemas and >1k bulk updates
+- Fixes and changes included in `@nozbe/with-observables@1.5.0`
 
 ### Performance
 
@@ -70,21 +71,16 @@ help to do this! See: https://github.com/Nozbe/WatermelonDB/issues/1481
 
 ### Changes
 
-- Changed default `randomId()` format to also contain uppercase letters
-- `randomId()` now uses a cryptographically secure random number generator
+- `randomId`: now also generates upper-case letters
 - Simplified CocoaPods/iOS integration
+- Docs improvements: SQLite versions, Flow declarations, Installation
+- Improved diagnostic warnings and errors: JSI, Writer/Reader
+- Remove old diagnostic warnings no longer relevant: `multiple Q.on()s`, `Database`, `LokiJSAdapter`, `SQLiteAdapter`
+- Updated `flow-bin` to 0.200. This shouldn't have an impact on you, but could fix or break Flow if you don't have WatermelonDB set to `[declarations]` mode
 - Updated `@babel/runtime` to 7.20.13
 - Updated `rxjs` to 7.8.0
 - Updated `sqlite` (SQLite used on Android in JSI mode) to 3.40.1
 - Updated `simdjson` to 3.1.0
-- Updated Installation docs
-- Improved errors when using JSI-only features
-- Added note to docs about SQLite version
-- Remove a warning about `multiple Q.on()s` - irrelevant since v0.23
-- Remove old warnings about `Database`, `LokiJSAdapter`, `SQLiteAdapter` options that don't exist for 2+ years
-- Improved Writer/Reader warnings
-- [flow] Updated Flow version used in the project to 199.1. This shouldn't have an impact on you, but could fix or break Flow if you don't have WatermelonDB set to `[declarations]` mode
-- [flow] Clarified docs to recommend the use of `[declarations]` mode for WatermelonDB
 
 ### Internal
 

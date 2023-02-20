@@ -1,6 +1,6 @@
 {
   "name": "React-RCTImage",
-  "version": "0.71.1",
+  "version": "0.71.3",
   "summary": "A React component for displaying different types of images.",
   "homepage": "https://reactnative.dev/",
   "documentation_url": "https://reactnative.dev/docs/image",
@@ -12,7 +12,7 @@
   "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness",
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.71.1"
+    "tag": "v0.71.3"
   },
   "source_files": "*.{m,mm}",
   "preserve_paths": [
@@ -31,22 +31,22 @@
       "2021.07.22.00"
     ],
     "React-Codegen": [
-      "0.71.1"
+      "0.71.3"
     ],
     "RCTTypeSafety": [
-      "0.71.1"
+      "0.71.3"
     ],
     "ReactCommon/turbomodule/core": [
-      "0.71.1"
+      "0.71.3"
     ],
     "React-jsi": [
-      "0.71.1"
+      "0.71.3"
     ],
     "React-Core/RCTImageHeaders": [
-      "0.71.1"
+      "0.71.3"
     ],
     "React-RCTNetwork": [
-      "0.71.1"
+      "0.71.3"
     ]
   }
 }
