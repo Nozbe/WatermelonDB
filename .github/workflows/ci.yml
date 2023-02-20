@@ -53,7 +53,7 @@ jobs:
       - run: bundle install
       - name: 'pod install'
         if: true # steps.pods-cache.outputs.cache-hit != 'true'
-        run: cd native/iosTest && bundle exec pod install
+        run: yarn cocoapods
       - run: yarn test:ios
       - run: yarn swiftlint
   android:
