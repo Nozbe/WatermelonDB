@@ -63,6 +63,7 @@ help to do this! See: https://github.com/Nozbe/WatermelonDB/issues/1481
 - `randomId` uses better randum number generator
 - Fixed "no such index" when using non-standard schemas and >1k bulk updates
 - Fixes and changes included in `@nozbe/with-observables@1.5.0`
+- [Flow] `query.batch([model, falsy])` no longer raises an error
 
 ### Performance
 

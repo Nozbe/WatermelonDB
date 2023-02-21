@@ -3,7 +3,12 @@
 import { type Observable, startWith, merge as merge$ } from '../utils/rx'
 import { type Unsubscribe } from '../utils/subscriptions'
 import { invariant, logger } from '../utils/common'
-import { noop, fromArrayOrSpread, type ArrayOrSpreadFn } from '../utils/fp'
+import {
+  noop,
+  fromArrayOrSpread,
+  // eslint-disable-next-line no-unused-vars
+  type ArrayOrSpreadFn,
+} from '../utils/fp'
 
 import type { DatabaseAdapter, BatchOperation } from '../adapters/type'
 import DatabaseAdapterCompat from '../adapters/compat'
@@ -79,6 +84,7 @@ export default class Database {
     return this._localStorage
   }
 
+  /*:: batch: ArrayOrSpreadFn<?Model | false, Promise<void>>  */
   /**
    * Executes multiple prepared operations
    *
@@ -92,12 +98,9 @@ export default class Database {
    *
    * Note: This method must be called within a Writer {@link Database#write}.
    */
-  batch: ArrayOrSpreadFn<?Model | false, Promise<void>> = async (...records) => {
-    const actualRecords: Array<?Model> = fromArrayOrSpread(
-      (records: any),
-      'Database.batch',
-      'Model',
-    )
+  // $FlowFixMe
+  async batch(...records: Array<?Model | false>): Promise<void> {
+    const actualRecords: Array<?Model> = fromArrayOrSpread(records, 'Database.batch', 'Model')
 
     this._ensureInWriter(`Database.batch()`)
 
