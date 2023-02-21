@@ -3,7 +3,7 @@
 import { type Observable, startWith, merge as merge$ } from '../utils/rx'
 import { type Unsubscribe } from '../utils/subscriptions'
 import { invariant, logger } from '../utils/common'
-import { noop, fromArrayOrSpread } from '../utils/fp'
+import { noop, fromArrayOrSpread, type ArrayOrSpreadFn } from '../utils/fp'
 
 import type { DatabaseAdapter, BatchOperation } from '../adapters/type'
 import DatabaseAdapterCompat from '../adapters/compat'
@@ -92,7 +92,7 @@ export default class Database {
    *
    * Note: This method must be called within a Writer {@link Database#write}.
    */
-  async batch(...records: $ReadOnlyArray<Model | Model[] | null | void | false>): Promise<void> {
+  batch: ArrayOrSpreadFn<?Model | false, Promise<void>> = async (...records) => {
     const actualRecords: Array<?Model> = fromArrayOrSpread(
       (records: any),
       'Database.batch',

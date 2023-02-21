@@ -4,8 +4,8 @@ import logger from '../../common/logger'
 
 // Note: we have to write out three separate meanings of OnFunction because of a Babel bug
 // (it will remove the parentheses, changing the meaning of the flow type)
-type _SpreadFn<Arg, Return> = (...args: Arg[]) => Return
-type _ArrayFn<Arg, Return> = (args: Arg[]) => Return
+type _SpreadFn<Arg, Return> = (...args: $ReadOnlyArray<Arg>) => Return
+type _ArrayFn<Arg, Return> = (args: $ReadOnlyArray<Arg>) => Return
 
 // This function takes either (...args: Arg[]) spread or (args: Arg[]) array argument
 export type ArrayOrSpreadFn<Arg, Return> = _SpreadFn<Arg, Return> & _ArrayFn<Arg, Return>
