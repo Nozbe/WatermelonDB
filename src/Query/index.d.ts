@@ -1,4 +1,5 @@
 import { Observable } from '../utils/rx'
+import type { ArrayOrSpreadFn } from '../utils/fp'
 import type { Unsubscribe, SharedSubscribable } from '../utils/subscriptions'
 import { $Exact } from '../types'
 
@@ -47,7 +48,7 @@ export default class Query<Record extends Model> {
   constructor(collection: Collection<Record>, clauses: Clause[])
 
   // Creates a new Query that extends the clauses of this query
-  extend(...clauses: Clause[]): Query<Record>
+  extend: ArrayOrSpreadFn<Clause, Query<Record>>
 
   pipe<T>(transform: (_: this) => T): T
 

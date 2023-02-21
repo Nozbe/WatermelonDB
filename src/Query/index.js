@@ -4,6 +4,7 @@ import allPromises from '../utils/fp/allPromises'
 import invariant from '../utils/common/invariant'
 import { Observable } from '../utils/rx'
 import { toPromise } from '../utils/fp/Result'
+import { type ArrayOrSpreadFn, fromArrayOrSpread } from '../utils/fp'
 import { type Unsubscribe, SharedSubscribable } from '../utils/subscriptions'
 
 // import from decorarators break the app on web production WTF ¯\_(ツ)_/¯
@@ -78,9 +79,15 @@ export default class Query<Record: Model> {
   /**
    * Returns a new Query that contains all clauses (conditions, sorting, etc.) from this Query
    * as well as the ones passed as arguments.
+   *
+   * You can pass conditions as multiple arguments or a single array.
    */
-  extend(...clauses: Clause[]): // eslint-disable-next-line no-use-before-define
-  Query<Record> {
+  extend: ArrayOrSpreadFn<
+    Clause,
+    // eslint-disable-next-line no-use-before-define
+    Query<Record>,
+  > = (...args) => {
+    const clauses = fromArrayOrSpread<Clause>(args, 'Collection.query', 'Clause')
     const { collection } = this
     const { where, sortBy, take, skip, joinTables, nestedJoinTables, lokiTransform, sql } =
       this._rawDescription
