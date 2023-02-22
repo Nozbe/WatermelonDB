@@ -378,7 +378,6 @@ const unsafeApplyAllRemoteChangesByBatches = async (
       context,
     )
     splitEvery(5000, preparedModels).forEach((recordBatch) => {
-      // $FlowFixMe
       promises.push(db.batch(recordBatch))
     })
   })

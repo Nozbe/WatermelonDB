@@ -52,7 +52,7 @@ help to do this! See: https://github.com/Nozbe/WatermelonDB/issues/1481
 ### New features
 
 - [Android] Added `experimentalUnsafeNativeReuse` option to SQLiteAdapter. See `src/adapters/sqlite/type.js` for more details
-- You can now pass an array to `Q.and(conditions)`, `Q.or(conditions)`, `collection.query(conditions)` in addition to spreading multiple arguments
+- You can now pass an array to `Q.and(conditions)`, `Q.or(conditions)`, `collection.query(conditions)`, `query.extend(conditions)` in addition to spreading multiple arguments
 - Added JSDoc comments to many APIs
 
 ### Fixes
@@ -63,6 +63,7 @@ help to do this! See: https://github.com/Nozbe/WatermelonDB/issues/1481
 - `randomId` uses better randum number generator
 - Fixed "no such index" when using non-standard schemas and >1k bulk updates
 - Fixes and changes included in `@nozbe/with-observables@1.5.0`
+- [Flow] `query.batch([model, falsy])` no longer raises an error
 
 ### Performance
 

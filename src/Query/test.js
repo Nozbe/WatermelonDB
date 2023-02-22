@@ -208,6 +208,17 @@ describe('Query', () => {
       const query = new Query(mockCollection, [Q.unsafeSqlQuery('select * from tasks')])
       expect(() => query.extend()).toThrow('Cannot extend an unsafe SQL query')
     })
+    it(`can pass array instead of a list`, () => {
+      const query = new Query(mockCollection, [
+        Q.on('projects', 'team_id', 'abcdef'),
+        Q.where('left_column', 'right_value'),
+      ])
+      const clauses = [
+        Q.on('tag_assignments', 'tag_id', Q.oneOf(['a', 'b', 'c'])),
+        Q.where('id', 'abcdef'),
+      ]
+      expect(query.extend(clauses).serialize()).toEqual(query.extend(...clauses).serialize())
+    })
   })
   it('can pipe query', () => {
     const query = new Query(mockCollection, [Q.on('projects', 'team_id', 'abcdef')])
