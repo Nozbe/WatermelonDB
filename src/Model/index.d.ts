@@ -112,6 +112,8 @@ export default class Model {
 
   get table(): TableName<this>
 
+  public fetch: () => Promise<this>
+
   // FIX_TS
   // Don't use this directly! Use `collection.create()`
   constructor(collection: Collection<Model>, raw: RawRecord)
