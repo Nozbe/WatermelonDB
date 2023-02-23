@@ -52,35 +52,36 @@ help to do this! See: https://github.com/Nozbe/WatermelonDB/issues/1481
 ### New features
 
 - [Android] Added `experimentalUnsafeNativeReuse` option to SQLiteAdapter. See `src/adapters/sqlite/type.js` for more details
-- You can now pass an array to `Q.and(conditions)`, `Q.or(conditions)`, `collection.query(conditions)` in addition to spreading multiple arguments
+- You can now pass an array to `Q.and(conditions)`, `Q.or(conditions)`, `collection.query(conditions)`, `query.extend(conditions)` in addition to spreading multiple arguments
 - Added JSDoc comments to many APIs
 
 ### Fixes
 
-- Fixes and changes included in `@nozbe/with-observables@1.5.0`
 - Improved resiliency to "Maximum call stack size exceeded" errors
 - [JSI] Improved reliability when reloading RCTBridge
 - [iOS] Fix "range of supported deployment targets" Xcode warning
+- `randomId` uses better randum number generator
+- Fixed "no such index" when using non-standard schemas and >1k bulk updates
+- Fixes and changes included in `@nozbe/with-observables@1.5.0`
+- [Flow] `query.batch([model, falsy])` no longer raises an error
 
 ### Performance
 
 - Warning is now given if a large number of arguments is passed to `Q.and, Q.or, Collection.query, Database.batch` instead of a single array
+- `randomId()` is now 2x faster on Chrome, 10x faster on Safari, 2x faster on iOS (Hermes)
 
 ### Changes
 
+- `randomId`: now also generates upper-case letters
 - Simplified CocoaPods/iOS integration
+- Docs improvements: SQLite versions, Flow declarations, Installation
+- Improved diagnostic warnings and errors: JSI, Writer/Reader
+- Remove old diagnostic warnings no longer relevant: `multiple Q.on()s`, `Database`, `LokiJSAdapter`, `SQLiteAdapter`
+- Updated `flow-bin` to 0.200. This shouldn't have an impact on you, but could fix or break Flow if you don't have WatermelonDB set to `[declarations]` mode
 - Updated `@babel/runtime` to 7.20.13
 - Updated `rxjs` to 7.8.0
 - Updated `sqlite` (SQLite used on Android in JSI mode) to 3.40.1
 - Updated `simdjson` to 3.1.0
-- Updated Installation docs
-- Improved errors when using JSI-only features
-- Added note to docs about SQLite version
-- Remove a warning about `multiple Q.on()s` - irrelevant since v0.23
-- Remove old warnings about `Database`, `LokiJSAdapter`, `SQLiteAdapter` options that don't exist for 2+ years
-- Improved Writer/Reader warnings
-- [flow] Updated Flow version used in the project to 199.1. This shouldn't have an impact on you, but could fix or break Flow if you don't have WatermelonDB set to `[declarations]` mode
-- [flow] Clarified docs to recommend the use of `[declarations]` mode for WatermelonDB
 
 ### Internal
 

@@ -21,14 +21,14 @@ const encodeCreateTable = ({ name, columns }: TableSchema): SQL => {
 
 const encodeIndex = (column: ColumnSchema, tableName: TableName<any>): SQL =>
   column.isIndexed
-    ? `create index "${tableName}_${column.name}" on "${tableName}" ("${column.name}");`
+    ? `create index if not exists "${tableName}_${column.name}" on "${tableName}" ("${column.name}");`
     : ''
 
 const encodeTableIndicies = ({ name: tableName, columns }: TableSchema): SQL =>
   Object.values(columns)
     // $FlowFixMe
     .map((column) => encodeIndex(column, tableName))
-    .concat([`create index "${tableName}__status" on "${tableName}" ("_status");`])
+    .concat([`create index if not exists "${tableName}__status" on "${tableName}" ("_status");`])
     .join('')
 
 const identity = (sql: SQL, _?: any): SQL => sql
@@ -58,8 +58,8 @@ export function encodeDropIndices({ tables, unsafeSql }: AppSchema): SQL {
     .map(({ name: tableName, columns }) =>
       Object.values(columns)
         // $FlowFixMe
-        .map((column) => (column.isIndexed ? `drop index "${tableName}_${column.name}";` : ''))
-        .concat([`drop index "${tableName}__status";`])
+        .map((column) => (column.isIndexed ? `drop index if exists "${tableName}_${column.name}";` : ''))
+        .concat([`drop index if exists "${tableName}__status";`])
         .join(''),
     )
     .join('')

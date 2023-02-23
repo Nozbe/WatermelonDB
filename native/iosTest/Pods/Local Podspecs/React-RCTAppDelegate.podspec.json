@@ -1,6 +1,6 @@
 {
   "name": "React-RCTAppDelegate",
-  "version": "0.71.1",
+  "version": "0.71.3",
   "summary": "An utility library to simplify common operations for the New Architecture",
   "homepage": "https://reactnative.dev/",
   "documentation_url": "https://reactnative.dev/docs/actionsheetios",
@@ -11,7 +11,7 @@
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.71.1"
+    "tag": "v0.71.3"
   },
   "source_files": "**/*.{c,h,m,mm,S,cpp}",
   "compiler_flags": "$(inherited) -DRN_FABRIC_ENABLED -DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",

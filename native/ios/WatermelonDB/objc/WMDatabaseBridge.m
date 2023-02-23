@@ -219,6 +219,41 @@ RCT_EXPORT_METHOD(provideSyncJson:(nonnull NSNumber *)id
     }
 }
 
+RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(getRandomBytes:(nonnull NSNumber *)count)
+{
+    size_t batchSize = 256;
+    if (![count isEqualToNumber:@(batchSize)]) {
+        [NSException raise:@"getRandomBytes" format:@"Expected getRandomBytes to be called with 256"];
+    }
+    
+    uint8_t randomBuffer[batchSize];
+    arc4random_buf(&randomBuffer, batchSize);
+    
+    NSMutableArray *result = [NSMutableArray array];
+    for (size_t i = 0; i < batchSize; i++) {
+        result[i] = @(randomBuffer[i]);
+    }
+    return result;
+}
+
+RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(getRandomIds)
+{
+    static const char alphabet[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    size_t batchSize = 64;
+    char randomIds[batchSize * 17];
+    
+    for (size_t i = 0; i < batchSize; i++) {
+        for (size_t j = 0; j < 16; j++) {
+            randomIds[i*17 + j] = alphabet[arc4random_uniform(62)];
+        }
+        if (i != (batchSize - 1)) {
+            randomIds[i*17 + 16] = ',';
+        }
+    }
+    
+    return [NSString stringWithCString:randomIds encoding:NSUTF8StringEncoding];
+}
+
 #pragma mark - Helpers
 
 - (void) connectDriverAsync:(nonnull NSNumber *)tag

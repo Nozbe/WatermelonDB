@@ -120,6 +120,7 @@ const config = {
     document: true,
     window: true,
     self: true,
+    globalThis: true,
   },
 }
 

@@ -98,6 +98,8 @@ export default class Model {
    *
    * Updates `updateAt` field (if available)
    *
+   * Note: This method must be called within a Writer {@link Database#write}.
+   *
    * * @example
    * ```js
    * someTask.create(task => {
@@ -137,6 +139,7 @@ export default class Model {
     // TODO: `process.nextTick` doesn't work on React Native
     // We could polyfill with setImmediate, but it doesn't have the same effect — test and enseure
     // it would actually work for this purpose
+    // TODO: Also add to other prepared changes
     if (
       process.env.NODE_ENV !== 'production' &&
       typeof process !== 'undefined' &&
@@ -156,6 +159,8 @@ export default class Model {
 
   /**
    * Marks this record as deleted (it will be deleted permanently after sync)
+   *
+   * Note: This method must be called within a Writer {@link Database#write}.
    */
   async markAsDeleted(): Promise<void> {
     this.db._ensureInWriter(`Model.markAsDeleted()`)
@@ -168,6 +173,8 @@ export default class Model {
    *
    * Use this to batch-execute multiple changes at once.
    * Note: Prepared changes must be executed by **synchronously** passing them to `database.batch()`
+   * @see {Model#markAsDeleted}
+   * @see {Database#batch}
    */
   prepareMarkAsDeleted(): this {
     invariant(!this._preparedState, `Cannot mark a record with pending changes as deleted`)
@@ -181,6 +188,8 @@ export default class Model {
    * Permanently deletes this record from the database
    *
    * Note: Do not use this when using Sync, as deletion will not be synced.
+   *
+   * Note: This method must be called within a Writer {@link Database#write}.
    */
   async destroyPermanently(): Promise<void> {
     this.db._ensureInWriter(`Model.destroyPermanently()`)
@@ -195,6 +204,8 @@ export default class Model {
    *
    * Use this to batch-execute multiple changes at once.
    * Note: Prepared changes must be executed by **synchronously** passing them to `database.batch()`
+   * @see {Model#destroyPermanently}
+   * @see {Database#batch}
    */
   prepareDestroyPermanently(): this {
     invariant(!this._preparedState, `Cannot destroy permanently a record with pending changes`)
@@ -209,6 +220,8 @@ export default class Model {
    *
    * Descendants are determined by taking Model's `has_many` (children) associations, and then their
    * children associations recursively.
+   *
+   * Note: This method must be called within a Writer {@link Database#write}.
    */
   async experimentalMarkAsDeleted(): Promise<void> {
     this.db._ensureInWriter(`Model.experimental_markAsDeleted()`)
@@ -226,6 +239,8 @@ export default class Model {
    * children associations recursively.
    *
    * Note: Do not use this when using Sync, as deletion will not be synced.
+   *
+   * Note: This method must be called within a Writer {@link Database#write}.
    */
   async experimentalDestroyPermanently(): Promise<void> {
     this.db._ensureInWriter(`Model.experimental_destroyPermanently()`)
@@ -252,7 +267,7 @@ export default class Model {
   }
 
   /**
-   * `Collection` associated with this Model
+   * Collection associated with this Model
    */
   +collection: Collection<$FlowFixMe<this>>
 

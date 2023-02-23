@@ -142,7 +142,7 @@ You're using an ancient version of JSC. Install [`jsc-android`](https://github.c
 </details>
 
 <details>
-  <summary>JSI Installation (Optional)</summary>
+  <summary>JSI Installation (Optional, recommended)</summary>
 
 To enable fast, highly performant, synchronous JSI operation on Android, you need to take a few
 additional steps manually.

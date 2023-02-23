@@ -21,7 +21,7 @@ end
 
 Pod::Sandbox::FileAccessor.send(:define_method, :docs) do
   # work around https://github.com/CocoaPods/CocoaPods/issues/11753#issuecomment-1425802717
-  p "Monkey-patched docs :)"
+  # p "Monkey-patched docs :)"
   return []
 end
 

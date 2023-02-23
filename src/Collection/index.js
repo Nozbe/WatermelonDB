@@ -1,7 +1,12 @@
 // @flow
 import { Observable, Subject } from '../utils/rx'
 import invariant from '../utils/common/invariant'
-import { noop, type ArrayOrSpreadFn, fromArrayOrSpread } from '../utils/fp'
+import {
+  noop,
+  fromArrayOrSpread,
+  // eslint-disable-next-line no-unused-vars
+  type ArrayOrSpreadFn,
+} from '../utils/fp'
 import { type ResultCallback, toPromise, mapValue } from '../utils/fp/Result'
 import { type Unsubscribe } from '../utils/subscriptions'
 
@@ -111,6 +116,7 @@ export default class Collection<Record: Model> {
     })
   }
 
+  /*:: query: ArrayOrSpreadFn<Clause, Query<Record>>  */
   /**
    * Returns a `Query` with conditions given.
    *
@@ -118,7 +124,8 @@ export default class Collection<Record: Model> {
    *
    * See docs for details about the Query API.
    */
-  query: ArrayOrSpreadFn<Clause, Query<Record>> = (...args) => {
+  // $FlowFixMe
+  query(...args: Clause[]): Query<Record> {
     const clauses = fromArrayOrSpread<Clause>(args, 'Collection.query', 'Clause')
     return new Query(this, clauses)
   }
@@ -126,6 +133,8 @@ export default class Collection<Record: Model> {
   /**
    * Creates a new record.
    * Pass a function to set attributes of the new record.
+   *
+   * Note: This method must be called within a Writer {@link Database#write}.
    *
    * @example
    * ```js
@@ -146,7 +155,6 @@ export default class Collection<Record: Model> {
    * Prepares a new record to be created
    *
    * Use this to batch-execute multiple changes at once.
-   * Note: Prepared changes must be executed by **synchronously** passing them to `database.batch()`
    * @see {Collection#create}
    * @see {Database#batch}
    */

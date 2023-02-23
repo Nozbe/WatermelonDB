@@ -158,16 +158,16 @@ describe('encodeBatch', () => {
   })
   it(`can recreate indices for large batches`, () => {
     expect(encodeBatch(Array(1000).fill(['markAsDeleted', 'tasks', 'foo']), testSchema)).toEqual([
-      [0, null, 'drop index "tasks_author_id"', [[]]],
-      [0, null, 'drop index "tasks__status"', [[]]],
+      [0, null, 'drop index if exists "tasks_author_id"', [[]]],
+      [0, null, 'drop index if exists "tasks__status"', [[]]],
       [
         -1,
         'tasks',
         `update "tasks" set "_status" = 'deleted' where "id" == ?`,
         Array(1000).fill(['foo']),
       ],
-      [0, null, 'create index "tasks_author_id" on "tasks" ("author_id")', [[]]],
-      [0, null, 'create index "tasks__status" on "tasks" ("_status")', [[]]],
+      [0, null, 'create index if not exists "tasks_author_id" on "tasks" ("author_id")', [[]]],
+      [0, null, 'create index if not exists "tasks__status" on "tasks" ("_status")', [[]]],
     ])
   })
 })

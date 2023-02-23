@@ -51,6 +51,7 @@ const extractClauses: (Clause[]) => QueryDescription = (clauses) => {
         query.nestedJoinTables.push({ from: clause.from, to: clause.to })
         break
       case 'lokiTransform':
+        // TODO: Check for duplicates
         query.lokiTransform = clause.function
         break
       case 'sqlQuery':

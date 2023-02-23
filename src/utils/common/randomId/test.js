@@ -9,7 +9,7 @@ describe('randomId', () => {
     expect(id2).not.toBe(id1)
   })
   it('always generates a valid id', () => {
-    const alphabet = '0123456789abcdefghijklmnopqrstuvwxyz'
+    const alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
     for (let i = 0; i < 250; i += 1) {
       const id = randomId()
       expect(id.length).toBe(16)

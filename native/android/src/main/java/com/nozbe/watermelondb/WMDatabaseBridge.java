@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.security.SecureRandom;
 
 public class WMDatabaseBridge extends ReactContextBaseJavaModule {
     ReactApplicationContext reactContext;
@@ -224,6 +225,23 @@ public class WMDatabaseBridge extends ReactContextBaseJavaModule {
         } catch (Exception e) {
             promise.reject(e);
         }
+    }
+
+    @ReactMethod(isBlockingSynchronousMethod = true)
+    public WritableArray getRandomBytes(int count) {
+        if (count != 256) {
+            throw new IllegalStateException("Expected getRandomBytes to be called with 256");
+        }
+
+        byte[] randomBytes = new byte[256];
+        SecureRandom random = new SecureRandom();
+        random.nextBytes(randomBytes);
+
+        WritableArray result = Arguments.createArray();
+        for (byte value : randomBytes) {
+            result.pushInt(Byte.toUnsignedInt(value));
+        }
+        return result;
     }
 
     @Override

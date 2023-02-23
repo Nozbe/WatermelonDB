@@ -41,7 +41,7 @@ type ApplyRemoteChangesContext = $Exact<{
 // using unsafeQueryRaw, because we DO want to reuse JS model if already in memory
 // This is only safe to do within a single db.write block, because otherwise we risk that the record
 // changed and we can no longer instantiate a JS model from an outdated raw record
-const unsafeFetchAsRaws = async <T: Model>(query: Query<T>) => {
+const unsafeFetchAsRaws = async <T: Model>(query: Query<T>): Promise<RawRecord[]> => {
   const { db } = query.collection
   const result = await toPromise((callback) =>
     db.adapter.underlyingAdapter.query(query.serialize(), callback),
@@ -378,7 +378,6 @@ const unsafeApplyAllRemoteChangesByBatches = async (
       context,
     )
     splitEvery(5000, preparedModels).forEach((recordBatch) => {
-      // $FlowFixMe
       promises.push(db.batch(recordBatch))
     })
   })
