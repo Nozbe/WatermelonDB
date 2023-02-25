@@ -26,6 +26,7 @@ export default async function synchronize({
   conflictResolver,
   _unsafeBatchPerCollection,
   unsafeTurbo,
+  syncUpdateCondition,
 }: SyncArgs): Promise<void> {
   const resetCount = database._resetCount
   log && (log.startedAt = new Date())
@@ -107,6 +108,7 @@ export default async function synchronize({
         log,
         conflictResolver,
         _unsafeBatchPerCollection,
+        syncUpdateCondition,
       })
       onDidPullChanges && onDidPullChanges(resultRest)
     }

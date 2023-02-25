@@ -1,6 +1,11 @@
 import type { Database } from '../..'
 
-import type { SyncDatabaseChangeSet, SyncLog, SyncConflictResolver } from '../index'
+import type {
+  SyncDatabaseChangeSet,
+  SyncLog,
+  SyncConflictResolver,
+  SyncUpdateCondition,
+} from '../index'
 
 export default function applyRemoteChanges(
   remoteChanges: SyncDatabaseChangeSet,
@@ -10,5 +15,6 @@ export default function applyRemoteChanges(
     log?: SyncLog,
     conflictResolver?: SyncConflictResolver,
     _unsafeBatchPerCollection?: boolean,
+    syncUpdateCondition?: SyncUpdateCondition,
   }
 ): Promise<void>

@@ -23,6 +23,7 @@ import type {
   SyncDatabaseChangeSet,
   SyncLog,
   SyncConflictResolver,
+  SyncUpdateCondition,
   SyncPullStrategy,
 } from '../index'
 import { prepareCreateFromRaw, prepareUpdateFromRaw, recordFromRaw } from './helpers'
@@ -34,6 +35,7 @@ type ApplyRemoteChangesContext = $Exact<{
   log?: SyncLog,
   conflictResolver?: SyncConflictResolver,
   _unsafeBatchPerCollection?: boolean,
+  syncUpdateCondition?: SyncUpdateCondition,
 }>
 
 // NOTE: Creating JS models is expensive/memory-intensive, so we want to avoid it if possible
@@ -263,7 +265,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   collection: Collection<T>,
   context: ApplyRemoteChangesContext,
 ): Array<?T> {
-  const { db, sendCreatedAsUpdated, log, conflictResolver } = context
+  const { db, sendCreatedAsUpdated, log, conflictResolver, syncUpdateCondition } = context
   const { table } = collection
   const {
     created,
@@ -292,7 +294,14 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
         `[Sync] Server wants client to create record ${table}#${raw.id}, but it already exists locally. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will update existing record instead.`,
       )
       recordsToBatch.push(
-        prepareUpdateFromRaw(currentRecord, raw, collection, log, conflictResolver),
+        prepareUpdateFromRaw(
+          currentRecord,
+          raw,
+          collection,
+          log,
+          conflictResolver,
+          syncUpdateCondition,
+        ),
       )
     } else if (locallyDeletedIds.includes(raw.id)) {
       logError(
@@ -312,7 +321,14 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
 
     if (currentRecord) {
       recordsToBatch.push(
-        prepareUpdateFromRaw(currentRecord, raw, collection, log, conflictResolver),
+        prepareUpdateFromRaw(
+          currentRecord,
+          raw,
+          collection,
+          log,
+          conflictResolver,
+          syncUpdateCondition,
+        ),
       )
     } else if (locallyDeletedIds.includes(raw.id)) {
       // Nothing to do, record was locally deleted, deletion will be pushed later
