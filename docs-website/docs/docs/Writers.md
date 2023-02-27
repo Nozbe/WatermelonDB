@@ -1,5 +1,5 @@
 ---
-title: Writers, Readers, batching
+title: Writers, Readers, Batching
 hide_title: true
 ---
 

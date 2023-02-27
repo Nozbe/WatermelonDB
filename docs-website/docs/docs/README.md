@@ -1,5 +1,5 @@
 ---
-title: Check out the README
+title: About
 hide_title: true
 ---
 
