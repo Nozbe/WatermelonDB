@@ -9,8 +9,8 @@ import { type RawRecord, type DirtyRaw, sanitizedRaw } from '../../RawRecord'
 import type {
   SyncLog,
   SyncDatabaseChangeSet,
+  SyncShouldUpdateRecord,
   SyncConflictResolver,
-  SyncUpdateCondition,
 } from '../index'
 
 // Returns raw record with naive solution to a conflict based on local `_changed` field
@@ -64,10 +64,10 @@ export function requiresUpdate<T: Model>(
   collection: Collection<T>,
   local: RawRecord,
   dirtyRemote: DirtyRaw,
-  syncUpdateCondition?: SyncUpdateCondition,
+  shouldUpdateRecord?: SyncShouldUpdateRecord,
 ): boolean {
-  if (syncUpdateCondition) {
-    return syncUpdateCondition(collection.table, local, dirtyRemote)
+  if (shouldUpdateRecord) {
+    return shouldUpdateRecord(collection.table, local, dirtyRemote)
   }
 
   if (local._status !== 'synced') {
@@ -89,10 +89,10 @@ export function prepareUpdateFromRaw<T: Model>(
   remoteDirtyRaw: DirtyRaw,
   collection: Collection<T>,
   log: ?SyncLog,
+  shouldUpdateRecord?: SyncShouldUpdateRecord,
   conflictResolver?: SyncConflictResolver,
-  syncUpdateCondition?: SyncUpdateCondition,
 ): ?T {
-  if (!requiresUpdate(collection, localRaw, remoteDirtyRaw, syncUpdateCondition)) {
+  if (!requiresUpdate(collection, localRaw, remoteDirtyRaw, shouldUpdateRecord)) {
     return null
   }
 

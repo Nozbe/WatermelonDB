@@ -4,7 +4,7 @@ import type {
   SyncLog,
   SyncDatabaseChangeSet,
   SyncConflictResolver,
-  SyncUpdateCondition,
+  SyncShouldUpdateRecord,
 } from '../index'
 
 // Returns raw record with naive solution to a conflict based on local `_changed` field
@@ -21,8 +21,8 @@ export function prepareUpdateFromRaw<T extends Model = Model>(
   record: T,
   updatedDirtyRaw: DirtyRaw,
   log?: SyncLog,
+  shouldUpdateRecord?: SyncShouldUpdateRecord,
   conflictResolver?: SyncConflictResolver,
-  syncUpdateCondition?: SyncUpdateCondition,
 ): T
 
 export function prepareMarkAsSynced<T extends Model = Model>(record: T): T

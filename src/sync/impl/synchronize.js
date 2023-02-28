@@ -23,10 +23,10 @@ export default async function synchronize({
   sendCreatedAsUpdated = false,
   migrationsEnabledAtVersion,
   log,
+  shouldUpdateRecord,
   conflictResolver,
   _unsafeBatchPerCollection,
   unsafeTurbo,
-  syncUpdateCondition,
 }: SyncArgs): Promise<void> {
   const resetCount = database._resetCount
   log && (log.startedAt = new Date())
@@ -106,9 +106,9 @@ export default async function synchronize({
         strategy: ((pullResult: any).experimentalStrategy: ?SyncPullStrategy),
         sendCreatedAsUpdated,
         log,
+        shouldUpdateRecord,
         conflictResolver,
         _unsafeBatchPerCollection,
-        syncUpdateCondition,
       })
       onDidPullChanges && onDidPullChanges(resultRest)
     }

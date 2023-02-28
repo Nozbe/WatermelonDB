@@ -23,7 +23,7 @@ import type {
   SyncDatabaseChangeSet,
   SyncLog,
   SyncConflictResolver,
-  SyncUpdateCondition,
+  SyncShouldUpdateRecord,
   SyncPullStrategy,
 } from '../index'
 import { prepareCreateFromRaw, prepareUpdateFromRaw, recordFromRaw } from './helpers'
@@ -33,9 +33,9 @@ type ApplyRemoteChangesContext = $Exact<{
   strategy?: ?SyncPullStrategy,
   sendCreatedAsUpdated?: boolean,
   log?: SyncLog,
+  shouldUpdateRecord?: SyncShouldUpdateRecord,
   conflictResolver?: SyncConflictResolver,
   _unsafeBatchPerCollection?: boolean,
-  syncUpdateCondition?: SyncUpdateCondition,
 }>
 
 // NOTE: Creating JS models is expensive/memory-intensive, so we want to avoid it if possible
@@ -265,7 +265,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   collection: Collection<T>,
   context: ApplyRemoteChangesContext,
 ): Array<?T> {
-  const { db, sendCreatedAsUpdated, log, conflictResolver, syncUpdateCondition } = context
+  const { db, sendCreatedAsUpdated, log, conflictResolver, shouldUpdateRecord } = context
   const { table } = collection
   const {
     created,
@@ -299,8 +299,8 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
           raw,
           collection,
           log,
+          shouldUpdateRecord,
           conflictResolver,
-          syncUpdateCondition,
         ),
       )
     } else if (locallyDeletedIds.includes(raw.id)) {
@@ -326,8 +326,8 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
           raw,
           collection,
           log,
+          shouldUpdateRecord,
           conflictResolver,
-          syncUpdateCondition,
         ),
       )
     } else if (locallyDeletedIds.includes(raw.id)) {

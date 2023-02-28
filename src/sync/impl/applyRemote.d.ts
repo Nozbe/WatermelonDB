@@ -4,7 +4,7 @@ import type {
   SyncDatabaseChangeSet,
   SyncLog,
   SyncConflictResolver,
-  SyncUpdateCondition,
+  SyncShouldUpdateRecord,
 } from '../index'
 
 export default function applyRemoteChanges(
