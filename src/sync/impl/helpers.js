@@ -67,7 +67,9 @@ export function requiresUpdate<T: Model>(
   shouldUpdateRecord?: SyncShouldUpdateRecord,
 ): boolean {
   if (shouldUpdateRecord) {
-    return shouldUpdateRecord(collection.table, local, dirtyRemote)
+    if (!shouldUpdateRecord(collection.table, local, dirtyRemote)) {
+      return false;
+    }
   }
 
   if (local._status !== 'synced') {
