@@ -26,6 +26,7 @@ export default async function synchronize({
   conflictResolver,
   _unsafeBatchPerCollection,
   unsafeTurbo,
+  pushShouldConfirmOnlyAccepted, // TODO add
 }: SyncArgs): Promise<void> {
   const resetCount = database._resetCount
   log && (log.startedAt = new Date())
@@ -134,9 +135,14 @@ export default async function synchronize({
         (await pushChanges({ changes: localChanges.changes, lastPulledAt: newLastPulledAt })) || {}
       log && (log.phase = 'pushed')
       log && (log.rejectedIds = pushResult.experimentalRejectedIds)
+      // TODO log.acceptedIds = pushResult.experimentalAcceptedIds
+      //  or log.rejectedIds = localChanges - pushResult.experimentalAcceptedIds but can be more
+      //    expensive
+      //  or log.acceptedIds and just count with localChanges - pushResult.experimentalAcceptedIds
 
       ensureSameDatabase(database, resetCount)
-      await markLocalChangesAsSynced(database, localChanges, pushResult.experimentalRejectedIds)
+      await markLocalChangesAsSynced(database, localChanges, pushResult.experimentalRejectedIds,
+        pushResult.experimentalAcceptedIds, pushShouldConfirmOnlyAccepted)
       log && (log.phase = 'marked local changes as synced')
     }
   } else {
