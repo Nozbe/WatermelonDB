@@ -387,7 +387,7 @@ extension DatabaseBridge {
         guard let data = serializedOperations.data(using: String.Encoding.utf8.rawValue),
         let operations = (try? JSONSerialization.jsonObject(with: data)) as? [[Any]]
         else {
-            throw "Invalid serialized operations".asError()
+            throw "Invalid serialized operations: \(serializedOperations)".asError()
         }
 
         return try toBatchOperations(operations)
