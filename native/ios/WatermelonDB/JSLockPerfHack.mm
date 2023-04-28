@@ -1,11 +1,7 @@
 #import "JSLockPerfHack.h"
 #import <UIKit/UIKit.h>
 #import <JavaScriptCore/JavaScriptCore.h>
-#if REACT_NATIVE_MINOR_VERSION >= 71
 #include <jsc/JSCRuntime.h>
-#else
-#include <jsi/JSCRuntime.h>
-#endif // REACT_NATIVE_MINOR_VERSION
 #import <objc/runtime.h>
 #import <objc/message.h>
 
