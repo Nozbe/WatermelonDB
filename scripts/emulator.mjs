@@ -2,10 +2,9 @@
 
 // inspired by `np` – https://github.com/sindresorhus/np
 
-const Listr = require('listr')
-const inquirer = require('inquirer')
-
-const { execSync } = require('child_process')
+import Listr from 'listr'
+import inquirer from 'inquirer'
+import { execSync } from 'child_process'
 
 const launchFirst = process.argv[2]
 const noSnapshot = process.argv[3]
