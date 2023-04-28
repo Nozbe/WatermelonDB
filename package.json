@@ -8,7 +8,7 @@
     "dev": "NODE_ENV=development node ./scripts/make.mjs",
     "dev:native": "react-native start",
     "release": "node ./scripts/release.mjs",
-    "prettier": "prettier --write src",
+    "prettier": "prettier --write src docs-website/src",
     "flow": "flow check --color always",
     "eslint": "eslint ./src -c ./.eslintrc.js --cache --cache-location ./.cache/.eslintcache",
     "tslint": "tslint --project .",

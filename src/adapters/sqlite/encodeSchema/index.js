@@ -58,7 +58,9 @@ export function encodeDropIndices({ tables, unsafeSql }: AppSchema): SQL {
     .map(({ name: tableName, columns }) =>
       Object.values(columns)
         // $FlowFixMe
-        .map((column) => (column.isIndexed ? `drop index if exists "${tableName}_${column.name}";` : ''))
+        .map((column) =>
+          column.isIndexed ? `drop index if exists "${tableName}_${column.name}";` : '',
+        )
         .concat([`drop index if exists "${tableName}__status";`])
         .join(''),
     )

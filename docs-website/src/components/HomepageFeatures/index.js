@@ -7,7 +7,8 @@ const FeatureList = [
     title: 'Fast',
     description: (
       <>
-        WatemerlonDB was designed from the ground up to be blazing fast ⚡️ and launch your app instantly no matter how much data you have.
+        WatemerlonDB was designed from the ground up to be blazing fast ⚡️ and launch your app
+        instantly no matter how much data you have.
       </>
     ),
   },
@@ -15,7 +16,8 @@ const FeatureList = [
     title: 'Highly scalable',
     description: (
       <>
-        WatermelonDB is built on rock-solid SQLite foundation and optimized to handle from hundreds to tens of thousands of records.
+        WatermelonDB is built on rock-solid SQLite foundation and optimized to handle from hundreds
+        to tens of thousands of records.
       </>
     ),
   },
@@ -23,15 +25,16 @@ const FeatureList = [
     title: 'Offline-first',
     description: (
       <>
-        Ideal for offline-first apps, sync with your own server using WatermelonDB Powerful Sync Engine.
+        Ideal for offline-first apps, sync with your own server using WatermelonDB Powerful Sync
+        Engine.
       </>
     ),
   },
 ]
 
 function Feature({
-  // Svg, 
-  title, 
+  // Svg,
+  title,
   description,
 }) {
   return (
