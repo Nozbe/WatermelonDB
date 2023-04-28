@@ -3,11 +3,11 @@
 
 const lightCodeTheme = require('prism-react-renderer/themes/github')
 const darkCodeTheme = require('prism-react-renderer/themes/dracula')
-const {version} = require('./package.json')
+const { version } = require('./package.json')
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: '🍉 WatermelonDB',
+  title: 'WatermelonDB',
   tagline: 'A reactive database framework',
   favicon: 'img/favicon.ico',
 
@@ -44,17 +44,16 @@ const config = {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/nozbe/WatermelonDB/edit/master/docs-website/',
-            routeBasePath: '/',
-            path: 'docs',
-            lastVersion: 'current',
-            versions: {
-              current: {
-                label: `${version}`,
-                badge: true,
-              },
+          editUrl: 'https://github.com/nozbe/WatermelonDB/edit/master/docs-website/',
+          routeBasePath: '/',
+          path: 'docs',
+          lastVersion: 'current',
+          versions: {
+            current: {
+              label: `${version}`,
+              badge: true,
             },
+          },
         },
         // blog: {
         //   showReadingTime: true,
@@ -110,10 +109,10 @@ const config = {
                 label: 'Installation',
                 to: '/docs/Installation',
               },
-              {
-                label: 'Advanced Guides',
-                to: '/docs/Advanced/Migrations',
-              },
+              // {
+              //   label: 'Advanced Guides',
+              //   to: '/docs/Advanced/Migrations',
+              // },
               {
                 label: 'Contributing',
                 to: '/docs/CONTRIBUTING',
@@ -131,10 +130,10 @@ const config = {
               //   label: 'Discord',
               //   href: 'https://discordapp.com/invite/docusaurus',
               // },
-              // {
-              //   label: 'Twitter',
-              //   href: 'https://twitter.com/docusaurus',
-              // },
+              {
+                label: 'Twitter',
+                href: 'https://twitter.com/radexp',
+              },
             ],
           },
           {
@@ -151,7 +150,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Nozbe. Built with Docusaurus.`,
+        copyright: `WatermelonDB by <a href="https://radex.io">Radek Pietruszewski</a> and <a href="https://nozbe.com">Nozbe</a>.`,
       },
       prism: {
         theme: lightCodeTheme,
