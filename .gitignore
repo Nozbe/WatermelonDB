@@ -15,10 +15,6 @@ coverage/
 .vscode
 .idea
 
-# docs/book/
-# docs/CONTRIBUTING.md
-# docs/CHANGELOG.md
-# docs/README.md
 docs-build/
 
 **/.metro-health-check*
