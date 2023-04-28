@@ -66,7 +66,7 @@ Date fields should be `number` (dates are stored as Unix timestamps) and have na
 
 ### Special columns
 
-All tables _automatically_ have a string column `id` (of `string` type) to uniquely identify records -- therefore you cannot declare a column named `id` yourself. (There are also special `_status` and `_changed` columns used for [synchronization](./Advanced/Sync.md) - you shouldn't touch them yourself).
+All tables _automatically_ have a string column `id` (of `string` type) to uniquely identify records -- therefore you cannot declare a column named `id` yourself. (There are also special `_status` and `_changed` columns used for [synchronization](./Sync/Intro.md) - you shouldn't touch them yourself).
 
 You can add special `created_at` / `updated_at` columns to enable [automatic create/update tracking](./Advanced/CreateUpdateTracking.md).
 

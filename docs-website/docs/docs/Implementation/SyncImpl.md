@@ -5,7 +5,7 @@ hide_title: true
 
 # Sync implementation details
 
-If you're looking for a guide to implement Watermelon Sync in your app, see [**Synchronization**](../Advanced/Sync.md).
+If you're looking for a guide to implement Watermelon Sync in your app, see [**Synchronization**](../Sync/Intro.md).
 
 If you want to contribute to Watermelon Sync, or implement your own synchronization engine from scratch, read this.
 

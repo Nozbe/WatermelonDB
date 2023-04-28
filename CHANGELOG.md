@@ -827,7 +827,7 @@ Hotfix for rambdax crash
 
 - **Actions API**.
 
-  This was actually released in 0.8.0 but is now documented in [CRUD.md](./docs-website/docs/docs/CRUD.md) and [Actions.md](./docs-website/docs/docs/Actions.md).
+  This was actually released in 0.8.0 but is now documented.
   With Actions enabled, all create/update/delete/batch calls must be wrapped in an Action.
 
   To use Actions, call `await database.action(async () => { /* perform writes here */ }`, and in

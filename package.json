@@ -25,8 +25,9 @@
     "android:emulator": "./scripts/emulatorWithJavaCheck",
     "cocoapods": "rm -fr native/iosTest/build/generated && cd native/iosTest && bundle exec pod install",
     "docs:version": "cd docs-website && yarn version --no-git-tag-version --no-commit-hooks --new-version",
-    "docs": "./scripts/update-docusaurus && cd docs-website && yarn deploy",
-    "docs:dev": "./scripts/update-docusaurus && cd docs-website && yarn start"
+    "docs:dev": "./scripts/update-docusaurus && cd docs-website && yarn start",
+    "docs:build": "./scripts/update-docusaurus && cd docs-website && yarn build",
+    "docs:deploy": "./scripts/update-docusaurus && cd docs-website && yarn deploy"
   },
   "types": "src/index.d.ts",
   "author": "@Nozbe",

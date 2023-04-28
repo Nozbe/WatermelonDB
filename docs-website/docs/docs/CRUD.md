@@ -97,7 +97,7 @@ Like creating, updating takes a builder function, where you can use field setter
 
 There are two ways of deleting records: syncable (mark as deleted), and permanent.
 
-If you only use Watermelon as a local database, destroy records permanently, if you [synchronize](./Advanced/Sync.md), mark as deleted instead.
+If you only use Watermelon as a local database, destroy records permanently, if you [synchronize](./Sync/Intro.md), mark as deleted instead.
 
 ```js
 await somePost.markAsDeleted() // syncable

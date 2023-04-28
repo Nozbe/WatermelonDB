@@ -205,4 +205,4 @@ If you make or are considering making an app using WatermelonDB, please let us k
 
 [See all contributors](https://github.com/Nozbe/WatermelonDB/graphs/contributors).
 
-WatermelonDB is available under the MIT license. See the [LICENSE file](./LICENSE) for more info.
+WatermelonDB is available under the MIT license. See the [LICENSE file](https://github.com/Nozbe/WatermelonDB/LICENSE) for more info.

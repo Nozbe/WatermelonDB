@@ -7,7 +7,7 @@
 - a `DatabaseAdapter`
 - a map of `Collection`s
 
-`DatabaseAdapter` connects Watermelon's reactive world to low-level imperative world of databases. See [Adapters](./Adapters.md).
+`DatabaseAdapter` connects Watermelon's reactive world to low-level imperative world of databases. See [Adapters](./DatabaseAdapters.md).
 
 `Collection` manages all records of a given kind:
 
@@ -37,8 +37,8 @@ Watermelon's objects and classes are meant to be as minimal as possible — only
 
 `QueryDescription` is a structure (object) describing the query, built using `Q.*` helper functions
 
-`encodeMatcher()`, `simpleObserver()`, `reloadingObserver()`, `fieldObserver()` implement query observation logic (See [Observation](./Observation.md).)
+`encodeMatcher()`, `simpleObserver()`, `reloadingObserver()`, `fieldObserver()` implement query observation logic.
 
 Model decorators transform simple class properties into Watermelon-aware record fields.
 
-Much of Adapters' logic is implemented as pure functions too. See [Adapters](./Adapters.md).
+Much of Adapters' logic is implemented as pure functions too. See [Adapters](./DatabaseAdapters.md).

@@ -79,7 +79,7 @@ class User extends Model {
 
 ### `@readonly`
 
-Similar to `@nochange`, you can use the `@readonly` decorator to ensure a field cannot be set at all. Use this for [create/update tracking](./CreateUpdateTracking.md), but it might also be useful if you use Watermelon with a [Sync engine](../Advanced/Sync.md) and a field can only be set by the server.
+Similar to `@nochange`, you can use the `@readonly` decorator to ensure a field cannot be set at all. Use this for [create/update tracking](./CreateUpdateTracking.md), but it might also be useful if you use Watermelon with a [Sync engine](../Sync/Intro.md) and a field can only be set by the server.
 
 ## Custom observable fields
 
