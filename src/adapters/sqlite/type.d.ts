@@ -20,10 +20,6 @@ export type SQLiteAdapterOptions = $Exact<{
   // The new way to run the database in synchronous mode.
   jsi?: boolean,
   migrationEvents?: MigrationEvents,
-  // As of 0.26, WatermelonDB uses a new implementation of the database bridge when NOT in the JSI mode
-  // (i.e. in asynchronous mode) by default. If this new implementation causes problems, set this to `true` to
-  // revert to the old implementation *and file an issue*. This option will be removed in 0.27.
-  disableNewBridge?: boolean
   // Called when database failed to set up (initialize) correctly. It's possible that
   // it's some transient error that will be solved by a reload, but it's
   // very likely that the error is persistent (e.g. a corrupted database).
@@ -34,7 +30,7 @@ export type SQLiteAdapterOptions = $Exact<{
   usesExclusiveLocking?: boolean,
 }>
 
-export type DispatcherType = 'asynchronous' | 'asynchronous-v2' | 'jsi'
+export type DispatcherType = 'asynchronous' | 'jsi'
 
 export type SqliteDispatcherMethod =
   | 'initialize'

@@ -8,14 +8,9 @@ import DatabaseAdapterCompat from '../compat'
 const SQLiteAdapterTest = (spec) => {
   const configurations = [
     {
-      name: 'SQLiteAdapter (async mode)',
-      options: { disableNewBridge: true },
-      expectedDispatcherType: 'asynchronous',
-    },
-    {
       name: 'SQLiteAdapter (async mode, new bridge)',
       options: {},
-      expectedDispatcherType: 'asynchronous-v2',
+      expectedDispatcherType: 'asynchronous',
     },
     { name: 'SQLiteAdapter (JSI mode)', options: { jsi: true }, expectedDispatcherType: 'jsi' },
   ]
