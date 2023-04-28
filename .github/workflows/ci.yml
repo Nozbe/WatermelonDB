@@ -23,6 +23,8 @@ jobs:
       - run: yarn ci:check
       - name: Gradle Wrapper Validation
         uses: gradle/wrapper-validation-action@v1.0.3
+      - name: Check docs build
+        run: yarn docs:build
   ios:
     runs-on: macos-11
     name: iOS tests
@@ -84,13 +86,3 @@ jobs:
           working-directory: ./native/androidTest
           script: ./gradlew connectedAndroidTest
       - run: yarn ktlint
-  # FIXME: Bring back docs check
-  # docs:
-  #   runs-on: ubuntu-22.04
-  #   name: Check documentation
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - run: (test -x $HOME/.cargo/bin/cargo-install-update || cargo install cargo-update)
-  #     - run: (test -x $HOME/.cargo/bin/mdbook || cargo install --vers "^0.3" mdbook)
-  #     - run: cargo install-update -a
-  #     - run: ./scripts/mdbook
