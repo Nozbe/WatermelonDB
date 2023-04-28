@@ -1,7 +1,7 @@
 {
   "name": "@nozbe/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
-  "version": "0.26.0-15",
+  "version": "0.26.0",
   "scripts": {
     "up": "yarn",
     "build": "NODE_ENV=production node ./scripts/make.mjs",
