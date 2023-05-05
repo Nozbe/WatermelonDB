@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.4.1)
 # inspired by https://github.com/ericlewis/react-native-hostobject-demo/blob/6f16c01db80f928ccd294c8cc5d4668b0f8c15ec/android/app/CMakeLists.txt
 # execute_process (COMMAND ln "-s" "src" "../../../../../node_modules/react-native/third-party/double-conversion-1.1.6/double-conversion")
 
+# NOTE: This may need to be bumped sometimes to force CMake caches to clear
 set(WMELON_JSI_BUMP 4)
 
 # -------------------------------------------------
