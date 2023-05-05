@@ -10,7 +10,6 @@
 #endif
 #endif
 
-#import "Bridging.h"
 #import "JSIInstaller.h"
 
 FOUNDATION_EXPORT double WatermelonDBVersionNumber;

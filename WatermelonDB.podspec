@@ -19,6 +19,7 @@ Pod::Spec.new do |s|
     # but this is needed for WatermelonDB to work in use_frameworks! mode
     # 'native/ios/**/*.h',
     'native/ios/WatermelonDB/JSIInstaller.h',
+    'native/ios/WatermelonDB/WatermelonDB.h',
   ]
   s.pod_target_xcconfig = {
     # FIXME: This is a workaround for broken build in use_frameworks mode
