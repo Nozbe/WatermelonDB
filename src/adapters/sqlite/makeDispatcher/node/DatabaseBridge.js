@@ -223,7 +223,7 @@ class DatabaseBridge {
     reject: string => void,
   ) => 
     this.withDriver(tag, resolve, reject, 'obliterateDatabase', driver =>
-    driver.obliterateDatabase(),
+    driver.obliterateDatabase()
   )
 
   getLocal = (tag: number, key: string, resolve: any => void, reject: string => void) =>
@@ -286,7 +286,7 @@ class DatabaseBridge {
 
   obliterateDatabaseSynchronous = (tag: number): any =>
     this.withDriverSynchronous(tag, 'obliterateDatabaseSyncronous', driver => 
-      driver.obliterateDatabase(),
+      driver.obliterateDatabase()
     )
 
   getLocalSynchronous = (tag: number, key: string): any =>
