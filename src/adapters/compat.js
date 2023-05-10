@@ -85,8 +85,8 @@ export default class DatabaseAdapterCompat {
     return toPromise(callback => this.underlyingAdapter.removeLocal(key, callback))
   }
 
-  obliterate(): Promise<void> {
-    return toPromise(callback => this.underlyingAdapter.obliterate(callback))
+  obliterateDatabase(): Promise<void> {
+    return toPromise(callback => this.underlyingAdapter.obliterateDatabase(callback))
   }
 
   unsafeSqlQuery: ?(tableName: TableName<any>, sql: string) => Promise<CachedQueryResult>
