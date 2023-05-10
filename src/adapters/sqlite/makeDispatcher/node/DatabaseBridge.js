@@ -284,6 +284,11 @@ class DatabaseBridge {
       driver.unsafeResetDatabase({ version: schemaVersion, sql: schema }),
     )
 
+  obliterateDatabaseSyncronous = (tag: number): any =>
+    this.withDriverSynchronous(tag, 'obliterateDatabaseSyncronous', driver => 
+      driver.obliterateDatabase(),
+    )
+
   getLocalSynchronous = (tag: number, key: string): any =>
     this.withDriverSynchronous(tag, 'getLocalSynchronous', driver => driver.getLocal(key))
 
