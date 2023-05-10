@@ -285,8 +285,8 @@ class DatabaseBridge {
     )
 
   obliterateDatabaseSynchronous = (tag: number): any =>
-    this.withDriverSynchronous(tag, 'obliterateDatabaseSyncronous', driver => 
-      driver.obliterateDatabase()
+    this.withDriverSynchronous(tag, 'obliterateDatabaseSynchronous', driver => 
+      driver.obliterateDatabase(),
     )
 
   getLocalSynchronous = (tag: number, key: string): any =>
