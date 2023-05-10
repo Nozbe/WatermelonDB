@@ -121,6 +121,20 @@ class Database {
     }
   }
 
+  obliterateDatabase = () => {
+    this.instance.close()
+
+    if (fs.existsSync(this.path)) {
+      fs.unlinkSync(this.path)
+    }
+    if (fs.existsSync(`${this.path}-wal`)) {
+      fs.unlinkSync(`${this.path}-wal`)
+    }
+    if (fs.existsSync(`${this.path}-shm`)) {
+      fs.unlinkSync(`${this.path}-shm`)
+    }
+  }
+
   isInMemoryDatabase = () => {
     return this.instance.memory
   }

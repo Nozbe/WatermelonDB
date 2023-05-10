@@ -216,6 +216,16 @@ class DatabaseBridge {
       driver.unsafeResetDatabase({ version: schemaVersion, sql: schema }),
     )
 
+
+  obliterateDatabase = (
+    tag: Number, 
+    resolve: any => void,
+    reject: string => void,
+  ) => 
+    this.withDriver(tag, resolve, reject, 'obliterateDatabase', driver =>
+    driver.obliterateDatabase(),
+  )
+
   getLocal = (tag: number, key: string, resolve: any => void, reject: string => void) =>
     this.withDriver(tag, resolve, reject, 'getLocal', driver => driver.getLocal(key))
 

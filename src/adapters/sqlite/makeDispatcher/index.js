@@ -31,6 +31,7 @@ const dispatcherMethods = [
   'getLocal',
   'setLocal',
   'removeLocal',
+  'obliterateDatabase',
 ]
 
 export const makeDispatcher = (

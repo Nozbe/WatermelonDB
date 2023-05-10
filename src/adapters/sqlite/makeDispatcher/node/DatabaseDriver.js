@@ -269,6 +269,10 @@ class DatabaseDriver {
     this.setUpSchema(schema)
   }
 
+  obliterateDatabase = () => {
+    this.database.obliterateDatabase()
+  }
+
   setUpSchema = (schema: { sql: string, version: number }) => {
     this.database.inTransaction(() => {
       this.database.executeStatements(schema.sql + this.localStorageSchema)
