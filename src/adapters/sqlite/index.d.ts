@@ -57,5 +57,7 @@ declare module '@BuildHero/watermelondb/adapters/sqlite' {
     unsafeClearCachedRecords(): Promise<void>
 
     unsafeResetDatabase(): Promise<void>
+
+    execSqlQuery(sql: string, params?: any[]): Promise<Record<string, any>[]>
   }
 }
