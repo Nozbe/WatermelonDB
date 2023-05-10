@@ -292,6 +292,10 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     })
   }
 
+  obliterateDatabase(callback: ResultCallback<void>): void {
+    this._dispatcher.obliterateDatabase(callback)
+  }
+
   getLocal(key: string, callback: ResultCallback<?string>): void {
     this._dispatcher.getLocal(key, callback)
   }

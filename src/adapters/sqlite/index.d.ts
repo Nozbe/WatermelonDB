@@ -54,6 +54,8 @@ declare module '@BuildHero/watermelondb/adapters/sqlite' {
 
     setLocal(key: string, value: string): Promise<void>
 
+    obliterateDatabase(): Promise<void>
+
     unsafeClearCachedRecords(): Promise<void>
 
     unsafeResetDatabase(): Promise<void>
