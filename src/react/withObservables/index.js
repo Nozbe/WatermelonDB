@@ -10,11 +10,11 @@ import scheduleForCleanup from './garbageCollector'
 type UnaryFn<A, R> = (a: A) => R
 type HOC<Base, Enhanced> = UnaryFn<React$ComponentType<Base>, React$ComponentType<Enhanced>>
 
-interface ObservableConvertible<T> {
+export interface ObservableConvertible<T> {
   observe(): Observable<T>;
 }
 
-type ExtractTypeFromObservable = <T>(value: Observable<T> | ObservableConvertible<T>) => T
+export type ExtractTypeFromObservable = <T>(value: Observable<T> | ObservableConvertible<T>) => T
 
 type TriggerProps<A> = $Keys<A>[] | null
 type GetObservables<A, B> = (props: A) => B
