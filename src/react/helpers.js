@@ -1,9 +1,12 @@
 // @flow
-import { createFactory as reactCreateFactory } from 'react'
+import { createElement } from 'react'
 
 export type HOC<Base, Enhanced> = (React$ComponentType<Base>) => React$ComponentType<Enhanced>
 
-let _createFactory: any = reactCreateFactory
+let _createFactory: any = (Component) => {
+  // eslint-disable-next-line react/function-component-definition
+  return (props) => createElement(Component, props)
+}
 
 // undocumented binding for NT perf hack
 export function _setCreateFactory(newCreateFactory: any): void {
