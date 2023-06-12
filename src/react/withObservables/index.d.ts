@@ -11,7 +11,8 @@ type ExtractObservableType<T> = T extends Observable<infer U>
   : T extends ObservableConvertible<infer U>
   ? U
   : T
-type ExtractedObservables<T> = {
+
+export type ExtractedObservables<T> = {
   [K in keyof T]: ExtractObservableType<T[K]>
 }
 
