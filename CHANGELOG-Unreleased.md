@@ -1,3 +1,5 @@
+TODO: After shipping, make minor bump to @nozbe/withObservables and add deprecation notice
+
 ### Highlights
 
 **Removed legacy Swift and Kotlin React Native Modules**
@@ -9,7 +11,9 @@ Following the addition of new Native Modules in 0.26, we're removing the old imp
 All React/React Native helpers for WatermelonDB are now available as imports from `@nozbe/watermelodb/react` including:
 
 - `DatabaseProvider`, `useDatabase`, `withDatabase`
-- `compose` (NEW)
+- NEW: `withObservables` - `@nozbe/with-observables` as a separate package is deprecated, and is now bundled with WatermelonDB
+- NEW: HOC helpers: `compose`, `withHooks`
+- NEW: `<WithObservables />` component, a component version of `withObservables` HOC. Useful when a value being observed is localized to a small part of a larger component, because you can effortlessly narrow down which parts of the component are re-rendered when the value changes without having to extract a new component.
 
 Imports from previous `@nozbe/watermelondb/DatabaseProvider` and `@nozbe/watermelondb/hooks` folders are deprecated and will be removed in a future version.
 
