@@ -4,6 +4,10 @@
 
 Following the addition of new Native Modules in 0.26, we're removing the old implementations. We expect this to simplify installation process and remove a ton of compatibility and configuration issues due to Kotlin version mismatchs and the CocoaPods-Swift issues when using `use_frameworks!` or Expo.
 
+**New `@nozbe/watermelondb/react` folder**
+
+All React/React Native helpers for WatermelonDB are now available as imports from `@nozbe/watermelodb/react`. Imports from previous `@nozbe/watermelondb/DatabaseProvider` and `@nozbe/watermelondb/hooks` folders are deprecated and will be removed in a future version.
+
 ### BREAKING CHANGES
 
 Changes unlikely to cause issues:
@@ -14,9 +18,13 @@ Changes unlikely to cause issues:
 
 ### Deprecations
 
+- Imports from `@nozbe/watermelondb/DatabaseProvider` and `@nozbe/watermelondb/hooks`. Change to `@nozbe/watermelondb/react`
+
 ### New features
 
 ### Fixes
+
+- [Flow/TS] Improved typing of DatabaseContext
 
 ### Performance
 
