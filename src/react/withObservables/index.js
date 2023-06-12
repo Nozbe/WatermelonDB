@@ -3,7 +3,7 @@
 
 import type { Observable } from 'rxjs'
 import { Component, createElement } from 'react'
-import hoistNonReactStatic from 'hoist-non-react-statics'
+import hoistNonReactStatics from 'hoist-non-react-statics'
 
 import scheduleForCleanup from './garbageCollector'
 
@@ -364,7 +364,7 @@ const withObservables = <PropsInput: { ... }, ObservableProps: { ... }>(
       ConcreteWithObservablesComponent.displayName = `withObservables[${renderedTriggerProps}]`
     }
 
-    return hoistNonReactStatic(ConcreteWithObservablesComponent, BaseComponent)
+    return hoistNonReactStatics(ConcreteWithObservablesComponent, BaseComponent)
   }
 }
 
