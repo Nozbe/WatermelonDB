@@ -19,6 +19,8 @@ Imports from previous `@nozbe/watermelondb/DatabaseProvider` and `@nozbe/waterme
 
 ### BREAKING CHANGES
 
+- `@nozbe/with-observables` is no longer a WatermelonDB dependency. Change your imports to `import { withObservables } from '@nozbe/watermelondb/react'`
+
 Changes unlikely to cause issues:
 
 - [iOS] If `import WatermelonDB` is used in your Swift app (for Turbo sync), remove it and replace with `#import <WatermelonDB/WatermelonDB.h>` in the bridging header
