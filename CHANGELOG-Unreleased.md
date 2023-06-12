@@ -6,7 +6,12 @@ Following the addition of new Native Modules in 0.26, we're removing the old imp
 
 **New `@nozbe/watermelondb/react` folder**
 
-All React/React Native helpers for WatermelonDB are now available as imports from `@nozbe/watermelodb/react`. Imports from previous `@nozbe/watermelondb/DatabaseProvider` and `@nozbe/watermelondb/hooks` folders are deprecated and will be removed in a future version.
+All React/React Native helpers for WatermelonDB are now available as imports from `@nozbe/watermelodb/react` including:
+
+- `DatabaseProvider`, `useDatabase`, `withDatabase`
+- `compose` (NEW)
+
+Imports from previous `@nozbe/watermelondb/DatabaseProvider` and `@nozbe/watermelondb/hooks` folders are deprecated and will be removed in a future version.
 
 ### BREAKING CHANGES
 
