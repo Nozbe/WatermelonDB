@@ -1,4 +1,5 @@
 TODO: After shipping, make minor bump to @nozbe/withObservables and add deprecation notice
+TODO: Update import paths in documentation before shipping 0.27
 
 ### Highlights
 
@@ -6,9 +7,9 @@ TODO: After shipping, make minor bump to @nozbe/withObservables and add deprecat
 
 Following the addition of new Native Modules in 0.26, we're removing the old implementations. We expect this to simplify installation process and remove a ton of compatibility and configuration issues due to Kotlin version mismatchs and the CocoaPods-Swift issues when using `use_frameworks!` or Expo.
 
-**New `@nozbe/watermelondb/react` folder**
+**Introducing Watermelon React**
 
-All React/React Native helpers for WatermelonDB are now available as imports from `@nozbe/watermelodb/react` including:
+All React/React Native helpers for Watermelon are now available from a new `@nozbe/watermelodb/react` folder:
 
 - `DatabaseProvider`, `useDatabase`, `withDatabase`
 - NEW: `withObservables` - `@nozbe/with-observables` as a separate package is deprecated, and is now bundled with WatermelonDB
