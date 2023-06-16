@@ -42,6 +42,8 @@ Changes unlikely to cause issues:
 
 ### New features
 
+- New `@experimentalFailsafe` decorator you can apply before `@relation/@immutableRelation` so that if relation points to a record that does not exist, `.fetch()/.observe()` yield `undefined` instead of throwing an error
+
 ### Fixes
 
 - [Flow/TS] Improved typing of DatabaseContext
