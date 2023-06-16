@@ -81,59 +81,46 @@ export default class Database {
     // performance critical - using mutations
     const batchOperations: BatchOperation[] = []
     const changeNotifications: { [collectionName: TableName<any>]: CollectionChangeSet<*> } = {}
-    const chunkSize = 10000 // Set the chunk size to 10,000
+    actualRecords.forEach(record => {
+      if (!record) {
+        return
+      }
 
-    // Split actualRecords into chunks
-    const chunks = []
-    for (let i = 0; i < actualRecords.length; i += chunkSize) {
-      chunks.push(actualRecords.slice(i, i + chunkSize))
-    }
+      /* invariant(
+        !record._isCommitted || record._hasPendingUpdate || record._hasPendingDelete,
+        `Cannot batch a record that doesn't have a prepared create or prepared update`,
+      ) */
 
-    for (const chunk of chunks) {
-      chunk.forEach(record => {
-        if (!record) {
-          return
-        }
+      const raw = record._raw
+      const { id } = raw // faster than Model.id
+      const { table } = record.constructor // faster than Model.table
 
-        /* invariant(
-          !record._isCommitted || record._hasPendingUpdate || record._hasPendingDelete,
-          `Cannot batch a record that doesn't have a prepared create or prepared update`,
-        ) */
+      let changeType
 
-        const raw = record._raw
-        const { id } = raw // faster than Model.id
-        const { table } = record.constructor // faster than Model.table
-
-        let changeType
-
-        // Deletes take precedence over updates
-        if (record._hasPendingDelete) {
-          if (record._hasPendingDelete === 'destroy') {
-            batchOperations.push(['destroyPermanently', table, id])
-          } else {
-            batchOperations.push(['markAsDeleted', table, id])
-          }
-          changeType = CollectionChangeTypes.destroyed
-        } else if (record._hasPendingUpdate) {
-          record._hasPendingUpdate = false // TODO: What if this fails?
-          batchOperations.push(['update', table, raw])
-          changeType = CollectionChangeTypes.updated
+      // Deletes take presedence over updates
+      if (record._hasPendingDelete) {
+        if (record._hasPendingDelete === 'destroy') {
+          batchOperations.push(['destroyPermanently', table, id])
         } else {
-          batchOperations.push(['create', table, raw])
-          changeType = CollectionChangeTypes.created
+          batchOperations.push(['markAsDeleted', table, id])
         }
+        changeType = CollectionChangeTypes.destroyed
+      } else if (record._hasPendingUpdate) {
+        record._hasPendingUpdate = false // TODO: What if this fails?
+        batchOperations.push(['update', table, raw])
+        changeType = CollectionChangeTypes.updated
+      } else {
+        batchOperations.push(['create', table, raw])
+        changeType = CollectionChangeTypes.created
+      }
 
-        if (!changeNotifications[table]) {
-          changeNotifications[table] = []
-        }
-        changeNotifications[table].push({ record, type: changeType })
-      })
+      if (!changeNotifications[table]) {
+        changeNotifications[table] = []
+      }
+      changeNotifications[table].push({ record, type: changeType })
+    })
 
-      await this.adapter.batch(batchOperations)
-
-      // Clear batchOperations array for the next chunk
-      batchOperations.length = 0
-    }
+    await this.adapter.batch(batchOperations)
 
     // NOTE: We must make two passes to ensure all changes to caches are applied before subscribers are called
     Object.entries(changeNotifications).forEach(notification => {
