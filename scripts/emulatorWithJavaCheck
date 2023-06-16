@@ -6,4 +6,4 @@ fi
 if javac -version | grep -q '1.9'; then
   export JAVA_OPTS="-XX:+IgnoreUnrecognizedVMOptions --add-modules java.se.ee"
 fi
-  node ./scripts/emulator.js
+  node ./scripts/emulator.mjs

@@ -217,7 +217,8 @@ WatermelonJSI.provideSyncJson(/* id */ syncId, /* byte[] */ data);
 
 ```objc
 // On iOS (Objective-C):
-extern void watermelondbProvideSyncJson(int id, NSData *json, NSError **errorPtr);
+// (If using Swift, add the import to the bridging header)
+#import <WatermelonDB/WatermelonDB.h>
 
 watermelondbProvideSyncJson(syncId, data, &error)
 ```

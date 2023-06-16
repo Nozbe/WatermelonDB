@@ -12,10 +12,7 @@ import type {
   SqliteDispatcherOptions,
 } from '../type'
 
-const { DatabaseBridge, WMDatabaseBridge } = NativeModules
-
-// TODO: Remove this after we're sure that new bridge works well
-const USE_NEW_BRIDGE_FOR_JSI_SUPPORT = true
+const { WMDatabaseBridge } = NativeModules
 
 class SqliteNativeModulesDispatcher implements SqliteDispatcher {
   _tag: ConnectionTag
@@ -33,7 +30,7 @@ class SqliteNativeModulesDispatcher implements SqliteDispatcher {
     if (process.env.NODE_ENV !== 'production') {
       invariant(
         this._bridge,
-        `NativeModules.(WM)DatabaseBridge is not defined! This means that you haven't properly linked WatermelonDB native module. Refer to docs for instructions about installation (and the changelog if this happened after an upgrade).`,
+        `NativeModules.DatabaseBridge is not defined! This means that you haven't properly linked WatermelonDB native module. Refer to docs for instructions about installation (and the changelog if this happened after an upgrade).`,
       )
     }
   }
@@ -76,12 +73,7 @@ class SqliteJsiDispatcher implements SqliteDispatcher {
       methodName = 'batchJSON'
       args = [JSON.stringify(args[0])]
     } else if (methodName === 'provideSyncJson') {
-      fromPromise(
-        (USE_NEW_BRIDGE_FOR_JSI_SUPPORT ? WMDatabaseBridge : DatabaseBridge).provideSyncJson(
-          ...args,
-        ),
-        callback,
-      )
+      fromPromise(WMDatabaseBridge.provideSyncJson(...args), callback)
       return
     }
 
@@ -121,8 +113,6 @@ export const makeDispatcher = (
     case 'jsi':
       return new SqliteJsiDispatcher(dbName, options)
     case 'asynchronous':
-      return new SqliteNativeModulesDispatcher(tag, DatabaseBridge, options)
-    case 'asynchronous-v2':
       return new SqliteNativeModulesDispatcher(tag, WMDatabaseBridge, options)
     default:
       throw new Error('Unknown DispatcherType')
@@ -134,7 +124,7 @@ const initializeJSI = () => {
     return true
   }
 
-  const bridge = USE_NEW_BRIDGE_FOR_JSI_SUPPORT ? WMDatabaseBridge : DatabaseBridge
+  const bridge = WMDatabaseBridge
   if (bridge.initializeJSI) {
     try {
       bridge.initializeJSI()
@@ -159,9 +149,5 @@ export function getDispatcherType(options: SQLiteAdapterOptions): DispatcherType
     )
   }
 
-  if (options.disableNewBridge) {
-    return 'asynchronous'
-  }
-
-  return 'asynchronous-v2'
+  return 'asynchronous'
 }

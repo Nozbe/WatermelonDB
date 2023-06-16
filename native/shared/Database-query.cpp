@@ -1,6 +1,5 @@
 #include "Database.h"
 #include "DatabasePlatform.h"
-#include "JSLockPerfHack.h"
 
 namespace watermelondb {
 

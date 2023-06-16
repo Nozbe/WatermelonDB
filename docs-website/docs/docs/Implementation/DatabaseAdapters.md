@@ -57,8 +57,6 @@ All you have to do is this:
   - If not, we ship sqlite source code via NPM `@nozbe/sqlite` package. Just add `node_modules/@nozbe/sqlite/**` to search paths and compile `node_modules/@nozbe/sqlite/*/sqlite3.c`
 - Provide implementation for `native/shared/DatabasePlatform.h`
   - Please note that most of these functions can remain unimplemented (empty) for basic operation - e.g. you can skip logging, memory, turbo json support
-- Provide implementation for `JSLockPerfHack.h`
-  - TODO: Remove this
 - Provide a React Native hook that calls `Database::install(jsi::Runtime *)`
 
 Check out `native/android-jsi` and `native/ios` for two implementation examples. You might be able to reuse some code from these, e.g. platform support stubs or `CMakeLists.txt`.
