@@ -237,7 +237,16 @@ export default function diagnoseDatabaseStructure({
 
           await forEachAsync(records, async (record) => {
             const parentId = record._getRaw(key)
-            if (parentId === null || foundParentSet.has(parentId)) {
+            if (
+              parentId === null ||
+              foundParentSet.has(parentId) ||
+              shouldSkipParent({
+                tableName: (name: any),
+                parentTableName: (parentName: any),
+                relationKey: (key: any),
+                record: record._raw,
+              })
+            ) {
               // ok
             } else if (
               await isOrphanAllowed({
