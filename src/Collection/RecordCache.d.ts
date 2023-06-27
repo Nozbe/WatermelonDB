@@ -15,6 +15,8 @@ declare module '@BuildHero/watermelondb/Collection/RecordCache' {
 
     public get(id: RecordId): Record | void
 
+    public has(id: RecordId): boolean
+
     public add(record: Record): void
 
     public delete(record: Record): void

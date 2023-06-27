@@ -176,7 +176,10 @@ export default class Collection<Record: Model> {
     operations.forEach(({ record, type }) => {
       if (type === CollectionChangeTypes.created || type === CollectionChangeTypes.upserted) {
         record._isCommitted = true
-        this._cache.add(record)
+        // we only want to update records we already cached
+        if (this._cache.has(record.id)) {
+          this._cache.add(record)
+        }
       } else if (type === CollectionChangeTypes.destroyed) {
         this._cache.delete(record)
       }
