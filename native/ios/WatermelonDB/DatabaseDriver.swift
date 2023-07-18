@@ -132,12 +132,9 @@ class DatabaseDriver {
             }
         }
         
-        // we are no longer going to cache everything sent to batch
-        // by default since is most likely not going to be used
-        //
-        // for (table, id) in newIds {
-        //     markAsCached(table, id)
-        // }
+        for (table, id) in newIds {
+            markAsCached(table, id)
+        }
         
         for (table, id) in removedIds {
             removeFromCache(table, id)

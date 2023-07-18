@@ -26,10 +26,6 @@ export default class RecordCache<Record: Model> {
     return this.map.get(id)
   }
 
-  has(id: RecordId): boolean {
-    return this.map.has(id)
-  }
-
   add(record: Record): void {
     this.map.set(record.id, record)
   }

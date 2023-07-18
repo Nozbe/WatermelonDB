@@ -220,8 +220,7 @@ class DatabaseDriver(context: Context, dbName: String) {
         }
 
         Trace.beginSection("updateCaches")
-        // no longer caching everything sent to batch by default since it most likely wont be used
-        // newIds.forEach { markAsCached(table = it.first, id = it.second) }
+        newIds.forEach { markAsCached(table = it.first, id = it.second) }
         removedIds.forEach { removeFromCache(table = it.first, id = it.second) }
         Trace.endSection()
     }
