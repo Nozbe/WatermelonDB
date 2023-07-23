@@ -301,4 +301,4 @@ You only need this if you want to use WatermelonDB in NodeJS with SQLite (e.g. f
 
 ## Next steps
 
-➡️ After Watermelon is installed, [**set it up**](./Setup.md)
+➡️ After Watermelon is installed, [**set it up**](./Setup.mdx)

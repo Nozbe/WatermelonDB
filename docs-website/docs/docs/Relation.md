@@ -15,7 +15,7 @@ There's two steps to defining a relation:
        // ...
        { name: 'author_id', type: 'string' },
      ]
-   }),
+   })
    ```
 2. A `@relation` field [defined on a `Model`](./Model.md) class:
 
