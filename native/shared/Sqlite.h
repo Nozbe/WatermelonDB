@@ -1,7 +1,11 @@
 #pragma once
 
 #import <string>
+#ifdef SQLITE_HAS_CODEC
+#import "sqlite3.h"
+#else
 #import <sqlite3.h>
+#endif
 
 namespace watermelondb {
 

@@ -20,9 +20,9 @@ std::string resolveDatabasePath(std::string path) {
 SqliteDb::SqliteDb(std::string path) {
     consoleLog("Will open database...");
     platform::initializeSqlite();
-    #ifndef ANDROID
+#ifndef ANDROID
     assert(sqlite3_threadsafe());
-    #endif
+#endif
 
     auto resolvedPath = resolveDatabasePath(path);
     int openResult = sqlite3_open(resolvedPath.c_str(), &sqlite);
@@ -37,7 +37,18 @@ SqliteDb::SqliteDb(std::string path) {
         }
     }
     assert(sqlite != nullptr);
-
+#ifdef SQLITE_HAS_CODEC
+    consoleLog("##### Will set key...");
+    sqlite3_key(sqlite, "test", 4);
+    int rc = sqlite3_exec(sqlite, "SELECT count(*) FROM sqlite_master;", NULL, NULL, NULL);
+    if (rc != SQLITE_OK) {
+        consoleError("Failed to open encrypted database - " + std::string(sqlite3_errmsg(sqlite)));
+        sqlite3_close(sqlite);
+        sqlite = nullptr;
+        throw new std::runtime_error("Failed to open encrypted database - " + std::string(sqlite3_errmsg(sqlite)));
+    }
+#endif
+    assert(sqlite != nullptr);
     consoleLog("Opened database at " + resolvedPath);
 }
 
