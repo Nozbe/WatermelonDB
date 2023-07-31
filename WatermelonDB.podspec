@@ -26,13 +26,19 @@ Pod::Spec.new do |s|
     # I don't think this is a correct fix, but… seems to work?
     # 'OTHER_SWIFT_FLAGS' => '-Xcc -Wno-error=non-modular-include-in-framework-module'
   }
+
+  s.xcconfig = {
+    'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) SQLITE_HAS_CODEC=1',
+    'OTHER_CFLAGS' => '$(inherited) -DSQLITE_HAS_CODEC=1 -DSQLITE_TEMP_STORE=2',
+  }
   s.requires_arc = true
   # simdjson is annoyingly slow without compiler optimization, disable for debugging
   s.compiler_flags = '-Os'
 
   s.dependency "React"
 
-  s.libraries = 'sqlite3'
+  # s.libraries = 'sqlite3'
+  s.dependency "SQLCipher"
 
   # NOTE: This dependency doesn't seem to be needed anymore (tested on RN 0.66, 0.71), file an issue
   # if this causes issues for you
