@@ -295,6 +295,10 @@ class DatabaseDriver {
     })
   }
 
+  execSqlQuery = (query: string, params: [any]) => {
+    return this.database.queryRaw(query, params)
+  }
+
   localStorageSchema: string = `
       create table local_storage (
       key varchar(16) primary key not null,

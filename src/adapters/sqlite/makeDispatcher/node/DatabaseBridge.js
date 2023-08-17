@@ -242,6 +242,15 @@ class DatabaseBridge {
 
   // MARK: - Synchronous methods
 
+  execSqlQuery = (
+    tag: number, 
+    query: string, 
+    params: [any], 
+    resolve: any => void,
+    reject: string => void,
+  ) =>
+    this.withDriver(tag, resolve, reject, 'execSqlQuery', driver => driver.queryRaw(query, params))
+
   findSynchronous = (tag: number, table: string, id: string): any =>
     this.withDriverSynchronous(tag, 'findSynchronous', driver => driver.find(table, id))
 
