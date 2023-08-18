@@ -95,7 +95,7 @@ const EnhancedComment = enhance(Comment)
 
 ### Reactive optional relations
 
-Suppose the comment author is optional. If the comment has no author, the `comment.author_id` must be null. If `comment.author_id` has a value, the author record it refers to must be stored in the database, otherwise `withObservables` will throw an error that the record was not found.
+Continuing the above example, suppose the comment author is optional. If the comment has no author, the `comment.author_id` must be null. If `comment.author_id` has a value, the author record it refers to must be stored in the database, otherwise `withObservables` will throw an error that the record was not found.
 
 
 ### Reactive counters
