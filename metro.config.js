@@ -14,7 +14,7 @@ const getBlockList = () => {
     .slice(1, -1)
 
   // delete __tests__ from the default blacklist
-  const newPattern = defaultPattern.replace('|\\/__tests__\\/.*', '')
+  const newPattern = defaultPattern.replace(`|\\${path.sep}__tests__\\${path.sep}.*`, '')
 
   return RegExp(newPattern)
 }
