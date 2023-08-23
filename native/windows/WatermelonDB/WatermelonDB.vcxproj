@@ -159,9 +159,6 @@
     <None Include="PropertySheet.props" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="SQLite" Version="3.13.0" />
-  </ItemGroup>
-  <ItemGroup>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ReactNativeWindowsTargets">
