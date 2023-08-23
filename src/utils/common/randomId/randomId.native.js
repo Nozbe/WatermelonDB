@@ -34,12 +34,13 @@ function nativeRandomId_v1(): string {
 }
 
 const nativeRandomId: () => string = (() => {
-  if (!NativeModules.WMDatabaseBridge) {
-    return nativeRandomId_fallback
-  } else if (!!NativeModules.WMDatabaseBridge.getRandomIds) {
+  if (NativeModules.WMDatabaseBridge?.getRandomIds) {
     return nativeRandomId_v2
+  } else if (NativeModules.WMDatabaseBridge?.getRandomBytes) {
+    return nativeRandomId_v1
+  } else {
+    return nativeRandomId_fallback
   }
-  return nativeRandomId_v1
 })()
 
 export default nativeRandomId
