@@ -5,6 +5,16 @@ module.exports = {
       android: {
         sourceDir: './native/android',
       },
+      windows: {
+        sourceDir: '.\\native\\windows',
+        solutionFile: 'WatermelonDB.sln',
+        projects: [
+          {
+            projectFile: 'WatermelonDB\\WatermelonDB.vcxproj',
+            directDependency: true,
+          }
+        ],
+      },
     },
   },
   // This is for WatermelonDB project internals
