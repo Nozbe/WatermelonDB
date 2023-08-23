@@ -100,4 +100,9 @@ jobs:
           path: 'node_modules'
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
       - run: yarn
-      - run: yarn ci
+      # concurrently seems broken on windows
+      # - run: yarn ci
+      - run: yarn test
+      - run: yarn eslint
+      - run: yarn flow
+      - run: yarn test:typescript
