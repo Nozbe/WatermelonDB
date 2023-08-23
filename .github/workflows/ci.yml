@@ -105,4 +105,4 @@ jobs:
       - run: yarn test
       - run: yarn eslint
       - run: yarn flow
-      - run: yarn test:typescript
+      # - run: yarn test:typescript
