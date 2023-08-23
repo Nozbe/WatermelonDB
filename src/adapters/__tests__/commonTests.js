@@ -1159,7 +1159,7 @@ export default () => {
       // Loki is tested differently
       return
     }
-    const fileName = `testDatabase-${Math.random()}`
+    const fileName = `testDatabase-${Math.random()}.db`
 
     const adapter = new DatabaseAdapterCompat(
       new AdapterClass({

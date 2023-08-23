@@ -4,6 +4,9 @@
 #include <iostream>
 #include <string>
 #include "Database.h"
+#include <AtlBase.h>
+#include <atlconv.h>
+#include <winrt/Windows.Storage.h>
 
 namespace watermelondb {
 namespace platform {
@@ -29,6 +32,12 @@ void initializeSqlite() {
             consoleError("Failed to configure SQLite to support file URI syntax - shared cache will not work");
         }
 
+        // Need to set temporary folder in WinRT
+        // https://www.sqlite.org/c3ref/temp_directory.html
+        auto tempPath = winrt::Windows::Storage::ApplicationData::Current().TemporaryFolder().Path();
+        auto tempPathStr = winrt::to_string(tempPath);
+        sqlite3_temp_directory = sqlite3_mprintf("%s", tempPathStr.c_str()); 
+
         if (sqlite3_initialize() != SQLITE_OK) {
             consoleError("Failed to initialize sqlite - this probably means sqlite was already initialized");
         }
@@ -36,8 +45,9 @@ void initializeSqlite() {
 }
 
 std::string resolveDatabasePath(std::string path) {
-    // TODO: Unimplemented
-    return "";
+    auto const localAppDataPath = winrt::Windows::Storage::ApplicationData::Current().LocalFolder().Path();
+    auto fullPath = winrt::to_string(localAppDataPath) + "\\" + path;
+    return fullPath;
 }
 
 void deleteDatabaseFile(std::string path, bool warnIfDoesNotExist) {
