@@ -115,9 +115,9 @@
       <DependentUpon>ReactPackageProvider.idl</DependentUpon>
     </ClInclude>
     <ClInclude Include="ReactNativeModule.h" />
-    <!-- <ClInclude Include="..\..\native\shared\Database.h" />
+    <ClInclude Include="..\..\native\shared\Database.h" />
     <ClInclude Include="..\..\native\shared\DatabasePlatform.h" />
-    <ClInclude Include="..\..\native\shared\JSIHelpers.h" /> -->
+    <ClInclude Include="..\..\native\shared\JSIHelpers.h" />
     <ClInclude Include="..\..\native\shared\Sqlite.h" />
     <ClInclude Include="WMDatabaseBridge.h" />
     <ClInclude Include="pch.h" />
@@ -131,13 +131,13 @@
     <ClCompile Include="ReactPackageProvider.cpp">
       <DependentUpon>ReactPackageProvider.idl</DependentUpon>
     </ClCompile>
-    <!-- <ClCompile Include="..\..\native\shared\Database-batch.cpp" />
+    <ClCompile Include="..\..\native\shared\Database-batch.cpp" />
     <ClCompile Include="..\..\native\shared\Database-jsi.cpp" />
     <ClCompile Include="..\..\native\shared\Database-query.cpp" />
     <ClCompile Include="..\..\native\shared\Database-sqlite.cpp" />
     <ClCompile Include="..\..\native\shared\Database-turboSync.cpp" />
     <ClCompile Include="..\..\native\shared\Database.cpp" />
-    <ClCompile Include="..\..\native\shared\DatabaseBridge.cpp" /> -->
+    <ClCompile Include="..\..\native\shared\DatabaseBridge.cpp" />
     <ClCompile Include="..\..\native\shared\Sqlite.cpp" />
     <ClCompile Include="DatabasePlatformWindows.cpp" />
     <ClCompile Include="WMDatabaseBridge.cpp" />

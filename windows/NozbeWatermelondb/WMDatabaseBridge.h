@@ -6,6 +6,8 @@
 
 #include "NativeModules.h"
 
+#include "Database.h"
+
 using namespace winrt::Microsoft::ReactNative;
 
 namespace winrt::NozbeWatermelondb
