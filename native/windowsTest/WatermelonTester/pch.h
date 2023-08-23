@@ -16,6 +16,8 @@
 
 #include <winrt/Microsoft.ReactNative.h>
 
+#include "winrt/NozbeWatermelondb.h"
+
 #include <winrt/Microsoft.UI.Xaml.Automation.Peers.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.Primitives.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
