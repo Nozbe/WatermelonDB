@@ -39,7 +39,7 @@ App::App() noexcept
 #endif
 
     RegisterAutolinkedNativeModulePackages(PackageProviders()); // Includes any autolinked modules
-    PackageProviders().Append(winrt::NozbeWatermelondb::ReactPackageProvider());
+    PackageProviders().Append(winrt::WatermelonDB::ReactPackageProvider());
     PackageProviders().Append(make<ReactPackageProvider>()); // Includes all modules in this project
 
     InitializeComponent();

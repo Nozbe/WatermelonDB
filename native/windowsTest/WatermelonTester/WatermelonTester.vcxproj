@@ -160,7 +160,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\windows\NozbeWatermelondb\NozbeWatermelondb.vcxproj">
+    <ProjectReference Include="..\..\windows\WatermelonDB\WatermelonDB.vcxproj">
       <Project>{1e63901f-b1c9-4569-beb3-401f13d77b02}</Project>
     </ProjectReference>
   </ItemGroup>

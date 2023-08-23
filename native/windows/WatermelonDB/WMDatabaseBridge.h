@@ -12,7 +12,7 @@
 using namespace winrt::Microsoft::ReactNative;
 using namespace watermelondb;
 
-namespace winrt::NozbeWatermelondb
+namespace winrt::WatermelonDB
 {
   REACT_MODULE(WMDatabaseBridge, L"WMDatabaseBridge");
   struct WMDatabaseBridge

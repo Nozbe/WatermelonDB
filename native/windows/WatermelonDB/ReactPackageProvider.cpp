@@ -12,7 +12,7 @@
 
 using namespace winrt::Microsoft::ReactNative;
 
-namespace winrt::NozbeWatermelondb::implementation
+namespace winrt::WatermelonDB::implementation
 {
 
 void ReactPackageProvider::CreatePackage(IReactPackageBuilder const &packageBuilder) noexcept
@@ -20,4 +20,4 @@ void ReactPackageProvider::CreatePackage(IReactPackageBuilder const &packageBuil
     AddAttributedModules(packageBuilder);
 }
 
-} // namespace winrt::NozbeWatermelondb::implementation
+} // namespace winrt::WatermelonDB::implementation

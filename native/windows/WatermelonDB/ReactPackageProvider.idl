@@ -1,4 +1,4 @@
-namespace NozbeWatermelondb
+namespace WatermelonDB
 {
     [webhosthidden]
     [default_interface]

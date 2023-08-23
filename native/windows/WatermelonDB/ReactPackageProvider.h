@@ -3,7 +3,7 @@
 
 using namespace winrt::Microsoft::ReactNative;
 
-namespace winrt::NozbeWatermelondb::implementation
+namespace winrt::WatermelonDB::implementation
 {
     struct ReactPackageProvider : ReactPackageProviderT<ReactPackageProvider>
     {
@@ -11,11 +11,11 @@ namespace winrt::NozbeWatermelondb::implementation
 
         void CreatePackage(IReactPackageBuilder const &packageBuilder) noexcept;
     };
-} // namespace winrt::NozbeWatermelondb::implementation
+} // namespace winrt::WatermelonDB::implementation
 
-namespace winrt::NozbeWatermelondb::factory_implementation
+namespace winrt::WatermelonDB::factory_implementation
 {
 
 struct ReactPackageProvider : ReactPackageProviderT<ReactPackageProvider, implementation::ReactPackageProvider> {};
 
-} // namespace winrt::NozbeWatermelondb::factory_implementation
+} // namespace winrt::WatermelonDB::factory_implementation

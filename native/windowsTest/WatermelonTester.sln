@@ -33,7 +33,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mso", "..\..\node_modules\r
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Include", "..\..\node_modules\react-native-windows\include\Include.vcxitems", "{EF074BA1-2D54-4D49-A28E-5E040B47CD2E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NozbeWatermelondb", "..\windows\NozbeWatermelondb\NozbeWatermelondb.vcxproj", "{1E63901F-B1C9-4569-BEB3-401F13D77B02}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WatermelonDB", "..\windows\WatermelonDB\WatermelonDB.vcxproj", "{1E63901F-B1C9-4569-BEB3-401F13D77B02}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
