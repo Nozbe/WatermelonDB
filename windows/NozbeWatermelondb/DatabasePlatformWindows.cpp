@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <iostream>
 #include <string>
 #include "Database.h"
 
@@ -8,11 +9,15 @@ namespace watermelondb {
 namespace platform {
 
 void consoleLog(std::string message) {
-    // TODO: Unimplemented
+    // FIXME: Broken logging
+    std::string fullMessage = "WatermelonDB (info): " + message + "\n";
+    OutputDebugStringA(fullMessage.c_str());
 }
 
 void consoleError(std::string message) {
-    // TODO: Unimplemented
+    // FIXME: Broken logging
+    std::string fullMessage = "WatermelonDB (error): " + message + "\n";
+    OutputDebugStringA(fullMessage.c_str());
 }
 
 std::once_flag sqliteInitialization;
