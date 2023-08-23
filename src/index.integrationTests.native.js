@@ -3,7 +3,7 @@
 
 process.env.NODE_ENV = 'test'
 import React from 'react'
-import { AppRegistry, Text, NativeModules } from 'react-native'
+import { AppRegistry, Text, NativeModules, Platform } from 'react-native'
 
 // Mysteriously fixes React Native stacktrace symbolication ¯\_(ツ)_/¯
 if (typeof global.self === 'undefined') {
@@ -63,5 +63,10 @@ if (openPlayground) {
       </Tester>
     )
   }
-  AppRegistry.registerComponent('watermelonTest', () => TestRoot)
+
+  AppRegistry.registerComponent(
+    // FIXME: Should be consistent; find RNW API to change module name or rename RNW project
+    Platform.OS === 'windows' ? 'WatermelonTester' : 'watermelonTest',
+    () => TestRoot,
+  )
 }

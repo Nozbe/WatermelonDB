@@ -21,11 +21,11 @@ namespace winrt::WatermelonTester::implementation
 App::App() noexcept
 {
 #if BUNDLE
-    JavaScriptBundleFile(L"index.windows");
+    JavaScriptBundleFile(L"src/index.integrationTests.native");
     InstanceSettings().UseWebDebugger(false);
     InstanceSettings().UseFastRefresh(false);
 #else
-    JavaScriptBundleFile(L"index");
+    JavaScriptBundleFile(L"src/index.integrationTests.native");
     InstanceSettings().UseWebDebugger(true);
     InstanceSettings().UseFastRefresh(true);
 #endif
