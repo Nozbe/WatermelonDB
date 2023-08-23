@@ -32,6 +32,11 @@ class SqliteNativeModulesDispatcher implements SqliteDispatcher {
         this._bridge,
         `NativeModules.WMDatabaseBridge is not defined! This means that you haven't properly linked WatermelonDB native module. Refer to docs for instructions about installation (and the changelog if this happened after an upgrade).`,
       )
+
+      invariant(
+        Platform.OS !== 'windows',
+        'Windows is only supported via JSI. Pass { jsi: true } to SQLiteAdapter constructor.',
+      )
     }
   }
 
