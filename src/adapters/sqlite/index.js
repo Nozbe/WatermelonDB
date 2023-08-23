@@ -296,7 +296,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   unsafeLoadFromSync(jsonId: number, callback: ResultCallback<any>): void {
-    if (this._dispatcherType !== 'jsi' || Platform.OS === 'windows') {
+    if (this._dispatcherType !== 'jsi') {
       callback({ error: new Error('unsafeLoadFromSync unavailable. Use JSI mode to enable.') })
       return
     }
@@ -318,7 +318,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   provideSyncJson(id: number, syncPullResultJson: string, callback: ResultCallback<void>): void {
-    if (this._dispatcherType !== 'jsi' || Platform.OS === 'windows') {
+    if (this._dispatcherType !== 'jsi') {
       callback({ error: new Error('provideSyncJson unavailable. Use JSI mode to enable.') })
       return
     }

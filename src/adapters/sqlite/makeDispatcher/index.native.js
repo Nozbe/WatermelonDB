@@ -72,6 +72,11 @@ class SqliteJsiDispatcher implements SqliteDispatcher {
     } else if (methodName === 'batch') {
       methodName = 'batchJSON'
       args = [JSON.stringify(args[0])]
+    } else if (
+      Platform.OS == 'windows' &&
+      (methodName === 'provideSyncJson' || methodName === 'unsafeLoadFromSync')
+    ) {
+      callback({ error: new Error(`${methodName} unavailable on Windows. Please contribute.`) })
     } else if (methodName === 'provideSyncJson') {
       fromPromise(WMDatabaseBridge.provideSyncJson(...args), callback)
       return
