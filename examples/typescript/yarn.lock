@@ -2,31 +2,31 @@
 # yarn lockfile v1
 
 
-"@babel/runtime@^7.11.2":
-  version "7.20.13"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.20.13.tgz#7055ab8a7cff2b8f6058bf6ae45ff84ad2aded4b"
-  integrity sha512-gt3PKXs0DBoL9xCvOIIZ2NEqAGZqHjAnmVbfQtB620V0uReIQutpel14KcneZuer7UioY8ALKZ7iocavvzTNFA==
+"@babel/runtime@7.21.0":
+  version "7.21.0"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.21.0.tgz#5b55c9d394e5fcf304909a8b00c07dc217b56673"
+  integrity sha512-xwII0//EObnq89Ji5AKYQaRYiW/nZ3llSv29d49IuxPhKbtJoLP+9QUUZ4nVragQVtaVGeZrpB+ZtG/Pdy/POw==
   dependencies:
     regenerator-runtime "^0.13.11"
 
-"@nozbe/simdjson@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@nozbe/simdjson/-/simdjson-1.0.0.tgz#9327962214c98e046bea44d0d56a70e10d9d7ce8"
-  integrity sha512-lm/MNUneznK65NNbmvawOn+OFYMjeBga+xEBACda4hTpZBnJhIgfLIxpYvx40sIeihRX0v7WiEB7VwQO9FIMAg==
+"@nozbe/simdjson@3.1.0-wmelon1":
+  version "3.1.0-wmelon1"
+  resolved "https://registry.yarnpkg.com/@nozbe/simdjson/-/simdjson-3.1.0-wmelon1.tgz#e02048b41d2b3662ddf1dc8c979a3a36fd389dfb"
+  integrity sha512-PQaHHQyvASrcrfzqkZ4ona43m0UjN81NuTWt6rJkOUePGDjxc8MNp2Q7jcod1CIdTsXJ13wRWeFbquwNfhpIQQ==
 
-"@nozbe/sqlite@3.36.0":
-  version "3.36.0"
-  resolved "https://registry.yarnpkg.com/@nozbe/sqlite/-/sqlite-3.36.0.tgz#80a46f8cb4a502a068ec1a5bef665dd65350ea7c"
-  integrity sha512-wKTFGvgf5V+bYlhXdukOWKH0XgdG0NmUQwLWG7w5Yk4EUeQS29D5uWPCeWT1Ac/NzDKuHsYP6KVOJDbJSauAAg==
+"@nozbe/sqlite@3.40.1":
+  version "3.40.1"
+  resolved "https://registry.yarnpkg.com/@nozbe/sqlite/-/sqlite-3.40.1.tgz#4218074ce8c87c859465dd2db28cd4b2fc7192b9"
+  integrity sha512-uKJOW4sQi3neCmgKhqLr0IJKlb2y5q2p05U5CEDJrCxSyD2uVYvSdh7IMrPjF4sWtzc/Lnk462M4vde7Dn5NSw==
 
 "@nozbe/watermelondb@link:../..":
   version "0.0.0"
   uid ""
 
-"@nozbe/with-observables@1.4.1":
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/@nozbe/with-observables/-/with-observables-1.4.1.tgz#e24680e57ae235e53db6ed7600494d7d0a8d36c2"
-  integrity sha512-xsYrSeSzelFiWF/BXFZW+khFAqJdet22Egt6nhVLHGF2GmYbV5kxv8om0Wh2om4OXK6IM0UAU3pwk+nX5GLsUw==
+"@nozbe/with-observables@^1.5.0-2":
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@nozbe/with-observables/-/with-observables-1.6.0.tgz#498bcabcf0106f8adc135fd1ed7a77e5c95ad7a0"
+  integrity sha512-X/qGRBrmXLBVP3pqGQKD461UNx4sKfNoKWe4dlM/Gvtd12BOmv+nYOxw8PXiUr28yXxVYi03LpwDBd+JFo1Adg==
   dependencies:
     hoist-non-react-statics "^3.3.2"
 
@@ -57,10 +57,10 @@ regenerator-runtime@^0.13.11:
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.11.tgz#f6dca3e7ceec20590d07ada785636a90cdca17f9"
   integrity sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==
 
-rxjs@^7.4.0:
-  version "7.8.0"
-  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.8.0.tgz#90a938862a82888ff4c7359811a595e14e1e09a4"
-  integrity sha512-F2+gxDshqmIub1KdvZkaEfGDwLNpPvk9Fs6LD/MyQxNgMds/WH9OdDDXOmxUZpME+iSK3rQCctkL0DYyytUqMg==
+rxjs@^7.8.0:
+  version "7.8.1"
+  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.8.1.tgz#6f6f3d99ea8044291efd92e7c7fcf562c4057543"
+  integrity sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==
   dependencies:
     tslib "^2.1.0"
 
