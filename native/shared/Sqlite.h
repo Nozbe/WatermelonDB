@@ -1,7 +1,7 @@
 #pragma once
 
-#import <string>
-#import <sqlite3.h>
+#include <string>
+#include <sqlite3.h>
 
 namespace watermelondb {
 

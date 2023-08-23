@@ -86,8 +86,9 @@
       <WarningLevel>Level4</WarningLevel>
       <AdditionalOptions>%(AdditionalOptions) /bigobj</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
-      <PreprocessorDefinitions>_WINRT_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SQLITE_OS_WINRT;_WINRT_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalUsingDirectories>$(WindowsSDK_WindowsMetadata);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <AdditionalIncludeDirectories>..\..\native\shared\;$(ReactNativeWindowsDir)..\@nozbe\simdjson\src\;$(ReactNativeWindowsDir)..\@nozbe\sqlite\sqlite-amalgamation-3400100\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <!-- This allows applications targetting older Windows SDKs (e.g. RNW 0.65 apps) to consume the library generated WinMD -->
@@ -114,10 +115,14 @@
       <DependentUpon>ReactPackageProvider.idl</DependentUpon>
     </ClInclude>
     <ClInclude Include="ReactNativeModule.h" />
+    <!-- <ClInclude Include="..\..\native\shared\Database.h" />
+    <ClInclude Include="..\..\native\shared\DatabasePlatform.h" />
+    <ClInclude Include="..\..\native\shared\JSIHelpers.h" /> -->
+    <ClInclude Include="..\..\native\shared\Sqlite.h" />
     <ClInclude Include="WMDatabaseBridge.h" />
     <ClInclude Include="pch.h" />
-    <!-- <ClInclude Include="$(ReactNativeWindowsDir)..\@nozbe\sqlite\sqlite-amalgamation-3400100\sqlite3.h" /> -->
-    <!-- <ClInclude Include="$(ReactNativeWindowsDir)..\@nozbe\simdjson\src\simdjson.h" /> -->
+    <ClInclude Include="$(ReactNativeWindowsDir)..\@nozbe\sqlite\sqlite-amalgamation-3400100\sqlite3.h" />
+    <ClInclude Include="$(ReactNativeWindowsDir)..\@nozbe\simdjson\src\simdjson.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -126,10 +131,19 @@
     <ClCompile Include="ReactPackageProvider.cpp">
       <DependentUpon>ReactPackageProvider.idl</DependentUpon>
     </ClCompile>
+    <!-- <ClCompile Include="..\..\native\shared\Database-batch.cpp" />
+    <ClCompile Include="..\..\native\shared\Database-jsi.cpp" />
+    <ClCompile Include="..\..\native\shared\Database-query.cpp" />
+    <ClCompile Include="..\..\native\shared\Database-sqlite.cpp" />
+    <ClCompile Include="..\..\native\shared\Database-turboSync.cpp" />
+    <ClCompile Include="..\..\native\shared\Database.cpp" />
+    <ClCompile Include="..\..\native\shared\DatabaseBridge.cpp" /> -->
+    <ClCompile Include="..\..\native\shared\Sqlite.cpp" />
+    <ClCompile Include="DatabasePlatformWindows.cpp" />
     <ClCompile Include="WMDatabaseBridge.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
-    <!-- <ClCompile Include="$(ReactNativeWindowsDir)..\@nozbe\sqlite\sqlite-amalgamation-3400100\sqlite3.c" /> -->
-    <!-- <ClCompile Include="$(ReactNativeWindowsDir)..\@nozbe\simdjson\src\simdjson.cpp" /> -->
+    <ClCompile Include="$(ReactNativeWindowsDir)..\@nozbe\sqlite\sqlite-amalgamation-3400100\sqlite3.c" />
+    <ClCompile Include="$(ReactNativeWindowsDir)..\@nozbe\simdjson\src\simdjson.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="ReactPackageProvider.idl" />
