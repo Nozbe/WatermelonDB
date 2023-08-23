@@ -39,7 +39,10 @@ if (openPlayground) {
       console.log(rest)
       // eslint-disable-next-line
       results.forEach((result) => console.log(result))
-      NativeModules.BridgeTestReporter.testsFinished(report)
+      // FIXME: Add test runner on windows
+      if (Platform.OS !== 'windows') {
+        NativeModules.BridgeTestReporter.testsFinished(report)
+      }
       setStatus(report.errorCount ? 'error' : 'done')
     }
 

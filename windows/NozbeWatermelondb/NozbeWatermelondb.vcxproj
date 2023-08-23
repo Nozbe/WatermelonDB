@@ -112,6 +112,7 @@
       <DependentUpon>ReactPackageProvider.idl</DependentUpon>
     </ClInclude>
     <ClInclude Include="ReactNativeModule.h" />
+    <ClInclude Include="WMDatabaseBridge.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
@@ -121,6 +122,7 @@
     <ClCompile Include="ReactPackageProvider.cpp">
       <DependentUpon>ReactPackageProvider.idl</DependentUpon>
     </ClCompile>
+    <ClCompile Include="WMDatabaseBridge.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
   </ItemGroup>
   <ItemGroup>

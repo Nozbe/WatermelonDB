@@ -7,13 +7,13 @@ import DatabaseAdapterCompat from '../compat'
 
 const SQLiteAdapterTest = (spec) => {
   const configurations = [
-    {
+    Platform.OS !== 'windows' ? {
       name: 'SQLiteAdapter (async mode, new bridge)',
       options: {},
       expectedDispatcherType: 'asynchronous',
-    },
+    } : null,
     { name: 'SQLiteAdapter (JSI mode)', options: { jsi: true }, expectedDispatcherType: 'jsi' },
-  ]
+  ].filter(Boolean)
 
   configurations.forEach(({ name: configurationName, options, expectedDispatcherType }) => {
     spec.describe(configurationName, () => {
