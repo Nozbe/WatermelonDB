@@ -26,7 +26,9 @@ App::App() noexcept
     InstanceSettings().UseFastRefresh(false);
 #else
     JavaScriptBundleFile(L"src/index.integrationTests.native");
-    InstanceSettings().UseWebDebugger(true);
+    // NOTE: Can't run JSI with web debugger on
+    // FIXME: Chakra breaks on Watermelon (without web debugger)
+    // InstanceSettings().UseWebDebugger(true);
     InstanceSettings().UseFastRefresh(true);
 #endif
 
