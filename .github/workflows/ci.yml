@@ -107,4 +107,4 @@ jobs:
       - run: yarn flow
       # FIXME: TS broken on Windows?
       # - run: yarn test:typescript
-      - run yarn test:windows
+      - run: yarn test:windows
