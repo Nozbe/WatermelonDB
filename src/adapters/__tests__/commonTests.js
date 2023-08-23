@@ -1163,11 +1163,12 @@ export default () => {
 
     const adapter = new DatabaseAdapterCompat(
       new AdapterClass({
+        ...extraAdapterOptions,
         dbName: fileName,
         schema: { ...testSchema, version: 1 },
-        ...extraAdapterOptions,
       }),
     )
+    expect(adapter.dbName).toBe(fileName)
 
     // sanity check
     expect(await adapter.count(taskQuery())).toBe(0)
@@ -1177,9 +1178,9 @@ export default () => {
     // open second db
     const adapter2 = new DatabaseAdapterCompat(
       new AdapterClass({
+        ...extraAdapterOptions,
         dbName: fileName,
         schema: { ...testSchema, version: 1 },
-        ...extraAdapterOptions,
       }),
     )
 
@@ -1192,9 +1193,9 @@ export default () => {
     // open third db
     const adapter3 = new DatabaseAdapterCompat(
       new AdapterClass({
+        ...extraAdapterOptions,
         dbName: fileName,
         schema: { ...testSchema, version: 1 },
-        ...extraAdapterOptions,
       }),
     )
 
