@@ -26,7 +26,7 @@
 | 📈 | **Highly scalable** from hundreds to tens of thousands of records |
 | 😎 | **Lazy loaded**. Only load data when you need it |
 | 🔄 | **Offline-first.** [Sync](https://watermelondb.dev/docs/Sync/Intro) with your own backend |
-| 📱 | **Multiplatform**. iOS, Android, web, and Node.js |
+| 📱 | **Multiplatform**. iOS, Android, Windows, web, and Node.js |
 | ⚛️ | **Optimized for React.** Easily plug data into components |
 | 🧰 | **Framework-agnostic.** Use JS API to plug into other UI frameworks |
 | ⏱ | **Fast.** And getting faster with every release! |
