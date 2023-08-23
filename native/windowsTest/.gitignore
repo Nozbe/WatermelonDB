@@ -34,6 +34,7 @@ ipch/
 [Dd]ebug*/
 [Rr]elease*/
 Ankh.NoLoad
+enc_temp_folder
 
 # Visual C++ cache files
 ipch/
