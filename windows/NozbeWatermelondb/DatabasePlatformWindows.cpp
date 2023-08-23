@@ -12,13 +12,11 @@ namespace watermelondb {
 namespace platform {
 
 void consoleLog(std::string message) {
-    // FIXME: Broken logging
     std::string fullMessage = "WatermelonDB (info): " + message + "\n";
     OutputDebugStringA(fullMessage.c_str());
 }
 
 void consoleError(std::string message) {
-    // FIXME: Broken logging
     std::string fullMessage = "WatermelonDB (error): " + message + "\n";
     OutputDebugStringA(fullMessage.c_str());
 }
