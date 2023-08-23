@@ -65,7 +65,8 @@
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings"></ImportGroup>
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -79,6 +80,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <!-- <PrecompiledHeader>NotUsing</PrecompiledHeader> -->
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
       <WarningLevel>Level4</WarningLevel>
@@ -114,6 +116,8 @@
     <ClInclude Include="ReactNativeModule.h" />
     <ClInclude Include="WMDatabaseBridge.h" />
     <ClInclude Include="pch.h" />
+    <!-- <ClInclude Include="$(ReactNativeWindowsDir)..\@nozbe\sqlite\sqlite-amalgamation-3400100\sqlite3.h" /> -->
+    <!-- <ClInclude Include="$(ReactNativeWindowsDir)..\@nozbe\simdjson\src\simdjson.h" /> -->
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -124,12 +128,17 @@
     </ClCompile>
     <ClCompile Include="WMDatabaseBridge.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <!-- <ClCompile Include="$(ReactNativeWindowsDir)..\@nozbe\sqlite\sqlite-amalgamation-3400100\sqlite3.c" /> -->
+    <!-- <ClCompile Include="$(ReactNativeWindowsDir)..\@nozbe\simdjson\src\simdjson.cpp" /> -->
   </ItemGroup>
   <ItemGroup>
     <Midl Include="ReactPackageProvider.idl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SQLite" Version="3.13.0" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
