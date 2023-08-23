@@ -99,7 +99,7 @@ jobs:
         with:
           path: 'node_modules'
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
-      - run: yarn
+      - run: yarn --network-timeout 100000
       # concurrently seems broken on windows
       # - run: yarn ci
       - run: yarn test
