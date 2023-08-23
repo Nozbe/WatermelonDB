@@ -15,8 +15,19 @@ void consoleError(std::string message) {
     // TODO: Unimplemented
 }
 
+std::once_flag sqliteInitialization;
+
 void initializeSqlite() {
-    // TODO: Unimplemented
+    std::call_once(sqliteInitialization, []() {
+        // Enable file URI syntax https://www.sqlite.org/uri.html (e.g. ?mode=memory&cache=shared)
+        if (sqlite3_config(SQLITE_CONFIG_URI, 1) != SQLITE_OK) {
+            consoleError("Failed to configure SQLite to support file URI syntax - shared cache will not work");
+        }
+
+        if (sqlite3_initialize() != SQLITE_OK) {
+            consoleError("Failed to initialize sqlite - this probably means sqlite was already initialized");
+        }
+    });
 }
 
 std::string resolveDatabasePath(std::string path) {

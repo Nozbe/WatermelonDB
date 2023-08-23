@@ -5,10 +5,12 @@
 #include <functional>
 
 #include "NativeModules.h"
+#include <JSI/JsiApiContext.h>
 
 #include "Database.h"
 
 using namespace winrt::Microsoft::ReactNative;
+using namespace watermelondb;
 
 namespace winrt::NozbeWatermelondb
 {
@@ -27,7 +29,11 @@ namespace winrt::NozbeWatermelondb
     REACT_SYNC_METHOD(initializeJSI);
     bool initializeJSI() noexcept
     {
-      return true;
+        assert(m_reactContext, "Expected ReactContext when initializing JSI");
+        auto runtime = TryGetOrCreateContextRuntime(m_reactContext);
+        assert(runtime, "Could not get jsi::Runtime from ReactContext");
+        Database::install(runtime);
+        return true;
     }
   };
 }
