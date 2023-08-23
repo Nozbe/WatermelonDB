@@ -22,11 +22,10 @@ namespace winrt::NozbeWatermelondb
       m_reactContext = reactContext;
     }
 
-    REACT_SYNC_METHOD(add, L"add");
-    double add(double a, double b) noexcept
+    REACT_SYNC_METHOD(initializeJSI);
+    bool initializeJSI() noexcept
     {
-      double result = a + b;
-      return result;
+      return true;
     }
   };
 }
