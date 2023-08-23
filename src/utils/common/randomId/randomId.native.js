@@ -38,9 +38,8 @@ const nativeRandomId: () => string = (() => {
     return nativeRandomId_v2
   } else if (NativeModules.WMDatabaseBridge?.getRandomBytes) {
     return nativeRandomId_v1
-  } else {
-    return nativeRandomId_fallback
   }
+  return nativeRandomId_fallback
 })()
 
 export default nativeRandomId

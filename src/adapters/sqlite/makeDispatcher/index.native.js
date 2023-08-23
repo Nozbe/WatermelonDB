@@ -73,7 +73,7 @@ class SqliteJsiDispatcher implements SqliteDispatcher {
       methodName = 'batchJSON'
       args = [JSON.stringify(args[0])]
     } else if (
-      Platform.OS == 'windows' &&
+      Platform.OS === 'windows' &&
       (methodName === 'provideSyncJson' || methodName === 'unsafeLoadFromSync')
     ) {
       callback({ error: new Error(`${methodName} unavailable on Windows. Please contribute.`) })

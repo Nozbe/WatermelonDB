@@ -19,6 +19,7 @@ describe.each([
     const [name, test] = testCase
 
     if (name.match(/from file system/) && process.platform === 'win32') {
+      // eslint-disable-next-line no-console
       console.error(`FIXME: Broken test on Windows! ${name}`)
       return
     }
