@@ -17,6 +17,7 @@
     "ci:check": "concurrently -n jest,eslint,flow,ts 'npm run test' 'npm run eslint' 'npm run flow' 'npm run test:typescript' --kill-others-on-fail",
     "test:android": "cd native/androidTest && ./gradlew connectedAndroidTest",
     "test:ios": "scripts/test-ios",
+    "test:windows": "react-native run-windows",
     "test:native": "concurrently -n android,ios 'npm run test:android' 'npm run test:ios' --kill-others-on-fail",
     "test:typescript": "cd examples/typescript; yarn; npm run test",
     "swiftlint": "cd native; swiftlint",
