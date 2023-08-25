@@ -110,6 +110,7 @@ jobs:
       # Build WatermelonTester and run in background
       - run: yarn test:windows
       # Give it some time to bundle
-      - run: sleep 30
+      - run: sleep 60
       # Start E2E runner to capture integration test results
+      - run: cd native/windowsE2E && yarn
       - run: yarn test:windows:ci
