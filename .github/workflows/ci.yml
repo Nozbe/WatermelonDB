@@ -107,4 +107,9 @@ jobs:
       - run: yarn flow
       # FIXME: TS broken on Windows?
       # - run: yarn test:typescript
+      # Build WatermelonTester and run in background
       - run: yarn test:windows
+      # Give it some time to bundle
+      - run: sleep 30
+      # Start E2E runner to capture integration test results
+      - run: yarn test:windows:ci
