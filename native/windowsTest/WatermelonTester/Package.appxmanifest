@@ -7,7 +7,7 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="c18dfa24-4f6e-428c-a0f7-724f8ba8b00d"
+    Name="WatermelonTester"
     Publisher="CN=radex"
     Version="1.0.0.0" />
 
