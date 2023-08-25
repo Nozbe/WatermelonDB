@@ -121,7 +121,6 @@
     <ClInclude Include="ReactPackageProvider.h">
       <DependentUpon>ReactPackageProvider.idl</DependentUpon>
     </ClInclude>
-    <ClInclude Include="ReactNativeModule.h" />
     <ClInclude Include="$(WatermelonJsiSharedDir)Database.h" />
     <ClInclude Include="$(WatermelonJsiSharedDir)DatabasePlatform.h" />
     <ClInclude Include="$(WatermelonJsiSharedDir)JSIHelpers.h" />

@@ -11,7 +11,6 @@
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="ReactPackageProvider.h" />
-    <ClInclude Include="ReactNativeModule.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
