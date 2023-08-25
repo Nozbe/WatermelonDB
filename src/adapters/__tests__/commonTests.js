@@ -1154,12 +1154,17 @@ export default () => {
       await expect(adapterPromise).rejects.toBeInstanceOf(Error)
     }
   })
-  it('can actually save and read from file system', async (_adapter, AdapterClass, extraAdapterOptions) => {
+  it('can actually save and read from file system', async (_adapter, AdapterClass, extraAdapterOptions, platform) => {
     if (AdapterClass.name === 'LokiJSAdapter') {
       // Loki is tested differently
       return
     }
-    const fileName = `.tmp/testDatabase-${Math.random()}.db`
+
+    // FIXME: Windows quirk is that it can't create intermediate folders automatically, so with .tmp in path, it will fail
+    const fileName =
+      platform === 'windows'
+        ? `testDatabase-${Math.random()}.db`
+        : `.tmp/testDatabase-${Math.random()}.db`
 
     const adapter = new DatabaseAdapterCompat(
       new AdapterClass({
