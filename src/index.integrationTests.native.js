@@ -3,7 +3,7 @@
 
 process.env.NODE_ENV = 'test'
 import React from 'react'
-import { AppRegistry, Text, NativeModules, Platform } from 'react-native'
+import { AppRegistry, Text, View, NativeModules, Platform } from 'react-native'
 
 // Mysteriously fixes React Native stacktrace symbolication ¯\_(ツ)_/¯
 if (typeof global.self === 'undefined') {
@@ -50,19 +50,21 @@ if (openPlayground) {
       <Tester
         specs={integrationTests}
         store={testHookStore}
+        // start delay allows initial render to occur while running JSI (blocking) tests
+        startDelay={500}
         waitTime={4000}
         sendReport={true}
         customReporter={sendReport}
       >
-        <>
+        <View testID="WatermelonTesterContent">
           <Text style={{ paddingTop: 100 }}>Watermelon tester!</Text>
           <Text>Using hermes? {global.HermesInternal ? 'YES' : 'NO'}</Text>
           {status === 'testing' ? (
-            <Text style={{ fontSize: 30 }}>The tests are running. Please remain calm.</Text>
+            <Text testID="WatermelonTesterStatus" style={{ fontSize: 30 }}>The tests are running. Please remain calm.</Text>
           ) : null}
-          {status === 'done' ? <Text style={{ fontSize: 30, color: 'green' }}>Done</Text> : null}
-          {status === 'error' ? <Text style={{ fontSize: 30, color: 'red' }}>Error</Text> : null}
-        </>
+          {status === 'done' ? <Text testID="WatermelonTesterStatus" style={{ fontSize: 30, color: 'green' }}>Done</Text> : null}
+          {status === 'error' ? <Text testID="WatermelonTesterStatus" style={{ fontSize: 30, color: 'red' }}>Error</Text> : null}
+        </View>
       </Tester>
     )
   }
