@@ -1160,11 +1160,10 @@ export default () => {
       return
     }
 
-    // FIXME: Windows quirk is that it can't create intermediate folders automatically, so with .tmp in path, it will fail
     const fileName =
-      platform === 'windows'
-        ? `testDatabase-${Math.random()}.db`
-        : `.tmp/testDatabase-${Math.random()}.db`
+      platform === 'node'
+        ? `.tmp/testDatabase-${Math.random()}.db`
+        : `testDatabase-${Math.random()}.db`
 
     const adapter = new DatabaseAdapterCompat(
       new AdapterClass({
