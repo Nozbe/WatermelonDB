@@ -93,6 +93,11 @@ const EnhancedComment = enhance(Comment)
 
 **Note** again that we can also pass `Relation` objects directly for convenience, skipping `.observe()`
 
+### Reactive optional relations
+
+Continuing the above example, if the comment has no author, the `comment.author_id` must be null. If `comment.author_id` has a value, the author record it refers to must be stored in the database, otherwise `withObservables` will throw an error that the record was not found.
+
+
 ### Reactive counters
 
 Let's make a `<PostExcerpt>` component to display on a *list* of Posts, with only a brief summary of the contents and only the number of comments it has:
@@ -256,8 +261,8 @@ With the `switchMap` approach, you can do:
 const enhance = withObservables(['post'], ({post}) => ({
   post: post,
   author: post.author,
-  contact: post.autor.observe().pipe(
-    switchMap(author => author ? autor.contact : of$(null))
+  contact: post.author.observe().pipe(
+    switchMap(author => author ? author.contact : of$(null))
   )
 }))
 ```
