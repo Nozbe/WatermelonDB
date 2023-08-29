@@ -31,7 +31,7 @@ npm install @nozbe/watermelondb
 
 ### iOS (React Native)
 
-At least Xcode 13.x and iOS 14 are recommended (earlier versions are not tested for compatibility).
+At least Xcode 13.x and iOS 15 are recommended (earlier versions are not tested for compatibility).
 
 1. **Set up Babel config in your project**
 
@@ -42,7 +42,7 @@ At least Xcode 13.x and iOS 14 are recommended (earlier versions are not tested 
    Open your `Podfile` and add this:
 
    ```ruby
-   # Uncomment this line if you're not using auto-linking
+   # Uncomment this line if you're not using auto-linking or if auto-linking causes trouble
    # pod 'WatermelonDB', path: '../node_modules/@nozbe/watermelondb'
 
    # WatermelonDB dependency, should not be needed on modern React Native
@@ -101,18 +101,6 @@ protected List<ReactPackage> getPackages() {
     new WatermelonDBPackage() // ⬅️ Here!
   );
 }
-```
-
-</details>
-
-<details>
-  <summary>Custom Kotlin Version</summary>
-  Make sure the kotlin version is set to 1.3.50 or above. Just set ext properties `kotlinVersion` in `android/build.gradle`, and WatermelonDB will use the specified kotlin version.
-
-```gradle
-  buildscript {
-      ext.kotlinVersion = '1.3.50'
-  }
 ```
 
 </details>
