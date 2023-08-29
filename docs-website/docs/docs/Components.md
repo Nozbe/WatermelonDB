@@ -21,7 +21,8 @@ Now we can fetch a comment: `const comment = await commentsCollection.find(id)` 
 Let's enhance the component to make it _observe_ the `Comment` automatically:
 
 ```jsx
-import withObservables from '@nozbe/with-observables'
+import { withObservables } from '@nozbe/watermelondb/react'
+
 const enhance = withObservables(['comment'], ({ comment }) => ({
   comment // shortcut syntax for `comment: comment.observe()`
 }))
@@ -36,7 +37,7 @@ Now, if we render `<EnhancedComment comment={comment} />`, it **will** update ev
 Let's render the whole `Post` with comments:
 
 ```jsx
-import withObservables from '@nozbe/with-observables'
+import { withObservables } from '@nozbe/watermelondb/react'
 import EnhancedComment from 'components/Comment'
 
 const Post = ({ post, comments }) => (
@@ -198,7 +199,7 @@ If you have 2nd level relations, like author's `Contact` info, and want to conne
 Before accessing and observing the `Contact` relation, you need to resolve the `author` itself. Here is the simplest way to do it:
 
 ```js
-import { compose } from 'recompose'
+import { compose } from '@nozbe/watermelondb/react'
 
 const enhance = compose(
   withObservables(['post'], ({ post }) => ({
@@ -213,7 +214,7 @@ const enhance = compose(
 const EnhancedPost = enhance(PostComponent);
 ```
 
-This is using a `compose` function from [`recompose`](https://github.com/acdlite/recompose). If you're not familiar with function composition, read the `enhance` function from top to bottom:
+If you're not familiar with function composition, read the `enhance` function from top to bottom:
 
 - first, the PostComponent is enhanced by changing the incoming `post` prop into its observable version, and by adding a new `author` prop that will contain the fetched contents of `post.author`
 - then, the enhanced component is enhanced once again, by adding a `contact` prop containing the fetched contents of `author.contact`.
@@ -242,7 +243,7 @@ If you have an optional relation between `Post` and `Author`, the enhanced compo
 
 ```js
 import { of as of$ } from 'rxjs'
-import { compose } from 'recompose'
+import { withObservables, compose } from '@nozbe/watermelondb/react'
 
 const enhance = compose(
   withObservables(['post'], ({ post }) => ({
@@ -272,7 +273,7 @@ const enhance = withObservables(['post'], ({post}) => ({
 To prevent prop drilling you can use the Database Provider and the `withDatabase` Higher-Order Component.
 
 ```jsx
-import DatabaseProvider from '@nozbe/watermelondb/DatabaseProvider'
+import { DatabaseProvider } from '@nozbe/watermelondb/react'
 
 // ...
 
@@ -292,8 +293,7 @@ render(
 To consume the database in your components you just wrap your component like so:
 
 ```jsx
-import { withDatabase } from '@nozbe/watermelondb/DatabaseProvider'
-import { compose } from 'recompose'
+import { withDatabase, compose } from '@nozbe/watermelondb/react'
 
 // ...
 
@@ -313,7 +313,7 @@ The database prop in the `withObservables` Higher-Order Component is provided by
 You can also consume `Database` object using React Hooks syntax:
 
 ```js
-import { useDatabase } from '@nozbe/watermelondb/hooks'
+import { useDatabase } from '@nozbe/watermelondb/react'
 
 const Component = () => {
    const database = useDatabase()

@@ -1,5 +1,4 @@
 TODO: After shipping, make minor bump to @nozbe/withObservables and add deprecation notice
-TODO: Update import paths in documentation before shipping 0.27
 
 ### Highlights
 
