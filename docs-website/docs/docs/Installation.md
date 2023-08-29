@@ -37,15 +37,7 @@ At least Xcode 13.x and iOS 14 are recommended (earlier versions are not tested 
 
    See instructions above ⬆️
 
-2. **Add Swift support to your Xcode project**:
-
-   You only need to do this if you don't have Swift already set up in your project.
-
-   - Open `ios/YourAppName.xcodeproj` in Xcode
-   - Right-click on **(your app name)** in the Project Navigator on the left, and click **New File…**
-   - Create a single empty Swift file (`wmelon.swift`) to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header** and **do not remove** the Swift file afterwards
-
-3. **Link WatermelonDB's native library (using CocoaPods)**
+2. **Link WatermelonDB's native library (using CocoaPods)**
 
    Open your `Podfile` and add this:
 
