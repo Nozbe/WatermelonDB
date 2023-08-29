@@ -1,3 +1,1 @@
-import type Database from '../Database'
-
-export function useDatabase(): Database
+export { default as useDatabase } from '../react/useDatabase'

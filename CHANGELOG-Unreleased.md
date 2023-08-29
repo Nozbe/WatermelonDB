@@ -1,10 +1,34 @@
+TODO: After shipping, make minor bump to @nozbe/withObservables and add deprecation notice
+TODO: Update import paths in documentation before shipping 0.27
+
 ### Highlights
 
 **Removed legacy Swift and Kotlin React Native Modules**
 
 Following the addition of new Native Modules in 0.26, we're removing the old implementations. We expect this to simplify installation process and remove a ton of compatibility and configuration issues due to Kotlin version mismatchs and the CocoaPods-Swift issues when using `use_frameworks!` or Expo.
 
+**Introducing Watermelon React**
+
+All React/React Native helpers for Watermelon are now available from a new `@nozbe/watermelodb/react` folder:
+
+- `DatabaseProvider`, `useDatabase`, `withDatabase`
+- NEW: `withObservables` - `@nozbe/with-observables` as a separate package is deprecated, and is now bundled with WatermelonDB
+- NEW: HOC helpers: `compose`, `withHooks`
+- NEW: `<WithObservables />` component, a component version of `withObservables` HOC. Useful when a value being observed is localized to a small part of a larger component, because you can effortlessly narrow down which parts of the component are re-rendered when the value changes without having to extract a new component.
+
+Imports from previous `@nozbe/watermelondb/DatabaseProvider` and `@nozbe/watermelondb/hooks` folders are deprecated and will be removed in a future version.
+
+**Introducing Watermelon Diagnostics**
+
+All debug/dev/diagnostics tools for Watermelon are now available from a new `@nozbe/watermelondb/diagnostics` folder:
+
+- NEW: `censorRaw` - takes a `RawRecord/DirtyRaw` and censors its string values, while preserving IDs, _status, _changed, and numeric/boolean values. Helpful when viewing database contents in context that could expose private user information
+- NEW: `diagnoseDatabaseStructure` - analyzes database to find inconsistencies, such as orphaned records (`belongs_to` relations on model that point to records that don't exist) or broken LokiJS database. Use this to find bugs in your data model.
+- NEW: `diagnoseSyncConsistency` - compares local database with the server version (contents of first/full sync) to find inconsistencies, missing and excess records. Use this to find bugs in your backend sync implementation.
+
 ### BREAKING CHANGES
+
+- `@nozbe/with-observables` is no longer a WatermelonDB dependency. Change your imports to `import { withObservables } from '@nozbe/watermelondb/react'`
 
 Changes unlikely to cause issues:
 
@@ -14,9 +38,15 @@ Changes unlikely to cause issues:
 
 ### Deprecations
 
+- Imports from `@nozbe/watermelondb/DatabaseProvider` and `@nozbe/watermelondb/hooks`. Change to `@nozbe/watermelondb/react`
+
 ### New features
 
+- New `@experimentalFailsafe` decorator you can apply before `@relation/@immutableRelation` so that if relation points to a record that does not exist, `.fetch()/.observe()` yield `undefined` instead of throwing an error
+
 ### Fixes
+
+- [Flow/TS] Improved typing of DatabaseContext
 
 ### Performance
 

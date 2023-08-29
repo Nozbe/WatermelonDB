@@ -2087,13 +2087,6 @@
     jest-message-util "^24.0.0"
     jest-regex-util "^24.0.0"
 
-"@nozbe/with-observables@^1.5.0-2":
-  version "1.5.0-2"
-  resolved "https://registry.yarnpkg.com/@nozbe/with-observables/-/with-observables-1.5.0-2.tgz#d7436cafaeaeea32327c7965c4db799f4b450560"
-  integrity sha512-6iPCFMz1UZ+B8YBNEMwSdfiO6bcgkyvZlfsSzE/7gOFjieeCMMNSAItU1ZLjQJAQvKizhS/hEyBao1+lDFA/tg==
-  dependencies:
-    hoist-non-react-statics "^3.3.2"
-
 "@opentelemetry/api@^1.0.4", "@opentelemetry/api@^1.4.1":
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/@opentelemetry/api/-/api-1.4.1.tgz#ff22eb2e5d476fbc2450a196e40dd243cc20c28f"

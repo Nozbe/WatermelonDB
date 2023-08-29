@@ -1,2 +1,2 @@
 // @flow
-export { useDatabase } from './use-database'
+export { default as useDatabase } from '../react/useDatabase'
