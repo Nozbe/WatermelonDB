@@ -15,14 +15,16 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16.x
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: 'node_modules'
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
       - run: yarn
       - run: yarn ci:check
       - name: Gradle Wrapper Validation
-        uses: gradle/wrapper-validation-action@v1.0.3
+        uses: gradle/wrapper-validation-action@v1.0.6
+      - name: Check docs build
+        run: cd docs-website && yarn install && cd .. && yarn docs:build
   ios:
     runs-on: macos-11
     name: iOS tests
@@ -39,13 +41,13 @@ jobs:
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1
       - name: cache node_modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: 'node_modules'
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
       - run: yarn
       - name: cache Pods
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: pods-cache
         with:
           path: native/iosTest/Pods
@@ -70,7 +72,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16.x
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: 'node_modules'
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
@@ -84,13 +86,31 @@ jobs:
           working-directory: ./native/androidTest
           script: ./gradlew connectedAndroidTest
       - run: yarn ktlint
-  # FIXME: Bring back docs check
-  # docs:
-  #   runs-on: ubuntu-22.04
-  #   name: Check documentation
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - run: (test -x $HOME/.cargo/bin/cargo-install-update || cargo install cargo-update)
-  #     - run: (test -x $HOME/.cargo/bin/mdbook || cargo install --vers "^0.3" mdbook)
-  #     - run: cargo install-update -a
-  #     - run: ./scripts/mdbook
+  windows:
+    runs-on: windows-2022
+    name: Windows tests
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set Node.js version
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+      - uses: actions/cache@v3
+        with:
+          path: 'node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+      - run: yarn --network-timeout 100000
+      # FIXME: concurrently seems broken on windows
+      # - run: yarn ci
+      - run: yarn test
+      - run: yarn eslint
+      - run: yarn flow
+      # FIXME: TS broken on Windows?
+      # - run: yarn test:typescript
+      # Build WatermelonTester and run in background
+      - run: yarn test:windows
+      # Give it some time to bundle
+      - run: sleep 90
+      # Start E2E runner to capture integration test results
+      - run: cd native/windowsE2E && yarn
+      - run: yarn test:windows:ci

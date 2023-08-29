@@ -173,7 +173,7 @@ public class WMDatabaseBridge extends ReactContextBaseJavaModule {
 
     private void withDriver(final int tag, final Promise promise, final ParamFunction function, String functionName) {
         try {
-            Trace.beginSection("DatabaseBridge." + functionName);
+            Trace.beginSection("WMDatabaseBridge." + functionName);
             Connection connection = connections.get(tag);
             if (connection == null) {
                 promise.reject(new Exception("No driver with tag " + tag + " available"));

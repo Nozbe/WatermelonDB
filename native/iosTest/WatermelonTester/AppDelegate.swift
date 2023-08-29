@@ -27,6 +27,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, RCTBridgeDelegate {
 
         return true
     }
+    
+    func unusedFunction() {
+        // It's here to ensure this compiles correctly
+        var error: NSError?
+        watermelondbProvideSyncJson(0, Data(), &error)
+    }
 
     // MARK: - Singleton
 

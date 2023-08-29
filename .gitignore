@@ -2,6 +2,7 @@
 
 .cache/
 node_modules/
+.tmp/
 
 npm-debug.log
 yarn-error.log
@@ -18,3 +19,6 @@ coverage/
 docs-build/
 
 **/.metro-health-check*
+
+# windows
+msbuild.binlog

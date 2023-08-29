@@ -18,8 +18,8 @@ Pod::Spec.new do |s|
     # (although that is CocoaPods default behavior)
     # but this is needed for WatermelonDB to work in use_frameworks! mode
     # 'native/ios/**/*.h',
-    'native/ios/WatermelonDB/SupportingFiles/Bridging.h',
     'native/ios/WatermelonDB/JSIInstaller.h',
+    'native/ios/WatermelonDB/WatermelonDB.h',
   ]
   s.pod_target_xcconfig = {
     # FIXME: This is a workaround for broken build in use_frameworks mode
@@ -31,6 +31,8 @@ Pod::Spec.new do |s|
   s.compiler_flags = '-Os'
 
   s.dependency "React"
+
+  s.libraries = 'sqlite3'
 
   # NOTE: This dependency doesn't seem to be needed anymore (tested on RN 0.66, 0.71), file an issue
   # if this causes issues for you

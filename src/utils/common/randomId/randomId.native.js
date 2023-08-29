@@ -2,6 +2,7 @@
 /* eslint-disable no-bitwise */
 import { NativeModules } from 'react-native'
 import nativeRandomId_v2 from './randomId_v2.native'
+import nativeRandomId_fallback from './fallback'
 
 const alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
@@ -32,7 +33,13 @@ function nativeRandomId_v1(): string {
   return id
 }
 
-const isV2Available: boolean = !!NativeModules.WMDatabaseBridge.getRandomIds
-const nativeRandomId: () => string = isV2Available ? nativeRandomId_v2 : nativeRandomId_v1
+const nativeRandomId: () => string = (() => {
+  if (NativeModules.WMDatabaseBridge?.getRandomIds) {
+    return nativeRandomId_v2
+  } else if (NativeModules.WMDatabaseBridge?.getRandomBytes) {
+    return nativeRandomId_v1
+  }
+  return nativeRandomId_fallback
+})()
 
 export default nativeRandomId

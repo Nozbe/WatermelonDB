@@ -276,6 +276,39 @@ This guide assumes you use Webpack as your bundler.
    }
    ```
 
+## Windows (React Native)
+
+WatermelonDB has **experimental** support for [React Native Windows](https://microsoft.github.io/react-native-windows/).
+
+To set up:
+
+1. Set up Babel config in your project - See instructions above for all React Native platforms
+2. Run `npx react-native autolink-windows` to perform autolinking. See section below if you don't use autolinking.
+
+Caveats to keep in mind about React Native Windows support:
+
+- Windows support is new and experimental
+- Only JSI port is available, so you must initialize `SQLiteAdapter` with `{ jsi: true }`
+- JSI means that Remote Debugging (WebDebugger) is not available. Use direct debugging.
+- Enable Hermes when using WatermelonDB on RNW. Chakra has not been tested and may not work.
+- Turbo Sync has not been implemented
+- onDestroy event has not been implemented. This only causes issues if you need to reload JS bundle
+  at runtime (other than in development).
+
+<details>
+  <summary>Linking Manually</summary>
+
+By default, React Native uses **autolinking**, and **you don't need the steps below**!
+
+Follow [instructions on React Native Windows website](https://microsoft.github.io/react-native-windows/docs/native-modules-using), noting that:
+
+- Path to vcxproj: `node_modules\@nozbe\watermelondb\native\windows\WatermelonDB\WatermelonDB.vcxproj`
+- Name of project to reference: `WatermelonDB`
+- Header for PCH: `#include "winrt/WatermelonDB.h"`
+- Package provider: `PackageProviders().Append(winrt::WatermelonDB::ReactPackageProvider());`
+
+</details>
+
 ## NodeJS (SQLite) setup
 
 You only need this if you want to use WatermelonDB in NodeJS with SQLite (e.g. for scripts that share code with your web/React Native app)
