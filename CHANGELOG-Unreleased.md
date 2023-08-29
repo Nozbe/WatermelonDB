@@ -51,6 +51,7 @@ Changes unlikely to cause issues:
 ### Fixes
 
 - [Flow/TS] Improved typing of DatabaseContext
+- Fixed `Cannot read property 'getRandomIds' of null`. This error occured if native modules were not correctly installed, however the location of the error caused a lot of confusion.
 
 ### Performance
 
