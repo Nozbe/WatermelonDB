@@ -20,7 +20,7 @@ jsi::Value runBlock(facebook::jsi::Runtime &rt, std::function<jsi::Value(void)> 
     //    but then passes them to Java world via JNI
     // https://github.com/facebook/hermes/issues/298#issuecomment-661352050
     // https://github.com/facebook/react-native/issues/29558
-    #ifdef ANDROID
+    #if __ANDROID__ || defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     try {
         retValue = block();
     } catch (const jsi::JSError &error) {

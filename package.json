@@ -1,7 +1,7 @@
 {
   "name": "@nozbe/watermelondb",
   "description": "Build powerful React Native and React web apps that scale from hundreds to tens of thousands of records and remain fast",
-  "version": "0.27.0-1",
+  "version": "0.27.0-8",
   "scripts": {
     "up": "yarn",
     "build": "NODE_ENV=production node ./scripts/make.mjs",
@@ -17,6 +17,8 @@
     "ci:check": "concurrently -n jest,eslint,flow,ts 'npm run test' 'npm run eslint' 'npm run flow' 'npm run test:typescript' --kill-others-on-fail",
     "test:android": "cd native/androidTest && ./gradlew connectedAndroidTest",
     "test:ios": "scripts/test-ios",
+    "test:windows": "react-native run-windows",
+    "test:windows:ci": "cd native/windowsE2E && npm run e2etest",
     "test:native": "concurrently -n android,ios 'npm run test:android' 'npm run test:ios' --kill-others-on-fail",
     "test:typescript": "cd examples/typescript; yarn; npm run test",
     "swiftlint": "cd native; swiftlint",
@@ -27,7 +29,8 @@
     "docs:version": "cd docs-website && yarn version --no-git-tag-version --no-commit-hooks --new-version",
     "docs:dev": "./scripts/update-docusaurus && cd docs-website && yarn start",
     "docs:build": "./scripts/update-docusaurus && cd docs-website && yarn build",
-    "docs:deploy": "./scripts/update-docusaurus && cd docs-website && yarn deploy"
+    "docs:deploy": "./scripts/update-docusaurus && cd docs-website && yarn deploy",
+    "postinstall": "patch-package"
   },
   "types": "src/index.d.ts",
   "author": "@Nozbe",
@@ -150,12 +153,15 @@
     "listr-input": "^0.2.1",
     "lodash.clonedeep": "^4.5.0",
     "mkdirp": "^2.1.3",
+    "patch-package": "^8.0.0",
     "path": "^0.12.7",
+    "postinstall-postinstall": "^2.1.0",
     "prettier": "^2.8.4",
     "rambdax": "2.15.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.71.3",
+    "react-native-windows": "0.71.28",
     "react-test-renderer": "18.2.0",
     "rimraf": "^4.1.2",
     "semver": "^7.3.8",
