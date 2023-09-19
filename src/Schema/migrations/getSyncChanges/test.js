@@ -1,5 +1,5 @@
 import getSyncChanges from './index'
-import { schemaMigrations, createTable, addColumns, unsafeExecuteSql } from '../index'
+import { schemaMigrations, createTable, addColumns, unsafeExecuteSql, renameColumn } from '../index'
 
 const createCommentsTable = createTable({
   name: 'comments',
@@ -18,10 +18,15 @@ describe('getSyncChanges', () => {
     expect(test([{ toVersion: 2, steps: [createCommentsTable] }], 2, 2)).toEqual(null)
   })
   it('returns empty changes for empty steps', () => {
-    expect(testSteps([])).toEqual({ from: 1, tables: [], columns: [] })
+    expect(testSteps([])).toEqual({ from: 1, tables: [], columns: [], renamedColumns: [] })
   })
   it('returns created tables', () => {
-    expect(testSteps([createCommentsTable])).toEqual({ from: 1, tables: ['comments'], columns: [] })
+    expect(testSteps([createCommentsTable])).toEqual({
+      from: 1,
+      tables: ['comments'],
+      columns: [],
+      renamedColumns: [],
+    })
   })
   it('returns added columns', () => {
     expect(
@@ -38,6 +43,36 @@ describe('getSyncChanges', () => {
       from: 1,
       tables: [],
       columns: [{ table: 'posts', columns: ['subtitle', 'is_pinned'] }],
+      renamedColumns: [],
+    })
+  })
+  it('returns renamed columns', () => {
+    expect(testSteps([renameColumn({ table: 'posts', from: 'body', to: 'text' })])).toEqual({
+      from: 1,
+      tables: [],
+      columns: [],
+      renamedColumns: [{ table: 'posts', columns: [{ from: 'body', to: 'text' }] }],
+    })
+  })
+  it('combines renamed columns from multiple migration steps', () => {
+    expect(
+      testSteps([
+        renameColumn({ table: 'posts', from: 'body', to: 'text' }),
+        renameColumn({ table: 'posts', from: 'favorite', to: 'saved' }),
+      ]),
+    ).toEqual({
+      from: 1,
+      tables: [],
+      columns: [],
+      renamedColumns: [
+        {
+          table: 'posts',
+          columns: [
+            { from: 'body', to: 'text' },
+            { from: 'favorite', to: 'saved' },
+          ],
+        },
+      ],
     })
   })
   it('combines added columns from multiple migration steps', () => {
@@ -60,6 +95,7 @@ describe('getSyncChanges', () => {
       from: 1,
       tables: [],
       columns: [{ table: 'posts', columns: ['subtitle', 'is_pinned', 'author_id'] }],
+      renamedColumns: [],
     })
   })
   it('skips added columns for a table if it is also added', () => {
@@ -75,6 +111,7 @@ describe('getSyncChanges', () => {
       from: 1,
       tables: ['comments'],
       columns: [],
+      renamedColumns: [],
     })
   })
   it('skips duplicates', () => {
@@ -97,6 +134,7 @@ describe('getSyncChanges', () => {
       from: 1,
       tables: ['comments'],
       columns: [{ table: 'posts', columns: ['subtitle'] }],
+      renamedColumns: [],
     })
   })
   const bigMigrations = [
@@ -198,6 +236,7 @@ describe('getSyncChanges', () => {
         { table: 'comments', columns: ['is_pinned', 'extra'] },
         { table: 'workspaces', columns: ['plan_info', 'limits'] },
       ],
+      renamedColumns: [],
     })
   })
   it(`returns only the necessary range of migrations`, () => {
@@ -208,13 +247,20 @@ describe('getSyncChanges', () => {
         { table: 'workspaces', columns: ['plan_info', 'limits'] },
         { table: 'attachment_versions', columns: ['reactions'] },
       ],
+      renamedColumns: [],
     })
     expect(test(bigMigrations, 8, 10)).toEqual({
       from: 8,
       tables: [],
       columns: [{ table: 'attachment_versions', columns: ['reactions'] }],
+      renamedColumns: [],
     })
-    expect(test(bigMigrations, 9, 10)).toEqual({ from: 9, tables: [], columns: [] })
+    expect(test(bigMigrations, 9, 10)).toEqual({
+      from: 9,
+      tables: [],
+      columns: [],
+      renamedColumns: [],
+    })
     expect(test(bigMigrations, 10, 10)).toEqual(null)
   })
   it(`fails on incorrect migrations`, () => {
@@ -225,7 +271,6 @@ describe('getSyncChanges', () => {
     const possibleFutureTypes = [
       'broken',
       'rename_table',
-      'rename_column',
       'add_column_index',
       'make_column_optional',
       'make_column_required',

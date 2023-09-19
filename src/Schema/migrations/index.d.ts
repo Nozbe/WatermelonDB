@@ -1,4 +1,5 @@
 import type { $RE, $Exact } from '../../types'
+import { ColumnName } from '../index'
 import type { ColumnSchema, TableName, TableSchema, TableSchemaSpec, SchemaVersion } from '../index'
 
 export type CreateTableMigrationStep = $RE<{
@@ -18,7 +19,18 @@ export type SqlMigrationStep = $RE<{
   sql: string
 }>
 
-export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep | SqlMigrationStep
+export type RenameColumnMigrationStep = $RE<{
+  type: 'rename_column'
+  table: TableName<any>
+  from: ColumnName
+  to: ColumnName
+}>
+
+export type MigrationStep =
+  | CreateTableMigrationStep
+  | AddColumnsMigrationStep
+  | SqlMigrationStep
+  | RenameColumnMigrationStep
 
 type Migration = $RE<{
   toVersion: SchemaVersion
@@ -51,3 +63,13 @@ export function addColumns({
 }>): AddColumnsMigrationStep
 
 export function unsafeExecuteSql(sql: string): SqlMigrationStep
+
+export function renameColumn({
+  table,
+  from,
+  to,
+}: $Exact<{
+  table: TableName<any>
+  from: string
+  to: string
+}>): RenameColumnMigrationStep
