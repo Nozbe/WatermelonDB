@@ -6,7 +6,14 @@ import invariant from '../../utils/common/invariant'
 import isObj from '../../utils/fp/isObj'
 
 import type { $RE } from '../../types'
-import type { ColumnSchema, TableName, TableSchema, TableSchemaSpec, SchemaVersion } from '../index'
+import type {
+  ColumnSchema,
+  TableName,
+  TableSchema,
+  TableSchemaSpec,
+  SchemaVersion,
+  ColumnName,
+} from '../index'
 import { tableSchema, validateColumnSchema } from '../index'
 
 export type CreateTableMigrationStep = $RE<{
@@ -26,7 +33,18 @@ export type SqlMigrationStep = $RE<{
   sql: string,
 }>
 
-export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep | SqlMigrationStep
+export type RenameColumnMigrationStep = $RE<{
+  type: 'rename_column',
+  table: TableName<any>,
+  from: ColumnName,
+  to: ColumnName,
+}>
+
+export type MigrationStep =
+  | CreateTableMigrationStep
+  | AddColumnsMigrationStep
+  | SqlMigrationStep
+  | RenameColumnMigrationStep
 
 type Migration = $RE<{
   toVersion: SchemaVersion,
@@ -166,6 +184,23 @@ export function unsafeExecuteSql(sql: string): SqlMigrationStep {
   return { type: 'sql', sql }
 }
 
+export function renameColumn({
+  table,
+  from,
+  to,
+}: $Exact<{
+  table: TableName<any>,
+  from: ColumnName,
+  to: ColumnName,
+}>): RenameColumnMigrationStep {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(table, `Missing table name in renameColumn()`)
+    invariant(from, `Missing 'from' in renameColumn()`)
+    invariant(to, `Missing 'to' in renameColumn()`)
+  }
+  return { type: 'rename_column', table, from, to }
+}
+
 /*
 
 TODO: Those types of migrations are currently not implemented. If you need them, feel free to contribute!
@@ -175,7 +210,6 @@ destroyTable('table_name')
 renameTable({ from: 'old_table_name', to: 'new_table_name' })
 
 // column operations
-renameColumn({ table: 'table_name', from: 'old_column_name', to: 'new_column_name' })
 destroyColumn({ table: 'table_name', column: 'column_name' })
 
 // indexing

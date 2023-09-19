@@ -1,4 +1,4 @@
-import { createTable, addColumns, schemaMigrations } from './index'
+import { createTable, addColumns, schemaMigrations, renameColumn } from './index'
 import { stepsForMigration } from './stepsForMigration'
 
 describe('schemaMigrations()', () => {
@@ -30,7 +30,7 @@ describe('schemaMigrations()', () => {
   it('returns a complex schema migrations spec', () => {
     const migrations = schemaMigrations({
       migrations: [
-        { toVersion: 4, steps: [] },
+        { toVersion: 4, steps: [renameColumn({ table: 'comments', from: 'body', to: 'text' })] },
         {
           toVersion: 3,
           steps: [
@@ -103,7 +103,17 @@ describe('schemaMigrations()', () => {
             },
           ],
         },
-        { toVersion: 4, steps: [] },
+        {
+          toVersion: 4,
+          steps: [
+            {
+              type: 'rename_column',
+              table: 'comments',
+              from: 'body',
+              to: 'text',
+            },
+          ],
+        },
       ],
     })
   })
@@ -180,6 +190,12 @@ describe('migration step functions', () => {
     expect(() => addColumns({ table: 'foo', columns: [{ name: 'x', type: 'blah' }] })).toThrow(
       'type',
     )
+  })
+
+  it('throws if renameColumns() is malformed', () => {
+    expect(() => renameColumn({ from: 'text', to: 'body' })).toThrow('table')
+    expect(() => renameColumn({ table: 'foo', from: 'text' })).toThrow('to')
+    expect(() => renameColumn({ table: 'foo', to: 'body' })).toThrow('from')
   })
 })
 
