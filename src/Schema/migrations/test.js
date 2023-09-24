@@ -1,4 +1,4 @@
-import { createTable, addColumns, destroyColumns, schemaMigrations } from './index'
+import { createTable, addColumns, destroyColumn, schemaMigrations } from './index'
 import { stepsForMigration } from './stepsForMigration'
 
 describe('schemaMigrations()', () => {
@@ -36,7 +36,7 @@ describe('schemaMigrations()', () => {
             addColumns({
               table: 'comments',
               columns: [{ name: 'text', type: 'string' }],
-            })
+            }),
             destroyColumn({
               table: 'comments',
               column: 'body',
@@ -115,18 +115,21 @@ describe('schemaMigrations()', () => {
             },
           ],
         },
-        { toVersion: 4, steps: [
-          {
+        {
+          toVersion: 4,
+          steps: [
+            {
               type: 'add_columns',
               table: 'comments',
               columns: [{ name: 'text', type: 'string' }],
             },
-          {
+            {
               type: 'destroy_column',
               table: 'comments',
               column: 'body',
             },
-        ] },
+          ],
+        },
       ],
     })
   })
