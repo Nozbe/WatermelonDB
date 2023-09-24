@@ -15,6 +15,7 @@ import type {
   SchemaMigrations,
   CreateTableMigrationStep,
   AddColumnsMigrationStep,
+  DestroyColumnMigrationStep,
   MigrationStep,
 } from '../../../Schema/migrations'
 import type { SerializedQuery } from '../../../Query'
@@ -390,6 +391,8 @@ export default class DatabaseDriver {
         this._executeCreateTableMigration(step)
       } else if (step.type === 'add_columns') {
         this._executeAddColumnsMigration(step)
+      } else if (step.type === 'destroy_column') {
+        this._executeDestroyColumnMigration(step)
       } else if (step.type === 'sql') {
         // ignore
       } else {
@@ -422,6 +425,15 @@ export default class DatabaseDriver {
       if (column.isIndexed) {
         collection.ensureIndex(column.name)
       }
+    })
+  }
+
+  _executeDestroyColumnMigration({ table, column }: DestroyColumnMigrationStep): void {
+    const collection = this.loki.getCollection(table)
+
+    // update ALL records in the collection, removing a field
+    collection.findAndUpdate({}, (record) => {
+      delete record[column]
     })
   }
 

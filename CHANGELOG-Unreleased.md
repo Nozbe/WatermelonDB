@@ -25,7 +25,7 @@ Imports from previous `@nozbe/watermelondb/DatabaseProvider` and `@nozbe/waterme
 
 All debug/dev/diagnostics tools for Watermelon are now available from a new `@nozbe/watermelondb/diagnostics` folder:
 
-- NEW: `censorRaw` - takes a `RawRecord/DirtyRaw` and censors its string values, while preserving IDs, _status, _changed, and numeric/boolean values. Helpful when viewing database contents in context that could expose private user information
+- NEW: `censorRaw` - takes a `RawRecord/DirtyRaw` and censors its string values, while preserving IDs, \_status, \_changed, and numeric/boolean values. Helpful when viewing database contents in context that could expose private user information
 - NEW: `diagnoseDatabaseStructure` - analyzes database to find inconsistencies, such as orphaned records (`belongs_to` relations on model that point to records that don't exist) or broken LokiJS database. Use this to find bugs in your data model.
 - NEW: `diagnoseSyncConsistency` - compares local database with the server version (contents of first/full sync) to find inconsistencies, missing and excess records. Use this to find bugs in your backend sync implementation.
 
@@ -46,6 +46,7 @@ Changes unlikely to cause issues:
 ### New features
 
 - New `@experimentalFailsafe` decorator you can apply before `@relation/@immutableRelation` so that if relation points to a record that does not exist, `.fetch()/.observe()` yield `undefined` instead of throwing an error
+- Added destroyColumn migration step.
 
 ### Fixes
 
