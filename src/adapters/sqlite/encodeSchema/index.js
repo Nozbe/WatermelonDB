@@ -2,7 +2,11 @@
 
 import type { TableSchema, AppSchema, ColumnSchema, TableName } from '../../../Schema'
 import { nullValue } from '../../../RawRecord'
-import type { MigrationStep, AddColumnsMigrationStep } from '../../../Schema/migrations'
+import type {
+  MigrationStep,
+  AddColumnsMigrationStep,
+  DestroyColumnMigrationStep,
+} from '../../../Schema/migrations'
 import type { SQL } from '../index'
 
 import encodeValue from '../encodeValue'
@@ -85,13 +89,36 @@ const encodeAddColumnsMigrationStep: (AddColumnsMigrationStep) => SQL = ({
     })
     .join('')
 
-export const encodeMigrationSteps: (MigrationStep[]) => SQL = (steps) =>
+const encodeDestroyColumnMigrationStep: (DestroyColumnMigrationStep, TableSchema) => SQL = (
+  { table, column },
+  tableSchema,
+) => {
+  const newTempTable = { ...tableSchema, name: `${table}Temp` }
+  const newColumns = [
+    ...standardColumns,
+    ...Object.keys(tableSchema.columns)
+      .filter((c) => c !== column)
+      .map((c) => `"${c}`),
+  ]
+  return `
+      ${encodeTable(newTempTable)}
+      INSERT INTO ${table}Temp(${newColumns.join(',')}) SELECT ${newColumns.join(
+    ',',
+  )} FROM ${table};
+      DROP TABLE ${table};
+      ALTER TABLE ${table}Temp RENAME TO ${table};
+    `
+}
+
+export const encodeMigrationSteps: (MigrationStep[], AppSchema) => SQL = (steps, schema) =>
   steps
     .map((step) => {
       if (step.type === 'create_table') {
         return encodeTable(step.schema)
       } else if (step.type === 'add_columns') {
         return encodeAddColumnsMigrationStep(step)
+      } else if (step.type === 'destroy_column') {
+        return encodeDestroyColumnMigrationStep(step, schema.tables[step.table])
       } else if (step.type === 'sql') {
         return step.sql
       }
