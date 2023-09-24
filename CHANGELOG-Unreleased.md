@@ -57,3 +57,5 @@ Changes unlikely to cause issues:
 ### Changes
 
 ### Internal
+
+- New 'rn-typescript' example which has same functionality as 'native' example
