@@ -1,5 +1,5 @@
-import * as React from 'react'
 import { NonReactStatics } from 'hoist-non-react-statics'
+import * as React from 'react'
 import type Database from '../Database'
 
 type WithDatabaseProps<T> = T & {

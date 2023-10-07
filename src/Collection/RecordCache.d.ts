@@ -1,9 +1,9 @@
+import type { CachedQueryResult } from '../adapters/type'
 import type Model from '../Model'
 import type { RecordId } from '../Model'
-import type Collection from './index'
-import type { CachedQueryResult } from '../adapters/type'
-import type { TableName } from '../Schema'
 import type { RawRecord } from '../RawRecord'
+import type { TableName } from '../Schema'
+import type Collection from './index'
 
 type Instantiator<T> = (_: RawRecord) => T
 

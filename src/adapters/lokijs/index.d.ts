@@ -1,16 +1,16 @@
-import type { LokiMemoryAdapter } from './type'
 import type { ResultCallback } from '../../utils/fp/Result'
+import type { LokiMemoryAdapter } from './type'
 
 import type { RecordId } from '../../Model'
-import type { TableName, AppSchema } from '../../Schema'
-import type { DirtyRaw } from '../../RawRecord'
-import type { SchemaMigrations } from '../../Schema/migrations'
 import type { SerializedQuery } from '../../Query'
+import type { DirtyRaw } from '../../RawRecord'
+import type { AppSchema, TableName } from '../../Schema'
+import type { SchemaMigrations } from '../../Schema/migrations'
 import type {
-  DatabaseAdapter,
-  CachedQueryResult,
-  CachedFindResult,
   BatchOperation,
+  CachedFindResult,
+  CachedQueryResult,
+  DatabaseAdapter,
   UnsafeExecuteOperations,
 } from '../type'
 
@@ -63,7 +63,7 @@ export type LokiAdapterOptions = $Exact<{
     onFetchStart?: () => void
     // Collections (by table name) that Loki should deserialize lazily. This is only profitable for
     // collections that are most likely not required for launch - making everything lazy makes it slower
-    lazyCollections?: TableName<any>[]
+    lazyCollections?: Array<TableName<any>>
   }>
   // -- internal --
   _testLokiAdapter?: LokiMemoryAdapter

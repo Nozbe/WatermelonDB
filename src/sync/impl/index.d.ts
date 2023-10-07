@@ -1,9 +1,9 @@
-import { $Exact } from '../../types'
 import type { Database } from '../..'
+import { $Exact } from '../../types'
 
-import type { Timestamp, SyncLog } from '../index'
 import type { SchemaVersion } from '../../Schema'
 import type { MigrationSyncChanges } from '../../Schema/migrations/getSyncChanges'
+import type { SyncLog, Timestamp } from '../index'
 
 export { default as applyRemoteChanges } from './applyRemote'
 export { default as fetchLocalChanges, hasUnsyncedChanges } from './fetchLocal'
