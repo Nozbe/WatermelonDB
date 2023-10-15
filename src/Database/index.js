@@ -361,10 +361,10 @@ export default class Database {
     }
   }
 
-  _ensureInWriter(diagnosticMethodName: string): void {
+  _ensureInWriter(debugName: string): void {
     invariant(
       this._workQueue.isWriterRunning,
-      `${diagnosticMethodName} can only be called from inside of a Writer. See docs for more details.`,
+      `${debugName} can only be called from inside of a Writer. See docs for more details.`,
     )
   }
 
