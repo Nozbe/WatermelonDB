@@ -2,6 +2,7 @@
 
 import { type Observable, BehaviorSubject } from '../utils/rx'
 import { type Unsubscribe } from '../utils/subscriptions'
+import logger from '../utils/common/logger'
 import invariant from '../utils/common/invariant'
 import ensureSync from '../utils/common/ensureSync'
 import fromPairs from '../utils/fp/fromPairs'
@@ -156,6 +157,7 @@ export default class Model {
         )
       })
     }
+    this.__logVerbose('prepareUpdate')
 
     return this
   }
@@ -187,6 +189,7 @@ export default class Model {
     this.__ensureNotDisposable(`Model.prepareMarkAsDeleted()`)
     this._raw._status = 'deleted'
     this._preparedState = 'markAsDeleted'
+    this.__logVerbose('prepareMarkAsDeleted')
     return this
   }
 
@@ -221,6 +224,7 @@ export default class Model {
     this.__ensureNotDisposable(`Model.prepareDestroyPermanently()`)
     this._raw._status = 'deleted'
     this._preparedState = 'destroyPermanently'
+    this.__logVerbose('prepareDestroyPermanently')
     return this
   }
 
@@ -367,6 +371,8 @@ export default class Model {
     ensureSync(recordBuilder(record))
     record._isEditing = false
 
+    record.__logVerbose('prepareCreate')
+
     return record
   }
 
@@ -376,6 +382,7 @@ export default class Model {
   ): this {
     const record = new this(collection, sanitizedRaw(dirtyRaw, collection.schema))
     record._preparedState = 'create'
+    record.__logVerbose('prepareCreateFromDirtyRaw')
     return record
   }
 
@@ -385,6 +392,7 @@ export default class Model {
   ): this {
     const record = new this(collection, sanitizedRaw(dirtyRaw, collection.schema))
     record._raw._status = 'disposable'
+    record.__logVerbose('disposableFromDirtyRaw')
     return record
   }
 
@@ -470,5 +478,11 @@ export default class Model {
 
   __ensureInWriter(debugName: string): void {
     this.db._ensureInWriter(`${debugName} (${this.__debugName})`)
+  }
+
+  __logVerbose(debugName: string): void {
+    if (this.db.experimentalIsVerbose) {
+      logger.debug(`${debugName}: ${this.__debugName}`)
+    }
   }
 }

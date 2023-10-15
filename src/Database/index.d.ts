@@ -88,6 +88,11 @@ export default class Database {
   // Yes, this sucks and there should be some safety mechanisms or warnings. Please contribute!
   unsafeResetDatabase(): Promise<void>
 
+  // (experimental) if true, Models will print to console diagnostic information on every
+  // prepareCreate/Update/Delete call, as well as on commit (Database.batch() call). Note that this
+  // has a significant performance impact so should only be enabled when debugging.
+  experimentalIsVerbose: boolean
+
   _ensureInWriter(diagnosticMethodName: string): void
 
   // (experimental) puts Database in a broken state
