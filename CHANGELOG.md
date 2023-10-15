@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 Contributors: Please add your changes to CHANGELOG-Unreleased.md
 
+## 0.27.1 - 2023-10-15
+
+Fix missing Changelog for 0.27 release
+
 ## 0.27 - 2023-08-29
 
 ### Highlights
