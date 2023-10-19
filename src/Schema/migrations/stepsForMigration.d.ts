@@ -1,7 +1,7 @@
 import { $Exact } from '../../types'
 
-import type { SchemaMigrations, MigrationStep } from './index'
 import type { SchemaVersion } from '../index'
+import type { MigrationStep, SchemaMigrations } from './index'
 
 export function stepsForMigration({
   migrations: schemaMigrations,

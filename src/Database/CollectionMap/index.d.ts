@@ -1,5 +1,5 @@
-import type Model from '../../Model'
 import Collection from '../../Collection'
+import type Model from '../../Model'
 import type { TableName } from '../../Schema'
 import type Database from '../index'
 

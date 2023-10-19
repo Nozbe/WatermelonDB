@@ -1,17 +1,17 @@
 // @flow
 
+import type { ColumnName, SchemaVersion, TableName } from '../../index'
 import type { SchemaMigrations } from '../index'
-import type { TableName, ColumnName, SchemaVersion } from '../../index'
 
 import { $Exact } from '../../../types'
 
 export type MigrationSyncChanges = $Exact<{
   from: SchemaVersion
-  tables: TableName<any>[]
-  columns: $Exact<{
+  tables: Array<TableName<any>>
+  columns: Array<$Exact<{
     table: TableName<any>
     columns: ColumnName[]
-  }>[]
+  }>>
 }> | null
 
 export default function getSyncChanges(

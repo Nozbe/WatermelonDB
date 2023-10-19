@@ -1,6 +1,6 @@
-import type { Model, Collection, Database } from '../..'
-import type { RawRecord, DirtyRaw } from '../../RawRecord'
-import type { SyncLog, SyncDatabaseChangeSet, SyncConflictResolver } from '../index'
+import type { Collection, Database, Model } from '../..'
+import type { DirtyRaw, RawRecord } from '../../RawRecord'
+import type { SyncConflictResolver, SyncDatabaseChangeSet, SyncLog } from '../index'
 
 // Returns raw record with naive solution to a conflict based on local `_changed` field
 // This is a per-column resolution algorithm. All columns that were changed locally win

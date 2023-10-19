@@ -1,19 +1,19 @@
 import type { Observable } from '../utils/rx'
 import { Unsubscribe } from '../utils/subscriptions'
 
-import type { DatabaseAdapter } from '../adapters/type'
 import DatabaseAdapterCompat from '../adapters/compat'
-import type Model from '../Model'
+import type { DatabaseAdapter } from '../adapters/type'
 import type Collection from '../Collection'
 import type { CollectionChangeSet } from '../Collection'
-import type { TableName, AppSchema } from '../Schema'
+import type Model from '../Model'
+import type { AppSchema, TableName } from '../Schema'
 
 import CollectionMap from './CollectionMap'
 import type LocalStorage from './LocalStorage'
 import WorkQueue from './WorkQueue'
 import type { ReaderInterface, WriterInterface } from './WorkQueue'
 
-import { $ReadOnlyArray, $Exact, Class } from '../types'
+import { $Exact, $ReadOnlyArray, Class } from '../types'
 
 type DatabaseProps = $Exact<{
   adapter: DatabaseAdapter

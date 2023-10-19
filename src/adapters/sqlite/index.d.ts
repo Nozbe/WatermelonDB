@@ -3,23 +3,23 @@ import type { ResultCallback } from '../../utils/fp/Result'
 
 import type { RecordId } from '../../Model'
 import type { SerializedQuery } from '../../Query'
-import type { TableName, AppSchema, SchemaVersion } from '../../Schema'
-import type { SchemaMigrations, MigrationStep } from '../../Schema/migrations'
+import type { AppSchema, SchemaVersion, TableName } from '../../Schema'
+import type { MigrationStep, SchemaMigrations} from '../../Schema/migrations'
 import type {
-  DatabaseAdapter,
-  CachedQueryResult,
-  CachedFindResult,
   BatchOperation,
+  CachedFindResult,
+  CachedQueryResult,
+  DatabaseAdapter,
   UnsafeExecuteOperations,
 } from '../type'
 import type {
   DispatcherType,
+  MigrationEvents,
   SQL,
   SQLiteAdapterOptions,
   SQLiteArg,
-  SQLiteQuery,
   SqliteDispatcher,
-  MigrationEvents,
+  SQLiteQuery,
 } from './type'
 
 import { $Shape } from '../../types'

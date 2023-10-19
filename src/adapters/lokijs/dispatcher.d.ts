@@ -1,12 +1,12 @@
 import type { ResultCallback } from '../../utils/fp/Result'
 import type {
-  WorkerExecutorType,
-  WorkerExecutorPayload,
-  WorkerResponseData,
   CloneMethod,
+  WorkerExecutorPayload,
+  WorkerExecutorType,
+  WorkerResponseData,
 } from './common'
 
-type WorkerAction = {
+interface WorkerAction {
   id: number,
   callback: ResultCallback<WorkerResponseData>,
 }

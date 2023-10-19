@@ -1,7 +1,7 @@
-import { type Result } from '../../utils/fp/Result'
-import type { CachedQueryResult, CachedFindResult } from '../type'
 import type { RecordId } from '../../Model'
 import { $Exact } from '../../types'
+import { type Result } from '../../utils/fp/Result'
+import type { CachedFindResult, CachedQueryResult } from '../type'
 
 export type WorkerExecutorType =
   | 'setUp'

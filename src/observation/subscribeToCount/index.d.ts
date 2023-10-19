@@ -3,8 +3,8 @@
 
 import type { Unsubscribe } from '../../utils/subscriptions'
 
-import type Query from '../../Query'
 import type Model from '../../Model'
+import type Query from '../../Query'
 
 export function experimentalDisableObserveCountThrottling(): void
 

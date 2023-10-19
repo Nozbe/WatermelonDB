@@ -1,5 +1,5 @@
-import type { $RE, $Exact } from '../../types'
-import type { ColumnSchema, TableName, TableSchema, TableSchemaSpec, SchemaVersion } from '../index'
+import type { $Exact, $RE } from '../../types'
+import type { ColumnSchema, SchemaVersion, TableName, TableSchema, TableSchemaSpec } from '../index'
 
 export type CreateTableMigrationStep = $RE<{
   type: 'create_table'

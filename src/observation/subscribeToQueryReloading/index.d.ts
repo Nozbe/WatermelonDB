@@ -2,8 +2,8 @@
 /* eslint-disable import/no-named-as-default */
 import type { Unsubscribe } from '../../utils/subscriptions'
 
-import type Query from '../../Query'
 import type Model from '../../Model'
+import type Query from '../../Query'
 
 // Produces an observable version of a query by re-querying the database
 // when any change occurs in any of the relevant Stores.

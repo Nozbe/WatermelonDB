@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import Database from '../Database'
 
-export type Props = {
+export interface Props {
   database: Database
   children: ReactNode
 }
