@@ -15,6 +15,10 @@ export type DirtyQueryResult = Array<RecordId | DirtyRaw>
 export function validateAdapter(adapter: DatabaseAdapter): void {
   if (process.env.NODE_ENV !== 'production') {
     const { schema, migrations } = adapter
+    if (schema === undefined) {
+      throw new Error('Database schema is undefined. Verify that you defined a schema or that you imported it correctly.');
+    }
+
     // TODO: uncomment when full migrations are shipped
     // invariant(migrations, `Missing migrations`)
     if (migrations) {
