@@ -69,10 +69,20 @@ class Comment extends Model {
 ### Create a new record
 
 ```js
-const newPost = await database.get('posts').create(post => {
-  post.title = 'New post'
-  post.body = 'Lorem ipsum...'
-})
+// In the model
+@writer async addPost() {
+  return await database.get('posts').create(post => {
+    post.title = this.title
+    post.body = this.body
+  });
+}
+
+// Utilizing the model
+let post = new Post(database, {
+  title: 'New post',
+  body: 'Lorem ipsum...',
+});
+await post.addPost();
 ```
 
 `.create()` takes a "builder function". In the example above, the builder will get a `Post` object as an argument. Use this object to set values for [fields you defined](./Model.md).
