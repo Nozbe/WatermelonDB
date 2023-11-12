@@ -71,7 +71,7 @@ class Comment extends Model {
 ```js
 // In the model
 @writer async addPost() {
-  return await database.get('posts').create(post => {
+  return await this.collections.get('posts').create(post => {
     post.title = this.title
     post.body = this.body
   });
