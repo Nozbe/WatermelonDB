@@ -38,6 +38,9 @@ class DatabaseBridge {
       resolve({ code: 'ok' })
     } catch (error) {
       if (driver && error.type === 'SchemaNeededError') {
+        if (driver.database.instance && driver.database.instance.open) {
+          driver.database.instance.close()
+        }
         this.waiting(tag, driver)
         resolve({ code: 'schema_needed' })
       } else if (driver && error.type === 'MigrationNeededError') {
