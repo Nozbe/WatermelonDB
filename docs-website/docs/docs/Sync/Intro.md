@@ -1,6 +1,6 @@
 ---
-title: Intro
-hide_title: true
+title: iceboxAi
+hide_title: false
 ---
 
 # Synchronization
