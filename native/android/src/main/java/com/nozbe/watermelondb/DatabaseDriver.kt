@@ -31,6 +31,7 @@ class DatabaseDriver(context: Context, dbName: String) {
             is SchemaCompatibility.NeedsSetup -> throw SchemaNeededError()
             is SchemaCompatibility.NeedsMigration ->
                 throw MigrationNeededError(compatibility.fromVersion)
+            else -> {}
         }
     }
 
