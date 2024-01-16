@@ -141,7 +141,7 @@ export default async function synchronize({
       }
 
       ensureSameDatabase(database, resetCount)
-      await markLocalChangesAsSynced(database, localChanges, pushShouldConfirmOnlyAccepted,
+      await markLocalChangesAsSynced(database, localChanges, pushShouldConfirmOnlyAccepted || false,
         pushResult.experimentalRejectedIds, pushResult.experimentalAcceptedIds)
       log && (log.phase = 'marked local changes as synced')
     }

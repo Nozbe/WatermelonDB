@@ -30,7 +30,7 @@ const recordsToMarkAsSynced = (
         )
         return
       }
-      const isAccepted = !allAcceptedIds || !allowOnlyAcceptedIds || acceptedIds.has(id);
+      const isAccepted = !allAcceptedIds || !allowOnlyAcceptedIds || acceptedIds.has(id)
       if (areRecordsEqual(record._raw, raw) && !rejectedIds.has(id) && isAccepted) {
         syncedRecords.push(record)
       }
@@ -44,7 +44,7 @@ const destroyDeletedRecords = (
   { changes }: SyncLocalChanges,
   allowOnlyAcceptedIds: boolean,
   allRejectedIds: SyncIds,
-  allAcceptedIds?: ?SyncIds,
+  allAcceptedIds: SyncIds,
 ): Promise<any>[] =>
   Object.keys(changes).map((_tableName) => {
     const tableName: TableName<any> = (_tableName: any)
