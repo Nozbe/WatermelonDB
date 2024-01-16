@@ -68,7 +68,7 @@ export function requiresUpdate<T: Model>(
 ): boolean {
   if (shouldUpdateRecord) {
     if (!shouldUpdateRecord(collection.table, local, dirtyRemote)) {
-      return false;
+      return false
     }
   }
 

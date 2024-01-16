@@ -3,8 +3,8 @@ import type { Database } from '../..'
 import type {
   SyncDatabaseChangeSet,
   SyncLog,
-  SyncConflictResolver,
   SyncShouldUpdateRecord,
+  SyncConflictResolver,
 } from '../index'
 
 export default function applyRemoteChanges(
@@ -13,8 +13,8 @@ export default function applyRemoteChanges(
     db: Database,
     sendCreatedAsUpdated: boolean,
     log?: SyncLog,
+    shouldUpdateRecord?: SyncShouldUpdateRecord,
     conflictResolver?: SyncConflictResolver,
     _unsafeBatchPerCollection?: boolean,
-    syncUpdateCondition?: SyncUpdateCondition,
   }
 ): Promise<void>

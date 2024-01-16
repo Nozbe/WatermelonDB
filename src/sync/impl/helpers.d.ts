@@ -3,8 +3,8 @@ import type { RawRecord, DirtyRaw } from '../../RawRecord'
 import type {
   SyncLog,
   SyncDatabaseChangeSet,
-  SyncConflictResolver,
   SyncShouldUpdateRecord,
+  SyncConflictResolver,
 } from '../index'
 
 // Returns raw record with naive solution to a conflict based on local `_changed` field

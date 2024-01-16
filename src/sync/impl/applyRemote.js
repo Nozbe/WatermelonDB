@@ -265,7 +265,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   collection: Collection<T>,
   context: ApplyRemoteChangesContext,
 ): Array<?T> {
-  const { db, sendCreatedAsUpdated, log, conflictResolver, shouldUpdateRecord } = context
+  const { db, sendCreatedAsUpdated, log, shouldUpdateRecord, conflictResolver } = context
   const { table } = collection
   const {
     created,
