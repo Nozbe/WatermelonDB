@@ -5,13 +5,13 @@ import { logError } from '../../utils/common'
 import type { Database, Model, TableName } from '../..'
 
 import { prepareMarkAsSynced } from './helpers'
-import type { SyncLocalChanges, SyncRejectedIds, SyncAcceptedIds } from '../index'
+import type { SyncLocalChanges, SyncIds } from '../index'
 
 const recordsToMarkAsSynced = (
   { changes, affectedRecords }: SyncLocalChanges,
-  allRejectedIds: SyncRejectedIds,
-  allAcceptedIds: ?SyncAcceptedIds,
   allowOnlyAcceptedIds: boolean,
+  allRejectedIds: SyncIds,
+  allAcceptedIds: SyncIds,
 ): Model[] => {
   const syncedRecords = []
 
@@ -30,7 +30,7 @@ const recordsToMarkAsSynced = (
         )
         return
       }
-      const isAccepted = (!allAcceptedIds && allowOnlyAcceptedIds) || acceptedIds.has(id);
+      const isAccepted = !allAcceptedIds || !allowOnlyAcceptedIds || acceptedIds.has(id);
       if (areRecordsEqual(record._raw, raw) && !rejectedIds.has(id) && isAccepted) {
         syncedRecords.push(record)
       }
@@ -42,34 +42,35 @@ const recordsToMarkAsSynced = (
 const destroyDeletedRecords = (
   db: Database,
   { changes }: SyncLocalChanges,
-  allRejectedIds: SyncRejectedIds,
-  allAcceptedIds: ?SyncAcceptedIds,
   allowOnlyAcceptedIds: boolean,
+  allRejectedIds: SyncIds,
+  allAcceptedIds?: ?SyncIds,
 ): Promise<any>[] =>
   Object.keys(changes).map((_tableName) => {
     const tableName: TableName<any> = (_tableName: any)
     const rejectedIds = new Set(allRejectedIds[tableName])
-    const acceptedIds = new Set(allAcceptedIds[(table: any)] || [])
-    const deleted = changes[tableName].deleted.filter((id) => !rejectedIds.has(id))
+    const acceptedIds = new Set(allAcceptedIds[tableName] || [])
+    const deleted = changes[tableName].deleted.filter((id) => !rejectedIds.has(id) &&
+      (!allAcceptedIds || !allowOnlyAcceptedIds || acceptedIds.has(id)))
     return deleted.length ? db.adapter.destroyDeletedRecords(tableName, deleted) : Promise.resolve()
   })
 
 export default function markLocalChangesAsSynced(
   db: Database,
   syncedLocalChanges: SyncLocalChanges,
-  rejectedIds?: ?SyncRejectedIds,
-  allAcceptedIds: ?SyncAcceptedIds,
   allowOnlyAcceptedIds: boolean,
+  rejectedIds?: ?SyncIds,
+  allAcceptedIds?: ?SyncIds,
 ): Promise<void> {
   return db.write(async () => {
     // update and destroy records concurrently
     await Promise.all([
       db.batch(
-        recordsToMarkAsSynced(syncedLocalChanges, rejectedIds || {}, allAcceptedIds,
-          allowOnlyAcceptedIds).map(prepareMarkAsSynced),
+        recordsToMarkAsSynced(syncedLocalChanges, allowOnlyAcceptedIds, rejectedIds || {}, 
+          allAcceptedIds || {}).map(prepareMarkAsSynced),
       ),
-      ...destroyDeletedRecords(db, syncedLocalChanges, rejectedIds || {}, allAcceptedIds,
-        allowOnlyAcceptedIds),
+      ...destroyDeletedRecords(db, syncedLocalChanges, allowOnlyAcceptedIds, rejectedIds || {}, 
+        allAcceptedIds || {}),
     ])
   }, 'sync-markLocalChangesAsSynced')
 }

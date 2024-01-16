@@ -53,11 +53,14 @@ export type SyncPullResult =
   | $Exact<{ syncJson: string }>
   | $Exact<{ syncJsonId: number }>
 
-export type SyncRejectedIds = { [TableName<any>]: RecordId[] }
+export type SyncIds = { [TableName<any>]: RecordId[] }
 
 export type SyncPushArgs = $Exact<{ changes: SyncDatabaseChangeSet, lastPulledAt: Timestamp }>
 
-export type SyncPushResult = $Exact<{ experimentalRejectedIds?: SyncRejectedIds }>
+export type SyncPushResult = $Exact<{
+  experimentalRejectedIds?: SyncIds,
+  experimentalAcceptedIds?: SyncIds,
+}>
 
 type SyncConflict = $Exact<{ local: DirtyRaw, remote: DirtyRaw, resolved: DirtyRaw }>
 export type SyncLog = {
@@ -67,7 +70,7 @@ export type SyncLog = {
   migration?: ?MigrationSyncChanges,
   newLastPulledAt?: number,
   resolvedConflicts?: SyncConflict[],
-  rejectedIds?: SyncRejectedIds,
+  rejectedIds?: SyncIds,
   finishedAt?: Date,
   remoteChangeCount?: number,
   localChangeCount?: number,

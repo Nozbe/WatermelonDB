@@ -4,7 +4,7 @@ import { values } from '../../utils/fp'
 import areRecordsEqual from '../../utils/fp/areRecordsEqual'
 import { invariant } from '../../utils/common'
 
-import type { Model, Collection, Database } from '../..'
+import type { Model, Collection, Database, TableName, SyncIds, RecordId } from '../..'
 import { type RawRecord, type DirtyRaw, sanitizedRaw } from '../../RawRecord'
 import type { SyncLog, SyncDatabaseChangeSet, SyncConflictResolver } from '../index'
 
@@ -148,3 +148,38 @@ export const changeSetCount: (SyncDatabaseChangeSet) => number = (changeset) =>
       ({ created, updated, deleted }) => created.length + updated.length + deleted.length,
     ),
   )
+
+const extractChangeSetIds: (SyncDatabaseChangeSet) => { [TableName<any>]: RecordId[] } = (changeset) =>
+  Object.keys(changeset).reduce((acc, key) => {
+    const { created, updated, deleted } = changeset[key]
+    acc[key] = [
+      ...created.map(it => it.id),
+      ...updated.map(it => it.id),
+      ...deleted,
+    ]
+    return acc
+  }, {})
+
+// Returns all rejected ids and is used when accepted ids are used 
+export const findRejectedIds:
+  (SyncIds, SyncIds, SyncDatabaseChangeSet) => SyncIds =
+    (experimentalRejectedIds, experimentalAcceptedIds, changeset) => {
+      const localIds = extractChangeSetIds(changeset)
+
+      const acceptedIdsSets = Object.keys(changeset).reduce((acc, key) => {
+        acc[key] = new Set(experimentalAcceptedIds[key])
+        return acc
+      }, {})
+
+      return Object.keys(changeset).reduce((acc, key) => {
+        const rejectedIds = [
+          ...(experimentalRejectedIds ? experimentalRejectedIds[key] || [] : []),
+          ...(localIds[key] || []),
+        ].filter(it => !acceptedIdsSets[key].has(it))
+        
+        if (rejectedIds.length > 0) {
+          acc[key] = rejectedIds
+        }
+        return acc
+      }, {})
+    }
