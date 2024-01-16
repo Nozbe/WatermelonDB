@@ -8,6 +8,7 @@ export default function synchronize({
   sendCreatedAsUpdated,
   migrationsEnabledAtVersion,
   log,
+  shouldUpdateRecord,
   conflictResolver,
   _unsafeBatchPerCollection,
   unsafeTurbo,

@@ -506,4 +506,86 @@ describe('applyRemoteChanges', () => {
     //   Record ID mock_tasks#tSynced was sent over the bridge, but it's not cached
     await database.get('mock_tasks').find('tSynced')
   })
+  describe('shouldUpdateRecord', () => {
+    it('can ignore record', async () => {
+      const { database, tasks } = makeDatabase()
+
+      await makeLocalChanges(database)
+      await testApplyRemoteChanges(database, {
+        mock_tasks: {
+          updated: [
+            // update / updated - will be ignored when any local change
+            { id: 'tUpdated', name: 'remote', description: 'remote' },
+          ],
+        },
+      }, {
+        shouldUpdateRecord: (_table, local, _remote) => {
+          return local._status !== 'updated'
+        },
+      })
+
+      await expectSyncedAndMatches(tasks, 'tUpdated', {
+        _status: 'updated',
+        _changed: 'name,position',
+        name: 'local', // local change preserved
+        position: 100,
+        description: 'orig', // orig should be preserved
+        project_id: 'orig', // unchanged
+      })
+    })
+    it('can still update', async () => {
+      const { database, tasks } = makeDatabase()
+
+      await makeLocalChanges(database)
+      await testApplyRemoteChanges(database, {
+        mock_tasks: {
+          updated: [
+            // update / updated - should not be ignored when local wasn't changed
+            { id: 'tSynced', name: 'remote', description: 'remote' },
+          ],
+        },
+      }, {
+        shouldUpdateRecord: (_table, local, _remote) => {
+          return local._status !== 'updated'
+        },
+      })
+
+      await expectSyncedAndMatches(tasks, 'tSynced', {
+        _status: 'synced',
+        name: 'remote', // remote change
+        description: 'remote', // remote change
+      })
+    })
+  })
+  describe('conflictResolver', () => {
+    it('can account for conflictResolver', async () => {
+      const { database, tasks } = makeDatabase()
+
+      await makeLocalChanges(database)
+      await testApplyRemoteChanges(database, {
+        mock_tasks: {
+          updated: [
+            // update / updated - resolve and update (description is concat of local/remote on change)
+            { id: 'tUpdated', name: 'remote', description: 'remote' },
+          ],
+        },
+      }, {
+        conflictResolver: (_table, local, remote, resolved) => {
+          if (local.name !== remote.name) {
+            resolved.name = `${remote.name} ${local.name}`
+          }
+          return resolved
+        },
+      })
+
+      await expectSyncedAndMatches(tasks, 'tUpdated', {
+        _status: 'updated',
+        _changed: 'name,position',
+        name: 'remote local', // concat of remote and local change
+        position: 100,
+        description: 'remote', // remote change
+        project_id: 'orig', // unchanged
+      })
+    })
+  })
 })
