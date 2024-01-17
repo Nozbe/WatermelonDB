@@ -14,7 +14,7 @@ import {
   emptyPull,
 } from './helpers'
 
-import { synchronize, hasUnsyncedChanges } from '../../index'
+import { synchronize, optimisticSyncPush, hasUnsyncedChanges } from '../../index'
 import { fetchLocalChanges, getLastPulledAt } from '../index'
 
 const observeDatabase = (database) => {
@@ -148,6 +148,20 @@ describe('synchronize', () => {
     await synchronize({ database, pullChanges, pushChanges, log })
 
     expect(pushChanges).toHaveBeenCalledWith({ changes: localChanges.changes, lastPulledAt: 1500 })
+    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+    expect(log.localChangeCount).toBe(10)
+  })
+  it('can do push-only sync', async () => {
+    const { database } = makeDatabase()
+
+    await makeLocalChanges(database)
+    const localChanges = await fetchLocalChanges(database)
+
+    const pushChanges = jest.fn()
+    const log = {}
+    await optimisticSyncPush({ database, pushChanges, log })
+
+    expect(pushChanges).toHaveBeenCalledWith({ changes: localChanges.changes, lastPulledAt: null })
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
     expect(log.localChangeCount).toBe(10)
   })
