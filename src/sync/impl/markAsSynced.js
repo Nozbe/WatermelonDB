@@ -4,8 +4,8 @@ import areRecordsEqual from '../../utils/fp/areRecordsEqual'
 import { logError } from '../../utils/common'
 import type { Database, Model, TableName } from '../..'
 
-import { prepareMarkAsSynced } from './helpers'
-import type { SyncLocalChanges, SyncIds } from '../index'
+import { prepareMarkAsSynced, validateRemoteRaw } from './helpers'
+import type { SyncLocalChanges, SyncIds, SyncConflictResolver, SyncPushResultSet } from '../index'
 
 const recordsToMarkAsSynced = (
   { changes, affectedRecords }: SyncLocalChanges,
@@ -61,13 +61,27 @@ export default function markLocalChangesAsSynced(
   allowOnlyAcceptedIds: boolean,
   rejectedIds?: ?SyncIds,
   allAcceptedIds?: ?SyncIds,
+  pushConflictResolver?: ?SyncConflictResolver,
+  remoteDirtyRaws?: ?SyncPushResultSet,
 ): Promise<void> {
   return db.write(async () => {
     // update and destroy records concurrently
     await Promise.all([
       db.batch(
         recordsToMarkAsSynced(syncedLocalChanges, allowOnlyAcceptedIds, rejectedIds || {}, 
-          allAcceptedIds || {}).map(prepareMarkAsSynced),
+          allAcceptedIds || {}).map(it => {
+            // if pushConflictResolver is not set, lookup by remote raws isn't necessary
+            if (!pushConflictResolver || !remoteDirtyRaws) {
+              return prepareMarkAsSynced(it, null, null)
+            }
+            const collectionRemoteDirtyRaws = remoteDirtyRaws[it.collection.modelClass.table]
+            if (!collectionRemoteDirtyRaws) {
+              return prepareMarkAsSynced(it, null, null)
+            }
+            const remoteDirtyRaw = collectionRemoteDirtyRaws.find(dirtyRaw => dirtyRaw.id === it.id)
+            remoteDirtyRaw && validateRemoteRaw(remoteDirtyRaw)
+            return prepareMarkAsSynced(it, pushConflictResolver, remoteDirtyRaw)
+          }),
       ),
       ...destroyDeletedRecords(db, syncedLocalChanges, allowOnlyAcceptedIds, rejectedIds || {}, 
         allAcceptedIds || {}),

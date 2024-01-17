@@ -25,6 +25,7 @@ export default async function synchronize({
   log,
   conflictResolver,
   pushShouldConfirmOnlyAccepted,
+  pushConflictResolver,
   _unsafeBatchPerCollection,
   unsafeTurbo,
 }: SyncArgs): Promise<void> {
@@ -142,7 +143,8 @@ export default async function synchronize({
 
       ensureSameDatabase(database, resetCount)
       await markLocalChangesAsSynced(database, localChanges, pushShouldConfirmOnlyAccepted || false,
-        pushResult.experimentalRejectedIds, pushResult.experimentalAcceptedIds)
+        pushResult.experimentalRejectedIds, pushResult.experimentalAcceptedIds, pushConflictResolver,
+        pushResult.pushResultSet)
       log && (log.phase = 'marked local changes as synced')
     }
   } else {

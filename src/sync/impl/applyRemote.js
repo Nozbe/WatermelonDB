@@ -11,7 +11,6 @@ import type {
   Collection,
   Model,
   TableName,
-  DirtyRaw,
   Query,
   RawRecord,
 } from '../..'
@@ -25,7 +24,7 @@ import type {
   SyncConflictResolver,
   SyncPullStrategy,
 } from '../index'
-import { prepareCreateFromRaw, prepareUpdateFromRaw, recordFromRaw } from './helpers'
+import { prepareCreateFromRaw, prepareUpdateFromRaw, recordFromRaw, validateRemoteRaw } from './helpers'
 
 type ApplyRemoteChangesContext = $Exact<{
   db: Database,
@@ -246,15 +245,6 @@ const getAllRecordsToApply = (
         recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes, context),
       ),
     )(remoteChanges),
-  )
-}
-
-function validateRemoteRaw(raw: DirtyRaw): void {
-  // TODO: I think other code is actually resilient enough to handle illegal _status and _changed
-  // would be best to change that part to a warning - but tests are needed
-  invariant(
-    raw && typeof raw === 'object' && 'id' in raw && !('_status' in raw || '_changed' in raw),
-    `[Sync] Invalid raw record supplied to Sync. Records must be objects, must have an 'id' field, and must NOT have a '_status' or '_changed' fields`,
   )
 }
 

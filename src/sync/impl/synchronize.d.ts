@@ -10,6 +10,7 @@ export default function synchronize({
   log,
   conflictResolver,
   pushShouldConfirmOnlyAccepted,
+  pushConflictResolver,
   _unsafeBatchPerCollection,
   unsafeTurbo,
 }: SyncArgs): Promise<void>

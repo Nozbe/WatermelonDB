@@ -226,4 +226,45 @@ describe('markLocalChangesAsSynced', () => {
   it.skip('only returns changed fields', async () => {
     // TODO: Possible future improvement?
   })
+  describe('pushConflictResolver', () => {
+    it('marks local changes as synced', async () => {
+      const { database, tasks } = makeDatabase()
+  
+      await makeLocalChanges(database)
+  
+      await markLocalChangesAsSynced(database, await fetchLocalChanges(database), false, null, null,
+        (_table, local, remote, resolved) => {
+          if (local.id !== 'tCreated' || (remote && remote.changeMe !== true)) {
+            return resolved
+          }
+          resolved.name = remote.name
+          resolved._status = 'updated'
+          return resolved
+        },
+        {
+          mock_tasks: [
+            {
+              id: 'tCreated',
+              name: 'I shall prevail',
+              changeMe: true,
+            },
+          ],
+        })
+
+        await expectSyncedAndMatches(tasks, 'tCreated', {
+          _status: 'updated',
+          name: 'I shall prevail', // concat of remote and local change
+        })
+
+        // should be untouched
+        await expectSyncedAndMatches(tasks, 'tUpdated', {
+          _status: 'synced',
+          name: 'local',
+          position: 100,
+          description: 'orig',
+          project_id: 'orig',
+        })
+  
+    })
+  })
 })
