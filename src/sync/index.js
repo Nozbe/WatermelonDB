@@ -55,6 +55,8 @@ export type SyncPullResult =
 
 export type SyncIds = { [TableName<any>]: RecordId[] }
 
+export type SyncRejectedIds = SyncIds
+
 export type SyncPushArgs = $Exact<{ changes: SyncDatabaseChangeSet, lastPulledAt: Timestamp }>
 
 export type SyncPushResult = $Exact<{
