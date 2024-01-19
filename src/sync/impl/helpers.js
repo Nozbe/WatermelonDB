@@ -10,7 +10,6 @@ import type {
   SyncIds,
   SyncLog,
   SyncDatabaseChangeSet,
-  SyncShouldUpdateRecord,
   SyncConflictResolver,
 } from '../index'
 
