@@ -53,11 +53,16 @@ export type SyncPullResult =
   | $Exact<{ syncJson: string }>
   | $Exact<{ syncJsonId: number }>
 
-export type SyncRejectedIds = { [TableName<any>]: RecordId[] }
+export type SyncIds = { [TableName<any>]: RecordId[] }
+
+export type SyncRejectedIds = SyncIds
 
 export type SyncPushArgs = $Exact<{ changes: SyncDatabaseChangeSet, lastPulledAt: Timestamp }>
 
-export type SyncPushResult = $Exact<{ experimentalRejectedIds?: SyncRejectedIds }>
+export type SyncPushResult = $Exact<{
+  experimentalRejectedIds?: SyncIds,
+  experimentalAcceptedIds?: SyncIds,
+}>
 
 type SyncConflict = $Exact<{ local: DirtyRaw, remote: DirtyRaw, resolved: DirtyRaw }>
 export type SyncLog = {
@@ -67,7 +72,7 @@ export type SyncLog = {
   migration?: ?MigrationSyncChanges,
   newLastPulledAt?: number,
   resolvedConflicts?: SyncConflict[],
-  rejectedIds?: SyncRejectedIds,
+  rejectedIds?: SyncIds,
   finishedAt?: Date,
   remoteChangeCount?: number,
   localChangeCount?: number,
@@ -97,6 +102,11 @@ export type SyncArgs = $Exact<{
   // If you don't want to change default behavior for a given record, return `resolved` as is
   // Note that it's safe to mutate `resolved` object, so you can skip copying it for performance.
   conflictResolver?: SyncConflictResolver,
+  // experimental customization that will cause to only set records as synced if we return id.
+  // This will in turn cause all records to be re-pushed if id wasn't returned. This allows to
+  // "whitelisting" ids instead of "blacklisting" (rejectedIds) so that there is less chance that
+  // unpredicted error will cause data loss (when failed data push isn't re-pushed)
+  pushShouldConfirmOnlyAccepted?: boolean;
   // commits changes in multiple batches, and not one - temporary workaround for memory issue
   _unsafeBatchPerCollection?: boolean,
   // Advanced optimization - pullChanges must return syncJson or syncJsonId to be processed by native code.

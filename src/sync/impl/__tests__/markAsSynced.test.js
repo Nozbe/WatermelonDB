@@ -131,7 +131,7 @@ describe('markLocalChangesAsSynced', () => {
     })
 
     // test that second push will mark all as synced
-    await markLocalChangesAsSynced(database, localChanges2)
+    await markLocalChangesAsSynced(database, localChanges2, false)
     expect(destroyDeletedRecordsSpy).toHaveBeenCalledTimes(2)
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
 
@@ -146,9 +146,33 @@ describe('markLocalChangesAsSynced', () => {
     const localChanges = await fetchLocalChanges(database)
 
     // mark as synced
-    await markLocalChangesAsSynced(database, localChanges, {
+    await markLocalChangesAsSynced(database, localChanges, false, {
       mock_projects: ['pCreated1', 'pUpdated'],
       mock_comments: ['cDeleted'],
+    })
+
+    // verify
+    const localChanges2 = await fetchLocalChanges(database)
+    expect(localChanges2.changes).toEqual(
+      makeChangeSet({
+        mock_projects: { created: [pCreated1._raw], updated: [pUpdated._raw] },
+        mock_comments: { deleted: ['cDeleted'] },
+      }),
+    )
+    expect(await allDeletedRecords([comments])).toEqual(['cDeleted'])
+  })
+  it(`marks only acceptedIds as synced`, async () => {
+    const { database, comments } = makeDatabase()
+
+    const { pCreated1, pUpdated } = await makeLocalChanges(database)
+    const localChanges = await fetchLocalChanges(database)
+
+    // mark as synced
+    await markLocalChangesAsSynced(database, localChanges, true, {}, {
+      // probably better solution exists (we essentially list all but expected in verify)
+      mock_projects: ['pCreated2', 'pDeleted'],
+      mock_comments: ['cCreated', 'cUpdated'],
+      mock_tasks: ['tCreated', 'tUpdated', 'tDeleted'],
     })
 
     // verify

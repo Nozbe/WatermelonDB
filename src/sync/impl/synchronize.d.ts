@@ -9,6 +9,7 @@ export default function synchronize({
   migrationsEnabledAtVersion,
   log,
   conflictResolver,
+  pushShouldConfirmOnlyAccepted,
   _unsafeBatchPerCollection,
   unsafeTurbo,
 }: SyncArgs): Promise<void>
