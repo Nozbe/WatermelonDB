@@ -11,6 +11,8 @@ export type DirtyRaw = { [key: string]: any }
 type _RawRecord = {
   id: RecordId
   _status: SyncStatus
+  // _changed is used by default pull conflict resolution and determines columns for which local
+  // changes will override remote changes
   _changed: string
 }
 

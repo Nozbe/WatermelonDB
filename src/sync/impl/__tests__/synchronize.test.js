@@ -571,4 +571,38 @@ describe('synchronize', () => {
   it.skip(`only emits one collection batch change`, async () => {
     // TODO: unskip when batch change emissions are implemented
   })
+  it(`allows push conflict resolution to be customized`, async () => {
+    const { database, tasks } = makeDatabase()
+    const task = tasks.prepareCreateFromDirtyRaw({
+      id: 't1',
+      name: 'Task name',
+      position: 1,
+      is_completed: false,
+      project_id: 'p1',
+    })
+    await database.write(() => database.batch(task))
+    
+    const pushConflictResolver = jest.fn((_table, local, remote, resolved) => {
+      return resolved
+    })
+
+    await synchronize({
+      database,
+      pullChanges: () => ({
+        timestamp: 1500,
+      }),
+      pushChanges: async () => {
+        return {
+          pushResultSet: {
+            mock_tasks: [
+              {id: 't1'},
+            ],
+          },
+        }
+      },
+      pushConflictResolver,
+    })
+
+    expect(pushConflictResolver).toHaveBeenCalledTimes(1)
+  })
 })
