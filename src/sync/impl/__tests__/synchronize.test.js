@@ -14,7 +14,7 @@ import {
   emptyPull,
 } from './helpers'
 
-import { synchronize, hasUnsyncedChanges } from '../../index'
+import { synchronize, optimisticSyncPush, hasUnsyncedChanges } from '../../index'
 import { fetchLocalChanges, getLastPulledAt } from '../index'
 
 const observeDatabase = (database) => {
@@ -148,6 +148,20 @@ describe('synchronize', () => {
     await synchronize({ database, pullChanges, pushChanges, log })
 
     expect(pushChanges).toHaveBeenCalledWith({ changes: localChanges.changes, lastPulledAt: 1500 })
+    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+    expect(log.localChangeCount).toBe(10)
+  })
+  it('can do push-only sync', async () => {
+    const { database } = makeDatabase()
+
+    await makeLocalChanges(database)
+    const localChanges = await fetchLocalChanges(database)
+
+    const pushChanges = jest.fn()
+    const log = {}
+    await optimisticSyncPush({ database, pushChanges, log })
+
+    expect(pushChanges).toHaveBeenCalledWith({ changes: localChanges.changes, lastPulledAt: null })
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
     expect(log.localChangeCount).toBe(10)
   })
@@ -570,5 +584,39 @@ describe('synchronize', () => {
   })
   it.skip(`only emits one collection batch change`, async () => {
     // TODO: unskip when batch change emissions are implemented
+  })
+  it(`allows push conflict resolution to be customized`, async () => {
+    const { database, tasks } = makeDatabase()
+    const task = tasks.prepareCreateFromDirtyRaw({
+      id: 't1',
+      name: 'Task name',
+      position: 1,
+      is_completed: false,
+      project_id: 'p1',
+    })
+    await database.write(() => database.batch(task))
+    
+    const pushConflictResolver = jest.fn((_table, local, remote, resolved) => {
+      return resolved
+    })
+
+    await synchronize({
+      database,
+      pullChanges: () => ({
+        timestamp: 1500,
+      }),
+      pushChanges: async () => {
+        return {
+          pushResultSet: {
+            mock_tasks: [
+              {id: 't1'},
+            ],
+          },
+        }
+      },
+      pushConflictResolver,
+    })
+
+    expect(pushConflictResolver).toHaveBeenCalledTimes(1)
   })
 })

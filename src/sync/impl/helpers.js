@@ -4,9 +4,14 @@ import { values } from '../../utils/fp'
 import areRecordsEqual from '../../utils/fp/areRecordsEqual'
 import { invariant } from '../../utils/common'
 
-import type { Model, Collection, Database } from '../..'
+import type { Model, Collection, Database, TableName, RecordId } from '../..'
 import { type RawRecord, type DirtyRaw, sanitizedRaw } from '../../RawRecord'
-import type { SyncLog, SyncDatabaseChangeSet, SyncConflictResolver } from '../index'
+import type {
+  SyncIds,
+  SyncLog,
+  SyncDatabaseChangeSet,
+  SyncConflictResolver,
+} from '../index'
 
 // Returns raw record with naive solution to a conflict based on local `_changed` field
 // This is a per-column resolution algorithm. All columns that were changed locally win
@@ -35,6 +40,15 @@ export function resolveConflict(local: RawRecord, remote: DirtyRaw): DirtyRaw {
   })
 
   return resolved
+}
+
+export function validateRemoteRaw(raw: DirtyRaw): void {
+  // TODO: I think other code is actually resilient enough to handle illegal _status and _changed
+  // would be best to change that part to a warning - but tests are needed
+  invariant(
+    raw && typeof raw === 'object' && 'id' in raw && !('_status' in raw || '_changed' in raw),
+    `[Sync] Invalid raw record supplied to Sync. Records must be objects, must have an 'id' field, and must NOT have a '_status' or '_changed' fields`,
+  )
 }
 
 function replaceRaw(record: Model, dirtyRaw: DirtyRaw): void {
@@ -120,9 +134,16 @@ export function prepareUpdateFromRaw<T: Model>(
   })
 }
 
-export function prepareMarkAsSynced<T: Model>(record: T): T {
+export function prepareMarkAsSynced<T: Model>(
+  record: T,
+  pushConflictResolver?: ?SyncConflictResolver,
+  remoteDirtyRaw?: ?DirtyRaw,
+): T {
   // $FlowFixMe
-  const newRaw = Object.assign({}, record._raw, { _status: 'synced', _changed: '' }) // faster than object spread
+  let newRaw = Object.assign({}, record._raw, { _status: 'synced', _changed: '' }) // faster than object spread
+  if (pushConflictResolver) {
+    newRaw = pushConflictResolver(record.collection.table, record._raw, remoteDirtyRaw, newRaw)
+  }
   // $FlowFixMe
   return record.prepareUpdate(() => {
     replaceRaw(record, newRaw)
@@ -148,3 +169,46 @@ export const changeSetCount: (SyncDatabaseChangeSet) => number = (changeset) =>
       ({ created, updated, deleted }) => created.length + updated.length + deleted.length,
     ),
   )
+
+const extractChangeSetIds: (SyncDatabaseChangeSet) => { [TableName<any>]: RecordId[] } = (changeset) =>
+  Object.keys(changeset).reduce((acc: { [TableName<any>]: RecordId[] }, key: string) => {
+    // $FlowFixMe
+    const { created, updated, deleted } = changeset[key]
+    // $FlowFixMe
+    acc[key] = [
+      ...created.map(it => it.id),
+      ...updated.map(it => it.id),
+      ...deleted,
+    ]
+    return acc
+  }, {})
+
+// Returns all rejected ids and is used when accepted ids are used 
+export const findRejectedIds:
+  (?SyncIds, ?SyncIds, SyncDatabaseChangeSet) => SyncIds =
+    (experimentalRejectedIds, experimentalAcceptedIds, changeset) => {
+      const localIds = extractChangeSetIds(changeset)
+
+      const acceptedIdsSets = Object.keys(changeset).reduce(
+        (acc: { [TableName<any>]: Set<RecordId> }, key: string) => {
+          // $FlowFixMe
+          acc[key] = new Set(experimentalAcceptedIds[key])
+          return acc
+      }, {})
+
+      return Object.keys(changeset).reduce((acc: { [TableName<any>]: RecordId[] }, key: string) => {
+        const rejectedIds = [
+          // $FlowFixMe
+          ...(experimentalRejectedIds ? experimentalRejectedIds[key] || [] : []),
+          // $FlowFixMe
+          ...(localIds[key] || []),
+          // $FlowFixMe
+        ].filter(it => !acceptedIdsSets[key].has(it))
+        
+        if (rejectedIds.length > 0) {
+          // $FlowFixMe
+          acc[key] = rejectedIds
+        }
+        return acc
+      }, {})
+    }

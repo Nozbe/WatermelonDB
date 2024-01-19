@@ -1,11 +1,19 @@
 import type { Model, Collection, Database } from '../..'
 import type { RawRecord, DirtyRaw } from '../../RawRecord'
-import type { SyncLog, SyncDatabaseChangeSet, SyncConflictResolver } from '../index'
+import type {
+  SyncLog,
+  SyncDatabaseChangeSet,
+  SyncShouldUpdateRecord,
+  SyncConflictResolver,
+  SyncPushResultSet,
+} from '../index'
 
 // Returns raw record with naive solution to a conflict based on local `_changed` field
 // This is a per-column resolution algorithm. All columns that were changed locally win
 // and will be applied on top of the remote version.
 export function resolveConflict(local: RawRecord, remote: DirtyRaw): DirtyRaw
+
+export function validateRemoteRaw(raw: DirtyRaw): void
 
 export function prepareCreateFromRaw<T extends Model = Model>(
   collection: Collection<T>,
@@ -19,7 +27,11 @@ export function prepareUpdateFromRaw<T extends Model = Model>(
   conflictResolver?: SyncConflictResolver,
 ): T
 
-export function prepareMarkAsSynced<T extends Model = Model>(record: T): T
+export function prepareMarkAsSynced<T extends Model = Model>(
+  record: T,
+  pushConflictResolver?: SyncConflictResolver,
+  remoteDirtyRaw?: DirtyRaw,
+): T
 
 export function ensureSameDatabase(database: Database, initialResetCount: number): void
 

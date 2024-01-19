@@ -11,8 +11,53 @@ import {
   setLastPulledSchemaVersion,
   getMigrationInfo,
 } from './index'
-import { ensureSameDatabase, isChangeSetEmpty, changeSetCount } from './helpers'
-import type { SyncArgs, Timestamp, SyncPullStrategy } from '../index'
+import { ensureSameDatabase, isChangeSetEmpty, changeSetCount, findRejectedIds } from './helpers'
+import type {
+  SyncArgs,
+  OptimisticSyncPushArgs,
+  SyncPushArgs,
+  Timestamp,
+  SyncPullStrategy,
+} from '../index'
+
+async function syncPush({
+  database,
+  pushChanges,
+  log,
+  pushShouldConfirmOnlyAccepted,
+  pushConflictResolver,
+  resetCount,
+  lastPulledAt,
+}: SyncPushArgs): Promise<void> {
+  if (pushChanges) {
+    log && (log.phase = 'ready to fetch local changes')
+
+    const localChanges = await fetchLocalChanges(database)
+    log && (log.localChangeCount = changeSetCount(localChanges.changes))
+    log && (log.phase = 'fetched local changes')
+
+    ensureSameDatabase(database, resetCount)
+    if (!isChangeSetEmpty(localChanges.changes)) {
+      log && (log.phase = 'ready to push')
+      const pushResult =
+        (await pushChanges({ changes: localChanges.changes, lastPulledAt })) || {}
+      log && (log.phase = 'pushed')
+      log && (log.rejectedIds = pushResult.experimentalRejectedIds)
+      if (log && pushShouldConfirmOnlyAccepted) {
+        log.rejectedIds = findRejectedIds(pushResult.experimentalRejectedIds, 
+          pushResult.experimentalAcceptedIds, localChanges.changes)
+      }
+
+      ensureSameDatabase(database, resetCount)
+      await markLocalChangesAsSynced(database, localChanges, pushShouldConfirmOnlyAccepted || false,
+        pushResult.experimentalRejectedIds, pushResult.experimentalAcceptedIds, pushConflictResolver,
+        pushResult.pushResultSet)
+      log && (log.phase = 'marked local changes as synced')
+    }
+  } else {
+    log && (log.phase = 'pushChanges not defined')
+  }
+}
 
 export default async function synchronize({
   database,
@@ -24,6 +69,8 @@ export default async function synchronize({
   migrationsEnabledAtVersion,
   log,
   conflictResolver,
+  pushShouldConfirmOnlyAccepted,
+  pushConflictResolver,
   _unsafeBatchPerCollection,
   unsafeTurbo,
 }: SyncArgs): Promise<void> {
@@ -120,29 +167,39 @@ export default async function synchronize({
   }, 'sync-synchronize-apply')
 
   // push phase
-  if (pushChanges) {
-    log && (log.phase = 'ready to fetch local changes')
-
-    const localChanges = await fetchLocalChanges(database)
-    log && (log.localChangeCount = changeSetCount(localChanges.changes))
-    log && (log.phase = 'fetched local changes')
-
-    ensureSameDatabase(database, resetCount)
-    if (!isChangeSetEmpty(localChanges.changes)) {
-      log && (log.phase = 'ready to push')
-      const pushResult =
-        (await pushChanges({ changes: localChanges.changes, lastPulledAt: newLastPulledAt })) || {}
-      log && (log.phase = 'pushed')
-      log && (log.rejectedIds = pushResult.experimentalRejectedIds)
-
-      ensureSameDatabase(database, resetCount)
-      await markLocalChangesAsSynced(database, localChanges, pushResult.experimentalRejectedIds)
-      log && (log.phase = 'marked local changes as synced')
-    }
-  } else {
-    log && (log.phase = 'pushChanges not defined')
-  }
+  await syncPush({
+    database,
+    pushChanges,
+    log,
+    pushShouldConfirmOnlyAccepted,
+    pushConflictResolver,
+    resetCount,
+    lastPulledAt: newLastPulledAt,
+  })
 
   log && (log.finishedAt = new Date())
   log && (log.phase = 'done')
+}
+
+export async function optimisticSyncPush({
+  database,
+  pushChanges,
+  log,
+  pushShouldConfirmOnlyAccepted,
+  pushConflictResolver,
+}: OptimisticSyncPushArgs): Promise<void> {
+  const resetCount = database._resetCount
+
+  const lastPulledAt = await getLastPulledAt(database)
+  log && (log.lastPulledAt = lastPulledAt)
+
+  await syncPush({
+    database,
+    pushChanges,
+    log,
+    pushShouldConfirmOnlyAccepted,
+    pushConflictResolver,
+    resetCount,
+    lastPulledAt,
+  })
 }

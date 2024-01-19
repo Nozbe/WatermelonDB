@@ -62,4 +62,71 @@ describe('synchronize - partial push rejections', () => {
       }),
     )
   })
+  it(`can partially accept a push`, async () => {
+    const { database } = makeDatabase()
+
+    const { tCreated, tUpdated } = await makeLocalChanges(database)
+
+    const acceptedIds = Object.freeze({
+      // probably better solution exists (we essentially list all but expected in expect below)
+      mock_projects: ['pCreated1', 'pCreated2', 'pDeleted', 'pUpdated'],
+      mock_comments: ['cCreated', 'cUpdated'],
+      mock_tasks: ['tDeleted'],
+    })
+    const rejectedIds = Object.freeze({
+      mock_tasks: ['tCreated', 'tUpdated'],
+      mock_comments: ['cDeleted'],
+    })
+    const log = {}
+    await synchronize({
+      database,
+      pullChanges: jest.fn(emptyPull()),
+      pushChanges: jest.fn(() => ({ experimentalAcceptedIds: acceptedIds })),
+      pushShouldConfirmOnlyAccepted: true,
+      log,
+    })
+    expect((await fetchLocalChanges(database)).changes).toEqual(
+      makeChangeSet({
+        mock_tasks: { created: [tCreated._raw], updated: [tUpdated._raw] },
+        mock_comments: { deleted: ['cDeleted'] },
+      }),
+    )
+    expect(log.rejectedIds).toStrictEqual(rejectedIds)
+  })
+  it(`can partially accept a push and make changes during push`, async () => {
+    const { database, comments } = makeDatabase()
+
+    const { pCreated1, tUpdated } = await makeLocalChanges(database)
+    const pCreated1Raw = { ...pCreated1._raw }
+    let newComment
+    await synchronize({
+      database,
+      pullChanges: jest.fn(emptyPull()),
+      pushChanges: jest.fn(async () => {
+        await database.write(async () => {
+          await pCreated1.update((p) => {
+            p.name = 'updated!'
+          })
+          newComment = await comments.create((c) => {
+            c.body = 'bazinga'
+          })
+        })
+        return {
+          experimentalAcceptedIds: {
+            mock_projects: ['pCreated1', 'pCreated2', 'pDeleted', 'pUpdated'],
+            mock_comments: ['cCreated', 'cUpdated'],
+            mock_tasks: ['tCreated', 'tDeleted'],
+          },
+        }
+      }),
+      pushShouldConfirmOnlyAccepted: true,
+    })
+    expect((await fetchLocalChanges(database)).changes).toEqual(
+      makeChangeSet({
+        mock_projects: { created: [{ ...pCreated1Raw, _changed: 'name', name: 'updated!' }] },
+        mock_tasks: { updated: [tUpdated._raw] },
+        mock_comments: { created: [newComment._raw], deleted: ['cDeleted'] },
+      }),
+    )
+  })
 })
