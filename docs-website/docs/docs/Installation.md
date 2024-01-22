@@ -230,6 +230,48 @@ backtrace:
 
 </details>
 
+## Using Encrypted Database (With SQLCipher)
+
+Note that this is only supported on JSI, and not on the legacy bridge.
+We recommend you to enable JSI for both platforms, but if you choose to enable only for one, note that the other one will not support encrypted databases.
+
+Steps:
+
+1. Go to your `Podfile` and add the following line:
+
+```ruby
+$isEncryptedDB = true
+```
+
+At the top of the file.
+
+2. Go to your `build.gradle` and add the following line:
+
+```gradle
+ext {
+    isEncryptedDB = true
+}
+```
+
+3. Run `pod install`
+4. Go to Android Studio and sync gradle files
+
+Great now you installed SQLCipher, but you still need to set a password for your database.
+
+in your `index.native.js` file, add the following line:
+
+```js
+const adapter = new SQLiteAdapter({
+  ...,
+  jsi: true, // will only work when JSI is enabled.
+  passphrase: ... // your password
+});
+```
+
+Thats All!
+
+Note that you CAN NOT change the password of an existing database, you will need to create a new one, and that you can not encrypt an existing DB as well.
+
 ## Web setup
 
 This guide assumes you use Webpack as your bundler.
@@ -246,6 +288,8 @@ This guide assumes you use Webpack as your bundler.
    npm install -D @babel/plugin-proposal-class-properties
    npm install -D @babel/plugin-transform-runtime
    ```
+
+````
 
 2. Add ES7 support to your `.babelrc` file:
    ```json
@@ -315,3 +359,4 @@ You only need this if you want to use WatermelonDB in NodeJS with SQLite (e.g. f
 ## Next steps
 
 ➡️ After Watermelon is installed, [**set it up**](./Setup.md)
+````

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <jsi/jsi.h>
-#include <unordered_map>
-#include <unordered_set>
-#include <mutex>
-#include <sqlite3.h>
+#import <jsi/jsi.h>
+#import <mutex>
+#import <sqlite3.h>
+#import <unordered_map>
+#import <unordered_set>
 
 // FIXME: Make these paths consistent across platforms
 #if __ANDROID__
@@ -16,17 +16,17 @@
 #include <simdjson/simdjson.h>
 #endif
 
-#include "Sqlite.h"
-#include "DatabasePlatform.h"
+#import "DatabasePlatform.h"
+#import "Sqlite.h"
 
 using namespace facebook;
 
 namespace watermelondb {
 
 class Database : public jsi::HostObject {
-public:
+    public:
     static void install(jsi::Runtime *runtime);
-    Database(jsi::Runtime *runtime, std::string path, bool usesExclusiveLocking);
+    Database(jsi::Runtime *runtime, std::string path, std::string password, bool usesExclusiveLocking);
     ~Database();
     void destroy();
 
@@ -43,7 +43,7 @@ public:
     jsi::Value getLocal(jsi::String &key);
     void executeMultiple(std::string sql);
 
-private:
+    private:
     bool initialized_;
     bool isDestroyed_;
     std::mutex mutex_;
@@ -55,7 +55,7 @@ private:
     jsi::Runtime &getRt();
     jsi::JSError dbError(std::string description);
 
-    sqlite3_stmt* prepareQuery(std::string sql);
+    sqlite3_stmt *prepareQuery(std::string sql);
     void bindArgs(sqlite3_stmt *statement, jsi::Array &arguments);
     std::string bindArgsAndReturnId(sqlite3_stmt *statement, simdjson::ondemand::array &args);
     SqliteStatement executeQuery(std::string sql, jsi::Array &arguments);

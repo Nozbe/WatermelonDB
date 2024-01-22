@@ -61,8 +61,8 @@ class SqliteJsiDispatcher implements SqliteDispatcher {
   _db: any
   _unsafeErrorListener: (Error) => void // debug hook for NT use
 
-  constructor(dbName: string, { usesExclusiveLocking }: SqliteDispatcherOptions): void {
-    this._db = global.nativeWatermelonCreateAdapter(dbName, usesExclusiveLocking)
+  constructor(dbName: string, { usesExclusiveLocking, password }: SqliteDispatcherOptions): void {
+    this._db = global.nativeWatermelonCreateAdapter(dbName, password ?? '', usesExclusiveLocking)
     this._unsafeErrorListener = () => {}
   }
 

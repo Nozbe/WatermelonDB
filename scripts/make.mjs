@@ -123,6 +123,7 @@ const copyNonJavaScriptFiles = (buildPath) => {
     'react-native.config.js', // NOTE: this is needed for autolinking
     // 'docs',
     'native/shared',
+    'native/sqlite-cipher-amalgamation',
     'native/ios',
     'native/android',
     'native/android-jsi',
@@ -169,6 +170,7 @@ if (isDevelopment) {
         resolvePath('src'),
         resolvePath('native/ios/WatermelonDB'),
         resolvePath('native/shared'),
+        resolvePath('native/sqlite-cipher-amalgamation'),
         resolvePath('native/android/src/main'),
         resolvePath('native/android-jsi/src/main'),
       ],
