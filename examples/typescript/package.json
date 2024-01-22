@@ -8,6 +8,7 @@
   "devDependencies": {
     "@nozbe/watermelondb": "link:../../",
     "@types/lokijs": "^1.5.3",
+    "tsd-check": "^0.6.0",
     "typescript": "^4.5.0"
   }
 }

@@ -7,11 +7,13 @@
 #import <unordered_set>
 
 // FIXME: Make these paths consistent across platforms
-#ifdef ANDROID
+#if __ANDROID__
 #import <simdjson.h>
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+#include <simdjson.h>
 #else
 // Does Xcode error on this line? You probably didn't include `simdjson` as a dependency in your Podfile.
-#import <simdjson/simdjson.h>
+#include <simdjson/simdjson.h>
 #endif
 
 #import "DatabasePlatform.h"

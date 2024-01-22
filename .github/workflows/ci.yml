@@ -86,3 +86,31 @@ jobs:
           working-directory: ./native/androidTest
           script: ./gradlew connectedAndroidTest
       - run: yarn ktlint
+  windows:
+    runs-on: windows-2022
+    name: Windows tests
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set Node.js version
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+      - uses: actions/cache@v3
+        with:
+          path: 'node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+      - run: yarn --network-timeout 100000
+      # FIXME: concurrently seems broken on windows
+      # - run: yarn ci
+      - run: yarn test
+      - run: yarn eslint
+      - run: yarn flow
+      # FIXME: TS broken on Windows?
+      # - run: yarn test:typescript
+      # Build WatermelonTester and run in background
+      - run: yarn test:windows
+      # Give it some time to bundle
+      - run: sleep 90
+      # Start E2E runner to capture integration test results
+      - run: cd native/windowsE2E && yarn
+      - run: yarn test:windows:ci

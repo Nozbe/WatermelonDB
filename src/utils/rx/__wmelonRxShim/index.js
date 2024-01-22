@@ -24,5 +24,6 @@ export {
   switchMap,
   throttleTime,
   startWith,
+  catchError,
 } from 'rxjs/operators'
 export type { ConnectableObservable } from 'rxjs'

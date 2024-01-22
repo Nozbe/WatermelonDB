@@ -127,6 +127,7 @@ const copyNonJavaScriptFiles = (buildPath) => {
     'native/ios',
     'native/android',
     'native/android-jsi',
+    'native/windows',
   ])
   cleanFolder(`${buildPath}/native/ios/WatermelonDB.xcodeproj/xcuserdata`)
   cleanFolder(`${buildPath}/native/android/build`)
@@ -135,6 +136,11 @@ const copyNonJavaScriptFiles = (buildPath) => {
   cleanFolder(`${buildPath}/native/android-jsi/.externalNativeBuild`)
   cleanFolder(`${buildPath}/native/android-jsi/build`)
   cleanFolder(`${buildPath}/native/android-jsi/bin/build`)
+  cleanFolder(`${buildPath}/native/windows/.vs`)
+  cleanFolder(`${buildPath}/native/windows/x64`)
+  cleanFolder(`${buildPath}/native/windows/WatermelonDB/Generated Files`)
+  cleanFolder(`${buildPath}/native/windows/WatermelonDB/obj`)
+  cleanFolder(`${buildPath}/native/windows/WatermelonDB/x64`)
 }
 
 if (isDevelopment) {

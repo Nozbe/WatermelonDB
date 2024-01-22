@@ -30,7 +30,12 @@ class SqliteNativeModulesDispatcher implements SqliteDispatcher {
     if (process.env.NODE_ENV !== 'production') {
       invariant(
         this._bridge,
-        `NativeModules.DatabaseBridge is not defined! This means that you haven't properly linked WatermelonDB native module. Refer to docs for instructions about installation (and the changelog if this happened after an upgrade).`,
+        `NativeModules.WMDatabaseBridge is not defined! This means that you haven't properly linked WatermelonDB native module. Refer to docs for instructions about installation (and the changelog if this happened after an upgrade).`,
+      )
+
+      invariant(
+        Platform.OS !== 'windows',
+        'Windows is only supported via JSI. Pass { jsi: true } to SQLiteAdapter constructor.',
       )
     }
   }
@@ -72,6 +77,11 @@ class SqliteJsiDispatcher implements SqliteDispatcher {
     } else if (methodName === 'batch') {
       methodName = 'batchJSON'
       args = [JSON.stringify(args[0])]
+    } else if (
+      Platform.OS === 'windows' &&
+      (methodName === 'provideSyncJson' || methodName === 'unsafeLoadFromSync')
+    ) {
+      callback({ error: new Error(`${methodName} unavailable on Windows. Please contribute.`) })
     } else if (methodName === 'provideSyncJson') {
       fromPromise(WMDatabaseBridge.provideSyncJson(...args), callback)
       return

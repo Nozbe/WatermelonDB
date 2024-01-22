@@ -5,7 +5,7 @@ import invariant from '../utils/common/invariant'
 
 import type Database from '../Database'
 
-export function useDatabase(): Database {
+export default function useDatabase(): Database {
   const database = React.useContext(DatabaseContext)
 
   invariant(

@@ -31,26 +31,18 @@ npm install @nozbe/watermelondb
 
 ### iOS (React Native)
 
-At least Xcode 13.x and iOS 14 are recommended (earlier versions are not tested for compatibility).
+At least Xcode 13.x and iOS 15 are recommended (earlier versions are not tested for compatibility).
 
 1. **Set up Babel config in your project**
 
    See instructions above ⬆️
 
-2. **Add Swift support to your Xcode project**:
-
-   You only need to do this if you don't have Swift already set up in your project.
-
-   - Open `ios/YourAppName.xcodeproj` in Xcode
-   - Right-click on **(your app name)** in the Project Navigator on the left, and click **New File…**
-   - Create a single empty Swift file (`wmelon.swift`) to the project (make sure that **Your App Name** target is selected when adding), and when Xcode asks, press **Create Bridging Header** and **do not remove** the Swift file afterwards
-
-3. **Link WatermelonDB's native library (using CocoaPods)**
+2. **Link WatermelonDB's native library (using CocoaPods)**
 
    Open your `Podfile` and add this:
 
    ```ruby
-   # Uncomment this line if you're not using auto-linking
+   # Uncomment this line if you're not using auto-linking or if auto-linking causes trouble
    # pod 'WatermelonDB', path: '../node_modules/@nozbe/watermelondb'
 
    # WatermelonDB dependency, should not be needed on modern React Native
@@ -109,18 +101,6 @@ protected List<ReactPackage> getPackages() {
     new WatermelonDBPackage() // ⬅️ Here!
   );
 }
-```
-
-</details>
-
-<details>
-  <summary>Custom Kotlin Version</summary>
-  Make sure the kotlin version is set to 1.3.50 or above. Just set ext properties `kotlinVersion` in `android/build.gradle`, and WatermelonDB will use the specified kotlin version.
-
-```gradle
-  buildscript {
-      ext.kotlinVersion = '1.3.50'
-  }
 ```
 
 </details>
@@ -327,6 +307,39 @@ This guide assumes you use Webpack as your bundler.
      ]
    }
    ```
+
+## Windows (React Native)
+
+WatermelonDB has **experimental** support for [React Native Windows](https://microsoft.github.io/react-native-windows/).
+
+To set up:
+
+1. Set up Babel config in your project - See instructions above for all React Native platforms
+2. Run `npx react-native autolink-windows` to perform autolinking. See section below if you don't use autolinking.
+
+Caveats to keep in mind about React Native Windows support:
+
+- Windows support is new and experimental
+- Only JSI port is available, so you must initialize `SQLiteAdapter` with `{ jsi: true }`
+- JSI means that Remote Debugging (WebDebugger) is not available. Use direct debugging.
+- Enable Hermes when using WatermelonDB on RNW. Chakra has not been tested and may not work.
+- Turbo Sync has not been implemented
+- onDestroy event has not been implemented. This only causes issues if you need to reload JS bundle
+  at runtime (other than in development).
+
+<details>
+  <summary>Linking Manually</summary>
+
+By default, React Native uses **autolinking**, and **you don't need the steps below**!
+
+Follow [instructions on React Native Windows website](https://microsoft.github.io/react-native-windows/docs/native-modules-using), noting that:
+
+- Path to vcxproj: `node_modules\@nozbe\watermelondb\native\windows\WatermelonDB\WatermelonDB.vcxproj`
+- Name of project to reference: `WatermelonDB`
+- Header for PCH: `#include "winrt/WatermelonDB.h"`
+- Package provider: `PackageProviders().Append(winrt::WatermelonDB::ReactPackageProvider());`
+
+</details>
 
 ## NodeJS (SQLite) setup
 

@@ -1,8 +1,8 @@
 import React from 'react'
 import * as TestRenderer from 'react-test-renderer'
 import { renderHook } from '@testing-library/react-hooks'
-import { useDatabase } from './use-database'
-import DatabaseProvider from '../DatabaseProvider'
+import useDatabase from './useDatabase'
+import DatabaseProvider from './DatabaseProvider'
 import Database from '../Database'
 import { mockDatabase } from '../__tests__/testModels'
 
