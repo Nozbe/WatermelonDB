@@ -267,6 +267,8 @@ additional steps manually.
 
                     // Add WatermelonDB JSI package
                     modules.addAll(WatermelonDBJSIPackage().getJSIModules(reactApplicationContext, jsContext))
+                    // Add more JSI packages here by conventions above, for example:
+                    // modules.addAll(ReanimatedJSIModulePackage().getJSIModules(reactApplicationContext, jsContext))
 
                     modules
                 }
