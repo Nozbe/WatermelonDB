@@ -302,7 +302,7 @@ export default compose(
   withObservables([], ({ database }) => ({
     blogs: database.get('blogs').query(),
   }),
-)(BlogList)
+))(BlogList)
 
 ```
 
