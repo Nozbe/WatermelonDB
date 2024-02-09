@@ -60,7 +60,7 @@ If possible, please use sync implementation helpers from `sync/*.js` to keep you
         - if locally marked as deleted, ignore (deletion will be pushed later)
         - if doesn't exist locally (error), create
       - destroy records
-        - if alredy deleted, ignore
+        - if already deleted, ignore
         - if locally changed, destroy anyway
         - ignore children (server ought to schedule children to be destroyed)
     - if successful, save server's timestamp as new `lastPulledAt`
