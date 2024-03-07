@@ -12,7 +12,7 @@ import type {
   SqliteDispatcherOptions,
 } from '../type'
 
-class SqliteNodeDispatcher implements SqliteDispatcher {
+class SqliteTauriDispatcher implements SqliteDispatcher {
   _tag: ConnectionTag
 
   constructor(tag: ConnectionTag): void {
@@ -37,7 +37,7 @@ export const makeDispatcher = (
   _dbName: string,
   _options: SqliteDispatcherOptions,
 ): SqliteDispatcher => {
-  return new SqliteNodeDispatcher(tag)
+  return new SqliteTauriDispatcher(tag)
 }
 
 export function getDispatcherType(_options: SQLiteAdapterOptions): DispatcherType {
