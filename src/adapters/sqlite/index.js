@@ -37,6 +37,8 @@ import encodeQuery from './encodeQuery'
 
 import { makeDispatcher, getDispatcherType } from './makeDispatcher'
 
+console.log('Loading SQLite adapter')
+
 export type { SQL, SQLiteArg, SQLiteQuery }
 
 if (process.env.NODE_ENV !== 'production') {
@@ -65,7 +67,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   _initPromise: Promise<void>
 
   constructor(options: SQLiteAdapterOptions): void {
-    // console.log(`---> Initializing new adapter (${this._tag})`)
+    console.log(`---> Initializing new adapter (${this._tag})`)
     const {
       dbName,
       schema,
@@ -129,6 +131,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   _init(callback: ResultCallback<void>): void {
+    console.log('[SQLite] Initializing...')
     // Try to initialize the database with just the schema number. If it matches the database,
     // we're good. If not, we try again, this time sending the compiled schema or a migration set
     // This is to speed up the launch (less to do and pass through bridge), and avoid repeating
@@ -153,7 +156,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   _setUpWithMigrations(databaseVersion: SchemaVersion, callback: ResultCallback<void>): void {
-    logger.log('[SQLite] Database needs migrations')
+    console.log('[SQLite] Database needs migrations')
     invariant(databaseVersion > 0, 'Invalid database schema version')
 
     const migrationSteps = this._migrationSteps(databaseVersion)

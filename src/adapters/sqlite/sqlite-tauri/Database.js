@@ -14,6 +14,7 @@ class Database {
 
   async open(): Promise<void> {
     try {
+      // debugger
       this.instance = await SQLite.load(this.path)
     } catch (error) {
       throw new Error(`Failed to open the database. - ${error.message}`)
