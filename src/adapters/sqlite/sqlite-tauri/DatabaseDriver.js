@@ -216,10 +216,8 @@ class DatabaseDriver {
 
   async unsafeResetDatabase(schema: { sql: string, version: number }): Promise<void> {
     await this.database.unsafeDestroyEverything()
-    console.log('destroyed everything')
     this.cachedRecords = {}
 
-    console.log('executing statements in transaction')
     await this.database.inTransaction(async () => {
       await this.database.executeStatements(schema.sql)
       await this.database.setUserVersion(schema.version)

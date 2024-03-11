@@ -10,6 +10,8 @@ type Connection = {
 
 class DatabaseBridge {
   connections: { [key: number]: Connection } = {}
+  _initializationPromiseResolve: () => void = () => {}
+  _initializationPromise: Promise<any> = new Promise((resolve) => {this._initializationPromiseResolve = resolve})
 
   // MARK: - Asynchronous connections
 
@@ -33,15 +35,18 @@ class DatabaseBridge {
       this.assertNoConnection(tag)
       driver = new DatabaseDriver()
       await driver.initialize(databaseName, schemaVersion)
+      this._initializationPromiseResolve()
       this.connected(tag, driver)
 
       resolve({ code: 'ok' })
     } catch (error) {
       if (driver && error.type === 'SchemaNeededError') {
         this.waiting(tag, driver)
+        this._initializationPromiseResolve()
         resolve({ code: 'schema_needed' })
       } else if (driver && error.type === 'MigrationNeededError') {
         this.waiting(tag, driver)
+        this._initializationPromiseResolve()
         resolve({ code: 'migrations_needed', databaseVersion: error.databaseVersion })
       } else {
         this.sendReject(reject, error, 'initialize')
@@ -60,10 +65,11 @@ class DatabaseBridge {
     const driver = new DatabaseDriver()
     await driver.setUpWithSchema(databaseName, schema, schemaVersion)
     this.connectDriverAsync(tag, driver)
+    this._initializationPromiseResolve()
     resolve(true)
   }
 
-  setUpWithMigrations(
+  async setUpWithMigrations(
     tag: number,
     databaseName: string,
     migrations: string,
@@ -71,15 +77,16 @@ class DatabaseBridge {
     toVersion: number,
     resolve: (boolean) => void,
     reject: () => void,
-  ): void {
+  ): Promise<void> {
     try {
       const driver = new DatabaseDriver()
-      driver.setUpWithMigrations(databaseName, {
+      await driver.setUpWithMigrations(databaseName, {
         from: fromVersion,
         to: toVersion,
         sql: migrations,
       })
       this.connectDriverAsync(tag, driver)
+      this._initializationPromiseResolve()
       resolve(true)
     } catch (error) {
       this.disconnectDriver(tag)
@@ -112,27 +119,27 @@ class DatabaseBridge {
     )
   }
 
-  // queryIds(
-  //   tag: number,
-  //   query: string,
-  //   args: any[],
-  //   resolve: (any) => void,
-  //   reject: (string) => void,
-  // ): void {
-  //   this.withDriver(tag, resolve, reject, 'queryIds', (driver) => driver.queryIds(query, args))
-  // }
+  queryIds(
+    tag: number,
+    query: string,
+    args: any[],
+    resolve: (any) => void,
+    reject: (string) => void,
+  ): void {
+    this.withDriver(tag, resolve, reject, 'queryIds', (driver) => driver.queryIds(query, args))
+  }
 
-  // unsafeQueryRaw(
-  //   tag: number,
-  //   query: string,
-  //   args: any[],
-  //   resolve: (any) => void,
-  //   reject: (string) => void,
-  // ): void {
-  //   this.withDriver(tag, resolve, reject, 'unsafeQueryRaw', (driver) =>
-  //     driver.unsafeQueryRaw(query, args),
-  //   )
-  // }
+  unsafeQueryRaw(
+    tag: number,
+    query: string,
+    args: any[],
+    resolve: (any) => void,
+    reject: (string) => void,
+  ): void {
+    this.withDriver(tag, resolve, reject, 'unsafeQueryRaw', (driver) =>
+      driver.unsafeQueryRaw(query, args),
+    )
+  }
 
   count(
     tag: number,
@@ -148,17 +155,17 @@ class DatabaseBridge {
     this.withDriver(tag, resolve, reject, 'batch', (driver) => driver.batch(operations))
   }
 
-  // unsafeResetDatabase(
-  //   tag: number,
-  //   schema: string,
-  //   schemaVersion: number,
-  //   resolve: (any) => void,
-  //   reject: (string) => void,
-  // ): void {
-  //   this.withDriver(tag, resolve, reject, 'unsafeResetDatabase', (driver) =>
-  //     driver.unsafeResetDatabase({ version: schemaVersion, sql: schema }),
-  //   )
-  // }
+  unsafeResetDatabase(
+    tag: number,
+    schema: string,
+    schemaVersion: number,
+    resolve: (any) => void,
+    reject: (string) => void,
+  ): void {
+    this.withDriver(tag, resolve, reject, 'unsafeResetDatabase', (driver) =>
+      driver.unsafeResetDatabase({ version: schemaVersion, sql: schema }),
+    )
+  }
 
   // getLocal(tag: number, key: string, resolve: (any) => void, reject: (string) => void): void {
   //   this.withDriver(tag, resolve, reject, 'getLocal', (driver) => driver.getLocal(key))
@@ -174,10 +181,13 @@ class DatabaseBridge {
     action: (driver: DatabaseDriver) => Promise<any>,
   ): Promise<void> {
     try {
+      await this._initializationPromise
       const connection = this.connections[tag]
+      
       if (!connection) {
         throw new Error(`No driver for with tag ${tag} available, called from ${functionName}`)
       }
+
       if (connection.status === 'connected') {
         const result = await action(connection.driver)
         resolve(result)

@@ -38,11 +38,11 @@ class Database {
     }
   }
 
-  execute(query: string, args: any[] = []): Promise<any> {
+  async execute(query: string, args: any[] = []): Promise<any> {
     return this.instance.select(query, args)
   }
 
-  executeStatements(queries: string): Promise<any> {
+  async executeStatements(queries: string): Promise<any> {
     return this.instance.execute(queries, [])
   }
 
@@ -62,14 +62,11 @@ class Database {
   }
 
   async userVersion(): Promise<number> {
-    console.log('getting user version')
     const results = await this.instance.select('PRAGMA user_version')
-    console.log('results', results)
     return results[0].user_version
   }
 
   async setUserVersion(version: number): Promise<void> {
-    console.log('Setting user version to', version)
     await this.instance.execute(`PRAGMA user_version = ${version}`)
   }
 
