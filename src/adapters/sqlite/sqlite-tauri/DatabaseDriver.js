@@ -41,8 +41,8 @@ export function getPath(dbName: string): string {
     return dbName
   }
 
-  let path =
-    dbName.startsWith('/') || dbName.startsWith('file:') ? dbName : `${process.cwd()}/${dbName}`
+  let path = dbName
+    // dbName.startsWith('/') || dbName.startsWith('file:') ? dbName : `${process.cwd()}/${dbName}`
   if (path.indexOf('.db') === -1) {
     if (path.indexOf('?') >= 0) {
       const index = path.indexOf('?')
@@ -64,19 +64,19 @@ class DatabaseDriver {
 
   async initialize(dbName: string, schemaVersion: number): Promise<void> {
     await this.init(dbName)
-    this.isCompatible(schemaVersion)
+    await this.isCompatible(schemaVersion)
   }
 
-  setUpWithSchema(dbName: string, schema: string, schemaVersion: number): void {
-    this.init(dbName)
-    this.unsafeResetDatabase({ version: schemaVersion, sql: schema })
-    this.isCompatible(schemaVersion)
+  async setUpWithSchema(dbName: string, schema: string, schemaVersion: number): Promise<void> {
+    await this.init(dbName)
+    await this.unsafeResetDatabase({ version: schemaVersion, sql: schema })
+    await this.isCompatible(schemaVersion)
   }
 
-  setUpWithMigrations(dbName: string, migrations: Migrations): void {
-    this.init(dbName)
-    this.migrate(migrations)
-    this.isCompatible(migrations.to)
+  async setUpWithMigrations(dbName: string, migrations: Migrations): Promise<void> {
+    await this.init(dbName)
+    await this.migrate(migrations)
+    await this.isCompatible(migrations.to)
   }
 
   async init(dbName: string): Promise<void> {
@@ -92,13 +92,13 @@ class DatabaseDriver {
     // }
   }
 
-  find(table: string, id: string): any | null | string {
+  async find(table: string, id: string): Promise<any | null | string> {
     if (this.isCached(table, id)) {
       return id
     }
 
     const query = `SELECT * FROM '${table}' WHERE id == ? LIMIT 1`
-    const results = this.database.queryRaw(query, [id])
+    const results = await this.database.queryRaw(query, [id])
 
     if (results.length === 0) {
       return null
@@ -108,8 +108,8 @@ class DatabaseDriver {
     return results[0]
   }
 
-  cachedQuery(table: string, query: string, args: any[]): any[] {
-    const results = this.database.queryRaw(query, fixArgs(args))
+  async cachedQuery(table: string, query: string, args: any[]): Promise<any[]> {
+    const results = await this.database.queryRaw(query, fixArgs(args))
     return results.map((row: any) => {
       const id = `${row.id}`
       if (this.isCached(table, id)) {
@@ -120,23 +120,24 @@ class DatabaseDriver {
     })
   }
 
-  queryIds(query: string, args: any[]): string[] {
-    return this.database.queryRaw(query, fixArgs(args)).map((row) => `${row.id}`)
+  async queryIds(query: string, args: any[]): Promise<string[]> {
+    const results = await this.database.queryRaw(query, fixArgs(args))
+    return results.map((row) => `${row.id}`)
   }
 
-  unsafeQueryRaw(query: string, args: any[]): any[] {
+  async unsafeQueryRaw(query: string, args: any[]): Promise<any[]> {
     return this.database.queryRaw(query, fixArgs(args))
   }
 
-  count(query: string, args: any[]): number {
+  async count(query: string, args: any[]): Promise<number> {
     return this.database.count(query, fixArgs(args))
   }
 
-  batch(operations: any[]): void {
+  async batch(operations: any[]): Promise<void> {
     const newIds = []
     const removedIds = []
 
-    this.database.inTransaction(() => {
+    this.database.inTransaction(async () => {
       operations.forEach((operation: any[]) => {
         const [cacheBehavior, table, sql, argBatches] = operation
         argBatches.forEach((args) => {
@@ -161,8 +162,8 @@ class DatabaseDriver {
 
   // MARK: - LocalStorage
 
-  getLocal(key: string): any | null {
-    const results = this.database.queryRaw('SELECT `value` FROM `local_storage` WHERE `key` = ?', [
+  async getLocal(key: string): any | null {
+    const results = await this.database.queryRaw('SELECT `value` FROM `local_storage` WHERE `key` = ?', [
       key,
     ])
 
@@ -202,8 +203,8 @@ class DatabaseDriver {
 
   // MARK: - Other private details
 
-  isCompatible(schemaVersion: number): void {
-    const databaseVersion = this.database.userVersion
+  async isCompatible(schemaVersion: number): Promise<void> {
+    const databaseVersion = await this.database.userVersion()
     if (schemaVersion !== databaseVersion) {
       if (databaseVersion > 0 && databaseVersion < schemaVersion) {
         throw new MigrationNeededError(databaseVersion)
@@ -213,18 +214,20 @@ class DatabaseDriver {
     }
   }
 
-  unsafeResetDatabase(schema: { sql: string, version: number }): void {
-    this.database.unsafeDestroyEverything()
+  async unsafeResetDatabase(schema: { sql: string, version: number }): Promise<void> {
+    await this.database.unsafeDestroyEverything()
+    console.log('destroyed everything')
     this.cachedRecords = {}
 
-    this.database.inTransaction(() => {
-      this.database.executeStatements(schema.sql)
-      this.database.userVersion = schema.version
+    console.log('executing statements in transaction')
+    await this.database.inTransaction(async () => {
+      await this.database.executeStatements(schema.sql)
+      await this.database.setUserVersion(schema.version)
     })
   }
 
-  migrate(migrations: Migrations): void {
-    const databaseVersion = this.database.userVersion
+  async migrate(migrations: Migrations): Promise<void> {
+    const databaseVersion = await this.database.userVersion()
 
     if (`${databaseVersion}` !== `${migrations.from}`) {
       throw new Error(
@@ -232,9 +235,9 @@ class DatabaseDriver {
       )
     }
 
-    this.database.inTransaction(() => {
-      this.database.executeStatements(migrations.sql)
-      this.database.userVersion = migrations.to
+    await this.database.inTransaction(async () => {
+      await this.database.executeStatements(migrations.sql)
+      this.database.setUserVersion(migrations.to)
     })
   }
 }

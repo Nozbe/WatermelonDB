@@ -1,7 +1,9 @@
 /* eslint-disable no-console */
 // @flow
 
-const SQLite = require('tauri-plugin-sql')
+const SQLite = require('tauri-plugin-sql').default
+const {removeFile} = require('@tauri-apps/api/fs')
+const { appConfigDir } = require('@tauri-apps/api/path')
 
 
 class Database {
@@ -14,110 +16,111 @@ class Database {
 
   async open(): Promise<void> {
     try {
-      // debugger
-      this.instance = await SQLite.load(this.path)
+      this.instance = await SQLite.load(`sqlite:${this.path}`)
     } catch (error) {
-      throw new Error(`Failed to open the database. - ${error.message}`)
+      throw new Error(`Failed to open the database. - ${error}`)
     }
 
     if (!this.instance) {
       throw new Error('Failed to open the database.')
     }
-
-    console.warn('Database opened')
   }
 
-  inTransaction(executeBlock: () => void): void {
-    // this.instance.transaction(executeBlock)()
+  async inTransaction(executeBlock: () => Promise<void>): Promise<void> {
+    try {
+      await this.instance.execute('BEGIN TRANSACTION')
+      await executeBlock()
+      await this.instance.execute('COMMIT')
+    } catch (error) {
+      console.log('Error in transaction', error)
+      await this.instance.execute('ROLLBACK')
+      throw error
+    }
   }
 
-  execute(query: string, args: any[] = []): any {
-    // return this.instance.prepare(query).run(args)
+  execute(query: string, args: any[] = []): Promise<any> {
+    return this.instance.select(query, args)
   }
 
-  executeStatements(queries: string): any {
-    // return this.instance.exec(queries)
+  executeStatements(queries: string): Promise<any> {
+    return this.instance.execute(queries, [])
   }
 
-  queryRaw(query: string, args: any[] = []): any | any[] {
-    const results = []
-    // const stmt = this.instance.prepare(query)
-    // if (stmt.get(args)) {
-    //   results = stmt.all(args)
-    // }
-    return results
+  async queryRaw(query: string, args: any[] = []): Promise<any | any[]> {
+    return this.instance.select(query, args)
   }
 
-  count(query: string, args: any[] = []): number {
-    // const results = this.instance.prepare(query).all(args)
+  async count(query: string, args: any[] = []): Promise<number> {
+    const results = await this.instance.select(query, args)
+    if (results.length === 0) {
+      throw new Error('Invalid count query, can`t find next() on the result')
+    }
 
-    // if (results.length === 0) {
-    //   throw new Error('Invalid count query, can`t find next() on the result')
-    // }
+    const result = results[0]
 
-    // const result = results[0]
-
-    // if (result.count === undefined) {
-    //   throw new Error('Invalid count query, can`t find `count` column')
-    // }
-
-    // return Number.parseInt(result.count, 10)
-    return 0
+    return Number.parseInt(result.count, 10)
   }
 
-  get userVersion(): number {
-    // return this.instance.pragma('user_version', {
-    //   simple: true,
-    // })
-    return 0
+  async userVersion(): Promise<number> {
+    console.log('getting user version')
+    const results = await this.instance.select('PRAGMA user_version')
+    console.log('results', results)
+    return results[0].user_version
   }
 
-  set userVersion(version: number): void {
-    // this.instance.pragma(`user_version = ${version}`)
+  async setUserVersion(version: number): Promise<void> {
+    console.log('Setting user version to', version)
+    await this.instance.execute(`PRAGMA user_version = ${version}`)
   }
 
-  unsafeDestroyEverything(): void {
+  async unsafeDestroyEverything(): Promise<void> {
     // Deleting files by default because it seems simpler, more reliable
     // And we have a weird problem with sqlite code 6 (database busy) in sync mode
     // But sadly this won't work for in-memory (shared) databases, so in those cases,
     // drop all tables, indexes, and reset user version to 0
 
-    if (this.isInMemoryDatabase()) {
-      this.inTransaction(() => {
-        const results = this.queryRaw(`SELECT * FROM sqlite_master WHERE type = 'table'`)
-        const tables = results.map((table) => table.name)
+    // if (this.isInMemoryDatabase()) {
+    //   this.inTransaction(async () => {
+    //     const results = await this.queryRaw(`SELECT * FROM sqlite_master WHERE type = 'table'`)
+    //     const tables = results.map((table) => table.name)
 
-        tables.forEach((table) => {
-          this.execute(`DROP TABLE IF EXISTS '${table}'`)
-        })
+    //     tables.forEach((table) => {
+    //       this.execute(`DROP TABLE IF EXISTS '${table}'`)
+    //     })
 
-        this.execute('PRAGMA writable_schema=1')
-        const count = this.queryRaw(`SELECT * FROM sqlite_master`).length
-        if (count) {
-          // IF required to avoid SQLIte Error
-          this.execute('DELETE FROM sqlite_master')
-        }
-        this.execute('PRAGMA user_version=0')
-        this.execute('PRAGMA writable_schema=0')
-      })
-    } else {
-      this.instance.close()
-      // if (this.instance.open) {
-      //   throw new Error('Could not close database')
-      // }
+    //     this.execute('PRAGMA writable_schema=1')
+    //     const count = (await this.queryRaw(`SELECT * FROM sqlite_master`)).length
+    //     if (count) {
+    //       // IF required to avoid SQLIte Error
+    //       this.execute('DELETE FROM sqlite_master')
+    //     }
+    //     this.execute('PRAGMA user_version=0')
+    //     this.execute('PRAGMA writable_schema=0')
+    //   })
+    // } else {
+      await this.instance.close()
+      const appConfigDirPath = await appConfigDir()
+      await removeFile(`${appConfigDirPath}${this.path}`)
+    //   // if (this.instance.open) {
+    //   //   throw new Error('Could not close database')
+    //   // }
 
-      // if (fs.existsSync(this.path)) {
-      //   fs.unlinkSync(this.path)
-      // }
-      // if (fs.existsSync(`${this.path}-wal`)) {
-      //   fs.unlinkSync(`${this.path}-wal`)
-      // }
-      // if (fs.existsSync(`${this.path}-shm`)) {
-      //   fs.unlinkSync(`${this.path}-shm`)
-      // }
+    //   // if (fs.existsSync(this.path)) {
+    //   //   fs.unlinkSync(this.path)
+    //   // }
+    //   // if (fs.existsSync(`${this.path}-wal`)) {
+    //   //   fs.unlinkSync(`${this.path}-wal`)
+    //   // }
+    //   // if (fs.existsSync(`${this.path}-shm`)) {
+    //   //   fs.unlinkSync(`${this.path}-shm`)
+    //   // }
 
-      this.open()
-    }
+      await this.open()
+    // }
+    
+    // TODO Tauri's sqlite plugin doesn't support any way to destroy the db
+    // Need to take a look later how to achieve this
+    // Closing it is possible but how to remove the file?
   }
 
   isInMemoryDatabase(): any {

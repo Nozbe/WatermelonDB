@@ -37,8 +37,6 @@ import encodeQuery from './encodeQuery'
 
 import { makeDispatcher, getDispatcherType } from './makeDispatcher'
 
-console.log('Loading SQLite adapter')
-
 export type { SQL, SQLiteArg, SQLiteQuery }
 
 if (process.env.NODE_ENV !== 'production') {
@@ -67,7 +65,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   _initPromise: Promise<void>
 
   constructor(options: SQLiteAdapterOptions): void {
-    console.log(`---> Initializing new adapter (${this._tag})`)
+    // console.log(`---> Initializing new adapter (${this._tag})`)
     const {
       dbName,
       schema,

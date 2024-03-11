@@ -49,16 +49,16 @@ class DatabaseBridge {
     }
   }
 
-  setUpWithSchema(
+  async setUpWithSchema(
     tag: number,
     databaseName: string,
     schema: string,
     schemaVersion: number,
     resolve: (boolean) => void,
     _reject: () => void,
-  ): void {
+  ): Promise<void> {
     const driver = new DatabaseDriver()
-    driver.setUpWithSchema(databaseName, schema, schemaVersion)
+    await driver.setUpWithSchema(databaseName, schema, schemaVersion)
     this.connectDriverAsync(tag, driver)
     resolve(true)
   }
@@ -166,23 +166,22 @@ class DatabaseBridge {
 
   // MARK: - Helpers
 
-  withDriver(
+  async withDriver(
     tag: number,
     resolve: (any) => void,
     reject: (any) => void,
     functionName: string,
-    action: (driver: DatabaseDriver) => any,
-  ): void {
+    action: (driver: DatabaseDriver) => Promise<any>,
+  ): Promise<void> {
     try {
       const connection = this.connections[tag]
       if (!connection) {
-        throw new Error(`No driver for with tag ${tag} available`)
+        throw new Error(`No driver for with tag ${tag} available, called from ${functionName}`)
       }
       if (connection.status === 'connected') {
-        const result = action(connection.driver)
+        const result = await action(connection.driver)
         resolve(result)
       } else if (connection.status === 'waiting') {
-        // consoleLog('Operation for driver (tagID) enqueued')
         // try again when driver is ready
         connection.queue.push(() => {
           this.withDriver(tag, resolve, reject, functionName, action)
