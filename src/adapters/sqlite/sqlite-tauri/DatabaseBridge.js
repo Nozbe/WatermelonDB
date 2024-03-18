@@ -12,6 +12,7 @@ class DatabaseBridge {
   connections: { [key: number]: Connection } = {}
   _initializationPromiseResolve: () => void = () => {}
   _initializationPromise: Promise<any> = new Promise((resolve) => {this._initializationPromiseResolve = resolve})
+  _operationLock: Promise<any> | null = null
 
   // MARK: - Asynchronous connections
 
@@ -189,8 +190,15 @@ class DatabaseBridge {
       }
 
       if (connection.status === 'connected') {
-        const result = await action(connection.driver)
+        if(this._operationLock) {
+          await this._operationLock
+        }
+
+        this._operationLock = action(connection.driver)
+        const result = await this._operationLock
+        
         resolve(result)
+        this._operationLock = null
       } else if (connection.status === 'waiting') {
         // try again when driver is ready
         connection.queue.push(() => {

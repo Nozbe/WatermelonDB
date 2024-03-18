@@ -137,18 +137,18 @@ class DatabaseDriver {
     const newIds = []
     const removedIds = []
 
-    this.database.inTransaction(async () => {
-      operations.forEach((operation: any[]) => {
+    await this.database.inTransaction(async () => {
+      for (const operation of operations) {
         const [cacheBehavior, table, sql, argBatches] = operation
-        argBatches.forEach((args) => {
-          this.database.execute(sql, fixArgs(args))
+        for (const args of argBatches) {
+          await this.database.execute(sql, fixArgs(args))
           if (cacheBehavior === 1) {
             newIds.push([table, args[0]])
           } else if (cacheBehavior === -1) {
             removedIds.push([table, args[0]])
           }
-        })
-      })
+        }
+      }
     })
 
     newIds.forEach(([table, id]) => {

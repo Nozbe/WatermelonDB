@@ -28,12 +28,11 @@ class Database {
 
   async inTransaction(executeBlock: () => Promise<void>): Promise<void> {
     try {
-      await this.instance.execute('BEGIN TRANSACTION')
+      const transactionResult = await this.instance.execute('BEGIN TRANSACTION;')
       await executeBlock()
-      await this.instance.execute('COMMIT')
+      await this.instance.execute('COMMIT;')
     } catch (error) {
-      console.log('Error in transaction', error)
-      await this.instance.execute('ROLLBACK')
+      await this.instance.execute('ROLLBACK;')
       throw error
     }
   }
@@ -71,53 +70,10 @@ class Database {
   }
 
   async unsafeDestroyEverything(): Promise<void> {
-    // Deleting files by default because it seems simpler, more reliable
-    // And we have a weird problem with sqlite code 6 (database busy) in sync mode
-    // But sadly this won't work for in-memory (shared) databases, so in those cases,
-    // drop all tables, indexes, and reset user version to 0
-
-    // if (this.isInMemoryDatabase()) {
-    //   this.inTransaction(async () => {
-    //     const results = await this.queryRaw(`SELECT * FROM sqlite_master WHERE type = 'table'`)
-    //     const tables = results.map((table) => table.name)
-
-    //     tables.forEach((table) => {
-    //       this.execute(`DROP TABLE IF EXISTS '${table}'`)
-    //     })
-
-    //     this.execute('PRAGMA writable_schema=1')
-    //     const count = (await this.queryRaw(`SELECT * FROM sqlite_master`)).length
-    //     if (count) {
-    //       // IF required to avoid SQLIte Error
-    //       this.execute('DELETE FROM sqlite_master')
-    //     }
-    //     this.execute('PRAGMA user_version=0')
-    //     this.execute('PRAGMA writable_schema=0')
-    //   })
-    // } else {
-      await this.instance.close()
-      const appConfigDirPath = await appConfigDir()
-      await removeFile(`${appConfigDirPath}${this.path}`)
-    //   // if (this.instance.open) {
-    //   //   throw new Error('Could not close database')
-    //   // }
-
-    //   // if (fs.existsSync(this.path)) {
-    //   //   fs.unlinkSync(this.path)
-    //   // }
-    //   // if (fs.existsSync(`${this.path}-wal`)) {
-    //   //   fs.unlinkSync(`${this.path}-wal`)
-    //   // }
-    //   // if (fs.existsSync(`${this.path}-shm`)) {
-    //   //   fs.unlinkSync(`${this.path}-shm`)
-    //   // }
-
-      await this.open()
-    // }
-    
-    // TODO Tauri's sqlite plugin doesn't support any way to destroy the db
-    // Need to take a look later how to achieve this
-    // Closing it is possible but how to remove the file?
+    await this.instance.close()
+    const appConfigDirPath = await appConfigDir()
+    await removeFile(`${appConfigDirPath}${this.path}`)
+    await this.open()
   }
 
   isInMemoryDatabase(): any {
