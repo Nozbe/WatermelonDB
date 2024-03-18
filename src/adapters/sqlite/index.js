@@ -153,7 +153,6 @@ export default class SQLiteAdapter implements DatabaseAdapter {
   }
 
   _setUpWithMigrations(databaseVersion: SchemaVersion, callback: ResultCallback<void>): void {
-    logger.log('[SQLite] Database needs migrations')
     invariant(databaseVersion > 0, 'Invalid database schema version')
 
     const migrationSteps = this._migrationSteps(databaseVersion)

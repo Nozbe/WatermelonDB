@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable global-require */
 
-import DatabaseBridge from '../sqlite-node/DatabaseBridge'
+import DatabaseBridge from '../sqlite-tauri/DatabaseBridge'
 import { type ConnectionTag } from '../../../utils/common'
 import { type ResultCallback } from '../../../utils/fp/Result'
 import type {
