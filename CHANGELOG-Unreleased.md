@@ -12,4 +12,6 @@
 
 ### Changes
 
+- [docs] Improved Android installation docs
+
 ### Internal
