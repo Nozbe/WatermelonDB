@@ -1,6 +1,6 @@
 {
   "name": "React-Codegen",
-  "version": "0.71.3",
+  "version": "0.71.17",
   "summary": "Temp pod for generated files for React Native",
   "homepage": "https://facebook.com/",
   "license": "Unlicense",
@@ -11,7 +11,7 @@
   },
   "header_mappings_dir": "./",
   "platforms": {
-    "ios": "11.0"
+    "ios": "12.4"
   },
   "source_files": "**/*.{h,mm,cpp}",
   "pod_target_xcconfig": {

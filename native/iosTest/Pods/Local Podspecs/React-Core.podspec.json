@@ -1,6 +1,6 @@
 {
   "name": "React-Core",
-  "version": "0.71.3",
+  "version": "0.71.17",
   "summary": "The core of React Native.",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
@@ -10,7 +10,7 @@
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.71.3"
+    "tag": "v0.71.17"
   },
   "resource_bundles": {
     "AccessibilityResources": [
@@ -36,16 +36,16 @@
       "2021.07.22.00"
     ],
     "React-cxxreact": [
-      "0.71.3"
+      "0.71.17"
     ],
     "React-perflogger": [
-      "0.71.3"
+      "0.71.17"
     ],
     "React-jsi": [
-      "0.71.3"
+      "0.71.17"
     ],
     "React-jsiexecutor": [
-      "0.71.3"
+      "0.71.17"
     ],
     "Yoga": [
 
@@ -83,13 +83,13 @@
       ],
       "dependencies": {
         "React-Core/Default": [
-          "0.71.3"
+          "0.71.17"
         ],
         "React-Core/RCTWebSocket": [
-          "0.71.3"
+          "0.71.17"
         ],
         "React-jsinspector": [
-          "0.71.3"
+          "0.71.17"
         ]
       }
     },
@@ -98,7 +98,7 @@
       "source_files": "Libraries/WebSocket/*.{h,m}",
       "dependencies": {
         "React-Core/Default": [
-          "0.71.3"
+          "0.71.17"
         ]
       }
     },
