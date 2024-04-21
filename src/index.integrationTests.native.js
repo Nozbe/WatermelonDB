@@ -60,10 +60,20 @@ if (openPlayground) {
           <Text style={{ paddingTop: 100 }}>Watermelon tester!</Text>
           <Text>Using hermes? {global.HermesInternal ? 'YES' : 'NO'}</Text>
           {status === 'testing' ? (
-            <Text testID="WatermelonTesterStatus" style={{ fontSize: 30 }}>The tests are running. Please remain calm.</Text>
+            <Text testID="WatermelonTesterStatus" style={{ fontSize: 30 }}>
+              The tests are running. Please remain calm.
+            </Text>
           ) : null}
-          {status === 'done' ? <Text testID="WatermelonTesterStatus" style={{ fontSize: 30, color: 'green' }}>Done</Text> : null}
-          {status === 'error' ? <Text testID="WatermelonTesterStatus" style={{ fontSize: 30, color: 'red' }}>Error</Text> : null}
+          {status === 'done' ? (
+            <Text testID="WatermelonTesterStatus" style={{ fontSize: 30, color: 'green' }}>
+              Done
+            </Text>
+          ) : null}
+          {status === 'error' ? (
+            <Text testID="WatermelonTesterStatus" style={{ fontSize: 30, color: 'red' }}>
+              Error
+            </Text>
+          ) : null}
         </View>
       </Tester>
     )

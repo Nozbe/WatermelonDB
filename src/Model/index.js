@@ -122,7 +122,10 @@ export default class Model {
    * @see {Database#batch}
    */
   prepareUpdate(recordUpdater: (this) => void = noop): this {
-    invariant(!this._preparedState, `Cannot update a record with pending changes. Update attempted for table ${this.table} and record ${this.id}.`)
+    invariant(
+      !this._preparedState,
+      `Cannot update a record with pending changes. Update attempted for table ${this.table} and record ${this.id}.`,
+    )
     this.__ensureNotDisposable(`Model.prepareUpdate()`)
     this._isEditing = true
 
