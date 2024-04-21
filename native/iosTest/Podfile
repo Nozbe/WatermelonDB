@@ -77,6 +77,11 @@ post_install do |installer|
       # else
         config.build_settings['CLANG_ENABLE_MODULES'] ||= ['NO']
       # end
+
+      # Fixes https://github.com/facebook/react-native/issues/34106
+      if target.name == 'React-Codegen'
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.4'
+      end
     end
   end
 end
