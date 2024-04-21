@@ -19,3 +19,5 @@
 - [docs] Improved Android installation docs
 
 ### Internal
+
+- Update internal dependencies
