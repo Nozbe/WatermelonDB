@@ -1,3 +1,6 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Installation
 
 First, add Watermelon to your project:
@@ -157,28 +160,55 @@ additional steps manually.
     ```
     -keep class com.nozbe.watermelondb.** { *; }
     ```
-5.  And finally, in `android/app/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.java`, add:
+5.  And finally, in `android/app/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.{java|kt}`, add:
 
-    ```java
+  <Tabs>
+    <TabItem value="java" label="Java" default>
+
+    ```
     // ...
     import com.nozbe.watermelondb.jsi.WatermelonDBJSIPackage; // ⬅️ This!
     import com.facebook.react.bridge.JSIModulePackage; // ⬅️ This!
     // ...
     private final ReactNativeHost mReactNativeHost =
-       new ReactNativeHost(this) {
-         // ...
+      new ReactNativeHost(this) {
+        // ...
 
-         @Override
-         protected JSIModulePackage getJSIModulePackage() {
-           return new WatermelonDBJSIPackage(); // ⬅️ This!
-         }
-       }
+        @Override
+        protected JSIModulePackage getJSIModulePackage() {
+          return new WatermelonDBJSIPackage(); // ⬅️ This!
+        }
+      }
 
     ```
 
+    </TabItem>
+    <TabItem value="kotlin" label="Kotlin">
+
+    ```
+   // ...
+    import com.nozbe.watermelondb.jsi.WatermelonDBJSIPackage // ⬅️ This!
+    import com.facebook.react.bridge.JSIModulePackage // ⬅️ This!
+    // ...
+    override val reactNativeHost: ReactNativeHost =
+      object : DefaultReactNativeHost(this) {
+       // ..
+        override fun getJSIModulePackage(): JSIModulePackage {
+            return WatermelonDBJSIPackage()
+        }
+      }
+
+    ```
+
+    </TabItem>
+  </Tabs>
+
     or if you have **multiple** JSI Packages (for example, when using `reanimated`):
 
-    ```java
+  <Tabs>
+    <TabItem value="java" label="Java" default>
+
+    ```
     // ...
     import java.util.Arrays; // ⬅️ This!
     import com.facebook.react.bridge.JSIModuleSpec; // ⬅️ This!
@@ -188,29 +218,67 @@ additional steps manually.
     import com.nozbe.watermelondb.jsi.WatermelonDBJSIPackage; // ⬅️ This!
     // ...
     private final ReactNativeHost mReactNativeHost =
-       new ReactNativeHost(this) {
-         // ...
+      new ReactNativeHost(this) {
+        // ...
 
-         @Override
-         protected JSIModulePackage getJSIModulePackage() {
-           return new JSIModulePackage() {
-             @Override
-             public List<JSIModuleSpec> getJSIModules(
-               final ReactApplicationContext reactApplicationContext,
-               final JavaScriptContextHolder jsContext
-             ) {
-               List<JSIModuleSpec> modules = Arrays.asList();
+        @Override
+        protected JSIModulePackage getJSIModulePackage() {
+          return new JSIModulePackage() {
+            @Override
+            public List<JSIModuleSpec> getJSIModules(
+              final ReactApplicationContext reactApplicationContext,
+              final JavaScriptContextHolder jsContext
+            ) {
+              List<JSIModuleSpec> modules = Arrays.asList();
 
-               modules.addAll(new WatermelonDBJSIPackage().getJSIModules(reactApplicationContext, jsContext)); // ⬅️ This!
-               // ⬅️ add more JSI packages here by conventions above, for example:
-               // modules.addAll(new ReanimatedJSIModulePackage().getJSIModules(reactApplicationContext, jsContext));
+              modules.addAll(new WatermelonDBJSIPackage().getJSIModules(reactApplicationContext, jsContext)); // ⬅️ This!
+              // ⬅️ add more JSI packages here by conventions above, for example:
+              // modules.addAll(new ReanimatedJSIModulePackage().getJSIModules(reactApplicationContext, jsContext));
 
-               return modules;
-             }
-           };
-         }
-       }
+              return modules;
+            }
+          };
+        }
+      }
     ```
+
+    </TabItem>
+    <TabItem value="kotlin" label="Kotlin">
+
+    ```
+    // ...
+    import java.util.Arrays // ⬅️ This!
+    import com.facebook.react.bridge.JSIModule // ⬅️ This!
+    import com.facebook.react.bridge.JSIModuleSpec // ⬅️ This!
+    import com.facebook.react.bridge.JSIModulePackage // ⬅️ This!
+    import com.facebook.react.bridge.ReactApplicationContext // ⬅️ This!
+    import com.facebook.react.bridge.JavaScriptContextHolder // ⬅️ This!
+    import com.nozbe.watermelondb.jsi.WatermelonDBJSIPackage // ⬅️ This!
+    // ...
+
+    class MainApplication : Application(), ReactApplication {
+
+    override val reactNativeHost: ReactNativeHost =
+        object : DefaultReactNativeHost(this) {
+        // ...
+          override fun getJSIModulePackage(): JSIModulePackage {
+              return JSIModulePackage { reactApplicationContext, jsContext ->
+                  val modules = mutableListOf<JSIModuleSpec<JSIModule>>()
+
+                  // Add WatermelonDB JSI package
+                  modules.addAll(WatermelonDBJSIPackage().getJSIModules(reactApplicationContext, jsContext))
+                  // Add more JSI packages here by conventions above, for example:
+                  // modules.addAll(ReanimatedJSIModulePackage().getJSIModules(reactApplicationContext, jsContext))
+
+                  modules
+              }
+          }
+        }
+      }
+    ```
+
+    </TabItem>
+  </Tabs>
 
 #### Troubleshooting JSI issues
 
