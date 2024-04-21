@@ -9,6 +9,7 @@
 ### Fixes
 
 - [ts] Improved LocalStorage type definition
+- [ts] Add missing .d.ts for experimentalFailsafe decorator
 
 ### Performance
 
