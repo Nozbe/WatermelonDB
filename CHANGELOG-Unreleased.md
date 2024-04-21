@@ -2,6 +2,8 @@
 
 ### BREAKING CHANGES
 
+- [iOS] Podspec deployment target was bumped from iOS 11 to iOS 12
+
 ### Deprecations
 
 ### New features
