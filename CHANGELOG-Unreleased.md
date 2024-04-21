@@ -8,6 +8,8 @@
 
 ### Fixes
 
+- [ts] Improved LocalStorage type definition
+
 ### Performance
 
 ### Changes
