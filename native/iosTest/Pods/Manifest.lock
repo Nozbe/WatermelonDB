@@ -11,9 +11,9 @@ PODS:
     - ReactCommon/turbomodule/core (= 0.71.17)
   - fmt (6.2.1)
   - glog (0.3.5)
-  - hermes-engine (0.71.3):
-    - hermes-engine/Pre-built (= 0.71.3)
-  - hermes-engine/Pre-built (0.71.3)
+  - hermes-engine (0.71.17):
+    - hermes-engine/Pre-built (= 0.71.17)
+  - hermes-engine/Pre-built (0.71.17)
   - libevent (2.1.12)
   - RCT-Folly (2021.07.22.00):
     - boost
@@ -482,7 +482,7 @@ SPEC CHECKSUMS:
   FBReactNativeSpec: 672be5155138e327dca15482561b5ba6834e52a6
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
-  hermes-engine: 38bfe887e456b33b697187570a08de33969f5db7
+  hermes-engine: 7d82f250301e83c48ec0857c6810283d787b61da
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
   RCTRequired: 90f1bac0c9682cd0f725922a79fbc064836f06bb
