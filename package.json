@@ -14,7 +14,7 @@
     "tslint": "tslint --project .",
     "test": "jest --config=./jest.config.js --forceExit",
     "ci": "yarn ci:check",
-    "ci:check": "concurrently -n jest,eslint,flow,ts,tslint 'npm run test' 'npm run eslint' 'npm run flow' 'npm run test:typescript' 'npm run tslint' --kill-others-on-fail",
+    "ci:check": "concurrently -c auto -n jest,eslint,flow,ts,tslint 'npm run test' 'npm run eslint' 'npm run flow' 'npm run test:typescript' 'npm run tslint' --kill-others-on-fail",
     "test:android": "cd native/androidTest && ./gradlew connectedAndroidTest",
     "test:ios": "scripts/test-ios",
     "test:windows": "react-native run-windows",
