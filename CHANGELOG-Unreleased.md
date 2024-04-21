@@ -6,6 +6,8 @@
 
 ### New features
 
+- Added `Database#experimentalIsVerbose` option
+
 ### Fixes
 
 - [ts] Improved LocalStorage type definition
