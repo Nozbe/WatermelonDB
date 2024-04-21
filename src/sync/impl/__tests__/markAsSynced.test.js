@@ -131,7 +131,7 @@ describe('markLocalChangesAsSynced', () => {
     })
 
     // test that second push will mark all as synced
-    await markLocalChangesAsSynced(database, localChanges2)
+    await markLocalChangesAsSynced(database, localChanges2, false)
     expect(destroyDeletedRecordsSpy).toHaveBeenCalledTimes(2)
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
 
@@ -146,9 +146,33 @@ describe('markLocalChangesAsSynced', () => {
     const localChanges = await fetchLocalChanges(database)
 
     // mark as synced
-    await markLocalChangesAsSynced(database, localChanges, {
+    await markLocalChangesAsSynced(database, localChanges, false, {
       mock_projects: ['pCreated1', 'pUpdated'],
       mock_comments: ['cDeleted'],
+    })
+
+    // verify
+    const localChanges2 = await fetchLocalChanges(database)
+    expect(localChanges2.changes).toEqual(
+      makeChangeSet({
+        mock_projects: { created: [pCreated1._raw], updated: [pUpdated._raw] },
+        mock_comments: { deleted: ['cDeleted'] },
+      }),
+    )
+    expect(await allDeletedRecords([comments])).toEqual(['cDeleted'])
+  })
+  it(`marks only acceptedIds as synced`, async () => {
+    const { database, comments } = makeDatabase()
+
+    const { pCreated1, pUpdated } = await makeLocalChanges(database)
+    const localChanges = await fetchLocalChanges(database)
+
+    // mark as synced
+    await markLocalChangesAsSynced(database, localChanges, true, {}, {
+      // probably better solution exists (we essentially list all but expected in verify)
+      mock_projects: ['pCreated2', 'pDeleted'],
+      mock_comments: ['cCreated', 'cUpdated'],
+      mock_tasks: ['tCreated', 'tUpdated', 'tDeleted'],
     })
 
     // verify
@@ -201,5 +225,46 @@ describe('markLocalChangesAsSynced', () => {
   })
   it.skip('only returns changed fields', async () => {
     // TODO: Possible future improvement?
+  })
+  describe('pushConflictResolver', () => {
+    it('marks local changes as synced', async () => {
+      const { database, tasks } = makeDatabase()
+  
+      await makeLocalChanges(database)
+  
+      await markLocalChangesAsSynced(database, await fetchLocalChanges(database), false, null, null,
+        (_table, local, remote, resolved) => {
+          if (local.id !== 'tCreated' || (remote && remote.changeMe !== true)) {
+            return resolved
+          }
+          resolved.name = remote.name
+          resolved._status = 'updated'
+          return resolved
+        },
+        {
+          mock_tasks: [
+            {
+              id: 'tCreated',
+              name: 'I shall prevail',
+              changeMe: true,
+            },
+          ],
+        })
+
+        await expectSyncedAndMatches(tasks, 'tCreated', {
+          _status: 'updated',
+          name: 'I shall prevail', // concat of remote and local change
+        })
+
+        // should be untouched
+        await expectSyncedAndMatches(tasks, 'tUpdated', {
+          _status: 'synced',
+          name: 'local',
+          position: 100,
+          description: 'orig',
+          project_id: 'orig',
+        })
+  
+    })
   })
 })
