@@ -15,6 +15,7 @@
 
 ### Changes
 
+- Update `better-sqlite3` to 9.x
 - [docs] Improved Android installation docs
 
 ### Internal
