@@ -6,7 +6,12 @@ import { invariant } from '../../utils/common'
 
 import type { Model, Collection, Database } from '../..'
 import { type RawRecord, type DirtyRaw, sanitizedRaw } from '../../RawRecord'
-import type { SyncLog, SyncDatabaseChangeSet, SyncConflictResolver } from '../index'
+import type {
+  SyncLog,
+  SyncDatabaseChangeSet,
+  SyncShouldUpdateRecord,
+  SyncConflictResolver,
+} from '../index'
 
 // Returns raw record with naive solution to a conflict based on local `_changed` field
 // This is a per-column resolution algorithm. All columns that were changed locally win
@@ -59,7 +64,14 @@ export function requiresUpdate<T: Model>(
   collection: Collection<T>,
   local: RawRecord,
   dirtyRemote: DirtyRaw,
+  shouldUpdateRecord?: SyncShouldUpdateRecord,
 ): boolean {
+  if (shouldUpdateRecord) {
+    if (!shouldUpdateRecord(collection.table, local, dirtyRemote)) {
+      return false
+    }
+  }
+
   if (local._status !== 'synced') {
     return true
   }
@@ -79,9 +91,10 @@ export function prepareUpdateFromRaw<T: Model>(
   remoteDirtyRaw: DirtyRaw,
   collection: Collection<T>,
   log: ?SyncLog,
+  shouldUpdateRecord?: SyncShouldUpdateRecord,
   conflictResolver?: SyncConflictResolver,
 ): ?T {
-  if (!requiresUpdate(collection, localRaw, remoteDirtyRaw)) {
+  if (!requiresUpdate(collection, localRaw, remoteDirtyRaw, shouldUpdateRecord)) {
     return null
   }
 

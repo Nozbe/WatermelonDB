@@ -75,6 +75,12 @@ export type SyncLog = {
   error?: Error,
 }
 
+export type SyncShouldUpdateRecord = (
+  table: TableName<any>,
+  local: DirtyRaw,
+  remote: DirtyRaw,
+) => boolean
+
 export type SyncConflictResolver = (
   table: TableName<any>,
   local: DirtyRaw,
@@ -91,6 +97,9 @@ export type SyncArgs = $Exact<{
   migrationsEnabledAtVersion?: SchemaVersion,
   sendCreatedAsUpdated?: boolean,
   log?: SyncLog,
+  // Advanced (unsafe) customization point. Useful when doing per record conflict resolution and can
+  // determine directly from remote and local if we can keep local.
+  shouldUpdateRecord?: SyncShouldUpdateRecord,
   // Advanced (unsafe) customization point. Useful when you have subtle invariants between multiple
   // columns and want to have them updated consistently, or to implement partial sync
   // It's called for every record being updated locally, so be sure that this function is FAST.

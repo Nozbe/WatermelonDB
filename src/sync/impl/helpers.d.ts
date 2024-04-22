@@ -1,6 +1,11 @@
 import type { Model, Collection, Database } from '../..'
 import type { RawRecord, DirtyRaw } from '../../RawRecord'
-import type { SyncLog, SyncDatabaseChangeSet, SyncConflictResolver } from '../index'
+import type {
+  SyncLog,
+  SyncDatabaseChangeSet,
+  SyncShouldUpdateRecord,
+  SyncConflictResolver,
+} from '../index'
 
 // Returns raw record with naive solution to a conflict based on local `_changed` field
 // This is a per-column resolution algorithm. All columns that were changed locally win
@@ -16,6 +21,7 @@ export function prepareUpdateFromRaw<T extends Model = Model>(
   record: T,
   updatedDirtyRaw: DirtyRaw,
   log?: SyncLog,
+  shouldUpdateRecord?: SyncShouldUpdateRecord,
   conflictResolver?: SyncConflictResolver,
 ): T
 
