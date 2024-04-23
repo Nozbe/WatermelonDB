@@ -27,11 +27,19 @@ export type SyncPullResult =
   | $Exact<{ syncJson: string }>
   | $Exact<{ syncJsonId: number }>
 
-export type SyncRejectedIds = { [tableName: TableName<any>]: RecordId[] }
+export type SyncIds = { [tableName: TableName<any>]: RecordId[] }
 
-export type SyncPushArgs = $Exact<{ changes: SyncDatabaseChangeSet; lastPulledAt: Timestamp }>
+export type SyncRejectedIds = SyncIds
 
-export type SyncPushResult = $Exact<{ experimentalRejectedIds?: SyncRejectedIds }>
+export type SyncPushChangesArgs = $Exact<{ changes: SyncDatabaseChangeSet; lastPulledAt: Timestamp }>
+
+export type SyncPushResultSet = { [tableName: TableName<any>]: DirtyRaw[] }
+
+export type SyncPushResult = $Exact<{
+  experimentalRejectedIds?: SyncIds,
+  experimentalAcceptedIds?: SyncIds,
+  pushResultSet?: SyncPushResultSet,
+}>
 
 type SyncConflict = $Exact<{ local: DirtyRaw; remote: DirtyRaw; resolved: DirtyRaw }>
 export type SyncLog = {
@@ -41,7 +49,7 @@ export type SyncLog = {
   migration?: MigrationSyncChanges;
   newLastPulledAt?: number;
   resolvedConflicts?: SyncConflict[];
-  rejectedIds?: SyncRejectedIds;
+  rejectedIds?: SyncIds;
   finishedAt?: Date;
   remoteChangeCount?: number;
   localChangeCount?: number;
@@ -56,10 +64,31 @@ export type SyncConflictResolver = (
   resolved: DirtyRaw,
 ) => DirtyRaw
 
-export type SyncArgs = $Exact<{
+export type OptimisticSyncPushArgs = $Exact<{
+  database: Database;
+  pushChanges?: (_: SyncPushChangesArgs) => Promise<SyncPushResult | undefined | void>;
+  log?: SyncLog;
+  // experimental customization that will cause to only set records as synced if we return id.
+  // This will in turn cause all records to be re-pushed if id wasn't returned. This allows to
+  // "whitelisting" ids instead of "blacklisting" (rejectedIds) so that there is less chance that
+  // unpredicted error will cause data loss (when failed data push isn't re-pushed)
+  pushShouldConfirmOnlyAccepted?: boolean;
+  // conflict resolver on push side of sync which also requires returned records from backend.
+  // This is also useful for multi-step sync where one must control in which state sync is and if it
+  // must be repeated.
+  // Note that by default _status will be still synced so update if required
+  // Note that it's safe to mutate `resolved` object, so you can skip copying it for performance.
+  pushConflictResolver?: SyncConflictResolver;
+}>
+
+export type SyncPushArgs = $Exact<{OptimisticSyncPushArgs}> & $Exact<{
+  resetCount: number;
+  lastPulledAt: Timestamp;
+}>
+
+export type SyncArgs = $Exact<{OptimisticSyncPushArgs}> & $Exact<{
   database: Database;
   pullChanges: (_: SyncPullArgs) => Promise<SyncPullResult>;
-  pushChanges?: (_: SyncPushArgs) => Promise<SyncPushResult | undefined | void>;
   // version at which support for migration syncs was added - the version BEFORE first syncable migration
   migrationsEnabledAtVersion?: SchemaVersion;
   sendCreatedAsUpdated?: boolean;
@@ -89,5 +118,7 @@ export type SyncArgs = $Exact<{
 }>
 
 export function synchronize(args: SyncArgs): Promise<void>
+
+export function optimisticSyncPush(args: OptimisticSyncPushArgs): Promise<void>
 
 export function hasUnsyncedChanges({ database }: $Exact<{ database: Database }>): Promise<boolean>
