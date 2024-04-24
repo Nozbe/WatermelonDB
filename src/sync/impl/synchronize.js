@@ -11,7 +11,7 @@ import {
   setLastPulledSchemaVersion,
   getMigrationInfo,
 } from './index'
-import { ensureSameDatabase, isChangeSetEmpty, changeSetCount } from './helpers'
+import { ensureSameDatabase, isChangeSetEmpty, changeSetCount, findRejectedIds } from './helpers'
 import type { SyncArgs, Timestamp, SyncPullStrategy } from '../index'
 
 export default async function synchronize({
@@ -24,6 +24,7 @@ export default async function synchronize({
   migrationsEnabledAtVersion,
   log,
   conflictResolver,
+  pushShouldConfirmOnlyAccepted,
   _unsafeBatchPerCollection,
   unsafeTurbo,
 }: SyncArgs): Promise<void> {
@@ -134,9 +135,14 @@ export default async function synchronize({
         (await pushChanges({ changes: localChanges.changes, lastPulledAt: newLastPulledAt })) || {}
       log && (log.phase = 'pushed')
       log && (log.rejectedIds = pushResult.experimentalRejectedIds)
+      if (log && pushShouldConfirmOnlyAccepted) {
+        log.rejectedIds = findRejectedIds(pushResult.experimentalRejectedIds, 
+          pushResult.experimentalAcceptedIds, localChanges.changes)
+      }
 
       ensureSameDatabase(database, resetCount)
-      await markLocalChangesAsSynced(database, localChanges, pushResult.experimentalRejectedIds)
+      await markLocalChangesAsSynced(database, localChanges, pushShouldConfirmOnlyAccepted || false,
+        pushResult.experimentalRejectedIds, pushResult.experimentalAcceptedIds)
       log && (log.phase = 'marked local changes as synced')
     }
   } else {

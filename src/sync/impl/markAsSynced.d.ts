@@ -1,9 +1,11 @@
 import type { Database, Model, TableName } from '../..'
 
-import type { SyncLocalChanges, SyncRejectedIds } from '../index'
+import type { SyncLocalChanges, SyncIds } from '../index'
 
 export default function markLocalChangesAsSynced(
   db: Database,
   syncedLocalChanges: SyncLocalChanges,
-  rejectedIds?: SyncRejectedIds,
+  allowOnlyAcceptedIds: boolean,
+  rejectedIds?: SyncIds,
+  allAcceptedIds?: SyncIds,
 ): Promise<void>

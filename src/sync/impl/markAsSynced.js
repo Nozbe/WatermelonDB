@@ -5,11 +5,13 @@ import { logError } from '../../utils/common'
 import type { Database, Model, TableName } from '../..'
 
 import { prepareMarkAsSynced } from './helpers'
-import type { SyncLocalChanges, SyncRejectedIds } from '../index'
+import type { SyncLocalChanges, SyncIds } from '../index'
 
 const recordsToMarkAsSynced = (
   { changes, affectedRecords }: SyncLocalChanges,
-  allRejectedIds: SyncRejectedIds,
+  allowOnlyAcceptedIds: boolean,
+  allRejectedIds: SyncIds,
+  allAcceptedIds: SyncIds,
 ): Model[] => {
   const syncedRecords = []
 
@@ -17,6 +19,7 @@ const recordsToMarkAsSynced = (
     const { created, updated } = changes[(table: any)]
     const raws = created.concat(updated)
     const rejectedIds = new Set(allRejectedIds[(table: any)])
+    const acceptedIds = new Set(allAcceptedIds[(table: any)] || [])
 
     raws.forEach((raw) => {
       const { id } = raw
@@ -27,7 +30,8 @@ const recordsToMarkAsSynced = (
         )
         return
       }
-      if (areRecordsEqual(record._raw, raw) && !rejectedIds.has(id)) {
+      const isAccepted = !allAcceptedIds || !allowOnlyAcceptedIds || acceptedIds.has(id)
+      if (areRecordsEqual(record._raw, raw) && !rejectedIds.has(id) && isAccepted) {
         syncedRecords.push(record)
       }
     })
@@ -38,27 +42,35 @@ const recordsToMarkAsSynced = (
 const destroyDeletedRecords = (
   db: Database,
   { changes }: SyncLocalChanges,
-  allRejectedIds: SyncRejectedIds,
+  allowOnlyAcceptedIds: boolean,
+  allRejectedIds: SyncIds,
+  allAcceptedIds: SyncIds,
 ): Promise<any>[] =>
   Object.keys(changes).map((_tableName) => {
     const tableName: TableName<any> = (_tableName: any)
     const rejectedIds = new Set(allRejectedIds[tableName])
-    const deleted = changes[tableName].deleted.filter((id) => !rejectedIds.has(id))
+    const acceptedIds = new Set(allAcceptedIds[tableName] || [])
+    const deleted = changes[tableName].deleted.filter((id) => !rejectedIds.has(id) &&
+      (!allAcceptedIds || !allowOnlyAcceptedIds || acceptedIds.has(id)))
     return deleted.length ? db.adapter.destroyDeletedRecords(tableName, deleted) : Promise.resolve()
   })
 
 export default function markLocalChangesAsSynced(
   db: Database,
   syncedLocalChanges: SyncLocalChanges,
-  rejectedIds?: ?SyncRejectedIds,
+  allowOnlyAcceptedIds: boolean,
+  rejectedIds?: ?SyncIds,
+  allAcceptedIds?: ?SyncIds,
 ): Promise<void> {
   return db.write(async () => {
     // update and destroy records concurrently
     await Promise.all([
       db.batch(
-        recordsToMarkAsSynced(syncedLocalChanges, rejectedIds || {}).map(prepareMarkAsSynced),
+        recordsToMarkAsSynced(syncedLocalChanges, allowOnlyAcceptedIds, rejectedIds || {}, 
+          allAcceptedIds || {}).map(prepareMarkAsSynced),
       ),
-      ...destroyDeletedRecords(db, syncedLocalChanges, rejectedIds || {}),
+      ...destroyDeletedRecords(db, syncedLocalChanges, allowOnlyAcceptedIds, rejectedIds || {}, 
+        allAcceptedIds || {}),
     ])
   }, 'sync-markLocalChangesAsSynced')
 }
