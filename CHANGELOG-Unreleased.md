@@ -22,3 +22,5 @@
 - [docs] Improved Android installation docs
 
 ### Internal
+
+- New 'rn-typescript' example which has same functionality as 'native' example
