@@ -15,7 +15,7 @@ export type ColumnSchema = $RE<{
   isIndexed?: boolean
 }>
 
-export type ColumnMap = { [name: ColumnName]: ColumnSchema }
+export interface ColumnMap { [name: ColumnName]: ColumnSchema }
 
 export type TableSchemaSpec = $Exact<{
   name: TableName<any>
@@ -31,7 +31,7 @@ export type TableSchema = $RE<{
   unsafeSql?: (_: string) => string
 }>
 
-type TableMap = { [name: TableName<any>]: TableSchema }
+interface TableMap { [name: TableName<any>]: TableSchema }
 
 export type SchemaVersion = number
 

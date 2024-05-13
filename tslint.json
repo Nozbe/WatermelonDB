@@ -7,7 +7,10 @@
   "rules": {
     "interface-name": false,
     "jsdoc-format": false,
-    "member-access": false
+    "member-access": false,
+    "variable-name": {
+      "options": ["check-format", "allow-leading-underscore"]
+    }
   },
   "rulesDirectory": []
 }

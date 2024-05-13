@@ -1,6 +1,6 @@
 import type { $RE } from '../types'
 
-import type { TableName, ColumnName } from '../Schema'
+import type { ColumnName, TableName } from '../Schema'
 
 export type NonNullValue = number | string | boolean
 export type NonNullValues = number[] | string[] | boolean[]
@@ -65,7 +65,7 @@ export type Skip = $RE<{
 }>
 export type JoinTables = $RE<{
   type: 'joinTables'
-  tables: TableName<any>[]
+  tables: Array<TableName<any>>
 }>
 export type NestedJoinTable = $RE<{
   type: 'nestedJoinTable'
@@ -95,7 +95,7 @@ export type Clause =
 type NestedJoinTableDef = $RE<{ from: TableName<any>; to: TableName<any> }>
 export type QueryDescription = $RE<{
   where: Where[]
-  joinTables: TableName<any>[]
+  joinTables: Array<TableName<any>>
   nestedJoinTables: NestedJoinTableDef[]
   sortBy: SortBy[]
   take?: number

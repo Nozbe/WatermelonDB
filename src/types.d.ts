@@ -8,7 +8,7 @@ export type $Exact<Type> = Type
 
 export type $RE<Type> = Readonly<$Exact<Type>>
 
-export type $Keys<Type> = { k: keyof Type }
+export interface $Keys<Type> { k: keyof Type }
 
 export type Array<Type> = Type[]
 

@@ -1,13 +1,13 @@
-import type { SerializedQuery } from '../Query'
-import type { TableName, AppSchema } from '../Schema'
-import type { SchemaMigrations } from '../Schema/migrations'
 import type { RecordId } from '../Model'
+import type { SerializedQuery } from '../Query'
+import type { AppSchema, TableName } from '../Schema'
+import type { SchemaMigrations } from '../Schema/migrations'
 
 import type {
-  DatabaseAdapter,
+  BatchOperation,
   CachedFindResult,
   CachedQueryResult,
-  BatchOperation,
+  DatabaseAdapter,
   UnsafeExecuteOperations,
 } from './type'
 

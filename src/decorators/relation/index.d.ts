@@ -1,5 +1,5 @@
-import { ColumnName, TableName } from '../../Schema'
 import { Options } from '../../Relation'
+import { ColumnName, TableName } from '../../Schema'
 
 declare function relation(
   relationTable: TableName<any>,

@@ -1,4 +1,4 @@
-import { $NonMaybeType, $Exact, $Call } from '../types'
+import { $Call, $Exact, $NonMaybeType } from '../types'
 import type { Observable } from '../utils/rx'
 
 import type Model from '../Model'

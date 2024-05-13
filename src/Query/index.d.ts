@@ -1,13 +1,13 @@
-import { Observable } from '../utils/rx'
-import type { ArrayOrSpreadFn } from '../utils/fp'
-import type { Unsubscribe, SharedSubscribable } from '../utils/subscriptions'
 import { $Exact } from '../types'
+import type { ArrayOrSpreadFn } from '../utils/fp'
+import { Observable } from '../utils/rx'
+import type { SharedSubscribable, Unsubscribe } from '../utils/subscriptions'
 
-import type { Clause, QueryDescription } from '../QueryDescription'
+import type Collection from '../Collection'
 import type Model from '../Model'
 import type { AssociationInfo, RecordId } from '../Model'
-import type Collection from '../Collection'
-import type { TableName, ColumnName } from '../Schema'
+import type { Clause, QueryDescription } from '../QueryDescription'
+import type { ColumnName, TableName } from '../Schema'
 
 export type QueryAssociation = $Exact<{
   from: TableName<any>
@@ -29,6 +29,20 @@ interface QueryCountProxy {
 }
 
 export default class Query<Record extends Model> {
+
+  get count(): QueryCountProxy
+
+  // MARK: - Internals
+
+  get modelClass(): Record
+
+  get table(): TableName<Record>
+
+  get secondaryTables(): Array<TableName<any>>
+
+  get allTables(): Array<TableName<any>>
+
+  get associations(): QueryAssociation[]
   // Used by withObservables to differentiate between object types
   static _wmelonTag: string
 
@@ -44,11 +58,11 @@ export default class Query<Record extends Model> {
 
   _cachedCountThrottledSubscribable: SharedSubscribable<number>
 
-  // Note: Don't use this directly, use Collection.query(...)
-  constructor(collection: Collection<Record>, clauses: Clause[])
-
   // Creates a new Query that extends the clauses of this query
   extend: ArrayOrSpreadFn<Clause, Query<Record>>
+
+  // Note: Don't use this directly, use Collection.query(...)
+  constructor(collection: Collection<Record>, clauses: Clause[])
 
   pipe<T>(transform: (_: this) => T): T
 
@@ -69,8 +83,6 @@ export default class Query<Record extends Model> {
 
   // Queries database and returns the number of matching records
   fetchCount(): Promise<number>
-
-  get count(): QueryCountProxy
 
   // Emits the number of matching records, then emits a new count every time it changes
   // Note: By default, the Observable is throttled!
@@ -97,18 +109,6 @@ export default class Query<Record extends Model> {
 
   // Destroys all records matching the query
   destroyAllPermanently(): Promise<void>
-
-  // MARK: - Internals
-
-  get modelClass(): Record
-
-  get table(): TableName<Record>
-
-  get secondaryTables(): TableName<any>[]
-
-  get allTables(): TableName<any>[]
-
-  get associations(): QueryAssociation[]
 
   // Serialized version of Query (e.g. for sending to web worker)
   serialize(): SerializedQuery
