@@ -7,7 +7,7 @@ import isObj from '../../utils/fp/isObj'
 
 import type { $RE } from '../../types'
 import type {
-  columnName,
+  ColumnName,
   ColumnSchema,
   TableName,
   TableSchema,
@@ -34,6 +34,13 @@ export type DestroyColumnMigrationStep = $RE<{
   column: ColumnName,
 }>
 
+export type RenameColumnMigrationStep = $RE<{
+  type: 'rename_column',
+  table: TableName<any>,
+  from: ColumnName,
+  to: ColumnName,
+}>
+
 export type SqlMigrationStep = $RE<{
   type: 'sql',
   sql: string,
@@ -44,6 +51,7 @@ export type MigrationStep =
   | AddColumnsMigrationStep
   | SqlMigrationStep
   | DestroyColumnMigrationStep
+  | RenameColumnMigrationStep
 
 type Migration = $RE<{
   toVersion: SchemaVersion,
@@ -198,6 +206,22 @@ export function unsafeExecuteSql(sql: string): SqlMigrationStep {
   return { type: 'sql', sql }
 }
 
+export function renameColumn({
+  table,
+  from,
+  to,
+}: $Exact<{
+  table: TableName<any>,
+  from: ColumnName,
+  to: ColumnName,
+}>): RenameColumnMigrationStep {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(table, `Missing table name in renameColumn()`)
+    invariant(from, `Missing 'from' in renameColumn()`)
+    invariant(to, `Missing 'to' in renameColumn()`)
+  }
+  return { type: 'rename_column', table, from, to }
+}
 /*
 
 TODO: Those types of migrations are currently not implemented. If you need them, feel free to contribute!
@@ -205,9 +229,6 @@ TODO: Those types of migrations are currently not implemented. If you need them,
 // table operations
 destroyTable('table_name')
 renameTable({ from: 'old_table_name', to: 'new_table_name' })
-
-// column operations
-renameColumn({ table: 'table_name', from: 'old_column_name', to: 'new_column_name' })
 
 // indexing
 addColumnIndex({ table: 'table_name', column: 'column_name' })
