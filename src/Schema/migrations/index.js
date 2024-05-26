@@ -41,6 +41,11 @@ export type RenameColumnMigrationStep = $RE<{
   to: ColumnName,
 }>
 
+export type DestroyTableMigrationStep = $RE<{
+  type: 'destroy_table',
+  table: TableName<any>,
+}>
+
 export type SqlMigrationStep = $RE<{
   type: 'sql',
   sql: string,
@@ -199,13 +204,6 @@ export function destroyColumn({
   return { type: 'destroy_column', table, column }
 }
 
-export function unsafeExecuteSql(sql: string): SqlMigrationStep {
-  if (process.env.NODE_ENV !== 'production') {
-    invariant(typeof sql === 'string', `SQL passed to unsafeExecuteSql is not a string`)
-  }
-  return { type: 'sql', sql }
-}
-
 export function renameColumn({
   table,
   from,
@@ -222,12 +220,31 @@ export function renameColumn({
   }
   return { type: 'rename_column', table, from, to }
 }
+
+export function destroyTable({
+  table,
+}: $Exact<{
+  table: TableName<any>,
+}>): DestroyTableMigrationStep {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(table, `Missing 'table' in destroyTable()`)
+  }
+
+  return { type: 'destroy_table', table }
+}
+
+export function unsafeExecuteSql(sql: string): SqlMigrationStep {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(typeof sql === 'string', `SQL passed to unsafeExecuteSql is not a string`)
+  }
+  return { type: 'sql', sql }
+}
+
 /*
 
 TODO: Those types of migrations are currently not implemented. If you need them, feel free to contribute!
 
 // table operations
-destroyTable('table_name')
 renameTable({ from: 'old_table_name', to: 'new_table_name' })
 
 // indexing

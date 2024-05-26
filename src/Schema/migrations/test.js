@@ -1,4 +1,11 @@
-import { createTable, addColumns, destroyColumn, renameColumn, schemaMigrations } from './index'
+import {
+  createTable,
+  addColumns,
+  destroyColumn,
+  renameColumn,
+  schemaMigrations,
+  destroyTable,
+} from './index'
 import { stepsForMigration } from './stepsForMigration'
 
 describe('schemaMigrations()', () => {
@@ -30,6 +37,7 @@ describe('schemaMigrations()', () => {
   it('returns a complex schema migrations spec', () => {
     const migrations = schemaMigrations({
       migrations: [
+        { toVersion: 6, steps: [destroyTable({ table: 'comments' })] },
         {
           toVersion: 5,
           steps: [renameColumn({ table: 'comments', from: 'text', to: 'body' })],
@@ -80,7 +88,7 @@ describe('schemaMigrations()', () => {
     expect(migrations).toEqual({
       validated: true,
       minVersion: 1,
-      maxVersion: 5,
+      maxVersion: 6,
       sortedMigrations: [
         {
           toVersion: 2,
@@ -142,6 +150,15 @@ describe('schemaMigrations()', () => {
               table: 'comments',
               from: 'text',
               to: 'body',
+            },
+          ],
+        },
+        {
+          toVersion: 6,
+          steps: [
+            {
+              type: 'destroy_table',
+              table: 'comments',
             },
           ],
         },
@@ -230,6 +247,9 @@ describe('migration step functions', () => {
     expect(() => renameColumn({ from: 'text', to: 'body' })).toThrow('table')
     expect(() => renameColumn({ table: 'foo', from: 'text' })).toThrow('to')
     expect(() => renameColumn({ table: 'foo', to: 'body' })).toThrow('from')
+  })
+  it('throws if destroyTable() is malformed', () => {
+    expect(() => destroyTable()).toThrow('table')
   })
 })
 

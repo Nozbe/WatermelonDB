@@ -33,6 +33,11 @@ export type RenameColumnMigrationStep = $RE<{
   to: ColumnName
 }>
 
+export type DestroyTableMigrationStep = $RE<{
+  type: 'destroy_table'
+  table: TableName<any>
+}>
+
 export type SqlMigrationStep = $RE<{
   type: 'sql'
   sql: string
@@ -44,6 +49,7 @@ export type MigrationStep =
   | SqlMigrationStep
   | DestroyColumnMigrationStep
   | RenameColumnMigrationStep
+  | DestroyTableMigrationStep
 
 type Migration = $RE<{
   toVersion: SchemaVersion
@@ -92,5 +98,11 @@ export function renameColumn({
   from: string
   to: string
 }>): RenameColumnMigrationStep
+
+export function destroyTable({
+  table,
+}: $Exact<{
+  table: TableName<any>
+}>): DestroyTableMigrationStep
 
 export function unsafeExecuteSql(sql: string): SqlMigrationStep
