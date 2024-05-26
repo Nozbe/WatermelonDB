@@ -15,6 +15,8 @@ import type {
   SchemaMigrations,
   CreateTableMigrationStep,
   AddColumnsMigrationStep,
+  DestroyColumnMigrationStep,
+  RenameColumnMigrationStep,
   MigrationStep,
 } from '../../../Schema/migrations'
 import type { SerializedQuery } from '../../../Query'
@@ -392,6 +394,8 @@ export default class DatabaseDriver {
         this._executeAddColumnsMigration(step)
       } else if (step.type === 'destroy_column') {
         this._executeDestroyColumnMigration(step)
+      } else if (step.type === 'rename_column') {
+        this._executeRenameColumnMigration(step)
       } else if (step.type === 'sql') {
         // ignore
       } else {
@@ -435,6 +439,15 @@ export default class DatabaseDriver {
     })
   }
 
+  _executeRenameColumnMigration({ table, from, to }: RenameColumnMigrationStep): void {
+    const collection = this.loki.getCollection(table)
+    collection.findAndUpdate({}, (record) => {
+      if (record[from] !== undefined) {
+        record[to] = record[from]
+      }
+      delete record[from]
+    })
+  }
   // Maps records to their IDs if the record is already cached on JS side
   _compactQueryResults(records: DirtyRaw[], table: TableName<any>): CachedQueryResult {
     const cache = this.getCache(table)
