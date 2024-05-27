@@ -2,6 +2,7 @@
 
 import { type Observable, BehaviorSubject } from '../utils/rx'
 import { type Unsubscribe } from '../utils/subscriptions'
+import logger from '../utils/common/logger'
 import invariant from '../utils/common/invariant'
 import ensureSync from '../utils/common/ensureSync'
 import fromPairs from '../utils/fp/fromPairs'
@@ -107,7 +108,7 @@ export default class Model {
    * })
    */
   async update(recordUpdater: (this) => void = noop): Promise<this> {
-    this.db._ensureInWriter(`Model.update()`)
+    this.__ensureInWriter(`Model.update()`)
     const record = this.prepareUpdate(recordUpdater)
     await this.db.batch(this)
     return record
@@ -122,7 +123,10 @@ export default class Model {
    * @see {Database#batch}
    */
   prepareUpdate(recordUpdater: (this) => void = noop): this {
-    invariant(!this._preparedState, `Cannot update a record with pending changes. Update attempted for table ${this.table} and record ${this.id}.`)
+    invariant(
+      !this._preparedState,
+      `Cannot update a record with pending changes (${this.__debugName})`,
+    )
     this.__ensureNotDisposable(`Model.prepareUpdate()`)
     this._isEditing = true
 
@@ -149,10 +153,11 @@ export default class Model {
       process.nextTick(() => {
         invariant(
           this._preparedState !== 'update',
-          `record.prepareUpdate was called on ${this.table}#${this.id} but wasn't sent to batch() synchronously -- this is bad!`,
+          `record.prepareUpdate was called on ${this.__debugName} but wasn't sent to batch() synchronously -- this is bad!`,
         )
       })
     }
+    this.__logVerbose('prepareUpdate')
 
     return this
   }
@@ -163,7 +168,7 @@ export default class Model {
    * Note: This method must be called within a Writer {@link Database#write}.
    */
   async markAsDeleted(): Promise<void> {
-    this.db._ensureInWriter(`Model.markAsDeleted()`)
+    this.__ensureInWriter(`Model.markAsDeleted()`)
     this.__ensureNotDisposable(`Model.markAsDeleted()`)
     await this.db.batch(this.prepareMarkAsDeleted())
   }
@@ -177,10 +182,14 @@ export default class Model {
    * @see {Database#batch}
    */
   prepareMarkAsDeleted(): this {
-    invariant(!this._preparedState, `Cannot mark a record with pending changes as deleted`)
+    invariant(
+      !this._preparedState,
+      `Cannot mark a record with pending changes as deleted (${this.__debugName})`,
+    )
     this.__ensureNotDisposable(`Model.prepareMarkAsDeleted()`)
     this._raw._status = 'deleted'
     this._preparedState = 'markAsDeleted'
+    this.__logVerbose('prepareMarkAsDeleted')
     return this
   }
 
@@ -192,7 +201,7 @@ export default class Model {
    * Note: This method must be called within a Writer {@link Database#write}.
    */
   async destroyPermanently(): Promise<void> {
-    this.db._ensureInWriter(`Model.destroyPermanently()`)
+    this.__ensureInWriter(`Model.destroyPermanently()`)
     this.__ensureNotDisposable(`Model.destroyPermanently()`)
     await this.db.batch(this.prepareDestroyPermanently())
   }
@@ -208,10 +217,14 @@ export default class Model {
    * @see {Database#batch}
    */
   prepareDestroyPermanently(): this {
-    invariant(!this._preparedState, `Cannot destroy permanently a record with pending changes`)
+    invariant(
+      !this._preparedState,
+      `Cannot destroy permanently record with pending changes (${this.__debugName})`,
+    )
     this.__ensureNotDisposable(`Model.prepareDestroyPermanently()`)
     this._raw._status = 'deleted'
     this._preparedState = 'destroyPermanently'
+    this.__logVerbose('prepareDestroyPermanently')
     return this
   }
 
@@ -224,7 +237,7 @@ export default class Model {
    * Note: This method must be called within a Writer {@link Database#write}.
    */
   async experimentalMarkAsDeleted(): Promise<void> {
-    this.db._ensureInWriter(`Model.experimental_markAsDeleted()`)
+    this.__ensureInWriter(`Model.experimentalMarkAsDeleted()`)
     this.__ensureNotDisposable(`Model.experimentalMarkAsDeleted()`)
     const records = await fetchDescendants(this)
     records.forEach((model) => model.prepareMarkAsDeleted())
@@ -243,7 +256,7 @@ export default class Model {
    * Note: This method must be called within a Writer {@link Database#write}.
    */
   async experimentalDestroyPermanently(): Promise<void> {
-    this.db._ensureInWriter(`Model.experimental_destroyPermanently()`)
+    this.__ensureInWriter(`Model.experimentalDestroyPermanently()`)
     this.__ensureNotDisposable(`Model.experimentalDestroyPermanently()`)
     const records = await fetchDescendants(this)
     records.forEach((model) => model.prepareDestroyPermanently())
@@ -262,7 +275,10 @@ export default class Model {
    * Emits `complete` signal if this record is deleted (marked as deleted or permanently destroyed)
    */
   observe(): Observable<this> {
-    invariant(this._preparedState !== 'create', `Cannot observe uncommitted record`)
+    invariant(
+      this._preparedState !== 'create',
+      `Cannot observe uncommitted record (${this.__debugName})`,
+    )
     return this._getChanges()
   }
 
@@ -355,6 +371,8 @@ export default class Model {
     ensureSync(recordBuilder(record))
     record._isEditing = false
 
+    record.__logVerbose('prepareCreate')
+
     return record
   }
 
@@ -364,6 +382,7 @@ export default class Model {
   ): this {
     const record = new this(collection, sanitizedRaw(dirtyRaw, collection.schema))
     record._preparedState = 'create'
+    record.__logVerbose('prepareCreateFromDirtyRaw')
     return record
   }
 
@@ -373,6 +392,7 @@ export default class Model {
   ): this {
     const record = new this(collection, sanitizedRaw(dirtyRaw, collection.schema))
     record._raw._status = 'disposable'
+    record.__logVerbose('disposableFromDirtyRaw')
     return record
   }
 
@@ -432,20 +452,37 @@ export default class Model {
     setRawSanitized(this._raw, rawFieldName, rawValue, this.collection.schema.columns[rawFieldName])
   }
 
+  get __debugName(): string {
+    return `${this.table}#${this.id}`
+  }
+
   __ensureCanSetRaw(): void {
     this.__ensureNotDisposable(`Model._setRaw()`)
-    invariant(this._isEditing, 'Not allowed to change record outside of create/update()')
+    invariant(
+      this._isEditing,
+      `Not allowed to change record ${this.__debugName} outside of create/update()`,
+    )
     invariant(
       !(this._getChanges(): $FlowFixMe<BehaviorSubject<any>>).isStopped &&
         this._raw._status !== 'deleted',
-      'Not allowed to change deleted records',
+      `Not allowed to change deleted record ${this.__debugName}`,
     )
   }
 
   __ensureNotDisposable(debugName: string): void {
     invariant(
       this._raw._status !== 'disposable',
-      `${debugName} cannot be called on a disposable record`,
+      `${debugName} cannot be called on a disposable record ${this.__debugName}`,
     )
+  }
+
+  __ensureInWriter(debugName: string): void {
+    this.db._ensureInWriter(`${debugName} (${this.__debugName})`)
+  }
+
+  __logVerbose(debugName: string): void {
+    if (this.db.experimentalIsVerbose) {
+      logger.debug(`${debugName}: ${this.__debugName}`)
+    }
   }
 }

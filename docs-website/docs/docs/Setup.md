@@ -5,7 +5,7 @@ hide_title: true
 
 # Set up your app for WatermelonDB
 
-Make sure you [installed Watermelon](./Installation.md) before proceeding.
+Make sure you [installed Watermelon](./Installation.mdx) before proceeding.
 
 Create `model/schema.js` in your project. You'll need it for [the next step](./Schema.md).
 

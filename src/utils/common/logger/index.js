@@ -9,6 +9,10 @@ const formatMessages = (messages: Array<any>) => {
 class Logger {
   silent: boolean = false
 
+  debug(...messages: any[]): void {
+    !this.silent && console.debug(...formatMessages(messages))
+  }
+
   log(...messages: any[]): void {
     !this.silent && console.log(...formatMessages(messages))
   }

@@ -155,6 +155,25 @@ export default class Database {
 
     await this.adapter.batch(batchOperations)
 
+    // Debug info
+    if (this.experimentalIsVerbose) {
+      const debugInfo = batchOperations
+        .map(([type, table, rawOrId]) => {
+          switch (type) {
+            case 'create':
+            case 'update':
+              return `${type} ${table}#${(rawOrId: any).id}`
+            case 'markAsDeleted':
+            case 'destroyPermanently':
+              return `${type} ${table}#${(rawOrId: any)}`
+            default:
+              return `${type}???`
+          }
+        })
+        .join(', ')
+      logger.debug(`batch: ${debugInfo}`)
+    }
+
     // NOTE: We must make two passes to ensure all changes to caches are applied before subscribers are called
     const changes: [TableName<any>, CollectionChangeSet<any>][] = (Object.entries(
       changeNotifications,
@@ -361,10 +380,15 @@ export default class Database {
     }
   }
 
-  _ensureInWriter(diagnosticMethodName: string): void {
+  // (experimental) if true, Models will print to console diagnostic information on every
+  // prepareCreate/Update/Delete call, as well as on commit (Database.batch() call). Note that this
+  // has a significant performance impact so should only be enabled when debugging.
+  experimentalIsVerbose: boolean = false
+
+  _ensureInWriter(debugName: string): void {
     invariant(
       this._workQueue.isWriterRunning,
-      `${diagnosticMethodName} can only be called from inside of a Writer. See docs for more details.`,
+      `${debugName} can only be called from inside of a Writer. See docs for more details.`,
     )
   }
 

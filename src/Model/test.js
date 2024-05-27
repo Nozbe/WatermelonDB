@@ -384,7 +384,7 @@ describe('Safety features', () => {
         m1.update(() => {
           m1.name = 'new'
         }),
-        'Not allowed to change deleted records',
+        'Not allowed to change deleted record',
       )
     })
   })
@@ -399,7 +399,7 @@ describe('Safety features', () => {
         m1.update(() => {
           m1.name = 'new'
         }),
-        'Not allowed to change deleted records',
+        'Not allowed to change deleted record',
       )
     })
   })
