@@ -57,6 +57,7 @@ export type MigrationStep =
   | SqlMigrationStep
   | DestroyColumnMigrationStep
   | RenameColumnMigrationStep
+  | DestroyTableMigrationStep
 
 type Migration = $RE<{
   toVersion: SchemaVersion,
