@@ -41,7 +41,14 @@ export default function getSyncChanges(
 
   steps.forEach((step) => {
     invariant(
-      ['create_table', 'add_columns', 'sql', 'rename_column'].includes(step.type),
+      [
+        'create_table',
+        'add_columns',
+        'destroy_column',
+        'rename_column',
+        'destroy_table',
+        'sql',
+      ].includes(step.type),
       `Unknown migration step type ${step.type}. Can not perform migration sync. This most likely means your migrations are defined incorrectly. It could also be a WatermelonDB bug.`,
     )
   })
