@@ -271,8 +271,6 @@ describe('getSyncChanges', () => {
       'add_column_index',
       'make_column_optional',
       'make_column_required',
-      'destroy_table',
-      'destroy_column',
     ]
     possibleFutureTypes.forEach((type) => {
       expect(() => testSteps([{ type }])).toThrow('Unknown migration step type')
