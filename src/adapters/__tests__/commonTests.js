@@ -16,6 +16,7 @@ import {
   addColumns,
   renameColumn,
   destroyTable,
+  destroyColumn,
 } from '../../Schema/migrations'
 
 import { matchTests, naughtyMatchTests, joinTests } from '../../__tests__/databaseTests'
@@ -1075,6 +1076,63 @@ export default () => {
 
     const tt1 = await adapter.find('tag_assignments', 'tt2')
     expect(tt1.text1).toBe('hello')
+  })
+  it('migrations: destroyColumn', async (_adapter, AdapterClass, extraAdapterOptions) => {
+    // initial schema
+    const taskColumns_v1 = [
+      { name: 'num1', type: 'number' },
+      { name: 'num2', type: 'number' },
+    ]
+    const testSchema_v1 = appSchema({
+      version: 1,
+      tables: [tableSchema({ name: 'tasks', columns: taskColumns_v1 })],
+    })
+
+    let adapter = new DatabaseAdapterCompat(
+      new AdapterClass({
+        schema: testSchema_v1,
+        migrations: schemaMigrations({ migrations: [] }),
+        ...extraAdapterOptions,
+      }),
+    )
+
+    // add data
+    await adapter.batch([
+      ['create', 'tasks', { id: 't1', num1: 10, num2: 1337 }],
+      ['create', 'tasks', { id: 't2', num1: 20, num2: 2137 }],
+    ])
+
+    // apply changes - remove num2 column
+    const taskColumns_v2 = [{ name: 'num1', type: 'number' }]
+    const testSchema_v2 = appSchema({
+      version: 2,
+      tables: [tableSchema({ name: 'tasks', columns: taskColumns_v2 })],
+    })
+    const migrations_v2 = schemaMigrations({
+      migrations: [{ toVersion: 2, steps: [destroyColumn({ table: 'tasks', column: 'num2' })] }],
+    })
+
+    adapter = await adapter.testClone({ schema: testSchema_v2, migrations: migrations_v2 })
+
+    // check that data was transformed correctly
+    const t1 = await adapter.find('tasks', 't1')
+    expect(t1.num1).toBe(10)
+    expect(t1.num2).toBe(undefined)
+
+    const t2 = await adapter.find('tasks', 't2')
+    expect(t2.num1).toBe(20)
+    expect(t2.num2).toBe(undefined)
+
+    // check that it's no longer possible to insert data into removed column
+    // NOTE: batch() expects sanitized raws, and Loki will take anything if it's not; we're just checking
+    // SQL which has an actual schema
+    if (AdapterClass.name === 'SQLiteAdapter') {
+      await adapter.batch([['create', 'tasks', { id: 't3', num1: 30, num2: 3333 }]])
+      adapter = await adapter.testClone()
+      const t3 = await adapter.find('tasks', 't3')
+      expect(t3.num1).toBe(30)
+      expect(t3.num2).toBe(undefined)
+    }
   })
   it('migrations: destroyTable', async (_adapter, AdapterClass, extraAdapterOptions) => {
     // initial schema
