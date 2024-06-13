@@ -20,7 +20,7 @@
 ### Changes
 
 - Improved Model diagnostic errors now always contain `table#id` of offending record
-- Update `better-sqlite3` to 9.x
+- Update `better-sqlite3` to 11.x
 - [docs] Improved Android installation docs
 
 ### Internal
