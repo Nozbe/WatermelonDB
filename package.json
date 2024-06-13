@@ -155,7 +155,7 @@
     "patch-package": "^8.0.0",
     "path": "^0.12.7",
     "postinstall-postinstall": "^2.1.0",
-    "prettier": "^3.2.5",
+    "prettier": "^3.3.2",
     "rambdax": "2.15.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
