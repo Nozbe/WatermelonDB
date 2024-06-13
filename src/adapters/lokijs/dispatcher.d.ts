@@ -7,11 +7,10 @@ import type {
 } from './common'
 
 type WorkerAction = {
-  id: number,
-  callback: ResultCallback<WorkerResponseData>,
+  id: number
+  callback: ResultCallback<WorkerResponseData>
 }
 type WorkerActions = WorkerAction[]
-
 
 export default class LokiDispatcher {
   _worker: Worker

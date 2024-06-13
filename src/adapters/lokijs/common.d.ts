@@ -27,14 +27,14 @@ export type WorkerResponseData = CachedQueryResult | CachedFindResult | number |
 export type CloneMethod = 'shallowCloneDeepObjects' | 'immutable' | 'deep'
 
 export type WorkerAction = $Exact<{
-  id: number,
-  type: WorkerExecutorType,
-  payload: WorkerExecutorPayload,
-  cloneMethod: CloneMethod,
-  returnCloneMethod: CloneMethod,
+  id: number
+  type: WorkerExecutorType
+  payload: WorkerExecutorPayload
+  cloneMethod: CloneMethod
+  returnCloneMethod: CloneMethod
 }>
 
 export type WorkerResponse = $Exact<{
-  id: number,
-  result: Result<WorkerResponseData>,
+  id: number
+  result: Result<WorkerResponseData>
 }>

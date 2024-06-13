@@ -7,6 +7,7 @@ HEADER_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/H
 OTHER_CFLAGS = $(inherited) -fmodule-map-file="${PODS_ROOT}/Headers/Public/RCTTypeSafety/RCTTypeSafety.modulemap" -fmodule-map-file="${PODS_ROOT}/Headers/Public/React/React-Core.modulemap" -fmodule-map-file="${PODS_ROOT}/Headers/Public/ReactCommon/ReactCommon.modulemap" -fmodule-map-file="${PODS_ROOT}/Headers/Public/React_Codegen/React-Codegen.modulemap" -fmodule-map-file="${PODS_ROOT}/Headers/Public/folly/RCT-Folly.modulemap" -fmodule-map-file="${PODS_ROOT}/Headers/Public/yoga/Yoga.modulemap"
 PODS_BUILD_DIR = ${BUILD_DIR}
 PODS_CONFIGURATION_BUILD_DIR = ${PODS_BUILD_DIR}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)
+PODS_DEVELOPMENT_LANGUAGE = ${DEVELOPMENT_LANGUAGE}
 PODS_ROOT = ${SRCROOT}
 PODS_TARGET_SRCROOT = ${PODS_ROOT}/../../../node_modules/react-native/Libraries/Network
 PODS_XCFRAMEWORKS_BUILD_DIR = $(PODS_CONFIGURATION_BUILD_DIR)/XCFrameworkIntermediates

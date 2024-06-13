@@ -5,10 +5,10 @@ import type { SyncDatabaseChangeSet, SyncLog, SyncConflictResolver } from '../in
 export default function applyRemoteChanges(
   remoteChanges: SyncDatabaseChangeSet,
   opts: {
-    db: Database,
-    sendCreatedAsUpdated: boolean,
-    log?: SyncLog,
-    conflictResolver?: SyncConflictResolver,
-    _unsafeBatchPerCollection?: boolean,
-  }
+    db: Database
+    sendCreatedAsUpdated: boolean
+    log?: SyncLog
+    conflictResolver?: SyncConflictResolver
+    _unsafeBatchPerCollection?: boolean
+  },
 ): Promise<void>
