@@ -98,34 +98,34 @@ const encodeDestroyColumnMigrationStep: (DestroyColumnMigrationStep, TableSchema
   { table, column },
   tableSchema,
 ) => {
-  const newTempTable = { ...tableSchema, name: `${table}Temp` }
+  const tempName = `${table}Temp`
+  const newTempTable = { ...tableSchema, name: tempName }
   const newColumns = [
     ...standardColumns,
     ...Object.keys(tableSchema.columns).filter((c) => c !== column),
-  ]
+  ].map(c => `"${c}"`).join(', ')
   const createTempTableSQL = `${encodeTable(newTempTable)}`
-  const injectValuesSQL = `INSERT INTO ${table}Temp(${newColumns.join(
-    ',',
-  )}) SELECT ${newColumns.join(',')} FROM ${table};`
-  const dropOldTable = `DROP TABLE ${table};`
-  const renameTempTableSQL = `ALTER TABLE ${table}Temp RENAME TO ${table};`
+  const injectValuesSQL = `insert into "${tempName}" (${newColumns}) select ${newColumns} from "${table}";`
+  const dropOldTable = `drop table "${table}";`
+  const renameTempTableSQL = `alter table "${tempName}" rename to "${table}";`
   return `${createTempTableSQL}${injectValuesSQL}${dropOldTable}${renameTempTableSQL}`
 }
+
 const encodeRenameColumnMigrationStep: (RenameColumnMigrationStep, TableSchema) => SQL = (
   { table, from, to },
   tableSchema,
 ) => {
-  const newTempTable = { ...tableSchema, name: `${table}Temp` }
+  const tempName = `${table}Temp`
+  const newTempTable = { ...tableSchema, name: tempName }
   const newColumnNames = [...standardColumns, ...Object.keys(tableSchema.columns)]
-  const oldColumnNames = newColumnNames.map((c) => (c === to ? from : c))
+  const newColumns = newColumnNames.map(c => `"${c}"`).join(", ")
+  const oldColumns =  newColumnNames.map((c) => (c === to ? from : c)).map(c => `"${c}"`).join(", ")
 
   const createTempTableSQL = `${encodeTable(newTempTable)}`
-  const injectValuesSQL = `INSERT INTO ${table}Temp(${newColumnNames.join(
-    ',',
-  )}) SELECT ${oldColumnNames.join(',')} FROM ${table};`
+  const injectValuesSQL = `insert into "${tempName}" (${newColumns}) select ${oldColumns} from "${table}";`
 
-  const dropOldTableSQL = `DROP TABLE ${table};`
-  const renameTempTableSQL = `ALTER TABLE ${table}Temp RENAME TO ${table};`
+  const dropOldTableSQL = `drop table "${table}";`
+  const renameTempTableSQL = `alter table "${tempName}" rename to "${table}";`
   return `${createTempTableSQL}${injectValuesSQL}${dropOldTableSQL}${renameTempTableSQL}`
 }
 

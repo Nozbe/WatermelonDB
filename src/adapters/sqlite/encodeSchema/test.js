@@ -212,15 +212,16 @@ describe('encodeMigrationSteps', () => {
         `create index if not exists "postsTemp_author_id" on "postsTemp" ("author_id");` +
         `create index if not exists "postsTemp_is_pinned" on "postsTemp" ("is_pinned");` +
         `create index if not exists "postsTemp__status" on "postsTemp" ("_status");` +
-        `INSERT INTO postsTemp(id,_changed,_status,reactions,author_id,is_pinned) SELECT id,_changed,_status,reactions,author_id,is_pinned FROM posts;` +
-        `DROP TABLE posts;ALTER TABLE postsTemp RENAME TO posts;` +
+        `insert into "postsTemp" ("id", "_changed", "_status", "reactions", "author_id", "is_pinned") select "id", "_changed", "_status", "reactions", "author_id", "is_pinned" from "posts";` +
+        `drop table "posts";` +
+        `alter table "postsTemp" rename to "posts";` +
         // rename column
         `create table "commentsTemp" ("id" primary key, "_changed", "_status", "post_id", "description");` +
         `create index if not exists "commentsTemp_post_id" on "commentsTemp" ("post_id");` +
         `create index if not exists "commentsTemp__status" on "commentsTemp" ("_status");` +
-        `INSERT INTO commentsTemp(id,_changed,_status,post_id,description) SELECT id,_changed,_status,post_id,body FROM comments;` +
-        `DROP TABLE comments;` +
-        `ALTER TABLE commentsTemp RENAME TO comments;`,
+        `insert into "commentsTemp" ("id", "_changed", "_status", "post_id", "description") select "id", "_changed", "_status", "post_id", "body" from "comments";` +
+        `drop table "comments";` +
+        `alter table "commentsTemp" rename to "comments";`,
     )
   })
   it(`encodes migrations with unsafe SQL`, () => {
