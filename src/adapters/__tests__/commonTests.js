@@ -967,11 +967,7 @@ export default () => {
       { name: 'test_boolean_optional', type: 'boolean', isOptional: true },
     ]
 
-    const taskColumnsV5 = [
-      ...taskColumnsV5_new,
-      // renamed columns
-      { name: 'num1_renamed', type: 'number' },
-    ]
+    const taskColumnsV5 = [...taskColumnsV5_new]
     const projectColumnsV5 = [{ name: 'text2', type: 'string', isIndexed: true }]
     const tagAssignmentSchema = {
       name: 'tag_assignments',
@@ -996,10 +992,7 @@ export default () => {
       migrations: [
         {
           toVersion: 5,
-          steps: [
-            addColumns({ table: 'tasks', columns: taskColumnsV5_new }),
-            renameColumn({ table: 'tasks', from: 'num1', to: 'num1_renamed' }),
-          ],
+          steps: [addColumns({ table: 'tasks', columns: taskColumnsV5_new })],
         },
         {
           toVersion: 4,
@@ -1026,17 +1019,6 @@ export default () => {
 
     // check that the data is still there
     expect(await adapter.count(new Query({ modelClass: MockTask }, []))).toBe(2)
-
-    // check that column was renamed
-    {
-      const t1 = await adapter.find('tasks', 't1')
-      expect(t1.num1).toBe(undefined)
-      expect(t1.num1_renamed).toBe(10)
-
-      const t2 = await adapter.find('tasks', 't2')
-      expect(t2.num1).toBe(undefined)
-      expect(t2.num1_renamed).toBe(20)
-    }
 
     // check if new columns were populated with appropriate default values
     const checkTaskColumn = (columnName, expectedValue) =>
@@ -1078,6 +1060,76 @@ export default () => {
 
     const tt1 = await adapter.find('tag_assignments', 'tt2')
     expect(tt1.text1).toBe('hello')
+  })
+  it('migrations: renameColumn', async (_adapter, AdapterClass, extraAdapterOptions) => {
+    // initial schema
+    const testSchema_v1 = appSchema({
+      version: 1,
+      tables: [
+        tableSchema({
+          name: 'tasks',
+          columns: [
+            { name: 'num1', type: 'number' },
+            { name: 'num2', type: 'number', isOptional: true },
+          ],
+        }),
+      ],
+    })
+
+    let adapter = migrationsAdapter(AdapterClass, extraAdapterOptions, { schema: testSchema_v1 })
+
+    // add data
+    await adapter.batch([
+      ['create', 'tasks', { id: 't1', num1: 10, num2: 1337 }],
+      ['create', 'tasks', { id: 't2', num1: 20 }],
+    ])
+
+    // apply changes - rename num2 column
+    const testSchema_v2 = appSchema({
+      version: 2,
+      tables: [
+        tableSchema({
+          name: 'tasks',
+          columns: [
+            { name: 'num1', type: 'number' },
+            { name: 'num2_renamed', type: 'number', isOptional: true },
+          ],
+        }),
+      ],
+    })
+    const migrations_v2 = schemaMigrations({
+      migrations: [
+        {
+          toVersion: 2,
+          steps: [renameColumn({ table: 'tasks', from: 'num2', to: 'num2_renamed' })],
+        },
+      ],
+    })
+
+    adapter = await adapter.testClone({ schema: testSchema_v2, migrations: migrations_v2 })
+
+    // check that data was transformed correctly
+    const t1 = await adapter.find('tasks', 't1')
+    expect(t1.num1).toBe(10)
+    expect(t1.num2).toBe(undefined)
+    expect(t1.num2_renamed).toBe(1337)
+
+    const t2 = await adapter.find('tasks', 't2')
+    expect(t2.num1).toBe(20)
+    expect(t2.num2).toBe(undefined)
+    expect(t2.num2_renamed).toBe(null)
+
+    // check that it's no longer possible to insert data into removed column
+    // NOTE: batch() expects sanitized raws, and Loki will take anything if it's not; we're just checking
+    // SQL which has an actual schema
+    if (AdapterClass.name === 'SQLiteAdapter') {
+      await adapter.batch([['create', 'tasks', { id: 't3', num1: 30, num2: 3333 }]])
+      adapter = await adapter.testClone()
+      const t3 = await adapter.find('tasks', 't3')
+      expect(t3.num1).toBe(30)
+      expect(t3.num2).toBe(undefined)
+      expect(t3.num2_renamed).toBe(null)
+    }
   })
   it('migrations: destroyColumn', async (_adapter, AdapterClass, extraAdapterOptions) => {
     // initial schema
