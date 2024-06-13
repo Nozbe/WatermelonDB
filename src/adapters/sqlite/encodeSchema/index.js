@@ -14,15 +14,13 @@ import type { SQL } from '../index'
 import encodeValue from '../encodeValue'
 
 const standardColumns = ['id', '_changed', '_status']
-const standardColumnsSQL = standardColumns
-  .map((column) => (column === 'id' ? `"${column}" primary key` : `"${column}"`))
-  .join(', ')
+const standardColumnsInsertSQL = `"id" primary key, "_changed", "_status"`
 const commonSchema =
   'create table "local_storage" ("key" varchar(16) primary key not null, "value" text not null);' +
   'create index "local_storage_key_index" on "local_storage" ("key");'
 
 const encodeCreateTable = ({ name, columns }: TableSchema): SQL => {
-  const columnsSQL = [standardColumnsSQL]
+  const columnsSQL = [standardColumnsInsertSQL]
     .concat(Object.keys(columns).map((column) => `"${column}"`))
     .join(', ')
   return `create table "${name}" (${columnsSQL});`
@@ -94,40 +92,40 @@ const encodeAddColumnsMigrationStep: (AddColumnsMigrationStep) => SQL = ({
     })
     .join('')
 
-const encodeDestroyColumnMigrationStep: (DestroyColumnMigrationStep, TableSchema) => SQL = (
-  { table, column },
+const encodeChangeColumnMigrationStep: (TableName, ColumnName, ?ColumnName, TableSchema) => SQL = (
+  table,
+  oldColumn,
+  newColumn, // null = destroy column
   tableSchema,
 ) => {
   const tempName = `${table}Temp`
-  const newTempTable = { ...tableSchema, name: tempName }
-  const newColumns = [
-    ...standardColumns,
-    ...Object.keys(tableSchema.columns).filter((c) => c !== column),
-  ].map(c => `"${c}"`).join(', ')
-  const createTempTableSQL = `${encodeTable(newTempTable)}`
-  const injectValuesSQL = `insert into "${tempName}" (${newColumns}) select ${newColumns} from "${table}";`
+  const tempTable = { ...tableSchema, name: tempName }
+
+  const newColumnNames = [...standardColumns, ...Object.keys(tableSchema.columns)].filter(
+    newColumn ? Boolean : (c) => c !== oldColumn,
+  )
+  const newColumns = newColumnNames.map((c) => `"${c}"`).join(', ')
+  const oldColumns = newColumnNames
+    .map((c) => (c === newColumn ? oldColumn : c))
+    .map((c) => `"${c}"`)
+    .join(', ')
+
+  const createTempTableSQL = encodeTable(tempTable)
+  const injectValuesSQL = `insert into "${tempName}" (${newColumns}) select ${oldColumns} from "${table}";`
   const dropOldTable = `drop table "${table}";`
   const renameTempTableSQL = `alter table "${tempName}" rename to "${table}";`
-  return `${createTempTableSQL}${injectValuesSQL}${dropOldTable}${renameTempTableSQL}`
+  return createTempTableSQL + injectValuesSQL + dropOldTable + renameTempTableSQL
 }
+
+const encodeDestroyColumnMigrationStep: (DestroyColumnMigrationStep, TableSchema) => SQL = (
+  { table, column },
+  tableSchema,
+) => encodeChangeColumnMigrationStep(table, column, null, tableSchema)
 
 const encodeRenameColumnMigrationStep: (RenameColumnMigrationStep, TableSchema) => SQL = (
   { table, from, to },
   tableSchema,
-) => {
-  const tempName = `${table}Temp`
-  const newTempTable = { ...tableSchema, name: tempName }
-  const newColumnNames = [...standardColumns, ...Object.keys(tableSchema.columns)]
-  const newColumns = newColumnNames.map(c => `"${c}"`).join(", ")
-  const oldColumns =  newColumnNames.map((c) => (c === to ? from : c)).map(c => `"${c}"`).join(", ")
-
-  const createTempTableSQL = `${encodeTable(newTempTable)}`
-  const injectValuesSQL = `insert into "${tempName}" (${newColumns}) select ${oldColumns} from "${table}";`
-
-  const dropOldTableSQL = `drop table "${table}";`
-  const renameTempTableSQL = `alter table "${tempName}" rename to "${table}";`
-  return `${createTempTableSQL}${injectValuesSQL}${dropOldTableSQL}${renameTempTableSQL}`
-}
+) => encodeChangeColumnMigrationStep(table, from, to, tableSchema)
 
 const encodeDestroyTableMigrationStep: (DestroyTableMigrationStep) => SQL = ({ table }) => {
   return `
