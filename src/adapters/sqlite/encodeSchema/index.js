@@ -128,9 +128,7 @@ const encodeRenameColumnMigrationStep: (RenameColumnMigrationStep, TableSchema) 
 ) => encodeChangeColumnMigrationStep(table, from, to, tableSchema)
 
 const encodeDestroyTableMigrationStep: (DestroyTableMigrationStep) => SQL = ({ table }) => {
-  return `
-      DROP TABLE IF EXISTS ${table};
-    `
+  return `drop table if exists "${table}";`
 }
 
 export const encodeMigrationSteps: (MigrationStep[], AppSchema) => SQL = (steps, schema) =>

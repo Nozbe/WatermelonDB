@@ -4,6 +4,7 @@ import {
   addColumns,
   createTable,
   destroyColumn,
+  destroyTable,
   renameColumn,
   unsafeExecuteSql,
 } from '../../../Schema/migrations'
@@ -192,6 +193,9 @@ describe('encodeMigrationSteps', () => {
         from: 'body',
         to: 'description',
       }),
+      destroyTable({
+        table: 'authors',
+      }),
     ]
 
     expect(encodeMigrationSteps(migrationSteps, migrationSchema)).toBe(
@@ -221,7 +225,10 @@ describe('encodeMigrationSteps', () => {
         `create index if not exists "commentsTemp__status" on "commentsTemp" ("_status");` +
         `insert into "commentsTemp" ("id", "_changed", "_status", "post_id", "description") select "id", "_changed", "_status", "post_id", "body" from "comments";` +
         `drop table "comments";` +
-        `alter table "commentsTemp" rename to "comments";`,
+        `alter table "commentsTemp" rename to "comments";` +
+        // destroy table
+        `drop table if exists "authors";` +
+        '',
     )
   })
   it(`encodes migrations with unsafe SQL`, () => {
