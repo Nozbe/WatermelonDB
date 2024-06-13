@@ -10,7 +10,13 @@ import Query from '../../Query'
 import { sanitizedRaw } from '../../RawRecord'
 import * as Q from '../../QueryDescription'
 import { appSchema, tableSchema } from '../../Schema'
-import { schemaMigrations, createTable, addColumns, renameColumn } from '../../Schema/migrations'
+import {
+  schemaMigrations,
+  createTable,
+  addColumns,
+  renameColumn,
+  destroyTable,
+} from '../../Schema/migrations'
 
 import { matchTests, naughtyMatchTests, joinTests } from '../../__tests__/databaseTests'
 import DatabaseAdapterCompat from '../compat'
@@ -1069,6 +1075,55 @@ export default () => {
 
     const tt1 = await adapter.find('tag_assignments', 'tt2')
     expect(tt1.text1).toBe('hello')
+  })
+  it('migrations: destroyTable', async (_adapter, AdapterClass, extraAdapterOptions) => {
+    // initial schema
+    const taskColumns_v1 = [{ name: 'num1', type: 'number' }]
+    const projectColumns_v1 = [{ name: 'text1', type: 'string' }]
+    const testSchema_v1 = appSchema({
+      version: 1,
+      tables: [
+        tableSchema({ name: 'tasks', columns: taskColumns_v1 }),
+        tableSchema({ name: 'projects', columns: projectColumns_v1 }),
+      ],
+    })
+
+    let adapter = new DatabaseAdapterCompat(
+      new AdapterClass({
+        schema: testSchema_v1,
+        migrations: schemaMigrations({ migrations: [] }),
+        ...extraAdapterOptions,
+      }),
+    )
+
+    // add data
+    await adapter.batch([
+      ['create', 'tasks', { id: 't1', num1: 10 }],
+      ['create', 'projects', { id: 'p1', text1: 'hi' }],
+    ])
+
+    // apply changes
+    // NOTE: This is incorrect, as the projects table should be gone. However, we want to test that
+    // the migration really was applied, and not just that table being queried is not in the schema
+    const testSchema_v2 = { ...testSchema_v1, version: 2 }
+    const migrations_v2 = schemaMigrations({
+      migrations: [
+        {
+          toVersion: 2,
+          steps: [destroyTable({ table: 'projects' })],
+        },
+      ],
+    })
+    adapter = await adapter.testClone({
+      schema: testSchema_v2,
+      migrations: migrations_v2,
+    })
+
+    // check that unrelated table is still there
+    expect(await adapter.find('tasks', 't1')).toMatchObject({ id: 't1', num1: 10 })
+
+    // check that deleted table is gone
+    await expect(adapter.find('projects', 'p1')).rejects.toBeInstanceOf(Error)
   })
   it(`can perform empty migrations (regression test)`, async (_adapter, AdapterClass, extraAdapterOptions) => {
     let adapter = new DatabaseAdapterCompat(
