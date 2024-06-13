@@ -3998,10 +3998,10 @@ base@^0.11.1:
     mixin-deep "^1.2.0"
     pascalcase "^0.1.1"
 
-better-sqlite3@^9.5.0:
-  version "9.5.0"
-  resolved "https://registry.yarnpkg.com/better-sqlite3/-/better-sqlite3-9.5.0.tgz#0e10766cfb7f9b8916be3ab95ad9d5bcc4e6e6fd"
-  integrity sha512-01qVcM4gPNwE+PX7ARNiHINwzVuD6nx0gdldaAAcu+MrzyIAukQ31ZDKEpzRO/CNA9sHpxoTZ8rdjoyAin4dyg==
+better-sqlite3@^11.0.0:
+  version "11.0.0"
+  resolved "https://registry.yarnpkg.com/better-sqlite3/-/better-sqlite3-11.0.0.tgz#12083acfe0ded6abdba908ed73520f2003e3ea0e"
+  integrity sha512-1NnNhmT3EZTsKtofJlMox1jkMxdedILury74PwUbQBjWgo4tL4kf7uTAjU55mgQwjdzqakSTjkf+E1imrFwjnA==
   dependencies:
     bindings "^1.5.0"
     prebuild-install "^7.1.1"
