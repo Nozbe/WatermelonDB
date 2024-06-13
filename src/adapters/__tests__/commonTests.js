@@ -10,7 +10,7 @@ import Query from '../../Query'
 import { sanitizedRaw } from '../../RawRecord'
 import * as Q from '../../QueryDescription'
 import { appSchema, tableSchema } from '../../Schema'
-import { schemaMigrations, createTable, addColumns } from '../../Schema/migrations'
+import { schemaMigrations, createTable, addColumns, renameColumn } from '../../Schema/migrations'
 
 import { matchTests, naughtyMatchTests, joinTests } from '../../__tests__/databaseTests'
 import DatabaseAdapterCompat from '../compat'
@@ -949,13 +949,19 @@ export default () => {
     ).rejects.toBeInstanceOf(Error)
 
     // migrate to new version
-    const taskColumnsV5 = [
+    const taskColumnsV5_new = [
       { name: 'test_string', type: 'string' },
       { name: 'test_string_optional', type: 'string', isOptional: true },
       { name: 'test_number', type: 'number' },
       { name: 'test_number_optional', type: 'number', isOptional: true },
       { name: 'test_boolean', type: 'boolean' },
       { name: 'test_boolean_optional', type: 'boolean', isOptional: true },
+    ]
+
+    const taskColumnsV5 = [
+      ...taskColumnsV5_new,
+      // renamed columns
+      { name: 'num1_renamed', type: 'number' },
     ]
     const projectColumnsV5 = [{ name: 'text2', type: 'string', isIndexed: true }]
     const tagAssignmentSchema = {
@@ -968,7 +974,7 @@ export default () => {
       tables: [
         tableSchema({
           name: 'tasks',
-          columns: [...taskColumnsV3, ...taskColumnsV5],
+          columns: taskColumnsV5,
         }),
         tableSchema({
           name: 'projects',
@@ -981,7 +987,10 @@ export default () => {
       migrations: [
         {
           toVersion: 5,
-          steps: [addColumns({ table: 'tasks', columns: taskColumnsV5 })],
+          steps: [
+            addColumns({ table: 'tasks', columns: taskColumnsV5_new }),
+            renameColumn({ table: 'tasks', from: 'num1', to: 'num1_renamed' }),
+          ],
         },
         {
           toVersion: 4,
@@ -1008,6 +1017,17 @@ export default () => {
 
     // check that the data is still there
     expect(await adapter.count(new Query({ modelClass: MockTask }, []))).toBe(2)
+
+    // check that column was renamed
+    {
+      const t1 = await adapter.find('tasks', 't1')
+      expect(t1.num1).toBe(undefined)
+      expect(t1.num1_renamed).toBe(10)
+
+      const t2 = await adapter.find('tasks', 't2')
+      expect(t2.num1).toBe(undefined)
+      expect(t2.num1_renamed).toBe(20)
+    }
 
     // check if new columns were populated with appropriate default values
     const checkTaskColumn = (columnName, expectedValue) =>
