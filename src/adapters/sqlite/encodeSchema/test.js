@@ -1,6 +1,12 @@
 /* eslint-disable prefer-template */
 import { appSchema, tableSchema } from '../../../Schema'
-import { addColumns, createTable, unsafeExecuteSql } from '../../../Schema/migrations'
+import {
+  addColumns,
+  createTable,
+  destroyColumn,
+  renameColumn,
+  unsafeExecuteSql,
+} from '../../../Schema/migrations'
 
 import { encodeSchema, encodeMigrationSteps, encodeCreateIndices, encodeDropIndices } from './index'
 
@@ -129,6 +135,34 @@ describe('encodeIndices', () => {
 })
 
 describe('encodeMigrationSteps', () => {
+  const migrationSchema = appSchema({
+    version: 5,
+    tables: [
+      tableSchema({
+        name: 'posts',
+        columns: [
+          { name: 'reactions', type: 'number' },
+          { name: 'author_id', type: 'string', isIndexed: true },
+          { name: 'is_pinned', type: 'boolean', isIndexed: true },
+          { name: 'subtitle', type: 'string', isOptional: true },
+        ],
+      }),
+      tableSchema({
+        name: 'comments',
+        columns: [
+          { name: 'post_id', type: 'string', isIndexed: true },
+          { name: 'description', type: 'string' },
+        ],
+      }),
+      tableSchema({
+        name: 'authors',
+        columns: [
+          { name: 'created_at', type: 'number' },
+          { name: 'updated_at', type: 'number' },
+        ],
+      }),
+    ],
+  })
   it('encodes migrations', () => {
     const migrationSteps = [
       addColumns({
@@ -149,9 +183,18 @@ describe('encodeMigrationSteps', () => {
           { name: 'is_pinned', type: 'boolean', isIndexed: true },
         ],
       }),
+      destroyColumn({
+        table: 'posts',
+        column: 'subtitle',
+      }),
+      renameColumn({
+        table: 'comments',
+        from: 'body',
+        to: 'description',
+      }),
     ]
 
-    expect(encodeMigrationSteps(migrationSteps)).toBe(
+    expect(encodeMigrationSteps(migrationSteps, migrationSchema)).toBe(
       '' +
         `alter table "posts" add "subtitle";` +
         `update "posts" set "subtitle" = null;` +
@@ -163,7 +206,21 @@ describe('encodeMigrationSteps', () => {
         `create index if not exists "posts_author_id" on "posts" ("author_id");` +
         `alter table "posts" add "is_pinned";` +
         `update "posts" set "is_pinned" = 0;` +
-        `create index if not exists "posts_is_pinned" on "posts" ("is_pinned");`,
+        `create index if not exists "posts_is_pinned" on "posts" ("is_pinned");` +
+        // destroy column
+        `create table "postsTemp" ("id" primary key, "_changed", "_status", "reactions", "author_id", "is_pinned", "subtitle");` +
+        `create index if not exists "postsTemp_author_id" on "postsTemp" ("author_id");` +
+        `create index if not exists "postsTemp_is_pinned" on "postsTemp" ("is_pinned");` +
+        `create index if not exists "postsTemp__status" on "postsTemp" ("_status");` +
+        `INSERT INTO postsTemp(id,_changed,_status,reactions,author_id,is_pinned) SELECT id,_changed,_status,reactions,author_id,is_pinned FROM posts;` +
+        `DROP TABLE posts;ALTER TABLE postsTemp RENAME TO posts;` +
+        // rename column
+        `create table "commentsTemp" ("id" primary key, "_changed", "_status", "post_id", "description");` +
+        `create index if not exists "commentsTemp_post_id" on "commentsTemp" ("post_id");` +
+        `create index if not exists "commentsTemp__status" on "commentsTemp" ("_status");` +
+        `INSERT INTO commentsTemp(id,_changed,_status,post_id,description) SELECT id,_changed,_status,post_id,body FROM comments;` +
+        `DROP TABLE comments;` +
+        `ALTER TABLE commentsTemp RENAME TO comments;`,
     )
   })
   it(`encodes migrations with unsafe SQL`, () => {

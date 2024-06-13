@@ -2,18 +2,27 @@
 
 import type { TableSchema, AppSchema, ColumnSchema, TableName } from '../../../Schema'
 import { nullValue } from '../../../RawRecord'
-import type { MigrationStep, AddColumnsMigrationStep } from '../../../Schema/migrations'
+import type {
+  MigrationStep,
+  AddColumnsMigrationStep,
+  DestroyColumnMigrationStep,
+  RenameColumnMigrationStep,
+  DestroyTableMigrationStep,
+} from '../../../Schema/migrations'
 import type { SQL } from '../index'
 
 import encodeValue from '../encodeValue'
 
-const standardColumns = `"id" primary key, "_changed", "_status"`
+const standardColumns = ['id', '_changed', '_status']
+const standardColumnsSQL = standardColumns
+  .map((column) => (column === 'id' ? `"${column}" primary key` : `"${column}"`))
+  .join(', ')
 const commonSchema =
   'create table "local_storage" ("key" varchar(16) primary key not null, "value" text not null);' +
   'create index "local_storage_key_index" on "local_storage" ("key");'
 
 const encodeCreateTable = ({ name, columns }: TableSchema): SQL => {
-  const columnsSQL = [standardColumns]
+  const columnsSQL = [standardColumnsSQL]
     .concat(Object.keys(columns).map((column) => `"${column}"`))
     .join(', ')
   return `create table "${name}" (${columnsSQL});`
@@ -85,13 +94,60 @@ const encodeAddColumnsMigrationStep: (AddColumnsMigrationStep) => SQL = ({
     })
     .join('')
 
-export const encodeMigrationSteps: (MigrationStep[]) => SQL = (steps) =>
+const encodeDestroyColumnMigrationStep: (DestroyColumnMigrationStep, TableSchema) => SQL = (
+  { table, column },
+  tableSchema,
+) => {
+  const newTempTable = { ...tableSchema, name: `${table}Temp` }
+  const newColumns = [
+    ...standardColumns,
+    ...Object.keys(tableSchema.columns).filter((c) => c !== column),
+  ]
+  const createTempTableSQL = `${encodeTable(newTempTable)}`
+  const injectValuesSQL = `INSERT INTO ${table}Temp(${newColumns.join(
+    ',',
+  )}) SELECT ${newColumns.join(',')} FROM ${table};`
+  const dropOldTable = `DROP TABLE ${table};`
+  const renameTempTableSQL = `ALTER TABLE ${table}Temp RENAME TO ${table};`
+  return `${createTempTableSQL}${injectValuesSQL}${dropOldTable}${renameTempTableSQL}`
+}
+const encodeRenameColumnMigrationStep: (RenameColumnMigrationStep, TableSchema) => SQL = (
+  { table, from, to },
+  tableSchema,
+) => {
+  const newTempTable = { ...tableSchema, name: `${table}Temp` }
+  const newColumnNames = [...standardColumns, ...Object.keys(tableSchema.columns)]
+  const oldColumnNames = newColumnNames.map((c) => (c === to ? from : c))
+
+  const createTempTableSQL = `${encodeTable(newTempTable)}`
+  const injectValuesSQL = `INSERT INTO ${table}Temp(${newColumnNames.join(
+    ',',
+  )}) SELECT ${oldColumnNames.join(',')} FROM ${table};`
+
+  const dropOldTableSQL = `DROP TABLE ${table};`
+  const renameTempTableSQL = `ALTER TABLE ${table}Temp RENAME TO ${table};`
+  return `${createTempTableSQL}${injectValuesSQL}${dropOldTableSQL}${renameTempTableSQL}`
+}
+
+const encodeDestroyTableMigrationStep: (DestroyTableMigrationStep) => SQL = ({ table }) => {
+  return `
+      DROP TABLE IF EXISTS ${table};
+    `
+}
+
+export const encodeMigrationSteps: (MigrationStep[], AppSchema) => SQL = (steps, schema) =>
   steps
     .map((step) => {
       if (step.type === 'create_table') {
         return encodeTable(step.schema)
       } else if (step.type === 'add_columns') {
         return encodeAddColumnsMigrationStep(step)
+      } else if (step.type === 'destroy_column') {
+        return encodeDestroyColumnMigrationStep(step, schema.tables[step.table])
+      } else if (step.type === 'rename_column') {
+        return encodeRenameColumnMigrationStep(step, schema.tables[step.table])
+      } else if (step.type === 'destroy_table') {
+        return encodeDestroyTableMigrationStep(step)
       } else if (step.type === 'sql') {
         return step.sql
       }

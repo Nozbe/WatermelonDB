@@ -6,7 +6,14 @@ import invariant from '../../utils/common/invariant'
 import isObj from '../../utils/fp/isObj'
 
 import type { $RE } from '../../types'
-import type { ColumnSchema, TableName, TableSchema, TableSchemaSpec, SchemaVersion } from '../index'
+import type {
+  ColumnName,
+  ColumnSchema,
+  TableName,
+  TableSchema,
+  TableSchemaSpec,
+  SchemaVersion,
+} from '../index'
 import { tableSchema, validateColumnSchema } from '../index'
 
 export type CreateTableMigrationStep = $RE<{
@@ -21,12 +28,36 @@ export type AddColumnsMigrationStep = $RE<{
   unsafeSql?: (string) => string,
 }>
 
+export type DestroyColumnMigrationStep = $RE<{
+  type: 'destroy_column',
+  table: TableName<any>,
+  column: ColumnName,
+}>
+
+export type RenameColumnMigrationStep = $RE<{
+  type: 'rename_column',
+  table: TableName<any>,
+  from: ColumnName,
+  to: ColumnName,
+}>
+
+export type DestroyTableMigrationStep = $RE<{
+  type: 'destroy_table',
+  table: TableName<any>,
+}>
+
 export type SqlMigrationStep = $RE<{
   type: 'sql',
   sql: string,
 }>
 
-export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep | SqlMigrationStep
+export type MigrationStep =
+  | CreateTableMigrationStep
+  | AddColumnsMigrationStep
+  | SqlMigrationStep
+  | DestroyColumnMigrationStep
+  | RenameColumnMigrationStep
+  | DestroyTableMigrationStep
 
 type Migration = $RE<{
   toVersion: SchemaVersion,
@@ -159,6 +190,50 @@ export function addColumns({
   return { type: 'add_columns', table, columns, unsafeSql }
 }
 
+export function destroyColumn({
+  table,
+  column,
+}: $Exact<{
+  table: TableName<any>,
+  column: ColumnName,
+}>): DestroyColumnMigrationStep {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(table, `Missing 'table' in destroyColumn()`)
+    invariant(column, `Missing 'column' in destroyColumn()`)
+  }
+
+  return { type: 'destroy_column', table, column }
+}
+
+export function renameColumn({
+  table,
+  from,
+  to,
+}: $Exact<{
+  table: TableName<any>,
+  from: ColumnName,
+  to: ColumnName,
+}>): RenameColumnMigrationStep {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(table, `Missing table name in renameColumn()`)
+    invariant(from, `Missing 'from' in renameColumn()`)
+    invariant(to, `Missing 'to' in renameColumn()`)
+  }
+  return { type: 'rename_column', table, from, to }
+}
+
+export function destroyTable({
+  table,
+}: $Exact<{
+  table: TableName<any>,
+}>): DestroyTableMigrationStep {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(table, `Missing 'table' in destroyTable()`)
+  }
+
+  return { type: 'destroy_table', table }
+}
+
 export function unsafeExecuteSql(sql: string): SqlMigrationStep {
   if (process.env.NODE_ENV !== 'production') {
     invariant(typeof sql === 'string', `SQL passed to unsafeExecuteSql is not a string`)
@@ -171,12 +246,7 @@ export function unsafeExecuteSql(sql: string): SqlMigrationStep {
 TODO: Those types of migrations are currently not implemented. If you need them, feel free to contribute!
 
 // table operations
-destroyTable('table_name')
 renameTable({ from: 'old_table_name', to: 'new_table_name' })
-
-// column operations
-renameColumn({ table: 'table_name', from: 'old_column_name', to: 'new_column_name' })
-destroyColumn({ table: 'table_name', column: 'column_name' })
 
 // indexing
 addColumnIndex({ table: 'table_name', column: 'column_name' })
