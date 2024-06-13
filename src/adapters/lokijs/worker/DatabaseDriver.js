@@ -444,10 +444,15 @@ export default class DatabaseDriver {
 
   _executeRenameColumnMigration({ table, from, to }: RenameColumnMigrationStep): void {
     const collection = this.loki.getCollection(table)
+    // NOTE: Seems a bit safer to copy first, then delete old ones
     collection.findAndUpdate({}, (record) => {
       if (record[from] !== undefined) {
         record[to] = record[from]
+      } else {
+        delete record[to]
       }
+    })
+    collection.findAndUpdate({}, (record) => {
       delete record[from]
     })
   }
