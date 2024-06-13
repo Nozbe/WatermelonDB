@@ -14,7 +14,7 @@ import type {
   TableSchemaSpec,
   SchemaVersion,
 } from '../index'
-import { tableSchema, validateColumnSchema } from '../index'
+import { tableSchema, validateName, validateColumnSchema } from '../index'
 
 export type CreateTableMigrationStep = $RE<{
   type: 'create_table',
@@ -218,6 +218,7 @@ export function renameColumn({
     invariant(table, `Missing table name in renameColumn()`)
     invariant(from, `Missing 'from' in renameColumn()`)
     invariant(to, `Missing 'to' in renameColumn()`)
+    validateName(to)
   }
   return { type: 'rename_column', table, from, to }
 }

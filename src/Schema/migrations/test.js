@@ -251,6 +251,39 @@ describe('migration step functions', () => {
   it('throws if destroyTable() is malformed', () => {
     expect(() => destroyTable()).toThrow('table')
   })
+  it('does not allow unsafe names', () => {
+    // TODO: Move to a common location with Schema/test
+    ;[
+      '"hey"',
+      "'hey'",
+      '`hey`',
+      "foo' and delete * from users --",
+      'id',
+      '_changed',
+      '_status',
+      'local_storage',
+      '$loki',
+      '__foo',
+      '__proto__',
+      'toString',
+      'valueOf',
+      'oid',
+      '_rowid_',
+      'ROWID',
+    ].forEach((name) => {
+      // console.log(name)
+      expect(() => createTable({ name: 'foo', columns: [{ name, type: 'string' }] })).toThrow(
+        'name',
+      )
+      expect(() => createTable({ name, columns: [{ name: 'hey', type: 'string' }] })).toThrow(
+        'name',
+      )
+      expect(() => addColumns({ table: 'foo', columns: [{ name, type: 'string' }] })).toThrow(
+        'name',
+      )
+      expect(() => renameColumn({ table: 'foo', from: 'hey', to: name })).toThrow('name')
+    })
+  })
 })
 
 describe('stepsForMigration', () => {
