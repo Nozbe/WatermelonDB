@@ -26,7 +26,7 @@ jobs:
       - name: Check docs build
         run: cd docs-website && yarn install && cd .. && yarn docs:build
   ios:
-    runs-on: macos-13-large
+    runs-on: macos-14-large
     name: iOS tests
     steps:
       - uses: actions/checkout@v3
