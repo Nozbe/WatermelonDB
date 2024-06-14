@@ -13,7 +13,6 @@ import type { SQL } from '../index'
 
 import encodeValue from '../encodeValue'
 
-const standardColumns = ['id', '_changed', '_status']
 const standardColumnsInsertSQL = `"id" primary key, "_changed", "_status"`
 const commonSchema =
   'create table "local_storage" ("key" varchar(16) primary key not null, "value" text not null);' +
@@ -92,46 +91,28 @@ const encodeAddColumnsMigrationStep: (AddColumnsMigrationStep) => SQL = ({
     })
     .join('')
 
-const encodeChangeColumnMigrationStep: (TableName, ColumnName, ?ColumnName, TableSchema) => SQL = (
+// Requires sqlite 3.35.0 / iOS 15 / Android 14
+const encodeDestroyColumnMigrationStep: (DestroyColumnMigrationStep, TableSchema) => SQL = ({
   table,
-  oldColumn,
-  newColumn, // null = destroy column
-  tableSchema,
-) => {
-  const tempName = `${table}Temp`
-  const tempTable = { ...tableSchema, name: tempName }
-
-  const newColumnNames = [...standardColumns, ...Object.keys(tableSchema.columns)].filter(
-    newColumn ? Boolean : (c) => c !== oldColumn,
-  )
-  const newColumns = newColumnNames.map((c) => `"${c}"`).join(', ')
-  const oldColumns = newColumnNames
-    .map((c) => (c === newColumn ? oldColumn : c))
-    .map((c) => `"${c}"`)
-    .join(', ')
-
-  const createTempTableSQL = encodeTable(tempTable)
-  const injectValuesSQL = `insert into "${tempName}" (${newColumns}) select ${oldColumns} from "${table}";`
-  const dropOldTable = `drop table "${table}";`
-  const renameTempTableSQL = `alter table "${tempName}" rename to "${table}";`
-  return createTempTableSQL + injectValuesSQL + dropOldTable + renameTempTableSQL
+  column,
+}) => {
+  return `alter table "${table}" drop column "${column}";`
 }
 
-const encodeDestroyColumnMigrationStep: (DestroyColumnMigrationStep, TableSchema) => SQL = (
-  { table, column },
-  tableSchema,
-) => encodeChangeColumnMigrationStep(table, column, null, tableSchema)
-
-const encodeRenameColumnMigrationStep: (RenameColumnMigrationStep, TableSchema) => SQL = (
-  { table, from, to },
-  tableSchema,
-) => encodeChangeColumnMigrationStep(table, from, to, tableSchema)
+// Requires sqlite 3.25.0 / iOS 13 / Android 11
+const encodeRenameColumnMigrationStep: (RenameColumnMigrationStep, TableSchema) => SQL = ({
+  table,
+  from,
+  to,
+}) => {
+  return `alter table "${table}" rename column "${from}" to "${to}";`
+}
 
 const encodeDestroyTableMigrationStep: (DestroyTableMigrationStep) => SQL = ({ table }) => {
   return `drop table if exists "${table}";`
 }
 
-export const encodeMigrationSteps: (MigrationStep[], AppSchema) => SQL = (steps, schema) =>
+export const encodeMigrationSteps: (MigrationStep[]) => SQL = (steps) =>
   steps
     .map((step) => {
       if (step.type === 'create_table') {
@@ -139,9 +120,9 @@ export const encodeMigrationSteps: (MigrationStep[], AppSchema) => SQL = (steps,
       } else if (step.type === 'add_columns') {
         return encodeAddColumnsMigrationStep(step)
       } else if (step.type === 'destroy_column') {
-        return encodeDestroyColumnMigrationStep(step, schema.tables[step.table])
+        return encodeDestroyColumnMigrationStep(step)
       } else if (step.type === 'rename_column') {
-        return encodeRenameColumnMigrationStep(step, schema.tables[step.table])
+        return encodeRenameColumnMigrationStep(step)
       } else if (step.type === 'destroy_table') {
         return encodeDestroyTableMigrationStep(step)
       } else if (step.type === 'sql') {

@@ -169,7 +169,7 @@ export default class SQLiteAdapter implements DatabaseAdapter {
         'setUpWithMigrations',
         [
           this.dbName,
-          require('./encodeSchema').encodeMigrationSteps(migrationSteps, this.schema),
+          require('./encodeSchema').encodeMigrationSteps(migrationSteps),
           databaseVersion,
           this.schema.version,
         ],

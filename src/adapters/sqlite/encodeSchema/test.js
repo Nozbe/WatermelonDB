@@ -136,34 +136,6 @@ describe('encodeIndices', () => {
 })
 
 describe('encodeMigrationSteps', () => {
-  const migrationSchema = appSchema({
-    version: 5,
-    tables: [
-      tableSchema({
-        name: 'posts',
-        columns: [
-          { name: 'reactions', type: 'number' },
-          { name: 'author_id', type: 'string', isIndexed: true },
-          { name: 'is_pinned', type: 'boolean', isIndexed: true },
-          { name: 'subtitle', type: 'string', isOptional: true },
-        ],
-      }),
-      tableSchema({
-        name: 'comments',
-        columns: [
-          { name: 'post_id', type: 'string', isIndexed: true },
-          { name: 'description', type: 'string' },
-        ],
-      }),
-      tableSchema({
-        name: 'authors',
-        columns: [
-          { name: 'created_at', type: 'number' },
-          { name: 'updated_at', type: 'number' },
-        ],
-      }),
-    ],
-  })
   it('encodes migrations', () => {
     const migrationSteps = [
       addColumns({
@@ -198,7 +170,7 @@ describe('encodeMigrationSteps', () => {
       }),
     ]
 
-    expect(encodeMigrationSteps(migrationSteps, migrationSchema)).toBe(
+    expect(encodeMigrationSteps(migrationSteps)).toBe(
       '' +
         `alter table "posts" add "subtitle";` +
         `update "posts" set "subtitle" = null;` +
@@ -212,20 +184,9 @@ describe('encodeMigrationSteps', () => {
         `update "posts" set "is_pinned" = 0;` +
         `create index if not exists "posts_is_pinned" on "posts" ("is_pinned");` +
         // destroy column
-        `create table "postsTemp" ("id" primary key, "_changed", "_status", "reactions", "author_id", "is_pinned", "subtitle");` +
-        `create index if not exists "postsTemp_author_id" on "postsTemp" ("author_id");` +
-        `create index if not exists "postsTemp_is_pinned" on "postsTemp" ("is_pinned");` +
-        `create index if not exists "postsTemp__status" on "postsTemp" ("_status");` +
-        `insert into "postsTemp" ("id", "_changed", "_status", "reactions", "author_id", "is_pinned") select "id", "_changed", "_status", "reactions", "author_id", "is_pinned" from "posts";` +
-        `drop table "posts";` +
-        `alter table "postsTemp" rename to "posts";` +
+        `alter table "posts" drop column "subtitle";` +
         // rename column
-        `create table "commentsTemp" ("id" primary key, "_changed", "_status", "post_id", "description");` +
-        `create index if not exists "commentsTemp_post_id" on "commentsTemp" ("post_id");` +
-        `create index if not exists "commentsTemp__status" on "commentsTemp" ("_status");` +
-        `insert into "commentsTemp" ("id", "_changed", "_status", "post_id", "description") select "id", "_changed", "_status", "post_id", "body" from "comments";` +
-        `drop table "comments";` +
-        `alter table "commentsTemp" rename to "comments";` +
+        `alter table "comments" rename column "body" to "description";` +
         // destroy table
         `drop table if exists "authors";` +
         '',
