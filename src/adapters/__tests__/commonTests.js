@@ -1085,7 +1085,7 @@ export default () => {
     ])
 
     // apply changes - rename num2 column
-    const testSchema_v2 = appSchema({
+    const testSchema_after = appSchema({
       version: 2,
       tables: [
         tableSchema({
@@ -1097,16 +1097,19 @@ export default () => {
         }),
       ],
     })
-    const migrations_v2 = schemaMigrations({
+    const migrations_after = schemaMigrations({
       migrations: [
         {
           toVersion: 2,
-          steps: [renameColumn({ table: 'tasks', from: 'num2', to: 'num2_renamed' })],
+          steps: [
+            renameColumn({ table: 'tasks', from: 'num2', to: 'num2_interim' }),
+            renameColumn({ table: 'tasks', from: 'num2_interim', to: 'num2_renamed' }),
+          ],
         },
       ],
     })
 
-    adapter = await adapter.testClone({ schema: testSchema_v2, migrations: migrations_v2 })
+    adapter = await adapter.testClone({ schema: testSchema_after, migrations: migrations_after })
 
     // check that data was transformed correctly
     const t1 = await adapter.find('tasks', 't1')
@@ -1141,6 +1144,7 @@ export default () => {
           columns: [
             { name: 'num1', type: 'number' },
             { name: 'num2', type: 'number' },
+            { name: 'num3', type: 'number' },
           ],
         }),
       ],
@@ -1150,29 +1154,34 @@ export default () => {
 
     // add data
     await adapter.batch([
-      ['create', 'tasks', { id: 't1', num1: 10, num2: 1337 }],
-      ['create', 'tasks', { id: 't2', num1: 20, num2: 2137 }],
+      ['create', 'tasks', { id: 't1', num1: 10, num2: 1337, num3: 3 }],
+      ['create', 'tasks', { id: 't2', num1: 20, num2: 2137, num3: 3 }],
     ])
 
-    // apply changes - remove num2 column
-    const testSchema_v2 = appSchema({
-      version: 2,
+    // apply changes - remove columns
+    const testSchema_after = appSchema({
+      version: 3,
       tables: [tableSchema({ name: 'tasks', columns: [{ name: 'num1', type: 'number' }] })],
     })
-    const migrations_v2 = schemaMigrations({
-      migrations: [{ toVersion: 2, steps: [destroyColumn({ table: 'tasks', column: 'num2' })] }],
+    const migrations_after = schemaMigrations({
+      migrations: [
+        { toVersion: 2, steps: [destroyColumn({ table: 'tasks', column: 'num2' })] },
+        { toVersion: 3, steps: [destroyColumn({ table: 'tasks', column: 'num3' })] },
+      ],
     })
 
-    adapter = await adapter.testClone({ schema: testSchema_v2, migrations: migrations_v2 })
+    adapter = await adapter.testClone({ schema: testSchema_after, migrations: migrations_after })
 
     // check that data was transformed correctly
     const t1 = await adapter.find('tasks', 't1')
     expect(t1.num1).toBe(10)
     expect(t1.num2).toBe(undefined)
+    expect(t1.num3).toBe(undefined)
 
     const t2 = await adapter.find('tasks', 't2')
     expect(t2.num1).toBe(20)
     expect(t2.num2).toBe(undefined)
+    expect(t2.num3).toBe(undefined)
 
     // check that it's no longer possible to insert data into removed column
     // NOTE: batch() expects sanitized raws, and Loki will take anything if it's not; we're just checking
