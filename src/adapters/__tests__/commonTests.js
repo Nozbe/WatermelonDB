@@ -1196,13 +1196,16 @@ export default () => {
   })
   it('migrations: destroyTable', async (_adapter, AdapterClass, extraAdapterOptions) => {
     // initial schema
-    const taskColumns_v1 = [{ name: 'num1', type: 'number' }]
-    const projectColumns_v1 = [{ name: 'text1', type: 'string' }]
+    const projectsSchema = {
+      name: 'projects',
+      // NOTE: isIndexed is important as we want to check that the index won't conflict
+      columns: [{ name: 'text1', type: 'string', isIndexed: true }],
+    }
     const testSchema_v1 = appSchema({
       version: 1,
       tables: [
-        tableSchema({ name: 'tasks', columns: taskColumns_v1 }),
-        tableSchema({ name: 'projects', columns: projectColumns_v1 }),
+        tableSchema({ name: 'tasks', columns: [{ name: 'num1', type: 'number' }] }),
+        tableSchema(projectsSchema),
       ],
     })
 
@@ -1228,6 +1231,22 @@ export default () => {
 
     // check that deleted table is gone
     await expect(adapter.find('projects', 'p1')).rejects.toBeInstanceOf(Error)
+
+    // apply changes
+    // create a new table (with the name of the old one) to see that it's not the same table
+    const testSchema_v3 = { ...testSchema_v1, version: 3 }
+    const migrations_v3 = schemaMigrations({
+      migrations: [{ toVersion: 3, steps: [createTable(projectsSchema)] }],
+    })
+    adapter = await adapter.testClone({ schema: testSchema_v3, migrations: migrations_v3 })
+
+    // check that the deleted table don't have its old data
+    expect(await adapter.find('projects', 'p1')).toBe(null)
+
+    // add data to recreated table
+    await adapter.batch([['create', 'projects', { id: 'p1', text1: 'hi_new' }]])
+    adapter = await adapter.testClone()
+    expect(await adapter.find('projects', 'p1')).toMatchObject({ id: 'p1', text1: 'hi_new' })
   })
   it(`can perform empty migrations (regression test)`, async (_adapter, AdapterClass, extraAdapterOptions) => {
     let adapter = migrationsAdapter(AdapterClass, extraAdapterOptions, {
