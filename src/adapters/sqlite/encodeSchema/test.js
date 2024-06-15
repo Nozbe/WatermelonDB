@@ -184,6 +184,7 @@ describe('encodeMigrationSteps', () => {
         `update "posts" set "is_pinned" = 0;` +
         `create index if not exists "posts_is_pinned" on "posts" ("is_pinned");` +
         // destroy column
+        `drop index if exists "posts_subtitle";` +
         `alter table "posts" drop column "subtitle";` +
         // rename column
         `alter table "comments" rename column "body" to "description";` +

@@ -1076,7 +1076,9 @@ export default () => {
       ],
     })
 
-    let adapter = migrationsAdapter(AdapterClass, extraAdapterOptions, { schema: testSchema_v1 })
+    let adapter = migrationsAdapter(AdapterClass, extraAdapterOptions, {
+      schema: testSchema_v1,
+    })
 
     // add data
     await adapter.batch([
@@ -1193,6 +1195,141 @@ export default () => {
       expect(t3.num1).toBe(30)
       expect(t3.num2).toBe(undefined)
     }
+  })
+  it('migrations: renameColumn&destroyColumn (complex)', async (_adapter, AdapterClass, extraAdapterOptions) => {
+    // initial schema
+    const testSchema_before = appSchema({
+      version: 2,
+      tables: [
+        tableSchema({
+          name: 'tasks',
+          columns: [
+            { name: 'num1', type: 'number' },
+            { name: 'num2', type: 'number', isOptional: true },
+            { name: 'text3', type: 'string', isIndexed: true },
+            { name: 'num3', type: 'number', isIndexed: true, isOptional: true },
+            { name: 'num4', type: 'number' },
+            { name: 'text4', type: 'string', isOptional: true },
+            { name: 'text5', type: 'string' },
+          ],
+        }),
+      ],
+    })
+
+    let adapter = migrationsAdapter(AdapterClass, extraAdapterOptions, {
+      schema: testSchema_before,
+    })
+
+    // add data
+    await adapter.batch([
+      [
+        'create',
+        'tasks',
+        {
+          id: 't1',
+          num1: 110,
+          num2: 120,
+          text3: 'hi130',
+          num3: 130,
+          num4: 140,
+          text4: 'hi140',
+          text5: 'hi150',
+        },
+      ],
+      ['create', 'tasks', { id: 't2', num1: 210, text3: 'hi230', num4: 240, text5: 'hi250' }],
+    ])
+
+    // apply changes - remove columns
+    const testSchema_after = appSchema({
+      version: 6,
+      tables: [
+        tableSchema({
+          name: 'tasks',
+          columns: [
+            { name: 'num1', type: 'number' },
+            { name: 'num2_v3', type: 'number', isOptional: true },
+            { name: 'text3_v3', type: 'string', isIndexed: true },
+            { name: 'text6_v2', type: 'string', isIndexed: true },
+          ],
+        }),
+      ],
+    })
+    const migrations_after = schemaMigrations({
+      migrations: [
+        {
+          toVersion: 3,
+          steps: [
+            // can rename twice in a single step
+            renameColumn({ table: 'tasks', from: 'num2', to: 'num2_v2' }),
+            renameColumn({ table: 'tasks', from: 'num2_v2', to: 'num2_v3' }),
+            // can rename twice in two steps
+            renameColumn({ table: 'tasks', from: 'text3', to: 'text3_v2' }),
+          ],
+        },
+        {
+          toVersion: 4,
+          steps: [
+            // can rename twice in two steps
+            renameColumn({ table: 'tasks', from: 'text3_v2', to: 'text3_v3' }),
+            // can delete multiple columns in a step
+            // can delete columns in the same step as renaming
+            // can delete column with index
+            destroyColumn({ table: 'tasks', column: 'num3' }),
+            // destroyColumn({ table: 'tasks', column: 'num4' }),
+          ],
+        },
+        {
+          toVersion: 5,
+          steps: [
+            // can delete just-renamed column (don't know why you'd want to, but oh well)
+            renameColumn({ table: 'tasks', from: 'text4', to: 'text4_v2' }),
+            destroyColumn({ table: 'tasks', column: 'text4_v2' }),
+            // can delete a previously-renamed column
+            renameColumn({ table: 'tasks', from: 'text5', to: 'text5_v2' }),
+            // can rename a previously added column
+            addColumns({
+              table: 'tasks',
+              columns: [{ name: 'text6', type: 'string', isIndexed: true }],
+            }),
+            // can destroy a previously added column
+            addColumns({ table: 'tasks', columns: [{ name: 'text7', type: 'string' }] }),
+          ],
+        },
+        {
+          toVersion: 6,
+          steps: [
+            // can delete a previously-renamed column
+            destroyColumn({ table: 'tasks', column: 'text5_v2' }),
+            // can rename a previously added column
+            renameColumn({ table: 'tasks', from: 'text6', to: 'text6_v2' }),
+            // can destroy a previously added column
+            destroyColumn({ table: 'tasks', column: 'text7' }),
+          ],
+        },
+      ],
+    })
+
+    adapter = await adapter.testClone({ schema: testSchema_after, migrations: migrations_after })
+
+    // check that data was transformed correctly
+    expect(await adapter.find('tasks', 't1')).toEqual({
+      id: 't1',
+      _changed: '',
+      _status: 'created',
+      num1: 110,
+      num2_v3: 120,
+      text3_v3: 'hi130',
+      text6_v2: '',
+    })
+    expect(await adapter.find('tasks', 't2')).toEqual({
+      id: 't2',
+      _changed: '',
+      _status: 'created',
+      num1: 210,
+      num2_v3: null,
+      text3_v3: 'hi230',
+      text6_v2: '',
+    })
   })
   it('migrations: destroyTable', async (_adapter, AdapterClass, extraAdapterOptions) => {
     // initial schema

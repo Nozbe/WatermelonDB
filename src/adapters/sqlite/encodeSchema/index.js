@@ -96,7 +96,8 @@ const encodeDestroyColumnMigrationStep: (DestroyColumnMigrationStep, TableSchema
   table,
   column,
 }) => {
-  return `alter table "${table}" drop column "${column}";`
+  // We don't know if column is indexed, but if it is, we need to drop it
+  return `drop index if exists "${table}_${column}";alter table "${table}" drop column "${column}";`
 }
 
 // Requires sqlite 3.25.0 / iOS 13 / Android 11
