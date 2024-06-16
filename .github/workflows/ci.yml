@@ -80,7 +80,7 @@ jobs:
       - run: yarn dev:native &
       # See: https://github.com/android/compose-samples/actions/runs/27015993/workflow for ideas for caching
       - name: run tests
-        uses: reactivecircus/android-emulator-runner@v2.23.1
+        uses: reactivecircus/android-emulator-runner@v2.23.0
         with:
           api-level: 29
           working-directory: ./native/androidTest
