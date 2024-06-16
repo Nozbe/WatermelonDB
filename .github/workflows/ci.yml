@@ -82,7 +82,7 @@ jobs:
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29
+          api-level: 33
           working-directory: ./native/androidTest
           script: ./gradlew connectedAndroidTest
       - run: yarn ktlint
