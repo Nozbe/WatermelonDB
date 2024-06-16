@@ -9462,10 +9462,10 @@ react-native-windows@0.71.47:
     whatwg-fetch "^3.0.0"
     ws "^6.2.2"
 
-react-native@0.71.17:
-  version "0.71.17"
-  resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.71.17.tgz#ae798a88d4bed5f484d1d61c8dc809882b4c5567"
-  integrity sha512-9z1s2y6IZJB1WMhAGarUbWdIWRAg0fTMV43HFrr0vJF4Fg98y/t3o5WvkrQZa6PWwG3c3HJjxNUdQOiBdvksVQ==
+react-native@0.71.19:
+  version "0.71.19"
+  resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.71.19.tgz#966c91b2154058a9e5987cf5eb9fc0e4f1ab4157"
+  integrity sha512-E6Rz4lpe4NC9ZR6zq9AWiB0MAoVeidr+aPu/pmwk5ezvVL/wbQ1Gdj70v7fKMC8Nz5wYFO1S0XUNPUKYaPhfeg==
   dependencies:
     "@jest/create-cache-key-function" "^29.2.1"
     "@react-native-community/cli" "10.2.7"
