@@ -60,7 +60,7 @@ jobs:
       - run: yarn swiftlint
   android:
     # https://github.com/ReactiveCircus/android-emulator-runner/issues/46
-    runs-on: macos-13
+    runs-on: macos-12
     name: Android tests
     steps:
       - uses: actions/checkout@v3
