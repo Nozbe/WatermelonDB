@@ -67,7 +67,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
-          java-version: '17'
+          java-version: '11'
       - name: Set Node.js version
         uses: actions/setup-node@v3
         with:
@@ -80,9 +80,9 @@ jobs:
       - run: yarn dev:native &
       # See: https://github.com/android/compose-samples/actions/runs/27015993/workflow for ideas for caching
       - name: run tests
-        uses: reactivecircus/android-emulator-runner@v2.23.0
+        uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 33
+          api-level: 29
           working-directory: ./native/androidTest
           script: ./gradlew connectedAndroidTest
       - run: yarn ktlint
