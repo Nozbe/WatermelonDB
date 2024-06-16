@@ -67,7 +67,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
-          java-version: '14'
+          java-version: '16'
       - name: Set Node.js version
         uses: actions/setup-node@v3
         with:
