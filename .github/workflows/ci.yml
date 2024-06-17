@@ -9,16 +9,19 @@ jobs:
   ci-check:
     runs-on: ubuntu-22.04
     name: JavaScript tests
+    strategy:
+      matrix:
+        node-version: ['16.x', '18.x', '20.x', '22.x', '24.x']
     steps:
       - uses: actions/checkout@v3
       - name: Set Node.js version
         uses: actions/setup-node@v3
         with:
-          node-version: 22.x
+          node-version: ${{ matrix.node-version }}
       - uses: actions/cache@v3
         with:
           path: 'node_modules'
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-node-${{ matrix.node-version }}-modules-${{ hashFiles('**/yarn.lock') }}
       - run: yarn
       - run: yarn ci:check
       - name: Gradle Wrapper Validation
