@@ -63,6 +63,10 @@ jobs:
       - run: yarn swiftlint
   android:
     # https://github.com/ReactiveCircus/android-emulator-runner/issues/46
+    # TODO: We'd like to bump runner to macos-13 or macos-14, but it no longer works at api-level 29
+    # (can't find the right emulator). However, bumping api-level doesn't work either! Depending on
+    # configuration, it either can't find the right emulator or times out as the actual JS tests
+    # apparently do not complete. I've tried setting arch and target to no avail.
     runs-on: macos-12
     name: Android tests
     steps:
@@ -86,8 +90,8 @@ jobs:
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2.31.0
         with:
-          api-level: 30
-          target: google_apis
+          api-level: 29
+          # target: google_apis
           # arch: x86_64
           working-directory: ./native/androidTest
           script: ./gradlew connectedAndroidTest
