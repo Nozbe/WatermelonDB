@@ -11,7 +11,7 @@ jobs:
     name: JavaScript tests
     strategy:
       matrix:
-        node-version: ['16.x', '18.x', '20.x', '22.x', '24.x']
+        node-version: ['16.x', '18.x', '20.x', '22.x']
     steps:
       - uses: actions/checkout@v3
       - name: Set Node.js version
