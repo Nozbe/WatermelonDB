@@ -81,6 +81,7 @@ jobs:
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
       - run: yarn
       - run: yarn dev:native &
+      - uses: gradle/actions/setup-gradle@v3
       # See: https://github.com/android/compose-samples/actions/runs/27015993/workflow for ideas for caching
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2.31.0
