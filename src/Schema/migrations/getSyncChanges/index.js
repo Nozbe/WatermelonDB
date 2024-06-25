@@ -15,6 +15,13 @@ export type MigrationSyncChanges = $Exact<{
     table: TableName<any>,
     columns: ColumnName[],
   }>[],
+  +renamedColumns: $Exact<{
+    table: TableName<any>,
+    columns: $Exact<{
+      from: ColumnName,
+      to: ColumnName,
+    }>[],
+  }>[],
 }> | null
 
 export default function getSyncChanges(
@@ -34,7 +41,14 @@ export default function getSyncChanges(
 
   steps.forEach((step) => {
     invariant(
-      ['create_table', 'add_columns', 'sql'].includes(step.type),
+      [
+        'create_table',
+        'add_columns',
+        'destroy_column',
+        'rename_column',
+        'destroy_table',
+        'sql',
+      ].includes(step.type),
       `Unknown migration step type ${step.type}. Can not perform migration sync. This most likely means your migrations are defined incorrectly. It could also be a WatermelonDB bug.`,
     )
   })
@@ -63,9 +77,22 @@ export default function getSyncChanges(
     columns: unique(columnDefs.map(({ name }) => name)),
   }))
 
+  const allRenamedColumns = steps.filter(
+    (step) => step.type === 'rename_column' && !createdTables.includes(step.table),
+  )
+
+  const renamedColumns = pipe(
+    groupBy(({ table }) => table),
+    toPairs,
+  )(allRenamedColumns).map(([table, columns]) => ({
+    table: tableName(table),
+    columns: columns.map(({ from, to }) => ({ from, to })),
+  }))
+
   return {
     from: fromVersion,
     tables: unique(createdTables),
     columns: addedColumns,
+    renamedColumns,
   }
 }

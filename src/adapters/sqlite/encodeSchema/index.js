@@ -2,18 +2,24 @@
 
 import type { TableSchema, AppSchema, ColumnSchema, TableName } from '../../../Schema'
 import { nullValue } from '../../../RawRecord'
-import type { MigrationStep, AddColumnsMigrationStep } from '../../../Schema/migrations'
+import type {
+  MigrationStep,
+  AddColumnsMigrationStep,
+  DestroyColumnMigrationStep,
+  RenameColumnMigrationStep,
+  DestroyTableMigrationStep,
+} from '../../../Schema/migrations'
 import type { SQL } from '../index'
 
 import encodeValue from '../encodeValue'
 
-const standardColumns = `"id" primary key, "_changed", "_status"`
+const standardColumnsInsertSQL = `"id" primary key, "_changed", "_status"`
 const commonSchema =
   'create table "local_storage" ("key" varchar(16) primary key not null, "value" text not null);' +
   'create index "local_storage_key_index" on "local_storage" ("key");'
 
 const encodeCreateTable = ({ name, columns }: TableSchema): SQL => {
-  const columnsSQL = [standardColumns]
+  const columnsSQL = [standardColumnsInsertSQL]
     .concat(Object.keys(columns).map((column) => `"${column}"`))
     .join(', ')
   return `create table "${name}" (${columnsSQL});`
@@ -85,6 +91,28 @@ const encodeAddColumnsMigrationStep: (AddColumnsMigrationStep) => SQL = ({
     })
     .join('')
 
+// Requires sqlite 3.35.0 / iOS 15 / Android 14
+const encodeDestroyColumnMigrationStep: (DestroyColumnMigrationStep) => SQL = ({
+  table,
+  column,
+}) => {
+  // We don't know if column is indexed, but if it is, we need to drop it
+  return `drop index if exists "${table}_${column}";alter table "${table}" drop column "${column}";`
+}
+
+// Requires sqlite 3.25.0 / iOS 13 / Android 11
+const encodeRenameColumnMigrationStep: (RenameColumnMigrationStep) => SQL = ({
+  table,
+  from,
+  to,
+}) => {
+  return `alter table "${table}" rename column "${from}" to "${to}";`
+}
+
+const encodeDestroyTableMigrationStep: (DestroyTableMigrationStep) => SQL = ({ table }) => {
+  return `drop table if exists "${table}";`
+}
+
 export const encodeMigrationSteps: (MigrationStep[]) => SQL = (steps) =>
   steps
     .map((step) => {
@@ -92,6 +120,12 @@ export const encodeMigrationSteps: (MigrationStep[]) => SQL = (steps) =>
         return encodeTable(step.schema)
       } else if (step.type === 'add_columns') {
         return encodeAddColumnsMigrationStep(step)
+      } else if (step.type === 'destroy_column') {
+        return encodeDestroyColumnMigrationStep(step)
+      } else if (step.type === 'rename_column') {
+        return encodeRenameColumnMigrationStep(step)
+      } else if (step.type === 'destroy_table') {
+        return encodeDestroyTableMigrationStep(step)
       } else if (step.type === 'sql') {
         return step.sql
       }

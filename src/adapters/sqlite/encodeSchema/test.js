@@ -1,6 +1,13 @@
 /* eslint-disable prefer-template */
 import { appSchema, tableSchema } from '../../../Schema'
-import { addColumns, createTable, unsafeExecuteSql } from '../../../Schema/migrations'
+import {
+  addColumns,
+  createTable,
+  destroyColumn,
+  destroyTable,
+  renameColumn,
+  unsafeExecuteSql,
+} from '../../../Schema/migrations'
 
 import { encodeSchema, encodeMigrationSteps, encodeCreateIndices, encodeDropIndices } from './index'
 
@@ -149,6 +156,18 @@ describe('encodeMigrationSteps', () => {
           { name: 'is_pinned', type: 'boolean', isIndexed: true },
         ],
       }),
+      destroyColumn({
+        table: 'posts',
+        column: 'subtitle',
+      }),
+      renameColumn({
+        table: 'comments',
+        from: 'body',
+        to: 'description',
+      }),
+      destroyTable({
+        table: 'authors',
+      }),
     ]
 
     expect(encodeMigrationSteps(migrationSteps)).toBe(
@@ -163,7 +182,15 @@ describe('encodeMigrationSteps', () => {
         `create index if not exists "posts_author_id" on "posts" ("author_id");` +
         `alter table "posts" add "is_pinned";` +
         `update "posts" set "is_pinned" = 0;` +
-        `create index if not exists "posts_is_pinned" on "posts" ("is_pinned");`,
+        `create index if not exists "posts_is_pinned" on "posts" ("is_pinned");` +
+        // destroy column
+        `drop index if exists "posts_subtitle";` +
+        `alter table "posts" drop column "subtitle";` +
+        // rename column
+        `alter table "comments" rename column "body" to "description";` +
+        // destroy table
+        `drop table if exists "authors";` +
+        '',
     )
   })
   it(`encodes migrations with unsafe SQL`, () => {
