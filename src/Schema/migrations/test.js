@@ -1,4 +1,4 @@
-import { createTable, addColumns, schemaMigrations } from './index'
+import { createTable, addColumns, unsafeExecuteSql, schemaMigrations } from './index'
 import { stepsForMigration } from './stepsForMigration'
 
 describe('schemaMigrations()', () => {
@@ -180,6 +180,11 @@ describe('migration step functions', () => {
     expect(() => addColumns({ table: 'foo', columns: [{ name: 'x', type: 'blah' }] })).toThrow(
       'type',
     )
+  })
+  it('throws if unsafeExecuteSql() is malformed', () => {
+    expect(() => unsafeExecuteSql()).toThrow('not a string')
+    expect(() => unsafeExecuteSql('delete from table_a')).toThrow('semicolon')
+    expect(() => unsafeExecuteSql('delete from table_a;')).not.toThrow()
   })
 })
 
