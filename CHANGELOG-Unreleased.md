@@ -14,6 +14,7 @@
 
 - [ts] Improved LocalStorage type definition
 - [ts] Add missing .d.ts for experimentalFailsafe decorator
+- [migrations] `unsafeExecuteSql` migration is now validate to ensure it ends with a semicolon (#1811)
 
 ### Performance
 
