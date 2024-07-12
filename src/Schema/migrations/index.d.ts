@@ -84,6 +84,7 @@ export function addColumns({
   unsafeSql?: (_: string) => string
 }>): AddColumnsMigrationStep
 
+/** Requires sqlite 3.35.0 (iOS 15 / Android 14) */
 export function destroyColumn({
   table,
   column,
@@ -94,6 +95,7 @@ export function destroyColumn({
   unsafeSql?: (_: string) => string
 }>): DestroyColumnMigrationStep
 
+/** Requires sqlite 3.25.0 (iOS 13 / Android 11) */
 export function renameColumn({
   table,
   from,

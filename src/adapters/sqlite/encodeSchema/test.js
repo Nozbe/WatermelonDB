@@ -172,11 +172,14 @@ describe('encodeMigrationSteps', () => {
 
     expect(encodeMigrationSteps(migrationSteps)).toBe(
       '' +
+        // add columns
         `alter table "posts" add "subtitle";` +
         `update "posts" set "subtitle" = null;` +
+        // create table
         `create table "comments" ("id" primary key, "_changed", "_status", "post_id", "body");` +
         `create index if not exists "comments_post_id" on "comments" ("post_id");` +
         `create index if not exists "comments__status" on "comments" ("_status");` +
+        // add columns
         `alter table "posts" add "author_id";` +
         `update "posts" set "author_id" = '';` +
         `create index if not exists "posts_author_id" on "posts" ("author_id");` +

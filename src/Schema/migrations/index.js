@@ -193,6 +193,7 @@ export function addColumns({
   return { type: 'add_columns', table, columns, unsafeSql }
 }
 
+/** Requires sqlite 3.35.0 (iOS 15 / Android 14) */
 export function destroyColumn({
   table,
   column,
@@ -210,6 +211,7 @@ export function destroyColumn({
   return { type: 'destroy_column', table, column, unsafeSql }
 }
 
+/** Requires sqlite 3.25.0 (iOS 13 / Android 11) */
 export function renameColumn({
   table,
   from,

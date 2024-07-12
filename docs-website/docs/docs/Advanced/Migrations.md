@@ -174,7 +174,12 @@ schemaMigrations({
 
 - `createTable({ name: 'table_name', columns: [ ... ] })` - same API as `tableSchema()`
 - `addColumns({ table: 'table_name', columns: [ ... ] })` - you can add one or multiple columns to an existing table. The columns table has the same format as in schema definitions
-- Other types of migrations (e.g. deleting or renaming tables and columns) are not yet implemented. See [`migrations/index.js`](https://github.com/Nozbe/WatermelonDB/blob/master/src/Schema/migrations/index.js). Please contribute!
+- `destroyColumn({ table: 'table_name', column: 'column_name' })` - removes column from table
+  - ⚠️ Important! This migration requires sqlite 3.35.0, available since iOS 15 and Android 14 (in non-JSI mode). `lokijs` adapter, Android in JSI mode, and sqlite-node are not affected by this limitation.
+- `renameColumn({ table: 'table_name', from: 'old_column_name', to: 'new_column_name' })` - renames column in table
+  - ⚠️ Important! This migration requires sqlite 3.25.0, available since iOS 13 and Android 11 (in non-JSI mode). `lokijs` adapter, Android in JSI mode, and sqlite-node are not affected by this limitation.
+- `destroyTable({ table: 'table_name' })` - removes table
+- Other types of migrations (e.g. renaming tables, changing indices) are not yet implemented. See [`migrations/index.js`](https://github.com/Nozbe/WatermelonDB/blob/master/src/Schema/migrations/index.js). Please contribute!
 
 ## Database reseting and other edge cases
 

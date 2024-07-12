@@ -91,7 +91,6 @@ const encodeAddColumnsMigrationStep: (AddColumnsMigrationStep) => SQL = ({
     })
     .join('')
 
-// Requires sqlite 3.35.0 / iOS 15 / Android 14
 const encodeDestroyColumnMigrationStep: (DestroyColumnMigrationStep) => SQL = ({
   table,
   column,
@@ -103,7 +102,6 @@ const encodeDestroyColumnMigrationStep: (DestroyColumnMigrationStep) => SQL = ({
   )
 }
 
-// Requires sqlite 3.25.0 / iOS 13 / Android 11
 const encodeRenameColumnMigrationStep: (RenameColumnMigrationStep) => SQL = ({
   table,
   from,
