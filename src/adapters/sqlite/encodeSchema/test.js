@@ -205,16 +205,44 @@ describe('encodeMigrationSteps', () => {
         columns: [{ name: 'body', type: 'string' }],
         unsafeSql: (sql) => sql.replace(/create table [^)]+\)/, '$& without rowid'),
       }),
+      destroyColumn({
+        table: 'posts',
+        column: 'subtitle',
+        unsafeSql: (sql) => `${sql}foo;`,
+      }),
+      renameColumn({
+        table: 'comments',
+        from: 'body',
+        to: 'description',
+        unsafeSql: (sql) => `${sql}bar;`,
+      }),
+      destroyTable({
+        table: 'authors',
+        unsafeSql: (sql) => `${sql}baz;`,
+      }),
       unsafeExecuteSql('boop;'),
     ]
 
     expect(encodeMigrationSteps(migrationSteps)).toBe(
       '' +
+        // add columns
         `alter table "posts" add "subtitle";` +
         `update "posts" set "subtitle" = null;` +
         'bla;' +
+        // create table
         `create table "comments" ("id" primary key, "_changed", "_status", "body") without rowid;` +
         `create index if not exists "comments__status" on "comments" ("_status");` +
+        // destroy column
+        `drop index if exists "posts_subtitle";` +
+        `alter table "posts" drop column "subtitle";` +
+        'foo;' +
+        // rename column
+        `alter table "comments" rename column "body" to "description";` +
+        'bar;' +
+        // destroy table
+        `drop table if exists "authors";` +
+        'baz;' +
+        // unsafeExecuteSql
         'boop;',
     )
   })

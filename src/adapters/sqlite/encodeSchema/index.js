@@ -95,9 +95,12 @@ const encodeAddColumnsMigrationStep: (AddColumnsMigrationStep) => SQL = ({
 const encodeDestroyColumnMigrationStep: (DestroyColumnMigrationStep) => SQL = ({
   table,
   column,
+  unsafeSql,
 }) => {
   // We don't know if column is indexed, but if it is, we need to drop it
-  return `drop index if exists "${table}_${column}";alter table "${table}" drop column "${column}";`
+  return (unsafeSql || identity)(
+    `drop index if exists "${table}_${column}";alter table "${table}" drop column "${column}";`,
+  )
 }
 
 // Requires sqlite 3.25.0 / iOS 13 / Android 11
@@ -105,12 +108,16 @@ const encodeRenameColumnMigrationStep: (RenameColumnMigrationStep) => SQL = ({
   table,
   from,
   to,
+  unsafeSql,
 }) => {
-  return `alter table "${table}" rename column "${from}" to "${to}";`
+  return (unsafeSql || identity)(`alter table "${table}" rename column "${from}" to "${to}";`)
 }
 
-const encodeDestroyTableMigrationStep: (DestroyTableMigrationStep) => SQL = ({ table }) => {
-  return `drop table if exists "${table}";`
+const encodeDestroyTableMigrationStep: (DestroyTableMigrationStep) => SQL = ({
+  table,
+  unsafeSql,
+}) => {
+  return (unsafeSql || identity)(`drop table if exists "${table}";`)
 }
 
 export const encodeMigrationSteps: (MigrationStep[]) => SQL = (steps) =>

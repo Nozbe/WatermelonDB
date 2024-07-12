@@ -32,6 +32,7 @@ export type DestroyColumnMigrationStep = $RE<{
   type: 'destroy_column',
   table: TableName<any>,
   column: ColumnName,
+  unsafeSql?: (string) => string,
 }>
 
 export type RenameColumnMigrationStep = $RE<{
@@ -39,11 +40,13 @@ export type RenameColumnMigrationStep = $RE<{
   table: TableName<any>,
   from: ColumnName,
   to: ColumnName,
+  unsafeSql?: (string) => string,
 }>
 
 export type DestroyTableMigrationStep = $RE<{
   type: 'destroy_table',
   table: TableName<any>,
+  unsafeSql?: (string) => string,
 }>
 
 export type SqlMigrationStep = $RE<{
@@ -193,26 +196,30 @@ export function addColumns({
 export function destroyColumn({
   table,
   column,
+  unsafeSql,
 }: $Exact<{
   table: TableName<any>,
   column: ColumnName,
+  unsafeSql?: (string) => string,
 }>): DestroyColumnMigrationStep {
   if (process.env.NODE_ENV !== 'production') {
     invariant(table, `Missing 'table' in destroyColumn()`)
     invariant(column, `Missing 'column' in destroyColumn()`)
   }
 
-  return { type: 'destroy_column', table, column }
+  return { type: 'destroy_column', table, column, unsafeSql }
 }
 
 export function renameColumn({
   table,
   from,
   to,
+  unsafeSql,
 }: $Exact<{
   table: TableName<any>,
   from: ColumnName,
   to: ColumnName,
+  unsafeSql?: (string) => string,
 }>): RenameColumnMigrationStep {
   if (process.env.NODE_ENV !== 'production') {
     invariant(table, `Missing table name in renameColumn()`)
@@ -220,19 +227,21 @@ export function renameColumn({
     invariant(to, `Missing 'to' in renameColumn()`)
     validateName(to)
   }
-  return { type: 'rename_column', table, from, to }
+  return { type: 'rename_column', table, from, to, unsafeSql }
 }
 
 export function destroyTable({
   table,
+  unsafeSql,
 }: $Exact<{
   table: TableName<any>,
+  unsafeSql?: (string) => string,
 }>): DestroyTableMigrationStep {
   if (process.env.NODE_ENV !== 'production') {
     invariant(table, `Missing 'table' in destroyTable()`)
   }
 
-  return { type: 'destroy_table', table }
+  return { type: 'destroy_table', table, unsafeSql }
 }
 
 export function unsafeExecuteSql(sql: string): SqlMigrationStep {
