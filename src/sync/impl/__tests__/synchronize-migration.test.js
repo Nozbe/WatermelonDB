@@ -1,6 +1,6 @@
 import { mockDatabase, testSchema } from '../../../__tests__/testModels'
 import { expectToRejectWithMessage } from '../../../__tests__/utils'
-import { schemaMigrations, createTable, addColumns, renameColumn } from '../../../Schema/migrations'
+import { schemaMigrations, createTable, addColumns } from '../../../Schema/migrations'
 import { emptyPull } from './helpers'
 
 import { synchronize } from '../../index'
@@ -17,7 +17,6 @@ describe('synchronize - migration syncs', () => {
             table: 'attachment_versions',
             columns: [{ name: 'reactions', type: 'string' }],
           }),
-          renameColumn({ table: 'post', from: 'body', to: 'text' }),
         ],
       },
       {
@@ -114,7 +113,6 @@ describe('synchronize - migration syncs', () => {
         from: 9,
         tables: [],
         columns: [{ table: 'attachment_versions', columns: ['reactions'] }],
-        renamedColumns: [{ table: 'post', columns: [{ from: 'body', to: 'text' }] }],
       },
     })
     expect(await getLastPulledSchemaVersion(database)).toBe(10)
@@ -137,7 +135,6 @@ describe('synchronize - migration syncs', () => {
         from: 8,
         tables: ['attachments'],
         columns: [{ table: 'attachment_versions', columns: ['reactions'] }],
-        renamedColumns: [{ table: 'post', columns: [{ from: 'body', to: 'text' }] }],
       },
     })
     expect(await getLastPulledSchemaVersion(database)).toBe(10)
