@@ -33,7 +33,7 @@ endif()
 # Header search paths
 # FIXME: <simdjson/simdjson.h> should work…
 
-set(SQLITE_VERSION sqlite-amalgamation-3400100)
+set(SQLITE_VERSION sqlite-amalgamation-3460000)
 
 include_directories(
         ../../../../shared

@@ -1,6 +1,6 @@
 {
   "name": "React-callinvoker",
-  "version": "0.71.17",
+  "version": "0.71.19",
   "summary": "-",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
@@ -10,7 +10,7 @@
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.71.17"
+    "tag": "v0.71.19"
   },
   "source_files": "**/*.{cpp,h}",
   "header_dir": "ReactCommon"

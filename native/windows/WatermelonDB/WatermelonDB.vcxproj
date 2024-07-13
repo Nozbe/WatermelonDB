@@ -21,7 +21,7 @@
     <!-- TODO: Figure out how to override them by consumers? -->
     <WatermelonJsiSharedDir Condition="'$(WatermelonJsiSharedDir)' == ''">..\..\shared\</WatermelonJsiSharedDir>
     <WatermelonAtNozbeNodeModulesDir Condition="'$(WatermelonAtNozbeNodeModulesDir)' == ''">$(ReactNativeWindowsDir)..\@nozbe\</WatermelonAtNozbeNodeModulesDir>
-    <WatermelonSqliteVersion Condition="'$(WatermelonSqliteVersion)' == ''">sqlite-amalgamation-3400100</WatermelonSqliteVersion>
+    <WatermelonSqliteVersion Condition="'$(WatermelonSqliteVersion)' == ''">sqlite-amalgamation-3460000</WatermelonSqliteVersion>
     <WatermelonSqliteDir Condition="'$(WatermelonSqliteDir)' == ''">$(WatermelonAtNozbeNodeModulesDir)sqlite\$(WatermelonSqliteVersion)\</WatermelonSqliteDir>
     <WatermelonSimdjsonDir Condition="'$(WatermelonSimdjsonDir)' == ''">$(WatermelonAtNozbeNodeModulesDir)simdjson\src\</WatermelonSimdjsonDir>
   </PropertyGroup>

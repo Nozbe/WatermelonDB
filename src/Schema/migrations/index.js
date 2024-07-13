@@ -238,6 +238,10 @@ export function destroyTable({
 export function unsafeExecuteSql(sql: string): SqlMigrationStep {
   if (process.env.NODE_ENV !== 'production') {
     invariant(typeof sql === 'string', `SQL passed to unsafeExecuteSql is not a string`)
+    invariant(
+      sql.trimEnd().endsWith(';'),
+      `SQL passed to unsafeExecuteSql must end with a semicolon (it would work when executed individually but break if multiple migration steps are executed)`,
+    )
   }
   return { type: 'sql', sql }
 }

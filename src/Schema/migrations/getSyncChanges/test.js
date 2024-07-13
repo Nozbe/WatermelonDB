@@ -187,7 +187,7 @@ describe('getSyncChanges', () => {
           ],
           unsafeSql: (sql) => sql,
         }),
-        unsafeExecuteSql(''),
+        unsafeExecuteSql(';'),
       ],
     },
     {
