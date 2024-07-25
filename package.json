@@ -47,7 +47,8 @@
     "rambdax": "2.15.0",
     "rxjs": "^6.5.3",
     "sql-escape-string": "^1.1.0",
-    "ulid": "^2.3.0"
+    "ulid": "^2.3.0",
+    "uuid": "^10.0.0"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
