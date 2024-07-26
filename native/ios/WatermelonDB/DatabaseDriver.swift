@@ -89,19 +89,59 @@ class DatabaseDriver {
         // case setLocal(key: String, value: String)
         // case removeLocal(key: String)
     }
-    
-    func copyTables(_ tables: [String], srcDB: String) throws {
-        try database.execute("ATTACH DATABASE '\(srcDB)' as 'other'")
+
+    private func getColumnNames(for tableName: String, in db: Database, schema: String) throws -> Set<String> {
+        var columnNames = Set<String>()
+
+        let query = "PRAGMA \(schema).table_info(\(tableName))"
         
-        try database.inTransaction {
-            for table in tables {
-                try database.execute("INSERT OR IGNORE  INTO \(table) SELECT * FROM other.\(table)")
-            }
+        let iter = try db.queryRaw(query)
+        
+        iter.forEach { rs in
+            if let columnName = rs.string(forColumn: "name") {
+                columnNames.insert(columnName)
+            }            
         }
-        
-        try database.execute("DETACH DATABASE 'other'")
+    
+        return columnNames
     }
     
+    func copyTables(_ tables: [String], srcDB: String) throws {
+        // Attach the source database
+        try database.execute("ATTACH DATABASE '\(srcDB)' as 'other'")
+        
+         try database.inTransaction {
+             for table in tables {
+                // Get the list of columns in the destination database
+                let destColumns = try getColumnNames(for: table, in: database, schema: "main")
+                
+                // Get the list of columns in the source database
+                let srcColumns = try getColumnNames(for: table, in: database, schema: "other")
+                
+                // Find the intersection of the column names
+                let commonColumns = destColumns.intersection(srcColumns)
+                 
+                let escapedColumns = commonColumns.map { "\"\($0)\"" }
+                 
+                // Convert the set of common columns into a comma-separated string
+                let columnsString = escapedColumns.joined(separator: ", ")
+                
+                if !commonColumns.isEmpty {
+                    // Perform the data import using the common columns
+                    let sql = """
+                        INSERT OR IGNORE INTO \(table) (\(columnsString))
+                        SELECT \(columnsString) FROM other.\(table)
+                    """
+
+                    try database.execute(sql)
+                }
+            }
+         }
+                
+        // Detach the source database
+        try database.execute("DETACH DATABASE 'other'")
+    }
+
     func batch(_ operations: [Operation]) throws {
         var newIds: [(Database.TableName, RecordId)] = []
         var removedIds: [(Database.TableName, RecordId)] = []
