@@ -152,17 +152,57 @@ class DatabaseDriver(context: Context, dbName: String) {
         database.execute(query, args)
     }
 
+    private fun getColumnNames(tableName: String, db: Database, schema: String = "main"): Set<String> {
+        val columnNames = mutableSetOf<String>()
+    
+        // Execute the PRAGMA table_info command to get the table schema information
+        db.rawQuery("PRAGMA $schema.table_info($tableName)").use { cursor ->
+            if (cursor.count > 0 && cursor.columnNames.contains("name")) {
+                while (cursor.moveToNext()) {
+                    // Correctly fetch the column name using "name" as the column index
+                    val columnName = cursor.getString(cursor.getColumnIndex("name"))
+                    columnNames.add(columnName)
+                }
+            }
+        }
+        
+        return columnNames
+    }
     fun copyTables(tables: ReadableArray, srcDB: String) {
+        // Attach the source database
         database.execute("ATTACH DATABASE '${srcDB}' as 'other'")
-
+    
         database.transaction {
             for (i in 0 until tables.size()) {
                 val table = tables.getString(i)
-
-                database.execute("INSERT OR IGNORE  INTO ${table} SELECT * FROM other.${table}")
+            
+                // Get the list of columns in the destination database
+                val destColumns = getColumnNames(table, database)
+            
+                // Get the list of columns in the source database
+                val srcColumns = getColumnNames(table, database, "other")
+            
+                // Find the intersection of the column names
+                val commonColumns = destColumns.intersect(srcColumns)
+            
+                if (commonColumns.isNotEmpty()) {
+                    // Escape the common column names for use in SQL query
+                    val escapedColumns = commonColumns.joinToString(", ") { columnName ->
+                        "\"$columnName\""
+                    }
+            
+                    // Perform the data import using the escaped common columns
+                    database.execute(
+                        """
+                        INSERT OR IGNORE INTO $table ($escapedColumns)
+                        SELECT $escapedColumns FROM other.$table
+                        """.trimIndent()
+                    )
+                }
             }
         }
-
+    
+        // Detach the source database
         database.execute("DETACH DATABASE 'other'")
     }
     
