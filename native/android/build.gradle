@@ -19,6 +19,8 @@ android {
 }
 
 dependencies {
+    implementation fileTree(include: ['*.aar'], dir: 'libs')
+
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
