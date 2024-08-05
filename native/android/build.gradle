@@ -19,6 +19,8 @@ android {
 }
 
 dependencies {
+    api("androidx.sqlite:sqlite-ktx:2.4.0")
+    
     implementation fileTree(include: ['*.aar'], dir: 'libs')
 
     //noinspection GradleDynamicVersion
