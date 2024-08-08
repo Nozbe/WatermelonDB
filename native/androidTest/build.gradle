@@ -9,8 +9,8 @@ buildscript {
         compileSdkVersion = 34
         targetSdkVersion = 34
         // We use NDK 23 which has both M1 support and is the side-by-side NDK version from AGP.
-        ndkVersion = "23.1.7779620"
-        kotlinVersion = '1.7.21'
+        ndkVersion = "23.1.7779620" // TODO: Update to 25.1.8937393?
+        kotlinVersion = '1.7.21' // TODO: Update to 1.8?
     }
 
     repositories {
