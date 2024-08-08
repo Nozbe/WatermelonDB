@@ -12,6 +12,8 @@ android {
     buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.buildToolsVersion : DEFAULT_BUILD_TOOLS_VERSION
     ndkVersion rootProject.hasProperty('ndkVersion') ? rootProject.ndkVersion : DEFAULT_NDK_VERSION
 
+    namespace "com.nozbe.watermelondb.jsi"
+
     defaultConfig {
         minSdkVersion rootProject.hasProperty('minSdkVersion') ? rootProject.minSdkVersion : DEFAULT_MIN_SDK_VERSION
         targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION
