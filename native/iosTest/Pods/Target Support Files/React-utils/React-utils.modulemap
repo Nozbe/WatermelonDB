@@ -1,0 +1,6 @@
+module react_utils {
+  umbrella header "React-utils-umbrella.h"
+
+  export *
+  module * { export * }
+}

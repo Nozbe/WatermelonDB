@@ -1,0 +1,46 @@
+{
+  "name": "React-runtimescheduler",
+  "version": "0.72.15",
+  "summary": "-",
+  "homepage": "https://reactnative.dev/",
+  "license": "MIT",
+  "authors": "Meta Platforms, Inc. and its affiliates",
+  "platforms": {
+    "ios": "12.4"
+  },
+  "source": {
+    "git": "https://github.com/facebook/react-native.git",
+    "tag": "v0.72.15"
+  },
+  "source_files": "**/*.{cpp,h}",
+  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32",
+  "header_dir": "react/renderer/runtimescheduler",
+  "exclude_files": "tests",
+  "pod_target_xcconfig": {
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++17",
+    "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/RCT-Folly\""
+  },
+  "dependencies": {
+    "React-jsi": [
+
+    ],
+    "React-runtimeexecutor": [
+
+    ],
+    "React-callinvoker": [
+
+    ],
+    "React-debug": [
+
+    ],
+    "glog": [
+
+    ],
+    "RCT-Folly": [
+      "2021.07.22.00"
+    ],
+    "hermes-engine": [
+
+    ]
+  }
+}

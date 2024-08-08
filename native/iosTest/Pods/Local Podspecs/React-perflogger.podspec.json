@@ -1,16 +1,16 @@
 {
   "name": "React-perflogger",
-  "version": "0.71.19",
+  "version": "0.72.15",
   "summary": "-",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
-  "authors": "Facebook, Inc. and its affiliates",
+  "authors": "Meta Platforms, Inc. and its affiliates",
   "platforms": {
     "ios": "12.4"
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.71.19"
+    "tag": "v0.72.15"
   },
   "source_files": "**/*.{cpp,h}",
   "header_dir": "reactperflogger"
