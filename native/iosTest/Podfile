@@ -62,7 +62,6 @@ post_install do |installer|
     '../../node_modules/react-native',
     mac_catalyst_enabled: false,
   )
-  # __apply_Xcode_12_5_M1_post_install_workaround(installer)
 
   # wtf? https://github.com/facebook/react-native/issues/33178
   system("sed -i -e $'s/_IPHONE_10_0/_IPHONE_17_0/' '#{installer.sandbox.root}/RCT-Folly/folly/portability/Time.h'") || raise
