@@ -1,0 +1,13 @@
+diff --git a/node_modules/react-native/scripts/cocoapods/privacy_manifest_utils.rb b/node_modules/react-native/scripts/cocoapods/privacy_manifest_utils.rb
+index aa00f2d..b06d83e 100644
+--- a/node_modules/react-native/scripts/cocoapods/privacy_manifest_utils.rb
++++ b/node_modules/react-native/scripts/cocoapods/privacy_manifest_utils.rb
+@@ -67,7 +67,7 @@ module PrivacyManifestUtils
+     end
+ 
+     def self.ensure_reference(file_path, user_project, target)
+-        reference_exists = target.resources_build_phase.files_references.any? { |file_ref| file_ref.path.end_with? "PrivacyInfo.xcprivacy" }
++        reference_exists = target.resources_build_phase.files_references.any? { |file_ref| file_ref.path&.end_with? "PrivacyInfo.xcprivacy" }
+         unless reference_exists
+             # We try to find the main group, but if it doesn't exist, we default to adding the file to the project root – both work
+             file_root = user_project.root_object.main_group.children.first { |group| group.name == target.name } || user_project
