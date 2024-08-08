@@ -19647,7 +19647,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -19669,7 +19668,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 70A29DFF89C3B245D2F66FC8422C6F35 /* React-RCTSettings.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -19700,7 +19698,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D7883F7ABA29E8AAC2115C16933439D9 /* RCT-Folly.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -19731,7 +19728,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 8411BAF6ACE7E20827DB0BE9C17E16FD /* React-ImageManager.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -19762,7 +19758,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F7AD3BA4319D96B7F0B2BA5FCEEE5134 /* React-FabricImage.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -19792,7 +19787,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A193CF12AAC8FDD1FF21BF18B18752C8 /* React-jsinspector.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -19823,7 +19817,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C07A77722640BB7F2B440CF77A80A8E9 /* React-perflogger.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -19854,7 +19847,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6F2D5E534B526D57AE2427E42AA8342F /* React-ImageManager.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -19886,7 +19878,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D3EBFB962946C2CC65D58D0E1084115A /* React-Mapbuffer.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -19919,7 +19910,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -19941,7 +19931,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 77C3F4E74C829BADF2A245490EDC87ED /* React-hermes.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -19973,7 +19962,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -19995,7 +19983,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = BDE237586C724E7B95F54E38939A1BA7 /* glog.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20029,7 +20016,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -20051,7 +20037,6 @@
 			baseConfigurationReference = D40D2FA9CCC999A6A1985688544C9701 /* Pods-WatermelonTester-WatermelonTesterTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20077,7 +20062,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F6DB3942C9D70587622DA1EF82D73A50 /* React-Core.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CODE_SIGNING_ALLOWED = NO;
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/React-Core";
@@ -20100,7 +20084,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E87E2827E5130BFCE967555AF6818019 /* React-NativeModulesApple.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20131,7 +20114,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 2A741F58F07D6202240FB0225A077623 /* React-Mapbuffer.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20161,7 +20143,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C712C72CC17FA9C3B7D8235750CAF2DF /* React-nativeconfig.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20192,7 +20173,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = B994B4147CCBDBF276B614924C392519 /* React-hermes.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20223,7 +20203,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = DE58DC4EB61964D09E2C0E5BA72869ED /* React-Fabric.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20255,7 +20234,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4FD5D93DE8D8A02EAF72CAD6D08FD538 /* React-rendererdebug.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20286,7 +20264,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 0F07F0CE99E33F034351B113E05692C8 /* React-RCTAppDelegate.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20319,7 +20296,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -20340,7 +20316,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 0DC0E153E3BE20A213F45C58679ECB26 /* React-RCTVibration.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20373,7 +20348,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -20395,7 +20369,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 28BF0D1264370850A6FA8666EE10B862 /* React-NativeModulesApple.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20429,7 +20402,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -20450,7 +20422,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 20C408FCF82C45B9B57FFC10F0C6ADFE /* RCT-Folly.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20480,7 +20451,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 5E91727064296945ABD3359EF19A0397 /* React-jsiexecutor.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20512,7 +20482,6 @@
 			baseConfigurationReference = 73B3A96DAB49C42270A59966B121F1A7 /* Pods-WatermelonTester.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20541,7 +20510,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -20563,7 +20531,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 01B632EA78E456C5579E2E880648B8A0 /* React-CoreModules.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20593,7 +20560,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 1F8D16A3F7DDE7EC27D2D099E2423CEE /* libevent.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20625,7 +20591,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -20649,7 +20614,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -20670,7 +20634,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 3B7C08344CFE377E99D0DA779EA98E19 /* libevent.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20701,7 +20664,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 24051836E27483825A27202E27846EFD /* React-RCTFabric.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20732,7 +20694,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 242A4DE8E754E4996FDD3CB3402C7749 /* glog.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20763,7 +20724,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 0F32636822E4598FCE3B0C5405F795C8 /* React-RCTNetwork.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20794,7 +20754,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = DF97E8524179B4B959F6F05BD8E469FD /* React-CoreModules.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20826,7 +20785,6 @@
 			baseConfigurationReference = D5F81F5AAC387C14EE7017B61CB495EC /* Pods-WatermelonTester.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20852,7 +20810,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7EE604DB039FFF2C33F575FC3A6AC171 /* React-debug.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20883,7 +20840,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D5E2D655632DF98776A67D706DE45D97 /* React-RCTNetwork.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20913,7 +20869,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6459AAF3F91027AFD272413CFDB517D1 /* React-jsi.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20944,7 +20899,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 706854F0F45C66C706870CBAFD4800D4 /* React-logger.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -20976,7 +20930,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -20997,7 +20950,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 2A8FEE3798BADF30F49171E0D84DADF2 /* SocketRocket.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21027,7 +20979,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 8FC2A3067E8D92E388C6F66A8EF03331 /* simdjson.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21059,7 +21010,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7F83AFDA0097997E6824E99B559E5687 /* React-jsiexecutor.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21089,7 +21039,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E0ED986C7E60C5CB0D1318BA11B94330 /* React-Core.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CODE_SIGNING_ALLOWED = NO;
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/React-Core";
@@ -21112,7 +21061,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E0ED986C7E60C5CB0D1318BA11B94330 /* React-Core.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21143,7 +21091,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 83F60D5CFB0D57913696EC53F7400CEA /* React-FabricImage.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21174,7 +21121,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 233CB414457BA49108D373A8218AC1FA /* React-RCTAnimation.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21205,7 +21151,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D65F599E8A7A73A22CA4B920D0B050D9 /* RCTTypeSafety.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21237,7 +21182,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 382BA11354469F899428766465F8DC3C /* React-nativeconfig.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21267,7 +21211,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 141C949A6AE466F784D919BE14DF6D31 /* React-RCTVibration.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21297,7 +21240,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C6586EF518E7996AF3B9E3138FA35835 /* React-runtimescheduler.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21328,7 +21270,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 269979A7C8BD768E5A778E1B15224AD0 /* simdjson.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21359,7 +21300,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C0A86A8512B0707530E43FC7A1B6D988 /* Yoga.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21391,7 +21331,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 197C13F8AB046D8E138637D7BEE1C239 /* React-jserrorhandler.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21424,7 +21363,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -21446,7 +21384,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = EB502AEC55141EA428355CFA6E5DC8B7 /* React-RCTText.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21478,7 +21415,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -21500,7 +21436,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7890C1513BCE4D07C14C11318616E50F /* React-utils.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21607,7 +21542,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F6DB3942C9D70587622DA1EF82D73A50 /* React-Core.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21710,7 +21644,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 11D30D108175797B5663E6719F4EB687 /* React-Codegen.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21741,7 +21674,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 83424AD14BC332FCC30B44D10B1EE762 /* ReactCommon.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21773,7 +21705,6 @@
 			baseConfigurationReference = E1140A4CC7FEA96D57FF547DA1D75EA0 /* Pods-WatermelonTester-WatermelonTesterTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21802,7 +21733,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -21823,7 +21753,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = B7FBDD7914214CF29DCEC1D94704F1E1 /* React-runtimescheduler.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21853,7 +21782,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 68661FDF51029500E19C1C4C3FBEC571 /* Yoga.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21884,7 +21812,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 53CE6C07F0827AA2B52C38DA40FFE7F8 /* WatermelonDB.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21915,7 +21842,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 53EB300919F9788E480F3C3EF281793A /* React-RCTFabric.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21947,7 +21873,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 28C805EB5DF4B2547CAEFDA28B032854 /* React-graphics.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -21979,7 +21904,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 286778F5077335D0C6992D6856F6E736 /* React-RCTText.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22010,7 +21934,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 651279D27C7990CDA6246E47BE553A9B /* ReactCommon.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22044,7 +21967,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -22065,7 +21987,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E6A203E49CA673A7C93F8C083E33E22A /* React-RCTLinking.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22095,7 +22016,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 70A660A433893076BF40553B1A465E68 /* React-rendererdebug.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22127,7 +22047,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D25BD2901CEBA3D60A71A462186B621D /* React-cxxreact.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22158,7 +22077,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = B3D0E57B39D935A0C0F158706150FE52 /* React-logger.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22189,7 +22107,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 232B6F64473BB18B873DCDB2ACF149A9 /* React-RCTLinking.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22222,7 +22139,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -22246,7 +22162,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -22267,7 +22182,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 5B0131AEA8BDA67A917ECBB81A539E7C /* React-RCTAppDelegate.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22299,7 +22213,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6136611B36B5D9E1A92ED4F6A0077D3E /* React-graphics.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22330,7 +22243,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 0D1119AC80418B47C9711E73BA313E0A /* React-jsi.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22362,7 +22274,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = B2FDA61F29729AFECFCF591992161993 /* React-utils.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22395,7 +22306,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -22416,7 +22326,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C2B27464263662746542B151A3B197C1 /* React-debug.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22450,7 +22359,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -22471,7 +22379,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = B7A4C53A25458B9A43AE12561B43851E /* RCTTypeSafety.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22502,7 +22409,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = FE0E4448AFAD94432E9571F449DBD648 /* React-Codegen.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22534,7 +22440,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E3ECC3F02504FC14346835D49557F0B4 /* React-RCTBlob.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22564,7 +22469,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 23AB68E9717A63F757B87FE4D4A7DF83 /* DoubleConversion.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22594,7 +22498,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 42B0D629903BD9DA3D5671F95DFD42BC /* SocketRocket.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22625,7 +22528,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 2EBD68F30954D6A08B0DFE6F79D3D8FD /* React-RCTImage.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22655,7 +22557,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 55F7CEF55198C79375F28B9F4D3E5813 /* fmt.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22685,7 +22586,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = AC413DF22C46BAB18326BB43F4E71E30 /* React-jsinspector.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22715,7 +22615,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 395AF437CF8117D4CFA4DC9039E3DD76 /* React-Fabric.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22746,7 +22645,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 1D05717AA91A8753FC555B3BD2E2A056 /* React-RCTSettings.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22776,7 +22674,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E362C0A7DEBB2E7517C366CB1096CDBE /* React-RCTBlob.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22807,7 +22704,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C28984AB1773B6A42EC3F996E97F6DE0 /* React-perflogger.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22839,7 +22735,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -22861,7 +22756,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 65899D9F43EF9A04A1627DB9C9118BA9 /* DoubleConversion.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22892,7 +22786,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 84ED76956AB91BF66D76E3CA1469BB1E /* React-cxxreact.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22922,7 +22815,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 05515C8989CD631B4D677EAF05D1C8A0 /* React-RCTImage.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22953,7 +22845,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 20EFF1C39FE8BB44F30DD2AD0F1740EF /* WatermelonDB.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -22983,7 +22874,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D75AA94A5DA8C56FF992FD4F1B6E3B52 /* fmt.release.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -23014,7 +22904,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 397E8C15413CC0552A36F2A97CF7B2FD /* React-RCTAnimation.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -23044,7 +22933,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D29D594488D7FDDE5E2017E6DFA114AD /* React-jserrorhandler.debug.xcconfig */;
 			buildSettings = {
-				CC = "$(SRCROOT)/../../../scripts/ccache-clang";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
