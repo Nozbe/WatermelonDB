@@ -1,6 +1,6 @@
 {
   "name": "React-Codegen",
-  "version": "0.71.19",
+  "version": "0.72.15",
   "summary": "Temp pod for generated files for React Native",
   "homepage": "https://facebook.com/",
   "license": "Unlicense",
@@ -15,12 +15,12 @@
   },
   "source_files": "**/*.{h,mm,cpp}",
   "pod_target_xcconfig": {
-    "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/RCT-Folly\" \"${PODS_ROOT}/Headers/Public/React-Codegen/react/renderer/components\" \"$(PODS_ROOT)/Headers/Private/React-Fabric\" \"$(PODS_ROOT)/Headers/Private/React-RCTFabric\""
+    "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/RCT-Folly\" \"${PODS_ROOT}/Headers/Public/React-Codegen/react/renderer/components\" \"$(PODS_ROOT)/Headers/Private/React-Fabric\" \"$(PODS_ROOT)/Headers/Private/React-RCTFabric\"",
+    "FRAMEWORK_SEARCH_PATHS": [
+
+    ]
   },
   "dependencies": {
-    "FBReactNativeSpec": [
-
-    ],
     "React-jsiexecutor": [
 
     ],
@@ -45,7 +45,22 @@
     "ReactCommon/turbomodule/core": [
 
     ],
+    "React-NativeModulesApple": [
+
+    ],
+    "glog": [
+
+    ],
+    "DoubleConversion": [
+
+    ],
     "hermes-engine": [
+
+    ],
+    "React-rncore": [
+
+    ],
+    "FBReactNativeSpec": [
 
     ]
   }

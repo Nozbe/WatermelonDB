@@ -1,13 +1,13 @@
 {
   "name": "hermes-engine",
-  "version": "0.71.19",
+  "version": "0.72.15",
   "summary": "Hermes is a small and lightweight JavaScript engine optimized for running React Native.",
   "description": "Hermes is a JavaScript engine optimized for fast start-up of React Native apps. It features ahead-of-time static optimization and compact bytecode.",
   "homepage": "https://hermesengine.dev",
   "license": "MIT",
   "authors": "Facebook",
   "source": {
-    "http": "https://repo1.maven.org/maven2/com/facebook/react/react-native-artifacts/0.71.19/react-native-artifacts-0.71.19-hermes-ios-debug.tar.gz"
+    "http": "https://repo1.maven.org/maven2/com/facebook/react/react-native-artifacts/0.72.15/react-native-artifacts-0.72.15-hermes-ios-debug.tar.gz"
   },
   "platforms": {
     "osx": "10.13",
@@ -15,10 +15,16 @@
   },
   "preserve_paths": "**/*.*",
   "source_files": "",
-  "xcconfig": {
+  "pod_target_xcconfig": {
     "CLANG_CXX_LANGUAGE_STANDARD": "c++17",
     "CLANG_CXX_LIBRARY": "compiler-default",
     "GCC_PREPROCESSOR_DEFINITIONS": "HERMES_ENABLE_DEBUGGER=1"
+  },
+  "ios": {
+    "vendored_frameworks": "destroot/Library/Frameworks/ios/hermes.framework"
+  },
+  "osx": {
+    "vendored_frameworks": "destroot/Library/Frameworks/macosx/hermes.framework"
   },
   "subspecs": [
     {

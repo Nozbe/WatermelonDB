@@ -1,17 +1,17 @@
 {
   "name": "ReactCommon",
   "module_name": "ReactCommon",
-  "version": "0.71.19",
+  "version": "0.72.15",
   "summary": "-",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
-  "authors": "Facebook, Inc. and its affiliates",
+  "authors": "Meta Platforms, Inc. and its affiliates",
   "platforms": {
     "ios": "12.4"
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.71.19"
+    "tag": "v0.72.15"
   },
   "header_dir": "ReactCommon",
   "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation",
@@ -23,31 +23,24 @@
   },
   "dependencies": {
     "React-logger": [
-      "0.71.19"
+      "0.72.15"
     ]
   },
   "subspecs": [
     {
-      "name": "react_debug_core",
-      "source_files": "react/debug/*.{cpp,h}"
-    },
-    {
       "name": "turbomodule",
       "dependencies": {
         "React-callinvoker": [
-          "0.71.19"
+          "0.72.15"
         ],
         "React-perflogger": [
-          "0.71.19"
-        ],
-        "React-Core": [
-          "0.71.19"
+          "0.72.15"
         ],
         "React-cxxreact": [
-          "0.71.19"
+          "0.72.15"
         ],
         "React-jsi": [
-          "0.71.19"
+          "0.72.15"
         ],
         "RCT-Folly": [
           "2021.07.22.00"
@@ -67,7 +60,7 @@
           "name": "bridging",
           "dependencies": {
             "React-jsi": [
-              "0.71.19"
+              "0.72.15"
             ],
             "hermes-engine": [
 
@@ -82,23 +75,7 @@
         },
         {
           "name": "core",
-          "source_files": [
-            "react/nativemodule/core/ReactCommon/**/*.{cpp,h}",
-            "react/nativemodule/core/platform/ios/**/*.{mm,cpp,h}"
-          ],
-          "exclude_files": "react/nativemodule/core/ReactCommon/LongLivedObject.h"
-        },
-        {
-          "name": "samples",
-          "source_files": [
-            "react/nativemodule/samples/ReactCommon/**/*.{cpp,h}",
-            "react/nativemodule/samples/platform/ios/**/*.{mm,cpp,h}"
-          ],
-          "dependencies": {
-            "ReactCommon/turbomodule/core": [
-              "0.71.19"
-            ]
-          }
+          "source_files": "react/nativemodule/core/ReactCommon/**/*.{cpp,h}"
         }
       ]
     }
