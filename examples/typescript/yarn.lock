@@ -2,12 +2,12 @@
 # yarn lockfile v1
 
 
-"@babel/runtime@7.21.0":
-  version "7.21.0"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.21.0.tgz#5b55c9d394e5fcf304909a8b00c07dc217b56673"
-  integrity sha512-xwII0//EObnq89Ji5AKYQaRYiW/nZ3llSv29d49IuxPhKbtJoLP+9QUUZ4nVragQVtaVGeZrpB+ZtG/Pdy/POw==
+"@babel/runtime@7.24.7":
+  version "7.24.7"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.24.7.tgz#f4f0d5530e8dbdf59b3451b9b3e594b6ba082e12"
+  integrity sha512-UwgBRMjJP+xv857DCngvqXI3Iq6J4v0wXmwc6sapg+zyhbwmQX67LUEFrkK5tbyJ30jGuG3ZvWpBiB9LCy1kWw==
   dependencies:
-    regenerator-runtime "^0.13.11"
+    regenerator-runtime "^0.14.0"
 
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
@@ -22,26 +22,19 @@
   resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.3.tgz#2b5a3ab3f918cca48a8c754c08168e3f03eba61b"
   integrity sha512-shAmDyaQC4H92APFoIaVDHCx5bStIocgvbwQyxPRrbUY20V1EYTbSDchWbuwlMG3V17cprZhA6+78JfB+3DTPw==
 
-"@nozbe/simdjson@3.1.0-wmelon1":
-  version "3.1.0-wmelon1"
-  resolved "https://registry.yarnpkg.com/@nozbe/simdjson/-/simdjson-3.1.0-wmelon1.tgz#e02048b41d2b3662ddf1dc8c979a3a36fd389dfb"
-  integrity sha512-PQaHHQyvASrcrfzqkZ4ona43m0UjN81NuTWt6rJkOUePGDjxc8MNp2Q7jcod1CIdTsXJ13wRWeFbquwNfhpIQQ==
+"@nozbe/simdjson@3.9.4":
+  version "3.9.4"
+  resolved "https://registry.yarnpkg.com/@nozbe/simdjson/-/simdjson-3.9.4.tgz#64bb522c54cd22e40ff4a64d8f8e8e9285b123b6"
+  integrity sha512-/3oCP8GBpdyeiBMEnuI6S0yl0yekD6Qxfed67hZqU1GIVn3o/vZgE8qANm69THfw7JgHLS9zjx56F/dO3q+koA==
 
-"@nozbe/sqlite@3.40.1":
-  version "3.40.1"
-  resolved "https://registry.yarnpkg.com/@nozbe/sqlite/-/sqlite-3.40.1.tgz#4218074ce8c87c859465dd2db28cd4b2fc7192b9"
-  integrity sha512-uKJOW4sQi3neCmgKhqLr0IJKlb2y5q2p05U5CEDJrCxSyD2uVYvSdh7IMrPjF4sWtzc/Lnk462M4vde7Dn5NSw==
+"@nozbe/sqlite@3.46.0":
+  version "3.46.0"
+  resolved "https://registry.yarnpkg.com/@nozbe/sqlite/-/sqlite-3.46.0.tgz#aeda9df305e2f49ef951409e44544c19a5a3e32d"
+  integrity sha512-ntt8eNp5hh+axX9+kFb5uwyVE0edyfhiYYr+zHDzzFleGC7Qm+a2wHDWDtmRr5nSfbgomhY1uh30kpsHEIR3Mw==
 
 "@nozbe/watermelondb@link:../..":
-  version "0.27.0-8"
-  dependencies:
-    "@babel/runtime" "7.21.0"
-    "@nozbe/simdjson" "3.1.0-wmelon1"
-    "@nozbe/sqlite" "3.40.1"
-    hoist-non-react-statics "^3.3.2"
-    lokijs "npm:@nozbe/lokijs@1.5.12-wmelon6"
-    rxjs "^7.8.0"
-    sql-escape-string "^1.1.0"
+  version "0.0.0"
+  uid ""
 
 "@types/glob@^7.1.1":
   version "7.2.0"
@@ -1363,10 +1356,10 @@ redent@^2.0.0:
     indent-string "^3.0.0"
     strip-indent "^2.0.0"
 
-regenerator-runtime@^0.13.11:
-  version "0.13.11"
-  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.11.tgz#f6dca3e7ceec20590d07ada785636a90cdca17f9"
-  integrity sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==
+regenerator-runtime@^0.14.0:
+  version "0.14.1"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.14.1.tgz#356ade10263f685dda125100cd862c1db895327f"
+  integrity sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw==
 
 regex-not@^1.0.0, regex-not@^1.0.2:
   version "1.0.2"
@@ -1420,7 +1413,7 @@ ret@~0.1.10:
   resolved "https://registry.yarnpkg.com/ret/-/ret-0.1.15.tgz#b8a4825d5bdb1fc3f6f53c2bc33f81388681c7bc"
   integrity sha512-TTlYpa+OL+vMMNG24xSlQGEJ3B/RzEfUlLct7b5G/ytav+wPrplCpVMFuwzXbkecJrb6IYo1iFb0S9v37754mg==
 
-rxjs@^7.8.0:
+rxjs@^7.8.1:
   version "7.8.1"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.8.1.tgz#6f6f3d99ea8044291efd92e7c7fcf562c4057543"
   integrity sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==
