@@ -159,7 +159,7 @@
     "rambdax": "2.15.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "react-native": "0.71.19",
+    "react-native": "0.72.15",
     "react-native-windows": "0.71.47",
     "react-test-renderer": "18.3.1",
     "rimraf": "^4.1.2",
