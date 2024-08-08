@@ -10,4 +10,6 @@ class MainActivity : ReactActivity() {
         super.onTrimMemory(level)
         WatermelonJSI.onTrimMemory(level)
     }
+
+    // TODO: add createReactActivityDelegate? https://raw.githubusercontent.com/react-native-community/rn-diff-purge/release/0.72.15/RnDiffApp/android/app/src/main/java/com/rndiffapp/MainActivity.java
 }
