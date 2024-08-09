@@ -9,7 +9,7 @@ buildscript {
         compileSdkVersion = 34
         targetSdkVersion = 34
         ndkVersion = "25.1.8937393"
-        kotlinVersion = '1.7.21' // TODO: Update to 1.8?
+        kotlinVersion = '1.8.0'
     }
 
     repositories {
