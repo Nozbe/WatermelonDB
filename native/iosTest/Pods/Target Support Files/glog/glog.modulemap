@@ -1,0 +1,6 @@
+module glog {
+  umbrella header "glog-umbrella.h"
+
+  export *
+  module * { export * }
+}

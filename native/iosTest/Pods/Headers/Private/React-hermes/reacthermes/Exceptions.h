@@ -1,1 +1,1 @@
-../../../../../../../node_modules/react-native/ReactCommon/hermes/inspector/Exceptions.h
+../../../../../../../node_modules/react-native/ReactCommon/hermes/inspector-modern/Exceptions.h

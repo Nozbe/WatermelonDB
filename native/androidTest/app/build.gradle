@@ -75,6 +75,8 @@ android {
     compileSdkVersion rootProject.compileSdkVersion
     buildToolsVersion rootProject.buildToolsVersion
 
+    namespace "com.nozbe.watermelonTest"
+
     defaultConfig {
         applicationId "com.nozbe.watermelondb"
         minSdkVersion rootProject.minSdkVersion

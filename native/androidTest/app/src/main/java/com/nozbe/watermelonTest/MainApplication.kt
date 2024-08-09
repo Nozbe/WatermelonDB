@@ -2,11 +2,15 @@ package com.nozbe.watermelonTest
 
 import android.app.Application
 import com.facebook.react.ReactApplication
+import com.facebook.react.ReactHost
 import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.JSIModule
 import com.facebook.react.bridge.JSIModulePackage
 import com.facebook.react.bridge.JSIModuleSpec
+import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
+import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
+import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.shell.MainReactPackage
 import com.facebook.soloader.SoLoader
 import com.nozbe.watermelondb.WatermelonDBPackage
@@ -14,7 +18,7 @@ import com.nozbe.watermelondb.jsi.WatermelonDBJSIPackage
 
 class MainApplication : Application(), ReactApplication {
 
-    private val reactNativeHost = object : ReactNativeHost(this) {
+    override val reactNativeHost = object : DefaultReactNativeHost(this) {
         override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
 
         override fun getPackages(): List<ReactPackage> =
@@ -41,5 +45,6 @@ class MainApplication : Application(), ReactApplication {
         SoLoader.init(this, false)
     }
 
-    override fun getReactNativeHost(): ReactNativeHost = reactNativeHost
+    override val reactHost: ReactHost
+        get() = getDefaultReactHost(this.applicationContext, reactNativeHost)
 }

@@ -1,24 +1,25 @@
 {
   "name": "React-RCTAppDelegate",
-  "version": "0.72.15",
+  "version": "0.73.9",
   "summary": "An utility library to simplify common operations for the New Architecture",
   "homepage": "https://reactnative.dev/",
-  "documentation_url": "https://reactnative.dev/docs/actionsheetios",
+  "documentation_url": "https://reactnative.dev/",
   "license": "MIT",
   "authors": "Meta Platforms, Inc. and its affiliates",
   "platforms": {
-    "ios": "12.4"
+    "ios": "13.4"
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.72.15"
+    "tag": "v0.73.9"
   },
   "source_files": "**/*.{c,h,m,mm,S,cpp}",
-  "compiler_flags": "$(inherited) -DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DRN_FABRIC_ENABLED",
+  "compiler_flags": "$(inherited) -DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -DRN_FABRIC_ENABLED -DUSE_HERMES",
   "pod_target_xcconfig": {
-    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_ROOT)/Headers/Private/React-Core\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/RCT-Folly\" \"${PODS_ROOT}/Headers/Public/FlipperKit\" \"$(PODS_ROOT)/Headers/Public/ReactCommon\" \"$(PODS_ROOT)/Headers/Public/React-RCTFabric\" \"$(PODS_ROOT)/Headers/Public/React-hermes\" \"$(PODS_ROOT)/Headers/Public/hermes-engine\"",
-    "OTHER_CPLUSPLUSFLAGS": "$(inherited) -DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DRN_FABRIC_ENABLED",
-    "CLANG_CXX_LANGUAGE_STANDARD": "c++17"
+    "HEADER_SEARCH_PATHS": "$(PODS_TARGET_SRCROOT)/../../ReactCommon $(PODS_ROOT)/Headers/Private/React-Core $(PODS_ROOT)/boost $(PODS_ROOT)/DoubleConversion $(PODS_ROOT)/fmt/include $(PODS_ROOT)/RCT-Folly ${PODS_ROOT}/Headers/Public/FlipperKit $(PODS_ROOT)/Headers/Public/ReactCommon $(PODS_ROOT)/Headers/Public/React-RCTFabric $(PODS_ROOT)/Headers/Private/Yoga $(PODS_ROOT)/Headers/Public/React-hermes $(PODS_ROOT)/Headers/Public/hermes-engine \"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers\" \"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers/react/nativemodule/core\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-runtimescheduler/React_runtimescheduler.framework/Headers\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-RCTFabric/RCTFabric.framework/Headers\"",
+    "OTHER_CPLUSPLUSFLAGS": "$(inherited) -DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -DRN_FABRIC_ENABLED -DUSE_HERMES",
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++20",
+    "DEFINES_MODULE": "YES"
   },
   "user_target_xcconfig": {
     "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/Headers/Private/React-Core\""
@@ -36,22 +37,28 @@
     "RCTTypeSafety": [
 
     ],
-    "ReactCommon/turbomodule/core": [
-
-    ],
     "React-RCTNetwork": [
 
     ],
     "React-RCTImage": [
 
     ],
-    "React-NativeModulesApple": [
-
-    ],
     "React-CoreModules": [
 
     ],
+    "React-nativeconfig": [
+
+    ],
+    "ReactCommon": [
+
+    ],
+    "React-NativeModulesApple": [
+
+    ],
     "React-runtimescheduler": [
+
+    ],
+    "React-RCTFabric": [
 
     ],
     "React-hermes": [
