@@ -1,11 +1,26 @@
 import getSyncChanges from './index'
-import { schemaMigrations, createTable, addColumns, unsafeExecuteSql } from '../index'
+import {
+  schemaMigrations,
+  createTable,
+  addColumns,
+  unsafeExecuteSql,
+  renameColumn,
+  destroyColumn,
+  destroyTable,
+} from '../index'
 
 const createCommentsTable = createTable({
   name: 'comments',
   columns: [
     { name: 'post_id', type: 'string', isIndexed: true },
     { name: 'body', type: 'string' },
+  ],
+})
+const addColumnsToPostsTable = addColumns({
+  table: 'posts',
+  columns: [
+    { name: 'subtitle', type: 'string', isOptional: true },
+    { name: 'is_pinned', type: 'boolean' },
   ],
 })
 
@@ -21,20 +36,14 @@ describe('getSyncChanges', () => {
     expect(testSteps([])).toEqual({ from: 1, tables: [], columns: [] })
   })
   it('returns created tables', () => {
-    expect(testSteps([createCommentsTable])).toEqual({ from: 1, tables: ['comments'], columns: [] })
+    expect(testSteps([createCommentsTable])).toEqual({
+      from: 1,
+      tables: ['comments'],
+      columns: [],
+    })
   })
   it('returns added columns', () => {
-    expect(
-      testSteps([
-        addColumns({
-          table: 'posts',
-          columns: [
-            { name: 'subtitle', type: 'string', isOptional: true },
-            { name: 'is_pinned', type: 'boolean' },
-          ],
-        }),
-      ]),
-    ).toEqual({
+    expect(testSteps([addColumnsToPostsTable])).toEqual({
       from: 1,
       tables: [],
       columns: [{ table: 'posts', columns: ['subtitle', 'is_pinned'] }],
@@ -75,6 +84,73 @@ describe('getSyncChanges', () => {
       from: 1,
       tables: ['comments'],
       columns: [],
+    })
+  })
+  it('skips added tables if subsequently destroyed', () => {
+    expect(
+      testSteps([
+        createCommentsTable,
+        destroyTable({ table: 'comments' }),
+        destroyTable({ table: 'unrelated' }),
+      ]),
+    ).toEqual({
+      from: 1,
+      tables: [],
+      columns: [],
+    })
+  })
+  it('skips added columns if subsequently destroyed', () => {
+    expect(
+      testSteps([
+        addColumnsToPostsTable,
+        destroyColumn({ table: 'posts', column: 'is_pinned' }),
+        destroyColumn({ table: 'posts', column: 'unrelated' }),
+        destroyColumn({ table: 'unrelated', column: 'is_pinned' }),
+      ]),
+    ).toEqual({
+      from: 1,
+      tables: [],
+      columns: [{ table: 'posts', columns: ['subtitle'] }],
+    })
+  })
+  it('skips added columns if parent table subsequently destroyed', () => {
+    expect(
+      testSteps([
+        addColumnsToPostsTable,
+        destroyTable({ table: 'posts' }),
+        destroyTable({ table: 'unrelated' }),
+      ]),
+    ).toEqual({
+      from: 1,
+      tables: [],
+      columns: [],
+    })
+  })
+  it('renames added columns if needed', () => {
+    expect(
+      testSteps([
+        addColumnsToPostsTable,
+        renameColumn({ table: 'posts', from: 'is_pinned', to: 'is_starred' }),
+        // not needed
+        renameColumn({ table: 'posts', from: 'foo', to: 'bar' }),
+      ]),
+    ).toEqual({
+      from: 1,
+      tables: [],
+      columns: [{ table: 'posts', columns: ['subtitle', 'is_starred'] }],
+    })
+  })
+  it('skips added columns if subsequently destroyed, after renaming', () => {
+    expect(
+      testSteps([
+        addColumnsToPostsTable,
+        renameColumn({ table: 'posts', from: 'is_pinned', to: 'is_starred' }),
+        destroyColumn({ table: 'posts', column: 'is_starred' }),
+      ]),
+    ).toEqual({
+      from: 1,
+      tables: [],
+      columns: [{ table: 'posts', columns: ['subtitle'] }],
     })
   })
   it('skips duplicates', () => {
@@ -214,7 +290,11 @@ describe('getSyncChanges', () => {
       tables: [],
       columns: [{ table: 'attachment_versions', columns: ['reactions'] }],
     })
-    expect(test(bigMigrations, 9, 10)).toEqual({ from: 9, tables: [], columns: [] })
+    expect(test(bigMigrations, 9, 10)).toEqual({
+      from: 9,
+      tables: [],
+      columns: [],
+    })
     expect(test(bigMigrations, 10, 10)).toEqual(null)
   })
   it(`fails on incorrect migrations`, () => {
@@ -225,12 +305,9 @@ describe('getSyncChanges', () => {
     const possibleFutureTypes = [
       'broken',
       'rename_table',
-      'rename_column',
       'add_column_index',
       'make_column_optional',
       'make_column_required',
-      'destroy_table',
-      'destroy_column',
     ]
     possibleFutureTypes.forEach((type) => {
       expect(() => testSteps([{ type }])).toThrow('Unknown migration step type')
