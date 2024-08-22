@@ -1,6 +1,10 @@
 package com.nozbe.watermelonTest
 
 import com.facebook.react.ReactActivity
+import com.facebook.react.ReactActivityDelegate
+import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
+import com.facebook.react.defaults.DefaultReactActivityDelegate
+
 import com.nozbe.watermelondb.jsi.WatermelonJSI
 
 class MainActivity : ReactActivity() {
@@ -11,5 +15,6 @@ class MainActivity : ReactActivity() {
         WatermelonJSI.onTrimMemory(level)
     }
 
-    // TODO: add createReactActivityDelegate? https://raw.githubusercontent.com/react-native-community/rn-diff-purge/release/0.72.15/RnDiffApp/android/app/src/main/java/com/rndiffapp/MainActivity.java
+    override fun createReactActivityDelegate(): ReactActivityDelegate =
+      DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
 }

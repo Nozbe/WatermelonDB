@@ -1,28 +1,37 @@
 {
   "name": "React-RCTText",
-  "version": "0.72.15",
+  "version": "0.73.9",
   "summary": "A React component for displaying text.",
   "homepage": "https://reactnative.dev/",
   "documentation_url": "https://reactnative.dev/docs/text",
   "license": "MIT",
   "authors": "Meta Platforms, Inc. and its affiliates",
   "platforms": {
-    "ios": "12.4"
+    "ios": "13.4"
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.72.15"
+    "tag": "v0.73.9"
   },
-  "source_files": "**/*.{h,m}",
+  "source_files": "**/*.{h,m,mm}",
   "preserve_paths": [
     "package.json",
     "LICENSE",
     "LICENSE-docs"
   ],
   "header_dir": "RCTText",
+  "frameworks": [
+    "MobileCoreServices"
+  ],
+  "pod_target_xcconfig": {
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++20"
+  },
   "dependencies": {
+    "Yoga": [
+
+    ],
     "React-Core/RCTTextHeaders": [
-      "0.72.15"
+      "0.73.9"
     ]
   }
 }

@@ -1,1 +1,1 @@
-../../../../../../../node_modules/react-native/ReactCommon/hermes/inspector/chrome/RemoteObjectsTable.h
+../../../../../../../node_modules/react-native/ReactCommon/hermes/inspector-modern/chrome/RemoteObjectsTable.h

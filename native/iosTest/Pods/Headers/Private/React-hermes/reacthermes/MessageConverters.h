@@ -1,1 +1,1 @@
-../../../../../../../node_modules/react-native/ReactCommon/hermes/inspector/chrome/MessageConverters.h
+../../../../../../../node_modules/react-native/ReactCommon/hermes/inspector-modern/chrome/MessageConverters.h

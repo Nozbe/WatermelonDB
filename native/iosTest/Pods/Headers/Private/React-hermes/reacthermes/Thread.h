@@ -1,1 +1,1 @@
-../../../../../../../node_modules/react-native/ReactCommon/hermes/inspector/detail/Thread.h
+../../../../../../../node_modules/react-native/ReactCommon/hermes/inspector-modern/detail/Thread.h

@@ -1,1 +1,1 @@
-../../../../../../../node_modules/react-native/ReactCommon/hermes/inspector/chrome/ConnectionDemux.h
+../../../../../../../node_modules/react-native/ReactCommon/hermes/inspector-modern/chrome/ConnectionDemux.h

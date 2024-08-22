@@ -12,7 +12,9 @@
 
 #import "react/utils/CalledOnceMovableOnlyFunction.h"
 #import "react/utils/ContextContainer.h"
+#import "react/utils/CoreFeatures.h"
 #import "react/utils/FloatComparison.h"
+#import "react/utils/hash_combine.h"
 #import "react/utils/ManagedObjectWrapper.h"
 #import "react/utils/RunLoopObserver.h"
 #import "react/utils/SharedFunction.h"

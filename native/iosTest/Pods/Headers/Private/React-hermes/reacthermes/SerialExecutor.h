@@ -1,1 +1,1 @@
-../../../../../../../node_modules/react-native/ReactCommon/hermes/inspector/detail/SerialExecutor.h
+../../../../../../../node_modules/react-native/ReactCommon/hermes/inspector-modern/detail/SerialExecutor.h
