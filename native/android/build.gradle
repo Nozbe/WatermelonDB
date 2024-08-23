@@ -20,7 +20,7 @@ android {
 
 dependencies {
     api("androidx.sqlite:sqlite-ktx:2.4.0")
-    implementation files('libs/sqlite-android.aar')
+    compileOnly files('libs/sqlite-android.aar')
 
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'
