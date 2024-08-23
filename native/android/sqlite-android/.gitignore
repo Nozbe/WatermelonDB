@@ -1,0 +1,7 @@
+/build
+/src/main/jniLibs
+/src/main/jni/sqlite/sqlite3.h
+/src/main/jni/sqlite/sqlite3.c
+/src/main/jni/sqlite.zip
+/src/main/obj
+.externalNativeBuild/

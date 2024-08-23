@@ -1,0 +1,32 @@
+
+All the files in this directory are copied from stock android. The following
+files:
+
+JNIHelp.cpp
+ALog-priv.h
+
+are copied in from Android's libnativehelper module (altogether less than 1000
+lines of code). The remainder are from the core framework (directory
+/frameworks/base/core/jni).
+
+Notes on changes:
+
+The ashmem_XXX() interfaces are used for the various "xxxForBlobDescriptor()"
+API functions. The code in libcutils for this seems to be platform
+dependent - some platforms have kernel support, others have a user space
+implementation. So these functions are not supported for now.
+
+The original SQLiteConnection.cpp uses AndroidRuntime::genJNIEnv() to obtain a
+pointer to the current threads environment. Changed to store a pointer to the
+process JavaVM (Android allows only one) as a global variable. Then retrieve
+the JNIEnv as needed using GetEnv().
+
+Replaced uses of class String8 with std::string in SQLiteConnection.cpp and a
+few other places.
+
+The "LOCALIZED" collation and some miscellaneous user-functions added by the
+sqlite3_android.cpp module are not included. A collation called LOCALIZED
+that is equivalent to BINARY is added instead to keep various things working.
+This should not cause serious problems - class SQLiteConnection always
+runs "REINDEX LOCALIZED" immediately after opening a connection.
+
