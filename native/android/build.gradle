@@ -20,14 +20,18 @@ android {
 
 dependencies {
     api("androidx.sqlite:sqlite-ktx:2.4.0")
-    
-    implementation fileTree(include: ['*.aar'], dir: 'libs')
+    implementation files('libs/sqlite-android.aar')
 
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
 }
 repositories {
     mavenCentral()
+
+    flatDir{
+        dirs 'libs'
+    }
 }
 
