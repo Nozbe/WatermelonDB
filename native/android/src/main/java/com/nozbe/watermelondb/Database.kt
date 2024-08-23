@@ -2,7 +2,7 @@ package com.nozbe.watermelondb
 
 import android.content.Context
 import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase
+import io.requery.android.database.sqlite.SQLiteDatabase
 import java.io.File
 
 class Database(private val name: String, private val context: Context) {
