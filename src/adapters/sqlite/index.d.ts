@@ -60,6 +60,8 @@ declare module '@BuildHero/watermelondb/adapters/sqlite' {
 
     unsafeResetDatabase(): Promise<void>
 
+    enableNativeCDC(): Promise<void>
+
     execSqlQuery(sql: string, params?: any[]): Promise<Record<string, any>[]>
   }
 }

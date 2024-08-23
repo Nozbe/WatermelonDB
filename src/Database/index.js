@@ -58,6 +58,10 @@ export default class Database {
 
   copyTables = async (tables: any, srcDB: any) => {
     return this.adapter.batchImport(tables, srcDB)
+  }  
+
+  enableNativeCDC = async () => {
+    return this.adapter.enableNativeCDC()
   }
 
   // Executes multiple prepared operations

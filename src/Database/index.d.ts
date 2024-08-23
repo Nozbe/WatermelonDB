@@ -32,5 +32,7 @@ declare module '@BuildHero/watermelondb/Database' {
     ): Observable<CollectionChangeSet<any> | null>
 
     public unsafeResetDatabase(): Promise<void>
+
+    public enableNativeCDC(): Promise<void>
   }
 }

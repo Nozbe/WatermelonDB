@@ -299,6 +299,10 @@ class DatabaseDriver {
     return this.database.queryRaw(query, params)
   }
 
+  setUpdateHook = (updateHook: any) => {
+    this.database.setUpdateHook(updateHook)
+  }
+
   localStorageSchema: string = `
       create table local_storage (
       key varchar(16) primary key not null,

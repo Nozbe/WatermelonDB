@@ -5,21 +5,23 @@ class Database {
     typealias SQL = String
     typealias TableName = String
     typealias QueryArgs = [Any]
-
+    
     private let fmdb: FMDatabase
     private let path: String
-
+    
+    private var updateHookCallback: ((UnsafeMutableRawPointer?, Int32, UnsafePointer<Int8>?, UnsafePointer<Int8>?, Int64) -> Void)?
+    
     init(path: String) {
         self.path = path
         fmdb = FMDatabase(path: path)
         open()
     }
-
+    
     private func open() {
         guard fmdb.open() else {
             fatalError("Failed to open the database. \(fmdb.lastErrorMessage())")
         }
-
+        
         // TODO: Experiment with WAL
         // do {
         //     // must be queryRaw - returns value
@@ -27,13 +29,13 @@ class Database {
         // } catch {
         //     fatalError("Failed to set database to WAL mode \(error)")
         // }
-
+        
         consoleLog("Opened database at: \(path)")
     }
-
+    
     func inTransaction(_ executeBlock: () throws -> Void) throws {
         guard fmdb.beginTransaction() else { throw fmdb.lastError() }
-
+        
         do {
             try executeBlock()
             guard fmdb.commit() else { throw fmdb.lastError() }
@@ -42,21 +44,36 @@ class Database {
             throw error
         }
     }
-
+    
     func execute(_ query: SQL, _ args: QueryArgs = []) throws {
         try fmdb.executeUpdate(query, values: args)
     }
-
+    
     /// Executes multiple queries separated by `;`
     func executeStatements(_ queries: SQL) throws {
         guard fmdb.executeStatements(queries) else {
             throw fmdb.lastError()
         }
     }
-
+    
+    func setUpdateHook(withCallback callback: @escaping (UnsafeMutableRawPointer?, Int32, UnsafePointer<Int8>?, UnsafePointer<Int8>?, Int64) -> Void) {
+        self.updateHookCallback = callback
+        
+        let sqliteHandle = OpaquePointer(fmdb.sqliteHandle)
+        let userData: UnsafeMutableRawPointer? = UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
+        
+        sqlite3_update_hook(sqliteHandle, { (userData, opcode, dbName, tableName, rowId) -> Void in
+            guard let userData = userData else { return }
+            let handler = Unmanaged<Database>.fromOpaque(userData).takeUnretainedValue()
+            
+            // Call the instance's callback method
+            handler.updateHookCallback?(userData, opcode, dbName, tableName, rowId)
+        }, userData)
+    }
+    
     func queryRaw(_ query: SQL, _ args: QueryArgs = []) throws -> AnyIterator<FMResultSet> {
         let resultSet = try fmdb.executeQuery(query, values: args)
-
+        
         return AnyIterator {
             if resultSet.next() {
                 return resultSet
@@ -66,23 +83,23 @@ class Database {
             }
         }
     }
-
+    
     /// Use `select count(*) as count`
     func count(_ query: SQL, _ args: QueryArgs = []) throws -> Int {
         let result = try fmdb.executeQuery(query, values: args)
         defer { result.close() }
-
+        
         guard result.next() else {
             throw "Invalid count query, can't find next() on the result".asError()
         }
-
+        
         guard result.columnIndex(forName: "count") != -1 else {
             throw "Invalid count query, can't find `count` column".asError()
         }
-
+        
         return Int(result.int(forColumn: "count"))
     }
-
+    
     var userVersion: Int {
         get {
             // swiftlint:disable:next force_try
@@ -96,7 +113,7 @@ class Database {
             try! execute("pragma user_version = \(newValue)")
         }
     }
-
+    
     func unsafeDestroyEverything() throws {
         // NOTE: Deleting files by default because it seems simpler, more reliable
         // But sadly this won't work for in-memory (shared) databases
@@ -104,13 +121,13 @@ class Database {
             // NOTE: As of iOS 14, selecting tables from sqlite_master and deleting them does not work
             // They seem to be enabling "defensive" config. So we use another obscure method to clear the database
             // https://www.sqlite.org/c3ref/c_dbconfig_defensive.html#sqlitedbconfigresetdatabase
-
+            
             guard watermelondb_sqlite_dbconfig_reset_database(OpaquePointer(fmdb.sqliteHandle), true) else {
                 throw "Failed to enable reset database mode".asError()
             }
-
+            
             try executeStatements("vacuum")
-
+            
             guard watermelondb_sqlite_dbconfig_reset_database(OpaquePointer(fmdb.sqliteHandle), false) else {
                 throw "Failed to disable reset database mode".asError()
             }
@@ -118,24 +135,24 @@ class Database {
             guard fmdb.close() else {
                 throw "Could not close database".asError()
             }
-
+            
             let manager = FileManager.default
-
+            
             try manager.removeItem(atPath: path)
-
+            
             func removeIfExists(_ path: String) throws {
                 if manager.fileExists(atPath: path) {
                     try manager.removeItem(atPath: path)
                 }
             }
-
+            
             try removeIfExists("\(path)-wal")
             try removeIfExists("\(path)-shm")
-
+            
             open()
         }
     }
-
+    
     private var isInMemoryDatabase: Bool {
         return path == ":memory:" || path == "file::memory:" || path.contains("?mode=memory")
     }

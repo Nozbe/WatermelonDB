@@ -7,6 +7,7 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.WritableNativeArray
 import com.facebook.react.bridge.WritableArray
+import io.requery.android.database.sqlite.SQLiteUpdateHook
 import java.lang.Exception
 import java.util.logging.Logger
 
@@ -272,6 +273,8 @@ class DatabaseDriver(context: Context, dbName: String) {
         cachedRecords.clear()
         setUpSchema(schema)
     }
+
+    fun setUpdateHook(updateHook: SQLiteUpdateHook) = database.setUpdateHook(updateHook)
 
     fun close() = database.close()
 

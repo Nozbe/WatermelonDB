@@ -9,10 +9,17 @@ import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.WritableNativeArray
 import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.ReactContext
+import com.facebook.react.bridge.WritableArray
+import com.facebook.react.bridge.WritableMap
+import com.facebook.react.modules.core.DeviceEventManagerModule
+import io.requery.android.database.sqlite.SQLiteUpdateHook
+import java.util.Timer
+import java.util.TimerTask
 import kotlin.collections.ArrayList
 
 class DatabaseBridge(private val reactContext: ReactApplicationContext) :
-        ReactContextBaseJavaModule(reactContext) {
+    ReactContextBaseJavaModule(reactContext) {
 
     private val connections: MutableMap<ConnectionTag, Connection> = mutableMapOf()
 
@@ -29,6 +36,53 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
             }
     }
 
+    private val affectedTables = mutableSetOf<String>()
+    private var batchTimer: Timer? = null
+    private val batchInterval = 100L // milliseconds
+
+    private val sqliteUpdateHook = SQLiteUpdateHook { _, _, tableName, _ ->
+        bufferTableName(tableName)
+        resetBatchTimer()
+    }
+
+    private fun bufferTableName(tableName: String) {
+        // Add the table name to the set of affected tables (duplicates will be ignored)
+        affectedTables.add(tableName)
+    }
+
+    private fun resetBatchTimer() {
+        batchTimer?.cancel() // Cancel the existing timer if it's running
+
+        batchTimer = Timer().apply {
+            schedule(object : TimerTask() {
+                override fun run() {
+                    emitAffectedTables()
+                }
+            }, batchInterval)
+        }
+    }
+
+    private fun emitAffectedTables() {
+        if (affectedTables.isNotEmpty()) {
+            val params = Arguments.createArray().apply {
+                affectedTables.forEach { pushString(it) }
+            }
+
+            sendEvent(reactContext, "SQLITE_UPDATE_HOOK", params)
+
+            affectedTables.clear() // Clear the buffer after emitting
+        }
+
+        batchTimer?.cancel()
+        batchTimer = null
+    }
+
+    private fun sendEvent(reactContext: ReactContext, eventName: String, params: WritableArray?) {
+        reactContext
+            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+            .emit(eventName, params)
+    }
+
     @ReactMethod
     fun initialize(
         tag: ConnectionTag,
@@ -41,11 +95,11 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
 
         try {
             connections[tag] = Connection.Connected(
-                    driver = DatabaseDriver(
-                            context = reactContext,
-                            dbName = databaseName,
-                            schemaVersion = schemaVersion
-                    )
+                driver = DatabaseDriver(
+                    context = reactContext,
+                    dbName = databaseName,
+                    schemaVersion = schemaVersion
+                )
             )
             promiseMap.putString("code", "ok")
             promise.resolve(promiseMap)
@@ -71,16 +125,16 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         schemaVersion: SchemaVersion,
         promise: Promise
     ) = connectDriver(
-            connectionTag = tag,
-            driver = DatabaseDriver(
-                    context = reactContext,
-                    dbName = databaseName,
-                    schema = Schema(
-                            version = schemaVersion,
-                            sql = schema
-                    )
-            ),
-            promise = promise
+        connectionTag = tag,
+        driver = DatabaseDriver(
+            context = reactContext,
+            dbName = databaseName,
+            schema = Schema(
+                version = schemaVersion,
+                sql = schema
+            )
+        ),
+        promise = promise
     )
 
     @ReactMethod
@@ -94,17 +148,17 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     ) {
         try {
             connectDriver(
-                    connectionTag = tag,
-                    driver = DatabaseDriver(
-                            context = reactContext,
-                            dbName = databaseName,
-                            migrations = MigrationSet(
-                                    from = fromVersion,
-                                    to = toVersion,
-                                    sql = migrations
-                            )
-                    ),
-                    promise = promise
+                connectionTag = tag,
+                driver = DatabaseDriver(
+                    context = reactContext,
+                    dbName = databaseName,
+                    migrations = MigrationSet(
+                        from = fromVersion,
+                        to = toVersion,
+                        sql = migrations
+                    )
+                ),
+                promise = promise
             )
         } catch (e: Exception) {
             disconnectDriver(tag)
@@ -114,11 +168,11 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun find(tag: ConnectionTag, table: TableName, id: RecordID, promise: Promise) =
-            withDriver(tag, promise) { it.find(table, id) }
+        withDriver(tag, promise) { it.find(table, id) }
 
     @ReactMethod
     fun query(tag: ConnectionTag, table: TableName, query: SQL, promise: Promise) =
-            withDriver(tag, promise) { it.cachedQuery(table, query) }
+        withDriver(tag, promise) { it.cachedQuery(table, query) }
 
     @ReactMethod
     fun execSqlQuery(tag: ConnectionTag, query: SQL, params: ReadableArray = WritableNativeArray(), promise: Promise) =
@@ -126,19 +180,19 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun count(tag: ConnectionTag, query: SQL, promise: Promise) =
-            withDriver(tag, promise) { it.count(query) }
+        withDriver(tag, promise) { it.count(query) }
 
     @ReactMethod
     fun copyTables(tag: ConnectionTag, tables: ReadableArray, srcDB: String, promise: Promise) =
-            withDriver(tag, promise) { it.copyTables(tables, srcDB) }
+        withDriver(tag, promise) { it.copyTables(tables, srcDB) }
 
     @ReactMethod
     fun batch(tag: ConnectionTag, operations: ReadableArray, promise: Promise) =
-            withDriver(tag, promise) { it.batch(operations) }
+        withDriver(tag, promise) { it.batch(operations) }
 
     @ReactMethod
     fun getDeletedRecords(tag: ConnectionTag, table: TableName, promise: Promise) =
-            withDriver(tag, promise) { it.getDeletedRecords(table) }
+        withDriver(tag, promise) { it.getDeletedRecords(table) }
 
     @ReactMethod
     fun destroyDeletedRecords(
@@ -158,15 +212,19 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun getLocal(tag: ConnectionTag, key: String, promise: Promise) =
-            withDriver(tag, promise) { it.getLocal(key) }
+        withDriver(tag, promise) { it.getLocal(key) }
 
     @ReactMethod
     fun setLocal(tag: ConnectionTag, key: String, value: String, promise: Promise) =
-            withDriver(tag, promise) { it.setLocal(key, value) }
+        withDriver(tag, promise) { it.setLocal(key, value) }
 
     @ReactMethod
     fun removeLocal(tag: ConnectionTag, key: String, promise: Promise) =
-            withDriver(tag, promise) { it.removeLocal(key) }
+        withDriver(tag, promise) { it.removeLocal(key) }
+
+    @ReactMethod
+    fun enableNativeCDC(tag: ConnectionTag, promise: Promise) =
+        withDriver(tag, promise) { it.setUpdateHook(sqliteUpdateHook) }
 
     @Throws(Exception::class)
     private fun withDriver(
@@ -178,8 +236,8 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         try {
             Trace.beginSection("DatabaseBridge.$functionName")
             when (val connection =
-                    connections[tag] ?: promise.reject(
-                            Exception("No driver with tag $tag available"))) {
+                connections[tag] ?: promise.reject(
+                    Exception("No driver with tag $tag available"))) {
                 is Connection.Connected -> {
                     val result = function(connection.driver)
                     promise.resolve(if (result === Unit) {
