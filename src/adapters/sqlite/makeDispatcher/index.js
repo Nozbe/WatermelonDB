@@ -32,7 +32,8 @@ const dispatcherMethods = [
   'setLocal',
   'removeLocal',
   'obliterateDatabase',
-  'execSqlQuery'
+  'execSqlQuery',
+  'enableNativeCDC'
 ]
 
 export const makeDispatcher = (

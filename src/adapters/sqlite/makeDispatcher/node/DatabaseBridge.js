@@ -1,6 +1,9 @@
 // @flow
 
 import DatabaseDriver from './DatabaseDriver'
+import { NativeEventEmitter } from 'react-native';
+
+const SQLiteEventEmitter = new NativeEventEmitter('DatabaseBridge');
 
 type Connection = {
   driver: DatabaseDriver,
@@ -11,6 +14,46 @@ type Connection = {
 
 class DatabaseBridge {
   connections: { [key: number]: Connection } = {}
+
+  constructor() {
+    this.affectedTables = new Set();
+    this.batchTimer = null;
+    this.batchInterval = 100; // milliseconds
+  }
+
+  sqliteUpdateHook(tableName) {
+    this.bufferTableName(tableName);
+    this.resetBatchTimer();
+  }
+
+  bufferTableName(tableName) {
+    // Add the table name to the set of affected tables (duplicates are ignored)
+    this.affectedTables.add(tableName);
+  }
+
+  resetBatchTimer() {
+    if (this.batchTimer) {
+      clearTimeout(this.batchTimer); // Cancel the existing timer if it's running
+    }
+
+    this.batchTimer = setTimeout(() => {
+      this.emitAffectedTables();
+    }, this.batchInterval);
+  }
+
+  emitAffectedTables() {
+    if (this.affectedTables.size > 0) {
+      const params = Array.from(this.affectedTables); // Convert Set to Array
+
+      // Emit event with affected tables
+      SQLiteEventEmitter.emit('SQLITE_UPDATE_HOOK', params);
+
+      this.affectedTables.clear(); // Clear the buffer after emitting
+    }
+
+    clearTimeout(this.batchTimer); // Cancel the timer
+    this.batchTimer = null;
+  }
 
   // MARK: - Asynchronous connections
 
@@ -218,13 +261,13 @@ class DatabaseBridge {
 
 
   obliterateDatabase = (
-    tag: Number, 
+    tag: Number,
     resolve: any => void,
     reject: string => void,
-  ) => 
+  ) =>
     this.withDriver(tag, resolve, reject, 'obliterateDatabase', driver =>
       driver.obliterateDatabase(),
-  )
+    )
 
   getLocal = (tag: number, key: string, resolve: any => void, reject: string => void) =>
     this.withDriver(tag, resolve, reject, 'getLocal', driver => driver.getLocal(key))
@@ -243,13 +286,20 @@ class DatabaseBridge {
   // MARK: - Synchronous methods
 
   execSqlQuery = (
-    tag: number, 
-    query: string, 
-    params: [any], 
+    tag: number,
+    query: string,
+    params: [any],
     resolve: any => void,
     reject: string => void,
   ) =>
     this.withDriver(tag, resolve, reject, 'execSqlQuery', driver => driver.execSqlQuery(query, params))
+
+  enableNativeCDC = (
+    tag: number,
+    resolve: any => void,
+    reject: string => void
+  ) =>
+    this.withDriver(tag, resolve, reject, 'enableNativeCDC', driver => driver.setUpdateHook(this.sqliteUpdateHook))
 
   execSqlQuerySynchronous = (
     tag: number,
@@ -301,7 +351,7 @@ class DatabaseBridge {
     )
 
   obliterateDatabaseSynchronous = (tag: number): any =>
-    this.withDriverSynchronous(tag, 'obliterateDatabaseSynchronous', driver => 
+    this.withDriverSynchronous(tag, 'obliterateDatabaseSynchronous', driver =>
       driver.obliterateDatabase(),
     )
 
@@ -313,6 +363,9 @@ class DatabaseBridge {
 
   removeLocalSynchronous = (tag: number, key: string): any =>
     this.withDriverSynchronous(tag, 'removeLocalSynchronous', driver => driver.removeLocal(key))
+
+  enableNativeSynchronous = (tag: number) =>
+    this.withDriverSynchronous(tag, 'enableNativeCDC', driver => driver.setUpdateHook(this.sqliteUpdateHook))
 
   // MARK: - Helpers
 

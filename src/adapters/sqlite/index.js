@@ -308,6 +308,10 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     this._dispatcher.removeLocal(key, callback)
   }
 
+  enableNativeCDC(callback: ResultCallback<void>): void {
+    this._dispatcher.enableNativeCDC(callback)
+  }
+
   _encodedSchema(): SQL {
     const { encodeSchema } = require('./encodeSchema')
     return encodeSchema(this.schema)

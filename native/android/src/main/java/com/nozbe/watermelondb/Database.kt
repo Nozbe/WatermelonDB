@@ -3,6 +3,7 @@ package com.nozbe.watermelondb
 import android.content.Context
 import android.database.Cursor
 import io.requery.android.database.sqlite.SQLiteDatabase
+import io.requery.android.database.sqlite.SQLiteUpdateHook
 import java.io.File
 
 class Database(private val name: String, private val context: Context) {
@@ -101,4 +102,6 @@ class Database(private val name: String, private val context: Context) {
     }
 
     fun close() = db.close()
+
+    fun setUpdateHook(updateHook: SQLiteUpdateHook) = db.setUpdateHook(updateHook)
 }

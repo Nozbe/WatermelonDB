@@ -1,6 +1,7 @@
 #import <React/RCTBridgeModule.h>
+#import <React/RCTEventEmitter.h>
 
-@interface RCT_EXTERN_REMAP_MODULE(DatabaseBridge, DatabaseBridge, NSObject)
+@interface RCT_EXTERN_REMAP_MODULE(DatabaseBridge, DatabaseBridge, RCTEventEmitter)
 
 #define WMELON_CONCAT(A, B) A ## B
 #define WMELON_BRIDGE_METHOD(name, args) \
@@ -89,6 +90,13 @@ WMELON_BRIDGE_METHOD(setLocal,
 WMELON_BRIDGE_METHOD(removeLocal,
   key:(nonnull NSString *)key
 )
+
+RCT_EXTERN_METHOD(enableNativeCDC:(nonnull NSNumber *)connectionTag
+  resolve:(RCTPromiseResolveBlock)resolve
+  reject:(RCTPromiseRejectBlock)reject
+)
+
+RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(WMELON_CONCAT(enableNativeCDC, Synchronous):(nonnull NSNumber *)connectionTag)
 
 RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(initializeJSI)
 
