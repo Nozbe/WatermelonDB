@@ -3,9 +3,9 @@ function buildAdjacencyList(relationships) {
   const adjacencyList = {}
 
   relationships.forEach(({ from, info, to }) => {
-    const { alias } = info // Extract alias from info
+    const { aliasFor } = info // Extract alias from info
     if (!adjacencyList[from]) adjacencyList[from] = []
-    adjacencyList[from].push({ to, ...info, alias: alias || to }) // Use alias if provided, otherwise default to original table name
+    adjacencyList[from].push({ to, ...info, alias: aliasFor || to }) // Use alias if provided, otherwise default to original table name
   })
 
   return adjacencyList
