@@ -132,6 +132,23 @@ const encodeConditions = (
   return clauses.length ? ` where ${clauses}` : ''
 }
 
+const encodeEagerMethod = (
+  table: TableName<any>,
+  associations: QueryAssociation[],
+  schema: any,
+): string => {
+  const eagerTables = Array.from(new Set([table].concat(associations.map(({ to }) => to))))
+  const getTableColumns = (tableName) => ['id', '_changed', '_status'].concat(Object.keys(schema.tables[tableName].columns))
+
+  const selectList = eagerTables.map((eagerTable) => {
+    return getTableColumns(eagerTable).map((column) => {
+      return `${encodeName(eagerTable)}.${encodeName(column)} as ${encodeName(`${eagerTable}.${column}`)}`
+    }).join(', ')
+  }).join(', ')
+
+  return `select ${selectList} from ${encodeName(table)}`
+}
+
 // If query contains `on()` conditions on tables with which the primary table has a has-many
 // relation, then we need to add `distinct` on the query to ensure there are no duplicates
 const encodeMethod = (
@@ -211,7 +228,7 @@ const encodeCTE = (description: any, sql: string, table: string) => {
     `
 }
 
-const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string => {
+const encodeQuery = (query: SerializedQuery, countMode: boolean = false, schema = null): string => {
   const { table, description, associations } = query
 
   // $FlowFixMe
@@ -229,7 +246,10 @@ const encodeQuery = (query: SerializedQuery, countMode: boolean = false): string
   invariant(!description.lokiFilter, 'unsafeLokiFilter not supported with SQLite')
 
   let sql =
-    encodeMethod(table, countMode, hasToManyJoins) +
+    (!description.eagerJoinTables.length
+      ? encodeMethod(table, countMode, hasToManyJoins)
+      : encodeEagerMethod(table, associations, schema)
+    ) +
     encodeJoin(description, associations) +
     encodeConditions(table, description, associations) +
     encodeOrderBy(table, description.sortBy) +

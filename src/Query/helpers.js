@@ -12,7 +12,9 @@ export const getAssociations = (
   modelClass: Class<Model>,
   db: Database,
 ): QueryAssociation[] =>
-  description.joinTables
+  description.joinTables.concat(description.eagerJoinTables
+    .map(({ joinTables }) => joinTables))
+    .reduce((acc, tables) => acc.concat(tables), [])
     .map(table => {
       const info = modelClass.associations[table]
       invariant(
@@ -22,7 +24,10 @@ export const getAssociations = (
       return { from: modelClass.table, to: table, info }
     })
     .concat(
-      description.nestedJoinTables.map(({ from, to }) => {
+      description.nestedJoinTables.concat(description.eagerJoinTables
+      .map(({ nestedJoinTables }) => nestedJoinTables))
+      .reduce((acc, tables) => acc.concat(tables), [])
+      .map(({ from, to }) => {
         const collection = db.get(from)
         invariant(
           collection,

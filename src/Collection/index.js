@@ -16,6 +16,8 @@ import { type DirtyRaw } from '../RawRecord'
 import RecordCache from './RecordCache'
 import { CollectionChangeTypes } from './common'
 import logger from '../utils/common/logger'
+import encodeQuery from '../adapters/sqlite/encodeQuery'
+import { mapToGraph } from './helpers'
 
 type CollectionChangeType = 'created' | 'updated' | 'destroyed'
 export type CollectionChange<Record: Model> = { record: Record, type: CollectionChangeType }
@@ -134,7 +136,19 @@ export default class Collection<Record: Model> {
 
   // See: Query.fetch
   _fetchQuery(query: Query<Record>, callback: ResultCallback<Record[]>): void {
-    this.database.adapter.underlyingAdapter.query(query.serialize(), result =>
+    const serializedQuery = query.serialize()
+
+    const { description, associations } = serializedQuery
+
+    if (description?.eagerJoinTables?.length) {
+      return this.database.adapter.underlyingAdapter.execSqlQuery(
+        encodeQuery(serializedQuery, false, this.database.schema), 
+        [],
+        result => callback(mapValue(rawRecords => mapToGraph(rawRecords, associations, this), result)),
+      )
+    }
+
+    return this.database.adapter.underlyingAdapter.query(query.serialize(), result =>
       callback(mapValue(rawRecords => this._cache.recordsFromQueryResult(rawRecords), result)),
     )
   }

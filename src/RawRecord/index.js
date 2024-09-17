@@ -67,8 +67,12 @@ function isValidStatus(value: any): boolean {
 }
 
 // Transforms a dirty raw record object into a trusted sanitized RawRecord according to passed TableSchema
-export function sanitizedRaw(dirtyRaw: DirtyRaw, tableSchema: TableSchema): RawRecord {
-  const { id, _status, _changed } = dirtyRaw
+export function sanitizedRaw(dirtyRaw: DirtyRaw, tableSchema: TableSchema, prefixedKeys = false): RawRecord {
+  const { id, _status, _changed } = !prefixedKeys ? dirtyRaw : {
+    id: dirtyRaw[`${tableSchema.name}.id`],
+    _status: dirtyRaw[`${tableSchema.name}._status`],
+    _changed: dirtyRaw[`${tableSchema.name}`]
+  }
 
   // This is called with `{}` when making a new record, so we need to set a new ID, status
   // Also: If an existing has one of those fields broken, we're screwed. Safest to treat it as a
@@ -92,7 +96,7 @@ export function sanitizedRaw(dirtyRaw: DirtyRaw, tableSchema: TableSchema): RawR
   const columns = tableSchema.columnArray
   for (let i = 0, len = columns.length; i < len; i += 1) {
     const columnSchema = columns[i]
-    const key = (columnSchema.name: string)
+    const key = !prefixedKeys ? (columnSchema.name: string) : `${tableSchema.name}.${columnSchema.name}`
     // TODO: Check performance
     const value = Object.prototype.hasOwnProperty.call(dirtyRaw, key) ? dirtyRaw[key] : null
     _setRaw(raw, key, value, columnSchema)

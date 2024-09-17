@@ -69,6 +69,16 @@ declare module '@BuildHero/watermelondb/QueryDescription' {
     type: 'joinTables'
     tables: TableName<any>[]
   }
+  export interface NestedJoin {
+    type: 'nestedJoinTable'
+    from: TableName<any>
+    to: TableName<any>
+  }
+  export interface EagerJoin {
+    type: 'eagerJoinTables'
+    joins: Join[]
+    nestedJoins: NestedJoin[]
+  }
   export interface SqlQuery {
     type: 'sqlQuery'
     sql: string
@@ -80,7 +90,7 @@ declare module '@BuildHero/watermelondb/QueryDescription' {
     cte: string
   }
 
-  export type Clause = Where | On | SortBy | Take | Skip | Join | SqlQuery
+  export type Clause = Where | On | SortBy | Take | Skip | Join | SqlQuery | SqlCTE | EagerJoin
   export interface QueryDescription {
     where: Where[]
     join: On[]
@@ -110,8 +120,9 @@ declare module '@BuildHero/watermelondb/QueryDescription' {
   export function experimentalSortBy(sortColumn: ColumnName, sortOrder?: SortOrder): SortBy
   export function experimentalTake(count: number): Take
   export function experimentalSkip(count: number): Skip
+  export function eager(...joins: Join[]|NestedJoin[]): EagerJoin
   export function experimentalJoinTables(tables: TableName<any>[]): Join
-  export function experimentalNestedJoin(from: string, to: string)
+  export function experimentalNestedJoin(from: string, to: string): NestedJoin
   export function sanitizeLikeString(value: string): string
   export function unsafeSqlQuery(value: string): SqlQuery
   export function asUnsafeSql(value: string): SqlCTE
