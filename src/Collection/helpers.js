@@ -38,7 +38,9 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
         .filter((item) => item !== null) // Filter out null values
 
       if (relatedItems.length > 0) {
-        item[to] = relatedItems
+        // Group eager-loaded relations under 'expandedRelations'
+        item.expandedRelations = item.expandedRelations || {}
+        item.expandedRelations[to] = relatedItems
         relatedItems.forEach((relatedItem) => buildTree(relatedItem, to))
       }
     })
@@ -74,16 +76,21 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
     const sanitized = sanitizedRaw(item, database.schema.tables[tableName], true)
     const sanitizedItem = new ModelClass(collection, sanitized)
 
+    // Prepare a container for sanitized related items
+    const sanitizedLoadedRelations = {};
+
     relatedTables.forEach((relatedTable) => {
-      const relatedItems = item[relatedTable] || []
-      sanitizedItem[relatedTable] = relatedItems.map((relatedItem) =>
+      const relatedItems = item.expandedRelations?.[relatedTable] || [];
+      sanitizedLoadedRelations[relatedTable] = relatedItems.map((relatedItem) =>
         sanitizeItem(relatedItem, relatedTable)
-      )
-    })
+      );
+    });
+
+    // Assign sanitized related items back to the 'expandedRelations' property
+    sanitizedItem.expandedRelations = sanitizedLoadedRelations;
 
     return sanitizedItem
   }
-
   const sanitizedRootData = rootData.map((item) =>
     sanitizeItem(item, rootTable)
   )

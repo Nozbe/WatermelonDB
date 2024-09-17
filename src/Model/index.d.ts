@@ -42,6 +42,8 @@ declare module '@BuildHero/watermelondb/Model' {
 
     public syncStatus: SyncStatus
 
+    public expandedRelations: any[]
+
     public update(recordUpdater?: (record: this) => void): Promise<void>
 
     public prepareUpdate(recordUpdater?: (record: this) => void): this
