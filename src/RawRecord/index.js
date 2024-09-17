@@ -99,7 +99,7 @@ export function sanitizedRaw(dirtyRaw: DirtyRaw, tableSchema: TableSchema, prefi
     const key = !prefixedKeys ? (columnSchema.name: string) : `${tableSchema.name}.${columnSchema.name}`
     // TODO: Check performance
     const value = Object.prototype.hasOwnProperty.call(dirtyRaw, key) ? dirtyRaw[key] : null
-    _setRaw(raw, key, value, columnSchema)
+    _setRaw(raw, columnSchema.name, value, columnSchema)
   }
 
   return (raw: any)

@@ -137,7 +137,7 @@ const encodeEagerMethod = (
   associations: QueryAssociation[],
   schema: any,
 ): string => {
-  const eagerTables = Array.from(new Set([table].concat(associations.map(({ to }) => to))))
+  const eagerTables = Array.from(new Set([table].concat(associations.map(({ to, info: { aliasFor } }) => aliasFor || to))))
   const getTableColumns = (tableName) => ['id', '_changed', '_status'].concat(Object.keys(schema.tables[tableName].columns))
 
   const selectList = eagerTables.map((eagerTable) => {
@@ -184,11 +184,14 @@ const encodeAssociation = (description: QueryDescription) => ({
   // do something more clever/add option/whatever.
   // so for now, i'm making an extreeeeemelyyyy bad hack to make sure that there's no breaking change
   // for existing code and code with nested Q.ons probably works (with caveats)
+
+  const actualJoinedTable = association?.aliasFor || joinedTable
+
   const usesOldJoinStyle = description.where.some(
-    clause => clause.type === 'on' && clause.table === joinedTable,
+    clause => clause.type === 'on' && clause.table === actualJoinedTable,
   )
   const joinKeyword = usesOldJoinStyle ? ' join ' : ' left join '
-  const joinBeginning = `${joinKeyword}${encodeName(joinedTable)} on ${encodeName(joinedTable)}.`
+  const joinBeginning = `${joinKeyword}${encodeName(actualJoinedTable)} on ${encodeName(actualJoinedTable)}.`
   return association.type === 'belongs_to'
     ? `${joinBeginning}"id" = ${encodeName(mainTable)}.${encodeName(association.key)}`
     : `${joinBeginning}${encodeName(association.foreignKey)} = ${encodeName(mainTable)}."id"`

@@ -16,10 +16,12 @@ declare module '@BuildHero/watermelondb/Model' {
   export interface BelongsToAssociation {
     type: 'belongs_to'
     key: ColumnName
+    aliasFor?: string
   }
   export interface HasManyAssociation {
     type: 'has_many'
     foreignKey: ColumnName
+    aliasFor?: string
   }
   export type AssociationInfo = BelongsToAssociation | HasManyAssociation
   export interface Associations {
@@ -41,6 +43,8 @@ declare module '@BuildHero/watermelondb/Model' {
     public id: RecordId
 
     public syncStatus: SyncStatus
+
+    public expandedRelations: any
 
     public update(recordUpdater?: (record: this) => void): Promise<void>
 
