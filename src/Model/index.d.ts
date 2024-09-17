@@ -16,10 +16,12 @@ declare module '@BuildHero/watermelondb/Model' {
   export interface BelongsToAssociation {
     type: 'belongs_to'
     key: ColumnName
+    alias?: string
   }
   export interface HasManyAssociation {
     type: 'has_many'
     foreignKey: ColumnName
+    alias?: string
   }
   export type AssociationInfo = BelongsToAssociation | HasManyAssociation
   export interface Associations {

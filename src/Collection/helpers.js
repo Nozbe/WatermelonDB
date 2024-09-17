@@ -1,11 +1,11 @@
 import { sanitizedRaw } from "../RawRecord"
-
 function buildAdjacencyList(relationships) {
   const adjacencyList = {}
 
   relationships.forEach(({ from, info, to }) => {
+    const { alias } = info // Extract alias from info
     if (!adjacencyList[from]) adjacencyList[from] = []
-    adjacencyList[from].push({ to, ...info })
+    adjacencyList[from].push({ to, ...info, alias: alias || to }) // Use alias if provided, otherwise default to original table name
   })
 
   return adjacencyList
@@ -18,7 +18,7 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
   const buildTree = (item, tableName) => {
     const relations = adjacencyList[tableName] || []
 
-    relations.forEach(({ to, key, foreignKey, type }) => {
+    relations.forEach(({ to, key, foreignKey, type, alias }) => {
       const linkKey = type === 'belongs_to' ? key : foreignKey
       const relatedItems = results
         .filter((data) => data[linkKey] === item.id)
@@ -40,7 +40,7 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
       if (relatedItems.length > 0) {
         // Group eager-loaded relations under 'expandedRelations'
         item.expandedRelations = item.expandedRelations || {}
-        item.expandedRelations[to] = relatedItems
+        item.expandedRelations[alias || to] = relatedItems
         relatedItems.forEach((relatedItem) => buildTree(relatedItem, to))
       }
     })
@@ -77,20 +77,21 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
     const sanitizedItem = new ModelClass(collection, sanitized)
 
     // Prepare a container for sanitized related items
-    const sanitizedLoadedRelations = {};
+    const sanitizedExpandedRelations = {}
 
     relatedTables.forEach((relatedTable) => {
       const relatedItems = item.expandedRelations?.[relatedTable] || [];
-      sanitizedLoadedRelations[relatedTable] = relatedItems.map((relatedItem) =>
+      sanitizedExpandedRelations[relatedTable] = relatedItems.map((relatedItem) =>
         sanitizeItem(relatedItem, relatedTable)
       );
     });
 
     // Assign sanitized related items back to the 'expandedRelations' property
-    sanitizedItem.expandedRelations = sanitizedLoadedRelations;
+    sanitizedItem.expandedRelations = sanitizedExpandedRelations;
 
     return sanitizedItem
   }
+
   const sanitizedRootData = rootData.map((item) =>
     sanitizeItem(item, rootTable)
   )
@@ -99,8 +100,8 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
 }
 
 export function mapToGraph(results, relationships, collection) {
-  const adjacencyList = buildAdjacencyList(relationships)
-  const rootTable = collection.table
+  const adjacencyList = buildAdjacencyList(relationships);
+  const rootTable = collection.table;
 
-  return buildHierarchy(rootTable, results, adjacencyList, collection.database)
+  return buildHierarchy(rootTable, results, adjacencyList, collection.database);
 }
