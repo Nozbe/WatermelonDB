@@ -80,6 +80,7 @@ export default class Query<Record: Model> {
       skip,
       joinTables,
       nestedJoinTables,
+      // todo add eagerJoinTables
       lokiFilter,
     } = this._rawDescription
 

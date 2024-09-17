@@ -80,6 +80,11 @@ export type NestedJoinTable = $RE<{
   from: TableName<any>,
   to: TableName<any>,
 }>
+export type EagerJoinTables = $RE<{
+  type: 'eagerJoinTables',
+  joinTables: TableName<any>[],
+  nestedJoinTables: NestedJoinTableDef[],
+}>
 export type LokiFilterFunction = (rawLokiRecord: any, loki: any) => boolean
 export type LokiFilter = $RE<{
   type: 'lokiFilter',
@@ -360,6 +365,21 @@ export function experimentalNestedJoin(from: TableName<any>, to: TableName<any>)
   return { type: 'nestedJoinTable', from: checkName(from), to: checkName(to) }
 }
 
+export function eager(...joins: JoinTables[]|NestedJoinTable[]) {
+  const joinTables: TableName<any>[] = []
+  const nestedJoinTables: NestedJoinTableDef[] = []
+
+  joins.forEach(join => {
+    if (join.type === 'joinTables') {
+      joinTables.push(...join.tables)
+    } else if (join.type === 'nestedJoinTable') {
+      nestedJoinTables.push({ from: join.from, to: join.to })
+    }
+  })
+
+  return { type: 'eagerJoinTables', joinTables, nestedJoinTables }
+}
+
 const compressTopLevelOns = (conditions: Where[]): Where[] => {
   // Multiple separate Q.ons is a legacy syntax producing suboptimal query code unless
   // special cases are used. Here, we're special casing only top-level Q.ons to avoid regressions
@@ -381,7 +401,7 @@ const compressTopLevelOns = (conditions: Where[]): Where[] => {
 
 const syncStatusColumn = columnName('_status')
 const extractClauses: (Clause[]) => QueryDescription = clauses => {
-  const clauseMap = { where: [], joinTables: [], nestedJoinTables: [], sortBy: [] }
+  const clauseMap = { eagerJoinTables: [], where: [], joinTables: [], nestedJoinTables: [], sortBy: [] }
   clauses.forEach(clause => {
     const { type } = clause
     switch (type) {
@@ -416,6 +436,9 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
         // $FlowFixMe
         clauseMap.nestedJoinTables.push({ from: clause.from, to: clause.to })
         break
+      case 'eagerJoinTables':
+        // $FlowFixMe
+        clauseMap.eagerJoinTables.push(clause)
       case 'lokiFilter':
         // $FlowFixMe
         clauseMap.lokiFilter = clause.function

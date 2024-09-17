@@ -209,7 +209,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void {
     validateTable(query.table, this.schema)
-    this.unsafeSqlQuery(query.table, encodeQuery(query), callback)
+    this.unsafeSqlQuery(query.table, encodeQuery(query, false, this.schema), callback)
   }
 
   execSqlQuery(sql: string, params: any[], callback: ResultCallback<CachedQueryResult>): void {
