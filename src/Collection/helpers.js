@@ -30,10 +30,15 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
   const buildTree = (item, tableName) => {
     const relations = adjacencyList[tableName] || [];
 
-    relations.forEach(({ to, key, foreignKey, type, alias }) => {
-      const linkKey = type === 'belongs_to' ? key : foreignKey;
+    relations.forEach(({ to, key, foreignKey, type, alias}) => {
       const relatedItems = results
-        .filter(data => data[linkKey] === item.id)
+        .filter(data => {
+          if (type === 'belongs_to') {
+            return data[`${to}.id`] === item[`${tableName}.${key}`];
+          } else {
+            return data[`${to}.${foreignKey}`] === item[`${tableName}.id`];
+          }
+        })
         .map(data => {
           const relatedItemId = data[`${to}.id`];
           if (!relatedItemId) return null; // Skip invalid records
@@ -60,8 +65,6 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
 
   // Initialize the hierarchy with the results
   resultMap.forEach((row, id) => {
-    const tableName = Object.keys(adjacencyList).find(table => row[`${table}.id`]) || rootTable;
-
     hierarchy.set(id, { ...row });
   });
 
