@@ -27,7 +27,7 @@ export const getAssociations = (
       description.nestedJoinTables.concat(description.eagerJoinTables
       .map(({ nestedJoinTables }) => nestedJoinTables))
       .reduce((acc, tables) => acc.concat(tables), [])
-      .map(({ from, to }) => {
+      .map(({ from, to, toTableAlias }) => {
         const collection = db.get(from)
         invariant(
           collection,
@@ -41,6 +41,7 @@ export const getAssociations = (
         return {
           from,
           to,
+          toTableAlias,
           info,
         }
       }),

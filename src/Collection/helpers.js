@@ -3,10 +3,10 @@ import { sanitizedRaw } from "../RawRecord";
 function buildAdjacencyList(relationships) {
   const adjacencyList = {};
 
-  relationships.forEach(({ from, info, to }) => {
+  relationships.forEach(({ from, info, to, toTableAlias }) => {
     const { aliasFor } = info; // Extract alias from info
     if (!adjacencyList[from]) adjacencyList[from] = [];
-    adjacencyList[from].push({ to, ...info, alias: aliasFor || to }); // Use alias if provided, otherwise default to original table name
+    adjacencyList[from].push({ to, toTableAlias, ...info, alias: aliasFor || to }); // Use alias if provided, otherwise default to original table name
   });
 
   return adjacencyList;
@@ -30,17 +30,17 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
   const buildTree = (item, tableName) => {
     const relations = adjacencyList[tableName] || [];
 
-    relations.forEach(({ to, key, foreignKey, type, alias}) => {
+    relations.forEach(({ to, toTableAlias, key, foreignKey, type, alias}) => {
       const relatedItems = results
         .filter(data => {
           if (type === 'belongs_to') {
-            return data[`${to}.id`] === item[`${tableName}.${key}`];
+            return data[`${toTableAlias||to}.id`] === item[`${tableName}.${key}`];
           } else {
-            return data[`${to}.${foreignKey}`] === item[`${tableName}.id`];
+            return data[`${toTableAlias||to}.${foreignKey}`] === item[`${tableName}.id`];
           }
         })
         .map(data => {
-          const relatedItemId = data[`${to}.id`];
+          const relatedItemId = data[`${toTableAlias||to}.id`];
           if (!relatedItemId) return null; // Skip invalid records
 
           let relatedItem = hierarchy.get(relatedItemId) || { ...data };

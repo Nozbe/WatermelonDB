@@ -137,12 +137,16 @@ const encodeEagerMethod = (
   associations: QueryAssociation[],
   schema: any,
 ): string => {
-  const eagerTables = Array.from(new Set([table].concat(associations.map(({ to, info: { aliasFor } }) => aliasFor || to))))
+  const eagerTables = Array.from(new Set([{ table, alias: undefined }].concat(associations.map(({ to, toTableAlias, info: { aliasFor } }) => ({
+    table: aliasFor || to,
+    alias: toTableAlias,
+  })))))
+
   const getTableColumns = (tableName) => ['id', '_changed', '_status'].concat(Object.keys(schema.tables[tableName].columns))
 
-  const selectList = eagerTables.map((eagerTable) => {
-    return getTableColumns(eagerTable).map((column) => {
-      return `${encodeName(eagerTable)}.${encodeName(column)} as ${encodeName(`${eagerTable}.${column}`)}`
+  const selectList = eagerTables.map(({ table, alias }) => {
+    return getTableColumns(table).map((column) => {
+      return `${encodeName(alias || table)}.${encodeName(column)} as ${encodeName(`${alias || table}.${column}`)}`
     }).join(', ')
   }).join(', ')
 
@@ -171,6 +175,7 @@ const encodeAssociation = (description: QueryDescription) => ({
   from: mainTable,
   to: joinedTable,
   info: association,
+  toTableAlias: alias,
 }: QueryAssociation): string => {
   // TODO: We have a problem here. For all of eternity, WatermelonDB Q.ons were encoded using JOIN
   // However, this precludes many legitimate use cases for Q.ons once you start nesting them
@@ -186,12 +191,15 @@ const encodeAssociation = (description: QueryDescription) => ({
   // for existing code and code with nested Q.ons probably works (with caveats)
 
   const actualJoinedTable = association?.aliasFor || joinedTable
+  const toTableAlias = alias || actualJoinedTable
 
   const usesOldJoinStyle = description.where.some(
     clause => clause.type === 'on' && clause.table === actualJoinedTable,
   )
   const joinKeyword = usesOldJoinStyle ? ' join ' : ' left join '
-  const joinBeginning = `${joinKeyword}${encodeName(actualJoinedTable)} on ${encodeName(actualJoinedTable)}.`
+  const joinBeginning = `${joinKeyword}${encodeName(actualJoinedTable)} ${encodeName(toTableAlias)} on ${encodeName(toTableAlias)}.`
+
+
   return association.type === 'belongs_to'
     ? `${joinBeginning}"id" = ${encodeName(mainTable)}.${encodeName(association.key)}`
     : `${joinBeginning}${encodeName(association.foreignKey)} = ${encodeName(mainTable)}."id"`
