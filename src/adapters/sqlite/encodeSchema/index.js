@@ -29,7 +29,7 @@ const encodeCreateFTS5Table: FTS5TableSchema => SQL = ({ name, columns, contentT
 
   return `create virtual table ${encodeName(name)} using fts5(${columnsSQL}, content=${encodeName(
     contentTable,
-  )});`
+  )}, content_rowid=id);`
 }
 
 const encodeFTS5SyncProcedures = ({ name, columns, contentTable }) => {
