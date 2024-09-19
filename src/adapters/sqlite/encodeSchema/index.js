@@ -23,7 +23,7 @@ const encodeCreateTable: TableSchema => SQL = ({ name, columns }) => {
 }
 
 const encodeCreateFTS5Table: FTS5TableSchema => SQL = ({ name, columns, contentTable }) => {
-  const columnsSQL = keys(columns)
+  const columnsSQL = columns
     .map(column => encodeName(column))
     .join(', ')
 
@@ -33,11 +33,11 @@ const encodeCreateFTS5Table: FTS5TableSchema => SQL = ({ name, columns, contentT
 }
 
 const encodeFTS5SyncProcedures = ({ name, columns, contentTable }) => {
-  const columnsSQL = keys(columns)
+  const columnsSQL = columns
     .map(column => encodeName(column))
     .join(', ');
 
-  const newColumnsSQL = keys(columns)
+  const newColumnsSQL = columns
     .map(column => `new.${encodeName(column)}`)
     .join(', ');
 
