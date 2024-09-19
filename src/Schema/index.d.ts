@@ -51,7 +51,7 @@ declare module '@BuildHero/watermelondb/Schema' {
     tables: TableMap
   }
 
-  export function appSchema(options: { version: number; tables: TableSchema[], fts5Tables: FTS5TableSchema[] }): AppSchema
+  export function appSchema(options: { version: number; tables: TableSchema[], fts5Tables?: FTS5TableSchema[] }): AppSchema
 
   export function tableSchema(options: TableSchemaSpec): TableSchema
 
