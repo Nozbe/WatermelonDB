@@ -34,13 +34,13 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
       const relatedItems = results
         .filter(data => {
           if (type === 'belongs_to') {
-            return data[`${toTableAlias||to}.id`] === item[`${tableName}.${key}`];
+            return data[`${toTableAlias|| alias || to}.id`] === item[`${tableName}.${key}`];
           } else {
-            return data[`${toTableAlias||to}.${foreignKey}`] === item[`${tableName}.id`];
+            return data[`${toTableAlias|| alias || to}.${foreignKey}`] === item[`${tableName}.id`];
           }
         })
         .map(data => {
-          const relatedItemId = data[`${toTableAlias||to}.id`];
+          const relatedItemId = data[`${toTableAlias || alias || to}.id`];
           if (!relatedItemId) return null; // Skip invalid records
 
           let relatedItem = hierarchy.get(relatedItemId) || { ...data };
@@ -57,8 +57,8 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
       if (relatedItems.length > 0) {
         // Group eager-loaded relations under 'expandedRelations'
         item.expandedRelations = item.expandedRelations || {};
-        item.expandedRelations[alias || to] = relatedItems;
-        relatedItems.forEach(relatedItem => buildTree(relatedItem, to));
+        item.expandedRelations[to] = relatedItems;
+        relatedItems.forEach(relatedItem => buildTree(relatedItem, alias || to));
       }
     });
   };
@@ -74,23 +74,23 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
   rootData.forEach(item => buildTree(item, rootTable));
 
   // Function to sanitize item
-  const sanitizeItem = (item, tableName) => {
+  const sanitizeItem = (item, tableName, alias) => {
     const relatedTables = new Set(
-      (adjacencyList[tableName] || []).map(({ to }) => to)
+      (adjacencyList[tableName] || []).map(({ to, alias }) => ({ to, alias }))
     );
 
-    const collection = database.collections.get(tableName);
+    const collection = database.collections.get(alias || tableName);
     const ModelClass = collection.modelClass;
-    const sanitized = sanitizedRaw(item, database.schema.tables[tableName], true);
+    const sanitized = sanitizedRaw(item, database.schema.tables[alias || tableName], true);
     const sanitizedItem = new ModelClass(collection, sanitized);
 
     // Prepare a container for sanitized related items
     const sanitizedExpandedRelations = {};
 
-    relatedTables.forEach(relatedTable => {
+    relatedTables.forEach(({ to: relatedTable, alias }) => {
       const relatedItems = item.expandedRelations?.[relatedTable] || [];
       sanitizedExpandedRelations[relatedTable] = relatedItems.map(relatedItem =>
-        sanitizeItem(relatedItem, relatedTable)
+        sanitizeItem(relatedItem, relatedTable, alias)
       );
     });
 
