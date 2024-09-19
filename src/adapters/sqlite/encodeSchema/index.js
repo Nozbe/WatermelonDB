@@ -56,8 +56,7 @@ const encodeFTS5SyncProcedures = ({ name, columns, contentTable }) => {
   `;
 };
 
-const encodeDropFTS5Table: FTS5TableSchema => SQL = ({ name }) 
-  => `drop table if exists ${encodeName(name)};`
+const encodeDropFTS5Table: FTS5TableSchema => SQL = ({ name }) => `drop table if exists ${encodeName(name)};`
 
 const encodeDropFTS5SyncProcedures = ({ name }) => {
   return `
