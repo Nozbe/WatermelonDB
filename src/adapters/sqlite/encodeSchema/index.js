@@ -27,9 +27,9 @@ const encodeCreateFTS5Table: FTS5TableSchema => SQL = ({ name, columns, contentT
     .map(column => encodeName(column))
     .join(', ')
 
-  return `create virtual table ${encodeName(name)} using fts5(${columnsSQL}, content=${encodeName(
+  return `create virtual table ${encodeName(name)} using fts5(id TEXT PRIMARY KEY, ${columnsSQL}, content=${encodeName(
     contentTable,
-  )}, content_rowid=id);`
+  )});`
 }
 
 const encodeFTS5SyncProcedures = ({ name, columns, contentTable }) => {
@@ -43,15 +43,15 @@ const encodeFTS5SyncProcedures = ({ name, columns, contentTable }) => {
 
   return `
     create trigger ${encodeName(`${name}_ai`)} after insert on ${encodeName(contentTable)} begin
-      insert into ${encodeName(name)} (rowid, ${columnsSQL}) values (new.id, ${newColumnsSQL});
+      insert into ${encodeName(name)} (id, ${columnsSQL}) values (new.id, ${newColumnsSQL});
     end;
 
     create trigger ${encodeName(`${name}_ad`)} after delete on ${encodeName(contentTable)} begin
-      delete from ${encodeName(name)} where rowid = old.id;
+      delete from ${encodeName(name)} where id = old.id;
     end;
 
     create trigger ${encodeName(`${name}_au`)} after update on ${encodeName(contentTable)} begin
-      insert into ${encodeName(name)} (rowid, ${columnsSQL}) values (new.id, ${newColumnsSQL});
+      insert into ${encodeName(name)} (id, ${columnsSQL}) values (new.id, ${newColumnsSQL});
     end;
   `;
 };
