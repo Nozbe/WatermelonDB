@@ -1,7 +1,7 @@
 // @flow
 
 import { keys, values } from 'rambdax'
-import type { TableSchema, AppSchema, ColumnSchema, TableName } from '../../../Schema'
+import type { FTS5TableSchema, TableSchema, AppSchema, ColumnSchema, TableName } from '../../../Schema'
 import { nullValue } from '../../../RawRecord'
 import type {
   MigrationStep,
@@ -22,6 +22,54 @@ const encodeCreateTable: TableSchema => SQL = ({ name, columns }) => {
   return `create table ${encodeName(name)} (${columnsSQL});`
 }
 
+const encodeCreateFTS5Table: FTS5TableSchema => SQL = ({ name, columns, contentTable }) => {
+  const columnsSQL = keys(columns)
+    .map(column => encodeName(column))
+    .join(', ')
+
+  return `create virtual table ${encodeName(name)} using fts5(${columnsSQL}, content=${encodeName(
+    contentTable,
+  )});`
+}
+
+const encodeFTS5SyncProcedures = ({ name, columns, contentTable }) => {
+  const columnsSQL = keys(columns)
+    .map(column => encodeName(column))
+    .join(', ');
+
+  const newColumnsSQL = keys(columns)
+    .map(column => `new.${encodeName(column)}`)
+    .join(', ');
+
+  return `
+    create trigger ${encodeName(`${name}_ai`)} after insert on ${encodeName(name)} begin
+      insert into ${encodeName(contentTable)} (rowid, ${columnsSQL}) values (new.rowid, ${newColumnsSQL});
+    end;
+
+    create trigger ${encodeName(`${name}_ad`)} after delete on ${encodeName(name)} begin
+      delete from ${encodeName(contentTable)} where rowid = old.rowid;
+    end;
+
+    create trigger ${encodeName(`${name}_au`)} after update on ${encodeName(name)} begin
+      insert into ${encodeName(contentTable)} (rowid, ${columnsSQL}) values (new.rowid, ${newColumnsSQL});
+    end;
+  `;
+};
+
+const encodeDropFTS5Table: FTS5TableSchema => SQL = ({ name }) 
+  => `drop table if exists ${encodeName(name)};`
+
+const encodeDropFTS5SyncProcedures = ({ name }) => {
+  return `
+    drop trigger if exists ${encodeName(`${name}_ai`)};
+    drop trigger if exists ${encodeName(`${name}_ad`)};
+    drop trigger if exists ${encodeName(`${name}_au`)};
+  `;
+}
+
+const encodeFTS5Table: FTS5TableSchema => SQL = tableSchema =>
+  encodeCreateFTS5Table(tableSchema) + encodeFTS5SyncProcedures(tableSchema);
+
 const encodeIndex: (ColumnSchema, TableName<any>) => SQL = (column, tableName) =>
   column.isIndexed
     ? `create index "${tableName}_${column.name}" on ${encodeName(tableName)} (${encodeName(
@@ -41,12 +89,23 @@ const transform = (sql: string, transformer: ?(string) => string) =>
 const encodeTable: TableSchema => SQL = table =>
   transform(encodeCreateTable(table) + encodeTableIndicies(table), table.unsafeSql)
 
-export const encodeSchema: AppSchema => SQL = ({ tables, unsafeSql }) => {
+export const encodeSchema: AppSchema => SQL = ({ tables, fts5Tables ,unsafeSql }) => {
   const sql = values(tables)
     .map(encodeTable)
     .join('')
-  return transform(sql, unsafeSql)
+  
+  const fts5Sql = values(fts5Tables)
+    .map(encodeFTS5Table)
+    .join('');
+
+  return transform(sql + fts5Sql, unsafeSql)
 }
+
+const encodeDropFTS5TableMigrationStep: FTS5TableSchema => SQL = ({ name }) =>
+  encodeDropFTS5Table({ name }) + encodeDropFTS5SyncProcedures({ name });
+
+const encodeCreateFTS5TableMigrationStep: CreateFTS5TableMigrationStep => SQL = ({ schema }) =>
+  encodeFTS5Table(schema)
 
 const encodeCreateTableMigrationStep: CreateTableMigrationStep => SQL = ({ schema }) =>
   encodeTable(schema)
@@ -73,10 +132,14 @@ export const encodeMigrationSteps: (MigrationStep[]) => SQL = steps =>
     .map(step => {
       if (step.type === 'create_table') {
         return encodeCreateTableMigrationStep(step)
+      } if (step.type === 'create_fts5_table') {
+        return encodeCreateFTS5TableMigrationStep(step)
       } else if (step.type === 'add_columns') {
         return encodeAddColumnsMigrationStep(step)
       } else if (step.type === 'sql') {
         return step.sql
+      } else if (step.type === 'drop_fts5_table') {
+        return encodeDropFTS5TableMigrationStep(step);
       }
 
       throw new Error(`Unsupported migration step ${step.type}`)

@@ -25,6 +25,18 @@ declare module '@BuildHero/watermelondb/Schema' {
 
   export type TableSchemaSpec = { name: TableName<any>; columns: ColumnSchema[] }
 
+  export type FTS5TableSchemaSpect = {
+    name: TableName<any>
+    columns: ColumnName[]
+    contentTable: TableName<any>
+  }
+
+  export interface FTS5TableSchema {
+    name: TableName<any>
+    columns: ColumnName[]
+    contentTable: TableName<any>
+  }
+
   export interface TableSchema {
     name: TableName<any>
     columns: ColumnMap
@@ -39,7 +51,9 @@ declare module '@BuildHero/watermelondb/Schema' {
     tables: TableMap
   }
 
-  export function appSchema(options: { version: number; tables: TableSchema[] }): AppSchema
+  export function appSchema(options: { version: number; tables: TableSchema[], fts5Tables: FTS5TableSchema[] }): AppSchema
 
   export function tableSchema(options: TableSchemaSpec): TableSchema
+
+  export function fts5TableSchema(options: FTS5TableSchemaSpect): FTS5TableSchema
 }

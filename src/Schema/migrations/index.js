@@ -2,15 +2,21 @@
 
 import { sortBy, prop, last, head } from 'rambdax'
 import type { $RE } from '../../types'
-import type { ColumnSchema, TableName, TableSchema, TableSchemaSpec, SchemaVersion } from '../index'
+import type { FTS5TableSchema, FTS5TableSchemaSpec, ColumnSchema, TableName, TableSchema, TableSchemaSpec, SchemaVersion } from '../index'
 import { tableSchema, validateColumnSchema } from '../index'
 
 import { invariant } from '../../utils/common'
 import { isObject } from '../../utils/fp'
+import { fts5TableSchema } from '@BuildHero/watermelondb/Schema'
 
 export type CreateTableMigrationStep = $RE<{
   type: 'create_table',
   schema: TableSchema,
+}>
+
+export type CreateFTS5TableMigrationStep = $RE<{
+  type: 'create_fts5_table',
+  schema: FTS5TableSchema,
 }>
 
 export type AddColumnsMigrationStep = $RE<{
@@ -25,7 +31,7 @@ export type SqlMigrationStep = $RE<{
   sql: string,
 }>
 
-export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep | SqlMigrationStep
+export type MigrationStep = CreateTableMigrationStep | CreateFTS5TableMigrationStep | AddColumnsMigrationStep | SqlMigrationStep
 
 type Migration = $RE<{
   toVersion: SchemaVersion,
@@ -136,10 +142,18 @@ export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMig
   }
 }
 
+export function createFTS5Table(fts5SchemaSpec: FTS5TableSchemaSpec): CreateFTS5TableMigrationStep {
+  const schema = fts5TableSchema(fts5SchemaSpec)
+  return { type: 'create_fts5_table', schema }
+}
+
 export function createTable(tableSchemaSpec: TableSchemaSpec): CreateTableMigrationStep {
   const schema = tableSchema(tableSchemaSpec)
   return { type: 'create_table', schema }
 }
+
+export function dropFTS5Table(name: string): SqlMigrationStep {
+  return { type: 'drop_fts5_table', name }
 
 export function addColumns({
   table,
