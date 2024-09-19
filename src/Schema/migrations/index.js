@@ -154,6 +154,7 @@ export function createTable(tableSchemaSpec: TableSchemaSpec): CreateTableMigrat
 
 export function dropFTS5Table(name: string): SqlMigrationStep {
   return { type: 'drop_fts5_table', name }
+}
 
 export function addColumns({
   table,
