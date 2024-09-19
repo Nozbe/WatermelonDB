@@ -162,7 +162,7 @@ export function fts5TableSchema({
     validateName(name)
   }
 
-  columns.array.forEach(columnName => {
+  columns.forEach(columnName => {
     invariant(columnName, `Missing column name`)
     validateName(columnName)
   });
