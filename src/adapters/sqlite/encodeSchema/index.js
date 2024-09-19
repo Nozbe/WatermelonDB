@@ -27,7 +27,7 @@ const encodeCreateFTS5Table: FTS5TableSchema => SQL = ({ name, columns, contentT
     .map(column => encodeName(column))
     .join(', ')
 
-  return `create virtual table ${encodeName(name)} using fts5(id TEXT PRIMARY KEY, ${columnsSQL}, content=${encodeName(
+  return `create virtual table ${encodeName(name)} using fts5(id, ${columnsSQL}, content=${encodeName(
     contentTable,
   )});`
 }
