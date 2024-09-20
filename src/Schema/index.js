@@ -71,7 +71,7 @@ export function columnName(name: string): ColumnName {
   return name
 }
 
-export function appSchema({ version, tables: tableList, fts5Tables: fts5TableList, unsafeSql }: AppSchemaSpec): AppSchema {
+export function appSchema({ version, tables: tableList, fts5Tables: fts5TableList = [], unsafeSql }: AppSchemaSpec): AppSchema {
   if (process.env.NODE_ENV !== 'production') {
     invariant(version > 0, `Schema version must be greater than 0`)
   }
@@ -85,7 +85,7 @@ export function appSchema({ version, tables: tableList, fts5Tables: fts5TableLis
     return map
   }, {})
 
-  const fts5Tables: FTS5TableSchema[] = fts5TableList.reduce((map, table) => {
+  const fts5Tables: FTS5TableSchema[] = fts5TableList?.reduce((map, table) => {
     if (process.env.NODE_ENV !== 'production') {
       invariant(typeof table === 'object' && table.name, `Table schema must contain a name`)
     }
