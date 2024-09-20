@@ -74,23 +74,23 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
   rootData.forEach(item => buildTree(item, rootTable));
 
   // Function to sanitize item
-  const sanitizeItem = (item, tableName, alias) => {
+  const sanitizeItem = (item, tableName, alias, toTableAlias) => {
     const relatedTables = new Set(
-      (adjacencyList[tableName] || []).map(({ to, alias }) => ({ to, alias }))
+      (adjacencyList[tableName] || []).map(({ to, alias, toTableAlias }) => ({ to, alias, toTableAlias }))
     );
 
     const collection = database.collections.get(alias || tableName);
     const ModelClass = collection.modelClass;
-    const sanitized = sanitizedRaw(item, database.schema.tables[alias || tableName], true);
+    const sanitized = sanitizedRaw(item, database.schema.tables[alias || tableName], true, toTableAlias);
     const sanitizedItem = new ModelClass(collection, sanitized);
 
     // Prepare a container for sanitized related items
     const sanitizedExpandedRelations = {};
 
-    relatedTables.forEach(({ to: relatedTable, alias }) => {
+    relatedTables.forEach(({ to: relatedTable, alias, toTableAlias }) => {
       const relatedItems = item.expandedRelations?.[relatedTable] || [];
       sanitizedExpandedRelations[relatedTable] = relatedItems.map(relatedItem =>
-        sanitizeItem(relatedItem, relatedTable, alias)
+        sanitizeItem(relatedItem, relatedTable, alias, toTableAlias)
       );
     });
 
