@@ -14,8 +14,6 @@ if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
   SQLiteEventEmitter = new EventEmitter();
 }
 
-export default SQLiteEventEmitter;
-
 type Connection = {
   driver: DatabaseDriver,
   synchronous: boolean,
