@@ -5,6 +5,7 @@ declare module '@BuildHero/watermelondb/Schema/migrations' {
     ColumnMap,
     ColumnSchema,
     TableSchemaSpec,
+    ColumnName
   } from '@BuildHero/watermelondb/Schema'
 
   export interface SchemaMigrations {
@@ -12,6 +13,18 @@ declare module '@BuildHero/watermelondb/Schema/migrations' {
     minVersion: SchemaVersion
     maxVersion: SchemaVersion
     sortedMigrations: Migration[]
+  }
+
+  export interface CreateFTS5TableMigrationStep {
+    type: 'create_fts5_table'
+    name: TableName<any>
+    columns: ColumnName[]
+    contentTable: TableName<any>
+  }
+
+  export interface DropFts5TableMigrationStep {
+    type: 'drop_fts5_table'
+    name: TableName<any>
   }
 
   export interface CreateTableMigrationStep {
@@ -39,6 +52,19 @@ declare module '@BuildHero/watermelondb/Schema/migrations' {
 
   export function schemaMigrations(migrationSpec: SchemaMigrationsSpec): SchemaMigrations
   export function createTable(tableSchemaSpec: TableSchemaSpec): CreateTableMigrationStep
+
+  export function createFTS5Table({
+    name,
+    columns,
+    contentTable,
+  }: {
+    name: TableName<any>
+    columns: ColumnName[]
+    contentTable: TableName<any>
+  }): CreateFTS5TableMigrationStep
+
+  export function dropFTS5Table({ name }: { name: TableName<any> }): DropFts5TableMigrationStep
+
   export function addColumns({
     table,
     columns,
