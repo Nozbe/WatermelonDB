@@ -91,7 +91,7 @@ declare module '@BuildHero/watermelondb/QueryDescription' {
     cte: string
   }
 
-  export type Clause = Where | On | SortBy | Take | Skip | Join | SqlQuery | SqlCTE | EagerJoin
+  export type Clause = Where | On | SortBy | Take | Skip | Join | SqlQuery | SqlCTE | EagerJoin | NestedJoin
   export interface QueryDescription {
     where: Where[]
     join: On[]
