@@ -1,9 +1,20 @@
 // @flow
 
 import DatabaseDriver from './DatabaseDriver'
-import { NativeEventEmitter } from 'react-native';
 
-const SQLiteEventEmitter = new NativeEventEmitter('DatabaseBridge');
+let SQLiteEventEmitter;
+
+if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+  // Running in React Native
+  const { NativeEventEmitter } = require('react-native');
+  SQLiteEventEmitter = new NativeEventEmitter('DatabaseBridge');
+} else {
+  // Running in Node.js
+  const EventEmitter = require('events');
+  SQLiteEventEmitter = new EventEmitter();
+}
+
+export default SQLiteEventEmitter;
 
 type Connection = {
   driver: DatabaseDriver,
