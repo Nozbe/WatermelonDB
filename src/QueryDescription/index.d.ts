@@ -121,7 +121,7 @@ declare module '@BuildHero/watermelondb/QueryDescription' {
   export function experimentalSortBy(sortColumn: ColumnName, sortOrder?: SortOrder): SortBy
   export function experimentalTake(count: number): Take
   export function experimentalSkip(count: number): Skip
-  export function eager(...joins: Join[]|NestedJoin[]|[Join, NestedJoin]): EagerJoin
+  export function eager(...joins:(Join | NestedJoin)[]): EagerJoin
   export function experimentalJoinTables(tables: TableName<any>[]): Join
   export function experimentalNestedJoin(from: string, to: string, toTableAlias?: string): NestedJoin
   export function sanitizeLikeString(value: string): string
