@@ -42,8 +42,8 @@ All modifications to the database (like creating, updating, deleting records) mu
 
 ```js
 await database.write(async () => {
-  const comment = await database.get('comments').find(commentId)
-  await comment.update(() => {
+  const someComment = await database.get('comments').find(commentId)
+  await someComment.update((comment) => {
     comment.isSpam = true
   })
 })
