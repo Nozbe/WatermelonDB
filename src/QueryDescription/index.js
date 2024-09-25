@@ -79,7 +79,7 @@ export type NestedJoinTable = $RE<{
   type: 'nestedJoinTable',
   from: TableName<any>,
   to: TableName<any>,
-  toTableAlias?: TableName<any>,
+  joinedAs?: TableName<any>,
 }>
 export type EagerJoinTables = $RE<{
   type: 'eagerJoinTables',
@@ -93,7 +93,7 @@ export type LokiFilter = $RE<{
 }>
 export type Clause = Where | SortBy | Take | Skip | JoinTables | NestedJoinTable | LokiFilter
 
-type NestedJoinTableDef = $RE<{ from: TableName<any>, to: TableName<any>, toTableAlias?: TableName<any> }>
+type NestedJoinTableDef = $RE<{ from: TableName<any>, to: TableName<any>, joinedAs?: TableName<any> }>
 export type QueryDescription = $RE<{
   where: Where[],
   joinTables: TableName<any>[],
@@ -362,8 +362,8 @@ export function experimentalJoinTables(tables: TableName<any>[]): JoinTables {
   return { type: 'joinTables', tables: tables.map(checkName) }
 }
 
-export function experimentalNestedJoin(from: TableName<any>, to: TableName<any>, toTableAlias: TableName<any> = undefined): NestedJoinTable {
-  return { type: 'nestedJoinTable', from: checkName(from), to: checkName(to), toTableAlias }
+export function experimentalNestedJoin(from: TableName<any>, to: TableName<any>, joinedAs: TableName<any> = undefined): NestedJoinTable {
+  return { type: 'nestedJoinTable', from: checkName(from), to: checkName(to), joinedAs }
 }
 
 export function eager(...joins: JoinTables[]|NestedJoinTable[]) {
@@ -374,7 +374,7 @@ export function eager(...joins: JoinTables[]|NestedJoinTable[]) {
     if (join.type === 'joinTables') {
       joinTables.push(...join.tables)
     } else if (join.type === 'nestedJoinTable') {
-      nestedJoinTables.push({ from: join.from, to: join.to, toTableAlias: join.toTableAlias })
+      nestedJoinTables.push({ from: join.from, to: join.to, joinedAs: join.joinedAs })
     }
   })
 
@@ -438,7 +438,7 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
         clauseMap.nestedJoinTables.push({
           from: clause.from,
           to: clause.to,
-          toTableAlias: clause.toTableAlias
+          joinedAs: clause.joinedAs
         });        
         break
       case 'eagerJoinTables':

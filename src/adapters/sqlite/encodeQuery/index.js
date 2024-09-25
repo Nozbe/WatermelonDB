@@ -137,9 +137,9 @@ const encodeEagerMethod = (
   associations: QueryAssociation[],
   schema: any,
 ): string => {
-  const eagerTables = Array.from(new Set([{ table, alias: undefined }].concat(associations.map(({ to, toTableAlias, info: { aliasFor } }) => ({
+  const eagerTables = Array.from(new Set([{ table, alias: undefined }].concat(associations.map(({ to, joinedAs, info: { aliasFor } }) => ({
     table: aliasFor || to,
-    alias: toTableAlias,
+    alias: joinedAs,
   })))))
 
   const getTableColumns = (tableName) => ['id', '_changed', '_status'].concat(Object.keys(schema.tables[tableName].columns))
@@ -175,7 +175,7 @@ const encodeAssociation = (description: QueryDescription) => ({
   from: mainTable,
   to: joinedTable,
   info: association,
-  toTableAlias: alias,
+  joinedAs: alias,
 }: QueryAssociation): string => {
   // TODO: We have a problem here. For all of eternity, WatermelonDB Q.ons were encoded using JOIN
   // However, this precludes many legitimate use cases for Q.ons once you start nesting them
@@ -191,13 +191,13 @@ const encodeAssociation = (description: QueryDescription) => ({
   // for existing code and code with nested Q.ons probably works (with caveats)
 
   const actualJoinedTable = association?.aliasFor || joinedTable
-  const toTableAlias = alias || actualJoinedTable
+  const joinedAs = alias || actualJoinedTable
 
   const usesOldJoinStyle = description.where.some(
     clause => clause.type === 'on' && clause.table === actualJoinedTable,
   )
   const joinKeyword = usesOldJoinStyle ? ' join ' : ' left join '
-  const joinBeginning = `${joinKeyword}${encodeName(actualJoinedTable)} ${encodeName(toTableAlias)} on ${encodeName(toTableAlias)}.`
+  const joinBeginning = `${joinKeyword}${encodeName(actualJoinedTable)} ${encodeName(joinedAs)} on ${encodeName(joinedAs)}.`
 
 
   return association.type === 'belongs_to'

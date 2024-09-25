@@ -73,7 +73,7 @@ declare module '@BuildHero/watermelondb/QueryDescription' {
     type: 'nestedJoinTable'
     from: TableName<any>
     to: TableName<any>
-    toTableAlias?: TableName<any>
+    joinedAs?: TableName<any>
   }
   export interface EagerJoin {
     type: 'eagerJoinTables'
@@ -123,7 +123,7 @@ declare module '@BuildHero/watermelondb/QueryDescription' {
   export function experimentalSkip(count: number): Skip
   export function eager(...joins:(Join | NestedJoin)[]): EagerJoin
   export function experimentalJoinTables(tables: TableName<any>[]): Join
-  export function experimentalNestedJoin(from: string, to: string, toTableAlias?: string): NestedJoin
+  export function experimentalNestedJoin(from: string, to: string, joinedAs?: string): NestedJoin
   export function sanitizeLikeString(value: string): string
   export function unsafeSqlQuery(value: string): SqlQuery
   export function asUnsafeSql(value: string): SqlCTE
