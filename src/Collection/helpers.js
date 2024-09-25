@@ -15,6 +15,7 @@ function buildAdjacencyList(relationships) {
 function buildHierarchy(rootTable, results, adjacencyList, database) {
   const hierarchy = new Map(); // Use a Map for better performance
   const resultMap = new Map(); // Preprocess results for quick access
+  const parentRelationMap = new Map(); // Keep track of parent relations to avoid duplicates
 
   // Preprocess results into a map
   results.forEach(row => {
@@ -26,52 +27,72 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
     }
   });
 
-  // Function to recursively build the tree
-  const buildTree = (item, tableName) => {
+  const buildTree = (item, tableName, visited, depth = 0) => {
     const relations = adjacencyList[tableName] || [];
-
-    relations.forEach(({ to, toTableAlias, key, foreignKey, type, alias}) => {
+  
+    const itemId = item[`${tableName}.id`];
+      
+    if (visited.has(itemId)) {
+      return; // Prevent revisiting the same item
+    }
+  
+    visited.add(itemId); // Mark the item as visited
+  
+    relations.forEach(({ to, toTableAlias, key, foreignKey, type, alias }) => {
       const relatedItems = results
         .filter(data => {
           if (type === 'belongs_to') {
-            return data[`${toTableAlias|| alias || to}.id`] === item[`${tableName}.${key}`];
+            return data[`${toTableAlias || alias || to}.id`] === item[`${tableName}.${key}`];
           } else {
-            return data[`${toTableAlias|| alias || to}.${foreignKey}`] === item[`${tableName}.id`];
+            return data[`${toTableAlias || alias || to}.${foreignKey}`] === item[`${tableName}.id`];
           }
         })
         .map(data => {
           const relatedItemId = data[`${toTableAlias || alias || to}.id`];
           if (!relatedItemId) return null; // Skip invalid records
-
+  
           let relatedItem = hierarchy.get(relatedItemId) || { ...data };
-
+  
           // Ensure relatedItem is in the hierarchy
           if (!hierarchy.has(relatedItemId)) {
             hierarchy.set(relatedItemId, relatedItem);
           }
-
+  
           return relatedItem;
         })
         .filter(item => item !== null); // Filter out null values
-
+  
       if (relatedItems.length > 0) {
         // Group eager-loaded relations under 'expandedRelations'
         item.expandedRelations = item.expandedRelations || {};
         item.expandedRelations[to] = relatedItems;
-        relatedItems.forEach(relatedItem => buildTree(relatedItem, alias || to));
+  
+        // Ensure we don't add duplicate related items
+        const relationKey = `${toTableAlias || alias || to}.id`;
+  
+        if (!parentRelationMap.has(relationKey)) {
+          item.expandedRelations[to] = relatedItems;
+          parentRelationMap.set(relationKey, true);
+        }
+  
+        relatedItems.forEach(relatedItem => {
+          buildTree(relatedItem, toTableAlias || alias || to, visited, depth + 1);
+        });
       }
-    });
+    });  
   };
-
+  
   // Initialize the hierarchy with the results
   resultMap.forEach((row, id) => {
     hierarchy.set(id, { ...row });
   });
 
+  const visitedSet = new Set();
+  
   // Start building the tree from the root table
   const rootData = Array.from(hierarchy.values()).filter(item => item[`${rootTable}.id`]);
-
-  rootData.forEach(item => buildTree(item, rootTable));
+  
+  rootData.forEach(item => buildTree(item, rootTable, visitedSet));
 
   // Function to sanitize item
   const sanitizeItem = (item, tableName, alias, toTableAlias) => {
