@@ -27,10 +27,10 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
     }
   });
 
-  const buildTree = (item, tableName, visited) => {
+  const buildTree = (item, tableName, visited, joinedAs = undefined) => {
     const relations = adjacencyList[tableName] || [];
 
-    const itemId = item[`${tableName}.id`];
+    const itemId = item[`${joinedAs || tableName}.id`];
 
     if (visited.has(itemId)) {
       return; // Prevent revisiting the same item
@@ -38,13 +38,15 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
 
     visited.add(itemId); // Mark the item as visited
 
+    const parentTableName = joinedAs || tableName;
+
     relations.forEach(({ to, joinedAs, key, foreignKey, type, alias }) => {
       const relatedItems = results
         .filter(data => {
           if (type === 'belongs_to') {
-            return data[`${joinedAs || alias || to}.id`] === item[`${tableName}.${key}`];
+            return data[`${joinedAs || alias || to}.id`] === item[`${parentTableName}.${key}`];
           } else {
-            return data[`${joinedAs || alias || to}.${foreignKey}`] === item[`${tableName}.id`];
+            return data[`${joinedAs || alias || to}.${foreignKey}`] === item[`${parentTableName}.id`];
           }
         })
         .map(data => {
@@ -70,15 +72,15 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
           // Group eager-loaded relations under 'expandedRelations'
           item.expandedRelations = item.expandedRelations || {};
           item.expandedRelations[to] = relatedItems;
-          
+
           parentRelationMap.set(relationKey, true);
+
+          relatedItems.forEach(relatedItem => {
+            const tableName = joinedAs || alias || to;
+
+            buildTree(relatedItem, tableName, visited);
+          });
         }
-
-        relatedItems.forEach(relatedItem => {
-          const tableName = joinedAs || alias || to;
-
-          buildTree(relatedItem, tableName, visited);
-        });
       }
     });
   };
@@ -96,7 +98,17 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
   rootData.forEach(item => buildTree(item, rootTable, visitedSet));
 
   // Function to sanitize item
-  const sanitizeItem = (item, tableName, alias, joinedAs) => {
+  const sanitizeItem = (item, tableName, alias, joinedAs, visited = new Set()) => {
+    // Check for cycles
+    const itemId = item[`${joinedAs || alias || tableName}.id`];
+    
+    if (visited.has(itemId)) {
+      return null; // Cycle detected, skip this item
+    }
+
+    // Mark this item as visited
+    visited.add(itemId);
+
     const relatedTables = new Set(
       (adjacencyList[tableName] || []).map(({ to, alias, joinedAs }) => ({ to, alias, joinedAs }))
     );
@@ -112,8 +124,8 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
     relatedTables.forEach(({ to: relatedTable, alias, joinedAs }) => {
       const relatedItems = item.expandedRelations?.[relatedTable] || [];
       sanitizedExpandedRelations[relatedTable] = relatedItems.map(relatedItem =>
-        sanitizeItem(relatedItem, relatedTable, alias, joinedAs)
-      );
+        sanitizeItem(relatedItem, relatedTable, alias, joinedAs, visited) // Pass visited set to the recursive call
+      ).filter(Boolean); // Filter out null values (skipped items)
     });
 
     // Assign sanitized related items back to the 'expandedRelations' property
@@ -122,9 +134,10 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
     return sanitizedItem;
   };
 
-  const sanitizedRootData = rootData.map(item => sanitizeItem(item, rootTable));
+  const visitedSanitizedSet = new Set();
 
-  return sanitizedRootData;
+  return rootData
+    .map(item => sanitizeItem(item, rootTable, undefined, undefined, visitedSanitizedSet));
 }
 
 export function mapToGraph(results, relationships, collection) {
