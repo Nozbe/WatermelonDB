@@ -12,6 +12,14 @@ function buildAdjacencyList(relationships) {
   return adjacencyList;
 }
 
+function deserializeToModel(item, to, joinedAs, database) {
+  const collection = database.collections.get(to);
+  const ModelClass = collection.modelClass;
+  const sanitized = sanitizedRaw(item, database.schema.tables[to], true, joinedAs);
+  
+  return new ModelClass(collection, sanitized);
+}
+
 function buildHierarchy(rootTable, results, adjacencyList, database) {
   const hierarchy = new Map(); // Use a Map for better performance
   const resultMap = new Map(); // Preprocess results for quick access
@@ -55,7 +63,9 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
             lookupMaps[mapKey][parentId] = []; // Create an array for this parentKey
           }
 
-          lookupMaps[mapKey][parentId].push(row); // Push the row into the array for this parentKey
+          const model = deserializeToModel(row, alias || to, joinedAs, database);
+
+          lookupMaps[mapKey][parentId].push(model); // Push the row into the array for this parentKey
         }
       });
     });
@@ -72,9 +82,11 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
   });
 
   const buildTree = (item, table) => {
+    const rootModel = deserializeToModel(item, table, undefined, database);
+
     const relationQueue = [{
       table,
-      row: item
+      row: rootModel
     }]
 
     while (relationQueue.length > 0) {
@@ -83,11 +95,11 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
 
       relations.forEach(({ joinedAs, alias, to }) => {
         const actualTo = joinedAs || alias || to;
-        const relatedItems = lookupMaps[`${table}-${actualTo}`]?.[row[`${table}.id`]] || [];
+        const relatedItems = lookupMaps[`${table}-${actualTo}`]?.[row.id] || [];
 
         if (relatedItems.length > 0) {
           // Ensure we don't add duplicate related items
-          const parentChildRelationKey = `${row[`${table}.id`]}-${actualTo}`;
+          const parentChildRelationKey = `${row.id}-${actualTo}`;
 
           if (!parentRelationMap.has(parentChildRelationKey)) {
             // Group eager-loaded relations under 'expandedRelations'
@@ -107,7 +119,7 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
       })
     }
 
-    return item;
+    return rootModel;
   }
 
   // Initialize the hierarchy with the results
@@ -118,49 +130,7 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
   // Start building the tree from the root table
   const rootData = Array.from(hierarchy.values()).filter(item => item[`${rootTable}.id`]);
 
-  rootData.forEach(item => buildTree(item, rootTable));
-
-  // Function to sanitize item
-  const sanitizeItem = (item, tableName, alias, joinedAs, visited = new Set()) => {
-    // Check for cycles
-    const itemId = item[`${joinedAs || alias || tableName}.id`];
-
-    if (visited.has(itemId)) {
-      return null; // Cycle detected, skip this item
-    }
-
-    // Mark this item as visited
-    visited.add(itemId);
-
-    const relatedTables = new Set(
-      (adjacencyList[tableName] || []).map(({ to, alias, joinedAs }) => ({ to, alias, joinedAs }))
-    );
-
-    const collection = database.collections.get(alias || tableName);
-    const ModelClass = collection.modelClass;
-    const sanitized = sanitizedRaw(item, database.schema.tables[alias || tableName], true, joinedAs);
-    const sanitizedItem = new ModelClass(collection, sanitized);
-
-    // Prepare a container for sanitized related items
-    const sanitizedExpandedRelations = {};
-
-    relatedTables.forEach(({ to: relatedTable, alias, joinedAs }) => {
-      const relatedItems = item.expandedRelations?.[relatedTable] || [];
-      sanitizedExpandedRelations[relatedTable] = relatedItems.map(relatedItem =>
-        sanitizeItem(relatedItem, relatedTable, alias, joinedAs, visited) // Pass visited set to the recursive call
-      ).filter(Boolean); // Filter out null values (skipped items)
-    });
-
-    // Assign sanitized related items back to the 'expandedRelations' property
-    sanitizedItem.expandedRelations = sanitizedExpandedRelations;
-
-    return sanitizedItem;
-  };
-
-  const visitedSanitizedSet = new Set();
-
-  return rootData
-    .map(item => sanitizeItem(item, rootTable, undefined, undefined, visitedSanitizedSet));
+  return rootData.map(item => buildTree(item, rootTable));
 }
 
 export function mapToGraph(results, relationships, collection) {
