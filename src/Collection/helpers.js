@@ -115,12 +115,8 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
     hierarchy.set(id, { ...row });
   });
 
-  //const visitedSet = new Set();
-
   // Start building the tree from the root table
   const rootData = Array.from(hierarchy.values()).filter(item => item[`${rootTable}.id`]);
-
-  // rootData.forEach(item => buildTree(item, rootTable, visitedSet));
 
   rootData.forEach(item => buildTree(item, rootTable));
 
