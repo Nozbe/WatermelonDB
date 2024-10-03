@@ -82,18 +82,14 @@ export const makeDispatcher = (
           return
         }
 
-        if (supportedHybridJSIMethods.has(methodName)) {
+        if (useHybridJSI && supportedHybridJSIMethods.has(methodName)) {
           try {
-            const returnValue = DatabaseBridge[methodName](tag, ...otherArgs)
+            const returnValue = global.WatermelonDB[methodName](tag, ...otherArgs)
 
-            if (type === 'synchronous') {
-              callback(syncReturnToResult({
-                status: 'success',
-                result: returnValue
-              }))
-            } else {
-              fromPromise(returnValue, callback)
-            }
+            callback(syncReturnToResult({
+              status: 'success',
+              result: returnValue
+            }))
           } catch (error) {
             callback({ error })
           }
