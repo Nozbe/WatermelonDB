@@ -2,7 +2,7 @@
 /* eslint-disable global-require */
 
 import { NativeModules } from 'react-native'
-import { fromPairs, s } from 'rambdax'
+import { fromPairs } from 'rambdax'
 
 import { type ConnectionTag, logger, invariant } from '../../../utils/common'
 
