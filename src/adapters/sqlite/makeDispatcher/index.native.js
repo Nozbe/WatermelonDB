@@ -2,7 +2,7 @@
 /* eslint-disable global-require */
 
 import { NativeModules } from 'react-native'
-import { fromPairs } from 'rambdax'
+import { fromPairs, s } from 'rambdax'
 
 import { type ConnectionTag, logger, invariant } from '../../../utils/common'
 
@@ -41,12 +41,19 @@ const dispatcherMethods = [
   'enableNativeCDC'
 ]
 
+const supportedHybridJSIMethods = new Set(['query', 'execSqlQuery'])
+
 export const makeDispatcher = (
   type: DispatcherType,
   tag: ConnectionTag,
   dbName: string,
+  useHybridJSI?: boolean,
 ): NativeDispatcher => {
   const jsiDb = type === 'jsi' && global.nativeWatermelonCreateAdapter(dbName)
+
+  if (useHybridJSI) {
+    DatabaseBridge.initializeJSIBridge()
+  }
 
   const methods = dispatcherMethods.map(methodName => {
     // batchJSON is missing on Android
@@ -72,6 +79,25 @@ export const makeDispatcher = (
           } catch (error) {
             callback({ error })
           }
+          return
+        }
+
+        if (supportedHybridJSIMethods.has(methodName)) {
+          try {
+            const returnValue = DatabaseBridge[name](tag, ...otherArgs)
+
+            if (type === 'synchronous') {
+              callback(syncReturnToResult({
+                status: 'success',
+                result: returnValue
+              }))
+            } else {
+              fromPromise(returnValue, callback)
+            }
+          } catch (error) {
+            callback({ error })
+          }
+
           return
         }
 

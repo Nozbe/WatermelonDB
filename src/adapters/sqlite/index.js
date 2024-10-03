@@ -75,7 +75,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     this._dbName = this._getName(dbName)
 
     this._dispatcherType = getDispatcherType(options)
-    this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName)
+    this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName, options.useHybridJSI)
 
     if (process.env.NODE_ENV !== 'production') {
       invariant(

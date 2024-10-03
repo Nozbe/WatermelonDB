@@ -7,7 +7,7 @@ final public class DatabaseBridge: RCTEventEmitter {
     
     private var hasListeners = false
     
-    typealias ConnectionTag = NSNumber
+    public typealias ConnectionTag = NSNumber
     
     
     @objc
@@ -166,6 +166,15 @@ extension DatabaseBridge {
         return synchronously {
             // swiftlint:disable all
             installWatermelonJSI(bridge as? RCTCxxBridge)
+        }
+    }
+    
+    @objc(initializeJSIBridge)
+    func initializeJSIBridge() -> NSDictionary {
+        return synchronously {
+            let selfPtr = UnsafeMutablePointer(mutating: Unmanaged.passUnretained(self).toOpaque().assumingMemoryBound(to: DatabaseBridge.self))
+            
+            return installWatermelonJSISwiftBridge(bridge as? RCTCxxBridge, selfPtr)
         }
     }
     
@@ -375,14 +384,14 @@ extension DatabaseBridge {
     }
     
     @objc(querySynchronous:table:query:)
-    func querySynchronous(tag: ConnectionTag, table: Database.TableName, query: Database.SQL) -> NSDictionary {
+    public func querySynchronous(tag: ConnectionTag, table: Database.TableName, query: Database.SQL) -> NSDictionary {
         return withDriverSynchronous(tag) {
             try $0.cachedQuery(table: table, query: query)
         }
     }
     
     @objc(execSqlQuerySynchronous:query:params:)
-    func execSqlQuerySynchronous(tag: ConnectionTag, query: Database.SQL, params: [Any]) -> NSDictionary {
+    public func execSqlQuerySynchronous(tag: ConnectionTag, query: Database.SQL, params: [Any]) -> NSDictionary {
         return withDriverSynchronous(tag) {
             try $0.execSqlQuery(query, params: params)
         }

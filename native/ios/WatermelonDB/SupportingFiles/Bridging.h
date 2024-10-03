@@ -8,11 +8,19 @@
 #import <React/RCTBridge.h>
 #import <React/RCTEventDispatcher.h>
 
+
 #if __has_include("JSIInstaller.h")
 #import "JSIInstaller.h"
 #else
 #import "../JSIInstaller.h"
 #endif
+
+#if __has_include("JSISwiftBridgeInstaller.h")
+#import "JSISwiftBridgeInstaller.h"
+#else
+#import "../JSISwiftBridgeInstaller.h"
+#endif
+
 
 #if __has_include("DatabaseDeleteHelper.h")
 #import "DatabaseDeleteHelper.h"

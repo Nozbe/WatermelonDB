@@ -1,10 +1,10 @@
 import Foundation
 import SQLite3
 
-class Database {
-    typealias SQL = String
-    typealias TableName = String
-    typealias QueryArgs = [Any]
+public class Database {
+    public typealias SQL = String
+    public typealias TableName = String
+    public typealias QueryArgs = [Any]
     
     private let fmdb: FMDatabase
     private let path: String
