@@ -84,7 +84,7 @@ export const makeDispatcher = (
 
         if (supportedHybridJSIMethods.has(methodName)) {
           try {
-            const returnValue = DatabaseBridge[name](tag, ...otherArgs)
+            const returnValue = DatabaseBridge[methodName](tag, ...otherArgs)
 
             if (type === 'synchronous') {
               callback(syncReturnToResult({
