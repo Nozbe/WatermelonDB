@@ -24,6 +24,7 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
   const hierarchy = new Map(); // Use a Map for better performance
   const resultMap = new Map(); // Preprocess results for quick access
   const parentRelationMap = new Map(); // Keep track of parent relations to avoid duplicates
+  const addedRelationships = new Map()
   const lookupMaps = {}; // Lookup maps for eager loading relations
 
   // Build lookup maps for each relationship
@@ -58,14 +59,21 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
         }
 
         if (hasRelation && parentId) {
+          const addedRelationKey = `${mapKey}-${parentId}`;
+
           // Initialize the array for the parentKey if it doesn't exist
           if (!lookupMaps[mapKey][parentId]) {
             lookupMaps[mapKey][parentId] = []; // Create an array for this parentKey
+            addedRelationships[addedRelationKey] = new Set();
           }
 
           const model = deserializeToModel(row, alias || to, joinedAs, database);
 
-          lookupMaps[mapKey][parentId].push(model); // Push the row into the array for this parentKey
+          if (!addedRelationships[addedRelationKey].has(model.id)) {
+            lookupMaps[mapKey][parentId].push(model); // Push the row into the array for this parentKey
+
+            addedRelationships[addedRelationKey].add(model.id);
+          }
         }
       });
     });

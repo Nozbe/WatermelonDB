@@ -13,6 +13,7 @@ import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.nozbe.watermelondb.jsi.JSIAndroidBridgeInstaller
 import io.requery.android.database.sqlite.SQLiteUpdateHook
 import java.util.Timer
 import java.util.TimerTask
@@ -117,6 +118,16 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
         }
     }
 
+    @ReactMethod(isBlockingSynchronousMethod = true)
+    fun initializeJSIBridge() {
+        val jsRuntime = reactContext.catalystInstance.javaScriptContextHolder.get()
+
+        JSIAndroidBridgeInstaller.install(
+            jsRuntime,
+            this
+        )
+    }
+
     @ReactMethod
     fun setUpWithSchema(
         tag: ConnectionTag,
@@ -174,9 +185,17 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     fun query(tag: ConnectionTag, table: TableName, query: SQL, promise: Promise) =
         withDriver(tag, promise) { it.cachedQuery(table, query) }
 
+    fun querySynchronous(tag: ConnectionTag, table: TableName, query: SQL): WritableArray {
+        return withDriverSynchronous(tag) { it.cachedQuery(table, query) } as WritableArray
+    }
+
     @ReactMethod
     fun execSqlQuery(tag: ConnectionTag, query: SQL, params: ReadableArray = WritableNativeArray(), promise: Promise) =
         withDriver(tag, promise) { it.execSqlQuery(query, params) }
+
+    fun execSqlQuerySynchronous(tag: ConnectionTag, query: SQL, params: ReadableArray = WritableNativeArray()): WritableArray {
+        return withDriverSynchronous(tag) { it.execSqlQuery(query, params) } as WritableArray
+    }
 
     @ReactMethod
     fun count(tag: ConnectionTag, query: SQL, promise: Promise) =
@@ -225,6 +244,19 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     @ReactMethod
     fun enableNativeCDC(tag: ConnectionTag, promise: Promise) =
         withDriver(tag, promise) { it.setUpdateHook(sqliteUpdateHook) }
+
+    @Throws(Exception::class)
+    private fun withDriverSynchronous(
+        tag: ConnectionTag,
+        function: (DatabaseDriver) -> Any?
+    ): Any? {
+        val connection = connections[tag] ?: throw Exception("No driver with tag $tag available")
+
+        return when (connection) {
+            is Connection.Connected -> function(connection.driver)
+            is Connection.Waiting -> throw Exception("Driver with tag $tag is not ready")
+        }
+    }
 
     @Throws(Exception::class)
     private fun withDriver(

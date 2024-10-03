@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C105C882CAB05BC0033B38D /* JSISwiftBridgeInstaller.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2C105C822CAB05BC0033B38D /* JSISwiftBridgeInstaller.mm */; };
+		2C105C892CAB05BC0033B38D /* JSISwiftWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2C105C842CAB05BC0033B38D /* JSISwiftWrapper.mm */; };
+		2C105C8A2CAB05BC0033B38D /* JSIUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2C105C862CAB05BC0033B38D /* JSIUtils.mm */; };
 		6E41F87D251C9183001C250B /* DatabaseDeleteHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E41F87C251C9183001C250B /* DatabaseDeleteHelper.m */; };
 		6E5E6259246C1F61003DBEF4 /* DatabasePlatformIOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6E5E6257246C1F61003DBEF4 /* DatabasePlatformIOS.mm */; };
 		6E660D95213BD75D00189354 /* WatermelonDB.modulemap in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6E660D94213BD74F00189354 /* WatermelonDB.modulemap */; };
@@ -41,6 +44,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2C105C812CAB05BC0033B38D /* JSISwiftBridgeInstaller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSISwiftBridgeInstaller.h; sourceTree = "<group>"; };
+		2C105C822CAB05BC0033B38D /* JSISwiftBridgeInstaller.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = JSISwiftBridgeInstaller.mm; sourceTree = "<group>"; };
+		2C105C832CAB05BC0033B38D /* JSISwiftWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSISwiftWrapper.h; sourceTree = "<group>"; };
+		2C105C842CAB05BC0033B38D /* JSISwiftWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = JSISwiftWrapper.mm; sourceTree = "<group>"; };
+		2C105C852CAB05BC0033B38D /* JSIUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSIUtils.h; sourceTree = "<group>"; };
+		2C105C862CAB05BC0033B38D /* JSIUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = JSIUtils.mm; sourceTree = "<group>"; };
 		6E41F87C251C9183001C250B /* DatabaseDeleteHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatabaseDeleteHelper.m; sourceTree = "<group>"; };
 		6E41F87E251C93D1001C250B /* DatabaseDeleteHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DatabaseDeleteHelper.h; sourceTree = "<group>"; };
 		6E5E6257246C1F61003DBEF4 /* DatabasePlatformIOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DatabasePlatformIOS.mm; sourceTree = "<group>"; };
@@ -88,6 +97,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2C105C872CAB05BC0033B38D /* JSISwiftWrapper */ = {
+			isa = PBXGroup;
+			children = (
+				2C105C812CAB05BC0033B38D /* JSISwiftBridgeInstaller.h */,
+				2C105C822CAB05BC0033B38D /* JSISwiftBridgeInstaller.mm */,
+				2C105C832CAB05BC0033B38D /* JSISwiftWrapper.h */,
+				2C105C842CAB05BC0033B38D /* JSISwiftWrapper.mm */,
+				2C105C852CAB05BC0033B38D /* JSIUtils.h */,
+				2C105C862CAB05BC0033B38D /* JSIUtils.mm */,
+			);
+			path = JSISwiftWrapper;
+			sourceTree = "<group>";
+		};
 		39DF4FDE1E00394E00F5B4B2 = {
 			isa = PBXGroup;
 			children = (
@@ -107,6 +129,7 @@
 		6E660D5F213BCCD300189354 /* WatermelonDB */ = {
 			isa = PBXGroup;
 			children = (
+				2C105C872CAB05BC0033B38D /* JSISwiftWrapper */,
 				6E9477EF213BDF8A0077EDFB /* Database.swift */,
 				6E41F87C251C9183001C250B /* DatabaseDeleteHelper.m */,
 				6E41F87E251C93D1001C250B /* DatabaseDeleteHelper.h */,
@@ -260,10 +283,13 @@
 				6EF7F86223630D6D0041E1F6 /* JSIInstaller.mm in Sources */,
 				6E9477F1213BDF8A0077EDFB /* DatabaseBridge.swift in Sources */,
 				6E9477D8213BDE2E0077EDFB /* FMResultSet.m in Sources */,
+				2C105C8A2CAB05BC0033B38D /* JSIUtils.mm in Sources */,
+				2C105C882CAB05BC0033B38D /* JSISwiftBridgeInstaller.mm in Sources */,
 				6E9477D7213BDE2E0077EDFB /* FMDatabasePool.m in Sources */,
 				6E9477F2213BDF8A0077EDFB /* DatabaseBridge.m in Sources */,
 				6E9477F4213BDF8A0077EDFB /* std_ext.swift in Sources */,
 				6ED8793123665D7800F45881 /* JSLockPerfHack.mm in Sources */,
+				2C105C892CAB05BC0033B38D /* JSISwiftWrapper.mm in Sources */,
 				6E9477F6213BDF8A0077EDFB /* Database.swift in Sources */,
 				6E5E6259246C1F61003DBEF4 /* DatabasePlatformIOS.mm in Sources */,
 				6E9477D5213BDE2E0077EDFB /* FMDatabaseAdditions.m in Sources */,
