@@ -104,7 +104,7 @@ class DatabaseDriver {
         iter.forEach { rs in
             if let columnName = rs.string(forColumn: "name") {
                 columnNames.insert(columnName)
-            }            
+            }
         }
     
         return columnNames
@@ -232,7 +232,7 @@ class DatabaseDriver {
         return false
     }
     
-    private func markAsCached(_ table: Database.TableName, _ id: RecordId) {
+    func markAsCached(_ table: Database.TableName, _ id: RecordId) {
         var cachedSet: NSMutableSet
         if let set = cachedRecords[table] as? NSMutableSet {
             cachedSet = set
@@ -243,7 +243,7 @@ class DatabaseDriver {
         cachedSet.add(id)
     }
     
-    private func removeFromCache(_ table: Database.TableName, _ id: RecordId) {
+    func removeFromCache(_ table: Database.TableName, _ id: RecordId) {
         if let set = cachedRecords[table] as? NSMutableSet {
             set.remove(id)
         }

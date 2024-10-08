@@ -51,6 +51,8 @@ class DatabaseDriver(context: Context, dbName: String) {
 
     private val cachedRecords: MutableMap<TableName, MutableList<RecordID>> = mutableMapOf()
 
+    fun getDatabase() = database
+
     fun find(table: TableName, id: RecordID): Any? {
         if (isCached(table, id)) {
             return id
@@ -278,14 +280,14 @@ class DatabaseDriver(context: Context, dbName: String) {
 
     fun close() = database.close()
 
-    private fun markAsCached(table: TableName, id: RecordID) {
+    fun markAsCached(table: TableName, id: RecordID) {
         // log?.info("Mark as cached $id")
         val cache = cachedRecords[table] ?: mutableListOf()
         cache.add(id)
         cachedRecords[table] = cache
     }
 
-    private fun isCached(table: TableName, id: RecordID): Boolean =
+    fun isCached(table: TableName, id: RecordID): Boolean =
             cachedRecords[table]?.contains(id) ?: false
 
     private fun removeFromCache(table: TableName, id: RecordID) = cachedRecords[table]?.remove(id)

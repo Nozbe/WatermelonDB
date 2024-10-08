@@ -7,7 +7,8 @@
 //
 
 #include "JSISwiftWrapper.h"
-#include "JSIUtils.h"
+#include "DatabaseUtils.h"
+#include <string>
 
 namespace watermelondb {
 
@@ -23,19 +24,67 @@ SwiftBridge::~SwiftBridge() {
 jsi::Value SwiftBridge::query(const jsi::Value &tag, const jsi::String &table, const jsi::String &query) {
     auto tagNumber = [[NSNumber alloc] initWithDouble:tag.asNumber()];
     auto tableStr = [NSString stringWithUTF8String:table.utf8(*runtime_).c_str()];
-    auto queryStr = [NSString stringWithUTF8String:query.utf8(*runtime_).c_str()];
-    auto result = [databaseBridge_ querySynchronous:tagNumber table:tableStr query:queryStr];
     
-    return convertNSDictionaryToJSIObject(*runtime_, result);
+    auto db = [databaseBridge_ getRawConnectionWithConnectionTag:tagNumber];
+    
+    const std::lock_guard<std::mutex> lock(mutex_);
+    
+    auto statement = getStmt(*runtime_, static_cast<sqlite3*>(db), query.utf8(*runtime_), jsi::Array(*runtime_, 0));
+    
+    std::vector<jsi::Value> records = {};
+    
+    while (true) {
+        if (getNextRowOrTrue(*runtime_, statement.stmt)) {
+            break;
+        }
+        
+        assert(std::string(sqlite3_column_name(statement.stmt, 0)) == "id");
+        
+        const char *id = (const char *)sqlite3_column_text(statement.stmt, 0);
+        
+        if (!id) {
+            throw jsi::JSError(*runtime_, "Failed to get ID of a record");
+        }
+        
+        auto idStr = [NSString stringWithUTF8String:id];
+                
+        bool isCached = [databaseBridge_ isCachedWithConnectionTag:tagNumber table:tableStr id:idStr];
+        
+        if (isCached) {
+            jsi::String jsiId = jsi::String::createFromAscii(*runtime_, id);
+            records.push_back(std::move(jsiId));
+        } else {
+            [databaseBridge_ markAsCachedWithConnectionTag:tagNumber table:tableStr id:idStr];
+            jsi::Object record = resultDictionary(*runtime_, statement.stmt);
+            records.push_back(std::move(record));
+        }
+    }
+    
+    return arrayFromStd(*runtime_, records);
 }
 
 jsi::Value SwiftBridge::execSqlQuery(const jsi::Value &tag, const jsi::String &sql, const jsi::Array &arguments) {
     auto tagNumber = [[NSNumber alloc] initWithDouble:tag.asNumber()];
-    auto sqlStr = [NSString stringWithUTF8String:sql.utf8(*runtime_).c_str()];
-    auto argsArray = convertJSIArrayToNSArray(*runtime_, arguments);
-    auto result = [databaseBridge_ execSqlQuerySynchronous:tagNumber query:sqlStr params:argsArray];
     
-    return convertNSDictionaryToJSIObject(*runtime_, result);
+    auto db = [databaseBridge_ getRawConnectionWithConnectionTag:tagNumber];
+    
+    const std::lock_guard<std::mutex> lock(mutex_);
+    
+    auto statement = getStmt(*runtime_, static_cast<sqlite3*>(db), sql.utf8(*runtime_), arguments);
+    
+    std::vector<jsi::Value> records = {};
+    
+    while (true) {
+        if (getNextRowOrTrue(*runtime_, statement.stmt)) {
+            break;
+        }
+        
+        jsi::Object record = resultDictionary(*runtime_, statement.stmt);
+        
+        records.push_back(std::move(record));
+    }
+    
+    return arrayFromStd(*runtime_, records);
 }
 
 void SwiftBridge::install(jsi::Runtime *runtime, DatabaseBridge *databaseBridge) {
@@ -46,7 +95,7 @@ void SwiftBridge::install(jsi::Runtime *runtime, DatabaseBridge *databaseBridge)
         jsi::Object watermelonDB = jsi::Object(*runtime);
         runtime->global().setProperty(*runtime, "WatermelonDB", std::move(watermelonDB));
     }
-        
+    
     // Define the execSqlQuery function for JSI
     auto execSqlQueryFunc = jsi::Function::createFromHostFunction(
                                                                   *runtime,
@@ -64,19 +113,19 @@ void SwiftBridge::install(jsi::Runtime *runtime, DatabaseBridge *databaseBridge)
                                                                   );
     
     auto queryFunc = jsi::Function::createFromHostFunction(
-                                                                  *runtime,
-                                                                  jsi::PropNameID::forAscii(*runtime, "query"),
-                                                                  3,  // Number of arguments
-                                                                  [swiftBridge](jsi::Runtime &rt, const jsi::Value &thisValue, const jsi::Value *args, size_t count) -> jsi::Value {
-                                                                      if (count != 3) {
-                                                                          throw jsi::JSError(rt, "query expects exactly 3 arguments.");
-                                                                      }
-                                                                      
-                                                                      
-                                                                      // Call the execSqlQuery function from SwiftBridge
-                                                                      return swiftBridge->query(args[0], args[1].asString(rt), args[2].asString(rt));
-                                                                  }
-                                                                  );
+                                                           *runtime,
+                                                           jsi::PropNameID::forAscii(*runtime, "query"),
+                                                           3,  // Number of arguments
+                                                           [swiftBridge](jsi::Runtime &rt, const jsi::Value &thisValue, const jsi::Value *args, size_t count) -> jsi::Value {
+                                                               if (count != 3) {
+                                                                   throw jsi::JSError(rt, "query expects exactly 3 arguments.");
+                                                               }
+                                                               
+                                                               
+                                                               // Call the execSqlQuery function from SwiftBridge
+                                                               return swiftBridge->query(args[0], args[1].asString(rt), args[2].asString(rt));
+                                                           }
+                                                           );
     
     
     // Set the functions in the global object

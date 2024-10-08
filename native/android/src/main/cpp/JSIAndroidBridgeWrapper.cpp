@@ -2,9 +2,31 @@
 // Created by BuildOpsLA27 on 9/30/24.
 //
 #include "JSIAndroidBridgeWrapper.h"
-#include "JSIUtils.h"
+#include "DatabaseUtils.h"
+#include <string>
+#include <sqlite3.h>
 
 using namespace watermelondb;
+
+struct SQLiteConnection {
+    sqlite3* const db;
+    const int openFlags;
+    char* path;
+    char* label;
+
+    volatile bool canceled;
+
+    SQLiteConnection(sqlite3* db, int openFlags, const char* path_, const char* label_) :
+            db(db), openFlags(openFlags), canceled(false) {
+        path = strdup(path_);
+        label = strdup(label_);
+    }
+
+    ~SQLiteConnection() {
+        free(path);
+        free(label);
+    }
+};
 
 namespace watermelondb {
     static JavaVM *jvm;
@@ -39,23 +61,41 @@ namespace watermelondb {
 
         jclass myNativeModuleClass = env->GetObjectClass(bridge_);  // 'bridge_' refers to your Kotlin/Java instance
 
-        jmethodID execSqlQuerySynchronousMethod = env->GetMethodID(
+        jmethodID getConnectionMethod = env->GetMethodID(
                 myNativeModuleClass,
-                "execSqlQuerySynchronous",  // Method name in Kotlin
-                "(ILjava/lang/String;Lcom/facebook/react/bridge/ReadableArray;)Lcom/facebook/react/bridge/WritableArray;"
+                "getSQLiteConnection",  // Method name in Kotlin
+                "(I)J"
         );
 
-        jstring jQuery = env->NewStringUTF(queryStr.c_str());
-        jobject jParams = convertJSIArrayToReadableArray(*runtime_, env, arguments);
+        jmethodID releaseConnectionMethod = env->GetMethodID(
+                myNativeModuleClass,
+                "releaseSQLiteConnection",  // Method name in Kotlin
+                "(I)V"
+        );
 
-        // Call the Kotlin instance method via JNI on `bridge_`
-        jobject resultArray = env->CallObjectMethod(bridge_, execSqlQuerySynchronousMethod, jTag, jQuery, jParams);
+        SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(env->CallLongMethod(bridge_, getConnectionMethod, jTag));
 
-        // Cleanup JNI references
-        env->DeleteLocalRef(jQuery);
-        env->DeleteLocalRef(jParams);
+        sqlite3* db = connection->db;
 
-        return convertWritableArrayToJSIArray(*runtime_, env, resultArray);
+        const std::lock_guard<std::mutex> lock(mutex_);
+
+        auto statement = getStmt(*runtime_, reinterpret_cast<sqlite3*>(db), sql.utf8(*runtime_), arguments);
+
+        std::vector<jsi::Value> records = {};
+
+        while (true) {
+            if (getNextRowOrTrue(*runtime_, statement.stmt)) {
+                break;
+            }
+
+            jsi::Object record = resultDictionary(*runtime_, statement.stmt);
+
+            records.push_back(std::move(record));
+        }
+
+        env->CallVoidMethod(bridge_, releaseConnectionMethod, jTag);
+
+        return arrayFromStd(*runtime_, records);
     }
 
     jsi::Value JSIAndroidBridge::query(const jsi::Value &tag, const jsi::String &table, const jsi::String &query) {
@@ -67,25 +107,74 @@ namespace watermelondb {
         auto tableStr = table.utf8(*runtime_);
         auto queryStr = query.utf8(*runtime_);
 
-        // Convert the arguments to JNI types
-        jclass myNativeModuleClass = env->GetObjectClass(bridge_);  // Get the class of the instance
+        jclass myNativeModuleClass = env->GetObjectClass(bridge_);  // 'bridge_' refers to your Kotlin/Java instance
 
-        jmethodID querySynchronousMethod = env->GetMethodID(
-                myNativeModuleClass, "querySynchronous", "(ILjava/lang/String;Ljava/lang/String;)Lcom/facebook/react/bridge/WritableArray;"
+        jmethodID getConnectionMethod = env->GetMethodID(
+                myNativeModuleClass,
+                "getSQLiteConnection",  // Method name in Kotlin
+                "(I)J"
         );
 
-        jstring jTable = env->NewStringUTF(tableStr.c_str());
-        jstring jQuery = env->NewStringUTF(queryStr.c_str());
+        jmethodID releaseConnectionMethod = env->GetMethodID(
+                myNativeModuleClass,
+                "releaseSQLiteConnection",  // Method name in Kotlin
+                "(I)V"
+        );
 
-        // Call the Kotlin instance method via JNI on `bridge_`
-        jobject resultArray = env->CallObjectMethod(bridge_, querySynchronousMethod, jTag, jTable, jQuery);
+        SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(env->CallLongMethod(bridge_, getConnectionMethod, jTag));
 
-        // Cleanup JNI references
-        env->DeleteLocalRef(jTable);
-        env->DeleteLocalRef(jQuery);
+        sqlite3* db = connection->db;
 
-        // Convert the result (jobject) to a JSI-compatible value
-        return convertWritableArrayToJSIArray(*runtime_, env, resultArray);
+        const std::lock_guard<std::mutex> lock(mutex_);
+
+        auto statement = getStmt(*runtime_, db, query.utf8(*runtime_), jsi::Array(*runtime_, 0));
+
+        std::vector<jsi::Value> records = {};
+
+        while (true) {
+            if (getNextRowOrTrue(*runtime_, statement.stmt)) {
+                break;
+            }
+
+            assert(std::string(sqlite3_column_name(statement.stmt, 0)) == "id");
+
+            const char *id = (const char *)sqlite3_column_text(statement.stmt, 0);
+
+            if (!id) {
+                throw jsi::JSError(*runtime_, "Failed to get ID of a record");
+            }
+
+            jstring jId = env->NewStringUTF(id);
+            jstring jTable = env->NewStringUTF(tableStr.c_str());
+
+            jmethodID isCachedMethod = env->GetMethodID(
+                    myNativeModuleClass,
+                    "isCached",  // Method name in Kotlin
+                    "(ILjava/lang/String;Ljava/lang/String;)Z");
+
+            bool isCached = env->CallBooleanMethod(bridge_, isCachedMethod, jTag, jTable, jId);
+
+            if (isCached) {
+                jsi::String jsiId = jsi::String::createFromAscii(*runtime_, id);
+                records.push_back(std::move(jsiId));
+            } else {
+                jmethodID markAsCachedMethod = env->GetMethodID(
+                        myNativeModuleClass,
+                        "markAsCached",
+                        "(ILjava/lang/String;Ljava/lang/String;)V");
+
+                env->CallVoidMethod(bridge_, markAsCachedMethod, jTag, jTable, jId);
+                jsi::Object record = resultDictionary(*runtime_, statement.stmt);
+                records.push_back(std::move(record));
+            }
+
+            env->DeleteLocalRef(jId);
+            env->DeleteLocalRef(jTable);
+        }
+
+        env->CallVoidMethod(bridge_, releaseConnectionMethod, jTag);
+
+        return arrayFromStd(*runtime_, records);
     }
 
     void JSIAndroidBridge::install(jsi::Runtime *runtime, jobject bridge) {

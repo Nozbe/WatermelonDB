@@ -9,6 +9,7 @@
 #ifndef JSISwiftWrapper_h
 #define JSISwiftWrapper_h
 
+#include <mutex>
 #import <jsi/jsi.h>
 #import <React/RCTBridge+Private.h>
 #import <React/RCTBridgeModule.h>
@@ -31,9 +32,10 @@ public:
     
 private:
     DatabaseBridge *databaseBridge_;
-
-    jsi::Runtime *runtime_; // TODO: std::shared_ptr would be better, but I don't know how to make it from void* in RCTCxxBridge
     
+    std::mutex mutex_;
+    
+    jsi::Runtime *runtime_; // TODO: std::shared_ptr would be better, but I don't know how to make it from void* in RCTCxxBridge
 };
 
 } // namespace watermelondb

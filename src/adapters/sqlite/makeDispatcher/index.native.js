@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable global-require */
 
-import { NativeModules, Platform } from 'react-native'
+import { NativeModules } from 'react-native'
 import { fromPairs } from 'rambdax'
 
 import { type ConnectionTag, logger, invariant } from '../../../utils/common'
@@ -86,7 +86,7 @@ export const makeDispatcher = (
           try {
             const returnValue = global.WatermelonDB[methodName](tag, ...otherArgs)
 
-            callback(syncReturnToResult(Platform.OS === 'ios' ? returnValue : {
+            callback(syncReturnToResult({
               status: 'success',
               result: returnValue
             }))
