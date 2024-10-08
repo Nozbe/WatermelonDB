@@ -56,6 +56,10 @@ public class Database {
         }
     }
     
+    func getRawPointer() -> OpaquePointer {
+        return OpaquePointer(fmdb.sqliteHandle)
+    }
+    
     func setUpdateHook(withCallback callback: @escaping (UnsafeMutableRawPointer?, Int32, UnsafePointer<Int8>?, UnsafePointer<Int8>?, Int64) -> Void) {
         self.updateHookCallback = callback
         

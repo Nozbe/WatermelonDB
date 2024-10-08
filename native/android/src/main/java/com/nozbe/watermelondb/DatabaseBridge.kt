@@ -245,6 +245,39 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
     fun enableNativeCDC(tag: ConnectionTag, promise: Promise) =
         withDriver(tag, promise) { it.setUpdateHook(sqliteUpdateHook) }
 
+    fun getSQLiteConnection(tag: ConnectionTag): Long {
+        val driver = getDriver(tag)
+
+        return driver.getDatabase().acquireSqliteConnection()
+    }
+
+    fun releaseSQLiteConnection(tag: ConnectionTag) {
+        val driver = getDriver(tag)
+
+        driver.getDatabase().releaseSQLiteConnection()
+    }
+
+    fun isCached(tag: ConnectionTag, table: TableName, id: RecordID): Boolean {
+        val driver = getDriver(tag)
+
+        return driver.isCached(table, id)
+    }
+
+    fun markAsCached(tag: ConnectionTag, table: TableName, id: RecordID) {
+        val driver = getDriver(tag)
+
+        return driver.markAsCached(table, id)
+    }
+
+    private fun getDriver(tag: ConnectionTag): DatabaseDriver {
+        val connection = connections[tag] ?: throw Exception("No driver with tag $tag available")
+
+        return when (connection) {
+            is Connection.Connected -> connection.driver
+            is Connection.Waiting -> throw Exception("Driver with tag $tag is not ready")
+        }
+    }
+
     @Throws(Exception::class)
     private fun withDriverSynchronous(
         tag: ConnectionTag,

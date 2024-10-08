@@ -37,6 +37,33 @@ final public class DatabaseBridge: RCTEventEmitter {
         hasListeners = false
     }
     
+    @objc
+    public func getRawConnection(connectionTag: ConnectionTag) -> OpaquePointer? {
+        guard let connection = connections[connectionTag.intValue], case let .connected(driver, synchronous: true) = connection else {
+            return nil
+        }
+        
+        return driver.database.getRawPointer()
+    }
+    
+    @objc
+    public func isCached(connectionTag: ConnectionTag, table: String, id: String) -> Bool {
+        guard let connection = connections[connectionTag.intValue], case let .connected(driver, synchronous: true) = connection else {
+            return false
+        }
+        
+        return driver.isCached(table, id);
+    }
+    
+    @objc
+    public func markAsCached(connectionTag: ConnectionTag, table: String, id: String) {
+        guard let connection = connections[connectionTag.intValue], case let .connected(driver, synchronous: true) = connection else {
+            return
+        }
+        
+        driver.markAsCached(table, id)
+    }
+    
     private enum Connection {
         case connected(driver: DatabaseDriver, synchronous: Bool)
         case waiting(queue: [() -> Void])

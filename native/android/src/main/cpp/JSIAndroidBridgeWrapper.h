@@ -7,6 +7,7 @@
 
 #include <jni.h>
 #include <jsi/jsi.h>
+#import <mutex>
 
 using namespace facebook;
 
@@ -24,6 +25,8 @@ namespace watermelondb {
         jsi::Value execSqlQuery(const jsi::Value &tag, const jsi::String &sql, const jsi::Array &arguments);
 
     private:
+        std::mutex mutex_;
+
         jobject bridge_;
 
         jsi::Runtime *runtime_;
