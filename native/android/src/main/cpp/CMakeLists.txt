@@ -37,7 +37,6 @@ add_library(watermelondb-jsi-android-bridge SHARED
         ../../../../shared/DatabaseUtils.cpp
         ../../../../../../../react-native/ReactCommon/jsi/jsi/jsi.cpp
         # List C/C++ source files with relative paths to this CMakeLists.txt.
-        JSIUtils.cpp
         JSIAndroidBridgeWrapper.cpp
         JSIAndroidBridgeInstaller.cpp)
 
