@@ -208,7 +208,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   }
 
   enableHybridJSI(): void {
-    this.dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName, true)
+    this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName, true)
   }
 
   query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void {
