@@ -31,6 +31,8 @@ declare module '@BuildHero/watermelondb/adapters/sqlite' {
 
     constructor(options: SQLiteAdapterOptions)
 
+    enableHybridJSI(): void
+
     batch(operations: BatchOperation[]): Promise<void>
 
     count<T extends Model>(query: Query<T>): Promise<number>

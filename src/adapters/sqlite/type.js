@@ -19,7 +19,6 @@ export type SQLiteAdapterOptions = $Exact<{
   migrations?: SchemaMigrations,
   synchronous?: boolean,
   experimentalUseJSI?: boolean, // don't use this one, its fake
-  useHybridJSI?: boolean,
   onReady?: () => void
 }>
 

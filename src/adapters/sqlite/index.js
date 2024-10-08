@@ -75,7 +75,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     this._dbName = this._getName(dbName)
 
     this._dispatcherType = getDispatcherType(options)
-    this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName, options.useHybridJSI)
+    this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName)
 
     if (process.env.NODE_ENV !== 'production') {
       invariant(
@@ -205,6 +205,10 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
         mapValue(rawRecord => sanitizeFindResult(rawRecord, this.schema.tables[table]), result),
       ),
     )
+  }
+
+  enableHybridJSI(): void {
+    this.dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName, true)
   }
 
   query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void {

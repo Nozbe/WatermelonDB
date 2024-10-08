@@ -142,7 +142,7 @@ const buildTasks = options => {
     {
       title: 'publish package',
       task: () =>
-        execa('yarn', ['publish', '--tag', tag], { cwd: './dist' }),
+        execa('yarn', ['publish', '--tag', tag, '--network-timeout', 600000], { cwd: './dist' }),
     },
     {
       title: 'push and tag',
