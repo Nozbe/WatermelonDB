@@ -5,6 +5,9 @@
 #include "DatabaseUtils.h"
 #include <string>
 #include <sqlite3.h>
+#include <android/log.h>
+
+#define LOG_TAG "watermelondb.jsi"
 
 using namespace watermelondb;
 
@@ -29,6 +32,24 @@ struct SQLiteConnection {
 };
 
 namespace watermelondb {
+    namespace platform {
+        void consoleLog(std::string message) {
+            __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "%s\n", message.c_str());
+        }
+
+        void consoleError(std::string message) {
+            __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "%s\n", message.c_str());
+        }
+
+        void initializeSqlite() {
+            // Nothing to do
+        }
+
+        std::string resolveDatabasePath(std::string path) {
+            return std::string();
+        }
+    }
+
     static JavaVM *jvm;
 
     JSIAndroidBridge::JSIAndroidBridge(jsi::Runtime *runtime, jobject bridge)
