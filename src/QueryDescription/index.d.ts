@@ -127,7 +127,8 @@ declare module '@BuildHero/watermelondb/QueryDescription' {
   export function sanitizeLikeString(value: string): string
   export function unsafeSqlQuery(value: string): SqlQuery
   export function asUnsafeSql(value: string): SqlCTE
-
+  export function unsafeSqlExpr(sql: string): any
+  
   type _OnFunctionColumnValue = (table: TableName<any>, column: ColumnName, value: Value) => On
   type _OnFunctionColumnComparison = (
     table: TableName<any>,
