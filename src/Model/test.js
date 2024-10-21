@@ -426,10 +426,10 @@ describe('Safety features', () => {
 
       await expectToRejectWithMessage(
         model.update(() => {}),
-        'with pending changes',
+        `with pending changes for model MockModel, Raw Data: {"id":"${model._raw.id}"`,
       )
-      await expectToRejectWithMessage(model.markAsDeleted(), 'with pending changes')
-      await expectToRejectWithMessage(model.destroyPermanently(), 'with pending changes')
+      await expectToRejectWithMessage(model.markAsDeleted(), `with pending changes as deleted for model MockModel, Raw Data: {"id":"${model._raw.id}"`)
+      await expectToRejectWithMessage(model.destroyPermanently(), `with pending changes for model MockModel, Raw Data: {"id":"${model._raw.id}"`)
       expect(() => model.observe()).toThrow('uncommitted')
       await db.batch(model)
     })
