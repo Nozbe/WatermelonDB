@@ -365,6 +365,34 @@ Follow [instructions on React Native Windows website](https://microsoft.github.i
 
 </details>
 
+## Expo setup
+
+The following steps are required to use WatermelonDB with Expo:
+
+1. Install the Babel plugin for decorators:
+
+   ```sh
+   expo install @babel/plugin-proposal-decorators
+   ```
+
+2. Add the plugin to your `babel.config.js` file:
+
+   ```js
+   module.exports = (api) => {
+    api.cache(true);
+
+    return {
+      presets: [['babel-preset-expo'], 'nativewind/babel'],
+
+      plugins: [['@babel/plugin-proposal-decorators', { legacy: true }]],
+    };
+   };
+   ```
+
+3. Run `expo prebuild` to ensure the plugin is included in the build.
+
+4. Run the app using `expo start`.
+
 ## NodeJS (SQLite) setup
 
 You only need this if you want to use WatermelonDB in NodeJS with SQLite (e.g. for scripts that share code with your web/React Native app)
