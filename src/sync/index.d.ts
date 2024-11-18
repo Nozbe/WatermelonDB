@@ -7,7 +7,7 @@ declare module '@BuildHero/watermelondb/sync' {
     updated: DirtyRaw[]
     deleted: RecordId[]
   }
-  export type SyncDatabaseChangeSet = { [table: string]: SyncTableChangeSet }
+  export type SyncDatabaseChangeSet = Map<string, SyncTableChangeSet>
 
   export type SyncLocalChanges = { changes: SyncDatabaseChangeSet; affectedRecords: Model[] }
 

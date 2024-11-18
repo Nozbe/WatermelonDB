@@ -25,7 +25,7 @@ export type SyncTableChangeSet = $Exact<{
   updated: DirtyRaw[],
   deleted: RecordId[],
 }>
-export type SyncDatabaseChangeSet = $Exact<{ [TableName<any>]: SyncTableChangeSet }>
+export type SyncDatabaseChangeSet = Map<String, SyncTableChangeSet>
 
 export type SyncLocalChanges = $Exact<{ changes: SyncDatabaseChangeSet, affectedRecords: Model[] }>
 

@@ -117,7 +117,8 @@ export function ensureSameDatabase(database: Database, initialResetCount: number
   )
 }
 
-export const isChangeSetEmpty: SyncDatabaseChangeSet => boolean = pipe(
-  values,
-  all(({ created, updated, deleted }) => created.length + updated.length + deleted.length === 0),
-)
+export function isChangeSetEmpty(changeSet: Map): boolean = {
+  return Array.from(changeSet.values()).every((tableChangeSet) => {
+    return tableChangeSet.created.length === 0 && tableChangeSet.updated.length === 0 && tableChangeSet.deleted.length === 0;
+  })
+}

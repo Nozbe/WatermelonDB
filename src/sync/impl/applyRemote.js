@@ -166,27 +166,36 @@ type AllRecordsToApply = { [TableName<any>]: RecordsToApplyRemoteChangesTo<Model
 
 const getAllRecordsToApply = (
   db: Database,
-  remoteChanges: SyncDatabaseChangeSet,
-): AllRecordsToApply =>
-  piped(
-    remoteChanges,
-    // $FlowFixMe
-    filter((_changes, tableName: TableName<any>) => {
-      const collection = db.get((tableName: any))
+  remoteChanges: Map<string, SyncTableChangeSet>,
+): Promise<Map<string, any>> => {
+  const promises = Array.from(remoteChanges.entries()).map(
+    async ([tableName, changes]) => {
+      const collection = db.get(tableName as TableName<any>);
 
       if (!collection) {
         logger.warn(
-          `You are trying to sync a collection named ${tableName}, but it does not exist. Will skip it (for forward-compatibility). If this is unexpected, perhaps you forgot to add it to your Database constructor's modelClasses property?`,
-        )
+          `Skipping collection ${tableName} as it does not exist in the database.`
+        );
+        return [tableName, null]; // Skip missing collections
       }
 
-      return !!collection
-    }),
-    map((changes, tableName: TableName<any>) => {
-      return recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes)
-    }),
-    promiseAllObject,
-  )
+      const result = await recordsToApplyRemoteChangesTo(collection, changes);
+      return [tableName, result];
+    }
+  );
+
+  return Promise.all(promises).then(entries => {
+    const results = new Map<string, any>();
+    
+    entries.forEach(([tableName, result]) => {
+      if (result !== null) {
+        results.set(tableName, result);
+      }
+    });
+
+    return results;
+  });
+};
 
 const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> =>
   piped(
