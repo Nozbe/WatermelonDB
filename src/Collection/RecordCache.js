@@ -17,9 +17,14 @@ export default class RecordCache<Record: Model> {
 
   recordInsantiator: Instantiator<Record>
 
-  constructor(tableName: TableName<Record>, recordInsantiator: Instantiator<Record>): void {
+  constructor(
+    tableName: TableName<Record>, 
+    recordInsantiator: Instantiator<Record>,
+    queryFunc: (recordId) => void,
+  ): void {
     this.tableName = tableName
     this.recordInsantiator = recordInsantiator
+    this.queryFunc = queryFunc
   }
 
   get(id: RecordId): ?Record {
@@ -53,10 +58,24 @@ export default class RecordCache<Record: Model> {
   _cachedModelForId(id: RecordId): Record {
     const record = this.map.get(id)
 
-    invariant(
-      record,
-      `Record ID ${this.tableName}#${id} was sent over the bridge, but it's not cached`,
-    )
+    if (!record && !this.queryFunc) {
+      invariant(
+        record,
+        `Record ID ${this.tableName}#${id} was sent over the bridge, but it's not cached`,
+      )
+    }
+
+    if (!record && this.queryFunc) {
+      const data = this.queryFunc(id)
+
+      if (!data) {
+        logError(`Record ID ${this.tableName}#${id} was sent over the bridge, but not found`)
+
+        return null
+      }
+      
+      return this._modelForRaw(data)
+    }
 
     return record
   }

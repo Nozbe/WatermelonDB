@@ -60,6 +60,8 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   _initPromise: Promise<void>
 
+  _hybridJSIEnabled: boolean = false
+
   constructor(options: SQLiteAdapterOptions): void {
     const dispatcher = require('./makeDispatcher')
     
@@ -209,6 +211,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   enableHybridJSI(): void {
     this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName, true)
+    this._hybridJSIEnabled = true
   }
 
   query(query: SerializedQuery, callback: ResultCallback<CachedQueryResult>): void {
