@@ -20,6 +20,7 @@ import encodeQuery from '../adapters/sqlite/encodeQuery'
 import { mapToGraph } from './helpers'
 
 type CollectionChangeType = 'created' | 'updated' | 'destroyed'
+
 export type CollectionChange<Record: Model> = { record: Record, type: CollectionChangeType }
 export type CollectionChangeSet<T> = CollectionChange<T>[]
 
@@ -37,8 +38,29 @@ export default class Collection<Record: Model> {
   constructor(database: Database, ModelClass: Class<Record>): void {
     this.database = database
     this.modelClass = ModelClass
-    this._cache = new RecordCache(ModelClass.table, raw => new ModelClass(this, raw))
+    this._cache = new RecordCache(
+      ModelClass.table, 
+      raw => new ModelClass(this, raw),
+      this._onCacheMiss.bind(this),
+    )
   }
+
+  _onCacheMiss(id: RecordId): Record {
+    const hasHybridJSI = this.database.adapter?.underlyingAdapter?._hybridJSIEnabled
+    const tag = this.database.adapter?.underlyingAdapter?._tag
+
+    if (!hasHybridJSI) {
+      invariant(
+        id,
+        `Record ID ${this.table}#${id} was sent over the bridge, but it's not cached`,
+      )
+    }
+
+    logger.log(`Record ID ${this.table}#${id} was sent over the bridge, but it's not cached. Refetching...`)
+
+    return global.WatermelonDB.execSqlQuery(tag, `SELECT * FROM ${this.table} WHERE id = ? LIMIT 1`, [id])?.[0]
+  }
+
 
   get db(): Database {
     return this.database
