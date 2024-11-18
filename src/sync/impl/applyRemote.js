@@ -167,7 +167,7 @@ type AllRecordsToApply = { [TableName<any>]: RecordsToApplyRemoteChangesTo<Model
 const getAllRecordsToApply = (
   db: Database,
   remoteChanges: Map<string, SyncTableChangeSet>,
-): Promise<Map<string, any>> => {
+): AllRecordsToApply => {
   const promises = Array.from(remoteChanges.entries()).map(
     async ([tableName, changes]) => {
       const collection = db.get(tableName);
@@ -179,22 +179,15 @@ const getAllRecordsToApply = (
         return [tableName, null]; // Skip missing collections
       }
 
-      const result = await recordsToApplyRemoteChangesTo(collection, changes);
-      return [tableName, result];
+      return await recordsToApplyRemoteChangesTo(collection, changes);
     }
   );
 
-  return Promise.all(promises).then(entries => {
-    const results = new Map<string, any>();
-    
-    entries.forEach(([tableName, result]) => {
-      if (result !== null) {
-        results.set(tableName, result);
-      }
-    });
-
-    return results;
-  });
+  return piped(
+    promises,
+    promiseAllObject,
+    filter(([, recordsToApply]) => !!recordsToApply)
+  );
 };
 
 const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> =>
