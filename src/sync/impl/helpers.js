@@ -117,7 +117,7 @@ export function ensureSameDatabase(database: Database, initialResetCount: number
   )
 }
 
-export function isChangeSetEmpty(changeSet: Map): boolean = {
+export function isChangeSetEmpty(changeSet: Map): boolean {
   return Array.from(changeSet.values()).every((tableChangeSet) => {
     return tableChangeSet.created.length === 0 && tableChangeSet.updated.length === 0 && tableChangeSet.deleted.length === 0;
   })

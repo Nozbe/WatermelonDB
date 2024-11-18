@@ -170,7 +170,7 @@ const getAllRecordsToApply = (
 ): Promise<Map<string, any>> => {
   const promises = Array.from(remoteChanges.entries()).map(
     async ([tableName, changes]) => {
-      const collection = db.get(tableName as TableName<any>);
+      const collection = db.get(tableName);
 
       if (!collection) {
         logger.warn(
