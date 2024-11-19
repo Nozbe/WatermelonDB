@@ -171,7 +171,7 @@ const getAllRecordsToApply = (
   const promises = [] 
   
   for (const [tableName, changes] of remoteChanges.entries()) {
-    const collection = (db as any).get(tableName)
+    const collection = db.get(tableName)
 
     if (!collection) {
       logger.warn(
