@@ -111,8 +111,8 @@ The result is fully reactive! Whenever a post or comment is added, changed, or r
 
 ## Who uses WatermelonDB
 
-  <a href="https://nozbe.com/teams/">
-    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/nozbe-teams.png" alt="Nozbe Teams" width="300" />
+  <a href="https://nozbe.com/?c=watermelon">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/nozbe.png" alt="Nozbe Teams" width="300" />
   </a>
 
   <br/>
@@ -185,6 +185,12 @@ The result is fully reactive! Whenever a post or comment is added, changed, or r
 
   <a href="https://dayful.app/">
     <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/dayful.png" alt="Dayful" width="300" />
+  </a>
+
+  <br/>
+
+  <a href="https://learnthewords.app/">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/learn-the-words.png" alt="Learn The Words" width="300" />
   </a>
 
   <br/>
