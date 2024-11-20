@@ -99,11 +99,6 @@ export default class Database {
           return
         }
 
-        /* invariant(
-          !record._isCommitted || record._hasPendingUpdate || record._hasPendingDelete,
-          `Cannot batch a record that doesn't have a prepared create or prepared update`,
-        ) */
-
         const raw = record._raw
         const { id } = raw // faster than Model.id
         const { table } = record.constructor // faster than Model.table

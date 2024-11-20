@@ -162,31 +162,35 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   return recordsToBatch
 }
 
-type AllRecordsToApply = { [TableName<any>]: RecordsToApplyRemoteChangesTo<Model> }
+type AllRecordsToApply = Map<string, RecordsToApplyRemoteChangesTo<Model>>
 
 const getAllRecordsToApply = (
   db: Database,
-  remoteChanges: SyncDatabaseChangeSet,
-): AllRecordsToApply =>
-  piped(
-    remoteChanges,
-    // $FlowFixMe
-    filter((_changes, tableName: TableName<any>) => {
-      const collection = db.get((tableName: any))
+  remoteChanges: Map<string, SyncTableChangeSet>,
+): Promise<AllRecordsToApply> => {
+  const promises = [] 
+  
+  for (const [tableName, changes] of remoteChanges.entries()) {
+    const collection = db.get(tableName)
 
-      if (!collection) {
-        logger.warn(
-          `You are trying to sync a collection named ${tableName}, but it does not exist. Will skip it (for forward-compatibility). If this is unexpected, perhaps you forgot to add it to your Database constructor's modelClasses property?`,
-        )
-      }
+    if (!collection) {
+      logger.warn(
+        `Skipping collection ${tableName} as it does not exist in the database.`
+      )
 
-      return !!collection
-    }),
-    map((changes, tableName: TableName<any>) => {
-      return recordsToApplyRemoteChangesTo(db.get((tableName: any)), changes)
-    }),
-    promiseAllObject,
-  )
+      continue // Skip missing collections
+    }
+
+    promises.push(
+      recordsToApplyRemoteChangesTo(collection, changes).then((records) => [
+        tableName,
+        records
+      ])
+    )
+  }
+
+  return Promise.all(promises).then((results) => new Map(results))
+}
 
 const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> =>
   piped(
@@ -199,27 +203,30 @@ const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToAppl
     promiseAllObject,
   )
 
-const prepareApplyAllRemoteChanges = (
-  db: Database,
-  recordsToApply: AllRecordsToApply,
-  sendCreatedAsUpdated: boolean,
-  log?: SyncLog,
-  conflictResolver?: SyncConflictResolver,
-): Model[] =>
-  piped(
-    recordsToApply,
-    map((records, tableName: TableName<any>) =>
-      prepareApplyRemoteChangesToCollection(
-        db.get((tableName: any)),
+  const prepareApplyAllRemoteChanges = (
+    db: Database,
+    recordsToApply: AllRecordsToApply,
+    sendCreatedAsUpdated: boolean,
+    log?: SyncLog,
+    conflictResolver?: SyncConflictResolver
+  ): Model[] => {
+    const result: Model[] = []
+  
+    for (const [tableName, records] of recordsToApply.entries()) {
+      const collection = db.collections.get(tableName)
+      const preparedChanges = prepareApplyRemoteChangesToCollection(
+        collection,
         records,
         sendCreatedAsUpdated,
         log,
-        conflictResolver,
-      ),
-    ),
-    values,
-    unnest,
-  )
+        conflictResolver
+      )
+  
+      result.push(...preparedChanges)
+    }
+  
+    return result
+  }
 
 // See _unsafeBatchPerCollection - temporary fix
 const unsafeBatchesWithRecordsToApply = (
