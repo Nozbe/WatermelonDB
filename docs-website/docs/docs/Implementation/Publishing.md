@@ -30,29 +30,3 @@ npm run release --skip-checks
 ```
 
 Don't use `yarn release` (or `yarn publish`) — it won't work (yarn doesn't support NPM 2FA).
-
-### Step 5: Update demo/example code
-
-```bash
-cd examples/native
-yarn upgrade-interactive --latest
-yarn dev
-yarn start:ios
-yarn start:android
-```
-
-web:
-
-```bash
-cd ../web
-yarn upgrade-interactive --latest
-yarn dev
-# check out if web works
-```
-
-Then deploy updated web demo:
-
-```bash
-now
-now alias watermelondb-xxxxxxxxx.now.sh watermelondb
-```
