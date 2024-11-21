@@ -1,13 +1,13 @@
 {
   "name": "hermes-engine",
-  "version": "0.73.9",
+  "version": "0.73.11",
   "summary": "Hermes is a small and lightweight JavaScript engine optimized for running React Native.",
   "description": "Hermes is a JavaScript engine optimized for fast start-up of React Native apps. It features ahead-of-time static optimization and compact bytecode.",
   "homepage": "https://hermesengine.dev",
   "license": "MIT",
   "authors": "Facebook",
   "source": {
-    "http": "https://repo1.maven.org/maven2/com/facebook/react/react-native-artifacts/0.73.9/react-native-artifacts-0.73.9-hermes-ios-debug.tar.gz"
+    "http": "https://repo1.maven.org/maven2/com/facebook/react/react-native-artifacts/0.73.11/react-native-artifacts-0.73.11-hermes-ios-debug.tar.gz"
   },
   "platforms": {
     "osx": "10.13",
@@ -28,7 +28,7 @@
   "script_phases": {
     "name": "[Hermes] Replace Hermes for the right configuration, if needed",
     "execution_position": "before_compile",
-    "script": "        . \"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\n\n        CONFIG=\"Release\"\n        if echo $GCC_PREPROCESSOR_DEFINITIONS | grep -q \"DEBUG=1\"; then\n          CONFIG=\"Debug\"\n        fi\n\n        \"$NODE_BINARY\" \"$REACT_NATIVE_PATH/sdks/hermes-engine/utils/replace_hermes_version.js\" -c \"$CONFIG\" -r \"0.73.9\" -p \"$PODS_ROOT\"\n"
+    "script": "        . \"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\n\n        CONFIG=\"Release\"\n        if echo $GCC_PREPROCESSOR_DEFINITIONS | grep -q \"DEBUG=1\"; then\n          CONFIG=\"Debug\"\n        fi\n\n        \"$NODE_BINARY\" \"$REACT_NATIVE_PATH/sdks/hermes-engine/utils/replace_hermes_version.js\" -c \"$CONFIG\" -r \"0.73.11\" -p \"$PODS_ROOT\"\n"
   },
   "subspecs": [
     {
