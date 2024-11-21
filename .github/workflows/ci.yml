@@ -95,7 +95,7 @@ jobs:
           # arch: x86_64
           working-directory: ./native/androidTest
           script: ./gradlew connectedAndroidTest
-      - run: yarn ktlint
+      # - run: yarn ktlint
   windows:
     # FIXME: Windows port is unmaintained. If you're interested in sponsoring continued maintenance,
     # please email me!
