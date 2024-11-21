@@ -1,1 +1,1 @@
-../../../../../../../node_modules/react-native/ReactCommon/hermes/inspector/InspectorState.h
+../../../../../../../node_modules/react-native/ReactCommon/hermes/inspector-modern/InspectorState.h

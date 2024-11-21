@@ -1,0 +1,94 @@
+{
+  "name": "React-RCTFabric",
+  "version": "0.73.11",
+  "summary": "RCTFabric for React Native.",
+  "homepage": "https://reactnative.dev/",
+  "license": "MIT",
+  "authors": "Meta Platforms, Inc. and its affiliates",
+  "platforms": {
+    "ios": "13.4"
+  },
+  "source": {
+    "git": "https://github.com/facebook/react-native.git",
+    "tag": "v0.73.11"
+  },
+  "source_files": "Fabric/**/*.{c,h,m,mm,S,cpp}",
+  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation",
+  "exclude_files": [
+    "**/tests/*",
+    "**/android/*",
+    "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation"
+  ],
+  "header_dir": "React",
+  "module_name": "RCTFabric",
+  "frameworks": [
+    "JavaScriptCore",
+    "MobileCoreServices"
+  ],
+  "pod_target_xcconfig": {
+    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/fmt/include\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/Headers/Private/React-Core\" \"$(PODS_ROOT)/Headers/Private/Yoga\" \"$(PODS_ROOT)/Headers/Public/React-Codegen\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-FabricImage/React_FabricImage.framework/Headers\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/textlayoutmanager/platform/ios\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/textinput/iostextinput\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/imagemanager/platform/ios\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-nativeconfig/React_nativeconfig.framework/Headers\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-ImageManager/React_ImageManager.framework/Headers\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-debug/React_debug.framework/Headers\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-utils/React_utils.framework/Headers\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-rendererdebug/React_rendererdebug.framework/Headers\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-runtimescheduler/React_runtimescheduler.framework/Headers\"",
+    "OTHER_CFLAGS": "$(inherited) -DRN_FABRIC_ENABLED -DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1",
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++20"
+  },
+  "dependencies": {
+    "React-Core": [
+
+    ],
+    "React-RCTImage": [
+
+    ],
+    "RCT-Folly/Fabric": [
+      "2022.05.16.00"
+    ],
+    "glog": [
+
+    ],
+    "Yoga": [
+
+    ],
+    "React-RCTText": [
+
+    ],
+    "React-jsi": [
+
+    ],
+    "React-FabricImage": [
+
+    ],
+    "React-Fabric": [
+
+    ],
+    "React-nativeconfig": [
+
+    ],
+    "React-graphics": [
+
+    ],
+    "React-ImageManager": [
+
+    ],
+    "React-debug": [
+
+    ],
+    "React-utils": [
+
+    ],
+    "React-rendererdebug": [
+
+    ],
+    "React-runtimescheduler": [
+
+    ],
+    "hermes-engine": [
+
+    ]
+  },
+  "testspecs": [
+    {
+      "name": "Tests",
+      "test_type": "unit",
+      "source_files": "Tests/**/*.{mm}",
+      "frameworks": "XCTest"
+    }
+  ]
+}

@@ -11,6 +11,7 @@
 #endif
 
 #import "ReactCommon/RCTBlockGuard.h"
+#import "ReactCommon/RCTInteropTurboModule.h"
 #import "ReactCommon/RCTTurboModule.h"
 #import "ReactCommon/RCTTurboModuleManager.h"
 

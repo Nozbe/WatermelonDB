@@ -1,30 +1,34 @@
 {
   "name": "hermes-engine",
-  "version": "0.72.15",
+  "version": "0.73.11",
   "summary": "Hermes is a small and lightweight JavaScript engine optimized for running React Native.",
   "description": "Hermes is a JavaScript engine optimized for fast start-up of React Native apps. It features ahead-of-time static optimization and compact bytecode.",
   "homepage": "https://hermesengine.dev",
   "license": "MIT",
   "authors": "Facebook",
   "source": {
-    "http": "https://repo1.maven.org/maven2/com/facebook/react/react-native-artifacts/0.72.15/react-native-artifacts-0.72.15-hermes-ios-debug.tar.gz"
+    "http": "https://repo1.maven.org/maven2/com/facebook/react/react-native-artifacts/0.73.11/react-native-artifacts-0.73.11-hermes-ios-debug.tar.gz"
   },
   "platforms": {
     "osx": "10.13",
-    "ios": "12.4"
+    "ios": "13.4"
   },
   "preserve_paths": "**/*.*",
   "source_files": "",
   "pod_target_xcconfig": {
-    "CLANG_CXX_LANGUAGE_STANDARD": "c++17",
-    "CLANG_CXX_LIBRARY": "compiler-default",
-    "GCC_PREPROCESSOR_DEFINITIONS": "HERMES_ENABLE_DEBUGGER=1"
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++20",
+    "CLANG_CXX_LIBRARY": "compiler-default"
   },
   "ios": {
     "vendored_frameworks": "destroot/Library/Frameworks/ios/hermes.framework"
   },
   "osx": {
     "vendored_frameworks": "destroot/Library/Frameworks/macosx/hermes.framework"
+  },
+  "script_phases": {
+    "name": "[Hermes] Replace Hermes for the right configuration, if needed",
+    "execution_position": "before_compile",
+    "script": "        . \"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\n\n        CONFIG=\"Release\"\n        if echo $GCC_PREPROCESSOR_DEFINITIONS | grep -q \"DEBUG=1\"; then\n          CONFIG=\"Debug\"\n        fi\n\n        \"$NODE_BINARY\" \"$REACT_NATIVE_PATH/sdks/hermes-engine/utils/replace_hermes_version.js\" -c \"$CONFIG\" -r \"0.73.11\" -p \"$PODS_ROOT\"\n"
   },
   "subspecs": [
     {
@@ -33,11 +37,7 @@
         "destroot/bin/*",
         "**/*.{h,c,cpp}"
       ],
-      "source_files": "destroot/include/**/*.h",
-      "exclude_files": [
-        "destroot/include/jsi/jsi/JSIDynamic.{h,cpp}",
-        "destroot/include/jsi/jsi/jsilib-*.{h,cpp}"
-      ],
+      "source_files": "destroot/include/hermes/**/*.h",
       "header_mappings_dir": "destroot/include",
       "ios": {
         "vendored_frameworks": "destroot/Library/Frameworks/universal/hermes.xcframework"

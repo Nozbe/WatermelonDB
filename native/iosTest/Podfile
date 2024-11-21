@@ -62,10 +62,6 @@ post_install do |installer|
     '../../node_modules/react-native',
     mac_catalyst_enabled: false,
   )
-  # __apply_Xcode_12_5_M1_post_install_workaround(installer)
-
-  # wtf? https://github.com/facebook/react-native/issues/33178
-  system("sed -i -e $'s/_IPHONE_10_0/_IPHONE_17_0/' '#{installer.sandbox.root}/RCT-Folly/folly/portability/Time.h'") || raise
 
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
@@ -77,7 +73,10 @@ post_install do |installer|
       # you also have to be careful about PCHs
       # sometimes you might have to manually add a system framework to project Link phase
       # more info: https://pspdfkit.com/blog/2015/ccache-for-fun-and-profit/
-      config.build_settings['CC'] ||= ['$(SRCROOT)/../../../scripts/ccache-clang']
+
+      # TODO: Bring back CC
+      # config.build_settings['CC'] ||= ['$(SRCROOT)/../../../scripts/ccache-clang']
+
       # case target.name
       # when 'Nimble'
       #   config.build_settings['CLANG_ENABLE_MODULES'] ||= ['YES']

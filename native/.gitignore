@@ -27,6 +27,7 @@ ios/.xcode.env.local
 **/Pods/hermes-engine
 **/Pods/libevent
 **/Pods/Sentry
+**/Pods/hermes-engine-artifacts
 
 # Android/IntelliJ
 #

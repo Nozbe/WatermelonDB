@@ -1,1 +1,1 @@
-../../../../../../../node_modules/react-native/ReactCommon/hermes/inspector/chrome/MessageInterfaces.h
+../../../../../../../node_modules/react-native/ReactCommon/hermes/inspector-modern/chrome/MessageInterfaces.h

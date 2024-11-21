@@ -6,8 +6,13 @@
 <PROJECT_ROOT>/react-native-copy
 <PROJECT_ROOT>/src/**/*.ts
 .*/node_modules/react\-native/.*
+.*/node_modules/@react\-native/.*
 .*/node_modules/fbjs/**
 .*/node_modules/resolve/test/resolver/**
+.*/node_modules/metro\-config/.*
+.*/node_modules/metro\-config/.*
+.*/node_modules/hermes\-estree/.*
+.*/node_modules/metro/.*
 
 [libs]
 flow-typed/

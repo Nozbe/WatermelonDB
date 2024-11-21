@@ -1,22 +1,22 @@
 {
   "name": "React-rncore",
-  "version": "0.72.15",
+  "version": "0.73.11",
   "summary": "Fabric for React Native.",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
   "authors": "Meta Platforms, Inc. and its affiliates",
   "platforms": {
-    "ios": "12.4"
+    "ios": "13.4"
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.72.15"
+    "tag": "v0.73.11"
   },
   "source_files": "dummyFile.cpp",
   "pod_target_xcconfig": {
     "USE_HEADERMAP": "YES",
     "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)\" \"$(PODS_TARGET_SRCROOT)/ReactCommon\"",
-    "CLANG_CXX_LANGUAGE_STANDARD": "c++17"
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++20"
   },
   "prepare_command": "mkdir -p ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore && touch -a ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/ComponentDescriptors.h ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/EventEmitters.cpp ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/EventEmitters.h ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/Props.cpp ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/Props.h ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/States.cpp ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/States.h ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/RCTComponentViewHelpers.h ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/ShadowNodes.cpp ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/ShadowNodes.h",
   "script_phases": {
