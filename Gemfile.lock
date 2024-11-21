@@ -106,11 +106,12 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activesupport (>= 6.1.7.3, < 7.1.0)
+  activesupport (>= 6.1.7.5, < 7.1.0)
   cocoapods (>= 1.13, < 1.15)
   ethon!
   ffi (> 1.14.2)
   pry
+  xcodeproj (< 1.26.0)
 
 RUBY VERSION
    ruby 2.7.2p137
