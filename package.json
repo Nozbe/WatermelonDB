@@ -163,6 +163,7 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native": "0.73.9",
+    "@react-native/metro-config": "0.73.5",
     "react-native-windows": "0.72.36",
     "react-test-renderer": "18.3.1",
     "rimraf": "^4.1.2",
