@@ -1,3 +1,4 @@
+const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config')
 const exclusionList = require('metro-config/src/defaults/exclusionList')
 const fs = require('fs')
 const path = require('path')
@@ -6,7 +7,7 @@ const metroCache = require('metro-cache')
 
 const rnwPath = fs.realpathSync(
   path.resolve(require.resolve('react-native-windows/package.json'), '..'),
-);
+)
 
 const getBlockList = () => {
   const defaultPattern = exclusionList([
@@ -16,9 +17,7 @@ const getBlockList = () => {
     glob(`${path.resolve(__dirname, '..')}/example/*`),
     // This stops "react-native run-windows" from causing the metro server to crash if its already running
     // TODO: Shouldn't it be native/windowsTest?
-    new RegExp(
-      `${path.resolve(__dirname, 'windows').replace(/[/\\]/g, '/')}.*`,
-    ),
+    new RegExp(`${path.resolve(__dirname, 'windows').replace(/[/\\]/g, '/')}.*`),
     // This prevents "react-native run-windows" from hitting: EBUSY: resource busy or locked, open msbuild.ProjectImports.zip or other files produced by msbuild
     new RegExp(`${rnwPath}/build/.*`),
     new RegExp(`${rnwPath}/target/.*`),
@@ -62,4 +61,4 @@ const config = {
   ],
 }
 
-module.exports = config
+module.exports = mergeConfig(getDefaultConfig(__dirname), config)
