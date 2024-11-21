@@ -18,6 +18,10 @@
   <a href="https://www.npmjs.com/package/@nozbe/watermelondb">
     <img src="https://img.shields.io/npm/v/@nozbe/watermelondb.svg" alt="npm"/>
   </a>
+
+  <a href="https://gurubase.io/g/watermelondb">
+    <img src="https://img.shields.io/badge/Gurubase-Ask%20WatermelonDB%20Guru-006BFF" alt="Gurubase"/>
+  </a>
 </p>
 
 |   | WatermelonDB |
