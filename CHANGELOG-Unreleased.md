@@ -25,6 +25,7 @@
 - Update `better-sqlite3` to 11.x
 - Update sqlite (used by Android in JSI mode) to 3.46.0
 - [docs] Improved Android installation docs
+- [docs] Removed examples from the codebase as they were unmaintained
 
 ### Internal
 
