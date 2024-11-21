@@ -165,7 +165,6 @@
     "@react-native/babel-preset": "0.73.21",
     "@react-native/eslint-config": "0.73.2",
     "@react-native/typescript-config": "0.73.1",
-    "react-native-windows": "0.72.36",
     "react-test-renderer": "18.3.1",
     "rimraf": "^4.1.2",
     "semver": "^7.6.2",
