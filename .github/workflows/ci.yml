@@ -97,6 +97,9 @@ jobs:
           script: ./gradlew connectedAndroidTest
       - run: yarn ktlint
   windows:
+    # FIXME: Windows port is unmaintained. If you're interested in sponsoring continued maintenance,
+    # please email me!
+    if: false
     runs-on: windows-2022
     name: Windows tests
     steps:
