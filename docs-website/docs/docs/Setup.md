@@ -7,6 +7,8 @@ hide_title: true
 
 Make sure you [installed Watermelon](./Installation.mdx) before proceeding.
 
+## Common
+
 Create `model/schema.js` in your project. You'll need it for [the next step](./Schema.md).
 
 ```js
@@ -32,7 +34,9 @@ export default schemaMigrations({
 })
 ```
 
-Now, in your `index.native.js`:
+## React Native and Node.js (SQLite)
+
+Now, in your `index.native.js` (React Native) or `index.js` (Node.js):
 
 ```js
 import { Platform } from 'react-native'
@@ -68,7 +72,78 @@ const database = new Database({
 })
 ```
 
-The above will work on React Native (iOS/Android) and NodeJS. For the web, instead of `SQLiteAdapter` use `LokiJSAdapter`:
+## Electron (SQLite)
+Electron requires a little extra set up since we have to use IPC between our renderer and main processes to execute queries and return the response. However, if you'd like to use LokiJS instead of SQLite you can skip this section and go to the Web section below.
+
+Let's set things up on the renderer side first.
+
+```js
+import RemoteAdapter from '@nozbe/watermelondb/adapters/remote'
+import { Database } from '@nozbe/watermelondb'
+import schema from './model/schema'
+import migrations from './model/migrations'
+
+const electronAPI = window.electronAPI
+
+const adapter = new RemoteAdapter({
+  schema,
+  migrations,
+  handler: (op, args, callback) => {
+    electronAPI.handleAdapter({op, args}).then((res) => callback(res[0]))
+  }
+})
+
+const database = new Database({
+  adapter,
+  modelClasses: [
+    // Post, // ⬅️ You'll add Models to Watermelon here
+  ],
+})
+
+export default database
+```
+Whenever Watermelon needs to interact with the database, it will do so through the remote adapter which in turn sends queries to sqlite over the Electron IPC bridge via the handler callback. 
+
+Now that our renderer is all set, let's set up the other side in `main.js`:
+```js
+import SQLiteAdapter from "@nozbe/watermelondb/adapters/sqlite";
+import schema from './model/schema'; 
+import migrations from './model/migrations';
+
+mainWindow.webContents.on('did-finish-load', () => {
+  const adapter = new SQLiteAdapter({
+    schema,
+    migrations
+  })
+
+  async function handleAdapter(_, dispatch) {
+    return new Promise((res) => {
+      const { op, args } = dispatch;
+      adapter[op](...args, (...resp) => res(resp))
+    })
+  }
+  
+  ipcMain.removeHandler('db:handle')
+  ipcMain.handle('db:handle', handleAdapter)
+})
+```
+
+Above, we've set up the adapter that will actually interact with our SQLite database. When the renderer sends the `db:handle` event, the handleAdapter callback function will be invoked with the required arguments. It will then return a promise with the data the renderer wants.
+
+Note that we're re-instantiating the adapter inside a `'did-finish-load'` event handler. This ensures the cache maintained in the renderer and main is kept consistent during reloads (manually or due to HMR).
+
+We still need to expose this event to our renderer so in `preload.js` we'll add the following:
+```js
+import { contextBridge, ipcRenderer } from 'electron'
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  handleAdapter: (...args) => ipcRenderer.invoke('db:handle', ...args)
+})
+```
+
+## Web (LokiJS)
+
+This set up is suitable for web apps. 
 
 ```js
 import LokiJSAdapter from '@nozbe/watermelondb/adapters/lokijs'
