@@ -125,7 +125,7 @@ export default class Model {
   prepareUpdate(recordUpdater: (this) => void = noop): this {
     invariant(
       !this._preparedState,
-      `Cannot update a record with pending changes (${this.__debugName})`,
+      `Cannot update a record with pending changes for model ${this.constructor.name}, Raw Data: ${JSON.stringify(this._raw)} (${this.__debugName})`,
     )
     this.__ensureNotDisposable(`Model.prepareUpdate()`)
     this._isEditing = true
@@ -184,7 +184,7 @@ export default class Model {
   prepareMarkAsDeleted(): this {
     invariant(
       !this._preparedState,
-      `Cannot mark a record with pending changes as deleted (${this.__debugName})`,
+      `Cannot mark a record with pending changes as deleted for model ${this.constructor.name}, Raw Data: ${JSON.stringify(this._raw)} (${this.__debugName})`,
     )
     this.__ensureNotDisposable(`Model.prepareMarkAsDeleted()`)
     this._raw._status = 'deleted'
@@ -219,7 +219,7 @@ export default class Model {
   prepareDestroyPermanently(): this {
     invariant(
       !this._preparedState,
-      `Cannot destroy permanently record with pending changes (${this.__debugName})`,
+      `Cannot destroy permanently record with pending changes for model ${this.constructor.name}, Raw Data: ${JSON.stringify(this._raw)} (${this.__debugName})`,
     )
     this.__ensureNotDisposable(`Model.prepareDestroyPermanently()`)
     this._raw._status = 'deleted'
@@ -464,7 +464,7 @@ export default class Model {
     )
     invariant(
       !(this._getChanges(): $FlowFixMe<BehaviorSubject<any>>).isStopped &&
-        this._raw._status !== 'deleted',
+      this._raw._status !== 'deleted',
       `Not allowed to change deleted record ${this.__debugName}`,
     )
   }
