@@ -382,6 +382,26 @@ You only need this if you want to use WatermelonDB in NodeJS with SQLite (e.g. f
 
 ---
 
+## Electron (SQLite) setup
+
+You only need this if you want to use WatermelonDB in Electron with SQLite.
+
+1. Install [better-sqlite3](https://github.com/JoshuaWise/better-sqlite3) peer dependency
+
+   ```sh
+   yarn add --dev better-sqlite3
+
+   # (or with npm:)
+   npm install -D better-sqlite3
+   ```
+2. Run electron rebuild on sqlite3. This step is necessary to ensure the sqlite native build (.node) is compatible with Electron's version of Node.js. If you're using Electron Forge, this step will be performed for you during build **but not development**.
+
+  ```sh
+  npx electron-rebuild -f -w -t dev better-sqlite3
+  ```
+
+---
+
 ## Next steps
 
 ➡️ After Watermelon is installed, [**set it up**](./Setup.md)
