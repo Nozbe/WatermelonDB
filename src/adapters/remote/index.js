@@ -14,13 +14,10 @@ import type {
   UnsafeExecuteOperations,
 } from '../type'
 
-type RemoteHandler = (op: string, args: any[], callback: ResultCallback<any>) => void;
-
-type RemoteAdapterOptions = {
-    schema: AppSchema, 
-    migrations?: SchemaMigrations,
-    handler: RemoteHandler,
-}
+import type { 
+    RemoteHandler,
+    RemoteAdapterOptions
+} from './type'
 
 export default class RemoteAdapter implements DatabaseAdapter {
     schema: AppSchema
