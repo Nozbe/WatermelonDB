@@ -66,7 +66,7 @@ export default class RemoteAdapter implements DatabaseAdapter {
         recordIds: RecordId[],
         callback: ResultCallback<void>,
     ) {
-        this.handler('batch', [tableName, recordIds], callback) 
+        this.handler('destroyDeletedRecords', [tableName, recordIds], callback) 
     }
 
     unsafeLoadFromSync(jsonId: number, callback: ResultCallback<any>) {
@@ -90,10 +90,10 @@ export default class RemoteAdapter implements DatabaseAdapter {
     }
 
     setLocal(key: string, value: string, callback: ResultCallback<void>) {
-        this.handler('getLocal', [key, value], callback) 
+        this.handler('setLocal', [key, value], callback) 
     }
 
     removeLocal(key: string, callback: ResultCallback<void>) {
-        this.handler('getLocal', [key], callback) 
+        this.handler('removeLocal', [key], callback) 
     }
 }
