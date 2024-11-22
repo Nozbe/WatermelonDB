@@ -1,19 +1,29 @@
 package com.nozbe.watermelondb.jsi;
 
-import com.facebook.react.bridge.JSIModulePackage;
-import com.facebook.react.bridge.JSIModuleSpec;
-import com.facebook.react.bridge.JavaScriptContextHolder;
+import androidx.annotation.NonNull;
+import com.facebook.react.ReactPackage;
+import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.uimanager.ViewManager;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class WatermelonDBJSIPackage implements JSIModulePackage {
-  @Override
-  public List<JSIModuleSpec> getJSIModules(ReactApplicationContext reactApplicationContext, JavaScriptContextHolder jsContextHolder) {
-    synchronized(jsContextHolder) {
-      JSIInstaller.install(reactApplicationContext.getApplicationContext(), jsContextHolder.get());
+public class WatermelonDBJSIPackage implements ReactPackage {
+
+    @NonNull
+    @Override
+    public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactAppContext) {
+        List<NativeModule> modules = new ArrayList<>();
+        modules.add(new WatermelonDBJSIModule(reactAppContext));
+        return modules;
     }
-    return Arrays.asList();
-  }
+
+    @NonNull
+    @Override
+    public List<ViewManager> createViewManagers(@NonNull ReactApplicationContext reactAppContext) {
+        return Collections.emptyList();
+    }
+
 }

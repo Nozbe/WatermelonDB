@@ -12,7 +12,7 @@ import type {
   SqliteDispatcherOptions,
 } from '../type'
 
-const { WMDatabaseBridge } = NativeModules
+const { WMDatabaseBridge, WMDatabaseJSIBridge } = NativeModules
 
 class SqliteNativeModulesDispatcher implements SqliteDispatcher {
   _tag: ConnectionTag
@@ -143,6 +143,9 @@ const initializeJSI = () => {
       logger.error('[SQLite] Failed to initialize JSI')
       logger.error(e)
     }
+  } else if (WMDatabaseJSIBridge && WMDatabaseJSIBridge.install) {
+    WMDatabaseJSIBridge.install()
+    return !!global.nativeWatermelonCreateAdapter
   }
 
   return false
