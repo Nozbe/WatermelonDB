@@ -300,9 +300,7 @@ backtrace:
 
 ## Web setup
 
-This guide assumes you use Webpack as your bundler.
-
-1. If you haven't already, install Babel plugins for decorators, static class properties, and async/await to get the most out of Watermelon. This assumes you use Babel 7 and already support ES6 syntax.
+If you haven't already, install Babel plugins for decorators, static class properties, and async/await to get the most out of Watermelon. This assumes you use Babel 7 and already support ES6 syntax.
 
    ```bash
    yarn add --dev @babel/plugin-proposal-decorators
@@ -315,7 +313,8 @@ This guide assumes you use Webpack as your bundler.
    npm install -D @babel/plugin-transform-runtime
    ```
 
-2. Add ES7 support to your `.babelrc` file:
+### Webpack
+If you're using Webpack, add ES7 support to your `.babelrc` file:
    ```json
    {
      "plugins": [
@@ -331,6 +330,62 @@ This guide assumes you use Webpack as your bundler.
      ]
    }
    ```
+
+### Vite
+If you're using Vite, you'll need to edit your vite.config.js file.
+
+If you're working with React, ensure your config looks something like this:
+```js
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+    plugins: [
+        react({
+            babel: {
+                plugins: [
+                    ["@babel/plugin-proposal-decorators", { "legacy": true }],
+                    ["@babel/plugin-proposal-class-properties", { "loose": true }],
+                    [
+                        "@babel/plugin-transform-runtime",
+                        {
+                            "helpers": true,
+                            "regenerator": true
+                        }
+                    ]
+                ],
+            }
+        }),
+    ]
+});
+```
+If you're not using React, you can try this (untested):
+```js
+import { defineConfig } from 'vite';
+import babel from 'vite-plugin-babel';
+
+export default defineConfig({
+    plugins: [
+        babel({
+            babelConfig: {
+              babelrc: false,
+              configFile: false,
+              plugins: [
+                ["@babel/plugin-proposal-decorators", { "legacy": true }],
+                ["@babel/plugin-proposal-class-properties", { "loose": true }],
+                [
+                    "@babel/plugin-transform-runtime",
+                    {
+                        "helpers": true,
+                        "regenerator": true
+                    }
+                ]
+              ],
+            },
+        }),
+    ]
+});
+```
 
 ## Windows (React Native)
 
