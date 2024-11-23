@@ -98,7 +98,7 @@ export function appSchema({ version, tables: tableList, unsafeSql }: AppSchemaSp
   return { version, tables, unsafeSql }
 }
 
-const validateName = (name: string) => {
+export const validateName = (name: string) => {
   if (process.env.NODE_ENV !== 'production') {
     invariant(
       !['id', '_changed', '_status', 'local_storage'].includes(name.toLowerCase()),

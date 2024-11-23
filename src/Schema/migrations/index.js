@@ -6,8 +6,15 @@ import invariant from '../../utils/common/invariant'
 import isObj from '../../utils/fp/isObj'
 
 import type { $RE } from '../../types'
-import type { ColumnSchema, TableName, TableSchema, TableSchemaSpec, SchemaVersion } from '../index'
-import { tableSchema, validateColumnSchema } from '../index'
+import type {
+  ColumnName,
+  ColumnSchema,
+  TableName,
+  TableSchema,
+  TableSchemaSpec,
+  SchemaVersion,
+} from '../index'
+import { tableSchema, validateName, validateColumnSchema } from '../index'
 
 export type CreateTableMigrationStep = $RE<{
   type: 'create_table',
@@ -21,12 +28,39 @@ export type AddColumnsMigrationStep = $RE<{
   unsafeSql?: (string) => string,
 }>
 
+export type DestroyColumnMigrationStep = $RE<{
+  type: 'destroy_column',
+  table: TableName<any>,
+  column: ColumnName,
+  unsafeSql?: (string) => string,
+}>
+
+export type RenameColumnMigrationStep = $RE<{
+  type: 'rename_column',
+  table: TableName<any>,
+  from: ColumnName,
+  to: ColumnName,
+  unsafeSql?: (string) => string,
+}>
+
+export type DestroyTableMigrationStep = $RE<{
+  type: 'destroy_table',
+  table: TableName<any>,
+  unsafeSql?: (string) => string,
+}>
+
 export type SqlMigrationStep = $RE<{
   type: 'sql',
   sql: string,
 }>
 
-export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep | SqlMigrationStep
+export type MigrationStep =
+  | CreateTableMigrationStep
+  | AddColumnsMigrationStep
+  | SqlMigrationStep
+  | DestroyColumnMigrationStep
+  | RenameColumnMigrationStep
+  | DestroyTableMigrationStep
 
 type Migration = $RE<{
   toVersion: SchemaVersion,
@@ -159,6 +193,59 @@ export function addColumns({
   return { type: 'add_columns', table, columns, unsafeSql }
 }
 
+/** Requires sqlite 3.35.0 (iOS 15 / Android 14) */
+export function destroyColumn({
+  table,
+  column,
+  unsafeSql,
+}: $Exact<{
+  table: TableName<any>,
+  column: ColumnName,
+  unsafeSql?: (string) => string,
+}>): DestroyColumnMigrationStep {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(table, `Missing 'table' in destroyColumn()`)
+    invariant(column, `Missing 'column' in destroyColumn()`)
+  }
+
+  return { type: 'destroy_column', table, column, unsafeSql }
+}
+
+/** Requires sqlite 3.25.0 (iOS 13 / Android 11) */
+export function renameColumn({
+  table,
+  from,
+  to,
+  unsafeSql,
+}: $Exact<{
+  table: TableName<any>,
+  from: ColumnName,
+  to: ColumnName,
+  unsafeSql?: (string) => string,
+}>): RenameColumnMigrationStep {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(table, `Missing table name in renameColumn()`)
+    invariant(from, `Missing 'from' in renameColumn()`)
+    invariant(to, `Missing 'to' in renameColumn()`)
+    validateName(to)
+  }
+  return { type: 'rename_column', table, from, to, unsafeSql }
+}
+
+export function destroyTable({
+  table,
+  unsafeSql,
+}: $Exact<{
+  table: TableName<any>,
+  unsafeSql?: (string) => string,
+}>): DestroyTableMigrationStep {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(table, `Missing 'table' in destroyTable()`)
+  }
+
+  return { type: 'destroy_table', table, unsafeSql }
+}
+
 export function unsafeExecuteSql(sql: string): SqlMigrationStep {
   if (process.env.NODE_ENV !== 'production') {
     invariant(typeof sql === 'string', `SQL passed to unsafeExecuteSql is not a string`)
@@ -175,12 +262,7 @@ export function unsafeExecuteSql(sql: string): SqlMigrationStep {
 TODO: Those types of migrations are currently not implemented. If you need them, feel free to contribute!
 
 // table operations
-destroyTable('table_name')
 renameTable({ from: 'old_table_name', to: 'new_table_name' })
-
-// column operations
-renameColumn({ table: 'table_name', from: 'old_column_name', to: 'new_column_name' })
-destroyColumn({ table: 'table_name', column: 'column_name' })
 
 // indexing
 addColumnIndex({ table: 'table_name', column: 'column_name' })
