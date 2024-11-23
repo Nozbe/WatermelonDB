@@ -1,6 +1,6 @@
 {
   "name": "React-jsi",
-  "version": "0.73.11",
+  "version": "0.74.6",
   "summary": "JavaScript Interface layer for React Native",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
@@ -10,10 +10,10 @@
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.73.11"
+    "tag": "v0.74.6"
   },
   "header_dir": "jsi",
-  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation",
+  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation",
   "pod_target_xcconfig": {
     "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/fmt/include\"",
     "DEFINES_MODULE": "YES"
@@ -26,10 +26,10 @@
 
     ],
     "fmt": [
-      "~> 6.2.1"
+      "9.1.0"
     ],
     "RCT-Folly": [
-      "2022.05.16.00"
+      "2024.01.01.00"
     ],
     "glog": [
 

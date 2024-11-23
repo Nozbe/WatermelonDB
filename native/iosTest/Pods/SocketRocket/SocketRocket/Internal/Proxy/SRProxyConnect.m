@@ -335,7 +335,7 @@
     self.outputStream.delegate = self;
 }
 
-- (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode;
+- (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode
 {
     SRDebugLog(@"stream handleEvent %u", eventCode);
     switch (eventCode) {

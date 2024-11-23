@@ -1,6 +1,6 @@
 {
   "name": "React-Core",
-  "version": "0.73.11",
+  "version": "0.74.6",
   "summary": "The core of React Native.",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
@@ -10,28 +10,18 @@
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.73.11"
+    "tag": "v0.74.6"
   },
   "resource_bundles": {
     "RCTI18nStrings": [
       "React/I18n/strings/*.lproj"
     ]
   },
-  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation",
+  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -DUSE_HERMES=1",
   "header_dir": "React",
   "frameworks": "JavaScriptCore",
   "pod_target_xcconfig": {
-    "HEADER_SEARCH_PATHS": [
-      "$(PODS_TARGET_SRCROOT)/ReactCommon",
-      "$(PODS_ROOT)/boost",
-      "$(PODS_ROOT)/DoubleConversion",
-      "$(PODS_ROOT)/fmt/include",
-      "$(PODS_ROOT)/RCT-Folly",
-      "${PODS_ROOT}/Headers/Public/FlipperKit",
-      "$(PODS_ROOT)/Headers/Public/ReactCommon",
-      "$(PODS_ROOT)/Headers/Public/React-hermes",
-      "$(PODS_ROOT)/Headers/Public/hermes-engine"
-    ],
+    "HEADER_SEARCH_PATHS": "$(PODS_TARGET_SRCROOT)/ReactCommon $(PODS_ROOT)/boost $(PODS_ROOT)/DoubleConversion $(PODS_ROOT)/fmt/include $(PODS_ROOT)/RCT-Folly ${PODS_ROOT}/Headers/Public/FlipperKit $(PODS_ROOT)/Headers/Public/ReactCommon $(PODS_ROOT)/Headers/Public/React-hermes $(PODS_ROOT)/Headers/Public/hermes-engine \"${PODS_CONFIGURATION_BUILD_DIR}/React-jsinspector/jsinspector_modern.framework/Headers\" \"${PODS_CONFIGURATION_BUILD_DIR}/RCTDeprecation/RCTDeprecation.framework/Headers\"",
     "DEFINES_MODULE": "YES",
     "GCC_PREPROCESSOR_DEFINITIONS": "RCT_METRO_PORT=${RCT_METRO_PORT}",
     "CLANG_CXX_LANGUAGE_STANDARD": "c++20",
@@ -43,7 +33,7 @@
   "default_subspecs": "Default",
   "dependencies": {
     "RCT-Folly": [
-      "2022.05.16.00"
+      "2024.01.01.00"
     ],
     "React-cxxreact": [
 
@@ -60,8 +50,11 @@
     "React-utils": [
 
     ],
+    "React-featureflags": [
+
+    ],
     "SocketRocket": [
-      "0.6.1"
+      "0.7.0"
     ],
     "React-runtimescheduler": [
 
@@ -70,6 +63,12 @@
 
     ],
     "glog": [
+
+    ],
+    "React-jsinspector": [
+
+    ],
+    "RCTDeprecation": [
 
     ],
     "React-hermes": [
@@ -102,22 +101,20 @@
       ],
       "dependencies": {
         "React-Core/Default": [
-          "0.73.11"
+          "0.74.6"
         ],
         "React-Core/RCTWebSocket": [
-          "0.73.11"
-        ],
-        "React-jsinspector": [
-          "0.73.11"
+          "0.74.6"
         ]
-      }
+      },
+      "private_header_files": "React/Inspector/RCTCxx*.h"
     },
     {
       "name": "RCTWebSocket",
       "source_files": "Libraries/WebSocket/*.{h,m}",
       "dependencies": {
         "React-Core/Default": [
-          "0.73.11"
+          "0.74.6"
         ]
       }
     },

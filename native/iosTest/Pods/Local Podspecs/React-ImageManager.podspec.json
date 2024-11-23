@@ -1,6 +1,6 @@
 {
   "name": "React-ImageManager",
-  "version": "0.73.11",
+  "version": "0.74.6",
   "summary": "Fabric for React Native.",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
@@ -10,9 +10,9 @@
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.73.11"
+    "tag": "v0.74.6"
   },
-  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation",
+  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation",
   "source_files": "**/*.{m,mm,cpp,h}",
   "header_dir": "react/renderer/imagemanager",
   "pod_target_xcconfig": {

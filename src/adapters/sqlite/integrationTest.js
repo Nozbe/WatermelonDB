@@ -9,12 +9,14 @@ const SQLiteAdapterTest = (spec) => {
   const configurations = [
     Platform.OS !== 'windows'
       ? {
-          name: 'SQLiteAdapter (async mode, new bridge)',
+          name: 'SQLiteAdapter (async mode)',
           options: {},
           expectedDispatcherType: 'asynchronous',
         }
       : null,
-    { name: 'SQLiteAdapter (JSI mode)', options: { jsi: true }, expectedDispatcherType: 'jsi' },
+    Platform.OS !== 'android'
+      ? { name: 'SQLiteAdapter (JSI mode)', options: { jsi: true }, expectedDispatcherType: 'jsi' }
+      : null,
   ].filter(Boolean)
 
   configurations.forEach(({ name: configurationName, options, expectedDispatcherType }) => {

@@ -1,0 +1,18 @@
+CLANG_CXX_LANGUAGE_STANDARD = c++20
+CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO
+CONFIGURATION_BUILD_DIR = ${PODS_CONFIGURATION_BUILD_DIR}/React-jsitracing
+FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/hermes-engine/destroot/Library/Frameworks/universal" "${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built"
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
+GCC_WARN_PEDANTIC = YES
+HEADER_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/DoubleConversion" "${PODS_ROOT}/Headers/Public/RCT-Folly" "${PODS_ROOT}/Headers/Public/React-jsi" "${PODS_ROOT}/Headers/Public/fmt" "${PODS_ROOT}/Headers/Public/glog" "${PODS_ROOT}/Headers/Public/hermes-engine" "${PODS_TARGET_SRCROOT}/../.."
+OTHER_CFLAGS = $(inherited) -fmodule-map-file="${PODS_ROOT}/Headers/Public/DoubleConversion/DoubleConversion.modulemap" -fmodule-map-file="${PODS_ROOT}/Headers/Public/folly/RCT-Folly.modulemap" -fmodule-map-file="${PODS_ROOT}/Headers/Public/glog/glog.modulemap" -fmodule-map-file="${PODS_ROOT}/Headers/Public/jsi/React-jsi.modulemap"
+PODS_BUILD_DIR = ${BUILD_DIR}
+PODS_CONFIGURATION_BUILD_DIR = ${PODS_BUILD_DIR}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)
+PODS_DEVELOPMENT_LANGUAGE = ${DEVELOPMENT_LANGUAGE}
+PODS_ROOT = ${SRCROOT}
+PODS_TARGET_SRCROOT = ${PODS_ROOT}/../../../node_modules/react-native/ReactCommon/hermes/executor
+PODS_XCFRAMEWORKS_BUILD_DIR = $(PODS_CONFIGURATION_BUILD_DIR)/XCFrameworkIntermediates
+PRODUCT_BUNDLE_IDENTIFIER = org.cocoapods.${PRODUCT_NAME:rfc1034identifier}
+SKIP_INSTALL = YES
+USE_HEADERMAP = YES
+USE_RECURSIVE_SCRIPT_INPUTS_IN_SCRIPT_PHASES = YES

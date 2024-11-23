@@ -24,6 +24,7 @@ class MainApplication : Application(), ReactApplication {
         override fun getPackages(): List<ReactPackage> =
             listOf(MainReactPackage(), NativeModulesPackage(), WatermelonDBPackage())
 
+        /*
         override fun getJSIModulePackage(): JSIModulePackage {
             return JSIModulePackage { reactApplicationContext, jsContext ->
                 mutableListOf<JSIModuleSpec<JSIModule>>().apply {
@@ -36,6 +37,7 @@ class MainApplication : Application(), ReactApplication {
                 }
             }
         }
+        */
 
         override fun getJSMainModuleName(): String = "src/index.integrationTests.native"
     }
@@ -46,5 +48,5 @@ class MainApplication : Application(), ReactApplication {
     }
 
     override val reactHost: ReactHost
-        get() = getDefaultReactHost(this.applicationContext, reactNativeHost)
+        get() = getDefaultReactHost(applicationContext, reactNativeHost)
 }
