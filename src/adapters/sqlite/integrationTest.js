@@ -9,7 +9,7 @@ const SQLiteAdapterTest = (spec) => {
   const configurations = [
     Platform.OS !== 'windows'
       ? {
-          name: 'SQLiteAdapter (async mode, new bridge)',
+          name: 'SQLiteAdapter (async mode)',
           options: {},
           expectedDispatcherType: 'asynchronous',
         }
