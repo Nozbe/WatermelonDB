@@ -1,0 +1,28 @@
+{
+  "name": "RCTDeprecation",
+  "version": "0.74.6",
+  "authors": "Meta Platforms, Inc. and its affiliates",
+  "license": "MIT",
+  "homepage": "https://reactnative.dev/",
+  "source": {
+    "git": "https://github.com/facebook/react-native.git",
+    "tag": "v#{version}"
+  },
+  "summary": "Macros for marking APIs as deprecated",
+  "source_files": [
+    "Exported/*.h",
+    "RCTDeprecation.m"
+  ],
+  "pod_target_xcconfig": {
+    "DEFINES_MODULE": "YES",
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++20"
+  },
+  "compiler_flags": "-Wnullable-to-nonnull-conversion -Wnullability-completeness",
+  "platforms": {
+    "osx": null,
+    "ios": null,
+    "tvos": null,
+    "visionos": null,
+    "watchos": null
+  }
+}

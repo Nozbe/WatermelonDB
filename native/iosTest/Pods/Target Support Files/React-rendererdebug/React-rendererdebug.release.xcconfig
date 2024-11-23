@@ -4,7 +4,7 @@ CONFIGURATION_BUILD_DIR = ${PODS_CONFIGURATION_BUILD_DIR}/React-rendererdebug
 DEFINES_MODULE = YES
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
 HEADER_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/Headers/Private" "${PODS_ROOT}/Headers/Private/React-rendererdebug" "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/DoubleConversion" "${PODS_ROOT}/Headers/Public/RCT-Folly" "${PODS_ROOT}/Headers/Public/React-debug" "${PODS_ROOT}/Headers/Public/React-rendererdebug" "${PODS_ROOT}/Headers/Public/fmt" "${PODS_ROOT}/Headers/Public/glog" "$(PODS_ROOT)/RCT-Folly" "$(PODS_ROOT)/boost" "$(PODS_ROOT)/RCT-Folly" "$(PODS_ROOT)/DoubleConversion" "$(PODS_ROOT)/fmt/include" "${PODS_CONFIGURATION_BUILD_DIR}/React-debug/React_debug.framework/Headers"
-OTHER_CFLAGS = $(inherited) -fmodule-map-file="${PODS_ROOT}/Headers/Public/folly/RCT-Folly.modulemap" -fmodule-map-file="${PODS_ROOT}/Headers/Public/glog/glog.modulemap" -fmodule-map-file="${PODS_ROOT}/Headers/Public/react_debug/React-debug.modulemap"
+OTHER_CFLAGS = $(inherited) -fmodule-map-file="${PODS_ROOT}/Headers/Public/DoubleConversion/DoubleConversion.modulemap" -fmodule-map-file="${PODS_ROOT}/Headers/Public/folly/RCT-Folly.modulemap" -fmodule-map-file="${PODS_ROOT}/Headers/Public/glog/glog.modulemap" -fmodule-map-file="${PODS_ROOT}/Headers/Public/react_debug/React-debug.modulemap"
 PODS_BUILD_DIR = ${BUILD_DIR}
 PODS_CONFIGURATION_BUILD_DIR = ${PODS_BUILD_DIR}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)
 PODS_DEVELOPMENT_LANGUAGE = ${DEVELOPMENT_LANGUAGE}

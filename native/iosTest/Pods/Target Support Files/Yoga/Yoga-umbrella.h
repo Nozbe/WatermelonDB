@@ -10,8 +10,13 @@
 #endif
 #endif
 
+#import "yoga/YGConfig.h"
 #import "yoga/YGEnums.h"
 #import "yoga/YGMacros.h"
+#import "yoga/YGNode.h"
+#import "yoga/YGNodeLayout.h"
+#import "yoga/YGNodeStyle.h"
+#import "yoga/YGPixelGrid.h"
 #import "yoga/YGValue.h"
 #import "yoga/Yoga.h"
 

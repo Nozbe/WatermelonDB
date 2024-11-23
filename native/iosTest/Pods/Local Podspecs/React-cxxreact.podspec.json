@@ -1,6 +1,6 @@
 {
   "name": "React-cxxreact",
-  "version": "0.73.11",
+  "version": "0.74.6",
   "summary": "-",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
@@ -10,13 +10,13 @@
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.73.11"
+    "tag": "v0.74.6"
   },
   "source_files": "*.{cpp,h}",
   "exclude_files": "SampleCxxModule.*",
-  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation",
+  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation",
   "pod_target_xcconfig": {
-    "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/fmt/include\" \"$(PODS_CONFIGURATION_BUILD_DIR)/React-debug/React_debug.framework/Headers\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-runtimeexecutor/React_runtimeexecutor.framework/Headers\"",
+    "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/fmt/include\" \"$(PODS_CONFIGURATION_BUILD_DIR)/React-debug/React_debug.framework/Headers\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-runtimeexecutor/React_runtimeexecutor.framework/Headers\" \"${PODS_CONFIGURATION_BUILD_DIR}/React-jsinspector/jsinspector_modern.framework/Headers\"",
     "CLANG_CXX_LANGUAGE_STANDARD": "c++20"
   },
   "header_dir": "cxxreact",
@@ -28,34 +28,34 @@
 
     ],
     "fmt": [
-      "~> 6.2.1"
+      "9.1.0"
     ],
     "RCT-Folly": [
-      "2022.05.16.00"
+      "2024.01.01.00"
     ],
     "glog": [
 
     ],
     "React-jsinspector": [
-      "0.73.11"
+
     ],
     "React-callinvoker": [
-      "0.73.11"
+      "0.74.6"
     ],
     "React-runtimeexecutor": [
-      "0.73.11"
+      "0.74.6"
     ],
     "React-perflogger": [
-      "0.73.11"
+      "0.74.6"
     ],
     "React-jsi": [
-      "0.73.11"
+      "0.74.6"
     ],
     "React-logger": [
-      "0.73.11"
+      "0.74.6"
     ],
     "React-debug": [
-      "0.73.11"
+      "0.74.6"
     ],
     "hermes-engine": [
 

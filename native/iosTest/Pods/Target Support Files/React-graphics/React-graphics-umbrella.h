@@ -13,6 +13,7 @@
 #import "react/renderer/graphics/Color.h"
 #import "react/renderer/graphics/ColorComponents.h"
 #import "react/renderer/graphics/conversions.h"
+#import "react/renderer/graphics/fromRawValueShared.h"
 #import "react/renderer/graphics/Geometry.h"
 #import "react/renderer/graphics/Float.h"
 #import "react/renderer/graphics/HostPlatformColor.h"

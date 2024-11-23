@@ -27,6 +27,7 @@
 #import "react/bridging/Promise.h"
 #import "react/bridging/Value.h"
 #import "ReactCommon/CallbackWrapper.h"
+#import "ReactCommon/CxxTurboModuleUtils.h"
 #import "ReactCommon/LongLivedObject.h"
 #import "ReactCommon/TurboCxxModule.h"
 #import "ReactCommon/TurboModule.h"
