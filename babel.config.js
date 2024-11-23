@@ -33,6 +33,7 @@ const plugins = [
   '@babel/plugin-proposal-unicode-property-regex',
   // See http://incaseofstairs.com/six-speed/ for speed comparison between native and transpiled ES6
   '@babel/plugin-proposal-optional-chaining',
+  ['@babel/plugin-proposal-private-methods', { loose: true }],
   '@babel/plugin-transform-template-literals',
   '@babel/plugin-transform-literals',
   '@babel/plugin-transform-function-name',

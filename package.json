@@ -84,6 +84,7 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
     "@babel/plugin-proposal-optional-chaining": "^7.21.0",
     "@babel/plugin-proposal-unicode-property-regex": "^7.18.6",
+    "@babel/plugin-proposal-private-methods": "^7.18.6",
     "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "@babel/plugin-syntax-flow": "^7.24.7",
     "@babel/plugin-syntax-jsx": "^7.24.7",
