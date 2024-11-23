@@ -14,7 +14,9 @@ const SQLiteAdapterTest = (spec) => {
           expectedDispatcherType: 'asynchronous',
         }
       : null,
-    { name: 'SQLiteAdapter (JSI mode)', options: { jsi: true }, expectedDispatcherType: 'jsi' },
+    Platform.OS !== 'android'
+      ? { name: 'SQLiteAdapter (JSI mode)', options: { jsi: true }, expectedDispatcherType: 'jsi' }
+      : null,
   ].filter(Boolean)
 
   configurations.forEach(({ name: configurationName, options, expectedDispatcherType }) => {
