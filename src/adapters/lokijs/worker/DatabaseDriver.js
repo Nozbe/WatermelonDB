@@ -15,6 +15,9 @@ import type {
   SchemaMigrations,
   CreateTableMigrationStep,
   AddColumnsMigrationStep,
+  DestroyColumnMigrationStep,
+  RenameColumnMigrationStep,
+  DestroyTableMigrationStep,
   MigrationStep,
 } from '../../../Schema/migrations'
 import type { SerializedQuery } from '../../../Query'
@@ -390,6 +393,12 @@ export default class DatabaseDriver {
         this._executeCreateTableMigration(step)
       } else if (step.type === 'add_columns') {
         this._executeAddColumnsMigration(step)
+      } else if (step.type === 'destroy_column') {
+        this._executeDestroyColumnMigration(step)
+      } else if (step.type === 'rename_column') {
+        this._executeRenameColumnMigration(step)
+      } else if (step.type === 'destroy_table') {
+        this._executeDestroyTableMigration(step)
       } else if (step.type === 'sql') {
         // ignore
       } else {
@@ -423,6 +432,35 @@ export default class DatabaseDriver {
         collection.ensureIndex(column.name)
       }
     })
+  }
+  _executeDestroyColumnMigration({ table, column }: DestroyColumnMigrationStep): void {
+    const collection = this.loki.getCollection(table)
+
+    // update ALL records in the collection, removing a field
+    collection.findAndUpdate({}, (record) => {
+      delete record[column]
+    })
+  }
+
+  _executeRenameColumnMigration({ table, from, to }: RenameColumnMigrationStep): void {
+    const collection = this.loki.getCollection(table)
+    // NOTE: Seems a bit safer to copy first, then delete old ones
+    collection.findAndUpdate({}, (record) => {
+      if (record[from] !== undefined) {
+        record[to] = record[from]
+      } else {
+        delete record[to]
+      }
+    })
+    collection.findAndUpdate({}, (record) => {
+      delete record[from]
+    })
+  }
+  _executeDestroyTableMigration({ table }: DestroyTableMigrationStep): void {
+    const collection = this.loki.getCollection(table)
+    if (collection) {
+      this.loki.removeCollection(table)
+    }
   }
 
   // Maps records to their IDs if the record is already cached on JS side

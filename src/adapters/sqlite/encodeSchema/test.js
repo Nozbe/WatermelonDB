@@ -1,6 +1,13 @@
 /* eslint-disable prefer-template */
 import { appSchema, tableSchema } from '../../../Schema'
-import { addColumns, createTable, unsafeExecuteSql } from '../../../Schema/migrations'
+import {
+  addColumns,
+  createTable,
+  destroyColumn,
+  destroyTable,
+  renameColumn,
+  unsafeExecuteSql,
+} from '../../../Schema/migrations'
 
 import { encodeSchema, encodeMigrationSteps, encodeCreateIndices, encodeDropIndices } from './index'
 
@@ -149,21 +156,44 @@ describe('encodeMigrationSteps', () => {
           { name: 'is_pinned', type: 'boolean', isIndexed: true },
         ],
       }),
+      destroyColumn({
+        table: 'posts',
+        column: 'subtitle',
+      }),
+      renameColumn({
+        table: 'comments',
+        from: 'body',
+        to: 'description',
+      }),
+      destroyTable({
+        table: 'authors',
+      }),
     ]
 
     expect(encodeMigrationSteps(migrationSteps)).toBe(
       '' +
+        // add columns
         `alter table "posts" add "subtitle";` +
         `update "posts" set "subtitle" = null;` +
+        // create table
         `create table "comments" ("id" primary key, "_changed", "_status", "post_id", "body");` +
         `create index if not exists "comments_post_id" on "comments" ("post_id");` +
         `create index if not exists "comments__status" on "comments" ("_status");` +
+        // add columns
         `alter table "posts" add "author_id";` +
         `update "posts" set "author_id" = '';` +
         `create index if not exists "posts_author_id" on "posts" ("author_id");` +
         `alter table "posts" add "is_pinned";` +
         `update "posts" set "is_pinned" = 0;` +
-        `create index if not exists "posts_is_pinned" on "posts" ("is_pinned");`,
+        `create index if not exists "posts_is_pinned" on "posts" ("is_pinned");` +
+        // destroy column
+        `drop index if exists "posts_subtitle";` +
+        `alter table "posts" drop column "subtitle";` +
+        // rename column
+        `alter table "comments" rename column "body" to "description";` +
+        // destroy table
+        `drop table if exists "authors";` +
+        '',
     )
   })
   it(`encodes migrations with unsafe SQL`, () => {
@@ -178,16 +208,44 @@ describe('encodeMigrationSteps', () => {
         columns: [{ name: 'body', type: 'string' }],
         unsafeSql: (sql) => sql.replace(/create table [^)]+\)/, '$& without rowid'),
       }),
+      destroyColumn({
+        table: 'posts',
+        column: 'subtitle',
+        unsafeSql: (sql) => `${sql}foo;`,
+      }),
+      renameColumn({
+        table: 'comments',
+        from: 'body',
+        to: 'description',
+        unsafeSql: (sql) => `${sql}bar;`,
+      }),
+      destroyTable({
+        table: 'authors',
+        unsafeSql: (sql) => `${sql}baz;`,
+      }),
       unsafeExecuteSql('boop;'),
     ]
 
     expect(encodeMigrationSteps(migrationSteps)).toBe(
       '' +
+        // add columns
         `alter table "posts" add "subtitle";` +
         `update "posts" set "subtitle" = null;` +
         'bla;' +
+        // create table
         `create table "comments" ("id" primary key, "_changed", "_status", "body") without rowid;` +
         `create index if not exists "comments__status" on "comments" ("_status");` +
+        // destroy column
+        `drop index if exists "posts_subtitle";` +
+        `alter table "posts" drop column "subtitle";` +
+        'foo;' +
+        // rename column
+        `alter table "comments" rename column "body" to "description";` +
+        'bar;' +
+        // destroy table
+        `drop table if exists "authors";` +
+        'baz;' +
+        // unsafeExecuteSql
         'boop;',
     )
   })

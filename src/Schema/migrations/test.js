@@ -1,4 +1,12 @@
-import { createTable, addColumns, unsafeExecuteSql, schemaMigrations } from './index'
+import {
+  createTable,
+  addColumns,
+  unsafeExecuteSql,
+  destroyColumn,
+  renameColumn,
+  schemaMigrations,
+  destroyTable,
+} from './index'
 import { stepsForMigration } from './stepsForMigration'
 
 describe('schemaMigrations()', () => {
@@ -30,7 +38,24 @@ describe('schemaMigrations()', () => {
   it('returns a complex schema migrations spec', () => {
     const migrations = schemaMigrations({
       migrations: [
-        { toVersion: 4, steps: [] },
+        { toVersion: 6, steps: [destroyTable({ table: 'comments' })] },
+        {
+          toVersion: 5,
+          steps: [renameColumn({ table: 'comments', from: 'text', to: 'body' })],
+        },
+        {
+          toVersion: 4,
+          steps: [
+            addColumns({
+              table: 'comments',
+              columns: [{ name: 'text', type: 'string' }],
+            }),
+            destroyColumn({
+              table: 'comments',
+              column: 'body',
+            }),
+          ],
+        },
         {
           toVersion: 3,
           steps: [
@@ -64,7 +89,7 @@ describe('schemaMigrations()', () => {
     expect(migrations).toEqual({
       validated: true,
       minVersion: 1,
-      maxVersion: 4,
+      maxVersion: 6,
       sortedMigrations: [
         {
           toVersion: 2,
@@ -103,7 +128,41 @@ describe('schemaMigrations()', () => {
             },
           ],
         },
-        { toVersion: 4, steps: [] },
+        {
+          toVersion: 4,
+          steps: [
+            {
+              type: 'add_columns',
+              table: 'comments',
+              columns: [{ name: 'text', type: 'string' }],
+            },
+            {
+              type: 'destroy_column',
+              table: 'comments',
+              column: 'body',
+            },
+          ],
+        },
+        {
+          toVersion: 5,
+          steps: [
+            {
+              type: 'rename_column',
+              table: 'comments',
+              from: 'text',
+              to: 'body',
+            },
+          ],
+        },
+        {
+          toVersion: 6,
+          steps: [
+            {
+              type: 'destroy_table',
+              table: 'comments',
+            },
+          ],
+        },
       ],
     })
   })
@@ -180,6 +239,18 @@ describe('migration step functions', () => {
     expect(() => addColumns({ table: 'foo', columns: [{ name: 'x', type: 'blah' }] })).toThrow(
       'type',
     )
+  })
+  it('throws if destroyColumn() is malformed', () => {
+    expect(() => destroyColumn({ column: 'foo' })).toThrow('table')
+    expect(() => destroyColumn({ table: 'foo' })).toThrow('column')
+  })
+  it('throws if renameColumn() is malformed', () => {
+    expect(() => renameColumn({ from: 'text', to: 'body' })).toThrow('table')
+    expect(() => renameColumn({ table: 'foo', from: 'text' })).toThrow('to')
+    expect(() => renameColumn({ table: 'foo', to: 'body' })).toThrow('from')
+  })
+  it('throws if destroyTable() is malformed', () => {
+    expect(() => destroyTable()).toThrow('table')
   })
   it('throws if unsafeExecuteSql() is malformed', () => {
     expect(() => unsafeExecuteSql()).toThrow('not a string')

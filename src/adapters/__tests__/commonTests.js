@@ -10,7 +10,14 @@ import Query from '../../Query'
 import { sanitizedRaw } from '../../RawRecord'
 import * as Q from '../../QueryDescription'
 import { appSchema, tableSchema } from '../../Schema'
-import { schemaMigrations, createTable, addColumns } from '../../Schema/migrations'
+import {
+  schemaMigrations,
+  createTable,
+  addColumns,
+  renameColumn,
+  destroyTable,
+  destroyColumn,
+} from '../../Schema/migrations'
 
 import { matchTests, naughtyMatchTests, joinTests } from '../../__tests__/databaseTests'
 import DatabaseAdapterCompat from '../compat'
@@ -917,6 +924,10 @@ export default () => {
     await expectToRejectWithMessage(adapter.getDeletedRecords(table), msg)
     await expectToRejectWithMessage(adapter.destroyDeletedRecords(table, []), msg)
   })
+
+  const migrationsAdapter = (AdapterClass, extraAdapterOptions, options) =>
+    new DatabaseAdapterCompat(new AdapterClass({ ...options, ...extraAdapterOptions }))
+
   it('migrates database between versions', async (_adapter, AdapterClass, extraAdapterOptions) => {
     // launch app in one version
     const taskColumnsV3 = [{ name: 'num1', type: 'number' }]
@@ -928,14 +939,12 @@ export default () => {
         tableSchema({ name: 'projects', columns: projectColumnsV3 }),
       ],
     })
+    const migrationsV3 = schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] })
 
-    let adapter = new DatabaseAdapterCompat(
-      new AdapterClass({
-        schema: testSchemaV3,
-        migrations: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
-        ...extraAdapterOptions,
-      }),
-    )
+    let adapter = migrationsAdapter(AdapterClass, extraAdapterOptions, {
+      schema: testSchemaV3,
+      migrations: migrationsV3,
+    })
 
     // add data
     await adapter.batch([
@@ -949,7 +958,7 @@ export default () => {
     ).rejects.toBeInstanceOf(Error)
 
     // migrate to new version
-    const taskColumnsV5 = [
+    const taskColumnsV5_new = [
       { name: 'test_string', type: 'string' },
       { name: 'test_string_optional', type: 'string', isOptional: true },
       { name: 'test_number', type: 'number' },
@@ -957,6 +966,8 @@ export default () => {
       { name: 'test_boolean', type: 'boolean' },
       { name: 'test_boolean_optional', type: 'boolean', isOptional: true },
     ]
+
+    const taskColumnsV5 = [...taskColumnsV5_new]
     const projectColumnsV5 = [{ name: 'text2', type: 'string', isIndexed: true }]
     const tagAssignmentSchema = {
       name: 'tag_assignments',
@@ -968,7 +979,7 @@ export default () => {
       tables: [
         tableSchema({
           name: 'tasks',
-          columns: [...taskColumnsV3, ...taskColumnsV5],
+          columns: taskColumnsV5,
         }),
         tableSchema({
           name: 'projects',
@@ -981,7 +992,7 @@ export default () => {
       migrations: [
         {
           toVersion: 5,
-          steps: [addColumns({ table: 'tasks', columns: taskColumnsV5 })],
+          steps: [addColumns({ table: 'tasks', columns: taskColumnsV5_new })],
         },
         {
           toVersion: 4,
@@ -1050,14 +1061,335 @@ export default () => {
     const tt1 = await adapter.find('tag_assignments', 'tt2')
     expect(tt1.text1).toBe('hello')
   })
+  it('migrations: renameColumn', async (_adapter, AdapterClass, extraAdapterOptions) => {
+    // initial schema
+    const testSchema_v1 = appSchema({
+      version: 1,
+      tables: [
+        tableSchema({
+          name: 'tasks',
+          columns: [
+            { name: 'num1', type: 'number' },
+            { name: 'num2', type: 'number', isOptional: true },
+          ],
+        }),
+      ],
+    })
+
+    let adapter = migrationsAdapter(AdapterClass, extraAdapterOptions, {
+      schema: testSchema_v1,
+    })
+
+    // add data
+    await adapter.batch([
+      ['create', 'tasks', { id: 't1', num1: 10, num2: 1337 }],
+      ['create', 'tasks', { id: 't2', num1: 20 }],
+    ])
+
+    // apply changes - rename num2 column
+    const testSchema_after = appSchema({
+      version: 2,
+      tables: [
+        tableSchema({
+          name: 'tasks',
+          columns: [
+            { name: 'num1', type: 'number' },
+            { name: 'num2_renamed', type: 'number', isOptional: true },
+          ],
+        }),
+      ],
+    })
+    const migrations_after = schemaMigrations({
+      migrations: [
+        {
+          toVersion: 2,
+          steps: [
+            renameColumn({ table: 'tasks', from: 'num2', to: 'num2_interim' }),
+            renameColumn({ table: 'tasks', from: 'num2_interim', to: 'num2_renamed' }),
+          ],
+        },
+      ],
+    })
+
+    adapter = await adapter.testClone({ schema: testSchema_after, migrations: migrations_after })
+
+    // check that data was transformed correctly
+    const t1 = await adapter.find('tasks', 't1')
+    expect(t1.num1).toBe(10)
+    expect(t1.num2).toBe(undefined)
+    expect(t1.num2_renamed).toBe(1337)
+
+    const t2 = await adapter.find('tasks', 't2')
+    expect(t2.num1).toBe(20)
+    expect(t2.num2).toBe(undefined)
+    expect(t2.num2_renamed).toBe(null)
+
+    // check that it's no longer possible to insert data into removed column
+    // NOTE: batch() expects sanitized raws, and Loki will take anything if it's not; we're just checking
+    // SQL which has an actual schema
+    if (AdapterClass.name === 'SQLiteAdapter') {
+      await adapter.batch([['create', 'tasks', { id: 't3', num1: 30, num2: 3333 }]])
+      adapter = await adapter.testClone()
+      const t3 = await adapter.find('tasks', 't3')
+      expect(t3.num1).toBe(30)
+      expect(t3.num2).toBe(undefined)
+      expect(t3.num2_renamed).toBe(null)
+    }
+  })
+  it('migrations: destroyColumn', async (_adapter, AdapterClass, extraAdapterOptions) => {
+    // initial schema
+    const testSchema_v1 = appSchema({
+      version: 1,
+      tables: [
+        tableSchema({
+          name: 'tasks',
+          columns: [
+            { name: 'num1', type: 'number' },
+            { name: 'num2', type: 'number' },
+            { name: 'num3', type: 'number' },
+          ],
+        }),
+      ],
+    })
+
+    let adapter = migrationsAdapter(AdapterClass, extraAdapterOptions, { schema: testSchema_v1 })
+
+    // add data
+    await adapter.batch([
+      ['create', 'tasks', { id: 't1', num1: 10, num2: 1337, num3: 3 }],
+      ['create', 'tasks', { id: 't2', num1: 20, num2: 2137, num3: 3 }],
+    ])
+
+    // apply changes - remove columns
+    const testSchema_after = appSchema({
+      version: 3,
+      tables: [tableSchema({ name: 'tasks', columns: [{ name: 'num1', type: 'number' }] })],
+    })
+    const migrations_after = schemaMigrations({
+      migrations: [
+        { toVersion: 2, steps: [destroyColumn({ table: 'tasks', column: 'num2' })] },
+        { toVersion: 3, steps: [destroyColumn({ table: 'tasks', column: 'num3' })] },
+      ],
+    })
+
+    adapter = await adapter.testClone({ schema: testSchema_after, migrations: migrations_after })
+
+    // check that data was transformed correctly
+    const t1 = await adapter.find('tasks', 't1')
+    expect(t1.num1).toBe(10)
+    expect(t1.num2).toBe(undefined)
+    expect(t1.num3).toBe(undefined)
+
+    const t2 = await adapter.find('tasks', 't2')
+    expect(t2.num1).toBe(20)
+    expect(t2.num2).toBe(undefined)
+    expect(t2.num3).toBe(undefined)
+
+    // check that it's no longer possible to insert data into removed column
+    // NOTE: batch() expects sanitized raws, and Loki will take anything if it's not; we're just checking
+    // SQL which has an actual schema
+    if (AdapterClass.name === 'SQLiteAdapter') {
+      await adapter.batch([['create', 'tasks', { id: 't3', num1: 30, num2: 3333 }]])
+      adapter = await adapter.testClone()
+      const t3 = await adapter.find('tasks', 't3')
+      expect(t3.num1).toBe(30)
+      expect(t3.num2).toBe(undefined)
+    }
+  })
+  it('migrations: renameColumn&destroyColumn (complex)', async (_adapter, AdapterClass, extraAdapterOptions) => {
+    // initial schema
+    const testSchema_before = appSchema({
+      version: 2,
+      tables: [
+        tableSchema({
+          name: 'tasks',
+          columns: [
+            { name: 'num1', type: 'number' },
+            { name: 'num2', type: 'number', isOptional: true },
+            { name: 'text3', type: 'string', isIndexed: true },
+            { name: 'num3', type: 'number', isIndexed: true, isOptional: true },
+            { name: 'num4', type: 'number' },
+            { name: 'text4', type: 'string', isOptional: true },
+            { name: 'text5', type: 'string' },
+          ],
+        }),
+      ],
+    })
+
+    let adapter = migrationsAdapter(AdapterClass, extraAdapterOptions, {
+      schema: testSchema_before,
+    })
+
+    // add data
+    await adapter.batch([
+      [
+        'create',
+        'tasks',
+        {
+          id: 't1',
+          num1: 110,
+          num2: 120,
+          text3: 'hi130',
+          num3: 130,
+          num4: 140,
+          text4: 'hi140',
+          text5: 'hi150',
+        },
+      ],
+      ['create', 'tasks', { id: 't2', num1: 210, text3: 'hi230', num4: 240, text5: 'hi250' }],
+    ])
+
+    // apply changes - remove columns
+    const testSchema_after = appSchema({
+      version: 6,
+      tables: [
+        tableSchema({
+          name: 'tasks',
+          columns: [
+            { name: 'num1', type: 'number' },
+            { name: 'num2_v3', type: 'number', isOptional: true },
+            { name: 'text3_v3', type: 'string', isIndexed: true },
+            { name: 'text6_v2', type: 'string', isIndexed: true },
+          ],
+        }),
+      ],
+    })
+    const migrations_after = schemaMigrations({
+      migrations: [
+        {
+          toVersion: 3,
+          steps: [
+            // can rename twice in a single step
+            renameColumn({ table: 'tasks', from: 'num2', to: 'num2_v2' }),
+            renameColumn({ table: 'tasks', from: 'num2_v2', to: 'num2_v3' }),
+            // can rename twice in two steps
+            renameColumn({ table: 'tasks', from: 'text3', to: 'text3_v2' }),
+          ],
+        },
+        {
+          toVersion: 4,
+          steps: [
+            // can rename twice in two steps
+            renameColumn({ table: 'tasks', from: 'text3_v2', to: 'text3_v3' }),
+            // can delete multiple columns in a step
+            // can delete columns in the same step as renaming
+            // can delete column with index
+            destroyColumn({ table: 'tasks', column: 'num3' }),
+            // destroyColumn({ table: 'tasks', column: 'num4' }),
+          ],
+        },
+        {
+          toVersion: 5,
+          steps: [
+            // can delete just-renamed column (don't know why you'd want to, but oh well)
+            renameColumn({ table: 'tasks', from: 'text4', to: 'text4_v2' }),
+            destroyColumn({ table: 'tasks', column: 'text4_v2' }),
+            // can delete a previously-renamed column
+            renameColumn({ table: 'tasks', from: 'text5', to: 'text5_v2' }),
+            // can rename a previously added column
+            addColumns({
+              table: 'tasks',
+              columns: [{ name: 'text6', type: 'string', isIndexed: true }],
+            }),
+            // can destroy a previously added column
+            addColumns({ table: 'tasks', columns: [{ name: 'text7', type: 'string' }] }),
+          ],
+        },
+        {
+          toVersion: 6,
+          steps: [
+            // can delete a previously-renamed column
+            destroyColumn({ table: 'tasks', column: 'text5_v2' }),
+            // can rename a previously added column
+            renameColumn({ table: 'tasks', from: 'text6', to: 'text6_v2' }),
+            // can destroy a previously added column
+            destroyColumn({ table: 'tasks', column: 'text7' }),
+          ],
+        },
+      ],
+    })
+
+    adapter = await adapter.testClone({ schema: testSchema_after, migrations: migrations_after })
+
+    // check that data was transformed correctly
+    expect(await adapter.find('tasks', 't1')).toEqual({
+      id: 't1',
+      _changed: '',
+      _status: 'created',
+      num1: 110,
+      num2_v3: 120,
+      text3_v3: 'hi130',
+      text6_v2: '',
+    })
+    expect(await adapter.find('tasks', 't2')).toEqual({
+      id: 't2',
+      _changed: '',
+      _status: 'created',
+      num1: 210,
+      num2_v3: null,
+      text3_v3: 'hi230',
+      text6_v2: '',
+    })
+  })
+  it('migrations: destroyTable', async (_adapter, AdapterClass, extraAdapterOptions) => {
+    // initial schema
+    const projectsSchema = {
+      name: 'projects',
+      // NOTE: isIndexed is important as we want to check that the index won't conflict
+      columns: [{ name: 'text1', type: 'string', isIndexed: true }],
+    }
+    const testSchema_v1 = appSchema({
+      version: 1,
+      tables: [
+        tableSchema({ name: 'tasks', columns: [{ name: 'num1', type: 'number' }] }),
+        tableSchema(projectsSchema),
+      ],
+    })
+
+    let adapter = migrationsAdapter(AdapterClass, extraAdapterOptions, { schema: testSchema_v1 })
+
+    // add data
+    await adapter.batch([
+      ['create', 'tasks', { id: 't1', num1: 10 }],
+      ['create', 'projects', { id: 'p1', text1: 'hi' }],
+    ])
+
+    // apply changes
+    // NOTE: This is incorrect, as the projects table should be gone. However, we want to test that
+    // the migration really was applied, and not just that table being queried is not in the schema
+    const testSchema_v2 = { ...testSchema_v1, version: 2 }
+    const migrations_v2 = schemaMigrations({
+      migrations: [{ toVersion: 2, steps: [destroyTable({ table: 'projects' })] }],
+    })
+    adapter = await adapter.testClone({ schema: testSchema_v2, migrations: migrations_v2 })
+
+    // check that unrelated table is still there
+    expect(await adapter.find('tasks', 't1')).toMatchObject({ id: 't1', num1: 10 })
+
+    // check that deleted table is gone
+    await expect(adapter.find('projects', 'p1')).rejects.toBeInstanceOf(Error)
+
+    // apply changes
+    // create a new table (with the name of the old one) to see that it's not the same table
+    const testSchema_v3 = { ...testSchema_v1, version: 3 }
+    const migrations_v3 = schemaMigrations({
+      migrations: [{ toVersion: 3, steps: [createTable(projectsSchema)] }],
+    })
+    adapter = await adapter.testClone({ schema: testSchema_v3, migrations: migrations_v3 })
+
+    // check that the deleted table don't have its old data
+    expect(await adapter.find('projects', 'p1')).toBe(null)
+
+    // add data to recreated table
+    await adapter.batch([['create', 'projects', { id: 'p1', text1: 'hi_new' }]])
+    adapter = await adapter.testClone()
+    expect(await adapter.find('projects', 'p1')).toMatchObject({ id: 'p1', text1: 'hi_new' })
+  })
   it(`can perform empty migrations (regression test)`, async (_adapter, AdapterClass, extraAdapterOptions) => {
-    let adapter = new DatabaseAdapterCompat(
-      new AdapterClass({
-        schema: { ...testSchema, version: 1 },
-        migrations: schemaMigrations({ migrations: [] }),
-        ...extraAdapterOptions,
-      }),
-    )
+    let adapter = migrationsAdapter(AdapterClass, extraAdapterOptions, {
+      schema: { ...testSchema, version: 1 },
+      migrations: schemaMigrations({ migrations: [] }),
+    })
 
     await adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1', text1: 'foo' })]])
     expect(await adapter.count(taskQuery())).toBe(1)
@@ -1074,13 +1406,10 @@ export default () => {
   })
   it(`resets database when it's newer than app schema`, async (_adapter, AdapterClass, extraAdapterOptions) => {
     // launch newer version of the app
-    let adapter = new DatabaseAdapterCompat(
-      new AdapterClass({
-        schema: { ...testSchema, version: 3 },
-        migrations: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
-        ...extraAdapterOptions,
-      }),
-    )
+    let adapter = migrationsAdapter(AdapterClass, extraAdapterOptions, {
+      schema: { ...testSchema, version: 3 },
+      migrations: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
+    })
 
     await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
     expect(await adapter.count(taskQuery())).toBe(1)
@@ -1097,13 +1426,10 @@ export default () => {
   })
   it('resets database when there are no available migrations', async (_adapter, AdapterClass, extraAdapterOptions) => {
     // launch older version of the app
-    let adapter = new DatabaseAdapterCompat(
-      new AdapterClass({
-        schema: { ...testSchema, version: 1 },
-        migrations: schemaMigrations({ migrations: [] }),
-        ...extraAdapterOptions,
-      }),
-    )
+    let adapter = migrationsAdapter(AdapterClass, extraAdapterOptions, {
+      schema: { ...testSchema, version: 1 },
+      migrations: schemaMigrations({ migrations: [] }),
+    })
 
     await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
     expect(await adapter.count(taskQuery())).toBe(1)
@@ -1120,13 +1446,10 @@ export default () => {
   })
   it('errors when migration fails', async (_adapter, AdapterClass, extraAdapterOptions) => {
     // launch older version of the app
-    let adapter = new DatabaseAdapterCompat(
-      new AdapterClass({
-        schema: { ...testSchema, version: 1 },
-        migrations: schemaMigrations({ migrations: [] }),
-        ...extraAdapterOptions,
-      }),
-    )
+    let adapter = migrationsAdapter(AdapterClass, extraAdapterOptions, {
+      schema: { ...testSchema, version: 1 },
+      migrations: schemaMigrations({ migrations: [] }),
+    })
 
     await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
     expect(await adapter.count(taskQuery())).toBe(1)

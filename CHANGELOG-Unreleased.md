@@ -9,6 +9,10 @@
 ### New features
 
 - Added `Database#experimentalIsVerbose` option
+- New migration steps available:
+  - `destroyColumn` (see docs for limitations)
+  - `renameColumn` (see docs for limitations)
+  - `destroyTable`
 
 ### Fixes
 
