@@ -1,6 +1,6 @@
 {
   "name": "RCT-Folly",
-  "version": "2022.05.16.00",
+  "version": "2024.01.01.00",
   "license": {
     "type": "Apache License, Version 2.0"
   },
@@ -9,7 +9,7 @@
   "authors": "Facebook",
   "source": {
     "git": "https://github.com/facebook/folly.git",
-    "tag": "v2022.05.16.00"
+    "tag": "v2024.01.01.00"
   },
   "module_name": "folly",
   "header_mappings_dir": ".",
@@ -24,10 +24,10 @@
 
     ],
     "fmt": [
-      "~> 6.2.1"
+      "9.1.0"
     ]
   },
-  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -DFOLLY_HAVE_PTHREAD=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -faligned-new",
+  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -Wno-comma -Wno-shorten-64-to-32 -DFOLLY_HAVE_PTHREAD=1 -Wno-documentation -faligned-new",
   "preserve_paths": "folly/*.h",
   "libraries": "c++abi",
   "source_files": [
@@ -45,6 +45,8 @@
     "folly/json_pointer.cpp",
     "folly/container/detail/F14Table.cpp",
     "folly/detail/Demangle.cpp",
+    "folly/detail/FileUtilDetail.cpp",
+    "folly/detail/SplitStringSimd.cpp",
     "folly/detail/UniqueInstance.cpp",
     "folly/hash/SpookyHashV2.cpp",
     "folly/lang/Assume.cpp",
@@ -53,7 +55,8 @@
     "folly/memory/detail/MallocImpl.cpp",
     "folly/net/NetOps.cpp",
     "folly/portability/SysUio.cpp",
-    "folly/system/ThreadId.h",
+    "folly/synchronization/SanitizeThread.cpp",
+    "folly/system/AtFork.cpp",
     "folly/system/ThreadId.cpp",
     "folly/*.h",
     "folly/container/*.h",
@@ -67,6 +70,7 @@
     "folly/net/*.h",
     "folly/net/detail/*.h",
     "folly/portability/*.h",
+    "folly/system/*.h",
     "folly/*.h",
     "folly/container/*.h",
     "folly/container/detail/*.h",
@@ -79,12 +83,14 @@
     "folly/net/*.h",
     "folly/net/detail/*.h",
     "folly/portability/*.h",
+    "folly/system/*.h",
     "c++abi"
   ],
   "pod_target_xcconfig": {
     "USE_HEADERMAP": "NO",
+    "DEFINES_MODULE": "YES",
     "CLANG_CXX_LANGUAGE_STANDARD": "c++20",
-    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/fmt/include\" \"$(PODS_ROOT)/libevent/include/\"",
+    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/fmt/include\"",
     "OTHER_LDFLAGS": "\"-Wl,-U,_jump_fcontext\" \"-Wl,-U,_make_fcontext\""
   },
   "user_target_xcconfig": {
@@ -114,52 +120,6 @@
         "folly/concurrency/CacheLocality.h",
         "folly/synchronization/*.h",
         "folly/system/ThreadId.h"
-      ]
-    },
-    {
-      "name": "Futures",
-      "dependencies": {
-        "libevent": [
-
-        ]
-      },
-      "pod_target_xcconfig": {
-        "HEADER_SEARCH_PATHS": [
-          "$(inherited)",
-          "$(PODS_ROOT)/Headers/Public/libevent/event"
-        ]
-      },
-      "source_files": [
-        "folly/futures/*.{h,cpp}",
-        "folly/futures/detail/*.{h,cpp}",
-        "folly/executors/*.{h,cpp}",
-        "folly/executors/thread_factory/{NamedThreadFactory,ThreadFactory}.{h,cpp}",
-        "folly/executors/task_queue/{BlockingQueue,UnboundedBlockingQueue,LifoSemMPMCQueue,PriorityUnboundedBlockingQueue,PriorityLifoSemMPMCQueue}.{h,cpp}",
-        "folly/concurrency/*.{h,cpp}",
-        "folly/system/{ThreadId,ThreadName,HardwareConcurrency}.{h,cpp}",
-        "folly/synchronization/*.{h,cpp}",
-        "folly/synchronization/detail/*.{h,cpp}",
-        "folly/Try.cpp",
-        "folly/concurrency/CacheLocality.cpp",
-        "folly/experimental/{ExecutionObserver,ReadMostlySharedPtr,SingleWriterFixedHashMap,TLRefCount}.{h,cpp}",
-        "folly/io/async/{AtomicNotificationQueue,AtomicNotificationQueue-inl,AsyncTimeout,DelayedDestruction,DelayedDestructionBase,EventBase,EventBaseLocal,EventBaseManager,EventBaseAtomicNotificationQueue,EventBaseAtomicNotificationQueue-inl,EventBaseBackendBase,EventHandler,EventUtil,HHWheelTimer,HHWheelTimer-fwd,NotificationQueue,Request,TimeoutManager,VirtualEventBase}.{h,cpp}",
-        "folly/io/{Cursor,Cursor-inl,IOBuf,IOBufQueue}.{h,cpp}",
-        "folly/tracing/StaticTracepoint.{h,cpp}",
-        "folly/tracing/AsyncStack.{h,cpp}",
-        "folly/tracing/AsyncStack-inl.h",
-        "folly/{Executor,ExceptionString,ExceptionWrapper,ExceptionWrapper-inl,FileUtil,Singleton,SharedMutex}.{h,cpp}",
-        "folly/detail/{AsyncTrace,Futex,Futex-inl,MemoryIdler,SingletonStackTrace,StaticSingletonManager,ThreadLocalDetail}.{h,cpp}",
-        "folly/lang/SafeAssert.{h,cpp}",
-        "folly/memory/{MallctlHelper,SanitizeAddress}.{h,cpp}",
-        "folly/portability/{GFlags,SysUio}.{h,cpp}",
-        "folly/portability/SysMembarrier.cpp",
-        "folly/chrono/Hardware.{h,cpp}",
-        "folly/experimental/coro/Traits.{h,cpp}",
-        "folly/fibers/*.{h,cpp}",
-        "folly/experimental/coro/Coroutine.{h,cpp}",
-        "folly/fibers/Baton-inl.h",
-        "folly/experimental/**/*.h",
-        "folly/system/{AtFork,Pid}.{h,cpp}"
       ]
     }
   ]

@@ -16,7 +16,7 @@
     NSMutableArray<SRIOConsumer *> *_bufferedConsumers;
 }
 
-- (instancetype)initWithBufferCapacity:(NSUInteger)poolSize;
+- (instancetype)initWithBufferCapacity:(NSUInteger)poolSize
 {
     self = [super init];
     if (self) {
@@ -54,7 +54,7 @@
     return consumer;
 }
 
-- (void)returnConsumer:(SRIOConsumer *)consumer;
+- (void)returnConsumer:(SRIOConsumer *)consumer
 {
     if (_bufferedConsumers.count < _poolSize) {
         [_bufferedConsumers addObject:consumer];
