@@ -22,22 +22,7 @@ class MainApplication : Application(), ReactApplication {
         override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
 
         override fun getPackages(): List<ReactPackage> =
-            listOf(MainReactPackage(), NativeModulesPackage(), WatermelonDBPackage())
-
-        /*
-        override fun getJSIModulePackage(): JSIModulePackage {
-            return JSIModulePackage { reactApplicationContext, jsContext ->
-                mutableListOf<JSIModuleSpec<JSIModule>>().apply {
-                    addAll(
-                        WatermelonDBJSIPackage().getJSIModules(
-                            reactApplicationContext,
-                            jsContext,
-                        ),
-                    )
-                }
-            }
-        }
-        */
+            listOf(MainReactPackage(), NativeModulesPackage(), WatermelonDBPackage(), WatermelonDBJSIPackage())
 
         override fun getJSMainModuleName(): String = "src/index.integrationTests.native"
     }
