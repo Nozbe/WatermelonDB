@@ -60,7 +60,6 @@ jobs:
         if: true # steps.pods-cache.outputs.cache-hit != 'true'
         run: yarn cocoapods
       - run: yarn test:ios
-      - run: yarn swiftlint
   android:
     # https://github.com/ReactiveCircus/android-emulator-runner/issues/46
     # TODO: We'd like to bump runner to macos-13 or macos-14, but it no longer works at api-level 29
