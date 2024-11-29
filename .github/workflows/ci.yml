@@ -40,7 +40,7 @@ jobs:
       - name: Set Xcode version
         uses: maxim-lobanov/setup-xcode@v1.2.1
         with:
-          xcode-version: 15.4
+          xcode-version: 16.1
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1
       - name: cache node_modules
