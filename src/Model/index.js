@@ -123,9 +123,13 @@ export default class Model {
    * @see {Database#batch}
    */
   prepareUpdate(recordUpdater: (this) => void = noop): this {
+    this.__debugInvariant(
+      !this._preparedState,
+      `Model ${this.constructor.name}, Raw Data: ${JSON.stringify(this._raw)}`,
+    )
     invariant(
       !this._preparedState,
-      `Cannot update a record with pending changes for model ${this.constructor.name}, Raw Data: ${JSON.stringify(this._raw)} (${this.__debugName})`,
+      `Cannot update a record with pending changes (${this.__debugName})`,
     )
     this.__ensureNotDisposable(`Model.prepareUpdate()`)
     this._isEditing = true
@@ -182,9 +186,10 @@ export default class Model {
    * @see {Database#batch}
    */
   prepareMarkAsDeleted(): this {
+    this.__debugInvariant(!this._preparedState, `Model ${this.constructor.name}, Raw Data: ${JSON.stringify(this._raw)}`)
     invariant(
       !this._preparedState,
-      `Cannot mark a record with pending changes as deleted for model ${this.constructor.name}, Raw Data: ${JSON.stringify(this._raw)} (${this.__debugName})`,
+      `Cannot mark a record with pending changes as deleted (${this.__debugName})`,
     )
     this.__ensureNotDisposable(`Model.prepareMarkAsDeleted()`)
     this._raw._status = 'deleted'
@@ -217,9 +222,10 @@ export default class Model {
    * @see {Database#batch}
    */
   prepareDestroyPermanently(): this {
+    this.__debugInvariant(!this._preparedState, `Model ${this.constructor.name}, Raw Data: ${JSON.stringify(this._raw)}`)
     invariant(
       !this._preparedState,
-      `Cannot destroy permanently record with pending changes for model ${this.constructor.name}, Raw Data: ${JSON.stringify(this._raw)} (${this.__debugName})`,
+      `Cannot destroy permanently record with pending changes (${this.__debugName})`,
     )
     this.__ensureNotDisposable(`Model.prepareDestroyPermanently()`)
     this._raw._status = 'deleted'
@@ -464,7 +470,7 @@ export default class Model {
     )
     invariant(
       !(this._getChanges(): $FlowFixMe<BehaviorSubject<any>>).isStopped &&
-      this._raw._status !== 'deleted',
+        this._raw._status !== 'deleted',
       `Not allowed to change deleted record ${this.__debugName}`,
     )
   }
@@ -483,6 +489,12 @@ export default class Model {
   __logVerbose(debugName: string): void {
     if (this.db.experimentalIsVerbose) {
       logger.debug(`${debugName}: ${this.__debugName}`)
+    }
+  }
+
+  __debugInvariant(condition: boolean, errorMessage: string): void {
+    if (this.db.experimentalIsVerbose && !condition) {
+      logger.debug(errorMessage)
     }
   }
 }
