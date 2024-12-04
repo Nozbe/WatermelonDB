@@ -19,6 +19,9 @@
   "user_target_xcconfig": {
     "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/DoubleConversion\""
   },
+  "pod_target_xcconfig": {
+    "DEFINES_MODULE": "YES"
+  },
   "platforms": {
     "ios": "13.4"
   }

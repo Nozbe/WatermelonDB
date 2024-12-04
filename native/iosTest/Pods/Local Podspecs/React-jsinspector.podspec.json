@@ -1,6 +1,6 @@
 {
   "name": "React-jsinspector",
-  "version": "0.73.11",
+  "version": "0.74.6",
   "summary": "-",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
@@ -10,11 +10,37 @@
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.73.11"
+    "tag": "v0.74.6"
   },
   "source_files": "*.{cpp,h}",
-  "header_dir": "jsinspector",
+  "header_dir": "jsinspector-modern",
+  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -Wno-comma -Wno-shorten-64-to-32",
   "pod_target_xcconfig": {
-    "CLANG_CXX_LANGUAGE_STANDARD": "c++20"
+    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)/..\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/fmt/include\"",
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++20",
+    "DEFINES_MODULE": "YES"
+  },
+  "dependencies": {
+    "glog": [
+
+    ],
+    "RCT-Folly": [
+      "2024.01.01.00"
+    ],
+    "React-featureflags": [
+
+    ],
+    "DoubleConversion": [
+
+    ],
+    "React-runtimeexecutor": [
+      "0.74.6"
+    ],
+    "React-jsi": [
+
+    ],
+    "hermes-engine": [
+
+    ]
   }
 }

@@ -1,0 +1,6 @@
+module RCTDeprecation {
+  umbrella header "RCTDeprecation-umbrella.h"
+
+  export *
+  module * { export * }
+}

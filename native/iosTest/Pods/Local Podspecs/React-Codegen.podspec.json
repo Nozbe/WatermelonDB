@@ -1,11 +1,11 @@
 {
   "name": "React-Codegen",
-  "version": "0.73.11",
+  "version": "0.74.6",
   "summary": "Temp pod for generated files for React Native",
   "homepage": "https://facebook.com/",
   "license": "Unlicense",
   "authors": "Facebook",
-  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -Wno-nullability-completeness -std=c++20",
+  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation -Wno-nullability-completeness -std=c++20",
   "source": {
     "git": ""
   },
@@ -54,14 +54,41 @@
     "DoubleConversion": [
 
     ],
+    "React-graphics": [
+
+    ],
+    "React-rendererdebug": [
+
+    ],
+    "React-Fabric": [
+
+    ],
+    "React-FabricImage": [
+
+    ],
+    "React-debug": [
+
+    ],
+    "React-utils": [
+
+    ],
+    "React-featureflags": [
+
+    ],
     "hermes-engine": [
 
-    ],
-    "React-rncore": [
-
-    ],
-    "FBReactNativeSpec": [
-
     ]
+  },
+  "script_phases": {
+    "name": "Generate Specs",
+    "execution_position": "before_compile",
+    "input_files": [
+
+    ],
+    "show_env_vars_in_log": true,
+    "output_files": [
+      "${DERIVED_FILE_DIR}/react-codegen.log"
+    ],
+    "script": "pushd \"$PODS_ROOT/../\" > /dev/null\nRCT_SCRIPT_POD_INSTALLATION_ROOT=$(pwd)\npopd >/dev/null\n\nexport RCT_SCRIPT_RN_DIR=$RCT_SCRIPT_POD_INSTALLATION_ROOT/../../node_modules/react-native\nexport RCT_SCRIPT_APP_PATH=$RCT_SCRIPT_POD_INSTALLATION_ROOT/../..\nexport RCT_SCRIPT_OUTPUT_DIR=$RCT_SCRIPT_POD_INSTALLATION_ROOT\nexport RCT_SCRIPT_TYPE=withCodegenDiscovery\n\nSCRIPT_PHASES_SCRIPT=\"$RCT_SCRIPT_RN_DIR/scripts/react_native_pods_utils/script_phases.sh\"\nWITH_ENVIRONMENT=\"$RCT_SCRIPT_RN_DIR/scripts/xcode/with-environment.sh\"\n/bin/sh -c \"$WITH_ENVIRONMENT $SCRIPT_PHASES_SCRIPT\"\n"
   }
 }

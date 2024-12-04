@@ -117,7 +117,6 @@ yarn test:android
 Make sure the native code you're editing conforms to Watermelon standards:
 
 ```bash
-yarn swiftlint
 yarn ktlint
 ```
 

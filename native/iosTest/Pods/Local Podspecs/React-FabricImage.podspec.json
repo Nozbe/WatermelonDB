@@ -1,6 +1,6 @@
 {
   "name": "React-FabricImage",
-  "version": "0.73.11",
+  "version": "0.74.6",
   "summary": "Image Component for Fabric for React Native.",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
@@ -10,12 +10,12 @@
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.73.11"
+    "tag": "v0.74.6"
   },
   "source_files": "react/renderer/components/image/**/*.{m,mm,cpp,h}",
   "exclude_files": "react/renderer/components/image/tests",
   "header_dir": "react/renderer/components/image",
-  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-gnu-zero-variadic-macro-arguments",
+  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -Wno-comma -Wno-shorten-64-to-32",
   "pod_target_xcconfig": {
     "USE_HEADERMAP": "YES",
     "CLANG_CXX_LANGUAGE_STANDARD": "c++20",
@@ -23,16 +23,16 @@
   },
   "dependencies": {
     "RCT-Folly/Fabric": [
-      "2022.05.16.00"
+      "2024.01.01.00"
     ],
     "React-jsiexecutor": [
-      "0.73.11"
+      "0.74.6"
     ],
     "RCTRequired": [
-      "0.73.11"
+      "0.74.6"
     ],
     "RCTTypeSafety": [
-      "0.73.11"
+      "0.74.6"
     ],
     "React-jsi": [
 
@@ -47,7 +47,7 @@
 
     ],
     "fmt": [
-      "~> 6.2.1"
+      "9.1.0"
     ],
     "React-ImageManager": [
 

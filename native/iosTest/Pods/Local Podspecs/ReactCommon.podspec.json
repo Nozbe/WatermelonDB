@@ -1,7 +1,7 @@
 {
   "name": "ReactCommon",
   "module_name": "ReactCommon",
-  "version": "0.73.11",
+  "version": "0.74.6",
   "summary": "-",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
@@ -11,45 +11,44 @@
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.73.11"
+    "tag": "v0.74.6"
   },
   "header_dir": "ReactCommon",
-  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation",
+  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation",
   "pod_target_xcconfig": {
     "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/fmt/include\" \"$(PODS_ROOT)/Headers/Private/React-Core\"",
     "USE_HEADERMAP": "YES",
+    "DEFINES_MODULE": "YES",
     "CLANG_CXX_LANGUAGE_STANDARD": "c++20",
     "GCC_WARN_PEDANTIC": "YES"
-  },
-  "dependencies": {
-    "React-logger": [
-      "0.73.11"
-    ]
   },
   "subspecs": [
     {
       "name": "turbomodule",
       "dependencies": {
         "React-callinvoker": [
-          "0.73.11"
+          "0.74.6"
         ],
         "React-perflogger": [
-          "0.73.11"
+          "0.74.6"
         ],
         "React-cxxreact": [
-          "0.73.11"
+          "0.74.6"
         ],
         "React-jsi": [
-          "0.73.11"
+          "0.74.6"
         ],
         "RCT-Folly": [
-          "2022.05.16.00"
+          "2024.01.01.00"
+        ],
+        "React-logger": [
+          "0.74.6"
         ],
         "DoubleConversion": [
 
         ],
         "fmt": [
-          "~> 6.2.1"
+          "9.1.0"
         ],
         "glog": [
 
@@ -63,7 +62,7 @@
           "name": "bridging",
           "dependencies": {
             "React-jsi": [
-              "0.73.11"
+              "0.74.6"
             ],
             "hermes-engine": [
 
@@ -78,7 +77,18 @@
         },
         {
           "name": "core",
-          "source_files": "react/nativemodule/core/ReactCommon/**/*.{cpp,h}"
+          "source_files": "react/nativemodule/core/ReactCommon/**/*.{cpp,h}",
+          "pod_target_xcconfig": {
+            "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_CONFIGURATION_BUILD_DIR)/React-debug/React_debug.framework/Headers\" \"$(PODS_CONFIGURATION_BUILD_DIR)/React-utils/React_utils.framework/Headers\""
+          },
+          "dependencies": {
+            "React-debug": [
+              "0.74.6"
+            ],
+            "React-utils": [
+              "0.74.6"
+            ]
+          }
         }
       ]
     }

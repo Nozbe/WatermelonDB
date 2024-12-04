@@ -1,0 +1,27 @@
+{
+  "name": "fmt",
+  "version": "9.1.0",
+  "license": {
+    "type": "MIT"
+  },
+  "homepage": "https://github.com/fmtlib/fmt",
+  "summary": "{fmt} is an open-source formatting library for C++. It can be used as a safe and fast alternative to (s)printf and iostreams.",
+  "authors": "The fmt contributors",
+  "source": {
+    "git": "https://github.com/fmtlib/fmt.git",
+    "tag": "9.1.0"
+  },
+  "pod_target_xcconfig": {
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++20"
+  },
+  "platforms": {
+    "ios": "13.4"
+  },
+  "libraries": "c++",
+  "public_header_files": "include/fmt/*.h",
+  "header_mappings_dir": "include",
+  "source_files": [
+    "include/fmt/*.h",
+    "src/format.cc"
+  ]
+}

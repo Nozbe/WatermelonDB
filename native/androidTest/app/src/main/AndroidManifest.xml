@@ -7,7 +7,6 @@
         android:name=".MainApplication"
         android:label="@string/app_name"
         android:theme="@style/Theme.AppCompat.Light"
-        android:extractNativeLibs="true"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
