@@ -16,6 +16,8 @@ android {
         prefab isUsingEncryptedDB
     }
     
+    namespace "com.nozbe.watermelondb.jsi"
+
     defaultConfig {
         minSdkVersion rootProject.hasProperty('minSdkVersion') ? rootProject.minSdkVersion : DEFAULT_MIN_SDK_VERSION
         targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION

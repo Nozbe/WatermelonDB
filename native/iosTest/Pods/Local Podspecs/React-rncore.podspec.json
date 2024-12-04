@@ -1,0 +1,70 @@
+{
+  "name": "React-rncore",
+  "version": "0.73.11",
+  "summary": "Fabric for React Native.",
+  "homepage": "https://reactnative.dev/",
+  "license": "MIT",
+  "authors": "Meta Platforms, Inc. and its affiliates",
+  "platforms": {
+    "ios": "13.4"
+  },
+  "source": {
+    "git": "https://github.com/facebook/react-native.git",
+    "tag": "v0.73.11"
+  },
+  "source_files": "dummyFile.cpp",
+  "pod_target_xcconfig": {
+    "USE_HEADERMAP": "YES",
+    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)\" \"$(PODS_TARGET_SRCROOT)/ReactCommon\"",
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++20"
+  },
+  "prepare_command": "mkdir -p ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore && touch -a ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/ComponentDescriptors.h ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/EventEmitters.cpp ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/EventEmitters.h ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/Props.cpp ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/Props.h ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/States.cpp ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/States.h ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/RCTComponentViewHelpers.h ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/ShadowNodes.cpp ../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/ShadowNodes.h",
+  "script_phases": {
+    "name": "Generate Specs",
+    "input_files": [
+      "${PODS_TARGET_SRCROOT}/../Libraries/Components/ActivityIndicator/ActivityIndicatorViewNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Components/DrawerAndroid/AndroidDrawerLayoutNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Components/ProgressBarAndroid/ProgressBarAndroidNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Components/RefreshControl/AndroidSwipeRefreshLayoutNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Components/RefreshControl/PullToRefreshViewNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Components/SafeAreaView/RCTSafeAreaViewNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Components/ScrollView/AndroidHorizontalScrollContentViewNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Components/ScrollView/AndroidHorizontalScrollViewNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Components/ScrollView/ScrollContentViewNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Components/ScrollView/ScrollViewNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Components/Switch/AndroidSwitchNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Components/Switch/SwitchNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Components/TextInput/AndroidTextInputNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Components/TextInput/RCTInputAccessoryViewNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Components/TextInput/RCTMultilineTextInputNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Components/TextInput/RCTSingelineTextInputNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Components/TraceUpdateOverlay/TraceUpdateOverlayNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Components/UnimplementedViews/UnimplementedNativeViewNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Components/View/ViewNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Image/ImageViewNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Image/TextInlineImageNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Modal/RCTModalHostViewNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/ReactNative/requireNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Text/TextNativeComponent.js",
+      "${PODS_TARGET_SRCROOT}/../Libraries/Utilities/codegenNativeComponent.js",
+      "$PODS_ROOT/../.xcode.env.local",
+      "$PODS_ROOT/../.xcode.env"
+    ],
+    "output_files": [
+      "${DERIVED_FILE_DIR}/codegen-rncore.log",
+      "${PODS_TARGET_SRCROOT}/../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/ComponentDescriptors.h",
+      "${PODS_TARGET_SRCROOT}/../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/EventEmitters.cpp",
+      "${PODS_TARGET_SRCROOT}/../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/EventEmitters.h",
+      "${PODS_TARGET_SRCROOT}/../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/Props.cpp",
+      "${PODS_TARGET_SRCROOT}/../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/Props.h",
+      "${PODS_TARGET_SRCROOT}/../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/States.cpp",
+      "${PODS_TARGET_SRCROOT}/../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/States.h",
+      "${PODS_TARGET_SRCROOT}/../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/RCTComponentViewHelpers.h",
+      "${PODS_TARGET_SRCROOT}/../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/ShadowNodes.cpp",
+      "${PODS_TARGET_SRCROOT}/../../../native/iosTest/../../node_modules/react-native/ReactCommon/react/renderer/components/rncore/ShadowNodes.h"
+    ],
+    "script": "pushd \"$PODS_ROOT/../\" > /dev/null\nRCT_SCRIPT_POD_INSTALLATION_ROOT=$(pwd)\npopd >/dev/null\n\nexport RCT_SCRIPT_RN_DIR=${PODS_TARGET_SRCROOT}/..\nexport RCT_SCRIPT_LIBRARY_NAME=rncore\nexport RCT_SCRIPT_OUTPUT_DIR=$RCT_SCRIPT_POD_INSTALLATION_ROOT/../../node_modules/react-native/ReactCommon\nexport RCT_SCRIPT_LIBRARY_TYPE=components\nexport RCT_SCRIPT_JS_SRCS_PATTERN=*NativeComponent.js\nexport RCT_SCRIPT_JS_SRCS_DIR=../Libraries\nexport RCT_SCRIPT_CODEGEN_MODULE_DIR=../../node_modules/react-native/ReactCommon/.\nexport RCT_SCRIPT_CODEGEN_COMPONENT_DIR=../../node_modules/react-native/ReactCommon/react/renderer/components\nexport RCT_SCRIPT_FILE_LIST=\"[\\\"../Libraries/Components/ActivityIndicator/ActivityIndicatorViewNativeComponent.js\\\", \\\"../Libraries/Components/DrawerAndroid/AndroidDrawerLayoutNativeComponent.js\\\", \\\"../Libraries/Components/ProgressBarAndroid/ProgressBarAndroidNativeComponent.js\\\", \\\"../Libraries/Components/RefreshControl/AndroidSwipeRefreshLayoutNativeComponent.js\\\", \\\"../Libraries/Components/RefreshControl/PullToRefreshViewNativeComponent.js\\\", \\\"../Libraries/Components/SafeAreaView/RCTSafeAreaViewNativeComponent.js\\\", \\\"../Libraries/Components/ScrollView/AndroidHorizontalScrollContentViewNativeComponent.js\\\", \\\"../Libraries/Components/ScrollView/AndroidHorizontalScrollViewNativeComponent.js\\\", \\\"../Libraries/Components/ScrollView/ScrollContentViewNativeComponent.js\\\", \\\"../Libraries/Components/ScrollView/ScrollViewNativeComponent.js\\\", \\\"../Libraries/Components/Switch/AndroidSwitchNativeComponent.js\\\", \\\"../Libraries/Components/Switch/SwitchNativeComponent.js\\\", \\\"../Libraries/Components/TextInput/AndroidTextInputNativeComponent.js\\\", \\\"../Libraries/Components/TextInput/RCTInputAccessoryViewNativeComponent.js\\\", \\\"../Libraries/Components/TextInput/RCTMultilineTextInputNativeComponent.js\\\", \\\"../Libraries/Components/TextInput/RCTSingelineTextInputNativeComponent.js\\\", \\\"../Libraries/Components/TraceUpdateOverlay/TraceUpdateOverlayNativeComponent.js\\\", \\\"../Libraries/Components/UnimplementedViews/UnimplementedNativeViewNativeComponent.js\\\", \\\"../Libraries/Components/View/ViewNativeComponent.js\\\", \\\"../Libraries/Image/ImageViewNativeComponent.js\\\", \\\"../Libraries/Image/TextInlineImageNativeComponent.js\\\", \\\"../Libraries/Modal/RCTModalHostViewNativeComponent.js\\\", \\\"../Libraries/ReactNative/requireNativeComponent.js\\\", \\\"../Libraries/Text/TextNativeComponent.js\\\", \\\"../Libraries/Utilities/codegenNativeComponent.js\\\"]\"\n\nSCRIPT_PHASES_SCRIPT=\"$RCT_SCRIPT_RN_DIR/scripts/react_native_pods_utils/script_phases.sh\"\nWITH_ENVIRONMENT=\"$RCT_SCRIPT_RN_DIR/scripts/xcode/with-environment.sh\"\n/bin/sh -c \"$WITH_ENVIRONMENT $SCRIPT_PHASES_SCRIPT\"\n",
+    "execution_position": "before_compile",
+    "show_env_vars_in_log": true
+  }
+}

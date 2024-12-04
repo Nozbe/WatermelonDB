@@ -1,59 +1,55 @@
 {
   "name": "ReactCommon",
   "module_name": "ReactCommon",
-  "version": "0.71.3",
+  "version": "0.73.11",
   "summary": "-",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
-  "authors": "Facebook, Inc. and its affiliates",
+  "authors": "Meta Platforms, Inc. and its affiliates",
   "platforms": {
-    "ios": "12.4"
+    "ios": "13.4"
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.71.3"
+    "tag": "v0.73.11"
   },
   "header_dir": "ReactCommon",
-  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation",
+  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation",
   "pod_target_xcconfig": {
-    "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/Headers/Private/React-Core\"",
+    "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/fmt/include\" \"$(PODS_ROOT)/Headers/Private/React-Core\"",
     "USE_HEADERMAP": "YES",
-    "CLANG_CXX_LANGUAGE_STANDARD": "c++17",
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++20",
     "GCC_WARN_PEDANTIC": "YES"
   },
   "dependencies": {
     "React-logger": [
-      "0.71.3"
+      "0.73.11"
     ]
   },
   "subspecs": [
     {
-      "name": "react_debug_core",
-      "source_files": "react/debug/*.{cpp,h}"
-    },
-    {
       "name": "turbomodule",
       "dependencies": {
         "React-callinvoker": [
-          "0.71.3"
+          "0.73.11"
         ],
         "React-perflogger": [
-          "0.71.3"
-        ],
-        "React-Core": [
-          "0.71.3"
+          "0.73.11"
         ],
         "React-cxxreact": [
-          "0.71.3"
+          "0.73.11"
         ],
         "React-jsi": [
-          "0.71.3"
+          "0.73.11"
         ],
         "RCT-Folly": [
-          "2021.07.22.00"
+          "2022.05.16.00"
         ],
         "DoubleConversion": [
 
+        ],
+        "fmt": [
+          "~> 6.2.1"
         ],
         "glog": [
 
@@ -67,7 +63,7 @@
           "name": "bridging",
           "dependencies": {
             "React-jsi": [
-              "0.71.3"
+              "0.73.11"
             ],
             "hermes-engine": [
 
@@ -82,23 +78,7 @@
         },
         {
           "name": "core",
-          "source_files": [
-            "react/nativemodule/core/ReactCommon/**/*.{cpp,h}",
-            "react/nativemodule/core/platform/ios/**/*.{mm,cpp,h}"
-          ],
-          "exclude_files": "react/nativemodule/core/ReactCommon/LongLivedObject.h"
-        },
-        {
-          "name": "samples",
-          "source_files": [
-            "react/nativemodule/samples/ReactCommon/**/*.{cpp,h}",
-            "react/nativemodule/samples/platform/ios/**/*.{mm,cpp,h}"
-          ],
-          "dependencies": {
-            "ReactCommon/turbomodule/core": [
-              "0.71.3"
-            ]
-          }
+          "source_files": "react/nativemodule/core/ReactCommon/**/*.{cpp,h}"
         }
       ]
     }

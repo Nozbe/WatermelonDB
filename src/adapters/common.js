@@ -15,6 +15,7 @@ export type DirtyQueryResult = Array<RecordId | DirtyRaw>
 export function validateAdapter(adapter: DatabaseAdapter): void {
   if (process.env.NODE_ENV !== 'production') {
     const { schema, migrations } = adapter
+    invariant(schema, `Missing schema in the adapter`)
     // TODO: uncomment when full migrations are shipped
     // invariant(migrations, `Missing migrations`)
     if (migrations) {

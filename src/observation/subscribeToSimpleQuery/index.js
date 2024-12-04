@@ -56,8 +56,7 @@ export default function subscribeToSimpleQuery<Record: Model>(
       if (shouldEmit || alwaysEmit) {
         emitCopy()
       }
-    },
-    debugInfo)
+    }, debugInfo)
   })
 
   return () => {

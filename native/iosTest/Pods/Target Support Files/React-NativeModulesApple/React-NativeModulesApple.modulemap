@@ -1,0 +1,6 @@
+module React_NativeModulesApple {
+  umbrella header "React-NativeModulesApple-umbrella.h"
+
+  export *
+  module * { export * }
+}

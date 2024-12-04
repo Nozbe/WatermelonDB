@@ -7,7 +7,6 @@ require_relative '../../node_modules/@react-native-community/cli-platform-ios/na
 platform :ios, '15.0'
 
 hermes_enabled = true
-enable_jslock_hack = false
 should_use_frameworks = false
 
 if should_use_frameworks
@@ -58,8 +57,11 @@ if should_use_frameworks
 end
 
 post_install do |installer|
-  react_native_post_install(installer, '../../node_modules/react-native')
-  # __apply_Xcode_12_5_M1_post_install_workaround(installer)
+  react_native_post_install(
+    installer,
+    '../../node_modules/react-native',
+    mac_catalyst_enabled: false,
+  )
 
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
@@ -67,22 +69,25 @@ post_install do |installer|
         $(inherited)
         CCACHE_HACK_TOOLCHAIN_DIR="$(TOOLCHAIN_DIR)"
       ]
-      if !hermes_enabled && enable_jslock_hack
-        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'].push(
-          'ENABLE_JSLOCK_PERFORMANCE_HACK=1',
-        )
-      end
       # ccache bails out of caching if clang modules are enabled, but this breaks some packages
       # you also have to be careful about PCHs
       # sometimes you might have to manually add a system framework to project Link phase
       # more info: https://pspdfkit.com/blog/2015/ccache-for-fun-and-profit/
-      config.build_settings['CC'] ||= ['$(SRCROOT)/../../../scripts/ccache-clang']
+
+      # TODO: Bring back CC
+      # config.build_settings['CC'] ||= ['$(SRCROOT)/../../../scripts/ccache-clang']
+
       # case target.name
       # when 'Nimble'
       #   config.build_settings['CLANG_ENABLE_MODULES'] ||= ['YES']
       # else
         config.build_settings['CLANG_ENABLE_MODULES'] ||= ['NO']
       # end
+
+      # Fixes https://github.com/facebook/react-native/issues/34106
+      if target.name == 'React-Codegen'
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.4'
+      end
     end
   end
 end

@@ -1,0 +1,6 @@
+module react_debug {
+  umbrella header "React-debug-umbrella.h"
+
+  export *
+  module * { export * }
+}

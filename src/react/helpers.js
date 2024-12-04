@@ -4,7 +4,7 @@ import { createElement } from 'react'
 export type HOC<Base, Enhanced> = (React$ComponentType<Base>) => React$ComponentType<Enhanced>
 
 let _createFactory: any = (Component) => {
-  // eslint-disable-next-line react/function-component-definition
+  // eslint-disable-next-line react/function-component-definition, react/display-name
   return (props) => createElement(Component, props)
 }
 

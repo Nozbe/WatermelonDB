@@ -574,7 +574,9 @@ export default () => {
   it(`can unsafely load from sync JSON`, async (adapter, AdapterClass, extraAdapterOptions, platform) => {
     if (
       !(
-        AdapterClass.name === 'SQLiteAdapter' && adapter.underlyingAdapter._dispatcherType === 'jsi' && platform !== 'windows'
+        AdapterClass.name === 'SQLiteAdapter' &&
+        adapter.underlyingAdapter._dispatcherType === 'jsi' &&
+        platform !== 'windows'
       )
     ) {
       await expectToRejectWithMessage(
@@ -677,7 +679,9 @@ export default () => {
   it(`can return residual JSON from sync JSON`, async (adapter, AdapterClass, extraAdapterOptions, platform) => {
     if (
       !(
-        AdapterClass.name === 'SQLiteAdapter' && adapter.underlyingAdapter._dispatcherType === 'jsi' && platform !== 'windows'
+        AdapterClass.name === 'SQLiteAdapter' &&
+        adapter.underlyingAdapter._dispatcherType === 'jsi' &&
+        platform !== 'windows'
       )
     ) {
       await expectToRejectWithMessage(
@@ -705,7 +709,9 @@ export default () => {
   it(`destroys provided jsons after being used`, async (adapter, AdapterClass, extraAdapterOptions, platform) => {
     if (
       !(
-        AdapterClass.name === 'SQLiteAdapter' && adapter.underlyingAdapter._dispatcherType === 'jsi' && platform !== 'windows'
+        AdapterClass.name === 'SQLiteAdapter' &&
+        adapter.underlyingAdapter._dispatcherType === 'jsi' &&
+        platform !== 'windows'
       )
     ) {
       await expectToRejectWithMessage(

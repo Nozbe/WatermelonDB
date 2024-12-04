@@ -11,12 +11,12 @@ export default class LocalStorage {
 
   // Get value from LocalStorage (returns value deserialized from JSON)
   // Returns `undefined` if not found
-  get<ValueType>(key: LocalStorageKey<ValueType>): Promise<ValueType | void>
+  get<ValueType>(key: LocalStorageKey<ValueType>): Promise<ValueType | undefined>
 
   // Experimental: Same as get(), but can be called synchronously
   _getSync<ValueType>(
     key: LocalStorageKey<ValueType>,
-    callback: (value: ValueType | void) => void,
+    callback: (value: ValueType | undefined) => void,
   ): void
 
   // Set value to LocalStorage

@@ -1,6 +1,10 @@
 package com.nozbe.watermelonTest
 
 import com.facebook.react.ReactActivity
+import com.facebook.react.ReactActivityDelegate
+import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
+import com.facebook.react.defaults.DefaultReactActivityDelegate
+
 import com.nozbe.watermelondb.jsi.WatermelonJSI
 
 class MainActivity : ReactActivity() {
@@ -10,4 +14,7 @@ class MainActivity : ReactActivity() {
         super.onTrimMemory(level)
         WatermelonJSI.onTrimMemory(level)
     }
+
+    override fun createReactActivityDelegate(): ReactActivityDelegate =
+      DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
 }
