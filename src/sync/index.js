@@ -85,7 +85,6 @@ export type SyncConflictResolver = (
 // TODO: JSDoc'ify this
 export type SyncArgs = $Exact<{
   database: Database,
-  pullChanges: (SyncPullArgs) => Promise<SyncPullResult>,
   pushChanges?: (SyncPushArgs) => Promise<?SyncPushResult>,
   // version at which support for migration syncs was added - the version BEFORE first syncable migration
   migrationsEnabledAtVersion?: SchemaVersion,
@@ -113,6 +112,22 @@ export type SyncArgs = $Exact<{
   // when processing a very large sync (could be useful for replacement syncs). Note that remote change count
   // is NaN in turbo mode.
   onWillApplyRemoteChanges?: (info: $Exact<{ remoteChangeCount: number }>) => Promise<void>,
+  // If this flag is set to true, then pullChanges is expected to return an async generator that yields multiple SyncPullResults. This allows WatermelonDB to process incoming sync data in chunks, which can be useful for syncs that end up being particularly large and might otherwise cause an OOM if held in memory all at once. It is not recommended to use this flag unless you are sure - should a sync fail midway through, the database will be in a "partially synced" and potentially inconsistent state. Although it will eventually become consistent after a subsequent sync is completed, it might cause unexpected issues depending on your particular use case.
+  useUnsafeChunkedAsyncGenerator?: false,
+  pullChanges: (SyncPullArgs) => Promise<SyncPullResult>,
+}> | $Exact<{
+  database: Database,
+  pushChanges?: (SyncPushArgs) => Promise<?SyncPushResult>,
+  migrationsEnabledAtVersion?: SchemaVersion,
+  sendCreatedAsUpdated?: boolean,
+  log?: SyncLog,
+  conflictResolver?: SyncConflictResolver,
+  _unsafeBatchPerCollection?: boolean,
+  unsafeTurbo?: boolean,
+  onDidPullChanges?: (Object) => Promise<void>,
+  onWillApplyRemoteChanges?: (info: $Exact<{ remoteChangeCount: number }>) => Promise<void>,
+  useUnsafeChunkedAsyncGenerator: true,
+  pullChanges: (SyncPullArgs) => AsyncGenerator<SyncPullResult, void, void>,
 }>
 
 /**
