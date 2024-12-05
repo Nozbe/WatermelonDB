@@ -56,9 +56,8 @@ export type SyncConflictResolver = (
   resolved: DirtyRaw,
 ) => DirtyRaw
 
-export type SyncArgs = $Exact<{
+type BaseSyncArgs = $Exact<{
   database: Database
-  pullChanges: (_: SyncPullArgs) => Promise<SyncPullResult>
   pushChanges?: (_: SyncPushArgs) => Promise<SyncPushResult | undefined | void>
   // version at which support for migration syncs was added - the version BEFORE first syncable migration
   migrationsEnabledAtVersion?: SchemaVersion
@@ -87,6 +86,18 @@ export type SyncArgs = $Exact<{
   // is NaN in turbo mode.
   onWillApplyRemoteChanges?: (info: $Exact<{ remoteChangeCount: number }>) => Promise<void>
 }>
+
+type SimpleSyncArgs = $Exact<BaseSyncArgs & {
+  pullChanges: (_: SyncPullArgs) => Promise<SyncPullResult>
+  unsafePullChangesAsyncGenerator?: undefined
+}>
+
+type ChunkedSyncArgs = $Exact<BaseSyncArgs & {
+  unsafePullChangesAsyncGenerator: (_: SyncPullArgs) => AsyncGenerator<SyncPullResult, void, void>
+  pullChanges?: undefined
+}>
+
+export type SyncArgs = SimpleSyncArgs | ChunkedSyncArgs
 
 export function synchronize(args: SyncArgs): Promise<void>
 

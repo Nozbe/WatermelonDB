@@ -88,6 +88,7 @@
     "@babel/plugin-syntax-flow": "^7.24.7",
     "@babel/plugin-syntax-jsx": "^7.24.7",
     "@babel/plugin-transform-arrow-functions": "^7.24.7",
+    "@babel/plugin-transform-async-generator-functions": "^7.25.9",
     "@babel/plugin-transform-async-to-generator": "^7.24.7",
     "@babel/plugin-transform-block-scoping": "^7.24.7",
     "@babel/plugin-transform-classes": "^7.24.7",

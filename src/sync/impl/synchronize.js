@@ -13,10 +13,16 @@ import {
 } from './index'
 import { ensureSameDatabase, isChangeSetEmpty, changeSetCount } from './helpers'
 import type { SyncArgs, Timestamp, SyncPullStrategy } from '../index'
+import type { SyncPullResult } from "../index";
+
+async function* liftToAsyncGenerator<T>(promise: Promise<T>): AsyncGenerator<T, void, void> {
+  yield await promise
+}
 
 export default async function synchronize({
   database,
   pullChanges,
+  unsafePullChangesAsyncGenerator,
   onWillApplyRemoteChanges,
   onDidPullChanges,
   pushChanges,
@@ -27,6 +33,7 @@ export default async function synchronize({
   _unsafeBatchPerCollection,
   unsafeTurbo,
 }: SyncArgs): Promise<void> {
+
   const resetCount = database._resetCount
   log && (log.startedAt = new Date())
   log && (log.phase = 'starting')
@@ -34,7 +41,7 @@ export default async function synchronize({
   // TODO: Wrap the three computionally intensive phases in `requestIdleCallback`
 
   // pull phase
-  const lastPulledAt = await getLastPulledAt(database)
+  let lastPulledAt = await getLastPulledAt(database)
   log && (log.lastPulledAt = lastPulledAt)
 
   const { schemaVersion, migration, shouldSaveSchemaVersion } = await getMigrationInfo(
@@ -45,79 +52,100 @@ export default async function synchronize({
   )
   log && (log.phase = 'ready to pull')
 
-  // $FlowFixMe
-  const pullResult = await pullChanges({
-    lastPulledAt,
-    schemaVersion,
-    migration,
-  })
-  log && (log.phase = 'pulled')
+  let pullChunks: AsyncGenerator<SyncPullResult, void, void>
 
-  let newLastPulledAt: Timestamp = (pullResult: any).timestamp
-  const remoteChangeCount = pullResult.changes ? changeSetCount(pullResult.changes) : NaN
-
-  if (onWillApplyRemoteChanges) {
-    await onWillApplyRemoteChanges({ remoteChangeCount })
+  if(unsafePullChangesAsyncGenerator) {
+    pullChunks = unsafePullChangesAsyncGenerator({ lastPulledAt, schemaVersion, migration })
+  } else if(pullChanges) {
+    pullChunks = liftToAsyncGenerator(pullChanges({ lastPulledAt, schemaVersion, migration }))
+  } else {
+    invariant(false, 'Either pullChanges or unsafePullChangesAsyncGenerator must be provided')
   }
 
-  await database.write(async () => {
-    ensureSameDatabase(database, resetCount)
-    invariant(
-      lastPulledAt === (await getLastPulledAt(database)),
-      '[Sync] Concurrent synchronization is not allowed. More than one synchronize() call was running at the same time, and the later one was aborted before committing results to local database.',
-    )
+  let newLastPulledAt: Timestamp | null = null
+  let result = await pullChunks.next()
+  log && (log.phase = 'pulled')
 
-    if (unsafeTurbo) {
+  // To answer your question - yes it would be nice to use a for await loop here
+  // however, because of the use of 'fast-async' (see babel config), this syntax is *not* supported and will cause the code to hang...
+  while(!result.done) {
+    const pullResult = result.value
+    let chunkNewLastPulledAt: Timestamp = (pullResult: any).timestamp
+    newLastPulledAt = chunkNewLastPulledAt
+    const remoteChangeCount = pullResult.changes ? changeSetCount(pullResult.changes) : NaN
+
+    if (onWillApplyRemoteChanges) {
+      await onWillApplyRemoteChanges({ remoteChangeCount })
+    }
+
+    await database.write(async () => {
+      ensureSameDatabase(database, resetCount)
       invariant(
-        !_unsafeBatchPerCollection,
-        'unsafeTurbo must not be used with _unsafeBatchPerCollection',
+        lastPulledAt === (await getLastPulledAt(database)),
+        '[Sync] Concurrent synchronization is not allowed. More than one synchronize() call was running at the same time, and the later one was aborted before committing results to local database.',
       )
-      invariant(
-        'syncJson' in pullResult || 'syncJsonId' in pullResult,
-        'missing syncJson/syncJsonId',
-      )
-      invariant(lastPulledAt === null, 'unsafeTurbo can only be used as the first sync')
 
-      const syncJsonId = pullResult.syncJsonId || Math.floor(Math.random() * 1000000000)
+      if (unsafeTurbo) {
+        invariant(
+          !_unsafeBatchPerCollection,
+          'unsafeTurbo must not be used with _unsafeBatchPerCollection',
+        )
+        invariant(
+          'syncJson' in pullResult || 'syncJsonId' in pullResult,
+          'missing syncJson/syncJsonId',
+        )
+        invariant(lastPulledAt === null, 'unsafeTurbo can only be used as the first sync')
 
-      if (pullResult.syncJson) {
-        await database.adapter.provideSyncJson(syncJsonId, pullResult.syncJson)
+        const syncJsonId = pullResult.syncJsonId || Math.floor(Math.random() * 1000000000)
+
+        if (pullResult.syncJson) {
+          await database.adapter.provideSyncJson(syncJsonId, pullResult.syncJson)
+        }
+
+        const resultRest = await database.adapter.unsafeLoadFromSync(syncJsonId)
+        chunkNewLastPulledAt = resultRest.timestamp
+        onDidPullChanges && onDidPullChanges(resultRest)
       }
 
-      const resultRest = await database.adapter.unsafeLoadFromSync(syncJsonId)
-      newLastPulledAt = resultRest.timestamp
-      onDidPullChanges && onDidPullChanges(resultRest)
-    }
+      log && (log.newLastPulledAt = chunkNewLastPulledAt)
+      invariant(
+        typeof chunkNewLastPulledAt === 'number' && chunkNewLastPulledAt > 0,
+        `pullChanges() returned invalid timestamp ${chunkNewLastPulledAt}. timestamp must be a non-zero number`,
+      )
 
-    log && (log.newLastPulledAt = newLastPulledAt)
-    invariant(
-      typeof newLastPulledAt === 'number' && newLastPulledAt > 0,
-      `pullChanges() returned invalid timestamp ${newLastPulledAt}. timestamp must be a non-zero number`,
-    )
+      if (!unsafeTurbo) {
+        // $FlowFixMe
+        const { changes: remoteChanges, ...resultRest } = pullResult
+        log && (log.remoteChangeCount = remoteChangeCount)
+        // $FlowFixMe
+        await applyRemoteChanges(remoteChanges, {
+          db: database,
+          strategy: ((pullResult: any).experimentalStrategy: ?SyncPullStrategy),
+          sendCreatedAsUpdated,
+          log,
+          conflictResolver,
+          _unsafeBatchPerCollection,
+        })
+        onDidPullChanges && onDidPullChanges(resultRest)
+      }
 
-    if (!unsafeTurbo) {
-      // $FlowFixMe
-      const { changes: remoteChanges, ...resultRest } = pullResult
-      log && (log.remoteChangeCount = remoteChangeCount)
-      // $FlowFixMe
-      await applyRemoteChanges(remoteChanges, {
-        db: database,
-        strategy: ((pullResult: any).experimentalStrategy: ?SyncPullStrategy),
-        sendCreatedAsUpdated,
-        log,
-        conflictResolver,
-        _unsafeBatchPerCollection,
-      })
-      onDidPullChanges && onDidPullChanges(resultRest)
-    }
+      log && (log.phase = 'applied remote changes')
+      await setLastPulledAt(database, chunkNewLastPulledAt)
 
-    log && (log.phase = 'applied remote changes')
-    await setLastPulledAt(database, newLastPulledAt)
+      if (shouldSaveSchemaVersion) {
+        await setLastPulledSchemaVersion(database, schemaVersion)
+      }
+    }, 'sync-synchronize-apply')
+    lastPulledAt = await getLastPulledAt(database)
+    result = await pullChunks.next()
+  }
 
-    if (shouldSaveSchemaVersion) {
-      await setLastPulledSchemaVersion(database, schemaVersion)
-    }
-  }, 'sync-synchronize-apply')
+  if (newLastPulledAt === null) {
+      invariant(
+        typeof newLastPulledAt === 'number',
+        `A pullChanges() function must yield at least one result`,
+      )
+  }
 
   // push phase
   if (pushChanges) {
