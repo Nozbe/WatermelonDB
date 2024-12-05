@@ -132,7 +132,7 @@ Before shipping a new version of the app, please check that your database change
 
 ### Why is this order important
 
-It's simply because React Native simulator (and often React web projects) are configured to automatically refresh when you save a file. You don't want to database to accidentally migrate (upgrade) with changes that have a mistake, or changes you haven't yet completed making. By making migrations first, and bumping version last, you can double check you haven't made a mistake.
+It's simply because React Native simulator (and often React web projects) are configured to automatically refresh when you save a file. You don't want the database to accidentally migrate (upgrade) with changes that have a mistake, or changes you haven't yet completed making. By making migrations first, and bumping version last, you can double check you haven't made a mistake.
 
 ## Migrations API
 
@@ -180,7 +180,7 @@ schemaMigrations({
 
 1. When you're **not** using migrations, the database will reset (delete all its contents) whenever you change the schema version.
 2. If the migration fails, the database will fail to initialize, and will roll back to previous version. This is unlikely, but could happen if you, for example, create a migration that tries to create the same table twice. The reason why the database will fail instead of reset is to avoid losing user data (also it's less confusing in development). You can notice the problem, fix the migration, and ship it again without data loss.
-3. When database in the running app has *newer* database version than the schema version defined in code, the database will reset (clear its contents). This is useful in development
+3. When database in the running app has *newer* database version than the schema version defined in code, the database will reset (clear its contents). This is useful in development.
 4. If there's no available migrations path (e.g. user has app with database version 4, but oldest migration is from version 10 to 11), the database will reset.
 
 ### Rolling back changes
