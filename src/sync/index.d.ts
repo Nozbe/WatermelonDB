@@ -56,51 +56,53 @@ export type SyncConflictResolver = (
   resolved: DirtyRaw,
 ) => DirtyRaw
 
-export type SyncArgs = $Exact<{
-  database: Database,
-  pushChanges?: (SyncPushArgs) => Promise<?SyncPushResult>,
-  // version at which support for migration syncs was added - the version BEFORE first syncable migration
-  migrationsEnabledAtVersion?: SchemaVersion,
-  sendCreatedAsUpdated?: boolean,
-  log?: SyncLog,
-  // Advanced (unsafe) customization point. Useful when you have subtle invariants between multiple
-  // columns and want to have them updated consistently, or to implement partial sync
-  // It's called for every record being updated locally, so be sure that this function is FAST.
-  // If you don't want to change default behavior for a given record, return `resolved` as is
-  // Note that it's safe to mutate `resolved` object, so you can skip copying it for performance.
-  conflictResolver?: SyncConflictResolver,
-  // commits changes in multiple batches, and not one - temporary workaround for memory issue
-  _unsafeBatchPerCollection?: boolean,
-  // Advanced optimization - pullChanges must return syncJson or syncJsonId to be processed by native code.
-  // This can only be used on initial (login) sync, not for incremental syncs.
-  // This can only be used with SQLiteAdapter with JSI enabled.
-  // The exact API may change between versions of WatermelonDB.
-  // See documentation for more details.
-  unsafeTurbo?: boolean,
-  // Called after changes are pulled with whatever was returned by pullChanges, minus `changes`. Useful
-  // when using turbo mode
-  onDidPullChanges?: (Object) => Promise<void>,
-  // Called after pullChanges is done, but before these changes are applied. Some stats about the pulled
-  // changes are passed as arguments. An advanced user can use this for example to show some UI to the user
-  // when processing a very large sync (could be useful for replacement syncs). Note that remote change count
-  // is NaN in turbo mode.
-  onWillApplyRemoteChanges?: (info: $Exact<{ remoteChangeCount: number }>) => Promise<void>,
-  useUnsafeChunkedAsyncGenerator: true,
-  pullChanges: (SyncPullArgs) => AsyncGenerator<SyncPullResult, void, void>,
-}> | $Exact<{
-  database: Database,
-  pushChanges?: (SyncPushArgs) => Promise<?SyncPushResult>,
-  migrationsEnabledAtVersion?: SchemaVersion,
-  sendCreatedAsUpdated?: boolean,
-  log?: SyncLog,
-  conflictResolver?: SyncConflictResolver,
-  _unsafeBatchPerCollection?: boolean,
-  unsafeTurbo?: boolean,
-  onDidPullChanges?: (Object) => Promise<void>,
-  onWillApplyRemoteChanges?: (info: $Exact<{ remoteChangeCount: number }>) => Promise<void>,
-  useUnsafeChunkedAsyncGenerator: false,
-  pullChanges: (SyncPullArgs) => Promise<SyncPullResult>,
-}>
+export type SyncArgs =
+  | $Exact<{
+      database: Database
+      pushChanges?: (_: SyncPushArgs) => Promise<SyncPushResult | undefined | void>
+      // version at which support for migration syncs was added - the version BEFORE first syncable migration
+      migrationsEnabledAtVersion?: SchemaVersion
+      sendCreatedAsUpdated?: boolean
+      log?: SyncLog
+      // Advanced (unsafe) customization point. Useful when you have subtle invariants between multiple
+      // columns and want to have them updated consistently, or to implement partial sync
+      // It's called for every record being updated locally, so be sure that this function is FAST.
+      // If you don't want to change default behavior for a given record, return `resolved` as is
+      // Note that it's safe to mutate `resolved` object, so you can skip copying it for performance.
+      conflictResolver?: SyncConflictResolver
+      // commits changes in multiple batches, and not one - temporary workaround for memory issue
+      _unsafeBatchPerCollection?: boolean
+      // Advanced optimization - pullChanges must return syncJson or syncJsonId to be processed by native code.
+      // This can only be used on initial (login) sync, not for incremental syncs.
+      // This can only be used with SQLiteAdapter with JSI enabled.
+      // The exact API may change between versions of WatermelonDB.
+      // See documentation for more details.
+      unsafeTurbo?: boolean
+      // Called after pullChanges with whatever was returned by pullChanges, minus `changes`. Useful
+      // when using turbo mode
+      onDidPullChanges?: (_: Object) => Promise<void>
+      // Called after pullChanges is done, but before these changes are applied. Some stats about the pulled
+      // changes are passed as arguments. An advanced user can use this for example to show some UI to the user
+      // when processing a very large sync (could be useful for replacement syncs). Note that remote change count
+      // is NaN in turbo mode.
+      onWillApplyRemoteChanges?: (info: $Exact<{ remoteChangeCount: number }>) => Promise<void>
+      useUnsafeChunkedAsyncGenerator: true
+      pullChanges: (_: SyncPullArgs) => AsyncGenerator<SyncPullResult, void, void>
+    }>
+  | $Exact<{
+      database: Database
+      pushChanges?: (_: SyncPushArgs) => Promise<SyncPushResult | undefined | void>
+      migrationsEnabledAtVersion?: SchemaVersion
+      sendCreatedAsUpdated?: boolean
+      log?: SyncLog
+      conflictResolver?: SyncConflictResolver
+      _unsafeBatchPerCollection?: boolean
+      unsafeTurbo?: boolean
+      onDidPullChanges?: (_: Object) => Promise<void>
+      onWillApplyRemoteChanges?: (info: $Exact<{ remoteChangeCount: number }>) => Promise<void>
+      useUnsafeChunkedAsyncGenerator?: false
+      pullChanges: (_: SyncPullArgs) => Promise<SyncPullResult>
+    }>
 
 export function synchronize(args: SyncArgs): Promise<void>
 

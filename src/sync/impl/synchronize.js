@@ -14,12 +14,12 @@ import {
 import { ensureSameDatabase, isChangeSetEmpty, changeSetCount } from './helpers'
 import type { SyncArgs, Timestamp, SyncPullStrategy } from '../index'
 
-async function* liftToAsyncGenerator<T>(promise : Promise<T>) : AsyncGenerator<T, void, void> {
+async function* liftToAsyncGenerator<T>(promise: Promise<T>): AsyncGenerator<T, void, void> {
   yield await promise
 }
 
-export default async function synchronize(params : SyncArgs) : Promise<void> {
-    const {
+export default async function synchronize(params: SyncArgs): Promise<void> {
+  const {
     database,
     onWillApplyRemoteChanges,
     onDidPullChanges,
@@ -53,11 +53,18 @@ export default async function synchronize(params : SyncArgs) : Promise<void> {
   const pullChunks = params.useUnsafeChunkedAsyncGenerator
     ? params.pullChanges({ lastPulledAt, schemaVersion, migration })
     : liftToAsyncGenerator(params.pullChanges({ lastPulledAt, schemaVersion, migration }))
-  log && (log.phase = 'pulled')
+    
 
   let newLastPulledAt: Timestamp | null = null
-  for await (const pullResult of pullChunks) {
-    let newLastPulledAt: Timestamp = (pullResult: any).timestamp
+  let result = await pullChunks.next()
+  log && (log.phase = 'pulled')
+
+  // To answer your question - yes it would be nice to use a for await loop here
+  // however, because of the use of 'fast-async' (see babel config), this syntax is *not* supported and will cause the code to hang...
+  while(!result.done) {
+    const pullResult = result.value
+    let chunkNewLastPulledAt: Timestamp = (pullResult: any).timestamp
+    newLastPulledAt = chunkNewLastPulledAt
     const remoteChangeCount = pullResult.changes ? changeSetCount(pullResult.changes) : NaN
 
     if (onWillApplyRemoteChanges) {
@@ -89,14 +96,14 @@ export default async function synchronize(params : SyncArgs) : Promise<void> {
         }
 
         const resultRest = await database.adapter.unsafeLoadFromSync(syncJsonId)
-        newLastPulledAt = resultRest.timestamp
+        chunkNewLastPulledAt = resultRest.timestamp
         onDidPullChanges && onDidPullChanges(resultRest)
       }
 
-      log && (log.newLastPulledAt = newLastPulledAt)
+      log && (log.newLastPulledAt = chunkNewLastPulledAt)
       invariant(
-        typeof newLastPulledAt === 'number' && newLastPulledAt > 0,
-        `pullChanges() returned invalid timestamp ${newLastPulledAt}. timestamp must be a non-zero number`,
+        typeof chunkNewLastPulledAt === 'number' && chunkNewLastPulledAt > 0,
+        `pullChanges() returned invalid timestamp ${chunkNewLastPulledAt}. timestamp must be a non-zero number`,
       )
 
       if (!unsafeTurbo) {
@@ -116,17 +123,20 @@ export default async function synchronize(params : SyncArgs) : Promise<void> {
       }
 
       log && (log.phase = 'applied remote changes')
-      await setLastPulledAt(database, newLastPulledAt)
+      await setLastPulledAt(database, chunkNewLastPulledAt)
 
       if (shouldSaveSchemaVersion) {
         await setLastPulledSchemaVersion(database, schemaVersion)
       }
     }, 'sync-synchronize-apply')
-
+    result = await pullChunks.next()
   }
 
-  if(newLastPulledAt === null) {
-    throw new Error('An empty generator was used')
+  if (newLastPulledAt === null) {
+      invariant(
+        typeof newLastPulledAt === 'number',
+        `A pullChanges() function must yield at least one result`,
+      )
   }
 
   // push phase

@@ -40,6 +40,7 @@ const plugins = [
   '@babel/plugin-proposal-nullish-coalescing-operator',
   '@babel/plugin-transform-shorthand-properties',
   '@babel/plugin-transform-spread',
+  '@babel/plugin-transform-async-generator-functions',
   [
     '@babel/plugin-proposal-object-rest-spread',
     {
