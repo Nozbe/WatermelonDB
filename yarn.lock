@@ -1186,6 +1186,11 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
+"@nozbe/simdjson@3.9.4":
+  version "3.9.4"
+  resolved "https://registry.yarnpkg.com/@nozbe/simdjson/-/simdjson-3.9.4.tgz#64bb522c54cd22e40ff4a64d8f8e8e9285b123b6"
+  integrity sha512-/3oCP8GBpdyeiBMEnuI6S0yl0yekD6Qxfed67hZqU1GIVn3o/vZgE8qANm69THfw7JgHLS9zjx56F/dO3q+koA==
+
 "@nozbe/sqlite@3.31.1":
   version "3.31.1"
   resolved "https://registry.yarnpkg.com/@nozbe/sqlite/-/sqlite-3.31.1.tgz#ffd394ad7c188c6b73f89fd6e1ccb849a1b96dba"
