@@ -296,7 +296,7 @@ class DatabaseDriver {
   }
 
   execSqlQuery = (query: string, params: [any]) => {
-    return this.database.queryRaw(query, params)
+    return this.database.execute(query, params)
   }
 
   setUpdateHook = (updateHook: any) => {
