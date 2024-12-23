@@ -100,21 +100,23 @@ namespace watermelondb {
 
         const std::lock_guard<std::mutex> lock(mutex_);
 
-        auto statement = getStmt(*runtime_, reinterpret_cast<sqlite3*>(db), sql.utf8(*runtime_), arguments);
+        auto stmt = getStmt(*runtime_, reinterpret_cast<sqlite3*>(db), sql.utf8(*runtime_), arguments);
 
         std::vector<jsi::Value> records = {};
 
         while (true) {
-            if (getNextRowOrTrue(*runtime_, statement.stmt)) {
+            if (getNextRowOrTrue(*runtime_, stmt)) {
                 break;
             }
 
-            jsi::Object record = resultDictionary(*runtime_, statement.stmt);
+            jsi::Object record = resultDictionary(*runtime_, stmt);
 
             records.push_back(std::move(record));
         }
 
         env->CallVoidMethod(bridge_, releaseConnectionMethod, jTag);
+
+        finalizeStmt(stmt);
 
         return arrayFromStd(*runtime_, records);
     }
@@ -148,18 +150,18 @@ namespace watermelondb {
 
         const std::lock_guard<std::mutex> lock(mutex_);
 
-        auto statement = getStmt(*runtime_, db, query.utf8(*runtime_), jsi::Array(*runtime_, 0));
+        auto stmt = getStmt(*runtime_, db, query.utf8(*runtime_), jsi::Array(*runtime_, 0));
 
         std::vector<jsi::Value> records = {};
 
         while (true) {
-            if (getNextRowOrTrue(*runtime_, statement.stmt)) {
+            if (getNextRowOrTrue(*runtime_, stmt)) {
                 break;
             }
 
-            assert(std::string(sqlite3_column_name(statement.stmt, 0)) == "id");
+            assert(std::string(sqlite3_column_name(stmt, 0)) == "id");
 
-            const char *id = (const char *)sqlite3_column_text(statement.stmt, 0);
+            const char *id = (const char *)sqlite3_column_text(stmt, 0);
 
             if (!id) {
                 throw jsi::JSError(*runtime_, "Failed to get ID of a record");
@@ -185,7 +187,7 @@ namespace watermelondb {
                         "(ILjava/lang/String;Ljava/lang/String;)V");
 
                 env->CallVoidMethod(bridge_, markAsCachedMethod, jTag, jTable, jId);
-                jsi::Object record = resultDictionary(*runtime_, statement.stmt);
+                jsi::Object record = resultDictionary(*runtime_, stmt);
                 records.push_back(std::move(record));
             }
 
@@ -194,6 +196,8 @@ namespace watermelondb {
         }
 
         env->CallVoidMethod(bridge_, releaseConnectionMethod, jTag);
+
+        finalizeStmt(stmt);
 
         return arrayFromStd(*runtime_, records);
     }

@@ -17,7 +17,7 @@ jsi::JSError dbError(jsi::Runtime &rt, sqlite3* db, std::string description) {
     return jsi::JSError(rt, message);
 }
 
-SqliteStatement getStmt(jsi::Runtime &rt, sqlite3* db, std::string sql, const jsi::Array &arguments) {
+sqlite3_stmt* getStmt(jsi::Runtime &rt, sqlite3* db, std::string sql, const jsi::Array &arguments) {
     sqlite3_stmt *statement;
     
     int resultPrepare = sqlite3_prepare_v2(db, sql.c_str(), -1, &statement, nullptr);
@@ -66,7 +66,11 @@ SqliteStatement getStmt(jsi::Runtime &rt, sqlite3* db, std::string sql, const js
     
     // TODO: We may move this initialization earlier to avoid having to care about sqlite3_reset, but I think we'll
     // have to implement a move constructor for it to be correct
-    return SqliteStatement(statement);
+    return statement;
+}
+
+void finalizeStmt(sqlite3_stmt* stmt) {
+    sqlite3_finalize(stmt);
 }
 
 jsi::Array arrayFromStd(jsi::Runtime &rt, std::vector<jsi::Value> &vector) {
