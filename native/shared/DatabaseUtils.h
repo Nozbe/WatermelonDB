@@ -19,7 +19,9 @@ using namespace facebook;
 
 namespace watermelondb {
 
-SqliteStatement getStmt(jsi::Runtime &rt, sqlite3* db, std::string sql, const jsi::Array &arguments);
+sqlite3_stmt* getStmt(jsi::Runtime &rt, sqlite3* db, std::string sql, const jsi::Array &arguments);
+
+void finalizeStmt(sqlite3_stmt* stmt);
 
 jsi::Array arrayFromStd(jsi::Runtime &rt, std::vector<jsi::Value> &vector);
 

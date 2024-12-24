@@ -29,18 +29,18 @@ jsi::Value SwiftBridge::query(const jsi::Value &tag, const jsi::String &table, c
     
     const std::lock_guard<std::mutex> lock(mutex_);
     
-    auto statement = getStmt(*runtime_, static_cast<sqlite3*>(db), query.utf8(*runtime_), jsi::Array(*runtime_, 0));
+    auto stmt = getStmt(*runtime_, static_cast<sqlite3*>(db), query.utf8(*runtime_), jsi::Array(*runtime_, 0));
     
     std::vector<jsi::Value> records = {};
     
     while (true) {
-        if (getNextRowOrTrue(*runtime_, statement.stmt)) {
+        if (getNextRowOrTrue(*runtime_, stmt)) {
             break;
         }
         
-        assert(std::string(sqlite3_column_name(statement.stmt, 0)) == "id");
+        assert(std::string(sqlite3_column_name(stmt, 0)) == "id");
         
-        const char *id = (const char *)sqlite3_column_text(statement.stmt, 0);
+        const char *id = (const char *)sqlite3_column_text(stmt, 0);
         
         if (!id) {
             throw jsi::JSError(*runtime_, "Failed to get ID of a record");
@@ -55,10 +55,12 @@ jsi::Value SwiftBridge::query(const jsi::Value &tag, const jsi::String &table, c
             records.push_back(std::move(jsiId));
         } else {
             [databaseBridge_ markAsCachedWithConnectionTag:tagNumber table:tableStr id:idStr];
-            jsi::Object record = resultDictionary(*runtime_, statement.stmt);
+            jsi::Object record = resultDictionary(*runtime_, stmt);
             records.push_back(std::move(record));
         }
     }
+    
+    finalizeStmt(stmt);
     
     return arrayFromStd(*runtime_, records);
 }
@@ -70,19 +72,21 @@ jsi::Value SwiftBridge::execSqlQuery(const jsi::Value &tag, const jsi::String &s
     
     const std::lock_guard<std::mutex> lock(mutex_);
     
-    auto statement = getStmt(*runtime_, static_cast<sqlite3*>(db), sql.utf8(*runtime_), arguments);
+    auto stmt = getStmt(*runtime_, static_cast<sqlite3*>(db), sql.utf8(*runtime_), arguments);
     
     std::vector<jsi::Value> records = {};
     
     while (true) {
-        if (getNextRowOrTrue(*runtime_, statement.stmt)) {
+        if (getNextRowOrTrue(*runtime_, stmt)) {
             break;
         }
         
-        jsi::Object record = resultDictionary(*runtime_, statement.stmt);
+        jsi::Object record = resultDictionary(*runtime_, stmt);
         
         records.push_back(std::move(record));
     }
+    
+    finalizeStmt(stmt);
     
     return arrayFromStd(*runtime_, records);
 }
