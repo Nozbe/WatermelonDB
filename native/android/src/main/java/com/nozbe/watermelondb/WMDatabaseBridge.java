@@ -248,7 +248,7 @@ public class WMDatabaseBridge extends ReactContextBaseJavaModule {
     public void invalidate() {
         // NOTE: See Database::install() for explanation
         super.invalidate();
-        reactContext.getJSMessageQueueThread().runOnQueue(() -> {
+        reactContext.runOnJSQueueThread(() -> {
             try {
                 Class<?> clazz = Class.forName("com.nozbe.watermelondb.jsi.WatermelonJSI");
                 Method method = clazz.getDeclaredMethod("onCatalystInstanceDestroy");
