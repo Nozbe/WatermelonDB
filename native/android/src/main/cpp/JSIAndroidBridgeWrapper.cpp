@@ -116,8 +116,6 @@ namespace watermelondb {
 
         env->CallVoidMethod(bridge_, releaseConnectionMethod, jTag);
 
-        finalizeStmt(stmt);
-
         return arrayFromStd(*runtime_, records);
     }
 
@@ -196,8 +194,6 @@ namespace watermelondb {
         }
 
         env->CallVoidMethod(bridge_, releaseConnectionMethod, jTag);
-
-        finalizeStmt(stmt);
 
         return arrayFromStd(*runtime_, records);
     }
