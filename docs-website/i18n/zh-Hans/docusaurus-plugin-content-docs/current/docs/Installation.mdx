@@ -1,79 +1,79 @@
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Installation
+# 安装
 
-First, add Watermelon to your project:
+首先，将 Watermelon 添加到你的项目中：
 
 ```bash
 yarn add @nozbe/watermelondb
 
-# (or with npm:)
+# （或者使用 npm：）
 npm install @nozbe/watermelondb
 ```
 
-## React Native setup
+## React Native 配置
 
-1. Install the Babel plugin for decorators if you haven't already:
+1. 如果你还没有安装装饰器的 Babel 插件，请进行安装：
 
    ```bash
    yarn add --dev @babel/plugin-proposal-decorators
 
-   # (or with npm:)
+   # （或者使用 npm：）
    npm install -D @babel/plugin-proposal-decorators
    ```
 
-2. Add ES6 decorators support to your `.babelrc` file:
+2. 在你的 `.babelrc` 文件中添加 ES6 装饰器支持：
    ```json
    {
      "presets": ["module:metro-react-native-babel-preset"],
      "plugins": [["@babel/plugin-proposal-decorators", { "legacy": true }]]
    }
    ```
-3. Set up your iOS or Android project — see instructions below
+3. 配置你的 iOS 或 Android 项目 — 请参阅下面的说明
 
-### iOS (React Native)
+### iOS（React Native）
 
-At least Xcode 15.x is recommended for building (earlier versions are likely to work, but not tested for compatibility).
+建议至少使用 Xcode 15.x 进行构建（早期版本可能可以工作，但未进行兼容性测试）。
 
-1. **Set up Babel config in your project**
+1. **在你的项目中配置 Babel**
 
-   See instructions above ⬆️
+   请参阅上面的说明 ⬆️
 
-2. **Link WatermelonDB's native library (using CocoaPods)**
+2. **链接 WatermelonDB 的原生库（使用 CocoaPods）**
 
-   Open your `Podfile` and add this:
+   打开你的 `Podfile` 并添加以下内容：
 
    ```ruby
-   # Uncomment this line if you're not using auto-linking or if auto-linking causes trouble
+   # 如果你不使用自动链接或者自动链接导致问题，请取消注释这一行
    # pod 'WatermelonDB', path: '../node_modules/@nozbe/watermelondb'
 
-   # WatermelonDB dependency, should not be needed on modern React Native
-   # (please file an issue if this causes issues for you)
+   # WatermelonDB 依赖项，在现代 React Native 中可能不需要
+   # （如果这给你带来问题，请提交一个 issue）
    # pod 'React-jsi', path: '../node_modules/react-native/ReactCommon/jsi', modular_headers: true
 
-   # WatermelonDB dependency
+   # WatermelonDB 依赖项
    pod 'simdjson', path: '../node_modules/@nozbe/simdjson', modular_headers: true
    ```
 
-   Make sure you run `pod install` (or `bundle exec pod install`) after updating `Podfile`.
+   确保在更新 `Podfile` 后运行 `pod install`（或者 `bundle exec pod install`）。
 
-   We highly recommend that you _do not_ use frameworks. If WatermelonDB fails to build in the frameworks mode for you, [use this workaround](https://github.com/Nozbe/WatermelonDB/issues/1285#issuecomment-1381323060) to force building it in static library mode.
+   我们强烈建议你**不要**使用框架。如果 WatermelonDB 在框架模式下无法构建，[使用此解决方法](https://github.com/Nozbe/WatermelonDB/issues/1285#issuecomment-1381323060) 强制以静态库模式构建。
 
-   Manual (non-CocoaPods) linking is not supported.
+   不支持手动（非 CocoaPods）链接。
 
-### Android (React Native)
+### Android（React Native）
 
-**Set up Babel config in your project**
+**在你的项目中配置 Babel**
 
-See instructions above ⬆️
+请参阅上面的说明 ⬆️
 
 <details>
-  <summary>Linking Manually</summary>
+  <summary>手动链接</summary>
 
-By default, React Native uses **autolinking**, and **you don't need the steps below**! Only use this with old versions of React Native or if you opt out of autolinking.
+默认情况下，React Native 使用**自动链接**，并且**你不需要执行以下步骤**！仅在使用旧版本的 React Native 或者你选择不使用自动链接时才使用这些步骤。
 
-1. In `android/settings.gradle`, add:
+1. 在 `android/settings.gradle` 中添加以下内容：
 
 ```gradle
 include ':watermelondb'
@@ -81,27 +81,27 @@ project(':watermelondb').projectDir =
     new File(rootProject.projectDir, '../node_modules/@nozbe/watermelondb/native/android')
 ```
 
-2. In `android/app/build.gradle`, add:
+2. 在 `android/app/build.gradle` 中添加以下内容：
 
 ```gradle
 // ...
 dependencies {
     // ...
-    implementation project(':watermelondb')  // ⬅️ This!
+    implementation project(':watermelondb')  // ⬅️ 这里！
 }
 ```
 
-3. And finally, in `android/app/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.java`, add:
+3. 最后，在 `android/app/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.java` 中添加以下内容：
 
 ```java
 // ...
-import com.nozbe.watermelondb.WatermelonDBPackage; // ⬅️ This!
+import com.nozbe.watermelondb.WatermelonDBPackage; // ⬅️ 这里！
 // ...
 @Override
 protected List<ReactPackage> getPackages() {
   return Arrays.<ReactPackage>asList(
     new MainReactPackage(),
-    new WatermelonDBPackage() // ⬅️ Here!
+    new WatermelonDBPackage() // ⬅️ 这里！
   );
 }
 ```
@@ -109,29 +109,27 @@ protected List<ReactPackage> getPackages() {
 </details>
 
 <details>
-  <summary>Using with react-native-screens or react-native-gesture-handler</summary>
-  If you are using recent versions of react-native-screens or react-native-gesture-handler, you will
-  need to set the kotlin version to 1.5.20 or above (see section above)
+  <summary>与 react-native-screens 或 react-native-gesture-handler 一起使用</summary>
+  如果你正在使用较新版本的 react-native-screens 或 react-native-gesture-handler，你需要将 Kotlin 版本设置为 1.5.20 或更高（请参阅上面的章节）
 </details>
 
 <details>
-  <summary>Troubleshooting</summary>
-  If you get this error:
+  <summary>故障排除</summary>
+  如果你遇到以下错误：
 
 > `Can't find variable: Symbol`
 
-You're using an ancient version of JSC. Install [`jsc-android`](https://github.com/react-community/jsc-android-buildscripts) or Hermes.
+你正在使用一个非常旧版本的 JSC。请安装 [`jsc-android`](https://github.com/react-community/jsc-android-buildscripts) 或 Hermes。
 
 </details>
 
 <details>
-  <summary>JSI Installation (Optional, recommended)</summary>
+  <summary>JSI 安装（可选，推荐）</summary>
 
-To enable fast, highly performant, synchronous JSI operation on Android, you need to take a few
-additional steps manually.
+要在 Android 上启用快速、高性能的同步 JSI 操作，你需要手动执行一些额外的步骤。
 
-1.  Make sure you have NDK installed (version `20.1.5948944` has been tested to work when writing this guide)
-2.  In `android/settings.gradle`, add:
+1. 确保你已经安装了 NDK（编写本指南时，版本 `20.1.5948944` 已测试可用）
+2. 在 `android/settings.gradle` 中添加以下内容：
 
     ```gradle
     include ':watermelondb-jsi'
@@ -139,42 +137,42 @@ additional steps manually.
         new File(rootProject.projectDir, '../node_modules/@nozbe/watermelondb/native/android-jsi')
     ```
 
-3.  In `android/app/build.gradle`, add:
+3. 在 `android/app/build.gradle` 中添加以下内容：
 
     ```gradle
     // ...
     android {
       // ...
       packagingOptions {
-         pickFirst '**/libc++_shared.so' // ⬅️ This (if missing)
+         pickFirst '**/libc++_shared.so' // ⬅️ 这里（如果没有）
       }
     }
 
     dependencies {
         // ...
-        implementation project(':watermelondb-jsi') // ⬅️ This!
+        implementation project(':watermelondb-jsi') // ⬅️ 这里！
     }
     ```
 
-4.  If you're using Proguard, in `android/app/proguard-rules.pro` add:
+4. 如果你正在使用 Proguard，在 `android/app/proguard-rules.pro` 中添加以下内容：
     ```
     -keep class com.nozbe.watermelondb.** { *; }
     ```
-5.  And finally, in `android/app/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.{java|kt}`, add:
+5. 最后，在 `android/app/src/main/java/{YOUR_APP_PACKAGE}/MainApplication.{java|kt}` 中添加以下内容：
 
   <Tabs>
     <TabItem value="java" label="Java" default>
 
     ```
     // ...
-    import com.nozbe.watermelondb.jsi.WatermelonDBJSIPackage; // ⬅️ This!
+    import com.nozbe.watermelondb.jsi.WatermelonDBJSIPackage; // ⬅️ 这里！
     // ...
 
     @Override
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
         // new MyReactNativePackage(),
-        new WatermelonDBJSIPackage() // ⬅️ Here!
+        new WatermelonDBJSIPackage() // ⬅️ 这里！
       );
     }
 
@@ -185,8 +183,8 @@ additional steps manually.
 
     ```
     // ...
-    import com.nozbe.watermelondb.jsi.WatermelonDBJSIPackage // ⬅️ This!
-    import com.facebook.react.bridge.JSIModulePackage // ⬅️ This!
+    import com.nozbe.watermelondb.jsi.WatermelonDBJSIPackage // ⬅️ 这里！
+    import com.facebook.react.bridge.JSIModulePackage // ⬅️ 这里！
     // ...
     override val reactNativeHost: ReactNativeHost =
       object : DefaultReactNativeHost(this) {
@@ -205,9 +203,9 @@ additional steps manually.
 
   </Tabs>
 
-#### Troubleshooting JSI issues
+#### 解决 JSI 问题
 
-If you see a crash at launch similar to this after updating React Native:
+如果你在更新 React Native 后启动时遇到类似以下的崩溃情况：
 
 ```
 signal 11 (SIGSEGV), code 2 (SEGV_ACCERR), fault addr 0x79193ac4a9
@@ -219,27 +217,27 @@ backtrace:
       (...)
 ```
 
-… this is most likely due to broken `libc++_shared`. Run `./gradlew clean` from `native/android`, then try again.
+… 这很可能是由于 `libc++_shared` 损坏导致的。从 `native/android` 目录运行 `./gradlew clean`，然后再次尝试。
 
 </details>
 
-## Web setup
+## Web 配置
 
-If you haven't already, install Babel plugins for decorators, static class properties, and async/await to get the most out of Watermelon. This assumes you use Babel 7 and already support ES6 syntax.
+如果你还没有安装，为了充分利用 Watermelon 的功能，请安装用于装饰器、静态类属性以及异步/等待的 Babel 插件。这里假设你使用的是 Babel 7 并且已经支持 ES6 语法。
 
-   ```bash
-   yarn add --dev @babel/plugin-proposal-decorators
-   yarn add --dev @babel/plugin-proposal-class-properties
-   yarn add --dev @babel/plugin-transform-runtime
+```bash
+yarn add --dev @babel/plugin-proposal-decorators
+yarn add --dev @babel/plugin-proposal-class-properties
+yarn add --dev @babel/plugin-transform-runtime
 
-   # (or with npm:)
-   npm install -D @babel/plugin-proposal-decorators
-   npm install -D @babel/plugin-proposal-class-properties
-   npm install -D @babel/plugin-transform-runtime
-   ```
+# （或者使用 npm：）
+npm install -D @babel/plugin-proposal-decorators
+npm install -D @babel/plugin-proposal-class-properties
+npm install -D @babel/plugin-transform-runtime
+```
 
 ### Webpack
-If you're using Webpack, add ES7 support to your `.babelrc` file:
+如果你正在使用 Webpack，请在你的 `.babelrc` 文件中添加对 ES7 的支持：
    ```json
    {
      "plugins": [
@@ -257,9 +255,9 @@ If you're using Webpack, add ES7 support to your `.babelrc` file:
    ```
 
 ### Vite
-If you're using Vite, you'll need to edit your vite.config.js file.
+如果你正在使用 Vite，你需要编辑你的 `vite.config.js` 文件。
 
-If you're working with React, ensure your config looks something like this:
+如果你在使用 React，确保你的配置大致如下：
 ```js
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -284,7 +282,7 @@ export default defineConfig({
     ]
 });
 ```
-If you're not using React, you can try this (untested):
+如果你不使用 React，你可以尝试以下配置（未经过测试）：
 ```js
 import { defineConfig } from 'vite';
 import babel from 'vite-plugin-babel';
@@ -312,56 +310,55 @@ export default defineConfig({
 });
 ```
 
-## Windows (React Native)
+## Windows（React Native）
 
-WatermelonDB has **experimental** support for [React Native Windows](https://microsoft.github.io/react-native-windows/), added in v0.27.
+WatermelonDB 从 v0.27 版本开始对 [React Native Windows](https://microsoft.github.io/react-native-windows/) 提供 **实验性** 支持。
 
-NOTE: As of v0.28, Windows support is not maintained due to lack of resources, minimal demand, and difficulty maintaining support over React Native upgrades. If you're interested in sponsoring Windows support, please email me.
+注意：从 v0.28 版本起，由于资源不足、需求极少以及在 React Native 升级时难以维护支持，Windows 支持不再维护。如果你有兴趣资助 Windows 支持的维护，请给我发邮件。
 
-To set up:
+配置步骤如下：
 
-1. Set up Babel config in your project - See instructions above for all React Native platforms
-2. Run `npx react-native autolink-windows` to perform autolinking. See section below if you don't use autolinking.
+1. 在你的项目中配置 Babel - 请参考上述针对所有 React Native 平台的说明。
+2. 运行 `npx react-native autolink-windows` 进行自动链接。如果你不使用自动链接，请参阅下面的部分。
 
-Caveats to keep in mind about React Native Windows support:
+关于 React Native Windows 支持需要注意的事项：
 
-- Windows support is new and experimental
-- Only JSI port is available, so you must initialize `SQLiteAdapter` with `{ jsi: true }`
-- JSI means that Remote Debugging (WebDebugger) is not available. Use direct debugging.
-- Enable Hermes when using WatermelonDB on RNW. Chakra has not been tested and may not work.
-- Turbo Sync has not been implemented
-- onDestroy event has not been implemented. This only causes issues if you need to reload JS bundle
-  at runtime (other than in development).
+- Windows 支持是新的且处于实验阶段。
+- 仅提供 JSI 端口，因此你必须使用 `{ jsi: true }` 来初始化 `SQLiteAdapter`。
+- 使用 JSI 意味着无法使用远程调试（WebDebugger），请使用直接调试。
+- 在 RNW 上使用 WatermelonDB 时，请启用 Hermes。Chakra 未经过测试，可能无法正常工作。
+- 尚未实现 Turbo Sync。
+- 尚未实现 onDestroy 事件。仅当你需要在运行时（开发环境除外）重新加载 JS 包时，这才会引发问题。
 
 <details>
-  <summary>Linking Manually</summary>
+  <summary>手动链接</summary>
 
-By default, React Native uses **autolinking**, and **you don't need the steps below**!
+默认情况下，React Native 使用**自动链接**，并且**你不需要执行以下步骤**！
 
-Follow [instructions on React Native Windows website](https://microsoft.github.io/react-native-windows/docs/native-modules-using), noting that:
+请遵循 [React Native Windows 网站上的说明](https://microsoft.github.io/react-native-windows/docs/native-modules-using)，并注意以下几点：
 
-- Path to vcxproj: `node_modules\@nozbe\watermelondb\native\windows\WatermelonDB\WatermelonDB.vcxproj`
-- Name of project to reference: `WatermelonDB`
-- Header for PCH: `#include "winrt/WatermelonDB.h"`
-- Package provider: `PackageProviders().Append(winrt::WatermelonDB::ReactPackageProvider());`
+- vcxproj 文件的路径：`node_modules\@nozbe\watermelondb\native\windows\WatermelonDB\WatermelonDB.vcxproj`
+- 要引用的项目名称：`WatermelonDB`
+- 预编译头文件包含语句：`#include "winrt/WatermelonDB.h"`
+- 包提供程序：`PackageProviders().Append(winrt::WatermelonDB::ReactPackageProvider());`
 
 </details>
 
-## NodeJS (SQLite) setup
+## NodeJS（SQLite）配置
 
-You only need this if you want to use WatermelonDB in NodeJS with SQLite (e.g. for scripts that share code with your web/React Native app)
+只有当你想在 NodeJS 中结合 SQLite 使用 WatermelonDB 时（例如，对于与你的 Web/React Native 应用共享代码的脚本），才需要进行此配置。
 
-1. Install [better-sqlite3](https://github.com/JoshuaWise/better-sqlite3) peer dependency
+1. 安装 [better-sqlite3](https://github.com/JoshuaWise/better-sqlite3) 对等依赖项
 
    ```sh
    yarn add --dev better-sqlite3
 
-   # (or with npm:)
+   # （或者使用 npm：）
    npm install -D better-sqlite3
    ```
 
 ---
 
-## Next steps
+## 下一步
 
-➡️ After Watermelon is installed, [**set it up**](./Setup.md)
+➡️ Watermelon 安装完成后，[**进行配置**](./Setup.md)
