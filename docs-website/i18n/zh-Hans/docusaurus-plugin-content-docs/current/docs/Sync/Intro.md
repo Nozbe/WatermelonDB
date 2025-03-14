@@ -1,15 +1,15 @@
 ---
-title: Intro
+title: 简介
 hide_title: true
 ---
 
-# Synchronization
+# 同步
 
-WatermelonDB has been designed from scratch to be able to seamlessly synchronize with a remote database (and, therefore, keep multiple copies of data synced with each other).
+WatermelonDB 从一开始就被设计为能够与远程数据库无缝同步（因此，能够使数据的多个副本相互保持同步）。
 
-Note that Watermelon is only a local database — you need to **bring your own backend**. What Watermelon provides are:
+请注意，Watermelon 只是一个本地数据库 —— 你需要**自行编写后端服务**。Watermelon 提供的功能有：
 
-- **Synchronization primitives** — information about which records were created, updated, or deleted locally since the last sync — and which columns exactly were modified. You can build your own custom sync engine using those primitives
-- **Built-in sync adapter** — You can use the sync engine Watermelon provides out of the box, and you only need to provide two API endpoints on your backend that conform to Watermelon sync protocol
+- **同步原语** —— 关于自上次同步以来哪些记录在本地被创建、更新或删除，以及具体哪些列被修改的信息。你可以使用这些原语构建自己的自定义同步引擎。
+- **内置同步适配器** —— 你可以使用 Watermelon 提供的现成同步引擎，并且只需在后端提供两个符合 Watermelon 同步协议的 API 端点。
 
-To implement synchronization between your client side database (WatermelonDB) and your server, you need to implement synchronization in the [frontend](../Sync/Frontend.md) & the [backend](../Sync/Backend.md).
+要实现客户端数据库（WatermelonDB）与服务器之间的同步，你需要在[前端](../Sync/Frontend.md)和[后端](../Sync/Backend.md)实现同步功能。
