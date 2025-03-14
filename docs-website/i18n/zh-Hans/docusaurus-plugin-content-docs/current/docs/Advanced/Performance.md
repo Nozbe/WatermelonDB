@@ -1,8 +1,8 @@
 ---
-title: Performance Tips
+title: 性能优化技巧
 hide_title: true
 ---
 
-# Performance
+# 性能
 
-Performance tips — TODO
+性能优化技巧 — TODO 待完成

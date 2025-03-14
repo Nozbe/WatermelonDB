@@ -1,50 +1,50 @@
 ---
-title: Pro Tips
+title: 专业提示
 hide_title: true
 ---
 
-# Various Pro Tips
+# 各类专业提示
 
-## Database viewer
+## 数据库查看器
 
-[See discussion](https://github.com/Nozbe/WatermelonDB/issues/710)
+[查看讨论](https://github.com/Nozbe/WatermelonDB/issues/710)
 
-**Android** - you can use the new [App Inspector](https://medium.com/androiddevelopers/database-inspector-9e91aa265316) in modern versions of Android Studio.
+**Android** - 你可以在最新版本的 Android Studio 中使用新的 [应用检查器](https://medium.com/androiddevelopers/database-inspector-9e91aa265316)。
 
-**Via Flipper** You can also use Facebook Flipper [with a plugin](https://github.com/panz3r/react-native-flipper-databases#readme). See [discussion](https://github.com/Nozbe/WatermelonDB/issues/653).
+**通过 Flipper** 你也可以使用带有 [插件](https://github.com/panz3r/react-native-flipper-databases#readme) 的 Facebook Flipper。查看 [讨论](https://github.com/Nozbe/WatermelonDB/issues/653)。
 
-**iOS** - check open database path in iOS System Log (via Console for plugged-in device, or Xcode logs, or [by using `find`](https://github.com/Nozbe/WatermelonDB/issues/710#issuecomment-776255654)), then open it via `sqlite3` in the console, or an external tool like [sqlitebrowser](https://sqlitebrowser.org)
+**iOS** - 在 iOS 系统日志中查看打开的数据库路径（通过已连接设备的控制台、Xcode 日志，或者 [使用 `find`](https://github.com/Nozbe/WatermelonDB/issues/710#issuecomment-776255654)），然后通过控制台中的 `sqlite3` 打开它，或者使用像 [sqlitebrowser](https://sqlitebrowser.org) 这样的外部工具。
 
-## Which SQLite version am I using?
+## 我正在使用哪个 SQLite 版本？
 
-This usually only matters if you use raw SQL to use new SQLite versions:
+通常只有在你使用原生 SQL 来使用新的 SQLite 版本时，这才会有影响：
 
-- On iOS, we use whatever SQLite version is bundled with the OS. [Here's a table of iOS version - SQLite version matches](https://github.com/yapstudios/YapDatabase/wiki/SQLite-version-(bundled-with-OS))
-- On Android in JSI mode, we use SQLite bundled with WatermelonDB. See `@nozbe/sqlite` NPM dependency version to see which SQLite version is bundled.
-- On Android NOT in JSI mode, we use the SQLite bundled with the OS
+- 在 iOS 上，我们使用与操作系统捆绑的任何 SQLite 版本。[这里有一个 iOS 版本 - SQLite 版本匹配表](https://github.com/yapstudios/YapDatabase/wiki/SQLite-version-(bundled-with-OS))
+- 在 JSI 模式下的安卓上，我们使用与 WatermelonDB 捆绑的 SQLite。查看 `@nozbe/sqlite` NPM 依赖版本以了解捆绑的 SQLite 版本。
+- 在非 JSI 模式下的安卓上，我们使用与操作系统捆绑的 SQLite。
 
-BTW: We're happy to accept contributions so that you can choose custom version or build of SQLite in all modes and on all platforms, but it needs to be opt-in (this adds to build time and binary size and most people don't need this)
+顺便说一下：我们很高兴接受贡献，这样你就可以在所有模式和所有平台上选择自定义版本或构建的 SQLite，但这需要手动开启（这会增加构建时间和二进制文件大小，而且大多数人不需要这个功能）。
 
-## Prepopulating database on native
+## 在原生端预填充数据库
 
-There's no built-in support for this. One way is to generate a SQLite DB (you can use the the Node SQLite support in 0.19.0-2 pre-release or extract it from an ios/android app), bundle it with the app, and then use a bit of code to check if the DB you're expecting it available, and if not, making a copy of the default DB — before you attempt loading DB from JS side. [See discussion](https://github.com/Nozbe/WatermelonDB/issues/774#issuecomment-667981361)
+目前没有内置的支持。一种方法是生成一个 SQLite 数据库（你可以使用 0.19.0 - 2 预发布版本中的 Node SQLite 支持，或者从 iOS/安卓应用中提取它），将其与应用捆绑，然后在从 JS 端尝试加载数据库之前，使用一些代码检查你期望的数据库是否可用，如果不可用，则复制默认数据库。[查看讨论](https://github.com/Nozbe/WatermelonDB/issues/774#issuecomment-667981361)
 
-## Override entity ID generator
+## 重写实体 ID 生成器
 
-You can optionally overide WatermelonDB's id generator with your own custom id generator in order to create specific random id formats (e.g. if UUIDs are used in the backend). In your database index file, pass a function with your custom ID generator to `setGenerator`:
+你可以选择用自己的自定义 ID 生成器重写 WatermelonDB 的 ID 生成器，以创建特定的随机 ID 格式（例如，如果后端使用 UUID）。在你的数据库索引文件中，将带有自定义 ID 生成器的函数传递给 `setGenerator`：
 
 ```
-// Define a custom ID generator.
+// 定义一个自定义 ID 生成器。
 function randomString(): string {
   return 'RANDOM STRING';
 }
 setGenerator(randomString);
 
-// or as anonymous function:
+// 或者作为匿名函数：
 setGenerator(() => 'RANDOM STRING');
 ```
 
-To get UUIDs specifically, install [uuid](https://github.com/uuidjs/uuid) and then pass their id generator to `setGenerator`:
+若要专门获取 UUID，请安装 [uuid](https://github.com/uuidjs/uuid)，然后将其 ID 生成器传递给 `setGenerator`：
 
 ```
 import { v4 as uuidv4 } from 'uuid';
