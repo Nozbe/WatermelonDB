@@ -1,19 +1,20 @@
 ---
-title: Roadmap
+title: 路线图
 hide_title: true
 ---
-# WatermelonDB Roadmap
 
-Despite being called 0.xx, WatermelonDB is essentially feature-complete and relatively API stable. It's used in production by [Nozbe Teams](https://nozbe.com) and many others.
+# WatermelonDB 路线图
 
-We don't call it 1.0 mostly out of convenience, to allow rapid development without incrementing `major` version counter (as dictated by SemVer). We do intend to call WatermelonDB a 1.0 once we can reach a long-term stable API.
+尽管版本号为 0.xx，但 WatermelonDB 实际上已基本完成功能开发，并且其 API 相对稳定。[Nozbe Teams](https://nozbe.com) 等众多项目都在生产环境中使用了该数据库。
 
-### v1.0
+我们之所以未将其版本号定为 1.0，主要是为了方便在不按照语义化版本控制（SemVer）规则增加 `主版本号` 的情况下进行快速开发。一旦我们能实现长期稳定的 API，就会将 WatermelonDB 定为 1.0 版本。
 
-- Optimized tree deleting
-- Long term stable API
+### 1.0 版本
 
-### Beyond 1.0
+- 优化树删除功能
+- 实现长期稳定的 API
 
-- Full transactionality (atomicity) support?
-- Field sanitizers
+### 1.0 之后的版本
+
+- 是否支持完整的事务性（原子性）？
+- 字段清理器
