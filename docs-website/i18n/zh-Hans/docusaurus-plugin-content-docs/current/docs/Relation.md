@@ -111,7 +111,7 @@ await comment.update(() => {
 
 例如，如果我们的应用中 `Post` 可以由多个 `User` 创作，并且一个用户可以创作多个 `Post`。我们可以按照以下步骤创建这样的关系：
 
-1. 创建一个关联表的架构和模型，`User` 模型和 `Post` 模型都与之关联；例如 `PostAuthor`。
+1. 创建一个关联表的模式（Schema）和模型（Model），`User` 模型和 `Post` 模型都与之关联；例如 `PostAuthor`。
 2. 在 `User` 和 `Post` 上创建 `has_many` 关联，指向 `PostAuthor` 模型。
 3. 在 `PostAuthor` 上创建 `belongs_to` 关联，分别指向 `User` 和 `Post`。
 4. 通过定义一个查询，使用关联表 `PostAuthor` 来推断某个用户创作的所有 `Post`，从而获取该用户的所有 `Post`。
