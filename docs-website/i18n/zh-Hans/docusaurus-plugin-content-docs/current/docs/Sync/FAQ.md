@@ -1,23 +1,23 @@
 ---
-title: FAQ
+title: 常见问题解答
 hide_title: true
 ---
 
-# Frequently Asked Questions
+# 常见问题
 
-### Sync primitives and implementing your own sync entirely from scratch
+### 同步原语以及完全从头实现自己的同步机制
 
-See: [Sync implementation details](../Implementation/SyncImpl.md)
+参见：[同步实现细节](../Implementation/SyncImpl.md)
 
 
-### Local vs Remote IDs
+### 本地 ID 与远程 ID
 
-WatermelonDB has been designed with the assumption that there is no difference between Local IDs (IDs of records and their relations in a WatermelonDB database) and Remote IDs (IDs on the backend server). So a local app can create new records, generating their IDs, and the backend server will use this ID as the true ID. This greatly simplifies synchronization, as you don't have to replace local with remote IDs on the record and all records that point to it.
+WatermelonDB 的设计基于这样一个假设：本地 ID（WatermelonDB 数据库中记录及其关联的 ID）和远程 ID（后端服务器上的 ID）之间没有区别。因此，本地应用程序可以创建新记录并生成它们的 ID，而后端服务器将使用此 ID 作为真实 ID。这极大地简化了同步过程，因为你无需在记录及其所有关联记录上用远程 ID 替换本地 ID。
 
-We highly recommend that you adopt this practice.
+我们强烈建议你采用这种做法。
 
-Some people are skeptical about this approach due to conflicts, since backend can guarantee unique IDs, and the local app can't. However, in practice, a standard Watermelon ID has 8,000,000,000,000,000,000,000,000 possible combinations. That's enough entropy to make conflicts extremely unlikely. At [Nozbe](https://nozbe.com), we've done it this way at scale for more than 15 years, and not once did we encounter a genuine ID conflict or had other issues due to this approach.
+由于可能存在冲突，有些人对这种方法持怀疑态度，因为后端可以保证 ID 的唯一性，而本地应用程序无法做到。然而，实际上，标准的 Watermelon ID 有 8,000,000,000,000,000,000,000,000 种可能的组合。这个熵值足以使冲突极不可能发生。在 [Nozbe](https://nozbe.com)，我们以这种方式大规模应用了超过 15 年，从未遇到过真正的 ID 冲突或因这种方法导致的其他问题。
 
-> Using the birthday problem, we can calculate that for 36^16 possible IDs, if your system grows to a billion records, the probability of a single conflict is 6e-8. At 100B records, the probability grows to 0.06%. But if you grow to that many records, you're probably a very rich company and can start worrying about things like this _then_.
+> 根据生日问题，我们可以计算出，对于 36^16 种可能的 ID，如果你的系统增长到 10 亿条记录，发生单个冲突的概率为 6e - 8。当记录数达到 1000 亿条时，概率增长到 0.06%。但如果你的记录数增长到这么多，你可能是一家非常富有的公司，到那时再考虑这类问题也不迟。
 
-If you absolutely can't adopt this practice, there's a number of production apps using WatermelonDB that keep local and remote IDs separate — however, more work is required this way. Search Issues to find discussions about this topic — and consider contributing to WatermelonDB to make managing separate local IDs easier for everyone!
+如果你绝对无法采用这种做法，有许多使用 WatermelonDB 的生产应用程序会将本地 ID 和远程 ID 分开管理 — 不过，这种方式需要做更多的工作。你可以在问题列表中搜索关于这个主题的讨论 — 也可以考虑为 WatermelonDB 做出贡献，让大家更轻松地管理独立的本地 ID！
