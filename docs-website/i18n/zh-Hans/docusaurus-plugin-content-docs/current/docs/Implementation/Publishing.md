@@ -1,32 +1,32 @@
-# Publishing WatermelonDB
+# 发布 WatermelonDB
 
-### Step 1: Run all automated tests
+### 步骤 1：运行所有自动化测试
 
 ```bash
 yarn ci:check && yarn test:ios && yarn test:android && yarn ktlint
 ```
 
-### Step 2: Test manually in a real app
+### 步骤 2：在真实应用中手动测试
 
 ```bash
 yarn build
 ```
 
-Then copy `dist/` and replace `app/node_modules/@nozbe/watermelondb` with it.
+然后复制 `dist/` 目录，并用它替换 `app/node_modules/@nozbe/watermelondb` 目录。
 
-If a quick smoke test passes, proceed to publish.
+如果快速冒烟测试通过，则可以继续进行发布。
 
-### Step 3: Update CHANGELOG
+### 步骤 3：更新 CHANGELOG
 
-Change `Unreleased` header to the new version, add new Unreleased
+将 `Unreleased` 标题更改为新版本号，并添加新的 `Unreleased` 部分。
 
-### Step 4: Publish
+### 步骤 4：发布
 
 ```bash
 npm run release
 
-# skips checks (only use on prerelease)
+# 跳过检查（仅在预发布时使用）
 npm run release --skip-checks
 ```
 
-Don't use `yarn release` (or `yarn publish`) — it won't work (yarn doesn't support NPM 2FA).
+不要使用 `yarn release`（或 `yarn publish`） —— 这将不起作用（Yarn 不支持 NPM 的双因素认证）。
