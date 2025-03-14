@@ -1,5 +1,5 @@
 
-1. If you implement Watermelon sync but found this guide confusing, please contribute improvements!
-2. Please help out with solving the current limitations!
-3. If you write server-side code made to be compatible with Watermelon, especially for popular platforms (Node, Ruby on Rails, Kinto, etc.) - please open source it and let us know! This would dramatically simplify implementing sync for people
-4. If you find Watermelon sync bugs, please report the issue! And if possible, write regression tests to make sure it never happens again
+1. 如果你实现了 Watermelon 同步功能，但觉得本指南令人困惑，请贡献改进建议！
+2. 请帮忙解决目前存在的局限性问题！
+3. 如果你编写了与 Watermelon 兼容的服务器端代码，特别是针对流行平台（Node、Ruby on Rails、Kinto 等）的代码，请将其开源并告知我们！这将极大地简化人们实现同步功能的过程。
+4. 如果你发现了 Watermelon 同步功能的 bug，请报告该问题！并且，如果可能的话，编写回归测试以确保问题不会再次出现。
