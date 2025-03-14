@@ -1,12 +1,12 @@
-# Model
+# 模型
 
-A **Model** class represents a type of thing in your app. For example, `Post`, `Comment`, `User`.
+**模型（Model）** 类代表了你应用中的一种事物类型。例如，`Post`（文章）、`Comment`（评论）、`User`（用户）。
 
-Before defining a Model, make sure you [defined its schema](./Schema.md).
+在定义一个模型之前，请确保你已经[定义了它的模式（Schema）](./Schema.md)。
 
-## Create a Model
+## 创建一个模型
 
-Let's define the `Post` model:
+让我们来定义 `Post` 模型：
 
 ```js
 // model/Post.js
@@ -17,9 +17,9 @@ export default class Post extends Model {
 }
 ```
 
-Specify the table name for this Model — the same you defined [in the schema](./Schema.md).
+为这个模型指定表名 —— 这个表名要和你在[模式](./Schema.md)中定义的一致。
 
-Now add the new Model to `Database`:
+现在将新模型添加到 `Database` 中：
 
 ```js
 // index.js
@@ -31,9 +31,9 @@ const database = new Database({
 })
 ```
 
-### Associations
+### 关联关系
 
-Many models relate to one another. A `Post` has many `Comment`s. And every `Comment` belongs to a `Post`. (Every relation is double-sided). Define those associations like so:
+许多模型之间是相互关联的。一篇 `Post` 可以有多个 `Comment`。而每个 `Comment` 都属于一篇 `Post`。（每个关联关系都是双向的）。像这样定义这些关联关系：
 
 ```js
 class Post extends Model {
@@ -51,13 +51,13 @@ class Comment extends Model {
 }
 ```
 
-On the "child" side (`comments`) you define a `belongs_to` association, and pass a column name (key) that points to the parent (`post_id` is the ID of the post the comment belongs to).
+在“子”方（`comments`），你定义一个 `belongs_to` 关联关系，并传递一个指向父方的列名（键）（`post_id` 是评论所属文章的 ID）。
 
-On the "parent" side (`posts`) you define an equivalent `has_many` association and pass the same column name (⚠️ note that the name here is `foreignKey`).
+在“父”方（`posts`），你定义一个等效的 `has_many` 关联关系，并传递相同的列名（⚠️ 注意这里的名称是 `foreignKey`）。
 
-## Add fields
+## 添加字段
 
-Next, define the Model's _fields_ (properties). Those correspond to [table columns](./Schema.md) defined earlier in the schema.
+接下来，定义模型的_字段_（属性）。这些字段对应于你之前在模式中定义的[表列](./Schema.md)。
 
 ```js
 import { field, text } from '@nozbe/watermelondb/decorators'
@@ -74,17 +74,17 @@ class Post extends Model {
 }
 ```
 
-Fields are defined using ES6 decorators. Pass **column name** you defined in Schema as the argument to `@field`.
+字段是使用 ES6 装饰器来定义的。将你在模式中定义的**列名**作为参数传递给 `@field`。
 
-**Field types**. Fields are guaranteed to be the same type (string/number/boolean) as the column type defined in Schema. If column is marked `isOptional: true`, fields may also be null.
+**字段类型**。字段的类型（字符串/数字/布尔值）保证和模式中定义的列类型一致。如果列被标记为 `isOptional: true`，字段也可能为 `null`。
 
-**User text fields**. For fields that contain arbitrary text specified by the user (e.g. names, titles, comment bodies), use `@text` - a simple extension of `@field` that also trims whitespace.
+**用户文本字段**。对于包含用户指定的任意文本的字段（例如姓名、标题、评论内容），使用 `@text` —— 它是 `@field` 的一个简单扩展，还会去除前后的空白字符。
 
-**Note:** Why do I have to type the field/column name twice? The database convention is to use `snake_case` for names, and the JavaScript convention is to use camelCase. So for any multi-word name, the two differ. Also, for resiliency, we believe it's better to be explicit, because over time, you might want to refactor how you name your JavaScript field names, but column names must stay the same for backward compatibility.
+**注意**：为什么我必须输入字段/列名两次？数据库的命名约定是使用 `蛇形命名法（snake_case）`，而 JavaScript 的命名约定是使用 `驼峰命名法（camelCase）`。所以对于任何多单词的名称，两者是不同的。此外，为了提高代码的健壮性，我们认为明确指定名称更好，因为随着时间的推移，你可能想要重构 JavaScript 字段名的命名方式，但为了向后兼容，列名必须保持不变。
 
-### Date fields
+### 日期字段
 
-For date fields, use `@date` instead of `@field`. This will return a JavaScript `Date` object (instead of Unix timestamp integer).
+对于日期字段，请使用 `@date` 而不是 `@field`。这样会返回一个 JavaScript 的 `Date` 对象（而不是 Unix 时间戳整数）。
 
 ```js
 import { date } from '@nozbe/watermelondb/decorators'
@@ -95,9 +95,9 @@ class Post extends Model {
 }
 ```
 
-### Derived fields
+### 派生字段
 
-Use ES6 getters to define model properties that can be calculated based on database fields:
+使用 ES6 的 getter 来定义可以根据数据库字段计算得出的模型属性：
 
 ```js
 import { field, text } from '@nozbe/watermelondb/decorators'
@@ -108,16 +108,16 @@ class Post extends Model {
   @date('archived_at') archivedAt
 
   get isRecentlyArchived() {
-    // in the last 7 days
+    // 在过去 7 天内
     return this.archivedAt &&
       this.archivedAt.getTime() > Date.now() - 7 * 24 * 3600 * 1000
   }
 }
 ```
 
-### To-one relation fields
+### 一对一关系字段
 
-To point to a related record, e.g. `Post` a `Comment` belongs to, or author (`User`) of a `Comment`, use `@relation` or `@immutableRelation`:
+要指向一个关联记录，例如 `Comment` 所属的 `Post`，或者 `Comment` 的作者（`User`），可以使用 `@relation` 或 `@immutableRelation`：
 
 ```js
 import { relation, immutableRelation } from '@nozbe/watermelondb/decorators'
@@ -129,11 +129,11 @@ class Comment extends Model {
 }
 ```
 
-**➡️ Learn more:** [Relation API](./Relation.md)
+**➡️ 了解更多：** [关系 API](./Relation.md)
 
-### Children (to-many relation fields)
+### 子记录（一对多关系字段）
 
-To point to a list of records that belong to this Model, e.g. all `Comment`s that belong to a `Post`, you can define a simple `Query` using `@children`:
+要指向属于该模型的记录列表，例如属于 `Post` 的所有 `Comment`，可以使用 `@children` 定义一个简单的 `Query`：
 
 ```js
 import { children } from '@nozbe/watermelondb/decorators'
@@ -148,15 +148,15 @@ class Post extends Model {
 }
 ```
 
-Pass the _table name_ of the related records as an argument to `@children`. The resulting property will be a `Query` you can fetch, observe, or count.
+将关联记录的_表名_作为参数传递给 `@children`。得到的属性将是一个 `Query`，你可以对其进行获取、观察或计数操作。
 
-**Note:** You must define a `has_many` association in `static associations` for this to work
+**注意：** 要使此功能正常工作，你必须在 `static associations` 中定义一个 `has_many` 关联。
 
-**➡️ Learn more:** [Queries](./Query.md)
+**➡️ 了解更多：** [查询（Query）](./Query.md)
 
-### Custom Queries
+### 自定义查询
 
-In addition to `@children`, you can define custom Queries or extend existing ones, for example:
+除了 `@children`，你还可以定义自定义查询或扩展现有查询，例如：
 
 ```js
 import { children } from '@nozbe/watermelondb/decorators'
@@ -175,11 +175,11 @@ class Post extends Model {
 }
 ```
 
-**➡️ Learn more:** [Queries](./Query.md)
+**➡️ 了解更多：** [查询（Query）](./Query.md)
 
-### Writer methods
+### 写入方法
 
-Define **writers** to simplify creating and updating records, for example:
+定义**写入方法**来简化记录的创建和更新操作，例如：
 
 ```js
 import { writer } from '@nozbe/watermelondb/decorators'
@@ -197,24 +197,24 @@ class Comment extends Model {
 }
 ```
 
-Methods must be marked as `@writer` to be able to modify the database.
+方法必须标记为 `@writer` 才能修改数据库。
 
-**➡️ Learn more:** [Writers](./Writers.md)
+**➡️ 了解更多：** [写入方法（Writers）](./Writers.md)
 
-## Advanced fields
+## 高级字段
 
-You can also use these decorators:
+你还可以使用以下装饰器：
 
-- `@json` for complex serialized data
-- `@readonly` to make the field read-only
-- `@nochange` to disallow changes to the field _after the first creation_
+- `@json` 用于处理复杂的序列化数据
+- `@readonly` 使字段变为只读
+- `@nochange` 禁止在_首次创建后_对字段进行更改
 
-And you can make observable compound properties using RxJS...
+你还可以使用 RxJS 创建可观察的复合属性…
 
-**➡️ Learn more:** [Advanced fields](./Advanced/AdvancedFields.md)
+**➡️ 了解更多：** [高级字段](./Advanced/AdvancedFields.md)
 
 * * *
 
-## Next steps
+## 下一步
 
-➡️ After you define some Models, learn the [**Create / Read / Update / Delete API**](./CRUD.md)
+➡️ 定义了一些模型后，请学习 [**创建、读取、更新、删除 API**](./CRUD.md)
