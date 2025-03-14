@@ -1,14 +1,14 @@
-# Migrations
+### 迁移（Migrations）
 
-**Schema migrations** is the mechanism by which you can add new tables and columns to the database in a backward-compatible way.
+**模式迁移（Schema migrations）** 是一种机制，通过它你可以以向后兼容的方式向数据库添加新的表和列。
 
-Without migrations, if a user of your app upgrades from one version to another, their local database will be cleared at launch, and they will lose all their data.
+如果不使用迁移，当你的应用程序用户从一个版本升级到另一个版本时，他们的本地数据库在启动时将被清空，从而丢失所有数据。
 
-⚠️ Always use migrations!
+⚠️ 始终使用迁移功能！
 
-## Migrations setup
+## 迁移配置
 
-1. Add a new file for migrations:
+1. 为迁移添加一个新文件：
 
    ```js
    // app/model/migrations.js
@@ -17,12 +17,12 @@ Without migrations, if a user of your app upgrades from one version to another, 
 
    export default schemaMigrations({
      migrations: [
-       // We'll add migration definitions here later
+       // 稍后我们将在这里添加迁移定义
      ],
    })
    ```
 
-2. Hook up migrations to the Database adapter setup:
+2. 将迁移功能集成到数据库适配器设置中：
 
    ```js
    // index.js
@@ -34,15 +34,15 @@ Without migrations, if a user of your app upgrades from one version to another, 
    })
    ```
 
-## Migrations workflow
+## 迁移工作流程
 
-When you make schema changes when you use migrations, be sure to do this in this specific order, to minimize the likelihood of making an error.
+当你使用迁移功能进行模式更改时，请务必按照以下特定顺序操作，以最大程度地减少出错的可能性。
 
-### Step 1: Add a new migration
+### 步骤 1: 添加新的迁移
 
-First, define the migration - that is, define the **change** that occurs between two versions of schema (such as adding a new table, or a new table column).
+首先，定义迁移 - 即定义两个版本的模式之间发生的 **更改**（例如添加新表或新表列）。
 
-Don't change the schema file yet!
+**暂时不要更改模式文件！**
 
 ```js
 // app/model/migrations.js
@@ -52,10 +52,10 @@ import { schemaMigrations, createTable } from '@nozbe/watermelondb/Schema/migrat
 export default schemaMigrations({
   migrations: [
     {
-      // ⚠️ Set this to a number one larger than the current schema version
+      // ⚠️ 将此值设置为比当前模式版本大 1 的数字
       toVersion: 2,
       steps: [
-        // See "Migrations API" for more details
+        // 更多详细信息请参阅 "迁移 API"
         createTable({
           name: 'comments',
           columns: [
@@ -69,21 +69,21 @@ export default schemaMigrations({
 })
 ```
 
-Refresh your simulator/browser. You should see this error:
+刷新模拟器/浏览器。你应该会看到以下错误：
 
-> Migrations can't be newer than schema. Schema is version 1 and migrations cover range from 1 to 2
+> 迁移版本不能高于模式版本。模式版本为 1，而迁移覆盖范围是从 1 到 2
 
-If so, good, move to the next step!
+如果是这样，很好，请继续下一步！
 
-But you might also see an error like "Missing table name in schema", which means you made an error in defining migrations. See ["Migrations API" below](#migrations-api) for details.
+但你可能也会看到类似 "模式中缺少表名" 的错误，这意味着你在定义迁移时出错了。有关详细信息，请参阅下面的 ["迁移 API"](#migrations-api)。
 
-### Step 2: Make matching changes in schema
+### 步骤 2：在模式中进行匹配更改
 
-Now it's time to make the actual changes to the schema file — add the same tables or columns as in your migration definition
+现在是时候对模式文件进行实际更改了 —— 添加与迁移定义中相同的表或列。
 
-⚠️ Please double and triple check that your changes to schema match exactly the change you defined in the migration. Otherwise you risk that the app will work when the user migrates, but will fail if it's a fresh install — or vice versa.
+⚠️ 请再三检查你对模式所做的更改是否与迁移中定义的更改完全匹配。否则，可能会出现用户迁移时应用程序可以正常工作，但全新安装时却会失败的情况，反之亦然。
 
-⚠️ Don't change the schema version yet
+⚠️ 暂时不要更改模式版本。
 
 ```js
 // model/schema.js
@@ -91,7 +91,7 @@ Now it's time to make the actual changes to the schema file — add the same tab
 export default appSchema({
   version: 1,
   tables: [
-    // This is our new table!
+    // 这是我们的新表！
     tableSchema({
       name: 'comments',
       columns: [
@@ -104,11 +104,11 @@ export default appSchema({
 })
 ```
 
-Refresh the simulator. You should again see the same "Migrations can't be newer than schema" error. If you see a different error, you made a syntax error.
+刷新模拟器。你应该会再次看到相同的 “迁移版本不能高于模式版本” 错误。如果你看到了不同的错误，说明你存在语法错误。
 
-### Step 3: Bump schema version
+### 步骤 3：提升模式版本
 
-Now that we made matching changes in the schema (source of truth about tables and columns) and migrations (the change in tables and columns), it's time to commit the change by bumping the version:
+既然我们已经在模式（表和列的真实来源）和迁移（表和列的更改）中进行了匹配的更改，现在是时候通过提升版本来确认这些更改了：
 
 ```js
 // model/schema.js
@@ -121,22 +121,22 @@ export default appSchema({
 })
 ```
 
-If you refresh again, your app should show up without issues — but now you can use the new tables/columns
+如果你再次刷新，应用程序应该能正常显示 —— 现在你就可以使用新的表/列了。
 
-### Step 4: Test your migrations
+### 步骤 4：测试你的迁移
 
-Before shipping a new version of the app, please check that your database changes are all compatible:
+在发布应用程序的新版本之前，请检查你的数据库更改是否都兼容：
 
-1. Migrations test: Install the previous version of your app, then update to the version you're about to ship, and make sure it still works
-2. Fresh schema install test: Remove the app, and then install the _new_ version of the app, and make sure it works
+1. 迁移测试：安装应用程序的上一个版本，然后更新到你即将发布的版本，确保应用程序仍然可以正常工作。
+2. 全新模式安装测试：卸载应用程序，然后安装应用程序的 _新_ 版本，确保它可以正常工作。
 
-### Why is this order important
+### 为什么这个顺序很重要
 
-It's simply because React Native simulator (and often React web projects) are configured to automatically refresh when you save a file. You don't want the database to accidentally migrate (upgrade) with changes that have a mistake, or changes you haven't yet completed making. By making migrations first, and bumping version last, you can double check you haven't made a mistake.
+这仅仅是因为 React Native 模拟器（通常还有 React 网页项目）被配置为在你保存文件时自动刷新。你不希望数据库在更改存在错误或尚未完成的情况下意外迁移（升级）。通过先进行迁移，最后提升版本，你可以再次检查是否存在错误。
 
-## Migrations API
+## 迁移 API
 
-Each migration must migrate to a version one above the previous migration, and have multiple _steps_ (such as adding a new table, or new columns). Larger example:
+每次迁移必须迁移到比上一次迁移版本高一个版本，并且可以有多个 _步骤_（例如添加新表或新列）。下面是一个更完整的示例：
 
 ```js
 schemaMigrations({
@@ -170,29 +170,29 @@ schemaMigrations({
 })
 ```
 
-### Migration steps:
+### 迁移步骤：
 
-- `createTable({ name: 'table_name', columns: [ ... ] })` - same API as `tableSchema()`
-- `addColumns({ table: 'table_name', columns: [ ... ] })` - you can add one or multiple columns to an existing table. The columns table has the same format as in schema definitions
-- Other types of migrations (e.g. deleting or renaming tables and columns) are not yet implemented. See [`migrations/index.js`](https://github.com/Nozbe/WatermelonDB/blob/master/src/Schema/migrations/index.js). Please contribute!
+- `createTable({ name: 'table_name', columns: [ ... ] })` - 与 `tableSchema()` 的 API 相同
+- `addColumns({ table: 'table_name', columns: [ ... ] })` - 你可以向现有表中添加一个或多个列。列的格式与模式定义中的格式相同
+- 其他类型的迁移（例如删除或重命名表和列）尚未实现。请参阅 [`migrations/index.js`](https://github.com/Nozbe/WatermelonDB/blob/master/src/Schema/migrations/index.js)。欢迎贡献代码！
 
-## Database reseting and other edge cases
+## 数据库重置和其他边缘情况
 
-1. When you're **not** using migrations, the database will reset (delete all its contents) whenever you change the schema version.
-2. If the migration fails, the database will fail to initialize, and will roll back to previous version. This is unlikely, but could happen if you, for example, create a migration that tries to create the same table twice. The reason why the database will fail instead of reset is to avoid losing user data (also it's less confusing in development). You can notice the problem, fix the migration, and ship it again without data loss.
-3. When database in the running app has *newer* database version than the schema version defined in code, the database will reset (clear its contents). This is useful in development.
-4. If there's no available migrations path (e.g. user has app with database version 4, but oldest migration is from version 10 to 11), the database will reset.
+1. 当你 **不** 使用迁移功能时，只要你更改模式版本，数据库就会重置（删除所有内容）。
+2. 如果迁移失败，数据库将无法初始化，并会回滚到上一个版本。这种情况不太可能发生，但例如，如果你创建了一个试图两次创建同一张表的迁移，就可能会出现这种情况。数据库选择失败而不是重置，是为了避免丢失用户数据（在开发过程中也不容易造成混淆）。你可以发现问题，修复迁移，然后再次发布，而不会丢失数据。
+3. 当运行中的应用程序的数据库版本比代码中定义的模式版本 *新* 时，数据库将重置（清空其内容）。这在开发过程中很有用。
+4. 如果没有可用的迁移路径（例如，用户的应用程序数据库版本为 4，但最早的迁移是从版本 10 到 11），数据库将重置。
 
-### Rolling back changes
+### 回滚更改
 
-There's no automatic "rollback" feature in Watermelon. If you make a mistake in migrations during development, roll back in this order:
+Watermelon 没有自动 “回滚” 功能。如果你在开发过程中在迁移时犯了错误，请按以下顺序回滚：
 
-1. Comment out any changes made to schema.js
-2. Comment out any changes made to migrations.js
-3. Decrement schema version number (bring back the original number)
+1. 注释掉对 `schema.js` 所做的任何更改
+2. 注释掉对 `migrations.js` 所做的任何更改
+3. 降低模式版本号（恢复原始版本号）
 
-After refreshing app, the database should reset to previous state. Now you can correct your mistake and apply changes again (please do it in order described in "Migrations workflow").
+刷新应用程序后，数据库应该会重置到上一个状态。现在你可以纠正错误并再次应用更改（请按照 “迁移工作流程” 中描述的顺序进行操作）。
 
-### Unsafe SQL migrations
+### 不安全的 SQL 迁移
 
-Similar to [Schema](../Schema.md), you can add `unsafeSql` parameter to every migration step to modify or replace SQL generated by WatermelonDB to perform the migration. There is also an `unsafeExecuteSql('some sql;')` step you can use to append extra SQL. Those are ignored with LokiJSAdapter and for the purposes of [migration syncs](../Sync/Intro.md).
+与 [模式（Schema）](../Schema.md) 类似，你可以为每个迁移步骤添加 `unsafeSql` 参数，以修改或替换 WatermelonDB 生成的用于执行迁移的 SQL。还有一个 `unsafeExecuteSql('some sql;')` 步骤，你可以使用它来追加额外的 SQL。对于 LokiJSAdapter 和 [迁移同步](../Sync/Intro.md)，这些参数会被忽略。
