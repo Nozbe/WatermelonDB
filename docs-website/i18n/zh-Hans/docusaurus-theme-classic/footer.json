@@ -1,22 +1,22 @@
 {
   "link.title.Docs": {
-    "message": "Docs",
+    "message": "文档",
     "description": "The title of the footer links column with title=Docs in the footer"
   },
   "link.title.Community": {
-    "message": "Community",
+    "message": "社区",
     "description": "The title of the footer links column with title=Community in the footer"
   },
   "link.title.More": {
-    "message": "More",
+    "message": "更多",
     "description": "The title of the footer links column with title=More in the footer"
   },
   "link.item.label.Installation": {
-    "message": "Installation",
+    "message": "安装",
     "description": "The label of footer link with label=Installation linking to /docs/Installation"
   },
   "link.item.label.Contributing": {
-    "message": "Contributing",
+    "message": "贡献",
     "description": "The label of footer link with label=Contributing linking to /docs/CONTRIBUTING"
   },
   "link.item.label.Stack Overflow": {
@@ -24,7 +24,7 @@
     "description": "The label of footer link with label=Stack Overflow linking to https://stackoverflow.com/questions/tagged/watermelondb"
   },
   "link.item.label.Twitter": {
-    "message": "Twitter",
+    "message": "推特",
     "description": "The label of footer link with label=Twitter linking to https://twitter.com/radexp"
   },
   "link.item.label.GitHub": {
@@ -32,7 +32,7 @@
     "description": "The label of footer link with label=GitHub linking to https://github.com/nozbe/WatermelonDB"
   },
   "copyright": {
-    "message": "WatermelonDB by <a href=\"https://radex.io\">Radek Pietruszewski</a> and <a href=\"https://nozbe.com\">Nozbe</a>.",
+    "message": "WatermelonDB 由 <a href=\"https://radex.io\">Radek Pietruszewski</a> 和 <a href=\"https://nozbe.com\">Nozbe</a> 开发。",
     "description": "The footer copyright"
   }
 }

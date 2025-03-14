@@ -4,31 +4,31 @@
     "description": "The label for version current"
   },
   "sidebar.docs.category.About": {
-    "message": "About",
+    "message": "关于",
     "description": "The label for category About in sidebar docs"
   },
   "sidebar.docs.category.Setup": {
-    "message": "Setup",
+    "message": "设置",
     "description": "The label for category Setup in sidebar docs"
   },
   "sidebar.docs.category.Usage": {
-    "message": "Usage",
+    "message": "使用方法",
     "description": "The label for category Usage in sidebar docs"
   },
   "sidebar.docs.category.Sync": {
-    "message": "Sync",
+    "message": "同步",
     "description": "The label for category Sync in sidebar docs"
   },
   "sidebar.docs.category.Advanced": {
-    "message": "Advanced",
+    "message": "高级",
     "description": "The label for category Advanced in sidebar docs"
   },
   "sidebar.docs.category.Contributing": {
-    "message": "Contributing",
+    "message": "贡献",
     "description": "The label for category Contributing in sidebar docs"
   },
   "sidebar.docs.category.Other": {
-    "message": "Other",
+    "message": "其他",
     "description": "The label for category Other in sidebar docs"
   }
 }
