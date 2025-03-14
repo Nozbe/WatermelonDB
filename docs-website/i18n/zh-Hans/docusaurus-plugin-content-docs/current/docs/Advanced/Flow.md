@@ -5,13 +5,13 @@ hide_title: true
 
 # Watermelon ❤️ Flow
 
-Watermelon was developed with [Flow](https://flow.org) in mind.
+Watermelon 是在考虑了 [Flow](https://flow.org) 的情况下开发的。
 
-If you're a Flow user yourself (and we highly recommend it!), here's some things you need to keep in mind:
+如果您自己也是 Flow 用户（我们强烈推荐使用它！），以下是一些您需要记住的事项：
 
-## Setup
+## 配置
 
-Add this to your `.flowconfig` file so that Flow can see Watermelon's types.
+将以下内容添加到您的 `.flowconfig` 文件中，以便 Flow 能够识别 Watermelon 的类型。
 
 ```ini
 [declarations]
@@ -22,13 +22,13 @@ Add this to your `.flowconfig` file so that Flow can see Watermelon's types.
 module.name_mapper='^@nozbe/watermelondb\(.*\)$' -> '<PROJECT_ROOT>/node_modules/@nozbe/watermelondb/src\1'
 ```
 
-Note that this won't work if you put the entire `node_modules/` folder under the `[ignore]` section. In that case, change it to only ignore the specific node modules that throw errors in your app, so that Flow can scan Watermelon files.
+请注意，如果您将整个 `node_modules/` 文件夹放在 `[ignore]` 部分下，这将不起作用。在这种情况下，请将其修改为仅忽略在您的应用中引发错误的特定节点模块，以便 Flow 可以扫描 Watermelon 文件。
 
-## Tables and columns
+## 表和列
 
-Table and column names are **opaque types** in Flow.
+在 Flow 中，表名和列名是 **不透明类型**。
 
-So if you try to use simple strings, like so:
+因此，如果您尝试使用简单的字符串，如下所示：
 
 ```js
 class Comment extends Model {
@@ -38,11 +38,11 @@ class Comment extends Model {
 }
 ```
 
-You'll get errors, because you're passing `'comments'` (a `string`) where `TableName<Comment>` is expected, and `'body'` (again, a `string`) where `ColumnName` is expected.
+您会收到错误，因为您在期望 `TableName<Comment>` 的地方传递了 `'comments'`（一个 `string`），在期望 `ColumnName` 的地方传递了 `'body'`（同样是一个 `string`）。
 
-When using Watermelon with Flow, you must pre-define all your table and column names in one place, then only use those symbols (and not strings) in all other places.
+在将 Watermelon 与 Flow 一起使用时，您必须在一个地方预定义所有表名和列名，然后在其他所有地方仅使用这些符号（而不是字符串）。
 
-We recommend defining symbols like this:
+我们建议像这样定义符号：
 
 ```js
 // File: model/schema.js
@@ -77,7 +77,7 @@ export const appSchema = appSchema({
 })
 ```
 
-And then using them like so:
+然后像这样使用它们：
 
 ```js
 // File: model/Comment.js
@@ -97,20 +97,20 @@ export default class Comment extends Model {
 }
 ```
 
-### But isn't that a lot of boilerplate?
+### 这不是有很多样板代码吗？
 
-Yes, it looks more boilerplate'y than the non-Flow examples, however:
+是的，与非 Flow 示例相比，它看起来有更多的样板代码，但是：
 
-- you're protected from typos — strings are defined once
-- easier refactoring — you only change column name in one place
-- no orphan columns or tables — no way to accidentally refer to a column or table that was removed from the schema
-- `TableName` is typed with the model class it refers to, which allows Flow to find other mistakes in your code
+- 您可以避免拼写错误 — 字符串只定义一次
+- 更容易重构 — 您只需在一个地方更改列名
+- 没有孤立的列或表 — 不会意外引用从模式中移除的列或表
+- `TableName` 带有它所引用的模型类的类型，这使得 Flow 可以发现您代码中的其他错误
 
-In general, we find that untyped string constants lead to bugs, and defining typed constants is a good practice.
+一般来说，我们发现未类型化的字符串常量会导致错误，而定义类型化的常量是一种良好的实践。
 
-### associations
+### 关联关系
 
-When using Flow, you define model associations like this:
+在使用 Flow 时，您可以像这样定义模型关联关系：
 
 ```js
 import { Model, associations } from '@nozbe/watermelondb'
@@ -127,19 +127,19 @@ class Post extends Model {
 }
 ```
 
-## Common types
+## 常见类型
 
-Many types are tagged with the model class the type refers to:
+许多类型都带有它们所引用的模型类的标签：
 
 ```js
-TableName<Post> // a table name referring to posts
-Collection<Post> // the Collection for posts
-Relation<Comment> // a relation that can fetch a Comment
-Relation<?Comment> // a relation that can fetch a Comment or `null`
-Query<Comment> // a query that can fetch many Comments
+TableName<Post> // 引用 posts 表的表名
+Collection<Post> // posts 表的集合
+Relation<Comment> // 可以获取 Comment 的关联关系
+Relation<?Comment> // 可以获取 Comment 或 `null` 的关联关系
+Query<Comment> // 可以获取多个 Comment 的查询
 ```
 
-Always mark the type of model fields. Remember to include `?` if the underlying table column is optional. Flow can't check if model fields match the schema or if they match the decorator's signature.
+始终标记模型字段的类型。如果底层表列是可选的，请记得包含 `?`。Flow 无法检查模型字段是否与模式匹配，或者是否与装饰器的签名匹配。
 
 ```js
 @text(Column.body) body: string
@@ -147,6 +147,6 @@ Always mark the type of model fields. Remember to include `?` if the underlying 
 @date(Column.archivedAt) archivedAt: ?Date
 ```
 
-If you need to refer to an ID of a record, always use the `RecordId` type alias, not `string` (they're the same, but the former is self-documenting).
+如果您需要引用记录的 ID，请始终使用 `RecordId` 类型别名，而不是 `string`（它们是相同的，但前者具有自文档性）。
 
-If you ever access the record's raw data (DON'T do that unless you *really* know what you're doing), use `DirtyRaw` to refer to raw data from external sources (database, server), and `RawRecord` after it was passed through `sanitizedRaw`.
+如果您需要访问记录的原始数据（除非您 *真的* 知道自己在做什么，否则不要这样做），请使用 `DirtyRaw` 来引用来自外部源（数据库、服务器）的原始数据，使用 `RawRecord` 来引用经过 `sanitizedRaw` 处理后的原始数据。
