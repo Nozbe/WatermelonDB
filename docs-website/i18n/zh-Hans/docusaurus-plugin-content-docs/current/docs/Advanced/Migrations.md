@@ -1,4 +1,4 @@
-### 迁移（Migrations）
+# 迁移（Migrations）
 
 **模式迁移（Schema migrations）** 是一种机制，通过它你可以以向后兼容的方式向数据库添加新的表和列。
 

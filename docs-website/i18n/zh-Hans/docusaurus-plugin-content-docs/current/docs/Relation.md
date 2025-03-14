@@ -1,12 +1,12 @@
-# Relations
+# 关系（Relations）
 
-A `Relation` object represents one record pointing to another — such as the author (`User`) of a `Comment`, or the `Post` the comment belongs to.
+`Relation` 对象表示一条记录指向另一条记录的关系，例如 `Comment` 的作者（`User`），或者该评论所属的 `Post`。
 
-### Defining Relations
+### 定义关系
 
-There's two steps to defining a relation:
+定义关系需要两个步骤：
 
-1. A [**table column**](./Schema.md) for the related record's ID
+1. 为相关记录的 ID 创建一个[**表列**](./Schema.md)
 
    ```js
    tableSchema({
@@ -17,7 +17,7 @@ There's two steps to defining a relation:
      ]
    }),
    ```
-2. A `@relation` field [defined on a `Model`](./Model.md) class:
+2. 在 `Model` 类上定义一个 `@relation` 字段 [在 `Model` 类中定义](./Model.md)：
 
    ```js
    import { relation } from '@nozbe/watermelondb/decorators'
@@ -28,11 +28,11 @@ There's two steps to defining a relation:
    }
    ```
 
-   The first argument is the _table name_ of the related record, and the second is the _column name_ with an ID for the related record.
+   第一个参数是相关记录的_表名_，第二个参数是包含相关记录 ID 的_列名_。
 
 ### immutableRelation
 
-If you have a relation that cannot change (for example, a comment can't change its author), use `@immutableRelation` for extra protection and performance:
+如果你有一个不会改变的关系（例如，评论不能更改其作者），可以使用 `@immutableRelation` 来获得额外的保护和性能提升：
 
 ```js
 import { immutableRelation } from '@nozbe/watermelondb/decorators'
@@ -44,49 +44,49 @@ class Comment extends Model {
 }
 ```
 
-## Relation API
+## 关系 API
 
-In the example above, `comment.author` returns a `Relation` object.
+在上面的示例中，`comment.author` 返回一个 `Relation` 对象。
 
-> Remember, WatermelonDB is a lazily-loaded database, so you don't get the related `User` record immediately, only when you explicitly fetch it
+> 请记住，WatermelonDB 是一个懒加载数据库，因此你不会立即获取到相关的 `User` 记录，只有在你显式地获取它时才会获取到。
 
-### Observing
+### 观察
 
-Most of the time, you [connect Relations to Components](./Components.md) by using `observe()` (the same [as with Queries](./Query.md)):
+大多数情况下，你可以使用 `observe()` 方法将关系连接到组件 [将关系连接到组件](./Components.md)（与 [查询操作相同](./Query.md)）：
 
 ```js
 withObservables(['comment'], ({ comment }) => ({
   comment,
-  author: comment.author, // shortcut syntax for `author: comment.author.observe()`
+  author: comment.author, // 等同于 `author: comment.author.observe()` 的快捷语法
 }))
 ```
 
-The component will now have an `author` prop containing a `User`, and will re-render both when the user changes (e.g. comment's author changes its name), but also when a new author is assigned to the comment (if that was possible).
+现在，组件将有一个包含 `User` 对象的 `author` 属性，并且当用户信息发生变化（例如，评论的作者更改了其姓名）时，或者当新的作者被分配给评论时（如果允许的话），组件都会重新渲染。
 
-### Fetching
+### 获取
 
-To simply get the related record, use `fetch`. You might need it [in a Writer](./Writers.md)
+若要简单地获取相关记录，可使用 `fetch` 方法。你可能会在 [写入器（Writer）](./Writers.md) 中用到它。
 
 ```js
 const author = await comment.author.fetch()
 
-// Shortcut syntax:
+// 快捷语法：
 const author = await comment.author
 ```
 
-**Note**: If the relation column (in this example, `author_id`) is marked as `isOptional: true`, `fetch()` might return `null`.
+**注意**：如果关系列（在本示例中为 `author_id`）被标记为 `isOptional: true`，`fetch()` 方法可能会返回 `null`。
 
 ### ID
 
-If you only need the ID of a related record (e.g. to use in an URL or for the `key=` React prop), use `id`.
+如果你只需要相关记录的 ID（例如，用于 URL 或 React 的 `key=` 属性），可以使用 `id`。
 
 ```js
 const authorId = comment.author.id
 ```
 
-### Assigning
+### 赋值
 
-Use `set()` to assign a new record to the relation
+使用 `set()` 方法为关系指定一个新的记录。
 
 ```js
 await database.get('comments').create(comment => {
@@ -95,9 +95,9 @@ await database.get('comments').create(comment => {
 })
 ```
 
-**Note**: you can only do this in the `.create()` or `.update()` block.
+**注意**：你只能在 `.create()` 或 `.update()` 代码块中执行此操作。
 
-You can also use `set id` if you only have the ID for the record to assign
+如果你仅拥有要指定记录的 ID，也可以使用 `set id`。
 
 ```js
 await comment.update(() => {
@@ -105,16 +105,16 @@ await comment.update(() => {
 })
 ```
 
-## Advanced relations
+## 高级关系
 
-### Many-To-Many Relation
+### 多对多关系
 
-If for instance, our app `Post`s can be authored by many `User`s and a user can author many `Post`s. We would create such a relation following these steps:-
+例如，如果我们的应用中 `Post` 可以由多个 `User` 创作，并且一个用户可以创作多个 `Post`。我们可以按照以下步骤创建这样的关系：
 
-1. Create a pivot schema and model that both the `User` model and `Post` model has association to; say `PostAuthor`
-2. Create has_many association on both `User` and `Post` pointing to `PostAuthor` Model
-3. Create belongs_to association on `PostAuthor` pointing to both `User` and `Post`
-4. Retrieve all `Posts` for a user by defining a query that uses the pivot `PostAuthor` to infer the `Post`s that were authored by the User.
+1. 创建一个关联表的架构和模型，`User` 模型和 `Post` 模型都与之关联；例如 `PostAuthor`。
+2. 在 `User` 和 `Post` 上创建 `has_many` 关联，指向 `PostAuthor` 模型。
+3. 在 `PostAuthor` 上创建 `belongs_to` 关联，分别指向 `User` 和 `Post`。
+4. 通过定义一个查询，使用关联表 `PostAuthor` 来推断某个用户创作的所有 `Post`，从而获取该用户的所有 `Post`。
 
 ```js
 import { lazy } from '@nozbe/watermelondb/decorators'
@@ -172,6 +172,6 @@ withObservables(['post'], ({ post }) => ({
 
 * * *
 
-## Next steps
+## 下一步
 
-➡️ Now the last step of this guide: [**understand Writers (and Readers)**](./Writers.md)
+➡️ 现在，本指南的最后一步：[**了解写入器（和读取器）**](./Writers.md)
