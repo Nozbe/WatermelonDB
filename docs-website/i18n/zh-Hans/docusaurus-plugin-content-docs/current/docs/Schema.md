@@ -1,10 +1,10 @@
-# Schema
+# 模式（Schema）
 
-When using WatermelonDB, you're dealing with **Models** and **Collections**. However, underneath Watermelon sits an **underlying database** (SQLite or LokiJS) which speaks a different language: **tables and columns**. Together, those are called a **database schema** and we must define it first.
+在使用 WatermelonDB 时，你会涉及到 **模型（Models）** 和 **集合（Collections）**。然而，WatermelonDB 底层依赖于 **基础数据库**（如 SQLite 或 LokiJS），这些数据库使用的是不同的术语：**表（tables）** 和 **列（columns）**。这些表和列共同构成了 **数据库模式（database schema）**，我们必须先对其进行定义。
 
-## Defining a Schema
+## 定义数据库模式
 
-Say you want Models `Post`, `Comment` in your app. For each of those Models, you define a table. And for every field of a Model (e.g. name of the blog post, author of the comment) you define a column. For example:
+假设你想在应用中使用 `Post` 和 `Comment` 模型。对于每个模型，你需要定义一个表；对于模型的每个字段（例如博客文章的标题、评论的作者），你需要定义一个列。例如：
 
 ```js
 // model/schema.js
@@ -33,78 +33,74 @@ export const mySchema = appSchema({
 })
 ```
 
-**Note:** It is database convention to use plural and snake_case names for table names. Column names are also snake_case. So `Post` become `posts` and `createdAt` becomes `created_at`.
+**注意**：按照数据库的命名约定，表名通常使用复数形式和蛇形命名法（snake_case），列名也使用蛇形命名法。因此，`Post` 对应的表名是 `posts`，`createdAt` 对应的列名是 `created_at`。
 
-### Column types
+### 列类型
 
-Columns have one of three types: `string`, `number`, or `boolean`.
+列有三种类型：`string`、`number` 或 `boolean`。
 
-Fields of those types will default to `''`, `0`, or `false` respectively, if you create a record with a missing field.
+如果你在创建记录时遗漏了某个字段，这些类型的字段将分别默认设置为 `''`、`0` 或 `false`。
 
-To allow fields to be `null`, mark the column as `isOptional: true`.
+若要允许字段为 `null`，请将列标记为 `isOptional: true`。
 
-### Naming conventions
+### 命名约定
 
-To add a relation to a table (e.g. `Post` where a `Comment` was published, or author of a comment), add a string column ending with `_id`:
+若要在表中添加关联关系（例如，`Comment` 所属的 `Post`，或评论的作者），可添加一个以 `_id` 结尾的字符串列：
 
 ```js
 { name: 'post_id', type: 'string' },
 { name: 'author_id', type: 'string' },
 ```
 
-Boolean columns should have names starting with `is_`:
+布尔类型的列名应以 `is_` 开头：
 
 ```js
 { name: 'is_pinned', type: 'boolean' }
 ```
 
-Date fields should be `number` (dates are stored as Unix timestamps) and have names ending with `_at`:
+日期字段应使用 `number` 类型（日期以 Unix 时间戳形式存储），且列名应以 `_at` 结尾：
 
 ```js
 { name: 'last_seen_at', type: 'number', isOptional: true }
 ```
 
-### Special columns
+### 特殊列
 
-All tables _automatically_ have a string column `id` (of `string` type) to uniquely identify records -- therefore you cannot declare a column named `id` yourself. (There are also special `_status` and `_changed` columns used for [synchronization](./Sync/Intro.md) - you shouldn't touch them yourself).
+所有表都会 **自动** 包含一个名为 `id` 的字符串列，用于唯一标识记录，因此你不能自己声明名为 `id` 的列。（此外，还有用于 [同步](./Sync/Intro.md) 的特殊列 `_status` 和 `_changed`，你不应该手动修改它们。）
 
-You can add special `created_at` / `updated_at` columns to enable [automatic create/update tracking](./Advanced/CreateUpdateTracking.md).
+你可以添加特殊的 `created_at` / `updated_at` 列，以启用 [自动创建/更新跟踪](./Advanced/CreateUpdateTracking.md)。
 
-### Modifying Schema
+### 修改数据库模式
 
-Watermelon cannot automatically detect Schema changes. Therefore, whenever you change the Schema, you must increment its version number (`version:` field).
+WatermelonDB 无法自动检测数据库模式的更改。因此，每当你更改数据库模式时，必须增加其版本号（`version` 字段）。
 
-During early development, this is all you need to do - on app reload, this will cause the database to be cleared completely.
+在开发早期，你只需这样做即可。应用重新加载时，这将导致数据库被完全清空。
 
-To seamlessly update the schema (without deleting user data), use [Migrations](./Advanced/Migrations.md).
+若要无缝更新数据库模式（不删除用户数据），请使用 [迁移（Migrations）](./Advanced/Migrations.md)。
 
-⚠️ Always use Migrations if you already shipped your app.
+⚠️ 如果你已经发布了应用，一定要使用迁移功能。
 
-### Indexing
+### 索引
 
-To enable database indexing, add `isIndexed: true` to a column.
+若要启用数据库索引，可在列定义中添加 `isIndexed: true`。
 
-Indexing makes querying by a column faster, at the expense of create/update speed and database size.
+索引可以加快按列查询的速度，但会降低创建/更新的速度，并增加数据库的大小。
 
-For example, if you often query all comments belonging to a post (that is, query comments by its `post_id` column), you should mark the `post_id` column as indexed.
+例如，如果你经常查询某个帖子的所有评论（即通过 `post_id` 列查询评论），则应将 `post_id` 列标记为索引列。
 
-However, if you rarely query all comments by its author, indexing `author_id` is probably not worth it.
+然而，如果你很少按作者查询所有评论，那么为 `author_id` 列创建索引可能就不值得了。
 
-In general, most `_id` fields are indexed. Occasionally, `boolean` fields are worth indexing (but it's a "low quality index"). However, you should almost never index date (`_at`) columns or `string` columns. You definitely do not want to index long-form user text.
+一般来说，大多数 `_id` 字段都会创建索引。偶尔，`boolean` 字段也值得创建索引（但这是一种“低质量索引”）。不过，你几乎不应该为日期（`_at`）列或 `string` 列创建索引，尤其不要为长文本的用户输入创建索引。
 
-⚠️ Do not mark all columns as indexed to "make Watermelon faster". Indexing has a real performance cost and should be used only when appropriate.
+⚠️ 不要为了“让 WatermelonDB 更快”而将所有列都标记为索引列。索引会带来实际的性能开销，应仅在必要时使用。
 
-## Advanced
+## 高级用法
 
-### Unsafe SQL schema
+### 不安全的 SQL 模式
 
-If you want to modify the SQL used to set up the SQLite database, you can pass `unsafeSql` parameter
-to `tableSchema` and `appSchema`. This parameter is a function that receives SQL generated by Watermelon,
-and you can return whatever you want - so you can append, prepend, replace parts of SQL, or return
-your own SQL altogether. When passed to `tableSchema`, it receives SQL generated for just that table,
-and when to `appSchema` - the entire schema SQL.
+如果你想修改用于设置 SQLite 数据库的 SQL 语句，可以向 `tableSchema` 和 `appSchema` 传递 `unsafeSql` 参数。该参数是一个函数，它接收 WatermelonDB 生成的 SQL 语句，你可以返回任意内容，比如在 SQL 语句前后添加内容、替换部分内容，或者返回你自己的 SQL 语句。当传递给 `tableSchema` 时，它接收的是为该表生成的 SQL 语句；当传递给 `appSchema` 时，它接收的是整个数据库模式的 SQL 语句。
 
-⚠️  Note that SQL generated by WatermelonDB is not considered to be a stable API, so be careful about your transforms as they can break at any time.
+⚠️ 请注意，WatermelonDB 生成的 SQL 语句不被视为稳定的 API，因此在进行转换时要格外小心，因为它们可能随时会失效。
 
 ```js
 appSchema({
@@ -117,9 +113,9 @@ appSchema({
     }),
   ],
   unsafeSql: (sql, kind) => {
-    // Note that this function is called not just when first setting up the database
-    // Additionally, when running very large batches, all database indices may be dropped and later
-    // recreated as an optimization. More kinds may be added in the future.
+    // 注意，这个函数不仅在首次设置数据库时会被调用
+    // 此外，在执行非常大的批量操作时，为了优化性能，所有数据库索引可能会被删除，之后再重新创建。
+    // 未来可能会添加更多类型。
     switch (kind) {
       case 'setup':
         return `create blabla;${sql}`
@@ -135,6 +131,6 @@ appSchema({
 
 * * *
 
-## Next steps
+## 下一步
 
-➡️ After you define your schema, go ahead and [**define your Models**](./Model.md)
+➡️ 定义好数据库模式后，接下来可以 [**定义你的模型**](./Model.md)

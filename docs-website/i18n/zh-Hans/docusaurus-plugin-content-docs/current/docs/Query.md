@@ -1,5 +1,5 @@
 ---
-title: 查询
+title: 查询（Query）
 hide_title: true
 ---
 
