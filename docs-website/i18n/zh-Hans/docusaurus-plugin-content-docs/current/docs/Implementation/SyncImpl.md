@@ -1,140 +1,127 @@
 ---
-title: Sync implementation
+title: 同步实现
 hide_title: true
 ---
 
-# Sync implementation details
+# 同步实现细节
 
-If you're looking for a guide to implement Watermelon Sync in your app, see [**Synchronization**](../Sync/Intro.md).
+如果您正在寻找在应用程序中实现 Watermelon Sync 的指南，请参阅 [**同步**](../Sync/Intro.md)。
 
-If you want to contribute to Watermelon Sync, or implement your own synchronization engine from scratch, read this.
+如果您想为 Watermelon Sync 做出贡献，或者从头开始实现自己的同步引擎，请阅读本文。
 
-## Implementing your own sync from scratch
+## 从头开始实现自己的同步功能
 
-For basic details about how changes tracking works, see: [📺 Digging deeper into WatermelonDB](https://www.youtube.com/watch?v=uFvHURTRLxQ)
+有关更改跟踪工作原理的基本细节，请参阅：[📺 深入了解 WatermelonDB](https://www.youtube.com/watch?v=uFvHURTRLxQ)
 
-Why you might want to implement a custom sync engine? If you have an existing remote server architecture that's difficult to adapt to Watermelon sync protocol, or you specifically want a different architecture (e.g. single HTTP request -- server resolves conflicts). Be warned, however, that **implementing sync that works reliably** is a hard problem, so we recommend sticking to Watermelon Sync and tweaking it as needed.
+为什么您可能想实现一个自定义同步引擎呢？如果您现有的远程服务器架构难以适应 Watermelon 同步协议，或者您特别想要一种不同的架构（例如，单个 HTTP 请求——由服务器解决冲突）。不过请注意，**实现一个可靠的同步功能**是一个难题，因此我们建议您坚持使用 Watermelon Sync 并根据需要进行调整。
 
-The rest of this document contains details about how Watermelon Sync works - you can use that as a blueprint for your own work.
+本文档的其余部分包含了 Watermelon Sync 工作原理的详细信息——您可以将其作为自己工作的蓝图。
 
-If possible, please use sync implementation helpers from `sync/*.js` to keep your custom sync implementation have as much commonality as possible with the standard implementation. This is good both for you and for the rest of WatermelonDB community, as we get to share improvements and bug fixes. If the helpers are _almost_ what you need, but not quite, please send pull requests with improvements!
+如果可能的话，请使用 `sync/*.js` 中的同步实现辅助函数，以使您的自定义同步实现尽可能与标准实现保持一致。这对您和 WatermelonDB 社区的其他成员都有好处，因为我们可以共享改进和 bug 修复。如果这些辅助函数**几乎**能满足您的需求，但还不完全符合，请提交包含改进内容的拉取请求！
 
-## Watermelon Sync -- Details
+## Watermelon Sync —— 详细信息
 
-### General design
+### 总体设计
 
-- master/replica - server is the source of truth, client has a full copy and syncs back to server (no peer-to-peer syncs)
-- two phase sync: first pull remote changes to local app, then push local changes to server
-- client resolves conflicts
-- content-based, not time-based conflict resolution
-- conflicts are resolved using per-column client-wins strategy: in conflict, server version is taken
-  except for any column that was changed locally since last sync.
-- local app tracks its changes using a _status (synced/created/updated/deleted) field and _changes
-  field (which specifies columns changed since last sync)
-- server only tracks timestamps (or version numbers) of every record, not specific changes
-- sync is performed for the entire database at once, not per-collection
-- eventual consistency (client and server are consistent at the moment of successful pull if no
-  local changes need to be pushed)
-- non-blocking: local database writes (but not reads) are only momentarily locked when writing data
-  but user can safely make new changes throughout the process
+- 主/副本模式 - 服务器是事实来源，客户端拥有完整副本并将更改同步回服务器（不支持点对点同步）
+- 两阶段同步：首先将远程更改拉取到本地应用，然后将本地更改推送到服务器
+- 由客户端解决冲突
+- 基于内容而非基于时间的冲突解决机制
+- 使用按列的客户端优先策略解决冲突：发生冲突时，采用服务器版本，但自上次同步以来本地有更改的列除外。
+- 本地应用使用 _status（已同步/已创建/已更新/已删除）字段和 _changes 字段（指定自上次同步以来更改的列）跟踪其更改
+- 服务器仅跟踪每条记录的时间戳（或版本号），不跟踪具体更改
+- 同步操作一次性对整个数据库执行，而非按集合进行
+- 最终一致性（如果没有本地更改需要推送，客户端和服务器在成功拉取数据时保持一致）
+- 非阻塞：本地数据库写入操作（但不包括读取操作）仅在写入数据时短暂锁定，用户可以在整个过程中安全地进行新的更改
 
-### Sync procedure
+### 同步流程
 
-1. Pull phase
-  - get `lastPulledAt` timestamp locally (null if first sync)
-  - call `pullChanges` function, passing `lastPulledAt`
-    - server responds with all changes (create/update/delete) that occured since `lastPulledAt`
-    - server serves us with its current timestamp
-  - IN ACTION (lock local writes):
-    - ensure no concurrent syncs
-    - apply remote changes locally
-      - insert new records
-        - if already exists (error), update
-        - if locally marked as deleted (error), un-delete and update
-      - update records
-        - if synced, just replace contents with server version
-        - if locally updated, we have a conflict!
-          - take remote version, apply local fields that have been changed locally since last sync
-            (per-column client wins strategy)
-          - record stays marked as updated, because local changes still need to be pushed
-        - if locally marked as deleted, ignore (deletion will be pushed later)
-        - if doesn't exist locally (error), create
-      - destroy records
-        - if already deleted, ignore
-        - if locally changed, destroy anyway
-        - ignore children (server ought to schedule children to be destroyed)
-    - if successful, save server's timestamp as new `lastPulledAt`
-2. Push phase
-  - Fetch local changes
-    - Find all locally changed records (created/updated record + deleted IDs) for all collections
-    - Strip _status, _changed
-  - Call `pushChanges` function, passing local changes object, and the new `lastPulledAt` timestamp
-    - Server applies local changes to database, and sends OK
-    - If one of the pushed records has changed *on the server* since `lastPulledAt`, push is aborted,
-      all changes reverted, and server responds with an error
-  - IN ACTION (lock local writes):
-    - markLocalChangesAsSynced:
-      - take local changes fetched in previous step, and:
-      - permanently destroy records marked as deleted
-      - mark created/updated records as synced and reset their _changed field
-      - note: *do not* mark record as synced if it changed locally since `fetch local changes` step
-        (user could have made new changes that need syncing)
+1. 拉取阶段
+  - 从本地获取 `lastPulledAt` 时间戳（首次同步时为 null）
+  - 调用 `pullChanges` 函数，并传入 `lastPulledAt`
+    - 服务器返回自 `lastPulledAt` 以来发生的所有更改（创建/更新/删除）
+    - 服务器提供其当前时间戳
+  - 执行操作（锁定本地写入）：
+    - 确保没有并发同步操作
+    - 在本地应用远程更改
+      - 插入新记录
+        - 如果记录已存在（报错），则更新记录
+        - 如果记录在本地已标记为删除（报错），则取消删除并更新记录
+      - 更新记录
+        - 如果记录已同步，直接用服务器版本替换内容
+        - 如果记录在本地已更新，则发生冲突！
+          - 采用远程版本，应用自上次同步以来在本地更改过的字段
+            （按列的客户端优先策略）
+          - 记录仍标记为已更新，因为本地更改仍需推送
+        - 如果记录在本地已标记为删除，则忽略（删除操作稍后推送）
+        - 如果记录在本地不存在（报错），则创建记录
+      - 删除记录
+        - 如果记录已删除，则忽略
+        - 如果记录在本地已更改，仍执行删除操作
+        - 忽略子记录（服务器应安排删除子记录）
+    - 如果操作成功，将服务器的时间戳保存为新的 `lastPulledAt`
+2. 推送阶段
+  - 获取本地更改
+    - 查找所有集合中所有在本地更改过的记录（已创建/更新的记录 + 已删除的记录 ID）
+    - 去除 _status 和 _changed 字段
+  - 调用 `pushChanges` 函数，传入本地更改对象和新的 `lastPulledAt` 时间戳
+    - 服务器将本地更改应用到数据库，并返回 OK
+    - 如果推送的记录中有一条自 `lastPulledAt` 以来在*服务器端*发生了更改，则推送操作中止，
+      所有更改被回滚，服务器返回错误信息
+  - 执行操作（锁定本地写入）：
+    - 将本地更改标记为已同步：
+      - 取上一步获取的本地更改，并执行以下操作：
+      - 永久删除标记为已删除的记录
+      - 将已创建/更新的记录标记为已同步，并重置其 _changed 字段
+      - 注意：如果记录自 “获取本地更改” 步骤以来在本地发生了更改，*不要*将其标记为已同步
+        （用户可能有需要同步的新更改）
 
-### Notes
+### 注意事项
 
-- This procedure is designed such that if sync fails at any moment, and even leaves local app in
-  inconsistent (not fully synced) state, we should still achieve consistency with the next sync:
-  - applyRemoteChanges is designed such that if all changes are applied, but `lastPulledAt` doesn't get
-    saved — so during next pull server will serve us the same changes, second applyRemoteChanges will
-    arrive at the same result
-  - local changes before "fetch local changes" step don't matter at all - user can do anything
-  - local changes between "fetch local changes" and "mark local changes as synced" will be ignored
-    (won't be marked as synced) - will be pushed during next sync
-  - if changes don't get marked as synced, and are pushed again, server should apply them the same way
-  - remote changes between pull and push phase will be locally ignored (will be pulled next sync)
-    unless there's a per-record conflict (then push fails, but next sync resolves both pull and push)
+- 此流程的设计保证了，即使同步在任何时刻失败，甚至使本地应用处于不一致（未完全同步）的状态，我们仍能在下次同步时实现一致性：
+  - `applyRemoteChanges` 函数的设计使得，如果所有更改都已应用，但 `lastPulledAt` 未保存成功 —— 那么在下一次拉取时，服务器会再次提供相同的更改，第二次执行 `applyRemoteChanges` 会得到相同的结果。
+  - “获取本地更改” 步骤之前的本地更改无关紧要 —— 用户可以随意操作。
+  - “获取本地更改” 和 “将本地更改标记为已同步” 这两个步骤之间的本地更改将被忽略（不会被标记为已同步） —— 这些更改将在下次同步时推送。
+  - 如果更改未被标记为已同步并再次被推送，服务器应采用相同的方式应用这些更改。
+  - 拉取阶段和推送阶段之间的远程更改将在本地被忽略（会在下次同步时拉取），除非存在单条记录的冲突（此时推送失败，但下次同步会同时解决拉取和推送问题）。
 
-### Migration Syncs
+### 迁移同步
 
-Schema versioning and migrations complicate sync, because a client might not be able to sync some tables and columns, but after upgrade to the newest version, it should be able to get consistent sync. To be able
-to do that, we need to know what's the schema version at which the last sync occured. Unfortunately,
-Watermelon Sync didn't track that from the first version, so backwards-compat is required.
+模式版本控制和迁移操作使同步变得复杂，因为客户端可能无法同步某些表和列，但在升级到最新版本后，应该能够实现一致的同步。为了实现这一点，我们需要知道上次同步时的模式版本。不幸的是，Watermelon Sync 从第一个版本开始就没有跟踪这一信息，因此需要进行向后兼容处理。
 
 ```
 synchronize({ migrationsEnabledAtVersion: XXX })
 
 . . . .
 
-LPA = last pulled at
-MEA = migrationsEnabledAtVersion, schema version at which future migration support was introduced
-LS = last synced schema version (may be null due to backwards compat)
-CV = current schema version
+LPA = Last Pulled At, 上次拉取时间
+MEA = Migrations Enabled At version, 启用迁移支持的模式版本，即引入未来迁移支持的模式版本
+LS = Last Synced schema version, 上次同步的模式版本（由于向后兼容问题，可能为 null）
+CV = Current schema Version, 当前模式版本
 
-LPA     MEA     LS      CV      migration   set LS=CV?   comment
+LPA     MEA     LS      CV      迁移情况   设置 LS=CV?   备注
 
-null    X       X       10      null        YES          first sync. regardless of whether the app
-                                                         is migration sync aware, we can note LS=CV
-                                                         to fetch all migrations once available
+null    X       X       10      无        是          首次同步。无论应用是否支持迁移同步，我们都可以记录 LS=CV，以便在有可用迁移时获取所有迁移。
 
-100     null    X       X       null        NO           indicates app is not migration sync aware so
-                                                         we're not setting LS to allow future migration sync
+100     null    X       X       无        否          表示应用不支持迁移同步，因此不设置 LS，以便未来支持迁移同步。
 
-100     X       10      10      null        NO           up to date, no migration
-100     9       9       10      {9-10}      YES          correct migration sync
-100     9       null    10      {9-10}      YES          fallback migration. might not contain all
-                                                         necessary migrations, since we can't know for sure
-                                                         that user logged in at then-current-version==MEA
+100     X       10      10      无        否          版本最新，无需迁移。
 
-100     9       11      10      ERROR       NO           LS > CV indicates programmer error
-100     11      X       10      ERROR       NO           MEA > CV indicates programmer error
+100     9       9       10      {9-10}    是          正确的迁移同步。
+
+100     9       null    10      {9-10}    是          回退迁移。可能不包含所有必要的迁移，因为我们无法确定用户在当时的版本（即 MEA）登录。
+
+100     9       11      10      错误      否          LS > CV 表示编程错误。
+
+100     11      X       10      错误      否          MEA > CV 表示编程错误。
 ```
 
-### Reference
+### 参考资料
 
-This design has been informed by:
+此设计参考了以下内容：
 
-- 10 years of experience building synchronization at Nozbe
-- Kinto & Kinto.js
+- Nozbe 公司在构建同步功能方面的 10 年经验
+- Kinto 与 Kinto.js
   - https://github.com/Kinto/kinto.js/blob/master/src/collection.js
   - https://kintojs.readthedocs.io/en/latest/api/#fetching-and-publishing-changes
 - Histo - https://github.com/mirkokiefer/syncing-thesis
