@@ -8,16 +8,16 @@ hide_title: true
 </p>
 
 <h4 align="center">
-  A reactive database framework
+  响应式的数据库框架
 </h4>
 
 <p align="center">
-  Build powerful React and React Native apps that scale from hundreds to tens of thousands of records and remain <em>fast</em> ⚡️
+  构建强大的 React 和 React Native 应用程序，可处理从数百条到数万条记录，并且保持<em>快速</em> ⚡️
 </p>
 
 <p align="center">
   <a href="https://github.com/Nozbe/WatermelonDB/blob/master/LICENSE">
-    <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License"/>
+    <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT 许可证"/>
   </a>
 
   <a href="https://www.npmjs.com/package/@nozbe/watermelondb">
@@ -27,40 +27,41 @@ hide_title: true
 
 |   | WatermelonDB |
 | - | ------------ |
-| ⚡️ | **Launch your app instantly** no matter how much data you have |
-| 📈 | **Highly scalable** from hundreds to tens of thousands of records |
-| 😎 | **Lazy loaded**. Only load data when you need it |
-| 🔄 | **Offline-first.** [Sync](https://watermelondb.dev/docs/Sync/Intro) with your own backend |
-| 📱 | **Multiplatform**. iOS, Android, Windows, web, and Node.js |
-| ⚛️ | **Optimized for React.** Easily plug data into components |
-| 🧰 | **Framework-agnostic.** Use JS API to plug into other UI frameworks |
-| ⏱ | **Fast.** And getting faster with every release! |
-| ✅ | **Proven.** Powers [Nozbe Teams](https://nozbe.com/teams) since 2017 (and [many others](#who-uses-watermelondb)) |
-| ✨ | **Reactive.** (Optional) [RxJS](https://github.com/ReactiveX/rxjs) API |
-| 🔗 | **Relational.** Built on rock-solid [SQLite](https://www.sqlite.org) foundation |
-| ⚠️ | **Static typing** with [Flow](https://flow.org) or [TypeScript](https://typescriptlang.org) |
+| ⚡️ | **立即启动应用程序**，无论你有多少数据 |
+| 📈 | **高度可扩展**，从数百条到数万条记录 |
+| 😎 | **懒加载**。仅在需要时加载数据 |
+| 🔄 | **离线优先**。[与你自己的后端同步](https://watermelondb.dev/docs/Sync/Intro) |
+| 📱 | **多平台支持**。iOS、Android、Windows、Web 和 Node.js |
+| ⚛️ | **针对 React 优化**。轻松将数据插入组件 |
+| 🧰 | **与框架无关**。使用 JS API 插入其他 UI 框架 |
+| ⏱ | **快速**。并且每次发布都在变得更快！ |
+| ✅ | **经过验证**。自 2017 年以来为 [Nozbe Teams](https://nozbe.com/teams) 提供支持（以及 [许多其他应用](#who-uses-watermelondb)） |
+| ✨ | **响应式**。（可选）[RxJS](https://github.com/ReactiveX/rxjs) API |
+| 🔗 | **关系型**。基于坚如磐石的 [SQLite](https://www.sqlite.org) 基础构建 |
+| ⚠️ | **静态类型检查**。可使用 [Flow](https://flow.org) 或 [TypeScript](https://typescriptlang.org) |
 
-## Why Watermelon?
+## 为什么选择 Watermelon？
 
-**WatermelonDB** is a new way of dealing with user data in React Native and React web apps.
+**WatermelonDB** 是一种在 React Native 和 React Web 应用程序中处理用户数据的新方式。
 
-It's optimized for building **complex applications** in React Native, and the number one goal is **real-world performance**. In simple words, _your app must launch fast_.
+它针对在 React Native 中构建 **复杂应用程序** 进行了优化，首要目标是 **实际性能**。简单来说，_你的应用程序必须快速启动_。
 
-For simple apps, using Redux or MobX with a persistence adapter is the easiest way to go. But when you start scaling to thousands or tens of thousands of database records, your app will now be slow to launch (especially on slower Android devices). Loading a full database into JavaScript is expensive!
+对于简单的应用程序，使用 Redux 或 MobX 并搭配持久化适配器是最简单的方法。但当你开始扩展到数千条或数万条数据库记录时，你的应用程序启动会变慢（特别是在较慢的 Android 设备上）。将整个数据库加载到 JavaScript 中成本很高！
 
-Watermelon fixes it **by being lazy**. Nothing is loaded until it's requested. And since all querying is performed directly on the rock-solid [SQLite database](https://www.sqlite.org/index.html) on a separate native thread, most queries resolve in an instant.
+Watermelon 通过 **懒加载** 解决了这个问题。在请求数据之前，不会加载任何数据。而且由于所有查询都是在单独的原生线程上直接在坚如磐石的 [SQLite 数据库](https://www.sqlite.org/index.html) 上执行的，大多数查询可以立即解决。
 
-But unlike using SQLite directly, Watermelon is **fully observable**. So whenever you change a record, all UI that depends on it will automatically re-render. For example, completing a task in a to-do app will re-render the task component, the list (to reorder), and all relevant task counters. [**Learn more**](https://www.youtube.com/watch?v=UlZ1QnFF4Cw).
+但与直接使用 SQLite 不同，Watermelon 是 **完全可观察的**。因此，每当你更改一条记录时，所有依赖于它的 UI 都会自动重新渲染。例如，在待办应用程序中完成一项任务将重新渲染任务组件、列表（重新排序）以及所有相关的任务计数器。[**了解更多**](https://www.youtube.com/watch?v=UlZ1QnFF4Cw)。
+
 
 | <a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw"><img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/watermelon-talk-thumbnail.jpg" alt="React Native EU: Next-generation React Databases" width="300" /></a> |
-| ---- | --- |
+| ---- |
 | <p align="center"><a href="https://www.youtube.com/watch?v=UlZ1QnFF4Cw">📺 <strong>Next-generation React databases</strong><br/>(a talk about WatermelonDB)</a></p> |
 
-## Usage
+## 使用方法
 
-**Quick (over-simplified) example:** an app with posts and comments.
+**快速（简化的）示例**：一个包含文章和评论的应用。
 
-First, you define Models:
+首先，你需要定义模型（Models）：
 
 ```js
 class Post extends Model {
@@ -75,7 +76,7 @@ class Comment extends Model {
 }
 ```
 
-Then, you connect components to the data:
+然后，你将组件与数据进行连接：
 
 ```js
 const Comment = ({ comment }) => (
@@ -84,20 +85,20 @@ const Comment = ({ comment }) => (
   </View>
 )
 
-// This is how you make your app reactive! ✨
+// 这就是让你的应用具备响应式能力的方法！✨
 const enhance = withObservables(['comment'], ({ comment }) => ({
   comment,
 }))
 const EnhancedComment = enhance(Comment)
 ```
 
-And now you can render the whole Post:
+现在，你可以渲染整个文章：
 
 ```js
 const Post = ({ post, comments }) => (
   <View>
     <Text>{post.name}</Text>
-    <Text>Comments:</Text>
+    <Text>评论:</Text>
     {comments.map(comment =>
       <EnhancedComment key={comment.id} comment={comment} />
     )}
@@ -110,9 +111,9 @@ const enhance = withObservables(['post'], ({ post }) => ({
 }))
 ```
 
-The result is fully reactive! Whenever a post or comment is added, changed, or removed, the right components **will automatically re-render** on screen. Doesn't matter if a change occurred in a totally different part of the app, it all just works out of the box!
+结果是完全响应式的！每当添加、更改或删除文章或评论时，相应的组件**将自动在屏幕上重新渲染**。无论更改发生在应用的哪个完全不同的部分，一切都能开箱即用！
 
-### ➡️ **Learn more:** [see full documentation](https://nozbe.github.io/WatermelonDB/)
+### ➡️ **了解更多**：[查看完整文档](https://nozbe.github.io/WatermelonDB/)
 
 ## Who uses WatermelonDB
 
@@ -200,26 +201,26 @@ The result is fully reactive! Whenever a post or comment is added, changed, or r
 
   <br/>
 
-_Does your company or app use 🍉? Open a pull request and add your logo/icon with link here!_
+_贵公司或应用是否使用了 🍉 WatermelonDB？请发起一个拉取请求，在此处添加带有链接的公司标志或应用图标！_
 
-## Contributing
+## 贡献代码
 
-<img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/needyou.jpg" alt="We need you" width="220" />
+<img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/needyou.jpg" alt="我们需要你" width="220" />
 
-**WatermelonDB is an open-source project and it needs your help to thrive!**
+**WatermelonDB 是一个开源项目，它的蓬勃发展需要你的帮助！**
 
-If there's a missing feature, a bug, or other improvement you'd like, we encourage you to contribute! Feel free to open an issue to get some guidance and see [Contributing guide](./CONTRIBUTING.md) for details about project setup, testing, etc.
+如果你发现缺少某个功能、存在 bug 或有其他改进建议，我们鼓励你贡献代码！你可以随时创建一个问题以获取指导，并查看 [贡献指南](./CONTRIBUTING.md) 了解项目设置、测试等详细信息。
 
-If you're just getting started, see [good first issues](https://github.com/Nozbe/WatermelonDB/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) that are easy to contribute to. If you make a non-trivial contribution, email me, and I'll send you a nice 🍉 sticker!
+如果你刚刚开始参与，可查看[适合新手的问题](https://github.com/Nozbe/WatermelonDB/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)，这些问题易于贡献。如果你做出了重要贡献，请发邮件给我，我会送你一张漂亮的 🍉 贴纸！
 
-If you make or are considering making an app using WatermelonDB, please let us know!
+如果你正在使用或考虑使用 WatermelonDB 开发应用，请告知我们！
 
-## Author and license
+## 作者与许可证
 
-**WatermelonDB** was created by [@Nozbe](https://github.com/Nozbe).
+**WatermelonDB** 由 [@Nozbe](https://github.com/Nozbe) 创建。
 
-**WatermelonDB's** main author and maintainer is [Radek Pietruszewski](https://github.com/radex) ([website](https://radex.io) ⋅ [𝕏 (Twitter)](https://twitter.com/radexp))
+**WatermelonDB** 的主要作者和维护者是 [Radek Pietruszewski](https://github.com/radex) ([个人网站](https://radex.io) ⋅ [𝕏 (Twitter)](https://twitter.com/radexp))
 
-[See all contributors](https://github.com/Nozbe/WatermelonDB/graphs/contributors).
+[查看所有贡献者](https://github.com/Nozbe/WatermelonDB/graphs/contributors)。
 
-WatermelonDB is available under the MIT license. See the [LICENSE file](https://github.com/Nozbe/WatermelonDB/LICENSE) for more info.
+WatermelonDB 采用 MIT 许可证。更多信息请查看[许可证文件](https://github.com/Nozbe/WatermelonDB/LICENSE)。
