@@ -1,6 +1,4 @@
----
-title: 连接组件
----
+# 连接组件
 
 在你[定义了一些模型](./Model.md)之后，就该将 Watermelon 连接到你的应用界面了。本指南中我们使用的是 React，不过 WatermelonDB 可以与任何 UI 框架配合使用。
 
