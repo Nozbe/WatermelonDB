@@ -1,41 +1,41 @@
 ---
-title: Writers, Readers, Batching
+title: 写入器、读取器与批量操作
 hide_title: true
 ---
 
-# Writers, Readers, and batching
+# 写入器、读取器与批量操作
 
-Think of this guide as a part two of [Create, Read, Update, Delete](./CRUD.md).
+可以将本指南视为 [创建、读取、更新、删除](./CRUD.md) 的第二部分。
 
-As mentioned previously, you can't just modify WatermelonDB's database anywhere. All changes must be done within a **Writer**.
+如前文所述，不能在任意位置修改 WatermelonDB 的数据库。所有更改都必须在 **写入器** 内完成。
 
-There are two ways of defining a writer: inline and by defining a **writer method**.
+定义写入器有两种方式：内联方式和定义 **写入器方法**。
 
-### Inline writers
+### 内联写入器
 
-Here is an inline writer, you can invoke it anywhere you have access to the `database` object:
+以下是一个内联写入器的示例，你可以在任何能访问 `database` 对象的地方调用它：
 
 ```js
-// Note: function passed to `database.write()` MUST be asynchronous
+// 注意：传递给 `database.write()` 的函数必须是异步的
 const newPost = await database.write(async => {
   const post = await database.get('posts').create(post => {
-    post.title = 'New post'
+    post.title = '新文章'
     post.body = 'Lorem ipsum...'
   })
   const comment = await database.get('comments').create(comment => {
     comment.post.set(post)
     comment.author.id = someUserId
-    comment.body = 'Great post!'
+    comment.body = '很棒的文章！'
   })
 
-  // Note: Value returned from the wrapped function will be returned to `database.write` caller
+  // 注意：包装函数返回的值将返回给 `database.write` 的调用者
   return post
 })
 ```
 
-### Writer methods
+### 写入器方法
 
-Writer methods can be defined on `Model` subclasses by using the `@writer` decorator:
+可以使用 `@writer` 装饰器在 `Model` 子类上定义写入器方法：
 
 ```js
 import { writer } from '@nozbe/watermelondb/decorators'
@@ -54,16 +54,16 @@ class Post extends Model {
 }
 ```
 
-We highly recommend defining writer methods on `Models` to organize all code that changes the database in one place, and only use inline writers sporadically.
+我们强烈建议在 `Models` 上定义写入器方法，以便将所有更改数据库的代码集中在一处，仅偶尔使用内联写入器。
 
-Note that this is the same as defining a simple method that wraps all work in `database.write()` - using `@writer` is simply more convenient.
+请注意，这与定义一个简单的方法并将所有工作包装在 `database.write()` 中是一样的，使用 `@writer` 只是更方便。
 
-**Note:**
+**注意**：
 
-- Always mark actions as `async` and remember to `await` on `.create()` and `.update()`
-- You can use `this.collections` to access `Database.collections`
+- 始终将操作标记为 `async`，并记得在 `.create()` 和 `.update()` 上使用 `await`。
+- 可以使用 `this.collections` 来访问 `Database.collections`。
 
-**Another example**: updater action on `Comment`:
+**另一个示例**：`Comment` 上的更新操作：
 
 ```js
 class Comment extends Model {
@@ -78,37 +78,37 @@ class Comment extends Model {
 }
 ```
 
-Now we can create a comment and immediately mark it as spam:
+现在我们可以创建一条评论并立即将其标记为垃圾评论：
 
 ```js
 const comment = await post.addComment('Lorem ipsum', someUser)
 await comment.markAsSpam()
 ```
 
-## Batch updates
+## 批量更新
 
-When you make multiple changes in a writer, it's best to **batch them**.
+当在写入器中进行多次更改时，最好 **批量处理**。
 
-Batching means that the app doesn't have to go back and forth with the database (sending one command, waiting for the response, then sending another), but instead sends multiple commands in one big batch. This is faster, safer, and can avoid subtle bugs in your app
+批量处理意味着应用程序不必与数据库来回通信（发送一个命令，等待响应，然后再发送另一个命令），而是一次性发送多个命令。这样更快、更安全，并且可以避免应用程序中出现细微的错误。
 
-Take an action that changes a `Post` into spam:
+以将 `Post` 更改为垃圾文章的操作为例：
 
 ```js
 class Post extends Model {
   // ...
   @writer async createSpam() {
     await this.update(post => {
-      post.title = `7 ways to lose weight`
+      post.title = `7 种减肥方法`
     })
     await this.collections.get('comments').create(comment => {
       comment.post.set(this)
-      comment.body = "Don't forget to comment, like, and subscribe!"
+      comment.body = "别忘了评论、点赞和订阅！"
     })
   }
 }
 ```
 
-Let's modify it to use batching:
+让我们修改它以使用批量处理：
 
 ```js
 class Post extends Model {
@@ -116,34 +116,34 @@ class Post extends Model {
   @writer async createSpam() {
     await this.batch(
       this.prepareUpdate(post => {
-        post.title = `7 ways to lose weight`
+        post.title = `7 种减肥方法`
       }),
       this.collections.get('comments').prepareCreate(comment => {
         comment.post.set(this)
-        comment.body = "Don't forget to comment, like, and subscribe!"
+        comment.body = "别忘了评论、点赞和订阅！"
       })
     )
   }
 }
 ```
 
-**Note**:
+**注意**：
 
-- You can call `await this.batch` within `@writer` methods only. You can also call `database.batch()` within a `database.write()` block.
-- Pass the list of **prepared operations** as arguments:
-  - Instead of calling `await record.update()`, pass `record.prepareUpdate()` — note lack of `await`
-  - Instead of `await collection.create()`, use `collection.prepareCreate()`
-  - Instead of `await record.markAsDeleted()`, use `record.prepareMarkAsDeleted()`
-  - Instead of `await record.destroyPermanently()`, use `record.prepareDestroyPermanently()`
-  - Advanced: you can pass `collection.prepareCreateFromDirtyRaw({ put your JSON here })`
-  - You can pass falsy values (null, undefined, false) to batch — they will simply be ignored.
-  - You can also pass a single array argument instead of a list of arguments
+- 只能在 `@writer` 方法中调用 `await this.batch`。也可以在 `database.write()` 块中调用 `database.batch()`。
+- 将 **准备好的操作** 列表作为参数传递：
+  - 不要调用 `await record.update()`，而是传递 `record.prepareUpdate()` — 注意不要使用 `await`。
+  - 不要使用 `await collection.create()`，而是使用 `collection.prepareCreate()`。
+  - 不要使用 `await record.markAsDeleted()`，而是使用 `record.prepareMarkAsDeleted()`。
+  - 不要使用 `await record.destroyPermanently()`，而是使用 `record.prepareDestroyPermanently()`。
+  - 高级用法：可以传递 `collection.prepareCreateFromDirtyRaw({ 在此处放入你的 JSON })`。
+  - 可以将假值（null、undefined、false）传递给批量操作 — 它们将被简单地忽略。
+  - 也可以传递一个单个数组参数，而不是参数列表。
 
-## Delete action
+## 删除操作
 
-When you delete, say, a `Post`, you generally want all `Comment`s that belong to it to be deleted as well.
+当删除，例如，一篇 `Post` 时，通常希望与之关联的所有 `Comment` 也被删除。
 
-To do this, override `markAsDeleted()` (or `destroyPermanently()` if you don't sync) to explicitly delete all children as well.
+要做到这一点，可以重写 `markAsDeleted()`（如果你不进行同步，也可以重写 `destroyPermanently()`）以明确删除所有子项。
 
 ```js
 class Post extends Model {
@@ -161,7 +161,7 @@ class Post extends Model {
 }
 ```
 
-Then to actually delete the post:
+然后实际删除文章：
 
 ```js
 database.write(async () => {
@@ -169,43 +169,43 @@ database.write(async () => {
 })
 ```
 
-**Note:**
+**注意**：
 
-- Use `Query.destroyAllPermanently()` on all dependent `@children` you want to delete
-- Remember to call `super.markAsDeleted` — at the end of the method!
+- 对所有要删除的依赖 `@children` 使用 `Query.destroyAllPermanently()`。
+- 记得在方法的末尾调用 `super.markAsDeleted`！
 
-## Advanced: Why are readers and writers necessary?
+## 高级：为什么需要读取器（Readers）和写入器（Writers）？
 
-WatermelonDB is highly asynchronous, which is a BIG challange in terms of achieving consistent data. Read this only if you are curious:
+WatermelonDB 是高度异步的，这在实现数据一致性方面是一个巨大的挑战。只有在你好奇的情况下才阅读以下内容：
 
 <details>
-  <summary>Why are readers and writers necessary?</summary>
+  <summary>为什么需要读取器（Readers）和写入器（Writers）？</summary>
 
-  Consider a function `markCommentsAsSpam` that fetches a list of comments on a post, and then marks them all as spam. The two operations (fetching, and then updating) are asynchronous, and some other operation that modifies the database could run in between. And it could just happen to be a function that adds a new comment on this post. Even though the function completes *successfully*, it wasn't *actually* successful at its job.
+  假设有一个名为 `markCommentsAsSpam` 的函数，它会获取一篇文章的评论列表，然后将这些评论全部标记为垃圾评论。这两个操作（获取评论和更新评论状态）是异步的，在这两个操作之间可能会有其他修改数据库的操作执行。比如，可能恰好有一个函数在这个时候为这篇文章添加了一条新评论。这样一来，即使 `markCommentsAsSpam` 函数 *成功执行完毕*，但实际上它并没有完成将所有评论标记为垃圾评论的任务。
 
-  This example is trivial. But others may be far more dangerous. If a function fetches a record to perform an update on, this very record could be deleted midway through, making the action fail (and potentially causing the app to crash, if not handled properly). Or a function could have invariants determining whether the user is allowed to perform an action, that would be invalidated during action's execution. Or, in a collaborative app where access permissions are represented by another object, parallel execution of different actions could cause those access relations to be left in an inconsistent state.
+  这个例子看似简单，但其他情况可能会更加危险。如果一个函数获取一条记录来进行更新操作，在操作过程中这条记录可能会被删除，从而导致操作失败（如果处理不当，甚至可能导致应用崩溃）。或者，一个函数可能有一些条件来判断用户是否被允许执行某个操作，但在操作执行过程中这些条件可能会失效。又或者，在一个协作式应用中，访问权限由另一个对象表示，不同操作的并行执行可能会导致这些访问关系处于不一致的状态。
 
-  The worst part is that analyzing all *possible* interactions for dangers is very hard, and having sync that runs automatically makes them very likely.
+  最糟糕的是，要分析所有 *可能的* 交互是否存在危险非常困难，而且自动同步功能会让这些危险情况更容易发生。
 
-  Solution? Group together related reads and writes together in an Writer, enforce that all writes MUST occur in a Writer, and only allow one Writer to run at the time. This way, it's guaranteed that in a Writer, you're looking at a consistent view of the world. Most simple reads are safe to do without groupping them, however if you have multiple related reads, you also need to wrap them in a Reader.
+  解决方案是什么呢？将相关的读取和写入操作组合在一个写入器中，强制要求所有写入操作都必须在写入器中进行，并且同一时间只允许一个写入器运行。这样就能保证在一个写入器中，你看到的是数据库的一个一致状态。大多数简单的读取操作可以不进行分组，但如果你有多个相关的读取操作，也需要将它们封装在一个读取器中。
 </details>
 
-## Advanced: Readers
+## 高级：读取器（Readers）
 
-Readers are an advanced feature you'll rarely need.
+读取器（Readers）是一个你很少会用到的高级功能。
 
-Because WatermelonDB is asynchronous, if you make multiple separate queries, normally you have no guarantee that no records were created, updated, or deleted between fetching these queries.
+由于 WatermelonDB 是异步的，如果你进行多个独立的查询操作，通常无法保证在查询之间不会有记录被创建、更新或删除。
 
-Code within a Reader, however, has a guarantee that for the duration of the Reader, no changes will be made to the database (more precisely, no Writer can execute during Reader's work).
+然而，在读取器内部的代码可以保证，在读取器执行期间，数据库不会发生任何更改（更准确地说，在读取器工作期间，不会有写入器执行）。
 
-For example, if you were writing a custom XML data export feature for your app, you'd want the information there to be fully consistent. Therefore, you'd wrap all queries within a Reader:
+例如，如果你要为应用编写一个自定义的 XML 数据导出功能，你会希望导出的信息是完全一致的。因此，你需要将所有查询操作封装在一个读取器中：
 
 ```js
 database.read(async () => {
-  // no changes will happen to the database until this function exits
+  // 在这个函数执行完毕之前，数据库不会发生任何更改
 })
 
-// alternatively:
+// 或者：
 class Blog extends Model {
   // ...
 
@@ -217,9 +217,9 @@ class Blog extends Model {
 }
 ```
 
-## Advanced: nesting writers or readers
+## 高级：嵌套写入器（Writers）或读取器（Readers）
 
-If you try to call a Writer from another Writer, you'll notice that it won't work. This is because while a Writer is running, no other Writer can run simultaneously. To override this behavior, wrap the Writer call in `this.callWriter`:
+如果你尝试在一个写入器中调用另一个写入器，你会发现这样做行不通。这是因为在一个写入器运行时，其他写入器不能同时运行。要覆盖这个行为，可以将写入器调用封装在 `this.callWriter` 中：
 
 ```js
 class Comment extends Model {
@@ -227,22 +227,22 @@ class Comment extends Model {
 
   @writer async appendToPost() {
     const post = await this.post.fetch()
-    // `appendToBody` is an `@writer` on `Post`, so we call callWriter to allow it
+    // `appendToBody` 是 `Post` 上的一个 `@writer`，所以我们使用 callWriter 来允许调用它
     await this.callWriter(() => post.appendToBody(this.body))
   }
 }
 
-// alternatively:
+// 或者：
 database.write(async writer => {
   const post = await database.get('posts').find('abcdef')
-  await writer.callWriter(() => post.appendToBody('Lorem ipsum...')) // appendToBody is a @writer
+  await writer.callWriter(() => post.appendToBody('Lorem ipsum...')) // appendToBody 是一个 @writer
 })
 ```
 
-The same is true with Readers - use `callReader` to nest readers.
+读取器也是同样的道理 - 使用 `callReader` 来嵌套读取器。
 
 * * *
 
-## Next steps
+## 下一步
 
-➡️ Now that you've mastered all basics of Watermelon, go create some powerful apps — or keep reading [**advanced guides**](./README.md)
+➡️ 现在你已经掌握了 WatermelonDB 的所有基础知识，可以去创建一些强大的应用了 — 或者继续阅读 [**高级指南**](./README.md)
