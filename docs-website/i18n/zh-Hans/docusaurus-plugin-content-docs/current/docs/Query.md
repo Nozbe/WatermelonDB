@@ -1,23 +1,23 @@
 ---
-title: Querying
+title: 查询
 hide_title: true
 ---
 
-# Query API
+# 查询 API
 
-**Querying** is how you find records that match certain conditions, for example:
+**查询** 是指查找符合特定条件的记录的操作，例如：
 
-- Find all comments that belong to a certain post
-- Find all _verified_ comments made by John
-- Count all verified comments made by John or Lucy published under posts made in the last two weeks
+- 查找属于某篇特定文章的所有评论
+- 查找由 John 发表的所有 _已验证_ 评论
+- 统计 John 或 Lucy 在过去两周内发表的文章下发布的所有已验证评论的数量
 
-Because queries are executed on the database, and not in JavaScript, they're really fast. It's also how Watermelon can be fast even at large scales, because even with tens of thousands of records _total_, you rarely need to load more than a few dozen records at app launch.
+由于查询是在数据库中执行的，而不是在 JavaScript 中执行，因此它们的速度非常快。这也是 Watermelon 即使在大规模数据下也能保持快速响应的原因，因为即使总共有数以万计的记录，在应用启动时你通常也只需要加载几十条记录。
 
-## Defining Queries
+## 定义查询
 
 ### @children
 
-The simplest query is made using `@children`. This defines a `Query` for all comments that belong to a `Post`:
+最简单的查询是使用 `@children` 进行的。这将为属于 `Post` 的所有评论定义一个 `Query`：
 
 ```js
 class Post extends Model {
@@ -26,11 +26,11 @@ class Post extends Model {
 }
 ```
 
-**➡️ Learn more:** [Defining Models](./Model.md)
+**➡️ 了解更多：** [定义模型](./Model.md)
 
-### Extended Query
+### 扩展查询
 
-To **narrow down** a `Query` (add [extra conditions](#query-conditions) to an existing Query), use `.extend()`:
+要 **缩小** 一个 `Query` 的范围（为现有查询添加 [额外条件](#query-conditions)），可以使用 `.extend()`：
 
 ```js
 import { Q } from '@nozbe/watermelondb'
@@ -50,24 +50,24 @@ class Post extends Model {
 }
 ```
 
-**Note:** Use `@lazy` when extending or defining new Queries for performance
+**注意：** 为了提高性能，在扩展或定义新查询时请使用 `@lazy`。
 
-### Custom Queries
+### 自定义查询
 
-You can query any table like so:
+你可以按如下方式查询任何表：
 
 ```js
 import { Q } from '@nozbe/watermelondb'
 
 const users = await database.get('users').query(
-  // conditions that a user must match:
+  // 用户必须满足的条件：
   Q.on('comments', 'post_id', somePostId)
 ).fetch()
 ```
 
-This fetches all users that made a comment under a post with `id = somePostId`.
+这将获取在 `id = somePostId` 的文章下发表过评论的所有用户。
 
-You can define custom queries on a Model like so:
+你可以在模型上定义自定义查询，如下所示：
 
 ```js
 class Post extends Model {
@@ -78,9 +78,9 @@ class Post extends Model {
 }
 ```
 
-## Executing Queries
+## 执行查询
 
-Most of the time, you execute Queries by connecting them to React Components like so:
+大多数情况下，你可以通过将查询连接到 React 组件来执行查询，如下所示：
 
 ```js
 withObservables(['post'], ({ post }) => ({
@@ -90,22 +90,22 @@ withObservables(['post'], ({ post }) => ({
 }))
 ```
 
-**➡️ Learn more:** [Connecting to Components](./Components.md)
+**➡️ 了解更多：** [连接到组件](./Components.md)
 
-#### Fetch
+### 获取数据
 
-To simply get the current list or current count (without observing future changes), use `fetch` / `fetchCount`.
+若只需获取当前列表或当前数量（不观察未来的变化），可使用 `fetch` / `fetchCount`。
 
 ```js
 const comments = await post.comments.fetch()
 const verifiedCommentCount = await post.verifiedComments.fetchCount()
 
-// Shortcut syntax:
+// 便捷语法：
 const comments = await post.comments
 const verifiedCommentCount = await post.verifiedComments.count
 ```
 
-## Query conditions
+## 查询条件
 
 ```js
 import { Q } from '@nozbe/watermelondb'
@@ -115,23 +115,23 @@ database.get('comments').query(
 )
 ```
 
-This will query **all** comments that are verified (all comments with one condition: the `is_verified` column of a comment must be `true`).
+此查询将查找 **所有** 已验证的评论（所有满足一个条件的评论：评论的 `is_verified` 列必须为 `true`）。
 
-When making conditions, you refer to [**column names**](./Schema.md) of a table (i.e. `is_verified`, not `isVerified`). This is because queries are executed directly on the underlying database.
+在设置条件时，你需要引用表的 [**列名**](./Schema.md)（即 `is_verified`，而不是 `isVerified`）。这是因为查询是直接在底层数据库上执行的。
 
-The second argument is the value we want to query for. Note that the passed argument must be the same type as the column (`string`, `number`, or `boolean`; `null` is allowed only if the column is marked as `isOptional: true` in the schema).
+第二个参数是我们要查询的值。请注意，传递的参数必须与列的类型相同（`string`、`number` 或 `boolean`；只有当列在模式中标记为 `isOptional: true` 时，才允许使用 `null`）。
 
-#### Empty query
+### 空查询
 
 ```js
 const allComments = await database.get('comments').query().fetch()
 ```
 
-A Query with no conditions will find **all** records in the collection.
+没有条件的查询将查找集合中的 **所有** 记录。
 
-**Note:** Don't do this unless necessary. It's generally more efficient to only query the exact records you need.
+**注意：** 除非必要，否则不要这样做。通常，只查询你需要的确切记录会更高效。
 
-#### Multiple conditions
+### 多个条件
 
 ```js
 database.get('comments').query(
@@ -140,30 +140,30 @@ database.get('comments').query(
 )
 ```
 
-This queries all comments that are **both** verified **and** awesome.
+此查询将查找 **既** 已验证 **又** 很棒的所有评论。
 
-### Conditions with other operators
+### 带其他运算符的条件
 
-| Query | JavaScript equivalent |
+| 查询 | 等效的 JavaScript 代码 |
 | ------------- | ------------- |
-| `Q.where('is_verified', true)` | `is_verified === true` (shortcut syntax) |
+| `Q.where('is_verified', true)` | `is_verified === true`（快捷语法） |
 | `Q.where('is_verified', Q.eq(true))` | `is_verified === true` |
 | `Q.where('archived_at', Q.notEq(null))` | `archived_at !== null` |
 | `Q.where('likes', Q.gt(0))` | `likes > 0`  |
-| `Q.where('likes', Q.weakGt(0))` | `likes > 0` (slightly different semantics — [see "null behavior"](#null-behavior) for details) |
+| `Q.where('likes', Q.weakGt(0))` | `likes > 0`（语义略有不同 — [详见 "null 行为"](#null-behavior)） |
 | `Q.where('likes', Q.gte(100))` | `likes >= 100` |
 | `Q.where('dislikes', Q.lt(100))` | `dislikes < 100` |
 | `Q.where('dislikes', Q.lte(100))` | `dislikes <= 100` |
 | `Q.where('likes', Q.between(10, 100))` | `likes >= 10 && likes <= 100` |
 | `Q.where('status', Q.oneOf(['published', 'draft']))` | `['published', 'draft'].includes(status)` |
 | `Q.where('status', Q.notIn(['archived', 'deleted']))` | `status !== 'archived' && status !== 'deleted'` |
-| `Q.where('status', Q.like('%bl_sh%'))` | `/.*bl.sh.*/i` (See note below!) |
-| `Q.where('status', Q.notLike('%bl_sh%'))` | `/^((!?.*bl.sh.*).)*$/i` (Inverse regex match) (See note below!) |
+| `Q.where('status', Q.like('%bl_sh%'))` | `/.*bl.sh.*/i`（见下方注释！） |
+| `Q.where('status', Q.notLike('%bl_sh%'))` | `/^((!?.*bl.sh.*).)*$/i`（反向正则匹配）（见下方注释） |
 | `Q.where('status', Q.includes('promoted'))` | `status.includes('promoted')` |
 
 ### LIKE / NOT LIKE
 
-You can use `Q.like` for search-related tasks. For example, to find all users whose username start with "jas" (case-insensitive) you can write
+你可以使用 `Q.like` 进行与搜索相关的任务。例如，要查找所有用户名以 "jas" 开头（不区分大小写）的用户，你可以这样写：
 
 ```js
 usersCollection.query(
@@ -171,19 +171,19 @@ usersCollection.query(
 )
 ```
 
-where `"jas"` can be changed dynamically with user input.
+其中 `"jas"` 可以根据用户输入动态更改。
 
-Note that the behavior of `Q.like` is not exact and can differ somewhat between implementations (SQLite vs LokiJS). For instance, while the comparison is case-insensitive, SQLite cannot by default compare non-ASCII characters case-insensitively (unless you install ICU extension). Use `Q.like` for user input search, but not for tasks that require a precise matching behavior.
+请注意，`Q.like` 的行为并不精确，在不同的实现（SQLite 与 LokiJS）之间可能会有所不同。例如，虽然比较是不区分大小写的，但 SQLite 默认情况下无法对非 ASCII 字符进行不区分大小写的比较（除非你安装 ICU 扩展）。使用 `Q.like` 进行用户输入搜索，但不要用于需要精确匹配行为的任务。
 
-**Note:** It's NOT SAFE to use `Q.like` and `Q.notLike` with user input directly, because special characters like `%` or `_` are not escaped. Always sanitize user input like so:
+**注意：** 直接将用户输入与 `Q.like` 和 `Q.notLike` 一起使用是 **不安全** 的，因为像 `%` 或 `_` 这样的特殊字符不会被转义。始终像这样对用户输入进行清理：
 ```js
 Q.like(`%${Q.sanitizeLikeString(userInput)}%`)
 Q.notLike(`%${Q.sanitizeLikeString(userInput)}%`)
 ```
 
-### AND/OR nesting
+### AND/OR 嵌套
 
-You can nest multiple conditions using `Q.and` and `Q.or`:
+你可以使用 `Q.and` 和 `Q.or` 嵌套多个条件：
 
 ```js
 database.get('comments').query(
@@ -198,33 +198,33 @@ database.get('comments').query(
 )
 ```
 
-This is equivalent to `archivedAt !== null && (isVerified || (likes > 10 && dislikes < 5))`.
+这等效于 `archivedAt !== null && (isVerified || (likes > 10 && dislikes < 5))`。
 
-### Conditions on related tables ("JOIN queries")
+### 关联表的条件（“JOIN 查询”）
 
-For example: query all comments under posts published by John:
+例如：查询 John 发表的文章下的所有评论：
 
 ```js
-// Shortcut syntax:
+// 快捷语法：
 database.get('comments').query(
   Q.on('posts', 'author_id', john.id),
 )
 
-// Full syntax:
+// 完整语法：
 database.get('comments').query(
   Q.on('posts', Q.where('author_id', Q.eq(john.id))),
 )
 ```
 
-Normally you set conditions on the table you're querying. Here we're querying **comments**, but we have a condition on the **post** the comment belongs to.
+通常，你会在要查询的表上设置条件。这里我们查询的是 **评论**，但我们对评论所属的 **文章** 设置了条件。
 
-The first argument for `Q.on` is the table name you're making a condition on. The other two arguments are same as for `Q.where`.
+`Q.on` 的第一个参数是你要设置条件的表名。另外两个参数与 `Q.where` 的参数相同。
 
-**Note:** The two tables [must be associated](./Model.md) before you can use `Q.on`.
+**注意：** 在使用 `Q.on` 之前，两个表 [必须关联](./Model.md)。
 
-#### Multiple conditions on a related table
+### 关联表的多个条件
 
-For example: query all comments under posts that are written by John *and* are either published or belong to `draftBlog`
+例如：查询 John 撰写的、**并且** 已发布或属于 `draftBlog` 的文章下的所有评论
 
 ```js
 database.get('comments').query(
@@ -238,11 +238,11 @@ database.get('comments').query(
 )
 ```
 
-Instead of an array of conditions, you can also pass `Q.and`, `Q.or`, `Q.where`, or `Q.on` as the second argument to `Q.on`.
+你也可以将 `Q.and`、`Q.or`、`Q.where` 或 `Q.on` 作为 `Q.on` 的第二个参数，而不是传递条件数组。
 
-#### Nesting `Q.on` within AND/OR
+### 在 AND/OR 中嵌套 `Q.on`
 
-If you want to place `Q.on` nested within `Q.and` and `Q.or`, you must explicitly define all tables you're joining on. (NOTE: The `Q.experimentalJoinTables` API is subject to change)
+如果你想在 `Q.and` 和 `Q.or` 中嵌套 `Q.on`，则必须明确定义你要连接的所有表。（注意：`Q.experimentalJoinTables` API 可能会发生变化）
 
 ```js
 tasksCollection.query(
@@ -254,31 +254,31 @@ tasksCollection.query(
 )
 ```
 
-#### Deep `Q.on`s
+### 深度 `Q.on` 查询
 
-You can also nest `Q.on` within `Q.on`, e.g. to make a condition on a grandparent. You must explicitly define the tables you're joining on. (NOTE: The `Q.experimentalNestedJoin` API is subject to change). Multiple levels of nesting are allowed.
+你还可以在 `Q.on` 内部嵌套 `Q.on`，例如，对祖父级表设置条件。你必须明确定义要连接的表。（注意：`Q.experimentalNestedJoin` API 可能会发生变化）。允许进行多级嵌套。
 
 ```js
-// this queries tasks that are inside projects that are inside teams where team.foo == 'bar'
+// 此查询用于查找那些 teams (团队) 下，位于 projects(项目) 中的 tasks (任务)，且满足 team.foo == 'bar' 条件
 tasksCollection.query(
   Q.experimentalNestedJoin('projects', 'teams'),
   Q.on('projects', Q.on('teams', 'foo', 'bar')),
 )
 ```
 
-## Advanced Queries
+## 高级查询
 
-### Advanced observing
+### 高级观察
 
-Call `query.observeWithColumns(['foo', 'bar'])` to create an Observable that emits a value not only when the list of matching records changes (new records/deleted records), but also when any of the matched records changes its `foo` or `bar` column. [Use this for observing sorted lists](./Components.md)
+调用 `query.observeWithColumns(['foo', 'bar'])` 可以创建一个可观察对象，该对象不仅会在匹配记录列表发生变化（有新记录或记录被删除）时发出值，还会在任何匹配记录的 `foo` 或 `bar` 列发生变化时发出值。[在观察排序列表时使用此方法](./Components.md)
 
-#### Count throttling
+#### 计数节流
 
-By default, calling `query.observeCount()` returns an Observable that is throttled to emit at most once every 250ms. You can disable throttling using `query.observeCount(false)`.
+默认情况下，调用 `query.observeCount()` 会返回一个可观察对象，该对象会进行节流处理，最多每 250 毫秒发出一次值。你可以使用 `query.observeCount(false)` 禁用节流。
 
-### Column comparisons
+### 列比较
 
-This queries comments that have more likes than dislikes. Note that we're comparing `likes` column to another column instead of a value.
+此查询用于查找点赞数多于踩数的评论。注意，这里我们是将 `likes` 列与另一列进行比较，而不是与一个具体的值进行比较。
 
 ```js
 database.get('comments').query(
@@ -286,39 +286,39 @@ database.get('comments').query(
 )
 ```
 
-### sortBy, take, skip
+### sortBy、take、skip
 
-You can use these clauses to sort the query by one or more columns. Note that only simple ascending/descending criteria for columns are supported.
+你可以使用这些子句按一个或多个列对查询结果进行排序。注意，目前仅支持简单的升序/降序排序规则。
 
 ```js
 database.get('comments').query(
-  // sorts by number of likes from the most likes to the fewest
+  // 按点赞数从多到少排序
   Q.sortBy('likes', Q.desc),
-  // if two comments have the same number of likes, the one with fewest dislikes will be at the top
+  // 如果两条评论的点赞数相同，则踩数最少的评论排在前面
   Q.sortBy('dislikes', Q.asc),
-  // limit number of comments to 100, skipping the first 50
+  // 跳过前 50 条评论，取 100 条评论
   Q.skip(50),
   Q.take(100),
 )
 ```
 
-It isn't _necessarily_ better or more efficient to sort on query level instead of in JavaScript, **however** the most important use case for `Q.sortBy` is when used alongside `Q.skip` and `Q.take` to implement paging - to limit the number of records loaded from database to memory on very long lists
+在查询级别进行排序并不一定比在 JavaScript 中排序更好或更高效，**但是**，`Q.sortBy` 最重要的使用场景是与 `Q.skip` 和 `Q.take` 一起使用来实现分页功能，即限制从数据库加载到内存中的记录数量，以处理超长列表。
 
-### Fetch IDs
+### 获取记录 ID
 
-If you only need IDs of records matching a query, you can optimize the query by calling `await query.fetchIds()` instead of `await query.fetch()`
+如果你只需要查询匹配记录的 ID，可以通过调用 `await query.fetchIds()` 来优化查询，而不是使用 `await query.fetch()`。
 
-### Security
+### 安全性
 
-Remember that Queries are a sensitive subject, security-wise. Never trust user input and pass it directly into queries. In particular:
+请记住，从安全角度来看，查询是一个敏感的话题。永远不要信任用户输入并将其直接传递到查询中。具体来说：
 
-- Never pass into queries values you don't know for sure are the right type (e.g. value passed to `Q.eq()` should be a string, number, boolean, or null -- but not an Object. If the value comes from JSON, you must validate it before passing it!)
-- Never pass column names (without whitelisting) from user input
-- Values passed to `oneOf`, `notIn` should be arrays of simple types - be careful they don't contain objects
-- Do not use `Q.like` / `Q.notLike` without `Q.sanitizeLikeString`
-- Do not use `unsafe raw queries` without knowing what you're doing and sanitizing all user input
+- 永远不要将你不确定类型的值传递到查询中（例如，传递给 `Q.eq()` 的值应该是字符串、数字、布尔值或 null，而不是对象。如果值来自 JSON，在传递之前必须对其进行验证！）
+- 永远不要从用户输入中传递列名（除非进行了白名单过滤）
+- 传递给 `oneOf`、`notIn` 的值应该是简单类型的数组，要确保它们不包含对象
+- 在使用 `Q.like` / `Q.notLike` 时，必须使用 `Q.sanitizeLikeString` 进行处理
+- 在不了解自己在做什么以及未对所有用户输入进行清理的情况下，不要使用 `不安全的原始查询`
 
-### Unsafe SQL queries
+### 不安全的 SQL 查询
 
 ```js
 const records = await database.get('comments').query(
@@ -330,7 +330,7 @@ const recordCount = await database.get('comments').query(
 ).fetchCount()
 ```
 
-You can also observe unsafe raw SQL queries, however, if it contains `JOIN` statements, you must explicitly specify all other tables using `Q.experimentalJoinTables` and/or `Q.experimentalNestedJoin`, like so:
+你也可以观察不安全的原始 SQL 查询，但是，如果查询中包含 `JOIN` 语句，你必须使用 `Q.experimentalJoinTables` 和/或 `Q.experimentalNestedJoin` 显式指定所有其他表，如下所示：
 
 ```js
 const records = await database.get('comments').query(
@@ -345,18 +345,18 @@ const records = await database.get('comments').query(
 ).observe()
 ```
 
-⚠️ Please note:
+⚠️ 请注意：
 
-- Do not use this if you don't know what you're doing
-- Do not pass user input directly to avoid SQL Injection - use `?` placeholders and pass array of placeholder values
-- You must filter out deleted record using `where _status is not 'deleted'` clause
-- If you're going to fetch count of the query, use `count(*) as count` as the select result
+- 如果你不了解自己在做什么，请不要使用此方法
+- 不要直接传递用户输入，以避免 SQL 注入攻击 - 使用 `?` 占位符并传递占位符值的数组
+- 必须使用 `where _status is not 'deleted'` 子句过滤掉已删除的记录
+- 如果你要获取查询结果的数量，请使用 `count(*) as count` 作为查询结果
 
-### Unsafe fetch raw
+### 不安全的原始数据获取
 
-In addition to `.fetch()` and `.fetchIds()`, there is also `.unsafeFetchRaw()`. Instead of returning an array of `Model` class instances, it returns an array of raw objects.
+除了 `.fetch()` 和 `.fetchIds()` 之外，还有 `.unsafeFetchRaw()`。与返回 `Model` 类实例数组不同，它返回原始对象数组。
 
-You can use it as an unsafe optimization, or alongside `Q.unsafeSqlQuery`/`Q.unsafeLokiTransform` to create an advanced query that either skips fetching unnecessary columns or includes extra computed columns. For example:
+你可以将其作为一种不安全的优化手段使用，或者结合 `Q.unsafeSqlQuery`/`Q.unsafeLokiTransform` 来创建高级查询，这样可以跳过获取不必要的列，或者包含额外的计算列。例如：
 
 ```js
 const rawData = await database.get('posts').query(
@@ -369,44 +369,44 @@ const rawData = await database.get('posts').query(
 ).unsafeFetchRaw()
 ```
 
-⚠️ You MUST NOT mutate returned objects. Doing so will corrupt the database.
+⚠️ 你绝对不能修改返回的对象。否则会破坏数据库。
 
-### Unsafe SQL/Loki expressions
+### 不安全的 SQL/Loki 表达式
 
-You can also include smaller bits of SQL and Loki expressions so that you can still use as much of Watermelon query builder as possible:
+你还可以包含一些较小的 SQL 和 Loki 表达式，这样你就可以尽可能多地使用 Watermelon 查询构建器：
 
 ```js
-// SQL example:
+// SQL 示例：
 postsCollection.query(
   Q.where('is_published', true),
   Q.unsafeSqlExpr('tasks.num1 not between 1 and 5'),
 )
 
-// LokiJS example:
+// LokiJS 示例：
 postsCollection.query(
   Q.where('is_published', true),
   Q.unsafeLokiExpr({ text1: { $contains: 'hey' } })
 )
 ```
 
-For SQL, be sure to prefix column names with table name when joining with other tables.
+对于 SQL，当与其他表进行连接时，一定要在列名前加上表名作为前缀。
 
-⚠️ Please do not use this if you don't know what you're doing. Do not pass user input directly to avoid SQL injection.
+⚠️ 如果你不清楚自己在做什么，请不要使用此功能。不要直接传递用户输入，以避免 SQL 注入。
 
-### Multi-table column comparisons and `Q.unsafeLokiTransform`
+### 多表列比较和 `Q.unsafeLokiTransform`
 
-Example: we want to query comments posted more than 14 days after the post it belongs to was published.
+示例：我们想要查询那些发布时间比所属文章发布时间晚 14 天以上的评论。
 
-There's sadly no built-in syntax for this, but can be worked around using unsafe expressions like so:
+遗憾的是，没有内置的语法来实现这个需求，但可以通过使用不安全的表达式来解决：
 
 ```js
-// SQL example:
+// SQL 示例：
 commentsCollection.query(
   Q.on('posts', 'published_at', Q.notEq(null)),
   Q.unsafeSqlExpr(`comments.createad_at > posts.published_at + ${14 * 24 * 3600 * 1000}`)
 )
 
-// LokiJS example:
+// LokiJS 示例：
 commentsCollection.query(
   Q.on('posts', 'published_at', Q.notEq(null)),
   Q.unsafeLokiTransform((rawRecords, loki) => {
@@ -418,19 +418,19 @@ commentsCollection.query(
 )
 ```
 
-For LokiJS, remember that `rawRecord` is an unsanitized, unsafe object and must not be mutated. `Q.unsafeLokiTransform` only works when using `LokiJSAdapter` with `useWebWorkers: false`. There can only be one `Q.unsafeLokiTransform` clause per query.
+对于 LokiJS，要记住 `rawRecord` 是一个未经过清理的、不安全的对象，绝对不能对其进行修改。`Q.unsafeLokiTransform` 仅在使用 `LokiJSAdapter` 且 `useWebWorkers: false` 时有效。每个查询中只能有一个 `Q.unsafeLokiTransform` 子句。
 
-### `null` behavior
+### `null` 的处理规则
 
-There are some gotchas you should be aware of. The `Q.gt`, `gte`, `lt`, `lte`, `oneOf`, `notIn`, `like` operators match the semantics of SQLite in terms of how they treat `null`. Those are different from JavaScript.
+有一些需要注意的陷阱。`Q.gt`、`gte`、`lt`、`lte`、`oneOf`、`notIn`、`like` 这些操作符在处理 `null` 时遵循 SQLite 的语义，这与 JavaScript 不同。
 
-**Rule of thumb:** No null comparisons are allowed.
+**经验法则**：不允许进行 `null` 比较。
 
-For example, if you query `comments` for `Q.where('likes', Q.lt(10))`, a comment with 8 likes and 0 likes will be included, but a comment with `null` likes will not! In Watermelon queries, `null` is not less than any number. That's why you should avoid [making table columns optional](./Schema.md) unless you actually need it.
+例如，如果你查询 `comments` 表，使用 `Q.where('likes', Q.lt(10))`，点赞数为 8 和 0 的评论会被包含在内，但点赞数为 `null` 的评论不会！在 Watermelon 查询中，`null` 不小于任何数字。这就是为什么除非确实需要，否则应该避免[将表列设置为可选](./Schema.md)。
 
-Similarly, if you query with a column comparison, like `Q.where('likes', Q.gt(Q.column('dislikes')))`, only comments where both `likes` and `dislikes` are not null will be compared. A comment with 5 likes and `null` dislikes will NOT be included. 5 is not greater than `null` here.
+同样，如果你进行列比较查询，例如 `Q.where('likes', Q.gt(Q.column('dislikes')))`，只有 `likes` 和 `dislikes` 都不为 `null` 的评论才会被比较。点赞数为 5 且踩数为 `null` 的评论不会被包含在内。在这里，5 并不大于 `null`。
 
-**`Q.oneOf` operator**: It is not allowed to pass `null` as an argument to `Q.oneOf`. Instead of `Q.oneOf([null, 'published', 'draft'])` you need to explicitly allow `null` as a value like so:
+**`Q.oneOf` 操作符**：不允许将 `null` 作为参数传递给 `Q.oneOf`。你需要像下面这样显式地允许 `null` 作为值，而不是使用 `Q.oneOf([null, 'published', 'draft'])`：
 
 ```js
 postsCollection.query(
@@ -441,28 +441,28 @@ postsCollection.query(
 )
 ```
 
-**`Q.notIn` operator**: If you query, say, posts with `Q.where('status', Q.notIn(['published', 'draft']))`, it will match posts with a status different than `published` or `draft`, however, it will NOT match posts with `status == null`. If you want to include such posts, query for that explicitly like with the example above.
+**`Q.notIn` 操作符**：如果你查询帖子，使用 `Q.where('status', Q.notIn(['published', 'draft']))`，它会匹配状态不是 `published` 或 `draft` 的帖子，但不会匹配状态为 `null` 的帖子。如果你想包含这些帖子，需要像上面的例子一样显式地进行查询。
 
-**`Q.weakGt` operator**: This is weakly typed version of `Q.gt` — one that allows null comparisons. So if you query `comments` with `Q.where('likes', Q.weakGt(Q.column('dislikes')))`, it WILL match comments with 5 likes and `null` dislikes. (For `weakGt`, unlike standard operators, any number is greater than `null`).
+**`Q.weakGt` 操作符**：这是 `Q.gt` 的弱类型版本，允许进行 `null` 比较。所以，如果你使用 `Q.where('likes', Q.weakGt(Q.column('dislikes')))` 查询 `comments` 表，点赞数为 5 且踩数为 `null` 的评论会被匹配到。（与标准操作符不同，对于 `weakGt`，任何数字都大于 `null`）。
 
-## Contributing improvements to Watermelon query language
+## 为 Watermelon 查询语言贡献改进
 
-Here are files that are relevant. This list may look daunting, but adding new matchers is actually quite simple and multiple first-time contributors made these improvements (including like, sort, take, skip). The implementation is just split into multiple files (and their test files), but when you look at them, it'll be easy to add matchers by analogy.
+以下是相关的文件。这份列表可能看起来让人望而生畏，但实际上添加新的匹配器相当简单，已有多位首次贡献者完成了此类改进（包括 `like`、`sort`、`take`、`skip`）。实现代码只是分散在多个文件（及其测试文件）中，当你查看这些文件时，通过类比很容易添加匹配器。
 
-We recommend starting from writing tests first to check expected behavior, then implement the actual behavior.
+我们建议先编写测试来验证预期行为，然后再实现具体功能。
 
-- `src/QueryDescription/test.js` - Test clause builder (`Q.myThing`) output and test that it rejects bad/unsafe parameters
-- `src/QueryDescription/index.js` - Add clause builder and type definition
-- `src/__tests__/databaseTests.js` - Add test ("join" if it requires conditions on related tables; "match" otherwise) that checks that the new clause matches expected records. From this, tests running against SQLite, LokiJS, and Matcher are generated. (If one of those is not supported, add `skip{Loki,Sql,Count,Matcher}: true` to your test)
-- `src/adapters/sqlite/encodeQuery/test.js` - Test that your query generates SQL you expect. (If your clause is Loki-only, test that error is thrown)
-- `src/adapters/sqlite/encodeQuery/index.js` - Generate SQL
-- `src/adapters/lokijs/worker/encodeQuery/test.js` - Test that your query generates the Loki query you expect (If your clause is SQLite-only, test that an error is thrown)
-- `src/adapters/lokijs/worker/encodeQuery/index.js` - Generate Loki query
-- `src/adapters/lokijs/worker/{performJoins/*.js,executeQuery.js}` - May be relevant for some Loki queries, but most likely you don't need to look here.
-- `src/observation/encodeMatcher/` - If your query can be checked against a record in JavaScript (e.g. you're adding new "by regex" matcher), implement this behavior here (`index.js`, `operators.js`). This is used for efficient "simple observation". You don't need to write tests - `databaseTests` are used automatically. If you can't or won't implement encodeMatcher for your query, add a check to `canEncode.js` so that it returns `false` for your query (Less efficient "reloading observation" will be used then). Add your query to `test.js`'s "unencodable queries" then.
+- `src/QueryDescription/test.js` - 测试子句构建器（如 `Q.myThing`）的输出，并验证它会拒绝不良或不安全的参数
+- `src/QueryDescription/index.js` - 添加子句构建器和类型定义
+- `src/__tests__/databaseTests.js` - 添加测试（若需要对关联表设置条件则用 “join”；否则用 “match”），以检查新子句是否能匹配预期的记录。基于此测试，会生成针对 SQLite、LokiJS 和 Matcher 的测试。（若不支持其中某一项，在测试中添加 `skip{Loki,Sql,Count,Matcher}: true`）
+- `src/adapters/sqlite/encodeQuery/test.js` - 测试你的查询是否生成预期的 SQL。（若你的子句仅适用于 Loki，测试是否抛出错误）
+- `src/adapters/sqlite/encodeQuery/index.js` - 生成 SQL
+- `src/adapters/lokijs/worker/encodeQuery/test.js` - 测试你的查询是否生成预期的 Loki 查询（若你的子句仅适用于 SQLite，测试是否抛出错误）
+- `src/adapters/lokijs/worker/encodeQuery/index.js` - 生成 Loki 查询
+- `src/adapters/lokijs/worker/{performJoins/*.js,executeQuery.js}` - 某些 Loki 查询可能会用到这些文件，但大多数情况下你无需关注。
+- `src/observation/encodeMatcher/` - 若你的查询可以在 JavaScript 中针对单条记录进行检查（例如，你正在添加新的 “按正则表达式” 匹配器），在此处（`index.js`、`operators.js`）实现该功能。这用于高效的 “简单观察”。你无需编写测试 —— 会自动使用 `databaseTests`。若你无法或不想为查询实现 `encodeMatcher`，在 `canEncode.js` 中添加检查，让它针对你的查询返回 `false`（届时将使用效率较低的 “重新加载观察”）。然后将你的查询添加到 `test.js` 的 “无法编码的查询” 列表中。
 
 * * *
 
-## Next steps
+## 下一步
 
-➡️ Now that you've mastered Queries, [**make more Relations**](./Relation.md)
+➡️ 既然你已经掌握了查询，接下来[**创建更多关联**](./Relation.md)
