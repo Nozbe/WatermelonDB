@@ -1,17 +1,17 @@
 ---
-title: Backend
+title: 后端
 hide_title: true
 ---
 
-## Implementing your Sync backend
+## 实现自定义同步后端
 
-### Understanding `changes` objects
+### 理解 `changes` 对象
 
-Synchronized changes (received by the app in `pullChanges` and sent to the backend in `pushChanges`) are represented as an object with _raw records_. Those only use raw table and column names, and raw values (strings/numbers/booleans) — the same as in [Schema](../Schema.md).
+同步更改（应用程序在 `pullChanges` 中接收并在 `pushChanges` 中发送到后端）以包含_原始记录_的对象形式表示。这些对象仅使用原始表名和列名，以及原始值（字符串/数字/布尔值）——与 [架构](../Schema.md) 中的相同。
 
-Deleted objects are always only represented by their IDs.
+已删除的对象始终仅由其 ID 表示。
 
-Example:
+示例：
 
 ```js
 {
@@ -36,9 +36,9 @@ Example:
 }
 ```
 
-Again, notice the properties returned have the format defined in the [Schema](../Schema.md) (e.g. `is_favorite`, not `isFavorite`).
+再次注意，返回的属性具有 [模式（Schema）](../Schema.md) 中定义的格式（例如 `is_favorite`，而不是 `isFavorite`）。
 
-Valid changes objects MUST conform to this shape:
+有效的更改对象必须符合以下结构：
 
 ```js
 Changes = {
@@ -50,9 +50,9 @@ Changes = {
 }
 ```
 
-### Implementing pull endpoint
+### 实现拉取端点
 
-Expected parameters:
+预期参数：
 
 ```js
 {
@@ -62,98 +62,98 @@ Expected parameters:
 }
 ```
 
-Expected response:
+预期响应
 
 ```js
 { changes: Changes, timestamp: Timestamp }
 ```
 
-1. The pull endpoint SHOULD take parameters and return a response matching the shape specified above.
-   This shape MAY be different if negotiated with the frontend (however, frontend-side `pullChanges()` MUST conform to this)
-2. The pull endpoint MUST return all record changes in all collections since `lastPulledAt`, specifically:
-    - all records that were created on the server since `lastPulledAt`
-    - all records that were updated on the server since `lastPulledAt`
-    - IDs of all records that were deleted on the server since `lastPulledAt`
-    - record IDs MUST NOT be duplicated
-3. If `lastPulledAt` is null or 0, you MUST return all accessible records (first sync)
-4. The timestamp returned by the server MUST be a value that, if passed again to `pullChanges()` as `lastPulledAt`, will return all changes that happened since this moment.
-5. The pull endpoint MUST provide a consistent view of changes since `lastPulledAt`
-    - You should perform all queries synchronously or in a write lock to ensure that returned changes are consistent
-    - You should also mark the current server time synchronously with the queries
-    - This is to ensure that no changes are made to the database while you're fetching changes (otherwise some records would never be returned in a pull query)
-    - If it's absolutely not possible to do so, and you have to query each collection separately, be sure to return a `lastPulledAt` timestamp marked BEFORE querying starts. You still risk inconsistent responses (that may break app's consistency assumptions), but the next pull will fetch whatever changes occured during previous pull.
-    - An alternative solution is to check for the newest change before and after all queries are made, and if there's been a change during the pull, return an error code, or retry.
-6. If `migration` is not null, you MUST include records needed to get a consistent view after a local database migration
-    - Specifically, you MUST include all records in tables that were added to the local database between the last user sync and `schemaVersion`
-    - For all columns that were added to the local app database between the last sync and `schemaVersion`, you MUST include all records for which the added column has a value other than the default value (`0`, `''`, `false`, or `null` depending on column type and nullability)
-    - You can determine what schema changes were made to the local app in two ways:
-        - You can compare `migration.from` (local schema version at the time of the last sync) and `schemaVersion` (current local schema version). This requires you to negotiate with the frontend what schema changes are made at which schema versions, but gives you more control
-        - Or you can ignore `migration.from` and only look at `migration.tables` (which indicates which tables were added to the local database since the last sync) and `migration.columns` (which indicates which columns were added to the local database to which tables since last sync).
-        - If you use `migration.tables` and `migration.columns`, you MUST whitelist values a client can request. Take care not to leak any internal fields to the client.
-7. Returned raw records MUST match your app's [Schema](../Schema.md)
-8. Returned raw records MUST NOT not contain special `_status`, `_changed` fields.
-9. Returned raw records MAY contain fields (columns) that are not yet present in the local app (at `schemaVersion` -- but added in a later version). They will be safely ignored.
-10. Returned raw records MUST NOT contain arbitrary column names, as they may be unsafe (e.g. `__proto__` or `constructor`). You should whitelist acceptable column names.
-11. Returned record IDs MUST only contain safe characters
-    - Default WatermelonDB IDs conform to `/^[a-zA-Z0-9]{16}$/`
-    - `_-.` are also allowed if you override default ID generator, but `'"\/$` are unsafe
-12. Changes SHOULD NOT contain collections that are not yet present in the local app (at `schemaVersion`). They will, however, be safely ignored.
-    - NOTE: This is true for WatermelonDB v0.17 and above. If you support clients using earlier versions, you MUST NOT return collections not known by them.
-13. Changes MUST NOT contain collections with arbitrary names, as they may be unsafe. You should whitelist acceptable collection names.
+1. 拉取端点**应该**接受参数并返回符合上述结构的响应。
+    如果与前端协商，此结构**可能**不同（但是，前端的 `pullChanges()` 方法**必须**符合此结构）。
+2. 拉取端点**必须**返回自 `lastPulledAt` 以来所有集合中的所有记录更改，具体如下：
+    - 自 `lastPulledAt` 以来在服务器上创建的所有记录。
+    - 自 `lastPulledAt` 以来在服务器上更新的所有记录。
+    - 自 `lastPulledAt` 以来在服务器上删除的所有记录的 ID。
+    - 记录 ID**不能**重复。
+3. 如果 `lastPulledAt` 为 `null` 或 `0`，则**必须**返回所有可访问的记录（首次同步）。
+4. 服务器返回的时间戳**必须**是一个值，如果再次作为 `lastPulledAt` 传递给 `pullChanges()`，将返回自该时刻以来发生的所有更改。
+5. 拉取端点**必须**提供自 `lastPulledAt` 以来更改的一致视图：
+    - 你应该同步执行所有查询或使用写锁，以确保返回的更改是一致的。
+    - 你还应该与查询同步标记当前服务器时间。
+    - 这是为了确保在你获取更改时数据库没有发生任何更改（否则某些记录将永远不会在拉取查询中返回）。
+    - 如果绝对无法做到这一点，并且你必须分别查询每个集合，请确保返回在查询开始**之前**标记的 `lastPulledAt` 时间戳。你仍然有响应不一致的风险（这可能会破坏应用程序的一致性假设），但下一次拉取将获取上一次拉取期间发生的任何更改。
+    - 另一种解决方案是在所有查询前后检查最新更改，如果在拉取期间发生了更改，则返回错误代码或重试。
+6. 如果 `migration` 不为 `null`，则**必须**包含在本地数据库迁移后获得一致视图所需的记录：
+    - 具体来说，你**必须**包含自上次用户同步到 `schemaVersion` 期间添加到本地数据库的所有表中的所有记录。
+    - 对于自上次同步到 `schemaVersion` 期间添加到本地应用程序数据库的所有列，你**必须**包含添加列的值不是默认值（根据列类型和可空性分别为 `0`、`''`、`false` 或 `null`）的所有记录。
+    - 你可以通过两种方式确定本地应用程序的架构更改：
+        - 你可以比较 `migration.from`（上次同步时的本地架构版本）和 `schemaVersion`（当前本地架构版本）。这需要你与前端协商在哪个架构版本进行了哪些架构更改，但可以让你有更多的控制权。
+        - 或者你可以忽略 `migration.from`，只查看 `migration.tables`（表示自上次同步以来添加到本地数据库的表）和 `migration.columns`（表示自上次同步以来添加到哪些表的哪些列）。
+        - 如果你使用 `migration.tables` 和 `migration.columns`，则**必须**对客户端可以请求的值进行白名单过滤。注意不要向客户端泄露任何内部字段。
+7. 返回的原始记录**必须**与你的应用程序的 [架构](../Schema.md) 匹配。
+8. 返回的原始记录**不能**包含特殊的 `_status`、`_changed` 字段。
+9. 返回的原始记录**可以**包含本地应用程序（在 `schemaVersion` 时）中尚未存在（但在后续版本中添加）的字段（列）。这些字段将被安全地忽略。
+10. 返回的原始记录**不能**包含任意列名，因为它们可能不安全（例如 `__proto__` 或 `constructor`）。你应该对可接受的列名进行白名单过滤。
+11. 返回的记录 ID**必须**仅包含安全字符：
+    - 默认的 WatermelonDB ID 符合 `/^[a-zA-Z0-9]{16}$/`。
+    - 如果你覆盖了默认的 ID 生成器，`_-.` 也是允许的，但 `'"\/$` 是不安全的。
+12. 更改**应该**不包含本地应用程序（在 `schemaVersion` 时）中尚未存在的集合。不过，这些集合将被安全地忽略。
+    - 注意：这适用于 WatermelonDB v0.17 及以上版本。如果你支持使用早期版本的客户端，则**不能**返回它们不知道的集合。
+13. 更改**不能**包含名称任意的集合，因为它们可能不安全。你应该对可接受的集合名称进行白名单过滤。
 
-### Implementing push endpoint
+### 实现推送端点
 
-1. The push endpoint MUST apply local changes (passed as a `changes` object) to the database. Specifically:
-    - create new records as specified by the changes object
-    - update existing records as specified by the changes object
-    - delete records by the specified IDs
-2. If the `changes` object contains a new record with an ID that already exists, you MUST update it, and MUST NOT return an error code.
-    - (This happens if previous push succeeded on the backend, but not on frontend)
-3. If the `changes` object contains an update to a record that does not exist, then:
-    - If you can determine that this record no longer exists because it was deleted, you SHOULD return an error code (to force frontend to pull the information about this deleted ID)
-    - Otherwise, you MUST create it, and MUST NOT return an error code. (This scenario should not happen, but in case of frontend or backend bugs, it would keep sync from ever succeeding.)
-4. If the `changes` object contains a record to delete that doesn't exist, you MUST ignore it and MUST NOT return an error code
-    - (This may happen if previous push succeeded on the backend, but not on frontend, or if another user deleted this record in between user's pull and push calls)
-5. If the `changes` object contains a record that has been modified on the server after `lastPulledAt`, you MUST abort push and return an error code
-    - This scenario means that there's a conflict, and record was updated remotely between user's pull and push calls. Returning an error forces frontend to call pull endpoint again to resolve the conflict
-6. If application of all local changes succeeds, the endpoint MUST return a success status code.
-7. The push endpoint MUST be fully transactional. If there is an error, all local changes MUST be reverted on the server, and en error code MUST be returned.
-8. You MUST ignore `_status` and `_changed` fields contained in records in `changes` object
-9. You SHOULD validate data passed to the endpoint. In particular, collection and column names ought to be whitelisted, as well as ID format — and of course any application-specific invariants, such as permissions to access and modify records
-10. You SHOULD sanitize record fields passed to the endpoint. If there's something slightly wrong with the contents (but not shape) of the data (e.g. `user.role` should be `owner`, `admin`, or `member`, but user sent empty string or `abcdef`), you SHOULD NOT send an error code. Instead, prefer to "fix" errors (sanitize to correct format).
-    - Rationale: Synchronization should be reliable, and should not fail other than transiently, or for serious programming errors. Otherwise, the user will have a permanently unsyncable app, and may have to log out/delete it and lose unsynced data. You don't want a bug 5 versions ago to create a persistently failing sync.
-11. You SHOULD delete all descendants of deleted records
-    - Frontend should ask the push endpoint to do so as well, but if it's buggy, you may end up with permanent orphans
+1. 推送端点**必须**将本地更改（以 `changes` 对象形式传递）应用到数据库。具体而言：
+    - 根据 `changes` 对象的指定创建新记录。
+    - 根据 `changes` 对象的指定更新现有记录。
+    - 根据指定的 ID 删除记录。
+2. 如果 `changes` 对象包含一个 ID 已存在的新记录，你**必须**更新该记录，并且**不能**返回错误码。
+    - （这种情况发生在之前的推送在后端成功，但在前端失败时）
+3. 如果 `changes` 对象包含对一个不存在的记录的更新，那么：
+    - 如果你能确定该记录由于已被删除而不再存在，你**应该**返回一个错误码（以强制前端拉取关于这个已删除 ID 的信息）。
+    - 否则，你**必须**创建该记录，并且**不能**返回错误码。（这种情况本不应该发生，但如果出现前端或后端的 bug，这样做可以保证同步仍有成功的可能。）
+4. 如果 `changes` 对象包含一个要删除但不存在的记录，你**必须**忽略它，并且**不能**返回错误码。
+    - （这种情况可能发生在之前的推送在后端成功但在前端失败时，或者在用户拉取和推送调用之间有其他用户删除了该记录。）
+5. 如果 `changes` 对象包含一个在 `lastPulledAt` 之后在服务器上被修改过的记录，你**必须**中止推送并返回一个错误码。
+    - 这种情况意味着存在冲突，即记录在用户拉取和推送调用之间被远程更新了。返回错误码会强制前端再次调用拉取端点来解决冲突。
+6. 如果所有本地更改都成功应用，端点**必须**返回一个成功状态码。
+7. 推送端点**必须**是完全事务性的。如果出现错误，服务器上的所有本地更改**必须**回滚，并且**必须**返回一个错误码。
+8. 你**必须**忽略 `changes` 对象中记录所包含的 `_status` 和 `_changed` 字段。
+9. 你**应该**验证传递给端点的数据。特别是，集合和列名以及 ID 格式都应该进行白名单过滤，当然还有任何特定于应用程序的不变量，例如访问和修改记录的权限。
+10. 你**应该**对传递给端点的记录字段进行清理。如果数据的内容（而非结构）存在一些小问题（例如，`user.role` 应该是 `owner`、`admin` 或 `member`，但用户发送了空字符串或 `abcdef`），你**不应该**发送错误码。相反，应该“修正”这些错误（将其清理为正确的格式）。
+    - 原理：同步应该是可靠的，除了短暂的问题或严重的编程错误外，不应该失败。否则，用户的应用程序将永久无法同步，可能不得不注销/删除应用并丢失未同步的数据。你不希望 5 个版本之前的一个 bug 导致同步持续失败。
+11. 你**应该**删除已删除记录的所有子记录。
+    - 前端也应该要求推送端点这样做，但如果前端有 bug，可能会导致出现永久孤立的记录。
 
-## Tips on implementing server-side changes tracking
+## 实现服务器端更改跟踪的提示
 
-If you're wondering how to _actually_ implement consistent pulling of all changes since the last pull, or how to detect that a record being pushed by the user changed after `lastPulledAt`, here's what we recommend:
+如果你想知道如何**真正**实现自上次拉取以来所有更改的一致拉取，或者如何检测用户推送的记录在 `lastPulledAt` 之后是否发生了更改，以下是我们的建议：
 
-- Add a `last_modified` field to all your server database tables, and bump it to `NOW()` every time you create or update a record.
-- This way, when you want to get all changes since `lastPulledAt`, you query records whose `last_modified > lastPulledAt`.
-- The timestamp should be at least millisecond resolution, and you should add (for extra safety) a MySQL/PostgreSQL procedure that will ensure `last_modified` uniqueness and monotonicity
-    - Specificaly, check that there is no record with a `last_modified` equal to or greater than `NOW()`, and if there is, increment the new timestamp by 1 (or however much you need to ensure it's the greatest number)
-    - [An example of this for PostgreSQL can be found in Kinto](https://github.com/Kinto/kinto/blob/814c30c5dd745717b8ea50d708d9163a38d2a9ec/kinto/core/storage/postgresql/schema.sql#L64-L116)
-    - This protects against weird edge cases - such as records being lost due to server clock time changes (NTP time sync, leap seconds, etc.)
-- Of course, remember to ignore `last_modified` from the user if you do it this way.
-- An alternative to using timestamps is to use an auto-incrementing counter sequence, but you must ensure that this sequence is consistent across all collections. You also leak to users the amount of traffic to your sync server (number of changes in the sequence)
-- To distinguish between `created` and `updated` records, you can also store server-side `server_created_at` timestamp (if it's greater than `last_pulled_at` supplied to sync, then record is to be `created` on client, if less than — client already has it and it is to be `updated` on client). Note that this timestamp must be consistent with last_modified — and you must not use client-created `created_at` field, since you can never trust local timestamps.
-    - Alternatively, you can send all non-deleted records as all `updated` and Watermelon will do the right thing in 99% of cases (you will be slightly less protected against weird edge cases — treatment of locally deleted records is different). If you do this, pass `sendCreatedAsUpdated: true` to `synchronize()` to supress warnings about records to be updated not existing locally.
-- You do need to implement a mechanism to track when records were deleted on the server, otherwise you wouldn't know to push them
-    - One possible implementation is to not fully delete records, but mark them as DELETED=true
-    - Or, you can have a `deleted_xxx` table with just the record ID and timestamp (consistent with last_modified)
-    - Or, you can treat it the same way as "revoked permissions"
-- If you have a collaborative app with any sort of permissions, you also need to track granting and revoking of permissions the same way as changes to records
-    - If permission to access records has been granted, the pull endpoint must add those records to `created`
-    - If permission to access records has been revoked, the pull endpoint must add those records to `deleted`
-    - Remember to also return all descendants of a record in those cases
+- 为服务器数据库的所有表添加一个 `last_modified` 字段，并在每次创建或更新记录时将其更新为 `NOW()`。
+- 这样，当你想获取自 `lastPulledAt` 以来的所有更改时，只需查询 `last_modified > lastPulledAt` 的记录。
+- 时间戳至少应精确到毫秒，并且（为了更安全）你应该添加一个 MySQL/PostgreSQL 存储过程，以确保 `last_modified` 的唯一性和单调性。
+    - 具体来说，检查是否存在 `last_modified` 等于或大于 `NOW()` 的记录，如果存在，则将新的时间戳加 1（或根据需要增加，以确保它是最大的数字）。
+    - [在 Kinto 中可以找到 PostgreSQL 的示例](https://github.com/Kinto/kinto/blob/814c30c5dd745717b8ea50d708d9163a38d2a9ec/kinto/core/storage/postgresql/schema.sql#L64-L116)。
+    - 这可以防止一些奇怪的边缘情况，例如由于服务器时钟时间更改（NTP 时间同步、闰秒等）导致记录丢失。
+- 当然，如果你采用这种方式，记得忽略用户提供的 `last_modified` 字段。
+- 除了使用时间戳，你也可以使用自增计数器序列，但你必须确保该序列在所有集合中保持一致。此外，这会向用户泄露同步服务器的流量情况（序列中的更改数量）。
+- 为了区分 `created` 和 `updated` 记录，你还可以在服务器端存储 `server_created_at` 时间戳（如果该时间戳大于同步时提供的 `last_pulled_at`，则该记录应在客户端 `created`；如果小于，则客户端已经有该记录，应在客户端 `updated`）。请注意，这个时间戳必须与 `last_modified` 保持一致，并且你不能使用客户端创建的 `created_at` 字段，因为你永远不能信任本地时间戳。
+    - 另外，你可以将所有未删除的记录都作为 `updated` 记录发送，在 99% 的情况下，Watermelon 会处理得当（但对于一些奇怪的边缘情况的保护会稍弱一些，对本地已删除记录的处理方式会有所不同）。如果你这样做，请在调用 `synchronize()` 时传入 `sendCreatedAsUpdated: true`，以抑制关于要更新的记录在本地不存在的警告。
+- 你需要实现一种机制来跟踪服务器上记录的删除时间，否则你将无法知道要推送哪些删除信息。
+    - 一种可能的实现方式是不彻底删除记录，而是将其标记为 `DELETED=true`。
+    - 或者，你可以创建一个 `deleted_xxx` 表，仅包含记录 ID 和时间戳（与 `last_modified` 保持一致）。
+    - 或者，你可以将其视为“权限撤销”进行处理。
+- 如果你有一个具有某种权限控制的协作应用程序，你还需要像跟踪记录更改一样跟踪权限的授予和撤销。
+    - 如果授予了访问记录的权限，拉取端点必须将这些记录添加到 `created` 列表中。
+    - 如果撤销了访问记录的权限，拉取端点必须将这些记录添加到 `deleted` 列表中。
+    - 在这些情况下，记得同时返回记录的所有子记录。
 
-## Existing Backend Implementations
+## 现有的后端实现
 
-Note that those are not maintained by WatermelonDB, and we make no endorsements about quality of these projects:
+请注意，这些实现并非由 WatermelonDB 维护，并且我们不对这些项目的质量作出任何保证：
 
-- [How to Build WatermelonDB Sync Backend in Elixir](https://fahri.id/posts/how-to-build-watermelondb-sync-backend-in-elixir/)
+- [如何用 Elixir 构建 WatermelonDB 同步后端](https://fahri.id/posts/how-to-build-watermelondb-sync-backend-in-elixir/)
 - [Firemelon](https://github.com/AliAllaf/firemelon)
 - [Laravel Watermelon](https://github.com/nathanheffley/laravel-watermelon)
 
-Did you make one? Please contribute a link!
+你自己实现了一个后端吗？请贡献一个链接！

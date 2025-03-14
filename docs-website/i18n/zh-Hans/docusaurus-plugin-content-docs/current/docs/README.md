@@ -1,5 +1,5 @@
 ---
-title: Check out the README
+title: 查看 README
 hide_title: true
 ---
 
