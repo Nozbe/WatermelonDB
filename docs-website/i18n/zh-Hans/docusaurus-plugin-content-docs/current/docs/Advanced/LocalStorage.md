@@ -1,27 +1,27 @@
 ---
-title: LocalStorage
+title: 本地存储（LocalStorage）
 hide_title: true
 ---
 
-# Local storage
+# 本地存储（Local Storage）
 
-WatermelonDB has a simple key/value store, similar to [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage):
+WatermelonDB 拥有一个简单的键值存储，类似于 [localStorage](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/localStorage)：
 
 ```js
-// setting a value
+// 设置一个值
 await database.localStorage.set("user_id", "abcdef")
 
-// retrieving a value
-const userId = await database.localStorage.get("user_id") // string or undefined if no value for this key
+// 获取一个值
+const userId = await database.localStorage.get("user_id") // 如果该键没有值，则为 string 或 undefined
 
-// removing a value
+// 删除一个值
 await database.localStorage.remove("user_id")
 ```
 
-**When to use it**. For things like the ID of the logged-in user, or the route to the last-viewed screen in the app. You should generally avoid it and stick to standard Watermelon records.
+**何时使用**：适用于存储如已登录用户的 ID 或应用中最后查看屏幕的路由等信息。一般情况下，你应该避免使用它，而是坚持使用标准的 Watermelon 记录。
 
-**This is a low-level API**. You can't do things like observe changes of a value over time. If you need that, just use standard WatermelonDB records. You can only store JSON-serializable values
+**这是一个底层 API**：你无法实现诸如随时间观察值的变化等功能。如果你需要这些功能，只需使用标准的 WatermelonDB 记录。你只能存储可进行 JSON 序列化的值。
 
-**What to be aware of**. DO NOT let the local storage key be a user-supplied value. Only allow predefined/whitelisted keys. Key names starting with `__` are reserved for WatermelonDB use (e.g. used by Sync to remember time of last sync)
+**需要注意的事项**：请勿将用户提供的值用作本地存储的键。仅允许使用预定义/白名单中的键。以 `__` 开头的键名是为 WatermelonDB 预留的（例如，同步功能会使用这些键来记录上次同步的时间）。
 
-**Why not use localStorage/AsyncStorage?** Because this way, you have only one source of truth — one database that, say, stores the logged-in user ID and the information about all users. So there's a lower risk that the two sets of values get out of sync.
+**为什么不使用 localStorage/AsyncStorage？** 因为这样一来，你只有一个事实来源 —— 一个数据库，例如，它既存储已登录用户的 ID，又存储所有用户的信息。因此，两组值不同步的风险更低。
