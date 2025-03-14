@@ -11,6 +11,7 @@
 
 - Added `Database#experimentalIsVerbose` option
 - Support for React Native 0.74+
+- Add Simplified Chinese Documentation Translation
 
 ### Fixes
 
@@ -32,3 +33,4 @@
 ### Internal
 
 - Update internal dependencies
+- Update docusaurus dependencies version
