@@ -194,6 +194,27 @@ export default class Collection<Record: Model> {
     return this.modelClass._disposableFromDirtyRaw(this, dirtyRaw)
   }
 
+  refreshCache(clauses: Clause[]): Promise<CollectionChangeSet<Record>> {
+    return new Promise<CollectionChangeSet<Record>>((resolve) => {
+      this._unsafeFetchRaw(new Query(this, clauses), (results) => {
+        const updateCacheOperations: CollectionChangeSet<Record> = [];
+        const notifySubscribersOperations: CollectionChangeSet<Record> = [];
+
+        results.value?.map(rawRecord => {
+          const record = this._cache.recordInsantiator(rawRecord)
+
+          updateCacheOperations.push({ record, type: "created"})
+          notifySubscribersOperations.push({ record, type: record._raw._status })
+        })
+
+        this._applyChangesToCache(updateCacheOperations)
+        this._notify(notifySubscribersOperations)
+
+        resolve(notifySubscribersOperations)
+      })
+    })
+  }
+
   // *** Implementation details ***
 
   // See: Query.fetch

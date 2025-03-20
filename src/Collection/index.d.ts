@@ -1,16 +1,16 @@
 // @flow
-import { Observable, Subject } from '../utils/rx'
-import type { ResultCallback } from '../utils/fp/Result'
 import type { ArrayOrSpreadFn } from '../utils/fp'
+import type { ResultCallback } from '../utils/fp/Result'
+import { Observable, Subject } from '../utils/rx'
 import type { Unsubscribe } from '../utils/subscriptions'
 
-import Query from '../Query'
 import type Database from '../Database'
 import type Model from '../Model'
 import type { RecordId } from '../Model'
+import Query from '../Query'
 import type { Clause } from '../QueryDescription'
-import type { TableName, TableSchema } from '../Schema'
 import { DirtyRaw } from '../RawRecord'
+import type { TableName, TableSchema } from '../Schema'
 
 import RecordCache from './RecordCache'
 
@@ -68,6 +68,8 @@ export default class Collection<Record extends Model> {
   // Don't use this unless you know how RawRecords work in WatermelonDB.
   // This is useful when you're adding online-only features to an otherwise offline-first app
   disposableFromDirtyRaw(dirtyRaw: DirtyRaw): Record
+
+  refreshCache(clauses: Clause[]): Promise<CollectionChangeSet<Record>>
 
   // *** Implementation details ***
 
