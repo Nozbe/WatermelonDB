@@ -69,6 +69,8 @@ export default class Collection<Record extends Model> {
   // This is useful when you're adding online-only features to an otherwise offline-first app
   disposableFromDirtyRaw(dirtyRaw: DirtyRaw): Record
 
+  refreshCache(clauses: Clause[]): Promise<CollectionChangeSet<Record>>
+
   // *** Implementation details ***
 
   get table(): TableName<Record>
