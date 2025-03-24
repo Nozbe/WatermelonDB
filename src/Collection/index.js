@@ -15,7 +15,7 @@ import type Database from '../Database'
 import type Model, { RecordId } from '../Model'
 import type { Clause } from '../QueryDescription'
 import { type TableName, type TableSchema } from '../Schema'
-import { type DirtyRaw } from '../RawRecord'
+import { type DirtyRaw, sanitizedRaw } from "../RawRecord";
 
 import RecordCache from './RecordCache'
 
@@ -201,8 +201,10 @@ export default class Collection<Record: Model> {
         const notifySubscribersOperations: CollectionChangeSet<Record> = [];
 
         results.value?.map(rawRecord => {
+          rawRecord = sanitizedRaw(rawRecord, this.schema)
           const record = this._cache.recordInsantiator(rawRecord)
 
+          this._cache.delete(record);
           updateCacheOperations.push({ record, type: "created"})
           notifySubscribersOperations.push({ record, type: record._raw._status })
         })
