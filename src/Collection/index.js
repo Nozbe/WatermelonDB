@@ -15,7 +15,7 @@ import type Database from '../Database'
 import type Model, { RecordId } from '../Model'
 import type { Clause } from '../QueryDescription'
 import { type TableName, type TableSchema } from '../Schema'
-import { type DirtyRaw, sanitizedRaw } from "../RawRecord";
+import { type DirtyRaw, sanitizedRaw } from '../RawRecord'
 
 import RecordCache from './RecordCache'
 
