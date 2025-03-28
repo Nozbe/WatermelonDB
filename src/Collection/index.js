@@ -205,8 +205,10 @@ export default class Collection<Record: Model> {
           const record = this._cache.recordInsantiator(rawRecord)
 
           this._cache.delete(record);
-          updateCacheOperations.push({ record, type: "created"})
-          notifySubscribersOperations.push({ record, type: record._raw._status })
+          updateCacheOperations.push({ record, type: 'created'})
+          if (record._raw._status === 'created' || record._raw._status === 'updated' || record._raw._status === 'destroyed') {
+            notifySubscribersOperations.push({ record, type: record._raw._status })
+          }
         })
 
         this._applyChangesToCache(updateCacheOperations)
