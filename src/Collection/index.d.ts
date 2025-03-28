@@ -1,16 +1,16 @@
 // @flow
-import type { ArrayOrSpreadFn } from '../utils/fp'
-import type { ResultCallback } from '../utils/fp/Result'
 import { Observable, Subject } from '../utils/rx'
+import type { ResultCallback } from '../utils/fp/Result'
+import type { ArrayOrSpreadFn } from '../utils/fp'
 import type { Unsubscribe } from '../utils/subscriptions'
 
+import Query from '../Query'
 import type Database from '../Database'
 import type Model from '../Model'
 import type { RecordId } from '../Model'
-import Query from '../Query'
 import type { Clause } from '../QueryDescription'
-import { DirtyRaw } from '../RawRecord'
 import type { TableName, TableSchema } from '../Schema'
+import { DirtyRaw } from '../RawRecord'
 
 import RecordCache from './RecordCache'
 
