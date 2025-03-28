@@ -11,6 +11,7 @@
 
 - Added `Database#experimentalIsVerbose` option
 - Support for React Native 0.74+
+- Added ability to refresh collection cache using results of query
 
 ### Fixes
 
