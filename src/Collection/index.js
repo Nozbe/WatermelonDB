@@ -197,16 +197,20 @@ export default class Collection<Record: Model> {
   refreshCache(clauses: Clause[]): Promise<CollectionChangeSet<Record>> {
     return new Promise<CollectionChangeSet<Record>>((resolve) => {
       this._unsafeFetchRaw(new Query(this, clauses), (results) => {
-        const updateCacheOperations: CollectionChangeSet<Record> = [];
-        const notifySubscribersOperations: CollectionChangeSet<Record> = [];
+        const updateCacheOperations: CollectionChangeSet<Record> = []
+        const notifySubscribersOperations: CollectionChangeSet<Record> = []
 
-        results.value?.map(rawRecord => {
+        results.value?.map((rawRecord) => {
           rawRecord = sanitizedRaw(rawRecord, this.schema)
           const record = this._cache.recordInsantiator(rawRecord)
 
-          this._cache.delete(record);
-          updateCacheOperations.push({ record, type: 'created'})
-          if (record._raw._status === 'created' || record._raw._status === 'updated' || record._raw._status === 'destroyed') {
+          this._cache.delete(record)
+          updateCacheOperations.push({ record, type: 'created' })
+          if (
+            record._raw._status === 'created' ||
+            record._raw._status === 'updated' ||
+            record._raw._status === 'destroyed'
+          ) {
             notifySubscribersOperations.push({ record, type: record._raw._status })
           }
         })
