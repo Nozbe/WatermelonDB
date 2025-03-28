@@ -1,16 +1,16 @@
 // @flow
-import { Observable, Subject } from '../utils/rx'
-import type { ResultCallback } from '../utils/fp/Result'
 import type { ArrayOrSpreadFn } from '../utils/fp'
+import type { ResultCallback } from '../utils/fp/Result'
+import { Observable, Subject } from '../utils/rx'
 import type { Unsubscribe } from '../utils/subscriptions'
 
-import Query from '../Query'
 import type Database from '../Database'
 import type Model from '../Model'
 import type { RecordId } from '../Model'
+import Query from '../Query'
 import type { Clause } from '../QueryDescription'
-import type { TableName, TableSchema } from '../Schema'
 import { DirtyRaw } from '../RawRecord'
+import type { TableName, TableSchema } from '../Schema'
 
 import RecordCache from './RecordCache'
 
@@ -69,6 +69,17 @@ export default class Collection<Record extends Model> {
   // This is useful when you're adding online-only features to an otherwise offline-first app
   disposableFromDirtyRaw(dirtyRaw: DirtyRaw): Record
 
+  /**
+   * Executes the provided query against the database and uses the results to
+   * refresh the internal cache.
+   *
+   * Note: This is only required when changes were made outside of WatermelonDB.
+   *
+   * Any observers of the affected data will be notified of the change.
+   *
+   * Returns a collection of modified records that were sent as notifications to
+   * subscribers.
+   */
   refreshCache(clauses: Clause[]): Promise<CollectionChangeSet<Record>>
 
   // *** Implementation details ***

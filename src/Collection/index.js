@@ -194,6 +194,17 @@ export default class Collection<Record: Model> {
     return this.modelClass._disposableFromDirtyRaw(this, dirtyRaw)
   }
 
+  /**
+   * Executes the provided query against the database and uses the results to
+   * refresh the internal cache.
+   *
+   * Note: This is only required when changes were made outside of WatermelonDB.
+   *
+   * Any observers of the affected data will be notified of the change.
+   *
+   * Returns a collection of modified records that were sent as notifications to
+   * subscribers.
+   */
   refreshCache(clauses: Clause[]): Promise<CollectionChangeSet<Record>> {
     return new Promise<CollectionChangeSet<Record>>((resolve) => {
       this._unsafeFetchRaw(new Query(this, clauses), (results) => {
