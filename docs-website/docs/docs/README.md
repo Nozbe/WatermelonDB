@@ -23,6 +23,10 @@ hide_title: true
   <a href="https://www.npmjs.com/package/@nozbe/watermelondb">
     <img src="https://img.shields.io/npm/v/@nozbe/watermelondb.svg" alt="npm"/>
   </a>
+
+  <a href="https://gurubase.io/g/watermelondb">
+    <img src="https://img.shields.io/badge/Gurubase-Ask%20WatermelonDB%20Guru-006BFF" alt="Gurubase"/>
+  </a>
 </p>
 
 |   | WatermelonDB |
@@ -35,7 +39,7 @@ hide_title: true
 | ⚛️ | **Optimized for React.** Easily plug data into components |
 | 🧰 | **Framework-agnostic.** Use JS API to plug into other UI frameworks |
 | ⏱ | **Fast.** And getting faster with every release! |
-| ✅ | **Proven.** Powers [Nozbe Teams](https://nozbe.com/teams) since 2017 (and [many others](#who-uses-watermelondb)) |
+| ✅ | **Proven.** Powers [Nozbe](https://nozbe.com/teams) since 2017 (and [many others](#who-uses-watermelondb)) |
 | ✨ | **Reactive.** (Optional) [RxJS](https://github.com/ReactiveX/rxjs) API |
 | 🔗 | **Relational.** Built on rock-solid [SQLite](https://www.sqlite.org) foundation |
 | ⚠️ | **Static typing** with [Flow](https://flow.org) or [TypeScript](https://typescriptlang.org) |
@@ -116,8 +120,8 @@ The result is fully reactive! Whenever a post or comment is added, changed, or r
 
 ## Who uses WatermelonDB
 
-  <a href="https://nozbe.com/teams/">
-    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/nozbe-teams.png" alt="Nozbe Teams" width="300" />
+  <a href="https://nozbe.com/?c=watermelon">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/nozbe.png" alt="Nozbe Teams" width="300" />
   </a>
 
   <br/>
