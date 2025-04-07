@@ -58,7 +58,7 @@ All React/React Native helpers for Watermelon are now available from a new `@noz
 - `DatabaseProvider`, `useDatabase`, `withDatabase`
 - NEW: `withObservables` - `@nozbe/with-observables` as a separate package is deprecated, and is now bundled with WatermelonDB
 - NEW: HOC helpers: `compose`, `withHooks`
-- NEW: `<WithObservables />` component, a component version of `withObservables` HOC. Useful when a value being observed is localized to a small part of a larger component, because you can effortlessly narrow down which parts of the component are re-rendered when the value changes without having to extract a new component.
+- NEW: `&lt;WithObservables />` component, a component version of `withObservables` HOC. Useful when a value being observed is localized to a small part of a larger component, because you can effortlessly narrow down which parts of the component are re-rendered when the value changes without having to extract a new component.
 
 Imports from previous `@nozbe/watermelondb/DatabaseProvider` and `@nozbe/watermelondb/hooks` folders are deprecated and will be removed in a future version.
 
@@ -76,7 +76,7 @@ All debug/dev/diagnostics tools for Watermelon are now available from a new `@no
 
 Changes unlikely to cause issues:
 
-- [iOS] If `import WatermelonDB` is used in your Swift app (for Turbo sync), remove it and replace with `#import <WatermelonDB/WatermelonDB.h>` in the bridging header
+- [iOS] If `import WatermelonDB` is used in your Swift app (for Turbo sync), remove it and replace with `#import &lt;WatermelonDB/WatermelonDB.h>` in the bridging header
 - [iOS] If you use `_watermelonDBLoggingHook`, remove it. No replacement is provided at this time, feel free to contribute if you need this
 - [iOS] If you use `-DENABLE_JSLOCK_PERFORMANCE_HACK`, remove it. JSLockPerfHack has been non-functional for some time already, and has now been removed. Please file an issue if you relied on it.
 
@@ -257,7 +257,7 @@ help to do this! See: https://github.com/Nozbe/WatermelonDB/issues/1481
 ### Fixes
 
 - [TypeScript] Improve typings: add unsafeExecute method, localStorage property to Database
-- [android] Fixed compilation on some setups due to a missing `<cassert>` import
+- [android] Fixed compilation on some setups due to a missing `&lt;cassert>` import
 - [sync] Fixed marking changes as synced for users that don't keep globally unique (only per-table unique) IDs
 - Fix `Model.experimentalMarkAsDeleted/experimentalDestroyPermanently()` throwing an error in some cases
 - Fixes included in updated `withObservables`
@@ -414,7 +414,7 @@ Please don't get scared off the long list of breaking changes - they are all eit
 - [adapters] `onSetUpError: Error => void` option is added to both `SQLiteAdapter` and `LokiJSAdapter`. Supply this option to catch initialization errors and offer the user to reload or log out
 - [LokiJS] new `extraLokiOptions` and `extraIncrementalIDBOptions` options
 - [Android] Autolinking is now supported.
-  - If You upgrade to `<= v0.21.0` **AND** are on a version of React Native which supports Autolinking, you will need to remove the config manually linking WatermelonDB.
+  - If You upgrade to `&lt;= v0.21.0` **AND** are on a version of React Native which supports Autolinking, you will need to remove the config manually linking WatermelonDB.
   - You can resolve this issue by **REMOVING** the lines of config from your project which are _added_ in the `Manual Install ONLY` section of the [Android Install docs](https://nozbe.github.io/WatermelonDB/Installation.html#android-react-native).
 
 ### Performance
@@ -733,7 +733,7 @@ This is a **massive** new update to WatermelonDB! 🍉
 - [withObservables] Improved performance and debuggability (update withObservables package separately)
 - Improved debuggability of Watermelon -- shortened Rx stacks and added function names to aid in understanding
   call stacks and profiles
-- [adapters] The adapters interface has changed. `query()` and `count()` methods now receive a `SerializedQuery`, and `batch()` now takes `TableName<any>` and `RawRecord` or `RecordId` instead of `Model`.
+- [adapters] The adapters interface has changed. `query()` and `count()` methods now receive a `SerializedQuery`, and `batch()` now takes `TableName&lt;any>` and `RawRecord` or `RecordId` instead of `Model`.
 - [Typescript] Typing improvements
   - Added 3 missing properties `collections`, `database` and `asModel` in Model type definition.
   - Removed optional flag on `actionsEnabled` in the Database constructor options since its mandatory since 0.13.0.
@@ -890,13 +890,13 @@ Hotfix for rambdax crash
 ### Changes
 
 - [Android] Changed `compile` to `implementation` in Library Gradle file
-  - ⚠️ might break build if you are using Android Gradle Plugin <3.X
+  - ⚠️ might break build if you are using Android Gradle Plugin &lt;3.X
 - Updated `peerDependency` `react-native` to `0.57.0`
 - [Sync] Added `hasUnsyncedChanges()` helper method
 - [Sync] Improved documentation for backends that can't distinguish between `created` and `updated` records
 - [Sync] Improved diagnostics / protection against edge cases
 - [iOS] Add missing `header search path` to support **ejected** expo project.
-- [Android] Fix crash on android < 5.0
+- [Android] Fix crash on android &lt; 5.0
 - [iOS] `SQLiteAdapter`'s `dbName` path now allows you to pass an absolute path to a file, instead of a name
 - [Web] Add adaptive layout for demo example with smooth scrolling for iOS
 
