@@ -890,7 +890,7 @@ Hotfix for rambdax crash
 ### Changes
 
 - [Android] Changed `compile` to `implementation` in Library Gradle file
-  - ⚠️ might break build if you are using Android Gradle Plugin <3.X
+  - ⚠️ might break build if you are using Android Gradle Plugin &lt;3.X
 - Updated `peerDependency` `react-native` to `0.57.0`
 - [Sync] Added `hasUnsyncedChanges()` helper method
 - [Sync] Improved documentation for backends that can't distinguish between `created` and `updated` records
