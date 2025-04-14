@@ -174,6 +174,10 @@ class DatabaseDriver(context: Context, dbName: String) {
     fun copyTables(tables: ReadableArray, srcDB: String) {
         // Attach the source database
         database.execute("ATTACH DATABASE '${srcDB}' as 'other'")
+
+        // We need to make sure we do not copy the __watermelon_last_pulled_schema_version entry
+        // from local_storage table to avoid migration issues
+        database.execute("DELETE FROM local_storage WHERE key = '__watermelon_last_pulled_schema_version'")
     
         database.transaction {
             for (i in 0 until tables.size()) {

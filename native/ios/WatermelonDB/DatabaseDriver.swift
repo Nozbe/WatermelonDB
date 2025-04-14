@@ -113,7 +113,11 @@ class DatabaseDriver {
     func copyTables(_ tables: [String], srcDB: String) throws {
         // Attach the source database
         try database.execute("ATTACH DATABASE '\(srcDB)' as 'other'")
-        
+
+        // We need to make sure we do not copy the __watermelon_last_pulled_schema_version entry
+        // from local_storage table to avoid migration issues
+        try database.execute("DELETE FROM local_storage WHERE key = '__watermelon_last_pulled_schema_version'")
+                     
          try database.inTransaction {
              for table in tables {
                 // Get the list of columns in the destination database
@@ -129,7 +133,7 @@ class DatabaseDriver {
                  
                 // Convert the set of common columns into a comma-separated string
                 let columnsString = escapedColumns.joined(separator: ", ")
-                
+
                 if !commonColumns.isEmpty {
                     // Perform the data import using the common columns
                     let sql = """
