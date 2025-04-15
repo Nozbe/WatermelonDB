@@ -11,7 +11,7 @@ jobs:
     name: JavaScript tests
     strategy:
       matrix:
-        node-version: ['18.x', '20.x', '22.x']
+        node-version: ['18.x', '20.x', '22.x', '23.x']
     steps:
       - uses: actions/checkout@v3
       - name: Set Node.js version
@@ -29,7 +29,7 @@ jobs:
       - name: Check docs build
         run: cd docs-website && yarn install && cd .. && yarn docs:build
   ios:
-    runs-on: macos-14
+    runs-on: macos-15
     name: iOS tests
     steps:
       - uses: actions/checkout@v3
@@ -40,7 +40,7 @@ jobs:
       - name: Set Xcode version
         uses: maxim-lobanov/setup-xcode@v1.2.1
         with:
-          xcode-version: 16.1
+          xcode-version: 16.2
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1
       - name: cache node_modules

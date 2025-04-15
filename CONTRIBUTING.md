@@ -1,8 +1,3 @@
----
-title: Contributing
-hide_title: true
----
-
 <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/needyou.jpg" alt="We need you" width="220" />
 
 **WatermelonDB is an open-source project and it needs your help to thrive!**
