@@ -318,7 +318,7 @@ class DatabaseBridge(private val reactContext: ReactApplicationContext) :
                 }
             }
         } catch (e: SQLException) {
-            promise.reject(functionName, e)
+            promise.reject(functionName ?: "UnknownFunction", e)
         } finally {
             Trace.endSection()
         }
