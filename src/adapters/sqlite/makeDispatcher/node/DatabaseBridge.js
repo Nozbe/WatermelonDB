@@ -2,16 +2,16 @@
 
 import DatabaseDriver from './DatabaseDriver'
 
-let SQLiteEventEmitter;
+let SQLiteEventEmitter
 
 if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
   // Running in React Native
-  const { NativeEventEmitter } = require('react-native');
-  SQLiteEventEmitter = new NativeEventEmitter('DatabaseBridge');
+  const { NativeEventEmitter } = require('react-native')
+  SQLiteEventEmitter = new NativeEventEmitter('DatabaseBridge')
 } else {
   // Running in Node.js
-  const EventEmitter = require('events');
-  SQLiteEventEmitter = new EventEmitter();
+  const EventEmitter = require('events')
+  SQLiteEventEmitter = new EventEmitter()
 }
 
 type Connection = {
@@ -25,43 +25,43 @@ class DatabaseBridge {
   connections: { [key: number]: Connection } = {}
 
   constructor() {
-    this.affectedTables = new Set();
-    this.batchTimer = null;
-    this.batchInterval = 100; // milliseconds
+    this.affectedTables = new Set()
+    this.batchTimer = null
+    this.batchInterval = 100 // milliseconds
   }
 
   sqliteUpdateHook(tableName) {
-    this.bufferTableName(tableName);
-    this.resetBatchTimer();
+    this.bufferTableName(tableName)
+    this.resetBatchTimer()
   }
 
   bufferTableName(tableName) {
     // Add the table name to the set of affected tables (duplicates are ignored)
-    this.affectedTables.add(tableName);
+    this.affectedTables.add(tableName)
   }
 
   resetBatchTimer() {
     if (this.batchTimer) {
-      clearTimeout(this.batchTimer); // Cancel the existing timer if it's running
+      clearTimeout(this.batchTimer) // Cancel the existing timer if it's running
     }
 
     this.batchTimer = setTimeout(() => {
-      this.emitAffectedTables();
-    }, this.batchInterval);
+      this.emitAffectedTables()
+    }, this.batchInterval)
   }
 
   emitAffectedTables() {
     if (this.affectedTables.size > 0) {
-      const params = Array.from(this.affectedTables); // Convert Set to Array
+      const params = Array.from(this.affectedTables) // Convert Set to Array
 
       // Emit event with affected tables
-      SQLiteEventEmitter.emit('SQLITE_UPDATE_HOOK', params);
+      SQLiteEventEmitter.emit('SQLITE_UPDATE_HOOK', params)
 
-      this.affectedTables.clear(); // Clear the buffer after emitting
+      this.affectedTables.clear() // Clear the buffer after emitting
     }
 
-    clearTimeout(this.batchTimer); // Cancel the timer
-    this.batchTimer = null;
+    clearTimeout(this.batchTimer) // Cancel the timer
+    this.batchTimer = null
   }
 
   // MARK: - Asynchronous connections
@@ -236,10 +236,14 @@ class DatabaseBridge {
       driver.batch(this.toBatchOperations(operations)),
     )
 
-  copyTables = (tag: number, tables: string[], srcDB: string, resolve: any => void, reject: string => void) =>
-    this.withDriver(tag, resolve, reject, 'copyTables', driver =>
-      driver.copyTables(tables, srcDB),
-    )
+  copyTables = (
+    tag: number,
+    tables: string[],
+    srcDB: string,
+    resolve: any => void,
+    reject: string => void,
+  ) =>
+    this.withDriver(tag, resolve, reject, 'copyTables', driver => driver.copyTables(tables, srcDB))
 
   getDeletedRecords = (tag: number, table: string, resolve: any => void, reject: string => void) =>
     this.withDriver(tag, resolve, reject, 'getDeletedRecords', driver =>
@@ -268,12 +272,7 @@ class DatabaseBridge {
       driver.unsafeResetDatabase({ version: schemaVersion, sql: schema }),
     )
 
-
-  obliterateDatabase = (
-    tag: Number,
-    resolve: any => void,
-    reject: string => void,
-  ) =>
+  obliterateDatabase = (tag: Number, resolve: any => void, reject: string => void) =>
     this.withDriver(tag, resolve, reject, 'obliterateDatabase', driver =>
       driver.obliterateDatabase(),
     )
@@ -301,21 +300,19 @@ class DatabaseBridge {
     resolve: any => void,
     reject: string => void,
   ) =>
-    this.withDriver(tag, resolve, reject, 'execSqlQuery', driver => driver.execSqlQuery(query, params))
+    this.withDriver(tag, resolve, reject, 'execSqlQuery', driver =>
+      driver.execSqlQuery(query, params),
+    )
 
-  enableNativeCDC = (
-    tag: number,
-    resolve: any => void,
-    reject: string => void
-  ) =>
-    this.withDriver(tag, resolve, reject, 'enableNativeCDC', driver => driver.setUpdateHook(this.sqliteUpdateHook))
+  enableNativeCDC = (tag: number, resolve: any => void, reject: string => void) =>
+    this.withDriver(tag, resolve, reject, 'enableNativeCDC', driver =>
+      driver.setUpdateHook(this.sqliteUpdateHook),
+    )
 
-  execSqlQuerySynchronous = (
-    tag: number,
-    query: string,
-    params: [any],
-  ): any =>
-    this.withDriverSynchronous(tag, 'execSqlQuerySynchronous', driver => driver.execSqlQuery(query, params))
+  execSqlQuerySynchronous = (tag: number, query: string, params: [any]): any =>
+    this.withDriverSynchronous(tag, 'execSqlQuerySynchronous', driver =>
+      driver.execSqlQuery(query, params),
+    )
 
   findSynchronous = (tag: number, table: string, id: string): any =>
     this.withDriverSynchronous(tag, 'findSynchronous', driver => driver.find(table, id))
@@ -340,9 +337,7 @@ class DatabaseBridge {
     )
 
   copyTablesSynchronous = (tag: number, tables: string[], srcDB: string) =>
-    this.withDriverSynchronous(tag, 'copyTables', driver =>
-      driver.copyTables(tables, srcDB),
-    )
+    this.withDriverSynchronous(tag, 'copyTables', driver => driver.copyTables(tables, srcDB))
 
   getDeletedRecordsSynchronous = (tag: number, table: string): any =>
     this.withDriverSynchronous(tag, 'getDeletedRecordsSynchronous', driver =>
@@ -373,8 +368,10 @@ class DatabaseBridge {
   removeLocalSynchronous = (tag: number, key: string): any =>
     this.withDriverSynchronous(tag, 'removeLocalSynchronous', driver => driver.removeLocal(key))
 
-  enableNativeSynchronous = (tag: number) =>
-    this.withDriverSynchronous(tag, 'enableNativeCDC', driver => driver.setUpdateHook(this.sqliteUpdateHook))
+  enableNativeCDCSynchronous = (tag: number) =>
+    this.withDriverSynchronous(tag, 'enableNativeCDC', driver =>
+      driver.setUpdateHook(this.sqliteUpdateHook),
+    )
 
   // MARK: - Helpers
 
