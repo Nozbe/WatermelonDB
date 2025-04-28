@@ -33,7 +33,7 @@ const dispatcherMethods = [
   'removeLocal',
   'obliterateDatabase',
   'execSqlQuery',
-  'enableNativeCDC'
+  'enableNativeCDC',
 ]
 
 export const makeDispatcher = (
@@ -85,3 +85,31 @@ export function getDispatcherType(options: SQLiteAdapterOptions): DispatcherType
 
   return 'asynchronous'
 }
+
+class NodeEventEmitter {
+  constructor() {
+    this.listeners = []
+  }
+
+  addListener(event, callback) {
+    this.listeners.push(callback)
+  }
+
+  removeAllListeners(event) {
+    this.listeners = []
+  }
+
+  removeSubscription(subscription) {
+    this.listeners = this.listeners.filter(listener => listener !== subscription)
+  }
+
+  emit(event, ...args) {
+    this.listeners.forEach(listener => listener(event, ...args))
+  }
+}
+
+export const EventType = {
+  CDC: 'SQLITE_UPDATE_HOOK',
+}
+
+export const WatermleonDBEvents = new NodeEventEmitter()

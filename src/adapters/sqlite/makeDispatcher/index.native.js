@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable global-require */
 
-import { NativeModules } from 'react-native'
+import { NativeEventEmitter, NativeModules } from 'react-native'
 import { fromPairs } from 'rambdax'
 
 import { type ConnectionTag, logger, invariant } from '../../../utils/common'
@@ -38,7 +38,7 @@ const dispatcherMethods = [
   'setLocal',
   'removeLocal',
   'execSqlQuery',
-  'enableNativeCDC'
+  'enableNativeCDC',
 ]
 
 const supportedHybridJSIMethods = new Set(['query', 'execSqlQuery'])
@@ -86,10 +86,12 @@ export const makeDispatcher = (
           try {
             const returnValue = global.WatermelonDB[methodName](tag, ...otherArgs)
 
-            callback(syncReturnToResult({
-              status: 'success',
-              result: returnValue
-            }))
+            callback(
+              syncReturnToResult({
+                status: 'success',
+                result: returnValue,
+              }),
+            )
           } catch (error) {
             callback({ error })
           }
@@ -157,3 +159,9 @@ export function getDispatcherType(options: SQLiteAdapterOptions): DispatcherType
 
   return 'asynchronous'
 }
+
+export const EventType = {
+  CDC: 'SQLITE_UPDATE_HOOK',
+}
+
+export const WatermelonDBEvents = new NativeEventEmitter(DatabaseBridge)
