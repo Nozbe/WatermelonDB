@@ -112,4 +112,4 @@ export const EventType = {
   CDC: 'SQLITE_UPDATE_HOOK',
 }
 
-export const WatermelonDBEvents = new NativeEventEmitter(DatabaseBridge)
+export const WatermelonDBEvents = new NodeEventEmitter(DatabaseBridge)
