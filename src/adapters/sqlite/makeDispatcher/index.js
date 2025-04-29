@@ -86,30 +86,10 @@ export function getDispatcherType(options: SQLiteAdapterOptions): DispatcherType
   return 'asynchronous'
 }
 
-class NodeEventEmitter {
-  constructor() {
-    this.listeners = []
-  }
-
-  addListener(event, callback) {
-    this.listeners.push(callback)
-  }
-
-  removeAllListeners(event) {
-    this.listeners = []
-  }
-
-  removeSubscription(subscription) {
-    this.listeners = this.listeners.filter(listener => listener !== subscription)
-  }
-
-  emit(event, ...args) {
-    this.listeners.forEach(listener => listener(event, ...args))
-  }
-}
-
 export const EventType = {
   CDC: 'SQLITE_UPDATE_HOOK',
 }
 
-export const WatermelonDBEvents = new NodeEventEmitter(DatabaseBridge)
+const EventEmitter = require('events')
+
+export const WatermelonDBEvents = new EventEmitter()

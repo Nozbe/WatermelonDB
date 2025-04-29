@@ -1,5 +1,6 @@
 // @flow
 
+import { WatermelonDBEvents } from '..'
 import DatabaseDriver from './DatabaseDriver'
 
 let SQLiteEventEmitter
@@ -10,8 +11,7 @@ if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
   SQLiteEventEmitter = new NativeEventEmitter('DatabaseBridge')
 } else {
   // Running in Node.js
-  const EventEmitter = require('events')
-  SQLiteEventEmitter = new EventEmitter()
+  SQLiteEventEmitter = WatermelonDBEvents
 }
 
 type Connection = {
