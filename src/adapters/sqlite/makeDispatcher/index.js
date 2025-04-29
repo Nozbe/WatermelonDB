@@ -92,4 +92,19 @@ export const EventType = {
 
 const EventEmitter = require('events')
 
-export const WatermelonDBEvents = new EventEmitter()
+class NativeEventEmitter extends EventEmitter {
+  constructor() {
+    super()
+  }
+
+  addListener(event, callback) {
+    this._event = event
+    this.emitter.addListener(event, callback)
+  }
+
+  remove() {
+    this.emitter.removeListener(this._event, this.listener)
+  }
+}
+
+export const WatermelonDBEvents = new NativeEventEmitter()
