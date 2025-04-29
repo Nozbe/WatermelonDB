@@ -5,11 +5,12 @@ import { fromPairs } from 'rambdax'
 
 import DatabaseBridge from './node/DatabaseBridge'
 
-import { type ConnectionTag, logger } from '../../../utils/common'
+import { logger } from '../../../utils/common'
 
 import { fromPromise } from '../../../utils/fp/Result'
 
-import type { DispatcherType, SQLiteAdapterOptions, NativeDispatcher } from '../type'
+// Comment out type import instead of removing it completely
+// import type { DispatcherType, SQLiteAdapterOptions, NativeDispatcher } from '../type'
 
 import { syncReturnToResult } from '../common'
 
@@ -36,11 +37,7 @@ const dispatcherMethods = [
   'enableNativeCDC',
 ]
 
-export const makeDispatcher = (
-  type: DispatcherType,
-  tag: ConnectionTag,
-  _dbName: string,
-): NativeDispatcher => {
+export const makeDispatcher = (type, tag, _dbName) => {
   const methods = dispatcherMethods.map(methodName => {
     const name = type === 'synchronous' ? `${methodName}Synchronous` : methodName
 
@@ -48,7 +45,7 @@ export const makeDispatcher = (
       methodName,
       (...args) => {
         // $FlowFixMe
-        const callback: any => void = args[args.length - 1]
+        const callback = args[args.length - 1]
         const otherArgs = args.slice(0, -1)
 
         if (type === 'synchronous') {
@@ -72,7 +69,7 @@ export const makeDispatcher = (
   return dispatcher
 }
 
-export function getDispatcherType(options: SQLiteAdapterOptions): DispatcherType {
+export function getDispatcherType(options) {
   if (options.synchronous) {
     if (DatabaseBridge.initializeSynchronous) {
       return 'synchronous'
@@ -90,8 +87,10 @@ export const EventType = {
   CDC: 'SQLITE_UPDATE_HOOK',
 }
 
+// Use require to avoid transpilation issues
 const EventEmitter = require('events')
 
+// Create the native event emitter class
 class NativeEventEmitter extends EventEmitter {
   constructor() {
     super()
@@ -101,6 +100,7 @@ class NativeEventEmitter extends EventEmitter {
     super.addListener(event, callback)
     this._event = event
     this.listener = callback
+    return this
   }
 
   remove() {
@@ -108,4 +108,6 @@ class NativeEventEmitter extends EventEmitter {
   }
 }
 
-export const WatermelonDBEvents = new NativeEventEmitter()
+// Create and export the events instance - ensure it's initialized before export
+const watermelonEvents = new NativeEventEmitter()
+export const WatermelonDBEvents = watermelonEvents

@@ -3,14 +3,26 @@
 import { WatermelonDBEvents } from '..'
 import DatabaseDriver from './DatabaseDriver'
 
+// Initialize SQLiteEventEmitter safely
 let SQLiteEventEmitter
 
+// In React Native environment
 if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-  // Running in React Native
-  const { NativeEventEmitter } = require('react-native')
-  SQLiteEventEmitter = new NativeEventEmitter('DatabaseBridge')
+  try {
+    const { NativeEventEmitter } = require('react-native')
+    SQLiteEventEmitter = new NativeEventEmitter('DatabaseBridge')
+  } catch (e) {
+    console.error('Failed to initialize React Native event emitter:', e)
+    SQLiteEventEmitter = WatermelonDBEvents
+  }
 } else {
-  // Running in Node.js
+  // In Node.js environment
+  SQLiteEventEmitter = WatermelonDBEvents
+}
+
+// Ensure SQLiteEventEmitter is never undefined
+if (!SQLiteEventEmitter || typeof SQLiteEventEmitter.emit !== 'function') {
+  console.warn('SQLiteEventEmitter not properly initialized, falling back to WatermelonDBEvents')
   SQLiteEventEmitter = WatermelonDBEvents
 }
 
