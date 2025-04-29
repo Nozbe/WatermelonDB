@@ -28,6 +28,7 @@ class DatabaseBridge {
     this.affectedTables = new Set()
     this.batchTimer = null
     this.batchInterval = 100 // milliseconds
+    this.sqliteUpdateHook = this.sqliteUpdateHook.bind(this)
   }
 
   sqliteUpdateHook(tableName) {
@@ -306,7 +307,7 @@ class DatabaseBridge {
 
   enableNativeCDC = (tag: number, resolve: any => void, reject: string => void) =>
     this.withDriver(tag, resolve, reject, 'enableNativeCDC', driver =>
-      driver.setUpdateHook(this.sqliteUpdateHook),
+      driver.setUpdateHook(this.sqliteUpdateHook.bind(this)),
     )
 
   execSqlQuerySynchronous = (tag: number, query: string, params: [any]): any =>
@@ -370,7 +371,7 @@ class DatabaseBridge {
 
   enableNativeCDCSynchronous = (tag: number) =>
     this.withDriverSynchronous(tag, 'enableNativeCDC', driver =>
-      driver.setUpdateHook(this.sqliteUpdateHook),
+      driver.setUpdateHook(this.sqliteUpdateHook.bind(this)),
     )
 
   // MARK: - Helpers
