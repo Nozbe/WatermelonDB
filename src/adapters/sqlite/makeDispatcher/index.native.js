@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable global-require */
 
-import { NativeEventEmitter, NativeModules } from 'react-native'
+import { NativeModules } from 'react-native'
 import { fromPairs } from 'rambdax'
 
 import { type ConnectionTag, logger, invariant } from '../../../utils/common'
@@ -159,9 +159,3 @@ export function getDispatcherType(options: SQLiteAdapterOptions): DispatcherType
 
   return 'asynchronous'
 }
-
-export const EventType = {
-  CDC: 'SQLITE_UPDATE_HOOK',
-}
-
-export const WatermelonDBEvents = new NativeEventEmitter(DatabaseBridge)
