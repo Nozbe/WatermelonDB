@@ -139,27 +139,49 @@ class Database {
     return this.instance.memory
   }
 
-  setUpdateHook = (updateHook) => {
-    this.instance.function('cdc', { deterministic: true, varargs: true }, updateHook);
+  setUpdateHook = updateHook => {
+    this.instance.function('cdc', { deterministic: true, varargs: true }, updateHook)
 
     // Query to get all table names in the database
-    const tables = this.instance.prepare(`
+    const tables = this.instance
+      .prepare(
+        `
     SELECT name FROM sqlite_master 
     WHERE type = 'table' AND name NOT LIKE 'sqlite_%';
-  `).all();
+  `,
+      )
+      .all()
 
     // Create a trigger for each table
     tables.forEach(({ name: tableName }) => {
-      const triggerSQL = `
-      CREATE TRIGGER IF NOT EXISTS updateHook_${tableName}
-      AFTER UPDATE ON ${tableName}
-      BEGIN
-        SELECT cdc('${tableName}');
-      END;
-    `;
+      const updateTriggerSQL = `
+        CREATE TRIGGER IF NOT EXISTS updateHook_${tableName}
+        AFTER UPDATE ON ${tableName}
+        BEGIN
+          SELECT cdc('${tableName}');
+        END;
+      `
 
-      this.instance.prepare(triggerSQL).run();
-    });
+      const insertTriggerSQL = `
+        CREATE TRIGGER IF NOT EXISTS insertHook_${tableName}
+        AFTER INSERT ON ${tableName}
+        BEGIN
+          SELECT cdc('${tableName}');
+        END;
+      `
+
+      const deleteTriggerSQL = `
+        CREATE TRIGGER IF NOT EXISTS deleteHook_${tableName}
+        AFTER DELETE ON ${tableName}
+        BEGIN
+          SELECT cdc('${tableName}');
+        END;
+      `
+
+      this.instance.prepare(updateTriggerSQL).run()
+      this.instance.prepare(insertTriggerSQL).run()
+      this.instance.prepare(deleteTriggerSQL).run()
+    })
   }
 }
 
