@@ -98,12 +98,13 @@ class NativeEventEmitter extends EventEmitter {
   }
 
   addListener(event, callback) {
+    super.addListener(event, callback)
     this._event = event
-    this.emitter.addListener(event, callback)
+    this.listener = callback
   }
 
   remove() {
-    this.emitter.removeListener(this._event, this.listener)
+    super.removeListener(this._event, this.listener)
   }
 }
 
