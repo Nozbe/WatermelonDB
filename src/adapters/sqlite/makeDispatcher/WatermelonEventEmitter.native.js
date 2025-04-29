@@ -1,4 +1,6 @@
-import { NativeEventEmitter } from 'react-native'
+import { NativeEventEmitter, NativeModules } from 'react-native'
+
+const { DatabaseBridge } = NativeModules
 
 export const EventType = {
   CDC: 'SQLITE_UPDATE_HOOK',
