@@ -31,9 +31,12 @@ const encodeCreateTable: TableSchema => SQL = ({ name, columns }) => {
 const encodeCreateFTS5Table: FTS5TableSchema => SQL = ({ name, columns, contentTable }) => {
   const columnsSQL = columns.map(column => encodeName(column)).join(', ')
 
-  return `create virtual table ${encodeName(
-    name,
-  )} using fts5(id, ${columnsSQL}, content=${encodeName(contentTable)}, prefix ='2 3 4');`
+  return `
+    create virtual table ${encodeName(
+      name,
+    )} using fts5(id, ${columnsSQL}, content='', prefix ='2 3 4');
+    insert or replace into ${name} (rowid, id, ${columnsSQL}) select rowid, id, ${columnsSQL} from ${contentTable};
+  `
 }
 
 const encodeFTS5SyncProcedures = ({ name, columns, contentTable }) => {
