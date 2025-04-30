@@ -43,7 +43,9 @@ const encodeFTS5SyncProcedures = ({ name, columns, contentTable }) => {
 
   return `
     create trigger ${encodeName(`${name}_ai`)} after insert on ${encodeName(contentTable)} begin
-      insert into ${encodeName(name)} (id, ${columnsSQL}) values (new.id, ${newColumnsSQL});
+      insert into ${encodeName(
+        name,
+      )} (rowid, id, ${columnsSQL}) values (new.rowid, new.id, ${newColumnsSQL});
     end;
 
     create trigger ${encodeName(`${name}_ad`)} after delete on ${encodeName(contentTable)} begin
@@ -51,7 +53,9 @@ const encodeFTS5SyncProcedures = ({ name, columns, contentTable }) => {
     end;
 
     create trigger ${encodeName(`${name}_au`)} after update on ${encodeName(contentTable)} begin
-      insert into ${encodeName(name)} (id, ${columnsSQL}) values (new.id, ${newColumnsSQL});
+      insert into ${encodeName(
+        name,
+      )} (rowid, id, ${columnsSQL}) values (new.rowid, new.id, ${newColumnsSQL});
     end;
   `
 }
