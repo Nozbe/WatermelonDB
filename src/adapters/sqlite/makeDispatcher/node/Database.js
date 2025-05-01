@@ -149,11 +149,8 @@ class Database {
     SELECT name FROM sqlite_master 
     WHERE type = 'table' 
     AND name NOT LIKE 'sqlite_%' 
-    AND (sql IS NULL OR sql NOT LIKE '%VIRTUAL%')
-    AND (sql IS NULL OR sql NOT LIKE '%virtual%')
-    AND (sql IS NULL OR sql NOT LIKE '%WITHOUT ROWID%')
-    AND name NOT LIKE '%_data'
-    AND name NOT LIKE '%_docsize';
+    AND sql NOT LIKE '%VIRTUAL%'
+    AND sql NOT LIKE '%virtual%';
   `,
       )
       .all()
