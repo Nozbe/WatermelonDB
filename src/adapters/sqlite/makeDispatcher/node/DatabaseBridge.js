@@ -1,6 +1,6 @@
 // @flow
 
-import { WatermelonDBEvents } from '../WatermelonEventEmitter.native'
+import { WatermelonDBEvents } from '../WatermelonEventEmitter'
 import DatabaseDriver from './DatabaseDriver'
 
 // Initialize SQLiteEventEmitter safely

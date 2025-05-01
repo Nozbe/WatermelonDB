@@ -1,8 +1,5 @@
 const EventEmitter = require('events')
-
-const EventType = {
-  CDC: 'SQLITE_UPDATE_HOOK',
-}
+const EventType = require('./EventTypes')
 
 class NativeEventEmitter extends EventEmitter {
   constructor() {
