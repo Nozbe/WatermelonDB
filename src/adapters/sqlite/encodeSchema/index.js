@@ -44,19 +44,23 @@ const encodeFTS5SyncProcedures = ({ name, columns, contentTable }) => {
 
   const newColumnsSQL = columns.map(column => `new.${encodeName(column)}`).join(', ')
 
-  return `create trigger ${encodeName(`${name}_ai`)} after insert on ${encodeName(
-    contentTable,
-  )} begin insert or replace into ${encodeName(
-    name,
-  )} (rowid, id, ${columnsSQL}) values (new.rowid, new.id, ${newColumnsSQL}); end; create trigger ${encodeName(
-    `${name}_ad`,
-  )} after delete on ${encodeName(contentTable)} begin delete from ${encodeName(
-    name,
-  )} where id = old.id; end; create trigger ${encodeName(
-    `${name}_au`,
-  )} after update on ${encodeName(contentTable)} begin insert or replace into ${encodeName(
-    name,
-  )} (rowid, id, ${columnsSQL}) values (new.rowid, new.id, ${newColumnsSQL}); end;`
+  return `
+    create trigger ${encodeName(`${name}_ai`)} after insert on ${encodeName(contentTable)} begin
+      insert or replace into ${encodeName(
+        name,
+      )} (rowid, id, ${columnsSQL}) values (new.rowid, new.id, ${newColumnsSQL});
+    end;
+
+    create trigger ${encodeName(`${name}_ad`)} after delete on ${encodeName(contentTable)} begin
+      delete from ${encodeName(name)} where id = old.id;
+    end;
+
+    create trigger ${encodeName(`${name}_au`)} after update on ${encodeName(contentTable)} begin
+      insert or replace into ${encodeName(
+        name,
+      )} (rowid, id, ${columnsSQL}) values (new.rowid, new.id, ${newColumnsSQL});
+    end;
+  `
 }
 
 const encodeDropFTS5Table: FTS5TableSchema => SQL = ({ name }) =>
@@ -71,7 +75,11 @@ const encodeDropFTS5SyncProcedures = ({ name }) => {
 }
 
 const encodeFTS5Table: FTS5TableSchema => SQL = tableSchema =>
-  encodeCreateFTS5Table(tableSchema) + encodeFTS5SyncProcedures(tableSchema)
+  encodeCreateFTS5Table(tableSchema) +
+  encodeFTS5SyncProcedures(tableSchema)
+    .replaceAll(/[\r\n\t]/g, '')
+    .replaceAll(/\s{2,}/g, ' ')
+    .replaceAll(/;\s*/gm, ';')
 
 const encodeIndex: (ColumnSchema, TableName<any>) => SQL = (column, tableName) =>
   column.isIndexed
