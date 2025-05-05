@@ -44,19 +44,23 @@ const encodeFTS5SyncProcedures = ({ name, columns, contentTable }) => {
 
   const newColumnsSQL = columns.map(column => `new.${encodeName(column)}`).join(', ')
 
-  return `create trigger ${encodeName(`${name}_ai`)} after insert on ${encodeName(
-    contentTable,
-  )} begin insert or replace into ${encodeName(
-    name,
-  )} (rowid, id, ${columnsSQL}) values (new.rowid, new.id, ${newColumnsSQL}); end; create trigger ${encodeName(
-    `${name}_ad`,
-  )} after delete on ${encodeName(contentTable)} begin delete from ${encodeName(
-    name,
-  )} where id = old.id; end; create trigger ${encodeName(
-    `${name}_au`,
-  )} after update on ${encodeName(contentTable)} begin insert or replace into ${encodeName(
-    name,
-  )} (rowid, id, ${columnsSQL}) values (new.rowid, new.id, ${newColumnsSQL}); end;`
+  return `
+    create trigger ${encodeName(`${name}_ai`)} after insert on ${encodeName(contentTable)} begin
+      insert or replace into ${encodeName(
+        name,
+      )} (rowid, id, ${columnsSQL}) values (new.rowid, new.id, ${newColumnsSQL});
+    end;
+
+    create trigger ${encodeName(`${name}_ad`)} after delete on ${encodeName(contentTable)} begin
+      delete from ${encodeName(name)} where id = old.id;
+    end;
+
+    create trigger ${encodeName(`${name}_au`)} after update on ${encodeName(contentTable)} begin
+      insert or replace into ${encodeName(
+        name,
+      )} (rowid, id, ${columnsSQL}) values (new.rowid, new.id, ${newColumnsSQL});
+    end;
+  `
 }
 
 const encodeDropFTS5Table: FTS5TableSchema => SQL = ({ name }) =>
