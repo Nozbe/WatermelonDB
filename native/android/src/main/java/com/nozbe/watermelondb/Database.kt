@@ -100,9 +100,15 @@ class Database(private val name: String, private val context: Context) {
         transaction {
             // NOTE: This must NEVER be allowed to take user input - split by `;` is not grammer-aware
             // and so is unsafe. Only works with Watermelon-generated strings known to be safe
-            statements.split(";").forEach {
-                if (it.isNotBlank()) execute(it)
-            }
+            // Replace ";END;" with a safe token so it survives splitting
+            val safeStatements = statements
+                .replace(";end;", "__END__;") // Protect END block
+                .split(";")                  // Split safely (but doesn't kill END)
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .map { it.replace("__END__", ";end") } // Restore END
+
+            safeStatements.forEach { execute(it) }
         }
 
     fun execute(query: SQL, args: QueryArgs = emptyArray()) =

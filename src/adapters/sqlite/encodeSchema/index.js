@@ -75,7 +75,11 @@ const encodeDropFTS5SyncProcedures = ({ name }) => {
 }
 
 const encodeFTS5Table: FTS5TableSchema => SQL = tableSchema =>
-  encodeCreateFTS5Table(tableSchema) + encodeFTS5SyncProcedures(tableSchema)
+  encodeCreateFTS5Table(tableSchema) +
+  encodeFTS5SyncProcedures(tableSchema)
+    .replaceAll(/[\r\n\t]/g, '')
+    .replaceAll(/\s{2,}/g, ' ')
+    .replaceAll(/;\s*/gm, ';')
 
 const encodeIndex: (ColumnSchema, TableName<any>) => SQL = (column, tableName) =>
   column.isIndexed
