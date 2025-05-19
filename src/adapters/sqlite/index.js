@@ -64,11 +64,10 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   constructor(options: SQLiteAdapterOptions): void {
     const dispatcher = require('./makeDispatcher')
-    
+
     makeDispatcher = dispatcher.makeDispatcher
     DatabaseBridge = dispatcher.DatabaseBridge
     getDispatcherType = dispatcher.getDispatcherType
-
 
     // console.log(`---> Initializing new adapter (${this._tag})`)
     const { dbName, schema, migrations } = options
@@ -220,8 +219,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   }
 
   execSqlQuery(sql: string, params: any[], callback: ResultCallback<CachedQueryResult>): void {
-    this._dispatcher.execSqlQuery(sql, params?.map(param => `${param}`), result => 
-      callback(result))
+    this._dispatcher.execSqlQuery(sql, params?.map(param => `${param}`), result => callback(result))
   }
 
   unsafeSqlQuery(
@@ -239,7 +237,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
   count(query: SerializedQuery, callback: ResultCallback<number>): void {
     validateTable(query.table, this.schema)
-    const sql = encodeQuery(query, true)
+    const sql = encodeQuery(query, true, this.schema)
     this._dispatcher.count(sql, callback)
   }
 

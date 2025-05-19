@@ -134,21 +134,39 @@ const encodeConditions = (
 
 const encodeEagerMethod = (
   table: TableName<any>,
+  countMode: boolean = false,
   associations: QueryAssociation[],
   schema: any,
 ): string => {
-  const eagerTables = Array.from(new Set([{ table, alias: undefined }].concat(associations.map(({ to, joinedAs, info: { aliasFor } }) => ({
-    table: aliasFor || to,
-    alias: joinedAs,
-  })))))
+  const eagerTables = Array.from(
+    new Set(
+      [{ table, alias: undefined }].concat(
+        associations.map(({ to, joinedAs, info: { aliasFor } }) => ({
+          table: aliasFor || to,
+          alias: joinedAs,
+        })),
+      ),
+    ),
+  )
 
-  const getTableColumns = (tableName) => ['id', '_changed', '_status'].concat(Object.keys(schema.tables[tableName].columns))
+  const getTableColumns = tableName =>
+    ['id', '_changed', '_status'].concat(Object.keys(schema.tables[tableName].columns))
 
-  const selectList = eagerTables.map(({ table, alias }) => {
-    return getTableColumns(table).map((column) => {
-      return `${encodeName(alias || table)}.${encodeName(column)} as ${encodeName(`${alias || table}.${column}`)}`
-    }).join(', ')
-  }).join(', ')
+  const selectList = eagerTables
+    .map(({ table, alias }) => {
+      return getTableColumns(table)
+        .map(column => {
+          return `${encodeName(alias || table)}.${encodeName(column)} as ${encodeName(
+            `${alias || table}.${column}`,
+          )}`
+        })
+        .join(', ')
+    })
+    .join(', ')
+
+  if (countMode) {
+    return `select count(distinct ${encodeName(table)}."id") as "count" from ${encodeName(table)}`
+  }
 
   return `select ${selectList} from ${encodeName(table)}`
 }
@@ -197,8 +215,9 @@ const encodeAssociation = (description: QueryDescription) => ({
     clause => clause.type === 'on' && clause.table === actualJoinedTable,
   )
   const joinKeyword = usesOldJoinStyle ? ' join ' : ' left join '
-  const joinBeginning = `${joinKeyword}${encodeName(actualJoinedTable)} ${encodeName(joinedAs)} on ${encodeName(joinedAs)}.`
-
+  const joinBeginning = `${joinKeyword}${encodeName(actualJoinedTable)} ${encodeName(
+    joinedAs,
+  )} on ${encodeName(joinedAs)}.`
 
   return association.type === 'belongs_to'
     ? `${joinBeginning}"id" = ${encodeName(mainTable)}.${encodeName(association.key)}`
@@ -259,8 +278,7 @@ const encodeQuery = (query: SerializedQuery, countMode: boolean = false, schema 
   let sql =
     (!description.eagerJoinTables.length
       ? encodeMethod(table, countMode, hasToManyJoins)
-      : encodeEagerMethod(table, associations, schema)
-    ) +
+      : encodeEagerMethod(table, countMode, associations, schema)) +
     encodeJoin(description, associations) +
     encodeConditions(table, description, associations) +
     encodeOrderBy(table, description.sortBy) +
