@@ -92,13 +92,16 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
   const buildTree = (item, table) => {
     const rootModel = deserializeToModel(item, table, undefined, database);
 
-    const relationQueue = [{
-      table,
-      row: rootModel
-    }]
+    const relationQueue = [
+      {
+        table,
+        row: rootModel,
+        path: `${table}-${rootModel.id}`, // Add a path to track the relationship chain
+      },
+    ];
 
     while (relationQueue.length > 0) {
-      const { table, row } = relationQueue.shift();
+      const { table, row, path } = relationQueue.shift();
       const relations = adjacencyList[table] || [];
 
       relations.forEach(({ joinedAs, alias, to }) => {
@@ -106,8 +109,12 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
         const relatedItems = lookupMaps[`${table}-${actualTo}`]?.[row.id] || [];
 
         if (relatedItems.length > 0) {
-          // Ensure we don't add duplicate related items
-          const parentChildRelationKey = `${row.id}-${actualTo}`;
+          // Use the full path for detecting duplicates
+          // This ensures we don't miss nested relationships with the same pattern
+          const fullPath = `${path}->${actualTo}`;
+
+          // Use the full relationship path in the key to avoid false duplicates
+          const parentChildRelationKey = fullPath;
 
           if (!parentRelationMap.has(parentChildRelationKey)) {
             // Group eager-loaded relations under 'expandedRelations'
@@ -117,9 +124,11 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
             parentRelationMap.set(parentChildRelationKey, true);
 
             relatedItems.forEach(relatedItem => {
+              // Pass the extended path to the next level
               relationQueue.push({
                 table: actualTo,
-                row: relatedItem
+                row: relatedItem,
+                path: `${fullPath}-${relatedItem.id}`,
               });
             });
           }
