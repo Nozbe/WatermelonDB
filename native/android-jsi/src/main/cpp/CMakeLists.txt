@@ -83,6 +83,9 @@ add_library(watermelondb-jsi SHARED
         # seems wrong to compile a file that's already getting compiled as part of the app, but ¯\_(ツ)_/¯
         ${NODE_MODULES_PATH_RN}/react-native/ReactCommon/jsi/jsi/jsi.cpp)
 
+# Enable Android 16kb native library alignment
+target_link_options(watermelondb-jsi PRIVATE "-Wl,-z,max-page-size=16384")
+
 target_link_libraries(watermelondb-jsi
                       # link with these libraries:
                       android
