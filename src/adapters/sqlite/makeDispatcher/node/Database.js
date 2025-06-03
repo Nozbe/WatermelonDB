@@ -157,7 +157,8 @@ class Database {
 
     // Create a trigger for each table
     tables.forEach(({ name: tableName }) => {
-      const updateTriggerSQL = `
+      try {
+        const updateTriggerSQL = `
         CREATE TRIGGER IF NOT EXISTS updateHook_${tableName}
         AFTER UPDATE ON ${tableName}
         BEGIN
@@ -165,7 +166,7 @@ class Database {
         END;
       `
 
-      const insertTriggerSQL = `
+        const insertTriggerSQL = `
         CREATE TRIGGER IF NOT EXISTS insertHook_${tableName}
         AFTER INSERT ON ${tableName}
         BEGIN
@@ -173,7 +174,7 @@ class Database {
         END;
       `
 
-      const deleteTriggerSQL = `
+        const deleteTriggerSQL = `
         CREATE TRIGGER IF NOT EXISTS deleteHook_${tableName}
         AFTER DELETE ON ${tableName}
         BEGIN
@@ -181,9 +182,12 @@ class Database {
         END;
       `
 
-      this.instance.prepare(updateTriggerSQL).run()
-      this.instance.prepare(insertTriggerSQL).run()
-      this.instance.prepare(deleteTriggerSQL).run()
+        this.instance.prepare(updateTriggerSQL).run()
+        this.instance.prepare(insertTriggerSQL).run()
+        this.instance.prepare(deleteTriggerSQL).run()
+      } catch (error) {
+        console.error('Error creating trigger for table:', tableName, error)
+      }
     })
   }
 }
