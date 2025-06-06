@@ -7299,10 +7299,10 @@ logkitty@^0.7.1:
     dayjs "^1.8.15"
     yargs "^15.1.0"
 
-"lokijs@npm:@nozbe/lokijs@1.5.12-wmelon6":
-  version "1.5.12-wmelon6"
-  resolved "https://registry.yarnpkg.com/@nozbe/lokijs/-/lokijs-1.5.12-wmelon6.tgz#e457d934d614d5df80105c86314252a6e614df9b"
-  integrity sha512-GXsaqY8qTJ6xdCrGyno2t+ON2aj6PrUDdvhbrkxK/0Fp12C4FGvDg1wS+voLU9BANYHEnr7KRWfItDZnQkjoAg==
+"lokijs@npm:@nozbe/lokijs@1.5.12-wmelon7":
+  version "1.5.12-wmelon7"
+  resolved "https://registry.yarnpkg.com/@nozbe/lokijs/-/lokijs-1.5.12-wmelon7.tgz#5ee61fd9f3b46b61458cdcf05a4b41ba1ad0a9fc"
+  integrity sha512-+VgIoge2ClCNlvhJFLRUE7HaFlgH00u1LRaJ4hqrrIHMNBQ2Ercn9JGW8Q/1/63FfV41/KPUuk1RRcuU4q6f5w==
 
 loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.3.1, loose-envify@^1.4.0:
   version "1.4.0"
