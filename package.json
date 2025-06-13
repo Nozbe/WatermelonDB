@@ -65,7 +65,7 @@
     "@nozbe/simdjson": "3.9.4",
     "@nozbe/sqlite": "3.46.0",
     "hoist-non-react-statics": "^3.3.2",
-    "lokijs": "npm:@nozbe/lokijs@1.5.12-wmelon7",
+    "lokijs": "npm:@nozbe/lokijs@1.5.12-wmelon8",
     "rxjs": "^7.8.1",
     "sql-escape-string": "^1.1.0"
   },
