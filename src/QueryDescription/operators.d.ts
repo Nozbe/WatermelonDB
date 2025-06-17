@@ -15,6 +15,7 @@ import type {
   On,
   SortOrder,
   SortBy,
+  SortColumn,
   Take,
   Skip,
   JoinTables,
@@ -114,7 +115,7 @@ export const or: ArrayOrSpreadFn<Where, Or>
 export const asc: SortOrder
 export const desc: SortOrder
 
-export function sortBy(sortColumn: ColumnName, sortOrder?: SortOrder): SortBy
+export function sortBy(sortColumn: SortColumn, sortOrder?: SortOrder): SortBy
 
 export function take(count: number): Take
 
