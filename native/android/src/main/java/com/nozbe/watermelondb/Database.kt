@@ -167,11 +167,20 @@ class Database(private val name: String, private val context: Context) {
 
     fun transaction(function: () -> Unit) {
         db.beginTransaction()
+
         try {
             function()
             db.setTransactionSuccessful()
+        } catch (e: SQLiteFullException) {
+            e.printStackTrace()
+            Log.e("watermelondb", "found this error ${e.localizedMessage}")
+            throw e
         } finally {
-            db.endTransaction()
+            try {
+                db.endTransaction()
+            } catch (e: Exception) {
+                Log.e("watermelondb", "eee ${e.localizedMessage}")
+            }
         }
     }
 
