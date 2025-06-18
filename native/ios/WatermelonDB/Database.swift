@@ -40,7 +40,14 @@ public class Database {
             try executeBlock()
             guard fmdb.commit() else { throw fmdb.lastError() }
         } catch {
-            guard fmdb.rollback() else { throw fmdb.lastError() }
+            guard (error as NSError).code != SQLITE_FULL else {
+                throw error
+            }
+            
+            guard fmdb.rollback() else {
+                throw fmdb.lastError()
+            }
+            
             throw error
         }
     }
