@@ -68,7 +68,9 @@ export function prepareUpdateFromRaw<T: Model>(
 ): T {
   // Note COPY for log - only if needed
   const logConflict = log && !!record._raw._changed
+  // $FlowFixMe: shuts up flow
   const logLocal = logConflict ? { ...record._raw } : {}
+  // $FlowFixMe: shuts up flow
   const logRemote = logConflict ? { ...updatedDirtyRaw } : {}
 
   let newRaw = resolveConflict(record._raw, updatedDirtyRaw)
@@ -86,6 +88,7 @@ export function prepareUpdateFromRaw<T: Model>(
       log.resolvedConflicts.push({
         local: logLocal,
         remote: logRemote,
+        // $FlowFixMe: shuts up flow
         resolved: { ...record._raw },
       })
     }
@@ -119,5 +122,6 @@ export function ensureSameDatabase(database: Database, initialResetCount: number
 
 export const isChangeSetEmpty: SyncDatabaseChangeSet => boolean = pipe(
   values,
+  // $FlowFixMe: shuts up flow
   all(({ created, updated, deleted }) => created.length + updated.length + deleted.length === 0),
 )

@@ -6,6 +6,7 @@ import type { SchemaMigrations } from '../Schema/migrations'
 import type { RecordId } from '../Model'
 import type { RawRecord } from '../RawRecord'
 import type { ResultCallback } from '../utils/fp/Result'
+import type { ConnectionTag } from '../utils/common'
 
 export type CachedFindResult = RecordId | ?RawRecord
 export type CachedQueryResult = Array<RecordId | RawRecord>
@@ -57,6 +58,16 @@ export interface DatabaseAdapter {
 
   // Executes multiple prepared operations
   batchImport(operations: BatchOperation[], srcDB: any, callback: ResultCallback<void>): void;
+
+  execSqlQuery(sql: string, params: any[], callback: ResultCallback<{ [string]: any }[]>): void;
+
+  obliterateDatabase(callback: ResultCallback<void>): void;
+
+  enableNativeCDC(callback: ResultCallback<void>): void;
+
+  _hybridJSIEnabled?: boolean;
+
+  _tag?: ConnectionTag;
 }
 
 export interface SQLDatabaseAdapter {

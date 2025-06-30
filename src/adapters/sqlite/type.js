@@ -19,7 +19,7 @@ export type SQLiteAdapterOptions = $Exact<{
   migrations?: SchemaMigrations,
   synchronous?: boolean,
   experimentalUseJSI?: boolean, // don't use this one, its fake
-  onReady?: () => void
+  onReady?: () => void,
 }>
 
 export type DispatcherType = 'asynchronous' | 'synchronous' | 'jsi'
@@ -56,6 +56,9 @@ export type NativeDispatcher = $Exact<{
   setLocal: (string, string, ResultCallback<void>) => void,
   removeLocal: (string, ResultCallback<void>) => void,
   copyTables: (tables: any, srcDB: any, callback: ResultCallback<void>) => void,
+  execSqlQuery: (SQL, SQLiteArg[], ResultCallback<DirtyQueryResult>) => void,
+  enableNativeCDC: (ResultCallback<void>) => void,
+  obliterateDatabase: (ResultCallback<void>) => void,
 }>
 
 export type NativeBridgeType = {
@@ -74,6 +77,9 @@ export type NativeBridgeType = {
   getLocal: (ConnectionTag, string) => Promise<?string>,
   setLocal: (ConnectionTag, string, string) => Promise<void>,
   removeLocal: (ConnectionTag, string) => Promise<void>,
+  initializeJSIBridge: () => Promise<void>,
+  enableNativeCDC: ConnectionTag => Promise<void>,
+  execSqlQuery: (ConnectionTag, SQL, SQLiteArg[]) => Promise<DirtyQueryResult>,
 
   // Synchronous methods
   initializeSynchronous?: (ConnectionTag, string, SchemaVersion) => SyncReturn<InitializeStatus>,

@@ -1,5 +1,6 @@
 // @flow
 
+import { ulid, decodeTime } from 'ulid'
 import type { Database } from '../..'
 import { invariant, logError, logger } from '../../utils/common'
 
@@ -10,39 +11,43 @@ import getSyncChanges, { type MigrationSyncChanges } from '../../Schema/migratio
 export { default as applyRemoteChanges } from './applyRemote'
 export { default as fetchLocalChanges, hasUnsyncedChanges } from './fetchLocal'
 export { default as markLocalChangesAsSynced } from './markAsSynced'
-import { ulid, decodeTime } from 'ulid'
 
 const lastSequenceIdKey = '__watermelon_last_sequence_id'
 const lastPulledAtKey = '__watermelon_last_pulled_at'
 const lastPulledSchemaVersionKey = '__watermelon_last_pulled_schema_version'
 
-export async function getLastPulledAt(database: Database, useSequenceIds = false): Promise<?Timestamp|?String> {
+export async function getLastPulledAt(
+  database: Database,
+  useSequenceIds: boolean = false,
+): Promise<?Timestamp | ?string> {
   const lastPulledAt = parseInt(await database.adapter.getLocal(lastPulledAtKey), 10) || null
 
-  if (!useSequenceIds)
-    return lastPulledAt
+  if (!useSequenceIds) {return lastPulledAt}
 
   const lastSequenceId = await getLastSequenceId(database)
 
-  if (lastSequenceId)
-    return lastSequenceId
+  if (lastSequenceId) {return lastSequenceId}
 
-  if (!lastPulledAt) 
-    return null
+  if (!lastPulledAt) {return null}
 
   return ulid(lastPulledAt * 1000)
 }
 
-export async function setLastPulledAt(database: Database, timestamp: Timestamp|String, useSequenceIds = false): Promise<void> {
+export async function setLastPulledAt(
+  database: Database,
+  timestamp: Timestamp | string,
+  useSequenceIds: boolean = false,
+): Promise<void> {
   const timeValue = useSequenceIds ? Math.floor(decodeTime(timestamp) / 1000) : timestamp
   await database.adapter.setLocal(lastPulledAtKey, `${timeValue}`)
-  
+
   if (useSequenceIds) {
+    // $FlowFixMe: shuts up flow
     await setLastSequenceId(database, timestamp)
   }
 }
 
-async function getLastSequenceId(database: Database): Promise<string> {
+async function getLastSequenceId(database: Database): Promise<?string> {
   return await database.adapter.getLocal(lastSequenceIdKey)
 }
 

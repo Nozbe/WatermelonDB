@@ -4,6 +4,7 @@ import type Database from '../Database'
 import { DatabaseConsumer } from './DatabaseContext'
 
 type WithDatabaseProps<T> = {
+  // $FlowFixMe: shuts up flow
   ...$Exact<T>,
   database: Database,
 }

@@ -295,7 +295,7 @@ class DatabaseDriver {
     })
   }
 
-  execSqlQuery = (query: string, params: [any]) => {
+  execSqlQuery = (query: string, params: any[]) => {
     try {
       return this.database.queryRaw(query, params)
     } catch (_) {

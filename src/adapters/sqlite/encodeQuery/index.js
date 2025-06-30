@@ -39,7 +39,7 @@ const getComparisonRight = (table: TableName<any>, comparisonRight: ComparisonRi
 
 // Note: it's necessary to use `is` / `is not` for NULL comparisons to work correctly
 // See: https://sqlite.org/lang_expr.html
-const operators: { [Operator]: string } = {
+const operators: { [key: Operator]: string } = ({
   eq: 'is',
   notEq: 'is not',
   gt: '>',
@@ -52,7 +52,7 @@ const operators: { [Operator]: string } = {
   between: 'between',
   like: 'like',
   notLike: 'not like',
-}
+}: any)
 
 const encodeComparison = (table: TableName<any>, comparison: Comparison) => {
   if (comparison.operator === 'between') {
@@ -99,6 +99,7 @@ const encodeWhereCondition = (
   if (comparison.operator === 'weakGt' && comparison.right.column) {
     return encodeWhere(table, associations)(
       Q.or(
+        // $FlowFixMe: shuts up flow
         Q.where(left, Q.gt(Q.column(comparison.right.column))),
         Q.and(Q.where(left, Q.notEq(null)), Q.where((comparison.right: any).column, null)),
       ),
@@ -258,7 +259,11 @@ const encodeCTE = (description: any, sql: string, table: string) => {
     `
 }
 
-const encodeQuery = (query: SerializedQuery, countMode: boolean = false, schema = null): string => {
+const encodeQuery = (
+  query: SerializedQuery,
+  countMode: boolean = false,
+  schema: any = null,
+): string => {
   const { table, description, associations } = query
 
   // $FlowFixMe

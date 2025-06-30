@@ -171,6 +171,7 @@ const getAllRecordsToApply = (
   const promises = []
 
   for (const [tableName, changes] of remoteChanges.entries()) {
+    // $FlowFixMe - table names from sync are guaranteed to be valid
     const collection = db.get(tableName)
 
     if (!collection) {
@@ -188,6 +189,7 @@ const getAllRecordsToApply = (
 }
 
 const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> =>
+  // $FlowFixMe - rambdax's map can handle Maps correctly at runtime
   piped(
     recordsToApply,
     map(
@@ -208,6 +210,7 @@ const prepareApplyAllRemoteChanges = (
   const result: Model[] = []
 
   for (const [tableName, records] of recordsToApply.entries()) {
+    // $FlowFixMe - table names from sync are guaranteed to be valid
     const collection = db.collections.get(tableName)
     const preparedChanges = prepareApplyRemoteChangesToCollection(
       collection,
@@ -231,6 +234,7 @@ const unsafeBatchesWithRecordsToApply = (
   log?: SyncLog,
   conflictResolver?: SyncConflictResolver,
 ): Promise<void>[] =>
+  // $FlowFixMe - shuts up flow
   piped(
     recordsToApply,
     map((records, tableName: TableName<any>) =>

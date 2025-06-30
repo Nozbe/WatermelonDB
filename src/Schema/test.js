@@ -77,9 +77,9 @@ describe('Schema', () => {
   it('does not allow unsafe names', () => {
     ;[
       '"hey"',
-      "'hey'",
+      '\'hey\'',
       '`hey`',
-      "foo' and delete * from users --",
+      'foo\' and delete * from users --',
       'id',
       '_changed',
       '_status',

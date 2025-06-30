@@ -112,6 +112,7 @@ const encodeComparison = (comparison: Comparison, value: any): LokiRawQuery => {
   }
 }
 
+// $FlowFixMe: shuts up flow
 const columnCompRequiresColumnNotNull: { [$FlowFixMe<Operator>]: boolean } = {
   gt: true,
   gte: true,
@@ -170,6 +171,7 @@ const encodeAndOr = (op: LokiKeyword) => (
 ): LokiRawQuery => {
   const conditions = encodeConditions(associations, clause.conditions)
   // flatten
+  // $FlowFixMe: shuts up flow
   return conditions.length === 1 ? conditions[0] : { [op]: conditions }
 }
 

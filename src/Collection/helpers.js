@@ -1,96 +1,100 @@
-import { sanitizedRaw } from "../RawRecord";
+import { sanitizedRaw } from '../RawRecord'
 
 function buildAdjacencyList(relationships) {
-  const adjacencyList = {};
+  const adjacencyList = {}
 
   relationships.forEach(({ from, info, to, joinedAs }) => {
-    const { aliasFor } = info; // Extract alias from info
-    if (!adjacencyList[from]) adjacencyList[from] = [];
-    adjacencyList[from].push({ to, joinedAs, ...info, alias: aliasFor }); // Use alias if provided, otherwise default to original table name
-  });
+    const { aliasFor } = info // Extract alias from info
+    if (!adjacencyList[from]) {
+      adjacencyList[from] = []
+    }
+    adjacencyList[from].push({ to, joinedAs, ...info, alias: aliasFor }) // Use alias if provided, otherwise default to original table name
+  })
 
-  return adjacencyList;
+  return adjacencyList
 }
 
 function deserializeToModel(item, to, joinedAs, database) {
-  const collection = database.collections.get(to);
-  const ModelClass = collection.modelClass;
-  const sanitized = sanitizedRaw(item, database.schema.tables[to], true, joinedAs);
-  
-  return new ModelClass(collection, sanitized);
+  const collection = database.collections.get(to)
+  const ModelClass = collection.modelClass
+  const sanitized = sanitizedRaw(item, database.schema.tables[to], true, joinedAs)
+
+  return new ModelClass(collection, sanitized)
 }
 
 function buildHierarchy(rootTable, results, adjacencyList, database) {
-  const hierarchy = new Map(); // Use a Map for better performance
-  const resultMap = new Map(); // Preprocess results for quick access
-  const parentRelationMap = new Map(); // Keep track of parent relations to avoid duplicates
+  const hierarchy = new Map() // Use a Map for better performance
+  const resultMap = new Map() // Preprocess results for quick access
+  const parentRelationMap = new Map() // Keep track of parent relations to avoid duplicates
   const addedRelationships = new Map()
-  const lookupMaps = {}; // Lookup maps for eager loading relations
+  const lookupMaps = {} // Lookup maps for eager loading relations
 
   // Build lookup maps for each relationship
   Object.keys(adjacencyList).forEach(tableName => {
-    const relations = adjacencyList[tableName];
+    const relations = adjacencyList[tableName]
 
     relations.forEach(({ to, foreignKey, type, key, alias, joinedAs }) => {
-      const actualTo = joinedAs || alias || to; // Determine the actual table to reference
-      const mapKey = `${tableName}-${actualTo}`; // Construct mapKey using actual table name
+      const actualTo = joinedAs || alias || to // Determine the actual table to reference
+      const mapKey = `${tableName}-${actualTo}` // Construct mapKey using actual table name
 
-      if (!lookupMaps[mapKey]) lookupMaps[mapKey] = new Map();
+      if (!lookupMaps[mapKey]) {
+        lookupMaps[mapKey] = new Map()
+      }
 
       results.forEach(row => {
-        let parentId = null;
-        let hasRelation = false;
+        let parentId = null
+        let hasRelation = false
 
         if (type === 'belongs_to') {
           const parentKeyValue = row[`${tableName}.${key}`]
-          const childId = row[`${actualTo}.id`];
+          const childId = row[`${actualTo}.id`]
 
           if (parentKeyValue && childId) {
-            parentId = row[`${tableName}.id`];
-            hasRelation = true;
+            parentId = row[`${tableName}.id`]
+            hasRelation = true
           }
         } else if (type === 'has_many') {
-          parentId = row[`${tableName}.id`];
-          const foreignKeyValue = row[`${actualTo}.${foreignKey}`];
+          parentId = row[`${tableName}.id`]
+          const foreignKeyValue = row[`${actualTo}.${foreignKey}`]
 
           if (foreignKeyValue && parentId) {
-            hasRelation = true;
+            hasRelation = true
           }
         }
 
         if (hasRelation && parentId) {
-          const addedRelationKey = `${mapKey}-${parentId}`;
+          const addedRelationKey = `${mapKey}-${parentId}`
 
           // Initialize the array for the parentKey if it doesn't exist
           if (!lookupMaps[mapKey][parentId]) {
-            lookupMaps[mapKey][parentId] = []; // Create an array for this parentKey
-            addedRelationships[addedRelationKey] = new Set();
+            lookupMaps[mapKey][parentId] = [] // Create an array for this parentKey
+            addedRelationships[addedRelationKey] = new Set()
           }
 
-          const model = deserializeToModel(row, alias || to, joinedAs, database);
+          const model = deserializeToModel(row, alias || to, joinedAs, database)
 
           if (!addedRelationships[addedRelationKey].has(model.id)) {
-            lookupMaps[mapKey][parentId].push(model); // Push the row into the array for this parentKey
+            lookupMaps[mapKey][parentId].push(model) // Push the row into the array for this parentKey
 
-            addedRelationships[addedRelationKey].add(model.id);
+            addedRelationships[addedRelationKey].add(model.id)
           }
         }
-      });
-    });
-  });
+      })
+    })
+  })
 
   // Preprocess results into a map
   results.forEach(row => {
-    const tableName = Object.keys(adjacencyList).find(table => row[`${table}.id`]) || rootTable;
-    const id = row[`${tableName}.id`];
+    const tableName = Object.keys(adjacencyList).find(table => row[`${table}.id`]) || rootTable
+    const id = row[`${tableName}.id`]
 
     if (id) {
-      resultMap.set(id, row);
+      resultMap.set(id, row)
     }
-  });
+  })
 
   const buildTree = (item, table) => {
-    const rootModel = deserializeToModel(item, table, undefined, database);
+    const rootModel = deserializeToModel(item, table, undefined, database)
 
     const relationQueue = [
       {
@@ -98,30 +102,30 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
         row: rootModel,
         path: `${table}-${rootModel.id}`, // Add a path to track the relationship chain
       },
-    ];
+    ]
 
     while (relationQueue.length > 0) {
-      const { table, row, path } = relationQueue.shift();
-      const relations = adjacencyList[table] || [];
+      const { table, row, path } = relationQueue.shift()
+      const relations = adjacencyList[table] || []
 
       relations.forEach(({ joinedAs, alias, to }) => {
-        const actualTo = joinedAs || alias || to;
-        const relatedItems = lookupMaps[`${table}-${actualTo}`]?.[row.id] || [];
+        const actualTo = joinedAs || alias || to
+        const relatedItems = lookupMaps[`${table}-${actualTo}`]?.[row.id] || []
 
         if (relatedItems.length > 0) {
           // Use the full path for detecting duplicates
           // This ensures we don't miss nested relationships with the same pattern
-          const fullPath = `${path}->${actualTo}`;
+          const fullPath = `${path}->${actualTo}`
 
           // Use the full relationship path in the key to avoid false duplicates
-          const parentChildRelationKey = fullPath;
+          const parentChildRelationKey = fullPath
 
           if (!parentRelationMap.has(parentChildRelationKey)) {
             // Group eager-loaded relations under 'expandedRelations'
-            row.expandedRelations = row.expandedRelations || {};
-            row.expandedRelations[to] = relatedItems;
+            row.expandedRelations = row.expandedRelations || {}
+            row.expandedRelations[to] = relatedItems
 
-            parentRelationMap.set(parentChildRelationKey, true);
+            parentRelationMap.set(parentChildRelationKey, true)
 
             relatedItems.forEach(relatedItem => {
               // Pass the extended path to the next level
@@ -129,30 +133,30 @@ function buildHierarchy(rootTable, results, adjacencyList, database) {
                 table: actualTo,
                 row: relatedItem,
                 path: `${fullPath}-${relatedItem.id}`,
-              });
-            });
+              })
+            })
           }
         }
       })
     }
 
-    return rootModel;
+    return rootModel
   }
 
   // Initialize the hierarchy with the results
   resultMap.forEach((row, id) => {
-    hierarchy.set(id, { ...row });
-  });
+    hierarchy.set(id, { ...row })
+  })
 
   // Start building the tree from the root table
-  const rootData = Array.from(hierarchy.values()).filter(item => item[`${rootTable}.id`]);
+  const rootData = Array.from(hierarchy.values()).filter(item => item[`${rootTable}.id`])
 
-  return rootData.map(item => buildTree(item, rootTable));
+  return rootData.map(item => buildTree(item, rootTable))
 }
 
 export function mapToGraph(results, relationships, collection) {
-  const adjacencyList = buildAdjacencyList(relationships);
-  const rootTable = collection.table;
+  const adjacencyList = buildAdjacencyList(relationships)
+  const rootTable = collection.table
 
-  return buildHierarchy(rootTable, results, adjacencyList, collection.database);
+  return buildHierarchy(rootTable, results, adjacencyList, collection.database)
 }

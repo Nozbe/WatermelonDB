@@ -93,16 +93,22 @@ export type LokiFilter = $RE<{
 }>
 export type Clause = Where | SortBy | Take | Skip | JoinTables | NestedJoinTable | LokiFilter
 
-type NestedJoinTableDef = $RE<{ from: TableName<any>, to: TableName<any>, joinedAs?: TableName<any> }>
+type NestedJoinTableDef = $RE<{
+  from: TableName<any>,
+  to: TableName<any>,
+  joinedAs?: TableName<any>,
+}>
 export type QueryDescription = $RE<{
   where: Where[],
   joinTables: TableName<any>[],
   nestedJoinTables: NestedJoinTableDef[],
+  eagerJoinTables: EagerJoinTables[],
   sortBy: SortBy[],
   take?: number,
   skip?: number,
   lokiFilter?: LokiFilterFunction,
   sql?: string,
+  cte?: string,
 }>
 
 const columnSymbol = Symbol('Q.column')
@@ -362,11 +368,17 @@ export function experimentalJoinTables(tables: TableName<any>[]): JoinTables {
   return { type: 'joinTables', tables: tables.map(checkName) }
 }
 
-export function experimentalNestedJoin(from: TableName<any>, to: TableName<any>, joinedAs: TableName<any> = undefined): NestedJoinTable {
+export function experimentalNestedJoin(
+  from: TableName<any>,
+  to: TableName<any>,
+  joinedAs: ?TableName<any> = undefined,
+): NestedJoinTable {
+  // $FlowFixMe: shuts up flow
   return { type: 'nestedJoinTable', from: checkName(from), to: checkName(to), joinedAs }
 }
 
-export function eager(...joins: JoinTables[]|NestedJoinTable[]) {
+// $FlowFixMe: shuts up flow
+export function eager(...joins: JoinTables[] | NestedJoinTable[]) {
   const joinTables: TableName<any>[] = []
   const nestedJoinTables: NestedJoinTableDef[] = []
 
@@ -402,7 +414,13 @@ const compressTopLevelOns = (conditions: Where[]): Where[] => {
 
 const syncStatusColumn = columnName('_status')
 const extractClauses: (Clause[]) => QueryDescription = clauses => {
-  const clauseMap = { eagerJoinTables: [], where: [], joinTables: [], nestedJoinTables: [], sortBy: [] }
+  const clauseMap = {
+    eagerJoinTables: [],
+    where: [],
+    joinTables: [],
+    nestedJoinTables: [],
+    sortBy: [],
+  }
   clauses.forEach(clause => {
     const { type } = clause
     switch (type) {
@@ -436,10 +454,13 @@ const extractClauses: (Clause[]) => QueryDescription = clauses => {
       case 'nestedJoinTable':
         // $FlowFixMe
         clauseMap.nestedJoinTables.push({
+          // $FlowFixMe
           from: clause.from,
+          // $FlowFixMe
           to: clause.to,
-          joinedAs: clause.joinedAs
-        });        
+          // $FlowFixMe
+          joinedAs: clause.joinedAs,
+        })
         break
       case 'eagerJoinTables':
         // $FlowFixMe

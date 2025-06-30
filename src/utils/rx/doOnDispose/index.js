@@ -7,6 +7,7 @@ import { Observable } from '../__wmelonRxShim'
 export default function doOnDispose<T>(onDispose: () => void): (Observable<T>) => Observable<T> {
   return source =>
     Observable.create(observer => {
+      // $FlowFixMe: shuts up flow
       const subscription = source.subscribe(observer)
       return () => {
         subscription.unsubscribe()

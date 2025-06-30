@@ -23,8 +23,12 @@ export type RecordId = string
 
 export type SyncStatus = 'synced' | 'created' | 'updated' | 'deleted'
 
-export type BelongsToAssociation = $RE<{ type: 'belongs_to', key: ColumnName }>
-export type HasManyAssociation = $RE<{ type: 'has_many', foreignKey: ColumnName }>
+export type BelongsToAssociation = $RE<{ type: 'belongs_to', key: ColumnName, aliasFor?: string }>
+export type HasManyAssociation = $RE<{
+  type: 'has_many',
+  foreignKey: ColumnName,
+  aliasFor?: string,
+}>
 export type AssociationInfo = BelongsToAssociation | HasManyAssociation
 export type Associations = { +[TableName<any>]: AssociationInfo }
 
@@ -39,6 +43,7 @@ export default class Model {
   static +table: TableName<this>
 
   // Set this in concrete Models to define relationships between different records
+  // $FlowFixMe: shuts up flow
   static associations: Associations = {}
 
   _raw: RawRecord
@@ -113,9 +118,7 @@ export default class Model {
     // We could polyfill with setImmediate, but it doesn't have the same effect — test and enseure
     // it would actually work for this purpose
     if (process.env.NODE_ENV !== 'production' && process && process.nextTick) {
-      process.nextTick(() => {
-
-      })
+      process.nextTick(() => {})
     }
 
     return this
