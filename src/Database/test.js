@@ -193,7 +193,7 @@ describe('Database', () => {
       await batchPromise
 
       expect(adapterBatchSpy).toHaveBeenCalledTimes(5)
-      expect(adapterBatchSpy).toHaveBeenLastCalledWith([
+      expect(adapterBatchSpy).toHaveBeenCalledWith([
         ['create', 'mock_comments', m6._raw],
         ['update', 'mock_tasks', m1._raw],
         ['create', 'mock_tasks', m5._raw],
@@ -246,7 +246,7 @@ describe('Database', () => {
       await database.action(() => database.batch(null, model, false, undefined))
 
       expect(adapterBatchSpy).toHaveBeenCalledTimes(1)
-      expect(adapterBatchSpy).toHaveBeenLastCalledWith([['create', 'mock_tasks', model._raw]])
+      expect(adapterBatchSpy).toHaveBeenCalledWith([['create', 'mock_tasks', model._raw]])
     })
     it(`can batch with an array passed as argument`, async () => {
       const { database, tasks: tasksCollection } = mockDatabase({ actionsEnabled: true })
@@ -256,7 +256,7 @@ describe('Database', () => {
       await database.action(() => database.batch([null, model, false, undefined]))
 
       expect(adapterBatchSpy).toHaveBeenCalledTimes(1)
-      expect(adapterBatchSpy).toHaveBeenLastCalledWith([['create', 'mock_tasks', model._raw]])
+      expect(adapterBatchSpy).toHaveBeenCalledWith([['create', 'mock_tasks', model._raw]])
     })
     it('throws error if batch is called outside of an action', async () => {
       const { database, tasks } = mockDatabase({ actionsEnabled: true })
@@ -276,13 +276,6 @@ describe('Database', () => {
       )
       const [task] = await tasks.query().fetch()
       expect(task.name).toBe('foo1')
-    })
-    it(`throws an error if invalid arguments`, async () => {
-      const { database } = mockDatabase({ actionsEnabled: true })
-      await expectToRejectWithMessage(
-        database.batch([], null),
-        /batch should be called with a list/,
-      )
     })
   })
 

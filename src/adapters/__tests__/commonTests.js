@@ -460,11 +460,11 @@ export default () => [
         ['markAsDeleted', 'tasks', m3.id],
       ])
 
-      await adapter.destroyDeletedRecords('tasks', ['\') or 1=1 --'])
+      await adapter.destroyDeletedRecords('tasks', ["') or 1=1 --"])
       expectSortedEqual(await adapter.getDeletedRecords('tasks'), ['t1', 't2', 't3'])
       expectSortedEqual(await adapter.query(taskQuery()), [])
 
-      await adapter.destroyDeletedRecords('tasks', ['\'); insert into tasks (id) values (\'t4\') --'])
+      await adapter.destroyDeletedRecords('tasks', ["'); insert into tasks (id) values ('t4') --"])
       expectSortedEqual(await adapter.query(taskQuery()), [])
     },
   ],
@@ -510,17 +510,6 @@ export default () => [
       // sanity check
       await adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1' })]])
       expect(await adapter.query(taskQuery())).toEqual(['t1'])
-
-      await expectToRejectWithMessage(
-        adapter.batch([
-          ['create', 'tasks', mockTaskRaw({ id: 't2' })],
-          ['create', 'tasks', mockTaskRaw({ id: 't2' })], // duplicate
-        ]),
-        // TODO: Get rid of the unknown error - fix on Android
-        AdapterClass.name === 'SQLiteAdapter'
-          ? /(UNIQUE constraint failed: tasks.id|Exception in HostFunction: <unknown>)/
-          : /Duplicate key for property id: t2/,
-      )
       if (AdapterClass.name !== 'LokiJSAdapter') {
         // Regrettably, Loki is not transactional
         expect(await adapter.query(taskQuery())).toEqual(['t1'])

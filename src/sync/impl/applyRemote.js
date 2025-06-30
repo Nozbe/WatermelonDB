@@ -26,13 +26,13 @@ import { prepareCreateFromRaw, prepareUpdateFromRaw, ensureActionsEnabled } from
 
 const idsForChanges = ({ created, updated, deleted }: SyncTableChangeSet): RecordId[] => {
   const ids = []
-  created.forEach(record => {
+  created?.forEach(record => {
     ids.push(record.id)
   })
-  updated.forEach(record => {
+  updated?.forEach(record => {
     ids.push(record.id)
   })
-  return ids.concat(deleted)
+  return ids.concat(deleted || [])
 }
 
 const fetchRecordsForChanges = <T: Model>(
@@ -81,8 +81,8 @@ async function recordsToApplyRemoteChangesTo<T: Model>(
     ...changes,
     records,
     locallyDeletedIds,
-    recordsToDestroy: filter(record => deletedIds.includes(record.id), records),
-    deletedRecordsToDestroy: filter(id => deletedIds.includes(id), locallyDeletedIds),
+    recordsToDestroy: filter(record => deletedIds?.includes(record.id), records),
+    deletedRecordsToDestroy: filter(id => deletedIds?.includes(id), locallyDeletedIds),
   }
 }
 
@@ -116,7 +116,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
   const recordsToBatch: T[] = [] // mutating - perf critical
 
   // Insert and update records
-  created.forEach(raw => {
+  created?.forEach(raw => {
     validateRemoteRaw(raw)
     const currentRecord = findRecord(raw.id, records)
     if (currentRecord) {
@@ -136,7 +136,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
     }
   })
 
-  updated.forEach(raw => {
+  updated?.forEach(raw => {
     validateRemoteRaw(raw)
     const currentRecord = findRecord(raw.id, records)
 
@@ -168,28 +168,23 @@ const getAllRecordsToApply = (
   db: Database,
   remoteChanges: Map<string, SyncTableChangeSet>,
 ): Promise<AllRecordsToApply> => {
-  const promises = [] 
-  
+  const promises = []
+
   for (const [tableName, changes] of remoteChanges.entries()) {
     const collection = db.get(tableName)
 
     if (!collection) {
-      logger.warn(
-        `Skipping collection ${tableName} as it does not exist in the database.`
-      )
+      logger.warn(`Skipping collection ${tableName} as it does not exist in the database.`)
 
       continue // Skip missing collections
     }
 
     promises.push(
-      recordsToApplyRemoteChangesTo(collection, changes).then((records) => [
-        tableName,
-        records
-      ])
+      recordsToApplyRemoteChangesTo(collection, changes).then(records => [tableName, records]),
     )
   }
 
-  return Promise.all(promises).then((results) => new Map(results))
+  return Promise.all(promises).then(results => new Map(results))
 }
 
 const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToApply): Promise<*> =>
@@ -203,30 +198,30 @@ const destroyAllDeletedRecords = (db: Database, recordsToApply: AllRecordsToAppl
     promiseAllObject,
   )
 
-  const prepareApplyAllRemoteChanges = (
-    db: Database,
-    recordsToApply: AllRecordsToApply,
-    sendCreatedAsUpdated: boolean,
-    log?: SyncLog,
-    conflictResolver?: SyncConflictResolver
-  ): Model[] => {
-    const result: Model[] = []
-  
-    for (const [tableName, records] of recordsToApply.entries()) {
-      const collection = db.collections.get(tableName)
-      const preparedChanges = prepareApplyRemoteChangesToCollection(
-        collection,
-        records,
-        sendCreatedAsUpdated,
-        log,
-        conflictResolver
-      )
-  
-      result.push(...preparedChanges)
-    }
-  
-    return result
+const prepareApplyAllRemoteChanges = (
+  db: Database,
+  recordsToApply: AllRecordsToApply,
+  sendCreatedAsUpdated: boolean,
+  log?: SyncLog,
+  conflictResolver?: SyncConflictResolver,
+): Model[] => {
+  const result: Model[] = []
+
+  for (const [tableName, records] of recordsToApply.entries()) {
+    const collection = db.collections.get(tableName)
+    const preparedChanges = prepareApplyRemoteChangesToCollection(
+      collection,
+      records,
+      sendCreatedAsUpdated,
+      log,
+      conflictResolver,
+    )
+
+    result.push(...preparedChanges)
   }
+
+  return result
+}
 
 // See _unsafeBatchPerCollection - temporary fix
 const unsafeBatchesWithRecordsToApply = (

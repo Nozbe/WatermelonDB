@@ -13,6 +13,10 @@ import type {
   MigrationStep,
   CreateTableMigrationStep,
   AddColumnsMigrationStep,
+  DropTableMigrationStep,
+  DropColumnsMigrationStep,
+  AddIndexMigrationStep,
+  RemoveIndexMigrationStep,
 } from '../../../Schema/migrations'
 import type { SQL } from '../index'
 
@@ -138,6 +142,43 @@ const encodeAddColumnsMigrationStep: AddColumnsMigrationStep => SQL = ({
     })
     .join('')
 
+const encodeDropTableMigrationStep: DropTableMigrationStep => SQL = ({ table, unsafeSql }) => {
+  const sql = `drop table if exists ${encodeName(table)};`
+  return transform(sql, unsafeSql)
+}
+
+const encodeDropColumnsMigrationStep: DropColumnsMigrationStep => SQL = ({
+  table,
+  columns,
+  unsafeSql,
+}) => {
+  // SQLite 3.35.0+ supports DROP COLUMN
+  const sql = columns
+    .map(column => `alter table ${encodeName(table)} drop column ${encodeName(column)};`)
+    .join('')
+  return transform(sql, unsafeSql)
+}
+
+const encodeAddIndexMigrationStep: AddIndexMigrationStep => SQL = ({
+  table,
+  column,
+  unsafeSql,
+}) => {
+  const sql = `create index if not exists "${table}_${column}" on ${encodeName(
+    table,
+  )} (${encodeName(column)});`
+  return transform(sql, unsafeSql)
+}
+
+const encodeRemoveIndexMigrationStep: RemoveIndexMigrationStep => SQL = ({
+  table,
+  column,
+  unsafeSql,
+}) => {
+  const sql = `drop index if exists "${table}_${column}";`
+  return transform(sql, unsafeSql)
+}
+
 export const encodeMigrationSteps: (MigrationStep[]) => SQL = steps =>
   steps
     .map(step => {
@@ -152,6 +193,14 @@ export const encodeMigrationSteps: (MigrationStep[]) => SQL = steps =>
         return step.sql
       } else if (step.type === 'drop_fts5_table') {
         return encodeDropFTS5TableMigrationStep(step)
+      } else if (step.type === 'drop_table') {
+        return encodeDropTableMigrationStep(step)
+      } else if (step.type === 'drop_columns') {
+        return encodeDropColumnsMigrationStep(step)
+      } else if (step.type === 'add_index') {
+        return encodeAddIndexMigrationStep(step)
+      } else if (step.type === 'remove_index') {
+        return encodeRemoveIndexMigrationStep(step)
       }
 
       throw new Error(`Unsupported migration step ${step.type}`)

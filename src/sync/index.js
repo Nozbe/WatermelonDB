@@ -112,8 +112,7 @@ export async function synchronize({
   log && (log.newLastPulledAt = newLastPulledAt)
 
   await database.action(async action => {
-    if (!isSameDatabase(database, resetCount))
-      return
+    if (!isSameDatabase(database, resetCount)) return
 
     await action.subAction(() =>
       applyRemoteChanges(
@@ -134,16 +133,13 @@ export async function synchronize({
 
   // push phase
   const localChanges = await fetchLocalChanges(database)
-
-  if (!isSameDatabase(database, resetCount))
-    return
+  if (!isSameDatabase(database, resetCount)) return
 
   if (!isChangeSetEmpty(localChanges.changes)) {
     await pushChanges({ changes: localChanges.changes, lastPulledAt: newLastPulledAt })
 
-    if (!isSameDatabase(database, resetCount))
-      return
-      
+    if (!isSameDatabase(database, resetCount)) return
+
     await markLocalChangesAsSynced(database, localChanges)
   }
 

@@ -33,6 +33,7 @@ describe('Schema', () => {
             col2: { name: 'col2', type: 'number' },
           },
           columnArray: [{ name: 'col1', type: 'string' }, { name: 'col2', type: 'number' }],
+          unsafeSql: undefined,
         },
         bar: {
           name: 'bar',
@@ -49,6 +50,7 @@ describe('Schema', () => {
           unsafeSql,
         },
       },
+      fts5Tables: {},
       unsafeSql,
     })
   })
@@ -75,9 +77,9 @@ describe('Schema', () => {
   it('does not allow unsafe names', () => {
     ;[
       '"hey"',
-      '\'hey\'',
+      "'hey'",
       '`hey`',
-      'foo\' and delete * from users --',
+      "foo' and delete * from users --",
       'id',
       '_changed',
       '_status',

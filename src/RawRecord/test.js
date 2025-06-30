@@ -142,14 +142,14 @@ describe('sanitizedRaw()', () => {
       is_all_day: null,
     })
     expect(typeof newRaw.id).toBe('string')
-    expect(newRaw.id).toHaveLength(16)
+    expect(newRaw.id).toHaveLength(36)
   })
   it('sanitizes id, _status, _changed', () => {
     const schema2 = tableSchema({ name: 'test2', columns: [] })
 
     const validateId = raw => {
       expect(typeof raw.id).toBe('string')
-      expect(raw.id).toHaveLength(16)
+      expect(raw.id).toHaveLength(36)
     }
 
     // if ID is missing or malformed, treat this as a new object

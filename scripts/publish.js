@@ -114,10 +114,10 @@ const buildTasks = options => {
               ),
           }, */
         ]),
-    /* {
+    {
       title: 'check tests',
       task: () => execa('yarn', ['test']),
-    }, */
+    },
     // {
     //   title: 'check eslint',
     //   task: () => execa('yarn', ['eslint']),
@@ -146,8 +146,7 @@ const buildTasks = options => {
     },
     {
       title: 'push and tag',
-      task: () =>
-        execa('git', ['push', 'origin', `v${version}`]),
+      task: () => execa('git', ['push', 'origin', `v${version}`]),
     },
   ]
 }

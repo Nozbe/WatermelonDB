@@ -5,7 +5,7 @@ declare module '@BuildHero/watermelondb/Schema/migrations' {
     ColumnMap,
     ColumnSchema,
     TableSchemaSpec,
-    ColumnName
+    ColumnName,
   } from '@BuildHero/watermelondb/Schema'
 
   export interface SchemaMigrations {
@@ -39,7 +39,36 @@ declare module '@BuildHero/watermelondb/Schema/migrations' {
     columns: ColumnSchema[]
   }
 
-  export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep
+  export interface DropTableMigrationStep {
+    type: 'drop_table'
+    table: TableName<any>
+  }
+
+  export interface DropColumnsMigrationStep {
+    type: 'drop_columns'
+    table: TableName<any>
+    columns: string[]
+  }
+
+  export interface AddIndexMigrationStep {
+    type: 'add_index'
+    table: TableName<any>
+    column: string
+  }
+
+  export interface RemoveIndexMigrationStep {
+    type: 'remove_index'
+    table: TableName<any>
+    column: string
+  }
+
+  export type MigrationStep =
+    | CreateTableMigrationStep
+    | AddColumnsMigrationStep
+    | DropTableMigrationStep
+    | DropColumnsMigrationStep
+    | AddIndexMigrationStep
+    | RemoveIndexMigrationStep
 
   export interface Migration {
     toVersion: SchemaVersion
@@ -72,4 +101,30 @@ declare module '@BuildHero/watermelondb/Schema/migrations' {
     table: TableName<any>
     columns: ColumnSchema[]
   }): AddColumnsMigrationStep
+
+  export function dropTable({ table }: { table: TableName<any> }): DropTableMigrationStep
+
+  export function dropColumns({
+    table,
+    columns,
+  }: {
+    table: TableName<any>
+    columns: string[]
+  }): DropColumnsMigrationStep
+
+  export function addIndex({
+    table,
+    column,
+  }: {
+    table: TableName<any>
+    column: string
+  }): AddIndexMigrationStep
+
+  export function removeIndex({
+    table,
+    column,
+  }: {
+    table: TableName<any>
+    column: string
+  }): RemoveIndexMigrationStep
 }
