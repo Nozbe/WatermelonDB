@@ -139,7 +139,7 @@ class Database {
     return this.instance.memory
   }
 
-  setUpdateHook = updateHook => {
+  setUpdateHook = (updateHook: () => void) => {
     this.instance.function('cdc', { deterministic: true, varargs: true }, updateHook)
 
     // Query to get all table names in the database

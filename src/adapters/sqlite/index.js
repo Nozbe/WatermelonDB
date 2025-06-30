@@ -92,7 +92,11 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
 
     this._initPromise = this._init().then(() => {
       if ('onReady' in options) {
-        options.onReady()
+        const {onReady} = options
+
+        if (typeof onReady === 'function') {
+          onReady()
+        }
       }
     })
 
@@ -103,6 +107,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     return this._initPromise
   }
 
+  // $FlowFixMe: known issue with inexact object spread
   async testClone(options?: $Shape<SQLiteAdapterOptions> = {}): Promise<SQLiteAdapter> {
     const clone = new SQLiteAdapter({
       dbName: this._dbName,
@@ -112,6 +117,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
       ...(this.migrations ? { migrations: this.migrations } : {}),
       ...options,
     })
+
     invariant(
       clone._dispatcherType === this._dispatcherType,
       'testCloned adapter has bad dispatcher type',
@@ -209,6 +215,10 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
   }
 
   enableHybridJSI(): void {
+    if (!makeDispatcher) {
+      const dispatcher = require('./makeDispatcher')
+      makeDispatcher = dispatcher.makeDispatcher
+    }
     this._dispatcher = makeDispatcher(this._dispatcherType, this._tag, this._dbName, true)
     this._hybridJSIEnabled = true
   }
@@ -218,6 +228,7 @@ export default class SQLiteAdapter implements DatabaseAdapter, SQLDatabaseAdapte
     this.unsafeSqlQuery(query.table, encodeQuery(query, false, this.schema), callback)
   }
 
+  // $FlowFixMe: shuts up flow
   execSqlQuery(sql: string, params: any[], callback: ResultCallback<CachedQueryResult>): void {
     this._dispatcher.execSqlQuery(sql, params?.map(param => `${param}`), result => callback(result))
   }

@@ -47,6 +47,7 @@ export const notLike: OperatorFunction = (left, right) => {
 const oneOf: OperatorFunction = (value, values) => values.includes(value)
 const notOneOf: OperatorFunction = (value, values) => !values.includes(value)
 
+// $FlowFixMe: shuts up flow
 const operators: { [Operator]: OperatorFunction } = {
   eq: rawFieldEquals,
   notEq: rawFieldNotEquals,

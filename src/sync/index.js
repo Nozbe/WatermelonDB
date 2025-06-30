@@ -25,7 +25,7 @@ export type SyncTableChangeSet = $Exact<{
   updated: DirtyRaw[],
   deleted: RecordId[],
 }>
-export type SyncDatabaseChangeSet = Map<String, SyncTableChangeSet>
+export type SyncDatabaseChangeSet = Map<string, SyncTableChangeSet>
 
 export type SyncLocalChanges = $Exact<{ changes: SyncDatabaseChangeSet, affectedRecords: Model[] }>
 
@@ -94,6 +94,7 @@ export async function synchronize({
   // TODO: Wrap the three computionally intensive phases in `requestIdleCallback`
 
   // pull phase
+  // $FlowFixMe: shuts up flow
   const lastPulledAt = await getLastPulledAt(database, useSequenceIds)
   log && (log.lastPulledAt = lastPulledAt)
 
@@ -112,7 +113,7 @@ export async function synchronize({
   log && (log.newLastPulledAt = newLastPulledAt)
 
   await database.action(async action => {
-    if (!isSameDatabase(database, resetCount)) return
+    if (!isSameDatabase(database, resetCount)) {return}
 
     await action.subAction(() =>
       applyRemoteChanges(
@@ -133,12 +134,12 @@ export async function synchronize({
 
   // push phase
   const localChanges = await fetchLocalChanges(database)
-  if (!isSameDatabase(database, resetCount)) return
+  if (!isSameDatabase(database, resetCount)) {return}
 
   if (!isChangeSetEmpty(localChanges.changes)) {
     await pushChanges({ changes: localChanges.changes, lastPulledAt: newLastPulledAt })
 
-    if (!isSameDatabase(database, resetCount)) return
+    if (!isSameDatabase(database, resetCount)) {return}
 
     await markLocalChangesAsSynced(database, localChanges)
   }

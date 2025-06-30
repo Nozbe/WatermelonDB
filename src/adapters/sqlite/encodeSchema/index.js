@@ -17,11 +17,14 @@ import type {
   DropColumnsMigrationStep,
   AddIndexMigrationStep,
   RemoveIndexMigrationStep,
+  DropFTS5TableMigrationStep,
+  CreateFTS5TableMigrationStep,
 } from '../../../Schema/migrations'
 import type { SQL } from '../index'
 
 import encodeName from '../encodeName'
 import encodeValue from '../encodeValue'
+import { tableName } from '../../../Schema'
 
 const standardColumns = `"id" primary key, "_changed", "_status"`
 
@@ -80,6 +83,7 @@ const encodeDropFTS5SyncProcedures = ({ name }) => {
 
 const encodeFTS5Table: FTS5TableSchema => SQL = tableSchema =>
   encodeCreateFTS5Table(tableSchema) +
+  // $FlowFixMe: shuts up flow about replaceAll
   encodeFTS5SyncProcedures(tableSchema)
     .replaceAll(/[\r\n\t]/g, '')
     .replaceAll(/\s{2,}/g, ' ')
@@ -109,6 +113,7 @@ export const encodeSchema: AppSchema => SQL = ({ tables, fts5Tables, unsafeSql }
     .map(encodeTable)
     .join('')
 
+  // $FlowFixMe: shuts up flow
   const fts5Sql = values(fts5Tables)
     .map(encodeFTS5Table)
     .join('')
@@ -116,8 +121,16 @@ export const encodeSchema: AppSchema => SQL = ({ tables, fts5Tables, unsafeSql }
   return transform(sql + fts5Sql, unsafeSql)
 }
 
-const encodeDropFTS5TableMigrationStep: FTS5TableSchema => SQL = ({ name }) =>
-  encodeDropFTS5Table({ name }) + encodeDropFTS5SyncProcedures({ name })
+// $FlowFixMe: dropping FTS5 table only needs the name, other fields not required
+const encodeDropFTS5TableMigrationStep: DropFTS5TableMigrationStep => SQL = ({ name }) => {
+  const tableNameTyped = tableName(name)
+  return (
+    // $FlowFixMe: dropping FTS5 table only needs the name, other fields not required
+    encodeDropFTS5Table({ name: tableNameTyped }) +
+    // $FlowFixMe: dropping FTS5 table only needs the name, other fields not required
+    encodeDropFTS5SyncProcedures({ name: tableNameTyped })
+  )
+}
 
 const encodeCreateFTS5TableMigrationStep: CreateFTS5TableMigrationStep => SQL = ({ schema }) =>
   encodeFTS5Table(schema)

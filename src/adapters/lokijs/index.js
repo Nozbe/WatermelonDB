@@ -117,6 +117,7 @@ export default class LokiJSAdapter implements DatabaseAdapter {
     // Copy
     const lokiAdapter = executor.loki.persistenceAdapter
 
+    // $FlowFixMe: shuts up flow
     return new LokiJSAdapter({
       dbName: this._dbName,
       schema: this.schema,
@@ -188,5 +189,17 @@ export default class LokiJSAdapter implements DatabaseAdapter {
   // Executes multiple prepared operations
   batchImport(_operations: BatchOperation[], _srcDB: any, _callback: ResultCallback<void>): void {
     throw new Error('batchImport not implemented in LOKIJS')
+  }
+
+  enableNativeCDC(_callback: ResultCallback<void>): void {
+    throw new Error('enableNativeCDC not implemented in LOKIJS')
+  }
+
+  execSqlQuery(_sql: string, _params: any[], _callback: ResultCallback<{ [string]: any }[]>): void {
+    throw new Error('execSqlQuery not implemented in LOKIJS')
+  }
+
+  obliterateDatabase(_callback: ResultCallback<void>): void {
+    throw new Error('obliterateDatabase not implemented in LOKIJS')
   }
 }

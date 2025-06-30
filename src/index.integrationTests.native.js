@@ -8,6 +8,7 @@ import React from 'react'
 import { AppRegistry, Text, NativeModules } from 'react-native'
 import Tester from 'cavy/src/Tester'
 import TestHookStore from 'cavy/src/TestHookStore'
+// $FlowFixMe: unknown import
 import integrationTests from './__tests__/integrationTests'
 
 // Mysteriously fixes React Native stacktrace symbolication ¯\_(ツ)_/¯

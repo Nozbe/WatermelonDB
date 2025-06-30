@@ -34,7 +34,17 @@ type Connection = {
 }
 
 class DatabaseBridge {
+  // $FlowFixMe: unknown type
   connections: { [key: number]: Connection } = {}
+
+  affectedTables: Set<string> = new Set()
+
+  batchTimer: ?TimeoutID = null
+
+  batchInterval: number = 100
+
+ // milliseconds
+  sqliteUpdateHook: (tableName: string) => void
 
   constructor() {
     this.affectedTables = new Set()
@@ -43,12 +53,12 @@ class DatabaseBridge {
     this.sqliteUpdateHook = this.sqliteUpdateHook.bind(this)
   }
 
-  sqliteUpdateHook(tableName) {
+  sqliteUpdateHook(tableName: string) {
     this.bufferTableName(tableName)
     this.resetBatchTimer()
   }
 
-  bufferTableName(tableName) {
+  bufferTableName(tableName: string) {
     // Add the table name to the set of affected tables (duplicates are ignored)
     this.affectedTables.add(tableName)
   }
@@ -285,7 +295,7 @@ class DatabaseBridge {
       driver.unsafeResetDatabase({ version: schemaVersion, sql: schema }),
     )
 
-  obliterateDatabase = (tag: Number, resolve: any => void, reject: string => void) =>
+  obliterateDatabase = (tag: number, resolve: any => void, reject: string => void) =>
     this.withDriver(tag, resolve, reject, 'obliterateDatabase', driver =>
       driver.obliterateDatabase(),
     )
@@ -309,7 +319,7 @@ class DatabaseBridge {
   execSqlQuery = (
     tag: number,
     query: string,
-    params: [any],
+    params: any[],
     resolve: any => void,
     reject: string => void,
   ) =>
@@ -322,7 +332,7 @@ class DatabaseBridge {
       driver.setUpdateHook(this.sqliteUpdateHook.bind(this)),
     )
 
-  execSqlQuerySynchronous = (tag: number, query: string, params: [any]): any =>
+  execSqlQuerySynchronous = (tag: number, query: string, params: any[]): any =>
     this.withDriverSynchronous(tag, 'execSqlQuerySynchronous', driver =>
       driver.execSqlQuery(query, params),
     )

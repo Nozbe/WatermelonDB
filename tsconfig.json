@@ -4,7 +4,10 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "declaration": true,
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "lib": [
+      "ES2021.String"
+    ]
   },
   "include": [
     "src/**/*"

@@ -14,10 +14,17 @@ flow-typed/
 
 [options]
 esproposal.optional_chaining=enable
-; strip_root=true
 emoji=true
 module.ignore_non_literal_requires=true
 module.file_ext=.js
+module.file_ext=.jsx
+module.file_ext=.json
+module.file_ext=.native.js
+module.name_mapper='^[./a-zA-Z0-9$_-]+\.\(bmp\|gif\|jpg\|jpeg\|png\|psd\|svg\|webp\|m4v\|mov\|mp4\|mpeg\|mpg\|webm\|aac\|aiff\|caf\|m4a\|mp3\|wav\|html\|pdf\)$' -> 'RelativeImageStub'
+esproposal.class_static_fields=enable
+esproposal.class_instance_fields=enable
+exact_by_default=true
+experimental.const_params=true
 
 [version]
 >=0.86.0

@@ -40,6 +40,7 @@ export const makeDispatcher = (
   type: DispatcherType,
   tag: ConnectionTag,
   _dbName: string,
+  _useHybridJSI?: boolean,
 ): NativeDispatcher => {
   const methods = dispatcherMethods.map(methodName => {
     const name = type === 'synchronous' ? `${methodName}Synchronous` : methodName

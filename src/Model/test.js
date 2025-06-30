@@ -98,6 +98,7 @@ const generateId = () => {
 
 class MockModel extends Model {
   static table = 'mock'
+
   static _generateId = generateId
 
   @field('name')

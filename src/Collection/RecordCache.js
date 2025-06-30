@@ -18,12 +18,13 @@ export default class RecordCache<Record: Model> {
   recordInsantiator: Instantiator<Record>
 
   constructor(
-    tableName: TableName<Record>, 
+    tableName: TableName<Record>,
     recordInsantiator: Instantiator<Record>,
-    queryFunc: (recordId) => void,
+    queryFunc: RecordId => void,
   ): void {
     this.tableName = tableName
     this.recordInsantiator = recordInsantiator
+    // $FlowFixMe: shuts up flow
     this.queryFunc = queryFunc
   }
 
@@ -58,6 +59,7 @@ export default class RecordCache<Record: Model> {
   _cachedModelForId(id: RecordId): Record {
     const record = this.map.get(id)
 
+    // $FlowFixMe: shuts up flow
     if (!record && !this.queryFunc) {
       invariant(
         record,
@@ -65,18 +67,22 @@ export default class RecordCache<Record: Model> {
       )
     }
 
+    // $FlowFixMe: shuts up flow
     if (!record && this.queryFunc) {
+      // $FlowFixMe: shuts up flow
       const data = this.queryFunc(id)
 
       if (!data) {
         logError(`Record ID ${this.tableName}#${id} was sent over the bridge, but not found`)
 
+        // $FlowFixMe: shuts up flow
         return null
       }
-      
+
       return this._modelForRaw(data)
     }
 
+    // $FlowFixMe: shuts up flow
     return record
   }
 

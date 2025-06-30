@@ -196,25 +196,25 @@ export default class Collection<Record: Model> {
 
     const mapQueryResult = (id, result) => {
       return mapValue(rawRecord => {
-        invariant(rawRecord, `Record ${this.table}#${id} not found`);
-        return this._cache.recordFromQueryResult(rawRecord);
-      }, result);
+        invariant(rawRecord, `Record ${this.table}#${id} not found`)
+        return this._cache.recordFromQueryResult(rawRecord)
+      }, result)
     }
 
     this.database.adapter.underlyingAdapter.find(this.table, id, result => {
       if (!result || !result.value) {
-        logger.log(`Record ${this.table}#${id} not found`);
+        logger.log(`Record ${this.table}#${id} not found`)
     
         this.modelClass.fetchFromRemote(this.modelClass.table, id)
-          .then((_) => {
+          .then(_ => {
             this.database.adapter.underlyingAdapter.find(this.table, id, result => {
-              callback(mapQueryResult(id, result));
-            });
-          });
+              callback(mapQueryResult(id, result))
+            })
+          })
       } else {
-        callback(mapQueryResult(id, result));
+        callback(mapQueryResult(id, result))
       }
-    });    
+    })    
   }
 
   _applyChangesToCache(operations: CollectionChangeSet<Record>): void {

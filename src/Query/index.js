@@ -26,6 +26,7 @@ export type QueryAssociation = $Exact<{
   from: TableName<any>,
   to: TableName<any>,
   info: AssociationInfo,
+  joinedAs?: TableName<any>,
 }>
 
 export type SerializedQuery = $Exact<{

@@ -35,6 +35,7 @@ const unchangedRecordsForRaws = (raws, recordCache) =>
 const recordsToMarkAsSynced = ({ changes, affectedRecords }: SyncLocalChanges): Model[] =>
   pipe(
     values,
+    // $FlowFixMe: shuts up flow
     map(({ created, updated }) =>
       unchangedRecordsForRaws([...created, ...updated], affectedRecords),
     ),
@@ -43,6 +44,7 @@ const recordsToMarkAsSynced = ({ changes, affectedRecords }: SyncLocalChanges): 
 
 const destroyDeletedRecords = (db: Database, { changes }: SyncLocalChanges): Promise<*> =>
   promiseAllObject(
+    // $FlowFixMe: shuts up flow
     map(({ deleted }, tableName) => db.adapter.destroyDeletedRecords(tableName, deleted), changes),
   )
 

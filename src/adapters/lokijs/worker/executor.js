@@ -137,6 +137,7 @@ export default class LokiExecutor {
     // TODO: Only add to cached records if all is successful
     // TODO: Transactionality
 
+    // $FlowFixMe: shuts up flow
     const recordsToCreate: { [TableName<any>]: RawRecord[] } = {}
 
     operations.forEach(operation => {

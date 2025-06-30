@@ -11,11 +11,11 @@ import type {
   TableSchemaSpec,
   SchemaVersion,
 } from '../index'
-import { tableSchema, validateColumnSchema } from '../index'
+import { tableSchema, validateColumnSchema , fts5TableSchema } from '../index'
 
 import { invariant } from '../../utils/common'
 import { isObject } from '../../utils/fp'
-import { fts5TableSchema } from '../index'
+
 
 export type CreateTableMigrationStep = $RE<{
   type: 'create_table',

@@ -70,6 +70,7 @@ export default class Database {
   async batch(...records: $ReadOnlyArray<Model | null | void | false>): Promise<void> {
     // If we're passed multiple arguments, wrap them in an array
     if (records.length > 1) {
+      // $FlowFixMe: shuts up flow
       return this.batch(records)
     }
 
@@ -82,6 +83,7 @@ export default class Database {
 
     // performance critical - using mutations
     const batchOperations: BatchOperation[] = []
+    // $FlowFixMe: shuts up flow
     const changeNotifications: { [collectionName: TableName<any>]: CollectionChangeSet<*> } = {}
     const chunkSize = 10000 // Set the chunk size to 10,000
 

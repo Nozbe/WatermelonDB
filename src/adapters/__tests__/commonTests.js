@@ -460,11 +460,11 @@ export default () => [
         ['markAsDeleted', 'tasks', m3.id],
       ])
 
-      await adapter.destroyDeletedRecords('tasks', ["') or 1=1 --"])
+      await adapter.destroyDeletedRecords('tasks', ['\') or 1=1 --'])
       expectSortedEqual(await adapter.getDeletedRecords('tasks'), ['t1', 't2', 't3'])
       expectSortedEqual(await adapter.query(taskQuery()), [])
 
-      await adapter.destroyDeletedRecords('tasks', ["'); insert into tasks (id) values ('t4') --"])
+      await adapter.destroyDeletedRecords('tasks', ['\'); insert into tasks (id) values (\'t4\') --'])
       expectSortedEqual(await adapter.query(taskQuery()), [])
     },
   ],

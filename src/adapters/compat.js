@@ -43,7 +43,7 @@ export default class DatabaseAdapterCompat {
     return toPromise(callback => this.underlyingAdapter.query(query, callback))
   }
 
-  execSqlQuery(sql: string, params: any[]): Promise<Record<string, any>[]> {
+  execSqlQuery(sql: string, params: any[]): Promise<any[]> {
     return toPromise(callback => this.underlyingAdapter.execSqlQuery(sql, params, callback))
   }
 
