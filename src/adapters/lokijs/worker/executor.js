@@ -11,6 +11,10 @@ import type {
   CreateTableMigrationStep,
   AddColumnsMigrationStep,
   MigrationStep,
+  DropTableMigrationStep,
+  DropColumnsMigrationStep,
+  AddIndexMigrationStep,
+  RemoveIndexMigrationStep,
 } from '../../../Schema/migrations'
 import { stepsForMigration } from '../../../Schema/migrations/stepsForMigration'
 import type { SerializedQuery } from '../../../Query'
@@ -343,6 +347,14 @@ export default class LokiExecutor {
         this._executeCreateTableMigration(step)
       } else if (step.type === 'add_columns') {
         this._executeAddColumnsMigration(step)
+      } else if (step.type === 'drop_table') {
+        this._executeDropTableMigration(step)
+      } else if (step.type === 'drop_columns') {
+        this._executeDropColumnsMigration(step)
+      } else if (step.type === 'add_index') {
+        this._executeAddIndexMigration(step)
+      } else if (step.type === 'remove_index') {
+        this._executeRemoveIndexMigration(step)
       } else if (step.type === 'sql') {
         // ignore
       } else {
@@ -376,6 +388,52 @@ export default class LokiExecutor {
         collection.ensureIndex(column.name)
       }
     })
+  }
+
+  _executeDropTableMigration({ table }: DropTableMigrationStep): void {
+    // Remove the collection from LokiJS
+    const collection = this.loki.getCollection(table)
+    if (collection) {
+      this.loki.removeCollection(table)
+    }
+  }
+
+  _executeDropColumnsMigration({ table, columns }: DropColumnsMigrationStep): void {
+    const collection = this.loki.getCollection(table)
+    if (!collection) {
+      return
+    }
+
+    // Remove the specified columns from all records
+    collection.findAndUpdate({}, record => {
+      columns.forEach(column => {
+        delete record[column]
+      })
+    })
+  }
+
+  _executeAddIndexMigration({ table, column }: AddIndexMigrationStep): void {
+    const collection = this.loki.getCollection(table)
+    if (!collection) {
+      return
+    }
+
+    // Add index to the collection
+    collection.ensureIndex(column)
+  }
+
+  _executeRemoveIndexMigration({ table, column }: RemoveIndexMigrationStep): void {
+    const collection = this.loki.getCollection(table)
+    if (!collection) {
+      return
+    }
+
+    // Remove index from the collection
+    // Note: LokiJS doesn't have a direct method to remove indices
+    // This would require recreating the collection without the index
+    logger.warn(
+      `[WatermelonDB][Loki] Removing index ${column} from table ${table} is not fully supported in LokiJS`,
+    )
   }
 
   // Maps records to their IDs if the record is already cached on JS side

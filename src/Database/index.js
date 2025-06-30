@@ -58,7 +58,7 @@ export default class Database {
 
   copyTables = async (tables: any, srcDB: any) => {
     return this.adapter.batchImport(tables, srcDB)
-  }  
+  }
 
   enableNativeCDC = async () => {
     return this.adapter.enableNativeCDC()
@@ -68,15 +68,13 @@ export default class Database {
   // (made with `collection.prepareCreate` and `record.prepareUpdate`)
   // Note: falsy values (null, undefined, false) passed to batch are just ignored
   async batch(...records: $ReadOnlyArray<Model | null | void | false>): Promise<void> {
-    if (!Array.isArray(records[0])) {
-      // $FlowFixMe
+    // If we're passed multiple arguments, wrap them in an array
+    if (records.length > 1) {
       return this.batch(records)
     }
-    invariant(
-      records.length === 1,
-      'batch should be called with a list of models or a single array',
-    )
-    const actualRecords = records[0]
+
+    // If we're passed a single array argument, use it directly
+    const actualRecords = Array.isArray(records[0]) ? records[0] : records
 
     this._ensureInAction(
       `Database.batch() can only be called from inside of an Action. See docs for more details.`,
@@ -128,9 +126,9 @@ export default class Database {
         changeNotifications[table].push({ record, type: changeType })
       })
 
-      await this.adapter.batch(batchOperations)
-
-      // Clear batchOperations array for the next chunk
+      // Make a copy of operations to prevent mutation and clear for next chunk
+      const operations = [...batchOperations]
+      await this.adapter.batch(operations)
       batchOperations.length = 0
     }
 

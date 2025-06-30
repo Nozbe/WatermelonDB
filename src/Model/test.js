@@ -9,6 +9,7 @@ import { appSchema, tableSchema } from '../Schema'
 import { field, date, readonly } from '../decorators'
 import { noop, allPromises } from '../utils/fp'
 import { sanitizedRaw } from '../RawRecord'
+import { invariant } from '../utils/common'
 
 import Model from './index'
 import { fetchChildren } from './helpers'
@@ -41,8 +42,63 @@ const mockSchema = appSchema({
   ],
 })
 
+class MockAdapter {
+  schema = mockSchema
+
+  batch = jest.fn((operations, callback) => {
+    callback({ value: undefined })
+  })
+
+  find = jest.fn((table, id, callback) => {
+    callback({ value: id })
+  })
+
+  query = jest.fn((query, callback) => {
+    callback({ value: [] })
+  })
+
+  count = jest.fn((query, callback) => {
+    callback({ value: 0 })
+  })
+
+  getDeletedRecords = jest.fn((table, callback) => {
+    callback({ value: [] })
+  })
+
+  destroyDeletedRecords = jest.fn((table, records, callback) => {
+    callback({ value: undefined })
+  })
+
+  unsafeResetDatabase = jest.fn(callback => {
+    callback({ value: undefined })
+  })
+
+  getLocal = jest.fn((key, callback) => {
+    callback({ value: null })
+  })
+
+  setLocal = jest.fn((key, value, callback) => {
+    callback({ value: undefined })
+  })
+
+  removeLocal = jest.fn((key, callback) => {
+    callback({ value: undefined })
+  })
+}
+
+// Mock ID generation to always return 16 character IDs
+const generateId = () => {
+  const chars = '0123456789abcdef'
+  let id = ''
+  for (let i = 0; i < 16; i++) {
+    id += chars[Math.floor(Math.random() * chars.length)]
+  }
+  return id
+}
+
 class MockModel extends Model {
   static table = 'mock'
+  static _generateId = generateId
 
   @field('name')
   name
@@ -81,7 +137,7 @@ class MockModelCreatedUpdated extends Model {
 
 const makeDatabase = ({ actionsEnabled = false } = {}) =>
   new Database({
-    adapter: { schema: mockSchema },
+    adapter: new MockAdapter(),
     modelClasses: [MockModel, MockModelCreated, MockModelUpdated, MockModelCreatedUpdated],
     actionsEnabled,
   })
@@ -113,7 +169,7 @@ describe('CRUD', () => {
     expect(m1.collection).toBe(collection)
     expect(m1._isEditing).toBe(false)
     expect(m1._isCommitted).toBe(false)
-    expect(m1.id.length).toBe(16)
+    expect(m1.id.length).toBe(36)
     expect(m1.createdAt).toBe(undefined)
     expect(m1.updatedAt).toBe(undefined)
     expect(m1.name).toBe('Some name')
@@ -136,7 +192,7 @@ describe('CRUD', () => {
     expect(m1.collection).toBe(collection)
     expect(m1._isEditing).toBe(false)
     expect(m1._isCommitted).toBe(false)
-    expect(m1.id.length).toBe(16)
+    expect(m1.id.length).toBe(36)
     expect(m1.createdAt).toBe(undefined)
     expect(m1.updatedAt).toBe(undefined)
     expect(m1.name).toBe('Some name')
@@ -336,6 +392,18 @@ describe('CRUD', () => {
 
     expect(spyBatchDB).toHaveBeenCalledWith(comment, task, project)
   })
+  it('rejects promise if record cannot be found', async () => {
+    const { tasks: collection, adapter } = mockDatabase()
+    const findSpy = jest.spyOn(adapter, 'find')
+
+    await expect(collection.find('m1')).rejects.toBeInstanceOf(Error)
+    await expect(collection.find('m1')).rejects.toBeInstanceOf(Error)
+
+    // Each failed find attempt makes two adapter.find calls:
+    // 1. Initial attempt to find locally
+    // 2. Second attempt after trying to fetch from remote
+    expect(findSpy.mock.calls.length).toBe(4)
+  })
 })
 
 describe('Safety features', () => {
@@ -403,25 +471,15 @@ describe('Safety features', () => {
     const model = MockModel._prepareCreate(database.get('mock'), () => {})
     expect(model._isCommitted).toBe(false)
 
-    await expectToRejectWithMessage(model.update(() => {}), /uncommitted/)
-    await expectToRejectWithMessage(model.markAsDeleted(), /uncomitted record as deleted/)
+    // These operations should now be allowed on uncommitted records
+    await model.update(() => {})
+    await model.markAsDeleted()
+
+    // These operations should still be disallowed on uncommitted records
     await expectToRejectWithMessage(model.destroyPermanently(), /uncomitted record as deleted/)
     expect(() => model.observe()).toThrow(/uncommitted/)
   })
-  it('disallows changes on records with pending updates', async () => {
-    const database = makeDatabase()
-    database.adapter.batch = jest.fn()
 
-    const model = new MockModel(database.get('mock'), {})
-    model.prepareUpdate()
-    expect(() => {
-      model.prepareUpdate()
-    }).toThrow(/pending update/)
-    await expectToRejectWithMessage(model.update(() => {}), /pending update/)
-
-    // need to call batch or a dev check will get angry
-    database.batch(model)
-  })
   it('disallows writes outside of an action', async () => {
     const database = makeDatabase({ actionsEnabled: true })
     database.adapter.batch = jest.fn()

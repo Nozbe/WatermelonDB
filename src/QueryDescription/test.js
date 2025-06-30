@@ -5,6 +5,7 @@ describe('buildQueryDescription', () => {
     const query = Q.buildQueryDescription([])
     expect(query).toEqual({
       where: [],
+      eagerJoinTables: [],
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
@@ -20,6 +21,7 @@ describe('buildQueryDescription', () => {
           comparison: { operator: 'eq', right: { value: 'right_value' } },
         },
       ],
+      eagerJoinTables: [],
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
@@ -41,6 +43,7 @@ describe('buildQueryDescription', () => {
         { type: 'where', left: 'col4', comparison: { operator: 'eq', right: { value: false } } },
         { type: 'where', left: 'col5', comparison: { operator: 'eq', right: { value: null } } },
       ],
+      eagerJoinTables: [],
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
@@ -100,6 +103,7 @@ describe('buildQueryDescription', () => {
           comparison: { operator: 'notLike', right: { value: 'def%' } },
         },
       ],
+      eagerJoinTables: [],
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
@@ -118,6 +122,7 @@ describe('buildQueryDescription', () => {
           },
         },
       ],
+      eagerJoinTables: [],
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
@@ -158,6 +163,7 @@ describe('buildQueryDescription', () => {
           ],
         },
       ],
+      eagerJoinTables: [],
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
@@ -177,6 +183,7 @@ describe('buildQueryDescription', () => {
         { type: 'and', conditions: [{ type: 'sql', expr: `some sql` }] },
         { type: 'or', conditions: [{ type: 'loki', expr: { column: { $jgt: 5 } } }] },
       ],
+      eagerJoinTables: [],
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
@@ -187,6 +194,7 @@ describe('buildQueryDescription', () => {
     const query = Q.buildQueryDescription([Q.unsafeLokiFilter(filter)])
     expect(query).toEqual({
       where: [],
+      eagerJoinTables: [],
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],
@@ -230,6 +238,7 @@ describe('buildQueryDescription', () => {
           comparison: { operator: 'eq', right: { value: 'right_value' } },
         },
       ],
+      eagerJoinTables: [],
       joinTables: ['foreign_table', 'foreign_table2'],
       nestedJoinTables: [],
       sortBy: [],
@@ -284,6 +293,7 @@ describe('buildQueryDescription', () => {
           ],
         },
       ],
+      eagerJoinTables: [],
       joinTables: ['projects', 'foreign_table2'],
       nestedJoinTables: [],
       sortBy: [],
@@ -321,6 +331,7 @@ describe('buildQueryDescription', () => {
           ],
         },
       ],
+      eagerJoinTables: [],
       joinTables: ['projects'],
       nestedJoinTables: [],
       sortBy: [],
@@ -358,8 +369,12 @@ describe('buildQueryDescription', () => {
           ],
         },
       ],
+      eagerJoinTables: [],
       joinTables: ['projects'],
-      nestedJoinTables: [{ from: 'projects', to: 'teams' }, { from: 'teams', to: 'organizations' }],
+      nestedJoinTables: [
+        { from: 'projects', joinedAs: undefined, to: 'teams' },
+        { from: 'teams', joinedAs: undefined, to: 'organizations' },
+      ],
       sortBy: [],
     })
   })
@@ -391,6 +406,7 @@ describe('buildQueryDescription', () => {
     const query = Q.buildQueryDescription([Q.experimentalSortBy('sortable_column', Q.desc)])
     expect(query).toEqual({
       where: [],
+      eagerJoinTables: [],
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [{ type: 'sortBy', sortColumn: 'sortable_column', sortOrder: 'desc' }],
@@ -410,6 +426,7 @@ describe('buildQueryDescription', () => {
     ])
     expect(query).toEqual({
       where: [],
+      eagerJoinTables: [],
       joinTables: [],
       nestedJoinTables: [],
       sortBy: [],

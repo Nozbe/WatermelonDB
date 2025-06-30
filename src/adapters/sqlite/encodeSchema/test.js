@@ -1,5 +1,13 @@
 import { appSchema, tableSchema } from '../../../Schema'
-import { addColumns, createTable, unsafeExecuteSql } from '../../../Schema/migrations'
+import {
+  addColumns,
+  createTable,
+  unsafeExecuteSql,
+  dropTable,
+  dropColumns,
+  addIndex,
+  removeIndex,
+} from '../../../Schema/migrations'
 
 import { encodeSchema, encodeMigrationSteps } from './index'
 
@@ -113,6 +121,34 @@ describe('encodeSchema', () => {
       `create table "comments" ("id" primary key, "_changed", "_status", "body") without rowid;` +
       `create index "comments__status" on "comments" ("_status");` +
       'boop;'
+
+    expect(encodeMigrationSteps(migrationSteps)).toBe(expectedSQL)
+  })
+  it('encodes new migration steps', () => {
+    const migrationSteps = [
+      dropTable({
+        table: 'legacy_table',
+      }),
+      dropColumns({
+        table: 'posts',
+        columns: ['old_column', 'deprecated_field'],
+      }),
+      addIndex({
+        table: 'posts',
+        column: 'author_id',
+      }),
+      removeIndex({
+        table: 'posts',
+        column: 'unused_index',
+      }),
+    ]
+
+    const expectedSQL =
+      'drop table if exists "legacy_table";' +
+      'alter table "posts" drop column "old_column";' +
+      'alter table "posts" drop column "deprecated_field";' +
+      'create index if not exists "posts_author_id" on "posts" ("author_id");' +
+      'drop index if exists "posts_unused_index";'
 
     expect(encodeMigrationSteps(migrationSteps)).toBe(expectedSQL)
   })

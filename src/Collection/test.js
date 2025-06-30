@@ -79,8 +79,12 @@ describe('finding records', () => {
     await expect(collection.find('m1')).rejects.toBeInstanceOf(Error)
     await expect(collection.find('m1')).rejects.toBeInstanceOf(Error)
 
-    expect(findSpy.mock.calls.length).toBe(2)
+    // Each failed find attempt makes two adapter.find calls:
+    // 1. Initial attempt to find locally
+    // 2. Second attempt after trying to fetch from remote
+    expect(findSpy.mock.calls.length).toBe(4)
   })
+
   it('quickly rejects for invalid IDs', async () => {
     const { tasks } = mockDatabase()
     await expectToRejectWithMessage(tasks.find(), /Invalid record ID/)

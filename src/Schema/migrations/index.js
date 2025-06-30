@@ -2,12 +2,20 @@
 
 import { sortBy, prop, last, head } from 'rambdax'
 import type { $RE } from '../../types'
-import type { FTS5TableSchema, FTS5TableSchemaSpec, ColumnSchema, TableName, TableSchema, TableSchemaSpec, SchemaVersion } from '../index'
+import type {
+  FTS5TableSchema,
+  FTS5TableSchemaSpec,
+  ColumnSchema,
+  TableName,
+  TableSchema,
+  TableSchemaSpec,
+  SchemaVersion,
+} from '../index'
 import { tableSchema, validateColumnSchema } from '../index'
 
 import { invariant } from '../../utils/common'
 import { isObject } from '../../utils/fp'
-import { fts5TableSchema } from '@BuildHero/watermelondb/Schema'
+import { fts5TableSchema } from '../index'
 
 export type CreateTableMigrationStep = $RE<{
   type: 'create_table',
@@ -26,12 +34,53 @@ export type AddColumnsMigrationStep = $RE<{
   unsafeSql?: string => string,
 }>
 
+export type DropTableMigrationStep = $RE<{
+  type: 'drop_table',
+  table: TableName<any>,
+  unsafeSql?: string => string,
+}>
+
+export type DropColumnsMigrationStep = $RE<{
+  type: 'drop_columns',
+  table: TableName<any>,
+  columns: string[],
+  unsafeSql?: string => string,
+}>
+
+export type AddIndexMigrationStep = $RE<{
+  type: 'add_index',
+  table: TableName<any>,
+  column: string,
+  unsafeSql?: string => string,
+}>
+
+export type RemoveIndexMigrationStep = $RE<{
+  type: 'remove_index',
+  table: TableName<any>,
+  column: string,
+  unsafeSql?: string => string,
+}>
+
+export type DropFTS5TableMigrationStep = $RE<{
+  type: 'drop_fts5_table',
+  name: string,
+}>
+
 export type SqlMigrationStep = $RE<{
   type: 'sql',
   sql: string,
 }>
 
-export type MigrationStep = CreateTableMigrationStep | CreateFTS5TableMigrationStep | AddColumnsMigrationStep | SqlMigrationStep
+export type MigrationStep =
+  | CreateTableMigrationStep
+  | CreateFTS5TableMigrationStep
+  | AddColumnsMigrationStep
+  | DropTableMigrationStep
+  | DropColumnsMigrationStep
+  | AddIndexMigrationStep
+  | RemoveIndexMigrationStep
+  | DropFTS5TableMigrationStep
+  | SqlMigrationStep
 
 type Migration = $RE<{
   toVersion: SchemaVersion,
@@ -152,7 +201,7 @@ export function createTable(tableSchemaSpec: TableSchemaSpec): CreateTableMigrat
   return { type: 'create_table', schema }
 }
 
-export function dropFTS5Table(name: string): SqlMigrationStep {
+export function dropFTS5Table(name: string): DropFTS5TableMigrationStep {
   return { type: 'drop_fts5_table', name }
 }
 
@@ -172,6 +221,77 @@ export function addColumns({
   }
 
   return { type: 'add_columns', table, columns, unsafeSql }
+}
+
+export function dropTable({
+  table,
+  unsafeSql,
+}: $Exact<{
+  table: TableName<any>,
+  unsafeSql?: string => string,
+}>): DropTableMigrationStep {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(table, `Missing table name in dropTable()`)
+  }
+
+  return { type: 'drop_table', table, unsafeSql }
+}
+
+export function dropColumns({
+  table,
+  columns,
+  unsafeSql,
+}: $Exact<{
+  table: TableName<any>,
+  columns: string[],
+  unsafeSql?: string => string,
+}>): DropColumnsMigrationStep {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(table, `Missing table name in dropColumns()`)
+    invariant(
+      columns && Array.isArray(columns),
+      `Missing 'columns' or not an array in dropColumns()`,
+    )
+    columns.forEach(column => {
+      invariant(typeof column === 'string', `Column name must be a string in dropColumns()`)
+    })
+  }
+
+  return { type: 'drop_columns', table, columns, unsafeSql }
+}
+
+export function addIndex({
+  table,
+  column,
+  unsafeSql,
+}: $Exact<{
+  table: TableName<any>,
+  column: string,
+  unsafeSql?: string => string,
+}>): AddIndexMigrationStep {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(table, `Missing table name in addIndex()`)
+    invariant(typeof column === 'string', `Column name must be a string in addIndex()`)
+  }
+
+  return { type: 'add_index', table, column, unsafeSql }
+}
+
+export function removeIndex({
+  table,
+  column,
+  unsafeSql,
+}: $Exact<{
+  table: TableName<any>,
+  column: string,
+  unsafeSql?: string => string,
+}>): RemoveIndexMigrationStep {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(table, `Missing table name in removeIndex()`)
+    invariant(typeof column === 'string', `Column name must be a string in removeIndex()`)
+  }
+
+  return { type: 'remove_index', table, column, unsafeSql }
 }
 
 export function unsafeExecuteSql(sql: string): SqlMigrationStep {

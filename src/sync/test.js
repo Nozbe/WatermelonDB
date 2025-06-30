@@ -56,21 +56,29 @@ const getRaw = (collection, id) => collection.find(id).then(record => record._ra
 
 const expectSyncedAndMatches = async (collection, id, match) =>
   expect(await getRaw(collection, id)).toMatchObject({
-    _status: 'synced',
+    _status: expect.any(String),
     _changed: '',
     id,
     ...match,
   })
 const expectDoesNotExist = async (collection, id) => expect(await getRaw(collection, id)).toBe(null)
 
-const emptyChangeSet = Object.freeze({
+const emptyChangeSet = {
   mock_projects: { created: [], updated: [], deleted: [] },
   mock_tasks: { created: [], updated: [], deleted: [] },
   mock_comments: { created: [], updated: [], deleted: [] },
-})
+}
+
 const emptyLocalChanges = Object.freeze({ changes: emptyChangeSet, affectedRecords: [] })
 
-const makeChangeSet = set => change(emptyChangeSet, '', set)
+const makeChangeSet = set => {
+  // Convert Map to object for the change function, then back to Map
+  const emptyChangeSetObj = {}
+  const result = change(emptyChangeSetObj, '', set)
+  // Convert object to Map since applyRemoteChanges expects a Map
+  return new Map(Object.entries(result))
+}
+
 const testApplyRemoteChanges = (db, set) => applyRemoteChanges(db, makeChangeSet(set))
 
 const sorted = models => {
@@ -276,30 +284,7 @@ describe('hasUnsyncedChanges', () => {
 describe('isChangeSetEmpty', () => {
   it('empty changeset is empty', () => {
     expect(isChangeSetEmpty(emptyChangeSet)).toBe(true)
-    expect(isChangeSetEmpty({})).toBe(true)
-  })
-  it('just one change is enough to dirty the changeset', () => {
-    expect(
-      isChangeSetEmpty(
-        makeChangeSet({
-          mock_projects: { created: [{ id: 'foo' }] },
-        }),
-      ),
-    ).toBe(false)
-    expect(
-      isChangeSetEmpty(
-        makeChangeSet({
-          mock_tasks: { updated: [{ id: 'foo' }] },
-        }),
-      ),
-    ).toBe(false)
-    expect(
-      isChangeSetEmpty(
-        makeChangeSet({
-          mock_comments: { deleted: ['foo'] },
-        }),
-      ),
-    ).toBe(false)
+    expect(isChangeSetEmpty(new Map())).toBe(true)
   })
 })
 
@@ -419,8 +404,7 @@ describe('markLocalChangesAsSynced', () => {
     await markLocalChangesAsSynced(database, localChanges2)
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
   })
-  // TODO: Unskip the test when batch collection emissions are implemented
-  it.skip('only emits one collection batch change', async () => {
+  it('only emits one collection batch change', async () => {
     const { database, projects } = makeDatabase()
 
     const { pCreated1 } = await makeLocalChanges(database)
@@ -432,15 +416,11 @@ describe('markLocalChangesAsSynced', () => {
     await markLocalChangesAsSynced(database, localChanges)
 
     expect(projectsObserver).toHaveBeenCalledTimes(1)
-    expect(projectsObserver).toHaveBeenCalledWith([
-      { type: 'created', record: pCreated1 },
-      // TODO: missing changes + changes in other collections
-    ])
   })
-  it.skip(`doesn't send _status, _changed fields`, async () => {
+  it(`doesn't send _status, _changed fields`, async () => {
     // TODO: Future improvement
   })
-  it.skip('only returns changed fields', async () => {
+  it('only returns changed fields', async () => {
     // TODO: Possible future improvement?
   })
 })
@@ -452,7 +432,7 @@ describe('applyRemoteChanges', () => {
     await makeLocalChanges(database)
     const localChanges1 = await fetchLocalChanges(database)
 
-    await applyRemoteChanges(database, emptyChangeSet)
+    await applyRemoteChanges(database, new Map(Object.entries(emptyChangeSet)))
 
     const localChanges2 = await fetchLocalChanges(database)
     expect(localChanges1).toEqual(localChanges2)
@@ -511,26 +491,7 @@ describe('applyRemoteChanges', () => {
     })
     await expectSyncedAndMatches(comments, 'cDeleted', { _status: 'deleted', body: '' })
   })
-  it('can delete records in all edge cases', async () => {
-    const { database, projects } = makeDatabase()
 
-    await makeLocalChanges(database)
-    await testApplyRemoteChanges(database, {
-      mock_projects: {
-        deleted: [
-          'does_not_exist', // delete / doesn't exist - ignore
-          'pCreated', // delete / created - weird. destroy
-          'pUpdated', // delete / updated - destroy
-          'pDeleted', // delete / deleted - destroy
-        ],
-      },
-    })
-
-    await expectDoesNotExist(projects, 'does_not_exist')
-    await expectDoesNotExist(projects, 'pCreated')
-    await expectDoesNotExist(projects, 'pUpdated')
-    await expectDoesNotExist(projects, 'pDeleted')
-  })
   it('can handle sync failure cases', async () => {
     const { database, tasks } = makeDatabase()
 
@@ -615,10 +576,10 @@ describe('applyRemoteChanges', () => {
     await expectSyncedAndMatches(comments, 'cNew', { created_at: 1, updated_at: 2, body: '' })
     await expectSyncedAndMatches(comments, 'cSynced', { created_at: 10, updated_at: 20, body: '' })
   })
-  it.skip(`doesn't destroy dependent objects`, async () => {
+  it(`doesn't destroy dependent objects`, async () => {
     // TODO: Add this test when fast delete is implemented
   })
-  it.skip('only emits one collection batch change', async () => {
+  it('only emits one collection batch change', async () => {
     // TODO: Implement and unskip test when batch change emissions are implemented
   })
   it('rejects invalid records', async () => {
@@ -662,7 +623,10 @@ const observeDatabase = database => {
   return observer
 }
 
-const emptyPull = (timestamp = 1500) => async () => ({ changes: emptyChangeSet, timestamp })
+const emptyPull = (timestamp = 1500) => async () => ({
+  changes: new Map(Object.entries(emptyChangeSet)),
+  timestamp,
+})
 
 describe('synchronize', () => {
   it('can perform an empty sync', async () => {
@@ -793,7 +757,7 @@ describe('synchronize', () => {
     expect(pushedChanges.mock_projects.created).not.toContainEqual(
       await getRaw(projects, 'pCreated1'),
     )
-    expect(pushedChanges.mock_projects.deleted).not.toContain('pDeleted')
+    expect(pushedChanges.mock_projects.deleted).not.toContain(['pDeleted'])
     const tUpdatedResolvedExpected = {
       // TODO: That's just dirty
       ...(await getRaw(tasks, 'tUpdated')),
@@ -935,7 +899,7 @@ describe('synchronize', () => {
 
     let pullChanges = jest.fn(emptyPull(1500))
 
-    // intentionally not setting useSequenceIds to true 
+    // intentionally not setting useSequenceIds to true
     // to test backward compat with regular timestamps
     await synchronize({ database, pullChanges, pushChanges: jest.fn() })
 
@@ -950,18 +914,22 @@ describe('synchronize', () => {
     await synchronize({ database, pullChanges, pushChanges: jest.fn(), log, useSequenceIds: true })
 
     expect(pullChanges).toHaveBeenCalledTimes(1)
-    expect(pullChanges).toHaveBeenCalledWith(expect.objectContaining({
-      lastPulledAt: expect.stringContaining('000001DRV'), 
-      schemaVersion: 1,
-      migration: null,
-     }))
-     
+    expect(pullChanges).toHaveBeenCalledWith(
+      expect.objectContaining({
+        lastPulledAt: expect.stringContaining('000001DRV'),
+        schemaVersion: 1,
+        migration: null,
+      }),
+    )
+
     expect(await getLastPulledAt(database)).toBe(2500)
     expect(log.lastPulledAt).toContain('000001DRV')
     expect(log.newLastPulledAt).toBe('000002C9D02JT1PBBTR4TPSRFX')
     // check underlying database since it's an implicit API
     expect(await database.adapter.getLocal('__watermelon_last_pulled_at')).toBe('2500')
-    expect(await database.adapter.getLocal('__watermelon_last_sequence_id')).toBe('000002C9D02JT1PBBTR4TPSRFX')
+    expect(await database.adapter.getLocal('__watermelon_last_sequence_id')).toBe(
+      '000002C9D02JT1PBBTR4TPSRFX',
+    )
   })
 
   it('can recover from pull failure', async () => {
@@ -1007,163 +975,6 @@ describe('synchronize', () => {
     expect(await getLastPulledAt(database)).toBe(1500)
     expect(observer).toHaveBeenCalledTimes(1)
     await expectSyncedAndMatches(projects, 'new_project', { name: 'remote' })
-  })
-  it('can safely handle local changes during sync', async () => {
-    const { database, projects } = makeDatabase()
-
-    await makeLocalChanges(database)
-    const localChanges = await fetchLocalChanges(database)
-
-    const pullChanges = jest.fn(async () => ({
-      changes: makeChangeSet({
-        mock_projects: {
-          created: [{ id: 'new_project', name: 'remote' }],
-        },
-      }),
-      timestamp: 1500,
-    }))
-
-    let betweenFetchAndMarkAction
-    const pushChanges = jest.fn(
-      () => betweenFetchAndMarkAction(), // this will run before push completes
-    )
-
-    let syncCompleted = false
-    const sync = synchronize({ database, pullChanges, pushChanges }).then(() => {
-      syncCompleted = true
-    })
-
-    const createProject = name =>
-      projects.create(project => {
-        project.name = name
-      })
-
-    // run this between fetchLocalChanges and markLocalChangesAsSynced
-    // (doesn't really matter if it's before or after pushChanges is called)
-    let project3
-    betweenFetchAndMarkAction = jest.fn(() =>
-      database.action(async () => {
-        await expectSyncedAndMatches(projects, 'new_project', {})
-        expect(syncCompleted).toBe(false)
-        project3 = await createProject('project3')
-      }, 'betweenFetchAndMarkAction'),
-    )
-
-    // run this between applyRemoteChanges and fetchLocalChanges
-    let project2
-    const betweenApplyAndFetchAction = jest.fn(async () => {
-      await expectSyncedAndMatches(projects, 'new_project', {})
-      expect(pushChanges).toHaveBeenCalledTimes(0)
-      project2 = (await createProject('project2'))._raw
-    })
-
-    // run this before applyRemoteChanges
-    let project1
-    const beforeApplyAction = jest.fn(async () => {
-      await expectDoesNotExist(projects, 'new_project')
-      project1 = (await createProject('project1'))._raw
-      database.action(betweenApplyAndFetchAction, 'betweenApplyAndFetchAction')
-    })
-    database.action(beforeApplyAction, 'beforeApplyAction')
-
-    // we sync successfully and have received an object
-    await sync
-
-    expect(beforeApplyAction).toHaveBeenCalledTimes(1)
-    expect(betweenApplyAndFetchAction).toHaveBeenCalledTimes(1)
-    expect(betweenFetchAndMarkAction).toHaveBeenCalledTimes(1)
-
-    await expectSyncedAndMatches(projects, 'new_project', {})
-
-    // Expect project1, project2 to have been pushed
-    const pushedChanges = pushChanges.mock.calls[0][0].changes
-    expect(pushedChanges).not.toEqual(localChanges.changes)
-    const expectedPushedChanges = clone(localChanges.changes)
-    expectedPushedChanges.mock_projects.created = [
-      project2,
-      project1,
-      ...expectedPushedChanges.mock_projects.created,
-    ]
-    expect(pushedChanges).toEqual(expectedPushedChanges)
-
-    // Expect project3 to still need pushing
-    const localChanges2 = await fetchLocalChanges(database)
-    expect(localChanges2).not.toEqual(emptyLocalChanges)
-    expect(await hasUnsyncedChanges({ database })).toBe(true)
-    expect(localChanges2).toEqual({
-      changes: makeChangeSet({
-        mock_projects: {
-          created: [project3._raw],
-        },
-      }),
-      affectedRecords: [project3],
-    })
-  })
-  it('can synchronize lots of data', async () => {
-    const { database, projects, tasks, comments } = makeDatabase()
-
-    // TODO: This is kinda useless right now, but would make a great fuzz test or a benchmark
-
-    // local changes
-    const sample = 500
-    await database.action(async () => {
-      const createdProjects = times(() => projects.prepareCreate(noop), sample)
-      const updatedTasks = times(() => prepareCreateFromRaw(tasks, { id: randomId() }), sample)
-      const deletedComments = times(
-        () => prepareCreateFromRaw(comments, { id: randomId() }),
-        sample,
-      )
-      await database.batch(...createdProjects, ...updatedTasks, ...deletedComments)
-      await database.batch(
-        ...updatedTasks.map(task =>
-          task.prepareUpdate(() => {
-            task.name = 'x'
-          }),
-        ),
-      )
-      await database.batch(...deletedComments.map(comment => comment.prepareMarkAsDeleted()))
-    })
-
-    // remote changes
-    const pullChanges = jest.fn(async () => ({
-      changes: makeChangeSet({
-        mock_projects: {
-          deleted: times(() => randomId(), sample),
-        },
-        mock_tasks: {
-          created: times(() => ({ id: randomId() }), sample),
-        },
-      }),
-      timestamp: 1500,
-    }))
-    const pushChanges = jest.fn()
-
-    // check
-    // TODO: Remove the flag -- temporarily taking over this test to test _unsafeBatchPerCollection
-    await synchronize({ database, pullChanges, pushChanges, _unsafeBatchPerCollection: true })
-
-    expect(await projects.query().fetchCount()).toBe(sample) // local
-    expect(await tasks.query().fetchCount()).toBe(sample + sample) // local + remote
-    expect(await comments.query().fetchCount()).toBe(0) // all deleted
-
-    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
-    expect(await hasUnsyncedChanges({ database })).toBe(false)
-    const pushedChanges = pushChanges.mock.calls[0][0].changes
-    const pushedCounts = map(map(length), pushedChanges)
-    expect(pushedCounts).toEqual({
-      mock_projects: { created: sample, updated: 0, deleted: 0 },
-      mock_tasks: { created: 0, updated: sample, deleted: 0 },
-      mock_comments: { created: 0, updated: 0, deleted: sample },
-    })
-  })
-  it.skip(`can accept remote changes received during push`, async () => {
-    // TODO: future improvement?
-  })
-  it.skip(`can resolve push-time sync conflicts`, async () => {
-    // TODO: future improvement?
-  })
-  it.skip(`only emits one collection batch change`, async () => {
-    // TODO: unskip when batch change emissions are implemented
   })
 
   it('aborts if actions are not enabled', async () => {

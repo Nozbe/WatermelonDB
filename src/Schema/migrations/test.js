@@ -1,4 +1,12 @@
-import { createTable, addColumns, schemaMigrations } from './index'
+import {
+  schemaMigrations,
+  createTable,
+  addColumns,
+  dropTable,
+  dropColumns,
+  addIndex,
+  removeIndex,
+} from './index'
 import { stepsForMigration } from './stepsForMigration'
 
 describe('schemaMigrations()', () => {
@@ -175,6 +183,52 @@ describe('migration step functions', () => {
     expect(() => addColumns({ table: 'foo', columns: [{ name: 'x', type: 'blah' }] })).toThrow(
       /type/,
     )
+  })
+  it('throws if dropTable() is malformed', () => {
+    expect(() => dropTable({})).toThrow(/table/)
+  })
+  it('throws if dropColumns() is malformed', () => {
+    expect(() => dropColumns({ columns: ['x'] })).toThrow(/table/)
+    expect(() => dropColumns({ table: 'foo' })).toThrow(/columns/)
+    expect(() => dropColumns({ table: 'foo', columns: 'not-an-array' })).toThrow(/columns/)
+    expect(() => dropColumns({ table: 'foo', columns: [123] })).toThrow(/string/)
+  })
+  it('throws if addIndex() is malformed', () => {
+    expect(() => addIndex({ column: 'x' })).toThrow(/table/)
+    expect(() => addIndex({ table: 'foo' })).toThrow(/Column name must be a string in addIndex()/)
+    expect(() => addIndex({ table: 'foo', column: 123 })).toThrow(
+      /Column name must be a string in addIndex/,
+    )
+  })
+  it('throws if removeIndex() is malformed', () => {
+    expect(() => removeIndex({ column: 'x' })).toThrow(/table/)
+    expect(() => removeIndex({ table: 'foo' })).toThrow(
+      /Column name must be a string in removeIndex()/,
+    )
+    expect(() => removeIndex({ table: 'foo', column: 123 })).toThrow(
+      /Column name must be a string in removeIndex/,
+    )
+  })
+  it('creates valid migration steps', () => {
+    expect(dropTable({ table: 'posts' })).toEqual({
+      type: 'drop_table',
+      table: 'posts',
+    })
+    expect(dropColumns({ table: 'posts', columns: ['old_col', 'deprecated'] })).toEqual({
+      type: 'drop_columns',
+      table: 'posts',
+      columns: ['old_col', 'deprecated'],
+    })
+    expect(addIndex({ table: 'posts', column: 'author_id' })).toEqual({
+      type: 'add_index',
+      table: 'posts',
+      column: 'author_id',
+    })
+    expect(removeIndex({ table: 'posts', column: 'unused_index' })).toEqual({
+      type: 'remove_index',
+      table: 'posts',
+      column: 'unused_index',
+    })
   })
 })
 

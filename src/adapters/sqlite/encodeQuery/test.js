@@ -65,7 +65,7 @@ describe('SQLite encodeQuery', () => {
         Q.where('col5', Q.lte(5)),
         Q.where('col6', Q.notEq(null)),
         Q.where('col7', Q.oneOf([1, 2, 3])),
-        Q.where('col8', Q.notIn(['"a"', '\'b\'', 'c'])),
+        Q.where('col8', Q.notIn(['"a"', "'b'", 'c'])),
         Q.where('col9', Q.between(10, 11)),
         Q.where('col10', Q.like('%abc')),
         Q.where('col11', Q.notLike('def%')),
@@ -132,8 +132,8 @@ describe('SQLite encodeQuery', () => {
       Q.on('tag_assignments', 'tag_id', Q.oneOf(['a', 'b', 'c'])),
     ]
     const expectedQuery =
-      `join "projects" on "projects"."id" = "tasks"."project_id"` +
-      ` join "tag_assignments" on "tag_assignments"."task_id" = "tasks"."id"` +
+      `join "projects" "projects" on "projects"."id" = "tasks"."project_id"` +
+      ` join "tag_assignments" "tag_assignments" on "tag_assignments"."task_id" = "tasks"."id"` +
       ` where ("projects"."team_id" is 'abcdef'` +
       ` and "projects"."is_active" is 1` +
       ` and "projects"."_status" is not 'deleted')` +
@@ -154,7 +154,7 @@ describe('SQLite encodeQuery', () => {
       ]),
     ).toBe(
       `select "tasks".* from "tasks"` +
-        ` join "projects" on "projects"."id" = "tasks"."project_id"` +
+        ` join "projects" "projects" on "projects"."id" = "tasks"."project_id"` +
         ` where ("projects"."left_column" <= "projects"."right_column"` +
         ` and ("projects"."left2" > "projects"."right2"` +
         ` or ("projects"."left2" is not null` +
@@ -175,8 +175,8 @@ describe('SQLite encodeQuery', () => {
       ]),
     ).toBe(
       `select distinct "tasks".* from "tasks"` +
-        ` left join "projects" on "projects"."id" = "tasks"."project_id"` +
-        ` left join "tag_assignments" on "tag_assignments"."task_id" = "tasks"."id"` +
+        ` left join "projects" "projects" on "projects"."id" = "tasks"."project_id"` +
+        ` left join "tag_assignments" "tag_assignments" on "tag_assignments"."task_id" = "tasks"."id"` +
         ` where ("tasks"."is_followed" is 1` +
         ` or ("projects"."is_followed" is 1 and "projects"."_status" is not 'deleted')` +
         ` or (("tag_assignments"."foo" is 'bar' and "tag_assignments"."_status" is not 'deleted')))` +
@@ -191,8 +191,8 @@ describe('SQLite encodeQuery', () => {
       ]),
     ).toBe(
       `select "tasks".* from "tasks"` +
-        ` join "projects" on "projects"."id" = "tasks"."project_id"` +
-        ` left join "teams" on "teams"."id" = "projects"."team_id"` +
+        ` join "projects" "projects" on "projects"."id" = "tasks"."project_id"` +
+        ` left join "teams" "teams" on "teams"."id" = "projects"."team_id"` +
         ` where (("teams"."foo" is 'bar'` +
         ` and "teams"."_status" is not 'deleted')` +
         ` and "projects"."_status" is not 'deleted')` +
@@ -209,7 +209,7 @@ describe('SQLite encodeQuery', () => {
       ]),
     ).toBe(
       `select "tasks".* from "tasks"` +
-        ` join "projects" on "projects"."id" = "tasks"."project_id"` +
+        ` join "projects" "projects" on "projects"."id" = "tasks"."project_id"` +
         ` where ("projects"."foo" is 'bar'` +
         ` and ("projects"."bar" is 'baz'` +
         ` or "projects"."bla" is 'boop')` +
