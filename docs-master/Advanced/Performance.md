@@ -1,3 +1,0 @@
-# Performance
-
-Performance tips — TODO

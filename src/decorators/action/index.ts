@@ -1,0 +1,13 @@
+import type {Descriptor} from '../../utils/common/makeDecorator';
+
+// Wraps function calls in `database.action(() => { ... })`. See docs for more details
+// You can use this on Model subclass methods (or methods of any object that has a `database` property)
+export default function action(target: any, key: string, descriptor: Descriptor): Descriptor {
+  const actionName = `${target.table}.${key}`
+  return {
+    ...descriptor,
+    value(...args: any[]): Promise<any> {
+      return this.database.action(() => descriptor.value.apply(this, args), actionName)
+    },
+  };
+}

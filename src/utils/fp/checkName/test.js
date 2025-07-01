@@ -13,11 +13,11 @@ describe('checkName', () => {
   it('does not allow unsafe names', () => {
     const unsafeNames = [
       '"hey"',
-      '\'hey\'',
+      "'hey'",
       '`hey`',
       'hey)',
       'hey --',
-      'foo\' and delete * from users --',
+      "foo' and delete * from users --",
       '$loki',
       '__foo',
       '__proto__',

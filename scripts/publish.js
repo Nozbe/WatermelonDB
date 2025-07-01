@@ -63,18 +63,7 @@ const buildTasks = options => {
   const isPrerelease = includes('-', version)
   const tag = isPrerelease ? 'next' : 'latest'
 
-  // eslint-disable-next-line
-
   return [
-    // {
-    //   title: 'ping npm registry',
-    //   task: () =>
-    //     timeout(
-    //       execa('npm', ['ping']).catch(throwError('connection to npm registry failed')),
-    //       5000,
-    //       'Connection to npm registry timed out',
-    //     ),
-    // },
     ...(isPrerelease
       ? [
           {
@@ -82,55 +71,15 @@ const buildTasks = options => {
             task: () => {},
           },
         ]
-      : [
-          /*          {
-            title: 'check current branch',
-            task: () =>
-              execa('git', ['symbolic-ref', '--short', 'HEAD']).then(
-                when(
-                  ({ stdout: branch }) => branch !== 'master',
-                  throwError('not on `master` branch'),
-                ),
-              ),
-          },
-          {
-            title: 'check local working tree',
-            task: () =>
-              execa('git', ['status', '--porcelain']).then(
-                when(
-                  ({ stdout: status }) => status !== '',
-                  throwError('commit or stash changes first'),
-                ),
-              ),
-          },
-          {
-            title: 'check remote history',
-            task: () =>
-              execa('git', ['rev-list', '--count', '--left-only', '@{u}...HEAD']).then(
-                when(
-                  ({ stdout: result }) => result !== '0',
-                  throwError('please pull changes first'),
-                ),
-              ),
-          }, */
-        ]),
+      : []),
     {
       title: 'check tests',
       task: () => execa('yarn', ['test']),
     },
-    // {
-    //   title: 'check eslint',
-    //   task: () => execa('yarn', ['eslint']),
-    // },
-    // TODO: Bring those back when metro config is fixed
-    // {
-    //   title: 'check iOS tests',
-    //   task: () => execa('yarn', ['test:ios']),
-    // },
-    // {
-    //   title: 'check Android tests',
-    //   task: () => execa('yarn', ['test:android']),
-    // },
+    {
+      title: 'check TypeScript types',
+      task: () => execa('yarn', ['typecheck']),
+    },
     {
       title: 'bump version',
       task: () => execa('yarn', ['version', '--new-version', version]),
