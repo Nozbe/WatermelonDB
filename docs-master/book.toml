@@ -1,5 +1,0 @@
-[book]
-title = "WatermelonDB documentation"
-authors = ["radex", "WatermelonDB contributors"]
-multilingual = false
-src = "."

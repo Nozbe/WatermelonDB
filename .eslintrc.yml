@@ -4,21 +4,13 @@ env:
   es6: true
   jest: true
 
-plugins:
-  - flowtype
-
 extends:
   # https://github.com/airbnb/javascript
   - airbnb
-  - plugin:flowtype/recommended
   - prettier
   - plugin:jest/recommended
 
 parser: babel-eslint
-
-settings:
-  flowtype:
-    onlyFilesWithFlowAnnotation: true
 
 rules:
   curly:

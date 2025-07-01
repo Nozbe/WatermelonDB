@@ -24,6 +24,7 @@ const prettyJson = require('json-stringify-pretty-compact')
 const chokidar = require('chokidar')
 const anymatch = require('anymatch')
 const rimraf = require('rimraf')
+const { execSync } = require('child_process')
 
 const pkg = require('../package.json')
 
@@ -42,7 +43,7 @@ const DIR_PATH = isDevelopment ? DEV_PATH : DIST_PATH
 const DO_NOT_BUILD_PATHS = [
   /__tests__/,
   /adapters\/__tests__/,
-  /test\.js/,
+  /test\.(js|ts|tsx)$/,
   /integrationTest/,
   /__mocks__/,
   /\.DS_Store/,
@@ -55,7 +56,7 @@ const cleanFolder = dir => rimraf.sync(dir)
 
 const takeFiles = pipe(
   prop('path'),
-  both(endsWith('.js'), isNotIncludedInBuildPaths),
+  both(file => file.match(/\.(js|jsx|ts|tsx)$/), isNotIncludedInBuildPaths),
 )
 
 const takeModules = pipe(
@@ -73,14 +74,35 @@ const createModulePath = format => {
 
 const createFolder = dir => mkdirp.sync(resolvePath(dir))
 
+const getBabelConfig = file => {
+  const isTypeScript = file.match(/\.(ts|tsx)$/)
+  return {
+    presets: [...(isTypeScript ? ['@babel/preset-typescript'] : [])],
+    filename: file, // This helps Babel detect the correct file type
+  }
+}
+
 const babelTransform = (format, file) => {
   if (format === SRC_MODULES) {
     // no transform, just return source
     return fs.readFileSync(file)
   }
 
-  const { code } = babel.transformFileSync(file, {})
+  const { code } = babel.transformFileSync(file, getBabelConfig(file))
   return code
+}
+
+const compileTypeScript = () => {
+  // Only run tsc if we have TypeScript files
+  const hasTypeScriptFiles = glob.sync(`${SOURCE_PATH}/**/*.{ts,tsx}`).length > 0
+  if (hasTypeScriptFiles) {
+    try {
+      execSync('tsc --emitDeclarationOnly', { stdio: 'inherit' })
+    } catch (error) {
+      console.error('TypeScript compilation failed:', error)
+      process.exit(1)
+    }
+  }
 }
 
 const paths = klaw(SOURCE_PATH)
@@ -89,7 +111,7 @@ const modules = takeModules(paths)
 const buildModule = format => file => {
   const modulePath = createModulePath(format)
   const code = babelTransform(format, file)
-  const filename = modulePath(file)
+  const filename = modulePath(file).replace(/\.(ts|tsx)$/, '.js')
 
   createFolder(path.dirname(filename))
   fs.writeFileSync(filename, code)
@@ -99,6 +121,7 @@ const prepareJson = pipe(
   omit(['scripts']),
   merge({
     main: './index.js',
+    types: './index.d.ts',
     sideEffects: false,
   }),
   obj => prettyJson(obj),
@@ -138,11 +161,12 @@ if (isDevelopment) {
   const buildSrcModule = buildModule(SRC_MODULES)
 
   const buildFile = file => {
-    if (file.match(/\.js$/)) {
+    if (file.match(/\.(js|jsx|ts|tsx)$/)) {
       buildSrcModule(file)
       buildCjsModule(file)
-    } else if (file.match(/\.js$/)) {
-      fs.copySync(file, path.join(DEV_PATH, replace(SOURCE_PATH, '', file)))
+      if (file.match(/\.(ts|tsx)$/)) {
+        compileTypeScript()
+      }
     } else {
       // native files
       fs.copySync(file, path.join(DEV_PATH, replace(resolvePath(), '', file)))
@@ -190,9 +214,14 @@ if (isDevelopment) {
 
   buildSrcModules(modules)
   buildCjsModules(modules)
+  compileTypeScript()
 
   // copy typescript definitions
   glob(`${SOURCE_PATH}/**/*.d.ts`, {}, (err, files) => {
+    if (err) {
+      console.error('Error copying TypeScript definitions:', err)
+      return
+    }
     copyFiles(DIST_PATH, files, SOURCE_PATH)
   })
 }

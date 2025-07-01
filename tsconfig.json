@@ -3,13 +3,47 @@
     "target": "es6",
     "module": "commonjs",
     "moduleResolution": "node",
+    "resolveJsonModule": true,
     "declaration": true,
     "emitDeclarationOnly": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": false,
+    "strictPropertyInitialization": false,
+    "noImplicitReturns": false,
+    "useDefineForClassFields": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "jsx": "react",
     "lib": [
-      "ES2021.String"
-    ]
+      "dom",
+      "esnext"
+    ],
+    "types": [
+      "node",
+      "jest",
+      "react",
+      "react-native"
+    ],
+    "allowSyntheticDefaultImports": true,
+    "importHelpers": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "paths": {
+      "*": ["src/*"]
+    }
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "src/**/*.json",
+    "src/**/__tests__/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "examples",
+    "coverage"
   ]
 }
