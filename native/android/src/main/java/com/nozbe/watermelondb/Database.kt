@@ -8,6 +8,8 @@ import io.requery.android.database.sqlite.SQLiteConnectionPool.CONNECTION_FLAG_P
 import io.requery.android.database.sqlite.SQLiteDatabase
 import io.requery.android.database.sqlite.SQLiteSession
 import io.requery.android.database.sqlite.SQLiteUpdateHook
+import android.database.sqlite.SQLiteFullException
+import android.util.Log
 import java.io.File
 import java.lang.reflect.Field
 import java.lang.reflect.Method
