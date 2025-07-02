@@ -20,6 +20,8 @@ const plugins = [
   ],
   ['@babel/plugin-proposal-decorators', { legacy: true }],
   ['@babel/plugin-proposal-class-properties', { loose: true }],
+  ['@babel/plugin-transform-private-property-in-object', { loose: true }],
+  ['@babel/plugin-transform-private-methods', { loose: true }],
   [
     '@babel/plugin-transform-classes',
     {
@@ -27,7 +29,6 @@ const plugins = [
     },
   ],
   '@babel/plugin-syntax-dynamic-import',
-  '@babel/plugin-transform-block-scoping',
   '@babel/plugin-proposal-json-strings',
   '@babel/plugin-proposal-unicode-property-regex',
   // See http://incaseofstairs.com/six-speed/ for speed comparison between native and transpiled ES6
@@ -68,7 +69,20 @@ const plugins = [
 ]
 
 module.exports = {
-  presets: ['@babel/preset-typescript'],
+  presets: [
+    ['@babel/preset-typescript', { allowDeclareFields: true }],
+    [
+      '@babel/preset-env',
+      {
+        loose: true,
+        targets: {
+          node: 'current',
+          ios: '9',
+          android: '21',
+        },
+      },
+    ],
+  ],
   env: {
     development: {
       plugins,

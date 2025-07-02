@@ -77,8 +77,8 @@ const createFolder = dir => mkdirp.sync(resolvePath(dir))
 const getBabelConfig = file => {
   const isTypeScript = file.match(/\.(ts|tsx)$/)
   return {
-    presets: [...(isTypeScript ? ['@babel/preset-typescript'] : [])],
-    filename: file, // This helps Babel detect the correct file type
+    presets: [...(isTypeScript ? ['@babel/preset-typescript'] : []), '@babel/preset-env'],
+    filename: file,
   }
 }
 
