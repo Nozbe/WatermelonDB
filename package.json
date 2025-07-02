@@ -95,7 +95,7 @@
     "@babel/plugin-transform-unicode-regex": "^7.4.4",
     "@babel/preset-env": "^7.22.5",
     "@babel/preset-react": "^7.22.5",
-    "@babel/preset-typescript": "^7.22.5",
+    "@babel/preset-typescript": "^7.27.1",
     "@babel/register": "^7.17.0",
     "@babel/traverse": "^7.17.0",
     "@jest/globals": "^30.0.3",

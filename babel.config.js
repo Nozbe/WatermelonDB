@@ -68,6 +68,7 @@ const plugins = [
 ]
 
 module.exports = {
+  presets: ['@babel/preset-typescript'],
   env: {
     development: {
       plugins,
