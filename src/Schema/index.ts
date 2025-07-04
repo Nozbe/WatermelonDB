@@ -19,7 +19,7 @@ export type ColumnMap = Partial<Record<ColumnName, ColumnSchema>>;
 
 export type TableSchemaSpec = {
   name: TableName<any>;
-  columns: ColumnName[];
+  columns: ColumnSchema[];
   unsafeSql?: (arg1: string) => string;
 };
 

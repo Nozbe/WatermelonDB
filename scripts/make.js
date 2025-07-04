@@ -156,72 +156,14 @@ const copyNonJavaScriptFiles = buildPath => {
   cleanFolder(`${buildPath}/native/android-jsi/bin/build`)
 }
 
-if (isDevelopment) {
-  const buildCjsModule = buildModule(CJS_MODULES)
-  const buildSrcModule = buildModule(SRC_MODULES)
+cleanFolder(DIST_PATH)
+createFolder(DIST_PATH)
+copyNonJavaScriptFiles(DIST_PATH)
 
-  const buildFile = file => {
-    if (file.match(/\.(js|jsx|ts|tsx)$/)) {
-      buildSrcModule(file)
-      buildCjsModule(file)
-      if (file.match(/\.(ts|tsx)$/)) {
-        compileTypeScript()
-      }
-    } else {
-      // native files
-      fs.copySync(file, path.join(DEV_PATH, replace(resolvePath(), '', file)))
-    }
-  }
-
-  cleanFolder(DEV_PATH)
-  createFolder(DEV_PATH)
-  copyNonJavaScriptFiles(DEV_PATH)
-
-  chokidar
-    .watch(
-      [
-        resolvePath('src'),
-        resolvePath('native/ios/WatermelonDB'),
-        resolvePath('native/shared'),
-        resolvePath('native/android/src/main'),
-        resolvePath('native/android-jsi/src/main'),
-      ],
-      {
-        ignored: DO_NOT_BUILD_PATHS,
-      },
-    )
-    .on('all', (event, fileOrDir) => {
-      // eslint-disable-next-line
-      switch (event) {
-        case 'add':
-        case 'change':
-          // eslint-disable-next-line
-          console.log(`✓ ${removeSourcePath(fileOrDir)}`)
-          buildFile(fileOrDir)
-          break
-        default:
-          break
-      }
-    })
-} else {
-  const buildModules = format => mapAsync(buildModule(format))
-  const buildCjsModules = buildModules(CJS_MODULES)
-  const buildSrcModules = buildModules(SRC_MODULES)
-
-  cleanFolder(DIST_PATH)
-  createFolder(DIST_PATH)
-  copyNonJavaScriptFiles(DIST_PATH)
-
-  buildSrcModules(modules)
-  buildCjsModules(modules)
-  compileTypeScript()
-
-  // copy typescript definitions
-  glob(`${SOURCE_PATH}/**/*.d.ts`, {}, (err, files) => {
-    if (err) {
-      console.error('Error copying TypeScript definitions:', err)
-      return
-    }
-    copyFiles(DIST_PATH, files, SOURCE_PATH)
-  })
+try {
+  execSync('tsc --project tsconfig.json', { stdio: 'inherit' })
+} catch (error) {
+  // eslint-disable-next-line no-console
+  console.error('TypeScript compilation failed:', error)
+  process.exit(1)
 }

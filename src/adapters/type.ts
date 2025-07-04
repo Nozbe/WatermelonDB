@@ -1,4 +1,4 @@
-import type {SerializedQuery} from '../Query';
+import type {SerializedQuery} from '../Query'
 import type { TableName, AppSchema } from '../Schema'
 import type { SchemaMigrations } from '../Schema/migrations'
 import type { RecordId } from '../Model'
@@ -13,7 +13,7 @@ export type BatchOperation = ['create', TableName<any>, RawRecord] | ['update', 
 
 export interface DatabaseAdapter {
   schema: AppSchema;
-  migrations: SchemaMigrations | null | undefined // TODO: Not optional;
+  migrations: SchemaMigrations | null | undefined; // TODO: Not optional;
   // Fetches given (one) record or null. Should not send raw object if already cached in JS
   find(
     table: TableName<any>,

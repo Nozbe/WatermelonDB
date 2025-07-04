@@ -1,6 +1,6 @@
 import {uniq, groupBy, toPairs, piped} from 'rambdax';
 import type { CreateTableMigrationStep, AddColumnsMigrationStep, SchemaMigrations } from '../index'
-import type { TableName, ColumnName, SchemaVersion } from '../../index'
+import type { TableName, ColumnName, SchemaVersion, ColumnSchema } from '../../index'
 import { tableName } from '../../index'
 import { stepsForMigration } from '../stepsForMigration'
 
@@ -12,7 +12,7 @@ export type MigrationSyncChanges = {
   readonly tables: TableName<any>[];
   readonly columns: {
     table: TableName<any>;
-    columns: ColumnName[];
+    columns: ColumnSchema[];
   }[];
 } | null;
 
