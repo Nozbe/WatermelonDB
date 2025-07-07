@@ -15,7 +15,7 @@ import type Database from '../Database'
 import type Model, { RecordId } from '../Model'
 import type { Clause } from '../QueryDescription'
 import { type TableName, type TableSchema } from '../Schema'
-import { type DirtyRaw } from '../RawRecord'
+import { type DirtyRaw, sanitizedRaw } from '../RawRecord'
 
 import RecordCache from './RecordCache'
 
@@ -192,6 +192,46 @@ export default class Collection<Record: Model> {
   disposableFromDirtyRaw(dirtyRaw: DirtyRaw): Record {
     // $FlowFixMe
     return this.modelClass._disposableFromDirtyRaw(this, dirtyRaw)
+  }
+
+  /**
+   * Executes the provided query against the database and uses the results to
+   * refresh the internal cache.
+   *
+   * Note: This is only required when changes were made outside of WatermelonDB.
+   *
+   * Any observers of the affected data will be notified of the change.
+   *
+   * Returns a collection of modified records that were sent as notifications to
+   * subscribers.
+   */
+  refreshCache(clauses: Clause[]): Promise<CollectionChangeSet<Record>> {
+    return new Promise<CollectionChangeSet<Record>>((resolve) => {
+      this._unsafeFetchRaw(new Query(this, clauses), (results) => {
+        const updateCacheOperations: CollectionChangeSet<Record> = []
+        const notifySubscribersOperations: CollectionChangeSet<Record> = []
+
+        results.value?.map((rawRecord) => {
+          rawRecord = sanitizedRaw(rawRecord, this.schema)
+          const record = this._cache.recordInsantiator(rawRecord)
+
+          this._cache.delete(record)
+          updateCacheOperations.push({ record, type: 'created' })
+          if (
+            record._raw._status === 'created' ||
+            record._raw._status === 'updated' ||
+            record._raw._status === 'destroyed'
+          ) {
+            notifySubscribersOperations.push({ record, type: record._raw._status })
+          }
+        })
+
+        this._applyChangesToCache(updateCacheOperations)
+        this._notify(notifySubscribersOperations)
+
+        resolve(notifySubscribersOperations)
+      })
+    })
   }
 
   // *** Implementation details ***
