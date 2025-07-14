@@ -355,3 +355,41 @@ describe('Collection observation', () => {
     expect(subscriber).toHaveBeenCalledTimes(4)
   })
 })
+
+describe('refresh cache', () => {
+  it('refreshes cache using data from database', async () => {
+    const { db, comments } = mockDatabase()
+
+    // Create a new record
+    let targetID = null
+    await db.write(async () => {
+      const newComment = await comments.create((r) => {
+        r.body = 'comment body'
+      })
+
+      targetID = newComment.id
+    })
+
+    // Confirm the value was persisted
+    const originalComment = await comments.find(targetID)
+    expect(originalComment.body).toBe('comment body')
+
+    // Change the value by accessing the DB driver directly
+    db.adapter.underlyingAdapter._driver.loki
+      .getCollection('mock_comments')
+      .findAndUpdate({ id: targetID }, (c) => {
+        c.body = 'updated comment body'
+      })
+
+    // Confirm the cache is stale
+    const staleComment = await comments.find(targetID)
+    expect(staleComment.body).toBe('comment body')
+
+    // Refresh the cache
+    await comments.refreshCache([Q.where('id', targetID)])
+
+    // Confirm the cache has been updated
+    const refreshedComment = await comments.find(targetID)
+    expect(refreshedComment.body).toBe('updated comment body')
+  })
+})
