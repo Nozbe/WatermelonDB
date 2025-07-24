@@ -6,6 +6,8 @@
 
 ### New features
 
+- Added ability to refresh collection cache using results of query
+
 ### Fixes
 
 - [LokiJS] Multitab sync issue fix
