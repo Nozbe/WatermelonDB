@@ -123,6 +123,10 @@ export default class Model {
    * @see {Database#batch}
    */
   prepareUpdate(recordUpdater: (this) => void = noop): this {
+    this.__debugInvariant(
+      !this._preparedState,
+      `Model ${this.constructor.name}, Raw Data: ${JSON.stringify(this._raw)}`,
+    )
     invariant(
       !this._preparedState,
       `Cannot update a record with pending changes (${this.__debugName})`,
@@ -182,6 +186,7 @@ export default class Model {
    * @see {Database#batch}
    */
   prepareMarkAsDeleted(): this {
+    this.__debugInvariant(!this._preparedState, `Model ${this.constructor.name}, Raw Data: ${JSON.stringify(this._raw)}`)
     invariant(
       !this._preparedState,
       `Cannot mark a record with pending changes as deleted (${this.__debugName})`,
@@ -217,6 +222,7 @@ export default class Model {
    * @see {Database#batch}
    */
   prepareDestroyPermanently(): this {
+    this.__debugInvariant(!this._preparedState, `Model ${this.constructor.name}, Raw Data: ${JSON.stringify(this._raw)}`)
     invariant(
       !this._preparedState,
       `Cannot destroy permanently record with pending changes (${this.__debugName})`,
@@ -483,6 +489,12 @@ export default class Model {
   __logVerbose(debugName: string): void {
     if (this.db.experimentalIsVerbose) {
       logger.debug(`${debugName}: ${this.__debugName}`)
+    }
+  }
+
+  __debugInvariant(condition: boolean, errorMessage: string): void {
+    if (this.db.experimentalIsVerbose && !condition) {
+      logger.debug(errorMessage)
     }
   }
 }

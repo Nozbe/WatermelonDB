@@ -10,6 +10,7 @@ import { field, date, readonly } from '../decorators'
 import { noop } from '../utils/fp'
 import sortBy from '../utils/fp/sortBy'
 import { sanitizedRaw } from '../RawRecord'
+import { logger } from '../utils/common'
 
 import Model from './index'
 import { fetchDescendants } from './helpers'
@@ -419,6 +420,9 @@ describe('Safety features', () => {
   })
   it('disallows operations on uncommited records', async () => {
     const db = makeDatabase()
+    const spy = jest.spyOn(logger, 'debug')
+    db.experimentalIsVerbose = true
+
     db.adapter.batch = jest.fn()
     await db.write(async () => {
       const model = MockModel._prepareCreate(db.get('mock'), () => {})
@@ -428,8 +432,12 @@ describe('Safety features', () => {
         model.update(() => {}),
         'with pending changes',
       )
+      expect(spy).toHaveBeenCalledWith(expect.stringMatching('Model MockModel, Raw Data: {'))
+
       await expectToRejectWithMessage(model.markAsDeleted(), 'with pending changes')
+
       await expectToRejectWithMessage(model.destroyPermanently(), 'with pending changes')
+
       expect(() => model.observe()).toThrow('uncommitted')
       await db.batch(model)
     })
