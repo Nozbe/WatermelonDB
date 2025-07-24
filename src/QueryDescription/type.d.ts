@@ -50,10 +50,12 @@ export type On = $RE<{
 export type SortOrder = 'asc' | 'desc'
 export const asc: SortOrder
 export const desc: SortOrder
+export type SortColumn = ColumnName | $RE<{column: ColumnName, table: TableName<any>}>
 export type SortBy = $RE<{
   type: 'sortBy'
   sortColumn: ColumnName
   sortOrder: SortOrder
+  table?: TableName<any>
 }>
 export type Take = $RE<{
   type: 'take'
