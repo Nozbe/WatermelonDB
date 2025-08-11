@@ -37,6 +37,9 @@ class DatabaseBridge {
 
       resolve({ code: 'ok' })
     } catch (error) {
+      if (driver.database.instance && driver.database.instance.open) {
+        driver.database.instance.close()
+      }
       if (driver && error.type === 'SchemaNeededError') {
         this.waiting(tag, driver)
         resolve({ code: 'schema_needed' })
