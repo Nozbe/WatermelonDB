@@ -461,6 +461,19 @@ describe('buildQueryDescription', () => {
       sortBy: [{ type: 'sortBy', sortColumn: 'sortable_column', sortOrder: 'desc' }],
     })
   })
+  it('supports sorting query on joined table', () => {
+    const query = Q.buildQueryDescription([
+      Q.sortBy({ column: 'sortable_column', table: 'joinedTable' }, Q.desc),
+    ])
+    expect(query).toEqual({
+      where: [],
+      joinTables: [],
+      nestedJoinTables: [],
+      sortBy: [
+        { type: 'sortBy', sortColumn: 'sortable_column', sortOrder: 'desc', table: 'joinedTable' },
+      ],
+    })
+  })
   it('does not support skip operator without take operator', () => {
     expect(() => {
       Q.buildQueryDescription([Q.skip(100)])

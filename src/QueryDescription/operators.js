@@ -23,6 +23,7 @@ import type {
   On,
   SortOrder,
   SortBy,
+  SortColumn,
   Take,
   Skip,
   JoinTables,
@@ -212,12 +213,16 @@ export const or: ArrayOrSpreadFn<Where, Or> = (...args): Or => {
 export const asc: SortOrder = 'asc'
 export const desc: SortOrder = 'desc'
 
-export function sortBy(sortColumn: ColumnName, sortOrder: SortOrder = asc): SortBy {
+export function sortBy(sortColumn: SortColumn, sortOrder: SortOrder = asc): SortBy {
   invariant(
     sortOrder === 'asc' || sortOrder === 'desc',
     `Invalid sortOrder argument received in Q.sortBy (valid: asc, desc)`,
   )
-  return { type: 'sortBy', sortColumn: checkName(sortColumn), sortOrder }
+  
+  const sortCol = typeof sortColumn === 'object' ? sortColumn.column : sortColumn
+  const table = typeof sortColumn === 'object' ? sortColumn.table : undefined
+
+  return { type: 'sortBy', sortColumn: checkName(sortCol), sortOrder, table }
 }
 
 export function take(count: number): Take {

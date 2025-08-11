@@ -194,7 +194,7 @@ const encodeOrderBy = (table: TableName<any>, sortBys: SortBy[]) => {
   }
   const orderBys = sortBys
     .map((sortBy) => {
-      return `"${table}"."${sortBy.sortColumn}" ${sortBy.sortOrder}`
+      return `"${sortBy.table ?? table}"."${sortBy.sortColumn}" ${sortBy.sortOrder}`
     })
     .join(', ')
   return ` order by ${orderBys}`

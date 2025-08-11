@@ -991,6 +991,7 @@ function joinTest(
     skipCount?: boolean,
     skipLoki?: boolean,
     skipSqlite?: boolean,
+    checkOrder?: boolean,
   }>,
 ): void {
   joinTests.push(options)
@@ -1139,6 +1140,28 @@ joinTest({
     { id: 'n5' }, // bad TT
     { id: 'n6' }, // bad TT
   ],
+})
+joinTest({
+  name: `can perform Q.sort on joined table`,
+  query: [
+    Q.experimentalJoinTables(['tag_assignments']),
+    Q.sortBy({ column: 'text1', table: 'tag_assignments' }),
+  ],
+  extraRecords: {
+    tag_assignments: [
+      { id: 'tt1', text1: 'z', task_id: 'm6' },
+      { id: 'tt2', text1: 'y', task_id: 'm8' },
+      { id: 'tt3', text1: 'x', task_id: 'm7' },
+      { id: 'tt4', text1: 'w', task_id: 'n5' },
+      { id: 'tt5', text1: 'v', task_id: 'n6' },
+      { id: 'tt6', text1: 'u', task_id: 'm2' },
+      { id: 'tt7', text1: 'z', task_id: 'm2' },
+    ],
+  },
+  matching: [{ id: 'm2' }, { id: 'n6' }, { id: 'n5' }, { id: 'm7' }, { id: 'm8' }, { id: 'm6' }],
+  nonMatching: [],
+  checkOrder: true,
+  skipLoki: true,
 })
 joinTest({
   name: `can perform Q.on's nested in Q.on`,
