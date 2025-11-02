@@ -384,6 +384,66 @@ describe('synchronize', () => {
     expect(log.phase).toBe('ready to pull')
     expect(log.error).toBe(error)
   })
+  it('streams pullChanges chunks from an async generator', async () => {
+    const { database, projects } = makeDatabase()
+    const onWillApplyRemoteChanges = jest.fn()
+
+    async function* chunkedPullChanges() {
+      yield {
+        changes: makeChangeSet({
+          mock_projects: {
+            created: [{ id: 'stream_project', name: 'remote-initial' }],
+          },
+        }),
+        timestamp: 1500,
+      }
+      await delay(1)
+      yield {
+        changes: makeChangeSet({
+          mock_projects: {
+            updated: [{ id: 'stream_project', name: 'remote-updated' }],
+          },
+        }),
+        timestamp: 2500,
+      }
+    }
+
+    await synchronize({
+      database,
+      unsafePullChangesAsyncGenerator: chunkedPullChanges,
+      pushChanges: jest.fn(),
+      onWillApplyRemoteChanges,
+    })
+
+    expect(onWillApplyRemoteChanges).toHaveBeenCalledTimes(2)
+    await expectSyncedAndMatches(projects, 'stream_project', { name: 'remote-updated' })
+    expect(await getLastPulledAt(database)).toBe(2500)
+  })
+  it('rejects when chunked async generator yields no results', async () => {
+    const { database } = makeDatabase()
+
+    async function* emptyGenerator() {}
+
+    await expectToRejectWithMessage(
+      synchronize({
+        database,
+        unsafePullChangesAsyncGenerator: emptyGenerator,
+        pushChanges: jest.fn(),
+      }),
+      /A pullChanges\(\) function must yield at least one result/,
+    )
+  })
+  it('rejects when pullChanges and unsafePullChangesAsyncGenerator not provided', async () => {
+    const { database } = makeDatabase()
+
+    await expectToRejectWithMessage(
+      synchronize({
+        database,
+        pushChanges: jest.fn(),
+      }),
+      /Either pullChanges or unsafePullChangesAsyncGenerator must be provided/,
+    )
+  })
   it('can recover from push failure', async () => {
     const { database, projects } = makeDatabase()
 

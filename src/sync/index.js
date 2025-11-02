@@ -85,7 +85,6 @@ export type SyncConflictResolver = (
 // TODO: JSDoc'ify this
 export type SyncArgs = $Exact<{
   database: Database,
-  pullChanges: (SyncPullArgs) => Promise<SyncPullResult>,
   pushChanges?: (SyncPushArgs) => Promise<?SyncPushResult>,
   // version at which support for migration syncs was added - the version BEFORE first syncable migration
   migrationsEnabledAtVersion?: SchemaVersion,
@@ -113,6 +112,8 @@ export type SyncArgs = $Exact<{
   // when processing a very large sync (could be useful for replacement syncs). Note that remote change count
   // is NaN in turbo mode.
   onWillApplyRemoteChanges?: (info: $Exact<{ remoteChangeCount: number }>) => Promise<void>,
+  pullChanges?: (_: SyncPullArgs) => Promise<SyncPullResult>,
+  unsafePullChangesAsyncGenerator?: (_: SyncPullArgs) => AsyncGenerator<SyncPullResult, void, void>,
 }>
 
 /**
