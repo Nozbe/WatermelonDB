@@ -63,7 +63,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     if (isUsingEncryptedDB) {
-            implementation 'com.android.ndk.thirdparty:openssl:1.1.1l-beta-1'
+            implementation 'io.github.ronickg:openssl:3.6.0-1'
     }
     implementation 'com.facebook.react:react-native:+'
 }
