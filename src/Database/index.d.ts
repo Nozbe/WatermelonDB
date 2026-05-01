@@ -45,7 +45,8 @@ export default class Database {
   // Executes multiple prepared operations
   // (made with `collection.prepareCreate` and `record.prepareUpdate`)
   // Note: falsy values (null, undefined, false) passed to batch are just ignored
-  batch(...records: $ReadOnlyArray<Model | Model[] | null | void | false>): Promise<void>
+  batch(records: $ReadOnlyArray<Model | null | void | false>): Promise<void>
+  batch(...records: Array<Model | null | void | false>): Promise<void>
 
   // Enqueues a Writer - a block of code that, when it's running, has a guarantee that no other Writer
   // is running at the same time.
