@@ -204,6 +204,12 @@ The result is fully reactive! Whenever a post or comment is added, changed, or r
 
   <br/>
 
+  <a href="https://ezypack.app/">
+    <img src="https://github.com/Nozbe/WatermelonDB/raw/master/assets/apps/ezypack.png" alt="ezypack" width="300" />
+  </a>
+
+  <br/>
+
 _Does your company or app use 🍉? Open a pull request and add your logo/icon with link here!_
 
 ## Contributing

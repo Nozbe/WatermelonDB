@@ -49,6 +49,7 @@ export type SyncPullResult =
       changes: SyncDatabaseChangeSet,
       timestamp: Timestamp,
       experimentalStrategy?: SyncPullStrategy,
+      experimentalHasMore?: boolean,
     }>
   | $Exact<{ syncJson: string }>
   | $Exact<{ syncJsonId: number }>

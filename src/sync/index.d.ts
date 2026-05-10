@@ -23,7 +23,12 @@ export type SyncPullArgs = $Exact<{
   migration: MigrationSyncChanges
 }>
 export type SyncPullResult =
-  | $Exact<{ changes: SyncDatabaseChangeSet; timestamp: Timestamp }>
+  | $Exact<{
+      changes: SyncDatabaseChangeSet
+      timestamp: Timestamp
+      experimentalStrategy?: any
+      experimentalHasMore?: boolean
+    }>
   | $Exact<{ syncJson: string }>
   | $Exact<{ syncJsonId: number }>
 

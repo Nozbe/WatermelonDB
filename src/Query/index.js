@@ -81,7 +81,7 @@ export default class Query<Record: Model> {
     this.description = Q.queryWithoutDeleted(this._rawDescription)
   }
 
-  /*:: extend: ArrayOrSpreadFn<Clause, Query<Record>>  */
+  extend: ArrayOrSpreadFn<Clause, Query<Record>>
   /**
    * Returns a new Query that contains all clauses (conditions, sorting, etc.) from this Query
    * as well as the ones passed as arguments.

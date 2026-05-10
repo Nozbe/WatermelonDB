@@ -126,42 +126,42 @@ export default function subscribeToQueryWithColumns<Record: Model>(
 
   // Observe the source records list (list of records matching a query)
   // eslint-disable-next-line prefer-arrow-callback
-  const sourceUnsubscribe = subscribeToSource(function observeWithColumnsSourceChanged(
-    recordsOrStatus,
-  ): void {
-    // $FlowFixMe
-    if (recordsOrStatus === false) {
-      sourceIsFetching = true
-      return
-    }
-    sourceIsFetching = false
+  const sourceUnsubscribe = subscribeToSource(
+    function observeWithColumnsSourceChanged(recordsOrStatus): void {
+      // $FlowFixMe
+      if (recordsOrStatus === false) {
+        sourceIsFetching = true
+        return
+      }
+      sourceIsFetching = false
 
-    // Emit changes if one of observed columns changed OR list of matching records changed
-    const records: Record[] = recordsOrStatus
-    const shouldEmit =
-      firstEmission || hasPendingColumnChanges || !identicalArrays(records, observedRecords)
+      // Emit changes if one of observed columns changed OR list of matching records changed
+      const records: Record[] = recordsOrStatus
+      const shouldEmit =
+        firstEmission || hasPendingColumnChanges || !identicalArrays(records, observedRecords)
 
-    hasPendingColumnChanges = false
-    firstEmission = false
+      hasPendingColumnChanges = false
+      firstEmission = false
 
-    // Find changes, and save current list for comparison on next emission
-    const arrayDifference = require('../../utils/fp/arrayDifference').default
-    const { added, removed } = arrayDifference(observedRecords, records)
-    observedRecords = records
+      // Find changes, and save current list for comparison on next emission
+      const arrayDifference = require('../../utils/fp/arrayDifference').default
+      const { added, removed } = arrayDifference(observedRecords, records)
+      observedRecords = records
 
-    // Unsubscribe from records removed from list
-    removed.forEach((record) => {
-      recordStates.delete(record.id)
-    })
+      // Unsubscribe from records removed from list
+      removed.forEach((record) => {
+        recordStates.delete(record.id)
+      })
 
-    // Save current record state for later comparison
-    added.forEach((newRecord) => {
-      recordStates.set(newRecord.id, getRecordState(newRecord, columnNames))
-    })
+      // Save current record state for later comparison
+      added.forEach((newRecord) => {
+        recordStates.set(newRecord.id, getRecordState(newRecord, columnNames))
+      })
 
-    // Emit
-    shouldEmit && emitCopy(records)
-  })
+      // Emit
+      shouldEmit && emitCopy(records)
+    },
+  )
 
   return () => {
     unsubscribed = true

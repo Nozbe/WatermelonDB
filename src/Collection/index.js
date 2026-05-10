@@ -116,7 +116,7 @@ export default class Collection<Record: Model> {
     })
   }
 
-  /*:: query: ArrayOrSpreadFn<Clause, Query<Record>>  */
+  query: ArrayOrSpreadFn<Clause, Query<Record>>
   /**
    * Returns a `Query` with conditions given.
    *
