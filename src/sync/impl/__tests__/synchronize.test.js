@@ -183,25 +183,30 @@ describe('synchronize', () => {
   it('can pull changes in pages', async () => {
     const { database, projects } = makeDatabase()
 
-    const pullChanges = jest.fn()
-      .mockReturnValueOnce(Promise.resolve({
-        changes: makeChangeSet({
-          mock_projects: {
-            created: [{ id: 'p1', name: 'remote 1' }],
-          },
+    const pullChanges = jest
+      .fn()
+      .mockReturnValueOnce(
+        Promise.resolve({
+          changes: makeChangeSet({
+            mock_projects: {
+              created: [{ id: 'p1', name: 'remote 1' }],
+            },
+          }),
+          timestamp: 1500,
+          experimentalHasMore: true,
         }),
-        timestamp: 1500,
-        experimentalHasMore: true,
-      }))
-      .mockReturnValueOnce(Promise.resolve({
-        changes: makeChangeSet({
-          mock_projects: {
-            created: [{ id: 'p2', name: 'remote 2' }],
-          },
+      )
+      .mockReturnValueOnce(
+        Promise.resolve({
+          changes: makeChangeSet({
+            mock_projects: {
+              created: [{ id: 'p2', name: 'remote 2' }],
+            },
+          }),
+          timestamp: 1600,
+          experimentalHasMore: false,
         }),
-        timestamp: 1600,
-        experimentalHasMore: false,
-      }))
+      )
 
     await synchronize({ database, pullChanges, pushChanges: jest.fn() })
 
@@ -226,23 +231,28 @@ describe('synchronize', () => {
 
     const onWillApplyRemoteChanges = jest.fn()
     const onDidPullChanges = jest.fn()
-    const pullChanges = jest.fn()
-      .mockReturnValueOnce(Promise.resolve({
-        changes: makeChangeSet({
-          mock_projects: { created: [{ id: 'p1' }] },
+    const pullChanges = jest
+      .fn()
+      .mockReturnValueOnce(
+        Promise.resolve({
+          changes: makeChangeSet({
+            mock_projects: { created: [{ id: 'p1' }] },
+          }),
+          timestamp: 1500,
+          experimentalHasMore: true,
+          extra: 'page 1',
         }),
-        timestamp: 1500,
-        experimentalHasMore: true,
-        extra: 'page 1',
-      }))
-      .mockReturnValueOnce(Promise.resolve({
-        changes: makeChangeSet({
-          mock_projects: { created: [{ id: 'p2' }] },
+      )
+      .mockReturnValueOnce(
+        Promise.resolve({
+          changes: makeChangeSet({
+            mock_projects: { created: [{ id: 'p2' }] },
+          }),
+          timestamp: 1600,
+          experimentalHasMore: false,
+          extra: 'page 2',
         }),
-        timestamp: 1600,
-        experimentalHasMore: false,
-        extra: 'page 2',
-      }))
+      )
 
     await synchronize({
       database,
@@ -256,24 +266,36 @@ describe('synchronize', () => {
     expect(onWillApplyRemoteChanges).toHaveBeenNthCalledWith(2, { remoteChangeCount: 1 })
 
     expect(onDidPullChanges).toHaveBeenCalledTimes(2)
-    expect(onDidPullChanges).toHaveBeenNthCalledWith(1, { extra: 'page 1', timestamp: 1500, experimentalHasMore: true })
-    expect(onDidPullChanges).toHaveBeenNthCalledWith(2, { extra: 'page 2', timestamp: 1600, experimentalHasMore: false })
+    expect(onDidPullChanges).toHaveBeenNthCalledWith(1, {
+      extra: 'page 1',
+      timestamp: 1500,
+      experimentalHasMore: true,
+    })
+    expect(onDidPullChanges).toHaveBeenNthCalledWith(2, {
+      extra: 'page 2',
+      timestamp: 1600,
+      experimentalHasMore: false,
+    })
   })
   it('does not update lastPulledAt if paginated sync fails midway', async () => {
     const { database, projects } = makeDatabase()
 
-    const pullChanges = jest.fn()
-      .mockReturnValueOnce(Promise.resolve({
-        changes: makeChangeSet({
-          mock_projects: { created: [{ id: 'p1' }] },
+    const pullChanges = jest
+      .fn()
+      .mockReturnValueOnce(
+        Promise.resolve({
+          changes: makeChangeSet({
+            mock_projects: { created: [{ id: 'p1' }] },
+          }),
+          timestamp: 1500,
+          experimentalHasMore: true,
         }),
-        timestamp: 1500,
-        experimentalHasMore: true,
-      }))
+      )
       .mockReturnValueOnce(Promise.reject(new Error('page 2 fail')))
 
-    await expect(synchronize({ database, pullChanges, pushChanges: jest.fn() }))
-      .rejects.toThrow('page 2 fail')
+    await expect(synchronize({ database, pullChanges, pushChanges: jest.fn() })).rejects.toThrow(
+      'page 2 fail',
+    )
 
     // Data from first page should be there
     await expectSyncedAndMatches(projects, 'p1', {})

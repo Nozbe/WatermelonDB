@@ -52,7 +52,7 @@ export default async function synchronize({
     const pullResult = await pullChanges({ lastPulledAt, schemaVersion, migration })
     log && (log.phase = 'pulled')
 
-    const newLastPulledAt: Timestamp = (pullResult: any).timestamp
+    let newLastPulledAt: Timestamp = (pullResult: any).timestamp
     const remoteChangeCount = pullResult.changes ? changeSetCount(pullResult.changes) : NaN
     const hasMore = !!pullResult.experimentalHasMore
 
@@ -136,8 +136,7 @@ export default async function synchronize({
     ensureSameDatabase(database, resetCount)
     if (!isChangeSetEmpty(localChanges.changes)) {
       log && (log.phase = 'ready to push')
-      const pushResult =
-        (await pushChanges({ changes: localChanges.changes, lastPulledAt })) || {}
+      const pushResult = (await pushChanges({ changes: localChanges.changes, lastPulledAt })) || {}
       log && (log.phase = 'pushed')
       log && (log.rejectedIds = pushResult.experimentalRejectedIds)
 

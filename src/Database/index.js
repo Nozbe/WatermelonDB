@@ -84,7 +84,7 @@ export default class Database {
     return this._localStorage
   }
 
-  /*:: batch: ArrayOrSpreadFn<?Model | false, Promise<void>>  */
+  batch: ArrayOrSpreadFn<?Model | false, Promise<void>>
   /**
    * Executes multiple prepared operations
    *
