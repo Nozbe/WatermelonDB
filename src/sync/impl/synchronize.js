@@ -32,9 +32,11 @@ export default async function synchronize({
   log && (log.phase = 'starting')
 
   // TODO: Wrap the three computionally intensive phases in `requestIdleCallback`
+  log && (log.remoteChangeCount = 0)
 
   // pull phase
-  const lastPulledAt = await getLastPulledAt(database)
+  const initialLastPulledAt = await getLastPulledAt(database)
+  let lastPulledAt = initialLastPulledAt
   log && (log.lastPulledAt = lastPulledAt)
 
   const { schemaVersion, migration, shouldSaveSchemaVersion } = await getMigrationInfo(
@@ -44,80 +46,84 @@ export default async function synchronize({
     migrationsEnabledAtVersion,
   )
   log && (log.phase = 'ready to pull')
+  let experimentalHasMore = true
+  while (experimentalHasMore) {
+    // $FlowFixMe
+    const pullResult = await pullChanges({ lastPulledAt, schemaVersion, migration })
+    log && (log.phase = 'pulled')
 
-  // $FlowFixMe
-  const pullResult = await pullChanges({
-    lastPulledAt,
-    schemaVersion,
-    migration,
-  })
-  log && (log.phase = 'pulled')
+    const newLastPulledAt: Timestamp = (pullResult: any).timestamp
+    const remoteChangeCount = pullResult.changes ? changeSetCount(pullResult.changes) : NaN
+    const hasMore = !!pullResult.experimentalHasMore
 
-  let newLastPulledAt: Timestamp = (pullResult: any).timestamp
-  const remoteChangeCount = pullResult.changes ? changeSetCount(pullResult.changes) : NaN
+    if (onWillApplyRemoteChanges) {
+      await onWillApplyRemoteChanges({ remoteChangeCount })
+    }
 
-  if (onWillApplyRemoteChanges) {
-    await onWillApplyRemoteChanges({ remoteChangeCount })
-  }
-
-  await database.write(async () => {
-    ensureSameDatabase(database, resetCount)
-    invariant(
-      lastPulledAt === (await getLastPulledAt(database)),
-      '[Sync] Concurrent synchronization is not allowed. More than one synchronize() call was running at the same time, and the later one was aborted before committing results to local database.',
-    )
-
-    if (unsafeTurbo) {
+    await database.write(async () => {
+      ensureSameDatabase(database, resetCount)
       invariant(
-        !_unsafeBatchPerCollection,
-        'unsafeTurbo must not be used with _unsafeBatchPerCollection',
+        initialLastPulledAt === (await getLastPulledAt(database)),
+        '[Sync] Concurrent synchronization is not allowed. More than one synchronize() call was running at the same time, and the later one was aborted before committing results to local database.',
       )
-      invariant(
-        'syncJson' in pullResult || 'syncJsonId' in pullResult,
-        'missing syncJson/syncJsonId',
-      )
-      invariant(lastPulledAt === null, 'unsafeTurbo can only be used as the first sync')
 
-      const syncJsonId = pullResult.syncJsonId || Math.floor(Math.random() * 1000000000)
+      if (unsafeTurbo) {
+        invariant(
+          !_unsafeBatchPerCollection,
+          'unsafeTurbo must not be used with _unsafeBatchPerCollection',
+        )
+        invariant(
+          'syncJson' in pullResult || 'syncJsonId' in pullResult,
+          'missing syncJson/syncJsonId',
+        )
+        invariant(lastPulledAt === null, 'unsafeTurbo can only be used as the first sync')
 
-      if (pullResult.syncJson) {
-        await database.adapter.provideSyncJson(syncJsonId, pullResult.syncJson)
+        const syncJsonId = pullResult.syncJsonId || Math.floor(Math.random() * 1000000000)
+
+        if (pullResult.syncJson) {
+          await database.adapter.provideSyncJson(syncJsonId, pullResult.syncJson)
+        }
+
+        const resultRest = await database.adapter.unsafeLoadFromSync(syncJsonId)
+        newLastPulledAt = resultRest.timestamp
+        onDidPullChanges && onDidPullChanges(resultRest)
       }
 
-      const resultRest = await database.adapter.unsafeLoadFromSync(syncJsonId)
-      newLastPulledAt = resultRest.timestamp
-      onDidPullChanges && onDidPullChanges(resultRest)
-    }
+      log && (log.newLastPulledAt = newLastPulledAt)
+      invariant(
+        typeof newLastPulledAt === 'number' && newLastPulledAt > 0,
+        `pullChanges() returned invalid timestamp ${newLastPulledAt}. timestamp must be a non-zero number`,
+      )
 
-    log && (log.newLastPulledAt = newLastPulledAt)
-    invariant(
-      typeof newLastPulledAt === 'number' && newLastPulledAt > 0,
-      `pullChanges() returned invalid timestamp ${newLastPulledAt}. timestamp must be a non-zero number`,
-    )
+      if (!unsafeTurbo) {
+        // $FlowFixMe
+        const { changes: remoteChanges, ...resultRest } = pullResult
+        log && (log.remoteChangeCount += remoteChangeCount)
+        // $FlowFixMe
+        await applyRemoteChanges(remoteChanges, {
+          db: database,
+          strategy: ((pullResult: any).experimentalStrategy: ?SyncPullStrategy),
+          sendCreatedAsUpdated,
+          log,
+          conflictResolver,
+          _unsafeBatchPerCollection,
+        })
+        onDidPullChanges && onDidPullChanges(resultRest)
+      }
 
-    if (!unsafeTurbo) {
-      // $FlowFixMe
-      const { changes: remoteChanges, ...resultRest } = pullResult
-      log && (log.remoteChangeCount = remoteChangeCount)
-      // $FlowFixMe
-      await applyRemoteChanges(remoteChanges, {
-        db: database,
-        strategy: ((pullResult: any).experimentalStrategy: ?SyncPullStrategy),
-        sendCreatedAsUpdated,
-        log,
-        conflictResolver,
-        _unsafeBatchPerCollection,
-      })
-      onDidPullChanges && onDidPullChanges(resultRest)
-    }
+      log && (log.phase = 'applied remote changes')
 
-    log && (log.phase = 'applied remote changes')
-    await setLastPulledAt(database, newLastPulledAt)
+      if (!hasMore) {
+        await setLastPulledAt(database, newLastPulledAt)
+        if (shouldSaveSchemaVersion) {
+          await setLastPulledSchemaVersion(database, schemaVersion)
+        }
+      }
+    }, 'sync-synchronize-apply')
 
-    if (shouldSaveSchemaVersion) {
-      await setLastPulledSchemaVersion(database, schemaVersion)
-    }
-  }, 'sync-synchronize-apply')
+    experimentalHasMore = hasMore
+    lastPulledAt = newLastPulledAt
+  }
 
   // push phase
   if (pushChanges) {
@@ -131,7 +137,7 @@ export default async function synchronize({
     if (!isChangeSetEmpty(localChanges.changes)) {
       log && (log.phase = 'ready to push')
       const pushResult =
-        (await pushChanges({ changes: localChanges.changes, lastPulledAt: newLastPulledAt })) || {}
+        (await pushChanges({ changes: localChanges.changes, lastPulledAt })) || {}
       log && (log.phase = 'pushed')
       log && (log.rejectedIds = pushResult.experimentalRejectedIds)
 
