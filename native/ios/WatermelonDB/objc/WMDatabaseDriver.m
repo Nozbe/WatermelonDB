@@ -25,6 +25,29 @@
     if ([dbName hasPrefix:@"file:"] || [dbName containsString:@"/"]) {
         return dbName;
     } else {
+#if TARGET_OS_MACCATALYST
+        // On Mac Catalyst (unsandboxed), NSDocumentDirectory resolves to
+        // ~/Documents and any access there triggers the macOS TCC prompt
+        // asking the user to grant access to their Documents folder at
+        // launch. Use Application Support instead — per-app, private to
+        // the bundle, and never triggers TCC.
+        //
+        // We intentionally don't migrate from the legacy ~/Documents path:
+        // probing for a legacy file would itself trigger the TCC prompt
+        // we're trying to avoid.
+        NSURL *appSupport = [[NSFileManager defaultManager] URLForDirectory:NSApplicationSupportDirectory
+                                                                   inDomain:NSUserDomainMask
+                                                          appropriateForURL:nil
+                                                                     create:YES
+                                                                      error:nil];
+        NSString *bundleId = [[NSBundle mainBundle] bundleIdentifier] ?: @"WatermelonDB";
+        NSURL *dir = [appSupport URLByAppendingPathComponent:bundleId isDirectory:YES];
+        [[NSFileManager defaultManager] createDirectoryAtURL:dir
+                                 withIntermediateDirectories:YES
+                                                  attributes:nil
+                                                       error:nil];
+        return [[dir URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.db", dbName]] path];
+#else
         NSURL *url = [[NSFileManager defaultManager] URLForDirectory:NSDocumentDirectory
                                                             inDomain:NSUserDomainMask
                                                    appropriateForURL:nil
@@ -32,6 +55,7 @@
                                                                error:nil];
 
         return [[url URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.db", dbName]] path];
+#endif
     }
 }
 

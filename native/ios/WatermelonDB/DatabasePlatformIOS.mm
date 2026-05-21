@@ -19,6 +19,39 @@ void initializeSqlite() {
 }
 
 std::string resolveDatabasePath(std::string path) {
+#if TARGET_OS_MACCATALYST
+    // On Mac Catalyst (unsandboxed), NSDocumentDirectory resolves to
+    // ~/Documents and any access there triggers the macOS TCC prompt
+    // asking the user to grant access to their Documents folder at
+    // launch. Use Application Support instead — per-app, private to the
+    // bundle, and never triggers TCC.
+    //
+    // We intentionally don't migrate from the legacy ~/Documents path:
+    // probing for a legacy file would itself trigger the TCC prompt
+    // we're trying to avoid.
+    NSError *err = nil;
+    NSURL *appSupport = [NSFileManager.defaultManager URLForDirectory:NSApplicationSupportDirectory
+                                                             inDomain:NSUserDomainMask
+                                                    appropriateForURL:nil
+                                                               create:YES
+                                                                error:&err];
+
+    if (err) {
+        NSLog(@"Error: %@", err);
+        throw std::runtime_error("Failed to resolve database path - could not find Application Support URL");
+    }
+
+    NSString *bundleId = [[NSBundle mainBundle] bundleIdentifier] ?: @"WatermelonDB";
+    NSURL *dir = [appSupport URLByAppendingPathComponent:bundleId isDirectory:YES];
+    [NSFileManager.defaultManager createDirectoryAtURL:dir
+                           withIntermediateDirectories:YES
+                                            attributes:nil
+                                                 error:nil];
+    NSString *dbPath = [dir URLByAppendingPathComponent:
+                       [NSString stringWithFormat:@"%s.db", path.c_str()]].path;
+
+    return std::string([dbPath cStringUsingEncoding:NSUTF8StringEncoding]);
+#else
     // Default: app documents/<name>.db
     NSError *err = nil;
     NSURL *documentsUrl = [NSFileManager.defaultManager URLForDirectory:NSDocumentDirectory
@@ -36,6 +69,7 @@ std::string resolveDatabasePath(std::string path) {
                       [NSString stringWithFormat:@"%s.db", path.c_str()]].path;
 
     return std::string([dbPath cStringUsingEncoding:NSUTF8StringEncoding]);
+#endif
 }
 
 void deleteDatabaseFile(std::string path, bool warnIfDoesNotExist) {
