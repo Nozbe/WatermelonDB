@@ -7,6 +7,20 @@ def DEFAULT_MIN_SDK_VERSION = 16
 def DEFAULT_TARGET_SDK_VERSION = 28
 def DEFAULT_NDK_VERSION = "20.1.5948944"
 
+// Respect reactNativeArchitectures from the parent project to avoid
+// building native libraries for unnecessary ABIs (e.g. x86, x86_64).
+// Supports both the short 'reactNativeArchitectures' and scoped
+// 'react.nativeArchitectures' property names used by React Native.
+def reactNativeArchitectures = []
+if (rootProject.hasProperty('reactNativeArchitectures')) {
+    reactNativeArchitectures = rootProject.property('reactNativeArchitectures').split(',')
+}
+if (rootProject.hasProperty('react.nativeArchitectures')) {
+    reactNativeArchitectures = rootProject.property('react.nativeArchitectures').split(',')
+}
+// When reactNativeArchitectures is empty the ndk block below is a
+// no-op — every ABI is built (current default behaviour).
+
 android {
     compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.compileSdkVersion : DEFAULT_COMPILE_SDK_VERSION
     buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.buildToolsVersion : DEFAULT_BUILD_TOOLS_VERSION
@@ -19,6 +33,9 @@ android {
         targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"
+        ndk {
+            abiFilters reactNativeArchitectures
+        }
         externalNativeBuild {
             cmake {
                 // Not sure if this is necessary. I added this in attempt to fix catching
