@@ -18,7 +18,13 @@ buildscript {
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+// AGP 9 ships built-in Kotlin support and registers the `kotlin` extension
+// itself. Applying the Kotlin plugin on top of it fails configuration with
+// "Cannot add extension with name 'kotlin'". Only apply it when nothing has
+// registered that extension yet.
+if (project.extensions.findByName('kotlin') == null) {
+    apply plugin: 'kotlin-android'
+}
 
 android {
     compileSdkVersion getExtOrIntegerDefault('compileSdkVersion')
