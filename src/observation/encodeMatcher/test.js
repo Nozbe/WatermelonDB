@@ -23,6 +23,11 @@ const unencodableQueries = [
   [Q.take(100)],
   [Q.unsafeLokiTransform(() => {})],
   [Q.unsafeSqlQuery('select * from tasks')],
+  [Q.unsafeSqlExpr('')],
+  [Q.unsafeLokiExpr({})],
+  [Q.or(Q.on('projects', 'team_id', 'abcdef'))],
+  [Q.or(Q.unsafeSqlExpr(''))],
+  [Q.or(Q.unsafeLokiExpr({}))],
 ]
 
 describe('SQLite encodeMatcher', () => {
@@ -61,9 +66,6 @@ describe('SQLite encodeMatcher', () => {
       // console.log(query)
       expect(() => makeMatcher(query)).toThrow(`can't be encoded into a matcher`)
     })
-    expect(() => makeMatcher([Q.or(Q.on('projects', 'team_id', 'abcdef'))])).toThrow('Illegal Q.on')
-    expect(() => makeMatcher([Q.or(Q.unsafeSqlExpr(''))])).toThrow('Illegal')
-    expect(() => makeMatcher([Q.or(Q.unsafeLokiExpr({}))])).toThrow('Illegal')
   })
 })
 
