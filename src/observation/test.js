@@ -96,4 +96,17 @@ describe('common observation tests', () => {
       subscribeToQueryWithColumns(mockDb.tasks.query(...complexQuery), ['position'], observer),
     )
   })
+  const unencodableQuery = Q.unsafeLokiExpr({ is_completed: true })
+  it(`updates list before model - test with an unencodable where clause`, async () => {
+    const mockDb = mockDatabase()
+    await updatesListBeforeModelTest(mockDb, (observer) =>
+      subscribeToQuery(mockDb.tasks.query(unencodableQuery), observer),
+    )
+  })
+  it(`updates list before model - test with an unencodable where clause and columns`, async () => {
+    const mockDb = mockDatabase()
+    await updatesListBeforeModelTest(mockDb, (observer) =>
+      subscribeToQueryWithColumns(mockDb.tasks.query(unencodableQuery), ['position'], observer),
+    )
+  })
 })
