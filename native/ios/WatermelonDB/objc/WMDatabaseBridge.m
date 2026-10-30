@@ -196,7 +196,7 @@ BRIDGE_METHOD(getLocal,
 
 RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(initializeJSI)
 {
-    __block RCTCxxBridge *bridge = (RCTCxxBridge *) _bridge;
+    __block RCTBridge *bridge = _bridge;
     dispatch_sync([self methodQueue], ^{
         installWatermelonJSI(bridge);
     });

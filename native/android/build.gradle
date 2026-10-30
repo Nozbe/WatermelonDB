@@ -7,18 +7,11 @@ buildscript {
     ext.getExtOrIntegerDefault = {name ->
         return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties['ReactNativeWatermelonDB_' + name]).toInteger()
     }
-
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${getExtOrDefault('kotlinVersion')}")
-    }
 }
 
+// The module has no Kotlin sources anymore, so the Kotlin Gradle plugin is not applied:
+// AGP 9 registers its own `kotlin` extension and fails when a plugin applies it again.
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion getExtOrIntegerDefault('compileSdkVersion')
@@ -32,12 +25,17 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
+    // AGP 9 stops generating BuildConfig for library modules by default;
+    // the Java sources read BuildConfig.DEBUG
+    buildFeatures {
+        buildConfig true
+    }
 }
 
 dependencies {
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${getExtOrDefault('kotlinVersion')}"
 }
 
 repositories {
