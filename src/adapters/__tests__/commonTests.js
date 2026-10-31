@@ -1118,7 +1118,7 @@ export default () => {
     await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
     expect(await adapter.count(taskQuery())).toBe(1)
   })
-  it('errors when migration fails', async (_adapter, AdapterClass, extraAdapterOptions) => {
+  it('errors when migration fails', async (_adapter, AdapterClass, extraAdapterOptions, platform) => {
     // launch older version of the app
     let adapter = new DatabaseAdapterCompat(
       new AdapterClass({
@@ -1131,22 +1131,23 @@ export default () => {
     await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
     expect(await adapter.count(taskQuery())).toBe(1)
     // launch newer version of the app with a migration that will fail
+    const failingMigrations = schemaMigrations({
+      migrations: [
+        {
+          toVersion: 2,
+          steps: [
+            // with SQLite, trying to create a duplicate table will fail, but Loki will just ignore it
+            // so let's insert something that WILL fail
+            AdapterClass.name === 'LokiJSAdapter'
+              ? { type: 'bad_type' }
+              : createTable({ name: 'tasks', columns: [] }),
+          ],
+        },
+      ],
+    })
     const adapterPromise = adapter.testClone({
       schema: { ...testSchema, version: 2 },
-      migrations: schemaMigrations({
-        migrations: [
-          {
-            toVersion: 2,
-            steps: [
-              // with SQLite, trying to create a duplicate table will fail, but Loki will just ignore it
-              // so let's insert something that WILL fail
-              AdapterClass.name === 'LokiJSAdapter'
-                ? { type: 'bad_type' }
-                : createTable({ name: 'tasks', columns: [] }),
-            ],
-          },
-        ],
-      }),
+      migrations: failingMigrations,
     })
 
     // TODO: Make the SQLite, LokiJS adapter behavior consistent
@@ -1158,6 +1159,37 @@ export default () => {
       )
     } else {
       await expect(adapterPromise).rejects.toBeInstanceOf(Error)
+    }
+
+    if (
+      AdapterClass.name === 'SQLiteAdapter' &&
+      adapter.underlyingAdapter._dispatcherType === 'asynchronous'
+    ) {
+      // With the asynchronous (non-JSI) bridge, the app must be able to recover from a failed
+      // migration (e.g. from onSetUpError) by resetting the database with the same adapter
+      const failedAdapter = new DatabaseAdapterCompat(
+        new AdapterClass({
+          schema: { ...testSchema, version: 2 },
+          migrations: failingMigrations,
+          ...extraAdapterOptions,
+        }),
+      )
+      // operations issued while the migration is still running are queued by the bridge
+      const queuedCount = failedAdapter.count(taskQuery())
+      await expect(failedAdapter.underlyingAdapter.initializingPromise).rejects.toBeInstanceOf(Error)
+      if (platform === 'node') {
+        // NOTE: The node bridge settles every call synchronously, so nothing was actually queued
+        await queuedCount
+      } else {
+        // queued operations are rejected with the setup error instead of hanging forever
+        await expect(queuedCount).rejects.toBeInstanceOf(Error)
+      }
+
+      // the driver stays connected, so the database can be reset and used
+      await failedAdapter.unsafeResetDatabase()
+      expect(await failedAdapter.count(taskQuery())).toBe(0)
+      await failedAdapter.batch([['create', 'tasks', mockTaskRaw({})]])
+      expect(await failedAdapter.count(taskQuery())).toBe(1)
     }
   })
   it('can actually save and read from file system', async (_adapter, AdapterClass, extraAdapterOptions, platform) => {

@@ -4,19 +4,22 @@
 
 #pragma mark - Initialization
 
-- (instancetype) initWithName:(NSString *)dbName
+- (nullable instancetype) initWithName:(NSString *)dbName error:(NSError **)errorPtr
 {
     if (self = [super init]) {
-        _db = [WMDatabase databaseWithPath:[self pathForName:dbName]];
+        _db = [WMDatabase databaseWithPath:[self pathForName:dbName] error:errorPtr];
+        if (!_db) {
+            return nil;
+        }
         _cachedRecords = [NSMutableDictionary dictionary];
     }
 
     return self;
 }
 
-+ (instancetype) driverWithName:(NSString *)dbName
++ (nullable instancetype) driverWithName:(NSString *)dbName error:(NSError **)errorPtr
 {
-    return [[self alloc] initWithName:dbName];
+    return [[self alloc] initWithName:dbName error:errorPtr];
 }
 
 - (NSString *) pathForName:(NSString *)dbName
@@ -59,20 +62,19 @@
     }
 }
 
-- (void) setUpWithSchema:(NSString *)sql schemaVersion:(long)version
+- (BOOL) setUpWithSchema:(NSString *)sql schemaVersion:(long)version error:(NSError **)errorPtr
 {
-    NSError *error;
-    if (![self unsafeResetDatabaseWithSchema:sql schemaVersion:version error:&error]) {
-        [NSException raise:@"SetUpWithSchemaFailed" format:@"Error while setting up the database: %@", error];
-    }
+    return [self unsafeResetDatabaseWithSchema:sql schemaVersion:version error:errorPtr];
 }
 
 - (BOOL) setUpWithMigrations:(NSString *)sql fromVersion:(long)fromVersion toVersion:(long)toVersion error:(NSError **)errorPtr
 {
     long databaseVersion = _db.userVersion;
     if (databaseVersion != fromVersion) {
-        [NSException raise:@"IncompatibleMigrations"
-                    format:@"Incompatbile migration set applied. DB: %li, migration: %li", databaseVersion, fromVersion];
+        *errorPtr = [NSError errorWithDomain:@"WMDatabaseDriver" code:0 userInfo:@{
+            NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Incompatible migration set applied. DB: %li, migration: %li", databaseVersion, fromVersion]
+        }];
+        return NO;
     }
 
     __block WMDatabase *db = _db;
@@ -80,7 +82,9 @@
         if (![db executeStatements:sql error:innerErrorPtr]) {
             return NO;
         }
-        [db setUserVersion:toVersion];
+        if (![db setUserVersion:toVersion error:innerErrorPtr]) {
+            return NO;
+        }
 
         return YES;
     } error:errorPtr];
@@ -240,7 +244,9 @@
         if (![db executeStatements:sql error:innerErrorPtr]) {
             return NO;
         }
-        [db setUserVersion:version];
+        if (![db setUserVersion:version error:innerErrorPtr]) {
+            return NO;
+        }
 
         return YES;
     } error:errorPtr];

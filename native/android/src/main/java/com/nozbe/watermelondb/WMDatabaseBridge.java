@@ -68,16 +68,25 @@ public class WMDatabaseBridge extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void setUpWithSchema(final Integer tag, final String databaseName, final String schema, final int schemaVersion, final boolean unsafeNativeReuse, final Promise promise) {
-        connectDriver(tag, new WMDatabaseDriver(reactContext, databaseName, new Schema(schemaVersion, schema), unsafeNativeReuse), promise);
+        WMDatabaseDriver driver = null;
+        try {
+            driver = new WMDatabaseDriver(reactContext, databaseName, unsafeNativeReuse);
+            driver.unsafeResetDatabase(new Schema(schemaVersion, schema));
+            connectDriver(tag, driver, promise);
+        } catch (Exception e) {
+            failSetUp(tag, driver, e, promise);
+        }
     }
 
     @ReactMethod
     public void setUpWithMigrations(final Integer tag, final String databaseName, final String migrations, final int fromVersion, final int toVersion, final boolean unsafeNativeReuse, final Promise promise) {
+        WMDatabaseDriver driver = null;
         try {
-            connectDriver(tag, new WMDatabaseDriver(reactContext, databaseName, new MigrationSet(fromVersion, toVersion, migrations), unsafeNativeReuse), promise);
+            driver = new WMDatabaseDriver(reactContext, databaseName, unsafeNativeReuse);
+            driver.migrate(new MigrationSet(fromVersion, toVersion, migrations));
+            connectDriver(tag, driver, promise);
         } catch (Exception e) {
-            disconnectDriver(tag);
-            promise.reject(e);
+            failSetUp(tag, driver, e, promise);
         }
     }
 
@@ -142,6 +151,8 @@ public class WMDatabaseBridge extends ReactContextBaseJavaModule {
                 return result;
             } else if (connection instanceof Connection.Waiting) {
                 throw new Exception("Waiting connection unexpected for unsafeGetLocalSynchronously");
+            } else if (connection instanceof Connection.Failed) {
+                throw ((Connection.Failed) connection).error;
             }
         } catch (Exception e) {
             WritableArray result = Arguments.createArray();
@@ -184,6 +195,8 @@ public class WMDatabaseBridge extends ReactContextBaseJavaModule {
                 // try again when driver is ready
                 connection.getQueue().add(() -> withDriver(tag, promise, function, functionName));
                 connections.put(tag, new Connection.Waiting(connection.getQueue()));
+            } else if (connection instanceof Connection.Failed) {
+                promise.reject(functionName, ((Connection.Failed) connection).error);
             }
         } catch (Exception e) {
             promise.reject(functionName, e);
@@ -203,14 +216,23 @@ public class WMDatabaseBridge extends ReactContextBaseJavaModule {
         promise.resolve(true);
     }
 
-    private void disconnectDriver(int connectionTag) {
+    // Rejects the operations queued while waiting for setup with the setup error, then keeps the
+    // driver connected if the database could at least be opened.
+    // NOTE: Setup runs in a transaction, so after a failed setup the database is still consistent.
+    // Keeping the driver lets JS recover (e.g. by calling unsafeResetDatabase) instead of every
+    // subsequent call being rejected with "No driver with tag N available".
+    private void failSetUp(int connectionTag, WMDatabaseDriver driver, Exception error, Promise promise) {
         List<Runnable> queue = getQueue(connectionTag);
-
-        connections.remove(connectionTag);
+        connections.put(connectionTag, new Connection.Failed(error));
 
         for (Runnable operation : queue) {
             operation.run();
         }
+
+        if (driver != null) {
+            connections.put(connectionTag, new Connection.Connected(driver));
+        }
+        promise.reject(error);
     }
 
     @ReactMethod

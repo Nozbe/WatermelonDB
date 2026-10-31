@@ -53,7 +53,11 @@ BRIDGE_METHOD(initialize,
         return reject(@"db.initialize.error", [NSString stringWithFormat:@"A driver with tag %@ is already set up", tag], nil);
     }
     
-    WMDatabaseDriver *driver = [WMDatabaseDriver driverWithName:name];
+    NSError *error;
+    WMDatabaseDriver *driver = [WMDatabaseDriver driverWithName:name error:&error];
+    if (!driver) {
+        return reject(@"db.initialize.error", error.localizedDescription, error);
+    }
     WMDatabaseCompatibility compatibility = [driver isCompatibleWithSchemaVersion:[version integerValue]];
     
     if (compatibility == WMDatabaseCompatibilityCompatible) {
@@ -67,7 +71,7 @@ BRIDGE_METHOD(initialize,
         return resolve(@{@"code": @"migrations_needed", @"databaseVersion": @(driver.schemaVersion)});
     }
     
-    [NSException raise:@"BadArgument" format:@"Unexpected WMDatabaseCompatibility"];
+    return reject(@"db.initialize.error", @"Unexpected WMDatabaseCompatibility", nil);
 }
 
 BRIDGE_METHOD(setUpWithSchema,
@@ -76,10 +80,16 @@ BRIDGE_METHOD(setUpWithSchema,
     schemaVersion:(nonnull NSNumber *)version
 )
 {
-    WMDatabaseDriver *driver = [WMDatabaseDriver driverWithName:name];
-    [driver setUpWithSchema:schema schemaVersion:[version integerValue]];
-    [self connectDriverAsync:tag driver:driver];
-    return resolve(@YES);
+    NSError *error;
+    WMDatabaseDriver *driver = [WMDatabaseDriver driverWithName:name error:&error];
+    
+    if (driver && [driver setUpWithSchema:schema schemaVersion:[version integerValue] error:&error]) {
+        [self connectDriverAsync:tag driver:driver];
+        return resolve(@YES);
+    } else {
+        [self connectDriverAsync:tag driver:driver setUpError:error];
+        return reject(@"db.setUpWithSchema.error", error.localizedDescription, error);
+    }
 }
 
 BRIDGE_METHOD(setUpWithMigrations,
@@ -89,14 +99,14 @@ BRIDGE_METHOD(setUpWithMigrations,
     toVersion:(nonnull NSNumber *)toVersion
 )
 {
-    WMDatabaseDriver *driver = [WMDatabaseDriver driverWithName:name];
     NSError *error;
+    WMDatabaseDriver *driver = [WMDatabaseDriver driverWithName:name error:&error];
     
-    if ([driver setUpWithMigrations:migrationSQL fromVersion:[fromVersion integerValue] toVersion:[toVersion integerValue] error:&error]) {
+    if (driver && [driver setUpWithMigrations:migrationSQL fromVersion:[fromVersion integerValue] toVersion:[toVersion integerValue] error:&error]) {
         [self connectDriverAsync:tag driver:driver];
         return resolve(@YES);
     } else {
-        [self disconnectDriver:tag];
+        [self connectDriverAsync:tag driver:driver setUpError:error];
         return reject(@"db.setUpWithMigrations.error", error.localizedDescription, error);
     }
 }
@@ -259,20 +269,31 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(getRandomIds)
 - (void) connectDriverAsync:(nonnull NSNumber *)tag
                      driver:(WMDatabaseDriver *)driver
 {
-    _connections[tag] = driver;
+    [self connectDriverAsync:tag driver:driver setUpError:nil];
+}
+
+// Connects the driver (if setup produced one) and settles the operations queued while waiting for
+// it: they are retried if setup succeeded, and rejected with the setup error otherwise.
+// NOTE: Setup runs in a transaction, so after a failed setup the database is still consistent and
+// the driver stays connected. This lets JS recover (e.g. by calling unsafeResetDatabase) instead
+// of every subsequent call hanging on a tag that has neither a driver nor a queue.
+- (void) connectDriverAsync:(nonnull NSNumber *)tag
+                     driver:(nullable WMDatabaseDriver *)driver
+                 setUpError:(nullable NSError *)setUpError
+{
+    if (driver && driver.db.fmdb.isOpen) {
+        _connections[tag] = driver;
+    } else {
+        // NOTE: A driver whose database could not be (re)opened is of no use - every operation
+        // on it would fail, so treat it like a missing driver
+        [_connections removeObjectForKey:tag];
+    }
     NSArray *queuedOperations = _queue[tag];
     [_queue removeObjectForKey:tag];
     
-    for (void (^action)(void) in queuedOperations) {
-        action();
+    for (void (^action)(NSError * _Nullable) in queuedOperations) {
+        action(setUpError);
     }
-}
-
-- (void) disconnectDriver:(nonnull NSNumber *)tag
-{
-    [_connections removeObjectForKey:tag];
-    // NOTE: In Swift, queued operations are executed, which seems wrong
-    [_queue removeObjectForKey:tag];
 }
 
 - (void) withDriver:(nonnull NSNumber *)tag
@@ -293,11 +314,20 @@ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(getRandomIds)
             return resolve(result);
         }
     } else {
-        NSLog(@"Operation for driver %@ enqueued", tag);
         NSMutableArray *queuedOperations = _queue[tag];
+        if (!queuedOperations) {
+            // NOTE: Without this, the operation would be silently dropped and its promise never settled
+            NSString *errorName = [NSString stringWithFormat:@"db.%s.error", methodName];
+            return reject(errorName, [NSString stringWithFormat:@"No driver with tag %@ available", tag], nil);
+        }
+        NSLog(@"Operation for driver %@ enqueued", tag);
         
-        // try again when driver is ready
-        void (^queueOperation)(void) = ^() {
+        // try again when driver is ready, or fail if setting it up failed
+        void (^queueOperation)(NSError * _Nullable) = ^(NSError * _Nullable setUpError) {
+            if (setUpError) {
+                NSString *errorName = [NSString stringWithFormat:@"db.%s.error", methodName];
+                return reject(errorName, setUpError.localizedDescription, setUpError);
+            }
             [self withDriver:tag resolve:resolve reject:reject methodName:methodName action:action];
         };
         

@@ -206,7 +206,7 @@ public class WMDatabaseDriver {
         database.close();
     }
 
-    private void migrate(MigrationSet migrations) {
+    void migrate(MigrationSet migrations) {
         int databaseVersion = database.getUserVersion();
         if (databaseVersion != migrations.from) {
             throw new IllegalArgumentException("Incompatible migration set applied. " +

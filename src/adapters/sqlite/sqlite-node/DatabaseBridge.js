@@ -55,12 +55,18 @@ class DatabaseBridge {
     schema: string,
     schemaVersion: number,
     resolve: (boolean) => void,
-    _reject: () => void,
+    reject: () => void,
   ): void {
-    const driver = new DatabaseDriver()
-    driver.setUpWithSchema(databaseName, schema, schemaVersion)
-    this.connectDriverAsync(tag, driver)
-    resolve(true)
+    let driver
+    try {
+      driver = new DatabaseDriver()
+      driver.setUpWithSchema(databaseName, schema, schemaVersion)
+      this.connectDriverAsync(tag, driver)
+      resolve(true)
+    } catch (error) {
+      this.failSetUp(tag, driver, error)
+      this.sendReject(reject, error, 'setUpWithSchema')
+    }
   }
 
   setUpWithMigrations(
@@ -72,8 +78,9 @@ class DatabaseBridge {
     resolve: (boolean) => void,
     reject: () => void,
   ): void {
+    let driver
     try {
-      const driver = new DatabaseDriver()
+      driver = new DatabaseDriver()
       driver.setUpWithMigrations(databaseName, {
         from: fromVersion,
         to: toVersion,
@@ -82,7 +89,7 @@ class DatabaseBridge {
       this.connectDriverAsync(tag, driver)
       resolve(true)
     } catch (error) {
-      this.disconnectDriver(tag)
+      this.failSetUp(tag, driver, error)
       this.sendReject(reject, error, 'setUpWithMigrations')
     }
   }
@@ -183,9 +190,13 @@ class DatabaseBridge {
         resolve(result)
       } else if (connection.status === 'waiting') {
         // consoleLog('Operation for driver (tagID) enqueued')
-        // try again when driver is ready
-        connection.queue.push(() => {
-          this.withDriver(tag, resolve, reject, functionName, action)
+        // try again when driver is ready, or fail if setting it up failed
+        connection.queue.push((setUpError: ?Error) => {
+          if (setUpError) {
+            this.sendReject(reject, setUpError, functionName)
+          } else {
+            this.withDriver(tag, resolve, reject, functionName, action)
+          }
         })
       }
     } catch (error) {
@@ -200,11 +211,20 @@ class DatabaseBridge {
     queue.forEach((operation) => operation())
   }
 
-  disconnectDriver(tag: number): void {
-    const { queue = [] } = this.connections[tag]
-    delete this.connections[tag]
+  // Rejects the operations queued while waiting for setup with the setup error, and keeps the
+  // driver connected if its database is open.
+  // NOTE: Setup runs in a transaction, so after a failed setup the database is still consistent.
+  // Keeping the driver lets the app recover (e.g. by calling unsafeResetDatabase). This mirrors
+  // the behavior of the native (non-JSI) bridges.
+  failSetUp(tag: number, driver: ?DatabaseDriver, error: Error): void {
+    const { queue = [] } = this.connections[tag] || {}
+    if (driver && driver.database && driver.database.instance && driver.database.instance.open) {
+      this.connections[tag] = { driver, queue: [], status: 'connected' }
+    } else {
+      delete this.connections[tag]
+    }
 
-    queue.forEach((operation) => operation())
+    queue.forEach((operation) => operation(error))
   }
 
   assertNoConnection(tag: number): void {

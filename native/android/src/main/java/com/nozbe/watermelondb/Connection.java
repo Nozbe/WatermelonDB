@@ -17,12 +17,18 @@ public abstract class Connection {
         }
     }
 
+    // Setup failed and no driver is available - every operation is rejected with the setup error
+    public static class Failed extends Connection {
+        public final Exception error;
+        public Failed(Exception error) {
+            this.error = error;
+        }
+    }
+
     public ArrayList<Runnable> getQueue() {
-        if (this instanceof Connected) {
-            return new ArrayList<>();
-        } else if (this instanceof Waiting) {
+        if (this instanceof Waiting) {
             return ((Waiting) this).queueInWaiting;
         }
-        return null;
+        return new ArrayList<>();
     }
 }

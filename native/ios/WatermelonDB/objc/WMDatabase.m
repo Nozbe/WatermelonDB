@@ -5,26 +5,32 @@
     NSString *_path;
 }
 
-- (instancetype) initWithPath:(NSString *)path
+- (nullable instancetype) initWithPath:(NSString *)path error:(NSError **)errorPtr
 {
     if (self = [super init]) {
         _path = path;
         _fmdb = [FMDatabase databaseWithPath:path];
-        [self open];
+        if (![self open:errorPtr]) {
+            return nil;
+        }
     }
     
     return self;
 }
 
-+ (instancetype) databaseWithPath:(NSString *)path
++ (nullable instancetype) databaseWithPath:(NSString *)path error:(NSError **)errorPtr
 {
-    return [[self alloc] initWithPath:path];
+    return [[self alloc] initWithPath:path error:errorPtr];
 }
 
-- (void) open
+- (BOOL) open:(NSError **)errorPtr
 {
+    // NOTE: Must not raise an NSException - exceptions thrown from async bridge methods crash the app
     if (![_fmdb open]) {
-        [NSException raise:@"OpenFailed" format:@"Failed to open the database: %@", _fmdb.lastErrorMessage];
+        *errorPtr = [NSError errorWithDomain:@"WMDatabase" code:0 userInfo:@{
+            NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Failed to open the database: %@", _fmdb.lastErrorMessage]
+        }];
+        return NO;
     }
     
     // TODO: Experiment with WAL
@@ -33,6 +39,7 @@
     
     // TODO: Configurable logger
     NSLog(@"Opened database at %@", _path);
+    return YES;
 }
 
 #pragma mark - Executing queries
@@ -116,13 +123,15 @@
     return [result longForColumnIndex:0];
 }
 
-- (void) setUserVersion:(long)userVersion
+- (BOOL) setUserVersion:(long)userVersion error:(NSError **)errorPtr
 {
     NSString *sql = [NSString stringWithFormat:@"pragma user_version = %li", userVersion];
-    BOOL result = [_fmdb executeUpdate:sql];
-    if (!result) {
-        [NSException raise:@"SetUserVersionFailed" format:@"Failed to set user version: %@", _fmdb.lastErrorMessage];
+    if (![_fmdb executeUpdate:sql]) {
+        *errorPtr = _fmdb.lastError;
+        return NO;
     }
+    
+    return YES;
 }
 
 - (BOOL) unsafeDestroyEverything:(NSError**)errorPtr
@@ -176,8 +185,7 @@
         [manager removeItemAtPath:[NSString stringWithFormat:@"%@-shm", _path] error:nil];
         
         // reopen database
-        [self open];
-        return YES;
+        return [self open:errorPtr];
     }
 }
 

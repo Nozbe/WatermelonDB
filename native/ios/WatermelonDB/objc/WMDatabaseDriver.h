@@ -15,13 +15,14 @@ typedef NS_ENUM(NSInteger, WMDatabaseCompatibility) {
 
 #pragma mark - Initialization
 
-+ (instancetype) driverWithName:(NSString *)dbName;
+/// Returns nil (and sets errorPtr) if the database could not be opened
++ (nullable instancetype) driverWithName:(NSString *)dbName error:(NSError **)errorPtr;
 
 #pragma mark - Setup
 
 - (long) schemaVersion;
 - (WMDatabaseCompatibility) isCompatibleWithSchemaVersion:(long)version;
-- (void) setUpWithSchema:(NSString *)sql schemaVersion:(long)version;
+- (BOOL) setUpWithSchema:(NSString *)sql schemaVersion:(long)version error:(NSError **)errorPtr;
 - (BOOL) setUpWithMigrations:(NSString *)sql fromVersion:(long)fromVersion toVersion:(long)toVersion error:(NSError **)errorPtr;
 
 #pragma mark - Database functions

@@ -5,11 +5,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface WMDatabase : NSObject
 
 @property (readwrite, strong, nonatomic) FMDatabase *fmdb;
-@property (readwrite, nonatomic) long userVersion;
+@property (readonly, nonatomic) long userVersion;
 
 #pragma mark - Initialization
 
-+ (instancetype) databaseWithPath:(NSString *)path;
+/// Returns nil (and sets errorPtr) if the database could not be opened
++ (nullable instancetype) databaseWithPath:(NSString *)path error:(NSError **)errorPtr;
 
 #pragma mark - Executing queries
 
@@ -22,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Other database functions
 
 - (BOOL) inTransaction:(BOOL (^)(NSError**))transactionBlock error:(NSError**)errorPtr;
+- (BOOL) setUserVersion:(long)userVersion error:(NSError **)errorPtr;
 - (BOOL) unsafeDestroyEverything:(NSError**)errorPtr;
 
 @end
