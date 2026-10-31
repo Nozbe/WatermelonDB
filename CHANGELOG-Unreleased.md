@@ -17,6 +17,7 @@
 - [LokiJS] When accessing or opening IndexedDB throws synchronously (e.g. `SecurityError` when storage access is denied), the adapter now falls back to an in-memory database like for other IndexedDB open failures (or fails setup with `allowInMemoryFallback: false`), instead of always failing setup
 - [Android] Added linker flag for building with 16kB page alignment
 - [TS] make catchError visible to typescript
+- [LokiJS] Fixed `unsafeResetDatabase()` failing with "another operation is already in progress" when it's called while an autosave is in progress
 
 ### Performance
 
