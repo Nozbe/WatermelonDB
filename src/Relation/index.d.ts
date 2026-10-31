@@ -1,4 +1,4 @@
-import { $NonMaybeType, $Exact, $Call } from '../types'
+import { $Exact, $Call } from '../types'
 import type { Observable } from '../utils/rx'
 
 import type Model from '../Model'
@@ -11,11 +11,17 @@ type ExtractRecordId = ExtractRecordIdNonOptional & ExtractRecordIdOptional
 
 export type Options = $Exact<{
   isImmutable: boolean
+  // If true, observing a related record that does not exist emits `null` (and recovers once the
+  // record is created) instead of erroring. See `Collection.observeRecord` and `@experimentalFailsafe`
+  failsafe?: boolean
 }>
 
 // Defines a one-to-one relation between two Models (two tables in db)
 // Do not create this object directly! Use `relation` or `immutableRelation` decorators instead
-export default class Relation<T extends Model> {
+//
+// Use a nullable type (e.g. `Relation<Comment | null>`) if the relation ID is optional, or if the
+// relation is marked with `@experimentalFailsafe` (`Relation<Comment | undefined>` by default)
+export default class Relation<T extends Model | null | undefined> {
   // Used by withObservables to differentiate between object types
   static _wmelonTag: string
 
@@ -23,9 +29,11 @@ export default class Relation<T extends Model> {
 
   _columnName: ColumnName
 
-  _relationTableName: TableName<$NonMaybeType<T>>
+  _relationTableName: TableName<NonNullable<T>>
 
   _isImmutable: boolean
+
+  _isFailsafe: boolean
 
   // TODO: FIX TS
   // @lazy
@@ -33,7 +41,7 @@ export default class Relation<T extends Model> {
 
   constructor(
     model: Model,
-    relationTableName: TableName<$NonMaybeType<T>>,
+    relationTableName: TableName<NonNullable<T>>,
     columnName: ColumnName,
     options: Options,
   )

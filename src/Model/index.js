@@ -416,14 +416,16 @@ export default class Model {
 
   _notifyChanged(): void {
     this._getChanges().next(this)
-    this._subscribers.forEach(([subscriber]) => {
+    // Iterate over a copy, so that subscribers can safely unsubscribe while being notified
+    this._subscribers.slice().forEach(([subscriber]) => {
       subscriber(false)
     })
   }
 
   _notifyDestroyed(): void {
     this._getChanges().complete()
-    this._subscribers.forEach(([subscriber]) => {
+    // Iterate over a copy, so that subscribers can safely unsubscribe while being notified
+    this._subscribers.slice().forEach(([subscriber]) => {
       subscriber(true)
     })
   }

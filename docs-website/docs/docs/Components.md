@@ -161,6 +161,13 @@ withObservables(['post'], ({ post }) => ({
      post: database.get('posts').findAndObserve(postId)
    }))
    ```
+   If the post does not exist, `findAndObserve` errors, and the error is re-thrown when rendering (use an Error Boundary to catch it). If the record might legitimately be missing — for example, it hasn't been synced yet, or it was deleted — use **observeRecord** instead:
+   ```js
+   withObservables(['postId'], ({ postId, database }) => ({
+     post: database.get('posts').observeRecord(postId)
+   }))
+   ```
+   Your component then receives `post={null}` while the post is missing (render a placeholder), and is re-rendered with the post as soon as it's created. If the post is deleted, `post` becomes `null` again. Similarly, mark a relation with `@experimentalFailsafe` to make `Relation.observe()` emit a fallback value (instead of erroring) while the related record is missing, and recover once it's created.
 1. **RxJS transformations**. The values returned by `Model.observe()`, `Query.observe()`, `Relation.observe()` are [RxJS Observables](https://github.com/ReactiveX/rxjs). You can use standard transforms like mapping, filtering, throttling, startWith to change when and how the component is re-rendered.
 1. **Custom Observables**. `withObservables` is a general-purpose HOC for Observables, not just Watermelon. You can create new props from any `Observable`.
 

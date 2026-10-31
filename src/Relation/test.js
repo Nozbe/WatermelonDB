@@ -148,6 +148,124 @@ describe('Relation', () => {
     expect(await relation).toBe(currentRecord)
     expect(await relation.then((model) => [model])).toEqual([currentRecord])
   })
+  it('errors when observing a related record that does not exist', async () => {
+    const { tasks, db } = mockDatabase()
+    const primary = await db.write(() =>
+      tasks.create((mock) => {
+        mock.projectId = 'missing'
+      }),
+    )
+    const relation = new Relation(primary, 'mock_projects', 'project_id', { isImmutable: false })
+
+    const observer = jest.fn()
+    const error = jest.fn()
+    relation.observe().subscribe(observer, error)
+    await new Promise(process.nextTick)
+
+    expect(observer).toHaveBeenCalledTimes(0)
+    expect(error).toHaveBeenCalledTimes(1)
+  })
+  it('observes a missing related record as null when failsafe, and recovers', async () => {
+    const { tasks, projects, db } = mockDatabase()
+    const primary = await db.write(() =>
+      tasks.create((mock) => {
+        mock.projectId = 'missing'
+      }),
+    )
+    const relation = new Relation(primary, 'mock_projects', 'project_id', {
+      isImmutable: false,
+      failsafe: true,
+    })
+    expect(relation._isFailsafe).toBe(true)
+
+    const observer = jest.fn()
+    const error = jest.fn()
+    const complete = jest.fn()
+    const subscription = relation.observe().subscribe(observer, error, complete)
+    await new Promise(process.nextTick)
+
+    expect(observer).toHaveBeenCalledTimes(1)
+    expect(observer).toHaveBeenLastCalledWith(null)
+
+    // related record arrives later (e.g. via sync)
+    const secondary = await db.write(() =>
+      projects.create((mock) => {
+        mock._raw.id = 'missing'
+        mock.name = 'foo'
+      }),
+    )
+    expect(observer).toHaveBeenCalledTimes(2)
+    expect(observer).toHaveBeenLastCalledWith(secondary)
+
+    await db.write(() =>
+      secondary.update((mock) => {
+        mock.name = 'bar'
+      }),
+    )
+    expect(observer).toHaveBeenCalledTimes(3)
+    expect(observer).toHaveBeenLastCalledWith(secondary)
+
+    // related record is deleted
+    await db.write(() => secondary.markAsDeleted())
+    expect(observer).toHaveBeenCalledTimes(4)
+    expect(observer).toHaveBeenLastCalledWith(null)
+
+    // relation is re-pointed at another record
+    const secondary2 = await db.write(() => projects.create())
+    await db.write(() =>
+      primary.update((mock) => {
+        mock.projectId = secondary2.id
+      }),
+    )
+    expect(observer).toHaveBeenLastCalledWith(secondary2)
+
+    expect(error).toHaveBeenCalledTimes(0)
+    expect(complete).toHaveBeenCalledTimes(0)
+    subscription.unsubscribe()
+  })
+  it('observes a missing immutable related record as null when failsafe, and recovers', async () => {
+    const { tasks, comments, db } = mockDatabase()
+    const primary = await db.write(() =>
+      comments.create((mock) => {
+        mock.task.id = 'missing'
+      }),
+    )
+    const relation = new Relation(primary, 'mock_tasks', 'task_id', {
+      isImmutable: true,
+      failsafe: true,
+    })
+
+    const observer = jest.fn()
+    const subscription = relation.observe().subscribe(observer)
+    await new Promise(process.nextTick)
+    expect(observer).toHaveBeenLastCalledWith(null)
+
+    const secondary = await db.write(() =>
+      tasks.create((mock) => {
+        mock._raw.id = 'missing'
+      }),
+    )
+    expect(observer).toHaveBeenLastCalledWith(secondary)
+    subscription.unsubscribe()
+  })
+  it('observes a failsafe immutable relation with a null id as null', async () => {
+    const { tasks, db } = mockDatabase()
+    const primary = await db.write(() => tasks.create())
+    const relation = new Relation(primary, 'mock_project_sections', 'project_section_id', {
+      isImmutable: true,
+      failsafe: true,
+    })
+    expect(relation.id).toBe(null)
+
+    const observer = jest.fn()
+    const error = jest.fn()
+    relation.observe().subscribe(observer, error)
+    await new Promise(process.nextTick)
+
+    expect(observer).toHaveBeenCalledTimes(1)
+    expect(observer).toHaveBeenLastCalledWith(null)
+    expect(error).toHaveBeenCalledTimes(0)
+  })
   it('caches observable', () => {
     const { tasks } = mockDatabase()
     const model = new MockTask(tasks, {})

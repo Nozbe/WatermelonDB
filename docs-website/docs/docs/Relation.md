@@ -63,6 +63,19 @@ withObservables(['comment'], ({ comment }) => ({
 
 The component will now have an `author` prop containing a `User`, and will re-render both when the user changes (e.g. comment's author changes its name), but also when a new author is assigned to the comment (if that was possible).
 
+If the related record might not exist (e.g. it hasn't been synced yet), observing the relation errors. To render a placeholder instead, mark the relation with `@experimentalFailsafe`. `author` will then be `undefined` (or the fallback value you pass to the decorator) while the user is missing, and the component re-renders with the `User` once it's created:
+
+```js
+import { experimentalFailsafe } from '@nozbe/watermelondb/decorators'
+
+class Comment extends Model {
+  // ...
+  @experimentalFailsafe() @relation('users', 'author_id') author
+}
+```
+
+If you use TypeScript or Flow, declare such a relation with a nullable type (e.g. `author: Relation<User | undefined>`), since it can emit `undefined` (or your fallback). The same goes for relations whose ID is optional, which emit `null` when the ID is not set.
+
 ### Fetching
 
 To simply get the related record, use `fetch`. You might need it [in a Writer](./Writers.md)

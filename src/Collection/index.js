@@ -116,6 +116,130 @@ export default class Collection<Record: Model> {
     })
   }
 
+  /**
+   * Observes the record with the given ID, treating a missing record as `null`.
+   *
+   * This is a failsafe version of `findAndObserve()`. The returned Observable never errors or
+   * completes because of the record's existence. Instead, it emits:
+   * - the record, if it exists, and then again every time it changes
+   * - `null`, if the record does not exist (yet) or is marked as deleted
+   * - the record, once a record with this ID is created (e.g. arrives via sync)
+   * - `null` again, if the record is deleted — and the record again, if it is re-created
+   *
+   * Use this instead of `findAndObserve()` when the record might not exist, e.g. when observing
+   * a related record that may arrive later, so that your UI can render a placeholder instead of
+   * throwing an error.
+   */
+  observeRecord(id: RecordId): Observable<?Record> {
+    return Observable.create((observer) => {
+      let unsubscribed = false
+      let observedRecord: ?Record = null
+      let unsubscribeFromRecord: ?Unsubscribe = null
+      let unsubscribeFromCollection: ?Unsubscribe = null
+      // Set once a change notification for this ID arrives - from then on, the record cache is
+      // the source of truth, and the (possibly outdated) result of the initial fetch is ignored
+      let initialFetchSuperseded = false
+      // Whether the last value emitted was `null` (so that we don't emit it twice in a row)
+      let isMissingEmitted = false
+
+      const emitMissing = () => {
+        if (!isMissingEmitted) {
+          isMissingEmitted = true
+          observer.next(null)
+        }
+      }
+
+      const stopObservingRecord = () => {
+        unsubscribeFromRecord && unsubscribeFromRecord()
+        unsubscribeFromRecord = null
+        observedRecord = null
+      }
+
+      const stopObservingCollection = () => {
+        unsubscribeFromCollection && unsubscribeFromCollection()
+        unsubscribeFromCollection = null
+      }
+
+      // Caches are updated before change notifications are sent, so at notification time the
+      // cache tells us if a (non-deleted) record with this ID currently exists
+      const getLiveCachedRecord = (): ?Record => {
+        const record = this._cache.get(id)
+        return record && record.syncStatus !== 'deleted' ? record : null
+      }
+
+      const observeExistingRecord = (record: Record) => {
+        stopObservingCollection()
+        stopObservingRecord()
+        observedRecord = record
+        // Subscribe before emitting, so that if the consumer unsubscribes synchronously,
+        // the teardown can remove this listener
+        unsubscribeFromRecord = record.experimentalSubscribe((isDeleted) => {
+          if (unsubscribed) {
+            return
+          }
+          if (isDeleted) {
+            stopObservingRecord()
+            // The record might have been re-created in the same batch
+            const recreatedRecord = getLiveCachedRecord()
+            recreatedRecord ? observeExistingRecord(recreatedRecord) : observeMissingRecord()
+          } else if (this._cache.get(id) === record) {
+            // (With batched notifications, the record might have been deleted in the meantime -
+            // in that case, a deletion notification follows, so don't emit the deleted record)
+            observer.next(record)
+          }
+        })
+        isMissingEmitted = false
+        observer.next(record)
+      }
+
+      // While the record is missing, watch for a record with this ID being created. (Once it
+      // exists, we only listen to that record, so that we don't have to scan every change)
+      const startObservingCollection = () => {
+        unsubscribeFromCollection = this.experimentalSubscribe((changes) => {
+          if (unsubscribed || !changes.some(({ record }) => record.id === id)) {
+            return
+          }
+          initialFetchSuperseded = true
+          const record = getLiveCachedRecord()
+          // (If the record was created and deleted while the initial fetch is pending, we still
+          // need to emit the initial `null`)
+          record ? observeExistingRecord(record) : emitMissing()
+        })
+      }
+
+      const observeMissingRecord = () => {
+        startObservingCollection()
+        emitMissing()
+      }
+
+      startObservingCollection()
+      // NOTE: A fetched raw record is always turned into a cached model (even if this fetch is
+      // superseded), because the adapter marks it as sent to JS - dropping it would leave the
+      // adapter-side and JS record caches out of sync. Adapters process calls in order, so a find
+      // result can't be older than a change notification that arrives before it.
+      this._fetchRecordIfExists(id, (result) => {
+        if (unsubscribed || initialFetchSuperseded || observedRecord) {
+          return
+        }
+        const record = result.value
+        if (result.error) {
+          observer.error(result.error)
+        } else if (record && record.syncStatus !== 'deleted') {
+          observeExistingRecord(record)
+        } else {
+          // Missing, or marked as deleted (adapters still find records marked as deleted)
+          emitMissing()
+        }
+      })
+
+      return () => {
+        unsubscribed = true
+        stopObservingCollection()
+        stopObservingRecord()
+      }
+    })
+  }
+
   /*:: query: ArrayOrSpreadFn<Clause, Query<Record>>  */
   /**
    * Returns a `Query` with conditions given.
@@ -217,6 +341,18 @@ export default class Collection<Record: Model> {
 
   // Fetches exactly one record (See: Collection.find)
   _fetchRecord(id: RecordId, callback: ResultCallback<Record>): void {
+    this._fetchRecordIfExists(id, (result) =>
+      callback(
+        mapValue((record) => {
+          invariant(record, `Record ${this.table}#${id} not found`)
+          return record
+        }, result),
+      ),
+    )
+  }
+
+  // Fetches exactly one record, or `null` if it does not exist (See: Collection.observeRecord)
+  _fetchRecordIfExists(id: RecordId, callback: ResultCallback<?Record>): void {
     if (typeof id !== 'string') {
       callback({ error: new Error(`Invalid record ID ${this.table}#${id}`) })
       return
@@ -231,10 +367,10 @@ export default class Collection<Record: Model> {
 
     this.database.adapter.underlyingAdapter.find(this.table, id, (result) =>
       callback(
-        mapValue((rawRecord) => {
-          invariant(rawRecord, `Record ${this.table}#${id} not found`)
-          return this._cache.recordFromQueryResult(rawRecord)
-        }, result),
+        mapValue(
+          (rawRecord) => (rawRecord ? this._cache.recordFromQueryResult(rawRecord) : null),
+          result,
+        ),
       ),
     )
   }
@@ -257,7 +393,8 @@ export default class Collection<Record: Model> {
     ]): void => {
       subscriber(operations)
     }
-    this._subscribers.forEach(collectionChangeNotifySubscribers)
+    // Iterate over a copy, so that subscribers can safely unsubscribe while being notified
+    this._subscribers.slice().forEach(collectionChangeNotifySubscribers)
     this.changes.next(operations)
 
     const collectionChangeNotifyModels = ({ record, type }: CollectionChange<Record>): void => {

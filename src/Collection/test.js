@@ -1,3 +1,4 @@
+import { filter, take } from 'rxjs/operators'
 import { expectToRejectWithMessage } from '../__tests__/utils'
 import { noop } from '../utils/fp'
 
@@ -353,5 +354,361 @@ describe('Collection observation', () => {
     unsubscribe1()
     await trigger()
     expect(subscriber).toHaveBeenCalledTimes(4)
+  })
+})
+
+describe('findAndObserve', () => {
+  it('observes an existing record and completes when it is deleted', async () => {
+    const { database, tasks } = mockDatabase()
+    const t1 = await database.write(() => tasks.create())
+
+    const observer = jest.fn()
+    const complete = jest.fn()
+    tasks.findAndObserve(t1.id).subscribe(observer, undefined, complete)
+
+    await new Promise(process.nextTick)
+    expect(observer).toHaveBeenCalledTimes(1)
+    expect(observer).toHaveBeenLastCalledWith(t1)
+
+    await database.write(() => t1.update())
+    expect(observer).toHaveBeenCalledTimes(2)
+    expect(observer).toHaveBeenLastCalledWith(t1)
+
+    await database.write(() => t1.markAsDeleted())
+    expect(observer).toHaveBeenCalledTimes(2)
+    expect(complete).toHaveBeenCalledTimes(1)
+  })
+  it('errors if the record does not exist', async () => {
+    const { tasks } = mockDatabase()
+
+    const observer = jest.fn()
+    const error = jest.fn()
+    tasks.findAndObserve('missing').subscribe(observer, error)
+
+    await new Promise(process.nextTick)
+    expect(observer).toHaveBeenCalledTimes(0)
+    expect(error).toHaveBeenCalledTimes(1)
+    expect(error.mock.calls[0][0].message).toMatch('Record mock_tasks#missing not found')
+  })
+})
+
+describe('observeRecord', () => {
+  const createWithId = (database, collection, id) =>
+    database.write(() =>
+      collection.create((record) => {
+        record._raw.id = id
+      }),
+    )
+
+  it('emits null if the record does not exist', async () => {
+    const { tasks } = mockDatabase()
+
+    const observer = jest.fn()
+    const error = jest.fn()
+    const complete = jest.fn()
+    tasks.observeRecord('missing').subscribe(observer, error, complete)
+
+    await new Promise(process.nextTick)
+    expect(observer).toHaveBeenCalledTimes(1)
+    expect(observer).toHaveBeenLastCalledWith(null)
+    expect(error).toHaveBeenCalledTimes(0)
+    expect(complete).toHaveBeenCalledTimes(0)
+  })
+  it('emits the record once a record with this id is created', async () => {
+    const { database, tasks } = mockDatabase()
+
+    const observer = jest.fn()
+    const subscription = tasks.observeRecord('later').subscribe(observer)
+
+    await new Promise(process.nextTick)
+    expect(observer).toHaveBeenCalledTimes(1)
+    expect(observer).toHaveBeenLastCalledWith(null)
+
+    // unrelated records don't matter
+    await database.write(() => tasks.create())
+    expect(observer).toHaveBeenCalledTimes(1)
+
+    const t1 = await createWithId(database, tasks, 'later')
+    expect(observer).toHaveBeenCalledTimes(2)
+    expect(observer).toHaveBeenLastCalledWith(t1)
+
+    // ...and then keeps observing the record
+    await database.write(() => t1.update())
+    expect(observer).toHaveBeenCalledTimes(3)
+    expect(observer).toHaveBeenLastCalledWith(t1)
+
+    subscription.unsubscribe()
+    await database.write(() => t1.update())
+    expect(observer).toHaveBeenCalledTimes(3)
+  })
+  it('emits null instead of completing when the record is deleted, and recovers', async () => {
+    const { database, tasks } = mockDatabase()
+    const t1 = await createWithId(database, tasks, 't1')
+
+    const observer = jest.fn()
+    const error = jest.fn()
+    const complete = jest.fn()
+    const subscription = tasks.observeRecord('t1').subscribe(observer, error, complete)
+
+    // record is cached, so it's emitted synchronously
+    expect(observer).toHaveBeenCalledTimes(1)
+    expect(observer).toHaveBeenLastCalledWith(t1)
+
+    await database.write(() => t1.markAsDeleted())
+    expect(observer).toHaveBeenCalledTimes(2)
+    expect(observer).toHaveBeenLastCalledWith(null)
+    expect(complete).toHaveBeenCalledTimes(0)
+
+    // purge the deleted record (like sync does), then re-create a record with the same id
+    await database.adapter.destroyDeletedRecords('mock_tasks', ['t1'])
+    const t1Again = await createWithId(database, tasks, 't1')
+    expect(t1Again).not.toBe(t1)
+    expect(observer).toHaveBeenCalledTimes(3)
+    expect(observer).toHaveBeenLastCalledWith(t1Again)
+
+    await database.write(() => t1Again.destroyPermanently())
+    expect(observer).toHaveBeenCalledTimes(4)
+    expect(observer).toHaveBeenLastCalledWith(null)
+
+    expect(error).toHaveBeenCalledTimes(0)
+    expect(complete).toHaveBeenCalledTimes(0)
+    subscription.unsubscribe()
+  })
+  it('fetches records that are not cached, including ids containing colons', async () => {
+    const { database, tasks: originalTasks, cloneDatabase } = mockDatabase()
+    const id = '12:Quiz:hand'
+    await createWithId(database, originalTasks, id)
+
+    // simulate reload - the record is in the database, but not in cache
+    const reloadedDb = await cloneDatabase()
+    const tasks = reloadedDb.get('mock_tasks')
+    const findSpy = jest.spyOn(reloadedDb.adapter.underlyingAdapter, 'find')
+
+    const observer = jest.fn()
+    tasks.observeRecord(id).subscribe(observer)
+    expect(observer).toHaveBeenCalledTimes(0)
+
+    await new Promise(process.nextTick)
+    expect(findSpy).toHaveBeenCalledTimes(1)
+    expect(findSpy.mock.calls[0].slice(0, 2)).toEqual(['mock_tasks', id])
+    expect(observer).toHaveBeenCalledTimes(1)
+    expect(observer.mock.calls[0][0].id).toBe(id)
+
+    // a missing record with such an id is also fine
+    const observer2 = jest.fn()
+    tasks.observeRecord('12:Quiz:missing').subscribe(observer2)
+    await new Promise(process.nextTick)
+    expect(observer2).toHaveBeenLastCalledWith(null)
+  })
+  it('does not emit twice if the record is created while fetching', async () => {
+    const { database, tasks, adapter } = mockDatabase()
+
+    let finishFind = null
+    adapter.find = jest.fn().mockImplementation((table, id, callback) => {
+      finishFind = () => callback({ value: null })
+    })
+
+    const observer = jest.fn()
+    tasks.observeRecord('t1').subscribe(observer)
+    expect(adapter.find).toHaveBeenCalledTimes(1)
+
+    const t1 = await createWithId(database, tasks, 't1')
+    expect(observer).toHaveBeenCalledTimes(1)
+    expect(observer).toHaveBeenLastCalledWith(t1)
+
+    finishFind()
+    expect(observer).toHaveBeenCalledTimes(1)
+  })
+  it('notifies every subscription when the record is deleted', async () => {
+    const { database, tasks } = mockDatabase()
+    const t1 = await createWithId(database, tasks, 't1')
+
+    const observers = [jest.fn(), jest.fn(), jest.fn()]
+    observers.forEach((observer) => tasks.observeRecord('t1').subscribe(observer))
+    observers.forEach((observer) => expect(observer).toHaveBeenLastCalledWith(t1))
+
+    await database.write(() => t1.markAsDeleted())
+    observers.forEach((observer) => {
+      expect(observer).toHaveBeenCalledTimes(2)
+      expect(observer).toHaveBeenLastCalledWith(null)
+    })
+    expect(t1._subscribers.length).toBe(0)
+  })
+  it('emits null for records marked as deleted', async () => {
+    const { database, tasks } = mockDatabase()
+    const t1 = await createWithId(database, tasks, 't1')
+    await database.write(() => t1.markAsDeleted())
+    expect(tasks._cache.get('t1')).toBe(undefined)
+
+    const observer = jest.fn()
+    tasks.observeRecord('t1').subscribe(observer)
+    await new Promise(process.nextTick)
+
+    expect(observer).toHaveBeenCalledTimes(1)
+    expect(observer).toHaveBeenLastCalledWith(null)
+
+    // find() semantics are unchanged
+    expect((await tasks.find('t1')).syncStatus).toBe('deleted')
+  })
+  it('does not leak listeners when the consumer unsubscribes synchronously', async () => {
+    const { database, tasks } = mockDatabase()
+
+    // record created later
+    const observer = jest.fn()
+    tasks
+      .observeRecord('t1')
+      .pipe(filter(Boolean), take(1))
+      .subscribe(observer)
+    await new Promise(process.nextTick)
+    const t1 = await createWithId(database, tasks, 't1')
+    expect(observer).toHaveBeenCalledTimes(1)
+    expect(observer).toHaveBeenLastCalledWith(t1)
+    expect(t1._subscribers.length).toBe(0)
+    expect(tasks._subscribers.length).toBe(0)
+
+    // cached record emitted synchronously on subscription
+    const observer2 = jest.fn()
+    tasks.observeRecord('t1').pipe(take(1)).subscribe(observer2)
+    expect(observer2).toHaveBeenLastCalledWith(t1)
+    expect(t1._subscribers.length).toBe(0)
+    expect(tasks._subscribers.length).toBe(0)
+  })
+  it('only listens to collection changes while the record is missing', async () => {
+    const { database, tasks } = mockDatabase()
+
+    const observer = jest.fn()
+    const subscription = tasks.observeRecord('t1').subscribe(observer)
+    await new Promise(process.nextTick)
+    expect(tasks._subscribers.length).toBe(1)
+
+    const t1 = await createWithId(database, tasks, 't1')
+    expect(observer).toHaveBeenLastCalledWith(t1)
+    expect(tasks._subscribers.length).toBe(0)
+    expect(t1._subscribers.length).toBe(1)
+
+    await database.write(() => t1.markAsDeleted())
+    expect(observer).toHaveBeenLastCalledWith(null)
+    expect(tasks._subscribers.length).toBe(1)
+    expect(t1._subscribers.length).toBe(0)
+
+    subscription.unsubscribe()
+    expect(tasks._subscribers.length).toBe(0)
+  })
+  it('does not emit a record created and deleted within batched notifications', async () => {
+    const { database, tasks } = mockDatabase()
+
+    const observer = jest.fn()
+    tasks.observeRecord('t1').subscribe(observer)
+    await new Promise(process.nextTick)
+    expect(observer).toHaveBeenLastCalledWith(null)
+
+    await database.experimentalBatchNotifications(async () => {
+      const t1 = await createWithId(database, tasks, 't1')
+      await database.write(() => t1.destroyPermanently())
+    })
+    expect(observer).toHaveBeenCalledTimes(1)
+  })
+  it('switches to a record deleted and re-created within batched notifications', async () => {
+    const { database, tasks } = mockDatabase()
+    const t1 = await createWithId(database, tasks, 't1')
+
+    const observer = jest.fn()
+    tasks.observeRecord('t1').subscribe(observer)
+    expect(observer).toHaveBeenLastCalledWith(t1)
+
+    let t1Again
+    await database.experimentalBatchNotifications(async () => {
+      await database.write(() => t1.destroyPermanently())
+      t1Again = await createWithId(database, tasks, 't1')
+    })
+    expect(observer).toHaveBeenCalledTimes(2)
+    expect(observer).toHaveBeenLastCalledWith(t1Again)
+    expect(t1._subscribers.length).toBe(0)
+    expect(t1Again._subscribers.length).toBe(1)
+  })
+  it('emits null if the record is created and deleted while the initial fetch is pending', async () => {
+    const { database, tasks, adapter } = mockDatabase()
+
+    let finishFind = null
+    adapter.find = jest.fn().mockImplementation((table, id, callback) => {
+      finishFind = () => callback({ value: null })
+    })
+
+    const observer = jest.fn()
+    tasks.observeRecord('t1').subscribe(observer)
+    expect(observer).toHaveBeenCalledTimes(0)
+
+    await database.experimentalBatchNotifications(async () => {
+      const t1 = await createWithId(database, tasks, 't1')
+      await database.write(() => t1.destroyPermanently())
+    })
+    expect(observer.mock.calls).toEqual([[null]])
+
+    finishFind()
+    expect(observer.mock.calls).toEqual([[null]])
+
+    // ...and still recovers
+    const t1Again = await createWithId(database, tasks, 't1')
+    expect(observer.mock.calls).toEqual([[null], [t1Again]])
+  })
+  it('ignores the initial fetch result if the record changed in the meantime', async () => {
+    const { database, tasks, adapter } = mockDatabase()
+
+    let finishFind = null
+    adapter.find = jest.fn().mockImplementation((table, id, callback) => {
+      finishFind = () => callback({ value: { id: 't1', _status: 'synced', _changed: '' } })
+    })
+
+    const observer = jest.fn()
+    tasks.observeRecord('t1').subscribe(observer)
+
+    const t1 = await createWithId(database, tasks, 't1')
+    await database.write(() => t1.markAsDeleted())
+    expect(observer.mock.calls).toEqual([[t1], [null]])
+
+    // outdated result of the initial fetch arrives late
+    finishFind()
+    expect(observer.mock.calls).toEqual([[t1], [null]])
+  })
+  it('does not emit an update of a record deleted within batched notifications', async () => {
+    const { database, tasks } = mockDatabase()
+    const t1 = await createWithId(database, tasks, 't1')
+
+    const observer = jest.fn()
+    tasks.observeRecord('t1').subscribe(observer)
+    expect(observer.mock.calls).toEqual([[t1]])
+
+    await database.experimentalBatchNotifications(async () => {
+      await database.write(() => t1.update())
+      await database.write(() => t1.markAsDeleted())
+    })
+    expect(observer.mock.calls).toEqual([[t1], [null]])
+  })
+  it('errors for invalid ids', async () => {
+    const { tasks } = mockDatabase()
+
+    const observer = jest.fn()
+    const error = jest.fn()
+    tasks.observeRecord(null).subscribe(observer, error)
+
+    expect(observer).toHaveBeenCalledTimes(0)
+    expect(error).toHaveBeenCalledTimes(1)
+    expect(error.mock.calls[0][0].message).toMatch('Invalid record ID')
+  })
+  it('stops observing after unsubscribing', async () => {
+    const { database, tasks } = mockDatabase()
+
+    const observer = jest.fn()
+    const subscription = tasks.observeRecord('t1').subscribe(observer)
+    await new Promise(process.nextTick)
+    expect(observer).toHaveBeenCalledTimes(1)
+
+    subscription.unsubscribe()
+    expect(tasks._subscribers.length).toBe(0)
+
+    const t1 = await createWithId(database, tasks, 't1')
+    await database.write(() => t1.markAsDeleted())
+    expect(observer).toHaveBeenCalledTimes(1)
+    expect(t1._subscribers.length).toBe(0)
   })
 })

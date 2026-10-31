@@ -16,6 +16,9 @@ type ExtractRecordId = ExtractRecordIdNonOptional & ExtractRecordIdOptional
 
 export type Options = $Exact<{
   isImmutable: boolean,
+  // If true, observing a related record that does not exist emits `null` (and recovers once the
+  // record is created) instead of erroring. See `Collection.observeRecord` and `@experimentalFailsafe`
+  failsafe?: boolean,
 }>
 
 // Defines a one-to-one relation between two Models (two tables in db)
@@ -32,6 +35,8 @@ export default class Relation<T: ?Model> {
 
   _isImmutable: boolean
 
+  _isFailsafe: boolean
+
   @lazy
   _cachedObservable: Observable<T> = createObservable(this)
     .pipe(publishReplayLatestWhileConnected)
@@ -47,6 +52,7 @@ export default class Relation<T: ?Model> {
     this._relationTableName = relationTableName
     this._columnName = columnName
     this._isImmutable = options.isImmutable
+    this._isFailsafe = !!options.failsafe
   }
 
   get id(): $Call<ExtractRecordId, T> {

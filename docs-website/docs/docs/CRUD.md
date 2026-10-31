@@ -111,7 +111,8 @@ await somePost.destroyPermanently() // permanent
 - `Model.observe()` - usually you only use this [when connecting records to components](./Components.md), but you can manually observe a record outside of React components. The returned [RxJS](https://github.com/reactivex/rxjs) `Observable` will emit the record immediately upon subscription, and then every time the record is updated. If the record is deleted, the Observable will complete.
 - `Query.observe()`, `Relation.observe()` — analagous to the above, but for [Queries](./Query.md) and [Relations](./Relation.md)
 - `Query.observeWithColumns()` - used for [sorted lists](./Components.md)
-- `Collection.findAndObserve(id)` — same as using `.find(id)` and then calling `record.observe()`
+- `Collection.findAndObserve(id)` — same as using `.find(id)` and then calling `record.observe()`. The Observable errors if the record does not exist, and completes if it's deleted.
+- `Collection.observeRecord(id)` — failsafe version of `findAndObserve(id)` for records that might not exist (yet). Emits `null` while the record is missing, emits the record once it exists or is created later (e.g. arrives via sync), and emits `null` again (instead of completing) when it's deleted. Use it when rendering a missing record as a placeholder is better than an error.
 - `Model.prepareUpdate()`, `Collection.prepareCreate`, `Database.batch` — used for [batch updates](./Writers.md)
 - `Database.unsafeResetDatabase()` destroys the whole database - [be sure to see this comment before using it](https://github.com/Nozbe/WatermelonDB/blob/22188ee5b6e3af08e48e8af52d14e0d90db72925/src/Database/index.js#L131)
 - To override the `record.id` during the creation, e.g. to sync with a remote database, you can do it by `record._raw` property. Be aware that the `id` must be of type `string`.

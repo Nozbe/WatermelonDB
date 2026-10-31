@@ -41,6 +41,11 @@ export default class Collection<Record extends Model> {
   // (with the same semantics as when calling `model.observe()`)
   findAndObserve(id: RecordId): Observable<Record>
 
+  // Observes the record with the given ID, treating a missing record as `null`.
+  // Failsafe version of `findAndObserve`: emits `null` while the record does not exist,
+  // the record once it exists (or is created later), and `null` again when it is deleted
+  observeRecord(id: RecordId): Observable<Record | null>
+
   // Query records of this type
   query: ArrayOrSpreadFn<Clause, Query<Record>>
 
@@ -86,6 +91,9 @@ export default class Collection<Record extends Model> {
 
   // Fetches exactly one record (See: Collection.find)
   _fetchRecord(id: RecordId, callback: ResultCallback<Record>): void
+
+  // Fetches exactly one record, or `null` if it does not exist (See: Collection.observeRecord)
+  _fetchRecordIfExists(id: RecordId, callback: ResultCallback<Record | null>): void
 
   _applyChangesToCache(operations: CollectionChangeSet<Record>): void
 
