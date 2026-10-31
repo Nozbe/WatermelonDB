@@ -39,6 +39,21 @@ export type LokiAdapterOptions = $Exact<{
   // This means that app can't save more data or that it will fall back to using in-memory database only
   // Note that this only works when `useWebWorker: false`
   onQuotaExceededError?: (error: Error) => void,
+  // Called when saving the database to IndexedDB fails (e.g. quota exceeded, transaction aborted,
+  // database closed). Changes made since the last successful save are only kept in memory until
+  // a later save succeeds, and will be lost if the page is closed. Note that `database.write()`
+  // resolving does not mean that changes were saved to disk. Called once per failure, not on every
+  // retry, and called again if saving fails after it succeeded in the meantime. Quota exceeded
+  // errors are also passed to `onQuotaExceededError`.
+  // Note that this only works when `useWebWorker: false`
+  onPersistenceError?: (error: Error) => void,
+  // (true by default) If IndexedDB is not available or fails to open (e.g. in some browsers' private
+  // mode), the database falls back to being in-memory only and data is lost when the page is closed.
+  // Pass `false` to make setup fail instead (`onSetUpError` will be called)
+  allowInMemoryFallback?: boolean,
+  // Called when the database falls back to being in-memory only (see `allowInMemoryFallback`)
+  // Note that this only works when `useWebWorker: false`
+  onInMemoryFallback?: (reason: Error) => void,
   // extra options passed to Loki constructor
   extraLokiOptions?: $Exact<{
     autosave?: boolean,
@@ -51,6 +66,8 @@ export type LokiAdapterOptions = $Exact<{
     // You might use it as an opportunity to alert user to the potential loss of data
     onDidOverwrite?: () => void,
     // Called when internal IndexedDB version changed (most likely the database was deleted in another browser tab)
+    // When this happens, the database stops being saved (so that it's not re-created from memory),
+    // further changes are rejected, and `onPersistenceError` is called.
     // Pass a callback to force log out in this copy of the app as well
     // (Due to a race condition, it's usually best to just reload the web app)
     // Note that this only works when not using web workers
