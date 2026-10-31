@@ -98,17 +98,35 @@ export async function deleteDatabase(loki: Loki): Promise<void> {
     // Works around a race condition - Loki doesn't disable autosave or drain save queue before
     // deleting database, so it's possible to delete and then have the database be saved
     loki.close(() => {
-      loki.deleteDatabase({}, (response) => {
-        // LokiIndexedAdapter responds with `{ success: true }`, while
-        // LokiMemory adapter just calls it with no params
-        if ((response && response.success) || response === undefined) {
-          resolve()
-        } else {
-          reject(response)
+      // close() only waits for a save if Loki is dirty, but a save may still be in flight (dirty
+      // flags are cleared when it starts) - and IncrementalIndexedDBAdapter throws if we try to
+      // delete database while it is
+      drainSaves(loki, () => {
+        try {
+          loki.deleteDatabase({}, (response) => {
+            // LokiIndexedAdapter responds with `{ success: true }`, while
+            // LokiMemory adapter just calls it with no params
+            if ((response && response.success) || response === undefined) {
+              resolve()
+            } else {
+              reject(response)
+            }
+          })
+        } catch (error) {
+          reject(error)
         }
       })
     })
   })
+}
+
+function drainSaves(loki: Loki, callback: () => void): void {
+  // NOTE: throttledSaveDrain calls back twice if throttledSaves is disabled
+  if (loki.throttledSaves) {
+    loki.throttledSaveDrain(() => callback())
+  } else {
+    callback()
+  }
 }
 
 // In case of a fatal error, break Loki so that it cannot save its contents to disk anymore
