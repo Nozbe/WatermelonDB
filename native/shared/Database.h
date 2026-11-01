@@ -1,6 +1,7 @@
 #pragma once
 
 #include <jsi/jsi.h>
+#include <list>
 #include <unordered_map>
 #include <unordered_set>
 #include <mutex>
@@ -49,13 +50,29 @@ private:
     std::mutex mutex_;
     jsi::Runtime *runtime_; // TODO: std::shared_ptr would be better, but I don't know how to make it from void* in RCTCxxBridge
     std::unique_ptr<SqliteDb> db_;
-    std::unordered_map<std::string, sqlite3_stmt *> cachedStatements_; // NOTE: may contain null pointers!
+
+    // Prepared statements are cached by their SQL string. The cache is bounded: once it holds
+    // maxCachedStatements_ entries, the least recently used statement is finalized to make room,
+    // so one-off queries (e.g. with ids inlined into the SQL) don't accumulate for the lifetime of
+    // the database, while the statements batch/sync/find reuse all the time stay cached.
+    // Entries pinned by a live SqliteStatement are never evicted.
+    struct CachedStatement {
+        std::string sql;
+        sqlite3_stmt *stmt;
+        unsigned pinCount;
+    };
+    static constexpr size_t maxCachedStatements_ = 256;
+    std::list<CachedStatement> statementCache_; // most recently used first
+    std::unordered_map<std::string, std::list<CachedStatement>::iterator> cachedStatements_;
     std::unordered_set<std::string> cachedRecords_;
 
     jsi::Runtime &getRt();
     jsi::JSError dbError(std::string description);
+    void requireInitialized();
+    void requireIdColumn(sqlite3_stmt *statement);
 
-    sqlite3_stmt* prepareQuery(std::string sql);
+    SqliteStatement prepareQuery(std::string sql);
+    void evictCachedStatements();
     void bindArgs(sqlite3_stmt *statement, jsi::Array &arguments);
     std::string bindArgsAndReturnId(sqlite3_stmt *statement, simdjson::ondemand::array &args);
     SqliteStatement executeQuery(std::string sql, jsi::Array &arguments);

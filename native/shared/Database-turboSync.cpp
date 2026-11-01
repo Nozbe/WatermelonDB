@@ -116,8 +116,8 @@ jsi::Value Database::unsafeLoadFromSync(int jsonId, jsi::Object &schema, std::st
                         auto tableSchemaArray = tableSchemas.first;
                         auto tableSchema = tableSchemas.second;
 
-                        sqlite3_stmt *stmt = prepareQuery(insertSqlFor(rt, tableName, tableSchemaArray));
-                        SqliteStatement statement(stmt);
+                        auto statement = prepareQuery(insertSqlFor(rt, tableName, tableSchemaArray));
+                        sqlite3_stmt *stmt = statement.stmt;
 
                         for (ondemand::object record : records) {
                             // TODO: It would be much more natural to iterate over schema, and then get json's field

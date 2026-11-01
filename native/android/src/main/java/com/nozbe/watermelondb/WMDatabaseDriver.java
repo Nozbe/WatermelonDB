@@ -222,8 +222,10 @@ public class WMDatabaseDriver {
         if (log != null) {
             log.info("Unsafe reset database");
         }
-        database.unsafeDestroyEverything();
+        // NOTE: Clear cached record IDs before anything that can fail: JS clears its record cache even if the
+        // reset fails, and IDs left cached here would make later fetches return records JS no longer has
         cachedRecords.clear();
+        database.unsafeDestroyEverything();
         database.transaction(() -> {
             database.unsafeExecuteStatements(schema.sql);
             database.setUserVersion(schema.version);

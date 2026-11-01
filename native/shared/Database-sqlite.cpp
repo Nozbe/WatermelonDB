@@ -8,26 +8,54 @@ namespace watermelondb {
 using platform::consoleError;
 using platform::consoleLog;
 
-sqlite3_stmt* Database::prepareQuery(std::string sql) {
-    sqlite3_stmt *statement = cachedStatements_[sql];
+SqliteStatement Database::prepareQuery(std::string sql) {
+    auto cached = cachedStatements_.find(sql);
 
-    if (statement == nullptr) {
-        int resultPrepare = sqlite3_prepare_v2(db_->sqlite, sql.c_str(), -1, &statement, nullptr);
-
-        if (resultPrepare != SQLITE_OK) {
-            sqlite3_finalize(statement);
-            throw dbError("Failed to prepare query statement");
-        }
-
-        cachedStatements_[sql] = statement;
-    } else {
+    if (cached != cachedStatements_.end()) {
+        // most recently used entries go to the front, so the least recently used ones are evicted first
+        statementCache_.splice(statementCache_.begin(), statementCache_, cached->second);
+        CachedStatement &entry = *cached->second;
+        assert(entry.stmt != nullptr);
         // in theory, this shouldn't be necessary, since statements ought to be reset *after* use, not before use
         // but still this might prevent some crashes if this is not done right
         // TODO: Remove this later - should not be necessary, and it wastes time
-        sqlite3_reset(statement);
+        sqlite3_reset(entry.stmt);
+        return SqliteStatement(entry.stmt, &entry.pinCount);
     }
-    assert(statement != nullptr);
-    return statement;
+
+    sqlite3_stmt *statement = nullptr;
+    int resultPrepare = sqlite3_prepare_v2(db_->sqlite, sql.c_str(), -1, &statement, nullptr);
+
+    if (resultPrepare != SQLITE_OK) {
+        sqlite3_finalize(statement);
+        throw dbError("Failed to prepare query statement");
+    }
+    if (statement == nullptr) {
+        // NOTE: sqlite3_prepare_v2 succeeds without a statement if the SQL is empty or only a comment
+        throw jsi::JSError(getRt(), "Failed to prepare query statement - the query is empty");
+    }
+
+    evictCachedStatements();
+    statementCache_.push_front({ sql, statement, 0 });
+    cachedStatements_[sql] = statementCache_.begin();
+
+    CachedStatement &entry = statementCache_.front();
+    return SqliteStatement(entry.stmt, &entry.pinCount);
+}
+
+// Finalizes least recently used statements until there is room for one more in the cache.
+// Statements pinned by a live SqliteStatement (i.e. still in use by a caller) are skipped.
+void Database::evictCachedStatements() {
+    auto it = statementCache_.end();
+    while (statementCache_.size() >= maxCachedStatements_ && it != statementCache_.begin()) {
+        --it;
+        if (it->pinCount > 0) {
+            continue;
+        }
+        sqlite3_finalize(it->stmt);
+        cachedStatements_.erase(it->sql);
+        it = statementCache_.erase(it);
+    }
 }
 
 void Database::bindArgs(sqlite3_stmt *statement, jsi::Array &arguments) {
@@ -111,8 +139,8 @@ std::string Database::bindArgsAndReturnId(sqlite3_stmt *statement, simdjson::ond
 
 SqliteStatement Database::executeQuery(std::string sql, jsi::Array &arguments) {
     auto statement = prepareQuery(sql);
-    bindArgs(statement, arguments);
-    return SqliteStatement(statement);
+    bindArgs(statement.stmt, arguments);
+    return statement;
 }
 
 void Database::executeUpdate(sqlite3_stmt *statement) {
@@ -124,16 +152,14 @@ void Database::executeUpdate(sqlite3_stmt *statement) {
 }
 
 void Database::executeUpdate(std::string sql, jsi::Array &args) {
-    auto stmt = prepareQuery(sql);
-    bindArgs(stmt, args);
-    SqliteStatement statement(stmt);
-    executeUpdate(stmt);
+    auto statement = prepareQuery(sql);
+    bindArgs(statement.stmt, args);
+    executeUpdate(statement.stmt);
 }
 
 void Database::executeUpdate(std::string sql) {
-    auto stmt = prepareQuery(sql);
-    SqliteStatement statement(stmt);
-    executeUpdate(stmt);
+    auto statement = prepareQuery(sql);
+    executeUpdate(statement.stmt);
 }
 
 void Database::getRow(sqlite3_stmt *stmt) {

@@ -59,14 +59,33 @@ class SqliteNativeModulesDispatcher implements SqliteDispatcher {
 
 class SqliteJsiDispatcher implements SqliteDispatcher {
   _db: any
+  _openError: ?Error // set if the database could not be opened - every call is rejected with it
   _unsafeErrorListener: (Error) => void // debug hook for NT use
 
   constructor(dbName: string, { usesExclusiveLocking }: SqliteDispatcherOptions): void {
-    this._db = global.nativeWatermelonCreateAdapter(dbName, usesExclusiveLocking)
+    this._openError = null
+    try {
+      this._db = global.nativeWatermelonCreateAdapter(dbName, usesExclusiveLocking)
+      // On Android, errors are returned, not thrown - see DatabaseBridge.cpp
+      if (this._db instanceof Error) {
+        this._openError = this._db
+      }
+    } catch (error) {
+      // e.g. the database file cannot be opened. Keep the error so that `initialize` is rejected
+      // with it (and onSetUpError is called) instead of the adapter constructor throwing
+      this._openError = error
+    }
     this._unsafeErrorListener = () => {}
   }
 
   call(name: SqliteDispatcherMethod, _args: any[], callback: ResultCallback<any>): void {
+    const openError = this._openError
+    if (openError) {
+      this._unsafeErrorListener(openError)
+      callback({ error: openError })
+      return
+    }
+
     let methodName: string = name
     let args = _args
 

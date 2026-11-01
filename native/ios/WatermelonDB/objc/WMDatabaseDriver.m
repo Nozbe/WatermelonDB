@@ -230,10 +230,12 @@
 
 - (BOOL) unsafeResetDatabaseWithSchema:(NSString *)sql schemaVersion:(long)version error:(NSError **)errorPtr
 {
+    // NOTE: Clear cached record IDs before anything that can fail: JS clears its record cache even if the
+    // reset fails, and IDs left cached here would make later fetches return records JS no longer has
+    _cachedRecords = [NSMutableDictionary dictionary];
     if (![_db unsafeDestroyEverything:errorPtr]) {
         return NO;
     }
-    _cachedRecords = [NSMutableDictionary dictionary];
 
     __block WMDatabase *db = _db;
     BOOL txnResult = [db inTransaction:^BOOL(NSError **innerErrorPtr) {

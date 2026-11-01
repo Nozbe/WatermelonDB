@@ -213,8 +213,10 @@ class DatabaseDriver {
   }
 
   unsafeResetDatabase(schema: { sql: string, version: number }): void {
-    this.database.unsafeDestroyEverything()
+    // NOTE: Clear cached record IDs before anything that can fail: JS clears its record cache even if the
+    // reset fails, and IDs left cached here would make later fetches return records JS no longer has
     this.cachedRecords = {}
+    this.database.unsafeDestroyEverything()
 
     this.database.inTransaction(() => {
       this.database.executeStatements(schema.sql)

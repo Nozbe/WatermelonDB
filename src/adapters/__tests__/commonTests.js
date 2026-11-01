@@ -1131,22 +1131,23 @@ export default () => {
     await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
     expect(await adapter.count(taskQuery())).toBe(1)
     // launch newer version of the app with a migration that will fail
+    const failingMigrations = schemaMigrations({
+      migrations: [
+        {
+          toVersion: 2,
+          steps: [
+            // with SQLite, trying to create a duplicate table will fail, but Loki will just ignore it
+            // so let's insert something that WILL fail
+            AdapterClass.name === 'LokiJSAdapter'
+              ? { type: 'bad_type' }
+              : createTable({ name: 'tasks', columns: [] }),
+          ],
+        },
+      ],
+    })
     const adapterPromise = adapter.testClone({
       schema: { ...testSchema, version: 2 },
-      migrations: schemaMigrations({
-        migrations: [
-          {
-            toVersion: 2,
-            steps: [
-              // with SQLite, trying to create a duplicate table will fail, but Loki will just ignore it
-              // so let's insert something that WILL fail
-              AdapterClass.name === 'LokiJSAdapter'
-                ? { type: 'bad_type' }
-                : createTable({ name: 'tasks', columns: [] }),
-            ],
-          },
-        ],
-      }),
+      migrations: failingMigrations,
     })
 
     // TODO: Make the SQLite, LokiJS adapter behavior consistent
@@ -1159,6 +1160,86 @@ export default () => {
     } else {
       await expect(adapterPromise).rejects.toBeInstanceOf(Error)
     }
+
+    if (
+      AdapterClass.name === 'SQLiteAdapter' &&
+      adapter.underlyingAdapter._dispatcherType === 'jsi'
+    ) {
+      // With JSI, the app must be able to recover from a failed migration (e.g. from
+      // onSetUpError) by resetting the database with the same adapter
+      const failedAdapter = new DatabaseAdapterCompat(
+        new AdapterClass({
+          schema: { ...testSchema, version: 2 },
+          migrations: failingMigrations,
+          ...extraAdapterOptions,
+        }),
+      )
+      await expect(failedAdapter.underlyingAdapter.initializingPromise).rejects.toBeInstanceOf(Error)
+      // operations on a database that failed to set up are rejected instead of crashing
+      await expect(failedAdapter.count(taskQuery())).rejects.toBeInstanceOf(Error)
+
+      // the database stays open, so it can be reset and used
+      await failedAdapter.unsafeResetDatabase()
+      expect(await failedAdapter.count(taskQuery())).toBe(0)
+      await failedAdapter.batch([['create', 'tasks', mockTaskRaw({})]])
+      expect(await failedAdapter.count(taskQuery())).toBe(1)
+    }
+  })
+  it('can retry a failed reset', async (adapter, AdapterClass) => {
+    if (AdapterClass.name !== 'SQLiteAdapter') {
+      // NOTE: Only SQLite resets by running the schema, which this test breaks to make the reset fail
+      return
+    }
+
+    await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
+    expect(await adapter.count(taskQuery())).toBe(1)
+
+    // make the reset fail after the database was cleared, while setting up the schema
+    const sqliteAdapter = adapter.underlyingAdapter
+    sqliteAdapter._encodedSchema = () => 'create table broken ('
+    try {
+      await expect(adapter.unsafeResetDatabase()).rejects.toBeInstanceOf(Error)
+    } finally {
+      delete sqliteAdapter._encodedSchema
+    }
+
+    if (sqliteAdapter._dispatcherType === 'jsi') {
+      // the database is not set up until it is reset successfully
+      await expect(adapter.count(taskQuery())).rejects.toBeInstanceOf(Error)
+    }
+
+    // the same adapter can retry the reset, and is usable afterwards
+    await adapter.unsafeResetDatabase()
+    expect(await adapter.count(taskQuery())).toBe(0)
+    await adapter.batch([['create', 'tasks', mockTaskRaw({})]])
+    expect(await adapter.count(taskQuery())).toBe(1)
+  })
+  it('rejects raw SQL queries it cannot run (JSI)', async (adapter, AdapterClass) => {
+    if (
+      AdapterClass.name !== 'SQLiteAdapter' ||
+      adapter.underlyingAdapter._dispatcherType !== 'jsi'
+    ) {
+      return
+    }
+    await adapter.batch([['create', 'tasks', mockTaskRaw({ id: 't1', text1: 'foo' })]])
+
+    // empty or comment-only SQL compiles to no statement at all
+    await expect(
+      adapter.unsafeQueryRaw(taskQuery(Q.unsafeSqlQuery('-- nothing to run'))),
+    ).rejects.toBeInstanceOf(Error)
+    // record queries must select the id first
+    await expect(
+      adapter.query(taskQuery(Q.unsafeSqlQuery('select text1 from tasks'))),
+    ).rejects.toBeInstanceOf(Error)
+    await expect(
+      adapter.queryIds(taskQuery(Q.unsafeSqlQuery('select text1 from tasks'))),
+    ).rejects.toBeInstanceOf(Error)
+
+    // the database is still usable
+    expect(await adapter.queryIds(taskQuery(Q.unsafeSqlQuery('select id from tasks')))).toEqual([
+      't1',
+    ])
+    expect(await adapter.count(taskQuery())).toBe(1)
   })
   it('can actually save and read from file system', async (_adapter, AdapterClass, extraAdapterOptions, platform) => {
     if (AdapterClass.name === 'LokiJSAdapter') {

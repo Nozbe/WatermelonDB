@@ -87,8 +87,8 @@ void Database::batchJSON(jsi::String &&jsiJson) {
                     sql = (std::string_view) field;
                 } else if (fieldIdx == 3) {
                     ondemand::array argsBatches = field;
-                    auto stmt = prepareQuery(sql);
-                    SqliteStatement statement(stmt);
+                    auto statement = prepareQuery(sql);
+                    sqlite3_stmt *stmt = statement.stmt;
 
                     for (ondemand::array args : argsBatches) {
                         // NOTE: We must capture the ID once first parsed

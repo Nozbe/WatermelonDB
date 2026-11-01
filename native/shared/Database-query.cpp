@@ -6,6 +6,15 @@ namespace watermelondb {
 using platform::consoleError;
 using platform::consoleLog;
 
+// Record queries may come from the app (Q.unsafeSqlQuery), so their shape is checked, not asserted:
+// the first column must be the record ID
+void Database::requireIdColumn(sqlite3_stmt *statement) {
+    const char *column = sqlite3_column_count(statement) > 0 ? sqlite3_column_name(statement, 0) : nullptr;
+    if (!column || std::string(column) != "id") {
+        throw jsi::JSError(getRt(), "Invalid query - the first selected column must be the record id");
+    }
+}
+
 jsi::Value Database::find(jsi::String &tableName, jsi::String &id) {
     auto &rt = getRt();
     const std::lock_guard<std::mutex> lock(mutex_);
@@ -40,7 +49,7 @@ jsi::Value Database::query(jsi::String &tableName, jsi::String &sql, jsi::Array 
             break;
         }
 
-        assert(std::string(sqlite3_column_name(statement.stmt, 0)) == "id");
+        requireIdColumn(statement.stmt);
 
         const char *id = (const char *)sqlite3_column_text(statement.stmt, 0);
         if (!id) {
@@ -72,7 +81,7 @@ jsi::Value Database::queryAsArray(jsi::String &tableName, jsi::String &sql, jsi:
             break;
         }
 
-        assert(std::string(sqlite3_column_name(statement.stmt, 0)) == "id");
+        requireIdColumn(statement.stmt);
 
         const char *id = (const char *)sqlite3_column_text(statement.stmt, 0);
         if (!id) {
@@ -109,7 +118,7 @@ jsi::Array Database::queryIds(jsi::String &sql, jsi::Array &arguments) {
             break;
         }
 
-        assert(std::string(sqlite3_column_name(statement.stmt, 0)) == "id");
+        requireIdColumn(statement.stmt);
 
         const char *idText = (const char *)sqlite3_column_text(statement.stmt, 0);
         if (!idText) {
@@ -149,7 +158,10 @@ jsi::Value Database::count(jsi::String &sql, jsi::Array &arguments) {
     auto statement = executeQuery(sql.utf8(rt), arguments);
     getRow(statement.stmt);
 
-    assert(sqlite3_data_count(statement.stmt) == 1);
+    // NOTE: The query may come from the app (Q.unsafeSqlQuery), so this is checked, not asserted
+    if (sqlite3_data_count(statement.stmt) < 1) {
+        throw jsi::JSError(rt, "Count query did not return a count");
+    }
     int count = sqlite3_column_int(statement.stmt, 0);
     return jsi::Value(count);
 }

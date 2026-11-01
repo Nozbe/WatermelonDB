@@ -45,16 +45,13 @@ void createMethod(jsi::Runtime &runtime, jsi::Object &object, const char *method
     jsi::PropNameID name = jsi::PropNameID::forAscii(runtime, methodName);
     jsi::Function function = jsi::Function::createFromHostFunction(runtime, name, argCount, [methodName, argCount, func]
                                                                    (jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) {
-        if (count != argCount) {
-            std::string error = std::string(methodName) + " takes " + std::to_string(argCount) + " arguments";
-            #ifdef ANDROID
-            consoleError(error);
-            std::abort();
-            #else
-            throw std::invalid_argument(error);
-            #endif
-        }
+        // NOTE: The argument check runs inside runBlock so that on Android the error is returned
+        // (see runBlock) instead of crossing the JSI boundary as a C++ exception
         return runBlock(rt, [&]() {
+            if (count != argCount) {
+                std::string error = std::string(methodName) + " takes " + std::to_string(argCount) + " arguments";
+                throw jsi::JSError(rt, error);
+            }
             return func(rt, args);
         });
     });

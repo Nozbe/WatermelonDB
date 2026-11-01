@@ -364,17 +364,21 @@ export default class Database {
       }
 
       // Clear the database
-      await adapter.unsafeResetDatabase()
+      try {
+        await adapter.unsafeResetDatabase()
+      } finally {
+        // Only now clear caches, since there may have been queued fetches from DB still bringing in items to cache
+        // NOTE: This is also done if the reset failed, since it may have already erased some or all data
+        Object.values(this.collections.map).forEach((collection) => {
+          // $FlowFixMe
+          collection._cache.unsafeClear()
+        })
 
-      // Only now clear caches, since there may have been queued fetches from DB still bringing in items to cache
-      Object.values(this.collections.map).forEach((collection) => {
-        // $FlowFixMe
-        collection._cache.unsafeClear()
-      })
-
-      // Restore working Database
-      this._resetCount += 1
-      this.adapter = adapter
+        // Restore working Database
+        // NOTE: Also done if the reset failed, so that the app can retry it (e.g. from onSetUpError)
+        this._resetCount += 1
+        this.adapter = adapter
+      }
     } finally {
       this._isBeingReset = false
     }

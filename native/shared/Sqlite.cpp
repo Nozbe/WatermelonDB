@@ -17,7 +17,7 @@ std::string resolveDatabasePath(std::string path) {
     }
 }
 
-SqliteDb::SqliteDb(std::string path) {
+SqliteDb::SqliteDb(std::string path) : sqlite(nullptr), isDestroyed_(false) {
     consoleLog("Will open database...");
     platform::initializeSqlite();
     #ifndef ANDROID
@@ -30,10 +30,14 @@ SqliteDb::SqliteDb(std::string path) {
     if (openResult != SQLITE_OK) {
         if (sqlite) {
             auto error = std::string(sqlite3_errmsg(sqlite));
-            throw new std::runtime_error("Error while trying to open database - " + error);
+            // NOTE: sqlite3_open returns a handle even on failure, and the destructor won't run when the
+            // constructor throws, so close it here to not leak it
+            sqlite3_close(sqlite);
+            sqlite = nullptr;
+            throw std::runtime_error("Error while trying to open database - " + error);
         } else {
             // whoa, sqlite couldn't allocate memory
-            throw new std::runtime_error("Error while trying to open database, sqlite is null - " + std::to_string(openResult));
+            throw std::runtime_error("Error while trying to open database, sqlite is null - " + std::to_string(openResult));
         }
     }
     assert(sqlite != nullptr);
@@ -76,11 +80,23 @@ SqliteDb::~SqliteDb() {
     destroy();
 }
 
-SqliteStatement::SqliteStatement(sqlite3_stmt *statement) : stmt(statement) {
+SqliteStatement::SqliteStatement(sqlite3_stmt *statement, unsigned *pinCount) : stmt(statement), pinCount_(pinCount) {
+    if (pinCount_) {
+        (*pinCount_)++;
+    }
+}
+
+SqliteStatement::SqliteStatement(SqliteStatement &&other) noexcept : stmt(other.stmt), pinCount_(other.pinCount_) {
+    other.stmt = nullptr;
+    other.pinCount_ = nullptr;
 }
 
 SqliteStatement::~SqliteStatement() {
     reset();
+    if (pinCount_) {
+        assert(*pinCount_ > 0);
+        (*pinCount_)--;
+    }
 }
 
 void SqliteStatement::reset() {

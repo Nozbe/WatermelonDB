@@ -5,7 +5,7 @@ namespace watermelondb {
 using platform::consoleError;
 using platform::consoleLog;
 
-Database::Database(jsi::Runtime *runtime, std::string path, bool usesExclusiveLocking) : runtime_(runtime), mutex_() {
+Database::Database(jsi::Runtime *runtime, std::string path, bool usesExclusiveLocking) : initialized_(false), isDestroyed_(false), mutex_(), runtime_(runtime) {
     db_ = std::make_unique<SqliteDb>(path);
 
     std::string initSql = "";
@@ -46,16 +46,24 @@ void Database::destroy() {
         return;
     }
     isDestroyed_ = true;
-    for (auto const &cachedStatement : cachedStatements_) {
-        sqlite3_stmt *statement = cachedStatement.second;
-        sqlite3_finalize(statement);
+    for (auto const &cachedStatement : statementCache_) {
+        sqlite3_finalize(cachedStatement.stmt);
     }
     cachedStatements_ = {};
+    statementCache_ = {};
     db_->destroy();
 }
 
 Database::~Database() {
     destroy();
+}
+
+// Throws (i.e. rejects the call in JS) if the database was not successfully set up, or was closed -
+// e.g. if the app keeps using it after a failed setup or reset instead of resetting it first
+void Database::requireInitialized() {
+    if (!initialized_) {
+        throw jsi::JSError(getRt(), "Database is not set up - its setup or reset failed, or it was closed");
+    }
 }
 
 bool Database::isCached(std::string cacheKey) {
@@ -77,11 +85,21 @@ void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
     // They seem to be enabling "defensive" config. So we use another obscure method to clear the database
     // https://www.sqlite.org/c3ref/c_dbconfig_defensive.html#sqlitedbconfigresetdatabase
 
+    // NOTE: Clear cached record IDs before anything that can fail: JS clears its record cache even if the
+    // reset fails, and IDs left cached here would make later fetches return records JS no longer has
+    cachedRecords_ = {};
+
     if (sqlite3_db_config(db_->sqlite, SQLITE_DBCONFIG_RESET_DATABASE, 1, 0) != SQLITE_OK) {
         throw jsi::JSError(rt, "Failed to enable reset database mode");
     }
     // NOTE: We can't VACUUM in a transaction
-    executeMultiple("vacuum");
+    try {
+        executeMultiple("vacuum");
+    } catch (...) {
+        // NOTE: Reset mode must not stay enabled on a connection that keeps being used
+        sqlite3_db_config(db_->sqlite, SQLITE_DBCONFIG_RESET_DATABASE, 0, 0);
+        throw;
+    }
 
     if (sqlite3_db_config(db_->sqlite, SQLITE_DBCONFIG_RESET_DATABASE, 0, 0) != SQLITE_OK) {
         throw jsi::JSError(rt, "Failed to disable reset database mode");
@@ -89,8 +107,6 @@ void Database::unsafeResetDatabase(jsi::String &schema, int schemaVersion) {
 
     beginTransaction();
     try {
-        cachedRecords_ = {};
-
         // Reinitialize schema
         executeMultiple(schema.utf8(rt));
         setUserVersion(schemaVersion);

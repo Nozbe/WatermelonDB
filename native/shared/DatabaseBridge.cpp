@@ -109,7 +109,9 @@ void Database::install(jsi::Runtime *runtime) {
                 database->unsafeResetDatabase(schema, schemaVersion);
             } catch (const std::exception &ex) {
                 consoleError("Failed to set up the database correctly - " + std::string(ex.what()));
-                std::abort();
+                // NOTE: Thrown errors reach JS as a rejected setup promise (and onSetUpError). The schema was
+                // applied in a transaction, so the database is empty but consistent and can be set up again
+                throw jsi::JSError(rt, ex.what());
             }
 
             database->initialized_ = true;
@@ -125,68 +127,68 @@ void Database::install(jsi::Runtime *runtime) {
                 database->migrate(migrationSchema, fromVersion, toVersion);
             } catch (const std::exception &ex) {
                 consoleError("Failed to migrate the database correctly - " + std::string(ex.what()));
-                return makeError(rt, ex.what());
+                throw jsi::JSError(rt, ex.what());
             }
 
             database->initialized_ = true;
             return jsi::Value::undefined();
         });
         createMethod(rt, adapter, "find", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
+            database->requireInitialized();
             jsi::String tableName = args[0].getString(rt);
             jsi::String id = args[1].getString(rt);
             return database->find(tableName, id);
         });
         createMethod(rt, adapter, "query", 3, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
+            database->requireInitialized();
             jsi::String tableName = args[0].getString(rt);
             jsi::String sql = args[1].getString(rt);
             jsi::Array arguments = args[2].getObject(rt).getArray(rt);
             return database->query(tableName, sql, arguments);
         });
         createMethod(rt, adapter, "queryAsArray", 3, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
+            database->requireInitialized();
             jsi::String tableName = args[0].getString(rt);
             jsi::String sql = args[1].getString(rt);
             jsi::Array arguments = args[2].getObject(rt).getArray(rt);
             return database->queryAsArray(tableName, sql, arguments);
         });
         createMethod(rt, adapter, "queryIds", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
+            database->requireInitialized();
             jsi::String sql = args[0].getString(rt);
             jsi::Array arguments = args[1].getObject(rt).getArray(rt);
             return database->queryIds(sql, arguments);
         });
         createMethod(rt, adapter, "unsafeQueryRaw", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
+            database->requireInitialized();
             jsi::String sql = args[0].getString(rt);
             jsi::Array arguments = args[1].getObject(rt).getArray(rt);
             return database->unsafeQueryRaw(sql, arguments);
         });
         createMethod(rt, adapter, "count", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
+            database->requireInitialized();
             jsi::String sql = args[0].getString(rt);
             jsi::Array arguments = args[1].getObject(rt).getArray(rt);
             return database->count(sql, arguments);
         });
         createMethod(rt, adapter, "batch", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
+            database->requireInitialized();
             jsi::Array operations = args[0].getObject(rt).getArray(rt);
             database->batch(operations);
             return jsi::Value::undefined();
         });
         createMethod(rt, adapter, "batchJSON", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
+            database->requireInitialized();
             database->batchJSON(args[0].getString(rt));
             return jsi::Value::undefined();
         });
         createMethod(rt, adapter, "getLocal", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
+            database->requireInitialized();
             jsi::String key = args[0].getString(rt);
             return database->getLocal(key);
         });
         createMethod(rt, adapter, "unsafeLoadFromSync", 4, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
+            database->requireInitialized();
             auto jsonId = (int) args[0].getNumber();
             auto schema = args[1].getObject(rt);
             auto preamble = args[2].getString(rt).utf8(rt);
@@ -194,27 +196,36 @@ void Database::install(jsi::Runtime *runtime) {
             return database->unsafeLoadFromSync(jsonId, schema, preamble, postamble);
         });
         createMethod(rt, adapter, "unsafeExecuteMultiple", 1, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
+            database->requireInitialized();
             auto sqlString = args[0].getString(rt).utf8(rt);
             database->executeMultiple(sqlString);
             return jsi::Value::undefined();
         });
         createMethod(rt, adapter, "unsafeResetDatabase", 2, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
+            // NOTE: Resetting is allowed on an open database that was not (successfully) set up: that is how
+            // the app recovers from a failed schema setup or migration (onSetUpError -> unsafeResetDatabase())
+            if (database->isDestroyed_) {
+                throw jsi::JSError(rt, "Cannot reset database - it has been closed");
+            }
             jsi::String schema = args[0].getString(rt);
             int schemaVersion = (int)args[1].getNumber();
 
             try {
                 database->unsafeResetDatabase(schema, schemaVersion);
+                database->initialized_ = true;
                 return jsi::Value::undefined();
             } catch (const std::exception &ex) {
                 consoleError("Failed to reset database correctly - " + std::string(ex.what()));
-                // Partially reset database is likely corrupted, so it's probably less bad to crash
-                std::abort();
+                database->initialized_ = false;
+                // NOTE: The reset is applied in a transaction that is rolled back on failure, so the database is
+                // left empty but consistent and the connection stays open: JS gets a rejected promise and can
+                // retry unsafeResetDatabase() (same as the non-JSI bridges) instead of the app crashing. Until
+                // then, other calls are rejected (see requireInitialized)
+                throw jsi::JSError(rt, ex.what());
             }
         });
         createMethod(rt, adapter, "unsafeClose", 0, [database](jsi::Runtime &rt, const jsi::Value *args) {
-            assert(database->initialized_);
+            // NOTE: Closing is allowed on a database that was not (successfully) set up
             database->destroy();
             database->initialized_ = false;
             return jsi::Value::undefined();
