@@ -13,14 +13,27 @@ const recordsToMarkAsSynced = (
 ): Model[] => {
   const syncedRecords = []
 
+  // perf-critical - index records by table and id, so that each lookup below is O(1)
+  const recordsByTable: Map<string, Map<string, Model>> = new Map()
+  affectedRecords.forEach((record) => {
+    const { table } = record
+    let tableRecords = recordsByTable.get(table)
+    if (!tableRecords) {
+      tableRecords = new Map()
+      recordsByTable.set(table, tableRecords)
+    }
+    tableRecords.set(record.id, record)
+  })
+
   Object.keys(changes).forEach((table) => {
     const { created, updated } = changes[(table: any)]
     const raws = created.concat(updated)
     const rejectedIds = new Set(allRejectedIds[(table: any)])
+    const tableRecords = recordsByTable.get(table)
 
     raws.forEach((raw) => {
       const { id } = raw
-      const record = affectedRecords.find((model) => model.id === id && model.table === table)
+      const record = tableRecords && tableRecords.get(id)
       if (!record) {
         logError(
           `[Sync] Looking for record ${table}#${id} to mark it as synced, but I can't find it. Will ignore it (it should get synced next time). This is probably a Watermelon bug — please file an issue!`,

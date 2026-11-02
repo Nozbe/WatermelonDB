@@ -131,3 +131,18 @@ export const makeLocalChanges = (database) =>
 export const emptyPull =
   (timestamp = 1500) =>
   async () => ({ changes: emptyChangeSet, timestamp })
+
+// Wraps an array in a Proxy that counts how many times its elements are read
+// (used to check that sync bookkeeping is linear, not quadratic)
+export const countingElementReads = (array) => {
+  const counter = { reads: 0 }
+  const proxy = new Proxy(array, {
+    get(target, prop, receiver) {
+      if (typeof prop === 'string' && /^\d+$/.test(prop)) {
+        counter.reads += 1
+      }
+      return Reflect.get(target, prop, receiver)
+    },
+  })
+  return [proxy, counter]
+}
