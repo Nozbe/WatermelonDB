@@ -2,6 +2,7 @@ import { testSchema, mockTaskRaw } from '../__tests__/helpers'
 
 import LokiJSAdapter from './index'
 import DatabaseAdapterCompat from '../compat'
+import { lokiFatalError } from './worker/lokiExtensions'
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -339,5 +340,25 @@ describe('LokiJSAdapter in-memory fallback', () => {
       makeAdapter({ allowInMemoryFallback: false, onSetUpError: resolve })
     })
     expect(setUpError.cause).toBe(idbError)
+  })
+
+  it('calls every callback waiting for a save after a fatal error, even if one throws', () => {
+    const LokiDb = require('lokijs')
+    const loki = new LokiDb('test', { adapter: new FakeIncrementalAdapter() })
+    const first = jest.fn(() => {
+      throw new Error('callback failed')
+    })
+    const second = jest.fn()
+    // as if close() and throttledSaveDrain() were waiting for a save in progress
+    loki.throttledCallbacks = [first, second]
+
+    lokiFatalError(loki)
+    // what Loki does when the save in progress finishes
+    loki.saveDatabase()
+
+    expect(first).toHaveBeenCalledTimes(1)
+    expect(second).toHaveBeenCalledTimes(1)
+    expect(second.mock.calls[0][0].message).toMatch('after a fatal error')
+    expect(loki.throttledCallbacks).toEqual([])
   })
 })

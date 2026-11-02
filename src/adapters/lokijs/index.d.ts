@@ -50,6 +50,17 @@ export type LokiAdapterOptions = $Exact<{
   // Called when the database falls back to being in-memory only (see `allowInMemoryFallback`)
   // Note that this only works when `useWebWorker: false`
   onInMemoryFallback?: (reason: Error) => void
+  // (Opt-in) Only one browser tab at a time has the database open, using the Web Locks API
+  // (`navigator.locks`). Without it, every tab keeps its own in-memory copy of the database, and
+  // the last tab to save overwrites changes saved by others (also: a reset, e.g. on logout).
+  // In other tabs, setup waits until the tab holding the database is closed. If the lock is lost
+  // (e.g. stolen using DevTools), the database stops being saved, and further changes are rejected.
+  // If the Web Locks API is not available, the database is opened without a lock.
+  exclusiveLock?: boolean
+  // Called when `exclusiveLock` is enabled and the database is open in another tab. Setup (and all
+  // database operations) wait until the other tab is closed, so use it to tell the user to close it.
+  // Note that this only works when `useWebWorker: false`
+  onDatabaseLockedElsewhere?: () => void
   // extra options passed to Loki constructor
   extraLokiOptions?: $Exact<{
     autosave?: boolean

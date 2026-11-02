@@ -8,7 +8,7 @@ import type { Loki } from '../type'
 
 // App callbacks are called from Loki timers, IndexedDB event handlers and adapter setup, and must
 // not change what happens next (or prevent other callbacks), so errors thrown by them are logged
-function callSafely<T>(callback: ?(T) => void, arg: T): void {
+export function callSafely<T>(callback: ?(T) => void, arg: T): void {
   try {
     callback && callback(arg)
   } catch (error) {
@@ -241,7 +241,9 @@ export async function newLoki(
   return _loki
 }
 
-export async function deleteDatabase(loki: Loki): Promise<void> {
+// `assertCanDelete` is called right before deleting, after waiting for saves, and can throw to abort
+// (e.g. if the driver broke in the meantime)
+export async function deleteDatabase(loki: Loki, assertCanDelete?: () => void): Promise<void> {
   await new Promise((resolve, reject) => {
     // Works around a race condition - Loki doesn't disable autosave or drain save queue before
     // deleting database, so it's possible to delete and then have the database be saved
@@ -251,6 +253,7 @@ export async function deleteDatabase(loki: Loki): Promise<void> {
       // delete database while it is
       drainSaves(loki, () => {
         try {
+          assertCanDelete && assertCanDelete()
           loki.deleteDatabase({}, (response) => {
             // LokiIndexedAdapter responds with `{ success: true }`, while
             // LokiMemory adapter just calls it with no params
@@ -284,8 +287,20 @@ function drainSaves(loki: Loki, callback: () => void): void {
 export function lokiFatalError(loki: Loki): void {
   try {
     // below is some very ugly defensive coding, but we're fatal and don't trust anyone anymore
-    const fatalHandler = () => {
-      throw new Error('Illegal attempt to save Loki database after a fatal error')
+    const fatalHandler = (callback: any) => {
+      const error = new Error('Illegal attempt to save Loki database after a fatal error')
+      // When a save that was in progress finishes, Loki starts the next one for callbacks that wait
+      // for that save (e.g. from close() or throttledSaveDrain()). If we threw, they would never be
+      // called, so they're called with an error instead (and so is the callback of this save)
+      const waiting = loki.throttledCallbacks || []
+      loki.throttledCallbacks = []
+      if (!callback && !waiting.length) {
+        throw error
+      }
+      // (one throwing callback must not prevent the others from being called)
+      waiting.concat([callback]).forEach((waitingCallback) => {
+        typeof waitingCallback === 'function' && callSafely(waitingCallback, error)
+      })
     }
     loki.save = fatalHandler
     loki.saveDatabase = fatalHandler
