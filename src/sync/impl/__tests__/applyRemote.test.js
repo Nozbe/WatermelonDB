@@ -476,8 +476,150 @@ describe('applyRemoteChanges', () => {
     await expectUpdateFails({ id: 'foo', _status: 'created' })
     await expectUpdateFails({ id: 'foo', _changed: 'bla' })
     await expectUpdateFails({ foo: 'bar' })
+    await expectUpdateFails({ id: 1 })
 
     expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+  })
+  describe('changeset validation', () => {
+    const expectNothingTouched = async (database, pSynced, tSynced) => {
+      const projects = database.get('mock_projects')
+      const tasks = database.get('mock_tasks')
+      expect(await getRaw(projects, 'pSynced')).toEqual(pSynced)
+      expect(await getRaw(tasks, 'tSynced')).toEqual(tSynced)
+
+      // cached records must still be usable
+      await database.write(async () => {
+        const project = await projects.find('pSynced')
+        expect(project._raw).toEqual(pSynced)
+        await project.update((p) => {
+          p.name = 'local again'
+        })
+      })
+    }
+
+    it('validates the whole changeset before preparing any record', async () => {
+      const { database } = makeDatabase()
+      await makeLocalChanges(database)
+      const pSynced = { ...(await getRaw(database.get('mock_projects'), 'pSynced')) }
+      const tSynced = { ...(await getRaw(database.get('mock_tasks'), 'tSynced')) }
+
+      await expectToRejectWithMessage(
+        testApplyRemoteChanges(database, {
+          mock_projects: { updated: [{ id: 'pSynced', name: 'remote' }] },
+          mock_tasks: { updated: [{ id: 'tSynced', name: 'remote', _status: 'synced' }] },
+        }),
+        /invalid raw record/i,
+      )
+      await expectNothingTouched(database, pSynced, tSynced)
+    })
+    it('rejects records that appear more than once in a table', async () => {
+      const { database } = makeDatabase()
+      await makeLocalChanges(database)
+      const pSynced = { ...(await getRaw(database.get('mock_projects'), 'pSynced')) }
+      const tSynced = { ...(await getRaw(database.get('mock_tasks'), 'tSynced')) }
+
+      const expectDuplicateFails = (taskChanges) =>
+        expectToRejectWithMessage(
+          testApplyRemoteChanges(database, {
+            mock_projects: { updated: [{ id: 'pSynced', name: 'remote' }] },
+            mock_tasks: taskChanges,
+          }),
+          /mock_tasks#tSynced appears more than once/,
+        )
+
+      await expectDuplicateFails({
+        updated: [{ id: 'tSynced', name: 'remote' }],
+        deleted: ['tSynced'],
+      })
+      await expectDuplicateFails({
+        created: [{ id: 'tSynced', name: 'remote' }],
+        updated: [{ id: 'tSynced', name: 'remote' }],
+      })
+      await expectDuplicateFails({
+        updated: [
+          { id: 'tSynced', name: 'remote' },
+          { id: 'tSynced', name: 'remote 2' },
+        ],
+      })
+      await expectDuplicateFails({ deleted: ['tSynced', 'tSynced'] })
+      await expectNothingTouched(database, pSynced, tSynced)
+    })
+    it('validates inherited table changes too', async () => {
+      const { database } = makeDatabase()
+      await makeLocalChanges(database)
+      const pSynced = { ...(await getRaw(database.get('mock_projects'), 'pSynced')) }
+      const tSynced = { ...(await getRaw(database.get('mock_tasks'), 'tSynced')) }
+
+      // for-in (used when applying changes) enumerates inherited keys
+      const changes = Object.create({
+        mock_tasks: {
+          created: [],
+          updated: [{ id: 'tSynced', name: 'remote', _status: 'synced' }],
+          deleted: [],
+        },
+      })
+      changes.mock_projects = {
+        created: [],
+        updated: [{ id: 'pSynced', name: 'remote' }],
+        deleted: [],
+      }
+      await expectToRejectWithMessage(
+        database.write(() => applyRemoteChanges(changes, { db: database })),
+        /invalid raw record/i,
+      )
+      await expectNothingTouched(database, pSynced, tSynced)
+    })
+    it('rejects malformed table changes and ids', async () => {
+      const { database } = makeDatabase()
+      await makeLocalChanges(database)
+      const pSynced = { ...(await getRaw(database.get('mock_projects'), 'pSynced')) }
+      const tSynced = { ...(await getRaw(database.get('mock_tasks'), 'tSynced')) }
+
+      const apply = (taskChanges) =>
+        database.write(() =>
+          applyRemoteChanges(
+            {
+              mock_projects: {
+                created: [],
+                updated: [{ id: 'pSynced', name: 'remote' }],
+                deleted: [],
+              },
+              mock_tasks: taskChanges,
+            },
+            { db: database },
+          ),
+        )
+
+      await expectToRejectWithMessage(
+        apply({ created: [], updated: {}, deleted: [] }),
+        /invalid changeset supplied to sync for table mock_tasks/i,
+      )
+      await expectToRejectWithMessage(apply(null), /invalid changeset/i)
+      // changes are copied with object spread, which drops inherited and non-enumerable keys
+      await expectToRejectWithMessage(
+        apply(Object.create({ created: [], updated: [], deleted: [] })),
+        /invalid changeset supplied to sync for table mock_tasks/i,
+      )
+      const nonEnumerable = { created: [], updated: [] }
+      Object.defineProperty(nonEnumerable, 'deleted', { value: [], enumerable: false })
+      await expectToRejectWithMessage(
+        apply(nonEnumerable),
+        /invalid changeset supplied to sync for table mock_tasks/i,
+      )
+      await expectToRejectWithMessage(
+        apply({ created: [], updated: [], deleted: [{ id: 'tSynced' }] }),
+        /deleted ids in table mock_tasks must be strings/i,
+      )
+      await expectToRejectWithMessage(
+        apply({ created: [], updated: [{ id: 1, name: 'remote' }], deleted: [] }),
+        /invalid raw record/i,
+      )
+      await expectToRejectWithMessage(
+        apply({ created: [JSON.parse('{"id": "t1", "__proto__": {}}')], updated: [], deleted: [] }),
+        /__proto__/i,
+      )
+      await expectNothingTouched(database, pSynced, tSynced)
+    })
   })
   it(`safely skips collections that don't exist`, async () => {
     const { database } = makeDatabase()
