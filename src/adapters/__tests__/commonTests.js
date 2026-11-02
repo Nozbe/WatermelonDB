@@ -10,7 +10,7 @@ import Query from '../../Query'
 import { sanitizedRaw } from '../../RawRecord'
 import * as Q from '../../QueryDescription'
 import { appSchema, tableSchema } from '../../Schema'
-import { schemaMigrations, createTable, addColumns } from '../../Schema/migrations'
+import { schemaMigrations, createTable, addColumns, destroyTable } from '../../Schema/migrations'
 
 import { matchTests, naughtyMatchTests, joinTests } from '../../__tests__/databaseTests'
 import DatabaseAdapterCompat from '../compat'
@@ -1049,6 +1049,52 @@ export default () => {
 
     const tt1 = await adapter.find('tag_assignments', 'tt2')
     expect(tt1.text1).toBe('hello')
+  })
+  it('destroys tables in migrations', async (_adapter, AdapterClass, extraAdapterOptions) => {
+    const tasksSchema = { name: 'tasks', columns: [{ name: 'num1', type: 'number' }] }
+    const projectsSchema = {
+      name: 'projects',
+      columns: [{ name: 'text1', type: 'string', isIndexed: true }],
+    }
+    let adapter = new DatabaseAdapterCompat(
+      new AdapterClass({
+        schema: appSchema({
+          version: 3,
+          tables: [tableSchema(tasksSchema), tableSchema(projectsSchema)],
+        }),
+        migrations: schemaMigrations({ migrations: [{ toVersion: 3, steps: [] }] }),
+        ...extraAdapterOptions,
+      }),
+    )
+    await adapter.batch([
+      ['create', 'tasks', { id: 't1', num1: 10 }],
+      ['create', 'projects', { id: 'p1', text1: 'a' }],
+      ['create', 'projects', { id: 'p2', text1: 'b' }],
+    ])
+    expect(await adapter.count(projectQuery())).toBe(2)
+
+    // destroy table
+    const migrationsV4 = [{ toVersion: 4, steps: [destroyTable({ table: 'projects' })] }]
+    adapter = await adapter.testClone({
+      schema: appSchema({ version: 4, tables: [tableSchema(tasksSchema)] }),
+      migrations: schemaMigrations({ migrations: migrationsV4 }),
+    })
+    expect(await adapter.count(taskQuery())).toBe(1)
+
+    // create it again - it's empty
+    adapter = await adapter.testClone({
+      schema: appSchema({
+        version: 5,
+        tables: [tableSchema(tasksSchema), tableSchema(projectsSchema)],
+      }),
+      migrations: schemaMigrations({
+        migrations: [...migrationsV4, { toVersion: 5, steps: [createTable(projectsSchema)] }],
+      }),
+    })
+    expect(await adapter.count(projectQuery())).toBe(0)
+    await adapter.batch([['create', 'projects', { id: 'p3', text1: 'c' }]])
+    expect(await adapter.count(projectQuery(Q.where('text1', 'c')))).toBe(1)
+    expect(await adapter.count(taskQuery())).toBe(1)
   })
   it(`can perform empty migrations (regression test)`, async (_adapter, AdapterClass, extraAdapterOptions) => {
     let adapter = new DatabaseAdapterCompat(

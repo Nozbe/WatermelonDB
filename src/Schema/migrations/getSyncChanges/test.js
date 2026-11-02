@@ -1,5 +1,12 @@
 import getSyncChanges from './index'
-import { schemaMigrations, createTable, addColumns, unsafeExecuteSql } from '../index'
+import {
+  schemaMigrations,
+  createTable,
+  addColumns,
+  unsafeExecuteSql,
+  destroyTable,
+  unsafeExecuteLoki,
+} from '../index'
 
 const createCommentsTable = createTable({
   name: 'comments',
@@ -76,6 +83,31 @@ describe('getSyncChanges', () => {
       tables: ['comments'],
       columns: [],
     })
+  })
+  it('skips tables and columns that are destroyed later', () => {
+    expect(
+      testSteps([
+        createCommentsTable,
+        addColumns({ table: 'posts', columns: [{ name: 'subtitle', type: 'string' }] }),
+        addColumns({ table: 'tasks', columns: [{ name: 'priority', type: 'number' }] }),
+        destroyTable({ table: 'comments' }),
+        destroyTable({ table: 'posts' }),
+        unsafeExecuteLoki(() => {}),
+      ]),
+    ).toEqual({
+      from: 1,
+      tables: [],
+      columns: [{ table: 'tasks', columns: ['priority'] }],
+    })
+  })
+  it('returns tables destroyed and then created again', () => {
+    expect(
+      testSteps([
+        addColumns({ table: 'comments', columns: [{ name: 'subtitle', type: 'string' }] }),
+        destroyTable({ table: 'comments' }),
+        createCommentsTable,
+      ]),
+    ).toEqual({ from: 1, tables: ['comments'], columns: [] })
   })
   it('skips duplicates', () => {
     // technically, a duplicate createTable or addColumn would crash
@@ -229,7 +261,6 @@ describe('getSyncChanges', () => {
       'add_column_index',
       'make_column_optional',
       'make_column_required',
-      'destroy_table',
       'destroy_column',
     ]
     possibleFutureTypes.forEach((type) => {

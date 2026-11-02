@@ -94,6 +94,12 @@ export const encodeMigrationSteps: (MigrationStep[]) => SQL = (steps) =>
         return encodeAddColumnsMigrationStep(step)
       } else if (step.type === 'sql') {
         return step.sql
+      } else if (step.type === 'destroy_table') {
+        // (indices are dropped along with the table)
+        return `drop table if exists "${step.table}";`
+      } else if (step.type === 'loki') {
+        // LokiJS-only step
+        return ''
       }
 
       throw new Error(`Unsupported migration step ${step.type}`)

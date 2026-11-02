@@ -1,4 +1,11 @@
-import { createTable, addColumns, unsafeExecuteSql, schemaMigrations } from './index'
+import {
+  createTable,
+  addColumns,
+  unsafeExecuteSql,
+  destroyTable,
+  unsafeExecuteLoki,
+  schemaMigrations,
+} from './index'
 import { stepsForMigration } from './stepsForMigration'
 
 describe('schemaMigrations()', () => {
@@ -185,6 +192,17 @@ describe('migration step functions', () => {
     expect(() => unsafeExecuteSql()).toThrow('not a string')
     expect(() => unsafeExecuteSql('delete from table_a')).toThrow('semicolon')
     expect(() => unsafeExecuteSql('delete from table_a;')).not.toThrow()
+  })
+  it('creates destroyTable() steps, and throws if malformed', () => {
+    expect(destroyTable({ table: 'comments' })).toEqual({ type: 'destroy_table', table: 'comments' })
+    expect(() => destroyTable({})).toThrow('Missing table name')
+    expect(() => destroyTable({ table: 'local_storage' })).toThrow('local_storage')
+    expect(() => destroyTable({ table: 'LOCAL_Storage' })).toThrow('local_storage')
+  })
+  it('creates unsafeExecuteLoki() steps, and throws if malformed', () => {
+    const execute = () => {}
+    expect(unsafeExecuteLoki(execute)).toEqual({ type: 'loki', execute })
+    expect(() => unsafeExecuteLoki()).toThrow('expects a function')
   })
 })
 
