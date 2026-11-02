@@ -454,8 +454,109 @@ describe('applyRemoteChanges', () => {
   it.skip(`doesn't destroy dependent objects`, async () => {
     // TODO: Add this test when fast delete is implemented
   })
-  it.skip('only emits one collection batch change', async () => {
-    // TODO: Implement and unskip test when batch change emissions are implemented
+  describe('_unsafeBatchPerCollection', () => {
+    const manyProjects = (count, prefix = 'p') =>
+      Array.from({ length: count }, (_, i) => ({ id: `${prefix}${i}`, name: 'remote' }))
+
+    it('only emits one change notification per pull', async () => {
+      const { database, projects, tasks } = makeDatabase()
+      await makeLocalChanges(database)
+      const projectCount = await projects.query().fetchCount()
+
+      const subscriber = jest.fn()
+      database.experimentalSubscribe(['mock_projects', 'mock_tasks', 'mock_comments'], subscriber)
+      const projectsObserver = jest.fn()
+      projects.changes.subscribe(projectsObserver)
+      const tasksObserver = jest.fn()
+      tasks.changes.subscribe(tasksObserver)
+      const batchSpy = jest.spyOn(database, 'batch')
+
+      await testApplyRemoteChanges(
+        database,
+        {
+          mock_projects: { created: manyProjects(10001), deleted: ['pSynced'] },
+          mock_tasks: { updated: [{ id: 'tSynced', name: 'remote' }] },
+          mock_comments: { deleted: ['cSynced'] },
+        },
+        { _unsafeBatchPerCollection: true },
+      )
+
+      expect(batchSpy).toHaveBeenCalledTimes(5) // 3 project chunks, 1 task, 1 comment
+      expect(subscriber).toHaveBeenCalledTimes(1)
+      expect(projectsObserver).toHaveBeenCalledTimes(1)
+      expect(projectsObserver.mock.calls[0][0].length).toBe(10002)
+      expect(tasksObserver).toHaveBeenCalledTimes(1)
+      expect(await projects.query().fetchCount()).toBe(projectCount + 10001 - 1)
+      await expectSyncedAndMatches(projects, 'p10000', { name: 'remote' })
+      await expectDoesNotExist(projects, 'pSynced')
+    })
+    it('does not apply any batch if cleaning up deleted records fails', async () => {
+      const { database, projects } = makeDatabase()
+      await makeLocalChanges(database)
+      const projectCount = await projects.query().fetchCount()
+
+      database.adapter.destroyDeletedRecords = jest.fn(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 1))
+        throw new Error('cleanup failed')
+      })
+      const batchSpy = jest.spyOn(database, 'batch')
+
+      await expectToRejectWithMessage(
+        testApplyRemoteChanges(
+          database,
+          { mock_projects: { created: manyProjects(6000), deleted: ['pDeleted'] } },
+          { _unsafeBatchPerCollection: true },
+        ),
+        /cleanup failed/,
+      )
+      // give a batch running in the background a chance to finish
+      await new Promise((resolve) => setTimeout(resolve, 50))
+
+      expect(batchSpy).toHaveBeenCalledTimes(0)
+      expect(await projects.query().fetchCount()).toBe(projectCount)
+    })
+    it('commits chunks one after another and stops at the first failure', async () => {
+      const { database, projects, adapter } = makeDatabase()
+
+      const originalBatch = adapter.batch.bind(adapter)
+      let inFlight = 0
+      let maxInFlight = 0
+      let batchCount = 0
+      adapter.batch = jest.fn((operations, callback) => {
+        batchCount += 1
+        inFlight += 1
+        maxInFlight = Math.max(maxInFlight, inFlight)
+        const fail = batchCount === 2
+        setTimeout(() => {
+          inFlight -= 1
+          if (fail) {
+            callback({ error: new Error('batch failed') })
+          } else {
+            originalBatch(operations, callback)
+          }
+        }, 1)
+      })
+
+      const subscriber = jest.fn()
+      database.experimentalSubscribe(['mock_projects'], subscriber)
+
+      await expectToRejectWithMessage(
+        testApplyRemoteChanges(
+          database,
+          { mock_projects: { created: manyProjects(12000) } },
+          { _unsafeBatchPerCollection: true },
+        ),
+        /batch failed/,
+      )
+
+      expect(maxInFlight).toBe(1)
+      expect(adapter.batch).toHaveBeenCalledTimes(2)
+      // only the first chunk was applied, and observers learn about it
+      expect(await projects.query().fetchCount()).toBe(5000)
+      expect(subscriber).toHaveBeenCalledTimes(1)
+      // records from chunks after the failed one were never prepared
+      expect(projects._cache.map.has('p11999')).toBe(false)
+    })
   })
   it('rejects invalid records', async () => {
     const { database } = makeDatabase()

@@ -1,7 +1,6 @@
 // @flow
 
 import { mapObj, filterObj, pipe, toPairs } from '../../utils/fp'
-import splitEvery from '../../utils/fp/splitEvery'
 import allPromisesObj from '../../utils/fp/allPromisesObj'
 import { toPromise } from '../../utils/fp/Result'
 import { logError, invariant, logger } from '../../utils/common'
@@ -364,24 +363,47 @@ const applyAllRemoteChanges = async (
   await db.batch(allRecords)
 }
 
+// Splits changes to apply to a collection into chunks of (at most) `size` records
+function chunkRecordsToApply<T: Model>(
+  recordsToApply: RecordsToApplyRemoteChangesTo<T>,
+  size: number,
+): Array<RecordsToApplyRemoteChangesTo<T>> {
+  const { created, updated, recordsToDestroy } = recordsToApply
+  const updatedStart = created.length
+  const destroyStart = updatedStart + updated.length
+  const total = destroyStart + recordsToDestroy.length
+
+  const chunks = []
+  for (let start = 0; start < total; start += size) {
+    const end = start + size
+    chunks.push({
+      ...recordsToApply,
+      created: created.slice(start, end),
+      updated: updated.slice(Math.max(0, start - updatedStart), Math.max(0, end - updatedStart)),
+      recordsToDestroy: recordsToDestroy.slice(
+        Math.max(0, start - destroyStart),
+        Math.max(0, end - destroyStart),
+      ),
+    })
+  }
+  return chunks
+}
+
 // See _unsafeBatchPerCollection - temporary fix
+// Chunks are prepared and committed one after another. Each chunk is prepared right before its
+// batch, so that if a batch fails, the remaining records are left untouched (not prepared). The
+// chunks committed before the failure stay committed (this is not transactional).
 const unsafeApplyAllRemoteChangesByBatches = async (
   recordsToApply: AllRecordsToApply,
   context: ApplyRemoteChangesContext,
 ): Promise<void> => {
   const { db } = context
-  const promises = []
-  toPairs(recordsToApply).forEach(([tableName, records]) => {
-    const preparedModels: Array<?Model> = prepareApplyRemoteChangesToCollection(
-      records,
-      db.get((tableName: any)),
-      context,
-    )
-    splitEvery(5000, preparedModels).forEach((recordBatch) => {
-      promises.push(db.batch(recordBatch))
-    })
-  })
-  await Promise.all(promises)
+  for (const [tableName, records] of toPairs(recordsToApply)) {
+    const collection = db.get((tableName: any))
+    for (const chunk of chunkRecordsToApply(records, 5000)) {
+      await db.batch(prepareApplyRemoteChangesToCollection(chunk, collection, context))
+    }
+  }
 }
 
 export default async function applyRemoteChanges(
@@ -392,11 +414,15 @@ export default async function applyRemoteChanges(
 
   const recordsToApply = await getAllRecordsToApply(remoteChanges, context)
 
-  // Perform steps concurrently
-  await Promise.all([
-    destroyAllDeletedRecords(db, recordsToApply),
-    _unsafeBatchPerCollection
-      ? unsafeApplyAllRemoteChangesByBatches(recordsToApply, context)
-      : applyAllRemoteChanges(recordsToApply, context),
-  ])
+  // Observers are notified once, after all changes are applied (and not once per batch)
+  await db.experimentalBatchNotifications(async () => {
+    // Steps run one after another, so that if one fails, no batch is still running (or about to
+    // start) after this function (and the sync Writer) has already returned
+    await destroyAllDeletedRecords(db, recordsToApply)
+    if (_unsafeBatchPerCollection) {
+      await unsafeApplyAllRemoteChangesByBatches(recordsToApply, context)
+    } else {
+      await applyAllRemoteChanges(recordsToApply, context)
+    }
+  })
 }
