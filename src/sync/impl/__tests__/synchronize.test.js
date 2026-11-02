@@ -503,6 +503,44 @@ describe('synchronize', () => {
       affectedRecords: [project3],
     })
   })
+  it(`resolves conflicts on locally created records per column`, async () => {
+    const { database, tasks } = makeDatabase()
+    const task = await database.write(() =>
+      tasks.create((t) => {
+        t._raw.id = 't1'
+        t.name = 'local'
+        t.position = 5
+      }),
+    )
+    expect(task._raw).toMatchObject({ _status: 'created', _changed: 'name,position' })
+
+    const pushChanges = jest.fn()
+    await synchronize({
+      database,
+      pullChanges: async () => ({
+        changes: makeChangeSet({
+          mock_tasks: {
+            // server already has a record with this id
+            updated: [{ id: 't1', name: 'remote', position: 10, description: 'remote' }],
+          },
+        }),
+        timestamp: 1500,
+      }),
+      pushChanges,
+      sendCreatedAsUpdated: true,
+    })
+
+    // locally set columns win, the rest comes from the server
+    const resolved = { id: 't1', name: 'local', position: 5, description: 'remote' }
+    expect(pushChanges).toHaveBeenCalledTimes(1)
+    const pushed = pushChanges.mock.calls[0][0].changes.mock_tasks
+    expect(pushed.created).toEqual([
+      expect.objectContaining({ ...resolved, _status: 'created', _changed: 'name,position' }),
+    ])
+    expect(pushed.updated).toEqual([])
+    await expectSyncedAndMatches(tasks, 't1', resolved)
+    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+  })
   it(`can safely update created records during push (regression test)`, async () => {
     const { database, tasks } = makeDatabase()
     const task = tasks.prepareCreateFromDirtyRaw({

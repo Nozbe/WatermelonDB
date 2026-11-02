@@ -53,10 +53,11 @@ If possible, please use sync implementation helpers from `sync/*.js` to keep you
         - if locally marked as deleted (error), un-delete and update
       - update records
         - if synced, just replace contents with server version
-        - if locally updated, we have a conflict!
+        - if locally updated or created, we have a conflict!
           - take remote version, apply local fields that have been changed locally since last sync
-            (per-column client wins strategy)
-          - record stays marked as updated, because local changes still need to be pushed
+            (per-column client wins strategy). For a locally created record, these are the fields set
+            when creating it, plus any changed since
+          - record stays marked as updated (or created), because local changes still need to be pushed
         - if locally marked as deleted, ignore (deletion will be pushed later)
         - if doesn't exist locally (error), create
       - destroy records
