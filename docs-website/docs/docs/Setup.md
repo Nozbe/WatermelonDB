@@ -89,6 +89,22 @@ const adapter = new LokiJSAdapter({
   onSetUpError: (error) => {
     // Database failed to load -- offer the user to reload the app or log out
   },
+  onPersistenceError: (error) => {
+    // Saving to IndexedDB failed (e.g. disk full, database deleted in another tab). Changes made
+    // since the last successful save only exist in memory and will be lost if the page is closed.
+    // Called once per failure, not on every autosave retry
+  },
+  // (true by default) Pass `false` to make setup fail (and call `onSetUpError`) instead of silently
+  // falling back to an in-memory database when IndexedDB is unavailable (e.g. some private modes)
+  allowInMemoryFallback: true,
+  onInMemoryFallback: (reason) => {
+    // IndexedDB is unavailable, so data will be lost when the page is closed -- warn the user
+  },
+  // (Opt-in) Only one browser tab at a time has the database open (uses the Web Locks API)
+  exclusiveLock: true,
+  onDatabaseLockedElsewhere: () => {
+    // The database is open in another tab. Setup waits until that tab is closed -- tell the user
+  },
   extraIncrementalIDBOptions: {
     onDidOverwrite: () => {
       // Called when this adapter is forced to overwrite contents of IndexedDB.
@@ -99,6 +115,7 @@ const adapter = new LokiJSAdapter({
     onversionchange: () => {
       // database was deleted in another browser tab (user logged out), so we must make sure we delete
       // it in this tab as well - usually best to just refresh the page
+      // (from this point, this tab no longer saves to IndexedDB and rejects further changes)
       if (checkIfUserIsLoggedIn()) {
         window.location.reload()
       }
@@ -108,6 +125,17 @@ const adapter = new LokiJSAdapter({
 
 // The rest is the same!
 ```
+
+:::note
+On the web, `database.write()` resolves once changes are applied in memory. LokiJS saves them to IndexedDB shortly after (autosave), so a failure to save is only reported via `onPersistenceError`.
+
+Multiple tabs of the same app share one IndexedDB database, but each tab keeps its own in-memory copy:
+
+- When another tab deletes the database (e.g. on logout), this tab stops saving to IndexedDB, rejects further changes (including `unsafeExecute`), and calls `onPersistenceError` and `onversionchange`. Reload the page to continue.
+- When two tabs make changes concurrently, the last tab to save overwrites changes saved by the other one (`onDidOverwrite` is called). By default, WatermelonDB does not coordinate writers across tabs.
+- With `exclusiveLock: true`, only one tab at a time has the database open, using the [Web Locks API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Locks_API). In other tabs, setup (and all database operations) wait until that tab is closed, and `onDatabaseLockedElsewhere` is called. If the lock is lost (e.g. stolen using DevTools), the tab stops saving and rejects further changes. Where the Web Locks API is unavailable (old browsers, insecure contexts), the database is opened without a lock and a warning is logged.
+- `onPersistenceError`, `onInMemoryFallback`, `onQuotaExceededError`, `onDatabaseLockedElsewhere` and `extraIncrementalIDBOptions` callbacks only work with `useWebWorker: false`.
+:::
 
 * * *
 

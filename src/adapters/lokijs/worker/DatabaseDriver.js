@@ -24,6 +24,7 @@ import type { Loki, LokiCollection } from '../type'
 
 import { newLoki, deleteDatabase, lokiFatalError } from './lokiExtensions'
 import { executeQuery, executeCount } from './executeQuery'
+import { acquireDatabaseLock } from './databaseLock'
 
 import type { LokiAdapterOptions } from '../index'
 
@@ -51,12 +52,17 @@ export default class DatabaseDriver {
 
   constructor(options: LokiAdapterOptions): void {
     const { schema, migrations } = options
-    this.options = options
+    // copied, so that this object identifies this driver, even if the app reuses its options object
+    // for another adapter (see lokiExtensions)
+    this.options = { ...options }
     this.schema = schema
     this.migrations = migrations
   }
 
   async setUp(): Promise<void> {
+    if (this.options.exclusiveLock) {
+      await acquireDatabaseLock(this.options, (error) => this._breakDriver(error))
+    }
     await this._openDatabase()
     await this._migrateIfNeeded()
   }
@@ -219,6 +225,8 @@ export default class DatabaseDriver {
   }
 
   unsafeExecute(operations: UnsafeExecuteOperations): void {
+    // raw access could change data that can no longer be saved
+    this._assertNotBroken()
     if (process.env.NODE_ENV !== 'production') {
       invariant(
         operations &&
@@ -233,7 +241,11 @@ export default class DatabaseDriver {
   }
 
   async unsafeResetDatabase(): Promise<void> {
-    await deleteDatabase(this.loki)
+    // A broken driver must not delete and re-create the database (e.g. if it was deleted in
+    // another tab, that would bring it back with this driver's autosave)
+    this._assertNotBroken()
+    // (the driver can also break while we wait for saves, e.g. if the exclusive lock is lost)
+    await deleteDatabase(this.loki, () => this._assertNotBroken())
 
     this.cachedRecords.clear()
     logger.log('[Loki] Database is now reset')
@@ -284,7 +296,15 @@ export default class DatabaseDriver {
   async _openDatabase(): Promise<void> {
     logger.log('[Loki] Initializing IndexedDB')
 
-    this.loki = await newLoki(this.options)
+    const loki = await newLoki(this.options, (error) => this._breakDriver(error))
+    this.loki = loki
+
+    // If the driver broke while the database was loading (e.g. the exclusive lock was lost), the
+    // new instance must not save either, and setup (or reset) must not continue
+    if (this._isBroken) {
+      lokiFatalError(loki)
+      this._assertNotBroken()
+    }
 
     logger.log('[Loki] Database loaded')
   }
@@ -464,18 +484,28 @@ export default class DatabaseDriver {
       )
       throw error
     }
+    this._breakDriver(error)
+
+    // Rethrow error
+    throw error
+  }
+
+  // Puts driver in a broken state: further changes are rejected and Loki won't save anymore.
+  // Used directly (regardless of experimentalAllowsFatalError) when the database can no longer be
+  // safely persisted, e.g. because it was deleted in another browser tab
+  _breakDriver(error: Error): void {
+    if (this._isBroken) {
+      return
+    }
     // Stop further mutations
     this._isBroken = true
 
-    // Disable Loki autosave
-    lokiFatalError(this.loki)
+    // Disable Loki autosave (Loki might not be assigned yet if this happens while it's loading)
+    this.loki && lokiFatalError(this.loki)
 
     // Notify handler
     logger.error('DatabaseDriver is broken. App must be reloaded before continuing.')
     const handler = this.options._onFatalError
     handler && handler(error)
-
-    // Rethrow error
-    throw error
   }
 }
