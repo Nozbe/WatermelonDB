@@ -15,6 +15,7 @@ import type {
   SchemaMigrations,
   CreateTableMigrationStep,
   AddColumnsMigrationStep,
+  DestroyTableMigrationStep,
   MigrationStep,
 } from '../../../Schema/migrations'
 import type { SerializedQuery } from '../../../Query'
@@ -22,7 +23,7 @@ import type { RecordId } from '../../../Model'
 import { type RawRecord, sanitizedRaw, setRawSanitized, type DirtyRaw } from '../../../RawRecord'
 import type { Loki, LokiCollection } from '../type'
 
-import { newLoki, deleteDatabase, lokiFatalError } from './lokiExtensions'
+import { newLoki, deleteDatabase, lokiFatalError, destroyCollection } from './lokiExtensions'
 import { executeQuery, executeCount } from './executeQuery'
 
 import type { LokiAdapterOptions } from '../index'
@@ -353,6 +354,9 @@ export default class DatabaseDriver {
           await this._migrate(migrationSteps)
         } catch (error) {
           logger.error('[Loki] Migration failed', error)
+          // Steps that ran before the failure changed the database in memory. It must not be saved,
+          // so that the persisted database is left at the old version, unchanged
+          lokiFatalError(this.loki)
           throw error
         }
       } else {
@@ -390,8 +394,15 @@ export default class DatabaseDriver {
         this._executeCreateTableMigration(step)
       } else if (step.type === 'add_columns') {
         this._executeAddColumnsMigration(step)
+      } else if (step.type === 'destroy_table') {
+        this._executeDestroyTableMigration(step)
+      } else if (step.type === 'loki') {
+        step.execute(this.loki)
       } else if (step.type === 'sql') {
-        // ignore
+        const sql = step.sql.length > 200 ? `${step.sql.slice(0, 200)}…` : step.sql
+        logger.warn(
+          `[Loki] Ignoring unsafeExecuteSql() migration step, because SQL can't be executed on LokiJS. If it changes data or tables, add an unsafeExecuteLoki() step that does the same on LokiJS (or use destroyTable() to destroy a table). SQL: ${sql}`,
+        )
       } else {
         throw new Error(`Unsupported migration step ${step.type}`)
       }
@@ -423,6 +434,11 @@ export default class DatabaseDriver {
         collection.ensureIndex(column.name)
       }
     })
+  }
+
+  _executeDestroyTableMigration({ table }: DestroyTableMigrationStep): void {
+    destroyCollection(this.loki, table)
+    this.cachedRecords.delete(table)
   }
 
   // Maps records to their IDs if the record is already cached on JS side

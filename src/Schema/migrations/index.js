@@ -26,7 +26,22 @@ export type SqlMigrationStep = $RE<{
   sql: string,
 }>
 
-export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep | SqlMigrationStep
+export type DestroyTableMigrationStep = $RE<{
+  type: 'destroy_table',
+  table: TableName<any>,
+}>
+
+export type LokiMigrationStep = $RE<{
+  type: 'loki',
+  execute: (loki: any) => void,
+}>
+
+export type MigrationStep =
+  | CreateTableMigrationStep
+  | AddColumnsMigrationStep
+  | SqlMigrationStep
+  | DestroyTableMigrationStep
+  | LokiMigrationStep
 
 type Migration = $RE<{
   toVersion: SchemaVersion,
@@ -170,12 +185,38 @@ export function unsafeExecuteSql(sql: string): SqlMigrationStep {
   return { type: 'sql', sql }
 }
 
+// Destroys a table and all its records. On SQLite, this is `DROP TABLE IF EXISTS`, on LokiJS, the
+// collection is removed and its data is deleted from IndexedDB (so it's no longer loaded on launch).
+// Destroying a table that doesn't exist (e.g. dropped earlier using `unsafeExecuteSql`) is a no-op,
+// except that LokiJS still deletes its leftover data from IndexedDB, if any
+export function destroyTable({
+  table,
+}: $Exact<{ table: TableName<any> }>): DestroyTableMigrationStep {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(typeof table === 'string' && table, `Missing table name in destroyTable()`)
+    invariant(
+      table.toLowerCase() !== 'local_storage',
+      `local_storage is used internally by WatermelonDB and can't be destroyed`,
+    )
+  }
+  return { type: 'destroy_table', table }
+}
+
+// LokiJS counterpart of `unsafeExecuteSql`: `execute` is called with the Loki instance during the
+// migration (synchronously - it must not return a Promise). Ignored on SQLite. Not supported with
+// LokiJSAdapter `useWebWorker: true`.
+export function unsafeExecuteLoki(execute: (loki: any) => void): LokiMigrationStep {
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(typeof execute === 'function', `unsafeExecuteLoki expects a function`)
+  }
+  return { type: 'loki', execute }
+}
+
 /*
 
 TODO: Those types of migrations are currently not implemented. If you need them, feel free to contribute!
 
 // table operations
-destroyTable('table_name')
 renameTable({ from: 'old_table_name', to: 'new_table_name' })
 
 // column operations

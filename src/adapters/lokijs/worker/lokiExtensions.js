@@ -111,6 +111,72 @@ export async function deleteDatabase(loki: Loki): Promise<void> {
   })
 }
 
+// Removes a collection from Loki, and, if it's persisted using IncrementalIndexedDBAdapter, deletes
+// its chunks from IndexedDB on next save. (Otherwise, the adapter would keep the chunks of collections
+// that no longer exist forever, and load and parse them on every launch.) Also deletes leftover
+// chunks if the collection doesn't exist in Loki anymore.
+export function destroyCollection(loki: Loki, name: string): void {
+  // NOTE: Not using loki.removeCollection(), because it throws for collections that were loaded by
+  // IncrementalIndexedDBAdapter, but not yet accessed (their `data` is a getter that loads them lazily)
+  const index = loki.collections.findIndex((collection) => collection.name === name)
+  if (index !== -1) {
+    loki.collections.splice(index, 1)
+  }
+
+  // NOTE: This relies on internals of IncrementalIndexedDBAdapter of the exact lokijs version
+  // WatermelonDB depends on (covered by tests against fake-indexeddb)
+  const adapter: any = loki.persistenceAdapter
+  if (adapter && adapter.mode === 'incremental') {
+    if (typeof adapter._putInChunks === 'function' && typeof adapter.saveDatabase === 'function') {
+      getDestroyedCollections(adapter).add(name)
+    } else {
+      logger.warn(
+        `[Loki] Cannot delete persisted data of destroyed table ${name}, because the persistence adapter is not supported`,
+      )
+    }
+  }
+}
+
+// Collection chunks are deleted in the same IndexedDB transaction that saves Loki metadata without
+// the collection, so that the persisted database is consistent even if the page is closed mid-way
+function getDestroyedCollections(adapter: any): Set<string> {
+  if (adapter._destroyedCollections) {
+    return adapter._destroyedCollections
+  }
+
+  const destroyed: Set<string> = new Set()
+  // names of collections deleted by the save in progress (saves are serialized by Loki)
+  let deleting: string[] = []
+
+  const putInChunks = adapter._putInChunks
+  adapter._putInChunks = (idbStore: any, ...args: any[]) => {
+    deleting = Array.from(destroyed)
+    deleting.forEach((name) => {
+      // NOTE: Chunk keys are `name.metadata` and `name.chunk.N`. Requests in a transaction are
+      // performed in order, so if a collection with the same name was created again, its chunks
+      // are put after the old ones are deleted.
+      // $FlowFixMe
+      idbStore.delete(IDBKeyRange.bound(`${name}.`, `${name}.\uffff`))
+    })
+    return putInChunks.call(adapter, idbStore, ...args)
+  }
+
+  const saveDatabase = adapter.saveDatabase
+  adapter.saveDatabase = (dbname: string, getLokiCopy: any, callback: (error: any) => void) =>
+    saveDatabase.call(adapter, dbname, getLokiCopy, (error) => {
+      // If the save failed, chunks will be deleted by the next one. Otherwise, we must stop deleting
+      // them, in case the collection was created again
+      if (!error) {
+        deleting.forEach((name) => destroyed.delete(name))
+      }
+      deleting = []
+      callback(error)
+    })
+
+  adapter._destroyedCollections = destroyed
+  return destroyed
+}
+
 // In case of a fatal error, break Loki so that it cannot save its contents to disk anymore
 // This might result in a loss of data in recent changes, but we assume that whatever caused the
 // fatal error has corrupted the database, so we want to prevent it from being persisted

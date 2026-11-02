@@ -18,7 +18,22 @@ export type SqlMigrationStep = $RE<{
   sql: string
 }>
 
-export type MigrationStep = CreateTableMigrationStep | AddColumnsMigrationStep | SqlMigrationStep
+export type DestroyTableMigrationStep = $RE<{
+  type: 'destroy_table'
+  table: TableName<any>
+}>
+
+export type LokiMigrationStep = $RE<{
+  type: 'loki'
+  execute: (loki: any) => void
+}>
+
+export type MigrationStep =
+  | CreateTableMigrationStep
+  | AddColumnsMigrationStep
+  | SqlMigrationStep
+  | DestroyTableMigrationStep
+  | LokiMigrationStep
 
 type Migration = $RE<{
   toVersion: SchemaVersion
@@ -51,3 +66,7 @@ export function addColumns({
 }>): AddColumnsMigrationStep
 
 export function unsafeExecuteSql(sql: string): SqlMigrationStep
+
+export function destroyTable({ table }: $Exact<{ table: TableName<any> }>): DestroyTableMigrationStep
+
+export function unsafeExecuteLoki(execute: (loki: any) => void): LokiMigrationStep
