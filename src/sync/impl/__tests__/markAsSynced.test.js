@@ -8,6 +8,7 @@ import {
   makeLocalChanges,
   makeChangeSet,
   sorted,
+  countingElementReads,
 } from './helpers'
 
 import { fetchLocalChanges, markLocalChangesAsSynced } from '../index'
@@ -198,6 +199,26 @@ describe('markLocalChangesAsSynced', () => {
   })
   it.skip(`doesn't send _status, _changed fields`, async () => {
     // TODO: Future improvement
+  })
+  it('looks up affected records in linear time', async () => {
+    const { database, projects, tasks } = makeDatabase()
+
+    const count = 1000
+    await database.write(async () => {
+      const records = []
+      for (let i = 0; i < count; i += 1) {
+        records.push(projects.prepareCreate(), tasks.prepareCreate())
+      }
+      await database.batch(records)
+    })
+
+    const localChanges = await fetchLocalChanges(database)
+    const [affectedRecords, counter] = countingElementReads(localChanges.affectedRecords)
+    await markLocalChangesAsSynced(database, { ...localChanges, affectedRecords })
+
+    expect(await fetchLocalChanges(database)).toEqual(emptyLocalChanges)
+    // a lookup by scanning affectedRecords would read them ~count^2 times
+    expect(counter.reads).toBeLessThanOrEqual(2 * count * 2)
   })
   it.skip('only returns changed fields', async () => {
     // TODO: Possible future improvement?

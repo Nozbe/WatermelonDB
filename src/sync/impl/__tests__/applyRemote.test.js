@@ -14,6 +14,7 @@ import {
   makeChangeSet,
   expectDoesNotExist,
   prepareCreateFromRaw,
+  countingElementReads,
 } from './helpers'
 
 import { fetchLocalChanges, applyRemoteChanges } from '../index'
@@ -505,5 +506,39 @@ describe('applyRemoteChanges', () => {
     // Now actually fetch tSynced to trigger RecordCache corruption
     //   Record ID mock_tasks#tSynced was sent over the bridge, but it's not cached
     await database.get('mock_tasks').find('tSynced')
+  })
+  it('checks locally deleted records in linear time', async () => {
+    const { database, tasks } = makeDatabase()
+    const { adapter } = database
+
+    const count = 1000
+    const ids = Array.from({ length: count }, (_, i) => `t${i}`)
+    await database.write(async () => {
+      const records = ids.map((id) => prepareCreateFromRaw(tasks, { id }))
+      await database.batch(records)
+      await database.batch(records.map((record) => record.prepareMarkAsDeleted()))
+    })
+
+    const getDeletedRecords = adapter.getDeletedRecords.bind(adapter)
+    let counter = null
+    adapter.getDeletedRecords = async (table) => {
+      const deletedIds = await getDeletedRecords(table)
+      if (table !== 'mock_tasks') {
+        return deletedIds
+      }
+      const [proxy, _counter] = countingElementReads(deletedIds)
+      counter = _counter
+      return proxy
+    }
+
+    await testApplyRemoteChanges(database, {
+      mock_tasks: { updated: ids.map((id) => ({ id, name: 'remote' })) },
+    })
+
+    // updates of locally deleted records are ignored
+    expect(await getDeletedRecords('mock_tasks')).toHaveLength(count)
+    expect((await tasks.find('t0'))._raw).toMatchObject({ _status: 'deleted', name: '' })
+    // checking each update with locallyDeletedIds.includes() would read them ~count^2 times
+    expect(counter.reads).toBeLessThanOrEqual(3 * count)
   })
 })

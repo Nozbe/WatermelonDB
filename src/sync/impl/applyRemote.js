@@ -84,7 +84,7 @@ type RecordsToApplyRemoteChangesTo<T: Model> = $Exact<{
   ...SyncTableChangeSet,
   recordsMap: Map<RecordId, RawRecord>,
   recordsToDestroy: T[],
-  locallyDeletedIds: RecordId[],
+  locallyDeletedIds: Set<RecordId>,
   deletedRecordsToDestroy: RecordId[],
 }>
 
@@ -107,7 +107,7 @@ async function recordsToApplyRemoteChangesTo_incremental<T: Model>(
   return {
     ...changes,
     recordsMap: new Map(rawRecords.map((raw) => [raw.id, raw])),
-    locallyDeletedIds,
+    locallyDeletedIds: new Set(locallyDeletedIds),
     recordsToDestroy: rawRecords
       .filter((raw) => deletedIdsSet.has(raw.id))
       .map((raw) => recordFromRaw(raw, collection)),
@@ -171,7 +171,7 @@ async function recordsToApplyRemoteChangesTo_replacement<T: Model>(
   return {
     ...changes,
     recordsMap: new Map(rawRecords.map((raw) => [raw.id, raw])),
-    locallyDeletedIds,
+    locallyDeletedIds: new Set(locallyDeletedIds),
     recordsToDestroy: rawRecords
       .filter((raw) => {
         if (deletedIdsSet.has(raw.id)) {
@@ -294,7 +294,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
       recordsToBatch.push(
         prepareUpdateFromRaw(currentRecord, raw, collection, log, conflictResolver),
       )
-    } else if (locallyDeletedIds.includes(raw.id)) {
+    } else if (locallyDeletedIds.has(raw.id)) {
       logError(
         `[Sync] Server wants client to create record ${table}#${raw.id}, but it already exists locally and is marked as deleted. This may suggest last sync partially executed, and then failed; or it could be a serious bug. Will delete local record and recreate it instead.`,
       )
@@ -314,7 +314,7 @@ function prepareApplyRemoteChangesToCollection<T: Model>(
       recordsToBatch.push(
         prepareUpdateFromRaw(currentRecord, raw, collection, log, conflictResolver),
       )
-    } else if (locallyDeletedIds.includes(raw.id)) {
+    } else if (locallyDeletedIds.has(raw.id)) {
       // Nothing to do, record was locally deleted, deletion will be pushed later
     } else {
       // Record doesn't exist (but should) — just create it
