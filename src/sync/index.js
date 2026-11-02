@@ -97,7 +97,10 @@ export type SyncArgs = $Exact<{
   // If you don't want to change default behavior for a given record, return `resolved` as is
   // Note that it's safe to mutate `resolved` object, so you can skip copying it for performance.
   conflictResolver?: SyncConflictResolver,
-  // commits changes in multiple batches, and not one - temporary workaround for memory issue
+  // commits changes in multiple batches (of up to 5000 records, one after another), and not one.
+  // This shrinks the payload of each batch sent to the native database (bridge/JSI), NOT the JS
+  // memory used by sync - all pulled changes are still in memory. Not transactional: if a batch
+  // fails, earlier batches stay committed. Observers are notified once, after all batches
   _unsafeBatchPerCollection?: boolean,
   // Advanced optimization - pullChanges must return syncJson or syncJsonId to be processed by native code.
   // This can only be used on initial (login) sync, not for incremental syncs.

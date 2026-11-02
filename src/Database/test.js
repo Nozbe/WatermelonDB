@@ -472,6 +472,49 @@ describe('Database', () => {
       await database.write(() => tasks.create())
       expect(subscriber).toHaveBeenCalledTimes(4)
     })
+    it('notifies once for all changes made within experimentalBatchNotifications', async () => {
+      const { database, projects, tasks, comments } = mockDatabase()
+
+      const subscriber = jest.fn()
+      const unsubscribe = database.experimentalSubscribe(['mock_projects', 'mock_tasks'], subscriber)
+      const projectsObserver = jest.fn()
+      projects.changes.subscribe(projectsObserver)
+      const tasksObserver = jest.fn()
+      tasks.changes.subscribe(tasksObserver)
+
+      let p1
+      let p2
+      let t1
+      await database.experimentalBatchNotifications(async () => {
+        p1 = await database.write(() => projects.create())
+        await database.write(async () => {
+          p2 = projects.prepareCreate()
+          t1 = tasks.prepareCreate()
+          await database.batch(p2, t1)
+        })
+        await database.write(() => p1.update())
+        expect(subscriber).toHaveBeenCalledTimes(0)
+      })
+
+      expect(subscriber).toHaveBeenCalledTimes(1)
+      expect(projectsObserver.mock.calls).toEqual([
+        [
+          [
+            { record: p1, type: 'created' },
+            { record: p2, type: 'created' },
+            { record: p1, type: 'updated' },
+          ],
+        ],
+      ])
+      expect(tasksObserver.mock.calls).toEqual([[[{ record: t1, type: 'created' }]]])
+
+      // nothing to notify about
+      await database.experimentalBatchNotifications(async () => {
+        await database.write(() => comments.create())
+      })
+      expect(subscriber).toHaveBeenCalledTimes(1)
+      unsubscribe()
+    })
     it('has new objects cached before calling subscribers (regression test)', async () => {
       const { database, projects, tasks } = mockDatabase()
 
