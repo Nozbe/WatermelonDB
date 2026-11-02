@@ -67,6 +67,8 @@ export default class Model {
 
   _preparedState: null | 'create' | 'update' | 'markAsDeleted' | 'destroyPermanently' = null
 
+  __columnsSetOnCreate: ?(ColumnName[]) = null
+
   __changes: ?BehaviorSubject<$FlowFixMe<this>> = null
 
   _getChanges(): BehaviorSubject<$FlowFixMe<this>> {
@@ -368,8 +370,22 @@ export default class Model {
 
     record._preparedState = 'create'
     record._isEditing = true
+    const columnsSet: ColumnName[] = []
+    record.__columnsSetOnCreate = columnsSet
     ensureSync(recordBuilder(record))
+    record.__columnsSetOnCreate = null
     record._isEditing = false
+
+    // Track columns set while building a locally created record, so that sync can resolve a
+    // conflict with a remote record of the same id per column (locally set columns win).
+    // Checked after the builder runs, since it may also change the record's sync status
+    if (columnsSet.length && record._raw._status === 'created') {
+      const changed = new Set(record._raw._changed ? record._raw._changed.split(',') : [])
+      columnsSet.forEach((column) => {
+        changed.add(column)
+      })
+      record._raw._changed = Array.from(changed).join(',')
+    }
 
     record.__logVerbose('prepareCreate')
 
@@ -439,7 +455,10 @@ export default class Model {
     const valueBefore = this._raw[(rawFieldName: string)]
     setRawSanitized(this._raw, rawFieldName, rawValue, this.collection.schema.columns[rawFieldName])
 
-    if (valueBefore !== this._raw[(rawFieldName: string)] && this._preparedState !== 'create') {
+    if (this._preparedState === 'create') {
+      // See _prepareCreate
+      this.__columnsSetOnCreate && this.__columnsSetOnCreate.push(rawFieldName)
+    } else if (valueBefore !== this._raw[(rawFieldName: string)]) {
       setRawColumnChange(this._raw, rawFieldName)
     }
   }

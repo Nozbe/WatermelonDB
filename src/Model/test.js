@@ -127,7 +127,7 @@ describe('CRUD', () => {
     expect(m1._raw).toEqual({
       id: m1.id,
       _status: 'created',
-      _changed: '',
+      _changed: 'name',
       name: 'Some name',
       otherfield: '',
       col3: '',
@@ -578,7 +578,7 @@ describe('Sync status fields', () => {
       })
 
       expect(model._raw._status).toBe('created')
-      expect(model._raw._changed).toBe('')
+      expect(model._raw._changed).toBe('name,otherfield')
 
       // update created record
       await model.update(() => {
@@ -589,7 +589,7 @@ describe('Sync status fields', () => {
       })
 
       expect(model._raw._status).toBe('created')
-      expect(model._raw._changed).toBe('col3,col4')
+      expect(model._raw._changed).toBe('name,otherfield,col3,col4')
 
       // update synced record
       const model2 = new MockModel(
@@ -678,18 +678,44 @@ describe('Sync status fields', () => {
         record.name = 'Initial name'
       })
 
+      // columns set when creating a record are tracked, so that sync can resolve conflicts per column
       expect(mock._raw._status).toBe('created')
-      expect(mock._raw._changed).toBe('')
+      expect(mock._raw._changed).toBe('name')
 
       expect(mock.syncStatus).toBe('created')
 
       // updating a status:created record DOES add to changed (as of v23)
       await mock.update((record) => {
-        record.name = 'New name'
+        record.otherfield = 'New value'
       })
 
       expect(mock.syncStatus).toBe('created')
-      expect(mock._raw._changed).toBe('name')
+      expect(mock._raw._changed).toBe('name,otherfield')
+    })
+  })
+  it('tracks columns set on create even if equal to the default, but not for synced records', async () => {
+    const db = makeDatabase()
+    db.adapter.batch = jest.fn()
+    await db.write(async () => {
+      const mock = await db.get('mock').create((record) => {
+        record._setRaw('number', 0)
+      })
+      expect(mock._raw._changed).toBe('number')
+
+      const synced = await db.get('mock').create((record) => {
+        record._raw._status = 'synced'
+        record.name = 'Remote name'
+      })
+      expect(synced._raw._status).toBe('synced')
+      expect(synced._raw._changed).toBe('')
+
+      // ...also if sync status is set after the columns
+      const syncedLast = await db.get('mock').create((record) => {
+        record.name = 'Remote name'
+        record._raw._status = 'synced'
+      })
+      expect(syncedLast._raw._status).toBe('synced')
+      expect(syncedLast._raw._changed).toBe('')
     })
   })
   it('marks updated records with changed fields', async () => {
