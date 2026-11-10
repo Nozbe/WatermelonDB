@@ -255,8 +255,10 @@ public class WMDatabaseDriver {
         } else if (databaseVersion < schemaVersion) {
             return new SchemaCompatibility.NeedsMigration(databaseVersion);
         } else {
-            log.info("com.nozbe.watermelondb.Database has newer version (" + databaseVersion + ") than what the " +
-                    "app supports (" + schemaVersion + "). Will reset database.");
+            if (log != null) {
+                log.info("com.nozbe.watermelondb.Database has newer version (" + databaseVersion + ") than what the " +
+                        "app supports (" + schemaVersion + "). Will reset database.");
+            }
             return new SchemaCompatibility.NeedsSetup();
         }
     }
